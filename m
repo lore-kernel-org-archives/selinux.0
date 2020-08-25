@@ -2,715 +2,305 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26987C433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EFEBC433E4
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAFAA20706
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6DC0420706
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="CNCkUIho"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ZVKfOOMJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbgHYIi0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:26 -0400
-Received: from mailomta26-sa.btinternet.com ([213.120.69.32]:46596 "EHLO
+        id S1728605AbgHYIi1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:27 -0400
+Received: from mailomta12-sa.btinternet.com ([213.120.69.18]:35296 "EHLO
         sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728605AbgHYIiS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:18 -0400
+        by vger.kernel.org with ESMTP id S1728873AbgHYIiR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:17 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
           by sa-prd-fep-047.btinternet.com with ESMTP
-          id <20200825083811.VUFQ4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          id <20200825083811.VUFS4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
           Tue, 25 Aug 2020 09:38:11 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344691; 
-        bh=XfI7YSDz9AOp789EAuW2cs4yNvVPVMWv3AJxxnNBuDM=;
+        bh=smUIFAcgfgCcaohr4VEO5dUM7n+qDg7USg195rx+kqc=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=CNCkUIhoa7mHCwXF7mmtH9A0ynLUiLL4v8R6HGTHtKmLlrYhxpDrAyqQIGi8UA/mg0Pk+ctkeRSZkDlfPhRA4hCBBpqWws16yFpn6xY63dwPjnZNlEV65LN2fC1+TRgvJRka+qKH8GQ9sqWmlksFxnWQ97Z/lFPZV0g7Nf+QR59dEcISXN4y1KcPQCp5HVvQpb5QZY3tWqxber+Qh8T+HRfDC8twSpjntvgSFOwX+d2c85bWmLSjkWmrvUpJzkVOf+mciB9r1ubfOp/fMhA4eKG6luq2kWUFkzf34id0Ltjy01APVhuaBbL72Iet3iIiZbqY8ewrCrveXDrX0TTffg==
+        b=ZVKfOOMJQcctAr/W7yHWe9mv3YH5rosudMU/N4NeWz5X5FW9SDjRWoYwzhiZk2PLrgsJeqw3KaVcRKrkBwYZYyPn4LHrL0VkHMa2oQUB0oUlYypCfzuaohoLMeSGYL2bOqzZCfuDccGXfJ66Z7uyNmGHMxlO+6N8Iszz1tnzRRWE67VUAqIbuv3ymZAE2iImEmcIgVkOU8Ob7t7b3SYDteLKVYklcrgrC5jZn1C7NydkVHU4Ml6W7YVZU85o8nB/CLUVqETXCzXpa4sSfOl7bepnqxmf6HPuJ3ZbX5cMQXLfSQlvTLeIhXH8NeRrgmRFKjLdB6swQQ9TklnFgx+STw==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepvdejfeehfeduhfevjeehheejkefgvdekvdegueelffdtkeeghfekveduveffieevnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhg
+        vghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599E2E; Tue, 25 Aug 2020 09:38:11 +0100
+        id 5ED9B8A70D599E3C; Tue, 25 Aug 2020 09:38:11 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 11/18] constraint_statements: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:36 +0100
-Message-Id: <20200825083743.6508-12-richard_c_haines@btinternet.com>
+Subject: [PATCH 12/18] core_components: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:37 +0100
+Message-Id: <20200825083743.6508-13-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add a TOC to aid navigation and convert to markdown.
+Convert to markdown
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/constraint_statements.md | 562 ++++++++++++++++-------------------
- 1 file changed, 251 insertions(+), 311 deletions(-)
+ src/core_components.md | 211 +++++++++++++++++++----------------------
+ 1 file changed, 99 insertions(+), 112 deletions(-)
 
-diff --git a/src/constraint_statements.md b/src/constraint_statements.md
-index 4834f6b..4c9a621 100644
---- a/src/constraint_statements.md
-+++ b/src/constraint_statements.md
-@@ -1,93 +1,82 @@
- # Constraint Statements
+diff --git a/src/core_components.md b/src/core_components.md
+index 0bb9058..eeb1945 100644
+--- a/src/core_components.md
++++ b/src/core_components.md
+@@ -3,19 +3,19 @@
+ **Figure 1** shows a high level diagram of the SELinux core components that
+ manage enforcement of the policy and comprise of the following:
  
-+- [*constrain*](#constrain)
-+- [*validatetrans*](#validatetrans)
-+- [*mlsconstrain*](#mlsconstrain)
-+- [*mlsvalidatetrans*](#mlsvalidatetrans)
-+
- ## *constrain*
+-1.  A [**Subjects**](subjects.md#subjects) that must be present to cause an action
+-    to be taken by an [**Objects**](objects.md#objects) (such as read a file as
+-    information only flows when a subject is involved).
+-2.  An Object Manager that knows the actions required of the particular
+-    resource (such as a file) and can enforce those actions (i.e. allow
+-    it to write to a file if permitted by the policy).
+-3.  A Security Server that makes decisions regarding the subjects rights
+-    to perform the requested action on the object, based on the security
+-    policy rules.
+-4.  A Security Policy that describes the rules using the SELinux
+-    [**Kernel Policy Language**](kernel_policy_language.md#kernel-policy-language)).
+-5.  An Access Vector Cache (AVC) that improves system performance by
+-    caching security server decisions.
++1. A [**Subject**](subjects.md#subjects) that must be present to cause an action
++   to be taken by an [**Object**](objects.md#objects) (such as read a file as
++   information only flows when a subject is involved).
++2. An Object Manager that knows the actions required of the particular
++   resource (such as a file) and can enforce those actions (i.e. allow
++   it to write to a file if permitted by the policy).
++3. A Security Server that makes decisions regarding the subjects rights
++   to perform the requested action on the object, based on the security
++   policy rules.
++4. A Security Policy that describes the rules using the SELinux
++   [**Kernel Policy Language**](kernel_policy_language.md#kernel-policy-language)).
++5. An Access Vector Cache (AVC) that improves system performance by
++   caching security server decisions.
  
--The constrain statement allows further restriction on permissions for
-+The *constrain* statement allows further restriction on permissions for
- the specified object classes by using boolean expressions covering:
- source and target types, roles and users as described in the examples.
+ ![](./images/1-core.png)
  
- **The statement definition is:**
+@@ -33,113 +33,100 @@ supporting services that are used to manage the SELinux environment.
+ This diagram will be referenced a number of times to explain areas of
+ SELinux, therefore starting from the bottom:
  
- ```
--constrain class perm_set expression;
-+constrain class perm_set expression | expr ...;
- ```
+-1.  In the current implementation of SELinux the security server is
+-    embedded in the kernel with the policy being loaded from userspace via a
+-    series of functions contained in the **libselinux** library (see
+-    [**SELinux Userspace Libraries**](userspace_libraries.md#selinux-userspace-libraries) for details).
+-
+-    The object managers (OM) and access vector cache (AVC) can reside in:
+-
+--   **kernel space** - These object manages are for the kernel services such
+-as files, directory, socket, IPC etc. and are provided by hooks into the
+-SELinux sub-system via the Linux Security Module (LSM) framework (shown
+-as LSM Hooks in ) that is discussed in the
+-[**Linux Security Module and SELinux**](lsm_selinux.md#linux-security-module-and-selinux)
+- section. The SELinux kernel AVC service is used to cache the security servers
+-response to the kernel based object managers thus speeding up access decisions
+-should the same request be asked in future.
+-
+--   **userspace** - These object managers are provided with the application
+-    or service that requires support for MAC and are known as
+-    'SELinux-aware' applications or services. Examples of these are:
+-    X-Windows, D-bus messaging (used by the Gnome desktop), PostgreSQL
+-    database, Name Service Cache Daemon (*nscd*), and the GNU / Linux passwd
+-    command. Generally, these OMs use the AVC services built into the
+-    SELinux library (libselinux), however they could, if required supply
+-    their own AVC or not use an AVC at all (see
+-    [**Implementing SELinux-aware Applications**](implementing_seaware_apps.md#implementing-selinux-aware-applications) for details).
+-
+-2.  The SELinux security policy (right hand side of **Figure 2**) and its
+-supporting configuration files are contained in the /etc/selinux directory.
+-This directory contains the main SELinux configuration file *config* that has
+-the name of the policy to be loaded (via the *SELINUXTYPE* entry) and the initial
+-enforcement mode<a href="#fnc1" class="footnote-ref" id="fncor1"><sup>1</sup></a>
+-of the policy at load time (via the *SELINUX* entry).
+-The /etc/selinux/*&lt;SELINUXTYPE&gt;* directories
+-contain policies that can be activated along with their configuration
+-files (e.g. '*SELINUXTYPE=targeted*' will have its policy and associated
+-configuration files located at */etc/selinux/targeted*). All known
+-configuration files are shown in the
+-[**SELinux Configuration Files**](configuration_files.md#selinux-configuration-files)
+-sections.
+-
+-3.  SELinux supports a 'modular policy', this means that a policy does not
+-have to be one large source policy but can be built from modules. A
+-modular policy consists of a base policy that contains the mandatory
+-information (such as object classes, permissions etc.), and zero or more
+-policy modules where generally each supports a particular application or
+-service. These modules are compiled, linked, and held in a 'policy
+-store' where they can be built into a binary format that is then loaded
+-into the security server (in the diagram the binary policy is located at
+-*/etc/selinux/targeted/policy/policy.30*). The types of policy and their
+-construction are covered in the
+-[**Types of SELinux Policy**](types_of_policy.md#types-of-selinux-policy)
+-section.
+-
+-4.  To be able to build the policy in the first place, policy source is
+-required (top left hand side of **Figure 2**). This can be supplied in three
+-basic ways:
+-
+--  as source code written using the
+-[**Kernel Policy Language**](kernel_policy_language.md#kernel-policy-language),
+-however it is not recommended for large policy developments.
+--  using the **Reference Policy** that has high
+-level macros to define policy rules. This is the standard way
+-policies are now built for SELinux distributions such as Red Hat
+-and Debian and is discussed in the
+-[**The Reference Policy**](reference_policy.md#the-reference-policy)
+-section. Note that SE for Android also uses high level macros to define
+-policy rules.
+--  using CIL (Common Intermediate Language). An overview can be found
+-in the [**CIL Policy Language**](cil_overview.md#cil-overview)
+-section. The <https://github.com/DefenSec/dssp> is a good example.
+-
++1. In the current implementation of SELinux the security server is
++   embedded in the kernel with the policy being loaded from userspace via a
++   series of functions contained in the **libselinux** library (see
++   [**SELinux Userspace Libraries**](userspace_libraries.md#selinux-userspace-libraries)
++   for details). The object managers (OM) and access vector cache (AVC) can
++   reside in:
++   - **kernel space** - These object manages are for the kernel services such
++     as files, directory, socket, IPC etc. and are provided by hooks into the
++     SELinux sub-system via the Linux Security Module (LSM) framework (shown
++     as LSM Hooks in ) that is discussed in the
++     [**Linux Security Module and SELinux**](lsm_selinux.md#linux-security-module-and-selinux)
++     section. The SELinux kernel AVC service is used to cache the security
++     servers response to the kernel based object managers thus speeding up
++     access decisions should the same request be asked in future.
++   - **userspace** - These object managers are provided with the application
++     or service that requires support for MAC and are known as
++     'SELinux-aware' applications or services. Examples of these are:
++     X-Windows, D-bus messaging (used by the Gnome desktop), PostgreSQL
++     database, Name Service Cache Daemon (*nscd*), and the GNU / Linux passwd
++     command. Generally, these OMs use the AVC services built into the
++     SELinux library (libselinux), however they could, if required supply
++     their own AVC or not use an AVC at all (see
++     [**Implementing SELinux-aware Applications**](implementing_seaware_apps.md#implementing-selinux-aware-applications)
++     for details).
++2. The SELinux security policy (right hand side of **Figure 2**) and its
++   supporting configuration files are contained in the /etc/selinux directory.
++   This directory contains the main SELinux configuration file *config* that has
++   the name of the policy to be loaded (via the *SELINUXTYPE* entry) and the
++   initial enforcement mode[^fn_cc_1] of the policy at load time (via the
++   *SELINUX* entry). The */etc/selinux/\<SELINUXTYPE\>* directories contain
++   policies that can be activated along with their configuration files (e.g.
++   '*SELINUXTYPE=targeted*' will have its policy and associated configuration
++   files located at */etc/selinux/targeted*). All known configuration files are
++   shown in the
++   [**SELinux Configuration Files**](configuration_files.md#selinux-configuration-files)
++   sections.
++3. SELinux supports a 'modular policy', this means that a policy does not
++   have to be one large source policy but can be built from modules. A
++   modular policy consists of a base policy that contains the mandatory
++   information (such as object classes, permissions etc.), and zero or more
++   policy modules where generally each supports a particular application or
++   service. These modules are compiled, linked, and held in a 'policy
++   store' where they can be built into a binary format that is then loaded
++   into the security server (in the diagram the binary policy is located at
++   */etc/selinux/targeted/policy/policy.30*). The types of policy and their
++   construction are covered in the
++   [**Types of SELinux Policy**](types_of_policy.md#types-of-selinux-policy)
++   section.
++4. To be able to build the policy in the first place, policy source is
++   required (top left hand side of **Figure 2**). This can be supplied in three
++   basic ways:
++   1. as source code written using the
++      [**Kernel Policy Language**](kernel_policy_language.md#kernel-policy-language),
++      however it is not recommended for large policy developments.
++   2. using the **Reference Policy** that has high
++      level macros to define policy rules. This is the standard way
++      policies are now built for SELinux distributions such as Red Hat
++      and Debian and is discussed in the
++      [**The Reference Policy**](reference_policy.md#the-reference-policy)
++      section. Note that SE for Android also uses high level macros to define
++      policy rules.
++   3. using CIL (Common Intermediate Language). An overview can be found
++      in the [**CIL Policy Language**](cil_overview.md#cil-overview)
++      section. The <https://github.com/DefenSec/dssp> is a good example.
+ 5. To be able to compile and link the policy source then load it into the
+-security server requires a number of tools (top of **Figure 2**).
+-
+-6.  To enable system administrators to manage policy, the SELinux
+-environment and label file systems, tools and modified GNU / Linux
+-commands are used. These are mentioned throughout the Notebook as needed
+-and summarised in
+-[**SELinux Commands**](selinux_cmds.md#appendix-c---selinux-commands).
+-Note that there are many other applications to manage policy, however this
+-Notebook only concentrates on the core services.
+-
+-7.  To ensure security events are logged, GNU / Linux has an audit service
+-that captures policy violations. The
+-[**Auditing Events**](auditing.md#auditing-selinux-events)
+-section describes the format of these security events.
+-
+-8.  SELinux supports network services that are described in the
+-[**SELinux Networking Support**](network_support.md#selinux-networking-support)
+-section.
++   security server requires a number of tools (top of **Figure 2**).
++6. To enable system administrators to manage policy, the SELinux
++   environment and label file systems, tools and modified GNU / Linux
++   commands are used. These are mentioned throughout the Notebook as needed
++   and summarised in
++   [**SELinux Commands**](selinux_cmds.md#appendix-c---selinux-commands).
++   Note that there are many other applications to manage policy, however this
++   Notebook only concentrates on the core services.
++7. To ensure security events are logged, GNU / Linux has an audit service
++   that captures policy violations. The
++   [**Auditing Events**](auditing.md#auditing-selinux-events)
++   section describes the format of these security events.
++8. SELinux supports network services that are described in the
++   [**SELinux Networking Support**](network_support.md#selinux-networking-support)
++   section.
  
- **Where:**
+ The [**Linux Security Module and SELinux**](lsm_selinux.md#linux-security-module-and-selinux)
+ section goes into greater detail of the LSM / SELinux modules with a walk
+ through of a ***fork**(2)* and ***exec**(2)* process.
  
--<table>
--<tbody>
--<tr>
--<td><code>constrain</code></td>
--<td>The <code>constrain</code> keyword.</td>
--</tr>
--<tr>
--<td><code>class</code></td>
--<td>One or more object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
--</tr>
--<tr>
--<td><code>perm_set</code></td>
--<td>One or more permissions. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
--</tr>
--<tr>
--<td><code>expression</code></td>
--<td>The boolean expression of the constraint that is defined as follows:</td>
--</tr>
--<tr>
--<td></td>
--<td><p> <code>( expression : expression )</code> </p>
--<p><code>| not expression</code></p>
--<p><code>| expression and expression</code></p>
--<p><code>| expression or expression</code></p>
--<p><code>| u1 op u2</code></p>
--<p><code>| r1 role_op r2</code></p>
--<p><code>| t1 op t2</code></p>
--<p><code>| u1 op names</code></p>
--<p><code>| u2 op names</code></p>
--<p><code>| r1 op names</code></p>
--<p><code>| r2 op names</code></p>
--<p><code>| t1 op names</code></p>
--<p><code>| t2 op names</code></p></td>
--</tr>
--<tr>
--<td><p>Where:</p>
--<p>u1, r1, t1 = Source user, role, type</p>
--<p>u2, r2, t2 = Target user, role, type</p>
--<p>and:</p>
--<p>op : == | != </p>
--<p>role_op : == | != | eq | dom | domby | incomp</p>
--<p>names : name | { name_list }</p>
--<p>name_list : name | name_list name</p></td>
--<td></td>
--</tr>
--</tbody>
--</table>
-+*constrain*
-+
-+The *constrain* keyword.
-+
-+*class*
-+
-+One or more object classes. Multiple entries consist of a space separated list
-+enclosed in braces \'\{\}\'.
-+
-+*perm_set*
-+
-+One or more permissions. Multiple entries consist of a space separated list
-+enclosed in braces \'\{\}\'.
-+
-+*expression*
-+
-+There must be one constraint *expression* or one or more *expr*'s. An
-+*expression* consists of '*operand operator operand*' as follows:
-+
-+- *( u1 op u2 )*
-+- *( r1 role_op r2 )*
-+- *( t1 op t2 )*
-+- *( u1 op names )*
-+- *( u2 op names )*
-+- *( r1 op names )*
-+- *( r2 op names )*
-+- *( t1 op names )*
-+- *( t2 op names )*
-+- Where:
-+  - *u1*, *r1*, *t1* = Source *user*, *role*, *type*
-+  - *u2*, *r2*, *t2* = Target *user*, *role*, *type*
-+- And:
-+  - *op : == | !=*
-+  - *role_op : == | != | eq | dom | domby | incomp*
-+  - *names : name | { name_list }*
-+  - *name_list : name | name_list name*
-+
-+*expr*
-+
-+Zero or more *expr*'s, the valid operators and syntax are:
-+
-+- *( not expression )*
-+- *( expression and expression )*
-+- *( expression or expression )*
+-<section class="footnotes">
+-<ol>
+-<li id="fnc1"><p>When SELinux is enabled, the policy can be running in 'permissive mode' (<code>SELINUX=permissive</code>), where all accesses are allowed. The policy
+-can also be run in 'enforcing mode' (<code>SELINUX=enforcing</code>), where any
++[^fn_cc_1]: When SELinux is enabled, the policy can be running in
++'permissive mode' (*SELINUX=permissive*), where all accesses are allowed.
++The policy can also be run in 'enforcing mode' (*SELINUX=enforcing*), where any
+ access that is not defined in the policy is denied and an entry placed
+ in the audit log. SELinux can also be disabled (at boot time only) by
+-setting <code>SELINUX=disabled</code>. There is also support for the
+-<a href="type_statements.md#permissive"><code>permissive</code></a>
+-statement that allows a domain to run in permissive mode while the others are still confined
+-(instead of the all or nothing set by <code>SELINUX=</code>).<a href="#fncor1" class="footnote-back">↩</a></p></li>
+-</ol>
+-</section>
++setting *SELINUX=disabled*. There is also support for the
++[***permissive***](type_statements.md#permissive) statement that allows a
++domain to run in permissive mode while the others are still confined
++(instead of all or nothing set by *SELINUX=*).
  
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Examples:**
- 
-@@ -174,12 +163,12 @@ constrain { dir file lnk_file sock_file fifo_file chr_file blk_file } { create r
- 
- ## *validatetrans*
- 
--This statement is used to control the ability to change the objects
--security context.
-+The *validatetrans* statement is used to control the ability to change the
-+objects security context.
- 
--The first context *u1.r1.t1* is the context before the transition, the
--second context *u2.r2.t2* is the context after the transition, and the
--third *u3.r3.t3* is the context of the process performing the transition.
-+The first context *u1:r1:t1* is the context before the transition, the
-+second context *u2:r2:t2* is the context after the transition, and the
-+third *u3:r3:t3* is the context of the process performing the transition.
- 
- Note there are no *validatetrans* statements specified within the
- **Reference Policy** source.
-@@ -187,95 +176,78 @@ Note there are no *validatetrans* statements specified within the
- **The statement definition is:**
- 
- ```
--validatetrans class expression;
-+validatetrans class  expression | expr ...;
- ```
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>validatetrans</code></td>
--<td>The <code>validatetrans</code> keyword.</td>
--</tr>
--<tr>
--<td><code>class</code></td>
--<td>One or more file related object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
--</tr>
--<tr>
--<td><code>expression</code></td>
--<td>The boolean expression of the constraint that is defined as follows:</td>
--</tr>
--<tr>
--<td></td>
--<td><p><code>( expression : expression )</code> </p>
--<p><code>| not expression</code></p>
--<p><code>| expression and expression</code></p>
--<p><code>| expression or expression</code></p>
--<p><code>| u1 op u2</code></p>
--<p><code>| r1 role_op r2</code></p>
--<p><code>| t1 op t2</code></p>
--<p><code>| u1 op names</code></p>
--<p><code>| u2 op names</code></p>
--<p><code>| r1 op names</code></p>
--<p><code>| r2 op names</code></p>
--<p><code>| t1 op names</code></p>
--<p><code>| t2 op names</code></p>
--<p><code>| u3 op names</code></p>
--<p><code>| r3 op names</code></p>
--<p><code>| t3 op names</p></code></td>
--</tr>
--<tr>
--<td><p>Where:</p>
--<p>u1, r1, t1 = Old user, role, type</p>
--<p>u2, r2, t2 = New user, role, type</p>
--<p>u3, r3, t3 = Process user, role, type</p>
--<p>and:</p>
--<p>op : == | !=</p>
--<p>role_op : == | != | eq | dom | domby | incomp</p>
--<p>names : name | { name_list }</p>
--<p>name_list : name | name_list name</p></td>
--<td></td>
--</tr>
--</tbody>
--</table>
-+*validatetrans*
-+
-+The *validatetrans* keyword.
-+
-+*class*
-+
-+One or more object classes. Multiple entries consist of a space separated list
-+enclosed in braces \'\{\}\'.
-+
-+*expression*
-+
-+There must be one constraint *expression* or one or more *expr*'s. An
-+*expression* consists of '*operand operator operand*' as follows:
-+
-+- *( u1 op u2 )*
-+- *( r1 role_op r2 )*
-+- *( t1 op t2 )*
-+- *( u1 op names )*
-+- *( u2 op names )*
-+- *( u3 op names )*
-+- *( r1 op names )*
-+- *( r2 op names )*
-+- *( r3 op names )*
-+- *( t1 op names )*
-+- *( t2 op names )*
-+- *( t3 op names )*
-+- Where:
-+  - *u1*, *r1*, *t1* = Source *user*, *role*, *type*
-+  - *u2*, *r2*, *t2* = Target *user*, *role*, *type*
-+  - *u3*, *r3*, *t3* = Process *user*, *role*, *type*
-+- And:
-+  - *op : == | !=*
-+  - *role_op : == | != | eq | dom | domby | incomp*
-+  - *names : name | { name_list }*
-+  - *name_list : name | name_list name*
-+
-+*expr*
-+
-+Zero or more *expr*'s, the valid operators and syntax are:
-+
-+- *( not expression )*
-+- *( expression and expression )*
-+- *( expression or expression )*
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Example:**
- 
- ```
--validatetrans { file } { t1 == unconfined_t );
-+validatetrans { file } ( t1 == unconfined_t );
- ```
- 
- ## *mlsconstrain*
- 
--The mlsconstrain statement allows further restriction on permissions for
-+The *mlsconstrain* statement allows further restriction on permissions for
- the specified object classes by using boolean expressions covering:
- source and target types, roles, users and security levels as described
- in the examples.
-@@ -283,91 +255,75 @@ in the examples.
- **The statement definition is:**
- 
- ```
--mlsconstrain class perm_set expression;
-+mlsconstrain class perm_set expression | expr ...;
- ```
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>mlsconstrain</code></td>
--<td>The <code>mlsconstrain</code> keyword.</td>
--</tr>
--<tr>
--<td><code>class</code></td>
--<td>One or more object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
--</tr>
--<tr>
--<td><code>perm_set</code></td>
--<td>One or more permissions. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
--</tr>
--<tr>
--<td><code>expression<code></td>
--<td>The boolean expression of the constraint that is defined as follows:</td>
--</tr>
--<tr>
--<td></td>
--<td><p><code> ( expression : expression ) </code></p>
--<p><code>| not expression</code></p>
--<p><code>| expression and expression</code></p>
--<p><code>| expression or expression</code></p>
--<p><code>| u1 op u2</code></p>
--<p><code>| r1 role_mls_op r2</code></p>
--<p><code>| t1 op t2</code></p>
--<p><code>| l1 role_mls_op l2</code></p>
--<p><code>| l1 role_mls_op h2</code></p>
--<p><code>| h1 role_mls_op l2</code></p>
--<p><code>| h1 role_mls_op h2</code></p>
--<p><code>| l1 role_mls_op h1</code></p>
--<p><code>| l2 role_mls_op h2</code></p>
--<p><code>| u1 op names</code></p>
--<p><code>| u2 op names</code></p>
--<p><code>| r1 op names</code></p>
--<p><code>| r2 op names</code></p>
--<p><code>| t1 op names</code></p>
--<p><code>| t2 op names</code></p></td>
--</tr>
--<tr>
--<td><p>Where:</p>
--<p>u1, r1, t1, l1, h1 = Source user, role, type, low level, high level</p>
--<p>u2, r2, t2, l2, h2 = Target user, role, type, low level, high level</p>
--<p>and:</p>
--<p>op : == | !=</p>
--<p>role_mls_op : == | != | eq | dom | domby | incomp</p>
--<p>names : name | { name_list }</p>
--<p>name_list : name | name_list name</p></td>
--<td></td>
--</tr>
--</tbody>
--</table>
-+*mlsconstrain*
-+
-+The *mlsconstrain* keyword.
-+
-+*class*
-+
-+One or more object classes. Multiple entries consist of a space separated
-+list enclosed in braces \'\{\}\'.
-+
-+*perm_set*
-+
-+One or more permissions. Multiple entries consist of a space separated
-+list enclosed in braces \'\{\}\'.
-+
-+*expression*
-+
-+There must be one constraint *expression* or one or more *expr*'s. An
-+*expression* consists of '*operand operator operand*' as follows:
-+
-+- *( u1 op u2 )*
-+- *( r1 role_mls_op r2 )*
-+- *( t1 op t2 )*
-+- *( l1 role_mls_op l2 )*
-+- *( l1 role_mls_op h2 )*
-+- *( h1 role_mls_op l2 )*
-+- *( h1 role_mls_op h2 )*
-+- *( l1 role_mls_op h1 )*
-+- *( l2 role_mls_op h2 )*
-+- *( u1 op names )*
-+- *( u2 op names )*
-+- *( r1 op names )*
-+- *( r2 op names )*
-+- *( t1 op names )*
-+- *( t2 op names )*
-+- Where:
-+  - *u1*, *r1*, *t1*, *l1*, *h1* = Source *user*, *role*, *type*, *low*, *high*
-+  - *u2*, *r2*, *t2*, *l2*, *h2* = Target *user*, *role*, *type*, *low*, *high*
-+- And:
-+  - *op : == | !=*
-+  - *role_mls_op : == | != | eq | dom | domby | incomp*
-+  - *names : name | { name_list }*
-+  - *name_list : name | name_list name*
-+
-+*expr*
-+
-+Zero or more *expr*'s, the valid operators and syntax are:
-+
-+- *( not expression )*
-+- *( expression and expression )*
-+- *( expression or expression )*
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Example:**
- 
-@@ -404,98 +360,82 @@ The *mlsvalidatetrans* is the MLS equivalent of the *validatetrans*
- statement where it is used to control the ability to change the objects
- security context.
- 
--The first context *u1.r1.t1* is the context before the transition, the
--second context *u2.r2.t2* is the context after the transition, and the
--third *u3.r3.t3* is the context of the process performing the transition.
-+The first context *u1:r1:t1:l1-h1* is the context before the transition, the
-+second context *u2:r2:t2:l2-h2* is the context after the transition, and the
-+third *u3:r3:t3:*\[*range*\] is the context of the process performing the
-+transition.
- 
- **The statement definition is:**
- 
- ```
--mlsvalidatetrans class expression;
-+mlsvalidatetrans class expression | expr ...;
- ```
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>mlsvalidatetrans</code></td>
--<td>The <code>mlsvalidatetrans</code> keyword.</td>
--</tr>
--<tr>
--<td><code>class</code></td>
--<td>One or more file type object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
--</tr>
--<tr>
--<td><code>expression</code></td>
--<td>The boolean expression of the constraint that is defined as follows:</td>
--</tr>
--<tr>
--<td></td>
--<td><p><code>( expression : expression ) </code></p>
--<p><code>| not expression</code></p>
--<p><code>| and (expression and expression</code></p>
--<p><code>| or expression or expression</code></p>
--<p><code>| u1 op u2</code></p>
--<p><code>| r1 role_mls_op r2</code></p>
--<p><code>| t1 op t2</code></p>
--<p><code>| l1 role_mls_op l2</code></p>
--<p><code>| l1 role_mls_op h2</code></p>
--<p><code>| h1 role_mls_op l2</code></p>
--<p><code>| h1 role_mls_op h2</code></p>
--<p><code>| l1 role_mls_op h1</code></p>
--<p><code>| l2 role_mls_op h2</code></p>
--<p><code>| u1 op names</code></p>
--<p><code>| u2 op names</code></p>
--<p><code>| r1 op names</code></p>
--<p><code>| r2 op names</code></p>
--<p><code>| t1 op names</code></p>
--<p><code>| t2 op names</code></p>
--<p><code>| u3 op names</code></p>
--<p><code>| r3 op names</code></p>
--<p><code>| t3 op names</code></p></td>
--</tr>
--<tr>
--<td><p>Where:</p>
--<p>u1, r1, t1, l1, h1 = Old user, role, type, low level, high level</p>
--<p>u2, r2, t2, l2, h2 = New user, role, type, low level, high level</p>
--<p>u3, r3, t3, l3, h3 = Process user, role, type, low level, high level</p>
--<p>and:</p>
--<p>op : == | !=</p>
--<p>role_mls_op : == | != | eq | dom | domby | incomp</p>
--<p>names : name | { name_list }</p>
--<p>name_list : name | name_list name</p></td>
--<td></td>
--</tr>
--</tbody>
--</table>
-+*mlsvalidatetrans*
-+
-+The *mlsvalidatetrans* keyword.
-+
-+*class*
-+
-+One or more object classes. Multiple entries consist of a space separated list
-+enclosed in braces \'\{\}\'.
-+
-+*expression*
-+
-+There must be one constraint *expression* or one or more *expr*'s. An
-+*expression* consists of '*operand operator operand*' as follows:
-+
-+- *( u1 op u2 )*
-+- *( r1 role_mls_op r2 )*
-+- *( t1 op t2 )*
-+- *( l1 role_mls_op l2 )*
-+- *( l1 role_mls_op h2 )*
-+- *( h1 role_mls_op l2 )*
-+- *( h1 role_mls_op h2 )*
-+- *( l1 role_mls_op h1 )*
-+- *( l2 role_mls_op h2 )*
-+- *( u1 op names )*
-+- *( u2 op names )*
-+- *( u3 op names )*
-+- *( r1 op names )*
-+- *( r2 op names )*
-+- *( r3 op names )*
-+- *( t1 op names )*
-+- *( t2 op names )*
-+- *( t3 op names )*
-+- Where:
-+  - *u1*, *r1*, *t1*, *l1*, *h1* = Source *user*, *role*, *type*, *low*, *high*
-+  - *u2*, *r2*, *t2*, *l2*, *h2* = Target *user*, *role*, *type*, *low*, *high*
-+  - *u3*, *r3*, *t3*, \[*range*\] = Process *user*, *role*, *type*, \[*range*\]
-+- And:
-+  - *op : == | !=*
-+  - *role_mls_op : == | != | eq | dom | domby | incomp*
-+  - *names : name | { name_list }*
-+  - *name_list : name | name_list name*
-+
-+*expr*
-+
-+Zero or more *expr*'s, the valid operators and syntax are:
-+
-+- *( not expression )*
-+- *( expression and expression )*
-+- *( expression or expression )*
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Example:**
+ <!-- %CUTHERE% -->
  
 -- 
 2.26.2
