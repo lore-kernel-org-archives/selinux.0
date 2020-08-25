@@ -7,50 +7,49 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0077AC433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18964C433E1
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C52452071E
+	by mail.kernel.org (Postfix) with ESMTP id E8F652075B
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Gx8qqybc"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="REpx97+K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728543AbgHYIiV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:21 -0400
-Received: from mailomta27-sa.btinternet.com ([213.120.69.33]:53158 "EHLO
-        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728504AbgHYIiQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:16 -0400
+        id S1728890AbgHYIiT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:19 -0400
+Received: from mailomta11-sa.btinternet.com ([213.120.69.17]:34229 "EHLO
+        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728543AbgHYIiP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:15 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-043.btinternet.com with ESMTP
-          id <20200825083810.MPKQ26847.sa-prd-fep-043.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          by sa-prd-fep-048.btinternet.com with ESMTP
+          id <20200825083810.LXZC4139.sa-prd-fep-048.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
           Tue, 25 Aug 2020 09:38:10 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344690; 
-        bh=rwUXWQzCJW6urkEMzOx9OdmAEPAgf2t+Upku6IVW1q8=;
+        bh=MscxKCRu5e6f/Y6erVfiJFdf4IKu1/9yRWC6PTtnlkY=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=Gx8qqybcJWmRI6KC2GoDhzyKx/k/HmnrUDvab/6JWvaJOgswdmSBT/hxHvSoKXkQP4XYEql0L8Fz6g0oNklbSAHTHQecuhlSdRS9nozZk6yy+mzv6f6Q0uSj+JH/kpQv/Y71HJ/tIe4amaA+mlrTq2bROAiuuabk3R0BQ1WYgniY689TEGHdB4zPvpuxQ+LjcqQTJRz6skkGeLQnhQg2C4DJ31z8Fr+GDxyJoVjmQGBsdEu54JVzwes2kWJlAQD8W/6Mq0obOIHIOmU2dNgcRhb2xhEW/flGAKsYudwMLucoY/7w46vfj+og66AOuakbxenxrTA2xj7tVNyp2eVLSQ==
+        b=REpx97+Kq8382H6mGf0iBIRFn8EzV1YcvdDVUQpLEIcVdz+eQOHjgvMnlDaXj7i77FLcMkNiv6+qlkGxjszlyINYpr7NQWs0lJLxzfbxlpyeLsfndcLwNIRd2AzcUrfins+iAyh/9WXtcdyCQ18qpXujG9CaG7jAPj7vnAt2S9P7BrObsIxdQECKA6wxffJirradIsd0ak2L/OdQlw/OQnnMIMoW6zjS4hwA1Td+iiT9dzSCizHhMAZrgtuVfRlcoyivdAL+6WCvcOBMeOvWVsLpGqWW8MhNJMOHgVXeW8zumV2ffm3hlTf/569IeNvx8sHqXXqn2/ifJwDWoXeeBw==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepgfekgffghffgleekgfellefftedvhfejveehhfekkefgvdehueetgfffffelkedtnecukfhppedutdelrdduheehrddufedtrdduiedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrddufedtrdduiedtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599DE1; Tue, 25 Aug 2020 09:38:10 +0100
+        id 5ED9B8A70D599DF2; Tue, 25 Aug 2020 09:38:10 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 09/18] conditional_statements: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:34 +0100
-Message-Id: <20200825083743.6508-10-richard_c_haines@btinternet.com>
+Subject: [PATCH 10/18] configuration_files: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:35 +0100
+Message-Id: <20200825083743.6508-11-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -61,211 +60,129 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/conditional_statements.md | 159 ++++++++++++++--------------------
- 1 file changed, 66 insertions(+), 93 deletions(-)
+ src/configuration_files.md | 74 ++++++++++++++++++++------------------
+ 1 file changed, 39 insertions(+), 35 deletions(-)
 
-diff --git a/src/conditional_statements.md b/src/conditional_statements.md
-index 3cf07df..4eeeec3 100644
---- a/src/conditional_statements.md
-+++ b/src/conditional_statements.md
-@@ -1,5 +1,8 @@
- # Conditional Policy Statements
+diff --git a/src/configuration_files.md b/src/configuration_files.md
+index 3515f1b..0d48d09 100644
+--- a/src/configuration_files.md
++++ b/src/configuration_files.md
+@@ -1,5 +1,9 @@
+ # SELinux Configuration Files
  
-+- [*if*](#if)
-+- [*bool*](#bool)
++- [The Policy Store](#the-policy-store)
++  - [The priority Option](#the-priority-option)
++- [Converting policy packages to CIL](#converting-policy-packages-to-cil)
 +
- Conditional policies consist of a bool statement that defines a
- condition as *true* or *false*, with a supporting *if* / *else* construct that
- specifies what rules are valid under the condition as shown in the
-@@ -56,7 +59,7 @@ getsebool -a
- getsebool allow_daemons_use_tty
+ This section explains each SELinux configuration file with its format,
+ example content and where applicable, any supporting SELinux commands or
+ **libselinux** library API functions.
+@@ -10,34 +14,34 @@ adding the man page section (e.g. ***semanage.config**(5)*).
+ This Notebook classifies the types of configuration file used in SELinux
+ as follows:
+ 
+-1.  [**Global Configuration files**](global_config_files.md#global-configuration-files) that
+-    affect the active policy and their supporting SELinux-aware
+-    applications, utilities or commands. This Notebook will only refer
+-    to the commonly used configuration files.
+-2.  [**Policy Store Configuration Files**](policy_store_config_files.md#policy-store-configuration-files)
+-    that are managed by the **semanage**(8) and **semodule**(8) commands. These
+-    are used to build the majority of the
+-    [Policy Configuration Files](policy_config_files.md#policy-configuration-files)
+-    and should NOT be edited as together they describe the overall 'policy' configuration.
+-3.  [**Policy Configuration Files**](policy_config_files.md) used by an active
+-    (run time) policy/system. Note that there can be multiple policy
+-    configurations on a system (e.g. */etc/selinux/targeted* and
+-    */etc/selinux/mls*), however only one can be the active policy.
+-4.  [**SELinux Filesystem files - Table 6: SELinux filesystem Information**](lsm_selinux.md#selinux-filesystem) located under the */sys/fs/selinux*
+-    directory and reflect the current configuration of SELinux for the active
+-    policy. This area is used
+-    extensively by the libselinux library for userspace object managers and
+-    other SELinux-aware applications. These files and directories should not
+-    be updated by users (the majority are read only anyway), however
+-    they can be read to check various configuration parameters and
+-    viewing the currently loaded policy using tools such as
+-    ***apol**(1)* (e.g. *apol /sys/fs/selinux/policy*).
++1. [**Global Configuration files**](global_config_files.md#global-configuration-files) that
++   affect the active policy and their supporting SELinux-aware
++   applications, utilities or commands. This Notebook will only refer
++   to the commonly used configuration files.
++2. [**Policy Store Configuration Files**](policy_store_config_files.md#policy-store-configuration-files)
++   that are managed by the **semanage**(8) and **semodule**(8) commands. These
++   are used to build the majority of the
++   [Policy Configuration Files](policy_config_files.md#policy-configuration-files)
++   and should NOT be edited as together they describe the overall 'policy' configuration.
++3. [**Policy Configuration Files**](policy_config_files.md) used by an active
++   (run time) policy/system. Note that there can be multiple policy
++   configurations on a system (e.g. */etc/selinux/targeted* and
++   */etc/selinux/mls*), however only one can be the active policy.
++4. [**SELinux Filesystem files - Table 6: SELinux filesystem Information**](lsm_selinux.md#selinux-filesystem)
++   located under the */sys/fs/selinux* directory and reflect the current
++   configuration of SELinux for the active policy. This area is used
++   extensively by the libselinux library for userspace object managers and
++   other SELinux-aware applications. These files and directories should not
++   be updated by users (the majority are read only anyway), however
++   they can be read to check various configuration parameters and
++   viewing the currently loaded policy using tools such as
++   ***apol**(1)* (e.g. *apol /sys/fs/selinux/policy*).
+ 
+ ## The Policy Store
+ 
+ Version 2.7 of *libsemanage*, *libsepol*, and *policycoreutils* had the
+-policy module store has moved from */etc/selinux/&lt;SELINUXTYPE&gt;/modules*
+-to */var/lib/selinux/&lt;SELINUXTYPE&gt;*.
++policy module store has moved from */etc/selinux/\<SELINUXTYPE\>/modules*
++to */var/lib/selinux/\<SELINUXTYPE\>*.
+ 
+ This new infrastructure now makes it possible to build policies containing a
+ mixture of Reference Policy modules, kernel policy language modules and
+@@ -83,12 +87,12 @@ int_gateway
+ The ***semodule**(8)* command now has a number of new options, with the
+ most significant being:
+ 
+-1.  Setting module priorities (*-X | --priority*), this is discussed in
+-    [The priority Option](#the-priority-option) section.
+-2.  Listing modules (*--list-modules=full | standard*). The 'f*ull*'
+-    option shows all the available modules with their priority and
+-    policy format. The '*standard*' option will only show the highest
+-    priority, enabled modules.
++1. Setting module priorities (*-X | \-\-priority*), this is discussed in
++   [The priority Option](#the-priority-option) section.
++2. Listing modules (*\-\-list-modules=full | standard*). The '*full*'
++   option shows all the available modules with their priority and
++   policy format. The '*standard*' option will only show the highest
++   priority, enabled modules.
+ 
+ ### The priority Option
+ 
+@@ -105,7 +109,7 @@ semodule --priority 400 --install custom/apache.pp
+ 
+ Both apache modules are installed in the policy store as 'apache', but
+ only the custom apache module is included in the final kernel binary.
+-The distribution apache module is ignored. The *--list-modules* options
++The distribution apache module is ignored. The *\-\-list-modules* options
+ can be used to show these:
+ 
  ```
+@@ -137,15 +141,15 @@ new distribution policy.
  
--## bool
-+## *bool*
+ This does require that policy managers adopt some kind of scheme for who
+ uses what priority. No strict guidelines currently exist, however the
+-value used by the *semanage\_migrate\_store* script is *--priority 100*
++value used by the *semanage\_migrate\_store* script is *\-\-priority 100*
+ as this is assumed to be migrating a distribution. If a value is not
+-provided, *semodule* will use a default of *--priority 400* as it is
++provided, *semodule* will use a default of *\-\-priority 400* as it is
+ assumed to be a locally customised policy.
  
- The *bool* statement is used to specify a boolean identifier and its
- initial state (*true* or *false*) that can then be used with the
-@@ -71,49 +74,31 @@ bool bool_id default_value;
+ When *semodule* builds a lower priority module when a higher priority is
+ already available, the following message will be given: "*A higher
+-priority &lt;name&gt; module exists at priority &lt;999&gt; and will
+-override the module currently being installed at priority &lt;111&gt;*".
++priority \<name\> module exists at priority \<999\> and will
++override the module currently being installed at priority \<111\>*".
  
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>bool</code></td>
--<td>The <code>bool</code> keyword.</td>
--</tr>
--<tr>
--<td><code>bool_id</code></td>
--<td>The boolean identifier.</td>
--</tr>
--<tr>
--<td><code>default_value</code></td>
--<td>Either true or false.</td>
--</tr>
--</tbody>
--</table>
-+*bool*
-+
-+The *bool* keyword.
-+
-+*bool_id*
-+
-+The boolean identifier.
-+
-+*default_value*
-+
-+Either true or false.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>Yes</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>Yes</td>
--<td>Yes</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | Yes                     |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | Yes                     | Yes                     |
- 
- **Examples:**
- 
-@@ -133,7 +118,7 @@ bool allow_execheap false;
- bool allow_execstack true;
- ```
- 
--### if
-+## *if*
- 
- The if statement is used to form a 'conditional block' of statements and
- rules that are enforced depending on whether one or more boolean
-@@ -154,60 +139,48 @@ if (conditional_expression) { true_list } [ else { false_list } ]
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>if</code></td>
--<td>The <code>if</code> keyword.</td>
--</tr>
--<tr>
--<td>conditional_expression</td>
--<td><p>One or more <code>bool_name<code> identifiers that have been previously defined by the <code>bool</code> Statement. Multiple identifiers must be separated by the following logical operators: &amp;&amp;, ¦¦, ^, !, ==, !=. </p>
--<p>The conditional_expression is enclosed in brackets ().</p></td>
--</tr>
--<tr>
--<td><code>true_list</code></td>
--<td><p>A list of rules enclosed within braces '{}' that will be executed when the <code>conditional_expression</code> is 'true'.</p>
--<p>Valid statements and rules are highlighted within each language definition statement.</p></td>
--</tr>
--<tr>
--<td><code>else</code></td>
--<td>Optional <code>else</code> keyword.</td>
--</tr>
--<tr>
--<td><code>false_list</code></td>
--<td><p>A list of rules enclosed within braces '{}' that will be executed when the optional <code>else</code> keyword is present and the conditional_expression is <code>false</code>.</p>
--<p>Valid statements and rules are highlighted within each language definition statement.</p></td>
--</tr>
--</tbody>
--</table>
-+*if*
-+
-+The *if* keyword.
-+
-+*conditional_expression*
-+
-+One or more *bool_name* identifiers that have been previously defined by the
-+*bool* Statement. Multiple identifiers must be separated by the following
-+logical operators: &&, ¦¦, ^, !, ==, !=.
-+The *conditional_expression* is enclosed in brackets \'\(\)\'.
-+
-+*true_list*
-+
-+A list of rules enclosed within braces \'\{\}\' that will be executed when the
-+*conditional_expression* is 'true'.
-+Valid statements and rules are highlighted within each language definition
-+statement.
-+
-+*else*
-+
-+Optional *else* keyword.
-+
-+*false_list*
-+
-+A list of rules enclosed within braces \'\{\}\' that will be executed when the
-+optional *else* keyword is present and the *conditional_expression* is *false*.
-+Valid statements and rules are highlighted within each language definition
-+statement.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>Yes</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | Yes                     |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | Yes                     | No                      |
- 
- **Examples:**
+ ## Converting policy packages to CIL
  
 -- 
 2.26.2
