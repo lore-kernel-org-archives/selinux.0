@@ -2,74 +2,119 @@ Return-Path: <SRS0=r6Mn=CE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3B2CC433E1
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:06:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FAC0C433DF
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:12:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BADB62078D
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:06:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A8C22078D
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:12:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="pW7TGgQw"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XX2FTcI7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726793AbgHZOG3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Aug 2020 10:06:29 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:46594 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726753AbgHZOG3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 10:06:29 -0400
-Received: from chpebeni.northamerica.corp.microsoft.com (pool-108-15-23-247.bltmmd.fios.verizon.net [108.15.23.247])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 849D920B4908
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:06:28 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 849D920B4908
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1598450788;
-        bh=RZC5tKFGJ+JJLRF5u1x2oap2mVph+EM0WrQPRdwMwgY=;
-        h=Subject:From:To:References:Date:In-Reply-To:From;
-        b=pW7TGgQweurmYeTsF8vrUF8SvT5aqn+8UIJOZFgefNbqQ050U0/rxO3kW1d7vvkHW
-         cq/ddYcxA8682boouNdb8RDviPDGdwLlIL38JCnP7y4MabT16aAALwuEWKeyabE6CW
-         7as9kw0h8hUDj+fg1vqur7NIrX9VpG4zy9Y9Bx7I=
-Subject: Re: Userspace AVC auditing on policy load
-From:   Chris PeBenito <chpebeni@linux.microsoft.com>
-To:     selinux@vger.kernel.org
-References: <cb7451da-24d3-4a0c-e4f8-205e6539ed54@linux.microsoft.com>
-Message-ID: <e4cdec2a-8c01-fbe4-cba3-3468b4ebea2e@linux.microsoft.com>
-Date:   Wed, 26 Aug 2020 10:06:27 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1727781AbgHZOMC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Aug 2020 10:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55782 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726894AbgHZOL5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 10:11:57 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E548C061574
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:11:56 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id z22so1639728oid.1
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:11:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=d2RgNA89GOBkURUyK0kRhuN81qHz+7NV1KvEiyfexFY=;
+        b=XX2FTcI7suegm8ovEMjpK4KgzfCtkrC3Xs5y9BhgMI9TYg6Js7Y2eVsKzO01Gj1bVq
+         y7pdfV/F5RJ+Yp1uIkq9MSZ2WjyRnZz5VoLsvICwXCkCMJSPnP7OKvMcsOHn5Lt32OuZ
+         ygncH4HxdOMEwmztm3p3V4YuJ19j5gh4ahn/CGgVn92eJ0l3RjDm8qrvaV/99jLVn4J8
+         n69hcqboqyFPJ2/f0MrWQRqcXP1HxLMbWMg6iYT0MGwxmSA/tq+bPKzSEvv+qk4asRdy
+         AtMVUxtsZGs9Iq8Qb/se37yE9+CRva0r/8bbUrSFQ00BEOdYuXsr6pRiC+/I1qrnPY7i
+         TPBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=d2RgNA89GOBkURUyK0kRhuN81qHz+7NV1KvEiyfexFY=;
+        b=Pa3RpGuEpXma2/EPBcbtHkOrhF+nfk8LzOVbm6KilCYIxZUKgfom214BjqW3hHj/2j
+         bvlw7Bn4NdWIQCzWZOo7rrJxajswHr0c/ovZ7EcDDpCDYDCfOYQGw/DQ4/CvH/f5PZFi
+         VUzQSSYe40a+EjpxTjgWXoQu6Kk2BwF7s5Ee8laL++4H2L7wv8aJsE1Yz8k8gbt2kcDO
+         qb+u2zWkpBsSQXDRqamRSAiN+GxwKcXlUxyL6EIpdbnl6BdXBZOesHvYUhjV6k5zSxrD
+         wDC36KjVah33wdzKrmq8RpcRE6A8BEd1RLZ42mXpbROsSmLmLFMGoJb6allixRtwaZU4
+         xtbw==
+X-Gm-Message-State: AOAM533xcDrMyeUpjsoHvoQ0gd3Om3wSG7BgyKrDcM90qg1lokJVsaDA
+        J1jVrorJ+MA3WbfKsnqBt9vhogn7e8y7r+cu+uw=
+X-Google-Smtp-Source: ABdhPJx0adqKF47kFHIRLZq5o20I8A0fbYsZjlnKdyFoqHePjGHteWYII/PazX39xdjmEVNk8esDl7DSof0DZcePJao=
+X-Received: by 2002:a05:6808:310:: with SMTP id i16mr3097645oie.160.1598451115905;
+ Wed, 26 Aug 2020 07:11:55 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cb7451da-24d3-4a0c-e4f8-205e6539ed54@linux.microsoft.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20200826135906.1912186-1-omosnace@redhat.com> <20200826135906.1912186-3-omosnace@redhat.com>
+In-Reply-To: <20200826135906.1912186-3-omosnace@redhat.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 26 Aug 2020 10:11:45 -0400
+Message-ID: <CAEjxPJ7V3XW+wCVpNUitD_cc2GoVjM0mm-zWrDWcxLd7wcv_Eg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] selinux: eliminate the redundant policycap array
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/26/20 9:25 AM, Chris PeBenito wrote:
-> I was looking into this dbus-broker audit message, which has the wrong audit type:
-> 
-> audit[422]: USER_AVC pid=422 uid=999 auid=4294967295 ses=4294967295 
-> subj=system_u:system_r:system_dbusd_t msg='avc:  received policyload notice 
-> (seqno=2)
-> 
-> This is due to dbus-broker setting their avc log callback to send USER_AVC audit 
-> messages for everything that comes to the libselinux log callback. I think the 
-> right thing to do there is to change it to emit USER_SELINUX_ERR audit messages 
-> if the log message is SELINUX_ERROR, otherwise log the message using their 
-> regular method (stderr I think).
-> 
-> But the question became, why is the userspace AVC not simply emitting its own 
-> USER_MAC_POLICY_LOAD audit message instead of sending a message to the log 
-> callback?
+On Wed, Aug 26, 2020 at 9:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> The policycap array in struct selinux_state is redundant and can be
+> substituted by calling security_policycap_supported().
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
 
-Ok, I missed that there is a SELINUX_AVC log type and that's how the userspace 
-denial messages are sent out. How about adding SELINUX_POLICYLOAD and 
-SELINUX_ENFORCE log types so that callers can emit appropriate audit messages?
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 7cc2f7486c18f..e82a2cfe171f3 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2113,30 +2113,6 @@ bad:
+>         return 0;
+>  }
+>
+> -static void security_load_policycaps(struct selinux_state *state,
+> -                               struct selinux_policy *policy)
+> -{
+> -       struct policydb *p;
+> -       unsigned int i;
+> -       struct ebitmap_node *node;
+> -
+> -       p = &policy->policydb;
+> -
+> -       for (i = 0; i < ARRAY_SIZE(state->policycap); i++)
+> -               state->policycap[i] = ebitmap_get_bit(&p->policycaps, i);
+> -
+> -       for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
+> -               pr_info("SELinux:  policy capability %s=%d\n",
+> -                       selinux_policycap_names[i],
+> -                       ebitmap_get_bit(&p->policycaps, i));
+> -
+> -       ebitmap_for_each_positive_bit(&p->policycaps, node, i) {
+> -               if (i >= ARRAY_SIZE(selinux_policycap_names))
+> -                       pr_info("SELinux:  unknown policy capability %u\n",
+> -                               i);
+> -       }
+> -}
+> -
 
--- 
-Chris PeBenito
+Two requests:
+1. Can you do a little benchmarking to confirm that calling
+security_policycap_supported() each time doesn't cause any significant
+overheads?  Networking benchmark might be of interest.
+
+2. Can you retain the logging of the policy capability values?  Just
+drop the first part of the function and rename it e.g.
+security_log_policycaps().
