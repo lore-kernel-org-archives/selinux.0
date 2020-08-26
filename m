@@ -2,130 +2,99 @@ Return-Path: <SRS0=r6Mn=CE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 162F1C433DF
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46447C433E1
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:17:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0CE6208E4
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:16:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F03F3214F1
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:17:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XqpTqp84"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o7qf4rg9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbgHZOQc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Aug 2020 10:16:32 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:28818 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727933AbgHZOQb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 10:16:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598451389;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ea5rQGFRyojB4+Jvzr1fpU2dhS8XrxTeP42jv6eTnPg=;
-        b=XqpTqp84tG48+nRuRRQcVhwEQxeYXghHtwmmPX/y+u3b0aRr/P9eLuIHXiVmu8P2WI2Koq
-        O/kv6PUTqYHE2p6gwE7vRhxqba5ODsnYk9PolPDe4ctLkNdOjGzt9jHO/TJ8ses2dXccOI
-        3NdnPr2NGzUL70DgDrGLocJJ6VDYn0s=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-88-4ZljkAjxNOqmCwm9ZxY10w-1; Wed, 26 Aug 2020 10:16:25 -0400
-X-MC-Unique: 4ZljkAjxNOqmCwm9ZxY10w-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0CC488030D6;
-        Wed, 26 Aug 2020 14:16:24 +0000 (UTC)
-Received: from workstation (unknown [10.40.193.192])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 12371712EB;
-        Wed, 26 Aug 2020 14:16:22 +0000 (UTC)
-Date:   Wed, 26 Aug 2020 16:16:19 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Chris PeBenito <chpebeni@linux.microsoft.com>
-Subject: Re: Userspace AVC auditing on policy load
-Message-ID: <20200826141619.GC401602@workstation>
-References: <cb7451da-24d3-4a0c-e4f8-205e6539ed54@linux.microsoft.com>
+        id S1727986AbgHZORz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Aug 2020 10:17:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727879AbgHZORz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 10:17:55 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86159C061574
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:17:54 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id z195so1640791oia.6
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:17:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uSjOruia4oJHExexsf+1TcDTqhbGy2QCNJupncTDhGA=;
+        b=o7qf4rg9D34dT2uDLY+prKjXBGv8B6KJbaT29t3dqVYHRfYtgaZ5gRSpWXls7fzFhj
+         VljBZK0H4avymz8haSQNfld4GboMQNOqG0tMXkDiQseyKrClWhy8RrpEshp4lQ585l7E
+         AZuu093Pm7SiHsP5Huxw//e68ocu1LGQqEENurUPb5A3RISrtTfm7sbCWYWNBH+mk4tN
+         7ap5NLwf2ODZN0hluUuNa4U9nSDp7vtsowYJC/xxjSFNFzf6JRsNG121LnxxJcsmco5U
+         kP4b2PVzD5TONc3UvT2L4N8tIfXJji10dJge3DQgkLJ8FaRF4dOzzYWaQr0MQ2En9WJw
+         YJ5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uSjOruia4oJHExexsf+1TcDTqhbGy2QCNJupncTDhGA=;
+        b=FyThXFNSP7DqFPbD+1XnRcJ5d+ZWB4KTgsmxXJaBfYJ4Ug5A8wLBc8qva8NtG7TNYk
+         g1F7+FzX2d2D13VEEGoxaTkZImeB1T8bCVXxKL0Ym8JxPnJ/82csqZtOPZqdpDQbs8l2
+         TJR7bVXLJbliZzTcNCCNgoEIWyehnz4QdZ0lYBp57eStzZu1Mwqsh1mDK8G4jLSaaOBM
+         3EBMSxjOP/4VYdISmRQ0Y5sRGMhpRI4Sv1zQBHBvA5Ol3f1wgsn1BhBgOotAeMPV4bwK
+         uPZyl9XRrekIL9ox7M5v7pQ9RxWwVnaJyt04hBvuzEHFxPP0c9gF2c6wEGMM9iSTYkVZ
+         Ek/A==
+X-Gm-Message-State: AOAM530AUP5K4fVupvNPbmZuaI1Fw89Ktw5KwXiZKe6hMJ06+BdLB024
+        iK1P/RmVl7erWrLUsRKoevupHVYQeVNvFslPmRU=
+X-Google-Smtp-Source: ABdhPJxkEZerR7nhr3Tl1X9NXv2pXDJJJL8dRCQqPw/li7mWJTXRzY8fTeIHqbfrQN5PvYsgQrdbNyG6/2Jg6Oj7zko=
+X-Received: by 2002:a05:6808:310:: with SMTP id i16mr3112679oie.160.1598451473973;
+ Wed, 26 Aug 2020 07:17:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cb7451da-24d3-4a0c-e4f8-205e6539ed54@linux.microsoft.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
-X-Mimecast-Spam-Score: 0.001
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2/5bycvrmDh4d1IB"
-Content-Disposition: inline
+References: <20200825065953.1566718-1-omosnace@redhat.com> <20200825065953.1566718-2-omosnace@redhat.com>
+ <CAEjxPJ4JKHKFgF9VobJTrMBDhaqC0EKorC=qfm=t77Krd-Npsw@mail.gmail.com>
+ <CAFqZXNtOd7VXQWh9B3fnmY0MUy0HLHh75u_=6UE7UaTO2ZjYSw@mail.gmail.com>
+ <CAEjxPJ7_zk63cyHEPeyrhPgDRJ_jzzx8kyQACvWiNoC3-KzLsA@mail.gmail.com>
+ <CAHC9VhSBsTU++65fPqZvdvdT_Ja+zaj-toUSa6iVLBCt8vQOBw@mail.gmail.com> <CAFqZXNuvciwq4ApXWxR14nqezDZEJSunTONXy-dmfYmu84Mq6g@mail.gmail.com>
+In-Reply-To: <CAFqZXNuvciwq4ApXWxR14nqezDZEJSunTONXy-dmfYmu84Mq6g@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 26 Aug 2020 10:17:43 -0400
+Message-ID: <CAEjxPJ4XXgyEZ4csgcoheJ7z_qELYrJfttnk4MWbGoPyyr-pzQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] selinux: switch unnecessary GFP_ATOMIC allocs to GFP_KERNEL
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---2/5bycvrmDh4d1IB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Aug 26, 2020 at 10:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Wed, Aug 26, 2020 at 3:51 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Wed, Aug 26, 2020 at 9:02 AM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > Generally the core SELinux permission checking code assumes it can be
+> > > called from any context (including hardirq) and under any locking
+> > > conditions, and hooks that are for permission checking (not security
+> > > blob allocation/management) do the same.  This allows permission
+> > > checks to be performed while locks are held by the caller. and from
+> > > arbitrary contexts  I'd be inclined to just leave selinux_lockdown
+> > > unchanged given that it might be called anywhere much like capable().
+> >
+> > Agreed.  The code paths relating to policy load, etc. are good
+> > candidates for an ATOMIC->KERNEL conversion, assuming no other
+> > constraints, but I'm somewhat nervous of converting stuff in hook.c
+> > that doesn't have a hard sleep-ability defined.
+>
+> OK, I can drop the selinux_lockdown() hunk then. The other hooks.c
+> hunks both have an existing GFP_KERNEL allocation in the same
+> function, so I'd tend to keep them for consistency. Or do you want me
+> to rather convert the GFP_KERNELs to GFP_ATOMICs there?
 
-On Wed, Aug 26, 2020 at 09:25:18AM -0400, Chris PeBenito wrote:
-> I was looking into this dbus-broker audit message, which has the wrong au=
-dit type:
->=20
-> audit[422]: USER_AVC pid=3D422 uid=3D999 auid=3D4294967295 ses=3D42949672=
-95
-> subj=3Dsystem_u:system_r:system_dbusd_t msg=3D'avc:  received policyload =
-notice
-> (seqno=3D2)
->=20
-> This is due to dbus-broker setting their avc log callback to send USER_AV=
-C
-> audit messages for everything that comes to the libselinux log callback. =
-I
-> think the right thing to do there is to change it to emit USER_SELINUX_ER=
-R
-> audit messages if the log message is SELINUX_ERROR, otherwise log the
-> message using their regular method (stderr I think).
-
-Similar problem existed in systemd. It was fixed by the following commit
-https://github.com/systemd/systemd/commit/6227fc14c48c4c17daed4b91f61cdd4aa=
-375790a
-which lets systemd log callback to ignore everything but SELINUX_AVC and SE=
-LINUX_ERR
-
-I believe this is the same problem which should be fixed in dbus and dbus-b=
-roker
-
-
-> But the question became, why is the userspace AVC not simply emitting its
-> own USER_MAC_POLICY_LOAD audit message instead of sending a message to th=
-e
-> log callback?
->=20
-> --=20
-> Chris PeBenito
->=20
-
---2/5bycvrmDh4d1IB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl9Gbq0ACgkQviIJHj72
-InV7Vw/+MCugzGQFACDiwT0G0uiZ4kbYrI3+FdvV+n84Gh2EK+eaPdiam98sK5Zo
-XgTv9RsgVSb0NucxWauh3fmKZd0cBNXwekiR1B3jzHmdWWn67UnmkaZ8FraFlxCQ
-3Mstnf+VUe14OyXz8WgaMxYyobjDARvJdLizfOE4hO0Kxft8ivnBusYzvdJTZmq7
-I57JJ0B68muZiEwHI7rZmdKLjjHNgHVYSPO4sIwPm8PS0BmDZeard1sQBpfngVCx
-edUR+STFIWa8suzBL2J9cqyAdXIWGsHWuuDCYLz+irIr8udGm4aNEf87hTvhi86G
-cWTEG2wJrhssyzZ8L8jnVV7+IX+ccEukFOPKKc24KlEN16TM5esdFwMJl+XHBt3T
-W3QUnTRVIrbI/BIzmAIQw/j0LM8YuEwxgq2sywWR19DfdR8EUBRDUEZbvrUj7EFi
-q6HblWCS4p0KkCFSIhmpSNf7FtMdZ5cRajp1Xf7m8ELbMa5w8A7sfWVl/VETtwef
-srMYBgPK7nULwfjM/Enc1tNKn7uTSr4IKJ9iMVpHr4HnP5eIfxYDcHL9IdhdZHLW
-43+snFVxZy4TpRpbocZ0Qcg7E4VcschzM1k5mMYVWvbeoxW2eYD4g3eyDdYzPbks
-uHlDrp9rzbmKWUE+0SW2KuCYMzDoBl8pWD+Yv6qUXl+LFAtfDB4=
-=1a7x
------END PGP SIGNATURE-----
-
---2/5bycvrmDh4d1IB--
-
+No, I was fine with the other parts of the patch just not the lockdown
+one, because it can be called from many places like capable().
