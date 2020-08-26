@@ -2,124 +2,92 @@ Return-Path: <SRS0=r6Mn=CE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF663C433E1
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:48:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11A60C433DF
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:50:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BEF622177B
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:48:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD3292078D
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 14:50:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uuviY+HH"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="oOPxbmKr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726700AbgHZOr5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Aug 2020 10:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726983AbgHZOrz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 10:47:55 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F15BC061757
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:47:54 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id a26so3257309ejc.2
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 07:47:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jpXoOzxjmaSPieMUrMwjgj+f7eMHv3D0MiHLZevapy8=;
-        b=uuviY+HHY4G/qSfupdmikJBac7QR65ENkowJ6J/jYfnCePd8Xn9EiwqHhGK6jIRITH
-         a5Ep6mk1NvA/fuR+G8ichkTPQwvkzP/b3MyrRRTinYparaXT/281yKXIj/TpRYdqsI6I
-         5g6azBhlombBDx76l6r3mMxwJbwbzZ332F9aN5vanV+W1jG8CuvLqfa45p36iPiLfgcX
-         aFEkVindyv2dVZDV1qIptDPZ9WkKPuSIrA6dN4bs21tIv/aKU9gbU+RKZxkgnY6iIs4S
-         ++3D7x6o/4rTIV7zlf0n6Xr4eWd8x+fZliorBKrrERgW/wA9Mr4GSs4fq3+oqfodZeNI
-         dGng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jpXoOzxjmaSPieMUrMwjgj+f7eMHv3D0MiHLZevapy8=;
-        b=eK5XnWJdWixmQkZtHzjSKoBGmO85setnLCDSfdPQd0UGlzk3/JnV12OffhXmeoxMcl
-         PaoQWBZv4ZLLzSiaXtYdi/CmfI40u1jVtAN0FxyHNPYImrin8MG1IBW2lxWV8kbDHOoT
-         +pwhvRGoi59vJIWfSButRFqOw/We2bRyqV6eXzYJer+sXm0HeZTfRRGx/jswNoGG6uDD
-         e/NHjQF+0VVzzBFhYrVhO41Yo7Y8uN2PoTenKKVY4Spoa+gdL6nQBDlpxctzACx6VzSd
-         Ka4kDJxPiop43lHC5RVMrEs05GfHIdCX3Ionf445ze0ajb31ztFWiDLsaG5MB7pgl7zi
-         4ZxQ==
-X-Gm-Message-State: AOAM530xJrDjG/TkIU0Tq8ticf2DnWeWrq5ZRCwqOeQwKymPeE0+10s1
-        XqXLabUN26trHX3s3SjBG2zOde3tiUU6xS8ja2yS
-X-Google-Smtp-Source: ABdhPJwhDdM4MFlfS7uVJxwKo58ItpXS0jchBQaNhFwzkwJQ2+x5TiuLQ5UN8rBk15kg9aXEbq2ho8wi0ftQGSuFQAI=
-X-Received: by 2002:a17:906:f955:: with SMTP id ld21mr766045ejb.398.1598453272483;
- Wed, 26 Aug 2020 07:47:52 -0700 (PDT)
+        id S1727107AbgHZOuj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Aug 2020 10:50:39 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:51982 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727971AbgHZOug (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 10:50:36 -0400
+Received: from chpebeni.northamerica.corp.microsoft.com (pool-108-15-23-247.bltmmd.fios.verizon.net [108.15.23.247])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 6688320B4908;
+        Wed, 26 Aug 2020 07:50:35 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6688320B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1598453435;
+        bh=Fyghq3HUTw2OT0mnurPEw3f+YxgzFOcU/zX3pt1RXSI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=oOPxbmKr9njYh0b9Sg7Ac43XXPD8lWzrKO3eAkgK3RBm2oruYrksp+c4PJ0ENEpmS
+         pa8DDkBZjS4Kd32vUFvr1JSpZVQR8FgnYaufHXJ54TXa+23rbb+uDy22hcwFs1j15G
+         HSOWPmbpJhQW4lNCxdQOqmuP4aA+WlIOhyJgn0tk=
+Subject: Re: Userspace AVC auditing on policy load
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+References: <cb7451da-24d3-4a0c-e4f8-205e6539ed54@linux.microsoft.com>
+ <e4cdec2a-8c01-fbe4-cba3-3468b4ebea2e@linux.microsoft.com>
+ <CAEjxPJ7xrzm6GQUxckRgVot082xZtabV-RZzv0E-Orfq7y_riQ@mail.gmail.com>
+From:   Chris PeBenito <chpebeni@linux.microsoft.com>
+Message-ID: <be518adb-a7c9-cb50-f6cd-a00c783a8333@linux.microsoft.com>
+Date:   Wed, 26 Aug 2020 10:50:34 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-References: <20200826113148.GA393664@mwanda> <CAEjxPJ45hfBr6S1jT3iSOcSiccfWWFcqJC-q9R5qbRndT_DNCA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ45hfBr6S1jT3iSOcSiccfWWFcqJC-q9R5qbRndT_DNCA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 26 Aug 2020 10:47:41 -0400
-Message-ID: <CAHC9VhScNuz0X610=ZjrH2-xT1Gz6y=AMA1=Eg=ubNxpM02VYw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix error handling bugs in security_load_policy()
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        kernel-janitors@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAEjxPJ7xrzm6GQUxckRgVot082xZtabV-RZzv0E-Orfq7y_riQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 8:49 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Aug 26, 2020 at 7:32 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> >
-> > There are a few bugs in the error handling for security_load_policy().
-> >
-> > 1) If the newpolicy->sidtab allocation fails then it leads to a NULL
-> >    dereference.  Also the error code was not set to -ENOMEM on that
-> >    path.
-> > 2) If policydb_read() failed then we call policydb_destroy() twice
-> >    which meands we call kvfree(p->sym_val_to_name[i]) twice.
-> > 3) If policydb_load_isids() failed then we call sidtab_destroy() twice
-> >    and that results in a double free in the sidtab_destroy_tree()
-> >    function because entry.ptr_inner and entry.ptr_leaf are not set to
-> >    NULL.
-> >
-> > One thing that makes this code nice to deal with is that none of the
-> > functions return partially allocated data.  In other words, the
-> > policydb_read() either allocates everything successfully or it frees
-> > all the data it allocates.  It never returns a mix of allocated and
-> > not allocated data.
-> >
-> > I re-wrote this to only free the successfully allocated data which
-> > avoids the double frees.  I also re-ordered selinux_policy_free() so
-> > it's in the reverse order of the allocation function.
-> >
-> > Fixes: c7c556f1e81b ("selinux: refactor changing booleans")
-> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
->
-> I guess this wasn't against current selinux next branch?
->
-> patching file security/selinux/ss/services.c
-> Hunk #1 succeeded at 2145 (offset 18 lines).
-> Hunk #2 succeeded at 2263 (offset 39 lines).
-> Hunk #3 succeeded at 2303 with fuzz 1 (offset 47 lines).
-> Hunk #4 succeeded at 2323 (offset 42 lines).
->
-> But otherwise it looked good to me.
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On 8/26/20 10:46 AM, Stephen Smalley wrote:
+> On Wed, Aug 26, 2020 at 10:35 AM Chris PeBenito
+> <chpebeni@linux.microsoft.com> wrote:
+>>
+>> On 8/26/20 9:25 AM, Chris PeBenito wrote:
+>>> I was looking into this dbus-broker audit message, which has the wrong audit type:
+>>>
+>>> audit[422]: USER_AVC pid=422 uid=999 auid=4294967295 ses=4294967295
+>>> subj=system_u:system_r:system_dbusd_t msg='avc:  received policyload notice
+>>> (seqno=2)
+>>>
+>>> This is due to dbus-broker setting their avc log callback to send USER_AVC audit
+>>> messages for everything that comes to the libselinux log callback. I think the
+>>> right thing to do there is to change it to emit USER_SELINUX_ERR audit messages
+>>> if the log message is SELINUX_ERROR, otherwise log the message using their
+>>> regular method (stderr I think).
+>>>
+>>> But the question became, why is the userspace AVC not simply emitting its own
+>>> USER_MAC_POLICY_LOAD audit message instead of sending a message to the log
+>>> callback?
+>>
+>> Ok, I missed that there is a SELINUX_AVC log type and that's how the userspace
+>> denial messages are sent out. How about adding SELINUX_POLICYLOAD and
+>> SELINUX_ENFORCE log types so that callers can emit appropriate audit messages?
+> 
+> Do we need two different new types or just one?  Otherwise, I don't
+> have a problem with adding new ones as long as it doesn't break
+> existing applications.
 
-My guess is that Dan was using selinux/next, just not the latest.
-
-Anyway, the patch is now merged into selinux/next but I had to do some
-manual fixes so please double check that it looks okay to you.  Thanks
-everyone.
+Perhaps just the policyload.  There is a USER_MAC_POLICY_LOAD audit type which 
+made me think of adding the SELINUX_POLICYLOAD type to the logging callback. 
+There is the log message after processing the setenforce, but there isn't 
+currently a corresponding USER_MAC_STATUS audit message type.  It seems like it 
+is justifiable to have a USER_MAC_STATUS audit message for consistency, but I'm 
+not sure how much value it provides.
 
 -- 
-paul moore
-www.paul-moore.com
+Chris PeBenito
