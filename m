@@ -2,90 +2,315 @@ Return-Path: <SRS0=r6Mn=CE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA56C433DF
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 15:27:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40AE3C433DF
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 17:29:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE31F2075E
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 15:27:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19E2C2075E
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 17:29:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="kGz04hp8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VDmrIdH+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbgHZP1H (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Aug 2020 11:27:07 -0400
-Received: from sonic310-30.consmr.mail.ne1.yahoo.com ([66.163.186.211]:40035
-        "EHLO sonic310-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727903AbgHZP1H (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 11:27:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1598455626; bh=5Y1Avt2lYh1VGgnMFZIY8U8V0ORICnB+F3ZB/kSXHoM=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=kGz04hp8+jvfPSNe8xtmUL1eh+Rj8XGk6HvlDSh1uuJ8U7X0BhOPaUQlcmoxpFOWju+qZcUTF/VTFIBkdWLovAkncOGZRveLdyc+IR3QoTlFZLqLSxPORg2It+BYWlGFqNF6Du+nJ2wGGLWrwppAL016Ii/bWbKRRiTc0/1LSbTMyt3tRtfpM6mXfQDQOme036SoyRjdULZYgUCryyicZ0ZLnbRNekzHtYVfS82tEd9HMxQ6yMN3G/r6X/1aFTmSgiNO8h3fcz88V3RyFe3QIruR14zRjDXqk9htuSyJDgLiQiJRmpPsCwXVHV6EheYNt/5jRT5FEAXWOq1k6qgJwA==
-X-YMail-OSG: _pJE7_sVM1meXA56Bcfg0IRYuoeU8IJfqss204jAi6XC3SF_q191.SFiNAxrpXB
- Zzc.gA5rTCGN.jemSXx4gI.LSrqxJuIk_vjAfn5tmJPOyTkXZ5g.WQiSmlKhT4QStmxhntwy5ZJ0
- NWIRQZpjLfnvTU4m4qjYgDy35IXyPPqr.5TlSd86C2USJLBP7kUH857fC8E_C3hpha1SWXiCu8Kh
- x0byvjMXuJiD6t4Plr4CLXYWPa8_8FvGX7ChMvKRPZDoa3vz_i3eJsdRrCGi1n.zACrpHimqj1O5
- i3CHPQK6M2w2_KNPTASde9fblfshj1xPK0en9_XEuFo6H2ngi_UdlrgdcZpFvuVwZGhAxBdkfVcf
- hYTwv4VJkXH0jIKXiLenlVGImmI2dBY2mSCRk8WjIXX4QLtmK5QmVQyB8Ngzd0279cmqyTDBAhEX
- uajQdgoX4kqYMwxrPICgdV2wntoxB.GdboySV48.Crac5vNRJucJcNlbHK7a6zXJY39tAkPOC8sK
- f0h_sMmqdDf5dNkghNtJehwAxXdXzmH7_cxAoA2mOQIimoGmtT3zdMozEqWRskNAghoqF8y2WzA_
- I9ZyQTrfx_jZxKgQClHi1p353yh3QYIo5Knb1njt6bwhMUv5OLC9YW7Xewbjbg2SlC0V1DKxgccf
- PwlMyQUOdBFs0Kc4dk5j72ZYRfBsK_iOF9D01AmkHB9oTquCCk8JkYGMFjroexU1znnqjCVrt8K1
- qs52tkltqnaRpg0rqV2D6vqDWj_m8gG_GogRCUb2vtOy6pZEjkGCR3mimMT2jsD.vKPq6J2iiCae
- i2QtT2hItiFatGXBujwDYUJqQOpSpkUURPo2FLdBQUG0FwhuXXmLrB4k4s7jNPFToQnzukSNhe6k
- iBCRRp77atw8yjLy3lQPDRrYFVr_y2RhWII0_y4HN_sBQsZOO6rf8cESYN0zKH0r6.f2A8IHduIA
- KZqa4PZcq67Ix1unR0yit360dAC6cV2.x7HrW4r4gq4YSpKRbvxnVQlB8pwcXbaqfKRS2rFRHJqv
- vbR1M.ESsfk0m1z.1LL6DX7sxUmb1yZuHCXm0lKqEoYvcps114OMxQ11s1Pn50ANfWSGslelkDWJ
- byGU_I9QtmGNGrk4OXFVTj5ol1Ct0iGXV01PP6OJdtxel0.HGGjSyTXOUDhzdvokwC.dTaIITaX2
- PbsaAESUwCVQ5lY_dS.EABdVvGFeWoGVwZ8FrQ8.opszNqZenUb9sNZ75C8syaLMBFMftV1NqJFQ
- AIX6ovvFjCrEIvk8z4WnV7ocADyEWvcxp0QLJlTJ.OLU_Brj2C8X1gFnCVfG_km.yXsmIh1FXouT
- W1eQ7ROig4ltNHNC6PLuA_A4wHv1kKhussqWbWJI1IID9EVJ245zdLTXZyQO8pdkD9DZFRY8e4RT
- ipkRh5GQ58po.IUwViwy2FzNSBR3uKDp7ltsVc2JWEZMVH6K_ehp_Ys4qo731PW4QUjtDhrVgpKl
- o95aeNB2qdHE56de_Bj1tFIsUfvIqySPAfLHPjREhSg.PvtbCRwewFQN6NcapDKwXkxCXhL9jUaK
- 7ZUSW7Hg6nJEtI7YbctwJtA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Wed, 26 Aug 2020 15:27:06 +0000
-Received: by smtp415.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID b5b563c2696ac3f378a8a1ac18efa795;
-          Wed, 26 Aug 2020 15:27:03 +0000 (UTC)
-Subject: Re: [PATCH v20 00/23] LSM: Module stacking for AppArmor
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20200826145247.10029-1-casey.ref@schaufler-ca.com>
- <20200826145247.10029-1-casey@schaufler-ca.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <a4c67f8e-66d4-2c35-0640-9a75fa15cc4c@schaufler-ca.com>
-Date:   Wed, 26 Aug 2020 08:27:01 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726802AbgHZR3E (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Aug 2020 13:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725995AbgHZR3E (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 13:29:04 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C84C061574
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 10:29:03 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id s16so2029922qtn.7
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 10:29:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rx4+JTjzhjIVaSJWzL9LJLTct7S/BcN9kLeR3S+OkUU=;
+        b=VDmrIdH+kgY2Egp1g0Aq/OsSYbj4P00ZWDhXKSWI0Xs9QfgPeqZwBoHq8saFbhj5YE
+         iTgWWjjgDcalWdfXKuh41lR6A4TdeeoOzBrcpMObzo+oevsHCFmChMcosmJkUvE8AoIj
+         NkWsRNnoTMKr5HL7mzlAczBPHJ/c91U2Kk3ZBLi2tTcid0bX+UPgR3b9YwZeAJCNpVF1
+         Pngb5gBS8ZfPTeX1+s/GrWAsISrBxoFQi48kWgJnXE7vgryHeOVhmr5Elybg1LypQXo0
+         KA2bI8zhOo4mXzib6ZDIPTw7Hxk5CHw7JV9HT6z89cHFarRylamrnWv2uH15x6nOcRDu
+         +gJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rx4+JTjzhjIVaSJWzL9LJLTct7S/BcN9kLeR3S+OkUU=;
+        b=qYYrGlYUfqC95s1nvZ2JZqACMmtgLOHK2f/rYKfCYkH4Co/K/WjBjYEFQszZIVEkqK
+         aHy4y8/MLlb5MslWlPd3Lj+KHwnNOFlL70Gva/CRoBNp14g81eVImK7qr37wQKmuctrP
+         tGMdC8fK5cipuD3nWI1oHoL/yUuDkRMe2jhI5ZyR8U+8T61oydd19ZpZPZZiixtOJjMF
+         opW/MTarR+kKkALsnJu7KWZeJQJh3PID/JBCzhPdRA7mxWBdJ892/A9VYgU/Yf0ao02A
+         Y3OsnhWAD7QUtsqHByc8bKwLamPixHpoIAt/OqJLanfiWZMiQpkP8QrbhStBb7G3GX58
+         vE7w==
+X-Gm-Message-State: AOAM5318dL4RcHZhNPQquY+jhoapIu0IzWKqikq9MK6Cpsdve4HUc0sU
+        M8Dz+6e5zN+W75IEpPLu0fE=
+X-Google-Smtp-Source: ABdhPJxyPqkvwgcis9Hemh76/Ge/N1k7h2+qcjOHgFXeSTRPOMV8Y3pV/zlh5mgjri8H2+4/0uI5oQ==
+X-Received: by 2002:ac8:6048:: with SMTP id k8mr15345621qtm.143.1598462943028;
+        Wed, 26 Aug 2020 10:29:03 -0700 (PDT)
+Received: from puritycontrol.fios-router.home (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
+        by smtp.gmail.com with ESMTPSA id b2sm2435290qto.82.2020.08.26.10.29.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Aug 2020 10:29:02 -0700 (PDT)
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     paul@paul-moore.com
+Cc:     omosnace@redhat.com, selinux@vger.kernel.org,
+        peter.enderborg@sony.com, paulmck@kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] selinux: move policy mutex to selinux_state, use in lockdep checks
+Date:   Wed, 26 Aug 2020 13:28:53 -0400
+Message-Id: <20200826172853.49426-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20200826145247.10029-1-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.16455 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/26/2020 7:52 AM, Casey Schaufler wrote:
-> This patchset provides the changes required for
-> the AppArmor security module to stack safely with any other.
->
-> v20: Rebase to 5.9-rc1
->      Change the BPF security module to use the lsmblob data. (patch 0002)
->      Repair length logic in subject label processing (patch 0015)
->      Handle -EINVAL from the empty BPF setprocattr hook (patch 0020)
->      Correct length processing in append_ctx() (patch 0022)
-> ...
->
-> https://github.com/cschaufler/lsm-stacking.git#stack-5.8-rc6-a-v19
+Move the mutex used to synchronize policy changes (reloads and setting
+of booleans) from selinux_fs_info to selinux_state and use it in
+lockdep checks for rcu_dereference_protected() calls in the security
+server functions.  This makes the dependency on the mutex explicit
+in the code rather than relying on comments.
 
-https://github.com/cschaufler/lsm-stacking.git#stack-5.9-rc1-v20
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 switches selinuxfs from using &selinux_state.policy_mutex to using
+fsi->state->policy_mutex.  selinuxfs operates on fsi->state->policy
+for all policy reading or modifying operations.  It only acts on
+&selinux_state for checking permissions in the current context.
+At present, fsi->state is always &selinux_state; this will change
+when selinux namespaces are introduced.
 
-Sorry about the old URL.
+ security/selinux/hooks.c            |  1 +
+ security/selinux/include/security.h |  1 +
+ security/selinux/selinuxfs.c        | 26 ++++++++++----------
+ security/selinux/ss/services.c      | 37 +++++++----------------------
+ 4 files changed, 22 insertions(+), 43 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6f30ba1a38dc..6210e98219a5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7237,6 +7237,7 @@ static __init int selinux_init(void)
+ 	selinux_state.checkreqprot = selinux_checkreqprot_boot;
+ 	selinux_avc_init(&selinux_state.avc);
+ 	mutex_init(&selinux_state.status_lock);
++	mutex_init(&selinux_state.policy_mutex);
+ 
+ 	/* Set the security state for the initial task. */
+ 	cred_init_security();
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 505e51264d51..bbbf7141ccdb 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -103,6 +103,7 @@ struct selinux_state {
+ 
+ 	struct selinux_avc *avc;
+ 	struct selinux_policy __rcu *policy;
++	struct mutex policy_mutex;
+ } __randomize_layout;
+ 
+ void selinux_avc_init(struct selinux_avc **avc);
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index d1872adf0c47..29567acdda21 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -75,7 +75,6 @@ struct selinux_fs_info {
+ 	unsigned long last_class_ino;
+ 	bool policy_opened;
+ 	struct dentry *policycap_dir;
+-	struct mutex mutex;
+ 	unsigned long last_ino;
+ 	struct selinux_state *state;
+ 	struct super_block *sb;
+@@ -89,7 +88,6 @@ static int selinux_fs_info_create(struct super_block *sb)
+ 	if (!fsi)
+ 		return -ENOMEM;
+ 
+-	mutex_init(&fsi->mutex);
+ 	fsi->last_ino = SEL_INO_NEXT - 1;
+ 	fsi->state = &selinux_state;
+ 	fsi->sb = sb;
+@@ -400,7 +398,7 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
+ 
+ 	BUG_ON(filp->private_data);
+ 
+-	mutex_lock(&fsi->mutex);
++	mutex_lock(&fsi->state->policy_mutex);
+ 
+ 	rc = avc_has_perm(&selinux_state,
+ 			  current_sid(), SECINITSID_SECURITY,
+@@ -431,11 +429,11 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
+ 
+ 	filp->private_data = plm;
+ 
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 
+ 	return 0;
+ err:
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 
+ 	if (plm)
+ 		vfree(plm->data);
+@@ -622,7 +620,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+ 	ssize_t length;
+ 	void *data = NULL;
+ 
+-	mutex_lock(&fsi->mutex);
++	mutex_lock(&fsi->state->policy_mutex);
+ 
+ 	length = avc_has_perm(&selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+@@ -666,7 +664,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+ 		from_kuid(&init_user_ns, audit_get_loginuid(current)),
+ 		audit_get_sessionid(current));
+ out:
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 	vfree(data);
+ 	return length;
+ }
+@@ -1271,7 +1269,7 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
+ 	unsigned index = file_inode(filep)->i_ino & SEL_INO_MASK;
+ 	const char *name = filep->f_path.dentry->d_name.name;
+ 
+-	mutex_lock(&fsi->mutex);
++	mutex_lock(&fsi->state->policy_mutex);
+ 
+ 	ret = -EINVAL;
+ 	if (index >= fsi->bool_num || strcmp(name,
+@@ -1290,14 +1288,14 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
+ 	}
+ 	length = scnprintf(page, PAGE_SIZE, "%d %d", cur_enforcing,
+ 			  fsi->bool_pending_values[index]);
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 	ret = simple_read_from_buffer(buf, count, ppos, page, length);
+ out_free:
+ 	free_page((unsigned long)page);
+ 	return ret;
+ 
+ out_unlock:
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 	goto out_free;
+ }
+ 
+@@ -1322,7 +1320,7 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
+ 	if (IS_ERR(page))
+ 		return PTR_ERR(page);
+ 
+-	mutex_lock(&fsi->mutex);
++	mutex_lock(&fsi->state->policy_mutex);
+ 
+ 	length = avc_has_perm(&selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+@@ -1347,7 +1345,7 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
+ 	length = count;
+ 
+ out:
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 	kfree(page);
+ 	return length;
+ }
+@@ -1378,7 +1376,7 @@ static ssize_t sel_commit_bools_write(struct file *filep,
+ 	if (IS_ERR(page))
+ 		return PTR_ERR(page);
+ 
+-	mutex_lock(&fsi->mutex);
++	mutex_lock(&fsi->state->policy_mutex);
+ 
+ 	length = avc_has_perm(&selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+@@ -1400,7 +1398,7 @@ static ssize_t sel_commit_bools_write(struct file *filep,
+ 		length = count;
+ 
+ out:
+-	mutex_unlock(&fsi->mutex);
++	mutex_unlock(&fsi->state->policy_mutex);
+ 	kfree(page);
+ 	return length;
+ }
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index e730204f060b..85cfd46836c7 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2163,13 +2163,8 @@ void selinux_policy_cancel(struct selinux_state *state,
+ {
+ 	struct selinux_policy *oldpolicy;
+ 
+-	/*
+-	 * NOTE: We do not need to take the rcu read lock
+-	 * around the code below because other policy-modifying
+-	 * operations are already excluded by selinuxfs via
+-	 * fsi->mutex.
+-	 */
+-	oldpolicy = rcu_dereference_check(state->policy, 1);
++	oldpolicy = rcu_dereference_protected(state->policy,
++					lockdep_is_held(&state->policy_mutex));
+ 
+ 	sidtab_cancel_convert(oldpolicy->sidtab);
+ 	selinux_policy_free(policy);
+@@ -2192,13 +2187,8 @@ void selinux_policy_commit(struct selinux_state *state,
+ 	struct selinux_policy *oldpolicy;
+ 	u32 seqno;
+ 
+-	/*
+-	 * NOTE: We do not need to take the rcu read lock
+-	 * around the code below because other policy-modifying
+-	 * operations are already excluded by selinuxfs via
+-	 * fsi->mutex.
+-	 */
+-	oldpolicy = rcu_dereference_check(state->policy, 1);
++	oldpolicy = rcu_dereference_protected(state->policy,
++					lockdep_is_held(&state->policy_mutex));
+ 
+ 	/* If switching between different policy types, log MLS status */
+ 	if (oldpolicy) {
+@@ -2291,13 +2281,8 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len,
+ 		return 0;
+ 	}
+ 
+-	/*
+-	 * NOTE: We do not need to take the rcu read lock
+-	 * around the code below because other policy-modifying
+-	 * operations are already excluded by selinuxfs via
+-	 * fsi->mutex.
+-	 */
+-	oldpolicy = rcu_dereference_check(state->policy, 1);
++	oldpolicy = rcu_dereference_protected(state->policy,
++					lockdep_is_held(&state->policy_mutex));
+ 
+ 	/* Preserve active boolean values from the old policy */
+ 	rc = security_preserve_bools(oldpolicy, newpolicy);
+@@ -3013,14 +2998,8 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
+ 	if (!selinux_initialized(state))
+ 		return -EINVAL;
+ 
+-	/*
+-	 * NOTE: We do not need to take the rcu read lock
+-	 * around the code below because other policy-modifying
+-	 * operations are already excluded by selinuxfs via
+-	 * fsi->mutex.
+-	 */
+-
+-	oldpolicy = rcu_dereference_check(state->policy, 1);
++	oldpolicy = rcu_dereference_protected(state->policy,
++					lockdep_is_held(&state->policy_mutex));
+ 
+ 	/* Consistency check on number of booleans, should never fail */
+ 	if (WARN_ON(len != oldpolicy->policydb.p_bools.nprim))
+-- 
+2.25.1
 
