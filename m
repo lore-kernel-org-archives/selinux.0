@@ -1,385 +1,348 @@
-Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=r6Mn=CE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 299EFC433E1
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 23:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0FFC433DF
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 00:25:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3CC920767
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 23:23:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C7D92075E
+	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 00:25:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Estte5WR"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ib56OhRs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726578AbgHYXXK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 19:23:10 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:40136 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726542AbgHYXXK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 19:23:10 -0400
-Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 5B4E020B4908;
-        Tue, 25 Aug 2020 16:23:07 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5B4E020B4908
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1598397787;
-        bh=vDXdboWqSLcvUiA1m/6/TudyLiPU0Q9vKws166s3eKc=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=Estte5WR7K0ZW2sAvXF2qDw4X1hT8v97bH28uAWm0eDONXfJNuaN5JaUSw35eJWHG
-         WC+2LGqs4faD6XzWtErOXx/Mi3Tdr/HAG/pykUDfpAIVo3vug79OQaI2C2YNowuSR0
-         1/GWL3mGE5R2nS9+HKpwRXgwvedNAXe7LN1cVjKI=
-Subject: Re: [PATCH v2 2/3] IMA: add policy to support measuring critical data
- from kernel components
-To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20200821182107.5328-1-tusharsu@linux.microsoft.com>
- <20200821182107.5328-3-tusharsu@linux.microsoft.com>
- <d82c5cdab170d3dcc513b38632801c3aa14ca389.camel@linux.ibm.com>
- <e701ad15-1672-d208-c2b8-8228a728c98d@linux.microsoft.com>
- <879a504a63021b248e8d2ce952283bbf83f21688.camel@linux.ibm.com>
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Message-ID: <fbe0c83d-563b-e5be-ffcd-20a7857c80c3@linux.microsoft.com>
-Date:   Tue, 25 Aug 2020 16:23:06 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726656AbgHZAZt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 20:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726551AbgHZAZr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 20:25:47 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F637C061574
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 17:25:47 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id j9so305997ilc.11
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 17:25:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=K/dyzKl2KNDp/r+WfnPynkuztX4WyPxO01OxIzOPsJ4=;
+        b=ib56OhRsrZHqLngBOX7WcYBi5OVWlsUTXEhNLYmH95tp2zLJU9SZi0F14WkOZEjSdB
+         YL2vv1mZMvs631kK8DIkddhpnGpvHWXwJk0/SBy3PK4mFkBHOvSblRdP3JfRalaXmeEA
+         4jLU442pDRP82Tk0CxZaZ1vz3Dtyngw09LHmYEsteHyGGxdUgG81gN1fRytCwmXFqjDQ
+         YBb0+wUGqKkZJxxuVGUtFC1UQBso067BO/zLJGx/f9XL3tCZGgrDP0e0H+8rzrdaz1SQ
+         2q/TdyDbZAOh/ErdLcMitEGi8Y74Qwl1jaWKm/GtYZ7PZj4Q5K+kqqUQdIESC6PttW5e
+         YoAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=K/dyzKl2KNDp/r+WfnPynkuztX4WyPxO01OxIzOPsJ4=;
+        b=RkqtVvAVBVjpoKJKq8CJAvZmC5Aii463MMsyKIjfjNI4k7HQdtr5QNBOfwriUjJ/rq
+         U6BbxLt+YjOnycPBbWdbm3hPo+lBsGq18bX5r1h8hIsB72e5d6j3kssWMGNZZjW6Jb/p
+         lrx64z3ugfJlyV2Auvn8rrPNa2BTfQz8RUDpoC7uvNZzt3yE/NaPB2JfNZcsKTU5dWwb
+         MBJdclwBFXvfmFFNbq1TvTagVBLqmpx++l1dJVc+j8WUUj2JT7LBD9bnVPaAKcXHz4vW
+         4mXkT0+XFrJgfk8EY1hmrl4oBviHSqGMoXxc7uIuXob0DRcQswnj4yIbsioU4AEYmVzI
+         GVqA==
+X-Gm-Message-State: AOAM531Fc+qiVHLGuAB9Mue2BQuc6epwU2MDaWpLot7kWMdkagp7T8AF
+        z7fK0MMFLbar+0R9TH0mSuksTBK+xkI9NoOzZppTYQ==
+X-Google-Smtp-Source: ABdhPJyu1EJ1dRN4fAV7VA7O9vNx4XEDXtN9oKEprWXupCUNBnM8L5AfVi9mlfJPiFSlKmachtOfFp6J9htuuDjldAw=
+X-Received: by 2002:a92:dc90:: with SMTP id c16mr11226649iln.202.1598401546414;
+ Tue, 25 Aug 2020 17:25:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <879a504a63021b248e8d2ce952283bbf83f21688.camel@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200821185645.801971-1-lokeshgidra@google.com>
+ <20200821185645.801971-2-lokeshgidra@google.com> <20200825035036.GC810@sol.localdomain>
+In-Reply-To: <20200825035036.GC810@sol.localdomain>
+From:   Lokesh Gidra <lokeshgidra@google.com>
+Date:   Tue, 25 Aug 2020 17:25:35 -0700
+Message-ID: <CA+EESO7YG=9K7o=rjRm++n7HWPhhP1W8Xo7CF_4_pGBheExmqA@mail.gmail.com>
+Subject: Re: [PATCH v7 1/3] Add a new LSM-supporting anonymous inode interface
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Calin Juravle <calin@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        kernel-team@android.com, Daniel Colascione <dancol@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Mon, Aug 24, 2020 at 8:50 PM Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> On Fri, Aug 21, 2020 at 11:56:43AM -0700, Lokesh Gidra wrote:
+> > From: Daniel Colascione <dancol@google.com>
+> >
+> > This change adds a new function, anon_inode_getfd_secure, that creates
+> > anonymous-node file with individual non-S_PRIVATE inode to which security
+> > modules can apply policy. Existing callers continue using the original
+> > singleton-inode kind of anonymous-inode file. We can transition anonymous
+> > inode users to the new kind of anonymous inode in individual patches for
+> > the sake of bisection and review.
+> >
+> > The new function accepts an optional context_inode parameter that
+> > callers can use to provide additional contextual information to
+> > security modules for granting/denying permission to create an anon inode
+> > of the same type.
+> >
+> > For example, in case of userfaultfd, the created inode is a
+> > 'logical child' of the context_inode (userfaultfd inode of the
+> > parent process) in the sense that it provides the security context
+> > required during creation of the child process' userfaultfd inode.
+> >
+> > Signed-off-by: Daniel Colascione <dancol@google.com>
+> >
+> > [Fix comment documenting return values of inode_init_security_anon()]
+> > [Add context_inode description in comments to anon_inode_getfd_secure()]
+> > [Remove definition of anon_inode_getfile_secure() as there are no callers]
+> > [Make _anon_inode_getfile() static]
+> > [Use correct error cast in _anon_inode_getfile()]
+> >
+> > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > ---
+> >  fs/anon_inodes.c              | 148 ++++++++++++++++++++++++----------
+> >  include/linux/anon_inodes.h   |  13 +++
+> >  include/linux/lsm_hook_defs.h |   2 +
+> >  include/linux/lsm_hooks.h     |   7 ++
+> >  include/linux/security.h      |   3 +
+> >  security/security.c           |   9 +++
+> >  6 files changed, 141 insertions(+), 41 deletions(-)
+> >
+> > diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> > index 89714308c25b..2aa8b57be895 100644
+> > --- a/fs/anon_inodes.c
+> > +++ b/fs/anon_inodes.c
+> > @@ -55,61 +55,78 @@ static struct file_system_type anon_inode_fs_type = {
+> >       .kill_sb        = kill_anon_super,
+> >  };
+> >
+> > -/**
+> > - * anon_inode_getfile - creates a new file instance by hooking it up to an
+> > - *                      anonymous inode, and a dentry that describe the "class"
+> > - *                      of the file
+> > - *
+> > - * @name:    [in]    name of the "class" of the new file
+> > - * @fops:    [in]    file operations for the new file
+> > - * @priv:    [in]    private data for the new file (will be file's private_data)
+> > - * @flags:   [in]    flags
+> > - *
+> > - * Creates a new file by hooking it on a single inode. This is useful for files
+> > - * that do not need to have a full-fledged inode in order to operate correctly.
+> > - * All the files created with anon_inode_getfile() will share a single inode,
+> > - * hence saving memory and avoiding code duplication for the file/inode/dentry
+> > - * setup.  Returns the newly created file* or an error pointer.
+> > - */
+> > -struct file *anon_inode_getfile(const char *name,
+> > -                             const struct file_operations *fops,
+> > -                             void *priv, int flags)
+> > +static struct inode *anon_inode_make_secure_inode(
+> > +     const char *name,
+> > +     const struct inode *context_inode)
+> > +{
+> > +     struct inode *inode;
+> > +     const struct qstr qname = QSTR_INIT(name, strlen(name));
+> > +     int error;
+> > +
+> > +     inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
+> > +     if (IS_ERR(inode))
+> > +             return inode;
+> > +     inode->i_flags &= ~S_PRIVATE;
+> > +     error = security_inode_init_security_anon(
+> > +             inode, &qname, context_inode);
+>
+> Weird indentation here.  The call to security_inode_init_security_anon() fits on
+> one line.
+>
+> > +     if (error) {
+> > +             iput(inode);
+> > +             return ERR_PTR(error);
+> > +     }
+> > +     return inode;
+> > +}
+> > +
+> > +static struct file *_anon_inode_getfile(const char *name,
+> > +                                     const struct file_operations *fops,
+> > +                                     void *priv, int flags,
+> > +                                     const struct inode *context_inode,
+> > +                                     bool secure)
+> >  {
+> > +     struct inode *inode;
+> >       struct file *file;
+> >
+> > -     if (IS_ERR(anon_inode_inode))
+> > -             return ERR_PTR(-ENODEV);
+> > +     if (secure) {
+> > +             inode = anon_inode_make_secure_inode(
+> > +                     name, context_inode);
+>
+> Likewise here.  The call to anon_inode_make_secure_inode() fits on one line.
+>
+> > +             if (IS_ERR(inode))
+> > +                     return ERR_CAST(inode);
+> > +     } else {
+> > +             inode = anon_inode_inode;
+> > +             if (IS_ERR(inode))
+> > +                     return ERR_PTR(-ENODEV);
+> > +             /*
+> > +              * We know the anon_inode inode count is always
+> > +              * greater than zero, so ihold() is safe.
+> > +              */
+> > +             ihold(inode);
+> > +     }
+> >
+> > -     if (fops->owner && !try_module_get(fops->owner))
+> > -             return ERR_PTR(-ENOENT);
+> > +     if (fops->owner && !try_module_get(fops->owner)) {
+> > +             file = ERR_PTR(-ENOENT);
+> > +             goto err;
+> > +     }
+>
+> The error path here does module_put(fops->owner), even though a reference wasn't
+> acquired.
+>
+> > +
+> > +/**
+> > + * anon_inode_getfd - creates a new file instance by hooking it up to
+> > + *                    an anonymous inode and a dentry that describe
+> > + *                    the "class" of the file
+> > + *
+> > + * @name:    [in]    name of the "class" of the new file
+> > + * @fops:    [in]    file operations for the new file
+> > + * @priv:    [in]    private data for the new file (will be file's private_data)
+> > + * @flags:   [in]    flags
+> > + *
+> > + * Creates a new file by hooking it on a single inode. This is
+> > + * useful for files that do not need to have a full-fledged inode in
+> > + * order to operate correctly.  All the files created with
+> > + * anon_inode_getfile() will use the same singleton inode, reducing
+>
+> This should say anon_inode_getfd(), not anon_inode_getfile().
+>
+> > +/**
+> > + * Like anon_inode_getfd(), but adds the @context_inode argument to
+> > + * allow security modules to control creation of the new file. Once the
+> > + * security module makes the decision, this inode is no longer needed
+> > + * and hence reference to it is not held.
+> > + */
+> > +int anon_inode_getfd_secure(const char *name, const struct file_operations *fops,
+> > +                         void *priv, int flags,
+> > +                         const struct inode *context_inode)
+> > +{
+> > +     return _anon_inode_getfd(name, fops, priv, flags,
+> > +                              context_inode, true);
+> > +}
+>
+> Weird indentation here again.  The call to _anon_inode_getfd() fits on one line.
+>
+> > @@ -162,4 +229,3 @@ static int __init anon_inode_init(void)
+> >  }
+> >
+> >  fs_initcall(anon_inode_init);
+> > -
+>
+> Unnecessary whitespace change.
+>
+> > diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
+> > index d0d7d96261ad..67bd85d92dca 100644
+> > --- a/include/linux/anon_inodes.h
+> > +++ b/include/linux/anon_inodes.h
+> > @@ -10,12 +10,25 @@
+> >  #define _LINUX_ANON_INODES_H
+> >
+> >  struct file_operations;
+> > +struct inode;
+> > +
+> > +struct file *anon_inode_getfile_secure(const char *name,
+> > +                                    const struct file_operations *fops,
+> > +                                    void *priv, int flags,
+> > +                                    const struct inode *context_inode);
+>
+> This function isn't defined anywhere.
+>
+> > + * @inode_init_security_anon:
+> > + *      Set up a secure anonymous inode.
+> > + *      @inode contains the inode structure
+> > + *      @name name of the anonymous inode class
+> > + *      @context_inode optional related inode
+> > + *   Returns 0 on success, -EACCESS if the security module denies the
+> > + *   creation of this inode, or another -errno upon other errors.
+>
+> Is there a better name for this than "secure anonymous inode"?
+> (What is meant by "secure"?)
+>
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 0a0a03b36a3b..95c133a8f8bb 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -322,6 +322,9 @@ void security_inode_free(struct inode *inode);
+> >  int security_inode_init_security(struct inode *inode, struct inode *dir,
+> >                                const struct qstr *qstr,
+> >                                initxattrs initxattrs, void *fs_data);
+> > +int security_inode_init_security_anon(struct inode *inode,
+> > +                                   const struct qstr *name,
+> > +                                   const struct inode *context_inode);
+> >  int security_old_inode_init_security(struct inode *inode, struct inode *dir,
+> >                                    const struct qstr *qstr, const char **name,
+> >                                    void **value, size_t *len);
+>
+> This patch doesn't compile when !CONFIG_SECURITY because this file is missing a
+> !CONFIG_SECURITY stub for security_inode_init_security_anon().
+>
+> > diff --git a/security/security.c b/security/security.c
+> > index 70a7ad357bc6..149b3f024e2d 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -1057,6 +1057,15 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
+> >  }
+> >  EXPORT_SYMBOL(security_inode_init_security);
+> >
+> > +int
+> > +security_inode_init_security_anon(struct inode *inode,
+> > +                               const struct qstr *name,
+> > +                               const struct inode *context_inode)
+> > +{
+> > +     return call_int_hook(inode_init_security_anon, 0, inode, name,
+> > +                          context_inode);
+> > +}
+>
+> Nit: everything else in this file has 'int' on the same line as the function
+> name.
+>
+Thanks a lot for reviewing. I'll send another version with all these fixed.
 
-
-On 2020-08-25 1:43 p.m., Mimi Zohar wrote:
-> On Tue, 2020-08-25 at 10:32 -0700, Tushar Sugandhi wrote:
->>
->> On 2020-08-24 3:46 p.m., Mimi Zohar wrote:
->>> On Fri, 2020-08-21 at 11:21 -0700, Tushar Sugandhi wrote:
->>>> There would be several candidate kernel components suitable for IMA
->>>> measurement. Not all of them would have support for IMA measurement.
->>>> Also, system administrators may not want to measure data for all of
->>>> them, even when they support IMA measurement. An IMA policy specific
->>>> to various kernel components is needed to measure their respective
->>>> critical data.
->>>>
->>>> Add a new IMA policy CRITICAL_DATA+data_sources to support measuring
->>>> various critical kernel components. This policy would enable the
->>>> system administrators to limit the measurement to the components,
->>>> if the components support IMA measurement.
->>>>
->>>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
->>>> ---
->>>>    Documentation/ABI/testing/ima_policy |  6 ++-
->>>>    security/integrity/ima/ima.h         |  1 +
->>>>    security/integrity/ima/ima_api.c     |  2 +-
->>>>    security/integrity/ima/ima_policy.c  | 62 +++++++++++++++++++++++++---
->>>>    4 files changed, 63 insertions(+), 8 deletions(-)
->>>>
->>>> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
->>>> index cd572912c593..a0dd0f108555 100644
->>>> --- a/Documentation/ABI/testing/ima_policy
->>>> +++ b/Documentation/ABI/testing/ima_policy
->>>> @@ -29,7 +29,7 @@ Description:
->>>>    		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
->>>>    				[FIRMWARE_CHECK]
->>>>    				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
->>>> -				[KEXEC_CMDLINE] [KEY_CHECK]
->>>> +				[KEXEC_CMDLINE] [KEY_CHECK] [CRITICAL_DATA]
->>>>    			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
->>>>    			       [[^]MAY_EXEC]
->>>>    			fsmagic:= hex value
->>>> @@ -125,3 +125,7 @@ Description:
->>>>    		keys added to .builtin_trusted_keys or .ima keyring:
->>>>    
->>>>    			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
->>>> +
->>>> +		Example of measure rule using CRITICAL_DATA to measure critical data
->>>> +
->>>> +			measure func=CRITICAL_DATA data_sources=selinux|apparmor|dm-crypt
->>>
->>> This example uses "data_sources" without first defining it in the
->>> "option:" section.  Defining two new options is an indication that this
->> Thanks. I will define "data_sources" first in "option:" section.
->>> patch should be split up.  One which defines the "CRITICAL_DATA" and
->>> another one which defines the new key value pair.  The term
->> I intentionally kept the "CRITICAL_DATA" and "data_sources" in the same
->> patch.
->>
->> CRITICAL_DATA is different than KEY_CHECK because in case of KEY_CHECK,
->> "keyrings=" is optional. If "keyrings=" is not specified, then we
->> measure all keyrings.
->>
->> Where for CRITICAL_DATA, "data_sources=" is mandatory.
->>
->> Because the data sources would be diverse and orthogonal to each other,
->> (unlike "keyrings=") - not specifying "data_sources=" shouldn't result
->> in IMA blindly measuring all data sources.
-> 
-> Good point.
->>
->> Since CRITICAL_DATA, and "data_sources=" go hand in hand, I wanted them
->> to be part of the same patch.
-> 
-> Separating them will help clarify the patch description.  There's no
-> harm in defining the critical data source first.
-> 
-I will put func=CRITICAL_DATA into one patch, and "data_sources=" into 
-the next patch. Coding wise, the reverse order of patches (where
-"data_sources=" goes in the first patch, before func=CRITICAL_DATA)
-doesn't make sense. Because ima_match_rules() etc. have switch cases
-built around func=CRITICAL_DATA etc.
-
->>> "data_sources" is pretty generic.  Perhaps constrain it a bit by re-
->>> naming it "critical_data=".  Or was such using a generic name
->>> intentional?
->>>
->> We intentionally kept the name generic because the data to be measured
->> could be coming from any kernel component with any granularity (from a
->> single bool to megabytes of data). The kernel component is also loosely
->> defined here. It could be an LSM (like SELinux), or a broader base layer
->> (like device-mapper), or a specific module (like dm-crypt), or it could
->> be different parts of a single module.
->>
->> Also, we didn't want to name "data_sources" as "critical_data" to avoid
->> confusion with func "CRITICAL_DATA".
-> 
-> The point is that you're measuring critical data, not just any data
-> from any source.  Whatever term is used, it needs to be added to the
-> Documentation/ABI/testing/ima_policy.  I think something that is self
-> describing will help.  See what makes the most sense.
-Fair enough.
-Does "critical_kernel_data_sources=" sound ok?
-> 
->>> Normally "CRITICAL_DATA" would be defined with the critical data hook,
->>> but that seems to be defined in patch 3/3 "IMA: define IMA hook to
->>> measure critical data from kernel components".
->>>
->> I can make the "CRITICAL_DATA" and the hook as part of the same patch.
->> That would mean combining patch 2 and 3 into a single one.
->>
->> Does it sound ok?
-> 
-> In the other thread, we discussed separating out "measure_payload_hash"from other changes.  The end result you want one logical change per patch.  Each patch builds upon the previous one.  (Look at how Tyler does it.)
-Will do.
-> 
->>>> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
->>>> index 8875085db689..0f4209a92bfb 100644
->>>> --- a/security/integrity/ima/ima.h
->>>> +++ b/security/integrity/ima/ima.h
->>>> @@ -200,6 +200,7 @@ static inline unsigned int ima_hash_key(u8 *digest)
->>>>    	hook(POLICY_CHECK, policy)			\
->>>>    	hook(KEXEC_CMDLINE, kexec_cmdline)		\
->>>>    	hook(KEY_CHECK, key)				\
->>>> +	hook(CRITICAL_DATA, critical_data)		\
->>>>    	hook(MAX_CHECK, none)
->>>>    
->>>>    #define __ima_hook_enumify(ENUM, str)	ENUM,
->>>> diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
->>>> index af218babd198..9917e1730cb6 100644
->>>> --- a/security/integrity/ima/ima_api.c
->>>> +++ b/security/integrity/ima/ima_api.c
->>>> @@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
->>>>     *		subj=, obj=, type=, func=, mask=, fsmagic=
->>>>     *	subj,obj, and type: are LSM specific.
->>>>     *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
->>>> - *	| KEXEC_CMDLINE | KEY_CHECK
->>>> + *	| KEXEC_CMDLINE | KEY_CHECK | CRITICAL_DATA
->>>>     *	mask: contains the permission mask
->>>>     *	fsmagic: hex value
->>>>     *
->>>> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
->>>> index 8866e84d0062..7b649095ac7a 100644
->>>> --- a/security/integrity/ima/ima_policy.c
->>>> +++ b/security/integrity/ima/ima_policy.c
->>>> @@ -33,6 +33,7 @@
->>>>    #define IMA_PCR		0x0100
->>>>    #define IMA_FSNAME	0x0200
->>>>    #define IMA_KEYRINGS	0x0400
->>>> +#define IMA_DATA_SOURCES	0x0800
->>>>    
->>>>    #define UNKNOWN		0
->>>>    #define MEASURE		0x0001	/* same as IMA_MEASURE */
->>>> @@ -84,6 +85,7 @@ struct ima_rule_entry {
->>>>    	} lsm[MAX_LSM_RULES];
->>>>    	char *fsname;
->>>>    	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
->>>> +	struct ima_rule_opt_list *data_sources; /* Measure data from these sources */
->>>>    	struct ima_template_desc *template;
->>>>    };
->>>>    
->>>> @@ -508,14 +510,23 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->>>>    {
->>>>    	int i;
->>>>    
->>>> -	if (func == KEY_CHECK) {
->>>> -		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
->>>> -		       ima_match_rule_data(rule, rule->keyrings, func_data,
->>>> -					   true, cred);
->>>> -	}
->>>>    	if ((rule->flags & IMA_FUNC) &&
->>>>    	    (rule->func != func && func != POST_SETATTR))
->>>>    		return false;
->>>> +
->>>> +	switch (func) {
->>>> +	case KEY_CHECK:
->>>> +		return ((rule->func == func) &&
->>>> +			ima_match_rule_data(rule, rule->keyrings,
->>>> +					    func_data, true, cred));
->>>> +	case CRITICAL_DATA:
->>>> +		return ((rule->func == func) &&
->>>> +			ima_match_rule_data(rule, rule->data_sources,
->>>> +					    func_data, false, cred));
->>>> +	default:
->>>> +		break;
->>>> +	}
->>>> +
->>>>    	if ((rule->flags & IMA_MASK) &&
->>>>    	    (rule->mask != mask && func != POST_SETATTR))
->>>>    		return false;
->>>> @@ -911,7 +922,7 @@ enum {
->>>>    	Opt_uid_lt, Opt_euid_lt, Opt_fowner_lt,
->>>>    	Opt_appraise_type, Opt_appraise_flag,
->>>>    	Opt_permit_directio, Opt_pcr, Opt_template, Opt_keyrings,
->>>> -	Opt_err
->>>> +	Opt_data_sources, Opt_err
->>>>    };
->>>>    
->>>>    static const match_table_t policy_tokens = {
->>>> @@ -948,6 +959,7 @@ static const match_table_t policy_tokens = {
->>>>    	{Opt_pcr, "pcr=%s"},
->>>>    	{Opt_template, "template=%s"},
->>>>    	{Opt_keyrings, "keyrings=%s"},
->>>> +	{Opt_data_sources, "data_sources=%s"},
->>>>    	{Opt_err, NULL}
->>>>    };
->>>>    
->>>> @@ -1110,6 +1122,19 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
->>>>    		if (ima_rule_contains_lsm_cond(entry))
->>>>    			return false;
->>>>    
->>>> +		break;
->>>> +	case CRITICAL_DATA:
->>>> +		if (entry->action & ~(MEASURE | DONT_MEASURE))
->>>> +			return false;
->>>> +
->>>> +		if (!(entry->flags & IMA_DATA_SOURCES) ||
->>>> +		    (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
->>>> +		    IMA_DATA_SOURCES)))
->>>> +			return false;
->>>
->>> Requiring IMA_FUNC and IMA_DATA_SOURCES makes sense, but why are
->>> IMA_UID and IMA_PCR required?
->>>
->> Since the data to be measured could be for any scenario, I didn't want
->> to restrict the kernel components from choosing UID to measure the data
->> for, or restrict them from choosing PCR to store the measurements in.
->> But as the consumers are kernel components, perhaps support for IMA_UID
->> is not required.  But we should still support IMA_PCR.
->> Please let me know what do you think, and I can update the logic
->> accordingly.
-> 
-> I think I misinterpreted this code.  As long as IMA_UID and IMA_PCR
-> aren't required, then it is fine.
-Yes, IMA_UID and IMA_PCR are not mandatory. Only IMA_DATA_SOURCES is.
-I will keep both of them.
-Thanks for confirming.
-
-> 
->>>> +
->>>> +		if (ima_rule_contains_lsm_cond(entry))
->>>> +			return false;
->>>> +
->>>>    		break;
->>>>    	default:
->>>>    		return false;
->>>> @@ -1242,6 +1267,8 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
->>>>    			else if (IS_ENABLED(CONFIG_IMA_MEASURE_ASYMMETRIC_KEYS) &&
->>>>    				 strcmp(args[0].from, "KEY_CHECK") == 0)
->>>>    				entry->func = KEY_CHECK;
->>>> +			else if (strcmp(args[0].from, "CRITICAL_DATA") == 0)
->>>> +				entry->func = CRITICAL_DATA;
->>>>    			else
->>>>    				result = -EINVAL;
->>>>    			if (!result)
->>>> @@ -1312,6 +1339,23 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
->>>>    
->>>>    			entry->flags |= IMA_KEYRINGS;
->>>>    			break;
->>>> +		case Opt_data_sources:
->>>> +			ima_log_string(ab, "data_sources", args[0].from);
->>>> +
->>>> +			if (entry->data_sources) {
->>>> +				result = -EINVAL;
->>>> +				break;
->>>> +			}
->>>> +
->>>> +			entry->data_sources = ima_alloc_rule_opt_list(args);
->>>> +			if (IS_ERR(entry->data_sources)) {
->>>> +				result = PTR_ERR(entry->data_sources);
->>>> +				entry->data_sources = NULL;
->>>> +				break;
->>>> +			}
->>>> +
->>>
->>> "keyrings=" isn't bounded because keyrings can be created by userspace.
->>> Perhaps keyring names has a minimum/maximum length.  IMA isn't
->>> measuring userspace construsts.  Shouldn't the list of critical data
->>> being measured be bounded and verified?
->> The comment is not entirely clear.
->> Do you mean there should be some sort of allow_list in IMA, against
->> which the values in "data_sources=" should be vetted? And if the
->> value is present in the IMA allow_list, then only the measurements for
->> that data source are allowed?
->>
->> Or do you mean something else?
-> 
-> Yes, something along those lines.  Does the list of critical data need
-> to be vetted?  And if so, against what?
-I am thinking of having an enum and string array - just like ima_hooks
-and ima_hooks_measure_str in ima.h.
-And any new kernel component that would support generic IMA measurements
-in future would have to add itself to the enum/array.
-And the param *event_data_source in ima_measure_critical_data() will be 
-vetted against the above enum/string array.
-
-I will implement it in the next iteration, and hopefully the vetting
-workflow will be more clear.
-
-~Tushar
-> 
-> Mimi
-> 
->>>
->>>> +			entry->flags |= IMA_DATA_SOURCES;
->>>> +			break;
->>>>    		case Opt_fsuuid:
->>>>    			ima_log_string(ab, "fsuuid", args[0].from);
->>>>    
->>>> @@ -1692,6 +1736,12 @@ int ima_policy_show(struct seq_file *m, void *v)
->>>>    		seq_puts(m, " ");
->>>>    	}
->>>>    
->>>> +	if (entry->flags & IMA_DATA_SOURCES) {
->>>> +		seq_puts(m, "data_sources=");
->>>> +		ima_show_rule_opt_list(m, entry->data_sources);
->>>> +		seq_puts(m, " ");
->>>> +	}
->>>> +
->>>>    	if (entry->flags & IMA_PCR) {
->>>>    		snprintf(tbuf, sizeof(tbuf), "%d", entry->pcr);
->>>>    		seq_printf(m, pt(Opt_pcr), tbuf);
-> 
+> - Eric
