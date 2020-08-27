@@ -1,135 +1,216 @@
-Return-Path: <SRS0=r6Mn=CE=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=ySGb=CF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F15CAC433E1
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 20:55:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A610BC433E1
+	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 06:35:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE4302078D
-	for <selinux@archiver.kernel.org>; Wed, 26 Aug 2020 20:55:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E9EA207BC
+	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 06:35:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y77qrwNK"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=google.com header.i=@google.com header.b="vUlvkX5H"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbgHZUzC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Aug 2020 16:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34398 "EHLO
+        id S1727881AbgH0Gfb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Aug 2020 02:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726739AbgHZUzA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Aug 2020 16:55:00 -0400
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ECC5C061574
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 13:55:00 -0700 (PDT)
-Received: by mail-ot1-x32e.google.com with SMTP id r8so2673145ota.6
-        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 13:55:00 -0700 (PDT)
+        with ESMTP id S1727850AbgH0Gf1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 02:35:27 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA163C061265
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 23:35:26 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id k11so6140049ybp.1
+        for <selinux@vger.kernel.org>; Wed, 26 Aug 2020 23:35:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uLdyz3or2XmHSS4t+gMfePYklbbnw2xVtpDFpxB8aRE=;
-        b=Y77qrwNK2xXI52rRDJBicU++uZZ2MLoHv5oOZawlMLm8qP+OsoCpDRIknBLwrqLHLn
-         tTNMcR0rRzaYY7BnPg8F34rfi307t0gTsnthJPnOzcQFav6Xsz81+8my6Fg9ILziNAF4
-         qPjPlW/vj9UZCnNrKykOdANJ4Wtj0TUDNspJwOFHQi3LTQzMGfOIkEMTSoevFotHmlk/
-         skYN85Nf5V97bzfBKigew6+4bBcIFPvPl5NrmvpGqaUfg9ET5dcJ3Imz+ep9is6svjhv
-         wUVFJyxzb17h7rUkUvxy7qUQgoz1UxRmV3PNXbgKPbNRvEEG+0oBSzh74nVFSqF1TIcQ
-         qpYA==
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=/zYgjye0baxZg/tSxyGziW2kTEyGPlr25yTvNVRsJ5g=;
+        b=vUlvkX5HhL8LprLMIHVH8QGizNNjSM2NJ6p5hnk33lKNqAmYruPvU/+mNaXTGr/XAN
+         ihUeKP4XWUtjM4EKkP3Tlwce+z15mLidCXtuYQr5oj0qeW0ScT4gAnxfl4xQRSIufHdr
+         p/DNZC4MfF0ifiMwos0ztA0Rfh9yFTfloXzrCLqPK1LA2ZxPs5PMnVOfWLabnHP+Dz3X
+         kR+0Jg64p90TLSujyC695hkr1hc7pUpwF/h2VKZqE3I7/JoQun9Ci3P/o+dPdEnxpjVt
+         OypiCdd2swW84NWOaVSKcJ9xbH+DcY/Ur0j9AzapMRCH6Fw42e0a/xJTzsKYTp5fB7OM
+         PbZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uLdyz3or2XmHSS4t+gMfePYklbbnw2xVtpDFpxB8aRE=;
-        b=dFYsUA19erHrYSCxE3aZ8vEgSFL8uN3jH+Vvaju+Nq0fB8QjXXNoTG41vY/t5f/WuY
-         op9YIJMIM/ttlLBS8P9ryVr4w2LxjQBFuEKPdDJd00AVut4b7TK3qhsJwOwnsGjhAUZp
-         bsZfgq9m7Enn/bMmx1naD6Pi2Ki8jKFLqHMCYdg+AIy8z39oZtHpKhvwQu6uq4jh58Oa
-         ohkBW+Qd8s3e2u4o+QbgrW2+rB000rBEQs3J4TB2ekwdzOwvURO3JnK/KJ6vZdUSLVYg
-         pLtTbH8/KjRsvIwMlQUbmlFqawk/jg95twI5Z0x1KqHHwE94No4h2gHKk6V1Usos5+pu
-         yiJQ==
-X-Gm-Message-State: AOAM532RfRy4ZEc7aTRekvJHCoOB2lSBN6/XYs2KKbZ02ALAgE+ulJGI
-        rKmojdPZ0lQFsLgO3jb1zLtsapnK+1q2DmS8m28=
-X-Google-Smtp-Source: ABdhPJypO0+PDCBK2CW0pczDLKhctwU/NXJpTIwfDiiC+caJCgYPN2v+ZAEAjLSoNdoxTuOXNZEsjLQV+Kq9oq0erQc=
-X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr10643476otr.89.1598475299889;
- Wed, 26 Aug 2020 13:54:59 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAEjxPJ6s0AgwoMqP=YCweRGpkC5wsvtusmNO235_S=97NmvSeA@mail.gmail.com>
- <CAHC9VhTbOfFxtjWYytX4qC9hqeNuUV5dnfcES2qUtYzpuUnBuA@mail.gmail.com>
- <CAEjxPJ5cRbCogQ17aakpnMp_0nwDHbMQTqC69SXBA3JcmP1nuQ@mail.gmail.com>
- <CAHC9VhSm2qKkhUK7dnn6_aPPY4LsVqeQwD2Xf6k7EvV9xJg_sQ@mail.gmail.com>
- <CAEjxPJ6KD4FfhWMYqBu7tupNAWEQqbWbA2o4YgsTQ1sPQTUNzA@mail.gmail.com> <CAEjxPJ6kj6LRFoiVG0v2QPEMXHw7YHPCOgJqQwvaMbDCYnyZTw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6kj6LRFoiVG0v2QPEMXHw7YHPCOgJqQwvaMbDCYnyZTw@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 26 Aug 2020 16:54:49 -0400
-Message-ID: <CAEjxPJ5ovzeQ+NQ5YZitjrWmEUFPBEAAj5Gq7fHNkpwJfv8eFQ@mail.gmail.com>
-Subject: Re: working-selinuxns rebase
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=/zYgjye0baxZg/tSxyGziW2kTEyGPlr25yTvNVRsJ5g=;
+        b=icxaEvUBRN9TPJqFi2rLtwxDVJytXa9WIbtpSaA+DOAs0LNmgMerlDf7ZjezoTkLiH
+         bmyOunCjskMyTyEdblNh+HyKT9es40t3cRIjZo1gnjjXpYVPeJOImq9qVByxPKkLbMRZ
+         aeCC+qTcZi4gcoRq0Vy+s+P0z+vfFH3TmwDMOUr0zx/HlUNhcFXeds84V0oY9+7yTAXz
+         WMxY7F4pX8b+grYuR+9aBOxRcal3Qlyk7D1LOhCqYDomnxw+C8/YI4B8oFtCkL3nOWmQ
+         UqwvS5JhnqmmeBU3+Wgao+dNjk7fFsBs/+ctYGp6TlOYyc7mSfAI7DVRoHVCQjrBPKha
+         /FDQ==
+X-Gm-Message-State: AOAM533AOLOrSFOHCOpPPKrARwATjWfmhy7b5jHlMP2LhqL25foSAE8Z
+        vwmvqfYAIYD8PVB456HXF767ggQan8Uqtn4EiA==
+X-Google-Smtp-Source: ABdhPJy2aWcUvIAO9BcZxJjrHYq+0aqek9xrqHcnTNBmTfvvf6anuxmAapc9Xo7sdYhj1+0P0gQ/3ew3tzQzDJSSkQ==
+X-Received: from lg.mtv.corp.google.com ([100.89.4.209]) (user=lokeshgidra
+ job=sendgmr) by 2002:a25:7a42:: with SMTP id v63mr25561564ybc.4.1598510125967;
+ Wed, 26 Aug 2020 23:35:25 -0700 (PDT)
+Date:   Wed, 26 Aug 2020 23:35:19 -0700
+Message-Id: <20200827063522.2563293-1-lokeshgidra@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.297.g1956fa8f8d-goog
+Subject: [PATCH v8 0/3] SELinux support for anonymous inodes and UFFD
+From:   Lokesh Gidra <lokeshgidra@google.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>
+Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        kaleshsingh@google.com, calin@google.com, surenb@google.com,
+        nnk@google.com, jeffv@google.com, kernel-team@android.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 4:50 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Aug 21, 2020 at 5:00 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Thu, Aug 20, 2020 at 9:17 PM Paul Moore <paul@paul-moore.com> wrote:
-> > >
-> > > On Thu, Aug 20, 2020 at 8:10 AM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > Unfortunately I need to re-base it again and manually fix conflicts
-> > > > with my patch to avoid deferencing the policy prior to initialization.
-> > > > And I'll need to do it again when/if the patch to convert the policy
-> > > > rwlock to rcu lands.  So you might want to wait. I'm starting to
-> > > > wonder if the first patch in the series to rename selinux_state/state
-> > > > to selinux_ns/ns throughout is a mistake because it produces a lot of
-> > > > unnecessary conflicts.  Originally I did it because that was the
-> > > > original naming since the encapsulation started to support namespacing
-> > > > and then I did a mass rename to selinux_state/state for upstreaming
-> > > > since I wasn't yet upstreaming the actual namespace support. Renaming
-> > > > it back again reduces conflicts in the later patches but makes the
-> > > > first one a pain.  But if I just do a mass rename on all the later
-> > > > patches then I can drop the first one and avoid these unnecessary
-> > > > conflicts.  Thoughts?
-> > >
-> > > I agree, the first patch is the one that always causes me the most
-> > > pain; considering the work-in-progress state of the patches I think it
-> > > would make the most sense to drop that initial cosmetic patch for now
-> > > and we can always reinstate it at the end when this work finally
-> > > lands.
-> >
-> > I've made a pass at this and force-pushed it to my
-> > working-selinuxns-rebase branch.
-> > It turned out that the first patch did two things: it renamed state to
-> > ns and it changed all direct references to &selinux_state to use a new
-> > current_selinux_state pointer to a static init_selinux_state variable
-> > (in preparation for multiple states/namespaces).  I had to retain the
-> > latter so I just dropped the renaming part of it, rewrote the
-> > description, and did a mass rename in all the subsequent patches back
-> > to state. So the first patch may still produce some conflicts but
-> > there should be fewer of them.  This is relative to your current next
-> > branch but it will need to be manually re-based again when/if the
-> > policy rcu patches land, so feel free to wait if you want.  Since
-> > every patch required modification and many of them required manual
-> > fixups, I dropped all of your Signed-off-by lines and rewrote all of
-> > mine with my current preferred email address.
->
-> Re-based again on latest next and it was much easier this time around.
-> Will need to do it again once Ondrej's patches and my policy_mutex
-> patch land but hopefully not too much work.
+Userfaultfd in unprivileged contexts could be potentially very
+useful. We'd like to harden userfaultfd to make such unprivileged use
+less risky. This patch series allows SELinux to manage userfaultfd
+file descriptors and in the future, other kinds of
+anonymous-inode-based file descriptor.  SELinux policy authors can
+apply policy types to anonymous inodes by providing name-based
+transition rules keyed off the anonymous inode internal name (
+"[userfaultfd]" in the case of userfaultfd(2) file descriptors) and
+applying policy to the new SIDs thus produced.
 
-I'm also considering whether to drop the two patches that were
-externally contributed.
-The one from James to mark init_selinux_state/ns as ro_after_init
-seems kind of pointless; it isn't really used after init except for a
-check in the runtime disable code so I don't see any gain from making
-it read-only.  The one from Peter to introduce a lockdep class for
-what used to be the services (security server) locks is partly
-obsoleted by the elimination of the policy rwlock and the description
-no longer fits since the status lock got moved up earlier from the
-selinux_ss to the selinux_state.
+With SELinux managed userfaultfd, an admin can control creation and
+movement of the file descriptors. In particular, handling of
+a userfaultfd descriptor by a different process is essentially a
+ptrace access into the process, without any of the corresponding
+security_ptrace_access_check() checks. For privacy, the admin may
+want to deny such accesses, which is possible with SELinux support.
+
+Inside the kernel, a new anon_inode interface, anon_inode_getfd_secure,
+allows callers to opt into this SELinux management. In this new "secure"
+mode, anon_inodes create new ephemeral inodes for anonymous file objects
+instead of reusing the normal anon_inodes singleton dummy inode. A new
+LSM hook gives security modules an opportunity to configure and veto
+these ephemeral inodes.
+
+This patch series is one of two fork of [1] and is an
+alternative to [2].
+
+The primary difference between the two patch series is that this
+partch series creates a unique inode for each "secure" anonymous
+inode, while the other patch series ([2]) continues using the
+singleton dummy anonymous inode and adds a way to attach SELinux
+security information directly to file objects.
+
+I prefer the approach in this patch series because 1) it's a smaller
+patch than [2], and 2) it produces a more regular security
+architecture: in this patch series, secure anonymous inodes aren't
+S_PRIVATE and they maintain the SELinux property that the label for a
+file is in its inode. We do need an additional inode per anonymous
+file, but per-struct-file inode creation doesn't seem to be a problem
+for pipes and sockets.
+
+The previous version of this feature ([1]) created a new SELinux
+security class for userfaultfd file descriptors. This version adopts
+the generic transition-based approach of [2].
+
+This patch series also differs from [2] in that it doesn't affect all
+anonymous inodes right away --- instead requiring anon_inodes callers
+to opt in --- but this difference isn't one of basic approach. The
+important question to resolve is whether we should be creating new
+inodes or enhancing per-file data.
+
+Changes from the first version of the patch:
+
+  - Removed some error checks
+  - Defined a new anon_inode SELinux class to resolve the
+    ambiguity in [3]
+  - Inherit sclass as well as descriptor from context inode
+
+Changes from the second version of the patch:
+
+  - Fixed example policy in the commit message to reflect the use of
+    the new anon_inode class.
+
+Changes from the third version of the patch:
+
+  - Dropped the fops parameter to the LSM hook
+  - Documented hook parameters
+  - Fixed incorrect class used for SELinux transition
+  - Removed stray UFFD changed early in the series
+  - Removed a redundant ERR_PTR(PTR_ERR())
+
+Changes from the fourth version of the patch:
+
+  - Removed an unused parameter from an internal function
+  - Fixed function documentation
+
+Changes from the fifth version of the patch:
+
+  - Fixed function documentation in fs/anon_inodes.c and
+    include/linux/lsm_hooks.h
+  - Used anon_inode_getfd_secure() in userfaultfd() syscall and removed
+    owner from userfaultfd_ctx.
+
+Changed from the sixth version of the patch:
+
+  - Removed definition of anon_inode_getfile_secure() as there are no
+    callers.
+  - Simplified function description of anon_inode_getfd_secure().
+  - Elaborated more on the purpose of 'context_inode' in commit message.
+
+Changed from the seventh version of the patch:
+
+  - Fixed error handling in _anon_inode_getfile().
+  - Fixed minor comment and indentation related issues.
+
+[1] https://lore.kernel.org/lkml/20200211225547.235083-1-dancol@google.com/
+[2] https://lore.kernel.org/linux-fsdevel/20200213194157.5877-1-sds@tycho.nsa.gov/
+[3] https://lore.kernel.org/lkml/23f725ca-5b5a-5938-fcc8-5bbbfc9ba9bc@tycho.nsa.gov/
+
+Daniel Colascione (3):
+  Add a new LSM-supporting anonymous inode interface
+  Teach SELinux about anonymous inodes
+  Wire UFFD up to SELinux
+
+ fs/anon_inodes.c                    | 147 ++++++++++++++++++++--------
+ fs/userfaultfd.c                    |  19 ++--
+ include/linux/anon_inodes.h         |   8 ++
+ include/linux/lsm_hook_defs.h       |   2 +
+ include/linux/lsm_hooks.h           |   9 ++
+ include/linux/security.h            |  10 ++
+ security/security.c                 |   8 ++
+ security/selinux/hooks.c            |  53 ++++++++++
+ security/selinux/include/classmap.h |   2 +
+ 9 files changed, 209 insertions(+), 49 deletions(-)
+
+-- 
+2.28.0.297.g1956fa8f8d-goog
+
