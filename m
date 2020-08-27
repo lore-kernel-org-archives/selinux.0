@@ -2,124 +2,154 @@ Return-Path: <SRS0=ySGb=CF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 853F8C433E3
-	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 14:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C10C433E1
+	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 15:47:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CE572054F
-	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 14:50:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A411622B40
+	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 15:47:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="gHp9D4t6"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="gAr3DdmJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728061AbgH0Oto (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Aug 2020 10:49:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727924AbgH0N5S (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 09:57:18 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F0AC06123D
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 06:56:51 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id c8so4997176edn.8
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 06:56:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RKsZojbbyOfxkDp1UPneiBMH0M5ZxO9l2JOGUdoyREk=;
-        b=gHp9D4t6rfFAnedxJG6Q0FF2Fwpv9zjxc60+rltarjPAOhEsCrtUAh8f8/mwocBGkf
-         6z0Vt2UOXiJAGGZGesBFzhYTrya8ufn/esXON6ka4oRw/JNaeOIvkpxPIKt+KxNCtA2u
-         7IOUFam3oIyXAaa9MhceT5WQK4P14RRNK0o+dUrfK9Y8bnMJ/rqbO6y+/FnptLpCexei
-         KXbLiSN3vQSahExdiUw4H2uRGAoAn0ArrVrkEjHjGTfeHakZso3mqLjpK+1G90vFMvw+
-         I4fAU/AQ+X0/P/FEIg5oBNTK5vuNEA0ibwS9SeimmLDnB94fGjG7xYWSmfqk148p8a9m
-         sDwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RKsZojbbyOfxkDp1UPneiBMH0M5ZxO9l2JOGUdoyREk=;
-        b=Xa3Fow/vTAb/6DhLrcCy1As1J9UdI3yvODdAsIchgmLuWS96Bv4TI2hln+m2aqbs/j
-         P/1dC8JMXMDj3LMUc9Fxu6D9+brgq2dWRhwefAcHNHQo947QgBKdmilUcalNEv6/1xy0
-         V5NUZmKVf/HoToKq+lm1lpv0u1RI5oFhnNQWIe63YLcQS7eRv3PCnNbrUbiVhah6I+uu
-         lUTty1lzt5pLpOSNYC98tSL4TC7462rbDxRF2cgzGMcyXFy8YaMJG0KoEu/0gMExMl7l
-         PGsWNPQmlSHUx1S0M7C/9VqtjEUgB56qyL9u5II1778bmYuWcze6K3XZDDQQyKeW2Okt
-         F0NQ==
-X-Gm-Message-State: AOAM533DOG1jdv7LUjbIfDH+dnQ09kKfREMSUEuvcMGTyP4dvg2CKrfJ
-        e5h0Z1dIwJQaFizEHCE2npaY3xBaqExtgImDLgko
-X-Google-Smtp-Source: ABdhPJxvIst3uW+7bP4YtOHQff4e0LokVWGDkqTd5XSV0XF50JTNGNlV2a6sbs0Uji6xWZ4WljwhIrx0nuY6eqa4bcE=
-X-Received: by 2002:aa7:ca46:: with SMTP id j6mr17773546edt.128.1598536610236;
- Thu, 27 Aug 2020 06:56:50 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200826135906.1912186-1-omosnace@redhat.com> <20200826135906.1912186-2-omosnace@redhat.com>
- <CAEjxPJ4LL022dtKyqs+YB-gKVuJqRNQu0dafjgzZLqStqn-zSA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4LL022dtKyqs+YB-gKVuJqRNQu0dafjgzZLqStqn-zSA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 27 Aug 2020 09:56:38 -0400
-Message-ID: <CAHC9VhTOTuscseVrLEj17y2ULG9rWjLrxT+PorakT8EGk4dhTA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] selinux: simplify away security_policydb_len()
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        id S1726232AbgH0Pry (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Aug 2020 11:47:54 -0400
+Received: from mailomta7-sa.btinternet.com ([213.120.69.13]:36371 "EHLO
+        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726200AbgH0Prx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 11:47:53 -0400
+Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
+          by sa-prd-fep-040.btinternet.com with ESMTP
+          id <20200827154750.HFUE5290.sa-prd-fep-040.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Thu, 27 Aug 2020 16:47:50 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598543270; 
+        bh=XdYDRHFlIjR9qs5HKzC9Sq7m5R1hXSRe1ReyZCidPrY=;
+        h=To:Cc:Message-ID:Subject:MIME-Version:From:Date;
+        b=gAr3DdmJceM4O8RKGdGhq1qolm6SjkWz8x645txwqjK5aF8CZULj1VxHeiDITIsZtEW7wawwksxqBSLEcZE/fXfs1hZS9yY7LsZAnT87ZTyIBZaOgzc9y7FOTBDVu+vK38mGPfZvXjN+eebNBlk7So9fbV8cjlg9dVatQu+abQm39dxOVkZNFMttkGUn9yfjUXkRy0e+ktFgtdTZY2kamySFUZ0zwq/rytiUl9NoqxcTrhFx7v3x98wsvSlGAVJnhseY/K6MYkx9NILDrrewOsIk1hq4kxcrCKNqlALGbS3zoD7vdcqnVH4D+/U4osJ6MHU9lj2y8HTajPu66ucK+Q==
+Authentication-Results: btinternet.com; none
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvgedgkeelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefvkffugggtgfgfihfhffesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepheetveehveeviedvjeduhfdtleehffeftdfgveefjeefkeejledtfefhtedtfffgnecuffhomhgrihhnpehmrghrtgdrihhnfhhopdhlihgsrhgvshifrghnrdhorhhgnecukfhppedutddrvddrfeekrdelledpkeeirddukeegrdelledrjeeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghlohepshgrqdhprhguqdhugihfvghpqddtudekrdgsthhmgidqphhrugdrshihnhgthhhrohhnohhsshdrnhgvthdpihhnvghtpedutddrvddrfeekrdelledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoegthhhpvggsvghniheslhhinhhugidrmhhitghrohhsohhfthdrtghomheqpdhrtghpthhtohepoeguohhmihhnihgtkhdrghhrihhfthesuggvfhgvnhhsvggtrdhnlheqpdhrtghpthht
+        ohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeoshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhmqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from sa-prd-uxfep-018.btmx-prd.synchronoss.net (10.2.38.99) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340)
+        id 5ED9B8A70DD79FE4; Thu, 27 Aug 2020 16:47:50 +0100
+Received: from [86.184.99.78]
+        by email.bt.com with HTTP; Thu, 27 Aug 2020 16:47:50 +0100
+To:     Chris PeBenito <chpebeni@linux.microsoft.com>,
+        Dominick Grift <dominick.grift@defensec.nl>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <332168a5.dd08.174309a9344.Webtop.99@btinternet.com>
+Subject: Re: Userspace AVC auditing on policy load
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed; delsp=no
+Content-Transfer-Encoding: 7bit
+User-Agent: OWM Mail 3
+X-SID:  99
+X-Originating-IP: [86.184.99.78]
+From:   Richard Haines <richard_c_haines@btinternet.com>
+Date:   Thu, 27 Aug 2020 16:47:50 +0100 (BST)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 10:05 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Aug 26, 2020 at 9:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Remove the security_policydb_len() calls from sel_open_policy() and
-> > instead update the inode size from the size returned from
-> > security_read_policy().
-> >
-> > Since after this change security_policydb_len() is only called from
-> > security_load_policy(), remove it entirely and just open-code it there.
-> >
-> > Also, since security_load_policy() is always called with fsi->mutex
-> > held, make it dereference the policy pointer directly and drop the
-> > unnecessary RCU locking.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-> One comment below but nonetheless:
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index 8381614627569..7cc2f7486c18f 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -3912,11 +3896,17 @@ int security_read_policy(struct selinux_state *state,
-> >         int rc;
-> >         struct policy_file fp;
-> >
-> > -       if (!selinux_initialized(state))
-> > +       /*
-> > +        * NOTE: We do not need to take the rcu read lock
-> > +        * around the code below because other policy-modifying
-> > +        * operations are already excluded by selinuxfs via
-> > +        * fsi->mutex.
-> > +        */
-> > +       policy = rcu_dereference_check(state->policy, 1);
-> > +       if (!policy)
-> >                 return -EINVAL;
->
-> If/when my patch to move the mutex to selinux_state and use it in
-> rcu_dereference_protected() lands, we'll want to change this one over
-> too.
+On Wed, 2020-08-26 at 15:15 -0400, Chris PeBenito wrote:
+> On 8/26/20 3:07 PM, Dominick Grift wrote:
+>> Chris PeBenito <chpebeni@linux.microsoft.com> writes:
+>>
 
-FWIW, I felt the mutex move was more significant than this patchset so
-I merged it first.  Ondrej, would you mind rebasing this patch and
-making the changes above?
+>>> On 8/26/20 10:46 AM, Stephen Smalley wrote:
+>>>> On Wed, Aug 26, 2020 at 10:35 AM Chris PeBenito
+>>>> <chpebeni@linux.microsoft.com> wrote:
+>>>>> On 8/26/20 9:25 AM, Chris PeBenito wrote:
+>>>>>> I was looking into this dbus-broker audit message, which
+>>>>>> has the wrong audit type:
+>>>>>>
 
-Thanks.
+>>>>>> audit[422]: USER_AVC pid=422 uid=999 auid=4294967295
+>>>>>> ses=4294967295
+>>>>>> subj=system_u:system_r:system_dbusd_t msg='avc:  received
+>>>>>> policyload notice
+>>>>>> (seqno=2)
+>>>>>>
 
--- 
-paul moore
-www.paul-moore.com
+>>>>>> This is due to dbus-broker setting their avc log callback
+>>>>>> to send USER_AVC audit
+>>>>>> messages for everything that comes to the libselinux log
+>>>>>> callback. I think the
+>>>>>> right thing to do there is to change it to emit
+>>>>>> USER_SELINUX_ERR audit messages
+>>>>>> if the log message is SELINUX_ERROR, otherwise log the
+>>>>>> message using their
+>>>>>> regular method (stderr I think).
+>>>>>>
+
+>>>>>> But the question became, why is the userspace AVC not
+>>>>>> simply emitting its own
+>>>>>> USER_MAC_POLICY_LOAD audit message instead of sending a
+>>>>>> message to the log
+>>>>>> callback?
+>>>>>
+
+>>>>> Ok, I missed that there is a SELINUX_AVC log type and that's
+>>>>> how the userspace
+>>>>> denial messages are sent out. How about adding
+>>>>> SELINUX_POLICYLOAD and
+>>>>> SELINUX_ENFORCE log types so that callers can emit
+>>>>> appropriate audit messages?
+>>>> Do we need two different new types or just one?  Otherwise, I
+>>>> don't
+>>>> have a problem with adding new ones as long as it doesn't break
+>>>> existing applications.
+>>>
+
+>>> Regarding the risk of breaking existing applications, I did some
+>>> checking on some userspace AVC users and what they do in their
+>>> log
+>>> callback:
+>>>
+
+>>> * systemd only audits SELINUX_AVC and SELINUX_ERROR messages and
+>>>    ignores others(as Petr noted)
+>>> * xorg-server audits SELINUX_AVC correctly but audits
+>>> SELINUX_INFO as
+>>>    USER_MAC_POLICY_LOAD and everything else it ignores the type
+>>> and
+>>>   audits as AUDIT_USER_SELINUX_ERR
+>>> * dbus-broker ignores type and audits everything as USER_AVC
+>>> * dbus-service ignores type and audits everything as USER AVC
+>>> * pam: pam_rootok ignores type and audits everything as USER_AVC
+>>> * sepgsql custom AVC implementation (this was news to me)
+>>> * shadow-utils only audits SELINUX_AVC and SELINUX_ERROR messages
+>>> and
+>>>    others go to syslog
+>>> * cronie: no callback set
+>>>
+
+>>> That's all the ones I could think of.  Which ones am I missing?
+>>
+
+>> Probably libreswan, AFAIK that one might also still be using
+>> avc_has_perm() instead of selinux_check_access().
+>
+
+> You're correct, it is still use avc_has_perm().  There is no log
+> callback set here.
+>
+
+ipsec-tools (racoon) is another. I did patches for this and LibreSwan a 
+few years ago, they never went far:
+
+ipsec-tools: 
+https://marc.info/?l=ipsec-tools-devel&m=149441917501329&w=2
+LibreSwan: 
+https://lists.libreswan.org/pipermail/swan-dev/2017-May/001860.html
+
+
