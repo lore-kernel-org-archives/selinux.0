@@ -6,94 +6,100 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEC82C433DF
-	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 14:21:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 245E9C433DF
+	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 14:24:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8CAA2177B
-	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 14:21:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD1AE22B4B
+	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 14:24:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Fns7Qv2f"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="LAgBXVVA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728012AbgH0OVv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Aug 2020 10:21:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56764 "EHLO
+        id S1726153AbgH0OYi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Aug 2020 10:24:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728020AbgH0OVf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 10:21:35 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D94A9C06123B
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 06:55:39 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id q4so5015876eds.3
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 06:55:39 -0700 (PDT)
+        with ESMTP id S1726794AbgH0OXN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 10:23:13 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55FE1C061233
+        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 07:23:13 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id b17so7902428ejq.8
+        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 07:23:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JE/FlvnCbFhw4S4rsB8hpI2t9izCkIupsVpNkBNhba0=;
-        b=Fns7Qv2fUSULPzMYchhGojZlqdvJtstNFjs8lzpQvboxhGJb6L7kF2J34uJHExaXo7
-         A5WenHCc0Kowwvd58kq+/CiU39B5DlFBjdhz0zCFSvDJTbs3B37bOo3zUlEhO+0fLNgQ
-         DkCTsVGIeQfokAGQ6RqyiAWtRmVnKPunEcea696OYVHHVBfi/CiVhrAkWttAR7jbL2Ol
-         vUP3rELtvvDGJF55ITqEW0Wsl9ZDBn4QXv3+BKxPZrihAqobW8d3R83zcgNF5Amivo5T
-         NZbTCdeOkHSBKDSG5D/DKiDlus9l/CWD47BTL/y9WCeKM/mSp/4jLdj1KweaW6WkLLXB
-         RaMQ==
+        bh=C9YEPTpzmo0Hc2q+e5bghuFXDq9VMQBGjmrVOYsHU7U=;
+        b=LAgBXVVA/dqClCrJdDRoiXDzUaXWKWXwrdD801bYZX90HT2i5i6CB6wnc9K2gzRWdt
+         qWdBv5ljH+04NmjV5/sEFARgAupmo8QC2HQtMKw+8xHWTIJsPafQytZ5+WOegEXMlasP
+         HIcqbGkdGkLUDhE717yp7qHMmN+dDQnGCCbO8XSEx2D8YuxgkCafAEMRGt+OKzgl2d5O
+         MNChpMM8YWIxD1aNK37qloD0/wNuMqATHWt6/CXZvgdmhOKQ3/TJQCtPHyBX5FqtTTIR
+         aB9NLfHwyS9403sJNnAY30Nxv0ohoQLUlryQc1wyJrtXavArkTR26t8K0P/CQ8NAqWhX
+         Edgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JE/FlvnCbFhw4S4rsB8hpI2t9izCkIupsVpNkBNhba0=;
-        b=ZYM7H2DYCE225RXFsgpDWl4zXawHtclPeMlcLu2YOA8i+vAz1SzSvUjGDMBR4N0y55
-         HzhVbvPwsKRBQrdEsbOANEjTVxLGizSL1wtzmcobIiZF9YfLb076Tzt+WY8RhPYsNkMu
-         VnzDoTyTIpB7zJp+d3MWyAyhhbk1ggQL+aJolTC2wkhE7F/W2kDceJviPKR7D/bMlODN
-         Fd8xH3byG1QN1ImSbyu3R98wXcyUsEX1YSBHQIgog6o1gLO9bRtdbaaUL+G7ABIJyo5N
-         woqbzjs+GLgx7UTM+M798mjqxoBws7yAmGXIrBu/fcenrRDmCCS7U7DGMEL0I12LOnQ/
-         pPJg==
-X-Gm-Message-State: AOAM531Xtkivg9IUwGuAam9JcWn9BOr2UVaTPK9y0aJY0aY3A40ASR4f
-        C6sYe3yuNwWZxalrceNYh8bQKZAkWFiUM+cyelZC
-X-Google-Smtp-Source: ABdhPJzwjUwvvlLP6RqOjzA9C3YdTJI8eX1nKYkLAUdyC+kdJv6xzMEwwnTswbeuKlFHqzEqylIoWELUzJk5OMZdwAk=
-X-Received: by 2002:aa7:de8f:: with SMTP id j15mr19433331edv.135.1598536538415;
- Thu, 27 Aug 2020 06:55:38 -0700 (PDT)
+        bh=C9YEPTpzmo0Hc2q+e5bghuFXDq9VMQBGjmrVOYsHU7U=;
+        b=JXXRV4pXM09T6wzrpFyXtVehdn0rLFzVpM9e7SdRc0eA75O2tWzEi4XqREsc31aRwk
+         eRR0+xy0tT8pupuRdPA1yjjB2uYvFmnywpkP42xojVYc06y9ZBAt4mgHJGW/1ufcAdrT
+         ABd35PWCLLzdTv1OWYb6IMuHraf9Tq50dlxkDgwzSs9FuuqFiPmzzs6GBeFAwyjuAUYP
+         a1N/+gMbaKkcMs8Owr9tTO3RX9F4iDpAl28/7hsIvsLhUHLwjXsa4wVdUDP+PuhFD2BC
+         vXyBrpbqA6toPMdEdvIEsPGs3nny0n95i61nIMKCKY7NN/8RFGjSRRyN/baQHVE3wZau
+         C6fg==
+X-Gm-Message-State: AOAM532b1pYEZ/bdlrodjS11Ki+vGqRveWYBz5kCwpABJ5jUR/QFK+Sb
+        7w2Grof52hIv1iAvzPIS+nVNgGYxVhAs4h7l1U5t
+X-Google-Smtp-Source: ABdhPJyOwhPUetyVKdEMWG4X1BF6Dsl9mqJHtezUJ2RXzZAw26wUiMapZkFx5f13vPoU3tXaQYscuQOfSZxGTBH9wgA=
+X-Received: by 2002:a17:906:43c9:: with SMTP id j9mr20907323ejn.542.1598538191942;
+ Thu, 27 Aug 2020 07:23:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200826172853.49426-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20200826172853.49426-1-stephen.smalley.work@gmail.com>
+References: <20200826135906.1912186-1-omosnace@redhat.com> <20200826135906.1912186-4-omosnace@redhat.com>
+ <CAEjxPJ5HRQQprNoqe0O7M73Tk3m+kRAqutHY5Ucb-8eH-YUEsQ@mail.gmail.com>
+ <CAHC9VhRf7Sb1H8sGrjo6JySegVDQB0_YviLt3NWY84Zw8fec5A@mail.gmail.com> <CAEjxPJ7+b=_koECLecPuku4fJVSZu-tQTnd5HUZRU7ogLwrhJg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7+b=_koECLecPuku4fJVSZu-tQTnd5HUZRU7ogLwrhJg@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 27 Aug 2020 09:55:26 -0400
-Message-ID: <CAHC9VhSougbm39_KA1KvN=KsAoeBkpsqn+hS99ZRwS3iWGAL0A@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: move policy mutex to selinux_state, use in
- lockdep checks
+Date:   Thu, 27 Aug 2020 10:23:00 -0400
+Message-ID: <CAHC9VhQ1+CZ1jan1mGUs5KtVWhg0DmfT9zw9g-Ks0DZgpzhc5Q@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] selinux: remove the 'initialized' flag from selinux_state
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        peter.enderborg@sony.com, paulmck@kernel.org
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 1:29 PM Stephen Smalley
+On Thu, Aug 27, 2020 at 10:17 AM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> Move the mutex used to synchronize policy changes (reloads and setting
-> of booleans) from selinux_fs_info to selinux_state and use it in
-> lockdep checks for rcu_dereference_protected() calls in the security
-> server functions.  This makes the dependency on the mutex explicit
-> in the code rather than relying on comments.
+> On Thu, Aug 27, 2020 at 10:05 AM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > On Wed, Aug 26, 2020 at 10:15 AM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > On Wed, Aug 26, 2020 at 9:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > >
+> > > > After the RCU conversion, it is possible to simply check the policy
+> > > > pointer against NULL instead.
+> > > >
+> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > >
+> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> >
+> > Looks fine to me as well, but it doesn't merge cleanly and since you
+> > are already respinning patch 1/3 I figured I would just bail on this
+> > patch and let you take care ot it.
+> >
+> > I would suggest dropping patch 2/3 from the patchset, respinning
+> > patches 1/3 and 3/3, and reposting them for inclusion into
+> > selinux/next.  That's likely the quickest way forward on these.
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v2 switches selinuxfs from using &selinux_state.policy_mutex to using
-> fsi->state->policy_mutex.  selinuxfs operates on fsi->state->policy
-> for all policy reading or modifying operations.  It only acts on
-> &selinux_state for checking permissions in the current context.
-> At present, fsi->state is always &selinux_state; this will change
-> when selinux namespaces are introduced.
->
->  security/selinux/hooks.c            |  1 +
->  security/selinux/include/security.h |  1 +
->  security/selinux/selinuxfs.c        | 26 ++++++++++----------
->  security/selinux/ss/services.c      | 37 +++++++----------------------
->  4 files changed, 22 insertions(+), 43 deletions(-)
+> Technically 3/3 isn't safe without 2/3 (or some replacement for it,
+> e.g. moving the policycaps array into struct selinux_policy as
+> suggested by Ondrej).
 
-Thanks Stephen, merged into selinux/next.
+Then just respin 1/3 and we'll deal with the other bits later.
 
 -- 
 paul moore
