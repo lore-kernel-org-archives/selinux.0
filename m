@@ -2,136 +2,106 @@ Return-Path: <SRS0=arMl=CG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3798AC433E6
-	for <selinux@archiver.kernel.org>; Fri, 28 Aug 2020 01:57:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DDD9C43461
+	for <selinux@archiver.kernel.org>; Fri, 28 Aug 2020 16:00:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 168172080C
-	for <selinux@archiver.kernel.org>; Fri, 28 Aug 2020 01:57:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56A99208C9
+	for <selinux@archiver.kernel.org>; Fri, 28 Aug 2020 16:00:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="AtqpjD/r"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="KyS3Wibp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728437AbgH1B5u (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Aug 2020 21:57:50 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:38442 "EHLO
+        id S1728376AbgH1QAs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Aug 2020 12:00:48 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:44728 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728182AbgH1B5T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 21:57:19 -0400
-Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 261DF2021532;
-        Thu, 27 Aug 2020 18:57:18 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 261DF2021532
+        with ESMTP id S1728187AbgH1QAe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Aug 2020 12:00:34 -0400
+Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 1A8A520B7178;
+        Fri, 28 Aug 2020 09:00:32 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1A8A520B7178
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1598579838;
-        bh=2tw/WXqd1rFl00XCee3Jr+XIH39hEngqJ7UoxJMaINQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AtqpjD/rBb8rzAi7V8HoSi9S55QxM/huCfsBTjRaqiXn1SX/69pRkM/lBTd4Llzd8
-         2RiUSiD7ysC70GhPk3NhhmRi7Np2E/3vzCY9MWKc2J5bWn2nJVeJt+wyX250yT4bdS
-         HLJGGew0L3GSU6urgP7G3PmZDeYrCKcqF9eyLdeY=
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+        s=default; t=1598630432;
+        bh=9nE+PsjwfQS+D6IahYRzHVUgseWRlLvBJtDDOfDrxAE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KyS3WibpFvtlwHm9qmDOeuHV6J8X1UW0M7WHcB4XY8VbYwqwghFXQ2/31MUX37SRx
+         md4w+ZOsPBj5HS9qfAzMWriNx2XL/4H+jAMD9aKjxTx/fS0eckBshhUMr91wasM+cQ
+         7IeDsrf6tl//9XoOpWnsKNz4F3V7QrTBrIByFF6k=
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: [PATCH v3 2/6] IMA: change process_buffer_measurement return type from void to int
-Date:   Thu, 27 Aug 2020 18:57:00 -0700
-Message-Id: <20200828015704.6629-3-tusharsu@linux.microsoft.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
-References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
+        casey@schaufler-ca.com
+Cc:     tyhicks@linux.microsoft.com, tusharsu@linux.microsoft.com,
+        sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/3] IMA: Generalize early boot data measurement
+Date:   Fri, 28 Aug 2020 09:00:18 -0700
+Message-Id: <20200828160021.11537-1-nramas@linux.microsoft.com>
+X-Mailer: git-send-email 2.28.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-process_buffer_measurement() does not return the result of the operation.
-Therefore, the consumers of this function cannot act on it, if needed.
+The current implementation of early boot measurement in the IMA
+subsystem is very specific to asymmetric keys. It does not handle
+early boot measurement of data from other subsystems such as
+Linux Security Module (LSM), Device-Mapper, etc. As a result, data
+provided by these subsystems during system boot are not measured by IMA.
 
-Update return type of process_buffer_measurement() from void to int.
+This patch series makes the early boot key measurement functions generic
+such that they can be used to measure any early boot data. The functions
+in ima_queue_keys.c are refactored to a new file ima_queue_data.c.
+The kernel configuration CONFIG_IMA_QUEUE_EARLY_BOOT_KEYS is renamed to
+CONFIG_IMA_QUEUE_EARLY_BOOT_DATA so it can be used for enabling any
+early boot data measurement. Since measurement of asymmetric keys is
+the first consumer of early boot measurement, this kernel configuration
+is enabled if IMA_MEASURE_ASYMMETRIC_KEYS and SYSTEM_TRUSTED_KEYRING are
+both enabled.
 
-Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
----
- security/integrity/ima/ima.h      |  6 +++---
- security/integrity/ima/ima_main.c | 14 +++++++-------
- 2 files changed, 10 insertions(+), 10 deletions(-)
+The IMA hook to measure kernel critical data ima_measure_critical_data()
+is updated to utilize early boot measurement support.
 
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 8875085db689..83ed57147e68 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -265,9 +265,9 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
- 			   struct evm_ima_xattr_data *xattr_value,
- 			   int xattr_len, const struct modsig *modsig, int pcr,
- 			   struct ima_template_desc *template_desc);
--void process_buffer_measurement(struct inode *inode, const void *buf, int size,
--				const char *eventname, enum ima_hooks func,
--				int pcr, const char *func_data);
-+int process_buffer_measurement(struct inode *inode, const void *buf, int size,
-+			       const char *eventname, enum ima_hooks func,
-+			       int pcr, const char *func_data);
- void ima_audit_measurement(struct integrity_iint_cache *iint,
- 			   const unsigned char *filename);
- int ima_alloc_init_template(struct ima_event_data *event_data,
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index c870fd6d2f83..0979a62a9257 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -736,9 +736,9 @@ int ima_load_data(enum kernel_load_data_id id)
-  *
-  * Based on policy, the buffer is measured into the ima log.
-  */
--void process_buffer_measurement(struct inode *inode, const void *buf, int size,
--				const char *eventname, enum ima_hooks func,
--				int pcr, const char *func_data)
-+int process_buffer_measurement(struct inode *inode, const void *buf, int size,
-+			       const char *eventname, enum ima_hooks func,
-+			       int pcr, const char *func_data)
- {
- 	int ret = 0;
- 	const char *audit_cause = "ENOMEM";
-@@ -758,7 +758,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
- 	u32 secid;
- 
- 	if (!ima_policy_flag)
--		return;
-+		return 0;
- 
- 	/*
- 	 * Both LSM hooks and auxilary based buffer measurements are
-@@ -772,7 +772,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
- 		action = ima_get_action(inode, current_cred(), secid, 0, func,
- 					&pcr, &template, func_data);
- 		if (!(action & IMA_MEASURE))
--			return;
-+			return 0;
- 	}
- 
- 	if (!pcr)
-@@ -787,7 +787,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
- 			pr_err("template %s init failed, result: %d\n",
- 			       (strlen(template->name) ?
- 				template->name : template->fmt), ret);
--			return;
-+			return ret;
- 		}
- 	}
- 
-@@ -819,7 +819,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
- 					func_measure_str(func),
- 					audit_cause, ret, 0, ret);
- 
--	return;
-+	return ret;
- }
- 
- /**
+This series is based on the following repo/branch:
+ repo: https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git
+ branch: next-integrity
+ commit d012a7190fc1 ("Linux 5.9-rc2") 
+
+This patch is dependent on the following patch series:
+	https://patchwork.kernel.org/patch/11709527/
+	https://patchwork.kernel.org/patch/11742047/
+
+Change Log:
+  v2:
+    => Split the patches to first rename the file and functions,
+       and then introduce new arguments, followed by adding queuing
+       support in ima_measure_critical_data().
+
+Lakshmi Ramasubramanian (3):
+  IMA: Generalize early boot measurement of asymmetric keys
+  IMA: Support measurement of generic data during early boot
+  IMA: Support early boot measurement of critical data
+
+ security/integrity/ima/Kconfig               |   2 +-
+ security/integrity/ima/Makefile              |   2 +-
+ security/integrity/ima/ima.h                 |  39 ++--
+ security/integrity/ima/ima_asymmetric_keys.c |   7 +-
+ security/integrity/ima/ima_init.c            |   2 +-
+ security/integrity/ima/ima_main.c            |  10 +
+ security/integrity/ima/ima_policy.c          |   2 +-
+ security/integrity/ima/ima_queue_data.c      | 191 +++++++++++++++++++
+ security/integrity/ima/ima_queue_keys.c      | 175 -----------------
+ 9 files changed, 232 insertions(+), 198 deletions(-)
+ create mode 100644 security/integrity/ima/ima_queue_data.c
+ delete mode 100644 security/integrity/ima/ima_queue_keys.c
+
 -- 
-2.17.1
+2.28.0
 
