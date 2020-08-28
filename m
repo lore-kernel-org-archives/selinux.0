@@ -1,163 +1,130 @@
-Return-Path: <SRS0=ySGb=CF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=arMl=CG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 007ADC433DF
-	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 16:38:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57266C433E2
+	for <selinux@archiver.kernel.org>; Fri, 28 Aug 2020 01:57:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0A612087C
-	for <selinux@archiver.kernel.org>; Thu, 27 Aug 2020 16:38:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32EC220848
+	for <selinux@archiver.kernel.org>; Fri, 28 Aug 2020 01:57:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="OKncGKO2"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="auHHUx3z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726236AbgH0Qih (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Aug 2020 12:38:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726009AbgH0Qie (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 12:38:34 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B1510C061264
-        for <selinux@vger.kernel.org>; Thu, 27 Aug 2020 09:38:33 -0700 (PDT)
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 4C55C2A0D7E;
-        Thu, 27 Aug 2020 18:38:31 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 4C55C2A0D7E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1598546311;
-        bh=+BNZWu4+ovVBZqFbYSfFrOnv3el+6zwE2+Eimi6kjJs=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=OKncGKO2TGZiFJURxKj2Mkz7bWnrd9n9KcOOQRWFcj0vr+L/Ji2zmfzpxrjMhXVyN
-         xANLcyMYK/On3sWKkXm73DYrWPrWqyQ/VjYiK79M2H2TuG79Yg19OQ6dZHJOS9cUaS
-         dqiLYHgVaiPPbv7UqmG0lF80rcshSJh3W79d8AGw=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Chris PeBenito <chpebeni@linux.microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Subject: Re: Userspace AVC auditing on policy load
-References: <332168a5.dd08.174309a9344.Webtop.99@btinternet.com>
-Date:   Thu, 27 Aug 2020 18:38:28 +0200
-In-Reply-To: <332168a5.dd08.174309a9344.Webtop.99@btinternet.com> (Richard
-        Haines's message of "Thu, 27 Aug 2020 16:47:50 +0100 (BST)")
-Message-ID: <ypjltuwooxh7.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
+        id S1728238AbgH1B5S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Aug 2020 21:57:18 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:38412 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726147AbgH1B5S (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Aug 2020 21:57:18 -0400
+Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 144F720B7178;
+        Thu, 27 Aug 2020 18:57:17 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 144F720B7178
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1598579837;
+        bh=xcLyoCG73RULVdbULRTyICyaCH1/+89JRVwjrVGQQYk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=auHHUx3zzRaZqF2Q4uil4Xmb8tLHAUDUJEujc7H8AwWfF1cjlY6ItPMOwkN0NRma2
+         22TYlVQEhEKk5FtO3MSm8qJhQNIO9G/h5E8tO/Tt5qbEsLeGJOr18e9REC2gPa3GeD
+         cWp/mFEwXt7v150PHt3uMz+16nU3GgdiE9ya1nL0=
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: [PATCH v3 0/6] IMA: Infrastructure for measurement of critical kernel data
+Date:   Thu, 27 Aug 2020 18:56:58 -0700
+Message-Id: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
+X-Mailer: git-send-email 2.17.1
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Richard Haines <richard_c_haines@btinternet.com> writes:
+There are several kernel components that contain critical data which if
+accidentally or maliciously altered, can compromise the security of the
+kernel. Example of such components would include LSMs like SELinux, or
+AppArmor; or device-mapper targets like dm-crypt, dm-verity etc.
 
-> On Wed, 2020-08-26 at 15:15 -0400, Chris PeBenito wrote:
->> On 8/26/20 3:07 PM, Dominick Grift wrote:
->>> Chris PeBenito <chpebeni@linux.microsoft.com> writes:
->>>
->
->>>> On 8/26/20 10:46 AM, Stephen Smalley wrote:
->>>>> On Wed, Aug 26, 2020 at 10:35 AM Chris PeBenito
->>>>> <chpebeni@linux.microsoft.com> wrote:
->>>>>> On 8/26/20 9:25 AM, Chris PeBenito wrote:
->>>>>>> I was looking into this dbus-broker audit message, which
->>>>>>> has the wrong audit type:
->>>>>>>
->
->>>>>>> audit[422]: USER_AVC pid=422 uid=999 auid=4294967295
->>>>>>> ses=4294967295
->>>>>>> subj=system_u:system_r:system_dbusd_t msg='avc:  received
->>>>>>> policyload notice
->>>>>>> (seqno=2)
->>>>>>>
->
->>>>>>> This is due to dbus-broker setting their avc log callback
->>>>>>> to send USER_AVC audit
->>>>>>> messages for everything that comes to the libselinux log
->>>>>>> callback. I think the
->>>>>>> right thing to do there is to change it to emit
->>>>>>> USER_SELINUX_ERR audit messages
->>>>>>> if the log message is SELINUX_ERROR, otherwise log the
->>>>>>> message using their
->>>>>>> regular method (stderr I think).
->>>>>>>
->
->>>>>>> But the question became, why is the userspace AVC not
->>>>>>> simply emitting its own
->>>>>>> USER_MAC_POLICY_LOAD audit message instead of sending a
->>>>>>> message to the log
->>>>>>> callback?
->>>>>>
->
->>>>>> Ok, I missed that there is a SELINUX_AVC log type and that's
->>>>>> how the userspace
->>>>>> denial messages are sent out. How about adding
->>>>>> SELINUX_POLICYLOAD and
->>>>>> SELINUX_ENFORCE log types so that callers can emit
->>>>>> appropriate audit messages?
->>>>> Do we need two different new types or just one?  Otherwise, I
->>>>> don't
->>>>> have a problem with adding new ones as long as it doesn't break
->>>>> existing applications.
->>>>
->
->>>> Regarding the risk of breaking existing applications, I did some
->>>> checking on some userspace AVC users and what they do in their
->>>> log
->>>> callback:
->>>>
->
->>>> * systemd only audits SELINUX_AVC and SELINUX_ERROR messages and
->>>>    ignores others(as Petr noted)
->>>> * xorg-server audits SELINUX_AVC correctly but audits
->>>> SELINUX_INFO as
->>>>    USER_MAC_POLICY_LOAD and everything else it ignores the type
->>>> and
->>>>   audits as AUDIT_USER_SELINUX_ERR
->>>> * dbus-broker ignores type and audits everything as USER_AVC
->>>> * dbus-service ignores type and audits everything as USER AVC
->>>> * pam: pam_rootok ignores type and audits everything as USER_AVC
->>>> * sepgsql custom AVC implementation (this was news to me)
->>>> * shadow-utils only audits SELINUX_AVC and SELINUX_ERROR messages
->>>> and
->>>>    others go to syslog
->>>> * cronie: no callback set
->>>>
->
->>>> That's all the ones I could think of.  Which ones am I missing?
->>>
->
->>> Probably libreswan, AFAIK that one might also still be using
->>> avc_has_perm() instead of selinux_check_access().
->>
->
->> You're correct, it is still use avc_has_perm().  There is no log
->> callback set here.
->>
->
-> ipsec-tools (racoon) is another. I did patches for this and LibreSwan
-> a few years ago, they never went far:
->
-> ipsec-tools:
-> https://marc.info/?l=ipsec-tools-devel&m=149441917501329&w=2
-> LibreSwan:
-> https://lists.libreswan.org/pipermail/swan-dev/2017-May/001860.html
->
->
+Many of these components do not use the capabilities provided by kernel
+integrity subsystem (IMA), and thus they don't use the benefits of
+extended TPM PCR quotes and ultimately the benefits of remote attestation.
 
-I visited #swan and reminded the maintainers of the libreswan patch,
-they are going to address your patch.
+This series bridges this gap, so that potential kernel components that
+contain data critical to the security of the kernel could take advantage
+of IMA's measuring and quoting abilities - thus ultimately enabling
+remote attestation for their specific data.
 
-ipsec-tools is dead and have CVE's and so not sure if there is any point
-to that.
+System administrators may want to pick and choose which kernel
+components they would want to enable for measurements, quoting, and
+remote attestation. To enable that, a new IMA policy is introduced.
+
+And lastly, the functionality is exposed through a function
+ima_measure_critical_data(). The functionality is generic enough to
+measure the data of any kernel component at run-time. To ensure that only
+data from supported sources are measured, the kernel component needs to
+be added to a compile-time list of supported sources (an "allowed list
+of components"). IMA validates the source passed to
+ima_measure_critical_data() against this allowed list at run-time. 
+
+This series is based on the following repo/branch:
+
+ repo: https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git
+ branch: next-integrity
+ commit d012a7190fc1 ("Linux 5.9-rc2")
+
+This series also has a dependency on the following patch series:
+ https://patchwork.kernel.org/patch/11709527/
+
+Change Log v3:
+Incorporated feedback from Mimi on v2.
+ - Renamed the policy "data_sources" to
+   "critical_kernel_data_sources".
+ - Added "critical_kernel_data_sources" description in
+   Documentation/ima-policy.
+ - Split CRITICAL_DATA + critical_kernel_data_sources into two separate
+   patches.
+ - Merged hook ima_measure_critical_data() + CRITICAL_DATA into a single
+   patch.
+ - Added functionality to validate data sources before measurement.
+
+Change Log v2:
+ - Reverted the unnecessary indentations in existing #define.
+ - Updated the description to replace the word 'enlightened' with
+   'supported'.
+ - Reverted the unnecessary rename of attribute size to buf_len.
+ - Introduced a boolean parameter measure_buf_hash as per community
+   feedback to support measuring hash of the buffer, instead of the
+   buffer itself.
+
+
+Tushar Sugandhi (6):
+  IMA: generalize keyring specific measurement constructs
+  IMA: change process_buffer_measurement return type from void to int
+  IMA: update process_buffer_measurement to measure buffer hash
+  IMA: add policy to measure critical data from kernel components
+  IMA: add hook to measure critical data from kernel components
+  IMA: validate supported kernel data sources before measurement
+
+ Documentation/ABI/testing/ima_policy         |  11 +-
+ include/linux/ima.h                          |  11 ++
+ security/integrity/ima/ima.h                 |  41 +++++++-
+ security/integrity/ima/ima_api.c             |   8 +-
+ security/integrity/ima/ima_appraise.c        |   2 +-
+ security/integrity/ima/ima_asymmetric_keys.c |   2 +-
+ security/integrity/ima/ima_main.c            |  72 +++++++++++--
+ security/integrity/ima/ima_policy.c          | 101 +++++++++++++++----
+ security/integrity/ima/ima_queue_keys.c      |   3 +-
+ 9 files changed, 205 insertions(+), 46 deletions(-)
 
 -- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
+2.17.1
+
