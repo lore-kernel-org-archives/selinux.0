@@ -2,136 +2,84 @@ Return-Path: <SRS0=sjmt=CJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1762C433E7
-	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 18:24:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88262C433E6
+	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 19:45:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4FEE208DB
-	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 18:24:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52A7A206E3
+	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 19:45:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CPkddEgE"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iQRxA0IA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729813AbgHaSYJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Aug 2020 14:24:09 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25912 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729581AbgHaSYJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Aug 2020 14:24:09 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07VI1k9e192199;
-        Mon, 31 Aug 2020 14:24:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=P7mHsXAaOECT9cWfKNbj36oJwWhrX5fDV7JR8XC5aM0=;
- b=CPkddEgE29Ium4MTNJrwP5X6OWpYv1nYvTsni5xZl7PcCEzd6xQwDNtUedTBzrp0H+nc
- v8L6HJ8SjF0brR6Ddqom78bML3RSH4UcMCriDUxhgGpxKZMIASf/m8yH1kYcJFOZcxya
- dI8jRFK8XQzgBKIh7rX/aVO5FZ48TKHa+AQrtxnGL2vNF92pQwHcEFLAr1D6vGhKd/Pw
- GiSJcpOba6q7dB0mM0enqkzjcXtWx1vT2Ry5SZFn2GfoXXSdk+sn7O7s9O+ZqC7yGxj5
- XnlU8LNHayxVSNyAj9Mu53651BQcP2muK8fTEsltEuosFBcznOrST8jiMeXCJ3fA4Z9d GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33953et7um-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 14:24:04 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07VIK7lW043560;
-        Mon, 31 Aug 2020 14:24:04 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33953et7tr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 14:24:03 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07VICxG7004273;
-        Mon, 31 Aug 2020 18:24:02 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 337e9gtew2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 18:24:01 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07VINxPl31850954
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Aug 2020 18:23:59 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E2A1A4040;
-        Mon, 31 Aug 2020 18:23:59 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0F86CA4053;
-        Mon, 31 Aug 2020 18:23:56 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.2.129])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Aug 2020 18:23:55 +0000 (GMT)
-Message-ID: <6c80bdad49c72fa58b5a9fb7ce2d20c8cabe1324.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 5/6] IMA: add hook to measure critical data from
- kernel components
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Mon, 31 Aug 2020 14:23:55 -0400
-In-Reply-To: <20200828015704.6629-6-tusharsu@linux.microsoft.com>
-References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
-         <20200828015704.6629-6-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-31_08:2020-08-31,2020-08-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 mlxscore=0 bulkscore=0 mlxlogscore=999 lowpriorityscore=0
- malwarescore=0 adultscore=0 phishscore=0 clxscore=1015 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008310104
+        id S1728779AbgHaTpP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Aug 2020 15:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38844 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726755AbgHaTpO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Aug 2020 15:45:14 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D326EC061573
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2020 12:45:13 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id 37so4722207oto.4
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2020 12:45:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Q/QUPVK9eLD7YnC9h/sHLvNL8USINlqAHTK5p+PZi0A=;
+        b=iQRxA0IAoltxJGSPCJmkY9C/g+Lj6dbZUJEcLVyaL2nhPbxeVS9KLEPPkndezYAqLW
+         lHHfMU0P3gAbsPCPxBY1quy9y9/RgP4xh6t5k6nk97IcIcL2N0Iksqs+uvJiMvmgT/GM
+         GhuT7A1G3RDvyYGJMRhaFdwPdpTUn743ZF0FQwtfWowolP5Fy9Lt81xS+43DWu1Q96VA
+         TJASKVCa+2py2fP0eQQDT/96WQt4OaLk25RNhUqxANMGV3REqhXGegpJ+Y7k9WiJ3Wes
+         vOn7P+QwltxZ6f6dRDoowtRveEzpz5HTI4jnDVA52Oq9eC80xkakzum8LKO4fTygwtIY
+         Z1Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Q/QUPVK9eLD7YnC9h/sHLvNL8USINlqAHTK5p+PZi0A=;
+        b=Ve/4jV7XcpFJko+7V7Goz3hQq4AN3yPiZj8gHnsvYgGZa7surZRTtKsoxbvmX0qNxK
+         GoWTu6Uyj4ccw1Ks8QxLvpzu4d2Q5Ap/0bt/d4vSTZXGqL/AQa97RTfm9rD+gKeHQtUz
+         F6MtINXDopWrJTYpGzmW545Umi1pmiTVBSyiGqHwg4tQqIwCQjESJ07281rlSVVOqFzX
+         iVd1dJ+BIzpQXXy1y8CAMqIFlhW4Kb0mH9pzsRozLpYJ2c4JapsKPIAQtLVHQUxNE3WO
+         re7V7xmrIq331J7ZTdf1UfvqPkREhCG+o/BRqiScH9Y++rUKGU7s12jgVrsVjG3Uh2DX
+         3ZdQ==
+X-Gm-Message-State: AOAM530rqTP2iW9CMFSERb5xTS206Pxw7JGj2loVPzaCIgDLqDjUA/Fz
+        HoZDOSEUWBV6ym3T75/8DfIolLTBSNf+rqL6xVVs5Hlu
+X-Google-Smtp-Source: ABdhPJwOWvHx4vn2MGG64mTGJXOv3TIt1CaJX5DOwzfEzJFe7VQbtbsRd4iu8SGfGB2uS2ml3V55dW7CO5twTE8Hzzw=
+X-Received: by 2002:a05:6830:1258:: with SMTP id s24mr1997792otp.162.1598903112706;
+ Mon, 31 Aug 2020 12:45:12 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200827125839.79006-1-chpebeni@linux.microsoft.com> <CAEjxPJ4O+uN4+ezYZhv5gHYs1RDMuG2oYvP+7OC-FH4Gh8oaNQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4O+uN4+ezYZhv5gHYs1RDMuG2oYvP+7OC-FH4Gh8oaNQ@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 31 Aug 2020 15:45:01 -0400
+Message-ID: <CAEjxPJ62pBQLFQ0i5sopTeWtAztakTAmgsS9yOFGQo1KpuRmQQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libselinux: Add new log callback levels for enforcing
+ and policy load notices.
+To:     Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> index 52cbbc1f7ea2..a889bf40cb7e 100644
-> --- a/security/integrity/ima/ima_main.c
-> +++ b/security/integrity/ima/ima_main.c
-> @@ -869,6 +869,30 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->  	fdput(f);
->  }
->  
-> +/**
-> + * ima_measure_critical_data - measure critical data
-> + * @event_name: name for the given data
-> + * @event_data_source: name of the event data source
-> + * @buf: pointer to buffer containing data to measure
-> + * @buf_len: length of buffer(in bytes)
-> + * @measure_buf_hash: if set to true - will measure hash of the buf,
-> + *                    instead of buf
-> + *
-> + * Buffers can only be measured, not appraised.
-> + */
-> +int ima_measure_critical_data(const char *event_name,
-> +			      const char *event_data_source,
-> +			      const void *buf, int buf_len,
-> +			      bool measure_buf_hash)
-> +{
-> +	if (!event_name || !event_data_source || !buf || !buf_len)
-> +		return -EINVAL;
-> +
-> +	return process_buffer_measurement(NULL, buf, buf_len, event_name,
-> +					  CRITICAL_DATA, 0, event_data_source,
-> +					  measure_buf_hash);
+On Thu, Aug 27, 2020 at 12:37 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Thu, Aug 27, 2020 at 8:59 AM Chris PeBenito
+> <chpebeni@linux.microsoft.com> wrote:
+> >
+> > This will enable userspace object managers to send proper audits for policy
+> > loads and setenforce messages generated by the userspace AVC code.
+> >
+> > Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-This is exactly what I'm concerned about.  Failure to measure data may
-be audited, but should never fail.
-
-Mimi
-
-> +}
-
-
+Applied.
