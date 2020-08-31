@@ -2,158 +2,97 @@ Return-Path: <SRS0=sjmt=CJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C60DC433E6
-	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 11:56:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28074C433E6
+	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 14:04:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D4222098B
-	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 11:56:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBFA620936
+	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 14:04:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hdX++FVt"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Y0heAMXP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgHaL4A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Aug 2020 07:56:00 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36658 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726167AbgHaL4A (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Aug 2020 07:56:00 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07VB2tNO140261;
-        Mon, 31 Aug 2020 07:55:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=3NqTThVQ8eaoP7oELAZFEv4/SLtWiHWWrwVAhpVkpk8=;
- b=hdX++FVthQmmHIUCRF++GF+br4ETo0E1IXszaV4waSDggNyyW+CblURewKoKVE9+7+wX
- jtlkmTbFSyWezqvgj1dYxn6J7yPOnt2++gvO+ImtTwz2qgou4AO96IEmcHENte+sHzaO
- X+IEjlFggT49gLLpfU1QB7/TusX9uwRJvuDeKEvelBOyH9uo65NusT/Qj/2WBLHhfOgJ
- ExiKBB9JMK+M9+pqm+jk5Dnmbi2CZxPIsgYQxQh3VEn+dOSWbQy8GZ9zChzuTsS7CgHu
- pG9zZRBKwvMmsT78twDDRPkcm0evGR2nUKvPg9nF53vadfKkJtW1uaVfkMWUR2Y+txB+ 8g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 338xgvbgf9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 07:55:54 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07VBPJih031055;
-        Mon, 31 Aug 2020 07:55:54 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 338xgvbget-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 07:55:53 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07VBmS5r002148;
-        Mon, 31 Aug 2020 11:55:52 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 337en819qt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 11:55:52 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07VBtnPh26411484
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Aug 2020 11:55:49 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47839A405B;
-        Mon, 31 Aug 2020 11:55:49 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C219A4051;
-        Mon, 31 Aug 2020 11:55:46 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.2.129])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Aug 2020 11:55:45 +0000 (GMT)
-Message-ID: <4802c73c2ed22c64ea4f315d3115ead919c3205e.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/6] IMA: generalize keyring specific measurement
- constructs
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Mon, 31 Aug 2020 07:55:45 -0400
-In-Reply-To: <20200828015704.6629-2-tusharsu@linux.microsoft.com>
-References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
-         <20200828015704.6629-2-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-31_04:2020-08-31,2020-08-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0 mlxscore=0
- spamscore=0 adultscore=0 mlxlogscore=999 phishscore=0 clxscore=1015
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008310062
+        id S1726326AbgHaOEL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Aug 2020 10:04:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41938 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726144AbgHaOEL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Aug 2020 10:04:11 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C9DC061573
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2020 07:04:10 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id nw23so7251648ejb.4
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2020 07:04:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0dc7vjlumv0zlRiX4DwbfgwGPyHE6Y9M0btAHUipbgU=;
+        b=Y0heAMXPkPlGGtKjjdkPQRLbI6g3GVSyjelaKta2TY5jPfu9j1tdh9UHNDNvE3dxsh
+         0Y8Wl+N1jNq5pKkSTivrHNZAR4RzfBHAo/5BhE64R7TsAmV2b8Dxseq8Q0eKsRVjmzsj
+         fl2pjyqJJouG/ncDCkbSfLwgK8KCydAu4VbxN9v909sNTcF3CZCof/BqawEjfBYvUDd7
+         N/BVuk0tamqbGRaMlKKuKJ4volHcYLRc1fiorhVidyNfB0A6Eiz28Maxps8/vhIzYLjW
+         0HgVepEIXG4mlFd4KNrI17GEGmzffaX6pRiC/XEuE32gVOOksz6h7P3i9t/TBIE2k/Hc
+         gm5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0dc7vjlumv0zlRiX4DwbfgwGPyHE6Y9M0btAHUipbgU=;
+        b=e90oQzxMciH6ZpuJN2E+O60jo5B0A84FMlfIoL8mO1wym7v2WST6yjYl2Jri5FCfKY
+         pCA9WVtTLX+DYdfU1MXjOTu6bvnJEU4WJxnKDme4Tm32rByzleI+bxaTdftMoDQmxO7P
+         3ZE2md/mMtowTBNQWZydcw+Y1HkPEKDqSzn/QDPVf1upTC8SlT9yEHh9FNlQjYANxav8
+         p8cbDCwX+JIFkuMMGnnj6aVZQWasYY7HyFM5iRlw0PbabCLA+X8GtGPj9rlG8NO5v22M
+         liy+8gFcCQweHyLC6Mmide7UzI5TieNEfzHezmQ2MKLl27kapR8ORXCGCH+U2jL7mGAz
+         +b5A==
+X-Gm-Message-State: AOAM533AE11md16fV6IdMzYZyfNiLQ+1IaV2EASv7xmFBB40D4aHtB7r
+        DSthGVKL1Dd0eLVCIFqOOg9Wq8734G+ksC/Jn+Az
+X-Google-Smtp-Source: ABdhPJyenx2/40a6pLqqVk/4av/ugfiPSmE1l4DVlOppXLuVeMdQzevrhMqYj0YI4xbNuwaHakWpKbHArhPQB6XnjVk=
+X-Received: by 2002:a17:906:c1d8:: with SMTP id bw24mr1291919ejb.91.1598882648852;
+ Mon, 31 Aug 2020 07:04:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200827162753.2089782-1-omosnace@redhat.com>
+In-Reply-To: <20200827162753.2089782-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 31 Aug 2020 10:03:57 -0400
+Message-ID: <CAHC9VhTkgZ65=xHtkpRWZkNp9vu512g9BoAa8VfEHsYsvDxtiA@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: simplify away security_policydb_len()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2020-08-27 at 18:56 -0700, Tushar Sugandhi wrote:
-> IMA functions such as ima_match_keyring(), process_buffer_measurement(),
-> ima_match_policy() etc. handle data specific to keyrings. Currently,
-> these constructs are not generic to handle any func specific data.
-> This makes it harder to extend without code duplication.
-> 
-> Refactor the keyring specific measurement constructs to be generic and
-> reusable in other measurement scenarios.
-
-Mostly this patch changes the variable name from keyring to func_data,
-which is good.  Other changes should be minimized.
-
-> 
-> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+On Thu, Aug 27, 2020 at 12:28 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> Remove the security_policydb_len() calls from sel_open_policy() and
+> instead update the inode size from the size returned from
+> security_read_policy().
+>
+> Since after this change security_policydb_len() is only called from
+> security_load_policy(), remove it entirely and just open-code it there.
+>
+> Also, since security_load_policy() is always called with policy_mutex
+> held, make it dereference the policy pointer directly and drop the
+> unnecessary RCU locking.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
+>
+> v3: rebase on top of latest selinux/next
+>
+>  security/selinux/include/security.h |  1 -
+>  security/selinux/selinuxfs.c        | 12 ++++++------
+>  security/selinux/ss/services.c      | 27 ++++-----------------------
+>  3 files changed, 10 insertions(+), 30 deletions(-)
 
-<snip>
+Merged into selinux/next.
 
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index fe1df373c113..8866e84d0062 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -451,15 +451,21 @@ int ima_lsm_policy_change(struct notifier_block *nb, unsigned long event,
->  }
->  
->  /**
-> - * ima_match_keyring - determine whether the keyring matches the measure rule
-> - * @rule: a pointer to a rule
-> - * @keyring: name of the keyring to match against the measure rule
-> + * ima_match_rule_data - determine whether the given func_data matches
-> + *			 the measure rule data
-> + * @rule: IMA policy rule
-> + * @opt_list: rule data to match func_data against
-> + * @func_data: data to match against the measure rule data
-> + * @allow_empty_opt_list: If true matches all func_data
->   * @cred: a pointer to a credentials structure for user validation
->   *
-> - * Returns true if keyring matches one in the rule, false otherwise.
-> + * Returns true if func_data matches one in the rule, false otherwise.
->   */
-> -static bool ima_match_keyring(struct ima_rule_entry *rule,
-> -			      const char *keyring, const struct cred *cred)
-> +static bool ima_match_rule_data(struct ima_rule_entry *rule,
-> +				const struct ima_rule_opt_list *opt_list, 
-
-Ok
-
-> +				const char *func_data,
-> +				bool allow_empty_opt_list,
-
-As the policy is loaded, shouldn't the rules should be checked, not
-here on usage?
-
-Mimi
-
-> +				const struct cred *cred)
->  {
->  	bool matched = false;
->  	size_t i;
-> 
-
+-- 
+paul moore
+www.paul-moore.com
