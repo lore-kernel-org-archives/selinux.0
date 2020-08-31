@@ -2,160 +2,168 @@ Return-Path: <SRS0=sjmt=CJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.1 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D78EC433E2
-	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 18:15:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD277C433E6
+	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 18:21:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6773A2071B
-	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 18:15:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 944302071B
+	for <selinux@archiver.kernel.org>; Mon, 31 Aug 2020 18:21:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hSZmsJ6x"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NZoNODsK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729258AbgHaSPW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Aug 2020 14:15:22 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65350 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727058AbgHaSPW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Aug 2020 14:15:22 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07VICSOM010830;
-        Mon, 31 Aug 2020 14:15:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=2Zt60Da8ydmfnwL5qNmLq+grEYSEGAAJLsSW2Aj+kEU=;
- b=hSZmsJ6x/E8w9k3QpIr9V9sDC8DIieH0tXD0gBI7boybRHgfmP1qtdgufXL59okj1eZP
- FozffYjP7L/4dL8ZPQwxtaQXfBegu/fiIBlXC44rGBXVFeNfu/FT4rvldRDeAX9qNkPd
- n7Tnd8A7ipeQVeP0eG+zM1KKXQh8iUrYFS9mmyNq2J5IbMsqV2pdP2RJTzOEjHHVi7d4
- DDNPM4JNLjGXxStGAxNElrecg/e/Mm+8Dmuvy0jCUaUj5T4+0XaeXujUgzFtWBK+r5Go
- QX2UtmgTs6lYQ4dnTdOOkeYGc5R9dZoMK9CwDQ8SLlNcMewmbzIg0w2S6hvDzBFF/Tt/ Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33969br22u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 14:15:15 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07VIE72u013986;
-        Mon, 31 Aug 2020 14:15:15 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33969br21a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 14:15:15 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07VICxFc004273;
-        Mon, 31 Aug 2020 18:15:13 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 337e9gten0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Aug 2020 18:15:13 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07VIFB4A15860132
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Aug 2020 18:15:11 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D9A50A4072;
-        Mon, 31 Aug 2020 18:15:09 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 85E9EA4069;
-        Mon, 31 Aug 2020 18:15:06 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.2.129])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Aug 2020 18:15:06 +0000 (GMT)
-Message-ID: <652406e1a08d855a5d9a3e3815835653a12df411.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 4/6] IMA: add policy to measure critical data from
- kernel components
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Mon, 31 Aug 2020 14:15:05 -0400
-In-Reply-To: <20200828015704.6629-5-tusharsu@linux.microsoft.com>
-References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
-         <20200828015704.6629-5-tusharsu@linux.microsoft.com>
+        id S1729682AbgHaSVw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Aug 2020 14:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729183AbgHaSVu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Aug 2020 14:21:50 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B297C061575
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2020 11:21:50 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id p13so2030965ils.3
+        for <selinux@vger.kernel.org>; Mon, 31 Aug 2020 11:21:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=X3QYc0qUilro/bdxtUXo+KBifJgEgJArvSnQjd2oRO8=;
+        b=NZoNODsK62AWX3XXgbhwvgj4xsKlN9RPyEndc3heBWH5oSQ/yEgPaopAIO0pasJJGY
+         yeJNE1m+q4C7SdJzMSXi32IxZ5pVi8nfRpfDxwUOS5ZLMJ7CP/rRwt62wt1XKtYJEi5w
+         00U3QRrHeVbHgln2joAZuwCq4otiompg1Q6EHjWNwCreW+6wxPJkMVIV8PAmvbErZug0
+         8pUgvFzg5hW4fZQKAr7clfdnAa6Cxli4+k3gIiS6WuZVj9z9JF2UaiJ7cPbsyji1wRQM
+         fCgsBDhfO2fZa0IooKzzN4Ub4/ywDnMfAEaj4AyAVWv8fiSMuF9kSLuFxGMjged+Jk4t
+         WgAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=X3QYc0qUilro/bdxtUXo+KBifJgEgJArvSnQjd2oRO8=;
+        b=CFoFCY3tXwSJ3YVX/EsbeNd/1hq1HlvfMttIQKEsWjDhxAQFR3wePTwIDXhepot8s+
+         Pyy+cmEBybcHbMdfO48ohBkylebNz6wSXfV6KJ5MBeU5rfHfprUhH5n57aqdRCYkuFrU
+         kaYA51HMTQTwHAQBgfO1LN2GOLJccXCoQuAYSBHVf+1uXSEM0I1YPRV1y0BRd/kOg86J
+         1nXtt2fyg+4J+L4RxfT3TkveR4LmUPBW/tgntbTgJCRYynvKXQna0Om6OVhrqT15cbBj
+         7/E7rv92HPdxWeB3/X33RzlB0sDtnSLAIvKCbsHhu3sbbRQ3w3rIghvY/zsUl6pEtkPo
+         p4DA==
+X-Gm-Message-State: AOAM532SjF3l+rHbf1m4ExEO7a63e3svhtj+nyet+GB+zzOGZPJzrGA3
+        OGt3UYpXcWMAVO3sjnN9sX/hEqEO8HkhduiF/Blc0g==
+X-Google-Smtp-Source: ABdhPJwzKJOJjZ60iNa61GaWBeT9+To763ExbTMXN2HmKulBGL0DIYAj65AkWG0zSOkuEi4Jw1feSDJ/wfLDRHCHlVI=
+X-Received: by 2002:a92:c5ac:: with SMTP id r12mr2298152ilt.274.1598898109167;
+ Mon, 31 Aug 2020 11:21:49 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200827063522.2563293-1-lokeshgidra@google.com>
+ <20200827063522.2563293-3-lokeshgidra@google.com> <CAEjxPJ7rsyw=AkRUmnshF5gWygHEN1ahKi5uD9FtYovz0JRKCQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7rsyw=AkRUmnshF5gWygHEN1ahKi5uD9FtYovz0JRKCQ@mail.gmail.com>
+From:   Lokesh Gidra <lokeshgidra@google.com>
+Date:   Mon, 31 Aug 2020 11:21:38 -0700
+Message-ID: <CA+EESO7Rc5qKjPQ3Vh9=mJS+b2fJLnEY4_Zr06PWZJ-apC4Vfw@mail.gmail.com>
+Subject: Re: [PATCH v8 2/3] Teach SELinux about anonymous inodes
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Calin Juravle <calin@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        kernel-team@android.com, Daniel Colascione <dancol@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-31_08:2020-08-31,2020-08-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 mlxscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
- phishscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=999 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008310104
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2020-08-27 at 18:57 -0700, Tushar Sugandhi wrote:
-> There would be several candidate kernel components suitable for IMA
-> measurement. Not all of them would have support for IMA measurement.
-> Also, system administrators may not want to measure data for all of
-> them, even when they support IMA measurement. An IMA policy specific
-> to various kernel components is needed to measure their respective
-> critical data.
+On Mon, Aug 31, 2020 at 11:05 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Thu, Aug 27, 2020 at 2:35 AM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> >
+> > From: Daniel Colascione <dancol@google.com>
+> >
+> > This change uses the anon_inodes and LSM infrastructure introduced in
+> > the previous patch to give SELinux the ability to control
+> > anonymous-inode files that are created using the new anon_inode_getfd_secure()
+> > function.
+> >
+> > A SELinux policy author detects and controls these anonymous inodes by
+> > adding a name-based type_transition rule that assigns a new security
+> > type to anonymous-inode files created in some domain. The name used
+> > for the name-based transition is the name associated with the
+> > anonymous inode for file listings --- e.g., "[userfaultfd]" or
+> > "[perf_event]".
+> >
+> > Example:
+> >
+> > type uffd_t;
+> > type_transition sysadm_t sysadm_t : anon_inode uffd_t "[userfaultfd]";
+> > allow sysadm_t uffd_t:anon_inode { create };
+> >
+> > (The next patch in this series is necessary for making userfaultfd
+> > support this new interface.  The example above is just
+> > for exposition.)
+> >
+> > Signed-off-by: Daniel Colascione <dancol@google.com>
+> > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Cc: Al Viro <viro@zeniv.linux.org.uk>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > ---
+> >  security/selinux/hooks.c            | 53 +++++++++++++++++++++++++++++
+> >  security/selinux/include/classmap.h |  2 ++
+> >  2 files changed, 55 insertions(+)
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index a340986aa92e..b83f56e5ef40 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -2926,6 +2926,58 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+> >         return 0;
+> >  }
+> >
+> > +static int selinux_inode_init_security_anon(struct inode *inode,
+> > +                                           const struct qstr *name,
+> > +                                           const struct inode *context_inode)
+> > +{
+> > +       const struct task_security_struct *tsec = selinux_cred(current_cred());
+> > +       struct common_audit_data ad;
+> > +       struct inode_security_struct *isec;
+> > +       int rc;
+> > +
+> > +       if (unlikely(!selinux_state.initialized))
+>
+> This should use selinux_initialized(&selinux_state) instead.
 
-The base policy rules are wide, but may be constrained by specifying
-different options.  For example the builtin policy rules cannot be
-written in terms LSM labels, which would constrain them.  A policy rule
-may measure all keyrings or may constrain which keyrings need to be
-measured.  Measuring critical data is not any different.
+Thanks for the review. I'll make the change in the next version.
 
-Please rewrite the above paragraph accordingly.
-
-> 
-> Add a new IMA policy "critical_kernel_data_sources" to support measuring
-> various critical kernel components. This policy would enable the
-> system administrators to limit the measurement to the components,
-> if the components support IMA measurement.
-
-"critical_kernel_data_sources" is really wordy.   Find a better, self
-defining term for describing the type of data, one that isn't so wordy,
-and reflect it in the code.
-
-> 
-> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
-> ---
->  Documentation/ABI/testing/ima_policy |  3 +++
->  security/integrity/ima/ima_policy.c  | 29 +++++++++++++++++++++++++++-
->  2 files changed, 31 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-> index cd572912c593..7ccdc1964e29 100644
-> --- a/Documentation/ABI/testing/ima_policy
-> +++ b/Documentation/ABI/testing/ima_policy
-> @@ -48,6 +48,9 @@ Description:
->  			template:= name of a defined IMA template type
->  			(eg, ima-ng). Only valid when action is "measure".
->  			pcr:= decimal value
-> +			critical_kernel_data_sources:= list of kernel
-> +			components (eg, selinux|apparmor|dm-crypt) that
-> +			contain data critical to the security of the kernel.
-
-This original policy definition, for the most part, is in Backus–Naur
-format.   The keyring names is an exception, because it is not limited
-to pre-defined kernel objects.  The critical data hook is measuring
-things in kernel memory.  As new calls to measure critical data are
-added, new identifiers would be added here.
-
-For example, if SELinux is the first example of measuring critical
-data, then the SELinux critical data patch would include
-"critical_data:= [selinux]".  Each subsequent critical data being
-measured would extend this list.  At the same time, the list of known
-"critical data" defined in patch 6/6 would be updated.
-
-Normally a new feature and the first usage of that feature are included
-in the same patch set.  Separating them like this makes it difficult to
-write, review and upstream.
-
-Mimi
-
+Kindly have a look at other patches in the series as well.
