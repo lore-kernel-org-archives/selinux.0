@@ -2,151 +2,80 @@ Return-Path: <SRS0=Zo7G=CK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09D46C433E7
-	for <selinux@archiver.kernel.org>; Tue,  1 Sep 2020 12:42:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AABA4C433E6
+	for <selinux@archiver.kernel.org>; Tue,  1 Sep 2020 14:55:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8457206EF
-	for <selinux@archiver.kernel.org>; Tue,  1 Sep 2020 12:42:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1BEF1206EB
+	for <selinux@archiver.kernel.org>; Tue,  1 Sep 2020 14:55:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="t54g223+"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="hAP3YbP2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727857AbgIAMlI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Sep 2020 08:41:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56092 "EHLO
+        id S1728323AbgIAOzU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Sep 2020 10:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727028AbgIAMkG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Sep 2020 08:40:06 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B6AC061244
-        for <selinux@vger.kernel.org>; Tue,  1 Sep 2020 05:40:06 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id x14so983263oic.9
-        for <selinux@vger.kernel.org>; Tue, 01 Sep 2020 05:40:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BFbF30SKaBnXMYSm4PR0/9vHoePMoQt6P9TbEJ5aiDs=;
-        b=t54g223+kcDxit1w4hEuCEkgL6AsM26mZNjQ2EF7p424spCST5CtrNxDnT+sMkt1b0
-         74W01H+tC+9cW3PdB0VTGx0ZVQJGvzDMoxtVdUE2xhV4mhV+n51cRL5sf2FMVJuGdU8z
-         GLZGeDEOLXUB1vRcmWtNaVeQ+T48r8S4Rzt0dwbPwK1bN4IScbscZM13DGlOa73udbl4
-         NtB/8sZlSvTH3W0LLxIFPkWI0oK4fhR67XnYcLgeGwQ0q1IrTLafdHHahGfPnIM8wOF/
-         Io9EYne5I/eJYAEdrVsIaDaazPlxQtnlTIIQ5eGrLsHqqTaXshAeH3M82yplTOkhxLcb
-         FEDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BFbF30SKaBnXMYSm4PR0/9vHoePMoQt6P9TbEJ5aiDs=;
-        b=jIMw84iclgK6lE+cBLaIjtcS/Lmtb8KHvsoFGCyKtFFmW5wpW2E9MHlp2a1WVMn1JM
-         DPm+/8yRUw7zhwlDLOCmf2c4N0XQV20+0gSeOjpz6Edh3gl7MtU3MC0R/CgDTTXvLDwk
-         Ws3Thy3yjZG+HXl1/BSahcGHLhqq6hUlZiLUjffVKcn/zEzT+Ps3XoT/iqoMVG/pwbRt
-         STW7+FF72hx2KrO9KHK1micyi9pO0cl5yYoH1pq03lRuX5SN6ymWJmWME7qAiMuXpN96
-         lKvebfqHl195mbdWTExJwJOXRe5BHczyzfurugw7w3tQcmHl9JwmBkiVKB4U2oALgAya
-         qVBw==
-X-Gm-Message-State: AOAM533hCLQfdkEALo5lH0i8ctjbdZAjRYUmGRFv1LU6BhyjdZeHC1Cv
-        EUYl2nioF5kzvC/v7rqinBkTJz3GvZROX3+dW6A=
-X-Google-Smtp-Source: ABdhPJzEzwYOfPxtKI5Zr7sguUiIWOHgw4eNXBe/W2xwY8XSISOdlSo4SyMhODzj1U6GeIYF8Amn9ItWUQQTYlxAPW4=
-X-Received: by 2002:a54:4f9b:: with SMTP id g27mr949653oiy.140.1598964005668;
- Tue, 01 Sep 2020 05:40:05 -0700 (PDT)
+        with ESMTP id S1726942AbgIALbq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Sep 2020 07:31:46 -0400
+Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5DB39C061244
+        for <selinux@vger.kernel.org>; Tue,  1 Sep 2020 04:07:04 -0700 (PDT)
+Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 81ECB2A1007;
+        Tue,  1 Sep 2020 13:05:50 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 81ECB2A1007
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1598958351;
+        bh=yFBCJVXwFp0Qw1ssPt/Xrv7/dCNQd0pUNMlyts61QjM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hAP3YbP2GZ9/5u+PrulF+wGFd+NvPDwy0SjcmYmF7hb/EigqCKct7JxRkWOn+cRqw
+         ZmAejfE215/HVGabkIBLUNi4DBG6ZtioK7eAZWMMNgtrH5PfgvMzPXIIqGr4OtcQU6
+         PqKDXAgKc9UNOOVvuJD61+P3fM4rN8+CeRgxgIDI=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>
+Subject: [RFC PATCH] newrole: do not rely on hard-coded audith and pamh paths
+Date:   Tue,  1 Sep 2020 13:04:52 +0200
+Message-Id: <20200901110452.386724-1-dominick.grift@defensec.nl>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-References: <20200901114245.3657-1-liwugang@163.com>
-In-Reply-To: <20200901114245.3657-1-liwugang@163.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 1 Sep 2020 08:39:55 -0400
-Message-ID: <CAEjxPJ7RU037b3m0rhzNQnGFJuX9UXZirpUwEXdeQfGxjUWwDw@mail.gmail.com>
-Subject: Re: [PATCH] Optimize the calculation of security.sehash
-To:     liwugang <liwugang@163.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 1, 2020 at 7:59 AM liwugang <liwugang@163.com> wrote:
->
-> The hash of each directory should be determined by the file contexts of
-> the current directory and subdirectories, but the existing logic also
-> includes the ancestor directories. The first optimization is to exclude
-> them. So it should be break When the first complete match found in function
-> lookup_all.
->
-> If the current directory has corresponding file contexts and subdirectories
-> have not, subdirectories will use the current direcorty's. There is no need
-> to calculate the hash for the subdirectories. It will save time, espacially
-> for user data(/data/media/0/). The second optimization is not to check the
-> hash of the subdirectories.
->
-> Example:
-> /data/(.*)?           u:object_r:system_data_file:s0
-> /data/backup(/.*)?    u:object_r:backup_data_file:s0
->
-> If the file context of "/data/(.*)?" changes and "/data/backup(/.*)?" does not
-> change, directory(/data/backup) and the subdirectories will restorecon because of
-> hash changed. But actually there is no need the restorecon.
->
-> Signed-off-by: liwugang <liwugang@163.com>
-> ---
->  libselinux/include/selinux/label.h            |  5 +--
->  libselinux/src/label.c                        | 11 +++---
->  libselinux/src/label_file.c                   | 17 +++++++---
->  libselinux/src/label_internal.h               |  6 ++--
->  libselinux/src/selinux_restorecon.c           | 34 ++++++++++++++-----
->  .../selabel_get_digests_all_partial_matches.c |  3 +-
->  6 files changed, 55 insertions(+), 21 deletions(-)
->
-> diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
-> index e8983606..d91ceb6f 100644
-> --- a/libselinux/include/selinux/label.h
-> +++ b/libselinux/include/selinux/label.h
-> @@ -110,9 +110,10 @@ extern bool selabel_get_digests_all_partial_matches(struct selabel_handle *rec,
->                                                     const char *key,
->                                                     uint8_t **calculated_digest,
->                                                     uint8_t **xattr_digest,
-> -                                                   size_t *digest_len);
-> +                                                   size_t *digest_len,
-> +                                                   size_t *num_matches);
->  extern bool selabel_hash_all_partial_matches(struct selabel_handle *rec,
-> -                                            const char *key, uint8_t* digest);
-> +                                            const char *key, uint8_t* digest, size_t *num_matches);
->
->  extern int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
->                                      const char *key, const char **aliases, int type);
+This causes issue with cross-compiling as the headers might not exist on the host
 
-This is a public API and a stable ABI for libselinux, so you cannot
-make incompatible changes to it.
-You would need to introduce a new API with the extended interface.
+Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+---
+I was attempting to build a OpenWRT image with SELinux when I hit the above. The aforementioned headers did not exist on the host and instead were located in %{buildroot}/usr/lib
+I managed to get around this issue by installing the headers on the host.
+Eventually I was unable to build the image though as there was some "ld undefined symbol" issue when it tried to compile busybox with SELinux support.
+I must have done something wrong.
 
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 6eeeea68..c99eb251 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -955,7 +955,10 @@ static const struct spec **lookup_all(struct selabel_handle *rec,
->                                 if (match_count) {
->                                         result[*match_count] = spec;
->                                         *match_count += 1;
-> -                                       // Continue to find all the matches.
-> +                                       if (rc == REGEX_MATCH) {
-> +                                               break;
-> +                                       }
-> +                                       // Continue to find the matches until the first full match found.
+ policycoreutils/newrole/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I'm not sure this works the way you intend.  /data/(.*)? is a full
-match for /data/backup.  Do you want to stop there and not include
-/data/backup(/.*)? This also changes behavior of an existing API/ABI
-in an incompatible manner.
+diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
+index 73ebd413..f508e242 100644
+--- a/policycoreutils/newrole/Makefile
++++ b/policycoreutils/newrole/Makefile
+@@ -5,8 +5,8 @@ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+ ETCDIR ?= /etc
+ LOCALEDIR = $(DESTDIR)$(PREFIX)/share/locale
+-PAMH ?= $(shell test -f /usr/include/security/pam_appl.h && echo y)
+-AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
++PAMH ?= y
++AUDITH ?= y
+ # Enable capabilities to permit newrole to generate audit records.
+ # This will make newrole a setuid root program.
+ # The capabilities used are: CAP_AUDIT_WRITE.
+-- 
+2.28.0
 
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-> index 6993be6f..417b619c 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-
-Last I looked, Android wasn't using the upstream selinux_restorecon
-(which was actually a back-port / adaptation of Android's
-selinux_android_restorecon to upstream) at all, so any changes here
-won't actually affect Android relabeling AFAIK.
