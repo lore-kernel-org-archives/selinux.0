@@ -7,61 +7,60 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E703C433E2
-	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 14:34:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22DD8C433E7
+	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 15:17:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7AE54207D3
-	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 14:34:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7E8820826
+	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 15:17:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UeaJfcKa"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OIYvSwg9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728015AbgIBOeD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Sep 2020 10:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41328 "EHLO
+        id S1728022AbgIBPRO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Sep 2020 11:17:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727930AbgIBOdx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Sep 2020 10:33:53 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD25C061244
-        for <selinux@vger.kernel.org>; Wed,  2 Sep 2020 07:33:52 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id t7so4455095otp.0
-        for <selinux@vger.kernel.org>; Wed, 02 Sep 2020 07:33:52 -0700 (PDT)
+        with ESMTP id S1726938AbgIBPGa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Sep 2020 11:06:30 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00AF2C061244
+        for <selinux@vger.kernel.org>; Wed,  2 Sep 2020 08:06:30 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id u25so4545630otq.6
+        for <selinux@vger.kernel.org>; Wed, 02 Sep 2020 08:06:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=oGSnWlQcmus3xg9GrwlLP4TPMoGIQwkngX3G/eE8TzA=;
-        b=UeaJfcKavuJn37R52lqKVkbCPh9ysn0TqL88lEpkgSBd7n/jT9UdQMwuY/acl3nK8F
-         ZpRhExUAleZdp7aCIjC1V1JwO/ubTl43cpCZqhfEtahlm9d/dNqr3/ulcCtzT+NhCEq/
-         9Cq8VvQWLGegmcbrK0iBmYoY1CQCQKf84uyEBJBKeBaqcsC1I8MHf72lCZq8j28MucmO
-         64gp3harkAQkklk+yEwAZAEwMgWwlg0UcUfB0uG9vf4tdqJ7kfj6ylNkjBDKiT0IDlPH
-         XMZS6D1FjfdHr4+/Fzfd5FgW6G4dSIpHOZkWG2hx30gjytBXLb/NDaj01/juOg82C8+X
-         3Yyg==
+        bh=dd1w/93yso4mdRngsObHvLXopYOb+wG1Fb9NUQ4Vv54=;
+        b=OIYvSwg9OfbvPmXxm5e54Nn+z/WPOVNolV38DreBVVWy5NqNqrQO2N+voQK5iMbhen
+         1/eJlb0Rgs3zhT9PMg5OOsGvPsAE3vPSz+Ii2cjDZLGagintJJ/RG133FblnEMR5E6jS
+         zWQ/byhOrrMwRpeB6uQwZaf832v1QNKOR0mmqqJzg2Fct/C5UJeyY9y9tXTMeYLHT5VF
+         oZjyXZFKLEgUhWG6yfNL20yjr6HF0obVXajsKMn5bpi94kz8BihoGShJQScp5RU1ow3I
+         GW5RROj0SYW1w0VQ1Yl5gdKW3jsw/eavR6N2EgYwqw/AflRIGs4Mc6tK56N3kBVvfJ9i
+         HdgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=oGSnWlQcmus3xg9GrwlLP4TPMoGIQwkngX3G/eE8TzA=;
-        b=In3aCKWCwON1cgiryQt4yoDIqIxQbVciHUL3B64Ggj3UrQ9uIA9mc0f11N16NiSamh
-         KquWt0/9mk3hzzbJ+l9UJC4sIxlKvoTt5LQi2e7v5wtzjUA2C51O6x2KL2BS+7IaqLSr
-         P6K6BnEGuI/FPIRWpEkrsE0DQdJWjenWDdMcXnvWeiuSLeOYZK1CPN5Brzhrenu3cB/N
-         tHXOOuOpHNLAojumrwjwz6DhDaywh21jlrz9/aeZcA+rUb/lxIggnCJNsmeJkBuvmOGs
-         xBgGEsHRwxULkBQuNzBtWBSn8QOXcHHr2b3asozqNRk/UPeejBUxcMz7TgrmbtSBqwp0
-         yMFw==
-X-Gm-Message-State: AOAM530rMqcKt5eiGr2fd4d2vmO6A4xjEpiaeDwljsLdYpiIqWgo5HoT
-        84AC2oglMo6F1tLVCTjHMEozZmeTohb17P4xhj+7VO5x7vU=
-X-Google-Smtp-Source: ABdhPJxW//OUCG3+KgBTduWNNt2qpcPgDSLuC03TFIR7A8A6fpBq4NdPse/oJvUF6cpXBO/Q5c9P4G1rTy4IVktqTnk=
-X-Received: by 2002:a9d:185:: with SMTP id e5mr5629305ote.135.1599057231511;
- Wed, 02 Sep 2020 07:33:51 -0700 (PDT)
+        bh=dd1w/93yso4mdRngsObHvLXopYOb+wG1Fb9NUQ4Vv54=;
+        b=rdwAKNQgKxaxyvuS44DbEcA0NQshTD/bqDw6NuHNfLbGpacQJccBMmAymI+bUu7jY3
+         J9T/yEWOapV8FngPIJHcF5Jnkf20zLI3EUABin1RC4gyBtmQXA0QiN7s48CEZ4jY4430
+         GkggpQ3m1CpNMtebHJiFtlUxcsz7rcj1maF8aXBM4+WQ3VchbUX0Oym+pSanFOP2WqOE
+         A5Fn63ujncXwzFxvDrPoNKE4hbrQmjVxo4gKIeeg9uINHp/p0fisrfY0N+vPcOkbfPgp
+         ys+/tIyrvnvnct48i0IMa6Hk6U9F5eXcONWjEHORGcSrOHFuj/rahtjTGvpfV1vUOKsB
+         sb4w==
+X-Gm-Message-State: AOAM531HaLpWILoxskUUlKB/07ahRC9nZmMQ9fpP2bnxhRAbk2vGdGxG
+        ++mPKVDdfnM5H03VarWOFcdH1wEZYigfZzyyDYk=
+X-Google-Smtp-Source: ABdhPJzVCTy5i29+y2Bl/0wMO7ZAGP8Tiu62xlgHvupSgX7vix5n554VyninCEWYj3csAcPPzs5xJqdmJ10HoyTVKhM=
+X-Received: by 2002:a05:6830:1be7:: with SMTP id k7mr4321776otb.162.1599059189467;
+ Wed, 02 Sep 2020 08:06:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200901114245.3657-1-liwugang@163.com> <CAEjxPJ7RU037b3m0rhzNQnGFJuX9UXZirpUwEXdeQfGxjUWwDw@mail.gmail.com>
- <623f4bd0.4d4a.1744d97f808.Coremail.liwugang@163.com>
-In-Reply-To: <623f4bd0.4d4a.1744d97f808.Coremail.liwugang@163.com>
+References: <20200902111456.20610-1-cgzones@googlemail.com>
+In-Reply-To: <20200902111456.20610-1-cgzones@googlemail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 2 Sep 2020 10:32:41 -0400
-Message-ID: <CAEjxPJ6nvu4nvy8PW_ABYxNXMU5SD6fYcgH_D1H1X03Sixcv8Q@mail.gmail.com>
-Subject: Re: Re: [PATCH] Optimize the calculation of security.sehash
-To:     =?UTF-8?B?5p2O5q2m5Yia?= <liwugang@163.com>
+Date:   Wed, 2 Sep 2020 11:05:19 -0400
+Message-ID: <CAEjxPJ4qNYRDOgNX4fYzJvKMg3fwAxS4xzNdG2ydiT7qyeORHA@mail.gmail.com>
+Subject: Re: [RFC PATCH] sched: do not issue an audit on unprivileged operation
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -70,30 +69,18 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 2, 2020 at 2:54 AM =E6=9D=8E=E6=AD=A6=E5=88=9A <liwugang@163.co=
-m> wrote:
+On Wed, Sep 2, 2020 at 7:18 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
+> sched_setattr(2) does via kernel/sched/core.c:__sched_setscheduler()
+> issue a CAP_SYS_NICE audit unconditionally, even when the requested
+> operation does not require that capability.
 >
-> At 2020-09-01 20:39:55, "Stephen Smalley" <stephen.smalley.work@gmail.com=
-> wrote:
-> >I'm not sure this works the way you intend.  /data/(.*)? is a full
-> >match for /data/backup.  Do you want to stop there and not include
-> >/data/backup(/.*)? This also changes behavior of an existing API/ABI
-> >in an incompatible manner.
-> >
->
-> My original intention is that /data/backup(/.*)? is always after /data/(.=
-*)?, traversing from
-> back to front, The /data/backup(/.*)? will first be meet the condition.
-> But after checking the code, the function sort_specs don't sort the entri=
-es. just put the entries
->  with the meta characters in the front. So it can't guarantee the sequenc=
-e I want.
-> I think I also need add the function to sort the entries.
+> Use an unaudited check first and perform an additional audited check
+> only on an actual permission denial.
 
-Typically the policy runs a helper (fc_sort) to sort the file_contexts
-based on a set of rules, and upstream performs sorting in libsemanage
-(semanage_fc_sort()) when generating file_contexts.  So it might work
-but you need to confirm that the sorting rules are guaranteed to yield
-the right behavior.  What if there are meta-characters at the
-beginning or middle of the pathname and not just the end?
+Could we just delay calling capable() until we know we need it?  Also,
+this patch will need to go to the scheduler maintainers not just
+selinux list.  Might want to also copy linux-security-module list
+since it is relevant to all security modules that implement the
+capable hook.
