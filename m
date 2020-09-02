@@ -1,129 +1,156 @@
-Return-Path: <SRS0=Zo7G=CK=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=YX5s=CL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8ADFC433E7
-	for <selinux@archiver.kernel.org>; Tue,  1 Sep 2020 17:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7455DC433E2
+	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 08:39:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FA7D2078B
-	for <selinux@archiver.kernel.org>; Tue,  1 Sep 2020 17:19:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4ACF3207EA
+	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 08:39:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="DrUSlSd9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732687AbgIARTE convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Tue, 1 Sep 2020 13:19:04 -0400
-Received: from jptosegrel01.sonyericsson.com ([124.215.201.71]:13854 "EHLO
-        JPTOSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729198AbgIARSw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Sep 2020 13:18:52 -0400
-Subject: Re: [RFC PATCH] selinux: Add denied trace with permssion filter
-To:     Paul Moore <paul@paul-moore.com>
-CC:     <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-References: <CAHC9VhRuvK55JVyHOxckThbRQ7sCwkeZsudwCaBo2f5G4g11VA@mail.gmail.com>
- <20200824132252.31261-1-peter.enderborg@sony.com>
- <20200824132252.31261-2-peter.enderborg@sony.com>
- <CAHC9VhR8PscKpA5BrgTNj8cq_eQ6svqru6UXidc=v5+Ha+PM7Q@mail.gmail.com>
- <6cbe5d27-ebb2-70a6-bad4-31c9f310eff2@sony.com>
- <CAHC9VhRGaE4FwE8iXo_zeAPdimE9ryMR+r4Jcq=ZpF_2aTJxzQ@mail.gmail.com>
- <59fa190f-37c0-79f3-ea46-8f821d820e1c@sony.com>
- <CAHC9VhRE94YVK5bTcqqbNYJu-EwjbcwjSFgqV8jkyLn9HD39Ag@mail.gmail.com>
- <abaccc15-85a8-24d2-4481-8303e3a42362@sony.com>
- <CAHC9VhRi87H2GhsKQN9iMOQeSw3g5_qwok9jpx+pfFSouQ9d5w@mail.gmail.com>
- <000e6a1b-6026-5e99-9a92-6ae9aafc07d4@sony.com>
- <CAHC9VhQiPTEarUWWA1RH8AsymhRpAa7kWTmmefTAqfouts8WGw@mail.gmail.com>
-From:   peter enderborg <peter.enderborg@sony.com>
-Message-ID: <aa37c79f-d908-0a75-4916-6aaa21426212@sony.com>
-Date:   Tue, 1 Sep 2020 19:18:46 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726144AbgIBIjL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Sep 2020 04:39:11 -0400
+Received: from m12-16.163.com ([220.181.12.16]:46670 "EHLO m12-16.163.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726130AbgIBIil (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 2 Sep 2020 04:38:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=Date:From:Subject:Message-ID:MIME-Version; bh=lUTeL
+        Tzl7lzy+Iy0XxoBHUeab4DelJ8tHKpi4tR6muo=; b=DrUSlSd9aZhG4ISLz90jj
+        ZADyQeq0pVXjptBLRmnI4fLz+fcAFzy4R6zu56TeyurAKfbxgopKFEZ+RuUBX2Kk
+        iT3AAPqWLx6e+RBiQgy3KXpLREvLhNPpqajiYO5J9NGMT63hXtrHjYGOcEo3kOZf
+        5hiRmQP4fw/nIEY4QVh0k4=
+Received: from localhost (unknown [106.37.187.137])
+        by smtp12 (Coremail) with SMTP id EMCowABHGv4KWk9fIxz9Tg--.38100S2;
+        Wed, 02 Sep 2020 16:38:34 +0800 (CST)
+Date:   Wed, 2 Sep 2020 16:38:34 +0800
+From:   liwugang <liwugang@163.com>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Subject: Re: [PATCH] Optimize the calculation of security.sehash
+Message-ID: <20200902083834.GA4400@mi-OptiPlex-9020>
+References: <20200901114245.3657-1-liwugang@163.com>
+ <CAEjxPJ7RU037b3m0rhzNQnGFJuX9UXZirpUwEXdeQfGxjUWwDw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQiPTEarUWWA1RH8AsymhRpAa7kWTmmefTAqfouts8WGw@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-GB
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=FfdJO626 c=1 sm=1 tr=0 a=fZcToFWbXLKijqHhjJ02CA==:117 a=IkcTkHD0fZMA:10 a=reM5J-MqmosA:10 a=nyYj2fbFlj4J1w-omPgA:9 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAEjxPJ7RU037b3m0rhzNQnGFJuX9UXZirpUwEXdeQfGxjUWwDw@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-CM-TRANSID: EMCowABHGv4KWk9fIxz9Tg--.38100S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxuryUGw4xXr17Xw48JFy3twb_yoWrZF43pa
+        yDGF13XrW8GFWxGrn7CF1UAFyYvw4ruF13GF4UG34rKr98ur1vqa92krya9FnrJr1fJ3WS
+        vF1YqrWDuayUZa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07US9aPUUUUU=
+X-Originating-IP: [106.37.187.137]
+X-CM-SenderInfo: 5olz3wxdqjqiywtou0bp/1tbiuwqTs1PAImMkewAAsc
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/1/20 5:31 PM, Paul Moore wrote:
-> On Mon, Aug 31, 2020 at 11:34 AM peter enderborg wrote:
->> On 8/31/20 4:16 PM, Paul Moore wrote:
->>> On Thu, Aug 27, 2020 at 10:04 AM peter enderborg wrote:
-> ...
->
->>>> Im happly fine with replacing the selinux_audited with selinux_denied.  However it is the case where there are more than one denial at the same time. Im not sure how and when it might happen.
->>> One thing I wondered about was why not build up a single string with
->>> all of the permissions instead of generating multiple trace events?
->>> In the previous discussion it was implied that this was due to
->>> limitations in the tracing subsystem's filtering, and based on the
->>> discussion thus far I'm guessing there is little desire for this
->>> information if it can't be filtered on?
->> The information is of course as essential as for audit messages.
->> I dont see much of the problem with having as the first suggestion with
->> a list. It works fine for trace_pipe. It is not failing due to that we can not
->> filter with that.
-> I don't really have much personal experience with the kernel tracing
-> tools, so an example would be helpful as I'm not really following what
-> you are saying.  Are you talking about something like
-> "permission=foo,bar,baz"?
+On Tue, Sep 01, 2020 at 08:39:55AM -0400, Stephen Smalley wrote:
+> On Tue, Sep 1, 2020 at 7:59 AM liwugang <liwugang@163.com> wrote:
+> >
+> > The hash of each directory should be determined by the file contexts of
+> > the current directory and subdirectories, but the existing logic also
+> > includes the ancestor directories. The first optimization is to exclude
+> > them. So it should be break When the first complete match found in function
+> > lookup_all.
+> >
+> > If the current directory has corresponding file contexts and subdirectories
+> > have not, subdirectories will use the current direcorty's. There is no need
+> > to calculate the hash for the subdirectories. It will save time, espacially
+> > for user data(/data/media/0/). The second optimization is not to check the
+> > hash of the subdirectories.
+> >
+> > Example:
+> > /data/(.*)?           u:object_r:system_data_file:s0
+> > /data/backup(/.*)?    u:object_r:backup_data_file:s0
+> >
+> > If the file context of "/data/(.*)?" changes and "/data/backup(/.*)?" does not
+> > change, directory(/data/backup) and the subdirectories will restorecon because of
+> > hash changed. But actually there is no need the restorecon.
+> >
+> > Signed-off-by: liwugang <liwugang@163.com>
+> > ---
+> >  libselinux/include/selinux/label.h            |  5 +--
+> >  libselinux/src/label.c                        | 11 +++---
+> >  libselinux/src/label_file.c                   | 17 +++++++---
+> >  libselinux/src/label_internal.h               |  6 ++--
+> >  libselinux/src/selinux_restorecon.c           | 34 ++++++++++++++-----
+> >  .../selabel_get_digests_all_partial_matches.c |  3 +-
+> >  6 files changed, 55 insertions(+), 21 deletions(-)
+> >
+> > diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
+> > index e8983606..d91ceb6f 100644
+> > --- a/libselinux/include/selinux/label.h
+> > +++ b/libselinux/include/selinux/label.h
+> > @@ -110,9 +110,10 @@ extern bool selabel_get_digests_all_partial_matches(struct selabel_handle *rec,
+> >                                                     const char *key,
+> >                                                     uint8_t **calculated_digest,
+> >                                                     uint8_t **xattr_digest,
+> > -                                                   size_t *digest_len);
+> > +                                                   size_t *digest_len,
+> > +                                                   size_t *num_matches);
+> >  extern bool selabel_hash_all_partial_matches(struct selabel_handle *rec,
+> > -                                            const char *key, uint8_t* digest);
+> > +                                            const char *key, uint8_t* digest, size_t *num_matches);
+> >
+> >  extern int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
+> >                                      const char *key, const char **aliases, int type);
+> 
+> This is a public API and a stable ABI for libselinux, so you cannot
+> make incompatible changes to it.
+> You would need to introduce a new API with the extended interface.
+> 
 
-In the first patch we hade premission that was in the format:
+OK, I will add new API.
 
-permission={read !write open}
+> > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> > index 6eeeea68..c99eb251 100644
+> > --- a/libselinux/src/label_file.c
+> > +++ b/libselinux/src/label_file.c
+> > @@ -955,7 +955,10 @@ static const struct spec **lookup_all(struct selabel_handle *rec,
+> >                                 if (match_count) {
+> >                                         result[*match_count] = spec;
+> >                                         *match_count += 1;
+> > -                                       // Continue to find all the matches.
+> > +                                       if (rc == REGEX_MATCH) {
+> > +                                               break;
+> > +                                       }
+> > +                                       // Continue to find the matches until the first full match found.
+> 
+> I'm not sure this works the way you intend.  /data/(.*)? is a full
+> match for /data/backup.  Do you want to stop there and not include
+> /data/backup(/.*)? This also changes behavior of an existing API/ABI
+> in an incompatible manner.
+> 
 
-That would have work fine if it was not for that the permission can be created
-dynamically.  It would be very easy to change that to
+My original intention is that /data/backup(/.*)? is always after /data/(.*)?,
+traversing from back to front, The /data/backup(/.*)? will first be meet
+the condition. But after checking the code, the function sort_specs don't
+sort the entries. just put the entries with the meta characters in the front.
+So it can't guarantee the sequence I want.
+I think I also need add the function to sort the entries.
 
-permission=read permission=!write permission=open
+> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+> > index 6993be6f..417b619c 100644
+> > --- a/libselinux/src/selinux_restorecon.c
+> > +++ b/libselinux/src/selinux_restorecon.c
+> 
+> Last I looked, Android wasn't using the upstream selinux_restorecon
+> (which was actually a back-port / adaptation of Android's
+> selinux_android_restorecon to upstream) at all, so any changes here
+> won't actually affect Android relabeling AFAIK.
 
-But I think that will cause problems too. The create a format specifiaction
-in the trace tree, and I dont think we can describe this format.
-
-
->
->> It is cause in other tools in user-space
->> that needs a plugin to parse it. It need static
->> mapping for something that is not really static. Not in runtime, and it will
->> change over time.
-> I think we've all come to the conclusion that doing the permission
-> bitmap-to-string translation in a plugin is not really desirable.
-
-Yes. But Im arguing that we still have the same information,
-but it will "cost" that we have more events. It is a fair trade-off,
-it is usually a lot better to have the trace simple than
-flexible and let it cost events when needed.
-
-
->> A other idea based on the first one is to have multiple pairs like
->>
->> class=file permission=read permission=write permission=open
->>
->> but then you need to filter on numeric values that are not static and
->> I don't know if library can make anything useful from that.
-> Oh, wait, is the issue that the tracing subsystem can't filter on
-> strings?  That doesn't seem right, but I can understand why one might
-> want to avoid that for performance reasons.  If the tracing subsystem
-> *can* filter on strings, why did you say that in the "perm=foo
-> perm=bar" format one would need to filter on numeric values?  I still
-> think I'm missing something here ...
->
-No. It can filter on strings. But it can not do any fuzzy matching.
-They are equal not not equal. So if you have a parameter value
-that is { open read !write } you need to specify a exact match.
-
-With multiple events you match for "open" or "write" not "{ open read !write }".
-
-So you get one event for "open" and a other event for "write".
-
-The numeric values is not matching perm=, it is a match for the
-bits in the denied= parameter that is present within selinux_audited event.
-
+Yes, I think upstream will also benefit from this patch. 
+Thanks very much to review the patch.
 
