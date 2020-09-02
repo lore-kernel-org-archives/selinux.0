@@ -2,92 +2,135 @@ Return-Path: <SRS0=BB3M=CZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49988C433E2
-	for <selinux@archiver.kernel.org>; Wed, 16 Sep 2020 00:37:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0349C43461
+	for <selinux@archiver.kernel.org>; Wed, 16 Sep 2020 01:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F0289207DE
-	for <selinux@archiver.kernel.org>; Wed, 16 Sep 2020 00:37:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51D5F208E4
+	for <selinux@archiver.kernel.org>; Wed, 16 Sep 2020 01:23:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BB91feiM"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="J0kOAdn4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726255AbgIPAhf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Sep 2020 20:37:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52202 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726604AbgIONXy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 09:23:54 -0400
-Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF088C061A27
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 06:23:26 -0700 (PDT)
-Received: by mail-oo1-xc44.google.com with SMTP id 4so730986ooh.11
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 06:23:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ij4TRBfUkaBfw5ERpLvzncgf6wPeQwgiIog3HeWapDg=;
-        b=BB91feiMTBICQ1bNWdQgo7j0qW0LMoMlRVm8vvjnfIe/m7TKxeUDRwuSn/VpnIWguL
-         1ZcMpVxGzfDq1sh2ztJ+feteEttlwjq5p75m1Ymay3p9+3IUrx4O1WK66tNsBWLzpthu
-         qkNd6D5bzd02svNyyj+IAgnEwyw+b9pql7euYpQo9U9zzoNGVuP2T98/FPufKGZ/9bvg
-         WzFZWHXnJH6SfDmkbaYhOEF1pY7Ojhq6C6VJWoX9JOQCE3tHK7sln7oqXIxs3HQXoZ3o
-         +fvc1L5g+k4ReXkJFk+eg9FsTIkRlaHkXdS+O4+DrjhMeONG71A8KxQ5JJ8lxEl1CgT5
-         PKQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ij4TRBfUkaBfw5ERpLvzncgf6wPeQwgiIog3HeWapDg=;
-        b=ALYQtXLyOvUozaD/KkOydGvksyFJUE1Zxz5MaIlcPJnN7GXJFm9X4Qe7PufHOkSUH3
-         g71qTuOljpCdbhfJJnIrbrEo+Ux/hjZzyc63viHB9l9A/sZtUPYay223w6cSBDqSS7MO
-         N6pR/sBph5811MRrESzQP7TFYRPnHyaBeP14syWg39K4sM/twueejendj9VE4fDVRSxg
-         GLaL9An1vEl9yxe/qFjyoZrfb4dCHm16nt80vRURbiDBV4tILBEAcwZ9Kt6JbNpxQjUZ
-         V2bMwSx7gVJhbTslGTVoWzM8MWmb3oG8U9R88yh1Ap7Fik3I8HFe7JBsI/EMrRS0l7Zn
-         S3gQ==
-X-Gm-Message-State: AOAM532h8zx6uT78cOHWtUI7JlONoCcZX+zp+s3Bsj8PPlQfp0RSWIyq
-        U3v/bDpxpEF3KjBWgeIgi0s7ETHIZtXoUSLeVQGDgDjj
-X-Google-Smtp-Source: ABdhPJwcuB03BitXV3I5ysj5gfy2gjiMOjI2MSs5koEy+QLSVcpjywkJdQhv1Lx9oo9Xf8pQcKJpYWs5UueX3B6dLGQ=
-X-Received: by 2002:a4a:d0ad:: with SMTP id t13mr14207128oor.58.1600176206355;
- Tue, 15 Sep 2020 06:23:26 -0700 (PDT)
+        id S1726312AbgIPBXz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Sep 2020 21:23:55 -0400
+Received: from mailomta29-sa.btinternet.com ([213.120.69.35]:38077 "EHLO
+        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726023AbgIPBXy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 21:23:54 -0400
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-046.btinternet.com with ESMTP
+          id <20200902131747.DQEY4114.sa-prd-fep-046.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Wed, 2 Sep 2020 14:17:47 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599052667; 
+        bh=4H56Ju7m00EEie3KnnXKakippHv7ralv9RWMynRA9Gk=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
+        b=J0kOAdn4fYkcoNkqUmEgapX4BdFwT80nLlTjqMIWMSHp7xaPeH2iJ8NbH7VH2fZzaK28Ih25NIapLvRmcf22s1US/ncAQBBQxFkr05VwXM6ZRbRh20ctVwitUyim5whWKefENnkK+ZGow5E+0hcNay3VGyuJxvF4tAQZgykqxQ6Ooi5q0zKf2Mi5tIV58bJamISJLCcKi98JKpOkz3taHmZ+gz3F+sM1Y3Y59rq7gNnBk3e7O+P74pwsZsRJJYRQjsL/GO1yAOOwMaecpz7m+mCnOrWGuWs1TI+QMmA5ph+QnwNlb+KOq8lyf/+uR+yZFtZnpw2HcG96yCa1fujG+w==
+Authentication-Results: btinternet.com; none
+X-Originating-IP: [109.155.32.197]
+X-OWM-Source-IP: 109.155.32.197 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudefledgieefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrfedvrdduleejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrdefvddrudeljedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (109.155.32.197) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9AFBE0EF36BD1; Wed, 2 Sep 2020 14:17:47 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     paul@paul-moore.com, selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 08/13] policy_config_statements: Convert to markdown
+Date:   Wed,  2 Sep 2020 14:17:33 +0100
+Message-Id: <20200902131738.18425-9-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200902131738.18425-1-richard_c_haines@btinternet.com>
+References: <20200902131738.18425-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
-References: <20200911195614.429223-1-chpebeni@linux.microsoft.com> <CAEjxPJ5P0sv4v88xYnf=tadNk=y5+D_z6dDX-JTqQ=dgGjBarg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5P0sv4v88xYnf=tadNk=y5+D_z6dDX-JTqQ=dgGjBarg@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 15 Sep 2020 09:23:15 -0400
-Message-ID: <CAEjxPJ4yfAi-Ha1V50EaU01FBU-D2zwUOtxLEPhaVz8hp38E9A@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] libselinux: Fix selabel_lookup() for the root dir.
-To:     Chris PeBenito <chpebeni@linux.microsoft.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 11, 2020 at 4:18 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Sep 11, 2020 at 3:57 PM Chris PeBenito
-> <chpebeni@linux.microsoft.com> wrote:
-> >
-> > 9e4480b921bb ("Remove trailing slash on selabel_file lookups.") introduced
-> > a bug which turns the root directory lookup "/" into an empty string.
->
-> Thanks.
->
-> > v2: Fix commit message
->
-> This should go after the --- so that it doesn't get included in the
-> commit message since only the final version gets committed.  But don't
-> worry about re-posting just for that; I can just amend it before
-> merging if I remember or if not no big deal.
->
-> > Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Convert to markdown
 
-Applied.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ src/policy_config_statements.md | 54 +++++++++++----------------------
+ 1 file changed, 18 insertions(+), 36 deletions(-)
+
+diff --git a/src/policy_config_statements.md b/src/policy_config_statements.md
+index 156b434..d4eee48 100644
+--- a/src/policy_config_statements.md
++++ b/src/policy_config_statements.md
+@@ -16,45 +16,27 @@ policycap capability;
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>policycap</code></td>
+-<td>The <code>policycap</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>capability</code></td>
+-<td>A single <code>capability</code> identifier that will be enabled for this policy.</td>
+-</tr>
+-</tbody>
+-</table>
++*policycap*
++
++The *policycap* keyword.
++
++*capability*
++
++A single *capability* identifier that will be enabled for this policy.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Example:**
+ 
+-- 
+2.26.2
+
