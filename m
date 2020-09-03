@@ -2,104 +2,224 @@ Return-Path: <SRS0=Ig95=CM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B12C0C43461
-	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 16:11:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F23B0C433E2
+	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 16:28:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6634820716
-	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 16:11:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="HEz0FeEo"
+	by mail.kernel.org (Postfix) with ESMTP id D747920758
+	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 16:28:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726292AbgICQLr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Sep 2020 12:11:47 -0400
-Received: from mailomta18-sa.btinternet.com ([213.120.69.24]:12406 "EHLO
-        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727065AbgICQLp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Sep 2020 12:11:45 -0400
-Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-040.btinternet.com with ESMTP
-          id <20200903161140.UEAR5290.sa-prd-fep-040.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Thu, 3 Sep 2020 17:11:40 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599149500; 
-        bh=tZb6DW+c+0LZQLUCQgdx35uKCxB0NfPEtpyKY9M/U7M=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=HEz0FeEo2KvqJVNuEGH6WL9+3Xte+9uRh9Y/US7va+mYYo/htfIPTrMwjEvHlRRtd/nho1xIBrNKrk6SDXWd9qmQCcmhUln7eao3vp2IIGRwFwGjHPDOIQePtaX+naJCgHX2WiSQrC8hcOoExHNWlCSSbEr9aphQGoEQvw+Mo2+KvU2A0O94Jur3WLd4QHZsDIC9SIDmstykHbu+NQ6uWz+omnnmjooholvw5VjrOp+9iKQxx9ILOAM9i+9mO1eRL9nrP4Oz7h2g3cf+kBB9lbhEYBJcpdi4WYtW5u1rvl9Um4CQV9W9kgCz4qB4NLRuj1sUYXN8W/tUZ7WUZXuYtQ==
-Authentication-Results: btinternet.com;
-    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.183.71.58]
-X-OWM-Source-IP: 86.183.71.58 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudeguddguddttdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepkeegfedtffekieekudegvdekjeehieffveevleegtdeludetveduleffudfggfeinecukfhppeekiedrudekfedrjedurdehkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddukeefrdejuddrheekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.183.71.58) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70F246206; Thu, 3 Sep 2020 17:11:40 +0100
-Message-ID: <6702e7d809369332b73c6612a641115d360414ec.camel@btinternet.com>
-Subject: Re: [PATCH 00/13] SELinux Notebook: Convert batch 2 to markdown
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-Date:   Thu, 03 Sep 2020 17:11:32 +0100
-In-Reply-To: <CAHC9VhSOsYOYGaqDW+ATR5O5hRGJLbWs0QExNemoK2HRamY0xg@mail.gmail.com>
-References: <20200902131738.18425-1-richard_c_haines@btinternet.com>
-         <CAHC9VhSOsYOYGaqDW+ATR5O5hRGJLbWs0QExNemoK2HRamY0xg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S1728304AbgICQ2z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Sep 2020 12:28:55 -0400
+Received: from namei.org ([65.99.196.166]:55102 "EHLO namei.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726990AbgICQ2y (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 3 Sep 2020 12:28:54 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by namei.org (8.14.4/8.14.4) with ESMTP id 083GSUkN003994;
+        Thu, 3 Sep 2020 16:28:30 GMT
+Date:   Fri, 4 Sep 2020 02:28:30 +1000 (AEST)
+From:   James Morris <jmorris@namei.org>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+cc:     casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-audit@redhat.com,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov
+Subject: Re: [PATCH v20 05/23] net: Prepare UDS for security module
+ stacking
+In-Reply-To: <20200826145247.10029-6-casey@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.2009040227440.1484@namei.org>
+References: <20200826145247.10029-1-casey@schaufler-ca.com> <20200826145247.10029-6-casey@schaufler-ca.com>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2020-09-03 at 10:52 -0400, Paul Moore wrote:
-> On Wed, Sep 2, 2020 at 9:17 AM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > Converted to Markdown or just tidy up formatting. Added TOC to aid
-> > navigation where required.
-> > No text changes.
-> > 
-> > Richard Haines (13):
-> >   libselinux_functions: Convert to markdown
-> >   mac: Tidy formatting
-> >   modular_policy_statements: Convert to markdown
-> >   network_statements: Convert to markdown
-> >   network_support: Convert to markdown
-> >   objects: Convert to markdown
-> >   pam_login: Convert to markdown
-> >   policy_config_statements: Convert to markdown
-> >   policy_languages: Tidy up
-> >   policy_store_config_files: Add TOC and tidy up formatting
-> >   polyinstantiation: Convert to markdown
-> >   rbac: Minor format fix
-> >   role_statements: Convert to markdown
-> > 
-> >  src/libselinux_functions.md      | 2179 +++++++++++++++-----------
-> > ----
-> >  src/mac.md                       |   34 +-
-> >  src/modular_policy_statements.md |  229 ++--
-> >  src/network_statements.md        |  261 ++--
-> >  src/network_support.md           |  270 ++--
-> >  src/objects.md                   |  185 +--
-> >  src/pam_login.md                 |  107 +-
-> >  src/policy_config_statements.md  |   54 +-
-> >  src/policy_languages.md          |   26 +-
-> >  src/policy_store_config_files.md |  432 +++---
-> >  src/polyinstantiation.md         |  108 +-
-> >  src/rbac.md                      |    2 +-
-> >  src/role_statements.md           |  443 +++---
-> >  13 files changed, 2109 insertions(+), 2221 deletions(-)
+On Wed, 26 Aug 2020, Casey Schaufler wrote:
+
+> Change the data used in UDS SO_PEERSEC processing from a
+> secid to a more general struct lsmblob. Update the
+> security_socket_getpeersec_dgram() interface to use the
+> lsmblob. There is a small amount of scaffolding code
+> that will come out when the security_secid_to_secctx()
+> code is brought in line with the lsmblob.
 > 
-> All merged into the main branch.  Thanks again Richard, I know how
-> tedious these conversion patches can be.
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+This needs some review by networking folk, and/or LSM maintainers. You 
+should probably cc netdev on anything touching the networking code.
+
+> ---
+>  include/linux/security.h |  7 +++++--
+>  include/net/af_unix.h    |  2 +-
+>  include/net/scm.h        |  8 +++++---
+>  net/ipv4/ip_sockglue.c   |  8 +++++---
+>  net/unix/af_unix.c       |  6 +++---
+>  security/security.c      | 18 +++++++++++++++---
+>  6 files changed, 34 insertions(+), 15 deletions(-)
+> 
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index e2ef982b3dd7..ae623b89cdf4 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1398,7 +1398,8 @@ int security_socket_shutdown(struct socket *sock, int how);
+>  int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
+>  int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+>  				      int __user *optlen, unsigned len);
+> -int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
+> +int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
+> +				     struct lsmblob *blob);
+>  int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
+>  void security_sk_free(struct sock *sk);
+>  void security_sk_clone(const struct sock *sk, struct sock *newsk);
+> @@ -1536,7 +1537,9 @@ static inline int security_socket_getpeersec_stream(struct socket *sock, char __
+>  	return -ENOPROTOOPT;
+>  }
+>  
+> -static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
+> +static inline int security_socket_getpeersec_dgram(struct socket *sock,
+> +						   struct sk_buff *skb,
+> +						   struct lsmblob *blob)
+>  {
+>  	return -ENOPROTOOPT;
+>  }
+> diff --git a/include/net/af_unix.h b/include/net/af_unix.h
+> index f42fdddecd41..a86da0cb5ec1 100644
+> --- a/include/net/af_unix.h
+> +++ b/include/net/af_unix.h
+> @@ -36,7 +36,7 @@ struct unix_skb_parms {
+>  	kgid_t			gid;
+>  	struct scm_fp_list	*fp;		/* Passed files		*/
+>  #ifdef CONFIG_SECURITY_NETWORK
+> -	u32			secid;		/* Security ID		*/
+> +	struct lsmblob		lsmblob;	/* Security LSM data	*/
+>  #endif
+>  	u32			consumed;
+>  } __randomize_layout;
+> diff --git a/include/net/scm.h b/include/net/scm.h
+> index 1ce365f4c256..e2e71c4bf9d0 100644
+> --- a/include/net/scm.h
+> +++ b/include/net/scm.h
+> @@ -33,7 +33,7 @@ struct scm_cookie {
+>  	struct scm_fp_list	*fp;		/* Passed files		*/
+>  	struct scm_creds	creds;		/* Skb credentials	*/
+>  #ifdef CONFIG_SECURITY_NETWORK
+> -	u32			secid;		/* Passed security ID 	*/
+> +	struct lsmblob		lsmblob;	/* Passed LSM data	*/
+>  #endif
+>  };
+>  
+> @@ -46,7 +46,7 @@ struct scm_fp_list *scm_fp_dup(struct scm_fp_list *fpl);
+>  #ifdef CONFIG_SECURITY_NETWORK
+>  static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
+>  {
+> -	security_socket_getpeersec_dgram(sock, NULL, &scm->secid);
+> +	security_socket_getpeersec_dgram(sock, NULL, &scm->lsmblob);
+>  }
+>  #else
+>  static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
+> @@ -97,7 +97,9 @@ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct sc
+>  	int err;
+>  
+>  	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
+> -		err = security_secid_to_secctx(scm->secid, &secdata, &seclen);
+> +		/* Scaffolding - it has to be element 0 for now */
+> +		err = security_secid_to_secctx(scm->lsmblob.secid[0],
+> +					       &secdata, &seclen);
+>  
+>  		if (!err) {
+>  			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
+> diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+> index d2c223554ff7..551dfbc717e9 100644
+> --- a/net/ipv4/ip_sockglue.c
+> +++ b/net/ipv4/ip_sockglue.c
+> @@ -130,15 +130,17 @@ static void ip_cmsg_recv_checksum(struct msghdr *msg, struct sk_buff *skb,
+>  
+>  static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
+>  {
+> +	struct lsmblob lb;
+>  	char *secdata;
+> -	u32 seclen, secid;
+> +	u32 seclen;
+>  	int err;
+>  
+> -	err = security_socket_getpeersec_dgram(NULL, skb, &secid);
+> +	err = security_socket_getpeersec_dgram(NULL, skb, &lb);
+>  	if (err)
+>  		return;
+>  
+> -	err = security_secid_to_secctx(secid, &secdata, &seclen);
+> +	/* Scaffolding - it has to be element 0 */
+> +	err = security_secid_to_secctx(lb.secid[0], &secdata, &seclen);
+>  	if (err)
+>  		return;
+>  
+> diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+> index 181ea6fb56a6..c15668b80d1d 100644
+> --- a/net/unix/af_unix.c
+> +++ b/net/unix/af_unix.c
+> @@ -138,17 +138,17 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+>  #ifdef CONFIG_SECURITY_NETWORK
+>  static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -	UNIXCB(skb).secid = scm->secid;
+> +	UNIXCB(skb).lsmblob = scm->lsmblob;
+>  }
+>  
+>  static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -	scm->secid = UNIXCB(skb).secid;
+> +	scm->lsmblob = UNIXCB(skb).lsmblob;
+>  }
+>  
+>  static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -	return (scm->secid == UNIXCB(skb).secid);
+> +	return lsmblob_equal(&scm->lsmblob, &(UNIXCB(skb).lsmblob));
+>  }
+>  #else
+>  static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+> diff --git a/security/security.c b/security/security.c
+> index d6d882b1f7d5..c42873876954 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2219,10 +2219,22 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+>  				optval, optlen, len);
+>  }
+>  
+> -int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
+> +int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
+> +				     struct lsmblob *blob)
+>  {
+> -	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+> -			     skb, secid);
+> +	struct security_hook_list *hp;
+> +	int rc = -ENOPROTOOPT;
+> +
+> +	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
+> +			     list) {
+> +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+> +			continue;
+> +		rc = hp->hook.socket_getpeersec_dgram(sock, skb,
+> +						&blob->secid[hp->lsmid->slot]);
+> +		if (rc != 0)
+> +			break;
+> +	}
+> +	return rc;
+>  }
+>  EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+>  
 > 
 
-Yes I know !!. I'll post the final batch early next week
+-- 
+James Morris
+<jmorris@namei.org>
 
