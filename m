@@ -1,151 +1,99 @@
-Return-Path: <SRS0=YX5s=CL=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Ig95=CM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2335C433E7
-	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 19:35:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00366C433E2
+	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 07:15:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 852C42083B
-	for <selinux@archiver.kernel.org>; Wed,  2 Sep 2020 19:35:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C67AE206EB
+	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 07:15:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="icj1fw4h"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UihOjpY1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726493AbgIBTe7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Sep 2020 15:34:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59638 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726323AbgIBTe6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Sep 2020 15:34:58 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4F9FFC061244
-        for <selinux@vger.kernel.org>; Wed,  2 Sep 2020 12:34:57 -0700 (PDT)
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 934552A0CF5;
-        Wed,  2 Sep 2020 21:34:50 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 934552A0CF5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1599075291;
-        bh=fJAhtlCShjFBFcg8Bv7FqauFVOSt1ymBuhUA5zPRS2Q=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=icj1fw4h79oekTQJ6JkqE/OEZWp+mIzlReQ2Ok7SvD/5wFshOqN/lTFimF7tTyvvh
-         PrjNAggE+1GPUqqygUFE5Zj9NVFC4whyKfA0YlJ/DAqng1D6TEngsu+dHwq0zPGFZ5
-         HQzAoseXP2DnT6hkkby7MOF1Mk4RH6UKLnDjMG9o=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Peter Whittaker <pww@edgekeep.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: Options to audit2allow and manpage phrasing
-References: <CAGeouKFjz1GRa4X7CNfc7WNqzrUu=dCLPOr47j3nEs6XaHj1mA@mail.gmail.com>
-Date:   Wed, 02 Sep 2020 21:34:46 +0200
-In-Reply-To: <CAGeouKFjz1GRa4X7CNfc7WNqzrUu=dCLPOr47j3nEs6XaHj1mA@mail.gmail.com>
-        (Peter Whittaker's message of "Wed, 2 Sep 2020 14:49:03 -0400")
-Message-ID: <ypjly2lsvup5.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        id S1726109AbgICHPo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Sep 2020 03:15:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42759 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725943AbgICHPk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Sep 2020 03:15:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599117339;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cXhk0paan2bN0pn4Jac5hq5xuN6sN+Vk1aDoEgg+14Y=;
+        b=UihOjpY1YFblujla60eo2Pb5WBHXM0QoLEDBcKWgFS7mpyghd0YrVBU8eDWxtPnhYX8ZS4
+        weYTbPZpONZKJu1mCbMxtlBODiQ+jEj2XF/y0byCO7qtAJ6EsZd51P+q4l/C+BYzUuDDHD
+        TDtH++D6+dUPy0aTouEaiGsx93T0csw=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-197-9lJUwjUFNEOtKpwok7l0jA-1; Thu, 03 Sep 2020 03:15:35 -0400
+X-MC-Unique: 9lJUwjUFNEOtKpwok7l0jA-1
+Received: by mail-lj1-f199.google.com with SMTP id s11so472565ljh.8
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2020 00:15:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=cXhk0paan2bN0pn4Jac5hq5xuN6sN+Vk1aDoEgg+14Y=;
+        b=gUzNKxj4fzBLQucWTV/z+ChQ5HF9taXdVa5uj352HVt+uruF6BCukMXCADgd8JzTko
+         GKWQ+WbQEHUYeJmKKpcjTcXS4EOVLV+cE4IrtpcvbIuPm9dOBW7PKHiq8Luwvv5TNezW
+         hrKbb3zSRCYMVU8TEAmi/XOUifXBf80kMJ7JJofZdrxUshfe4oxWrI3X+ViMVYPbP+c0
+         dkGBEn9DGONlfy+4tqdIz8g/F7QhXJcvaX2Z3/fvBFnFKPu3qAN/km0nnOaz6be/5/5/
+         hjnuCk2Dr6UhuOhUJGx2pQ3rIjYxlBhceYFW+ywXIdieEwrVvdw/i2Ws/Emr5oKe/0AG
+         qslw==
+X-Gm-Message-State: AOAM530CWnbaH3s8XYvh924ZOtuYn7PuSzmJSfUtNsk/OmihxLOzdV2Z
+        Ogd/RJYaKsfu0XM/ApW/3YlqwnbYx4RO6VKJzooghzPnLmMsv0A6nht9+uxt5nZIiqTt/idxvDP
+        ibIWNN+se3pRDepHP18P/tBQtBzZaPTLGRw==
+X-Received: by 2002:a2e:541c:: with SMTP id i28mr505403ljb.77.1599117334207;
+        Thu, 03 Sep 2020 00:15:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw7VrFZDeI50cX4rI30si5k/kccJQla2ebGtDfU2DVz4rs44pIC89Hoi+4jzaHOg8XbVA3SyGcN341Fwr9/EKc=
+X-Received: by 2002:a2e:541c:: with SMTP id i28mr505383ljb.77.1599117333889;
+ Thu, 03 Sep 2020 00:15:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20200902111456.20610-1-cgzones@googlemail.com> <CAEjxPJ4qNYRDOgNX4fYzJvKMg3fwAxS4xzNdG2ydiT7qyeORHA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4qNYRDOgNX4fYzJvKMg3fwAxS4xzNdG2ydiT7qyeORHA@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 3 Sep 2020 09:15:23 +0200
+Message-ID: <CAFqZXNsUec30mFS9kFgTdhP=JMm3i7ttJDaDJd9AUTWWYcCoaw@mail.gmail.com>
+Subject: Re: [RFC PATCH] sched: do not issue an audit on unprivileged operation
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Peter Whittaker <pww@edgekeep.com> writes:
+On Wed, Sep 2, 2020 at 5:17 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Wed, Sep 2, 2020 at 7:18 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > sched_setattr(2) does via kernel/sched/core.c:__sched_setscheduler()
+> > issue a CAP_SYS_NICE audit unconditionally, even when the requested
+> > operation does not require that capability.
+> >
+> > Use an unaudited check first and perform an additional audited check
+> > only on an actual permission denial.
+>
+> Could we just delay calling capable() until we know we need it?
 
-> Folks, I've been studying audit2allow in order to understand how to
-> use the sepolgen library, and I've a couple of questions about how the
-> code is structured and how the manpage is phrased. One concerns
-> dontaudit (-D), the other concerns refpolicy (-R/-N). I'd appreciate
-> your reviewing this and setting me straight.
->
-> For dontaudit, audit2allow reads
->
->        parser.add_option("-D", "--dontaudit", action="store_true",
->                           dest="dontaudit", default=False,
->                           help="generate policy with dontaudit rules")
->
-> while  audit2allow.1 reads
->
->     .B "\-D" | "\-\-dontaudit"
->     Generate dontaudit rules (Default: allow)
->
-> Since '-D' defaults to false and only sets dontaudit true if present,
-> shouldn't the man page read
->
->     .B "\-D" | "\-\-dontaudit"
->     Generate dontaudit rules (Default: False, do not generate dontaudit rules)
->
-> ???
->
-> They may mean the same thing, but the second reading seems clearer to me.
->
-> It's a bit muddier for refpolicy-style-output, for which audit2allow reads
->
->         parser.add_option("-R", "--reference", action="store_true",
-> dest="refpolicy",
->                           default=True, help="generate refpolicy style output")
->         parser.add_option("-N", "--noreference", action="store_false",
-> dest="refpolicy",
->                           default=False, help="do not generate
-> refpolicy style output")
->
-> The corresponding lines in audit2allow.1 are:
->
->     .B "\-N" | "\-\-noreference"
->     Do not generate reference policy, traditional style allow rules.
->     This is the default behavior.
->
->     .B "\-R" | "\-\-reference"
->     Generate reference policy using installed macros.
->     This attempts to match denials against interfaces and may be inaccurate.
->
-> Since both -R and -N set refpolicy, the only way I can make sense of
-> this is if defining the '-N' option *after* the definition of '-R'
-> overrides refpolicy as set by -R. That seems reasonable to me, but I
-> wanted to confirm. It might make it clearer if the -R option had a
-> default of false, as in
->
->         parser.add_option("-R", "--reference", action="store_true",
-> dest="refpolicy",
->                           default=False, help="generate refpolicy style output")
->
-> In other words, leave -R out, and default to the -N behaviour.
->
-> Since -R and -N are opposites, would it make sense to make them
-> mutually exclusive?
->
->         refPolOpt = parser.add_mutually_exclusive_group()
->         refPolOpt.add_option("-R", "--reference", action="store_true",
-> dest="refpolicy",
->                           default=False, help="generate refpolicy style output")
->         refPolOpt.add_option("-N", "--noreference",
-> action="store_false", dest="refpolicy",
->                           default=False, help="do not generate
-> refpolicy style output")
->
-> This would make it clearer that only one of these options should be
-> provided and that only -R changes default behaviour.
->
-> Thoughts?
+Yes, please - because with this patch it could happen that an LSM
+policy changes between the ns_capable_noaudit() call and capable()
+call, such that the first one is denied and the second one allowed, in
+which case the operation would fail without being audited.
 
-I think that would probably be an improvement. The reference policy
-specific option (-M) should probably be removed in my view.
+--=20
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
->
-> Thanks,
->
-> P
->
-> Peter Whittaker
-> EdgeKeep Inc.
-> www.edgekeep.com
-> +1 613 864 5337
-> +1 613 864 KEEP
-
--- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
