@@ -2,88 +2,85 @@ Return-Path: <SRS0=Ig95=CM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1D37C433E9
-	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 20:13:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19FA2C433E2
+	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 21:11:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B85B420897
-	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 20:13:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5278206E7
+	for <selinux@archiver.kernel.org>; Thu,  3 Sep 2020 21:11:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W+ROYLII"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="NuusExy7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728312AbgICUN0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Sep 2020 16:13:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
+        id S1726679AbgICVLk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Sep 2020 17:11:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728129AbgICUNY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Sep 2020 16:13:24 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A9FC061244
-        for <selinux@vger.kernel.org>; Thu,  3 Sep 2020 13:13:24 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id r64so4395184oib.6
-        for <selinux@vger.kernel.org>; Thu, 03 Sep 2020 13:13:24 -0700 (PDT)
+        with ESMTP id S1726323AbgICVLj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Sep 2020 17:11:39 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595C6C061244
+        for <selinux@vger.kernel.org>; Thu,  3 Sep 2020 14:11:39 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id z22so5777476ejl.7
+        for <selinux@vger.kernel.org>; Thu, 03 Sep 2020 14:11:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=0i8anA2sAWuKJQYwOV3xmAc+Kya29B49t6HnT4GnoIc=;
-        b=W+ROYLIIGNYO8DZgy+spsK6boovU3wv95XzUvNMiYvaslYEGOV+sx3QzN55vFfEhCK
-         KVGAZujGyptD10GK/vP5Zpmp7lp4IlIjTmL38V61SJAfbeIxxwuvIfXy3P9myVJy6Ui+
-         Ulm4E9bvXALhhilxIhFLMknaDARuOVSyMu76iXEVa5+N5bm3wCGM3PqUuQ1vfGPpHkH0
-         /6ZYC8DqOjCNLWV6elwWPrtdXuFtjZbqXSZecEqcUeWu1PYNx8mcbneWtDMVtZUKy+jZ
-         o9fkqr7m0mm341q2xoro1//2lA5BAuhZEe9+XhUwOY7YskiO+HugfBU9F+0tcSAp4CIW
-         GTLw==
+        bh=Cs3Fl8XEYk726uKJTBP72rGQw+FjA+zH01CqlETK7xY=;
+        b=NuusExy7g4ow3FgT9BEPQ0zyD8hFAeFj9RuP396yPUmBxJLGu/zw9FLZLxg4jMjYvY
+         FMadMQfagrMhs5u3z8t05xqMw0OoJPPfnKmMs/WWZxjAMWduSSBWn4RbnZa6JdiVTdgS
+         0TED8yymzXhxhqE4s3JQFUbgqFB6ZDkQx6S6EdF1DcIjMVmwGeDpwTPl68yKuFbLc/n8
+         zgTukafDyj8bDP6m0fDMIVjlqWTHyCLJVW6eE7WOrUeojvMXd37j8sPNONECu9qDs3Ty
+         XFiPDIOqcmftbbG46oD469pcbMhZd+O3Ha/mnqZgU6EcvViWCrcLePNMrOZeyOkNmqhS
+         QxXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=0i8anA2sAWuKJQYwOV3xmAc+Kya29B49t6HnT4GnoIc=;
-        b=YAnRPDmAu5BRGmNNSpsseLzjGO9Gl2bDjFd7tDzccyGJ4IR67J3ghHo9Jz5jej3uJN
-         QJ6VNdP+AQUkRlZT47jfUXBYukTFUx+kAuKDAd16yoOdPprJs8BByc1SyUvaS8NH0RTo
-         J6lrp3vSJ2E2Loxt+DAg+UrCksjYLDYlM30qcBpgPgcNbsTde5ENiKZxN8sM5DDPgcuj
-         P8qahHzUgA9Jngp9Wapnm0RrTD4UW4iS9nQj3lsdqhqs0fIGtHs5djfz3Fn4/a30sybW
-         acdbStQnBubc+3Y9quQWavClrutKuxyfHuMKOAR0Odv1kEuIHnVuhcDlNSJeicwU1mtZ
-         ntHg==
-X-Gm-Message-State: AOAM531nEHxs4d2cEzDORjLJ1AwqEJ222ooJGBn+7L2rcMeTb0qaz1/Q
-        eJBLmDNo+o5+BKeGw3E3fTT6EuSBLIgon9s96dE=
-X-Google-Smtp-Source: ABdhPJwUgNxU8wGWlYqst6It0EfTREUyPLqBB39Vs3jiXEegmRIzL2ah618p3ceYtcfL7Ax7eyWS2Kn3W/8jolOFK0A=
-X-Received: by 2002:aca:d4cc:: with SMTP id l195mr3311924oig.16.1599164003807;
- Thu, 03 Sep 2020 13:13:23 -0700 (PDT)
+        bh=Cs3Fl8XEYk726uKJTBP72rGQw+FjA+zH01CqlETK7xY=;
+        b=M/duGXQXAuBz03UUgWrhrmuOcBPwvTfUvH9iqP/XGlxaB9ueDn9yvkClBor9fU2iDF
+         esQ6tlTgCTDdiGjoLgyqaydEbKG16gmWMEoBD8/CjIZj3co3b4MBif6HUrPPPAyxklr4
+         xx6zlIsqPNSSqGSUnlUq3Fe+hkCBmQdmcXowQi41l0HTLhvalOuFU83hQ0qBXUJQHqJN
+         tiDki2iG3NX1x1OeOrKU+KeR0slEpeCZ4rGhq21FdU/XMlf9208O+fH2zzjc9bLEF/uS
+         trR15tYTu0hhdmcuLqjdAy+SfgJfiA0+e816adBKha1U6Q/yPl43z1FrTQ+b7NQxIRox
+         Z90A==
+X-Gm-Message-State: AOAM533AypAlF+RfN1zbRWw8KIYHUzIuzmGM27+onU4lwqcfdGRobh7a
+        GorLoa1rzY6s4P8ZYv+SoQYRuICA5s+ebyKNdo3D6OYutg==
+X-Google-Smtp-Source: ABdhPJxVTFyp9fQym1wigphnqwMMsxYRh7mkmCkXucqyG22L4PJeCtbLzqBiZjAryi0e3vxeWg+/MZriJtwmx7c+a+E=
+X-Received: by 2002:a17:906:15d4:: with SMTP id l20mr4063240ejd.178.1599167497801;
+ Thu, 03 Sep 2020 14:11:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200903181900.81179-1-jwcart2@gmail.com> <CAEjxPJ4VYKom3-tFeuErzJGWZMD-E8j0D39rsu9xjsM3BLTrNg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4VYKom3-tFeuErzJGWZMD-E8j0D39rsu9xjsM3BLTrNg@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 3 Sep 2020 16:13:12 -0400
-Message-ID: <CAP+JOzSWSp_OoXOdnZ0rS_sL+WmbMRct9o-4ju4hL8YZS58FZA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Give an error when constraint expressions
- exceed max depth
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Jonathan Hettwer <j2468h@gmail.com>
+References: <20200902131738.18425-1-richard_c_haines@btinternet.com>
+ <CAHC9VhSOsYOYGaqDW+ATR5O5hRGJLbWs0QExNemoK2HRamY0xg@mail.gmail.com> <6702e7d809369332b73c6612a641115d360414ec.camel@btinternet.com>
+In-Reply-To: <6702e7d809369332b73c6612a641115d360414ec.camel@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 3 Sep 2020 17:11:26 -0400
+Message-ID: <CAHC9VhRaUM16zFtXLPePDNBaSmizWsZMmjmRDhi8qbMiZRj_eA@mail.gmail.com>
+Subject: Re: [PATCH 00/13] SELinux Notebook: Convert batch 2 to markdown
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 3, 2020 at 3:42 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Sep 3, 2020 at 2:19 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Sep 3, 2020 at 12:11 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Thu, 2020-09-03 at 10:52 -0400, Paul Moore wrote:
+> > All merged into the main branch.  Thanks again Richard, I know how
+> > tedious these conversion patches can be.
 > >
-> > CIL was not correctly determining the depth of constraint expressions
-> > which prevented it from giving an error when the max depth was exceeded.
-> > This allowed invalid policy binaries with constraint expressions exceeding
-> > the max depth to be created.
-> >
-> > Correctly calculate the depth of constraint expressions when building
-> > the AST and give an error when the max depth is exceeded.
 >
-> Does a similar bug exist for conditional boolean expression depth checking?
+> Yes I know !!. I'll post the final batch early next week
 
-Yes it does.
-Jim
+ :)
+
+Thanks.
+
+-- 
+paul moore
+www.paul-moore.com
