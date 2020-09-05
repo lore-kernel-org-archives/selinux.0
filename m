@@ -2,59 +2,36 @@ Return-Path: <SRS0=e/d8=CO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10784C433E2
-	for <selinux@archiver.kernel.org>; Sat,  5 Sep 2020 18:13:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A4EAC433E2
+	for <selinux@archiver.kernel.org>; Sat,  5 Sep 2020 19:05:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3CD0206A5
-	for <selinux@archiver.kernel.org>; Sat,  5 Sep 2020 18:13:42 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RFFR2yb2"
+	by mail.kernel.org (Postfix) with ESMTP id C9CE920757
+	for <selinux@archiver.kernel.org>; Sat,  5 Sep 2020 19:05:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728400AbgIESNl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 5 Sep 2020 14:13:41 -0400
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com ([66.163.187.152]:38401
-        "EHLO sonic316-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728393AbgIESNl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 5 Sep 2020 14:13:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1599329620; bh=IT5Lui+8VatDwloIw2E25Klj8KCcVazo/j8v/GW2YRU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=RFFR2yb2aNIbsVYLOBcPN02UcKEA/slMU++lgl2QUr3XmrglkLYnuH1a+TOwFJB2HXl9MnGOJRJI9B9i5KY2R0bKLMUyFd8+fvrOdk0ECQIwPv5409k5CQr3xuwYWWDMPVRRTfPQroVZHf/r4nkrHb/pTdPornkqrUQT1uXflA5H6xI8gwMjwhglyaM4rUFrQG7JFJ2/f3NLinUfV5w0FAsYZlVxRayZvRuRESUCPbSMy8iYujblcQTzY/GmE207GiolvgrLzxWLWdiXWmuzxMAw7Z9A9LdNWv8nc8xF0wkDZdI8YSG6g1K7CiuzzosOalyYka84+s266ISLzikZoQ==
-X-YMail-OSG: IFmoKMUVM1nizGgMYPYmhPubsKcpRdDtc5T2YgjJZpK8khILtvHF7f3XCGt8IaW
- _98sglczXQ.Amb3x8DpGqky0AcxjMZbttxR9JT626SjAAU33T_R1wMC4TVJ9WwImPgKYHT8sHuc_
- hgwyQSEveMiWb9K32dFL2LtkdKFyoDMX1A5Mbs.v7K1JnvbtrZ03MBq8LPP6ERePDOts.OuK0PTo
- cyBw9qczfoavT9dch41XX70XnnJ2R5vhIIhu7P75V2hUuX21jvN4RvQtNcgbKwwBz0twLqTNq.WX
- sxHND4NkXiBUU9Tlgg4qO5FHXdf6Nb1rWn7tOE2cRNx_oVr5Qz1A9M6rvPArD.VaBo2nBcTdCme6
- X_nBUDBSxWfHg0tO1Jy7MvHCkeZTCAboeiE3VpQcKowfg_EcLXddG404xhOJmtZ4PfNgOTRp3pCj
- nFWjI_DQEkPT_.MhvVWZP1anXxqBNJiwQUVTNu37mriUmL6agjH9Lo9mURG2vFTITIhPyyI0lBXX
- PHoglbo3ubmlOTjpFCqKIbDzrjep6UJXgQ1.8x8bsV7qde5UpAbx6iKDDzm5j_451S7tSaZ3ZPp3
- LeNUewJVRkEc_rlZT5v9jI5X9a0pPKgefG2bKT6RoIq1A6GV07fMK5.fbt_ucj31kbvwcZpJq022
- kBLi9EgkJXvOS6GulRu7i6ZOqW5uG8hUeyKFmnAhZRuAftilCuzIRqsLgLEIlXiTXn0tj1yA03et
- CCLvmygIPD6yV_seaNnDctSHxEwC3E9r22tDRoHhh7kNpu_eNdlFt24LowZ30HP52ahTJa2.DUp2
- 7er9h3vcc6nI3peUuNBGs81kR_INnpJnPgZGuHvtQB4mSsAcXv.hDUolRSPywHNNIKtB8oNOyFJj
- s74fsiCtdQo5llmuoVRrhOYlmjL_qDwdKoD6eHrv1yrZwumjmGe8LDMg7vcAP2txiC7a0OW.BaLX
- gOjGGitC5FHFoZoySkoN4hS2paQyEIsXnK5hMNXMJKcpvVxBjU7rw4YP5FGu_qQhaqbbAFkeQDC3
- dh6dEPiLyo.4dhHg0vJPnbVfperroHcShValNnUTf6XsbdrNnIhQdZ5X_RPX1FCzd6bKMEgR9lIv
- SBn6gvv6rttcKoGR_PTyhvKerpQQy.hCTJWK7pI.9jq3h30u0.NPzjp8l5inPan.hJuYj6tF_90_
- 3S.iC4lW3i.fOP_wLjZACYC8vU37BdoiW_Bb6UTNRwkvlSOAEZi6N6OX0uwZGrTE5jMuGz_BUNz3
- 19IiY8V7vMT5JTmdoGdNhWbv9lLOnpVIJLq4XROcdh9wRhCWn9fjXQDdF7YHB9iI_m3LIMktqyYn
- GsZAET6tu7llHpJ5.mOWe.YxiwO3lT5kd9H6iCj6tozRL3ZYBZgfRfG8gX2RHLyW2kF5JU2Kb0q5
- sqwt0w5QzHVkvOG9FZk4QjXjpJEb6ECwDoP9c9RnR5lX4hg6Y3iRXFXO376P69aLsMzIQKpFPpaS
- uivj8PNafyiMUm0aFVJLPW90q8CPJ0zRhtNwXCTe56ilxTfvuzcgVa2LtHnYq1Cd8sOeDsYI7rpt
- jqCLNXKehiHVVYEX2OAKpye0-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Sat, 5 Sep 2020 18:13:40 +0000
-Received: by smtp418.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 8257eb48b2411bfbf1cddde3139cdf96;
-          Sat, 05 Sep 2020 18:13:36 +0000 (UTC)
+        id S1728483AbgIETFn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 5 Sep 2020 15:05:43 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:46646 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728397AbgIETFm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 5 Sep 2020 15:05:42 -0400
+Received: from static-50-53-58-29.bvtn.or.frontiernet.net ([50.53.58.29] helo=[192.168.192.153])
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <john.johansen@canonical.com>)
+        id 1kEdVE-0007OA-BA; Sat, 05 Sep 2020 19:05:32 +0000
 Subject: Re: [PATCH v20 05/23] net: Prepare UDS for security module stacking
-To:     Paul Moore <paul@paul-moore.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
 Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>
+        penguin-kernel@i-love.sakura.ne.jp,
+        Stephen Smalley <sds@tycho.nsa.gov>
 References: <20200826145247.10029-1-casey@schaufler-ca.com>
  <20200826145247.10029-6-casey@schaufler-ca.com>
  <CAHC9VhSh=r4w_3mZOUwmKN0UxCMxPNGKd=_vr_iGV06rvCNbSA@mail.gmail.com>
@@ -62,53 +39,133 @@ References: <20200826145247.10029-1-casey@schaufler-ca.com>
  <CAHC9VhSf8RWUnRPYLR6LLzbn-cvNg8J0wnZGwTOAe=dOqkvd0g@mail.gmail.com>
  <ef6a049a-c6b9-370b-c521-4594aa73e403@schaufler-ca.com>
  <CAHC9VhSu4qqKWsutm3=GF_pihUKpwjAtc9gAhfjGsGtKfz-Azw@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <585600d7-70fb-0982-1e6b-ffd7b7c33e32@schaufler-ca.com>
-Date:   Sat, 5 Sep 2020 11:13:34 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+ <585600d7-70fb-0982-1e6b-ffd7b7c33e32@schaufler-ca.com>
+From:   John Johansen <john.johansen@canonical.com>
+Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
+ LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgptUUlOQkU1bXJQb0JFQURB
+ azE5UHNnVmdCS2tJbW1SMmlzUFE2bzdLSmhUVEtqSmR3VmJrV1NuTm4rbzZVcDVrCm5LUDFm
+ NDlFQlFsY2VXZzF5cC9Od2JSOGFkK2VTRU8vdW1hL0srUHFXdkJwdEtDOVNXRDk3Rkc0dUI0
+ L2Nhb20KTEVVOTdzTFFNdG52R1dkeHJ4VlJHTTRhbnpXWU1neno1VFptSWlWVFo0M091NVZw
+ YVMxVnoxWlN4UDNoL3hLTgpaci9UY1c1V1FhaTh1M1BXVm5ia2poU1pQSHYxQmdoTjY5cXhF
+ UG9tckpCbTFnbXR4M1ppVm1GWGx1d1RtVGdKCk9rcEZvbDduYkowaWxuWUhyQTdTWDNDdFIx
+ dXBlVXBNYS9XSWFuVk85NldkVGpISElhNDNmYmhtUXViZTR0eFMKM0ZjUUxPSlZxUXN4NmxF
+ OUI3cUFwcG05aFExMHFQV3dkZlB5LyswVzZBV3ROdTVBU2lHVkNJbld6bDJIQnFZZAovWmxs
+ OTN6VXErTklvQ244c0RBTTlpSCt3dGFHRGNKeXdJR0luK2VkS050SzcyQU1nQ2hUZy9qMVpv
+ V0g2WmVXClBqdVVmdWJWelp0bzFGTW9HSi9TRjRNbWRRRzFpUU50ZjRzRlpiRWdYdXk5Y0dp
+ MmJvbUYwenZ5QkpTQU5weGwKS05CRFlLek42S3owOUhVQWtqbEZNTmdvbUwvY2pxZ0FCdEF4
+ NTlMK2RWSVpmYUYyODFwSWNVWnp3dmg1K0pvRwplT1c1dUJTTWJFN0wzOG5zem9veWtJSjVY
+ ckFjaGtKeE5mejdrK0ZuUWVLRWtOekVkMkxXYzNRRjRCUVpZUlQ2ClBISGdhM1JneWtXNSsx
+ d1RNcUpJTGRtdGFQYlhyRjNGdm5WMExSUGN2NHhLeDdCM2ZHbTd5Z2Rvb3dBUkFRQUIKdEIx
+ S2IyaHVJRXB2YUdGdWMyVnVJRHhxYjJodVFHcHFiWGd1Ym1WMFBva0NPZ1FUQVFvQUpBSWJB
+ d1VMQ1FnSApBd1VWQ2drSUN3VVdBZ01CQUFJZUFRSVhnQVVDVG8wWVZ3SVpBUUFLQ1JBRkx6
+ WndHTlhEMkx4SkQvOVRKWkNwCndsbmNUZ1llcmFFTWVEZmtXdjhjMUlzTTFqMEFtRTRWdEwr
+ ZkU3ODBaVlA5Z2tqZ2tkWVN4dDdlY0VUUFRLTWEKWlNpc3JsMVJ3cVUwb29nWGRYUVNweHJH
+ SDAxaWN1LzJuMGpjWVNxWUtnZ1B4eTc4QkdzMkxacTRYUGZKVFptSApaR25YR3EvZURyL21T
+ bmowYWF2QkptTVo2amJpUHo2eUh0QllQWjlmZG84YnRjendQNDFZZVdvSXUyNi84SUk2CmYw
+ WG0zVkM1b0FhOHY3UmQrUldaYThUTXdsaHpIRXh4ZWwzanRJN0l6ek9zbm1FOS84RG0wQVJE
+ NWlUTENYd1IKMWN3SS9KOUJGL1MxWHY4UE4xaHVUM0l0Q05kYXRncDh6cW9Ka2dQVmptdnlM
+ NjRRM2ZFa1liZkhPV3NhYmE5LwprQVZ0Qk56OVJURmg3SUhEZkVDVmFUb3VqQmQ3QnRQcXIr
+ cUlqV0ZhZEpEM0k1ZUxDVkp2VnJyb2xyQ0FUbEZ0Ck4zWWtRczZKbjFBaUlWSVUzYkhSOEdq
+ ZXZnejVMbDZTQ0dIZ1Jya3lScG5TWWFVL3VMZ24zN042QVl4aS9RQUwKK2J5M0N5RUZManpX
+ QUV2eVE4YnEzSXVjbjdKRWJoUy9KLy9kVXFMb2VVZjh0c0dpMDB6bXJJVFpZZUZZQVJoUQpN
+ dHNmaXpJclZEdHoxaVBmL1pNcDVnUkJuaXlqcFhuMTMxY20zTTNndjZIclFzQUdubjhBSnJ1
+ OEdEaTVYSllJCmNvLzEreC9xRWlOMm5DbGFBT3BiaHpOMmVVdlBEWTVXMHEzYkEvWnAybWZH
+ NTJ2YlJJK3RRMEJyMUhkL3ZzbnQKVUhPOTAzbU1aZXAyTnpOM0JaNXFFdlB2RzRyVzVacTJE
+ cHliV2JRclNtOW9iaUJLYjJoaGJuTmxiaUE4YW05bwpiaTVxYjJoaGJuTmxia0JqWVc1dmJt
+ bGpZV3d1WTI5dFBva0NOd1FUQVFvQUlRVUNUbzBYV2dJYkF3VUxDUWdICkF3VVZDZ2tJQ3dV
+ V0FnTUJBQUllQVFJWGdBQUtDUkFGTHpad0dOWEQySXRNRC85anliYzg3ZE00dUFIazZ5Tk0K
+ TjBZL0JGbW10VFdWc09CaHFPbm9iNGkzOEJyRE8yQzFoUUNQQ1FlNExMczEvNHB0ZW92UXQ4
+ QjJGeXJQVmp3Zwo3alpUSE5LNzRyNmxDQ1Z4eDN5dTFCN1U5UG80VlRrY3NsVmIxL3FtV3V4
+ OFhXY040eXZrVHFsTCtHeHB5Sm45CjlaWmZmWEpjNk9oNlRtT2ZiS0d2TXV1djVhclNJQTNK
+ SEZMZjlhTHZadEExaXNKVXI3cFM5YXBnOXVUVUdVcDcKd2ZWMFdUNlQzZUczbXRVVTJ1cDVK
+ VjQ4NTBMMDVqSFM2dVdpZS9ZK3lmSk9iaXlyeE4vNlpxVzVHb25oTEJxLwptc3pjVjV2QlQz
+ QkRWZTNSdkY2WGRNOU9oUG4xK1k4MXg1NCt2UTExM044aUx3RjdHR2ExNFp5SVZBTlpEMEkw
+ CkhqUnZhMmsvUnFJUlR6S3l1UEg1cGtsY0tIVlBFRk1tT3pNVCtGT294Tmp2Uys3K3dHMktN
+ RFlFbUhQcjFQSkIKWlNaZUh6SzE5dGZhbFBNcHBGeGkrc3lZTGFnTjBtQjdKSFF3WTdjclV1
+ T0RoeWNxNjBZVnoxdGFFeWd1M1l2MgoyL0kxRUNHSHZLSEc2d2M5MG80M0MvZWxIRUNYbkVo
+ N3RLcGxEY3BJQytPQ21NeEtIaFI0NitYY1p2Z3c0RGdiCjdjYTgzZVFSM0NHODlMdlFwVzJM
+ TEtFRUJEajdoWmhrTGJra1BSWm0zdzhKWTQ0YXc4VnRneFdkblNFTUNMeEwKSU9OaDZ1Wjcv
+ L0RZVnRjSWFNSllrZWJhWnRHZENwMElnVVpiMjQvVmR2WkNZYk82MkhrLzNWbzFuWHdIVUVz
+ Mwo2RC92MWJUMFJaRmk2OUxnc0NjT2N4NGdZTGtDRFFST1pxejZBUkFBb3F3NmtrQmhXeU0x
+ ZnZnYW1BVmplWjZuCktFZm5SV2JrQzk0TDFFc0pMdXAzV2IyWDBBQk5PSFNrYlNENHBBdUMy
+ dEtGL0VHQnQ1Q1A3UWRWS1JHY1F6QWQKNmIyYzFJZHk5Ukx3Nnc0Z2krbm4vZDFQbTFra1lo
+ a1NpNXpXYUlnMG01UlFVaytFbDh6a2Y1dGNFLzFOMFo1TwpLMkpoandGdTViWDBhMGw0Y0ZH
+ V1ZRRWNpVk1ES1J0eE1qRXRrM1N4RmFsbTZaZFEycHAyODIyY2xucTR6WjltCld1MWQyd2F4
+ aXorYjVJYTR3ZURZYTduNDFVUmNCRVViSkFnbmljSmtKdENUd3lJeElXMktuVnlPcmp2a1F6
+ SUIKdmFQMEZkUDJ2dlpvUE1kbENJek9sSWtQTGd4RTBJV3VlVFhlQkpoTnMwMXBiOGJMcW1U
+ SU1sdTRMdkJFTEEvdgplaWFqajVzOHk1NDJIL2FIc2ZCZjRNUVVoSHhPL0JaVjdoMDZLU1Vm
+ SWFZN09nQWdLdUdOQjNVaWFJVVM1K2E5CmduRU9RTER4S1J5L2E3UTF2OVMrTnZ4KzdqOGlI
+ M2prUUpoeFQ2WkJoWkdSeDBna0gzVCtGMG5ORG01TmFKVXMKYXN3Z0pycUZaa1VHZDJNcm0x
+ cW5Ld1hpQXQ4U0ljRU5kcTMzUjBLS0tSQzgwWGd3ajhKbjMwdlhMU0crTk8xRwpIMFVNY0F4
+ TXd5L3B2azZMVTVKR2paUjczSjVVTFZoSDRNTGJEZ2dEM21QYWlHOCtmb3RUckpVUHFxaGc5
+ aHlVCkVQcFlHN3NxdDc0WG43OStDRVpjakxIenlsNnZBRkUyVzBreGxMdFF0VVpVSE8zNmFm
+ RnY4cUdwTzNacVB2akIKVXVhdFhGNnR2VVFDd2YzSDZYTUFFUUVBQVlrQ0h3UVlBUW9BQ1FV
+ Q1RtYXMrZ0liREFBS0NSQUZMelp3R05YRAoyRC9YRC8wZGRNLzRhaTFiK1RsMWp6bkthalgz
+ a0crTWVFWWVJNGY0MHZjbzNyT0xyblJHRk9jYnl5ZlZGNjlNCktlcGllNE93b0kxamNUVTBB
+ RGVjbmJXbkROSHByMFNjenhCTXJvM2Juckxoc212anVuVFlJdnNzQlp0QjRhVkoKanVMSUxQ
+ VWxuaEZxYTdmYlZxMFpRamJpVi9ydDJqQkVOZG05cGJKWjZHam5wWUljQWJQQ0NhL2ZmTDQv
+ U1FSUwpZSFhvaEdpaVM0eTVqQlRtSzVsdGZld0xPdzAyZmtleEgrSUpGcnJHQlhEU2c2bjJT
+ Z3hubisrTkYzNGZYY205CnBpYXczbUtzSUNtKzBoZE5oNGFmR1o2SVdWOFBHMnRlb29WRHA0
+ ZFlpaCsreFgvWFM4ekJDYzFPOXc0bnpsUDIKZ0t6bHFTV2JoaVdwaWZSSkJGYTRXdEFlSlRk
+ WFlkMzdqL0JJNFJXV2hueXc3YUFQTkdqMzN5dEdITlVmNlJvMgovanRqNHRGMXkvUUZYcWpK
+ Ry93R2pwZHRSZmJ0VWpxTEhJc3ZmUE5OSnEvOTU4cDc0bmRBQ2lkbFdTSHpqK09wCjI2S3Bi
+ Rm5td05PMHBzaVVzbmh2SEZ3UE8vdkFibDNSc1I1KzBSbytodnMyY0VtUXV2OXIvYkRsQ2Zw
+ enAydDMKY0srcmh4VXFpc094OERaZnoxQm5rYW9DUkZidnZ2ays3TC9mb21QbnRHUGtxSmNp
+ WUU4VEdIa1p3MWhPa3UrNApPb00yR0I1bkVEbGorMlRGL2pMUStFaXBYOVBrUEpZdnhmUmxD
+ NmRLOFBLS2ZYOUtkZm1BSWNnSGZuVjFqU24rCjh5SDJkakJQdEtpcVcwSjY5YUlzeXg3aVYv
+ MDNwYVBDakpoN1hxOXZBenlkTjVVL1VBPT0KPTZQL2IKLS0tLS1FTkQgUEdQIFBVQkxJQyBL
+ RVkgQkxPQ0stLS0tLQo=
+Organization: Canonical
+Message-ID: <9a58d14c-eaff-3acf-4689-925cf08ba406@canonical.com>
+Date:   Sat, 5 Sep 2020 12:05:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSu4qqKWsutm3=GF_pihUKpwjAtc9gAhfjGsGtKfz-Azw@mail.gmail.com>
+In-Reply-To: <585600d7-70fb-0982-1e6b-ffd7b7c33e32@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-X-Mailer: WebService/1.1.16565 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/5/2020 6:25 AM, Paul Moore wrote:
-> On Fri, Sep 4, 2020 at 7:58 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 9/4/2020 2:53 PM, Paul Moore wrote:
->>> On Fri, Sep 4, 2020 at 5:35 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> On 9/4/2020 1:08 PM, Paul Moore wrote:
-> ...
->
->>> I understand the concerns you mention, they are all valid as far as
->>> I'm concerned, but I think we are going to get burned by this code as
->>> it currently stands.
->> Yes, I can see that. We're getting burned by the non-extensibility
->> of secids. It will take someone smarter than me to figure out how to
->> fit N secids into 32bits without danger of either failure or memory
->> allocation.
-> Sooo what are the next steps here?  It sounds like there is some
-> agreement that the currently proposed unix_skb_params approach is a
-> problem, but it also sounds like you just want to merge it anyway?
+On 9/5/20 11:13 AM, Casey Schaufler wrote:
+> On 9/5/2020 6:25 AM, Paul Moore wrote:
+>> On Fri, Sep 4, 2020 at 7:58 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>> On 9/4/2020 2:53 PM, Paul Moore wrote:
+>>>> On Fri, Sep 4, 2020 at 5:35 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>>>> On 9/4/2020 1:08 PM, Paul Moore wrote:
+>> ...
+>>
+>>>> I understand the concerns you mention, they are all valid as far as
+>>>> I'm concerned, but I think we are going to get burned by this code as
+>>>> it currently stands.
+>>> Yes, I can see that. We're getting burned by the non-extensibility
+>>> of secids. It will take someone smarter than me to figure out how to
+>>> fit N secids into 32bits without danger of either failure or memory
+>>> allocation.
+>> Sooo what are the next steps here?  It sounds like there is some
+>> agreement that the currently proposed unix_skb_params approach is a
+>> problem, but it also sounds like you just want to merge it anyway?
+> 
+> There are real problems with all the approaches. This is by far the
+> least invasive of the lot. If this is acceptable for now I will commit
+> to including the dynamic allocation version in the full stacking
+> (e.g. Smack + SELinux) stage. If it isn't, well, this stage is going
+> to take even longer than it already has. Sigh.
+> 
+> 
+>> I was sorta hoping for something a bit better.
+> 
+> I will be looking at alternatives. I am very much open to suggestions.
+> I'm not even 100% convinced that Stephen's objections to my separate
+> allocation strategy outweigh its advantages. If you have an opinion on
+> that, I'd love to hear it.
+> 
 
-There are real problems with all the approaches. This is by far the
-least invasive of the lot. If this is acceptable for now I will commit
-to including the dynamic allocation version in the full stacking
-(e.g. Smack + SELinux) stage. If it isn't, well, this stage is going
-to take even longer than it already has. Sigh.
-
-
-> I was sorta hoping for something a bit better.
-
-I will be looking at alternatives. I am very much open to suggestions.
-I'm not even 100% convinced that Stephen's objections to my separate
-allocation strategy outweigh its advantages. If you have an opinion on
-that, I'd love to hear it.
-
-Thank you 
+fwiw I prefer the separate allocation strategy, but as you have already
+said it trading off one set of problems for another. I would rather see
+this move forward and one set of trade offs isn't significantly worse
+than the other to me so, either wfm.
 
