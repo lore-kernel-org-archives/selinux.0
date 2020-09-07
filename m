@@ -2,257 +2,157 @@ Return-Path: <SRS0=D1eb=CQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-12.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FB5AC433E2
-	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 07:46:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2483C43461
+	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 07:47:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4050D2145D
-	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 07:46:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62C1B208C7
+	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 07:47:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kQgmoMef"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J4zKHMnD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727857AbgIGHqM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Sep 2020 03:46:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727843AbgIGHqJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Sep 2020 03:46:09 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F0CC061574
-        for <selinux@vger.kernel.org>; Mon,  7 Sep 2020 00:46:08 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id x2so11729524ilm.0
-        for <selinux@vger.kernel.org>; Mon, 07 Sep 2020 00:46:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=eOcu8D5wTw2HeDSoosOfCg4t0DhAHSO+wPplJiiP8zs=;
-        b=kQgmoMefVTk+IjUZ91VOxE5uOnj6dN3OhFswHjPA8Sohyz/hprwyvf/fQn6Qoci4Jn
-         +QAj/8ckPZAQfT/hBgM6aPTrkQSyXVpGrDiRLjaZY14xaKKjo0wiD7ecNm1TgEJRaABC
-         vdH6n3ctU+AsvpY/VVWtT6KEOOFZJ44rlwDnYO9E1niHmbd3YWirTDC+aF7X//AzhGdJ
-         OvAXENpZMHKtvIaHfLrCEL4c1vDSyqIbLf70DiGnPXLWmUXx0/eVXIK/5pe/APtq6toh
-         c2/eaIZmh1uCL+bJd+1HrEKfAUazohnDWZbQUoWRz1c0K33JNlTT0fHRyZL2L42pERMP
-         ynZw==
+        id S1726968AbgIGHrc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Sep 2020 03:47:32 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:38275 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726443AbgIGHrb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Sep 2020 03:47:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599464849;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=bSkC+o85tT3mopq/vD3wqS/Hx6bdZc8OO0xROVJeNAk=;
+        b=J4zKHMnDpgWEQzWZA8DLBIGmN4BLdb8gaFIE21xgLouZsMiIiztAe0GpRChlssSWIw56eY
+        tmOIQuUm78F2KiB5sBS6jlR13DLPBXb8pzcMesX6UG3bw/PRZluAWNjEb+Ljuoj8PCzK6F
+        +PIq46kitZk72nSeA2AXO5/ZfXmv2tI=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-112-VgKuTug_Na-OccNJfD5msQ-1; Mon, 07 Sep 2020 03:47:28 -0400
+X-MC-Unique: VgKuTug_Na-OccNJfD5msQ-1
+Received: by mail-lj1-f199.google.com with SMTP id n24so1192686ljc.9
+        for <selinux@vger.kernel.org>; Mon, 07 Sep 2020 00:47:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=eOcu8D5wTw2HeDSoosOfCg4t0DhAHSO+wPplJiiP8zs=;
-        b=qXJkS3nP077Z4ezGlgF/iRwjtL9SZpBkSDYT5B+PimH6iB8Iq/oS4HaAKDiCX36k7I
-         g+bwgpC+nc+PjZfEA/pRBJJEd3Fu7alSzKfEpagtCDAS/Y1oyYSPrAFeMy2u10k7EYit
-         +wT1bnrxsXRO79x6sQ9ahsvjdpd49IfAlkl3b4dkgqbZg9KglQOSoA1dYGSkz5DDUG4U
-         YNFDAwc6+hZgQhPHt4ytwZ2rLqzqlQSDwugSZYHIMQ3q2AOoors/WX9jqacxKJUIjSSv
-         4OKGK789f3iBtvrwkP5GtnosR9xa/CpF1a0ok9StDQPQNAYnh+TRlPVC3siMg2NZSAot
-         Rh5g==
-X-Gm-Message-State: AOAM530tB59yLjCnVPKWUpixLsY/h1AsWl31PxmP99AkCTjVZBcEfpKw
-        ilQmfAn5cID/DDFXR4qRx/4V55wVSgfM0Ck0Cg4dkQ==
-X-Google-Smtp-Source: ABdhPJziDuXiwGvW9UM22wNMoxrqrL0azfO21D5OHGUhZejQeMz0dhIUigYLyuSuoA9rIgKn3f2lHV90i9Kjf0GwjC8=
-X-Received: by 2002:a92:c5ac:: with SMTP id r12mr17119968ilt.274.1599464767126;
- Mon, 07 Sep 2020 00:46:07 -0700 (PDT)
+        bh=bSkC+o85tT3mopq/vD3wqS/Hx6bdZc8OO0xROVJeNAk=;
+        b=TJQU9+cF7ztsRfNso/dC+hbbM5t9dQe+e1BtKES2yNcKj/XbVUYIRuAM/rgW+K4fjV
+         t5+6Yt2tj1/V3SDfePPJquOj8a8oUcX+mU78f8GEVXMmGUDvSTmsjILmXTfWiAwgLXmi
+         xBkY/+jkszgnKc87mWJko6LqNVaqwRO+V+CeenIVjfO5ZN/yaEp9g2SG47PmcMih06+H
+         CQfeNxiF8sbyv+x7lP+MxoKMm1VSt3/g3VtHNyOW/BJ8ZjYmqxrLrobTmANjpuzfVkS6
+         bSDzYIahepEFweilITw6A4AyH+TG2Er9I9o2keosyQ5ywtiaLvUwf2Jw2LFKwBFkwxXD
+         2tyw==
+X-Gm-Message-State: AOAM533ySMFg7uYRbw6G0fDmBKxgYijwT8d/IEYbb3uEeT9ksgzSIXzi
+        dFU3v++nVTAfDb9ILLKnCZpEeAOO6WPLRbPcKzW2boVskwhlAVAnzxUq3qiZgfzK2SoeEaC3RG9
+        m2d8nS1xio+cjF7hysL7vaKFgKMI5Zdx8tA==
+X-Received: by 2002:a19:8446:: with SMTP id g67mr9418296lfd.87.1599464846517;
+        Mon, 07 Sep 2020 00:47:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwQw8B9Clp5KWxgZavXyiHZGT9U/yoZhBxsmGj96p029H0B7ONs1Zjau3sG20u87SVWk3YmhKkUDkRJ6Rs291o=
+X-Received: by 2002:a19:8446:: with SMTP id g67mr9418282lfd.87.1599464846172;
+ Mon, 07 Sep 2020 00:47:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200827063522.2563293-1-lokeshgidra@google.com>
- <20200827063522.2563293-2-lokeshgidra@google.com> <20200901124136.r3krb2p23343licq@wittgenstein>
-In-Reply-To: <20200901124136.r3krb2p23343licq@wittgenstein>
-From:   Lokesh Gidra <lokeshgidra@google.com>
-Date:   Mon, 7 Sep 2020 00:45:56 -0700
-Message-ID: <CA+EESO5T9PSR8eATCrKtFXdR=x8T_McZDJ5wPtvFqcvBS=Qp2w@mail.gmail.com>
-Subject: Re: [PATCH v8 1/3] Add a new LSM-supporting anonymous inode interface
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-4-omosnace@redhat.com>
+ <d82b0a33-6e52-0dda-2f74-cc5b7bdb898a@linux.microsoft.com>
+In-Reply-To: <d82b0a33-6e52-0dda-2f74-cc5b7bdb898a@linux.microsoft.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 7 Sep 2020 09:47:15 +0200
+Message-ID: <CAFqZXNs+eQL7H54BbbeO-Ra4RtQKwQN6gBPAniMmUHmr4RGyBw@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/3] selinux: track policy lifetime with refcount
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Cedeno <thomascedeno@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Nick Kralevich <nnk@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        kernel-team@android.com, Jann Horn <jannh@google.com>
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        rcu@vger.kernel.org, "Paul E . McKenney" <paulmck@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 1, 2020 at 5:41 AM Christian Brauner
-<christian.brauner@ubuntu.com> wrote:
+On Sat, Sep 5, 2020 at 11:33 PM Lakshmi Ramasubramanian
+<nramas@linux.microsoft.com> wrote:
+> On 8/25/20 8:20 AM, Ondrej Mosnacek wrote:
 >
-> On Wed, Aug 26, 2020 at 11:35:20PM -0700, Lokesh Gidra wrote:
-> > From: Daniel Colascione <dancol@google.com>
+> Hi Ondrej,
+>
+> I am just trying understand the expected behavior w.r.t the usage of
+> rcu_dereference_protected() for accessing SELinux policy. Could you
+> please clarify?
+>
+> > Instead of holding the RCU read lock the whole time while accessing the
+> > policy, add a simple refcount mechanism to track its lifetime. After
+> > this, the RCU read lock is held only for a brief time when fetching the
+> > policy pointer and incrementing the refcount. The policy struct is then
+> > guaranteed to stay alive until the refcount is decremented.
 > >
-> > This change adds a new function, anon_inode_getfd_secure, that creates
-> > anonymous-node file with individual non-S_PRIVATE inode to which security
-> > modules can apply policy. Existing callers continue using the original
-> > singleton-inode kind of anonymous-inode file. We can transition anonymous
-> > inode users to the new kind of anonymous inode in individual patches for
-> > the sake of bisection and review.
+> > Freeing of the policy remains the responsibility of the task that does
+> > the policy reload. In case the refcount drops to zero in a different
+> > task, the policy load task is notified via a completion.
 > >
-> > The new function accepts an optional context_inode parameter that
-> > callers can use to provide additional contextual information to
-> > security modules for granting/denying permission to create an anon inode
-> > of the same type.
+> > The advantage of this change is that the operations that access the
+> > policy can now do sleeping allocations, since they don't need to hold
+> > the RCU read lock anymore. This patch so far only leverages this in
+> > security_read_policy() for the vmalloc_user() allocation (although this
+> > function is always called under fsi->mutex and could just access the
+> > policy pointer directly). The conversion of affected GFP_ATOMIC
+> > allocations to GFP_KERNEL is left for a later patch, since auditing
+> > which code paths may still need GFP_ATOMIC is not very easy.
 > >
-> > For example, in case of userfaultfd, the created inode is a
-> > 'logical child' of the context_inode (userfaultfd inode of the
-> > parent process) in the sense that it provides the security context
-> > required during creation of the child process' userfaultfd inode.
-> >
-> > Signed-off-by: Daniel Colascione <dancol@google.com>
-> >
-> > [Fix comment documenting return values of inode_init_security_anon()]
-> > [Add context_inode description in comments to anon_inode_getfd_secure()]
-> > [Remove definition of anon_inode_getfile_secure() as there are no callers]
-> > [Make _anon_inode_getfile() static]
-> > [Use correct error cast in _anon_inode_getfile()]
-> > [Fix error handling in _anon_inode_getfile()]
-> >
-> > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > > ---
-> >  fs/anon_inodes.c              | 147 +++++++++++++++++++++++++---------
-> >  include/linux/anon_inodes.h   |   8 ++
-> >  include/linux/lsm_hook_defs.h |   2 +
-> >  include/linux/lsm_hooks.h     |   9 +++
-> >  include/linux/security.h      |  10 +++
-> >  security/security.c           |   8 ++
-> >  6 files changed, 144 insertions(+), 40 deletions(-)
-> >
-> > diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-> > index 89714308c25b..c3f16deda211 100644
-> > --- a/fs/anon_inodes.c
-> > +++ b/fs/anon_inodes.c
-> > @@ -55,61 +55,79 @@ static struct file_system_type anon_inode_fs_type = {
-> >       .kill_sb        = kill_anon_super,
-> >  };
-> >
-> > -/**
-> > - * anon_inode_getfile - creates a new file instance by hooking it up to an
-> > - *                      anonymous inode, and a dentry that describe the "class"
-> > - *                      of the file
-> > - *
-> > - * @name:    [in]    name of the "class" of the new file
-> > - * @fops:    [in]    file operations for the new file
-> > - * @priv:    [in]    private data for the new file (will be file's private_data)
-> > - * @flags:   [in]    flags
-> > - *
-> > - * Creates a new file by hooking it on a single inode. This is useful for files
-> > - * that do not need to have a full-fledged inode in order to operate correctly.
-> > - * All the files created with anon_inode_getfile() will share a single inode,
-> > - * hence saving memory and avoiding code duplication for the file/inode/dentry
-> > - * setup.  Returns the newly created file* or an error pointer.
-> > - */
-> > -struct file *anon_inode_getfile(const char *name,
-> > -                             const struct file_operations *fops,
-> > -                             void *priv, int flags)
-> > +static struct inode *anon_inode_make_secure_inode(
-> > +     const char *name,
-> > +     const struct inode *context_inode)
-> >  {
-> > -     struct file *file;
-> > +     struct inode *inode;
-> > +     const struct qstr qname = QSTR_INIT(name, strlen(name));
-> > +     int error;
-> > +
-> > +     inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
-> > +     if (IS_ERR(inode))
-> > +             return inode;
-> > +     inode->i_flags &= ~S_PRIVATE;
-> > +     error = security_inode_init_security_anon(inode, &qname, context_inode);
-> > +     if (error) {
-> > +             iput(inode);
-> > +             return ERR_PTR(error);
-> > +     }
-> > +     return inode;
-> > +}
+> >   security/selinux/ss/services.c | 286 ++++++++++++++++-----------------
+> >   security/selinux/ss/services.h |   6 +
+> >   2 files changed, 147 insertions(+), 145 deletions(-)
 >
-> Hey,
+> int security_read_policy(struct selinux_state *state,
+>                          void **data, size_t *len)
+> {
+>         struct selinux_policy *policy;
 >
-> Iiuc, this makes each newly created anon inode fd correspond to a unique
-> file and to a unique inode:
+>         policy = rcu_dereference_protected(
+>                         state->policy,
+>                          lockdep_is_held(&state->policy_mutex));
+>         if (!policy)
+>                 return -EINVAL;
+> ...
+> }
 >
-> fd1 -> file1 -> inode1
-> fd2 -> file2 -> inode2
->
-Not every anon inode. Just the ones created through
-anon_inode_getfd_secure() API.
+> If "policy_mutex" is not held by the caller of security_read_policy() I
+> was expecting the above rcu_dereference_protected() call to return NULL,
 
-> Whereas before we had every anon inode fd correspond to a unique file
-> but all files map to the _same_ inode:
->
-> fd1 -> file1 -> inode
-> fd2 -> file2 -> inode
->
-Thils is still the case if anon_inode_getfile() and/or
-anon_inode_getfd() APIs are used.
+No, that's not how rcu_dereference_protected() works. You should only
+call it when you know for sure that you are in a section that is
+mutually exclusive with anything that might change the pointer. The
+check argument is only used for sanity checking that this is indeed
+true, but other than triggering a warning when RCU debugging is
+enabled the result of the check is ignored.
 
-> The old behavior of hooking up a each anon inode fd to the same inode
-> prevented having an evict method attached to the inode. Because it was
-> shared that wasn't possible but also simply because that inode never got
-> evicted anyway. That surely was intended but it's a bummer to some
-> extent.
-> With the new model you also can't have an evict method because now you
-> have a separate inode for each file.
->
-> I'm probably going to get killed for suggesting this but:
-> If we're going to expand the anonymous inode infrastructure anyway is
-> there a way we can make it so that we have a way to allocate a single
-> inode for multiple anonymous inode fds and have callers opt-in to this
-> behavior. We'd need a way to find this inode again, obviously.
->
-> This would allow for some features on top of anonymous inode fds that
-> can refer to the same object, i.e. anonymous inode fds that currently
-> stash away the same object in f->private_data.
-> In such a model we could allow such anonymous inode fds to stash away
-> objects in inode->i_private instead of f->private_data and attach an
-> evict method to it. This would e.g. allow a process to be killed when
-> the last pidfd to it is closed or a seccomp notifier fd to notify when
-> the filter is released without having to do separate reference counting.
->
-I didn't fully understand the example you gave and the role that evict
-method will play in it. Can you please elaborate a bit more.
+If the returned pointer is NULL, it just means that the pointer hasn't
+been assigned yet, i.e. that no policy has been loaded yet (this was
+checked using selinux_initialized() before, but when we're under
+policy_mutex, checking the pointer for NULL is possible and simpler).
 
-But, I'd like to point you to a previous discussion between Daniel
-Colascione (the original contributor of this patch series) and Stephan
-Smalley on the topic of inodes
-https://lore.kernel.org/lkml/CAKOZuesUVSYJ6EjHFL3QyiWKVmyhm1fLp5Bm_SHjB3_s1gn08A@mail.gmail.com/
+BTW, you should've replied to [1], which is the merged patch that
+introduced the code you are referencing :)
 
-I agree with Daniel (see his replies in the thread link above) that a
-separate inode per anon inode fd keeps the design simple, particularly
-from the security context perspective.
+[1] https://patchwork.kernel.org/patch/11741025/
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?h=next&id=9ff9abc4c6be27ff27b6df625501a46711730520
+[3] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?h=next&id=66ccd2560affc6e653ef7372ea36fb825743d186
 
-> This would need a way to lookup that inode by the object that is stashed
-> away in it of course which could probably be done by an idr or an
-> xarray or something cleverer. It would obviously only affect a subset of
-> anonymous inode fds so any other anonymous inode fds wouldn't be
-> impacted since they can still use the single-anon-inode interface.
+> but policy is non-NULL and I see the following messages in "dmesg" log.
 >
-> Christian
+> Is this expected?
+
+Yes, that's expected. The caller of security_read_policy() in this
+case needs to ensure that state->policy_mutex is being held.
+
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
