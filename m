@@ -1,144 +1,258 @@
-Return-Path: <SRS0=stgd=CP=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=D1eb=CQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1888EC43461
-	for <selinux@archiver.kernel.org>; Sun,  6 Sep 2020 18:11:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FB5AC433E2
+	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 07:46:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C68E12078E
-	for <selinux@archiver.kernel.org>; Sun,  6 Sep 2020 18:11:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4050D2145D
+	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 07:46:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mEWel3ZA"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kQgmoMef"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729135AbgIFSLK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 6 Sep 2020 14:11:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
+        id S1727857AbgIGHqM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Sep 2020 03:46:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729133AbgIFSLJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 6 Sep 2020 14:11:09 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40675C061573
-        for <selinux@vger.kernel.org>; Sun,  6 Sep 2020 11:11:08 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id a22so7105986ljp.13
-        for <selinux@vger.kernel.org>; Sun, 06 Sep 2020 11:11:08 -0700 (PDT)
+        with ESMTP id S1727843AbgIGHqJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Sep 2020 03:46:09 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F0CC061574
+        for <selinux@vger.kernel.org>; Mon,  7 Sep 2020 00:46:08 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id x2so11729524ilm.0
+        for <selinux@vger.kernel.org>; Mon, 07 Sep 2020 00:46:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=9PmFnaxKkNfJ8v58KUJigRrf9AvYoPRj3vICVlWjTf4=;
-        b=mEWel3ZAw9sM33oWUnYAJ2ZanJQaqfsjiKbctA2VLRT9QNXa5PFTJa2yfiqsZT/jsh
-         9Z2Y8r5PVyTq5HS4lm1vhsHYS19SiHBKB04/Ozm4pXmpp9oRb7sqg5sSFDm84auud4nq
-         56stVCEDWUm/LEvEI2INu9PQlIkaQRYXtV64F23BaYDjPOgyCT/zHz/nbHJ0F9IsKV9e
-         UUOo8rC/503xSnscSXIboO8XAG/gTq3LRse6oX389GBCTxyKHEKkPjSOFI7cDeSCdquR
-         ZoAuHvea1TAVBWfYtMHD7lPtrasxqJJLWvgdqbjpQJmI8RSI+CTlXTzLHYH+XhbpYMk4
-         jaXg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eOcu8D5wTw2HeDSoosOfCg4t0DhAHSO+wPplJiiP8zs=;
+        b=kQgmoMefVTk+IjUZ91VOxE5uOnj6dN3OhFswHjPA8Sohyz/hprwyvf/fQn6Qoci4Jn
+         +QAj/8ckPZAQfT/hBgM6aPTrkQSyXVpGrDiRLjaZY14xaKKjo0wiD7ecNm1TgEJRaABC
+         vdH6n3ctU+AsvpY/VVWtT6KEOOFZJ44rlwDnYO9E1niHmbd3YWirTDC+aF7X//AzhGdJ
+         OvAXENpZMHKtvIaHfLrCEL4c1vDSyqIbLf70DiGnPXLWmUXx0/eVXIK/5pe/APtq6toh
+         c2/eaIZmh1uCL+bJd+1HrEKfAUazohnDWZbQUoWRz1c0K33JNlTT0fHRyZL2L42pERMP
+         ynZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9PmFnaxKkNfJ8v58KUJigRrf9AvYoPRj3vICVlWjTf4=;
-        b=dqBzAmKDGZ7KBej974S82tIzl6YpHuTuIUpa0r0mdrjFXFlbIo9ytMPRS/BatkB//v
-         UWcTyOcyd8ELQwDXHIkQMar1i/qAnJ1abifc1nRI6biXz5cHylTedBVR6wxLkM4KHamR
-         jy4jH/Gzxkcl4/po2kAdDtzkshtJ/ok0RJIpHBXBWoULD1uffvFUYVc26NtDNd63lz5E
-         TIscSGN2l0AO3X1EvJdHoXiKscHyvBmMGeVL0hws9YVhZGB9dFY0CGdJDyIok4pFxRqJ
-         EgBXSOjP9+PBsJKtfMutrRLsi9zWQdqVSHBP9iu6kZppsr6FcemK/KECBaihg8JP7x3O
-         SrlQ==
-X-Gm-Message-State: AOAM5327qGfsSLjzh3P84oE36+9PO9jJrzEUgxt658miCGBL5s7KkD1K
-        xAVHEqzoqMttHukL6pEY/egE7aF+/KY=
-X-Google-Smtp-Source: ABdhPJz/Q4erlEkwLTZJy3O19Pzedj69MyiBE9wRwD6Kd5aO5PZtbqMj8GS5f2ginokk3+7ZoSwMKA==
-X-Received: by 2002:a2e:390f:: with SMTP id g15mr7843140lja.280.1599415866389;
-        Sun, 06 Sep 2020 11:11:06 -0700 (PDT)
-Received: from [192.168.1.170] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
-        by smtp.gmail.com with ESMTPSA id n62sm5106020lfa.82.2020.09.06.11.11.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 06 Sep 2020 11:11:05 -0700 (PDT)
-Subject: Re: [PATCH] network_support: Update LibreSwan configuration
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        paul@paul-moore.com, selinux@vger.kernel.org
-References: <20200906152721.16448-1-richard_c_haines@btinternet.com>
-From:   Topi Miettinen <toiwoton@gmail.com>
-Message-ID: <030e2ae3-0f2e-3fed-a02a-142c3eec681b@gmail.com>
-Date:   Sun, 6 Sep 2020 21:11:03 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eOcu8D5wTw2HeDSoosOfCg4t0DhAHSO+wPplJiiP8zs=;
+        b=qXJkS3nP077Z4ezGlgF/iRwjtL9SZpBkSDYT5B+PimH6iB8Iq/oS4HaAKDiCX36k7I
+         g+bwgpC+nc+PjZfEA/pRBJJEd3Fu7alSzKfEpagtCDAS/Y1oyYSPrAFeMy2u10k7EYit
+         +wT1bnrxsXRO79x6sQ9ahsvjdpd49IfAlkl3b4dkgqbZg9KglQOSoA1dYGSkz5DDUG4U
+         YNFDAwc6+hZgQhPHt4ytwZ2rLqzqlQSDwugSZYHIMQ3q2AOoors/WX9jqacxKJUIjSSv
+         4OKGK789f3iBtvrwkP5GtnosR9xa/CpF1a0ok9StDQPQNAYnh+TRlPVC3siMg2NZSAot
+         Rh5g==
+X-Gm-Message-State: AOAM530tB59yLjCnVPKWUpixLsY/h1AsWl31PxmP99AkCTjVZBcEfpKw
+        ilQmfAn5cID/DDFXR4qRx/4V55wVSgfM0Ck0Cg4dkQ==
+X-Google-Smtp-Source: ABdhPJziDuXiwGvW9UM22wNMoxrqrL0azfO21D5OHGUhZejQeMz0dhIUigYLyuSuoA9rIgKn3f2lHV90i9Kjf0GwjC8=
+X-Received: by 2002:a92:c5ac:: with SMTP id r12mr17119968ilt.274.1599464767126;
+ Mon, 07 Sep 2020 00:46:07 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200906152721.16448-1-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200827063522.2563293-1-lokeshgidra@google.com>
+ <20200827063522.2563293-2-lokeshgidra@google.com> <20200901124136.r3krb2p23343licq@wittgenstein>
+In-Reply-To: <20200901124136.r3krb2p23343licq@wittgenstein>
+From:   Lokesh Gidra <lokeshgidra@google.com>
+Date:   Mon, 7 Sep 2020 00:45:56 -0700
+Message-ID: <CA+EESO5T9PSR8eATCrKtFXdR=x8T_McZDJ5wPtvFqcvBS=Qp2w@mail.gmail.com>
+Subject: Re: [PATCH v8 1/3] Add a new LSM-supporting anonymous inode interface
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Calin Juravle <calin@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        kernel-team@android.com, Jann Horn <jannh@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6.9.2020 18.27, Richard Haines wrote:
-> Update ipsec.conf file that describes the labeled ipsec entries.
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> This was used to test the updated LibreSwan that now supports
-> selinux_check_access(3) from https://github.com/libreswan/libreswan
-> 
->   src/network_support.md | 38 ++++++++++++++++++++++++++++++++++++--
->   1 file changed, 36 insertions(+), 2 deletions(-)
-> 
-> diff --git a/src/network_support.md b/src/network_support.md
-> index 36af1f4..4a3fd38 100644
-> --- a/src/network_support.md
-> +++ b/src/network_support.md
-> @@ -452,11 +452,45 @@ Context type identifier has never been defined in any standard. Pluto is
->   configurable and defaults to '*32001*', this is the IPSEC Security
->   Association Attribute identifier reserved for private use. Racoon is
->   hard coded to a value of '*10*', therefore the pluto ***ipsec.conf**(5)*
-> -file must be configured as follows:
-> +configuration file *secctx-attr-type* entry must be set as shown in the
-> +following example:
->   
->   ```
->   config setup
-> -        secctx-attr-type=10
-> +	protostack=netkey
-> +	plutodebug=all
-> +	logfile=/var/log/pluto/pluto.log
-> +	logappend=no
-> +	# A "secctx-attr-type" MUST be present:
-> +	secctx-attr-type=10
-> +	# Labeled IPSEC only supports the following values:
-> +	#   10 = ECN_TUNNEL - Used by racoon(8)
-> +	#   32001 = Default - Reserved for private use (see RFC 2407)
-> +	# These are the "IPSEC Security Association Attributes"
-> +
-> +conn selinux_labeled_ipsec_test
-> +	# ikev2 MUST be "no" as labeled ipsec is not yet supported by IKEV2
-> +	# There is a draft IKEV2 labeled ipsec document (July '20) at:
-> +	#   https://tools.ietf.org/html/draft-ietf-ipsecme-labeled-ipsec-03
-> +	ikev2=no
-> +	auto=start
-> +	rekey=no
-> +	authby=secret # set in '/etc/ipsec.secrets'
-> +	type=transport
-> +	left=192.168.1.198
-> +	right=192.168.1.148
-> +	ike=3des-sha1
+On Tue, Sep 1, 2020 at 5:41 AM Christian Brauner
+<christian.brauner@ubuntu.com> wrote:
+>
+> On Wed, Aug 26, 2020 at 11:35:20PM -0700, Lokesh Gidra wrote:
+> > From: Daniel Colascione <dancol@google.com>
+> >
+> > This change adds a new function, anon_inode_getfd_secure, that creates
+> > anonymous-node file with individual non-S_PRIVATE inode to which security
+> > modules can apply policy. Existing callers continue using the original
+> > singleton-inode kind of anonymous-inode file. We can transition anonymous
+> > inode users to the new kind of anonymous inode in individual patches for
+> > the sake of bisection and review.
+> >
+> > The new function accepts an optional context_inode parameter that
+> > callers can use to provide additional contextual information to
+> > security modules for granting/denying permission to create an anon inode
+> > of the same type.
+> >
+> > For example, in case of userfaultfd, the created inode is a
+> > 'logical child' of the context_inode (userfaultfd inode of the
+> > parent process) in the sense that it provides the security context
+> > required during creation of the child process' userfaultfd inode.
+> >
+> > Signed-off-by: Daniel Colascione <dancol@google.com>
+> >
+> > [Fix comment documenting return values of inode_init_security_anon()]
+> > [Add context_inode description in comments to anon_inode_getfd_secure()]
+> > [Remove definition of anon_inode_getfile_secure() as there are no callers]
+> > [Make _anon_inode_getfile() static]
+> > [Use correct error cast in _anon_inode_getfile()]
+> > [Fix error handling in _anon_inode_getfile()]
+> >
+> > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > ---
+> >  fs/anon_inodes.c              | 147 +++++++++++++++++++++++++---------
+> >  include/linux/anon_inodes.h   |   8 ++
+> >  include/linux/lsm_hook_defs.h |   2 +
+> >  include/linux/lsm_hooks.h     |   9 +++
+> >  include/linux/security.h      |  10 +++
+> >  security/security.c           |   8 ++
+> >  6 files changed, 144 insertions(+), 40 deletions(-)
+> >
+> > diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> > index 89714308c25b..c3f16deda211 100644
+> > --- a/fs/anon_inodes.c
+> > +++ b/fs/anon_inodes.c
+> > @@ -55,61 +55,79 @@ static struct file_system_type anon_inode_fs_type = {
+> >       .kill_sb        = kill_anon_super,
+> >  };
+> >
+> > -/**
+> > - * anon_inode_getfile - creates a new file instance by hooking it up to an
+> > - *                      anonymous inode, and a dentry that describe the "class"
+> > - *                      of the file
+> > - *
+> > - * @name:    [in]    name of the "class" of the new file
+> > - * @fops:    [in]    file operations for the new file
+> > - * @priv:    [in]    private data for the new file (will be file's private_data)
+> > - * @flags:   [in]    flags
+> > - *
+> > - * Creates a new file by hooking it on a single inode. This is useful for files
+> > - * that do not need to have a full-fledged inode in order to operate correctly.
+> > - * All the files created with anon_inode_getfile() will share a single inode,
+> > - * hence saving memory and avoiding code duplication for the file/inode/dentry
+> > - * setup.  Returns the newly created file* or an error pointer.
+> > - */
+> > -struct file *anon_inode_getfile(const char *name,
+> > -                             const struct file_operations *fops,
+> > -                             void *priv, int flags)
+> > +static struct inode *anon_inode_make_secure_inode(
+> > +     const char *name,
+> > +     const struct inode *context_inode)
+> >  {
+> > -     struct file *file;
+> > +     struct inode *inode;
+> > +     const struct qstr qname = QSTR_INIT(name, strlen(name));
+> > +     int error;
+> > +
+> > +     inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
+> > +     if (IS_ERR(inode))
+> > +             return inode;
+> > +     inode->i_flags &= ~S_PRIVATE;
+> > +     error = security_inode_init_security_anon(inode, &qname, context_inode);
+> > +     if (error) {
+> > +             iput(inode);
+> > +             return ERR_PTR(error);
+> > +     }
+> > +     return inode;
+> > +}
+>
+> Hey,
+>
+> Iiuc, this makes each newly created anon inode fd correspond to a unique
+> file and to a unique inode:
+>
+> fd1 -> file1 -> inode1
+> fd2 -> file2 -> inode2
+>
+Not every anon inode. Just the ones created through
+anon_inode_getfd_secure() API.
 
-Since this configuration may set an example for less experienced users 
-who may just copy this without much understanding, would it be possible 
-to use a more modern crypto algorithm? Also libreswan documentation 
-tells that sha1 will be obsoleted in near future. Would something like 
-"ike=aes_gcm256-sha2" work? I don't have a working libreswan setup.
+> Whereas before we had every anon inode fd correspond to a unique file
+> but all files map to the _same_ inode:
+>
+> fd1 -> file1 -> inode
+> fd2 -> file2 -> inode
+>
+Thils is still the case if anon_inode_getfile() and/or
+anon_inode_getfd() APIs are used.
 
-https://libreswan.org/man/ipsec.conf.5.html
+> The old behavior of hooking up a each anon inode fd to the same inode
+> prevented having an evict method attached to the inode. Because it was
+> shared that wasn't possible but also simply because that inode never got
+> evicted anyway. That surely was intended but it's a bummer to some
+> extent.
+> With the new model you also can't have an evict method because now you
+> have a separate inode for each file.
+>
+> I'm probably going to get killed for suggesting this but:
+> If we're going to expand the anonymous inode infrastructure anyway is
+> there a way we can make it so that we have a way to allocate a single
+> inode for multiple anonymous inode fds and have callers opt-in to this
+> behavior. We'd need a way to find this inode again, obviously.
+>
+> This would allow for some features on top of anonymous inode fds that
+> can refer to the same object, i.e. anonymous inode fds that currently
+> stash away the same object in f->private_data.
+> In such a model we could allow such anonymous inode fds to stash away
+> objects in inode->i_private instead of f->private_data and attach an
+> evict method to it. This would e.g. allow a process to be killed when
+> the last pidfd to it is closed or a seccomp notifier fd to notify when
+> the filter is released without having to do separate reference counting.
+>
+I didn't fully understand the example you gave and the role that evict
+method will play in it. Can you please elaborate a bit more.
 
-> +	phase2=esp
-> +	phase2alg=3des-sha1
+But, I'd like to point you to a previous discussion between Daniel
+Colascione (the original contributor of this patch series) and Stephan
+Smalley on the topic of inodes
+https://lore.kernel.org/lkml/CAKOZuesUVSYJ6EjHFL3QyiWKVmyhm1fLp5Bm_SHjB3_s1gn08A@mail.gmail.com/
 
-How about "phase2alg=aes_gcm256"?
+I agree with Daniel (see his replies in the thread link above) that a
+separate inode per anon inode fd keeps the design simple, particularly
+from the security context perspective.
 
--Topi
+> This would need a way to lookup that inode by the object that is stashed
+> away in it of course which could probably be done by an idr or an
+> xarray or something cleverer. It would obviously only affect a subset of
+> anonymous inode fds so any other anonymous inode fds wouldn't be
+> impacted since they can still use the single-anon-inode interface.
+>
+> Christian
