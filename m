@@ -2,145 +2,130 @@ Return-Path: <SRS0=EaKV=CR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9144C433E2
-	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 14:01:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB883C43461
+	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 14:45:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FDE023C32
-	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 14:01:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 75687229EF
+	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 14:45:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P4ryKg17"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UVj/plKG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729789AbgIHOAq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Sep 2020 10:00:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729908AbgIHN6d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Sep 2020 09:58:33 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A46FC0619C2;
-        Tue,  8 Sep 2020 06:35:17 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id y5so14846921otg.5;
-        Tue, 08 Sep 2020 06:35:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gar4BreDCQ/72P6bchhSRHNsc6Zc5dSSb5ZIWUFYbnU=;
-        b=P4ryKg17uiPYjfiska4TXIoTtz0a9xSokIWzAMp6NfUGQkBwz4xpAvHocnh13JqWn8
-         N8NkcguNthlcs9/UuzsCfw0qj8SHdBgvjLNj7JDDjjZ3pGt7JaI+du7t41v6u6lACv7I
-         dv5p+dLohygkOOw+RtC92LmnB15ymXLjrF5uw2iY/mhjo7nDiq5PH1adNo9Yx4zH+MD/
-         oG7jQFyBUD4gLpmBUESd0jSeEo0HzigfCOnkKo26MT/YL/lIZ7vPqP/mdZlW3l+pb0jw
-         LYmv4g3o8HOVC1NYgIMDO0t8z9+dh+HP/uw5pnNLlDvW0gPjjIILjKSf/LN9sP+KEUlv
-         32OQ==
+        id S1729908AbgIHOpe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Sep 2020 10:45:34 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:34703 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729655AbgIHO0K (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Sep 2020 10:26:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599575163;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ye2KsuXoN2NlEMK5q8mCuzDzXGcGuNydsz7J1oYHs44=;
+        b=UVj/plKG6DRifmHMZTlUgfPoWrlDhO5hOcL37nFebFZBjBM2JajOpeMRZwFLK+9BMikk/E
+        5xOawuMqdp4K0Kvxlk6KUe90Wou8YCbVFBJto0jBU9M58+ZkDLwBXaDZobqWA2E/hG1gpA
+        gfUCoROtvep9rDbQpy5FpHT/R5xDupI=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-156-0UjlI_EgMg-wuw3pRid2JQ-1; Tue, 08 Sep 2020 09:03:15 -0400
+X-MC-Unique: 0UjlI_EgMg-wuw3pRid2JQ-1
+Received: by mail-lf1-f69.google.com with SMTP id 20so1687496lfg.23
+        for <selinux@vger.kernel.org>; Tue, 08 Sep 2020 06:03:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=gar4BreDCQ/72P6bchhSRHNsc6Zc5dSSb5ZIWUFYbnU=;
-        b=r9TcqnzFwoim7DAmDfOGZ3ANQUR6mMHOSlYhwuISCDUxi25eICrWzNjOXnbPi+7vT4
-         Xu2bCNOO9ejWT4nwvz87zIPmOQb4ZI2XV+tSxmyjv+VwTV+P0lK2E9oytDOl9OqG1Au5
-         889NU/dG1/EDWDhZAIicGNcznOJWkewMWKa50V910MuuF1KphifiGjcaqZsalb6frM7s
-         Z0ZT0aRQTVurwJ/fO2uNxijJcFNhpqaW6WddjJrdgIiZrtwqQtCxVWOfzeQthmVA9ak+
-         Cfap0gjuhUPpTeYeTe95Xuh1vDJlUw/d2r7FrwlJNTkO1uu/MFondNndroVDYoqKl2Kc
-         9p2w==
-X-Gm-Message-State: AOAM530hLpjUbHuLq+dmdukoKrRQtp7iGNVxmtfDuluBEn6Tyfk2ODzw
-        5DXIiTYuSUEL109ilGX8jKYjlzpr4yCKW7rIvAF2pZYRV3w=
-X-Google-Smtp-Source: ABdhPJyWhiQ0vShLlXuCv5fr448BVDeWmqjkRs6wxP3IGO8/JwS7/Gyogf/s6MDSZT/XRrzVYfRpZoeMQH4wTkN0STE=
-X-Received: by 2002:a9d:185:: with SMTP id e5mr18471022ote.135.1599572116933;
- Tue, 08 Sep 2020 06:35:16 -0700 (PDT)
+        bh=ye2KsuXoN2NlEMK5q8mCuzDzXGcGuNydsz7J1oYHs44=;
+        b=bjViS4bj8BiJTxxzUF4ChLjG0QNU7CNhj9FAPqV0rU48vn1PIyuzKxfTcEn23gYFNO
+         XAHAkSxza2iud80yuPaGDt9npL0vNRjjbjJ/mGuXrIQpgCdgq2D+fyO6ia2dHHb7JcRm
+         oAXdSM0fVO8DcbZ3HYiP/kPUj7etLI2OM3E+DYUjRuEbnvOL3q+5CdUxxXPFp1nL5pxj
+         4ohO4mfwhNvQSlS7pcz9MC0svKTYQ8pbqMnlbyyAD+qXSAbT4wOCxfiK5IJj+ztSVxqG
+         3GhdpqnzXMG3U0bLMbk9x6DIfD1NHI8amkK/PmnMpoB9M5cTQibwNAesKWeJyuZnHK9n
+         q1Ag==
+X-Gm-Message-State: AOAM532/bCBA6N4uF5cuBxsjlra6iHS2zMh3TsrVNXLUtp8cJC1VLemp
+        iHH3I5gUyAtKPcEOw1/3dyyHhhlkE9ZNP152pjpLAxr5wGRUuf9sh3vlEJX/XydGFZbwx/xqePV
+        mid26evgSutOLFO1gjcwKgYurp6L6p4ooiw==
+X-Received: by 2002:a05:651c:134a:: with SMTP id j10mr11002422ljb.337.1599570193915;
+        Tue, 08 Sep 2020 06:03:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzp3OiZVrw0QoBLOoEdLIlQNVVb0O6eJMGa3bo/IK9ijWF8Ck46zu6UhG+8IzfVZdlckAAhTWm3SSIT9nd2q7U=
+X-Received: by 2002:a05:651c:134a:: with SMTP id j10mr11002409ljb.337.1599570193556;
+ Tue, 08 Sep 2020 06:03:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200826145247.10029-1-casey@schaufler-ca.com>
- <20200826145247.10029-6-casey@schaufler-ca.com> <CAHC9VhSh=r4w_3mZOUwmKN0UxCMxPNGKd=_vr_iGV06rvCNbSA@mail.gmail.com>
- <1eeef766-405f-3800-c0cf-3eb008f9673e@schaufler-ca.com> <CAHC9VhSf8RWUnRPYLR6LLzbn-cvNg8J0wnZGwTOAe=dOqkvd0g@mail.gmail.com>
- <ef6a049a-c6b9-370b-c521-4594aa73e403@schaufler-ca.com> <CAHC9VhSu4qqKWsutm3=GF_pihUKpwjAtc9gAhfjGsGtKfz-Azw@mail.gmail.com>
- <585600d7-70fb-0982-1e6b-ffd7b7c33e32@schaufler-ca.com> <9a58d14c-eaff-3acf-4689-925cf08ba406@canonical.com>
- <CAEjxPJ7i5Ruy=NZ+sq3qCm8ux+sZXY5+XX_zJu3+OqFq3d_SLQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7i5Ruy=NZ+sq3qCm8ux+sZXY5+XX_zJu3+OqFq3d_SLQ@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 8 Sep 2020 09:35:05 -0400
-Message-ID: <CAEjxPJ5KudgTjhmXBNdCO_ctvioy5UA5PXcoKX4zc19NYKgHZA@mail.gmail.com>
-Subject: Re: [PATCH v20 05/23] net: Prepare UDS for security module stacking
-To:     John Johansen <john.johansen@canonical.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+References: <20200907213855.3572-1-nramas@linux.microsoft.com> <CAEjxPJ4Swgi2Jewzja8MRiVdYn8H1-OkDy5BR7Vv4A4LaLWZ+Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4Swgi2Jewzja8MRiVdYn8H1-OkDy5BR7Vv4A4LaLWZ+Q@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 8 Sep 2020 15:03:02 +0200
+Message-ID: <CAFqZXNtEywSumid=FHLysV8jaSPXDO--3YJC6DfuGwRRZLQ58g@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Measure state and hash of policy using IMA
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        tusharsu@linux.microsoft.com, Sasha Levin <sashal@kernel.org>,
         James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
         LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>, linux-audit@redhat.com,
-        Kees Cook <keescook@chromium.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 7, 2020 at 9:28 PM Stephen Smalley
+On Tue, Sep 8, 2020 at 2:37 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
+> On Mon, Sep 7, 2020 at 5:39 PM Lakshmi Ramasubramanian
+> <nramas@linux.microsoft.com> wrote:
+<snip>
+> > diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+> > new file mode 100644
+> > index 000000000000..caf9107937d9
+> > --- /dev/null
+> > +++ b/security/selinux/measure.c
+> <snip>
+> > +static int read_selinux_state(char **state_str, int *state_str_len,
+> > +                             struct selinux_state *state)
+> > +{
+> > +       char *buf, *str_fmt = "%s=%d;";
+> > +       int i, buf_len, curr;
+> <snip>
+> > +       for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
+> > +               buf_len += snprintf(NULL, 0, str_fmt,
+> > +                                   selinux_policycap_names[i],
+> > +                                   state->policycap[i]);
+> > +       }
 >
-> On Sat, Sep 5, 2020 at 3:07 PM John Johansen
-> <john.johansen@canonical.com> wrote:
-> >
-> > On 9/5/20 11:13 AM, Casey Schaufler wrote:
-> > > On 9/5/2020 6:25 AM, Paul Moore wrote:
-> > >> On Fri, Sep 4, 2020 at 7:58 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > >>> On 9/4/2020 2:53 PM, Paul Moore wrote:
-> > >>>> On Fri, Sep 4, 2020 at 5:35 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > >>>>> On 9/4/2020 1:08 PM, Paul Moore wrote:
-> > >> ...
-> > >>
-> > >>>> I understand the concerns you mention, they are all valid as far as
-> > >>>> I'm concerned, but I think we are going to get burned by this code as
-> > >>>> it currently stands.
-> > >>> Yes, I can see that. We're getting burned by the non-extensibility
-> > >>> of secids. It will take someone smarter than me to figure out how to
-> > >>> fit N secids into 32bits without danger of either failure or memory
-> > >>> allocation.
-> > >> Sooo what are the next steps here?  It sounds like there is some
-> > >> agreement that the currently proposed unix_skb_params approach is a
-> > >> problem, but it also sounds like you just want to merge it anyway?
-> > >
-> > > There are real problems with all the approaches. This is by far the
-> > > least invasive of the lot. If this is acceptable for now I will commit
-> > > to including the dynamic allocation version in the full stacking
-> > > (e.g. Smack + SELinux) stage. If it isn't, well, this stage is going
-> > > to take even longer than it already has. Sigh.
-> > >
-> > >
-> > >> I was sorta hoping for something a bit better.
-> > >
-> > > I will be looking at alternatives. I am very much open to suggestions.
-> > > I'm not even 100% convinced that Stephen's objections to my separate
-> > > allocation strategy outweigh its advantages. If you have an opinion on
-> > > that, I'd love to hear it.
-> > >
-> >
-> > fwiw I prefer the separate allocation strategy, but as you have already
-> > said it trading off one set of problems for another. I would rather see
-> > this move forward and one set of trade offs isn't significantly worse
-> > than the other to me so, either wfm.
->
-> I remain unclear that AppArmor needs this patch at all even when
-> support for SO_PEERSEC lands.
-> Contrary to the patch description, it is about supporting SCM_SECURITY
-> for datagram not SO_PEERSEC.  And I don't know of any actual users of
-> SCM_SECURITY even for SELinux, just SO_PEERSEC.
+> This will need to be converted to use
+> security_policycap_supported(state, i) rather than state->policycap[i]
+> since the latter is going to be removed by Ondrej's patches I think.
 
-I remembered that systemd once tried using SCM_SECURITY but that was a
-bug since systemd was using it with stream sockets and that wasn't
-supported by the kernel at the time,
-https://bugzilla.redhat.com/show_bug.cgi?id=1224211, so systemd
-switched over to using SO_PEERSEC.  Subsequently I did fix
-SCM_SECURITY to work with stream sockets via kernel commit
-37a9a8df8ce9de6ea73349c9ac8bdf6ba4ec4f70 but SO_PEERSEC is still
-preferred.  Looking around, I see that there is still one usage of
-SCM_SECURITY in systemd-journald but it doesn't seem to be required
-(if provided, journald will pass the label along but nothing seems to
-depend on it AFAICT).  In any event, I don't believe this patch is
-needed to support stacking AppArmor.
+Based on my testing so far, even with just moving the array under
+struct selinux_policy, the RCU accessing still brings a significant
+overhead (relative to the whole syscalls it is probably negligible,
+but relative to the rest of the simpler hooks it is about 30%), so I
+don't think it is necessary to adapt other patches to it yet. It will
+be my responsibility to adapt to the newly added code when/if I rebase
+and respin my patch.
+
+>
+> > +       for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
+> > +               curr += snprintf((buf + curr), (buf_len - curr), str_fmt,
+> > +                                selinux_policycap_names[i],
+> > +                                state->policycap[i]);
+>
+> Ditto.
+>
+
+-- 
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
