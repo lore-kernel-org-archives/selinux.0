@@ -2,119 +2,145 @@ Return-Path: <SRS0=EaKV=CR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08669C43461
-	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 11:30:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9144C433E2
+	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 14:01:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF8D5208FE
-	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 11:30:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FDE023C32
+	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 14:01:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GQGUrvbq"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P4ryKg17"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729650AbgIHLaA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Sep 2020 07:30:00 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24624 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730064AbgIHL3n (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Sep 2020 07:29:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599564550;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8SJToen5De/FMO5Uvn6WpRdklNdA0QrVJ+xmLiUK7iQ=;
-        b=GQGUrvbqpyn5i8EIEt9WwBf3dRIE2h4UlnG6/hS6nswxUsr/SeVWUanWB/uPfRbtS72Xtj
-        jc7kYvUBQIu0r2CxkX5SFKIa+QxM2w++NVn40A9yLD1tm1u3XthPyvaGnZ6vZzOX5CPjih
-        alYnAbNpM1xix+KUuXScPFWfDowwaXQ=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-96-1k8zHCxnMVympDJR5yJB8g-1; Tue, 08 Sep 2020 07:29:08 -0400
-X-MC-Unique: 1k8zHCxnMVympDJR5yJB8g-1
-Received: by mail-lj1-f198.google.com with SMTP id l1so5127916ljj.2
-        for <selinux@vger.kernel.org>; Tue, 08 Sep 2020 04:29:07 -0700 (PDT)
+        id S1729789AbgIHOAq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Sep 2020 10:00:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729908AbgIHN6d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Sep 2020 09:58:33 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A46FC0619C2;
+        Tue,  8 Sep 2020 06:35:17 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id y5so14846921otg.5;
+        Tue, 08 Sep 2020 06:35:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=gar4BreDCQ/72P6bchhSRHNsc6Zc5dSSb5ZIWUFYbnU=;
+        b=P4ryKg17uiPYjfiska4TXIoTtz0a9xSokIWzAMp6NfUGQkBwz4xpAvHocnh13JqWn8
+         N8NkcguNthlcs9/UuzsCfw0qj8SHdBgvjLNj7JDDjjZ3pGt7JaI+du7t41v6u6lACv7I
+         dv5p+dLohygkOOw+RtC92LmnB15ymXLjrF5uw2iY/mhjo7nDiq5PH1adNo9Yx4zH+MD/
+         oG7jQFyBUD4gLpmBUESd0jSeEo0HzigfCOnkKo26MT/YL/lIZ7vPqP/mdZlW3l+pb0jw
+         LYmv4g3o8HOVC1NYgIMDO0t8z9+dh+HP/uw5pnNLlDvW0gPjjIILjKSf/LN9sP+KEUlv
+         32OQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=8SJToen5De/FMO5Uvn6WpRdklNdA0QrVJ+xmLiUK7iQ=;
-        b=JeJa/+ciYSx9KCbMU8iICFuJgPCdaCQhKlGOuQFpWlGTKcDtXlyFVT6t6zPT9ZOkqB
-         5IYtWLX3D2kZXfNPcpcuuD2csyfsGA7+4phZyFDBIc5vDfAdWWar/L5QB/pVIulv9R6O
-         bqVPKFlZcSSkwiRyjcwMDTrdpY4elHVFHtk6m7MelYh2KZBC9YmZniqaUnQljsoOBGRP
-         taxIvgyBlRgEM2699qdMFk2Hzlh3pa/Pp4L7SB4I2atyEQt3xv97msd/Xjll7KQoQoZm
-         lnDr/CCxOhFjcuyQPb/c+iu1zti5ewnnp1wWzrN0iKIDqnRxmo1y4bOREJ0faEpI5cnv
-         VECQ==
-X-Gm-Message-State: AOAM532fRiJm0Ny9ep98ZCEDNCFSGeZ+ruyS8+YZfnn829Gi13kpENA9
-        CKyGh/GiC9aAiMfa82h0r8XxBOhP2KiV0aaOPbF/nfIxxXvnitIU/cQCLpUyeVRbwrr5r3bc3kd
-        0w86fcpMbOB4Z40N8QjcuTX0uhuJE/JYsRg==
-X-Received: by 2002:a2e:93c9:: with SMTP id p9mr13042324ljh.311.1599564546509;
-        Tue, 08 Sep 2020 04:29:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzzAkVnfY3RS8jLmTTPylLLgZwYimBUxyg65KS1GNPlqmB6hBjIWbaP1koimAnXDD5XhM3jLRXYLRHBdxEEogQ=
-X-Received: by 2002:a2e:93c9:: with SMTP id p9mr13042309ljh.311.1599564546218;
- Tue, 08 Sep 2020 04:29:06 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=gar4BreDCQ/72P6bchhSRHNsc6Zc5dSSb5ZIWUFYbnU=;
+        b=r9TcqnzFwoim7DAmDfOGZ3ANQUR6mMHOSlYhwuISCDUxi25eICrWzNjOXnbPi+7vT4
+         Xu2bCNOO9ejWT4nwvz87zIPmOQb4ZI2XV+tSxmyjv+VwTV+P0lK2E9oytDOl9OqG1Au5
+         889NU/dG1/EDWDhZAIicGNcznOJWkewMWKa50V910MuuF1KphifiGjcaqZsalb6frM7s
+         Z0ZT0aRQTVurwJ/fO2uNxijJcFNhpqaW6WddjJrdgIiZrtwqQtCxVWOfzeQthmVA9ak+
+         Cfap0gjuhUPpTeYeTe95Xuh1vDJlUw/d2r7FrwlJNTkO1uu/MFondNndroVDYoqKl2Kc
+         9p2w==
+X-Gm-Message-State: AOAM530hLpjUbHuLq+dmdukoKrRQtp7iGNVxmtfDuluBEn6Tyfk2ODzw
+        5DXIiTYuSUEL109ilGX8jKYjlzpr4yCKW7rIvAF2pZYRV3w=
+X-Google-Smtp-Source: ABdhPJyWhiQ0vShLlXuCv5fr448BVDeWmqjkRs6wxP3IGO8/JwS7/Gyogf/s6MDSZT/XRrzVYfRpZoeMQH4wTkN0STE=
+X-Received: by 2002:a9d:185:: with SMTP id e5mr18471022ote.135.1599572116933;
+ Tue, 08 Sep 2020 06:35:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200904160031.6444-1-cgzones@googlemail.com> <20200908102537.GU2674@hirez.programming.kicks-ass.net>
-In-Reply-To: <20200908102537.GU2674@hirez.programming.kicks-ass.net>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 8 Sep 2020 13:28:55 +0200
-Message-ID: <CAFqZXNuD3SRQtE9OUC5NX0XepThg0MJ0b8TJ5TF7YRgS93+TOg@mail.gmail.com>
-Subject: Re: [RFC PATCH] sched: only issue an audit on privileged operation
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>
+References: <20200826145247.10029-1-casey@schaufler-ca.com>
+ <20200826145247.10029-6-casey@schaufler-ca.com> <CAHC9VhSh=r4w_3mZOUwmKN0UxCMxPNGKd=_vr_iGV06rvCNbSA@mail.gmail.com>
+ <1eeef766-405f-3800-c0cf-3eb008f9673e@schaufler-ca.com> <CAHC9VhSf8RWUnRPYLR6LLzbn-cvNg8J0wnZGwTOAe=dOqkvd0g@mail.gmail.com>
+ <ef6a049a-c6b9-370b-c521-4594aa73e403@schaufler-ca.com> <CAHC9VhSu4qqKWsutm3=GF_pihUKpwjAtc9gAhfjGsGtKfz-Azw@mail.gmail.com>
+ <585600d7-70fb-0982-1e6b-ffd7b7c33e32@schaufler-ca.com> <9a58d14c-eaff-3acf-4689-925cf08ba406@canonical.com>
+ <CAEjxPJ7i5Ruy=NZ+sq3qCm8ux+sZXY5+XX_zJu3+OqFq3d_SLQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7i5Ruy=NZ+sq3qCm8ux+sZXY5+XX_zJu3+OqFq3d_SLQ@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 8 Sep 2020 09:35:05 -0400
+Message-ID: <CAEjxPJ5KudgTjhmXBNdCO_ctvioy5UA5PXcoKX4zc19NYKgHZA@mail.gmail.com>
+Subject: Re: [PATCH v20 05/23] net: Prepare UDS for security module stacking
+To:     John Johansen <john.johansen@canonical.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>, linux-audit@redhat.com,
+        Kees Cook <keescook@chromium.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 8, 2020 at 12:26 PM <peterz@infradead.org> wrote:
-> On Fri, Sep 04, 2020 at 06:00:31PM +0200, Christian G=C3=83=C2=B6ttsche w=
-rote:
-> > sched_setattr(2) does via kernel/sched/core.c:__sched_setscheduler()
-> > issue a CAP_SYS_NICE audit event unconditionally, even when the request=
-ed
-> > operation does not require that capability / is un-privileged.
-> >
-> > Perform privilged/unprivileged catigorization first and perform a
-> > capable test only if needed.
-> >
-> > Signed-off-by: Christian G=C3=83=C2=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  kernel/sched/core.c | 65 ++++++++++++++++++++++++++++++++-------------
-> >  1 file changed, 47 insertions(+), 18 deletions(-)
+On Mon, Sep 7, 2020 at 9:28 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> So who sodding cares about audit, and why is that a reason to make a
-> trainwreck of code?
+> On Sat, Sep 5, 2020 at 3:07 PM John Johansen
+> <john.johansen@canonical.com> wrote:
+> >
+> > On 9/5/20 11:13 AM, Casey Schaufler wrote:
+> > > On 9/5/2020 6:25 AM, Paul Moore wrote:
+> > >> On Fri, Sep 4, 2020 at 7:58 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > >>> On 9/4/2020 2:53 PM, Paul Moore wrote:
+> > >>>> On Fri, Sep 4, 2020 at 5:35 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > >>>>> On 9/4/2020 1:08 PM, Paul Moore wrote:
+> > >> ...
+> > >>
+> > >>>> I understand the concerns you mention, they are all valid as far as
+> > >>>> I'm concerned, but I think we are going to get burned by this code as
+> > >>>> it currently stands.
+> > >>> Yes, I can see that. We're getting burned by the non-extensibility
+> > >>> of secids. It will take someone smarter than me to figure out how to
+> > >>> fit N secids into 32bits without danger of either failure or memory
+> > >>> allocation.
+> > >> Sooo what are the next steps here?  It sounds like there is some
+> > >> agreement that the currently proposed unix_skb_params approach is a
+> > >> problem, but it also sounds like you just want to merge it anyway?
+> > >
+> > > There are real problems with all the approaches. This is by far the
+> > > least invasive of the lot. If this is acceptable for now I will commit
+> > > to including the dynamic allocation version in the full stacking
+> > > (e.g. Smack + SELinux) stage. If it isn't, well, this stage is going
+> > > to take even longer than it already has. Sigh.
+> > >
+> > >
+> > >> I was sorta hoping for something a bit better.
+> > >
+> > > I will be looking at alternatives. I am very much open to suggestions.
+> > > I'm not even 100% convinced that Stephen's objections to my separate
+> > > allocation strategy outweigh its advantages. If you have an opinion on
+> > > that, I'd love to hear it.
+> > >
+> >
+> > fwiw I prefer the separate allocation strategy, but as you have already
+> > said it trading off one set of problems for another. I would rather see
+> > this move forward and one set of trade offs isn't significantly worse
+> > than the other to me so, either wfm.
+>
+> I remain unclear that AppArmor needs this patch at all even when
+> support for SO_PEERSEC lands.
+> Contrary to the patch description, it is about supporting SCM_SECURITY
+> for datagram not SO_PEERSEC.  And I don't know of any actual users of
+> SCM_SECURITY even for SELinux, just SO_PEERSEC.
 
-The commit message should be more specific. I believe Christian is
-talking about the case where SELinux or other LSM denies the
-capability, in which case the denial is usually logged to the audit
-log. Obviously, we don't want to get a denial logged when the
-capability wasn't actually required for the operation to be allowed.
-
-Unfortunately, the capability interface doesn't provide a way to first
-get the decision value and only trigger the auditing when it was
-actually used in the decision, so in complex scenarios like this the
-caller needs to jump through some hoops to avoid such false-positive
-denial records.
-
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+I remembered that systemd once tried using SCM_SECURITY but that was a
+bug since systemd was using it with stream sockets and that wasn't
+supported by the kernel at the time,
+https://bugzilla.redhat.com/show_bug.cgi?id=1224211, so systemd
+switched over to using SO_PEERSEC.  Subsequently I did fix
+SCM_SECURITY to work with stream sockets via kernel commit
+37a9a8df8ce9de6ea73349c9ac8bdf6ba4ec4f70 but SO_PEERSEC is still
+preferred.  Looking around, I see that there is still one usage of
+SCM_SECURITY in systemd-journald but it doesn't seem to be required
+(if provided, journald will pass the label along but nothing seems to
+depend on it AFAICT).  In any event, I don't believe this patch is
+needed to support stacking AppArmor.
