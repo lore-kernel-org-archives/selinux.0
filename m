@@ -1,208 +1,129 @@
-Return-Path: <SRS0=D1eb=CQ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=EaKV=CR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15747C43461
-	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 22:32:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B83A1C433E2
+	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 01:29:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5E2E21473
-	for <selinux@archiver.kernel.org>; Mon,  7 Sep 2020 22:32:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79E7E215A4
+	for <selinux@archiver.kernel.org>; Tue,  8 Sep 2020 01:29:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cpl+dwPK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qar1nThL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727945AbgIGWcc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Sep 2020 18:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
+        id S1728185AbgIHB3K (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Sep 2020 21:29:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726918AbgIGWcb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Sep 2020 18:32:31 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F393C061573;
-        Mon,  7 Sep 2020 15:32:29 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id a65so13287560otc.8;
-        Mon, 07 Sep 2020 15:32:29 -0700 (PDT)
+        with ESMTP id S1728088AbgIHB3F (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Sep 2020 21:29:05 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D6CC061573;
+        Mon,  7 Sep 2020 18:29:03 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id t76so14994635oif.7;
+        Mon, 07 Sep 2020 18:29:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=SSBsABurBTaJlix9WRMaGS9qOSk/fDmwyNLZ018o2GE=;
-        b=cpl+dwPKLTo5K/wLy+LwcB3EG0XcfQTMi47Ahqcq+blt/HE+MXXf5MDcnc76jtQL9u
-         TO78WVd7w+mm1v97gvyHLWUS7tRPcwPgm+zrUwQ5XPhC2G0Mm3ptg4vRZzsyV4CdR2YI
-         kmoazwyQPo6JssFM2xaVNSMBKiH+KNAnGGlONe+hsTTm+R/WKNmPuWzz/g0RQgIDGF3e
-         aEsiUOo9Va/XBW9cBIENDFUaAGIkBZ/zL3bDdYLNxY6pQzOw1jXW84n8cRu6JytwWC3e
-         aE72uoDE9vd4rNEu3z03IyGbMuIjvWT0a4s7ReBJnSsIBk6HWGhSrvaAIFcqVMIwPav5
-         Gd2A==
+         :cc;
+        bh=3ds7NBB5D8yNeSFpML1Am6nIqrtrtVTsNXCIDzWTSpI=;
+        b=qar1nThLpBgkEGtlL3nLLTq4Cvxdmkd0cZGfG3/a/IC8RjNmjFeliszJ3Idct/TwK6
+         Ql3bO6XGH4QRNpPwv9wigKbNzNSL/NYRy5MmgxzV101axaQzOixPs1PwSTkap56OHkPj
+         TvW0+gdukmwuIv1YkUD1ShyE8ManuayTHAvPd6hDCLz2rFTTxwvA5qda/lThnSbezhSu
+         Tqer/qf9Lc4tHmHX8Xtxv0fGvyl3JLG80ifrgTVSIaYtgFxzdV6+wMDuzkiWC6aIoDaS
+         9018mIbPG1upQaiq8adKbcU4iPHo9NE2LlZFenFu1UdxUhQ10KbPhGZUaCz4t8uZCxko
+         i0RQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SSBsABurBTaJlix9WRMaGS9qOSk/fDmwyNLZ018o2GE=;
-        b=G/Sk8lzlxzRtnQ5DYLKr/bjq0DAmREgb97yAmJPyOLQ6Jfgol+ZpSk6wQFVFrboYv9
-         CKtiK2AQLng72PXgKhJJIt9ujKGbwpQ+6Zt316XUpy2PBPN97SzyjV0FAo8R7VUGxQgr
-         lE5VVVFg5Qhy4VPig6cAIOP7GDIUAJYYLgM1fXahQFJeypXLxwI1Cg7P3+BrOuMU1nbu
-         JQmCAY4MGjgDscBh5JafVnnJ6I8MSLjJx/pFXPHVkvGGVJWMPf3+xmiVS9Zi5UzYsmzD
-         q4puMQr6TQeDcjsbnlq/6aeGvxk/X5v+d+c1pbxsTQknt7usGCEJEBwZf9tFnRuTQfK0
-         miiA==
-X-Gm-Message-State: AOAM531BWzeINSHOwd9ClQHkpJDUdzKQGRnaf7GpFGH9PZPwCnzIoQgr
-        QlU8BMX1byYSivEWYQRqWzpKs7Bwjj6bmvBJqHA=
-X-Google-Smtp-Source: ABdhPJz74VcXi1cwh9+WOlsVSrO6zUKdBwfLGyeDlIfpAepoIuLWWH+eHJPcQh6Gl6wZsLOJJpRF9dRLcvMlh96I1sw=
-X-Received: by 2002:a05:6830:1be7:: with SMTP id k7mr15979909otb.162.1599517949078;
- Mon, 07 Sep 2020 15:32:29 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=3ds7NBB5D8yNeSFpML1Am6nIqrtrtVTsNXCIDzWTSpI=;
+        b=OkeZAFf7/FqI6EQdfPImSGt9onlShngHYZ3UcDEcu3plWLsxnknZ2E7Hn02Wg6Q0sM
+         HC8KetjLsn168MjuXLjpTw+5GhWUHZ0BVN3cj1Zw0xxjELJXcMsIcX7hkn/NTETF7E/W
+         ce1eyaYhP+dj5z41RC3SOpcTP3hHCwwcOJjGyVvRISBCveBAqbt+SPhWw/Vb8SK7fBPo
+         qVEPnyG5TjHDIfyoSbnVNd5LZM6deUaFeKUGy2oBcMf7vnn8+uWFoEn0myumUYeP1nK8
+         rDFhEdRbnNWbEMzDAojtc/ukV71wY473wQAjiU4LjQQ1rI7zVWbXORxuwdzTRqNNfWUv
+         HB0Q==
+X-Gm-Message-State: AOAM530hkOqB1ZvMJjlfR+rSoamN3h6uiBbt887IVk03Q0dcGQraWkJC
+        I3z2OIJaG4qkDcmC/eCyLyox8A5P45vQm2xw8QvNQIe0
+X-Google-Smtp-Source: ABdhPJxiNwbBIzk86VbxsQS0ccfWr2VIdmSp3TwKoSS/frmmsoNKpzEp61FnarhD2g5NIXET4J3qx0lCGIUsG5c5Xx0=
+X-Received: by 2002:a54:4f9b:: with SMTP id g27mr1260255oiy.140.1599528542891;
+ Mon, 07 Sep 2020 18:29:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200907213855.3572-1-nramas@linux.microsoft.com>
-In-Reply-To: <20200907213855.3572-1-nramas@linux.microsoft.com>
+References: <20200826145247.10029-1-casey@schaufler-ca.com>
+ <20200826145247.10029-6-casey@schaufler-ca.com> <CAHC9VhSh=r4w_3mZOUwmKN0UxCMxPNGKd=_vr_iGV06rvCNbSA@mail.gmail.com>
+ <1eeef766-405f-3800-c0cf-3eb008f9673e@schaufler-ca.com> <CAHC9VhSf8RWUnRPYLR6LLzbn-cvNg8J0wnZGwTOAe=dOqkvd0g@mail.gmail.com>
+ <ef6a049a-c6b9-370b-c521-4594aa73e403@schaufler-ca.com> <CAHC9VhSu4qqKWsutm3=GF_pihUKpwjAtc9gAhfjGsGtKfz-Azw@mail.gmail.com>
+ <585600d7-70fb-0982-1e6b-ffd7b7c33e32@schaufler-ca.com> <9a58d14c-eaff-3acf-4689-925cf08ba406@canonical.com>
+In-Reply-To: <9a58d14c-eaff-3acf-4689-925cf08ba406@canonical.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 7 Sep 2020 18:32:16 -0400
-Message-ID: <CAEjxPJ5C64AmmVKuuPmtbfnY06w49ziryRAnARurWxpQumzfow@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Measure state and hash of policy using IMA
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>, Paul Moore <paul@paul-moore.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        tusharsu@linux.microsoft.com, Sasha Levin <sashal@kernel.org>,
+Date:   Mon, 7 Sep 2020 21:28:51 -0400
+Message-ID: <CAEjxPJ7i5Ruy=NZ+sq3qCm8ux+sZXY5+XX_zJu3+OqFq3d_SLQ@mail.gmail.com>
+Subject: Re: [PATCH v20 05/23] net: Prepare UDS for security module stacking
+To:     John Johansen <john.johansen@canonical.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
         James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
         LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+        SElinux list <selinux@vger.kernel.org>, linux-audit@redhat.com,
+        Kees Cook <keescook@chromium.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 7, 2020 at 5:39 PM Lakshmi Ramasubramanian
-<nramas@linux.microsoft.com> wrote:
+On Sat, Sep 5, 2020 at 3:07 PM John Johansen
+<john.johansen@canonical.com> wrote:
 >
-> Critical data structures of security modules are currently not measured.
-> Therefore an attestation service, for instance, would not be able to
-> attest whether the security modules are always operating with the policie=
-s
-> and configuration that the system administrator had setup. The policies
-> and configuration for the security modules could be tampered with by
-> rogue user mode agents or modified through some inadvertent actions on
-> the system. Measuring such critical data would enable an attestation
-> service to reliably assess the security configuration of the system.
+> On 9/5/20 11:13 AM, Casey Schaufler wrote:
+> > On 9/5/2020 6:25 AM, Paul Moore wrote:
+> >> On Fri, Sep 4, 2020 at 7:58 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >>> On 9/4/2020 2:53 PM, Paul Moore wrote:
+> >>>> On Fri, Sep 4, 2020 at 5:35 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >>>>> On 9/4/2020 1:08 PM, Paul Moore wrote:
+> >> ...
+> >>
+> >>>> I understand the concerns you mention, they are all valid as far as
+> >>>> I'm concerned, but I think we are going to get burned by this code as
+> >>>> it currently stands.
+> >>> Yes, I can see that. We're getting burned by the non-extensibility
+> >>> of secids. It will take someone smarter than me to figure out how to
+> >>> fit N secids into 32bits without danger of either failure or memory
+> >>> allocation.
+> >> Sooo what are the next steps here?  It sounds like there is some
+> >> agreement that the currently proposed unix_skb_params approach is a
+> >> problem, but it also sounds like you just want to merge it anyway?
+> >
+> > There are real problems with all the approaches. This is by far the
+> > least invasive of the lot. If this is acceptable for now I will commit
+> > to including the dynamic allocation version in the full stacking
+> > (e.g. Smack + SELinux) stage. If it isn't, well, this stage is going
+> > to take even longer than it already has. Sigh.
+> >
+> >
+> >> I was sorta hoping for something a bit better.
+> >
+> > I will be looking at alternatives. I am very much open to suggestions.
+> > I'm not even 100% convinced that Stephen's objections to my separate
+> > allocation strategy outweigh its advantages. If you have an opinion on
+> > that, I'd love to hear it.
+> >
 >
-> SELinux configuration and policy are some of the critical data for this
-> security module that needs to be measured. This measurement can be used
-> by an attestation service, for instance, to verify if the configuration
-> and policies have been setup correctly and that they haven't been tampere=
-d
-> with at runtime.
->
-> Measure SELinux configuration, policy capabilities settings, and the hash
-> of the loaded policy by calling the IMA hook ima_measure_critical_data().
-> Since the size of the loaded policy can be quite large, hash of the polic=
-y
-> is measured instead of the entire policy to avoid bloating the IMA log.
->
-> Enable early boot measurement for SELinux in IMA since SELinux
-> initializes its state and policy before custom IMA policy is loaded.
->
-> Sample measurement of SELinux state and hash of the policy:
->
-> 10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state-1595389364:287899=
-386 696e697469616c697a65643d313b656e61626c65643d313b656e666f7263696e673d303=
-b636865636b72657170726f743d313b6e6574776f726b5f706565725f636f6e74726f6c733d=
-313b6f70656e5f7065726d733d313b657874656e6465645f736f636b65745f636c6173733d3=
-13b616c776179735f636865636b5f6e6574776f726b3d303b6367726f75705f7365636c6162=
-656c3d313b6e6e705f6e6f737569645f7472616e736974696f6e3d313b67656e66735f73656=
-36c6162656c5f73796d6c696e6b733d303
-> 10 9e81...0857 ima-buf sha256:4941...68fc selinux-policy-hash-1597335667:=
-462051628 8d1d...1834
->
-> To verify the measurement check the following:
->
-> Execute the following command to extract the measured data
-> from the IMA log for SELinux configuration (selinux-state).
->
->   grep -m 1 "selinux-state" /sys/kernel/security/integrity/ima/ascii_runt=
-ime_measurements | cut -d' ' -f 6 | xxd -r -p
->
-> The output should be the list of key-value pairs. For example,
->  initialized=3D1;enabled=3D1;enforcing=3D0;checkreqprot=3D1;network_peer_=
-controls=3D1;open_perms=3D1;extended_socket_class=3D1;always_check_network=
-=3D0;cgroup_seclabel=3D1;nnp_nosuid_transition=3D1;genfs_seclabel_symlinks=
-=3D0;
->
-> To verify the measured data with the current SELinux state:
->
->  =3D> enabled should be set to 1 if /sys/fs/selinux folder exists,
->     0 otherwise
->
-> For other entries, compare the integer value in the files
->  =3D> /sys/fs/selinux/enforce
->  =3D> /sys/fs/selinux/checkreqprot
-> And, each of the policy capabilities files under
->  =3D> /sys/fs/selinux/policy_capabilities
->
-> For selinux-policy-hash, the hash of SELinux policy is included
-> in the IMA log entry.
->
-> To verify the measured data with the current SELinux policy run
-> the following commands and verify the output hash values match.
->
->   sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
->
->   grep -m 1 "selinux-policy-hash" /sys/kernel/security/integrity/ima/asci=
-i_runtime_measurements | cut -d' ' -f 6
->
-> This patch is based on commit 66ccd2560aff ("selinux: simplify away secur=
-ity_policydb_len()")
-> in "next" branch in https://git.kernel.org/pub/scm/linux/kernel/git/pcmoo=
-re/selinux.git
->
-> This patch is dependent on the following patch series and must be
-> applied in the given order:
->         https://patchwork.kernel.org/patch/11709527/
->         https://patchwork.kernel.org/patch/11730193/
->         https://patchwork.kernel.org/patch/11730757/
->
-> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Reported-by: kernel test robot <lkp@intel.com> # error: implicit declarat=
-ion of function 'vfree'
-> Reported-by: kernel test robot <lkp@intel.com> # error: implicit declarat=
-ion of function 'crypto_alloc_shash'
-> Reported-by: kernel test robot <lkp@intel.com> # sparse: symbol 'security=
-_read_selinux_policy' was not declared. Should it be static?
+> fwiw I prefer the separate allocation strategy, but as you have already
+> said it trading off one set of problems for another. I would rather see
+> this move forward and one set of trade offs isn't significantly worse
+> than the other to me so, either wfm.
 
-Not sure these Reported-by lines are useful since they were just on
-submitted versions of the patch not on an actual merged commit.
-
-> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
-> new file mode 100644
-> index 000000000000..caf9107937d9
-> --- /dev/null
-> +++ b/security/selinux/measure.c
-<snip>
-> +void selinux_measure_state(struct selinux_state *state, bool policy_mute=
-x_held)
-> +{
-<snip>
-> +
-> +       if (!policy_mutex_held)
-> +               mutex_lock(&state->policy_mutex);
-> +
-> +       rc =3D security_read_policy_kernel(state, &policy, &policy_len);
-> +
-> +       if (!policy_mutex_held)
-> +               mutex_unlock(&state->policy_mutex);
-
-This kind of conditional taking of a mutex is generally frowned upon
-in my experience.
-You should likely just always take the mutex in the callers of
-selinux_measure_state() instead.
-In some cases, it may be the caller of the caller.  Arguably selinuxfs
-could be taking it around all state modifying operations (e.g.
-enforce, checkreqprot) not just policy modifying ones although it
-isn't strictly for that purpose.
+I remain unclear that AppArmor needs this patch at all even when
+support for SO_PEERSEC lands.
+Contrary to the patch description, it is about supporting SCM_SECURITY
+for datagram not SO_PEERSEC.  And I don't know of any actual users of
+SCM_SECURITY even for SELinux, just SO_PEERSEC.
