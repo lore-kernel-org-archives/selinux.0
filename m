@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D327C43461
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 20:37:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC83FC43461
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 20:58:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B41A9214F1
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 20:37:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78C4D221E3
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 20:58:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="k91IK/hb"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ItVywOaC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726926AbgIJUhZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Sep 2020 16:37:25 -0400
-Received: from mailomta29-re.btinternet.com ([213.120.69.122]:37533 "EHLO
-        re-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727095AbgIJUgs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 16:36:48 -0400
+        id S1725971AbgIJU6f (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Sep 2020 16:58:35 -0400
+Received: from mailomta28-re.btinternet.com ([213.120.69.121]:53250 "EHLO
+        re-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726932AbgIJU51 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 16:57:27 -0400
 Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-046.btinternet.com with ESMTP
-          id <20200909133047.XPYC4657.re-prd-fep-046.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Wed, 9 Sep 2020 14:30:47 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658247; 
-        bh=eduegantj3dfN2YFOqqp8bjctyeuMflYLW19ih1dtD4=;
+          by re-prd-fep-040.btinternet.com with ESMTP
+          id <20200909133046.UFHJ10362.re-prd-fep-040.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Wed, 9 Sep 2020 14:30:46 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658246; 
+        bh=YOdsWTFlwrLM266uakaEjj9lU2lAlvZU/OkQNECuCzY=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=k91IK/hb3KyIk3xX/hzyN+lK3FAM+esAKuTfiyNRfKI9tg1EdWbrbvXPKccGJPvWxNVYIn7MtYOlxKtol6ZIPGe/+UheVfCK6+UrLl70u7gDW8UqNHYPCCO/iCVP6PEf1WqUOE0gBLf4qoE+C75OlIv5SvWS+2qBL97Qcy2PQcVYF2cqUG/zOhoWbFw1360APpcFIMiQG+lHdwpOMr1vFk2mbR07V0hOt8GA2tJ4TYQnLrtaCFrA+vA3w71fSLS+1C3UrtceRjQ3u3sCDhWyjMIMHLdnCuWPfCyn6We6iAxVrYa1hjR/xeupnhnQgnLjIHzPUiOY0Vks329HXWqrbQ==
+        b=ItVywOaClUU3EK0MfcDjWfCeklmNGI5mSuD6GJLa85TYjMZv1IgqXrT834QPgZb5FACrYxxLwkyR7qh9bgqzoFIPMixgNr3HdKTFC6FuwPsvIFCsgztu+XKnULEPPWkRrBCDAWlT74gfCxzk6BtLssUBQb40CSdo3pwluYey9YH8mn2ymg1/Opzn2gCWJsPS7epfQNQPDoTwNLhgd22r3CLjvWjNW34A2qFiyXg8nlEdLJtiaKymcgBaScAke/qqtNRkSMn6a8ry8JjXOhPunEWqkvnrx6Ukm+s3SLJ/Q8FMXnnGHQ+AhqClWRfBNo7qJ1lSwdjDf+c5KHVAWrVKjg==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [86.154.154.133]
 X-OWM-Source-IP: 86.154.154.133 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepkeeirdduheegrdduheegrddufeefnecuvehluhhsthgvrhfuihiivgepieenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehgedrudehgedrudeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepkeeirdduheegrdduheegrddufeefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehgedrudehgedrudeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (86.154.154.133) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9C2FD10134DFF; Wed, 9 Sep 2020 14:30:47 +0100
+        id 5ED9C2FD10134DD1; Wed, 9 Sep 2020 14:30:46 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 13/22] type_enforcement: Convert to markdown
-Date:   Wed,  9 Sep 2020 14:30:30 +0100
-Message-Id: <20200909133039.44498-14-richard_c_haines@btinternet.com>
+Subject: [PATCH 07/22] security_context: Convert to markdown
+Date:   Wed,  9 Sep 2020 14:30:24 +0100
+Message-Id: <20200909133039.44498-8-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
 References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
@@ -56,53 +56,115 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add a TOC to aid navigation and convert to markdown.
-
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/type_enforcement.md | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ src/security_context.md | 83 ++++++++++++++++++++++-------------------
+ 1 file changed, 45 insertions(+), 38 deletions(-)
 
-diff --git a/src/type_enforcement.md b/src/type_enforcement.md
-index d8d08be..bfd75b8 100644
---- a/src/type_enforcement.md
-+++ b/src/type_enforcement.md
-@@ -1,5 +1,8 @@
- # Type Enforcement
+diff --git a/src/security_context.md b/src/security_context.md
+index 3ca93a2..cb0fc4a 100644
+--- a/src/security_context.md
++++ b/src/security_context.md
+@@ -20,47 +20,50 @@ user:role:type[:range]
  
-+- [Constraints](#constraints)
-+- [Bounds](#bounds)
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>user</code></td>
+-<td>The SELinux user identity. This can be associated to one or more roles that the SELinux user is allowed to use.</td>
+-</tr>
+-<tr>
+-<td><code>role</code></td>
+-<td>The SELinux role. This can be associated to one or more types the SELinux user is allowed to access.</td>
+-</tr>
+-<tr>
+-<td><code>type</code></td>
+-<td><p>When a type is associated with a process, it defines what processes (or domains) the SELinux user (the subject) can access.</p>
+-<p>When a type is associated with an object, it defines what access permissions the SELinux user has to that object.</p></td>
+-</tr>
+-<tr>
+-<td><code>range</code></td>
+-<td><p>This field can also be know as a <em>level</em> and is only present if the policy supports MCS or MLS. The entry can consist of:
+-<p>A single security level that contains a sensitivity level and zero or more categories (e.g. s0, s1:c0, s7:c10.c15).</p>
+-<p>A range that consists of two security levels (a low and high) separated by a hyphen (e.g. s0 - s15:c0.c1023).</p>
+-<p>These components are discussed in the <a href="mls_mcs.md#security-levels">Security Levels</a> section.</p></td>
+-</tr>
+-</tbody>
+-</table>
++*user*
 +
- SELinux makes use of a specific style of type enforcement (TE) to enforce
- mandatory access control. For SELinux it means that all
- [**subjects**](subjects.md#subjects) and [**objects**](objects.md#objects)
-@@ -17,7 +20,7 @@ server, enforce policy via the object managers.
- Because the *type* identifier (or just 'type') is associated to all
- subjects and objects, it can sometimes be difficult to distinguish what
- the type is actually associated with (it's not helped by the fact that
--by convention, type identifiers end in *_t*). In the end it comes down
-+by convention, type identifiers end in *\_t*). In the end it comes down
- to understanding how they are allocated in the policy itself and how
- they are used by SELinux services (although CIL policies with namespaces
- do help in that a domain process 'type' could be declared as
-@@ -33,7 +36,7 @@ While SELinux refers to a subject as being an active process that is
- associated to a domain type, the scope of an SELinux type enforcement
- domain can vary widely. For example in the simple
- [**Kernel policy**](./notebook-examples/selinux-policy/kernel/kern-nb-policy.txt)
--in the notebook-examples, all the processes on the system run in the
-+in the *notebook-examples*, all the processes on the system run in the
- *unconfined_t* domain, therefore every process is
- 'of type *unconfined_t*' (that means it can do whatever it likes within
- the limits of the standard Linux DAC policy as all access is allowed by
-@@ -49,7 +52,7 @@ where the majority of user space processes run under the *unconfined_t*
- domain.
++- The SELinux user identity. This can be associated to one or more roles
++  that the SELinux user is allowed to use.
++
++*role*
++
++- The SELinux role. This can be associated to one or more types the SELinux
++  user is allowed to access.
++
++*type*
++
++- When a type is associated with a process, it defines what processes
++  (or domains) the SELinux user (the subject) can access.
++  When a type is associated with an object, it defines what access
++  permissions the SELinux user has to that object.
++
++*range*
++
++- This field can also be know as a *level* and is only present if the policy
++  supports MCS or MLS. The entry can consist of:
++  - A single security level that contains a sensitivity level and zero
++    or more categories (e.g. *s0*, *s1:c0*, *s7:c10.c15*).
++  - A range that consists of two security levels (a low and high) separated
++   by a hyphen (e.g. *s0 - s15:c0.c1023*).
++- These components are discussed in the
++  [**Security Levels**]( mls_mcs.md#security-levels) section.
  
- The SELinux type is the third component of a 'security context' and by
--convention SELinux types end in *_t*, however this is not enforced by
-+convention SELinux types end in *\_t*, however this is not enforced by
- any SELinux service (i.e. it is only used to identify the type
- component), although as explained above CIL with namespaces does make
- identification of types easier.
+ However note that:
+ 
+-1.  Access decisions regarding a subject make use of all the components
+-    of the **security context**.
+-2.  Access decisions regarding an object make use of the components as
+-    follows:
+-    1.  the user is either set to a special user called system_u or it
+-        is set to the SELinux user id of the creating process. It is
+-        possible to add constraints on users within policy based on
+-        their object class (an example of this is the Reference Policy
+-        UBAC (User Based Access Control) option.
+-    2.  the role is generally set to a special SELinux internal role of
+-        'object_r`, although policy version 26 with kernel 2.6.39 and
+-        above do support role transitions on any object class. It is
+-        then possible to add constraints on the role within policy
+-        based on their object class.
++1. Access decisions regarding a subject make use of all the components
++   of the **security context**.
++2. Access decisions regarding an object make use of the components as
++   follows:
++    1. the user is either set to a special user called *system_u*[^fn_sc_1]
++       or it is set to the SELinux user id of the creating process. It is
++       possible to add constraints on users within policy based on
++       their object class (an example of this is the Reference Policy
++       UBAC (User Based Access Control) option.
++    2. the role is generally set to a special SELinux internal role of
++       *object_r*, although policy version 26 with kernel 2.6.39 and
++       above do support role transitions on any object class. It is
++       then possible to add constraints on the role within policy
++       based on their object class.
+ 
+ The [**Computing Security Contexts**](computing_security_contexts.md#computing-security-contexts)
+ section decribes how SELinux computes the security context components based
+@@ -116,6 +119,10 @@ unconfined_u:object_r:out_file_t Message-11
+ # (see the process example above). The role remained as object_r.
+ ```
+ 
++[^fn_sc_1]: The user *system_u* name is not mandatory, it is used to signify
++a special user in the Reference Policy. It is also used in some SELinux
++utilities.
++
+ <!-- %CUTHERE% -->
+ 
+ ---
 -- 
 2.26.2
 
