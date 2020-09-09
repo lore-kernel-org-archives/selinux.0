@@ -2,70 +2,44 @@ Return-Path: <SRS0=iCYl=CS=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49DCFC43461
-	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 20:57:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C84AEC43461
+	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 22:28:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DFA021D6C
-	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 20:57:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8419D20C09
+	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 22:28:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ldcla5kd"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ljs2XmsT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729507AbgIIU5R (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Sep 2020 16:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41740 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726414AbgIIU5Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Sep 2020 16:57:16 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3BBC061573
-        for <selinux@vger.kernel.org>; Wed,  9 Sep 2020 13:57:15 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id n18so3156426qtw.0
-        for <selinux@vger.kernel.org>; Wed, 09 Sep 2020 13:57:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gDxeP4xdj0tgsStSb5swe0gPWTddHraUailPwXzSM2E=;
-        b=ldcla5kdQLd/bX4D/Ogn/2MZevXYfOFL7EKJ5tNPPFJwQXS917CNeV4B+xp2eK8/f7
-         /5HfC4ekygvS2vFvVSWITfu68N4pxKDMap4tvIOzUJcunfbKLRelqGqX+xYzsSfueuUB
-         aemG6TsGw1oC1S+vbcE7ObQxx8vzqA3ybzBWGxg0l2FbbmSWUtNHnjmp8+3NPUDZpGEI
-         s6Ff9jSTxK9PBnDrtIsM52qbzvJ/FbL3zTISEeQcw0oQx7RLU99AAKLLowYcm8t0/yzb
-         Jj/+7vDvBqX23eKnfBtbdDT+plg4VnQpHfitxubV1u6xCeTyEScAkbop3oHXLjuK2Fu9
-         UMPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gDxeP4xdj0tgsStSb5swe0gPWTddHraUailPwXzSM2E=;
-        b=MfxzaUCRp+xPufbutlrcWSq8Cbp6ngZVX3HP6ClLylMVoPQqLgFMkCTT5ZPYoG8Alf
-         1dmhmF0Zl6LOmcAtjIPOz8Xy7GwmIAE4zrthulTswt9IierSDo2WyCpMrfmfK8eBQPRP
-         gmrajCt2PxtexUnFKxhuzdY6P1LDUz/pJxDJPTuJCSU9zl6BIPQYySNjKnt9KKw2+VJD
-         I/O54nusu+XBHKAdKfFJMraTmISIqCw7mLa9y/dlw8+9aQz7PEf0ReLUzznW+GUsDHKQ
-         kEzoZbCOfjXw2HzsbgQCGVwK+p9lj0pUhaDcEkcL5K8j+awdDYM6SLWnngZRcrwjXinH
-         vr1g==
-X-Gm-Message-State: AOAM531FMMxTgyEe23LFQRzezNwQLnd8usAgj3TXeuwEX1kYTac+AbnO
-        xU5F4Yb2fliWh4z1gipbWLSl15oJ5Ks=
-X-Google-Smtp-Source: ABdhPJwKDymF27y1/wWLfy7tKFR453DQtlnh4qP3Zp0k823XgyoMk5QfvLasE6lquPVTdXZ7A345Mw==
-X-Received: by 2002:ac8:728e:: with SMTP id v14mr4961388qto.311.1599685035005;
-        Wed, 09 Sep 2020 13:57:15 -0700 (PDT)
-Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id n203sm3448213qke.66.2020.09.09.13.57.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2020 13:57:14 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>,
-        Jonathan Hettwer <j2468h@gmail.com>
-Subject: [PATCH v2] libsepol/cil: Validate constraint expressions before adding to binary policy
-Date:   Wed,  9 Sep 2020 16:57:12 -0400
-Message-Id: <20200909205712.282373-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.25.4
+        id S1727900AbgIIW2a (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Sep 2020 18:28:30 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:50140 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727782AbgIIW21 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Sep 2020 18:28:27 -0400
+Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 73C0C20942BB;
+        Wed,  9 Sep 2020 15:28:26 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 73C0C20942BB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1599690506;
+        bh=o29MVRl8B2fiPVqiFPK2An9WSIfbe6dUWB9ezeGWQ4g=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ljs2XmsT2mTgIWG0mG5uMx3781ytF1+/Zl9opfp/9J9KJBcpqyaSYHixtcbGFy7l4
+         kWzBIyBZTUExTytJavwVgt7P/Pz5BIhJuGQXuAtjaMbtbft5+UTiPODv+w9wcubIoe
+         0IXoBVPPv4eOrF1AM7MrZkq3tcj7rVyXoz8+DdY8=
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+To:     stephen.smalley.work@gmail.com, paul@paul-moore.com
+Cc:     sashal@kernel.org, jmorris@namei.org, nramas@linux.microsoft.com,
+        selinux@vger.kernel.org
+Subject: [PATCH v2] selinux: Add helper functions to get and set checkreqprot
+Date:   Wed,  9 Sep 2020 15:28:22 -0700
+Message-Id: <20200909222822.23198-1-nramas@linux.microsoft.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -73,173 +47,99 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-CIL was not correctly determining the depth of constraint expressions
-which prevented it from giving an error when the max depth was exceeded.
-This allowed invalid policy binaries with constraint expressions exceeding
-the max depth to be created.
+checkreqprot data member in selinux_state struct is accessed directly by
+SELinux functions to get and set. This could cause unexpected read or
+write access to this data member due to compiler optimizations and/or
+compiler's reordering of access to this field.
 
-Validate the constraint expression using the same logic that is used
-when reading the binary policy. This includes checking the depth of the
-the expression.
+Add helper functions to get and set checkreqprot data member in
+selinux_state struct. These helper functions use READ_ONCE and
+WRITE_ONCE macros to ensure atomic read or write of memory for
+this data member.
 
-Reported-by: Jonathan Hettwer <j2468h@gmail.com>
-Signed-off-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v2 changes:
-Return SEPOL_ERR if depth != 0 at the end
-Collapse CEXPR_ATTR and CEXPR_NAMES together
-Change the while to a for loop to be consistent with __cil_validate_cond_expr()
+ security/selinux/hooks.c            |  6 +++---
+ security/selinux/include/security.h | 10 ++++++++++
+ security/selinux/selinuxfs.c        |  5 +++--
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
- libsepol/cil/src/cil_binary.c    | 48 ++++++++++++++++++++++++++++++++
- libsepol/cil/src/cil_build_ast.c | 20 ++++---------
- 2 files changed, 53 insertions(+), 15 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 77266858..c8e41f09 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -2713,6 +2713,49 @@ int __cil_constrain_expr_to_sepol_expr(policydb_t *pdb, const struct cil_db *db,
- 	return SEPOL_OK;
- }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6210e98219a5..25a36a3e6bed 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3718,7 +3718,7 @@ static int selinux_mmap_file(struct file *file, unsigned long reqprot,
+ 			return rc;
+ 	}
  
-+int __cil_validate_constrain_expr(constraint_expr_t *sepol_expr)
+-	if (selinux_state.checkreqprot)
++	if (checkreqprot_enabled(&selinux_state))
+ 		prot = reqprot;
+ 
+ 	return file_map_prot_check(file, prot,
+@@ -3732,7 +3732,7 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 	const struct cred *cred = current_cred();
+ 	u32 sid = cred_sid(cred);
+ 
+-	if (selinux_state.checkreqprot)
++	if (checkreqprot_enabled(&selinux_state))
+ 		prot = reqprot;
+ 
+ 	if (default_noexec &&
+@@ -7234,7 +7234,7 @@ static __init int selinux_init(void)
+ 
+ 	memset(&selinux_state, 0, sizeof(selinux_state));
+ 	enforcing_set(&selinux_state, selinux_enforcing_boot);
+-	selinux_state.checkreqprot = selinux_checkreqprot_boot;
++	checkreqprot_set(&selinux_state, selinux_checkreqprot_boot);
+ 	selinux_avc_init(&selinux_state.avc);
+ 	mutex_init(&selinux_state.status_lock);
+ 	mutex_init(&selinux_state.policy_mutex);
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index cbdd3c7aff8b..cc29177c8858 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -143,6 +143,16 @@ static inline void enforcing_set(struct selinux_state *state, bool value)
+ }
+ #endif
+ 
++static inline bool checkreqprot_enabled(const struct selinux_state *state)
 +{
-+	constraint_expr_t *e;
-+	int depth = -1;
-+
-+	for (e = sepol_expr; e != NULL; e = e->next) {
-+		switch (e->expr_type) {
-+		case CEXPR_NOT:
-+			if (depth < 0) {
-+				cil_log(CIL_ERR,"Invalid constraint expression\n");
-+				return SEPOL_ERR;
-+			}
-+			break;
-+		case CEXPR_AND:
-+		case CEXPR_OR:
-+			if (depth < 1) {
-+				cil_log(CIL_ERR,"Invalid constraint expression\n");
-+				return SEPOL_ERR;
-+			}
-+			depth--;
-+			break;
-+		case CEXPR_ATTR:
-+		case CEXPR_NAMES:
-+			if (depth == (CEXPR_MAXDEPTH - 1)) {
-+				cil_log(CIL_ERR,"Constraint expression exceeded max allowable depth\n");
-+				return SEPOL_ERR;
-+			}
-+			depth++;
-+			break;
-+		default:
-+			cil_log(CIL_ERR,"Invalid constraint expression\n");
-+			return SEPOL_ERR;
-+		}
-+	}
-+
-+	if (depth != 0) {
-+		cil_log(CIL_ERR,"Invalid constraint expression\n");
-+		return SEPOL_ERR;
-+	}
-+
-+	return SEPOL_OK;
++	return READ_ONCE(state->checkreqprot);
 +}
 +
- int cil_constrain_to_policydb_helper(policydb_t *pdb, const struct cil_db *db, struct cil_symtab_datum *class, struct cil_list *perms, struct cil_list *expr)
- {
- 	int rc = SEPOL_ERR;
-@@ -2736,6 +2779,11 @@ int cil_constrain_to_policydb_helper(policydb_t *pdb, const struct cil_db *db, s
- 		goto exit;
- 	}
- 
-+	rc = __cil_validate_constrain_expr(sepol_expr);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
++static inline void checkreqprot_set(struct selinux_state *state, bool value)
++{
++	WRITE_ONCE(state->checkreqprot, value);
++}
 +
- 	sepol_constrain->expr = sepol_expr;
- 	sepol_constrain->next = sepol_class->constraints;
- 	sepol_class->constraints = sepol_constrain;
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 60ecaaff..870c6923 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -2738,7 +2738,7 @@ exit:
- 	return SEPOL_ERR;
+ #ifdef CONFIG_SECURITY_SELINUX_DISABLE
+ static inline bool selinux_disabled(struct selinux_state *state)
+ {
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 45e9efa9bf5b..540bfa078877 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -717,7 +717,8 @@ static ssize_t sel_read_checkreqprot(struct file *filp, char __user *buf,
+ 	char tmpbuf[TMPBUFLEN];
+ 	ssize_t length;
+ 
+-	length = scnprintf(tmpbuf, TMPBUFLEN, "%u", fsi->state->checkreqprot);
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%u",
++			   checkreqprot_enabled(fsi->state));
+ 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
  }
  
--static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr, int *depth)
-+static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr)
- {
- 	int rc = SEPOL_ERR;
- 	enum cil_flavor op;
-@@ -2750,12 +2750,6 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
- 		goto exit;
+@@ -759,7 +760,7 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
+ 			     comm, current->pid);
  	}
  
--	if (*depth > CEXPR_MAXDEPTH) {
--		cil_log(CIL_ERR, "Max depth of %d exceeded for constraint expression\n", CEXPR_MAXDEPTH);
--		rc = SEPOL_ERR;
--		goto exit;
--	}
--
- 	op = __cil_get_constraint_operator_flavor(current->data);
- 
- 	rc = cil_verify_constraint_expr_syntax(current, op);
-@@ -2769,14 +2763,13 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
- 	case CIL_CONS_DOM:
- 	case CIL_CONS_DOMBY:
- 	case CIL_CONS_INCOMP:
--		(*depth)++;
- 		rc = __cil_fill_constraint_leaf_expr(current, flavor, op, expr);
- 		if (rc != SEPOL_OK) {
- 			goto exit;
- 		}
- 		break;
- 	case CIL_NOT:
--		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr, depth);
-+		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr);
- 		if (rc != SEPOL_OK) {
- 			goto exit;
- 		}
-@@ -2785,11 +2778,11 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
- 		cil_list_append(*expr, CIL_LIST, lexpr);
- 		break;
- 	default:
--		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr, depth);
-+		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr);
- 		if (rc != SEPOL_OK) {
- 			goto exit;
- 		}
--		rc = __cil_fill_constraint_expr(current->next->next->cl_head, flavor, &rexpr, depth);
-+		rc = __cil_fill_constraint_expr(current->next->next->cl_head, flavor, &rexpr);
- 		if (rc != SEPOL_OK) {
- 			cil_list_destroy(&lexpr, CIL_TRUE);
- 			goto exit;
-@@ -2801,8 +2794,6 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
- 		break;
- 	}
- 
--	(*depth)--;
--
- 	return SEPOL_OK;
- exit:
- 
-@@ -2812,13 +2803,12 @@ exit:
- int cil_gen_constraint_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr)
- {
- 	int rc = SEPOL_ERR;
--	int depth = 0;
- 
- 	if (current->cl_head == NULL) {
- 		goto exit;
- 	}
- 
--	rc = __cil_fill_constraint_expr(current->cl_head, flavor, expr, &depth);
-+	rc = __cil_fill_constraint_expr(current->cl_head, flavor, expr);
- 	if (rc != SEPOL_OK) {
- 		goto exit;
- 	}
+-	fsi->state->checkreqprot = new_value ? 1 : 0;
++	checkreqprot_set(fsi->state, (new_value ? 1 : 0));
+ 	length = count;
+ out:
+ 	kfree(page);
 -- 
-2.25.4
+2.28.0
 
