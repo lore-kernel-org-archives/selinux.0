@@ -8,62 +8,63 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B12D4C433E2
-	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 20:57:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49DCFC43461
+	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 20:57:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 759BE21D6C
-	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 20:57:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DFA021D6C
+	for <selinux@archiver.kernel.org>; Wed,  9 Sep 2020 20:57:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MCxUzaxU"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ldcla5kd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727087AbgIIU5J (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Sep 2020 16:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41712 "EHLO
+        id S1729507AbgIIU5R (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Sep 2020 16:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726414AbgIIU5I (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Sep 2020 16:57:08 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A39EC061573
-        for <selinux@vger.kernel.org>; Wed,  9 Sep 2020 13:57:07 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id f11so2310834qvw.3
-        for <selinux@vger.kernel.org>; Wed, 09 Sep 2020 13:57:07 -0700 (PDT)
+        with ESMTP id S1726414AbgIIU5Q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Sep 2020 16:57:16 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3BBC061573
+        for <selinux@vger.kernel.org>; Wed,  9 Sep 2020 13:57:15 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id n18so3156426qtw.0
+        for <selinux@vger.kernel.org>; Wed, 09 Sep 2020 13:57:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=t3L0O2L3T+zX6rOQH8AzxPQvZ8FkPH/Z9S80DDI0C+E=;
-        b=MCxUzaxUzzmNgd4R/I48p5+SmqhYLciBrVIKmlKDDZnAfbvQVgPyi8FK11IIxoFTzU
-         2m+dmmTcyEJITIQmK5uFLbDRfQvPZQxx+zJLVeqklufNJKA15o/n+gDEi8OMKhmnFB4G
-         y4dsFcaASHmOCCyP8lzZCct4gWqxrk0Iqkep+m7AwCfyWQtUHbo+CynpstB2g3iy3VW3
-         xmkfkqgtnzGjAfexg18TvnXTXpUCPy9pWfVOCPJ4MSGp377wtVlCsi0KtyBni8M+ifyG
-         G+h/28SbBMAgcqfcGfCrOLc1Z3tOjDKV+UwhzBo1IcgxHFYK1tA15EmzmvuZ+0Ws+uTz
-         XKWg==
+        bh=gDxeP4xdj0tgsStSb5swe0gPWTddHraUailPwXzSM2E=;
+        b=ldcla5kdQLd/bX4D/Ogn/2MZevXYfOFL7EKJ5tNPPFJwQXS917CNeV4B+xp2eK8/f7
+         /5HfC4ekygvS2vFvVSWITfu68N4pxKDMap4tvIOzUJcunfbKLRelqGqX+xYzsSfueuUB
+         aemG6TsGw1oC1S+vbcE7ObQxx8vzqA3ybzBWGxg0l2FbbmSWUtNHnjmp8+3NPUDZpGEI
+         s6Ff9jSTxK9PBnDrtIsM52qbzvJ/FbL3zTISEeQcw0oQx7RLU99AAKLLowYcm8t0/yzb
+         Jj/+7vDvBqX23eKnfBtbdDT+plg4VnQpHfitxubV1u6xCeTyEScAkbop3oHXLjuK2Fu9
+         UMPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=t3L0O2L3T+zX6rOQH8AzxPQvZ8FkPH/Z9S80DDI0C+E=;
-        b=PSO/EgbvZfLSg5kIPd6fwxXB7GIs904O8I3ost6uUZRpsmL0wlHgERUKQXyIJy4aHL
-         PVZwtAzXzG+A+8tQojMiaSIJUfLgD1ESI1BmtG2cS3wb8BIk2stKamvHr8C+xC5MMNw0
-         RyRTZFFNyAvTAmgwr1E7/H0TOfFv0NEJJHujfcN7PqXFiZr4yzaYeJZ643UQdDSzRk3m
-         RYt/vDh8G/AaCgDte188Irgo3/ieeVZkmvdcbmzdE1UhCLgW7kmhQPEOjB2zm7CzA0Kc
-         NN+o2/qi8Ig63EGUEZUoeEAxj64HJ4cuIl2nGN27CsPZl3TWv1DCdkhGER7yZ1aDY2nQ
-         IrNw==
-X-Gm-Message-State: AOAM5323VnOqOK1sDdG+ws7u0PiSm5+Yo2OngL8g7frTgepaUP/lbHcY
-        AmgymgJ1meAUlWInnLv6zZ5X4nZEV1g=
-X-Google-Smtp-Source: ABdhPJyEDR8c5e9px84v5DD70sA8B2CQfOcbywqqdJgGkL3AV1FNcJkaQmNE4AKKF/aGVvDNSd6iKQ==
-X-Received: by 2002:a0c:90c1:: with SMTP id p59mr4263747qvp.7.1599685026332;
-        Wed, 09 Sep 2020 13:57:06 -0700 (PDT)
+        bh=gDxeP4xdj0tgsStSb5swe0gPWTddHraUailPwXzSM2E=;
+        b=MfxzaUCRp+xPufbutlrcWSq8Cbp6ngZVX3HP6ClLylMVoPQqLgFMkCTT5ZPYoG8Alf
+         1dmhmF0Zl6LOmcAtjIPOz8Xy7GwmIAE4zrthulTswt9IierSDo2WyCpMrfmfK8eBQPRP
+         gmrajCt2PxtexUnFKxhuzdY6P1LDUz/pJxDJPTuJCSU9zl6BIPQYySNjKnt9KKw2+VJD
+         I/O54nusu+XBHKAdKfFJMraTmISIqCw7mLa9y/dlw8+9aQz7PEf0ReLUzznW+GUsDHKQ
+         kEzoZbCOfjXw2HzsbgQCGVwK+p9lj0pUhaDcEkcL5K8j+awdDYM6SLWnngZRcrwjXinH
+         vr1g==
+X-Gm-Message-State: AOAM531FMMxTgyEe23LFQRzezNwQLnd8usAgj3TXeuwEX1kYTac+AbnO
+        xU5F4Yb2fliWh4z1gipbWLSl15oJ5Ks=
+X-Google-Smtp-Source: ABdhPJwKDymF27y1/wWLfy7tKFR453DQtlnh4qP3Zp0k823XgyoMk5QfvLasE6lquPVTdXZ7A345Mw==
+X-Received: by 2002:ac8:728e:: with SMTP id v14mr4961388qto.311.1599685035005;
+        Wed, 09 Sep 2020 13:57:15 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id l29sm4514524qtb.77.2020.09.09.13.57.05
+        by smtp.gmail.com with ESMTPSA id n203sm3448213qke.66.2020.09.09.13.57.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2020 13:57:05 -0700 (PDT)
+        Wed, 09 Sep 2020 13:57:14 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2] libsepol/cil: Validate conditional expressions before adding to binary policy
-Date:   Wed,  9 Sep 2020 16:57:02 -0400
-Message-Id: <20200909205702.282311-1-jwcart2@gmail.com>
+Cc:     James Carter <jwcart2@gmail.com>,
+        Jonathan Hettwer <j2468h@gmail.com>
+Subject: [PATCH v2] libsepol/cil: Validate constraint expressions before adding to binary policy
+Date:   Wed,  9 Sep 2020 16:57:12 -0400
+Message-Id: <20200909205712.282373-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -72,173 +73,173 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-CIL was not correctly determining the depth of conditional expressions
+CIL was not correctly determining the depth of constraint expressions
 which prevented it from giving an error when the max depth was exceeded.
-This allowed invalid policy binaries to be created.
+This allowed invalid policy binaries with constraint expressions exceeding
+the max depth to be created.
 
-Validate the conditional expression using the same logic that is used
-when evaluating a conditional expression. This includes checking the
-depth of the expression.
+Validate the constraint expression using the same logic that is used
+when reading the binary policy. This includes checking the depth of the
+the expression.
 
+Reported-by: Jonathan Hettwer <j2468h@gmail.com>
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
 v2 changes:
-Return SEPOL_ERR or SEPOL_OK
-Return SEPOL_OK if cond expr is valid
 Return SEPOL_ERR if depth != 0 at the end
+Collapse CEXPR_ATTR and CEXPR_NAMES together
+Change the while to a for loop to be consistent with __cil_validate_cond_expr()
 
- libsepol/cil/src/cil_binary.c    | 50 ++++++++++++++++++++++++++++++++
- libsepol/cil/src/cil_build_ast.c | 26 +++++------------
- 2 files changed, 57 insertions(+), 19 deletions(-)
+ libsepol/cil/src/cil_binary.c    | 48 ++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_build_ast.c | 20 ++++---------
+ 2 files changed, 53 insertions(+), 15 deletions(-)
 
 diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 77266858..8575c3b1 100644
+index 77266858..c8e41f09 100644
 --- a/libsepol/cil/src/cil_binary.c
 +++ b/libsepol/cil/src/cil_binary.c
-@@ -2176,6 +2176,51 @@ static int __cil_cond_expr_to_sepol_expr(policydb_t *pdb, struct cil_list *cil_e
+@@ -2713,6 +2713,49 @@ int __cil_constrain_expr_to_sepol_expr(policydb_t *pdb, const struct cil_db *db,
  	return SEPOL_OK;
  }
  
-+int __cil_validate_cond_expr(cond_expr_t *cond_expr)
++int __cil_validate_constrain_expr(constraint_expr_t *sepol_expr)
 +{
-+	cond_expr_t *e;
++	constraint_expr_t *e;
 +	int depth = -1;
 +
-+	for (e = cond_expr; e != NULL; e = e->next) {
++	for (e = sepol_expr; e != NULL; e = e->next) {
 +		switch (e->expr_type) {
-+		case COND_BOOL:
-+			if (depth == (COND_EXPR_MAXDEPTH - 1)) {
-+				cil_log(CIL_ERR,"Conditional expression exceeded max allowable depth\n");
-+				return SEPOL_ERR;
-+			}
-+			depth++;
-+			break;
-+		case COND_NOT:
++		case CEXPR_NOT:
 +			if (depth < 0) {
-+				cil_log(CIL_ERR,"Invalid conditional expression\n");
++				cil_log(CIL_ERR,"Invalid constraint expression\n");
 +				return SEPOL_ERR;
 +			}
 +			break;
-+		case COND_OR:
-+		case COND_AND:
-+		case COND_XOR:
-+		case COND_EQ:
-+		case COND_NEQ:
++		case CEXPR_AND:
++		case CEXPR_OR:
 +			if (depth < 1) {
-+				cil_log(CIL_ERR,"Invalid conditional expression\n");
++				cil_log(CIL_ERR,"Invalid constraint expression\n");
 +				return SEPOL_ERR;
 +			}
 +			depth--;
 +			break;
++		case CEXPR_ATTR:
++		case CEXPR_NAMES:
++			if (depth == (CEXPR_MAXDEPTH - 1)) {
++				cil_log(CIL_ERR,"Constraint expression exceeded max allowable depth\n");
++				return SEPOL_ERR;
++			}
++			depth++;
++			break;
 +		default:
-+			cil_log(CIL_ERR,"Invalid conditional expression\n");
++			cil_log(CIL_ERR,"Invalid constraint expression\n");
 +			return SEPOL_ERR;
 +		}
 +	}
 +
 +	if (depth != 0) {
-+		cil_log(CIL_ERR,"Invalid conditional expression\n");
++		cil_log(CIL_ERR,"Invalid constraint expression\n");
 +		return SEPOL_ERR;
 +	}
 +
 +	return SEPOL_OK;
 +}
 +
- int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node)
+ int cil_constrain_to_policydb_helper(policydb_t *pdb, const struct cil_db *db, struct cil_symtab_datum *class, struct cil_list *perms, struct cil_list *expr)
  {
  	int rc = SEPOL_ERR;
-@@ -2204,6 +2249,11 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+@@ -2736,6 +2779,11 @@ int cil_constrain_to_policydb_helper(policydb_t *pdb, const struct cil_db *db, s
  		goto exit;
  	}
  
-+	rc = __cil_validate_cond_expr(tmp_cond->expr);
++	rc = __cil_validate_constrain_expr(sepol_expr);
 +	if (rc != SEPOL_OK) {
 +		goto exit;
 +	}
 +
- 	tmp_cond->true_list = &tmp_cl;
- 
- 	rc = cond_normalize_expr(pdb, tmp_cond);
+ 	sepol_constrain->expr = sepol_expr;
+ 	sepol_constrain->next = sepol_class->constraints;
+ 	sepol_class->constraints = sepol_constrain;
 diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 60ecaaff..f1d5dcca 100644
+index 60ecaaff..870c6923 100644
 --- a/libsepol/cil/src/cil_build_ast.c
 +++ b/libsepol/cil/src/cil_build_ast.c
-@@ -2548,18 +2548,13 @@ static enum cil_flavor __cil_get_expr_operator_flavor(const char *op)
- 	else return CIL_NONE;
+@@ -2738,7 +2738,7 @@ exit:
+ 	return SEPOL_ERR;
  }
  
--static int __cil_fill_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list *expr, int *depth);
-+static int __cil_fill_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list *expr);
- 
--static int __cil_fill_expr_helper(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list *expr, int *depth)
-+static int __cil_fill_expr_helper(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list *expr)
+-static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr, int *depth)
++static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr)
  {
  	int rc = SEPOL_ERR;
  	enum cil_flavor op;
+@@ -2750,12 +2750,6 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
+ 		goto exit;
+ 	}
  
--	if (flavor == CIL_BOOL && *depth > COND_EXPR_MAXDEPTH) {
--		cil_log(CIL_ERR, "Max depth of %d exceeded for boolean expression\n", COND_EXPR_MAXDEPTH);
+-	if (*depth > CEXPR_MAXDEPTH) {
+-		cil_log(CIL_ERR, "Max depth of %d exceeded for constraint expression\n", CEXPR_MAXDEPTH);
+-		rc = SEPOL_ERR;
 -		goto exit;
 -	}
 -
- 	op = __cil_get_expr_operator_flavor(current->data);
+ 	op = __cil_get_constraint_operator_flavor(current->data);
  
- 	rc = cil_verify_expr_syntax(current, op, flavor);
-@@ -2572,26 +2567,20 @@ static int __cil_fill_expr_helper(struct cil_tree_node *current, enum cil_flavor
- 		current = current->next;
- 	}
- 
--	if (op == CIL_NONE || op == CIL_ALL) {
+ 	rc = cil_verify_constraint_expr_syntax(current, op);
+@@ -2769,14 +2763,13 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
+ 	case CIL_CONS_DOM:
+ 	case CIL_CONS_DOMBY:
+ 	case CIL_CONS_INCOMP:
 -		(*depth)++;
--	}
--
- 	for (;current != NULL; current = current->next) {
--		rc = __cil_fill_expr(current, flavor, expr, depth);
-+		rc = __cil_fill_expr(current, flavor, expr);
+ 		rc = __cil_fill_constraint_leaf_expr(current, flavor, op, expr);
  		if (rc != SEPOL_OK) {
  			goto exit;
  		}
+ 		break;
+ 	case CIL_NOT:
+-		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr, depth);
++		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr);
+ 		if (rc != SEPOL_OK) {
+ 			goto exit;
+ 		}
+@@ -2785,11 +2778,11 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
+ 		cil_list_append(*expr, CIL_LIST, lexpr);
+ 		break;
+ 	default:
+-		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr, depth);
++		rc = __cil_fill_constraint_expr(current->next->cl_head, flavor, &lexpr);
+ 		if (rc != SEPOL_OK) {
+ 			goto exit;
+ 		}
+-		rc = __cil_fill_constraint_expr(current->next->next->cl_head, flavor, &rexpr, depth);
++		rc = __cil_fill_constraint_expr(current->next->next->cl_head, flavor, &rexpr);
+ 		if (rc != SEPOL_OK) {
+ 			cil_list_destroy(&lexpr, CIL_TRUE);
+ 			goto exit;
+@@ -2801,8 +2794,6 @@ static int __cil_fill_constraint_expr(struct cil_tree_node *current, enum cil_fl
+ 		break;
  	}
  
 -	(*depth)--;
 -
  	return SEPOL_OK;
- 
  exit:
- 	return rc;
- }
  
--static int __cil_fill_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list *expr, int *depth)
-+static int __cil_fill_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list *expr)
- {
- 	int rc = SEPOL_ERR;
- 
-@@ -2605,7 +2594,7 @@ static int __cil_fill_expr(struct cil_tree_node *current, enum cil_flavor flavor
- 	} else {
- 		struct cil_list *sub_expr;
- 		cil_list_init(&sub_expr, flavor);
--		rc = __cil_fill_expr_helper(current->cl_head, flavor, sub_expr, depth);
-+		rc = __cil_fill_expr_helper(current->cl_head, flavor, sub_expr);
- 		if (rc != SEPOL_OK) {
- 			cil_list_destroy(&sub_expr, CIL_TRUE);
- 			goto exit;
-@@ -2623,14 +2612,13 @@ exit:
- int cil_gen_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr)
+@@ -2812,13 +2803,12 @@ exit:
+ int cil_gen_constraint_expr(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **expr)
  {
  	int rc = SEPOL_ERR;
 -	int depth = 0;
  
- 	cil_list_init(expr, flavor);
- 
  	if (current->cl_head == NULL) {
--		rc = __cil_fill_expr(current, flavor, *expr, &depth);
-+		rc = __cil_fill_expr(current, flavor, *expr);
- 	} else {
--		rc = __cil_fill_expr_helper(current->cl_head, flavor, *expr, &depth);
-+		rc = __cil_fill_expr_helper(current->cl_head, flavor, *expr);
+ 		goto exit;
  	}
  
+-	rc = __cil_fill_constraint_expr(current->cl_head, flavor, expr, &depth);
++	rc = __cil_fill_constraint_expr(current->cl_head, flavor, expr);
  	if (rc != SEPOL_OK) {
+ 		goto exit;
+ 	}
 -- 
 2.25.4
 
