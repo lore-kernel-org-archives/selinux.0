@@ -2,168 +2,79 @@ Return-Path: <SRS0=2hro=DQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01EFAC43457
-	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 16:33:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88521C433DF
+	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 20:34:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7BED2227F
-	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 16:33:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 208152225B
+	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 20:34:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=umich.edu header.i=@umich.edu header.b="ncQeW3Rz"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="L6uPUU48"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389819AbgJIQdd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Oct 2020 12:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389818AbgJIQdd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Oct 2020 12:33:33 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B00DC0613D2;
-        Fri,  9 Oct 2020 09:33:33 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id p15so13953985ejm.7;
-        Fri, 09 Oct 2020 09:33:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=umich.edu; s=google-2016-06-03;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lG0OSVPziKHc6Mg8l0qWbO9mcnKpzSjXHAItvjG7zj4=;
-        b=ncQeW3RzLPsOjh8Uhi68eGc6A/wMRysr5879vD9BwOYq3KJnaqFEwpI8FHYHe3EryP
-         nWG5GmBsV0im+RukgzDrrwtnNGCwGos0jxJZsDOd5kBYTNriCNGdYv43xQZZYF6dmPbD
-         4nmuOKmtX4aggqYS3p6cCfmWFk9ojyYzUov3r7RNrvBtrB8VGnty7lz1F6yz/7Cg0OYr
-         a9MdCmkgSWr5Rk14t9ip0+mRS9vPPeEtK/lZGWAvneppmax6+J7W2a2sM/22DMoqiAJR
-         cv9NmG8qoA9FbO6DUh8TYX5a1PgDV8avkVEE5BH5rv/mC4sWD/k/6j+v4T1v2IkUyM2Y
-         oJDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lG0OSVPziKHc6Mg8l0qWbO9mcnKpzSjXHAItvjG7zj4=;
-        b=GKHRqzFEwHhy/Ioh18LhTKn/Bkd2ZFhD24JQB7p6U0s0SsD79bu5aiHIo/LnUnUsBN
-         splOr7Sn8N+JeK1/mFLz1X364MDCFt4WpvCdGPFWUUCtvJOLPVk6U36TKJSv5nuEw4jz
-         ZiM6hIresKSP2kJAcj5v8seba0+sYqIGImgbtOM+hDRCuyPT6vbdVToW2GJMkU2eDUXK
-         m1nQ+eheoGCAzZPBGQzE4cpm0e+mFGDrk4mbMCfrUDa/VYgFQ3H4yrldZwoZDadK28YW
-         WBS2CRVaP700Xl2UvwY2/MBE5ke6iI6MLsecLqDt+L5V9BKDo51gseTaDfSNOcMcOdcW
-         6baw==
-X-Gm-Message-State: AOAM531rhtgvhQ3+behcfsR5ZPelN5qKDsaazi5//XrEsmz4eGLRVHxk
-        Gz5b6PdvGN6x7sUd0VYoQeoMFzfRUsnCTBCvAw9j0SGQTK8=
-X-Google-Smtp-Source: ABdhPJwMvP2opYbBt9kjj+djsM+tt6K/ZHC7rt2EBXtuJyoTsue9zBicHFs0klzUUux+SkNHHMTZ2G4gncDfX+TdZ9M=
-X-Received: by 2002:a17:906:9701:: with SMTP id k1mr16071264ejx.0.1602261211981;
- Fri, 09 Oct 2020 09:33:31 -0700 (PDT)
+        id S2387822AbgJIUe4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Oct 2020 16:34:56 -0400
+Received: from mailomta26-re.btinternet.com ([213.120.69.119]:35321 "EHLO
+        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726386AbgJIUe4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Oct 2020 16:34:56 -0400
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20200909133045.TZMP21348.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Wed, 9 Sep 2020 14:30:45 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658245; 
+        bh=OF0EKvMzFKPDtf30JqaFM4KHcxgNOCPSMBvzkAT5oJA=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
+        b=L6uPUU48RMiTiv4bqNY5E78WH7eJsBzcJqdDxz828LXcw2a2EHoViK9TxdA4s1vbkokLbpn6cgRpzeI+69MzFxQlDjf4/PHZUf57gqQLTk3Y/8tKDInwBCuBPXoMSpKlmobN9nAMARyrolaczlFDykuoz0GJOFjiFlvqwkTgOBUNMxKYroi2o5wD+rl3zhdGHOsUbuj6YRAj59NdSsO6SqKGu3rTTbkxSyNRVebsWrJ8kT+P7FHUELCB7z3a5oQjht4YqeSHQNdjJ1i/ORMAtHkz7KV9pGFsHzH3O0Ck4gUAEPzgwQbt/lfq2LZRWznlOAQXZOJ8Y9dVTwTbfLfwbg==
+Authentication-Results: btinternet.com; none
+X-Originating-IP: [86.154.154.133]
+X-OWM-Source-IP: 86.154.154.133 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeduuddvfeeiueekteekudehffffffeuudfgvefhgffhtdetudeihfdugfeugeeuteenucffohhmrghinhepshgvlhhinhhugihprhhojhgvtghtrdhorhhgnecukfhppeekiedrudehgedrudehgedrudeffeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirdduheegrdduheegrddufeefpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhn
+        uhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.154.154.133) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C2FD10134DB2; Wed, 9 Sep 2020 14:30:45 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     paul@paul-moore.com, selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 05/22] policy_validation_example: Tidy up formatting
+Date:   Wed,  9 Sep 2020 14:30:22 +0100
+Message-Id: <20200909133039.44498-6-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
+References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
-References: <CAN-5tyETQWVphrgqWjcPrtTzHHyz5DGrRz741yPYRS9Byyd=3Q@mail.gmail.com>
- <CAHC9VhRP2iJqLWiBg46zPKUqxzZoUOuaA6FPigxOw7qubophdw@mail.gmail.com>
- <CAN-5tyFq775PeOOzqskFexdbCgK3Gk_XB2Yy80SRYSc7Pdj=CA@mail.gmail.com>
- <CAHC9VhTzO1z6NmYz6cOLg5OvJiyQXdH_VmLh4=+h1MrGXx36JQ@mail.gmail.com>
- <CAN-5tyGJxUZb5QdJ=fh+L-6rc2B-MhQbDcDkTZNAZAAJm9Q8YQ@mail.gmail.com> <FB6C74CE-5D9F-4469-A49B-93CC8A51D7D5@gmail.com>
-In-Reply-To: <FB6C74CE-5D9F-4469-A49B-93CC8A51D7D5@gmail.com>
-From:   Olga Kornievskaia <aglo@umich.edu>
-Date:   Fri, 9 Oct 2020 12:33:20 -0400
-Message-ID: <CAN-5tyFQbfkiuno07C6Azc7RcF3z3qF3PP0FutFMD3raBgnQmA@mail.gmail.com>
-Subject: Re: selinux: how to query if selinux is enabled
-To:     Chuck Lever <chucklever@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 9, 2020 at 10:08 AM Chuck Lever <chucklever@gmail.com> wrote:
->
->
->
-> > On Oct 9, 2020, at 7:49 AM, Olga Kornievskaia <aglo@umich.edu> wrote:
-> >
-> > On Thu, Oct 8, 2020 at 9:03 PM Paul Moore <paul@paul-moore.com> wrote:
-> >>
-> >> ->On Thu, Oct 8, 2020 at 9:50 AM Olga Kornievskaia <aglo@umich.edu> wrote:
-> >>> On Wed, Oct 7, 2020 at 9:07 PM Paul Moore <paul@paul-moore.com> wrote:
-> >>>> On Wed, Oct 7, 2020 at 8:41 PM Olga Kornievskaia <aglo@umich.edu> wrote:
-> >>>>> Hi folks,
-> >>>>>
-> >>>>> From some linux kernel module, is it possible to query and find out
-> >>>>> whether or not selinux is currently enabled or not?
-> >>>>>
-> >>>>> Thank you.
-> >>>>
-> >>>> [NOTE: CC'ing the SELinux list as it's probably a bit more relevant
-> >>>> that the LSM list]
-> >>>>
-> >>>> In general most parts of the kernel shouldn't need to worry about what
-> >>>> LSMs are active and/or enabled; the simply interact with the LSM(s)
-> >>>> via the interfaces defined in include/linux/security.h (there are some
-> >>>> helpful comments in include/linux/lsm_hooks.h).  Can you elaborate a
-> >>>> bit more on what you are trying to accomplish?
-> >>>
-> >>> Hi Paul,
-> >>>
-> >>> Thank you for the response. What I'm trying to accomplish is the
-> >>> following. Within a file system (NFS), typically any queries for
-> >>> security labels are triggered by the SElinux (or I guess an LSM in
-> >>> general) (thru the xattr_handler hooks). However, when the VFS is
-> >>> calling to get directory entries NFS will always get the labels
-> >>> (baring server not supporting it). However this is useless and affects
-> >>> performance (ie., this makes servers do extra work  and adds to the
-> >>> network traffic) when selinux is disabled. It would be useful if NFS
-> >>> can check if there is anything that requires those labels, if SElinux
-> >>> is enabled or disabled.
-> >>
-> >> [Adding Chuck Lever to the CC line as I believe he has the most recent
-> >> LSM experience from the NFS side - sorry Chuck :)]
-> >>
-> >> I'll need to ask your patience on this as I am far from a NFS expert.
-> >>
-> >> Looking through the NFS readdir/getdents code this evening, I was
-> >> wondering if the solution in the readdir case is to simply tell the
-> >> server you are not interested in the security label by masking out
-> >> FATTR4_WORD2_SECURITY_LABEL in the nfs4_readdir_arg->bitmask in
-> >> _nfs4_proc_readdir()?  Of course this assumes that the security label
-> >> genuinely isn't needed in this case (and not requesting it doesn't
-> >> bypass access controls or break something on the server side), and we
-> >> don't screw up some NFS client side cache by *not* fetching the
-> >> security label attribute.
-> >>
-> >> Is this remotely close to workable, or am I missing something fundamental?
-> >>
-> >
-> > No this is not going to work, as NFS requires labels when labels are
-> > indeed needed by the LSM. What I'm looking for is an optimization.
-> > What we have is functionality correct but performance might suffer for
-> > the standard case of NFSv4.2 seclabel enabled server and clients that
-> > don't care about seclabels.
->
-> Initial thought: We should ask linux-nfs for help with this.
-> I've added them to the Cc: list.
->
-> Olga, are you asking if the kernel NFS client module can somehow find
-> out whether the rest of the kernel is configured to care about security
-> labels before it forms an NFSv4 READDIR or LOOKUP request?
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ src/policy_validation_example.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Yes exactly, but I'm having a hard time trying to figure out how to
-use security_ismaclabel() function as has been suggested by Casey.
+diff --git a/src/policy_validation_example.md b/src/policy_validation_example.md
+index 8b7513f..222d216 100644
+--- a/src/policy_validation_example.md
++++ b/src/policy_validation_example.md
+@@ -1,7 +1,8 @@
+ # Appendix E - Policy Validation Example
+ 
+ This example has been taken from
+-[**http://selinuxproject.org/page/PolicyValidate**](http://selinuxproject.org/page/PolicyValidate) just in case the site is removed some day.
++[**http://selinuxproject.org/page/PolicyValidate**](http://selinuxproject.org/page/PolicyValidate)
++just in case the site is removed some day.
+ 
+ ***libsemanage(8)*** is the library responsible for building a kernel policy
+ from policy modules. It has many features but one that is rarely
+-- 
+2.26.2
 
-> I would certainly like to take the security label query out of every
-> LOOKUP operation if that is feasible!
-
-A LOOKUP doesn't add the seclabel query (by default) like READDIR does
-(it's hard-coded in the xdr code). LOOKUP uses server's bitmask and
-chooses the version without the seclabel bitmask because no label is
-passed into it. It looks like LOOKUP just allocates a label in
-nfs_lookup_revalidate_dentry().  So it's not driven by the something
-that I see used by the xattr_handle example in the NFS code.
-
->
->
-> --
-> Chuck Lever
-> chucklever@gmail.com
->
->
->
