@@ -2,110 +2,107 @@ Return-Path: <SRS0=qhvK=DJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25EA5C4363D
-	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 08:20:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53495C4363D
+	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 09:07:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B21C20708
-	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 08:20:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D599B20679
+	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 09:07:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TLXt0mrE"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="J/Ee6O1z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725993AbgJBIUJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Oct 2020 04:20:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53982 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725961AbgJBIUJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Oct 2020 04:20:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1601626807;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Jgq0b1/vTi11e2NcKJr8ZbC21JkdTlCWhkmSM9nUcZU=;
-        b=TLXt0mrEIiSWmsCdeG9xdMOKZ0oAsVYIVE0wkC2sTOTRJneoMhKOEnLy2MBlt+KgZYPfsS
-        TgOKVIesNWDeYmP1ZhYlJNude3ximHY0Tr/GY9KF5bjm2I5r4vQ6Uo6tYybe92OWGXmNO5
-        uEeTHkJDI1D4jG4lGwfo/2RVKeGEPhU=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-494-44rL_285PXKhLIXZnRlG4A-1; Fri, 02 Oct 2020 04:20:05 -0400
-X-MC-Unique: 44rL_285PXKhLIXZnRlG4A-1
-Received: by mail-lf1-f69.google.com with SMTP id 20so274576lfg.23
-        for <selinux@vger.kernel.org>; Fri, 02 Oct 2020 01:20:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Jgq0b1/vTi11e2NcKJr8ZbC21JkdTlCWhkmSM9nUcZU=;
-        b=pCfTiijWYKj+ZFjh2spM3IfCUzBAaAJq0n3Ast9549ssTWXAAbRdN/egPIqSLNnvkm
-         g92gsiXyhjRgcZoqSH7ZJSHEB82gcXzUogPP73DLPcD8xZDJyAZsDJGFIPx3RSecvqiB
-         wJvZPSbO3REDpdx1vLiHR7cO/cCybpEPcpO1SpAqUvWym15p+vn5fkLx1Y7As7vMgLxX
-         L61A/KNA5KUuTGhs7LGPNKCJfa+YGji8fabCvbklgCjUd4EPFS49k/LqqH0jHSP5kPax
-         M76OGWRDLBeHm0199hbkXpQzTdqYlL+Ds48shaUJ2E7/j/32Mh2Tb90lgQJ0z3FU5y/H
-         7XbQ==
-X-Gm-Message-State: AOAM5321zFQo0beRaxTND6xkvyWiCSmL44nqFv+DDBKdHtiCXmfn3q1/
-        21KEVV14RCGcrlLYxH50ki704mkgKtWQioiUQ0U7B017NXA7fdXGG0pYEWSAYwFCzxEpQuwkdUB
-        mRN2uXiRsdouw/uud46HIpD78g3Mqd0cn5w==
-X-Received: by 2002:a2e:9815:: with SMTP id a21mr389302ljj.311.1601626803843;
-        Fri, 02 Oct 2020 01:20:03 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwydepDlOpYeyJe6RkBpyRAMQTsDtagMcnAGiztw3lhNXRrLlYpXmb+gf2/YP+KgEgasGU2mmnYOFI99zJwHNk=
-X-Received: by 2002:a2e:9815:: with SMTP id a21mr389294ljj.311.1601626803607;
- Fri, 02 Oct 2020 01:20:03 -0700 (PDT)
+        id S1726181AbgJBJHu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Oct 2020 05:07:50 -0400
+Received: from mailomta14-re.btinternet.com ([213.120.69.107]:17930 "EHLO
+        re-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725993AbgJBJHu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Oct 2020 05:07:50 -0400
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-042.btinternet.com with ESMTP
+          id <20200909133048.UPNO13627.re-prd-fep-042.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Wed, 9 Sep 2020 14:30:48 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658248; 
+        bh=fRoy7//t2hqJx2OAzFvyCb2o9dDs5ilPr2gtBBMgQKc=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
+        b=J/Ee6O1zYAtrCFDF47CjKzcwiAGCkIYQmH/c7cYoOYHsNh1+UVy9d/Kok4YX2LpO0mghDNS2QdKtEbGRWkYoFQFOSYACG7GjvZqjwMrsZE/zg1f1Pe/LTx+cG4kuOhtrut7BWn77LdZPC4CEY4oK/f0biz79ZieHm46yWBop2aQX/sr1WJFaFsQeGiBy67L53wynJix9pVd6HyCLTGyFjOs7sj+804CSBa9yvMiYmq2fjPPrGh7JnS7s358qO6deGofZWtNuhogWsozWwNOtj+arIxIseomK7hrLPQaTW/9oIw0Ukr8ZHcL8Z6dLE+heQAMY+zDpbuOGI1ujzj7/KQ==
+Authentication-Results: btinternet.com; none
+X-Originating-IP: [86.154.154.133]
+X-OWM-Source-IP: 86.154.154.133 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepkeeirdduheegrdduheegrddufeefnecuvehluhhsthgvrhfuihiivgepieenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehgedrudehgedrudeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.154.154.133) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C2FD10134E2B; Wed, 9 Sep 2020 14:30:48 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     paul@paul-moore.com, selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 16/22] user_statements:: Tidy up formatting
+Date:   Wed,  9 Sep 2020 14:30:33 +0100
+Message-Id: <20200909133039.44498-17-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
+References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
-References: <20200922085902.18315-1-richard_c_haines@btinternet.com> <CAFqZXNuO4kxFSum5-XVfNY+v8L84OMHaFyrMqyB8quWpyvPvhA@mail.gmail.com>
-In-Reply-To: <CAFqZXNuO4kxFSum5-XVfNY+v8L84OMHaFyrMqyB8quWpyvPvhA@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 2 Oct 2020 10:19:52 +0200
-Message-ID: <CAFqZXNtgBR7cKo61L51T9ANFHzFboW=NMtGZskFV4zxaSHp0jg@mail.gmail.com>
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Update SCTP asconf client/server
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 2:15 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Tue, Sep 22, 2020 at 10:59 AM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > The main changes have been to sctp_asconf_params_client.c and
-> > sctp_asconf_params_server.c to make them more reliable for running the
-> > client and server on different systems.
-> >
-> > Updated common code in sctp_common.c for sctp event handling and updated
-> > relevant programs to use handle_event()
-> >
-> > Removed obsolete code/policy.
-> >
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > ---
-> > V2 Changes: Indent line, fix typo and increase timer to 3 secs as per
-> > Ondrej comments.
-> >
-> >  policy/test_sctp.te                    |  75 ++++-
-> >  tests/sctp/.gitignore                  |   1 -
-> >  tests/sctp/Makefile                    |   3 +-
-> >  tests/sctp/sctp_asconf_params_client.c | 322 ++++++++-----------
-> >  tests/sctp/sctp_asconf_params_server.c | 275 +++++++++-------
-> >  tests/sctp/sctp_common.c               | 189 ++++++++++-
-> >  tests/sctp/sctp_common.h               |  12 +-
-> >  tests/sctp/sctp_peeloff_server.c       |  42 +--
-> >  tests/sctp/sctp_server.c               |   4 +-
-> >  tests/sctp/sctp_set_peer_addr.c        | 415 -------------------------
-> >  tests/sctp/test                        |  70 ++++-
-> >  11 files changed, 623 insertions(+), 785 deletions(-)
-> >  delete mode 100644 tests/sctp/sctp_set_peer_addr.c
->
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ src/user_statements.md | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-And now applied, thanks!
-
+diff --git a/src/user_statements.md b/src/user_statements.md
+index 7a5ff8a..ee3eed1 100644
+--- a/src/user_statements.md
++++ b/src/user_statements.md
+@@ -70,7 +70,7 @@ Policy Type
+ 
+ Conditional Policy Statements
+ 
+-| *if* statement          | *optional* Statement    | *require* Statement     |
++| *if* Statement          | *optional* Statement    | *require* Statement     |
+ | ----------------------- | ----------------------- | ----------------------- |
+ | No                      | Yes                     | Yes                     |
+ 
+@@ -116,9 +116,9 @@ semanage user -a -R unconfined_r mque_u
+ ```
+ 
+ This command will produce the following files in the default
+-&lt;SELINUXTYPE&gt; policy store and then activate the policy:
++\<SELINUXTYPE\> policy store and then activate the policy:
+ 
+-*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/users.local*:
++*/var/lib/selinux/\<SELINUXTYPE\>/active/users.local*:
+ 
+ ```
+ # This file is auto-generated by libsemanage
+@@ -127,7 +127,7 @@ This command will produce the following files in the default
+ user mque_u roles { unconfined_r } ;
+ ```
+ 
+-*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/users_extra*:
++*/var/lib/selinux/\<SELINUXTYPE\>/active/users_extra*:
+ 
+ ```
+ # This file is auto-generated by libsemanage
+@@ -136,7 +136,7 @@ user mque_u roles { unconfined_r } ;
+ user mque_u prefix user;
+ ```
+ 
+-*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/users_extra.local*:
++*/var/lib/selinux/\<SELINUXTYPE\>/active/users_extra.local*:
+ 
+ ```
+ # This file is auto-generated by libsemanage
 -- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+2.26.2
 
