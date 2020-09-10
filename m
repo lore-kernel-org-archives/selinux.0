@@ -2,159 +2,148 @@ Return-Path: <SRS0=Milt=CT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC6CC2D0A7
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:02:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1912C2D0A7
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:06:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ACD9220829
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:02:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C6CC21D91
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:06:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CNOzJABt"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LdBh1oCz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726789AbgIJVCO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Sep 2020 17:02:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32842 "EHLO
+        id S1726918AbgIJVEp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Sep 2020 17:04:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727980AbgIJVBz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 17:01:55 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11126C061756;
-        Thu, 10 Sep 2020 14:01:52 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id p4so7624053qkf.0;
-        Thu, 10 Sep 2020 14:01:52 -0700 (PDT)
+        with ESMTP id S1731165AbgIJOhX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 10:37:23 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28ED4C06179B
+        for <selinux@vger.kernel.org>; Thu, 10 Sep 2020 07:36:12 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id w25so4302810otk.8
+        for <selinux@vger.kernel.org>; Thu, 10 Sep 2020 07:36:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Qj+bF6JHAiKUykX77NiGv2uVk1sGIJT54ofxqXbZgR4=;
-        b=CNOzJABtDEmZY6gFwgUpGwuAig4xQxjZutndog6nXBEkfkWAt9oQjMk0y0rArt5yzj
-         6w8mOJwIzmQcGG6QJC/eXM4pdsn+4vYY1ZIBK797L4dbXCrqrGCOj/LevtX0SLMsXscb
-         Xn7LLmE99m1EOg/WWgIQrnOM1wN8AT9WBfUtK+DenHHZWEXiBGDpiqj0Hs4GPDryJrve
-         9FkKmt/7NLKhczHZsUsDWn+QAUJlMqJJP4/KCGD/kJNMS5NA0gm5h7Kwb3zNAZx48Ynw
-         vve6TpP9tIWpf9r9opVGITGYI8gNQ9LqygPVjRcbcqa5Wf3lubUzBU/aVlLK3WKewxUq
-         dr7Q==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mFv0lMLb74Vk59ijoHMc38UlZJcYnEQz4Vz9wgngES8=;
+        b=LdBh1oCzQvciVRE14zajT4ySLH1GKFVyDJXYrzWsRtDlv6jW+0m0KKR/ZN2E8Dv3JT
+         5Ijh5izyrxEWZ+OG1tuMx+BMxD8FfwQ7V6Swzru8WEorcN6oIrX8fsVkc4ZfccHNdK7Y
+         XLA9YkqlRDHDxaSDSJu/UAbdIzzK/PYACZ/Q2twQfrUq5zdhFBhkaUcs1j9DwH/M/uEp
+         jjRDnj7h92Nx+1CRXSBNWYPyOjxonbHID6xlrj/jV3FPgmRi7SZPlUsr/RAOPYiud3NG
+         FcCvcfffjO8DVor7vAqJotXbXaMyKry0dH5brg3SV41q5tmiW+x3y4/fzaYKeyPpYSm9
+         bCYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Qj+bF6JHAiKUykX77NiGv2uVk1sGIJT54ofxqXbZgR4=;
-        b=kprPMUF+LTx3bNRpr0PpS2jVBuYJkLoAXIf+85g44DYArRvlrV/kZpQ10DH60ZqS8N
-         sdEgicjLuutamsDdYNc6AvnskUpRww4OsE0xuH3Y3ZupTOkBfz8L88UBALX4OX+MoOqB
-         DiWS/fwmDVzbyPmYZXLTrz5URbjDIjBo1wHGPWT7RtEAqkJha1sFrDuZDR6fKlwAVp2k
-         dzS8kB+WQfZyxYSIA+KvSG5AKVQd45Tg3wEM/f3h6YGSJICygLr09Kmw3GKg1YrzG0zJ
-         XLKBWeYQN5ibYH6e4kv/Jzr1sCJG+CCD2H4vpLlTmIBROrhwt6giI3as8t1Xk3ndhaVp
-         odFg==
-X-Gm-Message-State: AOAM5325WOeDEgajtR5DGNaYiyKbr9kjBuYtM2glCiO7L2JUwU6c4f3S
-        7SKOI/cnQ3ufJxQxq5ygmRE=
-X-Google-Smtp-Source: ABdhPJw9OCeXPquFymYHBaZYRTytzOzHjznm/e9LSivf+IcVTn/OufvciOc7XaKg+oW4v7pnzMkXLA==
-X-Received: by 2002:ae9:e8c5:: with SMTP id a188mr9966875qkg.204.1599771710554;
-        Thu, 10 Sep 2020 14:01:50 -0700 (PDT)
-Received: from puritycontrol.fios-router.home (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id g12sm153604qke.90.2020.09.10.14.01.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Sep 2020 14:01:50 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     mtk.manpages@gmail.com
-Cc:     linux-man@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] socket.7,unix.7: add initial description for SO_PEERSEC
-Date:   Thu, 10 Sep 2020 17:00:59 -0400
-Message-Id: <20200910210059.34759-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mFv0lMLb74Vk59ijoHMc38UlZJcYnEQz4Vz9wgngES8=;
+        b=qT/jeMDAkP5a3BdczM36tyfIImTg2X/ANRmxPHgko8lK5GDgDSvDbeLrtrq0dpDV1y
+         3N2Y/Du1JKN/O7aY6Mqm3v4gJD9FFPBAQVjVIqVXdxhBga6SojnvdFB+wNlRHUoBFP4v
+         FPMHeWp9NamOqNuAZHdLP971dYo//n8wW0yYvZvuFHtqIeVGqHSPWtmGQWd9ilYsbd4c
+         IDk/1FwU2uyXEhmMuPj97srzaOBL+uJtvvTUWTvr77sQczb+F7OKsbKijY9OzDgSg42M
+         wFUUZiS/cqdGjB0Jr9dx76SfEjfG1Ezq0DHFTDMxOgx1Ug5xwxK4WkqWIG3yu3oZIyVL
+         /lnA==
+X-Gm-Message-State: AOAM531bjHVLkOn/9k2aeuj+pDyAfgdkaMZ7uySpfJGZtInYVmZd0+6Q
+        cvtHWZlQqH+YtI/R+EC05COI/VYBDQnF0pnC2JGqaI9t
+X-Google-Smtp-Source: ABdhPJwNSCqtCGQkZeI2oVsQxpQUdIfA2o6qm9iOEj9AwThvjwPuMJ5XymEKjIPbG70Acv7Y/PRb/GtYcPTEShoe9mU=
+X-Received: by 2002:a9d:185:: with SMTP id e5mr4281971ote.135.1599748571521;
+ Thu, 10 Sep 2020 07:36:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <159110207843.57260.5661475689740939480.stgit@chester>
+ <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
+ <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
+ <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
+ <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
+ <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com>
+ <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
+ <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
+ <CAHC9VhQ25U5PLYMAA1onNssWrOMYrUXhfJ_SRpzM1qNXeavfuw@mail.gmail.com>
+ <20200819171459.GA57975@localhost.localdomain> <CAEjxPJ54j6PD6oBMWj7wOVskJuUY=BLpMCkdmmqwrP1DGJ0VqA@mail.gmail.com>
+ <CAFqZXNuPCwvf2BNYrxxL-DqcwLQBCS9b78iQBfKDsWXOy8pvyg@mail.gmail.com> <CAEjxPJ4HMyabC+WwNwjO33SaFn9vKd1zZUR8n-wjrzN6bkHgMw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4HMyabC+WwNwjO33SaFn9vKd1zZUR8n-wjrzN6bkHgMw@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 10 Sep 2020 10:36:00 -0400
+Message-ID: <CAEjxPJ7n7irnx93xsNamWsuvoEaOQqDkgwPXJod8rrXUciOWng@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
+ ssleep() discomfort
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-SO_PEERSEC was introduced for AF_UNIX stream sockets connected via
-connect(2) in Linux 2.6.2 and later augmented to support AF_UNIX stream
-and datagram sockets created via socketpair(2) in Linux 4.18.  Document
-SO_PEERSEC in the socket.7 and unix.7 man pages following the example
-of the existing SO_PEERCRED descriptions.  SO_PEERSEC is also supported
-on AF_INET sockets when using labeled IPSEC or NetLabel but defer
-adding a description of that support to a separate patch.
+On Thu, Sep 10, 2020 at 9:31 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Thu, Sep 10, 2020 at 7:39 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > On Wed, Aug 19, 2020 at 9:07 PM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > On Wed, Aug 19, 2020 at 1:15 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > <snip>
+> > > > So I've started to compose Fedora Change proposal
+> > > >
+> > > > https://fedoraproject.org/wiki/SELinux/Changes/Disable_CONFIG_SECURITY_SELINUX_DISABLE
+> > > >
+> > > > It's not complete yet, but I believe it contains basic information. I'd
+> > > > appreciate if you can help me with text, phrases and references so that it would
+> > > > be easy to sell it as security feature to Fedora community :)
+> > >
+> > > I'd simplify the Summary to be something like "Remove support for
+> > > SELinux runtime disable so that the LSM hooks can be hardened via
+> > > read-only-after-initialization protections.  Migrate users to using
+> > > selinux=0 if they want to disable SELinux."
+> >
+> > FYI, the change proposal has now been announced to the Fedora devel community:
+> > https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/YQIYMWKFQEWCILU7UZWXO3YFNS2PLDG4/
+>
+> With regard to concerns raised in that thread:
+>
+> 1) For (soft?) real-time users, one option (if the latency introduced
+> by SELinux without a policy loaded is truly enough to affect their
+> workloads) would be to insert a if
+> (!selinux_initialized(&selinux_state)) return 0; at the beginning of
+> most hooks. However, we can't do that everywhere (e.g. we still need
+> to allocate/initialize security structures and maintain lists of
+> superblocks and inodes allocated before policy load so that we can
+> later fix up their labels during selinux_complete_init), and adding
+> such checks would make selinux_state.initialized an even more
+> attractive target for kernel exploits since it becomes another way to
+> "disable" SELinux entirely.  You can of course already target it to
+> disable policy checking but doing so tends to break certain things
+> like security_sid_to_context/context_to_sid on SIDs other than the
+> initial ones so it is not quite as attractive as enforcing currently.
+> This assumes that these real-time workloads are not so sensitive that
+> even the overhead of the indirect function call for the LSM hook
+> pushes them over their tolerance.
+>
+> 2) For cases where an error is returned by SELinux that is not already
+> governed by a selinux_initialized() or enforcing_enabled() check, we
+> just need to ensure that all such cases are gated by such a check. We
+> fixed that recently for the removexattr security.selinux case and
+> there were some earlier cases fixed with respect to setting labels
+> before policy load.  The specific concern raised in the thread
+> appeared to be due to denials silenced via dontaudit rules, which
+> won't happen if there is no policy loaded so I don't think that's
+> relevant.  There are other cases where SELinux might return an error
+> if a new case is introduced in another kernel subsystem without
+> updating SELinux to handle it, e.g. a new type for
+> selinux_perf_event_open(), a new obj_type in selinux_path_notify().
+> It would be better if we could introduce build-time guards to catch
+> these as we have done for e.g. new capabilities, new socket address
+> families, new netlink message types, in order to ensure that they are
+> always in sync.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- man7/socket.7 |  5 +++++
- man7/unix.7   | 40 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 45 insertions(+)
-
-diff --git a/man7/socket.7 b/man7/socket.7
-index 21e891791..c3635f95b 100644
---- a/man7/socket.7
-+++ b/man7/socket.7
-@@ -690,6 +690,11 @@ Return the credentials of the peer process connected to this socket.
- For further details, see
- .BR unix (7).
- .TP
-+.BR SO_PEERSEC " (since Linux 2.6.2)"
-+Return the security context of the peer socket connected to this socket.
-+For further details, see
-+.BR unix (7).
-+.TP
- .B SO_PRIORITY
- Set the protocol-defined priority for all packets to be sent on
- this socket.
-diff --git a/man7/unix.7 b/man7/unix.7
-index f61b51424..1032c0aa1 100644
---- a/man7/unix.7
-+++ b/man7/unix.7
-@@ -349,6 +349,46 @@ stream sockets and for
- .B AF_UNIX
- stream and datagram socket pairs created using
- .BR socketpair (2).
-+.TP
-+.B SO_PEERSEC
-+This read-only socket option returns the
-+security context of the peer socket connected to this socket.
-+By default, this will be the same as the security context of
-+the process that created the peer socket unless overridden
-+by the policy or by a process with the required permissions.
-+.IP
-+The argument to
-+.BR getsockopt (2)
-+is a pointer to a
-+buffer of the specified length in bytes
-+into which the security context string will be copied.
-+If the buffer length is less than the length of the security
-+context string, then
-+.BR getsockopt (2)
-+will return the required length
-+via
-+.I optlen
-+and return \-1 and sets
-+.I errno
-+to
-+.BR ERANGE .
-+The caller should allocate at least
-+.BR NAME_MAX
-+bytes for the buffer initially although this is not guaranteed
-+to be sufficient.  Resizing the buffer to the returned length
-+and retrying may be necessary.
-+.IP
-+For SELinux, the security context string is a null-terminated
-+string and the returned length includes the terminating null.
-+Other security modules may differ.
-+.IP
-+The use of this option for sockets in the
-+.B AF_UNIX
-+address family
-+is supported since Linux 2.6.2 for connected stream sockets and
-+since Linux 4.18, also for stream and datagram socket pairs created
-+using
-+.BR socketpair (2).
- .\"
- .SS Autobind feature
- If a
--- 
-2.25.1
-
+On second look, selinux_perf_event_open() is ok because the type
+values are specifically (and only) for the security hook, so anyone
+adding new PERF_SECURITY_* types should see the need to update the
+hook implementation too.  selinux_path_notify() case is different.
