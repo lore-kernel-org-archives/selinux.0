@@ -2,140 +2,185 @@ Return-Path: <SRS0=Milt=CT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44AB2C43461
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:38:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 586F3C43461
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:42:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 032C5208E4
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:38:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C80A221E3
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:42:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hs8veInH"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="mHB6HMOH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725803AbgIJVij (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Sep 2020 17:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46736 "EHLO
+        id S1730907AbgIJM6D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Sep 2020 08:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730643AbgIJNbO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 09:31:14 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED11C061573
-        for <selinux@vger.kernel.org>; Thu, 10 Sep 2020 06:31:12 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id o6so5360296ota.2
-        for <selinux@vger.kernel.org>; Thu, 10 Sep 2020 06:31:12 -0700 (PDT)
+        with ESMTP id S1729911AbgIJM4Z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 08:56:25 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0EF6C061573
+        for <selinux@vger.kernel.org>; Thu, 10 Sep 2020 05:55:40 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id p9so8557772ejf.6
+        for <selinux@vger.kernel.org>; Thu, 10 Sep 2020 05:55:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mLNfd/U3e2McBmCQ5NrmupixXVnLzAvtnufCJQdxuQo=;
-        b=hs8veInH42EJ7NaiHgKB94xXuLiQg8J/JAjtatpCppTVXO+58lH+PKws49aF7SFr9Y
-         pa3IypywC39Qaw2vS5NlZWN3JtZmRyHqD0bPSmwHe9/mmt6OVNDHBTzzxJIWqqtpgowK
-         LKbGRjj0Pc6YfBpELfxHOUdMIS22tGiUeSe+Nu8vNfQ4LCWLKGhzpEABuMvoj59tVrVQ
-         nLtV0xHcPwF8/R57eC1KrqAY+dEzM6lw/zGR4MOYCE30hyNra971ANlUqk0W0yJaDU+c
-         B0w6WahICpoQETPvMNnsO+g4nLrVaoQqDId4Mp8Hzi7Ox3Gk5kZd5MSPgK0/DHLThKij
-         hPOA==
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:autocrypt:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=7E5zUl7w2A+a8Fj7KJ47WRQBaRsZ+c77/c4bMpyiG/c=;
+        b=mHB6HMOHWq6SmM8QRlWUbZD11DAQ48smdQP8LIkM7vUnwIfioy2VbLwfn8F8norRyf
+         SqgcC/5hPl7gtGViEhi4dfXh+16eagoc71ye6ocL0ZA76h8C3DX0I0owgJ/pKUJvBT9e
+         RjTZ7iV4ers+nobA9GJdezFk+4yNqJf/QYl32aatRN7ns+aytKldNNfUalK0r3PJ+363
+         r0gwYroscSXwpvGw2+rqnSOVlEFKYRG8tmJs4dYxIHCMaJJa6unSr36LDBTcUyidwYfu
+         2tnvkbc/g2yFbbQKiFu7G7xFLqIaP2Lv3V3+dXt1ABAR/9RdqZwavoXOh2tWNThk8VMP
+         +lCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mLNfd/U3e2McBmCQ5NrmupixXVnLzAvtnufCJQdxuQo=;
-        b=JNA7zwNep02/eS3kcLqs7mPmh6W4LapG0VMxcFUE+IggEQgG0tJVbzXK9aTywotEgN
-         XZI3Z8ooYLz/ACfjKVqAoftcWVMRGvIExwhxE40oUUIIjFLwKT7gVSA8c1nvBKJ4z4ny
-         U2LLyJO2BoYvq2CHEIf2GC2eKo++ft4JEKB2BLiDz59t1GJqaSS6E9U5T+9X6PB1kjkM
-         hRl8guEH+hCJhq2yp+PC+cP3D/l/tyOoCAuAWF0ynU8i30nxv8pOjMsQHefB9A1x6oco
-         r7av8mWr+CYL7FjfvymSQUVZVrXHX3OQXeaXqQlrTYIraOvFKq6NZ6gMOxaGvj8z50n1
-         u02A==
-X-Gm-Message-State: AOAM5307+7X15OHU1ipGWtrjxeLgKS/Dpwo3m6jo6aaN/TBIjk9RuVXj
-        8AnCdEeqM1A27Dvqzhn4694GmAG4Ge2BWisbAD8=
-X-Google-Smtp-Source: ABdhPJwt03ZlT2Kc3BbIc8thbZq0zDWAE0mMUAFWETg7Ui9KNvWmzYPhN6A2Bag4H6ITgrSEdRdrepgegCkuinLcD/Y=
-X-Received: by 2002:a9d:185:: with SMTP id e5mr4057736ote.135.1599744671443;
- Thu, 10 Sep 2020 06:31:11 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:autocrypt:subject:message-id:date
+         :user-agent:mime-version:content-language:content-transfer-encoding;
+        bh=7E5zUl7w2A+a8Fj7KJ47WRQBaRsZ+c77/c4bMpyiG/c=;
+        b=hUySbeHh7hhMVenm3qaphWh4KMYeaoN7MFlT7k2YAcKurkO2cGOyjKcQZsmNnDRWO4
+         /9660YIrpETTMLOIYptjkYgfeLbJ242gdN+2MEl1khfKfHdGgjzuxc6pykeQ1+PAXogz
+         hgWa/D3TXA3pfhTYYvoX5dlOzMjskT4flEf0pRqo0QsNNrAWcGcn6Yx85ET7ynPg4PBl
+         eAMnIzTnO3trh8HLudVOm5is1EW5X7+CwciWM1M4YsJcyq7POk2Zky5xWKOOa1bfdth7
+         Igw/VmBG7ybFmhbfGVHxZ3eoaibDbUbdCMTvMFMkmEOgjAAMhWGMEbQdM32j6NHEQkHD
+         qBBA==
+X-Gm-Message-State: AOAM531jAMgGRtH2H2zGPacseWSoqraTIQNFSKSYsH6CqSqFfuHBITez
+        TlWwHnAJSl93DzdbE8AfrXU=
+X-Google-Smtp-Source: ABdhPJwDCUOAAEwHqfoRLZIpgGqF6sqqLUZngChspbWygOPwAZRw4hhfBY0upbEy0vIYc+iXg5ba0A==
+X-Received: by 2002:a17:906:2c44:: with SMTP id f4mr8674267ejh.52.1599742538987;
+        Thu, 10 Sep 2020 05:55:38 -0700 (PDT)
+Received: from [192.168.178.63] (ipb21bc161.dynamic.kabel-deutschland.de. [178.27.193.97])
+        by smtp.gmail.com with ESMTPSA id j3sm6780802eje.75.2020.09.10.05.55.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Sep 2020 05:55:38 -0700 (PDT)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+To:     selinux <selinux@vger.kernel.org>
+Cc:     Jeff Vander Stoep <jeffv@google.com>
+Autocrypt: addr=j2468h@gmail.com; keydata=
+ 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
+ MzTZEAm15uwFxq66
+Subject: Behavior of extended permissions
+Message-ID: <8b262b5d-39a3-b95b-0c98-31c6292bd1f9@gmail.com>
+Date:   Thu, 10 Sep 2020 14:55:37 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-References: <159110207843.57260.5661475689740939480.stgit@chester>
- <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
- <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
- <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
- <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
- <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com>
- <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
- <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
- <CAHC9VhQ25U5PLYMAA1onNssWrOMYrUXhfJ_SRpzM1qNXeavfuw@mail.gmail.com>
- <20200819171459.GA57975@localhost.localdomain> <CAEjxPJ54j6PD6oBMWj7wOVskJuUY=BLpMCkdmmqwrP1DGJ0VqA@mail.gmail.com>
- <CAFqZXNuPCwvf2BNYrxxL-DqcwLQBCS9b78iQBfKDsWXOy8pvyg@mail.gmail.com>
-In-Reply-To: <CAFqZXNuPCwvf2BNYrxxL-DqcwLQBCS9b78iQBfKDsWXOy8pvyg@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 10 Sep 2020 09:31:00 -0400
-Message-ID: <CAEjxPJ4HMyabC+WwNwjO33SaFn9vKd1zZUR8n-wjrzN6bkHgMw@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
- ssleep() discomfort
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 7:39 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Wed, Aug 19, 2020 at 9:07 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Wed, Aug 19, 2020 at 1:15 PM Petr Lautrbach <plautrba@redhat.com> wrote:
-> <snip>
-> > > So I've started to compose Fedora Change proposal
-> > >
-> > > https://fedoraproject.org/wiki/SELinux/Changes/Disable_CONFIG_SECURITY_SELINUX_DISABLE
-> > >
-> > > It's not complete yet, but I believe it contains basic information. I'd
-> > > appreciate if you can help me with text, phrases and references so that it would
-> > > be easy to sell it as security feature to Fedora community :)
-> >
-> > I'd simplify the Summary to be something like "Remove support for
-> > SELinux runtime disable so that the LSM hooks can be hardened via
-> > read-only-after-initialization protections.  Migrate users to using
-> > selinux=0 if they want to disable SELinux."
->
-> FYI, the change proposal has now been announced to the Fedora devel community:
-> https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/YQIYMWKFQEWCILU7UZWXO3YFNS2PLDG4/
+Hi,
 
-With regard to concerns raised in that thread:
+In my policy I'm currently trying to make use ioctl whitelists. In some discussion with grift, that sparked https://lore.kernel.org/selinux/20200910092905.800461-1-dominick.grift@defensec.nl/T/#t we came across various inconsistencies.
 
-1) For (soft?) real-time users, one option (if the latency introduced
-by SELinux without a policy loaded is truly enough to affect their
-workloads) would be to insert a if
-(!selinux_initialized(&selinux_state)) return 0; at the beginning of
-most hooks. However, we can't do that everywhere (e.g. we still need
-to allocate/initialize security structures and maintain lists of
-superblocks and inodes allocated before policy load so that we can
-later fix up their labels during selinux_complete_init), and adding
-such checks would make selinux_state.initialized an even more
-attractive target for kernel exploits since it becomes another way to
-"disable" SELinux entirely.  You can of course already target it to
-disable policy checking but doing so tends to break certain things
-like security_sid_to_context/context_to_sid on SIDs other than the
-initial ones so it is not quite as attractive as enforcing currently.
-This assumes that these real-time workloads are not so sensitive that
-even the overhead of the indirect function call for the LSM hook
-pushes them over their tolerance.
+First some observations about the current behavior:
 
-2) For cases where an error is returned by SELinux that is not already
-governed by a selinux_initialized() or enforcing_enabled() check, we
-just need to ensure that all such cases are gated by such a check. We
-fixed that recently for the removexattr security.selinux case and
-there were some earlier cases fixed with respect to setting labels
-before policy load.  The specific concern raised in the thread
-appeared to be due to denials silenced via dontaudit rules, which
-won't happen if there is no policy loaded so I don't think that's
-relevant.  There are other cases where SELinux might return an error
-if a new case is introduced in another kernel subsystem without
-updating SELinux to handle it, e.g. a new type for
-selinux_perf_event_open(), a new obj_type in selinux_path_notify().
-It would be better if we could introduce build-time guards to catch
-these as we have done for e.g. new capabilities, new socket address
-families, new netlink message types, in order to ensure that they are
-always in sync.
+allowx rules requires a related allow rule to permit access:
+
+; E.g. to allow access to ioctlcmd=0x5401 but no other ioctl
+(allow test.type test1.type (file (ioctl))) ; if this rule is removed access is forbidden
+(allowx test.type test1.type (ioctl file (0x5401)))
+
+dontauditx rules don't seem to work, they require an dontaudit rule but then every ioctl will be audited.
+
+auditallowx rules might have the same problem.
+
+neverallowx rules treat allow rules without related allowx rules as allowing access to all extended permissions:
+
+; Will error
+(allow test.type test1.type (file (ioctl)))
+(neverallowx test.type test1.type (ioctl file (not (0x5401))))
+
+; Will compile fine
+(allow test.type test2.type (file (ioctl)))
+(allowx test.type test2.type (ioctl file (0x5401)))
+(neverallowx test.type test2.type (ioctl file (not (0x5401))))
+
+Constraints are checked when the kernel checks for access to the normal permission (file (ioctl)).
+
+After looking at the CIL docs, it appears that the intended behavior is that a dontauditx / auditallowx rule will only apply to the extended permission it covers.
+
+; Only access with ioctlcmd=0x5401 will be audited, but nothing else
+(auditallowx test.type test1.type (ioctl file (0x5401)))
+
+; Only access with ioctlcmd=0x5401 will be hidden, but nothing else
+(dontauditx test.type test1.type (ioctl file (0x5401)))
+
+
+Of the behavior of allowx, dontauditx, auditallowx, neverallowx, I find that neverallowx has the most intuitive and useful behavior.
+Checking of constraints against (class (ioctl)) even when checking extended permissions is also very useful due to the nature of ioctls.
+The behavior of dontauditx and auditallowx appears to be broken making them useless.
+
+-- 
+bauen1
+https://dn42.bauen1.xyz/
