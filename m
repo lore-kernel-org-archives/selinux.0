@@ -2,53 +2,71 @@ Return-Path: <SRS0=Milt=CT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC83FC43461
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 20:58:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC6CC2D0A7
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:02:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78C4D221E3
-	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 20:58:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACD9220829
+	for <selinux@archiver.kernel.org>; Thu, 10 Sep 2020 21:02:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ItVywOaC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CNOzJABt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725971AbgIJU6f (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Sep 2020 16:58:35 -0400
-Received: from mailomta28-re.btinternet.com ([213.120.69.121]:53250 "EHLO
-        re-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726932AbgIJU51 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 16:57:27 -0400
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-040.btinternet.com with ESMTP
-          id <20200909133046.UFHJ10362.re-prd-fep-040.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Wed, 9 Sep 2020 14:30:46 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658246; 
-        bh=YOdsWTFlwrLM266uakaEjj9lU2lAlvZU/OkQNECuCzY=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=ItVywOaClUU3EK0MfcDjWfCeklmNGI5mSuD6GJLa85TYjMZv1IgqXrT834QPgZb5FACrYxxLwkyR7qh9bgqzoFIPMixgNr3HdKTFC6FuwPsvIFCsgztu+XKnULEPPWkRrBCDAWlT74gfCxzk6BtLssUBQb40CSdo3pwluYey9YH8mn2ymg1/Opzn2gCWJsPS7epfQNQPDoTwNLhgd22r3CLjvWjNW34A2qFiyXg8nlEdLJtiaKymcgBaScAke/qqtNRkSMn6a8ry8JjXOhPunEWqkvnrx6Ukm+s3SLJ/Q8FMXnnGHQ+AhqClWRfBNo7qJ1lSwdjDf+c5KHVAWrVKjg==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [86.154.154.133]
-X-OWM-Source-IP: 86.154.154.133 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepkeeirdduheegrdduheegrddufeefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehgedrudehgedrudeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.154.154.133) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9C2FD10134DD1; Wed, 9 Sep 2020 14:30:46 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     paul@paul-moore.com, selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 07/22] security_context: Convert to markdown
-Date:   Wed,  9 Sep 2020 14:30:24 +0100
-Message-Id: <20200909133039.44498-8-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
-References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
+        id S1726789AbgIJVCO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Sep 2020 17:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32842 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727980AbgIJVBz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Sep 2020 17:01:55 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11126C061756;
+        Thu, 10 Sep 2020 14:01:52 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id p4so7624053qkf.0;
+        Thu, 10 Sep 2020 14:01:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Qj+bF6JHAiKUykX77NiGv2uVk1sGIJT54ofxqXbZgR4=;
+        b=CNOzJABtDEmZY6gFwgUpGwuAig4xQxjZutndog6nXBEkfkWAt9oQjMk0y0rArt5yzj
+         6w8mOJwIzmQcGG6QJC/eXM4pdsn+4vYY1ZIBK797L4dbXCrqrGCOj/LevtX0SLMsXscb
+         Xn7LLmE99m1EOg/WWgIQrnOM1wN8AT9WBfUtK+DenHHZWEXiBGDpiqj0Hs4GPDryJrve
+         9FkKmt/7NLKhczHZsUsDWn+QAUJlMqJJP4/KCGD/kJNMS5NA0gm5h7Kwb3zNAZx48Ynw
+         vve6TpP9tIWpf9r9opVGITGYI8gNQ9LqygPVjRcbcqa5Wf3lubUzBU/aVlLK3WKewxUq
+         dr7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Qj+bF6JHAiKUykX77NiGv2uVk1sGIJT54ofxqXbZgR4=;
+        b=kprPMUF+LTx3bNRpr0PpS2jVBuYJkLoAXIf+85g44DYArRvlrV/kZpQ10DH60ZqS8N
+         sdEgicjLuutamsDdYNc6AvnskUpRww4OsE0xuH3Y3ZupTOkBfz8L88UBALX4OX+MoOqB
+         DiWS/fwmDVzbyPmYZXLTrz5URbjDIjBo1wHGPWT7RtEAqkJha1sFrDuZDR6fKlwAVp2k
+         dzS8kB+WQfZyxYSIA+KvSG5AKVQd45Tg3wEM/f3h6YGSJICygLr09Kmw3GKg1YrzG0zJ
+         XLKBWeYQN5ibYH6e4kv/Jzr1sCJG+CCD2H4vpLlTmIBROrhwt6giI3as8t1Xk3ndhaVp
+         odFg==
+X-Gm-Message-State: AOAM5325WOeDEgajtR5DGNaYiyKbr9kjBuYtM2glCiO7L2JUwU6c4f3S
+        7SKOI/cnQ3ufJxQxq5ygmRE=
+X-Google-Smtp-Source: ABdhPJw9OCeXPquFymYHBaZYRTytzOzHjznm/e9LSivf+IcVTn/OufvciOc7XaKg+oW4v7pnzMkXLA==
+X-Received: by 2002:ae9:e8c5:: with SMTP id a188mr9966875qkg.204.1599771710554;
+        Thu, 10 Sep 2020 14:01:50 -0700 (PDT)
+Received: from puritycontrol.fios-router.home (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
+        by smtp.gmail.com with ESMTPSA id g12sm153604qke.90.2020.09.10.14.01.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Sep 2020 14:01:50 -0700 (PDT)
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     mtk.manpages@gmail.com
+Cc:     linux-man@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] socket.7,unix.7: add initial description for SO_PEERSEC
+Date:   Thu, 10 Sep 2020 17:00:59 -0400
+Message-Id: <20200910210059.34759-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -56,115 +74,87 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- src/security_context.md | 83 ++++++++++++++++++++++-------------------
- 1 file changed, 45 insertions(+), 38 deletions(-)
+SO_PEERSEC was introduced for AF_UNIX stream sockets connected via
+connect(2) in Linux 2.6.2 and later augmented to support AF_UNIX stream
+and datagram sockets created via socketpair(2) in Linux 4.18.  Document
+SO_PEERSEC in the socket.7 and unix.7 man pages following the example
+of the existing SO_PEERCRED descriptions.  SO_PEERSEC is also supported
+on AF_INET sockets when using labeled IPSEC or NetLabel but defer
+adding a description of that support to a separate patch.
 
-diff --git a/src/security_context.md b/src/security_context.md
-index 3ca93a2..cb0fc4a 100644
---- a/src/security_context.md
-+++ b/src/security_context.md
-@@ -20,47 +20,50 @@ user:role:type[:range]
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>user</code></td>
--<td>The SELinux user identity. This can be associated to one or more roles that the SELinux user is allowed to use.</td>
--</tr>
--<tr>
--<td><code>role</code></td>
--<td>The SELinux role. This can be associated to one or more types the SELinux user is allowed to access.</td>
--</tr>
--<tr>
--<td><code>type</code></td>
--<td><p>When a type is associated with a process, it defines what processes (or domains) the SELinux user (the subject) can access.</p>
--<p>When a type is associated with an object, it defines what access permissions the SELinux user has to that object.</p></td>
--</tr>
--<tr>
--<td><code>range</code></td>
--<td><p>This field can also be know as a <em>level</em> and is only present if the policy supports MCS or MLS. The entry can consist of:
--<p>A single security level that contains a sensitivity level and zero or more categories (e.g. s0, s1:c0, s7:c10.c15).</p>
--<p>A range that consists of two security levels (a low and high) separated by a hyphen (e.g. s0 - s15:c0.c1023).</p>
--<p>These components are discussed in the <a href="mls_mcs.md#security-levels">Security Levels</a> section.</p></td>
--</tr>
--</tbody>
--</table>
-+*user*
-+
-+- The SELinux user identity. This can be associated to one or more roles
-+  that the SELinux user is allowed to use.
-+
-+*role*
-+
-+- The SELinux role. This can be associated to one or more types the SELinux
-+  user is allowed to access.
-+
-+*type*
-+
-+- When a type is associated with a process, it defines what processes
-+  (or domains) the SELinux user (the subject) can access.
-+  When a type is associated with an object, it defines what access
-+  permissions the SELinux user has to that object.
-+
-+*range*
-+
-+- This field can also be know as a *level* and is only present if the policy
-+  supports MCS or MLS. The entry can consist of:
-+  - A single security level that contains a sensitivity level and zero
-+    or more categories (e.g. *s0*, *s1:c0*, *s7:c10.c15*).
-+  - A range that consists of two security levels (a low and high) separated
-+   by a hyphen (e.g. *s0 - s15:c0.c1023*).
-+- These components are discussed in the
-+  [**Security Levels**]( mls_mcs.md#security-levels) section.
- 
- However note that:
- 
--1.  Access decisions regarding a subject make use of all the components
--    of the **security context**.
--2.  Access decisions regarding an object make use of the components as
--    follows:
--    1.  the user is either set to a special user called system_u or it
--        is set to the SELinux user id of the creating process. It is
--        possible to add constraints on users within policy based on
--        their object class (an example of this is the Reference Policy
--        UBAC (User Based Access Control) option.
--    2.  the role is generally set to a special SELinux internal role of
--        'object_r`, although policy version 26 with kernel 2.6.39 and
--        above do support role transitions on any object class. It is
--        then possible to add constraints on the role within policy
--        based on their object class.
-+1. Access decisions regarding a subject make use of all the components
-+   of the **security context**.
-+2. Access decisions regarding an object make use of the components as
-+   follows:
-+    1. the user is either set to a special user called *system_u*[^fn_sc_1]
-+       or it is set to the SELinux user id of the creating process. It is
-+       possible to add constraints on users within policy based on
-+       their object class (an example of this is the Reference Policy
-+       UBAC (User Based Access Control) option.
-+    2. the role is generally set to a special SELinux internal role of
-+       *object_r*, although policy version 26 with kernel 2.6.39 and
-+       above do support role transitions on any object class. It is
-+       then possible to add constraints on the role within policy
-+       based on their object class.
- 
- The [**Computing Security Contexts**](computing_security_contexts.md#computing-security-contexts)
- section decribes how SELinux computes the security context components based
-@@ -116,6 +119,10 @@ unconfined_u:object_r:out_file_t Message-11
- # (see the process example above). The role remained as object_r.
- ```
- 
-+[^fn_sc_1]: The user *system_u* name is not mandatory, it is used to signify
-+a special user in the Reference Policy. It is also used in some SELinux
-+utilities.
-+
- <!-- %CUTHERE% -->
- 
- ---
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ man7/socket.7 |  5 +++++
+ man7/unix.7   | 40 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+
+diff --git a/man7/socket.7 b/man7/socket.7
+index 21e891791..c3635f95b 100644
+--- a/man7/socket.7
++++ b/man7/socket.7
+@@ -690,6 +690,11 @@ Return the credentials of the peer process connected to this socket.
+ For further details, see
+ .BR unix (7).
+ .TP
++.BR SO_PEERSEC " (since Linux 2.6.2)"
++Return the security context of the peer socket connected to this socket.
++For further details, see
++.BR unix (7).
++.TP
+ .B SO_PRIORITY
+ Set the protocol-defined priority for all packets to be sent on
+ this socket.
+diff --git a/man7/unix.7 b/man7/unix.7
+index f61b51424..1032c0aa1 100644
+--- a/man7/unix.7
++++ b/man7/unix.7
+@@ -349,6 +349,46 @@ stream sockets and for
+ .B AF_UNIX
+ stream and datagram socket pairs created using
+ .BR socketpair (2).
++.TP
++.B SO_PEERSEC
++This read-only socket option returns the
++security context of the peer socket connected to this socket.
++By default, this will be the same as the security context of
++the process that created the peer socket unless overridden
++by the policy or by a process with the required permissions.
++.IP
++The argument to
++.BR getsockopt (2)
++is a pointer to a
++buffer of the specified length in bytes
++into which the security context string will be copied.
++If the buffer length is less than the length of the security
++context string, then
++.BR getsockopt (2)
++will return the required length
++via
++.I optlen
++and return \-1 and sets
++.I errno
++to
++.BR ERANGE .
++The caller should allocate at least
++.BR NAME_MAX
++bytes for the buffer initially although this is not guaranteed
++to be sufficient.  Resizing the buffer to the returned length
++and retrying may be necessary.
++.IP
++For SELinux, the security context string is a null-terminated
++string and the returned length includes the terminating null.
++Other security modules may differ.
++.IP
++The use of this option for sockets in the
++.B AF_UNIX
++address family
++is supported since Linux 2.6.2 for connected stream sockets and
++since Linux 4.18, also for stream and datagram socket pairs created
++using
++.BR socketpair (2).
+ .\"
+ .SS Autobind feature
+ If a
 -- 
-2.26.2
+2.25.1
 
