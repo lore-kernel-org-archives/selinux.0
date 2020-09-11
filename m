@@ -2,135 +2,165 @@ Return-Path: <SRS0=gjoR=CU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24B8EC433E2
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 17:19:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D836CC433E2
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 17:29:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD0DB221E7
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 17:19:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B3A2221E7
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 17:29:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="lSGGTTm3"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Al2w9lqs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726270AbgIKRT0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Sep 2020 13:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57278 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725937AbgIKO6U (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 10:58:20 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC1A6C0612F1
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 07:57:20 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id t16so10264996edw.7
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 07:57:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dKC+gNwgspIfV1+PRn/iKXM/L+3ttNO2iqRjPIJ/Rmk=;
-        b=lSGGTTm3IiuSp2zb5iB8uB9L+W2r28UxyljwBoU9xWOsoI6LGuwQTWC1t9yomQMK+P
-         blr65CBG0/03eLdzR1EnYxJI6I6daj1fIeGYz4Fw/jKvhT6OLp26weFOFF76ISw3KiOy
-         nSDMNklAv0iKTZJzGsqFhm9J7D5Kb26t7AG82rjaXGHxUoa/WdU04JncJkMzYyBglnso
-         NnlozLUxM9+AIGnC6tQIuifM0HFOk6NjSKsFJCC2BDb/ZO9yBKiU4EarwUGFAuUDEbY1
-         8sdFL1FjDY4NfV/G9n50qFt7K73zDvIJxiZXWjJmWEb/ZQxlNRiPggSgJTJVjhygDX+y
-         wyOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dKC+gNwgspIfV1+PRn/iKXM/L+3ttNO2iqRjPIJ/Rmk=;
-        b=OzQQtCUazEEHK+bSQr0u0JQRslcUSo8v00YeM4r4oUNhfk2SdL2B7KmJzHP3oouzC/
-         G5DPzXHXk9kF7H4nyhGLmILH9edeWvbmYumww8VmB2ZyvQNQZEbJrxxZYwVdEw96Wivk
-         OXv3iwaHUayxcnARLHZ4773wcgRZsnS5qANFUpM4Ew5SSkG+CWQI9MHk6jP9ZAX0VZ+T
-         WSM/X7+AXAzb7maT1HhA4dfyp8i6JmHVg9/qSDJFKObEkwvL7S0QOXimvn49bFnD1rRW
-         ZI0Njags39YJ1Xt3+OLB/qaRE81jOJnmUvtzzByLvLFW7O+W1aWqTgANcJCWFJYAxSbQ
-         SFmg==
-X-Gm-Message-State: AOAM532SP7eudNQmCICSkbbJw+rOs/NxgKGBbb1cIncpVP8cLo+VcUz5
-        df5jx4hr/zT5OKmzIMIKvksevXWVZT+5ivfi8E7+p0iWNg==
-X-Google-Smtp-Source: ABdhPJyb2CalVwe/LqSZK9fHIayLaqqaKw3hOQ+LG0XTxUR1PLv/3VbElwAM6fb8k59fDrBZ7dSZLcsDrWDrvGUqLBE=
-X-Received: by 2002:a50:fc0b:: with SMTP id i11mr2398891edr.164.1599836239378;
- Fri, 11 Sep 2020 07:57:19 -0700 (PDT)
+        id S1726501AbgIKR3a (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Sep 2020 13:29:30 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:40246 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726497AbgIKR3U (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 13:29:20 -0400
+Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id B1A9020D4DAB;
+        Fri, 11 Sep 2020 10:29:18 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B1A9020D4DAB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1599845359;
+        bh=fPxkLQkgfh+pBwXajBMd60l+4u25hHiWkLzbR/BNlS8=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Al2w9lqs0T6TxVObHd+viHQLPtSVZj7Wlw3qXNVxxbXaUah/sZRTuqPiCSJBu5Xfq
+         T9rrIh51sBD4uF6If+9DHeZs2FxIE8YOtz+EMl6QW7zp8Gg8zqjDdeQdRfRClQeAbe
+         yOX/cr42EuUGmXXk5Qh1jCjJ6FANC2C5NrXApdPg=
+Subject: Re: [PATCH v3 4/6] IMA: add policy to measure critical data from
+ kernel components
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
+ <20200828015704.6629-5-tusharsu@linux.microsoft.com>
+ <652406e1a08d855a5d9a3e3815835653a12df411.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <0dc88680-eb1c-4343-ad8e-18b0df8d5142@linux.microsoft.com>
+Date:   Fri, 11 Sep 2020 10:29:17 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 11 Sep 2020 10:57:08 -0400
-Message-ID: <CAHC9VhRaCC4Cn2GcgqeXDML6Lgxpwn5JahffPD1dmFLz0_VB0w@mail.gmail.com>
-Subject: Re: [PATCH 00/22] SELinux Notebook: Convert batch 3 to markdown/tidy up
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <652406e1a08d855a5d9a3e3815835653a12df411.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 9, 2020 at 9:30 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Converted to Markdown or just tidy up formatting. Added TOC to aid
-> navigation where required.
-> No text changes.
->
-> This is the final batch of basic changes that should bring the sections to
-> a standard markdown format. The reference_policy.md update to tidy up the
-> formatting is large so I'll send patch direct to Paul (no text changes).
->
-> The only two sections left are: lsm_selinux.md and mls_mcs.md - These
-> require moving and updating text to convert to markdown, will send
-> each separately.
->
-> Richard Haines (22):
->   kernel_policy_language: Tidy up formatting
->   mls_statements: Convert to markdown
->   object_classes_permissions: : Tidy up formatting
->   policy_config_files: Tidy up formatting
->   policy_validation_example: Tidy up formatting
->   postgresql: Tidy up formatting
->   security_context: Convert to markdown
->   selinux_cmds: Convert to markdown
->   selinux_overview: Convert to markdown
->   sid_statement: Convert to markdown
->   subjects: Convert to markdown
->   toc: Tidy up formatting
->   type_enforcement: Convert to markdown
->   type_statements: Convert to markdown
->   types_of_policy: Convert to markdown
->   user_statements:: Tidy up formatting
->   users: Tidy up formatting
->   userspace_libraries: Tidy up formatting, add toc
->   vm_support: Tidy up formatting
->   x_windows: Tidy up formatting
->   xen_statements: Tidy up formatting
->   xperm_rules: Tidy up formatting
->
->  src/kernel_policy_language.md     | 106 +++----
->  src/mls_statements.md             | 461 +++++++++++-------------------
->  src/object_classes_permissions.md | 299 +++++++++----------
->  src/policy_config_files.md        | 442 ++++++++++++++--------------
->  src/policy_validation_example.md  |   3 +-
->  src/postgresql.md                 |  19 +-
->  src/security_context.md           |  83 +++---
->  src/selinux_cmds.md               | 256 ++++++++---------
->  src/selinux_overview.md           |  33 +--
->  src/sid_statement.md              | 119 +++-----
->  src/subjects.md                   |  21 +-
->  src/toc.md                        | 120 ++++----
->  src/type_enforcement.md           |   9 +-
->  src/type_statements.md            |  33 ++-
->  src/types_of_policy.md            | 359 +++++++++++------------
->  src/user_statements.md            |  10 +-
->  src/users.md                      |   2 +-
->  src/userspace_libraries.md        |  58 ++--
->  src/vm_support.md                 |  84 +++---
->  src/x_windows.md                  |  52 ++--
->  src/xen_statements.md             |  16 +-
->  src/xperm_rules.md                |  28 +-
->  22 files changed, 1223 insertions(+), 1390 deletions(-)
 
-Merged, thanks Richard!
 
--- 
-paul moore
-www.paul-moore.com
+On 2020-08-31 11:15 a.m., Mimi Zohar wrote:
+> On Thu, 2020-08-27 at 18:57 -0700, Tushar Sugandhi wrote:
+>> There would be several candidate kernel components suitable for IMA
+>> measurement. Not all of them would have support for IMA measurement.
+>> Also, system administrators may not want to measure data for all of
+>> them, even when they support IMA measurement. An IMA policy specific
+>> to various kernel components is needed to measure their respective
+>> critical data.
+> 
+> The base policy rules are wide, but may be constrained by specifying
+> different options.  For example the builtin policy rules cannot be
+> written in terms LSM labels, which would constrain them.  A policy rule
+> may measure all keyrings or may constrain which keyrings need to be
+> measured.  Measuring critical data is not any different.
+> 
+> Please rewrite the above paragraph accordingly.
+> 
+Ok. Will do.
+>>
+>> Add a new IMA policy "critical_kernel_data_sources" to support measuring
+>> various critical kernel components. This policy would enable the
+>> system administrators to limit the measurement to the components,
+>> if the components support IMA measurement.
+> 
+> "critical_kernel_data_sources" is really wordy.   Find a better, self
+> defining term for describing the type of data, one that isn't so wordy,
+> and reflect it in the code.
+> 
+Will do. I will go with "critical_data". You also have suggested it in
+the comment below.
+
+"critical_data_sources" also seems right, but that's more wordy than
+"critical_data".
+
+Some more options we considered, but they don’t sound right.
+Please let us know what do you think.
+1. "critical_data_sources="
+2. "critical_kernel_components=" -or- "crit_krnl_comps="
+3. "critical_data_providers="
+4. "critical_kernel_data_providers=" -or- "crit_krnl_dt_provs="
+5. "critical_kernel_data_sources=" -or- "crit_krnl_dt_srcs="
+6. "security_critical_data="
+7. "protectable_data="
+8. "protected_data="
+9. "vital_protected_data="
+
+>>
+>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+>> ---
+>>   Documentation/ABI/testing/ima_policy |  3 +++
+>>   security/integrity/ima/ima_policy.c  | 29 +++++++++++++++++++++++++++-
+>>   2 files changed, 31 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+>> index cd572912c593..7ccdc1964e29 100644
+>> --- a/Documentation/ABI/testing/ima_policy
+>> +++ b/Documentation/ABI/testing/ima_policy
+>> @@ -48,6 +48,9 @@ Description:
+>>   			template:= name of a defined IMA template type
+>>   			(eg, ima-ng). Only valid when action is "measure".
+>>   			pcr:= decimal value
+>> +			critical_kernel_data_sources:= list of kernel
+>> +			components (eg, selinux|apparmor|dm-crypt) that
+>> +			contain data critical to the security of the kernel.
+> 
+> This original policy definition, for the most part, is in Backus–Naur
+> format.   The keyring names is an exception, because it is not limited
+> to pre-defined kernel objects.  The critical data hook is measuring
+> things in kernel memory.  As new calls to measure critical data are
+> added, new identifiers would be added here.
+> 
+> For example, if SELinux is the first example of measuring critical
+> data, then the SELinux critical data patch would include
+> "critical_data:= [selinux]".  Each subsequent critical data being
+> measured would extend this list.  At the same time, the list of known
+> "critical data" defined in patch 6/6 would be updated.
+> 
+> Normally a new feature and the first usage of that feature are included
+> in the same patch set.  Separating them like this makes it difficult to
+> write, review and upstream.
+> 
+> Mimi
+> 
+I agree. But the unique issue we are facing here is there are two
+"first users" of this new "base series".
+
+One, SeLinux work (driven by Lakshmi); and two, device-mapper/dm-crypt 
+work (driven by me).
+
+Both of them need to be reviewed by different maintainers, may go 
+through several iterations before getting accepted.
+
+That’s why we wanted to keep this "base series" independent of the 
+"first users"; and called the "base series" as a dependency in the 
+dm-crypt[1] / SeLinux[2] series.
+
+We would appreciate your guidance on how we can better author these
+three series - 1.this base series 2. dm-crypt series and 3. SeLinux
+series.
+
+[1]dm-crypt Series: https://patchwork.kernel.org/patch/11743715/
+[2]SeLinux Series: https://patchwork.kernel.org/patch/11762287/
