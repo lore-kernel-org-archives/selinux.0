@@ -2,263 +2,192 @@ Return-Path: <SRS0=gjoR=CU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAE02C433E2
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:40:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 442A7C2BC11
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:45:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7632B221EB
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:40:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D199221EB
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:45:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="HYnzghPi"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="KhjO3g9X"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725848AbgIKQkU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Sep 2020 12:40:20 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:33600 "EHLO
+        id S1725890AbgIKQpN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Sep 2020 12:45:13 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:34266 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726402AbgIKQkP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 12:40:15 -0400
-Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 63EB620716FC;
-        Fri, 11 Sep 2020 09:40:13 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 63EB620716FC
+        with ESMTP id S1726456AbgIKQpD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 12:45:03 -0400
+Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 955D820716FC;
+        Fri, 11 Sep 2020 09:44:57 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 955D820716FC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1599842413;
-        bh=hqzz6WRWa3nR2dbbRpbP6OFEqZ01hWmyRaOJIi4qc1Q=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HYnzghPitYXNHwE3/BmPpFenaB47krtlhPjWScR3y/2WLZaokJ7epnKoZA+S9oR7f
-         nr/Lrxqa6YkxYu1V+VOJiAxnsZ+NZWoj/vIEvu8MoPdtPSdWDqbrJIeFpUGg3o1p78
-         BEBO7uNbA8ko/dPtb0mc8Pc9ryHSIc2byagO+96M=
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-To:     stephen.smalley.work@gmail.com, paul@paul-moore.com
-Cc:     sashal@kernel.org, jmorris@namei.org, nramas@linux.microsoft.com,
-        selinux@vger.kernel.org
-Subject: [PATCH v3] selinux: Add helper functions to get and set checkreqprot
-Date:   Fri, 11 Sep 2020 09:40:09 -0700
-Message-Id: <20200911164009.21926-1-nramas@linux.microsoft.com>
-X-Mailer: git-send-email 2.28.0
+        s=default; t=1599842698;
+        bh=gUgZlvI7DrDjGZFf44Vxy3S7MO/Bh6is8wlbtbN++JI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=KhjO3g9XgCN1StTC8gEIDZ9q1vanpS1N5gzlJBhXdjraAawoMc1QD8CpdbbG9iUei
+         D208weHnfgrxqfq0FzSPHSb6XXxC12bumrdbj9oLuxBUC79lIc7W5d2Gt28Bqv1wOt
+         eTcNAtP3r0/DVsSWa/WT2wzgjURxo8n4mUcekG0Y=
+Subject: Re: [PATCH v3 3/6] IMA: update process_buffer_measurement to measure
+ buffer hash
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
+ <20200828015704.6629-4-tusharsu@linux.microsoft.com>
+ <f11dbfc1382e60c04fdd519ce5122239fa0cab8b.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <c932ae94-d7c3-5d23-2bb4-95517f712ceb@linux.microsoft.com>
+Date:   Fri, 11 Sep 2020 09:44:57 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <f11dbfc1382e60c04fdd519ce5122239fa0cab8b.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-checkreqprot data member in selinux_state struct is accessed directly by
-SELinux functions to get and set. This could cause unexpected read or
-write access to this data member due to compiler optimizations and/or
-compiler's reordering of access to this field.
 
-Add helper functions to get and set checkreqprot data member in
-selinux_state struct. These helper functions use READ_ONCE and
-WRITE_ONCE macros to ensure atomic read or write of memory for
-this data member.
 
-Rename enforcing_enabled() to enforcing_get() to be consistent
-with the corresponding set function name.
+On 2020-08-31 10:02 a.m., Mimi Zohar wrote:
+> On Thu, 2020-08-27 at 18:57 -0700, Tushar Sugandhi wrote:
+>> process_buffer_measurement() currently only measures the input buffer.
+>> When the buffer being measured is too large, it may result in bloated
+>> IMA logs.
+> 
+> The subject of  this sentence refers to an individual record, while
+> "bloated" refers to the measurement list.  A "bloated" measurement list
+> would contain too many or unnecessary records.  Your concern seems to
+> be with the size of the individual record, not the number of
+> measurement list entries.
+> 
+The intent behind that description was twofold. One, as you mentioned,
+the individual record size being large; and two, multiple large-sized
+individual records will eventually bloat the measurement list too.
 
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Suggested-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/avc.c              |  2 +-
- security/selinux/hooks.c            |  8 ++++----
- security/selinux/include/security.h | 14 ++++++++++++--
- security/selinux/selinuxfs.c        | 11 ++++++-----
- security/selinux/ss/services.c      |  6 +++---
- security/selinux/status.c           |  2 +-
- 6 files changed, 27 insertions(+), 16 deletions(-)
+It can happen in SeLinux case as we discovered. The SeLinux policy
+(which can be a few MBs) can change from 'foo', to 'bar', back to 'foo'.
+And the requirement from SeLinux is that 'foo' should be measured the
+second time too. When 'foo' and 'bar' are large, the individual records
+in the ima log will be large, which will also result in measurement list
+being bloated.
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 3c05827608b6..9d0cd7054b08 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -1020,7 +1020,7 @@ static noinline int avc_denied(struct selinux_state *state,
- 	if (flags & AVC_STRICT)
- 		return -EACCES;
- 
--	if (enforcing_enabled(state) &&
-+	if (enforcing_get(state) &&
- 	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
- 		return -EACCES;
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6210e98219a5..2bbfbb722e95 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3718,7 +3718,7 @@ static int selinux_mmap_file(struct file *file, unsigned long reqprot,
- 			return rc;
- 	}
- 
--	if (selinux_state.checkreqprot)
-+	if (checkreqprot_get(&selinux_state))
- 		prot = reqprot;
- 
- 	return file_map_prot_check(file, prot,
-@@ -3732,7 +3732,7 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
- 	const struct cred *cred = current_cred();
- 	u32 sid = cred_sid(cred);
- 
--	if (selinux_state.checkreqprot)
-+	if (checkreqprot_get(&selinux_state))
- 		prot = reqprot;
- 
- 	if (default_noexec &&
-@@ -5882,7 +5882,7 @@ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
- 				sk->sk_protocol, nlh->nlmsg_type,
- 				secclass_map[sclass - 1].name,
- 				task_pid_nr(current), current->comm);
--			if (enforcing_enabled(&selinux_state) &&
-+			if (enforcing_get(&selinux_state) &&
- 			    !security_get_allow_unknown(&selinux_state))
- 				return rc;
- 			rc = 0;
-@@ -7234,7 +7234,7 @@ static __init int selinux_init(void)
- 
- 	memset(&selinux_state, 0, sizeof(selinux_state));
- 	enforcing_set(&selinux_state, selinux_enforcing_boot);
--	selinux_state.checkreqprot = selinux_checkreqprot_boot;
-+	checkreqprot_set(&selinux_state, selinux_checkreqprot_boot);
- 	selinux_avc_init(&selinux_state.avc);
- 	mutex_init(&selinux_state.status_lock);
- 	mutex_init(&selinux_state.policy_mutex);
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 0ce2ef684ed0..845079045e62 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -123,7 +123,7 @@ static inline void selinux_mark_initialized(struct selinux_state *state)
- }
- 
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
--static inline bool enforcing_enabled(struct selinux_state *state)
-+static inline bool enforcing_get(struct selinux_state *state)
- {
- 	return READ_ONCE(state->enforcing);
- }
-@@ -133,7 +133,7 @@ static inline void enforcing_set(struct selinux_state *state, bool value)
- 	WRITE_ONCE(state->enforcing, value);
- }
- #else
--static inline bool enforcing_enabled(struct selinux_state *state)
-+static inline bool enforcing_get(struct selinux_state *state)
- {
- 	return true;
- }
-@@ -143,6 +143,16 @@ static inline void enforcing_set(struct selinux_state *state, bool value)
- }
- #endif
- 
-+static inline bool checkreqprot_get(const struct selinux_state *state)
-+{
-+	return READ_ONCE(state->checkreqprot);
-+}
-+
-+static inline void checkreqprot_set(struct selinux_state *state, bool value)
-+{
-+	WRITE_ONCE(state->checkreqprot, value);
-+}
-+
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- static inline bool selinux_disabled(struct selinux_state *state)
- {
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 45e9efa9bf5b..ad1bc4f57313 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -129,7 +129,7 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- 	ssize_t length;
- 
- 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d",
--			   enforcing_enabled(fsi->state));
-+			   enforcing_get(fsi->state));
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
-@@ -161,7 +161,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 
- 	new_value = !!new_value;
- 
--	old_value = enforcing_enabled(state);
-+	old_value = enforcing_get(state);
- 	if (new_value != old_value) {
- 		length = avc_has_perm(&selinux_state,
- 				      current_sid(), SECINITSID_SECURITY,
-@@ -307,7 +307,7 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
- 		goto out;
- 
- 	if (new_value) {
--		enforcing = enforcing_enabled(fsi->state);
-+		enforcing = enforcing_get(fsi->state);
- 		length = selinux_disable(fsi->state);
- 		if (length)
- 			goto out;
-@@ -717,7 +717,8 @@ static ssize_t sel_read_checkreqprot(struct file *filp, char __user *buf,
- 	char tmpbuf[TMPBUFLEN];
- 	ssize_t length;
- 
--	length = scnprintf(tmpbuf, TMPBUFLEN, "%u", fsi->state->checkreqprot);
-+	length = scnprintf(tmpbuf, TMPBUFLEN, "%u",
-+			   checkreqprot_get(fsi->state));
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
-@@ -759,7 +760,7 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
- 			     comm, current->pid);
- 	}
- 
--	fsi->state->checkreqprot = new_value ? 1 : 0;
-+	checkreqprot_set(fsi->state, (new_value ? 1 : 0));
- 	length = count;
- out:
- 	kfree(page);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 9704c8a32303..62792e026096 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -737,7 +737,7 @@ static int security_validtrans_handle_fail(struct selinux_state *state,
- 	kfree(n);
- 	kfree(t);
- 
--	if (!enforcing_enabled(state))
-+	if (!enforcing_get(state))
- 		return 0;
- 	return -EPERM;
- }
-@@ -1657,7 +1657,7 @@ static int compute_sid_handle_invalid_context(
- 	kfree(s);
- 	kfree(t);
- 	kfree(n);
--	if (!enforcing_enabled(state))
-+	if (!enforcing_get(state))
- 		return 0;
- 	return -EACCES;
- }
-@@ -1964,7 +1964,7 @@ static inline int convert_context_handle_invalid_context(
- 	char *s;
- 	u32 len;
- 
--	if (enforcing_enabled(state))
-+	if (enforcing_get(state))
- 		return -EINVAL;
- 
- 	if (!context_struct_to_string(policydb, context, &s, &len)) {
-diff --git a/security/selinux/status.c b/security/selinux/status.c
-index 4bc8f809934c..88990d381374 100644
---- a/security/selinux/status.c
-+++ b/security/selinux/status.c
-@@ -53,7 +53,7 @@ struct page *selinux_kernel_status_page(struct selinux_state *state)
- 
- 			status->version = SELINUX_KERNEL_STATUS_VERSION;
- 			status->sequence = 0;
--			status->enforcing = enforcing_enabled(state);
-+			status->enforcing = enforcing_get(state);
- 			/*
- 			 * NOTE: the next policyload event shall set
- 			 * a positive value on the status->policyload,
--- 
-2.28.0
+But I understand your concern with the current wording. I will update 
+the patch description accordingly.
 
+> Measuring the hash of the buffer data is similar to measuring the file
+> data.  In the case of the file data, however, the attestation server
+> may rely on a white list manifest/DB or the file signature to verify
+> the file data hash.  For buffer measurements, how will the attestation
+> server ascertain what is a valid buffer hash?
+The client and the server implementation will go hand in hand. The
+client/kernel would know what data is measured as-is
+(e.g. KEXEC_CMDLINE), and what data has it’s hash measured
+(e.g. SeLinux Policy). And the attestation server would verify data/hash
+accordingly.
+
+Just like the data being measured in other cases, the attestation server 
+will know what are possible values of the large buffers being measured. 
+It will have to maintain the hash of those buffer values.
+> 
+> Hint:  I assume, correct me if I'm wrong, the measurement list record
+> template data is not meant to be verified, but used to detect if the "critical data" changed.
+> 
+As mentioned above, the use case for this feature is in-memory loaded 
+SeLinux policy, which can be quite large (several MBs) – that's why this 
+functionality. The data is meant to be verified by the attestation server.
+
+> Please update the patch description accordingly.
+I will update the patch description to clarify all this.
+> 
+>>
+>> Introduce a boolean parameter measure_buf_hash to support measuring
+>> hash of a buffer, which would be much smaller, instead of the buffer
+>> itself.
+>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+>> ---
+> 
+> <snip>
+> 
+>> +++ b/security/integrity/ima/ima_main.c
+>> @@ -733,17 +733,21 @@ int ima_load_data(enum kernel_load_data_id id)
+>>    * @func: IMA hook
+>>    * @pcr: pcr to extend the measurement
+>>    * @func_data: private data specific to @func, can be NULL.
+>> + * @measure_buf_hash: if set to true - will measure hash of the buf,
+>> + *                    instead of buf
+>>    *
+>>    * Based on policy, the buffer is measured into the ima log.
+>>    */
+>>   int process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>>   			       const char *eventname, enum ima_hooks func,
+>> -			       int pcr, const char *func_data)
+>> +			       int pcr, const char *func_data,
+>> +			       bool measure_buf_hash)
+>>   {
+>>   	int ret = 0;
+>>   	const char *audit_cause = "ENOMEM";
+>>   	struct ima_template_entry *entry = NULL;
+>>   	struct integrity_iint_cache iint = {};
+>> +	struct integrity_iint_cache digest_iint = {};
+>>   	struct ima_event_data event_data = {.iint = &iint,
+>>   					    .filename = eventname,
+>>   					    .buf = buf,
+>> @@ -752,7 +756,7 @@ int process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>>   	struct {
+>>   		struct ima_digest_data hdr;
+>>   		char digest[IMA_MAX_DIGEST_SIZE];
+>> -	} hash = {};
+>> +	} hash = {}, digest_hash = {};
+>>   	int violation = 0;
+>>   	int action = 0;
+>>   	u32 secid;
+>> @@ -801,6 +805,24 @@ int process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>>   		goto out;
+>>   	}
+>>   
+>> +	if (measure_buf_hash) {
+>> +		digest_iint.ima_hash = &digest_hash.hdr;
+>> +		digest_iint.ima_hash->algo = ima_hash_algo;
+>> +		digest_iint.ima_hash->length = hash_digest_size[ima_hash_algo];
+>> +
+>> +		ret = ima_calc_buffer_hash(hash.hdr.digest,
+>> +					   iint.ima_hash->length,
+>> +					   digest_iint.ima_hash);
+>> +		if (ret < 0) {
+>> +			audit_cause = "digest_hashing_error";
+>> +			goto out;
+>> +		}
+>> +
+>> +		event_data.iint = &digest_iint;
+>> +		event_data.buf = hash.hdr.digest;
+>> +		event_data.buf_len = iint.ima_hash->length;
+>> +	}
+>> +
+> 
+> There seems to be some code and variable duplication by doing it this
+> way.  Copying the caluclated buffer data hash to a temporary buffer
+> might eliminate it.
+> 
+With the way ima_calc_buffer_hash() is implemented, I was convinced that
+the variable duplication was needed. I didn't want to write a helper 
+function in order to minimize the unnecessary code churn in p_b_m().
+But I will revisit this to see how I can reduce the code and variable 
+duplication.
+
+Thanks for the feedback.
+>>   	ret = ima_alloc_init_template(&event_data, &entry, template);
+>>   	if (ret < 0) {
+>>   		audit_cause = "alloc_entry";
