@@ -2,192 +2,93 @@ Return-Path: <SRS0=gjoR=CU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 442A7C2BC11
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:45:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8365C433E2
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:45:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D199221EB
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:45:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5147D221EB
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 16:45:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="KhjO3g9X"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uUyCe32y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725890AbgIKQpN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Sep 2020 12:45:13 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:34266 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726456AbgIKQpD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 12:45:03 -0400
-Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 955D820716FC;
-        Fri, 11 Sep 2020 09:44:57 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 955D820716FC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1599842698;
-        bh=gUgZlvI7DrDjGZFf44Vxy3S7MO/Bh6is8wlbtbN++JI=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=KhjO3g9XgCN1StTC8gEIDZ9q1vanpS1N5gzlJBhXdjraAawoMc1QD8CpdbbG9iUei
-         D208weHnfgrxqfq0FzSPHSb6XXxC12bumrdbj9oLuxBUC79lIc7W5d2Gt28Bqv1wOt
-         eTcNAtP3r0/DVsSWa/WT2wzgjURxo8n4mUcekG0Y=
-Subject: Re: [PATCH v3 3/6] IMA: update process_buffer_measurement to measure
- buffer hash
-To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20200828015704.6629-1-tusharsu@linux.microsoft.com>
- <20200828015704.6629-4-tusharsu@linux.microsoft.com>
- <f11dbfc1382e60c04fdd519ce5122239fa0cab8b.camel@linux.ibm.com>
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Message-ID: <c932ae94-d7c3-5d23-2bb4-95517f712ceb@linux.microsoft.com>
-Date:   Fri, 11 Sep 2020 09:44:57 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726289AbgIKQp0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Sep 2020 12:45:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58268 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726382AbgIKPIO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 11:08:14 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFCCC06135B
+        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 08:04:12 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id z23so14193073ejr.13
+        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 08:04:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=01Hjpfl5TCrJ9zkcrpp5QzYrjKRNBEgxMme5wRHiSCg=;
+        b=uUyCe32yD14JahfNXSDxr2yAi8cjm9eHXj+ufITEer58iIN32hiahSu2swohXzwwjr
+         wHnRNDo3zbR/PN/vBAeRHotN5C87dgKqkzawffMnGOY4Gj4XQeexpBupoUfx9SQY5CH6
+         9BSTi8DtILM04Ku4JDloe3WNmQXHIr21Da3PnOMmXA+Opi5bdy1S8yEGtbqRn9bPOql/
+         vmVsVrCvedKIVxZ2Fa1V1ICit/UJvYo5SQsz09FHS4v0XHiCgdo3TI8QYbkOgfymmsmr
+         oZvmTs+crS+PL5QKjGpH8l8NVe90cHRp9O3gyPvOOl4tWnnU6Ko3JBuJEpcU4JXOLu9E
+         Mp1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=01Hjpfl5TCrJ9zkcrpp5QzYrjKRNBEgxMme5wRHiSCg=;
+        b=fC2Vatre+WRSMCBsrboQY0AMw8F4E0giEPHx0DwYvxXqeVCsTU+lmfzT1Rn3PCjkYV
+         kANXUJ65Kpq+pd+OIKdGfRkgR/YRs8it5gTI+CE2LLbImvpO0JhGwdnG1cGUf/doDlGa
+         374ebQ9zN3DQzw1qKCpHVJPh0Lo2lhdRx8rIewae7HA+EctIXxCeGMeZHNSUGWQgBKmb
+         84Z94+qVmzqha45xsQiMoXcixHFoR5wtrfjzUvh4PsBnlPIV5XTbxANYAtInVDx+CeVW
+         TeK2bbrisBXaaNTXcDyWF6wp4d/NRTQxXUeQc50Wu7s0rxhoOfg2gkTy7yhxTsfESdrl
+         WA4Q==
+X-Gm-Message-State: AOAM532tsrsUDcXGPY9u+eN4wt9vvlXYDHPubHzKJgdINyEeAV2WCnlt
+        xIZtGCHYl3ucyhmF25AA1FzUg2GhVrE0yVjcoSnK
+X-Google-Smtp-Source: ABdhPJyU90cUDPr3XlqXUdB8VipSfnnOYMNPf9cly2QL8yWbXw+st3Ql+PngIvnluRP6nnLeIldnVnu1POfJNsiz52A=
+X-Received: by 2002:a17:906:43c9:: with SMTP id j9mr2418893ejn.542.1599836649274;
+ Fri, 11 Sep 2020 08:04:09 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <f11dbfc1382e60c04fdd519ce5122239fa0cab8b.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20200910112435.4080-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200910112435.4080-1-richard_c_haines@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 11 Sep 2020 11:03:57 -0400
+Message-ID: <CAHC9VhTat5E8Kk3FVH7eerpcueW--tExCtW72G7i+-YH0V=c3w@mail.gmail.com>
+Subject: Re: [PATCH] reference_policy: Tidy up formatting
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Sep 10, 2020 at 7:24 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+> Part of batch 3. This is large so sent directly to Paul
+>
+>  src/reference_policy.md | 1498 ++++++++++++++++++++-------------------
+>  1 file changed, 753 insertions(+), 745 deletions(-)
 
+Merged via the commit below, thanks Richard.
 
-On 2020-08-31 10:02 a.m., Mimi Zohar wrote:
-> On Thu, 2020-08-27 at 18:57 -0700, Tushar Sugandhi wrote:
->> process_buffer_measurement() currently only measures the input buffer.
->> When the buffer being measured is too large, it may result in bloated
->> IMA logs.
-> 
-> The subject of  this sentence refers to an individual record, while
-> "bloated" refers to the measurement list.  A "bloated" measurement list
-> would contain too many or unnecessary records.  Your concern seems to
-> be with the size of the individual record, not the number of
-> measurement list entries.
-> 
-The intent behind that description was twofold. One, as you mentioned,
-the individual record size being large; and two, multiple large-sized
-individual records will eventually bloat the measurement list too.
+  commit e67de6695fdd79e345064fde3defe39860ea9f7e (HEAD -> main, github/main)
+  Author: Richard Haines <richard_c_haines@btinternet.com>
+  Date:   Thu Sep 10 12:24:35 2020 +0100
 
-It can happen in SeLinux case as we discovered. The SeLinux policy
-(which can be a few MBs) can change from 'foo', to 'bar', back to 'foo'.
-And the requirement from SeLinux is that 'foo' should be measured the
-second time too. When 'foo' and 'bar' are large, the individual records
-in the ima log will be large, which will also result in measurement list
-being bloated.
+   reference_policy: Tidy up formatting
 
-But I understand your concern with the current wording. I will update 
-the patch description accordingly.
+   Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+   Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-> Measuring the hash of the buffer data is similar to measuring the file
-> data.  In the case of the file data, however, the attestation server
-> may rely on a white list manifest/DB or the file signature to verify
-> the file data hash.  For buffer measurements, how will the attestation
-> server ascertain what is a valid buffer hash?
-The client and the server implementation will go hand in hand. The
-client/kernel would know what data is measured as-is
-(e.g. KEXEC_CMDLINE), and what data has it’s hash measured
-(e.g. SeLinux Policy). And the attestation server would verify data/hash
-accordingly.
-
-Just like the data being measured in other cases, the attestation server 
-will know what are possible values of the large buffers being measured. 
-It will have to maintain the hash of those buffer values.
-> 
-> Hint:  I assume, correct me if I'm wrong, the measurement list record
-> template data is not meant to be verified, but used to detect if the "critical data" changed.
-> 
-As mentioned above, the use case for this feature is in-memory loaded 
-SeLinux policy, which can be quite large (several MBs) – that's why this 
-functionality. The data is meant to be verified by the attestation server.
-
-> Please update the patch description accordingly.
-I will update the patch description to clarify all this.
-> 
->>
->> Introduce a boolean parameter measure_buf_hash to support measuring
->> hash of a buffer, which would be much smaller, instead of the buffer
->> itself.
->> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
->> ---
-> 
-> <snip>
-> 
->> +++ b/security/integrity/ima/ima_main.c
->> @@ -733,17 +733,21 @@ int ima_load_data(enum kernel_load_data_id id)
->>    * @func: IMA hook
->>    * @pcr: pcr to extend the measurement
->>    * @func_data: private data specific to @func, can be NULL.
->> + * @measure_buf_hash: if set to true - will measure hash of the buf,
->> + *                    instead of buf
->>    *
->>    * Based on policy, the buffer is measured into the ima log.
->>    */
->>   int process_buffer_measurement(struct inode *inode, const void *buf, int size,
->>   			       const char *eventname, enum ima_hooks func,
->> -			       int pcr, const char *func_data)
->> +			       int pcr, const char *func_data,
->> +			       bool measure_buf_hash)
->>   {
->>   	int ret = 0;
->>   	const char *audit_cause = "ENOMEM";
->>   	struct ima_template_entry *entry = NULL;
->>   	struct integrity_iint_cache iint = {};
->> +	struct integrity_iint_cache digest_iint = {};
->>   	struct ima_event_data event_data = {.iint = &iint,
->>   					    .filename = eventname,
->>   					    .buf = buf,
->> @@ -752,7 +756,7 @@ int process_buffer_measurement(struct inode *inode, const void *buf, int size,
->>   	struct {
->>   		struct ima_digest_data hdr;
->>   		char digest[IMA_MAX_DIGEST_SIZE];
->> -	} hash = {};
->> +	} hash = {}, digest_hash = {};
->>   	int violation = 0;
->>   	int action = 0;
->>   	u32 secid;
->> @@ -801,6 +805,24 @@ int process_buffer_measurement(struct inode *inode, const void *buf, int size,
->>   		goto out;
->>   	}
->>   
->> +	if (measure_buf_hash) {
->> +		digest_iint.ima_hash = &digest_hash.hdr;
->> +		digest_iint.ima_hash->algo = ima_hash_algo;
->> +		digest_iint.ima_hash->length = hash_digest_size[ima_hash_algo];
->> +
->> +		ret = ima_calc_buffer_hash(hash.hdr.digest,
->> +					   iint.ima_hash->length,
->> +					   digest_iint.ima_hash);
->> +		if (ret < 0) {
->> +			audit_cause = "digest_hashing_error";
->> +			goto out;
->> +		}
->> +
->> +		event_data.iint = &digest_iint;
->> +		event_data.buf = hash.hdr.digest;
->> +		event_data.buf_len = iint.ima_hash->length;
->> +	}
->> +
-> 
-> There seems to be some code and variable duplication by doing it this
-> way.  Copying the caluclated buffer data hash to a temporary buffer
-> might eliminate it.
-> 
-With the way ima_calc_buffer_hash() is implemented, I was convinced that
-the variable duplication was needed. I didn't want to write a helper 
-function in order to minimize the unnecessary code churn in p_b_m().
-But I will revisit this to see how I can reduce the code and variable 
-duplication.
-
-Thanks for the feedback.
->>   	ret = ima_alloc_init_template(&event_data, &entry, template);
->>   	if (ret < 0) {
->>   		audit_cause = "alloc_entry";
+-- 
+paul moore
+www.paul-moore.com
