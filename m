@@ -7,135 +7,144 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09D2CC43461
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 14:57:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0F46C433E2
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 15:15:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD8D1223EA
-	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 14:57:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 769FF20770
+	for <selinux@archiver.kernel.org>; Fri, 11 Sep 2020 15:15:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="b0V/gW4L"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="oqr1kcUV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725918AbgIKO5U (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Sep 2020 10:57:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56318 "EHLO
+        id S1726418AbgIKPP0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Sep 2020 11:15:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725937AbgIKO4b (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 10:56:31 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6101C0612F4
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 07:52:37 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id b12so10223801edz.11
-        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 07:52:37 -0700 (PDT)
+        with ESMTP id S1726439AbgIKPNV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Sep 2020 11:13:21 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22DD1C061757
+        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 08:13:04 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id i22so14279997eja.5
+        for <selinux@vger.kernel.org>; Fri, 11 Sep 2020 08:13:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=yCqqhHtE89rYvILDb1OrmtXnMHcYLW5OuH1doLV8Gng=;
-        b=b0V/gW4L7mkZTOccBaKiIR/GnE5HpuaEs2YO5oCQdm6S3TKutuVeVqWhzbU6XpdeWU
-         Fn1BDJjrzjXsh7Wwy0HUudxxomO+M+gcJaZpHDhTZgyKGU7lLaFdjWph/z1h3BHXXEmR
-         C3ouK5qjFEw17+lB074HeJAz0ubWg2xNARBV5i/ZmsDSTRUzEy4Tb+1F+4nWN7h1MUnJ
-         woiyje3aHRky/et10FmSyI6p4HFfZGZA5rmeVKm/0ajZwe1p3Ma+lUvY7C3d4RKvFuqJ
-         M3v04XUICurNxZSJqcYeTDxdCYnFo95qakl3Zkbw2y0yjth/czqXOuiU89liGIwc9A78
-         bpig==
+        bh=lfILp3cHFohaPb0/xhMlXcP9+sPGJeGrRj86Qnw8Q6o=;
+        b=oqr1kcUVx7ZhbYQcZe5EVAyRq4WyKBjwXttPsLgs9/32kb39dwoNkc9StJ6dIiDwFu
+         yn82Nbs2hXHffedoCx05Z99ULF0l6nB3TGRP3nxnmNswRGl83TzS+VgHeKahftm66nkB
+         /BzcpwhcCb/2NCT1/S5KbF0irmQdEx7m7Pod5E3fvIw9EtCrYldJIpA7OcAnfKk34t0m
+         35SzFZtwy1jI3/sV1BZZvEAGJuwCVQi5uKDETKZgLpQp889GH17dzB6gQjmsOPiaoYyg
+         TNtiL6Ack3hTIsZuXbNV6hm9AkXeEYuul+xmgZP96JJmCnG7vvunFDkkVKlk/ko+bD1t
+         EAoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=yCqqhHtE89rYvILDb1OrmtXnMHcYLW5OuH1doLV8Gng=;
-        b=ZTt3zd8kafn0xO1Mkc87gPg1XQZSxqJyIJo+h5hJk4JEp91U6TZ4yy/3Ivdvt2wTOv
-         3sWd4FgWYdN1rXtXsxRkIlQzKnMBp5jyHMOCdkCItDJ48vxsdEm5ztvA9j20uIXVLsdo
-         1N94wHzExH565TfeyGYemNuPclJVA/5kf5uHN8ZgHtSVnpGYn3G/ndhoC6ksE/AW1F+V
-         yO9dXwDVRJTKK/zoXTXYyHY4zkvvaLZ8kliRLN1xSd2GNc1NWQuv0KCB0pG8FlnqiYkv
-         aB5a9m9nls+tWTSNCnFYVCUQxFWdZXw9VNbaUlXiqLgmveEBM5KV1z9JlnlVW7l4F9Gf
-         2x/g==
-X-Gm-Message-State: AOAM533+kOmscHSFHckuTDmr3ByiTp4MuL+8ntKtw2fodvJxtvhxngU6
-        leRSzWbPj2ll+Alp2wwyf5iuMR8OhAUS2HwaIsVK
-X-Google-Smtp-Source: ABdhPJyl9/01B7MQDSrYftumkCggqMxwLT5PvjIdG1foWybKJcZYAIE3URChhgSUFKQe/btPHvYDLvfIVzAgkGqUJfc=
-X-Received: by 2002:aa7:ce97:: with SMTP id y23mr2495962edv.128.1599835956162;
- Fri, 11 Sep 2020 07:52:36 -0700 (PDT)
+        bh=lfILp3cHFohaPb0/xhMlXcP9+sPGJeGrRj86Qnw8Q6o=;
+        b=GyiNKldPdrBxWeGuR76q042Qv1X2zYY9hHRb5x9xxES8tEC16EbE0evojo8z6eGM4x
+         87ctB8R2YMCl69IwhUGYl73PgA5B2qQIJWqDHfP9KlsAadpRTzrD70jJ+BmYVdsvR4Dc
+         FUo1r3Rtq4s0e0ygVOVVqrkVUduGOAHrYv2YmMNKTJjMCGlAQ8/rtouH1c1eWMBGuW1x
+         NacUumRhveZV98MSMdgNsVF8qskIMSZ1KNNDCPw1aID+mo8tzjknRbsPYJnHFtWAy9L8
+         hyekZdSo7fK8OI/PM4Goq55N0oa5G0U4PPU8ttIGP4NNWK4y+/wnaLXmDvzBoDUIHsJn
+         kbuQ==
+X-Gm-Message-State: AOAM533QMB5zuzC6OlB+YUOb0P+79EC8ABb2Jyt+mDvTHssvVaXargsC
+        rpra5z3geeBTus1XxwrqGa7OVzPZPYyS9yymss6O9GfChg==
+X-Google-Smtp-Source: ABdhPJx7lNmegV+YpIUxtvFSOx6qkh/hxlt3CxiJeybjHT3b5Abj6GU/S98s3OqebL1S1gG95RJ+guVZ2Lj0TGJ64WE=
+X-Received: by 2002:a17:906:a415:: with SMTP id l21mr2347421ejz.431.1599837182353;
+ Fri, 11 Sep 2020 08:13:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200909222822.23198-1-nramas@linux.microsoft.com>
- <CAHC9VhSZiuHHg+oJPcaRLoZaDhARgiJ2PN5LiMHcVk1yB0a+ng@mail.gmail.com> <CAEjxPJ7Q+7mBh1hjY7sZiEAjX7Z8afrpzMP6UTwDrO3=pKVoRQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7Q+7mBh1hjY7sZiEAjX7Z8afrpzMP6UTwDrO3=pKVoRQ@mail.gmail.com>
+References: <20200908074003.3526-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200908074003.3526-1-richard_c_haines@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 11 Sep 2020 10:52:24 -0400
-Message-ID: <CAHC9VhQ2QXWZZhDV03tQg7ZYo0ARS4htEe0Ls0Amnojzgqriyw@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: Add helper functions to get and set checkreqprot
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Sasha Levin <sashal@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 11 Sep 2020 11:12:51 -0400
+Message-ID: <CAHC9VhSAynQwuaMXiqfmds=eygw-5ybjuhYBjDfRS-PdD7o5uQ@mail.gmail.com>
+Subject: Re: [PATCH V2] network_support: Update LibreSwan configuration
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 11, 2020 at 10:23 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Fri, Sep 11, 2020 at 10:07 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Wed, Sep 9, 2020 at 6:28 PM Lakshmi Ramasubramanian
-> > <nramas@linux.microsoft.com> wrote:
-> > >
-> > > checkreqprot data member in selinux_state struct is accessed directly by
-> > > SELinux functions to get and set. This could cause unexpected read or
-> > > write access to this data member due to compiler optimizations and/or
-> > > compiler's reordering of access to this field.
-> > >
-> > > Add helper functions to get and set checkreqprot data member in
-> > > selinux_state struct. These helper functions use READ_ONCE and
-> > > WRITE_ONCE macros to ensure atomic read or write of memory for
-> > > this data member.
-> > >
-> > > Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-> > > Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
-> > >  security/selinux/hooks.c            |  6 +++---
-> > >  security/selinux/include/security.h | 10 ++++++++++
-> > >  security/selinux/selinuxfs.c        |  5 +++--
-> > >  3 files changed, 16 insertions(+), 5 deletions(-)
-> >
-> > ...
-> >
-> > > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> > > index cbdd3c7aff8b..cc29177c8858 100644
-> > > --- a/security/selinux/include/security.h
-> > > +++ b/security/selinux/include/security.h
-> > > @@ -143,6 +143,16 @@ static inline void enforcing_set(struct selinux_state *state, bool value)
-> > >  }
-> > >  #endif
-> > >
-> > > +static inline bool checkreqprot_enabled(const struct selinux_state *state)
-> > > +{
-> > > +       return READ_ONCE(state->checkreqprot);
-> > > +}
-> > > +
-> > > +static inline void checkreqprot_set(struct selinux_state *state, bool value)
-> > > +{
-> > > +       WRITE_ONCE(state->checkreqprot, value);
-> > > +}
-> >
-> > This is a nitpick, and I recognize that Stephen already suggested the
-> > use of "*_set()" and "*_enabled()" for names, but if we are going to
-> > name the setter "*_set()" let's also name the getter "*_get()".
+On Tue, Sep 8, 2020 at 3:40 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
 >
-> I just suggested that we be consistent with the existing naming for
-> enforcing_*(), which I thought came from you?
+> Update ipsec.conf file that describes the labeled ipsec entries.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+> V2 Change: Update encryption algorithms and add note as suggested by
+> Topi Miettinen.
+>
+>  src/network_support.md | 45 ++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 43 insertions(+), 2 deletions(-)
 
-I vaguely remember having a discussion around the naming back then,
-but I can't recall who preferred what and when.  I'm sure it's all in
-the archives for anyone who cares to look.
+Merged with the one small fix noted below ...
 
-Regardless, I think _set() and _get() make the most sense here.  I can
-also see an argument being made for "_enabled()" on some bigger flags.
-My personal opinion is that the SELinux kernel code, and kernel code
-in general, is a bit of a mess when it comes to naming consistency.
-Considering the age, size, and number of contributors the current
-state really shouldn't be too surprising (and honestly it isn't that
-bad considering everything).  Perhaps someday we can look at that, but
-that is so far down the priority list it isn't worth discussing; I'd
-tackle the coding style inconsistencies before this.
+> diff --git a/src/network_support.md b/src/network_support.md
+> index 36af1f4..1103c70 100644
+> --- a/src/network_support.md
+> +++ b/src/network_support.md
+> @@ -452,11 +452,52 @@ Context type identifier has never been defined in any standard. Pluto is
+>  configurable and defaults to '*32001*', this is the IPSEC Security
+>  Association Attribute identifier reserved for private use. Racoon is
+>  hard coded to a value of '*10*', therefore the pluto ***ipsec.conf**(5)*
+> -file must be configured as follows:
+> +configuration file *secctx-attr-type* entry must be set as shown in the
+> +following example:
+>
+>  ```
+>  config setup
+> -        secctx-attr-type=10
+> +       protostack=netkey
+> +       plutodebug=all
+> +       logfile=/var/log/pluto/pluto.log
+> +       logappend=no
+> +       # A "secctx-attr-type" MUST be present:
+> +       secctx-attr-type=10
+> +       # Labeled IPSEC only supports the following values:
+> +       #   10 = ECN_TUNNEL - Used by racoon(8)
+> +       #   32001 = Default - Reserved for private use (see RFC 2407)
+> +       # These are the "IPSEC Security Association Attributes"
+> +
+> +conn selinux_labeled_ipsec_test
+> +       # ikev2 MUST be "no" as labeled ipsec is not yet supported by IKEV2
+> +       # There is a draft IKEV2 labeled ipsec document (July '20) at:
+> +       #   https://tools.ietf.org/html/draft-ietf-ipsecme-labeled-ipsec-03
+> +       ikev2=no
+> +       auto=start
+> +       rekey=no
+> +       authby=secret   # set in '/etc/ipsec.secrets'. See NOTE
+> +       type=transport
+> +       left=192.168.1.198
+> +       right=192.168.1.148
+> +       ike=aes256-sha2         # See NOTE
+> +       phase2=esp
+> +       phase2alg=aes256        # See NOTE
+> +       # The 'policy-label' entry is used to determine whether SELinux will
+> +       # allow or deny the request using the labels from:
+> +       #   connection policy label from the applicable SAD entry
+> +       #   connection flow label from the applicable SPD entry (this is taken
+> +       #   from the 'conn <name> policy-label' entry).
+> +       # selinux_check_access(SAD, SPD, "association", "polmatch", NULL);
+> +       policy-label=system_u:object_r:ipsec_spd_t:s0
+> +       leftprotoport=tcp
+> +       rightprotoport=tcp
+> +
+> +# NOTE:
+> +#   The authentication methods and encryption algorithms should be chosen
+> +#   with care and within the constraints of those available for
+> +    interoperability.
+
+Missing a '#' in the line above.
+
+> +#   Racoon is no longer actively supported and has a limited choice of
+> +#   algorithms compared to LibreSwan.
+>  ```
+>
+>  The Fedora version of racoon has added functionality to support
 
 -- 
 paul moore
