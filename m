@@ -1,177 +1,93 @@
-Return-Path: <SRS0=vGri=CY=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=BB3M=CZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5530BC433E2
-	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 23:55:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49988C433E2
+	for <selinux@archiver.kernel.org>; Wed, 16 Sep 2020 00:37:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2C9CF20720
-	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 23:55:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0289207DE
+	for <selinux@archiver.kernel.org>; Wed, 16 Sep 2020 00:37:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BB91feiM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbgIOXy7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Sep 2020 19:54:59 -0400
-Received: from mail.hallyn.com ([178.63.66.53]:43054 "EHLO mail.hallyn.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727033AbgIOObc (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:32 -0400
-X-Greylist: delayed 621 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Sep 2020 10:31:23 EDT
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id EEC1BC38; Tue, 15 Sep 2020 09:19:46 -0500 (CDT)
-Date:   Tue, 15 Sep 2020 09:19:46 -0500
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        linux-man <linux-man@vger.kernel.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, smcv@collabora.com,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>
-Subject: Re: [PATCH v2] socket.7,unix.7: add initial description for
- SO_PEERSEC
-Message-ID: <20200915141946.GA19979@mail.hallyn.com>
-References: <20200914180700.11003-1-stephen.smalley.work@gmail.com>
- <CAKgNAkgjndEr4zd1zGD_h+2srWsRAQT7=Hyqh7Ktxy7FQn35Dg@mail.gmail.com>
+        id S1726255AbgIPAhf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Sep 2020 20:37:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52202 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726604AbgIONXy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 09:23:54 -0400
+Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF088C061A27
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 06:23:26 -0700 (PDT)
+Received: by mail-oo1-xc44.google.com with SMTP id 4so730986ooh.11
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 06:23:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ij4TRBfUkaBfw5ERpLvzncgf6wPeQwgiIog3HeWapDg=;
+        b=BB91feiMTBICQ1bNWdQgo7j0qW0LMoMlRVm8vvjnfIe/m7TKxeUDRwuSn/VpnIWguL
+         1ZcMpVxGzfDq1sh2ztJ+feteEttlwjq5p75m1Ymay3p9+3IUrx4O1WK66tNsBWLzpthu
+         qkNd6D5bzd02svNyyj+IAgnEwyw+b9pql7euYpQo9U9zzoNGVuP2T98/FPufKGZ/9bvg
+         WzFZWHXnJH6SfDmkbaYhOEF1pY7Ojhq6C6VJWoX9JOQCE3tHK7sln7oqXIxs3HQXoZ3o
+         +fvc1L5g+k4ReXkJFk+eg9FsTIkRlaHkXdS+O4+DrjhMeONG71A8KxQ5JJ8lxEl1CgT5
+         PKQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ij4TRBfUkaBfw5ERpLvzncgf6wPeQwgiIog3HeWapDg=;
+        b=ALYQtXLyOvUozaD/KkOydGvksyFJUE1Zxz5MaIlcPJnN7GXJFm9X4Qe7PufHOkSUH3
+         g71qTuOljpCdbhfJJnIrbrEo+Ux/hjZzyc63viHB9l9A/sZtUPYay223w6cSBDqSS7MO
+         N6pR/sBph5811MRrESzQP7TFYRPnHyaBeP14syWg39K4sM/twueejendj9VE4fDVRSxg
+         GLaL9An1vEl9yxe/qFjyoZrfb4dCHm16nt80vRURbiDBV4tILBEAcwZ9Kt6JbNpxQjUZ
+         V2bMwSx7gVJhbTslGTVoWzM8MWmb3oG8U9R88yh1Ap7Fik3I8HFe7JBsI/EMrRS0l7Zn
+         S3gQ==
+X-Gm-Message-State: AOAM532h8zx6uT78cOHWtUI7JlONoCcZX+zp+s3Bsj8PPlQfp0RSWIyq
+        U3v/bDpxpEF3KjBWgeIgi0s7ETHIZtXoUSLeVQGDgDjj
+X-Google-Smtp-Source: ABdhPJwcuB03BitXV3I5ysj5gfy2gjiMOjI2MSs5koEy+QLSVcpjywkJdQhv1Lx9oo9Xf8pQcKJpYWs5UueX3B6dLGQ=
+X-Received: by 2002:a4a:d0ad:: with SMTP id t13mr14207128oor.58.1600176206355;
+ Tue, 15 Sep 2020 06:23:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKgNAkgjndEr4zd1zGD_h+2srWsRAQT7=Hyqh7Ktxy7FQn35Dg@mail.gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20200911195614.429223-1-chpebeni@linux.microsoft.com> <CAEjxPJ5P0sv4v88xYnf=tadNk=y5+D_z6dDX-JTqQ=dgGjBarg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5P0sv4v88xYnf=tadNk=y5+D_z6dDX-JTqQ=dgGjBarg@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 15 Sep 2020 09:23:15 -0400
+Message-ID: <CAEjxPJ4yfAi-Ha1V50EaU01FBU-D2zwUOtxLEPhaVz8hp38E9A@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] libselinux: Fix selabel_lookup() for the root dir.
+To:     Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 10:56:18AM +0200, Michael Kerrisk (man-pages) wrote:
-> Hello Stephen,
-> 
-> On Mon, 14 Sep 2020 at 20:07, Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+On Fri, Sep 11, 2020 at 4:18 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Fri, Sep 11, 2020 at 3:57 PM Chris PeBenito
+> <chpebeni@linux.microsoft.com> wrote:
 > >
-> > SO_PEERSEC was introduced for AF_UNIX stream sockets connected via
-> > connect(2) in Linux 2.6.2 [1] and later augmented to support AF_UNIX stream
-> > and datagram sockets created via socketpair(2) in Linux 4.18 [2].  Document
-> > SO_PEERSEC in the socket.7 and unix.7 man pages following the example
-> > of the existing SO_PEERCRED descriptions.  SO_PEERSEC is also supported
-> > on AF_INET sockets when using labeled IPSEC or NetLabel but defer
-> > adding a description of that support to a separate patch.
-> >
-> > The module-independent description of the security context returned
-> > by SO_PEERSEC is from Simon McVittie <smcv@collabora.com>.
-> 
-> Thanks for the patch, The text looks in reasonable shape to me. I'm
-> just hanging off applying for a bit in case some Reviewed/Acked-by
-> comes in.
-> 
+> > 9e4480b921bb ("Remove trailing slash on selabel_file lookups.") introduced
+> > a bug which turns the root directory lookup "/" into an empty string.
+>
+> Thanks.
+>
+> > v2: Fix commit message
+>
+> This should go after the --- so that it doesn't get included in the
+> commit message since only the final version gets committed.  But don't
+> worry about re-posting just for that; I can just amend it before
+> merging if I remember or if not no big deal.
+>
+> > Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-fwiw just as someone who's used this,
-
-Reviewed-by: Serge Hallyn <serge@hallyn.com>
-
-Thanks Stephen, thanks Michael.
-
-> Cheers,
-> 
-> Michael
-> 
-> 
-> > [1] https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=da6e57a2e6bd7939f610d957afacaf6a131e75ed
-> >
-> > [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0b811db2cb2aabc910e53d34ebb95a15997c33e7
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > v2 adds kernel commit info to the description and man page and uses
-> > the suggested text from Simon McVittie for the description of
-> > the security context string in a module-neutral way.
-> >
-> >  man7/socket.7 |  5 +++++
-> >  man7/unix.7   | 46 ++++++++++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 51 insertions(+)
-> >
-> > diff --git a/man7/socket.7 b/man7/socket.7
-> > index 21e891791..c3635f95b 100644
-> > --- a/man7/socket.7
-> > +++ b/man7/socket.7
-> > @@ -690,6 +690,11 @@ Return the credentials of the peer process connected to this socket.
-> >  For further details, see
-> >  .BR unix (7).
-> >  .TP
-> > +.BR SO_PEERSEC " (since Linux 2.6.2)"
-> > +Return the security context of the peer socket connected to this socket.
-> > +For further details, see
-> > +.BR unix (7).
-> > +.TP
-> >  .B SO_PRIORITY
-> >  Set the protocol-defined priority for all packets to be sent on
-> >  this socket.
-> > diff --git a/man7/unix.7 b/man7/unix.7
-> > index 50828a5bc..298521d4a 100644
-> > --- a/man7/unix.7
-> > +++ b/man7/unix.7
-> > @@ -349,6 +349,52 @@ stream sockets and for
-> >  .B AF_UNIX
-> >  stream and datagram socket pairs created using
-> >  .BR socketpair (2).
-> > +.TP
-> > +.B SO_PEERSEC
-> > +This read-only socket option returns the
-> > +security context of the peer socket connected to this socket.
-> > +By default, this will be the same as the security context of
-> > +the process that created the peer socket unless overridden
-> > +by the policy or by a process with the required permissions.
-> > +.IP
-> > +The argument to
-> > +.BR getsockopt (2)
-> > +is a pointer to a
-> > +buffer of the specified length in bytes
-> > +into which the security context string will be copied.
-> > +If the buffer length is less than the length of the security
-> > +context string, then
-> > +.BR getsockopt (2)
-> > +will return the required length
-> > +via
-> > +.I optlen
-> > +and return \-1 and sets
-> > +.I errno
-> > +to
-> > +.BR ERANGE .
-> > +The caller should allocate at least
-> > +.BR NAME_MAX
-> > +bytes for the buffer initially although this is not guaranteed
-> > +to be sufficient.  Resizing the buffer to the returned length
-> > +and retrying may be necessary.
-> > +.IP
-> > +The security context string may include a terminating null character
-> > +in the returned length, but is not guaranteed to do so: a security
-> > +context "foo" might be represented as either {'f','o','o'} of length 3
-> > +or {'f','o','o','\\0'} of length 4, which are considered to be
-> > +interchangeable. It is printable, does not contain non-terminating
-> > +null characters, and is in an unspecified encoding (in particular it
-> > +is not guaranteed to be ASCII or UTF-8).
-> > +.IP
-> > +The use of this option for sockets in the
-> > +.B AF_UNIX
-> > +address family
-> > +is supported since Linux 2.6.2 for connected stream sockets and
-> > +since Linux 4.18,
-> > +.\" commit 0b811db2cb2aabc910e53d34ebb95a15997c33e7
-> > +also for stream and datagram socket pairs created
-> > +using
-> > +.BR socketpair (2).
-> >  .\"
-> >  .SS Autobind feature
-> >  If a
-> > --
-> > 2.25.1
-> >
-> 
-> 
-> -- 
-> Michael Kerrisk
-> Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-> Linux/UNIX System Programming Training: http://man7.org/training/
+Applied.
