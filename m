@@ -2,184 +2,104 @@ Return-Path: <SRS0=vGri=CY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E1F4C43461
-	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 22:13:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD96C433E2
+	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 23:00:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 649A320809
-	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 22:13:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D1FF20770
+	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 23:00:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E6lqfbQk"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="DDeSKvxw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbgIOWNZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Sep 2020 18:13:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54776 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727743AbgIOQkN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 12:40:13 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879A2C06174A;
-        Tue, 15 Sep 2020 09:40:12 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id 19so3692131qtp.1;
-        Tue, 15 Sep 2020 09:40:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=U5qBWD/Pi0YOP8OO3FMwldARNgB9cZIIn6+Wxa36CQY=;
-        b=E6lqfbQkfG5cw1N/zZndHc9MDrrZlnZBINXTqhxJacElStwMCdApV/IGKoLPc7JKvo
-         ls1jmd613FgEYWRtp2i7AvOKWYeRCHc32Cx7psWDd/XND3OeGlb34spPddQXCPoubtbZ
-         FhVetIW/5sSw3g6TmYnndob5PzwfNKAKDjQsG3Di3fF3cM/L10qkKOLpArjOAQPEH5pM
-         q5ouIAFYI3ics2jvYIbehRLimcljUO+GeToQRHJW9WoRhfFwSogSfSnTwh/uTNH8gmeJ
-         EHKelxBDFcoFNoxwwrHSqt45Od+BBSQRo5T2bx0ohuTGz9tyeAfr1cTqS+2zpufPwCPy
-         a6+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=U5qBWD/Pi0YOP8OO3FMwldARNgB9cZIIn6+Wxa36CQY=;
-        b=fYWRRrRzPSP2ySyJJCcccPtatQ3O/tnDk7MthaMZH5FHfwLwlwXjmBgd9cdrFusxZx
-         KcL6XYmkely/RfKJze/92VTwixBV8a5UldMuVIq7kv9y9XSgcgQwnrTHgMbN8lDbrgnG
-         E8CRq7g0aLAWRkS6kc8if3s+zBJ8Szz9JLe2N2B+9HFlYWHc909UpwABqPOLvtQZJOht
-         5imrDre3AXCaO+ysIQmIzLPP3ct7wRBqRAxqOEIpsZTKVNPxdt+nHUl3zavxY/7TK/ze
-         vTqnyki2XwuqsCIrejgd5Vy1jcOal8bKZE7t/ySWznr12lFJ0LvrH+u1CNE/CnXSN2lQ
-         9BeQ==
-X-Gm-Message-State: AOAM5334Btbd262e0UXVPIy/aOMMwUASfH3In9j3n0LKU4iR6fKCPBgH
-        jItKjRsF95PsbEtSxz+/Edw=
-X-Google-Smtp-Source: ABdhPJwueNIF6/j3D1/WkJFmXEjp48g8rttDimycmnaHu3TGo4GNviuYN1Rnl3JKAC8BKAmtlLdogQ==
-X-Received: by 2002:ac8:2942:: with SMTP id z2mr19342171qtz.376.1600188011702;
-        Tue, 15 Sep 2020 09:40:11 -0700 (PDT)
-Received: from puritycontrol.fios-router.home (pool-96-234-167-227.bltmmd.fios.verizon.net. [96.234.167.227])
-        by smtp.gmail.com with ESMTPSA id 71sm17162340qki.85.2020.09.15.09.40.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2020 09:40:11 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     mtk.manpages@gmail.com
-Cc:     linux-man@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, smcv@collabora.com, jmorris@namei.org,
-        serge@hallyn.com, paul@paul-moore.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] socket.7,ip.7: Document SO_PEERSEC for AF_INET sockets
-Date:   Tue, 15 Sep 2020 12:39:59 -0400
-Message-Id: <20200915163959.25334-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S1727333AbgIOXAK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Sep 2020 19:00:10 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:58032 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726205AbgIOPEh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 11:04:37 -0400
+Received: from chpebeni.northamerica.corp.microsoft.com (pool-108-15-23-247.bltmmd.fios.verizon.net [108.15.23.247])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 40E6220A1B0A;
+        Tue, 15 Sep 2020 08:04:23 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 40E6220A1B0A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1600182263;
+        bh=hQ2/AyaW3BSZZayZPUjCHhl5iTHnIbUrjKDxQYOTZHY=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=DDeSKvxw3aRwhjklunZJnJoxOUvELDTtA1Ts+Tx3eA8sSSFZrVX4iRrcTb72RARav
+         1n1qpWjRYSsdIaVVYkfBs0pWJIF1pE1w+2S6h9UTLEhtVwYm2p/tdcFce+nDJmkm0z
+         bOHafGwA38dsd/QQYycHjTcxd/GDN650ge8VpJhE=
+Subject: Re: [RFC PATCH 1/1] libselinux: Revise userspace AVC avc_log() for
+ auditable events.
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Steve Grubb <sgrubb@redhat.com>
+References: <20200915130516.561693-1-chpebeni@linux.microsoft.com>
+ <CAEjxPJ77s7WHqixbD60LnEOG_+WYc2mOj0cTPMoKXqk8M5zqBg@mail.gmail.com>
+ <6bff0d2f-5e33-213f-dfe5-e3af01474860@linux.microsoft.com>
+ <CAEjxPJ7Wj6R9y00=m1z9-qrC2+1onVOQQagD+WV0LxXpcJJCtg@mail.gmail.com>
+From:   Chris PeBenito <chpebeni@linux.microsoft.com>
+Message-ID: <ddf77261-7fa4-9ff6-01ed-3ac0f3c9e2cc@linux.microsoft.com>
+Date:   Tue, 15 Sep 2020 11:04:22 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEjxPJ7Wj6R9y00=m1z9-qrC2+1onVOQQagD+WV0LxXpcJJCtg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Augment the description of SO_PEERSEC to cover AF_INET sockets
-in addition to the prior description for AF_UNIX.
+On 9/15/20 10:43 AM, Stephen Smalley wrote:
+> On Tue, Sep 15, 2020 at 10:33 AM Chris PeBenito
+> <chpebeni@linux.microsoft.com> wrote:
+>>
+>> On 9/15/20 9:34 AM, Stephen Smalley wrote:
+>>> On Tue, Sep 15, 2020 at 9:11 AM Chris PeBenito
+>>> <chpebeni@linux.microsoft.com> wrote:
+>>>> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+>>>> index 572b2159..35ea59b6 100644
+>>>> --- a/libselinux/src/avc_internal.c
+>>>> +++ b/libselinux/src/avc_internal.c
+>>>> @@ -59,14 +59,14 @@ int avc_process_setenforce(int enforcing)
+>>>>           int rc = 0;
+>>>>
+>>>>           avc_log(SELINUX_SETENFORCE,
+>>>> -               "%s:  received setenforce notice (enforcing=%d)\n",
+>>>> +               "%s:  op=setenforce lsm=selinux_uavc enforcing=%d res=1",
+>>>>                   avc_prefix, enforcing);
+>>>>           if (avc_setenforce)
+>>>>                   goto out;
+>>>>           avc_enforcing = enforcing;
+>>>>           if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
+>>>>                   avc_log(SELINUX_ERROR,
+>>>> -                       "%s:  cache reset returned %d (errno %d)\n",
+>>>> +                       "%s:  op=cache_reset lsm=selinux_uavc rc=%d errno=%d res=0",
+>>>>                           avc_prefix, rc, errno);
+>>>
+>>> If we do this at all, I would think the op= would still be setenforce
+>>> and this would just be an error for it.
+>>
+>> At this point we already audited success for the setenforce operation.  Wouldn't
+>> it be confusing to have a op=setenforce res=1 and then immediately op=setenforce
+>> res=0?
+> 
+> Yes.  On second thought, I don't think any of the SELINUX_ERROR
+> messages are intended for audit and since that is already a different
+> type value, the callbacks can already redirect those to stderr or
+> syslog as appropriate instead of audit.
 
-SO_PEERSEC for TCP sockets was introduced in Linux 2.6.17 [1], and
-SO_PEERSEC for SCTP sockets was introduced in Linux 4.17 [2].
+Are the typebounds and validatetrans in UAVC passed to the kernel for 
+evaluation? The kernel audits failures on those as SELINUX_ERR.  If the UAVC 
+handles them itself, it seems that those failures should be audited as 
+USER_SELINUX_ERR.
 
-This does not cover usage of SCM_SECURITY for UDP sockets, which
-was also introduced in the same commit for 2.6.17.
 
-Examples of the necessary labeled IPSEC and NetLabel configurations
-to enable use of SO_PEERSEC for TCP and SCTP sockets can be found in
-the SELinux Notebook [3] and the selinux-testsuite [4].
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2c7946a7bf45ae86736ab3b43d0085e43947945c
-
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d452930fd3b9031e59abfeddb2fa383f1403d61a
-
-[3] https://github.com/SELinuxProject/selinux-notebook
-
-[4] https://github.com/SELinuxProject/selinux-testsuite
----
- man7/ip.7     | 56 +++++++++++++++++++++++++++++++++++++++++++++++++++
- man7/socket.7 |  2 +-
- 2 files changed, 57 insertions(+), 1 deletion(-)
-
-diff --git a/man7/ip.7 b/man7/ip.7
-index c522b219c..03a9f3f7c 100644
---- a/man7/ip.7
-+++ b/man7/ip.7
-@@ -979,6 +979,62 @@ Argument is an
- .I ip_mreq_source
- structure as described under
- .BR IP_ADD_SOURCE_MEMBERSHIP .
-+.TP
-+.BR SO_PEERSEC " (since Linux 2.6.17)"
-+If labeled IPSEC or NetLabel is configured on both the sending and
-+receiving hosts, this read-only socket option returns the security
-+context of the peer socket connected to this socket.  By default, this
-+will be the same as the security context of the process that created
-+the peer socket unless overridden by the policy or by a process with
-+the required permissions.
-+.IP
-+The argument to
-+.BR getsockopt (2)
-+is a pointer to a
-+buffer of the specified length in bytes
-+into which the security context string will be copied.
-+If the buffer length is less than the length of the security
-+context string, then
-+.BR getsockopt (2)
-+will return the required length
-+via
-+.I optlen
-+and return \-1 and sets
-+.I errno
-+to
-+.BR ERANGE .
-+The caller should allocate at least
-+.BR NAME_MAX
-+bytes for the buffer initially although this is not guaranteed
-+to be sufficient.  Resizing the buffer to the returned length
-+and retrying may be necessary.
-+.IP
-+The security context string may include a terminating null character
-+in the returned length, but is not guaranteed to do so: a security
-+context "foo" might be represented as either {'f','o','o'} of length 3
-+or {'f','o','o','\\0'} of length 4, which are considered to be
-+interchangeable. It is printable, does not contain non-terminating
-+null characters, and is in an unspecified encoding (in particular it
-+is not guaranteed to be ASCII or UTF-8).
-+.IP
-+The use of this option for sockets in the
-+.B AF_INET
-+address family
-+is supported since Linux 2.6.17
-+.\" commit 2c7946a7bf45ae86736ab3b43d0085e43947945c
-+for TCP sockets and since Linux
-+4.17
-+.\" commit d452930fd3b9031e59abfeddb2fa383f1403d61a
-+for SCTP sockets.
-+.IP
-+For SELinux, NetLabel only conveys the MLS portion of the security
-+context of the peer across the wire, defaulting the rest of the
-+security context to the values defined in the policy for the
-+netmsg initial security identifier (SID). However, NetLabel can
-+be configured to pass full security contexts over loopback.  Labeled
-+IPSEC always passes full security contexts as part of establishing
-+the security association (SA) and looks them up based on the association
-+for each packet.
- .SS /proc interfaces
- The IP protocol
- supports a set of
-diff --git a/man7/socket.7 b/man7/socket.7
-index c3635f95b..2f9039333 100644
---- a/man7/socket.7
-+++ b/man7/socket.7
-@@ -693,7 +693,7 @@ For further details, see
- .BR SO_PEERSEC " (since Linux 2.6.2)"
- Return the security context of the peer socket connected to this socket.
- For further details, see
--.BR unix (7).
-+.BR unix (7) and ip(7).
- .TP
- .B SO_PRIORITY
- Set the protocol-defined priority for all packets to be sent on
 -- 
-2.25.1
-
+Chris PeBenito
