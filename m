@@ -2,97 +2,118 @@ Return-Path: <SRS0=vGri=CY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6DB7C2D0E0
-	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 18:39:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBBA3C43461
+	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 18:48:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B084A21655
-	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 18:39:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8197820B1F
+	for <selinux@archiver.kernel.org>; Tue, 15 Sep 2020 18:48:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="1+rL6wKb"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jOJbBucO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728014AbgIOSjV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Sep 2020 14:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
+        id S1727914AbgIOSsp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Sep 2020 14:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727666AbgIOSiv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 14:38:51 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52C8C06174A
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 11:38:50 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id e22so4060839edq.6
-        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 11:38:50 -0700 (PDT)
+        with ESMTP id S1727755AbgIOSsM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Sep 2020 14:48:12 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71818C06178A
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 11:48:11 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id q5so5395554qkc.2
+        for <selinux@vger.kernel.org>; Tue, 15 Sep 2020 11:48:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qEsf3xFiIddLDKhq/tbPypo1Eyq9uXrwuTwP67FZJBg=;
-        b=1+rL6wKb48qQJcBvWyP0X+TjsdB2TYbc6pVkLuNicvBlJCpm+Sj9R+cocxfD/UBoXG
-         eM8nQ4swu7S71iSxp6vZixeppbrIHHHP6EJZLJJvoPrd12hbiXVKyg3h51WgkoHwyyW2
-         P6GPH8mrdUuSBk6uUt0niYGIqkEw8k1VvbJQkGx3iWjYmZqulu9Af7Sd0/YXHQ3M4tR9
-         zB9aJdbaqlFuLkcYqqRPKwI0XH8BeABBKhmkSW5B4Y9wM3qlcyDagjjt8/Jrf1jvAg9M
-         NG6ScZvQDIqjgEraRdBci8+mPYDLzut89ky4EN8MqoOyf9X/AjHykGQc6yxdICY96jQ4
-         wukA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jCwLNex/ljZWWWmy7H/MFzCnwq3a445JMfhNA/pIiic=;
+        b=jOJbBucO/AfGXUGoBifhyk64gTiDoV6BsZFz/aeg9FN9TxgCubSnOgDZOZO/66HVCH
+         xTqcgLLrlMTdZZXzHf9bBB42r26R7Ki0+7fuYg91rKlVRSA3LR5JtbeAJrMeIIxcMC3s
+         REYMkTK5kqoo6tOW/4UOk2dvsBgdXnGGiSAfotPtKtyG066TpxaEg9pCZv5YP0wZt6ZO
+         Wwj9P27sKPP2I11uoWEYI5n5sx/8ENr+ARm6wEvZYcnXTODsjD/GSklq3PITLUh1KOJz
+         4D1lwjoTR7bMtZNxqDWbWBC1GeBiKUPxy1axdVzBaEi+aES0w8YEipdhR84PET8MCKOy
+         AVvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qEsf3xFiIddLDKhq/tbPypo1Eyq9uXrwuTwP67FZJBg=;
-        b=JNtVFeO8isbJ3svis8tVumKLwxTtqU9X2H6WEgtTFz3u2KJ1j5j3D3ZOXgSmmUBQc8
-         Y2JWB1AFT7dQYJ+j2E64JOADMzn0mYQhN/bJSkQgw/EAcerjtN3SqpkOzjHYRnJG3bWB
-         RBvMABxuibUqRBHxAqMeNrdHlDiNthWdGxbJ9Q5+3oxACtK9EcVzcZYzNjSRgMCu3Dxz
-         YVuKT7QxTuzNT1FtatT/EEql6pW961+87WHyaoCeKxpMdbxvPu2SIXXRPd/OxBwrMBrh
-         Q6EtR4N2Wm0cgVJTKpiOTjbchENmRD+aTh4Nqtk8P2LuWfIqKpSSEc07svv6Di1HQ5Uw
-         1zNQ==
-X-Gm-Message-State: AOAM531tc3HqhyzvqHVcFDRnnCICFog4h5ZGTXHnoWQbMYA2h2TVijRM
-        F55cQBilFH7GLl6QnVcSW3g9lZZF2c+G2hEc7bGjiyIJneI4
-X-Google-Smtp-Source: ABdhPJwliMhs3ia/GgGLGP6txYMtEL3KaLtRm7LPrwJeVo4Qssz+mrdUIvKMHDQtQmnNJq9cbqpX69aPax0F4S/aQkE=
-X-Received: by 2002:aa7:ce97:: with SMTP id y23mr24575347edv.128.1600195126950;
- Tue, 15 Sep 2020 11:38:46 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jCwLNex/ljZWWWmy7H/MFzCnwq3a445JMfhNA/pIiic=;
+        b=ROwkEW9syfsNB1gGEEW0Sc+UFlkvzYDqTdQ0tD5SOWnzx64Jz3VqInZysKV2jCSL5G
+         8lIqYVzMXZ5+zrGiuIGhLco+qrPCwv8CQtXwzDU2zpuBH67qnqBrvh7PF7mBePGPlAYA
+         orJT1SwgXaE6HgzK9SvodPCUcH4I5TgNu/fyUTl2bgxMUKJchA225apESyNDVFc1Fe89
+         7+cwqPeHf61wr1S/m51uctcTddNZjUpk/Ijwp/X1r4ZxPn37EVFsaVMz+pTqhm3ROENN
+         vlo4Vg0IWpMrXpKUIWrXp+XrVeaE1TYNM7BrMcvmilG8CY1SIjyfLJKqQBqhJS3p/ubD
+         ynbA==
+X-Gm-Message-State: AOAM532T8hWOIFPQJS5x7gzH5XRRrooxEPyUh87jUdPoOJqz3LV9ks0M
+        Sn1qhBnNiIlwSv5DM7fdEskwtQXUW/g=
+X-Google-Smtp-Source: ABdhPJwCaopIgzj3YqhcSFr/2OwSscZ4yctP1FQNcACOrKC2gyW3EkcXCCJ5/Jl91YA4wKql37draQ==
+X-Received: by 2002:a05:620a:1275:: with SMTP id b21mr18247791qkl.135.1600195690557;
+        Tue, 15 Sep 2020 11:48:10 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id b13sm17608379qkl.46.2020.09.15.11.48.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Sep 2020 11:48:10 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>,
+        Jonathan Hettwer <j2468h@gmail.com>
+Subject: [PATCH] libsepol/cil: Fix neverallow checking involving classmaps
+Date:   Tue, 15 Sep 2020 14:48:06 -0400
+Message-Id: <20200915184806.396309-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-References: <20200914173157.4655-1-nramas@linux.microsoft.com>
-In-Reply-To: <20200914173157.4655-1-nramas@linux.microsoft.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 15 Sep 2020 14:38:35 -0400
-Message-ID: <CAHC9VhSYY03rkNsijouC3xAR23hvNNFwtvAB2_YFeDMVvdLj9w@mail.gmail.com>
-Subject: Re: [PATCH v4] selinux: Add helper functions to get and set checkreqprot
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 14, 2020 at 1:32 PM Lakshmi Ramasubramanian
-<nramas@linux.microsoft.com> wrote:
->
-> checkreqprot data member in selinux_state struct is accessed directly by
-> SELinux functions to get and set. This could cause unexpected read or
-> write access to this data member due to compiler optimizations and/or
-> compiler's reordering of access to this field.
->
-> Add helper functions to get and set checkreqprot data member in
-> selinux_state struct. These helper functions use READ_ONCE and
-> WRITE_ONCE macros to ensure atomic read or write of memory for
-> this data member.
->
-> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/hooks.c            |  6 +++---
->  security/selinux/include/security.h | 10 ++++++++++
->  security/selinux/selinuxfs.c        |  5 +++--
->  3 files changed, 16 insertions(+), 5 deletions(-)
+When classmaps used in a neverallow were being expanded during CIL
+neverallow checking, an empty classmapping in the list of
+classmappings for a classmap would cause the classmap expansion to
+stop and the rest of the classmapping of the classmap to be ignored.
+This would mean that not all of the classes and permissions associated
+with the classmap would be used to check for a neverallow violation.
 
-Merged into selinux/next, thanks Lakshmi!
+Do not end the expansion of a classmap when one classmapping is empty.
 
+Reported-by: Jonathan Hettwer <j2468h@gmail.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_binary.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 50cc7f75..36720eda 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -4363,15 +4363,13 @@ static int __cil_rule_to_sepol_class_perms(policydb_t *pdb, struct cil_list *cla
+ 
+ 				rc = __cil_perms_to_datum(cp->perms, sepol_class, &data);
+ 				if (rc != SEPOL_OK) goto exit;
+-				if (data == 0) {
+-					/* No permissions */
+-					return SEPOL_OK;
++				if (data != 0) { /* Only add if there are permissions */
++					cpn = cil_malloc(sizeof(class_perm_node_t));
++					cpn->tclass = sepol_class->s.value;
++					cpn->data = data;
++					cpn->next = *sepol_class_perms;
++					*sepol_class_perms = cpn;
+ 				}
+-				cpn = cil_malloc(sizeof(class_perm_node_t));
+-				cpn->tclass = sepol_class->s.value;
+-				cpn->data = data;
+-				cpn->next = *sepol_class_perms;
+-				*sepol_class_perms = cpn;
+ 			} else { /* MAP */
+ 				struct cil_list_item *j = NULL;
+ 				cil_list_for_each(j, cp->perms) {
 -- 
-paul moore
-www.paul-moore.com
+2.25.4
+
