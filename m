@@ -2,176 +2,135 @@ Return-Path: <SRS0=4esc=C2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CE1CC2BBD1
-	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 17:32:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52C9DC2D0E3
+	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 18:53:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 479F820725
-	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 17:32:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 013732087D
+	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 18:53:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i7O5uCFi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="t8eQN1qq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726420AbgIQRc2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Sep 2020 13:32:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59272 "EHLO
+        id S1726321AbgIQSx3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Sep 2020 14:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726343AbgIQRcX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Sep 2020 13:32:23 -0400
-Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D16C06178B;
-        Thu, 17 Sep 2020 10:31:52 -0700 (PDT)
-Received: by mail-qk1-x741.google.com with SMTP id t138so3111591qka.0;
-        Thu, 17 Sep 2020 10:31:52 -0700 (PDT)
+        with ESMTP id S1726436AbgIQSx3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Sep 2020 14:53:29 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A1AC06174A
+        for <selinux@vger.kernel.org>; Thu, 17 Sep 2020 11:53:18 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id g96so2874063otb.12
+        for <selinux@vger.kernel.org>; Thu, 17 Sep 2020 11:53:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AKD/9E79SiZQSW8oLqIokHA8vYGAi3tIl8g3KfMvNZo=;
-        b=i7O5uCFiTKcXzgLkwDex6HWSQBoUI+9kgqEAVg2IH/LpTwrClxKKk48Hku+F9EaVEj
-         ik/CjXF+lBlDqP6VAi6xR5NYYcLqNgA3afDwEQEo6/zb5T2v2Ag+YMtxbm5E2qoe8z70
-         mnl6tDHo5gMC/OehcctCXL2bhQgDrmj2nogKnA5PocP1/o/8VUDM9VOuhVIrSnMN93fB
-         q5BweGKQuuWvdkEcrotqmZht9Hj1YvKOXMr0H8acngAvsJE9IWX6nHObFtoOipQIpuaz
-         UmSNjz1X7WKQ55jMtPjBR81Q9Wi5l9FgtvDeOzIcXMN/ptl3E0NVxr584KxtJ2YYBLuS
-         mmOg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=aNXvgXV54YjFVuMd9RdOW56E/MqP1r69EZ75rcbuw48=;
+        b=t8eQN1qqmQxzqaf9JrAjYwN0Po+E0xdfp1Zp+9JtMPaIHNnEJk4HTsmxFPws96fQp5
+         uzdIWRpN/fkRzkTLyLDhOoUApB5aWeXYgXy3qqJeN9I1Hdaqh1KmbsyJ6KhH2UCoV99B
+         kdjwp0LNiVt1UwD4Vqx8kKZt6icakCoPTjp19z9UJv25MjF3oHynJE0UvDQldnpGRTIs
+         uPLIrRWKa3f0rDTrfbmO3s14Pw2yIUvU0/sFIcxZS1Nauce8vBaVnognhPXXAlYUE83z
+         4d5CPsIEYmf9V7ST1ywd051+48wSpu2H7hwK7VK9F7Id3wYR8514yaS97Keer+e0C9KN
+         SMJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AKD/9E79SiZQSW8oLqIokHA8vYGAi3tIl8g3KfMvNZo=;
-        b=cTZctJMH9XkfDjIrURSWTJvqFCHiU079barNXca4eR22+ihFqCO351X++ZKxWlXETu
-         HQ+WAp5gP1tHCh7dxJ+KoT5cKDMfWRyQmFD1Jw1w690F+X5ElNhYMlaBwgI8cam/Kywx
-         Bl4G8KrT8ortg+3OoaN8MxGGO4CnU85/gJ8lXG8gBRAb0ZOExzCwafZKQ+SqRDMFrm42
-         UhfG/REKF6gcAvGT5uVxBc/kiFJE0TggjDa/ZvJxOz7WB1WiHJ13OkR/hSpetM5Z7TOa
-         3epLuiGKCDh4IyNvoSqI7bzHAjvFXQiuHTHnWfubuEGc+XTT0X9yUdHXNRUqaQjpRBKT
-         1imw==
-X-Gm-Message-State: AOAM5300PwifwQiL2DpTBWF6o5Nhjv33mQytD7p4Df61PDN5UUz0ci5z
-        U0RsnBZYh4LLvoG9omWEDkk=
-X-Google-Smtp-Source: ABdhPJw7RbnGGgOX1j37sVcKkhBWi28KOF3PvRne37dN6DIZIQo2h0vEj4EjBDtBZObYBFIXls2IVQ==
-X-Received: by 2002:a37:54a:: with SMTP id 71mr26161702qkf.407.1600363912118;
-        Thu, 17 Sep 2020 10:31:52 -0700 (PDT)
-Received: from puritycontrol.fios-router.home (pool-96-234-167-227.bltmmd.fios.verizon.net. [96.234.167.227])
-        by smtp.gmail.com with ESMTPSA id z3sm277480qkf.92.2020.09.17.10.31.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2020 10:31:51 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     mtk.manpages@gmail.com
-Cc:     linux-man@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, smcv@collabora.com, jmorris@namei.org,
-        serge@hallyn.com, paul@paul-moore.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] ip.7: Document IP_PASSSEC for UDP sockets
-Date:   Thu, 17 Sep 2020 13:31:43 -0400
-Message-Id: <20200917173143.57241-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=aNXvgXV54YjFVuMd9RdOW56E/MqP1r69EZ75rcbuw48=;
+        b=DE15rtVt4UqfgiZR40I1PrAjEfq9rOBop4BolCXH/4Aw5BKDgD0TDwfID1xumyUZt/
+         SWh2qMnA+HP4CUcylpT43YfHP6mYwDLU9u9CoNzrSX+//vc4R9yRFRmRBGve6xxaGStf
+         iTZBDvY08SjY2w6bKCKNOVGglrNTnKv/M+ZCpCpMCozNrGwvuQdxKMhbejNMXaxIiEke
+         x2bcKM7QkkEe+v3Teb4KalzxQ/TpLs9WzlCNn2iSrS3JeHixH1F92wpPDzKElI6mD3RY
+         K0HGscnXzwrzkMnZgRbF4/0JBqMrySOx23tYNGIxkqdqOdC8eHW8i1PfFj0U3hTvc9WE
+         E+xQ==
+X-Gm-Message-State: AOAM5325Qg8BVeI9oQDFsF9IVSBL0Kb/APfronPP/1MTwi4DPC68SVtJ
+        wyeVcpH63FbfLL0acVS1R+vXF1N4qsY9SbPoo+x6rjAr
+X-Google-Smtp-Source: ABdhPJwv6apI2M/Paw3ySAfe/9ZpsglP0mt4le684aHDlDGayv/BmDNlOTAKd74BIB08Z9n9/FQIcxLQ/k8at5sX7KY=
+X-Received: by 2002:a9d:7a92:: with SMTP id l18mr19556815otn.89.1600368797352;
+ Thu, 17 Sep 2020 11:53:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAKG8Do7TCwjf9t5ycjjCENqr6a_nHttXPwS+Z6H9wdREew7LzA@mail.gmail.com>
+In-Reply-To: <CAKG8Do7TCwjf9t5ycjjCENqr6a_nHttXPwS+Z6H9wdREew7LzA@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 17 Sep 2020 14:53:06 -0400
+Message-ID: <CAEjxPJ5BczUFZ82C4bnioSiFLwqv4uvBaGP1afmAf4+amOraAQ@mail.gmail.com>
+Subject: Re: `fixfiles -C` does not apply to all paths
+To:     Cedric Buissart <cbuissar@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>, dwalsh@redhat.com
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Document the IP_PASSSEC socket option and SCM_SECURITY
-ancillary/control message type for UDP sockets.
+On Thu, Sep 17, 2020 at 10:44 AM Cedric Buissart <cbuissar@redhat.com> wrote:
+>
+> Hello all,
+>
+> I would like to discuss the possible removal of the static path list
+> in fixfiles' differential update mode (`fixfiles -C`).
+>
+> Here is how it works :
+>
+> 160 # Compare PREVious File Context to currently installed File Context and
+> 161 # run restorecon on all files affected by the differences.
+> 162 #
+> 163 diff_filecontext() {
+> 164 EXCLUDEDIRS="`exclude_dirs_from_relabelling`"
+> 165 for i in /sys /proc /dev /run /mnt /var/tmp /var/lib/BackupPC
+> /home /tmp /dev; do
+> 166     [ -e $i ]  && EXCLUDEDIRS="${EXCLUDEDIRS} -e $i";
+> 167 done
+> 168 LogExcluded
+> 169
+> 170 if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+> 171     TEMPFILE=`mktemp ${FC}.XXXXXXXXXX`
+> 172     test -z "$TEMPFILE" && exit
+> 173     PREFCTEMPFILE=`mktemp ${PREFC}.XXXXXXXXXX`
+> 174     sed -r -e 's,:s0, ,g' $PREFC | sort -u > ${PREFCTEMPFILE}
+> 175     sed -r -e 's,:s0, ,g' $FC | sort -u | \
+> 176     /usr/bin/diff -b ${PREFCTEMPFILE} - | \
+> 177         grep '^[<>]'|cut -c3-| grep ^/ | \
+> 178         egrep -v '(^/home|^/root|^/tmp|^/dev)' |\
+> 179     sed -r -e 's,[[:blank:]].*,,g' \
+> [...]
+> 199     ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -i -R -f -; \
+>
+>
+> lines 165-167 and 178 statically prevent some paths to be updated with
+> the new policy. I suspect this was done for efficiency and historical
+> reasons.
+>
+> I would propose the removal of these path because :
+>
+> - restorecon is (by default) automatically ignoring paths that are not
+> mounted with `seclabel`. There shouldn't be a need to statically treat
+> paths differently
+> - Some paths currently in this list (e.g. `/home`) may require
+> updating. During a policy update, packages (at least RHEL and Fedora)
+> are using `fixfiles -C` to make the policy more efficient, resulting
+> in a possibly incomplete policy update.
+> - The admin may not be aware of the manual steps required to fully
+> apply the new policy after an update.
+>
+>
+> How about removing these lines ?
 
-IP_PASSSEC for UDP sockets was introduced in Linux 2.6.17 [1].
-
-Example NetLabel and IPSEC configurations and usage of this option
-can be found in the SELinux Notebook [2] and SELinux testsuite [3].
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2c7946a7bf45ae86736ab3b43d0085e43947945c
-
-[2] https://github.com/SELinuxProject/selinux-notebook
-
-[3] https://github.com/SELinuxProject/selinux-testsuite
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- man7/ip.7 | 48 ++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 42 insertions(+), 6 deletions(-)
-
-diff --git a/man7/ip.7 b/man7/ip.7
-index 03a9f3f7c..681234c90 100644
---- a/man7/ip.7
-+++ b/man7/ip.7
-@@ -17,11 +17,6 @@
- .\" 	IP_IPSEC_POLICY (2.5.47)
- .\"	    Needs CAP_NET_ADMIN
- .\"
--.\" 	IP_PASSSEC (2.6.17)
--.\" 	    Boolean
--.\"	    commit 2c7946a7bf45ae86736ab3b43d0085e43947945c
--.\"	    Author: Catherine Zhang <cxzhang@watson.ibm.com>
--.\"
- .\"	IP_MINTTL (2.6.34)
- .\"	    commit d218d11133d888f9745802146a50255a4781d37a
- .\"	    Author: Stephen Hemminger <shemminger@vyatta.com>
-@@ -664,6 +659,47 @@ with
- .B IP_OPTIONS
- puts the current IP options used for sending into the supplied buffer.
- .TP
-+.BR IP_PASSSEC " (since Linux 2.6.17)"
-+.\" commit 2c7946a7bf45ae86736ab3b43d0085e43947945c
-+If labeled IPSEC or NetLabel is configured on the sending and receiving
-+hosts, this option enables receiving of the security context of the peer
-+socket in an ancillary message of type
-+.B SCM_SECURITY
-+retrieved using
-+.BR recvmsg (2).
-+This option is only supported for UDP sockets; for TCP or SCTP sockets,
-+see the description of the
-+.B SO_PEERSEC
-+option below.
-+.IP
-+The value given as an argument to
-+.BR setsockopt (2)
-+and returned as the result of
-+.BR getsockopt (2)
-+is an integer boolean flag.
-+.IP
-+The security context returned in the
-+.B SCM_SECURITY
-+ancillary message
-+is of the same format as the one described under the
-+.B SO_PEERSEC
-+option below.
-+.IP
-+NOTE: The reuse of the
-+.B SCM_SECURITY
-+message type
-+for the
-+.B IP_PASSSEC
-+socket option was likely a mistake since other IP control messages use
-+their own numbering scheme in the IP namespace and often use the
-+socket option value as the message type.  There is no conflict
-+currently since the IP option with the same value
-+as
-+.B SCM_SECURITY
-+is
-+.B IP_HDRINCL
-+and this is never used for a control message type.
-+.TP
- .BR IP_PKTINFO " (since Linux 2.2)"
- .\" Precisely: 2.1.68
- Pass an
-@@ -1290,13 +1326,13 @@ and
- .BR IP_MTU ,
- .BR IP_MTU_DISCOVER ,
- .BR IP_RECVORIGDSTADDR ,
-+.BR IP_PASSSEC ,
- .BR IP_PKTINFO ,
- .BR IP_RECVERR ,
- .BR IP_ROUTER_ALERT ,
- and
- .BR IP_TRANSPARENT
- are Linux-specific.
--.\" IP_PASSSEC is Linux-specific
- .\" IP_XFRM_POLICY is Linux-specific
- .\" IP_IPSEC_POLICY is a nonstandard extension, also present on some BSDs
- .PP
--- 
-2.25.1
-
+Looking at the list, I note that several of them have seclabel set in
+/proc/mounts so they would no longer be excluded after such a change.
+The biggest concern is probably /home due to making fixfiles very
+slow.  I think the whole idea of fixfiles -C was to try to minimize
+time spent on a policy update.  Maybe we need to re-think the whole
+approach.  Android has taken a different approach to allowing
+efficient relabeling on Android upgrades.  They save a hash of the
+matching file_contexts entries as an extended attribute of
+directories, and only descend into the directory during relabeling if
+the hash no longer matches.  Upstream, this is only enabled if the -D
+option is passed to setfiles/restorecon since it requires
+CAP_SYS_ADMIN to set the additional xattr.  Perhaps fixfiles should be
+extended with this option and we should be using it instead of -C?
