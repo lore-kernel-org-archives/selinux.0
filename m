@@ -7,77 +7,84 @@ X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5ADCC43463
-	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 20:20:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 768ABC43464
+	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 20:20:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7EA7920725
-	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 20:20:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 406E8206B7
+	for <selinux@archiver.kernel.org>; Thu, 17 Sep 2020 20:20:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ThYfWELp"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oea1gOpY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbgIQUUa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Sep 2020 16:20:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
+        id S1726748AbgIQUUr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Sep 2020 16:20:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726622AbgIQUUW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Sep 2020 16:20:22 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 071A1C06174A
-        for <selinux@vger.kernel.org>; Thu, 17 Sep 2020 13:20:21 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id 185so3961379oie.11
-        for <selinux@vger.kernel.org>; Thu, 17 Sep 2020 13:20:21 -0700 (PDT)
+        with ESMTP id S1726580AbgIQUUr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Sep 2020 16:20:47 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DD4C06174A
+        for <selinux@vger.kernel.org>; Thu, 17 Sep 2020 13:20:47 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id c10so3118736otm.13
+        for <selinux@vger.kernel.org>; Thu, 17 Sep 2020 13:20:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=MSZI/qd1suD6OBQieVC7FfqZYY980rHCl+kFAVjr2LU=;
-        b=ThYfWELp19IdwH1tijLLpGEGeUQLBPvtijJNkFJjgrEol7fWsTaVn/BCQrVJKdQB/A
-         n9Y/d+N2TcsAq0a5IK987XAJao+d5RKTcnxaeCtHM83w50Pw4b1mY/hXpYHIkLv8lgnH
-         2ni8IdNd8H09vmHSYJ6DoDwQ92UDOG3asaPPpeMq0JWsqYjLgcJw9WUW6MzGM0wnUzQy
-         TZykqCT5a35lfV51fhJFrbWsLvyYQw8aiPqtJ94m5Xf6HZ0QKMdF6PcUTnDOIKv3aPvN
-         n8kVUlyUkig6/5xCh/9KASlQ+HsfltX924htdcVJoQHaFn9NQl92eDyP63h0Lwx3SFq8
-         ceTw==
+        bh=7h7nGzYtgZ0ykSgp/t8cCub58d2a2nZY3Hv4oUMb4o4=;
+        b=oea1gOpYRsrPE9+0QhN/65JiOfCoQmYTMu7akBZEbazewYY2Z4UwVytJnf9hktm8ck
+         pXh5oyd6sxvC+nUsiOhfQFTm6EgwcAN5Yysq2HdxWMI2cQhaHEgNFKXnCeh4iytOyQJY
+         tDY1OSzwfsTNKwdp+cv4gizI6a0Hd7cmK8MSZaLdAfH4/+KhH8jBnFxd0fsJwl2G//uP
+         dbA9JecI8Iif8TBlvJ0ClneY96r/+KuIpMQaij/GX3XIinlVme2wDjX/R61Mzcj04Ctj
+         yrnXQzPC3r/Yn0PRHdGTl8uj3RYJXHULM1w0T20cPi4Dlm3O101NbwKzxWCse572I4kz
+         9eVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=MSZI/qd1suD6OBQieVC7FfqZYY980rHCl+kFAVjr2LU=;
-        b=BfG1tt7ZX+BAuJgyU3d3QdRj3LAKJqvCy4IpwlSDikAgk/D6gEyjk0yaMMAQyW8D7l
-         Y4+T1an2IVDZFMo0SL+SloRLkSZS6ULny2Xn+sHm90g3VYtAYOuEqEOHMfDg69btd5oS
-         6hjMR5dsRWUvq2cL7K0BOKa+DnI/f2vOKNMEpHlxZoExQ6HirIjK/tUJ3Y61l6AwHaFd
-         MCQPrKH2jCjkOYR0Icng6Ul6baQv62QroAW34/Z2/aj3QdH3DUJrCmQFV8xw+P8qFl1T
-         EEiV1Z7r9IIKjrotrhTxCwM63od68wR7ZhiVcXqaQ6SX/yF3zAXYR8M1G+DITJHan8em
-         tnSA==
-X-Gm-Message-State: AOAM531RokvXCZ9rArMXPm452i5tJ57Vz/2gEOU3fLvVmor2DMmnpJIh
-        qR1iFXKFLb/Xylmc2p+yrfJS3TorunVENY7hhws=
-X-Google-Smtp-Source: ABdhPJwSMDUPhg9br6NE2i1Hnw5hsVfbSEcXG1gGh3l63LNXDBo+pBQsK6NSvvaNDqRfliN7p4PHul3ANDeg5NfohLo=
-X-Received: by 2002:aca:ec53:: with SMTP id k80mr7101877oih.92.1600374021349;
- Thu, 17 Sep 2020 13:20:21 -0700 (PDT)
+        bh=7h7nGzYtgZ0ykSgp/t8cCub58d2a2nZY3Hv4oUMb4o4=;
+        b=HSjs28q2whWYcImzaYMlAKm87SbXiOu57Cltw6De5Pme/0tN9h4Ilc5oK0exWqk9lR
+         8LyvWj38AMzyZD40VTtloSzQl1BpTTCTClGLuWk45VqOck/MQOmif5TwHYSxeSxYJv0V
+         u/nIzDKX1IgUlxzVc+A9QkGxMHGljRgxnZrvXganbfvTrklzeL516XsEKFEpNfMFI5JF
+         H3sxfm1yeO8JOzLnEkXi6PNYH7BwWcicHWnh08ykF9cu3ohLXvl5PWm/CQqiy8Yb4Hdi
+         SJziH1Ut9Uq9H0/NigXkUUdI0lLln16pit0F2oKEzbM3M/cRICQ8rsrYxKG6Gxwk/HoX
+         sGPQ==
+X-Gm-Message-State: AOAM530hWNxfrQbNsRCvMhHod1C4bQ8Sb5dVYzxOChKdYD3JtTqmrCqx
+        THkIxOSpGzncAIxsBGB3NBbIuw1Ny1EWBptfNApt5gu7
+X-Google-Smtp-Source: ABdhPJzQY5J0TAjoEFVZPYFg+tzaV3DCTizS4VmRY3WcBuwDHxFid0hkxQhaktzywhWQh1kIO3U7Umt497AJ9ZZyrnk=
+X-Received: by 2002:a05:6830:1be7:: with SMTP id k7mr20933191otb.162.1600374046972;
+ Thu, 17 Sep 2020 13:20:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200915173332.574700-1-chpebeni@linux.microsoft.com>
- <20200915173332.574700-2-chpebeni@linux.microsoft.com> <CAEjxPJ6Nobke7D+9p5vTg+t0BzW8eUXMxqLNDcS-zzSCAXCkcg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6Nobke7D+9p5vTg+t0BzW8eUXMxqLNDcS-zzSCAXCkcg@mail.gmail.com>
+References: <20200915184806.396309-1-jwcart2@gmail.com> <CAEjxPJ667-sqywnL+nib6ndhbpSD7FWDq-ghnbttmVZx+-hi=w@mail.gmail.com>
+In-Reply-To: <CAEjxPJ667-sqywnL+nib6ndhbpSD7FWDq-ghnbttmVZx+-hi=w@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 17 Sep 2020 16:20:10 -0400
-Message-ID: <CAEjxPJ5NfYLcKWz2G=N7z+YR_LJKcvbq9FB+qoWnEXBjJ-niyg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libselinux: Change userspace AVC setenforce and
- policy load messages to audit format.
-To:     Chris PeBenito <chpebeni@linux.microsoft.com>
+Date:   Thu, 17 Sep 2020 16:20:36 -0400
+Message-ID: <CAEjxPJ54kwegorP4Hcd4FZigz_57DV6MnMDXieoAK-p+Ksv2ng@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Fix neverallow checking involving classmaps
+To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
-        Steve Grubb <sgrubb@redhat.com>
+        Jonathan Hettwer <j2468h@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 4:43 PM Stephen Smalley
+On Tue, Sep 15, 2020 at 4:45 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, Sep 15, 2020 at 1:37 PM Chris PeBenito
-> <chpebeni@linux.microsoft.com> wrote:
+> On Tue, Sep 15, 2020 at 2:49 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+> > When classmaps used in a neverallow were being expanded during CIL
+> > neverallow checking, an empty classmapping in the list of
+> > classmappings for a classmap would cause the classmap expansion to
+> > stop and the rest of the classmapping of the classmap to be ignored.
+> > This would mean that not all of the classes and permissions associated
+> > with the classmap would be used to check for a neverallow violation.
+> >
+> > Do not end the expansion of a classmap when one classmapping is empty.
+> >
+> > Reported-by: Jonathan Hettwer <j2468h@gmail.com>
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
 > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Both applied.
+Applied.
