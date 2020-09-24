@@ -2,279 +2,178 @@ Return-Path: <SRS0=GjD/=DB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 907E3C4363D
-	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 09:48:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A121C4363D
+	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 10:12:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 35E0923977
-	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 09:48:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 342AE239CF
+	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 10:12:14 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LgF5lutD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727312AbgIXJsH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Sep 2020 05:48:07 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46835 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726315AbgIXJsH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Sep 2020 05:48:07 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.nyi.internal (Postfix) with ESMTP id B1B9E5C00FE;
-        Thu, 24 Sep 2020 05:48:05 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Thu, 24 Sep 2020 05:48:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
-        message-id:subject:from:to:cc:date:in-reply-to:references
-        :content-type:mime-version:content-transfer-encoding; s=fm1; bh=
-        7YHXsnpL6KHOY1Czsp2sSjB4pWt0nEHERUAeErRFatg=; b=knpk5rmiJXmMfrkF
-        /Qiq4UEv3oMxsqF/QTaI3dTMYyI0Xm2wCOaftlnUFcqj1wr9jmIM4mcFxA1kRmZi
-        FmFluQq5SvlTbY/4Xoki7+CWVhmJNIatOWOfYiq4KZFxteNEErGVI2JRutyjO3En
-        9V9Zop7GSIuB4rbLO4jaQa+vLrZZ3B7DxZrjtLrJUVYrfhB+wfsrZAf0EHNdbS5m
-        eq8rFXogd4WqAKtlCiYlQg+DT5V0vrAKQ8DHxWyqv2EZahJ05M8IOdcG/mMQE1d4
-        Mll/qJxpesoutVi849R0muB+ZM9GVjlZLCo3Q6rLePfsWiQ6XPnNTU2ObcK3o3VB
-        p/3i7A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=7YHXsnpL6KHOY1Czsp2sSjB4pWt0nEHERUAeErRFa
-        tg=; b=pwT3yPDkD/Wz9T5Bs/3B0aEbMExL6xbHwTjnAyjYepO/sw6w+dfM4fprV
-        s7a+mlhuyCxuEjsUu6H14wSD/iXc6CveM/OcjRlR5lpyEZtiKNbEADUZUpPalZ5V
-        4hM+HzgeU88IxsEKWCD5aTi9prIz/xDBiKWg6HPSy5o+nizi/cJoZAAJy6C/OOPr
-        yac8Um8oDkK7ib9jhze4ev29MACNvyV9Rxrz1dBbLmMfl2AAk1VT9deHlKlkLWTC
-        DbxBZQ0I/AlqCVL58R7nCyOzdYOPJhClr3o0WGAWI5iu80/WOmcLqtODalwf2nPt
-        3Syq7QsBcVPHTYdgZIZQqMRguaDYg==
-X-ME-Sender: <xms:VWtsX7vUIYiLDn-FRB9TJd2H8GlUmcdD-lvrxHYDuwE50LrLi6cXEw>
-    <xme:VWtsX8ex4emmx3qT2BYZw69plo9pgFPf2PPMdfHWfckxM04IT45e1yGbkkZiqJPvR
-    YLfu7zI0e0n>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudekgddvudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpefkrghnucfm
-    vghnthcuoehrrghvvghnsehthhgvmhgrfidrnhgvtheqnecuggftrfgrthhtvghrnhepfe
-    efteetvdeguddvveefveeftedtffduudehueeihfeuvefgveehffeludeggfejnecukfhp
-    pedutdeirdeiledrvdehgedrudehtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
-    grmhepmhgrihhlfhhrohhmpehrrghvvghnsehthhgvmhgrfidrnhgvth
-X-ME-Proxy: <xmx:VWtsX-zTpceZChB7krRobR_EaFN96hs4k4Z2QuN0Cnretl0mNMvrfg>
-    <xmx:VWtsX6OvdEh61QDTOleL2IjOuSPX_vznjfuJb3IU4J6imDqyBabVng>
-    <xmx:VWtsX7_-AjCGKuE_H95WelnKVyG-gbhkV8swzUPSFuZ8YdBZqT0avw>
-    <xmx:VWtsX2l_SbqTlWyiQwQZksAinTpCwccMh7rPm22ma3-f-PYYC5GWyQ>
-Received: from mickey.themaw.net (106-69-254-150.dyn.iinet.net.au [106.69.254.150])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DC9AE328005D;
-        Thu, 24 Sep 2020 05:48:01 -0400 (EDT)
-Message-ID: <cdce427f2a2cde80923ae2608605a1c8cf81b87e.camel@themaw.net>
-Subject: Re: Commit 13c164b1a186 - regression for LSMs/SELinux?
-From:   Ian Kent <raven@themaw.net>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
-        autofs@vger.kernel.org,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Zdenek Pytela <zpytela@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 24 Sep 2020 17:47:57 +0800
-In-Reply-To: <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
-References: <CAFqZXNsoXr1eA4C8==Nvujs5ONpRnuSqaOQQ0n78R=Dbm-EFGA@mail.gmail.com>
-         <20200921160922.GA23870@lst.de>
-         <20200921163011.GZ3421308@ZenIV.linux.org.uk>
-         <CAFqZXNsBqvCj0NjEd9+C0H1EPjz7Fst296AA5eOFSVx=SKjfOg@mail.gmail.com>
-         <0764629d33d151aee743d0429ac87a5b0c300235.camel@themaw.net>
-         <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+        id S1727383AbgIXKMN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Sep 2020 06:12:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54334 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727352AbgIXKMN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Sep 2020 06:12:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1600942331;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to; bh=Yexv8547XbWE7oLa9jl8gdNzgYc6mRgY5SBMbvEknmM=;
+        b=LgF5lutDgW7irjpRhMc/e4m9TmfXO+8xwPcSE5FABpDjzs0wZtlcpMqxZEEvtuFAci77uZ
+        xI3MQgpX0ybNilI4ts1hLXst2g7bEya4lsg3EQU8u4JlDKX5QJDKQXtqlZ4gr2r/QMQYhb
+        w4UxVIYjXURseyYnJZIlX6vAKtGYD2s=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-323-JztWKnupNtuQgm5Od29lkg-1; Thu, 24 Sep 2020 06:12:09 -0400
+X-MC-Unique: JztWKnupNtuQgm5Od29lkg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4D9BF186DD33;
+        Thu, 24 Sep 2020 10:12:08 +0000 (UTC)
+Received: from workstation.lan (unknown [10.40.192.105])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6BAD65D990;
+        Thu, 24 Sep 2020 10:12:05 +0000 (UTC)
+Date:   Thu, 24 Sep 2020 12:12:01 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        cbuissar@redhat.com, dwalsh@redhat.com, zpytela@redhat.com
+Subject: Re: `fixfiles -C` does not apply to all paths
+Message-ID: <20200924101201.GA609742@workstation.lan>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CAEjxPJ5BczUFZ82C4bnioSiFLwqv4uvBaGP1afmAf4+amOraAQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2020-09-24 at 10:36 +0200, Ondrej Mosnacek wrote:
-> On Wed, Sep 23, 2020 at 3:55 AM Ian Kent <raven@themaw.net> wrote:
-> > On Tue, 2020-09-22 at 09:33 +0200, Ondrej Mosnacek wrote:
-> > > On Mon, Sep 21, 2020 at 6:30 PM Al Viro <viro@zeniv.linux.org.uk>
-> > > wrote:
-> > > > On Mon, Sep 21, 2020 at 06:09:22PM +0200, Christoph Hellwig
-> > > > wrote:
-> > > > > [adding Linus and Al]
-> > > > > 
-> > > > > On Mon, Sep 21, 2020 at 04:51:35PM +0200, Ondrej Mosnacek
-> > > > > wrote:
-> > > > > > Hi folks,
-> > > > > > 
-> > > > > > It seems that after commit 13c164b1a186 ("autofs: switch to
-> > > > > > kernel_write") there is now an extra LSM permission
-> > > > > > required
-> > > > > > (for the
-> > > > > > current task to write to the automount pipe) for processes
-> > > > > > accessing
-> > > > > > some yet-to-to-be mounted directory on which an autofs
-> > > > > > mount is
-> > > > > > set
-> > > > > > up. The call chain is:
-> > > > > > [...]
-> > > > > > autofs_wait() ->
-> > > > > > autofs_notify_daemon() ->
-> > > > > > autofs_write() ->
-> > > > > > kernel_write() ->
-> > > > > > rw_verify_area() ->
-> > > > > > security_file_permission()
-> > > > > > 
-> > > > > > The bug report that led me to this commit is at [1].
-> > > > > > 
-> > > > > > Technically, this is a regression for LSM users, since this
-> > > > > > is
-> > > > > > a
-> > > > > > kernel-internal operation and an LSM permission for the
-> > > > > > current
-> > > > > > task
-> > > > > > shouldn't be required. Can this patch be reverted? Perhaps
-> > > > > > __kernel_{read|write}() could instead be renamed to
-> > > > > > kernel_*_nocheck()
-> > > > > > so that the name is more descriptive?
-> > > > > 
-> > > > > So we obviously should not break existing user space and need
-> > > > > to
-> > > > > fix
-> > > > > this ASAP.  The trivial "fix" would be to export
-> > > > > __kernel_write
-> > > > > again
-> > > > > and switch autofs to use it.  The other option would be a
-> > > > > FMODE
-> > > > > flag
-> > > > > to bypass security checks, only to be set if the callers
-> > > > > ensures
-> > > > > they've been valided (i.e. in autofs_prepare_pipe).
-> > > 
-> > > IMHO that sounds like an overkill in this scenario. I don't think
-> > > it
-> > > makes sense to do the LSM check here (or at least not against the
-> > > current task's creds), because it is not the current task that
-> > > wants
-> > > to communicate with the daemon, it just wants to to access some
-> > > directory on the system that just happens to be special to the
-> > > kernel,
-> > > which needs to do some communication on the side to service this
-> > > request. So if we do want to do any LSM check here, there should
-> > > at
-> > > least be some "bool internal" flag passed to the LSM, signalizing
-> > > that
-> > > this is an internal read/write operation that wasn't directly
-> > > initiated/requested by the current process. SELinux could then
-> > > either
-> > > use the kernel secid instead of the current task's secid or skip
-> > > the
-> > > check completely in such case.
-> > 
-> > Perhaps, but see below.
-> > 
-> > > I'd like Stephen to weigh in on this, but it looks he might be on
-> > > vacation right now...
-> > > 
-> > > > > Any opinions?
-> > > > 
-> > > > Reexport for now.  Incidentally, what is LSM doing rejecting
-> > > > writes
-> > > > into a pipe?
-> > > 
-> > > With SELinux at least, what is allowed or denied is defined in
-> > > the
-> > > policy. And the policy usually defaults to everything denied and
-> > > then
-> > > you add rules to allow what needs (and makes sense) to be
-> > > allowed.
-> > > Since until kernel 5.8 random processes didn't need to write to
-> > > pipes
-> > > created by the automount daemon, it has never been explicitly
-> > > allowed
-> > > and so the automounting now fails. It is in no way obvious that
-> > > all
-> > > processes should have the permission to talk to the automount
-> > > daemon
-> > > just to traverse the filesystem...
-> > 
-> > I think you might have misunderstood what lead to this, just a bit.
-> > 
-> > Previously the __kern_write() function was used for this
-> > communication
-> > and Christoph's patch changed that to use kern_write() instead.
-> > 
-> > In theory that's a good idea because kern_write() adds some
-> > additional
-> > sanity checks, one being a call to rw_verify_area() which is where
-> > the
-> > security_file_permission() call fails.
-> > 
-> > So previously any random process could avoid these checks by
-> > calling
-> > __kern_write() so the change to kern_write() is, in theory, that's
-> > a
-> > good thing and simply reverting that hunk in Christoph's patch
-> > probably isn't the best thing to do.
-> 
-> I understand that and I'm not proposing the revert as a long-term
-> fix.
-> For a long-term solution I propose using kernel_write() and extending
-> it to allow the caller to suppress (just) the
-> security_file_permission() call. Then each caller would have to
-> decide
-> whether the LSM check makes sense in that situation or not. It seems
-> safer against future mistakes than leaving it up to the caller to
-> call
-> security_file_permission() explicitly (I predict that no new user
-> would even realize that the call might be needed).
-> 
-> > But any random process does need to be able to write to the
-> > automount
-> > daemon pipe for trailing path components and the root dentry of
-> > autofs
-> > mounts, depending on case.
-> > 
-> > So it's true that any write to any autofs dentry probably doesn't
-> > need to be allowed but I question what that gets us in terms of
-> > security improvement over allowing pipe writes for automount_t
-> > labelled pipes in selinux policy since they must be within an
-> > autofs
-> > mounted file system.
-> 
-> The difference is not in security, but in usability. The kernel
-> communicating with the autofs daemon is an internal detail that
-> shouldn't need special rules in policy. Even if we want to do any LSM
-> checking here, the subject should be kernel_t, not the current
-> running
-> process. The process doesn't have any control on whether the kernel
-> does the communication and it doesn't control the content of the
-> communication, so the permission check as it is doesn't make any
-> sense. People writing the policy should be burdened by low-level
-> details about how the kernel works internally as little as possible.
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm not "that" concerned about how it's done I'd just like to see
-it fixed whether it's how I think it should be done or not.
+On Thu, Sep 17, 2020 at 02:53:06PM -0400, Stephen Smalley wrote:
+> On Thu, Sep 17, 2020 at 10:44 AM Cedric Buissart <cbuissar@redhat.com> wr=
+ote:
+> >
+> > Hello all,
+> >
+> > I would like to discuss the possible removal of the static path list
+> > in fixfiles' differential update mode (`fixfiles -C`).
+> >
+> > Here is how it works :
+> >
+> > 160 # Compare PREVious File Context to currently installed File Context=
+ and
+> > 161 # run restorecon on all files affected by the differences.
+> > 162 #
+> > 163 diff_filecontext() {
+> > 164 EXCLUDEDIRS=3D"`exclude_dirs_from_relabelling`"
+> > 165 for i in /sys /proc /dev /run /mnt /var/tmp /var/lib/BackupPC
+> > /home /tmp /dev; do
+> > 166     [ -e $i ]  && EXCLUDEDIRS=3D"${EXCLUDEDIRS} -e $i";
+> > 167 done
+> > 168 LogExcluded
+> > 169
+> > 170 if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+> > 171     TEMPFILE=3D`mktemp ${FC}.XXXXXXXXXX`
+> > 172     test -z "$TEMPFILE" && exit
+> > 173     PREFCTEMPFILE=3D`mktemp ${PREFC}.XXXXXXXXXX`
+> > 174     sed -r -e 's,:s0, ,g' $PREFC | sort -u > ${PREFCTEMPFILE}
+> > 175     sed -r -e 's,:s0, ,g' $FC | sort -u | \
+> > 176     /usr/bin/diff -b ${PREFCTEMPFILE} - | \
+> > 177         grep '^[<>]'|cut -c3-| grep ^/ | \
+> > 178         egrep -v '(^/home|^/root|^/tmp|^/dev)' |\
+> > 179     sed -r -e 's,[[:blank:]].*,,g' \
+> > [...]
+> > 199     ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -i -R -=
+f -; \
+> >
+> >
+> > lines 165-167 and 178 statically prevent some paths to be updated with
+> > the new policy. I suspect this was done for efficiency and historical
+> > reasons.
+> >
+> > I would propose the removal of these path because :
+> >
+> > - restorecon is (by default) automatically ignoring paths that are not
+> > mounted with `seclabel`. There shouldn't be a need to statically treat
+> > paths differently
+> > - Some paths currently in this list (e.g. `/home`) may require
+> > updating. During a policy update, packages (at least RHEL and Fedora)
+> > are using `fixfiles -C` to make the policy more efficient, resulting
+> > in a possibly incomplete policy update.
+> > - The admin may not be aware of the manual steps required to fully
+> > apply the new policy after an update.
+> >
+> >
+> > How about removing these lines ?
+>=20
+> Looking at the list, I note that several of them have seclabel set in
+> /proc/mounts so they would no longer be excluded after such a change.
+> The biggest concern is probably /home due to making fixfiles very
+> slow.  I think the whole idea of fixfiles -C was to try to minimize
+> time spent on a policy update.  Maybe we need to re-think the whole
+> approach.  Android has taken a different approach to allowing
+> efficient relabeling on Android upgrades.  They save a hash of the
+> matching file_contexts entries as an extended attribute of
+> directories, and only descend into the directory during relabeling if
+> the hash no longer matches.  Upstream, this is only enabled if the -D
+> option is passed to setfiles/restorecon since it requires
+> CAP_SYS_ADMIN to set the additional xattr.  Perhaps fixfiles should be
+> extended with this option and we should be using it instead of -C?
+>=20
 
-> 
-> > But Stephen has a different recommendation (and that appears to
-> > consider the cause I outlined above) so I'll wait to see what
-> > others
-> > think about the recommendations.
-> 
-> As I said above, I think Stephen's approach is less future-proof. And
-> it seems that rw_verify_area() has many other callers, most/all of
-> which probably service actual requests from userspace and we'd need
-> to
-> retain the security_file_permission() call in those cases.
-> 
-> Let me try to put my proposal into a patch, so we have something
-> concrete to talk about...
+I'd like to say that I'm aware about this problem but I don't have answers =
+yet.
 
-I think there was a suggestion of using function naming indicate
-the different requirement, I think it was along the lines of
-kern_write_nosec(), but if that approach is used the nosec is
-misleading too, I'd prefer something like kern_write_internal()
-to indicate clearly it's meant to cater for internal use.
+It seems to be related to the way how `fixfiles -C` translates regexps to
+glob's, e.g. '/home/[^/]+/\.yubico(/.*)?' would be translated to '/home/*' =
+and
+relabeling whole /home could be long and delicate? action as it would touch=
+ users
+data.
 
-But whatever, I'm keen to see what you recommend.
+As a short term workaround, I'd suggest that policy package maintainers enf=
+orce relabeling
+of particular directories inside /home when they know it's really needed.
 
-Ian
+Petr
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl9scOsACgkQviIJHj72
+InUlSQ/+Or6837sow9cYT5BqxfpwGPyVDuwm+tIl6p5BuZew5wJ0d7guVFd+BUNd
+UkUDRBg819STS1S7HWiODKBZnS6j8/gZnSCI3Io/R/h2aSS2wLUtLYGvSnOhX9pv
+GZQ+gV2EgbQB9xOUTFPY6D238zmcMqd5wWbnHtAtNeT3K+vKs+HPkflfswQMrgaL
+/nDM6Y4S9cZsUCO3CGfaQeUhJ8uUELR97nvEuj4i2hMYwL4XjQlvgBkUYu9m/8tp
+yP8t6rW3jVfVFoFnctYNw5+0QwiFssLmDxq5t+u5H/znuD7aCgm4L65Kz8sGCzJi
+D1H3SN3QAOPmEPDjPl6B/QAFZ5LSUojMrIl2zLZF604wVyukastLjBe6LDVqfZrx
+RfM6CogsQnQD4qH+fCUDJ+wYn0fR08PIGLcdj/Rvl+K6dK2kl91FnX+dLXKboR9/
+XeN+VzI33klGhXXhxaE2sHcDl7KJ+FnsmefSL0XWevJ8VaV2fjeIZiCpdrh3xtGI
+g+ORd62NzO/Coy8zhQ5qqAl5VyPjmZs4y0C1yY6ztQGoqp2u+Hh6tKm65w4iPG29
+xl8ynkT8m7NaqqiMmaZ9KRuBBsJyNwl63DkNcL/Tyen5Opw0qmOjWrJIP/zfc7eL
+sIKU413fTXmscQup9L5pBNJ4g2LaGF4Gd9y0OBAl6y8zrr1S9bc=
+=zDtI
+-----END PGP SIGNATURE-----
+
+--fUYQa+Pmc3FrFX/N--
 
