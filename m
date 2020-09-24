@@ -2,1375 +2,279 @@ Return-Path: <SRS0=GjD/=DB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFAFCC4346E
-	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 08:53:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 907E3C4363D
+	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 09:48:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3ED5223772
-	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 08:53:26 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="KkRB04WC"
+	by mail.kernel.org (Postfix) with ESMTP id 35E0923977
+	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 09:48:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727293AbgIXIxZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Sep 2020 04:53:25 -0400
-Received: from mailomta22-re.btinternet.com ([213.120.69.115]:39545 "EHLO
-        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726943AbgIXIxZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Sep 2020 04:53:25 -0400
-Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
-          by re-prd-fep-049.btinternet.com with ESMTP
-          id <20200924085318.OXVF4131.re-prd-fep-049.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Thu, 24 Sep 2020 09:53:18 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1600937598; 
-        bh=xj6OeoOxEvG39CfeVRO9a6MtvFGp7v8vcEh6W1fuiGU=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=KkRB04WCHO21NwsFeenWUrTOB5/DSQfnJK+mCpTokcjVOQ06WyCS2PxrvfHEx2PWUtEA9CyV3fPMOu8jVI/KKLiQXwGTFvBwr35I4N6DKJNN+YO/gUTs3/m5Jv9rPmvoOzyOhTFmjdcKy0op0dRbsu+I0qSfkaMsfhm92kUHm7SlzrC0xxi+d0rQcXepIL0Ulnj/v2xe5tXMAFzHsz1emfNlLEZQQyEJReSgfLy2TVNygfFShYdhc3aMO1Rf074bLASPt2NiEJUPdz/zlBQp52DWEtlNbd2ZXRC3w0QOa2jNmFomF8UQrVWp1PZl8yTWvZmQJ+Cl57H8V4trZRbGYA==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [86.146.219.130]
-X-OWM-Source-IP: 86.146.219.130 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrudekgddutdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepuddtuefgtdffvdelgeeghedvfeetgedtheeiueevteehgeegtdevhfejgeekjeeknecuffhomhgrihhnpehgihhthhhusgdrtghomhdpohhsmhhotghomhdrohhrghdpghhnuhdrohhrghenucfkphepkeeirddugeeirddvudelrddufedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegiedrvdduledrudeftddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehjmhhorhhrihhssehnrghmvghirdhorhhgqedprhgtphhtthhopeeolhgrfhhorhhgvgesghhnuhhmohhnkhhsrdhorhhgqedprhgtphhtthhopeeolhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehoshhmohgt
-        ohhmqdhnvghtqdhgphhrsheslhhishhtshdrohhsmhhotghomhdrohhrgheqpdhrtghpthhtohepoehprggslhhosehnvghtfhhilhhtvghrrdhorhhgqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeoshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhmqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.146.219.130) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9C74D12798ABB; Thu, 24 Sep 2020 09:53:18 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        osmocom-net-gprs@lists.osmocom.org
-Cc:     stephen.smalley.work@gmail.com, paul@paul-moore.com,
-        pablo@netfilter.org, laforge@gnumonks.org, jmorris@namei.org,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [RFC PATCH 1/1] selinux-testsuite: Add GTP tests
-Date:   Thu, 24 Sep 2020 09:53:14 +0100
-Message-Id: <20200924085314.6120-2-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200924085314.6120-1-richard_c_haines@btinternet.com>
-References: <20200924085314.6120-1-richard_c_haines@btinternet.com>
+        id S1727312AbgIXJsH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Sep 2020 05:48:07 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46835 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726315AbgIXJsH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Sep 2020 05:48:07 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.nyi.internal (Postfix) with ESMTP id B1B9E5C00FE;
+        Thu, 24 Sep 2020 05:48:05 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Thu, 24 Sep 2020 05:48:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
+        message-id:subject:from:to:cc:date:in-reply-to:references
+        :content-type:mime-version:content-transfer-encoding; s=fm1; bh=
+        7YHXsnpL6KHOY1Czsp2sSjB4pWt0nEHERUAeErRFatg=; b=knpk5rmiJXmMfrkF
+        /Qiq4UEv3oMxsqF/QTaI3dTMYyI0Xm2wCOaftlnUFcqj1wr9jmIM4mcFxA1kRmZi
+        FmFluQq5SvlTbY/4Xoki7+CWVhmJNIatOWOfYiq4KZFxteNEErGVI2JRutyjO3En
+        9V9Zop7GSIuB4rbLO4jaQa+vLrZZ3B7DxZrjtLrJUVYrfhB+wfsrZAf0EHNdbS5m
+        eq8rFXogd4WqAKtlCiYlQg+DT5V0vrAKQ8DHxWyqv2EZahJ05M8IOdcG/mMQE1d4
+        Mll/qJxpesoutVi849R0muB+ZM9GVjlZLCo3Q6rLePfsWiQ6XPnNTU2ObcK3o3VB
+        p/3i7A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=7YHXsnpL6KHOY1Czsp2sSjB4pWt0nEHERUAeErRFa
+        tg=; b=pwT3yPDkD/Wz9T5Bs/3B0aEbMExL6xbHwTjnAyjYepO/sw6w+dfM4fprV
+        s7a+mlhuyCxuEjsUu6H14wSD/iXc6CveM/OcjRlR5lpyEZtiKNbEADUZUpPalZ5V
+        4hM+HzgeU88IxsEKWCD5aTi9prIz/xDBiKWg6HPSy5o+nizi/cJoZAAJy6C/OOPr
+        yac8Um8oDkK7ib9jhze4ev29MACNvyV9Rxrz1dBbLmMfl2AAk1VT9deHlKlkLWTC
+        DbxBZQ0I/AlqCVL58R7nCyOzdYOPJhClr3o0WGAWI5iu80/WOmcLqtODalwf2nPt
+        3Syq7QsBcVPHTYdgZIZQqMRguaDYg==
+X-ME-Sender: <xms:VWtsX7vUIYiLDn-FRB9TJd2H8GlUmcdD-lvrxHYDuwE50LrLi6cXEw>
+    <xme:VWtsX8ex4emmx3qT2BYZw69plo9pgFPf2PPMdfHWfckxM04IT45e1yGbkkZiqJPvR
+    YLfu7zI0e0n>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudekgddvudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpefkrghnucfm
+    vghnthcuoehrrghvvghnsehthhgvmhgrfidrnhgvtheqnecuggftrfgrthhtvghrnhepfe
+    efteetvdeguddvveefveeftedtffduudehueeihfeuvefgveehffeludeggfejnecukfhp
+    pedutdeirdeiledrvdehgedrudehtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehrrghvvghnsehthhgvmhgrfidrnhgvth
+X-ME-Proxy: <xmx:VWtsX-zTpceZChB7krRobR_EaFN96hs4k4Z2QuN0Cnretl0mNMvrfg>
+    <xmx:VWtsX6OvdEh61QDTOleL2IjOuSPX_vznjfuJb3IU4J6imDqyBabVng>
+    <xmx:VWtsX7_-AjCGKuE_H95WelnKVyG-gbhkV8swzUPSFuZ8YdBZqT0avw>
+    <xmx:VWtsX2l_SbqTlWyiQwQZksAinTpCwccMh7rPm22ma3-f-PYYC5GWyQ>
+Received: from mickey.themaw.net (106-69-254-150.dyn.iinet.net.au [106.69.254.150])
+        by mail.messagingengine.com (Postfix) with ESMTPA id DC9AE328005D;
+        Thu, 24 Sep 2020 05:48:01 -0400 (EDT)
+Message-ID: <cdce427f2a2cde80923ae2608605a1c8cf81b87e.camel@themaw.net>
+Subject: Re: Commit 13c164b1a186 - regression for LSMs/SELinux?
+From:   Ian Kent <raven@themaw.net>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+        autofs@vger.kernel.org,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Zdenek Pytela <zpytela@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 24 Sep 2020 17:47:57 +0800
+In-Reply-To: <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
+References: <CAFqZXNsoXr1eA4C8==Nvujs5ONpRnuSqaOQQ0n78R=Dbm-EFGA@mail.gmail.com>
+         <20200921160922.GA23870@lst.de>
+         <20200921163011.GZ3421308@ZenIV.linux.org.uk>
+         <CAFqZXNsBqvCj0NjEd9+C0H1EPjz7Fst296AA5eOFSVx=SKjfOg@mail.gmail.com>
+         <0764629d33d151aee743d0429ac87a5b0c300235.camel@themaw.net>
+         <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add tests to support the GTP driver.
+On Thu, 2020-09-24 at 10:36 +0200, Ondrej Mosnacek wrote:
+> On Wed, Sep 23, 2020 at 3:55 AM Ian Kent <raven@themaw.net> wrote:
+> > On Tue, 2020-09-22 at 09:33 +0200, Ondrej Mosnacek wrote:
+> > > On Mon, Sep 21, 2020 at 6:30 PM Al Viro <viro@zeniv.linux.org.uk>
+> > > wrote:
+> > > > On Mon, Sep 21, 2020 at 06:09:22PM +0200, Christoph Hellwig
+> > > > wrote:
+> > > > > [adding Linus and Al]
+> > > > > 
+> > > > > On Mon, Sep 21, 2020 at 04:51:35PM +0200, Ondrej Mosnacek
+> > > > > wrote:
+> > > > > > Hi folks,
+> > > > > > 
+> > > > > > It seems that after commit 13c164b1a186 ("autofs: switch to
+> > > > > > kernel_write") there is now an extra LSM permission
+> > > > > > required
+> > > > > > (for the
+> > > > > > current task to write to the automount pipe) for processes
+> > > > > > accessing
+> > > > > > some yet-to-to-be mounted directory on which an autofs
+> > > > > > mount is
+> > > > > > set
+> > > > > > up. The call chain is:
+> > > > > > [...]
+> > > > > > autofs_wait() ->
+> > > > > > autofs_notify_daemon() ->
+> > > > > > autofs_write() ->
+> > > > > > kernel_write() ->
+> > > > > > rw_verify_area() ->
+> > > > > > security_file_permission()
+> > > > > > 
+> > > > > > The bug report that led me to this commit is at [1].
+> > > > > > 
+> > > > > > Technically, this is a regression for LSM users, since this
+> > > > > > is
+> > > > > > a
+> > > > > > kernel-internal operation and an LSM permission for the
+> > > > > > current
+> > > > > > task
+> > > > > > shouldn't be required. Can this patch be reverted? Perhaps
+> > > > > > __kernel_{read|write}() could instead be renamed to
+> > > > > > kernel_*_nocheck()
+> > > > > > so that the name is more descriptive?
+> > > > > 
+> > > > > So we obviously should not break existing user space and need
+> > > > > to
+> > > > > fix
+> > > > > this ASAP.  The trivial "fix" would be to export
+> > > > > __kernel_write
+> > > > > again
+> > > > > and switch autofs to use it.  The other option would be a
+> > > > > FMODE
+> > > > > flag
+> > > > > to bypass security checks, only to be set if the callers
+> > > > > ensures
+> > > > > they've been valided (i.e. in autofs_prepare_pipe).
+> > > 
+> > > IMHO that sounds like an overkill in this scenario. I don't think
+> > > it
+> > > makes sense to do the LSM check here (or at least not against the
+> > > current task's creds), because it is not the current task that
+> > > wants
+> > > to communicate with the daemon, it just wants to to access some
+> > > directory on the system that just happens to be special to the
+> > > kernel,
+> > > which needs to do some communication on the side to service this
+> > > request. So if we do want to do any LSM check here, there should
+> > > at
+> > > least be some "bool internal" flag passed to the LSM, signalizing
+> > > that
+> > > this is an internal read/write operation that wasn't directly
+> > > initiated/requested by the current process. SELinux could then
+> > > either
+> > > use the kernel secid instead of the current task's secid or skip
+> > > the
+> > > check completely in such case.
+> > 
+> > Perhaps, but see below.
+> > 
+> > > I'd like Stephen to weigh in on this, but it looks he might be on
+> > > vacation right now...
+> > > 
+> > > > > Any opinions?
+> > > > 
+> > > > Reexport for now.  Incidentally, what is LSM doing rejecting
+> > > > writes
+> > > > into a pipe?
+> > > 
+> > > With SELinux at least, what is allowed or denied is defined in
+> > > the
+> > > policy. And the policy usually defaults to everything denied and
+> > > then
+> > > you add rules to allow what needs (and makes sense) to be
+> > > allowed.
+> > > Since until kernel 5.8 random processes didn't need to write to
+> > > pipes
+> > > created by the automount daemon, it has never been explicitly
+> > > allowed
+> > > and so the automounting now fails. It is in no way obvious that
+> > > all
+> > > processes should have the permission to talk to the automount
+> > > daemon
+> > > just to traverse the filesystem...
+> > 
+> > I think you might have misunderstood what lead to this, just a bit.
+> > 
+> > Previously the __kern_write() function was used for this
+> > communication
+> > and Christoph's patch changed that to use kern_write() instead.
+> > 
+> > In theory that's a good idea because kern_write() adds some
+> > additional
+> > sanity checks, one being a call to rw_verify_area() which is where
+> > the
+> > security_file_permission() call fails.
+> > 
+> > So previously any random process could avoid these checks by
+> > calling
+> > __kern_write() so the change to kern_write() is, in theory, that's
+> > a
+> > good thing and simply reverting that hunk in Christoph's patch
+> > probably isn't the best thing to do.
+> 
+> I understand that and I'm not proposing the revert as a long-term
+> fix.
+> For a long-term solution I propose using kernel_write() and extending
+> it to allow the caller to suppress (just) the
+> security_file_permission() call. Then each caller would have to
+> decide
+> whether the LSM check makes sense in that situation or not. It seems
+> safer against future mistakes than leaving it up to the caller to
+> call
+> security_file_permission() explicitly (I predict that no new user
+> would even realize that the call might be needed).
+> 
+> > But any random process does need to be able to write to the
+> > automount
+> > daemon pipe for trailing path components and the root dentry of
+> > autofs
+> > mounts, depending on case.
+> > 
+> > So it's true that any write to any autofs dentry probably doesn't
+> > need to be allowed but I question what that gets us in terms of
+> > security improvement over allowing pipe writes for automount_t
+> > labelled pipes in selinux policy since they must be within an
+> > autofs
+> > mounted file system.
+> 
+> The difference is not in security, but in usability. The kernel
+> communicating with the autofs daemon is an internal detail that
+> shouldn't need special rules in policy. Even if we want to do any LSM
+> checking here, the subject should be kernel_t, not the current
+> running
+> process. The process doesn't have any control on whether the kernel
+> does the communication and it doesn't control the content of the
+> communication, so the permission check as it is doesn't make any
+> sense. People writing the policy should be burdened by low-level
+> details about how the kernel works internally as little as possible.
 
-Read the selinux-testsuite/tests/gtp/GTP-README for setup details.
+I'm not "that" concerned about how it's done I'd just like to see
+it fixed whether it's how I think it should be done or not.
 
-Notes:
-1) The kernel does not pass back errors on delete link.
-Need to check audit log for deny gtp { del }.
-2) The kernel or the libgtpnl library does not pass back errors
-on gtp { get }. Seems to be bug or as designed !!. Check audit
-log for deny.
+> 
+> > But Stephen has a different recommendation (and that appears to
+> > consider the cause I outlined above) so I'll wait to see what
+> > others
+> > think about the recommendations.
+> 
+> As I said above, I think Stephen's approach is less future-proof. And
+> it seems that rw_verify_area() has many other callers, most/all of
+> which probably service actual requests from userspace and we'd need
+> to
+> retain the security_file_permission() call in those cases.
+> 
+> Let me try to put my proposal into a patch, so we have something
+> concrete to talk about...
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- defconfig                                     |   4 +
- policy/Makefile                               |   5 +
- policy/test_gtp.cil                           |  18 +
- policy/test_gtp.te                            |  96 +++++
- tests/Makefile                                |   4 +
- tests/gtp/.gitignore                          |   2 +
- tests/gtp/GTP-README                          | 123 ++++++
- tests/gtp/Makefile                            |   8 +
- ...tpnl-for-SELinux-testsuite-GTP-tests.patch | 366 ++++++++++++++++++
- tests/gtp/gtp-link.c                          | 134 +++++++
- tests/gtp/gtp-tunnel.c                        | 263 +++++++++++++
- tests/gtp/test                                | 169 ++++++++
- 12 files changed, 1192 insertions(+)
- create mode 100644 policy/test_gtp.cil
- create mode 100644 policy/test_gtp.te
- create mode 100644 tests/gtp/.gitignore
- create mode 100644 tests/gtp/GTP-README
- create mode 100644 tests/gtp/Makefile
- create mode 100644 tests/gtp/Update-libgtpnl-for-SELinux-testsuite-GTP-tests.patch
- create mode 100644 tests/gtp/gtp-link.c
- create mode 100644 tests/gtp/gtp-tunnel.c
- create mode 100755 tests/gtp/test
+I think there was a suggestion of using function naming indicate
+the different requirement, I think it was along the lines of
+kern_write_nosec(), but if that approach is used the nosec is
+misleading too, I'd prefer something like kern_write_internal()
+to indicate clearly it's meant to cater for internal use.
 
-diff --git a/defconfig b/defconfig
-index 46eb673..7b82f19 100644
---- a/defconfig
-+++ b/defconfig
-@@ -117,3 +117,7 @@ CONFIG_VFAT_FS=m
- # They are not required for SELinux operation itself.
- CONFIG_WATCH_QUEUE=y
- CONFIG_KEY_NOTIFICATIONS=y
-+
-+# GTP module.
-+# This is not required for SELinux operation itself.
-+CONFIG_GTP=y
-diff --git a/policy/Makefile b/policy/Makefile
-index 6c49091..01aa63f 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -144,6 +144,11 @@ endif
- endif
- endif
- 
-+ifeq ($(shell test -e /usr/local/include/libgtpnl/gtpnl.h && echo true),true)
-+TARGETS += test_gtp.te
-+CIL_TARGETS += test_gtp.cil
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
- TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
- endif
-diff --git a/policy/test_gtp.cil b/policy/test_gtp.cil
-new file mode 100644
-index 0000000..057bcf2
---- /dev/null
-+++ b/policy/test_gtp.cil
-@@ -0,0 +1,18 @@
-+(class gtp (add del get))
-+(classorder (unordered gtp))
-+
-+(allow test_gtp-1_t self (gtp(add del get)))
-+(allow test_gtp-2_t self (gtp(add del get)))
-+(allow test_gtp-3_t self (gtp(add del get)))
-+
-+(allow test_gtp_no_add_pdp_t test_gtp-1_t (gtp(del get)))
-+(allow test_gtp_no_del_pdp_t test_gtp-1_t (gtp(add get)))
-+(allow test_gtp_no_get_pdp_dump_t test_gtp-1_t (gtp(add del)))
-+(allow test_gtp_no_get_pdp_match_t test_gtp-1_t (gtp(add del)))
-+
-+;; Deny gtp for del_link
-+(allow test_gtp_no_del_link_t self (gtp (add)))
-+(allow test_gtp-1_t test_gtp_no_del_link_t (gtp (del)))
-+
-+;; Allow link to be deleted
-+(allow test_gtp_no_add_link_t self (gtp (del)))
-diff --git a/policy/test_gtp.te b/policy/test_gtp.te
-new file mode 100644
-index 0000000..611d972
---- /dev/null
-+++ b/policy/test_gtp.te
-@@ -0,0 +1,96 @@
-+#
-+########### Test GTP device driver support ##############
-+#
-+attribute gtpdomain;
-+
-+# For CONFIG_GTP=m
-+kernel_request_load_module(gtpdomain)
-+
-+################## Create gtp-1 domain ######################
-+type test_gtp-1_t;
-+domain_type(test_gtp-1_t)
-+unconfined_runs_test(test_gtp-1_t)
-+typeattribute test_gtp-1_t testdomain;
-+typeattribute test_gtp-1_t gtpdomain;
-+
-+################## Create gtp-2 domain ######################
-+type test_gtp-2_t;
-+domain_type(test_gtp-2_t)
-+unconfined_runs_test(test_gtp-2_t)
-+typeattribute test_gtp-2_t testdomain;
-+typeattribute test_gtp-2_t gtpdomain;
-+
-+################## Create gtp-3 domain ######################
-+type test_gtp-3_t;
-+domain_type(test_gtp-3_t)
-+unconfined_runs_test(test_gtp-3_t)
-+typeattribute test_gtp-3_t testdomain;
-+typeattribute test_gtp-3_t gtpdomain;
-+
-+# Common gtp rules:
-+allow gtpdomain self:capability { net_admin };
-+allow gtpdomain self:netlink_generic_socket *;
-+allow gtpdomain self:netlink_route_socket *;
-+allow gtpdomain self:udp_socket *;
-+allow gtpdomain test_file_t:dir read;
-+allow gtpdomain user_home_t:file { execute getattr open read };
-+corecmd_check_exec_shell(gtpdomain)
-+corecmd_exec_bin(gtpdomain)
-+corecmd_mmap_bin_files(gtpdomain)
-+corecmd_shell_entry_type(gtpdomain)
-+corenet_udp_bind_generic_node(gtpdomain)
-+corenet_udp_bind_generic_port(gtpdomain)
-+kernel_read_network_state(gtpdomain)
-+miscfiles_exec_test_files(gtpdomain)
-+userdom_list_user_home_dirs(gtpdomain)
-+userdom_manage_user_home_content_dirs(gtpdomain)
-+userdom_map_user_home_files(gtpdomain)
-+userdom_read_user_home_content_symlinks(gtpdomain)
-+
-+####################### Deny gtp { add_link } ##########################
-+type test_gtp_no_add_link_t;
-+domain_type(test_gtp_no_add_link_t)
-+unconfined_runs_test(test_gtp_no_add_link_t)
-+typeattribute test_gtp_no_add_link_t testdomain;
-+typeattribute test_gtp_no_add_link_t gtpdomain;
-+
-+####################### Deny gtp { del_link } ##########################
-+type test_gtp_no_del_link_t;
-+domain_type(test_gtp_no_del_link_t)
-+unconfined_runs_test(test_gtp_no_del_link_t)
-+typeattribute test_gtp_no_del_link_t testdomain;
-+typeattribute test_gtp_no_del_link_t gtpdomain;
-+
-+################## Deny gtp { add_pdp } ########################
-+type test_gtp_no_add_pdp_t;
-+domain_type(test_gtp_no_add_pdp_t)
-+unconfined_runs_test(test_gtp_no_add_pdp_t)
-+typeattribute test_gtp_no_add_pdp_t testdomain;
-+typeattribute test_gtp_no_add_pdp_t gtpdomain;
-+
-+################## Deny gtp { del_pdp } ########################
-+type test_gtp_no_del_pdp_t;
-+domain_type(test_gtp_no_del_pdp_t)
-+unconfined_runs_test(test_gtp_no_del_pdp_t)
-+typeattribute test_gtp_no_del_pdp_t testdomain;
-+typeattribute test_gtp_no_del_pdp_t gtpdomain;
-+
-+################## Deny gtp { get_pdp } ########################
-+type test_gtp_no_get_pdp_dump_t;
-+domain_type(test_gtp_no_get_pdp_dump_t)
-+unconfined_runs_test(test_gtp_no_get_pdp_dump_t)
-+typeattribute test_gtp_no_get_pdp_dump_t testdomain;
-+typeattribute test_gtp_no_get_pdp_dump_t gtpdomain;
-+
-+################## Deny gtp { get_pdp } ########################
-+type test_gtp_no_get_pdp_match_t;
-+domain_type(test_gtp_no_get_pdp_match_t)
-+unconfined_runs_test(test_gtp_no_get_pdp_match_t)
-+typeattribute test_gtp_no_get_pdp_match_t testdomain;
-+typeattribute test_gtp_no_get_pdp_match_t gtpdomain;
-+
-+#
-+########### Allow these domains to be entered from sysadm domain ############
-+#
-+miscfiles_domain_entry_test_files(gtpdomain)
-+userdom_sysadm_entry_spec_domtrans_to(gtpdomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index 001639b..968f68a 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -129,6 +129,10 @@ SUBDIRS += watchkey
- endif
- endif
- 
-+ifeq ($(shell test -e /usr/local/include/libgtpnl/gtpnl.h && echo true),true)
-+SUBDIRS += gtp
-+endif
-+
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
- endif
-diff --git a/tests/gtp/.gitignore b/tests/gtp/.gitignore
-new file mode 100644
-index 0000000..decdf8a
---- /dev/null
-+++ b/tests/gtp/.gitignore
-@@ -0,0 +1,2 @@
-+gtp-link
-+gtp-tunnel
-diff --git a/tests/gtp/GTP-README b/tests/gtp/GTP-README
-new file mode 100644
-index 0000000..35a4ace
---- /dev/null
-+++ b/tests/gtp/GTP-README
-@@ -0,0 +1,123 @@
-+Testing LSM/SELinux GTP Kernel Hooks
-+====================================
-+
-+These tests were performed on Fedora 32 Workstation with the 'targeted' policy
-+using an updated kernel with the GTP RFC kernel patches.
-+
-+The basic process is:
-+1) Build kernel with RFC LSM/GTP/SELinux patches (use the
-+   selinux-testsuite/defconfig file to set correct config if required).
-+2) Setup the selinux-testsuite and add the GTP test patch.
-+3) Build/install the libgtpnl library using a patch from the selinux-testsuite
-+   as this will allow errors to be returned by the library functions.
-+4) Build/run selinux-testsuite for all SELinux tests (sets up the environment).
-+5) Run the GTP tests locally to see more info.
-+6) Remove the selinux-testsuite policy.
-+
-+#
-+#### Start #####
-+#
-+
-+Build and install a kernel with the "Add LSM/SELinux support for GPRS
-+Tunneling Protocol (GTP)" patch set, [1] was used for these tests.
-+
-+NOTE: The selinux-testsuite/defconfig file contains kernel config info to
-+build a suitable kernel. See selinux-testsuite/README.md
-+
-+Make a test build directory e.g.:
-+mkdir /home/GTP-TEST
-+
-+#
-+#### Setup SELinux-testsuite ######
-+#
-+cd /home/GTP-TEST
-+git clone https://github.com/SELinuxProject/selinux-testsuite.git
-+cd selinux-testsuite
-+
-+Install the testsuite RFC GTP Patch: "selinux-testsuite: Add GTP tests"
-+
-+This will add the GTP tests. There will be in selinux-testsuite/tests/gtp:
-+1) GTP-README - These install/build/run instructions.
-+2) Update-libgtpnl-for-SELinux-testsuite-GTP-tests.patch - This contains
-+   changes required to return ERRNO and add gtp_match_tunnel function to
-+   the libgtpnl library and tools.
-+3) gtp-link.c and gtp-tunnel.c - These are the modified files from
-+   libgtpnl/tools as the local Makefile will build these.
-+4) test - A perl test script.
-+
-+#
-+##### Setup and build/install the libgtpnl library ######
-+#
-+Note: The install process will install the library and include files by
-+default in /usr/local/..):
-+cd /home/GTP-TEST
-+git clone git://git.osmocom.org/libgtpnl.git
-+cd libgtpnl
-+patch -p1 < ../selinux-testsuite/tests/gtp/Update-libgtpnl-for-SELinux-testsuite-GTP-tests.patch
-+autoreconf -fi && ./configure && make && make install
-+
-+Now build and run the SELinux-testsuite:
-+cd /home/GTP-TEST/selinux-testsuite
-+setenforce 1
-+make test
-+
-+If there is a build error it is most likely to be the 'module_load' test that
-+requires the kernel version devel to be installed. If it is not then comment
-+out the test in tests/Makefile.
-+
-+All other tests should run correctly. The GTP test will be last and there
-+should be one error reported:
-+
-+#   Failed test 'FIXME: Fails gtp_list_tunnel() as no callback error.
-+Audit log should have: allow test_gtp_no_get_pdp_dump_t test_gtp_t:gtp get;'
-+#   at gtp/test line 76.
-+
-+This happens because the kernel/netlink does not return an error when
-+'gtp-tunnel list' is called and the permission is denied, however the audit.log
-+indicates the denial. Any idea for a fix ??. Tried various kernel/netlink
-+changes to no avail. Netlink documentation seems to imply that it should work.
-+
-+To run the GTP tests locally and see more information:
-+
-+cd tests/gtp
-+# Clear audit log file:
-+> /var/log/audit/audit.log
-+# Run tests showing extra info:
-+./test
-+# Check audit log for denials:
-+audit2allow -p /etc/selinux/targeted/policy/policy.32 < /var/log/audit/audit.log
-+
-+The output should consist of the following entries:
-+#============= test_gtp-2_t ==============
-+allow test_gtp-2_t test_gtp-1_t:gtp { del get };
-+
-+#============= test_gtp_no_add_link_t ==============
-+allow test_gtp_no_add_link_t self:gtp add;
-+
-+#============= test_gtp_no_add_pdp_t ==============
-+allow test_gtp_no_add_pdp_t test_gtp-1_t:gtp add;
-+
-+#============= test_gtp_no_del_link_t ==============
-+allow test_gtp_no_del_link_t self:gtp del;
-+
-+#============= test_gtp_no_del_pdp_t ==============
-+allow test_gtp_no_del_pdp_t test_gtp-1_t:gtp del;
-+
-+#============= test_gtp_no_get_pdp_dump_t ==============
-+allow test_gtp_no_get_pdp_dump_t test_gtp-1_t:gtp get;
-+
-+#============= test_gtp_no_get_pdp_match_t ==============
-+allow test_gtp_no_get_pdp_match_t test_gtp-1_t:gtp get;
-+
-+
-+IMPORTANT: Remove the selinux-testsuite test policy when finished as it will
-+stop any libgtpnl functions from working in other SELinux domains:
-+
-+cd /home/GTP-TEST/selinux-testsuite
-+make -C policy unload
-+
-+libgtpnl functions should now work in any domain.
-+
-+The End
-+
-+[1] https://github.com/SELinuxProject/selinux-kernel
-diff --git a/tests/gtp/Makefile b/tests/gtp/Makefile
-new file mode 100644
-index 0000000..5adc426
---- /dev/null
-+++ b/tests/gtp/Makefile
-@@ -0,0 +1,8 @@
-+TARGETS = gtp-link gtp-tunnel
-+CFLAGS ?= -Wall
-+LDLIBS += -l mnl -lgtpnl
-+
-+all: $(TARGETS)
-+
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/gtp/Update-libgtpnl-for-SELinux-testsuite-GTP-tests.patch b/tests/gtp/Update-libgtpnl-for-SELinux-testsuite-GTP-tests.patch
-new file mode 100644
-index 0000000..3baef1c
---- /dev/null
-+++ b/tests/gtp/Update-libgtpnl-for-SELinux-testsuite-GTP-tests.patch
-@@ -0,0 +1,366 @@
-+libgtpnl: Allow SELinux-testsuite to run tests on GTP
-+
-+This allows the GTP functions to return errno when running
-+test so that EACCES can be detected.
-+
-+Added 'gtp-tunnel match <device> <ver> <tid>' for testing
-+permissions.
-+
-+Added to gtp-link options to pass port numbers when adding device in
-+the same namespace.
-+
-+NOTE: gtp_list_tunnel() does not return an error when pdp_get denied.
-+Could not find reason for this. gtp_match_tunnel() does return error
-+when pdp_get denied.
-+
-+---
-+ include/libgtpnl/gtpnl.h |  1 +
-+ src/gtp-genl.c           | 47 +++++++++++++++++++++++++----
-+ src/libgtpnl.map         |  1 +
-+ tools/gtp-link.c         | 37 ++++++++++++++++++-----
-+ tools/gtp-tunnel.c       | 64 +++++++++++++++++++++++++++++++++++-----
-+ 5 files changed, 130 insertions(+), 20 deletions(-)
-+
-+diff --git a/include/libgtpnl/gtpnl.h b/include/libgtpnl/gtpnl.h
-+index 6cd9f46..1bc427d 100644
-+--- a/include/libgtpnl/gtpnl.h
-++++ b/include/libgtpnl/gtpnl.h
-+@@ -27,5 +27,6 @@ struct gtp_tunnel;
-+ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t);
-+ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t);
-+ int gtp_list_tunnel(int genl_id, struct mnl_socket *nl);
-++int gtp_match_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t);
-+ 
-+ #endif
-+diff --git a/src/gtp-genl.c b/src/gtp-genl.c
-+index f12f872..fe24625 100644
-+--- a/src/gtp-genl.c
-++++ b/src/gtp-genl.c
-+@@ -25,6 +25,7 @@
-+ #include <string.h>
-+ #include <unistd.h>
-+ #include <time.h>
-++#include <errno.h>
-+ #include <arpa/inet.h>
-+ #include <sys/socket.h>
-+ #include <netinet/in.h>
-+@@ -66,6 +67,7 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
-+ 	struct nlmsghdr *nlh;
-+ 	char buf[MNL_SOCKET_BUFFER_SIZE];
-+ 	uint32_t seq = time(NULL);
-++	int ret;
-+ 
-+ 	if (t->gtp_version > GTP_V1) {
-+ 		fprintf(stderr, "wrong GTP version %u, use v0 or v1\n",
-+@@ -77,8 +79,12 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
-+ 				   GTP_CMD_NEWPDP);
-+ 	gtp_build_payload(nlh, t);
-+ 
-+-	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
-++	ret = genl_socket_talk(nl, nlh, seq, NULL, NULL);
-++	if (ret < 0) {
-++		ret = errno;
-+ 		perror("genl_socket_talk");
-++		return ret;
-++	}
-+ 
-+ 	return 0;
-+ }
-+@@ -89,13 +95,19 @@ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
-+ 	char buf[MNL_SOCKET_BUFFER_SIZE];
-+ 	struct nlmsghdr *nlh;
-+ 	uint32_t seq = time(NULL);
-++	int ret;
-+ 
-+ 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_ACK, ++seq,
-+ 				   GTP_CMD_DELPDP);
-+ 	gtp_build_payload(nlh, t);
-+ 
-+-	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
-++	ret = genl_socket_talk(nl, nlh, seq, NULL, NULL);
-++	/* Kernel void gtp_dellink() does not pass errors back to userspace */
-++	if (ret < 0) {
-++		ret = errno;
-+ 		perror("genl_socket_talk");
-++		return ret;
-++	}
-+ 
-+ 	return 0;
-+ }
-+@@ -194,15 +206,40 @@ int gtp_list_tunnel(int genl_id, struct mnl_socket *nl)
-+ 	char buf[MNL_SOCKET_BUFFER_SIZE];
-+ 	struct nlmsghdr *nlh;
-+ 	uint32_t seq = time(NULL);
-++	int ret;
-+ 
-+-	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_DUMP, 0,
-++	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_DUMP | NLM_F_ACK, ++seq,
-+ 				   GTP_CMD_GETPDP);
-+ 
-+-	if (genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL) < 0) {
-++	ret = genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL);
-++	if (ret < 0) {
-++		ret = errno;
-+ 		perror("genl_socket_talk");
-+-		return 0;
-++		return ret;
-+ 	}
-+ 
-+ 	return 0;
-+ }
-+ EXPORT_SYMBOL(gtp_list_tunnel);
-++
-++int gtp_match_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
-++{
-++	char buf[MNL_SOCKET_BUFFER_SIZE];
-++	struct nlmsghdr *nlh;
-++	uint32_t seq = time(NULL);
-++	int ret;
-++
-++	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_MATCH | NLM_F_ACK, ++seq,
-++				   GTP_CMD_GETPDP);
-++	gtp_build_payload(nlh, t);
-++
-++	ret = genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL);
-++	if (ret < 0) {
-++		ret = errno;
-++		perror("genl_socket_talk");
-++		return ret;
-++	}
-++
-++	return 0;
-++}
-++EXPORT_SYMBOL(gtp_match_tunnel);
-+diff --git a/src/libgtpnl.map b/src/libgtpnl.map
-+index 804f8b3..4556758 100644
-+--- a/src/libgtpnl.map
-++++ b/src/libgtpnl.map
-+@@ -14,6 +14,7 @@ global:
-+   gtp_add_tunnel;
-+   gtp_del_tunnel;
-+   gtp_list_tunnel;
-++  gtp_match_tunnel;
-+ 
-+   gtp_tunnel_alloc;
-+   gtp_tunnel_free;
-+diff --git a/tools/gtp-link.c b/tools/gtp-link.c
-+index 8367c6e..e88e349 100644
-+--- a/tools/gtp-link.c
-++++ b/tools/gtp-link.c
-+@@ -27,6 +27,7 @@
-+ #include <unistd.h>
-+ #include <string.h>
-+ #include <time.h>
-++#include <errno.h>
-+ #include <netinet/in.h>
-+ #include <arpa/inet.h>
-+ 
-+@@ -44,35 +45,53 @@ int main(int argc, char *argv[])
-+ {
-+ 	char buf[MNL_SOCKET_BUFFER_SIZE];
-+ 	int ret, sgsn_mode = 0;
-++	int port1, port2;
-+ 
-+ 	if (argc < 3) {
-+-		printf("Usage: %s <add|del> <device>\n", argv[0]);
-++		printf("Usage: %s <add|del> <device> [--sgsn] [port1] [port2]\n",
-++		       argv[0]);
-+ 		exit(EXIT_FAILURE);
-+ 	}
-+ 
-+ 	if (!strcmp(argv[1], "del")) {
-+ 		printf("destroying gtp interface...\n");
-+-		if (gtp_dev_destroy(argv[2]) < 0)
-++
-++		ret = gtp_dev_destroy(argv[2]);
-++		/* Kernel gtp_dellink() does not pass errors back to userspace */
-++		if (ret < 0) {
-++			ret = errno;
-+ 			perror("gtp_dev_destroy");
-++		}
-+ 
-+-		return 0;
-++		return ret;
-+ 	}
-+ 
-+-	if (argc > 3 && !strcmp(argv[3], "--sgsn"))
-++	port1 = 3386;
-++	port2 = 2152;
-++
-++	if (argc > 3 && !strcmp(argv[3], "--sgsn")) {
-+ 		sgsn_mode = 1;
-++		if (argc == 6) {
-++			port1 = atoi(argv[4]);
-++			port2 = atoi(argv[5]);
-++		}
-++	} else if (argc == 5) {
-++		port1 = atoi(argv[3]);
-++		port2 = atoi(argv[4]);
-++	}
-+ 
-+ 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
-+ 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
-+ 	struct sockaddr_in sockaddr_fd1 = {
-+ 		.sin_family	= AF_INET,
-+-		.sin_port	= htons(3386),
-++		.sin_port	= htons(port1),
-+ 		.sin_addr	= {
-+ 			.s_addr 	= INADDR_ANY,
-+ 		},
-+ 	};
-+ 	struct sockaddr_in sockaddr_fd2 = {
-+ 		.sin_family	= AF_INET,
-+-		.sin_port	= htons(2152),
-++		.sin_port	= htons(port2),
-+ 		.sin_addr	= {
-+ 			.s_addr 	= INADDR_ANY,
-+ 		},
-+@@ -94,13 +113,15 @@ int main(int argc, char *argv[])
-+ 	else
-+ 		ret = gtp_dev_create(-1, argv[2], fd1, fd2);
-+ 	if (ret < 0) {
-+-		perror("cannot create GTP device\n");
-+-		exit(EXIT_FAILURE);
-++		ret = errno;
-++		perror("cannot create GTP device");
-++		return ret;
-+ 	}
-+ 
-+ 	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Keep "
-+ 			"this process running for testing purposes.\n");
-+ 
-++
-+ 	while (1) {
-+ 		struct sockaddr_in addr;
-+ 		socklen_t len = sizeof(addr);
-+diff --git a/tools/gtp-tunnel.c b/tools/gtp-tunnel.c
-+index 513ff4a..8fb7fa2 100644
-+--- a/tools/gtp-tunnel.c
-++++ b/tools/gtp-tunnel.c
-+@@ -27,6 +27,7 @@
-+ #include <string.h>
-+ #include <unistd.h>
-+ #include <time.h>
-++
-+ #include <arpa/inet.h>
-+ #include <sys/socket.h>
-+ #include <netinet/in.h>
-+@@ -56,7 +57,7 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+ 	uint32_t gtp_ifidx;
-+ 	struct in_addr ms, sgsn;
-+ 	uint32_t gtp_version;
-+-	int optidx;
-++	int optidx, ret;
-+ 
-+ 	if (argc < 7 || argc > 8) {
-+ 		add_usage(argv[0]);
-+@@ -107,10 +108,11 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+ 	}
-+ 	gtp_tunnel_set_sgsn_ip4(t, &sgsn);
-+ 
-+-	gtp_add_tunnel(genl_id, nl, t);
-++	/* Returns 0 or errno */
-++	ret = gtp_add_tunnel(genl_id, nl, t);
-+ 
-+ 	gtp_tunnel_free(t);
-+-	return 0;
-++	return ret;
-+ }
-+ 
-+ static int
-+@@ -118,6 +120,7 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+ {
-+ 	struct gtp_tunnel *t;
-+ 	uint32_t gtp_ifidx;
-++	int ret;
-+ 
-+ 	if (argc != 5) {
-+ 		printf("%s add <gtp device> <version> <tid>\n",
-+@@ -146,10 +149,11 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+ 		return EXIT_FAILURE;
-+ 	}
-+ 
-+-	gtp_del_tunnel(genl_id, nl, t);
-++	/* Returns 0 or errno */
-++	ret = gtp_del_tunnel(genl_id, nl, t);
-+ 
-+ 	gtp_tunnel_free(t);
-+-	return 0;
-++	return ret;
-+ }
-+ 
-+ struct gtp_pdp {
-+@@ -170,7 +174,51 @@ struct gtp_pdp {
-+ static int
-+ list_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+ {
-+-	return gtp_list_tunnel(genl_id, nl);
-++	int ret;
-++
-++	ret = gtp_list_tunnel(genl_id, nl);
-++	return ret;
-++}
-++
-++static int
-++match_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-++{
-++	struct gtp_tunnel *t;
-++	uint32_t gtp_ifidx;
-++	int ret;
-++
-++	if (argc != 5) {
-++		printf("%s match <gtp device> <version> <tid>\n",
-++			argv[0]);
-++		return EXIT_FAILURE;
-++	}
-++
-++	t = gtp_tunnel_alloc();
-++
-++	gtp_ifidx = if_nametoindex(argv[2]);
-++	if (gtp_ifidx == 0) {
-++		fprintf(stderr, "wrong GTP interface %s\n", argv[2]);
-++		return EXIT_FAILURE;
-++	}
-++	gtp_tunnel_set_ifidx(t, gtp_ifidx);
-++
-++	if (strcmp(argv[3], "v0") == 0) {
-++		gtp_tunnel_set_version(t, GTP_V0);
-++		gtp_tunnel_set_tid(t, atoi(argv[4]));
-++	} else if (strcmp(argv[3], "v1") == 0) {
-++		gtp_tunnel_set_version(t, GTP_V1);
-++		gtp_tunnel_set_i_tei(t, atoi(argv[4]));
-++	} else {
-++		fprintf(stderr, "wrong GTP version %s, use v0 or v1\n",
-++			argv[3]);
-++		return EXIT_FAILURE;
-++	}
-++
-++	/* Returns 0 or errno */
-++	ret = gtp_match_tunnel(genl_id, nl, t);
-++
-++	gtp_tunnel_free(t);
-++	return ret;
-+ }
-+ 
-+ int main(int argc, char *argv[])
-+@@ -180,7 +228,7 @@ int main(int argc, char *argv[])
-+ 	int ret;
-+ 
-+ 	if (argc < 2) {
-+-		printf("%s <add|delete|list> [<options,...>]\n", argv[0]);
-++		printf("%s <add|delete|list|match> [<options,...>]\n", argv[0]);
-+ 		exit(EXIT_FAILURE);
-+ 	}
-+ 
-+@@ -202,6 +250,8 @@ int main(int argc, char *argv[])
-+ 		ret = del_tunnel(argc, argv, genl_id, nl);
-+ 	else if (strncmp(argv[1], "list", strlen(argv[1])) == 0)
-+ 		ret = list_tunnel(argc, argv, genl_id, nl);
-++	else if (strncmp(argv[1], "match", strlen(argv[1])) == 0)
-++		ret = match_tunnel(argc, argv, genl_id, nl);
-+ 	else {
-+ 		printf("Unknown command `%s'\n", argv[1]);
-+ 		exit(EXIT_FAILURE);
-+-- 
-+2.26.2
-+
-diff --git a/tests/gtp/gtp-link.c b/tests/gtp/gtp-link.c
-new file mode 100644
-index 0000000..c94a75b
---- /dev/null
-+++ b/tests/gtp/gtp-link.c
-@@ -0,0 +1,134 @@
-+/* Command line utility to create GTP link */
-+
-+/* (C) 2014 by sysmocom - s.f.m.c. GmbH
-+ * (C) 2016 by Pablo Neira Ayuso <pablo@netfilter.org>
-+ *
-+ * Author: Pablo Neira Ayuso <pablo@gnumonks.org>
-+ *
-+ * All Rights Reserved
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU Affero General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <time.h>
-+#include <errno.h>
-+#include <netinet/in.h>
-+#include <arpa/inet.h>
-+
-+#include <libmnl/libmnl.h>
-+#include <linux/if.h>
-+#include <linux/if_link.h>
-+#include <linux/rtnetlink.h>
-+
-+#include <linux/gtp.h>
-+#include <linux/if_link.h>
-+
-+#include <libgtpnl/gtpnl.h>
-+
-+int main(int argc, char *argv[])
-+{
-+	char buf[MNL_SOCKET_BUFFER_SIZE];
-+	int ret, sgsn_mode = 0;
-+	int port1, port2;
-+
-+	if (argc < 3) {
-+		printf("Usage: %s <add|del> <device> [--sgsn] [port1] [port2]\n",
-+		       argv[0]);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (!strcmp(argv[1], "del")) {
-+		printf("destroying gtp interface...\n");
-+
-+		ret = gtp_dev_destroy(argv[2]);
-+		/* Kernel gtp_dellink() does not pass errors back to userspace */
-+		if (ret < 0) {
-+			ret = errno;
-+			perror("gtp_dev_destroy");
-+		}
-+
-+		return ret;
-+	}
-+
-+	port1 = 3386;
-+	port2 = 2152;
-+
-+	if (argc > 3 && !strcmp(argv[3], "--sgsn")) {
-+		sgsn_mode = 1;
-+		if (argc == 6) {
-+			port1 = atoi(argv[4]);
-+			port2 = atoi(argv[5]);
-+		}
-+	} else if (argc == 5) {
-+		port1 = atoi(argv[3]);
-+		port2 = atoi(argv[4]);
-+	}
-+
-+	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
-+	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
-+	struct sockaddr_in sockaddr_fd1 = {
-+		.sin_family	= AF_INET,
-+		.sin_port	= htons(port1),
-+		.sin_addr	= {
-+			.s_addr		= INADDR_ANY,
-+		},
-+	};
-+	struct sockaddr_in sockaddr_fd2 = {
-+		.sin_family	= AF_INET,
-+		.sin_port	= htons(port2),
-+		.sin_addr	= {
-+			.s_addr		= INADDR_ANY,
-+		},
-+	};
-+
-+	if (bind(fd1, (struct sockaddr *) &sockaddr_fd1,
-+		 sizeof(sockaddr_fd1)) < 0) {
-+		perror("bind");
-+		exit(EXIT_FAILURE);
-+	}
-+	if (bind(fd2, (struct sockaddr *) &sockaddr_fd2,
-+		 sizeof(sockaddr_fd2)) < 0) {
-+		perror("bind");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (sgsn_mode)
-+		ret = gtp_dev_create_sgsn(-1, argv[2], fd1, fd2);
-+	else
-+		ret = gtp_dev_create(-1, argv[2], fd1, fd2);
-+	if (ret < 0) {
-+		ret = errno;
-+		perror("cannot create GTP device");
-+		return ret;
-+	}
-+
-+	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Keep "
-+		"this process running for testing purposes.\n");
-+
-+	while (1) {
-+		struct sockaddr_in addr;
-+		socklen_t len = sizeof(addr);
-+
-+		ret = recvfrom(fd1, buf, sizeof(buf), 0,
-+			       (struct sockaddr *)&addr, &len);
-+		printf("received %d bytes via UDP socket\n", ret);
-+	}
-+
-+	return 0;
-+}
-diff --git a/tests/gtp/gtp-tunnel.c b/tests/gtp/gtp-tunnel.c
-new file mode 100644
-index 0000000..6079028
---- /dev/null
-+++ b/tests/gtp/gtp-tunnel.c
-@@ -0,0 +1,263 @@
-+/* Command line utility to create GTP tunnels (PDP contexts) */
-+
-+/* (C) 2014 by sysmocom - s.f.m.c. GmbH
-+ * (C) 2016 by Pablo Neira Ayuso <pablo@netfilter.org>
-+ *
-+ * Author: Pablo Neira Ayuso <pablo@gnumonks.org>
-+ *
-+ * All Rights Reserved
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU Affero General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <time.h>
-+
-+#include <arpa/inet.h>
-+#include <sys/socket.h>
-+#include <netinet/in.h>
-+#include <net/if.h>
-+#include <inttypes.h>
-+
-+#include <libmnl/libmnl.h>
-+#include <linux/genetlink.h>
-+
-+#include <linux/gtp.h>
-+#include <linux/if_link.h>
-+#include <libgtpnl/gtp.h>
-+#include <libgtpnl/gtpnl.h>
-+
-+static void add_usage(const char *name)
-+{
-+	printf("%s add <gtp device> <v0> <tid> <ms-addr> <sgsn-addr>\n",
-+	       name);
-+	printf("%s add <gtp device> <v1> <i_tei> <o_tei> <ms-addr> <sgsn-addr>\n",
-+	       name);
-+}
-+
-+static int
-+add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+{
-+	struct gtp_tunnel *t;
-+	uint32_t gtp_ifidx;
-+	struct in_addr ms, sgsn;
-+	uint32_t gtp_version;
-+	int optidx, ret;
-+
-+	if (argc < 7 || argc > 8) {
-+		add_usage(argv[0]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	t = gtp_tunnel_alloc();
-+	optidx = 2;
-+
-+	gtp_ifidx = if_nametoindex(argv[optidx]);
-+	if (gtp_ifidx == 0) {
-+		fprintf(stderr, "wrong GTP interface %s\n", argv[optidx]);
-+		return EXIT_FAILURE;
-+	}
-+	gtp_tunnel_set_ifidx(t, gtp_ifidx);
-+
-+	optidx++;
-+
-+	if (strcmp(argv[optidx], "v0") == 0)
-+		gtp_version = GTP_V0;
-+	else if (strcmp(argv[optidx], "v1") == 0)
-+		gtp_version = GTP_V1;
-+	else {
-+		fprintf(stderr, "wrong GTP version %s, use v0 or v1\n",
-+			argv[optidx]);
-+		return EXIT_FAILURE;
-+	}
-+	gtp_tunnel_set_version(t, gtp_version);
-+
-+	optidx++;
-+
-+	if (gtp_version == GTP_V0)
-+		gtp_tunnel_set_tid(t, atoi(argv[optidx++]));
-+	else if (gtp_version == GTP_V1) {
-+		gtp_tunnel_set_i_tei(t, atoi(argv[optidx++]));
-+		gtp_tunnel_set_o_tei(t, atoi(argv[optidx++]));
-+	}
-+
-+	if (inet_aton(argv[optidx++], &ms) < 0) {
-+		perror("bad address for ms");
-+		exit(EXIT_FAILURE);
-+	}
-+	gtp_tunnel_set_ms_ip4(t, &ms);
-+
-+	if (inet_aton(argv[optidx++], &sgsn) < 0) {
-+		perror("bad address for sgsn");
-+		exit(EXIT_FAILURE);
-+	}
-+	gtp_tunnel_set_sgsn_ip4(t, &sgsn);
-+
-+	/* Returns 0 or errno */
-+	ret = gtp_add_tunnel(genl_id, nl, t);
-+
-+	gtp_tunnel_free(t);
-+	return ret;
-+}
-+
-+static int
-+del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+{
-+	struct gtp_tunnel *t;
-+	uint32_t gtp_ifidx;
-+	int ret;
-+
-+	if (argc != 5) {
-+		printf("%s add <gtp device> <version> <tid>\n",
-+		       argv[0]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	t = gtp_tunnel_alloc();
-+
-+	gtp_ifidx = if_nametoindex(argv[2]);
-+	if (gtp_ifidx == 0) {
-+		fprintf(stderr, "wrong GTP interface %s\n", argv[2]);
-+		return EXIT_FAILURE;
-+	}
-+	gtp_tunnel_set_ifidx(t, gtp_ifidx);
-+
-+	if (strcmp(argv[3], "v0") == 0) {
-+		gtp_tunnel_set_version(t, GTP_V0);
-+		gtp_tunnel_set_tid(t, atoi(argv[4]));
-+	} else if (strcmp(argv[3], "v1") == 0) {
-+		gtp_tunnel_set_version(t, GTP_V1);
-+		gtp_tunnel_set_i_tei(t, atoi(argv[4]));
-+	} else {
-+		fprintf(stderr, "wrong GTP version %s, use v0 or v1\n",
-+			argv[3]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	/* Returns 0 or errno */
-+	ret = gtp_del_tunnel(genl_id, nl, t);
-+
-+	gtp_tunnel_free(t);
-+	return ret;
-+}
-+
-+struct gtp_pdp {
-+	uint32_t	version;
-+	union {
-+		struct {
-+			uint64_t tid;
-+		} v0;
-+		struct {
-+			uint32_t i_tei;
-+			uint32_t o_tei;
-+		} v1;
-+	} u;
-+	struct in_addr	sgsn_addr;
-+	struct in_addr	ms_addr;
-+};
-+
-+static int
-+list_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+{
-+	int ret;
-+
-+	ret = gtp_list_tunnel(genl_id, nl);
-+	return ret;
-+}
-+
-+static int
-+match_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
-+{
-+	struct gtp_tunnel *t;
-+	uint32_t gtp_ifidx;
-+	int ret;
-+
-+	if (argc != 5) {
-+		printf("%s match <gtp device> <version> <tid>\n",
-+		       argv[0]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	t = gtp_tunnel_alloc();
-+
-+	gtp_ifidx = if_nametoindex(argv[2]);
-+	if (gtp_ifidx == 0) {
-+		fprintf(stderr, "wrong GTP interface %s\n", argv[2]);
-+		return EXIT_FAILURE;
-+	}
-+	gtp_tunnel_set_ifidx(t, gtp_ifidx);
-+
-+	if (strcmp(argv[3], "v0") == 0) {
-+		gtp_tunnel_set_version(t, GTP_V0);
-+		gtp_tunnel_set_tid(t, atoi(argv[4]));
-+	} else if (strcmp(argv[3], "v1") == 0) {
-+		gtp_tunnel_set_version(t, GTP_V1);
-+		gtp_tunnel_set_i_tei(t, atoi(argv[4]));
-+	} else {
-+		fprintf(stderr, "wrong GTP version %s, use v0 or v1\n",
-+			argv[3]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	/* Returns 0 or errno */
-+	ret = gtp_match_tunnel(genl_id, nl, t);
-+
-+	gtp_tunnel_free(t);
-+	return ret;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	struct mnl_socket *nl;
-+	int32_t genl_id;
-+	int ret;
-+
-+	if (argc < 2) {
-+		printf("%s <add|delete|list|match> [<options,...>]\n", argv[0]);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	nl = genl_socket_open();
-+	if (nl == NULL) {
-+		perror("mnl_socket_open");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	genl_id = genl_lookup_family(nl, "gtp");
-+	if (genl_id < 0) {
-+		printf("not found gtp genl family\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (strncmp(argv[1], "add", strlen(argv[1])) == 0)
-+		ret = add_tunnel(argc, argv, genl_id, nl);
-+	else if (strncmp(argv[1], "delete", strlen(argv[1])) == 0)
-+		ret = del_tunnel(argc, argv, genl_id, nl);
-+	else if (strncmp(argv[1], "list", strlen(argv[1])) == 0)
-+		ret = list_tunnel(argc, argv, genl_id, nl);
-+	else if (strncmp(argv[1], "match", strlen(argv[1])) == 0)
-+		ret = match_tunnel(argc, argv, genl_id, nl);
-+	else {
-+		printf("Unknown command `%s'\n", argv[1]);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	mnl_socket_close(nl);
-+
-+	return ret;
-+}
-diff --git a/tests/gtp/test b/tests/gtp/test
-new file mode 100755
-index 0000000..cff8eab
---- /dev/null
-+++ b/tests/gtp/test
-@@ -0,0 +1,169 @@
-+#!/usr/bin/perl
-+use Test::More;
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    plan tests => 20;
-+}
-+
-+sub add_link {
-+    my ( $runcon_args, $args ) = @_;
-+    my $pid;
-+
-+    if ( ( $pid = fork() ) == 0 ) {
-+        exec "runcon $runcon_args $basedir/gtp-link $args";
-+    }
-+
-+    # Wait for it to initialize.
-+    sleep 1;
-+    return $pid;
-+}
-+
-+sub del_link {
-+    my ($pid) = @_;
-+
-+    kill KILL, $pid;
-+    waitpid $pid, 0;
-+}
-+
-+############ Basic tests for GTP #############
-+print "Test GTP device driver support\n";
-+$pid = add_link( "-t test_gtp-1_t", "add gtp-1 2>&1" );
-+
-+print "Test GTP device driver support\n";
-+$result = system
-+"runcon -t test_gtp-1_t $basedir/gtp-tunnel add gtp-1 v1 100 200 127.0.0.1 127.0.0.1";
-+ok( $result eq 0 );
-+
-+$result = system
-+"runcon -t test_gtp-1_t $basedir/gtp-tunnel add gtp-1 v1 200 300 127.0.0.2 127.0.0.2";
-+ok( $result eq 0 );
-+
-+$result = system
-+"runcon -t test_gtp-1_t $basedir/gtp-tunnel add gtp-1 v0 300 127.0.0.3 127.0.0.3";
-+ok( $result eq 0 );
-+
-+$result = system "runcon -t test_gtp-1_t $basedir/gtp-tunnel list";
-+ok( $result eq 0 );
-+
-+$result =
-+  system "runcon -t test_gtp-1_t $basedir/gtp-tunnel match gtp-1 v1 200";
-+ok( $result eq 0 );
-+
-+########### Test Deny permissions ####################
-+print "Test Deny permissions\n";
-+
-+# Deny gtp { add } - EACCES
-+$result = system
-+"runcon -t test_gtp_no_add_pdp_t $basedir/gtp-tunnel add gtp-1 v0 400 127.0.0.4 127.0.0.4 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+# Deny gtp { del } - EACCES
-+$result = system
-+"runcon -t test_gtp_no_del_pdp_t $basedir/gtp-tunnel delete gtp-1 v1 100 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+# Deny gtp { get } (gtp-tunnel list) - EACCES
-+# Test returns 0 not EACCES as gtp_list_tunnel() with NLM_F_DUMP does
-+# not pass errors back via the gtp-genl.c genl_gtp_attr_cb() callback.
-+# The documentation found suggests that it should !!!!
-+# The audit log will show the denial:
-+#     allow test_gtp_no_get_pdp_dump_t test_gtp-1_t:gtp get;
-+$result =
-+  system "runcon -t test_gtp_no_get_pdp_dump_t $basedir/gtp-tunnel list 2>&1";
-+ok(
-+    $result >> 8 eq 13,
-+"FIXME: Fails gtp_list_tunnel() as no callback error. Audit log should have: allow test_gtp_no_get_pdp_dump_t test_gtp-1_t:gtp get;"
-+);
-+
-+print "Deny gtp { get } (gtp-tunnel match) - EACCES\n";
-+$result =
-+  system
-+"runcon -t test_gtp_no_get_pdp_match_t $basedir/gtp-tunnel match gtp-1 v0 300 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+# Kill the link.
-+$result = system "runcon -t test_gtp-1_t $basedir/gtp-link del gtp-1";
-+ok( $result eq 0 );
-+del_link($pid);
-+
-+# Add link to test deny gtp delete link
-+$pid = add_link( "-t test_gtp_no_del_link_t", "add gtp-1 2>&1" );
-+
-+# Test returns 0 not EACCES as kernel void gtp_dellink() does not
-+# pass errors back to userspace. The audit log should show
-+#    allow test_gtp_no_del_link_t self:gtp del;
-+$result =
-+  system "runcon -t test_gtp_no_del_link_t $basedir/gtp-link del gtp-1 2>&1";
-+ok(
-+    $result eq 0,
-+"PASS: Kernel void gtp_dellink() does not pass errors back. Audit log should have: allow test_gtp_no_del_link_t self:gtp del;"
-+);
-+
-+# Kill the link.
-+$result = system "runcon -t test_gtp-1_t $basedir/gtp-link del gtp-1";
-+del_link($pid);
-+
-+# Deny gtp { add } - EACCES
-+$result =
-+  system "runcon -t test_gtp_no_add_link_t $basedir/gtp-link add gtp-2 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+#
-+print
-+"Create three GTP devices with different security contexts in same namespace\n";
-+#
-+$port1 = "3386";
-+$port2 = "2152";
-+
-+$pid1 = add_link( "-t test_gtp-1_t", "add gtp-1 $port1 $port2 2>&1" );
-+
-+$result = system
-+"runcon -t test_gtp-1_t $basedir/gtp-tunnel add gtp-1 v1 200 100 172.99.0.1 172.0.0.1";
-+ok( $result eq 0 );
-+
-+$port1++;
-+$port2++;
-+$pid2   = add_link( "-t test_gtp-2_t", "add gtp-2 $port1 $port2 2>&1" );
-+$result = system
-+"runcon -t test_gtp-2_t $basedir/gtp-tunnel add gtp-2 v1 200 100 172.99.0.2 172.0.0.2";
-+ok( $result eq 0 );
-+
-+$result = system
-+"runcon -t test_gtp-2_t $basedir/gtp-tunnel list gtp-2 v1 200 100 172.99.0.2 172.0.0.2";
-+ok( $result eq 0 );
-+
-+$result =
-+  system "runcon -t test_gtp-2_t $basedir/gtp-tunnel match gtp-1 v1 200 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+$port1++;
-+$port2++;
-+$pid3 = add_link( "-t test_gtp-3_t", "add gtp-3 $port1 $port2 2>&1" );
-+
-+# Use test_gtp-2_t to kill link 1.
-+$result = system "runcon -t test_gtp-2_t $basedir/gtp-link del gtp-1";
-+ok(
-+    $result eq 0,
-+"PASS: Kernel void gtp_dellink() does not pass errors back. Audit log should have: allow test_gtp-2_t test_gtp-1_t:gtp del;"
-+);
-+del_link($pid1);
-+
-+# Kill link 1.
-+$result = system "runcon -t test_gtp-1_t $basedir/gtp-link del gtp-1";
-+ok( $result eq 0 );
-+del_link($pid1);
-+
-+# Kill link 2.
-+$result = system "runcon -t test_gtp-2_t $basedir/gtp-link del gtp-2";
-+ok( $result eq 0 );
-+del_link($pid2);
-+
-+# Kill link 3.
-+$result = system "runcon -t test_gtp-3_t $basedir/gtp-link del gtp-3";
-+ok( $result eq 0 );
-+del_link($pid3);
-+
-+exit;
--- 
-2.26.2
+But whatever, I'm keen to see what you recommend.
+
+Ian
 
