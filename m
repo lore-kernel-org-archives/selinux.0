@@ -1,117 +1,339 @@
-Return-Path: <SRS0=GjD/=DB=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=TLac=DC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EB1CC4346E
-	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 23:43:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4024C4346E
+	for <selinux@archiver.kernel.org>; Fri, 25 Sep 2020 03:45:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5E1622208
-	for <selinux@archiver.kernel.org>; Thu, 24 Sep 2020 23:43:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Js4r9KRo"
+	by mail.kernel.org (Postfix) with ESMTP id 9ADA22176B
+	for <selinux@archiver.kernel.org>; Fri, 25 Sep 2020 03:45:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726676AbgIXXnF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Sep 2020 19:43:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58532 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726397AbgIXXnF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Sep 2020 19:43:05 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F89C0613CE
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2020 16:43:04 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id t13so645104ile.9
-        for <selinux@vger.kernel.org>; Thu, 24 Sep 2020 16:43:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=h9pyDTD+facH7Jp49oO3o3Y31S3usxM+4ryGZ/T++JY=;
-        b=Js4r9KRoGs4EKAWAvnLTYNppzIPnoJA66dgkSa7UlI6W8V5Z92/9XBHlDhzHrJW6RA
-         APUwezEem6m7TIBX4F3/XEoXfvUDZRf+X0A0JM6rvIZu0doeh9S+bCySz+HI5DKtK5t/
-         h6OijXsdBHDKQ2GlbVbz2hgvL6EDiFG9x9Ss5uSdnQZnu+nbhhFctLu48H7fm5CDKhe6
-         YlrW7DxMu8a/gzlNBqiQhz7rBfBGk142vzfDxqzGNQuCRH+XNWWz1Ax4SY1mzUjkLQP2
-         aEFKCsQ6jT1qcvAwumcHIxDt1AlYL3IuiSV9gR9FOVpJd0Ol+eN0rdmfmLhS7awOS7Cm
-         zPmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=h9pyDTD+facH7Jp49oO3o3Y31S3usxM+4ryGZ/T++JY=;
-        b=aowfsAFgKtAXl7nnjOZTgu+Z+v96TcQy4RBH13QxF/9cIKOf8c4r08dJcDKTE/gtnl
-         MrR6ylNAyXTaYftoE4Sj7N9NoXEepXy4s4+vu6KHmUjDzzFHiQlbQGzQuMc0k5TZrfQi
-         z5kFp/qnOfiZq7q0r9fT0x0PiXhrgO0KYY4HxtRTNevgEGKh6/R4pjtLHNhL3TEqe+tB
-         SU8taloaS9opzhFyphhkC8G4N3PNQNvLoCSSJzG5YoQMQxR2DMXqdRpddYr8ppCenTLg
-         cF+pilPtXabV+WxNNNRHIznTOeVOeeGGlkIoYaSaUPbtasua2zlMBCkO86gJLiQKDmVt
-         r9WA==
-X-Gm-Message-State: AOAM533tiLSFxMu8tsi3hY8YXywiJ5G/vvbV862NO2e7KcxAW9VIAmeD
-        kyfONKurucfvxCVHqh1UOetispi7QhG1JCa5xUj5WtX3
-X-Google-Smtp-Source: ABdhPJyhvCDIBRKTMvPE/w4vlTjmMPjzGfnNWEhzrrAGrMMYPWDo5YwjngzG6086FbLlReMirdp7GJEScoiB6sHyQEs=
-X-Received: by 2002:a92:6f07:: with SMTP id k7mr912907ilc.57.1600990983977;
- Thu, 24 Sep 2020 16:43:03 -0700 (PDT)
-MIME-Version: 1.0
-References: <159110207843.57260.5661475689740939480.stgit@chester>
- <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
- <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
- <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
- <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
- <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com>
- <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
- <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
- <CAHC9VhQ25U5PLYMAA1onNssWrOMYrUXhfJ_SRpzM1qNXeavfuw@mail.gmail.com>
- <20200819171459.GA57975@localhost.localdomain> <CAEjxPJ54j6PD6oBMWj7wOVskJuUY=BLpMCkdmmqwrP1DGJ0VqA@mail.gmail.com>
- <CAFqZXNuPCwvf2BNYrxxL-DqcwLQBCS9b78iQBfKDsWXOy8pvyg@mail.gmail.com>
- <CAEjxPJ7t4bmmom=ORduFqG5JYkbk+JW1dB4XxLyTULu709=b4A@mail.gmail.com> <CAHC9VhR4RBT6ZRxbAH13NWTZ0p7UPGiWSZuB_3trVd4qPoVCAQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhR4RBT6ZRxbAH13NWTZ0p7UPGiWSZuB_3trVd4qPoVCAQ@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 24 Sep 2020 19:42:52 -0400
-Message-ID: <CAEjxPJ43GGLcBkPL_YZOWQWrpiyiU_CHK6VupVkLNw__ruZ3cg@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
- ssleep() discomfort
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+        id S1726773AbgIYDpB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Sep 2020 23:45:01 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:38169 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726738AbgIYDpA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Sep 2020 23:45:00 -0400
+X-Greylist: delayed 428 seconds by postgrey-1.27 at vger.kernel.org; Thu, 24 Sep 2020 23:45:00 EDT
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.west.internal (Postfix) with ESMTP id 437547BA;
+        Thu, 24 Sep 2020 23:44:59 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Thu, 24 Sep 2020 23:44:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
+        message-id:subject:from:to:cc:date:in-reply-to:references
+        :content-type:mime-version:content-transfer-encoding; s=fm1; bh=
+        UYLYj2YIQ3K6uoXwT47NWuhJE0lOkU8zfvPESblngjI=; b=nw9Du8cB54e8uMD+
+        6rkQVfn5oZAbbQFaFVHn2zjn7IrI9CZ0s49a0S8XdFAjPMrcGQ/oOIjy1Cz9Yhd2
+        caviN/xiguLEFUFCnXi2ViCjH79q+cgrVum9OR+7JOU4VmT3ev0GrKj8HBSSnJdK
+        k+4VlfeUNy1v2d9iotyw3wpU8HcEOrEBl1pqD/yUsGJEn0/5tQzONqFNPZU2iTxg
+        V8gY56ByJm1D9n/RhWzPSq7NUrcPBhXmlyLSc34RTTNO1I8njGSHaccgcLKHoVsT
+        Xcyf4aMiQFrwalvRRY0oJhVXhtDlndeTIV/zu29sq9X8w9uwvE4ZLFKk8srwv5Tm
+        fjXsiA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=UYLYj2YIQ3K6uoXwT47NWuhJE0lOkU8zfvPESblng
+        jI=; b=szOjxxuTINrpNMvLMlQMjuO3/ua8HylBo0bF3uzj0Dp4PEEjn6MQyiNPu
+        5zJu7pjrSvpvS+vodeDdOlfe2YrWzWzdSO9kJpFsXXBIN/S7AIdEC+OtdNC+Qw8K
+        82pyPvYLe1K96MEtJFQRx8cs1A5KuerX0k/31zXumtYHnBV1JbncOmtOSsq/jR09
+        0Xpt3AgpQRAOfmFHOt4ZlSncNNesoSsAIunWOgk3frTbJidA53Gp4vmy8zWDMoqC
+        xfmy+dvNEwS0gRkmJKf/TNJrdlIgRsaakKG22mAJLTJA4wTwUTW8CJalPzGRKmOI
+        sM8S6BHyZEyDOJ52SZfQiSQ+a8Jcw==
+X-ME-Sender: <xms:umdtX1h3NJpVnD8PfnM1JKcEiJd9uVPYncMJFAjHXVYAZvI4O4SRdA>
+    <xme:umdtX6D8pWj3uLrv1tQPtXGM1kKqXNBMPgvIplwQ25S5rnsa4NpbNSXHdhijoshAh
+    e25iERUObtS>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudelgdeilecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpefkrghnucfm
+    vghnthcuoehrrghvvghnsehthhgvmhgrfidrnhgvtheqnecuggftrfgrthhtvghrnhepfe
+    efteetvdeguddvveefveeftedtffduudehueeihfeuvefgveehffeludeggfejnecukfhp
+    pedutdeirdeiledrvdehgedrudehtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehrrghvvghnsehthhgvmhgrfidrnhgvth
+X-ME-Proxy: <xmx:umdtX1GohErjhIgWglYHcorADWz1MOclEi4v1PqTM6ZFM90AyKzonw>
+    <xmx:umdtX6TcQ5cNEWmWbP7y_QDIBdyIuYq_xtpcb-fg2GXJdi9jdxLFJw>
+    <xmx:umdtXywOlDs9TDlEo4erJH6F8tz2k--PJxsxfiHzmqRI8-knSVSqNw>
+    <xmx:umdtX5rsuTT9HUW-xez9ym1YSsF3CH4DMkLsFA9dxBbu3B4LoeqVNA>
+Received: from mickey.themaw.net (106-69-254-150.dyn.iinet.net.au [106.69.254.150])
+        by mail.messagingengine.com (Postfix) with ESMTPA id EAB8F3064680;
+        Thu, 24 Sep 2020 23:44:54 -0400 (EDT)
+Message-ID: <572454eeca528478826d2943ce62b588f9ae203a.camel@themaw.net>
+Subject: Re: Commit 13c164b1a186 - regression for LSMs/SELinux?
+From:   Ian Kent <raven@themaw.net>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+        autofs@vger.kernel.org,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Zdenek Pytela <zpytela@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 25 Sep 2020 11:44:51 +0800
+In-Reply-To: <8d771a45debc94f6401266c05f7634b6a867177f.camel@themaw.net>
+References: <CAFqZXNsoXr1eA4C8==Nvujs5ONpRnuSqaOQQ0n78R=Dbm-EFGA@mail.gmail.com>
+         <20200921160922.GA23870@lst.de>
+         <20200921163011.GZ3421308@ZenIV.linux.org.uk>
+         <CAFqZXNsBqvCj0NjEd9+C0H1EPjz7Fst296AA5eOFSVx=SKjfOg@mail.gmail.com>
+         <0764629d33d151aee743d0429ac87a5b0c300235.camel@themaw.net>
+         <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
+         <CAEjxPJ4oZvtqUpW0bMzoZwVsi9kDvL5LtouHQZAO7gM7_qyHMg@mail.gmail.com>
+         <8d771a45debc94f6401266c05f7634b6a867177f.camel@themaw.net>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 23, 2020 at 2:33 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Thu, Sep 10, 2020 at 8:34 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > > Speaking of this, I noticed that Documentation/ABI/README says that
-> > files under obsolete should say when to expect the interface to be
-> > removed, and at least a couple of them do, e.g.
-> > sysfs-class-net-batman-adv:This ABI is deprecated and will be removed
-> > after 2021.
-> >
-> > Should we add similar lines to the two sysfs-selinux-* files, and if
-> > so, what target date should we propose for each?
->
-> Sorry, I overlooked the updates to this thread in my inbox until I saw
-> the LWN article today and revisited this thread.
->
-> The lack of a specific date in the disable sysctl was a deliberate
-> omission on my part as when the commit was made it wasn't clear when
-> Fedora would be ready to make the transition.  As we documented in the
-> the sysfs-selinux-disable obsolescence notice:
->
->   "Fedora is in the process of removing the selinuxfs "disable"
->    node and once that is complete we will start the slow process
->    of removing this code from the kernel."
->
-> As far as the checkreqprot notice is concerned, it probably would be a
-> good idea to outline a process for its eventual removal.  It isn't
-> quite the same as the runtime disable issue since the distro work
-> should all be done at this point, it's just a matter of finally
-> blocking any "1" writes.  The deprecation made its first appearance in
-> v5.7, which was released in June 2020, and a year seems like a
-> reasonable amount of time for this so perhaps we target summer 2021?
+On Fri, 2020-09-25 at 11:37 +0800, Ian Kent wrote:
+> On Thu, 2020-09-24 at 10:16 -0400, Stephen Smalley wrote:
+> > On Thu, Sep 24, 2020 at 4:36 AM Ondrej Mosnacek <
+> > omosnace@redhat.com>
+> > wrote:
+> > > On Wed, Sep 23, 2020 at 3:55 AM Ian Kent <raven@themaw.net>
+> > > wrote:
+> > > > On Tue, 2020-09-22 at 09:33 +0200, Ondrej Mosnacek wrote:
+> > > > > On Mon, Sep 21, 2020 at 6:30 PM Al Viro <
+> > > > > viro@zeniv.linux.org.uk>
+> > > > > wrote:
+> > > > > > On Mon, Sep 21, 2020 at 06:09:22PM +0200, Christoph Hellwig
+> > > > > > wrote:
+> > > > > > > [adding Linus and Al]
+> > > > > > > 
+> > > > > > > On Mon, Sep 21, 2020 at 04:51:35PM +0200, Ondrej Mosnacek
+> > > > > > > wrote:
+> > > > > > > > Hi folks,
+> > > > > > > > 
+> > > > > > > > It seems that after commit 13c164b1a186 ("autofs:
+> > > > > > > > switch
+> > > > > > > > to
+> > > > > > > > kernel_write") there is now an extra LSM permission
+> > > > > > > > required
+> > > > > > > > (for the
+> > > > > > > > current task to write to the automount pipe) for
+> > > > > > > > processes
+> > > > > > > > accessing
+> > > > > > > > some yet-to-to-be mounted directory on which an autofs
+> > > > > > > > mount is
+> > > > > > > > set
+> > > > > > > > up. The call chain is:
+> > > > > > > > [...]
+> > > > > > > > autofs_wait() ->
+> > > > > > > > autofs_notify_daemon() ->
+> > > > > > > > autofs_write() ->
+> > > > > > > > kernel_write() ->
+> > > > > > > > rw_verify_area() ->
+> > > > > > > > security_file_permission()
+> > > > > > > > 
+> > > > > > > > The bug report that led me to this commit is at [1].
+> > > > > > > > 
+> > > > > > > > Technically, this is a regression for LSM users, since
+> > > > > > > > this is
+> > > > > > > > a
+> > > > > > > > kernel-internal operation and an LSM permission for the
+> > > > > > > > current
+> > > > > > > > task
+> > > > > > > > shouldn't be required. Can this patch be reverted?
+> > > > > > > > Perhaps
+> > > > > > > > __kernel_{read|write}() could instead be renamed to
+> > > > > > > > kernel_*_nocheck()
+> > > > > > > > so that the name is more descriptive?
+> > > > > > > 
+> > > > > > > So we obviously should not break existing user space and
+> > > > > > > need to
+> > > > > > > fix
+> > > > > > > this ASAP.  The trivial "fix" would be to export
+> > > > > > > __kernel_write
+> > > > > > > again
+> > > > > > > and switch autofs to use it.  The other option would be a
+> > > > > > > FMODE
+> > > > > > > flag
+> > > > > > > to bypass security checks, only to be set if the callers
+> > > > > > > ensures
+> > > > > > > they've been valided (i.e. in autofs_prepare_pipe).
+> > > > > 
+> > > > > IMHO that sounds like an overkill in this scenario. I don't
+> > > > > think it
+> > > > > makes sense to do the LSM check here (or at least not against
+> > > > > the
+> > > > > current task's creds), because it is not the current task
+> > > > > that
+> > > > > wants
+> > > > > to communicate with the daemon, it just wants to to access
+> > > > > some
+> > > > > directory on the system that just happens to be special to
+> > > > > the
+> > > > > kernel,
+> > > > > which needs to do some communication on the side to service
+> > > > > this
+> > > > > request. So if we do want to do any LSM check here, there
+> > > > > should at
+> > > > > least be some "bool internal" flag passed to the LSM,
+> > > > > signalizing
+> > > > > that
+> > > > > this is an internal read/write operation that wasn't directly
+> > > > > initiated/requested by the current process. SELinux could
+> > > > > then
+> > > > > either
+> > > > > use the kernel secid instead of the current task's secid or
+> > > > > skip the
+> > > > > check completely in such case.
+> > > > 
+> > > > Perhaps, but see below.
+> > > > 
+> > > > > I'd like Stephen to weigh in on this, but it looks he might
+> > > > > be
+> > > > > on
+> > > > > vacation right now...
+> > > > > 
+> > > > > > > Any opinions?
+> > > > > > 
+> > > > > > Reexport for now.  Incidentally, what is LSM doing
+> > > > > > rejecting
+> > > > > > writes
+> > > > > > into a pipe?
+> > > > > 
+> > > > > With SELinux at least, what is allowed or denied is defined
+> > > > > in
+> > > > > the
+> > > > > policy. And the policy usually defaults to everything denied
+> > > > > and then
+> > > > > you add rules to allow what needs (and makes sense) to be
+> > > > > allowed.
+> > > > > Since until kernel 5.8 random processes didn't need to write
+> > > > > to
+> > > > > pipes
+> > > > > created by the automount daemon, it has never been explicitly
+> > > > > allowed
+> > > > > and so the automounting now fails. It is in no way obvious
+> > > > > that
+> > > > > all
+> > > > > processes should have the permission to talk to the automount
+> > > > > daemon
+> > > > > just to traverse the filesystem...
+> > > > 
+> > > > I think you might have misunderstood what lead to this, just a
+> > > > bit.
+> > > > 
+> > > > Previously the __kern_write() function was used for this
+> > > > communication
+> > > > and Christoph's patch changed that to use kern_write() instead.
+> > > > 
+> > > > In theory that's a good idea because kern_write() adds some
+> > > > additional
+> > > > sanity checks, one being a call to rw_verify_area() which is
+> > > > where the
+> > > > security_file_permission() call fails.
+> > > > 
+> > > > So previously any random process could avoid these checks by
+> > > > calling
+> > > > __kern_write() so the change to kern_write() is, in theory,
+> > > > that's a
+> > > > good thing and simply reverting that hunk in Christoph's patch
+> > > > probably isn't the best thing to do.
+> > > 
+> > > I understand that and I'm not proposing the revert as a long-term
+> > > fix.
+> > > For a long-term solution I propose using kernel_write() and
+> > > extending
+> > > it to allow the caller to suppress (just) the
+> > > security_file_permission() call. Then each caller would have to
+> > > decide
+> > > whether the LSM check makes sense in that situation or not. It
+> > > seems
+> > > safer against future mistakes than leaving it up to the caller to
+> > > call
+> > > security_file_permission() explicitly (I predict that no new user
+> > > would even realize that the call might be needed).
+> > > 
+> > > > But any random process does need to be able to write to the
+> > > > automount
+> > > > daemon pipe for trailing path components and the root dentry of
+> > > > autofs
+> > > > mounts, depending on case.
+> > > > 
+> > > > So it's true that any write to any autofs dentry probably
+> > > > doesn't
+> > > > need to be allowed but I question what that gets us in terms of
+> > > > security improvement over allowing pipe writes for automount_t
+> > > > labelled pipes in selinux policy since they must be within an
+> > > > autofs
+> > > > mounted file system.
+> > > 
+> > > The difference is not in security, but in usability. The kernel
+> > > communicating with the autofs daemon is an internal detail that
+> > > shouldn't need special rules in policy. Even if we want to do any
+> > > LSM
+> > > checking here, the subject should be kernel_t, not the current
+> > > running
+> > > process. The process doesn't have any control on whether the
+> > > kernel
+> > > does the communication and it doesn't control the content of the
+> > > communication, so the permission check as it is doesn't make any
+> > > sense. People writing the policy should be burdened by low-level
+> > > details about how the kernel works internally as little as
+> > > possible.
+> > > 
+> > > > But Stephen has a different recommendation (and that appears to
+> > > > consider the cause I outlined above) so I'll wait to see what
+> > > > others
+> > > > think about the recommendations.
+> > > 
+> > > As I said above, I think Stephen's approach is less future-proof.
+> > > And
+> > > it seems that rw_verify_area() has many other callers, most/all
+> > > of
+> > > which probably service actual requests from userspace and we'd
+> > > need
+> > > to
+> > > retain the security_file_permission() call in those cases.
+> > > 
+> > > Let me try to put my proposal into a patch, so we have something
+> > > concrete to talk about...
+> > 
+> > Up-thread I thought Linus indicated he didn't really want a flag to
+> > disable pemission checking due to potential abuse (and I agree).
+> > Historically we have taken one of two approaches for these
+> > situations:
+> > 1) Provide a separate interface like kernel_write() for use when we
+> > don't want permission checking and don't have it call the security
+> > hook at all.  If you prefer kernel_write_nosec() that's fine but I
+> > think that's somewhat implicit in the fact that it is a
+> > kernel-initiated write, not a userspace write (which would
+> > hopefully
+> > go through vfs_write() or similar and end up calling the hook).
+> > 2) Temporarily override creds to the init_cred or the result of
+> > prepare_kernel_creds() before calling any credential-checking
+> > functions and then revert creds afterward.
+> > 
+> > The problem with #2 is that it still requires that the policy allow
+> > kernel_t (or its equivalent) to be able to write to these pipes,
+> > which
+> > wasn't previously necessary and thus might not be allowed in all
+> > policies (e.g. Android?).  #1 avoids any need for policy for these
+> > operations.
+> 
+> There is a third option, that's actually to revert only the autofs
+> change and forgo the couple of extra checks we get from kern_write().
+> 
+> My recommendation of keeping the change and documenting the behaviour
+> via security policy includes the implicit assumption that there are
+> no other cases of this.
+> 
+> If that wasn't the case then changing the kernel functions or (likely
+> better option of) simply using __kern_write() in those cases would be
+> the better choice IMHO.
 
-Sounds good to me.
+Oh wait, that is essentially option one after re-reading Stephens
+comment again ...
+
+
