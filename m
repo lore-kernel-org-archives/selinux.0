@@ -1,133 +1,99 @@
-Return-Path: <SRS0=TLac=DC=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=welR=DD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A24BC4363D
-	for <selinux@archiver.kernel.org>; Fri, 25 Sep 2020 17:38:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3484AC4727E
+	for <selinux@archiver.kernel.org>; Sat, 26 Sep 2020 16:40:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE428238E2
-	for <selinux@archiver.kernel.org>; Fri, 25 Sep 2020 17:38:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1601055513;
-	bh=oFKfPqS5AncvvXwmc59TUjbWRS8VSeR7r9VSgAaAnAM=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=u7zG7cvacO0iZ9QlJ8TIu4NDdRoEZ7wsr3vB0wDJWHzaqXZmqtTLj3s8s7rILSKJ8
-	 xdL+oyMP/6pOJi7dx6qE+UVL+Hb6179Bb8dUeP+SB3lXCMgn6VWCotv2b3KS9qY/MR
-	 qLhJLT6AqTIuGJ3ER2AKNrGnTqoq+aEwnyWYKklk=
+	by mail.kernel.org (Postfix) with ESMTP id E623C21527
+	for <selinux@archiver.kernel.org>; Sat, 26 Sep 2020 16:40:09 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="oZeayLHo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727521AbgIYRid (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Sep 2020 13:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726401AbgIYRid (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Sep 2020 13:38:33 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9168C0613D3
-        for <selinux@vger.kernel.org>; Fri, 25 Sep 2020 10:38:32 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id z17so3663087lfi.12
-        for <selinux@vger.kernel.org>; Fri, 25 Sep 2020 10:38:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xV1ixFKYBYzs9xQqtXfpj87vpxE9fe3bTqmPmwrmWRA=;
-        b=fx6QQkhaEaLL0IKUt52H3mzpFGb3zgZouYy5OWhuqmRYp9EJXuJxfucb1VNywFmJBp
-         z+VoiRTM4dfJhadiLfJOAFLLSWYu9fOPhVDXnKtf+Uut9p4/+eQ39wnmESomu2cg7F9e
-         jWPjxuon8GFrLiwrLCrEukW0y5tUfyxnjOFNA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xV1ixFKYBYzs9xQqtXfpj87vpxE9fe3bTqmPmwrmWRA=;
-        b=pvOONfBduBYKNqXzI2Y1C1EeyYQILWbu+3z3p++3vzJ0Qcl0PbDrwuSQKgQIBGI2Ze
-         RaKSf54qsoqzKEqwJfHOYy3ztN/H21VKd/suYR1yHJfnY5FiWP2vzg23Sn8kJYin/AY6
-         P48mV9Ydfz6Yfp8k8sloidXo4uwpf9ESP63BJ6vTjX5jJgQeg2FLpGHVy3sbc96aAIBX
-         3UASEGud6C05G7em5xR05nUULxaXkJaabmkH4z7oL335TgAhjbB620YYpO4iEIR79jWj
-         FK8tmAJzGMcARKbbpf4mOz18M7yCZZg4F/DOu2Xm5Bwd47BK1S6+6FvPnE22umATsexW
-         6mPg==
-X-Gm-Message-State: AOAM532wGv/6a9n2HaAHB6qVYsAB+3g9a+IofjenIhLW/M1BbkIUq7LU
-        NH3Q0dYhHy8gj9NDbhXuy97im9imx6Ukuw==
-X-Google-Smtp-Source: ABdhPJya8l64WZfCndTitm9bAsNXFv6VeJvMumJHTRkaKdVegG92Cr72/a9a7VP+f+onliA3AdGUtg==
-X-Received: by 2002:ac2:5101:: with SMTP id q1mr1602802lfb.427.1601055510584;
-        Fri, 25 Sep 2020 10:38:30 -0700 (PDT)
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com. [209.85.208.181])
-        by smtp.gmail.com with ESMTPSA id q11sm2793979lfc.309.2020.09.25.10.38.29
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 25 Sep 2020 10:38:29 -0700 (PDT)
-Received: by mail-lj1-f181.google.com with SMTP id y4so3122156ljk.8
-        for <selinux@vger.kernel.org>; Fri, 25 Sep 2020 10:38:29 -0700 (PDT)
-X-Received: by 2002:a2e:994a:: with SMTP id r10mr1638882ljj.102.1601055508689;
- Fri, 25 Sep 2020 10:38:28 -0700 (PDT)
+        id S1729291AbgIZQkG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 26 Sep 2020 12:40:06 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:59980 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725208AbgIZQkG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 26 Sep 2020 12:40:06 -0400
+Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 1741620B7178;
+        Sat, 26 Sep 2020 09:40:05 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1741620B7178
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1601138405;
+        bh=mWES1csgVFhFSglcvOcet7m0CajCa4brDEhfU5+HE5Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oZeayLHoYqoBfB4c4M18jk1WUJ0xS22MwhjmqQ7M/5ewAeZlE9sYS7QC5HqNaj1Y+
+         aFG+dTNFFNytXHBurLMjLihLyoY/s6TfM9uA4B1JZHEvLimA4sZxCjnrokwd7KKeZf
+         mJZLZ2WJ1tEnUa+M0QsDeI7ynk1V8SZxwfW9ntUo=
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        paul@paul-moore.com, omosnace@redhat.com
+Cc:     tyhicks@linux.microsoft.com, tusharsu@linux.microsoft.com,
+        sashal@kernel.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/1] selinux: Measure state and hash of policy using IMA
+Date:   Sat, 26 Sep 2020 09:39:59 -0700
+Message-Id: <20200926164000.2926-1-nramas@linux.microsoft.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-References: <CAFqZXNsoXr1eA4C8==Nvujs5ONpRnuSqaOQQ0n78R=Dbm-EFGA@mail.gmail.com>
- <20200921160922.GA23870@lst.de> <20200921163011.GZ3421308@ZenIV.linux.org.uk>
- <CAFqZXNsBqvCj0NjEd9+C0H1EPjz7Fst296AA5eOFSVx=SKjfOg@mail.gmail.com>
- <0764629d33d151aee743d0429ac87a5b0c300235.camel@themaw.net>
- <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
- <CAEjxPJ4oZvtqUpW0bMzoZwVsi9kDvL5LtouHQZAO7gM7_qyHMg@mail.gmail.com> <CAFqZXNs0oZ+_RNvwE-e62H2FSS=N4wbvJ+tgk0_dSn=5mbPhcw@mail.gmail.com>
-In-Reply-To: <CAFqZXNs0oZ+_RNvwE-e62H2FSS=N4wbvJ+tgk0_dSn=5mbPhcw@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri, 25 Sep 2020 10:38:12 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wjYB+q1=3_x97VSNo5cPTL=eHnuMDXoKhGJOJvo+pbp9g@mail.gmail.com>
-Message-ID: <CAHk-=wjYB+q1=3_x97VSNo5cPTL=eHnuMDXoKhGJOJvo+pbp9g@mail.gmail.com>
-Subject: Re: Commit 13c164b1a186 - regression for LSMs/SELinux?
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ian Kent <raven@themaw.net>, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>, autofs@vger.kernel.org,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Zdenek Pytela <zpytela@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 25, 2020 at 6:38 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Thu, Sep 24, 2020 at 4:16 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > Up-thread I thought Linus indicated he didn't really want a flag to
-> > disable pemission checking due to potential abuse (and I agree).
->
-> IIUC he was against adding an FMODE flag, while I was rather
-> suggesting a new function parameter (I realize it probably wasn't
-> clear from what I wrote).
+Critical data structures of security modules are currently not measured.
+Therefore an attestation service, for instance, would not be able to
+attest whether the security modules are always operating with the policies
+and configurations that the system administrator had setup. The policies
+and configurations for the security modules could be tampered by rogue
+user mode agents or modified through some inadvertent actions on
+the system. Measuring such critical data would enable an attestation
+service to reliably assess the security configuration of the system.
 
-I really would prefer neither.
+SELinux configuration and policy are some of the critical data for this
+security module that need to be measured. This measurement can be used
+by an attestation service, for instance, to verify if the configurations
+and policies have been setup correctly and that they haven't been
+tampered at run-time.
 
-Any kind of dynamic behavior that depends on a flag is generally worse
-than something that can be statically seen.
+This patch set adds support for measuring SELinux configuration,
+policy capabilities settings, and the hash of the loaded policy by
+calling the IMA hook ima_measure_critical_data().
 
-Now, if the flag is _purely_ a constant argument in every single user,
-and there's no complex flow through multiple different layers, an
-argument flag is certainly fairly close to just having two different
-functions for two different behaviors.
+Since the size of the loaded policy can be large (several MB), hash
+of the policy is measured instead of the entire policy to avoid
+bloating the IMA log entry.
 
-But I don't really see much of an advantage to adding a new argument
-to kernel_write() for this - because absolutely *nobody* should ever
-use it apart from this very special autofs case.
+This patch is based on commit 8861d0af642c ("selinux: Add helper functions to get and set checkreqprot")
+in "next" branch in https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
 
-So I'd rather just re-export the old __kernel_write() (or whatever it
-was that broke autofs) that didn't do that particular check. We
-already use it for splice and core dumping.
+This patch is dependent on the following patch series and must be
+applied in the given order:
+  1, https://patchwork.kernel.org/patch/11709527/
+  2, https://patchwork.kernel.org/patch/11795559/
+  3, https://patchwork.kernel.org/patch/11801525/
 
-autofs isn't that different from those two, and I think the only real
-difference is that autofs is a module. No?
+Lakshmi Ramasubramanian (1):
+  selinux: Measure state and hash of policy using IMA
 
-So I think the fix is as simple as exporting __kernel_write() again -
-and let's just make it a GPL-only export since we really don't want
-anybody to use it - and revert  commit 13c164b1a186 ("autofs: switch
-to kernel_write").
+ security/integrity/ima/ima.h            |   1 +
+ security/integrity/ima/ima_queue_data.c |   5 +-
+ security/selinux/Makefile               |   2 +
+ security/selinux/hooks.c                |   3 +
+ security/selinux/include/security.h     |  11 +-
+ security/selinux/measure.c              | 154 ++++++++++++++++++++++++
+ security/selinux/selinuxfs.c            |   9 ++
+ security/selinux/ss/services.c          |  71 +++++++++--
+ 8 files changed, 244 insertions(+), 12 deletions(-)
+ create mode 100644 security/selinux/measure.c
 
-Hmm?
+-- 
+2.28.0
 
-             Linus
