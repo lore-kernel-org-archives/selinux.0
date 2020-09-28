@@ -1,148 +1,97 @@
-Return-Path: <SRS0=NPy2=DE=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=s25y=DF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B84EC2D0A8
-	for <selinux@archiver.kernel.org>; Sun, 27 Sep 2020 03:08:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 121F7C4346E
+	for <selinux@archiver.kernel.org>; Mon, 28 Sep 2020 02:37:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A197239D0
-	for <selinux@archiver.kernel.org>; Sun, 27 Sep 2020 03:08:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C726222262
+	for <selinux@archiver.kernel.org>; Mon, 28 Sep 2020 02:37:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="UozSKZZA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727364AbgI0DIG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 26 Sep 2020 23:08:06 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:57745 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726840AbgI0DIF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 26 Sep 2020 23:08:05 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id CF2B752E;
-        Sat, 26 Sep 2020 23:08:04 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sat, 26 Sep 2020 23:08:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
-        message-id:subject:from:to:cc:date:in-reply-to:references
-        :content-type:mime-version:content-transfer-encoding; s=fm1; bh=
-        Toi4GKci6LJ4XuJVCZ1rchzevDUA6mJ5/+b5ClssVN4=; b=jn9iv+DFN0TRdLR7
-        sEO8BbO12zq+kE8bE8b56W7tpJ2ZAwF2PB4zLJ3W97hZzoHpQHL09zR5/h96ETzc
-        1BZLn4ImO8mbhseQomSU1L4AxeZ6qd0SydYX3J7yVj1FNHQp01YAH5lFN5vQlBei
-        HhOxiJoQLhx+QpN63F/e++/06ijjx+zG22Mol0j2UY1oB2M91uwmz5wf/6G7nRkG
-        SWBEcqfscNPG0SvB7lfgZUYsc+fCAgNfT1xEuUc4Kut1kpJjJJRFiwPyLmMfqoeN
-        46yYjARwgt9lyx7AHTLrNJ0Fa7KftmPTcCCoewhovOo/mTgu4wU4CrSBSFGIBeSA
-        5PD6Fg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=Toi4GKci6LJ4XuJVCZ1rchzevDUA6mJ5/+b5ClssV
-        N4=; b=ZTNOgkNsd6BngHunVrfsn3Ls1dBeu4AYvf06a7Hs3+zKM2V0m/yPGDf3H
-        hyp/fo20KA6WhdwP/6TAZQG+NMj0V2YFKotNYz6DHwfFDRHzdp1MpMYoRQBbRrMp
-        GVqV5M2kXw9UHRyXDkOVHKdNBRuESjjonKkkYG9rGzULKP0RXRaCH7MEHiHRwjO4
-        Jhpu1naFi+mBy7IBYXJ6UpGeXCFsRWRVDr/4JuvZq5qyv0YSAYsyajBcJWO4EXzq
-        nro50t7Lyn4c/guDDC4tUzbBVGqyCc/Hmp5X/WMDKwOv+VjzxMi4qAUTtRH91xW1
-        7jTKV9uqrrAgPOu0N1ySAniKmO1Vg==
-X-ME-Sender: <xms:EwJwX8IGeE3vjbQB65HLOZOIqKPv6A5Z0lMVo70KHOCm8bf_4RD0_A>
-    <xme:EwJwX8JI-5ClQnnjFJGJ_Uf89lhYkUmJgvUr9PTiQuIPDHGjzshty9dGiDcYeQlrS
-    HUc2qprYjUc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdefgdeivdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpefkrghnucfm
-    vghnthcuoehrrghvvghnsehthhgvmhgrfidrnhgvtheqnecuggftrfgrthhtvghrnhepgf
-    ffvedujefhgeduueehkeegueehteefhfeitefhteegteetvddtffegudfhhfdtnecuffho
-    mhgrihhnpehmohguuhhlvgdrnhhonecukfhppedutdeirdeiledrvdehgedrudehtdenuc
-    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehrrghvvghn
-    sehthhgvmhgrfidrnhgvth
-X-ME-Proxy: <xmx:EwJwX8uelMTA9rIE6KxykpAJx5jio3MoAKY1fmOgAs94yjz5Bd6H-A>
-    <xmx:EwJwX5Zq-euYaRIIkzqJxwhgc1K6tGZt0QH8ItwPFCS_THNnidvKbg>
-    <xmx:EwJwXzbqgCEv2EUqSKd3DFPyTetCD6SEyMk6Pq1_9bCESTuZNN1WBw>
-    <xmx:FAJwX-y3vus1vWIWPG8T_cn8bPNqy4qc9rRsgOREb_g8fzWib2ghMw>
-Received: from mickey.themaw.net (106-69-254-150.dyn.iinet.net.au [106.69.254.150])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B0BC13064610;
-        Sat, 26 Sep 2020 23:08:00 -0400 (EDT)
-Message-ID: <05c18390d485ae6d84c49f707d20b49e28f210a6.camel@themaw.net>
-Subject: Re: Commit 13c164b1a186 - regression for LSMs/SELinux?
-From:   Ian Kent <raven@themaw.net>
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>, autofs@vger.kernel.org,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Zdenek Pytela <zpytela@redhat.com>
-Date:   Sun, 27 Sep 2020 11:07:56 +0800
-In-Reply-To: <CAHk-=wjYB+q1=3_x97VSNo5cPTL=eHnuMDXoKhGJOJvo+pbp9g@mail.gmail.com>
-References: <CAFqZXNsoXr1eA4C8==Nvujs5ONpRnuSqaOQQ0n78R=Dbm-EFGA@mail.gmail.com>
-         <20200921160922.GA23870@lst.de>
-         <20200921163011.GZ3421308@ZenIV.linux.org.uk>
-         <CAFqZXNsBqvCj0NjEd9+C0H1EPjz7Fst296AA5eOFSVx=SKjfOg@mail.gmail.com>
-         <0764629d33d151aee743d0429ac87a5b0c300235.camel@themaw.net>
-         <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
-         <CAEjxPJ4oZvtqUpW0bMzoZwVsi9kDvL5LtouHQZAO7gM7_qyHMg@mail.gmail.com>
-         <CAFqZXNs0oZ+_RNvwE-e62H2FSS=N4wbvJ+tgk0_dSn=5mbPhcw@mail.gmail.com>
-         <CAHk-=wjYB+q1=3_x97VSNo5cPTL=eHnuMDXoKhGJOJvo+pbp9g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S1726412AbgI1ChF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 27 Sep 2020 22:37:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43126 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726409AbgI1ChF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 27 Sep 2020 22:37:05 -0400
+Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086CFC0613CE
+        for <selinux@vger.kernel.org>; Sun, 27 Sep 2020 19:37:05 -0700 (PDT)
+Received: by mail-qt1-x843.google.com with SMTP id a4so7104581qth.0
+        for <selinux@vger.kernel.org>; Sun, 27 Sep 2020 19:37:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=TVNm4pI4fws86sAFM44OFBx6mnlgfpbO2FEonlvXvcw=;
+        b=UozSKZZApf4rTWRXG2/cf7z+VaiwuK8hUjiA1IY8LRZ0xh2r3lP0fzyjsMpZCIwhJZ
+         zdEVqStllfSV2fUjIeck9r7GPx4dCIUaYDwQLi1WxBQMaIN6wF+uAAAkuNLGz6IMUKrW
+         ykfjum9fiHJAtv2GCv5dW6k2dtPFS9Yqjm8ABaAQQ4VS5ga+Q9U/1sd4t4gFYoHrV84a
+         NvxrRirBwvnfByX7VMWz25KEv3PP6xDArPB6GzsAVveiMVptxg1Jeo3/tIndF0z+8Neb
+         9XlpvtOzV+LRtgN4nxXVShsjX14TlKlhIVvXFaiyDdivg4BDdM+beGW2mokGYzIJ7UXB
+         MF5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=TVNm4pI4fws86sAFM44OFBx6mnlgfpbO2FEonlvXvcw=;
+        b=Xpg4Hi2EtFSaeRCwSV0n9OwcS+VUJ8APSbgaYkzu/hqT0fNfcwdxHVXbH7b429i/2f
+         IZ1L2oWU3LKzXLhuGLrAi3Xxk9+GhtdKXKV4am62uweDNyYFgiJ2XcUh1YLujbyOMOTi
+         fRZ8q+L3IkJCSAqDbXLlKffePEcZ317zygKaOEBKC0dC0AbGG0QIQZocH+vaHLw+A2kb
+         wla6oUz1s4ekWRuRl54/uLYuZ8CmNrhJ/I9JNebq5H55t5EjIoQRS8ZFHJMMsDb7/4Ww
+         OrakQF3Pd6lX/z7pFCGUuzJ0AeDNeLlUSm942T7XPZjHILoPDmHwglZEBZ+5f50l90TY
+         GHUQ==
+X-Gm-Message-State: AOAM5337hoECjZz8Js2xvyB1xHbURxjQiePklS6ju2lh0JF7+9szII7J
+        ZKs9QEoEPK4vfagQiG/Y3q7DnWe6kXlg
+X-Google-Smtp-Source: ABdhPJwwPq5zYMMIcuwG1lGo69Q83wn3Eok9EIU8pKuu4UPLk1FKRKa67PSfyRZv75dWQTX0h64oTA==
+X-Received: by 2002:ac8:3704:: with SMTP id o4mr9922761qtb.330.1601260623099;
+        Sun, 27 Sep 2020 19:37:03 -0700 (PDT)
+Received: from localhost (pool-96-230-24-152.bstnma.fios.verizon.net. [96.230.24.152])
+        by smtp.gmail.com with ESMTPSA id p192sm8362109qke.7.2020.09.27.19.37.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Sep 2020 19:37:02 -0700 (PDT)
+Subject: [PATCH] selinux: provide a "no sooner than" date for the checkreqprot
+ removal
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Date:   Sun, 27 Sep 2020 22:37:01 -0400
+Message-ID: <160126062161.7010.15501362260483844999.stgit@sifl>
+User-Agent: StGit/0.23
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2020-09-25 at 10:38 -0700, Linus Torvalds wrote:
-> On Fri, Sep 25, 2020 at 6:38 AM Ondrej Mosnacek <omosnace@redhat.com>
-> wrote:
-> > On Thu, Sep 24, 2020 at 4:16 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > Up-thread I thought Linus indicated he didn't really want a flag
-> > > to
-> > > disable pemission checking due to potential abuse (and I agree).
-> > 
-> > IIUC he was against adding an FMODE flag, while I was rather
-> > suggesting a new function parameter (I realize it probably wasn't
-> > clear from what I wrote).
-> 
-> I really would prefer neither.
-> 
-> Any kind of dynamic behavior that depends on a flag is generally
-> worse
-> than something that can be statically seen.
-> 
-> Now, if the flag is _purely_ a constant argument in every single
-> user,
-> and there's no complex flow through multiple different layers, an
-> argument flag is certainly fairly close to just having two different
-> functions for two different behaviors.
-> 
-> But I don't really see much of an advantage to adding a new argument
-> to kernel_write() for this - because absolutely *nobody* should ever
-> use it apart from this very special autofs case.
-> 
-> So I'd rather just re-export the old __kernel_write() (or whatever it
-> was that broke autofs) that didn't do that particular check. We
-> already use it for splice and core dumping.
-> 
-> autofs isn't that different from those two, and I think the only real
-> difference is that autofs is a module. No?
+We marked /sys/fs/selinux/checkreqprot as deprecated in Linux v5.7,
+but didn't provide any guidance as to the timeframe.  Considering
+the state of checkreqprot, it seems like one year should be enough
+time.
 
-It can be, yes, many distro builds compile it in.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ .../ABI/obsolete/sysfs-selinux-checkreqprot        |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> So I think the fix is as simple as exporting __kernel_write() again -
-> and let's just make it a GPL-only export since we really don't want
-> anybody to use it - and revert  commit 13c164b1a186 ("autofs: switch
-> to kernel_write").
-
-Yes, sorry I missed this initially.
-
-There are a couple of other sanity checks in kern_write() but since
-__kern_write() is meant to be for internal use that's not really
-an issue IMHO. 
-
-Ian
+diff --git a/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot b/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
+index 49ed9c8fd1e5..ed6b52ca210f 100644
+--- a/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
++++ b/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
+@@ -15,7 +15,7 @@ Description:
+ 	actual protection), and Android and Linux distributions have been
+ 	explicitly writing a "0" to /sys/fs/selinux/checkreqprot during
+ 	initialization for some time.  Support for setting checkreqprot to 1
+-	will be	removed in a future kernel release, at which point the kernel
++	will be	removed no sooner than June 2021, at which point the kernel
+ 	will always cease using checkreqprot internally and will always
+ 	check the actual protections being applied upon mmap/mprotect calls.
+ 	The checkreqprot selinuxfs node will remain for backward compatibility
 
