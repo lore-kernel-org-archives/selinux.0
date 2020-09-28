@@ -2,96 +2,84 @@ Return-Path: <SRS0=s25y=DF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 121F7C4346E
-	for <selinux@archiver.kernel.org>; Mon, 28 Sep 2020 02:37:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C50CFC2D0A8
+	for <selinux@archiver.kernel.org>; Mon, 28 Sep 2020 03:23:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C726222262
-	for <selinux@archiver.kernel.org>; Mon, 28 Sep 2020 02:37:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 790AA239EB
+	for <selinux@archiver.kernel.org>; Mon, 28 Sep 2020 03:23:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="UozSKZZA"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="yPVMFhQU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726412AbgI1ChF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 27 Sep 2020 22:37:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43126 "EHLO
+        id S1726396AbgI1DXy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 27 Sep 2020 23:23:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726409AbgI1ChF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 27 Sep 2020 22:37:05 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086CFC0613CE
-        for <selinux@vger.kernel.org>; Sun, 27 Sep 2020 19:37:05 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id a4so7104581qth.0
-        for <selinux@vger.kernel.org>; Sun, 27 Sep 2020 19:37:04 -0700 (PDT)
+        with ESMTP id S1726393AbgI1DXy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 27 Sep 2020 23:23:54 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C44C0613CE
+        for <selinux@vger.kernel.org>; Sun, 27 Sep 2020 20:23:54 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id j2so8486437eds.9
+        for <selinux@vger.kernel.org>; Sun, 27 Sep 2020 20:23:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:date:message-id:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=TVNm4pI4fws86sAFM44OFBx6mnlgfpbO2FEonlvXvcw=;
-        b=UozSKZZApf4rTWRXG2/cf7z+VaiwuK8hUjiA1IY8LRZ0xh2r3lP0fzyjsMpZCIwhJZ
-         zdEVqStllfSV2fUjIeck9r7GPx4dCIUaYDwQLi1WxBQMaIN6wF+uAAAkuNLGz6IMUKrW
-         ykfjum9fiHJAtv2GCv5dW6k2dtPFS9Yqjm8ABaAQQ4VS5ga+Q9U/1sd4t4gFYoHrV84a
-         NvxrRirBwvnfByX7VMWz25KEv3PP6xDArPB6GzsAVveiMVptxg1Jeo3/tIndF0z+8Neb
-         9XlpvtOzV+LRtgN4nxXVShsjX14TlKlhIVvXFaiyDdivg4BDdM+beGW2mokGYzIJ7UXB
-         MF5Q==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=XSlRevBCHKBIyzA5ueyWw4NzSIEO5ZTbxqzS7GUrtpU=;
+        b=yPVMFhQUcWE+d2o+8pz6oj1wv3noFNqU/Jzp2Pr7PRm0zj3NKVBi74z70QqGc1lCHt
+         3R3CfwcmoFnKWYk2mWuIbxpddF8lBGs5RZs4TvwdKyUIZhPNjZppKxn+4AE20Lmn1bhO
+         DkgHgFwPT9S8zSIZkLUFRdzWF6DqAFHRqgLeRRCvD1B10P0XOaw6Dkb3avOVQBleTtjV
+         jYb+wfLvfoLYuEq2CMA2l+nR8UOpTSakS6Fr8j0kWg11TWTSglCwN1DZfI2iOG6JpICv
+         cTF29RyRXb3En15P2L+Gp7/j3tT2b3DzQhColg/VvLOPB7bt0TCgwnl4q+zNTGI98nA1
+         4cTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
-         :mime-version:content-transfer-encoding;
-        bh=TVNm4pI4fws86sAFM44OFBx6mnlgfpbO2FEonlvXvcw=;
-        b=Xpg4Hi2EtFSaeRCwSV0n9OwcS+VUJ8APSbgaYkzu/hqT0fNfcwdxHVXbH7b429i/2f
-         IZ1L2oWU3LKzXLhuGLrAi3Xxk9+GhtdKXKV4am62uweDNyYFgiJ2XcUh1YLujbyOMOTi
-         fRZ8q+L3IkJCSAqDbXLlKffePEcZ317zygKaOEBKC0dC0AbGG0QIQZocH+vaHLw+A2kb
-         wla6oUz1s4ekWRuRl54/uLYuZ8CmNrhJ/I9JNebq5H55t5EjIoQRS8ZFHJMMsDb7/4Ww
-         OrakQF3Pd6lX/z7pFCGUuzJ0AeDNeLlUSm942T7XPZjHILoPDmHwglZEBZ+5f50l90TY
-         GHUQ==
-X-Gm-Message-State: AOAM5337hoECjZz8Js2xvyB1xHbURxjQiePklS6ju2lh0JF7+9szII7J
-        ZKs9QEoEPK4vfagQiG/Y3q7DnWe6kXlg
-X-Google-Smtp-Source: ABdhPJwwPq5zYMMIcuwG1lGo69Q83wn3Eok9EIU8pKuu4UPLk1FKRKa67PSfyRZv75dWQTX0h64oTA==
-X-Received: by 2002:ac8:3704:: with SMTP id o4mr9922761qtb.330.1601260623099;
-        Sun, 27 Sep 2020 19:37:03 -0700 (PDT)
-Received: from localhost (pool-96-230-24-152.bstnma.fios.verizon.net. [96.230.24.152])
-        by smtp.gmail.com with ESMTPSA id p192sm8362109qke.7.2020.09.27.19.37.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2020 19:37:02 -0700 (PDT)
-Subject: [PATCH] selinux: provide a "no sooner than" date for the checkreqprot
- removal
-From:   Paul Moore <paul@paul-moore.com>
-To:     selinux@vger.kernel.org
-Date:   Sun, 27 Sep 2020 22:37:01 -0400
-Message-ID: <160126062161.7010.15501362260483844999.stgit@sifl>
-User-Agent: StGit/0.23
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XSlRevBCHKBIyzA5ueyWw4NzSIEO5ZTbxqzS7GUrtpU=;
+        b=OT7KY+mjqduHBQ3aNs6YOkiDsJKL2YuFBGM9WteghZkazEG0odYu+7kQ/r4+dsoiDZ
+         v9JeJZ4u+ngO3w6bjzSRNEw0NKmiRDCEw+HJhVySR04W8IqAXEUPnbbQ6+JNTfs7ipyh
+         vD8hN6K3nkn4wQGUBWL72i8ikPoh4uI/uFeYe5Xl1GEpVnB1nR0hKFqjJti9JLT6VzMp
+         LCLtUB/vsk0EiA2l02ILIoebxUC1FbSmaM3o+Y6WnjFeqzATEB8+/iwMK7lQ1MgyF4U6
+         kjRGQTHhCqAClpDqt66Jew0EQJgr2XqNIbcYLjjZ1bLP5GCsfNho1YLrWtRqv7GUijdg
+         eYAw==
+X-Gm-Message-State: AOAM531a+N+iUwvXRWI0MVUbVf13XUoyJ/mqmQvuXcaCw0VyWXdkVxGz
+        qhAUvGtnNuoOxeuCC/fw5yx3ly5GCZrdlk9mpkFcvoWdpg==
+X-Google-Smtp-Source: ABdhPJwegknZKgScIlf+L3dKu4VXLEp9bpaidQa4ngHH/eL16txOqMHop8uORJsNG1t7RUvVjnINWg4lyUcha/OkXq4=
+X-Received: by 2002:aa7:ce97:: with SMTP id y23mr13827308edv.128.1601263432697;
+ Sun, 27 Sep 2020 20:23:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20200927094243.43673-1-rentianyue@tj.kylinos.cn>
+In-Reply-To: <20200927094243.43673-1-rentianyue@tj.kylinos.cn>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sun, 27 Sep 2020 23:23:41 -0400
+Message-ID: <CAHC9VhSKDtp_YoNf=AopcxF19bp=WZsx7hR1rRb6gVPaUTeuRg@mail.gmail.com>
+Subject: Re: [PATCH v1 0/1] selinux: fix error initialization in inode_doinit_with_dentry()
+To:     rentianyue@tj.kylinos.cn
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, yangzhao@kylinos.cn,
+        selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-We marked /sys/fs/selinux/checkreqprot as deprecated in Linux v5.7,
-but didn't provide any guidance as to the timeframe.  Considering
-the state of checkreqprot, it seems like one year should be enough
-time.
+On Sun, Sep 27, 2020 at 5:44 AM <rentianyue@tj.kylinos.cn> wrote:
+> From: Tianyue Ren <rentianyue@kylinos.cn>
+>
+> I think there is a error initialization for isec->sid when the dentry is NULL,
+> when we do "remount -o rw,remount ${rootmnt}" action before selinux policy loading.It's
+> leading kernel getting wrong security label "unlabeled_t" when the userspace access
+> files such as /etc/fstab.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- .../ABI/obsolete/sysfs-selinux-checkreqprot        |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Out of curiosity, can you provide some background information
+regarding why you made the decision to remount a filesystem before
+loading the SELinux policy?
 
-diff --git a/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot b/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
-index 49ed9c8fd1e5..ed6b52ca210f 100644
---- a/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
-+++ b/Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
-@@ -15,7 +15,7 @@ Description:
- 	actual protection), and Android and Linux distributions have been
- 	explicitly writing a "0" to /sys/fs/selinux/checkreqprot during
- 	initialization for some time.  Support for setting checkreqprot to 1
--	will be	removed in a future kernel release, at which point the kernel
-+	will be	removed no sooner than June 2021, at which point the kernel
- 	will always cease using checkreqprot internally and will always
- 	check the actual protections being applied upon mmap/mprotect calls.
- 	The checkreqprot selinuxfs node will remain for backward compatibility
-
+-- 
+paul moore
+www.paul-moore.com
