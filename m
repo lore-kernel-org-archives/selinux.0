@@ -2,133 +2,230 @@ Return-Path: <SRS0=YCxb=DH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96683C2D0A8
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 05:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63335C4727E
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 09:49:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55099206DB
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 05:50:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB3D22074A
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 09:49:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="FU55HmcF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725776AbgI3FuW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Sep 2020 01:50:22 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50181 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725440AbgI3FuW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 01:50:22 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 166B05C0112;
-        Wed, 30 Sep 2020 01:50:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 30 Sep 2020 01:50:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
-        message-id:subject:from:to:cc:date:in-reply-to:references
-        :content-type:mime-version:content-transfer-encoding; s=fm1; bh=
-        Mp9EqWJ4lUoNUl6c9m7THxG0vTK6pHSVa8wUIjwah7U=; b=ankom8DyIiQ+f5GR
-        QbMxnDP32vp7AOWdPOGsbegp24fY9xujXYyST4xC5PqMredoKwSfBruFjMUWvroy
-        81hY4WDA8m7bI3nJ5awlRThuRS1wqr5/5JKnxKAI2K4g4d7Do5dN17YjogWo1Gs0
-        dX42MvKifQ3q/YSbym/YnYvR00pf41h3hCjCHbAHoWvsdrc+nPCynPGfHtc02NMG
-        rouFrA57rHcneLWSA1d1fDqlxNH6SHoNKCCYQVOhTYnfhib6T4daJ0tEoMpwjdTx
-        XFCGoFCLAlnqFOLyGl1S7AsfPR/SSGMCCRBXkOb+yu4C/4Uj5dKFmajOTTZtBSBO
-        KaDGjw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=Mp9EqWJ4lUoNUl6c9m7THxG0vTK6pHSVa8wUIjwah
-        7U=; b=B2KqN8M7C517SqGwaazCflnXDlSHILOVG5C8VgaxEvKEUpnrKMg78jFOn
-        9edzsSp1/5A+GiqjCnlpvmdX3Q0S1TlbeCKTRhhUNeQBgT75u1+IVJ3fi98vDjUs
-        KPA0HuGR/KTM+m7sDFAHY1y2q+NI3gjrflPZ21pdQpb+Mwb43/roFtv/DcVsA4zf
-        1ab2o6WHDctFZdzWCqdBQDEebbOfrev8GKdRxrSPUlCQv5BAsDtkrPxZQdrYVnwD
-        47QNr6tgwN7UJ5M2LXBkog2A79BvLhI7kJL/HP7qINqXJjIz9bK3usp+TBjfzBxC
-        5dSTrQ1rvRMcr94RmMOFs8FipBo5Q==
-X-ME-Sender: <xms:nBx0X4aTOnM93Ew87NG_-a2PVhUZi7xgXN3Ozsup3JTeBMvDVG2ixg>
-    <xme:nBx0XzZQ-StDGA1JJH6WnjNSJy_0tWqCv5tl3TAX-MyYBvOMMOvoeLlbx6kXeG8hc
-    1V-0ObgYWQ3>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrfedtgdelkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpefkrghnucfm
-    vghnthcuoehrrghvvghnsehthhgvmhgrfidrnhgvtheqnecuggftrfgrthhtvghrnhepfe
-    efteetvdeguddvveefveeftedtffduudehueeihfeuvefgveehffeludeggfejnecukfhp
-    peduvddurdeggedruddvkedrvddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
-    hmpehmrghilhhfrhhomheprhgrvhgvnhesthhhvghmrgifrdhnvght
-X-ME-Proxy: <xmx:nBx0Xy8DYHRV0h7iRBTc76RoNdetRvIRDm5jEkMQZGWE82eK31aZNg>
-    <xmx:nBx0XyoB9cUUjsu-ehms1pgoXOMdGOkatBVqxsKgmqGzneUXKz3qbw>
-    <xmx:nBx0Xzr_WCNwqQ0AZtbgzbYvYXCn3C55yLm9T2tO70oT77yYwiVD5g>
-    <xmx:nRx0X0DKnl8WVFm1qYbMnz_GwfgNV1BdVsuBfI0_w-d_lqs6jxnhOQ>
-Received: from mickey.themaw.net (unknown [121.44.128.20])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 489FA3280059;
-        Wed, 30 Sep 2020 01:50:17 -0400 (EDT)
-Message-ID: <689756d7d7d73a8eb86d020b0dfeb976e28cc9b4.camel@themaw.net>
-Subject: Re: Commit 13c164b1a186 - regression for LSMs/SELinux?
-From:   Ian Kent <raven@themaw.net>
-To:     Christoph Hellwig <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, autofs@vger.kernel.org,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Zdenek Pytela <zpytela@redhat.com>
-Date:   Wed, 30 Sep 2020 13:50:14 +0800
-In-Reply-To: <20200929180037.GA12447@lst.de>
-References: <20200921163011.GZ3421308@ZenIV.linux.org.uk>
-         <CAFqZXNsBqvCj0NjEd9+C0H1EPjz7Fst296AA5eOFSVx=SKjfOg@mail.gmail.com>
-         <0764629d33d151aee743d0429ac87a5b0c300235.camel@themaw.net>
-         <CAFqZXNsqD73hptXxBn+g98ngbFd=Sx+CghtwVqM+NC47VFZhVQ@mail.gmail.com>
-         <CAEjxPJ4oZvtqUpW0bMzoZwVsi9kDvL5LtouHQZAO7gM7_qyHMg@mail.gmail.com>
-         <CAFqZXNs0oZ+_RNvwE-e62H2FSS=N4wbvJ+tgk0_dSn=5mbPhcw@mail.gmail.com>
-         <CAHk-=wjYB+q1=3_x97VSNo5cPTL=eHnuMDXoKhGJOJvo+pbp9g@mail.gmail.com>
-         <05c18390d485ae6d84c49f707d20b49e28f210a6.camel@themaw.net>
-         <CAFqZXNt2pWwRnnzB0KfZfZy-dJuXfKkJeejpuXcHCBLq1htA8w@mail.gmail.com>
-         <CAHk-=wi3+AhZ0Q3nvGJCgdL0Vq8b_soy8rhS5_HE79VBP7Q-LQ@mail.gmail.com>
-         <20200929180037.GA12447@lst.de>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S1728931AbgI3Jtl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Sep 2020 05:49:41 -0400
+Received: from mailomta3-re.btinternet.com ([213.120.69.96]:39223 "EHLO
+        re-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728916AbgI3Jtl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 05:49:41 -0400
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-040.btinternet.com with ESMTP
+          id <20200930094938.CXJB10362.re-prd-fep-040.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Wed, 30 Sep 2020 10:49:38 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1601459378; 
+        bh=+vrKffhYTy6fGNPYV9F9FxF8k25qSn8lVNOuV3fc2mM=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
+        b=FU55HmcF/ENPIbyVDdXqTwXsN5gtSZMAdAxjMIr6CqyptHLuIvEAnaMhy2nEZwVr3GLBbWU2HkYOJ2Roz/vpcaw55ql+XlFi0eUdO8CQjj6EhQFEvQ8vLUKuO9Pwy4G4VZEqYYp2t8d7Xk5e15wup3WADKFe8589u8AULB95Q2+Cg/6cT36leqErxiZPv7r3YpWW3CS8MzpZV6u+MBQufHwSauXbvyw+Pa0EPT+PCdZpgH1Y7qu3PAqed/B1WUV4VQF8d9xQQXBGHVE2gdTKf+lemEcjHEPNsD8da/GLS0eTLeXlzJWw0WbLYi1IFSepPPpZyKtk/fJ7Aj+Jl8wKqw==
+Authentication-Results: btinternet.com; none
+X-Originating-IP: [81.141.56.129]
+X-OWM-Source-IP: 81.141.56.129 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrfedvgdduhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepuedttdelleehueeggfeihfeitdehueekffeviedtffegffeiueegleejgeevgfeinecukfhppeekuddrudeguddrheeirdduvdelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudeguddrheeirdduvdelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeojhhmohhrrhhishesnhgrmhgvihdrohhrgheqpdhrtghpthhtohepoehlrghfohhrghgvsehgnhhumhhonhhkshdrohhrgheqpdhrtghpthhtohepoehlihhnuhigqdhsvggtuhhrihhthidqmhhoughulhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeonhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeoohhsmhhotghomhdqnhgvthdqghhp
+        rhhssehlihhsthhsrdhoshhmohgtohhmrdhorhhgqedprhgtphhtthhopeeophgrsghlohesnhgvthhfihhlthgvrhdrohhrgheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (81.141.56.129) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C74D136117CE; Wed, 30 Sep 2020 10:49:38 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org
+Cc:     stephen.smalley.work@gmail.com, paul@paul-moore.com,
+        pablo@netfilter.org, laforge@gnumonks.org, jmorris@namei.org,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 2/3] gtp: Add LSM hooks to GPRS Tunneling Protocol (GTP)
+Date:   Wed, 30 Sep 2020 10:49:33 +0100
+Message-Id: <20200930094934.32144-3-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200930094934.32144-1-richard_c_haines@btinternet.com>
+References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2020-09-29 at 20:00 +0200, Christoph Hellwig wrote:
-> On Tue, Sep 29, 2020 at 10:23:50AM -0700, Linus Torvalds wrote:
-> > On Tue, Sep 29, 2020 at 5:16 AM Ondrej Mosnacek <
-> > omosnace@redhat.com> wrote:
-> > > OK, so it seems that reverting comes out as the best choice here.
-> > 
-> > Yeah.
-> > 
-> > > BTW, I'm looking at rw_verify_area() and I see this "If (ppos)"
-> > > check
-> > > and the comment above it... And then I look at autofs_write(),
-> > > which
-> > > passes &file->f_pos, while ksys_write() passes file_ppos(file)
-> > 
-> > Ok, that doesn't matter for the security_file_permission() issue,
-> > but
-> > yes, autofs is doing the traditional thing, and it's pointless.
-> > Using
-> > file_ppos(file) isn't an option since it's an inline to
-> > read_write.c,
-> > but it could just pass in NULL these days and avoid that too.
-> > 
-> > So how about we just do the appended patch? Can whoever sees this
-> > problem just verify, even though it looks trivially correct...
-> 
-> This looks sensible to me.  I'd throw in a
-> 
-> /* only for autofs, don't use in new code */
-> 
-> near the export, but users of these kind of functions tend to be
-> blind copy and paste code anyway, so the comment probably isn't
-> even read by the relevant parties..
+Add security hooks to allow security modules to exercise access control
+over GTP.
 
-I'll build a patched kernel and give it a whirl.
+The 'struct gtp_dev' has been moved to include/net/gtp.h so that
+it is visible to LSM security modules where their security blob
+is stored.
 
-Ian
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ drivers/net/gtp.c | 50 ++++++++++++++++++++++++++++++++---------------
+ include/net/gtp.h | 21 ++++++++++++++++++++
+ 2 files changed, 55 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index 21640a035..100ee4f9c 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -60,21 +60,6 @@ struct pdp_ctx {
+ 	struct rcu_head		rcu_head;
+ };
+ 
+-/* One instance of the GTP device. */
+-struct gtp_dev {
+-	struct list_head	list;
+-
+-	struct sock		*sk0;
+-	struct sock		*sk1u;
+-
+-	struct net_device	*dev;
+-
+-	unsigned int		role;
+-	unsigned int		hash_size;
+-	struct hlist_head	*tid_hash;
+-	struct hlist_head	*addr_hash;
+-};
+-
+ static unsigned int gtp_net_id __read_mostly;
+ 
+ struct gtp_net {
+@@ -663,6 +648,10 @@ static int gtp_newlink(struct net *src_net, struct net_device *dev,
+ 
+ 	gtp = netdev_priv(dev);
+ 
++	err = security_gtp_dev_alloc(gtp);
++	if (err < 0)
++		return err;
++
+ 	err = gtp_encap_enable(gtp, data);
+ 	if (err < 0)
+ 		return err;
+@@ -705,7 +694,13 @@ static void gtp_dellink(struct net_device *dev, struct list_head *head)
+ {
+ 	struct gtp_dev *gtp = netdev_priv(dev);
+ 	struct pdp_ctx *pctx;
+-	int i;
++	int i, err;
++
++	err = security_gtp_dev_free(gtp);
++	if (err < 0) {
++		pr_err("Failed security_gtp_dev_free() err: %d\n", err);
++		return;
++	}
+ 
+ 	for (i = 0; i < gtp->hash_size; i++)
+ 		hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i], hlist_tid)
+@@ -1076,6 +1071,10 @@ static int gtp_genl_new_pdp(struct sk_buff *skb, struct genl_info *info)
+ 		goto out_unlock;
+ 	}
+ 
++	err = security_gtp_dev_cmd(gtp, GTP_CMD_NEWPDP);
++	if (err < 0)
++		goto out_unlock;
++
+ 	if (version == GTP_V0)
+ 		sk = gtp->sk0;
+ 	else if (version == GTP_V1)
+@@ -1139,6 +1138,7 @@ static struct pdp_ctx *gtp_find_pdp(struct net *net, struct nlattr *nla[])
+ static int gtp_genl_del_pdp(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	struct pdp_ctx *pctx;
++	struct gtp_dev *gtp;
+ 	int err = 0;
+ 
+ 	if (!info->attrs[GTPA_VERSION])
+@@ -1152,6 +1152,11 @@ static int gtp_genl_del_pdp(struct sk_buff *skb, struct genl_info *info)
+ 		goto out_unlock;
+ 	}
+ 
++	gtp = netdev_priv(pctx->dev);
++	err = security_gtp_dev_cmd(gtp, GTP_CMD_DELPDP);
++	if (err < 0)
++		goto out_unlock;
++
+ 	if (pctx->gtp_version == GTP_V0)
+ 		netdev_dbg(pctx->dev, "GTPv0-U: deleting tunnel id = %llx (pdp %p)\n",
+ 			   pctx->u.v0.tid, pctx);
+@@ -1208,6 +1213,7 @@ static int gtp_genl_get_pdp(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	struct pdp_ctx *pctx = NULL;
+ 	struct sk_buff *skb2;
++	struct gtp_dev *gtp;
+ 	int err;
+ 
+ 	if (!info->attrs[GTPA_VERSION])
+@@ -1221,6 +1227,11 @@ static int gtp_genl_get_pdp(struct sk_buff *skb, struct genl_info *info)
+ 		goto err_unlock;
+ 	}
+ 
++	gtp = netdev_priv(pctx->dev);
++	err = security_gtp_dev_cmd(gtp, GTP_CMD_GETPDP);
++	if (err < 0)
++		goto err_unlock;
++
+ 	skb2 = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
+ 	if (skb2 == NULL) {
+ 		err = -ENOMEM;
+@@ -1250,6 +1261,7 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
+ 	struct net *net = sock_net(skb->sk);
+ 	struct pdp_ctx *pctx;
+ 	struct gtp_net *gn;
++	int err;
+ 
+ 	gn = net_generic(net, gtp_net_id);
+ 
+@@ -1263,6 +1275,12 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
+ 		else
+ 			last_gtp = NULL;
+ 
++		err = security_gtp_dev_cmd(gtp, GTP_CMD_GETPDP);
++		if (err < 0) {
++			rcu_read_unlock();
++			return err;
++		}
++
+ 		for (i = bucket; i < gtp->hash_size; i++) {
+ 			j = 0;
+ 			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i],
+diff --git a/include/net/gtp.h b/include/net/gtp.h
+index 0e16ebb2a..84b68cf8d 100644
+--- a/include/net/gtp.h
++++ b/include/net/gtp.h
+@@ -32,4 +32,25 @@ struct gtp1_header {	/* According to 3GPP TS 29.060. */
+ #define GTP1_F_EXTHDR	0x04
+ #define GTP1_F_MASK	0x07
+ 
++/*
++ * One instance of the GTP device.
++ * Any LSM security module can access their security blob here.
++ */
++struct gtp_dev {
++	struct list_head	list;
++
++	struct sock		*sk0;
++	struct sock		*sk1u;
++
++	struct net_device	*dev;
++
++	unsigned int		role;
++	unsigned int		hash_size;
++	struct hlist_head	*tid_hash;
++	struct hlist_head	*addr_hash;
++#ifdef CONFIG_SECURITY
++	void			*security;
++#endif
++};
++
+ #endif
+-- 
+2.26.2
 
