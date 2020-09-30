@@ -2,120 +2,94 @@ Return-Path: <SRS0=YCxb=DH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A16A7C4727E
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 12:30:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D2B2C4727E
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 13:39:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F4252076E
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 12:30:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0AB4A206B7
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 13:39:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729779AbgI3MaW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Sep 2020 08:30:22 -0400
-Received: from correo.us.es ([193.147.175.20]:45164 "EHLO mail.us.es"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729809AbgI3MaV (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 30 Sep 2020 08:30:21 -0400
-Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
-        by mail.us.es (Postfix) with ESMTP id E0AF4303D0E
-        for <selinux@vger.kernel.org>; Wed, 30 Sep 2020 14:30:19 +0200 (CEST)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id D22F6DA801
-        for <selinux@vger.kernel.org>; Wed, 30 Sep 2020 14:30:19 +0200 (CEST)
-Received: by antivirus1-rhel7.int (Postfix, from userid 99)
-        id BF832DA858; Wed, 30 Sep 2020 14:30:19 +0200 (CEST)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id 6FBAADA78B;
-        Wed, 30 Sep 2020 14:30:17 +0200 (CEST)
-Received: from 192.168.1.97 (192.168.1.97)
- by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
- Wed, 30 Sep 2020 14:30:17 +0200 (CEST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
-Received: from us.es (unknown [90.77.255.23])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: 1984lsi)
-        by entrada.int (Postfix) with ESMTPSA id 46F8E42EF9E0;
-        Wed, 30 Sep 2020 14:30:17 +0200 (CEST)
-Date:   Wed, 30 Sep 2020 14:30:16 +0200
-X-SMTPAUTHUS: auth mail.us.es
-From:   Pablo Neira Ayuso <pablo@netfilter.org>
+        id S1728235AbgI3NjF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Sep 2020 09:39:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53484 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728149AbgI3NjF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 09:39:05 -0400
+Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [IPv6:2001:780:45:1d:225:90ff:fe52:c662])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66283C061755;
+        Wed, 30 Sep 2020 06:39:05 -0700 (PDT)
+Received: from uucp by ganesha.gnumonks.org with local-bsmtp (Exim 4.89)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1kNcJy-0000MR-98; Wed, 30 Sep 2020 15:39:02 +0200
+Received: from laforge by localhost.localdomain with local (Exim 4.94)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1kNcJj-0010WT-W4; Wed, 30 Sep 2020 15:38:48 +0200
+Date:   Wed, 30 Sep 2020 15:38:47 +0200
+From:   Harald Welte <laforge@gnumonks.org>
 To:     Richard Haines <richard_c_haines@btinternet.com>
 Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
         stephen.smalley.work@gmail.com, paul@paul-moore.com,
-        laforge@gnumonks.org, jmorris@namei.org
-Subject: Re: [PATCH 0/3] Add LSM/SELinux support for GPRS Tunneling Protocol
- (GTP)
-Message-ID: <20200930123016.GA24952@salvia>
+        pablo@netfilter.org, jmorris@namei.org
+Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
+Message-ID: <20200930133847.GD238904@nataraja>
 References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
- <20200930101736.GA18687@salvia>
- <0a5e4f19d7bb5c61985dece7614dc33329858f36.camel@btinternet.com>
+ <20200930094934.32144-4-richard_c_haines@btinternet.com>
+ <20200930110153.GT3871@nataraja>
+ <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0a5e4f19d7bb5c61985dece7614dc33329858f36.camel@btinternet.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Virus-Scanned: ClamAV using ClamSMTP
+In-Reply-To: <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 01:20:41PM +0100, Richard Haines wrote:
-> On Wed, 2020-09-30 at 12:17 +0200, Pablo Neira Ayuso wrote:
-> > On Wed, Sep 30, 2020 at 10:49:31AM +0100, Richard Haines wrote:
-> > > These patches came about after looking at 5G open source in
-> > > particular
-> > > the updated 5G GTP driver at [1]. As this driver is still under
-> > > development, added the LSM/SELinux hooks to the current stable GTP
-> > > version in kernel selinux-next [2]. Similar hooks have also been
-> > > implemented in [1] as it uses the same base code as the current 3G
-> > > version (except that it handles different packet types).
-> > 
-> > Yes, [1] looks like it is based on the existing 3G driver in the
-> > Linux
-> > tree.
-> 
-> After a few fixes to [1], I now have the gtp5g version driver running
-> on 5.9 with security hooks and passing their couple of tests.
-> 
-> > 
-> > > To test the 3G GTP driver there is an RFC patch for the selinux-
-> > > testsuite
-> > > at [3].
-> > > 
-> > > To enable the selinux-testsuite GTP tests, the libgtpnl [4] library
-> > > and
-> > > tools needed to be modified to:
-> > > Return ERRNO on error to detect EACCES, Add gtp_match_tunnel
-> > > function,
-> > > Allow gtp-link to specify port numbers for multiple instances to
-> > > run in the same namespace.
-> > > 
-> > > A patch for libgtpnl is supplied in the selinux-testsuite patch as
-> > > well
-> > > as setup/test instructions (libgtpnl is not packaged by Fedora)
-> > > 
-> > > These patches were tested on Fedora 32 with kernel [2] using the
-> > > 'targeted' policy. Also ran the Linux Kernel GTP-U basic tests [5].
-> > 
-> > I don't remember to have seen anything similar in the existing tunnel
-> > net_devices.
-> > 
-> > Why do you need this?
-> 
-> I don't actually have a use for this, I only did it out of idle
-> curiosity. If it is useful to the community then okay. Given the
-> attemped move to Open 5G I thought adding MAC support might be useful
-> somewhere along the line.
+Hi Richard,
 
-No worries.
+On Wed, Sep 30, 2020 at 01:25:27PM +0100, Richard Haines wrote:
 
-I'd suggest you send us patches to integrate missing code into the
-existing driver, probably leaving the SELinux support aside - until we
-learn how to use it or we understand the original motivation to make
-it, I currently don't find any.
+> As in the reply to Pablo, I did it for no particular reason other than
+> idle curiosity, and given the attempted move to Open 5G I thought
+> adding MAC support might be useful somewhere along the line.
 
-Thanks.
+thanks, I only saw your related mail earlier today.
+
+Unfortunately there's a lot of talk about "open source" in the context of 5G
+but as far as I can tell (and I'm involved in open source cellular full-time
+for a decade now) it's mostly marketing.  And if something is relased, it's
+some shared source license that doesn't pass the OSI OSD nor DFSG, ...
+
+In any case, this is off-topic here.
+
+I think it would not be the best idea to merge SELinux support patches for the
+GTP kernel driver without thoroughly understanding the use case, and/or having
+some actual userspace implementations that make use of them.  In the end, we may
+be introducing code that nobody uses, and which only turns out to be insufficient
+for what later actual users may want.
+
+So like Pablo suggested, it would probably be best to focus on
+submitting / merging features for things that are either well-defined (e.g.
+specified in a standerd), and/or have existing userspace implementations.
+
+> I guess the '*_pkt' permissions would cover PDP for 3G and PDR
+> & FAR for 5G ?.
+
+The permissions would probably cover those two items, yes.  As you
+probably know, we currently don't have any ability in the kernel GTP
+driver to map "external" IP traffic to TEID based on anything except the
+destination IP address.  This is sufficient for all 2G and 3G use cases,
+and should also cover many 4G use cases.  However, if you want to go for
+different dedicated bearers and QoS classes, for sure you need something
+more advanced in terms of classification of packets.
+
+Regards,
+	Harald
+-- 
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
+============================================================================
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
