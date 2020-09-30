@@ -2,84 +2,115 @@ Return-Path: <SRS0=YCxb=DH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1363FC4727E
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 11:22:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5C55C4727F
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 12:20:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B5EA520708
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 11:22:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A4A220789
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 12:20:56 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ONV17LLn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725872AbgI3LWn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Sep 2020 07:22:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60782 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725776AbgI3LWn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 07:22:43 -0400
-X-Greylist: delayed 1139 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 30 Sep 2020 04:22:42 PDT
-Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [IPv6:2001:780:45:1d:225:90ff:fe52:c662])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D65C061755;
-        Wed, 30 Sep 2020 04:22:42 -0700 (PDT)
-Received: from uucp by ganesha.gnumonks.org with local-bsmtp (Exim 4.89)
-        (envelope-from <laforge@gnumonks.org>)
-        id 1kNZtX-0008Kt-5k; Wed, 30 Sep 2020 13:03:35 +0200
-Received: from laforge by localhost.localdomain with local (Exim 4.94)
-        (envelope-from <laforge@gnumonks.org>)
-        id 1kNZrt-000zE9-VK; Wed, 30 Sep 2020 13:01:53 +0200
-Date:   Wed, 30 Sep 2020 13:01:53 +0200
-From:   Harald Welte <laforge@gnumonks.org>
-To:     Richard Haines <richard_c_haines@btinternet.com>
+        id S1729890AbgI3MUz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Sep 2020 08:20:55 -0400
+Received: from mailomta19-sa.btinternet.com ([213.120.69.25]:52341 "EHLO
+        sa-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729734AbgI3MUs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 08:20:48 -0400
+X-Greylist: delayed 9067 seconds by postgrey-1.27 at vger.kernel.org; Wed, 30 Sep 2020 08:20:46 EDT
+Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
+          by sa-prd-fep-049.btinternet.com with ESMTP
+          id <20200930122042.JNQP4195.sa-prd-fep-049.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
+          Wed, 30 Sep 2020 13:20:42 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1601468442; 
+        bh=N2PlVmDmQq+mimAvy1l4FC9v2FD6b1mekfDBGXdjrRw=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=ONV17LLnDd9uTfWDWzzPPDMfwOcx1Edn+BRlkh/TPvl14XPepJ//qj9e4Wvyj7hDB3JVMREbKqbTjDau+Lac0ixEd2sYJwju6u/jcT4UOslSrmHRPmkEDgJy9dc5sLLeOgIfbCFvxCzsVrGdPVoNXOytPXvI1ssDV3bPyEPPY9j7BxM8I83DUGuHmgaKAmWbl7o5/CNjoG8zEtg9nv7THua5N/Y+FodaTqmRj8XFH6ynXLlht2yIoySzHeUh7aPhZnIugAD9UVBmT/hyJ+aD313K0ZUzzE2PdLj60Ls9prsYwlUEaZ4fdeIH6kIynfnRYQikY68ckAKeCAGr7Q/hfA==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [81.141.56.129]
+X-OWM-Source-IP: 81.141.56.129 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrfedvgdegkecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepteetveegheevieeifeekvdeiheejvedtieelfffffeevleeijeevvdejvdduudegnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphepkedurddugedurdehiedruddvleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurddugedurdehiedruddvledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehjmhhorhhrihhssehnrghmvghirdhorhhgqedprhgtphhtthhopeeolhgrfhhorhhgvgesghhnuhhmohhnkhhsrdhorhhgqedprhgtphhtthhopeeolhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhr
+        tghpthhtohepoehnvghtuggvvhesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehoshhmohgtohhmqdhnvghtqdhgphhrsheslhhishhtshdrohhsmhhotghomhdrohhrgheqpdhrtghpthhtohepoehprggslhhosehnvghtfhhilhhtvghrrdhorhhgqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeoshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhmqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (81.141.56.129) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED99EC9137BA842; Wed, 30 Sep 2020 13:20:42 +0100
+Message-ID: <0a5e4f19d7bb5c61985dece7614dc33329858f36.camel@btinternet.com>
+Subject: Re: [PATCH 0/3] Add LSM/SELinux support for GPRS Tunneling Protocol
+ (GTP)
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Pablo Neira Ayuso <pablo@netfilter.org>
 Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
         stephen.smalley.work@gmail.com, paul@paul-moore.com,
-        pablo@netfilter.org, jmorris@namei.org
-Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
-Message-ID: <20200930110153.GT3871@nataraja>
+        laforge@gnumonks.org, jmorris@namei.org
+Date:   Wed, 30 Sep 2020 13:20:41 +0100
+In-Reply-To: <20200930101736.GA18687@salvia>
 References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
- <20200930094934.32144-4-richard_c_haines@btinternet.com>
+         <20200930101736.GA18687@salvia>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200930094934.32144-4-richard_c_haines@btinternet.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Richard,
+On Wed, 2020-09-30 at 12:17 +0200, Pablo Neira Ayuso wrote:
+> On Wed, Sep 30, 2020 at 10:49:31AM +0100, Richard Haines wrote:
+> > These patches came about after looking at 5G open source in
+> > particular
+> > the updated 5G GTP driver at [1]. As this driver is still under
+> > development, added the LSM/SELinux hooks to the current stable GTP
+> > version in kernel selinux-next [2]. Similar hooks have also been
+> > implemented in [1] as it uses the same base code as the current 3G
+> > version (except that it handles different packet types).
+> 
+> Yes, [1] looks like it is based on the existing 3G driver in the
+> Linux
+> tree.
 
-I don't fully understand in which context you need / use those SELinux GTP hooks,
-however one comment from the point of view of somebody who is working on GGSN/P-GW
-software using the GTP kernel module:
+After a few fixes to [1], I now have the gtp5g version driver running
+on 5.9 with security hooks and passing their couple of tests.
 
-On Wed, Sep 30, 2020 at 10:49:34AM +0100, Richard Haines wrote:
-> +selinux_gtp_dev_cmd()
-> +~~~~~~~~~~~~~~~~~~~~~
-> +Validate if the caller (current SID) and the GTP device SID have the required
-> +permission to perform the operation. The GTP/SELinux permission map is
-> +as follow::
-> +
-> +    GTP_CMD_NEWPDP = gtp { add }
-> +    GTP_CMD_DELPDP = gtp { del }
-> +    GTP_CMD_GETPDP = gtp { get }
+> 
+> > To test the 3G GTP driver there is an RFC patch for the selinux-
+> > testsuite
+> > at [3].
+> > 
+> > To enable the selinux-testsuite GTP tests, the libgtpnl [4] library
+> > and
+> > tools needed to be modified to:
+> > Return ERRNO on error to detect EACCES, Add gtp_match_tunnel
+> > function,
+> > Allow gtp-link to specify port numbers for multiple instances to
+> > run in the same namespace.
+> > 
+> > A patch for libgtpnl is supplied in the selinux-testsuite patch as
+> > well
+> > as setup/test instructions (libgtpnl is not packaged by Fedora)
+> > 
+> > These patches were tested on Fedora 32 with kernel [2] using the
+> > 'targeted' policy. Also ran the Linux Kernel GTP-U basic tests [5].
+> 
+> I don't remember to have seen anything similar in the existing tunnel
+> net_devices.
+> 
+> Why do you need this?
 
-Wouldn't it make sense to differentiate between:
+I don't actually have a use for this, I only did it out of idle
+curiosity. If it is useful to the community then okay. Given the
+attemped move to Open 5G I thought adding MAC support might be useful
+somewhere along the line.
 
-a) add/del/get on the GTP netdev
-b) add/del/get on the indivudual PDP wihin the GTP netdev
+> 
+> > [1] https://github.com/PrinzOwO/gtp5g
 
-'a' is typically only created once at startup of a GGSN/P-GW software, or is
-done even at system stat-up time.
-
-'b' is performed frequently during runtime as the GGSN/P-GW function runs, as
-subscribers attach to / detach from the cellular network.
-
-By differentiating between those two, one could further constrain the permissions
-required at runtime.
-
--- 
-- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
-============================================================================
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
