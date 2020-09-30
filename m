@@ -2,78 +2,87 @@ Return-Path: <SRS0=YCxb=DH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65278C4727E
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 15:23:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92713C4727C
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 15:56:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1227E2137B
-	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 15:23:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3967520759
+	for <selinux@archiver.kernel.org>; Wed, 30 Sep 2020 15:56:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sTvlfkft"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="YREuWAA9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbgI3PXm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Sep 2020 11:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725385AbgI3PXl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 11:23:41 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCEB7C061755
-        for <selinux@vger.kernel.org>; Wed, 30 Sep 2020 08:23:41 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id x69so2089099oia.8
-        for <selinux@vger.kernel.org>; Wed, 30 Sep 2020 08:23:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gXbXkYYT/LcMhWgcErJ+ECFD5CEzHf4E4NRHTz39ypM=;
-        b=sTvlfkftoklqJYY5CAaJDiBJYmSSkWYA13sWT/sCFYherFU/aLOoszzTMMddRE1fe0
-         JCQ6Atb7fh3QxchwpMtZsSjZebAMiBjhnGqz7QEU1PkotLB3YgoYAlpRzmIzO91BMkIx
-         /vxRhH8uVEZnyOt5bQffCJRrkBKu58jXcNdw4566uEDwfgejppKa8ayWIZM6deGOlw+h
-         W9mWscRHB/NkikjURjmirKvJh4gU4nxWjxUifbKe3lO/C/YlYsjqzW/6LwLQQYxFUK9r
-         ygrzMXAF1Cdaubcj8PlkUnoAxjxYATBcuST2u7oqW08mXDrHHZN3G7iH3HfnNzZUchPd
-         BhHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gXbXkYYT/LcMhWgcErJ+ECFD5CEzHf4E4NRHTz39ypM=;
-        b=ORAGoaS6CpCCmKkE716jNdehuX53XE6oLpwFmH+FzhVF1/b7vak4cwOFBP6TYmzQuj
-         RmIREib0QNPlkt4Ua0Q6/rGrOizXkCcyJE84ly7wHQRS5z/yItnHRLWOMugP/zjUOLJC
-         FfT9fhgtAcIukaSD1Ib497QdIOwV7kPoqVCujwUyEL6UEbgc2iHXSWARepuBcd2+djxA
-         gQRJERlDKihWZ6n/XDhuBra8ppVAsdBO7SavmnBpll3SmHNTbv0bQUcZRVAaaDB/i0C3
-         P+36gsdYWL19gUPKaiX9q+f6OeJtMh4jRxtzHteSVbqQMiWHbh3j/NIWBFSvPoZ3Dt47
-         3BeQ==
-X-Gm-Message-State: AOAM532PMeY2LZm8+VTmG/YdeHmWozHFAatkx3VLhx1hfrTIkVkL739A
-        89masQvleVS7izA1ZjF45voKs1eUTDeBcR+7ann9fwah
-X-Google-Smtp-Source: ABdhPJz2cOFLZWIFCvTROkMAAJft/E87sLNvE19UP8CkCR9y2EWdpGDphPfHObk8w9GBCxXZemjZ5bXhtlj0CBtrffM=
-X-Received: by 2002:aca:ec53:: with SMTP id k80mr1624518oih.92.1601479421206;
- Wed, 30 Sep 2020 08:23:41 -0700 (PDT)
+        id S1727468AbgI3P4Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Sep 2020 11:56:24 -0400
+Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:38110
+        "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725355AbgI3P4Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Sep 2020 11:56:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1601481383; bh=RELQ6zEaKUzKotEk3T33ncEVq3IqazKA87XFz5LBnDQ=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=YREuWAA9BgI+sDAXKonin6pM1Z6JePzC6H3DozvvlkI+8QHbUk9L3rRz9ws+XDtHxxv7UNK1rVRsBfNsGGOXW//b2pTVzyoS2lIWVWe4J1CLCT50niU8+Y2iEckvaG0lqXd6soJ6q1YR0hzEgNHuEaix5ICY5te/1bSI6+mvrjO3LV5z3QsmrMAWLVvDBN5b/omKVXI38VRnFDwYCbrwc6iaD2IuBxxnjl3yhvHXlwnBqBhNMCRur5Kbjd7P55VIjr8sqm6wqSOt9xAJHrj0BcR3wN5knxcpyXtgH6upgkfNSA+Rcp+x2fIRUeYlvBfwXfKIKazk3ggYjdJpgd3Yog==
+X-YMail-OSG: DlAYhWIVM1nEoZgQ.gTV2uevcLhaWDdPyQW7eTYyCPW.jtc_Xu7KWxL9.P7S5JI
+ OIspIMKrRxqo92PuCKA2P4pOLQ3jXgs3axUgZL_rQdDkVJrM2YnUQBOh6aPGVRdxm3ELchi8QYd0
+ VzXFpJ221xM.VNOta15KkE98zc1HPI4Z_JOqkHqOHDPbcV22wCNOpnWX8jysDi06jjUkMtsTCivc
+ Vnd9CK2en9c9YFUNZgElmz4lAbvQ8582O0bs2RGrglrBIFWfIeMYUvoUVQ37SjzLaAI1kfc2LPrq
+ fL_VJYV4xDqWzCVE2R_Y2L5b.7R1OsHL7o9jrUTgwxZXqfkcLf5xDBtKrqBrSaUcXQXtsmA1utLM
+ vgiRzU3JQvVJEOCSCy3HcvJSy2tQGhD9NZkuCnK7BpY3IT5oYc8QhmYICDeF3.DrJHaoPYkVQsql
+ c69aZPDEU.T9nZkjfd59MzUFgt65aehOplaqyv_o1Zc9wJw3Py6EMt9zXCFtd.MsQ58A5n0vcqAd
+ r3gRZ_YmLC4wd7KOTl5JuNKolNyuN6WIg3NdOjKAGALXKxZbu2ABQUmioO5rKjF1WE7HboTRITGd
+ _WIDGbAlIjOadwWpdy0YM8qPANZMApoZH8DA9xgFh7NQcEVadDoq15603Q9NK5SolEb_YHPcwA6C
+ rh.GAJ4_zbR_Tfs8iYBWs1atyE5xKQ87eDL0kxD6AOj8DAfTpbOgsiTCoXHb2ujrEKJHb8WR58rP
+ WxBCyUiSNWB22C3a9dtVozf.OEgLTNH4YL58UbwDvxb5Odcvuh1Kji5L3B1fMhtM.SX.L0WDarZh
+ nPoMYPpegkyD97yMs4AomVfmxMGHbP1GvY6d_GHXUUy4auENbEmTs1YymA7J7iyoQWwDGdW6g5V1
+ C.xLx_itN09.R.cP6v7OIArQjZzXIyQOsfnM7.x212204byEtvY3gxuyQG1pB4bmQ1JEbiFgPlzQ
+ XJ8YAgXDRgJC44c_NlBqxiGfEx5NTpKLOiMIW39LwIV10Ht7TQOUhI6FJ75wVdIAMABtbUXS9EN2
+ Edk80ao1jic82hiS7Cb519pAi066.pU.Vqujy7WM0_EHFPrska4gmmUGi9mNo4kqka9kOVsd2ZYg
+ iP_MFLE30z7rkNfHYkcyC1Sh_dFeXHnonGjE47kdO.fzXDz6xn1nz2kTh1WUJPN.q7giwTbjePoG
+ 6BtF6hIf7I.z0XO1RTdZ1MD_b8J6c4AdHFpDMGQz.jYKZmSFgqKO4MSCbqCNlI.n3LJCiFcGjzDO
+ tBNQVQriJJ0fFmv9QGtrpNxnm0b15r2DkG6nJaW6a_0Y.zOyUVVCTuYL.vqgMOhlpE0R.Sjge5cl
+ Cza3l6Ad_DEUx1yJnWM7jTZ.jKuP01CzfiYOvMTHHYn6aLdZwS.kIP3TuV1JL50vgkJ13oZ3dXTX
+ oJq4Q6gULZ18tuTgTioj2igkfsuKOKsRKSCXLWK4hqs5ja9Octq23Iym4t.QglT8HZeJ0oYXGxLf
+ ayXIcuHJz3B5KVhPsH5QcU1C3qcSzVSZ30nwi5Ab4P9kVLhwqOKZyI7Mk2AEMGpj.TVmTUL1GXbL
+ SlMxMW6Polw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Wed, 30 Sep 2020 15:56:23 +0000
+Received: by smtp418.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 8a38d755fdf2675bafdb143cab02cede;
+          Wed, 30 Sep 2020 15:56:22 +0000 (UTC)
+Subject: Re: [PATCH 0/3] Add LSM/SELinux support for GPRS Tunneling Protocol
+ (GTP)
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
+        stephen.smalley.work@gmail.com, paul@paul-moore.com,
+        laforge@gnumonks.org, jmorris@namei.org
+References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
+ <20200930101736.GA18687@salvia>
+ <0a5e4f19d7bb5c61985dece7614dc33329858f36.camel@btinternet.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <c075cd58-983f-0386-4281-6ff1edb6920c@schaufler-ca.com>
+Date:   Wed, 30 Sep 2020 08:56:22 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.2.2
 MIME-Version: 1.0
-References: <20200930145031.910190-1-plautrba@redhat.com> <20200930145031.910190-4-plautrba@redhat.com>
-In-Reply-To: <20200930145031.910190-4-plautrba@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 30 Sep 2020 11:22:21 -0400
-Message-ID: <CAEjxPJ6PHe7DqYh6mLGu+mjMLY43r4tbQzoiXH0=wgSuyVSpcw@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libsemanage: Bump libsemanage.so version
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <0a5e4f19d7bb5c61985dece7614dc33329858f36.camel@btinternet.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.16718 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 10:51 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> It's due to the previous ABI incompatible change
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+On 9/30/2020 5:20 AM, Richard Haines wrote:
+> On Wed, 2020-09-30 at 12:17 +0200, Pablo Neira Ayuso wrote:
+> ....
+>> Why do you need this?
+> I don't actually have a use for this, I only did it out of idle
+> curiosity. If it is useful to the community then okay. Given the
+> attemped move to Open 5G I thought adding MAC support might be useful
+> somewhere along the line.
 
-My only real question is what are the implications for distros for
-this change?  Would Fedora end up having to carry both so versions for
-a time?  Or can you cleanly switch from the old to the new without
-disruption?
+I am not a fan of adding code that "might be useful someday".
+There's no way to determine if it's been done correctly and
+may interfere with a "real" implementation later.
+
