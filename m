@@ -2,112 +2,247 @@ Return-Path: <SRS0=qhvK=DJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 196EBC4363C
-	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 15:42:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1E18C4363D
+	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 17:38:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8C1220795
-	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 15:42:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9984C20795
+	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 17:38:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="P86pB/HX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgJBPmM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Oct 2020 11:42:12 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:47808 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726176AbgJBPmJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Oct 2020 11:42:09 -0400
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id D550856079F
-        for <selinux@vger.kernel.org>; Fri,  2 Oct 2020 17:42:05 +0200 (CEST)
-Received: by mail-ot1-f41.google.com with SMTP id y5so1757898otg.5
-        for <selinux@vger.kernel.org>; Fri, 02 Oct 2020 08:42:05 -0700 (PDT)
-X-Gm-Message-State: AOAM532tfHECxgMGWez8qCg9zV0E//k4nD+joKyvXXUmZSzi/jiyDYnQ
-        4crAS/3ugrTMtEwwnOmWgC46gqXt24XqO49eypw=
-X-Google-Smtp-Source: ABdhPJzt/4qwQ9gQO5f72QoG18rWjjE4IcIfwVS38H0u5ulTBDyC5bcgkNcp8vEUKUr3p/DT+HvmXtCe6mw6vcJnFvw=
-X-Received: by 2002:a9d:6e1:: with SMTP id 88mr2016905otx.279.1601653324786;
- Fri, 02 Oct 2020 08:42:04 -0700 (PDT)
+        id S1726224AbgJBRif (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Oct 2020 13:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55756 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387929AbgJBRie (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Oct 2020 13:38:34 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 892ACC0613E4
+        for <selinux@vger.kernel.org>; Fri,  2 Oct 2020 10:38:34 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id d9so1759177pfd.3
+        for <selinux@vger.kernel.org>; Fri, 02 Oct 2020 10:38:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=zaz5SJSv7A3XIuY8irUlDYqrESCe7gCcbO5tyaj03YU=;
+        b=P86pB/HXvB1w66ujMKVlopbZUXuUA9r/mPIuYxOvuiet70Gi6UIgoN+Kxio24CM2/7
+         JfgmdRD8tgSfN3CFJ4Y75Bc4bn3m64UX/3OdRDLmD2nFCO6GweQosA22/MJXNgddI2Ip
+         1C480tVdsX9QUYYwIHMsDzV2XEJnCWfTsf7Xc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=zaz5SJSv7A3XIuY8irUlDYqrESCe7gCcbO5tyaj03YU=;
+        b=m7JNtT5gkK9JXvgATpENhBRzqV+9nem5HDwpXRgix+zMVmF4zYtokKcFm9ya11+ZOw
+         MrCqTbfqKkuzJ03W5vGIC+zjWAcXRqQJs4E9xYLOpXMlZRyE+s1mvGFZ53YhRouoTFQt
+         U6nLc05ueOK/EqbOJR21pm8LSZAmpQ5Wo5mzpaZbRV/1NcCg/IUWxPZ26i5QWtZgVhNf
+         w+diB7fGO3gzqqn/ZdcQB4E74o1B3DImHGTpdntO9TunlNdDaIvKTlHLk4vTF+d70Hnv
+         w4FhwjS2E6PdT9r2gvEvFWJNN7zcqIU3JYWb0QpR/cer0aVzNpDeH955567XXhajg86a
+         9poA==
+X-Gm-Message-State: AOAM532zasIieXSVQ2ZzBasHr6MNxJ3s2VrP8FzwUZmVxC9ic8LrocR9
+        Y9MtNnrdQHnI7MuYPszKF5HNTg==
+X-Google-Smtp-Source: ABdhPJxJZ5x2VgwvjB+CQFTtiG0FWPNxJc97Kyr4F/xETn9n8wWrhHY845HJDJm4z1m1PHBe9jXOTw==
+X-Received: by 2002:a63:121f:: with SMTP id h31mr3361167pgl.274.1601660313889;
+        Fri, 02 Oct 2020 10:38:33 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id j25sm2609285pfn.212.2020.10.02.10.38.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Oct 2020 10:38:33 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Scott Branden <scott.branden@broadcom.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Jessica Yu <jeyu@kernel.org>, SeongJae Park <sjpark@amazon.de>,
+        KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v5 01/16] fs/kernel_read_file: Remove FIRMWARE_PREALLOC_BUFFER enum
+Date:   Fri,  2 Oct 2020 10:38:13 -0700
+Message-Id: <20201002173828.2099543-2-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201002173828.2099543-1-keescook@chromium.org>
+References: <20201002173828.2099543-1-keescook@chromium.org>
 MIME-Version: 1.0
-References: <20200930145031.910190-1-plautrba@redhat.com> <20200930145031.910190-4-plautrba@redhat.com>
- <CAEjxPJ6PHe7DqYh6mLGu+mjMLY43r4tbQzoiXH0=wgSuyVSpcw@mail.gmail.com>
- <20200930155614.GA864960@fedora.redhat.com> <CAEjxPJ41ryHsDCnpX7qRLJNw5t=vYX_UEb1z=kW91O10Je6nDA@mail.gmail.com>
- <20201001165551.GA33342@localhost.localdomain> <CAEjxPJ7tsyBGm2hqiABF=HeJvX6PfWdT5BSn+L4-miqsqexo+A@mail.gmail.com>
- <20201001174837.GB33342@localhost.localdomain> <CAJfZ7=ksiWidL58wj2=qjvq4sWW9uxi-mF+YdZf_niuf8KHDBQ@mail.gmail.com>
- <CAEjxPJ4cca3sMyWv=ZeWGc62vt-=s+WhWFW0Y2g7nQeOX21C3g@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4cca3sMyWv=ZeWGc62vt-=s+WhWFW0Y2g7nQeOX21C3g@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Fri, 2 Oct 2020 17:41:53 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=m5bwek=R_6gObMGdAKXNYSUwZU-rWv7EPAhw8SQU_vfg@mail.gmail.com>
-Message-ID: <CAJfZ7=m5bwek=R_6gObMGdAKXNYSUwZU-rWv7EPAhw8SQU_vfg@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libsemanage: Bump libsemanage.so version
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Oct  2 17:42:06 2020 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 2, 2020 at 4:50 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Oct 2, 2020 at 2:53 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> >
-> > Hello,
-> > I have another question: why is bumping the .so version needed? As we
-> > are not changing the ABI of a "linked symbol" (thanks to using
-> > versioned symbols, with .map files), if we do not bump the .so
-> > version, programs that were built with libsepol.so from years ago will
-> > just stop working due to missing symbols, with an error message which
-> > will be quite clear (and this only if they were using deprecated
-> > symbols). In my humble opinion, bumping the .so version is most
-> > required when the calling convention of a non-versioned symbol
-> > changes, but this leads to unexpected execution paths.
-> >
-> > Nevertheless I did not spend time to search for a document that would
-> > explain why bumping the .so version would be recommended when removing
-> > symbols. If you know one, could you please add a reference to it in
-> > the commit description ("Following guidelines from https://...) and/or
-> > to some documentation?
-> >
-> > >From a "distro maintainer point of view" (for Arch Linux), having just
-> > spent a considerable amount of time due to breaking changes in the
-> > last release of PAM, I am not eager to spend time dealing with finding
-> > clever ways to smoothly upgrade the system if there is no
-> > easy&straightforward way to do this. Introducing a transition package
-> > for each library which is bumped is acceptable to me, but if the
-> > release after the next one bumps the version again, introducing
-> > another set of transition packages will begin to be quite painful. In
-> > short: I agree to remove the deprecated functions in order to "bump
-> > the .so version only once", as suggested.
->
-> My original understanding of library ABI compat requirements came from
-> Ulrich Drepper's paper,
-> https://www.akkadia.org/drepper/dsohowto.pdf
->
-> Looks like Debian's policy is here:
-> https://www.debian.org/doc/debian-policy/ch-sharedlibs.html#run-time-shared-libraries
->
-> IIUC, if we follow the rules laid out by both, removing an old symbol
-> version entirely is incompatible and requires a SONAME change.  That
-> said, commit c3f9492d7ff05bdc8581817655ad05bc1e1174b8 ("selinux:
-> Remove legacy local boolean and user code") was technically an
-> incompatible change; it left the symbols in place but made them always
-> fail or ignore no-longer-used parameters, which isn't truly
-> compatible, and we didn't change the SONAMEs then.
->
-> I'd personally be ok with not changing the SONAME as long as these
-> interfaces were only ever used by the selinux userspace code itself or
-> only by really ancient code that is no longer in use by any supported
-> distribution but I don't think that flies with e.g. the Debian policy.
+FIRMWARE_PREALLOC_BUFFER is a "how", not a "what", and confuses the LSMs
+that are interested in filtering between types of things. The "how"
+should be an internal detail made uninteresting to the LSMs.
 
-Thanks for the details. Debian policy makes sense and I agree with
-bumping the version in the SONAME.
+Fixes: a098ecd2fa7d ("firmware: support loading into a pre-allocated buffer")
+Fixes: fd90bc559bfb ("ima: based on policy verify firmware signatures (pre-allocated buffer)")
+Fixes: 4f0496d8ffa3 ("ima: based on policy warn about loading firmware (pre-allocated buffer)")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Acked-by: Scott Branden <scott.branden@broadcom.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/base/firmware_loader/main.c | 5 ++---
+ fs/exec.c                           | 7 ++++---
+ include/linux/fs.h                  | 2 +-
+ kernel/module.c                     | 2 +-
+ security/integrity/digsig.c         | 2 +-
+ security/integrity/ima/ima_fs.c     | 2 +-
+ security/integrity/ima/ima_main.c   | 6 ++----
+ 7 files changed, 12 insertions(+), 14 deletions(-)
 
-Nicolas
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
+index 63b9714a0154..b0ec2721f55d 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -470,14 +470,12 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
+ 	int i, len;
+ 	int rc = -ENOENT;
+ 	char *path;
+-	enum kernel_read_file_id id = READING_FIRMWARE;
+ 	size_t msize = INT_MAX;
+ 	void *buffer = NULL;
+ 
+ 	/* Already populated data member means we're loading into a buffer */
+ 	if (!decompress && fw_priv->data) {
+ 		buffer = fw_priv->data;
+-		id = READING_FIRMWARE_PREALLOC_BUFFER;
+ 		msize = fw_priv->allocated_size;
+ 	}
+ 
+@@ -501,7 +499,8 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
+ 
+ 		/* load firmware files from the mount namespace of init */
+ 		rc = kernel_read_file_from_path_initns(path, &buffer,
+-						       &size, msize, id);
++						       &size, msize,
++						       READING_FIRMWARE);
+ 		if (rc) {
+ 			if (rc != -ENOENT)
+ 				dev_warn(device, "loading %s failed with error %d\n",
+diff --git a/fs/exec.c b/fs/exec.c
+index a91003e28eaa..9233cd50dc4c 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -954,6 +954,7 @@ int kernel_read_file(struct file *file, void **buf, loff_t *size,
+ {
+ 	loff_t i_size, pos;
+ 	ssize_t bytes = 0;
++	void *allocated = NULL;
+ 	int ret;
+ 
+ 	if (!S_ISREG(file_inode(file)->i_mode) || max_size < 0)
+@@ -977,8 +978,8 @@ int kernel_read_file(struct file *file, void **buf, loff_t *size,
+ 		goto out;
+ 	}
+ 
+-	if (id != READING_FIRMWARE_PREALLOC_BUFFER)
+-		*buf = vmalloc(i_size);
++	if (!*buf)
++		*buf = allocated = vmalloc(i_size);
+ 	if (!*buf) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -1007,7 +1008,7 @@ int kernel_read_file(struct file *file, void **buf, loff_t *size,
+ 
+ out_free:
+ 	if (ret < 0) {
+-		if (id != READING_FIRMWARE_PREALLOC_BUFFER) {
++		if (allocated) {
+ 			vfree(*buf);
+ 			*buf = NULL;
+ 		}
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 7519ae003a08..7336e22d0c5d 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2858,10 +2858,10 @@ static inline void i_readcount_inc(struct inode *inode)
+ #endif
+ extern int do_pipe_flags(int *, int);
+ 
++/* This is a list of *what* is being read, not *how*. */
+ #define __kernel_read_file_id(id) \
+ 	id(UNKNOWN, unknown)		\
+ 	id(FIRMWARE, firmware)		\
+-	id(FIRMWARE_PREALLOC_BUFFER, firmware)	\
+ 	id(FIRMWARE_EFI_EMBEDDED, firmware)	\
+ 	id(MODULE, kernel-module)		\
+ 	id(KEXEC_IMAGE, kexec-image)		\
+diff --git a/kernel/module.c b/kernel/module.c
+index 1c5cff34d9f2..b2808acac46b 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4035,7 +4035,7 @@ SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
+ {
+ 	struct load_info info = { };
+ 	loff_t size;
+-	void *hdr;
++	void *hdr = NULL;
+ 	int err;
+ 
+ 	err = may_init_module();
+diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
+index e9cbadade74b..ac02b7632353 100644
+--- a/security/integrity/digsig.c
++++ b/security/integrity/digsig.c
+@@ -169,7 +169,7 @@ int __init integrity_add_key(const unsigned int id, const void *data,
+ 
+ int __init integrity_load_x509(const unsigned int id, const char *path)
+ {
+-	void *data;
++	void *data = NULL;
+ 	loff_t size;
+ 	int rc;
+ 	key_perm_t perm;
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index e3fcad871861..15a44c5022f7 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -272,7 +272,7 @@ static const struct file_operations ima_ascii_measurements_ops = {
+ 
+ static ssize_t ima_read_policy(char *path)
+ {
+-	void *data;
++	void *data = NULL;
+ 	char *datap;
+ 	loff_t size;
+ 	int rc, pathlen = strlen(path);
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 8a91711ca79b..2f187784c5bc 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -611,19 +611,17 @@ void ima_post_path_mknod(struct dentry *dentry)
+ int ima_read_file(struct file *file, enum kernel_read_file_id read_id)
+ {
+ 	/*
+-	 * READING_FIRMWARE_PREALLOC_BUFFER
+-	 *
+ 	 * Do devices using pre-allocated memory run the risk of the
+ 	 * firmware being accessible to the device prior to the completion
+ 	 * of IMA's signature verification any more than when using two
+-	 * buffers?
++	 * buffers? It may be desirable to include the buffer address
++	 * in this API and walk all the dma_map_single() mappings to check.
+ 	 */
+ 	return 0;
+ }
+ 
+ const int read_idmap[READING_MAX_ID] = {
+ 	[READING_FIRMWARE] = FIRMWARE_CHECK,
+-	[READING_FIRMWARE_PREALLOC_BUFFER] = FIRMWARE_CHECK,
+ 	[READING_MODULE] = MODULE_CHECK,
+ 	[READING_KEXEC_IMAGE] = KEXEC_KERNEL_CHECK,
+ 	[READING_KEXEC_INITRAMFS] = KEXEC_INITRAMFS_CHECK,
+-- 
+2.25.1
 
