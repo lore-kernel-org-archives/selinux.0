@@ -1,120 +1,110 @@
-Return-Path: <SRS0=ZFtm=DI=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=qhvK=DJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B4FCC4727E
-	for <selinux@archiver.kernel.org>; Thu,  1 Oct 2020 21:45:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0C34C4363D
+	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 07:01:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 055C520796
-	for <selinux@archiver.kernel.org>; Thu,  1 Oct 2020 21:45:50 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="O347ZKKQ"
+	by mail.kernel.org (Postfix) with ESMTP id 8625F20708
+	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 07:01:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbgJAVpu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Oct 2020 17:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726626AbgJAVpu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Oct 2020 17:45:50 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53E2C0613E2
-        for <selinux@vger.kernel.org>; Thu,  1 Oct 2020 14:45:48 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id l24so7203670edj.8
-        for <selinux@vger.kernel.org>; Thu, 01 Oct 2020 14:45:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=V6MiXR2nE035pNSzCfJD+UEEujvF2fdNAl5yQoWlRNQ=;
-        b=O347ZKKQyHrayj4d1oCq85R9kE76wru9OFuQPJIqFwDlySU8C2u0OMdl18PbjD+BxR
-         ozvTtl7lUAOvSMPnkNBHGmJSHsa1qhDtfcfsAQX6XKtcsP4O9g3ZU3AtI84Hw+P3tshc
-         RNndXBR5CGJoIw/Dc/jJiMrssNI3JewgbJQo9/kPRM0yWVUOGozvAwRCKhlibWaR80Bc
-         zA2HAKIEB2tAqfpuTmYzQ4coPts1NzAZq9Poji+vubgfWgqKQlsBPO7UAGgcX/DnQuEF
-         JO8I/WRHUtbAxvtYtHrPmE//65HkMEpYW8k8tQLzz8q56U0NNxc4Xf6k7VdIy/XqcVof
-         QROw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=V6MiXR2nE035pNSzCfJD+UEEujvF2fdNAl5yQoWlRNQ=;
-        b=Japtu0sDEp1iZKCvtGgmX6UCWgrdEkYtLcI0LWXI8JDx2fEXowp8T0XL80j0S1fAzb
-         7que81L81KL9N9rv+S0ZnkHJ5RLYAgH6brsdq62+vSfi/KkvVmaMRiaAS7FlTgka33ml
-         +cvN6l1ASjvrNWBMp0JujNQWsupFrVV1s1L7eJQYVswCEc7QlPGqI86ww78X+99+rw5P
-         RW8IXjFKsbdqcxf7f8CHeJ6QVb0Ps+6UzBiWDQLiJxxVKg0qq7LtTPZsLqrg67h/zDj8
-         i22YWkeW1EAZ7IBVxa0aJLgadPZl0cD0hvWIr3pTVwJIUaUf7utg5gs8j7JKAwjnpdgR
-         7EDQ==
-X-Gm-Message-State: AOAM530zK5y3Ycrcrlnt3hbM0YA+iPBekquZNoRx/RC3xQYlyAR49C14
-        vwCUJJVdGxVUiuzkpY9y2uyydUODLZXMeb4Uj2NX
-X-Google-Smtp-Source: ABdhPJziZ3MnZ9kgj7RRwe6DbY4kqR3eKEF32H8bH9EBTrsMdD/CztTlHA+dd5aO+lhFOm9MqmKvYxW9VRxfFP4ZaZE=
-X-Received: by 2002:a50:8e17:: with SMTP id 23mr10357187edw.31.1601588747243;
- Thu, 01 Oct 2020 14:45:47 -0700 (PDT)
+        id S1725991AbgJBHBd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Oct 2020 03:01:33 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:59566 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725948AbgJBHBd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Oct 2020 03:01:33 -0400
+X-Greylist: delayed 487 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Oct 2020 03:01:31 EDT
+Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id BEDEC564E65
+        for <selinux@vger.kernel.org>; Fri,  2 Oct 2020 09:01:29 +0200 (CEST)
+Received: by mail-oi1-f179.google.com with SMTP id m128so338398oig.7
+        for <selinux@vger.kernel.org>; Fri, 02 Oct 2020 00:01:29 -0700 (PDT)
+X-Gm-Message-State: AOAM532Mxx85VY5GbSUY7zGsEu7p+AmGYqDnl8vTb8QSYoGMwZLVq9O1
+        vt3Zuz7vORHAD13DEv263ntdPYMmLusYzO088B0=
+X-Google-Smtp-Source: ABdhPJz50gBkyhWoR4fZ4xuoLP9Y9PmCVolmcDXtyiol5HTig5lqOptwSQu9SoTZLJtlpfcchkFGlWeY5xwNQn5Tw/E=
+X-Received: by 2002:aca:ac14:: with SMTP id v20mr483834oie.40.1601622088646;
+ Fri, 02 Oct 2020 00:01:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAEjxPJ7==mkXDKuDw2YueRP+ymoQjPDdCS8Wk7GJfth+CpLqkg@mail.gmail.com>
- <20200930013653.48787-1-rentianyue@tj.kylinos.cn> <20200930013653.48787-2-rentianyue@tj.kylinos.cn>
-In-Reply-To: <20200930013653.48787-2-rentianyue@tj.kylinos.cn>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 1 Oct 2020 17:45:36 -0400
-Message-ID: <CAHC9VhQTp3Rc_7zM661Rzur0XSuWRWKJJg=CwLPAQo5ABRpS-w@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] selinux: fix error initialization in inode_doinit_with_dentry()
-To:     rentianyue@tj.kylinos.cn
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Andreas Gruenbacher <agruenba@redhat.com>, yangzhao@kylinos.cn,
-        selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>
+References: <20200907174712.290567-1-dominick.grift@defensec.nl> <20200908085329.409762-1-dominick.grift@defensec.nl>
+In-Reply-To: <20200908085329.409762-1-dominick.grift@defensec.nl>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Fri, 2 Oct 2020 09:01:17 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=khmKePn+=oA87mPXSZEgCiVzZ-3hJZZHF927a+=2R3TQ@mail.gmail.com>
+Message-ID: <CAJfZ7=khmKePn+=oA87mPXSZEgCiVzZ-3hJZZHF927a+=2R3TQ@mail.gmail.com>
+Subject: Re: [PATCH v2] cil_network_labeling_statements: fixes nodecon examples
+To:     Dominick Grift <dominick.grift@defensec.nl>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Oct  2 09:01:30 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 9:38 PM <rentianyue@tj.kylinos.cn> wrote:
-> From: Tianyue Ren <rentianyue@kylinos.cn>
+On Tue, Sep 8, 2020 at 10:53 AM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
 >
-> Mark the inode security label as invalid if we cannot find
-> a dentry so that we will retry later rather than marking it
-> initialized with the unlabeled SID.
->
-> Fixes: 9287aed2ad1f ("selinux: Convert isec->lock into a spinlock")
-> Signed-off-by: Tianyue Ren <rentianyue@kylinos.cn>
+> The order of the subnet and netmask is wrong and also the value of netmask is wrong for single address subnet
+> Use an ipaddr reserved for documentation: https://tools.ietf.org/html/rfc5737
+> Add ipv6 example: https://tools.ietf.org/html/rfc3849
+
+It seems that this patch slipped through the review process, as there
+could have been some confusion about the repository it was for. It
+seems to me that it is for https://github.com/SELinuxProject/selinux,
+and its contents looks good. Thanks!
+
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+If nobody complains, I will apply this patch tonight.
+Nicolas
+
+> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 > ---
->  security/selinux/hooks.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+> I added a ip6 example because the old style netmask makes that a bit unclear. I know I will appreciate such an example later on.
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index bf8328adad8f..da7295a546e0 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1499,6 +1499,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->                          * inode_doinit with a dentry, before these inodes could
->                          * be used again by userspace.
->                          */
-> +                       isec->initialized = LABEL_INVALID;
->                         goto out;
->                 }
+>  .../docs/cil_network_labeling_statements.md   | 19 ++++++++++++++-----
+>  1 file changed, 14 insertions(+), 5 deletions(-)
 >
-> @@ -1553,8 +1554,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->                          * inode_doinit() with a dentry, before these inodes
->                          * could be used again by userspace.
->                          */
-> -                       if (!dentry)
-> +                       if (!dentry) {
-> +                               isec->initialized = LABEL_INVALID;
->                                 goto out;
-> +                       }
->                         rc = selinux_genfs_get_sid(dentry, sclass,
->                                                    sbsec->flags, &sid);
->                         if (rc) {
+> diff --git a/secilc/docs/cil_network_labeling_statements.md b/secilc/docs/cil_network_labeling_statements.md
+> index 49a836c1..60aec80d 100644
+> --- a/secilc/docs/cil_network_labeling_statements.md
+> +++ b/secilc/docs/cil_network_labeling_statements.md
+> @@ -145,12 +145,21 @@ These examples show named and anonymous [`nodecon`](cil_network_labeling_stateme
+>      (context context_1 (unconfined.user object_r unconfined.object low_low))
+>      (context context_2 (unconfined.user object_r unconfined.object (systemlow level_2)))
+>
+> -    (ipaddr netmask_1 255.255.255.0)
+> -    (ipaddr ipv4_1 192.168.1.64)
+> +    (ipaddr netmask_1 255.255.255.255)
+> +    (ipaddr ipv4_1 192.0.2.64)
+> +
+> +    (nodecon ipv4_1 netmask_1 context_2)
+> +    (nodecon (192.0.2.64) (255.255.255.255) context_1)
+> +    (nodecon (192.0.2.64) netmask_1 (unconfined.user object_r unconfined.object ((s0) (s0 (c0)))))
+> +
+> +    (context context_3 (sys.id sys.role my48prefix.node ((s0)(s0))))
+> +
+> +    (ipaddr netmask_2 ffff:ffff:ffff:0:0:0:0:0)
+> +    (ipaddr ipv6_2  2001:db8:1:0:0:0:0:0)
+>
+> -    (nodecon netmask_1 ipv4_1 context_2)
+> -    (nodecon (255.255.255.0) (192.168.1.64) context_1)
+> -    (nodecon netmask_1 (192.168.1.64) (unconfined.user object_r unconfined.object ((s0) (s0 (c0)))))
+> +    (nodecon ipv6_2 netmask_2 context_3)
+> +    (nodecon (2001:db8:1:0:0:0:0:0) (ffff:ffff:ffff:0:0:0:0:0) context_3)
+> +    (nodecon (2001:db8:1:0:0:0:0:0) netmask_2 (sys.id sys.role my48prefix.node ((s0)(s0))))
+>
+>  portcon
+>  -------
+> --
+> 2.28.0
+>
 
-Looking at this some more, in both cases where we mark the isec as
-"LABEL_INVALID" we can probably just do a "return 0;" instead of
-jumping to "out" as there is nothing useful there except a needless
-spin lock/unlock cycle.  I would suggest adding a short explanation to
-the comment above each line explaining why this is okay.
-
--- 
-paul moore
-www.paul-moore.com
