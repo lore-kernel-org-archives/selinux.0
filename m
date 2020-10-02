@@ -8,68 +8,68 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46B14C4727F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A665DC47423
 	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 17:38:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E13820795
+	by mail.kernel.org (Postfix) with ESMTP id 6A8362085B
 	for <selinux@archiver.kernel.org>; Fri,  2 Oct 2020 17:38:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Mfumh5tR"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="gIp5YUPO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388357AbgJBRiz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S2388406AbgJBRiz (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 2 Oct 2020 13:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55792 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388406AbgJBRip (ORCPT
+        with ESMTP id S2388439AbgJBRip (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 2 Oct 2020 13:38:45 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548BCC0613BA
-        for <selinux@vger.kernel.org>; Fri,  2 Oct 2020 10:38:42 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id b124so1724163pfg.13
-        for <selinux@vger.kernel.org>; Fri, 02 Oct 2020 10:38:42 -0700 (PDT)
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26960C0610CF
+        for <selinux@vger.kernel.org>; Fri,  2 Oct 2020 10:38:43 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id b17so1239194pji.1
+        for <selinux@vger.kernel.org>; Fri, 02 Oct 2020 10:38:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=NRNkvGI2Ff9BjWU3dffE18oblDO1Opoo7ReByCIGKwI=;
-        b=Mfumh5tRxy4skOQP6OGVehMnWKDcGfbBGXiWQ720eRb5OVAh6dC5RBijHQgpZPj/Y4
-         YQXKfqFXUF679RfBa37dgjcpUP7MkM6k3757Sg6ZOw3gczyWHedDnJ9IiYxY6rw+0L2I
-         WiL4xchzU3Ld30sxaoGGExLRw2vgpeVSEkQCU=
+        bh=qJcmVj+L5ner65w+xYxx1+RLP+ut9GxY3p4hCl1LqMA=;
+        b=gIp5YUPO7PD3ieTusA8eENYMVQ+bK/n83HWEw+rMd0/t8bJ+GMNU1nfo8pmHLBGbey
+         H5JyYlqUskPhuVlpO9NQs3bVG1i7dBKQITRy7QTRKpOIYsYmg1kUj4GmG2GV8J6vT6HB
+         0O1wQzHOr+TuqSP1UO1FvcIwzyDVBM0jrcqkw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=NRNkvGI2Ff9BjWU3dffE18oblDO1Opoo7ReByCIGKwI=;
-        b=R4lbcNVwUglLccaK2ojhrPlkdwD7fuO7b6uhigTXMtjHOy7CzmzugB2EufufC47oC8
-         6FMlzZ+/SRVFdYBXMTRhHPtr3YSIZ8GS/dz44HbJWfTuDbpi+HFAgqgxlbxIdgBDLmYR
-         pOzs96NajWhNDMHaafaFtLMDDW+Y1CkXXfWUPzRO7xa39RcLDkYw2ow9YCfxjD2tUY35
-         YMZe6T+Ekey+W5udf7v2AgJRQxMGr8Zo7qrPsQQWY9ARl79i/r5HRb4/UdnfA68qWvef
-         FlxmUc0snAClDElopJB7g9kX42SkmU4kxT/y9643A+W6qkkhwiHbScWnHwE1M4iWdEma
-         ++Xw==
-X-Gm-Message-State: AOAM532nP+E/IKf92ZHDSxci+LL5VsmE8pthQaWwaSoMpxXwBTRKELye
-        YGxRvGM3lVQrQIMSg8cwWwqDdBC9TLWlYSRU
-X-Google-Smtp-Source: ABdhPJwwS7Nbs517CZEc++bRCN5UnGB0D5kqLBspE9m/jC8b6k7oNPzx/9EjCuSoJzqxzl4G5yJT6A==
-X-Received: by 2002:a63:c547:: with SMTP id g7mr3156527pgd.234.1601660321870;
-        Fri, 02 Oct 2020 10:38:41 -0700 (PDT)
+        bh=qJcmVj+L5ner65w+xYxx1+RLP+ut9GxY3p4hCl1LqMA=;
+        b=St5MKPST01qFaK56iQY2OawkuK8w+gXgwJu3luBxCfNotMLXFTBh9EWSRioaXThbnO
+         MkjrBD6UUhExZJZZn8+rih2UZ1u3kgi4Um9ADduiBQ5uJwAKIvrlySf4O9zwAHyQsiqO
+         pFuX6v+1T5/Th7JJg1+FhMi1d5bWAYXNYKB2uF5AYdMYUhp/z5r2PydZrsfPtJL6oe6d
+         /PgJJ5TKxT+1xBC2pOdWZw9UPMvweSOFIzlE+8xPKpiaYkgra6h4lqCPv3h8AP5Gz7JZ
+         Pbzth2hV8J9Nj6zlBGhJ93WQa61ae7tDnDQB6Pm9q0zGuA30zWPKkW2NDas9AQBhckJq
+         LruA==
+X-Gm-Message-State: AOAM531MJ0g0kczRlCNLm9kiFYztL/LFa5M0TIle3pCtncCDWwjKCbfM
+        rEF+wOyZ9+lKvO9JJ/bYNjjjlQ==
+X-Google-Smtp-Source: ABdhPJzBWNvPO4VGKoipwgCa0vomjqtbhEwBldg9Xy+e2FhhYXBi1vlX/kGVu0Jis+yqO1+GeMgDig==
+X-Received: by 2002:a17:90a:69e3:: with SMTP id s90mr3814287pjj.130.1601660322701;
+        Fri, 02 Oct 2020 10:38:42 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id g1sm2650900pfm.124.2020.10.02.10.38.35
+        by smtp.gmail.com with ESMTPSA id q8sm2480298pfu.173.2020.10.02.10.38.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 02 Oct 2020 10:38:36 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Kees Cook <keescook@chromium.org>, KP Singh <kpsingh@google.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        Scott Branden <scott.branden@broadcom.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
         Mimi Zohar <zohar@linux.ibm.com>,
+        Scott Branden <scott.branden@broadcom.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>, SeongJae Park <sjpark@amazon.de>,
+        Takashi Iwai <tiwai@suse.de>, Jessica Yu <jeyu@kernel.org>,
+        SeongJae Park <sjpark@amazon.de>,
         KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 10/16] module: Call security_kernel_post_load_data()
-Date:   Fri,  2 Oct 2020 10:38:22 -0700
-Message-Id: <20201002173828.2099543-11-keescook@chromium.org>
+Subject: [PATCH v5 09/16] firmware_loader: Use security_post_load_data()
+Date:   Fri,  2 Oct 2020 10:38:21 -0700
+Message-Id: <20201002173828.2099543-10-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201002173828.2099543-1-keescook@chromium.org>
 References: <20201002173828.2099543-1-keescook@chromium.org>
@@ -79,50 +79,124 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Now that there is an API for checking loaded contents for modules
-loaded without a file, call into the LSM hooks.
+Now that security_post_load_data() is wired up, use it instead
+of the NULL file argument style of security_post_read_file(),
+and update the security_kernel_load_data() call to indicate that a
+security_kernel_post_load_data() call is expected.
+
+Wire up the IMA check to match earlier logic. Perhaps a generalized
+change to ima_post_load_data() might look something like this:
+
+    return process_buffer_measurement(buf, size,
+                                      kernel_load_data_id_str(load_id),
+                                      read_idmap[load_id] ?: FILE_CHECK,
+                                      0, NULL);
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: KP Singh <kpsingh@google.com>
-Acked-by: Jessica Yu <jeyu@kernel.org>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 ---
- kernel/module.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/base/firmware_loader/fallback.c       |  8 ++++----
+ .../base/firmware_loader/fallback_platform.c  |  8 +++++++-
+ security/integrity/ima/ima_main.c             | 20 +++++++++----------
+ 3 files changed, 21 insertions(+), 15 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index f47209e0fde6..adfa21dd3842 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3014,7 +3014,7 @@ static int copy_module_from_user(const void __user *umod, unsigned long len,
- 	if (info->len < sizeof(*(info->hdr)))
- 		return -ENOEXEC;
+diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
+index bff4717cc6b5..251d92fc8bae 100644
+--- a/drivers/base/firmware_loader/fallback.c
++++ b/drivers/base/firmware_loader/fallback.c
+@@ -272,9 +272,9 @@ static ssize_t firmware_loading_store(struct device *dev,
+ 				dev_err(dev, "%s: map pages failed\n",
+ 					__func__);
+ 			else
+-				rc = security_kernel_post_read_file(NULL,
+-						fw_priv->data, fw_priv->size,
+-						READING_FIRMWARE);
++				rc = security_kernel_post_load_data(fw_priv->data,
++						fw_priv->size,
++						LOADING_FIRMWARE, "blob");
  
--	err = security_kernel_load_data(LOADING_MODULE, false);
-+	err = security_kernel_load_data(LOADING_MODULE, true);
- 	if (err)
- 		return err;
+ 			/*
+ 			 * Same logic as fw_load_abort, only the DONE bit
+@@ -613,7 +613,7 @@ static bool fw_run_sysfs_fallback(u32 opt_flags)
+ 		return false;
  
-@@ -3024,11 +3024,17 @@ static int copy_module_from_user(const void __user *umod, unsigned long len,
+ 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
+-	ret = security_kernel_load_data(LOADING_FIRMWARE, false);
++	ret = security_kernel_load_data(LOADING_FIRMWARE, true);
+ 	if (ret < 0)
+ 		return false;
+ 
+diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
+index a12c79d47efc..8bdf88043079 100644
+--- a/drivers/base/firmware_loader/fallback_platform.c
++++ b/drivers/base/firmware_loader/fallback_platform.c
+@@ -17,7 +17,7 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
+ 	if (!(opt_flags & FW_OPT_FALLBACK_PLATFORM))
+ 		return -ENOENT;
+ 
+-	rc = security_kernel_load_data(LOADING_FIRMWARE, false);
++	rc = security_kernel_load_data(LOADING_FIRMWARE, true);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -27,6 +27,12 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
+ 
+ 	if (fw_priv->data && size > fw_priv->allocated_size)
  		return -ENOMEM;
- 
- 	if (copy_chunked_from_user(info->hdr, umod, info->len) != 0) {
--		vfree(info->hdr);
--		return -EFAULT;
-+		err = -EFAULT;
-+		goto out;
- 	}
- 
--	return 0;
-+	err = security_kernel_post_load_data((char *)info->hdr, info->len,
-+					     LOADING_MODULE, "init_module");
-+out:
-+	if (err)
-+		vfree(info->hdr);
 +
-+	return err;
++	rc = security_kernel_post_load_data((u8 *)data, size, LOADING_FIRMWARE,
++						"platform");
++	if (rc)
++		return rc;
++
+ 	if (!fw_priv->data)
+ 		fw_priv->data = vmalloc(size);
+ 	if (!fw_priv->data)
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 9dd9c5f4d736..6f2b8352573a 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -648,15 +648,6 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ 	enum ima_hooks func;
+ 	u32 secid;
+ 
+-	if (!file && read_id == READING_FIRMWARE) {
+-		if ((ima_appraise & IMA_APPRAISE_FIRMWARE) &&
+-		    (ima_appraise & IMA_APPRAISE_ENFORCE)) {
+-			pr_err("Prevent firmware loading_store.\n");
+-			return -EACCES;	/* INTEGRITY_UNKNOWN */
+-		}
+-		return 0;
+-	}
+-
+ 	/* permit signed certs */
+ 	if (!file && read_id == READING_X509_CERTIFICATE)
+ 		return 0;
+@@ -706,7 +697,7 @@ int ima_load_data(enum kernel_load_data_id id, bool contents)
+ 		}
+ 		break;
+ 	case LOADING_FIRMWARE:
+-		if (ima_enforce && (ima_appraise & IMA_APPRAISE_FIRMWARE)) {
++		if (ima_enforce && (ima_appraise & IMA_APPRAISE_FIRMWARE) && !contents) {
+ 			pr_err("Prevent firmware sysfs fallback loading.\n");
+ 			return -EACCES;	/* INTEGRITY_UNKNOWN */
+ 		}
+@@ -742,6 +733,15 @@ int ima_post_load_data(char *buf, loff_t size,
+ 		       enum kernel_load_data_id load_id,
+ 		       char *description)
+ {
++	if (load_id == LOADING_FIRMWARE) {
++		if ((ima_appraise & IMA_APPRAISE_FIRMWARE) &&
++		    (ima_appraise & IMA_APPRAISE_ENFORCE)) {
++			pr_err("Prevent firmware loading_store.\n");
++			return -EACCES; /* INTEGRITY_UNKNOWN */
++		}
++		return 0;
++	}
++
+ 	return 0;
  }
  
- static void free_copy(struct load_info *info)
 -- 
 2.25.1
 
