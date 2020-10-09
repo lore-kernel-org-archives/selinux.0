@@ -2,115 +2,65 @@ Return-Path: <SRS0=2hro=DQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38518C433DF
-	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 12:47:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A900AC433DF
+	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 13:01:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7D8222284
-	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 12:47:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37448222D5
+	for <selinux@archiver.kernel.org>; Fri,  9 Oct 2020 13:01:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="hbxg29Uf"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ULC6OjYu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732021AbgJIMrP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Oct 2020 08:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37558 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729045AbgJIMrP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Oct 2020 08:47:15 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5052C0613D2
-        for <selinux@vger.kernel.org>; Fri,  9 Oct 2020 05:47:14 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id p13so9205694edi.7
-        for <selinux@vger.kernel.org>; Fri, 09 Oct 2020 05:47:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:subject:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=iFY8AvDHTYUhp9SKfGVsKtBgAP8P/Rn38ke3kvwZe/I=;
-        b=hbxg29UfCtyb+w8d6AhIJdMEYb93Q5QJO93HO1/ITLc/xuNXSEDdvGBu2s3CGDww9g
-         qqkIIGQgoeNPsq5IVYGp4lO0ucDKvk5/gActX5G5P+HzvNlcF174wyEIJ/CTYacVG21r
-         dMTZrtyy+u91X3HqPOyUmWtF4nXT0bMbgcbQtHxEvony/4CWi4KZlPjJ26+4YWYcxOoD
-         iiGc2t9YLHNjaAz6xg4u+1tJMvQC98Vbj9mLPTG9gsshm/bY9kxSdBM9Craa5BISFRV+
-         ztBB9OCSnPeVR5eRZ6FKUeEnCjeer1p8Fpj51AHGsQbOzpqzhW2x+R3lVz+F1fjLLEC4
-         3X1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=iFY8AvDHTYUhp9SKfGVsKtBgAP8P/Rn38ke3kvwZe/I=;
-        b=FmhzoiZlEO0eW7fm8cYOkGMytr0LJQYzmsU+l94t6W3w/BCcsy6r7VCcTSff4xrKDc
-         l+3KDkWHCYtyNrlFZbyS7QO9OKdwG0Uow430pJOIsiXn2JofPChqP3dcpi9dZhyl/QgT
-         kfccbu4RFv5RVHVdiW6gEUjlLMwQNRy4boART6qzpr6WThTNzfN2chZPwcvHizhMNsGu
-         taeWvzTGEHWPpdRMaZG+FYqoj8Il76xnKIIwf90lO0yQZ2VhaPMrfi2ROsZFh2ZdfG8J
-         UptVfEABtaT4EAyVVgWhZ0frniX6XGrY1e0LVKD02b1HAkpVLg2GL5QirpsCX46VAfAM
-         fDDg==
-X-Gm-Message-State: AOAM5319edNMUN6Z8NfyxA6h4Sou54UgBhPMKiMhcZsDCLtPZmiYE3G2
-        FQgp4dJx0yroW404e2rxEKg=
-X-Google-Smtp-Source: ABdhPJzuZVOJybO5xmtUqbZ9CgvabBaFXc3+V2kcz62s04QmlyNu+WKlWpUpKV6H2eGXmNaGbteKFw==
-X-Received: by 2002:a05:6402:d6:: with SMTP id i22mr14252265edu.53.1602247633604;
-        Fri, 09 Oct 2020 05:47:13 -0700 (PDT)
-Received: from ?IPv6:2a02:810d:4bc0:8098:f29f:ba0e:35fd:4559? ([2a02:810d:4bc0:8098:f29f:ba0e:35fd:4559])
-        by smtp.gmail.com with ESMTPSA id ds8sm5883910ejc.86.2020.10.09.05.47.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Oct 2020 05:47:12 -0700 (PDT)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-Subject: [PATCH v2] selinux: allow dontauditx and auditallowx rules to take
- effect without allowx
+        id S1732456AbgJINBC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Oct 2020 09:01:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28330 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729347AbgJINBB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Oct 2020 09:01:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602248461;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=yIpDrwWq433mFhVBybGz+ZT24Gz7TiggU/au+0Ww/xE=;
+        b=ULC6OjYunLTmKD6R3VY7DkqdRh3PKhUFerC/rgBjMGTQOCuKulzL5D0xLC9pNQ8KssOkbV
+        xwwy/OzKifiuT3uW5x+aQriP74h2Jg4gFP1ygCbqnKnqoS42ya13hyrdKveC1WtCPJVUcg
+        pktMx7/5swNJ02RVRjG8qifYQislguo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-25-0a5yo83ZOI2L5vJNebmZ8g-1; Fri, 09 Oct 2020 09:00:58 -0400
+X-MC-Unique: 0a5yo83ZOI2L5vJNebmZ8g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1F57319080BB
+        for <selinux@vger.kernel.org>; Fri,  9 Oct 2020 13:00:57 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.193.213])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6345476647
+        for <selinux@vger.kernel.org>; Fri,  9 Oct 2020 13:00:56 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     bauen1 <j2468h@googlemail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Nick Kralevich <nnk@google.com>
-References: <CAHC9VhQ9h4rQK8W03jCmtqgr81jRueh_jzd8XjAkjzcCvGmCmw@mail.gmail.com>
-Message-ID: <a30c2b0c-d403-f296-5f15-aa7ec3a99db4@gmail.com>
-Date:   Fri, 9 Oct 2020 14:47:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+Subject: libsepol, libsemanage: drop duplicate and deprecated symbols
+Date:   Fri,  9 Oct 2020 15:00:46 +0200
+Message-Id: <20201009130052.52409-1-plautrba@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQ9h4rQK8W03jCmtqgr81jRueh_jzd8XjAkjzcCvGmCmw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This allows for dontauditing very specific ioctls e.g. TCGETS without
-dontauditing every ioctl or granting additional permissions.
 
-Now either an allowx, dontauditx or auditallowx rules enables checking
-for extended permissions.
+This is followup of
+https://lore.kernel.org/selinux/20200930145031.910190-1-plautrba@redhat.com/T/#t
 
-Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
----
+Change against 1 version:
 
-v2: dropped the precedence change, I will make my case for that seperately.
-
- security/selinux/ss/services.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 9704c8a32303..597b79703584 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -596,9 +596,7 @@ void services_compute_xperms_drivers(
- 					node->datum.u.xperms->driver);
- 	}
-
--	/* If no ioctl commands are allowed, ignore auditallow and auditdeny */
--	if (node->key.specified & AVTAB_XPERMS_ALLOWED)
--		xperms->len = 1;
-+	xperms->len = 1;
- }
-
- /*
---
-2.28.0
+- improved commit messages with references to Debian and Fedora guidelines
+- drop deprecated functions from libsepol/src/deprecated_functions.c and
+- semanage_module_enable/semanage_module_disable from libsemanage
 
