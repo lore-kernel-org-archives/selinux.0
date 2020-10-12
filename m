@@ -2,77 +2,107 @@ Return-Path: <SRS0=npki=DT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91BA0C433E7
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 01:13:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57780C433DF
+	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 02:10:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B1B72074F
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 01:13:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07E2F20782
+	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 02:10:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="S0dQwLx7"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uFrh1lzr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727236AbgJLBNf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 11 Oct 2020 21:13:35 -0400
-Received: from mailomta24-re.btinternet.com ([213.120.69.117]:38829 "EHLO
-        re-prd-fep-045.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727132AbgJLBNf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 11 Oct 2020 21:13:35 -0400
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-043.btinternet.com with ESMTP
-          id <20200909133048.EKJM29506.re-prd-fep-043.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Wed, 9 Sep 2020 14:30:48 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658248; 
-        bh=ESdkPYZawKdw2LQrnbogIWp3PGnFWR4KxIhcw3/xNFo=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=S0dQwLx7QvKHW3CkzP/NN0qixLRJFggGK2EGAxutU6yhPgACB6QvdWfbFn3AzRcr5nwVsKlqJU5GEy2D55djeqt3dkWco14uE4utfpnGv7EX9HVxuyd285jV4vL0yDd25UgaS/qzCAw+oqUm/TcFgkBwGakxX7nkwCcbzVuP4UJOu8nqMiTzfiDi8Vf9mx2+oFp5jO0wTIyWecmeR753QOiKEGYMBZnlqlUk/dG4AsOt48C61ldX93ONxQ/WLABUs6oa8vmpjfbna6YriwHzNXMFnV/v88JqnAK2HIyAyvFqVVslA0dfdueQ3LWNNqUHtpkVs0RCRrKT44a1T+8opQ==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [86.154.154.133]
-X-OWM-Source-IP: 86.154.154.133 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepkeeirdduheegrdduheegrddufeefnecuvehluhhsthgvrhfuihiivgepieenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehgedrudehgedrudeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.154.154.133) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9C2FD10134E2F; Wed, 9 Sep 2020 14:30:48 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     paul@paul-moore.com, selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 17/22] users: Tidy up formatting
-Date:   Wed,  9 Sep 2020 14:30:34 +0100
-Message-Id: <20200909133039.44498-18-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
-References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
+        id S1728314AbgJLCKS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 11 Oct 2020 22:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37166 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727386AbgJLCJY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 11 Oct 2020 22:09:24 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3079AC0613D1
+        for <selinux@vger.kernel.org>; Sun, 11 Oct 2020 19:09:24 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id a3so20953653ejy.11
+        for <selinux@vger.kernel.org>; Sun, 11 Oct 2020 19:09:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AK2bWzHz5KjOV6B+R5X2SLhKXSVJscVhCITZfEKF1hY=;
+        b=uFrh1lzryALn96VPKRBduZb3Uw2dS7GwoDmDor/yq4sltdj4FZMEe0Kz7zWWYkgsvZ
+         Bhk0XJiKrLAD9vM9R6Rp6oGNiAmOEBkfW2FHbS9htw4ttGMgoNiPjHbV82SaJQOh72n1
+         KOn0XHZV3yhQ5ML83+/WRHEK5fGEH2My0vKHk0vWBZcvp/We8Mi77DTEs0R36Uy8AS/q
+         j6qvKFbzpZ0Q5slqBpraYrzgMnWaci+4n4rLKl+4qMGdM1msS0I9pJxg6ZHb7zpBNGAx
+         fFoUIMSVQeSle6ceuXri4Gebr/dVtNHjJ5L0A+m6O9ky0R0lJJWu82TvgfOsprzdtiDv
+         1FRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AK2bWzHz5KjOV6B+R5X2SLhKXSVJscVhCITZfEKF1hY=;
+        b=VVMEpNNZ2RMXccGEWtp9iZxMEbZ4uEs8TNyAGIaleNgQszuFGccIcHKawghBJV4fwT
+         DDbYt7lScZ8FLKz+3Ju9loc5e2qeOGgH4iPd93PVEIjHZWDqaS8iNnImCuzMFrzAeoIc
+         aJk/UQYPMIttnmUyBsNWL8zBXdiCAgbBImU1dYbg+POzIgMiqEJo1l7ZubsnQQ7ZSDN+
+         pUAfxL1odAjAWxbrctsEqhHeILoOdtFAtC+rHo1VY6I/fR6KjGLdmDC2/g0tXp5Z1014
+         u1GO3TXV32jxqYGSHwTItWfbn7YjbwTVDzc6LeshXiQajIMHF3R8V+nomIMKOcmfR4UK
+         B4kA==
+X-Gm-Message-State: AOAM530msu7VhIWlhfUYUBfqp7CdUUG5NpJOHzJuRRCtMwaeGtYT1Owt
+        qMniM5PlYAS8r9gbFkEfoCZCbSvuI57l8gCICTcQ
+X-Google-Smtp-Source: ABdhPJxvp+jOMwz02L056HcUjWpx3NzOVbT79WBzEmzyJsbpZ9wPiEuXnLr6OVSinkWqQieYV8eSaJPP3ELMwP9kJIg=
+X-Received: by 2002:a17:906:ce5a:: with SMTP id se26mr25334590ejb.106.1602468562791;
+ Sun, 11 Oct 2020 19:09:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
+ <20200930094934.32144-4-richard_c_haines@btinternet.com> <20200930110153.GT3871@nataraja>
+ <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com> <20200930133847.GD238904@nataraja>
+In-Reply-To: <20200930133847.GD238904@nataraja>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sun, 11 Oct 2020 22:09:11 -0400
+Message-ID: <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
+Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
+To:     Harald Welte <laforge@gnumonks.org>, pablo@netfilter.org,
+        Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        James Morris <jmorris@namei.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- src/users.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Sep 30, 2020 at 9:39 AM Harald Welte <laforge@gnumonks.org> wrote:
+> Hi Richard,
+>
+> On Wed, Sep 30, 2020 at 01:25:27PM +0100, Richard Haines wrote:
+>
+> > As in the reply to Pablo, I did it for no particular reason other than
+> > idle curiosity, and given the attempted move to Open 5G I thought
+> > adding MAC support might be useful somewhere along the line.
+>
+> ...
+>
+> I think it would not be the best idea to merge SELinux support patches for the
+> GTP kernel driver without thoroughly understanding the use case, and/or having
+> some actual userspace implementations that make use of them.  In the end, we may
+> be introducing code that nobody uses, and which only turns out to be insufficient
+> for what later actual users may want.
+>
+> So like Pablo suggested, it would probably be best to focus on
+> submitting / merging features for things that are either well-defined (e.g.
+> specified in a standerd), and/or have existing userspace implementations.
 
-diff --git a/src/users.md b/src/users.md
-index a1a86b1..4be8356 100644
---- a/src/users.md
-+++ b/src/users.md
-@@ -13,7 +13,7 @@ objects, this user is *system_u*.
- 
- The SELinux user name is the first component of a
- [**Security Context**](security_context.md#security-context) and
--by convention SELinux user names end in *_u*, however this is not
-+by convention SELinux user names end in *\_u*, however this is not
- enforced by any SELinux service (i.e. it is only to identify the user
- component), although CIL with namespaces does make identification of an
- SELinux user easier for example a 'user' could be declared as
+Having a solid use case or two is also helpful for those of us who
+don't have a GTP/GPRS background.  I did spend some time reading a few
+things on GTP, but I don't feel like I've made much of a dent on
+understanding how it is actually used.
+
+Harald, Pablo - I know you both suggested taking a slow iterative
+approach to merging functionality, perhaps you could also help those
+of us on the SELinux side better understand some of the common GTP use
+cases?
+
 -- 
-2.26.2
-
+paul moore
+www.paul-moore.com
