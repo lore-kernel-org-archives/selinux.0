@@ -2,608 +2,360 @@ Return-Path: <SRS0=npki=DT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CED6C433DF
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 15:25:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56432C433DF
+	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 20:19:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07B8520878
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 15:25:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE5B02074F
+	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 20:19:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="r1uHYJNo"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="SLEw3G++"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389540AbgJLPZi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Oct 2020 11:25:38 -0400
-Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:29703 "EHLO
-        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2389951AbgJLPZi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Oct 2020 11:25:38 -0400
-Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
-          by sa-prd-fep-041.btinternet.com with ESMTP
-          id <20200902131748.DGWK19995.sa-prd-fep-041.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Wed, 2 Sep 2020 14:17:48 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599052668; 
-        bh=DSD1nziWklDOmkkpGfGmb2HE2POtxVAGNLqdI4mpnFQ=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=r1uHYJNo84LbNdaxwWNhT3Qi21Osgny/vtqg3a/0RHcjMotfOZYmQzTB2/1Bh1bIwLaXuemjQBR5DeA1vBTe6+sqb4cyNq8u5vS3EGzAcxzUxJ9J+yWMYdlkqWv7o0J+InBEOuumqyTNsLrzRVxggsU9AsH9EvupFkVsGpZp0FkDXznXyDPTiIZodDQEpIkILYUgV/5O88Vpy3zpIKrai5rHuv1W04p5Cy7aa++2wjUDbX+OmqQ0kddCXwd4D2OQrupDFCV9N99s6gnt7u04QPHT9UnpSG4a89JrzCL/uZdu9n9rCYW/CZYWWp/GwrJqgJ3L2T63HfHNc3pHKP/OPg==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [109.155.32.197]
-X-OWM-Source-IP: 109.155.32.197 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudefledgieefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpefhjeehjeeijedvieeggffhkedtgfevveeuudegkeffveegfeefgfdvffejfeevveenucffohhmrghinhepghhithhhuhgsrdgtohhmpdhkvghrnhgvlhdrrggtthhivhgvpdhpohhlihgthidrrggtthhivhgvnecukfhppedutdelrdduheehrdefvddrudeljeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrfedvrdduleejpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhn
-        vghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (109.155.32.197) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9AFBE0EF36BEC; Wed, 2 Sep 2020 14:17:48 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     paul@paul-moore.com, selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 10/13] policy_store_config_files: Add TOC and tidy up formatting
-Date:   Wed,  2 Sep 2020 14:17:35 +0100
-Message-Id: <20200902131738.18425-11-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200902131738.18425-1-richard_c_haines@btinternet.com>
-References: <20200902131738.18425-1-richard_c_haines@btinternet.com>
+        id S1728040AbgJLUTf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Oct 2020 16:19:35 -0400
+Received: from sonic302-28.consmr.mail.ne1.yahoo.com ([66.163.186.154]:38060
+        "EHLO sonic302-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727042AbgJLUTf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Oct 2020 16:19:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1602533972; bh=xqxaB1ahhpjQ2+gNhyX9O8eqGj6X9aW75Qxjivy+fJI=; h=From:To:Cc:Subject:Date:References:From:Subject; b=SLEw3G++FNh0kPjXzuan4LwO2i01vbkRBoDqndEhtmDcPKRhk0s2V6C4C8si9aUSzW+IrZgOxoKIXi8WIRUqCWoPo36Qc0zXW0Qkc33Dotqdi9h1fHLxpp+4mXLPfVg0JRYD0pXQ7i3Iycv2Hsr2sZwJSsXeVzlOsPWcyzmNHZ1yZGA+MprX3d0aWianpgk61kpE5wEL6EwbNxRinPzJLKkkVYwtH2bxrTLlZZxEiudnCPkHpbTlD3dO46Y2Cs9O3AZ8wFBJGCEbGpUnePgG+HF0DMS3Ofk5fPgIvl8g64yAXmiS0ktCnGAf9HtqgqbQMKCefKaJB98w4OhIB8HgFA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1602533972; bh=1Lf3x05M0fbH4CToqiG9JTLnvr8GDMlR/ict3+/d8xK=; h=From:To:Subject:Date; b=Mvh+XMduX7SwaHkwASWmkWUfLK0CQTAmlyL/dxMyqxMVAydvVIETNmxEUuPKJA+7ZnKahW3Zj4dzETJNSLq1l+w7q9z4PLmZfruVeqXxArA2wbZCz799RUGqQiGf3FY5llXlzy5wXZBT9gBKBHCuJJRsU0NB78qS2o/yAd2WkN6ORo5yVAZrOX84y8FTCXfNI85L1cFMXG8+XoHuHjvwlZEGUBfNufhkRKKK4uq5bvXzxsJDxYsU9QBM9bOJsQ753IxHD/u3kByG+kj58Wj9SrTcTG2Ux9F1emH+/UGdRVULNl8qWc3iLA12x7/koPd9GMBZLkwMU31GG6nOhwKzOQ==
+X-YMail-OSG: H8.5ZxsVM1mQbAcayJfB0CeBoTuwhjAGmk.z_Ohp.QTcPF8tggwz0tBgj7FixvB
+ A3cXmhbkZHqhsc4qsUf1jRBobqKu9v4oOpR_0vbUCE.6qyy0hLRJSiWIbI_iE38o4UbRW9Lhgh.o
+ IKKzEULt1hhmo3TU0kU9HZJKF2NxmUheEI_hczcf7V2o12naGcJjaQNEKK2cy.EXiR.QNBXUYcpN
+ 1f5sGZ4FVXmKNLVKy_6KyBJhTgJcTyH3_HMuwCpeXC5TEd_TpJF1GKthPs608ZRV93KOt5qd_810
+ z4xUsBFro52xrtaGx6BJecMyuFV6DCZegDNpCO1bh93kLkee9n21RN9DZNQMlQCTV0AjruAgjXA5
+ VnAIHA5CA0_qBo7Va7Rt.sMeDKRz14Nuxh1FO6ifQFgX8r5ARRkYF9j_ABcJp5VAgpiAZ0uTzokK
+ UuzH3__EnY3T9bzX22b1zv1bv4FPPf0foGRuqJPdmCSQaWc3ydKPPH8JWiisjJllq4CiqJ8l0Bwp
+ 1qToOwA_t7H1B8O_459Kd5oFuRajWTZf4c4a.jj3K2ww.jgxCAJzSGLfHTVd5dp4AKmFgOfCIhag
+ U2DNi5PbJ.Bx8PTfwPXa0QJrBq.o9ui67s.PGjEppOvZ_OW7fS4AI623itVnARohs0JXYJXoo4hA
+ bswEyfNNyhFjt1sKr49kUV2Afm5XSjYO_8pSqARHBANhIt.Un3V1vtaEZZPKfMBINHnVr23WHyip
+ YN34fS6WsEUEBFbn.ZOED_c1yKlHOVc32z_LwORRLMETBxm9nyB6tLnkOt_2hjFddUTSqP8SktFj
+ o97seMBiEKGt4jptzWSpDNhJ9FS4Jv1GQXzdVWFpoHd0NKQ8c2G7qPMZQoCWU2FcLEDaD9FNLP03
+ dINjxebBku13V9viRvOwUkWdr.ikALAOxmSrXp8WNvh8JxwJs_ytY95zeB6u0ml3Lobrhbu5tE3f
+ IAeLNycvG0h1DKhMz7kP_Cn.R9v7TT4DfpB76N9JL8Ju2vCzck94wEgx7m5Iv6yxnDzKb48qqeVA
+ 4WcLVlTbzVKqxRn2HwfiJrYgXRabqFKVYQZShnmce5QkFRa.VBe9aUhqQLxdUixXcoiE1om5AA36
+ 44_yZxBTuZaBiNVLqwRSL1RMsZar0G1AAFRvzKQOhsm2PdY6itPxUeIpkkHSul3dBt9Ycn20qipC
+ icVhWc9C0BtLSCIa3gFB1.FPZXS1tGQ56rvDdMN1qALUPJlDBXCLvtvneS7GV.7sV1KklzCbRtgy
+ fqXwU06FSdwQJoEdzBROqoyd19cT3TxCTB6ia4bz2ff2sqO_KDJjM8vx2yJcEJx.94nY2i2BHZfX
+ rKzS_Hukd6e4MQhTBMRxvptVIkTTQ1XJ6dmu5eI90GISNFM1Pf_E1ks.pS2EPhxlD4rAVNFSW.QE
+ PFFmE5v_LRyNWaL_kqlYSNrKbU9TXLhCqHpE0UkNrgIbyfOzsbPZNBBYXGPw1ioN48B3HJ4C1k8E
+ knbh1E2W2C5LtVOZzwG1LJZqDkV_SyAc9KaP1bwgdWTQzsPDkRyA.LRnadvcEEIusFsHI0Kxlvlu
+ hxi2SFzfSrgHSkEgW0ZGdRZE-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Mon, 12 Oct 2020 20:19:32 +0000
+Received: by smtp414.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 04485177919a3ecad1f74d40d8424cc2;
+          Mon, 12 Oct 2020 20:19:30 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov
+Subject: [PATCH v21 00/23] LSM: Module stacking for AppArmor
+Date:   Mon, 12 Oct 2020 13:19:01 -0700
+Message-Id: <20201012201924.71463-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+References: <20201012201924.71463-1-casey.ref@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add TOC and tidy up formatting.
+This patchset provides the changes required for
+the AppArmor security module to stack safely with any other.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+v21: Rebase to 5.9-rc4
+     Incorporate feedback from v20
+     - Further revert UDS SO_PEERSEC to use scaffolding around
+       the interfaces that use lsmblobs and store only a single
+       secid. The possibility of multiple security modules
+       requiring data here is still a future problem.
+     - Incorporate Richard Guy Briggs' non-syscall auxiliary
+       records patch (patch 0019-0021) in place of my "supplimental"
+       records implementation. [I'm not sure I've given proper
+       attestation. I will correct as appropriate]
+v20: Rebase to 5.9-rc1
+     Change the BPF security module to use the lsmblob data. (patch 0002)
+     Repair length logic in subject label processing (patch 0015)
+     Handle -EINVAL from the empty BPF setprocattr hook (patch 0020)
+     Correct length processing in append_ctx() (patch 0022)
+v19: Rebase to 5.8-rc6
+     Incorporate feedback from v18
+     - Revert UDS SO_PEERSEC implementation to use lsmblobs
+       directly, rather than allocating as needed. The correct
+       treatment of out-of-memory conditions in the later case
+       is difficult to define. (patch 0005)
+     - Use a size_t in append_ctx() (patch 0021)
+     - Fix a memory leak when creating compound contexts. (patch 0021)
+     Fix build error when CONFIG_SECURITY isn't set (patch 0013)
+     Fix build error when CONFIG_SECURITY isn't set (patch 0020)
+     Fix build error when CONFIG_SECURITY isn't set (patch 0021)
+
+v18: Rebase to 5.8-rc3
+     Incorporate feedback from v17
+     - Null pointer checking in UDS (patch 0005)
+     Match changes in IMA code (patch 0012)
+     Fix the behavior of LSM context supplimental audit
+     records so that there's always exactly one when it's
+     appropriate for there to be one. This is a substantial
+     change that requires extention of the audit_context beyond
+     syscall events. (patch 0020)
+
+v17: Rebase to 5.7-rc4
+
+v16: Rebase to 5.6
+     Incorporate feedback from v15 - Thanks Stephen, Mimi and Paul
+     - Generally improve commit messages WRT scaffolding
+     - Comment ima_lsm_isset() (patch 0002)
+     - Some question may remain on IMA warning (patch 0002)
+     - Mark lsm_slot as __lsm_ro_after_init not __init_data (patch 0002)
+     - Change name of lsmblob variable in ima_match_rules() (patch 0003)
+     - Instead of putting a struct lsmblob into the unix_skb_parms
+       structure put a pointer to an allocated instance. There is
+       currently only space for 5 u32's in unix_skb_parms and it is
+       likely to get even tighter. Fortunately, the lifecycle
+       management of the allocated lsmblob is simple. (patch 0005)
+     - Dropped Acks due to the above change (patch 0005)
+     - Improved commentary on secmark labeling scaffolding. (patch 0006)
+     - Reduced secmark related labeling scaffolding. (patch 0006)
+     - Replace use of the zeroth entry of an lsmblob in scaffolding
+       with a function lsmblob_value() to hopefully make it less
+       obscure. (patch 0006)
+     - Convert security_secmark_relabel_packet to use lsmblob as
+       this reduces much of the most contentious scaffolding. (patch 0006)
+     - Dropped Acks due to the above change (patch 0006)
+     - Added BUILD_BUG_ON() for CIPSO tag 6. (patch 0018)
+     - Reworked audit subject information. Instead of adding fields in
+       the middle of existing records add a new record to the event. When
+       a separate record is required use subj="?". (patch 0020)
+     - Dropped Acks due to the above change (patch 0020)
+     - Reworked audit object information. Instead of adding fields in
+       the middle of existing records add a new record to the event. When
+       a separate record is required use obj="?". (patch 0021)
+     - Dropped Acks due to the above change (patch 0021)
+     - Enhanced documentation (patch 0022)
+     - Removed unnecessary error code check in security_getprocattr()
+       (patch 0021)
+
+v15: Rebase to 5.6-rc1
+     - Revise IMA data use (patch 0002)
+     Incorporate feedback from v14
+     - Fix lockdown module registration naming (patch 0002)
+     - Revise how /proc/self/attr/context is gathered. (patch 0022)
+     - Revise access modes on /proc/self/attr/context. (patch 0022)
+     - Revise documentation on LSM external interfaces. (patch 0022)
+
+v14: Rebase to 5.5-rc5
+     Incorporate feedback from v13
+     - Use an array of audit rules (patch 0002)
+     - Significant change, removed Acks (patch 0002)
+     - Remove unneeded include (patch 0013)
+     - Use context.len correctly (patch 0015)
+     - Reorder code to be more sensible (patch 0016)
+     - Drop SO_PEERCONTEXT as it's not needed yet (patch 0023)
+
+v13: Rebase to 5.5-rc2
+     Incorporate feedback from v12
+     - Print lsmblob size with %z (Patch 0002)
+     - Convert lockdown LSM initialization. (Patch 0002)
+     - Restore error check in nft_secmark_compute_secid (Patch 0006)
+     - Correct blob scaffolding in ima_must_appraise() (Patch 0009)
+     - Make security_setprocattr() clearer (Patch 0013)
+     - Use lsm_task_display more widely (Patch 0013)
+     - Use passed size in lsmcontext_init() (Patch 0014)
+     - Don't add a smack_release_secctx() hook (Patch 0014)
+     - Don't print warning in security_release_secctx() (Patch 0014)
+     - Don't duplicate the label in nfs4_label_init_security() (Patch 0016)
+     - Remove reviewed-by as code has significant change (Patch 0016)
+     - Send the entire lsmblob for Tag 6 (Patch 0019)
+     - Fix description of socket_getpeersec_stream parameters (Patch 0023)
+     - Retain LSMBLOB_FIRST. What was I thinking? (Patch 0023)
+     - Add compound context to LSM documentation (Patch 0023)
+
+v12: Rebase to 5.5-rc1
+     Fixed a couple of incorrect contractions in the text.
+
+v11: Rebase to 5.4-rc6
+     Incorporate feedback from v10
+     - Disambiguate reading /proc/.../attr/display by restricting
+       all use of the interface to the current process.
+     - Fix a merge error in AppArmor's display attribute check
+
+v10: Ask the security modules if the display can be changed.
+
+v9: There is no version 9
+
+v8: Incorporate feedback from v7
+    - Minor clean-up in display value management
+    - refactor "compound" context creation to use a common
+      append_ctx() function.
+
+v7: Incorporate feedback from v6
+    - Make setting the display a privileged operation. The
+      availability of compound contexts reduces the need for
+      setting the display.
+
+v6: Incorporate feedback from v5
+    - Add subj_<lsm>= and obj_<lsm>= fields to audit records
+    - Add /proc/.../attr/context to get the full context in
+      lsmname\0value\0... format as suggested by Simon McVittie
+    - Add SO_PEERCONTEXT for getsockopt() to get the full context
+      in the same format, also suggested by Simon McVittie.
+    - Add /sys/kernel/security/lsm_display_default to provide
+      the display default value.
+
+v5: Incorporate feedback from v4
+    - Initialize the lsmcontext in security_secid_to_secctx()
+    - Clear the lsmcontext in all security_release_secctx() cases
+    - Don't use the "display" on strictly internal context
+      interfaces.
+    - The SELinux binder hooks check for cases where the context
+      "display" isn't compatible with SELinux.
+
+v4: Incorporate feedback from v3
+    - Mark new lsm_<blob>_alloc functions static
+    - Replace the lsm and slot fields of the security_hook_list
+      with a pointer to a LSM allocated lsm_id structure. The
+      LSM identifies if it needs a slot explicitly. Use the
+      lsm_id rather than make security_add_hooks return the
+      slot value.
+    - Validate slot values used in security.c
+    - Reworked the "display" process attribute handling so that
+      it works right and doesn't use goofy list processing.
+    - fix display value check in dentry_init_security
+    - Replace audit_log of secids with '?' instead of deleting
+      the audit log
+
+v3: Incorporate feedback from v2
+    - Make lsmblob parameter and variable names more
+      meaningful, changing "le" and "l" to "blob".
+    - Improve consistency of constant naming.
+    - Do more sanity checking during LSM initialization.
+    - Be a bit clearer about what is temporary scaffolding.
+    - Rather than clutter security_getpeersec_dgram with
+      otherwise unnecessary checks remove the apparmor
+      stub, which does nothing useful.
+
+Patch 0001 moves management of the sock security blob
+from the individual modules to the infrastructure.
+
+Patches 0002-0011 replace system use of a "secid" with
+a structure "lsmblob" containing information from the
+security modules to be held and reused later. At this
+point lsmblob contains an array of u32 secids, one "slot"
+for each of the security modules compiled into the
+kernel that used secids. A "slot" is allocated when
+a security module requests one.
+The infrastructure is changed to use the slot number
+to pass the correct secid to or from the security module
+hooks.
+
+It is important that the lsmblob be a fixed size entity
+that does not have to be allocated. Several of the places
+where it is used would have performance and/or locking
+issues with dynamic allocation.
+
+Patch 0012 provides a mechanism for a process to
+identify which security module's hooks should be used
+when displaying or converting a security context string.
+A new interface /proc/self/attr/display contains the name
+of the security module to show. Reading from this file
+will present the name of the module, while writing to
+it will set the value. Only names of active security
+modules are accepted. Internally, the name is translated
+to the appropriate "slot" number for the module which
+is then stored in the task security blob. Setting the
+display requires that all modules using the /proc interfaces
+allow the transition. The "display" of other processess
+can be neither read nor written. All suggested cases
+for reading the display of a different process have race
+conditions.
+
+Patch 0013 Starts the process of changing how a security
+context is represented. Since it is possible for a
+security context to have been generated by more than one
+security module it is now necessary to note which module
+created a security context so that the correct "release"
+hook can be called. There are several places where the
+module that created a security context cannot be inferred.
+
+This is achieved by introducing a "lsmcontext" structure
+which contains the context string, its length and the
+"slot" number of the security module that created it.
+The security_release_secctx() interface is changed,
+replacing the (string,len) pointer pair with a lsmcontext
+pointer.
+
+Patches 0014-0016 convert the security interfaces from
+(string,len) pointer pairs to a lsmcontext pointer.
+The slot number identifying the creating module is
+added by the infrastructure. Where the security context
+is stored for extended periods the data type is changed.
+
+The Netlabel code is converted to save lsmblob structures
+instead of secids in Patch 0017. This is not strictly
+necessary as there can only be one security module that
+uses Netlabel at this point. Using a lsmblob is much
+cleaner, as the interfaces that use the data have all
+been converted.
+
+Patch 0018 adds checks to the binder hooks which verify
+that both ends of a transaction use the same "display".
+
+Patches 0019-0021 add addition audit records for subject
+and object LSM data when there are multiple security modules
+with such data. The AUDIT_MAC_TASK_CONTEXTS record is
+used in conjuction with a "subj=?" field to identify the
+subject data. The AUDIT_MAC_OBJ_CONTEXTS record is used in
+conjuction with a "obj=?" field to identify the object data.
+The AUDIT_MAC_TASK_CONTEXTS record identifies the security
+module with the data: "subj_selinux=xyz_t subj_apparmor=abc".
+The AUDIT_MAC_OBJ_CONTEXTS record identifies the security
+module with the data: "obj_selinux=xyz_t obj_apparmor=abc".
+While AUDIT_MAC_TASK_CONTEXTS records will always contain
+an entry for each possible security modules, AUDIT_MAC_OBJ_CONTEXTS
+records will only contain entries for security modules for
+which the object in question has data.
+
+An example of the MAC_TASK_CONTEXTS (1420) record is:
+
+    type=UNKNOWN[1420]
+    msg=audit(1600880931.832:113)
+    subj_apparmor==unconfined
+    subj_smack=_
+
+An example of the MAC_OBJ_CONTEXTS (1421) record is:
+
+    type=UNKNOWN[1421] 
+    msg=audit(1601152467.009:1050):
+    obj_selinux=unconfined_u:object_r:user_home_t:s0
+
+Patch 0022 adds a new interface for getting the
+compound security contexts, /proc/self/attr/context.
+An example of the content of this file is:
+
+    selinux\0one_u:one_r:one_t:s0-s0:c0.c1023\0apparmor\0unconfined\0
+
+Finally, with all interference on the AppArmor hooks
+removed, Patch 0023 removes the exclusive bit from
+AppArmor. An unnecessary stub hook was also removed.
+
+The Ubuntu project is using an earlier version of
+this patchset in their distribution to enable stacking
+for containers.
+
+Performance measurements to date have the change
+within the "noise". The sockperf and dbench results
+are on the order of 0.2% to 0.8% difference, with
+better performance being as common as worse. The
+benchmarks were run with AppArmor and Smack on Ubuntu.
+
+https://github.com/cschaufler/lsm-stacking.git#stack-5.9-rc4-v21
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- src/policy_store_config_files.md | 432 +++++++++++++++++--------------
- 1 file changed, 234 insertions(+), 198 deletions(-)
-
-diff --git a/src/policy_store_config_files.md b/src/policy_store_config_files.md
-index 3e7f8ab..93d3727 100644
---- a/src/policy_store_config_files.md
-+++ b/src/policy_store_config_files.md
-@@ -1,23 +1,47 @@
- # Policy Store Configuration Files
- 
--**NOTE: Files in this area are private and subject to change, they should only
--be modified using the** ***semodule**(8)* and ***semanage**(8)* commands.
-+- [*active/modules* Directory Contents](#activemodules-directory-contents)
-+  - [*tmp* Policy Store (build failure)](#tmp-policy-store-build-failure)
-+- [*active/commit_num*](#activecommit_num)
-+  - [*active/policy.kern*](#activepolicy.kern)
-+- [*active/policy.linked*](#activepolicy.linked)
-+- [*active/seusers.linked*](#activeseusers.linked)
-+- [*active/seusers_extra.linked*](#activeseusers_extra.linked)
-+- [*active/booleans.local*](#activebooleans.local)
-+- [*disable_dontaudit*](#disable_dontaudit)
-+- [*active/file_contexts*](#activefile_contexts)
-+  - [Building the File Labeling Support Files](#building-the-file-labeling-support-files)
-+- [*active/file_contexts.local*](#activefile_contexts.local)
-+- [*active/homedir_template*](#activehomedir_template)
-+  - [*active/file_contexts.homedirs*](#activefile_contexts.homedirs)
-+- [*active/seusers*](#activeseusers)
-+- [*active/seusers.local*](#activeseusers.local)
-+- [*active/users_extra*](#activeusers_extra)
-+- [*active/users_extra.local*](#activeusers_extra.local)
-+- [*active/users.local*](#activeusers.local)
-+- [*active/interfaces.local*](#activeinterfaces.local)
-+- [*active/nodes.local*](#activenodes.local)
-+- [*active/ports.local*](#activeports.local)
-+- [Set domain permissive mode](#set-domain-permissive-mode)
-+
-+**NOTE:** Files in this area are private and subject to change, they should only
-+be modified using the ***semodule**(8)* and ***semanage**(8)* commands.
- 
- Depending on the SELinux userspace library release being used the default
- policy stores will be located at:
- 
---   */etc/selinux/&lt;SELINUXTYPE&gt;/modules* - This is the default for
--    systems that support versions &lt; 2.4 of the SELinux userspace library.
--    The migration process to &gt;= 2.4 is described at
--    <https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration>.
---   */var/lib/selinux* - This is the default base for systems that
--    support versions &gt;= 2.4 of the SELinux userspace library. This base
--    may be overridden by the ***store-root*** parameter defined in the
--    [***semanage.conf**(5)*](global_config_files.md#etcselinuxsemanage.conf)
--    file. Multiple policy stores are supported by appending the
--    *&lt;SELINUXTYPE&gt;*, for example:
---   */var/lib/selinux/mls*
---   */var/lib/selinux/targeted*
-+- */etc/selinux/\<SELINUXTYPE\>/modules* - This is the default for
-+  systems that support versions \< 2.4 of the SELinux userspace library.
-+  The migration process to \>= 2.4 is described at
-+  <https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration>.
-+- */var/lib/selinux* - This is the default base for systems that
-+  support versions \>= 2.4 of the SELinux userspace library. This base
-+  may be overridden by the ***store-root*** parameter defined in the
-+  [***semanage.conf**(5)*](global_config_files.md#etcselinuxsemanage.conf)
-+  file. Multiple policy stores are supported by appending the
-+  *\<SELINUXTYPE\>*, for example:
-+  - */var/lib/selinux/mls*
-+  - */var/lib/selinux/targeted*
- 
- The Policy Store files are either installed, updated or built by the
- ***semodule**(8)* and ***semanage**(8)* commands as a part of the build
-@@ -25,34 +49,35 @@ process with the resulting files being copied over to the
- [**The Policy Store**](configuration_files.md#the-policy-store) area.
- 
- The policy configuration files are described relative to the default
--***store-root*** at */var/lib/selinux* with *&lt;SELINUXTYPE&gt;* being
-+***store-root*** at */var/lib/selinux* with *\<SELINUXTYPE\>* being
- *targeted*.
- 
- The ***semanage**(8)* command must be used to configure policy (the actual
- policy and supporting configuration files) within a specific **Policy Store**.
- The command types are:
---   [***semanage boolean***](#activebooleans.local) Manage booleans to
--    selectively enable functionality
---   [***semanage dontaudit***](#disable_dontaudit) Disable/Enable *dontaudit*
--    rules in policy
---   ***semanage export*** Output local customizations
---   [***semanage fcontext***](#activefile_contexts.local) Manage file context
--    mapping definitions
---   ***semanage ibendport*** Manage infiniband end port type definitions
---   ***semanage ibpkey*** Manage infiniband pkey type definitions
---   ***semanage import*** Import local customizations
---   [***semanage interface***](#activeinterfaces.local) Manage network interface
--    type definitions
---   [***semanage login***](#activeseusers.local) Manage login mappings between
--    linux users and SELinux confined users
---   [***semanage module***](#activemodules-directory-contents) Manage SELinux
--    policy modules
---   [***semanage node***](#activenodes.local) Manage network node type definitions
---   [***semanage permissive***](#set-domain-permissive-mode) Manage process
--    type enforcement mode.
---   [***semanage port***](#activeports.local) Manage network port type definitions
---   [***semanage user***](#activeusers.local) Manage  SELinux confined users
--(Roles and levels for an SELinux user)
-+
-+- [***semanage boolean***](#activebooleans.local) Manage booleans to
-+  selectively enable functionality
-+- [***semanage dontaudit***](#disable_dontaudit) Disable/Enable *dontaudit*
-+  rules in policy
-+- ***semanage export*** Output local customizations
-+- [***semanage fcontext***](#activefile_contexts.local) Manage file context
-+  mapping definitions
-+- ***semanage ibendport*** Manage infiniband end port type definitions
-+- ***semanage ibpkey*** Manage infiniband pkey type definitions
-+- ***semanage import*** Import local customizations
-+- [***semanage interface***](#activeinterfaces.local) Manage network interface
-+  type definitions
-+- [***semanage login***](#activeseusers.local) Manage login mappings between
-+  linux users and SELinux confined users
-+- [***semanage module***](#activemodules-directory-contents) Manage SELinux
-+  policy modules
-+- [***semanage node***](#activenodes.local) Manage network node type definitions
-+- [***semanage permissive***](#set-domain-permissive-mode) Manage process
-+  type enforcement mode.
-+- [***semanage port***](#activeports.local) Manage network port type definitions
-+- [***semanage user***](#activeusers.local) Manage SELinux confined users
-+  (Roles and levels for an SELinux user)
- 
- ## active/modules Directory Contents
- 
-@@ -84,8 +109,8 @@ test_policy               400       pp
- 
- ### *tmp* Policy Store (build failure)
- 
--When adding/updating a policy module and it fails to  build for some reason,
--the *tmp* directory (*/var/lib/selinux&lt;SELINUXTYPE&gt;/tmp*) will contain
-+When adding/updating a policy module and it fails to build for some reason,
-+the *tmp* directory (*/var/lib/selinux\<SELINUXTYPE\>/tmp*) will contain
- a copy of the failed policy for inspection. An example ***semodule*** failure
- message indicating the failing line number is:
- 
-@@ -103,7 +128,7 @@ store. The format is not relevant to policy construction.
- This is the binary policy file built by either the ***semanage**(8)* or
- ***semodule**(8)* commands (depending on the configuration action), that
- is then becomes the
--*/etc/selinux/&lt;SELINUXTYPE&gt;/policy/policy.&lt;ver&gt;* binary policy
-+*/etc/selinux/\<SELINUXTYPE\>/policy/policy.\<ver\>* binary policy
- that will be loaded into the kernel.
- 
- ## *active/policy.linked*
-@@ -145,7 +170,7 @@ such as ***audit2allow**(8)* to list all denials to assist debugging policy.
- ## *active/file_contexts*
- 
- This file becomes the policy
--[*/etc/selinux/&lt;SELINUXTYPE&gt;/contexts/files/file_contexts*](policy_config_files.md#contextsfilesfile_contexts)
-+[*/etc/selinux/\<SELINUXTYPE\>/contexts/files/file_contexts*](policy_config_files.md#contextsfilesfile_contexts)
-  file. It is built as described in the
- [**Building the File Labeling Support Files**](#building-the-file-labeling-support-files)
- section.
-@@ -210,18 +235,18 @@ section.
- The process used to build the *file_contexts* and the *file_contexts.template*
- files is shown in **Figure 25: File Context Configuration Files**.
- 
--1.  They are built by ***semanage**(8)*  using entries from the 'Policy File
--    Labeling' statements extracted from the
--    [*active/modules*](#activemodules-directory-contents) entries
--    (the *&lt;module_name&gt;.fc* files, this will include any CIL *(filecon ....)*
--    statements that are within CIL policy files).
--2.  As a part of the ***semanage**(8)* build process, these two files
--    will also have *file_contexts.bin* and *file_contexts.homedirs.bin*
--    files present in the
--    [Policy Configuration Files](policy_config_files.md#contextsfilesfile_contexts)
--    *./contexts/files* directory. This is because ***semanage**(8)* requires
--    these in the Perl compatible regular expression (PCRE) internal format.
--    They are generated by the ***sefcontext_compile**(8)* utility.
-+1. They are built by ***semanage**(8)* using entries from the 'Policy File
-+   Labeling' statements extracted from the
-+   [*active/modules*](#activemodules-directory-contents) entries
-+   (the *\<module_name\>.fc* files, this will include any CIL *(filecon ....)*
-+   statements that are within CIL policy files).
-+2. As a part of the ***semanage**(8)* build process, these two files
-+   will also have *file_contexts.bin* and *file_contexts.homedirs.bin*
-+   files present in the
-+   [Policy Configuration Files](policy_config_files.md#contextsfilesfile_contexts)
-+   *./contexts/files* directory. This is because ***semanage**(8)* requires
-+   these in the Perl compatible regular expression (PCRE) internal format.
-+   They are generated by the ***sefcontext_compile**(8)* utility.
- 
- ![](./images/25-file_contexts.png)
- 
-@@ -237,66 +262,82 @@ pathname_regexp [file_type] security_context | <<none>>
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>pathname_regexp</code></td>
--<td><p>An entry that defines the pathname that may be in the form of a regular expression.</p>
--<p>The metacharacters '^' (match beginning of line) and '$' (match end of line) are automatically added to the expression by the routines that process this file, however they can be over-ridden by using '.*' at either the beginning or end of the expression (see the example <em>file_contexts</em> files below). </p>
--<p>The source policy <em>*.fc</em> and f<em>ile_contexts.template</em> files may also contain the keywords HOME_ROOT, HOME_DIR, ROLE and USER that will be replaced as explained in the next table.</p></td>
--</tr>
--<tr>
--<td><code>file_type</code></td>
--<td><p>One of the following optional file_type entries (note if blank means "all file types"):</p>
--<p>'<em>-b</em>' - Block Device         '<em>-c</em>' - Character Device</p>
--<p>'<em>-d</em>' - Directory               '<em>-p</em>' - Named Pipe (FIFO)</p>
--<p>'<em>-l</em>' - Symbolic Link      '<em>-s</em>' - Socket File</p>
--<p>'<em>--</em>' - Ordinary file</p>
--<p>By convention this entry is known as 'file type', however it really represents the 'file object class'.</p></td>
--</tr>
--<tr>
--<td><code>security_context</code></td>
--<td>This entry can be either:
--<p>a. The security context, including the MLS / MCS level or range if applicable that will be assigned to the file.</p>
--<p>b. A value of &lt;&lt;none&gt;&gt; can be used to indicate that matching files should not be re-labeled.</p></td>
--</tr>
--</tbody>
--</table>
--
--Keywords that can be in policy source \*.fc files and then form the *file_contexts.template* file entries are:
--
--<table>
--<tbody>
--<tr>
--<td>HOME_ROOT</td>
--<td>This keyword is replaced by the Linux users root home directory, normally <em>/home</em> is the default.</td>
--</tr>
--<tr>
--<td>HOME_DIR</td>
--<td>This keyword is replaced by the Linux users home directory, normally <em>/home/</em> is the default.</td>
--</tr>
--<tr>
--<td>USER</td>
--<td>This keyword will be replaced by the users Linux user id.</td>
--</tr>
--<tr>
--<td>ROLE</td>
--<td><p>This keyword is replaced by the <code>prefix</code> entry from the users_extra configuration file that corresponds to the SELinux users user id. Example users_extra configuration file entries are:</p>
--<p><code>user user_u  prefix user;</code></p>
--<p><code>user staff_u prefix staff;</code></p>
--<p>It is used for files and directories within the users home directory area. </p>
--<p>The prefix can be added by the semanage <em>login</em> command as follows (although note that the <em>-P</em> option is suppressed when help is displayed as it is generally it is not used (defaults to <em>user</em>:</p>
--<p># Add a Linux user:</p>
--<p><code>adduser rch</code></p>
--<p># Modify staff_u SELinux user and prefix:</p>
--<p><code>semanage user -m -R staff_r -P staff staff_u</code></p>
--<p># Associate the SELinux user to the Linux user:</p>
--<p><code>semanage login -a -s staff_u rch</code></p></td>
--</tr>
--</tbody>
--</table>
--
--**Example policy source file from Reference Policy** *policy/modules/system/userdomain.fc*:
-+*pathname_regexp*
-+
-+- An entry that defines the pathname that may be in the form of a regular
-+  expression. The metacharacters '^' (match beginning of line) and '\$'
-+  (match end of line) are automatically added to the expression by the
-+  routines that process this file, however they can be over-ridden by
-+  using '\.\*' at either the beginning or end of the expression (see the
-+  example *file_contexts* files below).
-+- The source policy *\*.fc* and *file_contexts.template* files may also
-+  contain the keywords *HOME_ROOT*, *HOME_DIR*, *ROLE* and *USER* that will
-+  be replaced as explained in the next table.
-+
-+*file_type*
-+
-+- One of the following optional file_type entries (note if blank means
-+  "all file types"):
-+  - *-b* - Block Device
-+  - *-c* - Character Device
-+  - *-d* - Directory
-+  - *-p* - Named Pipe (FIFO)
-+  - *-l* - Symbolic Link
-+  - *-s* - Socket File
-+  - *\-\-* - Ordinary file
-+- By convention this entry is known as *file type*, however it really
-+  represents the 'file object class'.
-+
-+*security_context*
-+
-+- This entry can be either:
-+  - The security context, including the MLS / MCS level or range if applicable
-+    that will be assigned to the file.
-+  - A value of \<\<none\>\> can be used to indicate that matching files should
-+    not be re-labeled.
-+
-+Keywords that can be in policy source \*.fc files and then form the
-+*file_contexts.template* file entries are:
-+
-+*HOME_ROOT*
-+
-+- This keyword is replaced by the Linux users root home directory,
-+  normally */home* is the default.
-+
-+*HOME_DIR*
-+
-+- This keyword is replaced by the Linux users home directory,
-+  normally */home/* is the default.
-+
-+*USER*
-+
-+- This keyword will be replaced by the users Linux user id.
-+
-+*ROLE*
-+
-+- This keyword is replaced by the *prefix* entry from the *users_extra*
-+  configuration file that corresponds to the SELinux users user id. Example
-+  *users_extra* configuration file entries are:
-+  - *user user_u prefix user;*
-+  - *user staff_u prefix staff;*
-+- It is used for files and directories within the users home directory area.
-+  The prefix can be added by the semanage *login* command as follows
-+  (although note that the *-P* option is suppressed when help is displayed
-+  as it is generally it is not used (defaults to *user*)):
-+
-+```
-+# Add a Linux user:
-+
-+adduser rch
-+# Modify staff_u SELinux user and prefix:
-+semanage user -m -R staff_r -P staff staff_u
-+
-+# Associate the SELinux user to the Linux user:
-+semanage login -a -s staff_u rch
-+```
-+
-+**Example policy source file from Reference Policy**
-+*policy/modules/system/userdomain.fc*:
- 
- ```
- HOME_DIR	-d	gen_context(system_u:object_r:user_home_dir_t,s0-mls_systemhigh)
-@@ -309,7 +350,8 @@ HOME_DIR/.+		gen_context(system_u:object_r:user_home_t,s0)
- /root/\.debug(/.*)?	<<none>>
- ```
- 
--**Example policy source file from Reference Policy** *policy/modules/kernel/files.fc*:
-+**Example policy source file from Reference Policy**
-+*policy/modules/kernel/files.fc*:
- 
- ```
- #
-@@ -387,8 +429,8 @@ HOME_DIR/.+	system_u:object_r:user_home_t:s0
- ### *active/file_contexts.homedirs*
- 
- This file becomes the policy
--[*/etc/selinux/<SELINUXTYPE>/contexts/files/file_contexts.homedirs*](policy_config_files.md#contextsfilesfile_contexts.homedirs) file. It is built
--as described in the
-+[*/etc/selinux/\<SELINUXTYPE\>/contexts/files/file_contexts.homedirs*](policy_config_files.md#contextsfilesfile_contexts.homedirs)
-+file. It is built as described in the
- [**Building the File Labeling Support Files**](#building-the-file-labeling-support-files)
- section. It is then used by the file labeling utilities to ensure that users
- home directory areas are labeled according to the policy.
-@@ -419,32 +461,32 @@ libsepol library function.
- /home/[^/]+/.+	unconfined_u:object_r:user_home_t:s0
- ```
- 
--## active/seusers
--## active/seusers.local
-+## *active/seusers*
-+## *active/seusers.local*
- 
--The *active/seusers* file becomes the policy */etc/selinux/<SELINUXTYPE>/seusers*
-+The *active/seusers* file becomes the policy */etc/selinux/\<SELINUXTYPE\>/seusers*
- file, the *active/seusers.local* file holds entries added when adding users via
- ***semanage**(8)*.
- 
- The *seusers* file is built or modified when:
- 
--1.  Building a policy where an optional *seusers* file has been included
--    in the base package via the ***semodule_package**(8)* command
--    (signified by the *-s* flag) as follows:
---   *semodule_package -o base.pp -m base.mod -s seusers ...*
---   The *seusers* file would be extracted by the subsequent ***semodule*** command
--    when building the policy to produce the *seusers.final* file.
--2.  The ***semanage login*** command is used to map Linux users to
--    SELinux users as follows:
---   *semanage login -a -s staff_u rch*
---   This action will update the *seusers* file that would then be used to
--    produce the seusers.final file with both policy and locally defined user
--    mapping.
--3.  It is also possible to associate a Linux group of users to an
--    SELinux user as follows:
---   *semanage login -a -s staff_u %staff_group*
--
--**The format of the** *seusers* & *seusers.local* **files are as follows:**
-+1. Building a policy where an optional *seusers* file has been included
-+   in the base package via the ***semodule_package**(8)* command
-+   (signified by the *-s* flag) as follows:
-+   - *semodule_package -o base.pp -m base.mod -s seusers ...*
-+   - The *seusers* file would be extracted by the subsequent ***semodule***
-+     command when building the policy to produce the *seusers.final* file.
-+2. The ***semanage login*** command is used to map Linux users to
-+   SELinux users as follows:
-+   - *semanage login -a -s staff_u rch*
-+   - This action will update the *seusers* file that would then be used to
-+      produce the seusers.final file with both policy and locally defined user
-+      mapping.
-+3. It is also possible to associate a Linux group of users to an
-+   SELinux user as follows:
-+   - *semanage login -a -s staff_u %staff_group*
-+
-+**The format of the** *seusers* and *seusers.local* **files are as follows:**
- 
- ```
- [%]user_id:seuser_id[:range]
-@@ -452,22 +494,18 @@ The *seusers* file is built or modified when:
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td>user_id</td>
--<td>Where <em>user_id</em> is the Linux user identity. If this is a Linux <em>group_id</em> then it will be preceded with the '<em>%</em>' sign as shown in the example below.</td>
--</tr>
--<tr>
--<td>seuser_id</td>
--<td>The SELinux user identity.</td>
--</tr>
--<tr>
--<td>range</td>
--<td>The optional <em>level</em> or range.</td>
--</tr>
--</tbody>
--</table>
-+*user_id*
-+
-+- Where *user_id* is the Linux user identity. If this is a Linux *group_id*
-+  then it will be preceded with the '*%*' sign as shown in the example below.
-+
-+*seuser_id*
-+
-+- The SELinux user identity.
-+
-+*range*
-+
-+- The optional *level* or *range*.
- 
- **Example** *seusers* **file contents:**
- 
-@@ -510,32 +548,32 @@ rch:user_u:s0
- These three files work together to describe SELinux user information as
- follows:
- 
--1.  The *users_extra* and *users_extra.local* files are used to map a
--    *prefix* to a users home directories as discussed in the
--    [**Building the File Labeling Support Files**](#building-the-file-labeling-support-files)
--    section, where it is used to replace the *ROLE* keyword. The
--    *prefix* is linked to an SELinux user id and should reflect the users role.
---   The *users_extra* file contains all the policy *prefix* entries, and the
--    *users_extra.local* file contains those generated by the ***semanage user***
--    command.
---   The *users_extra* file can optionally be included in the base package via
--    the ***semodule_package**(8)* command (signified by the *-u* flag) as
--    follows:
---   *semodule_package -o base.pp -m base.mod -u users_extra ...*
---   The *users_extra* file would then be extracted by a subsequent semodule
--    command when building the policy.
--2.  The *users.local* file is used to add new SELinux users to the policy
--    without editing the policy source itself (with each line in the file
--    following a policy language
--    [**user Statement**](user_statements.md#user-statements)).
--    This is useful when only the Reference Policy headers are installed and
--    additional users need to be added. The ***semanage user*** command will allow
--    a new SELinux user to be added that would generate the *user.local* file
--    and if a *-P* flag has been specified, then a *users_extra.local* file is also
--    updated (note: if this is a new SELinux user and a prefix is not specified
--    a default *prefix* of user is generated).
--
--**The format of the** *users_extra* & *users_extra.local* **files are:**
-+1. The *users_extra* and *users_extra.local* files are used to map a
-+   *prefix* to a users home directories as discussed in the
-+   [**Building the File Labeling Support Files**](#building-the-file-labeling-support-files)
-+   section, where it is used to replace the *ROLE* keyword. The
-+   *prefix* is linked to an SELinux user id and should reflect the users role.
-+   - The *users_extra* file contains all the policy *prefix* entries, and the
-+     *users_extra.local* file contains those generated by the
-+     ***semanage user*** command.
-+   - The *users_extra* file can optionally be included in the base package via
-+     the ***semodule_package**(8)* command (signified by the *-u* flag) as
-+     follows:
-+   - *semodule_package -o base.pp -m base.mod -u users_extra ...*
-+   - The *users_extra* file would then be extracted by a subsequent semodule
-+   command when building the policy.
-+2. The *users.local* file is used to add new SELinux users to the policy
-+   without editing the policy source itself (with each line in the file
-+   following a policy language
-+   [**user Statement**](user_statements.md#user-statements)).
-+   This is useful when only the Reference Policy headers are installed and
-+   additional users need to be added. The ***semanage user*** command will allow
-+   a new SELinux user to be added that would generate the *user.local* file
-+   and if a *-P* flag has been specified, then a *users_extra.local* file is also
-+   updated (note: if this is a new SELinux user and a prefix is not specified
-+   a default *prefix* of user is generated).
-+
-+**The format of the** *users_extra* and *users_extra.local* **files are:**
- 
- ```
- user seuser_id prefix prefix_id;
-@@ -543,26 +581,24 @@ user seuser_id prefix prefix_id;
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td>user</td>
--<td>The user keyword.</td>
--</tr>
--<tr>
--<td>seuser_id</td>
--<td>The SELinux user identity.</td>
--</tr>
--<tr>
--<td>prefix</td>
--<td>The prefix keyword.</td>
--</tr>
--<tr>
--<td>prefix_id</td>
--<td>An identifier that will be used to replace the ROLE keyword within the active/homedir_template file when building the active/file_contexts.homedirs file for the relabeling utilities to set the security context on users home directories.</td>
--</tr>
--</tbody>
--</table>
-+*user*
-+
-+- The user keyword.
-+
-+*seuser_id*
-+
-+- The SELinux user identity.
-+
-+*prefix*
-+
-+- The prefix keyword.
-+
-+*prefix_id*
-+
-+- An identifier that will be used to replace the *ROLE* keyword within the
-+  *active/homedir_template* file when building the
-+  *active/file_contexts.homedirs* file for the relabeling utilities to set
-+  the security context on users home directories.
- 
- **Example** *users_extra* **file contents:**
- 
--- 
-2.26.2
-
