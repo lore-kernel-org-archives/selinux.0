@@ -2,107 +2,124 @@ Return-Path: <SRS0=npki=DT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57780C433DF
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 02:10:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78DE2C43457
+	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 09:40:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07E2F20782
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 02:10:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uFrh1lzr"
+	by mail.kernel.org (Postfix) with ESMTP id 3407A20776
+	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 09:40:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728314AbgJLCKS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 11 Oct 2020 22:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37166 "EHLO
+        id S1729400AbgJLJkK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Oct 2020 05:40:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727386AbgJLCJY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 11 Oct 2020 22:09:24 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3079AC0613D1
-        for <selinux@vger.kernel.org>; Sun, 11 Oct 2020 19:09:24 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id a3so20953653ejy.11
-        for <selinux@vger.kernel.org>; Sun, 11 Oct 2020 19:09:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AK2bWzHz5KjOV6B+R5X2SLhKXSVJscVhCITZfEKF1hY=;
-        b=uFrh1lzryALn96VPKRBduZb3Uw2dS7GwoDmDor/yq4sltdj4FZMEe0Kz7zWWYkgsvZ
-         Bhk0XJiKrLAD9vM9R6Rp6oGNiAmOEBkfW2FHbS9htw4ttGMgoNiPjHbV82SaJQOh72n1
-         KOn0XHZV3yhQ5ML83+/WRHEK5fGEH2My0vKHk0vWBZcvp/We8Mi77DTEs0R36Uy8AS/q
-         j6qvKFbzpZ0Q5slqBpraYrzgMnWaci+4n4rLKl+4qMGdM1msS0I9pJxg6ZHb7zpBNGAx
-         fFoUIMSVQeSle6ceuXri4Gebr/dVtNHjJ5L0A+m6O9ky0R0lJJWu82TvgfOsprzdtiDv
-         1FRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AK2bWzHz5KjOV6B+R5X2SLhKXSVJscVhCITZfEKF1hY=;
-        b=VVMEpNNZ2RMXccGEWtp9iZxMEbZ4uEs8TNyAGIaleNgQszuFGccIcHKawghBJV4fwT
-         DDbYt7lScZ8FLKz+3Ju9loc5e2qeOGgH4iPd93PVEIjHZWDqaS8iNnImCuzMFrzAeoIc
-         aJk/UQYPMIttnmUyBsNWL8zBXdiCAgbBImU1dYbg+POzIgMiqEJo1l7ZubsnQQ7ZSDN+
-         pUAfxL1odAjAWxbrctsEqhHeILoOdtFAtC+rHo1VY6I/fR6KjGLdmDC2/g0tXp5Z1014
-         u1GO3TXV32jxqYGSHwTItWfbn7YjbwTVDzc6LeshXiQajIMHF3R8V+nomIMKOcmfR4UK
-         B4kA==
-X-Gm-Message-State: AOAM530msu7VhIWlhfUYUBfqp7CdUUG5NpJOHzJuRRCtMwaeGtYT1Owt
-        qMniM5PlYAS8r9gbFkEfoCZCbSvuI57l8gCICTcQ
-X-Google-Smtp-Source: ABdhPJxvp+jOMwz02L056HcUjWpx3NzOVbT79WBzEmzyJsbpZ9wPiEuXnLr6OVSinkWqQieYV8eSaJPP3ELMwP9kJIg=
-X-Received: by 2002:a17:906:ce5a:: with SMTP id se26mr25334590ejb.106.1602468562791;
- Sun, 11 Oct 2020 19:09:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
- <20200930094934.32144-4-richard_c_haines@btinternet.com> <20200930110153.GT3871@nataraja>
- <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com> <20200930133847.GD238904@nataraja>
-In-Reply-To: <20200930133847.GD238904@nataraja>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 11 Oct 2020 22:09:11 -0400
-Message-ID: <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
-Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
-To:     Harald Welte <laforge@gnumonks.org>, pablo@netfilter.org,
-        Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        with ESMTP id S1726104AbgJLJkK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Oct 2020 05:40:10 -0400
+Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [IPv6:2001:780:45:1d:225:90ff:fe52:c662])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A66C0613CE;
+        Mon, 12 Oct 2020 02:40:10 -0700 (PDT)
+Received: from uucp by ganesha.gnumonks.org with local-bsmtp (Exim 4.89)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1kRuJH-0002Xh-Vl; Mon, 12 Oct 2020 11:40:04 +0200
+Received: from laforge by localhost.localdomain with local (Exim 4.94)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1kRuI7-004DOg-CW; Mon, 12 Oct 2020 11:38:51 +0200
+Date:   Mon, 12 Oct 2020 11:38:51 +0200
+From:   Harald Welte <laforge@gnumonks.org>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     pablo@netfilter.org,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         James Morris <jmorris@namei.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
+Message-ID: <20201012093851.GF947663@nataraja>
+References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
+ <20200930094934.32144-4-richard_c_haines@btinternet.com>
+ <20200930110153.GT3871@nataraja>
+ <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com>
+ <20200930133847.GD238904@nataraja>
+ <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 9:39 AM Harald Welte <laforge@gnumonks.org> wrote:
-> Hi Richard,
->
-> On Wed, Sep 30, 2020 at 01:25:27PM +0100, Richard Haines wrote:
->
-> > As in the reply to Pablo, I did it for no particular reason other than
-> > idle curiosity, and given the attempted move to Open 5G I thought
-> > adding MAC support might be useful somewhere along the line.
->
-> ...
->
-> I think it would not be the best idea to merge SELinux support patches for the
-> GTP kernel driver without thoroughly understanding the use case, and/or having
-> some actual userspace implementations that make use of them.  In the end, we may
-> be introducing code that nobody uses, and which only turns out to be insufficient
-> for what later actual users may want.
->
-> So like Pablo suggested, it would probably be best to focus on
-> submitting / merging features for things that are either well-defined (e.g.
-> specified in a standerd), and/or have existing userspace implementations.
+Hi Paul,
 
-Having a solid use case or two is also helpful for those of us who
-don't have a GTP/GPRS background.  I did spend some time reading a few
-things on GTP, but I don't feel like I've made much of a dent on
-understanding how it is actually used.
+On Sun, Oct 11, 2020 at 10:09:11PM -0400, Paul Moore wrote:
+> Harald, Pablo - I know you both suggested taking a slow iterative
+> approach to merging functionality, perhaps you could also help those
+> of us on the SELinux side better understand some of the common GTP use
+> cases?
 
-Harald, Pablo - I know you both suggested taking a slow iterative
-approach to merging functionality, perhaps you could also help those
-of us on the SELinux side better understand some of the common GTP use
-cases?
+There really only is one use case for this code:  The GGSN or P-GW function
+in the 3GPP network architecture.  There are open source implementations
+like OsmoGGSN and (at least older/previos versions) of ergw, but also
+non-FOSS-but-shared-source (like OpenAirInterface) and proprietary
+software that use the existing kernel GTP for that.
+
+In a GGSN (2G/3G) or P-GW (4G), you have a control plane instance
+talking a control plane protocol GTP-C (GTPv1-C or GTPv2-C) with other
+elements in the network, such as the SGSN (2G/3G) or S-GW (4G)
+
+This control plane instance will then talk to the user plane instance
+(which is, in the case of the kernel GTP module, netlink) to crate PDP
+contexts (2G/3G) or "barers" (4G).
+
+Those PDP contexts / bearers are constantly being created, modified and
+torn down.  Creation happens at the time your modern phone attaches to
+the network (once you have "mobile data" enabled).  Modification happens
+when you start roaming around the country / coverage area as you change
+between larger regions.  Deletion happens once you disable "mobile data'
+or go into airplane mode.
+
+The kernel GTP "tun" device typically represents an "APN", i.e. one
+specific IP network your phones/modems want to attach to.  There could be
+multiple in parallel (e.g. public internet, private operator network for
+VoLTE, company-private networks).
+
+So you have one tun device per APN which is mostly static configuration,
+stable for months, years, ...  and then you have the hightly volatile
+PDP contexts / bearers within each of those APN.  That's why I was
+hinting from a security policy point of view, it makes sense to separate
+those two, as one only happens at system boot / application start time,
+and the other happens at any point during runtime of your GGSN/PGW.
+
+If you want to see how that looks on the wire, check the OsmoGGSN
+automatic test suite, where every test case generates a pcap file:
+overview at https://jenkins.osmocom.org/jenkins/view/TTCN3/job/ttcn3-ggsn-test/
+actual artefacts including per-test pcap files:
+https://jenkins.osmocom.org/jenkins/view/TTCN3/job/ttcn3-ggsn-test/lastSuccessfulBuild/artifact/logs/ggsn-tester/
+specifically, if you open
+https://jenkins.osmocom.org/jenkins/view/TTCN3/job/ttcn3-ggsn-test/lastSuccessfulBuild/artifact/logs/ggsn-tester/GGSN_Tests.TC_pdp6_act_deact_gtpu_access.pcap.gz
+in wirehark and filter on 'gtp', you will see the GTP-C traffic on udp
+port 2123, and the GTP-U traffic on UDP port 2152.  This second part is
+where you would use the kernel-GTP-U implementation to avoid the
+kernel-userspace-kernel roundtrip for every user IP packet.
+
+There are many other use cases for GTP in general in other network
+elements such as a S-GW (which basically acts as a proxy for GTP-U), but
+those are not implemented in the existing Linux kernel GTP module.
+
+I think OsmoGGSN is about the most simple to understand user out there,
+due to its very limited code size.  Check
+https://git.osmocom.org/osmo-ggsn/tree/lib/gtp-kernel.c for the libgtpnl
+interface and https://git.osmocom.org/osmo-ggsn/tree/ggsn/ggsn.c for the
+hearth of the logic, including the calls to the gtp_kernel_tunnel_*() API.
+
+Hope this helps,
+	Harald
 
 -- 
-paul moore
-www.paul-moore.com
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
+============================================================================
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
