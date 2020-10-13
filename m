@@ -2,123 +2,118 @@ Return-Path: <SRS0=hBaa=DU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56352C43457
-	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 16:38:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7617EC433DF
+	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 20:42:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 124D2252AF
-	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 16:38:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="RKTqQ+oO"
+	by mail.kernel.org (Postfix) with ESMTP id 213B920878
+	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 20:42:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727498AbgJMQi2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Oct 2020 12:38:28 -0400
-Received: from mailomta13-sa.btinternet.com ([213.120.69.19]:49493 "EHLO
-        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726942AbgJMQi1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Oct 2020 12:38:27 -0400
-Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
-          by sa-prd-fep-047.btinternet.com with ESMTP
-          id <20201013163824.GNHU4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Tue, 13 Oct 2020 17:38:24 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1602607104; 
-        bh=wACf3Mpnrb86ay9KbtonDAJZf/90XXOvVorm3FbySaE=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=RKTqQ+oOwL2NjtW18VBTcqLkuibQyXNmit/VqWooqgrxDhlXqqR9HB16m5ApYY6/p3NWlrhrJQZ7cafem+mRbGty2Mgm+tdakbKjU5EJWx3TBsuxKk5sasRL9ktyzUKSzP+s3iToVhgrAgx5xWwfNqx5NwAuLgnZWmj1u7hYh1zMwPmxnwoMbfYxHZl12GyIZq7pYtnZsHYqUKySdjUm+1m5NRabDC1qoL+1lfL6Ef9mCEic6FnIrfzD/scYIHmShqf/ubz41UPPmR7/gjei/kBd8lSNmvw8Z2Yqaf24W8ltPY98rM5C8AKlX1WZcfKbwsggFkJih+BepUdWNuiZBg==
-Authentication-Results: btinternet.com;
-    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [81.147.56.93]
-X-OWM-Source-IP: 81.147.56.93 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrheelgddutdegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeetteevgeehveeiieefkedvieehjeevtdeileffffefveelieejvedvjedvuddugeenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeekuddrudegjedrheeirdelfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurddugeejrdehiedrleefpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeojhhmohhrrhhishesnhgrmhgvihdrohhrgheqpdhrtghpthhtohepoehlrghfohhrghgvsehgnhhumhhonhhkshdrohhrgheqpdhrtghpthhtohepoehlihhnuhigqdhsvggtuhhrihhthidqmhhoughulhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgt
-        phhtthhopeeonhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeoohhsmhhotghomhdqnhgvthdqghhprhhssehlihhsthhsrdhoshhmohgtohhmrdhorhhgqedprhgtphhtthhopeeophgrsghlohesnhgvthhfihhlthgvrhdrohhrgheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (81.147.56.93) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B66115DDE5BF; Tue, 13 Oct 2020 17:38:24 +0100
-Message-ID: <77226ae9dc60113d1953c1f957849d6460c5096f.camel@btinternet.com>
-Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Harald Welte <laforge@gnumonks.org>
-Cc:     pablo@netfilter.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
+        id S1726501AbgJMUmj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Oct 2020 16:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37190 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726137AbgJMUmj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Oct 2020 16:42:39 -0400
+Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [IPv6:2001:780:45:1d:225:90ff:fe52:c662])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D70C061755;
+        Tue, 13 Oct 2020 13:42:39 -0700 (PDT)
+Received: from uucp by ganesha.gnumonks.org with local-bsmtp (Exim 4.89)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1kSR7w-0000MJ-Ft; Tue, 13 Oct 2020 22:42:32 +0200
+Received: from laforge by localhost.localdomain with local (Exim 4.94)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1kSR7r-004aJc-Tg; Tue, 13 Oct 2020 22:42:27 +0200
+Date:   Tue, 13 Oct 2020 22:42:27 +0200
+From:   Harald Welte <laforge@gnumonks.org>
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Paul Moore <paul@paul-moore.com>, pablo@netfilter.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         James Morris <jmorris@namei.org>
-Date:   Tue, 13 Oct 2020 17:38:16 +0100
-In-Reply-To: <CAHC9VhTrSBsm-qVh95J2SzUq5=_pESwTUBRmVSjXOoyG+97jYA@mail.gmail.com>
+Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
+Message-ID: <20201013204227.GP947663@nataraja>
 References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
-         <20200930094934.32144-4-richard_c_haines@btinternet.com>
-         <20200930110153.GT3871@nataraja>
-         <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com>
-         <20200930133847.GD238904@nataraja>
-         <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
-         <20201012093851.GF947663@nataraja>
-         <CAHC9VhTrSBsm-qVh95J2SzUq5=_pESwTUBRmVSjXOoyG+97jYA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+ <20200930094934.32144-4-richard_c_haines@btinternet.com>
+ <20200930110153.GT3871@nataraja>
+ <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com>
+ <20200930133847.GD238904@nataraja>
+ <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
+ <20201012093851.GF947663@nataraja>
+ <CAHC9VhTrSBsm-qVh95J2SzUq5=_pESwTUBRmVSjXOoyG+97jYA@mail.gmail.com>
+ <77226ae9dc60113d1953c1f957849d6460c5096f.camel@btinternet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <77226ae9dc60113d1953c1f957849d6460c5096f.camel@btinternet.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2020-10-13 at 09:55 -0400, Paul Moore wrote:
-> On Mon, Oct 12, 2020 at 5:40 AM Harald Welte <laforge@gnumonks.org>
-> wrote:
-> > Hi Paul,
-> > 
-> > On Sun, Oct 11, 2020 at 10:09:11PM -0400, Paul Moore wrote:
-> > > Harald, Pablo - I know you both suggested taking a slow iterative
-> > > approach to merging functionality, perhaps you could also help
-> > > those
-> > > of us on the SELinux side better understand some of the common
-> > > GTP use
-> > > cases?
-> > 
-> > There really only is one use case for this code:  The GGSN or P-GW
-> > function
-> > in the 3GPP network architecture ...
-> > 
-> > Hope this helps,
-> >         Harald
-> 
-> It does, thank you.
-> 
-> It looks like this patchset is not really a candidate for merging in
-> its current form, but I didn't want to lose this information (both
-> the
-> patches and Harald's comments) so I created a GH issue to track this
-> at the URL below.
-> 
-> * https://github.com/SELinuxProject/selinux-kernel/issues/54
-> 
+Hi Richard and list[s],
 
-While I was not expecting these patches to be excepted for the current
-version, the main aim was to see what LSM security services could be
-implemented on possible 5G components, bearing in mind the DARPA Open
-Programmable Secure 5G (OPS-5G) initiative (probably 'jumping the gun'
-here a bit though). 
+On Tue, Oct 13, 2020 at 05:38:16PM +0100, Richard Haines wrote:
+> There is in development a 5G version of GTP at [1]. 
 
-There is in development a 5G version of GTP at [1]. I have added the
-enhanced hooks to this (plus retrieve contexts via call-backs etc.),
-and have it running on 5.9, passing their tests. I'm not sure how far
-this development will go, but a starter ??.
+Please note that there is no such thing as "5G version of GTP".  The GTP-U
+(user plane) did not change between 2G, 3G, 4G or even 5G:  IT is still the
+same protocol version (GTPv1-U), which you can see from looking at
+3GPP TS 29.281 even in its latest release (Rel 15), which is what the authors
+of the "gtp5g" github repository reference.
 
-The other component that seems to be widely used in these systems is
-SCTP that I added hooks to a few years ago, also TCP/UDP etc. that are
-already well catered for. Also there would be a large amount of
-userspace code ....
+What has changed over time is how the protocol is used, and what kind of
+QoS/classification features are added in order to use different GTP
+tunnels for different traffic (to the same subscriber / IP address) in
+order to subject it to different QoS within the 3GPP network.  This
+functionality, by the way, can also be used in 4G networks, and even in
+3G/2G networks that follow some of the later releases.
 
-Anyway food for thought.
+The "gtp5g" module hence should in my point not be a separate module,
+but it should be broken down in incremental feature enhancements to the
+existing in-kernel GTP user plane module.  The netlink interface should
+also obviously be extended in a backwards-compatible way.
 
-[1] https://github.com/PrinzOwO/gtp5g
+My most active kernel years are long gone, but I still think we never
+have two implementations of the same protocol (GTPv1U in this case) in
+the Kernel.
 
+One could of course also consider to switch to a completely new
+implementation / rewrite, but only if it is backwards compatible in
+terms of use cases as well as the netlink interface (and hence existing
+users of the GTPv1U kernel support).
 
+> The other component that seems to be widely used in these systems is
+> SCTP that I added hooks to a few years ago, [...]
+
+indeed, SCTP is extremely heavily used in all cellular systems, from 2G
+to 4G (with a peak in 4G), but still used on some 5G interfaces.
+
+Unfortunately it is the tradition (until today) that none of the
+industry players that need and use those protocols (GTP, SCTP) seem
+to be participating in the development and maintenance effort of related
+implementation.  So rather than Nokia, Ericsson or others improving the
+in-kernel SCTP, their Linux based devices tend to roll their own
+[userspace] SCTP implementations.
+
+Even while in 2020 everybody in "marketing land" speaks about "open
+source" in the context of cellular/5G, it is not happening.  It is only
+open-washing in order to appear attractive.  In reality, anyone in this
+industry derives a *massive* revenue from their patent royalty
+collection and they would do anything but release or contribute to code
+that comes with an explicit or implicit patent license grant.
+
+So here we are, in 2020, where every single cellular equipment maker
+uses Linux, but the most relevant real open source projects in the industry
+are run by small enthusiast or very small players...
+
+Regards,
+	Harald
+-- 
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
+============================================================================
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
