@@ -2,118 +2,66 @@ Return-Path: <SRS0=hBaa=DU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7617EC433DF
-	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 20:42:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7543C43457
+	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 23:49:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 213B920878
-	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 20:42:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6C5422227
+	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 23:49:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1602632954;
+	bh=Ueg0XU8hW2fh5lXUYkDbLgnfafOTTo2ainV8J+wTuNk=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=uu/7ldbtb0902M7gMApS6V/RPZ/a4pPIwEKYaaQNcMzfSB6n4R7nc9kB2EpSzFkXB
+	 YOGip/9O0D27IwckfMAdI5WCQFdTuCH9MneiY0OQal7K7OUL/nBzvmHDgNJVZpGRwb
+	 t1FqgSVy6EBz3dNNWf/c1yXN+aylmPM1xGbbq0as=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726501AbgJMUmj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Oct 2020 16:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37190 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726137AbgJMUmj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Oct 2020 16:42:39 -0400
-Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [IPv6:2001:780:45:1d:225:90ff:fe52:c662])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D70C061755;
-        Tue, 13 Oct 2020 13:42:39 -0700 (PDT)
-Received: from uucp by ganesha.gnumonks.org with local-bsmtp (Exim 4.89)
-        (envelope-from <laforge@gnumonks.org>)
-        id 1kSR7w-0000MJ-Ft; Tue, 13 Oct 2020 22:42:32 +0200
-Received: from laforge by localhost.localdomain with local (Exim 4.94)
-        (envelope-from <laforge@gnumonks.org>)
-        id 1kSR7r-004aJc-Tg; Tue, 13 Oct 2020 22:42:27 +0200
-Date:   Tue, 13 Oct 2020 22:42:27 +0200
-From:   Harald Welte <laforge@gnumonks.org>
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Paul Moore <paul@paul-moore.com>, pablo@netfilter.org,
+        id S1729932AbgJMXtN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Oct 2020 19:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32790 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727154AbgJMXtM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 13 Oct 2020 19:49:12 -0400
+Subject: Re: [GIT PULL] SELinux patches for v5.10
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602632952;
+        bh=Ueg0XU8hW2fh5lXUYkDbLgnfafOTTo2ainV8J+wTuNk=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=1nbPLwmZ+mSGwcjK95H6ClwEoMHiy+ELmXoi20iLqdDQdjlcXcxO3OSlaR0VT+V5P
+         5hfh75FukN32jEERu7wg2CG8Z1t8XfxOhoDI+W58ofDNv/zww+2vnRZLiBa8aDNvt0
+         ZyPo7COgpowc/MjfrhK09SOlZixyicFnIHiw/W8E=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhShMEWOQFWOnbDuZDN9D397QbZaSuGs95AddSc_LQA1rg@mail.gmail.com>
+References: <CAHC9VhShMEWOQFWOnbDuZDN9D397QbZaSuGs95AddSc_LQA1rg@mail.gmail.com>
+X-PR-Tracked-List-Id: <selinux.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhShMEWOQFWOnbDuZDN9D397QbZaSuGs95AddSc_LQA1rg@mail.gmail.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20201012
+X-PR-Tracked-Commit-Id: 0d50f059c4cdc9e436f6f4db8779ac0795bfdadf
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 7b540812cc0635e6c7e508359115c7cb6886fd2f
+Message-Id: <160263295237.20088.758458421273668951.pr-tracker-bot@kernel.org>
+Date:   Tue, 13 Oct 2020 23:49:12 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 3/3] selinux: Add SELinux GTP support
-Message-ID: <20201013204227.GP947663@nataraja>
-References: <20200930094934.32144-1-richard_c_haines@btinternet.com>
- <20200930094934.32144-4-richard_c_haines@btinternet.com>
- <20200930110153.GT3871@nataraja>
- <33cf57c9599842247c45c92aa22468ec89f7ba64.camel@btinternet.com>
- <20200930133847.GD238904@nataraja>
- <CAHC9VhT5HahBhow0RzWHs1yAh5qQw2dZ-3vgJv5GuyFWrXau1A@mail.gmail.com>
- <20201012093851.GF947663@nataraja>
- <CAHC9VhTrSBsm-qVh95J2SzUq5=_pESwTUBRmVSjXOoyG+97jYA@mail.gmail.com>
- <77226ae9dc60113d1953c1f957849d6460c5096f.camel@btinternet.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <77226ae9dc60113d1953c1f957849d6460c5096f.camel@btinternet.com>
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Richard and list[s],
+The pull request you sent on Mon, 12 Oct 2020 21:15:09 -0400:
 
-On Tue, Oct 13, 2020 at 05:38:16PM +0100, Richard Haines wrote:
-> There is in development a 5G version of GTP at [1]. 
+> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20201012
 
-Please note that there is no such thing as "5G version of GTP".  The GTP-U
-(user plane) did not change between 2G, 3G, 4G or even 5G:  IT is still the
-same protocol version (GTPv1-U), which you can see from looking at
-3GPP TS 29.281 even in its latest release (Rel 15), which is what the authors
-of the "gtp5g" github repository reference.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/7b540812cc0635e6c7e508359115c7cb6886fd2f
 
-What has changed over time is how the protocol is used, and what kind of
-QoS/classification features are added in order to use different GTP
-tunnels for different traffic (to the same subscriber / IP address) in
-order to subject it to different QoS within the 3GPP network.  This
-functionality, by the way, can also be used in 4G networks, and even in
-3G/2G networks that follow some of the later releases.
+Thank you!
 
-The "gtp5g" module hence should in my point not be a separate module,
-but it should be broken down in incremental feature enhancements to the
-existing in-kernel GTP user plane module.  The netlink interface should
-also obviously be extended in a backwards-compatible way.
-
-My most active kernel years are long gone, but I still think we never
-have two implementations of the same protocol (GTPv1U in this case) in
-the Kernel.
-
-One could of course also consider to switch to a completely new
-implementation / rewrite, but only if it is backwards compatible in
-terms of use cases as well as the netlink interface (and hence existing
-users of the GTPv1U kernel support).
-
-> The other component that seems to be widely used in these systems is
-> SCTP that I added hooks to a few years ago, [...]
-
-indeed, SCTP is extremely heavily used in all cellular systems, from 2G
-to 4G (with a peak in 4G), but still used on some 5G interfaces.
-
-Unfortunately it is the tradition (until today) that none of the
-industry players that need and use those protocols (GTP, SCTP) seem
-to be participating in the development and maintenance effort of related
-implementation.  So rather than Nokia, Ericsson or others improving the
-in-kernel SCTP, their Linux based devices tend to roll their own
-[userspace] SCTP implementations.
-
-Even while in 2020 everybody in "marketing land" speaks about "open
-source" in the context of cellular/5G, it is not happening.  It is only
-open-washing in order to appear attractive.  In reality, anyone in this
-industry derives a *massive* revenue from their patent royalty
-collection and they would do anything but release or contribute to code
-that comes with an explicit or implicit patent license grant.
-
-So here we are, in 2020, where every single cellular equipment maker
-uses Linux, but the most relevant real open source projects in the industry
-are run by small enthusiast or very small players...
-
-Regards,
-	Harald
 -- 
-- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
-============================================================================
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
