@@ -1,214 +1,193 @@
-Return-Path: <SRS0=npki=DT=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=hBaa=DU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5322C43467
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 22:19:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 590A9C8301D
+	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 02:42:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 965062078E
-	for <selinux@archiver.kernel.org>; Mon, 12 Oct 2020 22:19:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 13D7E20678
+	for <selinux@archiver.kernel.org>; Tue, 13 Oct 2020 02:42:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="DnrJ2KSI"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="FEFVCX/+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388626AbgJLWTK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Oct 2020 18:19:10 -0400
-Received: from mailomta31-re.btinternet.com ([213.120.69.124]:14194 "EHLO
-        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2388510AbgJLWSu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Oct 2020 18:18:50 -0400
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-044.btinternet.com with ESMTP
-          id <20200909133046.TZMX21348.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Wed, 9 Sep 2020 14:30:46 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1599658246; 
-        bh=lPFLzFsdNoO8Xkp6GfwuHFL3gAvxNJEQJjS5qMIqtwE=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=DnrJ2KSIjqGyROoS8qs3eSoDf5xoMJuRPDUs9aeDDg6Ct9ERP9AzcWx79GzgcefPiFSq/rXpv4DWOq9CAkYjknX7ODWhHGi253QCF2r63zC9Y9AH0IDQSP447q4LPHsZojUcXDultxFOzPm9sLI7rcNOvklKGHkXq1BjoqdluX/SoSucmOpXm5eZN4fZ2iKkJUxa+AQFiBRy/qvcOJlVesApVJkUFngIs8T91L8Kp7vlXRzZx/7qBa/T9m3QyxwWTkPZcw5WKMVoNNNKK0h0WvU8WTgvQE6uaLbs6IeCKg/1teC3eHH+9iC5SV0TrEQxXPv+MFR0Co9SWOz2w7OfnA==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [86.154.154.133]
-X-OWM-Source-IP: 86.154.154.133 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudehhedgiedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepkeeirdduheegrdduheegrddufeefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehgedrudehgedrudeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.154.154.133) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9C2FD10134DE9; Wed, 9 Sep 2020 14:30:46 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     paul@paul-moore.com, selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 10/22] sid_statement: Convert to markdown
-Date:   Wed,  9 Sep 2020 14:30:27 +0100
-Message-Id: <20200909133039.44498-11-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200909133039.44498-1-richard_c_haines@btinternet.com>
-References: <20200909133039.44498-1-richard_c_haines@btinternet.com>
+        id S1728055AbgJMBPY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Oct 2020 21:15:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727950AbgJMBPX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Oct 2020 21:15:23 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C383C0613D2
+        for <selinux@vger.kernel.org>; Mon, 12 Oct 2020 18:15:21 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id u8so25939863ejg.1
+        for <selinux@vger.kernel.org>; Mon, 12 Oct 2020 18:15:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=sriivWtFoi5P+y8iWJ5C09llKR2ed5ZfEWA0LWNTcX0=;
+        b=FEFVCX/+dW0jLiNqAckex96To29CxPbhIc7UTFOe0z+RQV99pfU/Af/e5mVJzEMMZc
+         yZV2KTN4Or/psTLBPFoNUIV+h+2wW9m/JeVTeXuDaf6qQWYyDnZm/aPp88kNHzneG0W+
+         hzKWDEg8HoQukkKfcdtaTKALIeBTBU8cgB0aUSQ/ZxfaBf/rxyOASCe2xAOAc+GT/uKm
+         2aL1gyUZyZI3HyiSk7ypyGMzclmztpl2lsQ3BrTWvjfqUtkZv3yF7WPYSoRLau9qklwB
+         9OxEirsQTJLkm4oIeOHhhGgel7FkdW0uatT3lLfnI80iLjLBDUZRjxfqtZTSEH8OXxGN
+         Y3KA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=sriivWtFoi5P+y8iWJ5C09llKR2ed5ZfEWA0LWNTcX0=;
+        b=Pnse1SAx/Eb5VoX41KE9v5eOmOMhJbCBBNcBsrYyVMrVbCtWT5ItG04Ygq7JVv0iZM
+         Fqlkz4qSEWzIBX4cRF2Mrt8/rq0HpmRi5VV7sIr+yNZudVQJH2rQVDN8f49cjHevZcg5
+         lVlomeT0X3WtDMmDSIMBZlHjv73VIKeOqti931UYdFuVlNbLuply9hVvTR1kBcCgYnQa
+         0V02OswnHgm1AaQkeIWpSKqLkrWU+OKVMvWrTLTcUeO8hWhqNuhQED/MT5OytI6JraXg
+         KHvTZJSg0vLU8ZExAww78k3Y/ajIhaa5D/PlslgbBLVIqjPailBXY0RId1OoEQukPWon
+         GVOQ==
+X-Gm-Message-State: AOAM533xNnjvAD4QUzmOmcZ3RIU7QK4GKYhL/VNoo62qwO37FhsZzzYQ
+        +TncaYEP7OzbouE30lGlUA2dhFOmX5Sx/jj+r3aLj9UvMwhR
+X-Google-Smtp-Source: ABdhPJyw/aW8jICPx6dj38zdbA20PH/TsVqvNiFW5OZM0kDyyH+4I1k5Dt3wS6ximU1UKip6HnGt+bXeausBm+/2rEE=
+X-Received: by 2002:a17:906:c444:: with SMTP id ck4mr29111638ejb.398.1602551719875;
+ Mon, 12 Oct 2020 18:15:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 12 Oct 2020 21:15:09 -0400
+Message-ID: <CAHC9VhShMEWOQFWOnbDuZDN9D397QbZaSuGs95AddSc_LQA1rg@mail.gmail.com>
+Subject: [GIT PULL] SELinux patches for v5.10
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- src/sid_statement.md | 119 ++++++++++++++++---------------------------
- 1 file changed, 43 insertions(+), 76 deletions(-)
+Hi Linus,
 
-diff --git a/src/sid_statement.md b/src/sid_statement.md
-index 07feb2c..7d6bfcd 100644
---- a/src/sid_statement.md
-+++ b/src/sid_statement.md
-@@ -1,5 +1,8 @@
- # Security ID (SID) Statement
- 
-+- [*sid*](#sid)
-+- [*sid context*](#sid-context)
-+
- There are two *sid* statements, the first one declares the actual *sid*
- identifier and is defined at the start of a policy source file. The
- second statement is used to associate an initial security context to the
-@@ -20,45 +23,27 @@ sid sid_id
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>sid</code></td>
--<td>The <code>sid</code> keyword.</td>
--</tr>
--<tr>
--<td><code>sid_id</code></td>
--<td>The <code>sid</code> identifier.</td>
--</tr>
--</tbody>
--</table>
-+*sid*
-+
-+The *sid* keyword.
-+
-+*sid_id*
-+
-+The *sid* identifier.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Example:**
- 
-@@ -86,49 +71,31 @@ sid sid_id context
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>sid</code></td>
--<td>The <code>sid<code> keyword.</td>
--</tr>
--<tr>
--<td><code>sid_id</code></td>
--<td>The previously declared sid identifier. </td>
--</tr>
--<tr>
--<td><code>context</code></td>
--<td>The initial security context.</td>
--</tr>
--</tbody>
--</table>
-+*sid*
-+
-+The *sid* keyword.
-+
-+*sid_id*
-+
-+The previously declared *sid* identifier.
-+
-+*context*
-+
-+The initial security context.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Examples:**
- 
--- 
-2.26.2
+A decent number of SELinux patches for v5.10, twenty two in total.
+The highlights are listed below, but all of the patches pass our test
+suite and merge cleanly against your tree.  Please merge for v5.10.
 
+- A number of changes to how the SELinux policy is loaded and managed
+inside the kernel with the goal of improving the atomicity of a
+SELinux policy load operation.  These changes account for the bulk of
+the diffstat as well as the patch count.  A special thanks to everyone
+who contributed patches and fixes for this work.
+
+- Convert the SELinux policy read-write lock to RCU.
+
+- A tracepoint was added for audited SELinux access control events;
+this should help provide a more unified backtrace across kernel and
+userspace.
+
+- Allow the removal of security.selinux xattrs when a SELinux policy
+is not loaded.
+
+- Enable policy capabilities in SELinux policies created with the
+scripts/selinux/mdp tool.
+
+- Provide some "no sooner than" dates for the SELinux checkreqprot
+sysfs deprecation.
+
+Thanks,
+-Paul
+
+--
+The following changes since commit 9123e3a74ec7b934a4a099e98af6a61c2f80bbf5=
+:
+
+ Linux 5.9-rc1 (2020-08-16 13:04:57 -0700)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20201012
+
+for you to fetch changes up to 0d50f059c4cdc9e436f6f4db8779ac0795bfdadf:
+
+ selinux: provide a "no sooner than" date for the checkreqprot removal
+   (2020-09-29 16:50:57 -0400)
+
+----------------------------------------------------------------
+selinux/stable-5.10 PR 20201012
+
+----------------------------------------------------------------
+Colin Ian King (1):
+     selinux: fix allocation failure check on newpolicy->sidtab
+
+Dan Carpenter (1):
+     selinux: fix error handling bugs in security_load_policy()
+
+Daniel Burgener (4):
+     selinux: Create function for selinuxfs directory cleanup
+     selinux: Refactor selinuxfs directory populating functions
+     selinux: Standardize string literal usage for selinuxfs directory name=
+s
+     selinux: Create new booleans and class dirs out of tree
+
+Lakshmi Ramasubramanian (1):
+     selinux: Add helper functions to get and set checkreqprot
+
+Ondrej Mosnacek (1):
+     selinux: simplify away security_policydb_len()
+
+Paul Moore (1):
+     selinux: provide a "no sooner than" date for the checkreqprot removal
+
+Peter Enderborg (1):
+     selinux: add basic filtering for audit trace events
+
+Randy Dunlap (1):
+     selinux: delete repeated words in comments
+
+Stephen Smalley (9):
+     scripts/selinux,selinux: update mdp to enable policy capabilities
+     selinux: encapsulate policy state, refactor policy load
+     selinux: move policy commit after updating selinuxfs
+     selinux: refactor changing booleans
+     selinux: avoid dereferencing the policy prior to initialization
+     selinux: permit removing security.selinux xattr before policy load
+     selinux: convert policy read-write lock to RCU
+     selinux: move policy mutex to selinux_state, use in lockdep checks
+     selinux: access policycaps with READ_ONCE/WRITE_ONCE
+
+Thi=C3=A9baud Weksteen (1):
+     selinux: add tracepoint on audited events
+
+kernel test robot (1):
+     selinux: fix memdup.cocci warnings
+
+.../ABI/obsolete/sysfs-selinux-checkreqprot        |   2 +-
+MAINTAINERS                                        |   1 +
+include/trace/events/avc.h                         |  53 ++
+scripts/selinux/mdp/mdp.c                          |   7 +
+security/selinux/avc.c                             |  29 +-
+security/selinux/hooks.c                           |  17 +-
+security/selinux/include/conditional.h             |   2 +-
+security/selinux/include/policycap.h               |  20 +
+security/selinux/include/policycap_names.h         |  18 +
+security/selinux/include/security.h                |  63 +-
+security/selinux/selinuxfs.c                       | 259 ++++--
+security/selinux/ss/avtab.c                        |  49 +-
+security/selinux/ss/avtab.h                        |   1 +
+security/selinux/ss/conditional.c                  | 155 ++++
+security/selinux/ss/conditional.h                  |   2 +
+security/selinux/ss/hashtab.c                      |  53 ++
+security/selinux/ss/hashtab.h                      |   6 +
+security/selinux/ss/services.c                     | 875 ++++++++++-------
+security/selinux/ss/services.h                     |   5 +-
+security/selinux/ss/sidtab.c                       |  10 +
+security/selinux/ss/sidtab.h                       |   2 +
+21 files changed, 1130 insertions(+), 499 deletions(-)
+create mode 100644 include/trace/events/avc.h
+create mode 100644 security/selinux/include/policycap.h
+create mode 100644 security/selinux/include/policycap_names.h
+
+--=20
+paul moore
+www.paul-moore.com
