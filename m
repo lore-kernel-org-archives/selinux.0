@@ -2,225 +2,183 @@ Return-Path: <SRS0=aJPZ=DV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D2C6C433E7
-	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 11:07:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DD25C4363D
+	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 14:37:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D120C206D5
-	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 11:07:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7C0922203
+	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 14:37:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YVsLq7va"
+	dkim=pass (2048-bit key) header.d=umich.edu header.i=@umich.edu header.b="k5J+g+Kw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730453AbgJNLHd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Oct 2020 07:07:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:55223 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725922AbgJNLHc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Oct 2020 07:07:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602673650;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+ObVtHm1uaUQKJxC2qrQ6Vet5um7Cn4+B959c30CLrc=;
-        b=YVsLq7va53OG99aNFPb0NnyruSDW+NQL6gRHxBtMk3Cwvkkh2BEa/tcPavm7zNHCpJ+crV
-        U2h5UBZzOxPghD1HLBfZpshYgMHIS35MwpfTEyOpNX1CwtCKWVnvGSzG8+sb3aNmRXWF3a
-        POyj+UzzJ47u4BliTzp9lC/u4NHmnmw=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-436-JM2_VQ2hO-mBiWTDRgbbDQ-1; Wed, 14 Oct 2020 07:07:28 -0400
-X-MC-Unique: JM2_VQ2hO-mBiWTDRgbbDQ-1
-Received: by mail-lf1-f72.google.com with SMTP id y20so361256lff.6
-        for <selinux@vger.kernel.org>; Wed, 14 Oct 2020 04:07:28 -0700 (PDT)
+        id S1728272AbgJNOhj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Oct 2020 10:37:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60976 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727875AbgJNOhi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Oct 2020 10:37:38 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47628C061755;
+        Wed, 14 Oct 2020 07:37:38 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id c22so5237781ejx.0;
+        Wed, 14 Oct 2020 07:37:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=umich.edu; s=google-2016-06-03;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WWQUs1iKiL0g+WuQeTob+uddOusmv5uTWIOTWJtZDHc=;
+        b=k5J+g+KwT03/K1PomluP39o+tUilGk44BG0xTfzs3jHO+5lgUDz0elaz/0WlzMo8zj
+         mV6lcGRRId/5lG9mh8l96zURAVT0xrwHoVUZuPBJO5Tj444U5jdMjNyB1kQOAcKB8mDU
+         LImFQkhUAY1UGdUk3wTCLB1TV5jaatZt7juMqkpxoYxOHmoV05KjFAO3UX8bM1A89Um8
+         TxAihmKrq/dgMZIrDUNzjEds4F7vxM9rkwe5sUxcVz46PhknsluYMrh1CDM8sdEm3v79
+         lXi7FokpNEVBzriVI+Jok17g3Xn59D0hi3j3EIJsFSfTevGizGOV2t8Y1rLiiqTZEyN6
+         HqmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=+ObVtHm1uaUQKJxC2qrQ6Vet5um7Cn4+B959c30CLrc=;
-        b=dbnSOb1ZtG0NUyWtllw7Ka53OTk8mvVtq1LiaUKk0OUSl24MXzY7M5wrIPp7Q505ZF
-         y7uloHp1VxwOTFAtA9cuYIxfY4DTPW5tgxs7S5YdYb6AwtLuKnb8FRsJd5ccNLQSoBKI
-         fImRCZl5wnFl/KVIENyVxF/MYMBjKvEqrzmpNEqjuaTMGFpMkQR+TBbhW6L+VT4MOODo
-         TE8WErP4oC1zTx3Xdghf9ow08T4sccBb5VvztWyvgJI47PnzIfrML0Vu/dCwltIbOsN0
-         cAn4gVzZ/Mg4qTtQDY3ueQR9nmOk9mvDs7gyUZfeUSlLZQKDIdWrKY3dJjomBkHT6ZyN
-         3u0A==
-X-Gm-Message-State: AOAM5313qcVD4wyAB5jnl7qINFC81AVcJBW5jVBGlEMaRDrz7mpBO7xm
-        5Gi2g+R1Sb3Uos8BCHf/f/7SfGcWqWy3AeWfpiVPGe83qFEGATVU/UZY1RQ+QHzp+EqaOGGrjI8
-        BHR2XeXtQ1lC/Jxp+awlctbaXK0IGWeAkuQ==
-X-Received: by 2002:a2e:7815:: with SMTP id t21mr1515617ljc.217.1602673646524;
-        Wed, 14 Oct 2020 04:07:26 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwp5QDXXYPpxRgZKpOP4Of57oRVtAcOB9ZdXUHrHs9RV1ZmWNECe0x7zXj5f8P4YOUX91mmepdKH1lxrLFpcM0=
-X-Received: by 2002:a2e:7815:: with SMTP id t21mr1515609ljc.217.1602673646246;
- Wed, 14 Oct 2020 04:07:26 -0700 (PDT)
+        bh=WWQUs1iKiL0g+WuQeTob+uddOusmv5uTWIOTWJtZDHc=;
+        b=o5/tL5kr+MGpSFeY9FUgo67nyc9QW8NZ9U972ToyN8f1CH8yuuxoSy7O05OQ5g5usw
+         S6BgvRNO22XSOCyFNGBCkpTFgekqGGxSq8sEB9GNAmFHGrW7gMWgKuVZMVG818Jx4G47
+         FK75FLVwlb6XtEP+/6IYtANVGACZ6qOPgRJhgxySzYS6ZHT3iDQx/dnbkwR5ziDjRzsP
+         4OLjfqniUWt4xmPi+EZ2RogmtJ/huIjPRTFLC//0C7mFWTuF/4u+mvozpapAMLhbY++O
+         jsb1XH8hZx+MpCbeWiBDRMhBtHYFuvnjSixR8PWFkm3hw4xDZl943NHX8Ac3kZGyUEIZ
+         ZAEA==
+X-Gm-Message-State: AOAM530XzwMVI5bpGPOmAKXpdh8sgbka/UdDVRbIgSiFIgo3tUZDYii1
+        rN5oozl2mL0nhgt8LEBz//nIVzPU/dmrAqComUw=
+X-Google-Smtp-Source: ABdhPJyoJT2DnvAYr186xONfeWoAVBGf9jXVT4NM0KNKlQmd7sC+AwDmDY/d+5amEclT/rVc5QxueLx/HujFttEzFcM=
+X-Received: by 2002:a17:906:7013:: with SMTP id n19mr5582979ejj.388.1602686256864;
+ Wed, 14 Oct 2020 07:37:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200922085902.18315-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200922085902.18315-1-richard_c_haines@btinternet.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 14 Oct 2020 13:07:15 +0200
-Message-ID: <CAFqZXNu0KqmZcTTZHOYbz-6tFbSU5Ss=-Y1JUHsmHMEU6jmb-A@mail.gmail.com>
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Update SCTP asconf client/server
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <CAN-5tyETQWVphrgqWjcPrtTzHHyz5DGrRz741yPYRS9Byyd=3Q@mail.gmail.com>
+ <CAHC9VhRP2iJqLWiBg46zPKUqxzZoUOuaA6FPigxOw7qubophdw@mail.gmail.com>
+ <CAN-5tyFq775PeOOzqskFexdbCgK3Gk_XB2Yy80SRYSc7Pdj=CA@mail.gmail.com>
+ <CAHC9VhTzO1z6NmYz6cOLg5OvJiyQXdH_VmLh4=+h1MrGXx36JQ@mail.gmail.com>
+ <CAN-5tyGJxUZb5QdJ=fh+L-6rc2B-MhQbDcDkTZNAZAAJm9Q8YQ@mail.gmail.com>
+ <FB6C74CE-5D9F-4469-A49B-93CC8A51D7D5@gmail.com> <CAN-5tyFQbfkiuno07C6Azc7RcF3z3qF3PP0FutFMD3raBgnQmA@mail.gmail.com>
+ <CAEjxPJ7PoAG6f+gVdodx=6X8+_Z_WCFXAuxnpB8WmC1gTF4iQQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7PoAG6f+gVdodx=6X8+_Z_WCFXAuxnpB8WmC1gTF4iQQ@mail.gmail.com>
+From:   Olga Kornievskaia <aglo@umich.edu>
+Date:   Wed, 14 Oct 2020 10:37:26 -0400
+Message-ID: <CAN-5tyEy57xoqEbZAThZKHriJywx-5DMKBD5tsXwo5ccGwuctw@mail.gmail.com>
+Subject: Re: selinux: how to query if selinux is enabled
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Chuck Lever <chucklever@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 10:59 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> The main changes have been to sctp_asconf_params_client.c and
-> sctp_asconf_params_server.c to make them more reliable for running the
-> client and server on different systems.
+On Tue, Oct 13, 2020 at 7:51 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Updated common code in sctp_common.c for sctp event handling and updated
-> relevant programs to use handle_event()
+> On Fri, Oct 9, 2020 at 12:36 PM Olga Kornievskaia <aglo@umich.edu> wrote:
+> >
+> > On Fri, Oct 9, 2020 at 10:08 AM Chuck Lever <chucklever@gmail.com> wrote:
+> > >
+> > >
+> > >
+> > > > On Oct 9, 2020, at 7:49 AM, Olga Kornievskaia <aglo@umich.edu> wrote:
+> > > >
+> > > > On Thu, Oct 8, 2020 at 9:03 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > >>
+> > > >> ->On Thu, Oct 8, 2020 at 9:50 AM Olga Kornievskaia <aglo@umich.edu> wrote:
+> > > >>> On Wed, Oct 7, 2020 at 9:07 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > >>>> On Wed, Oct 7, 2020 at 8:41 PM Olga Kornievskaia <aglo@umich.edu> wrote:
+> > > >>>>> Hi folks,
+> > > >>>>>
+> > > >>>>> From some linux kernel module, is it possible to query and find out
+> > > >>>>> whether or not selinux is currently enabled or not?
+> > > >>>>>
+> > > >>>>> Thank you.
+> > > >>>>
+> > > >>>> [NOTE: CC'ing the SELinux list as it's probably a bit more relevant
+> > > >>>> that the LSM list]
+> > > >>>>
+> > > >>>> In general most parts of the kernel shouldn't need to worry about what
+> > > >>>> LSMs are active and/or enabled; the simply interact with the LSM(s)
+> > > >>>> via the interfaces defined in include/linux/security.h (there are some
+> > > >>>> helpful comments in include/linux/lsm_hooks.h).  Can you elaborate a
+> > > >>>> bit more on what you are trying to accomplish?
+> > > >>>
+> > > >>> Hi Paul,
+> > > >>>
+> > > >>> Thank you for the response. What I'm trying to accomplish is the
+> > > >>> following. Within a file system (NFS), typically any queries for
+> > > >>> security labels are triggered by the SElinux (or I guess an LSM in
+> > > >>> general) (thru the xattr_handler hooks). However, when the VFS is
+> > > >>> calling to get directory entries NFS will always get the labels
+> > > >>> (baring server not supporting it). However this is useless and affects
+> > > >>> performance (ie., this makes servers do extra work  and adds to the
+> > > >>> network traffic) when selinux is disabled. It would be useful if NFS
+> > > >>> can check if there is anything that requires those labels, if SElinux
+> > > >>> is enabled or disabled.
+> > > >>
+> > > >> [Adding Chuck Lever to the CC line as I believe he has the most recent
+> > > >> LSM experience from the NFS side - sorry Chuck :)]
+> > > >>
+> > > >> I'll need to ask your patience on this as I am far from a NFS expert.
+> > > >>
+> > > >> Looking through the NFS readdir/getdents code this evening, I was
+> > > >> wondering if the solution in the readdir case is to simply tell the
+> > > >> server you are not interested in the security label by masking out
+> > > >> FATTR4_WORD2_SECURITY_LABEL in the nfs4_readdir_arg->bitmask in
+> > > >> _nfs4_proc_readdir()?  Of course this assumes that the security label
+> > > >> genuinely isn't needed in this case (and not requesting it doesn't
+> > > >> bypass access controls or break something on the server side), and we
+> > > >> don't screw up some NFS client side cache by *not* fetching the
+> > > >> security label attribute.
+> > > >>
+> > > >> Is this remotely close to workable, or am I missing something fundamental?
+> > > >>
+> > > >
+> > > > No this is not going to work, as NFS requires labels when labels are
+> > > > indeed needed by the LSM. What I'm looking for is an optimization.
+> > > > What we have is functionality correct but performance might suffer for
+> > > > the standard case of NFSv4.2 seclabel enabled server and clients that
+> > > > don't care about seclabels.
+> > >
+> > > Initial thought: We should ask linux-nfs for help with this.
+> > > I've added them to the Cc: list.
+> > >
+> > > Olga, are you asking if the kernel NFS client module can somehow find
+> > > out whether the rest of the kernel is configured to care about security
+> > > labels before it forms an NFSv4 READDIR or LOOKUP request?
+> >
+> > Yes exactly, but I'm having a hard time trying to figure out how to
+> > use security_ismaclabel() function as has been suggested by Casey.
 >
-> Removed obsolete code/policy.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2 Changes: Indent line, fix typo and increase timer to 3 secs as per
-> Ondrej comments.
->
->  policy/test_sctp.te                    |  75 ++++-
->  tests/sctp/.gitignore                  |   1 -
->  tests/sctp/Makefile                    |   3 +-
->  tests/sctp/sctp_asconf_params_client.c | 322 ++++++++-----------
->  tests/sctp/sctp_asconf_params_server.c | 275 +++++++++-------
->  tests/sctp/sctp_common.c               | 189 ++++++++++-
->  tests/sctp/sctp_common.h               |  12 +-
->  tests/sctp/sctp_peeloff_server.c       |  42 +--
->  tests/sctp/sctp_server.c               |   4 +-
->  tests/sctp/sctp_set_peer_addr.c        | 415 -------------------------
->  tests/sctp/test                        |  70 ++++-
->  11 files changed, 623 insertions(+), 785 deletions(-)
->  delete mode 100644 tests/sctp/sctp_set_peer_addr.c
->
-[...]
-> diff --git a/tests/sctp/test b/tests/sctp/test
-> index b4462c9..eede42f 100755
-> --- a/tests/sctp/test
-> +++ b/tests/sctp/test
-> @@ -50,7 +50,7 @@ BEGIN {
->          }
->
->          if ( $ipaddress[1] ne 0 and $ipaddress[0] ne $ipaddress[1] ) {
-> -            $test_count += 2;
-> +            $test_count += 3;
->              $test_asconf = 1;
->          }
->
-> @@ -208,37 +208,77 @@ $result =
->  ok( $result >> 8 eq 2 );
->
->  #
-> -######################### SET_PRI_ADDR SET_PEER_ADDR ########################
-> +##################### Dynamic Address Reconfiguration #####################
-> +#
-> +# These tests require two non-loopback addresses.
-> +#
-> +# Server - setsockopt(SCTP_SET_PEER_PRIMARY_ADDR, $ipaddress[0]);
-> +# net/sctp/sm_make_chunk.c sctp_process_asconf_param() SCTP_PARAM_SET_PRIMARY
-> +# Server -> Client (Set $ipaddress[0] as primary - client acks)
-> +#
-> +# Server - sctp_bindx(SCTP_BINDX_ADD_ADDR, $ipaddress[1]);
-> +# net/sctp/sm_make_chunk.c sctp_process_asconf_param() SCTP_PARAM_ADD_IP
-> +# Server -> Client (Set $ipaddress[1] as primary - client acks)
-> +#
-> +# These are sent by the server and require bind permission. They are
-> +# received by the client and the SCTP_PARAM_ADD_IP is validated when
-> +# $ipaddress[1] is set for use via:
-> +#    net/sctp/socket.c sctp_setsockopt_peer_primary_addr(setsockopt(SCTP_PRIMARY_ADDR))
-> +# This requires the 'bind' permission, if not granted client exits with 51.
->  #
->
-> -# These tests require two local non-loopback addresses.
->  if ($test_asconf) {
-> -    print "# Testing asconf parameter chunk processing.\n";
->
-> -    # To enable processing of incoming ASCONF parameters:
-> -    # SCTP_PARAM_SET_PRIMARY, SCTP_PARAM_ADD_IP and SCTP_PARAM_DEL_IP,
-> -    # need to set:
-> +    # To enable processing of ASCONF parameters SCTP_PARAM_SET_PRIMARY
-> +    # and SCTP_PARAM_ADD_IP need to set:
->      system("echo 1 > /proc/sys/net/sctp/addip_enable");
->      system("echo 1 > /proc/sys/net/sctp/addip_noauth_enable");
->
-> -    # Verify ASCONF params.
-> +    print "Testing Dynamic Address Reconfiguration\n";
-> +
-> +    # Server should automatically exit after each test
-> +    $pid = server_start(
-> +        "-t sctp_asconf_params_server_t",
-> +        "sctp_asconf_params_server",
-> +        "$v $ipaddress[0] $ipaddress[1] 1035"
-> +    );
-> +
->      $result = system
-> -"runcon -t test_sctp_set_peer_addr_t $basedir/sctp_set_peer_addr $v $ipaddress[0] $ipaddress[1] 1035";
-> +"runcon -t sctp_asconf_params_client_t $basedir/sctp_asconf_params_client $v $ipaddress[0] 1035";
->      ok( $result eq 0 );
->
-> -    # Start the asconf server.
-> +    server_end($pid);
-> +
-> +    $pid = server_start(
-> +        "-t sctp_asconf_params_server_t",
-> +        "sctp_asconf_params_server",
-> +        "$v $ipaddress[0] $ipaddress[1] 1035"
-> +    );
-> +
-> +    print "Testing deny SCTP_PRIMARY_ADDR\n";
-> +    $result = system
-> +"runcon -t sctp_asconf_deny_pri_addr_client_t $basedir/sctp_asconf_params_client $v $ipaddress[0] 1035 2>&1";
-> +    ok( $result >> 8 eq 51 );    # setsockopt(2) failed
-> +
-> +    server_end($pid);
-> +
-> +    #
-> +    # This is a local only test as it's the neverallow rule that stops:
-> +    #    server -> client sctp_socket { connect };
-> +    #
-> +    # Srv sends SCTP_PARAM_ADD_IP and SCTP_PARAM_SET_PRIMARY in ASCONF's
-> +    # Client returns ASCONF_ACK's with 'Request refused - no authorization'
->      $pid = server_start(
-> -        "-t test_sctp_set_peer_addr_t",
-> +        "-t sctp_asconf_params_server_t",
->          "sctp_asconf_params_server",
->          "$v $ipaddress[0] $ipaddress[1] 1035"
->      );
->
-> -# This should fail connect permission attempting to send SCTP_PARAM_ADD_IP to client.
-> +    print "Testing deny SCTP_PARAM_ADD_IP/SCTP_PARAM_SET_PRIMARY\n";
->      $result = system
-> -"runcon -t test_sctp_client_t -- $basedir/sctp_asconf_params_client $v $ipaddress[0] 1035 2>&1";
-> -    ok($result);
-> +"runcon -t sctp_asconf_deny_param_add_client_t $basedir/sctp_asconf_params_client $v $ipaddress[0] 1035 2>&1";
-> +    ok( $result >> 8 eq 11 );   # Client error 'Dynamic Address Reconfiguration'
+> I would suggest either introducing a new hook for your purpose, or
+> altering the existing one to support a form of query that isn't based
+> on a particular xattr name but rather just checking whether the module
+> supports/uses MAC labels at all.  Options: 1) NULL argument to the
+> existing hook indicates a general query (could hide a bug in the
+> caller, so not optimal), 2) Add a new bool argument to the existing
+> hook to indicate whether the name should be used, or 3) Add a new hook
+> that doesn't take any arguments.
 
-I just experimented with automatically setting up a second IPv4
-address in the test (using a GRE tunnel over localhost) and this
-particular test is failing for me on the current 5.8.14 Fedora 32
-kernel, as well as on 5.9 in Rawhide. It seems that the command fails
-with the same exit code as the previous one ($result >> 8 eq 51, not
-11). Interestingly, on RHEL-8 it passes, so it seems that the behavior
-has changed upstream at some point. Does anyone have any idea what
-might be the cause? Is it a bug in the kernel or the test?
+Hi Stephen,
+
+Yes it seems like current api lacks the needed functionality and what
+you are suggesting is needed. Thank you for confirming it.
 
 >
-> -    # The server should automatically exit.
->      server_end($pid);
->
->      system("echo 0 > /proc/sys/net/sctp/addip_enable");
-> --
-> 2.26.2
->
-
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+> >
+> > > I would certainly like to take the security label query out of every
+> > > LOOKUP operation if that is feasible!
+> >
+> > A LOOKUP doesn't add the seclabel query (by default) like READDIR does
+> > (it's hard-coded in the xdr code). LOOKUP uses server's bitmask and
+> > chooses the version without the seclabel bitmask because no label is
+> > passed into it. It looks like LOOKUP just allocates a label in
+> > nfs_lookup_revalidate_dentry().  So it's not driven by the something
+> > that I see used by the xattr_handle example in the NFS code.
