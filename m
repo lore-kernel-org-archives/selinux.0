@@ -2,321 +2,148 @@ Return-Path: <SRS0=aJPZ=DV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F257C433E7
-	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 15:58:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7407C43467
+	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 16:31:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EB9B2222E
-	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 15:58:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5EDA520B1F
+	for <selinux@archiver.kernel.org>; Wed, 14 Oct 2020 16:31:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gJNg+NtK"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="niRjGs6c"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728185AbgJNP6i (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Oct 2020 11:58:38 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28694 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727161AbgJNP6i (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Oct 2020 11:58:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602691116;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Pnj6/xO4Gw8z+yx101B53zs/pBXuA/uAv4YxB+KgRq8=;
-        b=gJNg+NtKPncgkB2h6bCNcaDste2WJX1uLURC2ftiunsOJDWGZMI553YOtfoP21cmpLCJAd
-        77JtbzYD0ZHzLX5nXPSrDsPAskj/baVO5obcdxJriWBu8HFOC5nCI/O3iSthS9+fvzT8e8
-        4HwnjKMo7paotjmhtFUnd/EZRAkHgMw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-509-uG-J2QddPt2BWDyeMt8xEw-1; Wed, 14 Oct 2020 11:58:33 -0400
-X-MC-Unique: uG-J2QddPt2BWDyeMt8xEw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CDF1FD6880;
-        Wed, 14 Oct 2020 15:58:32 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.92])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C9F345C22B;
-        Wed, 14 Oct 2020 15:58:31 +0000 (UTC)
-Date:   Wed, 14 Oct 2020 17:58:28 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 1/1] libselinux: convert matchpathcon to selabel_lookup()
-Message-ID: <20201014155828.GB3669@localhost.localdomain>
-References: <20201004140339.1896260-1-nicolas.iooss@m4x.org>
- <20201013144805.GC304424@localhost.localdomain>
+        id S1730713AbgJNQbB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Oct 2020 12:31:01 -0400
+Received: from sonic312-30.consmr.mail.ne1.yahoo.com ([66.163.191.211]:38509
+        "EHLO sonic312-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730386AbgJNQbA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Oct 2020 12:31:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1602693059; bh=ACnLzg1vMXlVyI32YNdSkKII1lco6l3vKA4yg3stZOM=; h=To:Cc:References:From:Subject:Date:In-Reply-To:From:Subject; b=niRjGs6cm3BnK8cg9c375Q8mfJpBLh9HnqeTPvQoauXEtSe1YFQXZh4Zktw5+ZhI1fNp4Cn+Kga37Ng/Jb4/2EakXzQZ4PnRtPyIUi4aEprTFDaE5D1KsgvxBB7mSiYI1SNb5zs7qv6A9Xi9njWhxSA2b6etLSlka00ylmgSJlD7vacQL+ZhKA1oOgroCRFMIZFLGO/pCSAUc5OCr3eKn4bbVGNEHciPSUVJ6SInHQxSYColJWzUl9sL2irCaMoviOmAcYDz5fARzBLXjPHldBfbBCREevfgzSwwGsBEaC5ufOrxLO4ZWS3szFaOhlZ/RJpZM5PQ/6EmgeqwMEQWpQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1602693059; bh=D/IU3j5uwpbvoPOYW0Dt+CRFE8vpSQ5Y/+KGl14lrDB=; h=To:From:Subject:Date; b=QFdcO1jr/0oaPrWdeK+tK8AvBLGYoo3BvmbvnLNs7oF5k2xHzS/qT2rqBYlMvnrPH9wm7kIDJzmO1S1AzIztfG1pXugv+ESxkdr9WAJGnajHS2vvYGbNbp1dUV37mLAL+SmRzFxcUWm/do6Svx3YSIgymC4w8DaCNamiQnQBfaKR9GMR+ZiuKLiblDcURw/35VwCgl7RZWLeX76PH0iJBKk0649y1MQWgdcmaKmtqHn3eGI3bSjGEzISy/lWp9NA/xZanKbZc/xIGY3vZ7TqlWC0m4MfkLNg/n9cbxzq8BNGGwXToup0LUxXq7Xb3Fv72mXSoz85P75i0w84tgiyqA==
+X-YMail-OSG: 9b4A_PoVM1n1T7iGDmnLtD49BrkpQPhn3ztgcWJKVc2B_q5Oo5DLtXGhjKlQWrf
+ DZYz9gI6jqbm1I6AFuXIBkJn.68OnB0PMzqIKdqGfL8h1v.jhHkozPNquTM02pdrSOkjYuR2mEZW
+ 6NOeVkcj8YixKx9RcoE6qJOxGJMp95lh44oIC4f8gPaLrC5dRahHaybgdLtC4DOiD2dny415PImb
+ PuaFc8S9wZAP2bk9TAe1AMBTvpBdODr9i24j8MtbUGOixcxFFi1S70SFbWvbEM___fSaw58psRmz
+ oBkeNKygUd73EMaqLbq_gPd2v1WiMcWVO9pIJH7r83ihY7d239mL8I406ExNjUW8eJDS8nmzyRMa
+ fQEaZWaN4C6crTnwzDzRqvxjThncNrMXCdT5PMN89Vu_YYxN_TCWlacSSVVKfgCM5.7c_ecUbBCH
+ 2bYQ12KFaRwtRHULx9eJG_1.vu64gTl6zp39TXcAJqGoSJoOGGe20z5DhnktDnFL23QTEWa9EMHn
+ _Ef412vS7MUXufwGkzBxdZ4bHwZQr6OmzzkR4yzX.7V2rvB2OmBxFUPxZFXjP7XMf3s_QbBFfAS9
+ UxpEirUpWWgkcQkXecGoI.NbpwjRPHKMFR4FfY4FPctQfv_fi5AHdTI_34WLmgCaN3eSPj.t5vhK
+ w11JRFQtfbOji6r7Ax4BAgaDUoI885rsZmrYD8BUGkJM8uQjSU.4YqkK1xdEp4E4wMNJOR.8fr9T
+ S820u1Pa5RTh8..xxt9LfQGhj2iU1XXraF2QPwU17Jh4Axqk5UhRKOEfSO5A_tu6WU9Gw4u92bLU
+ ajpqtDsOCq9KM5xh8GDNSOLDqAeLj8EcwXCN1PhSgBjgGqx5LI94mq4M4VVUNps8dWX42ZJetQEe
+ DrKAlkFyj4K1zc1wN3wNN43_YnDdmFhnjAUsUE4VVb_dB2uPyOUG0U7noA_o94rQpZY071FoA3SM
+ Tss0h9qyxt6zwzeKxK8KaUOm7QeW.sSzaPXYdeO36kaS.oKgYUOO3ZH1.jCCuKRRNIEX.AzKRr0i
+ YNOHyRfgw64BEjbq0eHChfxqIZI5Z43SIRhKbF3E5RHMZvhlSEQMyIblLyIrotTlbWe1HZNYLrBY
+ McnaRTZRWbg8iBHRmKp2fK2MqMuYzWatHrnvGypr3XGHH4_QuyJgJECfu4TDecEg1MU6Gh3OU7LC
+ nutxcUOE5s3TtkxEw2Dcaamp_5H5i1Fi_ixiyYIaxNQRfqwdWYgsRddulp3Pgcz31adAbuqtFTW0
+ ZpQdN0IYNAQvIOMeFGOb69R072T3OO_Zfo_wXT2ZZ2Z8bURRFcWot7494jlU6DXMHo3zw3qaJbKz
+ ZQ.PCFmkw_eub2ivVyg7LPPWQp3etGSRKKzM5i9nbmkXqZ73COe2CEbWiFOEGytdAyIuliMyfBqn
+ NfHT43me06BSKY8e35Kg4JwhexfqBucUB2IIqtCclhwpOlwmI4u277neTEmIL7vayRLRqSy6UaN3
+ TRlbKEmVMLxw2NDf3rsyRRSPCD0_l1T0GRzOHxtHzYUvzJO76GONQDfNlDqA0dyZ1ZaNoiiY-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Wed, 14 Oct 2020 16:30:59 +0000
+Received: by smtp414.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 06e8891b9b1ba7aa28a4fd4fb3f42561;
+          Wed, 14 Oct 2020 16:30:57 +0000 (UTC)
+To:     Paul Moore <paul@paul-moore.com>,
+        Olga Kornievskaia <aglo@umich.edu>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Chuck Lever <chucklever@gmail.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>
+References: <CAN-5tyETQWVphrgqWjcPrtTzHHyz5DGrRz741yPYRS9Byyd=3Q@mail.gmail.com>
+ <CAHC9VhRP2iJqLWiBg46zPKUqxzZoUOuaA6FPigxOw7qubophdw@mail.gmail.com>
+ <CAN-5tyFq775PeOOzqskFexdbCgK3Gk_XB2Yy80SRYSc7Pdj=CA@mail.gmail.com>
+ <CAHC9VhTzO1z6NmYz6cOLg5OvJiyQXdH_VmLh4=+h1MrGXx36JQ@mail.gmail.com>
+ <CAN-5tyGJxUZb5QdJ=fh+L-6rc2B-MhQbDcDkTZNAZAAJm9Q8YQ@mail.gmail.com>
+ <FB6C74CE-5D9F-4469-A49B-93CC8A51D7D5@gmail.com>
+ <CAN-5tyFQbfkiuno07C6Azc7RcF3z3qF3PP0FutFMD3raBgnQmA@mail.gmail.com>
+ <CAEjxPJ7PoAG6f+gVdodx=6X8+_Z_WCFXAuxnpB8WmC1gTF4iQQ@mail.gmail.com>
+ <CAN-5tyEy57xoqEbZAThZKHriJywx-5DMKBD5tsXwo5ccGwuctw@mail.gmail.com>
+ <CAHC9VhQpCXFySZY42==KR57hfAkVLdS6mSAcp2UHn-GWjEfVLg@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: selinux: how to query if selinux is enabled
+Message-ID: <bc766b2b-d1f1-d767-579c-02e10ae32a9a@schaufler-ca.com>
+Date:   Wed, 14 Oct 2020 09:30:56 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.2
 MIME-Version: 1.0
-In-Reply-To: <20201013144805.GC304424@localhost.localdomain>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
-Content-Disposition: inline
+In-Reply-To: <CAHC9VhQpCXFySZY42==KR57hfAkVLdS6mSAcp2UHn-GWjEfVLg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Mailer: WebService/1.1.16845 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---eAbsdosE1cNLO4uF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 10/14/2020 8:57 AM, Paul Moore wrote:
+> On Wed, Oct 14, 2020 at 10:37 AM Olga Kornievskaia <aglo@umich.edu> wro=
+te:
+>> On Tue, Oct 13, 2020 at 7:51 PM Stephen Smalley wrote:
+>>> I would suggest either introducing a new hook for your purpose, or
+>>> altering the existing one to support a form of query that isn't based=
 
-On Tue, Oct 13, 2020 at 04:48:05PM +0200, Petr Lautrbach wrote:
-> On Sun, Oct 04, 2020 at 04:03:39PM +0200, Nicolas Iooss wrote:
-> > Function matchpathcon() is deprecated in favor of selabel_lookup() but
-> > program "matchpathcon" is much easier to use than "selabel_loopkup" to
-> > find the file context which would be applied to some files and
-> > directories.
-> >=20
-> > More precisely:
-> >=20
-> >     matchpathcon /path/to/my/file
-> >=20
-> > is easier to type and remember than:
-> >=20
-> >     selabel_lookup -b file -k /path/to/my/file
-> >=20
-> > It also allows performing multiple context searches in one command,
-> > where selabel_lookup cannot use multiple -k options.
-> >=20
-> > Migrate matchpathcon to the preferred API.
-> >=20
-> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->=20
->=20
-> Thanks for this!
->=20
-> Travis run https://travis-ci.org/github/bachradsusi/SELinuxProject-selinu=
-x/builds/735357374
->=20
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
->=20
+>>> on a particular xattr name but rather just checking whether the modul=
+e
+>>> supports/uses MAC labels at all.  Options: 1) NULL argument to the
+>>> existing hook indicates a general query (could hide a bug in the
+>>> caller, so not optimal), 2) Add a new bool argument to the existing
+>>> hook to indicate whether the name should be used, or 3) Add a new hoo=
+k
+>>> that doesn't take any arguments.
+>> Hi Stephen,
+>>
+>> Yes it seems like current api lacks the needed functionality and what
+>> you are suggesting is needed. Thank you for confirming it.
+> To add my two cents at this point, I would be in favor of a new LSM
+> hook rather than hijacking security_ismaclabel().  It seems that every
+> few years someone comes along and asks for a way to detect various LSM
+> capabilities, this might be the right time to introduce a LSM API for
+> this.
+>
+> My only concern about adding such an API is it could get complicated
+> very quickly.  One nice thing we have going for us is that this is a
+> kernel internal API so we don't have to worry about kernel/userspace
+> ABI promises, if we decide we need to change the API at some point in
+> the future we can do so without problem.  For that reason I'm going to
+> suggest we do something relatively simple with the understanding that
+> we can change it if/when the number of users grow.
+>
+> To start the discussion I might suggest the following:
+>
+> #define LSM_FQUERY_VFS_NONE     0x00000000
+> #define LSM_FQUERY_VFS_XATTRS   0x00000001
+> int security_func_query_vfs(unsigned int flags);
+>
+> ... with an example SELinux implementation looks like this:
+>
+> int selinux_func_query_vfs(unsigned int flags)
+> {
+>     return !!(flags & LSM_FQUERY_VFS_XATTRS);
+> }
 
-It's merged now.
+Not a bad start, but I see optimizations and issues.
 
->=20
-> > ---
-> >  libselinux/utils/Makefile       |  2 -
-> >  libselinux/utils/matchpathcon.c | 87 ++++++++++++++-------------------
-> >  2 files changed, 38 insertions(+), 51 deletions(-)
-> >=20
-> > diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> > index aa2d3e1b144f..b018a08acbe0 100644
-> > --- a/libselinux/utils/Makefile
-> > +++ b/libselinux/utils/Makefile
-> > @@ -56,8 +56,6 @@ sefcontext_compile: LDLIBS +=3D $(PCRE_LDLIBS) ../src=
-/libselinux.a -lsepol
-> > =20
-> >  sefcontext_compile: sefcontext_compile.o ../src/regex.o
-> > =20
-> > -matchpathcon: CFLAGS +=3D -Wno-deprecated-declarations
-> > -
-> >  all: $(TARGETS)
-> > =20
-> >  install: all
-> > diff --git a/libselinux/utils/matchpathcon.c b/libselinux/utils/matchpa=
-thcon.c
-> > index cc018d213f4c..a07e160dee71 100644
-> > --- a/libselinux/utils/matchpathcon.c
-> > +++ b/libselinux/utils/matchpathcon.c
-> > @@ -1,15 +1,14 @@
-> > -#include <unistd.h>
-> > -#include <stdio.h>
-> > -#include <stdlib.h>
-> > -#include <getopt.h>
-> >  #include <errno.h>
-> > -#include <string.h>
-> > +#include <getopt.h>
-> >  #include <limits.h>
-> > -#include <sys/types.h>
-> > -#include <sys/stat.h>
-> > +#include <selinux/label.h>
-> >  #include <selinux/selinux.h>
-> > -#include <limits.h>
-> > +#include <stdio.h>
-> >  #include <stdlib.h>
-> > +#include <string.h>
-> > +#include <sys/stat.h>
-> > +#include <sys/types.h>
-> > +#include <unistd.h>
-> > =20
-> >  static __attribute__ ((__noreturn__)) void usage(const char *progname)
-> >  {
-> > @@ -19,15 +18,21 @@ static __attribute__ ((__noreturn__)) void usage(co=
-nst char *progname)
-> >  =09exit(1);
-> >  }
-> > =20
-> > -static int printmatchpathcon(const char *path, int header, int mode)
-> > +static int printmatchpathcon(struct selabel_handle *hnd, const char *p=
-ath, int header, int mode, int notrans)
-> >  {
-> > -=09char *buf;
-> > -=09int rc =3D matchpathcon(path, mode, &buf);
-> > +=09char *buf =3D NULL;
-> > +=09int rc;
-> > +
-> > +=09if (notrans) {
-> > +=09=09rc =3D selabel_lookup_raw(hnd, &buf, path, mode);
-> > +=09} else {
-> > +=09=09rc =3D selabel_lookup(hnd, &buf, path, mode);
-> > +=09}
-> >  =09if (rc < 0) {
-> >  =09=09if (errno =3D=3D ENOENT) {
-> >  =09=09=09buf =3D strdup("<<none>>");
-> >  =09=09} else {
-> > -=09=09=09fprintf(stderr, "matchpathcon(%s) failed: %s\n", path,
-> > +=09=09=09fprintf(stderr, "selabel_lookup(%s) failed: %s\n", path,
-> >  =09=09=09=09strerror(errno));
-> >  =09=09=09return 1;
-> >  =09=09}
-> > @@ -66,15 +71,14 @@ static mode_t string_to_mode(char *s)
-> > =20
-> >  int main(int argc, char **argv)
-> >  {
-> > -=09int i, init =3D 0, force_mode =3D 0;
-> > +=09int i, force_mode =3D 0;
-> >  =09int header =3D 1, opt;
-> >  =09int verify =3D 0;
-> >  =09int notrans =3D 0;
-> >  =09int error =3D 0;
-> >  =09int quiet =3D 0;
-> > -
-> > -=09fprintf(stderr,
-> > -=09=09"Deprecated, use selabel_lookup\n");
-> > +=09struct selabel_handle *hnd;
-> > +=09struct selinux_opt options[SELABEL_NOPT] =3D {};
-> > =20
-> >  =09if (argc < 2)
-> >  =09=09usage(argv[0]);
-> > @@ -96,23 +100,10 @@ int main(int argc, char **argv)
-> >  =09=09=09break;
-> >  =09=09case 'N':
-> >  =09=09=09notrans =3D 1;
-> > -=09=09=09set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
-> >  =09=09=09break;
-> >  =09=09case 'f':
-> > -=09=09=09if (init) {
-> > -=09=09=09=09fprintf(stderr,
-> > -=09=09=09=09=09"%s:  -f and -p are exclusive\n",
-> > -=09=09=09=09=09argv[0]);
-> > -=09=09=09=09exit(1);
-> > -=09=09=09}
-> > -=09=09=09init =3D 1;
-> > -=09=09=09if (matchpathcon_init(optarg)) {
-> > -=09=09=09=09fprintf(stderr,
-> > -=09=09=09=09=09"Error while processing %s:  %s\n",
-> > -=09=09=09=09=09optarg,
-> > -=09=09=09=09=09errno ? strerror(errno) : "invalid");
-> > -=09=09=09=09exit(1);
-> > -=09=09=09}
-> > +=09=09=09options[SELABEL_OPT_PATH].type =3D SELABEL_OPT_PATH;
-> > +=09=09=09options[SELABEL_OPT_PATH].value =3D optarg;
-> >  =09=09=09break;
-> >  =09=09case 'P':
-> >  =09=09=09if (selinux_set_policy_root(optarg) < 0 ) {
-> > @@ -124,20 +115,11 @@ int main(int argc, char **argv)
-> >  =09=09=09}
-> >  =09=09=09break;
-> >  =09=09case 'p':
-> > -=09=09=09if (init) {
-> > -=09=09=09=09fprintf(stderr,
-> > -=09=09=09=09=09"%s:  -f and -p are exclusive\n",
-> > -=09=09=09=09=09argv[0]);
-> > -=09=09=09=09exit(1);
-> > -=09=09=09}
-> > -=09=09=09init =3D 1;
-> > -=09=09=09if (matchpathcon_init_prefix(NULL, optarg)) {
-> > -=09=09=09=09fprintf(stderr,
-> > -=09=09=09=09=09"Error while processing %s:  %s\n",
-> > -=09=09=09=09=09optarg,
-> > -=09=09=09=09=09errno ? strerror(errno) : "invalid");
-> > -=09=09=09=09exit(1);
-> > -=09=09=09}
-> > +=09=09=09// This option has been deprecated since libselinux 2.5 (2016=
-):
-> > +=09=09=09// https://github.com/SELinuxProject/selinux/commit/26e05da0f=
-c2d0a4bd274320968a88f8acbb3b6a6
-> > +=09=09=09fprintf(stderr, "Warning: using %s -p is deprecated\n", argv[=
-0]);
-> > +=09=09=09options[SELABEL_OPT_SUBSET].type =3D SELABEL_OPT_SUBSET;
-> > +=09=09=09options[SELABEL_OPT_SUBSET].value =3D optarg;
-> >  =09=09=09break;
-> >  =09=09case 'q':
-> >  =09=09=09quiet =3D 1;
-> > @@ -146,6 +128,13 @@ int main(int argc, char **argv)
-> >  =09=09=09usage(argv[0]);
-> >  =09=09}
-> >  =09}
-> > +=09hnd =3D selabel_open(SELABEL_CTX_FILE, options, SELABEL_NOPT);
-> > +=09if (!hnd) {
-> > +=09=09fprintf(stderr,
-> > +=09=09=09"Error while opening file contexts database: %s\n",
-> > +=09=09=09strerror(errno));
-> > +=09=09return -1;
-> > +=09}
-> >  =09for (i =3D optind; i < argc; i++) {
-> >  =09=09int rc, mode =3D 0;
-> >  =09=09struct stat buf;
-> > @@ -185,19 +174,19 @@ int main(int argc, char **argv)
-> >  =09=09=09=09if (rc >=3D 0) {
-> >  =09=09=09=09=09printf("%s has context %s, should be ",
-> >  =09=09=09=09=09       path, con);
-> > -=09=09=09=09=09printmatchpathcon(path, 0, mode);
-> > +=09=09=09=09=09printmatchpathcon(hnd, path, 0, mode, notrans);
-> >  =09=09=09=09=09freecon(con);
-> >  =09=09=09=09} else {
-> >  =09=09=09=09=09printf
-> >  =09=09=09=09=09    ("actual context unknown: %s, should be ",
-> >  =09=09=09=09=09     strerror(errno));
-> > -=09=09=09=09=09printmatchpathcon(path, 0, mode);
-> > +=09=09=09=09=09printmatchpathcon(hnd, path, 0, mode, notrans);
-> >  =09=09=09=09}
-> >  =09=09=09}
-> >  =09=09} else {
-> > -=09=09=09error |=3D printmatchpathcon(path, header, mode);
-> > +=09=09=09error |=3D printmatchpathcon(hnd, path, header, mode, notrans=
-);
-> >  =09=09}
-> >  =09}
-> > -=09matchpathcon_fini();
-> > +=09selabel_close(hnd);
-> >  =09return error;
-> >  }
-> > --=20
-> > 2.28.0
-> >=20
+It would be really easy to collect the LSM features at module
+initialization by adding the feature flags to struct lsm_info.
+We could maintain a variable lsm_features in security.c that
+has the cumulative feature set. Rather than have an LSM hook for
+func_query_vfs we'd get
 
+int security_func_query_vfs(void)
+{
+	return !!(lsm_features & LSM_FQUERY_VFS_XATTRS);
+}
 
+In either case there could be confusion in the case where more
+than one security module provides the feature. NFS, for example,
+cares about the SELinux "selinux" attribute, but probably not
+about the Smack "SMACK64EXEC" attribute. It's entirely possible
+that a bit isn't enough information to check about a "feature".
 
---eAbsdosE1cNLO4uF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl+HIB4ACgkQviIJHj72
-InWrIBAAxlNbJSFPxCuZwIcz+TqeUuZ+HqZLPHA3QsB4/EdvudBDmmxllCFKcPxo
-lCTWYDMFIPNLGTpvJ0K8gBh4Jd8q5qxAyti9rTS8MDyUrPA7aT8UlJ/UN9llx0rQ
-BTSamsPc/rgoMQSyFm3UVk1jkL4jiBGMdkVrr3xfbKXjAxYPPDgi1YBMvHsbXd33
-Eh61wrQpehhT09lkWp2bNfgaPp+hrrcmzJpVaW1lFG0CQ8F+vomwItSeiQ2ZFZwc
-DrecVVCC6WzCe1Hr2L2+/X+qd7kMygcsk6sPpCIH89bIPqx9HCNFkyXRse2RXOTD
-iU4MruXaYOItPPWRI7z72DzlRxlVCPvl/etd9HVCCJfQAxzvb2BYPbeyV834SkQz
-2a0tnq9E2Gvm7lWKgAI+qzgmxZMQdTL3gzmScUa/MbGsgpxtAq7kVBtK7v3SpnYe
-Xk8LI9VQICd4MzgoxRQzlIHJeFz4dXzp9gZuJkit/kLgfY+M0MbpvKY0eRFuy7II
-9/525h4l95K6GhSRWYD5EbV/8x+o7H/dkG5eWXGaUbAsx6rz6JAHTeiyW822+1x0
-5F+dmJMGWIEiWslsgsTu4e20cvvw+pUZycqY/s6L8DXjnPEdu6ptzmD1jFzSHqS+
-+JtPWHGmxLsDYCE0cz9baR/Glfh3IPGWytZoTL6hNHjvIXIsx3M=
-=+Kxj
------END PGP SIGNATURE-----
-
---eAbsdosE1cNLO4uF--
 
