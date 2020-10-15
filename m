@@ -2,181 +2,235 @@ Return-Path: <SRS0=0RAF=DW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8991C41604
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 19:30:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B0BDC433E7
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 20:43:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E0EA20759
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 19:30:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCC40206DC
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 20:43:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="T4JX5bR3"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zi7llGg/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391545AbgJOTaK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Oct 2020 15:30:10 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:50336 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391541AbgJOTaH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 15:30:07 -0400
-Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 92E5B20B4905;
-        Thu, 15 Oct 2020 12:30:05 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 92E5B20B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1602790206;
-        bh=/s1+tL8aN2AlrCdowqTni81s0i+w8b2KrVLgK9GG9ho=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4JX5bR3xjDFZ/tCxetWOgXh2Rg3TqqmeZAMenuBtiKEcsKeKA/spES60iIIsULm4
-         P4EEOnQ9CSe09OAZuDdKNbGXdwh4Wo7Rtv7+PltRu70+9JNTBTj/tspGQcuJh2IsMf
-         eliJoRWB2JgsKEFOZR0IbarmLTQ+MkdTHml3gcqQ=
-From:   Daniel Burgener <dburgener@linux.microsoft.com>
-To:     stable@vger.kernel.org
-Cc:     stephen.smalley.work@gmail.com, paul@paul-moore.com,
-        selinux@vger.kernel.org, jmorris@namei.org, sashal@kernel.org
-Subject: [PATCH v5.4 2/3] selinux: Refactor selinuxfs directory populating functions
-Date:   Thu, 15 Oct 2020 15:29:55 -0400
-Message-Id: <20201015192956.1797021-3-dburgener@linux.microsoft.com>
+        id S1726299AbgJOUn5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Oct 2020 16:43:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732734AbgJOUn5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 16:43:57 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FAEC061755
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 13:43:57 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id j13so6372579ilc.4
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 13:43:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XdTNCF12wBZZC3NS60mOokVJLbe1fbfIWp5dXsDA0Y4=;
+        b=Zi7llGg/3MxHu4KOHSKIt/nTdpbpDcUUfsTGVswxUk4p8xB9s3QkMKn6WXI658fruI
+         Ztq7iTMiV48Z8+gH0EkrMIBgsDr2sXiEMLaBxHf2AB5wpHAucK9djfRE7KCzpsN8GRbn
+         yt72s8gukjuo+W9rrTkF1kSo1BBjd3PKVhs64jfLNO8tubs+NiltFFjBR+UX7KupXSvI
+         fQOCHIdFCuXpUmXCNkH2PqnNCZ+hwi5F53cvSpGiBKSwjyE1gh5yB6MO2A1BFBS+1eOX
+         GrFvgSGo6+tgrNZpNgfaQOYZ6YFmdlLRMkdU/yZWcYsrsNuw8PePh/SqkPSkkI/u9Hxy
+         k/wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XdTNCF12wBZZC3NS60mOokVJLbe1fbfIWp5dXsDA0Y4=;
+        b=HmeeoEA1iuHtOV3nGEumLlfyFXXNpAd7/m46NHLFYXlDLZrp9ClZ5TP+GoTEFoFJTB
+         6fcBjcd+AigbMAg16g1DJECZJo4dDk3+i91jXyTpdoFSNAQgxzCatX3LB07LZ/p0ZFGr
+         zw6jHM7so+QmHXocLW2531SJmXXdcbCK8jQF1W4rPgDtg72RjoYbHfo57gX/+UeXL6VY
+         z9Jv59wqNQsWYoqAVrVv5dI2bpDhUmCZTaxDE7hbPolAcFRIrl/tiqQaTvXMnmLG4hcv
+         Q+pXS+snRiINxQ2bC6OwRts2efg0Hf0sRfqjDwLcXUk1y+08deY4aFRslzLJQ7SQLDGX
+         clFg==
+X-Gm-Message-State: AOAM531k2iMEP5JfUut+NHPconVR1nN//OImPs4NoB0X3Y/Kp4l1kg4m
+        39NCLnvdTEUJD/SNUcp7lVLtkHXnGCw=
+X-Google-Smtp-Source: ABdhPJxa60QYot/IObtgLhrJlJQ8wZxb2eKWs6LiPbSytrds5w7CfJpc2fhF+WorhVSP6NcbatluAg==
+X-Received: by 2002:a92:cd05:: with SMTP id z5mr288464iln.15.1602794636178;
+        Thu, 15 Oct 2020 13:43:56 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id w22sm200789iob.32.2020.10.15.13.43.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Oct 2020 13:43:55 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Give error for more than one true or false block
+Date:   Thu, 15 Oct 2020 16:43:52 -0400
+Message-Id: <20201015204352.569018-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20201015192956.1797021-1-dburgener@linux.microsoft.com>
-References: <20201015192956.1797021-1-dburgener@linux.microsoft.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Make sel_make_bools and sel_make_classes take the specific elements of
-selinux_fs_info that they need rather than the entire struct.
+Both tunableif and booleanif use conditional blocks (either true or
+false). No ordering is imposed, so a false block can be first (or even
+the only) block. Checks are made to ensure that the first and second
+(if it exists) blocks are either true or false, but no checks are made
+to ensure that there is only one true and/or one false block. If there
+are more than one true or false block, only the first will be used and
+the other will be ignored.
 
-This will allow a future patch to pass temporary elements that are not in
-the selinux_fs_info struct to these functions so that the original elements
-can be preserved until we are ready to perform the switch over.
+Create a function, cil_verify_conditional_blocks(), that gives an error
+along with a message if more than one true or false block is specified
+and call that function when building tunableif and booleanif blocks in
+the AST.
 
-Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- security/selinux/selinuxfs.c | 40 +++++++++++++++++++++---------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+ libsepol/cil/src/cil_build_ast.c | 44 +++++---------------------------
+ libsepol/cil/src/cil_verify.c    | 35 +++++++++++++++++++++++++
+ libsepol/cil/src/cil_verify.h    |  1 +
+ 3 files changed, 42 insertions(+), 38 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 092c7295f78d..ea21f3ef4a6f 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -340,8 +340,11 @@ static const struct file_operations sel_policyvers_ops = {
- };
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 3aabb05e..a8955834 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -2821,7 +2821,6 @@ int cil_gen_boolif(struct cil_db *db, struct cil_tree_node *parse_current, struc
+ 	int syntax_len = sizeof(syntax)/sizeof(*syntax);
+ 	struct cil_booleanif *bif = NULL;
+ 	struct cil_tree_node *next = NULL;
+-	struct cil_tree_node *cond = NULL;
+ 	int rc = SEPOL_ERR;
  
- /* declaration for sel_write_load */
--static int sel_make_bools(struct selinux_fs_info *fsi);
--static int sel_make_classes(struct selinux_fs_info *fsi);
-+static int sel_make_bools(struct selinux_fs_info *fsi, struct dentry *bool_dir,
-+			  unsigned int *bool_num, char ***bool_pending_names,
-+			  unsigned int **bool_pending_values);
-+static int sel_make_classes(struct selinux_fs_info *fsi, struct dentry *class_dir,
-+			    unsigned long *last_class_ino);
- static int sel_make_policycap(struct selinux_fs_info *fsi);
- 
- /* declaration for sel_make_class_dirs */
-@@ -531,13 +534,15 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi)
- 
- 	sel_remove_old_policy_nodes(fsi);
- 
--	ret = sel_make_bools(fsi);
-+	ret = sel_make_bools(fsi, fsi->bool_dir, &fsi->bool_num,
-+			     &fsi->bool_pending_names, &fsi->bool_pending_values);
- 	if (ret) {
- 		pr_err("SELinux: failed to load policy booleans\n");
- 		return ret;
+ 	if (db == NULL || parse_current == NULL || ast_node == NULL) {
+@@ -2841,27 +2840,12 @@ int cil_gen_boolif(struct cil_db *db, struct cil_tree_node *parse_current, struc
+ 		goto exit;
  	}
  
--	ret = sel_make_classes(fsi);
-+	ret = sel_make_classes(fsi, fsi->class_dir,
-+			       &fsi->last_class_ino);
- 	if (ret) {
- 		pr_err("SELinux: failed to load policy classes\n");
- 		return ret;
-@@ -1348,12 +1353,13 @@ static void sel_remove_entries(struct dentry *de)
- 
- #define BOOL_DIR_NAME "booleans"
- 
--static int sel_make_bools(struct selinux_fs_info *fsi)
-+static int sel_make_bools(struct selinux_fs_info *fsi, struct dentry *bool_dir,
-+			  unsigned int *bool_num, char ***bool_pending_names,
-+			  unsigned int **bool_pending_values)
- {
- 	int i, ret;
- 	ssize_t len;
- 	struct dentry *dentry = NULL;
--	struct dentry *dir = fsi->bool_dir;
- 	struct inode *inode = NULL;
- 	struct inode_security_struct *isec;
- 	char **names = NULL, *page;
-@@ -1372,12 +1378,12 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
- 
- 	for (i = 0; i < num; i++) {
- 		ret = -ENOMEM;
--		dentry = d_alloc_name(dir, names[i]);
-+		dentry = d_alloc_name(bool_dir, names[i]);
- 		if (!dentry)
- 			goto out;
- 
- 		ret = -ENOMEM;
--		inode = sel_make_inode(dir->d_sb, S_IFREG | S_IRUGO | S_IWUSR);
-+		inode = sel_make_inode(bool_dir->d_sb, S_IFREG | S_IRUGO | S_IWUSR);
- 		if (!inode) {
- 			dput(dentry);
- 			goto out;
-@@ -1406,9 +1412,9 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
- 		inode->i_ino = i|SEL_BOOL_INO_OFFSET;
- 		d_add(dentry, inode);
+-	cond = parse_current->next->next;
+-
+-	/* Destroying expr tree after stack is created*/
+-	if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+-		cond->cl_head->data != CIL_KEY_CONDFALSE) {
+-		rc = SEPOL_ERR;
+-		cil_log(CIL_ERR, "Conditional neither true nor false\n");
++	rc = cil_verify_conditional_blocks(parse_current->next->next);
++	if (rc != SEPOL_OK) {
+ 		goto exit;
  	}
--	fsi->bool_num = num;
--	fsi->bool_pending_names = names;
--	fsi->bool_pending_values = values;
-+	*bool_num = num;
-+	*bool_pending_names = names;
-+	*bool_pending_values = values;
  
- 	free_page((unsigned long)page);
- 	return 0;
-@@ -1421,7 +1427,7 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
- 		kfree(names);
+-	if (cond->next != NULL) {
+-		cond = cond->next;
+-		if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+-			cond->cl_head->data != CIL_KEY_CONDFALSE) {
+-			rc = SEPOL_ERR;
+-			cil_log(CIL_ERR, "Conditional neither true nor false\n");
+-			goto exit;
+-		}
+-	}
+-
+-
++	/* Destroying expr tree */
+ 	next = parse_current->next->next;
+ 	cil_tree_subtree_destroy(parse_current->next);
+ 	parse_current->next = next;
+@@ -2905,7 +2889,6 @@ int cil_gen_tunif(struct cil_db *db, struct cil_tree_node *parse_current, struct
+ 	int syntax_len = sizeof(syntax)/sizeof(*syntax);
+ 	struct cil_tunableif *tif = NULL;
+ 	struct cil_tree_node *next = NULL;
+-	struct cil_tree_node *cond = NULL;
+ 	int rc = SEPOL_ERR;
+ 
+ 	if (db == NULL || parse_current == NULL || ast_node == NULL) {
+@@ -2924,27 +2907,12 @@ int cil_gen_tunif(struct cil_db *db, struct cil_tree_node *parse_current, struct
+ 		goto exit;
  	}
- 	kfree(values);
--	sel_remove_entries(dir);
-+	sel_remove_entries(bool_dir);
  
- 	return ret;
- }
-@@ -1806,7 +1812,9 @@ static int sel_make_class_dir_entries(char *classname, int index,
- 	return rc;
+-	cond = parse_current->next->next;
+-
+-	if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+-		cond->cl_head->data != CIL_KEY_CONDFALSE) {
+-		rc = SEPOL_ERR;
+-		cil_log(CIL_ERR, "Conditional neither true nor false\n");
++	rc = cil_verify_conditional_blocks(parse_current->next->next);
++	if (rc != SEPOL_OK) {
+ 		goto exit;
+ 	}
+ 
+-	if (cond->next != NULL) {
+-		cond = cond->next;
+-
+-		if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+-			cond->cl_head->data != CIL_KEY_CONDFALSE) {
+-			rc = SEPOL_ERR;
+-			cil_log(CIL_ERR, "Conditional neither true nor false\n");
+-			goto exit;
+-		}
+-	}
+-
+-	/* Destroying expr tree after stack is created*/
++	/* Destroying expr tree */
+ 	next = parse_current->next->next;
+ 	cil_tree_subtree_destroy(parse_current->next);
+ 	parse_current->next = next;
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index c73bbeee..7b3d2a8b 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -324,6 +324,41 @@ exit:
+ 	return SEPOL_ERR;
  }
  
--static int sel_make_classes(struct selinux_fs_info *fsi)
-+static int sel_make_classes(struct selinux_fs_info *fsi,
-+			    struct dentry *class_dir,
-+			    unsigned long *last_class_ino)
++int cil_verify_conditional_blocks(struct cil_tree_node *current)
++{
++	int found_true = CIL_FALSE;
++	int found_false = CIL_FALSE;
++
++	if (current->cl_head->data == CIL_KEY_CONDTRUE) {
++		found_true = CIL_TRUE;
++	} else if (current->cl_head->data == CIL_KEY_CONDFALSE) {
++		found_false = CIL_TRUE;
++	} else {
++		cil_tree_log(current,CIL_ERR,"Expected true or false block in conditional");
++		return SEPOL_ERR;
++	}
++
++	current = current->next;
++	if (current != NULL) {
++		if (current->cl_head->data == CIL_KEY_CONDTRUE) {
++			if (found_true) {
++				cil_tree_log(current,CIL_ERR,"More than one true block in conditional");
++				return SEPOL_ERR;
++			}
++		} else if (current->cl_head->data == CIL_KEY_CONDFALSE) {
++			if (found_false) {
++				cil_tree_log(current,CIL_ERR,"More than one false block in conditional");
++				return SEPOL_ERR;
++			}
++		} else {
++			cil_tree_log(current,CIL_ERR,"Expected true or false block in conditional");
++			return SEPOL_ERR;
++		}
++	}
++
++	return SEPOL_OK;
++}
++
+ int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list)
  {
- 
- 	int rc, nclasses, i;
-@@ -1817,13 +1825,13 @@ static int sel_make_classes(struct selinux_fs_info *fsi)
- 		return rc;
- 
- 	/* +2 since classes are 1-indexed */
--	fsi->last_class_ino = sel_class_to_ino(nclasses + 2);
-+	*last_class_ino = sel_class_to_ino(nclasses + 2);
- 
- 	for (i = 0; i < nclasses; i++) {
- 		struct dentry *class_name_dir;
- 
--		class_name_dir = sel_make_dir(fsi->class_dir, classes[i],
--					      &fsi->last_class_ino);
-+		class_name_dir = sel_make_dir(class_dir, classes[i],
-+					      last_class_ino);
- 		if (IS_ERR(class_name_dir)) {
- 			rc = PTR_ERR(class_name_dir);
- 			goto out;
+ 	struct cil_list_item *i;
+diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
+index bda1565f..905761b0 100644
+--- a/libsepol/cil/src/cil_verify.h
++++ b/libsepol/cil/src/cil_verify.h
+@@ -61,6 +61,7 @@ int __cil_verify_syntax(struct cil_tree_node *parse_current, enum cil_syntax s[]
+ int cil_verify_expr_syntax(struct cil_tree_node *current, enum cil_flavor op, enum cil_flavor expr_flavor);
+ int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_flavor r_flavor, enum cil_flavor op, enum cil_flavor expr_flavor);
+ int cil_verify_constraint_expr_syntax(struct cil_tree_node *current, enum cil_flavor op);
++int cil_verify_conditional_blocks(struct cil_tree_node *current);
+ int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list);
+ int __cil_verify_ranges(struct cil_list *list);
+ int __cil_verify_ordered_node_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args);
 -- 
 2.25.4
 
