@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URI_HEX autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 475B9C433DF
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:00:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D81FC433E7
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:00:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5599206CA
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:00:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96E3120723
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:00:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EZ81CVrX"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jAMT8ZxI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389998AbgJORAR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Oct 2020 13:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52442 "EHLO
+        id S2389893AbgJORAn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Oct 2020 13:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389479AbgJORAR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:00:17 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22DB6C061755
-        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:00:17 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id d28so3581543ote.1
-        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:00:17 -0700 (PDT)
+        with ESMTP id S2389479AbgJORAn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:00:43 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0121DC061755
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:00:43 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id w141so3864195oia.2
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:00:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=fvrm5l35TMwDB9A6myTW+9LOSDfORFqxKtuSQ1xwPF8=;
-        b=EZ81CVrXgXjZ/XIaUAF8GjaF8Kj1IDwskC44mlHCrY4eeGyyHWtwTJdXQEhogCN+tr
-         qWJXCjbq9z2vY1pXpUBPY6y/XjU7ytmZhWkGtocl6s2QjJfWDR6mDuLuGJ3u6S3ccmAn
-         6u3gYTBG6Ddhn3Mr/0r7vG0tp5Xf9APRcisIzua09ve5XM+PoE9h5KV/+flGev7x0nZ3
-         NsW/qBieRvRh5udgwfPbBPJa6QtyEYpYufMEgqDH3FhaDSZEzM4tvkJ5HJs2MNtpCTUJ
-         7MZ6CyWxQd2ArERKtx49k3R1EdRMWFBpUdjnpaPfRdnjXL+7IhO5fsr5hzOYF/ilIgYz
-         OqgA==
+        bh=AQXKsZPFs+GdEvjAVNbpu/oYOe3qKIx1FQ+fpCUlsu0=;
+        b=jAMT8ZxIWLuBbs0QKnm/FdtHbU1BZUus42r16wW74AGfv/GzU6RSWPecm0scraLpI8
+         1Hyzvd1PNKVbPVwLLEJaX0ynMlxDVHzYKtaNghsOxqZvGmLRPWHn2BY80/EZBEFdIFzs
+         Hhv9m+iDv4cDYo6J8TMvqkNpP7X6NrNmc4n98emjZweG+GWankP6RrxFk2aKgA3Im8Rk
+         k20vR9bWZmRLxwuLhR9VkXg+ouf4HKe6BSgmZr0X0a2ZOuoeLzjdYABjMpwskPM/kT9q
+         jwUMoTc4PA/rm8CxfK1aw9FJhOl1m6yfsxOqtBJ+/TduMJ/UIpomYQJkf5eJVImviGe4
+         xnig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=fvrm5l35TMwDB9A6myTW+9LOSDfORFqxKtuSQ1xwPF8=;
-        b=B5nmkv/s8vw7QOTZSTGeTRGuXZZmsGCvFYgo20ipyFiVeiW25q1DRS1v3Qv7qO0C1h
-         48wrfJlwtXGC4gy4uhBM2cboibkDf/12pEJUAelV5gqKnAdTmPh5ErBEUZGoYY+K9c3C
-         oGPDMI6l8pH4ZJwACALNt97jURxDB8WoXfqQBeRMoas+X/d/q4bR+AEV63LvZp5KvwJS
-         rxaUV6yxUiRglg6QimX/ap3HCnn5keGAdN3hsuxevs9gBEvy83Eiwe0YaYc0y4OIHFDr
-         A/kJzuJ4CLsX2s5mG5NES8cUHMQIuvNdScDFoDSM+HLdA/zN6ZrvrDu15PuZYsNthYHx
-         u34g==
-X-Gm-Message-State: AOAM531lrXvnh1DAB9rf/L0igRUUK7qqOjMk7BDWNa7hjmHJRtNwc08z
-        7ipSEmeibdbza3MwKgYWrbNMEjC+8zZ0W9NbmoY=
-X-Google-Smtp-Source: ABdhPJwIljIAt9cV0IAxH95V3hveDkZ8vA30FWtzq7/GjhB4n1nATbPEILMZeAgM6mtx2oujCQDQtLBLPLHtBihGIHA=
-X-Received: by 2002:a9d:1406:: with SMTP id h6mr3218158oth.59.1602781216540;
- Thu, 15 Oct 2020 10:00:16 -0700 (PDT)
+        bh=AQXKsZPFs+GdEvjAVNbpu/oYOe3qKIx1FQ+fpCUlsu0=;
+        b=fkhiFXFH4gY7/FavjV+b7J06Ys//chf/FDdmD46RPcgtHTz+HiyMZ9MaEkksl0VeXH
+         sbg+6P4+lGtnCPzESL6XPuTjxiE1IOE2d98zATvu3SCjHqTxU9wC0vk905QO9CBKchJ/
+         XiCyae5OkR6nj6DiqL+puohs6oBvcBzBxqHL85RK0WbNh/pnyirddwQeGyQ2XFEJhRxB
+         MyJsdaa0RJzJdiHa2CkneKHB4OMv3tbo/URhHcF/LZemKkgG4o2aGR8+KrNwlWMPR8s+
+         qG0C7wLUUw+POZ3xquCXwb/ctgDjaY69ijTYCe2GvhGeNV1SsbmTlBWsVyA9xLLczrxC
+         u09Q==
+X-Gm-Message-State: AOAM532W33gkBPieWPyDhctVQdubeAkIBaeEpYKVd+PDniHl77dvVSR0
+        LfdoD0yelicMnsxcLB61uDazKk/piFLH8J0S2x6P+F4HL0o=
+X-Google-Smtp-Source: ABdhPJyfBUFWsE5rdwukvc0OrIiti+alhn+TJ3RGEMFZ5TcgEBMm21hxuCiHGc3jONdoZrBU9V2Jy1Jth8faylqxsIQ=
+X-Received: by 2002:aca:ac8c:: with SMTP id v134mr2794838oie.128.1602781242374;
+ Thu, 15 Oct 2020 10:00:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201003193957.1876526-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20201003193957.1876526-1-nicolas.iooss@m4x.org>
+References: <20201003193957.1876526-1-nicolas.iooss@m4x.org> <20201003193957.1876526-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20201003193957.1876526-2-nicolas.iooss@m4x.org>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 15 Oct 2020 13:00:05 -0400
-Message-ID: <CAP+JOzQVGvB2CJN+DF8dn1Y=EwJQErh9UThEmoec_=X6_ye6CQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol: drop confusing BUG_ON macro
+Date:   Thu, 15 Oct 2020 13:00:31 -0400
+Message-ID: <CAP+JOzTfHeF7DTEsubhC3Lhyvrj2S_TX-3rOUD7dtHa=zsoQdQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libsepol: silence potential NULL pointer dereference warning
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -68,80 +68,69 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Oct 3, 2020 at 3:40 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Sat, Oct 3, 2020 at 3:41 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> Contrary to Linux kernel, BUG_ON() does not halt the execution, in
-> libsepol/src/services.c. Instead it displays an error message and
-> continues the execution.
+> When find_avtab_node() is called with key->specified & AVTAB_XPERMS and
+> xperms=NULL, xperms is being dereferenced. This is detected as a
+> "NULL pointer dereference issue" by static analyzers.
 >
-> This means that this code does not prevent an out-of-bound write from
-> happening:
+> Even though it does not make much sense to call find_avtab_node() in a
+> way which triggers the NULL pointer dereference issue, static analyzers
+> have a hard time with calls such as:
 >
->     case CEXPR_AND:
->         BUG_ON(sp < 1);
->         sp--;
->         s[sp] &= s[sp + 1];
+>     node = find_avtab_node(handle, avtab, &avkey, cond, NULL);
 >
-> Use if(...){BUG();rc=-EINVAL;goto out;} constructions instead, to make
-> sure that the array access is always in-bound.
+> ... where xperms=NULL.
 >
-> This issue has been found using clang's static analyzer:
-> https://558-118970575-gh.circle-artifacts.com/0/output-scan-build/2020-10-02-065849-6375-1/report-50a861.html#EndPath
+> So, make the function report an error instead of crashing.
+>
+> Here is an example of report from clang's static analyzer:
+> https://558-118970575-gh.circle-artifacts.com/0/output-scan-build/2020-10-02-065849-6375-1/report-d86a57.html#EndPath
 >
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/services.c | 19 +++++++++++++++----
->  1 file changed, 15 insertions(+), 4 deletions(-)
+>  libsepol/src/expand.c | 23 ++++++++++++++---------
+>  1 file changed, 14 insertions(+), 9 deletions(-)
 >
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index 90da1f4efef3..beb0711f6680 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -67,7 +67,6 @@
->  #include "flask.h"
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 19e48c507236..eac7e4507d02 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1570,17 +1570,22 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
 >
->  #define BUG() do { ERR(NULL, "Badness at %s:%d", __FILE__, __LINE__); } while (0)
-> -#define BUG_ON(x) do { if (x) ERR(NULL, "Badness at %s:%d", __FILE__, __LINE__); } while (0)
->
->  static int selinux_enforcing = 1;
->
-> @@ -469,18 +468,30 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
->                 /* Now process each expression of the constraint */
->                 switch (e->expr_type) {
->                 case CEXPR_NOT:
-> -                       BUG_ON(sp < 0);
-> +                       if (sp < 0) {
-> +                               BUG();
-> +                               rc = -EINVAL;
-> +                               goto out;
-> +                       }
->                         s[sp] = !s[sp];
->                         cat_expr_buf(expr_list[expr_counter], "not");
->                         break;
->                 case CEXPR_AND:
-> -                       BUG_ON(sp < 1);
-> +                       if (sp < 1) {
-> +                               BUG();
-> +                               rc = -EINVAL;
-> +                               goto out;
-> +                       }
->                         sp--;
->                         s[sp] &= s[sp + 1];
->                         cat_expr_buf(expr_list[expr_counter], "and");
->                         break;
->                 case CEXPR_OR:
-> -                       BUG_ON(sp < 1);
-> +                       if (sp < 1) {
-> +                               BUG();
-> +                               rc = -EINVAL;
-> +                               goto out;
-> +                       }
->                         sp--;
->                         s[sp] |= s[sp + 1];
->                         cat_expr_buf(expr_list[expr_counter], "or");
+>         /* AVTAB_XPERMS entries are not necessarily unique */
+>         if (key->specified & AVTAB_XPERMS) {
+> -               node = avtab_search_node(avtab, key);
+> -               while (node) {
+> -                       if ((node->datum.xperms->specified == xperms->specified) &&
+> -                               (node->datum.xperms->driver == xperms->driver)) {
+> -                               match = 1;
+> -                               break;
+> +               if (xperms == NULL) {
+> +                       ERR(handle, "searching xperms NULL");
+> +                       node = NULL;
+> +               } else {
+> +                       node = avtab_search_node(avtab, key);
+> +                       while (node) {
+> +                               if ((node->datum.xperms->specified == xperms->specified) &&
+> +                                       (node->datum.xperms->driver == xperms->driver)) {
+> +                                       match = 1;
+> +                                       break;
+> +                               }
+> +                               node = avtab_search_node_next(node, key->specified);
+>                         }
+> -                       node = avtab_search_node_next(node, key->specified);
+> +                       if (!match)
+> +                               node = NULL;
+>                 }
+> -               if (!match)
+> -                       node = NULL;
+>         } else {
+>                 node = avtab_search_node(avtab, key);
+>         }
 > --
 > 2.28.0
 >
