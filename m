@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FADDC433E7
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:56:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94439C433DF
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:57:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15A4E22260
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:56:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3262122264
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:57:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a/urhkAZ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WjyKStQw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731532AbgJOR4d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Oct 2020 13:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32990 "EHLO
+        id S1729367AbgJOR47 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Oct 2020 13:56:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731528AbgJOR4d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:56:33 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72405C061755
-        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:56:33 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id d28so30309ote.1
-        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:56:33 -0700 (PDT)
+        with ESMTP id S2404966AbgJOR47 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:56:59 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B833C061755
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:56:59 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id f37so3692895otf.12
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:56:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=0mw7ipMyXBBpffVbbSqhYLAGa0V5fY2TnWdgSrkM7oU=;
-        b=a/urhkAZk7aKHe9VN5tc83Y2AvBSQKJFzP7LSI8TZRNrygTywOops556xYpZ2uPpac
-         /kx9lgO+U66COoFAh1fArcHDKuKS0Igh1gKCPr+PrVVq7nD7kbQyCwLCqFhrASx6OME5
-         nMQGddTqAUmVqjXUHsjeDQRWtG4H7dOwBkyb1ZbdPbe5CiPmsNMwdv+Y5trKUTPoNBa3
-         a19awglwcsurupP0DYW869WU51ZGkJXf3WSlza3JVEdUb5Ph24NAzJA/5y0SWga6pzyA
-         FH5vGesKSjUU0l3IWMyW/s4TSaIu7e5Nshza3H9jWcYhiCYZ83T1E+omzaKf0Q2zRusU
-         s3sQ==
+        bh=8u6syvxNUWzw4Og6bFtsmGyuZmXCGkGrPlUtSWs2UaA=;
+        b=WjyKStQwPmtdxPVYqiY4EScEKbuuKBxasoqCwVugxoc8/0Rv26S/6jnRXhxx8U5mp0
+         RzfT+VPYf8JOTCMExkkEKIzih389EzsQ977iHexRSZbHQowlC50W7nuOLcrwjhsHS5rM
+         VPQ4ITzA5e0B7JRvnu/mmjD1T1hrJo1Aqr+N0b+OJTfHAUJvhk7UBkfbj3ipMWY8rAcn
+         RMdpRg5Mn6atHPQw4Ls2ws/GjiZiaMZzNflnf9urMZC8nkWWCGiTGubI8tlbQUSIlkNv
+         RLMyu3q9jhBoGu9+/RF9MO5pCn57Mx44wpGpQC99jZNIa5dFbH1PEWshfQT8CL8l7Zsr
+         4MjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=0mw7ipMyXBBpffVbbSqhYLAGa0V5fY2TnWdgSrkM7oU=;
-        b=cHo67QStvMqiZBTsYYhbpN4SODV9H3ayR47XM842V0GYkJM2ijBvOmm00V6xxSPNlO
-         RGBGzrKbOxtKN+YrQNXwWQE+PtfTH4dxoch+4KsAjeJt4tV0izEizY+x40eCFSGCeX/g
-         GuyuXb+6UHhmQ/BseU9ClejF5rqFrOQCKuOaLn1U+AysDVTvXUkTjoFD3VYWbmDbq3Ic
-         Nxyc/ecY/MGh3xxquk1U2mMwrdnxB+fW4i0K9jL3qiiqkgk2vuXw0wZvTwfAtIfDSuyG
-         qa6hjrU/TTBNCSns7KR5S/2BZBTR5XCLTyeDdWYlyQBg2WIFMKxwb0eEshCZrZt9/rMM
-         yLqg==
-X-Gm-Message-State: AOAM5301kUmL3sddOdfgrSfNTFHc62T+mM5eDgjj2AdTMD/IyrHExKLU
-        N1AOexNtjdJ4eV/Lsw1LFInZFBQZ1M1Jvnehe30=
-X-Google-Smtp-Source: ABdhPJynRdl3tz1iK0XIOQ2F9W7h4M5knBS1E+4wuE/A0ctF8ppozYq2Po5QgolaMmUB7OTdsWF3/csYQM2Zk4o257o=
-X-Received: by 2002:a9d:1406:: with SMTP id h6mr3388517oth.59.1602784592793;
- Thu, 15 Oct 2020 10:56:32 -0700 (PDT)
+        bh=8u6syvxNUWzw4Og6bFtsmGyuZmXCGkGrPlUtSWs2UaA=;
+        b=QjnTEwntcPj3nLoCgJEDOcsy9yUY9HuE5r984lCpD+Pn70aBHih/x+jD2Xy2w+orMr
+         YC1tm2l0zDEb6PDkEN2D75VHlo1+A2tpqWLA7xk4kU7OdufzmjhhPvfx4beV1o08OtxR
+         sq5FrCEqsDQ3cTLmg+LHrMAPDrJzF9xsV7dTxtbvlC/eMm9okJD2v/ahAdIN4UOc04aw
+         qWIP396HMjgBbOd5Y92jNtyhyQmMkdHQ7Z83hbOD5Mi2tH0fjJK2z7ZQpIgz7KVz/6dv
+         jtksgdKV1Dn9bOwMtQ6+3XjUT737kvN5lHm9ZY0BUP8mz+keYrLYDXs5B8qElonhvAXf
+         JLgQ==
+X-Gm-Message-State: AOAM532m+o0zfEquA+esc4oUUmMBbBj32oPzoNYUZoq2aAgYQwC1PowW
+        dmaqRHTTAGnSm3MfsnzBphSFATPJOTuQ4hvYcjnEg5cCW/k=
+X-Google-Smtp-Source: ABdhPJzc1tZrUhZ2IQyuM5BZMb1Bovt3fk/imZlP/ybGruP1KF2u6ju+9TGBUzvSVilA9bhHNvkCeWgQXH+b4mKyyMs=
+X-Received: by 2002:a05:6830:10d3:: with SMTP id z19mr3680615oto.295.1602784618736;
+ Thu, 15 Oct 2020 10:56:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201009130052.52409-1-plautrba@redhat.com> <20201009130052.52409-4-plautrba@redhat.com>
-In-Reply-To: <20201009130052.52409-4-plautrba@redhat.com>
+References: <20201009130052.52409-1-plautrba@redhat.com> <20201009130052.52409-3-plautrba@redhat.com>
+In-Reply-To: <20201009130052.52409-3-plautrba@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 15 Oct 2020 13:56:22 -0400
-Message-ID: <CAP+JOzSx=5LKR0H-dWMA7XpSpZ5dB5qR8VSUBJa00=YC-pVf1g@mail.gmail.com>
-Subject: Re: [PATCH v2 3/6] libsepol: Bump libsepol.so version
+Date:   Thu, 15 Oct 2020 13:56:47 -0400
+Message-ID: <CAP+JOzR_40xCxMy4geP2EkhzPiisPfTjreGWotGYBCMknyj3oA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/6] libsepol: Drop deprecated functions
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,60 +70,135 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Fri, Oct 9, 2020 at 9:47 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
-> Previous commits removed some symbols and broke ABI, therefore we need to change
-> SONAME.
->
-> See the following quotes from distribution guidelines:
->
-> https://www.debian.org/doc/debian-policy/ch-sharedlibs.html#run-time-shared-libraries
->
-> Every time the shared library ABI changes in a way that may break
-> binaries linked against older versions of the shared library, the SONAME
-> of the library and the corresponding name for the binary package
-> containing the runtime shared library should change.
->
-> https://docs.fedoraproject.org/en-US/packaging-guidelines/#_downstream_so_name_versioning
->
-> When new versions of the library are released, you should use an ABI
-> comparison tool to check for ABI differences in the built shared
-> libraries. If it detects any incompatibilities, bump the n number by
-> one.
+> These functions were converted to no-op by commit
+> c3f9492d7ff0 ("selinux: Remove legacy local boolean and user code") and
+> left in libsepol/src/deprecated_functions.c to preserve API/ABI. As we
+> change libsepol ABI dropping duplicate symbols it's time to drop these
+> functions too.
 >
 > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libselinux/src/load_policy.c | 2 +-
->  libsepol/src/Makefile        | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>  libsepol/include/sepol/booleans.h |  5 ----
+>  libsepol/include/sepol/users.h    |  6 ----
+>  libsepol/src/deprecated_funcs.c   | 50 -------------------------------
+>  libsepol/src/libsepol.map.in      |  4 ---
+>  4 files changed, 65 deletions(-)
+>  delete mode 100644 libsepol/src/deprecated_funcs.c
 >
-> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-> index 2aea826f863e..0034fa53d6e6 100644
-> --- a/libselinux/src/load_policy.c
-> +++ b/libselinux/src/load_policy.c
-> @@ -76,7 +76,7 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
->  #ifdef SHARED
->         char *errormsg = NULL;
->         void *libsepolh = NULL;
-> -       libsepolh = dlopen("libsepol.so.1", RTLD_NOW);
-> +       libsepolh = dlopen("libsepol.so.2", RTLD_NOW);
->         if (libsepolh) {
->                 usesepol = 1;
->                 dlerror();
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index 8d466f56ed0e..dc8b1773d974 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -7,7 +7,7 @@ RANLIB ?= ranlib
->  CILDIR ?= ../cil
+> diff --git a/libsepol/include/sepol/booleans.h b/libsepol/include/sepol/booleans.h
+> index 06d2230c395d..25229057dbd7 100644
+> --- a/libsepol/include/sepol/booleans.h
+> +++ b/libsepol/include/sepol/booleans.h
+> @@ -10,11 +10,6 @@
+>  extern "C" {
+>  #endif
 >
->  VERSION = $(shell cat ../VERSION)
-> -LIBVERSION = 1
-> +LIBVERSION = 2
+> -/* These two functions are deprecated. See src/deprecated_funcs.c */
+> -extern int sepol_genbools(void *data, size_t len, const char *boolpath);
+> -extern int sepol_genbools_array(void *data, size_t len,
+> -                               char **names, int *values, int nel);
+> -
+>  /* Set the specified boolean */
+>  extern int sepol_bool_set(sepol_handle_t * handle,
+>                           sepol_policydb_t * policydb,
+> diff --git a/libsepol/include/sepol/users.h b/libsepol/include/sepol/users.h
+> index 70158ac41e40..156d1adb2d60 100644
+> --- a/libsepol/include/sepol/users.h
+> +++ b/libsepol/include/sepol/users.h
+> @@ -10,12 +10,6 @@
+>  extern "C" {
+>  #endif
 >
->  LEX = flex
->  CIL_GENERATED = $(CILDIR)/src/cil_lexer.c
+> -/* These two functions are deprecated. See src/deprecated_funcs.c */
+> -extern int sepol_genusers(void *data, size_t len,
+> -                         const char *usersdir,
+> -                         void **newdata, size_t * newlen);
+> -extern void sepol_set_delusers(int on);
+> -
+>  /* Modify the user, or add it, if the key is not found */
+>  extern int sepol_user_modify(sepol_handle_t * handle,
+>                              sepol_policydb_t * policydb,
+> diff --git a/libsepol/src/deprecated_funcs.c b/libsepol/src/deprecated_funcs.c
+> deleted file mode 100644
+> index d0dab7dfcb4a..000000000000
+> --- a/libsepol/src/deprecated_funcs.c
+> +++ /dev/null
+> @@ -1,50 +0,0 @@
+> -#include <stdio.h>
+> -#include "debug.h"
+> -
+> -/*
+> - * Need to keep these stubs for the libsepol interfaces exported in
+> - * libsepol.map.in, as they are part of the shared library ABI.
+> - */
+> -
+> -static const char *msg = "Deprecated interface";
+> -
+> -/*
+> - * These two functions are deprecated and referenced in:
+> - *     include/libsepol/users.h
+> - */
+> -int sepol_genusers(void *data __attribute((unused)),
+> -                  size_t len __attribute((unused)),
+> -                  const char *usersdir __attribute((unused)),
+> -                  void **newdata __attribute((unused)),
+> -                  size_t *newlen __attribute((unused)))
+> -{
+> -       WARN(NULL, "%s", msg);
+> -       return -1;
+> -}
+> -
+> -void sepol_set_delusers(int on __attribute((unused)))
+> -{
+> -       WARN(NULL, "%s", msg);
+> -}
+> -
+> -/*
+> - * These two functions are deprecated and referenced in:
+> - *     include/libsepol/booleans.h
+> - */
+> -int sepol_genbools(void *data __attribute((unused)),
+> -                  size_t len __attribute((unused)),
+> -                  const char *booleans __attribute((unused)))
+> -{
+> -       WARN(NULL, "%s", msg);
+> -       return -1;
+> -}
+> -
+> -int sepol_genbools_array(void *data __attribute((unused)),
+> -                        size_t len __attribute((unused)),
+> -                        char **names __attribute((unused)),
+> -                        int *values __attribute((unused)),
+> -                        int nel __attribute((unused)))
+> -{
+> -       WARN(NULL, "%s", msg);
+> -       return -1;
+> -}
+> diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+> index 98da9789b71b..eb5721257638 100644
+> --- a/libsepol/src/libsepol.map.in
+> +++ b/libsepol/src/libsepol.map.in
+> @@ -45,9 +45,6 @@ LIBSEPOL_1.0 {
+>         sepol_context_to_string;
+>         sepol_debug;
+>         sepol_expand_module;
+> -       sepol_genbools;
+> -       sepol_genbools_array;
+> -       sepol_genusers;
+>         sepol_get_disable_dontaudit;
+>         sepol_get_preserve_tunables;
+>         sepol_handle_create;
+> @@ -213,7 +210,6 @@ LIBSEPOL_1.0 {
+>         sepol_port_set_port;
+>         sepol_port_set_proto;
+>         sepol_port_set_range;
+> -       sepol_set_delusers;
+>         sepol_set_disable_dontaudit;
+>         sepol_set_expand_consume_base;
+>         sepol_set_policydb_from_file;
 > --
 > 2.28.0
 >
