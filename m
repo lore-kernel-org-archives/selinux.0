@@ -2,135 +2,119 @@ Return-Path: <SRS0=0RAF=DW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URI_HEX autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D81FC433E7
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:00:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 666C2C433E7
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:04:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 96E3120723
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:00:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CF51E22210
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:04:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jAMT8ZxI"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="nWMJlIbl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389893AbgJORAn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Oct 2020 13:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52508 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389479AbgJORAn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:00:43 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0121DC061755
-        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:00:43 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id w141so3864195oia.2
-        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:00:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AQXKsZPFs+GdEvjAVNbpu/oYOe3qKIx1FQ+fpCUlsu0=;
-        b=jAMT8ZxIWLuBbs0QKnm/FdtHbU1BZUus42r16wW74AGfv/GzU6RSWPecm0scraLpI8
-         1Hyzvd1PNKVbPVwLLEJaX0ynMlxDVHzYKtaNghsOxqZvGmLRPWHn2BY80/EZBEFdIFzs
-         Hhv9m+iDv4cDYo6J8TMvqkNpP7X6NrNmc4n98emjZweG+GWankP6RrxFk2aKgA3Im8Rk
-         k20vR9bWZmRLxwuLhR9VkXg+ouf4HKe6BSgmZr0X0a2ZOuoeLzjdYABjMpwskPM/kT9q
-         jwUMoTc4PA/rm8CxfK1aw9FJhOl1m6yfsxOqtBJ+/TduMJ/UIpomYQJkf5eJVImviGe4
-         xnig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AQXKsZPFs+GdEvjAVNbpu/oYOe3qKIx1FQ+fpCUlsu0=;
-        b=fkhiFXFH4gY7/FavjV+b7J06Ys//chf/FDdmD46RPcgtHTz+HiyMZ9MaEkksl0VeXH
-         sbg+6P4+lGtnCPzESL6XPuTjxiE1IOE2d98zATvu3SCjHqTxU9wC0vk905QO9CBKchJ/
-         XiCyae5OkR6nj6DiqL+puohs6oBvcBzBxqHL85RK0WbNh/pnyirddwQeGyQ2XFEJhRxB
-         MyJsdaa0RJzJdiHa2CkneKHB4OMv3tbo/URhHcF/LZemKkgG4o2aGR8+KrNwlWMPR8s+
-         qG0C7wLUUw+POZ3xquCXwb/ctgDjaY69ijTYCe2GvhGeNV1SsbmTlBWsVyA9xLLczrxC
-         u09Q==
-X-Gm-Message-State: AOAM532W33gkBPieWPyDhctVQdubeAkIBaeEpYKVd+PDniHl77dvVSR0
-        LfdoD0yelicMnsxcLB61uDazKk/piFLH8J0S2x6P+F4HL0o=
-X-Google-Smtp-Source: ABdhPJyfBUFWsE5rdwukvc0OrIiti+alhn+TJ3RGEMFZ5TcgEBMm21hxuCiHGc3jONdoZrBU9V2Jy1Jth8faylqxsIQ=
-X-Received: by 2002:aca:ac8c:: with SMTP id v134mr2794838oie.128.1602781242374;
- Thu, 15 Oct 2020 10:00:42 -0700 (PDT)
-MIME-Version: 1.0
-References: <20201003193957.1876526-1-nicolas.iooss@m4x.org> <20201003193957.1876526-2-nicolas.iooss@m4x.org>
-In-Reply-To: <20201003193957.1876526-2-nicolas.iooss@m4x.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 15 Oct 2020 13:00:31 -0400
-Message-ID: <CAP+JOzTfHeF7DTEsubhC3Lhyvrj2S_TX-3rOUD7dtHa=zsoQdQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libsepol: silence potential NULL pointer dereference warning
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+        id S2390022AbgJOREi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Oct 2020 13:04:38 -0400
+Received: from mailomta7-sa.btinternet.com ([213.120.69.13]:16668 "EHLO
+        sa-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389893AbgJOREi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:04:38 -0400
+Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
+          by sa-prd-fep-044.btinternet.com with ESMTP
+          id <20201015170435.EIRO3440.sa-prd-fep-044.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
+          Thu, 15 Oct 2020 18:04:35 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1602781475; 
+        bh=urAeFBn2iFxh7Tr1kXQVU+4pg69ciKmBx+mGJ30b1I8=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=nWMJlIbl8cSdy5ub4YOwmmQ6ZA2z+aoOAn0k3529v0GRo1tXixU6hMh9hA1GNx/+H+NAb8I630F2iAXNUaycIyQ/JwUCIzWpMVl0tLKmcKHtS70Cq5DNbnjXuTVBWAMI0IOou8QWzzPB6wQ6QPzuwRgs73Gq4PJx30skT2txw3OZO5uiW/+ozWD/N70KcyfeCTYX9KeP7bMNLl6XuNzvVivyLd40Wgn0mSNmZPGEF1lExsRtAyJEq1/VN+yrxYaUYa3iOkm4HjihMejPsmfsxrElLwvFBup1mOcVGj3KCkPqZRztsA59fwetxiMfMj2SGu6uE1LAePrWLbIOD1I1FQ==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [213.122.112.45]
+X-OWM-Source-IP: 213.122.112.45 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrieefgddutdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeekgeeftdffkeeikedugedvkeejheeiffevveelgedtleduteevudelffdugffgieenucfkphepvddufedruddvvddrudduvddrgeehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudefrdduvddvrdduuddvrdeghedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (213.122.112.45) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED99EC91635DF43; Thu, 15 Oct 2020 18:04:35 +0100
+Message-ID: <0697d164d1838dac05aee2b482c76caf5f5d025f.camel@btinternet.com>
+Subject: Re: [PATCH V2 1/1] selinux-testsuite: Update SCTP asconf
+ client/server
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Thu, 15 Oct 2020 18:04:34 +0100
+In-Reply-To: <CAFqZXNvSPvhHtKsa7W9HwC66Bvg2NH3tfGyow3QzZJ0C3RJEpg@mail.gmail.com>
+References: <20200922085902.18315-1-richard_c_haines@btinternet.com>
+         <CAFqZXNu0KqmZcTTZHOYbz-6tFbSU5Ss=-Y1JUHsmHMEU6jmb-A@mail.gmail.com>
+         <3fd9d2c2603b156dacf9c5f5c3c4926dd870fd27.camel@btinternet.com>
+         <CAFqZXNveK0C98H8nhYs4_za=ydMX6jtcJ++87-1XUDpO68ygwQ@mail.gmail.com>
+         <680d1208ca13571d642824dffd7adbc4d83915d6.camel@btinternet.com>
+         <CAFqZXNspQBJeM1v+aExWTc4Hk2+MZ8oFaLCUWANOusboSho2Dg@mail.gmail.com>
+         <d257ed0dcdce297d1aa026773f34d27bc3d6dfba.camel@btinternet.com>
+         <CAFqZXNvSPvhHtKsa7W9HwC66Bvg2NH3tfGyow3QzZJ0C3RJEpg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Oct 3, 2020 at 3:41 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> When find_avtab_node() is called with key->specified & AVTAB_XPERMS and
-> xperms=NULL, xperms is being dereferenced. This is detected as a
-> "NULL pointer dereference issue" by static analyzers.
->
-> Even though it does not make much sense to call find_avtab_node() in a
-> way which triggers the NULL pointer dereference issue, static analyzers
-> have a hard time with calls such as:
->
->     node = find_avtab_node(handle, avtab, &avkey, cond, NULL);
->
-> ... where xperms=NULL.
->
-> So, make the function report an error instead of crashing.
->
-> Here is an example of report from clang's static analyzer:
-> https://558-118970575-gh.circle-artifacts.com/0/output-scan-build/2020-10-02-065849-6375-1/report-d86a57.html#EndPath
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Thu, 2020-10-15 at 16:12 +0200, Ondrej Mosnacek wrote:
+> On Thu, Oct 15, 2020 at 3:49 PM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > On Thu, 2020-10-15 at 12:28 +0200, Ondrej Mosnacek wrote:
+> <snip>
+> > Just a thought - have you tried running the server in one terminal
+> > session and the client in another (I've plugged in your Fedora 32
+> > addresses):
+> > 
+> > cd ...tests/sctp
+> > echo 1 > /proc/sys/net/sctp/addip_enable
+> > echo 1 > /proc/sys/net/sctp/addip_noauth_enable
+> > runcon -t sctp_asconf_params_server_t ./sctp_asconf_params_server
+> > 10.0.138.59 10.123.123.123 1035
+> > 
+> > cd ...tests/sctp
+> > runcon -t sctp_asconf_deny_param_add_client_t
+> > ./sctp_asconf_params_client 10.0.138.59 1035
+> 
+> Interesting... I just tried it a couple times and it's not behaving
+> consistently - the first time I got "SCTP_PRIMARY_ADDR: Permission
+> denied", then 'Dynamic Address Reconfiguration' twice in a row, then
+> 7
+> times  "SCTP_PRIMARY_ADDR: Permission denied", then 'Dynamic Address
+> Reconfiguration' 5 times. and then again "SCTP_PRIMARY_ADDR:
+> Permission denied".
+> 
+> I tried (manually) different delays between starting the server and
+> starting the client, but there didn't seem to be a pattern.
+> 
 
-Acked-by: James Carter <jwcart2@gmail.com>
+I wonder if this test is flaky. A bit of history:
+When I first produced the SCTP patches I had different permissions for
+SCTP_PARAM_SET_PRIMARY, SCTP_PARAM_ADD_IP etc. so that I could detect
+these denials with allow 'self' rules. However the maintainers wanted
+to keep things simple with just connect or bind permissions. This made
+it a bit more difficult to test this case. As it so happened (until now
+of course), the two LSM calls for SCTP_PARAM_SET_PRIMARY and
+SCTP_PARAM_ADD_IP in sm_make_chunk.c triggered the following rule:
 
-> ---
->  libsepol/src/expand.c | 23 ++++++++++++++---------
->  1 file changed, 14 insertions(+), 9 deletions(-)
->
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index 19e48c507236..eac7e4507d02 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -1570,17 +1570,22 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
->
->         /* AVTAB_XPERMS entries are not necessarily unique */
->         if (key->specified & AVTAB_XPERMS) {
-> -               node = avtab_search_node(avtab, key);
-> -               while (node) {
-> -                       if ((node->datum.xperms->specified == xperms->specified) &&
-> -                               (node->datum.xperms->driver == xperms->driver)) {
-> -                               match = 1;
-> -                               break;
-> +               if (xperms == NULL) {
-> +                       ERR(handle, "searching xperms NULL");
-> +                       node = NULL;
-> +               } else {
-> +                       node = avtab_search_node(avtab, key);
-> +                       while (node) {
-> +                               if ((node->datum.xperms->specified == xperms->specified) &&
-> +                                       (node->datum.xperms->driver == xperms->driver)) {
-> +                                       match = 1;
-> +                                       break;
-> +                               }
-> +                               node = avtab_search_node_next(node, key->specified);
->                         }
-> -                       node = avtab_search_node_next(node, key->specified);
-> +                       if (!match)
-> +                               node = NULL;
->                 }
-> -               if (!match)
-> -                       node = NULL;
->         } else {
->                 node = avtab_search_node(avtab, key);
->         }
-> --
-> 2.28.0
->
+allow sctp_asconf_params_server_t
+sctp_asconf_deny_param_add_client_t:sctp_socket connect;
+
+therefore by not allowing this rule I could detect (using the tshark
+trace output "Client returns ASCONF_ACK's with 'Request refused - no
+authorization'") to prove this test case.
+
+If this boils down to a timing problem, then the test needs to be
+removed as I can't test this scenario, because the client needs the
+connect permission to be able to connect to the server in the first
+place.
+
+
