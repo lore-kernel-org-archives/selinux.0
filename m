@@ -2,217 +2,262 @@ Return-Path: <SRS0=0RAF=DW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97549C433DF
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:27:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C99CCC433E7
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:56:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2C69822254
-	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:27:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68E5E2225E
+	for <selinux@archiver.kernel.org>; Thu, 15 Oct 2020 17:56:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hrPwlf1P"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Uh5ryDxH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726326AbgJOR1T (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Oct 2020 13:27:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:40870 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726147AbgJOR1T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:27:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602782837;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=AbGqkGK2CacuMtPjvfFLASIvxXijpvXCvkLVA3rpWzc=;
-        b=hrPwlf1PLtrVw0DtLOkkDsNc0CLo7LI+JbfN8biX8qsw65gHSKTVG15bJ5FEdaQe5PCDQq
-        vqOlbGgu3edeRkNE5YKPDd25mFOnAlXLPINC7g5pXHVfdPSgOansqRBWjPZLAQEDoVcLvr
-        1Pa8FEus80BaXtRs6KzO7QXGC0w2Xa8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-164-2uBGbOHKP8-ZBUyh2piEHQ-1; Thu, 15 Oct 2020 13:27:14 -0400
-X-MC-Unique: 2uBGbOHKP8-ZBUyh2piEHQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2657E64092;
-        Thu, 15 Oct 2020 17:27:13 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.2])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 077F410013C1;
-        Thu, 15 Oct 2020 17:27:11 +0000 (UTC)
-Date:   Thu, 15 Oct 2020 19:27:09 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH userspace] libsepol/cil: fix signed overflow caused by
- using (1 << 31) - 1
-Message-ID: <20201015172709.GA45449@localhost.localdomain>
-References: <20201003131908.1867282-1-nicolas.iooss@m4x.org>
- <20201014180106.GA16337@localhost.localdomain>
+        id S1726657AbgJOR4M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Oct 2020 13:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32924 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725923AbgJOR4L (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Oct 2020 13:56:11 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D55FC061755
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:56:10 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id e20so3684018otj.11
+        for <selinux@vger.kernel.org>; Thu, 15 Oct 2020 10:56:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hHXfit6hP0IcG+ILquVsRAVndUKlAZ9CjBn1b2zCJu8=;
+        b=Uh5ryDxHq5G8SYor6XyXBsRWNe9o/pJnrJF6UD/vxn4Jk10x2r9aNjOQitok4Etv37
+         sWhgVZZKPKHWXTiatM1Y5fl9sZdkxsd+yuSl2//3wZ+wQhbOStC7mtlY97EbcX6aBI5U
+         yD6wOr0pLlY1WemRZnU/HfP+Z2WnayhEh+aVtgdnbcx8Fctw58VPOQk8Y3MonQFY8VPL
+         hCeFy4VPeFAhD/KVkm4QQ44iD9UyvGSX7T0EXRzy+cmb25MaJpyo+344yaBkj/NhqyOG
+         DFUQhzF2tuP4anx70e/XzAXjF7dFfjAOJiITjzIxaDOokvMhZaLNomH2TInFF9BaM2tU
+         Hl7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hHXfit6hP0IcG+ILquVsRAVndUKlAZ9CjBn1b2zCJu8=;
+        b=oaKm8fr0GlrD2dHE1ky8Z/+YliHpVVZvPi264+XD4RluFvQv4WQgPXT7bZYiWUwNKO
+         sWow14YbKoST3Fsf+NyFfv7RwdeZ/brUDHbsyWOj/hkIZ7YMaKLWJ0ttpWTnhrhK3r2c
+         DUeNu90rIkG6GIEKOZ/SNM3zoo9/gXTAwHoNvA1n9sn8bwcg6Ust5Llz/zkBvw3aj4UJ
+         2OgRFBS+9LZum4RCcV/+fwn4sE320Y3u+KN6gMWlwNOQH409c10Jt2MDq4vG4JGWAfGU
+         ZN06XsELwRVepAZTvL8/xluYh2EHI/9HrnRwXwGuCpgbjm9hCdnHxbRonhnC/H1BXBWO
+         gyIg==
+X-Gm-Message-State: AOAM530lXMUvieIwGoIIc1n/vvcLj70ARXyU7PHEDCsV3xMCGShU+kts
+        iA/x8f8RNuUY5EN2AE10NptM4rhVeM8MFOd+Zv58YUT55Rk=
+X-Google-Smtp-Source: ABdhPJz9YvOJYkDYdkPdHqCsQanYaFBS7tEU2RXuUsZwlDi36ljBD/vqHoQNCGVjJkZH4FL2d+PxL2ZDtDGUs6cOmFc=
+X-Received: by 2002:a05:6830:10d3:: with SMTP id z19mr3678331oto.295.1602784569386;
+ Thu, 15 Oct 2020 10:56:09 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20201014180106.GA16337@localhost.localdomain>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
+References: <20201009130052.52409-1-plautrba@redhat.com> <20201009130052.52409-2-plautrba@redhat.com>
+In-Reply-To: <20201009130052.52409-2-plautrba@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 15 Oct 2020 13:55:58 -0400
+Message-ID: <CAP+JOzRrGe2v1TenUgSN1Vqsyj=eyBOfs9BBQ+UQyfpZN0HWwA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] libsepol: Get rid of the old and duplicated symbols
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Oct 9, 2020 at 9:47 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Versioned duplicate symbols cause problems for LTO. These symbols were
+> introduced during the CIL integration several releases ago and were only
+> consumed by other SELinux userspace components.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/245
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-On Wed, Oct 14, 2020 at 08:01:06PM +0200, Petr Lautrbach wrote:
-> On Sat, Oct 03, 2020 at 03:19:08PM +0200, Nicolas Iooss wrote:
-> > When compiling SELinux userspace tools with -ftrapv (this option
-> > generates traps for signed overflow on addition, subtraction,
-> > multiplication operations, instead of silently wrapping around),
-> > semodule crashes when running the tests from
-> > scripts/ci/fedora-test-runner.sh in a Fedora 32 virtual machine:
-> >=20
-> >     [root@localhost selinux-testsuite]# make test
-> >     make -C policy load
-> >     make[1]: Entering directory '/root/selinux-testsuite/policy'
-> >     # Test for "expand-check =3D 0" in /etc/selinux/semanage.conf
-> >     # General policy build
-> >     make[2]: Entering directory '/root/selinux-testsuite/policy/test_po=
-licy'
-> >     Compiling targeted test_policy module
-> >     Creating targeted test_policy.pp policy package
-> >     rm tmp/test_policy.mod.fc
-> >     make[2]: Leaving directory '/root/selinux-testsuite/policy/test_pol=
-icy'
-> >     # General policy load
-> >     domain_fd_use --> off
-> >     /usr/sbin/semodule -i test_policy/test_policy.pp test_mlsconstrain.=
-cil test_overlay_defaultrange.cil test_add_levels.cil test_glblub.cil
-> >     make[1]: *** [Makefile:174: load] Aborted (core dumped)
-> >=20
-> > Using "coredumpctl gdb" leads to the following strack trace:
-> >=20
-> >     (gdb) bt
-> >     #0  0x00007f608fe4fa25 in raise () from /lib64/libc.so.6
-> >     #1  0x00007f608fe38895 in abort () from /lib64/libc.so.6
-> >     #2  0x00007f6090028aca in __addvsi3.cold () from /lib64/libsepol.so=
-.1
-> >     #3  0x00007f6090096f59 in __avrule_xperm_setrangebits (low=3D30, hi=
-gh=3D30, xperms=3D0x8b9eea0)
-> >         at ../cil/src/cil_binary.c:1551
-> >     #4  0x00007f60900970dd in __cil_permx_bitmap_to_sepol_xperms_list (=
-xperms=3D0xb650a30, xperms_list=3D0x7ffce2653b18)
-> >         at ../cil/src/cil_binary.c:1596
-> >     #5  0x00007f6090097286 in __cil_avrulex_ioctl_to_policydb (k=3D0xb8=
-ec200 "@\023\214\022\006", datum=3D0xb650a30,
-> >         args=3D0x239a640) at ../cil/src/cil_binary.c:1649
-> >     #6  0x00007f609003f1e5 in hashtab_map (h=3D0x41f8710, apply=3D0x7f6=
-0900971da <__cil_avrulex_ioctl_to_policydb>,
-> >         args=3D0x239a640) at hashtab.c:234
-> >     #7  0x00007f609009ea19 in cil_binary_create_allocated_pdb (db=3D0x2=
-394f10, policydb=3D0x239a640)
-> >         at ../cil/src/cil_binary.c:4969
-> >     #8  0x00007f609009d19d in cil_binary_create (db=3D0x2394f10, policy=
-db=3D0x7ffce2653d30) at ../cil/src/cil_binary.c:4329
-> >     #9  0x00007f609008ec23 in cil_build_policydb_create_pdb (db=3D0x239=
-4f10, sepol_db=3D0x7ffce2653d30)
-> >         at ../cil/src/cil.c:631
-> >     #10 0x00007f608fff4bf3 in semanage_direct_commit () from /lib64/lib=
-semanage.so.1
-> >     #11 0x00007f608fff9fae in semanage_commit () from /lib64/libsemanag=
-e.so.1
-> >     #12 0x0000000000403e2b in main (argc=3D7, argv=3D0x7ffce2655058) at=
- semodule.c:753
-> >=20
-> >     (gdb) f 3
-> >     #3  0x00007f6090096f59 in __avrule_xperm_setrangebits (low=3D30, hi=
-gh=3D30, xperms=3D0x8b9eea0)
-> >         at ../cil/src/cil_binary.c:1551
-> >     1551     xperms->perms[i] |=3D XPERM_SETBITS(h) - XPERM_SETBITS(low=
-);
-> >=20
-> > A signed integer overflow therefore occurs in XPERM_SETBITS(h):
-> >=20
-> >     #define XPERM_SETBITS(x) ((1 << (x & 0x1f)) - 1)
-> >=20
-> > This macro is expanded with h=3D31, so "(1 << 31) - 1" is computed:
-> >=20
-> > * (1 << 31) =3D -0x80000000 is the lowest signed 32-bit integer value
-> > * (1 << 31) - 1 overflows the capacity of a signed 32-bit integer and
-> >   results in 0x7fffffff (which is unsigned)
-> >=20
-> > Using unsigned integers (with "1U") fixes the crash, as
-> > (1U << 31) =3D 0x80000000U has no overflowing issues.
-> >=20
-> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->=20
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Merged, thanks!
-
-> > ---
-> >  checkpolicy/policy_define.c   | 2 +-
-> >  libsepol/cil/src/cil_binary.c | 2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index 395f62284e3c..bf6c3e68bef3 100644
-> > --- a/checkpolicy/policy_define.c
-> > +++ b/checkpolicy/policy_define.c
-> > @@ -2147,7 +2147,7 @@ out:
-> >  /* index of the u32 containing the permission */
-> >  #define XPERM_IDX(x) (x >> 5)
-> >  /* set bits 0 through x-1 within the u32 */
-> > -#define XPERM_SETBITS(x) ((1 << (x & 0x1f)) - 1)
-> > +#define XPERM_SETBITS(x) ((1U << (x & 0x1f)) - 1)
-> >  /* low value for this u32 */
-> >  #define XPERM_LOW(x) (x << 5)
-> >  /* high value for this u32 */
-> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binar=
-y.c
-> > index 36720eda4549..e417c5c28b8b 100644
-> > --- a/libsepol/cil/src/cil_binary.c
-> > +++ b/libsepol/cil/src/cil_binary.c
-> > @@ -1526,7 +1526,7 @@ int cil_avrule_to_policydb(policydb_t *pdb, const=
- struct cil_db *db, struct cil_
-> >  /* index of the u32 containing the permission */
-> >  #define XPERM_IDX(x) (x >> 5)
-> >  /* set bits 0 through x-1 within the u32 */
-> > -#define XPERM_SETBITS(x) ((1 << (x & 0x1f)) - 1)
-> > +#define XPERM_SETBITS(x) ((1U << (x & 0x1f)) - 1)
-> >  /* low value for this u32 */
-> >  #define XPERM_LOW(x) (x << 5)
-> >  /* high value for this u32 */
-> > --=20
-> > 2.28.0
-> >=20
->=20
-
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl+IhmYACgkQviIJHj72
-InXHvA/+MjMcbUzAn86zAdfphWVCW3ec3vyFdRw4wf9FGgqovXu+xiaSgLzP2RjW
-GLHcHEpdkg3tIuU2U5HKdYwzNvoZfT8McLteQNAt8Thn30AAu1FQop/zZBoB2ZHN
-rAD0xQ45m1D76Y4oYIRy7XrYiDHLWTLuXVaNPKpAPWGKqyIo7e54/lDoMmXhAiP1
-8Dj2Xt/fCAzdK5zRQdfqNlhE6fpbNP0wFYcurbmqoV6owYxmWpU0NOaettm8Bgxa
-Vb+10oD2VC9BdBF5Ju4RP6kXBsqs7Uu3//6d2tBL/t8NgHX1lFgajh5y+1sOkCSl
-luOwIgHFwp/p6qAawfNtYvN5jjTB6576Z0VeDyTO2XI+ddwRUYCreLCgdQoMTCwA
-pkrkF+6W1Xi4VnIJV14b4SvcTvzxvyD1qN/eMyxVyPFpkfEeMTdTSGixPUNhonvW
-NibcNIziJB2bKDJ70TsuKJUMQ8bE+aAhLNm864DkVrs/JmgmTYV6PgfZREHWZS7h
-o2sCZ2newWI5d4ZmN7WMegI5vPbItyAnNnUimzLXd7uNmbt/PSqZinZJg1lgzIca
-0XIPEGUwI98CGmfCxhhukFay8bQGHmXHU70RVT1jHEia/HUXVpiVOmt0TWvqdwcN
-8VDmyOHnSCH7PcIabSP5abm0TcoYf0KRk/QKNFSyDkk8bxKT0vM=
-=4/Ev
------END PGP SIGNATURE-----
-
---sdtB3X0nJg68CQEu--
-
+> ---
+>  libsepol/cil/src/cil.c       | 84 ------------------------------------
+>  libsepol/src/libsepol.map.in |  5 ---
+>  2 files changed, 89 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index a3c6a2934c72..95bdb5e5854c 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -51,27 +51,6 @@
+>  #include "cil_policy.h"
+>  #include "cil_strpool.h"
+>
+> -#if !defined(SHARED) || defined(ANDROID) || defined(__APPLE__)
+> -    #define DISABLE_SYMVER 1
+> -#endif
+> -
+> -#ifndef DISABLE_SYMVER
+> -asm(".symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0");
+> -asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
+> -
+> -asm(".symver cil_compile_pdb,   cil_compile@LIBSEPOL_1.0");
+> -asm(".symver cil_compile_nopdb, cil_compile@@LIBSEPOL_1.1");
+> -
+> -asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@LIBSEPOL_1.0");
+> -asm(".symver cil_userprefixes_to_string_nopdb, cil_userprefixes_to_string@@LIBSEPOL_1.1");
+> -
+> -asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@LIBSEPOL_1.0");
+> -asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSEPOL_1.1");
+> -
+> -asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@LIBSEPOL_1.0");
+> -asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
+> -#endif
+> -
+>  int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
+>         {64, 64, 64, 1 << 13, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
+>         {64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
+> @@ -549,11 +528,7 @@ exit:
+>         return rc;
+>  }
+>
+> -#ifdef DISABLE_SYMVER
+>  int cil_compile(struct cil_db *db)
+> -#else
+> -int cil_compile_nopdb(struct cil_db *db)
+> -#endif
+>  {
+>         int rc = SEPOL_ERR;
+>
+> @@ -597,33 +572,7 @@ exit:
+>         return rc;
+>  }
+>
+> -#ifndef DISABLE_SYMVER
+> -int cil_compile_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db)
+> -{
+> -       return cil_compile_nopdb(db);
+> -}
+> -
+> -int cil_build_policydb_pdb(cil_db_t *db, sepol_policydb_t *sepol_db)
+> -{
+> -       int rc;
+> -
+> -       cil_log(CIL_INFO, "Building policy binary\n");
+> -       rc = cil_binary_create_allocated_pdb(db, sepol_db);
+> -       if (rc != SEPOL_OK) {
+> -               cil_log(CIL_ERR, "Failed to generate binary\n");
+> -               goto exit;
+> -       }
+> -
+> -exit:
+> -       return rc;
+> -}
+> -#endif
+> -
+> -#ifdef DISABLE_SYMVER
+>  int cil_build_policydb(cil_db_t *db, sepol_policydb_t **sepol_db)
+> -#else
+> -int cil_build_policydb_create_pdb(cil_db_t *db, sepol_policydb_t **sepol_db)
+> -#endif
+>  {
+>         int rc;
+>
+> @@ -1371,11 +1320,7 @@ const char * cil_node_to_string(struct cil_tree_node *node)
+>         return "<unknown>";
+>  }
+>
+> -#ifdef DISABLE_SYMVER
+>  int cil_userprefixes_to_string(struct cil_db *db, char **out, size_t *size)
+> -#else
+> -int cil_userprefixes_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
+> -#endif
+>  {
+>         int rc = SEPOL_ERR;
+>         size_t str_len = 0;
+> @@ -1420,13 +1365,6 @@ exit:
+>
+>  }
+>
+> -#ifndef DISABLE_SYMVER
+> -int cil_userprefixes_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
+> -{
+> -       return cil_userprefixes_to_string_nopdb(db, out, size);
+> -}
+> -#endif
+> -
+>  static int cil_cats_to_ebitmap(struct cil_cats *cats, struct ebitmap* cats_ebitmap)
+>  {
+>         int rc = SEPOL_ERR;
+> @@ -1614,11 +1552,7 @@ static int __cil_level_to_string(struct cil_level *lvl, char *out)
+>         return str_tmp - out;
+>  }
+>
+> -#ifdef DISABLE_SYMVER
+>  int cil_selinuxusers_to_string(struct cil_db *db, char **out, size_t *size)
+> -#else
+> -int cil_selinuxusers_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
+> -#endif
+>  {
+>         size_t str_len = 0;
+>         int buf_pos = 0;
+> @@ -1675,18 +1609,7 @@ int cil_selinuxusers_to_string_nopdb(struct cil_db *db, char **out, size_t *size
+>         return SEPOL_OK;
+>  }
+>
+> -#ifndef DISABLE_SYMVER
+> -int cil_selinuxusers_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
+> -{
+> -       return cil_selinuxusers_to_string_nopdb(db, out, size);
+> -}
+> -#endif
+> -
+> -#ifdef DISABLE_SYMVER
+>  int cil_filecons_to_string(struct cil_db *db, char **out, size_t *size)
+> -#else
+> -int cil_filecons_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
+> -#endif
+>  {
+>         uint32_t i = 0;
+>         int buf_pos = 0;
+> @@ -1804,13 +1727,6 @@ int cil_filecons_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
+>         return SEPOL_OK;
+>  }
+>
+> -#ifndef DISABLE_SYMVER
+> -int cil_filecons_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
+> -{
+> -       return cil_filecons_to_string_nopdb(db, out, size);
+> -}
+> -#endif
+> -
+>  void cil_set_disable_dontaudit(struct cil_db *db, int disable_dontaudit)
+>  {
+>         db->disable_dontaudit = disable_dontaudit;
+> diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+> index f08c2a861693..98da9789b71b 100644
+> --- a/libsepol/src/libsepol.map.in
+> +++ b/libsepol/src/libsepol.map.in
+> @@ -1,19 +1,14 @@
+>  LIBSEPOL_1.0 {
+>    global:
+>         cil_add_file;
+> -       cil_build_policydb;
+> -       cil_compile;
+>         cil_db_destroy;
+>         cil_db_init;
+> -       cil_filecons_to_string;
+> -       cil_selinuxusers_to_string;
+>         cil_set_disable_dontaudit;
+>         cil_set_disable_neverallow;
+>         cil_set_handle_unknown;
+>         cil_set_log_handler;
+>         cil_set_log_level;
+>         cil_set_preserve_tunables;
+> -       cil_userprefixes_to_string;
+>         expand_module_avrules;
+>         sepol_bool_clone;
+>         sepol_bool_compare;
+> --
+> 2.28.0
+>
