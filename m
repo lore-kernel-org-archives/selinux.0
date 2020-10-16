@@ -2,92 +2,114 @@ Return-Path: <SRS0=kXWH=DX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEA1DC433DF
-	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 13:05:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78116C433E7
+	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 13:48:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 857E1207C4
-	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 13:05:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1222320874
+	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 13:48:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="pk8CrF0e"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="UW0qV7Px"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408016AbgJPNFF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Oct 2020 09:05:05 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:47896 "EHLO
+        id S2408414AbgJPNsu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Oct 2020 09:48:50 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:53624 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2408012AbgJPNFF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Oct 2020 09:05:05 -0400
+        with ESMTP id S2408409AbgJPNsu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Oct 2020 09:48:50 -0400
 Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
-        by linux.microsoft.com (Postfix) with ESMTPSA id AFC3820B4905;
-        Fri, 16 Oct 2020 06:05:03 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com AFC3820B4905
+        by linux.microsoft.com (Postfix) with ESMTPSA id 3A41520B4905;
+        Fri, 16 Oct 2020 06:48:49 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3A41520B4905
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1602853504;
-        bh=nuZ/p1WdEiSOUjKWD/g7k40UjrGaKvK2LE3VTJ0IsG4=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=pk8CrF0e/h7XQPlL2NNxFgl4vDr6s0UHOsNYtHnu9mzEHXULlfq3fC6AIW4EftRqP
-         Aum+3oPlJ3bNhZUZ6CHPXF5BudnLaFMW/jA0imAgJCmRPtNfzWp2hecYfbnbWPnpxf
-         VwqGtJwha0waybSbE2bSnga4QgHpgKnzJpW1UvQI=
-Subject: Re: [PATCH v5.4 0/3] Update SELinuxfs out of tree and then swapover
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, stephen.smalley.work@gmail.com,
-        paul@paul-moore.com, selinux@vger.kernel.org, jmorris@namei.org,
-        sashal@kernel.org
-References: <20201015192956.1797021-1-dburgener@linux.microsoft.com>
- <20201016050036.GB461792@kroah.com>
+        s=default; t=1602856129;
+        bh=1oc/zAntSt+hZ0cOMu1NfyfaUbHs8ymUvM+s7CKB9zQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UW0qV7Pxku1fglcLxrAVmjWooYaanqzHTyZfNsgY69onzN7uAKYX4gKdwkNGj5Gqq
+         E+TCCKfqa1VEnfHgAoe7ZnUNlS5aNUaWhAeD/60GEF8DHhoZyDOjzgHbc8XqNAJmd0
+         CbMQXtezo6kB6tzURnBvpcN4P8+Yxk68RdiZCgPU=
 From:   Daniel Burgener <dburgener@linux.microsoft.com>
-Message-ID: <9aeaa66d-d369-a1eb-7a07-08d9244585f3@linux.microsoft.com>
-Date:   Fri, 16 Oct 2020 09:05:02 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+To:     stable@vger.kernel.org
+Cc:     stephen.smalley.work@gmail.com, paul@paul-moore.com,
+        selinux@vger.kernel.org, jmorris@namei.org, sashal@kernel.org
+Subject: [PATCH v5.4 v2 0/4] Update SELinuxfs out of tree and then swapover
+Date:   Fri, 16 Oct 2020 09:48:31 -0400
+Message-Id: <20201016134835.1886478-1-dburgener@linux.microsoft.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-In-Reply-To: <20201016050036.GB461792@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/16/20 1:00 AM, Greg KH wrote:
-> On Thu, Oct 15, 2020 at 03:29:53PM -0400, Daniel Burgener wrote:
->> This is a backport for stable of my series to fix a race condition in
->> selinuxfs during policy load:
->>
->> selinux: Create function for selinuxfs directory cleanup
->> https://lore.kernel.org/selinux/20200819195935.1720168-2-dburgener@linux.microsoft.com/
->>
->> selinux: Refactor selinuxfs directory populating functions
->> https://lore.kernel.org/selinux/20200819195935.1720168-3-dburgener@linux.microsoft.com/
->>
->> selinux: Standardize string literal usage for selinuxfs directory names
->> https://lore.kernel.org/selinux/20200819195935.1720168-4-dburgener@linux.microsoft.com/
->>
->> selinux: Create new booleans and class dirs out of tree
->> https://lore.kernel.org/selinux/20200819195935.1720168-5-dburgener@linux.microsoft.com/
->>
->> Several changes were necessary to backport.  They are detailed in the
->> commit message for the third commit in the series.  I also dropped the
->> original third commit from this because it was only a style change.
-> As Sasha said, we want to take the original commits as much as possible
-> to reduce the delta.  It is ok to take style changes if other patches
-> depend on them, because every time we do something that is not upstream,
-> we create bugs.
->
-> So can you redo this series, and backport the original commits, and
-> provide the ids for them as well?
->
-> thanks,
->
-> greg k-h
+v2: Include all commits from original series, and include commit ids
 
-Yes, thank you.  I will fix up the series with the third commit 
-included, and add commit ids.  Thanks.
+This is a backport for stable of my series to fix a race condition in
+selinuxfs during policy load:
 
+selinux: Create function for selinuxfs directory cleanup
+https://lore.kernel.org/selinux/20200819195935.1720168-2-dburgener@linux.microsoft.com/
 
--Daniel
+selinux: Refactor selinuxfs directory populating functions
+https://lore.kernel.org/selinux/20200819195935.1720168-3-dburgener@linux.microsoft.com/
+
+selinux: Standardize string literal usage for selinuxfs directory names
+https://lore.kernel.org/selinux/20200819195935.1720168-4-dburgener@linux.microsoft.com/
+
+selinux: Create new booleans and class dirs out of tree
+https://lore.kernel.org/selinux/20200819195935.1720168-5-dburgener@linux.microsoft.com/
+
+Several changes were necessary to backport.  They are detailed in the
+commit message for the third commit in the series.
+
+The bulk of the original cover letter is reproduced below.
+
+In the current implementation, on policy load /sys/fs/selinux is updated
+by deleting the previous contents of
+/sys/fs/selinux/{class,booleans} and then recreating them.  This means
+that there is a period of time when the contents of these directories do
+not exist which can cause race conditions as userspace relies on them for
+information about the policy.  In addition, it means that error recovery
+in the event of failure is challenging.
+
+This patch series follows the design outlined by Al Viro in a previous
+e-mail to the list[1].  This approach is to first create the new
+directory structures out of tree, then to perform the swapover, and
+finally to delete the old directories.  Not handled in this series is
+error recovery in the event of failure.
+
+Error recovery in the selinuxfs recreation is unhandled in the current
+code, so this series will not cause any regression in this regard.
+Handling directory recreation in this manner is a prerequisite to make
+proper error handling possible.
+
+In order to demonstrate the race condition that this series fixes, you
+can use the following commands:
+
+while true; do cat /sys/fs/selinux/class/service/perms/status
+>/dev/null; done &
+while true; do load_policy; done;
+
+In the existing code, this will display errors fairly often as the class
+lookup fails.  (In normal operation from systemd, this would result in a
+permission check which would be allowed or denied based on policy settings
+around unknown object classes.) After applying this patch series you
+should expect to no longer see such error messages.
+
+Daniel Burgener (4):
+  selinux: Create function for selinuxfs directory cleanup
+  selinux: Refactor selinuxfs directory populating functions
+  selinux: Standardize string literal usage for selinuxfs directory
+    names
+  selinux: Create new booleans and class dirs out of tree
+
+ security/selinux/selinuxfs.c | 168 +++++++++++++++++++++++++++--------
+ 1 file changed, 129 insertions(+), 39 deletions(-)
+
+-- 
+2.25.4
 
