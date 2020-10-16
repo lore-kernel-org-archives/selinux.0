@@ -2,114 +2,136 @@ Return-Path: <SRS0=kXWH=DX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E83FC433E7
-	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 05:00:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0B88C433E7
+	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 13:02:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FC7020874
-	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 05:00:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60788207C4
+	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 13:02:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="YlNjRZbS";
-	dkim=temperror (0-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="r056eFQf"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="V7nFQdeH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732472AbgJPFAl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Oct 2020 01:00:41 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:34221 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732247AbgJPFAl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Oct 2020 01:00:41 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id CC34C5C0187;
-        Fri, 16 Oct 2020 01:00:39 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 16 Oct 2020 01:00:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=jPyRaaFmLMsYWJzz0T+aFFNdX5Y
-        W2kW/0wcD3tJqv+I=; b=YlNjRZbSJkd+vvcni+ti3pls8BkHrDA2uQhQ8EdtqLe
-        KiYTv0UAb1pGLySOLIb+njk5muRhbeQLbJEwxIsLZCtvoaDXn98Gw9Sm+exI/HNg
-        xg32qu/UjeWLyy6ZdGB/T/ws4VkXgZ43un7AjaN6ZnVVhjpfkT7/FRloL4m535/6
-        G0OxOpON0+sh+TyLbNNnALqHvwxhI687caAEXNpjg2FyPSYvh/KkygGxb//1+vaM
-        JTsAThVr6qVfuQ1dQR8f8wMO85O+YVfaEu8vuUh+5R/IU6dwnCAXdbFXfZSqgpUX
-        JTJhGV6B50NIYreoJipzAHF0QTWyelubeb1Wyv7S9og==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jPyRaa
-        FmLMsYWJzz0T+aFFNdX5YW2kW/0wcD3tJqv+I=; b=r056eFQfEkdUbmiJs6suH3
-        ZRIG6zr2h9DjdJowKHoux96rZY9gaAkhDg2hw5xQhJEvHyHgCWpseP19xBPBdAF6
-        b9e8pwjOo10kJOjoKWH9F2HDE0PxNIU4HZ9fUf0VuuEguv6kpiW04lOgDPWAhwNF
-        eu2e0nkhtami5u+Syv/5BzpFEydJICb2kLw0Lt8HPB7MiUChCfdUf+gLEp0No4Dj
-        b/IOkXuzb9z16H9ENxb0NJyqupXftwkSVDIG9R6dObve/qJ+49bl3f9iJQJeztYp
-        4b5bVllcjRMFRX4AbURG0bOAJgPsjW9YsIqRoz5WixG9v0Te50PXT9QK3KuWNj3A
-        ==
-X-ME-Sender: <xms:9yiJX0K81ZqJTjX2qqh3RGHIeAZPeSw7tY_VG3RszPqHrfGo51HmVA>
-    <xme:9yiJX0KQ8gS1BxAsccWfNJM6F4Q82FDJ3wb71PppvHrCiZtCSQ7fhZkU8c1gQt_ji
-    AgnKKnK_h_Bxg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrieeggdeltdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvg
-    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
-    tghomh
-X-ME-Proxy: <xmx:9yiJX0sQGznGZVejEe0FhExt1GNuj_xJetmDI3GcNXbCaumlCYz9mw>
-    <xmx:9yiJXxa-MPXAXeDuzfo4WHC19BGkr32QjhQ2d0FW-ScYA6dsFuesLw>
-    <xmx:9yiJX7Z3FL06eCw4nI0-5RIXi2loGHsC-nMOQREZLTwqzPc7kLXm6g>
-    <xmx:9yiJX6V91bvGdHQNYSd5yjO9P-TkSKpPKD1Zq8-OF9-Q64JgOIMu6Q>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DD37A3280059;
-        Fri, 16 Oct 2020 01:00:38 -0400 (EDT)
-Date:   Fri, 16 Oct 2020 07:00:36 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
-Cc:     stable@vger.kernel.org, stephen.smalley.work@gmail.com,
-        paul@paul-moore.com, selinux@vger.kernel.org, jmorris@namei.org,
-        sashal@kernel.org
-Subject: Re: [PATCH v5.4 0/3] Update SELinuxfs out of tree and then swapover
-Message-ID: <20201016050036.GB461792@kroah.com>
-References: <20201015192956.1797021-1-dburgener@linux.microsoft.com>
+        id S2407996AbgJPNCL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Oct 2020 09:02:11 -0400
+Received: from mailomta14-sa.btinternet.com ([213.120.69.20]:29392 "EHLO
+        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2395433AbgJPNCK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Oct 2020 09:02:10 -0400
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-047.btinternet.com with ESMTP
+          id <20201016130205.WNBA4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Fri, 16 Oct 2020 14:02:05 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1602853325; 
+        bh=rBKAeIH+USngjv7SNGuXqEOM903Gc9xOCe09ArcHKu4=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=V7nFQdeH2DyKH2VfzDY1CJ+b+mcrEkflFVdkRVozc+cKM3oH52gLmVhBV/1aAv7Zkq1txB2kVILH6qepNL+IMuRccFkVimOVPIqzzsqE2x3JV1CNRAVD4WL/PtBJBhVEt/dJTKksrvxypBYrPt2ylm2dHZs8Xrni2FX7JCYS5I6CWneTLelYUPOL3Vh9mfr3CyXRDRZHSqc13sSlV7v44PvGxJuZTthlqVwH5okykmsx1m7P7BDqAgsFZK6sCLJrgG1nz2ThlJ885IETioQZeeax5pFxQTmCe9NisDg+7TN25T7nGFXrroP4bNZ2bIGpd+/caSbGoUjVrjZYE0AN7A==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [213.122.112.121]
+X-OWM-Source-IP: 213.122.112.121 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrieehgdeitdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepkeegfedtffekieekudegvdekjeehieffveevleegtdeludetveduleffudfggfeinecukfhppedvudefrdduvddvrdduuddvrdduvddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudefrdduvddvrdduuddvrdduvddupdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (213.122.112.121) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9AFBE1657C494; Fri, 16 Oct 2020 14:02:05 +0100
+Message-ID: <1f11e56714519b18f25539e88fc227868a098c03.camel@btinternet.com>
+Subject: Re: [PATCH V2 1/1] selinux-testsuite: Update SCTP asconf
+ client/server
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 16 Oct 2020 14:01:58 +0100
+In-Reply-To: <0697d164d1838dac05aee2b482c76caf5f5d025f.camel@btinternet.com>
+References: <20200922085902.18315-1-richard_c_haines@btinternet.com>
+         <CAFqZXNu0KqmZcTTZHOYbz-6tFbSU5Ss=-Y1JUHsmHMEU6jmb-A@mail.gmail.com>
+         <3fd9d2c2603b156dacf9c5f5c3c4926dd870fd27.camel@btinternet.com>
+         <CAFqZXNveK0C98H8nhYs4_za=ydMX6jtcJ++87-1XUDpO68ygwQ@mail.gmail.com>
+         <680d1208ca13571d642824dffd7adbc4d83915d6.camel@btinternet.com>
+         <CAFqZXNspQBJeM1v+aExWTc4Hk2+MZ8oFaLCUWANOusboSho2Dg@mail.gmail.com>
+         <d257ed0dcdce297d1aa026773f34d27bc3d6dfba.camel@btinternet.com>
+         <CAFqZXNvSPvhHtKsa7W9HwC66Bvg2NH3tfGyow3QzZJ0C3RJEpg@mail.gmail.com>
+         <0697d164d1838dac05aee2b482c76caf5f5d025f.camel@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201015192956.1797021-1-dburgener@linux.microsoft.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 15, 2020 at 03:29:53PM -0400, Daniel Burgener wrote:
-> This is a backport for stable of my series to fix a race condition in
-> selinuxfs during policy load:
+On Thu, 2020-10-15 at 18:04 +0100, Richard Haines wrote:
+> On Thu, 2020-10-15 at 16:12 +0200, Ondrej Mosnacek wrote:
+> > On Thu, Oct 15, 2020 at 3:49 PM Richard Haines
+> > <richard_c_haines@btinternet.com> wrote:
+> > > On Thu, 2020-10-15 at 12:28 +0200, Ondrej Mosnacek wrote:
+> > <snip>
+> > > Just a thought - have you tried running the server in one
+> > > terminal
+> > > session and the client in another (I've plugged in your Fedora 32
+> > > addresses):
+> > > 
+> > > cd ...tests/sctp
+> > > echo 1 > /proc/sys/net/sctp/addip_enable
+> > > echo 1 > /proc/sys/net/sctp/addip_noauth_enable
+> > > runcon -t sctp_asconf_params_server_t ./sctp_asconf_params_server
+> > > 10.0.138.59 10.123.123.123 1035
+> > > 
+> > > cd ...tests/sctp
+> > > runcon -t sctp_asconf_deny_param_add_client_t
+> > > ./sctp_asconf_params_client 10.0.138.59 1035
+> > 
+> > Interesting... I just tried it a couple times and it's not behaving
+> > consistently - the first time I got "SCTP_PRIMARY_ADDR: Permission
+> > denied", then 'Dynamic Address Reconfiguration' twice in a row,
+> > then
+> > 7
+> > times  "SCTP_PRIMARY_ADDR: Permission denied", then 'Dynamic
+> > Address
+> > Reconfiguration' 5 times. and then again "SCTP_PRIMARY_ADDR:
+> > Permission denied".
+> > 
+> > I tried (manually) different delays between starting the server and
+> > starting the client, but there didn't seem to be a pattern.
+> > 
 > 
-> selinux: Create function for selinuxfs directory cleanup
-> https://lore.kernel.org/selinux/20200819195935.1720168-2-dburgener@linux.microsoft.com/
+> I wonder if this test is flaky. A bit of history:
+> When I first produced the SCTP patches I had different permissions
+> for
+> SCTP_PARAM_SET_PRIMARY, SCTP_PARAM_ADD_IP etc. so that I could detect
+> these denials with allow 'self' rules. However the maintainers wanted
+> to keep things simple with just connect or bind permissions. This
+> made
+> it a bit more difficult to test this case. As it so happened (until
+> now
+> of course), the two LSM calls for SCTP_PARAM_SET_PRIMARY and
+> SCTP_PARAM_ADD_IP in sm_make_chunk.c triggered the following rule:
 > 
-> selinux: Refactor selinuxfs directory populating functions
-> https://lore.kernel.org/selinux/20200819195935.1720168-3-dburgener@linux.microsoft.com/
+> allow sctp_asconf_params_server_t
+> sctp_asconf_deny_param_add_client_t:sctp_socket connect;
 > 
-> selinux: Standardize string literal usage for selinuxfs directory names
-> https://lore.kernel.org/selinux/20200819195935.1720168-4-dburgener@linux.microsoft.com/
+> therefore by not allowing this rule I could detect (using the tshark
+> trace output "Client returns ASCONF_ACK's with 'Request refused - no
+> authorization'") to prove this test case.
 > 
-> selinux: Create new booleans and class dirs out of tree
-> https://lore.kernel.org/selinux/20200819195935.1720168-5-dburgener@linux.microsoft.com/
+> If this boils down to a timing problem, then the test needs to be
+> removed as I can't test this scenario, because the client needs the
+> connect permission to be able to connect to the server in the first
+> place.
 > 
-> Several changes were necessary to backport.  They are detailed in the
-> commit message for the third commit in the series.  I also dropped the
-> original third commit from this because it was only a style change.
 
-As Sasha said, we want to take the original commits as much as possible
-to reduce the delta.  It is ok to take style changes if other patches
-depend on them, because every time we do something that is not upstream,
-we create bugs.
+This test does have timimg issues. I put the three asconf tests in a
+loop of 200 iterations. Sometimes all would pass, but other times the
+third test would fail with the error.
 
-So can you redo this series, and backport the original commits, and
-provide the ids for them as well?
+I guess there are two options: Revert the patch, or remove the
+offending test. Any views !!!
 
-thanks,
+> 
 
-greg k-h
