@@ -1,115 +1,80 @@
-Return-Path: <SRS0=kXWH=DX=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=fPvm=D2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 441A4C433DF
-	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 22:56:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B89AC433DF
+	for <selinux@archiver.kernel.org>; Mon, 19 Oct 2020 21:35:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E182222201
-	for <selinux@archiver.kernel.org>; Fri, 16 Oct 2020 22:56:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="gDr+7mQG"
+	by mail.kernel.org (Postfix) with ESMTP id 365AE2231B
+	for <selinux@archiver.kernel.org>; Mon, 19 Oct 2020 21:35:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404942AbgJPW4l (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Oct 2020 18:56:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404897AbgJPW4j (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Oct 2020 18:56:39 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B1C3C061755
-        for <selinux@vger.kernel.org>; Fri, 16 Oct 2020 15:56:39 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id t25so5506285ejd.13
-        for <selinux@vger.kernel.org>; Fri, 16 Oct 2020 15:56:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ss6mFgtEpU0AhTcZztIBRvWhwuhHN1NtCL9CmWhE50Y=;
-        b=gDr+7mQGIy7C/mcWSpO1Ds7hqnk+RwsCQfOgqJ8a3GxW0m3l2QpA75nSZX+ZmFFvQK
-         NSm4GgphoJzRQw5ETLubTiy6piqbzluJNrrKWLgvOsOh4FpvUH9+eB5H6EeR4XxH7g4I
-         CEgaL7YNajjuY8fPCek5NW1EOrCFkZqwm8kqVXe6BxY7K9IAm4piHFzYPYFIoVudtSTj
-         1zEXcDvgnpDDCyMHk2uh/n0g90jubnJtF5FnALFPYv1dsROZJ0TWifRHdXz044U9AwLw
-         fQZZ/NMbDjylzVc1Vgt0LtBJsdD+1iv9WhuIjTipSmbosqnA53Mwc1ElxBPx9bNNDY0Q
-         83fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ss6mFgtEpU0AhTcZztIBRvWhwuhHN1NtCL9CmWhE50Y=;
-        b=HEDmb+H8RXjtkCrMWpoUZUibIDtu/KB/1K3uSen1SVnlvTjjZ1wewUNYzk8SYK80d6
-         we0P3hU5Kuq+gG8fvxkjAbur6nMFXgxCHFkDi/xrF62MdW1Tu42/v5mryg4PPIiMcGbE
-         DjSw0AbkaoR/l8L5gLOjOtnpGbM83cLXUysSEedcl8f1SHC1UErxhAOkwQZO7uDZju1o
-         tyKanUbBNW8550nIaNSrHhH5ZSSBNRQE+h2TB3vvKz1tpdfbEMBkciHUbCe9RZ3+XpKm
-         gWoASXezApYO2o2QQBkcGzA4/x4tEbSm11Dz0LexlTm5jfFurlHSr0ZNx7E0/ODZePjF
-         a0fQ==
-X-Gm-Message-State: AOAM5308drhPzjSb5bKLG/H7kcE7FTIxiAw8/+CdY4WbhifJylrbfi7a
-        JhoX+uuolZuQlI5+MaiXhtuHapd1MtKZlmRM7z/f
-X-Google-Smtp-Source: ABdhPJw7VNrFY+KfljUWJuzCoCaJpX89d/T3m9HX72+JRC4zE82LiA4Lm5KqK9MnjnqiTynfmXOzjdqrrb5E2bFYiFU=
-X-Received: by 2002:a17:906:b091:: with SMTP id x17mr6048395ejy.178.1602888997914;
- Fri, 16 Oct 2020 15:56:37 -0700 (PDT)
+        id S1733081AbgJSVft (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 19 Oct 2020 17:35:49 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:48466 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729022AbgJSVft (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 19 Oct 2020 17:35:49 -0400
+X-Greylist: delayed 407 seconds by postgrey-1.27 at vger.kernel.org; Mon, 19 Oct 2020 17:35:49 EDT
+Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 8042A564EE5
+        for <selinux@vger.kernel.org>; Mon, 19 Oct 2020 23:35:47 +0200 (CEST)
+Received: by mail-oo1-f46.google.com with SMTP id f26so311631oou.11
+        for <selinux@vger.kernel.org>; Mon, 19 Oct 2020 14:35:47 -0700 (PDT)
+X-Gm-Message-State: AOAM531Dc8+aPa15vuk7I+WXw9iPwa1urJcetrcTKUXxhlIbk+NiktB2
+        FO7xeJk/r51FNcJ2R61F3dolEK3kYqTXmNORF/g=
+X-Google-Smtp-Source: ABdhPJyTsPNvVFUNRKwNpapdM+TiA3CKRmLEaNVumQ5l4Zzlmb08dwZXA8k33FKvV1J7CdvVsz+9re9pO1Obz4rFPzg=
+X-Received: by 2002:a4a:e643:: with SMTP id q3mr1423875oot.22.1603143346480;
+ Mon, 19 Oct 2020 14:35:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201016134835.1886478-1-dburgener@linux.microsoft.com>
- <20201016150120.GB1807231@kroah.com> <20201016153823.GA2415204@sasha-vm>
- <20201016154443.GA1818291@kroah.com> <20201016154936.GB2415204@sasha-vm> <213527b2-87ce-01bf-0699-b82fa65dc91e@linux.microsoft.com>
-In-Reply-To: <213527b2-87ce-01bf-0699-b82fa65dc91e@linux.microsoft.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 16 Oct 2020 18:56:26 -0400
-Message-ID: <CAHC9VhTStpufqyGzPTDHJoQ+CFf+aTFM9+N6QhdkwkmqrD1wgA@mail.gmail.com>
-Subject: Re: [PATCH v5.4 v2 0/4] Update SELinuxfs out of tree and then swapover
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, James Morris <jmorris@namei.org>
+References: <20201009130052.52409-1-plautrba@redhat.com> <CAP+JOzTSbTZnDEeAkAvUOMAwOdDgc3J52JauH=yfxshbBpDLbQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzTSbTZnDEeAkAvUOMAwOdDgc3J52JauH=yfxshbBpDLbQ@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 19 Oct 2020 23:35:35 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=nBvxkg9cq98JCHYWvJePO+=DrYao3XhU8MP912QzUHJQ@mail.gmail.com>
+Message-ID: <CAJfZ7=nBvxkg9cq98JCHYWvJePO+=DrYao3XhU8MP912QzUHJQ@mail.gmail.com>
+Subject: Re: libsepol, libsemanage: drop duplicate and deprecated symbols
+To:     James Carter <jwcart2@gmail.com>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Oct 19 23:35:48 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 16, 2020 at 12:01 PM Daniel Burgener
-<dburgener@linux.microsoft.com> wrote:
-> On 10/16/20 11:49 AM, Sasha Levin wrote:
-> > On Fri, Oct 16, 2020 at 05:44:43PM +0200, Greg KH wrote:
-> >> On Fri, Oct 16, 2020 at 11:38:23AM -0400, Sasha Levin wrote:
-> >>> On Fri, Oct 16, 2020 at 05:01:20PM +0200, Greg KH wrote:
-> >>> > On Fri, Oct 16, 2020 at 09:48:31AM -0400, Daniel Burgener wrote:
-> >>> > > v2: Include all commits from original series, and include commit
-> >>> ids
-> >>> > >
-> >>> > > This is a backport for stable of my series to fix a race
-> >>> condition in
-> >>> > > selinuxfs during policy load:
-> >>> >
-> >>> > Has this race condition always been present, or is this a regression
-> >>> > that is being fixed from previously working kernels?
-> >>>
-> >>> So this issue has always been there, but:
-> >>>
-> >>> > If it's always been present, why not just use 5.9 to solve it?
-> >>>
-> >>> Because it was merged for 5.10 rather than 5.9, which is a few months
-> >>> out, so Daniel is looking to see if we can have it in 5.8/5.4 to close
-> >>> the gap.
-> >>
-> >> I would have to wait for 5.10-rc1 at the earliest, and get the selinux
-> >> maintainers ack for this :)
+On Thu, Oct 15, 2020 at 7:59 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Fri, Oct 9, 2020 at 9:49 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 > >
-> > No objections; if the selinux folks feel unhappy with this it'll just
-> > wait for 5.10.
 > >
-> Yes, that's fine from my end as well.  We can carry this series out of
-> tree in the interim.  Thanks!
+> > This is followup of
+> > https://lore.kernel.org/selinux/20200930145031.910190-1-plautrba@redhat.com/T/#t
+> >
+> > Change against 1 version:
+> >
+> > - improved commit messages with references to Debian and Fedora guidelines
+> > - drop deprecated functions from libsepol/src/deprecated_functions.c and
+> > - semanage_module_enable/semanage_module_disable from libsemanage
+> >
+>
+> I am not an expert in library versioning and such, but everything
+> looks ok to me.
+> Jim
 
-I tend to be pretty conservative when it comes to backporting patches
-to -stable, and since this is both a) big and b) fixes a problem that
-has existed since the dawn of selinuxfs (and possibly longer <g>) I
-think the smart thing to do is to wait for v5.10.
+Same: not an expert, but the patches look good (and Travis-CI does not
+report any issue). Thanks for adding references to the guidelines! For
+this series:
 
--- 
-paul moore
-www.paul-moore.com
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+I will be busy tomorrow but will merge this on Wednesday if you do not
+merge it before (and if nobody sends comments requiring changes).
+Nicolas
+
