@@ -2,134 +2,262 @@ Return-Path: <SRS0=Dhgn=D3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FB4AC43457
-	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 12:27:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A0B3C433E7
+	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 13:07:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1AA822265
-	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 12:27:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D500F22283
+	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 13:07:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X41/7laS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405915AbgJTM1U (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 20 Oct 2020 08:27:20 -0400
-Received: from mail-eopbgr70087.outbound.protection.outlook.com ([40.107.7.87]:38379
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2405865AbgJTM1U (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 20 Oct 2020 08:27:20 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KqcgXfER0Z2N46mDGfUwsigm8hJ7aAej0hHC5i53W+mrjKNa6xPv/HxurjJHUWBi5XJavw8dYi+lVZ0LEl3pE0jGN8RLJakcyzV32HT9eI33oO1L/JYbUSEmRDpDQiR+fVtg15mSaLughuwzlD6TKJT5GMoZ4DzzlFyepuaHWgLjynZX5eDcVrfuKTDUHTpSDus2+aXEbQcxISuChoSGA+JjZMc7SDm/nPUBM0whxA/0TS26wc9FJPrs9IQlgQn1ros1cVdaOeT4E/BFKYg5rqLeZ2DqlbC2+GzQFiiO84KLRagUX5k04Z8FNJtog0DBl96/WJxdgOsbzAJ8EXhPQQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aEUa0/aafSNSt9QKEkq+YGu7HkRWl5UdXgL9mfYy3fM=;
- b=DezEhSrxXRLJR40MVmG/f4ci3y3qyrFFLXZaaxSwjE3e/pmgFCEaOgw1lA3C64U89jdgbVBBM444jqhADN7XWWz3IYO0wC2aSTo5z7cfNpzOA/gbdrODd9nlovtHtOVtwmhiC8lKTOdYyoClmgSfk5X/FRL83lzjHC5z7bkt0M050tgraV8LN2Yj23P9wjg+mE0DulG8n15SlVGBdnUclSdnKpWEc09KE2Yh9v35EQVQKwxuU2dVMmSIkpHpbhtiRpdbowdas5KJRRPz6zhsFVGi7wIG6Vn6PkgegqWmal9HR8usgZn1Uo3oXKB9rvtEkumP/x2taKhMsYGtYQHZgg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=jolla.com; dmarc=pass action=none header.from=jolla.com;
- dkim=pass header.d=jolla.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jolla.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aEUa0/aafSNSt9QKEkq+YGu7HkRWl5UdXgL9mfYy3fM=;
- b=Drq1tbTIxianXXKC9mdFt4ll/wWpNk+fIQDQGCbTfVqFg18ysOrzCxwW3kgV/7OUH/D8DWjxVh3wC74sSmap0iNyv59Vt1z2I5Hvyd84T0GxMI9x8jjpSMkmg9Rr9ce0H3rLA71YEwkJVopM/p871mJOPSRgOdZxM1LAtwHVhl0iXDrNEHpbRMMXx+fsCLEQT8uTTwRh6ifDTBhCipA6d33gKAOA3yB12uyuMyWTG1zt/zCZVEzgr4Uswzbl5uEWhRXpOHRTOBVof2+DxJ/j9spq4JEknJ6/SHntKLfVg8+Ysi/+GGM3avx9dlJjMxNehAKzcHK+CyV/AN3ugUvMjA==
-Received: from VI1PR06MB5519.eurprd06.prod.outlook.com (2603:10a6:803:d5::23)
- by VI1PR06MB3934.eurprd06.prod.outlook.com (2603:10a6:802:68::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3477.28; Tue, 20 Oct
- 2020 12:27:15 +0000
-Received: from VI1PR06MB5519.eurprd06.prod.outlook.com
- ([fe80::4847:897d:1b48:f01]) by VI1PR06MB5519.eurprd06.prod.outlook.com
- ([fe80::4847:897d:1b48:f01%7]) with mapi id 15.20.3477.028; Tue, 20 Oct 2020
- 12:27:15 +0000
-From:   =?iso-8859-1?Q?Bj=F6rn_Bidar?= <bjorn.bidar@jolla.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Subject: [PATCH] libselinux: Add build option to disable X11 backend
-Thread-Topic: [PATCH] libselinux: Add build option to disable X11 backend
-Thread-Index: AQHWptxXMS9rsPWquEWVgiS/EbRT+A==
-Date:   Tue, 20 Oct 2020 12:27:15 +0000
-Message-ID: <5825612.FvA7u9GNv5@odin>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=jolla.com;
-x-originating-ip: [85.76.102.84]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: d44dfc07-25b2-4d36-27cf-08d874f37a84
-x-ms-traffictypediagnostic: VI1PR06MB3934:
-x-microsoft-antispam-prvs: <VI1PR06MB393493C8CD5AEAA283CCD86AF81F0@VI1PR06MB3934.eurprd06.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:3968;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: BESS4LacMHB3Ty90lxJ03gQQu6NTfDPlbt0m31FUAT+IhkW/y5I2OOkKgVUdx4oCVP6xtIVwbRTtPRldjV0D1Ka61wDuGCeImrdK8GJ7lhHjz/N+Z/7k8lsCj199/jBly3x5C0wODpfzK/mVM35Ju9/+ox7dFcBfcFZpd1flqUH9f87pTmXYXI5/3u+SrdQxPSjegvrxnM8HXAGVvKnORFncWjkVzW0yge7bm3Lf33brb+Rlw1/S950bT3HO8jDXzGXuo2ZxVU1di21Zsts+Qi1yvvpm68KoxrsgYQ6LrRcyvuqG4VkUK0sD+GNWvqCGE2Pr/4Ulv3bQOvj8K6PdUsi/DpbDSbhKZ8CgBGgBXKctELl/GiO2PxPu+v9Zta0V
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR06MB5519.eurprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(346002)(366004)(6916009)(8676002)(71200400001)(508600001)(86362001)(33716001)(83380400001)(2906002)(186003)(6486002)(66574015)(64756008)(66556008)(26005)(6506007)(5660300002)(66446008)(66946007)(9686003)(91956017)(8936002)(76116006)(6512007)(66476007)(39026012);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: tdxsO4tKeHXsoifYFUPZF7TpvGpAK4SXnmU3kgjG3toqIYcNx5oqmmMl8rWEYT67LOUnOXFEN7egfLYbfNuH3Uz5ny5LmLqYHntXUvY1gXAIDhsL9wnfVd5vz2gocvM895xQLZ9wCLDxrYeZWCjb6gN9iSI/DSEFzYoU0qPSwzRf4kcyoO/dd3d1jCpH+RQFM4USuKGswJozh+yf780T6lrLJqDDgQFZa8gJUw8Pd9+1yB/ES2MuZivW3P85vBo10Vbz/keDKw3ALbEwsDxzaCYNMc0VYW5oJp6EF0G7puOktI5QgW/tPtbdQMPA+uixFKLmu1u/kRElWyZwb/d+cBWe2G7NvGOuzPL/mr/Epp2+Ly+LBZrC003pUrPcd8KoWKIunPpyfmlVd00ZTa1L/rpovgAH93IxQCUj12ne+7mqygHqDNvVr9ztBk7pzxQ/EVzZyL3fsnK6nQXUK128RW7wZc4UPNk6GJYyXkCaxSX7rBmLL0xxS3KFIVMXA0To1FVF+ZR2F5EoiD4Z7iZOv19WCO7RFZJZe11F8kfMs47rZzOhMzqJjuOfeC0XV/KSvw9r6oplfDb1Brc9JYgBfA0x0BmLCDy3Cb8xWWQP1IafiKSs5e6qOPZWCAoDfNjjrDbd6bwj84vdFtVafbk7Ow==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <5000141DBDC7DB479A7F512322691203@eurprd06.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S2407103AbgJTNHi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Oct 2020 09:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55498 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406792AbgJTNHi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Oct 2020 09:07:38 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C850C061755
+        for <selinux@vger.kernel.org>; Tue, 20 Oct 2020 06:07:38 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id h10so2050884oie.5
+        for <selinux@vger.kernel.org>; Tue, 20 Oct 2020 06:07:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=a//ErE4tuRydRTQyPpovCOH/NHdt1B7k53sIhh1UB9Q=;
+        b=X41/7laSCkFrI3J0iZtHNK/vjzJSF0DO8j9iia1UQnpYfKv3BXQovMqNIM6eqBOGD/
+         oMtDImHPxZJJCkTlBg3pPEciDFi1syz51W4jdHB5cmRKCJKVxQkgIpICctpOgCx8YwDT
+         7yXCESu0y7YpBf3aKfKLl6Mx4CVWbNjfefHQFx2nI4jSX2eV51L7h92DJFuL1s040IFH
+         GH8IZKN+4ew/F846ZK8WFA/2FzNiR0wtm2k0YfxuDVa3n5qSXUCAtz746r6UIf4J9WWn
+         gqmHQlfGSECLaVTYgJVQdudmUCWIr1Y5SpSZUBoN0XuxTaqySg9Vku+ScH/wSPOWGOME
+         w2+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=a//ErE4tuRydRTQyPpovCOH/NHdt1B7k53sIhh1UB9Q=;
+        b=gLridFgI0A3eMs+/MuuVAO1t6ZS1ZH10NkjBIj8GC9VlOPpMYNaLGGqxbDZHrIoZUF
+         +wzTP3BLkt+MVXvNFI248Yl6iwAdk2eXT3axYgT8Ls6iLF5f6HyvBMo7E7ocryeq/6MZ
+         27YwaxMoD/1lxX80Y4nhVxhicH9ih7tDmU2rIfuMJIHOl2GDzU/XilhENNy142EIpuVC
+         TFky8KfCru4uK0TmObTT7o5MNtZ+adx4IfU3XXQAsGpWc/giU60hXhGP6XhHT4GLI6By
+         3nVdUyzyFGFh2TIrLcbiK0o7+1j9B1ERGu5ZIpKqeDNeun3ydODpfoosILRLZY/pT3ec
+         x1xA==
+X-Gm-Message-State: AOAM531FshduMy8BMGAxbalRHR7odkKEOxw9w4ijztnG/W6O+5s9MUJT
+        1EYdVXt9eMy46/c9yYCqc3iXnDelW2zap58h/xGBAIcy
+X-Google-Smtp-Source: ABdhPJyI2ISYEN1OKisUrl8kqRxZgzksKvR7DrPXfKPXyL9ZA6wTvCAz3YM9USQJ7sLi/dnbWDJOJx+FKmGxry6LgCU=
+X-Received: by 2002:aca:498b:: with SMTP id w133mr1606898oia.138.1603199256480;
+ Tue, 20 Oct 2020 06:07:36 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: jolla.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR06MB5519.eurprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d44dfc07-25b2-4d36-27cf-08d874f37a84
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Oct 2020 12:27:15.2802
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b6cd1562-9512-488f-a364-34d46554c96a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: /nZSFplFKBSNfeXwYTkbUgodGxjzrtJu1m8ra4Q8+iqGJTS758+vjzdk5GjqI7cblM9BktytaM8Y2peVlcd/Gw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR06MB3934
+References: <20201015204352.569018-1-jwcart2@gmail.com> <CAFqZXNsFSqa6NGHmDwLC-fF-KG2zZf3REuPGfRO3Va_8CT_nUA@mail.gmail.com>
+In-Reply-To: <CAFqZXNsFSqa6NGHmDwLC-fF-KG2zZf3REuPGfRO3Va_8CT_nUA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 20 Oct 2020 09:07:25 -0400
+Message-ID: <CAP+JOzQJpZUU9uEs74nBomo7skQBkwnD92zawpRwWzkqRpYVfQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Give error for more than one true or false block
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add build option to libselinux to disable the X11 backend without using =0A=
-ANDROID_HOST.=0A=
-=0A=
-Signed-off-by: Bj=F6rn Bidar <bjorn.bidar@jolla.com>=0A=
----=0A=
- libselinux/Makefile     | 5 ++++-=0A=
- libselinux/src/Makefile | 4 ++++=0A=
- 2 files changed, 8 insertions(+), 1 deletion(-)=0A=
-=0A=
-diff --git a/libselinux/Makefile b/libselinux/Makefile=0A=
-index 6a43b243..cb5872b7 100644=0A=
---- a/libselinux/Makefile=0A=
-+++ b/libselinux/Makefile=0A=
-@@ -17,7 +17,10 @@ endif=0A=
- ifeq ($(DISABLE_BOOL),y)=0A=
- 	DISABLE_FLAGS+=3D -DDISABLE_BOOL=0A=
- endif=0A=
--export DISABLE_SETRANS DISABLE_RPM DISABLE_FLAGS ANDROID_HOST=0A=
-+ifeq ($(DISABLE_X11),y)=0A=
-+	DISABLE_FLAGS+=3D -DNO_X_BACKEND=0A=
-+endif=0A=
-+export DISABLE_SETRANS DISABLE_RPM DISABLE_FLAGS ANDROID_HOST DISABLE_X11=
-=0A=
- =0A=
- USE_PCRE2 ?=3D n=0A=
- ifeq ($(USE_PCRE2),y)=0A=
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile=0A=
-index 190016e2..be0b6eec 100644=0A=
---- a/libselinux/src/Makefile=0A=
-+++ b/libselinux/src/Makefile=0A=
-@@ -126,6 +126,10 @@ DISABLE_FLAGS+=3D -DNO_ANDROID_BACKEND=0A=
- SRCS:=3D $(filter-out label_backends_android.c, $(SRCS))=0A=
- endif=0A=
- =0A=
-+ifeq ($(DISABLE_X11),y)=0A=
-+SRCS:=3D $(filter-out label_x.c, $(SRCS))=0A=
-+endif=0A=
-+=0A=
- SWIGRUBY =3D swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_FLAG=
-S)=0A=
- =0A=
- all: $(LIBA) $(LIBSO) $(LIBPC)=0A=
--- =0A=
-2.28.0=0A=
-=0A=
+On Tue, Oct 20, 2020 at 8:07 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Thu, Oct 15, 2020 at 10:44 PM James Carter <jwcart2@gmail.com> wrote:
+> > Both tunableif and booleanif use conditional blocks (either true or
+> > false). No ordering is imposed, so a false block can be first (or even
+> > the only) block. Checks are made to ensure that the first and second
+> > (if it exists) blocks are either true or false, but no checks are made
+> > to ensure that there is only one true and/or one false block. If there
+> > are more than one true or false block, only the first will be used and
+> > the other will be ignored.
+> >
+> > Create a function, cil_verify_conditional_blocks(), that gives an error
+> > along with a message if more than one true or false block is specified
+> > and call that function when building tunableif and booleanif blocks in
+> > the AST.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  libsepol/cil/src/cil_build_ast.c | 44 +++++---------------------------
+> >  libsepol/cil/src/cil_verify.c    | 35 +++++++++++++++++++++++++
+> >  libsepol/cil/src/cil_verify.h    |  1 +
+> >  3 files changed, 42 insertions(+), 38 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> > index 3aabb05e..a8955834 100644
+> > --- a/libsepol/cil/src/cil_build_ast.c
+> > +++ b/libsepol/cil/src/cil_build_ast.c
+> > @@ -2821,7 +2821,6 @@ int cil_gen_boolif(struct cil_db *db, struct cil_tree_node *parse_current, struc
+> >         int syntax_len = sizeof(syntax)/sizeof(*syntax);
+> >         struct cil_booleanif *bif = NULL;
+> >         struct cil_tree_node *next = NULL;
+> > -       struct cil_tree_node *cond = NULL;
+> >         int rc = SEPOL_ERR;
+> >
+> >         if (db == NULL || parse_current == NULL || ast_node == NULL) {
+> > @@ -2841,27 +2840,12 @@ int cil_gen_boolif(struct cil_db *db, struct cil_tree_node *parse_current, struc
+> >                 goto exit;
+> >         }
+> >
+> > -       cond = parse_current->next->next;
+> > -
+> > -       /* Destroying expr tree after stack is created*/
+> > -       if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> > -               cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> > -               rc = SEPOL_ERR;
+> > -               cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> > +       rc = cil_verify_conditional_blocks(parse_current->next->next);
+> > +       if (rc != SEPOL_OK) {
+> >                 goto exit;
+> >         }
+> >
+> > -       if (cond->next != NULL) {
+> > -               cond = cond->next;
+> > -               if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> > -                       cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> > -                       rc = SEPOL_ERR;
+> > -                       cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> > -                       goto exit;
+> > -               }
+> > -       }
+> > -
+> > -
+> > +       /* Destroying expr tree */
+> >         next = parse_current->next->next;
+> >         cil_tree_subtree_destroy(parse_current->next);
+> >         parse_current->next = next;
+> > @@ -2905,7 +2889,6 @@ int cil_gen_tunif(struct cil_db *db, struct cil_tree_node *parse_current, struct
+> >         int syntax_len = sizeof(syntax)/sizeof(*syntax);
+> >         struct cil_tunableif *tif = NULL;
+> >         struct cil_tree_node *next = NULL;
+> > -       struct cil_tree_node *cond = NULL;
+> >         int rc = SEPOL_ERR;
+> >
+> >         if (db == NULL || parse_current == NULL || ast_node == NULL) {
+> > @@ -2924,27 +2907,12 @@ int cil_gen_tunif(struct cil_db *db, struct cil_tree_node *parse_current, struct
+> >                 goto exit;
+> >         }
+> >
+> > -       cond = parse_current->next->next;
+> > -
+> > -       if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> > -               cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> > -               rc = SEPOL_ERR;
+> > -               cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> > +       rc = cil_verify_conditional_blocks(parse_current->next->next);
+> > +       if (rc != SEPOL_OK) {
+> >                 goto exit;
+> >         }
+> >
+> > -       if (cond->next != NULL) {
+> > -               cond = cond->next;
+> > -
+> > -               if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> > -                       cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> > -                       rc = SEPOL_ERR;
+> > -                       cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> > -                       goto exit;
+> > -               }
+> > -       }
+> > -
+> > -       /* Destroying expr tree after stack is created*/
+> > +       /* Destroying expr tree */
+> >         next = parse_current->next->next;
+> >         cil_tree_subtree_destroy(parse_current->next);
+> >         parse_current->next = next;
+> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> > index c73bbeee..7b3d2a8b 100644
+> > --- a/libsepol/cil/src/cil_verify.c
+> > +++ b/libsepol/cil/src/cil_verify.c
+> > @@ -324,6 +324,41 @@ exit:
+> >         return SEPOL_ERR;
+> >  }
+> >
+> > +int cil_verify_conditional_blocks(struct cil_tree_node *current)
+> > +{
+> > +       int found_true = CIL_FALSE;
+> > +       int found_false = CIL_FALSE;
+> > +
+> > +       if (current->cl_head->data == CIL_KEY_CONDTRUE) {
+> > +               found_true = CIL_TRUE;
+> > +       } else if (current->cl_head->data == CIL_KEY_CONDFALSE) {
+> > +               found_false = CIL_TRUE;
+> > +       } else {
+> > +               cil_tree_log(current,CIL_ERR,"Expected true or false block in conditional");
+>
+> Please put a space after each comma in the argument list (same in the
+> other cil_tree_log() calls in this function).
+>
+
+Sure, no problem.
+
+> > +               return SEPOL_ERR;
+> > +       }
+> > +
+> > +       current = current->next;
+> > +       if (current != NULL) {
+> > +               if (current->cl_head->data == CIL_KEY_CONDTRUE) {
+> > +                       if (found_true) {
+> > +                               cil_tree_log(current,CIL_ERR,"More than one true block in conditional");
+> > +                               return SEPOL_ERR;
+> > +                       }
+> > +               } else if (current->cl_head->data == CIL_KEY_CONDFALSE) {
+> > +                       if (found_false) {
+> > +                               cil_tree_log(current,CIL_ERR,"More than one false block in conditional");
+> > +                               return SEPOL_ERR;
+> > +                       }
+> > +               } else {
+> > +                       cil_tree_log(current,CIL_ERR,"Expected true or false block in conditional");
+> > +                       return SEPOL_ERR;
+> > +               }
+>
+> Perhaps this is checked somewhere else or I'm missing something, but
+> shouldn't this function also fail if there are more than two blocks
+> (i.e. current->next != NULL here)? Not that it would cause any damage
+> (I guess the extra blocks would be just ignored), but IMHO it's better
+> to be strict about it.
+
+More than two blocks will fail the syntax check, so no additional
+checks are needed.
+
+I'll send an updated patch.
+Thanks,
+Jim
+
+>
+> > +       }
+> > +
+> > +       return SEPOL_OK;
+> > +}
+> > +
+> >  int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list)
+> >  {
+> >         struct cil_list_item *i;
+> > diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
+> > index bda1565f..905761b0 100644
+> > --- a/libsepol/cil/src/cil_verify.h
+> > +++ b/libsepol/cil/src/cil_verify.h
+> > @@ -61,6 +61,7 @@ int __cil_verify_syntax(struct cil_tree_node *parse_current, enum cil_syntax s[]
+> >  int cil_verify_expr_syntax(struct cil_tree_node *current, enum cil_flavor op, enum cil_flavor expr_flavor);
+> >  int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_flavor r_flavor, enum cil_flavor op, enum cil_flavor expr_flavor);
+> >  int cil_verify_constraint_expr_syntax(struct cil_tree_node *current, enum cil_flavor op);
+> > +int cil_verify_conditional_blocks(struct cil_tree_node *current);
+> >  int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list);
+> >  int __cil_verify_ranges(struct cil_list *list);
+> >  int __cil_verify_ordered_node_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args);
+> > --
+> > 2.25.4
+> >
+>
+> --
+> Ondrej Mosnacek
+> Software Engineer, Platform Security - SELinux kernel
+> Red Hat, Inc.
+>
