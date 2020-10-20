@@ -2,156 +2,248 @@ Return-Path: <SRS0=Dhgn=D3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3FF7C433E7
-	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 11:55:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21F47C433E7
+	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 12:07:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 64B62221FC
-	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 11:55:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66FAE2076A
+	for <selinux@archiver.kernel.org>; Tue, 20 Oct 2020 12:07:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NqGBHArF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eO/2psaN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393872AbgJTLzj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 20 Oct 2020 07:55:39 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59870 "EHLO
+        id S2393963AbgJTMH3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Oct 2020 08:07:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:29043 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2393791AbgJTLzi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 20 Oct 2020 07:55:38 -0400
+        by vger.kernel.org with ESMTP id S2394114AbgJTMH3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Oct 2020 08:07:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603194937;
+        s=mimecast20190719; t=1603195646;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=p+K1EKgErER8jnE1pFdV8KahB7MCNsS3EvW71TrUqls=;
-        b=NqGBHArFykPg/EJdfIa+8cP71Rtf5XkKAS2EQE3XMvqCxT4F48Aq3CggdSmrBs8UNcGcH7
-        BSFuuvEydXW2cTqVjL3ZYjXXJ/rVmFSueF7mQDQ7xtNcaxWvAEjZPccEiNuzlu6jYsjtf5
-        diKUNJIzj9vaaAtk+G73Pdcvl+mZz+0=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-569-A7IIvcs5MTWbW-1eVBodpA-1; Tue, 20 Oct 2020 07:55:35 -0400
-X-MC-Unique: A7IIvcs5MTWbW-1eVBodpA-1
-Received: by mail-lj1-f200.google.com with SMTP id r15so736902ljn.16
-        for <selinux@vger.kernel.org>; Tue, 20 Oct 2020 04:55:35 -0700 (PDT)
+        bh=Ht/4eCEEsiBUNuKAo/EAOdHU8sERsHz+anEQC7bfuAk=;
+        b=eO/2psaN9ycxC7oT3RRI8AZhOEMryn4meSF3SZ6c+VvMv7F1l0GuX4nlR3H4OEMemLZwN7
+        nL8HkLjjJxuWsbS71/SRjAIrh574fN8Ee0u2Vu6WPzq0BK01JNPZ4j7Il5RR09rIqPvcaC
+        +w7ImF1tslo+SHgavDWKep2geGEN6gE=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-310-KXY5NpkbPTafqiNZzNQHyg-1; Tue, 20 Oct 2020 08:07:25 -0400
+X-MC-Unique: KXY5NpkbPTafqiNZzNQHyg-1
+Received: by mail-lj1-f199.google.com with SMTP id s11so757830ljh.8
+        for <selinux@vger.kernel.org>; Tue, 20 Oct 2020 05:07:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=p+K1EKgErER8jnE1pFdV8KahB7MCNsS3EvW71TrUqls=;
-        b=IXsaZ5zyDmD5ySw7jbSPc0mIPlVzCfzk2GLH+950/bP+dyIRzeuraaXuqnEbfUgcfL
-         1fvwunoyyu5zi15jvb31RzMmzyVZcS9Cag9EyDP/F3j+yPp7jLYIhZM+ImcdvduGSmpi
-         pXE2ERgmFE3pdCi7e7qbqHrvNxHQOyx1zUoG5oaZEwlcfr9cT6FABWcgbA4+Izvq4H5M
-         vbDcvEoRZQQw+3Dn90ottxndzj4qJV7t7YulAT7XVTgwzAdTACKqTSnG4/+ZQkW0+KNR
-         Yzq7zdond2htUjYfWC80TsTKaeRzkVhce2ZkM28G+iWcadr3Zwh4cw9xtZydnOD2kJNv
-         GQyg==
-X-Gm-Message-State: AOAM5310qHglU0UsYSzMjKhYmvQH4gQuKRrvqmn8iYFkpUinAtNVbN3c
-        vtiQDzGOZFX3MsE6E0n9CNYQMMaW5YQTtIknfYWsEZekS7ziPfPuIuqCBKvWBveBngXQf7NWuwv
-        TjtKmNAPTUkaMUd5zxle0uAP++JZhwZwkjg==
-X-Received: by 2002:a05:651c:124f:: with SMTP id h15mr915749ljh.123.1603194933886;
-        Tue, 20 Oct 2020 04:55:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz26V0osV2yvevSE1IX8MluqLDEMDUaGkERUOexazUQx7xJIHXcWTvvyjyufBfB56TQ6czrfQYiZjFGJo+rwAo=
-X-Received: by 2002:a05:651c:124f:: with SMTP id h15mr915740ljh.123.1603194933671;
- Tue, 20 Oct 2020 04:55:33 -0700 (PDT)
+        bh=Ht/4eCEEsiBUNuKAo/EAOdHU8sERsHz+anEQC7bfuAk=;
+        b=E+6BuOp7Ry0TPUhy1D/Q3lNUIg6Mk1B0ZmVN5Yc3hZYauTmLj3Is3PKOQCoTQw3L5Y
+         ljVc79+mravQhBBCKB8CLWG8/yYwhZwJkPzRY7lK5VRUEtSdyq/CvE+yP9zhf0Sc+CbT
+         7qUiZpgfUxGob2cwuslHMX+rbipypFua0oaLkF4wBdbrdqeM0RexUpYgTlHQBLl8c4NJ
+         MoZNaIbTfVoKVvcptq1+OZATSCqmH3qlRQfZ2e0m4TKi1FQYD3VoSGxr7gtYQutETZ4x
+         Hk8JT2mudCY1WqIdQTIpqiMRkhUWukzfqUGovjUvrrB2mEaCJvSvgA4zeb/BkEz6bSoF
+         hSEA==
+X-Gm-Message-State: AOAM532ckW8WWmlq0jGLNibg1zG6ohA6icLsgI01RrvcdgalBd+xv+w7
+        8wlbmGOZJ9qtrEMgtPzxH7LiUpAcI25DT4J6CULt7fymnMVYip3YTcCspSWH45L6nUP+mK8yjS5
+        wsEBR3gsH175SnJTeD9Swp7LLT8SswUuhAA==
+X-Received: by 2002:a2e:7815:: with SMTP id t21mr919469ljc.217.1603195643226;
+        Tue, 20 Oct 2020 05:07:23 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzjRO8holhPD39eveIWiX+iYOXf172S9xi9mUHks4a7a/N3kep21uQafrpTvcnuPp2s3823hICoHBRKcOlOgBk=
+X-Received: by 2002:a2e:7815:: with SMTP id t21mr919458ljc.217.1603195642931;
+ Tue, 20 Oct 2020 05:07:22 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200922085902.18315-1-richard_c_haines@btinternet.com>
- <CAFqZXNu0KqmZcTTZHOYbz-6tFbSU5Ss=-Y1JUHsmHMEU6jmb-A@mail.gmail.com>
- <3fd9d2c2603b156dacf9c5f5c3c4926dd870fd27.camel@btinternet.com>
- <CAFqZXNveK0C98H8nhYs4_za=ydMX6jtcJ++87-1XUDpO68ygwQ@mail.gmail.com>
- <680d1208ca13571d642824dffd7adbc4d83915d6.camel@btinternet.com>
- <CAFqZXNspQBJeM1v+aExWTc4Hk2+MZ8oFaLCUWANOusboSho2Dg@mail.gmail.com>
- <d257ed0dcdce297d1aa026773f34d27bc3d6dfba.camel@btinternet.com>
- <CAFqZXNvSPvhHtKsa7W9HwC66Bvg2NH3tfGyow3QzZJ0C3RJEpg@mail.gmail.com>
- <0697d164d1838dac05aee2b482c76caf5f5d025f.camel@btinternet.com> <1f11e56714519b18f25539e88fc227868a098c03.camel@btinternet.com>
-In-Reply-To: <1f11e56714519b18f25539e88fc227868a098c03.camel@btinternet.com>
+References: <20201015204352.569018-1-jwcart2@gmail.com>
+In-Reply-To: <20201015204352.569018-1-jwcart2@gmail.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 20 Oct 2020 13:55:22 +0200
-Message-ID: <CAFqZXNsRzKEKeJmRj+tPNb0PQ7U3+gFPV-raOC7w6hEpXScL=g@mail.gmail.com>
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Update SCTP asconf client/server
-To:     Richard Haines <richard_c_haines@btinternet.com>
+Date:   Tue, 20 Oct 2020 14:07:12 +0200
+Message-ID: <CAFqZXNsFSqa6NGHmDwLC-fF-KG2zZf3REuPGfRO3Va_8CT_nUA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Give error for more than one true or false block
+To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 16, 2020 at 3:02 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Thu, 2020-10-15 at 18:04 +0100, Richard Haines wrote:
-> > On Thu, 2020-10-15 at 16:12 +0200, Ondrej Mosnacek wrote:
-> > > On Thu, Oct 15, 2020 at 3:49 PM Richard Haines
-> > > <richard_c_haines@btinternet.com> wrote:
-> > > > On Thu, 2020-10-15 at 12:28 +0200, Ondrej Mosnacek wrote:
-> > > <snip>
-> > > > Just a thought - have you tried running the server in one
-> > > > terminal
-> > > > session and the client in another (I've plugged in your Fedora 32
-> > > > addresses):
-> > > >
-> > > > cd ...tests/sctp
-> > > > echo 1 > /proc/sys/net/sctp/addip_enable
-> > > > echo 1 > /proc/sys/net/sctp/addip_noauth_enable
-> > > > runcon -t sctp_asconf_params_server_t ./sctp_asconf_params_server
-> > > > 10.0.138.59 10.123.123.123 1035
-> > > >
-> > > > cd ...tests/sctp
-> > > > runcon -t sctp_asconf_deny_param_add_client_t
-> > > > ./sctp_asconf_params_client 10.0.138.59 1035
-> > >
-> > > Interesting... I just tried it a couple times and it's not behaving
-> > > consistently - the first time I got "SCTP_PRIMARY_ADDR: Permission
-> > > denied", then 'Dynamic Address Reconfiguration' twice in a row,
-> > > then
-> > > 7
-> > > times  "SCTP_PRIMARY_ADDR: Permission denied", then 'Dynamic
-> > > Address
-> > > Reconfiguration' 5 times. and then again "SCTP_PRIMARY_ADDR:
-> > > Permission denied".
-> > >
-> > > I tried (manually) different delays between starting the server and
-> > > starting the client, but there didn't seem to be a pattern.
-> > >
-> >
-> > I wonder if this test is flaky. A bit of history:
-> > When I first produced the SCTP patches I had different permissions
-> > for
-> > SCTP_PARAM_SET_PRIMARY, SCTP_PARAM_ADD_IP etc. so that I could detect
-> > these denials with allow 'self' rules. However the maintainers wanted
-> > to keep things simple with just connect or bind permissions. This
-> > made
-> > it a bit more difficult to test this case. As it so happened (until
-> > now
-> > of course), the two LSM calls for SCTP_PARAM_SET_PRIMARY and
-> > SCTP_PARAM_ADD_IP in sm_make_chunk.c triggered the following rule:
-> >
-> > allow sctp_asconf_params_server_t
-> > sctp_asconf_deny_param_add_client_t:sctp_socket connect;
-> >
-> > therefore by not allowing this rule I could detect (using the tshark
-> > trace output "Client returns ASCONF_ACK's with 'Request refused - no
-> > authorization'") to prove this test case.
-> >
-> > If this boils down to a timing problem, then the test needs to be
-> > removed as I can't test this scenario, because the client needs the
-> > connect permission to be able to connect to the server in the first
-> > place.
-> >
+On Thu, Oct 15, 2020 at 10:44 PM James Carter <jwcart2@gmail.com> wrote:
+> Both tunableif and booleanif use conditional blocks (either true or
+> false). No ordering is imposed, so a false block can be first (or even
+> the only) block. Checks are made to ensure that the first and second
+> (if it exists) blocks are either true or false, but no checks are made
+> to ensure that there is only one true and/or one false block. If there
+> are more than one true or false block, only the first will be used and
+> the other will be ignored.
 >
-> This test does have timimg issues. I put the three asconf tests in a
-> loop of 200 iterations. Sometimes all would pass, but other times the
-> third test would fail with the error.
+> Create a function, cil_verify_conditional_blocks(), that gives an error
+> along with a message if more than one true or false block is specified
+> and call that function when building tunableif and booleanif blocks in
+> the AST.
 >
-> I guess there are two options: Revert the patch, or remove the
-> offending test. Any views !!!
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/cil/src/cil_build_ast.c | 44 +++++---------------------------
+>  libsepol/cil/src/cil_verify.c    | 35 +++++++++++++++++++++++++
+>  libsepol/cil/src/cil_verify.h    |  1 +
+>  3 files changed, 42 insertions(+), 38 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> index 3aabb05e..a8955834 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -2821,7 +2821,6 @@ int cil_gen_boolif(struct cil_db *db, struct cil_tree_node *parse_current, struc
+>         int syntax_len = sizeof(syntax)/sizeof(*syntax);
+>         struct cil_booleanif *bif = NULL;
+>         struct cil_tree_node *next = NULL;
+> -       struct cil_tree_node *cond = NULL;
+>         int rc = SEPOL_ERR;
+>
+>         if (db == NULL || parse_current == NULL || ast_node == NULL) {
+> @@ -2841,27 +2840,12 @@ int cil_gen_boolif(struct cil_db *db, struct cil_tree_node *parse_current, struc
+>                 goto exit;
+>         }
+>
+> -       cond = parse_current->next->next;
+> -
+> -       /* Destroying expr tree after stack is created*/
+> -       if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> -               cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> -               rc = SEPOL_ERR;
+> -               cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> +       rc = cil_verify_conditional_blocks(parse_current->next->next);
+> +       if (rc != SEPOL_OK) {
+>                 goto exit;
+>         }
+>
+> -       if (cond->next != NULL) {
+> -               cond = cond->next;
+> -               if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> -                       cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> -                       rc = SEPOL_ERR;
+> -                       cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> -                       goto exit;
+> -               }
+> -       }
+> -
+> -
+> +       /* Destroying expr tree */
+>         next = parse_current->next->next;
+>         cil_tree_subtree_destroy(parse_current->next);
+>         parse_current->next = next;
+> @@ -2905,7 +2889,6 @@ int cil_gen_tunif(struct cil_db *db, struct cil_tree_node *parse_current, struct
+>         int syntax_len = sizeof(syntax)/sizeof(*syntax);
+>         struct cil_tunableif *tif = NULL;
+>         struct cil_tree_node *next = NULL;
+> -       struct cil_tree_node *cond = NULL;
+>         int rc = SEPOL_ERR;
+>
+>         if (db == NULL || parse_current == NULL || ast_node == NULL) {
+> @@ -2924,27 +2907,12 @@ int cil_gen_tunif(struct cil_db *db, struct cil_tree_node *parse_current, struct
+>                 goto exit;
+>         }
+>
+> -       cond = parse_current->next->next;
+> -
+> -       if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> -               cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> -               rc = SEPOL_ERR;
+> -               cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> +       rc = cil_verify_conditional_blocks(parse_current->next->next);
+> +       if (rc != SEPOL_OK) {
+>                 goto exit;
+>         }
+>
+> -       if (cond->next != NULL) {
+> -               cond = cond->next;
+> -
+> -               if (cond->cl_head->data != CIL_KEY_CONDTRUE &&
+> -                       cond->cl_head->data != CIL_KEY_CONDFALSE) {
+> -                       rc = SEPOL_ERR;
+> -                       cil_log(CIL_ERR, "Conditional neither true nor false\n");
+> -                       goto exit;
+> -               }
+> -       }
+> -
+> -       /* Destroying expr tree after stack is created*/
+> +       /* Destroying expr tree */
+>         next = parse_current->next->next;
+>         cil_tree_subtree_destroy(parse_current->next);
+>         parse_current->next = next;
+> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> index c73bbeee..7b3d2a8b 100644
+> --- a/libsepol/cil/src/cil_verify.c
+> +++ b/libsepol/cil/src/cil_verify.c
+> @@ -324,6 +324,41 @@ exit:
+>         return SEPOL_ERR;
+>  }
+>
+> +int cil_verify_conditional_blocks(struct cil_tree_node *current)
+> +{
+> +       int found_true = CIL_FALSE;
+> +       int found_false = CIL_FALSE;
+> +
+> +       if (current->cl_head->data == CIL_KEY_CONDTRUE) {
+> +               found_true = CIL_TRUE;
+> +       } else if (current->cl_head->data == CIL_KEY_CONDFALSE) {
+> +               found_false = CIL_TRUE;
+> +       } else {
+> +               cil_tree_log(current,CIL_ERR,"Expected true or false block in conditional");
 
-And do you think that the timing issue can be fixed by better
-synchronizing the client and server programs or is it inherently
-unavoidable? If you think it could be fixed in some way (even if
-non-trivial), then I'd prefer to just comment out the test with a note
-to revisit it in the future (leaving the code in place for now). I'll
-try to look into it at some point, unless you're faster than me :)
+Please put a space after each comma in the argument list (same in the
+other cil_tree_log() calls in this function).
+
+> +               return SEPOL_ERR;
+> +       }
+> +
+> +       current = current->next;
+> +       if (current != NULL) {
+> +               if (current->cl_head->data == CIL_KEY_CONDTRUE) {
+> +                       if (found_true) {
+> +                               cil_tree_log(current,CIL_ERR,"More than one true block in conditional");
+> +                               return SEPOL_ERR;
+> +                       }
+> +               } else if (current->cl_head->data == CIL_KEY_CONDFALSE) {
+> +                       if (found_false) {
+> +                               cil_tree_log(current,CIL_ERR,"More than one false block in conditional");
+> +                               return SEPOL_ERR;
+> +                       }
+> +               } else {
+> +                       cil_tree_log(current,CIL_ERR,"Expected true or false block in conditional");
+> +                       return SEPOL_ERR;
+> +               }
+
+Perhaps this is checked somewhere else or I'm missing something, but
+shouldn't this function also fail if there are more than two blocks
+(i.e. current->next != NULL here)? Not that it would cause any damage
+(I guess the extra blocks would be just ignored), but IMHO it's better
+to be strict about it.
+
+> +       }
+> +
+> +       return SEPOL_OK;
+> +}
+> +
+>  int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list)
+>  {
+>         struct cil_list_item *i;
+> diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
+> index bda1565f..905761b0 100644
+> --- a/libsepol/cil/src/cil_verify.h
+> +++ b/libsepol/cil/src/cil_verify.h
+> @@ -61,6 +61,7 @@ int __cil_verify_syntax(struct cil_tree_node *parse_current, enum cil_syntax s[]
+>  int cil_verify_expr_syntax(struct cil_tree_node *current, enum cil_flavor op, enum cil_flavor expr_flavor);
+>  int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_flavor r_flavor, enum cil_flavor op, enum cil_flavor expr_flavor);
+>  int cil_verify_constraint_expr_syntax(struct cil_tree_node *current, enum cil_flavor op);
+> +int cil_verify_conditional_blocks(struct cil_tree_node *current);
+>  int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list);
+>  int __cil_verify_ranges(struct cil_list *list);
+>  int __cil_verify_ordered_node_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args);
+> --
+> 2.25.4
+>
 
 -- 
 Ondrej Mosnacek
