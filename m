@@ -2,86 +2,88 @@ Return-Path: <SRS0=8FG4=D4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B56FEC388F9
-	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 20:38:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93BE7C4363A
+	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 21:45:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60FB62415A
-	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 20:38:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35641223C7
+	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 21:45:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XE0b+HwK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505412AbgJUUiM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Oct 2020 16:38:12 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:43337 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2410598AbgJUUiK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Oct 2020 16:38:10 -0400
-X-Greylist: delayed 332 seconds by postgrey-1.27 at vger.kernel.org; Wed, 21 Oct 2020 16:38:09 EDT
-Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 472955654B9
-        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 22:32:35 +0200 (CEST)
-Received: by mail-ot1-f45.google.com with SMTP id f10so3091215otb.6
-        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 13:32:35 -0700 (PDT)
-X-Gm-Message-State: AOAM53364eJqLKZFFu/kskO+E1yrSzsDDUNNxUriYLYHVbOLNOCmipqJ
-        HNqKFK7H54JSAQTX6qLh0oyOcWHbMcG01ZXzWZk=
-X-Google-Smtp-Source: ABdhPJzEl0ds0auIGXMejTA3WCAhEX9PU6gQq9StXghUmij0r3CSnMAf/7I7yZxUpQawWboNHHhPWJndks+G1n+OZ5I=
-X-Received: by 2002:a9d:7019:: with SMTP id k25mr3617134otj.96.1603312354282;
- Wed, 21 Oct 2020 13:32:34 -0700 (PDT)
+        id S2440487AbgJUVo7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Oct 2020 17:44:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29402 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2440457AbgJUVo7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Oct 2020 17:44:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603316698;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=8CgkSLCNz4yENN/guES2lvrg6vN+eg/lqwtLNkqbrDA=;
+        b=XE0b+HwKnuhHgM+MnBmxHUIUd7AoSSKRxt0ldgmNKU0wxeJ0dBnyGpZm81En2h/Tl2jQuU
+        aFCF+r2vMp03jXTMGwdTWthzGvPCT4EZVEWgck3muljuNcHGHA099yd6ETZ2lE6mBcxwRa
+        DBlqcdF/JtWjfQahfepUH1fuH3Byi3s=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-311-kQNaz176NEWl77zzi2JU1w-1; Wed, 21 Oct 2020 17:44:56 -0400
+X-MC-Unique: kQNaz176NEWl77zzi2JU1w-1
+Received: by mail-wm1-f71.google.com with SMTP id f2so1978726wml.6
+        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 14:44:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8CgkSLCNz4yENN/guES2lvrg6vN+eg/lqwtLNkqbrDA=;
+        b=g+AR1+qM4RLckmrfkzXk7c4s8VqHZTR5RcPv8WYQJLKl1e1kQ2jSkMHSuEvrNH30JQ
+         WKuTlXtu48WbkNgQ4InysPGqOzRrzAiFf6wFgqPpLLfXSmGqb5G1zK/NQV4vHkqgUZy4
+         Tsp2fz7sgh8TPYdhrqYq7v6fK8Wpw8T/FglRO1gyhC/DBi2KwWfJbXTwXKvuYKkJZeKu
+         Z7l0MKw0iHp3A0tifJiNLu6xl4vHatI+ZgoQduAAefp6COu5KWo6+p3wiED51PE3ygdE
+         Pz8jJSF59Fv+pVv2mSdu9zSMk5qeiwehAVL+niEk+ZDuywr6RnorWCV7B0t2uw0e7FWF
+         KoQQ==
+X-Gm-Message-State: AOAM533wKAF2z8XNVeFRhStDXsy+6SuXJK9Xd59StYiaVUpeup6q6mKC
+        hwZFOaLHRGCVfkcM+ZvMiPHsKOoJ72gMTkN1q/OJGFWOpsRwCgif8IR22cXo58OOfSJj7BEmUtx
+        c+EHZkDDySsEg3dwHOQ==
+X-Received: by 2002:a1c:23d5:: with SMTP id j204mr5100740wmj.80.1603316695421;
+        Wed, 21 Oct 2020 14:44:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxR20/BET3XXbyHDeforiEtZPuv3Xz5hkTljUQoFgC8ERi8e6ZsE296+0LH6HziVuaFegHbqQ==
+X-Received: by 2002:a1c:23d5:: with SMTP id j204mr5100731wmj.80.1603316695201;
+        Wed, 21 Oct 2020 14:44:55 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b103:4000:e83d:a4fb:e589:6902])
+        by smtp.gmail.com with ESMTPSA id d3sm6466791wrb.66.2020.10.21.14.44.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2020 14:44:54 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 0/2] Fix ASCONF test and ensure it can be always run
+Date:   Wed, 21 Oct 2020 23:44:51 +0200
+Message-Id: <20201021214453.400811-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <20201009130052.52409-1-plautrba@redhat.com> <CAP+JOzTSbTZnDEeAkAvUOMAwOdDgc3J52JauH=yfxshbBpDLbQ@mail.gmail.com>
- <CAJfZ7=nBvxkg9cq98JCHYWvJePO+=DrYao3XhU8MP912QzUHJQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nBvxkg9cq98JCHYWvJePO+=DrYao3XhU8MP912QzUHJQ@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 21 Oct 2020 22:32:23 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==4h8FCX=bBisLUjYq2ukFXFpyNH490U5ji26L0G+Z0HA@mail.gmail.com>
-Message-ID: <CAJfZ7==4h8FCX=bBisLUjYq2ukFXFpyNH490U5ji26L0G+Z0HA@mail.gmail.com>
-Subject: Re: libsepol, libsemanage: drop duplicate and deprecated symbols
-To:     James Carter <jwcart2@gmail.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Oct 21 22:32:35 2020 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 19, 2020 at 11:35 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Thu, Oct 15, 2020 at 7:59 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > On Fri, Oct 9, 2020 at 9:49 AM Petr Lautrbach <plautrba@redhat.com> wrote:
-> > >
-> > >
-> > > This is followup of
-> > > https://lore.kernel.org/selinux/20200930145031.910190-1-plautrba@redhat.com/T/#t
-> > >
-> > > Change against 1 version:
-> > >
-> > > - improved commit messages with references to Debian and Fedora guidelines
-> > > - drop deprecated functions from libsepol/src/deprecated_functions.c and
-> > > - semanage_module_enable/semanage_module_disable from libsemanage
-> > >
-> >
-> > I am not an expert in library versioning and such, but everything
-> > looks ok to me.
-> > Jim
->
-> Same: not an expert, but the patches look good (and Travis-CI does not
-> report any issue). Thanks for adding references to the guidelines! For
-> this series:
->
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-> I will be busy tomorrow but will merge this on Wednesday if you do not
-> merge it before (and if nobody sends comments requiring changes).
+First fix the unreliable ASCONF test and then make the SCTP test create
+a GRE interface with an additional IPv4 address so that the ASCONF tests
+can be run even on a machine with just one global IPv4 address.
 
-Merged.
+Ondrej Mosnacek (2):
+  tests/sctp: fix a race condition in the new ASCONF test
+  tests/sctp: set up a GRE tunnel to activate ASCONF tests
 
-Thanks!
-Nicolas
+ tests/sctp/sctp_asconf_params_server.c | 7 +++++++
+ tests/sctp/test                        | 8 ++++++++
+ 2 files changed, 15 insertions(+)
+
+-- 
+2.26.2
 
