@@ -7,65 +7,65 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 473E1C4363A
-	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 21:45:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27D01C2D0A3
+	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 21:45:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C03CD223C7
-	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 21:45:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAFF3223C7
+	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 21:45:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NH74IkmS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OXMSu6O0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506445AbgJUVpB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Oct 2020 17:45:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31863 "EHLO
+        id S2440457AbgJUVpC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Oct 2020 17:45:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:22477 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2440457AbgJUVpB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Oct 2020 17:45:01 -0400
+        by vger.kernel.org with ESMTP id S2506408AbgJUVpC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Oct 2020 17:45:02 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603316699;
+        s=mimecast20190719; t=1603316700;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=pHFwt67E4x5cELhVDO2I9M6rMm8JwYGFUwb2olMxZnU=;
-        b=NH74IkmSH6oeJQcEpXTkr8Rrz4+udGwARvVBaE7mJLJJwOCl90UtMnpHcqm6wzplp96il4
-        RvsypOInhCGl96W11YRLlP6V7G/f+v2Bv6beVz0u6Nc2434wEO5BqfxJUBft1ox+vC8yyh
-        8URLeXZOm5lWcf/qIiJKMISs0T5U1GI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-591-EB9yCjf9MmayaBldzoq9fw-1; Wed, 21 Oct 2020 17:44:57 -0400
-X-MC-Unique: EB9yCjf9MmayaBldzoq9fw-1
-Received: by mail-wm1-f69.google.com with SMTP id r7so1969234wmr.5
-        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 14:44:57 -0700 (PDT)
+        bh=iuAtozTQfnJbcFRP3Plb2pGNYALi9DoVjiH8gr957Vw=;
+        b=OXMSu6O0VGdBmNKkDf2Vrk4nRISJJvXj2DmOn56Ik5ap+NKicng6ticPKEw7D0ceXjFwuk
+        pfyS/vjzlBNo//7upndDbRO4Db4kM+GZIZ2sxWOmvqmkUvYg8CyPlAB1BQmMBAcfhVrzaP
+        DN9OOphO9+hQu1RmCEQfgKR0K2emnS0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-405-Ye2_ZH2JPaqXS87R1HczJg-1; Wed, 21 Oct 2020 17:44:58 -0400
+X-MC-Unique: Ye2_ZH2JPaqXS87R1HczJg-1
+Received: by mail-wm1-f70.google.com with SMTP id r19so2116094wmh.9
+        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 14:44:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=pHFwt67E4x5cELhVDO2I9M6rMm8JwYGFUwb2olMxZnU=;
-        b=N/93jPSR8rPKMx8Dp7p+oa8rVpKMgjWOZjcWumuY0k7Pd2oIv8ritBlEwFt5l+pRB2
-         HcPj8qADpyDh2qwo50hRVe5+rtN3pqe7ynmB/mTgnPiSQ5MKHqEqDzuvl32EiP9GW19Q
-         yJIdqY1Os8X/ljtR4TMClbDUWp+Fgoo0EkdWz5uPC+kq8ZP8mVA4lin5n+HZoRRRC/xl
-         /InSlcbiU7XbYuuoUwGeNxp/eea7JSU8lceuxSVL7Cj2aBAiW0sFBMQd25ja6SqFGfDy
-         amI9KXCNeovonfxhYbYjdBawAU8OPXFWUeajQWphLpmzkuz7PuK8hIUjGsB0RlkSGLSy
-         KkEg==
-X-Gm-Message-State: AOAM53299P7vESvjbY8Wa+SNu7zbTRwOtJjjl254EEHEAa/eMVf2wltY
-        sSQL7wwGi3t3HsC7k2RJlkXCY4aoEvw2daHV7iNBzGTJyMYBaIAHVDinmg8E/3QhFTy63ojbQqT
-        xy3CxAM4Y3IVPNO9s8w==
-X-Received: by 2002:a1c:2581:: with SMTP id l123mr5345121wml.169.1603316696529;
-        Wed, 21 Oct 2020 14:44:56 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx+93VZi4uAKXR810T4B6+CM/8aw0CjxoP67ExYEYpEzcAwfA3nGgAaMplJiwx+nqmvsl1a2Q==
-X-Received: by 2002:a1c:2581:: with SMTP id l123mr5345108wml.169.1603316696313;
-        Wed, 21 Oct 2020 14:44:56 -0700 (PDT)
+        bh=iuAtozTQfnJbcFRP3Plb2pGNYALi9DoVjiH8gr957Vw=;
+        b=nfmhcogcyQjyDEkp5UCxiXwLOijzCVNpLc0YtQgXyAlArIVPJGN43gQjsfUSHxtHIA
+         xd+dePw+inRK11QOWLvoqnm5yCHTM/DZHtcnR028QGdGxlj8lLsBG+TQXSrValqlhc9A
+         JfqhYBp3iHUS1rK2/ueGVebkXm4kydOBr//t6D6O7ptSCQkXoR4Hq+KoSFQe2fUmM8ze
+         gg6u8wND3gFdDzqjFAeHlHVywLCRyPJIKMwprg7L0Xzip8TlhGo8J8S3J8FxKwzFpYPq
+         TNxSgoaOsJIdWqb7YNpkP3aknKr5C0GXX5rG18h0ncuxX2zpL3bzU0O3lbGhKbemyZyY
+         7HJg==
+X-Gm-Message-State: AOAM530izI4xudL3CWvDGvLmOKp2x6vc+KtPpJ/WbS4Rk36K41OUn7x1
+        ncC8Awok1Jbp0zBzrKZQH2rOP6gDw7zwbSgPVUJcoYuGUnAARH0K10jPtP6sjLgJKS5ThE8dHY6
+        Jbx4d61JwM4zjvOh4xQ==
+X-Received: by 2002:a05:600c:228a:: with SMTP id 10mr5426410wmf.123.1603316697538;
+        Wed, 21 Oct 2020 14:44:57 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy+jf92id+4nOtL7gY8/MsOT4ckn+4HtI17o1MvGdwDieULWFDG57X/BnztxL8ZeG4BmXl59A==
+X-Received: by 2002:a05:600c:228a:: with SMTP id 10mr5426404wmf.123.1603316697374;
+        Wed, 21 Oct 2020 14:44:57 -0700 (PDT)
 Received: from omos.redhat.com ([2a02:8308:b103:4000:e83d:a4fb:e589:6902])
-        by smtp.gmail.com with ESMTPSA id d3sm6466791wrb.66.2020.10.21.14.44.55
+        by smtp.gmail.com with ESMTPSA id d3sm6466791wrb.66.2020.10.21.14.44.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2020 14:44:55 -0700 (PDT)
+        Wed, 21 Oct 2020 14:44:56 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/2] tests/sctp: fix a race condition in the new ASCONF test
-Date:   Wed, 21 Oct 2020 23:44:52 +0200
-Message-Id: <20201021214453.400811-2-omosnace@redhat.com>
+Subject: [PATCH 2/2] tests/sctp: set up a GRE tunnel to activate ASCONF tests
+Date:   Wed, 21 Oct 2020 23:44:53 +0200
+Message-Id: <20201021214453.400811-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201021214453.400811-1-omosnace@redhat.com>
 References: <20201021214453.400811-1-omosnace@redhat.com>
@@ -75,40 +75,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The new ASCONF test introduced recently (see Fixes: tag) is unstable and
-can randomly fail on slow machines. The problem seems to be triggered
-when the server does the sctp_bindx() calls before the client starts
-listening for a new message, so add a 1 second sleep before the bindx
-calls.
+Currently, the ASCONF tests will activate only if the test system has
+two global IPv4 addresses, otherwise they are just skipped. Most
+systems, including the VM in CI, don't fulfill this condition.
 
-It is possible that this delay will not be enough on some very slow
-machines, but let's start with a small value and see how it goes. The
-one second seems to be enough for the Travis CI at least.
+As it turns out, this second IPv4 address can be set up very easily by
+creating a GRE trunnel interface over loopback. So make the SCTP test
+create such interface so that the ASCONF tests can be always run.
 
-Fixes: 841ccaabb366 ("selinux-testsuite: Update SCTP asconf client/server")
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- tests/sctp/sctp_asconf_params_server.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tests/sctp/test | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tests/sctp/sctp_asconf_params_server.c b/tests/sctp/sctp_asconf_params_server.c
-index 18e2cb2..ded782e 100644
---- a/tests/sctp/sctp_asconf_params_server.c
-+++ b/tests/sctp/sctp_asconf_params_server.c
-@@ -225,6 +225,13 @@ int main(int argc, char **argv)
- 		       ((struct sockaddr_in6 *)
- 			new_pri_addr_res->ai_addr)->sin6_scope_id);
+diff --git a/tests/sctp/test b/tests/sctp/test
+index eede42f..1170921 100755
+--- a/tests/sctp/test
++++ b/tests/sctp/test
+@@ -35,6 +35,12 @@ BEGIN {
+     else {
+         $test_count = 75;
  
-+	/*
-+	 * We can't do the sctp_bindx() calls too fast, otherwise the test
-+	 * that checks if these are denied would fail. Therefore, sleep for
-+	 * a bit to allow the client to catch up.
-+	 */
-+	sleep(1);
++        # Set up a GRE tunnel over loopback to ensure we have enough addresses
++        # for the ASCONF tests.
++        system "ip link add mygre type gretap local 127.0.0.1 remote 127.0.0.1";
++        system "ip addr add 10.123.123.123 dev mygre";
++        system "ip link set mygre up";
 +
- 	/*
- 	 * Now call sctp_bindx(3) to add 'new_pri_addr'. This uses Dynamic
- 	 * Address Reconfiguration by sending an asconf chunk with
+         # asconf parameter tests require two local non-loopback addresses.
+         $ipaddress_list = `ip -o addr show up scope global`;
+         $test_asconf    = 0;
+@@ -909,4 +915,6 @@ if ($test_nft) {
+     system "nft -f $basedir/nftables-flush";
+ }
+ 
++system "ip link del mygre";
++
+ exit;
 -- 
 2.26.2
 
