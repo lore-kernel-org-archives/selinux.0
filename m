@@ -2,172 +2,207 @@ Return-Path: <SRS0=8FG4=D4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-8.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82EADC4363A
-	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 10:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1041C561F8
+	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 12:07:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE2A921707
-	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 10:59:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D9A82224B
+	for <selinux@archiver.kernel.org>; Wed, 21 Oct 2020 12:07:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="taQ6rCrn"
+	dkim=pass (2048-bit key) header.d=android.com header.i=@android.com header.b="K9VGQj6u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439246AbgJUK7V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Oct 2020 06:59:21 -0400
-Received: from mailomta8-sa.btinternet.com ([213.120.69.14]:14003 "EHLO
-        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2439239AbgJUK7V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Oct 2020 06:59:21 -0400
-Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
-          by sa-prd-fep-047.btinternet.com with ESMTP
-          id <20201021105918.FLVC4250.sa-prd-fep-047.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Wed, 21 Oct 2020 11:59:18 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1603277958; 
-        bh=DvF9eWRfBWQh+BDZMPR1APxC+vUC98SZjSJBmAvcyHA=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=taQ6rCrnZQc4k3jV/FS5G6Fyu6lu9WCP1DhPV2McLWXbrUSqg4PX3FrCrNukY08XHPDEkYKFQk8yRfso/Lgk7My1BAzKr7iaHV7YlSMDcPs37x7zJ2GYMoHwRgzy+2BBmB0qCMdglPegiWvK3xWl4jQyzhcaeD2x7hkZCBORF2xttSncfHrWX8QyQqLptEatJ/RPePkJMu3CYUDziHu9DMbC11E3RNy7AyvGkHCyJQIGrxDUbyEYfhEsXUIqXizPYVqxoG3EjpZCJnWwa3buHNG6RcwZS9+v/1noqeNne0RdCKIDjtWMj6bB6iN9NI2OD8mBkzGqnN/BC3lsLvFxgQ==
-Authentication-Results: btinternet.com;
-    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.183.71.117]
-X-OWM-Source-IP: 86.183.71.117 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrjeehgdefhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepkeegfedtffekieekudegvdekjeehieffveevleegtdeludetveduleffudfggfeinecukfhppeekiedrudekfedrjedurdduudejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudekfedrjedurdduudejpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.183.71.117) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B6611713C670; Wed, 21 Oct 2020 11:59:18 +0100
-Message-ID: <904b91b20152f3ca54569f57fa118552eda1c080.camel@btinternet.com>
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Update SCTP asconf
- client/server
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Date:   Wed, 21 Oct 2020 11:59:10 +0100
-In-Reply-To: <CAFqZXNsRzKEKeJmRj+tPNb0PQ7U3+gFPV-raOC7w6hEpXScL=g@mail.gmail.com>
-References: <20200922085902.18315-1-richard_c_haines@btinternet.com>
-         <CAFqZXNu0KqmZcTTZHOYbz-6tFbSU5Ss=-Y1JUHsmHMEU6jmb-A@mail.gmail.com>
-         <3fd9d2c2603b156dacf9c5f5c3c4926dd870fd27.camel@btinternet.com>
-         <CAFqZXNveK0C98H8nhYs4_za=ydMX6jtcJ++87-1XUDpO68ygwQ@mail.gmail.com>
-         <680d1208ca13571d642824dffd7adbc4d83915d6.camel@btinternet.com>
-         <CAFqZXNspQBJeM1v+aExWTc4Hk2+MZ8oFaLCUWANOusboSho2Dg@mail.gmail.com>
-         <d257ed0dcdce297d1aa026773f34d27bc3d6dfba.camel@btinternet.com>
-         <CAFqZXNvSPvhHtKsa7W9HwC66Bvg2NH3tfGyow3QzZJ0C3RJEpg@mail.gmail.com>
-         <0697d164d1838dac05aee2b482c76caf5f5d025f.camel@btinternet.com>
-         <1f11e56714519b18f25539e88fc227868a098c03.camel@btinternet.com>
-         <CAFqZXNsRzKEKeJmRj+tPNb0PQ7U3+gFPV-raOC7w6hEpXScL=g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S2394263AbgJUMHg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Oct 2020 08:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2440016AbgJUMHg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Oct 2020 08:07:36 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4A1AC0613CE
+        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 05:07:35 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id 19so1344828pge.12
+        for <selinux@vger.kernel.org>; Wed, 21 Oct 2020 05:07:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=android.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=renYeGFy+byovKS92mhx+JvqyqsOEhO2ATHuCg5tTi8=;
+        b=K9VGQj6ulHMm3bTaCkxIHUoh3/hNg65KK9p3fGBfY5wVnOM9whj7Tbjth1hYYZVpv7
+         jd3FSvvu5rGOQHyYIIEJDLrBSLGq0xyWclqzu+g8AkM/lam1exqkr5N0hp3T94TcJutd
+         Gs+zbx8NoKrg69NU3nyY5lZUlrlwkkR/UlP1T4RR36xN35tRnwjVXRHGxRQcO0L+I2PZ
+         L8KokFmjGhy20HJRZF9NtV0Yh1YxqtfNA2FI1hZdTqywZ92TK7ygF0lNKACG+Mpf1uAX
+         lPXGz3cwi7ow3CEVPE/JTr2R5JX2bHBy9/1PrlU9kAZvW9QJ2S4kmaNZdedU3+OL9P4k
+         XOGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=renYeGFy+byovKS92mhx+JvqyqsOEhO2ATHuCg5tTi8=;
+        b=sCrS4yXEGBF2bH52r0mwEMKTAYNOaQPSAC+rt1c5KgZRzD1qsbK4K/OC1vzt8ynYAb
+         X4dBovMgqPmodSCGSiz39WZWDYyZde90h3/DBeXkJBtKV8Oz56pSIUz/wS2LpKOB7t+s
+         +rEIhldHqKresZsEbwJV7L2ovtsH+b2FU9yJoIzirSy9TuUnGC9s2QQyoAsrqB96vtlf
+         4/suA2eCArf4W1MsB0jloyh4X9cwZgwdCETX3JNiPH8puyfKRjvpYSC1hmnl0l8ckBW7
+         150YZQUAO+Z3+uwD+vxPXDC3ensmeQPE7v1iDes36jMuqmYhVMlC1u2zHPXiGWZng9bG
+         MNzg==
+X-Gm-Message-State: AOAM533fgbeKZPMZoRltBX7xtGMfgdCQIvUIPb/ABkFWd+k9oOEzD75f
+        MIu/mmYWQUbNuFPQ5EKMdOgXFs6zmyEMdQ==
+X-Google-Smtp-Source: ABdhPJwo8qGuoJxbH7a3pubNFBv4Mar/AFVZevkcLKo9gH1fVyuDgwomRnOjXA9GKl62VhL5YiVUqg==
+X-Received: by 2002:a63:1c4e:: with SMTP id c14mr3034455pgm.98.1603282054928;
+        Wed, 21 Oct 2020 05:07:34 -0700 (PDT)
+Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:4a0f:cfff:fe35:d61b])
+        by smtp.googlemail.com with ESMTPSA id f21sm2183491pfn.173.2020.10.21.05.07.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 21 Oct 2020 05:07:34 -0700 (PDT)
+Subject: Re: [PATCH v17 1/4] Add flags option to get xattr method paired to
+ __vfs_getxattr
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
+        Jan Kara <jack@suse.cz>, Jeff Layton <jlayton@kernel.org>,
+        David Sterba <dsterba@suse.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+References: <20201020191732.4049987-1-salyzyn@android.com>
+ <20201020191732.4049987-2-salyzyn@android.com>
+ <CAHC9VhTZitGFRCnRgLJLNUnFEhM0kp7E_51No1aam3CRf-WCpg@mail.gmail.com>
+From:   Mark Salyzyn <salyzyn@android.com>
+Message-ID: <ba6516a2-0d7a-3733-f974-943d296a1c15@android.com>
+Date:   Wed, 21 Oct 2020 05:07:32 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
+In-Reply-To: <CAHC9VhTZitGFRCnRgLJLNUnFEhM0kp7E_51No1aam3CRf-WCpg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-GB
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2020-10-20 at 13:55 +0200, Ondrej Mosnacek wrote:
-> On Fri, Oct 16, 2020 at 3:02 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > On Thu, 2020-10-15 at 18:04 +0100, Richard Haines wrote:
-> > > On Thu, 2020-10-15 at 16:12 +0200, Ondrej Mosnacek wrote:
-> > > > On Thu, Oct 15, 2020 at 3:49 PM Richard Haines
-> > > > <richard_c_haines@btinternet.com> wrote:
-> > > > > On Thu, 2020-10-15 at 12:28 +0200, Ondrej Mosnacek wrote:
-> > > > <snip>
-> > > > > Just a thought - have you tried running the server in one
-> > > > > terminal
-> > > > > session and the client in another (I've plugged in your
-> > > > > Fedora 32
-> > > > > addresses):
-> > > > > 
-> > > > > cd ...tests/sctp
-> > > > > echo 1 > /proc/sys/net/sctp/addip_enable
-> > > > > echo 1 > /proc/sys/net/sctp/addip_noauth_enable
-> > > > > runcon -t sctp_asconf_params_server_t
-> > > > > ./sctp_asconf_params_server
-> > > > > 10.0.138.59 10.123.123.123 1035
-> > > > > 
-> > > > > cd ...tests/sctp
-> > > > > runcon -t sctp_asconf_deny_param_add_client_t
-> > > > > ./sctp_asconf_params_client 10.0.138.59 1035
-> > > > 
-> > > > Interesting... I just tried it a couple times and it's not
-> > > > behaving
-> > > > consistently - the first time I got "SCTP_PRIMARY_ADDR:
-> > > > Permission
-> > > > denied", then 'Dynamic Address Reconfiguration' twice in a row,
-> > > > then
-> > > > 7
-> > > > times  "SCTP_PRIMARY_ADDR: Permission denied", then 'Dynamic
-> > > > Address
-> > > > Reconfiguration' 5 times. and then again "SCTP_PRIMARY_ADDR:
-> > > > Permission denied".
-> > > > 
-> > > > I tried (manually) different delays between starting the server
-> > > > and
-> > > > starting the client, but there didn't seem to be a pattern.
-> > > > 
-> > > 
-> > > I wonder if this test is flaky. A bit of history:
-> > > When I first produced the SCTP patches I had different
-> > > permissions
-> > > for
-> > > SCTP_PARAM_SET_PRIMARY, SCTP_PARAM_ADD_IP etc. so that I could
-> > > detect
-> > > these denials with allow 'self' rules. However the maintainers
-> > > wanted
-> > > to keep things simple with just connect or bind permissions. This
-> > > made
-> > > it a bit more difficult to test this case. As it so happened
-> > > (until
-> > > now
-> > > of course), the two LSM calls for SCTP_PARAM_SET_PRIMARY and
-> > > SCTP_PARAM_ADD_IP in sm_make_chunk.c triggered the following
-> > > rule:
-> > > 
-> > > allow sctp_asconf_params_server_t
-> > > sctp_asconf_deny_param_add_client_t:sctp_socket connect;
-> > > 
-> > > therefore by not allowing this rule I could detect (using the
-> > > tshark
-> > > trace output "Client returns ASCONF_ACK's with 'Request refused -
-> > > no
-> > > authorization'") to prove this test case.
-> > > 
-> > > If this boils down to a timing problem, then the test needs to be
-> > > removed as I can't test this scenario, because the client needs
-> > > the
-> > > connect permission to be able to connect to the server in the
-> > > first
-> > > place.
-> > > 
-> > 
-> > This test does have timimg issues. I put the three asconf tests in
-> > a
-> > loop of 200 iterations. Sometimes all would pass, but other times
-> > the
-> > third test would fail with the error.
-> > 
-> > I guess there are two options: Revert the patch, or remove the
-> > offending test. Any views !!!
-> 
-> And do you think that the timing issue can be fixed by better
-> synchronizing the client and server programs or is it inherently
-> unavoidable? If you think it could be fixed in some way (even if
-> non-trivial), then I'd prefer to just comment out the test with a
-> note
-> to revisit it in the future (leaving the code in place for now). I'll
-> try to look into it at some point, unless you're faster than me :)
+On 10/20/20 6:17 PM, Paul Moore wrote:
+> On Tue, Oct 20, 2020 at 3:17 PM Mark Salyzyn <salyzyn@android.com> wrote:
+>> Add a flag option to get xattr method that could have a bit flag of
+>> XATTR_NOSECURITY passed to it.  XATTR_NOSECURITY is generally then
+>> set in the __vfs_getxattr path when called by security
+>> infrastructure.
+>>
+>> This handles the case of a union filesystem driver that is being
+>> requested by the security layer to report back the xattr data.
+>>
+>> For the use case where access is to be blocked by the security layer.
+>>
+>> The path then could be security(dentry) ->
+>> __vfs_getxattr(dentry...XATTR_NOSECURITY) ->
+>> handler->get(dentry...XATTR_NOSECURITY) ->
+>> __vfs_getxattr(lower_dentry...XATTR_NOSECURITY) ->
+>> lower_handler->get(lower_dentry...XATTR_NOSECURITY)
+>> which would report back through the chain data and success as
+>> expected, the logging security layer at the top would have the
+>> data to determine the access permissions and report back the target
+>> context that was blocked.
+>>
+>> Without the get handler flag, the path on a union filesystem would be
+>> the errant security(dentry) -> __vfs_getxattr(dentry) ->
+>> handler->get(dentry) -> vfs_getxattr(lower_dentry) -> nested ->
+>> security(lower_dentry, log off) -> lower_handler->get(lower_dentry)
+>> which would report back through the chain no data, and -EACCES.
+>>
+>> For selinux for both cases, this would translate to a correctly
+>> determined blocked access. In the first case with this change a correct avc
+>> log would be reported, in the second legacy case an incorrect avc log
+>> would be reported against an uninitialized u:object_r:unlabeled:s0
+>> context making the logs cosmetically useless for audit2allow.
+>>
+>> This patch series is inert and is the wide-spread addition of the
+>> flags option for xattr functions, and a replacement of __vfs_getxattr
+>> with __vfs_getxattr(...XATTR_NOSECURITY).
+>>
+>> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+>> Reviewed-by: Jan Kara <jack@suse.cz>
+>> Acked-by: Jan Kara <jack@suse.cz>
+>> Acked-by: Jeff Layton <jlayton@kernel.org>
+>> Acked-by: David Sterba <dsterba@suse.com>
+>> Acked-by: Darrick J. Wong <darrick.wong@oracle.com>
+>> Acked-by: Mike Marshall <hubcap@omnibond.com>
+>> To: linux-fsdevel@vger.kernel.org
+>> To: linux-unionfs@vger.kernel.org
+>> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+>> Cc: linux-kernel@vger.kernel.org
+>> Cc: linux-security-module@vger.kernel.org
+>> Cc: kernel-team@android.com
+> ...
+>
+>> <snip>
+> [NOTE: added the SELinux list to the CC line]
 
-I do have a possible new test for the 3rd asconf test that I've run
-through 5000 interations without error, whereas the current one would
-fail between 100 to 500 interations (I changed the 'tm.tv_sec = 3;'
-client timer to 'tm.tv_usec = 50000;' so it ran faster). I hope to send
-updates late next week. Note that I've had no problems running the 1st
-and 2nd asconf tests in these loops.
 
-> 
+Thanks and <ooops>
+
+>
+> I'm looking at this patchset in earnest for the first time and I'm a
+> little uncertain about the need for the new XATTR_NOSECURITY flag;
+> perhaps you can help me understand it better.  Looking over this
+> patch, and quickly looking at the others in the series, it seems as
+> though XATTR_NOSECURITY is basically used whenever a filesystem has to
+> call back into the vfs layer (e.g. overlayfs, ecryptfs, etc).  Am I
+> understanding that correctly?  If that assumption is correct, I'm not
+> certain why the new XATTR_NOSECURITY flag is needed; why couldn't
+> _vfs_getxattr() be used by all of the callers that need to bypass
+> DAC/MAC with vfs_getxattr() continuing to perform the DAC/MAC checks?
+> If for some reason _vfs_getxattr() can't be used, would it make more
+> sense to create a new stripped/special getxattr function for use by
+> nested filesystems?  Based on the number of revisions to this
+> patchset, I'm sure it can't be that simple so please educate me :)
+>
+It is hard to please everyone :-}
+
+Yes, calling back through the vfs layer.
+
+I was told not to change or remove the __vfs_getxattr default behaviour, 
+but use the flag to pass through the new behavior. Security concerns 
+requiring the _key_ of the flag to be passed through rather than a 
+blanket bypass. This was also the similar security reasoning not to have 
+a special getxattr call.
+
+[TL;DR]
+
+history and details
+
+When it goes down through the layers again, and into the underlying 
+filesystems, to get the getxattr, the xattributes are blocked, then the 
+selinux _context_ will not be copied into the buffer leaving the caller 
+looking at effectively u:r:unknown:s0. Well, they were blocked, so from 
+the security standpoint that part was accurate, but the evaluation of 
+the context is using the wrong rules and an (cosmetically) incorrect avc 
+report. This also poisons the cache layers that may hold on to the 
+context for future calls (+/- bugs) disturbing the future decisions (we 
+saw that in 4.14 and earlier vintage kernels without this patch, later 
+kernels appeared to clear up the cache bug).
+
+The XATTR_NOSECURITY is used in the overlayfs driver for a substantial 
+majority of the calls for getxattr only if the data is private (ie: on 
+the stack, not returned to the caller) as simplification. A _real_ 
+getxattr is performed when the data is returned to the caller. I expect 
+that subtlety will get lost in the passage of time though.
+
+I had a global in_security flag set when selinux was requesting the 
+xattrs to evaluate security context, denied as a security risk since 
+someone could set the global flag. I had a separate special getxattr 
+function in the earlier patches, denied for security issues as well, and 
+others took issue with an additional confusing call site. I added the 
+flag parameter, and that satisfied the security concerns because the 
+value was only temporarily on the stack parameters and could not be 
+attacked to bypass xattr security. This flag passed to __vfs_getxattr 
+was also preferred from the security standpoint so that __vfs_getxattr 
+got the _key_ to bypass the xattr security checks. There was a brief 
+moment where the get_xattr and set_xattr calls shared a similar single 
+argument that pointed to a common call structure, but th as requested by 
+a few, but then denied once it was seen by stakeholders.
 
