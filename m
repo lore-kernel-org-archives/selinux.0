@@ -2,111 +2,108 @@ Return-Path: <SRS0=rhON=D5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98A61C55179
-	for <selinux@archiver.kernel.org>; Thu, 22 Oct 2020 13:18:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65702C388F9
+	for <selinux@archiver.kernel.org>; Thu, 22 Oct 2020 14:09:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EC22222E9
-	for <selinux@archiver.kernel.org>; Thu, 22 Oct 2020 13:18:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF720241A3
+	for <selinux@archiver.kernel.org>; Thu, 22 Oct 2020 14:09:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=android.com header.i=@android.com header.b="sPxj/eeS"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="PE4PtpnD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2899474AbgJVNSG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 22 Oct 2020 09:18:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2899471AbgJVNSG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 22 Oct 2020 09:18:06 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD54C0613D6
-        for <selinux@vger.kernel.org>; Thu, 22 Oct 2020 06:18:05 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id j5so558890plk.7
-        for <selinux@vger.kernel.org>; Thu, 22 Oct 2020 06:18:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=c5p1zV1CqKVH8prpsj7PEX/s64deTtbH6mLHz/sTWPo=;
-        b=sPxj/eeSkGniZwpwGV+0kEAq//Ks1jlWunt480rMLYVSZRIi4xZOoKAn9mkn5HYPkN
-         Fkw7AxIajl0UYvbLyw5iKfkrY3DUZs7/K5NVP0ecCTnIx4XoITfdeSBZU9NLP3nJbR+F
-         m/CP8lnN5y45pgRiZup/NSe3sXBPCK7l1KQFu1/5XhbAsdix6UTYgjsk5NHZUggsf+R+
-         buouCHVOu8EJVTknoEH0SXsWkVrr8c8UNxqUbrsdOW6XsWwDwjpR++Idct8cm2lU+IO3
-         4ycrvMIJ47PM0kZ2TAbRvP2JqSFxdRFAQ6RAz6wopnTtNzOjDYWuHQiGClajvFJGWlHo
-         G06Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=c5p1zV1CqKVH8prpsj7PEX/s64deTtbH6mLHz/sTWPo=;
-        b=hDaWg1wCIU8Bty1pFCk5/XPMFqkaVwVkZmVP+Nhjw4BbFrGPAPsQ/bsuzJG5qCm9OI
-         wbQmPaGe660rV9Qkob9lHPeMwKqYGlpvfBie5fK03UsvjwwKcg5N0GLrQhCD3g8jCJ+j
-         v1ZNt/mZrd15lUMDvuvhWx8f+lRyTabCJh7bJQu8X9WvLxLTH/6wgECeQJCv48bE8JCj
-         tNYGdIRvxIZn9EqhHDODoF70ZEbxXIVHgAWT+mSKGvpxvfgLP1MC4OrnFw8J17k1T9/h
-         KfgQFr3lrevB41MuLF9CZucwM/TCyHNJXshbvmzRS2ihgfZPHDUTBo2zbFvKvByjnF9H
-         i1Gw==
-X-Gm-Message-State: AOAM532OPgHd2SJsclGN/EDqgckdE0akuECBazS3kFH1ot3kbb2fBVjT
-        WXnaRIGtIEzyJV24doQnNwEKjNFx7zLBVQ==
-X-Google-Smtp-Source: ABdhPJxFrJ8OvG+hbFts8koI3B46u1glVYhDvP6t0s8IfoVfSWdoLhC5db0WuzzwbxtbgXYlT10aAw==
-X-Received: by 2002:a17:902:b40a:b029:d5:f77c:fb4e with SMTP id x10-20020a170902b40ab02900d5f77cfb4emr2576354plr.14.1603372684980;
-        Thu, 22 Oct 2020 06:18:04 -0700 (PDT)
-Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:4a0f:cfff:fe35:d61b])
-        by smtp.googlemail.com with ESMTPSA id w19sm2248589pfn.174.2020.10.22.06.18.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Oct 2020 06:18:04 -0700 (PDT)
-Subject: Re: [RESEND PATCH v18 0/4] overlayfs override_creds=off & nested get
- xattr fix
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        John Stultz <john.stultz@linaro.org>,
-        linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-References: <20201021151903.652827-1-salyzyn@android.com>
- <20201022051914.GI857@sol.localdomain>
-From:   Mark Salyzyn <salyzyn@android.com>
-Message-ID: <ea67453d-e5de-7c3a-e1da-d1e5ac30b2dd@android.com>
-Date:   Thu, 22 Oct 2020 06:18:02 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S2900675AbgJVOJZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 22 Oct 2020 10:09:25 -0400
+Received: from mailomta18-re.btinternet.com ([213.120.69.111]:57622 "EHLO
+        re-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2900581AbgJVOJZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 22 Oct 2020 10:09:25 -0400
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-043.btinternet.com with ESMTP
+          id <20201022140922.DTKU30383.re-prd-fep-043.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Thu, 22 Oct 2020 15:09:22 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1603375762; 
+        bh=ItiAALsSNbyCiDt4MJhbAP8811U5i2i9fFvDd5zSUqM=;
+        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
+        b=PE4PtpnDVTvfFYoHG0c0r58dI26kNyGKT5i38KB5zLoehOTCMXeGwrde5IQ7u1eBoGRKgyMJwSStSdZVbP4Ivmk3oQBXsr3ev+YRVCU7f83zKW72idQ+U8jjocb/aDB10tagDwEH5H/PcKyrV+K9lbBnY2oPhmppYpTmyd9V/EWCgfcH7TuRmohPssEUf2gVH3bGcNnMsDnAjd+M74cHn6ZbJsmy40YghHOqHIaMnAw9OkyQTa+ukT+an5azIZBa5KkeZ/x1GdAFgbgqQdtV7nJj/io2m0k8SDShkZ9jdo+PQ67M48RjfZs07qjCOVKAFfULCHWdB35FDzyBtP1u3A==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-SNCR-Rigid: 5ED9C74D1705C395
+X-Originating-IP: [109.158.127.77]
+X-OWM-Source-IP: 109.158.127.77 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrjeejgdejudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepkeegfedtffekieekudegvdekjeehieffveevleegtdeludetveduleffudfggfeinecukfhppedutdelrdduheekrdduvdejrdejjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehkedruddvjedrjeejpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (109.158.127.77) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C74D1705C395; Thu, 22 Oct 2020 15:09:22 +0100
+Message-ID: <61c2a3843a7fbf06d5a1978506713c57662f4402.camel@btinternet.com>
+Subject: Re: [PATCH 1/2] tests/sctp: fix a race condition in the new ASCONF
+ test
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Date:   Thu, 22 Oct 2020 15:09:13 +0100
+In-Reply-To: <20201021214453.400811-2-omosnace@redhat.com>
+References: <20201021214453.400811-1-omosnace@redhat.com>
+         <20201021214453.400811-2-omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
 MIME-Version: 1.0
-In-Reply-To: <20201022051914.GI857@sol.localdomain>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/21/20 10:19 PM, Eric Biggers wrote:
-> On Wed, Oct 21, 2020 at 08:18:59AM -0700, Mark Salyzyn wrote:
->> Mark Salyzyn (3):
->>    Add flags option to get xattr method paired to __vfs_getxattr
->>    overlayfs: handle XATTR_NOSECURITY flag for get xattr method
->>    overlayfs: override_creds=off option bypass creator_cred
->>
->> Mark Salyzyn + John Stultz (1):
->>    overlayfs: inode_owner_or_capable called during execv
->>
->> The first three patches address fundamental security issues that should
->> be solved regardless of the override_creds=off feature.
->>
->> The fourth adds the feature depends on these other fixes.
-> FYI, I didn't receive patch 4, and neither https://lkml.kernel.org/linux-fsdevel
-> nor https://lkml.kernel.org/linux-unionfs have it either.
->
-> - Eric
+On Wed, 2020-10-21 at 23:44 +0200, Ondrej Mosnacek wrote:
+> The new ASCONF test introduced recently (see Fixes: tag) is unstable
+> and
+> can randomly fail on slow machines. The problem seems to be triggered
+> when the server does the sctp_bindx() calls before the client starts
+> listening for a new message, so add a 1 second sleep before the bindx
+> calls.
+> 
+> It is possible that this delay will not be enough on some very slow
+> machines, but let's start with a small value and see how it goes. The
+> one second seems to be enough for the Travis CI at least.
+> 
+> Fixes: 841ccaabb366 ("selinux-testsuite: Update SCTP asconf
+> client/server")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  tests/sctp/sctp_asconf_params_server.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 
-Resent again, thanks.
+Tested the three asconf tests over 1000 interations with no problems.
+In the meantime I'll review these tests to find a more reliable way to
+run them.
+
+Acked-by: Richard Haines <richard_c_haines@btinternet.com>
+> 
+> diff --git a/tests/sctp/sctp_asconf_params_server.c
+> b/tests/sctp/sctp_asconf_params_server.c
+> index 18e2cb2..ded782e 100644
+> --- a/tests/sctp/sctp_asconf_params_server.c
+> +++ b/tests/sctp/sctp_asconf_params_server.c
+> @@ -225,6 +225,13 @@ int main(int argc, char **argv)
+>  		       ((struct sockaddr_in6 *)
+>  			new_pri_addr_res->ai_addr)->sin6_scope_id);
+>  
+> +	/*
+> +	 * We can't do the sctp_bindx() calls too fast, otherwise the
+> test
+> +	 * that checks if these are denied would fail. Therefore, sleep
+> for
+> +	 * a bit to allow the client to catch up.
+> +	 */
+> +	sleep(1);
+> +
+>  	/*
+>  	 * Now call sctp_bindx(3) to add 'new_pri_addr'. This uses
+> Dynamic
+>  	 * Address Reconfiguration by sending an asconf chunk with
 
