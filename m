@@ -2,129 +2,102 @@ Return-Path: <SRS0=zvjF=D6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1DD0C4363A
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 14:55:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4927DC4363A
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 18:06:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 447BB206DD
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 14:55:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD20522460
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 18:06:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kdie4ugE"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="slEQVnRt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S461187AbgJWOzo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Oct 2020 10:55:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42241 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S461122AbgJWOzn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 10:55:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603464941;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=q6KYsimbR87QURge3qwcOQDzqlR+dacQdGzjSfYzGfo=;
-        b=Kdie4ugEcZT9sjyhiBEm486fwaegBLVoy9FagOheHjfJOPlQw1ErQ+0f30mTJv1sT/vswz
-        Nvc3ximoZg9yF+EBtlw6Ob6ZeV4VDJRzu4Ud+5LZKEhRytz5BVbV64b5agAc4ZVGLt0vVC
-        0aUcENW4bGFYUh/n5IcIMjFFTJnZ4xo=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-279-Fo8zUvRCNLCy0BnmG_E1DA-1; Fri, 23 Oct 2020 10:55:40 -0400
-X-MC-Unique: Fo8zUvRCNLCy0BnmG_E1DA-1
-Received: by mail-lj1-f200.google.com with SMTP id s25so775730ljo.13
-        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 07:55:39 -0700 (PDT)
+        id S463206AbgJWSGs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Oct 2020 14:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S462850AbgJWSGs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 14:06:48 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A7B8C0613CE
+        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 11:06:48 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id t15so2178393otk.0
+        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 11:06:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=rXP/hn/jMfaKsL2Q5jv5cEKxZQmIXrAO68Y6Mzzc4Lg=;
+        b=slEQVnRtdyxuziwbcRLzcdl4jyOkEI6qWkaL1gwlUkFkeptGzvruf2fjEKfyRdqJu0
+         1vce4UiJvg98OgMvMFb/IyAKwjOSRe3aRoay7vEeqlGAFwjmywNPWhvRhNpEaOeA+kcL
+         lsct0gzy8o4Iw/0UM/0TmfSjXL826xsaqjSxquq/VSYdq46LXBLmmYmp+bwe1xfOv2UK
+         jgiTYPEUtuKyWL7jhAQj5JV3rFpoBCvHSdZSavo4r0qirnwCeNLq0uuLBXf/98qFyOkM
+         IqYrGvMhyCV6/5spmrL/98LptSadUDv6wHOzBzzSAKhjmT18+65GIIl4gdx+PhuYRzVn
+         8ULQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=q6KYsimbR87QURge3qwcOQDzqlR+dacQdGzjSfYzGfo=;
-        b=r5Jf75gvzr7hQroOy2i2o9SN43QegpVzojBjRAVsoPW0bl5c+WyXcUhGm7qOem5Y+G
-         RxT8oIbiP1k0XsJcwOtzeYYLaYGVHzluNW8EZnNhMmlOAOspy0lHdY5+iQDFI8VJiWds
-         OYE8H8QCgiXg9OyLvpIbV0y2BKhPwQui7+myonGqQSLzkYPTikyXI7aU+j033Y/I/kvs
-         uqPZ4fgyRuBtQqAmJBuWQ0//N5rpNnHYVudupGlLWMITBoITXEogML68WwcOqQ8k14QZ
-         B6tADCHV07NlF51ANMf5FwfKxpHB40k8btQu9mUTISQUBWtZ8JcpCytyvt3DkrRdf61V
-         j1rw==
-X-Gm-Message-State: AOAM530yK341UlsHeAVHxmOpauAMCu2cIMUnUn48P2OQfWrL3rOFY27X
-        jlU1P/KqhMCpkUANMjBWnx7wQt7IsFtWdAHv0E+JYhVV5SAmIySea+OmyQNo1GGBRYaRX0KS4us
-        AYWqtuByT7vAxai7QP27Oqevq0p81cSDUEw==
-X-Received: by 2002:a2e:99c2:: with SMTP id l2mr984617ljj.38.1603464938188;
-        Fri, 23 Oct 2020 07:55:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzTOXbIbi41CUywRwLqaXPjiecw/dU28yJVILf2V8O93poGcNTBr4t6nepDQldVDaOCPn3wn10rff/QePk6/xI=
-X-Received: by 2002:a2e:99c2:: with SMTP id l2mr984610ljj.38.1603464937977;
- Fri, 23 Oct 2020 07:55:37 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=rXP/hn/jMfaKsL2Q5jv5cEKxZQmIXrAO68Y6Mzzc4Lg=;
+        b=gA4vdPidaLn1T7ukxF7Aikxe76oJDePIF3hMy6EuhHgKxQr8dld+9aRa8a9x3sNSwB
+         a0vpFazkGU8kLyTXcVQeiFSd3MB/uZfo9sSrP3sdeLs7VZDS2U85Jttm8Lbr6lYSJ2ez
+         T+5mTbknxwWVhTx4EFsZsR2DOJwFRarJndXAQNSrYxJdjMdGxf+0DGxV2Knht6AqUv2n
+         Q5QQfr1SnUS+rHUVpZkyel6T82t00MOlO/LRp96Fs5d1EDNxqthlMvvvII7aKO0Ygy4M
+         LJfAFjGmvORPtAno0Sg4+mG2ebKRh3gH0eXj0OqCZbMrKBAlYViYRZBAARRSNWceMjMl
+         hagQ==
+X-Gm-Message-State: AOAM532rJO006Arj25n/Cb6T3znfF36srwpIl2t18OQMG3IGWR1J9Y9f
+        WSD/OlygBRN35XiXRiiM4iU0Q8/ZF3UDS1FhAc8=
+X-Google-Smtp-Source: ABdhPJwXzpebB2tyCNDHzuvte1C5FT1RMLITBAn8gNGrIlpRSo7bgZ95quUowBt8eLaHRph70h49c0xxqsEOTf8yAJ0=
+X-Received: by 2002:a05:6830:10d3:: with SMTP id z19mr2765538oto.295.1603476407571;
+ Fri, 23 Oct 2020 11:06:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201021214453.400811-1-omosnace@redhat.com> <20201021214453.400811-3-omosnace@redhat.com>
- <e27493a79082271836c5fef11d494b052de83319.camel@btinternet.com>
-In-Reply-To: <e27493a79082271836c5fef11d494b052de83319.camel@btinternet.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 23 Oct 2020 16:55:27 +0200
-Message-ID: <CAFqZXNu13Jj5KnNZUQJPNdr-TcYFxmeL8QKbHte1K5LY=kcNdw@mail.gmail.com>
-Subject: Re: [PATCH 2/2] tests/sctp: set up a GRE tunnel to activate ASCONF tests
-To:     Richard Haines <richard_c_haines@btinternet.com>
+References: <08E7D9BD-ACF8-4DDA-85A7-52F5C89B274F@gmail.com>
+In-Reply-To: <08E7D9BD-ACF8-4DDA-85A7-52F5C89B274F@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 23 Oct 2020 14:10:44 -0400
+Message-ID: <CAP+JOzTd21176V19FkvVzSyp_qDE3KOH3QbmXpou3YRuJ8drPQ@mail.gmail.com>
+Subject: Re: How to avoid relabeling rootfs at every boot
+To:     Ian M <merinian@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 22, 2020 at 4:11 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Wed, 2020-10-21 at 23:44 +0200, Ondrej Mosnacek wrote:
-> > Currently, the ASCONF tests will activate only if the test system has
-> > two global IPv4 addresses, otherwise they are just skipped. Most
-> > systems, including the VM in CI, don't fulfill this condition.
-> >
-> > As it turns out, this second IPv4 address can be set up very easily
-> > by
-> > creating a GRE trunnel interface over loopback. So make the SCTP test
-> > create such interface so that the ASCONF tests can be always run.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  tests/sctp/test | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> >
+On Fri, Oct 23, 2020 at 12:02 PM Ian M <merinian@gmail.com> wrote:
 >
-> Acked-by: Richard Haines <richard_c_haines@btinternet.com>
+> Hello,
+>
+> I hope this is the right list for this question:
+>
+> I've got an embedded system that uses its initramfs as its root filesyste=
+m as well.  At boot, after the selinux policy loads, everything on the root=
+fs is incorrectly labeled as system_u:object_r:root_t.   I have temporarily=
+ worked around this by adding a restorecon on the rootfs at boot, but since=
+ the rootfs is a ramdisk the changes do not survive a system reboot.
+>
+> I may be incorrect, but my understanding (assumption?) is that the labels=
+ would be applied when the policy is loaded at boot.  So I cannot understan=
+d why the labels are always incorrect.
+>
+Filesystem labels are not applied when the policy is labeled. On
+filesystems that support xattrs, a fs_use_xattr rule is used to tell
+SELinux to use the label stored in the security.selinux xattrs, but
+the filesystem will still have to be labeled initially. If the fs does
+not support xattrs and every file can be labeled the same, then a
+genfscon rule can be used.
 
-Thanks! I applied both patches now.
+I am not sure of your exact case, but you can find more information in
+the SELinux Notebook - See
+https://github.com/SELinuxProject/selinux-notebook
+
+Jim
 
 >
-> > diff --git a/tests/sctp/test b/tests/sctp/test
-> > index eede42f..1170921 100755
-> > --- a/tests/sctp/test
-> > +++ b/tests/sctp/test
-> > @@ -35,6 +35,12 @@ BEGIN {
-> >      else {
-> >          $test_count = 75;
-> >
-> > +        # Set up a GRE tunnel over loopback to ensure we have enough
-> > addresses
-> > +        # for the ASCONF tests.
-> > +        system "ip link add mygre type gretap local 127.0.0.1 remote
-> > 127.0.0.1";
-> > +        system "ip addr add 10.123.123.123 dev mygre";
-> > +        system "ip link set mygre up";
-> > +
-> >          # asconf parameter tests require two local non-loopback
-> > addresses.
-> >          $ipaddress_list = `ip -o addr show up scope global`;
-> >          $test_asconf    = 0;
-> > @@ -909,4 +915,6 @@ if ($test_nft) {
-> >      system "nft -f $basedir/nftables-flush";
-> >  }
-> >
-> > +system "ip link del mygre";
-> > +
-> >  exit;
+> Thanks,
 >
-
-
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+> Ian
