@@ -2,172 +2,124 @@ Return-Path: <SRS0=zvjF=D6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E33CC388F9
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:37:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06D6EC55178
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:38:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3FB522074A
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:37:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A240C20BED
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:38:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tUR84Rqc"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="e5vEP6UU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S462487AbgJWWh3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Oct 2020 18:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S461456AbgJWWh3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 18:37:29 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99C23C0613CE
-        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 15:37:29 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id u62so3780551iod.8
-        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 15:37:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Fe+esJEg9wSUQtS4l6GOWZkPWWfczptoItmgqO3B+6k=;
-        b=tUR84RqcV+CmPd82vUfa7nosqUnLT1ocQONBiU02pVaZQYhaElT4mn3YG+KXymUP3E
-         bbC0Ywo6wLnN5DsZK0z94wDyowtnyrvobPCHKc8NOPtuIhg7aMChxl336aGysTk2PbPN
-         Vv+FGBASy7Z5k2JBdSERRWdvjRPclcHKS1uSqqvEI4fhqI0FvPDrV19Qre9/YcDBHl8F
-         HQmrtmmy5Ad38nkkaAhlCW4oBVej7logtXz5THvCmj0eDK6WTm9OFlst3bHOUcK53pwS
-         xxfGti5Rpu27QHlNqYQxUs/blmCKNE0YsU12B9NBa1sZerk8nGmoPW/c66qu/spA6rYD
-         VURA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Fe+esJEg9wSUQtS4l6GOWZkPWWfczptoItmgqO3B+6k=;
-        b=MigyS/IvFVdNZgwWYIHtp9UTBSisbFpzCKfy8K1FY5HmtuCKRejWgkqL6pqLLuP8mH
-         0E/ogUEIjWD7JR52GG15+i4bCpGNa9Wn5sjMsLbH9T4HzEo1ZIrMLGONXRfFJraLfuvm
-         jByG1PJ++lfXVa0dbWsAbTFLyVs1YAeBN9z/Y8E/3BEeL8dlICRh9uM2lGgmqbf06DUk
-         y5ZBgl152Ob/wpuW2VPFa7XCRRbsWiuxuMozQ9Re/RvssdoJgLZ2axdY8Y6pjy57im1S
-         KcwjsITG3+80DxF94dmsnrW+SkZtx2FRQl0wCA5rLDpmfyxU6pbFPjyJXC1hUux819FE
-         O1jQ==
-X-Gm-Message-State: AOAM530WI7akg0Likcy9EkJbVpM9xtatjpGmNWXHdzkm9N/6gzPZqQWr
-        FEwqp23KOgSlGyY0yRkpl1Wh8ntGseWMBHJ5KPk=
-X-Google-Smtp-Source: ABdhPJwr8jjYPTeAQIJ0ncp2U99l3ybtBCaeFnQTVApI7HHOzqmPKNxope3lSGLdcoR0mjiZ9CJNi5uL4Li4LQWtSSY=
-X-Received: by 2002:a02:3e13:: with SMTP id s19mr3675220jas.61.1603492648819;
- Fri, 23 Oct 2020 15:37:28 -0700 (PDT)
+        id S1753113AbgJWWiQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Oct 2020 18:38:16 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:33828 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S461456AbgJWWiP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 18:38:15 -0400
+Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 8447220B4905;
+        Fri, 23 Oct 2020 15:38:14 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8447220B4905
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1603492695;
+        bh=2/tAyBtYGB8cgYKxut3JbtspLYA7Spm6lLnqtN9/PzI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=e5vEP6UUDK9pN9xNXhnq8RMAeKZr6yGJ8ZgYjH4bZm0T2KDw4itqnfji9qmYu4viN
+         kyScnA/VKZRy/RZfXxMCFKF5RfmAYZ8+a1JWQs+PNGjoctVOvEyQq+kdmh/LiQSn0s
+         a/kOOB7bAChrtuc4jAN0//Ww4huMq3DcZfXhJJVs=
+Subject: Re: [PATCH v4 1/6] IMA: generalize keyring specific measurement
+ constructs
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
+ <20200923192011.5293-2-tusharsu@linux.microsoft.com>
+ <45aae09df5c301497efc697c17921e9b2a3c8ae8.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <71db5ccf-c9b3-68b0-4d48-93e2b1ba0d98@linux.microsoft.com>
+Date:   Fri, 23 Oct 2020 15:38:13 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <CAFftDdpW+Cj+vSUbb9RZV+3BTboWoW32TR9GaLU0p2Niu-yPhw@mail.gmail.com>
- <5B9C0581-1FC8-4063-B245-CA30C68FA29B@gmail.com>
-In-Reply-To: <5B9C0581-1FC8-4063-B245-CA30C68FA29B@gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 23 Oct 2020 17:37:17 -0500
-Message-ID: <CAFftDdpdSwCB4jZn22cSeTHiwPmsZPUZMhtAYardTouAcgxpmA@mail.gmail.com>
-Subject: Re: How to avoid relabeling rootfs at every boot
-To:     Ian M <merinian@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <45aae09df5c301497efc697c17921e9b2a3c8ae8.camel@linux.ibm.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 23, 2020 at 5:20 PM Ian M <merinian@gmail.com> wrote:
->
-> Thanks, cpio supporting extended attributes would be very helpful right n=
-ow.
->
-> After looking through the ref policy I see there is a genfscon statement =
-for rootfs which is what is labeling everything as root_t.
+Thanks Mimi for your overall feedback on this series.
+Really appreciate it.
 
-Yeah, genfscon is the way to say, hey this filesystem, all things have
-this label. genfscon takes paths, for more specific labelling,
-IIRC, cannot be used on rootfs; that feature only works for proc/sysfs
-like pseudo filesystems.
-
->
-> Would I break everything terribly if I removed that and setup an fs_use_x=
-attr for the rootfs?
-
-Yes because there is no xattr support, so it would choke and die when
-the kernel wants the xattr.
-
-Here's some other things to consider:
-1. There is no xattr support. You would need to see if that patch or
-something equivalent was accepted and then what kernel
-    version, and determine if your kernel supports it. Then at build
-time for the image you would have to create that dotfile that contains
-the
-    labels and package it in the CPIO archive. Then you could use the
-fs_use_xattr IIUC.
-2. I could be mistaken, but I think in recent years I have seen
-patches or articles that other FS types can be used for the initial
-root filesystem
-    now without a need for initrd, so you could, IIUC, boot directly
-into a labelled ext4 filesystem. You would have to label that file
-system during build.
-3. Most linuxt things boot into an initrd and then pivot to the actual
-root filesystem, you could do that as well.
-
-This would take some digging likely to figure out, or find someone
-that knows way more than me. That shouldn't be too terribly hard,
-I don't know much.
-
->
->
-> Thanks,
->
-> Ian Merin
->
-> > On Oct 23, 2020, at 3:49 PM, William Roberts <bill.c.roberts@gmail.com>=
- wrote:
-> >
-> > =EF=BB=BFOn Fri, Oct 23, 2020 at 2:05 PM James Carter <jwcart2@gmail.co=
-m> wrote:
-> >>
-> >>> On Fri, Oct 23, 2020 at 12:02 PM Ian M <merinian@gmail.com> wrote:
-> >>>
-> >>> Hello,
-> >>>
-> >>> I hope this is the right list for this question:
-> >>>
-> >>> I've got an embedded system that uses its initramfs as its root files=
-ystem as well.  At boot, after the selinux policy loads, everything on the =
-rootfs is incorrectly labeled as system_u:object_r:root_t.   I have tempora=
-rily worked around this by adding a restorecon on the rootfs at boot, but
-> >
-> > IIRC, when I worked on the Android integration we had to do the same
-> > thing. Android comes with it's own init in the ramdisk, so we just
-> > called restorecon on the parts of
-> > ramdisk that were of interest within the init daemon codebase itself.
-> > I don't think theirs anyway around that IIRC as the CPIO archive
-> > doesn't support xattrs.
-> >
-> > I do recall seeing this patchset:
-> > https://lwn.net/Articles/788922/
-> >
-> > I didn't look much into it, but if that got merged, you might be able
-> > to apply labels to ramdisk images.
-> >
-> >> since the rootfs is a ramdisk the changes do not survive a system rebo=
-ot.
-> >>>
-> >>> I may be incorrect, but my understanding (assumption?) is that the la=
-bels would be applied when the policy is loaded at boot.  So I cannot under=
-stand why the labels are always incorrect.
-> >>>
-> >> Filesystem labels are not applied when the policy is labeled. On
-> >> filesystems that support xattrs, a fs_use_xattr rule is used to tell
-> >> SELinux to use the label stored in the security.selinux xattrs, but
-> >> the filesystem will still have to be labeled initially. If the fs does
-> >> not support xattrs and every file can be labeled the same, then a
-> >> genfscon rule can be used.
-> >>
-> >> I am not sure of your exact case, but you can find more information in
-> >> the SELinux Notebook - See
-> >> https://github.com/SELinuxProject/selinux-notebook
-> >>
-> >> Jim
-> >>
-> >>>
-> >>> Thanks,
-> >>>
-> >>> Ian
+On 2020-10-22 12:39 p.m., Mimi Zohar wrote:
+> Hi Tushar,
+> 
+> On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
+> 
+>> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+>> index fe1df373c113..31a772d8a86b 100644
+>> --- a/security/integrity/ima/ima_policy.c
+>> +++ b/security/integrity/ima/ima_policy.c
+>> @@ -451,15 +451,19 @@ int ima_lsm_policy_change(struct notifier_block *nb, unsigned long event,
+>>   }
+>>   
+>>   /**
+>> - * ima_match_keyring - determine whether the keyring matches the measure rule
+>> - * @rule: a pointer to a rule
+>> - * @keyring: name of the keyring to match against the measure rule
+>> + * ima_match_rule_data - determine whether the given func_data matches
+>> + *			 the measure rule data
+>> + * @rule: IMA policy rule
+>> + * @opt_list: rule data to match func_data against
+>> + * @func_data: data to match against the measure rule data
+>>    * @cred: a pointer to a credentials structure for user validation
+>>    *
+>> - * Returns true if keyring matches one in the rule, false otherwise.
+>> + * Returns true if func_data matches one in the rule, false otherwise.
+>>    */
+>> -static bool ima_match_keyring(struct ima_rule_entry *rule,
+>> -			      const char *keyring, const struct cred *cred)
+>> +static bool ima_match_rule_data(struct ima_rule_entry *rule,
+>> +				const struct ima_rule_opt_list *opt_list,
+>> +				const char *func_data,
+>> +				const struct cred *cred)
+>>   {
+>>   	bool matched = false;
+>>   	size_t i;
+>> @@ -467,14 +471,14 @@ static bool ima_match_keyring(struct ima_rule_entry *rule,
+>>   	if ((rule->flags & IMA_UID) && !rule->uid_op(cred->uid, rule->uid))
+>>   		return false;
+>>   
+>> -	if (!rule->keyrings)
+>> +	if (!opt_list)
+>>   		return true;
+> 
+> The opt_list should be based on rule->func.  There shouldn't be a need
+> to pass it as a variable.
+> 
+> Mimi
+Makes sense. Will do. Thanks Mimi.
+~Tushar
+> 
+>>   
+>> -	if (!keyring)
+>> +	if (!func_data)
+>>   		return false;
+>>   
+>> -	for (i = 0; i < rule->keyrings->count; i++) {
+>> -		if (!strcmp(rule->keyrings->items[i], keyring)) {
+>> +	for (i = 0; i < opt_list->count; i++) {
+>> +		if (!strcmp(opt_list->items[i], func_data)) {
+>>   			matched = true;
+>>   			break;
+>>   		}
