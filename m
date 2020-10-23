@@ -1,199 +1,202 @@
-Return-Path: <SRS0=rhON=D5=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=zvjF=D6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85A91C388F9
-	for <selinux@archiver.kernel.org>; Thu, 22 Oct 2020 22:36:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FA86C388F9
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 00:47:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B85324655
-	for <selinux@archiver.kernel.org>; Thu, 22 Oct 2020 22:36:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AC6724631
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 00:47:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="og1B0xcg"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="INwr97+4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S372942AbgJVWgO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 22 Oct 2020 18:36:14 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55118 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S372941AbgJVWf2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 22 Oct 2020 18:35:28 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09MMVZuh058551;
-        Thu, 22 Oct 2020 18:35:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=j9XsJrYwmd69hAlmharqLVM7LiBlchSRoT0dWPuOUlA=;
- b=og1B0xcg7eiRllSH+fQlz7FRLmTvsR3+RTaUzVPIG7zwDNtFSGFqHJvOH/kp3ALYUChr
- hB5DIZfGntE4RXmWNMZXVYQaaChMGXshlLseCyz+F9RP42bfrkInMMAePFeZRDbAfYrh
- XFIP9hmPzOudTJQ36++bKo4tukXizOmb+YYAXwv8m6ac/uAFMUpjs6Zt2PhXTkr3Alp/
- 96hGlrLGqEY41tpWpEoR1sWThthEbsdlDXfMRnMj9/BRiqLftvC+WR5kYurVVTXNZ9fi
- IGC7BqUfn0DdlPKLjmDCHp9RczLlaP6flpY0VqKwhUUeSj+rnzuMXxGGoyfnJ115sKjx 8A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34be0u1n33-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Oct 2020 18:35:22 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09MMZ8I2071182;
-        Thu, 22 Oct 2020 18:35:21 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34be0u1n29-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Oct 2020 18:35:21 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09MMWw6H011289;
-        Thu, 22 Oct 2020 22:35:19 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 347qvhdxw5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Oct 2020 22:35:19 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09MMZHDD32571854
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Oct 2020 22:35:17 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 231B111C081;
-        Thu, 22 Oct 2020 22:35:17 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5619311C080;
-        Thu, 22 Oct 2020 22:35:13 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.54.44])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 22 Oct 2020 22:35:13 +0000 (GMT)
-Message-ID: <dc22359475f0c233abdb9257d1ca745d4be3f9af.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 5/6] IMA: add hook to measure critical data from
- kernel components
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Thu, 22 Oct 2020 18:35:11 -0400
-In-Reply-To: <20200923192011.5293-6-tusharsu@linux.microsoft.com>
-References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
-         <20200923192011.5293-6-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.737
- definitions=2020-10-22_17:2020-10-20,2020-10-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- phishscore=0 spamscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 malwarescore=0 bulkscore=0
- impostorscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2010220140
+        id S369274AbgJWArK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 22 Oct 2020 20:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44090 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S369263AbgJWArK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 22 Oct 2020 20:47:10 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BD6AC0613CF
+        for <selinux@vger.kernel.org>; Thu, 22 Oct 2020 17:47:10 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id ce10so5034732ejc.5
+        for <selinux@vger.kernel.org>; Thu, 22 Oct 2020 17:47:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=g1fKv4uIFw00jGTFevCKZ2EUtvU5bvfHONMclCNXS0g=;
+        b=INwr97+4ebmw4zMtRmFnFz7YRPoYX7r8pZ9kiBBrF1ljXHhvOlMeQd/QH5/KUevV4I
+         yAZWPf1Hr0YD9NUIi4hptrBfwvXwj+cHBq+sSedcAFYkFeFsZSRfiRXrFDkMpSMUpUGG
+         v0HIHqE07ynn+18J1ZCzEus/Qc+mvOlFnJL/PpJTz34QuTAGje4p+ewVRHaze3i0Zdu0
+         +OPhRbDVzWUIFLF6+H76P/2o5HNE+2FjQwoRETq72MmNkvnAuxkpOvm1vCMfkpFDY9B3
+         y3v6YEU4kHf7ZRdFavxufN3RQFNoGbny2PAPW39Vx4zo1kp+NCqSg1wVuBJUC12Yn5Tb
+         mvcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=g1fKv4uIFw00jGTFevCKZ2EUtvU5bvfHONMclCNXS0g=;
+        b=i7O+Bx7u2PvbfGU+LIq9KAwp0NXRI7iLtDJjDcP0xdN1wum3fLZa9DH+zS55kX13bm
+         +bAu94MdAWJ2lOwM2KDSxst2WVFR2Qx02dH5eAPKkxb1+z584toZOS6RO6TGCz1grtem
+         QPf+H8xYSfRBACbKlMwyBrFuEjfYmQa9HKVHK8H3xJ3ncr88AqZBU5MPIo7zx74h2Z3u
+         2mu6rRWvodbSV4kYQGIz1OubhYZVKGF320gJx1rdqgN+I8Z3hKQcuLKuCMCt2FEisc2T
+         39TFcejof4qW05eVigDgxWoCjOTO0xEGdIIl9SO9y2UTC+6NOt+GXAOVsXd9d8T+WdRi
+         FFtA==
+X-Gm-Message-State: AOAM530SrqORQmZvH+AYhd76DaDSa8QO/mGWbsIktoogWwbmqlEf57FU
+        DAOhuS0wKoO8ErbAjUxAviwJ+Ddb+4He+iI6QlxP
+X-Google-Smtp-Source: ABdhPJyCbWQwG6rJ6tXOYTck4ENVi87u45X4HoUd/41upX3LNVKE6gy6QZaZ/OFp/yZvHeqMP9g78zkH2Y2z2MsE/uM=
+X-Received: by 2002:a17:906:33c7:: with SMTP id w7mr4591813eja.398.1603414028542;
+ Thu, 22 Oct 2020 17:47:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20201020191732.4049987-1-salyzyn@android.com> <20201020191732.4049987-2-salyzyn@android.com>
+ <CAHC9VhTZitGFRCnRgLJLNUnFEhM0kp7E_51No1aam3CRf-WCpg@mail.gmail.com> <ba6516a2-0d7a-3733-f974-943d296a1c15@android.com>
+In-Reply-To: <ba6516a2-0d7a-3733-f974-943d296a1c15@android.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 22 Oct 2020 20:46:57 -0400
+Message-ID: <CAHC9VhRYf4gU=wmQ2o40zt9SSPHqRBst4So4P6SwwJ7KrXtvnw@mail.gmail.com>
+Subject: Re: [PATCH v17 1/4] Add flags option to get xattr method paired to __vfs_getxattr
+To:     Mark Salyzyn <salyzyn@android.com>
+Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
+        Jan Kara <jack@suse.cz>, Jeff Layton <jlayton@kernel.org>,
+        David Sterba <dsterba@suse.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tushar,
+On Wed, Oct 21, 2020 at 8:07 AM Mark Salyzyn <salyzyn@android.com> wrote:
+> On 10/20/20 6:17 PM, Paul Moore wrote:
+> > On Tue, Oct 20, 2020 at 3:17 PM Mark Salyzyn <salyzyn@android.com> wrote:
+> >> Add a flag option to get xattr method that could have a bit flag of
+> >> XATTR_NOSECURITY passed to it.  XATTR_NOSECURITY is generally then
+> >> set in the __vfs_getxattr path when called by security
+> >> infrastructure.
+> >>
+> >> This handles the case of a union filesystem driver that is being
+> >> requested by the security layer to report back the xattr data.
+> >>
+> >> For the use case where access is to be blocked by the security layer.
+> >>
+> >> The path then could be security(dentry) ->
+> >> __vfs_getxattr(dentry...XATTR_NOSECURITY) ->
+> >> handler->get(dentry...XATTR_NOSECURITY) ->
+> >> __vfs_getxattr(lower_dentry...XATTR_NOSECURITY) ->
+> >> lower_handler->get(lower_dentry...XATTR_NOSECURITY)
+> >> which would report back through the chain data and success as
+> >> expected, the logging security layer at the top would have the
+> >> data to determine the access permissions and report back the target
+> >> context that was blocked.
+> >>
+> >> Without the get handler flag, the path on a union filesystem would be
+> >> the errant security(dentry) -> __vfs_getxattr(dentry) ->
+> >> handler->get(dentry) -> vfs_getxattr(lower_dentry) -> nested ->
+> >> security(lower_dentry, log off) -> lower_handler->get(lower_dentry)
+> >> which would report back through the chain no data, and -EACCES.
+> >>
+> >> For selinux for both cases, this would translate to a correctly
+> >> determined blocked access. In the first case with this change a correct avc
+> >> log would be reported, in the second legacy case an incorrect avc log
+> >> would be reported against an uninitialized u:object_r:unlabeled:s0
+> >> context making the logs cosmetically useless for audit2allow.
+> >>
+> >> This patch series is inert and is the wide-spread addition of the
+> >> flags option for xattr functions, and a replacement of __vfs_getxattr
+> >> with __vfs_getxattr(...XATTR_NOSECURITY).
+> >>
+> >> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> >> Reviewed-by: Jan Kara <jack@suse.cz>
+> >> Acked-by: Jan Kara <jack@suse.cz>
+> >> Acked-by: Jeff Layton <jlayton@kernel.org>
+> >> Acked-by: David Sterba <dsterba@suse.com>
+> >> Acked-by: Darrick J. Wong <darrick.wong@oracle.com>
+> >> Acked-by: Mike Marshall <hubcap@omnibond.com>
+> >> To: linux-fsdevel@vger.kernel.org
+> >> To: linux-unionfs@vger.kernel.org
+> >> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> >> Cc: linux-kernel@vger.kernel.org
+> >> Cc: linux-security-module@vger.kernel.org
+> >> Cc: kernel-team@android.com
+> > ...
+> >
+> >> <snip>
+> > [NOTE: added the SELinux list to the CC line]
+>
+>
+> Thanks and <ooops>
+>
+> >
+> > I'm looking at this patchset in earnest for the first time and I'm a
+> > little uncertain about the need for the new XATTR_NOSECURITY flag;
+> > perhaps you can help me understand it better.  Looking over this
+> > patch, and quickly looking at the others in the series, it seems as
+> > though XATTR_NOSECURITY is basically used whenever a filesystem has to
+> > call back into the vfs layer (e.g. overlayfs, ecryptfs, etc).  Am I
+> > understanding that correctly?  If that assumption is correct, I'm not
+> > certain why the new XATTR_NOSECURITY flag is needed; why couldn't
+> > _vfs_getxattr() be used by all of the callers that need to bypass
+> > DAC/MAC with vfs_getxattr() continuing to perform the DAC/MAC checks?
+> > If for some reason _vfs_getxattr() can't be used, would it make more
+> > sense to create a new stripped/special getxattr function for use by
+> > nested filesystems?  Based on the number of revisions to this
+> > patchset, I'm sure it can't be that simple so please educate me :)
+> >
+> It is hard to please everyone :-}
+>
+> Yes, calling back through the vfs layer.
+>
+> I was told not to change or remove the __vfs_getxattr default behaviour,
+> but use the flag to pass through the new behavior. Security concerns
+> requiring the _key_ of the flag to be passed through rather than a
+> blanket bypass. This was also the similar security reasoning not to have
+> a special getxattr call.
+>
+> [TL;DR]
+>
+> history and details
+>
+> When it goes down through the layers again, and into the underlying
+> filesystems, to get the getxattr, the xattributes are blocked, then the
+> selinux _context_ will not be copied into the buffer leaving the caller
+> looking at effectively u:r:unknown:s0. Well, they were blocked, so from
+> the security standpoint that part was accurate, but the evaluation of
+> the context is using the wrong rules and an (cosmetically) incorrect avc
+> report. This also poisons the cache layers that may hold on to the
+> context for future calls (+/- bugs) disturbing the future decisions (we
+> saw that in 4.14 and earlier vintage kernels without this patch, later
+> kernels appeared to clear up the cache bug).
+>
+> The XATTR_NOSECURITY is used in the overlayfs driver for a substantial
+> majority of the calls for getxattr only if the data is private (ie: on
+> the stack, not returned to the caller) as simplification. A _real_
+> getxattr is performed when the data is returned to the caller. I expect
+> that subtlety will get lost in the passage of time though.
+>
+> I had a global in_security flag set when selinux was requesting the
+> xattrs to evaluate security context, denied as a security risk since
+> someone could set the global flag. I had a separate special getxattr
+> function in the earlier patches, denied for security issues as well, and
+> others took issue with an additional confusing call site. I added the
+> flag parameter, and that satisfied the security concerns because the
+> value was only temporarily on the stack parameters and could not be
+> attacked to bypass xattr security. This flag passed to __vfs_getxattr
+> was also preferred from the security standpoint so that __vfs_getxattr
+> got the _key_ to bypass the xattr security checks. There was a brief
+> moment where the get_xattr and set_xattr calls shared a similar single
+> argument that pointed to a common call structure, but th as requested by
+> a few, but then denied once it was seen by stakeholders.
 
-On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
-> Currently, IMA does not provide a generic function for kernel components
-> to measure their data. A generic function provided by IMA would
-> enable various parts of the kernel with easier and faster on-boarding to
-> use IMA infrastructure, would avoid code duplication, and consistent
-> usage of IMA policy option "data_sources:=" across the kernel.
-> 
-> Add a new IMA func CRITICAL_DATA and a corresponding IMA hook
-> ima_measure_critical_data() to support measuring various critical kernel
-> components. Limit the measurement to the components that are specified
-> in the IMA policy - CRITICAL_DATA+data_sources.
-> 
-> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Thanks for the background!
 
-Normally the new LSM or IMA hook is defined before defining a method of
-constraining that hook.  Please drop 2/6 (IMA: conditionally allow
-empty rule data) and reverse the order of 4/6 and 5/6.   That will
-allow each patch to update the Documentation appropriately, making the
-change self contained.
-
-> ---
->  Documentation/ABI/testing/ima_policy |  8 ++++++-
->  include/linux/ima.h                  |  8 +++++++
->  security/integrity/ima/ima.h         |  1 +
->  security/integrity/ima/ima_api.c     |  2 +-
->  security/integrity/ima/ima_main.c    | 26 +++++++++++++++++++++
->  security/integrity/ima/ima_policy.c  | 34 ++++++++++++++++++++++++----
->  6 files changed, 72 insertions(+), 7 deletions(-)
-> 
-> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-> index a81cf79fb255..d33bb51309fc 100644
-> --- a/Documentation/ABI/testing/ima_policy
-> +++ b/Documentation/ABI/testing/ima_policy
-> @@ -29,7 +29,7 @@ Description:
->  		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
->  				[FIRMWARE_CHECK]
->  				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
-> -				[KEXEC_CMDLINE] [KEY_CHECK]
-> +				[KEXEC_CMDLINE] [KEY_CHECK] [CRITICAL_DATA]
->  			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
->  			       [[^]MAY_EXEC]
->  			fsmagic:= hex value
-> @@ -51,6 +51,8 @@ Description:
->  			data_sources:= list of kernel components
->  			(eg, selinux|apparmor|dm-crypt) that contain data critical
->  			to the security of the kernel.
-> +			Only valid when action is "measure" and func is
-> +			CRITICAL_DATA.
->  
->  		default policy:
->  			# PROC_SUPER_MAGIC
-> @@ -128,3 +130,7 @@ Description:
->  		keys added to .builtin_trusted_keys or .ima keyring:
->  
->  			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
-> +
-> +		Example of measure rule using CRITICAL_DATA to measure critical data
-> +
-> +			measure func=CRITICAL_DATA data_sources=selinux|apparmor|dm-crypt
-
-
-As data sources are added, the documentation example should be updated
-to reflect the new source.  Please do not include examples that don't
-yet exist.
-
-
-> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> index 6888fc372abf..d55896f28790 100644
-> --- a/security/integrity/ima/ima_main.c
-> +++ b/security/integrity/ima/ima_main.c
-> @@ -867,6 +867,32 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->  	fdput(f);
->  }
->  
-> +/**
-> + * ima_measure_critical_data - measure critical data
-> + * @event_name: name for the given data
-> + * @event_data_source: name of the event data source
-> + * @buf: pointer to buffer containing data to measure
-> + * @buf_len: length of buffer(in bytes)
-> + * @measure_buf_hash: if set to true - will measure hash of the buf,
-> + *                    instead of buf
-> + *
-> + * Buffers can only be measured, not appraised.
-> + */
-
-Perhaps the reason for defining both the event_name and
-event_data_source will become clearer with an example.  At this point I
-can only guess as to why both are needed (e.g. perhaps a data source
-defines multiple events).
-
-While "Buffers can only be measured, not appraised" is true, it was cut
-& pasted from ima_kexec_cmdline.  Measuring the kexec boot cmdline is
-self describing.  Here, a larger, more detailed IMA hook description
-would be appropriate.
-
-thanks,
-
-Mimi
-
+-- 
+paul moore
+www.paul-moore.com
