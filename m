@@ -2,190 +2,155 @@ Return-Path: <SRS0=zvjF=D6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CF2DC388F9
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:40:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93656C5517A
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:50:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 258BE20BED
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:40:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D5362192A
+	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:50:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mLOB/T58"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="oB1UhE8M"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1757768AbgJWWk1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Oct 2020 18:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757766AbgJWWk1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 18:40:27 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B6FC0613CE
-        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 15:40:27 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id g13so1652497qvu.1
-        for <selinux@vger.kernel.org>; Fri, 23 Oct 2020 15:40:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=content-transfer-encoding:from:mime-version:subject:date:message-id
-         :references:cc:in-reply-to:to;
-        bh=aKtHixNRS1IqKyLIC1qMKi8Ri75H4X8q8IDufXwhihg=;
-        b=mLOB/T58z8N78630p+zHZebxSU8u7/2cWK85QGATfR6xZ3R9QFc2vcFJ70kSwNcjxt
-         BzmjJRkZjH61HMrs71dqTp6YY+Z1tQB4IVT2lpUp/a0+VwIyP1cTvQ15WgYnGRqUH9Gn
-         NvgwKjcc0+1TEaftb5dVyUXS/sd30Y3a9bgkotG4paJPPc7Hf0aYa9cRDg0Gbw7yPNkO
-         yUBfXekIDXt4wDyzzre8OgYSS8Rj74RTq9DdqmPQG/ZtWLSpcVXixsgPSzh4V7AnunMs
-         4QIj1L01CRdNdD5yw1bGkMeAc0IwnBKplweqvLChc1Kod1QTfZSZ9PXU/kp/9nKsSBSj
-         GDmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version
-         :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=aKtHixNRS1IqKyLIC1qMKi8Ri75H4X8q8IDufXwhihg=;
-        b=EitFCcQKdafGdiu5ICXk/m+MK7YCXWjTvLpj1LYbJ2Adm1agB1+QzAgyR+7iv0SVKC
-         +7lNt2lrAPcLPvytFB05DAR+8Q/un24FuDjz5W6GArbBxoTts8mfYojOP06nEtgiiYb0
-         cgUqf+yAO/5ZnEdtcniF28WDfckm+IyWT0HDOiihODUclNez5fkuRaU5Lh8PbNLHp1kH
-         Sw7bzKyGfdVM3sQg3yGbab/epxaKd+CvpJH0EghLtkpwDVHfpzQsgYjPS4NWuxgUBgtI
-         C50lMC5bJlehVfyULPSNLBc34uoh5y41KiEjCLxwTyD+Et/FbcJ8TJGR2aqFWp2atsOK
-         8tvQ==
-X-Gm-Message-State: AOAM531MQvGGQqZ2909LR13b7FFXEiIxHim7gFv85r/eWln1Jizkvt+E
-        7dUDGlccJX9tcYjcXdE3VXC86r8tZXVTxA==
-X-Google-Smtp-Source: ABdhPJySAF2xMG8XnMgfIskK4FluraqofwyZR5BG8zJ3uLotiMRCG7b0ry1fp//DEvSx9+hVYYqO8A==
-X-Received: by 2002:ad4:4141:: with SMTP id z1mr4925543qvp.33.1603492826329;
-        Fri, 23 Oct 2020 15:40:26 -0700 (PDT)
-Received: from ?IPv6:2601:588:c500:7:7449:4d1b:9c31:364a? ([2601:588:c500:7:7449:4d1b:9c31:364a])
-        by smtp.gmail.com with ESMTPSA id a3sm1911058qtp.63.2020.10.23.15.40.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Oct 2020 15:40:25 -0700 (PDT)
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From:   Ian M <merinian@gmail.com>
-Mime-Version: 1.0 (1.0)
-Subject: Re: How to avoid relabeling rootfs at every boot
-Date:   Fri, 23 Oct 2020 18:40:24 -0400
-Message-Id: <B129404A-41AA-4803-91CA-3F110BAE26BF@gmail.com>
-References: <CAFftDdpdSwCB4jZn22cSeTHiwPmsZPUZMhtAYardTouAcgxpmA@mail.gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-In-Reply-To: <CAFftDdpdSwCB4jZn22cSeTHiwPmsZPUZMhtAYardTouAcgxpmA@mail.gmail.com>
-To:     William Roberts <bill.c.roberts@gmail.com>
-X-Mailer: iPhone Mail (18A8395)
+        id S1758367AbgJWWuy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Oct 2020 18:50:54 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:35334 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758363AbgJWWuy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 18:50:54 -0400
+Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 9CF4220B4905;
+        Fri, 23 Oct 2020 15:50:52 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9CF4220B4905
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1603493453;
+        bh=51mgwXigRi3atgRXO7/qeI9rkW4VOXGqrl7CREykoC8=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=oB1UhE8Mwjj2hC32U8VKu5Fv4YAqtmu14D18ybG6Ynbp4bjTodMVMCcO39GKwBF0e
+         RsBMxDUxLt+kM4xGamw27sTktTv6GAKG143EYkFMQSxDkhaNEWNlVJGv5z/VXpMGVE
+         03PbGPdTsRAs9TcgNoiaWXY8D7yOZLUdJBTC8bz8=
+Subject: Re: [PATCH v4 4/6] IMA: add policy to measure critical data from
+ kernel components
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
+ <20200923192011.5293-5-tusharsu@linux.microsoft.com>
+ <37aa4e6f5db6c53f4021f829ec09388d55d28208.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <87499f4e-d1d1-916c-24d2-0228bcacad26@linux.microsoft.com>
+Date:   Fri, 23 Oct 2020 15:50:52 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <37aa4e6f5db6c53f4021f829ec09388d55d28208.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Thanks again, this is all very helpful.
 
-One point is that while the cpio format does not support extended attributes=
- the actual ram disk that is mounted by Linux does.   Not sure if that chang=
-es your answer any.
 
-Thanks,
+On 2020-10-22 2:15 p.m., Mimi Zohar wrote:
+> Hi Tushar,
+> 
+> The above Subject line should be truncated to "IMA: add policy to
+> measure critical data".
+> 
+> On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
+>> There would be several candidate kernel components suitable for IMA
+>> measurement. Not all of them would have support for IMA measurement.
+> 
+> This intro is besides the point.  The patch description should describe
+> what is meant by "critical data".
+> 
+Thanks. I will fix the description to address this.
 
-Ian
+>> Also, system administrators may not want to measure data for all of
+>> them, even when they support IMA measurement.
+>> An IMA policy option
+>> specific to various kernel components is needed to measure their
+>> respective critical data.
+>>
+>> This policy option needs to be constrained to measure data for
+>> specific kernel components that are specified as input values to the
+>> policy option.
+>>
+>> Add a new IMA policy option - "data_sources:=" to allow measuring
+>> various critical kernel components. This policy option would enable the
+>> system administrators to limit the measurement to the components
+>> listed in "data_sources:=", if the components support IMA measurement.
+>>
+>> The new policy option "data_sources:=" is different from the existing
+>> policy option "keyrings:=".
+>>
+>> In case of "keyrings:=", a policy may measure all keyrings (when
+>> "keyrings:=" option is not provided for func KEY_CHECK), or may
+>> constrain which keyrings need to be measured (when "keyrings:=" option
+>> is provided for func KEY_CHECK).
+>>
+>> But unlike "keyrings:=", the entries in "data_sources:=" would have
+>> different data format. Further, the components listed in
+>> "data_sources:=" need to be modified to call IMA to measure their
+>> data. Therefore, unlike "keyrings:=", IMA shouldn't measure all of the
+>> components by default, when "data_sources:=" is not specified. Because
+>> measuring non-vetted components just by specifying them as a policy
+>> option value may impact the overall reliability of the system.
+>>
+>> To address this, "data_sources:=" should be a mandatory policy option
+>> for func=CRITICAL_DATA. This func is introduced in the 5th patch in this
+>> series). And the compile-time vetting functionality described above is
+>> introduced in the 6th patch in this series.
+>>
+>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+> 
+> I don't understand what you mean by "non-vetted" components, nor how
+> measuring critical data may impact the overall reliability of the
+> system.
+> 
+Tushar: Before we introduced the mechanism to check supported
+data-sources at compile time (patch 6/6 of this series), there was a
+back-and-forth on whether “data_sources:=” should be a mandatory policy
+option, or optional like “keyrings:=”. And we decided to make the
+“data_sources:=” mandatory. But now that we have the compile time check
+(patch 6/6 of this series), we can switch to make “data_sources:=”
+optional (with the default to allow measuring all critical data – just 
+like what you suggested below). I will make the code and description 
+changes accordingly.
+> The system owner or adminstrator defines what they want to measure,
+> including "critical data", based on the policy rules.  They might
+> decide that they want to constrain which "critical data" is measured by
+> specifying "data_sources:=", but that decision is their perogative.
+> The default should allow measuring all critical data.
+> 
+Makes sense.
+To summarize, we will make the decision which sources to measure- based
+on the sources defined in the allow list (in patch 6) and the sources
+defined in “data_sources:=”. If “data_sources:=” is not present, we will
+measure all sources defined in the allow list.
+Hope my this understanding is correct based on your feedback.
 
-> On Oct 23, 2020, at 6:37 PM, William Roberts <bill.c.roberts@gmail.com> wr=
-ote:
->=20
-> =EF=BB=BFOn Fri, Oct 23, 2020 at 5:20 PM Ian M <merinian@gmail.com> wrote:=
-
->>=20
->> Thanks, cpio supporting extended attributes would be very helpful right n=
-ow.
->>=20
->> After looking through the ref policy I see there is a genfscon statement f=
-or rootfs which is what is labeling everything as root_t.
->=20
-> Yeah, genfscon is the way to say, hey this filesystem, all things have
-> this label. genfscon takes paths, for more specific labelling,
-> IIRC, cannot be used on rootfs; that feature only works for proc/sysfs
-> like pseudo filesystems.
->=20
->>=20
->> Would I break everything terribly if I removed that and setup an fs_use_x=
-attr for the rootfs?
->=20
-> Yes because there is no xattr support, so it would choke and die when
-> the kernel wants the xattr.
->=20
-> Here's some other things to consider:
-> 1. There is no xattr support. You would need to see if that patch or
-> something equivalent was accepted and then what kernel
->    version, and determine if your kernel supports it. Then at build
-> time for the image you would have to create that dotfile that contains
-> the
->    labels and package it in the CPIO archive. Then you could use the
-> fs_use_xattr IIUC.
-> 2. I could be mistaken, but I think in recent years I have seen
-> patches or articles that other FS types can be used for the initial
-> root filesystem
->    now without a need for initrd, so you could, IIUC, boot directly
-> into a labelled ext4 filesystem. You would have to label that file
-> system during build.
-> 3. Most linuxt things boot into an initrd and then pivot to the actual
-> root filesystem, you could do that as well.
->=20
-> This would take some digging likely to figure out, or find someone
-> that knows way more than me. That shouldn't be too terribly hard,
-> I don't know much.
->=20
->>=20
->>=20
->> Thanks,
->>=20
->> Ian Merin
->>=20
->>>> On Oct 23, 2020, at 3:49 PM, William Roberts <bill.c.roberts@gmail.com>=
- wrote:
->>>=20
->>> =EF=BB=BFOn Fri, Oct 23, 2020 at 2:05 PM James Carter <jwcart2@gmail.com=
-> wrote:
->>>>=20
->>>>> On Fri, Oct 23, 2020 at 12:02 PM Ian M <merinian@gmail.com> wrote:
->>>>>=20
->>>>> Hello,
->>>>>=20
->>>>> I hope this is the right list for this question:
->>>>>=20
->>>>> I've got an embedded system that uses its initramfs as its root filesy=
-stem as well.  At boot, after the selinux policy loads, everything on the ro=
-otfs is incorrectly labeled as system_u:object_r:root_t.   I have temporaril=
-y worked around this by adding a restorecon on the rootfs at boot, but
->>>=20
->>> IIRC, when I worked on the Android integration we had to do the same
->>> thing. Android comes with it's own init in the ramdisk, so we just
->>> called restorecon on the parts of
->>> ramdisk that were of interest within the init daemon codebase itself.
->>> I don't think theirs anyway around that IIRC as the CPIO archive
->>> doesn't support xattrs.
->>>=20
->>> I do recall seeing this patchset:
->>> https://lwn.net/Articles/788922/
->>>=20
->>> I didn't look much into it, but if that got merged, you might be able
->>> to apply labels to ramdisk images.
->>>=20
->>>> since the rootfs is a ramdisk the changes do not survive a system reboo=
-t.
->>>>>=20
->>>>> I may be incorrect, but my understanding (assumption?) is that the lab=
-els would be applied when the policy is loaded at boot.  So I cannot underst=
-and why the labels are always incorrect.
->>>>>=20
->>>> Filesystem labels are not applied when the policy is labeled. On
->>>> filesystems that support xattrs, a fs_use_xattr rule is used to tell
->>>> SELinux to use the label stored in the security.selinux xattrs, but
->>>> the filesystem will still have to be labeled initially. If the fs does
->>>> not support xattrs and every file can be labeled the same, then a
->>>> genfscon rule can be used.
->>>>=20
->>>> I am not sure of your exact case, but you can find more information in
->>>> the SELinux Notebook - See
->>>> https://github.com/SELinuxProject/selinux-notebook
->>>>=20
->>>> Jim
->>>>=20
->>>>>=20
->>>>> Thanks,
->>>>>=20
->>>>> Ian
+>   A simple example of "critical data" could be some in memory structure,
+> along the lines of __ro_after_init, or hash of the memory structure.
+> Once the data structure is initialized, the "critical data" measurement
+> shouldn't change.    From the attestation server perspective, the IMA
+> measurement list would contain a single record unless the critical data
+> changes.  The attestation server doesn't need to know anything about
+> the initial value, just that it has changed in order to trigger some
+> sort alert.
+Yes agreed. After the updates (based on your feedback) I stated above,
+the behavior should remain consistent with what you described here.
+> 
+> thanks,
+> 
+> Mimi
+> 
