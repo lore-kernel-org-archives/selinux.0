@@ -1,173 +1,200 @@
-Return-Path: <SRS0=zvjF=D6=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=veDM=D7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4091CC55178
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:54:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E05FC2D0A3
+	for <selinux@archiver.kernel.org>; Sat, 24 Oct 2020 14:14:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE7D32226B
-	for <selinux@archiver.kernel.org>; Fri, 23 Oct 2020 22:54:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43A8C21707
+	for <selinux@archiver.kernel.org>; Sat, 24 Oct 2020 14:14:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="s6tiEEKr"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DrbPJH/d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1758399AbgJWWy5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Oct 2020 18:54:57 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:35832 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758396AbgJWWy4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Oct 2020 18:54:56 -0400
-Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 1DA2020B4905;
-        Fri, 23 Oct 2020 15:54:55 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1DA2020B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1603493695;
-        bh=YGbAk5ZPXKS3MwP2MCJgwylXpPWtw4VBI3P7eYMsasE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=s6tiEEKrsgrcNdDHkHFy1PWBspDVW/Y/1tk/hV4xn8q1r2paxanTHW5GdrRUAhYri
-         YE8qrkSUe2ntdDnjt/3egpgUPwmyVtdcNSLTmaUskpAyc41w7fnauhNrq1INwTZ/ey
-         Rl+Dh3T26UOBLDK3UQYnKavKO+J8KBFeOShs02I0=
-Subject: Re: [PATCH v4 5/6] IMA: add hook to measure critical data from kernel
- components
-To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
- <20200923192011.5293-6-tusharsu@linux.microsoft.com>
- <dc22359475f0c233abdb9257d1ca745d4be3f9af.camel@linux.ibm.com>
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Message-ID: <016d20e1-bb8f-f1f5-c69b-6fd811126e0c@linux.microsoft.com>
-Date:   Fri, 23 Oct 2020 15:54:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1761907AbgJXOOL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 24 Oct 2020 10:14:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1760052AbgJXOOL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 24 Oct 2020 10:14:11 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D19C0613CE
+        for <selinux@vger.kernel.org>; Sat, 24 Oct 2020 07:14:10 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id w17so4140520ilg.8
+        for <selinux@vger.kernel.org>; Sat, 24 Oct 2020 07:14:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=YmhS/k8bofVCdB2Zm3kq5puAxrsHYUOyCFfdDyrFyfI=;
+        b=DrbPJH/dWuimBFUvAYo8YQ6cBdCqDlbe+RL2rTMqmKXHBtqaeUt0zX2JH09msVJZ8E
+         sLjl59MGzDlNUNgoCVBMjqhiJwyF09M2VUJzLRRoGPa8suynB548CwaIW+I6d3KXpxgr
+         polEqeemLtYMs25LE3YqLtX0QbB8/1ZF8n3at8UYqPaaPYxPcU4VDmQGalZCH0qiBO4i
+         zEFuYpANE1s2vciLFpFOqvevysPRde1fknrbZBjEGkMQKRoB4woa/dnJLYYGx9oFytZB
+         CI2o2JwG6mAQIaVIMuCyq5T9KtrY42FOJ/kMjqRSBHQQqJcJV/Y4jvRWt2qHW00yw9XU
+         +Pnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=YmhS/k8bofVCdB2Zm3kq5puAxrsHYUOyCFfdDyrFyfI=;
+        b=CRIVi2VVN+K7U3NikJb1CbASd9KndaRVKtPSXzeKDJnM8OKRa047REAfH38/0nunsz
+         m3Qjz+15F1nb4K8CJPA70qAhzs+bi42KcvRi5c1DnUZh1zJ+RGWkbzHE/YbOmjPilq7P
+         9tmAK3cfmfRDxzZx60vzG0vkvEbB5W3yxEiTssjNGd9qozhWHE/2092/Qdys3zDfv+0K
+         Uu76BnHr6PJRUO2F/OYgXc4tIy6gQAevCPtxhJxfGehReUMzwettwel0UXEoLl2rW/0v
+         cDDrvA55Vmlot1Dq2MOe++UBpNxlzOx/Ny+Tnnavd/trcg+oYBBrueLPlFXTLLj63jhH
+         teMw==
+X-Gm-Message-State: AOAM5300WTRN0maxGKdY0ygnEbIfc8BUFpYuDkfQtQKALJz/PoTdx7lY
+        8GqecMEUBosOUSZf47LTmY47f0OhfoO0dhVQiik=
+X-Google-Smtp-Source: ABdhPJxQ3ES/5Zj6iwMT12N//Z1Lnep7I4xSByIZlhbEwUMLRBw+GS3t28+E3yQLEhirwBPmUaZxHhQkEL7dZ32IByA=
+X-Received: by 2002:a92:874a:: with SMTP id d10mr5154750ilm.163.1603548850238;
+ Sat, 24 Oct 2020 07:14:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <dc22359475f0c233abdb9257d1ca745d4be3f9af.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <CAFftDdpdSwCB4jZn22cSeTHiwPmsZPUZMhtAYardTouAcgxpmA@mail.gmail.com>
+ <B129404A-41AA-4803-91CA-3F110BAE26BF@gmail.com>
+In-Reply-To: <B129404A-41AA-4803-91CA-3F110BAE26BF@gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Sat, 24 Oct 2020 09:13:59 -0500
+Message-ID: <CAFftDdqwLidE7bc9Z0jLmJwvvTtfWCbeGHnZ3kUMP=y5gUguEQ@mail.gmail.com>
+Subject: Re: How to avoid relabeling rootfs at every boot
+To:     Ian M <merinian@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Fri, Oct 23, 2020 at 5:40 PM Ian M <merinian@gmail.com> wrote:
+>
+> Thanks again, this is all very helpful.
+>
+> One point is that while the cpio format does not support extended attribu=
+tes the actual ram disk that is mounted by Linux does.   Not sure if that c=
+hanges your answer any.
 
+No because you need to populate the xattrs before the filesystem is
+mounted and files are accessed. SELinux needs that information
+*before* anything is allowed to happen.
+The genfscon statement provides that initial label since the
+filesystem is absent. So labelling for prebuilt images is usually done
+during build time or paying the cost of a
+restorecon at boot. In this case, everyboot since it doesn't persist.
 
-On 2020-10-22 3:35 p.m., Mimi Zohar wrote:
-> Hi Tushar,
-> 
-> On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
->> Currently, IMA does not provide a generic function for kernel components
->> to measure their data. A generic function provided by IMA would
->> enable various parts of the kernel with easier and faster on-boarding to
->> use IMA infrastructure, would avoid code duplication, and consistent
->> usage of IMA policy option "data_sources:=" across the kernel.
->>
->> Add a new IMA func CRITICAL_DATA and a corresponding IMA hook
->> ima_measure_critical_data() to support measuring various critical kernel
->> components. Limit the measurement to the components that are specified
->> in the IMA policy - CRITICAL_DATA+data_sources.
->>
->> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
-> 
-> Normally the new LSM or IMA hook is defined before defining a method of
-> constraining that hook.  Please drop 2/6 (IMA: conditionally allow
-> empty rule data) and reverse the order of 4/6 and 5/6.   That will
-> allow each patch to update the Documentation appropriately, making the
-> change self contained.
-> 
-Sure. I will drop 2/6, and reverse the order of 4/6 and 5/6.
->> ---
->>   Documentation/ABI/testing/ima_policy |  8 ++++++-
->>   include/linux/ima.h                  |  8 +++++++
->>   security/integrity/ima/ima.h         |  1 +
->>   security/integrity/ima/ima_api.c     |  2 +-
->>   security/integrity/ima/ima_main.c    | 26 +++++++++++++++++++++
->>   security/integrity/ima/ima_policy.c  | 34 ++++++++++++++++++++++++----
->>   6 files changed, 72 insertions(+), 7 deletions(-)
->>
->> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
->> index a81cf79fb255..d33bb51309fc 100644
->> --- a/Documentation/ABI/testing/ima_policy
->> +++ b/Documentation/ABI/testing/ima_policy
->> @@ -29,7 +29,7 @@ Description:
->>   		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
->>   				[FIRMWARE_CHECK]
->>   				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
->> -				[KEXEC_CMDLINE] [KEY_CHECK]
->> +				[KEXEC_CMDLINE] [KEY_CHECK] [CRITICAL_DATA]
->>   			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
->>   			       [[^]MAY_EXEC]
->>   			fsmagic:= hex value
->> @@ -51,6 +51,8 @@ Description:
->>   			data_sources:= list of kernel components
->>   			(eg, selinux|apparmor|dm-crypt) that contain data critical
->>   			to the security of the kernel.
->> +			Only valid when action is "measure" and func is
->> +			CRITICAL_DATA.
->>   
->>   		default policy:
->>   			# PROC_SUPER_MAGIC
->> @@ -128,3 +130,7 @@ Description:
->>   		keys added to .builtin_trusted_keys or .ima keyring:
->>   
->>   			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
->> +
->> +		Example of measure rule using CRITICAL_DATA to measure critical data
->> +
->> +			measure func=CRITICAL_DATA data_sources=selinux|apparmor|dm-crypt
-> 
-> 
-> As data sources are added, the documentation example should be updated
-> to reflect the new source.  Please do not include examples that don't
-> yet exist.
-> 
-Makes sense. Will do.
-> 
->> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
->> index 6888fc372abf..d55896f28790 100644
->> --- a/security/integrity/ima/ima_main.c
->> +++ b/security/integrity/ima/ima_main.c
->> @@ -867,6 +867,32 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->>   	fdput(f);
->>   }
->>   
->> +/**
->> + * ima_measure_critical_data - measure critical data
->> + * @event_name: name for the given data
->> + * @event_data_source: name of the event data source
->> + * @buf: pointer to buffer containing data to measure
->> + * @buf_len: length of buffer(in bytes)
->> + * @measure_buf_hash: if set to true - will measure hash of the buf,
->> + *                    instead of buf
->> + *
->> + * Buffers can only be measured, not appraised.
->> + */
-> 
-> Perhaps the reason for defining both the event_name and
-> event_data_source will become clearer with an example.  At this point I
-> can only guess as to why both are needed (e.g. perhaps a data source
-> defines multiple events).
-> 
-Yes. Precisely. For example, in “dm-crypt” case: the data source is
-“dm-crypt” and possible events are “add_target”, “post_suspend”,
-"resume" etc. I will add a more detailed hook description as you
-suggested below, and explain this point in it.
-> While "Buffers can only be measured, not appraised" is true, it was cut
-> & pasted from ima_kexec_cmdline.  Measuring the kexec boot cmdline is
-> self describing.  Here, a larger, more detailed IMA hook description
-> would be appropriate.
-Will add. Thanks Mimi.
-> 
-> thanks,
-> 
-> Mimi
-> 
+>
+> Thanks,
+>
+> Ian
+>
+> > On Oct 23, 2020, at 6:37 PM, William Roberts <bill.c.roberts@gmail.com>=
+ wrote:
+> >
+> > =EF=BB=BFOn Fri, Oct 23, 2020 at 5:20 PM Ian M <merinian@gmail.com> wro=
+te:
+> >>
+> >> Thanks, cpio supporting extended attributes would be very helpful righ=
+t now.
+> >>
+> >> After looking through the ref policy I see there is a genfscon stateme=
+nt for rootfs which is what is labeling everything as root_t.
+> >
+> > Yeah, genfscon is the way to say, hey this filesystem, all things have
+> > this label. genfscon takes paths, for more specific labelling,
+> > IIRC, cannot be used on rootfs; that feature only works for proc/sysfs
+> > like pseudo filesystems.
+> >
+> >>
+> >> Would I break everything terribly if I removed that and setup an fs_us=
+e_xattr for the rootfs?
+> >
+> > Yes because there is no xattr support, so it would choke and die when
+> > the kernel wants the xattr.
+> >
+> > Here's some other things to consider:
+> > 1. There is no xattr support. You would need to see if that patch or
+> > something equivalent was accepted and then what kernel
+> >    version, and determine if your kernel supports it. Then at build
+> > time for the image you would have to create that dotfile that contains
+> > the
+> >    labels and package it in the CPIO archive. Then you could use the
+> > fs_use_xattr IIUC.
+> > 2. I could be mistaken, but I think in recent years I have seen
+> > patches or articles that other FS types can be used for the initial
+> > root filesystem
+> >    now without a need for initrd, so you could, IIUC, boot directly
+> > into a labelled ext4 filesystem. You would have to label that file
+> > system during build.
+> > 3. Most linuxt things boot into an initrd and then pivot to the actual
+> > root filesystem, you could do that as well.
+> >
+> > This would take some digging likely to figure out, or find someone
+> > that knows way more than me. That shouldn't be too terribly hard,
+> > I don't know much.
+> >
+> >>
+> >>
+> >> Thanks,
+> >>
+> >> Ian Merin
+> >>
+> >>>> On Oct 23, 2020, at 3:49 PM, William Roberts <bill.c.roberts@gmail.c=
+om> wrote:
+> >>>
+> >>> =EF=BB=BFOn Fri, Oct 23, 2020 at 2:05 PM James Carter <jwcart2@gmail.=
+com> wrote:
+> >>>>
+> >>>>> On Fri, Oct 23, 2020 at 12:02 PM Ian M <merinian@gmail.com> wrote:
+> >>>>>
+> >>>>> Hello,
+> >>>>>
+> >>>>> I hope this is the right list for this question:
+> >>>>>
+> >>>>> I've got an embedded system that uses its initramfs as its root fil=
+esystem as well.  At boot, after the selinux policy loads, everything on th=
+e rootfs is incorrectly labeled as system_u:object_r:root_t.   I have tempo=
+rarily worked around this by adding a restorecon on the rootfs at boot, but
+> >>>
+> >>> IIRC, when I worked on the Android integration we had to do the same
+> >>> thing. Android comes with it's own init in the ramdisk, so we just
+> >>> called restorecon on the parts of
+> >>> ramdisk that were of interest within the init daemon codebase itself.
+> >>> I don't think theirs anyway around that IIRC as the CPIO archive
+> >>> doesn't support xattrs.
+> >>>
+> >>> I do recall seeing this patchset:
+> >>> https://lwn.net/Articles/788922/
+> >>>
+> >>> I didn't look much into it, but if that got merged, you might be able
+> >>> to apply labels to ramdisk images.
+> >>>
+> >>>> since the rootfs is a ramdisk the changes do not survive a system re=
+boot.
+> >>>>>
+> >>>>> I may be incorrect, but my understanding (assumption?) is that the =
+labels would be applied when the policy is loaded at boot.  So I cannot und=
+erstand why the labels are always incorrect.
+> >>>>>
+> >>>> Filesystem labels are not applied when the policy is labeled. On
+> >>>> filesystems that support xattrs, a fs_use_xattr rule is used to tell
+> >>>> SELinux to use the label stored in the security.selinux xattrs, but
+> >>>> the filesystem will still have to be labeled initially. If the fs do=
+es
+> >>>> not support xattrs and every file can be labeled the same, then a
+> >>>> genfscon rule can be used.
+> >>>>
+> >>>> I am not sure of your exact case, but you can find more information =
+in
+> >>>> the SELinux Notebook - See
+> >>>> https://github.com/SELinuxProject/selinux-notebook
+> >>>>
+> >>>> Jim
+> >>>>
+> >>>>>
+> >>>>> Thanks,
+> >>>>>
+> >>>>> Ian
