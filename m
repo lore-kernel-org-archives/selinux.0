@@ -1,200 +1,151 @@
-Return-Path: <SRS0=veDM=D7=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=eOo1=EA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E05FC2D0A3
-	for <selinux@archiver.kernel.org>; Sat, 24 Oct 2020 14:14:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC844C388F7
+	for <selinux@archiver.kernel.org>; Sun, 25 Oct 2020 03:36:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43A8C21707
-	for <selinux@archiver.kernel.org>; Sat, 24 Oct 2020 14:14:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8043F222EC
+	for <selinux@archiver.kernel.org>; Sun, 25 Oct 2020 03:36:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DrbPJH/d"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ifGNjgOf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761907AbgJXOOL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 24 Oct 2020 10:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1760052AbgJXOOL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 24 Oct 2020 10:14:11 -0400
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D19C0613CE
-        for <selinux@vger.kernel.org>; Sat, 24 Oct 2020 07:14:10 -0700 (PDT)
-Received: by mail-il1-x143.google.com with SMTP id w17so4140520ilg.8
-        for <selinux@vger.kernel.org>; Sat, 24 Oct 2020 07:14:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=YmhS/k8bofVCdB2Zm3kq5puAxrsHYUOyCFfdDyrFyfI=;
-        b=DrbPJH/dWuimBFUvAYo8YQ6cBdCqDlbe+RL2rTMqmKXHBtqaeUt0zX2JH09msVJZ8E
-         sLjl59MGzDlNUNgoCVBMjqhiJwyF09M2VUJzLRRoGPa8suynB548CwaIW+I6d3KXpxgr
-         polEqeemLtYMs25LE3YqLtX0QbB8/1ZF8n3at8UYqPaaPYxPcU4VDmQGalZCH0qiBO4i
-         zEFuYpANE1s2vciLFpFOqvevysPRde1fknrbZBjEGkMQKRoB4woa/dnJLYYGx9oFytZB
-         CI2o2JwG6mAQIaVIMuCyq5T9KtrY42FOJ/kMjqRSBHQQqJcJV/Y4jvRWt2qHW00yw9XU
-         +Pnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YmhS/k8bofVCdB2Zm3kq5puAxrsHYUOyCFfdDyrFyfI=;
-        b=CRIVi2VVN+K7U3NikJb1CbASd9KndaRVKtPSXzeKDJnM8OKRa047REAfH38/0nunsz
-         m3Qjz+15F1nb4K8CJPA70qAhzs+bi42KcvRi5c1DnUZh1zJ+RGWkbzHE/YbOmjPilq7P
-         9tmAK3cfmfRDxzZx60vzG0vkvEbB5W3yxEiTssjNGd9qozhWHE/2092/Qdys3zDfv+0K
-         Uu76BnHr6PJRUO2F/OYgXc4tIy6gQAevCPtxhJxfGehReUMzwettwel0UXEoLl2rW/0v
-         cDDrvA55Vmlot1Dq2MOe++UBpNxlzOx/Ny+Tnnavd/trcg+oYBBrueLPlFXTLLj63jhH
-         teMw==
-X-Gm-Message-State: AOAM5300WTRN0maxGKdY0ygnEbIfc8BUFpYuDkfQtQKALJz/PoTdx7lY
-        8GqecMEUBosOUSZf47LTmY47f0OhfoO0dhVQiik=
-X-Google-Smtp-Source: ABdhPJxQ3ES/5Zj6iwMT12N//Z1Lnep7I4xSByIZlhbEwUMLRBw+GS3t28+E3yQLEhirwBPmUaZxHhQkEL7dZ32IByA=
-X-Received: by 2002:a92:874a:: with SMTP id d10mr5154750ilm.163.1603548850238;
- Sat, 24 Oct 2020 07:14:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAFftDdpdSwCB4jZn22cSeTHiwPmsZPUZMhtAYardTouAcgxpmA@mail.gmail.com>
- <B129404A-41AA-4803-91CA-3F110BAE26BF@gmail.com>
-In-Reply-To: <B129404A-41AA-4803-91CA-3F110BAE26BF@gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Sat, 24 Oct 2020 09:13:59 -0500
-Message-ID: <CAFftDdqwLidE7bc9Z0jLmJwvvTtfWCbeGHnZ3kUMP=y5gUguEQ@mail.gmail.com>
-Subject: Re: How to avoid relabeling rootfs at every boot
-To:     Ian M <merinian@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1766938AbgJYDgI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 24 Oct 2020 23:36:08 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46686 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1762952AbgJYDgI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 24 Oct 2020 23:36:08 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09P3Vfpa048417;
+        Sat, 24 Oct 2020 23:36:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=f6c5YRP6wKJcOYJ6F1ufzms6nMkKE3xLN5sdbD90VrM=;
+ b=ifGNjgOfwjK1lmoqls57eVdLtj/Yf467Q0wCDEkYt1lhwjQmoGtW5Y4U6Wqhk9BgHybN
+ 7l4P4rkWHWQ/GWthPn+0d+1LfExETAE/tvj+FRIuMp+Gd7/gj1wPRjungRpEwgO5/6DX
+ hkBexZu3pvdOl87pLN1I4GziQC/M1WJIyGC7++M3LgDCQo+I9zdLadMsVRQkefsJk0Nk
+ ElWlEHZUMZeS5LuYUejdm2Z0N64h0VcDQTgeIiiTMWWgFduAkFDZvNOKsJRqMDaF2mXX
+ gKFm4s63cTNeUgYcBRgI7Y4+5F6d5//Ln4DsD+jFwSteTH63QLj2J4TCSJu419KD98wM EQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34d0xs8qmy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 24 Oct 2020 23:36:02 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09P3a2NB060532;
+        Sat, 24 Oct 2020 23:36:02 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34d0xs8qmj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 24 Oct 2020 23:36:02 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09P3UBRi027808;
+        Sun, 25 Oct 2020 03:35:59 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 34cbw88e5h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 25 Oct 2020 03:35:59 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09P3ZvoH37159234
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 25 Oct 2020 03:35:57 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 86DDAA4065;
+        Sun, 25 Oct 2020 03:35:57 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 23FCEA405B;
+        Sun, 25 Oct 2020 03:35:54 +0000 (GMT)
+Received: from sig-9-65-192-162.ibm.com (unknown [9.65.192.162])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sun, 25 Oct 2020 03:35:53 +0000 (GMT)
+Message-ID: <2c7da61fbeb17c577253b117829b3bd544d8cf44.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 0/6] IMA: Infrastructure for measurement of critical
+ kernel data
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
+        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Date:   Sat, 24 Oct 2020 23:35:53 -0400
+In-Reply-To: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
+References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.737
+ definitions=2020-10-25_01:2020-10-23,2020-10-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ adultscore=0 suspectscore=3 impostorscore=0 mlxscore=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010250022
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 23, 2020 at 5:40 PM Ian M <merinian@gmail.com> wrote:
->
-> Thanks again, this is all very helpful.
->
-> One point is that while the cpio format does not support extended attribu=
-tes the actual ram disk that is mounted by Linux does.   Not sure if that c=
-hanges your answer any.
+Hi Tushar,
 
-No because you need to populate the xattrs before the filesystem is
-mounted and files are accessed. SELinux needs that information
-*before* anything is allowed to happen.
-The genfscon statement provides that initial label since the
-filesystem is absent. So labelling for prebuilt images is usually done
-during build time or paying the cost of a
-restorecon at boot. In this case, everyboot since it doesn't persist.
+On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
+> There are several kernel components that contain critical data which if
+> accidentally or maliciously altered, can compromise the security of the
+> kernel. Example of such components would include LSMs like SELinux, or
+> AppArmor; or device-mapper targets like dm-crypt, dm-verity etc.
 
->
-> Thanks,
->
-> Ian
->
-> > On Oct 23, 2020, at 6:37 PM, William Roberts <bill.c.roberts@gmail.com>=
- wrote:
-> >
-> > =EF=BB=BFOn Fri, Oct 23, 2020 at 5:20 PM Ian M <merinian@gmail.com> wro=
-te:
-> >>
-> >> Thanks, cpio supporting extended attributes would be very helpful righ=
-t now.
-> >>
-> >> After looking through the ref policy I see there is a genfscon stateme=
-nt for rootfs which is what is labeling everything as root_t.
-> >
-> > Yeah, genfscon is the way to say, hey this filesystem, all things have
-> > this label. genfscon takes paths, for more specific labelling,
-> > IIRC, cannot be used on rootfs; that feature only works for proc/sysfs
-> > like pseudo filesystems.
-> >
-> >>
-> >> Would I break everything terribly if I removed that and setup an fs_us=
-e_xattr for the rootfs?
-> >
-> > Yes because there is no xattr support, so it would choke and die when
-> > the kernel wants the xattr.
-> >
-> > Here's some other things to consider:
-> > 1. There is no xattr support. You would need to see if that patch or
-> > something equivalent was accepted and then what kernel
-> >    version, and determine if your kernel supports it. Then at build
-> > time for the image you would have to create that dotfile that contains
-> > the
-> >    labels and package it in the CPIO archive. Then you could use the
-> > fs_use_xattr IIUC.
-> > 2. I could be mistaken, but I think in recent years I have seen
-> > patches or articles that other FS types can be used for the initial
-> > root filesystem
-> >    now without a need for initrd, so you could, IIUC, boot directly
-> > into a labelled ext4 filesystem. You would have to label that file
-> > system during build.
-> > 3. Most linuxt things boot into an initrd and then pivot to the actual
-> > root filesystem, you could do that as well.
-> >
-> > This would take some digging likely to figure out, or find someone
-> > that knows way more than me. That shouldn't be too terribly hard,
-> > I don't know much.
-> >
-> >>
-> >>
-> >> Thanks,
-> >>
-> >> Ian Merin
-> >>
-> >>>> On Oct 23, 2020, at 3:49 PM, William Roberts <bill.c.roberts@gmail.c=
-om> wrote:
-> >>>
-> >>> =EF=BB=BFOn Fri, Oct 23, 2020 at 2:05 PM James Carter <jwcart2@gmail.=
-com> wrote:
-> >>>>
-> >>>>> On Fri, Oct 23, 2020 at 12:02 PM Ian M <merinian@gmail.com> wrote:
-> >>>>>
-> >>>>> Hello,
-> >>>>>
-> >>>>> I hope this is the right list for this question:
-> >>>>>
-> >>>>> I've got an embedded system that uses its initramfs as its root fil=
-esystem as well.  At boot, after the selinux policy loads, everything on th=
-e rootfs is incorrectly labeled as system_u:object_r:root_t.   I have tempo=
-rarily worked around this by adding a restorecon on the rootfs at boot, but
-> >>>
-> >>> IIRC, when I worked on the Android integration we had to do the same
-> >>> thing. Android comes with it's own init in the ramdisk, so we just
-> >>> called restorecon on the parts of
-> >>> ramdisk that were of interest within the init daemon codebase itself.
-> >>> I don't think theirs anyway around that IIRC as the CPIO archive
-> >>> doesn't support xattrs.
-> >>>
-> >>> I do recall seeing this patchset:
-> >>> https://lwn.net/Articles/788922/
-> >>>
-> >>> I didn't look much into it, but if that got merged, you might be able
-> >>> to apply labels to ramdisk images.
-> >>>
-> >>>> since the rootfs is a ramdisk the changes do not survive a system re=
-boot.
-> >>>>>
-> >>>>> I may be incorrect, but my understanding (assumption?) is that the =
-labels would be applied when the policy is loaded at boot.  So I cannot und=
-erstand why the labels are always incorrect.
-> >>>>>
-> >>>> Filesystem labels are not applied when the policy is labeled. On
-> >>>> filesystems that support xattrs, a fs_use_xattr rule is used to tell
-> >>>> SELinux to use the label stored in the security.selinux xattrs, but
-> >>>> the filesystem will still have to be labeled initially. If the fs do=
-es
-> >>>> not support xattrs and every file can be labeled the same, then a
-> >>>> genfscon rule can be used.
-> >>>>
-> >>>> I am not sure of your exact case, but you can find more information =
-in
-> >>>> the SELinux Notebook - See
-> >>>> https://github.com/SELinuxProject/selinux-notebook
-> >>>>
-> >>>> Jim
-> >>>>
-> >>>>>
-> >>>>> Thanks,
-> >>>>>
-> >>>>> Ian
+^"the integrity of the system."
+
+This cover letter needs to be re-written from a higher perspective,
+explaining what is meant by "critical data" (e.g. kernel subsystem
+specific information only stored in kernel memory).
+
+> 
+> Many of these components do not use the capabilities provided by kernel
+> integrity subsystem (IMA), and thus they don't use the benefits of
+> extended TPM PCR quotes and ultimately the benefits of remote attestation.
+
+True, up until recently IMA only measured files, nothing else.  Why is
+this paragraph needed?  What new information is provided?
+
+> This series bridges this gap, so that potential kernel components that
+> contain data critical to the security of the kernel could take advantage
+> of IMA's measuring and quoting abilities - thus ultimately enabling
+> remote attestation for their specific data.
+
+Perhaps, something more along the lines, "This patch set defines a new
+IMA hook named ... to measure critical data."
+
+> 
+> System administrators may want to pick and choose which kernel
+> components they would want to enable for measurements, quoting, and
+> remote attestation. To enable that, a new IMA policy is introduced.
+
+Reverse the order of this paragraph and the following one, describing
+the new feature and only afterwards explaining how it may be
+constrained.
+
+> 
+> And lastly, the functionality is exposed through a function
+> ima_measure_critical_data(). The functionality is generic enough to
+> measure the data of any kernel component at run-time. To ensure that
+> only data from supported sources are measured, the kernel component
+> needs to be added to a compile-time list of supported sources (an
+> "allowed list of components"). IMA validates the source passed to
+> ima_measure_critical_data() against this allowed list at run-time.
+
+This patch set must include at least one example of measuring critical
+data, before it can be upstreamed.  Tushar, please coordinate with
+Lakshmi and Raphael.
+
+thanks,
+
+Mimi
+
