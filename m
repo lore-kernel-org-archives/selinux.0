@@ -1,151 +1,106 @@
-Return-Path: <SRS0=eOo1=EA=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Dm73=EB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC844C388F7
-	for <selinux@archiver.kernel.org>; Sun, 25 Oct 2020 03:36:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00EF1C4363A
+	for <selinux@archiver.kernel.org>; Mon, 26 Oct 2020 09:45:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8043F222EC
-	for <selinux@archiver.kernel.org>; Sun, 25 Oct 2020 03:36:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4C11223EA
+	for <selinux@archiver.kernel.org>; Mon, 26 Oct 2020 09:45:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ifGNjgOf"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZqvJP/Dx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1766938AbgJYDgI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 24 Oct 2020 23:36:08 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46686 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1762952AbgJYDgI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 24 Oct 2020 23:36:08 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 09P3Vfpa048417;
-        Sat, 24 Oct 2020 23:36:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=f6c5YRP6wKJcOYJ6F1ufzms6nMkKE3xLN5sdbD90VrM=;
- b=ifGNjgOfwjK1lmoqls57eVdLtj/Yf467Q0wCDEkYt1lhwjQmoGtW5Y4U6Wqhk9BgHybN
- 7l4P4rkWHWQ/GWthPn+0d+1LfExETAE/tvj+FRIuMp+Gd7/gj1wPRjungRpEwgO5/6DX
- hkBexZu3pvdOl87pLN1I4GziQC/M1WJIyGC7++M3LgDCQo+I9zdLadMsVRQkefsJk0Nk
- ElWlEHZUMZeS5LuYUejdm2Z0N64h0VcDQTgeIiiTMWWgFduAkFDZvNOKsJRqMDaF2mXX
- gKFm4s63cTNeUgYcBRgI7Y4+5F6d5//Ln4DsD+jFwSteTH63QLj2J4TCSJu419KD98wM EQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34d0xs8qmy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 24 Oct 2020 23:36:02 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 09P3a2NB060532;
-        Sat, 24 Oct 2020 23:36:02 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34d0xs8qmj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 24 Oct 2020 23:36:02 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 09P3UBRi027808;
-        Sun, 25 Oct 2020 03:35:59 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 34cbw88e5h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 25 Oct 2020 03:35:59 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 09P3ZvoH37159234
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 25 Oct 2020 03:35:57 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 86DDAA4065;
-        Sun, 25 Oct 2020 03:35:57 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 23FCEA405B;
-        Sun, 25 Oct 2020 03:35:54 +0000 (GMT)
-Received: from sig-9-65-192-162.ibm.com (unknown [9.65.192.162])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Sun, 25 Oct 2020 03:35:53 +0000 (GMT)
-Message-ID: <2c7da61fbeb17c577253b117829b3bd544d8cf44.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 0/6] IMA: Infrastructure for measurement of critical
- kernel data
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Sat, 24 Oct 2020 23:35:53 -0400
-In-Reply-To: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
-References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.737
- definitions=2020-10-25_01:2020-10-23,2020-10-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- adultscore=0 suspectscore=3 impostorscore=0 mlxscore=0 priorityscore=1501
- malwarescore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2010250022
+        id S1768310AbgJZJpy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 26 Oct 2020 05:45:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:57680 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1768278AbgJZJpx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 26 Oct 2020 05:45:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603705552;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=oc/wcO07uacg+Y2P1HuGNYY0LuHkvIC/CjyLFx2HegM=;
+        b=ZqvJP/DxmK6myWMEJrZ/1hc0DJhaCDZvYMB3FAsQBBoBIkpBXeo5VIBnYni05HjBUrbcV6
+        CzdKLK7zZuZceDflhif24iwkinbki3NZQJlJWphx0J85zqzerDddxmFAYCuboQ+gmlnZbE
+        elw+8lIElESe64GkdXir8Ul/4DeqLYI=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-268--U2Rki9iOwuMpLrwgCf6Nw-1; Mon, 26 Oct 2020 05:45:49 -0400
+X-MC-Unique: -U2Rki9iOwuMpLrwgCf6Nw-1
+Received: by mail-lf1-f71.google.com with SMTP id e29so2176569lfb.5
+        for <selinux@vger.kernel.org>; Mon, 26 Oct 2020 02:45:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oc/wcO07uacg+Y2P1HuGNYY0LuHkvIC/CjyLFx2HegM=;
+        b=DIu17cjNOOPsCxhvMLEofNl6vTx03X/LXXCUT5+U+7xCAxesqitCh4K/uXMFkaSGMt
+         mf3SU32rK7KB20JxktMiQhu8AmJv9WJRW3Z4JVw3TtQTrEeWCpDHlimwudNxye+mDwas
+         MwomXK/Vmvq+mcgjnCIfw9VUxk/lEHJHW0dxIpoEUwGCtR1YaLS878qjcgbkaOoui3m9
+         /t0A6jZHsL7HsfBrlK2TwBx3ww1NhU7Vq7V/VrdB/QAx189arTRD/hRkaIqk4YibLIEs
+         H9dD5y540ArlmeBCIAf9NBMAX9CUJ4AatXkmhyOE3Wmrnp/eOsptShPEpyAK5yEzF1d6
+         zOyQ==
+X-Gm-Message-State: AOAM532A8d9Y0X5Z5DB0SsltDptDRaTchdik+ET3Hpd3CSMMX1g0Op2q
+        M/FzKA/1R59yObaiIEFXxjRRFnVsqZBz1E/TRO0kH9RHMEXRl1x8vQDYLYou1DBv/2uELQW184L
+        mkye0qklAthKpbRi/Imlrsu8+6sjUv9wwww==
+X-Received: by 2002:a2e:b60e:: with SMTP id r14mr5624448ljn.77.1603705547227;
+        Mon, 26 Oct 2020 02:45:47 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxLdMvFyfww3yA2NUH2Ca8HhP96GKmyiw/Y4HvkxJaZQcJHlE1M+uJi3OCVQXV7N+TTb2Lk8+o7Zh+m5/4Ph2g=
+X-Received: by 2002:a2e:b60e:: with SMTP id r14mr5624442ljn.77.1603705547028;
+ Mon, 26 Oct 2020 02:45:47 -0700 (PDT)
+MIME-Version: 1.0
+References: <20201020132856.689870-1-jwcart2@gmail.com> <CAFqZXNt2h_Bp2piOvimndrQLW6si4s_AczGhe_YNFo8F2mFv=Q@mail.gmail.com>
+In-Reply-To: <CAFqZXNt2h_Bp2piOvimndrQLW6si4s_AczGhe_YNFo8F2mFv=Q@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 26 Oct 2020 10:45:36 +0100
+Message-ID: <CAFqZXNsVu6=pn6u568ZaT3vAxfWmmuTL6cwYkqu1epQtFBOBfw@mail.gmail.com>
+Subject: Re: [PATCH V2] libsepol/cil: Give error for more than one true or
+ false block
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tushar,
+On Tue, Oct 20, 2020 at 3:43 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Tue, Oct 20, 2020 at 3:29 PM James Carter <jwcart2@gmail.com> wrote:
+> > Both tunableif and booleanif use conditional blocks (either true or
+> > false). No ordering is imposed, so a false block can be first (or even
+> > the only) block. Checks are made to ensure that the first and second
+> > (if it exists) blocks are either true or false, but no checks are made
+> > to ensure that there is only one true and/or one false block. If there
+> > are more than one true or false block, only the first will be used and
+> > the other will be ignored.
+> >
+> > Create a function, cil_verify_conditional_blocks(), that gives an error
+> > along with a message if more than one true or false block is specified
+> > and call that function when building tunableif and booleanif blocks in
+> > the AST.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> > V2: Put spaces between items in argument list
+> >
+> >  libsepol/cil/src/cil_build_ast.c | 44 +++++---------------------------
+> >  libsepol/cil/src/cil_verify.c    | 35 +++++++++++++++++++++++++
+> >  libsepol/cil/src/cil_verify.h    |  1 +
+> >  3 files changed, 42 insertions(+), 38 deletions(-)
+>
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
-> There are several kernel components that contain critical data which if
-> accidentally or maliciously altered, can compromise the security of the
-> kernel. Example of such components would include LSMs like SELinux, or
-> AppArmor; or device-mapper targets like dm-crypt, dm-verity etc.
+Now applied:
+https://github.com/SELinuxProject/selinux/commit/2d353bd5850a4b3fc8480806010e08b59f4a4835
 
-^"the integrity of the system."
-
-This cover letter needs to be re-written from a higher perspective,
-explaining what is meant by "critical data" (e.g. kernel subsystem
-specific information only stored in kernel memory).
-
-> 
-> Many of these components do not use the capabilities provided by kernel
-> integrity subsystem (IMA), and thus they don't use the benefits of
-> extended TPM PCR quotes and ultimately the benefits of remote attestation.
-
-True, up until recently IMA only measured files, nothing else.  Why is
-this paragraph needed?  What new information is provided?
-
-> This series bridges this gap, so that potential kernel components that
-> contain data critical to the security of the kernel could take advantage
-> of IMA's measuring and quoting abilities - thus ultimately enabling
-> remote attestation for their specific data.
-
-Perhaps, something more along the lines, "This patch set defines a new
-IMA hook named ... to measure critical data."
-
-> 
-> System administrators may want to pick and choose which kernel
-> components they would want to enable for measurements, quoting, and
-> remote attestation. To enable that, a new IMA policy is introduced.
-
-Reverse the order of this paragraph and the following one, describing
-the new feature and only afterwards explaining how it may be
-constrained.
-
-> 
-> And lastly, the functionality is exposed through a function
-> ima_measure_critical_data(). The functionality is generic enough to
-> measure the data of any kernel component at run-time. To ensure that
-> only data from supported sources are measured, the kernel component
-> needs to be added to a compile-time list of supported sources (an
-> "allowed list of components"). IMA validates the source passed to
-> ima_measure_critical_data() against this allowed list at run-time.
-
-This patch set must include at least one example of measuring critical
-data, before it can be upstreamed.  Tushar, please coordinate with
-Lakshmi and Raphael.
-
-thanks,
-
-Mimi
+-- 
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
