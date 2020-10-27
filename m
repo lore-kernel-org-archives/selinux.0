@@ -2,89 +2,119 @@ Return-Path: <SRS0=znNI=EC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3736DC56202
-	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 17:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 461CBC388F9
+	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 18:15:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C01A622409
-	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 17:46:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E35FA21655
+	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 18:15:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kkaq3gaq"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XkcWS4YW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896816AbgJ0Rq0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Oct 2020 13:46:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:41204 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1821762AbgJ0Rpq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Oct 2020 13:45:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603820745;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2Dut9uxeEd3OBx8plmCUGdFjZqU+x+uAN9TVzi9Kuik=;
-        b=Kkaq3gaqnjBP+g2LDZPmrjsXhvHftnMjjYbfEKeA6BYoKnWRlOmMB0Qn83rzXwjFZ2o/wo
-        b7w/Rvplpoz9QPpXwQXtG0bLjiaQEOflpYFcSSb8yc6XL0whcTkTvXe9oVJ/4gDl3drAKx
-        OpuGQkluDwPyhXBW3sqjgHrcSpI0XDo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-496-73V1thnoPaKUCXRaDzB8Ew-1; Tue, 27 Oct 2020 13:45:43 -0400
-X-MC-Unique: 73V1thnoPaKUCXRaDzB8Ew-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D478264084
-        for <selinux@vger.kernel.org>; Tue, 27 Oct 2020 17:45:42 +0000 (UTC)
-Received: from localhost.localdomain.com (unknown [10.40.193.156])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4C4585C1C2
-        for <selinux@vger.kernel.org>; Tue, 27 Oct 2020 17:45:42 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsemanage/genhomedircon: check usepasswd in add_user
-Date:   Tue, 27 Oct 2020 18:45:39 +0100
-Message-Id: <20201027174539.769006-1-vmojzis@redhat.com>
-In-Reply-To: <20201027173457.GC25212@localhost.localdomain>
-References: <20201027173457.GC25212@localhost.localdomain>
+        id S1826004AbgJ0SPH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Oct 2020 14:15:07 -0400
+Received: from mail-oo1-f67.google.com ([209.85.161.67]:41087 "EHLO
+        mail-oo1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1825966AbgJ0SO5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Oct 2020 14:14:57 -0400
+Received: by mail-oo1-f67.google.com with SMTP id n2so551687ooo.8;
+        Tue, 27 Oct 2020 11:14:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=yMJ8Y1/qT3nPE/qUQDD1UxaPPEXuSovGtgYNPCUSSwM=;
+        b=XkcWS4YWNm9Q4KpE5ShotbOLiXVfteFBmuCYv0GBmd6KFKdVwLVzeg8yyU+LSGQQSp
+         qL3NpEinnWWbFnTkdLX43q59sP28hp9AVKuSH0rWje9zzbL2jo8BUUzDJGdpnsktPfR+
+         4gACda/JrvqXaWDzlh4YfANdM/G+XckORgjZoLXfrw1RM/wab/kGYVTuSJv2FDptCju+
+         2UInxX/NNX3iLLiyRjWcXmPQf7ZkvESydMf0e49ysAjaRzgBl9N7luhxVSmS6cxDWJSP
+         o0SHVndQQDwEVuKaykbQrxTPGJ2BVudTq5Csl1n2oWb155hw1J9hTEca+jIxWOIaE06h
+         bogQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yMJ8Y1/qT3nPE/qUQDD1UxaPPEXuSovGtgYNPCUSSwM=;
+        b=kpt70y3GHVKFkIz/KFwHUeryXeV5rOXdQvyMOPCaOc269GCzSZIV/eaMWV2jfrLyDr
+         +/auEJZ3Z0ceaI6jDWVbHZMC8mIxhwfiyTDbmj/n+YTjyigCDqkuPfcqPbb2RAMbkkiY
+         MtjB/iC9OKdJSLLHs2K96xWygUbW+hNa/Hk/i2UBFK/v/wpWYQVA05OGBCL8dGa27LwF
+         nNkF4HuvVaJLs2+EWzrweHTGoHuc4CP9kTxysCAJO2I12q5mkGCSLYy01TlFs/KJVfDY
+         3PQ2thCuT5awEl9n1LTIGgTaczaaFrVa/FvcPohx83cjFAITxBj6NP+qHoqicSm29SX7
+         sGKQ==
+X-Gm-Message-State: AOAM531mwvQwNqZmUWuiceBbiUQO/HFSJBOT4I6MI5yjVKPYHpjayu6F
+        AKIeN4Om2vLL49i0aFb50jHltsGfSw8inSZJcTgjHMUXTwM=
+X-Google-Smtp-Source: ABdhPJwvO6DHnUVTV1Fm+Pi62zWuspDXcYpgHcTw80dT0DZdafDAVACytkN6V8bY9IVXDjBupAuSIeXlL7BF2EEkFAc=
+X-Received: by 2002:a4a:a447:: with SMTP id w7mr2749245ool.42.1603822496311;
+ Tue, 27 Oct 2020 11:14:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <CAFqZXNuy+Q1F9rT8NJKX+Wgnp2JEROHwCdzu0pmOuWdeRe1iDg@mail.gmail.com>
+In-Reply-To: <CAFqZXNuy+Q1F9rT8NJKX+Wgnp2JEROHwCdzu0pmOuWdeRe1iDg@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 27 Oct 2020 14:14:45 -0400
+Message-ID: <CAEjxPJ4jJDwBiDS0Sv_3e2N3kFBP=oH3-mkry0PFsphhtZw9AA@mail.gmail.com>
+Subject: Re: selinux_file_permission() on pipes/pseudo-files - performance issue
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Only add user homedir context entry when usepasswd = True
+On Tue, Oct 27, 2020 at 11:02 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> Hello,
+>
+> It has been reported to me that read/write syscalls on a pipe created
+> via the pipe(2) family of syscalls spend a large percentage of time in
+> avc_lookup() via selinux_file_permission(). This is specific to pipes
+> (and also accept(2)'d sockets, I think) because these pipe fds are
+> created using alloc_file_pseudo() as opposed to do_dentry_open(),
+> which means that the security_file_open() hook is never called on
+> them.
+>
+> In SELinux, this means that in selinux_file_permission() the
+> read/write permission is always revalidated, leading to suboptimal
+> performance, because SELinux re-checks the read/write perms of an open
+> file only if the subject/target label or policy is different from when
+> these permissions were checked during selinux_file_open().
+>
+> So I decided to try and see what would happen if I add a
+> security_file_open() call to alloc_file(). This worked well for pipes
+> - all domains that call pipe(2) seem to already have the necessary
+> permissions to pass the open check, at least in Fedora policy - but I
+> got lots of denials from accept(2), which also calls alloc_file()
+> under the hood to create the new socket fd. The problem there is that
+> programs usually call only recvmsg(2)/sendmsg(2) on fds returned by
+> accept(2), thereby avoiding read/write checks on sock_file, which
+> means that the domains don't normally have such permissions. Only
+> programs that open actual socket files on the filesystem would
+> unavoidably need read/write (or so I think), yet they wouldn't need
+> them for the subsequent recvmsg(2)/sendmsg(2) calls.
+>
+> So I'm wondering if anyone has any idea how this could be fixed
+> (optimized) without introducing regressions or awkward exceptions in
+> the code. At this point, I don't see any way to do it regression-free
+> without either adding a new hook or changing security_file_open() to
+> distinguish between do_dentry_open() and alloc_file() + calling it
+> from both places...
 
-Resolves:
-  #cat /etc/selinux/semanage.conf | grep usepasswd
-  usepasswd=False
-  #useradd -Z unconfined_u -d /tmp test
-  #matchpathcon /tmp
-  /tmp	unconfined_u:object_r:user_home_dir_t:s0
-
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/genhomedircon.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index d08c88de..19dfb7b0 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -966,6 +966,9 @@ static int add_user(genhomedircon_settings_t * s,
- 		}
- 	}
- 
-+	if (!(s->usepasswd))
-+		return STATUS_SUCCESS;
-+
- 	int retval = STATUS_ERR;
- 
- 	char *rbuf = NULL;
--- 
-2.25.4
-
+I don't think you want to reuse security_file_open() here.
+There is an existing security_file_alloc() hook called on
+__alloc_file(), but we have no inode information there so it cannot
+cache the inode SID or perform any check on it.  You could potentially
+lift that hook to all of the callers after the file has been
+populated, or introduce a new hook in alloc_file() as you said.
+Wondering though why this has never come up before if it is a
+significant overhead in real workloads.  Earlier concerns about the
+overhead on open files led to commit
+788e7dd4c22e6f41b3a118fd8c291f831f6fddbb which introduced what later
+became security_file_open().  But seemingly pipes/sockets weren't a
+concern there.
