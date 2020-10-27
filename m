@@ -2,143 +2,135 @@ Return-Path: <SRS0=znNI=EC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94A71C63777
-	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 17:35:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2A8AC6369E
+	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 17:36:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3CD0621D24
-	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 17:35:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F80120878
+	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 17:36:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="UdECIVnj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N3IQnhL6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1762184AbgJ0Rbb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Oct 2020 13:31:31 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:48920 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1819552AbgJ0Raa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Oct 2020 13:30:30 -0400
-Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id EF0D620B4905;
-        Tue, 27 Oct 2020 10:30:28 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com EF0D620B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1603819829;
-        bh=kaVk3QXkAqH4EzFU6UPEbSCWTIeXicsOu6YZLtOukDY=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=UdECIVnjzFOphs0SutlHP0BOxuHYrjur3X5CnjWGPC3oxMamfcFIwkj1ZQweyrywQ
-         jXvBHD1UMnzCvinMoI7WeFxJQJpXqQGUeSPgH9ZBUnvOnJ6GpvCuiuSaY/Hrgpazs1
-         xzcZy2vebL4N+Ix7IaJU1+VRguBJICESG1e1sAWg=
-Subject: Re: [PATCH v4 0/6] IMA: Infrastructure for measurement of critical
- kernel data
-To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20200923192011.5293-1-tusharsu@linux.microsoft.com>
- <2c7da61fbeb17c577253b117829b3bd544d8cf44.camel@linux.ibm.com>
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Message-ID: <d3bfb2ec-357a-411d-956c-0e305245f6ec@linux.microsoft.com>
-Date:   Tue, 27 Oct 2020 10:30:27 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1820547AbgJ0Rfo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Oct 2020 13:35:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54408 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1820363AbgJ0RfJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Oct 2020 13:35:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603820106;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=R69SJGIXnOeBCOVhN+4wi5M85z31iRyaPMTE0OqoIM0=;
+        b=N3IQnhL6Jpbz002bBbpCNMZo7V64h7eF3o/OEwnB9iwfrcGWS8vEqrOmakC/cRPLTZISrG
+        zpH0FuDZRfqLqmoHPjFZ79pXMW09GV5J9Lk+bZl1rz/n+pZMB9qM1nCTZ5Ux68h9ETbsR9
+        93Q0Bk9bddfpT1wZgESn4ILibbur4oU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-199-TiYr4IK4NtSUSVdihDejlA-1; Tue, 27 Oct 2020 13:35:02 -0400
+X-MC-Unique: TiYr4IK4NtSUSVdihDejlA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C28D88C8AC2
+        for <selinux@vger.kernel.org>; Tue, 27 Oct 2020 17:35:01 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.193.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id B49E160C11;
+        Tue, 27 Oct 2020 17:35:00 +0000 (UTC)
+Date:   Tue, 27 Oct 2020 18:34:57 +0100
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Vit Mojzis <vmojzis@redhat.com>
+Subject: Re: [PATCH] libsemanage/genhomedircon: check usepasswd in add_user
+Message-ID: <20201027173457.GC25212@localhost.localdomain>
+References: <20201027165343.764095-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <2c7da61fbeb17c577253b117829b3bd544d8cf44.camel@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="R+My9LyyhiUvIEro"
+Content-Disposition: inline
+In-Reply-To: <20201027165343.764095-1-vmojzis@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Mimi,
-Thanks a lot for your continual engagement and
-providing us valuable feedback on this work.
 
-On 2020-10-24 8:35 p.m., Mimi Zohar wrote:
-> Hi Tushar,
-> 
-> On Wed, 2020-09-23 at 12:20 -0700, Tushar Sugandhi wrote:
->> There are several kernel components that contain critical data which if
->> accidentally or maliciously altered, can compromise the security of the
->> kernel. Example of such components would include LSMs like SELinux, or
->> AppArmor; or device-mapper targets like dm-crypt, dm-verity etc.
-> 
-> ^"the integrity of the system."
-> 
-Ok. I will revisit this cover letter again, when we post the next
-version of the series. We also need to update the cover letter to
-include the description for new patches to be added in this series, as
-per your suggestion below. {built-in policy patch (by Lakshmi) and an
-example measurement patch (SeLinux by Lakshmi)}
+--R+My9LyyhiUvIEro
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> This cover letter needs to be re-written from a higher perspective,
-> explaining what is meant by "critical data" (e.g. kernel subsystem
-> specific information only stored in kernel memory).
-> 
->>
->> Many of these components do not use the capabilities provided by kernel
->> integrity subsystem (IMA), and thus they don't use the benefits of
->> extended TPM PCR quotes and ultimately the benefits of remote attestation.
-> 
-> True, up until recently IMA only measured files, nothing else.  Why is
-> this paragraph needed?  What new information is provided?
-> 
-Here, I was attempting to describe the problem (what needs to be
-solved), before proposing a solution below. But maybe it is not adding
-value. I will get rid of the above paragraph in the next iteration.
+On Tue, Oct 27, 2020 at 05:53:43PM +0100, Vit Mojzis wrote:
+> Only add user homedir context entry when usepasswd =3D True
+>=20
+> Resolves:
+> \#cat /etc/selinux/semanage.conf | grep usepasswd
+> usepasswd=3DFalse
+> \#useradd -Z unconfined_u -d /tmp test
+> \#matchpathcon /tmp
+> /tmp	unconfined_u:object_r:user_home_dir_t:s0
 
->> This series bridges this gap, so that potential kernel components that
->> contain data critical to the security of the kernel could take advantage
->> of IMA's measuring and quoting abilities - thus ultimately enabling
->> remote attestation for their specific data.
-> 
-> Perhaps, something more along the lines, "This patch set defines a new
-> IMA hook named ... to measure critical data."
-> 
-Will do.
->>
->> System administrators may want to pick and choose which kernel
->> components they would want to enable for measurements, quoting, and
->> remote attestation. To enable that, a new IMA policy is introduced.
-> 
-> Reverse the order of this paragraph and the following one, describing
-> the new feature and only afterwards explaining how it may be
-> constrained.
-> 
-Makes total sense. Will do.
->>
->> And lastly, the functionality is exposed through a function
->> ima_measure_critical_data(). The functionality is generic enough to
->> measure the data of any kernel component at run-time. To ensure that
->> only data from supported sources are measured, the kernel component
->> needs to be added to a compile-time list of supported sources (an
->> "allowed list of components"). IMA validates the source passed to
->> ima_measure_critical_data() against this allowed list at run-time.
-> 
-> This patch set must include at least one example of measuring critical
-> data, before it can be upstreamed.  Tushar, please coordinate with
-> Lakshmi and Raphael.
-> 
-Yes. I am coordinating with Lakshmi/Raphael on including one of the
-examples. (SeLinux as per your feedback)
+It should be enough to indent lines with few spaces, e.g.
 
-BTW, we also have one more data source (dm-crypt) currently in review,
-that uses critical data measurement infrastructure to measure its kernel
-in-memory data.
-https://patchwork.kernel.org/patch/11844817/
+Resolves:
+    # grep usepasswd /etc/selinux/semanage.conf
+    usepasswd=3DFalse
+    # useradd -Z unconfined_u -d /tmp test
+    # matchpathcon /tmp
+    /tmp	unconfined_u:object_r:user_home_dir_t:s0
 
-Thanks again for all the help and support with the patches.
 
-~Tushar
+Also please provide Signed-off-by: see
+https://github.com/SELinuxProject/selinux/blob/master/CONTRIBUTING.md
 
-> thanks,
-> 
-> Mimi
-> 
+
+> ---
+>  libsemanage/src/genhomedircon.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
+con.c
+> index d08c88de..19dfb7b0 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -966,6 +966,9 @@ static int add_user(genhomedircon_settings_t * s,
+>  		}
+>  	}
+> =20
+> +	if (!(s->usepasswd))
+> +		return STATUS_SUCCESS;
+> +
+>  	int retval =3D STATUS_ERR;
+> =20
+>  	char *rbuf =3D NULL;
+> --=20
+> 2.25.4
+>=20
+
+--R+My9LyyhiUvIEro
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl+YWjsACgkQviIJHj72
+InWhIw//eHbDeTElVxMVFcJ4rbX8poaRWbTHpSElw8G34INL/Q6f6ZJr0l/2j1QJ
+1rRxxtqf4CsOtQhSDLfCCIj9kBKK9qBcWS7V970bxiKdlAVcTlr31ewbRej9EYII
+xCUOlq0WjyVZWiVKf/wuWKo+JU52UWccs58UeE6qHfWVdYA809x0TgKl2FprmfOR
+GzHZzlsccFnqPCGAuDsJhlA64QfqCg/MI83lr15w5JukdJgckxbzsBi21nrUlPYd
+xgZs7Fo90pspFjY5RpSXXVbguO+Q/C6uH8ARnCYr/792SWRRwMzEimdnwVW1B+ib
+WxOAI1htqAySaFMBYRnRmJ2T8T6bQyk+Xk6uHthPSp+sTJCgC6Tjyq2exXhMXAbb
+YTYhFhGAJgMTU9HFiVEDoxbp/bBQpIMTOvD5SJmSeCg2m7mgQ45eCMkn98ImGO3l
+sSQF7P68bzzj67E2eiN1Iuls+9/5Bd9Z5NXbmrYeS9GqJxlA+bpEQNolZKzBWZl6
+7rGyOb2Q8jGQ3c97/LtUrw3Wk52tlWPau0nvsfGBWCdcfr5dFUiUNKAxcudfg0SH
+kUs+YhfUMhwRNskZrG38cF1O8OLl8P9jXPYxCRn8qzLh5f8ZQu3rzNT0FdeU/oCR
+FgBvhQ4XrK9hIjlQppAE7prhQPWg9epqKYaWQTeKMo0cLufKg5w=
+=mKF2
+-----END PGP SIGNATURE-----
+
+--R+My9LyyhiUvIEro--
+
