@@ -2,117 +2,86 @@ Return-Path: <SRS0=Kg/k=ED=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_12_24,
-	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_12_24,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34D4CC55179
-	for <selinux@archiver.kernel.org>; Wed, 28 Oct 2020 22:24:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A782C56202
+	for <selinux@archiver.kernel.org>; Wed, 28 Oct 2020 23:29:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3414206F4
-	for <selinux@archiver.kernel.org>; Wed, 28 Oct 2020 22:24:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D63720796
+	for <selinux@archiver.kernel.org>; Wed, 28 Oct 2020 23:29:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xQCZpC4h"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="A/QRGsZ0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732853AbgJ1WYK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Oct 2020 18:24:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S2390458AbgJ1X26 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Oct 2020 19:28:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732814AbgJ1WYI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 18:24:08 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B44C0613CF
-        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 15:24:08 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id x6so968070ljd.3
-        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 15:24:08 -0700 (PDT)
+        with ESMTP id S1730232AbgJ1X1c (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 19:27:32 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80D1CC0613CF
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 16:27:31 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id m20so1093818ljj.5
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 16:27:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=xUr4wmN6YAMFAMs/alPzV/eL7lAzWJPO5NuYVAJTKO4=;
-        b=xQCZpC4hRFEmqqxCphEGAP0t+o7k5wUhIMUuwQgTDLBhczhzZdT0QBIuN0v47vciCF
-         8p2qx1L3xSX7K56ODcRtSWU3YUJ6Sw8dOLZvdOb2t4Xv0mnacFs3qvE10s8y8IdSarh4
-         iuLrxr/BtsN96me4AYK0Qf1D1zCoYOm4bSN0IAdn5VV9rKGVVkU8sBF619ze2RyW0Uiv
-         PcxzqJ/RZItOs5kvD7rd9ubNdh+UjlNbF+o6Xi7b1t+K4zy+NmOnDgrwjPqWF0t58SbW
-         PhVQzJ9vpWreV03VZ6Q9un9OswHFRjZHk37mUf01jucV//pGCWAgxbDliB1oD6DZ1YZu
-         k6MA==
+        bh=WWft5hZntjfk8A421MGU6aw0mG21W1JeK/uUTh133MI=;
+        b=A/QRGsZ0dZzRdTU/9cfrqhpVd1Q2ZvOalmUgATmPrtacvSfzWzc8BB8ST+SotXHtbj
+         5A++vO+nbRfhxEsVDuapmdPyXgfGOb5bWNONeB6lFKn5i/fWUhR2RaFRnq6UZZ9+O6h5
+         IbHt6pXnu+2tpeJ3OOUHlnT39E1P75rVhDPr9h8JGgv8wYR5uVpkdwL8VuFWwCFHlQO9
+         8SP0l9GIgaOaDA2OrGVL0dz1ezq7UtZAzMgMzVYOogxG8A7ovpCFRICzrZoiJaoKYNT8
+         lIsI84Q/h/hzdJSxzbDJA4iRJHAIz2FU453/kEGtWR50w22aGrwmW0RzqpGSpbVdPnHY
+         96Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=xUr4wmN6YAMFAMs/alPzV/eL7lAzWJPO5NuYVAJTKO4=;
-        b=a/aoNk+mo6sFW7Kx8DVEPK7WsTMma1q3Q4I/qpYP4QcrEo/EyYlRhqcNm7/7vyuxEv
-         0+M3GkLs6bttU8Qmz90nJx2KDQI/s4KUtnohMniONDEAGA5w4ANzFCjk8/3ZBDIG+Ybc
-         85MXNzyD/cSZxmzUD3tCoGVPA2OzgFX6c7rvu2HwKUv5eS33vzdGHMb73LOVK6duQAMK
-         NsZKdthnOTMsYXV6JSKJqP2Ul+3PCH3gsI18T39tIJtTvMTn8893k4LLnui0X8GUNhsq
-         lijzUoxxsJ4kPdSTI8HW5Y0ixVgc4kzvZ5qtog/DMk+3NTKMwraukYrPU4jQC4pfqbAO
-         10wQ==
-X-Gm-Message-State: AOAM530uG37gcSQyW1MmCXTShnEbb85Sxozu80jZjaF0Z2slBwapVgRM
-        GV1BIFQO+npoUgPszk6kaGyob40YNVPYW2LAf2by5/C1MSZG
-X-Google-Smtp-Source: ABdhPJx1NDnItXvlxdM56DxxzHXiRgQw6VZGiNIq7A4b0a/ONZ+2etNuWJ9EhVeimpLJ7jhqAvWjkQ01kjm77qwDSr0=
-X-Received: by 2002:a17:906:ce5a:: with SMTP id se26mr5248320ejb.106.1603851879816;
- Tue, 27 Oct 2020 19:24:39 -0700 (PDT)
+        bh=WWft5hZntjfk8A421MGU6aw0mG21W1JeK/uUTh133MI=;
+        b=Jv4Mojt7jZ2BBjpHdnssVzR9cKbBtZaz2G6v86zHW7DOu4Vc8WyPuo32INKbntOCuf
+         uKnBz8pDETalTyqovW0QVSP3Z8IUa4Vymw1G3lLsjIaMCJUIv+n2wLHe8sAjEc57JfGf
+         002ux3RJP6BlnZBhctK5S9VrOdVp8hcOc+AJzxJTensIuLywMXTvOfJybbWFAMmJMUoq
+         E8PToRkhiJGl6IACggFb4lKuRnouplQQylHE3hxa6gUfUVEwB3Y7McbKBWSIm+mUDzts
+         nK99p4Uhkt/ahd+qeca2uuCmx/+c+f323Ddl+56OqzZJgDI8rerQjis37Z23YMrnRANk
+         VE5A==
+X-Gm-Message-State: AOAM5311z4jpxCjf7OyGYgldG+dJJt24LZQol1duvQ3rNoJ6iZyzp50H
+        l3M5nsyKSD9INkSpmSNvdmPcmueV+jRFj+tZFalSQJ/IUA==
+X-Google-Smtp-Source: ABdhPJzZWfbZFYe/7U2xXYFZkGB51VUAaBDhLvS/IleVc1AFXhuy3R5f6pNyqMu33yHvXEIXKx/5N5HUYd2e7MZ2htw=
+X-Received: by 2002:a17:906:4811:: with SMTP id w17mr5064677ejq.431.1603850727759;
+ Tue, 27 Oct 2020 19:05:27 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhQ9h4rQK8W03jCmtqgr81jRueh_jzd8XjAkjzcCvGmCmw@mail.gmail.com>
- <a30c2b0c-d403-f296-5f15-aa7ec3a99db4@gmail.com>
-In-Reply-To: <a30c2b0c-d403-f296-5f15-aa7ec3a99db4@gmail.com>
+References: <20201001200527.13226-1-toiwoton@gmail.com>
+In-Reply-To: <20201001200527.13226-1-toiwoton@gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 27 Oct 2020 22:24:28 -0400
-Message-ID: <CAHC9VhRWtZ3CojV=M5z+qQeF+SFFB=-R7-wCAsA826Jia69sXg@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: allow dontauditx and auditallowx rules to
- take effect without allowx
-To:     bauen1 <j2468h@googlemail.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Nick Kralevich <nnk@google.com>
+Date:   Tue, 27 Oct 2020 22:05:16 -0400
+Message-ID: <CAHC9VhR0khcDrCPWf62PeUoeGxCfpaFh=V6CBCf9+ticf0z8Yg@mail.gmail.com>
+Subject: Re: [PATCH][selinux-notebook] Link to Reference policy
+To:     Topi Miettinen <toiwoton@gmail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 9, 2020 at 8:47 AM bauen1 <j2468h@googlemail.com> wrote:
+On Thu, Oct 1, 2020 at 4:05 PM Topi Miettinen <toiwoton@gmail.com> wrote:
 >
-> This allows for dontauditing very specific ioctls e.g. TCGETS without
-> dontauditing every ioctl or granting additional permissions.
+> Use links to https://github.com/SELinuxProject/refpolicy where useful.
 >
-> Now either an allowx, dontauditx or auditallowx rules enables checking
-> for extended permissions.
->
-> Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
+> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 > ---
->
-> v2: dropped the precedence change, I will make my case for that seperately.
->
->  security/selinux/ss/services.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+>  src/class_permission_statements.md | 13 ++--
+>  src/constraint_statements.md       | 18 +++---
+>  src/reference_policy.md            | 98 +++++++++++++++---------------
+>  3 files changed, 70 insertions(+), 59 deletions(-)
 
-I feel that the Android folks have had plenty of time to comment on
-this, and they haven't, so I'm going to go ahead and merge this since
-it seems to make sense.  Thanks for your patience Jonathan.
+I apologize for the delay, I lost track of this patch; it's now merged.
 
-I think The SELinux Notebook probably needs an update with respect to
-this patch, mentioning that in Linux v5.10 the xperms auditing
-behavior changed.  Can you submit a patch for that as well?
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 9704c8a32303..597b79703584 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -596,9 +596,7 @@ void services_compute_xperms_drivers(
->                                         node->datum.u.xperms->driver);
->         }
->
-> -       /* If no ioctl commands are allowed, ignore auditallow and auditdeny */
-> -       if (node->key.specified & AVTAB_XPERMS_ALLOWED)
-> -               xperms->len = 1;
-> +       xperms->len = 1;
->  }
->
->  /*
-> --
-> 2.28.0
+While I think we need to be careful not to clutter the text with too
+many external links, I think this is a nice improvement - thanks Topi!
 
 -- 
 paul moore
