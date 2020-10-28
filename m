@@ -1,120 +1,119 @@
-Return-Path: <SRS0=znNI=EC=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Kg/k=ED=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_12_24,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 461CBC388F9
-	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 18:15:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34D4CC55179
+	for <selinux@archiver.kernel.org>; Wed, 28 Oct 2020 22:24:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E35FA21655
-	for <selinux@archiver.kernel.org>; Tue, 27 Oct 2020 18:15:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3414206F4
+	for <selinux@archiver.kernel.org>; Wed, 28 Oct 2020 22:24:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XkcWS4YW"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xQCZpC4h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1826004AbgJ0SPH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Oct 2020 14:15:07 -0400
-Received: from mail-oo1-f67.google.com ([209.85.161.67]:41087 "EHLO
-        mail-oo1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1825966AbgJ0SO5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Oct 2020 14:14:57 -0400
-Received: by mail-oo1-f67.google.com with SMTP id n2so551687ooo.8;
-        Tue, 27 Oct 2020 11:14:57 -0700 (PDT)
+        id S1732853AbgJ1WYK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:24:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732814AbgJ1WYI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 18:24:08 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B44C0613CF
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 15:24:08 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id x6so968070ljd.3
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 15:24:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=yMJ8Y1/qT3nPE/qUQDD1UxaPPEXuSovGtgYNPCUSSwM=;
-        b=XkcWS4YWNm9Q4KpE5ShotbOLiXVfteFBmuCYv0GBmd6KFKdVwLVzeg8yyU+LSGQQSp
-         qL3NpEinnWWbFnTkdLX43q59sP28hp9AVKuSH0rWje9zzbL2jo8BUUzDJGdpnsktPfR+
-         4gACda/JrvqXaWDzlh4YfANdM/G+XckORgjZoLXfrw1RM/wab/kGYVTuSJv2FDptCju+
-         2UInxX/NNX3iLLiyRjWcXmPQf7ZkvESydMf0e49ysAjaRzgBl9N7luhxVSmS6cxDWJSP
-         o0SHVndQQDwEVuKaykbQrxTPGJ2BVudTq5Csl1n2oWb155hw1J9hTEca+jIxWOIaE06h
-         bogQ==
+        bh=xUr4wmN6YAMFAMs/alPzV/eL7lAzWJPO5NuYVAJTKO4=;
+        b=xQCZpC4hRFEmqqxCphEGAP0t+o7k5wUhIMUuwQgTDLBhczhzZdT0QBIuN0v47vciCF
+         8p2qx1L3xSX7K56ODcRtSWU3YUJ6Sw8dOLZvdOb2t4Xv0mnacFs3qvE10s8y8IdSarh4
+         iuLrxr/BtsN96me4AYK0Qf1D1zCoYOm4bSN0IAdn5VV9rKGVVkU8sBF619ze2RyW0Uiv
+         PcxzqJ/RZItOs5kvD7rd9ubNdh+UjlNbF+o6Xi7b1t+K4zy+NmOnDgrwjPqWF0t58SbW
+         PhVQzJ9vpWreV03VZ6Q9un9OswHFRjZHk37mUf01jucV//pGCWAgxbDliB1oD6DZ1YZu
+         k6MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=yMJ8Y1/qT3nPE/qUQDD1UxaPPEXuSovGtgYNPCUSSwM=;
-        b=kpt70y3GHVKFkIz/KFwHUeryXeV5rOXdQvyMOPCaOc269GCzSZIV/eaMWV2jfrLyDr
-         +/auEJZ3Z0ceaI6jDWVbHZMC8mIxhwfiyTDbmj/n+YTjyigCDqkuPfcqPbb2RAMbkkiY
-         MtjB/iC9OKdJSLLHs2K96xWygUbW+hNa/Hk/i2UBFK/v/wpWYQVA05OGBCL8dGa27LwF
-         nNkF4HuvVaJLs2+EWzrweHTGoHuc4CP9kTxysCAJO2I12q5mkGCSLYy01TlFs/KJVfDY
-         3PQ2thCuT5awEl9n1LTIGgTaczaaFrVa/FvcPohx83cjFAITxBj6NP+qHoqicSm29SX7
-         sGKQ==
-X-Gm-Message-State: AOAM531mwvQwNqZmUWuiceBbiUQO/HFSJBOT4I6MI5yjVKPYHpjayu6F
-        AKIeN4Om2vLL49i0aFb50jHltsGfSw8inSZJcTgjHMUXTwM=
-X-Google-Smtp-Source: ABdhPJwvO6DHnUVTV1Fm+Pi62zWuspDXcYpgHcTw80dT0DZdafDAVACytkN6V8bY9IVXDjBupAuSIeXlL7BF2EEkFAc=
-X-Received: by 2002:a4a:a447:: with SMTP id w7mr2749245ool.42.1603822496311;
- Tue, 27 Oct 2020 11:14:56 -0700 (PDT)
+        bh=xUr4wmN6YAMFAMs/alPzV/eL7lAzWJPO5NuYVAJTKO4=;
+        b=a/aoNk+mo6sFW7Kx8DVEPK7WsTMma1q3Q4I/qpYP4QcrEo/EyYlRhqcNm7/7vyuxEv
+         0+M3GkLs6bttU8Qmz90nJx2KDQI/s4KUtnohMniONDEAGA5w4ANzFCjk8/3ZBDIG+Ybc
+         85MXNzyD/cSZxmzUD3tCoGVPA2OzgFX6c7rvu2HwKUv5eS33vzdGHMb73LOVK6duQAMK
+         NsZKdthnOTMsYXV6JSKJqP2Ul+3PCH3gsI18T39tIJtTvMTn8893k4LLnui0X8GUNhsq
+         lijzUoxxsJ4kPdSTI8HW5Y0ixVgc4kzvZ5qtog/DMk+3NTKMwraukYrPU4jQC4pfqbAO
+         10wQ==
+X-Gm-Message-State: AOAM530uG37gcSQyW1MmCXTShnEbb85Sxozu80jZjaF0Z2slBwapVgRM
+        GV1BIFQO+npoUgPszk6kaGyob40YNVPYW2LAf2by5/C1MSZG
+X-Google-Smtp-Source: ABdhPJx1NDnItXvlxdM56DxxzHXiRgQw6VZGiNIq7A4b0a/ONZ+2etNuWJ9EhVeimpLJ7jhqAvWjkQ01kjm77qwDSr0=
+X-Received: by 2002:a17:906:ce5a:: with SMTP id se26mr5248320ejb.106.1603851879816;
+ Tue, 27 Oct 2020 19:24:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFqZXNuy+Q1F9rT8NJKX+Wgnp2JEROHwCdzu0pmOuWdeRe1iDg@mail.gmail.com>
-In-Reply-To: <CAFqZXNuy+Q1F9rT8NJKX+Wgnp2JEROHwCdzu0pmOuWdeRe1iDg@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 27 Oct 2020 14:14:45 -0400
-Message-ID: <CAEjxPJ4jJDwBiDS0Sv_3e2N3kFBP=oH3-mkry0PFsphhtZw9AA@mail.gmail.com>
-Subject: Re: selinux_file_permission() on pipes/pseudo-files - performance issue
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>
+References: <CAHC9VhQ9h4rQK8W03jCmtqgr81jRueh_jzd8XjAkjzcCvGmCmw@mail.gmail.com>
+ <a30c2b0c-d403-f296-5f15-aa7ec3a99db4@gmail.com>
+In-Reply-To: <a30c2b0c-d403-f296-5f15-aa7ec3a99db4@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 27 Oct 2020 22:24:28 -0400
+Message-ID: <CAHC9VhRWtZ3CojV=M5z+qQeF+SFFB=-R7-wCAsA826Jia69sXg@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: allow dontauditx and auditallowx rules to
+ take effect without allowx
+To:     bauen1 <j2468h@googlemail.com>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Nick Kralevich <nnk@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 27, 2020 at 11:02 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Fri, Oct 9, 2020 at 8:47 AM bauen1 <j2468h@googlemail.com> wrote:
 >
-> Hello,
+> This allows for dontauditing very specific ioctls e.g. TCGETS without
+> dontauditing every ioctl or granting additional permissions.
 >
-> It has been reported to me that read/write syscalls on a pipe created
-> via the pipe(2) family of syscalls spend a large percentage of time in
-> avc_lookup() via selinux_file_permission(). This is specific to pipes
-> (and also accept(2)'d sockets, I think) because these pipe fds are
-> created using alloc_file_pseudo() as opposed to do_dentry_open(),
-> which means that the security_file_open() hook is never called on
-> them.
+> Now either an allowx, dontauditx or auditallowx rules enables checking
+> for extended permissions.
 >
-> In SELinux, this means that in selinux_file_permission() the
-> read/write permission is always revalidated, leading to suboptimal
-> performance, because SELinux re-checks the read/write perms of an open
-> file only if the subject/target label or policy is different from when
-> these permissions were checked during selinux_file_open().
+> Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
+> ---
 >
-> So I decided to try and see what would happen if I add a
-> security_file_open() call to alloc_file(). This worked well for pipes
-> - all domains that call pipe(2) seem to already have the necessary
-> permissions to pass the open check, at least in Fedora policy - but I
-> got lots of denials from accept(2), which also calls alloc_file()
-> under the hood to create the new socket fd. The problem there is that
-> programs usually call only recvmsg(2)/sendmsg(2) on fds returned by
-> accept(2), thereby avoiding read/write checks on sock_file, which
-> means that the domains don't normally have such permissions. Only
-> programs that open actual socket files on the filesystem would
-> unavoidably need read/write (or so I think), yet they wouldn't need
-> them for the subsequent recvmsg(2)/sendmsg(2) calls.
+> v2: dropped the precedence change, I will make my case for that seperately.
 >
-> So I'm wondering if anyone has any idea how this could be fixed
-> (optimized) without introducing regressions or awkward exceptions in
-> the code. At this point, I don't see any way to do it regression-free
-> without either adding a new hook or changing security_file_open() to
-> distinguish between do_dentry_open() and alloc_file() + calling it
-> from both places...
+>  security/selinux/ss/services.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 
-I don't think you want to reuse security_file_open() here.
-There is an existing security_file_alloc() hook called on
-__alloc_file(), but we have no inode information there so it cannot
-cache the inode SID or perform any check on it.  You could potentially
-lift that hook to all of the callers after the file has been
-populated, or introduce a new hook in alloc_file() as you said.
-Wondering though why this has never come up before if it is a
-significant overhead in real workloads.  Earlier concerns about the
-overhead on open files led to commit
-788e7dd4c22e6f41b3a118fd8c291f831f6fddbb which introduced what later
-became security_file_open().  But seemingly pipes/sockets weren't a
-concern there.
+I feel that the Android folks have had plenty of time to comment on
+this, and they haven't, so I'm going to go ahead and merge this since
+it seems to make sense.  Thanks for your patience Jonathan.
+
+I think The SELinux Notebook probably needs an update with respect to
+this patch, mentioning that in Linux v5.10 the xperms auditing
+behavior changed.  Can you submit a patch for that as well?
+
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 9704c8a32303..597b79703584 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -596,9 +596,7 @@ void services_compute_xperms_drivers(
+>                                         node->datum.u.xperms->driver);
+>         }
+>
+> -       /* If no ioctl commands are allowed, ignore auditallow and auditdeny */
+> -       if (node->key.specified & AVTAB_XPERMS_ALLOWED)
+> -               xperms->len = 1;
+> +       xperms->len = 1;
+>  }
+>
+>  /*
+> --
+> 2.28.0
+
+-- 
+paul moore
+www.paul-moore.com
