@@ -2,186 +2,91 @@ Return-Path: <SRS0=BfnB=EE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-5.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_12_24,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E296C61DD8
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:53:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95ACBC388F7
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 01:04:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 20EC020791
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:53:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 356E82071A
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 01:04:27 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="lL+kiK7w"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390744AbgJ2Axh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Oct 2020 20:53:37 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:60626 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727944AbgJ2Af2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:35:28 -0400
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kXvuU-0008Ep-1v; Thu, 29 Oct 2020 00:35:22 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org
-Cc:     John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Jann Horn <jannh@google.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-audit@redhat.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 06/34] fs: add id translation helpers
-Date:   Thu, 29 Oct 2020 01:32:24 +0100
-Message-Id: <20201029003252.2128653-7-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.29.0
-In-Reply-To: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
-References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
+        id S1730416AbgJ2BE0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Oct 2020 21:04:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728406AbgJ2BEZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 21:04:25 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3D04C0613CF
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 18:04:24 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id t9so955912wrq.11
+        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 18:04:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=oolgt33PMh+T/hOklmS2wmZw0YTFglRzts0lARs0PM0=;
+        b=lL+kiK7w+EkDfFmp9q4bS+hLokwpIj/pkgi2pmwG2qTmNKY/iAFvbUXjqH19/6gxrf
+         oHH8YgRVYg6ZKVQnswz3PY8D7K9y4dwCD46YlmMLZqa26FfSOrVwTFp3v7eVcBC25o/o
+         mjTj/CeEkZSkpkEdvbafvyioYT8eBYWor+cWdieknFQH0zyVh5FhnZzDKzbREUBaYSGQ
+         RZ1752HjovqMbh1emcw4PUAqo7dkjLGYGXym7JaCaskbhtPjno66e85BBqyA/sLPbrVX
+         oL6Q8O6p/t/PSX96HN9EsIQKF9rOfva9WXp/8R9kfpOnTsByAcbuW6/HhEQkUeAt9jY7
+         ny2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oolgt33PMh+T/hOklmS2wmZw0YTFglRzts0lARs0PM0=;
+        b=NdTIcpMxtjsWmSeVGBhT1hIXKKEOsiIduffUa11PhgzD1Q0+MjfqgB9XS8fF1xilGS
+         utF83P4/YKHx1KjVXc12WXbkigc012fbm5KGk+wIgyOR/DE5MmwGgzIr0CIOSid0t/Un
+         sUyILcy1UBz+J/yycx485oPzlk5tJQbMLasGwFAPOnBwz0D+SeUXxJ8oE1xyspUFu4hh
+         0LGr3J9yafFoTJC2X5iPw0voOvdr6G8wXkaL73VZRpyqJ9mmrNTBzpazM66G9gAoCdU4
+         EDkCPBg6K/SsusoFHZkBhMBq4mMt0a7ZDlQ8GYifaKk+LpVtgM7pjFhrg0sxJItO1FBV
+         GO5w==
+X-Gm-Message-State: AOAM5315RQDceRAnNOOyzbOXGfC3sjB1dmgKKVl4R34F8PcyyoC37LOO
+        85yPFLzq8/6PfA8pkHYT15TnCR/hSRXpCDu6s/795VDkgg==
+X-Google-Smtp-Source: ABdhPJzPx/vSJ4s9zHJ7yRK9EXFpbtkvD/vqufLR76h8VRT08FmRyz5a9MxaEv35J+zga1QJhP9OPgzv3qZrq26Q2s0=
+X-Received: by 2002:a17:907:72cd:: with SMTP id du13mr101356ejc.398.1603851437517;
+ Tue, 27 Oct 2020 19:17:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAHC9VhQTp3Rc_7zM661Rzur0XSuWRWKJJg=CwLPAQo5ABRpS-w@mail.gmail.com>
+ <20201009013630.6777-1-rentianyue@tj.kylinos.cn> <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
+In-Reply-To: <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 27 Oct 2020 22:17:06 -0400
+Message-ID: <CAHC9VhR2KPKN8ot9WrkjZQ08X-VPDGkXro18C5jhDEwcFH6wog@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] selinux: fix error initialization in inode_doinit_with_dentry()
+To:     rentianyue@tj.kylinos.cn
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>, yangzhao@kylinos.cn,
+        selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add simple helpers to make it easy to map kuids into and from idmapped
-mounts. We provide simple wrappers that filesystems can use to
-e.g. initialize inodes similar to i_{uid,gid}_read() and
-i_{uid,gid}_write(). Accessing an inode through an idmapped mount will
-require the inode to be mapped according to the mount's user namespace.
-If the fsids are used to compare against inodes or to initialize inodes
-they are required to be shifted from the mount's user namespace. Passing
-the initial user namespace to these helpers makes them a nop and so any
-non-idmapped paths will not be impacted.
+On Thu, Oct 8, 2020 at 9:37 PM <rentianyue@tj.kylinos.cn> wrote:
+> From: Tianyue Ren <rentianyue@kylinos.cn>
+>
+> Mark the inode security label as invalid if we cannot find
+> a dentry so that we will retry later rather than marking it
+> initialized with the unlabeled SID.
+>
+> Fixes: 9287aed2ad1f ("selinux: Convert isec->lock into a spinlock")
+> Signed-off-by: Tianyue Ren <rentianyue@kylinos.cn>
+> ---
+>  security/selinux/hooks.c | 19 ++++++++++++++++---
+>  1 file changed, 16 insertions(+), 3 deletions(-)
 
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
- include/linux/fs.h | 75 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+Merged into selinux/next with some minor tweaks to the comments.
+Thanks for your help!
 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 8314cd351673..8a891b80d0b4 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -39,6 +39,7 @@
- #include <linux/fs_types.h>
- #include <linux/build_bug.h>
- #include <linux/stddef.h>
-+#include <linux/cred.h>
- 
- #include <asm/byteorder.h>
- #include <uapi/linux/fs.h>
-@@ -1574,6 +1575,80 @@ static inline void i_gid_write(struct inode *inode, gid_t gid)
- 	inode->i_gid = make_kgid(inode->i_sb->s_user_ns, gid);
- }
- 
-+static inline kuid_t kuid_into_mnt(struct user_namespace *to, kuid_t kuid)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return make_kuid(to, __kuid_val(kuid));
-+#else
-+	return kuid;
-+#endif
-+}
-+
-+static inline kgid_t kgid_into_mnt(struct user_namespace *to, kgid_t kgid)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return make_kgid(to, __kgid_val(kgid));
-+#else
-+	return kgid;
-+#endif
-+}
-+
-+static inline kuid_t i_uid_into_mnt(struct user_namespace *to,
-+				    const struct inode *inode)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return kuid_into_mnt(to, inode->i_uid);
-+#else
-+	return inode->i_uid;
-+#endif
-+}
-+
-+static inline kgid_t i_gid_into_mnt(struct user_namespace *to,
-+				    const struct inode *inode)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return kgid_into_mnt(to, inode->i_gid);
-+#else
-+	return inode->i_gid;
-+#endif
-+}
-+
-+static inline kuid_t kuid_from_mnt(struct user_namespace *to, kuid_t kuid)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return KUIDT_INIT(from_kuid(to, kuid));
-+#else
-+	return kuid;
-+#endif
-+}
-+
-+static inline kgid_t kgid_from_mnt(struct user_namespace *to, kgid_t kgid)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return KGIDT_INIT(from_kgid(to, kgid));
-+#else
-+	return kgid;
-+#endif
-+}
-+
-+static inline kuid_t fsuid_into_mnt(struct user_namespace *to)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return kuid_from_mnt(to, current_fsuid());
-+#else
-+	return current_fsuid();
-+#endif
-+}
-+
-+static inline kgid_t fsgid_into_mnt(struct user_namespace *to)
-+{
-+#ifdef CONFIG_IDMAP_MOUNTS
-+	return kgid_from_mnt(to, current_fsgid());
-+#else
-+	return current_fsgid();
-+#endif
-+}
-+
- extern struct timespec64 current_time(struct inode *inode);
- 
- /*
 -- 
-2.29.0
-
+paul moore
+www.paul-moore.com
