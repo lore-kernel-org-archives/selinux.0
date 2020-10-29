@@ -2,121 +2,130 @@ Return-Path: <SRS0=BfnB=EE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B55C9C2D0A3
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 08:28:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1124AC55178
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 10:48:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 54A1A20791
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 08:28:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 719D520728
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 10:48:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V/e75OWS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mn3zjYZr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726942AbgJ2I2d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Oct 2020 04:28:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:25941 "EHLO
+        id S1726619AbgJ2KsM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Oct 2020 06:48:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:27282 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725898AbgJ2I2d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Oct 2020 04:28:33 -0400
+        by vger.kernel.org with ESMTP id S1726433AbgJ2KsL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 29 Oct 2020 06:48:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1603960111;
+        s=mimecast20190719; t=1603968490;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=a7LLX3U8LJ9L+0n9HNDt/x9495V16MR6bctLlfh5KWI=;
-        b=V/e75OWSzj3Kp5qiG5LTt0AHq6jlx3N0PBy5IiXc5W6ccSVJfqLGe2xsIc9R4o+xhyDTGg
-        q6MJ9pL1z5+48AfvxZqoEg7kOYeA6gznegX0n3TiFs+f6wwQJ5/LWl6jKCcWlmdxpAdBms
-        sPDB+0ko8s+nL7ZF/doBO6mpj3RChfU=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-310-F_K3kZS2Nmu5a8iWSEh6mA-1; Thu, 29 Oct 2020 04:28:28 -0400
-X-MC-Unique: F_K3kZS2Nmu5a8iWSEh6mA-1
-Received: by mail-ed1-f70.google.com with SMTP id n16so863122edw.19
-        for <selinux@vger.kernel.org>; Thu, 29 Oct 2020 01:28:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=a7LLX3U8LJ9L+0n9HNDt/x9495V16MR6bctLlfh5KWI=;
-        b=msKUkxvSLWPd3vAv+FL6yWPSS8JWP4HgNBkV2L+XqsTojlJ+cXkXjrsnv0+jowk71T
-         poIKaoNXVbtPhEJbr1+dtZ4yCnF1m/sE1zC+2XViut+zsSmxyB01dPoFhAYo91T3vRwb
-         JiI6TXsBWE5k6212Opr9P1hEvJ3HNtTfsRsOYtvi/o9XjNA1+BPsTtxaV3D0DbXkg0iq
-         nslV8T1+9SsFIcVagqkSfzYVfd3mPxKA+EKYjxuQeapmaJ4aCs3uYInyFjdHzzAUa/1b
-         mFg5Ym9n28J14yhwTFbbMx3tX5EWv0dJaWrg6UtyPadbtrX1aaL8mDZBPpHUMmxQQeGH
-         as0A==
-X-Gm-Message-State: AOAM533fZ5iCpdAxaHKRp37DCqcwRNwsDcq8rSSXsDDJJ18Y1+YibTtv
-        inzV4oVkuvzcI6s7CDBfjAqVW8D6ZLmpU6ZGSw1B5bdczdvzHjENDhWUFdwQtdDbGPLeFYs9ztH
-        rmtW/UavQqdc04awUOw==
-X-Received: by 2002:a17:906:d7ad:: with SMTP id pk13mr484939ejb.196.1603960107379;
-        Thu, 29 Oct 2020 01:28:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJycw/dT/pDTp5aF+TWU6gvemZyMoyGilNXC0gv+aRV4TjcdV/5CESIP8aCz5Xy7btt58JSIUQ==
-X-Received: by 2002:a17:906:d7ad:: with SMTP id pk13mr484926ejb.196.1603960107162;
-        Thu, 29 Oct 2020 01:28:27 -0700 (PDT)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id v10sm1045717ejk.101.2020.10.29.01.28.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 01:28:26 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=C9+1sTJj6NZw6P5zFYgtod7iX0Zz2Td0l6CydGjR+QU=;
+        b=Mn3zjYZrq8FDS8ggtTc34RkJ6iwp2tRjUwicazzUkjZMA1+QqjLFrn38Vd2hBiFNahAkYP
+        6ZJFQNp4Pmsgjz7R0+/Hdl8A48zaCu+icBDtVywgVcUQGRjb7rJxpFnoYGVi5z99qzfomI
+        F5gbuOFqom5k90f8hoErR5GwoIgN2Pk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-446-k4hhaR2cOnqPg9s8H1HoyQ-1; Thu, 29 Oct 2020 06:48:08 -0400
+X-MC-Unique: k4hhaR2cOnqPg9s8H1HoyQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 77A8CAF9A0
+        for <selinux@vger.kernel.org>; Thu, 29 Oct 2020 10:48:07 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.193.73])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 31C44756A6;
+        Thu, 29 Oct 2020 10:48:05 +0000 (UTC)
+Date:   Thu, 29 Oct 2020 11:48:02 +0100
+From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH] test_sctp.te: avoid use of corenet_sctp_bind_generic_node()
-Date:   Thu, 29 Oct 2020 09:28:24 +0100
-Message-Id: <20201029082824.1328401-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
+Cc:     Vit Mojzis <vmojzis@redhat.com>
+Subject: Re: [PATCH] libsemanage/genhomedircon: check usepasswd in add_user
+Message-ID: <20201029104802.GA52464@localhost.localdomain>
+References: <20201027173457.GC25212@localhost.localdomain>
+ <20201027174539.769006-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+In-Reply-To: <20201027174539.769006-1-vmojzis@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-RHEL-7 policy doesn't have it and we only check for
-corenet_sctp_bind_all_nodes() in the Makefile. Change the uses of
-corenet_sctp_bind_generic_node() to corenet_sctp_bind_all_nodes() to
-match the pattern used in the rest of the file.
 
-Fixes: 841ccaabb366 ("selinux-testsuite: Update SCTP asconf client/server")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- policy/test_sctp.te | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/policy/test_sctp.te b/policy/test_sctp.te
-index 793f451..363e3c5 100644
---- a/policy/test_sctp.te
-+++ b/policy/test_sctp.te
-@@ -188,8 +188,8 @@ unconfined_runs_test(sctp_asconf_params_client_t)
- typeattribute sctp_asconf_params_client_t testdomain;
- typeattribute sctp_asconf_params_client_t sctpsocketdomain;
- allow sctp_asconf_params_client_t self:sctp_socket { create connect ioctl read getattr write getopt setopt };
-+corenet_sctp_bind_all_nodes(sctp_asconf_params_client_t)
- corenet_inout_generic_node(sctp_asconf_params_client_t)
--corenet_sctp_bind_generic_node(sctp_asconf_params_client_t)
- corenet_inout_generic_if(sctp_asconf_params_client_t)
- 
- # When running locally need this rule, else Client error 'Dynamic Address Reconfiguration'
-@@ -206,8 +206,8 @@ unconfined_runs_test(sctp_asconf_deny_pri_addr_client_t)
- typeattribute sctp_asconf_deny_pri_addr_client_t testdomain;
- typeattribute sctp_asconf_deny_pri_addr_client_t sctpsocketdomain;
- allow sctp_asconf_deny_pri_addr_client_t self:sctp_socket { create connect ioctl read getattr write getopt setopt };
-+corenet_sctp_bind_all_nodes(sctp_asconf_deny_pri_addr_client_t)
- corenet_inout_generic_node(sctp_asconf_deny_pri_addr_client_t)
--corenet_sctp_bind_generic_node(sctp_asconf_deny_pri_addr_client_t)
- corenet_inout_generic_if(sctp_asconf_deny_pri_addr_client_t)
- 
- # net/sctp/sm_make_chunk.c sctp_process_asconf_param() SCTP_PARAM_ADD_IP and SCTP_PARAM_SET_PRIMARY
-@@ -224,8 +224,8 @@ unconfined_runs_test(sctp_asconf_deny_param_add_client_t)
- typeattribute sctp_asconf_deny_param_add_client_t testdomain;
- typeattribute sctp_asconf_deny_param_add_client_t sctpsocketdomain;
- allow sctp_asconf_deny_param_add_client_t self:sctp_socket { create connect ioctl read getattr write getopt setopt };
-+corenet_sctp_bind_all_nodes(sctp_asconf_deny_param_add_client_t)
- corenet_inout_generic_node(sctp_asconf_deny_param_add_client_t)
--corenet_sctp_bind_generic_node(sctp_asconf_deny_param_add_client_t)
- corenet_inout_generic_if(sctp_asconf_deny_param_add_client_t)
- 
- # net/sctp/sm_make_chunk.c sctp_process_asconf_param() SCTP_PARAM_ADD_IP and SCTP_PARAM_SET_PRIMARY
--- 
-2.26.2
+On Tue, Oct 27, 2020 at 06:45:39PM +0100, Vit Mojzis wrote:
+> Only add user homedir context entry when usepasswd =3D True
+>=20
+> Resolves:
+>   #cat /etc/selinux/semanage.conf | grep usepasswd
+>   usepasswd=3DFalse
+>   #useradd -Z unconfined_u -d /tmp test
+>   #matchpathcon /tmp
+>   /tmp	unconfined_u:object_r:user_home_dir_t:s0
+>=20
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
+>  libsemanage/src/genhomedircon.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
+con.c
+> index d08c88de..19dfb7b0 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -966,6 +966,9 @@ static int add_user(genhomedircon_settings_t * s,
+>  		}
+>  	}
+> =20
+> +	if (!(s->usepasswd))
+> +		return STATUS_SUCCESS;
+> +
+>  	int retval =3D STATUS_ERR;
+> =20
+>  	char *rbuf =3D NULL;
+> --=20
+> 2.25.4
+>
+
+add_user() seems to be too deep. Would it make sense to (s->usepasswd) in
+write_context_file() as part of a condition on line 1338:
+
+	if (user_context_tpl || username_context_tpl) {
+
+?
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl+andsACgkQviIJHj72
+InXhkQ/+MoiorYG8NoNcQKsuIz1GvGwHLZ+pWot/1P39dzqmZlZP/sGWEirYftQ7
+xLhAI/OfbytxX4wFmwGLlhi3u6RW+UV48YjaOOJFNIVrrLT/KGJWrTFG6e8X5HKl
+JXFlRMXzvP3Lnz3LUkwrzQEIpFJgHXDdjA3G8gfTpzoeV3oV1bxMfpfNobaPoGAu
+mcR6ToIc/0nOI8+Zf+DbY7g+aV6Abs+OooSB59VZg8x0PktUZz/ZzCw1nomj7rA3
+SQTsJN48y8ox8Zahv0nT7HX8YC1zpxFrqRUbKaHn5gk2zQnCCUvo+iCmxupxr5tA
+OhgeR1HZScplyidiPWx1pyk1rSXu5Znyp5Ly/gK7OirkEMv9jDsz4l0GfjA/g8/v
+M5m8VzsDM2oTmjZry/ssy/e8F4HvVH7lcy6/16XhqPZJGQIGVSSUOPoMAdTLaSIH
+04nP7KGwek3COdkFLIcLK/5qdZzlZjaDe9FyFyYvJLJeBVLYbGXeFZSQ0Yrt2trt
+IidbrhRQja7WrQHSJzLP2pizw/EWift9x3Ur/5FWvjC8/cF96/NDSvaRu/jADndy
+YSlZgYYg6lF4y6GrihO4wtSH13397S/DJkX0IaKPcjvEysFJc6moCeCs4qWR4qKE
+piW6v2/hWeao1/Vwo1bPG5yoQzqhuW+W1xCH1WgwsPEP0w9eMTY=
+=SPw2
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--
 
