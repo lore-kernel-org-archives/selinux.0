@@ -2,163 +2,86 @@ Return-Path: <SRS0=BfnB=EE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DD16C55179
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 16:54:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9560EC4363A
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 17:27:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 35620214DB
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 16:54:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3969F206CA
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 17:27:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i8/tZ+oS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726763AbgJ2Qye (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Oct 2020 12:54:34 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:58342 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725971AbgJ2Qye (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Oct 2020 12:54:34 -0400
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1kYBBs-00C8yU-V2; Thu, 29 Oct 2020 10:54:21 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1kYBBq-00ASIA-75; Thu, 29 Oct 2020 10:54:20 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Lennart Poettering <lennart@poettering.net>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Jann Horn <jannh@google.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?utf-8?Q?St=C3=A9phane?= Graber <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-audit@redhat.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org
-References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
-        <87pn51ghju.fsf@x220.int.ebiederm.org>
-        <20201029160502.GA333141@gardel-login>
-Date:   Thu, 29 Oct 2020 11:54:18 -0500
-In-Reply-To: <20201029160502.GA333141@gardel-login> (Lennart Poettering's
-        message of "Thu, 29 Oct 2020 17:05:02 +0100")
-Message-ID: <87ft5xas79.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1726069AbgJ2R1m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Oct 2020 13:27:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:27692 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725785AbgJ2R1m (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 29 Oct 2020 13:27:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603992461;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WxZgEGsypGtWm+FFQCBGj0NZBR82zBa0gjj6OgKW3QM=;
+        b=i8/tZ+oS9QcIypUa2ibrRjKGjdCXa50FM1tZzczh7yBjiPsXCQGIze/ckC2IeuWCxLfdFV
+        9i7JyiYsXsltWjEgGu1cT7jrMpmLEJkEJUDN0jrnqMWFYCPaZj+n5pX3NtT3GIz+8+258O
+        jb2weejtyVr5VmfZ0y3X9TdgDtlCPt8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-555-V7GlOMZXPB2wdHGWd8jY0Q-1; Thu, 29 Oct 2020 13:27:39 -0400
+X-MC-Unique: V7GlOMZXPB2wdHGWd8jY0Q-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CE385188C12A
+        for <selinux@vger.kernel.org>; Thu, 29 Oct 2020 17:27:38 +0000 (UTC)
+Received: from thinkpad-work.redhat.com (unknown [10.40.194.157])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3EF3F5B4CC
+        for <selinux@vger.kernel.org>; Thu, 29 Oct 2020 17:27:38 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsemanage/genhomedircon: check usepasswd
+Date:   Thu, 29 Oct 2020 18:27:33 +0100
+Message-Id: <20201029172733.1320621-1-vmojzis@redhat.com>
+In-Reply-To: <20201029104802.GA52464@localhost.localdomain>
+References: <20201029104802.GA52464@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1kYBBq-00ASIA-75;;;mid=<87ft5xas79.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1886Q3MQQJMqg2DBxLY3bm+bKTupsh1iUo=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 00/34] fs: idmapped mounts
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Lennart Poettering <lennart@poettering.net> writes:
+Only add user homedir contexts when usepasswd = True
 
-> On Do, 29.10.20 10:47, Eric W. Biederman (ebiederm@xmission.com) wrote:
->
->> Is that the use case you are looking at removing the need for
->> systemd-homed to avoid chowning after lugging encrypted home directories
->> from one system to another?  Why would it be desirable to avoid the
->> chown?
->
-> Yes, I am very interested in seeing Christian's work succeed, for the
-> usecase in systemd-homed. In systemd-homed each user gets their own
-> private file system, and these fs shall be owned by the user's local
-> UID, regardless in which system it is used. The UID should be an
-> artifact of the local, individual system in this model, and thus
-> the UID on of the same user/home on system A might be picked as 1010
-> and on another as 1543, and on a third as 1323, and it shouldn't
-> matter. This way, home directories become migratable without having to
-> universially sync UID assignments: it doesn't matter anymore what the
-> local UID is.
->
-> Right now we do a recursive chown() at login time to ensure the home
-> dir is properly owned. This has two disadvantages:
->
-> 1. It's slow. In particular on large home dirs, it takes a while to go
->    through the whole user's homedir tree and chown/adjust ACLs for
->    everything.
->
-> 2. Because it is so slow we take a shortcut right now: if the
->    top-level home dir inode itself is owned by the correct user, we
->    skip the recursive chowning. This means in the typical case where a
->    user uses the same system most of the time, and thus the UID is
->    stable we can avoid the slowness. But this comes at a drawback: if
->    the user for some reason ends up with files in their homedir owned
->    by an unrelated user, then we'll never notice or readjust.
+Resolves:
+\#cat /etc/selinux/semanage.conf | grep usepasswd
+usepasswd=False
+\#useradd -Z unconfined_u -d /tmp test
+\#matchpathcon /tmp
+/tmp	unconfined_u:object_r:user_home_dir_t:s0
+---
+ libsemanage/src/genhomedircon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index d08c88de..fc75fa8c 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -1332,7 +1332,7 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
+ 			s->fallback->home = NULL;
+ 		}
+ 	}
+-	if (user_context_tpl || username_context_tpl) {
++	if (!(s->usepasswd) && (user_context_tpl || username_context_tpl)) {
+ 		if (write_username_context(s, out, username_context_tpl,
+ 					   s->fallback) != STATUS_SUCCESS) {
+ 			retval = STATUS_ERR;
+-- 
+2.26.2
 
-The classic solution to this problem for removable media are
-uid=XXX and gid=XXX mount options.
-
-I suspect a similar solution can apply here.
-
-I don't think you need a solution that requires different kuids
-to be able to write to the same filesystem uid.
-
->> If the goal is to solve fragmented administration of uid assignment I
->> suggest that it might be better to solve the administration problem so
->> that all of the uids of interest get assigned the same way on all of the
->> systems of interest.
->
-> Well, the goal is to make things simple and be able to use the home
-> dir everywhere without any prior preparation, without central UID
-> assignment authority.
->
-> The goal is to have a scheme that requires no administration, by
-> making the UID management problem go away. Hence, if you suggest
-> solving this by having a central administrative authority: this is
-> exactly what the model wants to get away from.
-
-For a files that can be accessed by more than a single user this is
-fundamentally necessary.  Otherwise group permissions and acls can not
-work.  They wind up as meaningless garbage, because without some kind of
-synchronization those other users and groups simply can not be
-represented.
-
-> Or to say this differently: just because I personally use three
-> different computers, I certainly don't want to set up LDAP or sync
-> UIDs manually.
-
-If they are single users systems why should you need to?
-
-But if permissions on files are going to be at all meaningful it is
-a fundamentally a requirement that there be no confusion about which
-party the other parties are talking about.  To the best of my knowledge
-syncing uids/usernames between machines is as simple as it can get.
-
-Eric
