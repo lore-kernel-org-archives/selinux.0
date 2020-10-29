@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F6AAC4363A
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:37:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE438C4363A
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:38:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8B0C20790
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:37:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E6F220790
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:38:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388007AbgJ2Ah3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Oct 2020 20:37:29 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:33153 "EHLO
+        id S2388755AbgJ2Ahn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Oct 2020 20:37:43 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:33072 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730010AbgJ2Agl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:36:41 -0400
+        with ESMTP id S1730313AbgJ2AgG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:36:06 -0400
 Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kXvuw-0008Ep-5z; Thu, 29 Oct 2020 00:35:50 +0000
+        id 1kXvv1-0008Ep-CK; Thu, 29 Oct 2020 00:35:55 +0000
 From:   Christian Brauner <christian.brauner@ubuntu.com>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@infradead.org>,
@@ -62,9 +62,9 @@ Cc:     John Johansen <john.johansen@canonical.com>,
         linux-audit@redhat.com, linux-integrity@vger.kernel.org,
         selinux@vger.kernel.org,
         Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 22/34] af_unix: handle idmapped mounts
-Date:   Thu, 29 Oct 2020 01:32:40 +0100
-Message-Id: <20201029003252.2128653-23-christian.brauner@ubuntu.com>
+Subject: [PATCH 25/34] exec: handle idmapped mounts
+Date:   Thu, 29 Oct 2020 01:32:43 +0100
+Message-Id: <20201029003252.2128653-26-christian.brauner@ubuntu.com>
 X-Mailer: git-send-email 2.29.0
 In-Reply-To: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
 References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
@@ -74,29 +74,48 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When binding a non-abstract AF_UNIX socket it will gain a representation in the
-filesystem. Enable the socket infrastructure to handle idmapped mounts by using
-the new vfs_mapped_mknod() helper. Non-idmapped mounts will not see any altered
-behavior.
+When executing a setuid binary the kernel will verify in bprm_fill_uid() that
+the inode has a mapping in the caller's user namespace before setting the
+callers uid and gid. Let bprm_fill_uid() handle idmapped mounts. If the inode
+is accessed through an idmapped mount it is mapped according to the mount's
+user namespace. Afterwards the checks are identical to non-idmapped mounts.On
+regular mounts this is a nop.
 
 Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
- net/unix/af_unix.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exec.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 41c3303c3357..f79f7ce3243f 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -996,7 +996,7 @@ static int unix_mknod(const char *sun_path, umode_t mode, struct path *res)
- 	 */
- 	err = security_path_mknod(&path, dentry, mode, 0);
- 	if (!err) {
--		err = vfs_mknod(d_inode(path.dentry), dentry, mode, 0);
-+		err = vfs_mapped_mknod(mnt_user_ns(path.mnt), d_inode(path.dentry), dentry, mode, 0);
- 		if (!err) {
- 			res->mnt = mntget(path.mnt);
- 			res->dentry = dget(dentry);
+diff --git a/fs/exec.c b/fs/exec.c
+index 76de175eeba8..cd11ab505a41 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1567,6 +1567,7 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
+ static void bprm_fill_uid(struct linux_binprm *bprm, struct file *file)
+ {
+ 	/* Handle suid and sgid on files */
++	struct user_namespace *user_ns;
+ 	struct inode *inode;
+ 	unsigned int mode;
+ 	kuid_t uid;
+@@ -1583,13 +1584,15 @@ static void bprm_fill_uid(struct linux_binprm *bprm, struct file *file)
+ 	if (!(mode & (S_ISUID|S_ISGID)))
+ 		return;
+ 
++	user_ns = mnt_user_ns(file->f_path.mnt);
++
+ 	/* Be careful if suid/sgid is set */
+ 	inode_lock(inode);
+ 
+ 	/* reload atomically mode/uid/gid now that lock held */
+ 	mode = inode->i_mode;
+-	uid = inode->i_uid;
+-	gid = inode->i_gid;
++	uid = i_uid_into_mnt(user_ns, inode);
++	gid = i_gid_into_mnt(user_ns, inode);
+ 	inode_unlock(inode);
+ 
+ 	/* We ignore suid/sgid if there are no mappings for them in the ns */
 -- 
 2.29.0
 
