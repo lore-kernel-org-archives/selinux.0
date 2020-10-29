@@ -2,97 +2,151 @@ Return-Path: <SRS0=BfnB=EE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_12_24,
-	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44337C55179
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:13:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85B05C56201
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:35:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F227B2076C
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:13:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="v4M1qF5m"
+	by mail.kernel.org (Postfix) with ESMTP id 44C6720790
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:35:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390821AbgJ2ANk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Oct 2020 20:13:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390817AbgJ2ANh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:13:37 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA001C0613D2
-        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 17:13:36 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id i2so1192430ljg.4
-        for <selinux@vger.kernel.org>; Wed, 28 Oct 2020 17:13:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nzLz4C8/7x6rzuhgwBujVtBwU24k/ip+cGwa/LEOhsg=;
-        b=v4M1qF5mDiC5N28sULoJTYGg1WgaQQ/emZkfbpqBiOCzkX+SSPW5W1uM0NbvfAh6YO
-         9E9NFQnet8PJcyRMTHhYtgpYE7bVrUSfAQVf3wXDtig0GDDzclpTy6RCpO/CDkSwzFSw
-         1IjiOdkAOxxHfDbnNC4X71Ioj0EI2UIuG/QuQyhFg+gO9e1vtVjLNnMKoPxMtar9kcu4
-         Y7/Mos6ATXV6NyOub+XMEgoIiLmTrlSZF1qa9xGdnBAtX4ze+iq63skPQoPnYCEQ+QDJ
-         DG4aO1r32cPLM7r5DjYDFQtGKkXmijlPbjhfYhJ0O+jXMH3CNTs00phfFjMeNylPtiEr
-         LRNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nzLz4C8/7x6rzuhgwBujVtBwU24k/ip+cGwa/LEOhsg=;
-        b=P+/SCNWBe5Y0L7WhPJZFnnx8vYmmkxALfJitOS5SSrKcckJ6YCurCLvoOxT0ajm0a9
-         4Z1Y6+nSPdh9ILWzLxCrKa3YYqlSlJlZ4RDbxUMFd/W01GC6H3RdiuzXyVXAFDXUA8gZ
-         /fhDsSo28841DJUOCmknlE8yRl3tAVvXoAuPfeTcWcWb1z3D5xlAFusvGudTKD/3R4+J
-         pDor1gcDc2vUAeOp2BDHQc/Kj/DZ9O58TobN8GXlG1FGENdXw/LKK3ck7nt68Jixx4AY
-         QGljQKdGrUaNY2mISFBRyrgRTEhX50a1vXNQDHfvG5AsCgi9c4Re2P4BAx3ovNkii5Yv
-         N6AQ==
-X-Gm-Message-State: AOAM530gdhyGat6mqnSNASC5/Xa8If5LYw1tMXtdscE3TRZC6jvVJbQJ
-        2qfBtKVhc/Hi5nS868ctDz8ZB/hn/9eXJZy6DywfadDHRA==
-X-Google-Smtp-Source: ABdhPJyR411+6APaMeMHKRFz3XusXo7hZQPgNstyy+j9Bir1XmDNqruBwrAK8ySh4BzJWo1Qsqgz2KolL3IjMPV55EU=
-X-Received: by 2002:a17:906:c1d4:: with SMTP id bw20mr5195940ejb.91.1603851000899;
- Tue, 27 Oct 2020 19:10:00 -0700 (PDT)
+        id S1730340AbgJ2Af3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Oct 2020 20:35:29 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:60621 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730334AbgJ2Af0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:35:26 -0400
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1kXvuN-0008Ep-Br; Thu, 29 Oct 2020 00:35:15 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org
+Cc:     John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Jann Horn <jannh@google.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-audit@redhat.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 02/34] namespace: only take read lock in do_reconfigure_mnt()
+Date:   Thu, 29 Oct 2020 01:32:20 +0100
+Message-Id: <20201029003252.2128653-3-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.29.0
+In-Reply-To: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
+References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-References: <160141647786.7997.5490924406329369782.stgit@sifl>
- <alpine.LRH.2.21.2009300909150.6592@namei.org> <CAHC9VhTM_a+L8nY8QLVdA1FcL8hjdV1ZNLJcr6G_Q27qPD_5EQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhTM_a+L8nY8QLVdA1FcL8hjdV1ZNLJcr6G_Q27qPD_5EQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 27 Oct 2020 22:09:49 -0400
-Message-ID: <CAHC9VhSq6stUdMSS5MXKDas5RHnrJiKSDU60CbKYe04x2DvymQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm,selinux: pass the family information along with
- xfrm flow
-To:     linux-security-module@vger.kernel.org
-Cc:     selinux@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        netdev@vger.kernel.org, James Morris <jmorris@namei.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 9:44 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Tue, Sep 29, 2020 at 7:09 PM James Morris <jmorris@namei.org> wrote:
-> > I'm not keen on adding a parameter which nobody is using. Perhaps a note
-> > in the header instead?
->
-> On Wed, Sep 30, 2020 at 6:14 AM Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> > Please at least change to the struct flowi to flowi_common if we're
-> > not adding a family field.
->
-> It did feel a bit weird adding a (currently) unused parameter, so I
-> can understand the concern, I just worry that a comment in the code
-> will be easily overlooked.  I also thought about passing a pointer to
-> the nested flowi_common struct, but it doesn't appear that this is
-> done anywhere else in the stack so it felt wrong to do it here.
+do_reconfigure_mnt() used to take the down_write(&sb->s_umount) lock
+which seems unnecessary since we're not changing the superblock. We're
+only checking whether it is already read-only. Setting other mount
+attributes is protected by lock_mount_hash() afaict and not by s_umount.
 
-With the merge window behind us, where do stand on this?  I see the
-ACK from Casey and some grumbling about adding an unused parameter
-(which is a valid argument, I just feel the alternative is worse), but
-I haven't seen any serious NACKs.
+So I think the history of down_write(&sb->s_umount) lock being taken
+when setting mount attributes dates back to the introduction of
+MNT_READONLY in [2]. Afaict, this introduced the concept of having
+read-only mounts in contrast to just having a read-only superblock. When
+it got introduced it was simply plumbed into do_remount() which already
+took down_write(&sb->s_umount) because it was only used to actually
+change the superblock before [2]. Afaict, it would've already been
+possible back then to only use down_read(&sb->s_umount) for
+MS_BIND | MS_REMOUNT since actual mount options were protected by
+the vfsmount lock already. But that would've meant special casing the
+locking for MS_BIND | MS_REMOUNT in do_remount() which people might not
+have considered worth it.
+Then in [1] MS_BIND | MS_REMOUNT mount option changes were split out of
+do_remount() into do_reconfigure_mnt() but the down_write(&sb->s_umount)
+lock was simply copied over.
+Now that we have this be a separate helper only take
+the down_read(&sb->s_umount) lock since we're only interested in
+checking whether the super block is currently read-only and blocking any
+writers from changing it. Essentially, checking that the super block is
+read-only has the advantage that we can avoid having to go into the
+slowpath and through MNT_WRITE_HOLD and can simply set the read-only
+flag on the mount in set_mount_attributes().
 
-Any objections or other strong feelings to me merging this via the
-selinux/next branch?
+[1]: commit 43f5e655eff7 ("vfs: Separate changing mount flags full remount")
+[2]: commit 2e4b7fcd9260 ("[PATCH] r/o bind mounts: honor mount writer counts at remount")
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ fs/namespace.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 20ee291a7af4..6e0d5bb63197 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -2507,10 +2507,6 @@ static int change_mount_ro_state(struct mount *mnt, unsigned int mnt_flags)
+ 	return __mnt_unmake_readonly(mnt);
+ }
+ 
+-/*
+- * Update the user-settable attributes on a mount.  The caller must hold
+- * sb->s_umount for writing.
+- */
+ static void set_mount_attributes(struct mount *mnt, unsigned int mnt_flags)
+ {
+ 	mnt_flags |= mnt->mnt.mnt_flags & ~MNT_USER_SETTABLE_MASK;
+@@ -2560,13 +2556,17 @@ static int do_reconfigure_mnt(struct path *path, unsigned int mnt_flags)
+ 	if (!can_change_locked_flags(mnt, mnt_flags))
+ 		return -EPERM;
+ 
+-	down_write(&sb->s_umount);
++	/*
++	 * We're only checking whether the superblock is read-only not changing
++	 * it, so only take down_read(&sb->s_umount).
++	 */
++	down_read(&sb->s_umount);
+ 	lock_mount_hash();
+ 	ret = change_mount_ro_state(mnt, mnt_flags);
+ 	if (ret == 0)
+ 		set_mount_attributes(mnt, mnt_flags);
+ 	unlock_mount_hash();
+-	up_write(&sb->s_umount);
++	up_read(&sb->s_umount);
+ 
+ 	mnt_warn_timestamp_expiry(path, &mnt->mnt);
+ 
 -- 
-paul moore
-www.paul-moore.com
+2.29.0
+
