@@ -2,177 +2,121 @@ Return-Path: <SRS0=BfnB=EE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC1DDC5517A
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 08:22:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B55C9C2D0A3
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 08:28:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D5B62076E
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 08:22:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 54A1A20791
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 08:28:34 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V/e75OWS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727559AbgJ2IWQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Oct 2020 04:22:16 -0400
-Received: from mail104.syd.optusnet.com.au ([211.29.132.246]:37040 "EHLO
-        mail104.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725982AbgJ2IWN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Oct 2020 04:22:13 -0400
-X-Greylist: delayed 21238 seconds by postgrey-1.27 at vger.kernel.org; Thu, 29 Oct 2020 04:21:55 EDT
-Received: from dread.disaster.area (pa49-179-6-140.pa.nsw.optusnet.com.au [49.179.6.140])
-        by mail104.syd.optusnet.com.au (Postfix) with ESMTPS id 5E73A58C9C6;
-        Thu, 29 Oct 2020 13:27:34 +1100 (AEDT)
-Received: from dave by dread.disaster.area with local (Exim 4.92.3)
-        (envelope-from <david@fromorbit.com>)
-        id 1kXxf3-005Q9Q-Vd; Thu, 29 Oct 2020 13:27:33 +1100
-Date:   Thu, 29 Oct 2020 13:27:33 +1100
-From:   Dave Chinner <david@fromorbit.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Jann Horn <jannh@google.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-audit@redhat.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH 00/34] fs: idmapped mounts
-Message-ID: <20201029022733.GB306023@dread.disaster.area>
-References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
+        id S1726942AbgJ2I2d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Oct 2020 04:28:33 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:25941 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725898AbgJ2I2d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 29 Oct 2020 04:28:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603960111;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=a7LLX3U8LJ9L+0n9HNDt/x9495V16MR6bctLlfh5KWI=;
+        b=V/e75OWSzj3Kp5qiG5LTt0AHq6jlx3N0PBy5IiXc5W6ccSVJfqLGe2xsIc9R4o+xhyDTGg
+        q6MJ9pL1z5+48AfvxZqoEg7kOYeA6gznegX0n3TiFs+f6wwQJ5/LWl6jKCcWlmdxpAdBms
+        sPDB+0ko8s+nL7ZF/doBO6mpj3RChfU=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-310-F_K3kZS2Nmu5a8iWSEh6mA-1; Thu, 29 Oct 2020 04:28:28 -0400
+X-MC-Unique: F_K3kZS2Nmu5a8iWSEh6mA-1
+Received: by mail-ed1-f70.google.com with SMTP id n16so863122edw.19
+        for <selinux@vger.kernel.org>; Thu, 29 Oct 2020 01:28:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=a7LLX3U8LJ9L+0n9HNDt/x9495V16MR6bctLlfh5KWI=;
+        b=msKUkxvSLWPd3vAv+FL6yWPSS8JWP4HgNBkV2L+XqsTojlJ+cXkXjrsnv0+jowk71T
+         poIKaoNXVbtPhEJbr1+dtZ4yCnF1m/sE1zC+2XViut+zsSmxyB01dPoFhAYo91T3vRwb
+         JiI6TXsBWE5k6212Opr9P1hEvJ3HNtTfsRsOYtvi/o9XjNA1+BPsTtxaV3D0DbXkg0iq
+         nslV8T1+9SsFIcVagqkSfzYVfd3mPxKA+EKYjxuQeapmaJ4aCs3uYInyFjdHzzAUa/1b
+         mFg5Ym9n28J14yhwTFbbMx3tX5EWv0dJaWrg6UtyPadbtrX1aaL8mDZBPpHUMmxQQeGH
+         as0A==
+X-Gm-Message-State: AOAM533fZ5iCpdAxaHKRp37DCqcwRNwsDcq8rSSXsDDJJ18Y1+YibTtv
+        inzV4oVkuvzcI6s7CDBfjAqVW8D6ZLmpU6ZGSw1B5bdczdvzHjENDhWUFdwQtdDbGPLeFYs9ztH
+        rmtW/UavQqdc04awUOw==
+X-Received: by 2002:a17:906:d7ad:: with SMTP id pk13mr484939ejb.196.1603960107379;
+        Thu, 29 Oct 2020 01:28:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJycw/dT/pDTp5aF+TWU6gvemZyMoyGilNXC0gv+aRV4TjcdV/5CESIP8aCz5Xy7btt58JSIUQ==
+X-Received: by 2002:a17:906:d7ad:: with SMTP id pk13mr484926ejb.196.1603960107162;
+        Thu, 29 Oct 2020 01:28:27 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
+        by smtp.gmail.com with ESMTPSA id v10sm1045717ejk.101.2020.10.29.01.28.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 01:28:26 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] test_sctp.te: avoid use of corenet_sctp_bind_generic_node()
+Date:   Thu, 29 Oct 2020 09:28:24 +0100
+Message-Id: <20201029082824.1328401-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
-X-Optus-CM-Score: 0
-X-Optus-CM-Analysis: v=2.3 cv=YKPhNiOx c=1 sm=1 tr=0 cx=a_idp_d
-        a=uDU3YIYVKEaHT0eX+MXYOQ==:117 a=uDU3YIYVKEaHT0eX+MXYOQ==:17
-        a=8nJEP1OIZ-IA:10 a=afefHYAZSVUA:10 a=7-415B0cAAAA:8
-        a=7FRnUTRuY4COAZBt7UUA:9 a=wPNLvfGTeEIA:10 a=biEYGPWJfzWAr4FL6Ov7:22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 01:32:18AM +0100, Christian Brauner wrote:
-> Hey everyone,
-> 
-> I vanished for a little while to focus on this work here so sorry for
-> not being available by mail for a while.
-> 
-> Since quite a long time we have issues with sharing mounts between
-> multiple unprivileged containers with different id mappings, sharing a
-> rootfs between multiple containers with different id mappings, and also
-> sharing regular directories and filesystems between users with different
-> uids and gids. The latter use-cases have become even more important with
-> the availability and adoption of systemd-homed (cf. [1]) to implement
-> portable home directories.
-> 
-> The solutions we have tried and proposed so far include the introduction
-> of fsid mappings, a tiny overlay based filesystem, and an approach to
-> call override creds in the vfs. None of these solutions have covered all
-> of the above use-cases.
-> 
-> The solution proposed here has it's origins in multiple discussions
-> during Linux Plumbers 2017 during and after the end of the containers
-> microconference.
-> To the best of my knowledge this involved Aleksa, Stéphane, Eric, David,
-> James, and myself. A variant of the solution proposed here has also been
-> discussed, again to the best of my knowledge, after a Linux conference
-> in St. Petersburg in Russia between Christoph, Tycho, and myself in 2017
-> after Linux Plumbers.
-> I've taken the time to finally implement a working version of this
-> solution over the last weeks to the best of my abilities. Tycho has
-> signed up for this sligthly crazy endeavour as well and he has helped
-> with the conversion of the xattr codepaths.
-> 
-> The core idea is to make idmappings a property of struct vfsmount
-> instead of tying it to a process being inside of a user namespace which
-> has been the case for all other proposed approaches.
-> It means that idmappings become a property of bind-mounts, i.e. each
-> bind-mount can have a separate idmapping. This has the obvious advantage
-> that idmapped mounts can be created inside of the initial user
-> namespace, i.e. on the host itself instead of requiring the caller to be
-> located inside of a user namespace. This enables such use-cases as e.g.
-> making a usb stick available in multiple locations with different
-> idmappings (see the vfat port that is part of this patch series).
-> 
-> The vfsmount struct gains a new struct user_namespace member. The
-> idmapping of the user namespace becomes the idmapping of the mount. A
-> caller that is either privileged with respect to the user namespace of
-> the superblock of the underlying filesystem or a caller that is
-> privileged with respect to the user namespace a mount has been idmapped
-> with can create a new bind-mount and mark it with a user namespace. The
-> user namespace the mount will be marked with can be specified by passing
-> a file descriptor refering to the user namespace as an argument to the
-> new mount_setattr() syscall together with the new MOUNT_ATTR_IDMAP flag.
-> By default vfsmounts are marked with the initial user namespace and no
-> behavioral or performance changes should be observed. All mapping
-> operations are nops for the initial user namespace.
-> 
-> When a file/inode is accessed through an idmapped mount the i_uid and
-> i_gid of the inode will be remapped according to the user namespace the
-> mount has been marked with. When a new object is created based on the
-> fsuid and fsgid of the caller they will similarly be remapped according
-> to the user namespace of the mount they care created from.
-> 
-> This means the user namespace of the mount needs to be passed down into
-> a few relevant inode_operations. This mostly includes inode operations
-> that create filesystem objects or change file attributes.
+RHEL-7 policy doesn't have it and we only check for
+corenet_sctp_bind_all_nodes() in the Makefile. Change the uses of
+corenet_sctp_bind_generic_node() to corenet_sctp_bind_all_nodes() to
+match the pattern used in the rest of the file.
 
-That's really quite ... messy.
+Fixes: 841ccaabb366 ("selinux-testsuite: Update SCTP asconf client/server")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ policy/test_sctp.te | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Maybe I'm missing something, but if you have the user_ns to be used
-for the VFS operation we are about to execute then why can't we use
-the same model as current_fsuid/current_fsgid() for passing the
-filesystem credentials down to the filesystem operations?  i.e.
-attach it to the current->cred->fs_userns, and then the filesystem
-code that actually needs to know the current userns can call
-current_fs_user_ns() instead of current_user_ns().  i.e.
-
-#define current_fs_user_ns()	\
-	(current->cred->fs_userns ? current->cred->fs_userns \
-				  : current->cred->userns)
-
-At this point, the filesystem will now always have the correct
-userns it is supposed to use for mapping the uid/gid, right?
-
-Also, if we are passing work off to worker threads, duplicating
-the current creds will capture this information and won't leave
-random landmines where stuff doesn't work as it should because the
-worker thread is unaware of the userns that it is supposed to be
-doing filesytsem operations under...
-
-Cheers,
-
-Dave.
+diff --git a/policy/test_sctp.te b/policy/test_sctp.te
+index 793f451..363e3c5 100644
+--- a/policy/test_sctp.te
++++ b/policy/test_sctp.te
+@@ -188,8 +188,8 @@ unconfined_runs_test(sctp_asconf_params_client_t)
+ typeattribute sctp_asconf_params_client_t testdomain;
+ typeattribute sctp_asconf_params_client_t sctpsocketdomain;
+ allow sctp_asconf_params_client_t self:sctp_socket { create connect ioctl read getattr write getopt setopt };
++corenet_sctp_bind_all_nodes(sctp_asconf_params_client_t)
+ corenet_inout_generic_node(sctp_asconf_params_client_t)
+-corenet_sctp_bind_generic_node(sctp_asconf_params_client_t)
+ corenet_inout_generic_if(sctp_asconf_params_client_t)
+ 
+ # When running locally need this rule, else Client error 'Dynamic Address Reconfiguration'
+@@ -206,8 +206,8 @@ unconfined_runs_test(sctp_asconf_deny_pri_addr_client_t)
+ typeattribute sctp_asconf_deny_pri_addr_client_t testdomain;
+ typeattribute sctp_asconf_deny_pri_addr_client_t sctpsocketdomain;
+ allow sctp_asconf_deny_pri_addr_client_t self:sctp_socket { create connect ioctl read getattr write getopt setopt };
++corenet_sctp_bind_all_nodes(sctp_asconf_deny_pri_addr_client_t)
+ corenet_inout_generic_node(sctp_asconf_deny_pri_addr_client_t)
+-corenet_sctp_bind_generic_node(sctp_asconf_deny_pri_addr_client_t)
+ corenet_inout_generic_if(sctp_asconf_deny_pri_addr_client_t)
+ 
+ # net/sctp/sm_make_chunk.c sctp_process_asconf_param() SCTP_PARAM_ADD_IP and SCTP_PARAM_SET_PRIMARY
+@@ -224,8 +224,8 @@ unconfined_runs_test(sctp_asconf_deny_param_add_client_t)
+ typeattribute sctp_asconf_deny_param_add_client_t testdomain;
+ typeattribute sctp_asconf_deny_param_add_client_t sctpsocketdomain;
+ allow sctp_asconf_deny_param_add_client_t self:sctp_socket { create connect ioctl read getattr write getopt setopt };
++corenet_sctp_bind_all_nodes(sctp_asconf_deny_param_add_client_t)
+ corenet_inout_generic_node(sctp_asconf_deny_param_add_client_t)
+-corenet_sctp_bind_generic_node(sctp_asconf_deny_param_add_client_t)
+ corenet_inout_generic_if(sctp_asconf_deny_param_add_client_t)
+ 
+ # net/sctp/sm_make_chunk.c sctp_process_asconf_param() SCTP_PARAM_ADD_IP and SCTP_PARAM_SET_PRIMARY
 -- 
-Dave Chinner
-david@fromorbit.com
+2.26.2
+
