@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A1A4C56202
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E296C61DD8
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:53:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 31F6E20724
-	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:53:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20EC020791
+	for <selinux@archiver.kernel.org>; Thu, 29 Oct 2020 00:53:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390504AbgJ2Axb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Oct 2020 20:53:31 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:60647 "EHLO
+        id S2390744AbgJ2Axh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Oct 2020 20:53:37 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:60626 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730334AbgJ2Afc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:35:32 -0400
+        with ESMTP id S1727944AbgJ2Af2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Oct 2020 20:35:28 -0400
 Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kXvuZ-0008Ep-AG; Thu, 29 Oct 2020 00:35:27 +0000
+        id 1kXvuU-0008Ep-1v; Thu, 29 Oct 2020 00:35:22 +0000
 From:   Christian Brauner <christian.brauner@ubuntu.com>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@infradead.org>,
@@ -62,9 +62,9 @@ Cc:     John Johansen <john.johansen@canonical.com>,
         linux-audit@redhat.com, linux-integrity@vger.kernel.org,
         selinux@vger.kernel.org,
         Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 09/34] inode: add idmapped mount aware init and permission helpers
-Date:   Thu, 29 Oct 2020 01:32:27 +0100
-Message-Id: <20201029003252.2128653-10-christian.brauner@ubuntu.com>
+Subject: [PATCH 06/34] fs: add id translation helpers
+Date:   Thu, 29 Oct 2020 01:32:24 +0100
+Message-Id: <20201029003252.2128653-7-christian.brauner@ubuntu.com>
 X-Mailer: git-send-email 2.29.0
 In-Reply-To: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
 References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
@@ -74,150 +74,112 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The inode_owner_or_capable() helper determines whether the caller is the
-owner of the inode or is capable with respect to that inode. Add a new
-mapped_inode_owner_or_capable() helper to handle idmapped mounts. If the
-If the inode is accessed through an idmapped mount we first need to map
-it according to the mount's user namespace. Afterwards the checks are
-identical to non-idmapped mounts. If the initial user namespace is
-passed all operations are a nop so non-idmapped mounts will not see a
-change in behavior and will also not see any performance impact. It also
-means that the inode_owner_or_capable() helper can be implemented on top
-of mapped_inode_owner_or_capable() by passing in the initial user
-namespace.
-
-Similarly, we add a new mapped_inode_init_owner() helper which
-initializes a new inode on idmapped mounts by mapping the fsuid and
-fsgid of the caller from the mount's user namespace. If the initial user
-namespace is passed all operations are a nop so non-idmapped mounts will
-not see a change in behavior and will also not see any performance
-impact. It also means that the inode_init_owner() helper can be
-implemented on top of mapped_inode_init_owner() by passing in the
-initial user namespace.
+Add simple helpers to make it easy to map kuids into and from idmapped
+mounts. We provide simple wrappers that filesystems can use to
+e.g. initialize inodes similar to i_{uid,gid}_read() and
+i_{uid,gid}_write(). Accessing an inode through an idmapped mount will
+require the inode to be mapped according to the mount's user namespace.
+If the fsids are used to compare against inodes or to initialize inodes
+they are required to be shifted from the mount's user namespace. Passing
+the initial user namespace to these helpers makes them a nop and so any
+non-idmapped paths will not be impacted.
 
 Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
- fs/inode.c         | 53 ++++++++++++++++++++++++++++++++++++----------
- include/linux/fs.h |  4 ++++
- 2 files changed, 46 insertions(+), 11 deletions(-)
+ include/linux/fs.h | 75 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
-diff --git a/fs/inode.c b/fs/inode.c
-index 9d78c37b00b8..22de3cb3b1f4 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -2130,15 +2130,17 @@ void init_special_inode(struct inode *inode, umode_t mode, dev_t rdev)
- EXPORT_SYMBOL(init_special_inode);
- 
- /**
-- * inode_init_owner - Init uid,gid,mode for new inode according to posix standards
-+ * mapped_inode_init_owner - Init uid,gid,mode for new inode according to posix
-+ *                           standards on idmapped mounts
-  * @inode: New inode
-+ * @user_ns: User namespace the inode is accessed from
-  * @dir: Directory inode
-  * @mode: mode of the new inode
-  */
--void inode_init_owner(struct inode *inode, const struct inode *dir,
--			umode_t mode)
-+void mapped_inode_init_owner(struct inode *inode, struct user_namespace *user_ns,
-+			 const struct inode *dir, umode_t mode)
- {
--	inode->i_uid = current_fsuid();
-+	inode->i_uid = fsuid_into_mnt(user_ns);
- 	if (dir && dir->i_mode & S_ISGID) {
- 		inode->i_gid = dir->i_gid;
- 
-@@ -2146,34 +2148,63 @@ void inode_init_owner(struct inode *inode, const struct inode *dir,
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 		else if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP) &&
--			 !in_group_p(inode->i_gid) &&
--			 !capable_wrt_inode_uidgid(dir, CAP_FSETID))
-+			 !in_group_p(i_gid_into_mnt(user_ns, inode)) &&
-+			 !capable_wrt_mapped_inode_uidgid(user_ns, dir, CAP_FSETID))
- 			mode &= ~S_ISGID;
- 	} else
--		inode->i_gid = current_fsgid();
-+		inode->i_gid = fsgid_into_mnt(user_ns);
- 	inode->i_mode = mode;
- }
-+EXPORT_SYMBOL(mapped_inode_init_owner);
-+
-+/**
-+ * inode_init_owner - Init uid,gid,mode for new inode according to posix standards
-+ * @inode: New inode
-+ * @dir: Directory inode
-+ * @mode: mode of the new inode
-+ */
-+void inode_init_owner(struct inode *inode, const struct inode *dir,
-+			umode_t mode)
-+{
-+	return mapped_inode_init_owner(inode, &init_user_ns, dir, mode);
-+}
- EXPORT_SYMBOL(inode_init_owner);
- 
- /**
-- * inode_owner_or_capable - check current task permissions to inode
-+ * mapped_inode_owner_or_capable - check current task permissions to inode on idmapped mounts
-+ * @user_ns: User namespace the inode is accessed from
-  * @inode: inode being checked
-  *
-  * Return true if current either has CAP_FOWNER in a namespace with the
-  * inode owner uid mapped, or owns the file.
-  */
--bool inode_owner_or_capable(const struct inode *inode)
-+bool mapped_inode_owner_or_capable(struct user_namespace *user_ns, const struct inode *inode)
- {
-+	kuid_t i_uid;
- 	struct user_namespace *ns;
- 
--	if (uid_eq(current_fsuid(), inode->i_uid))
-+	i_uid = i_uid_into_mnt(user_ns, inode);
-+	if (uid_eq(current_fsuid(), i_uid))
- 		return true;
- 
- 	ns = current_user_ns();
--	if (kuid_has_mapping(ns, inode->i_uid) && ns_capable(ns, CAP_FOWNER))
-+	if (kuid_has_mapping(ns, i_uid) && ns_capable(ns, CAP_FOWNER))
- 		return true;
- 	return false;
- }
-+EXPORT_SYMBOL(mapped_inode_owner_or_capable);
-+
-+/**
-+ * inode_owner_or_capable - check current task permissions to inode
-+ * @inode: inode being checked
-+ *
-+ * Return true if current either has CAP_FOWNER in a namespace with the
-+ * inode owner uid mapped, or owns the file.
-+ */
-+bool inode_owner_or_capable(const struct inode *inode)
-+{
-+	return mapped_inode_owner_or_capable(&init_user_ns, inode);
-+}
- EXPORT_SYMBOL(inode_owner_or_capable);
- 
- /*
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 750ca4b3d89f..f9e2d292b7b6 100644
+index 8314cd351673..8a891b80d0b4 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1777,6 +1777,8 @@ static inline int sb_start_intwrite_trylock(struct super_block *sb)
+@@ -39,6 +39,7 @@
+ #include <linux/fs_types.h>
+ #include <linux/build_bug.h>
+ #include <linux/stddef.h>
++#include <linux/cred.h>
  
+ #include <asm/byteorder.h>
+ #include <uapi/linux/fs.h>
+@@ -1574,6 +1575,80 @@ static inline void i_gid_write(struct inode *inode, gid_t gid)
+ 	inode->i_gid = make_kgid(inode->i_sb->s_user_ns, gid);
+ }
  
- extern bool inode_owner_or_capable(const struct inode *inode);
-+extern bool mapped_inode_owner_or_capable(struct user_namespace *ns,
-+				      const struct inode *inode);
- 
- /*
-  * VFS helper functions..
-@@ -1820,6 +1822,8 @@ extern long compat_ptr_ioctl(struct file *file, unsigned int cmd,
-  */
- extern void inode_init_owner(struct inode *inode, const struct inode *dir,
- 			umode_t mode);
-+extern void mapped_inode_init_owner(struct inode *inode, struct user_namespace *user_ns,
-+			 const struct inode *dir, umode_t mode);
- extern bool may_open_dev(const struct path *path);
++static inline kuid_t kuid_into_mnt(struct user_namespace *to, kuid_t kuid)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return make_kuid(to, __kuid_val(kuid));
++#else
++	return kuid;
++#endif
++}
++
++static inline kgid_t kgid_into_mnt(struct user_namespace *to, kgid_t kgid)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return make_kgid(to, __kgid_val(kgid));
++#else
++	return kgid;
++#endif
++}
++
++static inline kuid_t i_uid_into_mnt(struct user_namespace *to,
++				    const struct inode *inode)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return kuid_into_mnt(to, inode->i_uid);
++#else
++	return inode->i_uid;
++#endif
++}
++
++static inline kgid_t i_gid_into_mnt(struct user_namespace *to,
++				    const struct inode *inode)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return kgid_into_mnt(to, inode->i_gid);
++#else
++	return inode->i_gid;
++#endif
++}
++
++static inline kuid_t kuid_from_mnt(struct user_namespace *to, kuid_t kuid)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return KUIDT_INIT(from_kuid(to, kuid));
++#else
++	return kuid;
++#endif
++}
++
++static inline kgid_t kgid_from_mnt(struct user_namespace *to, kgid_t kgid)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return KGIDT_INIT(from_kgid(to, kgid));
++#else
++	return kgid;
++#endif
++}
++
++static inline kuid_t fsuid_into_mnt(struct user_namespace *to)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return kuid_from_mnt(to, current_fsuid());
++#else
++	return current_fsuid();
++#endif
++}
++
++static inline kgid_t fsgid_into_mnt(struct user_namespace *to)
++{
++#ifdef CONFIG_IDMAP_MOUNTS
++	return kgid_from_mnt(to, current_fsgid());
++#else
++	return current_fsgid();
++#endif
++}
++
+ extern struct timespec64 current_time(struct inode *inode);
  
  /*
 -- 
