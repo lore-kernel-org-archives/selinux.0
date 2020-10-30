@@ -2,162 +2,286 @@ Return-Path: <SRS0=8qmv=EF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18251C4741F
-	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 12:02:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29713C388F9
+	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 12:33:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE205207DE
-	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 12:02:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A88672087E
+	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 12:33:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="k0hxVfV3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726434AbgJ3MCJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Oct 2020 08:02:09 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:39709 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725808AbgJ3MCJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Oct 2020 08:02:09 -0400
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kYT6V-0006JV-Px; Fri, 30 Oct 2020 12:01:59 +0000
-Date:   Fri, 30 Oct 2020 13:01:57 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Andy Lutomirski <luto@amacapital.net>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <james.bottomley@hansenpartnership.com>,
-        Jann Horn <jannh@google.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-audit@redhat.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH 00/34] fs: idmapped mounts
-Message-ID: <20201030120157.exz4rxmebruh7bgp@wittgenstein>
-References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
- <8E455D54-FED4-4D06-8CB7-FC6291C64259@amacapital.net>
+        id S1726318AbgJ3Md5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Oct 2020 08:33:57 -0400
+Received: from sonic303-27.consmr.mail.ne1.yahoo.com ([66.163.188.153]:41657
+        "EHLO sonic303-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726572AbgJ3Md4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Oct 2020 08:33:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604061235; bh=5SfRZimfNxjBdeZCtircb4uOt+W13bQCtEGkwspjHBE=; h=To:Cc:References:From:Subject:Date:In-Reply-To:From:Subject; b=k0hxVfV34KgfMfwlAEYrOsrMKS5ZBjm15qQlncpx7OQbHa8ZHbBhsJWvBYK3ETs7oq2FMUwiFwq6XvlRUAlgRyXSFqsZDmNmr9OOTBuO8qesTPK4UKBWw8dOZBp6MeKBJPrndhx+ZmJy90f1MojKP3QxB2k4XV5GM+Ru5JW1IBraaZlv5jEtGEYF8paSqvAnXPFcBGPPo8AJHkjCy4VcCjnOAYZ/VoeJ8ITjTMjOo6X/rZN7vT21nl6yPf+PC3xDWWIWxaO5qSMU4vHr0DJj05vS4quaMyB1zV0VOcKvplHoRYxohKtHAU5ntvOSIoB47YJOJInLfbKXmLUVLRiLiA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604061235; bh=19Gxv4a1RnJObh7SDe7f3woVbjgBJu3ue1jiFg7rNWo=; h=To:From:Subject:Date; b=Ayte3Fdv+uO8JGdDdBRpwlNrYGN5wMGc25Hwjq5oob6UISgXEBDXsPJsW6sJPj7MfcxL34IXrWg5qh9vDXwDc/yGeW5Qc7LoJcmlkYQ+S8Uj43mYYMHWW5ohlVDpgfFEtf37J2XNzfutCDRoBsBHrj8Tmml3bl36EQcWAgjs/JkMhtpJByVL8kN+0MtbMrnu5hor6nf4n5xNu9SvZr241psLebfCJ0JFu52TejVQD2FFssslrC8zyW0MMt8JjDLRcZkHfPyBSEfJm0meASFUWU7EkZadXRV5vUCyXnZjtD7dvXmiMUDlQj1RvapTw4KLEZW0br9p95f4uvxux4nU2Q==
+X-YMail-OSG: kKRGvEwVM1kPQcQYitgPDIodofkxYAHNgPdkvljdiG.E1PL3j0aosMMlDnnO05s
+ xGXLZPaI77WxkkgrOCQPyN12p7_Q5PnnM.TFGkzVuY08F2.P1lP3RMES5sC7SO_tVDO9CuOWptSB
+ PlF2B4b2UI5PUeirmawTDpbQsH.1qwEd6RrfFccorit4jEmKWd2uhbOL8rrYm3kcTGmebjx.t8cN
+ zCjtoNWCu0ovdNUF15vM.xqiWqGaAOOxGHf42PuTLVSAgAqjkqpr63UMY9gjlNvEfLwwVBwrBL09
+ FHcP1GQWaRz7dHXdMKCARcJr3_0xrJq1jiYhPAGVULKF0XS48wj1yeYnMD1dZp4RmWCVkTDzlCrc
+ VjuOanMFhHGNm71Yv4NwiUV.pF5Tl3YgPn3adMI9zk.TDto6QRkRc.S_MpGxabomqiMo47sIA9Ba
+ YtrcaL4F6gbR.AkxYFK7Dd122962ZB.TcEQbLcHZCl7vrLYjCYBnwk3dE_9ed0dpxtDkiI14N7vt
+ IqEVWikj9MYo6xdmfBwFXkzjvQn8v9Vls_eze8VcieHEnbHIUBklufVHw65BvIzqXMDsUnjj0tKl
+ OHASaC1aXo68dWamTVNvMT82n50e3TmYwRPW56qV0GXL52dCUM64AwPUKGOiOIAHIO.Sf51OEvF2
+ N23EJLtu_1bl6mCBi9BNTCDAp4NXqOHITlhPb3jpvdOF2Fezh.64JIEajlnjIh3nnEasQypmQo7L
+ ganCMooCLBkv2akO5eSLMe42RNpzVJDjBKHMZFdqJSrPD7t9mutB443w_wRbZIys.7iXfsjHcGNW
+ L8_mhKalyTE9T32P10Iylefaa3EFtf9fLZTviia2tY.XSN9HJ2I1hnCLOanXA13czcacv_yY_yt.
+ wTHmNYkYvTyOL3B8jCYtoYkTSZjGOhLaLGsgzstODA8lvm6ulQYTRBurh.mtt5GBcvaroNK9dixO
+ 8e6FWEfpZCAr8zi9bWBzhBAHtg.iaKJAARonn5c80v5UAUW5OSFt94CsULCIe.aFQ9OXKJIPu9C5
+ wXhuOrhkJqCmzU2xjzhgzu8n3GLwx3o_OSkkdcsu4tuGkUneSG5CshXpD.ZepGG5o95hfaOvr8A7
+ YKua.Dg7C9i.0k0DMZrRzW26mWT4_HIRCmX6n3m8ttf623vkcfqDk.zjMv7fgDqrWfm9AxG9cq.3
+ NrWF0RmYYXA0u4zOkvKP9FBMgK4G5C6GNb8_jhjNaF60fyjZy1UQ0cttQd8pAQg8uTcxypKQ7NCi
+ 7H0dcBb3Erj3RPyjs3Yp0sQYeMyhz7IZrOigUgC0rk.qi9RRqelpsA5cQfRaksMaIEYjM3zrPdpB
+ kWS4DvnmWfP7qcngSgcINS6_Dc9YGwgVljQE7zPjxrcUDpBaaBt9y1IRrThOhI9CrEWzyIVXnV6y
+ l8V9OEQ6ZdB.LI4ht1wYojguRS2wgCGwGongWibINm8uLw029rg4zl3Fz42LWdMsxkELjBTu4_6o
+ fiAJhvHV9BuU9roxqTq6.dR21EPoAGRj2ebXAZKDNNCuXksQSV1mkEhxhzeCR8Ce9Mr3KfOknKGp
+ nIkCxkjv9_Rs53hL9BW9irRNENNhH9zg.8nATVgKHVdRGJ1gdzRKS8lkTNXdVatyN0i3pr9EZapJ
+ swVz9xgn92MGTnrCKR3oKRb6PTn2OEhlKtBVPwJ5E2_vcGaEWYo8OxnwD9BIxpzp5a_SWtWglrC6
+ JNcr9w2NJxQXkrT.DfKVDzHuQA1gzqkcvgxxxQXx8QYZRPW3jd55bKsiAqqSGHICEQ3ha9Tn8OOA
+ 2DUiuRUklzua8xCUCTHabzW2rHWmgygMer.njMEM0XGJiJCv2xu1Gk4bGVeUMKjl1HZHmQKdHV8n
+ GkEG_MgMxaG.xMEkRhLSqO_28gTaIFZKlMiAN3scx17fb0SdOdcLDZhdJdc3Kk3Bnc3G8rDU7nIp
+ ADFg07tTvLQNY0yltbeL4z3CHuvkwll.PxVgeIILA04F6SWlpbut2AusV8FAsrmBme1BWYY9k0C6
+ oSHJbs_9yCruxaJFEj2FeYDy3wGaIzDTFf7A3Dkh7_0h5yjQZ1HuDcolHwbmpaqPP4L9PvAj5R9C
+ 3sxTwvvgnJn9RVm.94Kk_x0buHoHRCRTpb4JXUl4XRC0YJlcMfye578Lx3iAvA3oBW9669NukMen
+ PGE.Ux6LY.xeiZEsHC3w.ksgonwifqRYyLE7q6b_ZkxP25lC13_qmiunJ7_heLiIZ4J18ypj0G7g
+ qjWf1qwR5vDOfIwdknAtg7M1.XB1cToN5_xcJbdj6hj_Kkslt_aTqFypXXkFnPPs9hl1eU_RKVHW
+ fzlIQxppZowEimbYrICnBRufXG0H0LwtxlWBJm_DSg2FpDJzHWvmWwZY.cDzHLinpSyJ6B4exL2A
+ sZZ4J.9M.D9d_Vfp1VQPap7wvex4tayRHojSaqvFlS3BaFliWov5opfj.SUs5F8uFrEtnNYAV5az
+ D6iW0JouAwomqojqf1pboe2Y_lwbNka6jYoNhLeIbIuG738216TYYGZ5C08c1tMzFGZf4SeN4Cz4
+ 1xJqj6AtzfW1Z.YLu2hO5csv6l6htE8rRPDFY6OW_tFVn8b3buKytBlqTsonMYfPn0vfvFknPzPN
+ Yxhq856diZVtFaK24_.vboWDLMQPT1lb3WnbKi95iZjdxlUujhldx0vVaR5pTK5.MD_vHChrqVjU
+ dswcX0DwXlBePynynT0oi11vtH8ngBZNStMCkxdN9MdF_14kBx0Rf1jYI0jvzgaVWmRrqAUl2o9Y
+ 72iuHcT7WivrSqECM1CiFKOafVIM0Frs.PajSHzOV6_Ieje25Xont6EVVyF20gaaZI_tnA0wZE5n
+ _0MAL4zkvUnWFXWI7DdV5FoDmegYaL4XG9gItQqDDuGlD1VaOuN4aNiQ4SEHXfh494xi_dFsO1yw
+ lMWP9tqmTqRNb6_0ltFBW7Jy2icRKBZptm8WEqgQ6ZULriR.OMTopWcv7eSwxMLHlJRteLt5tqxb
+ zCAZEia8QfTdCTajnJur.Y.Ii0IoAk1ElTH8vX4CbNsDH2tGvq2hdHo8svA1VNetiYC0DkTK2Bt6
+ ZOPhlWpMCa71y7lUc1O8mK2ilDQ8wZiWrd4C2KIwG_lWFLMZEpF3.lPbaIGDQavCX2zaUrYmCrmp
+ wDLAhV0edd_Cznmo-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Fri, 30 Oct 2020 12:33:55 +0000
+Received: by smtp421.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID e8c15fd5307494bdc630f772ae42f868;
+          Fri, 30 Oct 2020 12:33:51 +0000 (UTC)
+To:     Hou Tao <houtao1@huawei.com>, Chen Jun <chenjun102@huawei.com>,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        rui.xiang@huawei.com, guohanjun@huawei.com,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20201028020615.8789-1-chenjun102@huawei.com>
+ <c2eba2fb-79f8-eb48-ddd1-77fbc205ebff@schaufler-ca.com>
+ <c9e1646e-f242-4d76-f482-f6281585860e@huawei.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [RFC PATCH v2] selinux: Fix kmemleak after disabling selinux
+ runtime
+Message-ID: <70f2c67a-eb8a-5c28-9f78-838b397370b3@schaufler-ca.com>
+Date:   Fri, 30 Oct 2020 05:33:51 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.3
 MIME-Version: 1.0
+In-Reply-To: <c9e1646e-f242-4d76-f482-f6281585860e@huawei.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8E455D54-FED4-4D06-8CB7-FC6291C64259@amacapital.net>
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Mailer: WebService/1.1.16944 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 02:58:55PM -0700, Andy Lutomirski wrote:
-> 
-> 
-> > On Oct 28, 2020, at 5:35 PM, Christian Brauner <christian.brauner@ubuntu.com> wrote:
-> > 
-> > ﻿Hey everyone,
-> > 
-> > I vanished for a little while to focus on this work here so sorry for
-> > not being available by mail for a while.
-> > 
-> > Since quite a long time we have issues with sharing mounts between
-> > multiple unprivileged containers with different id mappings, sharing a
-> > rootfs between multiple containers with different id mappings, and also
-> > sharing regular directories and filesystems between users with different
-> > uids and gids. The latter use-cases have become even more important with
-> > the availability and adoption of systemd-homed (cf. [1]) to implement
-> > portable home directories.
-> > 
-> > The solutions we have tried and proposed so far include the introduction
-> > of fsid mappings, a tiny overlay based filesystem, and an approach to
-> > call override creds in the vfs. None of these solutions have covered all
-> > of the above use-cases.
-> > 
-> > The solution proposed here has it's origins in multiple discussions
-> > during Linux Plumbers 2017 during and after the end of the containers
-> > microconference.
-> > To the best of my knowledge this involved Aleksa, Stéphane, Eric, David,
-> > James, and myself. A variant of the solution proposed here has also been
-> > discussed, again to the best of my knowledge, after a Linux conference
-> > in St. Petersburg in Russia between Christoph, Tycho, and myself in 2017
-> > after Linux Plumbers.
-> > I've taken the time to finally implement a working version of this
-> > solution over the last weeks to the best of my abilities. Tycho has
-> > signed up for this sligthly crazy endeavour as well and he has helped
-> > with the conversion of the xattr codepaths.
-> > 
-> > The core idea is to make idmappings a property of struct vfsmount
-> > instead of tying it to a process being inside of a user namespace which
-> > has been the case for all other proposed approaches.
-> > It means that idmappings become a property of bind-mounts, i.e. each
-> > bind-mount can have a separate idmapping. This has the obvious advantage
-> > that idmapped mounts can be created inside of the initial user
-> > namespace, i.e. on the host itself instead of requiring the caller to be
-> > located inside of a user namespace. This enables such use-cases as e.g.
-> > making a usb stick available in multiple locations with different
-> > idmappings (see the vfat port that is part of this patch series).
-> > 
-> > The vfsmount struct gains a new struct user_namespace member. The
-> > idmapping of the user namespace becomes the idmapping of the mount. A
-> > caller that is either privileged with respect to the user namespace of
-> > the superblock of the underlying filesystem or a caller that is
-> > privileged with respect to the user namespace a mount has been idmapped
-> > with can create a new bind-mount and mark it with a user namespace.
-> 
-> So one way of thinking about this is that a user namespace that has an idmapped mount can, effectively, create or chown files with *any* on-disk uid or gid by doing it directly (if that uid exists in-namespace, which is likely for interesting ids like 0) or by creating a new userns with that id inside.
-> 
-> For a file system that is private to a container, this seems moderately safe, although this may depend on what exactly “private” means. We probably want a mechanism such that, if you are outside the namespace, a reference to a file with the namespace’s vfsmnt does not confer suid privilege.
-> 
-> Imagine the following attack: user creates a namespace with a root user and arranges to get an idmapped fs, e.g. by inserting an ext4 usb stick or using whatever container management tool does this.  Inside the namespace, the user creates a suid-root file.
-> 
-> Now, outside the namespace, the user has privilege over the namespace.  (I’m assuming there is some tool that will idmap things in a namespace owned by an unprivileged user, which seems likely.). So the user makes a new bind mount and if maps it to the init namespace. Game over.
-> 
-> So I think we need to have some control to mitigate this in a comprehensible way. A big hammer would be to require nosuid. A smaller hammer might be to say that you can’t create a new idmapped mount unless you have privilege over the userns that you want to use for the idmap and to say that a vfsmnt’s paths don’t do suid outside the idmap namespace.  We already do the latter for the vfsmnt’s mntns’s userns.
+On 10/30/2020 12:57 AM, Hou Tao wrote:
+> Hi,
+>
+> On 2020/10/29 0:29, Casey Schaufler wrote:
+>> On 10/27/2020 7:06 PM, Chen Jun wrote:
+>>> From: Chen Jun <c00424029@huawei.com>
+>>>
+>>> Kmemleak will report a problem after using
+>>> "echo 1 > /sys/fs/selinux/disable" to disable selinux on runtime.
+>> Runtime disable of SELinux has been deprecated. It would be
+>> wasteful to make these changes in support of a facility that
+>> is going away.
+>>
+> But this sysfs file will still be present and workable on LTS kernel ve=
+rsions, so
+> is the proposed fixe OK for these LTS kernel versions ?
 
-With this series, in order to create an idmapped mount the user must
-either be cap_sys_admin in the superblock of the underlying filesystem
-or if the mount is already idmapped and they want to create another
-idmapped mount from it they must have cap_sys_admin in the userns that
-the mount is currrently marked with. It is also not possible to change
-an idmapped mount once it has been idmapped, i.e. the user must create a
-new detached bind-mount first.
+It's not my call to make. Paul Moore has the voice that matters here.
+I think that the trivial memory leak here is inconsequential compared
+to the overhead you're introducing by leaving the NO_DEL hooks enabled.
 
-> 
-> Hmm.  What happens if we require that an idmap userns equal the vfsmnt’s mntns’s userns?  Is that too limiting?
-> 
-> I hope that whatever solution gets used is straightforward enough to wrap one’s head around.
-> 
-> > When a file/inode is accessed through an idmapped mount the i_uid and
-> > i_gid of the inode will be remapped according to the user namespace the
-> > mount has been marked with. When a new object is created based on the
-> > fsuid and fsgid of the caller they will similarly be remapped according
-> > to the user namespace of the mount they care created from.
-> 
-> By “mapped according to”, I presume you mean that the on-disk uid/gid is the gid as seen in the user namespace in question.
+>
+> Regards,
+> Tao
+>
+>
+>>> kmemleak report=EF=BC=9A
+>>> unreferenced object 0xffff901281c208a0 (size 96):
+>>>   comm "swapper/0", pid 1, jiffies 4294668265 (age 692.799s)
+>>>   hex dump (first 32 bytes):
+>>>     00 40 c8 81 12 90 ff ff 03 00 00 00 05 00 00 00  .@..............=
 
-If I understand you correctly, then yes.
+>>>     03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................=
+
+>>>   backtrace:
+>>>     [<0000000014622ef8>] selinux_sb_alloc_security+0x1b/0xa0
+>>>     [<00000000044914e1>] security_sb_alloc+0x1d/0x30
+>>>     [<000000009f9d5ffd>] alloc_super+0xa7/0x310
+>>>     [<000000003c5f0b5b>] sget_fc+0xca/0x230
+>>>     [<00000000367a9996>] vfs_get_super+0x37/0x110
+>>>     [<000000001c47e818>] vfs_get_tree+0x20/0xc0
+>>>     [<00000000d239b404>] fc_mount+0x9/0x30
+>>>     [<00000000708a102f>] vfs_kern_mount.part.36+0x6a/0x80
+>>>     [<000000005db542fe>] kern_mount+0x1b/0x30
+>>>     [<0000000051919f9f>] init_sel_fs+0x8b/0x119
+>>>     [<000000000f328fe0>] do_one_initcall+0x3f/0x1d0
+>>>     [<000000008a6ceb81>] kernel_init_freeable+0x1b4/0x1f2
+>>>     [<000000003a425dcd>] kernel_init+0x5/0x110
+>>>     [<000000004e8d6c9d>] ret_from_fork+0x22/0x30
+>>>
+>>> "echo 1 > /sys/fs/selinux/disable" will delete the hooks.
+>>> Any memory alloced by calling HOOKFUNCTION (like call_int_hook(sb_all=
+oc_security, 0, sb))
+>>> has no chance to be freed after deleting hooks.
+>>>
+>>> Add a flag to mark a hook not be delete when deleting hooks.
+>>>
+>>> Signed-off-by: Chen Jun <chenjun102@huawei.com>
+>>> ---
+>>>  include/linux/lsm_hooks.h |  6 +++++-
+>>>  security/selinux/hooks.c  | 20 ++++++++++----------
+>>>  2 files changed, 15 insertions(+), 11 deletions(-)
+>>>
+>>> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+>>> index c503f7ab8afb..85de731b0c74 100644
+>>> --- a/include/linux/lsm_hooks.h
+>>> +++ b/include/linux/lsm_hooks.h
+>>> @@ -1554,6 +1554,7 @@ struct security_hook_list {
+>>>  	struct hlist_head		*head;
+>>>  	union security_list_options	hook;
+>>>  	char				*lsm;
+>>> +	bool				no_del;
+>>>  } __randomize_layout;
+>>> =20
+>>>  /*
+>>> @@ -1582,6 +1583,8 @@ struct lsm_blob_sizes {
+>>>   */
+>>>  #define LSM_HOOK_INIT(HEAD, HOOK) \
+>>>  	{ .head =3D &security_hook_heads.HEAD, .hook =3D { .HEAD =3D HOOK }=
+ }
+>>> +#define LSM_HOOK_INIT_NO_DEL(HEAD, HOOK) \
+>>> +	{ .head =3D &security_hook_heads.HEAD, .hook =3D { .HEAD =3D HOOK }=
+, .no_del =3D 1 }
+>>> =20
+>>>  extern struct security_hook_heads security_hook_heads;
+>>>  extern char *lsm_names;
+>>> @@ -1638,7 +1641,8 @@ static inline void security_delete_hooks(struct=
+ security_hook_list *hooks,
+>>>  	int i;
+>>> =20
+>>>  	for (i =3D 0; i < count; i++)
+>>> -		hlist_del_rcu(&hooks[i].list);
+>>> +		if (!hooks[i].no_del)
+>>> +			hlist_del_rcu(&hooks[i].list);
+>>>  }
+>>>  #endif /* CONFIG_SECURITY_SELINUX_DISABLE */
+>>> =20
+>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>> index 6b1826fc3658..daff084fd1c7 100644
+>>> --- a/security/selinux/hooks.c
+>>> +++ b/security/selinux/hooks.c
+>>> @@ -6974,8 +6974,8 @@ static struct security_hook_list selinux_hooks[=
+] __lsm_ro_after_init =3D {
+>>>  	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds)=
+,
+>>>  	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
+>>> =20
+>>> -	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+>>> -	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
+>>> +	LSM_HOOK_INIT_NO_DEL(sb_free_security, selinux_sb_free_security),
+>>> +	LSM_HOOK_INIT_NO_DEL(sb_free_mnt_opts, selinux_free_mnt_opts),
+>>>  	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
+>>>  	LSM_HOOK_INIT(sb_kern_mount, selinux_sb_kern_mount),
+>>>  	LSM_HOOK_INIT(sb_show_options, selinux_sb_show_options),
+>>> @@ -7081,7 +7081,7 @@ static struct security_hook_list selinux_hooks[=
+] __lsm_ro_after_init =3D {
+>>> =20
+>>>  	LSM_HOOK_INIT(ismaclabel, selinux_ismaclabel),
+>>>  	LSM_HOOK_INIT(secctx_to_secid, selinux_secctx_to_secid),
+>>> -	LSM_HOOK_INIT(release_secctx, selinux_release_secctx),
+>>> +	LSM_HOOK_INIT_NO_DEL(release_secctx, selinux_release_secctx),
+>>>  	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_sec=
+ctx),
+>>>  	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
+>>>  	LSM_HOOK_INIT(inode_setsecctx, selinux_inode_setsecctx),
+>>> @@ -7107,7 +7107,7 @@ static struct security_hook_list selinux_hooks[=
+] __lsm_ro_after_init =3D {
+>>>  	LSM_HOOK_INIT(socket_getpeersec_stream,
+>>>  			selinux_socket_getpeersec_stream),
+>>>  	LSM_HOOK_INIT(socket_getpeersec_dgram, selinux_socket_getpeersec_dg=
+ram),
+>>> -	LSM_HOOK_INIT(sk_free_security, selinux_sk_free_security),
+>>> +	LSM_HOOK_INIT_NO_DEL(sk_free_security, selinux_sk_free_security),
+>>>  	LSM_HOOK_INIT(sk_clone_security, selinux_sk_clone_security),
+>>>  	LSM_HOOK_INIT(sk_getsecid, selinux_sk_getsecid),
+>>>  	LSM_HOOK_INIT(sock_graft, selinux_sock_graft),
+>>> @@ -7121,7 +7121,7 @@ static struct security_hook_list selinux_hooks[=
+] __lsm_ro_after_init =3D {
+>>>  	LSM_HOOK_INIT(secmark_refcount_inc, selinux_secmark_refcount_inc),
+>>>  	LSM_HOOK_INIT(secmark_refcount_dec, selinux_secmark_refcount_dec),
+>>>  	LSM_HOOK_INIT(req_classify_flow, selinux_req_classify_flow),
+>>> -	LSM_HOOK_INIT(tun_dev_free_security, selinux_tun_dev_free_security)=
+,
+>>> +	LSM_HOOK_INIT_NO_DEL(tun_dev_free_security, selinux_tun_dev_free_se=
+curity),
+>>>  	LSM_HOOK_INIT(tun_dev_create, selinux_tun_dev_create),
+>>>  	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
+>>>  	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
+>>> @@ -7130,7 +7130,7 @@ static struct security_hook_list selinux_hooks[=
+] __lsm_ro_after_init =3D {
+>>>  	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
+>>>  	LSM_HOOK_INIT(ib_endport_manage_subnet,
+>>>  		      selinux_ib_endport_manage_subnet),
+>>> -	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
+>>> +	LSM_HOOK_INIT_NO_DEL(ib_free_security, selinux_ib_free_security),
+>>>  #endif
+>>>  #ifdef CONFIG_SECURITY_NETWORK_XFRM
+>>>  	LSM_HOOK_INIT(xfrm_policy_free_security, selinux_xfrm_policy_free),=
+
+>>> @@ -7144,7 +7144,7 @@ static struct security_hook_list selinux_hooks[=
+] __lsm_ro_after_init =3D {
+>>>  #endif
+>>> =20
+>>>  #ifdef CONFIG_KEYS
+>>> -	LSM_HOOK_INIT(key_free, selinux_key_free),
+>>> +	LSM_HOOK_INIT_NO_DEL(key_free, selinux_key_free),
+>>>  	LSM_HOOK_INIT(key_permission, selinux_key_permission),
+>>>  	LSM_HOOK_INIT(key_getsecurity, selinux_key_getsecurity),
+>>>  #ifdef CONFIG_KEY_NOTIFICATIONS
+>>> @@ -7162,13 +7162,13 @@ static struct security_hook_list selinux_hook=
+s[] __lsm_ro_after_init =3D {
+>>>  	LSM_HOOK_INIT(bpf, selinux_bpf),
+>>>  	LSM_HOOK_INIT(bpf_map, selinux_bpf_map),
+>>>  	LSM_HOOK_INIT(bpf_prog, selinux_bpf_prog),
+>>> -	LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
+>>> -	LSM_HOOK_INIT(bpf_prog_free_security, selinux_bpf_prog_free),
+>>> +	LSM_HOOK_INIT_NO_DEL(bpf_map_free_security, selinux_bpf_map_free),
+>>> +	LSM_HOOK_INIT_NO_DEL(bpf_prog_free_security, selinux_bpf_prog_free)=
+,
+>>>  #endif
+>>> =20
+>>>  #ifdef CONFIG_PERF_EVENTS
+>>>  	LSM_HOOK_INIT(perf_event_open, selinux_perf_event_open),
+>>> -	LSM_HOOK_INIT(perf_event_free, selinux_perf_event_free),
+>>> +	LSM_HOOK_INIT_NO_DEL(perf_event_free, selinux_perf_event_free),
+>>>  	LSM_HOOK_INIT(perf_event_read, selinux_perf_event_read),
+>>>  	LSM_HOOK_INIT(perf_event_write, selinux_perf_event_write),
+>>>  #endif
+>> .
+>>
+
