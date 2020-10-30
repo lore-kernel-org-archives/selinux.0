@@ -2,117 +2,90 @@ Return-Path: <SRS0=8qmv=EF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E89C6C00A89
-	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 16:38:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24726C00A89
+	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 16:42:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6FFF620727
-	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 16:38:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B55FD2067B
+	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 16:42:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="GM8tuxKO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yrg/xnmK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726692AbgJ3QiR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Oct 2020 12:38:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55112 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726407AbgJ3QiQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Oct 2020 12:38:16 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B36C0613CF
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 09:38:16 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id p5so9491996ejj.2
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 09:38:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VTzcxD4FqN8pyjpLrmQaS9my52uWYEUZsGs2FqI4JTM=;
-        b=GM8tuxKOdOguSIXXlNG9hW18QJTOmfhobYbliLxBaT5BlmaVwQnVWOYCfUwgAVPV5C
-         v4KfwqrDN1mVIUbQu7e8Y8WsdQYejtuf9oTfj1Xy0bAWEyPWPHVHjAyr+oN2ipYyQtFM
-         z4prnxHIFqsILu0t/A8wcILyFLjNTxbB/+PQ4e8aUnlKU1CGnMndFwj7v4dJQoyV0Pp1
-         tZlNVbxgjHa1NK7PXYTq/u1CxmU30gfeG+7UXtFOqe7kg2r+ayW0eSovLbaycCBATnpa
-         NheWuIC9uY6akqcZQvzaxPq1FufCK35snW7/5xDY6so/VEk+UMvppfJKNWJusCFpEmCU
-         aIqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VTzcxD4FqN8pyjpLrmQaS9my52uWYEUZsGs2FqI4JTM=;
-        b=IBmsHWGeWOt/fiDH0O+8vIExPjFv4rZSr4/7AWMBA4+ogPxnuQqWH7ZwGYsLa7y8Lg
-         nEldnCgAcLoC+T3woLTyo3PXYITj3FitFNoCnhbTtL6HJUROaMl5Ia0vbhEXWxU8ajwI
-         9skF7SZOT3JSjxMVa9QYYnY33N/KReG8/gn8MNJC0TTTe8El2AYtaupGVvHm/U5wS0xW
-         zjI/3LWPf+ugLYN8fFu/0bDO8zIKQfpOCvOoekPJTZ2vv0DV3EZgtI6ZEXwOmxZOC8iX
-         BS+GcEZOOrDo9bm5H1Th88ugrfwNnL7b6J8KNu+shotWmUy2xpNDp30x3loia9maoDnR
-         ffRg==
-X-Gm-Message-State: AOAM531LcVyAqCFUYclesLDnVxOmZgIsypF5zJNM6DRRLrR57V3pz14x
-        WhnYUsXqfBG9IGTEDSmPE1vcqwyibaNjlovlHNbNyxG8/9mN
-X-Google-Smtp-Source: ABdhPJxMQeWEYy8Hr+ZA51g2EBJjtgYjo0RnOscAt4x8TxziKK8n7Sp6y7mHCkwHkPIL+mec545JOJ7bDpTb8hYdGv8=
-X-Received: by 2002:a17:907:72cd:: with SMTP id du13mr3170197ejc.398.1604075894543;
- Fri, 30 Oct 2020 09:38:14 -0700 (PDT)
+        id S1725844AbgJ3Qm0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Oct 2020 12:42:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52217 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726424AbgJ3Qm0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Oct 2020 12:42:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604076145;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kNpTRFZqg0o0s1adKgb4K1y0eR4hVvihVhvJfoGJneE=;
+        b=Yrg/xnmKNyG2ixhQeqjLLh6bPDXilDPFitr1Q6QZ364d6pS28YQeiUb4rHH1nwnr/XfmNR
+        RTyluYxJ+BdsBeByk/WdGPXUNhCAGv6UbiqzTCDbBxr5fiyNKf2t8fvJz8xMi79CSo9Chu
+        H6UoAQDIf3req35BgPcj8o1EXy5Th/4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-529-VLna3gmEM_2q6Z0EUb5_Ow-1; Fri, 30 Oct 2020 12:42:23 -0400
+X-MC-Unique: VLna3gmEM_2q6Z0EUb5_Ow-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5700F393BA
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 16:42:22 +0000 (UTC)
+Received: from thinkpad-work.redhat.com (unknown [10.40.193.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C849510027AA
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 16:42:21 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v2] libsemanage/genhomedircon: check usepasswd
+Date:   Fri, 30 Oct 2020 17:42:17 +0100
+Message-Id: <20201030164217.1374255-1-vmojzis@redhat.com>
+In-Reply-To: <20201030123351.GA78496@localhost.localdomain>
+References: <20201030123351.GA78496@localhost.localdomain>
 MIME-Version: 1.0
-References: <CAFftDdpdSwCB4jZn22cSeTHiwPmsZPUZMhtAYardTouAcgxpmA@mail.gmail.com>
- <B129404A-41AA-4803-91CA-3F110BAE26BF@gmail.com> <CAFftDdqwLidE7bc9Z0jLmJwvvTtfWCbeGHnZ3kUMP=y5gUguEQ@mail.gmail.com>
- <CAP2OjchG4ZS0R6aQRCA3eGsf0bPOyaqKTUuVh-c9stKdSzjBKw@mail.gmail.com>
-In-Reply-To: <CAP2OjchG4ZS0R6aQRCA3eGsf0bPOyaqKTUuVh-c9stKdSzjBKw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 30 Oct 2020 12:38:03 -0400
-Message-ID: <CAHC9VhSttcgxtrHWKwndChd0k74k-MHemSe16wxNGY=EHtVHGA@mail.gmail.com>
-Subject: Re: How to avoid relabeling rootfs at every boot
-To:     Ashish Mishra <ashishm@mvista.com>
-Cc:     William Roberts <bill.c.roberts@gmail.com>,
-        Ian M <merinian@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 27, 2020 at 7:13 AM Ashish Mishra <ashishm@mvista.com> wrote:
-> Hi All ,
->
-> I am evaluating a use case of  SELINUX + RAMFS scenario & came across
-> this thread.
->
-> Can team please provide pointer on :
-> a) Use of TMPFS over RAMFS for initramfs
->     As that would allow use of "fs_use_xattr"  and hence restorecon
-> would not be required with "REFPOLICY"
->     Am I correct in my understanding here or am I missing any aspect ?
+Only add user homedir contexts when usepasswd = True
 
-I'm not sure how you would use tpmfs as an initramfs as it is not a
-persistent filesystem.  Perhaps there is a way to use a tmpfs as an
-initramfs but I don't know how that would would work.
+Resolves:
+   #cat /etc/selinux/semanage.conf | grep usepasswd
+   usepasswd=False
+   #useradd -Z unconfined_u -d /tmp test
+   #matchpathcon /tmp
+   /tmp	unconfined_u:object_r:user_home_dir_t:s0
 
-> b) Team input / comment on https://lwn.net/Articles/745260/
->      patch to extend initramfs archive format to support xattrs
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+v2 - invert condition as suggested by plautrba
 
-I'm not sure how useful that would be in practice as you would still
-need to load a SELinux policy before you could actually enforce any
-security policy with those labels/xattrs.  We have recently added
-support to manage filesystem labels when a policy isn't loaded; the
-main motivation was to allow different use cases where the root
-filesystem was created and labeled dynamically by the initramfs.
+ libsemanage/src/genhomedircon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-* https://www.paul-moore.com/blog/d/2020/01/linux_v55.html
-* https://www.paul-moore.com/blog/d/2020/10/linux_v59.html
-
-> c) Any standard way / location to derive "dependent packages " that
-> should be present
->     on ROOTFS before trying to build ref-policy from
-> "https://github.com/TresysTechnology/refpolicy"
-
-Reference policy is now located at the repo below.  Generally the
-SELinux policy is built offline on a build system and the resulting
-SELinux policy binary artifact is loaded at runtime; building the
-reference policy from source during boot would likely slow the boot
-process dramatically.
-
-* https://github.com/SELinuxProject/refpolicy
-
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index d08c88de..18d3d99a 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -1332,7 +1332,7 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
+ 			s->fallback->home = NULL;
+ 		}
+ 	}
+-	if (user_context_tpl || username_context_tpl) {
++	if ((s->usepasswd) && (user_context_tpl || username_context_tpl)) {
+ 		if (write_username_context(s, out, username_context_tpl,
+ 					   s->fallback) != STATUS_SUCCESS) {
+ 			retval = STATUS_ERR;
 -- 
-paul moore
-www.paul-moore.com
+2.26.2
+
