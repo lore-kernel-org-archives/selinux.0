@@ -5,62 +5,61 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD0A4C00A89
-	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 22:22:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED7AC00A89
+	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 23:05:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C22D20719
-	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 22:22:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E72DC22245
+	for <selinux@archiver.kernel.org>; Fri, 30 Oct 2020 23:05:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dd8yRJlG"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sfiaoekp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725931AbgJ3WW2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Oct 2020 18:22:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
+        id S1725792AbgJ3XFN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Oct 2020 19:05:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725774AbgJ3WW1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Oct 2020 18:22:27 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC64BC0613D5
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 15:22:27 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id c11so7807718iln.9
-        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 15:22:27 -0700 (PDT)
+        with ESMTP id S1725780AbgJ3XFM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Oct 2020 19:05:12 -0400
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDF7AC0613D5
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 16:05:12 -0700 (PDT)
+Received: by mail-io1-xd43.google.com with SMTP id s7so9138270iol.12
+        for <selinux@vger.kernel.org>; Fri, 30 Oct 2020 16:05:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=P8twOuj0NUsVuDEltg5U/7dGEoyNn3fXxpm9KN1oe2A=;
-        b=dd8yRJlGjMVb9EamS+PXhvs6FbwhGgtqWkR2mMIK8YPhUdjMqEX4hwe3QU6jzVSHgj
-         PGeeAwsSjxiuYwTYiUsVbESsLXY1rWdmMDh7drc47shWcZc0A9fukvP857qyUxxFpUhw
-         CxuifBzwz2Brjb2Je8Tz2Rp2pJvz0YxMB9lS3M/p8Fjn9NaXxRzqvYcKZyNgx68aJ9mA
-         uayEjU9mgyBNJYOu0RwexOeILnIv371fMIZDehDvFN9tCM7qb+U0vI87NTiUHHOi+7kR
-         rHg7D83POd+9YLrHGiDu7nXQy+5NX0Tiz/OVHXq1X8QRAoNJ0aKsvWDX2ZOZ7VZB5GXT
-         RIag==
+        bh=/aDIvIxswanB9c8y6NVHo7t9+CSzn8rd7bV7fmMrhVI=;
+        b=sfiaoekpH7gAkY+OwC14jL139/DbUTWHRBvx6TNC7/3CdOlR7tFkAjtvQtfHiA2K5a
+         axqcz3l8ROcefg1jN7PQUTmCvnrBdfkIVMCf4mEEWkKKqP3k1s63GAv7lXVDrvpzc+CO
+         tqXZC/T6ONmpJK6gyeaGiWgTGER89ckmeLbc4cf0cH6lH13Vg2Mf37ZpmjLQpXRyUv5Q
+         VZuogb8eIDYA2gX985U842Y9/1yPU/euVKbSGvMUX8zBwBKB2gh/oT4fbG/zec+ts85s
+         iEIYaVqGSjFgL+cfIBHwnYDKe455RsJOpCDbYk+cjNxo6//IB1EGvmIF8YXMlyKtRNNV
+         tyqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=P8twOuj0NUsVuDEltg5U/7dGEoyNn3fXxpm9KN1oe2A=;
-        b=lCXg1tATDnFLhh0xHMlyUaPzwyMVQz4WBcrXX2bNB3xjyFAFtaNhS8F2xZgPtVrdAb
-         uJX6q7IYIHs2Ok6rIaurC3QK+I0T4GkIStADMOsfbApFHm9aeGK8cGnzcLMLwtVNbIeV
-         ZmjT62YlYOtRL575cccTgJg4u97/QP4QWai0sKVzXpGA5+nnBoID+DIIVN9ozeycGetZ
-         0ib3ovv0sULnWyoAnp34n2rYaTPHGEyQbkuJndtjgt8rwZCapIKqHmlvuLKbyHz9J7gc
-         7vn2DWHsyLZGbPVXXW47Yak019xQshs6ZJMxS1x+4EGR5QGMGgkOBGljEd5btz8SzI5z
-         YXXw==
-X-Gm-Message-State: AOAM531ug3fEf3pfKsIVjr063EWZEWh01uHKy917CXOt9G3MgwaQRP3X
-        ISHcUz93ze+JtromzudRKpnvP7sYpJnyEwhle5c=
-X-Google-Smtp-Source: ABdhPJxTCOBXQKiBDCji2ybWsgSA7K8dzVxMqqQ1i+6ZWklIbY2LGSPMmK6/QO70WW3ozqn6q6lNdu5VCFhnH17JFm4=
-X-Received: by 2002:a92:1911:: with SMTP id 17mr3349589ilz.129.1604096546953;
- Fri, 30 Oct 2020 15:22:26 -0700 (PDT)
+        bh=/aDIvIxswanB9c8y6NVHo7t9+CSzn8rd7bV7fmMrhVI=;
+        b=JvLwiek5cZQO5UhOyeX9vHyevsUktY9wour8J42N55K7Z2QzhopW6ZkvDUbM6EGV6d
+         +pLf3YScrqAeiBRNq8G+MThOYXBTaXE7VVXdB7P8mQ/sj5R7Cc2QzASlgRSY6ulJmImj
+         VimHPSNUaklzYLGp+DhncXNg43VSLAqHrpz79wcz0EAWZdaNEnLEXoMLWbG7Jk6SHVzE
+         C4J++P73GL9UYYkySHWIsStcm3nY/tde294mxpwZz5SDsCERewac63uTUh7wbO8jSpFt
+         QwRx+Yzj5FMVbCCywp2K9Zn71E7G+CK/ylUIa1t+UxIROiTb36SIyn0OlFvuPpP9hSHR
+         sQJQ==
+X-Gm-Message-State: AOAM531sjfwlcmRZtsTMIzykYKFbHKU+KBKpOnhvcgtnhsjguvFAVr/I
+        /4uJOQ4YoXNKDmQxHlSjtoVGJanbbWHirZy8t65beoVy
+X-Google-Smtp-Source: ABdhPJwUdiXJRxlDor4WAalIttieixbIJa89uvBVUPDWXSiuw5jNVNbOHYGq2yvJvfxCWbAMgpejT37AAaLV9gZPsZU=
+X-Received: by 2002:a6b:7947:: with SMTP id j7mr3515125iop.143.1604099112267;
+ Fri, 30 Oct 2020 16:05:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201030212108.112831-1-omosnace@redhat.com>
-In-Reply-To: <20201030212108.112831-1-omosnace@redhat.com>
+References: <20201030211327.111834-1-omosnace@redhat.com>
+In-Reply-To: <20201030211327.111834-1-omosnace@redhat.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 30 Oct 2020 17:22:15 -0500
-Message-ID: <CAFftDdr-EoYgkhXQMWemdHKSGJT=S+gQDxfBypmaJPYqvkD-Ew@mail.gmail.com>
-Subject: Re: [PATCH testsuite] travis: skip kernel update+reboot if it's not necessary
+Date:   Fri, 30 Oct 2020 18:05:01 -0500
+Message-ID: <CAFftDdrws1qjTPZzg4aAAUPX2xeO8a6Q2YuHqDM7poaabM0fNA@mail.gmail.com>
+Subject: Re: [PATCH userspace v2] ci: use parallel build
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -68,66 +67,49 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 4:22 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Fri, Oct 30, 2020 at 4:14 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Only do it when we can't install the kernel-modules package for the
-> running kernel to make the CI run faster. Now that rawhide images are
-> updating regularly again, it is rarely necessary.
->
-> Also don't run `dnf clean all -y` before installing dependencies. There
-> really is no point and it just slows things down when we do need to
-> update the kernel.
+> Pass -j$(nproc) to all make invocations to make the CI run a little
+> faster.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  travis-ci/run-kvm-test.sh  | 21 ++++++++++++---------
->  travis-ci/run-testsuite.sh |  1 -
->  2 files changed, 12 insertions(+), 10 deletions(-)
 >
-> diff --git a/travis-ci/run-kvm-test.sh b/travis-ci/run-kvm-test.sh
-> index d22c92b..6afbf96 100755
-> --- a/travis-ci/run-kvm-test.sh
-> +++ b/travis-ci/run-kvm-test.sh
-> @@ -121,15 +121,18 @@ fi
->  # so forks know where to go.
->  #
+> v2: use POSIX $() instead of ``
 >
-> -# First update to the latest kernel.
-> -ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" \
-> -    dnf install -y kernel
-> -
-> -# Then reboot.
-> -sudo virsh reboot fedoravm
-> -sleep 5
-> -
-> -while ! nc -w 10 -z "$ipaddy" 22; do sleep 0.5s; done
-> +# Check if kernel-modules-$(uname -r) can be installed from repos,
-> +# otherwise update kernel and reboot.
-> +kernel_avail="$(ssh -tt -o StrictHostKeyChecking=no -q "root@$ipaddy" \
-> +    sh -c "dnf check-update kernel-modules-\$(uname -r) | wc -l")"
-> +if [ $kernel_avail -eq 0 ]; then
-> +    ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" \
-> +        dnf update -y kernel-core
-> +
-> +    sudo virsh reboot fedoravm
-> +    sleep 5
-> +    while ! nc -w 10 -z "$ipaddy" 22; do sleep 0.5s; done
-> +fi
+>  .travis.yml | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 >
->  # And run the testsuite.
->  project_dir="$(basename "$TRAVIS_BUILD_DIR")"
-> diff --git a/travis-ci/run-testsuite.sh b/travis-ci/run-testsuite.sh
-> index 9b5f954..051f9d8 100755
-> --- a/travis-ci/run-testsuite.sh
-> +++ b/travis-ci/run-testsuite.sh
-> @@ -16,7 +16,6 @@ pwd
->  # the CI.
->  setenforce 0
+> diff --git a/.travis.yml b/.travis.yml
+> index bd3c9842..8ea6cc74 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -74,7 +74,7 @@ install:
+>    - tar -C "$TRAVIS_BUILD_DIR" -xvjf "$TRAVIS_BUILD_DIR/refpolicy.tar.bz2"
+>    # Make refpolicy Makefile use the new toolchain when building modules
+>    - sed -e "s,^PREFIX :=.*,PREFIX := \$(DESTDIR)/usr," -i "$TRAVIS_BUILD_DIR/refpolicy/support/Makefile.devel"
+> -  - sudo make -C "$TRAVIS_BUILD_DIR/refpolicy" install-headers
+> +  - sudo make -j$(nproc) -C "$TRAVIS_BUILD_DIR/refpolicy" install-headers
+>    - sudo rm -rf "$TRAVIS_BUILD_DIR/refpolicy.tar.bz2" "$TRAVIS_BUILD_DIR/refpolicy"
+>    - sudo mkdir -p /etc/selinux
+>    - echo 'SELINUXTYPE=refpolicy' | sudo tee /etc/selinux/config
+> @@ -129,12 +129,12 @@ before_script:
 >
-> -dnf clean all -y
->  dnf install -y \
->      --allowerasing \
->      --skip-broken \
+>  script:
+>    # Start by installing everything into $DESTDIR
+> -  - make install $EXPLICIT_MAKE_VARS -k
+> -  - make install-pywrap $EXPLICIT_MAKE_VARS -k
+> -  - make install-rubywrap $EXPLICIT_MAKE_VARS -k
+> +  - make -j$(nproc) install $EXPLICIT_MAKE_VARS -k
+> +  - make -j$(nproc) install-pywrap $EXPLICIT_MAKE_VARS -k
+> +  - make -j$(nproc) install-rubywrap $EXPLICIT_MAKE_VARS -k
+>
+>    # Now that everything is installed, run "make all" to build everything which may have not been built
+> -  - make all $EXPLICIT_MAKE_VARS -k
+> +  - make -j$(nproc) all $EXPLICIT_MAKE_VARS -k
+>
+>    # Set up environment variables for the tests
+>    - . ./scripts/env_use_destdir
 > --
 > 2.26.2
 >
