@@ -2,149 +2,97 @@ Return-Path: <SRS0=qOYA=EG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32E48C388F9
-	for <selinux@archiver.kernel.org>; Sat, 31 Oct 2020 10:37:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAA05C388F9
+	for <selinux@archiver.kernel.org>; Sat, 31 Oct 2020 10:58:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C2BF7208B6
-	for <selinux@archiver.kernel.org>; Sat, 31 Oct 2020 10:37:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9031C20739
+	for <selinux@archiver.kernel.org>; Sat, 31 Oct 2020 10:58:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZmkjkiYH"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="VvyjE3fK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbgJaKhq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 31 Oct 2020 06:37:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:60611 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726697AbgJaKhp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 31 Oct 2020 06:37:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604140664;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=l/i8JPLANt4McG3xQ/WAzOxtBXQKj1BbmvtK04AIQj0=;
-        b=ZmkjkiYHg5bT+OdBbfWVybPMEYyFvmnz1w02yYtakR3t5ex68/RUVbRZb89oa0CbzxP4ky
-        rk77qUZpXYPxajQUjJ7+t4czDb/CnXOttpriosCOAP+La/1NSHS0/VpcgatI2aCb3MuW5a
-        rPFjCYwKP3dhAtlPXlFG8tbPtWJ6uFs=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-156-N3_xajlhOoyN9NDiZP7YAg-1; Sat, 31 Oct 2020 06:37:41 -0400
-X-MC-Unique: N3_xajlhOoyN9NDiZP7YAg-1
-Received: by mail-lj1-f198.google.com with SMTP id m11so3737944ljp.21
-        for <selinux@vger.kernel.org>; Sat, 31 Oct 2020 03:37:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=l/i8JPLANt4McG3xQ/WAzOxtBXQKj1BbmvtK04AIQj0=;
-        b=m1osM5cy7XIk9AhbiaeK61L2j28yI0u4toiIpKWwlByCUT+kZvQsg70jYTUvVi79j0
-         133OxJYjQ+bfP1RkWjx+f8z5lM1d9oWXIUAhltH1iBho1QUUCwitu9zpysjTp56lzX4Z
-         BfWR2wq133GSuEEAwPtUjdjJPbcE8cKJm8Peu6NI9LaWOSQLbZSW7fTG9la/cBpB7PLn
-         lwIAnDe81Xq4M0UdiSxKOiIgjvwKxi3I+XwALt2RTpzVqXpEXXr+RQloIjIcnWDUJrl5
-         DtRv1n8/9qg/qXQlPKXSai/zNkbaeAbCmIorJPt1iM2IsyNJC3lRYsbbq1paZjXtAvrc
-         7u4A==
-X-Gm-Message-State: AOAM533yCcYawyP/E1cedfhncfVNQdaf5RcFD6Lu4YUoRypqUD+y+ZCF
-        rvx7nZvJo3jp4pGulgx0iD+sRa8EHUiFMq8kyzgRihEsUwnJET2CH5FxpcNdql/hl3GV6W7Q6nb
-        iPJUDaEde6UQxTJ3H2MGEjmL/ELbp02trtw==
-X-Received: by 2002:a19:f605:: with SMTP id x5mr2535202lfe.39.1604140659976;
-        Sat, 31 Oct 2020 03:37:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz4jW4NpgSIETCb+dNYD8uFj4Pq9gbONSDokO8aKviPsc5ywOYWFB5Qq7n4v8XEj+wnn/rGxoBd5xzm9K1Kgn4=
-X-Received: by 2002:a19:f605:: with SMTP id x5mr2535196lfe.39.1604140659775;
- Sat, 31 Oct 2020 03:37:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20201030212108.112831-1-omosnace@redhat.com> <CAFftDdr-EoYgkhXQMWemdHKSGJT=S+gQDxfBypmaJPYqvkD-Ew@mail.gmail.com>
-In-Reply-To: <CAFftDdr-EoYgkhXQMWemdHKSGJT=S+gQDxfBypmaJPYqvkD-Ew@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Sat, 31 Oct 2020 11:37:29 +0100
-Message-ID: <CAFqZXNsSk=18anyu+_TsBCP4sC2muKUEQfQ5n0ziHj0MOYeqbA@mail.gmail.com>
-Subject: Re: [PATCH testsuite] travis: skip kernel update+reboot if it's not necessary
-To:     William Roberts <bill.c.roberts@gmail.com>
+        id S1726832AbgJaK6F (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 31 Oct 2020 06:58:05 -0400
+Received: from mailomta32-re.btinternet.com ([213.120.69.125]:46381 "EHLO
+        re-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726697AbgJaK6E (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 31 Oct 2020 06:58:04 -0400
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-048.btinternet.com with ESMTP
+          id <20201031105801.QIXR19284.re-prd-fep-048.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Sat, 31 Oct 2020 10:58:01 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1604141881; 
+        bh=Fv5cuiRzr4ToNpePIV+iE4JIM4bAo50cUVHFoWd9J8w=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=VvyjE3fKXU2HuL0SWuju/PeI53lZaZsDaOqunvBz1y/k78oJreQjssZ/d1JNJv6zYxqkXa2U9AuCgoeTS7PCkDYUPCfGA6axhZ2C4Komhj1mE5eLP9Q2RVNrdg9CGCzABgnxnZJ2b8mPHZmtPDZmzOtXd4cpNwfB14Y61FJeoqI6/JCz7VcTtawl3LfL9Z5xptHvS45dODZWQxp3JuuzGonYnb3TeCei1GXbbHhJTsf8UR83U7QcxjXu0kuaD6nR+Dj5oCe+Fzf0q2trOnB7CdqKkTqItzlBllwRyniguVLk0O1K6Ftupjw5qfZHX/1Aien3kik7FTGf3EhohfK1iw==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-SNCR-Rigid: 5ED9C2FD18342CB4
+X-Originating-IP: [86.157.76.249]
+X-OWM-Source-IP: 86.157.76.249 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrleejgddvvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepjeejkeetgefgteejteekledtveeftefhhfdukeehgfeggfeivdeuieetkeehgfehnecuffhomhgrihhnpehtrhgrvhhishdqtghirdgtohhmnecukfhppeekiedrudehjedrjeeirddvgeelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudehjedrjeeirddvgeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.157.76.249) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C2FD18342CB4; Sat, 31 Oct 2020 10:58:01 +0000
+Message-ID: <e895f6ebe00f6fd8ca451521a2326d0717d75760.camel@btinternet.com>
+Subject: Re: [PATCH 0/1] selinux-testsuite: Add btrfs support for filesystem
+ tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Sat, 31 Oct 2020 10:57:54 +0000
+In-Reply-To: <CAFqZXNvUiezPUTYgV+vWiS2LO5Nt0_Sb-p8GeELhLjVcPVTmRg@mail.gmail.com>
+References: <20201013145456.77253-1-richard_c_haines@btinternet.com>
+         <CAFqZXNu1o3rTRcrNBRwESt+txA+chc3PcdFjrZFiP50koceyAQ@mail.gmail.com>
+         <CAFqZXNtubRw-pqEiuxwzp=6n53Gnso3oOoExbhc+OhWcQ5ESAA@mail.gmail.com>
+         <CAFqZXNvUiezPUTYgV+vWiS2LO5Nt0_Sb-p8GeELhLjVcPVTmRg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 30, 2020 at 11:22 PM William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> On Fri, Oct 30, 2020 at 4:22 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Only do it when we can't install the kernel-modules package for the
-> > running kernel to make the CI run faster. Now that rawhide images are
-> > updating regularly again, it is rarely necessary.
-> >
-> > Also don't run `dnf clean all -y` before installing dependencies. There
-> > really is no point and it just slows things down when we do need to
-> > update the kernel.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  travis-ci/run-kvm-test.sh  | 21 ++++++++++++---------
-> >  travis-ci/run-testsuite.sh |  1 -
-> >  2 files changed, 12 insertions(+), 10 deletions(-)
-> >
-> > diff --git a/travis-ci/run-kvm-test.sh b/travis-ci/run-kvm-test.sh
-> > index d22c92b..6afbf96 100755
-> > --- a/travis-ci/run-kvm-test.sh
-> > +++ b/travis-ci/run-kvm-test.sh
-> > @@ -121,15 +121,18 @@ fi
-> >  # so forks know where to go.
-> >  #
-> >
-> > -# First update to the latest kernel.
-> > -ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" \
-> > -    dnf install -y kernel
-> > -
-> > -# Then reboot.
-> > -sudo virsh reboot fedoravm
-> > -sleep 5
-> > -
-> > -while ! nc -w 10 -z "$ipaddy" 22; do sleep 0.5s; done
-> > +# Check if kernel-modules-$(uname -r) can be installed from repos,
-> > +# otherwise update kernel and reboot.
-> > +kernel_avail="$(ssh -tt -o StrictHostKeyChecking=no -q "root@$ipaddy" \
-> > +    sh -c "dnf check-update kernel-modules-\$(uname -r) | wc -l")"
-> > +if [ $kernel_avail -eq 0 ]; then
-> > +    ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" \
-> > +        dnf update -y kernel-core
-> > +
-> > +    sudo virsh reboot fedoravm
-> > +    sleep 5
-> > +    while ! nc -w 10 -z "$ipaddy" 22; do sleep 0.5s; done
-> > +fi
-> >
-> >  # And run the testsuite.
-> >  project_dir="$(basename "$TRAVIS_BUILD_DIR")"
-> > diff --git a/travis-ci/run-testsuite.sh b/travis-ci/run-testsuite.sh
-> > index 9b5f954..051f9d8 100755
-> > --- a/travis-ci/run-testsuite.sh
-> > +++ b/travis-ci/run-testsuite.sh
-> > @@ -16,7 +16,6 @@ pwd
-> >  # the CI.
-> >  setenforce 0
-> >
-> > -dnf clean all -y
-> >  dnf install -y \
-> >      --allowerasing \
-> >      --skip-broken \
-> > --
-> > 2.26.2
-> >
->
-> Ack
+On Sat, 2020-10-31 at 01:04 +0100, Ondrej Mosnacek wrote:
+> On Sat, Oct 31, 2020 at 12:44 AM Ondrej Mosnacek <omosnace@redhat.com
+> > wrote:
+> > On Fri, Oct 30, 2020 at 10:55 PM Ondrej Mosnacek <
+> > omosnace@redhat.com> wrote:
+> > > And on related note, the existing vfat tests are also failing:
+> > > Test Summary Report
+> > > -------------------
+> > > filesystem/vfat/test      (Wstat: 7936 Tests: 43 Failed: 31)
+> > >   Failed tests:  3-4, 6-7, 10-12, 14-19, 21-22, 24-36, 38-40
+> > >   Non-zero exit status: 31
+> > > fs_filesystem/vfat/test   (Wstat: 8192 Tests: 42 Failed: 32)
+> > >   Failed tests:  3, 5-7, 10-20, 22-35, 37-39
+> > >   Non-zero exit status: 32
+> > 
+> > And this might be the same problem, but with dosfstools... I'll
+> > need to check.
+> 
+> Yeah, that was it. With dosfstools installed the tests pass.
+> 
+> There are some fsetfilecon(3) errors visible in the test output,
+> though:
+> https://travis-ci.com/github/WOnder93/selinux-testsuite/jobs/422914927#L2697
+> 
 
-Thanks, but I'm not sure if you realized that this is a patch for the
-testsuite CI, not the userspace one :) Can I still add you ack?
+These tests pass as for vfat Operation not supported is correct. The
+tests just need " 2>&1" added to stop output. I'll submit a patch, also
+to add dosfstools (also to travis run-testsuite.sh).
 
-Note that userspace CI doesn't need the kernel update + reboot (nor
-this patch), as it doesn't test on development images.
+I guess I also really need to add to defconfig:
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+CONFIG_VFAT_FS=m
+
 
