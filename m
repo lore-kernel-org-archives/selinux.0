@@ -2,102 +2,201 @@ Return-Path: <SRS0=x/d9=EH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B18DAC4741F
-	for <selinux@archiver.kernel.org>; Sun,  1 Nov 2020 14:48:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37447C4742C
+	for <selinux@archiver.kernel.org>; Sun,  1 Nov 2020 22:26:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B2952224F
-	for <selinux@archiver.kernel.org>; Sun,  1 Nov 2020 14:48:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF1462225B
+	for <selinux@archiver.kernel.org>; Sun,  1 Nov 2020 22:26:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="u4A9GPin"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Ay2myCS1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726723AbgKAOsM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 1 Nov 2020 09:48:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56374 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726458AbgKAOsM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 1 Nov 2020 09:48:12 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C547C0617A6;
-        Sun,  1 Nov 2020 06:48:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=wOeDmyzsiaD9d4vQIUmd2QRH3McGyUDmsoqxKEoWZww=; b=u4A9GPinHUcyv/GuBI9CUkuCA3
-        cGrepLQETbEhTnlzMKHcI/xVbGsuLVVjpOnXqaLJ2xM7aA/e4IeUFFy4pl/XhoOMxIO1NWJO77hgs
-        TxcTs1U4UkGlh3HmXIDyBvl+HqeLCfTcMG40+Ccb4S+3Imr6e1DI9LpMSvnmIZteEo3+cLZ0CEl2w
-        tj4uibh+Bk02kRbkODztXDTTPL39VWuytSTYPqpY5MxoGALTRxEIEhWnPEw/Rw1KLJoB/5uYztCZJ
-        fulyNsYFTfQC6hY8dEMmCU6IdqK6FVgpc52QqtBY3sR+nY0H3cNgFYjE7VIBfLeRPcfH1ZvPU3WAk
-        tdVc5nDA==;
-Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kZEeP-0006fC-Iw; Sun, 01 Nov 2020 14:48:09 +0000
-Date:   Sun, 1 Nov 2020 14:48:09 +0000
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Jann Horn <jannh@google.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        St??phane Graber <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-audit@redhat.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH 07/34] capability: handle idmapped mounts
-Message-ID: <20201101144809.GE23378@infradead.org>
-References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
- <20201029003252.2128653-8-christian.brauner@ubuntu.com>
+        id S1727445AbgKAW0j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 1 Nov 2020 17:26:39 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:41992 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727345AbgKAW0i (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 1 Nov 2020 17:26:38 -0500
+Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 449EF20B9C34;
+        Sun,  1 Nov 2020 14:26:36 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 449EF20B9C34
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1604269596;
+        bh=LDxjAUJ//+KEzXCvFW6h5/eDdzJ201CRJtAoIn+kJRo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ay2myCS19FzSafg0/5EEjPveDgEVa5ETOzpTtd14tWj7q4QxzsfL5oP0AiPy3+ng3
+         MkEnjNwpM5Uy17Tf8KejGeOMCJeXv/StkyLchblFqkRdLeYhFBLLDIy2kZmeNc8lZC
+         VkR8VZ4ZOdWrKNicJzmQex9WCVTEwyoV1Hgy8wT8=
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: [PATCH v5 2/7] IMA: update process_buffer_measurement to measure buffer hash
+Date:   Sun,  1 Nov 2020 14:26:21 -0800
+Message-Id: <20201101222626.6111-3-tusharsu@linux.microsoft.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
+References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201029003252.2128653-8-christian.brauner@ubuntu.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
->  /**
->   * capable_wrt_inode_uidgid - Check nsown_capable and uid and gid mapped
->   * @inode: The inode in question
-> @@ -501,9 +513,7 @@ bool privileged_wrt_inode_uidgid(struct user_namespace *ns, const struct inode *
->   */
->  bool capable_wrt_inode_uidgid(const struct inode *inode, int cap)
->  {
-> +	return capable_wrt_mapped_inode_uidgid(&init_user_ns, inode, cap);
->  }
->  EXPORT_SYMBOL(capable_wrt_inode_uidgid);
+process_buffer_measurement() currently only measures the input buffer.
+In case of SeLinux policy measurement, the policy being measured could
+be large (several MB). This may result in a large entry in IMA
+measurement log.
 
-Please avoid these silly wrappers and just switch all callers to pass
-the namespaces instead of creating boilerplate code.  Same for the other
-functions where you do this even even worse the method calls.
+Introduce a boolean parameter measure_buf_hash to support measuring
+hash of a buffer, which would be much smaller, instead of the buffer
+itself.
+
+To use the functionality introduced in this patch, the attestation
+client and the server changes need to go hand in hand. The
+client/kernel would know what data is being measured as-is
+(e.g. KEXEC_CMDLINE), and what data has it’s hash measured (e.g. SeLinux
+Policy). And the attestation server should verify data/hash accordingly.
+
+Just like the data being measured in other cases, the attestation server
+will know what are possible values of the large buffers being measured.
+e.g. the possible valid SeLinux policy values that are being pushed to
+the client. The attestation server will have to maintain the hash of
+those buffer values.
+
+Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+---
+ security/integrity/ima/ima.h                 |  3 ++-
+ security/integrity/ima/ima_appraise.c        |  2 +-
+ security/integrity/ima/ima_asymmetric_keys.c |  2 +-
+ security/integrity/ima/ima_main.c            | 25 ++++++++++++++++++--
+ security/integrity/ima/ima_queue_keys.c      |  3 ++-
+ 5 files changed, 29 insertions(+), 6 deletions(-)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 8875085db689..0f77e0b697a3 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -267,7 +267,8 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+ 			   struct ima_template_desc *template_desc);
+ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 				const char *eventname, enum ima_hooks func,
+-				int pcr, const char *func_data);
++				int pcr, const char *func_data,
++				bool measure_buf_hash);
+ void ima_audit_measurement(struct integrity_iint_cache *iint,
+ 			   const unsigned char *filename);
+ int ima_alloc_init_template(struct ima_event_data *event_data,
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 3dd8c2e4314e..be64c0bf62a7 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -347,7 +347,7 @@ int ima_check_blacklist(struct integrity_iint_cache *iint,
+ 		if ((rc == -EPERM) && (iint->flags & IMA_MEASURE))
+ 			process_buffer_measurement(NULL, digest, digestsize,
+ 						   "blacklisted-hash", NONE,
+-						   pcr, NULL);
++						   pcr, NULL, false);
+ 	}
+ 
+ 	return rc;
+diff --git a/security/integrity/ima/ima_asymmetric_keys.c b/security/integrity/ima/ima_asymmetric_keys.c
+index 1c68c500c26f..a74095793936 100644
+--- a/security/integrity/ima/ima_asymmetric_keys.c
++++ b/security/integrity/ima/ima_asymmetric_keys.c
+@@ -60,5 +60,5 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
+ 	 */
+ 	process_buffer_measurement(NULL, payload, payload_len,
+ 				   keyring->description, KEY_CHECK, 0,
+-				   keyring->description);
++				   keyring->description, false);
+ }
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index ae5da9f3339d..4485d87c0aa5 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -787,12 +787,15 @@ int ima_post_load_data(char *buf, loff_t size,
+  * @func: IMA hook
+  * @pcr: pcr to extend the measurement
+  * @func_data: private data specific to @func, can be NULL.
++ * @measure_buf_hash: if set to true - will measure hash of the buf,
++ *                    instead of buf
+  *
+  * Based on policy, the buffer is measured into the ima log.
+  */
+ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 				const char *eventname, enum ima_hooks func,
+-				int pcr, const char *func_data)
++				int pcr, const char *func_data,
++				bool measure_buf_hash)
+ {
+ 	int ret = 0;
+ 	const char *audit_cause = "ENOMEM";
+@@ -807,6 +810,8 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 		struct ima_digest_data hdr;
+ 		char digest[IMA_MAX_DIGEST_SIZE];
+ 	} hash = {};
++	char digest_hash[IMA_MAX_DIGEST_SIZE];
++	int hash_len = hash_digest_size[ima_hash_algo];
+ 	int violation = 0;
+ 	int action = 0;
+ 	u32 secid;
+@@ -855,6 +860,21 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 		goto out;
+ 	}
+ 
++	if (measure_buf_hash) {
++		memcpy(digest_hash, hash.hdr.digest, hash_len);
++
++		ret = ima_calc_buffer_hash(digest_hash,
++					   hash_len,
++					   iint.ima_hash);
++		if (ret < 0) {
++			audit_cause = "measure_buf_hash_error";
++			goto out;
++		}
++
++		event_data.buf = digest_hash;
++		event_data.buf_len = hash_len;
++	}
++
+ 	ret = ima_alloc_init_template(&event_data, &entry, template);
+ 	if (ret < 0) {
+ 		audit_cause = "alloc_entry";
+@@ -896,7 +916,8 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+ 		return;
+ 
+ 	process_buffer_measurement(file_inode(f.file), buf, size,
+-				   "kexec-cmdline", KEXEC_CMDLINE, 0, NULL);
++				   "kexec-cmdline", KEXEC_CMDLINE, 0, NULL,
++				   false);
+ 	fdput(f);
+ }
+ 
+diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
+index 69a8626a35c0..c2f2ad34f9b7 100644
+--- a/security/integrity/ima/ima_queue_keys.c
++++ b/security/integrity/ima/ima_queue_keys.c
+@@ -162,7 +162,8 @@ void ima_process_queued_keys(void)
+ 						   entry->payload_len,
+ 						   entry->keyring_name,
+ 						   KEY_CHECK, 0,
+-						   entry->keyring_name);
++						   entry->keyring_name,
++						   false);
+ 		list_del(&entry->list);
+ 		ima_free_key_entry(entry);
+ 	}
+-- 
+2.17.1
+
