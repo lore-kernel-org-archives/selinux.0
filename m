@@ -7,329 +7,123 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8F13C388F2
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:35:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32061C00A89
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 09:43:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B52F20756
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:35:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C78662225E
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 09:43:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OVpUs0GS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LnZj1WuL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727902AbgKBIf3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Nov 2020 03:35:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46650 "EHLO
+        id S1728239AbgKBJnS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Nov 2020 04:43:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:55247 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727972AbgKBIf3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 03:35:29 -0500
+        by vger.kernel.org with ESMTP id S1728078AbgKBJnS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 04:43:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604306127;
+        s=mimecast20190719; t=1604310196;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YylDKXGj+yoMBkJBYwGvlONXX4fbuQwuC7OTKd//2GU=;
-        b=OVpUs0GSEn1V65BfDw6jnfTv5Scsgt49SM1i7sfazCWUndvbjgGcSp97IJn63afAK8ReWx
-        hCpOEdA8n2mYMw5XvtikR0oye2gr/u+2jHa7nu/nbASnQv6252o3XJ5kWnLbGbhG3/bOVO
-        dUOZf9i4EBAuWHAvYEdyPXqma710p3A=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-109-BFWlMUGZOwuBszfbMJKn3A-1; Mon, 02 Nov 2020 03:35:25 -0500
-X-MC-Unique: BFWlMUGZOwuBszfbMJKn3A-1
-Received: by mail-ej1-f71.google.com with SMTP id 27so316942ejy.8
-        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 00:35:25 -0800 (PST)
+         content-transfer-encoding:content-transfer-encoding;
+        bh=iESeUFYG8bN7W32aiONh/ACnGfTnQ3RZl/8DfP0X17U=;
+        b=LnZj1WuLE/aZI9Rm0q3/ZyUJSJX/bQL2ABKBtOXvE2c7dkel6IsjVksyQu7MKwAjwfEAG6
+        hlIo/MIOuaePll9rQVFCcwsbUZfip+B4Kp34rAwMx5SX1BSbGzorh1EMH9fPDtjgFynerc
+        z3Obd9/JUZKkTAkzbm+VywRdiDMUEjc=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-88-Tt8rvMdIOuOJmZZGck6a2A-1; Mon, 02 Nov 2020 04:43:14 -0500
+X-MC-Unique: Tt8rvMdIOuOJmZZGck6a2A-1
+Received: by mail-ej1-f72.google.com with SMTP id dx19so3497719ejb.7
+        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 01:43:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YylDKXGj+yoMBkJBYwGvlONXX4fbuQwuC7OTKd//2GU=;
-        b=ZFmi90HKAukNZIKEBKhKFujkDnKz2KtSTLpZerTvTnx7F6b4m4DJJXpu7rRZ50yWqY
-         fHSvBYIvrIREZE1xabR5w2IjsyTfw5/a54BCGGQYyUnsuSgNamobDYjBJnBwdrl+7gl0
-         4rHYqxKKW2EX0D0JcJk2ghPL/v1A2htNmQw/SauskUMjQCvlIzk8LOiQTCu/ljFCq34l
-         l525TSRS/IYI4y3tzpVPso8H5isN+6mpB4bMid2loZLIX6qH4jeM8sJUxi+nk4+8ciDW
-         nXqoSJrY1AErIG3amZTGnneb0fbK4S03LDcnmE/K+pg3RC03zx30g7kcZHdNDvld1uGD
-         9ZIg==
-X-Gm-Message-State: AOAM5331f2sbHTb2Z8urvj0JWK6dMXxDVZzgS9K+aRG5H7VP6mOhLlrb
-        8h4PiNQGdfYH2lv0xcbzI8u3oeKSWLSNI+1a+DYaEVA4YSFB3ZCqqti+QqPdtDFFUhpENaMaY32
-        Rv5LtEVIUySWvfh5Qxg==
-X-Received: by 2002:a17:906:16d6:: with SMTP id t22mr2157022ejd.376.1604306124019;
-        Mon, 02 Nov 2020 00:35:24 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzRoFWQyPq9zqnlpcphNJVDbsPIkK7WkswVgGtWzgeK3M9ps9imetoCMxbMxtJyAe+2xMTdJA==
-X-Received: by 2002:a17:906:16d6:: with SMTP id t22mr2157012ejd.376.1604306123698;
-        Mon, 02 Nov 2020 00:35:23 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iESeUFYG8bN7W32aiONh/ACnGfTnQ3RZl/8DfP0X17U=;
+        b=LP8IbtOGbGPCO5UmEafLKNOqTeY0gOiZHFH+Px4Tqw/aAeyzLzPICV8KjLblOwLwYL
+         Lw4iJU+huY5N1gZ4eiwRrOnB7xBf2cmRZVaX+RihTuC8x1BWfcAO//pGBjMfuT8tZE7I
+         oZI61RGZrmnWHTORoDN1pOShr+gfG3bc6J5BAMu+nwv426xIDfJDgajRUwTETG9jA7hl
+         +deOqIYAg4U82fkbn5csCSgDY9Y3AdUVGFwS5wW+COaVYFjFPR+h70a9MPLKhzcsyPxe
+         fyt83QuM0iYLcen2a/2MlJ3kOb5iT12lTqgKB3zTdaXie+xc64MggUng1BIeba4JiZnB
+         2fhg==
+X-Gm-Message-State: AOAM530gcz443KrqowASF33SeMkW9hhKZX4XCELlYw6mTN9RA4tUZBjy
+        6B9T7IjMM6myVgvCzfb8ssosGeTVlovUIGIPyEJZsBkd0SCHeVaHqrBNy+E/pwGV50Z1aaMXb5T
+        awMaRBAP4hczTKUzCGg==
+X-Received: by 2002:a50:d88c:: with SMTP id p12mr14970119edj.352.1604310192457;
+        Mon, 02 Nov 2020 01:43:12 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw8tVnMbyPTbohwa4D2t9tNflfHqfaVUP+fsyNlKzopMgSJR23Pf4qYIcK9exPIbLxu6mo/Gw==
+X-Received: by 2002:a50:d88c:: with SMTP id p12mr14970109edj.352.1604310192144;
+        Mon, 02 Nov 2020 01:43:12 -0800 (PST)
 Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id bk13sm9293716ejb.58.2020.11.02.00.35.22
+        by smtp.gmail.com with ESMTPSA id pk25sm6170345ejb.16.2020.11.02.01.43.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2020 00:35:22 -0800 (PST)
+        Mon, 02 Nov 2020 01:43:11 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH testsuite v2 4/4] tests/[fs_]filesystem: test all filesystems
-Date:   Mon,  2 Nov 2020 09:35:16 +0100
-Message-Id: <20201102083516.477149-5-omosnace@redhat.com>
+Cc:     William Roberts <bill.c.roberts@gmail.com>
+Subject: [PATCH userspace] ci: bump Fedora image version to 33
+Date:   Mon,  2 Nov 2020 10:43:10 +0100
+Message-Id: <20201102094310.484837-1-omosnace@redhat.com>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201102083516.477149-1-omosnace@redhat.com>
-References: <20201102083516.477149-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Run [fs_]filesystem tests always for all common filesystems (xfs, ext4,
-jfs, vfat). Use symlinks to achieve this without changing much code
-while still allowing to run the test script directly (optionally
-specifying the filesystem type).
+The testsuite will soon be switching to testing multiple filesystems,
+which exposes a bug in F32 image's kernel. Since Fedora 33 has been
+released recently and the testsuite runs just fine on it, just bump the
+image version to avoid the bug.
+
+This commit also fixes the script to read out the Fedora image version
+from environment variables instead of using hard-coded values.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- tests/Makefile           |  8 ++++++--
- tests/filesystem/ext4    |  1 +
- tests/filesystem/jfs     |  1 +
- tests/filesystem/test    | 28 +++++++++++++---------------
- tests/filesystem/vfat    |  1 +
- tests/filesystem/xfs     |  1 +
- tests/fs_filesystem/ext4 |  1 +
- tests/fs_filesystem/jfs  |  1 +
- tests/fs_filesystem/test | 34 ++++++++++++++++------------------
- tests/fs_filesystem/vfat |  1 +
- tests/fs_filesystem/xfs  |  1 +
- 11 files changed, 43 insertions(+), 35 deletions(-)
- create mode 120000 tests/filesystem/ext4
- create mode 120000 tests/filesystem/jfs
- create mode 120000 tests/filesystem/vfat
- create mode 120000 tests/filesystem/xfs
- create mode 120000 tests/fs_filesystem/ext4
- create mode 120000 tests/fs_filesystem/jfs
- create mode 120000 tests/fs_filesystem/vfat
- create mode 120000 tests/fs_filesystem/xfs
+ .travis.yml                    |  2 +-
+ scripts/ci/travis-kvm-setup.sh | 12 +++++++-----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/tests/Makefile b/tests/Makefile
-index 001639b..b441031 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -4,6 +4,7 @@ SBINDIR ?= $(PREFIX)/sbin
- POLDEV ?= $(PREFIX)/share/selinux/devel
- INCLUDEDIR ?= $(PREFIX)/include
- SELINUXFS ?= /sys/fs/selinux
-+FILESYSTEMS ?= ext4 xfs jfs vfat
+diff --git a/.travis.yml b/.travis.yml
+index 8ea6cc74..6c0f6241 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -36,7 +36,7 @@ matrix:
+       env: PYVER=python3.8 RUBYLIBVER=2.7 LINKER=bfd
+   include:
+     - compiler: gcc
+-      env: TRAVIS_RUN_KVM=true TRAVIS_CLOUD_IMAGE_VERSION="32:1.6"
++      env: TRAVIS_RUN_KVM=true FEDORA_MAJOR=33 FEDORA_MINOR=1.2
+       install:
+         - skip
+       before_script:
+diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
+index 2b573417..756fab82 100755
+--- a/scripts/ci/travis-kvm-setup.sh
++++ b/scripts/ci/travis-kvm-setup.sh
+@@ -7,13 +7,15 @@ TEST_RUNNER="scripts/ci/fedora-test-runner.sh"
+ #
+ # Variables for controlling the Fedora Image version and download URLs.
+ #
+-MAJOR_VERSION="32"
+-MINOR_VERSION="1.6"
++if [ -z "$FEDORA_MAJOR" ] || [ -z "$FEDORA_MINOR" ]; then
++    echo "$0: FEDORA_MAJOR and FEDORA_MINOR must be set!" 1>&2
++    exit 1
++fi
  
- export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
+ BASE_URL="https://download.fedoraproject.org/pub/fedora/linux/releases"
+-IMAGE_BASE_NAME="Fedora-Cloud-Base-$MAJOR_VERSION-$MINOR_VERSION.x86_64"
+-IMAGE_URL="$BASE_URL/$MAJOR_VERSION/Cloud/x86_64/images/$IMAGE_BASE_NAME.raw.xz"
+-CHECK_URL="$BASE_URL/$MAJOR_VERSION/Cloud/x86_64/images/Fedora-Cloud-$MAJOR_VERSION-$MINOR_VERSION-x86_64-CHECKSUM"
++IMAGE_BASE_NAME="Fedora-Cloud-Base-$FEDORA_MAJOR-$FEDORA_MINOR.x86_64"
++IMAGE_URL="$BASE_URL/$FEDORA_MAJOR/Cloud/x86_64/images/$IMAGE_BASE_NAME.raw.xz"
++CHECK_URL="$BASE_URL/$FEDORA_MAJOR/Cloud/x86_64/images/Fedora-Cloud-$FEDORA_MAJOR-$FEDORA_MINOR-x86_64-CHECKSUM"
+ GPG_URL="https://getfedora.org/static/fedora.gpg"
  
-@@ -17,6 +18,9 @@ MOD_POL_VERS := $(shell $(CHECKMODULE) -V |cut -f 2 -d '-')
- MAX_KERNEL_POLICY := $(shell cat $(SELINUXFS)/policyvers)
- POL_TYPE := $(shell ./pol_detect $(SELINUXFS))
- 
-+# Filter out unavailable filesystems
-+FILESYSTEMS := $(foreach fs,$(FILESYSTEMS),$(shell modprobe $(fs) && echo $(fs)))
-+
- SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	fdreceive inherit link mkdir msg open ptrace readlink relabel rename \
- 	rxdir sem setattr setnice shm sigkill stat sysctl task_create \
-@@ -111,7 +115,7 @@ SUBDIRS += lockdown
- endif
- 
- ifeq ($(shell grep -q filesystem $(POLDEV)/include/support/all_perms.spt && echo true),true)
--SUBDIRS += filesystem
-+SUBDIRS += $(addprefix filesystem/,$(FILESYSTEMS))
- ifeq ($(shell grep -q all_filesystem_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
- export CFLAGS += -DHAVE_FS_WATCH_PERM
- endif
-@@ -119,7 +123,7 @@ endif
- 
- ifeq ($(shell grep -q filesystem $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 5.2),-1)
--SUBDIRS += fs_filesystem
-+SUBDIRS += $(addprefix fs_filesystem/,$(FILESYSTEMS))
- endif
- endif
- 
-diff --git a/tests/filesystem/ext4 b/tests/filesystem/ext4
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/filesystem/ext4
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/filesystem/jfs b/tests/filesystem/jfs
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/filesystem/jfs
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/filesystem/test b/tests/filesystem/test
-index 5a9f0f6..c94deda 100755
---- a/tests/filesystem/test
-+++ b/tests/filesystem/test
-@@ -2,15 +2,22 @@
- use Test::More;
- 
- # Load common subroutines.
--use File::Basename qw(dirname);
-+use File::Basename qw(dirname basename);
- use Cwd qw(abs_path);
--use lib dirname( abs_path $0);
-+
-+BEGIN {
-+    $basedir = dirname($0);
-+    $basedir = `cd $basedir && pwd`;
-+    chomp($basedir);
-+}
-+use lib $basedir;
- use Filesystem
-   qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper nfs_gen_opts);
- 
- BEGIN {
--    $basedir = $0;
--    $basedir =~ s|(.*)/[^/]*|$1|;
-+    # extract fs_type
-+    $test_name = basename($basedir);
-+    $fs_type   = $test_name ne "filesystem" ? $test_name : " ";
- 
-     # Options: -v Verbose, -e enable udisks(8) daemon, -f filesystem type
-     $v              = " ";
-@@ -20,8 +27,7 @@ BEGIN {
-     $nfs_enabled    = 0;
-     $vfat_enabled   = 0;
- 
--    $i       = 0;
--    $fs_type = " ";
-+    $i = 0;
-     foreach $arg (@ARGV) {
-         if ( $arg eq "-v" ) {
-             $v = $arg;
-@@ -131,15 +137,7 @@ print "Testing filesystem fs_type: $fs_type\n";
- 
- # mount(2) MS_BIND | MS_PRIVATE requires an absolute path to a private mount
- # point before MS_MOVE
--$cwd = `pwd 2>/dev/null`;
--chomp($cwd);
--$private_path = "$cwd";
--if ( $basedir eq "." ) {
--    $private_path = "$cwd/mntpoint";
--}
--else {
--    $private_path = "$cwd/$basedir/mntpoint";
--}
-+$private_path = abs_path($basedir) . "/mntpoint";
- 
- # Keep a list of devices used for removal at end of test.
- $device_count = 0;
-diff --git a/tests/filesystem/vfat b/tests/filesystem/vfat
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/filesystem/vfat
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/filesystem/xfs b/tests/filesystem/xfs
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/filesystem/xfs
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/fs_filesystem/ext4 b/tests/fs_filesystem/ext4
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/fs_filesystem/ext4
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/fs_filesystem/jfs b/tests/fs_filesystem/jfs
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/fs_filesystem/jfs
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/fs_filesystem/test b/tests/fs_filesystem/test
-index 4462438..e706e42 100755
---- a/tests/fs_filesystem/test
-+++ b/tests/fs_filesystem/test
-@@ -2,18 +2,25 @@
- use Test::More;
- 
- # Load common subroutines.
--use File::Basename qw(dirname);
-+use File::Basename qw(dirname basename);
- use Cwd qw(abs_path);
--use lib dirname( abs_path $0) . '/../filesystem';
--use Filesystem
--  qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper nfs_gen_opts);
- 
- BEGIN {
--    $basedir = $0;
--    $basedir =~ s|(.*)/[^/]*|$1|;
-+    $basedir = dirname($0);
-+    $basedir = `cd $basedir && pwd`;
-+    chomp($basedir);
- 
-     # Some code in tests/filesystem is reused
--    $filesystem_dir = "$basedir/../filesystem";
-+    $filesystem_dir = abs_path($basedir) . "/../filesystem";
-+}
-+use lib $filesystem_dir;
-+use Filesystem
-+  qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper nfs_gen_opts);
-+
-+BEGIN {
-+    # extract fs_type
-+    $test_name = basename($basedir);
-+    $fs_type   = $test_name ne "fs_filesystem" ? $test_name : " ";
- 
-     # Options: -v = Verbose, -e enable udisks(8) daemon, -f filesystem type
-     $v              = " ";
-@@ -23,8 +30,7 @@ BEGIN {
-     $nfs_enabled    = 0;
-     $vfat_enabled   = 0;
- 
--    $i       = 0;
--    $fs_type = " ";
-+    $i = 0;
-     foreach $arg (@ARGV) {
-         if ( $arg eq "-v" ) {
-             $v = $arg;
-@@ -133,15 +139,7 @@ BEGIN {
- print "Testing filesystem fs_type: $fs_type\n";
- 
- # Generate an absolute path to a private mount
--$cwd = `pwd 2>/dev/null`;
--chomp($cwd);
--$private_path = "$cwd";
--if ( $basedir eq "." ) {
--    $private_path = "$cwd/mntpoint";
--}
--else {
--    $private_path = "$cwd/$basedir/mntpoint";
--}
-+$private_path = abs_path($basedir) . "/mntpoint";
- 
- # Keep a list of devices used for removal at end of test.
- $device_count = 0;
-diff --git a/tests/fs_filesystem/vfat b/tests/fs_filesystem/vfat
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/fs_filesystem/vfat
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
-diff --git a/tests/fs_filesystem/xfs b/tests/fs_filesystem/xfs
-new file mode 120000
-index 0000000..945c9b4
---- /dev/null
-+++ b/tests/fs_filesystem/xfs
-@@ -0,0 +1 @@
-+.
-\ No newline at end of file
+ #
 -- 
 2.26.2
 
