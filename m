@@ -2,71 +2,71 @@ Return-Path: <SRS0=BHhV=EI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15D69C388F2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE301C388F9
 	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:35:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB9C9206DC
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:35:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52685206DC
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:35:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M4zL3ete"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QxVu0Szd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727960AbgKBIfZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Nov 2020 03:35:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21935 "EHLO
+        id S1727806AbgKBIf0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Nov 2020 03:35:26 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60508 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727806AbgKBIfZ (ORCPT
+        by vger.kernel.org with ESMTP id S1727902AbgKBIfZ (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 03:35:25 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604306123;
+        s=mimecast20190719; t=1604306124;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=vYrQJbkdrg54Gc+N/qM71BZB5xoYJ/RWA9WY/UFLS/g=;
-        b=M4zL3eteNlyPD5a8NxRkNEdrz98NkIJ5O/JfEmykgZqzk+zJC0hDSXkVj/36hvqukB3Ces
-        zD8CWqzijQlHxCkSoOXnOwBCp1u9MUmi1O90oQOSw69UTEIgjv5pJNiuHS/SMfjkhDwdM2
-        OO6e+/dwB+VyGH4C4lvOc4zhLLHqLts=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-491-_CEdTo-jO8yStH9rh0It2g-1; Mon, 02 Nov 2020 03:35:22 -0500
-X-MC-Unique: _CEdTo-jO8yStH9rh0It2g-1
-Received: by mail-ed1-f69.google.com with SMTP id bs10so5823010edb.22
-        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 00:35:21 -0800 (PST)
+        bh=EEdhfquk6SyWWkHPzszNFtJfFb9gTGHgZXx6x23uqg0=;
+        b=QxVu0SzdoH/RsFfxlaa+FuWs6XIsXK4B+POA9mUSvNVx2FBd5rdHjKhL1XFLDkxtnVkksW
+        FdF5bxcYCKYenvfY2oSAN+3vLMHxN1tJw2xiEfci+3BDIBHIi2e6V2qCSNM77omKA9K7HU
+        HhkmX9i6prcgliKXxBGerS0ObCaAdso=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-23-6KwYg4svPgKdH5LoBdFbsg-1; Mon, 02 Nov 2020 03:35:23 -0500
+X-MC-Unique: 6KwYg4svPgKdH5LoBdFbsg-1
+Received: by mail-ej1-f71.google.com with SMTP id z25so4037113ejd.2
+        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 00:35:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=vYrQJbkdrg54Gc+N/qM71BZB5xoYJ/RWA9WY/UFLS/g=;
-        b=fbTMEJyUdZGbGgOwlgVaO5F/6mtEYrQQuQkS3DvJjHI3kv5Qr3PRuxaCBa0CBL0QJ8
-         BEE2deWPkSunWh65p33lgilMzh8ZqDowRQyUeGYjP9Une+TuWKBKu7XpMa82MimpchYL
-         n9KRFtA12/pMYo+6ajeGs5W+ZxqFYlwF5Z759fNijww5CJONGc1MN6mPyJzCVrG9/6Mp
-         yuROM5b99HK4wB0NKFMRc1PurEppF+JN0jgzoBO1WBlFs9CyaBi+JGFBqkQ79nqOdFYr
-         nX/vnKP6GqklT1Z2zs5OrDENGSwDUDP7mkq9yJ5PqaEMm101WwmLAzTAw9DnsBRrUSWe
-         PtJQ==
-X-Gm-Message-State: AOAM530maM0RhW4Un9t6lNs7It3OwT1lpgkXOBkSaxpeKUV6PqXiVtdC
-        gGP+tX4Lq3k/tCqTSoYdub2hFEUNCMEVW7nco6P68qpvUSkXMnkhZNkw9BFHoGO6U5FuvtjBvC4
-        VAg74j/cGfO4hkpQasQ==
-X-Received: by 2002:a17:906:824a:: with SMTP id f10mr15292753ejx.167.1604306120363;
-        Mon, 02 Nov 2020 00:35:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz+LlzxrudqYDK2dHM6dlK5nwXR/NZo4EGsstF3ypyQliqV2dhUevxTwISwjAFo2qUj+VbwcA==
-X-Received: by 2002:a17:906:824a:: with SMTP id f10mr15292744ejx.167.1604306120218;
-        Mon, 02 Nov 2020 00:35:20 -0800 (PST)
+        bh=EEdhfquk6SyWWkHPzszNFtJfFb9gTGHgZXx6x23uqg0=;
+        b=EkI9vvKGK1ufz5sNfHSjKywfYpo6TbBcT++tQh4Nu65sbbSqRJg82CvCbJpGLYkSsz
+         1X8eX24uXcFV5OOlWRXiPD2ThfEdavSmpF3E3aPiPABPWVHG1qSTf1lCyqkpxutBdWuI
+         ZjInajSu83HV8PEc9ceWLzroEr6BMIJxmt8Yn2I1GBh5/smmY5N14GhCtUsAiQK8LTNb
+         DlY47kqs7daXMF70CBQYNbCZOGFTqXA8OwOWioOOKCh5vpETMbfkQ4OyfwYx2k2FwSMl
+         G2tmlah9HiHiBkU4hQcYteVKOELS1NgsK9fRYIlNbYUoudSznmYzQWZ5uRMVYxFyDFy+
+         JA3Q==
+X-Gm-Message-State: AOAM531QYlxhekM70Y8yXVT5t4MeZcAtMqvpP3579AlB1bLS/CXKsKIz
+        mcFtyKrAO4AObArzBewv9UYp2/qMQxGwGrqRE0akVXUp5Bb2Rbv/Mm7au7X2EAXH2LPoalji0s0
+        1lI1yBAxOfiyDhcd7RQ==
+X-Received: by 2002:a17:906:f752:: with SMTP id jp18mr12401762ejb.331.1604306121593;
+        Mon, 02 Nov 2020 00:35:21 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxPDxWlepDS3vSJD8asPC+8T0F8QgFMTqKzwm2kbgaKOxzX0ZesCC6BqQYOQt50XfDfVhFqDw==
+X-Received: by 2002:a17:906:f752:: with SMTP id jp18mr12401752ejb.331.1604306121409;
+        Mon, 02 Nov 2020 00:35:21 -0800 (PST)
 Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id bk13sm9293716ejb.58.2020.11.02.00.35.19
+        by smtp.gmail.com with ESMTPSA id bk13sm9293716ejb.58.2020.11.02.00.35.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2020 00:35:19 -0800 (PST)
+        Mon, 02 Nov 2020 00:35:20 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>,
         Paul Moore <paul@paul-moore.com>
-Subject: [PATCH testsuite v2 1/4] README,travis: add e2fsprogs, jfsutils, and dosfstools to deps
-Date:   Mon,  2 Nov 2020 09:35:13 +0100
-Message-Id: <20201102083516.477149-2-omosnace@redhat.com>
+Subject: [PATCH testsuite v2 2/4] tests/filesystem: pipe "yes" to mkfs.* to fix jfs test
+Date:   Mon,  2 Nov 2020 09:35:14 +0100
+Message-Id: <20201102083516.477149-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201102083516.477149-1-omosnace@redhat.com>
 References: <20201102083516.477149-1-omosnace@redhat.com>
@@ -76,53 +76,29 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-They are needed for ext4, jfs, and vfat tests, which will become
-executed by default in an upcoming patch.
+mkfs.jfs is reluctant to overwrite the device without the user's
+consent, so shout a stream of y's on it to avoid the test getting stuck.
+We can't universally pass -q to mkfs.*, because not all mkfs.* tools
+support it.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- README.md                  | 6 ++++++
- travis-ci/run-testsuite.sh | 3 +++
- 2 files changed, 9 insertions(+)
+ tests/filesystem/Filesystem.pm | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/README.md b/README.md
-index 838a082..1149f30 100644
---- a/README.md
-+++ b/README.md
-@@ -58,6 +58,9 @@ similar dependencies):
- * keyutils-libs-devel _(tools used by the keys tests)_
- * kernel-devel _(used by the kernel module tests)_
- * quota, xfsprogs-devel and libuuid-devel _(used by the filesystem tests)_
-+* e2fsprogs _(used by the ext4 filesystem tests)_
-+* jfsutils _(used by the jfs filesystem tests)_
-+* dosfstools _(used by the vfat filesystem tests)_
- * nftables _(used by inet_socket and sctp tests if ver >= 9.3 for secmark testing )_
+diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Filesystem.pm
+index 2365ce8..c14e760 100644
+--- a/tests/filesystem/Filesystem.pm
++++ b/tests/filesystem/Filesystem.pm
+@@ -133,7 +133,7 @@ sub make_fs {
+     attach_dev( $mk_dev, $mk_dir );
  
- On a modern Fedora system you can install these dependencies with the
-@@ -81,6 +84,9 @@ following command (NOTE: On Fedora 32 and below you need to remove
- 		quota \
- 		xfsprogs-devel \
- 		libuuid-devel \
-+		e2fsprogs \
-+		jfsutils \
-+		dosfstools \
- 		nftables \
- 		kernel-devel-$(uname -r) \
- 		kernel-modules-$(uname -r)
-diff --git a/travis-ci/run-testsuite.sh b/travis-ci/run-testsuite.sh
-index 051f9d8..bd9073c 100755
---- a/travis-ci/run-testsuite.sh
-+++ b/travis-ci/run-testsuite.sh
-@@ -38,6 +38,9 @@ dnf install -y \
-     quota \
-     xfsprogs-devel \
-     libuuid-devel \
-+    e2fsprogs \
-+    jfsutils \
-+    dosfstools \
-     kernel-devel-"$(uname -r)" \
-     kernel-modules-"$(uname -r)"
- 
+     print "Make $mk_type filesystem on $mk_dev\n";
+-    $result = system("mkfs.$mk_type $mk_dev >& /dev/null");
++    $result = system("yes | mkfs.$mk_type $mk_dev >& /dev/null");
+     if ( $result != 0 ) {
+         system("losetup -d $mk_dev 2>/dev/null");
+         print "mkfs.$mk_type failed to create filesystem on $mk_dev\n";
 -- 
 2.26.2
 
