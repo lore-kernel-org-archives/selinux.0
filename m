@@ -1,193 +1,118 @@
-Return-Path: <SRS0=x/d9=EH=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=BHhV=EI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7046C4741F
-	for <selinux@archiver.kernel.org>; Sun,  1 Nov 2020 22:27:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C86AC00A89
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:04:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94B6622253
-	for <selinux@archiver.kernel.org>; Sun,  1 Nov 2020 22:27:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F6FB21556
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 08:04:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="S2Y+i/Zg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i8BoMKnZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727372AbgKAW0h (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 1 Nov 2020 17:26:37 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:41958 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727081AbgKAW0h (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 1 Nov 2020 17:26:37 -0500
-Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 18EAE20B4905;
-        Sun,  1 Nov 2020 14:26:35 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 18EAE20B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1604269595;
-        bh=WKX3QB46xa8E3s1P7/tqGrnQWnDqQ2+xdJnkN9CdMlc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=S2Y+i/ZgfC4U9KRX1JoQvlLoKBFHeEAd/HgpiLyAeHmE5Tb+SHaQsHAwsNV41dFLA
-         Z8LdKsJG2shWC2gDRfK/e/ymri+ze5xJBV8Qlgpein5m3Gl4rIJD/nlaa0Qy4X8aIQ
-         8p8W7/8eAqyS1JPK/Ql0IdOoho020345LjZqFU+Q=
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: [PATCH v5 0/7] IMA: Infrastructure for measurement of critical kernel data
-Date:   Sun,  1 Nov 2020 14:26:19 -0800
-Message-Id: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727818AbgKBIE2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Nov 2020 03:04:28 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58980 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727806AbgKBIE2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 03:04:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604304266;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SFjB7QWKOrIWBySh28KSSSTldGQ/FjdN9XOvlo6cn4A=;
+        b=i8BoMKnZZZ7kU4k5z+oar/Liddlvx1eCWNeLBDDr0W88DgXW3Ku78ozuX9FU6grWeDiXYT
+        ndquATBFiq0IiM8Nl7SV7wEPWyIJtxC2cckRbXpMVCTr2LwrLcjWacB3XlsLYHpa+CxLI6
+        2z4js3+nEKF0KTcxbDFU8Sy5M7q6AGA=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-489-a21eCj7hPDGQjL-pXPw3dQ-1; Mon, 02 Nov 2020 03:04:23 -0500
+X-MC-Unique: a21eCj7hPDGQjL-pXPw3dQ-1
+Received: by mail-lj1-f198.google.com with SMTP id r19so5568799ljj.9
+        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 00:04:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SFjB7QWKOrIWBySh28KSSSTldGQ/FjdN9XOvlo6cn4A=;
+        b=X56lpaoc9brC+jukpLV41hUHkpsvPpKeICeyGTkPqVcCoxglEwJysbb5jjFJUvEuZs
+         T66ctRi7NAzmS+/T/FKRCFbHdBf1iQoJrBPIaMKaIFPQSENglfL/nF9jHF2Qtg9KJVs+
+         mzaEqFUTfDiTJ8iEz4PJDgtxBX5F5Snk3LE5TMc8exWp17PDL5RsY/Ioi1lxBBcXqo1l
+         oW79oiaIP91OtH2KaLv4paz3fWV9hKdLjOsvXPpFRm6jwHb+4oOhjAxbf44GoFNAYxtI
+         0KJ/DFw2gVUH5iyZ/cgPG5LEKtGfQjgcdxMPOd8EMvxJgQ1CckKjobbznwPzCLQiwbIP
+         fC2A==
+X-Gm-Message-State: AOAM530o9VWKoGwSz7qmceP5FdM/Fb55PH50Kj/dJraQtfm8xc2JaSdV
+        p7GLJEdVHYFDObR/2e0JPGOXHCRSG8pPNx2n3F2QU8hQDwIk3lkOxUuG6YGxy6qsVXsW9K+NJXm
+        FdqPiOkpOQSIs4fj4f7Pf4ld7EuL4cMzwnQ==
+X-Received: by 2002:a2e:b009:: with SMTP id y9mr5756021ljk.372.1604304261653;
+        Mon, 02 Nov 2020 00:04:21 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzzWf03qqRY7YGTBc9dPOMUSMIl1HyVNYSuy5LmGntId1mRZiAteQz0z3mD3BMY4s9sOjk21AYcxuP3VSX347w=
+X-Received: by 2002:a2e:b009:: with SMTP id y9mr5756010ljk.372.1604304261337;
+ Mon, 02 Nov 2020 00:04:21 -0800 (PST)
+MIME-Version: 1.0
+References: <CAFqZXNtWg4+PrjizBcaa9hwQHdq1qQN4RzeqFS_y_8R9KZfMSA@mail.gmail.com>
+ <CAHC9VhRMsh5iHbunu0qJyheENm8a+KSnonLLuBynDWbBmOq3Og@mail.gmail.com> <20201027163749.GA25212@localhost.localdomain>
+In-Reply-To: <20201027163749.GA25212@localhost.localdomain>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 2 Nov 2020 09:04:09 +0100
+Message-ID: <CAFqZXNswY13BoABpXGOQq=kOsORRJPY6HEPjDE3ZRXKQhW2vTA@mail.gmail.com>
+Subject: Re: [Travis/GitHub] Migrating SELinuxProject projects to
+ travis-ci.com (vs. travis-ci.org)
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There are several kernel subsystems that contain critical data which if
-accidentally or maliciously altered, can compromise the integrity of the
-system. Examples of such subsystems would include LSMs like SELinux, or
-AppArmor; or device-mapper targets like dm-crypt, dm-verity etc. 
-"critical data" in this context is kernel subsystem specific information
-that is stored in kernel memory. Examples of critical data could be
-kernel in-memory r/o structures, hash of the memory structures, or
-data that represents a linux kernel subsystem state.
+On Tue, Oct 27, 2020 at 5:37 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> On Mon, Oct 26, 2020 at 07:04:52PM -0400, Paul Moore wrote:
+> > On Mon, Oct 26, 2020 at 9:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > Hello everyone (mainly the maintainers of projects on GH, but to avoid
+> > > a huge cc list, I'm sending this to the ML),
+> > >
+> > > As you may or may not know, Travis is migrating open-source projects
+> > > to their main site [1][2] (to .com from .org, where they have been
+> > > until now). AFAIK, the functionality stays pretty much the same, they
+> > > just want to have open-source and private projects under the same
+> > > infrastructure to unify things.
+> > >
+> > > Recently, they started migrating runners away from the .org site [3],
+> > > resulting in new builds being queued for a very long time. [4]
+> > >
+> > > I tried to migrate some of my forks (selinux-testsuite and selinux) to
+> > > the new site and it went smoothly. The only downside seems to be that
+> > > the build history is not migrated immediately (but it did show up
+> > > after a while). The queue times were indeed resolved after the
+> > > migration.
+> > >
+> > > So, I'd like to propose to start migrating the projects under
+> > > SELinuxProject that use the Travis CI (selinux, refpolicy,
+> > > selinux-testsuite, setools) now, so that we are not affected by the
+> > > lack of workers.
+> > >
+> > > If there are no objections until next week, I'll migrate the
+> > > selinux-testsuite, for a start. The other projects I'll leave for the
+> > > other maintainers, unless they choose to mandate me to do so :)
+> >
+> > Sounds good to me.
+> >
+>
+> Please do it for selinux too. Thank you!
 
-This patch set defines a new IMA hook namely CRITICAL_DATA, and a
-function ima_measure_critical_data() - to measure the critical data. 
-Kernel subsystems can use this functionality, to take advantage of IMA's
-measuring and quoting abilities - thus ultimately enabling remote
-attestation for the subsystem specific information stored in the kernel
-memory.
+Apparently I would need to be an admin/owner in the SELinuxProject
+group to do anything... So either one of the owners will have to do it
+or make me an owner :)
 
-The functionality is generic enough to measure the data of any kernel
-subsystem at run-time. To ensure that only data from supported sources
-are measured, the kernel subsystem needs to be added to a compile-time
-list of supported sources (an "allowed list of components"). IMA
-validates the source passed to ima_measure_critical_data() against this
-allowed list at run-time.
-
-System administrators may want to pick and choose which kernel
-subsystem information they would want to enable for measurements,
-quoting, and remote attestation. To enable that, a new IMA policy is
-introduced.
-
-This patch set also addresses the need for the kernel subsystems to
-measure their data before a custom IMA policy is loaded - by providing
-a builtin IMA policy.
-
-And lastly, the use of the overall functionality is demonstrated by
-measuring the kernel in-memory data for one such subsystem - SeLinux.
-
-This series is based on the following repo/branch:
-
- repo: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
- branch: next
- commit 3650b228f83a ("Linux 5.10-rc1")
-
-
-Change Log v5:
-(1) Incorporated feedback from Stephen on the last SeLinux patch.
- SeLinux Patch: https://patchwork.kernel.org/patch/11801585/
- - Freed memory in the reverse order of allocation in 
-   selinux_measure_state().
- - Used scnprintf() instead of snprintf() to create the string for
-   selinux state.
- - Allocated event name passed to ima_measure_critical_data() before
-   gathering selinux state and policy information for measuring.
-
-(2) Incorporated feedback from Mimi on v4 of this series.
- V4 of this Series: https://patchwork.kernel.org/project/linux-integrity/list/?series=354437
-
- - Removed patch "[v4,2/6] IMA: conditionally allow empty rule data"
- - Reversed the order of following patches.
-      [v4,4/6] IMA: add policy to measure critical data from kernel components
-      [v4,5/6] IMA: add hook to measure critical data from kernel components
-   and renamed them to remove "from kernel components"
- - Added a new patch to this series - 
-       IMA: add critical_data to built-in policy rules
-
- - Added the next version of SeLinux patch (mentioned above) to this
-   series 
-       selinux: measure state and hash of the policy using IMA
-
- - Updated cover-letter description to give broader perspective of the
-   feature, rearranging paragraphs, removing unnecessary info, clarifying
-   terms etc.
- - Got rid of opt_list param from ima_match_rule_data().
- - Updated the documentation to remove sources that don't yet exist.
- - detailed IMA hook description added to ima_measure_critical_data(),
-   as well as elaborating terms event_name, event_data_source. 
- - "data_sources:=" is not a mandatory policy option for 
-   func=CRITICAL_DATA anymore. If not present, all the data sources
-   specified in __ima_supported_kernel_data_sources will be measured.
-
-Change Log v4:
-Incorporated feedback from Mimi on v3.
- - Split patch #1 into two patches to move introduction of bool
-   allow_empty_opt_list into the 2nd patch.
- - Reverted return type of process_buffer_measurement() from int to void
-   which got rid of patch #2 from the v3 of the series.
- - Renamed the policy "critical_kernel_data_sources" to "data_sources".
- - Updated process_buffer_measurement() to avoid code and variable
-   duplication in the if(measure_buf_hash) block.
- - Changed return type of ima_measure_critical_data() from int to void.
- - Updated patch description for patch #3 and #4 as per Mimi's feedback.
-
-Change Log v3:
-Incorporated feedback from Mimi on v2.
- - Renamed the policy "data_sources" to
-   "critical_kernel_data_sources".
- - Added "critical_kernel_data_sources" description in
-   Documentation/ima-policy.
- - Split CRITICAL_DATA + critical_kernel_data_sources into two separate
-   patches.
- - Merged hook ima_measure_critical_data() + CRITICAL_DATA into a single
-   patch.
- - Added functionality to validate data sources before measurement.
-
-Change Log v2:
- - Reverted the unnecessary indentations in existing #define.
- - Updated the description to replace the word 'enlightened' with
-   'supported'.
- - Reverted the unnecessary rename of attribute size to buf_len.
- - Introduced a boolean parameter measure_buf_hash as per community
-   feedback to support measuring hash of the buffer, instead of the
-   buffer itself.
-
-Lakshmi Ramasubramanian (2):
-  IMA: add critical_data to the built-in policy rules
-  selinux: measure state and hash of the policy using IMA
-
-Tushar Sugandhi (5):
-  IMA: generalize keyring specific measurement constructs
-  IMA: update process_buffer_measurement to measure buffer hash
-  IMA: add hook to measure critical data
-  IMA: add policy to measure critical data
-  IMA: validate supported kernel data sources before measurement
-
- Documentation/ABI/testing/ima_policy         |  10 +-
- include/linux/ima.h                          |   8 +
- security/integrity/ima/ima.h                 |  38 ++++-
- security/integrity/ima/ima_api.c             |   8 +-
- security/integrity/ima/ima_appraise.c        |   2 +-
- security/integrity/ima/ima_asymmetric_keys.c |   2 +-
- security/integrity/ima/ima_main.c            |  79 +++++++++-
- security/integrity/ima/ima_policy.c          | 143 ++++++++++++++---
- security/integrity/ima/ima_queue_keys.c      |   3 +-
- security/selinux/Makefile                    |   2 +
- security/selinux/hooks.c                     |   3 +
- security/selinux/include/security.h          |  11 +-
- security/selinux/measure.c                   | 157 +++++++++++++++++++
- security/selinux/selinuxfs.c                 |   9 ++
- security/selinux/ss/services.c               |  71 +++++++--
- 15 files changed, 499 insertions(+), 47 deletions(-)
- create mode 100644 security/selinux/measure.c
-
--- 
-2.17.1
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
