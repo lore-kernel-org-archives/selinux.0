@@ -2,129 +2,140 @@ Return-Path: <SRS0=BHhV=EI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B18EC00A89
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 15:19:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BADECC4742C
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 16:36:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 423312222B
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 15:19:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6FA4122245
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 16:36:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iPI+zUgH"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rDUn4IW2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725837AbgKBPS7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Nov 2020 10:18:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30219 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726088AbgKBPSz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 10:18:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604330334;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=qMcxHNiu0GfCGzDhCicVmPp8vp0/feR+a+97NmH1nW0=;
-        b=iPI+zUgHDFddoXKHPPpqjEKWL71h2a3abFwm6n2OkiyfP/yg/3ZRpBaLIKx9QnbYTN+MRJ
-        V3DzL+PjgTYqM+7j0vvLPYyqRBXTM/D2vLrrnx6pMdMT9WI2QJHUV7qx+3qwbtlLOdjilD
-        PRBxh/2fRQthLv72kc+fxUmI9OOC9Ic=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-253-0bkGL3cGNsiWQbYeA0XzAQ-1; Mon, 02 Nov 2020 10:18:51 -0500
-X-MC-Unique: 0bkGL3cGNsiWQbYeA0XzAQ-1
-Received: by mail-lj1-f200.google.com with SMTP id d5so3446484ljo.17
-        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 07:18:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qMcxHNiu0GfCGzDhCicVmPp8vp0/feR+a+97NmH1nW0=;
-        b=rLADILKranNnrrisdQHOr4Pu3fiGu0TDcYtrff4j+XT96PLuhIvVBBGv9fdeFhMtbD
-         k4+PJWTcNlbsWYCU8CSab+XgHuWr/Ae0sGuxv1eXTUbx00UiF657/L4ydyDSs86kY1sC
-         jtCnN4ZsC6WV1ppZHBXrHHnX3J2V7zjIHb4f/IBNtTpHLOEt4O/2R2N9oUxYWrigEtCk
-         v8FOwJUzUoGhWcXTtX5lBpmUc3MRG/sk9Fjy1objv+H5dTh127g8faDhcdGi1AtCV7yh
-         VmlmQAcg2KdFG4zrMhkwW6h1JcfCZbPhCqGdfGjvg0ZW3UnyDZRdOPazPdJEcS8abZUe
-         jYaA==
-X-Gm-Message-State: AOAM532smuSstFjNXGnVjzmLjuYWPMzGM0u+R5PfoSgp4TvrbCyl2GO3
-        sqErJhrpVDGJRNVFUUXuY4wZFIjSu3f+rvS035IpUVG3chDcG0zF3hLhgv8yIfHewew7+Kc6iow
-        JSuGXncLze5Mdt3vA4lyKDAN/XyEJRVgyiA==
-X-Received: by 2002:a19:c8c1:: with SMTP id y184mr5670817lff.598.1604330329180;
-        Mon, 02 Nov 2020 07:18:49 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw8qH+QBIYn4gchdnrVnb2YmdbatZ8/yas91bTKC5iLB+3CIfYJDqvWSEwH5w6AnjIsGXXRlwOq4blorJwOdPI=
-X-Received: by 2002:a19:c8c1:: with SMTP id y184mr5670814lff.598.1604330328974;
- Mon, 02 Nov 2020 07:18:48 -0800 (PST)
-MIME-Version: 1.0
-References: <CAFqZXNtWg4+PrjizBcaa9hwQHdq1qQN4RzeqFS_y_8R9KZfMSA@mail.gmail.com>
- <CAHC9VhRMsh5iHbunu0qJyheENm8a+KSnonLLuBynDWbBmOq3Og@mail.gmail.com>
- <20201027163749.GA25212@localhost.localdomain> <CAFqZXNswY13BoABpXGOQq=kOsORRJPY6HEPjDE3ZRXKQhW2vTA@mail.gmail.com>
- <CAHC9VhQhKkS7hSfyOyef6c-gjmY-ab_L6mMR0SxAshv7d5Tm8g@mail.gmail.com>
-In-Reply-To: <CAHC9VhQhKkS7hSfyOyef6c-gjmY-ab_L6mMR0SxAshv7d5Tm8g@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 2 Nov 2020 16:18:37 +0100
-Message-ID: <CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com>
-Subject: Re: [Travis/GitHub] Migrating SELinuxProject projects to
- travis-ci.com (vs. travis-ci.org)
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Chris PeBenito <pebenito@ieee.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726587AbgKBQgH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Nov 2020 11:36:07 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61810 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726775AbgKBQgH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 11:36:07 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A2GWWUf159009;
+        Mon, 2 Nov 2020 11:36:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=MVcg6nGdKKAdwWiheTE9fesBPLlSv5GUCF0nN+4SDg8=;
+ b=rDUn4IW28V3ykJZdA6B+yJAlu47VNsZZfCyhiXD7s2GbCLB7wYsBF6FSIHBgjzoI0Gz2
+ BN2zWXArmoekGwTNlcgDU1xO1oZIR9GKAHGXNvMrpEKZniM3HeO1s/nKdBHesroRhkkV
+ rFUvgi0KNQ6USJq6KBflip6+d5JtdYkoX2KMkCJSqJQQ2sh9Dy9cyDbD/C33R1zMUvVJ
+ Fs+wlC+Y84zVHnIT1/P+pDYSimmlGzHwbMbuvUUYnuPSnxifwdTgnhwuwKQVwES/pt5Q
+ 98BXZABv21JmFUWaTjsLuRKVvzW0xdGj81Xvh0eXYFagu8051KflcbHdCiZ2aIDgMnPv gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34jfg7cx1b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Nov 2020 11:36:05 -0500
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0A2GXhmp169250;
+        Mon, 2 Nov 2020 11:36:04 -0500
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34jfg7cx0b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Nov 2020 11:36:04 -0500
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A2GRclK006394;
+        Mon, 2 Nov 2020 16:36:02 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 34j6j40dag-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Nov 2020 16:36:02 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A2GZxP317957262
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 2 Nov 2020 16:36:00 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE7C8A4064;
+        Mon,  2 Nov 2020 16:35:59 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 70D45A405C;
+        Mon,  2 Nov 2020 16:35:58 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.45.94])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  2 Nov 2020 16:35:58 +0000 (GMT)
+Message-ID: <66678394f824be5367cc0e1745f1bda98b436550.camel@linux.ibm.com>
+Subject: Re: [RFC] Finding the right target branch for patches that span IMA
+ and SeLinux
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SELinux <selinux@vger.kernel.org>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        linux-integrity@vger.kernel.org
+Date:   Mon, 02 Nov 2020 11:35:57 -0500
+In-Reply-To: <9195fd7a-a5c5-8588-d33c-772d2f530032@linux.microsoft.com>
+References: <703ced1a-3a48-f29e-9141-af78415d8402@linux.microsoft.com>
+         <f99f0f03aecc778826d79eb83d60cfd1a95196c5.camel@linux.ibm.com>
+         <2ea3d341-6299-ec40-b553-f9f59a36cfb3@linux.microsoft.com>
+         <CAHC9VhR8mbqZS3TVgG7MxQywe9uqDRCN+c59PozLTpOoQ-mK7Q@mail.gmail.com>
+         <9195fd7a-a5c5-8588-d33c-772d2f530032@linux.microsoft.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-02_09:2020-11-02,2020-11-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ priorityscore=1501 bulkscore=0 clxscore=1015 spamscore=0 adultscore=0
+ impostorscore=0 phishscore=0 lowpriorityscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011020124
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 2, 2020 at 3:46 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Nov 2, 2020 at 3:04 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > On Tue, Oct 27, 2020 at 5:37 PM Petr Lautrbach <plautrba@redhat.com> wrote:
-> > > On Mon, Oct 26, 2020 at 07:04:52PM -0400, Paul Moore wrote:
-> > > > On Mon, Oct 26, 2020 at 9:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > > Hello everyone (mainly the maintainers of projects on GH, but to avoid
-> > > > > a huge cc list, I'm sending this to the ML),
-> > > > >
-> > > > > As you may or may not know, Travis is migrating open-source projects
-> > > > > to their main site [1][2] (to .com from .org, where they have been
-> > > > > until now). AFAIK, the functionality stays pretty much the same, they
-> > > > > just want to have open-source and private projects under the same
-> > > > > infrastructure to unify things.
-> > > > >
-> > > > > Recently, they started migrating runners away from the .org site [3],
-> > > > > resulting in new builds being queued for a very long time. [4]
-> > > > >
-> > > > > I tried to migrate some of my forks (selinux-testsuite and selinux) to
-> > > > > the new site and it went smoothly. The only downside seems to be that
-> > > > > the build history is not migrated immediately (but it did show up
-> > > > > after a while). The queue times were indeed resolved after the
-> > > > > migration.
-> > > > >
-> > > > > So, I'd like to propose to start migrating the projects under
-> > > > > SELinuxProject that use the Travis CI (selinux, refpolicy,
-> > > > > selinux-testsuite, setools) now, so that we are not affected by the
-> > > > > lack of workers.
-> > > > >
-> > > > > If there are no objections until next week, I'll migrate the
-> > > > > selinux-testsuite, for a start. The other projects I'll leave for the
-> > > > > other maintainers, unless they choose to mandate me to do so :)
-> > > >
-> > > > Sounds good to me.
-> > > >
-> > >
-> > > Please do it for selinux too. Thank you!
-> >
-> > Apparently I would need to be an admin/owner in the SELinuxProject
-> > group to do anything... So either one of the owners will have to do it
-> > or make me an owner :)
->
-> Done :)
+On Sat, 2020-10-31 at 20:08 -0700, Tushar Sugandhi wrote:
+> Hi Paul,
+> 
+> On 2020-10-30 1:37 p.m., Paul Moore wrote:
+> > On Fri, Oct 30, 2020 at 12:43 PM Tushar Sugandhi
+> > <tusharsu@linux.microsoft.com> wrote:
+> >>> Unless this patch set is specifically dependent on the two patches in
+> >>> the SELinux tree beyond v5.10.0-rc1, please base it on v5.10.0-rc1.
+> >>
+> >> Thanks Mimi. We don't have dependencies on those two patches in SELinux
+> >> tree.
+> >>
+> >> We'll base our changes on v5.10.0-rc1 in SELinux tree.
+> >>
+> >> Thanks for the quick response.
+> > 
+> > I'm not as fast as Mimi, but I thought it might be worthwhile to
+> > provide a bit more detail as to what I expect from SELinux kernel
+> > submissions.  I believe most other maintainers operate in a similar
+> > manner, but I obviously can't speak for them.
+> Thanks a lot for the detailed information Paul.
+> Its very helpful, and we appreciate it.
+> > 
+> > Unless there is an exception due to a previous discussion, I ask that
+> > all SELinux kernel patches be based on either the selinux/next branch
+> > or Linus' current tree.  If your patch(set) applies cleanly to either
+> > of those branches, and passes review, I'll merge it into the
+> > selinux/next branch taking care of any merge conflicts that may arise.
+> We will base on SeLinux -> next branch, as you/Mimi suggested.
 
-Thanks, I've just migrated selinux and selinux-testsuite:
-https://travis-ci.com/github/SELinuxProject
+Unless there was a compelling reason for basing it on the SELinux
+branch, I asked that you base the changes on v5.10.0-rc1 (or later),
+which has nothing to do with the SELinux branch.  Once this patch set
+is reviewed and ready to be upstreamed, a topic branch will be created
+containing at least the IMA patches.   The decision as to how the the
+SELinux patch will be upstreamed will be made at that point.  That
+discussion will be between Paul and me.
 
-I can also migrate refpolicy and setools if Chris gives me a thumbs-up.
+thanks,
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+Mimi
 
