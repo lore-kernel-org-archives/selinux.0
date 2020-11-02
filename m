@@ -2,122 +2,152 @@ Return-Path: <SRS0=BHhV=EI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B39D1C00A89
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 12:05:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A40DFC388F2
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 12:20:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5341D22226
-	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 12:05:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2FA69222B9
+	for <selinux@archiver.kernel.org>; Mon,  2 Nov 2020 12:20:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="svJGmzuY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BduIiacX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728288AbgKBMFE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Nov 2020 07:05:04 -0500
-Received: from mailomta22-sa.btinternet.com ([213.120.69.28]:32416 "EHLO
-        sa-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728253AbgKBMFD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 07:05:03 -0500
-Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
-          by sa-prd-fep-049.btinternet.com with ESMTP
-          id <20201102120501.HYTT8377.sa-prd-fep-049.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Mon, 2 Nov 2020 12:05:01 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1604318701; 
-        bh=ech8KrjmteucTYhFXBBa1kPljRgnX4XctvyY1GkXy5w=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=svJGmzuYsbnD1e4NRx2FPZrqljSfDQdL3MF6dQIcQkLzKi9AA/+x94XI4z0eFxTkw6BN+VaFq1yIh3OQZBI8upfcithxetQSbwqLRn0LbSEXHyptjkVV/gVYUyMUTpHNz64HhwzX2U1wDXq+Kk7L/N+zE451hAu2cw65XY2EVXvnyDuZZRRwCe2BN5UfwPyHiZZ+PK9WDiF+Va5ioPE0CutzjD0FfQnJsQ3P8WMCEgsSIj5D3PimOout2wMRcOHjEIq7aZ1ZIzJrRgEHiljbJ0H6PUVCv4s1VS+ebLJ+3wrVf1J5YVA52dNruPix+hxv3uF33gWngnI8yfI/quhyoA==
-Authentication-Results: btinternet.com;
-    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
-X-SNCR-Rigid: 5ED9B66118C30F16
-X-Originating-IP: [109.155.32.143]
-X-OWM-Source-IP: 109.155.32.143 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedruddtuddgfeehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeekgeeftdffkeeikedugedvkeejheeiffevveelgedtleduteevudelffdugffgieenucfkphepuddtledrudehhedrfedvrddugeefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrdefvddrudegfedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (109.155.32.143) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B66118C30F16; Mon, 2 Nov 2020 12:05:01 +0000
-Message-ID: <83bf40215c21e67489a6379fcd1c89dcd7e2e031.camel@btinternet.com>
-Subject: Re: [PATCH testsuite v2 0/4] Test all filesystems by default
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>
-Date:   Mon, 02 Nov 2020 12:04:35 +0000
-In-Reply-To: <20201102083516.477149-1-omosnace@redhat.com>
-References: <20201102083516.477149-1-omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S1728649AbgKBMU2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Nov 2020 07:20:28 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40897 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728537AbgKBMU1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Nov 2020 07:20:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604319626;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=dM1irNjYPFtJZ5KIfXmHIvxfdR0qXqWZ+GfquqTZjJ8=;
+        b=BduIiacXyo3Hi/aY63QYJuy7aqOSPDuOpnNiIUZincsguqlFUh4Z1JUFAkzmGIoX07ia5o
+        Ifqq077WRL9eMyc3pDgQkoRmjq0GAF44rN6a9yZxUzaeEhqjNycBpH3syR1rBmHaISNymI
+        XBsUrecFQ69DBJvEKBJh7xAqqAdhIQ0=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-337-AzOyZsd1M-m5PvWSRqTeyQ-1; Mon, 02 Nov 2020 07:20:22 -0500
+X-MC-Unique: AzOyZsd1M-m5PvWSRqTeyQ-1
+Received: by mail-lj1-f197.google.com with SMTP id f14so5746805ljg.18
+        for <selinux@vger.kernel.org>; Mon, 02 Nov 2020 04:20:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dM1irNjYPFtJZ5KIfXmHIvxfdR0qXqWZ+GfquqTZjJ8=;
+        b=Iuh8MZ+i/BvX+27uBAOY/i7UKf7nBb0l/fAfFwq58GkVejINeueQ4Z0hVhDrhzKuS8
+         B72MdYO4ganRFZW/xdG6vTHL4GZqlxYEGokpSF6TtdV9BqnqPa9sM1LLHfaCOpJgDRWa
+         Z9CioXmJ1T2J9EeGJzQKv/ThoOO5lQnysYhC8ySeWMzAn+JONA48/xxBr6yRaTXE4XSx
+         8qvXxUhOM95Eq/WHR06mJl0DU1gNnVGggO8V5XZt6zbLFX68r1xR/Ie7SYZ+qTAM5a3f
+         UnO2QOkz05gau1AJzM+PET4OKWqrjApp9NXRpQtFS1lIM+4btjv5f7OJEj/fTCnmr4Mc
+         QYrg==
+X-Gm-Message-State: AOAM531Mlkct0cGsukmJzE3d04qC++llJWKHfR5Z15gQ4kE98dF1w/OU
+        IcTFQNT0DZBr3wvz4XXGAq0GpsXA2HGmCy3DvC9ZdvkCrtn60G730ibg4rzC3Jqkbj4ATZgPCYZ
+        P6ahXrN7VyB1RIWzXwmzN8eP+geX3Kj4xlg==
+X-Received: by 2002:a2e:b60e:: with SMTP id r14mr6700413ljn.77.1604319620976;
+        Mon, 02 Nov 2020 04:20:20 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzjtr4a3TK4vPGH934ZVdrMWzNq1F01ezG+5NaFOqrz4fayx6vPQtdk1E+p+5NUU3tXAkNws5FjDjIBdN7J2dw=
+X-Received: by 2002:a2e:b60e:: with SMTP id r14mr6700407ljn.77.1604319620778;
+ Mon, 02 Nov 2020 04:20:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <20201102083516.477149-1-omosnace@redhat.com> <20201102083516.477149-2-omosnace@redhat.com>
+ <7963858698dc5060170db74f70c5a9cb00b611db.camel@btinternet.com>
+In-Reply-To: <7963858698dc5060170db74f70c5a9cb00b611db.camel@btinternet.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 2 Nov 2020 13:20:09 +0100
+Message-ID: <CAFqZXNugBoMM126Z9GHEwefL_VbW++Jwv8Qy+dN+2NqvMmOFrA@mail.gmail.com>
+Subject: Re: [PATCH testsuite v2 1/4] README,travis: add e2fsprogs, jfsutils,
+ and dosfstools to deps
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2020-11-02 at 09:35 +0100, Ondrej Mosnacek wrote:
-> This series enables testing all filesystems currently supported by
-> the
-> testsuite (ext4, xfs, jfs, vfat) using the [fs_]filesystem subtests
-> without the need to run the tests manually or move to a different
-> filesystem. The filesystems not available on the tested kernel are
-> automatically excluded.
-> 
-> The series also updates dependencies with the packages containing the
-> required mkfs.* programs, fixes the mkfs.* invocation to not get
-> stuck
-> when testing jfs, and fixes error output appearing during a
-> successful
-> vfat test.
-> 
-> Note: The F32 CI will start failing after this and the kernel update
-> patches are merged (the old kernel on the image doesn't have the XFS
-> quota fix). It will be necessary to bump the stable Fedora testing to
-> F33.
-> 
-> v2 changes:
->  - added a patch to fix the vfat tests output
->  - fixed behavior when fs tests are executed directly
->  - simplified the code changed/added by the last patch
-> 
-> Ondrej Mosnacek (4):
->   README,travis: add e2fsprogs, jfsutils, and dosfstools to deps
->   tests/filesystem: pipe "yes" to mkfs.* to fix jfs test
->   tests/[fs_]filesystem: fix unwanted error output when testing vfat
->   tests/[fs_]filesystem: test all filesystems
+On Mon, Nov 2, 2020 at 1:03 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+>
+> On Mon, 2020-11-02 at 09:35 +0100, Ondrej Mosnacek wrote:
+> > They are needed for ext4, jfs, and vfat tests, which will become
+> > executed by default in an upcoming patch.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  README.md                  | 6 ++++++
+> >  travis-ci/run-testsuite.sh | 3 +++
+> >  2 files changed, 9 insertions(+)
+> >
+> > diff --git a/README.md b/README.md
+> > index 838a082..1149f30 100644
+> > --- a/README.md
+> > +++ b/README.md
+> > @@ -58,6 +58,9 @@ similar dependencies):
+> >  * keyutils-libs-devel _(tools used by the keys tests)_
+> >  * kernel-devel _(used by the kernel module tests)_
+> >  * quota, xfsprogs-devel and libuuid-devel _(used by the filesystem
+> > tests)_
+> > +* e2fsprogs _(used by the ext4 filesystem tests)_
+> > +* jfsutils _(used by the jfs filesystem tests)_
+> > +* dosfstools _(used by the vfat filesystem tests)_
+> >  * nftables _(used by inet_socket and sctp tests if ver >= 9.3 for
+> > secmark testing )_
+> >
+> >  On a modern Fedora system you can install these dependencies with
+> > the
+> > @@ -81,6 +84,9 @@ following command (NOTE: On Fedora 32 and below you
+> > need to remove
+> >               quota \
+> >               xfsprogs-devel \
+> >               libuuid-devel \
+> > +             e2fsprogs \
+> > +             jfsutils \
+> > +             dosfstools \
+>
+> I guess these should also be under Debian as well.
+
+Yes, absolutely! I missed that section, because I saw only the line
+"apt-get install selinux-basics selinux-policy-default auditd" and
+thought that there is no such comprehensive list for Debian... Should
+have looked more carefully.
+
+Given that this is just documentation, I'll add them when applying so
+I don't need to repost everything. I'll make sure to double-check the
+package names, which might be different on Debian.
+
+Thank you for the review!
 
 
-Apart from the minor nit in patch 1, all fs types tested okay so:
+>
+> >               nftables \
+> >               kernel-devel-$(uname -r) \
+> >               kernel-modules-$(uname -r)
+> > diff --git a/travis-ci/run-testsuite.sh b/travis-ci/run-testsuite.sh
+> > index 051f9d8..bd9073c 100755
+> > --- a/travis-ci/run-testsuite.sh
+> > +++ b/travis-ci/run-testsuite.sh
+> > @@ -38,6 +38,9 @@ dnf install -y \
+> >      quota \
+> >      xfsprogs-devel \
+> >      libuuid-devel \
+> > +    e2fsprogs \
+> > +    jfsutils \
+> > +    dosfstools \
+> >      kernel-devel-"$(uname -r)" \
+> >      kernel-modules-"$(uname -r)"
+> >
+>
 
-Acked-by: Richard Haines <richard_c_haines@btinternet.com>
 
-> 
->  README.md                      |  6 ++++
->  tests/Makefile                 |  8 +++--
->  tests/filesystem/Filesystem.pm |  2 +-
->  tests/filesystem/ext4          |  1 +
->  tests/filesystem/jfs           |  1 +
->  tests/filesystem/test          | 58 +++++++++++++++---------------
->  tests/filesystem/vfat          |  1 +
->  tests/filesystem/xfs           |  1 +
->  tests/fs_filesystem/ext4       |  1 +
->  tests/fs_filesystem/jfs        |  1 +
->  tests/fs_filesystem/test       | 64 ++++++++++++++++--------------
-> ----
->  tests/fs_filesystem/vfat       |  1 +
->  tests/fs_filesystem/xfs        |  1 +
->  travis-ci/run-testsuite.sh     |  3 ++
->  14 files changed, 83 insertions(+), 66 deletions(-)
->  create mode 120000 tests/filesystem/ext4
->  create mode 120000 tests/filesystem/jfs
->  create mode 120000 tests/filesystem/vfat
->  create mode 120000 tests/filesystem/xfs
->  create mode 120000 tests/fs_filesystem/ext4
->  create mode 120000 tests/fs_filesystem/jfs
->  create mode 120000 tests/fs_filesystem/vfat
->  create mode 120000 tests/fs_filesystem/xfs
-> 
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
