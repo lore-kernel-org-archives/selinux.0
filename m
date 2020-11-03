@@ -2,101 +2,143 @@ Return-Path: <SRS0=PQdl=EJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 464D4C2D0A3
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 09:43:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAAFCC2D0A3
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 09:44:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3A5B20719
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 09:43:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A7B8223BD
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 09:44:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YiB0QZ1p"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RmOiXyWg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727798AbgKCJn6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 Nov 2020 04:43:58 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33939 "EHLO
+        id S1727109AbgKCJo5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 Nov 2020 04:44:57 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48353 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727328AbgKCJn6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 04:43:58 -0500
+        by vger.kernel.org with ESMTP id S1727901AbgKCJo4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 04:44:56 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604396637;
+        s=mimecast20190719; t=1604396695;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=LrduPtb2x8UMNN5qOXJh0L6mjlW0dgYy55sXPxMY3h4=;
-        b=YiB0QZ1p4TDrJ4MVPJLGbF0XvwxrqUgCDCFY6Oe6SiQJvJV9fKfz/+mWTqbF+Xk0COcmNR
-        fKgY4K4JSDNLi1g7oYlwWJUvAa6Y8S+849AAj9ErtWnS8ULJz7pVfXAUH+zJPR1lXblzjh
-        7yOVrDNWSMKb7VH555tcaCHLbBE09cY=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-87-TmGvVquCMZCMMjaR9Mv8Mg-1; Tue, 03 Nov 2020 04:43:43 -0500
-X-MC-Unique: TmGvVquCMZCMMjaR9Mv8Mg-1
-Received: by mail-lf1-f72.google.com with SMTP id s13so2511000lfo.6
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 01:43:43 -0800 (PST)
+        bh=m6CW1zn3Tu/ohBbZSWDIKUp3TWO4knmgJA3jzTyDZPM=;
+        b=RmOiXyWgJbL/wTGyUj5xVI2qiSOCAoDwdTlC7tDoYqICJgNWQZjckilOwN1ly04TV6apSm
+        tJQkGeQu+wb6K2yoLnHzsg40YqI2E4RR4JqCxJYfjH/AEqaf8qdntwpe6pdXPs/3rEZQtu
+        9v/rGLjarlT8oqaNuKumm4AE1ICywc0=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-481-hgzBgFKnM3WsXainPcUDKQ-1; Tue, 03 Nov 2020 04:44:51 -0500
+X-MC-Unique: hgzBgFKnM3WsXainPcUDKQ-1
+Received: by mail-lj1-f197.google.com with SMTP id r5so4136653ljd.19
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 01:44:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=LrduPtb2x8UMNN5qOXJh0L6mjlW0dgYy55sXPxMY3h4=;
-        b=K02TVogzwN/qsR8ap6q6TY59y6kvmJkjppBqhAVSnv9ATQjSRBSymhhvF4v9DM+J3R
-         3dlTqEH4n1TIjVi1e1paLLN80PRGKqQuqINaf1b28LfozsH7GONNMUFy1WYtH3FvP05t
-         SF5WMHbRVty9zXhXZY11bNmtv7n1Kv1GZl0CGRhccM+Dtv8HpKGQEp5Mi+dNgJa4eyo5
-         AKMeovU3L4CTTo1yqETx+vF2GGEK4xOuJhSZ38Wofhjc3bc0h+TR44Sj//eAfxYEj8N9
-         V7NbHuK2JC4uc0rHNuzBA73pwuYshja1CImjF2NWCvOcwgy5EWf5BY+ENIjNeVYIXUel
-         dJng==
-X-Gm-Message-State: AOAM532V3SKno+Lei9Dxj27j49xry7JBYO0qzaXID4n/QF91mSvuALCG
-        29315yfKn91M3QnPfV9UUl8gy+ImokAlNDQEtGvsguPqg9GQSSlmYZeiHd3OD54k8lZ//U2zfxA
-        aO1YIYg9hi29efcr9Op6qjqdiyenQeFZfJQ==
-X-Received: by 2002:a2e:b009:: with SMTP id y9mr7827275ljk.372.1604396621679;
-        Tue, 03 Nov 2020 01:43:41 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz+9FbfiD48GTsQzM7YwZqLSY1hVTNvGI3Pw3tNQnNUPowRSlIRycyyg9ibqWa9og/wpZ2okb6KnHeF+Od0JpM=
-X-Received: by 2002:a2e:b009:: with SMTP id y9mr7827265ljk.372.1604396621510;
- Tue, 03 Nov 2020 01:43:41 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=m6CW1zn3Tu/ohBbZSWDIKUp3TWO4knmgJA3jzTyDZPM=;
+        b=CQzPP2Fk7KBriCRrh4BtZFDl9beF+JvM0vA7imrnn9NZgOH2hOs5TfuIQ2dQ1TGgUa
+         dmx4bDq0H6uJFwlHn6pgeDW+rmAsAdYCLFDllfthWNjjsBa4jrRqIAMAOWJ0v/m5P+4E
+         2QhcBy2Gki9iHUTIRlWHoAbVwn22Yh3b3Bze7Nppo/IUw+jzRztI25xG6t5VA8nUAMGx
+         FSJsXwIptS6qWewxDl3h5NbBCNbixwQDxAOFGv6QnXOIwIpKb4qK7JCthLWGPA6Uh0+h
+         drO8N4BHpeJhAZRaXa7Qqex41Z0N87tnBeNFCKH4rvj/rZ7ThuGA+4iIhHRfMe2B77DK
+         SQ2A==
+X-Gm-Message-State: AOAM532I8BfEJwAP3npBgeTLxge1P6b945OvxxSVWDBFzBLO9HUgIzsi
+        NZuhacYJ4FPnv502dG2Ma9/xCWh+uCKii2pybwPISk2LCvDdT/gxu2FuEjGv+syNmirKj1XRuY9
+        j9zIHOuNbFyBKprml7pBEnYVgfqa9SBI62w==
+X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr7886698lff.9.1604396689849;
+        Tue, 03 Nov 2020 01:44:49 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwwUmVJkRiSbFe25UqZqv9EIEfuQ+is88ZNrg7suHpE2Pn+bDlrwCfvPRL0obYF338Xll1mMzwyhiKR7ax/lxw=
+X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr7886689lff.9.1604396689590;
+ Tue, 03 Nov 2020 01:44:49 -0800 (PST)
 MIME-Version: 1.0
-References: <20201031133251.186982-1-omosnace@redhat.com>
-In-Reply-To: <20201031133251.186982-1-omosnace@redhat.com>
+References: <20201102083516.477149-1-omosnace@redhat.com> <83bf40215c21e67489a6379fcd1c89dcd7e2e031.camel@btinternet.com>
+In-Reply-To: <83bf40215c21e67489a6379fcd1c89dcd7e2e031.camel@btinternet.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 3 Nov 2020 10:43:30 +0100
-Message-ID: <CAFqZXNtO-GytiLeA__dS4ek=tYqGCxcaAT8eMDwzh3PWd0N89w@mail.gmail.com>
-Subject: Re: [PATCH testsuite] travis: bump stable fedora version to 33
-To:     SElinux list <selinux@vger.kernel.org>
+Date:   Tue, 3 Nov 2020 10:44:38 +0100
+Message-ID: <CAFqZXNvpCPMoPPwZdwNq_TrOBgUin_hixDQX=qpbHTZt5Ea4oQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite v2 0/4] Test all filesystems by default
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Oct 31, 2020 at 2:32 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> The kernel that comes with the F32 image has a bug in XFS quota
-> handling, which will be exposed once we start testing all filesystems.
-> Since Fedora 33 has been released recently and has a much newer kernel
-> in its stock VM image, let's switch to it.
+On Mon, Nov 2, 2020 at 1:05 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Mon, 2020-11-02 at 09:35 +0100, Ondrej Mosnacek wrote:
+> > This series enables testing all filesystems currently supported by
+> > the
+> > testsuite (ext4, xfs, jfs, vfat) using the [fs_]filesystem subtests
+> > without the need to run the tests manually or move to a different
+> > filesystem. The filesystems not available on the tested kernel are
+> > automatically excluded.
+> >
+> > The series also updates dependencies with the packages containing the
+> > required mkfs.* programs, fixes the mkfs.* invocation to not get
+> > stuck
+> > when testing jfs, and fixes error output appearing during a
+> > successful
+> > vfat test.
+> >
+> > Note: The F32 CI will start failing after this and the kernel update
+> > patches are merged (the old kernel on the image doesn't have the XFS
+> > quota fix). It will be necessary to bump the stable Fedora testing to
+> > F33.
+> >
+> > v2 changes:
+> >  - added a patch to fix the vfat tests output
+> >  - fixed behavior when fs tests are executed directly
+> >  - simplified the code changed/added by the last patch
+> >
+> > Ondrej Mosnacek (4):
+> >   README,travis: add e2fsprogs, jfsutils, and dosfstools to deps
+> >   tests/filesystem: pipe "yes" to mkfs.* to fix jfs test
+> >   tests/[fs_]filesystem: fix unwanted error output when testing vfat
+> >   tests/[fs_]filesystem: test all filesystems
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  .travis.yml | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/.travis.yml b/.travis.yml
-> index dcac54d..cba7462 100644
-> --- a/.travis.yml
-> +++ b/.travis.yml
-> @@ -4,7 +4,7 @@ dist: bionic
+> Apart from the minor nit in patch 1, all fs types tested okay so:
 >
->  env:
->    matrix:
-> -    - FEDORA_KIND="releases" FEDORA_MAJOR="32"
-> +    - FEDORA_KIND="releases" FEDORA_MAJOR="33"
->      - FEDORA_KIND="development" FEDORA_MAJOR="rawhide"
->
->  addons:
-> --
-> 2.26.2
+> Acked-by: Richard Haines <richard_c_haines@btinternet.com>
 
-Applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/8c6713af9132f5303909b427dfade064fe40b55c
+Thanks, all four patches are now applied:
+https://github.com/SELinuxProject/selinux-testsuite/commits/071ec9c5e5f0442aae0b14f455ea6e6b34ada1e0
+
+>
+> >
+> >  README.md                      |  6 ++++
+> >  tests/Makefile                 |  8 +++--
+> >  tests/filesystem/Filesystem.pm |  2 +-
+> >  tests/filesystem/ext4          |  1 +
+> >  tests/filesystem/jfs           |  1 +
+> >  tests/filesystem/test          | 58 +++++++++++++++---------------
+> >  tests/filesystem/vfat          |  1 +
+> >  tests/filesystem/xfs           |  1 +
+> >  tests/fs_filesystem/ext4       |  1 +
+> >  tests/fs_filesystem/jfs        |  1 +
+> >  tests/fs_filesystem/test       | 64 ++++++++++++++++--------------
+> > ----
+> >  tests/fs_filesystem/vfat       |  1 +
+> >  tests/fs_filesystem/xfs        |  1 +
+> >  travis-ci/run-testsuite.sh     |  3 ++
+> >  14 files changed, 83 insertions(+), 66 deletions(-)
+> >  create mode 120000 tests/filesystem/ext4
+> >  create mode 120000 tests/filesystem/jfs
+> >  create mode 120000 tests/filesystem/vfat
+> >  create mode 120000 tests/filesystem/xfs
+> >  create mode 120000 tests/fs_filesystem/ext4
+> >  create mode 120000 tests/fs_filesystem/jfs
+> >  create mode 120000 tests/fs_filesystem/vfat
+> >  create mode 120000 tests/fs_filesystem/xfs
+> >
+>
 
 -- 
 Ondrej Mosnacek
