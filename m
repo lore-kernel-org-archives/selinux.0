@@ -2,109 +2,153 @@ Return-Path: <SRS0=PQdl=EJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3416C2D0A3
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 18:57:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD02AC2D0A3
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 19:02:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9469422226
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 18:57:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63B412074B
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 19:02:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="feOdQ716"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r26fcWu6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729394AbgKCS5g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 Nov 2020 13:57:36 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:55822 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725892AbgKCS5f (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 13:57:35 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 26E0720B4905;
-        Tue,  3 Nov 2020 10:57:35 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 26E0720B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1604429855;
-        bh=cVbItptAW1tS1kJXEj6/BOOB6hgB5fsNAx9vzKmya7E=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=feOdQ716roT1YxuIu88Yr/V2A4sKG6SPqDvsuaDKRqg9d3kjBEWhVcI+6vAeAsSDH
-         R4wGFCbTQFGfC85IdMg6azVXp/VwVdPwnlhMJ9ff+1jjR91zDRBfuUn5Br5V2IB+B+
-         7dSYPQXeKPYh/ClSIGny9wfQNwgDNH3rZtaYkPlQ=
-Subject: Re: [RFC] Finding the right target branch for patches that span IMA
- and SeLinux
-To:     Paul Moore <paul@paul-moore.com>,
-        Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        id S1729536AbgKCTCa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 Nov 2020 14:02:30 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42644 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727688AbgKCTC3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 14:02:29 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A3J1rJm099398;
+        Tue, 3 Nov 2020 14:02:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=ibVjWhKmFik2faUYu2uakXS4z98x5a28SI0oDBfyW+A=;
+ b=r26fcWu6EsmzY0kuwstooDcizNrrSP7I5Bify37lMIa/UTOi+dUwAacT2XRPMUuPATPE
+ w4lsNL2BH5CVMrR44BPMFGai/PXviQstV1N4qsq2bJWhE1QuPHJzwflrNxIzUFVExY2J
+ Z1254sDb3mJbAJNr7O8Bs/KN8O06WqjIyWPiLGuh0DYIYFE2R5y5JBXm7SXlmEVb78gw
+ Y1rDlnZJgMpyT0AJYr/fHWlcZ9picJ8H8JlCKVNq0efXx9IH17RjFoqpubort12cpK5y
+ 3rD0tgkhh21PQRmtDQyug8wUTpWf3rnuM5bL0GC6OFHbLGLV+WVs1D1J8wWfpoHKb3WQ Nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34k9bws2f2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Nov 2020 14:02:18 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0A3J2Hp9101713;
+        Tue, 3 Nov 2020 14:02:17 -0500
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34k9bws2e9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Nov 2020 14:02:17 -0500
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A3Im1WX002858;
+        Tue, 3 Nov 2020 19:02:15 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 34h01khtv4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Nov 2020 19:02:15 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A3J2Cxu8717010
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Nov 2020 19:02:12 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D21AA405E;
+        Tue,  3 Nov 2020 19:02:12 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0AC7EA404D;
+        Tue,  3 Nov 2020 19:02:12 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  3 Nov 2020 19:02:11 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     rentianyue@tj.kylinos.cn,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SELinux <selinux@vger.kernel.org>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        linux-integrity@vger.kernel.org
-References: <703ced1a-3a48-f29e-9141-af78415d8402@linux.microsoft.com>
- <f99f0f03aecc778826d79eb83d60cfd1a95196c5.camel@linux.ibm.com>
- <2ea3d341-6299-ec40-b553-f9f59a36cfb3@linux.microsoft.com>
- <CAHC9VhR8mbqZS3TVgG7MxQywe9uqDRCN+c59PozLTpOoQ-mK7Q@mail.gmail.com>
- <9195fd7a-a5c5-8588-d33c-772d2f530032@linux.microsoft.com>
- <CAHC9VhT36qSJvhH5CFwixdT8tzH2bqfvaDa6nPZt1rmOKOr_kQ@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <58293728-9f2b-8a6c-ec32-ec35f594094e@linux.microsoft.com>
-Date:   Tue, 3 Nov 2020 10:57:29 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Eric Paris <eparis@parisplace.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>, yangzhao@kylinos.cn,
+        selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        borntraeger@de.ibm.com
+Subject: Re: [PATCH v3 1/1] selinux: fix error initialization in
+ inode_doinit_with_dentry()
+References: <CAHC9VhQTp3Rc_7zM661Rzur0XSuWRWKJJg=CwLPAQo5ABRpS-w@mail.gmail.com>
+        <20201009013630.6777-1-rentianyue@tj.kylinos.cn>
+        <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
+        <CAHC9VhR2KPKN8ot9WrkjZQ08X-VPDGkXro18C5jhDEwcFH6wog@mail.gmail.com>
+        <yt9dh7q64m8a.fsf@linux.ibm.com>
+        <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
+Date:   Tue, 03 Nov 2020 20:02:11 +0100
+In-Reply-To: <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
+        (Paul Moore's message of "Tue, 3 Nov 2020 12:11:08 -0500")
+Message-ID: <yt9dpn4u9scs.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhT36qSJvhH5CFwixdT8tzH2bqfvaDa6nPZt1rmOKOr_kQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-03_08:2020-11-03,2020-11-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ bulkscore=0 spamscore=0 impostorscore=0 lowpriorityscore=0 phishscore=0
+ mlxlogscore=999 mlxscore=0 priorityscore=1501 adultscore=0 suspectscore=9
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2011030125
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/2/20 7:11 PM, Paul Moore wrote:
-
 Hi Paul,
 
-> On Sat, Oct 31, 2020 at 11:08 PM Tushar Sugandhi
-> <tusharsu@linux.microsoft.com> wrote:
->> On 2020-10-30 1:37 p.m., Paul Moore wrote:
-> 
-> ...
-> 
->>> If the patch(set) introduces new functionality I will ask you to add
->>> or update an existing test in the selinux-testsuite.
->>> * https://github.com/SELinuxProject/selinux-testsuite
->>
->> Lakshmi has written an SeLinux test for this feature, and it is
->> currently being targeted for LTP repo.
->> https://github.com/linux-test-project/ltp
->>
->> We can work with you to also get it incorporated in selinux-testsuite.
->> But the concern here is we may have to pull additional dependent scripts
->> from LTP to selinux-testsuite to support our test.
->>
->> Could you please take a look at Lakshmi's SeLinux test, and guide us
->> further on this? Here is the patch.
->> https://patchwork.kernel.org/patch/11804587/
-> 
-> As I'm looking at the test(s) above, I'm thinking that this may not be
-> something that needs to be in the selinux-testsuite.  While SELinux is
-> obviously an important part of the test, the test is more IMA focused
-> (which is probably the way it should be).
+Paul Moore <paul@paul-moore.com> writes:
 
-Yes, as you mentioned, the test is more IMA focused. It is to validate 
-the measurement done by IMA against the current state of the 
-configuration and policy of SELinux. Therefore we would like to keep it 
-in LTP.
+> On Tue, Nov 3, 2020 at 8:14 AM Sven Schnelle <svens@linux.ibm.com> wrote:
+>> Paul Moore <paul@paul-moore.com> writes:
+>>
+>> > On Thu, Oct 8, 2020 at 9:37 PM <rentianyue@tj.kylinos.cn> wrote:
+>> >> From: Tianyue Ren <rentianyue@kylinos.cn>
+>> >>
+>> >> Mark the inode security label as invalid if we cannot find
+>> >> a dentry so that we will retry later rather than marking it
+>> >> initialized with the unlabeled SID.
+>> >>
+>> >> Fixes: 9287aed2ad1f ("selinux: Convert isec->lock into a spinlock")
+>> >> Signed-off-by: Tianyue Ren <rentianyue@kylinos.cn>
+>> >> ---
+>> >>  security/selinux/hooks.c | 19 ++++++++++++++++---
+>> >>  1 file changed, 16 insertions(+), 3 deletions(-)
+>> >
+>> > Merged into selinux/next with some minor tweaks to the comments.
+>> > Thanks for your help!
+>>
+>> This seems to break booting on s390:
+>>
+>> Welcome to Fedora 32 (Thirty Two)!
+>>
+>> [    1.434571] systemd[1]: Set hostname to <xxx.xxx>
+>> [    1.436839] audit: type=1400 audit(1604408868.681:4): avc:  denied  { write } for  pid=1 comm="systemd" dev="cgroup2" ino=2 scontext=system_u:sys
+>> tem_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=file permissive=0
+>> [    1.436840] systemd[1]: Failed to create /init.scope control group: Permission denied
+>> [    1.438039] systemd[1]: Failed to allocate manager object: Permission denied
+>> [ [0;1;31m!!!!!! [0m] Failed to allocate manager object.
+>> [    1.438281] systemd[1]: Freezing execution.
+>>
+>> Any ideas? If i revert 83370b31a915493231e5b9addc72e4bef69f8d31 from
+>> linux-next-20201103 it works fine...
+>
+> Thanks for the report.
+>
+> Looking at this again, I'm thinking that setting the isec->initialized
+> field outside of the spinlock is probably a bad idea.  My guess is
+> that your system is racing on inode_doinit_with_dentry() and the
+> initialized field is getting messed up.
+>
+> Any chance you could try the attached (completely untested) patch?
 
-> 
-> As a bit of background, the selinux-testsuite is intended to serve as
-> a relatively easy and quick to run test that can be used by developers
-> to quickly test their patches; while it aims for good coverage, it
-> does not try to be a comprehensive regression test suite.  Not only
-> would that be duplicating other efforts such as the LTP, it would go
-> against the goal of making the test suite quick and easy to use.
-> 
+Thanks for the patch. Unfortunately it doesn't seem to change anything
+for me. I can take a look into this tomorrow, but i don't know much
+about the internals of selinux, so i'm not sure whether i'm of much help.
 
-thanks,
-  -lakshmi
+Regards
+Sven
