@@ -8,61 +8,61 @@ X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20879C2D0A3
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 22:01:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C8F3C388F9
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 22:01:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B75C52242F
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 22:01:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6C1022409
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 22:01:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="udaQgtvy"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SWydcW4f"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730703AbgKCWBC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 Nov 2020 17:01:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33246 "EHLO
+        id S1730464AbgKCWBH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 Nov 2020 17:01:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730575AbgKCWAy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 17:00:54 -0500
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E13AC061A48
-        for <selinux@vger.kernel.org>; Tue,  3 Nov 2020 14:00:53 -0800 (PST)
-Received: by mail-pl1-x649.google.com with SMTP id bg12so1110620plb.16
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 14:00:53 -0800 (PST)
+        with ESMTP id S1730391AbgKCWAs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 17:00:48 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA529C061A47
+        for <selinux@vger.kernel.org>; Tue,  3 Nov 2020 14:00:47 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id z4so19581474ybk.15
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 14:00:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=5MfBywdxMmsLRrplRDwjfeuNu4Dz7M8KwUBLUxZj6xM=;
-        b=udaQgtvyrunQ/CMzN8Xk1IupaOPWUZBksj6LPEJBbqUq0NnJlcBoPovdQ789qBRsN5
-         SJoma5dEVWU4sz/3ILN2w3Vk4tQD+DjTVUo3ut+k9a+xr5lty4GvEe+phRftibB0Wa/u
-         gJAmkO3kpZHqBgu22n8ZJIGZ+QSxJ8qtc//1EWon96YmBC8zN1K2YIUtTEQ0NOZii1/+
-         OBtUDZL/qPbNFDV/nko3qMAArLcvK6oyiJxvehGhKW4ezFBdwrmtRYlBCcqKEMQHhaxP
-         MN8n2VC22GpAWN1JERlZLWGzmhVq7rOuyrgD4kSMFO10RFq4rywPvgNYh+R7xhpK6C9A
-         Jq4Q==
+        bh=3XBsUbGDo1OR/q9g0ZauJ6lbqskxCel9Wx4PuO8x8CQ=;
+        b=SWydcW4formTd8bGKLoWqrJqowWodTZaRmx5Ipk+yZyKdgwtgAdK6WvkoEC58rysOM
+         IOCZzryxm3glANniiHntcfe45dWxlIxm2HMxMBT8URja1o7BARa5gSPll2SPKI2N+AZG
+         ZLbe+PzNBho6+p1ZVP3rxLZy1IOR/0TrL6CRFXvfPwI+dXtcH2lbpb7W/gGnj8SZnKa/
+         DAcKU34t7Edc3Vbce7DIAAP+VkxiCeBf7e9hYn4NHEG9nksRT5rjniorQbq+pHQbfCD/
+         M8ABMYRK94bsHchtYBwwr5FlaJI4FloUP0/FhPcBdHz6segdpaUvE+4AdmuvsOnfk3LG
+         f3Wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=5MfBywdxMmsLRrplRDwjfeuNu4Dz7M8KwUBLUxZj6xM=;
-        b=e+yjlov+0nD4H/UWDwWZkfu/kAgH68ZyFMrJzmiAwc+aXMDokx7EGm+qLa1Q8IG1VE
-         +3px1CopeuqrPD6/WAEgdbcOICytfkDoL1bgrA7pazLxDEy+7qzoulpVRtaCvjaEAVzt
-         kwAaUb4poekU9ZgGmWxgUBewVclk77HcU4Uz9A7G3wl0xB++UivesEGRBS2Cz0vFUAZQ
-         1xXvBACFVUVfV7whpDqK5f23QVXjGh+bwmAtgnxAe13KS+0Bn/p/hA5MkVvj8iyuz1Ri
-         31Mj3eMq7JZATRHGX5G/znG1SCyeQmhoJd1BDYekB9gYGEUNX1H+GYHAKK+9A0tSLJlN
-         Vd0A==
-X-Gm-Message-State: AOAM533H2s5SqzizJPasbwe2F6d3eT10W016OYPA+WgKBuLljh1KdnFo
-        Mi6VqrpD3WoragmHAmH7NaQu0tLnYGwBIOQ82w==
-X-Google-Smtp-Source: ABdhPJyAOAyaXh2xZzoHs7/ZBCmt8D42Q2k0vfbMoTbMpRBhGybVkxXxBcnAzulcfDtjqseSbtRBcpDsBFbYgvG5vQ==
+        bh=3XBsUbGDo1OR/q9g0ZauJ6lbqskxCel9Wx4PuO8x8CQ=;
+        b=SVjM6heUMEO0SyHfXNzPl/Lxv1pcyY+vTBtbA5TJb0UL5W/aiuIbPEukk9PPDuuhRA
+         7yOI45HQXwyzOxFzeItrWBwLbxWyPPcb4dO47D87DqsDdR10FeSnTQjZGO7GrFpdSpg+
+         choPJWDkfffjZkXKE22jPMiRoGrjyPj55QZSLn1CQYQaaXEzWZHgM/o4uyEqDQZmEp/K
+         ZXIC7UqFjbDeMMWr+VJB5QPtt7ojfNU9C47/b+py9EBOD0mjgxkMfLZPQvhIYCSLWmgi
+         gXIVFmWnxBU8HoonY5MFHu8F/nK0d08Mczus2uTscjj+J407XsU6WacTJwSXDIS0SSYT
+         FT0w==
+X-Gm-Message-State: AOAM531AUkaNS7/o7sOvPfN7AuLflp29FtmWqWaOGl49XGCzvaC6d1P/
+        U+2jVZCDF6kP08Pl4048vT1bI5oaEdGC/yDjyA==
+X-Google-Smtp-Source: ABdhPJynbczW6i0kPxTISwqT1ignplNOTgXAmPr9HrHPzI82/1SGkS5+RDxMbqNWX3Q382NsaK1vjV++Tj040DITuQ==
 Sender: "lokeshgidra via sendgmr" <lokeshgidra@lg.mtv.corp.google.com>
 X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:29dd])
- (user=lokeshgidra job=sendgmr) by 2002:a17:90a:678a:: with SMTP id
- o10mr1283056pjj.180.1604440852797; Tue, 03 Nov 2020 14:00:52 -0800 (PST)
-Date:   Tue,  3 Nov 2020 14:00:20 -0800
+ (user=lokeshgidra job=sendgmr) by 2002:a25:26c5:: with SMTP id
+ m188mr31410047ybm.408.1604440846472; Tue, 03 Nov 2020 14:00:46 -0800 (PST)
+Date:   Tue,  3 Nov 2020 14:00:18 -0800
 In-Reply-To: <20201103220020.2399003-1-lokeshgidra@google.com>
-Message-Id: <20201103220020.2399003-4-lokeshgidra@google.com>
+Message-Id: <20201103220020.2399003-2-lokeshgidra@google.com>
 Mime-Version: 1.0
 References: <20201103220020.2399003-1-lokeshgidra@google.com>
 X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
-Subject: [PATCH v10 3/3] Use secure anon inodes for userfaultfd
+Subject: [PATCH v10 1/3] Add a new LSM-supporting anonymous inode interface
 From:   Lokesh Gidra <lokeshgidra@google.com>
 To:     Andrea Arcangeli <aarcange@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -104,90 +104,351 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: Daniel Colascione <dancol@google.com>
 
-This change gives userfaultfd file descriptors a real security
-context, allowing policy to act on them.
+This change adds a new function, anon_inode_getfd_secure, that creates
+anonymous-node file with individual non-S_PRIVATE inode to which security
+modules can apply policy. Existing callers continue using the original
+singleton-inode kind of anonymous-inode file. We can transition anonymous
+inode users to the new kind of anonymous inode in individual patches for
+the sake of bisection and review.
+
+The new function accepts an optional context_inode parameter that
+callers can use to provide additional contextual information to
+security modules for granting/denying permission to create an anon inode
+of the same type.
+
+For example, in case of userfaultfd, the created inode is a
+'logical child' of the context_inode (userfaultfd inode of the
+parent process) in the sense that it provides the security context
+required during creation of the child process' userfaultfd inode.
 
 Signed-off-by: Daniel Colascione <dancol@google.com>
 
-[Remove owner inode from userfaultfd_ctx]
-[Use anon_inode_getfd_secure() instead of anon_inode_getfile_secure()
- in userfaultfd syscall]
-[Use inode of file in userfaultfd_read() in resolve_userfault_fork()]
+[Fix comment documenting return values of inode_init_security_anon()]
+[Add context_inode description in comments to anon_inode_getfd_secure()]
+[Remove definition of anon_inode_getfile_secure() as there are no callers]
+[Make __anon_inode_getfile() static]
+[Use correct error cast in __anon_inode_getfile()]
+[Fix error handling in __anon_inode_getfile()]
 
 Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
 ---
- fs/userfaultfd.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ fs/anon_inodes.c              | 148 +++++++++++++++++++++++++---------
+ include/linux/anon_inodes.h   |   8 ++
+ include/linux/lsm_hook_defs.h |   2 +
+ include/linux/lsm_hooks.h     |   9 +++
+ include/linux/security.h      |  10 +++
+ security/security.c           |   8 ++
+ 6 files changed, 145 insertions(+), 40 deletions(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 0e4a3837da52..918535b49475 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -978,14 +978,14 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
+diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+index 89714308c25b..a3fe08fcaa52 100644
+--- a/fs/anon_inodes.c
++++ b/fs/anon_inodes.c
+@@ -55,61 +55,79 @@ static struct file_system_type anon_inode_fs_type = {
+ 	.kill_sb	= kill_anon_super,
+ };
  
- static const struct file_operations userfaultfd_fops;
- 
--static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
--				  struct userfaultfd_ctx *new,
-+static int resolve_userfault_fork(struct userfaultfd_ctx *new,
-+				  struct inode *inode,
- 				  struct uffd_msg *msg)
+-/**
+- * anon_inode_getfile - creates a new file instance by hooking it up to an
+- *                      anonymous inode, and a dentry that describe the "class"
+- *                      of the file
+- *
+- * @name:    [in]    name of the "class" of the new file
+- * @fops:    [in]    file operations for the new file
+- * @priv:    [in]    private data for the new file (will be file's private_data)
+- * @flags:   [in]    flags
+- *
+- * Creates a new file by hooking it on a single inode. This is useful for files
+- * that do not need to have a full-fledged inode in order to operate correctly.
+- * All the files created with anon_inode_getfile() will share a single inode,
+- * hence saving memory and avoiding code duplication for the file/inode/dentry
+- * setup.  Returns the newly created file* or an error pointer.
+- */
+-struct file *anon_inode_getfile(const char *name,
+-				const struct file_operations *fops,
+-				void *priv, int flags)
++static struct inode *anon_inode_make_secure_inode(
++	const char *name,
++	const struct inode *context_inode)
  {
- 	int fd;
+-	struct file *file;
++	struct inode *inode;
++	const struct qstr qname = QSTR_INIT(name, strlen(name));
++	int error;
++
++	inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
++	if (IS_ERR(inode))
++		return inode;
++	inode->i_flags &= ~S_PRIVATE;
++	error =	security_inode_init_security_anon(inode, &qname, context_inode);
++	if (error) {
++		iput(inode);
++		return ERR_PTR(error);
++	}
++	return inode;
++}
  
--	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
--			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
-+	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
-+			O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
- 	if (fd < 0)
- 		return fd;
+-	if (IS_ERR(anon_inode_inode))
+-		return ERR_PTR(-ENODEV);
++static struct file *__anon_inode_getfile(const char *name,
++					 const struct file_operations *fops,
++					 void *priv, int flags,
++					 const struct inode *context_inode,
++					 bool secure)
++{
++	struct inode *inode;
++	struct file *file;
  
-@@ -995,7 +995,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
+ 	if (fops->owner && !try_module_get(fops->owner))
+ 		return ERR_PTR(-ENOENT);
+ 
+-	/*
+-	 * We know the anon_inode inode count is always greater than zero,
+-	 * so ihold() is safe.
+-	 */
+-	ihold(anon_inode_inode);
+-	file = alloc_file_pseudo(anon_inode_inode, anon_inode_mnt, name,
++	if (secure) {
++		inode =	anon_inode_make_secure_inode(name, context_inode);
++		if (IS_ERR(inode)) {
++			file = ERR_CAST(inode);
++			goto err;
++		}
++	} else {
++		inode =	anon_inode_inode;
++		if (IS_ERR(inode)) {
++			file = ERR_PTR(-ENODEV);
++			goto err;
++		}
++		/*
++		 * We know the anon_inode inode count is always
++		 * greater than zero, so ihold() is safe.
++		 */
++		ihold(inode);
++	}
++
++	file = alloc_file_pseudo(inode, anon_inode_mnt, name,
+ 				 flags & (O_ACCMODE | O_NONBLOCK), fops);
+ 	if (IS_ERR(file))
+-		goto err;
++		goto err_iput;
+ 
+-	file->f_mapping = anon_inode_inode->i_mapping;
++	file->f_mapping = inode->i_mapping;
+ 
+ 	file->private_data = priv;
+ 
+ 	return file;
+ 
++err_iput:
++	iput(inode);
+ err:
+-	iput(anon_inode_inode);
+ 	module_put(fops->owner);
+ 	return file;
+ }
+-EXPORT_SYMBOL_GPL(anon_inode_getfile);
+ 
+ /**
+- * anon_inode_getfd - creates a new file instance by hooking it up to an
+- *                    anonymous inode, and a dentry that describe the "class"
+- *                    of the file
++ * anon_inode_getfile - creates a new file instance by hooking it up to an
++ *                      anonymous inode, and a dentry that describe the "class"
++ *                      of the file
+  *
+  * @name:    [in]    name of the "class" of the new file
+  * @fops:    [in]    file operations for the new file
+@@ -118,12 +136,23 @@ EXPORT_SYMBOL_GPL(anon_inode_getfile);
+  *
+  * Creates a new file by hooking it on a single inode. This is useful for files
+  * that do not need to have a full-fledged inode in order to operate correctly.
+- * All the files created with anon_inode_getfd() will share a single inode,
++ * All the files created with anon_inode_getfile() will share a single inode,
+  * hence saving memory and avoiding code duplication for the file/inode/dentry
+- * setup.  Returns new descriptor or an error code.
++ * setup.  Returns the newly created file* or an error pointer.
+  */
+-int anon_inode_getfd(const char *name, const struct file_operations *fops,
+-		     void *priv, int flags)
++struct file *anon_inode_getfile(const char *name,
++				const struct file_operations *fops,
++				void *priv, int flags)
++{
++	return __anon_inode_getfile(name, fops, priv, flags, NULL, false);
++}
++EXPORT_SYMBOL_GPL(anon_inode_getfile);
++
++static int __anon_inode_getfd(const char *name,
++			      const struct file_operations *fops,
++			      void *priv, int flags,
++			      const struct inode *context_inode,
++			      bool secure)
+ {
+ 	int error, fd;
+ 	struct file *file;
+@@ -133,7 +162,8 @@ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ 		return error;
+ 	fd = error;
+ 
+-	file = anon_inode_getfile(name, fops, priv, flags);
++	file = __anon_inode_getfile(name, fops, priv, flags, context_inode,
++				    secure);
+ 	if (IS_ERR(file)) {
+ 		error = PTR_ERR(file);
+ 		goto err_put_unused_fd;
+@@ -146,8 +176,46 @@ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ 	put_unused_fd(fd);
+ 	return error;
+ }
++
++/**
++ * anon_inode_getfd - creates a new file instance by hooking it up to
++ *                    an anonymous inode and a dentry that describe
++ *                    the "class" of the file
++ *
++ * @name:    [in]    name of the "class" of the new file
++ * @fops:    [in]    file operations for the new file
++ * @priv:    [in]    private data for the new file (will be file's private_data)
++ * @flags:   [in]    flags
++ *
++ * Creates a new file by hooking it on a single inode. This is
++ * useful for files that do not need to have a full-fledged inode in
++ * order to operate correctly.  All the files created with
++ * anon_inode_getfd() will use the same singleton inode, reducing
++ * memory use and avoiding code duplication for the file/inode/dentry
++ * setup.  Returns a newly created file descriptor or an error code.
++ */
++int anon_inode_getfd(const char *name, const struct file_operations *fops,
++		     void *priv, int flags)
++{
++	return __anon_inode_getfd(name, fops, priv, flags, NULL, false);
++}
+ EXPORT_SYMBOL_GPL(anon_inode_getfd);
+ 
++/**
++ * Like anon_inode_getfd() creates a new file, but by hooking it to a new anon
++ * inode, rather than to the same singleton inode. Also adds the @context_inode
++ * argument to allow security modules to control creation of the new file. Once
++ * the security module makes the decision, the context_inode is no longer needed
++ * and hence reference to it is not held.
++ */
++int anon_inode_getfd_secure(const char *name, const struct file_operations *fops,
++			    void *priv, int flags,
++			    const struct inode *context_inode)
++{
++	return __anon_inode_getfd(name, fops, priv, flags, context_inode, true);
++}
++EXPORT_SYMBOL_GPL(anon_inode_getfd_secure);
++
+ static int __init anon_inode_init(void)
+ {
+ 	anon_inode_mnt = kern_mount(&anon_inode_fs_type);
+diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
+index d0d7d96261ad..6ab840ee93bc 100644
+--- a/include/linux/anon_inodes.h
++++ b/include/linux/anon_inodes.h
+@@ -10,12 +10,20 @@
+ #define _LINUX_ANON_INODES_H
+ 
+ struct file_operations;
++struct inode;
+ 
+ struct file *anon_inode_getfile(const char *name,
+ 				const struct file_operations *fops,
+ 				void *priv, int flags);
++
++int anon_inode_getfd_secure(const char *name,
++			    const struct file_operations *fops,
++			    void *priv, int flags,
++			    const struct inode *context_inode);
++
+ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ 		     void *priv, int flags);
+ 
++
+ #endif /* _LINUX_ANON_INODES_H */
+ 
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 2a8c74d99015..35ff75c43de4 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -113,6 +113,8 @@ LSM_HOOK(void, LSM_RET_VOID, inode_free_security, struct inode *inode)
+ LSM_HOOK(int, 0, inode_init_security, struct inode *inode,
+ 	 struct inode *dir, const struct qstr *qstr, const char **name,
+ 	 void **value, size_t *len)
++LSM_HOOK(int, 0, inode_init_security_anon, struct inode *inode,
++	 const struct qstr *name, const struct inode *context_inode)
+ LSM_HOOK(int, 0, inode_create, struct inode *dir, struct dentry *dentry,
+ 	 umode_t mode)
+ LSM_HOOK(int, 0, inode_link, struct dentry *old_dentry, struct inode *dir,
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 9e2e3e63719d..586186f1184b 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -233,6 +233,15 @@
+  *	Returns 0 if @name and @value have been successfully set,
+  *	-EOPNOTSUPP if no security attribute is needed, or
+  *	-ENOMEM on memory allocation failure.
++ * @inode_init_security_anon:
++ *      Set up the incore security field for the new anonymous inode
++ *      and return whether the inode creation is permitted by the security
++ *      module or not.
++ *      @inode contains the inode structure
++ *      @name name of the anonymous inode class
++ *      @context_inode optional related inode
++ *	Returns 0 on success, -EACCESS if the security module denies the
++ *	creation of this inode, or another -errno upon other errors.
+  * @inode_create:
+  *	Check permission to create a regular file.
+  *	@dir contains inode structure of the parent of the new file.
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 0a0a03b36a3b..7c6b3dcf4721 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -322,6 +322,9 @@ void security_inode_free(struct inode *inode);
+ int security_inode_init_security(struct inode *inode, struct inode *dir,
+ 				 const struct qstr *qstr,
+ 				 initxattrs initxattrs, void *fs_data);
++int security_inode_init_security_anon(struct inode *inode,
++				      const struct qstr *name,
++				      const struct inode *context_inode);
+ int security_old_inode_init_security(struct inode *inode, struct inode *dir,
+ 				     const struct qstr *qstr, const char **name,
+ 				     void **value, size_t *len);
+@@ -732,6 +735,13 @@ static inline int security_inode_init_security(struct inode *inode,
+ 	return 0;
  }
  
- static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
--				    struct uffd_msg *msg)
-+				    struct uffd_msg *msg, struct inode *inode)
- {
- 	ssize_t ret;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -1106,7 +1106,7 @@ static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
- 	spin_unlock_irq(&ctx->fd_wqh.lock);
++static inline int security_inode_init_security_anon(struct inode *inode,
++						    const struct qstr *name,
++						    const struct inode *context_inode)
++{
++	return 0;
++}
++
+ static inline int security_old_inode_init_security(struct inode *inode,
+ 						   struct inode *dir,
+ 						   const struct qstr *qstr,
+diff --git a/security/security.c b/security/security.c
+index 70a7ad357bc6..2c4b121a01b9 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1057,6 +1057,14 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
+ }
+ EXPORT_SYMBOL(security_inode_init_security);
  
- 	if (!ret && msg->event == UFFD_EVENT_FORK) {
--		ret = resolve_userfault_fork(ctx, fork_nctx, msg);
-+		ret = resolve_userfault_fork(fork_nctx, inode, msg);
- 		spin_lock_irq(&ctx->event_wqh.lock);
- 		if (!list_empty(&fork_event)) {
- 			/*
-@@ -1166,6 +1166,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 	ssize_t _ret, ret = 0;
- 	struct uffd_msg msg;
- 	int no_wait = file->f_flags & O_NONBLOCK;
-+	struct inode *inode = file_inode(file);
- 
- 	if (ctx->state == UFFD_STATE_WAIT_API)
- 		return -EINVAL;
-@@ -1173,7 +1174,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 	for (;;) {
- 		if (count < sizeof(msg))
- 			return ret ? ret : -EINVAL;
--		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg);
-+		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg, inode);
- 		if (_ret < 0)
- 			return ret ? ret : _ret;
- 		if (copy_to_user((__u64 __user *) buf, &msg, sizeof(msg)))
-@@ -1995,8 +1996,8 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
- 	/* prevent the mm struct to be freed */
- 	mmgrab(ctx->mm);
- 
--	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
--			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
-+	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
-+			O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
- 	if (fd < 0) {
- 		mmdrop(ctx->mm);
- 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
++int security_inode_init_security_anon(struct inode *inode,
++				      const struct qstr *name,
++				      const struct inode *context_inode)
++{
++	return call_int_hook(inode_init_security_anon, 0, inode, name,
++			     context_inode);
++}
++
+ int security_old_inode_init_security(struct inode *inode, struct inode *dir,
+ 				     const struct qstr *qstr, const char **name,
+ 				     void **value, size_t *len)
 -- 
 2.28.0.1011.ga647a8990f-goog
 
