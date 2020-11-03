@@ -2,219 +2,177 @@ Return-Path: <SRS0=PQdl=EJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF405C388F7
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 14:10:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D129C2D0A3
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 17:11:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52CD622226
-	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 14:10:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C85C120870
+	for <selinux@archiver.kernel.org>; Tue,  3 Nov 2020 17:11:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kinvolk.io header.i=@kinvolk.io header.b="jNSrYWNM"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="DwXqc1Qp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729561AbgKCOKy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 Nov 2020 09:10:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
+        id S1728524AbgKCRLW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 Nov 2020 12:11:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729359AbgKCOKs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 09:10:48 -0500
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879DEC061A48
-        for <selinux@vger.kernel.org>; Tue,  3 Nov 2020 06:10:48 -0800 (PST)
-Received: by mail-ed1-x541.google.com with SMTP id o20so289299eds.3
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 06:10:48 -0800 (PST)
+        with ESMTP id S1727688AbgKCRLW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 Nov 2020 12:11:22 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1990C0613D1
+        for <selinux@vger.kernel.org>; Tue,  3 Nov 2020 09:11:21 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id cw8so11719851ejb.8
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 09:11:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kinvolk.io; s=google;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=y8WQjpT9rqVrgeh99s8m7L7lW+jgLfIjyGz2M8+krP0=;
-        b=jNSrYWNMri4UzTfQTwvUoeI3d9PbxAntszBtbkOHWPbsmFNLXoekIJ8TcfDFJbJf7v
-         6+eYLKBEUBAXwADA9DJI10J7imuIzSuwLQhtXLJY1nc7fmB3dMavlYA1Xmy9wmU6aG0F
-         m9nefJssTHLgeDNMLEKBtF2hV/CbFCCq5QOzc=
+         :cc;
+        bh=9yln6e9DFCtRBB1nDEWcn7mUWxZv67NRC0F96HEo+Zw=;
+        b=DwXqc1QpXw2rUq7o6JvtvkMFIrS4uQZ7x6fKJ9xgSWfwLbf+6atqGKZUX2veV5kTBw
+         pLlaILsCc42btrTJPRGYAf1eBi81bNG2Db1zpdHAcT7FQXJhM7dcxrgN817WqrvQuvDy
+         3m0ZSOB6xOa6veC4CmttFDqxAYfsT33eFfn6tSJhkQVcQL5zxG6XXZ8MYDLwBH2UhCEr
+         4DNIZYl4IcuzHP/gh0RpJZQrwm3pRI5tWiqYwkfjXcEots+4lgJsSWKrZ1z1PFWViZ7p
+         s2J+hi7+ovz9Hf9K+lJ2Xrd8U8ijmB7HVlSZve49sMBJjLTTFHI1xXAtYAcBcmo16/Dc
+         EEHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=y8WQjpT9rqVrgeh99s8m7L7lW+jgLfIjyGz2M8+krP0=;
-        b=H3uMk0cCV4LgcROTh+4g0KIyAVS0/Vczaze/ctvgBIYIgFuaaoCNixy1eAukIKXu9B
-         yL0Ucbr9Cyj6iwjdv9PhfSbT4jnWyfX/Dlb+1y89M8wyq/lmHvYYhUNOi0a/eMi1ZwKo
-         YCOl/h7BG55alHiC/P65MMGYn7tcAYo+H2/U6Ggh+h7DJWBWQc8dECaomLoWWOvDZoJw
-         HTBEf/YyVIUgw+tt6E9WMO4SL9zD62cCOGtOBdBt4ahLwOwNbu+6JBLeUAS/5tlly1B8
-         rv2HAkDEJ9faL74/65A/pvqo5wbXmHhK1TR33H+qa+w062wMIWfYH3BPdgM+/csIXCZW
-         Uoww==
-X-Gm-Message-State: AOAM533VoesqTYHn7pgSGiKxNRXb9nb9ls0VW3mmk1JluI2sPsajQ2XX
-        CoPzwkuwnfZPX/W0wyqA1C186uAbKlnNSA5rYojuVw==
-X-Google-Smtp-Source: ABdhPJwp4QL8RwmQmcT2CoPcUplHSU9HiByLsXAEntwM01IPEN+3MiJMYkcJQ6Od81V70aDSuFwsTxILAnA/OMfjXrI=
-X-Received: by 2002:a05:6402:a57:: with SMTP id bt23mr10741907edb.62.1604412647178;
- Tue, 03 Nov 2020 06:10:47 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=9yln6e9DFCtRBB1nDEWcn7mUWxZv67NRC0F96HEo+Zw=;
+        b=pdhhSqsMs+7p/8RBQf16yLQ3sV3rNS16mDL4VwZLBTxKezPtqoLaB+61yBPbhXWoHO
+         cCLkCT9V4qb41JOpS+RGiIJKkV9JgTMPRFpEmh0CXEpzmWR/kDRJ7IVPctfPC247jYmX
+         fXmIcmmteBL4IegEwVe4Ccfi+EiQkUYMtkp/XGYfEzUAPtvYcyrQImoqnaWd697Ry40r
+         Yc2ZcLgMqxmfmFaOXbxyoZ7BR967++topHBUdutdqgE1FmxsuryW/YzHkfhOb/lBZJnu
+         AfquNGNCf4zjIyHXh+RJCFSGO7AfkPnr7eKRpJ2q33CZwo6USAN6UbNiTrQWj6jCJ/or
+         ZhTw==
+X-Gm-Message-State: AOAM532Pe6riMPT6Z39q9gKMXRNO0p53k5zSDwKDVtZTQlqO6C70ImXI
+        2AZxPJp5uEmnw4xcynO1+M12mmciwAc7HFu717BA
+X-Google-Smtp-Source: ABdhPJwEbU22jukM38VVa2SZOwS/mkl4pv+xf1F4osP6iZpkNzvWk5OhnwJ0cY+eRV4I015HHYgLZdyAye25HDa9NRo=
+X-Received: by 2002:a17:906:1159:: with SMTP id i25mr1270779eja.398.1604423480232;
+ Tue, 03 Nov 2020 09:11:20 -0800 (PST)
 MIME-Version: 1.0
-References: <20201029003252.2128653-1-christian.brauner@ubuntu.com>
- <87pn51ghju.fsf@x220.int.ebiederm.org> <20201029155148.5odu4j2kt62ahcxq@yavin.dot.cyphar.com>
- <87361xdm4c.fsf@x220.int.ebiederm.org>
-In-Reply-To: <87361xdm4c.fsf@x220.int.ebiederm.org>
-From:   Alban Crequy <alban@kinvolk.io>
-Date:   Tue, 3 Nov 2020 15:10:35 +0100
-Message-ID: <CADZs7q4abuN6n8HMrpe2R2kRBUDVPoYRNpezKk4cvXRk7CVHng@mail.gmail.com>
-Subject: Re: [PATCH 00/34] fs: idmapped mounts
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Aleksa Sarai <cyphar@cyphar.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+References: <CAHC9VhQTp3Rc_7zM661Rzur0XSuWRWKJJg=CwLPAQo5ABRpS-w@mail.gmail.com>
+ <20201009013630.6777-1-rentianyue@tj.kylinos.cn> <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
+ <CAHC9VhR2KPKN8ot9WrkjZQ08X-VPDGkXro18C5jhDEwcFH6wog@mail.gmail.com> <yt9dh7q64m8a.fsf@linux.ibm.com>
+In-Reply-To: <yt9dh7q64m8a.fsf@linux.ibm.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 3 Nov 2020 12:11:08 -0500
+Message-ID: <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] selinux: fix error initialization in inode_doinit_with_dentry()
+To:     Sven Schnelle <svens@linux.ibm.com>
+Cc:     rentianyue@tj.kylinos.cn,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Theodore Tso <tytso@mit.edu>, Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Jann Horn <jannh@google.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?UTF-8?Q?St=C3=A9phane_Graber?= <stgraber@ubuntu.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        smbarber@chromium.org, Phil Estes <estesp@gmail.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        LSM <linux-security-module@vger.kernel.org>,
-        linux-api@vger.kernel.org, linux-ext4@vger.kernel.org,
-        linux-unionfs@vger.kernel.org, linux-audit@redhat.com,
-        linux-integrity <linux-integrity@vger.kernel.org>,
-        selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Eric Paris <eparis@parisplace.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>, yangzhao@kylinos.cn,
+        selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        borntraeger@de.ibm.com
+Content-Type: multipart/mixed; boundary="0000000000009c59a805b336f33d"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 5:37 PM Eric W. Biederman <ebiederm@xmission.com> w=
-rote:
+--0000000000009c59a805b336f33d
+Content-Type: text/plain; charset="UTF-8"
+
+On Tue, Nov 3, 2020 at 8:14 AM Sven Schnelle <svens@linux.ibm.com> wrote:
+> Paul Moore <paul@paul-moore.com> writes:
 >
-> Aleksa Sarai <cyphar@cyphar.com> writes:
->
-> > On 2020-10-29, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> >> Christian Brauner <christian.brauner@ubuntu.com> writes:
+> > On Thu, Oct 8, 2020 at 9:37 PM <rentianyue@tj.kylinos.cn> wrote:
+> >> From: Tianyue Ren <rentianyue@kylinos.cn>
 > >>
-> >> > Hey everyone,
-> >> >
-> >> > I vanished for a little while to focus on this work here so sorry fo=
-r
-> >> > not being available by mail for a while.
-> >> >
-> >> > Since quite a long time we have issues with sharing mounts between
-> >> > multiple unprivileged containers with different id mappings, sharing=
- a
-> >> > rootfs between multiple containers with different id mappings, and a=
-lso
-> >> > sharing regular directories and filesystems between users with diffe=
-rent
-> >> > uids and gids. The latter use-cases have become even more important =
-with
-> >> > the availability and adoption of systemd-homed (cf. [1]) to implemen=
-t
-> >> > portable home directories.
+> >> Mark the inode security label as invalid if we cannot find
+> >> a dentry so that we will retry later rather than marking it
+> >> initialized with the unlabeled SID.
 > >>
-> >> Can you walk us through the motivating use case?
-> >>
-> >> As of this year's LPC I had the distinct impression that the primary u=
-se
-> >> case for such a feature was due to the RLIMIT_NPROC problem where two
-> >> containers with the same users still wanted different uid mappings to
-> >> the disk because the users were conflicting with each other because of
-> >> the per user rlimits.
-> >>
-> >> Fixing rlimits is straight forward to implement, and easier to manage
-> >> for implementations and administrators.
+> >> Fixes: 9287aed2ad1f ("selinux: Convert isec->lock into a spinlock")
+> >> Signed-off-by: Tianyue Ren <rentianyue@kylinos.cn>
+> >> ---
+> >>  security/selinux/hooks.c | 19 ++++++++++++++++---
+> >>  1 file changed, 16 insertions(+), 3 deletions(-)
 > >
-> > This is separate to the question of "isolated user namespaces" and
-> > managing different mappings between containers. This patchset is solvin=
-g
-> > the same problem that shiftfs solved -- sharing a single directory tree
-> > between containers that have different ID mappings. rlimits (nor any of
-> > the other proposals we discussed at LPC) will help with this problem.
+> > Merged into selinux/next with some minor tweaks to the comments.
+> > Thanks for your help!
 >
-> First and foremost: A uid shift on write to a filesystem is a security
-> bug waiting to happen.  This is especially in the context of facilities
-> like iouring, that play very agressive games with how process context
-> makes it to  system calls.
+> This seems to break booting on s390:
 >
-> The only reason containers were not immediately exploitable when iouring
-> was introduced is because the mechanisms are built so that even if
-> something escapes containment the security properties still apply.
-> Changes to the uid when writing to the filesystem does not have that
-> property.  The tiniest slip in containment will be a security issue.
+> Welcome to Fedora 32 (Thirty Two)!
 >
-> This is not even the least bit theoretical.  I have seem reports of how
-> shitfs+overlayfs created a situation where anyone could read
-> /etc/shadow.
+> [    1.434571] systemd[1]: Set hostname to <xxx.xxx>
+> [    1.436839] audit: type=1400 audit(1604408868.681:4): avc:  denied  { write } for  pid=1 comm="systemd" dev="cgroup2" ino=2 scontext=system_u:sys
+> tem_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=file permissive=0
+> [    1.436840] systemd[1]: Failed to create /init.scope control group: Permission denied
+> [    1.438039] systemd[1]: Failed to allocate manager object: Permission denied
+> [ [0;1;31m!!!!!! [0m] Failed to allocate manager object.
+> [    1.438281] systemd[1]: Freezing execution.
 >
-> If you are going to write using the same uid to disk from different
-> containers the question becomes why can't those containers configure
-> those users to use the same kuid?
->
-> What fixing rlimits does is it fixes one of the reasons that different
-> containers could not share the same kuid for users that want to write to
-> disk with the same uid.
->
->
-> I humbly suggest that it will be more secure, and easier to maintain for
-> both developers and users if we fix the reasons people want different
-> containers to have the same user running with different kuids.
->
-> If not what are the reasons we fundamentally need the same on-disk user
-> using multiple kuids in the kernel?
+> Any ideas? If i revert 83370b31a915493231e5b9addc72e4bef69f8d31 from
+> linux-next-20201103 it works fine...
 
-I would like to use this patch set in the context of Kubernetes. I
-described my two possible setups in
-https://www.spinics.net/lists/linux-containers/msg36537.html:
+Thanks for the report.
 
-1. Each Kubernetes pod has its own userns but with the same user id mapping
-2. Each Kubernetes pod has its own userns with non-overlapping user id
-mapping (providing additional isolation between pods)
+Looking at this again, I'm thinking that setting the isec->initialized
+field outside of the spinlock is probably a bad idea.  My guess is
+that your system is racing on inode_doinit_with_dentry() and the
+initialized field is getting messed up.
 
-But even in the setup where all pods run with the same id mappings,
-this patch set is still useful to me for 2 reasons:
+Any chance you could try the attached (completely untested) patch?
 
-1. To avoid the expensive recursive chown of the rootfs. We cannot
-necessarily extract the tarball directly with the right uids because
-we might use the same container image for privileged containers (with
-the host userns) and unprivileged containers (with a new userns), so
-we have at least 2 =E2=80=9Cmappings=E2=80=9D (taking more time and resulti=
-ng in more
-storage space). Although the =E2=80=9Cmetacopy=E2=80=9D mount option in ove=
-rlayfs
-helps to make the recursive chown faster, it can still take time with
-large container images with lots of files. I=E2=80=99d like to use this pat=
-ch
-set to set up the root fs in constant time.
+-- 
+paul moore
+www.paul-moore.com
 
-2. To manage large external volumes (NFS or other filesystems). Even
-if admins can decide to use the same kuid on all the nodes of the
-Kubernetes cluster, this is impractical for migration. People can have
-existing Kubernetes clusters (currently without using user namespaces)
-and large NFS volumes. If they want to switch to a new version of
-Kubernetes with the user namespace feature enabled, they would need to
-recursively chown all the files on the NFS shares. This could take
-time on large filesystems and realistically, we want to support
-rolling updates where some nodes use the previous version without user
-namespaces and new nodes are progressively migrated to the new userns
-with the new id mapping. If both sets of nodes use the same NFS share,
-that can=E2=80=99t work.
+--0000000000009c59a805b336f33d
+Content-Type: text/x-patch; charset="US-ASCII"; name="01-selinux-inode_dentry_init_fix.patch"
+Content-Disposition: attachment; 
+	filename="01-selinux-inode_dentry_init_fix.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kh2864py0>
+X-Attachment-Id: f_kh2864py0
 
-Alban
+c2VsaW51eDogZml4IGlub2RlX2RvaW5pdF93aXRoX2RlbnRyeSgpIGVycm9yIGNhc2UgbG9ja2lu
+ZwoKRnJvbTogUGF1bCBNb29yZSA8cGF1bEBwYXVsLW1vb3JlLmNvbT4KClhYWCAtIHRlc3Rpbmcg
+b25seSBwYXRjaCwgd29yayBpbiBwcm9ncmVzcwoKRml4ZXM6IDgzMzcwYjMxYTkxNSAoInNlbGlu
+dXg6IGZpeCBlcnJvciBpbml0aWFsaXphdGlvbiBpbiBpbm9kZV9kb2luaXRfd2l0aF9kZW50cnko
+KSIpClJlcG9ydGVkLWJ5OiBTdmVuIFNjaG5lbGxlIDxzdmVuc0BsaW51eC5pYm0uY29tPgpTaWdu
+ZWQtb2ZmLWJ5OiBQYXVsIE1vb3JlIDxwYXVsQHBhdWwtbW9vcmUuY29tPgotLS0KIHNlY3VyaXR5
+L3NlbGludXgvaG9va3MuYyB8ICAgMjkgKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0KIDEg
+ZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCAxOCBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
+aXQgYS9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMK
+aW5kZXggMTU4ZmM0N2Q4NjIwLi4wMjk0ZGEyYWFhY2QgMTAwNjQ0Ci0tLSBhL3NlY3VyaXR5L3Nl
+bGludXgvaG9va3MuYworKysgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKQEAgLTE0NTEsMTMg
+KzE0NTEsNyBAQCBzdGF0aWMgaW50IGlub2RlX2RvaW5pdF93aXRoX2RlbnRyeShzdHJ1Y3QgaW5v
+ZGUgKmlub2RlLCBzdHJ1Y3QgZGVudHJ5ICpvcHRfZGVudAogCQkJICogaW5vZGVfZG9pbml0IHdp
+dGggYSBkZW50cnksIGJlZm9yZSB0aGVzZSBpbm9kZXMgY291bGQKIAkJCSAqIGJlIHVzZWQgYWdh
+aW4gYnkgdXNlcnNwYWNlLgogCQkJICovCi0JCQlpc2VjLT5pbml0aWFsaXplZCA9IExBQkVMX0lO
+VkFMSUQ7Ci0JCQkvKgotCQkJICogVGhlcmUgaXMgbm90aGluZyB1c2VmdWwgdG8ganVtcCB0byB0
+aGUgIm91dCIKLQkJCSAqIGxhYmVsLCBleGNlcHQgYSBuZWVkbGVzcyBzcGluIGxvY2svdW5sb2Nr
+Ci0JCQkgKiBjeWNsZS4KLQkJCSAqLwotCQkJcmV0dXJuIDA7CisJCQlnb3RvIG91dF9pbnZhbGlk
+OwogCQl9CiAKIAkJcmMgPSBpbm9kZV9kb2luaXRfdXNlX3hhdHRyKGlub2RlLCBkZW50cnksIHNi
+c2VjLT5kZWZfc2lkLApAQCAtMTUxMywxNSArMTUwNyw4IEBAIHN0YXRpYyBpbnQgaW5vZGVfZG9p
+bml0X3dpdGhfZGVudHJ5KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBkZW50cnkgKm9wdF9k
+ZW50CiAJCQkgKiBpbm9kZV9kb2luaXQoKSB3aXRoIGEgZGVudHJ5LCBiZWZvcmUgdGhlc2UgaW5v
+ZGVzCiAJCQkgKiBjb3VsZCBiZSB1c2VkIGFnYWluIGJ5IHVzZXJzcGFjZS4KIAkJCSAqLwotCQkJ
+aWYgKCFkZW50cnkpIHsKLQkJCQlpc2VjLT5pbml0aWFsaXplZCA9IExBQkVMX0lOVkFMSUQ7Ci0J
+CQkJLyoKLQkJCQkgKiBUaGVyZSBpcyBub3RoaW5nIHVzZWZ1bCB0byBqdW1wIHRvIHRoZSAib3V0
+IgotCQkJCSAqIGxhYmVsLCBleGNlcHQgYSBuZWVkbGVzcyBzcGluIGxvY2svdW5sb2NrCi0JCQkJ
+ICogY3ljbGUuCi0JCQkJICovCi0JCQkJcmV0dXJuIDA7Ci0JCQl9CisJCQlpZiAoIWRlbnRyeSkK
+KwkJCQlnb3RvIG91dF9pbnZhbGlkOwogCQkJcmMgPSBzZWxpbnV4X2dlbmZzX2dldF9zaWQoZGVu
+dHJ5LCBzY2xhc3MsCiAJCQkJCQkgICBzYnNlYy0+ZmxhZ3MsICZzaWQpOwogCQkJaWYgKHJjKSB7
+CkBAIC0xNTQ2LDExICsxNTMzLDEwIEBAIHN0YXRpYyBpbnQgaW5vZGVfZG9pbml0X3dpdGhfZGVu
+dHJ5KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBkZW50cnkgKm9wdF9kZW50CiBvdXQ6CiAJ
+c3Bpbl9sb2NrKCZpc2VjLT5sb2NrKTsKIAlpZiAoaXNlYy0+aW5pdGlhbGl6ZWQgPT0gTEFCRUxf
+UEVORElORykgewotCQlpZiAoIXNpZCB8fCByYykgeworCQlpZiAocmMpIHsKIAkJCWlzZWMtPmlu
+aXRpYWxpemVkID0gTEFCRUxfSU5WQUxJRDsKIAkJCWdvdG8gb3V0X3VubG9jazsKIAkJfQotCiAJ
+CWlzZWMtPmluaXRpYWxpemVkID0gTEFCRUxfSU5JVElBTElaRUQ7CiAJCWlzZWMtPnNpZCA9IHNp
+ZDsKIAl9CkBAIC0xNTU4LDYgKzE1NDQsMTMgQEAgc3RhdGljIGludCBpbm9kZV9kb2luaXRfd2l0
+aF9kZW50cnkoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGRlbnRyeSAqb3B0X2RlbnQKIG91
+dF91bmxvY2s6CiAJc3Bpbl91bmxvY2soJmlzZWMtPmxvY2spOwogCXJldHVybiByYzsKKworb3V0
+X2ludmFsaWQ6CisJc3Bpbl9sb2NrKCZpc2VjLT5sb2NrKTsKKwlpZiAoaXNlYy0+aW5pdGlhbGl6
+ZWQgPT0gTEFCRUxfUEVORElORykKKwkJaXNlYy0+aW5pdGlhbGl6ZWQgPSBMQUJFTF9JTlZBTElE
+OworCXNwaW5fdW5sb2NrKCZpc2VjLT5sb2NrKTsKKwlyZXR1cm4gMDsKIH0KIAogLyogQ29udmVy
+dCBhIExpbnV4IHNpZ25hbCB0byBhbiBhY2Nlc3MgdmVjdG9yLiAqLwo=
+--0000000000009c59a805b336f33d--
