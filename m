@@ -2,140 +2,127 @@ Return-Path: <SRS0=XO28=EK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C329BC2D0A3
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 07:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72606C2D0A3
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 12:01:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 48FAB221F9
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 07:51:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C26720786
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 12:01:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="clWGyMmf"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dwn+DzeC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726844AbgKDHvi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 02:51:38 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:32449 "EHLO
+        id S1729782AbgKDMBS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 07:01:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:35666 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726434AbgKDHvi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 02:51:38 -0500
+        by vger.kernel.org with ESMTP id S1728523AbgKDMBS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 07:01:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604476297;
+        s=mimecast20190719; t=1604491276;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=RTXqb4uMLNfZdeL6ojMGTCNdvfZ9kcIIvJ+MXGHr3Rk=;
-        b=clWGyMmfgsP5IQzCr3MXiBvwjcDxzvYLSt/sPR5nueQDxotmSXuBmApIIUTOI+NlyuOd9V
-        jKes+71dadWtyppT24BP+IeSXn8jX3sPBa1vPYKp3NsXRc4iX52DR3FKYbrIPUmZvz+F48
-        cQJFVKXsseSKWQfU4Ei+eRlN4cWeZBQ=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-232-jMRqQIMXPliD6c8CcSjBig-1; Wed, 04 Nov 2020 02:51:32 -0500
-X-MC-Unique: jMRqQIMXPliD6c8CcSjBig-1
-Received: by mail-lj1-f198.google.com with SMTP id i3so8035740lja.15
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 23:51:32 -0800 (PST)
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=/2UMJz2HL0XZKFt2cP0dCjeH6o9eymroQgG7PjvYFLI=;
+        b=Dwn+DzeCm1szvRXIawP8NrwC8hGXNJgKbddw7hXizigfQ9X8ApbQKQISIG+KNWL5wbwRhy
+        egb8TtwErIGVqnTwTAArFUz1n7RYsRZ3zHGruTYJdBdFhEZK+mkhyF4DZPritSMIumjNO7
+        JoLJEutun7AMdRRTxAKqVzrEOpgSZmI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-122-mZafruEKP5eZMugdAa8HHw-1; Wed, 04 Nov 2020 07:01:14 -0500
+X-MC-Unique: mZafruEKP5eZMugdAa8HHw-1
+Received: by mail-wr1-f69.google.com with SMTP id b6so9108168wrn.17
+        for <selinux@vger.kernel.org>; Wed, 04 Nov 2020 04:01:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RTXqb4uMLNfZdeL6ojMGTCNdvfZ9kcIIvJ+MXGHr3Rk=;
-        b=g0HscYY8DXlUSfXVq0VMbTllMCahLgfHP6s9M8V17rg3OP0aS5+CTQtlGEaSPs3KII
-         M0y7KrOscmF24TgkBxPjQCnDgMDZvFgKhPYsN5aCC+DlXAq/VOo7JPBkx9xkSw56CUJw
-         olA5AhnlHTUvP/14OziXipYkWcKNskZikLLprFpcv4jdm3enKiXpszuAwqf9U4XqcJfd
-         nAYki0y9a0gPRiRSHbEBMRUxG76QZEcDTx5rF7X1mVuJcmXkJBq6xjli1kVokDqvWo8j
-         hkcSxk3O3NwKhgyz3Dnnm50FXfNjzaq0K6xv0OVrBhoZU06ihthBI+xtVXqSoo3KPnY2
-         EeFw==
-X-Gm-Message-State: AOAM532MZmgyRFWo20zamJUYAjB7q8XM8hB05hsZ+32vkp+qDXSSLsto
-        UuMH4gNSr1iFeAZU9EVAxBPOwqQl0AbGmBQbBoIJ4YHE0EM7WYbVaizCjGUU0OGsZk7i0JIOSlO
-        8O36AB5FjR4ACRRqiRZfVwvvwLrsUX7kvcA==
-X-Received: by 2002:ac2:51cb:: with SMTP id u11mr8310031lfm.247.1604476290722;
-        Tue, 03 Nov 2020 23:51:30 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwfh4NVeqr8Ry4D5VNsLsUep/nkZnbPa+loxWhZnoajJeWBOW5knw1ud2VrR8ff2hjOZw8JcR7LxndURI87CtE=
-X-Received: by 2002:ac2:51cb:: with SMTP id u11mr8310026lfm.247.1604476290509;
- Tue, 03 Nov 2020 23:51:30 -0800 (PST)
-MIME-Version: 1.0
-References: <20201102110223.493899-1-omosnace@redhat.com>
-In-Reply-To: <20201102110223.493899-1-omosnace@redhat.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/2UMJz2HL0XZKFt2cP0dCjeH6o9eymroQgG7PjvYFLI=;
+        b=n0PbZ5ntSkgYQX0of4apdZlm0Xy/zzQ55J/yU1vpSAOKSOfkZakjCMjcOPeU6lMmEi
+         HAwnqCeGlKP5DEZse32YZ6CEUiN1qgjYdVQAyZEPQmYqKXIeU0VJOipHGkIlG/qUs5b7
+         XHHw/2uhmQGYAo3m7OAGaSYyKM25UhoGl4dPMPh6u5Wz/N93e8T3A14lUjSiSsDZ1eoK
+         KarMxvn+zoUKixXXbb0Z3TrpAFqiKBtOfECiRBkivwGrxSkvkmi6w4bbFLh1ybSzB2LE
+         nHNx4x3iTet3U+nEbyB40JASFmyCrrPOjZ3xKloiA/eVSmJZ5mX++3u7vTPdqbRLr4/Y
+         PX2w==
+X-Gm-Message-State: AOAM532OR6lrRfDUUpl2RFwdofNdIJhCaHsPxBiHhoZS+hciSwxN/j2L
+        kElbz5dqTMnu8ZRScDLz7dM5Xc+2UG4I5Hx2xJiLKPblTgLQJjltqp1eXgSIqU+/NqAHNPiRHUM
+        kprlFU311KMHM3IrQWw==
+X-Received: by 2002:a1c:6043:: with SMTP id u64mr4066956wmb.166.1604491272768;
+        Wed, 04 Nov 2020 04:01:12 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy3lAMsz/ftsfORTkeBCWdrNJPREMS1rVdYeyqDTLttk69ONv6EIBuksyPI4v32C0WA66FC/Q==
+X-Received: by 2002:a1c:6043:: with SMTP id u64mr4066933wmb.166.1604491272571;
+        Wed, 04 Nov 2020 04:01:12 -0800 (PST)
+Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
+        by smtp.gmail.com with ESMTPSA id o10sm1916681wma.47.2020.11.04.04.01.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Nov 2020 04:01:12 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 4 Nov 2020 08:51:19 +0100
-Message-ID: <CAFqZXNs1qf+KD-HUEnRgKxThxY4Q0gPwGxayOs6Ggch4uBtebg@mail.gmail.com>
-Subject: Re: [PATCH testsuite] travis: handle the case of multiple rawhide images
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     William Roberts <bill.c.roberts@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: drop super_block backpointer from superblock_security_struct
+Date:   Wed,  4 Nov 2020 13:01:10 +0100
+Message-Id: <20201104120110.886431-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 2, 2020 at 12:02 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> For whatever reason, some mirrors contain more than one image version in
-> the directory, causing the test to bail out. This happens only sometimes
-> and restarting the Travis job usually helps, but it's better to adapt
-> the script to handle this case.
->
-> Tweak the script to pick the lexicographically last image and exit with
-> error only if there is no image at all.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  travis-ci/run-kvm-test.sh | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
->
-> diff --git a/travis-ci/run-kvm-test.sh b/travis-ci/run-kvm-test.sh
-> index 6afbf96..bb7c3b7 100755
-> --- a/travis-ci/run-kvm-test.sh
-> +++ b/travis-ci/run-kvm-test.sh
-> @@ -36,8 +36,9 @@ VCPUS="$(nproc)"
->  #  - https://alt.fedoraproject.org/en/verify.html
->  cd "$HOME"
->  wget -r -nd -np -l 1 -H -e robots=off -A "*.raw.xz,*-CHECKSUM" "$BASE_URL"
-> -if [ $(ls -1q *.raw.xz | wc -l) -ne 1 ]; then
-> -    echo "$0: too many image files downloaded!" 1>&2
-> +latest_image="$(ls -1q *.raw.xz | tail -n 1)"
-> +if [ -z "$latest_image" ]; then
-> +    echo "$0: no image file downloaded!" 1>&2
->      exit 1
->  fi
->
-> @@ -49,7 +50,8 @@ fi
->  sha256sum --ignore-missing -c ./*-CHECKSUM
->
->  # Extract the image
-> -unxz -T0 *.raw.xz
-> +unxz -T0 "$latest_image"
-> +latest_image="${latest_image%.xz}"
->
->  # Search is needed for $HOME so virt service can access the image file.
->  chmod a+x "$HOME"
-> @@ -60,7 +62,7 @@ chmod a+x "$HOME"
->  #   - Enable passwordless login
->  #     - Force a relabel to fix labels on ssh keys
->  #
-> -sudo virt-sysprep -a *.raw \
-> +sudo virt-sysprep -a "$latest_image" \
->    --root-password password:123456 \
->    --hostname fedoravm \
->    --append-line '/etc/ssh/sshd_config:PermitRootLogin yes' \
-> @@ -81,7 +83,7 @@ sudo virt-install \
->    --name fedoravm \
->    --memory $MEMORY \
->    --vcpus $VCPUS \
-> -  --disk *.raw \
-> +  --disk "$latest_image" \
->    --import --noautoconsole
->
->  #
-> --
-> 2.26.2
+It appears to have been needed for selinux_complete_init() in the past,
+but today it's useless.
 
-Applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/025fe57d9b707c925590b78c26dfc9726a4a3933
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/hooks.c          | 5 ++---
+ security/selinux/include/objsec.h | 1 -
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a340986aa92e1..714e7fa624ba8 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -599,7 +599,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ {
+ 	const struct cred *cred = current_cred();
+ 	struct superblock_security_struct *sbsec = sb->s_security;
+-	struct dentry *root = sbsec->sb->s_root;
++	struct dentry *root = sb->s_root;
+ 	struct selinux_mnt_opts *opts = mnt_opts;
+ 	struct inode_security_struct *root_isec;
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+@@ -1079,7 +1079,7 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+ 			return rc;
+ 	}
+ 	if (sbsec->flags & ROOTCONTEXT_MNT) {
+-		struct dentry *root = sbsec->sb->s_root;
++		struct dentry *root = sb->s_root;
+ 		struct inode_security_struct *isec = backing_inode_security(root);
+ 		seq_putc(m, ',');
+ 		seq_puts(m, ROOTCONTEXT_STR);
+@@ -2559,7 +2559,6 @@ static int selinux_sb_alloc_security(struct super_block *sb)
+ 	mutex_init(&sbsec->lock);
+ 	INIT_LIST_HEAD(&sbsec->isec_head);
+ 	spin_lock_init(&sbsec->isec_lock);
+-	sbsec->sb = sb;
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
+ 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 330b7b6d44e0a..ca4d7ab6a8355 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -61,7 +61,6 @@ struct file_security_struct {
+ };
+ 
+ struct superblock_security_struct {
+-	struct super_block *sb;		/* back pointer to sb object */
+ 	u32 sid;			/* SID of file system superblock */
+ 	u32 def_sid;			/* default SID for labeling */
+ 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
 -- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+2.26.2
 
