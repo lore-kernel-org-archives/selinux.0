@@ -2,103 +2,97 @@ Return-Path: <SRS0=XO28=EK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41F9DC388F9
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 07:24:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F517C388F9
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 07:31:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DC8DE20780
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 07:24:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20CA82080D
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 07:31:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FC9KviZY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CpbmKIIv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728217AbgKDHYf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 02:24:35 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40415 "EHLO
+        id S1726844AbgKDHbr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 02:31:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54700 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726844AbgKDHYf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 02:24:35 -0500
+        by vger.kernel.org with ESMTP id S1726259AbgKDHbr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 02:31:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604474673;
+        s=mimecast20190719; t=1604475105;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ugvi3gdLDaClpwJBcPOrzDAAufRI1LKABmIqC1POl74=;
-        b=FC9KviZYwc9S5ERAS8To1lA2gOE8bR9Pv8k199vryUzfqaLgRpv3EWRzdE3uji1nHVJIMv
-        HTuDu4wUkntr5ZEriVMfZpKgJi8QLh69Bovm8T+b1pVUvsP4htbeUJeWQYnkPfQgTY4Y6s
-        Kf9M3timZMhkZ3njwGLufjicBqgc9DM=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-433-iBt-QOFLMiCkpRYs6_L1Ng-1; Wed, 04 Nov 2020 02:24:30 -0500
-X-MC-Unique: iBt-QOFLMiCkpRYs6_L1Ng-1
-Received: by mail-lj1-f200.google.com with SMTP id r17so7988146lji.7
-        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 23:24:30 -0800 (PST)
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=y3zxkW0DLch+JZQpm8phcGwFSJnvd1w78cPQYKDVaW8=;
+        b=CpbmKIIvXL0gAtG6PRqkUaoHCCrWISXi3EsgsjKw+Frum8mI1edZqyuyMWBSZEpEGfqvKr
+        hQkpiMUoYvaMEWKOdbhh/eQd99t+lD3Rrwp+0a4sFbBiEgsIu9WPPl6diRI9xWwdSiEyGn
+        XXZ5FKfmyE7/RmSWqMOHy5p6XB6fV7E=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-441-1NBDEhUqNVWmu6e_XU-f_Q-1; Wed, 04 Nov 2020 02:31:44 -0500
+X-MC-Unique: 1NBDEhUqNVWmu6e_XU-f_Q-1
+Received: by mail-wm1-f71.google.com with SMTP id o19so871757wme.2
+        for <selinux@vger.kernel.org>; Tue, 03 Nov 2020 23:31:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ugvi3gdLDaClpwJBcPOrzDAAufRI1LKABmIqC1POl74=;
-        b=iaJnAXZpr0369xejyHAHLycB/7hsoqIfJSqlObP8m/ZLn+I7mTNvVdFRimDHneWNOq
-         963P/tDbw259ApJP97sjSldHWspvBPFDZAAIyY0TxAqOcIJTL07JgjWckCN5L+FD6wuI
-         4JWzn6r1JZpiGmGTUTtqLS9pSLQlhVtTDChKxqYHAP/t0sn6UG/h/y0uxcalic+3Qx85
-         wMQZ7W6UqUi3gv5KXDk3gVcDU6Ev2Hh4KlJh7h+CgFdRwqZrIRBfMzkERkHhP9QfLBL/
-         JZmajQeARcgfWyS1RcnKdfHVzz5I73UAhgkhoj2TnLWgUpYOvgDyLTqhPWpWEeVEVM4r
-         1XUw==
-X-Gm-Message-State: AOAM530nD/X/ZAlFL/qjfVZYtj5TBIhzH7H5ofOhkdMCWJwo3EUxB+RG
-        rXZ/rDpwrJbsuqcEgd4DdsFDjfsvPsKlEBGz3Sgw2V04rvqB8oo6LglIaLX5oEoq69WqY2ght4C
-        NblTK5oAIPH3d/+3wSXuDtC/O38lxuqQusQ==
-X-Received: by 2002:a2e:b60e:: with SMTP id r14mr10429753ljn.77.1604474669145;
-        Tue, 03 Nov 2020 23:24:29 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzK97DixDLecn2RPiqmT5GeKHaL1yluPbGFaIh/qaEXZbet8KPa8RdsyiWO8iRsXEQI3s7aTsR843xLYWJNEZQ=
-X-Received: by 2002:a2e:b60e:: with SMTP id r14mr10429747ljn.77.1604474668970;
- Tue, 03 Nov 2020 23:24:28 -0800 (PST)
-MIME-Version: 1.0
-References: <20201103110121.53919-1-richard_c_haines@btinternet.com> <20201103110121.53919-2-richard_c_haines@btinternet.com>
-In-Reply-To: <20201103110121.53919-2-richard_c_haines@btinternet.com>
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=y3zxkW0DLch+JZQpm8phcGwFSJnvd1w78cPQYKDVaW8=;
+        b=L0l5TgiQp4mybqswrHWvqkeQy+aeJSEU7FTEJ4WZvOzNi3nC70cKeodG1f4nEh/XeL
+         LJgesC46ZagbWNRNt3z9m3gV7IrX2veMjzfPgu3K/UrNqnj4Gzlzl5U1lCI3bg3bjdPz
+         Qfda+cOaX6DF+JQPgFlGrMJ5UUaOojIHs9YenqaV3NRdWmL+YAn8wvRDqxUeUEmVUyvU
+         3Qb/WEOmYzrO6zNmWXS2Wa35cW/mQHGredF6Uk9P2K/xZNBPvSWNMOQWFRGQky2Hj5Lb
+         DJcT3lQ3p9ZPhHXA5xl/J6Zh+0d4Slor2bbOfH6UK8SAud6PR8A0Iy/YLcv8ISJ2Y6Pj
+         0x6A==
+X-Gm-Message-State: AOAM532dXy/UXhyM5aTzX2rHh4+CdX3LjOxrncpQxmKgtHHPcEV2DIyE
+        i3jJvQSOMIp7ouK7TJY2QwS205hc6M7wEjnhhKdMRaYk+daaGDQey5IeeJGiXAwDs8djSwBgN6V
+        8XKQIX3+wmHhnFI+O5A==
+X-Received: by 2002:a1c:6002:: with SMTP id u2mr2544538wmb.29.1604475102693;
+        Tue, 03 Nov 2020 23:31:42 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzDsFdZYJXnQRmKq/JYfAVwWoR8cRJ0mdEb5CtoKJ5udME/G1SeOirl9jcYTdr060Lc4axUMA==
+X-Received: by 2002:a1c:6002:: with SMTP id u2mr2544527wmb.29.1604475102517;
+        Tue, 03 Nov 2020 23:31:42 -0800 (PST)
+Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
+        by smtp.gmail.com with ESMTPSA id l3sm1267610wmg.32.2020.11.03.23.31.41
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2020 23:31:41 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 4 Nov 2020 08:24:18 +0100
-Message-ID: <CAFqZXNtcZpr-cyvUP-Z65as+Gp0phVFX5v3WF+8spYZDhAix3Q@mail.gmail.com>
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Add btrfs support for
- filesystem tests
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/Makefile: silence modprobe output
+Date:   Wed,  4 Nov 2020 08:31:40 +0100
+Message-Id: <20201104073140.819579-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 3, 2020 at 12:02 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> This allows btrfs filesystems to be created to support the
-> filesystem mount(2) type calls and the fs_filesystem fsmount(2)
-> type calls.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  README.md                      |  3 +++
->  defconfig                      |  4 ++++
->  tests/Makefile                 |  2 +-
->  tests/filesystem/Filesystem.pm | 10 +++++++++-
->  tests/filesystem/btrfs         |  1 +
->  tests/filesystem/test          |  6 ++++++
->  tests/fs_filesystem/btrfs      |  1 +
->  tests/fs_filesystem/test       |  6 ++++++
->  travis-ci/run-testsuite.sh     |  1 +
->  9 files changed, 32 insertions(+), 2 deletions(-)
->  create mode 120000 tests/filesystem/btrfs
->  create mode 120000 tests/fs_filesystem/btrfs
+Avoid obtrusive error messages when the kernel doesn't support some of
+the filesystems.
 
-Thanks! The patch looks good to me and passes in CI (except the known
-bug). However, I'm going to hold off on merging the patch until the
-btrfs fsconfig issue is fixed (still working on that). If that doesn't
-happen for a long time, I'll consider adding a condition for btrfs to
-skip the failing part of the tests and merging it like that.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/tests/Makefile b/tests/Makefile
+index b441031..4c00b5f 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -19,7 +19,7 @@ MAX_KERNEL_POLICY := $(shell cat $(SELINUXFS)/policyvers)
+ POL_TYPE := $(shell ./pol_detect $(SELINUXFS))
+ 
+ # Filter out unavailable filesystems
+-FILESYSTEMS := $(foreach fs,$(FILESYSTEMS),$(shell modprobe $(fs) && echo $(fs)))
++FILESYSTEMS := $(foreach fs,$(FILESYSTEMS),$(shell modprobe $(fs) &>/dev/null && echo $(fs)))
+ 
+ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
+ 	fdreceive inherit link mkdir msg open ptrace readlink relabel rename \
 -- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+2.26.2
 
