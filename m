@@ -2,106 +2,86 @@ Return-Path: <SRS0=XO28=EK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A15CC4741F
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 16:48:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5A13C2D0A3
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 16:49:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC1192074B
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 16:48:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4DB7D206DB
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 16:49:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NrblJo/e"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Al4o8h+u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731334AbgKDQsR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 11:48:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:60074 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730424AbgKDQsR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 11:48:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604508496;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=zL36dWMumhDo23U5UK88pQyUsQo/fdjGzI2rjYVfV6A=;
-        b=NrblJo/eO6n9/YR/QsO+DiXnFceDrUBzD1lj+Lq60W8Dnu32lW+4k1/p81sthGnTW5kqsL
-        vxos+3d0q/sdobxDozpe0Yx8KfQeZWcU2JnpSDxPIP87qgT0gMhSLXywMSqz4bZpXZqm2d
-        dh9V9bYVqc/rOHUnprvPe5HuhMTWpQ0=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-432-4o8S3N1MObKkVcKNh4-kaw-1; Wed, 04 Nov 2020 11:48:13 -0500
-X-MC-Unique: 4o8S3N1MObKkVcKNh4-kaw-1
-Received: by mail-lf1-f72.google.com with SMTP id 205so49086lfb.17
-        for <selinux@vger.kernel.org>; Wed, 04 Nov 2020 08:48:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zL36dWMumhDo23U5UK88pQyUsQo/fdjGzI2rjYVfV6A=;
-        b=sUkGZ8tpYjN2OpkRNQltCnHilfIX08zNne7eQl/9IT9j8T4F3uhOVUd6tTYGXOpkCy
-         ZPF0wJtCYoV5DYmmq47E1eSmijfH6Bt8M4T/lq8EyKdp2vpAagYUlSurqrGroWsBGQLs
-         BdfuViPHHWKgz82pK7HYjrPsP9c3qPQHbusTDJSijOem58DASUPj3ws+xaBrsBX40+wZ
-         H5wGLuffo3IBfZvv2d9l2xbb4yGCTCjIdVtxkyTA+3HnDkTYbJthaB5MOvUX6R1zxQQ0
-         Z8nkXBEi6t5zgZn8aX6rCJTdup2TbfdGWUw5uBQ+8vdQw22fjtx8BOzYQwZtBtUvrSBF
-         JncA==
-X-Gm-Message-State: AOAM533Fhue/JIDshXAYlAEO9w69Fqfby9hQNulYEmWrU8YiU+ItSZn/
-        xT8ND00HbeJY+GnSaNJcYLnBRIqE/GBYY6VcQTo+oj/xcL4Q5cksScvPlG93D0L+4vo1gsPc8pR
-        5BDxLiLXkoyHQjCp+g3s1NGleHEnDjc7GIA==
-X-Received: by 2002:a19:c8c1:: with SMTP id y184mr9396187lff.598.1604508491637;
-        Wed, 04 Nov 2020 08:48:11 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxA8oto2QBjtj8rsxoiQSXv0NCxhjOrqf99u35glcmFItb8CIJAPpqiWTempkHYDh/yi1dm4af0IhmeZ+Y8Tes=
-X-Received: by 2002:a19:c8c1:: with SMTP id y184mr9396149lff.598.1604508489965;
- Wed, 04 Nov 2020 08:48:09 -0800 (PST)
+        id S1731156AbgKDQtS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 11:49:18 -0500
+Received: from mailomta13-sa.btinternet.com ([213.120.69.19]:31390 "EHLO
+        sa-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730154AbgKDQtS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 11:49:18 -0500
+Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
+          by sa-prd-fep-046.btinternet.com with ESMTP
+          id <20201104164916.QTTE28150.sa-prd-fep-046.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Wed, 4 Nov 2020 16:49:16 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1604508556; 
+        bh=pHGEt1hcFpaSxXtsa1JdLUyyhIfgp/dQ6cd6G2917yE=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=Al4o8h+uSo6qPrt4PWFst8vCb1JGqAI7gthDlVQnfzPexIeAr0bVNAaJnV30ie17cmm8qHFwhP0faCxK1wg0Xj0C9BTSjtb6ABqSKmnBXS5JYXoa5b1TO7AMnCYc1LWDwCRZ8uaOctlXRQpt9UFuWIbSIJU6yNQtp2PBWWk0RMG5jpAKS+vwbNbYucF0dTUDaKqPkcdDpd1DwreK52tOYV8X/fRqAGOuKdo+byNHYx4bet40wuj39dtmiY8abh9dK2i4nqU9CUOGNaM/TJ5qD+VCPzf6Eg7Hz6UJfnx6Jax1pdM/NdDK8af01jsikKcp7sKlLYuZ3PpMHYbvrUF8kA==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-SNCR-Rigid: 5ED9B8A7190E1F5E
+X-Originating-IP: [213.122.112.63]
+X-OWM-Source-IP: 213.122.112.63 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedruddthedgleegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeelteffgeevveejheevhfetgfeuveduteetuddtffdvjeekieetgeehveefjedtfeenucfkphepvddufedruddvvddrudduvddrieefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudefrdduvddvrdduuddvrdeifedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (213.122.112.63) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9B8A7190E1F5E; Wed, 4 Nov 2020 16:49:16 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [RFC PATCH 0/1] selinux-testsuite: Reduce sctp test runtime
+Date:   Wed,  4 Nov 2020 16:49:12 +0000
+Message-Id: <20201104164913.11536-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-References: <CAFftDdo-jFy4anQaVvQqtYgjRvG8w-TNNLOUU5JL11gQF_rCpQ@mail.gmail.com>
-In-Reply-To: <CAFftDdo-jFy4anQaVvQqtYgjRvG8w-TNNLOUU5JL11gQF_rCpQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 4 Nov 2020 17:47:59 +0100
-Message-ID: <CAFqZXNsJ9Wnfe4cLpzq2-8_zCHOC=46swsRM7h7iX-kbgy3uLQ@mail.gmail.com>
-Subject: Re: Changes to Travis Usage
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 4, 2020 at 4:35 PM William Roberts <bill.c.roberts@gmail.com> wrote:
-> TL;DR
-> Travis is limiting us to 1000mins of build and we should file for an
-> opensource exception so we don't have to pay/throttled. We may want to
-> consider migrating to Github Actions.
->
-> Travis is changing, as pointed out before:
->   - https://lore.kernel.org/selinux/CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com/T/#t
->
-> We had to migrate from .org to .com. Apparently, their usage and
-> billing changes are about to occur, see:
-> https://blog.travis-ci.com/2020-11-02-travis-ci-new-billing
+This patch uses the audit system to detect AVC events and if detected exit
+the test with the specified exit code.
 
-Yeah, I found out about it just today :(
+This speeds up the sctp tests as the clients do not have to hang around for
+the socket call to timeout.
 
->
-> Dockerhub[1] *was* doing the same thing with pulls, but just switched
-> their stance back. I recently changed some of my projects from
-> dockerhub to Github Container Registry and used Github Actions to
-> build the containers. Github Actions should be a replacement to
-> Travis, and includes Ubuntu 16-04, 18-04, 20-04, Windows and Mac[2]. I
-> am not sure if it has KVM enabled.
+There are some notes in sctp_common.c on the process.
+Using './test -v' will show the audit entries captured and any triggers.
 
-I tried it recently and unfortunately no, GH Actions don't have KVM
-enabled :/ It should be usable for the other stuff, though.
+Without this patch sctp tests take ~2.6 min, with patch ~4 secs.
 
->
-> 1. https://www.docker.com/blog/what-you-need-to-know-about-upcoming-docker-hub-rate-limiting/
-> 2. https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
->
+If acceptable I could do the same with the inet_socket tests.
+
+Richard Haines (1):
+  selinux-testsuite: Reduce sctp test runtime
+
+ README.md                              |  5 +-
+ policy/test_sctp.te                    |  1 +
+ tests/sctp/Makefile                    |  2 +-
+ tests/sctp/sctp_asconf_params_client.c | 51 ++++++++++++-
+ tests/sctp/sctp_client.c               | 52 ++++++++++++--
+ tests/sctp/sctp_common.c               | 99 ++++++++++++++++++++++++++
+ tests/sctp/sctp_common.h               | 11 +++
+ tests/sctp/test                        | 50 ++++++-------
+ travis-ci/run-testsuite.sh             |  1 +
+ 9 files changed, 237 insertions(+), 35 deletions(-)
 
 -- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+2.28.0
 
