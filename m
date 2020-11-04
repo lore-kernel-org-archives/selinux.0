@@ -2,106 +2,104 @@ Return-Path: <SRS0=XO28=EK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 782C5C2D0A3
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 20:36:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25D8AC2D0A3
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 20:40:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FD86206FA
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 20:36:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604522196;
-	bh=gdHLBewM29xjdysVQ8k+xSAiNUOH+jGJ/NlCzBTnS5k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=TrM/Q1MAJ6P/ZokzfEbmv77/Fwl5lYf8LnJJPYzuH7tHiGSi4ZNm7ds1LAgzFc7I1
-	 62FgNbGfiyxnpHSZk/ESVVbUojlNn8uzyXwJ8WvHtF/98iIqZFCyZRZXKwpvlUkFBa
-	 m4kaDLrvN/vL4Pnov5pR+AI/rtcsDhyVp8Mgq8Ko=
+	by mail.kernel.org (Postfix) with ESMTP id B43BC204EF
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 20:40:56 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="PSmjLCkA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729976AbgKDUgf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 15:36:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56926 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726777AbgKDUgf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 4 Nov 2020 15:36:35 -0500
-Received: from gmail.com (unknown [104.132.1.84])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 313D9204EF;
-        Wed,  4 Nov 2020 20:36:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604522194;
-        bh=gdHLBewM29xjdysVQ8k+xSAiNUOH+jGJ/NlCzBTnS5k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Mjbu9PJOOA1g+sP+WoGDsZOisFRCL6Bz49sDkHg5Q51d8QnC/ezomCXxjBfASWFpS
-         8HbWnCFyy53x9+hMyhljnxrXpjyrEsSuGBeYrESOR9KMRfbsnF8ByzS2zZQfHASiDl
-         O4MrwwWMDwbZc56kmz7ZYnmEsySsj0pyebWkr0yo=
-Date:   Wed, 4 Nov 2020 12:36:31 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Lokesh Gidra <lokeshgidra@google.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Cedeno <thomascedeno@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        kaleshsingh@google.com, calin@google.com, surenb@google.com,
-        nnk@google.com, jeffv@google.com, kernel-team@android.com,
-        Daniel Colascione <dancol@google.com>
-Subject: Re: [PATCH v10 3/3] Use secure anon inodes for userfaultfd
-Message-ID: <20201104203631.GD1796392@gmail.com>
-References: <20201011082936.4131726-1-lokeshgidra@google.com>
- <20201011082936.4131726-4-lokeshgidra@google.com>
+        id S1730831AbgKDUk4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 15:40:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726152AbgKDUk4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 15:40:56 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9455C0613D3
+        for <selinux@vger.kernel.org>; Wed,  4 Nov 2020 12:40:55 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id s25so17782098ejy.6
+        for <selinux@vger.kernel.org>; Wed, 04 Nov 2020 12:40:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QOvOv6k4yxUy0hyawpvvCGGKwO1X441zF4A9AtOMrdE=;
+        b=PSmjLCkAh+tIc9NbfITOvBRkKiWDnO80opt3qIqCSXQQTsixM9SCCNDDHcEJnRuqIz
+         abB5KKtzf2ObH9dyFQNSMRXlwPgb0roeePf4z4qMoerGYzzo32lDfBDRmeNAnzSPL0fr
+         muD5aW7EWjR0p8kDND1mhYymyBir12oOTsp9uVjV3IEn7vk/MX/F0gm/gMaXxaecDdwZ
+         IbPin8k/mrxRGv/k8RHST3XIinryQXZ/7e4mI+OXS62+NmY09vFEQMHritLkEyIDvGM5
+         gCrkCQ3/i33cO2Nf6zGBcZB6DPkNUn6ktOLpY6CrEIL1rPKG8+6s2gY5PE3HA908nSdE
+         HYDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QOvOv6k4yxUy0hyawpvvCGGKwO1X441zF4A9AtOMrdE=;
+        b=a2oQEilh08wk05Deyfa31HR+CTa1wHuIRbRRstSaV1YwiP6dz3cywArUC2blHLt10D
+         P8dP2LnGQZR/D95YFdeUyDI5KOh9lkCiFUSOK8sn33sgesPO/k20wMhIH9ygnRddjgoo
+         n2ELNQige9k0mkuQ1bjwps4QX/1Qh+guucLazhxeYjeinKpxCBshi0zJKdY3Hj0bEope
+         Ski+BMjHbYyxf6LTk72h/KjN7oHZHSPmZboqW4dG40WTe8zkB3iFW41f34LotkaUPUgl
+         tNeXpOA4PLC7t5JdFutaDaACwe1tzk7ZsZBfTWbJS9pAgOgKW2X+JvJoh1nqRPj84noy
+         0csw==
+X-Gm-Message-State: AOAM5336ouXSpcuXiuu0cXlccG9yzygTmSEIpWPsgYzaOkP57rS4dxSk
+        d9kcSyZC/ANYLHY7+L5qYCsUZ9QlizGsDQIiVqpE
+X-Google-Smtp-Source: ABdhPJyh4WUv5vFp0gfxQlwd97hCqaxvwLiCSg9gka7Yv4g0BlXFbWbPQ4ZynRy96ZD57vo9hNzGK/6Fuq4ZIOzWzJ0=
+X-Received: by 2002:a17:906:cb0f:: with SMTP id lk15mr17846190ejb.431.1604522454330;
+ Wed, 04 Nov 2020 12:40:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201011082936.4131726-4-lokeshgidra@google.com>
+References: <CAHC9VhQTp3Rc_7zM661Rzur0XSuWRWKJJg=CwLPAQo5ABRpS-w@mail.gmail.com>
+ <20201009013630.6777-1-rentianyue@tj.kylinos.cn> <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
+ <CAHC9VhR2KPKN8ot9WrkjZQ08X-VPDGkXro18C5jhDEwcFH6wog@mail.gmail.com>
+ <yt9dh7q64m8a.fsf@linux.ibm.com> <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
+ <yt9dpn4u9scs.fsf@linux.ibm.com> <CAHC9VhRxm=YR1yBy8fnWPXRZ48pq4MA4b26YAtqAJORJZD61wg@mail.gmail.com>
+ <yt9dpn4twqp1.fsf@linux.ibm.com>
+In-Reply-To: <yt9dpn4twqp1.fsf@linux.ibm.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 4 Nov 2020 15:40:43 -0500
+Message-ID: <CAHC9VhRzJEdqTywGnCtq8mb5C=4k99oJ1ZTH64n4KcWn0mF0pA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] selinux: fix error initialization in inode_doinit_with_dentry()
+To:     Sven Schnelle <svens@linux.ibm.com>
+Cc:     rentianyue@tj.kylinos.cn,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>, yangzhao@kylinos.cn,
+        selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        borntraeger@de.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Oct 11, 2020 at 01:29:36AM -0700, Lokesh Gidra wrote:
-> From: Daniel Colascione <dancol@google.com>
-> 
-> This change gives userfaultfd file descriptors a real security
-> context, allowing policy to act on them.
-> 
-> Signed-off-by: Daniel Colascione <dancol@google.com>
-> 
-> [Remove owner inode from userfaultfd_ctx]
-> [Use anon_inode_getfd_secure() instead of anon_inode_getfile_secure()
->  in userfaultfd syscall]
-> [Use inode of file in userfaultfd_read() in resolve_userfault_fork()]
-> 
-> Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> ---
+On Wed, Nov 4, 2020 at 2:02 AM Sven Schnelle <svens@linux.ibm.com> wrote:
+> Paul Moore <paul@paul-moore.com> writes:
+> > On Tue, Nov 3, 2020 at 2:02 PM Sven Schnelle <svens@linux.ibm.com> wrote:
+> >> Thanks for the patch. Unfortunately it doesn't seem to change anything
+> >> for me. I can take a look into this tomorrow, but i don't know much
+> >> about the internals of selinux, so i'm not sure whether i'm of much help.
+> >
+> > I'm sorry that patch didn't work out.  I just spent some more time
+> > looking at the code+patch and the only other thing that I can see is
+> > that if we mark the isec invalid, we don't bother setting the
+> > isec->sid value to whatever default we may have already found.  In a
+> > perfect world this shouldn't matter, but if for whatever reason the
+> > kernel can't revalidate the inode's label when it tries later it will
+> > fallback to that default isec->sid.
+> >
+> > I'm sorry to ask this again, but would you be able to test the attached patch?
+>
+> This patch fixes the issue. So it looks like your assumption is right.
 
-I'm not an expert in userfaultfd or SELinux, but I don't see any issues with
-this patch, and the comments I made earlier were resolved (except for the patch
-title which I just pointed out -- it should have "userfaultfd:" prefix).
+Great, I'm glad that fixed the problem you were seeing; thanks for
+your help with testing!  I'll post a proper version of the patch to
+the list later today.
 
-So feel free to add:
-
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+-- 
+paul moore
+www.paul-moore.com
