@@ -2,127 +2,169 @@ Return-Path: <SRS0=XO28=EK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72606C2D0A3
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 12:01:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E1A9C2D0A3
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 14:21:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C26720786
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 12:01:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F624221E2
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 14:21:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dwn+DzeC"
+	dkim=pass (2048-bit key) header.d=umich.edu header.i=@umich.edu header.b="RYrzdi56"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729782AbgKDMBS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 07:01:18 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:35666 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728523AbgKDMBS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 07:01:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604491276;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=/2UMJz2HL0XZKFt2cP0dCjeH6o9eymroQgG7PjvYFLI=;
-        b=Dwn+DzeCm1szvRXIawP8NrwC8hGXNJgKbddw7hXizigfQ9X8ApbQKQISIG+KNWL5wbwRhy
-        egb8TtwErIGVqnTwTAArFUz1n7RYsRZ3zHGruTYJdBdFhEZK+mkhyF4DZPritSMIumjNO7
-        JoLJEutun7AMdRRTxAKqVzrEOpgSZmI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-122-mZafruEKP5eZMugdAa8HHw-1; Wed, 04 Nov 2020 07:01:14 -0500
-X-MC-Unique: mZafruEKP5eZMugdAa8HHw-1
-Received: by mail-wr1-f69.google.com with SMTP id b6so9108168wrn.17
-        for <selinux@vger.kernel.org>; Wed, 04 Nov 2020 04:01:14 -0800 (PST)
+        id S1726849AbgKDOV0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 09:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43480 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726626AbgKDOV0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 09:21:26 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B07C0613D3;
+        Wed,  4 Nov 2020 06:21:26 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id za3so29984837ejb.5;
+        Wed, 04 Nov 2020 06:21:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=umich.edu; s=google-2016-06-03;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DCfTmW4aQ62j6jmdezgBr0zOm5Qd+OLVYInBG1WvUE8=;
+        b=RYrzdi56fiG5T+Z4pLBAbdoEFVS9a018tvCaPSKaRdaiuPp+/Tz5xU8mcqjcyUfXxD
+         ZeXROBIDOWEouOJ91hOa9daYvjKaDy9uSKR0R/vVg658OfPtDRzq35nyIfkr2x0/Pmyu
+         hlwyM+y6TKApP+iLaQOU2ME8MZiZXJI52pVhXQNCBRCjVOTvVyJ/xSRw+ihS/A+yVOye
+         MkX3z8dMKn/1gbn9bGxfxU8TUTGzkNkkt+CW5IQN/Gp9aDeUtZrzkpi+2ZW1xUMq36Ng
+         bG5BWt097lYEVgHEuZDL79KyPyZot1wxqkTe1DwkYW4i+HVan4RGU+eWlV8ByyF/ApVs
+         Kj9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/2UMJz2HL0XZKFt2cP0dCjeH6o9eymroQgG7PjvYFLI=;
-        b=n0PbZ5ntSkgYQX0of4apdZlm0Xy/zzQ55J/yU1vpSAOKSOfkZakjCMjcOPeU6lMmEi
-         HAwnqCeGlKP5DEZse32YZ6CEUiN1qgjYdVQAyZEPQmYqKXIeU0VJOipHGkIlG/qUs5b7
-         XHHw/2uhmQGYAo3m7OAGaSYyKM25UhoGl4dPMPh6u5Wz/N93e8T3A14lUjSiSsDZ1eoK
-         KarMxvn+zoUKixXXbb0Z3TrpAFqiKBtOfECiRBkivwGrxSkvkmi6w4bbFLh1ybSzB2LE
-         nHNx4x3iTet3U+nEbyB40JASFmyCrrPOjZ3xKloiA/eVSmJZ5mX++3u7vTPdqbRLr4/Y
-         PX2w==
-X-Gm-Message-State: AOAM532OR6lrRfDUUpl2RFwdofNdIJhCaHsPxBiHhoZS+hciSwxN/j2L
-        kElbz5dqTMnu8ZRScDLz7dM5Xc+2UG4I5Hx2xJiLKPblTgLQJjltqp1eXgSIqU+/NqAHNPiRHUM
-        kprlFU311KMHM3IrQWw==
-X-Received: by 2002:a1c:6043:: with SMTP id u64mr4066956wmb.166.1604491272768;
-        Wed, 04 Nov 2020 04:01:12 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy3lAMsz/ftsfORTkeBCWdrNJPREMS1rVdYeyqDTLttk69ONv6EIBuksyPI4v32C0WA66FC/Q==
-X-Received: by 2002:a1c:6043:: with SMTP id u64mr4066933wmb.166.1604491272571;
-        Wed, 04 Nov 2020 04:01:12 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id o10sm1916681wma.47.2020.11.04.04.01.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 04:01:12 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux: drop super_block backpointer from superblock_security_struct
-Date:   Wed,  4 Nov 2020 13:01:10 +0100
-Message-Id: <20201104120110.886431-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DCfTmW4aQ62j6jmdezgBr0zOm5Qd+OLVYInBG1WvUE8=;
+        b=DDiu1Jbc/bH/kzYv1IPQzUQ67o4V7WN0dvv+bXocynY++hMVjCy0yplIbIZyscyF4F
+         /Ci697oowzV/fbwlRkzCuyUDpFbSTc0BV5JOj9wX6Wzm6I43UOaK57q73Z1Lmw17iWUu
+         4rNZV6ceVSXuytppOxLv3LJaLyUk0RUqhq/FXVHz+/pVL7q3UexDeDeW8ViyoTYEFQqZ
+         H4ajngzJIYimxmcNrdKzRxS4yS03IEUTcvhXo8edZ7RMHLwNw7tTXDO24OOQUhIXhd3l
+         btsRx2gA7j9WgzK6jkisswP1uaYd9fPPpamR/SmC4HNj/ghRvrPGyF9KOp1yHS/yotpN
+         0qaQ==
+X-Gm-Message-State: AOAM531+pU4IPga/Hebx+H1FnulvixGmaCeo9KoGvdBLIWgmJNFtOZ0E
+        M4dnuq1G1qtbzqyOTaFUhRF+NCJjFLp02o7qTjg=
+X-Google-Smtp-Source: ABdhPJyfBRKxhJ+WxtwZ9BbdFZ9+T5PIgznvtRyZZd5h/KEtHcIk8J5qA1Cu8KvKEfbwWPC2+dpvrIk0wD8eon6G+tw=
+X-Received: by 2002:a17:906:ccc5:: with SMTP id ot5mr12307694ejb.248.1604499684911;
+ Wed, 04 Nov 2020 06:21:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAN-5tyETQWVphrgqWjcPrtTzHHyz5DGrRz741yPYRS9Byyd=3Q@mail.gmail.com>
+ <CAHC9VhRP2iJqLWiBg46zPKUqxzZoUOuaA6FPigxOw7qubophdw@mail.gmail.com>
+ <CAN-5tyFq775PeOOzqskFexdbCgK3Gk_XB2Yy80SRYSc7Pdj=CA@mail.gmail.com>
+ <CAHC9VhTzO1z6NmYz6cOLg5OvJiyQXdH_VmLh4=+h1MrGXx36JQ@mail.gmail.com>
+ <CAN-5tyGJxUZb5QdJ=fh+L-6rc2B-MhQbDcDkTZNAZAAJm9Q8YQ@mail.gmail.com>
+ <FB6C74CE-5D9F-4469-A49B-93CC8A51D7D5@gmail.com> <CAN-5tyFQbfkiuno07C6Azc7RcF3z3qF3PP0FutFMD3raBgnQmA@mail.gmail.com>
+ <CAEjxPJ7PoAG6f+gVdodx=6X8+_Z_WCFXAuxnpB8WmC1gTF4iQQ@mail.gmail.com>
+ <CAN-5tyEy57xoqEbZAThZKHriJywx-5DMKBD5tsXwo5ccGwuctw@mail.gmail.com>
+ <CAHC9VhQpCXFySZY42==KR57hfAkVLdS6mSAcp2UHn-GWjEfVLg@mail.gmail.com>
+ <bc766b2b-d1f1-d767-579c-02e10ae32a9a@schaufler-ca.com> <CAHC9VhS7UeCX9BXPrHNH90_sLHKGxTbbtjdm6GBOgDM9=T05FA@mail.gmail.com>
+In-Reply-To: <CAHC9VhS7UeCX9BXPrHNH90_sLHKGxTbbtjdm6GBOgDM9=T05FA@mail.gmail.com>
+From:   Olga Kornievskaia <aglo@umich.edu>
+Date:   Wed, 4 Nov 2020 09:21:14 -0500
+Message-ID: <CAN-5tyF_JTMr4+05_YH2VQGft4aXXon3ZjuiVuOn-Z-DLVvTQg@mail.gmail.com>
+Subject: Re: selinux: how to query if selinux is enabled
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Chuck Lever <chucklever@gmail.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-It appears to have been needed for selinux_complete_init() in the past,
-but today it's useless.
+On Wed, Oct 14, 2020 at 8:11 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Wed, Oct 14, 2020 at 12:31 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > On 10/14/2020 8:57 AM, Paul Moore wrote:
+> > > On Wed, Oct 14, 2020 at 10:37 AM Olga Kornievskaia <aglo@umich.edu> wrote:
+> > >> On Tue, Oct 13, 2020 at 7:51 PM Stephen Smalley wrote:
+> > >>> I would suggest either introducing a new hook for your purpose, or
+> > >>> altering the existing one to support a form of query that isn't based
+> > >>> on a particular xattr name but rather just checking whether the module
+> > >>> supports/uses MAC labels at all.  Options: 1) NULL argument to the
+> > >>> existing hook indicates a general query (could hide a bug in the
+> > >>> caller, so not optimal), 2) Add a new bool argument to the existing
+> > >>> hook to indicate whether the name should be used, or 3) Add a new hook
+> > >>> that doesn't take any arguments.
+> > >> Hi Stephen,
+> > >>
+> > >> Yes it seems like current api lacks the needed functionality and what
+> > >> you are suggesting is needed. Thank you for confirming it.
+> > > To add my two cents at this point, I would be in favor of a new LSM
+> > > hook rather than hijacking security_ismaclabel().  It seems that every
+> > > few years someone comes along and asks for a way to detect various LSM
+> > > capabilities, this might be the right time to introduce a LSM API for
+> > > this.
+> > >
+> > > My only concern about adding such an API is it could get complicated
+> > > very quickly.  One nice thing we have going for us is that this is a
+> > > kernel internal API so we don't have to worry about kernel/userspace
+> > > ABI promises, if we decide we need to change the API at some point in
+> > > the future we can do so without problem.  For that reason I'm going to
+> > > suggest we do something relatively simple with the understanding that
+> > > we can change it if/when the number of users grow.
+> > >
+> > > To start the discussion I might suggest the following:
+> > >
+> > > #define LSM_FQUERY_VFS_NONE     0x00000000
+> > > #define LSM_FQUERY_VFS_XATTRS   0x00000001
+> > > int security_func_query_vfs(unsigned int flags);
+> > >
+> > > ... with an example SELinux implementation looks like this:
+> > >
+> > > int selinux_func_query_vfs(unsigned int flags)
+> > > {
+> > >     return !!(flags & LSM_FQUERY_VFS_XATTRS);
+> > > }
+> >
+> > Not a bad start, but I see optimizations and issues.
+> >
+> > It would be really easy to collect the LSM features at module
+> > initialization by adding the feature flags to struct lsm_info.
+> > We could maintain a variable lsm_features in security.c that
+> > has the cumulative feature set. Rather than have an LSM hook for
+> > func_query_vfs we'd get
+> >
+> > int security_func_query_vfs(void)
+> > {
+> >         return !!(lsm_features & LSM_FQUERY_VFS_XATTRS);
+> > }
+>
+> Works for me.
+>
+> > In either case there could be confusion in the case where more
+> > than one security module provides the feature. NFS, for example,
+> > cares about the SELinux "selinux" attribute, but probably not
+> > about the Smack "SMACK64EXEC" attribute. It's entirely possible
+> > that a bit isn't enough information to check about a "feature".
+>
+> In the LSM stacking world that shouldn't matter to callers, right?  Or
+> perhaps more correctly, if it matters to the caller which individual
+> LSM supports what feature then the caller is doing it wrong, right?
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/hooks.c          | 5 ++---
- security/selinux/include/objsec.h | 1 -
- 2 files changed, 2 insertions(+), 4 deletions(-)
+Hi folks,
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a340986aa92e1..714e7fa624ba8 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -599,7 +599,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- {
- 	const struct cred *cred = current_cred();
- 	struct superblock_security_struct *sbsec = sb->s_security;
--	struct dentry *root = sbsec->sb->s_root;
-+	struct dentry *root = sb->s_root;
- 	struct selinux_mnt_opts *opts = mnt_opts;
- 	struct inode_security_struct *root_isec;
- 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
-@@ -1079,7 +1079,7 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
- 			return rc;
- 	}
- 	if (sbsec->flags & ROOTCONTEXT_MNT) {
--		struct dentry *root = sbsec->sb->s_root;
-+		struct dentry *root = sb->s_root;
- 		struct inode_security_struct *isec = backing_inode_security(root);
- 		seq_putc(m, ',');
- 		seq_puts(m, ROOTCONTEXT_STR);
-@@ -2559,7 +2559,6 @@ static int selinux_sb_alloc_security(struct super_block *sb)
- 	mutex_init(&sbsec->lock);
- 	INIT_LIST_HEAD(&sbsec->isec_head);
- 	spin_lock_init(&sbsec->isec_lock);
--	sbsec->sb = sb;
- 	sbsec->sid = SECINITSID_UNLABELED;
- 	sbsec->def_sid = SECINITSID_FILE;
- 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 330b7b6d44e0a..ca4d7ab6a8355 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -61,7 +61,6 @@ struct file_security_struct {
- };
- 
- struct superblock_security_struct {
--	struct super_block *sb;		/* back pointer to sb object */
- 	u32 sid;			/* SID of file system superblock */
- 	u32 def_sid;			/* default SID for labeling */
- 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
--- 
-2.26.2
+I would like to resurrect this discussion and sorry for a delayed
+response. I'm a little bit unsure about the suggested approach of
+adding something like selinux_func_query_vfs() call where selinux has
+such a function. What happens when selinux is configured to be
+"disabled" wouldn't this call still return the same value as when it
+is configured as "permissive or enforcing"?
 
+Thank you.
+
+
+
+>
+> --
+> paul moore
+> www.paul-moore.com
