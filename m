@@ -2,152 +2,101 @@ Return-Path: <SRS0=XO28=EK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 053D3C2D0A3
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 17:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC222C2D0A3
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 20:07:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B71720735
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 17:03:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="M7sTa4A3"
+	by mail.kernel.org (Postfix) with ESMTP id 999C920936
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 20:07:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1604520440;
+	bh=/KxEHYgp71/ldR6Q6v/198vdd/J27KB6R/yLwRxvdHM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=jlOcqF/F5Gdvn/gUcFYS77ukgF+N9uW7UOQEi618xoBdQSE5taNOQ7n0gAshNEGqP
+	 9KDhy9CZT07BlMOcs943gOjShwJdQyIERbuKSRw4B2HXp5O6H8peE9Nr/9Q8ANzTK+
+	 Wr5jaBr1NNS4Ro+3ekJlasKhQJUEazBLg6tDtRTE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731545AbgKDRC6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 12:02:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731533AbgKDRC5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 12:02:57 -0500
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F5DC061A4A
-        for <selinux@vger.kernel.org>; Wed,  4 Nov 2020 09:02:55 -0800 (PST)
-Received: by mail-ej1-x642.google.com with SMTP id oq3so28924935ejb.7
-        for <selinux@vger.kernel.org>; Wed, 04 Nov 2020 09:02:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=x2M/mARoDzrcfFFiwEe2r6gawenXxInWJUsbPLXI4aU=;
-        b=M7sTa4A3JZbX13eK8mgywZ5kdDjq33XlU/mpL1bHzx7FoLS3ztmx9M9jWTjyj1wfCe
-         s4N1kwTO9+A0wg+7pPU5k95P7JqFWQN1hHzwrzWO+IpYNzYRFmYpzZAv5Kc5wjJia+wl
-         65vkjtjKE6b52MBX9xVcDRMRdlWj1Rw1clG+312fBrHk5k1tlLpWaibkbe2Z5Kqpq9+U
-         1EZn6bUY51uaVkjJtrchPAq6GJ7mOhY5N4M7DLhxQhxcPoiQ2VEJ6rrKF/Pj/PyAOW/z
-         lhhpy5AWmnZvME8LvXYIzSHyoaFgMnW45UfjiBWxz0X/tpkmusE8zKDNuh8d4jjde4Bg
-         v8Tw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=x2M/mARoDzrcfFFiwEe2r6gawenXxInWJUsbPLXI4aU=;
-        b=qwftf16XGIc99mEdGrjLxCbAAu1LXr2mPFjXg0f7JzYcGkdzH2THOhNtSrGBlhLL2Z
-         iUss+/L0riZhZvbwYF2BC0HeFGNKosP3qig0qOZ/d7yCUEhmuYXqgxHOM6T2L1QlZF+I
-         96zW3oETaMHhauG9knRF0OxvrpzkS0asr39iPOp420SL0psg3V81KScrsFVg8VB1tWeV
-         VcI3N0tS/V6PutfSkdvcM4d7O2cVHWijWnzTPiu+xUI9Wlfo+ZfpoAfYiDL8sN6ItbDU
-         FLihDNTdZlx1z+RdblOgF6MpwVdRWWBQru99w84LFP8wVaUsX+kiyZIn+xUb4Ia5gz4J
-         s+Og==
-X-Gm-Message-State: AOAM5323tMgG6NvfNKI/TLT/u7EA4ZrGci0u6B8r0e8Sg7/PpAVGBeke
-        5sOVIRajzJCnysgWXY3IMGAD1B/gVTmTTe/xhkUh
-X-Google-Smtp-Source: ABdhPJwnz1UtFa7ZfNIrVWs1o+Tvv5+b2V30m/yWN9QZtdmkerlPloaXcjzTHxCBxaQbBdQJ58kX093S2c9nCvxtPDo=
-X-Received: by 2002:a17:906:1159:: with SMTP id i25mr5847474eja.398.1604509374270;
- Wed, 04 Nov 2020 09:02:54 -0800 (PST)
-MIME-Version: 1.0
-References: <CAN-5tyETQWVphrgqWjcPrtTzHHyz5DGrRz741yPYRS9Byyd=3Q@mail.gmail.com>
- <CAHC9VhRP2iJqLWiBg46zPKUqxzZoUOuaA6FPigxOw7qubophdw@mail.gmail.com>
- <CAN-5tyFq775PeOOzqskFexdbCgK3Gk_XB2Yy80SRYSc7Pdj=CA@mail.gmail.com>
- <CAHC9VhTzO1z6NmYz6cOLg5OvJiyQXdH_VmLh4=+h1MrGXx36JQ@mail.gmail.com>
- <CAN-5tyGJxUZb5QdJ=fh+L-6rc2B-MhQbDcDkTZNAZAAJm9Q8YQ@mail.gmail.com>
- <FB6C74CE-5D9F-4469-A49B-93CC8A51D7D5@gmail.com> <CAN-5tyFQbfkiuno07C6Azc7RcF3z3qF3PP0FutFMD3raBgnQmA@mail.gmail.com>
- <CAEjxPJ7PoAG6f+gVdodx=6X8+_Z_WCFXAuxnpB8WmC1gTF4iQQ@mail.gmail.com>
- <CAN-5tyEy57xoqEbZAThZKHriJywx-5DMKBD5tsXwo5ccGwuctw@mail.gmail.com>
- <CAHC9VhQpCXFySZY42==KR57hfAkVLdS6mSAcp2UHn-GWjEfVLg@mail.gmail.com>
- <bc766b2b-d1f1-d767-579c-02e10ae32a9a@schaufler-ca.com> <CAHC9VhS7UeCX9BXPrHNH90_sLHKGxTbbtjdm6GBOgDM9=T05FA@mail.gmail.com>
- <CAN-5tyF_JTMr4+05_YH2VQGft4aXXon3ZjuiVuOn-Z-DLVvTQg@mail.gmail.com>
-In-Reply-To: <CAN-5tyF_JTMr4+05_YH2VQGft4aXXon3ZjuiVuOn-Z-DLVvTQg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 4 Nov 2020 12:02:41 -0500
-Message-ID: <CAHC9VhQgJ93LrEFBBJ-kz8C9b4RukODzRRRJVKgwGEL8jPVZaQ@mail.gmail.com>
-Subject: Re: selinux: how to query if selinux is enabled
-To:     Olga Kornievskaia <aglo@umich.edu>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        id S1731480AbgKDUHR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 15:07:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50374 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727991AbgKDUHR (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 4 Nov 2020 15:07:17 -0500
+Received: from gmail.com (unknown [104.132.1.84])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EE7220759;
+        Wed,  4 Nov 2020 20:07:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604520435;
+        bh=/KxEHYgp71/ldR6Q6v/198vdd/J27KB6R/yLwRxvdHM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sMTdq2/JvXaoj6ioI59IfzGg+6h/K/RuZTjVhSyPvLS/M8m+Rxlu2JLIWkn788SR3
+         s7EG8t9sMlRSBCVayPVdoWbJjvnm8ejMmPoj52tmJsfGYtb1SY/Jda4EcOCXuYN01k
+         NhpVRHTGMoQrcZUeyOA5TumQe8awYGmol7L66rgg=
+Date:   Wed, 4 Nov 2020 12:07:01 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Lokesh Gidra <lokeshgidra@google.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Chuck Lever <chucklever@gmail.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        kaleshsingh@google.com, calin@google.com, surenb@google.com,
+        nnk@google.com, jeffv@google.com, kernel-team@android.com
+Subject: Re: [PATCH v10 0/3] SELinux support for anonymous inodes and UFFD
+Message-ID: <20201104200701.GA1796392@gmail.com>
+References: <20201011082936.4131726-1-lokeshgidra@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201011082936.4131726-1-lokeshgidra@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 4, 2020 at 9:21 AM Olga Kornievskaia <aglo@umich.edu> wrote:
-> On Wed, Oct 14, 2020 at 8:11 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Wed, Oct 14, 2020 at 12:31 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > On 10/14/2020 8:57 AM, Paul Moore wrote:
-> > > > On Wed, Oct 14, 2020 at 10:37 AM Olga Kornievskaia <aglo@umich.edu> wrote:
-> > > >> On Tue, Oct 13, 2020 at 7:51 PM Stephen Smalley wrote:
+On Sun, Oct 11, 2020 at 01:29:33AM -0700, Lokesh Gidra wrote:
+> Daniel Colascione (3):
+>   Add a new LSM-supporting anonymous inode interface
+>   Teach SELinux about anonymous inodes
+>   Use secure anon inodes for userfaultfd
 
-...
+Patches are supposed to have subsystem prefixes, e.g.
 
-> > > > To start the discussion I might suggest the following:
-> > > >
-> > > > #define LSM_FQUERY_VFS_NONE     0x00000000
-> > > > #define LSM_FQUERY_VFS_XATTRS   0x00000001
-> > > > int security_func_query_vfs(unsigned int flags);
-> > > >
-> > > > ... with an example SELinux implementation looks like this:
-> > > >
-> > > > int selinux_func_query_vfs(unsigned int flags)
-> > > > {
-> > > >     return !!(flags & LSM_FQUERY_VFS_XATTRS);
-> > > > }
-> > >
-> > > Not a bad start, but I see optimizations and issues.
-> > >
-> > > It would be really easy to collect the LSM features at module
-> > > initialization by adding the feature flags to struct lsm_info.
-> > > We could maintain a variable lsm_features in security.c that
-> > > has the cumulative feature set. Rather than have an LSM hook for
-> > > func_query_vfs we'd get
-> > >
-> > > int security_func_query_vfs(void)
-> > > {
-> > >         return !!(lsm_features & LSM_FQUERY_VFS_XATTRS);
-> > > }
-> >
-> > Works for me.
-> >
-> > > In either case there could be confusion in the case where more
-> > > than one security module provides the feature. NFS, for example,
-> > > cares about the SELinux "selinux" attribute, but probably not
-> > > about the Smack "SMACK64EXEC" attribute. It's entirely possible
-> > > that a bit isn't enough information to check about a "feature".
-> >
-> > In the LSM stacking world that shouldn't matter to callers, right?  Or
-> > perhaps more correctly, if it matters to the caller which individual
-> > LSM supports what feature then the caller is doing it wrong, right?
->
-> Hi folks,
->
-> I would like to resurrect this discussion and sorry for a delayed
-> response. I'm a little bit unsure about the suggested approach of
-> adding something like selinux_func_query_vfs() call where selinux has
-> such a function. What happens when selinux is configured to be
-> "disabled" wouldn't this call still return the same value as when it
-> is configured as "permissive or enforcing"?
+	fs, security: add a new LSM-supporting anonymous inode interface
+	selinux: implement init_security_anon()
+	userfaultfd: use secure anon inodes
 
-Hello again.
+... but that points to the fact that the first one is really both fs and
+security subsystem changes.  Patches should be one logical change only.  I
+suggest splitting it up into:
 
-To start, the non-LSM portion of the kernel shouldn't be calling
-selinux_func_query_vfs() directly, it should call
-security_func_query_vfs(); it would be up to the individual LSMs to
-indicate to the LSM hooks layer what is required.  If SELinux wasn't
-built into the kernel, or was disabled at boot, I would expect that
-the security_func_query_vfs() function would adjust to exclude the
-SELinux requirements.
+	security: add init_security_anon() LSM hook
+	fs: add anon_inode_getfd_secure()
 
--- 
-paul moore
-www.paul-moore.com
+- Eric
