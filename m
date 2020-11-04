@@ -7,81 +7,82 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0284AC388F7
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 23:47:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80603C4741F
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 23:48:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FAA220825
-	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 23:47:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19A4220867
+	for <selinux@archiver.kernel.org>; Wed,  4 Nov 2020 23:48:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="hhRQ4Se6"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="qSjCSL2S"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733163AbgKDXrH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Nov 2020 18:47:07 -0500
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:33800
+        id S2387659AbgKDXsp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Nov 2020 18:48:45 -0500
+Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:40724
         "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732977AbgKDXrG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 18:47:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604533624; bh=31g/5HzX6krn+gOjEWAqS8zvx9XmSVzOa+BADnOe8TY=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=hhRQ4Se6GlQa+ajVCItgaX68jJYDVul3nJ60y31wGnIwUwBLIiWJ4L/ke27r49OT8/LlKSovl24uJR+n89T4neFpBHEXatOO98n4djvXBJM0Z10r0uSansjMaiViSxOJpVlud3qJGx4YCviEIqxBmDIdtoKWKxvmpuRHWuVX/4uH5AntlL8YRr1u6GwSmDPPBlkDHMnoXRs0zML+l+LwSm0sfIRa/XtSrYkCC+JZVyWzurfeoZRfCVbBlrD+5yFDF6N2tqFiSktl82ivA17QKvdIt/B3eLxV2zNI+u6fSscby/LYYDvspdFO0Gwydf/xPFLwEen0V0oxKZyuR61MIg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604533624; bh=+hH1a8yPR6qaZDCsIMFmKPZ3In+1spyVg/V+Q95yqaF=; h=From:To:Subject:Date; b=XUplVZ9+tom/nUwDN1CcDhHjCwqjjokvwUZB08MdEwQgK5kYCF0/bZ2mche7Wcm8etNXSGB9G65Aas8pSxUM2yI0+ZyljAEvKr+fx5ucbcEeYJ4YjuPcPUaAHfpO1ySfiacoK3tPVKcht9B5GJ++4WVeS51vQVwWoJPjQatHD2UcupkCI4bMcwolAdtEcOSufHnWl+ed2F20+vxplf0xY/imt8L41Wo7I8iUXtQoaszmTLsN1fNO82O4C/kobbilsAw9xxO2BZK+zBR6U/rNvNQ1IIwybXrpSdfLP5yYBf4Yd0/avxXIQ3JQ6mEbkfd7FZYauqrUmuNrfKxB1sq1iA==
-X-YMail-OSG: goq9a4wVM1m89i6MzLMqvrBtoOWYUOTFtKaYw7MYnE6lT7pvOPcDjw_SqqvRIaa
- JWkM57E0u6VhI7or7hthIw6Z_1wMvFGuW_Aj0juprAr8a5vIqpUCQ1AiP9TZHTBGDrJeRRCHgZ5V
- I3p8ewf5XeLbOHUGy_6_8b6gBhk27vZAC7JYCwCcLaykQmeOQJSh6RgW9rNg53p.3JLyTnE7j7VB
- ZfUYdIVMiYoTyMelvQvMSpjOducxCwI5TPJfLWGPr2HHHIbEsAVNOymXnDzlQLDuIsX_2pUsu.CK
- bGHxz7SEOpFkZ66WsgChfeupphVr6lYPT0JF6hzGNm7cmuMUDAmvurMDMyiPbAAUIKK.L9gpKzLA
- fCpek1ZjoloDy_RLqMtUHNviDsxNswQdiV3TqtiCy9w5q.tE6ITG.2ot4QFfV0SY_c0leQVKYkeF
- oCYymgnVZFcDhvN8FPoAPlPuiWv_J.96IJkDccnLPc95JDuoEttT1kent6HkTbVrCd.CvFPD1aKZ
- ATYOinCMOBvobmctIefR97LAt8MGGCbuJe4yFaPBwTnuSeixhLwBIgE6T69qVmnyjJg19JnXm5jF
- 50ejS.9BAxeSyeQaKxTnFdy0XMO76bskIBiI_MFtlHNOzeZ5IkeXsXWANMUavUudMusEK6rD5.av
- 9WYR.KP_BeOi3wL4fUEjmu4c26Ec_fu4wNFuug84tLnHjzZX_wTJtwVm1Jr4O7RJ4e4ywk8oC4D1
- s8qg6ROkJrtuMo5EbshMi0p.aLB2HCSAm_Z3.5nd83Jc_IfF..8mU27rvthpxFhQL__fN8Tu.uok
- zzPWrmyTlXRzuxpjPzZeJXmagksi98WVVRCI7kXtwhmYpafJtGZbDvN.uNPCGXqM8Dvt_Z7VUXCp
- yilhC.ObhEypdJiWM0u2rRIZavbv.3sSxbGnvo4_P81zZJTRxz3xz8QswfmreDNZmCwoqnNLfEBl
- nqJP_y53kb4XvRO3meFNmeP_Xl6NmX9v9S2om3AwEXexeUbCafEDq8RieiDcWSLMpJn1U4U4_8sK
- QW0ff02RlY98h8EDlkJC.WtYaTwTC17QOa.nS_vM_lRiTeZxIXYE_A1WaYNv.tUm77pzv7Nq3p0Z
- 6lIVsnyARahdg1KytTk5jE1Thx9iZKHfxcrEOMEwAxZiUxrYocANn4ng.hsmKuroMwSMQqZWxJD9
- bsfqBGYVSplCcW2LZTLgljjK5Aj35Hj.ulITfxf2a5HrClxDn7S08cGR1GPCG7w06emabXrgl0l7
- htXMd9bxMKqciwC4AVA6X6r1jQDeMoh.dNSEJeQp1mR0RnW_XFkHXnuov_PxXg8pbAInI85wqgJn
- dTIuycwNToYhYNK8yJHFDJfVvDwA3XKwvZAonVNYu1C_rtJ_bi_v4faQU_v.e4UbKRIl0uVp9GHp
- b3zUZB3pyt5eMaEe2B4OHK6vgHT3VurxEXE1Flls8wuba0okqUq58K0qGCOgvOW1YbP3lB1ZUSmH
- vVh8vJ082TaTL1Jus9XrqJ6usxOunS47lsvFGYzSQfM6oufh0.13rHto7VSp8zNmCXBZoMvXvtkB
- LyL00PikzIpFsZFE_wPObg9VrCx.3Z2nGdVagBpEgwcmaLUPHvzCN7M3WPf8tzMHhXTYakUYGuat
- h1k_WmuP6DeUULqwaT_PcjkdpohWOqdHVyOF0Kf.hOylwLL8cYnbO_jaPhDepUF4S2RAbg6Ylkjt
- xDHG.BNerTazlZPr5RdhSqmMtUj6HxDxMTZRxcgo.BB8p6sOQG15Hh.jF5UvQFsHOViN_5hRvyfv
- WV0zucFgk3ynkB_bw2mitdoCpln2mPSAw7X4BzRNYpF1GQL9iJCfAA_w_4x8QNZrRDTpvSgHix12
- ztW_dXTf3.p5ju4bTl4FUvUIv0rtB4QUKrE6o71mz93flIPbMG.g8.fmhPt8Ko1M1dmT61UXNG9G
- hbASjD9AirjM_yfr5Q8K3ymSiuN92gSgMUY0HSOJ12m_XKAjD6qzKR28YlMt6U9Z_FvCvzteRx0f
- WRSvnqn.vnCxiGI05KdXmtca9DpsjPedIMiLw9dwHmWYF.8ZmxqM7Tej6zsUawZPSaY7vofzduHS
- w0mCsuTOh8VSzkfleqadXFXolE0dm.btUT29c4ZfPvC6MSQWKXnBEw05dB02vcL6DEJxRsw_7_BA
- 1t0tIP9NWFcixe2zJjvC3JVzB9yZjoz0yV0Ab5DyOH2Qb7QyqVQ4h3iYW5ydqlct7SHpzdZ0dSDZ
- GDf3PZ1dKZxFvcx1miku_P_7IvtBH8As.0zScEn1BORJpVjHpj2JVJTIFaLp.XmnTwjO0eRq8TGb
- blJBXnkkCPuFFfPttw1ekJ.zOXRDUJYds5wgH_FyligIzii5cXPJslPBxYBuQuRCs7H91CYkrI6_
- 1Dv20fIK2CD7BLai6qZIUjj1Lpf8LurlNraSWdBvJJ11ncJOOumzmd8h2Bf6f2VCfPOFEoTRYJv.
- d3I1lPpn8iUoJ0HcbEGlXIwM8fhvpYe60LxIgBmFdIHKr8KV987wgDMUmR9IMYBu4edIp372LxL6
- dTObasPfAXbEeWMdJKYJSYfwCkAf3gwzsZdvDdjNs5fR68fGLmQIyhddV3BE9EYslb_Pe8KBuIUt
- aFVq3buiiDTZxjaRArTmDaV5izHaTvVI0Tl4or3SVlW6fQhkFxizIhOIMpiBrzPwCRCZA__w.sBE
- maTDd1s9K3.AEFHmzFZrU0D6pSL3rPyFvbknMAbK_5WA2Muqk.NlMsitJjVcu1TSH6my5OJkZasL
- RgeXtLQqV5NallU2ESuH_6XyolUWx1xqgCSodTd97pBTGan5P9dpC46CJnDH_gGcFWeUkvWhxnr6
- JInA_ayhqSC2zQBgNes1D2WF8vc06oeLBW3h__a6E3KkDKuQaSppzur4xpvvrdNUQStem_Ocm1Z0
- v5v4HAeoOGMBHB6srLsqP53o73UqMfrjgAFDqCvTqq2kFfBqXKvRZnxzKvAZeS5yg3jjz2QyZP8K
- iB56rZGmanZypTvKMRHXcA1LYDWYGrUMT5eaai84QYYsd5qxtEmYl1ZRDUteBUuy0CB_myoKNRRx
- 9maZRBIdVN478Dp3QsRee8vF4RGmNNpj01BJZ1HZtvoYA3ewC62jrmNRuVdjqyJJxcv4eW2Trisi
- 2goZZNbJ6hwhkCl0hj5YzU8pTbz8pvNgFIlBvYKmJylvieWF0fsgeKagnKIrrVXbcUZN.qvggQVV
- F4vuWllVxNf1Dj4TDHo6_Tun7OBgd92n.8dDYfV1otflR6P0Hr7tt2XtM8d0sYx1FI3ztyJNHvE9
- DX13U4NXFIM51UeWVZ.CY.VuHIDY9RjZn11qIf17v500XMf4R4i8fjfoGn4Vdhc6IFJFqQti4UTx
- 1YiVZiv6xDQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 4 Nov 2020 23:47:04 +0000
-Received: by smtp422.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 703a38252183f817957522daa59f0b45;
-          Wed, 04 Nov 2020 23:47:00 +0000 (UTC)
+        by vger.kernel.org with ESMTP id S2387554AbgKDXsM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Nov 2020 18:48:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604533689; bh=erYMDd+BdGzaMY+IvBFczstUTN3hSKUThjOkBNjJt+c=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=qSjCSL2S2gBTEuXRhfCDrlb8RKq1lUu7x2yOcsZId5zsjEJ1kQ9HKLrh/behyMpEEZK19JD64/PCgLiy1L2vRjMMJ3HFhO7fR6pnFC+TzTmvyjJgrrmGF0HS5g/BItFaPoGfEwr+eX+9TgqccCz7zDNeQkxU2X/DJGbiLgBr3BnfgTIp6WyqS95DNacX+5bLSVYylO+PFqY0R2BI2dZCMq+DaDLlW9ixV6GrCXpdYyBFgKh3q/RkWhh/GAgEh0tFVWQdC17VmkYl5+jTRBxbgrNLp3Qdx2QYrVFAl+SFgkCpNFn9O4pXknpUWGm/biTt+j0UMlhjAxM741+zeNFNhA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604533689; bh=4lh4PWuyVUUM3xU9NJmf3tXgWtHj3/WbGvOmkowUM2E=; h=From:To:Subject:Date; b=NMG+ICDf3kO+TC8jjtjhtnXz6wlJjRoEkJEexO1YkT1EIW27StyVN6WChmms26tzdFtP7kD1S9eHhNs+XXrZjs74wafvPBtW1blet1vkJUASXa3ycat1KzcYcrdPmror7WnbU0zc+OnCz2pTh+1kpxzOAnRhgWeROzy/tum5cxMwBko727JrIqjo2AJrPzmPmNDeYsSxKGjwTgbzP1GYYoASJBTdnOYfXSKIKFY3LvO+YiyzHXfbzy1GLiR+cc+PBs9ahmvPHAv3emRUhBDjY5eEFvxFlS+s8TYrhZHidJftoLTC+Ax9zufBTeHhNk7sdHefFnDUO5U48+zXF8V10g==
+X-YMail-OSG: sr93T28VM1n6TGxeFIa62emefs8J6r4XSXUwAUnAyj1PNJ3H6lNuTVA1_U2E7Mg
+ ZSmmEwSymITOoXHHVaYK4x1J9qz9nz83aD_TGzlIs7_PhEgtv.9JuQxTk3ot6bzxp1Xp2uJN3xOK
+ pnu9lz7nhkkKt5c_5TwkPw_qjVZeqfVZ6Ra2jBY_2oR8SAV0KIjcUbhzdUMLHhQ8Hu6zCHjUDk4k
+ Cw653g.CNkl4Z17j58v9adxh3cXFvc9HvxVkpKkXEp2NYfoqnRNu0VNnmPrVn76MGkEGItm.qqkV
+ AQIMvMthHtJcrsK70fvFeH8V8WZ8Pq50UnFekarLI8Acw0OVOJf99gRmD2APZGFG_Y56ptOkiuiG
+ NhkKTO1XAEKmTZeFCwMIcjWn386FpExsBJ.BqP2pmvgoQCyUTAfsMyGOThfMiu7L1No65Rhep6f6
+ PMvmM5tk0Xd0yFJ7RhmTDEslcoqcSQIrxpiv_h4MAfeQyAH1M_Ox0NnY0zRr4DR1nKNhlvbldwns
+ q9fdASJy6APn.2omVejmsSTwSkdf7Vu7.5wR3dqIZ96wNZumeYSWZ3oFf1nHgwxk0dbK1JU8tnQt
+ 5Wutxnw2dWUrwTCznH432GAp_bpHvYiIT_FF1Bk7Orf13SUbzV.zph39PR_s5tpqhnSKczL.NBBh
+ KljkhkVpkrf0JDijbWCLEtPMIW9F6X_i9lrRBg9hy9JMwprQAcuz.EzccSWh.A9be0IpCuDHD2IR
+ TMduVV3.KkX81HzDnN_m0Hbzc1mWZxOUGSu_x.nJ9aDaQ7qbsWYg59Q1BChLDw2rHGp4kx0ljma6
+ qKsLoNTtZD0ZMbHhbiEHzBwRbXhtKBGbzNeGm8I6t.SMKFgukIhQ98.pstw24Skm425sMwLNa6_P
+ TKPGiI7SVCcVaDtuMbZUNS.YdAIAiE9gFzsf48I8P2SRPtqW79v3v8eutsnu2hNno6BQiL4Bn3Wn
+ fR93FSXbNTcfYWSPsUvWoYZrpj6HI3PGWgmaE9kr.KenwNEuCSlFM2RHWAFL48bVEaC9oE9C7_dR
+ IWSe4KcZjB_Zrv_7WyyzSyt7_HqAMB8Q8wv_l7YMWab9VDVqFME6nE4WOzMzWzLFzVJtsHGsKbBy
+ UCGydTbxCHHyYACZA60tilGh3lwnDQg8pqXzAFAhb1Z_wAhq.jcv5xihZdKASpPE4y81Py.uC8Wc
+ .QsyLoznKLA1hp2XD.OrYYqI99WNrYzSIqNoH.NkMz9D97DS7DI5VL2HQldxiYP3ZTI6CnUe2eog
+ j4Nro6ER9pvQM9VUo4cjT2rVxEbT3rHMl_pkedFuJK_X.LCpYMqNHRyd.IfKzq05ejZWhzCSxObI
+ CbsRNRkA_uT_c9TmTVXURZ15jXJiviJ7TPj46J1t4_lZ1qQgcVrM7srZrqG1emZPZYJCu8X.uDC0
+ 9NC2oNL3v1iHN7_wVhhRt4pxW68Q55HmTQGaBrcZx9Xb4WVxJdaHHWVtjY_nLEcr8tOl6kPVYgVU
+ A451baUuNtXetTRura0IiZRcmffOm4jpNo3XpjfPpCmnpSe798CTg4U0CywTsRI8LhLhnPKjyvta
+ vK.7GAzR1nH1iSv.Z25CcnNF.KNwcb39MF3xcXmKqRuVXErZPXulOSoUq17JXYMbpF2pyicGPbUM
+ QvPHIYhd0csOjTx2ovhKggaZszXY9SPXXgv_E7qV_N0fnO5xjMk0qHU7jbrtgyQ9hTiQkFBUOKSD
+ ayDdq1u3Q8vpmzoNVloTBlD3kO5FUKDVrwi_fdLysCZ6x0SmwjXbcOQnRYCRmyWw2AeRFcmXIRYv
+ t8IGr5AMl_rpfquSkfHelUkmgi16hp_R_KtzHRbLy4mVlPHOJdJ4vcT8o4SjTa3BYwh4hc5jY1Vw
+ bEB6LlUejv9gI4jjZ3mlC7.hom7zyQKWB0uOLzQJsP8dI8k_ZWRsRuEZRjqES8sBItbrWRltzwR0
+ 3hE.gW7QUjMKDxNXyHV5mXL4rhIifRINBqEWDeDgjSp45gPpPWUgvYc8k_BFuNQl.AXBkNr5h7BN
+ mNhpy_LrTyWyqAPFyFT6r5dBd4Z8wcpABxrFw4317b4aRAh8zulFWbuZKao49bbBSXFRrUs6SYYq
+ 4q95fcJum4oDu5zvVI2bwVZKXtEytzoyVcncqQzbK0WVUdZJ52EzMEIdDUQXhc5KKLE8rluS44PG
+ yEE4DxWY.N2hDpIcioxgNm81xnZdAde68oeoJnyoRad5VIyPpVA4jXaI5k3O1DUDn4QccaEjJHo1
+ IOwGOZU_Eqe1ejKtq7sWWe0WajzqntOc3aVa.lS24wrDWWBd9rIdQoTvRN3crEI9fKIlmI4SF8f3
+ _XOVu5PmlO1uU5iAvu4zz_Ug25n2Q5g_HGKXqwbT4BpRpFibyNyRdV81i_rlblYzpToC0duMo_UM
+ GjHg3jeQo_4ivjqX53hKMmUMEw4opYwoH1xZITw6jWAUj04_lsza1aSvzU32UnnoPtdDPJbhiSMN
+ qPIC_FClg_ducXblqeXPVzkBY6QEUV.e0zNQNBdhJS1qf4vTfcNnhHQ_RKvcewdyuBrLO2bFOg5v
+ sxXRdAmSQLAKaixmFX3tTR0UnhMWa4LXHHP51g4Vvp7vt2uOqwylV48x7xorCyuzTRE1nrA9KQLA
+ gA5AuqU2yZwMJ2sxwOukmDLPiZ3yqBaCfUxHtPQ9s0LpVWJbBIqNWtFDaVk555yjder6FaQFBeeS
+ GxJ6A.XHEGKmH4733IJPIITv80LeaLO1ytcH5WVljBxsf7uquFKNrV6ftg6rbiHqoQ3fjkSFrIo5
+ oEuNeLSydCCmdBi6PYPs3j.gqK.IgnDuQkgrTNfmlpkIm6.lkU5AG9x3tl2VNoKFlokONhK5leJx
+ wr0mQITLkmj49fG.2J47SjPWr.2pIE.potr9K6AQhoGJBVxscO3IxoyMnEF68yeGAJxIrJeWrFSH
+ FQavIdssvVF_TPb.Pmm6GlmPaoOCaF9_ojW4wI1ffNTnrtMUaX4P_LMOTKnCoyLWVFVwgwZsTXTg
+ mhl6aOxW1DNr5QJUwarpxMUmlqvvPQ6ks42wtdR2QwHuO.d4Crwr3IQH3pbBqhjMGq2gmXxzEac_
+ zYnrhYWfoEijgTTjerCZd01rC4eDke44U339AzUr1rEBuIuY5W.kTYJx8unD_UBqWd1vg3Tldtxu
+ 1RWCwDvwvs3JwNgnF2XasdeiEooozlUuNCQZ9Rghr1WfCTz_ZOJ.fYIvdLNT9qfUZZb97eYY06bq
+ HaJdO6yXbEtXpWIl_3SRiM6LsiftyfRS7UtR5DB5GAqUhu0y7jAxfc7x1vk8W4Pt86avaJ5EhWJz
+ 3.k.3hsP32XFaqQ57cdrCilO8nmIRvy7_SptjajVSYGgwOZy2iOBDeRvujwPEbZkyBpiOsdwsmCd
+ XEUJQ5i0GdoqnI9lJW1Cd00iSjPzAoqZII2Ps0PjHmA--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 4 Nov 2020 23:48:09 +0000
+Received: by smtp425.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID d53b5fa43e99ee2806ceeb620b264b91;
+          Wed, 04 Nov 2020 23:48:06 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org
-Subject: [PATCH v22 04/23] LSM: Use lsmblob in security_kernel_act_as
-Date:   Wed,  4 Nov 2020 15:40:55 -0800
-Message-Id: <20201104234114.11346-5-casey@schaufler-ca.com>
+        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH v22 05/23] LSM: Use lsmblob in security_secctx_to_secid
+Date:   Wed,  4 Nov 2020 15:40:56 -0800
+Message-Id: <20201104234114.11346-6-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20201104234114.11346-1-casey@schaufler-ca.com>
 References: <20201104234114.11346-1-casey@schaufler-ca.com>
@@ -91,141 +92,280 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the security_kernel_act_as interface to use a lsmblob
+Change the security_secctx_to_secid interface to use a lsmblob
 structure in place of the single u32 secid in support of
-module stacking. Change its only caller, set_security_override,
-to do the same. Change that one's only caller,
-set_security_override_from_ctx, to call it with the new
-parameter type.
+module stacking. Change its callers to do the same.
 
-The security module hook is unchanged, still taking a secid.
+The security module hook is unchanged, still passing back a secid.
 The infrastructure passes the correct entry from the lsmblob.
-lsmblob_init() is used to fill the lsmblob structure, however
-this will be removed later in the series when security_secctx_to_secid()
-is updated to provide a lsmblob instead of a secid.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Cc: netdev@vger.kernel.org
 ---
- include/linux/cred.h     |  3 ++-
- include/linux/security.h |  5 +++--
- kernel/cred.c            | 10 ++++++----
- security/security.c      | 14 ++++++++++++--
- 4 files changed, 23 insertions(+), 9 deletions(-)
+ include/linux/security.h          | 26 ++++++++++++++++++--
+ kernel/cred.c                     |  4 +---
+ net/netfilter/nft_meta.c          | 10 ++++----
+ net/netfilter/xt_SECMARK.c        |  7 +++++-
+ net/netlabel/netlabel_unlabeled.c | 23 +++++++++++-------
+ security/security.c               | 40 ++++++++++++++++++++++++++-----
+ 6 files changed, 85 insertions(+), 25 deletions(-)
 
-diff --git a/include/linux/cred.h b/include/linux/cred.h
-index 18639c069263..03ae0182cba6 100644
---- a/include/linux/cred.h
-+++ b/include/linux/cred.h
-@@ -18,6 +18,7 @@
- 
- struct cred;
- struct inode;
-+struct lsmblob;
- 
- /*
-  * COW Supplementary groups list
-@@ -165,7 +166,7 @@ extern const struct cred *override_creds(const struct cred *);
- extern void revert_creds(const struct cred *);
- extern struct cred *prepare_kernel_cred(struct task_struct *);
- extern int change_create_files_as(struct cred *, struct inode *);
--extern int set_security_override(struct cred *, u32);
-+extern int set_security_override(struct cred *, struct lsmblob *);
- extern int set_security_override_from_ctx(struct cred *, const char *);
- extern int set_create_files_as(struct cred *, struct inode *);
- extern int cred_fscmp(const struct cred *, const struct cred *);
 diff --git a/include/linux/security.h b/include/linux/security.h
-index 89c538aa283e..948d12a5eb25 100644
+index 948d12a5eb25..0766725a6b21 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -443,7 +443,7 @@ void security_cred_free(struct cred *cred);
- int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
- void security_transfer_creds(struct cred *new, const struct cred *old);
- void security_cred_getsecid(const struct cred *c, u32 *secid);
--int security_kernel_act_as(struct cred *new, u32 secid);
-+int security_kernel_act_as(struct cred *new, struct lsmblob *blob);
- int security_kernel_create_files_as(struct cred *new, struct inode *inode);
- int security_kernel_module_request(char *kmod_name);
- int security_kernel_load_data(enum kernel_load_data_id id, bool contents);
-@@ -1061,7 +1061,8 @@ static inline void security_transfer_creds(struct cred *new,
- {
+@@ -191,6 +191,27 @@ static inline bool lsmblob_equal(struct lsmblob *bloba, struct lsmblob *blobb)
+ 	return !memcmp(bloba, blobb, sizeof(*bloba));
  }
  
--static inline int security_kernel_act_as(struct cred *cred, u32 secid)
-+static inline int security_kernel_act_as(struct cred *cred,
-+					 struct lsmblob *blob)
++/**
++ * lsmblob_value - find the first non-zero value in an lsmblob structure.
++ * @blob: Pointer to the data
++ *
++ * This needs to be used with extreme caution, as the cases where
++ * it is appropriate are rare.
++ *
++ * Return the first secid value set in the lsmblob.
++ * There should only be one.
++ */
++static inline u32 lsmblob_value(const struct lsmblob *blob)
++{
++	int i;
++
++	for (i = 0; i < LSMBLOB_ENTRIES; i++)
++		if (blob->secid[i])
++			return blob->secid[i];
++
++	return 0;
++}
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, unsigned int opts);
+@@ -508,7 +529,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_ismaclabel(const char *name);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen,
++			     struct lsmblob *blob);
+ void security_release_secctx(char *secdata, u32 seclen);
+ void security_inode_invalidate_secctx(struct inode *inode);
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+@@ -1335,7 +1357,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 
+ static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+-					   u32 *secid)
++					   struct lsmblob *blob)
  {
- 	return 0;
+ 	return -EOPNOTSUPP;
  }
 diff --git a/kernel/cred.c b/kernel/cred.c
-index 421b1149c651..22e0e7cbefde 100644
+index 22e0e7cbefde..848306c7d823 100644
 --- a/kernel/cred.c
 +++ b/kernel/cred.c
-@@ -733,14 +733,14 @@ EXPORT_SYMBOL(prepare_kernel_cred);
- /**
-  * set_security_override - Set the security ID in a set of credentials
-  * @new: The credentials to alter
-- * @secid: The LSM security ID to set
-+ * @blob: The LSM security information to set
-  *
-  * Set the LSM security ID in a set of credentials so that the subjective
-  * security is overridden when an alternative set of credentials is used.
-  */
--int set_security_override(struct cred *new, u32 secid)
-+int set_security_override(struct cred *new, struct lsmblob *blob)
- {
--	return security_kernel_act_as(new, secid);
-+	return security_kernel_act_as(new, blob);
- }
- EXPORT_SYMBOL(set_security_override);
- 
-@@ -756,6 +756,7 @@ EXPORT_SYMBOL(set_security_override);
-  */
+@@ -757,14 +757,12 @@ EXPORT_SYMBOL(set_security_override);
  int set_security_override_from_ctx(struct cred *new, const char *secctx)
  {
-+	struct lsmblob blob;
- 	u32 secid;
+ 	struct lsmblob blob;
+-	u32 secid;
  	int ret;
  
-@@ -763,7 +764,8 @@ int set_security_override_from_ctx(struct cred *new, const char *secctx)
+-	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
++	ret = security_secctx_to_secid(secctx, strlen(secctx), &blob);
  	if (ret < 0)
  		return ret;
  
--	return set_security_override(new, secid);
-+	lsmblob_init(&blob, secid);
-+	return set_security_override(new, &blob);
+-	lsmblob_init(&blob, secid);
+ 	return set_security_override(new, &blob);
  }
  EXPORT_SYMBOL(set_security_override_from_ctx);
+diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+index b37bd02448d8..f1b9b0021414 100644
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -811,21 +811,21 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
  
+ static int nft_secmark_compute_secid(struct nft_secmark *priv)
+ {
+-	u32 tmp_secid = 0;
++	struct lsmblob blob;
+ 	int err;
+ 
+-	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
++	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &blob);
+ 	if (err)
+ 		return err;
+ 
+-	if (!tmp_secid)
++	if (!lsmblob_is_set(&blob))
+ 		return -ENOENT;
+ 
+-	err = security_secmark_relabel_packet(tmp_secid);
++	err = security_secmark_relabel_packet(lsmblob_value(&blob));
+ 	if (err)
+ 		return err;
+ 
+-	priv->secid = tmp_secid;
++	priv->secid = lsmblob_value(&blob);
+ 	return 0;
+ }
+ 
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index 75625d13e976..9845d98e6b77 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -43,13 +43,14 @@ secmark_tg(struct sk_buff *skb, const struct xt_action_param *par)
+ 
+ static int checkentry_lsm(struct xt_secmark_target_info *info)
+ {
++	struct lsmblob blob;
+ 	int err;
+ 
+ 	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
+ 	info->secid = 0;
+ 
+ 	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
+-				       &info->secid);
++				       &blob);
+ 	if (err) {
+ 		if (err == -EINVAL)
+ 			pr_info_ratelimited("invalid security context \'%s\'\n",
+@@ -57,6 +58,10 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
+ 		return err;
+ 	}
+ 
++	/* xt_secmark_target_info can't be changed to use lsmblobs because
++	 * it is exposed as an API. Use lsmblob_value() to get the one
++	 * value that got set by security_secctx_to_secid(). */
++	info->secid = lsmblob_value(&blob);
+ 	if (!info->secid) {
+ 		pr_info_ratelimited("unable to map security context \'%s\'\n",
+ 				    info->secctx);
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 2e8e3f7b2111..8c064342169f 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -882,7 +882,7 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
+ 	void *addr;
+ 	void *mask;
+ 	u32 addr_len;
+-	u32 secid;
++	struct lsmblob blob;
+ 	struct netlbl_audit audit_info;
+ 
+ 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
+@@ -906,13 +906,18 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
+ 	ret_val = security_secctx_to_secid(
+ 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+ 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+-				  &secid);
++				  &blob);
+ 	if (ret_val != 0)
+ 		return ret_val;
+ 
++	/* netlbl_unlhsh_add will be changed to pass a struct lsmblob *
++	 * instead of a u32 later in this patch set. security_secctx_to_secid()
++	 * will only be setting one entry in the lsmblob struct, so it is
++	 * safe to use lsmblob_value() to get that one value. */
++
+ 	return netlbl_unlhsh_add(&init_net,
+-				 dev_name, addr, mask, addr_len, secid,
+-				 &audit_info);
++				 dev_name, addr, mask, addr_len,
++				 lsmblob_value(&blob), &audit_info);
+ }
+ 
+ /**
+@@ -933,7 +938,7 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
+ 	void *addr;
+ 	void *mask;
+ 	u32 addr_len;
+-	u32 secid;
++	struct lsmblob blob;
+ 	struct netlbl_audit audit_info;
+ 
+ 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
+@@ -955,13 +960,15 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
+ 	ret_val = security_secctx_to_secid(
+ 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+ 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+-				  &secid);
++				  &blob);
+ 	if (ret_val != 0)
+ 		return ret_val;
+ 
++	/* security_secctx_to_secid() will only put one secid into the lsmblob
++	 * so it's safe to use lsmblob_value() to get the secid. */
+ 	return netlbl_unlhsh_add(&init_net,
+-				 NULL, addr, mask, addr_len, secid,
+-				 &audit_info);
++				 NULL, addr, mask, addr_len,
++				 lsmblob_value(&blob), &audit_info);
+ }
+ 
+ /**
 diff --git a/security/security.c b/security/security.c
-index 4ecbef074809..3a88a90ddba6 100644
+index 3a88a90ddba6..eac7c10b8cfa 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -1693,9 +1693,19 @@ void security_cred_getsecid(const struct cred *c, u32 *secid)
+@@ -2081,10 +2081,22 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
  }
- EXPORT_SYMBOL(security_cred_getsecid);
+ EXPORT_SYMBOL(security_secid_to_secctx);
  
--int security_kernel_act_as(struct cred *new, u32 secid)
-+int security_kernel_act_as(struct cred *new, struct lsmblob *blob)
+-int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen,
++			     struct lsmblob *blob)
  {
--	return call_int_hook(kernel_act_as, 0, new, secid);
+-	*secid = 0;
+-	return call_int_hook(secctx_to_secid, 0, secdata, seclen, secid);
 +	struct security_hook_list *hp;
 +	int rc;
 +
-+	hlist_for_each_entry(hp, &security_hook_heads.kernel_act_as, list) {
++	lsmblob_init(blob, 0);
++	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
 +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
 +			continue;
-+		rc = hp->hook.kernel_act_as(new, blob->secid[hp->lsmid->slot]);
++		rc = hp->hook.secctx_to_secid(secdata, seclen,
++					      &blob->secid[hp->lsmid->slot]);
 +		if (rc != 0)
 +			return rc;
 +	}
 +	return 0;
  }
+ EXPORT_SYMBOL(security_secctx_to_secid);
  
- int security_kernel_create_files_as(struct cred *new, struct inode *inode)
+@@ -2235,10 +2247,26 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				optval, optlen, len);
+ }
+ 
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     u32 *secid)
+ {
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
++	struct security_hook_list *hp;
++	int rc = -ENOPROTOOPT;
++
++	/*
++	 * Only one security module should provide a real hook for
++	 * this. A stub or bypass like is used in BPF should either
++	 * (somehow) leave rc unaltered or return -ENOPROTOOPT.
++	 */
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
++			     list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		rc = hp->hook.socket_getpeersec_dgram(sock, skb, secid);
++		if (rc != -ENOPROTOOPT)
++			break;
++	}
++	return rc;
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
 -- 
 2.24.1
 
