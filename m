@@ -2,148 +2,128 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E58DC4741F
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 14:30:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39E00C55179
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 15:31:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 98C7D21734
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 14:30:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7CA3206B2
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 15:31:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nUZHSYOp"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="s9lXyb0u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730935AbgKEOap (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 09:30:45 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31606 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727275AbgKEOao (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 09:30:44 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A5E2RHA069793;
-        Thu, 5 Nov 2020 09:30:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=S9CJWToNLpkKaCorY29bqvxp8f7JEx0XR/Lr9uF/huY=;
- b=nUZHSYOpknxeIn3PzQzenFH35XSGFkI39rU2Iv/FbkbzQKU4PyJBQBCc5ebWOOpgv7nm
- GvMaW6E2y7rAoZgQ+9LmLfid0iogBBCYJpO85IOgCyKOTTieE6h97jSh0yIMQ2Mno6kr
- Fge88ybimz4piCdf50sota/VMyqPJT38x/f7zk/QRbwpy/CDw/qmfvdlVmVjl0Wr+lFB
- eblyoiYRL/yCaz98cDyG3IiXAYStSHkcMsnp8903KUiP1vz2eDZnreD+0pFhkPyxPUKj
- EjDb6mBkysNonJg0PWxc4TPhzaZYDfmACcArF+1H4ShbhiYcOG2zOYiZE6PtbYQoYkc1 vQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34m5ftg0w3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Nov 2020 09:30:36 -0500
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0A5E3Bwc077583;
-        Thu, 5 Nov 2020 09:30:35 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34m5ftg0ug-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Nov 2020 09:30:35 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A5ER9Dg016507;
-        Thu, 5 Nov 2020 14:30:32 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 34h0fcwh52-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Nov 2020 14:30:32 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A5EUUee56426984
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 5 Nov 2020 14:30:30 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8FDD6AE051;
-        Thu,  5 Nov 2020 14:30:30 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47954AE04D;
-        Thu,  5 Nov 2020 14:30:27 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.97.46])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  5 Nov 2020 14:30:27 +0000 (GMT)
-Message-ID: <d0e96ccc49590c5ff11675661592b70b0f021636.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 2/7] IMA: update process_buffer_measurement to
- measure buffer hash
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Thu, 05 Nov 2020 09:30:26 -0500
-In-Reply-To: <20201101222626.6111-3-tusharsu@linux.microsoft.com>
-References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
-         <20201101222626.6111-3-tusharsu@linux.microsoft.com>
+        id S1731204AbgKEPbh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 10:31:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54222 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731339AbgKEPbg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 10:31:36 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C4EDC0613CF
+        for <selinux@vger.kernel.org>; Thu,  5 Nov 2020 07:31:36 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id i19so3199522ejx.9
+        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 07:31:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=YM/XgjTQ8wobK+HLaTsVkorcsV/rxa0Gp3JsvZnLt0Q=;
+        b=s9lXyb0u8whlCVtZNVXhzybxkCUiRjYqUMDAwaeO8oa+TcPlwKVy7wT27pwQyvDtey
+         YuH6UskHoTb10dGVC5w7ziWpb2ppUcPc061urZHbfKEI7iHH2XXud9U06TX3UhD/+m+i
+         sNek6C+jcE62VXaALNCVORCONHFQhJNwNagdlM6eqbfvT6mIGqikeddGcfd8RRyJkXcY
+         B8Py9VzGVTQT1iCA+U0vTXLNzSEILee2n3V2+EC1oyMeyntQqw7g1Zt1Eoeneuug2a1d
+         BS8Na+ZYh1eS/L31ZnIVq3e4YiCsFoqn1TzM9PY8SQbgouBZDyIFILJaRu/AZxsF9YnK
+         FskA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YM/XgjTQ8wobK+HLaTsVkorcsV/rxa0Gp3JsvZnLt0Q=;
+        b=LCm2V3WpEbuENsGJjdqyswTXg0I80VZ7NqEDp89TfbDgmn8ch34HnPfelFp02Yv5v6
+         32SqZUXnhsk3M+nvkFupkuhMJeEzQsJpMo1MlVl5SQQDUVO13Uo3R+5JuTOhHP0MWEfs
+         o9CPi/9mgOQfynaNKphiA+Lejd6tlI1WVzW/JWl/H2Qxc80T/g7+mCatdpK5echFpocv
+         GtRwiWZ7P7mZJsS7GnKOPnOgfn7MoluVuXLd2J8UF24M2mZf+G2KPBas+JnPQdL5/KnV
+         PzUGEkuI2xatZSPWynO2N8Ic+FM5O2ovREd2f3LSYadID0psPaG2e834TATkaD5rBKzF
+         9CRA==
+X-Gm-Message-State: AOAM532EmWmyjIfVGwWmkdaTnLPO+YIL4pPUWxP545RSo+IUDGhI+maq
+        ER3jNIFj6L9/GxGNprbBwfxCwbAYo/3lcDHyuHsbJw1kYw==
+X-Google-Smtp-Source: ABdhPJwNRw/BOSSv1acMK1GOKRBuKEKmuy2njowUvFbjCN8eVaIJOpXaw4nfqLw/w4FtyNxu132uVi0agfbkdtbfOIM=
+X-Received: by 2002:a17:906:3b81:: with SMTP id u1mr2793195ejf.542.1604590294835;
+ Thu, 05 Nov 2020 07:31:34 -0800 (PST)
+MIME-Version: 1.0
+References: <CAFqZXNvT=G4HPiugi6vnnJMGLgv5MsumURQij0cnFjLrnXZ93Q@mail.gmail.com>
+ <CAEjxPJ7cwBpLGoTmzGOUJFq5QuFCHG+xydiGYAtk2hV0d8ww3g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7cwBpLGoTmzGOUJFq5QuFCHG+xydiGYAtk2hV0d8ww3g@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 5 Nov 2020 10:31:23 -0500
+Message-ID: <CAHC9VhQZGM2XW5=durZRb-gapsu+bUu_45JegmsOxcGEgThL6g@mail.gmail.com>
+Subject: Re: Possibly unwanted rootcontext= behavior?
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-05_07:2020-11-05,2020-11-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- mlxscore=0 phishscore=0 suspectscore=0 clxscore=1015 bulkscore=0
- priorityscore=1501 mlxlogscore=999 adultscore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011050092
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tushar,
+On Thu, Nov 5, 2020 at 8:51 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Thu, Nov 5, 2020 at 7:44 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Hello everyone,
+> >
+> > while trying to fix the NFS rootcontext= issue, I realized that this
+> > funny thing is possible:
+> >
+> > # mount -o rootcontext=system_u:object_r:lib_t:s0 -t tmpfs tmpfs /mnt
+> > # ls -lZd /mnt
+> > drwxrwxrwt. 2 root root system_u:object_r:lib_t:s0 40 nov  5 07:30 /mnt
+> > # mount
+> > [...]
+> > tmpfs on /mnt type tmpfs
+> > (rw,relatime,rootcontext=system_u:object_r:lib_t:s0,seclabel)
+> > # chcon -t bin_t /mnt
+> > # ls -lZd /mnt
+> > drwxrwxrwt. 2 root root system_u:object_r:bin_t:s0 40 nov  5 07:30 /mnt
+> > # mount
+> > [...]
+> > tmpfs on /mnt type tmpfs
+> > (rw,relatime,rootcontext=system_u:object_r:bin_t:s0,seclabel)
+> >
+> > I.e. if you mount a tree with rootcontext=<oldctx> and then relabel
+> > the root node to <newctx>, the displayed mount options will report
+> > rootcontext=<newctx> instead of rootcontext=<oldctx>. A side effect is
+> > that if you try to mount the same superblock again, it will only
+> > permit you to mount with rootcontext=<newctx>, not with
+> > rootcontext=<oldctx>.
+> >
+> > Is that intended, bad, or "weird, but doesn't matter" behavior?
+>
+> I'd say it is bad.
+>
+> > I have a halfway written patch to disallow altering the root node's
+> > context when mounted with rootcontext=, but I'm not sure if that's the
+> > right thing to do or not.
+>
+> Probably the better fix would be to save the original rootcontext SID
+> as a new field of the
+> superblock security struct and use that both when displaying the mount
+> options and when
+> comparing old and new mount options instead of what happens to be
+> assigned to the root
+> inode at the time.
 
-Please don't include the filename in the Subject line[1].   The Subject
-line should be a summary phrase describing the patch.   In this case,
-it is adding support for measuring the buffer data hash.
+I worry that would be confusing, allowing the root inode to be
+relabeled yet still showing the old label in the mount options.  It
+would seem that simply blocking a root inode relabel when a
+rootcontext is specified would be the cleanest choice, assuming
+existing systems do not rely on this behavior.
 
-On Sun, 2020-11-01 at 14:26 -0800, Tushar Sugandhi wrote:
-> process_buffer_measurement() currently only measures the input buffer.
-> In case of SeLinux policy measurement, the policy being measured could
-> be large (several MB). This may result in a large entry in IMA
-> measurement log.
+Ondrej, Stephen, any idea how common this is on normal systems?  My
+gut feeling says "not very common", but that is just a guess.
 
-SELinux is an example of measuring large buffer data.  Please rewrite
-this patch description (and the other patch descriptions in this patch
-set) without using the example to describe its purpose [1].
-
-In this case, you might say,
-
-The original IMA buffer data measurement sizes were small (e.g. boot
-command line), but new buffer data measurement use cases are a lot
-larger.  Just as IMA measures the file data hash, not the file data,
-IMA should similarly support measuring the buffer data hash.
-
-> 
-> Introduce a boolean parameter measure_buf_hash to support measuring
-> hash of a buffer, which would be much smaller, instead of the buffer
-> itself.
-
-> To use the functionality introduced in this patch, the attestation
-> client and the server changes need to go hand in hand. The
-> client/kernel would know what data is being measured as-is
-> (e.g. KEXEC_CMDLINE), and what data has it’s hash measured (e.g. SeLinux
-> Policy). And the attestation server should verify data/hash accordingly.
-> 
-> Just like the data being measured in other cases, the attestation server
-> will know what are possible values of the large buffers being measured.
-> e.g. the possible valid SeLinux policy values that are being pushed to
-> the client. The attestation server will have to maintain the hash of
-> those buffer values.
-
-Each patch in the patch set builds upon the previous one.   (Think of
-it as a story, where each chapter builds upon the previous ones.)  
-With rare exceptions, should patches reference subsequent patches. [2]
-
-[1] Refer to Documentation/process/submitting-patches.rst
-[2] Refer to the section "8) Commenting" in
-Documentation/process/coding-style.rst
-
-thanks,
-
-Mimi
-
+-- 
+paul moore
+www.paul-moore.com
