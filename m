@@ -2,169 +2,178 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25CD3C56202
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 17:33:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C88DC4741F
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 17:37:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7BA22083B
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 17:33:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E586F206CA
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 17:37:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jz4PrMo5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oVpaDT5j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731350AbgKERdd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 12:33:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45344 "EHLO
+        id S1726729AbgKERhc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 12:37:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbgKERdd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 12:33:33 -0500
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89B7C0613CF;
-        Thu,  5 Nov 2020 09:33:31 -0800 (PST)
-Received: by mail-io1-xd42.google.com with SMTP id u21so2592713iol.12;
-        Thu, 05 Nov 2020 09:33:31 -0800 (PST)
+        with ESMTP id S1725862AbgKERhc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 12:37:32 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10800C0613CF
+        for <selinux@vger.kernel.org>; Thu,  5 Nov 2020 09:37:32 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id m17so2514270oie.4
+        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 09:37:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=XOyznZTEsXdH/0R24390C+1ujg7ZJGqVqGTwGLt4RDg=;
-        b=jz4PrMo5rH3esQZ2RZqtP0qBLkPQ+53YYYQB9cQsm1c4YPxBmNzOS4YM0pFwrjz+KO
-         +Lie/PHY0SMU/qtHl2UpAUq7UbhjHeGQ7yECd8zOopABh8W/zSqDnZilR2feKoBUlJ/t
-         iXwL/JHqoKKShpqYlQHlK/I5SLnHXGYcfzMXyv72CaUiEP2SAiI5bbFDJBRH9Cr4bce5
-         48vs56mGJ9sug5msRMNvaFxB+auBDRhcQkuhcpaJjGqvP7Ys9XH482qXLM9Mmodr6woR
-         GreogOdKlZd2R7XZ5t0XkcIKVWy1qIyk6bJ1VOy1I9jAU7fYeuataV3YUy7uMhoPoN4A
-         T3Tw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8k0oFykdv1vO74HUCrxYzpFcNZgQeMmNmibgDdutAOA=;
+        b=oVpaDT5jL8RXR91dF8QmpD+kQAsKFGahvy9ZLvzLGqhgWN4TzJY766djF9ycINY730
+         psUfkAxIrgSLrwKf31jn/m84WXCw/H1x8B5odmP5rQE+LqT2UjH3jBXlP3Z49+Y3PbTD
+         iHBlYahTJqO6k+rXLeN48ZgWT8dHfeMe+GlDPe3NZJz9TjkrxCiym7FQK/zJE01ONvsZ
+         YrB16/8HO7Ux4Qh0Of0rVdOixS3tHDsKqCyorVLoo92RQYNbcze2Cv7fbOTCHb8GgxVS
+         3E+fbUOjtCrwQSwvRW0aBZ4c6519HSk8hFLIzvHANa/GcucYpWXoChlduOMTyg3FbjTE
+         1GHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=XOyznZTEsXdH/0R24390C+1ujg7ZJGqVqGTwGLt4RDg=;
-        b=d5qf1D01s4oXpNmxIBG29zQrqCh8xqgYRsPUsyzl6r3Ugykfcgfs4KkSuDMBGzcBLh
-         UOOzaOGRoh1MVOCZgCSutxtFDTF2K3ueHxGh1lVBU2QLu2V90lB0aNBiQAE1ym202g4V
-         IFQOQU1+vKwvzO51hrGKmdjrh+QcwI80AbiveE31wBVlyT2TTjXchDDlrnTr/kALWJz+
-         w4plxj2/eVe0VjqjwRNFTGcQMekPxjbsAxouNUC4xQ7llhlTAn6od1qSaIqInTtNokem
-         9nOHQBoRzjmj97BBmTfRsBn348jPpke6azsKKJhDB5Mr8puxGZEOcBrhSU4O6+5OAXqV
-         bCWg==
-X-Gm-Message-State: AOAM533dYTOD38NYyY3kmFY5IRftI3fWwn+Js+8kIh4k0IDoJonXseMA
-        Nh1L23FLsGlHwLRuRJ34wSY=
-X-Google-Smtp-Source: ABdhPJy9C1m7FXB2RvyTBYBW5bQAsEKNGlNIDhVy8U4SDVe/PtGtYlXYWgSbchAV3DXhFz42dRTv4w==
-X-Received: by 2002:a05:6638:124d:: with SMTP id o13mr2878069jas.98.1604597611139;
-        Thu, 05 Nov 2020 09:33:31 -0800 (PST)
-Received: from Olgas-MBP-377.attlocal.net (172-10-226-31.lightspeed.livnmi.sbcglobal.net. [172.10.226.31])
-        by smtp.gmail.com with ESMTPSA id x20sm1413888ioh.17.2020.11.05.09.33.29
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 05 Nov 2020 09:33:30 -0800 (PST)
-From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
-To:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com
-Cc:     linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: [PATCH 1/2] [lsm] introduce a new hook to query LSM for functionality
-Date:   Thu,  5 Nov 2020 12:33:27 -0500
-Message-Id: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
-X-Mailer: git-send-email 2.10.1 (Apple Git-78)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8k0oFykdv1vO74HUCrxYzpFcNZgQeMmNmibgDdutAOA=;
+        b=asgDdf3dL4/S2Nt5syCZCQMxY+hqu40MlupO/1vc5iPT28JtxfR/2bVC8W5PGi5m6g
+         2xOZW+/3/xZjTH/5q8dDmKn5P5EzF4LhoqpUswk5S+v+MmUq562V7W+4xXVxoggGNa6f
+         ouwQ2mn9EmcZ4EBifEropolPg4eMnFum94DsHC18GGK9oxIhK1pwXGNYbOV76O9dw6/L
+         rL/UZ3NhAbZ5hIeLnJ+gMx0kY0XoNG8CYU5NN4nHDs9mGMkzN8NueaanrXo8Ex6jMIG1
+         dsBRR86RNCV9xMYSpX08gwMij9YCCspMkMvat8JOYYYajFHZzdXFsc3HPG30Q5HGXoV/
+         rkPw==
+X-Gm-Message-State: AOAM530XhPBHNvG1iAyT0xUJA/FjJk529optQo/z3zP9xqczQa0dj+X+
+        HPLDQ8HfynzlkXltd9hNfd95VdUjISKGhu8qszQ=
+X-Google-Smtp-Source: ABdhPJzAohvumXyfmQeIY0EVAhEDuNTPdpXHj+7aXAxOj3FjJm2VQN8qM+xVu20AnwJ7P6QVZqKMlLyE0jAto+pKtl0=
+X-Received: by 2002:aca:5095:: with SMTP id e143mr330248oib.138.1604597851177;
+ Thu, 05 Nov 2020 09:37:31 -0800 (PST)
+MIME-Version: 1.0
+References: <CAFqZXNvT=G4HPiugi6vnnJMGLgv5MsumURQij0cnFjLrnXZ93Q@mail.gmail.com>
+ <CAEjxPJ7cwBpLGoTmzGOUJFq5QuFCHG+xydiGYAtk2hV0d8ww3g@mail.gmail.com>
+ <CAHC9VhQZGM2XW5=durZRb-gapsu+bUu_45JegmsOxcGEgThL6g@mail.gmail.com>
+ <CAFqZXNvgQ5s50JS0_s1wEUONo2nzc2=_rufKxmWqQ=hhz8_T-A@mail.gmail.com> <CAEjxPJ6d4VN7TfJXMT-RGtZ=_rje_=27T5XhXrt9iRdvQuVCdw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6d4VN7TfJXMT-RGtZ=_rje_=27T5XhXrt9iRdvQuVCdw@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 5 Nov 2020 12:36:38 -0500
+Message-ID: <CAEjxPJ7L88gxjs+A0RS-zRPrx_QDR=0ioYL5Dk0BXWiyL0dmOg@mail.gmail.com>
+Subject: Re: Possibly unwanted rootcontext= behavior?
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+On Thu, Nov 5, 2020 at 12:28 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Thu, Nov 5, 2020 at 12:22 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > On Thu, Nov 5, 2020 at 4:31 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > On Thu, Nov 5, 2020 at 8:51 AM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > > On Thu, Nov 5, 2020 at 7:44 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > >
+> > > > > Hello everyone,
+> > > > >
+> > > > > while trying to fix the NFS rootcontext= issue, I realized that this
+> > > > > funny thing is possible:
+> > > > >
+> > > > > # mount -o rootcontext=system_u:object_r:lib_t:s0 -t tmpfs tmpfs /mnt
+> > > > > # ls -lZd /mnt
+> > > > > drwxrwxrwt. 2 root root system_u:object_r:lib_t:s0 40 nov  5 07:30 /mnt
+> > > > > # mount
+> > > > > [...]
+> > > > > tmpfs on /mnt type tmpfs
+> > > > > (rw,relatime,rootcontext=system_u:object_r:lib_t:s0,seclabel)
+> > > > > # chcon -t bin_t /mnt
+> > > > > # ls -lZd /mnt
+> > > > > drwxrwxrwt. 2 root root system_u:object_r:bin_t:s0 40 nov  5 07:30 /mnt
+> > > > > # mount
+> > > > > [...]
+> > > > > tmpfs on /mnt type tmpfs
+> > > > > (rw,relatime,rootcontext=system_u:object_r:bin_t:s0,seclabel)
+> > > > >
+> > > > > I.e. if you mount a tree with rootcontext=<oldctx> and then relabel
+> > > > > the root node to <newctx>, the displayed mount options will report
+> > > > > rootcontext=<newctx> instead of rootcontext=<oldctx>. A side effect is
+> > > > > that if you try to mount the same superblock again, it will only
+> > > > > permit you to mount with rootcontext=<newctx>, not with
+> > > > > rootcontext=<oldctx>.
+> > > > >
+> > > > > Is that intended, bad, or "weird, but doesn't matter" behavior?
+> > > >
+> > > > I'd say it is bad.
+> > > >
+> > > > > I have a halfway written patch to disallow altering the root node's
+> > > > > context when mounted with rootcontext=, but I'm not sure if that's the
+> > > > > right thing to do or not.
+> > > >
+> > > > Probably the better fix would be to save the original rootcontext SID
+> > > > as a new field of the
+> > > > superblock security struct and use that both when displaying the mount
+> > > > options and when
+> > > > comparing old and new mount options instead of what happens to be
+> > > > assigned to the root
+> > > > inode at the time.
+> > >
+> > > I worry that would be confusing, allowing the root inode to be
+> > > relabeled yet still showing the old label in the mount options.  It
+> > > would seem that simply blocking a root inode relabel when a
+> > > rootcontext is specified would be the cleanest choice, assuming
+> > > existing systems do not rely on this behavior.
+> > >
+> > > Ondrej, Stephen, any idea how common this is on normal systems?  My
+> > > gut feeling says "not very common", but that is just a guess.
+> >
+> > I don't even know what use case it's supposed to solve :) I suppose if
+> > you freshly format some storage drive and you want the root dir to be
+> > labeled immediately after mounting, rootcontext= could be useful. For
+> > such a use case Stephen's approach would make sense (you might still
+> > want to eventually relabel the root dir to something else), but there
+> > are some gotchas... For example, the label is initially set only in
+> > the inode security struct, but not written to the xattrs (I only
+> > looked at the code briefly, I could be wrong here), so you would still
+> > need to manually set the label on the root directory after mounting
+> > for the label to persist. And if you remount the superblock after
+> > changing the label, the internal label will be reset to the old one
+> > (which you are forced to specify in the mount options), but again not
+> > persistently. That's all very unintuitive.
+> >
+> > So, IMHO, good ways to fix it are either disallowing changing the
+> > label altogether, or making sure the label is propagated to the xattrs
+> > (if supported) and allowing to remount with a different rootcontext=
+> > option (or with no rootcontext). But that's only if I guessed the use
+> > case correctly.
+>
+> I think the original use case was primarily tmpfs mounts, so that e.g.
+> one could mount a tmpfs on /dev that is immediately labeled with
+> device_t.
+>
+> Not fundamentally opposed to preventing relabeling afterward but
+> always possible that could break existing userspace somewhere.
 
-Add a new hook func_query_vfs to query an LSM module (such as
-SELinux) with the intention of finding whether or not it is enabled
-or perhaps supports some functionality.
+commit 0808925ea5684a0ce25483b30e94d4f398804978
+Author: Eric Paris <eparis@parisplace.org>
+Date:   Mon Jul 10 04:43:55 2006 -0700
 
-NFS stores security labels for file system objects and SElinux
-or any other LSM module can query those objects. But it's
-wasteful to do so when no security enforcement is taking place.
-Using a new API call of security_func_query_vfs() and asking if
+    [PATCH] SELinux: add rootcontext= option to label root inode when mounting
 
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
----
- include/linux/lsm_hook_defs.h | 1 +
- include/linux/security.h      | 4 ++++
- security/security.c           | 6 ++++++
- security/selinux/hooks.c      | 7 +++++++
- 4 files changed, 18 insertions(+)
+    Introduce a new rootcontext= option to FS mounting.  This option will allow
+    you to explicitly label the root inode of an FS being mounted before that
+    FS or inode because visible to userspace.  This was found to be useful for
+    things like stateless linux, see
+    https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=190001
 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 32a940117e7a..df3454a1fcac 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -257,6 +257,7 @@ LSM_HOOK(int, 0, inode_notifysecctx, struct inode *inode, void *ctx, u32 ctxlen)
- LSM_HOOK(int, 0, inode_setsecctx, struct dentry *dentry, void *ctx, u32 ctxlen)
- LSM_HOOK(int, 0, inode_getsecctx, struct inode *inode, void **ctx,
- 	 u32 *ctxlen)
-+LSM_HOOK(int, 0, func_query_vfs, unsigned int)
- 
- #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
- LSM_HOOK(int, 0, post_notification, const struct cred *w_cred,
-diff --git a/include/linux/security.h b/include/linux/security.h
-index bc2725491560..e15964059fa4 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -456,6 +456,10 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
- int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
- int security_locked_down(enum lockdown_reason what);
-+#define LSM_FQUERY_VFS_NONE     0x00000000
-+#define LSM_FQUERY_VFS_XATTRS   0x00000001
-+int security_func_query_vfs(unsigned int flags);
-+
- #else /* CONFIG_SECURITY */
- 
- static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-diff --git a/security/security.c b/security/security.c
-index a28045dc9e7f..502b33865238 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2067,6 +2067,12 @@ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
- }
- EXPORT_SYMBOL(security_inode_getsecctx);
- 
-+int security_func_query_vfs(unsigned int flags)
-+{
-+	return call_int_hook(func_query_vfs, 0, flags);
-+}
-+EXPORT_SYMBOL(security_func_query_vfs);
-+
- #ifdef CONFIG_WATCH_QUEUE
- int security_post_notification(const struct cred *w_cred,
- 			       const struct cred *cred,
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6b1826fc3658..38f47570e214 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -92,6 +92,7 @@
- #include <uapi/linux/mount.h>
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
-+#include <linux/security.h>
- 
- #include "avc.h"
- #include "objsec.h"
-@@ -6502,6 +6503,11 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
- 	spin_unlock(&isec->lock);
- }
- 
-+static int selinux_func_query_vfs(unsigned int flags)
-+{
-+	return !!(flags & LSM_FQUERY_VFS_XATTRS);
-+}
-+
- /*
-  *	called with inode->i_mutex locked
-  */
-@@ -7085,6 +7091,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_secctx),
- 	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
- 	LSM_HOOK_INIT(inode_setsecctx, selinux_inode_setsecctx),
-+	LSM_HOOK_INIT(func_query_vfs, selinux_func_query_vfs),
- 
- 	LSM_HOOK_INIT(unix_stream_connect, selinux_socket_unix_stream_connect),
- 	LSM_HOOK_INIT(unix_may_send, selinux_socket_unix_may_send),
--- 
-2.18.2
-
+    Signed-off-by: Eric Paris <eparis@parisplace.org>
+    Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+    Signed-off-by: James Morris <jmorris@namei.org>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
