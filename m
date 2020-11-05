@@ -2,147 +2,239 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09625C388F7
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 21:18:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB04C388F7
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 21:33:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69F5320724
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 21:18:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 692B420728
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 21:33:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=hammerspace.com header.i=@hammerspace.com header.b="BEZhoHbk"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cGpcfBV4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732384AbgKEVSR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 16:18:17 -0500
-Received: from mail-dm6nam12on2138.outbound.protection.outlook.com ([40.107.243.138]:25921
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726729AbgKEVSQ (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 5 Nov 2020 16:18:16 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Gv9T/GzXSz+wWnvEEEJmPstg7HC8nU6e9jXj2r3lSdk4jpi3x+f9IJeoALcnTkhQB6lvF9Y2Q63IjSRtAdEK2nGbDJKcQoQpA6TjePnzEbq1ZU0chhaMg9xiL+wuEQ2Gy71dUXvIbwOmfnVE4/5x6nfudC7VFVdxsIpmx5GdzG7OHAbuZAE+Jjvjd0CEtgzx1jrCSTUr9hoaoNc23w1+u0HFbWP0r0U1p3Ve3y7NEVjeDiLQQbfwZtLSPufFU7nGoF+hYtct6YHC6OHTEa0UfHp81CM59IVhB6TLkWoODDm8U5PtrdrT/UPZZ8UtgAecslpafxBcSZifCP2DlKkw6Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d8vdPpMoNCbrL/K7mXugK7FaNGCRqaXokq1pX9ctff8=;
- b=VxzdZbtnRVMBZcjQVyH4hYXupD1uwL7SIOzRSWFr+ZY/VVmNjJfeYMoIyRLt6i8RNz2nN1wD/XHJejYzdmn3iqrci4uFaGqGHonDd5ywivtwuE48sjEO4glfkI72zYYduhZ+KLPbxSEp3y7PN6XiJQSXFoTXWKtoItpazIqkrrN1o1g+alnp83n4ChPrG+Z8g0ZMwwd/QRmYwRgAocBFxvNwa47k6dB0qd6vvzFPwbIghaIKAuL3Ha5d+INnIIYyBqF8nZyFIvcn1RvfN+KU4y+FqgmFpr6NQus5WwX89ilsr7Lexi6HWVVFyVZ4Sz8Eq/YbilJlyigcPFv4XBPLxg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hammerspace.com; dmarc=pass action=none
- header.from=hammerspace.com; dkim=pass header.d=hammerspace.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hammerspace.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d8vdPpMoNCbrL/K7mXugK7FaNGCRqaXokq1pX9ctff8=;
- b=BEZhoHbkQozyexOnnzTZDxfdhckPR5aYiX8+1eXvGfXTQjbQkO2T4ck3xxzoESTr5WzwQqQ4ZuwaEdf+4J2f1xIdDSuJL89xux+brJ//oZk61HuXa/mm0IUo+VWPlmDliDtG/33FR+MU29JAjukx/B5mm88A1V8VVWE+pkVW3p4=
-Received: from MN2PR13MB3957.namprd13.prod.outlook.com (2603:10b6:208:263::11)
- by BL0PR13MB4243.namprd13.prod.outlook.com (2603:10b6:208:8f::28) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3541.10; Thu, 5 Nov
- 2020 21:18:11 +0000
-Received: from MN2PR13MB3957.namprd13.prod.outlook.com
- ([fe80::e989:f666:131a:e210]) by MN2PR13MB3957.namprd13.prod.outlook.com
- ([fe80::e989:f666:131a:e210%9]) with mapi id 15.20.3541.018; Thu, 5 Nov 2020
- 21:18:11 +0000
-From:   Trond Myklebust <trondmy@hammerspace.com>
-To:     "omosnace@redhat.com" <omosnace@redhat.com>,
-        "olga.kornievskaia@gmail.com" <olga.kornievskaia@gmail.com>
-CC:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH 2/2] NFSv4.2: condition READDIR's mask for security label
- based on LSM state
-Thread-Topic: [PATCH 2/2] NFSv4.2: condition READDIR's mask for security label
- based on LSM state
-Thread-Index: AQHWs5nJlQ8JP38xrUGk0gCF1Wzr+am54zqAgAAPlYCAABhQAA==
-Date:   Thu, 5 Nov 2020 21:18:11 +0000
-Message-ID: <a96c14c0f86ec274d5bdc255050ae71238bb43fe.camel@hammerspace.com>
-References: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
-         <20201105173328.2539-2-olga.kornievskaia@gmail.com>
-         <CAFqZXNtjMEF0LO4vtEmcgwydbWfUS36d8g24J6C-NDXORYbEJg@mail.gmail.com>
-         <CAN-5tyF+cLpmT=rwAYvQQ445tjFKZtGq+Qzf6rDGg8COPpFRwA@mail.gmail.com>
-In-Reply-To: <CAN-5tyF+cLpmT=rwAYvQQ445tjFKZtGq+Qzf6rDGg8COPpFRwA@mail.gmail.com>
-Accept-Language: en-US, en-GB
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=hammerspace.com;
-x-originating-ip: [68.36.133.222]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 196577ad-21b5-4d46-158b-08d881d04cfc
-x-ms-traffictypediagnostic: BL0PR13MB4243:
-x-microsoft-antispam-prvs: <BL0PR13MB4243BB4040EE80524E7FB72CB8EE0@BL0PR13MB4243.namprd13.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: RyHHQVIZa+4OL2gh7SG/QBZ3hh3H7idED2Z9N1NJ+7GDNOIjaa2sJaoJeTt3K/CqejX7WnzUgnFJX84VFV9Mx6xNd92ZRsaP8WIF4sA22U52n6Uw0d4SoaSEHZ0Dsy3CzshlFjo0oUOztEa9O14cJTKaFhzPKCOfzwLKVimDJgAhtELd/L+9tLrPKftwtHkPAREUvZ9w4T5ajmKBXpEZ78yHdhlEnHr0kLo6QWkFZmKx0YCwFR67dPg57kiKIu/f5DoERHiDCqQzwgVV/VT9wfxC73XfIebh/LI6JvLxnX9eCV+Y8KGjVpXBqXwjOaVFfeu2uypNUlhvxEFnk+gsXWzcHUfof8bAa9SpVzs+8GoW/w0/ceaBVHS3+Opgsmdg/vjKVhzmgwLdgKUw0qKJpA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR13MB3957.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(376002)(366004)(396003)(39830400003)(136003)(76116006)(8676002)(91956017)(26005)(110136005)(966005)(8936002)(478600001)(53546011)(4326008)(86362001)(83380400001)(15650500001)(6506007)(54906003)(66446008)(5660300002)(64756008)(66476007)(66556008)(6486002)(2906002)(6512007)(66946007)(186003)(71200400001)(2616005)(36756003)(316002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: X27MSBCOb5g08gJZCGZbG8hfiwlPoUSUGg1H15xmGYczyCuRYuZuvdxyr5eLsvr8tS4iMLeEBQOkqPrlruYs3Gi5Rbm9jTtA6HKwQyPEdVAlBJ5G2qyc7dnqTGJKWObKVyz/5yPTq9NTtjRVygJyy+53N1FpK+XST/qH6m5tDrMWGtW5/0+/fXC5Jrv44FXIuKVhhNXWAaqCPtE4b2D7ou0xmJDFcU7T8QIAxLGTuZ57vX9DQQdKMDwl8c9oEsW9eYAe7RufY6dTpdIZ5wHmZmEbTE3TWB7hH88Hgf/PMz5qEn/hBUwMfqhO0k9LBCfw3m0TrvgE4MYhkGfvzhnoJxbmWAGvm8ayl7hs3SAAAV3cOlcJX11Qnja4qfGQgKDrIgmg+NHm0aKiJf3gxWdLhZGYWJ9kkeOIkOYHRJ4IUq4QgTo1otzsxFCO7kgFrJhzHc6JZgAaYHLbyLKGInU6u+iB9EhlUlTV/mEZzBYNnBELNwm75tZTipHP0isps4DZfIp906vbVPHl97xvOo3H1bDfPDy8K8HBeMVWzD33xb6c+zixXl25k6f3wg+VGVMowo47+7iOKf20npAUgCIjbv7LgfqmwmJHYuQrbd/7lcJCDCO/0w4AgdzDg6globYQ6oYstHaR3jr/GI7i27I+iw==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <51FC12CCE1F7D748A898CC5F7A3E0F17@namprd13.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: hammerspace.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR13MB3957.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 196577ad-21b5-4d46-158b-08d881d04cfc
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Nov 2020 21:18:11.6191
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 0d4fed5c-3a70-46fe-9430-ece41741f59e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: IzxB1q+D6Cqj/JuK2xWahquYaJwT4SPiThZF9nZQ/Zh049tHaNofctnmXPIBvDTJrlLMlfYhbzYuHdRcJvsysA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR13MB4243
+        id S1732297AbgKEVd3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 16:33:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54628 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731860AbgKEVd2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 16:33:28 -0500
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45677C0613CF
+        for <selinux@vger.kernel.org>; Thu,  5 Nov 2020 13:33:28 -0800 (PST)
+Received: by mail-qt1-x849.google.com with SMTP id l67so1782284qte.6
+        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 13:33:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=UJkZX1H27CEJgxyCZBCEdyDuRuG5xM7XtCA2iT1WI+8=;
+        b=cGpcfBV4YiQi3w9EyBV0GNDbdFcCrKpU41+zMIR0Wy6uDFL2N31r1Re2FRryvxqlGL
+         jN+9wlEOoBhIuGUsPgJmcuo+wITHwciNSfVqaozV/ozE/Roe3wSKl0g+SkC4sRDpgCmz
+         cD6W9dnpWpoC+tNGfGi/a0++8RRMR7CbjiauSkhFxW0gJp+I/PA2MoOun6XV5+PrWHjo
+         rCwNjfCBvtCMsgFDq1iUmJ3OcsYWesmSMYMw623eJHlqVHiFXvQDAryixpZ3ZlHTyT52
+         ncFuO4ZHDPAPpmTRoLlAz4Vi875h8In42QAinh53SOLoAmv6ENU6PRi68sk/F0LwUdch
+         t3vA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=UJkZX1H27CEJgxyCZBCEdyDuRuG5xM7XtCA2iT1WI+8=;
+        b=MNRNKRlwnlnYZdGmCBh7xn9MAEWHU5MB93vhP9bMDTqcvDXCCk0XTsZbaBiowPVXIk
+         jKKgSVcOKZ9Tp/hyj9sg9+QXp7J0aojxFk3UIYlTD/8yTYNwNp82YVuP420QR+/v3/MM
+         ldzim7rhbIqyQXDgPXMmvfGuesCpCMJu7PTnRoU+plGogRwAK2uSsxlZaRQOjnlWgS1H
+         J9VopDfa000Ge11fepzFJaH8GAu4tZNVhbvZI6nRr/QuN+YdTwizM6gA54mvVJVdf5rP
+         2uPso5LEtN/YX6dLXzDzSJTVvGibAHqQBV5rxV45yw+Rq2KkQqb3CgkPiXQu0FV0+Q5a
+         tEbw==
+X-Gm-Message-State: AOAM530Jned8j5IqRm02YZEs1VYQeI6N96YVBgRFtFDNAancXcCgLqZ/
+        licN4aDntxY96XjaOKVo22h3OyaeaK8jlU7wqg==
+X-Google-Smtp-Source: ABdhPJxM7KMMcjHdX/wvEDHOwq3SDluZ0esQWx2yWArZrHDkxzJBbcF/kSl+dAMuvTF9XEmPLUAlY/CXzEPlOGIv4w==
+Sender: "lokeshgidra via sendgmr" <lokeshgidra@lg.mtv.corp.google.com>
+X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:29dd])
+ (user=lokeshgidra job=sendgmr) by 2002:a0c:b44a:: with SMTP id
+ e10mr4421795qvf.4.1604612007309; Thu, 05 Nov 2020 13:33:27 -0800 (PST)
+Date:   Thu,  5 Nov 2020 13:33:20 -0800
+Message-Id: <20201105213324.3111570-1-lokeshgidra@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
+Subject: [PATCH v11 0/4] SELinux support for anonymous inodes and UFFD
+From:   Lokesh Gidra <lokeshgidra@google.com>
+To:     Andrea Arcangeli <aarcange@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>
+Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        kaleshsingh@google.com, calin@google.com, surenb@google.com,
+        nnk@google.com, jeffv@google.com, kernel-team@android.com,
+        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        hch@infradead.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-T24gVGh1LCAyMDIwLTExLTA1IGF0IDE0OjUxIC0wNTAwLCBPbGdhIEtvcm5pZXZza2FpYSB3cm90
-ZToNCj4gT24gVGh1LCBOb3YgNSwgMjAyMCBhdCAxOjU1IFBNIE9uZHJlaiBNb3NuYWNlayA8b21v
-c25hY2VAcmVkaGF0LmNvbT4NCj4gd3JvdGU6DQo+ID4gDQo+ID4gT24gVGh1LCBOb3YgNSwgMjAy
-MCBhdCA2OjMzIFBNIE9sZ2EgS29ybmlldnNrYWlhDQo+ID4gPG9sZ2Eua29ybmlldnNrYWlhQGdt
-YWlsLmNvbT4gd3JvdGU6DQo+ID4gPiBGcm9tOiBPbGdhIEtvcm5pZXZza2FpYSA8a29sZ2FAbmV0
-YXBwLmNvbT4NCj4gPiA+IA0KPiA+ID4gQ3VycmVudGx5LCB0aGUgY2xpZW50IHdpbGwgYWx3YXlz
-IGFzayBmb3Igc2VjdXJpdHlfbGFiZWxzIGlmIHRoZQ0KPiA+ID4gc2VydmVyDQo+ID4gPiByZXR1
-cm5zIHRoYXQgaXQgc3VwcG9ydHMgdGhhdCBmZWF0dXJlIHJlZ2FyZGxlc3Mgb2YgYW55IExTTQ0K
-PiA+ID4gbW9kdWxlcw0KPiA+ID4gKHN1Y2ggYXMgU2VsaW51eCkgZW5mb3JjaW5nIHNlY3VyaXR5
-IHBvbGljeS4gVGhpcyBhZGRzDQo+ID4gPiBwZXJmb3JtYW5jZQ0KPiA+ID4gcGVuYWx0eSB0byB0
-aGUgUkVBRERJUiBvcGVyYXRpb24uDQo+ID4gPiANCj4gPiA+IEluc3RlYWQsIHF1ZXJ5IHRoZSBM
-U00gbW9kdWxlIHRvIGZpbmQgaWYgYW55dGhpbmcgaXMgZW5hYmxlZCBhbmQNCj4gPiA+IGlmIG5v
-dCwgdGhlbiByZW1vdmUgRkFUVFI0X1dPUkQyX1NFQ1VSSVRZX0xBQkVMIGZyb20gdGhlIGJpdG1h
-c2suDQo+ID4gDQo+ID4gSGF2aW5nIHNwZW50IHNvbWUgdGltZSBzdGFyaW5nIGF0IHNvbWUgb2Yg
-dGhlIE5GUyBjb2RlIHZlcnkNCj4gPiByZWNlbnRseSwNCj4gPiBJIGNhbid0IGhlbHAgYnV0IHN1
-Z2dlc3Q6IFdvdWxkIGl0IHBlcmhhcHMgYmUgZW5vdWdoIHRvIGRlY2lkZQ0KPiA+IHdoZXRoZXIN
-Cj4gPiB0byBhc2sgZm9yIGxhYmVscyBiYXNlZCBvbiAoTkZTX1NCKGRlbnRyeS0+ZF9zYiktPmNh
-cHMgJg0KPiA+IE5GU19DQVBfU0VDVVJJVFlfTEFCRUwpPyBJdCBpcyBzZXQgd2hlbiBtb3VudGlu
-ZyB0aGUgRlMgaWZmIHNvbWUNCj4gPiBMU00NCj4gPiBjb25maXJtcyB2aWEgdGhlIHNlY3VyaXR5
-X3NiXypfbW50X29wdHMoKSBob29rIHRoYXQgaXQgd2FudHMgdGhlDQo+ID4gZmlsZXN5c3RlbSB0
-byBnaXZlIGl0IGxhYmVscyAob3IgYXQgbGVhc3QgdGhhdCdzIGhvdyBJIGludGVycHJldA0KPiA+
-IHRoZQ0KPiA+IGNyeXB0aWMgbmFtZSkgWzFdLiBJdCdzIGp1c3QgYSBzaG90IGluIHRoZSBkYXJr
-LCBidXQgaXQgc2VlbXMgdG8NCj4gPiBmaXQNCj4gPiB0aGlzIHVzZSBjYXNlLg0KPiA+IA0KPiA+
-IFsxXQ0KPiA+IGh0dHBzOi8vZWxpeGlyLmJvb3RsaW4uY29tL2xpbnV4L3Y1LjEwLXJjMi9zb3Vy
-Y2UvZnMvbmZzL2dldHJvb3QuYyNMMTQ4DQo+IA0KPiBWZXJ5IGludGVyZXN0aW5nLiBJIHdhcyBu
-b3QgYXdhcmUgb2Ygc29tZXRoaW5nIGxpa2UgdGhhdCBub3Igd2FzIGl0DQo+IG1lbnRpb25lZCB3
-aGVuIEkgYXNrZWQgb24gdGhlIHNlbGludXggbWFpbGluZyBsaXN0LiBJIHdvbmRlciBpZiB0aGlz
-DQo+IGlzIGEgc3VwcG9ydGVkIGZlYXR1cmUgdGhhdCB3aWxsIGFsd2F5cyBzdGF5PyBJbiB0aGF0
-IGNhc2UsIE5GUw0KPiB3b3VsZG4ndCBuZWVkIHRoZSBleHRyYSBob29rIHRoYXQgd2FzIGFkZGVk
-IGZvciB0aGlzIHNlcmllcy4gSSB3aWxsDQo+IHRyeSB0aGlzIG91dCBhbmQgcmVwb3J0IGJhY2su
-DQoNCk5GU19DQVBfU0VDVVJJVFlfTEFCRUwgaXMganVzdCB0aGUgTkZTIHNlcnZlciBjYXBhYmls
-aXR5IGZsYWcuIEl0IHRlbGxzDQp5b3Ugd2hldGhlciBvciBub3QgdGhlIGNsaWVudCBiZWxpZXZl
-cyB0aGF0IHRoZSBzZXJ2ZXIgbWlnaHQgc3VwcG9ydA0KTkZTdjQuMiByZXF1ZXN0cyBmb3IgbGFi
-ZWxsZWQgTkZTIG1ldGFkYXRhLg0KDQpNeSB1bmRlcnN0YW5kaW5nIG9mIE9sZ2EncyByZXF1aXJl
-bWVudCBpcyB0aGF0IHNoZSBuZWVkcyB0byBiZSBhYmxlIHRvDQppZ25vcmUgdGhhdCBmbGFnIGFu
-ZCBzaW1wbHkgbm90IHF1ZXJ5IGZvciBsYWJlbGxlZCBORlMgbWV0YWRhdGEgaWYgdGhlDQpORlMg
-Y2xpZW50IGlzIG5vdCBjb25maWd1cmVkIHRvIGVuZm9yY2UgdGhlIExTTSBwb2xpY3kuIFRoZSBv
-YmplY3RpdmUNCmlzIHRvIGF2b2lkIHVubmVjZXNzYXJ5IFJQQyB0cmFmZmljIHRvIHRoZSBzZXJ2
-ZXIgdG8gcXVlcnkgZm9yIGRhdGENCnRoYXQgaXMgdW51c2VkLg0KDQotLSANClRyb25kIE15a2xl
-YnVzdA0KTGludXggTkZTIGNsaWVudCBtYWludGFpbmVyLCBIYW1tZXJzcGFjZQ0KdHJvbmQubXlr
-bGVidXN0QGhhbW1lcnNwYWNlLmNvbQ0KDQoNCg==
+Userfaultfd in unprivileged contexts could be potentially very
+useful. We'd like to harden userfaultfd to make such unprivileged use
+less risky. This patch series allows SELinux to manage userfaultfd
+file descriptors and in the future, other kinds of
+anonymous-inode-based file descriptor.  SELinux policy authors can
+apply policy types to anonymous inodes by providing name-based
+transition rules keyed off the anonymous inode internal name (
+"[userfaultfd]" in the case of userfaultfd(2) file descriptors) and
+applying policy to the new SIDs thus produced.
+
+With SELinux managed userfaultfd, an admin can control creation and
+movement of the file descriptors. In particular, handling of
+a userfaultfd descriptor by a different process is essentially a
+ptrace access into the process, without any of the corresponding
+security_ptrace_access_check() checks. For privacy, the admin may
+want to deny such accesses, which is possible with SELinux support.
+
+Inside the kernel, a new anon_inode interface, anon_inode_getfd_secure,
+allows callers to opt into this SELinux management. In this new "secure"
+mode, anon_inodes create new ephemeral inodes for anonymous file objects
+instead of reusing the normal anon_inodes singleton dummy inode. A new
+LSM hook gives security modules an opportunity to configure and veto
+these ephemeral inodes.
+
+This patch series is one of two fork of [1] and is an
+alternative to [2].
+
+The primary difference between the two patch series is that this
+partch series creates a unique inode for each "secure" anonymous
+inode, while the other patch series ([2]) continues using the
+singleton dummy anonymous inode and adds a way to attach SELinux
+security information directly to file objects.
+
+I prefer the approach in this patch series because 1) it's a smaller
+patch than [2], and 2) it produces a more regular security
+architecture: in this patch series, secure anonymous inodes aren't
+S_PRIVATE and they maintain the SELinux property that the label for a
+file is in its inode. We do need an additional inode per anonymous
+file, but per-struct-file inode creation doesn't seem to be a problem
+for pipes and sockets.
+
+The previous version of this feature ([1]) created a new SELinux
+security class for userfaultfd file descriptors. This version adopts
+the generic transition-based approach of [2].
+
+This patch series also differs from [2] in that it doesn't affect all
+anonymous inodes right away --- instead requiring anon_inodes callers
+to opt in --- but this difference isn't one of basic approach. The
+important question to resolve is whether we should be creating new
+inodes or enhancing per-file data.
+
+Changes from the first version of the patch:
+
+  - Removed some error checks
+  - Defined a new anon_inode SELinux class to resolve the
+    ambiguity in [3]
+  - Inherit sclass as well as descriptor from context inode
+
+Changes from the second version of the patch:
+
+  - Fixed example policy in the commit message to reflect the use of
+    the new anon_inode class.
+
+Changes from the third version of the patch:
+
+  - Dropped the fops parameter to the LSM hook
+  - Documented hook parameters
+  - Fixed incorrect class used for SELinux transition
+  - Removed stray UFFD changed early in the series
+  - Removed a redundant ERR_PTR(PTR_ERR())
+
+Changes from the fourth version of the patch:
+
+  - Removed an unused parameter from an internal function
+  - Fixed function documentation
+
+Changes from the fifth version of the patch:
+
+  - Fixed function documentation in fs/anon_inodes.c and
+    include/linux/lsm_hooks.h
+  - Used anon_inode_getfd_secure() in userfaultfd() syscall and removed
+    owner from userfaultfd_ctx.
+
+Changes from the sixth version of the patch:
+
+  - Removed definition of anon_inode_getfile_secure() as there are no
+    callers.
+  - Simplified function description of anon_inode_getfd_secure().
+  - Elaborated more on the purpose of 'context_inode' in commit message.
+
+Changes from the seventh version of the patch:
+
+  - Fixed error handling in _anon_inode_getfile().
+  - Fixed minor comment and indentation related issues.
+
+Changes from the eighth version of the patch:
+
+  - Replaced selinux_state.initialized with selinux_state.initialized
+
+Changes from the ninth version of the patch:
+
+  - Fixed function names in fs/anon_inodes.c
+  - Fixed comment of anon_inode_getfd_secure()
+  - Fixed name of the patch wherein userfaultfd code uses
+    anon_inode_getfd_secure()
+
+Changes from the tenth version of the patch:
+
+  - Split first patch into VFS and LSM specific patches
+  - Fixed comments in fs/anon_inodes.c
+  - Fixed comment of alloc_anon_inode()
+
+[1] https://lore.kernel.org/lkml/20200211225547.235083-1-dancol@google.com/
+[2] https://lore.kernel.org/linux-fsdevel/20200213194157.5877-1-sds@tycho.nsa.gov/
+[3] https://lore.kernel.org/lkml/23f725ca-5b5a-5938-fcc8-5bbbfc9ba9bc@tycho.nsa.gov/
+
+Daniel Colascione (3):
+  fs: add LSM-supporting anon-inode interface
+  selinux: teach SELinux about anonymous inodes
+  userfaultfd: use secure anon inodes for userfaultfd
+
+Lokesh Gidra (1):
+  security: add inode_init_security_anon() LSM hook
+
+ fs/anon_inodes.c                    | 149 ++++++++++++++++++++--------
+ fs/libfs.c                          |   6 +-
+ fs/userfaultfd.c                    |  19 ++--
+ include/linux/anon_inodes.h         |   5 +
+ include/linux/lsm_hook_defs.h       |   2 +
+ include/linux/lsm_hooks.h           |   9 ++
+ include/linux/security.h            |  10 ++
+ security/security.c                 |   8 ++
+ security/selinux/hooks.c            |  53 ++++++++++
+ security/selinux/include/classmap.h |   2 +
+ 10 files changed, 211 insertions(+), 52 deletions(-)
+
+-- 
+2.29.1.341.ge80a0c044ae-goog
+
