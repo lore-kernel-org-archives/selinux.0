@@ -2,219 +2,189 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65AD9C388F7
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 19:39:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94D93C55178
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 19:51:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E0D0320704
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 19:39:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C79420678
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 19:51:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="L9EAF/yO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FinCmXzZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730973AbgKETja (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 14:39:30 -0500
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:43942
-        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729783AbgKETja (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 14:39:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604605168; bh=yeGzDTn11pZYHAlhwK5D5PkK5UrVNOIRPiMTnbvxlSg=; h=To:Cc:References:From:Subject:Date:In-Reply-To:From:Subject; b=L9EAF/yOVgeB7a1uiVCGPuimzcCjHeSoV1oUYUkEy8Rw5BWxKt6W/QYwnDSbVLNzef8PQVDuSV5shTDQh30ZGQ9GCaJ7hcPVtrI0VzBsDfpEQHDVvRDW/13KmVZdA0kVk2sI9yqjArH/L4yZPwCO8dVXzEooRrGl1pgTm9FMzZwHURXMcYde0usi7LMlQ8OBWWsfRoxuP1vOFaPGIcQboYUF7jtI+3GXxXp5pB+ND0S0jPHToln5cbzGa72SDVgVbAXxNOUmnrYiKSej7M5K+u+T/MKenC2ddFDygTby25z/ZvO9KwK5ZzTRaivtKFIxrdtb7Rr2GtsyDrgt1NH7uQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604605169; bh=ESTqZueWvPPgDt0rNWAwXrDF1Eu9OodtRNvnlgwvPLm=; h=To:From:Subject:Date; b=eWZP4d9SRQJg7hvQktIBMUU0LfJiBkbJl3ReR/heNu6i8b172rm/Jv613Qdj5QzMZJArgFv65YfKZ4gYtBX6QD9LS5Cx00blvvZhWClhvkO0t6zCdJwmD7G9IIUqOeiRuilxg+2e34Lgb/xXoWAWT+ydnrRWGxXyLL3BXgCnLpTdCtR2p4TgPQ+An+HCdYSCR1dKTKCcVmfbxesWJN4ikZo6zpvDfonuyaB+l11Ij+TMw2Bp0yOGyFtoJpuI8YP00OenwY5MYirflwIVgD0z5ConQS7V8taeYYUP7ZE9Lr2bo1sPPMYb2RuUykEC4EezfOn+twY1tpD0J8NlUzHVSg==
-X-YMail-OSG: 0t5oDt0VM1lWSibYg90uqq1JCYXCCJzuTHMNaTJ79E7sGKoqhkEdGvNAyMkCzET
- G3oS6.PNSFcV5f6o91RhGBsdq68ABoCdhqaMp.MB56MoomM9u8qrLnf19ENXAH4Oh3c6BH7oYNEs
- 7v4M8RReLPtKMFUuRtSixgbAoCPa303OQTSQrqgrGBgetzk2cYLdjPWok8iO8wiseIRchFQWrDyC
- xIRyyaCPSH8ZcnQGLgp4OmpY1gQDT8oZOVwFFy9.DivWufpfmpvXpS.g5X4UHfsZKWYjwD8KcXNj
- Y.8.8Nz_GuuGfrrmKWzyp284enVI5AKnjrLm1QPvgaXt3MHArUvIs88EswZ1gQi9Le4IJR17CP8s
- MZqIc9c1lzH11Q5YWY4rP21Tf9TYM8uX_._CpdIt3pcuwYhLgaAXeZTNeRmrVlr5VEYdZ5xZYeTf
- 2ICcZ4AkUy9G2N4EhI11ZqQKHr_ngM3qxieM.gTJgeoOgUdN0YhprUixRFrYVzjnWzOajMj9UcCm
- a2DunCwnK2ATRcD4XcEaYSRK4Opu.B.v0YRZn4GfQbu8PimVdNn3WMQgJ2dzA18JJqvOHV42Z1Z4
- S0nUPfHS8uwUtPNt8M0lZsCwbPOGs4dHZFlhfXvot7bzjNEYDFwgy2RKJcZKB6bPf7T5PV6gGW5H
- 4dYEd_nXQns43xL5gRiGs9ctEh24eYPZ4jL26t1HSFDvrV6JNZ9jZXqj5eSfTfZFpjJA4nEnun.C
- 05Wi.w5rrWfdvYlF8fPuBiJr6.rmpO7Q5BbdDKyBkcwEjaQrZs.TJy5N0WiSxu2RqL4lPn14yng2
- AOndlBKjeylRfRcSGUmym8Dq8IFvi4pzOnQIstSa5iEItlfbBMkhc1IkQl0._Tf4tb4ppTLNpxjz
- 8ASVojswc8GwzIlv2Dmi1riTLPmbkt1WkuJcdsbcjShbaQmCqMoxPViIud80DKpFBMEYVKCqxQEd
- 8HTq5qWpXgr.tqTpkoC7CXOfOF0Dbo0aBGt_GanFzFt6YwQ4Fu6ZNA7FGAk5.rGWmO7GQKH3768Q
- FP_AEELx5OkqYf8cEONk65.RClIhL_cbt5x0E08cARQ79JYG5pmQIEngQ8Wae_ze4quCplHji2US
- NbU3boIcxofzIWa4KfCoA0iRd_vf1OW6wbYwJV8zjb1QF1CBj225SBDRDkGkGpaogH5uc93ew7WP
- FFf.naDdm21xDWlVWvRq0LPQOAb5K1rY1yIp37GTzEc29nfLqgNP2vzwipWFUoRIOzVehOc7RDgm
- IIBzCMWydCZ_oWiIKyMFfo_QAPaOQ5tZOodwZ.jOSLL8_V1Quw7AZYbzvLjvPzgcM9ktd6ABPzny
- Qrvg9xMj2z5V8DKDR5mFQAid.QbFl..rbNb7TiCap5a5geB8eokAeeiFICjWbLNxYUixHfRy0nFR
- .JRm2QzuHmdVspbBEX3v_WmLAZE1nqblAxSzavui5iJSCUp85RnLCDsaiBzgZGNN86es.F9c3RDn
- Xl3RwxJWacKBliNilOm_viqkdBIK7a_2Xgnw7krJt5jBqAese0gc1Y0MQr__DHGXKINxjHx7sAd0
- q6rwQ6xcovknJTIPMRY17BeMbP7XmeTPaM.cFQux9eyCtj02gVSKMFShkGpOV9xNxiXG_gjmaPb9
- .YMmsC6sx0ccGpXtnhJlvgswVRrUCye88qDDQOpWs_4D0gysWqDWkQ7DpFT7f6ENAkiBiip950Qa
- 2JSvaH6DwFleUyawZ4PczqS0xi4Oc0sTUmRUlc8G8F0Vlz0xQKd5Z4fLIkwb3mDGefouaSes2hQt
- HoFpxnAgvLNZYAGOKFgLE7B4CgqSZf_b8BgiYbP2bsB3SvZ2JVFOS_cjWikoIyvXU7mNzxiO243C
- sj9.0hwf7GX6zN0wQHMVHkPSYDgEatUxkhB2zofctT_LdxIK_wuWDa34mYKi21rLrlvg02yYagb2
- MjQbNODuzSGfhkUGGzC4GNiXyR1g55P5oIl5NGcmqb072gbG.Q7Ym5No9BQGk6lUPnkszxWMbfc7
- m0LGQrGaAMhhPW0mEwMvTGS46zguJadt9eQWIRWhlhHTFWKZvSerzSPAr6MqsmFlPW4_jVCaUdGT
- V45t_oOsJWr22VOF_LLxMpDBW2H0xQAjHwuF6Yj1sEOGiVPutRAo_e7qh_vDV7aLzRsHO7Kk1fy9
- ZtRGxHzL3xbZtR8qEWj7t3XmKu6gb_J7t4KVJrPglqZvEyAM3JFZugHD.AwKQfbKSDmplz.K7_V8
- R72Nalq0Bzuaz0x1WwL6CcwB1gDGbRp4B7VVgUPIE3wvIfuKwlBPjFrM5fHf1YW2DMW1VHarEquo
- nLT8JbPlNAwQnzsNZ3.j58Qad9bEREl6fz0RFgH0Q3xSWKHv1sbANcXU81pZYfbftvwPE_ZUxRIl
- 78qhXQp.oImumwv3aMCH7mt613Dmf2fbkh9pEDGtowt.4l_nuI5n5ibVen0cUvGQMnbu3HGddZdZ
- PU_OfiCQIqFWcxPx_ehgk3p3GlDSunBjfj5WQFarAeWOgH8iviZfb3fo93KyO1CegEzJ0K4a_Xwp
- PGurMDL7ZHwXgn9.PhMD5gXF6XRnbkbdNjlZd7PHWnuORezz4ap6dOrNrjvUYng7u17oD_U4PTYT
- xKP5KGTB31rbd7a7xEcdYD1XJtXIHv9Xrxixv6u2Dmj71nL0H7ayzeUiPxR.6dsNHwNPRRB1BS1m
- Ce9c7.vK4U3VA5SSTDvMC7vcG8LMUW1_FQxztPzSCm8AR6PtE3fEnZCHe83idfcyNDTaeF5_74v5
- zWzc0QKWJQdZyGuYp07_7bxZlZmGnjFAlfhc_Xp076cz3XXY7ZiB5o99h2kC1FCfQcHQC.J8kNja
- qQO5hOBQSJsfgfF9CfCiR7ySPtq7hr3H2HSdrFupXtKEpbjcg9jlW1ATSXZnqMj.Cv48GMZJHewW
- .QBRwcbvAA5YWjL6xmILNPClVVjtE6l4hIqIB4kzGGGIFZiscHEr1E9TeOH6lRFHnBbLB5Y5tyhV
- NfQfDsoUgWUexG8JuIgq2GJUx.9lQlrHcUD0Xv18xCYw08zicPCdkScVU9CfNg3AcChtL4W1YmCD
- 5s0gX8Pok7g0lFoDIDUB6JJ8J0KW09ZDY2u72u4duaNvS53thN2ChI7NeKI8ZNaZu7OlQNgm8ZtV
- nEvaHHt_9.YDWCBManovMMx9.SUTVwH70iiCx_as3UqKy.qCjbIst8o.K8Sb4
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Thu, 5 Nov 2020 19:39:28 +0000
-Received: by smtp410.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 089eb3219800930c805981760dee0e96;
-          Thu, 05 Nov 2020 19:39:23 +0000 (UTC)
-To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com
-Cc:     linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 1/2] [lsm] introduce a new hook to query LSM for
- functionality
-Message-ID: <30b2b09e-c274-e349-f50b-570e24b33f44@schaufler-ca.com>
-Date:   Thu, 5 Nov 2020 11:39:20 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        id S1732024AbgKETvY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 14:51:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726729AbgKETvX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 14:51:23 -0500
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78DBC0613CF;
+        Thu,  5 Nov 2020 11:51:21 -0800 (PST)
+Received: by mail-ej1-x642.google.com with SMTP id gn41so4407729ejc.4;
+        Thu, 05 Nov 2020 11:51:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nvL2gQrZbvhosCbXYOfupkOVgRLOaURmIAd+j6qv88Q=;
+        b=FinCmXzZ7jfFV8NRSrl0HrA5CIrMKNwgsmETg987z2LIIlw7m3/iGJm5gJxgrx0SDT
+         q7AMRBhVOB4zMY7zXd8M8faILLieOAL+MrQzB6dlxHxj3a43kmyJwGfyX43lw++QR7UG
+         gRy0VdHuh0tp1J9D8h6ABcxoO9TTxgqvpUW6Tvua/2PvNOX3ld+pYgNsOAm8GmTWVMr7
+         crKYPNKlRW4jXxclqnVZeBH/9f6XG5R6QDuRYQq9TXryzg6VqcftHk7LWKYXjsTenA0k
+         RztauCme/itE6vezP9NTzDbpVhRVakSGIU9/ojeMvsIvc/TYCGcNkbloTmR2UPS10zQJ
+         K8Tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nvL2gQrZbvhosCbXYOfupkOVgRLOaURmIAd+j6qv88Q=;
+        b=bAKyGu5rAThPrv8TuuuTbxE5GbQZxPzajyZZ8CX/7zwtiYckFz0eAsaDSyafIuZk9v
+         IeY2iiPRS4nEFIWQmA5xURP60dLgR1xx9506Y6Azav4QtscyXIuXUjtgP3rukSVuWgzI
+         a3YrCDuyrbqMARs/gKV0F5mjye+oW4J9tkO6Xbq6eVYi9/MFzeFrjII7e9wufRbIk1rd
+         uXQV+tbuvGEKCtbg1a/+uWOg55R+Q1yCz/X6PBVQHxpDGaSx/ERlY36ee6Grq2yXXMa7
+         YK8KAYCaBoNKV9Li0+hu0blHdtaLxccMuLSJPc3EpzudHonbUwYBdSFqKQBv6zgUAObk
+         mA1A==
+X-Gm-Message-State: AOAM533ovkuiEK9TtYUPj/ENDBNyPlJFx5Igaywbw73DHeXusykDvJ4y
+        UrWp7jA7iM5g/L9ZQ8BTIezTjNGeehZIA7FzCp8=
+X-Google-Smtp-Source: ABdhPJx7JaCw761QBwqqqR2pdPyLh9FROD4JMcpvvfaW5oca1h0lrXPIXinlZGdFbeQnb2d6MbioKLJNc14cP4xLS48=
+X-Received: by 2002:a17:906:9902:: with SMTP id zl2mr3842991ejb.510.1604605880342;
+ Thu, 05 Nov 2020 11:51:20 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-X-Mailer: WebService/1.1.16944 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.8)
+References: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
+ <20201105173328.2539-2-olga.kornievskaia@gmail.com> <CAFqZXNtjMEF0LO4vtEmcgwydbWfUS36d8g24J6C-NDXORYbEJg@mail.gmail.com>
+In-Reply-To: <CAFqZXNtjMEF0LO4vtEmcgwydbWfUS36d8g24J6C-NDXORYbEJg@mail.gmail.com>
+From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Date:   Thu, 5 Nov 2020 14:51:09 -0500
+Message-ID: <CAN-5tyF+cLpmT=rwAYvQQ445tjFKZtGq+Qzf6rDGg8COPpFRwA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] NFSv4.2: condition READDIR's mask for security label
+ based on LSM state
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/5/2020 9:33 AM, Olga Kornievskaia wrote:
-> From: Olga Kornievskaia <kolga@netapp.com>
+On Thu, Nov 5, 2020 at 1:55 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Add a new hook func_query_vfs to query an LSM module (such as
-> SELinux) with the intention of finding whether or not it is enabled
-> or perhaps supports some functionality.
+> On Thu, Nov 5, 2020 at 6:33 PM Olga Kornievskaia
+> <olga.kornievskaia@gmail.com> wrote:
+> > From: Olga Kornievskaia <kolga@netapp.com>
+> >
+> > Currently, the client will always ask for security_labels if the server
+> > returns that it supports that feature regardless of any LSM modules
+> > (such as Selinux) enforcing security policy. This adds performance
+> > penalty to the READDIR operation.
+> >
+> > Instead, query the LSM module to find if anything is enabled and
+> > if not, then remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
 >
-> NFS stores security labels for file system objects and SElinux
-> or any other LSM module can query those objects. But it's
-> wasteful to do so when no security enforcement is taking place.
-> Using a new API call of security_func_query_vfs() and asking if
-
-As I mentioned earlier, this is a sub-optimal implementation.
-Instead of adding a func_query_vfs() hook add a field to
-security_hook_list and have the LSM declare the "features"
-it supports there. security_add_hooks() can gather the "features"
-for the whole system into a single mask. security_func_query_vfs()
-can then just return that mask.
-
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-> ---
->  include/linux/lsm_hook_defs.h | 1 +
->  include/linux/security.h      | 4 ++++
->  security/security.c           | 6 ++++++
->  security/selinux/hooks.c      | 7 +++++++
->  4 files changed, 18 insertions(+)
+> Having spent some time staring at some of the NFS code very recently,
+> I can't help but suggest: Would it perhaps be enough to decide whether
+> to ask for labels based on (NFS_SB(dentry->d_sb)->caps &
+> NFS_CAP_SECURITY_LABEL)? It is set when mounting the FS iff some LSM
+> confirms via the security_sb_*_mnt_opts() hook that it wants the
+> filesystem to give it labels (or at least that's how I interpret the
+> cryptic name) [1]. It's just a shot in the dark, but it seems to fit
+> this use case.
 >
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_def=
-s.h
-> index 32a940117e7a..df3454a1fcac 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -257,6 +257,7 @@ LSM_HOOK(int, 0, inode_notifysecctx, struct inode *=
-inode, void *ctx, u32 ctxlen)
->  LSM_HOOK(int, 0, inode_setsecctx, struct dentry *dentry, void *ctx, u3=
-2 ctxlen)
->  LSM_HOOK(int, 0, inode_getsecctx, struct inode *inode, void **ctx,
->  	 u32 *ctxlen)
-> +LSM_HOOK(int, 0, func_query_vfs, unsigned int)
-> =20
->  #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
->  LSM_HOOK(int, 0, post_notification, const struct cred *w_cred,
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index bc2725491560..e15964059fa4 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -456,6 +456,10 @@ int security_inode_notifysecctx(struct inode *inod=
-e, void *ctx, u32 ctxlen);
->  int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctx=
-len);
->  int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctx=
-len);
->  int security_locked_down(enum lockdown_reason what);
-> +#define LSM_FQUERY_VFS_NONE     0x00000000
-> +#define LSM_FQUERY_VFS_XATTRS   0x00000001
+> [1] https://elixir.bootlin.com/linux/v5.10-rc2/source/fs/nfs/getroot.c#L148
 
-This is the wrong granularity for the task at hand.
-You don't care if an LSM supports vfs xattrs. You care if
-the LSM provides an xattr that may be propagated by NFS
-for the purpose of mandatory access control. An LSM that
-provides time-of-day controls may use xattrs that are
-meaningless to NFS.
+Very interesting. I was not aware of something like that nor was it
+mentioned when I asked on the selinux mailing list. I wonder if this
+is a supported feature that will always stay? In that case, NFS
+wouldn't need the extra hook that was added for this series. I will
+try this out and report back.
 
-
-> +int security_func_query_vfs(unsigned int flags);
-> +
->  #else /* CONFIG_SECURITY */
-> =20
->  static inline int call_blocking_lsm_notifier(enum lsm_event event, voi=
-d *data)
-> diff --git a/security/security.c b/security/security.c
-> index a28045dc9e7f..502b33865238 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -2067,6 +2067,12 @@ int security_inode_getsecctx(struct inode *inode=
-, void **ctx, u32 *ctxlen)
->  }
->  EXPORT_SYMBOL(security_inode_getsecctx);
-> =20
-> +int security_func_query_vfs(unsigned int flags)
-> +{
-> +	return call_int_hook(func_query_vfs, 0, flags);
-> +}
-> +EXPORT_SYMBOL(security_func_query_vfs);
-> +
->  #ifdef CONFIG_WATCH_QUEUE
->  int security_post_notification(const struct cred *w_cred,
->  			       const struct cred *cred,
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 6b1826fc3658..38f47570e214 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -92,6 +92,7 @@
->  #include <uapi/linux/mount.h>
->  #include <linux/fsnotify.h>
->  #include <linux/fanotify.h>
-> +#include <linux/security.h>
-> =20
->  #include "avc.h"
->  #include "objsec.h"
-> @@ -6502,6 +6503,11 @@ static void selinux_inode_invalidate_secctx(stru=
-ct inode *inode)
->  	spin_unlock(&isec->lock);
->  }
-> =20
-> +static int selinux_func_query_vfs(unsigned int flags)
-> +{
-> +	return !!(flags & LSM_FQUERY_VFS_XATTRS);
-> +}
-> +
->  /*
->   *	called with inode->i_mutex locked
->   */
-> @@ -7085,6 +7091,7 @@ static struct security_hook_list selinux_hooks[] =
-__lsm_ro_after_init =3D {
->  	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_secct=
-x),
->  	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
->  	LSM_HOOK_INIT(inode_setsecctx, selinux_inode_setsecctx),
-> +	LSM_HOOK_INIT(func_query_vfs, selinux_func_query_vfs),
-> =20
->  	LSM_HOOK_INIT(unix_stream_connect, selinux_socket_unix_stream_connect=
-),
->  	LSM_HOOK_INIT(unix_may_send, selinux_socket_unix_may_send),
-
+>
+> >
+> > Suggested-by: Scott Mayhew <smayhew@redhat.com>
+> > Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+> > ---
+> >  fs/nfs/nfs4proc.c       | 5 +++++
+> >  fs/nfs/nfs4xdr.c        | 3 ++-
+> >  include/linux/nfs_xdr.h | 1 +
+> >  3 files changed, 8 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+> > index 9e0ca9b2b210..774bc5e63ca7 100644
+> > --- a/fs/nfs/nfs4proc.c
+> > +++ b/fs/nfs/nfs4proc.c
+> > @@ -55,6 +55,7 @@
+> >  #include <linux/utsname.h>
+> >  #include <linux/freezer.h>
+> >  #include <linux/iversion.h>
+> > +#include <linux/security.h>
+> >
+> >  #include "nfs4_fs.h"
+> >  #include "delegation.h"
+> > @@ -4968,6 +4969,7 @@ static int _nfs4_proc_readdir(struct dentry *dentry, const struct cred *cred,
+> >                 .count = count,
+> >                 .bitmask = NFS_SERVER(d_inode(dentry))->attr_bitmask,
+> >                 .plus = plus,
+> > +               .labels = true,
+> >         };
+> >         struct nfs4_readdir_res res;
+> >         struct rpc_message msg = {
+> > @@ -4977,10 +4979,13 @@ static int _nfs4_proc_readdir(struct dentry *dentry, const struct cred *cred,
+> >                 .rpc_cred = cred,
+> >         };
+> >         int                     status;
+> > +       int sec_flags = LSM_FQUERY_VFS_XATTRS;
+> >
+> >         dprintk("%s: dentry = %pd2, cookie = %Lu\n", __func__,
+> >                         dentry,
+> >                         (unsigned long long)cookie);
+> > +       if (!security_func_query_vfs(sec_flags))
+> > +               args.labels = false;
+> >         nfs4_setup_readdir(cookie, NFS_I(dir)->cookieverf, dentry, &args);
+> >         res.pgbase = args.pgbase;
+> >         status = nfs4_call_sync(NFS_SERVER(dir)->client, NFS_SERVER(dir), &msg, &args.seq_args, &res.seq_res, 0);
+> > diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+> > index c6dbfcae7517..585d5b5cc3dc 100644
+> > --- a/fs/nfs/nfs4xdr.c
+> > +++ b/fs/nfs/nfs4xdr.c
+> > @@ -1605,7 +1605,8 @@ static void encode_readdir(struct xdr_stream *xdr, const struct nfs4_readdir_arg
+> >                         FATTR4_WORD1_OWNER_GROUP|FATTR4_WORD1_RAWDEV|
+> >                         FATTR4_WORD1_SPACE_USED|FATTR4_WORD1_TIME_ACCESS|
+> >                         FATTR4_WORD1_TIME_METADATA|FATTR4_WORD1_TIME_MODIFY;
+> > -               attrs[2] |= FATTR4_WORD2_SECURITY_LABEL;
+> > +               if (readdir->labels)
+> > +                       attrs[2] |= FATTR4_WORD2_SECURITY_LABEL;
+> >                 dircount >>= 1;
+> >         }
+> >         /* Use mounted_on_fileid only if the server supports it */
+> > diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+> > index d63cb862d58e..95f648b26525 100644
+> > --- a/include/linux/nfs_xdr.h
+> > +++ b/include/linux/nfs_xdr.h
+> > @@ -1119,6 +1119,7 @@ struct nfs4_readdir_arg {
+> >         unsigned int                    pgbase; /* zero-copy data */
+> >         const u32 *                     bitmask;
+> >         bool                            plus;
+> > +       bool                            labels;
+> >  };
+> >
+> >  struct nfs4_readdir_res {
+> > --
+> > 2.18.2
+> >
+>
+>
+> --
+> Ondrej Mosnacek
+> Software Engineer, Platform Security - SELinux kernel
+> Red Hat, Inc.
+>
