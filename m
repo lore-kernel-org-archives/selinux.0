@@ -2,147 +2,105 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42678C388F7
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 21:43:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B84A7C5517A
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 22:07:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C041020735
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 21:43:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QhFMVwyY"
+	by mail.kernel.org (Postfix) with ESMTP id 66F292151B
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 22:07:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1604614074;
+	bh=178huzaFZ/hAY5sYLanFhkUTFNiQNJfZdx7VDjMneC0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=RTrHoF3dooPnfFd37l1tDFrYbguEtfoxHHbNK8L83g31KBxeDFmp6mIPEZ7vXs3SV
+	 Cc6JEY7ufo3DudX4wUbIhbAFhXjRQXVIyBRjxa/1xr0syBrF09/60gsxwlpZ7OCmwx
+	 gxszGvudZq5HFo66oboeBeyz7QLV5HlkzGL4M5+8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732156AbgKEVnO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 16:43:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56176 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732046AbgKEVnO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 16:43:14 -0500
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F67C0613CF;
-        Thu,  5 Nov 2020 13:43:13 -0800 (PST)
-Received: by mail-ej1-x642.google.com with SMTP id 7so4829108ejm.0;
-        Thu, 05 Nov 2020 13:43:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qPGYMg/dNtOYhsJ8Y2LOGYr0zqsPQ9NBCPtUAnJLJss=;
-        b=QhFMVwyYgcwO3sARxmCu/c+x5VNBi7xucdjjX+uzvAVS0OTiutqQEMUmew/9P4pSSY
-         UjNrL7rBlDVLFPp11sEy+GMUWb+UnbkOMbzdUmwN5rlP+7clCDZ8aejR5mTveHhZBcRZ
-         Q9eaeDjKDHqdjxWnOPfk4dMnS1GzKIi4cFeb6nnMVXJ4yh8MjiioiAfVQl63Ghv7E5Sw
-         ELcODDhV2J4QgKQPE2qEq97XVwJrURIqx6lzZSPQIu3iy0CsXfuRWpLjTMhJoVbTSl7S
-         xUmBmmcGEkfA82lggGwG1ZDpd6NsV3YKZCYk+JqhACxMtXhMx5oH1ADpTRtCy+0YhDEv
-         0VDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qPGYMg/dNtOYhsJ8Y2LOGYr0zqsPQ9NBCPtUAnJLJss=;
-        b=NyfwWvmjhpAisdEJsn5Db5i06kfUIkTjg0K/MnzmbRh+1WZ0VFzLo7v97yketWI0Cn
-         yxl7ptKAmq5BNYiIX6BJtdJO67vA8XpDxkxH8VIYaA9M85En0+MEhJQP6SU5IYMvla5a
-         vuhl0IbgXKQ96wuZcOel9qtwt1qMWkjG/gDhGY0QYQELqJL6R+dPZ2rjJ22MXdj1nFKc
-         5sjs5Cvgq6Qzi/bxpnNgZohCdH3NjEE24Lyw04mEtgFQRIIx+HJqDS9Y/fMFj1tJkFJe
-         mCN1S692fxOkNeTQAJfof7jbHRWBldKuvkbdB2CZPqRPUg8CyPwP4yNW44R50D8LuT5b
-         ZUUA==
-X-Gm-Message-State: AOAM532CIwHNuZ1LZwGfX/m7voS8lCKI0Gz+QqHti0vt2Ga+dA8h5HOm
-        NDLPNABT/zkWGKUl1ufUTpwr3U/xnoslqnN2KM0=
-X-Google-Smtp-Source: ABdhPJzltyf8CPElPCLMwuwmycOx1254Gp1ZADrMApmWzRcAP32lvqjGLwuOYainjvsoVtqBs4MrhH7FXdyTIL2pYDw=
-X-Received: by 2002:a17:906:ccc5:: with SMTP id ot5mr4579325ejb.248.1604612592456;
- Thu, 05 Nov 2020 13:43:12 -0800 (PST)
+        id S1732577AbgKEWHu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 17:07:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33808 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732517AbgKEWHt (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 5 Nov 2020 17:07:49 -0500
+Received: from gmail.com (unknown [104.132.1.84])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 466352078E;
+        Thu,  5 Nov 2020 22:07:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604614069;
+        bh=178huzaFZ/hAY5sYLanFhkUTFNiQNJfZdx7VDjMneC0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jNn8K5XKu30RZm07Z9rmMLpJnTPLp3iYQl7n6KByggBgD6eZc83m8qrNMdo2DKd5I
+         WYq6t+0VFTFz3CbRrj/XbZ5bHumeWHXdz5ugvtxA/L8lFwt0fAQrULxT/HK2YwM/eP
+         FRs44fyFm7R4UDIqefkUUCi3IxmH3d7AcwGltpgI=
+Date:   Thu, 5 Nov 2020 14:07:45 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Lokesh Gidra <lokeshgidra@google.com>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        kaleshsingh@google.com, calin@google.com, surenb@google.com,
+        nnk@google.com, jeffv@google.com, kernel-team@android.com,
+        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        hch@infradead.org
+Subject: Re: [PATCH v11 1/4] security: add inode_init_security_anon() LSM hook
+Message-ID: <20201105220745.GB2555324@gmail.com>
+References: <20201105213324.3111570-1-lokeshgidra@google.com>
+ <20201105213324.3111570-2-lokeshgidra@google.com>
 MIME-Version: 1.0
-References: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
- <20201105173328.2539-2-olga.kornievskaia@gmail.com> <CAFqZXNtjMEF0LO4vtEmcgwydbWfUS36d8g24J6C-NDXORYbEJg@mail.gmail.com>
- <CAN-5tyF+cLpmT=rwAYvQQ445tjFKZtGq+Qzf6rDGg8COPpFRwA@mail.gmail.com> <a96c14c0f86ec274d5bdc255050ae71238bb43fe.camel@hammerspace.com>
-In-Reply-To: <a96c14c0f86ec274d5bdc255050ae71238bb43fe.camel@hammerspace.com>
-From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
-Date:   Thu, 5 Nov 2020 16:43:01 -0500
-Message-ID: <CAN-5tyHc_fjDXwUngqVshB0Z7SzhAqjkXP7E=-k4sAPbfRwMmQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] NFSv4.2: condition READDIR's mask for security label
- based on LSM state
-To:     Trond Myklebust <trondmy@hammerspace.com>
-Cc:     "omosnace@redhat.com" <omosnace@redhat.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201105213324.3111570-2-lokeshgidra@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 5, 2020 at 4:18 PM Trond Myklebust <trondmy@hammerspace.com> wrote:
->
-> On Thu, 2020-11-05 at 14:51 -0500, Olga Kornievskaia wrote:
-> > On Thu, Nov 5, 2020 at 1:55 PM Ondrej Mosnacek <omosnace@redhat.com>
-> > wrote:
-> > >
-> > > On Thu, Nov 5, 2020 at 6:33 PM Olga Kornievskaia
-> > > <olga.kornievskaia@gmail.com> wrote:
-> > > > From: Olga Kornievskaia <kolga@netapp.com>
-> > > >
-> > > > Currently, the client will always ask for security_labels if the
-> > > > server
-> > > > returns that it supports that feature regardless of any LSM
-> > > > modules
-> > > > (such as Selinux) enforcing security policy. This adds
-> > > > performance
-> > > > penalty to the READDIR operation.
-> > > >
-> > > > Instead, query the LSM module to find if anything is enabled and
-> > > > if not, then remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
-> > >
-> > > Having spent some time staring at some of the NFS code very
-> > > recently,
-> > > I can't help but suggest: Would it perhaps be enough to decide
-> > > whether
-> > > to ask for labels based on (NFS_SB(dentry->d_sb)->caps &
-> > > NFS_CAP_SECURITY_LABEL)? It is set when mounting the FS iff some
-> > > LSM
-> > > confirms via the security_sb_*_mnt_opts() hook that it wants the
-> > > filesystem to give it labels (or at least that's how I interpret
-> > > the
-> > > cryptic name) [1]. It's just a shot in the dark, but it seems to
-> > > fit
-> > > this use case.
-> > >
-> > > [1]
-> > > https://elixir.bootlin.com/linux/v5.10-rc2/source/fs/nfs/getroot.c#L148
-> >
-> > Very interesting. I was not aware of something like that nor was it
-> > mentioned when I asked on the selinux mailing list. I wonder if this
-> > is a supported feature that will always stay? In that case, NFS
-> > wouldn't need the extra hook that was added for this series. I will
-> > try this out and report back.
->
-> NFS_CAP_SECURITY_LABEL is just the NFS server capability flag. It tells
-> you whether or not the client believes that the server might support
-> NFSv4.2 requests for labelled NFS metadata.
->
-> My understanding of Olga's requirement is that she needs to be able to
-> ignore that flag and simply not query for labelled NFS metadata if the
-> NFS client is not configured to enforce the LSM policy. The objective
-> is to avoid unnecessary RPC traffic to the server to query for data
-> that is unused.
+On Thu, Nov 05, 2020 at 01:33:21PM -0800, Lokesh Gidra wrote:
+> This change adds a new LSM hook, inode_init_security_anon(), that
+> will be used while creating secure anonymous inodes.
 
-Actually that seems to be working. I think it's because while the
-server returns that it supports sec_labels, after calling
-security_sb_set_mnt_opts() the kflags_out don't have this
-SECURITY_LSM_NATIVE_LABELS set (assuming this happens because selinux
-isn't enabled) then we turned server's sec_labl cap off.
+Will be used to do what?  To assign a security context to the inode and to
+allow/deny creating it, right?
 
-I'm about to send v2 without relying on modifications to selinux.
+> 
+> The new hook accepts an optional context_inode parameter that
+> callers can use to provide additional contextual information to
+> security modules for granting/denying permission to create an anon-
+> inode of the same type.
 
->
-> --
-> Trond Myklebust
-> Linux NFS client maintainer, Hammerspace
-> trond.myklebust@hammerspace.com
->
->
+It looks like the hook also uses the context_inode parameter to assign a
+security context to the inode.  Is that correct?  It looks like that's what the
+code does, so if you could get the commit messages in sync, that would be
+helpful.  I'm actually still not completely sure I'm understanding the intent
+here, given that different places say different things.
+
+- Eric
