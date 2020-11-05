@@ -2,123 +2,135 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F368FC00A89
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 09:57:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5967AC00A89
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 11:51:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 950B620825
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 09:57:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC87E2083B
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 11:51:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P5fPMOwV"
+	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="hQMAHIjV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726179AbgKEJ5Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 04:57:16 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:45916 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726152AbgKEJ5P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 04:57:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604570235;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=L8B9VC+FuZEmflqqpNoC+DV3vii/FWs00ZsCYr2ugNM=;
-        b=P5fPMOwV2Ep3XjqnV1BH/lfYO37QRWmxbFghmTKjJYeCOz21rSKn0jMgwDd1vJY8K/5Qt6
-        TYzeWm4quHXgxep1haI8znaMGhuQ1uDL4hK9caLV05recvdce2SMEWq5kHfODM1atMRFi2
-        v0DtxiSc7VeyPFpjvGzi4+SR4ts2Rdw=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-300-AXTNNzU5Mt6aB6rdq5KAkQ-1; Thu, 05 Nov 2020 04:57:12 -0500
-X-MC-Unique: AXTNNzU5Mt6aB6rdq5KAkQ-1
-Received: by mail-lj1-f200.google.com with SMTP id s25so216298ljm.4
-        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 01:57:11 -0800 (PST)
+        id S1729990AbgKELvP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 06:51:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729832AbgKELvP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 06:51:15 -0500
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 162BAC0613CF
+        for <selinux@vger.kernel.org>; Thu,  5 Nov 2020 03:51:15 -0800 (PST)
+Received: by mail-il1-x130.google.com with SMTP id y17so1115598ilg.4
+        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 03:51:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=cd6xhvEcE7KVWBpAcJfB5uesvFuUhUZH5J4rZ110meE=;
+        b=hQMAHIjVPU4Vv3gDV5O6j8w8vKT0wNgRbNsuj0RQCu2TCDIWrWhCU1YEXWtbJ8MYFs
+         ttzNTuKvqOT/uK9hoJ8t2brDr3UIPybbI5jHw/xIk0mIL6ur6568zzJ3IHUWEj1fcP/T
+         KmeLo3pnbIRxgFXHi6cbcGH+YqrpCk45IfqQo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=L8B9VC+FuZEmflqqpNoC+DV3vii/FWs00ZsCYr2ugNM=;
-        b=Rdqnr3SJr20pk8dCQa3PNUTbK61SDq5rVbl5xL1fOXIOJInaFJiY1EqcXFXoaYcz3Q
-         Ak0H8iX7ZLRKJpnEj0/WxWGKy63kYc5bE2XkJ9toRJ0a1qa39NddEoutepjnMuqIYy9t
-         ctQ3a3zp0RAC2i+81QbAI1GkJ2Uh44z2BUWWuzpierj4Cp6uPjAlqTudsqwb5cWETbsC
-         rbuBw5QAPlHQ4rEc3i+yaYIQFDkPcFw9APfJqEmkITf56sg7EWyjwm4v6F66lYtPa1WN
-         SMRGSUZnhYzn9HAsUJiaJiTNifJ3yZj/JZd8lq3VVYJeyQOFhKP4WnCDKv2LOXeoDIcm
-         QXyA==
-X-Gm-Message-State: AOAM530f2HaFNnDrT8K+dRsPid57vuYRnzkRYjwXbYC5T0J3u3oWJJQq
-        /tEa7EFcUHsOV6+FnAS9+84LjPD4GvkAoVtjpT/IUXg5Z85l/wdUzVBGbKyGn3jXBshW5QULF6g
-        ccs/9lrSvrzj+lA/dVTBvMPbEtsUwO3B9Rw==
-X-Received: by 2002:a19:f605:: with SMTP id x5mr650448lfe.39.1604570230430;
-        Thu, 05 Nov 2020 01:57:10 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxZGSs74DS7DsqlVUNkrYMHRcKvBmzOhyoC+lWmYSWruhT6Q/ZA2eReJt8lKOK/kzzLD4frjNMhVDhCZFfNXHo=
-X-Received: by 2002:a19:f605:: with SMTP id x5mr650441lfe.39.1604570230185;
- Thu, 05 Nov 2020 01:57:10 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cd6xhvEcE7KVWBpAcJfB5uesvFuUhUZH5J4rZ110meE=;
+        b=UWg9Yp4SO3hczyL3tbihTmgNq4ZN2W2TRva2ugYDCYjGP6eHHvU1rlfD9xAA53pSDY
+         yhpNbFXmApwwHW1r4aHfkjduabOu881EnEc79bNehk32D2aop6hWzzmeVsBtFG0VBYq0
+         GBnplqDN/r+Uux1OFDy40BIwfRqTLrQQKYKP0x8CDf44BkLAByAJAANtwDWRqhtc0M8g
+         AV7msEOxNy9me88R9i3/HOS0Bdl2Hl0X922jgHzyPav5KphSaP08S9TCHydNuOu87M2m
+         IW8rX3je7y/PoT1Cbroz3FQkWPRmNnwq17bniBw/Pnfeu/V+kXt0sVgzYYrElgoehGy3
+         B5vw==
+X-Gm-Message-State: AOAM531TsqkSl34u+JJyfsx9c5a2tHOQYPtaUKR+HbmMYrmYOOWcBj21
+        u+64A7eZ8a6LAzQioYX1FwD0c89Dg4nUkQ==
+X-Google-Smtp-Source: ABdhPJzhHJfpsD0zq5YGSoGr4EwYtXh3AZG05syb/L4biujFfDoCGME5RVulGIfW4tCFJ09cEiD4SQ==
+X-Received: by 2002:a05:6e02:f0e:: with SMTP id x14mr1552974ilj.228.1604577074080;
+        Thu, 05 Nov 2020 03:51:14 -0800 (PST)
+Received: from fedora.pebenito.net (pool-96-234-173-17.bltmmd.fios.verizon.net. [96.234.173.17])
+        by smtp.gmail.com with ESMTPSA id o124sm1091444ila.62.2020.11.05.03.51.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Nov 2020 03:51:13 -0800 (PST)
+Subject: Re: [Travis/GitHub] Migrating SELinuxProject projects to
+ travis-ci.com (vs. travis-ci.org)
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+References: <CAFqZXNtWg4+PrjizBcaa9hwQHdq1qQN4RzeqFS_y_8R9KZfMSA@mail.gmail.com>
+ <CAHC9VhRMsh5iHbunu0qJyheENm8a+KSnonLLuBynDWbBmOq3Og@mail.gmail.com>
+ <20201027163749.GA25212@localhost.localdomain>
+ <CAFqZXNswY13BoABpXGOQq=kOsORRJPY6HEPjDE3ZRXKQhW2vTA@mail.gmail.com>
+ <CAHC9VhQhKkS7hSfyOyef6c-gjmY-ab_L6mMR0SxAshv7d5Tm8g@mail.gmail.com>
+ <CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com>
+From:   Chris PeBenito <pebenito@ieee.org>
+Message-ID: <75de6395-5554-2fa5-183f-a4d361c290aa@ieee.org>
+Date:   Thu, 5 Nov 2020 06:51:11 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-References: <20201104164913.11536-1-richard_c_haines@btinternet.com> <20201104164913.11536-2-richard_c_haines@btinternet.com>
-In-Reply-To: <20201104164913.11536-2-richard_c_haines@btinternet.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 5 Nov 2020 10:56:59 +0100
-Message-ID: <CAFqZXNvYBYUp3u3YtSAOMKFqdL_e+O=hPTQhPJnRdeyYq_k0ww@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/1] selinux-testsuite: Reduce sctp test runtime
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 4, 2020 at 5:49 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
->
-> Use the Linux audit services to look for specific events and trigger
-> the correct test exit code.
->
-> This is useful for tests that fail on a socket timeout where they
-> hang around for x seconds before exiting. The audit service will detect
-> the event as it occurred based on AVC entry scontext= and optionally, a
-> regex (e.g. "denied.*\\{ recv \\}") entry.
+On 11/2/20 10:18 AM, Ondrej Mosnacek wrote:
+> On Mon, Nov 2, 2020 at 3:46 PM Paul Moore <paul@paul-moore.com> wrote:
+>> On Mon, Nov 2, 2020 at 3:04 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>>> On Tue, Oct 27, 2020 at 5:37 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+>>>> On Mon, Oct 26, 2020 at 07:04:52PM -0400, Paul Moore wrote:
+>>>>> On Mon, Oct 26, 2020 at 9:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>>>>>> Hello everyone (mainly the maintainers of projects on GH, but to avoid
+>>>>>> a huge cc list, I'm sending this to the ML),
+>>>>>>
+>>>>>> As you may or may not know, Travis is migrating open-source projects
+>>>>>> to their main site [1][2] (to .com from .org, where they have been
+>>>>>> until now). AFAIK, the functionality stays pretty much the same, they
+>>>>>> just want to have open-source and private projects under the same
+>>>>>> infrastructure to unify things.
+>>>>>>
+>>>>>> Recently, they started migrating runners away from the .org site [3],
+>>>>>> resulting in new builds being queued for a very long time. [4]
+>>>>>>
+>>>>>> I tried to migrate some of my forks (selinux-testsuite and selinux) to
+>>>>>> the new site and it went smoothly. The only downside seems to be that
+>>>>>> the build history is not migrated immediately (but it did show up
+>>>>>> after a while). The queue times were indeed resolved after the
+>>>>>> migration.
+>>>>>>
+>>>>>> So, I'd like to propose to start migrating the projects under
+>>>>>> SELinuxProject that use the Travis CI (selinux, refpolicy,
+>>>>>> selinux-testsuite, setools) now, so that we are not affected by the
+>>>>>> lack of workers.
+>>>>>>
+>>>>>> If there are no objections until next week, I'll migrate the
+>>>>>> selinux-testsuite, for a start. The other projects I'll leave for the
+>>>>>> other maintainers, unless they choose to mandate me to do so :)
+>>>>>
+>>>>> Sounds good to me.
+>>>>>
+>>>>
+>>>> Please do it for selinux too. Thank you!
+>>>
+>>> Apparently I would need to be an admin/owner in the SELinuxProject
+>>> group to do anything... So either one of the owners will have to do it
+>>> or make me an owner :)
+>>
+>> Done :)
+> 
+> Thanks, I've just migrated selinux and selinux-testsuite:
+> https://travis-ci.com/github/SELinuxProject
+> 
+> I can also migrate refpolicy and setools if Chris gives me a thumbs-up.
 
-I have mixed feelings about this approach, because then the tests
-won't be able to detect a bug where an audit record would be produced,
-but the message would be delivered anyway (a few moments later). OTOH
-the massive speedup is very tempting... :)
-
-One possible alternative could be to calibrate how long it takes
-between sending and receiving an SCTP message on the given system at
-the beginning of the test, multiply the max value by some factor (1.5?
-2?), and use it as the timeout. But then this wouldn't help in cases
-where the latency just spikes very high occasionally... (which I think
-is what happens in cases of the random failures we have been seeing
-sometimes)
-
-Another option would be to run the tests asynchronously, but that
-comes with its own set of problems...
-
-Paul, Stephen, any thoughts?
-
->
-> Without this patch sctp tests take ~2.6 min, with patch ~4 secs.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  README.md                              |  5 +-
->  policy/test_sctp.te                    |  1 +
->  tests/sctp/Makefile                    |  2 +-
->  tests/sctp/sctp_asconf_params_client.c | 51 ++++++++++++-
->  tests/sctp/sctp_client.c               | 52 ++++++++++++--
->  tests/sctp/sctp_common.c               | 99 ++++++++++++++++++++++++++
->  tests/sctp/sctp_common.h               | 11 +++
->  tests/sctp/test                        | 50 ++++++-------
->  travis-ci/run-testsuite.sh             |  1 +
->  9 files changed, 237 insertions(+), 35 deletions(-)
-[...]
+Sure, go ahead. Thanks Ondrej!
 
 -- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+Chris PeBenito
