@@ -2,118 +2,148 @@ Return-Path: <SRS0=HUo+=EL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9809FC4741F
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 14:18:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E58DC4741F
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 14:30:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C6272073A
-	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 14:18:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98C7D21734
+	for <selinux@archiver.kernel.org>; Thu,  5 Nov 2020 14:30:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="KlFZfn5s"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nUZHSYOp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbgKEOSw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 09:18:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730429AbgKEOSw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 09:18:52 -0500
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B2EC0613CF
-        for <selinux@vger.kernel.org>; Thu,  5 Nov 2020 06:18:52 -0800 (PST)
-Received: by mail-qt1-x82e.google.com with SMTP id i12so1156037qtj.0
-        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 06:18:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=URs199CiGMSfdY5ulOSyQXf/IoWxjp7/9l7rPi3eMAs=;
-        b=KlFZfn5sifMMONpj+OenE+cnggd5i42MTYQQkbB0zchZdUAUFvh1XYBEZsQL8T5X8k
-         3eFeNei4VTFXI7nfzeRpSVP+3X7y9MkUi+CdpJ5DYwLbALgYhwL0LSfZOKttJNeVFGEG
-         cdRXwo8iac7C1XgwFj2pErm0tzjdgrsq0Ct6k=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=URs199CiGMSfdY5ulOSyQXf/IoWxjp7/9l7rPi3eMAs=;
-        b=QnyXhLJV51et04wyjH1sxuOem45tiLlEUIFdtW6sKBkD++8uZ43Sh9nq3YNTFSd+Hb
-         g2cRpUq+vxmS6E9nHPnsFwYmEOwEWDBOBsdqhG/hlC+qAjcrIu5PCBDuIusEP1vBixIu
-         4hdvL79iqEkPmXCNpEMF0wRIo3icA4GmtrHg17G4L8MjrTu/7WajL1VRI9pBDsumyApV
-         B+uFGe5TUIQnYiVxumZUzG+MpRlC36vzXBG6Bul/7rd/V3nqwyIQL6b5ZXMEETW/hPuH
-         C2WRcJBYt0CfnMAKqRlvfAvbtwV3q8tL0R2ExP2nmSWTryL5mcopCuiepafj+jFUitro
-         MqYA==
-X-Gm-Message-State: AOAM5327uh7p+Wf0sX/ih32lMLg/RsPFbsLtTiZZvXOnBqCWj8zp+Xlv
-        wSYPc94hmXwdCEfAv9HRkqZpCEwAcufGlw==
-X-Google-Smtp-Source: ABdhPJx/uUad4pzXCjszksYbblw4u6A2YTQmsRKp5SglqDCDMb9d4Rl+2TXqCzANNiiXsaQn18i0fw==
-X-Received: by 2002:a05:622a:1cb:: with SMTP id t11mr2176272qtw.378.1604585930684;
-        Thu, 05 Nov 2020 06:18:50 -0800 (PST)
-Received: from fedora.pebenito.net (pool-96-234-173-17.bltmmd.fios.verizon.net. [96.234.173.17])
-        by smtp.gmail.com with ESMTPSA id t70sm1055920qke.119.2020.11.05.06.18.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Nov 2020 06:18:50 -0800 (PST)
-Subject: Re: Changes to Travis Usage
-To:     William Roberts <bill.c.roberts@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-References: <CAFftDdo-jFy4anQaVvQqtYgjRvG8w-TNNLOUU5JL11gQF_rCpQ@mail.gmail.com>
-From:   Chris PeBenito <pebenito@ieee.org>
-Message-ID: <3373735e-595a-9c50-7d33-163e377fcbd0@ieee.org>
-Date:   Thu, 5 Nov 2020 09:18:48 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
-MIME-Version: 1.0
-In-Reply-To: <CAFftDdo-jFy4anQaVvQqtYgjRvG8w-TNNLOUU5JL11gQF_rCpQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1730935AbgKEOap (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Nov 2020 09:30:45 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31606 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727275AbgKEOao (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 09:30:44 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A5E2RHA069793;
+        Thu, 5 Nov 2020 09:30:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=S9CJWToNLpkKaCorY29bqvxp8f7JEx0XR/Lr9uF/huY=;
+ b=nUZHSYOpknxeIn3PzQzenFH35XSGFkI39rU2Iv/FbkbzQKU4PyJBQBCc5ebWOOpgv7nm
+ GvMaW6E2y7rAoZgQ+9LmLfid0iogBBCYJpO85IOgCyKOTTieE6h97jSh0yIMQ2Mno6kr
+ Fge88ybimz4piCdf50sota/VMyqPJT38x/f7zk/QRbwpy/CDw/qmfvdlVmVjl0Wr+lFB
+ eblyoiYRL/yCaz98cDyG3IiXAYStSHkcMsnp8903KUiP1vz2eDZnreD+0pFhkPyxPUKj
+ EjDb6mBkysNonJg0PWxc4TPhzaZYDfmACcArF+1H4ShbhiYcOG2zOYiZE6PtbYQoYkc1 vQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34m5ftg0w3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Nov 2020 09:30:36 -0500
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0A5E3Bwc077583;
+        Thu, 5 Nov 2020 09:30:35 -0500
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34m5ftg0ug-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Nov 2020 09:30:35 -0500
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A5ER9Dg016507;
+        Thu, 5 Nov 2020 14:30:32 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 34h0fcwh52-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 Nov 2020 14:30:32 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A5EUUee56426984
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 5 Nov 2020 14:30:30 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8FDD6AE051;
+        Thu,  5 Nov 2020 14:30:30 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 47954AE04D;
+        Thu,  5 Nov 2020 14:30:27 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.97.46])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  5 Nov 2020 14:30:27 +0000 (GMT)
+Message-ID: <d0e96ccc49590c5ff11675661592b70b0f021636.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 2/7] IMA: update process_buffer_measurement to
+ measure buffer hash
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
+        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
+        paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Date:   Thu, 05 Nov 2020 09:30:26 -0500
+In-Reply-To: <20201101222626.6111-3-tusharsu@linux.microsoft.com>
+References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
+         <20201101222626.6111-3-tusharsu@linux.microsoft.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-05_07:2020-11-05,2020-11-05 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ mlxscore=0 phishscore=0 suspectscore=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 mlxlogscore=999 adultscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011050092
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/4/20 10:35 AM, William Roberts wrote:
-> TL;DR
-> Travis is limiting us to 1000mins of build and we should file for an
-> opensource exception so we don't have to pay/throttled. We may want to
-> consider migrating to Github Actions.
+Hi Tushar,
 
-Looks like our build times average:
+Please don't include the filename in the Subject line[1].   The Subject
+line should be a summary phrase describing the patch.   In this case,
+it is adding support for measuring the buffer data hash.
 
-  * userspace: 70 build minutes
-  * testsuite: 25 build minutes
-  * refpolicy: 55 build minutes
-  * setools: 18 build minutes
+On Sun, 2020-11-01 at 14:26 -0800, Tushar Sugandhi wrote:
+> process_buffer_measurement() currently only measures the input buffer.
+> In case of SeLinux policy measurement, the policy being measured could
+> be large (several MB). This may result in a large entry in IMA
+> measurement log.
 
-Lately the build times have increased, but I don't know how much of that is due 
-overall slowdowns due to the abuse they're having.
+SELinux is an example of measuring large buffer data.  Please rewrite
+this patch description (and the other patch descriptions in this patch
+set) without using the example to describe its purpose [1].
 
-The initial 1000 minutes of credit they're talking about won't take long to 
-deplete, especially with PRs triggering builds possibly multiple times.  We 
-could request a renewable amount according to that blog article.  If we can't 
-get that, then it seems tedious to manually request credit allotments and we 
-should evaluate new options.
+In this case, you might say,
 
+The original IMA buffer data measurement sizes were small (e.g. boot
+command line), but new buffer data measurement use cases are a lot
+larger.  Just as IMA measures the file data hash, not the file data,
+IMA should similarly support measuring the buffer data hash.
 
-> Travis is changing, as pointed out before:
->    - https://lore.kernel.org/selinux/CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com/T/#t
 > 
-> We had to migrate from .org to .com. Apparently, their usage and
-> billing changes are about to occur, see:
-> https://blog.travis-ci.com/2020-11-02-travis-ci-new-billing
-> 
-> Dockerhub[1] *was* doing the same thing with pulls, but just switched
-> their stance back. I recently changed some of my projects from
-> dockerhub to Github Container Registry and used Github Actions to
-> build the containers. Github Actions should be a replacement to
-> Travis, and includes Ubuntu 16-04, 18-04, 20-04, Windows and Mac[2]. I
-> am not sure if it has KVM enabled.
-> 
-> 1. https://www.docker.com/blog/what-you-need-to-know-about-upcoming-docker-hub-rate-limiting/
-> 2. https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-> 
+> Introduce a boolean parameter measure_buf_hash to support measuring
+> hash of a buffer, which would be much smaller, instead of the buffer
+> itself.
 
+> To use the functionality introduced in this patch, the attestation
+> client and the server changes need to go hand in hand. The
+> client/kernel would know what data is being measured as-is
+> (e.g. KEXEC_CMDLINE), and what data has it’s hash measured (e.g. SeLinux
+> Policy). And the attestation server should verify data/hash accordingly.
+> 
+> Just like the data being measured in other cases, the attestation server
+> will know what are possible values of the large buffers being measured.
+> e.g. the possible valid SeLinux policy values that are being pushed to
+> the client. The attestation server will have to maintain the hash of
+> those buffer values.
 
--- 
-Chris PeBenito
+Each patch in the patch set builds upon the previous one.   (Think of
+it as a story, where each chapter builds upon the previous ones.)  
+With rare exceptions, should patches reference subsequent patches. [2]
+
+[1] Refer to Documentation/process/submitting-patches.rst
+[2] Refer to the section "8) Commenting" in
+Documentation/process/coding-style.rst
+
+thanks,
+
+Mimi
+
