@@ -2,126 +2,95 @@ Return-Path: <SRS0=8IdP=EM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6859C4741F
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 14:03:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 276EFC2D0A3
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 15:23:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46E482078B
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 14:03:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86E2722228
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 15:23:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qC+Vvwjk"
+	dkim=pass (2048-bit key) header.d=rosalinux.ru header.i=@rosalinux.ru header.b="K0NWZ6kQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727438AbgKFOC7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Nov 2020 09:02:59 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10806 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727263AbgKFOC7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Nov 2020 09:02:59 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A6E1Lpt076369;
-        Fri, 6 Nov 2020 09:02:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=vEsnfnljgi10FY8f+eHuNuFVn88s5gBhJUyG0fD/nvM=;
- b=qC+VvwjkvSPSyUkcaxrOXwklUgAONd1oFup45bl20X7ezHL0syEMLg42fld+SAcqf2es
- s1L40QkRYW1iQ9jETB6Fxh/x/5CX7IIr7ILEnBO+hfo6gVl38BAB1cT5v+rJmizrxOo+
- 6iQGFxfzrmehMvHemaW/u7b9d94l4VIVhNqIPwqI835AVfbCRKeUIwYLH6bb2Prxb9V2
- DbvJlwP9sGra4craf1+UzhsN3AzqWU0wZVKgP1GPKZrGvvDBpoREv2iKlF1JLnK8y45m
- OZYh1hl5NwtF8ZgELIFg8/4qoBAfgbFHEkuSv7shL66HJgQphNyoNziHkklwkkMi7zGt dg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34m7rev8ej-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Nov 2020 09:02:48 -0500
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0A6E1kOh077657;
-        Fri, 6 Nov 2020 09:02:13 -0500
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34m7rev81f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Nov 2020 09:02:13 -0500
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A6E1qbs015211;
-        Fri, 6 Nov 2020 14:01:52 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 34hm6hdtqj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Nov 2020 14:01:51 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A6E1n8b65339700
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 6 Nov 2020 14:01:49 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A4355AE04D;
-        Fri,  6 Nov 2020 14:01:49 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8C2B5AE045;
-        Fri,  6 Nov 2020 14:01:46 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.77.67])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  6 Nov 2020 14:01:46 +0000 (GMT)
-Message-ID: <bef97a69db37d358db21668b179fd8821430b1b4.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 5/7] IMA: validate supported kernel data sources
- before measurement
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Fri, 06 Nov 2020 09:01:45 -0500
-In-Reply-To: <20201101222626.6111-6-tusharsu@linux.microsoft.com>
-References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
-         <20201101222626.6111-6-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-06_04:2020-11-05,2020-11-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015 mlxscore=0
- impostorscore=0 priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011060101
+        id S1727612AbgKFPXA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Nov 2020 10:23:00 -0500
+Received: from mail.rosalinux.ru ([195.19.76.54]:51242 "EHLO mail.rosalinux.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727605AbgKFPXA (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 6 Nov 2020 10:23:00 -0500
+X-Greylist: delayed 599 seconds by postgrey-1.27 at vger.kernel.org; Fri, 06 Nov 2020 10:22:58 EST
+Received: from localhost (localhost [127.0.0.1])
+        by mail.rosalinux.ru (Postfix) with ESMTP id 46518DA413D25;
+        Fri,  6 Nov 2020 18:12:58 +0300 (MSK)
+Received: from mail.rosalinux.ru ([127.0.0.1])
+        by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id zZZWS39NdJUO; Fri,  6 Nov 2020 18:12:57 +0300 (MSK)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.rosalinux.ru (Postfix) with ESMTP id CB77EDA4580C6;
+        Fri,  6 Nov 2020 18:12:57 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.rosalinux.ru CB77EDA4580C6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosalinux.ru;
+        s=A1AAD92A-9767-11E6-A27F-AC75C9F78EF4; t=1604675577;
+        bh=Ui8SloZuOqfppbuiT2A/TkSHVxDlEW+r7SCbL3jNjCE=;
+        h=To:From:Message-ID:Date:MIME-Version;
+        b=K0NWZ6kQOOqaEYan4orujB3fPC6pRIFauqVX8kXTtZcOYKOrtNqN2ivZXMd1oV/ME
+         eqeC4X41QsTRjlo8i6Pej5U6aaVB1C0aK59givGtdZ/N01on0woIbsd+//oKRSpyQX
+         INZb47OSINiaKA8OuRDX8Nb8zvjmHw37NTazyCRGTLxiXe0TTtue7yNEMiT25ong5h
+         O0cs2pY0riQ1g6bKkLEBtSV+/FuRxB7nYW+zalmdMeoqs8QqOuI2X9bvlVVCSNpIpi
+         8xIIqjNOCEMTm4TngQn4a70q5JXFHBsr9iIh9B2BAvEBY4HmtBQ5cCb4yNZTqA/TQE
+         3zg5P+PBgXr8g==
+X-Virus-Scanned: amavisd-new at rosalinux.ru
+Received: from mail.rosalinux.ru ([127.0.0.1])
+        by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id n9qkarrnGy5H; Fri,  6 Nov 2020 18:12:57 +0300 (MSK)
+Received: from [192.168.1.173] (broadband-90-154-71-72.ip.moscow.rt.ru [90.154.71.72])
+        by mail.rosalinux.ru (Postfix) with ESMTPSA id 6E77DD989FE20;
+        Fri,  6 Nov 2020 18:12:57 +0300 (MSK)
+Subject: Re: Selinux policy for x509_ima.der public certificate loaded by
+ kernel during boot
+To:     rishi gupta <gupt21@gmail.com>,
+        linux-integrity <linux-integrity@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org, selinux@vger.kernel.org
+References: <CALUj-gt8KD4Cc-zgvXP-8vNdR3RB_Sdx7yd2cv7GX_wBCM6gEQ@mail.gmail.com>
+From:   Mikhail Novosyolov <m.novosyolov@rosalinux.ru>
+Message-ID: <28afd683-8423-0331-4b7d-ec71d46be30c@rosalinux.ru>
+Date:   Fri, 6 Nov 2020 18:12:56 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <CALUj-gt8KD4Cc-zgvXP-8vNdR3RB_Sdx7yd2cv7GX_wBCM6gEQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: ru-RU
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tushar,
-
-On Sun, 2020-11-01 at 14:26 -0800, Tushar Sugandhi wrote:
-> Currently, IMA does not restrict random data sources from measuring
-> their data using ima_measure_critical_data(). Any kernel data source can
-> call the function, and it's data will get measured as long as the input
-> event_data_source is part of the IMA policy - CRITICAL_DATA+data_sources.
-> 
-> To ensure that only data from supported sources are measured, the kernel
-> subsystem name needs to be added to a compile-time list of supported
-> sources (an "allowed list of components"). IMA then validates the input
-> parameter - "event_data_source" passed to ima_measure_critical_data()
-> against this allowed list at run-time.
-> 
-> This compile-time list must be updated when kernel subsystems are
-> updated to measure their data using IMA.
-> 
-> Provide an infrastructure for kernel data sources to be added to
-> IMA's supported data sources list at compile-time. Update
-> ima_measure_critical_data() to validate, at run-time, that the data
-> source is supported before measuring the data coming from that source.
-
-For those interested in limiting which critical data to measure, the
-"data sources" IMA policy rule option already does that.   Why is this
-needed?
-
-thanks,
-
-Mimi
-
+06.11.2020 15:22, rishi gupta =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> I am getting below error as selinux is denying access to the .ima
+> keyring. Looking for guidance for asymmetric public key selinux
+> policy.
+>
+> [  172.014855] integrity: Request for unknown key 'id:87deb3bf' err -13
+I am getting the same error without selinux.
+>
+> [  172.015035] audit: type=3D1800 audit(1604596570.579:240): pid=3D825
+> uid=3D1021 auid=3D4294967295 ses=3D4294967295
+> subj=3Dsystem_u:system_r:mydaemon_t:s0-s15:c0.c1023 op=3D"appraise_data=
+"
+> cause=3D"invalid-signature" comm=3D"mydaemon"
+> name=3D"/usr/lib/libstdc++.so.6.0.25" dev=3D"ubifs" ino=3D14353 res=3D0
+Selinux context is just logged here. It has nothing to do with reasons of=
+ ivalid signature. Public key seems to be not loaded.
+>
+> (a) Do I need to set the selinux context of file
+> /etc/keys/x509_ima.der. If yes what it should be.
+> (b) Do I need to set some selinux rule for .ima keyring. If yes how. I
+> tried a lot but could not find any resource.
+Usually IMA policy is loaded before SELinux policy I think
+>
+> Regards,
+> Rishi
