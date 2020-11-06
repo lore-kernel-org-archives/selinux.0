@@ -2,165 +2,155 @@ Return-Path: <SRS0=8IdP=EM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03FB9C2D0A3
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 04:13:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3980C5517A
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 08:48:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 92883206F7
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 04:13:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CE4D208B3
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 08:48:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="qYd+pyRg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KsA+VOH9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725925AbgKFENK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Nov 2020 23:13:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60434 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725868AbgKFENK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Nov 2020 23:13:10 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C112DC0613CF
-        for <selinux@vger.kernel.org>; Thu,  5 Nov 2020 20:13:09 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id w13so11754eju.13
-        for <selinux@vger.kernel.org>; Thu, 05 Nov 2020 20:13:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=H6+Mj5/s0x+9jvur9pI/fslwnvDF8FHVTNb+rCQYGGc=;
-        b=qYd+pyRgWjeeoUCLfOggoxpppYDmQ4tTL3lZ+fq0qkh9buakTDpzeUMwkuYUZciVjC
-         gH7hVqxFJH1c/d7Yek40XbRBfY9tw2VOeU6IqU/VFKQLUT+BrjSkRgyLJLLIlebSQyiF
-         KLT8DvStVVrZj8miksEKEY3gOcdX6ji6IzwMRpGbXo8Smp8yvKQcNi8xC4TbtR1/BF/e
-         kmamG56cK+8DLKpomqKfhP5nrDAAgER2cB2/TU7FVOUKN9/5cUXYly5q4+z2Uxe3xkLN
-         GswxA6Yv4XSc71pBNUca2YgtAGH4d9NMDKEGdtNgXnvq4lrAXydw3U3iUVRz3nqTNTqc
-         uVUw==
+        id S1725848AbgKFIsN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Nov 2020 03:48:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36764 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726595AbgKFIsM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Nov 2020 03:48:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1604652490;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=akNSdNvLPnnajx6jK7BPQwI/2jOuawxzop+hGDzWRkM=;
+        b=KsA+VOH9Bgsscgx7m+f6splc3YR4vpTxzBmyYx4WGEKGBpEj8rt3RR9VtFBQefq8XATYjj
+        PXEYapJWxPCEQXgJ9r/go8rJIfcVeOvYaN1fhpEsEIphDxZ9JCmNytdw3FzD4iR0RU3tTh
+        j8dzy5m1USNXfoHOpwU3klo29YadVxw=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-391-HSEZkaG-N_2WInldSjp7Ow-1; Fri, 06 Nov 2020 03:48:05 -0500
+X-MC-Unique: HSEZkaG-N_2WInldSjp7Ow-1
+Received: by mail-lj1-f197.google.com with SMTP id m11so156537ljp.21
+        for <selinux@vger.kernel.org>; Fri, 06 Nov 2020 00:48:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=H6+Mj5/s0x+9jvur9pI/fslwnvDF8FHVTNb+rCQYGGc=;
-        b=uOcShOw0DHDbSZ0IeALf+Ab3tBXApU6M5cYR9fjSTkzFC73TXKrGpdp4SiLUn1ck2d
-         9g47YJx5vFTgdrTcvgljmidpR5rAZZw5glSstwE8sdCORI+ombur5GF0KMyCwMM6nZ4/
-         OJHdW+GSdvU4BNSC59X4YvGRmeWy4yXQ3NbpZClGvvfHxEQ7K3I3X3uDPxFCA2ObYeNQ
-         DNmtAbBsUKCa2U0jHhLfWWorWNMmft3Yte2w+wvewDQnifGiDMZ7Tjuk8KniCL8x2pZ8
-         1JWQMgrh+cMNGR3nkrv5FdKuVMD2lRK10E3WBAwPEP2FJUY8SDvko18KtGc161Ca3Tmq
-         zJ5g==
-X-Gm-Message-State: AOAM530M25IZtugJaNH0fVuiTbZdGu+bwRBgTPpDEOmIKvAABXcoctbX
-        ylzIRRVFaaKhgBQQDJ1MnUcnUorDMUrj5DE7qP5/n3CwNA==
-X-Google-Smtp-Source: ABdhPJwsHJXT2rDk+AZspAvUH9kDsCd7scjc/X+7KAf9CP4i5niPHEwFqI4yq+4uEA3uEFO+iZEW37jcyCjY7sKhsRY=
-X-Received: by 2002:a17:906:cb0f:: with SMTP id lk15mr135043ejb.431.1604635988347;
- Thu, 05 Nov 2020 20:13:08 -0800 (PST)
+        bh=akNSdNvLPnnajx6jK7BPQwI/2jOuawxzop+hGDzWRkM=;
+        b=lZ4Yq7v1FRUjQSp6SwbH218lTs0Ps1M/qI3DZFdB/aWBNIAmlqV5zhOS9skMQogsm1
+         BFoHLgyZKvJDq6Fx9dIENPNsT7PJZf4qjhMnTYoJou1AQDp3iS/7g9Xe95+q5ri3993U
+         +9Wmz2WYpI2wd1FHphoLOYPXyVhRFWWst8G0TsBWY81mkAuUg6aqLxd4A8R4Mhv76nDU
+         4LwDtwlM+t+x/d/bsRqEVgVae8qaHmxCuWwu8S3ETGwAMPFZ2X5HehQhPvTc8HaPpRgU
+         hSQLx68rc/RqwnmTpxpQV1rDk4+BScJtdmVRWTKu0yFv6m2jSbIPs9Vd6/FEjm3yGXGK
+         5jtw==
+X-Gm-Message-State: AOAM5324SILG8QpZgM46Hq/pou4MBouFmKT10I43Zm6tE+2DaXdDPg0D
+        XKzaifKEcZyMTi9vZDVwaVZWNpLd+VtShgwfYzCZ8ekNuj7xg4v4WVTA32IudA9ShreFEK9wnol
+        8vvUthWt7d7lsPiKe3tW37hNVRvKk7XEJJA==
+X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr507822lff.9.1604652483636;
+        Fri, 06 Nov 2020 00:48:03 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzUGOpMljmh9ttPjJshD7XF2AeyO2HqMimeS7o20BfFzJyAmw5u7Z8/Y7W1f0mR/F+EyQw5J0yQx+O1gryn/Bw=
+X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr507813lff.9.1604652483406;
+ Fri, 06 Nov 2020 00:48:03 -0800 (PST)
 MIME-Version: 1.0
-References: <CAFqZXNvT=G4HPiugi6vnnJMGLgv5MsumURQij0cnFjLrnXZ93Q@mail.gmail.com>
- <CAEjxPJ7cwBpLGoTmzGOUJFq5QuFCHG+xydiGYAtk2hV0d8ww3g@mail.gmail.com>
- <CAHC9VhQZGM2XW5=durZRb-gapsu+bUu_45JegmsOxcGEgThL6g@mail.gmail.com>
- <CAFqZXNvgQ5s50JS0_s1wEUONo2nzc2=_rufKxmWqQ=hhz8_T-A@mail.gmail.com> <CAEjxPJ6d4VN7TfJXMT-RGtZ=_rje_=27T5XhXrt9iRdvQuVCdw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6d4VN7TfJXMT-RGtZ=_rje_=27T5XhXrt9iRdvQuVCdw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 5 Nov 2020 23:12:56 -0500
-Message-ID: <CAHC9VhTwA8MS5_smPux07bbr0vNj1iWrm0Ywm=7M8TEU3k9j3A@mail.gmail.com>
-Subject: Re: Possibly unwanted rootcontext= behavior?
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+References: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
+ <20201105173328.2539-2-olga.kornievskaia@gmail.com> <CAFqZXNtjMEF0LO4vtEmcgwydbWfUS36d8g24J6C-NDXORYbEJg@mail.gmail.com>
+ <CAN-5tyF+cLpmT=rwAYvQQ445tjFKZtGq+Qzf6rDGg8COPpFRwA@mail.gmail.com>
+ <a96c14c0f86ec274d5bdc255050ae71238bb43fe.camel@hammerspace.com> <CAN-5tyHc_fjDXwUngqVshB0Z7SzhAqjkXP7E=-k4sAPbfRwMmQ@mail.gmail.com>
+In-Reply-To: <CAN-5tyHc_fjDXwUngqVshB0Z7SzhAqjkXP7E=-k4sAPbfRwMmQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 6 Nov 2020 09:47:52 +0100
+Message-ID: <CAFqZXNu2cGC0Ub6E_b7cSY+JDk38hZt2mn7995S-1zA4Am62BA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] NFSv4.2: condition READDIR's mask for security label
+ based on LSM state
+To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Cc:     Trond Myklebust <trondmy@hammerspace.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 5, 2020 at 12:28 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Nov 5, 2020 at 12:22 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > On Thu, Nov 5, 2020 at 4:31 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Thu, Nov 5, 2020 at 8:51 AM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > On Thu, Nov 5, 2020 at 7:44 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > >
-> > > > > Hello everyone,
-> > > > >
-> > > > > while trying to fix the NFS rootcontext= issue, I realized that this
-> > > > > funny thing is possible:
-> > > > >
-> > > > > # mount -o rootcontext=system_u:object_r:lib_t:s0 -t tmpfs tmpfs /mnt
-> > > > > # ls -lZd /mnt
-> > > > > drwxrwxrwt. 2 root root system_u:object_r:lib_t:s0 40 nov  5 07:30 /mnt
-> > > > > # mount
-> > > > > [...]
-> > > > > tmpfs on /mnt type tmpfs
-> > > > > (rw,relatime,rootcontext=system_u:object_r:lib_t:s0,seclabel)
-> > > > > # chcon -t bin_t /mnt
-> > > > > # ls -lZd /mnt
-> > > > > drwxrwxrwt. 2 root root system_u:object_r:bin_t:s0 40 nov  5 07:30 /mnt
-> > > > > # mount
-> > > > > [...]
-> > > > > tmpfs on /mnt type tmpfs
-> > > > > (rw,relatime,rootcontext=system_u:object_r:bin_t:s0,seclabel)
-> > > > >
-> > > > > I.e. if you mount a tree with rootcontext=<oldctx> and then relabel
-> > > > > the root node to <newctx>, the displayed mount options will report
-> > > > > rootcontext=<newctx> instead of rootcontext=<oldctx>. A side effect is
-> > > > > that if you try to mount the same superblock again, it will only
-> > > > > permit you to mount with rootcontext=<newctx>, not with
-> > > > > rootcontext=<oldctx>.
-> > > > >
-> > > > > Is that intended, bad, or "weird, but doesn't matter" behavior?
-> > > >
-> > > > I'd say it is bad.
-> > > >
-> > > > > I have a halfway written patch to disallow altering the root node's
-> > > > > context when mounted with rootcontext=, but I'm not sure if that's the
-> > > > > right thing to do or not.
-> > > >
-> > > > Probably the better fix would be to save the original rootcontext SID
-> > > > as a new field of the
-> > > > superblock security struct and use that both when displaying the mount
-> > > > options and when
-> > > > comparing old and new mount options instead of what happens to be
-> > > > assigned to the root
-> > > > inode at the time.
-> > >
-> > > I worry that would be confusing, allowing the root inode to be
-> > > relabeled yet still showing the old label in the mount options.  It
-> > > would seem that simply blocking a root inode relabel when a
-> > > rootcontext is specified would be the cleanest choice, assuming
-> > > existing systems do not rely on this behavior.
-> > >
-> > > Ondrej, Stephen, any idea how common this is on normal systems?  My
-> > > gut feeling says "not very common", but that is just a guess.
+On Thu, Nov 5, 2020 at 10:43 PM Olga Kornievskaia
+<olga.kornievskaia@gmail.com> wrote:
+> On Thu, Nov 5, 2020 at 4:18 PM Trond Myklebust <trondmy@hammerspace.com> wrote:
 > >
-> > I don't even know what use case it's supposed to solve :) I suppose if
-> > you freshly format some storage drive and you want the root dir to be
-> > labeled immediately after mounting, rootcontext= could be useful. For
-> > such a use case Stephen's approach would make sense (you might still
-> > want to eventually relabel the root dir to something else), but there
-> > are some gotchas... For example, the label is initially set only in
-> > the inode security struct, but not written to the xattrs (I only
-> > looked at the code briefly, I could be wrong here), so you would still
-> > need to manually set the label on the root directory after mounting
-> > for the label to persist. And if you remount the superblock after
-> > changing the label, the internal label will be reset to the old one
-> > (which you are forced to specify in the mount options), but again not
-> > persistently. That's all very unintuitive.
+> > On Thu, 2020-11-05 at 14:51 -0500, Olga Kornievskaia wrote:
+> > > On Thu, Nov 5, 2020 at 1:55 PM Ondrej Mosnacek <omosnace@redhat.com>
+> > > wrote:
+> > > >
+> > > > On Thu, Nov 5, 2020 at 6:33 PM Olga Kornievskaia
+> > > > <olga.kornievskaia@gmail.com> wrote:
+> > > > > From: Olga Kornievskaia <kolga@netapp.com>
+> > > > >
+> > > > > Currently, the client will always ask for security_labels if the
+> > > > > server
+> > > > > returns that it supports that feature regardless of any LSM
+> > > > > modules
+> > > > > (such as Selinux) enforcing security policy. This adds
+> > > > > performance
+> > > > > penalty to the READDIR operation.
+> > > > >
+> > > > > Instead, query the LSM module to find if anything is enabled and
+> > > > > if not, then remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
+> > > >
+> > > > Having spent some time staring at some of the NFS code very
+> > > > recently,
+> > > > I can't help but suggest: Would it perhaps be enough to decide
+> > > > whether
+> > > > to ask for labels based on (NFS_SB(dentry->d_sb)->caps &
+> > > > NFS_CAP_SECURITY_LABEL)? It is set when mounting the FS iff some
+> > > > LSM
+> > > > confirms via the security_sb_*_mnt_opts() hook that it wants the
+> > > > filesystem to give it labels (or at least that's how I interpret
+> > > > the
+> > > > cryptic name) [1]. It's just a shot in the dark, but it seems to
+> > > > fit
+> > > > this use case.
+> > > >
+> > > > [1]
+> > > > https://elixir.bootlin.com/linux/v5.10-rc2/source/fs/nfs/getroot.c#L148
+> > >
+> > > Very interesting. I was not aware of something like that nor was it
+> > > mentioned when I asked on the selinux mailing list. I wonder if this
+> > > is a supported feature that will always stay? In that case, NFS
+> > > wouldn't need the extra hook that was added for this series. I will
+> > > try this out and report back.
 > >
-> > So, IMHO, good ways to fix it are either disallowing changing the
-> > label altogether, or making sure the label is propagated to the xattrs
-> > (if supported) and allowing to remount with a different rootcontext=
-> > option (or with no rootcontext). But that's only if I guessed the use
-> > case correctly.
+> > NFS_CAP_SECURITY_LABEL is just the NFS server capability flag. It tells
+> > you whether or not the client believes that the server might support
+> > NFSv4.2 requests for labelled NFS metadata.
+> >
+> > My understanding of Olga's requirement is that she needs to be able to
+> > ignore that flag and simply not query for labelled NFS metadata if the
+> > NFS client is not configured to enforce the LSM policy. The objective
+> > is to avoid unnecessary RPC traffic to the server to query for data
+> > that is unused.
 >
-> I think the original use case was primarily tmpfs mounts, so that e.g.
-> one could mount a tmpfs on /dev that is immediately labeled with
-> device_t.
+> Actually that seems to be working. I think it's because while the
+> server returns that it supports sec_labels, after calling
+> security_sb_set_mnt_opts() the kflags_out don't have this
+> SECURITY_LSM_NATIVE_LABELS set (assuming this happens because selinux
+> isn't enabled) then we turned server's sec_labl cap off.
 >
-> Not fundamentally opposed to preventing relabeling afterward but
-> always possible that could break existing userspace somewhere.
+> I'm about to send v2 without relying on modifications to selinux.
 
-I'd be curious to see what sort of breakage, if any, we might see if
-we blocked the relabel when rootcontext is in use.  Ondrej, any chance
-you can finish that patch enough to do some basic testing?
+Just to keep the LSM and SELinux lists in the loop: a v2 has been
+posted to linux-nfs that uses NFS_CAP_SECURITY_LABEL instead of adding
+a new hook:
+https://lore.kernel.org/linux-nfs/CAFqZXNtJ2fkae7Xt-+nDR79kVs=yY=9vSoZaS-V-5UKSk22s4A@mail.gmail.com/T/
 
 -- 
-paul moore
-www.paul-moore.com
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
