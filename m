@@ -2,99 +2,111 @@ Return-Path: <SRS0=8IdP=EM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D811BC2D0A3
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 17:46:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3316C2D0A3
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 22:16:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 91CE1217A0
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 17:46:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604684814;
-	bh=4o77fqFuBZvPiDYAW30olp6av5R3X4/iv+z7vMt50bA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=DCIHvyp7n4BybmYfefBoh1Q0ijkznE6rHkZKij909eg9UrRmPJ/fnlcdWUpa2Gzqb
-	 lMQcwjiLYbB7Qt6K7MKFYeOgJvi6H+4G9LofHEaXVn0uCu57Q1gLa3qD5r0arPiem9
-	 l81ljal+8Cz8ex4BrsQJNeOeKgICxSqU8CiZSCWI=
+	by mail.kernel.org (Postfix) with ESMTP id DCD5D20882
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 22:16:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=rosalinux.ru header.i=@rosalinux.ru header.b="epSn7RlO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727458AbgKFRqv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Nov 2020 12:46:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
+        id S1728594AbgKFWQA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Nov 2020 17:16:00 -0500
+Received: from mail.rosalinux.ru ([195.19.76.54]:35534 "EHLO mail.rosalinux.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726010AbgKFRqu (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 6 Nov 2020 12:46:50 -0500
-Received: from sol.localdomain (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96A4B2151B;
-        Fri,  6 Nov 2020 17:46:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604684810;
-        bh=4o77fqFuBZvPiDYAW30olp6av5R3X4/iv+z7vMt50bA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CQIkI1axVORa3PbPPE/4evBmU3xr79YrxNJvILQKc/9EgpD9wzoUDOapCBTSofz8d
-         QTqdPdkByflxlpoDy7egZoLU3F+pdjtbXKtt1GrCGC8o6QSm1KNHnghF5FZ0wdAksW
-         zEtsWWIH2jOZoshKVrojhTsdCy2J+fHU63gXVUz0=
-Date:   Fri, 6 Nov 2020 09:46:47 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Lokesh Gidra <lokeshgidra@google.com>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Cedeno <thomascedeno@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        kaleshsingh@google.com, calin@google.com, surenb@google.com,
-        nnk@google.com, jeffv@google.com, kernel-team@android.com,
-        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
-        hch@infradead.org, Daniel Colascione <dancol@google.com>
-Subject: Re: [PATCH v12 2/4] fs: add LSM-supporting anon-inode interface
-Message-ID: <20201106174647.GC845@sol.localdomain>
-References: <20201106155626.3395468-1-lokeshgidra@google.com>
- <20201106155626.3395468-3-lokeshgidra@google.com>
+        id S1728131AbgKFWP7 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 6 Nov 2020 17:15:59 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.rosalinux.ru (Postfix) with ESMTP id CE212DB8EE21B;
+        Sat,  7 Nov 2020 01:15:55 +0300 (MSK)
+Received: from mail.rosalinux.ru ([127.0.0.1])
+        by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id hopWbOV1vp0F; Sat,  7 Nov 2020 01:15:55 +0300 (MSK)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.rosalinux.ru (Postfix) with ESMTP id 39947DB8EE204;
+        Sat,  7 Nov 2020 01:15:55 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.rosalinux.ru 39947DB8EE204
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosalinux.ru;
+        s=A1AAD92A-9767-11E6-A27F-AC75C9F78EF4; t=1604700955;
+        bh=Ue6ZRRrBPjLGXdUu0xLub/SlWb78cpWnaDjMIMfLwtY=;
+        h=To:From:Message-ID:Date:MIME-Version;
+        b=epSn7RlOjWUtFh7BHOK1XvN0CObN775w+8XVtsGUayqKCgKwhZRthfZKOGGSbF3S/
+         IAgkLGfnDSZrqK6AZGsKQFBMDcoYtLyWEQOyeB7ff1K/kK9um3C5M6pA2bxTa3XZQu
+         /0LCBQHDJ0Z5UXIudPIVMbGuZmcMMVcJw3fSweCkTXFznw4neYgsQ5Xj+B1QEB5aMl
+         7y83QiolwCudSIkFBKL+7YQD/AFKngOm6oxnJ1BDZQkEirTu1kx5PVYpD+How10b4M
+         Bq77WCz9PumvMTzB/EtdKJREXjJm1slBjSmiYTN2fj86aAwS4/Sqxc5rwwrKPzNeDv
+         TIbzG5r6Wzpfg==
+X-Virus-Scanned: amavisd-new at rosalinux.ru
+Received: from mail.rosalinux.ru ([127.0.0.1])
+        by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id IvHGINrad3MD; Sat,  7 Nov 2020 01:15:55 +0300 (MSK)
+Received: from [192.168.1.173] (broadband-90-154-71-72.ip.moscow.rt.ru [90.154.71.72])
+        by mail.rosalinux.ru (Postfix) with ESMTPSA id C71ACDB8D6477;
+        Sat,  7 Nov 2020 01:15:54 +0300 (MSK)
+Subject: Re: Selinux policy for x509_ima.der public certificate loaded by
+ kernel during boot
+To:     rishi gupta <gupt21@gmail.com>
+Cc:     linux-integrity <linux-integrity@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org, selinux@vger.kernel.org
+References: <CALUj-gt8KD4Cc-zgvXP-8vNdR3RB_Sdx7yd2cv7GX_wBCM6gEQ@mail.gmail.com>
+ <28afd683-8423-0331-4b7d-ec71d46be30c@rosalinux.ru>
+ <CALUj-gtyVJ9nLYWYbX2Oa9=dcCYqc2H0RkO4HQcJKj2ejAfSYg@mail.gmail.com>
+From:   Mikhail Novosyolov <m.novosyolov@rosalinux.ru>
+Message-ID: <bdd1becf-c72d-876a-cd9b-cef7b6fe55e9@rosalinux.ru>
+Date:   Sat, 7 Nov 2020 01:15:54 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201106155626.3395468-3-lokeshgidra@google.com>
+In-Reply-To: <CALUj-gtyVJ9nLYWYbX2Oa9=dcCYqc2H0RkO4HQcJKj2ejAfSYg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: ru-RU
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 06, 2020 at 07:56:24AM -0800, Lokesh Gidra wrote:
-> +/**
-> + * Like anon_inode_getfd(), but creates a new !S_PRIVATE anon inode rather than
-> + * reuse the singleton anon inode, and call the anon_init_security_anon() LSM
-> + * hook. This allows the inode to have its own security context and for a LSM
 
-"call the anon_init_security_anon() LSM hook" =>
-"calls the inode_init_security_anon() LSM hook".
-
-Otherwise this patch looks okay.  Feel free to add:
-
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-
-- Eric
+06.11.2020 18:50, rishi gupta =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> On Fri, Nov 6, 2020 at 8:42 PM Mikhail Novosyolov
+> <m.novosyolov@rosalinux.ru> wrote:
+>> 06.11.2020 15:22, rishi gupta =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>>> I am getting below error as selinux is denying access to the .ima
+>>> keyring. Looking for guidance for asymmetric public key selinux
+>>> policy.
+>>>
+>>> [  172.014855] integrity: Request for unknown key 'id:87deb3bf' err -=
+13
+>> I am getting the same error without selinux.
+> If I make selinux permissive, it works for me. So I know in my case
+> the problem is selinux.
+>>> [  172.015035] audit: type=3D1800 audit(1604596570.579:240): pid=3D82=
+5
+>>> uid=3D1021 auid=3D4294967295 ses=3D4294967295
+>>> subj=3Dsystem_u:system_r:mydaemon_t:s0-s15:c0.c1023 op=3D"appraise_da=
+ta"
+>>> cause=3D"invalid-signature" comm=3D"mydaemon"
+>>> name=3D"/usr/lib/libstdc++.so.6.0.25" dev=3D"ubifs" ino=3D14353 res=3D=
+0
+>> Selinux context is just logged here. It has nothing to do with reasons=
+ of ivalid signature. Public key seems to be not loaded.
+> Basically when we access a file, driver checks if selinux allow access
+> to it or not. In my case this function is returning -EACCES
+> https://github.com/torvalds/linux/blob/master/security/keys/permission.=
+c#L88
+>>> (a) Do I need to set the selinux context of file
+>>> /etc/keys/x509_ima.der. If yes what it should be.
+>>> (b) Do I need to set some selinux rule for .ima keyring. If yes how. =
+I
+>>> tried a lot but could not find any resource.
+>> Usually IMA policy is loaded before SELinux policy I think
+> I am using the policy defined in ima_policy driver as of now. My kernel=
+ is 4.14.
+What is "ima_policy driver"? How does selinux and IMA policies get loaded=
+ on your system?
+>>> Regards,
+>>> Rishi
