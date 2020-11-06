@@ -2,155 +2,178 @@ Return-Path: <SRS0=8IdP=EM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3980C5517A
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 08:48:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B865AC55179
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 12:11:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CE4D208B3
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 08:48:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59F05206B6
+	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 12:11:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KsA+VOH9"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W7yDACQi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725848AbgKFIsN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Nov 2020 03:48:13 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36764 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726595AbgKFIsM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Nov 2020 03:48:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604652490;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=akNSdNvLPnnajx6jK7BPQwI/2jOuawxzop+hGDzWRkM=;
-        b=KsA+VOH9Bgsscgx7m+f6splc3YR4vpTxzBmyYx4WGEKGBpEj8rt3RR9VtFBQefq8XATYjj
-        PXEYapJWxPCEQXgJ9r/go8rJIfcVeOvYaN1fhpEsEIphDxZ9JCmNytdw3FzD4iR0RU3tTh
-        j8dzy5m1USNXfoHOpwU3klo29YadVxw=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-391-HSEZkaG-N_2WInldSjp7Ow-1; Fri, 06 Nov 2020 03:48:05 -0500
-X-MC-Unique: HSEZkaG-N_2WInldSjp7Ow-1
-Received: by mail-lj1-f197.google.com with SMTP id m11so156537ljp.21
-        for <selinux@vger.kernel.org>; Fri, 06 Nov 2020 00:48:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=akNSdNvLPnnajx6jK7BPQwI/2jOuawxzop+hGDzWRkM=;
-        b=lZ4Yq7v1FRUjQSp6SwbH218lTs0Ps1M/qI3DZFdB/aWBNIAmlqV5zhOS9skMQogsm1
-         BFoHLgyZKvJDq6Fx9dIENPNsT7PJZf4qjhMnTYoJou1AQDp3iS/7g9Xe95+q5ri3993U
-         +9Wmz2WYpI2wd1FHphoLOYPXyVhRFWWst8G0TsBWY81mkAuUg6aqLxd4A8R4Mhv76nDU
-         4LwDtwlM+t+x/d/bsRqEVgVae8qaHmxCuWwu8S3ETGwAMPFZ2X5HehQhPvTc8HaPpRgU
-         hSQLx68rc/RqwnmTpxpQV1rDk4+BScJtdmVRWTKu0yFv6m2jSbIPs9Vd6/FEjm3yGXGK
-         5jtw==
-X-Gm-Message-State: AOAM5324SILG8QpZgM46Hq/pou4MBouFmKT10I43Zm6tE+2DaXdDPg0D
-        XKzaifKEcZyMTi9vZDVwaVZWNpLd+VtShgwfYzCZ8ekNuj7xg4v4WVTA32IudA9ShreFEK9wnol
-        8vvUthWt7d7lsPiKe3tW37hNVRvKk7XEJJA==
-X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr507822lff.9.1604652483636;
-        Fri, 06 Nov 2020 00:48:03 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzUGOpMljmh9ttPjJshD7XF2AeyO2HqMimeS7o20BfFzJyAmw5u7Z8/Y7W1f0mR/F+EyQw5J0yQx+O1gryn/Bw=
-X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr507813lff.9.1604652483406;
- Fri, 06 Nov 2020 00:48:03 -0800 (PST)
-MIME-Version: 1.0
-References: <20201105173328.2539-1-olga.kornievskaia@gmail.com>
- <20201105173328.2539-2-olga.kornievskaia@gmail.com> <CAFqZXNtjMEF0LO4vtEmcgwydbWfUS36d8g24J6C-NDXORYbEJg@mail.gmail.com>
- <CAN-5tyF+cLpmT=rwAYvQQ445tjFKZtGq+Qzf6rDGg8COPpFRwA@mail.gmail.com>
- <a96c14c0f86ec274d5bdc255050ae71238bb43fe.camel@hammerspace.com> <CAN-5tyHc_fjDXwUngqVshB0Z7SzhAqjkXP7E=-k4sAPbfRwMmQ@mail.gmail.com>
-In-Reply-To: <CAN-5tyHc_fjDXwUngqVshB0Z7SzhAqjkXP7E=-k4sAPbfRwMmQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 6 Nov 2020 09:47:52 +0100
-Message-ID: <CAFqZXNu2cGC0Ub6E_b7cSY+JDk38hZt2mn7995S-1zA4Am62BA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] NFSv4.2: condition READDIR's mask for security label
- based on LSM state
-To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
-Cc:     Trond Myklebust <trondmy@hammerspace.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1727260AbgKFMLR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Nov 2020 07:11:17 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42342 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726317AbgKFMLR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Nov 2020 07:11:17 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0A6C1tuZ058470;
+        Fri, 6 Nov 2020 07:11:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=bTgdsaXV0EvD4DnZF92Jqq7UrIodW4TVzld1IYi9XPM=;
+ b=W7yDACQiXSojO9Q+33wNkbZjJ0eVExiKYww/JHkCR1AmBh7mjfwiFAp34+wb1HRyPJRx
+ ntR5HWwFMhMI8SqYKsbntFoe73ees3Cbl7CMQ/asXAn36EUDfanJhss0WKaK9/3jcoGB
+ VgL4/s93ER0EVAHpUw8pmDZnDVnoUEiuyCQjb7kkDKIJysYbNvbn4bw8Oo5SRul6rXGW
+ Qu8KQLgrpyoWIT9yvbiv26ftsydYAvZhPa4HAATWi9/rGQuPORVJ8Gbg7X7q71bkW1hH
+ uumdJb6cZ3HYs+fBqef2F5+iz9kFl5WeIqYIb+siaC00CCrdCXuJVQzgyrO54RjKo1eH EA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34mnucbv2u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Nov 2020 07:11:11 -0500
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0A6C21Yb059071;
+        Fri, 6 Nov 2020 07:11:11 -0500
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34mnucbv1f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Nov 2020 07:11:10 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0A6Bx4hM015466;
+        Fri, 6 Nov 2020 12:11:08 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 34h0f6uart-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Nov 2020 12:11:08 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0A6CB61H59441418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 6 Nov 2020 12:11:06 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 05B3642041;
+        Fri,  6 Nov 2020 12:11:06 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 515B142045;
+        Fri,  6 Nov 2020 12:11:02 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.77.67])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  6 Nov 2020 12:11:02 +0000 (GMT)
+Message-ID: <811fbc4a6f4bd02c77518bd4196d354071145f3e.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 2/7] IMA: update process_buffer_measurement to
+ measure buffer hash
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
+        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
+        paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Date:   Fri, 06 Nov 2020 07:11:01 -0500
+In-Reply-To: <20201101222626.6111-3-tusharsu@linux.microsoft.com>
+References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
+         <20201101222626.6111-3-tusharsu@linux.microsoft.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-06_03:2020-11-05,2020-11-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 spamscore=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 clxscore=1015 bulkscore=0 mlxscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2011060085
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 5, 2020 at 10:43 PM Olga Kornievskaia
-<olga.kornievskaia@gmail.com> wrote:
-> On Thu, Nov 5, 2020 at 4:18 PM Trond Myklebust <trondmy@hammerspace.com> wrote:
-> >
-> > On Thu, 2020-11-05 at 14:51 -0500, Olga Kornievskaia wrote:
-> > > On Thu, Nov 5, 2020 at 1:55 PM Ondrej Mosnacek <omosnace@redhat.com>
-> > > wrote:
-> > > >
-> > > > On Thu, Nov 5, 2020 at 6:33 PM Olga Kornievskaia
-> > > > <olga.kornievskaia@gmail.com> wrote:
-> > > > > From: Olga Kornievskaia <kolga@netapp.com>
-> > > > >
-> > > > > Currently, the client will always ask for security_labels if the
-> > > > > server
-> > > > > returns that it supports that feature regardless of any LSM
-> > > > > modules
-> > > > > (such as Selinux) enforcing security policy. This adds
-> > > > > performance
-> > > > > penalty to the READDIR operation.
-> > > > >
-> > > > > Instead, query the LSM module to find if anything is enabled and
-> > > > > if not, then remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
-> > > >
-> > > > Having spent some time staring at some of the NFS code very
-> > > > recently,
-> > > > I can't help but suggest: Would it perhaps be enough to decide
-> > > > whether
-> > > > to ask for labels based on (NFS_SB(dentry->d_sb)->caps &
-> > > > NFS_CAP_SECURITY_LABEL)? It is set when mounting the FS iff some
-> > > > LSM
-> > > > confirms via the security_sb_*_mnt_opts() hook that it wants the
-> > > > filesystem to give it labels (or at least that's how I interpret
-> > > > the
-> > > > cryptic name) [1]. It's just a shot in the dark, but it seems to
-> > > > fit
-> > > > this use case.
-> > > >
-> > > > [1]
-> > > > https://elixir.bootlin.com/linux/v5.10-rc2/source/fs/nfs/getroot.c#L148
-> > >
-> > > Very interesting. I was not aware of something like that nor was it
-> > > mentioned when I asked on the selinux mailing list. I wonder if this
-> > > is a supported feature that will always stay? In that case, NFS
-> > > wouldn't need the extra hook that was added for this series. I will
-> > > try this out and report back.
-> >
-> > NFS_CAP_SECURITY_LABEL is just the NFS server capability flag. It tells
-> > you whether or not the client believes that the server might support
-> > NFSv4.2 requests for labelled NFS metadata.
-> >
-> > My understanding of Olga's requirement is that she needs to be able to
-> > ignore that flag and simply not query for labelled NFS metadata if the
-> > NFS client is not configured to enforce the LSM policy. The objective
-> > is to avoid unnecessary RPC traffic to the server to query for data
-> > that is unused.
->
-> Actually that seems to be working. I think it's because while the
-> server returns that it supports sec_labels, after calling
-> security_sb_set_mnt_opts() the kflags_out don't have this
-> SECURITY_LSM_NATIVE_LABELS set (assuming this happens because selinux
-> isn't enabled) then we turned server's sec_labl cap off.
->
-> I'm about to send v2 without relying on modifications to selinux.
+Hi Tushar,
 
-Just to keep the LSM and SELinux lists in the loop: a v2 has been
-posted to linux-nfs that uses NFS_CAP_SECURITY_LABEL instead of adding
-a new hook:
-https://lore.kernel.org/linux-nfs/CAFqZXNtJ2fkae7Xt-+nDR79kVs=yY=9vSoZaS-V-5UKSk22s4A@mail.gmail.com/T/
+Below inline are a few additional comments.
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+> index ae5da9f3339d..4485d87c0aa5 100644
+> --- a/security/integrity/ima/ima_main.c
+> +++ b/security/integrity/ima/ima_main.c
+> @@ -787,12 +787,15 @@ int ima_post_load_data(char *buf, loff_t size,
+>   * @func: IMA hook
+>   * @pcr: pcr to extend the measurement
+>   * @func_data: private data specific to @func, can be NULL.
+> + * @measure_buf_hash: if set to true - will measure hash of the buf,
+> + *                    instead of buf
+>   *
+>   * Based on policy, the buffer is measured into the ima log.
+
+Both the brief and longer function descriptions need to be updated, as
+well as the last argument description.  The last argument should be
+limited to "measure buffer hash".  How it is used could be included in
+the longer function description.  The longer function description would
+include adding the buffer data or the buffer data hash to the IMA
+measurement list and extending the PCR.  
+
+For example, 
+process_buffer_measurement - measure the buffer data or the buffer data
+hash
+
+
+>   */
+>  void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>  				const char *eventname, enum ima_hooks func,
+> -				int pcr, const char *func_data)
+> +				int pcr, const char *func_data,
+> +				bool measure_buf_hash)
+>  {
+>  	int ret = 0;
+>  	const char *audit_cause = "ENOMEM";
+> @@ -807,6 +810,8 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>  		struct ima_digest_data hdr;
+>  		char digest[IMA_MAX_DIGEST_SIZE];
+>  	} hash = {};
+> +	char digest_hash[IMA_MAX_DIGEST_SIZE];
+> +	int hash_len = hash_digest_size[ima_hash_algo];
+>  	int violation = 0;
+>  	int action = 0;
+>  	u32 secid;
+> @@ -855,6 +860,21 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>  		goto out;
+>  	}
+>  
+> +	if (measure_buf_hash) {
+> +		memcpy(digest_hash, hash.hdr.digest, hash_len);
+
+Instead of digest_hash and hash_len, consider naming the variables
+buf_hash and buf_hashlen.
+
+> +
+> +		ret = ima_calc_buffer_hash(digest_hash,
+> +					   hash_len,
+> +					   iint.ima_hash);
+
+There's no need for each variable to be on a separate line.
+
+thanks,
+
+Mimi
+
+> +		if (ret < 0) {
+> +			audit_cause = "measure_buf_hash_error";
+> +			goto out;
+> +		}
+> +
+> +		event_data.buf = digest_hash;
+> +		event_data.buf_len = hash_len;
+> +	}
+> +
+>  	ret = ima_alloc_init_template(&event_data, &entry, template);
+>  	if (ret < 0) {
+>  		audit_cause = "alloc_entry";
 
