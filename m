@@ -1,174 +1,165 @@
-Return-Path: <SRS0=8IdP=EM=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Z14I=EN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31729C2D0A3
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 23:52:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0589EC2D0A3
+	for <selinux@archiver.kernel.org>; Sat,  7 Nov 2020 00:20:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D940C2071A
-	for <selinux@archiver.kernel.org>; Fri,  6 Nov 2020 23:52:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B0A620724
+	for <selinux@archiver.kernel.org>; Sat,  7 Nov 2020 00:20:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ex4EsTrt"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ug4bFiDw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728136AbgKFXwQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Nov 2020 18:52:16 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:35246 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727257AbgKFXv5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Nov 2020 18:51:57 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 65C7C20B4905;
-        Fri,  6 Nov 2020 15:51:56 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 65C7C20B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1604706716;
-        bh=kxGG60RxNjicxicPDbW3b+qxMgL79W4w0YXfA5Y3vXU=;
-        h=Subject:From:To:Cc:References:Date:In-Reply-To:From;
-        b=ex4EsTrt+j5vt4L1eNjZYdFgpeTFKDoZ5jgR2zpjEXTnRPKKHXcfm+Ynn9jNE9hvc
-         NwVziSgFGzqJfvGTP9cytdr4U6rByB3I49bfWK3vXJZSrSfWDqjltnJgYD04Tksm/k
-         Gr8k8DbOaTjLewSUY1EooTrwSI9KK+zMWouAhXG4=
-Subject: Re: [PATCH v5 6/7] IMA: add critical_data to the built-in policy
- rules
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>,
-        Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
- <20201101222626.6111-7-tusharsu@linux.microsoft.com>
- <7219f4404bc1bed6eb090b94363c283ec3266a17.camel@linux.ibm.com>
- <cdcd63f7-ce1f-4463-f886-c36832d7a706@linux.microsoft.com>
-Message-ID: <d92869b5-7244-e29e-5d30-c0e06cf45be1@linux.microsoft.com>
-Date:   Fri, 6 Nov 2020 15:51:51 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727985AbgKGAUt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Nov 2020 19:20:49 -0500
+Received: from sonic317-39.consmr.mail.ne1.yahoo.com ([66.163.184.50]:40313
+        "EHLO sonic317-39.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727129AbgKGAUt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Nov 2020 19:20:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604708448; bh=gkd8sZ9xzVrD+FlaEZYuY9mwC0xoyx+zLvO2l5DnFXI=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=ug4bFiDwVJO9iT7xD/HlO36K9DUaeb1rqP6nilp14u3kYCJB9g6QW3CHyHDpLl4a9+6JY/hBMLZng4ihTyNb876YatQFYoValSK8FhEM7AzN8ut2n92+HR1Z04kKASatHk4002SGD1gllVKkDC31kSIMx19PaDD1/5YBQBVeKcMd8t5szckJ6vyzdPrNP2fjgmE/H7GBTnhx2jf4jJhJ11WBIlcsDR8f7Q9oY/K/3qMuWwRNcOGPHoLi0V451z0O8nhTXPj94nszWCQiBP0baslnq1715mDBAVTGcR2hZ0BqFrkcrKudiOsMg7iIhhMR2RJAL10gZ2njyRTtoVLktw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604708448; bh=Q3eO4F0+6Df77idtdx7He1NCEibMmDaZoV4ndY6Nnty=; h=Subject:To:From:Date; b=ZSijOY3H+LIWKBtRCDqXQ3eTgYjkES83hBaeYbvE7kSoEjPiSDPx2iittGVGGTYoJHPXsVzrVjoIqo1JkCI8C4q/qz69i8RyFhKpzZk/lAKoQtzCTbHZIbKvyYcEPwj4BRSzQ1dxvUnhvfxY15A0qFsYgQPEKG6PuAHqFcjKLbzeSpOykOM2nQP6Mm24mtxIA8Zfu9lU9cUrwSQlOkxKwZ98jqlk2IBIPyz6G3CTahF09FJKQes8kBu0IfhhAMxDACTAuythUrzs69L2sLBL6zPFVUqQH5JPCBYDNHa16OWIqr+hrI8uQQfDArSruSQHuPR2qONW3QgXH2Lwz3wArg==
+X-YMail-OSG: KhRms4kVM1l.WnJPcrMQ6zb0vrLwRIxCOsI7MFZ_a1KP.jp8QWGCy7Laj5HIwPv
+ TQx3K2MPBNoDKcyb3vLqQFLFPDZ_A30YM3H1kW_r9wluG12nY.Tls6pn6zfP18p2yePhkYjX7jUh
+ bKMwm91vrgQjJCk05igB7AB6sJs8c2Lmu8ddg_Q5OPHB2Cw7g3BXx6X86n7wBssHxCObf3Bg39Qm
+ rAxd4eaMmtYZpXm2EMurR2RgJ4ZBIMj5g0Sfm5J342244GV.8Hwrn2WTWvELp44hal14WefJMdhF
+ yFY6b4HwkeU5yGfeKTHalcQrJ_UxKgutHQXfwJyYZrYURtcDLB0fT5pXnYErLMycX6Ufmb4lKePl
+ DzSk2cOheveQkfVEU7i6TSRY9pYr1AAf4Ia0cA5ckSaUR650zKfYK_Cn4k_jva6TEs.xFEj457Ta
+ G3Ijzf043DtP9Pr_hxVTbUgQox3nlbQBNQLc6Em6vrzMtkeoP7uDE0V5K4vvfrcRKz3E.zUEWwEZ
+ givbpyLjQjXHXiLEGxPxqG0AFHtB5X_ym4XJYWp8Xczxox2FG3jp2KRfPHzVSfMuDNxalGPlj5KB
+ Hw4W2G6nH9vQlka0W0fHRFhsJIg3DTOiZ2NuOOtVQASf1VCx0U986tlxFAHAKBXyd_HMjP6uB652
+ 7vdFIYIj39hfqxmjw_KiYfKwEV2YrVK5Abv5AshaUp_a9cGsUVsmkd6AzhCHw54.P.oms4hqPImf
+ H.NiXBjgvFlyJn_r9nKBGAPIEp4XqPYzvyc2eDVdbxUheWg7xNyNweCFNDlsLv_qzsm5joAJrvcI
+ uLkPxSz_afGEAXk2fqJG6c4CXHUxiOvnrDqjtGtJKmlvViuKnV3oNKytGA.pW.MEWIc5bzWLfqru
+ hJxqo6Tk3bXrVy8056Pyi0N37y1dWEL65HcHJqtsgE1uEt04nb7JEZV15GulFsUpJarU37M46RKe
+ tw0FUKAfWJEABKVEZytDG9YRZ.L2FIXQynqSxM3HL9jbtGauwjIHiE1EiRI5MAc_RK464qqhOuKQ
+ ii_1euYYzrWcbuFO77ZNBSZEo9Zzf7YaYLv5Z1sfWU3fM.FqBMk1FCake1VhIbZ5RCABoTX2I_7Q
+ aFPvGemEFXd8gxmWeJmPHV84cpClpBb36aLK5uWCI5hPbS4Tv0.wXSPDxJkFQrlhGE5YCOE0yLdk
+ ZvVWaNGLR7FSt7hhMgrhrXbmn_YYOQVzy0_drEdn9Jeuz4sX2SXZaSSrSKygkwE1OWzaA4RL9XfM
+ HGJ1M8xBdjcZTgsi5fW3AoTMu9v0WJtlGvcHWJWDshhZG6.JVthQ0gfhe9F3WbOfR9JAxHnlP.68
+ G_ZSlunrTkSZAaTZ7vZTW8A15X.xG9W8fTpQkOIHFHQBPqxr6n_pt7XaNLLR0Dr81NNY8hrDRMcj
+ z0JSl00rhGmaUiCzk.OE44jzHPaXg31o144f6KhfKWQ0sNkZq1U6Y1rE8eAUjN8h7ykm83USuJr_
+ xPBaxZ70VwS_5iScjiQOBM2p2W3IrSV3F1HFHeTLEAIXPXmJGU34xybkwagaRjX6ghXxnCYrUVHS
+ dnHqkc2b5iOvxkfm0bNMeP1VuVqO16yWDdVJEqcR1tn2bCLqC6fMI5UO1LCwUycRo24xo2eHjHNM
+ N0j5n8kNHIdTZQJogZVdA5MXjuVqM_eaTl6jiv55lEkm6jzzpqWyuTm3ztijoGvTYPAjSfbRRCpp
+ TL2MJf1tkS_rTFCmI4zIAGHlTtGvxRfyVe08W9lap7YOonyCFEd_r5BFrTp4pC3seEUrdtCsHcSj
+ 50KoLa_ik9WOYEwee3SaxDKJKBqy3SWBoizJVAwFBE422bBV.zR8.X5UrL6zK9cbVN5idTzLHCoq
+ FG26Llj5O_DdLdZ.tk7UbwIqHGr3MllU8ZOkl0rZcAP1p0if8tRb_EC4qikdoklBGbITEmnmvm3A
+ mba82c7LKksXc8uFPuFpOumNor0f8woMC1vdQ_OcBnc9WBvlNHN208hyBbuJpiZ81hJWxxEwsnnE
+ h2p0C5I8ZRnUQrc7VEumlW0QkDBufupAITn4Vs5OGrHO73afBxKNQle2Z9MIQ2JNiV9SaiRnWVPz
+ .7Xn7bVHmdsosUR0Wxy5RrscXA_381QktmdLq572OFGqRIc4JrNQiRnWLK3IVG3mi.zam.NCHnAZ
+ pmtAEAXN61GdrfZSSnn2eMDqDnJNh1L87njeQgAdn8B347EFDivjXdFkfFCKRwMmdWj.GR637S5K
+ RZLA3kxqnkn9Wv1B26i_ZsEkft68f1F6Vok6u4vFb6shW0G6S7z_43H6qi6WK5oDpvfb8BtJOtFx
+ 7iSGDINxhxKexts63gcbntib0pqkLfpw5uUFDGKON38hMs.iSTUNmShY_AD6xSNoaYtclWvaMoUx
+ bNVM7nGjZ5w15MKr_RUzpuf3HgEqn6Nhsn1YddVAMtJyfR9nRdT8t1nlSKmb3cPCZOX5ZbhqQuNl
+ LxlTdnu7SY5LsxfZ1rOuoOBEv40EC9vXkFjEVgamLmspTzY9dn4zjZUG9b5bQBiIVy4v2VRwhotP
+ j5PZswuOOrbDo0WbKDqkNQes1V2293Nmp61SinbbvQAz7.CXasuL5_L9Ark1TEhFRjeB5w3zzgn.
+ lOavbh84rID7PkYkofQ5F_iJOm3TDslGQSZTrG437dSTNXfKOVKvLQdPVkeaJFJUjMsOmeCRMTG5
+ 7QG.mmHNyBeXmAAGCg1okvrd6VlSwPBIm9DLeFQ_eo.G3vkpnXXKhNLHaZ864EqeDFMRZFZlwOy6
+ TWppgmqlvtXQkTzDemHBU4bhReEFgki8E_c3zClF7c4ykLkBiPsvnX__Kwa3Kquvhpvy1_nicEhZ
+ q0uNrgcUBqaYLKPNrQDasZutKVmEmktL1zsexGMgwzRHlCWyS_.__6SBvVuH5hMNFJoOdxeKC61a
+ 2uQ.AUHR399MZMN9c53m9vXEoDbF8AdJOtSMf0qdNFLaX_YsB8R04HlpUvsEkGbxe3a9kdB_8EJd
+ h8SSMuQ6A3gVzM0.EOtW02J6Hh6XgMR85kOxwNQUEcqa6M2eI1f7PdVEuzvks2Aq9K5ocsZmzkdu
+ jLDThHV_jKJqDPwSnU2bmyJ8rzgSgh.go1JS_ML3puATlrV36Y.3hjNjfFN696YfPU5WtG_yZdNg
+ mEhkhkYIlmxfLaSahRefzy.G2UTaF1m.L5_dOWWpUutkkLUudoKXNgD_2JhQLxqccpo10oN6R0HJ
+ 592f2iDdl3.DZkWMmTo.b7tiUhROOKyf.vuHg2j7vv_3.DkqQi.yWevrUZZuNoQoJKbxsW5sZclW
+ XV1En6wsAGJERrWkOVvyMGQ._h2Xbo.sWzaTk0fuuzR7LGvWK23yz54Qy2lDmt1Z72e2mzmNm.qw
+ SuGMR27lhfSx3iu0nb4XaB.sBQgTg_0JhRajt5ZJJfmoxZBuSM3pMLc_eQB4TigcOANX9BdKQHj5
+ zzefCZgqP0Zc.nB4RhMsU855cJxCJUP6gFICrW6wfLkYRUmCL3M.bxCHkllChKL0hw9nzXm2kPV.
+ EOdyNu0NEN6uIOVaw2k6.Mb2xgVag4BwawyQwwcSXgnQRb7tnobLtdu5G1ePb1.b2zya9ur7i2rq
+ 90AegAJ1tessa7g--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Sat, 7 Nov 2020 00:20:48 +0000
+Received: by smtp412.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID a2775549ebdce05967a3db044c741a58;
+          Sat, 07 Nov 2020 00:20:44 +0000 (UTC)
+Subject: Re: [PATCH v22 12/23] LSM: Specify which LSM to display
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20201104234114.11346-1-casey@schaufler-ca.com>
+ <20201104234114.11346-13-casey@schaufler-ca.com>
+ <20201105092245.GB3439341@kroah.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <31027d8e-50bc-70be-b4f2-a96a84de2bae@schaufler-ca.com>
+Date:   Fri, 6 Nov 2020 16:20:43 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-In-Reply-To: <cdcd63f7-ce1f-4463-f886-c36832d7a706@linux.microsoft.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+In-Reply-To: <20201105092245.GB3439341@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.16944 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.8)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/6/20 7:37 AM, Lakshmi Ramasubramanian wrote:
+On 11/5/2020 1:22 AM, Greg KH wrote:
+> On Wed, Nov 04, 2020 at 03:41:03PM -0800, Casey Schaufler wrote:
+>> Create a new entry "display" in the procfs attr directory for
+>> controlling which LSM security information is displayed for a
+>> process. A process can only read or write its own display value.
+>>
+>> The name of an active LSM that supplies hooks for
+>> human readable data may be written to "display" to set the
+>> value. The name of the LSM currently in use can be read from
+>> "display". At this point there can only be one LSM capable
+>> of display active. A helper function lsm_task_display() is
+>> provided to get the display slot for a task_struct.
+>>
+>> Setting the "display" requires that all security modules using
+>> setprocattr hooks allow the action. Each security module is
+>> responsible for defining its policy.
+>>
+>> AppArmor hook provided by John Johansen <john.johansen@canonical.com>
+>> SELinux hook provided by Stephen Smalley <sds@tycho.nsa.gov>
+>>
+>> Reviewed-by: Kees Cook <keescook@chromium.org>
+>> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> Acked-by: Paul Moore <paul@paul-moore.com>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>> Cc: linux-api@vger.kernel.org
+>> ---
+>>  fs/proc/base.c                       |   1 +
+>>  include/linux/lsm_hooks.h            |  17 +++
+>>  security/apparmor/include/apparmor.h |   3 +-
+>>  security/apparmor/lsm.c              |  32 +++++
+>>  security/security.c                  | 169 ++++++++++++++++++++++++---
+>>  security/selinux/hooks.c             |  11 ++
+>>  security/selinux/include/classmap.h  |   2 +-
+>>  security/smack/smack_lsm.c           |   7 ++
+>>  8 files changed, 223 insertions(+), 19 deletions(-)
+>>
+>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+>> index 0f707003dda5..7432f24f0132 100644
+>> --- a/fs/proc/base.c
+>> +++ b/fs/proc/base.c
+>> @@ -2806,6 +2806,7 @@ static const struct pid_entry attr_dir_stuff[] = {
+>>  	ATTR(NULL, "fscreate",		0666),
+>>  	ATTR(NULL, "keycreate",		0666),
+>>  	ATTR(NULL, "sockcreate",	0666),
+>> +	ATTR(NULL, "display",		0666),
+> That's a vague name, any chance it can be more descriptive?
 
-Hi Mimi,
+Sure. How about lsm_display, or display_lsm? I wouldn't say that
+any of the files in /proc/*/attr have especially descriptive names,
+but that's hardly an excuse.
 
-> 
->> Hi Lakshmi, Tushar,
->>
->> This patch defines a new critical_data builtin policy.  Please update
->> the Subject line.
->>
->> On Sun, 2020-11-01 at 14:26 -0800, Tushar Sugandhi wrote:
->>> From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
->>>
->>> The IMA hook to measure kernel critical data, namely
->>> ima_measure_critical_data(), could be called before a custom IMA policy
->>> is loaded. For example, SELinux calls ima_measure_critical_data() to
->>> measure its state and policy when they are initialized. This occurs
->>> before a custom IMA policy is loaded, and hence IMA hook will not
->>> measure the data. A built-in policy is therefore needed to measure
->>> critical data provided by callers before a custom IMA policy is loaded.
->>
->> ^Define a new critical data builtin policy to allow measuring early
->> kernel integrity critical data before a custom IMA policy is loaded.
-> 
-> I will add the above line in the patch description.
-> 
->>
->> Either remove the references to SELinux or move this patch after the
->> subsequent patch which measures SELinux critical data.
-> 
-> I will remove the reference to SELinux.
-> I think it would be better to have this patch before the SELinux 
-> measurement patch.
-> 
->>
->>>
->>> Add CRITICAL_DATA to built-in IMA rules if the kernel command line
->>> contains "ima_policy=critical_data". Set the IMA template for this rule
->>> to "ima-buf" since ima_measure_critical_data() measures a buffer.
->>>
->>> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
->>
->>> ---
->>>   security/integrity/ima/ima_policy.c | 32 +++++++++++++++++++++++++++++
->>>   1 file changed, 32 insertions(+)
->>>
->>> diff --git a/security/integrity/ima/ima_policy.c 
->>> b/security/integrity/ima/ima_policy.c
->>> index ec99e0bb6c6f..dc8fe969d3fe 100644
->>> --- a/security/integrity/ima/ima_policy.c
->>> +++ b/security/integrity/ima/ima_policy.c
->>
->>> @@ -875,6 +884,29 @@ void __init ima_init_policy(void)
->>>                 ARRAY_SIZE(default_appraise_rules),
->>>                 IMA_DEFAULT_POLICY);
->>> +    if (ima_use_critical_data) {
->>> +        template = lookup_template_desc("ima-buf");
->>> +        if (!template) {
->>> +            ret = -EINVAL;
->>> +            goto out;
->>> +        }
->>> +
->>> +        ret = template_desc_init_fields(template->fmt,
->>> +                        &(template->fields),
->>> +                        &(template->num_fields));
->>
->> The default IMA template when measuring buffer data is "ima_buf".   Is
->> there a reason for allocating and initializing it here and not
->> deferring it until process_buffer_measurement()?
->>
-> 
-> You are right - good catch.
-> I will remove the above and validate.
-> 
+> And where is the Documentation/ABI/ entries for all of this, how does
+> userspace know what these things are, and how to use them?
 
-process_buffer_measurement() allocates and initializes "ima-buf" 
-template only when the parameter "func" is NONE. Currently, only 
-ima_check_blacklist() passes NONE for func when calling 
-process_buffer_measurement().
+I'll add ABI descriptions and move some of the lsm.rst up from where it
+is later in the patchset.
 
-If "func" is anything other than NONE, ima_match_policy() picks
-the default IMA template if the IMA policy rule does not specify a template.
-
-We need to add "ima-buf" in the built-in policy for critical_data so 
-that the default template is not used for buffer measurement.
-
-Please let me know if I am missing something.
-
-thanks,
-  -lakshmi
-
->>
->>> +        if (ret)
->>> +            goto out;
->>> +
->>> +        critical_data_rules[0].template = template;
->>> +        add_rules(critical_data_rules,
->>> +              ARRAY_SIZE(critical_data_rules),
->>> +              IMA_DEFAULT_POLICY);
->>> +    }
->>> +
->>> +out:
->>> +    if (ret)
->>> +        pr_err("%s failed, result: %d\n", __func__, ret);
->>> +
->>>       ima_update_policy_flag();
->>>   }
->>
-> 
-
+>
+> thanks,
+>
+> greg k-h
