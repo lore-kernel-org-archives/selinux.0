@@ -2,120 +2,90 @@ Return-Path: <SRS0=Z14I=EN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24960C388F9
-	for <selinux@archiver.kernel.org>; Sat,  7 Nov 2020 09:15:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80297C388F7
+	for <selinux@archiver.kernel.org>; Sat,  7 Nov 2020 11:57:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB7AC20B1F
-	for <selinux@archiver.kernel.org>; Sat,  7 Nov 2020 09:15:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604740539;
-	bh=z3piLd5RkcamTnBERZJX23dRz9m32jf+XtAO/19HsP4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=rsyTX7jnaRl28G/9kCOSmpdyhYKDMsLd8FNqcxFMlIqZqFTgG3YR3hqXySWL8gDhx
-	 srgL5bvFE3ongCvxsve/03onuwqaza5G2BjPfo1RV6qA0/pVU/FFbqs8qbksg/A5Kw
-	 v9B2AN8yGWLBkTuNmFrdbTjUw2ngJmsL+40u8Wso=
+	by mail.kernel.org (Postfix) with ESMTP id 3150120719
+	for <selinux@archiver.kernel.org>; Sat,  7 Nov 2020 11:57:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=mvista-com.20150623.gappssmtp.com header.i=@mvista-com.20150623.gappssmtp.com header.b="Mok9tTOH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727952AbgKGJPf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 7 Nov 2020 04:15:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33878 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727810AbgKGJPe (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sat, 7 Nov 2020 04:15:34 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 845C120B1F;
-        Sat,  7 Nov 2020 09:15:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604740533;
-        bh=z3piLd5RkcamTnBERZJX23dRz9m32jf+XtAO/19HsP4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZkTZVB5W57cf+pMQQBp+mWvNSUr0zqz4HDaNaccbyo0axy9QGgvZVX4fEXfRh45yO
-         m+daxTjmhX9HjSHI2eRmv9I6DMHoVdBaTexYS0RECz260aZQIQGCVKdPTPIiKskpSE
-         leuAzNrdFALGRnc2Oz4cFhRMOMr2E53z2y55x7gA=
-Date:   Sat, 7 Nov 2020 10:15:29 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
-Subject: Re: [PATCH v22 12/23] LSM: Specify which LSM to display
-Message-ID: <20201107091529.GA23328@kroah.com>
-References: <20201104234114.11346-1-casey@schaufler-ca.com>
- <20201104234114.11346-13-casey@schaufler-ca.com>
- <20201105092245.GB3439341@kroah.com>
- <31027d8e-50bc-70be-b4f2-a96a84de2bae@schaufler-ca.com>
+        id S1727264AbgKGL5M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 7 Nov 2020 06:57:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727084AbgKGL5M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 7 Nov 2020 06:57:12 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059C2C0613CF
+        for <selinux@vger.kernel.org>; Sat,  7 Nov 2020 03:57:11 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id x7so3961555wrl.3
+        for <selinux@vger.kernel.org>; Sat, 07 Nov 2020 03:57:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mvista-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=eBa2TpTCKUW9R1L9QkDr0B8phYMbrlIkb9o8PiVmZlc=;
+        b=Mok9tTOH2FMdQySe85GY1LTZDKlY3PfUt8w0k5hpKm3o0L47CdAUFtzIeI2m7SG9hJ
+         VvxpFAUc6C1SlW2jSaSDbwnyB/sH4cJswsYuLEzYiZc6dcUSv/kQbYtNPsG3xghTe252
+         j3kJI4N1UY8TRTNIxs8Eiar11zlNPuDZktoO2GINw0XjJE2zXlyXEsZTjiwD5nlY/3mS
+         DQUhUj0UDLbJTe6zQhcuE0CPE/5zMzbIpDhHa68tkhAGgJ1nq2wYYZwA2GN+ZwZUEzGY
+         ICz/VQB0eMp7rWBCnOv+33mTQyHwqXnZhJtdgDR6Jt8JDLClELAuoZ8RJ0LYu4vOhRK0
+         R8PA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=eBa2TpTCKUW9R1L9QkDr0B8phYMbrlIkb9o8PiVmZlc=;
+        b=jbTMAggWCnxnRjfECwUdSQ6upPXdkJfcnDce4AwdJkT6SiESwlC+/wHsBaA1QTnzo5
+         y8Ta5V4VtahX45ktBI4slaJ0vhFthaIfD8oT+Ho/fJKTvpH9y8OP9Fz1DZuLsy3exsbe
+         Iqcag5G0Abwm7eutqhF9BsIWcf89etQ4i3tbIrNAyPcosyte0VtH/xwtrKkKtxOUXuy6
+         XdGAE7rVM41W0sFSKzw8A2BhN8khfTW+nmxRn1ja0OAZNDSfKyl3G2lgMIm0YIBQGezp
+         7naJM44Vuv23715pqdeK91r9wSnVGYq9JrMdr2Db0ppHFJTjvA6KH1DK0Ry59xyL16S8
+         imKw==
+X-Gm-Message-State: AOAM533cRLKjJzh1Pnv9V5OIePZLx9OlJPCxttJi6iznDzJhVzLqFzL/
+        PtL9Cp89huUDKRPazczhfe1VdN3NhChaBBYucQjWBhREgsS9vg==
+X-Google-Smtp-Source: ABdhPJw008i6V3m7k0+2aaPwbZfLqqHXX4jR6NG39mfTrRiqIMdlgl969zxTGR1o9WetaAMZFr8o1stKc9qGngOXTxY=
+X-Received: by 2002:adf:ce01:: with SMTP id p1mr7165233wrn.33.1604750230310;
+ Sat, 07 Nov 2020 03:57:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <31027d8e-50bc-70be-b4f2-a96a84de2bae@schaufler-ca.com>
+From:   Ashish Mishra <ashishm@mvista.com>
+Date:   Sat, 7 Nov 2020 17:26:59 +0530
+Message-ID: <CAP2Ojcgr2NkjZxL3_Fcu2Tj00ahCOqvx+i0qzn2mcsrNE-iFrA@mail.gmail.com>
+Subject: Inputs for error " libselinux.so.1: cannot open shared object file:
+ No such file or directory "
+To:     SElinux list <selinux@vger.kernel.org>, paul@paul-moore.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 06, 2020 at 04:20:43PM -0800, Casey Schaufler wrote:
-> On 11/5/2020 1:22 AM, Greg KH wrote:
-> > On Wed, Nov 04, 2020 at 03:41:03PM -0800, Casey Schaufler wrote:
-> >> Create a new entry "display" in the procfs attr directory for
-> >> controlling which LSM security information is displayed for a
-> >> process. A process can only read or write its own display value.
-> >>
-> >> The name of an active LSM that supplies hooks for
-> >> human readable data may be written to "display" to set the
-> >> value. The name of the LSM currently in use can be read from
-> >> "display". At this point there can only be one LSM capable
-> >> of display active. A helper function lsm_task_display() is
-> >> provided to get the display slot for a task_struct.
-> >>
-> >> Setting the "display" requires that all security modules using
-> >> setprocattr hooks allow the action. Each security module is
-> >> responsible for defining its policy.
-> >>
-> >> AppArmor hook provided by John Johansen <john.johansen@canonical.com>
-> >> SELinux hook provided by Stephen Smalley <sds@tycho.nsa.gov>
-> >>
-> >> Reviewed-by: Kees Cook <keescook@chromium.org>
-> >> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> >> Acked-by: Paul Moore <paul@paul-moore.com>
-> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> Cc: linux-api@vger.kernel.org
-> >> ---
-> >>  fs/proc/base.c                       |   1 +
-> >>  include/linux/lsm_hooks.h            |  17 +++
-> >>  security/apparmor/include/apparmor.h |   3 +-
-> >>  security/apparmor/lsm.c              |  32 +++++
-> >>  security/security.c                  | 169 ++++++++++++++++++++++++---
-> >>  security/selinux/hooks.c             |  11 ++
-> >>  security/selinux/include/classmap.h  |   2 +-
-> >>  security/smack/smack_lsm.c           |   7 ++
-> >>  8 files changed, 223 insertions(+), 19 deletions(-)
-> >>
-> >> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> >> index 0f707003dda5..7432f24f0132 100644
-> >> --- a/fs/proc/base.c
-> >> +++ b/fs/proc/base.c
-> >> @@ -2806,6 +2806,7 @@ static const struct pid_entry attr_dir_stuff[] = {
-> >>  	ATTR(NULL, "fscreate",		0666),
-> >>  	ATTR(NULL, "keycreate",		0666),
-> >>  	ATTR(NULL, "sockcreate",	0666),
-> >> +	ATTR(NULL, "display",		0666),
-> > That's a vague name, any chance it can be more descriptive?
-> 
-> Sure. How about lsm_display, or display_lsm? I wouldn't say that
-> any of the files in /proc/*/attr have especially descriptive names,
-> but that's hardly an excuse.
+Hi Senior Member's  ,
 
-I still don't understand what "display" means in this context.  Perhaps
-documentation will help clear it up?
+I am trying to get the SELINUX on one of our evaluation boards (MIPS based).
+The SDK running is custom makefile based & kernel is linux-4.9 series.
 
-thanks,
+1) To get the selinux , i have enabled the kernel configuration w.r.t SELINUX
+     I can see the entry created under /sys folder
+            ~ # ls /sys/fs/selinux/
 
-greg k-h
+2) But when i run command of selinux  like selinuxenabled , i am getting
+     Error message of :
+     selinuxenabled: error while loading shared libraries:
+libselinux.so.1: cannot open shared object file: No such file or
+directory
+
+     But i can see the library at /lib folder
+          ~ # find / -name libselinux
+          ~ # find / -name 'libselinux*'
+                    /lib/libselinux.so
+                    /lib/libselinux.so.1
+
+Can members please provide any input as to which package is missing
+here or probable areas to look to solve the problem.
+Idea was to build a selinux setup
+
+Thanks ,
+Ashish
