@@ -2,291 +2,198 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57467C2D0A3
-	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 21:59:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23F43C2D0A3
+	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 22:29:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5A7820789
-	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 21:59:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C266420639
+	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 22:29:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="aPvbYfKr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729452AbgKIV7j (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Nov 2020 16:59:39 -0500
-Received: from smtp4.unipi.it ([131.114.21.141]:44216 "EHLO smtp.unipi.it"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725946AbgKIV7j (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 9 Nov 2020 16:59:39 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by smtp.unipi.it (Postfix) with ESMTP id 0A3328121E
-        for <selinux@vger.kernel.org>; Mon,  9 Nov 2020 22:59:37 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at unipi.it
-Received: from [192.168.1.100] (unknown [151.29.63.88])
-        (Authenticated User)
-        by smtp.unipi.it (Postfix) with ESMTPSA id 13FA580F9A
-        for <selinux@vger.kernel.org>; Mon,  9 Nov 2020 22:59:36 +0100 (CET)
-To:     selinux@vger.kernel.org
-From:   Lorenzo Ceragioli <lorenzo.ceragioli@phd.unipi.it>
-Subject: Bug (?) report for secilc and CIL semantics: some unexpected
- behaviours
-Message-ID: <5ca2e18c-6395-a0af-fdee-b0ac5f1de714@phd.unipi.it>
-Date:   Mon, 9 Nov 2020 22:59:35 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1730121AbgKIW3C (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Nov 2020 17:29:02 -0500
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com ([66.163.189.90]:33249
+        "EHLO sonic306-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732072AbgKIW3B (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Nov 2020 17:29:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604960939; bh=o6a/Uk3cYSRwkGFnLw6+RYNM1r332z+HpY84UvgWzpM=; h=To:Cc:References:From:Subject:Date:In-Reply-To:From:Subject; b=aPvbYfKrl90C4hOJQJYuJS8JRWdHxeCAJYlmuO32qN2s/gWfzK0lpkA0F70vjl5looIHT+fhkpHyedTfih6D3CszHejGhIUTPOnDt+F92aI3n3THF41IVV5K4Pfkm9fzWdPsQLLYbdfhf4uOiyyqQVbhHjLKz34lyyI7hlT8VRJHQepIeff2BOLWFcwyRYM07e3LBYY+chHPGQ5K7nJC4wKYa1goOU9t+73RgHZ9yawaWpJTo+3ltP8xXqbyfALEJJ66Pyf7Xz6/ZkHFtn6jnF4zgzAMjl8pYnZFiJ4JBDm7C1cc/nDWYRCEDxhrSMfaYv3vZJEJFeC9lnKlSQzgVA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1604960939; bh=ZnRAVgmgLxl39IUBafpZOoQ1pU8pJIz7KzIl/gbbWjO=; h=To:From:Subject:Date:From:Subject; b=ucJn03Dlr9YQUHpYiraSsjhpkvB0bbHkFJ5DuJc/x/VqAAQpCxIZ3SDQm2rvQVnqQtIts04XKfyNBQ7kfTxN6EEyE7NOu79S+7lTKtjC773JKxlsmJlfcJhf9ZD6hbfmYFJZNHQLLL2hbqPYe0ZE2JyqIae/tAm/p9qjQ901m9CO5/ZE6eMd+5DDlEt5OChJ30tjZJPq/d86pirNTzR4E0kU4b0Gd5G7D6NKIehX9aC4FrE/qjFirYo4qxhZ16XYNhRI3EoNBOp2h0roStU2Z6fK8sO9VZK8DoVPBq/zvAZ5UBD2d0IQw2cDHIOV7UhqhycomE8PmEinC+BEZF9rnQ==
+X-YMail-OSG: xiQBN6kVM1me6g_w2Q3h2C.PyMxp8FtbcKlrvJ3mkoIDRp3gFtSOpZrKJJ0V5NV
+ 1a..Ldqt0OWXNtR3GVwRVoJCySk4c9aMhIEO4WK8pSLO2AvOifAcOJFZzWKWO4JXOirueDfN_nXU
+ Akpl.3RSEcNeqXJZBcXfYp6mO2bgfkJcwoCVPxT6IN6VmRBYhdXvqMyGI7gD24saVq88fjHuUbAh
+ Vd6KMa7BGu4hMne6TlDx87Nm2zrylkNQXBQmaf5H2tUWq2yCBSFbbmK8dyS_h_1MucCJpKDFyBpl
+ NoZtuN0AX.SRO7jPhtOpQ0XApbHkelMcfqWAgIG9pGFjBCbdBmwTY6f_yy9Y5IUWwzxyzW3esOWu
+ O2V6N6g5nqHmiuNYvEfz1HR2rKTwE9NX_6MU_NdMSOjQHT9YyfjqBaOFNl6PyI1A.pxfWkPmmJ5L
+ Mni_2RM2xBiC0PVT_.9GN9GRbmaZrbFnbGUVOT2rp3vRJ6Hstffj3kPrm3Q.hl9GQxpPDqeg_hBY
+ ge3PLzejkzAhlNtFMt0AjfORm9Iw41f_38PSou3HfNRQYzTJkHO7dCG2xKOG7OOKFqC_S_OloOwo
+ iaxFpCUnNLOhb.KY.xBdOnVQN7ySpej7240xpQgSZGoMPHSf36EZtLXY6PaOl8gQfj.bhuJKfSUa
+ .8IPw6AXd6dEwX4bPl.DPFxXVH2l9nAVjmgMRG581B3OPnaToSflslHYT.FfrA__aRZORbZDW.OC
+ KlhAKmOQvRwilpa4SoIJF._ax32UW0qRmqf0cp48uL2znW.Ix.NqLQIPzNhhC.xg7FW_X2R75Hn5
+ _TBFtC5dJuYZaM3vdWREjzs0Ijo20YepG6m1RpRUIlq35E9ZKgxSFG7dgA6oLSaq3jg48gCsLSB5
+ goej5exII0TZdcGxjF0Sy3CdJtqfC8EemC2f.Ba5Ug3OC4qFqsE.ZdtfZ7da45SM2hGTgBBRVZxN
+ ImpMn8RCEoRkq5FwhbXzzOeZzG.Vu6nmb7LVLv2LXz5xEXnY0N_dC.iHwLolbylncYWVKS5dBq4u
+ oIrCNnOYaY3wnjUYQZTVgHM42sujjjmmLAra2v5KNjN0GpZK_SyycLGyLfHF3FSWc8P3kTd_Tm3V
+ 1UIogPrj63CCZUr0kP8lpmOa4_0NWK_F.JMKoUPKOc9.jzwiFfYwaJ_obSrJxEOrdqySIvUs3UD6
+ aTMkzRoFbS.3IDvYCYYhMcuZ2C1mJGJoyMyr_2PeI_gdbLhip3OyIU7xbAGX0EE9TQQVaGWIb.2k
+ W_x2wkapW0sBkl8RvLRzn7MA9qC23h2hfdkIolR6FOBHYlCNmsVKB_52fYXSUXonKFFW.yy7kAal
+ THtz9lrIcjgtip0E5gupIT13pDKV7Zty_1CQ2Y.bALjs18OQh2bOQu.hc_JE7u3kBFzal0N9waMa
+ D8c0Z7S3dME2yiXLUTCi7isdPXO8nbeZRq7JsVLpJoerJWzdDIttlowG7ZcVi7xVXU7mWWzDSUAq
+ HswRoQLOo_uolCp3lKllw8ThJDDm7iec3qamwNtJspx0N7ltsSbnQM3PsgOeG4f6P5gg._hVqDh4
+ Xa9QQnUQIy7uKvG_pSLGOv1Hxv5.ExwZwxLesyC0q2ka4fCtz4ZmWJQFUWhZDUZtiGIuB1DMFU1X
+ _vA_uTdFkFCQ2ToojD51E0xnQ1Ux.Mo13ihHrCygPM6T5c94TMoNw4V0aIgTFiONl4WVf7qviD75
+ sNtauX7Td6LLDUyBjo0qPGTtgZIpzqSqQfcslUyL4eMB2G.0SqRCABjM.cZpfn8E90gTgYGDKRXe
+ zhQ_Ureu5XcDGRERKTpc.f8Ifrv8DEue4u5av1MKwXXfEtez..Jmqyg7HK8675uPME_.CTQ55hJ_
+ f._230Es1_4XC1R59G46DQ.s4POVdwOJqth9LxGZnDH30Ff7DPqDLcjgls4LqH.9e63xtmKrKon9
+ jpwy4DH3S9NY140mppQUNKjXSk1YgLiekz5GXyiQHtXbPBJBti2gFmi9AGF7B_e7BtZZzU.Dx9DK
+ rkDg0P4VPsvGI3ypD9_F5A9SgUXd32TyufKs6BiQ5Wu33ACCCQjcanmxzZ.pHmd5eJonsAGbjkMW
+ tHv8lYNfIA9UO6zsEs5vwBGV9fQd73YMd6CP7hnxEzZvX8E.ZFvvjA6.lcp04BGbJLZGHM5n_Udy
+ i.u6f.vHAEpJENU1_Mwfd4fCGjmaAUOurYYtqH6QxTxnaQTV20xzi6IaqDGApAXEi3XLA1pP3cnM
+ kp9qTo8XAu.eBHPFKg_e9DCIYRX5uXuUD9GLIrZXvRiF0x5bhXZXY4Ss7cyrvtYvYgHQn5p2xz9V
+ lVCuC0BFCdOewySKHxzJ4eaXvZsvH2xWPRgQCkF8luDrb9mTmyKTtUg.8RuXLH59ZvMs4sNRgTdi
+ ThhxCxcw8dP8yH9O2C6yWWsrkJMabujKaaa_1wfj0EKBsf0bFfSGaq8mJz_ZOwczk9gHW.obJdrj
+ lgolYkjI2w9wvHTwVO92qsLc6i1a174czL9yX41xaAJTBFKZSNqm0s7AOzNqtEfCDJTw7PbaG91q
+ IYB0unTF233KEGnuhEN.hCSc8gHzrqAphBKedtZL_Wcmb1K1KzEoFuuKe4w2jyJBwY6kXji3KHnp
+ Mx1AVapoGiPFGNwzCKCrFNEVhxQZa2m4AZ1SnskH7BCfztAVu5EgvYCdrH0332bQgRwy7Pl3C.Et
+ E8zl1Pn6rsePTJN9bNZlosDfrPMi7PteBOtaLaa04EdSmKdLpD4IpF2uO87aDPeAg1sNiw5xFnBc
+ a1ol4Go5XsLuLQ7f5bzHvWhxCgsEXFLwfIbvSrrrXxyCrNaqoZxFn2C06mrOfusHOBeoA2M6Zj8g
+ 2PFiy5rod7oc32nV.hKyqb0LA_yn8FhdFagk7T84MqJRrp0Z.qtOYlVDG6cQW_rHIqJUYk7Fwfbm
+ 7d3BLX_M0KZfYyHBa1AVE505crEieSCW39A6DrmsqpiurbcFMe.FD3ju6DfbQMSnne_MVMp2LpTF
+ 4IFwrroahHNtzOnQ8k31MRd8sZkEUKgq8bFgZFb38kJHBKssTctHiCFa2w6bOn3AZpj7f71B7B57
+ qiwfG6Xkn2v0Ft6EjE_WmHVcsAizJWPu3EPvHX3bmm0WXWsDPSE62yVabAdwI8Gk1royokIQrreo
+ 1hXKwCXZZmZ6CbGFua1k_htc_XrtYQF4aNuPIq.DKxPXNwGiQB30e5Hmvj9TZ25WIeIYhA4HsSNF
+ SgLgoL64hBxDSMaszPKilVNpMLRIlfJV4RJ2WCxlh1LGHNapzg2gTsbRd1jiJy13EY5wD74sq6vE
+ 3GbXIfFGrCcHs8fMC0gKE.vLcc0usnN8FFC_jOZA2g_DNl9d8HK9QORZsWgNX8fFalylClbUkrFO
+ p9xxQzQ2AQ_2T3ViZaNLy_DIHVe3mj3_zrDWe8OpBEBD7.uqDoeEHr_ww0FtuqiouArkgVWdCfiB
+ njyolNkevoCb0N4zlNhHV_ChA2x_SV9yekq8Rl1dr8iMaa.yIyloQVlIN6uNGRhsP4ZHLJ6W6_YE
+ xdA1XbqoG858cYUsaAYWHOCoiw6g5rpzOih5Qv58IN_hMfWw51B13
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 9 Nov 2020 22:28:59 +0000
+Received: by smtp420.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 20ea086e6e6c90586ab3a5e58b3b53f7;
+          Mon, 09 Nov 2020 22:28:53 +0000 (UTC)
+To:     John Johansen <john.johansen@canonical.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, keescook@chromium.org,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        linux-api@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+References: <20201104234114.11346-1-casey@schaufler-ca.com>
+ <20201104234114.11346-13-casey@schaufler-ca.com>
+ <20201105092245.GB3439341@kroah.com>
+ <31027d8e-50bc-70be-b4f2-a96a84de2bae@schaufler-ca.com>
+ <20201107091529.GA23328@kroah.com>
+ <04b4adf9-9313-7f5a-e7fe-6132e0c5fc4f@canonical.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v22 12/23] LSM: Specify which LSM to display
+Message-ID: <496cad0c-9bca-24e9-6024-76a8b73754ed@schaufler-ca.com>
+Date:   Mon, 9 Nov 2020 14:28:53 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <04b4adf9-9313-7f5a-e7fe-6132e0c5fc4f@canonical.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
+X-Mailer: WebService/1.1.16944 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.8)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-To Whom it may concern,
+On 11/7/2020 2:05 PM, John Johansen wrote:
+> On 11/7/20 1:15 AM, Greg KH wrote:
+>> On Fri, Nov 06, 2020 at 04:20:43PM -0800, Casey Schaufler wrote:
+>>> On 11/5/2020 1:22 AM, Greg KH wrote:
+>>>> On Wed, Nov 04, 2020 at 03:41:03PM -0800, Casey Schaufler wrote:
+>>>>> Create a new entry "display" in the procfs attr directory for
+>>>>> controlling which LSM security information is displayed for a
+>>>>> process. A process can only read or write its own display value.
+>>>>>
+>>>>> The name of an active LSM that supplies hooks for
+>>>>> human readable data may be written to "display" to set the
+>>>>> value. The name of the LSM currently in use can be read from
+>>>>> "display". At this point there can only be one LSM capable
+>>>>> of display active. A helper function lsm_task_display() is
+>>>>> provided to get the display slot for a task_struct.
+>>>>>
+>>>>> Setting the "display" requires that all security modules using
+>>>>> setprocattr hooks allow the action. Each security module is
+>>>>> responsible for defining its policy.
+>>>>>
+>>>>> AppArmor hook provided by John Johansen <john.johansen@canonical.co=
+m>
+>>>>> SELinux hook provided by Stephen Smalley <sds@tycho.nsa.gov>
+>>>>>
+>>>>> Reviewed-by: Kees Cook <keescook@chromium.org>
+>>>>> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>>> Acked-by: Paul Moore <paul@paul-moore.com>
+>>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>>>> Cc: linux-api@vger.kernel.org
+>>>>> ---
+>>>>>  fs/proc/base.c                       |   1 +
+>>>>>  include/linux/lsm_hooks.h            |  17 +++
+>>>>>  security/apparmor/include/apparmor.h |   3 +-
+>>>>>  security/apparmor/lsm.c              |  32 +++++
+>>>>>  security/security.c                  | 169 +++++++++++++++++++++++=
++---
+>>>>>  security/selinux/hooks.c             |  11 ++
+>>>>>  security/selinux/include/classmap.h  |   2 +-
+>>>>>  security/smack/smack_lsm.c           |   7 ++
+>>>>>  8 files changed, 223 insertions(+), 19 deletions(-)
+>>>>>
+>>>>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+>>>>> index 0f707003dda5..7432f24f0132 100644
+>>>>> --- a/fs/proc/base.c
+>>>>> +++ b/fs/proc/base.c
+>>>>> @@ -2806,6 +2806,7 @@ static const struct pid_entry attr_dir_stuff[=
+] =3D {
+>>>>>  	ATTR(NULL, "fscreate",		0666),
+>>>>>  	ATTR(NULL, "keycreate",		0666),
+>>>>>  	ATTR(NULL, "sockcreate",	0666),
+>>>>> +	ATTR(NULL, "display",		0666),
+>>>> That's a vague name, any chance it can be more descriptive?
+>>> Sure. How about lsm_display, or display_lsm? I wouldn't say that
+>>> any of the files in /proc/*/attr have especially descriptive names,
+>>> but that's hardly an excuse.
+>> I still don't understand what "display" means in this context.  Perhap=
+s
+> its the LSM thats context is being displayed on the shared interface,
+> ie. /proc/*/attr/*
+>
+> thinking about it more owner or even interface_owner might be a better
+> name
+
+I was hoping for a single word, but I see how something more descriptive
+might be in order. How about "lsm_of_current"? Or "lsm_of_dot_slash_curre=
+nt",
+if you want to be pedantic. "format_of_current" isn't quite accurate, but=
+
+might be easier for some people to understand. Maybe "interface_owning_ls=
+m".
+
+/proc/*/attr/display answers the question "Which LSM is providing the dat=
+a
+I see if I look in /proc/*/attr/current, prev or exec or if that process =
+uses
+SO_PEERSEC".
+
+
+>> documentation will help clear it up?
+>>
+> yeah this needs documented.
+
+Agreed. I've noticed that nothing in /proc/*/attr seems documented
+in an orderly (documentation/ABI) fashion. I will have to fix some of
+that for a description of /proc/*/attr/whatever_it_ends_up_getting_called=
+
+to make sense. Working on it.
+
+>> thanks,
+>>
+>> greg k-h
+>>
 
-I am performing some tests to fully understand the semantics of CIL, and 
-I have noticed some strange behaviours that may be erroneous.
-Please note that I am currently using the version available on Ubuntu 
-18.04.5 LTS via packet manager, hence some of the problems (if they are 
-problems) may be already solved.
-Moreover, I am focusing on policies that only use types, and the 
-procedure I have used for testing is simply to compile the .cil file 
-with secilc and check which allow rules are found by "sesearch --allow".
-
-I decided to send this email instead of opening issues on github, please 
-let me know if I was wrong.
-
-The strange behaviours that I have observed follows:
-
-############ Report ############
-
-1) The manual says "Note that when resolving macros the callers 
-namespace is not checked, only the following places:
-
-     •Items defined inside the macro
-     •Items passed into the macro as arguments
-     •Items defined in the same namespace of the macro
-     •Items defined in the global namespace"
-
-like in the following
-
-(type a)
-
-(block B
-      (type a)
-      (macro m ()
-                 (allow a a perms)))
-
-(block A
-       (type a)
-       (call B.m))
-
-Where you get "allow B.a B.a perms" instead of "allow A.a A.a perms"
-
-BUT, according to my experiments this seems to work only if types are 
-locally defined in the macro namespace, whereas the caller namespace is 
-checked if they are defined in the global namespace or undefined. Two 
-examples follows:
-
-Ex 1.1
-
-(block A
-      (macro m1 ()
-                (allow a a perms))
-)
-
-(block B
-      (type a)
-      (call A.m1)
-)
-
-Ideally this should not compile (because type a is not defined in A 
-namespace nor in the global namespace), instead we get allow B.a B.a
-
-Ex 1.2
-
-(type a)
-
-(macro m ()
-     (allow a a perms))
-
-(block A
-       (type a)
-       (call m))
-
-Ideally the "a" inside the macro should refer to the "a" type in the 
-global namespace, and we should get "allow .a .a", instead we get "allow 
-A.a A.a"
-
-Question:
-
-Is this the intended behaviour?
-
-For this point I see that there is already a report (in the mailing 
-list) for asking to modify the manual, writing
-
-"When resolving macros the following places are checked in this order:
-     •Items defined inside the macro
-     •Items passed into the macro as arguments
-     •Items defined in the same namespace of the macro
-     •Items defined in the callers namespace
-     •Items defined in the global namespace"
-
-As far as I can see, the CIL Reference Guide has not been updated. Have 
-you decided to change the semantics of CIL (i.e. the behaviour of 
-secilc) instead of the documentation?
-
-
-2) The CIL Wiki says, regarding inheritance of multiple macros with the 
-same name "Inheritance causes all of the macros to be merged into a 
-single macro with the union of the access". I think this is not the 
-case, like in the following example:
-
-Ex 2.1
-
-(type c)
-
-(block A
-         (type a)
-         (macro m1 ()
-                 (allow a c perms)))
-
-(block B
-         (type b)
-         (macro m1 ()
-                 (allow b c perms)))
-
-(block C
-         (blockinherit A)
-         (blockinherit B)
-         (call m1))
-
-In theory I should get both "allow C.a .c perms" and "C.b .c perms", but 
-I only get the first one.
-
-According to my tests I get the one that is declared first (it is also 
-inherited first, but this does not seem to be relevant).
-
-Question:
-
-Is this a bug?
-If not (I see that CIL Wiki is not maintained since CIL is merged into 
-SELinux repository), which is the criterion for choosing which macro to 
-take (is it really "first defined wins")?
-
-
-
-3) Types resulting from a macro call may be used inside a macro 
-definition, like in the following
-
-(type a)
-
-(block A
-      (macro m ()
-           (allow a a perms))
-
-      (call m1))
-
-(macro m1()
-      (type a))
-
-(block B
-      (call A.m))
-
-Here the "a" in macro "m" is resolved to the local type "a" that is 
-introduced because of a call to macro "m1", hence you get "allow A.a A.a 
-Perms" instead of "allow .a .a Perms", as it would have been if names in 
-"m" were resolved before calling "m1".
-
-BUT, this lead to a strange behaviour when circular definitions are 
-considered, as in the following example
-
-Ex 3.1
-
-(type a)
-(type b)
-
-(block A
-      (macro m ()
-          (type b)
-          (allow a a perms))
-
-      (call B.m1)
-)
-
-(block B
-      (macro m1()
-           (type a)
-           (allow b b perms))
-
-      (call A.m)
-)
-
-where you get "allow A.a A.a Perms" and "allow B.b B.b Perms" even if 
-there is no evaluation order of the macros that transforms the code in 
-such way (given that the names inside the macros are evaluated before 
-copying the code, as stated in (1))
-Depending on the evaluation order, the result should be one of the 
-following:
-
-a) if you evaluate "m" before "m1"
-
-
-(type a)
-(type b)
-
-(block A
-      (type a)
-      (allow B.b B.b perms))
-)
-(block B
-     (type b)
-      (allow .a .a perms)
-)
-
-b) if you evaluate "m1" before "m"
-
-(type a)
-(type b)
-
-(block A
-      (type a)
-      (allow .b .b perms))
-)
-(block B
-     (type b)
-      (allow A.a A.a perms)
-)
-
-Question:
-
-I am not sure this is not exactly the behaviour you want, but in case I 
-would like to have a confirmation.
-
-4) I see that something like late binding is used for names in block 
-inheritance, like in the following
-
-(type a)
-     (block A
-            (type b)
-        (allow a b perms))
-
-     (block B
-           (blockinherit A)
-       (type a))
-
-in which we get “allow B.a B.b perms” instead of “allow .a B.b perms”.
-
-Question:
-
-Given the static resolution of names in macros I wonder if this is 
-intentional.
-
-############ End of the report ############
-
-
-Thank you for your time,
-I am available for any questions.
-
-Cheers,
-     Lorenzo Ceragioli
