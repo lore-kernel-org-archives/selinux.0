@@ -2,163 +2,291 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EC41C388F7
-	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 17:24:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57467C2D0A3
+	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 21:59:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B23EC20789
-	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 17:24:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="e20YFcng"
+	by mail.kernel.org (Postfix) with ESMTP id C5A7820789
+	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 21:59:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730928AbgKIRYG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Nov 2020 12:24:06 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:38056 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730588AbgKIRYG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Nov 2020 12:24:06 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 0418D20B4905;
-        Mon,  9 Nov 2020 09:24:04 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0418D20B4905
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1604942645;
-        bh=ta06hzgZzpA5ollIFWxpN65xzXn96qZS7d0S0MEGpnE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=e20YFcngAW2EheTQNcto50vE8IPR7U6bJ1KFsZZSgd8SV7QIB7x1pSLCf8jIuKGz3
-         9osm//coJGoMMv9BUBy4SCs06mVYnb4vDoHn2vf5s3mzq6bkfeRcg5Dwv/QLyS71+O
-         6NzLb842Vpdr3vNJtLvTrpCmn6hGwUiqrL4VPRG8=
-Subject: Re: [PATCH v5 6/7] IMA: add critical_data to the built-in policy
- rules
-To:     Mimi Zohar <zohar@linux.ibm.com>,
-        Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
- <20201101222626.6111-7-tusharsu@linux.microsoft.com>
- <7219f4404bc1bed6eb090b94363c283ec3266a17.camel@linux.ibm.com>
- <cdcd63f7-ce1f-4463-f886-c36832d7a706@linux.microsoft.com>
- <d92869b5-7244-e29e-5d30-c0e06cf45be1@linux.microsoft.com>
- <c2c6efe8b2903949fb7118b56991988ba9c4f582.camel@linux.ibm.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <4c568853-1e26-0a7b-f83b-022622e46031@linux.microsoft.com>
-Date:   Mon, 9 Nov 2020 09:24:04 -0800
+        id S1729452AbgKIV7j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Nov 2020 16:59:39 -0500
+Received: from smtp4.unipi.it ([131.114.21.141]:44216 "EHLO smtp.unipi.it"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725946AbgKIV7j (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 9 Nov 2020 16:59:39 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by smtp.unipi.it (Postfix) with ESMTP id 0A3328121E
+        for <selinux@vger.kernel.org>; Mon,  9 Nov 2020 22:59:37 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at unipi.it
+Received: from [192.168.1.100] (unknown [151.29.63.88])
+        (Authenticated User)
+        by smtp.unipi.it (Postfix) with ESMTPSA id 13FA580F9A
+        for <selinux@vger.kernel.org>; Mon,  9 Nov 2020 22:59:36 +0100 (CET)
+To:     selinux@vger.kernel.org
+From:   Lorenzo Ceragioli <lorenzo.ceragioli@phd.unipi.it>
+Subject: Bug (?) report for secilc and CIL semantics: some unexpected
+ behaviours
+Message-ID: <5ca2e18c-6395-a0af-fdee-b0ac5f1de714@phd.unipi.it>
+Date:   Mon, 9 Nov 2020 22:59:35 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <c2c6efe8b2903949fb7118b56991988ba9c4f582.camel@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/8/20 7:46 AM, Mimi Zohar wrote:
-> Hi Lakshmi,
-> 
-> On Fri, 2020-11-06 at 15:51 -0800, Lakshmi Ramasubramanian wrote:
->>
->>>>> diff --git a/security/integrity/ima/ima_policy.c
->>>>> b/security/integrity/ima/ima_policy.c
->>>>> index ec99e0bb6c6f..dc8fe969d3fe 100644
->>>>> --- a/security/integrity/ima/ima_policy.c
->>>>> +++ b/security/integrity/ima/ima_policy.c
->>>>
->>>>> @@ -875,6 +884,29 @@ void __init ima_init_policy(void)
->>>>>                  ARRAY_SIZE(default_appraise_rules),
->>>>>                  IMA_DEFAULT_POLICY);
->>>>> +    if (ima_use_critical_data) {
->>>>> +        template = lookup_template_desc("ima-buf");
->>>>> +        if (!template) {
->>>>> +            ret = -EINVAL;
->>>>> +            goto out;
->>>>> +        }
->>>>> +
->>>>> +        ret = template_desc_init_fields(template->fmt,
->>>>> +                        &(template->fields),
->>>>> +                        &(template->num_fields));
->>>>
->>>> The default IMA template when measuring buffer data is "ima_buf".   Is
->>>> there a reason for allocating and initializing it here and not
->>>> deferring it until process_buffer_measurement()?
->>>>
->>>
->>> You are right - good catch.
->>> I will remove the above and validate.
->>>
->>
->> process_buffer_measurement() allocates and initializes "ima-buf"
->> template only when the parameter "func" is NONE. Currently, only
->> ima_check_blacklist() passes NONE for func when calling
->> process_buffer_measurement().
->>
->> If "func" is anything other than NONE, ima_match_policy() picks
->> the default IMA template if the IMA policy rule does not specify a template.
->>
->> We need to add "ima-buf" in the built-in policy for critical_data so
->> that the default template is not used for buffer measurement.
->>
->> Please let me know if I am missing something.
->>
-> 
-> Let's explain a bit further what is happening and why.   As you said
-> ima_get_action() returns the template format, which may be the default
-> IMA template or the specific IMA policy rule template format.  This
-> works properly for both the arch specific and custom policies, but not
-> for builtin policies, because the policy rules may contain a rule
-> specific .template field.   When the rules don't contain a rule
-> specific template field, they default to the IMA default template.  In
-> the case of builtin policies, the policy rules cannot contain the
-> .template field.
-> 
-> The default template field for process_buffer_measurement() should
-> always be "ima-buf", not the default IMA template format.   Let's fix
-> this prior to this patch.
-> 
-> Probably something like this:
-> - In addition to initializing the default IMA template, initialize the
-> "ima-buf" template.  Maybe something similiar to
-> ima_template_desc_current().
-> - Set the default in process_buffer_measurement() to "ima-buf", before
-> calling ima_get_action().
-> - modify ima_match_policy() so that the default policy isn't reset when
-> already specified.
-> 
+To Whom it may concern,
 
-Sure Mimi - I will try this out and update.
+I am performing some tests to fully understand the semantics of CIL, and 
+I have noticed some strange behaviours that may be erroneous.
+Please note that I am currently using the version available on Ubuntu 
+18.04.5 LTS via packet manager, hence some of the problems (if they are 
+problems) may be already solved.
+Moreover, I am focusing on policies that only use types, and the 
+procedure I have used for testing is simply to compile the .cil file 
+with secilc and check which allow rules are found by "sesearch --allow".
 
-thanks,
-  -lakshmi
+I decided to send this email instead of opening issues on github, please 
+let me know if I was wrong.
 
-> 
-> 
->>>>
->>>>> +        if (ret)
->>>>> +            goto out;
->>>>> +
->>>>> +        critical_data_rules[0].template = template;
->>>>> +        add_rules(critical_data_rules,
->>>>> +              ARRAY_SIZE(critical_data_rules),
->>>>> +              IMA_DEFAULT_POLICY);
->>>>> +    }
->>>>> +
->>>>> +out:
->>>>> +    if (ret)
->>>>> +        pr_err("%s failed, result: %d\n", __func__, ret);
->>>>> +
->>>>>        ima_update_policy_flag();
->>>>>    }
->>>>
->>>
->>
+The strange behaviours that I have observed follows:
 
+############ Report ############
+
+1) The manual says "Note that when resolving macros the callers 
+namespace is not checked, only the following places:
+
+     •Items defined inside the macro
+     •Items passed into the macro as arguments
+     •Items defined in the same namespace of the macro
+     •Items defined in the global namespace"
+
+like in the following
+
+(type a)
+
+(block B
+      (type a)
+      (macro m ()
+                 (allow a a perms)))
+
+(block A
+       (type a)
+       (call B.m))
+
+Where you get "allow B.a B.a perms" instead of "allow A.a A.a perms"
+
+BUT, according to my experiments this seems to work only if types are 
+locally defined in the macro namespace, whereas the caller namespace is 
+checked if they are defined in the global namespace or undefined. Two 
+examples follows:
+
+Ex 1.1
+
+(block A
+      (macro m1 ()
+                (allow a a perms))
+)
+
+(block B
+      (type a)
+      (call A.m1)
+)
+
+Ideally this should not compile (because type a is not defined in A 
+namespace nor in the global namespace), instead we get allow B.a B.a
+
+Ex 1.2
+
+(type a)
+
+(macro m ()
+     (allow a a perms))
+
+(block A
+       (type a)
+       (call m))
+
+Ideally the "a" inside the macro should refer to the "a" type in the 
+global namespace, and we should get "allow .a .a", instead we get "allow 
+A.a A.a"
+
+Question:
+
+Is this the intended behaviour?
+
+For this point I see that there is already a report (in the mailing 
+list) for asking to modify the manual, writing
+
+"When resolving macros the following places are checked in this order:
+     •Items defined inside the macro
+     •Items passed into the macro as arguments
+     •Items defined in the same namespace of the macro
+     •Items defined in the callers namespace
+     •Items defined in the global namespace"
+
+As far as I can see, the CIL Reference Guide has not been updated. Have 
+you decided to change the semantics of CIL (i.e. the behaviour of 
+secilc) instead of the documentation?
+
+
+2) The CIL Wiki says, regarding inheritance of multiple macros with the 
+same name "Inheritance causes all of the macros to be merged into a 
+single macro with the union of the access". I think this is not the 
+case, like in the following example:
+
+Ex 2.1
+
+(type c)
+
+(block A
+         (type a)
+         (macro m1 ()
+                 (allow a c perms)))
+
+(block B
+         (type b)
+         (macro m1 ()
+                 (allow b c perms)))
+
+(block C
+         (blockinherit A)
+         (blockinherit B)
+         (call m1))
+
+In theory I should get both "allow C.a .c perms" and "C.b .c perms", but 
+I only get the first one.
+
+According to my tests I get the one that is declared first (it is also 
+inherited first, but this does not seem to be relevant).
+
+Question:
+
+Is this a bug?
+If not (I see that CIL Wiki is not maintained since CIL is merged into 
+SELinux repository), which is the criterion for choosing which macro to 
+take (is it really "first defined wins")?
+
+
+
+3) Types resulting from a macro call may be used inside a macro 
+definition, like in the following
+
+(type a)
+
+(block A
+      (macro m ()
+           (allow a a perms))
+
+      (call m1))
+
+(macro m1()
+      (type a))
+
+(block B
+      (call A.m))
+
+Here the "a" in macro "m" is resolved to the local type "a" that is 
+introduced because of a call to macro "m1", hence you get "allow A.a A.a 
+Perms" instead of "allow .a .a Perms", as it would have been if names in 
+"m" were resolved before calling "m1".
+
+BUT, this lead to a strange behaviour when circular definitions are 
+considered, as in the following example
+
+Ex 3.1
+
+(type a)
+(type b)
+
+(block A
+      (macro m ()
+          (type b)
+          (allow a a perms))
+
+      (call B.m1)
+)
+
+(block B
+      (macro m1()
+           (type a)
+           (allow b b perms))
+
+      (call A.m)
+)
+
+where you get "allow A.a A.a Perms" and "allow B.b B.b Perms" even if 
+there is no evaluation order of the macros that transforms the code in 
+such way (given that the names inside the macros are evaluated before 
+copying the code, as stated in (1))
+Depending on the evaluation order, the result should be one of the 
+following:
+
+a) if you evaluate "m" before "m1"
+
+
+(type a)
+(type b)
+
+(block A
+      (type a)
+      (allow B.b B.b perms))
+)
+(block B
+     (type b)
+      (allow .a .a perms)
+)
+
+b) if you evaluate "m1" before "m"
+
+(type a)
+(type b)
+
+(block A
+      (type a)
+      (allow .b .b perms))
+)
+(block B
+     (type b)
+      (allow A.a A.a perms)
+)
+
+Question:
+
+I am not sure this is not exactly the behaviour you want, but in case I 
+would like to have a confirmation.
+
+4) I see that something like late binding is used for names in block 
+inheritance, like in the following
+
+(type a)
+     (block A
+            (type b)
+        (allow a b perms))
+
+     (block B
+           (blockinherit A)
+       (type a))
+
+in which we get “allow B.a B.b perms” instead of “allow .a B.b perms”.
+
+Question:
+
+Given the static resolution of names in macros I wonder if this is 
+intentional.
+
+############ End of the report ############
+
+
+Thank you for your time,
+I am available for any questions.
+
+Cheers,
+     Lorenzo Ceragioli
