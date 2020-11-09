@@ -2,101 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-11.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B521C5517A
-	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 15:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B66B7C2D0A3
+	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 15:07:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B02420897
-	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 15:06:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44FCE206E3
+	for <selinux@archiver.kernel.org>; Mon,  9 Nov 2020 15:07:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Eoh2qVq7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i5XZzp5X"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730637AbgKIPF7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Nov 2020 10:05:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28681 "EHLO
+        id S1730066AbgKIPHu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Nov 2020 10:07:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52419 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730701AbgKIPFf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Nov 2020 10:05:35 -0500
+        by vger.kernel.org with ESMTP id S1730470AbgKIPGQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Nov 2020 10:06:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604934334;
+        s=mimecast20190719; t=1604934375;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=uo/TP63Q7ZAvpWERYhzc/Iyew5R/nylCpFD5EYh4pHw=;
-        b=Eoh2qVq7FYSCh17IiisejlAZrak3/lE41KZO5NS/R7+gJXiq5E+OlVpE1eBPn5E+fIVyqw
-        jQ+aSu+nXK1Jm7VaXD5DPHOi/fWM1WAX8WVILXVVw8JmMd2ZewipYRAkJigq7Maxp/Du6a
-        dmkW4HWI6hUeNmNGcrgaesNFFXe4jkk=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-43-ti8D9gkMOXay2xMs7lUipw-1; Mon, 09 Nov 2020 10:05:31 -0500
-X-MC-Unique: ti8D9gkMOXay2xMs7lUipw-1
-Received: by mail-lf1-f72.google.com with SMTP id c17so674397lfh.20
-        for <selinux@vger.kernel.org>; Mon, 09 Nov 2020 07:05:31 -0800 (PST)
+        bh=Yq6VFIAuXfDFwmqcVflZ/Q/zLk3yy4N9mqlQK8Vd4G4=;
+        b=i5XZzp5XbvBD1afLGxK14oyz68h6xUf9cRAWvQw+5CVs11r9KKbD8xfNkPN3r5sO9VgC2q
+        e67gQtIxSZVc5g4IH7LpWgz+X45lraOIkdzN3GZuGQVRpUKmaL9Vz3kXclMPTa0CfqbI8X
+        qGEViqMBfgT00fG3+XuvkBmBAjYkZiU=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-523-YugQrZZ3Oe29Y1UAA3y-zg-1; Mon, 09 Nov 2020 10:06:11 -0500
+X-MC-Unique: YugQrZZ3Oe29Y1UAA3y-zg-1
+Received: by mail-lj1-f199.google.com with SMTP id r26so449264ljc.12
+        for <selinux@vger.kernel.org>; Mon, 09 Nov 2020 07:06:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to;
-        bh=uo/TP63Q7ZAvpWERYhzc/Iyew5R/nylCpFD5EYh4pHw=;
-        b=edItb+PARn4F3xZ6ui3H1MgJaA6wHdAIPFHsEPzH/0X4ik6ftroZRf2/bCgpbm3Hsr
-         WtFRSSyZ5z7UzHCNeC85eLg/BGEmKC6woFGKmN8Fcgc3GrqNfpqM36Xx1KbZvAQ5stRA
-         yIP7DQRv7Oe1suLnuJxblMZhhu5oS0uURUJWlwI3ohKQyy806YPo+NhmZJwB6QLJpxvP
-         9LEmjnxs/troUZGdrwal4wlVGtUlq0XIUKVs8m22A054o3X7z6WK5owLEj84l54egMqG
-         xGiCG+ukxlQf+cfqzVRo4fKMSIzTDA183NlyB+bbb7ElkIw+MrPPNuADegeN7D2bTv28
-         gWmA==
-X-Gm-Message-State: AOAM530x1zZFU+0M2cW4lWvD+9bKeReO7m7Qitju7xcBv6U+6nxmrBN7
-        oZ0MRp15ppth80aEZxV64RzlTCm9GeBGrzcciCUKj5DxVch5Nq1byqQNRCBYCGd401O+TJvjRwK
-        xmP2tcU0dOjRT1vUIyfLoolV4cibph2fHEA==
-X-Received: by 2002:a2e:3314:: with SMTP id d20mr5836207ljc.372.1604934329599;
-        Mon, 09 Nov 2020 07:05:29 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy0NXK4q67TuIrlfVhRMm26zHsJB6kflQC+9SQRsHq+CDKWI36sXBQalgiEcRIiqeugKLw+bJznq2+x2WHmb4A=
-X-Received: by 2002:a2e:3314:: with SMTP id d20mr5836178ljc.372.1604934328656;
- Mon, 09 Nov 2020 07:05:28 -0800 (PST)
+        bh=Yq6VFIAuXfDFwmqcVflZ/Q/zLk3yy4N9mqlQK8Vd4G4=;
+        b=pWU/4JEt+tjJSYGw/I7UyG75F6uR1vt2CBPXie/V3QGjr6qIg8o6rbcKZI22bCzGLl
+         2G8l43wTFxTANczseZlIcEnxUPPEd3Wu4ffBxApMs6LwPpp3zRd+4PBJ217AVl3gD+QG
+         5J8PjFXcalniJqzyUHI65JZJCEst8JHk8/0FmCZgGuy8T4T+Yh3AO5oGBXXYGmh24/h5
+         UNqQpk3loXj0D5NhPNrNy7Y3ltIH09mfcqBHz9rb/ewpLm9gROoC5xETAO2UXM5WYoGZ
+         rsxNP4nxn8n7pUIxIQmxZwdJsBECEn3BY29uk5Ng7HwSTosqiwe0/qrdcw3frSmBsw+C
+         qLtQ==
+X-Gm-Message-State: AOAM531MTgFboFr7igucB16/lyKRvTbAwdhzKF2jzP0uAgQhQ0oC9cKE
+        UfjS5LZ7Kew3gLmPHH4uXse3C2nSenxTwSTAn4Lbl8sVgOT3E/2iHd2nUFZixjm7cUhyHlzP1qL
+        5vZ19e2ucTBgTPqzBuCpr9ocUHFixN2+HcA==
+X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr6224370lff.9.1604934369922;
+        Mon, 09 Nov 2020 07:06:09 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz0cGpfyti/IHVzbh0VXc76R8yWnHgaILZZmMv0/Qh/DYI1KtCDiaUQVoRXuje5jqXqHJu679I7E6TVnSXcJPc=
+X-Received: by 2002:a05:6512:6c3:: with SMTP id u3mr6224367lff.9.1604934369751;
+ Mon, 09 Nov 2020 07:06:09 -0800 (PST)
 MIME-Version: 1.0
-References: <20201104073140.819579-1-omosnace@redhat.com>
-In-Reply-To: <20201104073140.819579-1-omosnace@redhat.com>
+References: <20201104073456.820079-1-omosnace@redhat.com>
+In-Reply-To: <20201104073456.820079-1-omosnace@redhat.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 9 Nov 2020 16:05:17 +0100
-Message-ID: <CAFqZXNtMO2ARMfucG6KG-A=COz1qjenGqEjeaPqzaBzk63dYbg@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/Makefile: silence modprobe output
+Date:   Mon, 9 Nov 2020 16:05:59 +0100
+Message-ID: <CAFqZXNuAiYZ2nRrDs2y2oWywg8_BkCdQpxfdET8nPH-oFnuRFA@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/overlay: replace Python script with a C program
 To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 4, 2020 at 8:31 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> Avoid obtrusive error messages when the kernel doesn't support some of
-> the filesystems.
+On Wed, Nov 4, 2020 at 8:34 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> This was the only Python script in the whole testsuite. No need to
+> depend on Python just for access(2)...
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  tests/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/tests/Makefile b/tests/Makefile
-> index b441031..4c00b5f 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -19,7 +19,7 @@ MAX_KERNEL_POLICY := $(shell cat $(SELINUXFS)/policyvers)
->  POL_TYPE := $(shell ./pol_detect $(SELINUXFS))
->
->  # Filter out unavailable filesystems
-> -FILESYSTEMS := $(foreach fs,$(FILESYSTEMS),$(shell modprobe $(fs) && echo $(fs)))
-> +FILESYSTEMS := $(foreach fs,$(FILESYSTEMS),$(shell modprobe $(fs) &>/dev/null && echo $(fs)))
->
->  SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
->         fdreceive inherit link mkdir msg open ptrace readlink relabel rename \
-> --
-> 2.26.2
+>  tests/overlay/.gitignore |  1 +
+>  tests/overlay/Makefile   |  4 +++-
+>  tests/overlay/access     |  7 -------
+>  tests/overlay/access.c   | 16 ++++++++++++++++
+>  tests/overlay/test       | 26 +++++++++++++-------------
+>  5 files changed, 33 insertions(+), 21 deletions(-)
+>  create mode 100644 tests/overlay/.gitignore
+>  delete mode 100755 tests/overlay/access
+>  create mode 100644 tests/overlay/access.c
 
-Applied"
-https://github.com/SELinuxProject/selinux-testsuite/commit/bfa5a13114e4871b93cf87112b075f2d23698e6f
+Applied:
+https://github.com/SELinuxProject/selinux-testsuite/commit/ce70a925a4c7766fab698330a626d9a5f5194cc5
 
---
+-- 
 Ondrej Mosnacek
 Software Engineer, Platform Security - SELinux kernel
 Red Hat, Inc.
