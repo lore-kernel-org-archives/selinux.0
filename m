@@ -2,195 +2,184 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED0E1C55ABD
-	for <selinux@archiver.kernel.org>; Tue, 10 Nov 2020 13:37:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2109C55ABD
+	for <selinux@archiver.kernel.org>; Tue, 10 Nov 2020 17:28:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E757206B6
-	for <selinux@archiver.kernel.org>; Tue, 10 Nov 2020 13:37:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49719206B2
+	for <selinux@archiver.kernel.org>; Tue, 10 Nov 2020 17:28:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ZqYcU4eu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732274AbgKJNhV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 10 Nov 2020 08:37:21 -0500
-Received: from correo.us.es ([193.147.175.20]:36764 "EHLO mail.us.es"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730044AbgKJNhU (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 10 Nov 2020 08:37:20 -0500
-Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
-        by mail.us.es (Postfix) with ESMTP id 62414396268
-        for <selinux@vger.kernel.org>; Tue, 10 Nov 2020 14:37:18 +0100 (CET)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id 4D9B9DA855
-        for <selinux@vger.kernel.org>; Tue, 10 Nov 2020 14:37:18 +0100 (CET)
-Received: by antivirus1-rhel7.int (Postfix, from userid 99)
-        id 3D0DEDA844; Tue, 10 Nov 2020 14:37:18 +0100 (CET)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id ADF1ADA789;
-        Tue, 10 Nov 2020 14:37:15 +0100 (CET)
-Received: from 192.168.1.97 (192.168.1.97)
- by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
- Tue, 10 Nov 2020 14:37:15 +0100 (CET)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
-Received: from us.es (unknown [90.77.255.23])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: 1984lsi)
-        by entrada.int (Postfix) with ESMTPSA id 7CCF642EF9E0;
-        Tue, 10 Nov 2020 14:37:15 +0100 (CET)
-Date:   Tue, 10 Nov 2020 14:37:15 +0100
-X-SMTPAUTHUS: auth mail.us.es
-From:   Pablo Neira Ayuso <pablo@netfilter.org>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        netfilter-devel@vger.kernel.org
-Subject: Re: [PATCH v22 16/23] LSM: security_secid_to_secctx in netlink
- netfilter
-Message-ID: <20201110133715.GA1890@salvia>
-References: <20201105004924.11651-1-casey@schaufler-ca.com>
- <20201105004924.11651-17-casey@schaufler-ca.com>
+        id S1730432AbgKJR2q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 10 Nov 2020 12:28:46 -0500
+Received: from sonic306-27.consmr.mail.ne1.yahoo.com ([66.163.189.89]:35258
+        "EHLO sonic306-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726307AbgKJR2q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 10 Nov 2020 12:28:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605029325; bh=77QiCjhR/WkJJBxxl0uVBiHR2j6qU2I5mSEQJBTYfBo=; h=From:To:Cc:Subject:Date:References:From:Subject; b=ZqYcU4euc+CbRx1G0YsYbnJJNddjP5btauKdTRsgS6yqOsHqdK2vhcrqf1NZRGDt4uy2h0iuRfYH4aZPGlz6CqPFmmhKKzc/sxFIDqngH43xUeJTGcaiUWXY1PbW0nU3sFSG5VbTbhffYgyF29N4a+GTDXZ09sR8o490dJrJHqO28Umg5Ee3fW/4v4nyYk6560B7T3br9pYw/deNN5YtApK2fgvAZfia5GvkbrqPlnwFjXXBqmMxfoGYZLUd4m/d0rg+xZODgRNUmyxZJtAuHIrSINV3xYiWn0DeOv271JK0zeKhj9Rs8sOlIX7AmQ2ofsuUqC2zzqBBAVtYnxtVGg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605029325; bh=+i3EIhZhtIwgiIp3YZzf8NYJlP+FOAsOwvzYcitRDlR=; h=From:To:Subject:Date:From:Subject; b=C0zsSWVkcCb9HLbbFAXH4MOsejYoInMHbX76uYA3vUt+pLfRqTw2E3Jd9zHlHBCdcBRffHit6vigt4MGNpcobhOE1oXukHDifZy1pwZGLoVwLjwPb/PJDEy0SPCltTPMONvxwRWgN5qZTVGTQnp/s88qHY98sfkMGg46LNmYvTlCzuSkFKGSt7/FJyC0Yvc92sY1w/+LWbRgia3To46WwMi9g4XiFxObZ0cnas/rW5lTGZmQJh5GYLJAbMl1QdvO53/EgB5L5hfNFyPnzatL4pyDTjmNPMguCK0p8zEtblQqaqvrDQFaDnHM6hEtRuNY0F18oxrBD9ZnTcjip+RqGw==
+X-YMail-OSG: fzmBBxMVM1nxMenNWS_ejTrab_SoIaupPuqzRy7lHQSHwRFe3v7ZTqZN1yH_zDo
+ U17MUTebcKETGXofpXgtKUFiF5W0pjmVMqu6nsb8n0Lb9wSUzr9BPzPkjIHsYdx.WzwqCLK98WSF
+ SOJkZGiCJB4kb8L2JOn1WxoQyOjugLxcYvkW.6JkOYZ3w0eXyOGpy0wYn53yf_8e7Lu3ZGMBHR6U
+ dNWX._SCdmg1KfEbyUibT4jUj1xcZnYuDQUIIQbVg7yBHBZivK2aC5ueFQ9K5QfRK.XK.G9P3lYD
+ Oc8CyeeIZAZ8xsTqR8lh4TFqQC.Z7zkttvn2vhv47rMLqvSyk4KwuQ_hyBWzucu.p.VCl0oCXK2F
+ _QqssunH2aiN3lp4rwuD3qUsxkuxPUeoSdp9SBry9StBH9ALVFj.yCopMC3DpR5zLOkoj2gbhc08
+ kgIa0QQJAYnq.XHs5okGXsXwMMekJG_AjTcN0aBj5C24SNKXb9SKsLUuLW4BDnD1c.QRGQyQuWn7
+ .qWses21f9ZvmWDGqTXJhct483Wi4pWMXe8m28eUWih17nUpudlJMXX8HBHQFQJEH3M2qziI90Bq
+ vmeK4c_DTPEfT6_0oqE5cmlaZqFs_6v432EpuMsT6MQId5gm0leWnOTgZfUlXLs_vkKdljt1Iqcb
+ FiDT7Bcrs6nYExbq1y19Q0ibt6StffXcIiBbCZ1g4DNyxruGQI6cMIbp01Q5Ljai6V5v896yiOJV
+ mtGU78vWu_M_1wbV5PKD7Ivomp2XhV8JMh9W6Xt49zLbmrVuoManFrWjRCNJWu4A8Rl_0efpGxqQ
+ UGSAnpGVKWH7SCc9_ml_lOEjHePFeLjLXvbwRR8LhzJrSL.Znj7j_zgEzDILB8xTLR4EklLDIXag
+ YD32mxUxfgDwtMEDupdGphw8fV0qztT6alD2Y6vO6TRD5tZpQZK2xeehxuTh_EIO3.5DYi00StR0
+ 0l2qx9.5B8_Bo1Fuf90BkYQ_ae9JV.WP.02D_pDkRr5LkNoWG.WRrwMtf_wvUH.AxZfPJbmouHOQ
+ eOLOJ8.68Lo86lkJhlzTL_4B8Msgs65BUByGZGVQwamrUo2b4te.A4zzcNWxWrdlb.U5I2lS.ls2
+ I9K828c1l9Viq3fuy.weiCn0cUqZurXNTfD90NYa745Kf2LB.lqrNAwW9yn1Vxb11vsp4RTj3I26
+ r8wuCPxJzYXNxqSHnsgJA4bu3DUfHTqwPzSq2v8f7wOdVN8GrBGxq02AaF7KlmZZ4iTOAdoKtL3Z
+ YGNGVhpwxxp7AXGwGJ4TrPFnb7z40CuIhOftFlAw1diw4EHnEloIxWrgbMeCvHAet3GyX1SAdXgr
+ HF4_e9JMu3mvzHXRkGijEiKcvoiWv.zs2SisshDUqDGABqQGsauJFhbGVt5tKpJK1_I7uXrC9w2U
+ _d9zVdWZt10EFAF4Gy1i3IHD0HMF_Be1ur0xRgoMsR9lOc9v.6AYwS7lbDh4FAtcMFwYQewYRL2E
+ 9uzOaRtjmtVObCX36fEcr_KY.rXFqll4qUkJ_0HyucGztg_6G52kn_.Zex8jbNluZJnM14CY6oF0
+ 0ZFhzouEzKY.rX9kOLwLtIGo7M0OVrzhQag3VBVrnpptI5qP9GMWWoqNl_lCt7WBz5QFBHt_E36W
+ VtD7w_kUv32.iffcXS2PCNS7MLKiiAdqVerA0urkLOZaZKyRDslzpiBhAnviPHFuFOnMk4qqM0b3
+ PW.qNyqTmLBrGEMGftDeEnDR_WutPUUchNNC9n7DEnRKr7bCgcDvqE0E9bqWPvpquDmwlZrB2Dfz
+ rWJB2xESNe5YBLuhmtywzfFryaaTgyeMyAGHV_IwyO9hjd3ygtSLKbvx0dwKDZrtfG7bcFQiOnR9
+ zji3SwlfZ4yl71QVkFeSD_dgnHAoxPrpeD1bd69ws3giQaiztzhQYcsvVEdWbRy9M0b9L7fOPq_9
+ 7rbV2BoisUhDtNZm0ZkqdKZxV_l98z2csHJwb2aD1hU09PB2AOV3nVm.BPTug29wVFFyo2Yncbv0
+ w2nvN4glBtByR_vP6WgHLLjGY17RbLGcWGBaKwuN53h8pcPu4dhnzdSx6f9xQ.TARDkvt970j9Ia
+ Me8938jpKxw7dfc1OPRb92eN_VDTltExpOlWeI5Lcr7Y1d_hhTDpV4Dg9rHaQ98BNe6_lvZpLL3C
+ jHwocD0vxzRqnFm5abQmlpu8BmXH8oycqsABBOoIs0uFSAj5Wz8.B5kDnjMy.NJ6e73eC4.2lKpd
+ zWP0BoMsFqfMFORRIOTnkmNRXYSrk73rD3d79aWjKSHQWI.RLziRwIdnd4poIvTqMPdfeEDWGO3w
+ bzExOnfRygBp.PDGU45kf3lhe4f0EWJ.Fa65Tq6IDDKD5K_x6TlhgiLZvU399F2CNIubjVB6vGa4
+ ET5F68Qb1Du2Tm3l8ivigS.0Bfnb7QAPzqFrUnQDQRXEJJUWvnh5SBTed70D45hVwM.83t6L3lW_
+ 0dYsqR7NUwUBiRuq8FHOcKFSFfuoZnHR7njDsBxDLm_iEVEy_HZwXEXAjxiHPwtzodNNHCsnISVA
+ tAGk7DNigDrGiBdau1C5GJ0z4__9Yls0sSyByJfsm2eeIK3jU.ZYb_BgpOMgHZReWz8pS9Udytx2
+ hO8a_Hz5v4F5aeADazKi.o5SFGkCTDbNxW0Ap9VgZaZdao6yKy9AptQMchYx6yVI0rj9_Wr9O8eh
+ T5YifLsL3Soox76ze7MghvHh6UpZQ.XZHsIC_cTOR.HF.sh6j7ZzjIqX2JJ7xSAxMSkuzdqcKHjp
+ 3_OeRdJKhF_3WC0W00dggWVovhUdc0MmrXRJsSmsABmCwdS6lcztYb9g.bhGQfZ2gayTVgxSotbm
+ pxBMQM3hdzwdp6P_17dQFYmEx7k0TlmqadSbyGPy1N92iUCSGNEB1dy3hpp_DDW5yNvHPquX_Ecv
+ j4S77We2FmJktaVYXRU9rFyPIkadUlAZYO.BDVyahqfvD2hPP8FyKIYdcXwL5zrh4Q.KOs9AJ8AI
+ _Rc0SkUBtexH0EZfF3JpdtcId4LUhgg--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Tue, 10 Nov 2020 17:28:45 +0000
+Received: by smtp410.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 3b996d132bda857859cdbbdd029f861c;
+          Tue, 10 Nov 2020 17:28:42 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     Jonathan Corbet <corbet@lwn.net>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-doc@vger.kernel.org
+Cc:     Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SELinux <selinux@vger.kernel.org>
+Subject: [RFC PATCH] docs: ABI: ABI documentation for procfs attribute files
+ used by multiple LSMs
+Message-ID: <30c36660-3694-0c0d-d472-8f3b3ca4098e@schaufler-ca.com>
+Date:   Tue, 10 Nov 2020 09:28:41 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201105004924.11651-17-casey@schaufler-ca.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+References: <30c36660-3694-0c0d-d472-8f3b3ca4098e.ref@schaufler-ca.com>
+X-Mailer: WebService/1.1.16944 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.8)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Casey,
+Provide basic ABI descriptions for the process attribute entries
+that are shared between multiple Linux security modules.
 
-On Wed, Nov 04, 2020 at 04:49:17PM -0800, Casey Schaufler wrote:
-> Change netlink netfilter interfaces to use lsmcontext
-> pointers, and remove scaffolding.
-> 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: netdev@vger.kernel.org
-> Cc: netfilter-devel@vger.kernel.org
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+=C2=A0Documentation/ABI/testing/procfs-attr-current | 20 ++++++++++++++++=
+++++
+ Documentation/ABI/testing/procfs-attr-exec    | 20 ++++++++++++++++++++
+ Documentation/ABI/testing/procfs-attr-prev    | 19 +++++++++++++++++++
+ 3 files changed, 59 insertions(+)
 
-You can carry this tag in your follow up patches.
+diff --git a/Documentation/ABI/testing/procfs-attr-current b/Documentatio=
+n/ABI/testing/procfs-attr-current
+new file mode 100644
+index 000000000000..198b9fe1c8e8
+--- /dev/null
++++ b/Documentation/ABI/testing/procfs-attr-current
+@@ -0,0 +1,20 @@
++What:		/proc/*/attr/current
++Contact:	linux-security-module@vger.kernel.org,
++		selinux@vger.kernel.org,
++		apparmor@lists.ubuntu.com
++Description:	The current security information used by a Linux
++		security module (LSM) that is active on the system.
++		The details of permissions required to read from
++		this interface and hence obtain the security state
++		of the task identified is LSM dependent.
++		A process cannot write to this interface unless it
++		refers to itself.
++		The other details of permissions required to write to
++		this interface and hence change the security state of
++		the task identified are LSM dependent.
++		The format of the data used by this interface is LSM
++		dependent.
++		SELinux, Smack and AppArmor provide this interface.
++Users:		SELinux user-space
++		Smack user-space
++		AppArmor user-space
+diff --git a/Documentation/ABI/testing/procfs-attr-exec b/Documentation/A=
+BI/testing/procfs-attr-exec
+new file mode 100644
+index 000000000000..34593866a7ab
+--- /dev/null
++++ b/Documentation/ABI/testing/procfs-attr-exec
+@@ -0,0 +1,20 @@
++What:		/proc/*/attr/exec
++Contact:	linux-security-module@vger.kernel.org,
++		selinux@vger.kernel.org,
++		apparmor@lists.ubuntu.com
++Description:	The security information to be used on the process
++		by a Linux security module (LSM) active on the system
++		after a subsequent exec() call.
++		The details of permissions required to read from
++		this interface and hence obtain the security state
++		of the task identified is LSM dependent.
++		A process cannot write to this interface unless it
++		refers to itself.
++		The other details of permissions required to write to
++		this interface and hence change the security state of
++		the task identified are LSM dependent.
++		The format of the data used by this interface is LSM
++		dependent.
++		SELinux and AppArmor provide this interface.
++Users:		SELinux user-space
++		AppArmor user-space
+diff --git a/Documentation/ABI/testing/procfs-attr-prev b/Documentation/A=
+BI/testing/procfs-attr-prev
+new file mode 100644
+index 000000000000..f990b3595839
+--- /dev/null
++++ b/Documentation/ABI/testing/procfs-attr-prev
+@@ -0,0 +1,19 @@
++What:		/proc/*/attr/prev
++Contact:	linux-security-module@vger.kernel.org,
++		selinux@vger.kernel.org,
++		apparmor@lists.ubuntu.com
++Description:	The security information used on the process by
++		a Linux security module (LSM) active on the system
++		prior to the most recent exec() call.
++		The details of permissions required to read from
++		this interface is LSM dependent.
++		A process cannot write to this interface unless it
++		refers to itself.
++		The other details of permissions required to write to
++		this interface are LSM dependent.
++		The format of the data used by this interface is LSM
++		dependent.
++		SELinux and AppArmor provide this interface.
++Users:		SELinux user-space
++		AppArmor user-space
++
 
-Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
-Thanks.
-
-> ---
->  net/netfilter/nfnetlink_queue.c | 37 +++++++++++++--------------------
->  1 file changed, 14 insertions(+), 23 deletions(-)
-> 
-> diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-> index 84be5a49a157..0d8b83d84422 100644
-> --- a/net/netfilter/nfnetlink_queue.c
-> +++ b/net/netfilter/nfnetlink_queue.c
-> @@ -301,15 +301,13 @@ static int nfqnl_put_sk_uidgid(struct sk_buff *skb, struct sock *sk)
->  	return -1;
->  }
->  
-> -static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
-> +static void nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
->  {
-> -	u32 seclen = 0;
->  #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
->  	struct lsmblob blob;
-> -	struct lsmcontext context = { };
->  
->  	if (!skb || !sk_fullsock(skb->sk))
-> -		return 0;
-> +		return;
->  
->  	read_lock_bh(&skb->sk->sk_callback_lock);
->  
-> @@ -318,14 +316,12 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
->  		 * blob. security_secid_to_secctx() will know which security
->  		 * module to use to create the secctx.  */
->  		lsmblob_init(&blob, skb->secmark);
-> -		security_secid_to_secctx(&blob, &context);
-> -		*secdata = context.context;
-> +		security_secid_to_secctx(&blob, context);
->  	}
->  
->  	read_unlock_bh(&skb->sk->sk_callback_lock);
-> -	seclen = context.len;
->  #endif
-> -	return seclen;
-> +	return;
->  }
->  
->  static u32 nfqnl_get_bridge_size(struct nf_queue_entry *entry)
-> @@ -398,12 +394,10 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	struct net_device *indev;
->  	struct net_device *outdev;
->  	struct nf_conn *ct = NULL;
-> +	struct lsmcontext context = { };
->  	enum ip_conntrack_info ctinfo;
->  	struct nfnl_ct_hook *nfnl_ct;
->  	bool csum_verify;
-> -	struct lsmcontext scaff; /* scaffolding */
-> -	char *secdata = NULL;
-> -	u32 seclen = 0;
->  
->  	size = nlmsg_total_size(sizeof(struct nfgenmsg))
->  		+ nla_total_size(sizeof(struct nfqnl_msg_packet_hdr))
-> @@ -469,9 +463,9 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	}
->  
->  	if ((queue->flags & NFQA_CFG_F_SECCTX) && entskb->sk) {
-> -		seclen = nfqnl_get_sk_secctx(entskb, &secdata);
-> -		if (seclen)
-> -			size += nla_total_size(seclen);
-> +		nfqnl_get_sk_secctx(entskb, &context);
-> +		if (context.len)
-> +			size += nla_total_size(context.len);
->  	}
->  
->  	skb = alloc_skb(size, GFP_ATOMIC);
-> @@ -604,7 +598,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)
->  		goto nla_put_failure;
->  
-> -	if (seclen && nla_put(skb, NFQA_SECCTX, seclen, secdata))
-> +	if (context.len &&
-> +	    nla_put(skb, NFQA_SECCTX, context.len, context.context))
->  		goto nla_put_failure;
->  
->  	if (ct && nfnl_ct->build(skb, ct, ctinfo, NFQA_CT, NFQA_CT_INFO) < 0)
-> @@ -632,10 +627,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	}
->  
->  	nlh->nlmsg_len = skb->len;
-> -	if (seclen) {
-> -		lsmcontext_init(&scaff, secdata, seclen, 0);
-> -		security_release_secctx(&scaff);
-> -	}
-> +	if (context.len)
-> +		security_release_secctx(&context);
->  	return skb;
->  
->  nla_put_failure:
-> @@ -643,10 +636,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	kfree_skb(skb);
->  	net_err_ratelimited("nf_queue: error creating packet message\n");
->  nlmsg_failure:
-> -	if (seclen) {
-> -		lsmcontext_init(&scaff, secdata, seclen, 0);
-> -		security_release_secctx(&scaff);
-> -	}
-> +	if (context.len)
-> +		security_release_secctx(&context);
->  	return NULL;
->  }
->  
-> -- 
-> 2.24.1
-> 
