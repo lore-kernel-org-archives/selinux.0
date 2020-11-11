@@ -2,131 +2,158 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF80C388F9
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 09:51:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 459B6C4742C
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 10:07:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C924A20729
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 09:51:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9FE520674
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 10:07:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cBrwEueb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EjmSipZY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbgKKJvp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Nov 2020 04:51:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:30811 "EHLO
+        id S1727318AbgKKKHq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Nov 2020 05:07:46 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47912 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726460AbgKKJvl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 04:51:41 -0500
+        by vger.kernel.org with ESMTP id S1727000AbgKKKHp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 05:07:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605088300;
+        s=mimecast20190719; t=1605089263;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Yb53kgbwR3vf2d2kG/xMMzBjo8B8CKS3dYYLnjBaII0=;
-        b=cBrwEuebTl8L7vuk0yTraeO4huA3c+Rl9RErN+S1Y8eatxjTxYzIJuh9gBR3qIrkYAfw2X
-        7W3cZdmNtdtP0h24xxHmlRKxM/k7utOhYr5Np9vraKzVNPUujQj/iNhhSlV2ij3qc6i3i/
-        vIjYrEeLfRIJSQT3rs1uFWi8+EU69ac=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-532-eWYI_OVxNL-_AGb9SDXQuA-1; Wed, 11 Nov 2020 04:51:38 -0500
-X-MC-Unique: eWYI_OVxNL-_AGb9SDXQuA-1
-Received: by mail-wr1-f71.google.com with SMTP id y2so417898wrl.3
-        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 01:51:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Yb53kgbwR3vf2d2kG/xMMzBjo8B8CKS3dYYLnjBaII0=;
-        b=RVhTKO1RPpTHCB+C0fmnBUCBZ0KYzW/Uz1/625cOBgFww0J0qS3EZYYPCN4mTFcHlN
-         f/xIU2eBLy3/Zd3t6tkRK+VzGu6WOF2V8eiAI8ZCrJ/HjsdH4i9yhzM7eXQ432GwXBml
-         eb2BzPnmpZQl0bLLPG0fLwPLFLBsYvPx6PVyGXRJjXGSItdihVpZlEKinChHumYxXltv
-         F2lBLRA6pMh2QXWMzAmeUdPyuxsph8D67aSboTsuON9ApmIW8tVQqySlLS6vUPcI7KW0
-         uA8xdzGhc120ePNeE2U9WVZaX7jd7wylrvpdvNHOpPLnYx/dSiFAHu9eZXYY+WF63UO7
-         +RyA==
-X-Gm-Message-State: AOAM5334Xwk6vDjwrg2cjXF3qXL9Su0+pTiIza/6jtRVf/6/Vr2MA+ef
-        FtUlR2t5Ntb78SGaQils/Xlcuh2SN0L192Ezg2aJpmNsSUKDf+xN5iKYDA3sgrOx/dq2Ynlrdoy
-        xB4myyUyaLElRqoHk+kIN/DQdNZv3Z/H+1klqLbm/fZo/RWimM7UFiMyUqexTLpht4DGBRA==
-X-Received: by 2002:a1c:658b:: with SMTP id z133mr2958282wmb.1.1605088297086;
-        Wed, 11 Nov 2020 01:51:37 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzO3gPNIS5+//sU3+97per0Ww4uGOHsIVqCixGT/E5Lu/wx3KoGENT9z9Iv07Rm9BpE4Dv81w==
-X-Received: by 2002:a1c:658b:: with SMTP id z133mr2958255wmb.1.1605088296851;
-        Wed, 11 Nov 2020 01:51:36 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id i16sm1885830wru.92.2020.11.11.01.51.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 01:51:36 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lPDIqP+C3+iMEjnSZZm3a6SB/y/ZDkzavqY8qxEDeWs=;
+        b=EjmSipZYfY01e6WDyvfbRoBprRZwbEHJKCVBaiv2osiAn6r3nEpn4G4FORyKeMVsZB4XW7
+        CExCG2IJ0NZo4WB/0G9X03GGVfm52la2hoHkd6TbfCQKi0uKJWHSPnXw/wBJ/EadO/4izY
+        5X57W6kaHvNUy8L8cbrAPid32uwwQ90=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-515--ZFe0FaVPGOxdtWu2ObZgw-1; Wed, 11 Nov 2020 05:07:40 -0500
+X-MC-Unique: -ZFe0FaVPGOxdtWu2ObZgw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 80DC6186DD4C
+        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 10:07:39 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.193.83])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8D6BD5B4D6;
+        Wed, 11 Nov 2020 10:07:38 +0000 (UTC)
+Date:   Wed, 11 Nov 2020 11:07:35 +0100
+From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH userspace] selinux(8): explain that runtime disable is deprecated
-Date:   Wed, 11 Nov 2020 10:51:34 +0100
-Message-Id: <20201111095134.481658-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>
+Subject: Re: [PATCH userspace] selinux(8): explain that runtime disable is
+ deprecated
+Message-ID: <20201111100735.GA213493@localhost.localdomain>
+References: <20201111095134.481658-1-omosnace@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+In-Reply-To: <20201111095134.481658-1-omosnace@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Update the main SELinux manpage to explain that runtime disable (i.e.
-disabling SELinux using SELINUX=Disabled) is deprecated and recommend
-disabling SELinux only via the kernel boot parameter.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- libselinux/man/man8/selinux.8 | 26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
-index 31364271..721a65f4 100644
---- a/libselinux/man/man8/selinux.8
-+++ b/libselinux/man/man8/selinux.8
-@@ -19,12 +19,12 @@ enabled or disabled, and if enabled, whether SELinux operates in
- permissive mode or enforcing mode.  The
- .B SELINUX
- variable may be set to
--any one of disabled, permissive, or enforcing to select one of these
--options.  The disabled option completely disables the SELinux kernel
-+any one of Disabled, Permissive, or Enforcing to select one of these
-+options.  The Disabled option completely disables the SELinux kernel
- and application code, leaving the system running without any SELinux
--protection.  The permissive option enables the SELinux code, but
-+protection.  The Permissive option enables the SELinux code, but
- causes it to operate in a mode where accesses that would be denied by
--policy are permitted but audited.  The enforcing option enables the
-+policy are permitted but audited.  The Enforcing option enables the
- SELinux code and causes it to enforce access denials as well as
- auditing them.  Permissive mode may yield a different set of denials
- than enforcing mode, both because enforcing mode will prevent an
-@@ -32,6 +32,24 @@ operation from proceeding past the first denial and because some
- application code will fall back to a less privileged mode of operation
- if denied access.
- 
-+.B NOTE:
-+Disabling SELinux by setting
-+.B SELINUX=Disabled
-+in
-+.I /etc/selinux/config
-+is deprecated and depending on kernel version and configuration it might
-+not lead to SELinux being completely disabled.  Specifically, the
-+SELinux hooks will still be executed internally, but the SELinux policy
-+will not be loaded and no operation will be denied.  In such state, the
-+system will act as if SELinux was disabled, although some operations
-+might behave slightly differently.  To properly disable SELinux, it is
-+recommended to use the
-+.B selinux=0
-+kernel boot option instead.  In that case SELinux will be disabled
-+regardless of what is set in the
-+.I /etc/selinux/config
-+file.
-+
- The
- .I /etc/selinux/config
- configuration file also controls what policy
--- 
-2.26.2
+On Wed, Nov 11, 2020 at 10:51:34AM +0100, Ondrej Mosnacek wrote:
+> Update the main SELinux manpage to explain that runtime disable (i.e.
+> disabling SELinux using SELINUX=3DDisabled) is deprecated and recommend
+> disabling SELinux only via the kernel boot parameter.
+>=20
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  libselinux/man/man8/selinux.8 | 26 ++++++++++++++++++++++----
+>  1 file changed, 22 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
+> index 31364271..721a65f4 100644
+> --- a/libselinux/man/man8/selinux.8
+> +++ b/libselinux/man/man8/selinux.8
+> @@ -19,12 +19,12 @@ enabled or disabled, and if enabled, whether SELinux =
+operates in
+>  permissive mode or enforcing mode.  The
+>  .B SELINUX
+>  variable may be set to
+> -any one of disabled, permissive, or enforcing to select one of these
+> -options.  The disabled option completely disables the SELinux kernel
+> +any one of Disabled, Permissive, or Enforcing to select one of these
+
+Is there a reson for these changes?
+policycoreutils/man/man5/selinux_config.5 aka selinux_config(5) doesn't use
+capitals:
+
+    SELINUX =3D enforcing | permissive | disabled
+
+> +options.  The Disabled option completely disables the SELinux kernel
+>  and application code, leaving the system running without any SELinux
+> -protection.  The permissive option enables the SELinux code, but
+> +protection.  The Permissive option enables the SELinux code, but
+>  causes it to operate in a mode where accesses that would be denied by
+> -policy are permitted but audited.  The enforcing option enables the
+> +policy are permitted but audited.  The Enforcing option enables the
+>  SELinux code and causes it to enforce access denials as well as
+>  auditing them.  Permissive mode may yield a different set of denials
+>  than enforcing mode, both because enforcing mode will prevent an
+> @@ -32,6 +32,24 @@ operation from proceeding past the first denial and be=
+cause some
+>  application code will fall back to a less privileged mode of operation
+>  if denied access.
+> =20
+> +.B NOTE:
+> +Disabling SELinux by setting
+> +.B SELINUX=3DDisabled
+> +in
+> +.I /etc/selinux/config
+> +is deprecated and depending on kernel version and configuration it might
+> +not lead to SELinux being completely disabled.  Specifically, the
+> +SELinux hooks will still be executed internally, but the SELinux policy
+> +will not be loaded and no operation will be denied.  In such state, the
+> +system will act as if SELinux was disabled, although some operations
+> +might behave slightly differently.  To properly disable SELinux, it is
+> +recommended to use the
+> +.B selinux=3D0
+> +kernel boot option instead.  In that case SELinux will be disabled
+> +regardless of what is set in the
+> +.I /etc/selinux/config
+> +file.
+> +
+>  The
+>  .I /etc/selinux/config
+>  configuration file also controls what policy
+> --=20
+> 2.26.2
+>=20
+
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl+rt+AACgkQviIJHj72
+InWY0w/+ICtAYKI1stQDpa924ardmVd6afeE2WpppI9PPPqTFiKj8HT9DFiZc71V
+QKWc13YDUJZ1s6NT14PPQRHs298JLJReo+q1QXVVa2xRXG8deI6QxFGeD4uJUu0z
+xiOtWc11uU6oLgMR1JFKyK0D/v9Ny36C+4Q3+8chjCBMYCVjZkl8H83V+tqhptEa
+neTdShlYHW5eSondrTv1NDA5xB1gwm/hRRTSr/ilJDbRBnUEmHfyVKScEVsSzViQ
+NTWD2Me6F5UTql1Gj4nZkSxr2qV9c/UwlIWyxvmQRm7nLCAQkmVrUNXqDm6/HaPL
+0xgNkkdexsiuUmlL0VNZeV+Bdk3olvC7/tv4qBpaWQJyNESlE1RJayaurMJV+5u3
+H10z5EiAw9ULhEkNY5pF2RhZRwku5k+7YXa2o1ujxFWr4UgT2qqSIpBPpaUIW3s9
+T1yN8PE0R8PHGOLFVQIYlJxFqSGUk3FjSxyblzbww0FLbzcKRt/eMAw6ISkXJIAy
+HQ04yVXnrcTrEkTpVS8rNX02pO8Jc5Vh12NYtVAB7DhgQYfj0/YtFcZM8PdRqEav
+5VsolPJKwLV7mvcgS0J0HNZ9NRRSyxRXgRl50QrC7sX8aSyVTsyQhJaeD1IgMMfh
+0cHJ/g1WhlcqmAuXSW2T5p67zUUW6H17MBaNO2Z9R6pt466d1SQ=
+=hhmH
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--
 
