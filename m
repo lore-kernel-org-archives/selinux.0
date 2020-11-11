@@ -7,65 +7,65 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A42C5517A
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DA85C388F9
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC1CA20678
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 282D220678
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TqAde7Km"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="glCdOIRJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726466AbgKKQXw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Nov 2020 11:23:52 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34787 "EHLO
+        id S1726552AbgKKQXy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Nov 2020 11:23:54 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56608 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727297AbgKKQXv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 11:23:51 -0500
+        by vger.kernel.org with ESMTP id S1726516AbgKKQXy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 11:23:54 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605111830;
+        s=mimecast20190719; t=1605111833;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=slIZxXgTACldZTfkDuw8CyOH6FjxKWP/pS1II7xE2Ho=;
-        b=TqAde7KmzuBP9SNHQ7nvWNbMdiV5zKJf6l6rUVePWDOX0M0jog0YH1wsUSYnehcqSXTQco
-        St+WVWMlrXTZOG9JzOnq/wJYIZmrWTSYN+WVhohhnnaoFWvrw9vCMbjQiWJ928ez+xtfMc
-        lDfRRCNmTN6mYEc5GPlOEqQngD9ymJ8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-45-XLNCYVTWPxSGmjzKXnly1g-1; Wed, 11 Nov 2020 11:23:49 -0500
-X-MC-Unique: XLNCYVTWPxSGmjzKXnly1g-1
-Received: by mail-wr1-f70.google.com with SMTP id f4so768807wru.21
-        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 08:23:48 -0800 (PST)
+        bh=IEyab9M4LqGgMRrLCGW7jXmPcduqQzF4P3La2WmLZS8=;
+        b=glCdOIRJdRrqqAts0IG0vVWt3i1X4Mcinp9q5ViBxIHSBTbKcjNpuASHG+5e7Bhh6ODl6U
+        klY49z7US2fmfluyfmBW6LjFxH+aHM2BXYm6j5PULS0QaAMJpsmE6CSD+VnnIsc7gya7/Y
+        e09TXtaJdfI6SZqZNO3HA0es1h9fKlo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-479-Gg936fs4MjCdRQraU81YTA-1; Wed, 11 Nov 2020 11:23:50 -0500
+X-MC-Unique: Gg936fs4MjCdRQraU81YTA-1
+Received: by mail-wm1-f69.google.com with SMTP id y26so950034wmj.7
+        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 08:23:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=slIZxXgTACldZTfkDuw8CyOH6FjxKWP/pS1II7xE2Ho=;
-        b=W8QPACh7soye9Vvkqc2VoUv0tGdniQYhwtVaRjGptLc6u7YshHvv+M8+qxxQXhQiko
-         Xe0O19Em/nhItLOek6n5BzcMYN7RAed5GxB0RQ1Npdr5TzuSSdfPm5dmJnR4rUerCXxq
-         KWip7hGpwVOpAVZH1nbF/mV+TDuSfuoBQ++OINid+n01wkjV0mPtiX+bvhxqioeifAAZ
-         fJtUoJPeFtjfMPJBAQdyScEaV4et0jAxFALi0sekY6hZRf4Qux5HXGRXYz8hZoIxGH2Y
-         Ge+Ne3eCxsh7/OqVhO4vJy0w1Xz4DhG9iU592jGDZhrk1JzA/hp76pS91u+n0MW+A3eR
-         lCcA==
-X-Gm-Message-State: AOAM531i+nxVzjFd+KS3yY+M5cVRHRFiZ9UOKteijFws9KPBEmR5qaph
-        ZHgPHXP7ViG+n6hr8zbZJStNA3TBg/GnJokxgljWwNbEQngcEwezj1iEz1Yuba097lICRmm+Fva
-        6FH6VRy+T5h79cuIH0oeHrFNP2sNDYx44DRnCFKFzdfDqcsLOHxVXMv/+ps61an4SaA6Hew==
-X-Received: by 2002:a5d:5450:: with SMTP id w16mr4935466wrv.425.1605111827472;
-        Wed, 11 Nov 2020 08:23:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxpVQLNPzxbMErJHPmJJYDcKUU3F2zvumwlIzVrXI8/Pkvru1vAT6C4MTHQnudcDF7yrleHzg==
-X-Received: by 2002:a5d:5450:: with SMTP id w16mr4935449wrv.425.1605111827250;
-        Wed, 11 Nov 2020 08:23:47 -0800 (PST)
+        bh=IEyab9M4LqGgMRrLCGW7jXmPcduqQzF4P3La2WmLZS8=;
+        b=j8mhKunQ/KRzIxwI16qhZeL6P1h4d8/YRilb6cv2kFJZ4lek/0e67+c5+zi/Zq8Wql
+         Qd2lEVnOWhrPfUSzCUp7NhVoFtMbc8thjt5V0jxRJ3uljCcXQu/rM0ayjHXh1GQiBV3q
+         kqjcRabzt/R+f5lVMRardY8OurpC1gfrkgldHNxF2IUAZYVcekkwSUln4DJl+n3tHFbB
+         zOGt3/AOvNvGNTCnXjRU7jS2k8XeLDJSSAtbnZZBatsqgi6apTYsgoBfso3HaxPqop+O
+         oKRNNUqlCgupYChybG63mEJmRgq1iKRu1iRkDNomkJkKtlwGEBamEdaCPRM/kjAZZb9c
+         tXZw==
+X-Gm-Message-State: AOAM532nJDOX4zL39JPB9qYEpzHz/Zsff3vmzH19IW01ZXGNJwz0JgMs
+        CLhFAjsiYIIO6pHhgsxy5wFc1S/Q825kn2x8TXvaipHEdh61XBvXpcsZNyfY8wib3ISk5ZiXJXs
+        D3HXzA6el17hLkZUxfevDeheMcS8tYUs1MhBdbh/DQG0FRsWLrWfeeBKuGxfT/EOt65K9WQ==
+X-Received: by 2002:a5d:670f:: with SMTP id o15mr14322689wru.204.1605111828833;
+        Wed, 11 Nov 2020 08:23:48 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzOUmqbcXYyvMqp1BjS8/vqXMlSdf7cTwdV9sRq/LfxTUKOtLF4952BQQSQJMEbfPmWsL/dxQ==
+X-Received: by 2002:a5d:670f:: with SMTP id o15mr14322656wru.204.1605111828538;
+        Wed, 11 Nov 2020 08:23:48 -0800 (PST)
 Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id h81sm3152934wmf.44.2020.11.11.08.23.46
+        by smtp.gmail.com with ESMTPSA id h81sm3152934wmf.44.2020.11.11.08.23.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 08:23:46 -0800 (PST)
+        Wed, 11 Nov 2020 08:23:47 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH userspace v2 2/3] selinux(8): explain that runtime disable is deprecated
-Date:   Wed, 11 Nov 2020 17:23:39 +0100
-Message-Id: <20201111162340.527105-3-omosnace@redhat.com>
+Subject: [PATCH userspace v2 3/3] selinux_config(5): add a note that runtime disable is deprecated
+Date:   Wed, 11 Nov 2020 17:23:40 +0100
+Message-Id: <20201111162340.527105-4-omosnace@redhat.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201111162340.527105-1-omosnace@redhat.com>
 References: <20201111162340.527105-1-omosnace@redhat.com>
@@ -75,55 +75,26 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Update the main SELinux manpage to explain that runtime disable (i.e.
-disabling SELinux using SELINUX=Disabled) is deprecated and recommend
-disabling SELinux only via the kernel boot parameter.
+...and refer to selinux(8), which explains it further.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- libselinux/man/man8/selinux.8 | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ policycoreutils/man/man5/selinux_config.5 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
-index 2afe6d3d..0ef01460 100644
---- a/libselinux/man/man8/selinux.8
-+++ b/libselinux/man/man8/selinux.8
-@@ -20,8 +20,8 @@ permissive mode or enforcing mode.  The
- .B SELINUX
- variable may be set to
- any one of \fIdisabled\fR, \fIpermissive\fR, or \fIenforcing\fR to
--select one of these options.  The \fIdisabled\fR option completely
--disables the SELinux kernel and application code, leaving the system
-+select one of these options.  The \fIdisabled\fR disables most of the
-+SELinux kernel and application code, leaving the system
- running without any SELinux protection.  The \fIpermissive\fR option
- enables the SELinux code, but causes it to operate in a mode where
- accesses that would be denied by policy are permitted but audited.  The
-@@ -32,6 +32,24 @@ enforcing mode will prevent an operation from proceeding past the first
- denial and because some application code will fall back to a less
- privileged mode of operation if denied access.
- 
-+.B NOTE:
-+Disabling SELinux by setting
-+.B SELINUX=disabled
-+in
-+.I /etc/selinux/config
-+is deprecated and depending on kernel version and configuration it might
-+not lead to SELinux being completely disabled.  Specifically, the
-+SELinux hooks will still be executed internally, but the SELinux policy
-+will not be loaded and no operation will be denied.  In such state, the
-+system will act as if SELinux was disabled, although some operations
-+might behave slightly differently.  To properly disable SELinux, it is
-+recommended to use the
-+.B selinux=0
-+kernel boot option instead.  In that case SELinux will be disabled
-+regardless of what is set in the
-+.I /etc/selinux/config
-+file.
-+
- The
- .I /etc/selinux/config
- configuration file also controls what policy
+diff --git a/policycoreutils/man/man5/selinux_config.5 b/policycoreutils/man/man5/selinux_config.5
+index 1ffade15..8d56a559 100644
+--- a/policycoreutils/man/man5/selinux_config.5
++++ b/policycoreutils/man/man5/selinux_config.5
+@@ -48,7 +48,7 @@ SELinux security policy is enforced.
+ .IP \fIpermissive\fR 4
+ SELinux security policy is not enforced but logs the warnings (i.e. the action is allowed to proceed).
+ .IP \fIdisabled\fR
+-SELinux is disabled and no policy is loaded.
++No SELinux policy is loaded.  This option was used to disable SELinux completely, which is now deprected.  Use the \fBselinux=0\fR kernel boot option instead (see \fBselinux\fR(8)).
+ .RE
+ .sp
+ The entry can be determined using the \fBsestatus\fR(8) command or \fBselinux_getenforcemode\fR(3).
 -- 
 2.26.2
 
