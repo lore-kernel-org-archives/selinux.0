@@ -2,99 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DA85C388F9
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BED3DC388F9
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 21:15:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 282D220678
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="glCdOIRJ"
+	by mail.kernel.org (Postfix) with ESMTP id 5E6EB206D9
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 21:15:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726552AbgKKQXy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Nov 2020 11:23:54 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56608 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726516AbgKKQXy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 11:23:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605111833;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IEyab9M4LqGgMRrLCGW7jXmPcduqQzF4P3La2WmLZS8=;
-        b=glCdOIRJdRrqqAts0IG0vVWt3i1X4Mcinp9q5ViBxIHSBTbKcjNpuASHG+5e7Bhh6ODl6U
-        klY49z7US2fmfluyfmBW6LjFxH+aHM2BXYm6j5PULS0QaAMJpsmE6CSD+VnnIsc7gya7/Y
-        e09TXtaJdfI6SZqZNO3HA0es1h9fKlo=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-479-Gg936fs4MjCdRQraU81YTA-1; Wed, 11 Nov 2020 11:23:50 -0500
-X-MC-Unique: Gg936fs4MjCdRQraU81YTA-1
-Received: by mail-wm1-f69.google.com with SMTP id y26so950034wmj.7
-        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 08:23:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=IEyab9M4LqGgMRrLCGW7jXmPcduqQzF4P3La2WmLZS8=;
-        b=j8mhKunQ/KRzIxwI16qhZeL6P1h4d8/YRilb6cv2kFJZ4lek/0e67+c5+zi/Zq8Wql
-         Qd2lEVnOWhrPfUSzCUp7NhVoFtMbc8thjt5V0jxRJ3uljCcXQu/rM0ayjHXh1GQiBV3q
-         kqjcRabzt/R+f5lVMRardY8OurpC1gfrkgldHNxF2IUAZYVcekkwSUln4DJl+n3tHFbB
-         zOGt3/AOvNvGNTCnXjRU7jS2k8XeLDJSSAtbnZZBatsqgi6apTYsgoBfso3HaxPqop+O
-         oKRNNUqlCgupYChybG63mEJmRgq1iKRu1iRkDNomkJkKtlwGEBamEdaCPRM/kjAZZb9c
-         tXZw==
-X-Gm-Message-State: AOAM532nJDOX4zL39JPB9qYEpzHz/Zsff3vmzH19IW01ZXGNJwz0JgMs
-        CLhFAjsiYIIO6pHhgsxy5wFc1S/Q825kn2x8TXvaipHEdh61XBvXpcsZNyfY8wib3ISk5ZiXJXs
-        D3HXzA6el17hLkZUxfevDeheMcS8tYUs1MhBdbh/DQG0FRsWLrWfeeBKuGxfT/EOt65K9WQ==
-X-Received: by 2002:a5d:670f:: with SMTP id o15mr14322689wru.204.1605111828833;
-        Wed, 11 Nov 2020 08:23:48 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzOUmqbcXYyvMqp1BjS8/vqXMlSdf7cTwdV9sRq/LfxTUKOtLF4952BQQSQJMEbfPmWsL/dxQ==
-X-Received: by 2002:a5d:670f:: with SMTP id o15mr14322656wru.204.1605111828538;
-        Wed, 11 Nov 2020 08:23:48 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id h81sm3152934wmf.44.2020.11.11.08.23.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 08:23:47 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH userspace v2 3/3] selinux_config(5): add a note that runtime disable is deprecated
-Date:   Wed, 11 Nov 2020 17:23:40 +0100
-Message-Id: <20201111162340.527105-4-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201111162340.527105-1-omosnace@redhat.com>
-References: <20201111162340.527105-1-omosnace@redhat.com>
+        id S1725949AbgKKVPF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Nov 2020 16:15:05 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:34413 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725933AbgKKVPE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 16:15:04 -0500
+Received: from mail-ot1-f52.google.com (mail-ot1-f52.google.com [209.85.210.52])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 7EEE856124E
+        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 22:15:01 +0100 (CET)
+Received: by mail-ot1-f52.google.com with SMTP id l36so3528038ota.4
+        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 13:15:01 -0800 (PST)
+X-Gm-Message-State: AOAM532SJNdaMF5YG16QVnVNeaIsdboOavcWA9BZuluzlAjP3HeNJEPz
+        KV4j/G58iUxiVyuuZ6S8b65vjEQzfqzFyMXyt4E=
+X-Google-Smtp-Source: ABdhPJxIdOUBNQ7wSTTjjbFL9whBLbHnLk4LLsIzU1TnTSR5q0Keipiy3SXAM9kxgP4h0kZDUf+JmnekcRr1ScIncuo=
+X-Received: by 2002:a9d:123:: with SMTP id 32mr16355609otu.279.1605129300460;
+ Wed, 11 Nov 2020 13:15:00 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201102094310.484837-1-omosnace@redhat.com> <20201102101710.GA210822@localhost.localdomain>
+ <CAFqZXNvK=t4zGaLQzP-u-sbrM8KWBX3P7evUqTqcNKHEcYN+QQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNvK=t4zGaLQzP-u-sbrM8KWBX3P7evUqTqcNKHEcYN+QQ@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Wed, 11 Nov 2020 22:14:49 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=k4KXw_gX9QQp9pWZnL3CfGeNxn7jwq7LrZPg45s6zVUA@mail.gmail.com>
+Message-ID: <CAJfZ7=k4KXw_gX9QQp9pWZnL3CfGeNxn7jwq7LrZPg45s6zVUA@mail.gmail.com>
+Subject: Re: [PATCH userspace] ci: bump Fedora image version to 33
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        William Roberts <bill.c.roberts@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Nov 11 22:15:02 2020 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-...and refer to selinux(8), which explains it further.
+On Mon, Nov 2, 2020 at 12:12 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Mon, Nov 2, 2020 at 11:17 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > On Mon, Nov 02, 2020 at 10:43:10AM +0100, Ondrej Mosnacek wrote:
+> > > The testsuite will soon be switching to testing multiple filesystems,
+> > > which exposes a bug in F32 image's kernel. Since Fedora 33 has been
+> > > released recently and the testsuite runs just fine on it, just bump the
+> > > image version to avoid the bug.
+> > >
+> > > This commit also fixes the script to read out the Fedora image version
+> > > from environment variables instead of using hard-coded values.
+> > >
+> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> >
+> > Would it make sense to use Rawhide images from the link bellow?
+> >
+> > https://download.fedoraproject.org/pub/fedora/linux/development/rawhide/Cloud/x86_64/images/
+> >
+> > I think Paul already asked for it in past but I'm not sure what was the outcome.
+>
+> It is possible and already being used for the testsuite CI. However,
+> it is a bit harder to get to work reliably and there is always the
+> possibility of rawhide being randomly broken. It would require some
+> more extensive updates to the scripts (including a couple fixes from
+> my pending patches for the testsuite CI), so IMHO it should be done as
+> a separate patch (if at all).
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- policycoreutils/man/man5/selinux_config.5 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi, the patch looks good, but it does not fix everything: e2fsprogs,
+jfsutils and dosfstools also need to be added to
+scripts/ci/fedora-test-runner.sh, like what
+https://github.com/SELinuxProject/selinux-testsuite/commit/d4e507f78a1784334611421cdfa3683a8214b22d
+documented. Do you want to submit a patch about this?
 
-diff --git a/policycoreutils/man/man5/selinux_config.5 b/policycoreutils/man/man5/selinux_config.5
-index 1ffade15..8d56a559 100644
---- a/policycoreutils/man/man5/selinux_config.5
-+++ b/policycoreutils/man/man5/selinux_config.5
-@@ -48,7 +48,7 @@ SELinux security policy is enforced.
- .IP \fIpermissive\fR 4
- SELinux security policy is not enforced but logs the warnings (i.e. the action is allowed to proceed).
- .IP \fIdisabled\fR
--SELinux is disabled and no policy is loaded.
-+No SELinux policy is loaded.  This option was used to disable SELinux completely, which is now deprected.  Use the \fBselinux=0\fR kernel boot option instead (see \fBselinux\fR(8)).
- .RE
- .sp
- The entry can be determined using the \fBsestatus\fR(8) command or \fBselinux_getenforcemode\fR(3).
--- 
-2.26.2
+Anyway, for updating the Fedora image version to 33 : Acked-by:
+Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Thanks,
+Nicolas
 
