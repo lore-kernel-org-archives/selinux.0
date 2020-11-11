@@ -2,112 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FAD9C55ABD
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 15:56:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C91AC388F9
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D5A52074B
-	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 15:56:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9CD220678
+	for <selinux@archiver.kernel.org>; Wed, 11 Nov 2020 16:23:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="hpK54jNy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XwepiBcs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727468AbgKKP4y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Nov 2020 10:56:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726274AbgKKP4x (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 10:56:53 -0500
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BBFEC0613D6
-        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 07:56:52 -0800 (PST)
-Received: by mail-ed1-x543.google.com with SMTP id e18so2815753edy.6
-        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 07:56:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Fz51KnTIDgLSCdxAMNRU+5+a0jtwfxsxVOpSIhz7Mwg=;
-        b=hpK54jNyK8Kf6FQCcwjl8Ia2N/1XmRDZjnMwNh0sf5ilwaRdCuJ6uxspf6X6ByiyvP
-         vOEqOKJM3dIhHMpmeqE2H4pLDSfCOVGVhw12oFpwjJA3TDKTwZP68w9oigZrLxFr1X7K
-         7Dka5wCsLgQVSlZGOkSPWoVf4cdbxB+TYC1MdaNYNq2kcvV8tu+lex7pWYEhv928jlCq
-         Eg/TX90rkd4J20Px1pgQis9+6J1CsK4aAg/YkPNWVmDJK3Lo97W8G/hLx/9oZkDE9OeC
-         71zhFYSTTMQrzSggChVACeCDMEjhaJIGggl6+cUsbn1QeRmvk+SskQNTiwoXnJHrF5Z/
-         vrPA==
+        id S1727161AbgKKQXt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Nov 2020 11:23:49 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53854 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726466AbgKKQXt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Nov 2020 11:23:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1605111828;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=i4METgfOS5g+kwvGF60ODUV2dt9wFT7pe+sxkfeJ4ZU=;
+        b=XwepiBcs0e8WY0oqZ4ezjtxGJHSPY6SzRAFSe6PpzrqxN+qpHNHVAtHbqQb5ACSkKVv+z8
+        IMLJJNtPWfOz7uM9f/U1+PEENyaKNpAhzSYEYmAqEAwyYLVp37am/iyFFkdNEVgnuPlP/6
+        jJqNnTQQzGnbWjFff3FQEzu5DBnF+Pc=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-424-WcjQJaU8McqBw3GPobhn_g-1; Wed, 11 Nov 2020 11:23:46 -0500
+X-MC-Unique: WcjQJaU8McqBw3GPobhn_g-1
+Received: by mail-wr1-f70.google.com with SMTP id c8so768798wrh.16
+        for <selinux@vger.kernel.org>; Wed, 11 Nov 2020 08:23:46 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Fz51KnTIDgLSCdxAMNRU+5+a0jtwfxsxVOpSIhz7Mwg=;
-        b=DoRONNhKj6SsiIKrE7s+wHNE4Ghcue8wvXZuQjFLeY3+MYzGONggCDMf3PMHpBs8c9
-         V9CwWPJe8GHq0rsoDD/s2yj2ZG8qf5xvsqN9bVfArOETcocd0aWX+nbLh1BRAhkrs4db
-         666Amtu5J04+ONceXInsnaRm5bDgTTUVQs6EJHGxskIXPy8bGaLqDlHVlmqnZXL5rhoO
-         TMigfN2CkknAp2Viy1vTlSsWAVVLuLe9Sm3wp8AuJn3VHtlltWgIPCPE6jJMgHaGCkO6
-         F6fsGukLBTjhvS6CaWQ2qugU75lUFlx/TxaYtINNKTo2PiFN3rLVRkKAJ3p3osiWoqcZ
-         BYqA==
-X-Gm-Message-State: AOAM533PVzCUBRqSO32vKy698nDoSidR4r1MTetj6oew9HAu2bL/iFWZ
-        PVnoUjVGWbVjaGsTEqpmTDzknqVUWJqPRwdiXceG
-X-Google-Smtp-Source: ABdhPJyoXvqPPAxXvXC3nEJRXcmP5X1/7kHCbKMNZDT1GBEWI3aC31s+aZguYWimyml0Hk+ccvBbKX0xVpFGusztuwo=
-X-Received: by 2002:a05:6402:559:: with SMTP id i25mr80033edx.128.1605110210699;
- Wed, 11 Nov 2020 07:56:50 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=i4METgfOS5g+kwvGF60ODUV2dt9wFT7pe+sxkfeJ4ZU=;
+        b=JSaTap2vpVfAKygcni31UMOPQGILKlWJ80RSuMdvcM66VXi4W/tOWzfSGUtJkRzCUU
+         Owmy9g2rxUpSXe0O09MxpGhyvyc6cD0dvBsscW80nMKaSnvp1pZB+RMcdw4MxpaEmFNb
+         nfjLegG4hVhDNn7UYekISDGRRfVvs3wNPjGtnVVXYU5Rm0OkN/sPWlfwVve4wQThjRYY
+         ZhdBLims5mthhb1eGSxu+v6RuseWEg+t1+No8UmlpK/yQoXI33ls27KH9IcCqfw9ELZ6
+         KpxfIEr89UZYeBxhhFQ2ROSReVSrh5vKB5gjYUPyjCv0JsIT6eY+CSEkwHzu3Mtp/T4Q
+         VMLw==
+X-Gm-Message-State: AOAM532tHLhnuE24qgs9wB2tSdRpy/DOcMYFdnLnV9soPU4XWuIp4wHe
+        +duc29sFGYRaspnyV/PbmEiYSGvttgXp5D1ksyznYjD4VmzzYcUqTnK7osR5t6du109Q6UAXM50
+        DvVcu60qzZ8482eBCCEUUwcA8G2ojQCP/GsMQ1XjGm3iweW8zMJpiI3hkg5ks4+1vkwLHRg==
+X-Received: by 2002:adf:db85:: with SMTP id u5mr30305869wri.155.1605111824919;
+        Wed, 11 Nov 2020 08:23:44 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwJdundMLhaUnYrbv8Lnm2USRlABmkhXYIAAgmYioFPY7I3mrLd3LZV1OvZgTEijW44yAuU5Q==
+X-Received: by 2002:adf:db85:: with SMTP id u5mr30305851wri.155.1605111824707;
+        Wed, 11 Nov 2020 08:23:44 -0800 (PST)
+Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
+        by smtp.gmail.com with ESMTPSA id h81sm3152934wmf.44.2020.11.11.08.23.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Nov 2020 08:23:44 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH userspace v2 0/3] Update manpages to reflect that runtime SELinux disable is deprecated
+Date:   Wed, 11 Nov 2020 17:23:37 +0100
+Message-Id: <20201111162340.527105-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <20201111095134.481658-1-omosnace@redhat.com> <20201111100735.GA213493@localhost.localdomain>
- <CAFqZXNteFTp2o9-MOSwJSS601MjmjQEL-S9x7g5exyvy+oLhUA@mail.gmail.com>
-In-Reply-To: <CAFqZXNteFTp2o9-MOSwJSS601MjmjQEL-S9x7g5exyvy+oLhUA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 11 Nov 2020 10:56:39 -0500
-Message-ID: <CAHC9VhQNSdQRF5LxHx0E-+p0p64AzBBUs3C-Z2EmD=NaZwSybw@mail.gmail.com>
-Subject: Re: [PATCH userspace] selinux(8): explain that runtime disable is deprecated
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 11, 2020 at 5:19 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Wed, Nov 11, 2020 at 11:07 AM Petr Lautrbach <plautrba@redhat.com> wrote:
-> > On Wed, Nov 11, 2020 at 10:51:34AM +0100, Ondrej Mosnacek wrote:
-> > > Update the main SELinux manpage to explain that runtime disable (i.e.
-> > > disabling SELinux using SELINUX=Disabled) is deprecated and recommend
-> > > disabling SELinux only via the kernel boot parameter.
-> > >
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> > >  libselinux/man/man8/selinux.8 | 26 ++++++++++++++++++++++----
-> > >  1 file changed, 22 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
-> > > index 31364271..721a65f4 100644
-> > > --- a/libselinux/man/man8/selinux.8
-> > > +++ b/libselinux/man/man8/selinux.8
-> > > @@ -19,12 +19,12 @@ enabled or disabled, and if enabled, whether SELinux operates in
-> > >  permissive mode or enforcing mode.  The
-> > >  .B SELINUX
-> > >  variable may be set to
-> > > -any one of disabled, permissive, or enforcing to select one of these
-> > > -options.  The disabled option completely disables the SELinux kernel
-> > > +any one of Disabled, Permissive, or Enforcing to select one of these
-> >
-> > Is there a reson for these changes?
->
-> Just for better readability. Although I should probably just mark them
-> up, as in selinux_config(5)...
->
-> > policycoreutils/man/man5/selinux_config.5 aka selinux_config(5) doesn't use
-> > capitals:
-> >
-> >     SELINUX = enforcing | permissive | disabled
->
-> Good point, it should be consistent. And also that page will need a
-> similar update. v2 coming soon...
+SSIA
 
-Thanks!
+Ondrej Mosnacek (3):
+  selinux(8): mark up SELINUX values
+  selinux(8): explain that runtime disable is deprecated
+  selinux_config(5): add a note that runtime disable is deprecated
+
+ libselinux/man/man8/selinux.8             | 42 ++++++++++++++++-------
+ policycoreutils/man/man5/selinux_config.5 |  2 +-
+ 2 files changed, 31 insertions(+), 13 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.26.2
+
