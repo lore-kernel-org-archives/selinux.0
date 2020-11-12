@@ -2,88 +2,84 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06FCBC388F7
-	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 21:06:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC1D2C2D0E4
+	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 21:07:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AAE10206CA
-	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 21:06:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 829A2216C4
+	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 21:07:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726766AbgKLVGb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Nov 2020 16:06:31 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:38640 "EHLO
+        id S1726759AbgKLVHX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Nov 2020 16:07:23 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:36182 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726337AbgKLVGb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Nov 2020 16:06:31 -0500
-Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
+        with ESMTP id S1726337AbgKLVHX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Nov 2020 16:07:23 -0500
+Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 920EF5654BB
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 22:06:28 +0100 (CET)
-Received: by mail-ot1-f49.google.com with SMTP id h16so2876761otq.9
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 13:06:28 -0800 (PST)
-X-Gm-Message-State: AOAM530wPLyQjeIINT+ObidEjZx4ReXXKCJbSXGP951FdLR8qBReDD5q
-        Xs+TmAHH+1R8bPCXHMQORdp/wDiB4waK8qepVGc=
-X-Google-Smtp-Source: ABdhPJwLcszaxxaCZ3+cTtyzjry/CHuRxP+igAOURSSrjAo8tgHc7k2OkJyYOEyizd1r1Y9515kmiDyTTa6HxTBIfSY=
-X-Received: by 2002:a9d:123:: with SMTP id 32mr815899otu.279.1605215187614;
- Thu, 12 Nov 2020 13:06:27 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 7746E5654C8
+        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 22:07:20 +0100 (CET)
+Received: by mail-ot1-f51.google.com with SMTP id a15so7009292otf.5
+        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 13:07:20 -0800 (PST)
+X-Gm-Message-State: AOAM5335p0nmBppDPjALeAqdMWpcZXD1ctJDOXsG3v1Ntm6X1uKokGhq
+        QTbegwy7sGP6qrDdTvN96VveoGeaDUFpPhAm0Vw=
+X-Google-Smtp-Source: ABdhPJz86spRhvZ9B1Xoz2Xnl14crX9aHzda3pfSQTj66yqpOb8ec9H7FjAlZiA54zkHhLk8suWfZsSLQ1xtks7DCFk=
+X-Received: by 2002:a9d:1727:: with SMTP id i39mr830744ota.96.1605215239495;
+ Thu, 12 Nov 2020 13:07:19 -0800 (PST)
 MIME-Version: 1.0
-References: <20201112091519.577246-1-omosnace@redhat.com>
-In-Reply-To: <20201112091519.577246-1-omosnace@redhat.com>
+References: <20201111162340.527105-1-omosnace@redhat.com> <20201111162340.527105-4-omosnace@redhat.com>
+ <CAJfZ7==T9MSFWb5x8fT93mD0ytSa__a_7t=PVWv0nxvFQta2Dw@mail.gmail.com>
+In-Reply-To: <CAJfZ7==T9MSFWb5x8fT93mD0ytSa__a_7t=PVWv0nxvFQta2Dw@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Thu, 12 Nov 2020 22:06:16 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=nD2tUjUDdCzQDe_6yAxwrzVZP3C5ATky_26-d_MTFKFg@mail.gmail.com>
-Message-ID: <CAJfZ7=nD2tUjUDdCzQDe_6yAxwrzVZP3C5ATky_26-d_MTFKFg@mail.gmail.com>
-Subject: Re: [PATCH userspace] ci: add new dependencies needed by selinux-testsuite
+Date:   Thu, 12 Nov 2020 22:07:07 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mheKqaBkLwzb=DDwMG+OYBhkB8XmUL+y1HiZa1MJsBcg@mail.gmail.com>
+Message-ID: <CAJfZ7=mheKqaBkLwzb=DDwMG+OYBhkB8XmUL+y1HiZa1MJsBcg@mail.gmail.com>
+Subject: Re: [PATCH userspace v2 3/3] selinux_config(5): add a note that
+ runtime disable is deprecated
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Petr Lautrbach <plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Nov 12 22:06:29 2020 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Nov 12 22:07:20 2020 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 12, 2020 at 10:15 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Wed, Nov 11, 2020 at 10:19 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> The testsuite now runs filesystem tests also on other filesystems than
-> just the default ext4. [1] That means a few more userspace utilities are
-> needed to format these filesystems. [2]
+> On Wed, Nov 11, 2020 at 5:23 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > ...and refer to selinux(8), which explains it further.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  policycoreutils/man/man5/selinux_config.5 | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/policycoreutils/man/man5/selinux_config.5 b/policycoreutils/man/man5/selinux_config.5
+> > index 1ffade15..8d56a559 100644
+> > --- a/policycoreutils/man/man5/selinux_config.5
+> > +++ b/policycoreutils/man/man5/selinux_config.5
+> > @@ -48,7 +48,7 @@ SELinux security policy is enforced.
+> >  .IP \fIpermissive\fR 4
+> >  SELinux security policy is not enforced but logs the warnings (i.e. the action is allowed to proceed).
+> >  .IP \fIdisabled\fR
+> > -SELinux is disabled and no policy is loaded.
+> > +No SELinux policy is loaded.  This option was used to disable SELinux completely, which is now deprected.  Use the \fBselinux=0\fR kernel boot option instead (see \fBselinux\fR(8)).
 >
-> [1] https://github.com/SELinuxProject/selinux-testsuite/commit/071ec9c5e5f0442aae0b14f455ea6e6b34ada1e0
-> [2] https://github.com/SELinuxProject/selinux-testsuite/commit/d4e507f78a1784334611421cdfa3683a8214b22d
+> Hi, there is a misspelling here: deprected -> deprecated. Otherwise
+> the 3 patches look good to me, thanks!
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  scripts/ci/fedora-test-runner.sh | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
-> index 78218963..be2cb7d8 100755
-> --- a/scripts/ci/fedora-test-runner.sh
-> +++ b/scripts/ci/fedora-test-runner.sh
-> @@ -58,6 +58,9 @@ dnf install -y \
->      quota \
->      xfsprogs-devel \
->      libuuid-devel \
-> +    e2fsprogs \
-> +    jfsutils \
-> +    dosfstools \
->      kernel-devel-"$(uname -r)" \
->      kernel-modules-"$(uname -r)"
->
-> --
-> 2.26.2
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-As the patch is very straightforward and it fixed the issue in
-Travis-CI tests, I merged this patch directly. Now
-https://travis-ci.com/github/SELinuxProject/selinux whould be green
-again :)
+Merged.
 
-Thanks!
+Thanks,
 Nicolas
 
