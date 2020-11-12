@@ -2,103 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A49CC2D0A3
-	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 09:15:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 497F9C2D0A3
+	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 09:17:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A46D9216FD
-	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 09:15:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCD06216FD
+	for <selinux@archiver.kernel.org>; Thu, 12 Nov 2020 09:17:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A+aE/4iW"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GXfOmC4O"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726140AbgKLJP3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Nov 2020 04:15:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38026 "EHLO
+        id S1726365AbgKLJRl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Nov 2020 04:17:41 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24061 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725966AbgKLJP2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Nov 2020 04:15:28 -0500
+        by vger.kernel.org with ESMTP id S1726158AbgKLJRk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Nov 2020 04:17:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605172527;
+        s=mimecast20190719; t=1605172658;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=+bUfdGb2lny+CxNYcFb1v3dpi0kGnTY+rxIrgq+L3JM=;
-        b=A+aE/4iWQHCPvRkMEFo5CeavAFI0P4iN4K53YhI37e3pGAz6MzKEJes6eACqYBDxdQYhP4
-        anSZoU++N+52QoI6DITmINIuiAwGGtxFYE6D0wYsg+mCDXvY/v25aXnLgAVz5NaX1+4Wsl
-        Ur2DMwDjjn2NKP4SRS4a7GtucLngZts=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-336-6aS_oNP4NdiHiRbfH64l5A-1; Thu, 12 Nov 2020 04:15:23 -0500
-X-MC-Unique: 6aS_oNP4NdiHiRbfH64l5A-1
-Received: by mail-wm1-f70.google.com with SMTP id o81so1533106wma.0
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 01:15:22 -0800 (PST)
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ppJ1WvMCXvJK8DRXWaaVPte+EtVIZyz3W9s3pgh0+CY=;
+        b=GXfOmC4OuFylS9+7iO8tzq+IKNz5n40Fn5GCy5H0JSnnyhLKjvcPTWx3pMBnNnkLPz2Bbw
+        Mt7EXCrj1LNxOREFCtO+GJLBHUZzJ46R2hrX5UYqMXTRyRVZPDiHy73ZOPa7tUYmox5zp6
+        0nO9U+Uee0M3Ecyr4QUGIvTqaS3uBNU=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-469-PWqLF1MkNceNQFhrUI1zQA-1; Thu, 12 Nov 2020 04:17:35 -0500
+X-MC-Unique: PWqLF1MkNceNQFhrUI1zQA-1
+Received: by mail-lj1-f198.google.com with SMTP id m20so1816728ljj.11
+        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 01:17:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+bUfdGb2lny+CxNYcFb1v3dpi0kGnTY+rxIrgq+L3JM=;
-        b=Fku9kko9rjHIma5+U2c2VbyjeZqUMb4WsGeLFDWp7cEsHT3Rz9eorP9YOqWi++qt4x
-         9nV/djIqRAJwCu7UwNmD4XIJotOGKMHomxCamNqU8qRq8XeDlkAKnTDzmf3uiXOu5Fl1
-         Mfuif1kfHqEneEDBDmu5jPpDFuH1No2FG4p4a2EhqamXVUvxubAg2OjejG8DRPFNBBN+
-         TFYecJ/nA6nVM4XcEuvkUWvlqCaLg8ZFvCkD7HGdvK6rJRneJOLttoBXRQzUbXYJlg64
-         KetQckRO/edQVspBJWmHdzssc0c/TZtUUlt/DrptOu5J5HAV6ojo3K/WQ2QZKoYCMTeJ
-         78Pg==
-X-Gm-Message-State: AOAM533iThxIZAlnAbj/0MyyLtPT/VfabClPAI+mvDrlCC+r0W0Mwxim
-        gVhkMBtZxajgomfQ3wA+0beG/6SkafmHjA4MV79CfcFpxjMQK7hSdgLMtbqGZRNdMbE1T/vnym/
-        htYCYRzRza7r+C1241ckuDy4TI0fIerJpyNsI1vr6KAJYNqFdH/U5Kzo/4TZjHQVVHAROvg==
-X-Received: by 2002:a1c:1d51:: with SMTP id d78mr8475419wmd.60.1605172521537;
-        Thu, 12 Nov 2020 01:15:21 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzVJycN3HzkBHC4+WwXDuSJ4FLIPE31SikdexDNJBCYW2spULJy/kfdu/4KYVdy6P+MuAsyTQ==
-X-Received: by 2002:a1c:1d51:: with SMTP id d78mr8475403wmd.60.1605172521247;
-        Thu, 12 Nov 2020 01:15:21 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:9293:f330:b535:b530])
-        by smtp.gmail.com with ESMTPSA id n8sm5279098wmc.11.2020.11.12.01.15.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 01:15:20 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: [PATCH userspace] ci: add new dependencies needed by selinux-testsuite
-Date:   Thu, 12 Nov 2020 10:15:19 +0100
-Message-Id: <20201112091519.577246-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ppJ1WvMCXvJK8DRXWaaVPte+EtVIZyz3W9s3pgh0+CY=;
+        b=jJpPlpYs70KOZZp5CxgwShDp0+q6hjx4a2IJaa69JpKGJ6G1DjoDF9/jVKwW8fN+JS
+         xv/VFX1Q787d2htn7pUFmZTS+jSOeyzuiVVAzuETDda1d/stxG/1rn+EMfjOyr6wwyZo
+         Q5l64RLQ07qZds0+V+g5AlX3yX2SwY/lCpgkicsgZ/dWsTt2Vp5vGXRz5xWBRO/YoXop
+         VtW3ku51XhgILC1TY+T+/ZAFt2NeEvCOWOApZEggNAtNzW88VofwHAySkR3E3Rgpp4GP
+         WpzfUdaxLLcnqv5d2ArIqcHkVu2nOCW4nbELQGx+AK3luGuEQA8pdFqMM0/VU+NKwBii
+         PkfA==
+X-Gm-Message-State: AOAM533datHe7TeggXaV8Tnjm3n7TSCyXlRosY3fA7/QDvMAwy1l4fWQ
+        pMqxdz1rImL4enJbE7jTkxPDXkbBYRDGxmyMVn8T1AW7Y8ukGBhGi/Dk1Vwd+AgFZXERA3lovnM
+        8wFfC71/tpGM109rTpbypfVcz68RM3+189w==
+X-Received: by 2002:a19:bd2:: with SMTP id 201mr9567630lfl.478.1605172653752;
+        Thu, 12 Nov 2020 01:17:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxEnpcwUUUfDcrLFXY7RxpOBXQ8j5zHKABvaGLoyA7MR0jy8Duj0JoycAcOC7lb04VaG4BN1najNGErFhA7Fso=
+X-Received: by 2002:a19:bd2:: with SMTP id 201mr9567623lfl.478.1605172653569;
+ Thu, 12 Nov 2020 01:17:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201102094310.484837-1-omosnace@redhat.com> <20201102101710.GA210822@localhost.localdomain>
+ <CAFqZXNvK=t4zGaLQzP-u-sbrM8KWBX3P7evUqTqcNKHEcYN+QQ@mail.gmail.com> <CAJfZ7=k4KXw_gX9QQp9pWZnL3CfGeNxn7jwq7LrZPg45s6zVUA@mail.gmail.com>
+In-Reply-To: <CAJfZ7=k4KXw_gX9QQp9pWZnL3CfGeNxn7jwq7LrZPg45s6zVUA@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 12 Nov 2020 10:17:22 +0100
+Message-ID: <CAFqZXNseRdNmstXNE4uTTGtMzqHWBGKpe0-xkXd7vMiEDFy9DQ@mail.gmail.com>
+Subject: Re: [PATCH userspace] ci: bump Fedora image version to 33
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        William Roberts <bill.c.roberts@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The testsuite now runs filesystem tests also on other filesystems than
-just the default ext4. [1] That means a few more userspace utilities are
-needed to format these filesystems. [2]
+On Wed, Nov 11, 2020 at 10:15 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> On Mon, Nov 2, 2020 at 12:12 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > On Mon, Nov 2, 2020 at 11:17 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > > On Mon, Nov 02, 2020 at 10:43:10AM +0100, Ondrej Mosnacek wrote:
+> > > > The testsuite will soon be switching to testing multiple filesystems,
+> > > > which exposes a bug in F32 image's kernel. Since Fedora 33 has been
+> > > > released recently and the testsuite runs just fine on it, just bump the
+> > > > image version to avoid the bug.
+> > > >
+> > > > This commit also fixes the script to read out the Fedora image version
+> > > > from environment variables instead of using hard-coded values.
+> > > >
+> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > >
+> > > Would it make sense to use Rawhide images from the link bellow?
+> > >
+> > > https://download.fedoraproject.org/pub/fedora/linux/development/rawhide/Cloud/x86_64/images/
+> > >
+> > > I think Paul already asked for it in past but I'm not sure what was the outcome.
+> >
+> > It is possible and already being used for the testsuite CI. However,
+> > it is a bit harder to get to work reliably and there is always the
+> > possibility of rawhide being randomly broken. It would require some
+> > more extensive updates to the scripts (including a couple fixes from
+> > my pending patches for the testsuite CI), so IMHO it should be done as
+> > a separate patch (if at all).
+>
+> Hi, the patch looks good, but it does not fix everything: e2fsprogs,
+> jfsutils and dosfstools also need to be added to
+> scripts/ci/fedora-test-runner.sh, like what
+> https://github.com/SELinuxProject/selinux-testsuite/commit/d4e507f78a1784334611421cdfa3683a8214b22d
+> documented. Do you want to submit a patch about this?
 
-[1] https://github.com/SELinuxProject/selinux-testsuite/commit/071ec9c5e5f0442aae0b14f455ea6e6b34ada1e0
-[2] https://github.com/SELinuxProject/selinux-testsuite/commit/d4e507f78a1784334611421cdfa3683a8214b22d
+Yes, I forgot that those would also be needed... I just sent a patch
+to the list.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- scripts/ci/fedora-test-runner.sh | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
-index 78218963..be2cb7d8 100755
---- a/scripts/ci/fedora-test-runner.sh
-+++ b/scripts/ci/fedora-test-runner.sh
-@@ -58,6 +58,9 @@ dnf install -y \
-     quota \
-     xfsprogs-devel \
-     libuuid-devel \
-+    e2fsprogs \
-+    jfsutils \
-+    dosfstools \
-     kernel-devel-"$(uname -r)" \
-     kernel-modules-"$(uname -r)"
- 
 -- 
-2.26.2
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
