@@ -2,113 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B3CBC4742C
-	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 12:15:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 566B1C388F7
+	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 17:23:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED7B22225B
-	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 12:15:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF75620A8B
+	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 17:23:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bVH7ayAE"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="pGQd9Yjk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbgKMMP3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 Nov 2020 07:15:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:35088 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726487AbgKMMPZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 Nov 2020 07:15:25 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605269724;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SOpAukV2xVESRDTUCQ9lz8W1PqC6TTPNFLzM9aDtpVo=;
-        b=bVH7ayAE44McHvw31i0i9J3hv/Ox2FWEUWDHh4hSHb9FlLcrFpW6rZw3mn0nQ2YYIKOxgN
-        sQ2KnYpBO7jVlrTfEWGYOQSK3F3kPGftOxjjB4uo8ThfUiAATdQMjiC3x2QULw0Lf8XjPU
-        WsYB2pY6ZJIuwzhab2odM5TRN9xPmuM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-520-EDtHSX6IOySA-WXEhOo0mw-1; Fri, 13 Nov 2020 07:15:20 -0500
-X-MC-Unique: EDtHSX6IOySA-WXEhOo0mw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 15E91803F6A;
-        Fri, 13 Nov 2020 12:15:19 +0000 (UTC)
-Received: from localhost (unknown [10.40.195.121])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D22456EF50;
-        Fri, 13 Nov 2020 12:15:18 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     "Bernhard M. Wiedemann" <bwiedemann@suse.de>
-Subject: Re: [PATCH] python/sepolicy: allow to override manpage date
-In-Reply-To: <20201030215309.23606-1-bwiedemann@suse.de>
-References: <20201030215309.23606-1-bwiedemann@suse.de>
-Date:   Fri, 13 Nov 2020 13:15:17 +0100
-Message-ID: <878sb5pi5m.fsf@redhat.com>
+        id S1725966AbgKMRXE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 Nov 2020 12:23:04 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:33416 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725959AbgKMRXC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 Nov 2020 12:23:02 -0500
+Received: from [192.168.86.31] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 6C59620C28A7;
+        Fri, 13 Nov 2020 09:23:15 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6C59620C28A7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1605288195;
+        bh=aAzmi0v2l98LjNUH8gtaCpa7FwaGabf1iM4w3l3mIqg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=pGQd9YjkdXxUH100EXKoTq5sPmbz3UlFUxBDt0X0xz+vPCl9U2By8O+H2qXn/rKi+
+         U9UGGnlTJ6jLzTqKXt8rHHTeqHb0ikHvUDTlorfMlnCHNKynEBvHKcpbhV0Xk+0onU
+         rZAdaz3+OGAYOoHoM8KuaYiFpgKUNEfRrHlYNymw=
+Subject: Re: [PATCH v5 3/7] IMA: add hook to measure critical data
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20201101222626.6111-1-tusharsu@linux.microsoft.com>
+ <20201101222626.6111-4-tusharsu@linux.microsoft.com>
+ <1f83ec246cb6356c340b379ab00e43f0b5bba0ae.camel@linux.ibm.com>
+ <25622ca6-359d-fa97-c5e6-e314cba51306@linux.microsoft.com>
+ <0f25c77c042f3e62405f12966c2358fe8cd82116.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <1ce2b55e-5dd0-b147-5570-55e8db774055@linux.microsoft.com>
+Date:   Fri, 13 Nov 2020 09:23:14 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+In-Reply-To: <0f25c77c042f3e62405f12966c2358fe8cd82116.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-"Bernhard M. Wiedemann" <bwiedemann@suse.de> writes:
 
-> in order to make builds reproducible.
-> See https://reproducible-builds.org/ for why this is good
-> and https://reproducible-builds.org/specs/source-date-epoch/
-> for the definition of this variable.
->
-> This patch was done while working on reproducible builds for openSUSE.
->
-> Signed-off-by: Bernhard M. Wiedemann <bwiedemann@suse.de>
+>>> Including "data_source" here isn't quite right.  "data source" should
+>>> only be added in the first patch which uses it, not here.   When adding
+>>> it please shorten the field description to "kernel data source".   The
+>>> longer explanation can be included in the longer function description.
+>>>
+>> *Question*
+>> Do you mean the parameter @event_data_source should be removed from this
+>> patch? And then later added in patch 7/7 – where SeLinux uses it?
+> 
+> Data source support doesn't belong in this patch.  Each patch should do
+> one logical thing and only that one thing.  This patch is adding
+> support for measuring critical data.  The data source patch will limit
+> the critical data being measured.
+> 
+> Other than updating the data source list in the documentation,
+> definitely do not add data source support to the SELinux patch.
+> 
+> thanks,
+> 
+> Mimi
+> 
+Makes sense, I will move the data_source from this patch to a
+separate one before SeLinux.
+And the SeLinux patch will simply update the documentation.
 
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
-
-And merged. Thank you!
-
-
-
-> ---
->  python/sepolicy/sepolicy/manpage.py | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
-> index 3e8a3be9..2f847abb 100755
-> --- a/python/sepolicy/sepolicy/manpage.py
-> +++ b/python/sepolicy/sepolicy/manpage.py
-> @@ -39,6 +39,8 @@ typealias_types = {
->  equiv_dict = {"smbd": ["samba"], "httpd": ["apache"], "virtd": ["virt", "libvirt"], "named": ["bind"], "fsdaemon": ["smartmon"], "mdadm": ["raid"]}
->  
->  equiv_dirs = ["/var"]
-> +man_date = time.strftime("%y-%m-%d", time.gmtime(
-> +        int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
->  modules_dict = None
->  
->  
-> @@ -569,7 +571,7 @@ class ManPage:
->  
->      def _typealias(self,typealias):
->          self.fd.write('.TH  "%(typealias)s_selinux"  "8"  "%(date)s" "%(typealias)s" "SELinux Policy %(typealias)s"'
-> -                 % {'typealias':typealias, 'date': time.strftime("%y-%m-%d")})
-> +                 % {'typealias':typealias, 'date': man_date})
->          self.fd.write(r"""
->  .SH "NAME"
->  %(typealias)s_selinux \- Security Enhanced Linux Policy for the %(typealias)s processes
-> @@ -588,7 +590,7 @@ man page for more details.
->  
->      def _header(self):
->          self.fd.write('.TH  "%(domainname)s_selinux"  "8"  "%(date)s" "%(domainname)s" "SELinux Policy %(domainname)s"'
-> -                      % {'domainname': self.domainname, 'date': time.strftime("%y-%m-%d")})
-> +                      % {'domainname': self.domainname, 'date': man_date})
->          self.fd.write(r"""
->  .SH "NAME"
->  %(domainname)s_selinux \- Security Enhanced Linux Policy for the %(domainname)s processes
-> -- 
-> 2.26.2
-
+Thanks Mimi.
