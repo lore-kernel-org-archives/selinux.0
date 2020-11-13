@@ -7,78 +7,84 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE1D2C5519F
-	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 00:54:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CC8DC2D0E4
+	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 01:17:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8C20120B80
-	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 00:54:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A64F221D7F
+	for <selinux@archiver.kernel.org>; Fri, 13 Nov 2020 01:17:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="iEQ9zYRt"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="AZTMbeyQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726097AbgKMAy0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Nov 2020 19:54:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
+        id S1726101AbgKMBRi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Nov 2020 20:17:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725929AbgKMAy0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Nov 2020 19:54:26 -0500
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F31DC0613D1
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 16:54:26 -0800 (PST)
-Received: by mail-ej1-x643.google.com with SMTP id s25so10826960ejy.6
-        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 16:54:26 -0800 (PST)
+        with ESMTP id S1725972AbgKMBRh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Nov 2020 20:17:37 -0500
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A5EC0613D4
+        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 17:17:37 -0800 (PST)
+Received: by mail-ej1-x642.google.com with SMTP id o9so10921909ejg.1
+        for <selinux@vger.kernel.org>; Thu, 12 Nov 2020 17:17:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=AEcJp8+cYPFqd4RZa++b11FMH3Sp/vorN9mj3J18H9Y=;
-        b=iEQ9zYRtzGDqmcaa/3aNzf1CXxc15ZuofXAmqk8gnn6LWiGB5FcJ/3GWYzSMIEUX7N
-         szRByzkW0GvvdauRo7xgaRFHEAi95i5g2kT6UuHtjma+k7OCMztyaeODTrJf+1iaG8m/
-         CRt7QMRva6lb7qqp+zwgM6HMMsnHs8m94KY4VeuUVKr3ujEhNPFHFa2P5gZVtGDSPKJc
-         /FwSK2Oufk2RgYCtFuzej2QjLHKx8x+wxv+XUQI0tjgPXe7j5zQkJB9F7ZtStDbIUnQV
-         tUiNawmj3ih6duyLMC3Z+ywt1i9tHYXh0kxInKxUsPyBaPoYzSS3V3U7JzZA8dqtzyo1
-         ZyTQ==
+        bh=4ohq8+x9eEOak/Ig85gQN21Sgb5PYQa0/81WkrT87xo=;
+        b=AZTMbeyQim36UjRMz7YoSpVXaJezM0rRkJDniP8CycMhtXc3jX100IMVlGafpRzQ5m
+         IxM7tSm631jtIcfjURSsgjotpUmRRPxq1NyfnF/vNkizNROukZTYP6x2aZKaxPLu8SYt
+         wUbAA914pWcemdNr7F8LQdDJGzWMZgAWxIQFWCkLjrqDUxLXJorl5rPu5IHKB0EjlqsU
+         EFgrkJVMnd4jO9YmJxMek60uYCKuKmmh5dvRplFVtk1mTa5zBOxRKO0tPJj3+ormfoHN
+         XzwliKHnymUirTxCiUHig9JVTFJdhrJyhbbCM/YUyek2Fw/tPQfgA5NGJMkbfeJp+jKG
+         AwHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=AEcJp8+cYPFqd4RZa++b11FMH3Sp/vorN9mj3J18H9Y=;
-        b=i5CQHm5gLczB6AGWK/Kpe0a048vVfLZfD1xlKQVvV0qKyEBUUl/nwA46ONpvWnZ0op
-         hIizjfnz/necOAE2vtkHDmXLSG04WvOWwW9h6AXP7totMr3W08l3bmVa7BfwyyGoPv9k
-         bW7j5W0zTAc2mTHLu681kUQx/rp7STrVBJOgO11TPu6gkk4c/aIlZZdOeCoCuJA8rpbC
-         b0coqU1JKNPLxyH0HB3cHlD+ApekppzSF7/RzutBEtkq1wD05o3nyYDF44fl29lEsomh
-         yIxJcCrcpBRt8jvbSiiWtPm6QjTOEZLZa6EOhEA+tmswRFAKjZtR9CI88/sQrdL1FtdF
-         1gAw==
-X-Gm-Message-State: AOAM533jpWVCdQHjOlDL6dkZRz1h5cD6RqQQ+R9VMPLrQvHkAkLktLWc
-        BUtbTBQCZ2dQXiaAdSKkzi/mI4oyL0PqD/qTMqDw
-X-Google-Smtp-Source: ABdhPJxy1IteUdr4V/BP9b+TBvWUeLrDVlCjI7ZlGBX7atMdIc9b/nYXLN/FIZCQ8BOENtmik4yYky4vMU4nyMp/thk=
-X-Received: by 2002:a17:906:114b:: with SMTP id i11mr1965820eja.106.1605228865122;
- Thu, 12 Nov 2020 16:54:25 -0800 (PST)
+        bh=4ohq8+x9eEOak/Ig85gQN21Sgb5PYQa0/81WkrT87xo=;
+        b=KBa7z7tAuY5T9W5HRU/WYqgFIqjPOQlCqEf37IOQUYTixlbNLY5NWOBWgxGHcgoHE8
+         nU/racWerX0itjNGsK/P88q9EG70RcX2nkIAYNgPzlCDosWdJhWW8dz14WVObboaGtsn
+         ru+8Zz3IsuUUL2WuwVTf+Jg/fuQphAv8gcqmoM1sk/+UApahVzc9xkYX7cVxisAZCCqc
+         ZKYHjuDRaSZeD6a+ZaDz4z4Nc5z0Y/xbIFVJz6L9EgdRHoH8S1g8w0SA4Xi0htcG8d7x
+         Dc/e2ate6hs1eC5xNOc9ZC6lXhqSeabiSKEpjRk4V932c//K1mo4AEJ4bPlAvlM36ays
+         lF3A==
+X-Gm-Message-State: AOAM533UGZ/mI8fuzPrV/4D0uHGwdl3Iuq8d4t+fh02Hjh+BzieQJFlH
+        L6y0UmU09FEo6+bH6Fbt31AH7y4QuYdkjqhMKgxK
+X-Google-Smtp-Source: ABdhPJzJ15t+2ga5rDM57/GFm5+T4e0h0LIJ4QXUh8f4Gz1+sUrPZ4NWEulbwER/egBpKhQQ+TwdTBMRiyezBe6IJfQ=
+X-Received: by 2002:a17:906:268c:: with SMTP id t12mr710224ejc.91.1605230255955;
+ Thu, 12 Nov 2020 17:17:35 -0800 (PST)
 MIME-Version: 1.0
-References: <20201104120110.886431-1-omosnace@redhat.com>
-In-Reply-To: <20201104120110.886431-1-omosnace@redhat.com>
+References: <20201112135332.89062-1-chenzhou10@huawei.com>
+In-Reply-To: <20201112135332.89062-1-chenzhou10@huawei.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 12 Nov 2020 19:54:14 -0500
-Message-ID: <CAHC9VhTqz7ao0o5Nn36yLBe4ae-3FEOwpSZa82mje56_+u_oeA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: drop super_block backpointer from superblock_security_struct
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Thu, 12 Nov 2020 20:17:23 -0500
+Message-ID: <CAHC9VhS-XL0AL8wUY62pZSRb_545Vgic-dQqS_RDZKPk32=_gg@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: Fix error return code in sel_ib_pkey_sid_slow()
+To:     Chen Zhou <chenzhou10@huawei.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, danielj@mellanox.com,
+        dledford@redhat.com, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Hulk Robot <hulkci@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 4, 2020 at 7:01 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, Nov 12, 2020 at 8:48 AM Chen Zhou <chenzhou10@huawei.com> wrote:
 >
-> It appears to have been needed for selinux_complete_init() in the past,
-> but today it's useless.
+> Fix to return a negative error code from the error handling case
+> instead of 0 in function sel_ib_pkey_sid_slow(), as done elsewhere
+> in this function.
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Fixes: 409dcf31538a ("selinux: Add a cache for quicker retreival of PKey SIDs")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
 > ---
->  security/selinux/hooks.c          | 5 ++---
->  security/selinux/include/objsec.h | 1 -
->  2 files changed, 2 insertions(+), 4 deletions(-)
+>  security/selinux/ibpkey.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 
-Merged into selinux/next, thanks!
+Thanks for the fix!  I've merged this into the selinux/stable-5.10
+branch and I'll send this up to Linus tomorrow or early next week.
 
 -- 
 paul moore
