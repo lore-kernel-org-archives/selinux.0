@@ -2,76 +2,65 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D77C56202
-	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 07:04:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC243C5519F
+	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:09:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D33B2224B
-	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 07:04:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A042C222EA
+	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:09:50 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="fJ8Tip6u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726594AbgKNHEC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 14 Nov 2020 02:04:02 -0500
-Received: from namei.org ([65.99.196.166]:53158 "EHLO namei.org"
+        id S1726291AbgKNUJa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 14 Nov 2020 15:09:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726479AbgKNHEC (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sat, 14 Nov 2020 02:04:02 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id 0AE73uCd023314;
-        Sat, 14 Nov 2020 07:03:56 GMT
-Date:   Sat, 14 Nov 2020 18:03:56 +1100 (AEDT)
-From:   James Morris <jmorris@namei.org>
-To:     Paul Moore <paul@paul-moore.com>
-cc:     netdev@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        id S1726265AbgKNUJ3 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sat, 14 Nov 2020 15:09:29 -0500
+Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (c-67-180-217-166.hsd1.ca.comcast.net [67.180.217.166])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB72A222EA;
+        Sat, 14 Nov 2020 20:09:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605384568;
+        bh=zKMvbDCZHKRWvy5cjeZ6p0aHm0PizayGBh+ZITU30AY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=fJ8Tip6uDozSb3pvq6/ji29M73k4E7+8eUiJEy8DOIAUyxhBxriAyEKYD7WeDzsTh
+         Y/C5HgRcT7/1W7fiYacC3XlaJCiFlfJ5lvhtSo2ogktRUefwWLMR6r+eCH0XBAzBJ8
+         TrNNIFX2KdpcYf78GYlHSJQRNIw6RB8zlu0PjE18=
+Date:   Sat, 14 Nov 2020 12:09:26 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     James Morris <jmorris@namei.org>
+Cc:     Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Subject: Re: [PATCH] netlabel: fix an uninitialized warning in
  netlbl_unlabel_staticlist()
-In-Reply-To: <160530304068.15651.18355773009751195447.stgit@sifl>
-Message-ID: <alpine.LRH.2.21.2011141803490.23236@namei.org>
+Message-ID: <20201114120922.07ec38a4@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <alpine.LRH.2.21.2011141803490.23236@namei.org>
 References: <160530304068.15651.18355773009751195447.stgit@sifl>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        <alpine.LRH.2.21.2011141803490.23236@namei.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 13 Nov 2020, Paul Moore wrote:
-
-> Static checking revealed that a previous fix to
-> netlbl_unlabel_staticlist() leaves a stack variable uninitialized,
-> this patches fixes that.
+On Sat, 14 Nov 2020 18:03:56 +1100 (AEDT) James Morris wrote:
+> > Static checking revealed that a previous fix to
+> > netlbl_unlabel_staticlist() leaves a stack variable uninitialized,
+> > this patches fixes that.
+> > 
+> > Fixes: 866358ec331f ("netlabel: fix our progress tracking in netlbl_unlabel_staticlist()")
+> > Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>  
 > 
-> Fixes: 866358ec331f ("netlabel: fix our progress tracking in netlbl_unlabel_staticlist()")
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> Reviewed-by: James Morris <jamorris@linux.microsoft.com>
 
-
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-
-> ---
->  net/netlabel/netlabel_unlabeled.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-> index fc55c9116da0..ccb491642811 100644
-> --- a/net/netlabel/netlabel_unlabeled.c
-> +++ b/net/netlabel/netlabel_unlabeled.c
-> @@ -1167,7 +1167,7 @@ static int netlbl_unlabel_staticlist(struct sk_buff *skb,
->  	u32 skip_bkt = cb->args[0];
->  	u32 skip_chain = cb->args[1];
->  	u32 skip_addr4 = cb->args[2];
-> -	u32 iter_bkt, iter_chain, iter_addr4 = 0, iter_addr6 = 0;
-> +	u32 iter_bkt, iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0;
->  	struct netlbl_unlhsh_iface *iface;
->  	struct list_head *iter_list;
->  	struct netlbl_af4list *addr4;
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
-
+Applied, thanks!
