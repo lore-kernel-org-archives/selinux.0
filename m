@@ -2,65 +2,61 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC243C5519F
-	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:09:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35622C64E69
+	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:51:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A042C222EA
-	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:09:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F3AD52242E
+	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:51:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="fJ8Tip6u"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="xafOFXa3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726291AbgKNUJa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 14 Nov 2020 15:09:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59520 "EHLO mail.kernel.org"
+        id S1726387AbgKNUvT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 14 Nov 2020 15:51:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726265AbgKNUJ3 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sat, 14 Nov 2020 15:09:29 -0500
-Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (c-67-180-217-166.hsd1.ca.comcast.net [67.180.217.166])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB72A222EA;
-        Sat, 14 Nov 2020 20:09:28 +0000 (UTC)
+        id S1726150AbgKNUvK (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sat, 14 Nov 2020 15:51:10 -0500
+Subject: Re: [GIT PULL] SELinux fixes for v5.10 (#1)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605384568;
-        bh=zKMvbDCZHKRWvy5cjeZ6p0aHm0PizayGBh+ZITU30AY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=fJ8Tip6uDozSb3pvq6/ji29M73k4E7+8eUiJEy8DOIAUyxhBxriAyEKYD7WeDzsTh
-         Y/C5HgRcT7/1W7fiYacC3XlaJCiFlfJ5lvhtSo2ogktRUefwWLMR6r+eCH0XBAzBJ8
-         TrNNIFX2KdpcYf78GYlHSJQRNIw6RB8zlu0PjE18=
-Date:   Sat, 14 Nov 2020 12:09:26 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     James Morris <jmorris@namei.org>
-Cc:     Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH] netlabel: fix an uninitialized warning in
- netlbl_unlabel_staticlist()
-Message-ID: <20201114120922.07ec38a4@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <alpine.LRH.2.21.2011141803490.23236@namei.org>
-References: <160530304068.15651.18355773009751195447.stgit@sifl>
-        <alpine.LRH.2.21.2011141803490.23236@namei.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        s=default; t=1605387070;
+        bh=Jyh8xtofEGhNJn7rbMmW5xm0qu/vehYTr+0u9RH6PiE=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=xafOFXa3RpIGGeD1U+3b6BycnrJQbMJXsSSRj3OdzuM3QdYXaG3+7KOqqqvkRSqRd
+         IqZC5pw0M5qd+YrTAiNIjWXgBW7uPRcBv0X2Xt+7E3te8GSliFGy//l7rEiJv6MAaL
+         yyUOyJCwKmhY9cuktDxJ8XN8rlcVjKqLZCrGdk+s=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhSrJLtasTbE+smvHYMxD3B018TCLx74y9RQ0pk8jDaX4w@mail.gmail.com>
+References: <CAHC9VhSrJLtasTbE+smvHYMxD3B018TCLx74y9RQ0pk8jDaX4w@mail.gmail.com>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhSrJLtasTbE+smvHYMxD3B018TCLx74y9RQ0pk8jDaX4w@mail.gmail.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20201113
+X-PR-Tracked-Commit-Id: c350f8bea271782e2733419bd2ab9bf4ec2051ef
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 30636a59f4c1a40720156079cabcad60351949f2
+Message-Id: <160538707042.24878.8206734712012963156.pr-tracker-bot@kernel.org>
+Date:   Sat, 14 Nov 2020 20:51:10 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, 14 Nov 2020 18:03:56 +1100 (AEDT) James Morris wrote:
-> > Static checking revealed that a previous fix to
-> > netlbl_unlabel_staticlist() leaves a stack variable uninitialized,
-> > this patches fixes that.
-> > 
-> > Fixes: 866358ec331f ("netlabel: fix our progress tracking in netlbl_unlabel_staticlist()")
-> > Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>  
-> 
-> Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+The pull request you sent on Fri, 13 Nov 2020 18:29:23 -0500:
 
-Applied, thanks!
+> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20201113
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/30636a59f4c1a40720156079cabcad60351949f2
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
