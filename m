@@ -2,61 +2,178 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35622C64E69
-	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:51:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2E0BC55ABD
+	for <selinux@archiver.kernel.org>; Sun, 15 Nov 2020 10:38:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3AD52242E
-	for <selinux@archiver.kernel.org>; Sat, 14 Nov 2020 20:51:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="xafOFXa3"
+	by mail.kernel.org (Postfix) with ESMTP id B0CAC23A32
+	for <selinux@archiver.kernel.org>; Sun, 15 Nov 2020 10:38:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726387AbgKNUvT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 14 Nov 2020 15:51:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35060 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726150AbgKNUvK (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sat, 14 Nov 2020 15:51:10 -0500
-Subject: Re: [GIT PULL] SELinux fixes for v5.10 (#1)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605387070;
-        bh=Jyh8xtofEGhNJn7rbMmW5xm0qu/vehYTr+0u9RH6PiE=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=xafOFXa3RpIGGeD1U+3b6BycnrJQbMJXsSSRj3OdzuM3QdYXaG3+7KOqqqvkRSqRd
-         IqZC5pw0M5qd+YrTAiNIjWXgBW7uPRcBv0X2Xt+7E3te8GSliFGy//l7rEiJv6MAaL
-         yyUOyJCwKmhY9cuktDxJ8XN8rlcVjKqLZCrGdk+s=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <CAHC9VhSrJLtasTbE+smvHYMxD3B018TCLx74y9RQ0pk8jDaX4w@mail.gmail.com>
-References: <CAHC9VhSrJLtasTbE+smvHYMxD3B018TCLx74y9RQ0pk8jDaX4w@mail.gmail.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <CAHC9VhSrJLtasTbE+smvHYMxD3B018TCLx74y9RQ0pk8jDaX4w@mail.gmail.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20201113
-X-PR-Tracked-Commit-Id: c350f8bea271782e2733419bd2ab9bf4ec2051ef
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 30636a59f4c1a40720156079cabcad60351949f2
-Message-Id: <160538707042.24878.8206734712012963156.pr-tracker-bot@kernel.org>
-Date:   Sat, 14 Nov 2020 20:51:10 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        id S1726908AbgKOKiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 15 Nov 2020 05:38:25 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:58635 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726438AbgKOKiX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 15 Nov 2020 05:38:23 -0500
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1keFQD-0000Kt-Om; Sun, 15 Nov 2020 10:38:13 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org
+Cc:     John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Jann Horn <jannh@google.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-audit@redhat.com,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH v2 01/39] namespace: take lock_mount_hash() directly when changing flags
+Date:   Sun, 15 Nov 2020 11:36:40 +0100
+Message-Id: <20201115103718.298186-2-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201115103718.298186-1-christian.brauner@ubuntu.com>
+References: <20201115103718.298186-1-christian.brauner@ubuntu.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Fri, 13 Nov 2020 18:29:23 -0500:
+Changing mount options always ends up taking lock_mount_hash() but when
+MNT_READONLY is requested and neither the mount nor the superblock are
+not already MNT_READONLY we end up taking the lock, dropping it, and
+retaking it to change the other mount attributes. Instead of this,
+acquire the lock once when changing mount properties. This simplifies
+the locking in these codepath, makes them easier to reason about and
+avoids having to reacquire the lock right after dropping it.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20201113
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+/* v2 */
+- Christoph Hellwig:
+  - Remove pointless __mnt_unmake_readonly() helper.
+  - Even though Christoph suggested to lockdep_assert_held() into places that
+    require {lock,unlock}_mount_hash() it seems that seqlock's don't support
+    it.
+---
+ fs/namespace.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/30636a59f4c1a40720156079cabcad60351949f2
-
-Thank you!
-
+diff --git a/fs/namespace.c b/fs/namespace.c
+index cebaa3e81794..f183161833ad 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -463,7 +463,6 @@ static int mnt_make_readonly(struct mount *mnt)
+ {
+ 	int ret = 0;
+ 
+-	lock_mount_hash();
+ 	mnt->mnt.mnt_flags |= MNT_WRITE_HOLD;
+ 	/*
+ 	 * After storing MNT_WRITE_HOLD, we'll read the counters. This store
+@@ -497,18 +496,9 @@ static int mnt_make_readonly(struct mount *mnt)
+ 	 */
+ 	smp_wmb();
+ 	mnt->mnt.mnt_flags &= ~MNT_WRITE_HOLD;
+-	unlock_mount_hash();
+ 	return ret;
+ }
+ 
+-static int __mnt_unmake_readonly(struct mount *mnt)
+-{
+-	lock_mount_hash();
+-	mnt->mnt.mnt_flags &= ~MNT_READONLY;
+-	unlock_mount_hash();
+-	return 0;
+-}
+-
+ int sb_prepare_remount_readonly(struct super_block *sb)
+ {
+ 	struct mount *mnt;
+@@ -2508,7 +2498,8 @@ static int change_mount_ro_state(struct mount *mnt, unsigned int mnt_flags)
+ 	if (readonly_request)
+ 		return mnt_make_readonly(mnt);
+ 
+-	return __mnt_unmake_readonly(mnt);
++	mnt->mnt.mnt_flags &= ~MNT_READONLY;
++	return 0;
+ }
+ 
+ /*
+@@ -2517,11 +2508,9 @@ static int change_mount_ro_state(struct mount *mnt, unsigned int mnt_flags)
+  */
+ static void set_mount_attributes(struct mount *mnt, unsigned int mnt_flags)
+ {
+-	lock_mount_hash();
+ 	mnt_flags |= mnt->mnt.mnt_flags & ~MNT_USER_SETTABLE_MASK;
+ 	mnt->mnt.mnt_flags = mnt_flags;
+ 	touch_mnt_namespace(mnt->mnt_ns);
+-	unlock_mount_hash();
+ }
+ 
+ static void mnt_warn_timestamp_expiry(struct path *mountpoint, struct vfsmount *mnt)
+@@ -2567,9 +2556,11 @@ static int do_reconfigure_mnt(struct path *path, unsigned int mnt_flags)
+ 		return -EPERM;
+ 
+ 	down_write(&sb->s_umount);
++	lock_mount_hash();
+ 	ret = change_mount_ro_state(mnt, mnt_flags);
+ 	if (ret == 0)
+ 		set_mount_attributes(mnt, mnt_flags);
++	unlock_mount_hash();
+ 	up_write(&sb->s_umount);
+ 
+ 	mnt_warn_timestamp_expiry(path, &mnt->mnt);
+@@ -2610,8 +2601,11 @@ static int do_remount(struct path *path, int ms_flags, int sb_flags,
+ 		err = -EPERM;
+ 		if (ns_capable(sb->s_user_ns, CAP_SYS_ADMIN)) {
+ 			err = reconfigure_super(fc);
+-			if (!err)
++			if (!err) {
++				lock_mount_hash();
+ 				set_mount_attributes(mnt, mnt_flags);
++				unlock_mount_hash();
++			}
+ 		}
+ 		up_write(&sb->s_umount);
+ 	}
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.29.2
+
