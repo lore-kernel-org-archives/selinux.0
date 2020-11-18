@@ -2,133 +2,356 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-28.2 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB937C5519F
-	for <selinux@archiver.kernel.org>; Wed, 18 Nov 2020 19:43:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22148C5519F
+	for <selinux@archiver.kernel.org>; Wed, 18 Nov 2020 22:39:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6726620888
-	for <selinux@archiver.kernel.org>; Wed, 18 Nov 2020 19:43:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4383246E5
+	for <selinux@archiver.kernel.org>; Wed, 18 Nov 2020 22:39:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="P9f4OnRY"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CRZIVIaW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725782AbgKRTnX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Nov 2020 14:43:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59582 "EHLO
+        id S1727005AbgKRWj5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Nov 2020 17:39:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725710AbgKRTnW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Nov 2020 14:43:22 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA2FC0613D4
-        for <selinux@vger.kernel.org>; Wed, 18 Nov 2020 11:43:22 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id s25so4450048ejy.6
-        for <selinux@vger.kernel.org>; Wed, 18 Nov 2020 11:43:22 -0800 (PST)
+        with ESMTP id S1725710AbgKRWj4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Nov 2020 17:39:56 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1689AC0613D4
+        for <selinux@vger.kernel.org>; Wed, 18 Nov 2020 14:39:56 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id y4so3757087edy.5
+        for <selinux@vger.kernel.org>; Wed, 18 Nov 2020 14:39:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9XrNHAV1ZTKqWTksacaIma7BYDTcxI+biCZbgOxlYg0=;
-        b=P9f4OnRYRu7ptNkhmlmIBMa1o/KV5aQwy8wOmYvm5xB/PG668PvwJq0FvxZn+ECBKb
-         8Zb6nA967SlX3PPfX8LWfGK1qJV7PKgnHnxodzLAAmaWXPwx42MjMzIl3XqtqCFs2Tvh
-         H8FnoJfvTlAIh92i3Yum/Smg9S+Dfc6ecsfFgTzL1iXVpX+G5UVS80GGdLFheZeiw6IM
-         Ui8R2Sm4dc6WlPJ2nAVGHRe/UZnKxTWJ+omcTY+muYeZVZlzMktSDUTwtuCnfpuZtyBK
-         yhqZJ3DMSfqPhUhTSl2EL0TX2IO1gt/ybsMG8Dj3wN1nyj15RQ6uZUeMm2k7wmpO3/X/
-         wlTQ==
+        bh=mh4Qjzb8KLSgaMNmAYGectlp/+Zs2oISPb70IoHgsI8=;
+        b=CRZIVIaWJn4wRTqExaJYLXqnr5OhuX/Ux33O/CKOWLZw+6wBPmuXEyiSTB3fn/OuoB
+         5W7kGYZwmmLIjODlbM1WZgo/01YuAEr0CtnFBOV16R4EfITvzzkyEd8XO075r/UTcJt+
+         zImZ+g75iGdxnhvDVM6/d6dyWVqZMgivbYHNHtVo27ZrWnAK7egyTI5flEh2L5o1F2Zc
+         peaGWkXGnNSPGL/j6sgFZiGnhQ62hcV06/KYWEuTYsZJEskQEaXB7Wp4YlAEe9vWwqY0
+         c1fiNV9lk1053jw3Yucz8Rp5fk4RAcK6rlIp9pJBUHkJ5EJFsKuW0LiA8cZKrqaYTwhn
+         yh5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9XrNHAV1ZTKqWTksacaIma7BYDTcxI+biCZbgOxlYg0=;
-        b=I192qvjAW2KNyk4V2LtpxOUGhQzo0qBKy4wY0Z+23xmHc/+tJPT7bNO6sjgMV3+W9Z
-         KuM1p2plNSuEoDeIPxY82yALrd3rqNSsI67bgT069i+x4xK3oC4s0OOr5FfbKTr2HA1z
-         JbkQgud0sS8p6Usm5XDeHnsEgf+puzpKj4tpeohfXhJzoXFZTQatbJ9V49VUhTZ9xg0B
-         7B+Cq/lg5S2dnN2IRnV0piZwgNFc6lnFAxO1PxGGHFt86INIqufXUslswRcOGPo0/8ba
-         9RbO1qUjMrjGWwURJ1RBrHQpMh/U/Ux861uW6/EpWHwexxkulONaZEhFH+ZnCQoMzO2Q
-         t2Tw==
-X-Gm-Message-State: AOAM532lKSBr7OA6pW1zp/LxKOlOtpFh4/cV6fO0Cd3d1hRE7m4WhA9a
-        dagjTbACeCvMKG2De1nV1u7z0RkUzr/mkjK4LFYA
-X-Google-Smtp-Source: ABdhPJzxmhjRvJAmJMWEm9W653GqkvZefXDFYn8tP0yTY7PIaRiWjPxfVJROz08RvnkCy1n1jyizmDFL/+60Z584D1U=
-X-Received: by 2002:a17:906:7c9:: with SMTP id m9mr24923675ejc.178.1605728600962;
- Wed, 18 Nov 2020 11:43:20 -0800 (PST)
+        bh=mh4Qjzb8KLSgaMNmAYGectlp/+Zs2oISPb70IoHgsI8=;
+        b=lQzidA0w9a/m3y8nxH3lQLuOwiCdOOIrzuWPB52wW9hVf2X6DgH28IEUw79EPFsui6
+         bshV9Ge1L8tA9SJQEWlJWu9gZF7TTxPbVy08mbXQWXH3sh6ks+KW2v0i+pxGHLON8oU0
+         HkfJfb1UKy5WoyH0VJGzQRy5FxL0kNWivTvpgCGuWIhz+9QOUUUz+Wf7qVq+2SkSxJ66
+         qbZrxeSLDnlU1MqLhJWgf2LDYwPfljb2RMSPeundDQ8cpqJ0PcmKh0V77uRMtKNjdLAc
+         zOo3QRUidAAn3ZmOQEcM1I7yHl3x9ZSTx0mxy4YjHjvIT5TfJurT8i7NnV+IUvmB5E2m
+         Vtaw==
+X-Gm-Message-State: AOAM530fHGRtQYjQTWxtBVk0H9NyTmLriccWuonzbWnh4SM8FGcejUTd
+        YRfasRm8r4FGDkP0xQveCCXRLnSRfu7RTtW2/QVNxQ==
+X-Google-Smtp-Source: ABdhPJwQhDxciSRkAl2VxK0vZnAeNRN4fgcGI2LnmSEZCHTKqJlvVqW32Uzql9y2c4OzJjhY30YrLxWXujyaeuTcCCU=
+X-Received: by 2002:aa7:c704:: with SMTP id i4mr27725768edq.51.1605739194344;
+ Wed, 18 Nov 2020 14:39:54 -0800 (PST)
 MIME-Version: 1.0
-References: <202011171355.YCVKNWtD-lkp@intel.com>
-In-Reply-To: <202011171355.YCVKNWtD-lkp@intel.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 18 Nov 2020 14:43:09 -0500
-Message-ID: <CAHC9VhT_K2rwo+kvvwtHLr5oxu-2cS=q3MFS1iZ0SnhduD5LCA@mail.gmail.com>
-Subject: Re: [pcmoore-selinux:working-selinuxns 7/12] security/selinux/hooks.c:7275:42:
- sparse: sparse: incorrect type in argument 1 (different address spaces)
-To:     kernel test robot <lkp@intel.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        kbuild-all@lists.01.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+References: <20201106155626.3395468-1-lokeshgidra@google.com>
+ <20201106155626.3395468-4-lokeshgidra@google.com> <CAHC9VhRsaE5vhcSMr5nYzrHrM6Pc5-JUErNfntsRrPjKQNALxw@mail.gmail.com>
+ <CA+EESO7LuRM_MH9z=BhLbWJrxMvnepq-NSTu_UJsPXxc0QkEag@mail.gmail.com>
+ <CAHC9VhQJvTp4Xx2jCDK1zMbOmXLAAm_+ZnexydgAeWz1eGKfUg@mail.gmail.com>
+ <CA+EESO79Yx6gMBYX+QkU9f7TKo-L+_COomCoAqwFQYwg8xy=gg@mail.gmail.com> <CAHC9VhSjVE6tC04h7k09LgTBrR-XW274ypvhcabkoyYLcDszHw@mail.gmail.com>
+In-Reply-To: <CAHC9VhSjVE6tC04h7k09LgTBrR-XW274ypvhcabkoyYLcDszHw@mail.gmail.com>
+From:   Lokesh Gidra <lokeshgidra@google.com>
+Date:   Wed, 18 Nov 2020 14:39:42 -0800
+Message-ID: <CA+EESO7vqNMXeyk7GZ7syXrTFG54oaf1PUsC7+2ndEBEQeBpdw@mail.gmail.com>
+Subject: Re: [PATCH v12 3/4] selinux: teach SELinux about anonymous inodes
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Calin Juravle <calin@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        "Cc: Android Kernel" <kernel-team@android.com>,
+        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>, hch@infradead.org
+Content-Type: multipart/mixed; boundary="00000000000048c66905b4694aa9"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 12:19 AM kernel test robot <lkp@intel.com> wrote:
->
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git working-selinuxns
-> head:   7bde0cc97700a0abfbfa0ef5f00f9abb0ec0073c
-> commit: e9711bb4912b792b6ec307932cd08329d4a973ff [7/12] selinux: dynamically allocate selinux namespace
-> config: x86_64-randconfig-s021-20201116 (attached as .config)
-> compiler: gcc-9 (Debian 9.3.0-15) 9.3.0
-> reproduce:
->         # apt-get install sparse
->         # sparse version: v0.6.3-107-gaf3512a6-dirty
->         # https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=e9711bb4912b792b6ec307932cd08329d4a973ff
->         git remote add pcmoore-selinux https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
->         git fetch --no-tags pcmoore-selinux working-selinuxns
->         git checkout e9711bb4912b792b6ec307932cd08329d4a973ff
->         # save the attached .config to linux build tree
->         make W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' ARCH=x86_64
->
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
->
->
-> "sparse warnings: (new ones prefixed by >>)"
->    security/selinux/hooks.c:215:30: sparse: sparse: cast removes address space '__rcu' of expression
->    security/selinux/hooks.c:2541:39: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
->    security/selinux/hooks.c:2541:39: sparse:     expected struct spinlock [usertype] *lock
->    security/selinux/hooks.c:2541:39: sparse:     got struct spinlock [noderef] __rcu *
->    security/selinux/hooks.c:2549:41: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
->    security/selinux/hooks.c:2549:41: sparse:     expected struct spinlock [usertype] *lock
->    security/selinux/hooks.c:2549:41: sparse:     got struct spinlock [noderef] __rcu *
->    security/selinux/hooks.c:2555:42: sparse: sparse: incorrect type in argument 2 (different address spaces) @@     expected struct task_struct *parent @@     got struct task_struct [noderef] __rcu *real_parent @@
->    security/selinux/hooks.c:2555:42: sparse:     expected struct task_struct *parent
->    security/selinux/hooks.c:2555:42: sparse:     got struct task_struct [noderef] __rcu *real_parent
->    security/selinux/hooks.c:5315:22: sparse: sparse: restricted __be16 degrades to integer
->    security/selinux/hooks.c:5316:22: sparse: sparse: restricted __be16 degrades to integer
-> >> security/selinux/hooks.c:7275:42: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct selinux_policy *policy @@     got struct selinux_policy [noderef] __rcu *policy @@
-> >> security/selinux/hooks.c:7275:42: sparse:     expected struct selinux_policy *policy
-> >> security/selinux/hooks.c:7275:42: sparse:     got struct selinux_policy [noderef] __rcu *policy
->
-> vim +7275 security/selinux/hooks.c
->
->   7265
->   7266  static void selinux_state_free(struct work_struct *work)
->   7267  {
->   7268          struct selinux_state *parent, *state =
->   7269                  container_of(work, struct selinux_state, work);
->   7270
->   7271          do {
->   7272                  parent = state->parent;
->   7273                  if (state->status_page)
->   7274                          __free_page(state->status_page);
-> > 7275                  selinux_policy_free(state->policy);
->   7276                  selinux_avc_free(state->avc);
->   7277                  kfree(state);
->   7278                  state = parent;
->   7279          } while (state && refcount_dec_and_test(&state->count));
->   7280  }
->   7281
+--00000000000048c66905b4694aa9
+Content-Type: text/plain; charset="UTF-8"
 
-FYI, this should now be fixed in the selinux/working-selinuxns tree.
+On Thu, Nov 12, 2020 at 4:13 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Tue, Nov 10, 2020 at 10:30 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> > On Tue, Nov 10, 2020 at 6:13 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > On Tue, Nov 10, 2020 at 1:24 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> > > > On Mon, Nov 9, 2020 at 7:12 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > On Fri, Nov 6, 2020 at 10:56 AM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> > > > > >
+> > > > > > From: Daniel Colascione <dancol@google.com>
+> > > > > >
+> > > > > > This change uses the anon_inodes and LSM infrastructure introduced in
+> > > > > > the previous patches to give SELinux the ability to control
+> > > > > > anonymous-inode files that are created using the new
+> > > > > > anon_inode_getfd_secure() function.
+> > > > > >
+> > > > > > A SELinux policy author detects and controls these anonymous inodes by
+> > > > > > adding a name-based type_transition rule that assigns a new security
+> > > > > > type to anonymous-inode files created in some domain. The name used
+> > > > > > for the name-based transition is the name associated with the
+> > > > > > anonymous inode for file listings --- e.g., "[userfaultfd]" or
+> > > > > > "[perf_event]".
+> > > > > >
+> > > > > > Example:
+> > > > > >
+> > > > > > type uffd_t;
+> > > > > > type_transition sysadm_t sysadm_t : anon_inode uffd_t "[userfaultfd]";
+> > > > > > allow sysadm_t uffd_t:anon_inode { create };
+> > > > > >
+> > > > > > (The next patch in this series is necessary for making userfaultfd
+> > > > > > support this new interface.  The example above is just
+> > > > > > for exposition.)
+> > > > > >
+> > > > > > Signed-off-by: Daniel Colascione <dancol@google.com>
+> > > > > > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > > > > > ---
+> > > > > >  security/selinux/hooks.c            | 53 +++++++++++++++++++++++++++++
+> > > > > >  security/selinux/include/classmap.h |  2 ++
+> > > > > >  2 files changed, 55 insertions(+)
+> > > > > >
+> > > > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > > > > index 6b1826fc3658..1c0adcdce7a8 100644
+> > > > > > --- a/security/selinux/hooks.c
+> > > > > > +++ b/security/selinux/hooks.c
+> > > > > > @@ -2927,6 +2927,58 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+> > > > > >         return 0;
+> > > > > >  }
+> > > > > >
+> > > > > > +static int selinux_inode_init_security_anon(struct inode *inode,
+> > > > > > +                                           const struct qstr *name,
+> > > > > > +                                           const struct inode *context_inode)
+> > > > > > +{
+> > > > > > +       const struct task_security_struct *tsec = selinux_cred(current_cred());
+> > > > > > +       struct common_audit_data ad;
+> > > > > > +       struct inode_security_struct *isec;
+> > > > > > +       int rc;
+> > > > > > +
+> > > > > > +       if (unlikely(!selinux_initialized(&selinux_state)))
+> > > > > > +               return 0;
+> > > > > > +
+> > > > > > +       isec = selinux_inode(inode);
+> > > > > > +
+> > > > > > +       /*
+> > > > > > +        * We only get here once per ephemeral inode.  The inode has
+> > > > > > +        * been initialized via inode_alloc_security but is otherwise
+> > > > > > +        * untouched.
+> > > > > > +        */
+> > > > > > +
+> > > > > > +       if (context_inode) {
+> > > > > > +               struct inode_security_struct *context_isec =
+> > > > > > +                       selinux_inode(context_inode);
+> > > > > > +               isec->sclass = context_isec->sclass;
+> > > > > > +               isec->sid = context_isec->sid;
+> > > > >
+> > > > > I suppose this isn't a major concern given the limited usage at the
+> > > > > moment, but I wonder if it would be a good idea to make sure the
+> > > > > context_inode's SELinux label is valid before we assign it to the
+> > > > > anonymous inode?  If it is invalid, what should we do?  Do we attempt
+> > > > > to (re)validate it?  Do we simply fallback to the transition approach?
+> > > >
+> > > > Frankly, I'm not too familiar with SELinux. Originally this patch
+> > > > series was developed by Daniel, in consultation with Stephen Smalley.
+> > > > In my (probably naive) opinion we should fallback to transition
+> > > > approach. But I'd request you to tell me if this needs to be addressed
+> > > > now, and if so then what's the right approach.
+> > > >
+> > > > If the decision is to address this now, then what's the best way to
+> > > > check the SELinux label validity?
+> > >
+> > > You can check to see if an inode's label is valid by looking at the
+> > > isec->initialized field; if it is LABEL_INITIALIZED then it is all
+> > > set, if it is any other value then the label isn't entirely correct.
+> > > It may have not have ever been fully initialized (and has a default
+> > > value) or it may have live on a remote filesystem where the host has
+> > > signaled that the label has changed (and the label is now outdated).
+> > >
+> > > This patchset includes support for userfaultfd, which means we don't
+> > > really have to worry about the remote fs problem, but the
+> > > never-fully-initialized problem could be real in this case.  Normally
+> > > we would revalidate an inode in SELinux by calling
+> > > __inode_security_revalidate() which requires either a valid dentry or
+> > > one that can be found via the inode; does d_find_alias() work on
+> > > userfaultfd inodes?
+> > >
+> > > If all else fails, it seems like the safest approach would be to
+> > > simply fail the selinux_inode_init_security_anon() call if a
+> > > context_inode was supplied and the label wasn't valid.  If we later
+> > > decide to change it to falling back to the transition approach we can
+> > > do that, we can't go the other way (from transition to error).
+> >
+> > I'm not sure about d_find_alias() on userfaultfd inodes. But it seems
+> > ok to fail selinux_inode_init_security_anon() to begin with.
+>
+> I'm okay with simply failing here, but I'm growing a bit concerned
+> that this patchset hasn't been well tested.  That is a problem.
+>
+> > > > > This brings up another question, and requirement - what testing are
+> > > > > you doing for this patchset?  We require that new SELinux kernel
+> > > > > functionality includes additions to the SELinux test suite to help
+> > > > > verify the functionality.  I'm also *strongly* encouraging that new
+> > > > > contributions come with updates to The SELinux Notebook.  If you are
+> > > > > unsure about what to do for either, let us know and we can help get
+> > > > > you started.
+> > > > >
+> > > > > * https://github.com/SELinuxProject/selinux-testsuite
+> > > > > * https://github.com/SELinuxProject/selinux-notebook
+> > > > >
+> > > > I'd definitely need help with both of these. Kindly guide how to proceed.
+> > >
+> > > Well, perhaps the best way to start is to explain how you have been
+> > > testing this so far and then using that information to draft a test
+> > > for the testsuite.
+> >
+> > As I said in my previous reply, Daniel worked on this patch along with
+> > Stephan Smalley. Here's the conversation regarding testing from back
+> > then:
+> > https://lore.kernel.org/lkml/CAEjxPJ4iquFSBfEj+UEFLUFHPsezuQ-Bzv09n+WgOWk38Nyw3w@mail.gmail.com/
+> >
+> > There have been only minor changes (fixing comments/coding-style),
+> > except for addressing a double free issue with userfaultfd_ctx since
+> > last time it was tested as per the link above.
+>
+> I should probably be more clear.  I honestly don't care who originally
+> wrote the patch, the simple fact is that you are the one who is
+> posting it *now* for inclusion in the kernel; at the very least I
+> expect you to be able to demonstrate that you are able to reliably
+> test this functionality and prove it is working.  While being able to
+> test this submission initially is important, it is far more important
+> to have the tests and docs necessary to maintain this functionality
+> long term.  Perhaps you and/or Google will continue to contribute and
+> support this functionality long term, but it would be irresponsible of
+> me to assume that to be true; both people and companies come and go
+> but code has a tendency to live forever.
+>
+> Let's start again; how have you been testing this code?
+>
+I have created a cuttlefish build and have tested with the attached
+userfaultfd program:
 
--- 
-paul moore
-www.paul-moore.com
+1) Without these kernel patches the program executes without any restrictions
+
+vsoc_x86_64:/ $ ./system/bin/userfaultfdSimple
+api: 170
+features: 511
+ioctls: 9223372036854775811
+
+read: Try again
+
+
+2) With these patches applied but without any policy the 'permission
+denied' is thrown
+
+vsoc_x86_64:/ $ ./system/bin/userfaultfdSimple
+syscall(userfaultfd): Permission denied
+
+with the following logcat message:
+11-18 14:21:44.041  3130  3130 W userfaultfdSimp: type=1400
+audit(0.0:107): avc: denied { create } for dev="anon_inodefs"
+ino=45031 scontext=u:r:shell:s0 tcontext=u:object_r:shell:s0
+tclass=anon_inode permissive=0
+
+
+3) With the attached .te policy file in place the following output is
+observed, confirming that the patch is working as intended.
+vsoc_x86_64:/ $ ./vendor/bin/userfaultfdSimple
+UFFDIO_API: Permission denied
+
+with the following logcat message:
+11-18 14:33:29.142  2028  2028 W userfaultfdSimp: type=1400
+audit(0.0:104): avc: denied { ioctl } for
+path="anon_inode:[userfaultfd]" dev="anon_inodefs" ino=41169
+ioctlcmd=0xaa3f scontext=u:r:userfaultfdSimple:s0
+tcontext=u:object_r:uffd_t:s0 tclass=anon_inode permissive=0
+
+
+> --
+> paul moore
+> www.paul-moore.com
+
+--00000000000048c66905b4694aa9
+Content-Type: text/x-c++src; charset="US-ASCII"; name="userfaultfd_simple.cc"
+Content-Disposition: attachment; filename="userfaultfd_simple.cc"
+Content-Transfer-Encoding: base64
+Content-ID: <f_khnyhxjz0>
+X-Attachment-Id: f_khnyhxjz0
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8dW5pc3RkLmg+
+CiNpbmNsdWRlIDxjc3RyaW5nPgoKI2luY2x1ZGUgPHN5cy90eXBlcy5oPgojaW5jbHVkZSA8c3lz
+L2lvY3RsLmg+CiNpbmNsdWRlIDxzeXMvc3lzY2FsbC5oPgoKI2luY2x1ZGUgPGxpbnV4L3VzZXJm
+YXVsdGZkLmg+Cgp2b2lkIHByaW50X2FwaShjb25zdCBzdHJ1Y3QgdWZmZGlvX2FwaSAqYXBpKQp7
+CglwcmludGYoImFwaTogJWxsdVxuIiwgYXBpLT5hcGkpOwoJcHJpbnRmKCJmZWF0dXJlczogJWxs
+dVxuIiwgYXBpLT5mZWF0dXJlcyk7CglwcmludGYoImlvY3RsczogJWxsdVxuIiwgYXBpLT5pb2N0
+bHMpOwoKCXByaW50ZigiXG4iKTsKfQoKaW50IG1haW4odm9pZCkKewoJbG9uZyB1ZmZkID0gc3lz
+Y2FsbChfX05SX3VzZXJmYXVsdGZkLCBPX0NMT0VYRUMgfCBPX05PTkJMT0NLKTsKCWlmICh1ZmZk
+IDwgMCkgewoJCXBlcnJvcigic3lzY2FsbCh1c2VyZmF1bHRmZCkiKTsKCQlyZXR1cm4gLTE7Cgl9
+CgoJc3RydWN0IHVmZmRpb19hcGkgYXBpOwoJc3RkOjptZW1zZXQoJmFwaSwgMHgwLCBzaXplb2Yg
+YXBpKTsKCWFwaS5hcGkgPSBVRkZEX0FQSTsKCWlmIChpb2N0bCh1ZmZkLCBVRkZESU9fQVBJLCAm
+YXBpKSA8IDApIHsKCQlwZXJyb3IoIlVGRkRJT19BUEkiKTsKCQlyZXR1cm4gLTE7Cgl9CgoJcHJp
+bnRfYXBpKCZhcGkpOwoKCXN0cnVjdCB1ZmZkX21zZyBtc2c7CglzdGQ6Om1lbXNldCgmbXNnLCAw
+eDAsIHNpemVvZiBtc2cpOwoJc3NpemVfdCBjb3VudCA9IHJlYWQodWZmZCwgJm1zZywgc2l6ZW9m
+KG1zZykpOwoJaWYgKGNvdW50IDwgMCkgewoJCXBlcnJvcigicmVhZCIpOwoJCXJldHVybiAtMTsK
+CX0gZWxzZSBpZiAoY291bnQgPT0gMCkgewoJCXByaW50ZigicmVhZCBFT0ZcblxuIik7Cgl9CgoJ
+cHJpbnRmKCJyZWFkIHVmZmRcblxuIik7CgoJcmV0dXJuIDA7Cn0K
+--00000000000048c66905b4694aa9
+Content-Type: application/octet-stream; name="userfaultfdSimple.te"
+Content-Disposition: attachment; filename="userfaultfdSimple.te"
+Content-Transfer-Encoding: base64
+Content-ID: <f_khnziydf1>
+X-Attachment-Id: f_khnziydf1
+
+CnR5cGUgdXNlcmZhdWx0ZmRTaW1wbGUsIGRvbWFpbjsKCnR5cGUgdXNlcmZhdWx0ZmRTaW1wbGVf
+ZXhlYywgdmVuZG9yX2ZpbGVfdHlwZSwgZXhlY190eXBlLCBmaWxlX3R5cGU7Cgp0eXBlIHVmZmRf
+dDsKdHlwZV90cmFuc2l0aW9uIHVzZXJmYXVsdGZkU2ltcGxlIHVzZXJmYXVsdGZkU2ltcGxlIDog
+YW5vbl9pbm9kZSB1ZmZkX3QgIlt1c2VyZmF1bHRmZF0iOwphbGxvdyB1c2VyZmF1bHRmZFNpbXBs
+ZSB1ZmZkX3Q6YW5vbl9pbm9kZSB7IGNyZWF0ZSBpb2N0bCByZWFkIH07CgojIFVuY29tbWVudCBv
+bmUgb2YgdGhlIGFsbG93eCBsaW5lcyBiZWxvdyB0byB0ZXN0IGlvY3RsIHdoaXRlbGlzdGluZy4K
+IyBOb25lCmFsbG93eHBlcm0gdXNlcmZhdWx0ZmRTaW1wbGUgdWZmZF90OmFub25faW5vZGUgaW9j
+dGwgMHgwOwojIFVGRkRJT19BUEkKI2FsbG93eHBlcm0gdXNlcmZhdWx0ZmRTaW1wbGUgdWZmZF90
+OmFub25faW5vZGUgaW9jdGwgMHhhYTNmOwoKZG9udGF1ZGl0IHVzZXJmYXVsdGZkU2ltcGxlIGFk
+YmQ6ZmQgdXNlOwpkb250YXVkaXQgdXNlcmZhdWx0ZmRTaW1wbGUgYWRiZDp1bml4X3N0cmVhbV9z
+b2NrZXQgeyByZWFkIHdyaXRlIH07CmRvbnRhdWRpdCB1c2VyZmF1bHRmZFNpbXBsZSBkZXZwdHM6
+Y2hyX2ZpbGUgeyBnZXRhdHRyIGlvY3RsIHJlYWQgd3JpdGUgfTsKZG9udGF1ZGl0IHVzZXJmYXVs
+dGZkU2ltcGxlIHNoZWxsOmZkIHVzZTsKCmRvbWFpbl9hdXRvX3RyYW5zKHNoZWxsLCB1c2VyZmF1
+bHRmZFNpbXBsZV9leGVjLCB1c2VyZmF1bHRmZFNpbXBsZSk7Cg==
+--00000000000048c66905b4694aa9--
