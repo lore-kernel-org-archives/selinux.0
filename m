@@ -2,154 +2,168 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EF27C64E75
-	for <selinux@archiver.kernel.org>; Fri, 20 Nov 2020 20:40:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 578F3C71155
+	for <selinux@archiver.kernel.org>; Fri, 20 Nov 2020 20:48:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E1C822201
-	for <selinux@archiver.kernel.org>; Fri, 20 Nov 2020 20:40:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC19922253
+	for <selinux@archiver.kernel.org>; Fri, 20 Nov 2020 20:48:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Mh/JvBHa"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="avd4TaFU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731697AbgKTUks (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Nov 2020 15:40:48 -0500
-Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:37072
-        "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728396AbgKTUks (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Nov 2020 15:40:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605904846; bh=H+wPK3JtwKZOAj3KpQpuqAhGVYzQ6p+weYdxzzO+LqU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Mh/JvBHahtyWZg07kydeDI4xkEBrglQ/zBvX41XK3jaFNvvE4YrIc7DNTcnGG41AoM01q7irUmYLltUwFEONSFI4otJglIwgGzjtSEywsm7B2+UTppyQNtGIfzgVMkm5NubQmjrzMtAIzp1jO7qdVEhnJ7BlZNLlzMC7sJD3tx+DewlXq2KHVtYa0/aQcPIFq4BcbBgZ6MgDeJ08CnaUehBqthimR4FA5eT9owfnLQSGVhE9QA6P6UfXDIo0StzvkJe4DEhxQuFqfzrAijA0hFSpSV7ZBxLcMrX+ImWH+X/5RNyB0a85W+9wabz1GWGMwNF+ok4Iw0B+jJkzLtyCsg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605904846; bh=81Cpu7mvk7z0vmGNAmuWCRhB/FXZvR9qhmtroMCs3+a=; h=From:To:Subject:Date:From:Subject; b=dp0UE5v6w5iSODnjCW0+s71wbjuLG7Yx2FNVsvF+N/URJ8g5pdjULI3FzrmLphJ1T//jOrddWvo+5mAHWunKtARUUl4cUprS9PgBsloxJzCbgEmhGtQZcA3hA/zzCCo4EuqVUzpsTK2z5Uv3JHOuoX33wTKBPgtKaTM6PAABjs8p/Y2LdYws4sC0ObxEMlovPVGUEYwxUWZ1r19pVkvcI3N9iNqSuEWDFytWKK5zelQdhHY6NDJzQy5senh4B9+eHGhrINtv8kr5eCPTlPOrRYki8znB6Jp963bu8hrH6dXSWnYyZANRb3BCPNI5eVzqM51r0G8fFnEbKyXwJIgsjA==
-X-YMail-OSG: QEJ.gLkVM1lnDGmiGcbWtMD97I1p5_lv5qCQMR7BBOH_NXWRqjZX6BIrmOuWcxt
- 9uRulLo.lyjnNh3iOgQzjGFRKlzoKR.7xiGkWcvbolWUbzrnRXMzAm3Ry.mWMj.tx561X3NhOL0S
- nUqPaEqhh_.a_Rm.ek9EGWGPN3hcsn1NUFYBcBmeGO2vIUHmb7JPIXxAVNjF.ZxeDyqLz.urYexy
- JzXJXAYEjGmICr_z2xnhX3.cnSmi03_XMFB9zjVWxA5JwhflTOzQ3GcKuGCjnNcC8sn40Bu7JScd
- v6ER0HIrfvh4a524aGG4EVarDcJRNxznXT9sOUvIN8N4UJfyF5o2ojsn3seY1hdi5JQkHjtK5wG9
- 4NgAaeEfFiM7QfR0_7B0IN8ZGiB0gFDtZXpB.2ZLQP8cXJZBjxps7YCJvkblS5zTYs.sTiBOIyYA
- Wp7DbE5LmcZofVZy4Bvp62vW2tdjKFi97MwgKsZQ81jjZNXvBh4hCVLUjzuV.PnjQHhEAHZKiuu6
- 0YEaO3RJ9ZNr_2VZ7F_p_LOxkvQZ3tk.bkuuD1Gyc_dOGpcf0VDpWFJpAI9Ze8Nq8N8lML5uMfNa
- AHy9qynMlUCkfvNoIAeBl6xr.jtcuxgKitInaamUNk6k22kodEBQb1ks0i.zCbQtBb5TSLLk3pFX
- EmQ5KOIWZENObWQ6pTnTZ_kahuBqPOYbtcmnmfe..kxQ1UJ1.idJ8WRoR1h.zA1j3JW6JZU_MdZq
- q19lb6thWWPM8TuRKCiPzJK65tVs6daD8Rk5MVFmX_FBGGtfOrplQHYHmdkVJjAwsmD.q3sWPiz3
- TiMHNPyf8WYbGd5gjzCDtuHCAy4i1LUP5M..wCc22IwOWizU.bWeX8PyiY.pmA8boXr4_6O1eAKe
- mMAOGj4.0rhPgNRT.tcz36PLhZMZuZm3Y3dtZ9WccC.zwWNmnO1X73E0KZDhOfeygOYlxZn5ELgW
- Tf0L1IDx2h85fwo9RU3YRMlXv0Y5b1zXl2JEaEUwIfIKi_ZZjqRMHFZwMAiqe0Xzjfg7R4VYB2gW
- WlGuvl8bfCfscfRmB0he17vf7Yko__qkHBZZhciZ1BGIhQ0vb6cuNqnR78pdGbSE3jQlE1imNRRN
- KzMb2SrH0q7wG4R3MQmFegfnHExLM8rL7ISJ5GMYNReX9ELHsFLLGR4VSfqtJujG7jqMC0ZSq6h.
- _mfzppAzs12abgqWrXcSiyzWsRbhz7YF_13rGiB5n4sJX5b_Ve.0pDRM8KSvUsk5cl0FUSz0aiuQ
- 2bAI0L9SUBQsUavEWgAj_HKMmeG2sR9IQpeMiSkqdEYvxYMdKGNgb1WdWGJBzA8XAOX_ayfWbI4o
- 2KdvbktnFeyD8L5LPokNrXm.VsL2AB9A78Lm21pAUP9.7xh6aCLU5zBnh4u_tAta.bufmsybUICO
- nnnk2_bdnR20uix2QPstpUvk.neLGxTYvDeDMs8FlKQHYCKzGfhl8dWPSiOwHzFazdM.6ZcOtp9B
- Pj3t.VL.tDwAEZsiipDh_ZQ4a7IW7Zvx4wyPcRrQHewkfMiPltRoz_j6n3DR1kbgmdOMdIK5LGmC
- 9cMoYpljK_elZLWxSkBMt_mdUvB5PhpK0aIgWI2o2oZ3nFiYceZWwBkm2BRMJqypX6gAshaqp7nS
- oaV0GTJAGWlS0ZbvkZkNjxtnoJkj1gDpGgPkBpDeHT4SML91OXAbaBU5VSoO9iEgXY.2zjh.W8vN
- OQJkbSnIMjclCgu8ernh1PpXvcvTUd5mUHiYColmVsJdoLO6VXYnyQ5rrHK.mIMBV3oUXquyO0kf
- B2Dx_tDTXmi7CsdSjyfUrFElGfGj10acrsPXNpVR2tWd3znRQBSRp5BjSqyGLLF7R_oPXieA0gaA
- KkAc6tY9B.64nEKAT6bncPGmBrrgMIqk50K4Rm40lJ_idtA1w1iSOlGgeCpk4LXCq1RraM.RBWqJ
- DGM28QizcAVQ3yN2c0aiQiDQLka8hMAH06IytQisddGKGBVVM5fVzP2_TDnKAmTt7TnG.RBY8GBG
- oJOwDfSwdgx46Cgcx26N_WLHw9fZNGDMAkPyq_Ctfnw8tn4uxBqDXcnFw0SL45Uhs0zmKLANyHvi
- F677TNE_B74407YtP4UyuVloDxmZEyedaV2cx0H1fZUfpH0RkTBNBRT5FvhGqxUEzOlQOq3HXEsl
- YGU7IwbO1C.N0kVTAgJ0rAXS_c1Lb0PUZwsi3Twlq.OpEtvGBgxN6HkBTzsofzuwfiVrlEZllJul
- q3.VcsW1EU49IktTM5SSyiSio72rhM9m1phjuVF3oOSpjkVL_qlaIARCdbvACWTMAKrwnu_ReaQp
- BY40zvOyeB7Bm2Hk3ss2FK2AukoSbMxvK6xt__0xgVABilBn4KNwHwxqJuNjZW1cs3_iaOkbcC2k
- qhEMDqEASpOU9q7A0tho0dT52cR6zYjICrnkjAuHd4wdj_zm85z0lTytHCBH5z0xz3GJOMpqO.NZ
- LAxPGoISxObvGJczQwDqXKRkySIa0AP8drIAjRUt.rCVqTmvwbcJBmuVBD2uJwjHZA.KwH29CgEt
- RD2PepJ9QzuV3PgYgcp0xp876fZHckL2IIQzNPOw0Ps.CcPpWFmkzcubk8Wjzh9Pl_wgxjxSz5CQ
- sAxs76NSm_JzWQWLgYQA0GSjZJpqoCuTp.WD2qmDZqDV12Xpx_XyOqxQrLZrUWBwd8nCaCGCCn9l
- wKa7_3o9I_.Ff3QwFeuKzZx1ZNXhAR_ryAD_rrhoshF2XczO6RUpUOySLR6WCXPESaM_ibfIwq41
- DofM2RwvEeVbdS8e659741vRuvFW2reHZ3KDlViciC8BpdT3UQV7c5DfnJfSgDmcUquVH904xpJn
- psQLbe..8wvIT06qZ1mNeL3DWdOBQ5KEStlBgQPTVKw06RbP_TIsdTTHy7zJgO2Kv8HbJ.CQMsS_
- 3BpDJ_9mRPDClJpUEErZiy1dyBHUMD5w5SUv0k4MS.8qynvRAadfBX8w_SKyfZNpIRQhl1BpL5KQ
- 6owO6VpAMineoFYml12jBkii.CovMQqkphX7RTJACofNJKS63ByX93SYvUqw7H04DQ2bKrFX7.rf
- 7ZcZKHoXu5GAhackZr8YHm091ZpVDRFW7wtAQECHNkmCItZXkk6aPpZCDbAO2b7RxKkdO8ayNJWi
- pL.9nsqr2zWpr90nfb1OVAfEQqIF2xqpPYpIuDo2ID7JLU.rK_vLKeTbZSHspfk.nt.ovfrJqmA.
- fgWGzdyF3almS6.7ChKPSRPVcJYvxDEivqHkxeAyGGBRR0Qj4ecC7Tny_uOumgkeGxLYguh9CYbW
- aGYwP_RLr15QVszu.Uv44v77vZCVeYqncgXWD_dLBcJvP8Uf7Wg3.BULb.pO2umwbMTtVnw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Fri, 20 Nov 2020 20:40:46 +0000
-Received: by smtp425.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID ece91be106397a13102061f9b7764c23;
-          Fri, 20 Nov 2020 20:40:42 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
-        keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org
-Subject: [PATCH v23 23/23] AppArmor: Remove the exclusive flag
-Date:   Fri, 20 Nov 2020 12:15:07 -0800
-Message-Id: <20201120201507.11993-24-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20201120201507.11993-1-casey@schaufler-ca.com>
-References: <20201120201507.11993-1-casey@schaufler-ca.com>
+        id S1729804AbgKTUsK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Nov 2020 15:48:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34842 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729746AbgKTUsG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Nov 2020 15:48:06 -0500
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73225C061A51
+        for <selinux@vger.kernel.org>; Fri, 20 Nov 2020 12:48:05 -0800 (PST)
+Received: by mail-pf1-x443.google.com with SMTP id 131so9007586pfb.9
+        for <selinux@vger.kernel.org>; Fri, 20 Nov 2020 12:48:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=v0uQ3+ZvQ790GJbfbb1ESqfRrqQ38XoL7hho1t1Gb0k=;
+        b=avd4TaFUM+Ab56B8iWTc3giej2JyPXQeNqj8Vqwh4pMfYMm6E7ROZ43KbUMGq3c2kN
+         Y7wgImiWtwhH33QCuhXwX5xfYnbd8ZoAoymaiVLMsflRM4OrtMTi7raBVieCeB5e9/kv
+         qCr4nXKui27aGXF6t1ziK2ispJ9UlbNRnpYGc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=v0uQ3+ZvQ790GJbfbb1ESqfRrqQ38XoL7hho1t1Gb0k=;
+        b=SK/ViuVISGeaz47p7z+sNuGCEF8MtmZ2agPK2g+b+XZhi7vn3BBYxAUL01KVw7gPwd
+         ACYkXjg/Fel4A0dKQqJLrXpID6umq4ifVN49Vp5w5cSGuaUA8o7ClhfrzUzFG4YM1aWP
+         DfqdXOv0rvXr+N4y/sFlat8C6x4pcUC6UjdOFPZyFYzj6zp8H9LQFANYja2Ewg+vF+Bb
+         rRxo9fXUDMCCjuH/wytyvv/0gWRC/q2tsldYI/xyr1gkeNpzqOJVmwQWn762AIwl70et
+         PIb00XcXUGQvZE8DCHMRdpc9O7SdjRjBROIPndjMnKEJGh54SPXQQ2FS3NaNZdWjKBcQ
+         bi8g==
+X-Gm-Message-State: AOAM533RTDrcNRBht/cmfzJkQjxDbZaemsFpezy9RHrZmzvBAMIGW9N6
+        FP+Fg3yV3JFwl9rFlsJwyyDTQrsatokdfLP1
+X-Google-Smtp-Source: ABdhPJzEbaB+IYipfwOUXoCmdplAutZXXBsmC8OBp1xOfb5CPZl7t2eHSBKNbswFZQhoeAMsBYl7Qg==
+X-Received: by 2002:a62:d108:0:b029:163:d3cf:f00e with SMTP id z8-20020a62d1080000b0290163d3cff00emr15313890pfg.43.1605905283088;
+        Fri, 20 Nov 2020 12:48:03 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id a67sm3215381pfa.77.2020.11.20.12.48.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2020 12:48:02 -0800 (PST)
+Date:   Fri, 20 Nov 2020 12:48:01 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+        amd-gfx@lists.freedesktop.org, bridge@lists.linux-foundation.org,
+        ceph-devel@vger.kernel.org, cluster-devel@redhat.com,
+        coreteam@netfilter.org, devel@driverdev.osuosl.org,
+        dm-devel@redhat.com, drbd-dev@lists.linbit.com,
+        dri-devel@lists.freedesktop.org, GR-everest-linux-l2@marvell.com,
+        GR-Linux-NIC-Dev@marvell.com, intel-gfx@lists.freedesktop.org,
+        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net, linux-acpi@vger.kernel.org,
+        linux-afs@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org,
+        linux-atm-general@lists.sourceforge.net,
+        linux-block@vger.kernel.org, linux-can@vger.kernel.org,
+        linux-cifs@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-decnet-user@lists.sourceforge.net,
+        linux-ext4@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-geode@lists.infradead.org, linux-gpio@vger.kernel.org,
+        linux-hams@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-i3c@lists.infradead.org, linux-ide@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
+        op-tee@lists.trustedfirmware.org, oss-drivers@netronome.com,
+        patches@opensource.cirrus.com, rds-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org, samba-technical@lists.samba.org,
+        selinux@vger.kernel.org, target-devel@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net,
+        usb-storage@lists.one-eyed-alien.net,
+        virtualization@lists.linux-foundation.org,
+        wcn36xx@lists.infradead.org, x86@kernel.org,
+        xen-devel@lists.xenproject.org, linux-hardening@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miguel Ojeda <ojeda@kernel.org>, Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
+Message-ID: <202011201244.78E002D5@keescook>
+References: <cover.1605896059.git.gustavoars@kernel.org>
+ <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011201129.B13FDB3C@keescook>
+ <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-With the inclusion of the interface LSM process attribute
-mechanism AppArmor no longer needs to be treated as an
-"exclusive" security module. Remove the flag that indicates
-it is exclusive. Remove the stub getpeersec_dgram AppArmor
-hook as it has no effect in the single LSM case and
-interferes in the multiple LSM case.
+On Fri, Nov 20, 2020 at 11:51:42AM -0800, Jakub Kicinski wrote:
+> On Fri, 20 Nov 2020 11:30:40 -0800 Kees Cook wrote:
+> > On Fri, Nov 20, 2020 at 10:53:44AM -0800, Jakub Kicinski wrote:
+> > > On Fri, 20 Nov 2020 12:21:39 -0600 Gustavo A. R. Silva wrote:  
+> > > > This series aims to fix almost all remaining fall-through warnings in
+> > > > order to enable -Wimplicit-fallthrough for Clang.
+> > > > 
+> > > > In preparation to enable -Wimplicit-fallthrough for Clang, explicitly
+> > > > add multiple break/goto/return/fallthrough statements instead of just
+> > > > letting the code fall through to the next case.
+> > > > 
+> > > > Notice that in order to enable -Wimplicit-fallthrough for Clang, this
+> > > > change[1] is meant to be reverted at some point. So, this patch helps
+> > > > to move in that direction.
+> > > > 
+> > > > Something important to mention is that there is currently a discrepancy
+> > > > between GCC and Clang when dealing with switch fall-through to empty case
+> > > > statements or to cases that only contain a break/continue/return
+> > > > statement[2][3][4].  
+> > > 
+> > > Are we sure we want to make this change? Was it discussed before?
+> > > 
+> > > Are there any bugs Clangs puritanical definition of fallthrough helped
+> > > find?
+> > > 
+> > > IMVHO compiler warnings are supposed to warn about issues that could
+> > > be bugs. Falling through to default: break; can hardly be a bug?!  
+> > 
+> > It's certainly a place where the intent is not always clear. I think
+> > this makes all the cases unambiguous, and doesn't impact the machine
+> > code, since the compiler will happily optimize away any behavioral
+> > redundancy.
+> 
+> If none of the 140 patches here fix a real bug, and there is no change
+> to machine code then it sounds to me like a W=2 kind of a warning.
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: John Johansen <john.johansen@canonical.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/apparmor/lsm.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+I'd like to avoid splitting common -W options between default and W=2
+just based on the compiler. Getting -Wimplicit-fallthrough enabled found
+plenty of bugs, so making sure it works correctly for both compilers
+feels justified to me. (This is just a subset of the same C language
+short-coming.)
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 36be7bdc917b..29e8bbdba37c 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1129,22 +1129,6 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
- 	return error;
- }
- 
--/**
-- * apparmor_socket_getpeersec_dgram - get security label of packet
-- * @sock: the peer socket
-- * @skb: packet data
-- * @secid: pointer to where to put the secid of the packet
-- *
-- * Sets the netlabel socket state on sk from parent
-- */
--static int apparmor_socket_getpeersec_dgram(struct socket *sock,
--					    struct sk_buff *skb, u32 *secid)
--
--{
--	/* TODO: requires secid support */
--	return -ENOPROTOOPT;
--}
--
- /**
-  * apparmor_sock_graft - Initialize newly created socket
-  * @sk: child sock
-@@ -1248,8 +1232,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- #endif
- 	LSM_HOOK_INIT(socket_getpeersec_stream,
- 		      apparmor_socket_getpeersec_stream),
--	LSM_HOOK_INIT(socket_getpeersec_dgram,
--		      apparmor_socket_getpeersec_dgram),
- 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
- #ifdef CONFIG_NETWORK_SECMARK
- 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
-@@ -1918,7 +1900,7 @@ static int __init apparmor_init(void)
- 
- DEFINE_LSM(apparmor) = {
- 	.name = "apparmor",
--	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
-+	.flags = LSM_FLAG_LEGACY_MAJOR,
- 	.enabled = &apparmor_enabled,
- 	.blobs = &apparmor_blob_sizes,
- 	.init = apparmor_init,
+> I think clang is just being annoying here, but if I'm the only one who
+> feels this way chances are I'm wrong :)
+
+It's being pretty pedantic, but I don't think it's unreasonable to
+explicitly state how every case ends. GCC's silence for the case of
+"fall through to a break" doesn't really seem justified.
+
 -- 
-2.24.1
-
+Kees Cook
