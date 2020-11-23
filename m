@@ -2,178 +2,152 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB133C63697
-	for <selinux@archiver.kernel.org>; Mon, 23 Nov 2020 19:21:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9C18C63777
+	for <selinux@archiver.kernel.org>; Mon, 23 Nov 2020 19:38:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FCD42072C
-	for <selinux@archiver.kernel.org>; Mon, 23 Nov 2020 19:21:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 732DA20727
+	for <selinux@archiver.kernel.org>; Mon, 23 Nov 2020 19:38:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Yw2aQU9x"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="gQt1e+OQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728990AbgKWTVM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Nov 2020 14:21:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730636AbgKWTVL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Nov 2020 14:21:11 -0500
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CA8C061A4F
-        for <selinux@vger.kernel.org>; Mon, 23 Nov 2020 11:21:11 -0800 (PST)
-Received: by mail-ej1-x643.google.com with SMTP id k27so24887166ejs.10
-        for <selinux@vger.kernel.org>; Mon, 23 Nov 2020 11:21:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IDXip25iFNJyM0PQT3UUP9BSDp/9JtkjedehC7iQYgI=;
-        b=Yw2aQU9xEKztBeZFpgzdcCIMM0F7lTQYAdM0JHnjP4hY6mpUB8V8tRh5WOa76T2xZn
-         B1D9HaFeGSXAB9IPtUy8gP8yQitPaU5Epa1pIMOyO5nxNi6mRbogZsDTpv9Xhkhfuuvs
-         b8Z1itlSu7vABBV16xIdb7eU1FLhji8NhNjQSxzdcfbvlhMTsd8UqbT1OdabZJyBZbAW
-         Kg75RcoHpXHQJ+ndeWLo8CW6muNIxihUQo+Yrmmixvw+Q0ZLz5L3ZZXM7cXtigdf5XkT
-         Zmps8vvpm9sg4emPXqNaTMqnyULRtHIDz98Qt8GVJP7KqgH6Al67RYpPbOZDRLiVCGPZ
-         PX+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IDXip25iFNJyM0PQT3UUP9BSDp/9JtkjedehC7iQYgI=;
-        b=JWR8St3Waf/9jtHR4MXxPgc/C0kiUJSx0wDiMfWRW4PnmhTMD3EmvZRshchgmv0HIL
-         2z6J87G3v19yWBU6ape8tufozE5F87iXHKOqm9hJ1pVJLkpnDZ9UoV2NmNCLm10zB7vO
-         +ibtGBB2YL9c5krN08lqoQLAp9dn3Ge5uIm1l26WexEM+ucRzrqz3KTSUHG4yEgMxn+y
-         5NAZR1nFkk+u71iS7ktg+tU+Bfd5+c53swHo0Bq4deUgJjS7wra5VNUm/nUBWIzARlgU
-         8+qGJsw+iJqobViajH5lNkyryl0CW5pT/4gMV3n0rLMnmvWE0DhAXCOk5wCPbMbZ9MyS
-         urnw==
-X-Gm-Message-State: AOAM5302EFvz4Fmv5r0Q4S1LRCNylF7Rvzpk1tPMZuxBG/XYODuBd4+N
-        jN5I2gBP2nlVVbrTxcKzHlLUmlUx/S6RVgUCNhWtqg==
-X-Google-Smtp-Source: ABdhPJyAk0qU6rtTXOSnzSdut6i2VQ3kE6QNCZM4uiHTEAQJ9L6iAGGfXL9N+fu/hljow+r8JVhLjzMnXPAJLlg5eHc=
-X-Received: by 2002:a17:906:c312:: with SMTP id s18mr1030453ejz.185.1606159269816;
- Mon, 23 Nov 2020 11:21:09 -0800 (PST)
+        id S1730692AbgKWThu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Nov 2020 14:37:50 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:43592 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730683AbgKWTht (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Nov 2020 14:37:49 -0500
+Received: from [192.168.86.31] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 999C720B717A;
+        Mon, 23 Nov 2020 11:37:48 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 999C720B717A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1606160269;
+        bh=nKE9ax347McNMh2dmVuxCHdA60lE1Lj1JfhVD8MiYHg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=gQt1e+OQTP6YHmycUCZNsLBZ5DpexXnLF946JnOKKBsGiIGRldemKi+3Vi+rPJQxU
+         puJnpgUGzmgK6b5l0gZAudPAZe+5UhD0Di5yzUMOaL00REoPCK+iUpJjtDH8AGyGew
+         YdSpUpMRjoTjlyo4VQKQClPH1t7jXW2OwHOCL3fw=
+Subject: Re: [PATCH v6 8/8] selinux: measure state and hash of the policy
+ using IMA
+To:     James Morris <jmorris@namei.org>
+Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com,
+        tyhicks@linux.microsoft.com, sashal@kernel.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20201119232611.30114-1-tusharsu@linux.microsoft.com>
+ <20201119232611.30114-9-tusharsu@linux.microsoft.com>
+ <alpine.LRH.2.21.2011211301340.18334@namei.org>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <33718d39-a3a2-595b-46b0-f1a195348000@linux.microsoft.com>
+Date:   Mon, 23 Nov 2020 11:37:47 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20201106155626.3395468-1-lokeshgidra@google.com>
- <20201106155626.3395468-4-lokeshgidra@google.com> <CAHC9VhRsaE5vhcSMr5nYzrHrM6Pc5-JUErNfntsRrPjKQNALxw@mail.gmail.com>
- <CA+EESO7LuRM_MH9z=BhLbWJrxMvnepq-NSTu_UJsPXxc0QkEag@mail.gmail.com>
- <CAHC9VhQJvTp4Xx2jCDK1zMbOmXLAAm_+ZnexydgAeWz1eGKfUg@mail.gmail.com>
- <CA+EESO79Yx6gMBYX+QkU9f7TKo-L+_COomCoAqwFQYwg8xy=gg@mail.gmail.com>
- <CAHC9VhSjVE6tC04h7k09LgTBrR-XW274ypvhcabkoyYLcDszHw@mail.gmail.com>
- <CA+EESO7vqNMXeyk7GZ7syXrTFG54oaf1PUsC7+2ndEBEQeBpdw@mail.gmail.com> <CAHC9VhQn-E+kTzzwwAiSLLQVtm5u=m5bOz2n-q+oA+8quT2noQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhQn-E+kTzzwwAiSLLQVtm5u=m5bOz2n-q+oA+8quT2noQ@mail.gmail.com>
-From:   Lokesh Gidra <lokeshgidra@google.com>
-Date:   Mon, 23 Nov 2020 11:20:58 -0800
-Message-ID: <CA+EESO6qfCCZ5K1sWWrcBm6VM0w3LWkiOfAh3dhM-eVigVYYWA@mail.gmail.com>
-Subject: Re: [PATCH v12 3/4] selinux: teach SELinux about anonymous inodes
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Cedeno <thomascedeno@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>, hch@infradead.org,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <alpine.LRH.2.21.2011211301340.18334@namei.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Nov 22, 2020 at 3:14 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Wed, Nov 18, 2020 at 5:39 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > I have created a cuttlefish build and have tested with the attached
-> > userfaultfd program:
->
-> Thanks, that's a good place to start, a few comments:
->
-> - While we support Android as a distribution, it isn't a platform that
-> we common use for development and testing.  At the moment, Fedora is
-> probably your best choice for that.
->
-I tried setting up a debian/ubuntu system for testing using the
-instructions on the selinux-testsuite page, but the system kept
-freezing after 'setenforce 1'. I'll try with fedora now.
+Hi James,
 
-> - Your test program should be written in vanilla C for the
-> selinux-testsuite.  Looking at the userfaultfdSimple.cc code that
-> should be a trivial conversion.
->
-> - I think you have a good start on a test for the selinux-testsuite,
-> please take a look at the test suite and submit a patch against that
-> repo.  Ondrej (CC'd) currently maintains the test suite and he may
-> have some additional thoughts.
->
-> * https://github.com/SELinuxProject/selinux-testsuite
+On 2020-11-20 6:05 p.m., James Morris wrote:
+> On Thu, 19 Nov 2020, Tushar Sugandhi wrote:
+> 
+>> an impact on the security guarantees provided by SELinux. Measuring
+>> such in-memory data structures through IMA subsystem provides a secure
+>> way for a remote attestation service to know the state of the system
+>> and also the runtime changes in the state of the system.
+> 
+> I think we need better clarity on the security model here than just "a
+> secure way...".  Secure how and against what threats?
+> 
+Thanks for taking a look at this patch series.
 
-Thanks a lot for the inputs. I'll start working on this.
->
-> > 1) Without these kernel patches the program executes without any restrictions
-> >
-> > vsoc_x86_64:/ $ ./system/bin/userfaultfdSimple
-> > api: 170
-> > features: 511
-> > ioctls: 9223372036854775811
-> >
-> > read: Try again
-> >
-> >
-> > 2) With these patches applied but without any policy the 'permission
-> > denied' is thrown
-> >
-> > vsoc_x86_64:/ $ ./system/bin/userfaultfdSimple
-> > syscall(userfaultfd): Permission denied
-> >
-> > with the following logcat message:
-> > 11-18 14:21:44.041  3130  3130 W userfaultfdSimp: type=1400
-> > audit(0.0:107): avc: denied { create } for dev="anon_inodefs"
-> > ino=45031 scontext=u:r:shell:s0 tcontext=u:object_r:shell:s0
-> > tclass=anon_inode permissive=0
-> >
-> >
-> > 3) With the attached .te policy file in place the following output is
-> > observed, confirming that the patch is working as intended.
-> > vsoc_x86_64:/ $ ./vendor/bin/userfaultfdSimple
-> > UFFDIO_API: Permission denied
-> >
-> > with the following logcat message:
-> > 11-18 14:33:29.142  2028  2028 W userfaultfdSimp: type=1400
-> > audit(0.0:104): avc: denied { ioctl } for
-> > path="anon_inode:[userfaultfd]" dev="anon_inodefs" ino=41169
-> > ioctlcmd=0xaa3f scontext=u:r:userfaultfdSimple:s0
-> > tcontext=u:object_r:uffd_t:s0 tclass=anon_inode permissive=0
->
-> --
-> paul moore
-> www.paul-moore.com
+Here is the overall threat model:
+
+For a given device inside an organization, various services/
+infrastructure tools owned by the org interact with the device. These
+services/tools can be external to the device. They can interact with the
+device both during setup and rest of the device lifetime. These
+interactions may involve sharing the org sensitive data and/or running
+business critical workload on that device. Before sharing data/running
+workload on that device - the org would want to know the security
+profile of the device. E.g. SELinux is enforced (with the policy that is
+expected by the org), disks are encrypted with a certain configuration,
+secure boot is enabled etc. If the org requirements are satisfied, then
+only the external services will start interacting with the device.
+
+For the org, extracting that information from the device is tricky.
+The services could look for some markers on the device necessary to
+satisfy the org requirements. But the device could already be
+compromised with some malware, and could simply lie to the external
+services by putting false markers on the device. For instance, the
+malware can put a random SELinux policy file at the expected location
+even when SELinux is not even enabled on the device.
+
+If the org trusts these false markers, the compromised device could go
+undetected - and can do further damage once it has access to the org
+sensitive data / business critical processes.
+
+This is the threat we are trying to address.
+
+For the org, to address this threat - at least three things are needed:
+
+(1) Producers of the markers are as close to the source as possible:
+The source that does the work of actually protecting the device.
+E.g. SELinux state reported from the SELinux kernel LVM itself, rather
+than some user mode process extracting that information).
+This will make it harder for the bad actors to mimic the information -
+thus reducing the ROI for them.
+
+(2) Extracting the information from the device in a tamper resistant
+way:
+Even if the information is produced by the expected source, it can still
+get altered by attackers. This can happen before the info reaches the
+external services - the services that make the decision whether to trust
+the device with org sensitive info or not.
+The IMA measurement infrastructure, with TPM extend and quoting,
+provides the necessary assurance to those services - that the
+information coming from the device is not tampered with.
+
+(3) Tracking the state change during the lifetime of the device:
+The device may start in a good configuration. But over the lifetime,
+that configuration may deteriorate. E.g. SELinux stores the
+current operating mode, in memory, which could be "enforce" or "audit".
+Changes to this data at runtime impacts the security guarantees provided
+by SELinux. Such changes could be made inadvertently or by malware
+running on the device.
+
+
+The IMA hook plus policies in the first 7/8 patches provide the
+necessary functionality to achieve (2).
+
+The last SELinux 8/8 patch helps achieve (1).
+
+And the patches in the series overall work together to achieve (3).
+
+> This looks to me like configuration assurance, i.e. you just want to know
+> that systems have been configured correctly, not to detect a competent
+> attack. Is that correct?
+
+The attestation service would look at various measurements coming from
+the device. And there could be a discrepancy between the measurements,
+or the measurements won't match the expected predetermined values. In
+that case, the attestation service may conclude that not only the device
+is misconfigured, but also that misconfiguration is a result of
+potentially compromised device. Then the necessary action can be taken
+for the device (removing it from the network, not sharing data/workload
+with it etc.)
+
+~Tushar
