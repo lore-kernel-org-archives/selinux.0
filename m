@@ -2,111 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F1ECC64E7C
-	for <selinux@archiver.kernel.org>; Tue, 24 Nov 2020 02:49:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBCEFC2D0E4
+	for <selinux@archiver.kernel.org>; Tue, 24 Nov 2020 07:25:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FCE420720
-	for <selinux@archiver.kernel.org>; Tue, 24 Nov 2020 02:49:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9BA4D20679
+	for <selinux@archiver.kernel.org>; Tue, 24 Nov 2020 07:25:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728881AbgKXCsq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Nov 2020 21:48:46 -0500
-Received: from kvm5.telegraphics.com.au ([98.124.60.144]:53350 "EHLO
-        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725907AbgKXCsl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Nov 2020 21:48:41 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by kvm5.telegraphics.com.au (Postfix) with ESMTP id EF15F2AA0D;
-        Mon, 23 Nov 2020 21:48:35 -0500 (EST)
-Date:   Tue, 24 Nov 2020 13:48:34 +1100 (AEDT)
-From:   Finn Thain <fthain@telegraphics.com.au>
-To:     Joe Perches <joe@perches.com>
-cc:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        alsa-devel@alsa-project.org, amd-gfx@lists.freedesktop.org,
-        bridge@lists.linux-foundation.org, ceph-devel@vger.kernel.org,
-        cluster-devel@redhat.com, coreteam@netfilter.org,
-        devel@driverdev.osuosl.org, dm-devel@redhat.com,
-        drbd-dev@lists.linbit.com, dri-devel@lists.freedesktop.org,
-        GR-everest-linux-l2@marvell.com, GR-Linux-NIC-Dev@marvell.com,
-        intel-gfx@lists.freedesktop.org, intel-wired-lan@lists.osuosl.org,
-        keyrings@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-        linux-acpi@vger.kernel.org, linux-afs@lists.infradead.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-arm-msm@vger.kernel.org,
-        linux-atm-general@lists.sourceforge.net,
-        linux-block@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-cifs@vger.kernel.org,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        linux-decnet-user@lists.sourceforge.net,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        linux-fbdev@vger.kernel.org, linux-geode@lists.infradead.org,
-        linux-gpio@vger.kernel.org, linux-hams@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-i3c@lists.infradead.org,
-        linux-ide@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input <linux-input@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-mmc@vger.kernel.org, Linux-MM <linux-mm@kvack.org>,
-        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
-        op-tee@lists.trustedfirmware.org, oss-drivers@netronome.com,
-        patches@opensource.cirrus.com, rds-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org, samba-technical@lists.samba.org,
-        selinux@vger.kernel.org, target-devel@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net,
-        usb-storage@lists.one-eyed-alien.net,
-        virtualization@lists.linux-foundation.org,
-        wcn36xx@lists.infradead.org,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        xen-devel@lists.xenproject.org, linux-hardening@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Miguel Ojeda <ojeda@kernel.org>
-Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
-In-Reply-To: <e72a1aaef8673553a3ee9dfa033d6e893e00abcd.camel@perches.com>
-Message-ID: <alpine.LNX.2.23.453.2011241210310.7@nippy.intranet>
-References: <cover.1605896059.git.gustavoars@kernel.org>  <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>  <202011201129.B13FDB3C@keescook>  <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>  <202011220816.8B6591A@keescook>
-  <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>  <CANiq72nZrHWTA4_Msg6MP9snTyenC6-eGfD27CyfNSu7QoVZbw@mail.gmail.com>  <alpine.LNX.2.23.453.2011230938390.7@nippy.intranet>  <CANiq72=z+tmuey9wj3Kk7wX5s0hTHpsQdLhAqcOVNrHon6xn5Q@mail.gmail.com>
-  <alpine.LNX.2.23.453.2011241036520.7@nippy.intranet> <e72a1aaef8673553a3ee9dfa033d6e893e00abcd.camel@perches.com>
+        id S1729614AbgKXHZa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Nov 2020 02:25:30 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:37610 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729597AbgKXHZa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Nov 2020 02:25:30 -0500
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 21606564C5A
+        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 08:25:27 +0100 (CET)
+Received: by mail-oi1-f170.google.com with SMTP id s18so21611849oih.1
+        for <selinux@vger.kernel.org>; Mon, 23 Nov 2020 23:25:27 -0800 (PST)
+X-Gm-Message-State: AOAM531IJEFkZRiDdUdq+mRkgUXgyl4geJAFb2q38tCVDstFqqKPus4b
+        YeOTqpT7MVJhBcjPKNz2sPgs8Y2Iaw8gOleldqA=
+X-Google-Smtp-Source: ABdhPJyMzwc9iUKi49oMWiE9X2wn6Ug4qQrgd8Vv5WpyB82FyeaBNKu7TnID1tRn0sDnvWbGo1nHAUo6gWnQ2Kiu9tw=
+X-Received: by 2002:aca:4bc3:: with SMTP id y186mr1772671oia.153.1606202726004;
+ Mon, 23 Nov 2020 23:25:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20201116220702.174765-1-jwcart2@gmail.com>
+In-Reply-To: <20201116220702.174765-1-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 24 Nov 2020 08:25:14 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=n1=rMSAYDbX++Nwn4OrF5E11CzAaK5+pjto4e8u5yV+A@mail.gmail.com>
+Message-ID: <CAJfZ7=n1=rMSAYDbX++Nwn4OrF5E11CzAaK5+pjto4e8u5yV+A@mail.gmail.com>
+Subject: Re: [PATCH 0/6] libsepol/cil: Various CIL cleanups
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Nov 24 08:25:27 2020 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Mon, Nov 16, 2020 at 11:07 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> Cleaning up the CIL codebase a bit. No changes to how CIL works.
+>
+> James Carter (6):
+>   libsepol/cil: cil_tree_walk() helpers should use CIL_TREE_SKIP_*
+>   libsepol/cil: Git rid of unnecessary check in cil_gen_node()
+>   libsepol/cil: Remove unused field from struct cil_args_resolve
+>   libsepol/cil: Remove unnecessary assignment in
+>     cil_resolve_name_keep_aliases()
+>   libsepol/cil: Use the macro NODE() whenever possible
+>   libspepol/cil: Use the macro FLAVOR() whenever possible
+>
+>  libsepol/cil/src/cil.c             |  2 +-
+>  libsepol/cil/src/cil_binary.c      | 12 +++----
+>  libsepol/cil/src/cil_build_ast.c   |  6 ++--
+>  libsepol/cil/src/cil_find.c        | 10 +++---
+>  libsepol/cil/src/cil_post.c        |  2 +-
+>  libsepol/cil/src/cil_resolve_ast.c | 55 +++++++++++++-----------------
+>  libsepol/cil/src/cil_tree.c        |  2 +-
+>  7 files changed, 41 insertions(+), 48 deletions(-)
+>
+> --
+> 2.25.4
+>
 
-On Mon, 23 Nov 2020, Joe Perches wrote:
+Hello,
+The content of these patches look good but there are two misspellings
+in the commit messages:
 
-> On Tue, 2020-11-24 at 11:58 +1100, Finn Thain wrote:
-> > it's not for me to prove that such patches don't affect code 
-> > generation. That's for the patch author and (unfortunately) for 
-> > reviewers.
-> 
-> Ideally, that proof would be provided by the compilation system itself 
-> and not patch authors nor reviewers nor maintainers.
-> 
-> Unfortunately gcc does not guarantee repeatability or deterministic 
-> output. To my knowledge, neither does clang.
-> 
+* Patch 2 : "libsepol/cil: Git rid of unnecessary check in
+cil_gen_node()" -> "Get" instead of "Git"
+* Patch 6 : "libspepol/cil: Use the macro FLAVOR() whenever possible"
+-> "libsepol"
 
-Yes, I've said the same thing myself. But having attempted it, I now think 
-this is a hard problem. YMMV.
+With these changes:
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-https://lore.kernel.org/linux-scsi/alpine.LNX.2.22.394.2004281017310.12@nippy.intranet/
-https://lore.kernel.org/linux-scsi/alpine.LNX.2.22.394.2005211358460.8@nippy.intranet/
+Feel free to apply the patches yourself, with the misspellings fixes.
+
+Thanks,
+Nicolas
+
