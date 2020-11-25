@@ -2,167 +2,166 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF33FC83010
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 01:07:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4ACC56202
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 01:52:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7018820BED
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 01:07:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6764920708
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 01:52:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PLHqMkuV"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="S4w78aWh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728090AbgKYBGI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Nov 2020 20:06:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57236 "EHLO
+        id S1726559AbgKYBwa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Nov 2020 20:52:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727789AbgKYBGB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Nov 2020 20:06:01 -0500
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402E8C0613D6;
-        Tue, 24 Nov 2020 17:06:01 -0800 (PST)
-Received: by mail-qk1-x742.google.com with SMTP id q5so1433321qkc.12;
-        Tue, 24 Nov 2020 17:06:01 -0800 (PST)
+        with ESMTP id S1725930AbgKYBw3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Nov 2020 20:52:29 -0500
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043EDC0613D4
+        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 17:52:28 -0800 (PST)
+Received: by mail-ej1-x633.google.com with SMTP id 7so789843ejm.0
+        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 17:52:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=44pFzPZOXy9WMyxuVZ4PJwmHwfPvC91GWhNSdpkVBXk=;
-        b=PLHqMkuVQ6uE1aGa3jPkk7oL0rd2+0aQGjbXwXCM1BqpOEf5R6gUmrb1tTrj75nDjD
-         aG6VHTDP2JdODJ/e29C1vfEMjWhTPlycM3mNfL2JW5BhFtstP0di/Kwb3XYGnsRoKRp5
-         7FVJzAE2cPEDrpLIYX3jwoIfPno8H9ArdOwpkc9HelZA+M7Eq52S4RmPBHauFrK9tfW3
-         8wrBLWN/Mq7Fl9GTodmgwwudDuqrVUSiSILvkeQCl7qFs3/IjbI7/AG3m5iLRdEEw+2H
-         RzsA5+EdKfz0DIt5iJKomdRqiV67cH8ZcnWPF2PnARf/ANxCrT7QZJCkY0VU2DrQ9d/L
-         oW2A==
+        bh=WrgS6CV4x3UltwJI2DnW1OzuHdog2ZsVn68ZxLeKHHU=;
+        b=S4w78aWhQBYjTBwAY7d5gbt+PtP/y46iHMJppknBZWw58tkWSFAI6xaAPgM/6eBm9O
+         N4Xgn+YMtJYIAiCQkH6TQhZnGm5nON8Q+WvOEzqQKP+/YTQMqy1oKULToO0pgY03LNg6
+         n7HtEFeHwJ0+va8ynSQsHpx9s1PHD17ALbIMF5KnA1ikcX4wAG6LMrfW2jZEL93DAy3e
+         f44ViUPd8G7cGzVwQVZ9YI6Shv6UwBJpOBoJkGle9al4+Llkc0vcwf4irsoCEgzeV6Gb
+         /WtWVQk4b97Ne3qcoZB2s7tOyS8fvcV4vlEqJSwk4LusdWDygADzSnIVkAEGjpy68tvA
+         kbtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=44pFzPZOXy9WMyxuVZ4PJwmHwfPvC91GWhNSdpkVBXk=;
-        b=SP1p0mv6tcasA0zjctwklRPuqCucLzpbUEoeQuQCE403Vw1wJTOPenb/wB6UzHrH8V
-         CEbDrvJHOMLkjUXMv7x5f9d9EHCKeZkhnj/wqmh3M1e50j4BhlGw6c7I8JJPA0109e/d
-         vfnCZxaNcIXUjMdU/MMen6CpRA8fenGalTBDz4LguBNbZkiHJCemof4ebdpdoAek8wac
-         lj1DqcsebfpC1b5u7uV2IfcXIhm9qvUbNNRSTDX6SkbjRAZMWj9TDrYZWq+GNROX+xdb
-         vNBFoaqkps142vfQF8ENhHQJbj3IMSLO+BWQamS8FMFTWRfk1aG5nJzC5oXJ/NYESCd0
-         LWOg==
-X-Gm-Message-State: AOAM53315a5CQglNJi6muaFhDfWMEm+HjvKkK02zci4+0RKe4Cgw0n+l
-        lUmVUCbrWBL7dwzg9uJUS+Yz0m6xY+JSD8teb/Q=
-X-Google-Smtp-Source: ABdhPJxG2tW9FM1fAqThCcvqKAPI/OeE1R4V2//A8ePZuSketjr0yKUxoxj6t2hcKlYt9sKRSewQcSyhG/w+5cGdzqU=
-X-Received: by 2002:a25:aac5:: with SMTP id t63mr1046305ybi.22.1606266360499;
- Tue, 24 Nov 2020 17:06:00 -0800 (PST)
+        bh=WrgS6CV4x3UltwJI2DnW1OzuHdog2ZsVn68ZxLeKHHU=;
+        b=m1Y6PgGL15/5TDxxZI0ihdHYNL1pY4whLkJUERiYMFS4TwUyVgM2+GGeKP+0cyolVT
+         k7nsfZaEZek9UCecZK5DOfB95zIieKYTURSd6rX7+DI9d/Bj85vNps6tEq/l9xyC9+32
+         kwJOlQrXiGYjSkhIAg5ybu4Z+t4i3aHbknF7OIOvg//vgaJd//Tt7xkDxYJ+dTod2PMn
+         W91/RpwbHKwM+ln2bqKnXprCTwaJYo7eK54mZW47t/tYmZtazGXe/HdoILjqB/lPMDpi
+         DXugoOPqeeNAey7C/iRRuqXYLXKyFwylW6WbkqNeawfEd3QEsDTgMTEPfurcsTCNl0JQ
+         eWsQ==
+X-Gm-Message-State: AOAM5323/rPPNdkMV388WaSRAv9LS/WRgobZmSVLu8w/R6dWzP6F3rT/
+        Wg4kDg1wEC2TlArgUbxWEUHAfeUxqcSPbe4nx959
+X-Google-Smtp-Source: ABdhPJy5QqTI/AmFehlIzbR5PA4citzw5aGePHpuJGKPI7XqWUoaYAYA5Mj9jqBoqrVHRoi3kpCcjDOXx5MKAZts+mc=
+X-Received: by 2002:a17:906:c096:: with SMTP id f22mr1130856ejz.488.1606269147585;
+ Tue, 24 Nov 2020 17:52:27 -0800 (PST)
 MIME-Version: 1.0
-References: <202011201129.B13FDB3C@keescook> <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook> <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
- <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
- <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
- <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
- <20201123130348.GA3119@embeddedor> <8f5611bb015e044fa1c0a48147293923c2d904e4.camel@HansenPartnership.com>
- <202011241327.BB28F12F6@keescook> <alpine.LNX.2.23.453.2011250859290.15@nippy.intranet>
- <CANiq72nUt57u5DG9rH=DB0DzQH7U6-QbG-2Ou+PyCY=p=_Ggag@mail.gmail.com> <alpine.LNX.2.23.453.2011251022550.14@nippy.intranet>
-In-Reply-To: <alpine.LNX.2.23.453.2011251022550.14@nippy.intranet>
-From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date:   Wed, 25 Nov 2020 02:05:49 +0100
-Message-ID: <CANiq72m2kGxSy2E9jgYE4_xRV6h9rFqiJP25KXs_5ObYnH_nmA@mail.gmail.com>
-Subject: Re: [Intel-wired-lan] [PATCH 000/141] Fix fall-through warnings for Clang
-To:     Finn Thain <fthain@telegraphics.com.au>
-Cc:     Kees Cook <keescook@chromium.org>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Joe Perches <joe@perches.com>,
-        Jakub Kicinski <kuba@kernel.org>, alsa-devel@alsa-project.org,
-        linux-atm-general@lists.sourceforge.net,
-        reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+References: <20201106155626.3395468-1-lokeshgidra@google.com>
+ <20201106155626.3395468-4-lokeshgidra@google.com> <CAHC9VhRsaE5vhcSMr5nYzrHrM6Pc5-JUErNfntsRrPjKQNALxw@mail.gmail.com>
+ <CA+EESO7LuRM_MH9z=BhLbWJrxMvnepq-NSTu_UJsPXxc0QkEag@mail.gmail.com>
+ <CAHC9VhQJvTp4Xx2jCDK1zMbOmXLAAm_+ZnexydgAeWz1eGKfUg@mail.gmail.com>
+ <CA+EESO79Yx6gMBYX+QkU9f7TKo-L+_COomCoAqwFQYwg8xy=gg@mail.gmail.com>
+ <CAHC9VhSjVE6tC04h7k09LgTBrR-XW274ypvhcabkoyYLcDszHw@mail.gmail.com>
+ <CA+EESO7vqNMXeyk7GZ7syXrTFG54oaf1PUsC7+2ndEBEQeBpdw@mail.gmail.com>
+ <CAHC9VhQn-E+kTzzwwAiSLLQVtm5u=m5bOz2n-q+oA+8quT2noQ@mail.gmail.com>
+ <CA+EESO6qfCCZ5K1sWWrcBm6VM0w3LWkiOfAh3dhM-eVigVYYWA@mail.gmail.com>
+ <CAHC9VhTtLj9QPqEqO5hHPDmMnWzUaD-2PwGw=bQ=SBxvV78Sxg@mail.gmail.com> <CA+EESO465UY7v5W4k6cqWHTDq6e6pb_NBnZZRMjawHPvfEOOLw@mail.gmail.com>
+In-Reply-To: <CA+EESO465UY7v5W4k6cqWHTDq6e6pb_NBnZZRMjawHPvfEOOLw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 24 Nov 2020 20:52:15 -0500
+Message-ID: <CAHC9VhRRuc+Vxj5waVkVaJ5DN6XpTZnU8eub_Z0BFUMa5yJz0g@mail.gmail.com>
+Subject: Re: [PATCH v12 3/4] selinux: teach SELinux about anonymous inodes
+To:     Lokesh Gidra <lokeshgidra@google.com>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
         linux-kernel <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        linux-ide@vger.kernel.org, dm-devel@redhat.com,
-        keyrings@vger.kernel.org, linux-mtd@lists.infradead.org,
-        GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org,
-        samba-technical@lists.samba.org, linux-i3c@lists.infradead.org,
-        linux1394-devel@lists.sourceforge.net,
-        linux-afs@lists.infradead.org,
-        usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com,
-        devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
-        rds-devel@oss.oracle.com,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org,
-        oss-drivers@netronome.com, bridge@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org,
-        amd-gfx@lists.freedesktop.org,
-        linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
-        linux-acpi@vger.kernel.org, coreteam@netfilter.org,
-        intel-wired-lan@lists.osuosl.org,
-        linux-input <linux-input@vger.kernel.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        tipc-discussion@lists.sourceforge.net,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-watchdog@vger.kernel.org, selinux@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-geode@lists.infradead.org, linux-can@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-gpio@vger.kernel.org,
-        op-tee@lists.trustedfirmware.org,
-        linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org,
-        nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-hwmon@vger.kernel.org,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com,
-        Linux-MM <linux-mm@kvack.org>,
-        Network Development <netdev@vger.kernel.org>,
-        linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-usb@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        patches@opensource.cirrus.com, linux-integrity@vger.kernel.org,
-        target-devel@vger.kernel.org, linux-hardening@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Greg KH <gregkh@linuxfoundation.org>
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Calin Juravle <calin@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        "Cc: Android Kernel" <kernel-team@android.com>,
+        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>, hch@infradead.org,
+        Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 25, 2020 at 12:53 AM Finn Thain <fthain@telegraphics.com.au> wrote:
+On Tue, Nov 24, 2020 at 3:44 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> On Mon, Nov 23, 2020 at 2:43 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Mon, Nov 23, 2020 at 2:21 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> > > On Sun, Nov 22, 2020 at 3:14 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Wed, Nov 18, 2020 at 5:39 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> > > > > I have created a cuttlefish build and have tested with the attached
+> > > > > userfaultfd program:
+> > > >
+> > > > Thanks, that's a good place to start, a few comments:
+> > > >
+> > > > - While we support Android as a distribution, it isn't a platform that
+> > > > we common use for development and testing.  At the moment, Fedora is
+> > > > probably your best choice for that.
+> > > >
+> > > I tried setting up a debian/ubuntu system for testing using the
+> > > instructions on the selinux-testsuite page, but the system kept
+> > > freezing after 'setenforce 1'. I'll try with fedora now.
+> >
+> > I would expect you to have much better luck with Fedora.
 >
-> I'm saying that supporting the official language spec makes more sense
-> than attempting to support a multitude of divergent interpretations of the
-> spec (i.e. gcc, clang, coverity etc.)
+> Yes. It worked!
 
-Making the kernel strictly conforming is a ship that sailed long ago,
-for several reasons. Anyway, supporting several compilers and other
-tools, regardless of extensions, is valuable.
+Excellent :)
 
-> I'm also saying that the reason why we use -std=gnu89 is that existing
-> code was written in that language, not in ad hoc languages comprised of
-> collections of extensions that change with every release.
+> > > > - Your test program should be written in vanilla C for the
+> > > > selinux-testsuite.  Looking at the userfaultfdSimple.cc code that
+> > > > should be a trivial conversion.
+> > > >
+> > > > - I think you have a good start on a test for the selinux-testsuite,
+> > > > please take a look at the test suite and submit a patch against that
+> > > > repo.  Ondrej (CC'd) currently maintains the test suite and he may
+> > > > have some additional thoughts.
+> > > >
+> > > > * https://github.com/SELinuxProject/selinux-testsuite
+> > >
+> > > Thanks a lot for the inputs. I'll start working on this.
+> >
+> > Great, let us know if you hit any problems.  I think we would all like
+> > to see this upstream :)
+>
+> I have the patch ready. I couldn't find any instructions on the
+> testsuite site about patch submission. Can you please tell me how to
+> proceed.
 
-No, we aren't particularly tied to `gnu89` or anything like that. We
-could actually go for `gnu11` already, since the minimum GCC and Clang
-support it. Even if a bit of code needs fixing, that shouldn't be a
-problem if someone puts the work.
+You can post it to the SELinux mailing list, much like you would do a
+SELinux kernel patch.  I'll take a look and I'll make sure Ondrej
+looks at it too.
 
-In other words, the kernel code is not frozen, nor are the features it
-uses from compilers. They do, in fact, change from time to time.
+Thanks!
 
-> Thank you for checking. I found a free version that's only 6 weeks old:
-
-You're welcome! There are quite a few new attributes coming, mostly
-following C++ ones.
-
-> It will be interesting to see whether 6.7.11.5 changes once the various
-> implementations reach agreement.
-
-Not sure what you mean. The standard does not evolve through
-implementations' agreement (although standardizing existing practice
-is one of the best arguments to back a change).
-
-Cheers,
-Miguel
+-- 
+paul moore
+www.paul-moore.com
