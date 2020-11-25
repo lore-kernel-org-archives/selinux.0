@@ -2,165 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4ACC56202
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 01:52:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EE03C63777
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 04:34:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6764920708
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 01:52:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16320206CA
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 04:34:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="S4w78aWh"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="iCGbkB62"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726559AbgKYBwa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Nov 2020 20:52:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36120 "EHLO
+        id S1726477AbgKYEdj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Nov 2020 23:33:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725930AbgKYBw3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Nov 2020 20:52:29 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043EDC0613D4
-        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 17:52:28 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id 7so789843ejm.0
-        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 17:52:28 -0800 (PST)
+        with ESMTP id S1725817AbgKYEdj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Nov 2020 23:33:39 -0500
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7316C0613D4
+        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 20:33:38 -0800 (PST)
+Received: by mail-ed1-x542.google.com with SMTP id d18so1117996edt.7
+        for <selinux@vger.kernel.org>; Tue, 24 Nov 2020 20:33:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=WrgS6CV4x3UltwJI2DnW1OzuHdog2ZsVn68ZxLeKHHU=;
-        b=S4w78aWhQBYjTBwAY7d5gbt+PtP/y46iHMJppknBZWw58tkWSFAI6xaAPgM/6eBm9O
-         N4Xgn+YMtJYIAiCQkH6TQhZnGm5nON8Q+WvOEzqQKP+/YTQMqy1oKULToO0pgY03LNg6
-         n7HtEFeHwJ0+va8ynSQsHpx9s1PHD17ALbIMF5KnA1ikcX4wAG6LMrfW2jZEL93DAy3e
-         f44ViUPd8G7cGzVwQVZ9YI6Shv6UwBJpOBoJkGle9al4+Llkc0vcwf4irsoCEgzeV6Gb
-         /WtWVQk4b97Ne3qcoZB2s7tOyS8fvcV4vlEqJSwk4LusdWDygADzSnIVkAEGjpy68tvA
-         kbtw==
+        bh=5dO5I8El0Vc8nwpAQix4fNsW3d6joKtUwmgssAfQYSo=;
+        b=iCGbkB62nsmiauD4HyMG+F/+S5JVt6SJ0HoeXHFyIswwhlQRiFT2r1AmUF8hGJGKXC
+         ARAcwMlgs7TPar2He+Ce56a4f8LT/z/0lETuFtF7m6mPHzM66pgstmtrmZslLfwVkm4o
+         TVi4Qc3UjxKwfFoV5TXvrqqzq+pc6AOWffEZKw0MI5gd5HN/hFQh31gJbxUZmK+FZmY8
+         Wx4a/Ch31lEINiheJ7Hqq8UWSzAtIju/h7yvbs2S2Wj4fRlkTbxgLAXoMULk5sZIomyK
+         DBDGlCNDvS7L0rC4chFI8zD+H2sOk4UQghKz8yJ50Pdy65YR46P+Srxny4YU1YhEv7EJ
+         ySdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=WrgS6CV4x3UltwJI2DnW1OzuHdog2ZsVn68ZxLeKHHU=;
-        b=m1Y6PgGL15/5TDxxZI0ihdHYNL1pY4whLkJUERiYMFS4TwUyVgM2+GGeKP+0cyolVT
-         k7nsfZaEZek9UCecZK5DOfB95zIieKYTURSd6rX7+DI9d/Bj85vNps6tEq/l9xyC9+32
-         kwJOlQrXiGYjSkhIAg5ybu4Z+t4i3aHbknF7OIOvg//vgaJd//Tt7xkDxYJ+dTod2PMn
-         W91/RpwbHKwM+ln2bqKnXprCTwaJYo7eK54mZW47t/tYmZtazGXe/HdoILjqB/lPMDpi
-         DXugoOPqeeNAey7C/iRRuqXYLXKyFwylW6WbkqNeawfEd3QEsDTgMTEPfurcsTCNl0JQ
-         eWsQ==
-X-Gm-Message-State: AOAM5323/rPPNdkMV388WaSRAv9LS/WRgobZmSVLu8w/R6dWzP6F3rT/
-        Wg4kDg1wEC2TlArgUbxWEUHAfeUxqcSPbe4nx959
-X-Google-Smtp-Source: ABdhPJy5QqTI/AmFehlIzbR5PA4citzw5aGePHpuJGKPI7XqWUoaYAYA5Mj9jqBoqrVHRoi3kpCcjDOXx5MKAZts+mc=
-X-Received: by 2002:a17:906:c096:: with SMTP id f22mr1130856ejz.488.1606269147585;
- Tue, 24 Nov 2020 17:52:27 -0800 (PST)
+        bh=5dO5I8El0Vc8nwpAQix4fNsW3d6joKtUwmgssAfQYSo=;
+        b=CGgLQvsEc1cwW7QH4pybs4Ob4gXW2gtm0kEy/AsBH5kd5pr63s2dfsnl7RDsZxmVLj
+         uq2jZ681wAVA3L6xZHoQoK30hrvhxSb8ZR3oP///HidvEAXbCC7jNC7u1kh61clMCi71
+         Jc7HD5+mI5X7s5/S5a2E/yc9iskVyCI4ADJdFMJAgHsvIiebWb7sDPQtVnKps0cmM0Gy
+         SX3ArbiZPuHkGRhKju1qi1M6fHswIz8Qg0x345NSV5DcK7O85Fmu35M22bDZxgL1rLly
+         H9F5Kd3EgD7rql3MpCzg+7PXsbE/Fm2WsrbbAooGAl+T6YVVnCjDh6B2KHwRtz31x+pT
+         eGDg==
+X-Gm-Message-State: AOAM533vDemzAS9oHOuVg1SfY4J1qvkGc5Y85ItETD0FrP/+K/NKsqbn
+        vWti0ljIrQMgUwozzPzqDFQAT4qz4NTkcod6NlgxhbH7XqJqJpI=
+X-Google-Smtp-Source: ABdhPJyzBsrexvL3weL+QNv6ZWOp0BX+8YK+rUZfJj8QKErOqk3GPOYiO5tPhst7GrlI3yK2JBnBte3VC5qL4yiJXu0=
+X-Received: by 2002:a05:6402:10ce:: with SMTP id p14mr1745336edu.12.1606278817473;
+ Tue, 24 Nov 2020 20:33:37 -0800 (PST)
 MIME-Version: 1.0
-References: <20201106155626.3395468-1-lokeshgidra@google.com>
- <20201106155626.3395468-4-lokeshgidra@google.com> <CAHC9VhRsaE5vhcSMr5nYzrHrM6Pc5-JUErNfntsRrPjKQNALxw@mail.gmail.com>
- <CA+EESO7LuRM_MH9z=BhLbWJrxMvnepq-NSTu_UJsPXxc0QkEag@mail.gmail.com>
- <CAHC9VhQJvTp4Xx2jCDK1zMbOmXLAAm_+ZnexydgAeWz1eGKfUg@mail.gmail.com>
- <CA+EESO79Yx6gMBYX+QkU9f7TKo-L+_COomCoAqwFQYwg8xy=gg@mail.gmail.com>
- <CAHC9VhSjVE6tC04h7k09LgTBrR-XW274ypvhcabkoyYLcDszHw@mail.gmail.com>
- <CA+EESO7vqNMXeyk7GZ7syXrTFG54oaf1PUsC7+2ndEBEQeBpdw@mail.gmail.com>
- <CAHC9VhQn-E+kTzzwwAiSLLQVtm5u=m5bOz2n-q+oA+8quT2noQ@mail.gmail.com>
- <CA+EESO6qfCCZ5K1sWWrcBm6VM0w3LWkiOfAh3dhM-eVigVYYWA@mail.gmail.com>
- <CAHC9VhTtLj9QPqEqO5hHPDmMnWzUaD-2PwGw=bQ=SBxvV78Sxg@mail.gmail.com> <CA+EESO465UY7v5W4k6cqWHTDq6e6pb_NBnZZRMjawHPvfEOOLw@mail.gmail.com>
-In-Reply-To: <CA+EESO465UY7v5W4k6cqWHTDq6e6pb_NBnZZRMjawHPvfEOOLw@mail.gmail.com>
+References: <20201120113807.11605-1-richard_c_haines@btinternet.com>
+ <CAHC9VhTzkCiaRXXO9ZwPNyG59c-uJx=jW5qYPqwfv9jeVPxcGQ@mail.gmail.com> <71112670492a57f244225d200c121f25e267fa44.camel@btinternet.com>
+In-Reply-To: <71112670492a57f244225d200c121f25e267fa44.camel@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 24 Nov 2020 20:52:15 -0500
-Message-ID: <CAHC9VhRRuc+Vxj5waVkVaJ5DN6XpTZnU8eub_Z0BFUMa5yJz0g@mail.gmail.com>
-Subject: Re: [PATCH v12 3/4] selinux: teach SELinux about anonymous inodes
-To:     Lokesh Gidra <lokeshgidra@google.com>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Cedeno <thomascedeno@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>, hch@infradead.org,
-        Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 24 Nov 2020 23:33:26 -0500
+Message-ID: <CAHC9VhRoHbRNWTW-y9xrUcrgMH1YDPR9V5RgC6q_sc34m0As+g@mail.gmail.com>
+Subject: Re: [PATCH] mls_mcs.md: Convert section to markdown
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 24, 2020 at 3:44 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> On Mon, Nov 23, 2020 at 2:43 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Nov 23, 2020 at 2:21 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > > On Sun, Nov 22, 2020 at 3:14 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > > On Wed, Nov 18, 2020 at 5:39 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > > > > I have created a cuttlefish build and have tested with the attached
-> > > > > userfaultfd program:
-> > > >
-> > > > Thanks, that's a good place to start, a few comments:
-> > > >
-> > > > - While we support Android as a distribution, it isn't a platform that
-> > > > we common use for development and testing.  At the moment, Fedora is
-> > > > probably your best choice for that.
-> > > >
-> > > I tried setting up a debian/ubuntu system for testing using the
-> > > instructions on the selinux-testsuite page, but the system kept
-> > > freezing after 'setenforce 1'. I'll try with fedora now.
-> >
-> > I would expect you to have much better luck with Fedora.
->
-> Yes. It worked!
-
-Excellent :)
-
-> > > > - Your test program should be written in vanilla C for the
-> > > > selinux-testsuite.  Looking at the userfaultfdSimple.cc code that
-> > > > should be a trivial conversion.
-> > > >
-> > > > - I think you have a good start on a test for the selinux-testsuite,
-> > > > please take a look at the test suite and submit a patch against that
-> > > > repo.  Ondrej (CC'd) currently maintains the test suite and he may
-> > > > have some additional thoughts.
-> > > >
-> > > > * https://github.com/SELinuxProject/selinux-testsuite
+On Tue, Nov 24, 2020 at 7:26 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Mon, 2020-11-23 at 18:06 -0500, Paul Moore wrote:
+> > On Fri, Nov 20, 2020 at 6:38 AM Richard Haines
+> > <richard_c_haines@btinternet.com> wrote:
 > > >
-> > > Thanks a lot for the inputs. I'll start working on this.
+> > > Add a TOC to aid navigation and converted to markdown.
+> > >
+> > > Reworked a table that required rewording some text.
+> > >
+> > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > > ---
+> > > RFC Change: Updated MLS/MCS text to reflect [1] comments.
+> > >
+> > > All Notebook sections should now be in markdown.
+> > >
+> > > [1]
+> > > https://lore.kernel.org/selinux/80e38828-1473-5bc5-1b23-067cd242125a@gmail.com/
+> > >
+> > >  src/mls_mcs.md | 411 ++++++++++++++++++++++++---------------------
+> > > ----
+> > >  1 file changed, 204 insertions(+), 207 deletions(-)
 > >
-> > Great, let us know if you hit any problems.  I think we would all like
-> > to see this upstream :)
+> > Merged, thanks Richard.
+> >
+> > There are a few other small outstanding patches that I'm going to
+> > look
+> > at now, but what does everyone think: time for a new GH release of
+> > the
+> > notebook?
+> >
 >
-> I have the patch ready. I couldn't find any instructions on the
-> testsuite site about patch submission. Can you please tell me how to
-> proceed.
+> Seems reasonable now all in markdown. I did notice a couple of HTML
+> <br's in title.md and the notebook-examples README.md files. Not sure
+> if worth removing ??.
 
-You can post it to the SELinux mailing list, much like you would do a
-SELinux kernel patch.  I'll take a look and I'll make sure Ondrej
-looks at it too.
-
-Thanks!
+Let me take a look at those, perhaps I can clean those up without too
+much problem ...
 
 -- 
 paul moore
