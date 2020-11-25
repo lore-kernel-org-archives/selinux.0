@@ -2,246 +2,227 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02644C83017
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 12:25:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 518A5C56202
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 12:54:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6F73206F9
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 12:25:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E715E206E5
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 12:54:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GyrkIL7r"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BHoJLxyg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727626AbgKYMY5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Nov 2020 07:24:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48652 "EHLO
+        id S1726908AbgKYMyH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Nov 2020 07:54:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727614AbgKYMYj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Nov 2020 07:24:39 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644DCC061A51
-        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 04:24:39 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id 62so2283839pgg.12
-        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 04:24:39 -0800 (PST)
+        with ESMTP id S1726162AbgKYMyH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Nov 2020 07:54:07 -0500
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FDD2C0613D4
+        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 04:54:07 -0800 (PST)
+Received: by mail-pl1-x64a.google.com with SMTP id x11so1661726plo.19
+        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 04:54:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9IH0l2L/ELs04A0W/6GC4nhC0e+RvRGWJ1bAzD1+dFc=;
-        b=GyrkIL7rJc/Wrkz9wtYqXZYvGBry6qXFkQono0nmrBFDlUCiGmbX9ByD1wUhih87ZW
-         XCd/8etF0h65aGuVNHVvGVnSoIRV2cIFxWeuMsMEKDZ+SIKsK6eM3KIHPaY2Au+pxfCB
-         jFmSmO0a8jtSnIjbAi/709gkMW9hnqxggrhUNIGI/2GrlejcLn7tyz9MFlSEpE31y19Z
-         9ARaZhNBbaKZzII6ioDoEFmbbi01XI+4/fF65wWR3SGfZuCMoV2cgGUJ8Osa8sFeqdbz
-         KLllcyBsC3gtRPDbq4Yc+z3inKaZT7D05cYTb7CBHNDdR/afLH0A7E5JHrBWilMAefn4
-         uS6g==
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=UJ+A3u0hzyWvVjk6F3yEukUoQRTt3q+EV4jpctnxizY=;
+        b=BHoJLxygmEzdOtcFgoKcgQ+0IQwSkVtmnuc5Xlpk/lPw9UmjrqjH29q7YzM8+WTbdm
+         GbKUiken3Xdnv5smblmPrsmV6o1BF83M8Pp/4aRyfYKtHNs9Bagw5yU+LejVwDtOfc1A
+         +IMqLNl6LlXP6QKmlZsPlhTyQnlND7nTiN/JXc/T6meV/bY4lDu8Euq6F2HAV/tyMvaI
+         yzTz6jKIm4ISobRTtDv4YptJKXFOw1/ImcAwEuXHCUFOw3P2+6fPslxmfYCwXiMe4T8q
+         TjvqU4RaPSRKBXLAvJVyoJdqtpyZPjsdpLiSvpFfus2LdDPhzEiQYMr3aeFHmPUZq7gS
+         ZU8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9IH0l2L/ELs04A0W/6GC4nhC0e+RvRGWJ1bAzD1+dFc=;
-        b=tLXpmcNF9mohlymwXI/rG7qFDXkgpK1cIlLcxW1wICjcL5cJaLN1i+QVbyRV0YbleG
-         Uazrcg0ktvFZZLSxhOX57MkbToLEcs/YvGRHDlOhMxKNbPkKDXHVbuXmnwpk5fEhnl/n
-         Xd+QyC1Y3Lfis/bWog4R7s0nKyMXeNxjyWc4Q4FPGItRu3malh+t52X0gwHZ1zqjsV3F
-         xh6qwEEszRnvH3/6w1b4EfIOTmqUch0xF0WSRup+d1uanA+v4gxwoKdhqGPL57ozHgLF
-         ilXKSe6T5tfR7eEL654Xo/Bxa+6ORSDD4IHFvGDQxXuEbJy0UsGtpe4T5WECioiLL/uX
-         y6sg==
-X-Gm-Message-State: AOAM5323pK2KZN3x8i8euTCIweM+0jpSVHGEQjwFRNcdT1cnnRs2nqZY
-        dR4kuFWHh74qmm2gqVrkHFc6u76HdQo6nkFjNvh3Gg==
-X-Google-Smtp-Source: ABdhPJySo35UzNwHodlreVMfJuWPwHO1z+zkcbFfSYU3Avf+sN4n16LJPBb97SBockWyJEKx3Xs8q1wCvzejZmwrmAM=
-X-Received: by 2002:a62:7905:0:b029:197:f300:5a2a with SMTP id
- u5-20020a6279050000b0290197f3005a2amr2898775pfc.30.1606307078380; Wed, 25 Nov
- 2020 04:24:38 -0800 (PST)
-MIME-Version: 1.0
-References: <202011201129.B13FDB3C@keescook> <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook> <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
- <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
- <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
- <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
- <20201123130348.GA3119@embeddedor> <8f5611bb015e044fa1c0a48147293923c2d904e4.camel@HansenPartnership.com>
- <202011241327.BB28F12F6@keescook> <a841536fe65bb33f1c72ce2455a6eb47a0107565.camel@HansenPartnership.com>
-In-Reply-To: <a841536fe65bb33f1c72ce2455a6eb47a0107565.camel@HansenPartnership.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 25 Nov 2020 04:24:27 -0800
-Message-ID: <CAKwvOdkGBn7nuWTAqrORMeN1G+w3YwBfCqqaRD2nwvoAXKi=Aw@mail.gmail.com>
-Subject: Re: [Intel-wired-lan] [PATCH 000/141] Fix fall-through warnings for Clang
-To:     James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Joe Perches <joe@perches.com>,
-        Jakub Kicinski <kuba@kernel.org>, alsa-devel@alsa-project.org,
-        linux-atm-general@lists.sourceforge.net,
-        reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        linux-fbdev@vger.kernel.org,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        linux-ide@vger.kernel.org, dm-devel@redhat.com,
-        keyrings@vger.kernel.org, linux-mtd@lists.infradead.org,
-        GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org,
-        samba-technical@lists.samba.org, linux-i3c@lists.infradead.org,
-        linux1394-devel@lists.sourceforge.net,
-        linux-afs@lists.infradead.org,
-        usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com,
-        devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
-        rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org,
-        linux-rdma@vger.kernel.org, oss-drivers@netronome.com,
-        bridge@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
-        linux-acpi@vger.kernel.org, coreteam@netfilter.org,
-        intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org,
-        Miguel Ojeda <ojeda@kernel.org>,
-        tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        selinux@vger.kernel.org,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        intel-gfx@lists.freedesktop.org, linux-geode@lists.infradead.org,
-        linux-can@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org,
-        linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org,
-        nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-hwmon@vger.kernel.org,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        Network Development <netdev@vger.kernel.org>,
-        linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        linux-sctp@vger.kernel.org, linux-usb@vger.kernel.org,
-        netfilter-devel@vger.kernel.org,
-        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
-        <linux-crypto@vger.kernel.org>, patches@opensource.cirrus.com,
-        linux-integrity@vger.kernel.org, target-devel@vger.kernel.org,
-        linux-hardening@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Greg KH <gregkh@linuxfoundation.org>
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=UJ+A3u0hzyWvVjk6F3yEukUoQRTt3q+EV4jpctnxizY=;
+        b=cAo17f7DD+Wy7wfQhYBA269OMszp4TVn0oiZxUdOaxWHajwhM2jrENpBuo+/Y2i66/
+         4HGLD66Og89P57J4XiJ1md9tEFJJ9WLARRBT4Hj8fN6riMjERXDOGWIgY4yoGHKA45aF
+         a7M9oaNByjoZXtI73D/RbMWT8PA4hr25dU4GH+XRzkBTfXw2kh/6qyHRpf8+7vLaYRpS
+         BRFVNe6tUCK1qinsPTj7WNvvaCFUJpQaqVNqdP0HQ8Up56rXYxdUok/A8pD7rrhW4Yau
+         q/7zhsgZlZZ2gzvF/cj3QqYIEmYsIWwKSeLuVngs2UvWCiXTyHWyeAbV7jjBEf13iGrN
+         RDPQ==
+X-Gm-Message-State: AOAM532CPSTc2DT6SeKgNuNZzJQrJUW3wtOFqD0624lEBx8hItkWWc2B
+        os7IFxtgfk7m7pYhiC0SN7OXbxFNdMw6BkjiYw==
+X-Google-Smtp-Source: ABdhPJwufsHb8in+dLz0LjOlS+WT6wRCqdOIn/RDEUzTOjD9UUqmAmCg7SrIkdMKM59GereyALT4pqX8VVoV9XgLLA==
+Sender: "lokeshgidra via sendgmr" <lokeshgidra@lg.mtv.corp.google.com>
+X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:29dd])
+ (user=lokeshgidra job=sendgmr) by 2002:a17:90a:66c7:: with SMTP id
+ z7mr4075610pjl.175.1606308846562; Wed, 25 Nov 2020 04:54:06 -0800 (PST)
+Date:   Wed, 25 Nov 2020 04:54:02 -0800
+Message-Id: <20201125125402.211692-1-lokeshgidra@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.29.2.454.gaff20da3a2-goog
+Subject: [PATCH v1 1/1] selinux-testsuite: Add userfaultfd test
+From:   Lokesh Gidra <lokeshgidra@google.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, kaleshsingh@google.com, calin@google.com,
+        surenb@google.com, jeffv@google.com, kernel-team@android.com,
+        Lokesh Gidra <lokeshgidra@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 24, 2020 at 11:05 PM James Bottomley
-<James.Bottomley@hansenpartnership.com> wrote:
->
-> On Tue, 2020-11-24 at 13:32 -0800, Kees Cook wrote:
-> > We already enable -Wimplicit-fallthrough globally, so that's not the
-> > discussion. The issue is that Clang is (correctly) even more strict
-> > than GCC for this, so these are the remaining ones to fix for full
-> > Clang coverage too.
-> >
-> > People have spent more time debating this already than it would have
-> > taken to apply the patches. :)
->
-> You mean we've already spent 90% of the effort to come this far so we
-> might as well go the remaining 10% because then at least we get some
-> return? It's certainly a clinching argument in defence procurement ...
+Confirm SELinux policies are enforced on userfaultfd operations
+via secure anon-inode interface.
 
-So developers and distributions using Clang can't have
--Wimplicit-fallthrough enabled because GCC is less strict (which has
-been shown in this thread to lead to bugs)?  We'd like to have nice
-things too, you know.
+Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+---
+ policy/Makefile                 |  2 +-
+ policy/userfaultfd.cil          | 17 ++++++++++++
+ tests/Makefile                  |  2 +-
+ tests/userfaultfd/Makefile      |  3 ++
+ tests/userfaultfd/test          | 15 ++++++++++
+ tests/userfaultfd/userfaultfd.c | 49 +++++++++++++++++++++++++++++++++
+ 6 files changed, 86 insertions(+), 2 deletions(-)
+ create mode 100644 policy/userfaultfd.cil
+ create mode 100644 tests/userfaultfd/Makefile
+ create mode 100755 tests/userfaultfd/test
+ create mode 100644 tests/userfaultfd/userfaultfd.c
 
-I even agree that most of the churn comes from
-
-case 0:
-  ++x;
-default:
-  break;
-
-which I have a patch for: https://reviews.llvm.org/D91895.  I agree
-that can never lead to bugs.  But that's not the sole case of this
-series, just most of them.
-
-Though, note how the reviewer (C++ spec editor and clang front end
-owner) in https://reviews.llvm.org/D91895 even asks in that review how
-maybe a new flag would be more appropriate for a watered
-down/stylistic variant of the existing behavior.  And if the current
-wording of Documentation/process/deprecated.rst around "fallthrough"
-is a straightforward rule of thumb, I kind of agree with him.
-
->
-> > This is about robustness and language wrangling. It's a big code-
-> > base, and this is the price of our managing technical debt for
-> > permanent robustness improvements. (The numbers I ran from Gustavo's
-> > earlier patches were that about 10% of the places adjusted were
-> > identified as legitimate bugs being fixed. This final series may be
-> > lower, but there are still bugs being found from it -- we need to
-> > finish this and shut the door on it for good.)
->
-> I got my six patches by analyzing the lwn.net report of the fixes that
-> was cited which had 21 of which 50% didn't actually change the emitted
-> code, and 25% didn't have a user visible effect.
->
-> But the broader point I'm making is just because the compiler people
-> come up with a shiny new warning doesn't necessarily mean the problem
-
-That's not what this is though; you're attacking a strawman.  I'd
-encourage you to bring that up when that actually occurs, unlike this
-case since it's actively hindering getting -Wimplicit-fallthrough
-enabled for Clang.  This is not a shiny new warning; it's already on
-for GCC and has existed in both compilers for multiple releases.
-
-And I'll also note that warnings are warnings and not errors because
-they cannot be proven to be bugs in 100% of cases, but they have led
-to bugs in the past.  They require a human to review their intent and
-remove ambiguities.  If 97% of cases would end in a break ("Expert C
-Programming: Deep C Secrets" - Peter van der Linden), then it starts
-to look to me like a language defect; certainly an incorrectly chosen
-default.  But the compiler can't know those 3% were intentional,
-unless you're explicit for those exceptional cases.
-
-> it's detecting is one that causes us actual problems in the code base.
-> I'd really be happier if we had a theory about what classes of CVE or
-> bug we could eliminate before we embrace the next new warning.
-
-We don't generally file CVEs and waiting for them to occur might be
-too reactive, but I agree that pointing to some additional
-documentation in commit messages about how a warning could lead to a
-bug would make it clearer to reviewers why being able to enable it
-treewide, even if there's no bug in their particular subsystem, is in
-the general interest of the commons.
-
-On Mon, Nov 23, 2020 at 7:58 AM James Bottomley
-<James.Bottomley@hansenpartnership.com> wrote:
->
-> We're also complaining about the inability to recruit maintainers:
->
-> https://www.theregister.com/2020/06/30/hard_to_find_linux_maintainers_says_torvalds/
->
-> And burn out:
->
-> http://antirez.com/news/129
->
-> The whole crux of your argument seems to be maintainers' time isn't
-> important so we should accept all trivial patches ... I'm pushing back
-> on that assumption in two places, firstly the valulessness of the time
-> and secondly that all trivial patches are valuable.
-
-It's critical to the longevity of any open source project that there
-are not single points of failure.  If someone is not expendable or
-replaceable (or claims to be) then that's a risk to the project and a
-bottleneck.  Not having a replacement in training or some form of
-redundancy is short sighted.
-
-If trivial patches are adding too much to your workload, consider
-training a co-maintainer or asking for help from one of your reviewers
-whom you trust.  I don't doubt it's hard to find maintainers, but
-existing maintainers should go out of their way to entrust
-co-maintainers especially when they find their workload becomes too
-high.  And reviewing/picking up trivial patches is probably a great
-way to get started.  If we allow too much knowledge of any one
-subsystem to collect with one maintainer, what happens when that
-maintainer leaves the community (which, given a finite lifespan, is an
-inevitability)?
+diff --git a/policy/Makefile b/policy/Makefile
+index 6c49091..02e7568 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -36,7 +36,7 @@ SUPPORTS_CIL = n
+ endif
+ 
+ ifeq ($(SUPPORTS_CIL),y)
+-CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
++CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil userfaultfd.cil
+ ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
+ ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
+ # If other MLS tests get written this can be moved outside of the glblub test
+diff --git a/policy/userfaultfd.cil b/policy/userfaultfd.cil
+new file mode 100644
+index 0000000..0743fff
+--- /dev/null
++++ b/policy/userfaultfd.cil
+@@ -0,0 +1,17 @@
++(class anon_inode ())
++(classcommon anon_inode file)
++(classorder (unordered anon_inode))
++(type uffd_t)
++; Label the UFFD with uffd_t; this can be specialized per domain
++(typetransition unconfined_t unconfined_t anon_inode "[userfaultfd]"    uffd_t)
++(allow unconfined_t uffd_t (anon_inode (create)))
++; Permit read() and ioctl() on the UFFD;
++; Comment out if you want to test read or basic ioctl enforcement.
++(allow unconfined_t uffd_t (anon_inode (read)))
++(allow unconfined_t uffd_t (anon_inode (ioctl)))
++; Uncomment one of the allowx lines below to test ioctl whitelisting.
++; Currently the first one is uncommented; comment that out if trying another.
++; None
++;(allowx unconfined_t uffd_t (ioctl anon_inode ((0x00))))
++; UFFDIO_API
++(allowx unconfined_t uffd_t (ioctl anon_inode ((0xaa3f))))
+diff --git a/tests/Makefile b/tests/Makefile
+index 4c00b5f..3871570 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -27,7 +27,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
+ 	task_setnice task_setscheduler task_getscheduler task_getsid \
+ 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+ 	capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
+-	inet_socket overlay checkreqprot mqueue mac_admin atsecure
++	inet_socket overlay checkreqprot mqueue mac_admin atsecure userfaultfd
+ 
+ ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+diff --git a/tests/userfaultfd/Makefile b/tests/userfaultfd/Makefile
+new file mode 100644
+index 0000000..66d02a1
+--- /dev/null
++++ b/tests/userfaultfd/Makefile
+@@ -0,0 +1,3 @@
++all: userfaultfd
++clean:
++	rm -f userfaultfd
+diff --git a/tests/userfaultfd/test b/tests/userfaultfd/test
+new file mode 100755
+index 0000000..dd42aa8
+--- /dev/null
++++ b/tests/userfaultfd/test
+@@ -0,0 +1,15 @@
++#!/usr/bin/perl
++
++use Test;
++
++BEGIN {
++    plan tests => 1;
++}
++
++$basedir = $0;
++$basedir =~ s|(.*)/[^/]*|$1|;
++
++$result = system("$basedir/userfaultfd");
++ok( $result, 0 );
++
++exit;
+diff --git a/tests/userfaultfd/userfaultfd.c b/tests/userfaultfd/userfaultfd.c
+new file mode 100644
+index 0000000..9baebd9
+--- /dev/null
++++ b/tests/userfaultfd/userfaultfd.c
+@@ -0,0 +1,49 @@
++#include <stdio.h>
++#include <fcntl.h>
++#include <unistd.h>
++
++#include <sys/types.h>
++#include <sys/ioctl.h>
++#include <sys/syscall.h>
++
++#include <linux/userfaultfd.h>
++
++void print_api(const struct uffdio_api *api)
++{
++	printf("api: %llu\n", api->api);
++	printf("features: %llu\n", api->features);
++	printf("ioctls: %llu\n", api->ioctls);
++
++	printf("\n");
++}
++
++int main (void)
++{
++	long uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
++	if (uffd < 0) {
++		perror("syscall(userfaultfd)");
++		return -1;
++	}
++
++	struct uffdio_api api = {0};
++	api.api = UFFD_API;
++	if (ioctl(uffd, UFFDIO_API, &api) < 0) {
++		perror("UFFDIO_API");
++		return -1;
++	}
++
++	print_api(&api);
++
++	struct uffd_msg msg = {0};
++	ssize_t count = read(uffd, &msg, sizeof(msg));
++	if (count < 0) {
++		// Expected to fail as no memory range registered.
++		return 0;
++	} else if (count == 0) {
++		printf("read EOF\n\n");
++	}
++
++	printf("read uffd\n\n");
++
++	return 0;
++}
 -- 
-Thanks,
-~Nick Desaulniers
+2.28.0
+
