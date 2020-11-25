@@ -2,227 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 518A5C56202
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 12:54:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BEE7C83010
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E715E206E5
-	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 12:54:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0342D20BED
+	for <selinux@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BHoJLxyg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WMpk4aOp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726908AbgKYMyH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Nov 2020 07:54:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53264 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726162AbgKYMyH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Nov 2020 07:54:07 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FDD2C0613D4
-        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 04:54:07 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id x11so1661726plo.19
-        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 04:54:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:message-id:mime-version:subject:from:to:cc;
-        bh=UJ+A3u0hzyWvVjk6F3yEukUoQRTt3q+EV4jpctnxizY=;
-        b=BHoJLxygmEzdOtcFgoKcgQ+0IQwSkVtmnuc5Xlpk/lPw9UmjrqjH29q7YzM8+WTbdm
-         GbKUiken3Xdnv5smblmPrsmV6o1BF83M8Pp/4aRyfYKtHNs9Bagw5yU+LejVwDtOfc1A
-         +IMqLNl6LlXP6QKmlZsPlhTyQnlND7nTiN/JXc/T6meV/bY4lDu8Euq6F2HAV/tyMvaI
-         yzTz6jKIm4ISobRTtDv4YptJKXFOw1/ImcAwEuXHCUFOw3P2+6fPslxmfYCwXiMe4T8q
-         TjvqU4RaPSRKBXLAvJVyoJdqtpyZPjsdpLiSvpFfus2LdDPhzEiQYMr3aeFHmPUZq7gS
-         ZU8w==
+        id S1730913AbgKYPnu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:43:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:35223 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730496AbgKYPnt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Nov 2020 10:43:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1606319027;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=9y1C1hGTEN8UCNeg/e78c4bhg4ntMjFzYpguhg7XBmE=;
+        b=WMpk4aOpuBnepj5PZpjt6D/Noea4QoNFOKjLJ+a+4cJ/gmrVmoNclSvnc3cMTESWGk+/VK
+        PhDAUa1jslHB7xODiRNwKcAj5iRkMjj2REnmcP3ION68NEMRS9UYV229Fhr3WTwz+9fyGM
+        Hnd+TCvzRnUHlkiiVQARPcZkE3VqS1U=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-250-MPhMO-s_OjOwPMklGv7vxw-1; Wed, 25 Nov 2020 10:43:44 -0500
+X-MC-Unique: MPhMO-s_OjOwPMklGv7vxw-1
+Received: by mail-lf1-f69.google.com with SMTP id z19so986085lfg.11
+        for <selinux@vger.kernel.org>; Wed, 25 Nov 2020 07:43:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
-         :to:cc;
-        bh=UJ+A3u0hzyWvVjk6F3yEukUoQRTt3q+EV4jpctnxizY=;
-        b=cAo17f7DD+Wy7wfQhYBA269OMszp4TVn0oiZxUdOaxWHajwhM2jrENpBuo+/Y2i66/
-         4HGLD66Og89P57J4XiJ1md9tEFJJ9WLARRBT4Hj8fN6riMjERXDOGWIgY4yoGHKA45aF
-         a7M9oaNByjoZXtI73D/RbMWT8PA4hr25dU4GH+XRzkBTfXw2kh/6qyHRpf8+7vLaYRpS
-         BRFVNe6tUCK1qinsPTj7WNvvaCFUJpQaqVNqdP0HQ8Up56rXYxdUok/A8pD7rrhW4Yau
-         q/7zhsgZlZZ2gzvF/cj3QqYIEmYsIWwKSeLuVngs2UvWCiXTyHWyeAbV7jjBEf13iGrN
-         RDPQ==
-X-Gm-Message-State: AOAM532CPSTc2DT6SeKgNuNZzJQrJUW3wtOFqD0624lEBx8hItkWWc2B
-        os7IFxtgfk7m7pYhiC0SN7OXbxFNdMw6BkjiYw==
-X-Google-Smtp-Source: ABdhPJwufsHb8in+dLz0LjOlS+WT6wRCqdOIn/RDEUzTOjD9UUqmAmCg7SrIkdMKM59GereyALT4pqX8VVoV9XgLLA==
-Sender: "lokeshgidra via sendgmr" <lokeshgidra@lg.mtv.corp.google.com>
-X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:29dd])
- (user=lokeshgidra job=sendgmr) by 2002:a17:90a:66c7:: with SMTP id
- z7mr4075610pjl.175.1606308846562; Wed, 25 Nov 2020 04:54:06 -0800 (PST)
-Date:   Wed, 25 Nov 2020 04:54:02 -0800
-Message-Id: <20201125125402.211692-1-lokeshgidra@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.29.2.454.gaff20da3a2-goog
-Subject: [PATCH v1 1/1] selinux-testsuite: Add userfaultfd test
-From:   Lokesh Gidra <lokeshgidra@google.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, kaleshsingh@google.com, calin@google.com,
-        surenb@google.com, jeffv@google.com, kernel-team@android.com,
-        Lokesh Gidra <lokeshgidra@google.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9y1C1hGTEN8UCNeg/e78c4bhg4ntMjFzYpguhg7XBmE=;
+        b=qZjqxHBs8KyPM2onoiG6+M/H5ABhOa/knkAP2Zuk3rxV2PSxvU7o/e/HWD9hq6aQeQ
+         /4VoakhGEOdfnYfGZSmDMCu0oTRux2HjBDXrdHapIYS4PszvZ4DbH7vMUdANo/3WJIuP
+         s7gbHf5aJdh3F84k4sL2AjhAteNBhKhJGLwuFiY7TZR7lRXltCeZffS8UCOW5eGKQR/w
+         ZjXOPZ66F2eb5HWujSh8Z3nmgbej824iC4IrHANAbwnTxJduBdcEFiTPPMUpraeQ8lGm
+         9T8/ZYgtctJEIs2++YGddmyFaHv8G2+4y+dKDOsBYUukhLU8FTeDg3JK0g3R2oWNF1TD
+         kq5Q==
+X-Gm-Message-State: AOAM530r2teC35R8/aeS5tnKrha2AVbSl6E/EYfmEaC490I+BNQx4Rdf
+        UTeN9FToEFVkMvwWP+ZgtcNG087eIurMho5X487R/4Hum8tLiZRKIoBPfGB1+1Uo33sjWl26hrt
+        3hAOAC7f87Ev09koSvvG4sxqjSUUfGcM3Tg==
+X-Received: by 2002:a19:ef01:: with SMTP id n1mr1626580lfh.9.1606319022392;
+        Wed, 25 Nov 2020 07:43:42 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy68uL1gamdryiMv/tUgyR4fOnDC7aqtxrwzAgVOc8AYZm0fB4WNY13yCRjPQkXBV/woGGng26zcXHhmLYP5QY=
+X-Received: by 2002:a19:ef01:: with SMTP id n1mr1626574lfh.9.1606319022173;
+ Wed, 25 Nov 2020 07:43:42 -0800 (PST)
+MIME-Version: 1.0
+References: <20201124075022.37033-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20201124075022.37033-1-nicolas.iooss@m4x.org>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 25 Nov 2020 16:43:31 +0100
+Message-ID: <CAFqZXNsdOg4ogvhvZ8u7VHrT4h3iHbv8cy9C3RiGQNL=LEKHhA@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Add configuration to build and run tests in GitHub Actions
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Confirm SELinux policies are enforced on userfaultfd operations
-via secure anon-inode interface.
+On Tue, Nov 24, 2020 at 8:51 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> Copy the tests that are currently run on Travis CI, in order to no
+> longer depends on Travis CI.
 
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
----
- policy/Makefile                 |  2 +-
- policy/userfaultfd.cil          | 17 ++++++++++++
- tests/Makefile                  |  2 +-
- tests/userfaultfd/Makefile      |  3 ++
- tests/userfaultfd/test          | 15 ++++++++++
- tests/userfaultfd/userfaultfd.c | 49 +++++++++++++++++++++++++++++++++
- 6 files changed, 86 insertions(+), 2 deletions(-)
- create mode 100644 policy/userfaultfd.cil
- create mode 100644 tests/userfaultfd/Makefile
- create mode 100755 tests/userfaultfd/test
- create mode 100644 tests/userfaultfd/userfaultfd.c
+s/dependes/depend/, but that can be fixed up when applying.
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 6c49091..02e7568 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -36,7 +36,7 @@ SUPPORTS_CIL = n
- endif
- 
- ifeq ($(SUPPORTS_CIL),y)
--CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
-+CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil userfaultfd.cil
- ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
- ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
- # If other MLS tests get written this can be moved outside of the glblub test
-diff --git a/policy/userfaultfd.cil b/policy/userfaultfd.cil
-new file mode 100644
-index 0000000..0743fff
---- /dev/null
-+++ b/policy/userfaultfd.cil
-@@ -0,0 +1,17 @@
-+(class anon_inode ())
-+(classcommon anon_inode file)
-+(classorder (unordered anon_inode))
-+(type uffd_t)
-+; Label the UFFD with uffd_t; this can be specialized per domain
-+(typetransition unconfined_t unconfined_t anon_inode "[userfaultfd]"    uffd_t)
-+(allow unconfined_t uffd_t (anon_inode (create)))
-+; Permit read() and ioctl() on the UFFD;
-+; Comment out if you want to test read or basic ioctl enforcement.
-+(allow unconfined_t uffd_t (anon_inode (read)))
-+(allow unconfined_t uffd_t (anon_inode (ioctl)))
-+; Uncomment one of the allowx lines below to test ioctl whitelisting.
-+; Currently the first one is uncommented; comment that out if trying another.
-+; None
-+;(allowx unconfined_t uffd_t (ioctl anon_inode ((0x00))))
-+; UFFDIO_API
-+(allowx unconfined_t uffd_t (ioctl anon_inode ((0xaa3f))))
-diff --git a/tests/Makefile b/tests/Makefile
-index 4c00b5f..3871570 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -27,7 +27,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	task_setnice task_setscheduler task_getscheduler task_getsid \
- 	task_getpgid task_setpgid file ioctl capable_file capable_net \
- 	capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
--	inet_socket overlay checkreqprot mqueue mac_admin atsecure
-+	inet_socket overlay checkreqprot mqueue mac_admin atsecure userfaultfd
- 
- ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-diff --git a/tests/userfaultfd/Makefile b/tests/userfaultfd/Makefile
-new file mode 100644
-index 0000000..66d02a1
---- /dev/null
-+++ b/tests/userfaultfd/Makefile
-@@ -0,0 +1,3 @@
-+all: userfaultfd
-+clean:
-+	rm -f userfaultfd
-diff --git a/tests/userfaultfd/test b/tests/userfaultfd/test
-new file mode 100755
-index 0000000..dd42aa8
---- /dev/null
-+++ b/tests/userfaultfd/test
-@@ -0,0 +1,15 @@
-+#!/usr/bin/perl
-+
-+use Test;
-+
-+BEGIN {
-+    plan tests => 1;
-+}
-+
-+$basedir = $0;
-+$basedir =~ s|(.*)/[^/]*|$1|;
-+
-+$result = system("$basedir/userfaultfd");
-+ok( $result, 0 );
-+
-+exit;
-diff --git a/tests/userfaultfd/userfaultfd.c b/tests/userfaultfd/userfaultfd.c
-new file mode 100644
-index 0000000..9baebd9
---- /dev/null
-+++ b/tests/userfaultfd/userfaultfd.c
-@@ -0,0 +1,49 @@
-+#include <stdio.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+
-+#include <sys/types.h>
-+#include <sys/ioctl.h>
-+#include <sys/syscall.h>
-+
-+#include <linux/userfaultfd.h>
-+
-+void print_api(const struct uffdio_api *api)
-+{
-+	printf("api: %llu\n", api->api);
-+	printf("features: %llu\n", api->features);
-+	printf("ioctls: %llu\n", api->ioctls);
-+
-+	printf("\n");
-+}
-+
-+int main (void)
-+{
-+	long uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-+	if (uffd < 0) {
-+		perror("syscall(userfaultfd)");
-+		return -1;
-+	}
-+
-+	struct uffdio_api api = {0};
-+	api.api = UFFD_API;
-+	if (ioctl(uffd, UFFDIO_API, &api) < 0) {
-+		perror("UFFDIO_API");
-+		return -1;
-+	}
-+
-+	print_api(&api);
-+
-+	struct uffd_msg msg = {0};
-+	ssize_t count = read(uffd, &msg, sizeof(msg));
-+	if (count < 0) {
-+		// Expected to fail as no memory range registered.
-+		return 0;
-+	} else if (count == 0) {
-+		printf("read EOF\n\n");
-+	}
-+
-+	printf("read uffd\n\n");
-+
-+	return 0;
-+}
--- 
-2.28.0
+>
+> For more context: Travis-CI is changing its offer, as documented in
+> https://docs.travis-ci.com/user/migrate/open-source-repository-migration
+> and SELinuxProject moved to https://travis-ci.com
+> https://lore.kernel.org/selinux/CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com/T/#t
+>
+> Unfortunately the credits for opensource projects are quite limited, and
+> require interaction with Travis CI support (which was quite unresponsive
+> when I contacted them for other opensource projects I am maintaining).
+>
+> Create a configuration for Github Actions that duplicates most Travis CI
+> checks.
+>
+> * macOS check has not yet been converted, but GitHub Actions support
+>   this platform so this can be done in another patch (and in another
+>   configuration in .github/workflows ?).
+>
+> * KVM support is not available on GitHub Actions so running SELinux
+>   testsuite in a Fedora VM is not possible. This is a known issue
+>   (https://github.com/actions/virtual-environments/issues/183) and other
+>   projects seem to face the same issue (for example
+>   https://github.com/opencontainers/runc/issues/2670).
+
+It's not technically impossible, but when I tried to run the testsuite
+in a VM without virtualization in GH actions, it was very very slow,
+so practically it is infeasible. IIRC when I tried it, it didn't even
+install all dependencies after half an hour...
+
+>
+> This configuration has been tested on
+> https://github.com/fishilico/selinux/actions/runs/380579153
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  .github/workflows/run_tests.yml | 189 ++++++++++++++++++++++++++++++++
+>  1 file changed, 189 insertions(+)
+>  create mode 100644 .github/workflows/run_tests.yml
+
+LGTM, thank you for doing this!
+
+Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
