@@ -4,92 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS,TVD_SPACE_RATIO autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A951C2D0E4
-	for <selinux@archiver.kernel.org>; Fri, 27 Nov 2020 08:53:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFF3EC63777
+	for <selinux@archiver.kernel.org>; Fri, 27 Nov 2020 09:36:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A291222249
-	for <selinux@archiver.kernel.org>; Fri, 27 Nov 2020 08:53:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7449121534
+	for <selinux@archiver.kernel.org>; Fri, 27 Nov 2020 09:36:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jIa4FkU3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gch2nNLP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726162AbgK0Ixm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Nov 2020 03:53:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:56275 "EHLO
+        id S1726859AbgK0JgZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Nov 2020 04:36:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31724 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726021AbgK0Ixl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Nov 2020 03:53:41 -0500
+        by vger.kernel.org with ESMTP id S1726316AbgK0JgY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Nov 2020 04:36:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606467221;
+        s=mimecast20190719; t=1606469783;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=XhLrTNGBUIFJ3bPY5sqxzMKSdYXFlfsm4mww8eWC1ME=;
-        b=jIa4FkU3HT/el8Nv72GPfeUogJzYfN3gPntPbPGWC/0ITrECvgNM7MPqjGtG7LqVMs/a6M
-        P8Hvu08QN7936RabIV6zCw2LdHuYUPPoZNg8aubzQwYjC8WUzl/X3W5SjyV9ypbDg2i3vK
-        rj2CxjfK9ggtq4DPYLFTDofRhEP1dOE=
+        bh=pJT7k73LrJRo6W1RFgQklUXf1aB6XBq2N6TcrTh3tqk=;
+        b=Gch2nNLPsGjCD78bA0ATiv6V+TplKyE6VM6AJTHb83HvBpdfTG50ZPMa2F1stlpAGLyLsg
+        ks/FiKmdUSqvyAGDdjalkesldJIAfikMACdJ8zr6Ubj2SEnMKBc37JsuzXvooYFN1Mut79
+        ZVwDHGkHggMJNE+onzCq/hlg0biKIZs=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-532-bJcehTICOvebwvVugRG9Ow-1; Fri, 27 Nov 2020 03:53:36 -0500
-X-MC-Unique: bJcehTICOvebwvVugRG9Ow-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-423-0w5UbhdwPWiFILMFeH2DNQ-1; Fri, 27 Nov 2020 04:36:18 -0500
+X-MC-Unique: 0w5UbhdwPWiFILMFeH2DNQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9DD8B1005D5C;
-        Fri, 27 Nov 2020 08:53:35 +0000 (UTC)
-Received: from localhost.localdomain.com (unknown [10.40.193.166])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A65DD19C46;
-        Fri, 27 Nov 2020 08:53:34 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EEA3C107AD3C;
+        Fri, 27 Nov 2020 09:36:16 +0000 (UTC)
+Received: from localhost (unknown [10.40.194.193])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 66EF15C1C2;
+        Fri, 27 Nov 2020 09:36:16 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Hu Keping <hukeping@huawei.com>
-Subject: [PATCH 3/3] Simplify the tarball generating scripts
-Date:   Fri, 27 Nov 2020 09:52:21 +0100
-Message-Id: <20201127085220.813760-4-plautrba@redhat.com>
+Subject: Re: https://github.com/SELinuxProject/selinux/pull/271
 In-Reply-To: <20201127085220.813760-1-plautrba@redhat.com>
 References: <20201127085220.813760-1-plautrba@redhat.com>
+Date:   Fri, 27 Nov 2020 10:36:15 +0100
+Message-ID: <87eekfi1kg.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Hu Keping <hukeping@huawei.com>
+Petr Lautrbach <plautrba@redhat.com> writes:
 
-Since the format of git archive is inferred from the output file,
-it's safe to remove the pipe for gzip.
+> Resending patches for review from https://github.com/SELinuxProject/selinux/pull/271
 
-Signed-off-by: Hu Keping <hukeping@huawei.com>
----
- scripts/release | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/scripts/release b/scripts/release
-index 040aaf68e86a..895a0e1ca1a1 100755
---- a/scripts/release
-+++ b/scripts/release
-@@ -22,7 +22,7 @@ for i in $DIRS; do
- 	VERS=`cat VERSION`
- 	ARCHIVE=$i-$VERS.tar.gz
- 	git tag $i-$VERS > /dev/null 2>&1
--	git archive --format=tar --prefix=$i-$VERS/ $i-$VERS | gzip > ../$DEST/$ARCHIVE
-+	git archive -o ../$DEST/$ARCHIVE --prefix=$i-$VERS/ $i-$VERS
- 	cd ..
- done
- 
-@@ -31,7 +31,7 @@ for i in $DIRS_NEED_PREFIX; do
- 	VERS=`cat VERSION`
- 	ARCHIVE=selinux-$i-$VERS.tar.gz
- 	git tag selinux-$i-$VERS > /dev/null 2>&1
--	git archive --format=tar --prefix=selinux-$i-$VERS/ selinux-$i-$VERS | gzip > ../$DEST/$ARCHIVE
-+	git archive -o ../$DEST/$ARCHIVE --prefix=selinux-$i-$VERS/ selinux-$i-$VERS
- 	cd ..
- done
- 
--- 
-2.29.2
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
