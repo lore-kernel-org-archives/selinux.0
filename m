@@ -7,96 +7,97 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E4DCC64E7B
-	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 18:27:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A87EC3E8C5
+	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 18:27:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C21F20825
-	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 18:27:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C84320825
+	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 18:27:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726669AbgK2S1X (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 29 Nov 2020 13:27:23 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:60775 "EHLO
+        id S1726470AbgK2S1x (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 29 Nov 2020 13:27:53 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:60404 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725468AbgK2S1X (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 29 Nov 2020 13:27:23 -0500
-Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
+        with ESMTP id S1725468AbgK2S1w (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 29 Nov 2020 13:27:52 -0500
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 78681564C36
-        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 19:26:40 +0100 (CET)
-Received: by mail-oi1-f178.google.com with SMTP id f11so11834217oij.6
-        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 10:26:40 -0800 (PST)
-X-Gm-Message-State: AOAM530b6gVvIZDEPRuI74JNOYB0chHc7mfNeCpxtrZk/HKhs1YnGgLP
-        giawr2S537/WO8uVrtLkW7H7lUHXPvdqN65lWxc=
-X-Google-Smtp-Source: ABdhPJxt0fXHJw9AiTUQ3wrer04azzqzVa0QuAp1XOf31QxPdULHq8Ifrt+FPITxvgfSngQhDeF7R7CNW84XCWtIPrw=
-X-Received: by 2002:aca:4bc3:: with SMTP id y186mr12017198oia.153.1606674399389;
- Sun, 29 Nov 2020 10:26:39 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id DD1F8564C3D
+        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 19:27:09 +0100 (CET)
+Received: by mail-oi1-f171.google.com with SMTP id o25so11862036oie.5
+        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 10:27:09 -0800 (PST)
+X-Gm-Message-State: AOAM530Z+mBBBwAyLPKSpB07HyUBZt4ZSITfsF2NNUI3/YtzX53I6JsS
+        xGFj9E3GDcnxTk9i1F+/G/h6md+kH7IPCoqXcM0=
+X-Google-Smtp-Source: ABdhPJwcnl0jMhXuQi3ZwlC7ywN3t8RbUUCgx9ZFqqkZPaHs51EmsWxeXE2xHhuIyZGPCHBaw9cpObzZq5Aw19uFrKs=
+X-Received: by 2002:aca:aa47:: with SMTP id t68mr12323630oie.40.1606674428920;
+ Sun, 29 Nov 2020 10:27:08 -0800 (PST)
 MIME-Version: 1.0
-References: <20201127141745.1579498-1-omosnace@redhat.com> <CAFqZXNvK5SBo2dw6_OctuLJqcEv8=Ynd8BajOLCdgTa-PNO1xg@mail.gmail.com>
- <CAFftDdp7_dcebjje6+pX1RNQiaBRbgFZSfjxk55DD8-MXJ=MjQ@mail.gmail.com> <CAFqZXNv2jv6WGiW5T6Xb-31Gp90ZJPpVEJVzJwi-iC3ZfPzV9g@mail.gmail.com>
-In-Reply-To: <CAFqZXNv2jv6WGiW5T6Xb-31Gp90ZJPpVEJVzJwi-iC3ZfPzV9g@mail.gmail.com>
+References: <20201124075022.37033-1-nicolas.iooss@m4x.org> <CAFqZXNsdOg4ogvhvZ8u7VHrT4h3iHbv8cy9C3RiGQNL=LEKHhA@mail.gmail.com>
+In-Reply-To: <CAFqZXNsdOg4ogvhvZ8u7VHrT4h3iHbv8cy9C3RiGQNL=LEKHhA@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 29 Nov 2020 19:26:28 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=mwLCL-pZSi+OO_C1TjuXZkaWm+8sOLmRcV62NX6XHwpw@mail.gmail.com>
-Message-ID: <CAJfZ7=mwLCL-pZSi+OO_C1TjuXZkaWm+8sOLmRcV62NX6XHwpw@mail.gmail.com>
-Subject: Re: [PATCH userspace] travis: run only selinux-testsuite
+Date:   Sun, 29 Nov 2020 19:26:58 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==p2X8RsLYzdGLHCsAXcM9UaLTNcBGo6FyUDepXxFsxwQ@mail.gmail.com>
+Message-ID: <CAJfZ7==p2X8RsLYzdGLHCsAXcM9UaLTNcBGo6FyUDepXxFsxwQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Add configuration to build and run tests in GitHub Actions
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     William Roberts <bill.c.roberts@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Nov 29 19:26:40 2020 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Nov 29 19:27:10 2020 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 27, 2020 at 3:56 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Wed, Nov 25, 2020 at 4:43 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On Fri, Nov 27, 2020 at 3:25 PM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
-> > On Fri, Nov 27, 2020 at 8:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > >
-> > > On Fri, Nov 27, 2020 at 3:17 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > Now that the standard testing is run on GitHub Actions, we can remove it
-> > > > from .travis.yml, leaving only the selinux-testsuite sanity check, which
-> > > > can't be migrated. Hopefully this will save some precious minutesfrom
-> > > > the limited "plan" Travis gave us...
-> > > >
-> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > > ---
-> > > >  .travis.yml                    | 161 +--------------------------------
-> > > >  scripts/ci/travis-kvm-setup.sh |   1 +
-> > > >  2 files changed, 2 insertions(+), 160 deletions(-)
-> > >
-> >
-> > Oh awesome you got them migrated. I am in the middle of this for my
-> > other projects and was going to check
-> > back on SE Linux, glad you took care of it.
-> >
-> > > My intent is to apply this patch along with Nicholas's GH actions
-> > > patch. In case some issues pop up with GH actions, we can simply
-> > > revert it.
-> > >
-> > > Thoughts?
-> >
-> > I'm going to assume actions are working, I didn't check that patch.
-> > But it all LGTM.
-> > Ack from me.
+> On Tue, Nov 24, 2020 at 8:51 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> > Copy the tests that are currently run on Travis CI, in order to no
+> > longer depends on Travis CI.
 >
-> Thanks! I staged both patches in a PR:
-> https://github.com/SELinuxProject/selinux/pull/272
+> s/dependes/depend/, but that can be fixed up when applying.
 >
-> It seems that GH actions didn't trigger on the PR. I've seen it in
-> another project as well, but that PR is not merged yet, so I don't
-> know if it just happens on the first PR or if there is some problem...
+> >
+> > For more context: Travis-CI is changing its offer, as documented in
+> > https://docs.travis-ci.com/user/migrate/open-source-repository-migration
+> > and SELinuxProject moved to https://travis-ci.com
+> > https://lore.kernel.org/selinux/CAFqZXNspH6MmB-o0wtJJwj-p0DKKrH-ZjfW2YkF_yQS_gCBwqQ@mail.gmail.com/T/#t
+> >
+> > Unfortunately the credits for opensource projects are quite limited, and
+> > require interaction with Travis CI support (which was quite unresponsive
+> > when I contacted them for other opensource projects I am maintaining).
+> >
+> > Create a configuration for Github Actions that duplicates most Travis CI
+> > checks.
+> >
+> > * macOS check has not yet been converted, but GitHub Actions support
+> >   this platform so this can be done in another patch (and in another
+> >   configuration in .github/workflows ?).
+> >
+> > * KVM support is not available on GitHub Actions so running SELinux
+> >   testsuite in a Fedora VM is not possible. This is a known issue
+> >   (https://github.com/actions/virtual-environments/issues/183) and other
+> >   projects seem to face the same issue (for example
+> >   https://github.com/opencontainers/runc/issues/2670).
+>
+> It's not technically impossible, but when I tried to run the testsuite
+> in a VM without virtualization in GH actions, it was very very slow,
+> so practically it is infeasible. IIRC when I tried it, it didn't even
+> install all dependencies after half an hour...
+>
+> >
+> > This configuration has been tested on
+> > https://github.com/fishilico/selinux/actions/runs/380579153
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >  .github/workflows/run_tests.yml | 189 ++++++++++++++++++++++++++++++++
+> >  1 file changed, 189 insertions(+)
+> >  create mode 100644 .github/workflows/run_tests.yml
+>
+> LGTM, thank you for doing this!
+>
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Hi,
-When I pushed these commits to my repository, it triggered the actions
-(https://github.com/fishilico/selinux/actions/runs/390210020), so I
-merged the Pull Request, which triggered
-https://github.com/SELinuxProject/selinux/actions/runs/390222348 . So
-this "just works" :)
-
-Thanks,
+And merged. Thanks!
 Nicolas
 
