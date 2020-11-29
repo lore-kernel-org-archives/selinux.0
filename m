@@ -2,91 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD18BC83013
-	for <selinux@archiver.kernel.org>; Sat, 28 Nov 2020 22:55:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E4DCC64E7B
+	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 18:27:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE1FA22240
-	for <selinux@archiver.kernel.org>; Sat, 28 Nov 2020 22:55:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C21F20825
+	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 18:27:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732482AbgK1Wzd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 28 Nov 2020 17:55:33 -0500
-Received: from mail.hallyn.com ([178.63.66.53]:60772 "EHLO mail.hallyn.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727070AbgK1Wzd (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sat, 28 Nov 2020 17:55:33 -0500
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id 65BD38AB; Sat, 28 Nov 2020 16:54:50 -0600 (CST)
-Date:   Sat, 28 Nov 2020 16:54:50 -0600
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org, fstests@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH v3 00/38] idmapped mounts
-Message-ID: <20201128225450.GC22812@mail.hallyn.com>
-References: <20201128213527.2669807-1-christian.brauner@ubuntu.com>
+        id S1726669AbgK2S1X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 29 Nov 2020 13:27:23 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:60775 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725468AbgK2S1X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 29 Nov 2020 13:27:23 -0500
+Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 78681564C36
+        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 19:26:40 +0100 (CET)
+Received: by mail-oi1-f178.google.com with SMTP id f11so11834217oij.6
+        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 10:26:40 -0800 (PST)
+X-Gm-Message-State: AOAM530b6gVvIZDEPRuI74JNOYB0chHc7mfNeCpxtrZk/HKhs1YnGgLP
+        giawr2S537/WO8uVrtLkW7H7lUHXPvdqN65lWxc=
+X-Google-Smtp-Source: ABdhPJxt0fXHJw9AiTUQ3wrer04azzqzVa0QuAp1XOf31QxPdULHq8Ifrt+FPITxvgfSngQhDeF7R7CNW84XCWtIPrw=
+X-Received: by 2002:aca:4bc3:: with SMTP id y186mr12017198oia.153.1606674399389;
+ Sun, 29 Nov 2020 10:26:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201128213527.2669807-1-christian.brauner@ubuntu.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20201127141745.1579498-1-omosnace@redhat.com> <CAFqZXNvK5SBo2dw6_OctuLJqcEv8=Ynd8BajOLCdgTa-PNO1xg@mail.gmail.com>
+ <CAFftDdp7_dcebjje6+pX1RNQiaBRbgFZSfjxk55DD8-MXJ=MjQ@mail.gmail.com> <CAFqZXNv2jv6WGiW5T6Xb-31Gp90ZJPpVEJVzJwi-iC3ZfPzV9g@mail.gmail.com>
+In-Reply-To: <CAFqZXNv2jv6WGiW5T6Xb-31Gp90ZJPpVEJVzJwi-iC3ZfPzV9g@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 29 Nov 2020 19:26:28 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mwLCL-pZSi+OO_C1TjuXZkaWm+8sOLmRcV62NX6XHwpw@mail.gmail.com>
+Message-ID: <CAJfZ7=mwLCL-pZSi+OO_C1TjuXZkaWm+8sOLmRcV62NX6XHwpw@mail.gmail.com>
+Subject: Re: [PATCH userspace] travis: run only selinux-testsuite
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     William Roberts <bill.c.roberts@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Nov 29 19:26:40 2020 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Nov 28, 2020 at 10:34:49PM +0100, Christian Brauner wrote:
-> Hey everyone,
+On Fri, Nov 27, 2020 at 3:56 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Fri, Nov 27, 2020 at 3:25 PM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> > On Fri, Nov 27, 2020 at 8:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > On Fri, Nov 27, 2020 at 3:17 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > Now that the standard testing is run on GitHub Actions, we can remove it
+> > > > from .travis.yml, leaving only the selinux-testsuite sanity check, which
+> > > > can't be migrated. Hopefully this will save some precious minutesfrom
+> > > > the limited "plan" Travis gave us...
+> > > >
+> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > > ---
+> > > >  .travis.yml                    | 161 +--------------------------------
+> > > >  scripts/ci/travis-kvm-setup.sh |   1 +
+> > > >  2 files changed, 2 insertions(+), 160 deletions(-)
+> > >
+> >
+> > Oh awesome you got them migrated. I am in the middle of this for my
+> > other projects and was going to check
+> > back on SE Linux, glad you took care of it.
+> >
+> > > My intent is to apply this patch along with Nicholas's GH actions
+> > > patch. In case some issues pop up with GH actions, we can simply
+> > > revert it.
+> > >
+> > > Thoughts?
+> >
+> > I'm going to assume actions are working, I didn't check that patch.
+> > But it all LGTM.
+> > Ack from me.
+>
+> Thanks! I staged both patches in a PR:
+> https://github.com/SELinuxProject/selinux/pull/272
+>
+> It seems that GH actions didn't trigger on the PR. I've seen it in
+> another project as well, but that PR is not merged yet, so I don't
+> know if it just happens on the first PR or if there is some problem...
 
-Hey Christian,
+Hi,
+When I pushed these commits to my repository, it triggered the actions
+(https://github.com/fishilico/selinux/actions/runs/390210020), so I
+merged the Pull Request, which triggered
+https://github.com/SELinuxProject/selinux/actions/runs/390222348 . So
+this "just works" :)
 
-a general request.  Argue with me if it seems misguided.
+Thanks,
+Nicolas
 
-When looking at a patch or a small hunk of code, these days, if a variable
-called 'ns' or 'user_ns' is seen passed to a function, it can be easy to
-assume which user_ns it is based on what you think would make sense, but if
-your assumption is wrong, your patch review will be wrong.
-
-Can we stick to a convention where we have maybe
-
-subj_userns - the userns of the task seeking some action
-obj_userns - the userns of the thing being acted on - task, superblock,...
-mnt_userns - the userns of a mountpoint through which an object is seen
-
-You're replacing a lot of such callers and callsites in this patchset, so
-this would be a great time to start doing that.
-
--serge
