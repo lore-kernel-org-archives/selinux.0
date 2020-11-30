@@ -2,253 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 743D7C64E8A
-	for <selinux@archiver.kernel.org>; Mon, 30 Nov 2020 20:47:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAF62C63777
+	for <selinux@archiver.kernel.org>; Mon, 30 Nov 2020 22:51:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F1952067C
-	for <selinux@archiver.kernel.org>; Mon, 30 Nov 2020 20:47:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 709B920725
+	for <selinux@archiver.kernel.org>; Mon, 30 Nov 2020 22:51:32 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=kinvolk.io header.i=@kinvolk.io header.b="FjoZwlqR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728962AbgK3Uri (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Nov 2020 15:47:38 -0500
-Received: from out01.mta.xmission.com ([166.70.13.231]:46036 "EHLO
-        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727103AbgK3Uri (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Nov 2020 15:47:38 -0500
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out01.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1kjq4N-0052tf-VB; Mon, 30 Nov 2020 13:46:48 -0700
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1kjq4N-0004JZ-0W; Mon, 30 Nov 2020 13:46:47 -0700
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-References: <20201130200619.84819-1-stephen.s.brennan@oracle.com>
-Date:   Mon, 30 Nov 2020 14:46:17 -0600
-In-Reply-To: <20201130200619.84819-1-stephen.s.brennan@oracle.com> (Stephen
-        Brennan's message of "Mon, 30 Nov 2020 12:06:19 -0800")
-Message-ID: <87zh2yh8ti.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1728157AbgK3WvC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Nov 2020 17:51:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41086 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729392AbgK3WvB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Nov 2020 17:51:01 -0500
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3510DC0613D6
+        for <selinux@vger.kernel.org>; Mon, 30 Nov 2020 14:50:21 -0800 (PST)
+Received: by mail-lj1-x230.google.com with SMTP id y7so20713862lji.8
+        for <selinux@vger.kernel.org>; Mon, 30 Nov 2020 14:50:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kinvolk.io; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1bDJzC+7/EeDz8Z4TYtcl8pVmXB1VZfQyZ+oFPIZuXs=;
+        b=FjoZwlqRl25v3f0bwesiLG6VMDJ0cdT+WZsk9oJG7qotZdfQy3Bnzm/ErkRC6KEF0Q
+         V8tXzsGFOERVPlB9fDDUrXunF4OR96Byp7o91ITmQ4f6ghX4OplZA9VRfMBWotgDeDXS
+         4fMHVDZZFkLBQZtMZ9inRIOYwvw2PRu8hX+wE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1bDJzC+7/EeDz8Z4TYtcl8pVmXB1VZfQyZ+oFPIZuXs=;
+        b=MfeaLdcOpdXPWZXBeyM5+1mMfqW51l2xXn7jyMjHCzS9/Fb62gt0Y9YijwCCbaqHxX
+         YaZHb2Mbotya1pmEmUdVMk+kNdE/+TJ8YjMxrK5IOydAVBuMylrhqGWB2IrShVjyaD/a
+         RdFkyIqI8oCcgnjfHpvIvn/LI2jn40YqIRW2aM2w+V5boYgD2j1ggAEk7DwcVdvIHCUY
+         ObCMXCvnWpLOBBe+l7GSHTxWRDNf5rghDsPnpNAtWb0hHjnuy9suYfaNrvaIKKDreHRt
+         6n0iS7rzJQpehM/vYRpnaTTDvcWzbwFaQ+ftoupGgbi5C2LhgMjksoOpb4htXaFM94cg
+         VqzA==
+X-Gm-Message-State: AOAM530oEwEu3dcUtZDCRq8/viimB4LPi5JZbdLBTK5i13YpND6B+8R/
+        CYcitx4YrnJ1d9Rq3SqUZyicSKePsNfcqeScJ1xkjw==
+X-Google-Smtp-Source: ABdhPJyMsQBDmsS07l72ppmPq7n5DMn6hdGTx4GyLQK7ar2TSxkO0y0Q1aohyJmtrB+4dMWzWOlvHMr1zq5pbE7LHlg=
+X-Received: by 2002:a2e:b386:: with SMTP id f6mr10646917lje.320.1606776619482;
+ Mon, 30 Nov 2020 14:50:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1kjq4N-0004JZ-0W;;;mid=<87zh2yh8ti.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+sqwsfU7CTM4UeGEPdxQccntK8E2+ga5U=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH] proc: Allow pid_revalidate() during LOOKUP_RCU
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+References: <20201128213527.2669807-1-christian.brauner@ubuntu.com> <20201128213527.2669807-33-christian.brauner@ubuntu.com>
+In-Reply-To: <20201128213527.2669807-33-christian.brauner@ubuntu.com>
+From:   =?UTF-8?Q?Mauricio_V=C3=A1squez_Bernal?= <mauricio@kinvolk.io>
+Date:   Mon, 30 Nov 2020 17:50:08 -0500
+Message-ID: <CAHap4zu3wjCqjbxaXbsPqz2Q_oNRm0Q=xQMudPStwN8h92Stcw@mail.gmail.com>
+Subject: Re: [PATCH v3 32/38] fat: handle idmapped mounts
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        containers@lists.linux-foundation.org,
+        Christoph Hellwig <hch@lst.de>,
+        Tycho Andersen <tycho@tycho.ws>,
+        Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>, smbarber@chromium.org,
+        linux-ext4@vger.kernel.org, Mrunal Patel <mpatel@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>, selinux@vger.kernel.org,
+        Josh Triplett <josh@joshtriplett.org>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        David Howells <dhowells@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        fstests@vger.kernel.org, linux-security-module@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        linux-api@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Alban Crequy <alban@kinvolk.io>,
+        linux-integrity@vger.kernel.org, Todd Kjos <tkjos@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Brennan <stephen.s.brennan@oracle.com> writes:
-
-> The pid_revalidate() function requires dropping from RCU into REF lookup
-> mode. When many threads are resolving paths within /proc in parallel,
-> this can result in heavy spinlock contention as each thread tries to
-> grab a reference to the /proc dentry (and drop it shortly thereafter).
 >
-> Allow the pid_revalidate() function to execute under LOOKUP_RCU. When
-> updates must be made to the inode due to the owning task performing
-> setuid(), drop out of RCU and into REF mode.
-
-So rather than get_task_rcu_user.  I think what we want is a function
-that verifies task->rcu_users > 0.
-
-Which frankly is just "pid_task(proc_pid(inode), PIDTYPE_PID)".
-
-Which is something that we can do unconditionally in pid_revalidate.
-
-Skipping the update of the inode is probably the only thing that needs
-to be skipped.
-
-It looks like the code can safely rely on the the security_task_to_inode
-in proc_pid_make_inode and remove the security_task_to_inode in
-pid_update_inode.
-
-
-> Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-> ---
+> mount2 --idmap both:1000:1001:1
 >
-> I'd like to use this patch as an RFC on this approach for reducing spinlock
-> contention during many parallel path lookups in the /proc filesystem. The
-> contention can be triggered by, for example, running ~100 parallel instances of
-> "TZ=/etc/localtime ps -fe >/dev/null" on a 100CPU machine. The %sys utilization
-> in such a case reaches around 90%, and profiles show two code paths with high
-> utilization:
 
-Do you have a real world work-load that is behaves something like this
-micro benchmark?  I am just curious how severe the problem you are
-trying to solve is.
-
->
->     walk_component
->       lookup_fast
->         unlazy_child
->           legitimize_root
->             __legitimize_path
->               lockref_get_not_dead
->
->     terminate_walk
->       dput
->         dput
->
-> By applying this patch, %sys utilization falls to around 60% under the same
-> workload.
->
-> One item I'd like to highlight about this patch is that the
-> security_task_to_inode() hook is called less frequently as a result. I don't
-> know whether this is a major concern, which is why I've included security
-> reviewers as well.
->
->  fs/proc/base.c      | 50 ++++++++++++++++++++++++++++++++-------------
->  fs/proc/internal.h  |  5 +++++
->  include/linux/pid.h |  2 ++
->  kernel/pid.c        | 12 +++++++++++
->  4 files changed, 55 insertions(+), 14 deletions(-)
->
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index ebea9501afb8..038056f94ed0 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -1813,12 +1813,29 @@ int pid_getattr(const struct path *path, struct kstat *stat,
->  /*
->   * Set <pid>/... inode ownership (can change due to setuid(), etc.)
->   */
-> -void pid_update_inode(struct task_struct *task, struct inode *inode)
-> +static int do_pid_update_inode(struct task_struct *task, struct inode *inode,
-> +							   unsigned int flags)
->  {
-> -	task_dump_owner(task, inode->i_mode, &inode->i_uid, &inode->i_gid);
-> +	kuid_t uid;
-> +	kgid_t gid;
-> +
-> +	task_dump_owner(task, inode->i_mode, &uid, &gid);
-> +	if (uid_eq(uid, inode->i_uid) && gid_eq(gid, inode->i_gid) &&
-> +			!(inode->i_mode & (S_ISUID | S_ISGID)))
-> +		return 1;
-> +	if (flags & LOOKUP_RCU)
-> +		return -ECHILD;
->  
-> +	inode->i_uid = uid;
-> +	inode->i_gid = gid;
->  	inode->i_mode &= ~(S_ISUID | S_ISGID);
->  	security_task_to_inode(task, inode);
-> +	return 1;
-> +}
-> +
-> +void pid_update_inode(struct task_struct *task, struct inode *inode)
-> +{
-> +	do_pid_update_inode(task, inode, 0);
->  }
->  
->  /*
-> @@ -1830,19 +1847,24 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
->  {
->  	struct inode *inode;
->  	struct task_struct *task;
-> -
-> -	if (flags & LOOKUP_RCU)
-> -		return -ECHILD;
-> -
-> -	inode = d_inode(dentry);
-> -	task = get_proc_task(inode);
-> -
-> -	if (task) {
-> -		pid_update_inode(task, inode);
-> -		put_task_struct(task);
-> -		return 1;
-> +	int rv = 0;
-> +
-> +	if (flags & LOOKUP_RCU) {
-> +		inode = d_inode_rcu(dentry);
-> +		task = get_proc_task_rcu(inode);
-> +		if (task) {
-> +			rv = do_pid_update_inode(task, inode, flags);
-> +			put_task_struct_rcu_user(task);
-> +		}
-> +	} else {
-> +		inode = d_inode(dentry);
-> +		task = get_proc_task(inode);
-> +		if (task) {
-> +			rv = do_pid_update_inode(task, inode, flags);
-> +			put_task_struct(task);
-> +		}
->  	}
-> -	return 0;
-> +	return rv;
->  }
->  
->  static inline bool proc_inode_is_dead(struct inode *inode)
-> diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-> index cd0c8d5ce9a1..aa6df65ad3eb 100644
-> --- a/fs/proc/internal.h
-> +++ b/fs/proc/internal.h
-> @@ -121,6 +121,11 @@ static inline struct task_struct *get_proc_task(const struct inode *inode)
->  	return get_pid_task(proc_pid(inode), PIDTYPE_PID);
->  }
->  
-> +static inline struct task_struct *get_proc_task_rcu(const struct inode *inode)
-> +{
-> +	return get_pid_task_rcu_user(proc_pid(inode), PIDTYPE_PID);
-> +}
-> +
->  void task_dump_owner(struct task_struct *task, umode_t mode,
->  		     kuid_t *ruid, kgid_t *rgid);
->  
-> diff --git a/include/linux/pid.h b/include/linux/pid.h
-> index 9645b1194c98..0b2c54f85e6d 100644
-> --- a/include/linux/pid.h
-> +++ b/include/linux/pid.h
-> @@ -86,6 +86,8 @@ static inline struct pid *get_pid(struct pid *pid)
->  extern void put_pid(struct pid *pid);
->  extern struct task_struct *pid_task(struct pid *pid, enum pid_type);
->  extern struct task_struct *get_pid_task(struct pid *pid, enum pid_type);
-> +extern struct task_struct *get_pid_task_rcu_user(struct pid *pid,
-> +						 enum pid_type type);
->  
->  extern struct pid *get_task_pid(struct task_struct *task, enum pid_type type);
->  
-> diff --git a/kernel/pid.c b/kernel/pid.c
-> index 0a9f2e437217..05acbd15cfa6 100644
-> --- a/kernel/pid.c
-> +++ b/kernel/pid.c
-> @@ -390,6 +390,18 @@ struct task_struct *get_pid_task(struct pid *pid, enum pid_type type)
->  }
->  EXPORT_SYMBOL_GPL(get_pid_task);
->  
-> +struct task_struct *get_pid_task_rcu_user(struct pid *pid, enum pid_type type)
-> +{
-> +	struct task_struct *task;
-> +
-> +	task = pid_task(pid, type);
-> +	if (task && refcount_inc_not_zero(&task->rcu_users))
-> +		return task;
-> +
-> +	return NULL;
-> +}
-> +EXPORT_SYMBOL_GPL(get_pid_task_rcu_user);
-> +
->  struct pid *find_get_pid(pid_t nr)
->  {
->  	struct pid *pid;
+Nit: missing arguments to mount2.
