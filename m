@@ -2,95 +2,85 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B557C3E8C5
-	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 19:37:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67403C64E90
+	for <selinux@archiver.kernel.org>; Mon, 30 Nov 2020 10:40:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C970206CA
-	for <selinux@archiver.kernel.org>; Sun, 29 Nov 2020 19:37:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D014B20825
+	for <selinux@archiver.kernel.org>; Mon, 30 Nov 2020 10:40:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VDtcDQVr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728015AbgK2Tgs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 29 Nov 2020 14:36:48 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:40588 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726470AbgK2Tgs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 29 Nov 2020 14:36:48 -0500
-Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725965AbgK3Kkr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Nov 2020 05:40:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48444 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725842AbgK3Kkr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Nov 2020 05:40:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1606732761;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=1JGRx2ehRVzW/MEuZo+PSvIdirMjzvztCuJ+Pj5pD/0=;
+        b=VDtcDQVreozAUpyqrgX4jgTJjmnFpZdNK8k9sTK+7ur/g56XJmwfMyxXGCoMwkxHslpcJk
+        /d6rYqFpv4gCPvK4Tgh2AOwmeCExgAWdWxk3I+lS2F9bO66wXj+dNNhnScDFiK9w18iMN6
+        LdPVkrGromivoVNwFDgMAe7XiGJNEjs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-279-T9rK_1q1MfiKm5mpmDvoMA-1; Mon, 30 Nov 2020 05:39:17 -0500
+X-MC-Unique: T9rK_1q1MfiKm5mpmDvoMA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5C2675651A1
-        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 20:36:05 +0100 (CET)
-Received: by mail-ot1-f50.google.com with SMTP id z24so9390407oto.6
-        for <selinux@vger.kernel.org>; Sun, 29 Nov 2020 11:36:05 -0800 (PST)
-X-Gm-Message-State: AOAM530SAgIFB7PMy0ItC6XoQk9a2yNB0ErgoR8/xEucCl9jyIW/194y
-        e3gbnNtDoQPs+hTGOyrMmMJzF5LlMbtDJLqX6fI=
-X-Google-Smtp-Source: ABdhPJzFBblEzaRO1B2ULdFXH7N9lpFkoI7baYQzqLA7Ohz0b4SVdzBR6TgmwOW93s3dQlg3VWsC9T9yEJzBaBvJtfE=
-X-Received: by 2002:a05:6830:1dc4:: with SMTP id a4mr13618090otj.361.1606678564230;
- Sun, 29 Nov 2020 11:36:04 -0800 (PST)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CCC27100E423
+        for <selinux@vger.kernel.org>; Mon, 30 Nov 2020 10:39:16 +0000 (UTC)
+Received: from localhost (unknown [10.40.194.250])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3F4EC5C1A1;
+        Mon, 30 Nov 2020 10:39:15 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     kdudka@redhat.com
+Subject: review needed - coreutils ported to a newer version of libselinux
+Date:   Mon, 30 Nov 2020 11:39:14 +0100
+Message-ID: <87k0u3p1rh.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20201116220702.174765-1-jwcart2@gmail.com> <CAJfZ7=n1=rMSAYDbX++Nwn4OrF5E11CzAaK5+pjto4e8u5yV+A@mail.gmail.com>
-In-Reply-To: <CAJfZ7=n1=rMSAYDbX++Nwn4OrF5E11CzAaK5+pjto4e8u5yV+A@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 29 Nov 2020 20:35:53 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==W1oGWjsDC-z9eqBAGdG5sR5v0V8F8u_MD1=i0iJyqmw@mail.gmail.com>
-Message-ID: <CAJfZ7==W1oGWjsDC-z9eqBAGdG5sR5v0V8F8u_MD1=i0iJyqmw@mail.gmail.com>
-Subject: Re: [PATCH 0/6] libsepol/cil: Various CIL cleanups
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Nov 29 20:36:05 2020 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 24, 2020 at 8:25 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Mon, Nov 16, 2020 at 11:07 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > Cleaning up the CIL codebase a bit. No changes to how CIL works.
-> >
-> > James Carter (6):
-> >   libsepol/cil: cil_tree_walk() helpers should use CIL_TREE_SKIP_*
-> >   libsepol/cil: Git rid of unnecessary check in cil_gen_node()
-> >   libsepol/cil: Remove unused field from struct cil_args_resolve
-> >   libsepol/cil: Remove unnecessary assignment in
-> >     cil_resolve_name_keep_aliases()
-> >   libsepol/cil: Use the macro NODE() whenever possible
-> >   libspepol/cil: Use the macro FLAVOR() whenever possible
-> >
-> >  libsepol/cil/src/cil.c             |  2 +-
-> >  libsepol/cil/src/cil_binary.c      | 12 +++----
-> >  libsepol/cil/src/cil_build_ast.c   |  6 ++--
-> >  libsepol/cil/src/cil_find.c        | 10 +++---
-> >  libsepol/cil/src/cil_post.c        |  2 +-
-> >  libsepol/cil/src/cil_resolve_ast.c | 55 +++++++++++++-----------------
-> >  libsepol/cil/src/cil_tree.c        |  2 +-
-> >  7 files changed, 41 insertions(+), 48 deletions(-)
-> >
-> > --
-> > 2.25.4
-> >
->
-> Hello,
-> The content of these patches look good but there are two misspellings
-> in the commit messages:
->
-> * Patch 2 : "libsepol/cil: Git rid of unnecessary check in
-> cil_gen_node()" -> "Get" instead of "Git"
-> * Patch 6 : "libspepol/cil: Use the macro FLAVOR() whenever possible"
-> -> "libsepol"
->
-> With these changes:
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-> Feel free to apply the patches yourself, with the misspellings fixes.
 
-Merged, with the two spelling fixes.
-Thanks,
-Nicolas
+Hello,
+
+a week ago I was asked to review coreutils changes which migrated
+coreutils from matchpathcon() to selabel_lookup(), see bellow. Sadly I
+wasn't able to do it yet so I would really appreciate if somebody can
+help with this. I've CCed Kamil who should be answer coreutils related
+questions.
+
+Thanks!
+
+quote:
+
+Upstream has ported GNU coreutils to a newer version of libselinux.  Namely,
+it uses selabel_lookup() instead of matchpathcon().  They are now asking for
+a review by an SELinux expert from Red Hat:
+
+    https://lists.gnu.org/archive/html/coreutils/2020-11/msg00049.html
+
+Could you (or someone from your team) please review the following upstream
+commits?
+
+    https://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=v8.32-76-g3aaa42deaa
+    https://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=v8.32-79-g7b341f084b
+    https://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=v8.32-81-gd12f5da6d4
+
+And there's another follow-up at
+    https://lists.gnu.org/archive/html/coreutils/2020-11/msg00054.html
+
 
