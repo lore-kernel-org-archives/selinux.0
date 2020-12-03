@@ -2,201 +2,113 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37F2FC4361A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A358EC4167B
 	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:07:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E67CC224F9
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:07:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B59B224F9
+	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:07:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501920AbgLDAHE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Dec 2020 19:07:04 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:53776 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726619AbgLDAHD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:07:03 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B4061lG123363;
-        Fri, 4 Dec 2020 00:06:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2020-01-29; bh=M6YpxecNsswGuGNsYFeS11pXzHFa54HvZeVouPfIfQY=;
- b=HBfnQBxC4mFr98tz4VwTBw9johloCCEbAGPaZ+Og9sM5zXwJLhT5FsLkPFOR9cInuYeB
- rp/pYDrztZpKe0dr0P5Ozkj8gJ0GsVvPV8VFEtp+ESDmTIy6aEqIFxEMCO69XemKxnJM
- RPuH4iB6Yaur/X9N8Qt50zL1KrhTdtZaQcNIRrr0aXet0CVu2dmv1MRm1KxJ5Ug6fYdp
- AdaqCrHacx8CxSc2Ah8jbjzuSfnG3gfJNTeV/PAZTTZhqKERWqAVVSSPSNBF9mmNl43t
- JH3XLfZgNqIzTsHeGu+X8O3DD81VgY5pB+SZtzUWLT9+qKHUCU+HmbULl8qcmOHeKeGR rg== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 353dyr0vc7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 04 Dec 2020 00:06:00 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B3NuDhY118763;
-        Fri, 4 Dec 2020 00:04:00 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 3540f2k2ka-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 04 Dec 2020 00:03:59 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0B403sjG017376;
-        Fri, 4 Dec 2020 00:03:55 GMT
-Received: from localhost (/10.159.156.169)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 03 Dec 2020 16:03:54 -0800
-From:   Stephen Brennan <stephen.s.brennan@oracle.com>
-To:     Alexey Dobriyan <adobriyan@gmail.com>
-Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
+        id S2501996AbgLDAHH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Dec 2020 19:07:07 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:42504 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2501936AbgLDAHG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:07:06 -0500
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1kkyXs-0007ka-HE; Fri, 04 Dec 2020 00:01:56 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org
+Cc:     John Johansen <john.johansen@canonical.com>,
         James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
         Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v2] proc: Allow pid_revalidate() during LOOKUP_RCU
-Date:   Thu,  3 Dec 2020 16:02:12 -0800
-Message-Id: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
-X-Mailer: git-send-email 2.25.1
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH v4 23/40] af_unix: handle idmapped mounts
+Date:   Fri,  4 Dec 2020 00:57:19 +0100
+Message-Id: <20201203235736.3528991-24-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
+References: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9824 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 phishscore=0
- suspectscore=0 bulkscore=0 spamscore=0 adultscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2012030132
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9824 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 bulkscore=0
- clxscore=1015 mlxscore=0 spamscore=0 priorityscore=1501 mlxlogscore=999
- suspectscore=0 lowpriorityscore=0 phishscore=0 adultscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012030133
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pid_revalidate() function requires dropping from RCU into REF lookup
-mode. When many threads are resolving paths within /proc in parallel,
-this can result in heavy spinlock contention as each thread tries to
-grab a reference to the /proc dentry lock (and drop it shortly
-thereafter).
+When binding a non-abstract AF_UNIX socket it will gain a representation
+in the filesystem. Enable the socket infrastructure to handle idmapped
+mounts by passing down the user namespace of the mount the socket will
+be created from. If the initial user namespace is passed nothing changes
+so non-idmapped mounts will see identical behavior as before.
 
-Allow the pid_revalidate() function to execute under LOOKUP_RCU. When
-updates must be made to the inode due to the owning task performing
-setuid(), drop out of RCU and into REF mode. Remove the call to
-security_task_to_inode(), since we can rely on the call from
-proc_pid_make_inode().
-
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
-I'd like to use this patch as an RFC on this approach for reducing spinlock
-contention during many parallel path lookups in the /proc filesystem. The
-contention can be triggered by, for example, running ~100 parallel instances of
-"TZ=/etc/localtime ps -fe >/dev/null" on a 100CPU machine. The %sys utilization
-in such a case reaches around 90%, and profiles show two code paths with high
-utilization:
+/* v2 */
+unchanged
 
-    walk_component
-      lookup_fast
-        unlazy_child
-          legitimize_root
-            __legitimize_path
-              lockref_get_not_dead
+/* v3 */
+unchanged
 
-    terminate_walk
-      dput
-        dput
+/* v4 */
+unchanged
+---
+ net/unix/af_unix.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-By applying this patch, %sys utilization falls to around 60% under the same
-workload. Although this particular workload is a bit contrived, we have seen
-some monitoring scripts which produced high %sys time due to this contention.
-
-Changes from v2:
-- Remove get_pid_task_rcu_user() and get_proc_task_rcu(), since they were
-  unnecessary.
-- Remove the call to security_task_to_inode().
-
- fs/proc/base.c | 47 +++++++++++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 14 deletions(-)
-
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ebea9501afb8..833d55a59e20 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1813,12 +1813,28 @@ int pid_getattr(const struct path *path, struct kstat *stat,
- /*
-  * Set <pid>/... inode ownership (can change due to setuid(), etc.)
-  */
--void pid_update_inode(struct task_struct *task, struct inode *inode)
-+static int do_pid_update_inode(struct task_struct *task, struct inode *inode,
-+			       unsigned int flags)
- {
--	task_dump_owner(task, inode->i_mode, &inode->i_uid, &inode->i_gid);
-+	kuid_t uid;
-+	kgid_t gid;
-+
-+	task_dump_owner(task, inode->i_mode, &uid, &gid);
-+	if (uid_eq(uid, inode->i_uid) && gid_eq(gid, inode->i_gid) &&
-+			!(inode->i_mode & (S_ISUID | S_ISGID)))
-+		return 1;
-+	if (flags & LOOKUP_RCU)
-+		return -ECHILD;
- 
-+	inode->i_uid = uid;
-+	inode->i_gid = gid;
- 	inode->i_mode &= ~(S_ISUID | S_ISGID);
--	security_task_to_inode(task, inode);
-+	return 1;
-+}
-+
-+void pid_update_inode(struct task_struct *task, struct inode *inode)
-+{
-+	do_pid_update_inode(task, inode, 0);
- }
- 
- /*
-@@ -1830,19 +1846,22 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
- {
- 	struct inode *inode;
- 	struct task_struct *task;
-+	int rv = 0;
- 
--	if (flags & LOOKUP_RCU)
--		return -ECHILD;
--
--	inode = d_inode(dentry);
--	task = get_proc_task(inode);
--
--	if (task) {
--		pid_update_inode(task, inode);
--		put_task_struct(task);
--		return 1;
-+	if (flags & LOOKUP_RCU) {
-+		inode = d_inode_rcu(dentry);
-+		task = pid_task(proc_pid(inode), PIDTYPE_PID);
-+		if (task)
-+			rv = do_pid_update_inode(task, inode, flags);
-+	} else {
-+		inode = d_inode(dentry);
-+		task = get_proc_task(inode);
-+		if (task) {
-+			rv = do_pid_update_inode(task, inode, flags);
-+			put_task_struct(task);
-+		}
- 	}
--	return 0;
-+	return rv;
- }
- 
- static inline bool proc_inode_is_dead(struct inode *inode)
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index b4987805e5e5..4be33240e9cc 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -996,7 +996,7 @@ static int unix_mknod(const char *sun_path, umode_t mode, struct path *res)
+ 	 */
+ 	err = security_path_mknod(&path, dentry, mode, 0);
+ 	if (!err) {
+-		err = vfs_mknod(&init_user_ns, d_inode(path.dentry), dentry, mode, 0);
++		err = vfs_mknod(mnt_user_ns(path.mnt), d_inode(path.dentry), dentry, mode, 0);
+ 		if (!err) {
+ 			res->mnt = mntget(path.mnt);
+ 			res->dentry = dget(dentry);
 -- 
-2.25.1
+2.29.2
 
