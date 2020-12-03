@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 945FFC1B087
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:02:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C1E8C2BB3F
+	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:02:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44762224D1
+	by mail.kernel.org (Postfix) with ESMTP id C799F224B1
 	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:02:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388136AbgLDACM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Dec 2020 19:02:12 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:41697 "EHLO
+        id S2388218AbgLDACN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Dec 2020 19:02:13 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:41698 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728063AbgLDACK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:02:10 -0500
+        with ESMTP id S1728138AbgLDACL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:02:11 -0500
 Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kkyXF-0007ka-Su; Fri, 04 Dec 2020 00:01:18 +0000
+        id 1kkyXL-0007ka-79; Fri, 04 Dec 2020 00:01:23 +0000
 From:   Christian Brauner <christian.brauner@ubuntu.com>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@infradead.org>,
@@ -60,9 +60,9 @@ Cc:     John Johansen <john.johansen@canonical.com>,
         selinux@vger.kernel.org,
         Christian Brauner <christian.brauner@ubuntu.com>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v4 02/40] mount: make {lock,unlock}_mount_hash() static
-Date:   Fri,  4 Dec 2020 00:56:58 +0100
-Message-Id: <20201203235736.3528991-3-christian.brauner@ubuntu.com>
+Subject: [PATCH v4 05/40] fs: add attr_flags_to_mnt_flags helper
+Date:   Fri,  4 Dec 2020 00:57:01 +0100
+Message-Id: <20201203235736.3528991-6-christian.brauner@ubuntu.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
 References: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
@@ -72,74 +72,87 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The lock_mount_hash() and unlock_mount_hash() helpers are never called
-outside a single file. Remove them from the header and make them static
-to reflect this fact. There's no need to have them callable from other
-places right now, as Christoph observed.
+Add a simple helper to translate uapi MOUNT_ATTR_* flags to MNT_* flags
+which we will use in follow-up patches too.
 
 Suggested-by: Christoph Hellwig <hch@lst.de>
 Cc: David Howells <dhowells@redhat.com>
 Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: linux-fsdevel@vger.kernel.org
 Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 ---
 /* v2 */
-- Christoph Hellwig <hch@lst.de>:
-  - Add a patch to make {lock,unlock)_mount_hash() static.
+patch not present
 
 /* v3 */
-unchanged
+patch not present
 
 /* v4 */
-unchanged
+patch introduced
 ---
- fs/mount.h     | 10 ----------
- fs/namespace.c | 10 ++++++++++
- 2 files changed, 10 insertions(+), 10 deletions(-)
+ fs/namespace.c | 40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-diff --git a/fs/mount.h b/fs/mount.h
-index c7abb7b394d8..562d96d57bad 100644
---- a/fs/mount.h
-+++ b/fs/mount.h
-@@ -125,16 +125,6 @@ static inline void get_mnt_ns(struct mnt_namespace *ns)
- 
- extern seqlock_t mount_lock;
- 
--static inline void lock_mount_hash(void)
--{
--	write_seqlock(&mount_lock);
--}
--
--static inline void unlock_mount_hash(void)
--{
--	write_sequnlock(&mount_lock);
--}
--
- struct proc_mounts {
- 	struct mnt_namespace *ns;
- 	struct path root;
 diff --git a/fs/namespace.c b/fs/namespace.c
-index f183161833ad..798bbf4f48ad 100644
+index 1a756d33c91a..b2a9eb7b43d3 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -87,6 +87,16 @@ EXPORT_SYMBOL_GPL(fs_kobj);
-  */
- __cacheline_aligned_in_smp DEFINE_SEQLOCK(mount_lock);
+@@ -3450,6 +3450,28 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
+ 	return ret;
+ }
  
-+static inline void lock_mount_hash(void)
++#define FSMOUNT_VALID_FLAGS                                                    \
++	(MOUNT_ATTR_RDONLY | MOUNT_ATTR_NOSUID | MOUNT_ATTR_NODEV |            \
++	 MOUNT_ATTR_NOEXEC | MOUNT_ATTR__ATIME | MOUNT_ATTR_NODIRATIME)
++
++static unsigned int attr_flags_to_mnt_flags(u64 attr_flags)
 +{
-+	write_seqlock(&mount_lock);
++	unsigned int mnt_flags = 0;
++
++	if (attr_flags & MOUNT_ATTR_RDONLY)
++		mnt_flags |= MNT_READONLY;
++	if (attr_flags & MOUNT_ATTR_NOSUID)
++		mnt_flags |= MNT_NOSUID;
++	if (attr_flags & MOUNT_ATTR_NODEV)
++		mnt_flags |= MNT_NODEV;
++	if (attr_flags & MOUNT_ATTR_NOEXEC)
++		mnt_flags |= MNT_NOEXEC;
++	if (attr_flags & MOUNT_ATTR_NODIRATIME)
++		mnt_flags |= MNT_NODIRATIME;
++
++	return mnt_flags;
 +}
 +
-+static inline void unlock_mount_hash(void)
-+{
-+	write_sequnlock(&mount_lock);
-+}
-+
- static inline struct hlist_head *m_hash(struct vfsmount *mnt, struct dentry *dentry)
- {
- 	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
+ /*
+  * Create a kernel mount representation for a new, prepared superblock
+  * (specified by fs_fd) and attach to an open_tree-like file descriptor.
+@@ -3472,24 +3494,10 @@ SYSCALL_DEFINE3(fsmount, int, fs_fd, unsigned int, flags,
+ 	if ((flags & ~(FSMOUNT_CLOEXEC)) != 0)
+ 		return -EINVAL;
+ 
+-	if (attr_flags & ~(MOUNT_ATTR_RDONLY |
+-			   MOUNT_ATTR_NOSUID |
+-			   MOUNT_ATTR_NODEV |
+-			   MOUNT_ATTR_NOEXEC |
+-			   MOUNT_ATTR__ATIME |
+-			   MOUNT_ATTR_NODIRATIME))
++	if (attr_flags & ~FSMOUNT_VALID_FLAGS)
+ 		return -EINVAL;
+ 
+-	if (attr_flags & MOUNT_ATTR_RDONLY)
+-		mnt_flags |= MNT_READONLY;
+-	if (attr_flags & MOUNT_ATTR_NOSUID)
+-		mnt_flags |= MNT_NOSUID;
+-	if (attr_flags & MOUNT_ATTR_NODEV)
+-		mnt_flags |= MNT_NODEV;
+-	if (attr_flags & MOUNT_ATTR_NOEXEC)
+-		mnt_flags |= MNT_NOEXEC;
+-	if (attr_flags & MOUNT_ATTR_NODIRATIME)
+-		mnt_flags |= MNT_NODIRATIME;
++	mnt_flags = attr_flags_to_mnt_flags(attr_flags);
+ 
+ 	switch (attr_flags & MOUNT_ATTR__ATIME) {
+ 	case MOUNT_ATTR_STRICTATIME:
 -- 
 2.29.2
 
