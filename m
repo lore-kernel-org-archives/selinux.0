@@ -2,123 +2,191 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69063C63777
-	for <selinux@archiver.kernel.org>; Thu,  3 Dec 2020 04:48:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4643C83012
+	for <selinux@archiver.kernel.org>; Thu,  3 Dec 2020 08:15:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0994320643
-	for <selinux@archiver.kernel.org>; Thu,  3 Dec 2020 04:47:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A02F20C56
+	for <selinux@archiver.kernel.org>; Thu,  3 Dec 2020 08:15:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727289AbgLCEr7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Dec 2020 23:47:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726075AbgLCEr7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Dec 2020 23:47:59 -0500
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D6AC061A4D
-        for <selinux@vger.kernel.org>; Wed,  2 Dec 2020 20:47:13 -0800 (PST)
-Received: by mail-qv1-xf42.google.com with SMTP id 4so407698qvh.1
-        for <selinux@vger.kernel.org>; Wed, 02 Dec 2020 20:47:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:date:message-id:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=OKI6aoMZn7qmkONz/CQjmY9+P6ZlYDbLEMF2qo4f2Gw=;
-        b=qSAJjkO0Wbkuh2Pmr4b7nRioStMhFZHHBpJ6dt8pSSBlh1XZeD2U8qQzHaG2rL4/ma
-         QY6zteJOuWlR1DBILmWL1RVQrlmadsFpoLI/65J2wgrYFr5/fKyw/gwFVQrc+gmHoUSW
-         tBpk1exO3NdZ5HWVn9MvRyP30ORT4h5mgSohADzhvatgdDT6L3IgIVYFyyL/dljZ/all
-         c5XaS8MdjEQ0lkLw7QeViEg48BJf0Ye/P+qddHWMQM32XHXtFWXvR4z5t8X/fKXF/vMW
-         tJVSGGl1H+hBRqzj3FjPejrzglqpiO2o1B++m/BCUB8RkzICKQGX98JEBSPNcCoQktmZ
-         O4XA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
-         :mime-version:content-transfer-encoding;
-        bh=OKI6aoMZn7qmkONz/CQjmY9+P6ZlYDbLEMF2qo4f2Gw=;
-        b=np0jfrkoEWOYrk/HEhDUCBhykhnUIsPhKqKbSNjo0DiIIpzYL7hOWfOOGoCAp6DoRt
-         Zr4ujBbkXiJBrzOlZ2ezWlxGCNUMnF3ktY5whrlgHYFK7yvpRbsVkKFaOKLWxAqhAqhl
-         W3YjUMyuceLgKv/Yp7SiQ1NDSNTEl4S/7g05VaQu1zwAB+Y9QuDQXT/MB0/tzPJdp3Qa
-         8KQC276olLyzSdeLdbIAf5771EAvT5G/8SIbbmQsmH2WanYMtywAUpped4nR/AsdlBVH
-         BFM36qblk0QdxIyZLrKL4C6DNnRbHcKfT1npqT2Kslp8IaKpwvzsLQ9113jN6B7P9P07
-         bpQQ==
-X-Gm-Message-State: AOAM530/tKjvPveoa8iZUQbZiWlWOu4wJD+0umNrygKrId4SQslWBNOD
-        L86KB/tJhtBsaPQ2qUowoe4jRcoRQDtjp4E=
-X-Google-Smtp-Source: ABdhPJzLdu2PJe7Z9rkUrjsVj9QPu5FFCYmuKO2IGp3Wk+Luz+7MU89IS/ZQaQQfCB/YtthFYop41A==
-X-Received: by 2002:ad4:5483:: with SMTP id q3mr1364988qvy.24.1606970832108;
-        Wed, 02 Dec 2020 20:47:12 -0800 (PST)
-Received: from localhost (pool-96-230-24-152.bstnma.fios.verizon.net. [96.230.24.152])
-        by smtp.gmail.com with ESMTPSA id w21sm368067qki.6.2020.12.02.20.47.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Dec 2020 20:47:11 -0800 (PST)
-Subject: [PATCH] all: various small html to markdown conversions
-From:   Paul Moore <paul@paul-moore.com>
-To:     selinux@vger.kernel.org,
-        Richard Haines <richard_c_haines@btinternet.com>
-Date:   Wed, 02 Dec 2020 23:47:10 -0500
-Message-ID: <160697083070.45245.11138404605529742839.stgit@sifl>
-User-Agent: StGit/0.23
+        id S1727988AbgLCIP1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Dec 2020 03:15:27 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:44275 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727957AbgLCIPZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 03:15:25 -0500
+Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com [209.85.167.169])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 0802D561249
+        for <selinux@vger.kernel.org>; Thu,  3 Dec 2020 09:14:41 +0100 (CET)
+Received: by mail-oi1-f169.google.com with SMTP id t143so1311040oif.10
+        for <selinux@vger.kernel.org>; Thu, 03 Dec 2020 00:14:40 -0800 (PST)
+X-Gm-Message-State: AOAM532fnJYt4FgZcAazUtN/vDlsPhICL3VuxIytlx9YeJCKoVrAIv8n
+        hyKPt3BzPACtqAzTP41feEUXWb2GaQrj7mhNvEc=
+X-Google-Smtp-Source: ABdhPJwOEbRx5CiyRqrwqUyYdPUqMjat0d+2RBVcSNUYgGKybJKkm355xdqcEOkz7AQnVe4NIK5SfhR/rDuNsxabqP8=
+X-Received: by 2002:aca:ec09:: with SMTP id k9mr1124484oih.153.1606983279886;
+ Thu, 03 Dec 2020 00:14:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20201124080945.80488-1-nicolas.iooss@m4x.org> <878sagow0g.fsf@redhat.com>
+ <CAFftDdq0xw6pkJ-_9b6_3+QygkbN3+dO6Pr9ewv_7um=ddpUow@mail.gmail.com>
+In-Reply-To: <CAFftDdq0xw6pkJ-_9b6_3+QygkbN3+dO6Pr9ewv_7um=ddpUow@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Thu, 3 Dec 2020 09:14:28 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==GCGXz=JNi6AaUGXQT=nUwku4FVHHGdXbJ-O0=Qyy7Bw@mail.gmail.com>
+Message-ID: <CAJfZ7==GCGXz=JNi6AaUGXQT=nUwku4FVHHGdXbJ-O0=Qyy7Bw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] scripts/ci: add configuration for a Vagrant virtual machine
+To:     William Roberts <bill.c.roberts@gmail.com>,
+        Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Dec  3 09:14:41 2020 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- src/notebook-examples/selinux-policy/README.md |    2 --
- src/notebook-examples/sepgsql/README.md        |    2 --
- src/title.md                                   |    5 +----
- 3 files changed, 1 insertion(+), 8 deletions(-)
+On Wed, Dec 2, 2020 at 8:35 PM William Roberts <bill.c.roberts@gmail.com> wrote:
+>
+> On Wed, Dec 2, 2020 at 1:27 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> >
+> > Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+> >
+> > > Using Vagrant makes reproducing and debugging CI issues easier: after
+> > > "vagrant up", a test virtual machine is up and running, and ready to run
+> > > "fedora-test-runner.sh". In order to make using this VM even easier, a
+> > > helper script, "run-selinux-test.sh" is created inside and instructions
+> > > on how to use it are documented at the beginning of Vagrantfile.
+> > >
+> > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > > ---
+> > >  scripts/ci/.gitignore  |  1 +
+> > >  scripts/ci/Vagrantfile | 55 ++++++++++++++++++++++++++++++++++++++++++
+> > >  2 files changed, 56 insertions(+)
+> > >  create mode 100644 scripts/ci/.gitignore
+> > >  create mode 100644 scripts/ci/Vagrantfile
+> > >
+> > > diff --git a/scripts/ci/.gitignore b/scripts/ci/.gitignore
+> > > new file mode 100644
+> > > index 000000000000..a977916f6583
+> > > --- /dev/null
+> > > +++ b/scripts/ci/.gitignore
+> > > @@ -0,0 +1 @@
+> > > +.vagrant/
+> > > diff --git a/scripts/ci/Vagrantfile b/scripts/ci/Vagrantfile
+> > > new file mode 100644
+> > > index 000000000000..68a2414a8429
+> > > --- /dev/null
+> > > +++ b/scripts/ci/Vagrantfile
+> > > @@ -0,0 +1,55 @@
+> > > +# -*- mode: ruby -*-
+> > > +# vi: set ft=ruby :
+> > > +# Vagrant configuration file which creates a virtual machine that can run the
+> > > +# test suite using fedora-test-runner.sh, in an environment similar to the one
+> > > +# used for automated continuous integration tests (Travis-CI)
+> > > +#
+> > > +# To create a new virtual machine:
+> > > +#
+> > > +#    vagrant up --provision
+> > > +#
+> > > +# To launch tests (for example after modifications to libsepol, libselinux... are made):
+> > > +#
+> > > +#    vagrant rsync && echo ./run-selinux-test.sh | vagrant ssh
+> > > +#
+> > > +# To destroy the virtual machine (for example to start again from a clean environment):
+> > > +#
+> > > +#    vagrant destroy
+> > > +
+> > > +# Create a helper script in the VM to run the testsuite as root from a clean environment
+> > > +$script = <<SCRIPT
+> > > +cat > /home/vagrant/run-selinux-test.sh << EOF
+> > > +#/bin/sh
+> > > +set -e -v
+> > > +
+> > > +# Clean-up a previous run.
+> > > +# "make" is not installed when the machine is first bootstrapped
+> > > +if command -v make > /dev/null 2>&1 ; then
+> > > +    sudo make -C /root/selinux clean distclean
+> > > +fi
+> > > +sudo rm -rf /root/selinux-testsuite
+> >
+> > Would it make sense to move clean-up directly to fedora-test-runner.sh so
+> > that Vagrantfile would not need to know about test runner internals?
 
-diff --git a/src/notebook-examples/selinux-policy/README.md b/src/notebook-examples/selinux-policy/README.md
-index fe6a26e..353bd2f 100644
---- a/src/notebook-examples/selinux-policy/README.md
-+++ b/src/notebook-examples/selinux-policy/README.md
-@@ -20,8 +20,6 @@ Another basic kernel policy build is avilable in the kernel source, see the
- ***flask-files*** - Contains the Fedora 31 policy source initial_sids,
- security_classes and access_vectors flask files.
- 
--<br>
--
- ## Building the Kernel Source MDP
- 
- **Note** that the kernel mdp `install_policy.sh` script will not build
-diff --git a/src/notebook-examples/sepgsql/README.md b/src/notebook-examples/sepgsql/README.md
-index bfa3c09..3e1afc7 100644
---- a/src/notebook-examples/sepgsql/README.md
-+++ b/src/notebook-examples/sepgsql/README.md
-@@ -20,8 +20,6 @@ installed:
- 	postgresql-docs
- ```
- 
--<br>
--
- ## Installing PostgreSQL + sepgsql and building sample testdb database
- 
- For a good intro to sepgsql read the following:
-diff --git a/src/title.md b/src/title.md
-index 5c33ac0..caf5b41 100644
---- a/src/title.md
-+++ b/src/title.md
-@@ -4,13 +4,10 @@
- # The SELinux Notebook
- <!-- %STYLEEND% -->
- 
--<!-- %STYLESTART%(display:block;margin-left:auto;margin-right:auto;) -->
-+<!-- %STYLESTART%(display:block;margin-left:auto;margin-right:auto;padding:2em) -->
- ![](./images/selinux-penguin.svg)
- <!-- %STYLEEND% -->
- 
--<br/>
--<br/>
--
- **<!-- %DATE% -->**
- <!-- %GITHEAD% -->
- 
+Yes, I will send a v2 with this. Thanks for this suggestion!
+
+> >
+> > --- a/scripts/ci/fedora-test-runner.sh
+> > +++ b/scripts/ci/fedora-test-runner.sh
+> > @@ -75,6 +75,7 @@ git log --oneline -1
+> >  #
+> >  # Build and replace userspace components
+> >  #
+> > +make clean distclean
+> >  make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install
+> >  make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install-pywrap
+> >  make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 relabel
+> > @@ -84,6 +85,7 @@ make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 relabel
+> >  # first.
+> >  #
+> >  cd "$HOME"
+> > +rm -rf selinux-testsuite
+> >  git clone --depth=1 https://github.com/SELinuxProject/selinux-testsuite.git
+> >  cd selinux-testsuite
+> >
+> >
+> >
+> >
+> > > +# Run the tests
+> > > +sudo /root/selinux/scripts/ci/fedora-test-runner.sh
+> > > +echo 'All tests passed :)'
+> > > +EOF
+> > > +chmod +x /home/vagrant/run-selinux-test.sh
+> > > +SCRIPT
+> > > +
+> > > +# All Vagrant configuration is done below. The "2" in Vagrant.configure
+> > > +# configures the configuration version (we support older styles for
+> > > +# backwards compatibility). Please don't change it unless you know what
+> > > +# you're doing.
+> > > +Vagrant.configure("2") do |config|
+> > > +  config.vm.box = "fedora/33-cloud-base"
+> > > +  config.vm.synced_folder "../..", "/root/selinux"
+> > > +
+> > > +  config.vm.provider "virtualbox" do |v|
+> > > +     v.memory = 4096
+> > > +  end
+> > > +  config.vm.provider "libvirt" do |v|
+> > > +     v.memory = 4096
+> > > +  end
+> > > +
+> > > +  config.vm.provision :shell, inline: $script
+> > > +end
+> > > --
+> > > 2.29.2
+> >
+>
+> That's pretty sweet looking. AFAICT vagrant just makes VM's easier to
+> manipulate, is that right?
+> Does this change any of the infrastructure we run on as we migrate
+> away from Travis?
+
+Yes, Vagrant is a tool that makes using virtual machines on a local
+computer much easier. It is a powerful tool, which is only used here
+in a very simple configuration with a single VM running a system as
+close as possible as the CI. My aim here was to "make reproducing and
+debugging CI issues easier", because when something goes wrong in the
+CI, it is much easier to find out what went wrong on a local computer
+than trying to tweak things and submit new CI jobs.
+
+This does not replace Travis, because this is not run for every push
+to the git repository, but this shows that fedora-test-runner.sh is
+generic enough to be run in a generic Fedora VM that could be provided
+by other CI services (though I have not searched if any of them exists
+for free).
+
+Nicolas
 
