@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08F05C4361A
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:12:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75345C4361B
+	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:13:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA04E222B6
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:12:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27E6C224B8
+	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:13:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389495AbgLDAMR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Dec 2020 19:12:17 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:43254 "EHLO
+        id S2502140AbgLDAND (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Dec 2020 19:13:03 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:43368 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727916AbgLDAMR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:12:17 -0500
+        with ESMTP id S2502022AbgLDANC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:13:02 -0500
 Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kkyXy-0007ka-9G; Fri, 04 Dec 2020 00:02:02 +0000
+        id 1kkyY1-0007ka-UC; Fri, 04 Dec 2020 00:02:06 +0000
 From:   Christian Brauner <christian.brauner@ubuntu.com>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@infradead.org>,
@@ -60,9 +60,9 @@ Cc:     John Johansen <john.johansen@canonical.com>,
         selinux@vger.kernel.org,
         Christian Brauner <christian.brauner@ubuntu.com>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v4 26/40] notify: handle idmapped mounts
-Date:   Fri,  4 Dec 2020 00:57:22 +0100
-Message-Id: <20201203235736.3528991-27-christian.brauner@ubuntu.com>
+Subject: [PATCH v4 28/40] ioctl: handle idmapped mounts
+Date:   Fri,  4 Dec 2020 00:57:24 +0100
+Message-Id: <20201203235736.3528991-29-christian.brauner@ubuntu.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
 References: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
@@ -72,10 +72,9 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Enable notify implementations to handle idmapped mounts by passing down
-the mount's user namespace. If the initial user namespace is passed
-nothing changes so non-idmapped mounts will see identical behavior as
-before.
+Enable generic ioctls to handle idmapped mounts by passing down the
+mount's user namespace. If the initial user namespace is passed nothing
+changes so non-idmapped mounts will see identical behavior as before.
 
 Cc: Christoph Hellwig <hch@lst.de>
 Cc: David Howells <dhowells@redhat.com>
@@ -90,46 +89,50 @@ patch introduced
 unchanged
 
 /* v4 */
-unchanged
+- Serge Hallyn <serge@hallyn.com>:
+  - Use "mnt_userns" to refer to a vfsmount's userns everywhere to make
+    terminology consistent.
 ---
- fs/notify/fanotify/fanotify_user.c | 2 +-
- fs/notify/inotify/inotify_user.c   | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ fs/remap_range.c   | 7 +++++--
+ fs/verity/enable.c | 2 +-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
-index de4d01bb1d8d..e3b2cb6a9d81 100644
---- a/fs/notify/fanotify/fanotify_user.c
-+++ b/fs/notify/fanotify/fanotify_user.c
-@@ -702,7 +702,7 @@ static int fanotify_find_path(int dfd, const char __user *filename,
- 	}
+diff --git a/fs/remap_range.c b/fs/remap_range.c
+index 9e5b27641756..26759ee83a22 100644
+--- a/fs/remap_range.c
++++ b/fs/remap_range.c
+@@ -432,13 +432,16 @@ EXPORT_SYMBOL(vfs_clone_file_range);
+ /* Check whether we are allowed to dedupe the destination file */
+ static bool allow_file_dedupe(struct file *file)
+ {
++	struct user_namespace *mnt_userns = mnt_user_ns(file->f_path.mnt);
++	struct inode *inode = file_inode(file);
++
+ 	if (capable(CAP_SYS_ADMIN))
+ 		return true;
+ 	if (file->f_mode & FMODE_WRITE)
+ 		return true;
+-	if (uid_eq(current_fsuid(), file_inode(file)->i_uid))
++	if (uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode)))
+ 		return true;
+-	if (!inode_permission(&init_user_ns, file_inode(file), MAY_WRITE))
++	if (!inode_permission(mnt_userns, inode, MAY_WRITE))
+ 		return true;
+ 	return false;
+ }
+diff --git a/fs/verity/enable.c b/fs/verity/enable.c
+index 7449ef0050f4..8b9ea0f0850f 100644
+--- a/fs/verity/enable.c
++++ b/fs/verity/enable.c
+@@ -369,7 +369,7 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
+ 	 * has verity enabled, and to stabilize the data being hashed.
+ 	 */
  
- 	/* you can only watch an inode if you have read permissions on it */
--	ret = inode_permission(&init_user_ns, path->dentry->d_inode, MAY_READ);
-+	ret = inode_permission(mnt_user_ns(path->mnt), path->dentry->d_inode, MAY_READ);
- 	if (ret) {
- 		path_put(path);
- 		goto out;
-diff --git a/fs/notify/inotify/inotify_user.c b/fs/notify/inotify/inotify_user.c
-index e995fd4e4e53..f39f5b81f2b3 100644
---- a/fs/notify/inotify/inotify_user.c
-+++ b/fs/notify/inotify/inotify_user.c
-@@ -31,6 +31,7 @@
- #include <linux/wait.h>
- #include <linux/memcontrol.h>
- #include <linux/security.h>
-+#include <linux/mount.h>
+-	err = inode_permission(&init_user_ns, inode, MAY_WRITE);
++	err = inode_permission(mnt_user_ns(filp->f_path.mnt), inode, MAY_WRITE);
+ 	if (err)
+ 		return err;
  
- #include "inotify.h"
- #include "../fdinfo.h"
-@@ -343,7 +344,7 @@ static int inotify_find_inode(const char __user *dirname, struct path *path,
- 	if (error)
- 		return error;
- 	/* you can only watch an inode if you have read permissions on it */
--	error = inode_permission(&init_user_ns, path->dentry->d_inode, MAY_READ);
-+	error = inode_permission(mnt_user_ns(path->mnt), path->dentry->d_inode, MAY_READ);
- 	if (error) {
- 		path_put(path);
- 		return error;
 -- 
 2.29.2
 
