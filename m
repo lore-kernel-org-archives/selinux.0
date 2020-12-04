@@ -2,214 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93DF7C2BB3F
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:13:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB13BC433FE
+	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 02:25:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 522B922224
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 00:13:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 886B022511
+	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 02:25:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502162AbgLDANT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Dec 2020 19:13:19 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:43400 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502147AbgLDANS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 19:13:18 -0500
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kkyYC-0007ka-U4; Fri, 04 Dec 2020 00:02:17 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org
-Cc:     John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v4 34/40] fat: handle idmapped mounts
-Date:   Fri,  4 Dec 2020 00:57:30 +0100
-Message-Id: <20201203235736.3528991-35-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
-References: <20201203235736.3528991-1-christian.brauner@ubuntu.com>
+        id S1726332AbgLDCZc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Dec 2020 21:25:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38426 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726080AbgLDCZb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Dec 2020 21:25:31 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DDAC061A4F
+        for <selinux@vger.kernel.org>; Thu,  3 Dec 2020 18:24:51 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id m19so6468847ejj.11
+        for <selinux@vger.kernel.org>; Thu, 03 Dec 2020 18:24:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vfNYS6MLlkiU5bhAM8lpLHEUCLkxO4vhhPJPNj6ZzNQ=;
+        b=jzqTqHQxAL0LS5ScINSdTvJ5zKHIN4mzyc3RDRQIbl1EF4UgJZkgm9+LksrAiBWdBS
+         GbvMqruzlhYe+6b/80eR3GUHCGeL2fngGwBJalds+M32lrMq4284PqYPLJ6VCgZT0OEH
+         2qW55y14gA+aX3cIEzRC4/lE/OOde1EoiPcRzs7HsJ1mK/uRwagNqXDpHB4NAsufXXsS
+         GKZEFR9a3A2ntPCAr3/+zwppZHZ0ymofctxTh2kzctf9p1ikhaOgAM1FH2Eof5su65oc
+         NEUSsLlzwbrrGXb16IOK4N6YXa7SNMamWo2j3yHi+43Dwxz40xoj0BUpq4Ln7L59FnQ7
+         fKNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vfNYS6MLlkiU5bhAM8lpLHEUCLkxO4vhhPJPNj6ZzNQ=;
+        b=JOsXxBerB9yb6Dg+kU5j3fSRZ4E5Re8NnPlR5zIdZ4oENm7H8hw5gbag352dp0HmMw
+         pHbLMW8+/5ZULr+4ZyLfrvNc8Q6JdPg8UJJvI91jVn5O8rbT7VaTsW3QZ9wpJ7kb1U+M
+         1hUXMrRvh5RS0EEgeqFE9VV/CYWbhnLudJykGKTlgr5uib0r8WS9OYqisZ7yXbLNdqD1
+         76YaBdJhRL4J42kqr/fD8L+kHsXMIIbqQtAZw8rNqK0BR5OZvaUbYM5u30xjVwW5yF+8
+         nrsbZ/WrepW85oBAiPm7nTCub8KtlLTPz0foJdfdpZeKx2rYRPJUJ7TZRykhobqpJ4UO
+         cdKA==
+X-Gm-Message-State: AOAM5324DBmLq3lqxHlNnqUedI6VCdhFvDAbZuQ69PiXBD+h9LnV7EOL
+        9M+QVcROrRpBGE5n0FVPlv3sXMm9aSrdcVj4r7i9
+X-Google-Smtp-Source: ABdhPJw/wDaom2dKRiHEelptoKI7eTgbi/3h3Sigmu3HEvydpnNloOUiujb1l7lVayhrH7BWfiJip3s+9gbSZ/u8Evc=
+X-Received: by 2002:a17:906:46d6:: with SMTP id k22mr5088315ejs.542.1607048690170;
+ Thu, 03 Dec 2020 18:24:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <3336b397dda1d15ee9fb87107f9cc21a5d1fe510.1606904940.git.pabeni@redhat.com>
+ <3a5f156da4569957b91bb5aa4d2a316b729a2c69.camel@redhat.com>
+ <539f376-62c2-dbe7-fbfd-6dc7a53eafa@linux.intel.com> <CAHC9VhTVc07P_MhWm7YRF6LXdMRQOcDEKe7SB+fpJJizdKOvEg@mail.gmail.com>
+ <20201203235415.GD5710@breakpoint.cc>
+In-Reply-To: <20201203235415.GD5710@breakpoint.cc>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 3 Dec 2020 21:24:39 -0500
+Message-ID: <CAHC9VhT-rj=tJwVycS19TgJDQ766oUH6ng+Uv=wu+WDrgE0AHA@mail.gmail.com>
+Subject: Re: [MPTCP] Re: [RFC PATCH] selinux: handle MPTCP consistently with TCP
+To:     Florian Westphal <fw@strlen.de>
+Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, mptcp@lists.01.org,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Let fat handle idmapped mounts. This allows to have the same fat mount
-appear in multiple locations with different id mappings. This allows to
-expose a vfat formatted USB stick to multiple user with different ids on
-the host or in user namespaces allowing for dac permissions:
+On Thu, Dec 3, 2020 at 6:54 PM Florian Westphal <fw@strlen.de> wrote:
+> Paul Moore <paul@paul-moore.com> wrote:
+> > I'm not very well versed in MPTCP, but this *seems* okay to me, minus
+> > the else-crud chunk.  Just to confirm my understanding, while MPTCP
+> > allows one TCP connection/stream to be subdivided and distributed
+> > across multiple interfaces, it does not allow multiple TCP streams to
+> > be multiplexed on a single connection, yes?
+>
+> Its the latter.  The application sees a TCP interface (socket), but
+> data may be carried over multiple individual tcp streams on the wire.
 
-mount -o uid=1000,gid=1000 /dev/sdb /mnt
+Hmm, that may complicate things a bit from a SELinux perspective.  Maybe not.
 
-u1001@f2-vm:/lower1$ ls -ln /mnt/
-total 4
--rwxr-xr-x 1 1000 1000 4 Oct 28 03:44 aaa
--rwxr-xr-x 1 1000 1000 0 Oct 28 01:09 bbb
--rwxr-xr-x 1 1000 1000 0 Oct 28 01:10 ccc
--rwxr-xr-x 1 1000 1000 0 Oct 28 03:46 ddd
--rwxr-xr-x 1 1000 1000 0 Oct 28 04:01 eee
+Just to make sure I understand, with MPTCP, a client that
+traditionally opened multiple TCP sockets to talk to a server would
+now just open a single MPTCP socket and create multiple sub-flows
+instead of multiple TCP sockets?
 
-mount-idmapped --map-mount b:1000:1001:1
-
-u1001@f2-vm:/lower1$ ls -ln /lower1/
-total 4
--rwxr-xr-x 1 1001 1001 4 Oct 28 03:44 aaa
--rwxr-xr-x 1 1001 1001 0 Oct 28 01:09 bbb
--rwxr-xr-x 1 1001 1001 0 Oct 28 01:10 ccc
--rwxr-xr-x 1 1001 1001 0 Oct 28 03:46 ddd
--rwxr-xr-x 1 1001 1001 0 Oct 28 04:01 eee
-
-u1001@f2-vm:/lower1$ touch /lower1/fff
-
-u1001@f2-vm:/lower1$ ls -ln /lower1/fff
--rwxr-xr-x 1 1001 1001 0 Oct 28 04:03 /lower1/fff
-
-u1001@f2-vm:/lower1$ ls -ln /mnt/fff
--rwxr-xr-x 1 1000 1000 0 Oct 28 04:03 /mnt/fff
-
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
-/* v2 */
-unchanged
-
-/* v3 */
-unchanged
-
-/* v4 */
-- Mauricio Vásquez Bernal <mauricio@kinvolk.io>:
-  - Fix mount example in commit message.
-
-- Serge Hallyn <serge@hallyn.com>:
-  - Use "mnt_userns" to refer to a vfsmount's userns everywhere to make
-    terminology consistent.
----
- fs/fat/file.c        | 15 ++++++++-------
- fs/fat/namei_msdos.c |  2 +-
- fs/fat/namei_vfat.c  |  2 +-
- 3 files changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/fs/fat/file.c b/fs/fat/file.c
-index 73acd0843d92..6a618e9450c8 100644
---- a/fs/fat/file.c
-+++ b/fs/fat/file.c
-@@ -398,7 +398,7 @@ int fat_getattr(struct user_namespace *mnt_userns, const struct path *path,
- 		struct kstat *stat, u32 request_mask, unsigned int flags)
- {
- 	struct inode *inode = d_inode(path->dentry);
--	generic_fillattr(&init_user_ns, inode, stat);
-+	generic_fillattr(mnt_userns, inode, stat);
- 	stat->blksize = MSDOS_SB(inode->i_sb)->cluster_size;
- 
- 	if (MSDOS_SB(inode->i_sb)->options.nfs == FAT_NFS_NOSTALE_RO) {
-@@ -447,12 +447,13 @@ static int fat_sanitize_mode(const struct msdos_sb_info *sbi,
- 	return 0;
- }
- 
--static int fat_allow_set_time(struct msdos_sb_info *sbi, struct inode *inode)
-+static int fat_allow_set_time(struct user_namespace *mnt_userns,
-+			      struct msdos_sb_info *sbi, struct inode *inode)
- {
- 	umode_t allow_utime = sbi->options.allow_utime;
- 
--	if (!uid_eq(current_fsuid(), inode->i_uid)) {
--		if (in_group_p(inode->i_gid))
-+	if (!uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode))) {
-+		if (in_group_p(i_gid_into_mnt(mnt_userns, inode)))
- 			allow_utime >>= 3;
- 		if (allow_utime & MAY_WRITE)
- 			return 1;
-@@ -477,11 +478,11 @@ int fat_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
- 	/* Check for setting the inode time. */
- 	ia_valid = attr->ia_valid;
- 	if (ia_valid & TIMES_SET_FLAGS) {
--		if (fat_allow_set_time(sbi, inode))
-+		if (fat_allow_set_time(mnt_userns, sbi, inode))
- 			attr->ia_valid &= ~TIMES_SET_FLAGS;
- 	}
- 
--	error = setattr_prepare(&init_user_ns, dentry, attr);
-+	error = setattr_prepare(mnt_userns, dentry, attr);
- 	attr->ia_valid = ia_valid;
- 	if (error) {
- 		if (sbi->options.quiet)
-@@ -551,7 +552,7 @@ int fat_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
- 		fat_truncate_time(inode, &attr->ia_mtime, S_MTIME);
- 	attr->ia_valid &= ~(ATTR_ATIME|ATTR_CTIME|ATTR_MTIME);
- 
--	setattr_copy(&init_user_ns, inode, attr);
-+	setattr_copy(mnt_userns, inode, attr);
- 	mark_inode_dirty(inode);
- out:
- 	return error;
-diff --git a/fs/fat/namei_msdos.c b/fs/fat/namei_msdos.c
-index a8f3375d9d10..efba301d68ae 100644
---- a/fs/fat/namei_msdos.c
-+++ b/fs/fat/namei_msdos.c
-@@ -667,7 +667,7 @@ static struct file_system_type msdos_fs_type = {
- 	.name		= "msdos",
- 	.mount		= msdos_mount,
- 	.kill_sb	= kill_block_super,
--	.fs_flags	= FS_REQUIRES_DEV,
-+	.fs_flags	= FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
- };
- MODULE_ALIAS_FS("msdos");
- 
-diff --git a/fs/fat/namei_vfat.c b/fs/fat/namei_vfat.c
-index 23936ecf79a5..5369d82e0bfb 100644
---- a/fs/fat/namei_vfat.c
-+++ b/fs/fat/namei_vfat.c
-@@ -1063,7 +1063,7 @@ static struct file_system_type vfat_fs_type = {
- 	.name		= "vfat",
- 	.mount		= vfat_mount,
- 	.kill_sb	= kill_block_super,
--	.fs_flags	= FS_REQUIRES_DEV,
-+	.fs_flags	= FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
- };
- MODULE_ALIAS_FS("vfat");
- 
 -- 
-2.29.2
-
+paul moore
+www.paul-moore.com
