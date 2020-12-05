@@ -4,122 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3F8DC433FE
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 23:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CC8DC18E57
+	for <selinux@archiver.kernel.org>; Sat,  5 Dec 2020 19:20:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BA2E224BE
-	for <selinux@archiver.kernel.org>; Fri,  4 Dec 2020 23:23:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 54BB523110
+	for <selinux@archiver.kernel.org>; Sat,  5 Dec 2020 19:20:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726158AbgLDXXL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Dec 2020 18:23:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35324 "EHLO
+        id S1725960AbgLETUM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 5 Dec 2020 14:20:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726111AbgLDXXK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Dec 2020 18:23:10 -0500
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8DB9C061A4F
-        for <selinux@vger.kernel.org>; Fri,  4 Dec 2020 15:22:24 -0800 (PST)
-Received: by mail-ej1-x641.google.com with SMTP id bo9so10988179ejb.13
-        for <selinux@vger.kernel.org>; Fri, 04 Dec 2020 15:22:24 -0800 (PST)
+        with ESMTP id S1727213AbgLETUJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 5 Dec 2020 14:20:09 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF718C0613D1
+        for <selinux@vger.kernel.org>; Sat,  5 Dec 2020 11:19:26 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id a3so9952378wmb.5
+        for <selinux@vger.kernel.org>; Sat, 05 Dec 2020 11:19:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rlS3C6WuGwoBn7IObI4+YTjRX0/xv/TM3dmDMkafGlw=;
-        b=FPM0PRzrYdMcK1zg3P9Wu0xJvL3z6vDGp5YNtp5fKJcuOddtsm8WOeC20JJzhSLaNH
-         D+NNNWLUVM0BGkeeQUTlPd9v/oNB+bLWeOnTZWgvGe9Htk0ALBY4cHazx1MTEkIJ/rLB
-         BYWt5/wuiXK9XlgUlUeKcjC9ypilxegwkbP/GF0E2sWNGea+rX7twJyOexEYi1/nWukW
-         WU9nEjec6CNEgQnbnTmpqwxjOLDQPMvVpBKPkVmjWEjp7ldxtmTL50hdIxpis822zyCN
-         koujM6BUbbzVfM+5k3XwkkU+gtMj/uD5fbLwBolQDCjFNddqfw5CYMDQOBiIbA+uYJ5y
-         yU7A==
+        d=mvista-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=vKYNJyYVXyF+nBGPgTZpNTlAvnr8n0UKXsJiKrwDjwg=;
+        b=VaTAeXQawjlBUiDqEpCEbwU3QJ4Vi+Dbxk2+KB8PcFkQIj990SEDBdTbuArp2uCbt6
+         S4PBFP/3TyE/p9ZSHHs1suWac4uTOMqEheFmbL5zWHWd39nGi6usYW/MfVKfntsvT915
+         f/ZH6sECfX+OHUYNA4INVfdV6rIT5g58saa4bwhl0raBAfEW9d6ESg7DQToYYl2IKvlT
+         nGYPBFqauVpQ+QMDBt7A6wJLwcpIp18SuWaKQmPJvfKhAXWSckv5uMR5pGK9vqEmGCmE
+         /hy+9tC4up6GYQVPpQaAaGVd1aY/6qreIT4Kh64/FtaOr+Y6Jr4Jj5UIgZLff1lfsrjt
+         Y3ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rlS3C6WuGwoBn7IObI4+YTjRX0/xv/TM3dmDMkafGlw=;
-        b=lygBpnaTGaWayEqK28BaExfcReVhc9gb1zBOWf2UlN7JEeXEt46PWT+CBH1IEPCpae
-         kFe+LI6F5pD2PJ8Zp8q94BZgVHsj4Um/eKb4OOSkC5OEjxauQ3YZDRpuog0jv6VAGvJF
-         hHRy48jnhScBMgzAdZuVS+UUVeiXZj6WIwjzmrQ2fkXdWYC49i/bYWT+u8kh81fixlkT
-         KHCiVOw2+VuyahRn/cVTem6UUlhQopPNunvc9/nGK27md8SBux8oSY/G3lX3ZQYVbpy9
-         MsJN9p1xdEYneXt5yP6d4zHR/Xdd7M9DSpJMcVv4O/Q/vTPrtwS+ZOMzu7Fv6y7he7Q9
-         6I7A==
-X-Gm-Message-State: AOAM533pEtd4ZJjEm65qmagJ3i/Lr5i1/m9MRE1+tUV5RlTV0p/VYSfU
-        QG9iO4LkguX6FkJgQzdu0EOV9PJsMYk9FCYWttwu
-X-Google-Smtp-Source: ABdhPJyralX6EO3PtSqy1eB+Kk4U1fsGsLAzxcLe/3O1w/Nv5j7MlLXXrZ+NiPUhiLtwFqNVy3lBR1szM+0ofdHR8rw=
-X-Received: by 2002:a17:906:46d6:: with SMTP id k22mr9222051ejs.542.1607124143374;
- Fri, 04 Dec 2020 15:22:23 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=vKYNJyYVXyF+nBGPgTZpNTlAvnr8n0UKXsJiKrwDjwg=;
+        b=L4AJMM/7Wwq5zEM/ZDPvGmLlucjYVqrbcgIfYwDgmvubfuOMb2pfaVOxHiUuE6jNuo
+         wKIbs1nBeOvXwlVrUln/8PJiWyGjSnHiedQ8yBfbax4AUy9OgvHv0L5GgaPkO+kudGzM
+         BZ1SJfa1OmDQj2iK9GO8xWRb9l9wzzHBHlXKnKIgJ4HFtgqbkqQFnvReRwlYFaz7lVMT
+         myF5C6+PUS1bNtjbAiujJwhRX+tNvbDe/+awMRhowsKDMFmvUGTbafS6TWB8SH5Cpi1H
+         +55ir5F59+YSmMDnuYTAnzHysIJcdUBc/oUKbr2nUBPzbQjQWqowJCrkvVdfxMWMYisr
+         vRXA==
+X-Gm-Message-State: AOAM5323cAAoq0YkkhfXfwdnBMq4pTuyXfWdBP923I9bjL8k0Uhbe3A1
+        frdgyTMf+lIxwXlKMshh+3DrLUhhmPBpfDr8+UnY5w==
+X-Google-Smtp-Source: ABdhPJzn9iQwsxL40pE/JEeO6iswAwY/4UokEX+VVT5nm7f9dQsDMsciOEGlIKQ4SAO6CoVJQZEmiNqjnIx42WgBWqA=
+X-Received: by 2002:a1c:e342:: with SMTP id a63mr10756072wmh.64.1607195965308;
+ Sat, 05 Dec 2020 11:19:25 -0800 (PST)
 MIME-Version: 1.0
-References: <3336b397dda1d15ee9fb87107f9cc21a5d1fe510.1606904940.git.pabeni@redhat.com>
- <3a5f156da4569957b91bb5aa4d2a316b729a2c69.camel@redhat.com>
- <539f376-62c2-dbe7-fbfd-6dc7a53eafa@linux.intel.com> <CAHC9VhTVc07P_MhWm7YRF6LXdMRQOcDEKe7SB+fpJJizdKOvEg@mail.gmail.com>
- <20201203235415.GD5710@breakpoint.cc> <CAHC9VhT-rj=tJwVycS19TgJDQ766oUH6ng+Uv=wu+WDrgE0AHA@mail.gmail.com>
- <8c844984eaa92413066367af69b56194b111ad8f.camel@redhat.com>
-In-Reply-To: <8c844984eaa92413066367af69b56194b111ad8f.camel@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 4 Dec 2020 18:22:12 -0500
-Message-ID: <CAHC9VhS9xRSbHMCgDkix0fHYeO=aA_=DVyV1Xdu8qFpggws8Kg@mail.gmail.com>
-Subject: Re: [MPTCP] Re: [RFC PATCH] selinux: handle MPTCP consistently with TCP
-To:     Paolo Abeni <pabeni@redhat.com>
-Cc:     Florian Westphal <fw@strlen.de>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, mptcp@lists.01.org,
-        linux-security-module@vger.kernel.org
+From:   Ashish Mishra <ashishm@mvista.com>
+Date:   Sun, 6 Dec 2020 00:49:14 +0530
+Message-ID: <CAP2OjcjCFYiyMfqa=X__X6g0U0143U5Fd-xGaKJgGNabFUpr7w@mail.gmail.com>
+Subject: How is policy.31 created from modules under /usr/share/selinux
+To:     selinux-refpolicy@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 4, 2020 at 5:04 AM Paolo Abeni <pabeni@redhat.com> wrote:
->
-> On Thu, 2020-12-03 at 21:24 -0500, Paul Moore wrote:
-> > On Thu, Dec 3, 2020 at 6:54 PM Florian Westphal <fw@strlen.de> wrote:
-> > > Paul Moore <paul@paul-moore.com> wrote:
-> > > > I'm not very well versed in MPTCP, but this *seems* okay to me, minus
-> > > > the else-crud chunk.  Just to confirm my understanding, while MPTCP
-> > > > allows one TCP connection/stream to be subdivided and distributed
-> > > > across multiple interfaces, it does not allow multiple TCP streams to
-> > > > be multiplexed on a single connection, yes?
-> > >
-> > > Its the latter.  The application sees a TCP interface (socket), but
-> > > data may be carried over multiple individual tcp streams on the wire.
-> >
-> > Hmm, that may complicate things a bit from a SELinux perspective.  Maybe not.
-> >
-> > Just to make sure I understand, with MPTCP, a client that
-> > traditionally opened multiple TCP sockets to talk to a server would
-> > now just open a single MPTCP socket and create multiple sub-flows
-> > instead of multiple TCP sockets?
->
-> I expect most clients will not be updated specifically for MPTCP,
-> except changing the protocol number at socket creation time - and we
-> would like to avoid even that.
->
-> If a given application creates multiple sockets, it will still do that
-> with MPTCP. The kernel, according to the configuration provided by the
-> user-space and/or by the peer, may try to create additional subflows
-> for each MPTCP sockets, using different local or remote address and/or
-> port number. Each subflow is represented inside the kernel as a TCP
-> 'struct sock' with specific ULP operations. No related 'struct socket'
-> is exposed to user-space.
+Hi All  ,
 
-Hmm, okay, there are probably a few other things we need to worry
-about then from a SELinux point of view.  Smack may be okay since it
-largely ignores sockets as a security entity, but Casey would be the
-one to comment on that.  I'm not certain of the current AppArmor
-network controls, or the other LSMs for that matter, but they should
-be seeing this conversation on the LSM list so I assume they will
-comment as necessary.
+Good Morning .
 
-For SELinux the issue is that we need to track state in the sock
-struct, via sock->sk_security, and that state needs to be initialized
-and set properly.  Similarly with TCP request_sock structs, via
-request_sock->{secid,peer_secid}.  Is the MPTCP code allocating and/or
-otherwise creating socks or request_socks outside of the regular TCP
-code?  We would also be concerned about socket structs, but I'm
-guessing that code reuses the TCP code based on what you've said.
+I am following the SELINUX NOTEBOOK & trying the same at my end .
 
--- 
-paul moore
-www.paul-moore.com
+- The refpolicy modules are copied at /usr/share/selinux/refpolicy
+   i can see around 400+ modules there .
+   But can senior member' s please help me understand how is the
+   /etc/selinux/refpolicy/policy/policy.31  created using the modules
+available at
+   /usr/share/selinux
+   The command i followed :
+                $ make install-src
+                $ make conf
+                $ make load ( tried even $ make install )
+                $ make install-headers
+
+
+- This can help me to debug an issue where i am trying to get selinux
+of my custom
+   distro where all the make command are successfully executed but the policy.31
+   is not getting created
+
+- I can even see the "include" folder also getting created for make
+install-headers
+
+Any pointers will be helpful or please let me know if i am missing any
+aspect here .
+
+Thanks ,
+Ashish.
