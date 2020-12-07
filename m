@@ -2,88 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAA93C433FE
-	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 15:04:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 773A7C4167B
+	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 16:43:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA3022370D
-	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 15:04:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 448762311A
+	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 16:43:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726188AbgLGPES (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Dec 2020 10:04:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45566 "EHLO
+        id S1726311AbgLGQnv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Dec 2020 11:43:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726168AbgLGPER (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Dec 2020 10:04:17 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971B5C061749
-        for <selinux@vger.kernel.org>; Mon,  7 Dec 2020 07:03:37 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id ce23so16153273ejb.8
-        for <selinux@vger.kernel.org>; Mon, 07 Dec 2020 07:03:37 -0800 (PST)
+        with ESMTP id S1725804AbgLGQnv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Dec 2020 11:43:51 -0500
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BF63C061749
+        for <selinux@vger.kernel.org>; Mon,  7 Dec 2020 08:43:05 -0800 (PST)
+Received: by mail-io1-xd43.google.com with SMTP id n14so13951912iom.10
+        for <selinux@vger.kernel.org>; Mon, 07 Dec 2020 08:43:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=sw02Dy25bVTZMqo426eOWHJpQFWJD8iTVZElrwNth1A=;
-        b=0d0OYXKaMna1TMn8AsjbJFpOuRKs2wuj+mYl+mjxSmCthJ7ZnVkE0Pl6UvB0C7HaSl
-         yEgYZs4udV3PYJFjnqD2padRsLWdjk22mr92kDI5BJkAuWrG1x2Ohu7rWEYoGILkEPUD
-         Hbe86IUuchEXuPq/nExTrq9DcExA/qxb6xXVu7ACWYs8Ty8FA6aupaDEooxnwLhkmogU
-         p1ct3d71qLSnz1x9Prsxazs5RWW3uZhQ/XeTyl3Ox3NRCIaaAT8gzXNR2E9BxmeqyePu
-         9p6iWCteoK1c8ie/3Q4jcA094dPpOuQdqmYEf2p9mJk2Ul6Z9m7hSl+a3YzrX55/R1/O
-         LEBw==
+        bh=kVGuEIn8WFe5tmS+wzm0IqaGhW13ZoXbGbbqgqYEA6Q=;
+        b=kcClUcLLUTNIecUmT4B3UIyeIA3+lO5FgWmlYXMkoZk/uK8CBarv6py6KPWeqy0svW
+         cTLuiu5/E9VbljLk5m8NsR35qYnwHva03/G82A3xqcPX78w52MVQ/48qbD2wSqMn0/Lg
+         2eaKOZFLDdbJ9+1PnjLBSmlP6tzx+LdWsiFwLaq5q7N52Ex1dp5EQIKoDdsmxEnPrGsN
+         M4HZS5DrYpDUuLNg6AWljRFqcwNP0EnTebJ3iWoAJV4WTQ6JhNDgaHFtP+5nreE998j4
+         RkyTiyP4PqIr6MbaKqC1WLguNgYaFza+T0IWLkW0Xvj5NXi+wW77aLBEcJbNgIyPgBW1
+         k56w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=sw02Dy25bVTZMqo426eOWHJpQFWJD8iTVZElrwNth1A=;
-        b=o/e8nycNKw7hUItZMJZH9Yg08Etq5sibrFT/tzAOH4Y8LfY2OJnGbrSvlxN1DW8IgU
-         KLg05ofY0cofeamLn7RU39wFLo+sTiO+2u3tE4xZSoyDuK/GVYZo2C+n3AynjVpKEKpV
-         6WoLirC8p9nlBLXFBsMXW0twHIptZ8bIzDqL/ykVsLoZwORaDLYRSxkkM9shERBTPrU1
-         YUE5mHxbfD2uZGNvPEK5M4twG5HON+Gp46VbzccbzxgqXy+0hGlj0ZnMaKdjpqfrQA4+
-         hxvaD+iW/qf9xI0CfOv8jL7eFJeam/x96xkpZ72gbymam0RIYyAgtVOwbxLMd6yl9Rpt
-         1usw==
-X-Gm-Message-State: AOAM5329i1Re99lBmB+htLwMot9v02CdwSAocLntXmF9AZb0YZ5g3Vtz
-        ch2ALD2VbU7uW0mx850F2BGDCsNW9lYWaJPMhAgw
-X-Google-Smtp-Source: ABdhPJxRXdktnw0irJF6W/feEakltKbeSKb03fLwBrTuCFFsjhrwNEhAg+oT35yDWddB8ytrwPluob8eGhYjcDUGqtM=
-X-Received: by 2002:a17:906:3b4d:: with SMTP id h13mr18992642ejf.289.1607353416031;
- Mon, 07 Dec 2020 07:03:36 -0800 (PST)
+        bh=kVGuEIn8WFe5tmS+wzm0IqaGhW13ZoXbGbbqgqYEA6Q=;
+        b=k/A0vtHmASWC35bWhW1/ozBknhBl6nMlkuMDrP/D6YWsUtXDmBcr5Dn4WTCLokY/7z
+         yczIXvMws0mP5HUFCrbIg08d2DqhE/nXTPZNhuoRAyBKWYtnbsHwydwor08Nn8mJGCqj
+         w36HxcMraLV6qlks+oG/gZbTy3lm8Yjd+9vIBVkSLWDP2FSe/lSBKqaJkrNibVEzM4uA
+         AnqzYXpKVODmWxcUv+j2wnHUnUpMJ1whlgeEB/qf+gNdTT69IiCCwjIQ2NWMe6dmMGvK
+         NaBOLTUoJmr/5nmlRBkwcIIenBqhVfUbJrefRIfM4Weg4FTAZa88v2oqs9+WZVlaivLb
+         uezg==
+X-Gm-Message-State: AOAM532+LuVjGG08xJ72z4FVRdjBn+nZRBJlLQfMUJeyQ+35VRdjbEb7
+        Qk5w+rXMpjyWipAFc1jh97fhP4Avh2IFHKW9c2Qt8gFWbU4=
+X-Google-Smtp-Source: ABdhPJz93wmSHS7VVqT8E3nRmfESeDyGhiLCRtDP8QPSBzfA27OJrzA233zad65HYExIc9cLlutdGysrKCp/9qjoiMg=
+X-Received: by 2002:a6b:8b4c:: with SMTP id n73mr7505043iod.143.1607359384578;
+ Mon, 07 Dec 2020 08:43:04 -0800 (PST)
 MIME-Version: 1.0
-References: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 7 Dec 2020 10:03:24 -0500
-Message-ID: <CAHC9VhRCu5W4YOzcidUhv7biVc+a4QrRknVn-57YVSM3vWZH+Q@mail.gmail.com>
-Subject: Re: virtiofs and its optional xattr support vs. fs_use_xattr
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Daniel Walsh <dwalsh@redhat.com>,
-        Zdenek Pytela <zpytela@redhat.com>
+References: <20201206225625.3077530-1-nicolas.iooss@m4x.org> <20201206225625.3077530-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20201206225625.3077530-2-nicolas.iooss@m4x.org>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Mon, 7 Dec 2020 10:42:53 -0600
+Message-ID: <CAFftDdr+EYfx50vhV2LmSy0v=0-GH=DjR0ecE+utBOGGMGRDEw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] GitHub Actions: drop Ruby 2.4 from matrix
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 7, 2020 at 9:43 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Sun, Dec 6, 2020 at 4:59 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> Hi everyone,
+> When migrating to Ubuntu 20.04, Ruby 2.4 is no longer available. As the
+> migration of "ubuntu-latest" to Ubuntu 20.04 is coming soon, according
+> to https://github.com/actions/virtual-environments/issues/1816, remove
+> it now.
 >
-> In [1] we ran into a problem with the current handling of filesystem
-> labeling rules. Basically, it is only possible to specify either
-> genfscon or fs_use_xattr for a given filesystem, but in the case of
-> virtiofs, certain mounts may support security xattrs, while other ones
-> may not.
+> Moreover the support of Ruby 2.4 ended a few months ago, so there is no
+> point at supporting bindings (and testing them) for this version:
+> https://www.ruby-lang.org/en/news/2020/04/05/support-of-ruby-2-4-has-ended/
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>
+> I hit this on https://github.com/fishilico/selinux/runs/1507627386?check_suite_focus=true
+> and the fix is simple.
+> I would like to keep using ubuntu-latest image in order to benefit from
+> automatic "LTS upgrade" when they become available. I find it better
+> than having to update the Ubuntu version by hand (like was done for the
+> Travis-CI configuration), because maintainers do not have to remember
+> to update the configuration file for GitHub Actions.
+>
+> If you prefer using fixed Ubuntu versions (or even several Ubuntu
+> versions!), the configuration can be modified accordingly.
+>
+>  .github/workflows/run_tests.yml | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
+> index d889b5d55604..ef4be8afc02f 100644
+> --- a/.github/workflows/run_tests.yml
+> +++ b/.github/workflows/run_tests.yml
+> @@ -24,7 +24,6 @@ jobs:
+>            # Test several Ruby versions with the latest Python version
+>            - {python: 3.9, ruby: 2.6}
+>            - {python: 3.9, ruby: 2.5}
+> -          - {python: 3.9, ruby: 2.4}
+>          exclude:
+>            - compiler: clang
+>              python-ruby-version: {python: 3.9, ruby: 2.7, other: linker-bfd}
+> --
+> 2.29.2
+>
 
-Quickly skimming the linked GH issue, it appears that the problem
-really lies in the fact that virtiofs allows one to enable/disable
-xattrs at mount time.  What isn't clear to me is why one would need to
-disable xattrs, can you explain that use case?  Why does enabling
-xattrs in virtiofs cause problems?
-
--- 
-paul moore
-www.paul-moore.com
+ack
