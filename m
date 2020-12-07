@@ -2,63 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47952C4361B
-	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 14:44:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAA93C433FE
+	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 15:04:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14F9323372
-	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 14:44:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA3022370D
+	for <selinux@archiver.kernel.org>; Mon,  7 Dec 2020 15:04:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725772AbgLGOog (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Dec 2020 09:44:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21951 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725804AbgLGOog (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Dec 2020 09:44:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607352189;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=VjXd09VYmbE4d0LNTmaeKQ/DhBdnWs2YOaxPT936BQM=;
-        b=ATQZVSJ9JavkmPzDI3vfN3fRuuDkUltBSHyNuZnbWakbesPelRMVChFQdo2UPhT/UabaKx
-        7uWhIuaKrLIP1jUlXn2g6H2bRLxtv2C/XqZIxHBWiv9DJiF4NwOtvdAGaCShPotxleCsHA
-        ahGj5KsL6MvKqHFjUVsXonbLeUK0LCA=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-392-tN864yulPia10zGyCTAn9Q-1; Mon, 07 Dec 2020 09:43:06 -0500
-X-MC-Unique: tN864yulPia10zGyCTAn9Q-1
-Received: by mail-lf1-f69.google.com with SMTP id 74so2856052lfg.20
-        for <selinux@vger.kernel.org>; Mon, 07 Dec 2020 06:43:06 -0800 (PST)
+        id S1726188AbgLGPES (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Dec 2020 10:04:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45566 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726168AbgLGPER (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Dec 2020 10:04:17 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971B5C061749
+        for <selinux@vger.kernel.org>; Mon,  7 Dec 2020 07:03:37 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id ce23so16153273ejb.8
+        for <selinux@vger.kernel.org>; Mon, 07 Dec 2020 07:03:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sw02Dy25bVTZMqo426eOWHJpQFWJD8iTVZElrwNth1A=;
+        b=0d0OYXKaMna1TMn8AsjbJFpOuRKs2wuj+mYl+mjxSmCthJ7ZnVkE0Pl6UvB0C7HaSl
+         yEgYZs4udV3PYJFjnqD2padRsLWdjk22mr92kDI5BJkAuWrG1x2Ohu7rWEYoGILkEPUD
+         Hbe86IUuchEXuPq/nExTrq9DcExA/qxb6xXVu7ACWYs8Ty8FA6aupaDEooxnwLhkmogU
+         p1ct3d71qLSnz1x9Prsxazs5RWW3uZhQ/XeTyl3Ox3NRCIaaAT8gzXNR2E9BxmeqyePu
+         9p6iWCteoK1c8ie/3Q4jcA094dPpOuQdqmYEf2p9mJk2Ul6Z9m7hSl+a3YzrX55/R1/O
+         LEBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=VjXd09VYmbE4d0LNTmaeKQ/DhBdnWs2YOaxPT936BQM=;
-        b=OqetSl6eFAdnfhHbwS9LzeoZ6vJYhxrEbzh7gcwU16G5NmJO7E+4DG685WMM3j3lRB
-         z8jXG42hYesJW4y7VfWGdkUW8F+Im7yHBZcHUJpmob0LvmkJwZqj+ugXwB+W7wbcPzO9
-         HrzBv/yI1JE8jnrbxW/2ik9SVW2wbLdtF9Mv5yFBxn9GWXGDWPM97bUDZUc0sNl7Jpf6
-         hmGZdPPhHKK2V7Ma/90iJ5KfPbPcktwr2Do/RMKyXKwqR7pBtS4CkiqX88FUuQo4GSbx
-         ud4eEgC1w/L2HKkEYnTHP8RHEZGISKDu1jyn5P2TT2ydc42qdgcT+jBbclvlU98R8LMm
-         LU6g==
-X-Gm-Message-State: AOAM531iTj69xOwaJPyyhasgM1eOh9KlSZBHygH/QV6fRYLb/Q9Nt1Y6
-        c/+oLxtl4hAQHJN/jASgTqN9W3KIvQQHq9H+O85R5ClIEv9y0zb88n1Iz4o52uiEyOHZVjxFlWs
-        E0/8RhfXm2YbiIEzD0BS06NqhsInltQ4P7w==
-X-Received: by 2002:a2e:94d0:: with SMTP id r16mr3401750ljh.123.1607352184415;
-        Mon, 07 Dec 2020 06:43:04 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJznhM+sqkZZXGGLO4UDwJOXUvjz50Zr8HlmbHWnoKEVQ8CduevM7RMdG+S7SqqRmeyHGxLZaSINSLNDBlL5Ywo=
-X-Received: by 2002:a2e:94d0:: with SMTP id r16mr3401740ljh.123.1607352184224;
- Mon, 07 Dec 2020 06:43:04 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sw02Dy25bVTZMqo426eOWHJpQFWJD8iTVZElrwNth1A=;
+        b=o/e8nycNKw7hUItZMJZH9Yg08Etq5sibrFT/tzAOH4Y8LfY2OJnGbrSvlxN1DW8IgU
+         KLg05ofY0cofeamLn7RU39wFLo+sTiO+2u3tE4xZSoyDuK/GVYZo2C+n3AynjVpKEKpV
+         6WoLirC8p9nlBLXFBsMXW0twHIptZ8bIzDqL/ykVsLoZwORaDLYRSxkkM9shERBTPrU1
+         YUE5mHxbfD2uZGNvPEK5M4twG5HON+Gp46VbzccbzxgqXy+0hGlj0ZnMaKdjpqfrQA4+
+         hxvaD+iW/qf9xI0CfOv8jL7eFJeam/x96xkpZ72gbymam0RIYyAgtVOwbxLMd6yl9Rpt
+         1usw==
+X-Gm-Message-State: AOAM5329i1Re99lBmB+htLwMot9v02CdwSAocLntXmF9AZb0YZ5g3Vtz
+        ch2ALD2VbU7uW0mx850F2BGDCsNW9lYWaJPMhAgw
+X-Google-Smtp-Source: ABdhPJxRXdktnw0irJF6W/feEakltKbeSKb03fLwBrTuCFFsjhrwNEhAg+oT35yDWddB8ytrwPluob8eGhYjcDUGqtM=
+X-Received: by 2002:a17:906:3b4d:: with SMTP id h13mr18992642ejf.289.1607353416031;
+ Mon, 07 Dec 2020 07:03:36 -0800 (PST)
 MIME-Version: 1.0
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 7 Dec 2020 15:42:53 +0100
-Message-ID: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
-Subject: virtiofs and its optional xattr support vs. fs_use_xattr
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
+References: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 7 Dec 2020 10:03:24 -0500
+Message-ID: <CAHC9VhRCu5W4YOzcidUhv7biVc+a4QrRknVn-57YVSM3vWZH+Q@mail.gmail.com>
+Subject: Re: virtiofs and its optional xattr support vs. fs_use_xattr
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
         Vivek Goyal <vgoyal@redhat.com>,
         Daniel Walsh <dwalsh@redhat.com>,
         Zdenek Pytela <zpytela@redhat.com>
@@ -67,41 +68,22 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi everyone,
+On Mon, Dec 7, 2020 at 9:43 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> Hi everyone,
+>
+> In [1] we ran into a problem with the current handling of filesystem
+> labeling rules. Basically, it is only possible to specify either
+> genfscon or fs_use_xattr for a given filesystem, but in the case of
+> virtiofs, certain mounts may support security xattrs, while other ones
+> may not.
 
-In [1] we ran into a problem with the current handling of filesystem
-labeling rules. Basically, it is only possible to specify either
-genfscon or fs_use_xattr for a given filesystem, but in the case of
-virtiofs, certain mounts may support security xattrs, while other ones
-may not.
+Quickly skimming the linked GH issue, it appears that the problem
+really lies in the fact that virtiofs allows one to enable/disable
+xattrs at mount time.  What isn't clear to me is why one would need to
+disable xattrs, can you explain that use case?  Why does enabling
+xattrs in virtiofs cause problems?
 
-So we can't use the xattr support by adding fs_use_xattr virtiofs
-(...); to the policy, because then a non-xattr mount will fail
-(SELinux does a mount-time check on the root inode to make sure that
-the xattr handler works), but we also don't want to stay on genfscon,
-because then we can't relabel files.
-
-So my question is how to best address this? One option is to use a
-similar "hack" as for cgroupfs; i.e. do a kind of mixed genfs-xattr
-labeling, but that's ugly and requires hard-coding another FS name in
-the selinux code. The only other alternative I could come up with is
-to add a new FS labeling statement that would specify some kind of
-mixed genfscon / fs_use_xattr behavior. That would be a better
-long-term solution, but leads to more questions on how such statement
-should actually work... Should it work the cgroupfs way, giving a
-default label to everything and allowing to set/change labels via
-xattrs? Or should it rather just detect xattrs support and switch
-between SECURITY_FS_USE_XATTR and SECURITY_FS_USE_GENFS behavior based
-on that? In the latter case, should the statement specify two contexts
-(one for fs_use_xattr and another one for genfscon) or just one for
-both behaviors?
-
-Any thoughts/pointers welcome.
-
-[1] https://github.com/fedora-selinux/selinux-policy/pull/478
-
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+-- 
+paul moore
+www.paul-moore.com
