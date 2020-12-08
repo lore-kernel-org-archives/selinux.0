@@ -2,79 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E515DC4361B
-	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:06:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C79BC433FE
+	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:14:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4E0723A6C
-	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:06:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D19EC23A79
+	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:14:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbgLHPGK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Dec 2020 10:06:10 -0500
-Received: from verein.lst.de ([213.95.11.211]:46580 "EHLO verein.lst.de"
+        id S1727925AbgLHPO3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Dec 2020 10:14:29 -0500
+Received: from agnus.defensec.nl ([80.100.19.56]:59974 "EHLO agnus.defensec.nl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729471AbgLHPGJ (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 8 Dec 2020 10:06:09 -0500
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 64C856736F; Tue,  8 Dec 2020 16:05:21 +0100 (CET)
-Date:   Tue, 8 Dec 2020 16:05:20 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        id S1729969AbgLHPO3 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 8 Dec 2020 10:14:29 -0500
+X-Greylist: delayed 64250 seconds by postgrey-1.27 at vger.kernel.org; Tue, 08 Dec 2020 10:14:28 EST
+Received: from brutus (brutus.defensec.nl [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id EF6592A0065;
+        Tue,  8 Dec 2020 16:13:44 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl EF6592A0065
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1607440426;
+        bh=K9UZuythnB4Eq8VtzwtQoKqxBsOKQFGPrw1fCgRhxh8=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=dwUUet1Gxo5sR6XgiyYyZCnQLPLCYVuHmSol9W0eOxwuTpMGAwIg1m1gK9tgK8d75
+         sQAOjPiAjq9IVZ0Rr6Yv0zQKdYkOvqHWvLcAKC1ZA0Eb0n/XblLfISgy+9vTnP0Teb
+         gWj1Q5DJWbMLdJC6Stq9RArhNCgLz0modBqPphoo=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH v4 06/40] fs: add mount_setattr()
-Message-ID: <20201208150520.GA8252@lst.de>
-References: <20201203235736.3528991-1-christian.brauner@ubuntu.com> <20201203235736.3528991-7-christian.brauner@ubuntu.com> <20201207171456.GC13614@lst.de> <20201208103707.px6buexwuusn6d3f@wittgenstein>
+        Daniel Walsh <dwalsh@redhat.com>,
+        Zdenek Pytela <zpytela@redhat.com>,
+        virtio-fs-list <virtio-fs@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: Re: virtiofs and its optional xattr support vs. fs_use_xattr
+References: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
+        <CAHC9VhRCu5W4YOzcidUhv7biVc+a4QrRknVn-57YVSM3vWZH+Q@mail.gmail.com>
+        <20201207205209.GD3107@redhat.com> <ypjlczzlmhus.fsf@defensec.nl>
+        <20201208143336.GB3212@redhat.com>
+Date:   Tue, 08 Dec 2020 16:13:42 +0100
+In-Reply-To: <20201208143336.GB3212@redhat.com> (Vivek Goyal's message of
+        "Tue, 8 Dec 2020 09:33:36 -0500")
+Message-ID: <ypjl8sa8miu1.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201208103707.px6buexwuusn6d3f@wittgenstein>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 08, 2020 at 11:37:07AM +0100, Christian Brauner wrote:
-> You want a v5 with the changes you requested before you continue
-> reviewing? Otherwise I'll just let you go through v4.
+Vivek Goyal <vgoyal@redhat.com> writes:
 
-I don't think it is worth resending so quickly.  We're not going to
-make 5.11 for this series anyway.
+> On Mon, Dec 07, 2020 at 10:22:35PM +0100, Dominick Grift wrote:
+>> Vivek Goyal <vgoyal@redhat.com> writes:
+>> 
+>> > On Mon, Dec 07, 2020 at 10:03:24AM -0500, Paul Moore wrote:
+>> >> On Mon, Dec 7, 2020 at 9:43 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>> >> >
+>> >> > Hi everyone,
+>> >> >
+>> >> > In [1] we ran into a problem with the current handling of filesystem
+>> >> > labeling rules. Basically, it is only possible to specify either
+>> >> > genfscon or fs_use_xattr for a given filesystem, but in the case of
+>> >> > virtiofs, certain mounts may support security xattrs, while other ones
+>> >> > may not.
+>> >> 
+>> >
+>> > [ cc virtio-fs list and miklos ]
+>> >> Quickly skimming the linked GH issue, it appears that the problem
+>> >> really lies in the fact that virtiofs allows one to enable/disable
+>> >> xattrs at mount time.  What isn't clear to me is why one would need to
+>> >> disable xattrs, can you explain that use case?  Why does enabling
+>> >> xattrs in virtiofs cause problems?
+>> >
+>> > Its not exactly a mount time option. Its a virtiofs file server option.
+>> >
+>> > xattr support by default is disabled because it has performance
+>> > penalty. Users can enable it if they want to.
+>> 
+>> if SELinux is enabled then you should preferably just use fs_use xattr unconditionally
+>> 
+>> >
+>> > So if virtiofsd starts without xattr support and somebody runs a
+>> > VM with SELinux enabled, they should still be able to mount virtiofs,
+>> > I guess (instead of failing it).
+>> 
+>> SELinux requires that everything is always labeled one way or another
+>> and so if SELinux is enabled one should either use genfscon or fs_use xattr
+>> 
+>> Since is support fs_use xattr that should be the default and if any
+>> would for any reason want to replace that with genfscon then that is
+>> something they have to address (by excluding the fs_use xattr rule and
+>> replacing it with a genfscon rule (not sure why anyone would ever want
+>> that)
+>> 
+>> Gist is that if SELinux is enabled then one of the two should be
+>> present, preferably fs_use xattr (so thats the default).
+>
+> I understand that current state is that one needs to choose either
+> genfscon or fs_use_xattr depending on filesystem type. Will be nice
+> if this was more flexibile.
 
-I plan to add XFS support as a learning exercise, but I'll probably need
-a little more time to get to that.
+>
+> If virtiofsd is running on top of a filesystem which does not support
+> xattr, then also virtiofs mount will fail.
+
+>
+> IOW, with virtiofs both kind of configurations can be easily produed
+> (xattr enabled or disabled). So none of the defaults (genfscon or
+> fs_use_xattr) seems to be ideal.
+>
+> IIUC, policy is assuming that virtiofs will either always support xattr
+> or will not always support xattrs. Which probably is true for many
+> filesystems. But not necessarily in this case. So hard coding one
+> assumption will break other configurations. It will be nice if we there
+> is a way to fix this in policy.
+
+Sorry I think I misunderstood the issue. James Carter's solution sounds
+like the way to go.
+
+Either that or just dont support fs_use xattr and always mount the whole
+location with a context specified from configuration (mount -t virtiofs -o context=).
+
+
+>
+> Thanks
+> Vivek
+>
+
+-- 
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+Dominick Grift
