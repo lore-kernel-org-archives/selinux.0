@@ -2,117 +2,123 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAC83C4167B
-	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:37:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1009BC4361B
+	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:37:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 82B9823A9B
-	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:37:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC38623A7B
+	for <selinux@archiver.kernel.org>; Tue,  8 Dec 2020 15:37:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730066AbgLHPg7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Dec 2020 10:36:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31921 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730084AbgLHPg7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Dec 2020 10:36:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607441733;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fpc5ulSPymtnGLIAKsGuqY9zEvlWjcFpdT/KvjBlxaY=;
-        b=S9ED+OF9PbECG0y+cripL8JpIR2V6wseNm6NheOTiwnxBseITs4tkiqKssKEtTSYUTXnZe
-        FuwJxe6jeq6/6woPISRimhNhelmW1yCSMfGtZjJZeAAlAHW9XSbOsz5lmRf1zQnx3zilQY
-        NomczOnOTX1YiMq6n9H6VKucDiAIzNE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-471-Zp-LDso9MhmVtPgdgKZQag-1; Tue, 08 Dec 2020 10:35:29 -0500
-X-MC-Unique: Zp-LDso9MhmVtPgdgKZQag-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0B2E4A0C2D;
-        Tue,  8 Dec 2020 15:35:15 +0000 (UTC)
-Received: from ovpn-113-218.ams2.redhat.com (ovpn-113-218.ams2.redhat.com [10.36.113.218])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6AA3D100238C;
-        Tue,  8 Dec 2020 15:35:11 +0000 (UTC)
-Message-ID: <08b7534580e1bdb134ba0c2816977836cd446c5d.camel@redhat.com>
-Subject: Re: [MPTCP] Re: [RFC PATCH] selinux: handle MPTCP consistently with
- TCP
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Florian Westphal <fw@strlen.de>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, mptcp@lists.01.org,
-        linux-security-module@vger.kernel.org
-Date:   Tue, 08 Dec 2020 16:35:05 +0100
-In-Reply-To: <CAHC9VhS9xRSbHMCgDkix0fHYeO=aA_=DVyV1Xdu8qFpggws8Kg@mail.gmail.com>
-References: <3336b397dda1d15ee9fb87107f9cc21a5d1fe510.1606904940.git.pabeni@redhat.com>
-         <3a5f156da4569957b91bb5aa4d2a316b729a2c69.camel@redhat.com>
-         <539f376-62c2-dbe7-fbfd-6dc7a53eafa@linux.intel.com>
-         <CAHC9VhTVc07P_MhWm7YRF6LXdMRQOcDEKe7SB+fpJJizdKOvEg@mail.gmail.com>
-         <20201203235415.GD5710@breakpoint.cc>
-         <CAHC9VhT-rj=tJwVycS19TgJDQ766oUH6ng+Uv=wu+WDrgE0AHA@mail.gmail.com>
-         <8c844984eaa92413066367af69b56194b111ad8f.camel@redhat.com>
-         <CAHC9VhS9xRSbHMCgDkix0fHYeO=aA_=DVyV1Xdu8qFpggws8Kg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S1730150AbgLHPhV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Dec 2020 10:37:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730148AbgLHPhV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Dec 2020 10:37:21 -0500
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A921DC0613D6
+        for <selinux@vger.kernel.org>; Tue,  8 Dec 2020 07:36:40 -0800 (PST)
+Received: by mail-qt1-x82c.google.com with SMTP id 7so12203920qtp.1
+        for <selinux@vger.kernel.org>; Tue, 08 Dec 2020 07:36:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=d1l06EzuXi1Z/ejrQbyaJmmkIf7TrkQv6PGe4mdpQIM=;
+        b=KJ3Vui96V3oUtQctr6LZeqjF+gUimkL/U8WIDxixUrpEOo968ShOSKeFeQ/mHHV7aO
+         LktihjF2peiw+69zTG0GTYreuw1SpUweSowo6IjeM4lvCjVfKEGFAtDW2zjio0di+9KE
+         /4PvT+uX9c4if0zKYKiajq+J80dN26eH4qaCQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=d1l06EzuXi1Z/ejrQbyaJmmkIf7TrkQv6PGe4mdpQIM=;
+        b=FL3VVuNTDuRmBScmLdqyGwrqcr3iDmxUY0V0k3ZcMU8ZoVNjRWUs2XN6+EDpykBeNd
+         wUeedjUFDGa6eX16LoJnoe7ZdWCJskCYRqeSf6OdSIuQsyqSoR0KpMFBEpO/imLhCR/o
+         N2ueGglmWmMbAAOd0seatUbmxnLTqxPhmkoYS9+gAj3VyklFiHruUwBEv9HlGYJnosTj
+         z4wtfO+yUORsab/G0tQWD7m5Bvm3qnd8IHQ4cFMjy4Cgd9KIuXZDwPpleikWDGwmGHKy
+         G7Xx/7kzyjHzRKLEHFgDnqVAcXd4FBnLMwQ2waLrONVTMYxBVAhB5AqommoXwJqtiRc1
+         yQ2A==
+X-Gm-Message-State: AOAM533q1TCfM9x7YVbMBOTO85V4MyZ5bjZHX5FVeQVXwEZOQkcp+DU2
+        64dXZTGJqGk5qFGn1iaME5CWIW9ndXW4uQ==
+X-Google-Smtp-Source: ABdhPJzgvTIgIAdBxSbwMmULxl+bc/UmoplJVq3BWAu45uGJO5InvMYcG89UjdeuEkQRR3gCaKMv/w==
+X-Received: by 2002:ac8:877:: with SMTP id x52mr31217761qth.334.1607441799475;
+        Tue, 08 Dec 2020 07:36:39 -0800 (PST)
+Received: from fedora.pebenito.net (pool-96-234-173-17.bltmmd.fios.verizon.net. [96.234.173.17])
+        by smtp.gmail.com with ESMTPSA id y22sm4772822qkj.129.2020.12.08.07.36.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Dec 2020 07:36:38 -0800 (PST)
+Subject: Re: How is policy.31 created from modules under /usr/share/selinux
+To:     Ashish Mishra <ashishm@mvista.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux-refpolicy@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+References: <CAP2OjcjCFYiyMfqa=X__X6g0U0143U5Fd-xGaKJgGNabFUpr7w@mail.gmail.com>
+ <858c9383f7c75e1e39bafaeab6388cd6af902c4f.camel@btinternet.com>
+ <CAP2OjciTWXRsYWw9VtOJGUOGj9B35HMXBHF94O6Qc=csg5=Spw@mail.gmail.com>
+ <e82841a8b652f4b4b697ba1e417fdac56f443adb.camel@btinternet.com>
+ <CAP2OjchJjMo8zMVvHk-_esu-53E0=367yV8cuZtwQwubi7+q=Q@mail.gmail.com>
+ <0b58a502b5036e8b92b274068fbea53ca915992e.camel@btinternet.com>
+ <CAP2Ojcg7DgQsEHJP3TZj=Q9NjZjqb3ugw+D2UYC4qmqt-PcZWw@mail.gmail.com>
+From:   Chris PeBenito <pebenito@ieee.org>
+Message-ID: <2806a33b-87ad-61b1-9143-5a24d770a180@ieee.org>
+Date:   Tue, 8 Dec 2020 10:36:37 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
+In-Reply-To: <CAP2Ojcg7DgQsEHJP3TZj=Q9NjZjqb3ugw+D2UYC4qmqt-PcZWw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+(SELinux main mail list to BCC since this is a refpolicy question.)
 
-I'm sorry for the latency, I'll have limited internet access till
-tomorrow.
+On 12/7/20 8:26 AM, Ashish Mishra wrote:
+>   4)  Further debugging I can confirm that the final binary (policy.31)
+> seems to be
+>        using HARD-CODDED location of /etc/selinux instead of what is
+> being passed as DESTDIR.
+>       The policy.31 is created not at custom-embedded-rootfs location.
+> 
+>        Due to this :
+>          - policy.31 is created in /etc/selinux/refpolicy/policy/policy.31
+>            instead of what i was expecting at
+> /tmp/custom-embedded-rootfs/etc/selinux/refpolicy/policy/policy.31
+>            as DESTDIR=${ROOT}  and i do get *.pp at the expected
+> location of /tmp/custom-embedded-rootfs/etc/selinux/refpolicy/src/policy
+>                   ${MAKE} -C ${ROOT}/etc/selinux/${PKG}/src/policy load
+> DESTDIR=${ROOT}
 
-On Fri, 2020-12-04 at 18:22 -0500, Paul Moore wrote:
-> For SELinux the issue is that we need to track state in the sock
-> struct, via sock->sk_security, and that state needs to be initialized
-> and set properly. 
 
-As far as I can see, for regular sockets, sk_security is allocated via:
+I can't reproduce your issue.  I use monolithic policy regularly in the way 
+you're using it.
 
-- sk_prot_alloc() -> security_sk_alloc() for client/listener sockets
-- sk_clone_lock() -> sock_copy() for server sockets
+Here's the Makefile variables:
 
-MPTCP uses the above helpers, sk_security should be initialized
-properly.
+ From Makefile:
+   topdir := $(DESTDIR)/etc/selinux
+   installdir := $(topdir)/$(strip $(NAME))
+   policypath := $(installdir)/policy
 
-MPTCP goes through an additional sk_prot_alloc() for each subflow, so
-each of them will get it's own independent context. The subflows are
-not exposed to any syscall (accept()/recvmsg()/sendmsg()/poll()/...),
-so I guess selinux will mostly ignored them right?
+ From Rules.monolithic:
+   loadpath = $(policypath)/$(notdir $(polver))
 
-The kernel will pick some of them to actually send the data, and, on
-the receive side, will move the data from the subflows into the user-
-space visible mptcp socket.
+$(notdir $(polver)) is "policy.31" and NAME is what you have in build.conf, e.g. 
+"refopolicy".
 
->  Similarly with TCP request_sock structs, via
-> request_sock->{secid,peer_secid}.  Is the MPTCP code allocating and/or
-> otherwise creating socks or request_socks outside of the regular TCP
-> code?  
 
-Request sockets are easier, I guess/hope: MPTCP handles them very
-closely to plain TCP.
+Then the install target for monolithic looks like this (with "echo"s removed):
 
-> We would also be concerned about socket structs, but I'm
-> guessing that code reuses the TCP code based on what you've said.
+$(loadpath): $(policy_conf)
+         @$(INSTALL) -d -m 0755 $(@D)
+         $(verbose) $(CHECKPOLICY) -U $(UNK_PERMS)  $^ -o $@
 
-Only the main MPTCP 'struct socket' is exposed to the user space, and
-that is allocated via the usual __sys_socket() call-chain. I guess that
-should be fine. If you could provide some more context (what I should
-look after) I can dig more.
-
-Thanks!
-
-Paolo
-
+-- 
+Chris PeBenito
