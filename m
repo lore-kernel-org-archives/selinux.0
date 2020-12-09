@@ -3,33 +3,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4B77C4167B
-	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36E47C2BB9A
+	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8935123CD0
-	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E25023C91
+	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387792AbgLITrE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Dec 2020 14:47:04 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:47492 "EHLO
+        id S2387890AbgLITnF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Dec 2020 14:43:05 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:47428 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387857AbgLITnG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Dec 2020 14:43:06 -0500
+        with ESMTP id S2387871AbgLITnE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Dec 2020 14:43:04 -0500
 Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id A6EB720B7189;
-        Wed,  9 Dec 2020 11:42:24 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A6EB720B7189
+        by linux.microsoft.com (Postfix) with ESMTPSA id 10D4220B717A;
+        Wed,  9 Dec 2020 11:42:22 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 10D4220B717A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1607542945;
-        bh=13W9y/glUb8I3SzOqOuxO+1MJwZs/tFHH0a5DtYqn+g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZVpGynKEEZSZfv4sGpjoXpRov6wDOKUZe6Bk2s0M7IyWfEjL11cvBW/RiftHz9k1
-         8vI8zRWmbI63YTH0/dTkHJXgwqs1bxLGX1+6La9EI/+jASChz6i/LT+0FX+9tNXTrX
-         ACemq6NpMQLBt4kUsRNpMutGXMRsw7tTv2AaleWY=
+        s=default; t=1607542942;
+        bh=Zr4aBdcUR5WHi+qPdkh15pCn3FZfZd01vCUp9B+ZYDU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Eo89UdhJglMuGxPxIwfsM2YQYWI3W0lOkZySOtWUPTbU6x3u7c35q9fJsUOytpaAJ
+         yvD8wSW9Mwv9gXpqCz96Dt3YDP6oWrOIoRv5CIAsP994Wl2yhJ7RYwPyAVBWl+eACs
+         3WMO9/Syr2d2oXQaalun96JueEQhwwwo76Q3hd8w=
 From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
 To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
         casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
@@ -38,108 +38,144 @@ Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
         nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
         selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: [PATCH v7 4/8] IMA: add policy rule to measure critical data
-Date:   Wed,  9 Dec 2020 11:42:08 -0800
-Message-Id: <20201209194212.5131-5-tusharsu@linux.microsoft.com>
+Subject: [PATCH v7 0/8] IMA: support for measuring kernel integrity critical data
+Date:   Wed,  9 Dec 2020 11:42:04 -0800
+Message-Id: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
-References: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-A new IMA policy rule is needed for the IMA hook
-ima_measure_critical_data() and the corresponding func CRITICAL_DATA for
-measuring the input buffer. The policy rule should ensure the buffer
-would get measured only when the policy rule allows the action. The
-policy rule should also support the necessary constraints (flags etc.)
-for integrity critical buffer data measurements.
+IMA measures files and buffer data such as keys, command-line arguments
+passed to the kernel on kexec system call, etc. While these measurements
+are necessary for monitoring and validating the integrity of the system,
+they are not sufficient. Various data structures, policies, and states
+stored in kernel memory also impact the integrity of the system.
+Several kernel subsystems contain such integrity critical data -
+e.g. LSMs like SELinux, AppArmor etc. or device-mapper targets like
+dm-crypt, dm-verity, dm-integrity etc. These kernel subsystems help
+protect the integrity of a device. Their integrity critical data is not
+expected to change frequently during run-time. Some of these structures
+cannot be defined as __ro_after_init, because they are initialized later.
 
-Add a policy rule to define the constraints for restricting integrity
-critical data measurements.
+For a given device, various external services/infrastructure tools
+(including the attestation service) interact with it - both during the
+setup and during rest of the device run-time. They share sensitive data
+and/or execute critical workload on that device. The external services
+may want to verify the current run-time state of the relevant kernel
+subsystems before fully trusting the device with business critical
+data/workload. For instance, verifying that SELinux is in "enforce" mode
+along with the expected policy, disks are encrypted with a certain
+configuration, secure boot is enabled etc.
 
-Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
----
- security/integrity/ima/ima_policy.c | 35 +++++++++++++++++++++++++----
- 1 file changed, 31 insertions(+), 4 deletions(-)
+This series provides the necessary IMA functionality for kernel
+subsystems to ensure their configuration can be measured:
+  - by kernel subsystems themselves,
+  - in a tamper resistant way,
+  - and re-measured - triggered on state/configuration change.
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 2a0c0603626e..9a8ee80a3128 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -34,6 +34,7 @@
- #define IMA_PCR		0x0100
- #define IMA_FSNAME	0x0200
- #define IMA_KEYRINGS	0x0400
-+#define IMA_DATA_SOURCE	0x0800
- 
- #define UNKNOWN		0
- #define MEASURE		0x0001	/* same as IMA_MEASURE */
-@@ -85,6 +86,7 @@ struct ima_rule_entry {
- 	} lsm[MAX_LSM_RULES];
- 	char *fsname;
- 	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
-+	struct ima_rule_opt_list *data_source; /* Measure data from this source */
- 	struct ima_template_desc *template;
- };
- 
-@@ -479,6 +481,12 @@ static bool ima_match_rule_data(struct ima_rule_entry *rule,
- 		else
- 			opt_list = rule->keyrings;
- 		break;
-+	case CRITICAL_DATA:
-+		if (!rule->data_source)
-+			return true;
-+		else
-+			opt_list = rule->data_source;
-+		break;
- 	default:
- 		break;
- 	}
-@@ -518,13 +526,19 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- {
- 	int i;
- 
--	if (func == KEY_CHECK) {
--		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
--			ima_match_rule_data(rule, func_data, cred);
--	}
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
- 		return false;
-+
-+	switch (func) {
-+	case KEY_CHECK:
-+	case CRITICAL_DATA:
-+		return ((rule->func == func) &&
-+			ima_match_rule_data(rule, func_data, cred));
-+	default:
-+		break;
-+	}
-+
- 	if ((rule->flags & IMA_MASK) &&
- 	    (rule->mask != mask && func != POST_SETATTR))
- 		return false;
-@@ -1119,6 +1133,19 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
- 		if (ima_rule_contains_lsm_cond(entry))
- 			return false;
- 
-+		break;
-+	case CRITICAL_DATA:
-+		if (entry->action & ~(MEASURE | DONT_MEASURE))
-+			return false;
-+
-+		if (!(entry->flags & IMA_DATA_SOURCE) ||
-+		    (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
-+		    IMA_DATA_SOURCE)))
-+			return false;
-+
-+		if (ima_rule_contains_lsm_cond(entry))
-+			return false;
-+
- 		break;
- 	default:
- 		return false;
+This patch set:
+  - defines a new IMA hook ima_measure_critical_data() to measure
+    integrity critical data,
+  - limits the critical data being measured based on a label,
+  - defines a builtin critical data measurement policy,
+  - and includes an SELinux consumer of the new IMA critical data hook.
+
+This series is based on the following repo/branch:
+
+ repo: https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git
+ branch: next-integrity
+ commit 207cdd565dfc ("ima: Don't modify file descriptor mode on the fly")
+
+Change Log v7:    
+Incorporated feedback from Mimi on v6 of this series.
+ - Updated cover letter and patch descriptions as per Mimi's feedback.
+ - Changed references to variable names and policy documentation from
+   plural "data_sources" to singular "data_source".
+ - Updated SELinux patch to measure only policy, instead of policy and
+   state. The state measurement will be upstreamed through a separate
+   patch.
+ - Updated admin-guide/kernel-parameters.txt to document support for
+   critical_data in builtin policy.
+
+Change Log v6:
+Incorporated feedback from Mimi on v5 of this series.
+ - Got rid of patch 5 from the v5 of the series.(the allow list for data
+   sources)
+ - Updated function descriptions, changed variable names etc.
+ - Moved the input param event_data_source in ima_measure_critical_data()
+   to a new patch. (patch 6/8 of this series)
+ - Split patch 4 from v5 of the series into two patches (patch 4/8 and 
+   patch 5/8)
+ - Updated cover letter and patch descriptions as per feedback.
+
+Change Log v5:
+(1) Incorporated feedback from Stephen on the last SeLinux patch.
+ SeLinux Patch: https://patchwork.kernel.org/patch/11801585/
+ - Freed memory in the reverse order of allocation in 
+   selinux_measure_state().
+ - Used scnprintf() instead of snprintf() to create the string for
+   selinux state.
+ - Allocated event name passed to ima_measure_critical_data() before
+   gathering selinux state and policy information for measuring.
+
+(2) Incorporated feedback from Mimi on v4 of this series.
+ V4 of this Series: https://patchwork.kernel.org/project/linux-integrity/list/?series=354437
+
+ - Removed patch "[v4,2/6] IMA: conditionally allow empty rule data"
+ - Reversed the order of following patches.
+      [v4,4/6] IMA: add policy to measure critical data from kernel components
+      [v4,5/6] IMA: add hook to measure critical data from kernel components
+   and renamed them to remove "from kernel components"
+ - Added a new patch to this series - 
+       IMA: add critical_data to built-in policy rules
+
+ - Added the next version of SeLinux patch (mentioned above) to this
+   series 
+       selinux: measure state and hash of the policy using IMA
+
+ - Updated cover-letter description to give broader perspective of the
+   feature, rearranging paragraphs, removing unnecessary info, clarifying
+   terms etc.
+ - Got rid of opt_list param from ima_match_rule_data().
+ - Updated the documentation to remove sources that don't yet exist.
+ - detailed IMA hook description added to ima_measure_critical_data(),
+   as well as elaborating terms event_name, event_data_source. 
+ - "data_sources:=" is not a mandatory policy option for 
+   func=CRITICAL_DATA anymore. If not present, all the data sources
+   specified in __ima_supported_kernel_data_sources will be measured.
+
+
+Lakshmi Ramasubramanian (2):
+  IMA: define a builtin critical data measurement policy
+  selinux: include a consumer of the new IMA critical data hook
+
+Tushar Sugandhi (6):
+  IMA: generalize keyring specific measurement constructs
+  IMA: add support to measure buffer data hash
+  IMA: define a hook to measure kernel integrity critical data
+  IMA: add policy rule to measure critical data
+  IMA: limit critical data measurement based on a label
+  IMA: extend critical data hook to limit the measurement based on a
+    label
+
+ Documentation/ABI/testing/ima_policy          |   5 +-
+ .../admin-guide/kernel-parameters.txt         |   5 +-
+ include/linux/ima.h                           |   8 ++
+ security/integrity/ima/ima.h                  |   8 +-
+ security/integrity/ima/ima_api.c              |   8 +-
+ security/integrity/ima/ima_appraise.c         |   2 +-
+ security/integrity/ima/ima_asymmetric_keys.c  |   2 +-
+ security/integrity/ima/ima_main.c             |  81 +++++++++++-
+ security/integrity/ima/ima_policy.c           | 122 ++++++++++++++----
+ security/integrity/ima/ima_queue_keys.c       |   3 +-
+ security/selinux/Makefile                     |   2 +
+ security/selinux/include/security.h           |  11 +-
+ security/selinux/measure.c                    |  86 ++++++++++++
+ security/selinux/ss/services.c                |  71 ++++++++--
+ 14 files changed, 364 insertions(+), 50 deletions(-)
+ create mode 100644 security/selinux/measure.c
+
 -- 
 2.17.1
 
