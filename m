@@ -2,180 +2,109 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36E47C2BB9A
-	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05291C19425
+	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 21:44:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E25023C91
-	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3A7D23D20
+	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 21:44:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387890AbgLITnF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Dec 2020 14:43:05 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:47428 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387871AbgLITnE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Dec 2020 14:43:04 -0500
-Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 10D4220B717A;
-        Wed,  9 Dec 2020 11:42:22 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 10D4220B717A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1607542942;
-        bh=Zr4aBdcUR5WHi+qPdkh15pCn3FZfZd01vCUp9B+ZYDU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Eo89UdhJglMuGxPxIwfsM2YQYWI3W0lOkZySOtWUPTbU6x3u7c35q9fJsUOytpaAJ
-         yvD8wSW9Mwv9gXpqCz96Dt3YDP6oWrOIoRv5CIAsP994Wl2yhJ7RYwPyAVBWl+eACs
-         3WMO9/Syr2d2oXQaalun96JueEQhwwwo76Q3hd8w=
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: [PATCH v7 0/8] IMA: support for measuring kernel integrity critical data
-Date:   Wed,  9 Dec 2020 11:42:04 -0800
-Message-Id: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
-X-Mailer: git-send-email 2.17.1
+        id S2388336AbgLIVoh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Dec 2020 16:44:37 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:60817 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388286AbgLIVoe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Dec 2020 16:44:34 -0500
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5491F561215
+        for <selinux@vger.kernel.org>; Wed,  9 Dec 2020 22:43:49 +0100 (CET)
+Received: by mail-oi1-f170.google.com with SMTP id l200so3359770oig.9
+        for <selinux@vger.kernel.org>; Wed, 09 Dec 2020 13:43:49 -0800 (PST)
+X-Gm-Message-State: AOAM5303qXTpSdyWrwx5XlGb4w9LolWkgkpGfa29XUeCgJyHER8hg9+p
+        fIeG8pZ0ldVyQiu9lZeotQ87qUk9ozeVjbZZW5I=
+X-Google-Smtp-Source: ABdhPJwpjxV+w54ByZji9NirusmKost/Z+0vZSMBvRc/Xqqla12xOi7JVdtrAe1Yis43aP5Wcd4cnJ/iNAUyRmjQr/c=
+X-Received: by 2002:aca:ec09:: with SMTP id k9mr3287954oih.153.1607550228223;
+ Wed, 09 Dec 2020 13:43:48 -0800 (PST)
+MIME-Version: 1.0
+References: <20201206225625.3077530-1-nicolas.iooss@m4x.org> <CAFftDdpY9BCrr2DQEOS7yQQJ8SuN158ZkYCz_jDCLpw5=1nNzg@mail.gmail.com>
+In-Reply-To: <CAFftDdpY9BCrr2DQEOS7yQQJ8SuN158ZkYCz_jDCLpw5=1nNzg@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Wed, 9 Dec 2020 22:43:37 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mCdgjV-a9iJePtYzPhTTy3m6T=aEkfoRSeiCfqva=MrA@mail.gmail.com>
+Message-ID: <CAJfZ7=mCdgjV-a9iJePtYzPhTTy3m6T=aEkfoRSeiCfqva=MrA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] GitHub Actions: upgrade to Python 3.9
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Dec  9 22:43:49 2020 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-IMA measures files and buffer data such as keys, command-line arguments
-passed to the kernel on kexec system call, etc. While these measurements
-are necessary for monitoring and validating the integrity of the system,
-they are not sufficient. Various data structures, policies, and states
-stored in kernel memory also impact the integrity of the system.
-Several kernel subsystems contain such integrity critical data -
-e.g. LSMs like SELinux, AppArmor etc. or device-mapper targets like
-dm-crypt, dm-verity, dm-integrity etc. These kernel subsystems help
-protect the integrity of a device. Their integrity critical data is not
-expected to change frequently during run-time. Some of these structures
-cannot be defined as __ro_after_init, because they are initialized later.
+On Mon, Dec 7, 2020 at 5:43 PM William Roberts <bill.c.roberts@gmail.com> wrote:
+>
+> On Sun, Dec 6, 2020 at 4:58 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >  .github/workflows/run_tests.yml | 21 +++++++++++----------
+> >  1 file changed, 11 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_tests.yml
+> > index 6f280de8ff4d..d889b5d55604 100644
+> > --- a/.github/workflows/run_tests.yml
+> > +++ b/.github/workflows/run_tests.yml
+> > @@ -10,25 +10,26 @@ jobs:
+> >        matrix:
+> >          compiler: [gcc, clang]
+> >          python-ruby-version:
+> > -          - {python: 3.8, ruby: 2.7}
+> > -          - {python: 3.8, ruby: 2.7, other: test-flags-override}
+> > -          - {python: 3.8, ruby: 2.7, other: test-debug}
+> > -          - {python: 3.8, ruby: 2.7, other: linker-bfd}
+> > -          - {python: 3.8, ruby: 2.7, other: linker-gold}
+> > +          - {python: 3.9, ruby: 2.7}
+> > +          - {python: 3.9, ruby: 2.7, other: test-flags-override}
+> > +          - {python: 3.9, ruby: 2.7, other: test-debug}
+> > +          - {python: 3.9, ruby: 2.7, other: linker-bfd}
+> > +          - {python: 3.9, ruby: 2.7, other: linker-gold}
+> >            # Test several Python versions with the latest Ruby version
+> > +          - {python: 3.8, ruby: 2.7}
+> >            - {python: 3.7, ruby: 2.7}
+> >            - {python: 3.6, ruby: 2.7}
+> >            - {python: 3.5, ruby: 2.7}
+> >            - {python: pypy3, ruby: 2.7}
+> >            # Test several Ruby versions with the latest Python version
+> > -          - {python: 3.8, ruby: 2.6}
+> > -          - {python: 3.8, ruby: 2.5}
+> > -          - {python: 3.8, ruby: 2.4}
+> > +          - {python: 3.9, ruby: 2.6}
+> > +          - {python: 3.9, ruby: 2.5}
+> > +          - {python: 3.9, ruby: 2.4}
+> >          exclude:
+> >            - compiler: clang
+> > -            python-ruby-version: {python: 3.8, ruby: 2.7, other: linker-bfd}
+> > +            python-ruby-version: {python: 3.9, ruby: 2.7, other: linker-bfd}
+> >            - compiler: clang
+> > -            python-ruby-version: {python: 3.8, ruby: 2.7, other: linker-gold}
+> > +            python-ruby-version: {python: 3.9, ruby: 2.7, other: linker-gold}
+> >
+> >      steps:
+> >      - uses: actions/checkout@v2
+> > --
+> > 2.29.2
+> >
+>
+> ack
 
-For a given device, various external services/infrastructure tools
-(including the attestation service) interact with it - both during the
-setup and during rest of the device run-time. They share sensitive data
-and/or execute critical workload on that device. The external services
-may want to verify the current run-time state of the relevant kernel
-subsystems before fully trusting the device with business critical
-data/workload. For instance, verifying that SELinux is in "enforce" mode
-along with the expected policy, disks are encrypted with a certain
-configuration, secure boot is enabled etc.
+Thanks, I applied these two patches.
 
-This series provides the necessary IMA functionality for kernel
-subsystems to ensure their configuration can be measured:
-  - by kernel subsystems themselves,
-  - in a tamper resistant way,
-  - and re-measured - triggered on state/configuration change.
-
-This patch set:
-  - defines a new IMA hook ima_measure_critical_data() to measure
-    integrity critical data,
-  - limits the critical data being measured based on a label,
-  - defines a builtin critical data measurement policy,
-  - and includes an SELinux consumer of the new IMA critical data hook.
-
-This series is based on the following repo/branch:
-
- repo: https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git
- branch: next-integrity
- commit 207cdd565dfc ("ima: Don't modify file descriptor mode on the fly")
-
-Change Log v7:    
-Incorporated feedback from Mimi on v6 of this series.
- - Updated cover letter and patch descriptions as per Mimi's feedback.
- - Changed references to variable names and policy documentation from
-   plural "data_sources" to singular "data_source".
- - Updated SELinux patch to measure only policy, instead of policy and
-   state. The state measurement will be upstreamed through a separate
-   patch.
- - Updated admin-guide/kernel-parameters.txt to document support for
-   critical_data in builtin policy.
-
-Change Log v6:
-Incorporated feedback from Mimi on v5 of this series.
- - Got rid of patch 5 from the v5 of the series.(the allow list for data
-   sources)
- - Updated function descriptions, changed variable names etc.
- - Moved the input param event_data_source in ima_measure_critical_data()
-   to a new patch. (patch 6/8 of this series)
- - Split patch 4 from v5 of the series into two patches (patch 4/8 and 
-   patch 5/8)
- - Updated cover letter and patch descriptions as per feedback.
-
-Change Log v5:
-(1) Incorporated feedback from Stephen on the last SeLinux patch.
- SeLinux Patch: https://patchwork.kernel.org/patch/11801585/
- - Freed memory in the reverse order of allocation in 
-   selinux_measure_state().
- - Used scnprintf() instead of snprintf() to create the string for
-   selinux state.
- - Allocated event name passed to ima_measure_critical_data() before
-   gathering selinux state and policy information for measuring.
-
-(2) Incorporated feedback from Mimi on v4 of this series.
- V4 of this Series: https://patchwork.kernel.org/project/linux-integrity/list/?series=354437
-
- - Removed patch "[v4,2/6] IMA: conditionally allow empty rule data"
- - Reversed the order of following patches.
-      [v4,4/6] IMA: add policy to measure critical data from kernel components
-      [v4,5/6] IMA: add hook to measure critical data from kernel components
-   and renamed them to remove "from kernel components"
- - Added a new patch to this series - 
-       IMA: add critical_data to built-in policy rules
-
- - Added the next version of SeLinux patch (mentioned above) to this
-   series 
-       selinux: measure state and hash of the policy using IMA
-
- - Updated cover-letter description to give broader perspective of the
-   feature, rearranging paragraphs, removing unnecessary info, clarifying
-   terms etc.
- - Got rid of opt_list param from ima_match_rule_data().
- - Updated the documentation to remove sources that don't yet exist.
- - detailed IMA hook description added to ima_measure_critical_data(),
-   as well as elaborating terms event_name, event_data_source. 
- - "data_sources:=" is not a mandatory policy option for 
-   func=CRITICAL_DATA anymore. If not present, all the data sources
-   specified in __ima_supported_kernel_data_sources will be measured.
-
-
-Lakshmi Ramasubramanian (2):
-  IMA: define a builtin critical data measurement policy
-  selinux: include a consumer of the new IMA critical data hook
-
-Tushar Sugandhi (6):
-  IMA: generalize keyring specific measurement constructs
-  IMA: add support to measure buffer data hash
-  IMA: define a hook to measure kernel integrity critical data
-  IMA: add policy rule to measure critical data
-  IMA: limit critical data measurement based on a label
-  IMA: extend critical data hook to limit the measurement based on a
-    label
-
- Documentation/ABI/testing/ima_policy          |   5 +-
- .../admin-guide/kernel-parameters.txt         |   5 +-
- include/linux/ima.h                           |   8 ++
- security/integrity/ima/ima.h                  |   8 +-
- security/integrity/ima/ima_api.c              |   8 +-
- security/integrity/ima/ima_appraise.c         |   2 +-
- security/integrity/ima/ima_asymmetric_keys.c  |   2 +-
- security/integrity/ima/ima_main.c             |  81 +++++++++++-
- security/integrity/ima/ima_policy.c           | 122 ++++++++++++++----
- security/integrity/ima/ima_queue_keys.c       |   3 +-
- security/selinux/Makefile                     |   2 +
- security/selinux/include/security.h           |  11 +-
- security/selinux/measure.c                    |  86 ++++++++++++
- security/selinux/ss/services.c                |  71 ++++++++--
- 14 files changed, 364 insertions(+), 50 deletions(-)
- create mode 100644 security/selinux/measure.c
-
--- 
-2.17.1
+Nicolas
 
