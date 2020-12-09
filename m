@@ -7,29 +7,29 @@ X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4FE6C19425
-	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09DB8C2BB48
+	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 73BC923CD2
+	by mail.kernel.org (Postfix) with ESMTP id D562323CD4
 	for <selinux@archiver.kernel.org>; Wed,  9 Dec 2020 19:48:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387933AbgLITnt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Dec 2020 14:43:49 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:47632 "EHLO
+        id S2387941AbgLITnz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Dec 2020 14:43:55 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:47628 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387842AbgLITnr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Dec 2020 14:43:47 -0500
+        with ESMTP id S2387840AbgLITnp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Dec 2020 14:43:45 -0500
 Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 7501920B7194;
-        Wed,  9 Dec 2020 11:42:27 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7501920B7194
+        by linux.microsoft.com (Postfix) with ESMTPSA id 0904320B718B;
+        Wed,  9 Dec 2020 11:42:26 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0904320B718B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1607542948;
-        bh=r6UFZBTDrV2iEH3yTe/6e5c6NTxX2JHze2uNFVDqmIg=;
+        s=default; t=1607542946;
+        bh=a5f+ij0E0tDSy+bJfyUc0/IK+DK1TBFrlmTbWMu4t+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TYQ35BpAEWBUG0VG+TxRmAMmXH0XCwo1MKPOUygnwtc1IMloCuA8Yyc7GZWE4Yxd7
-         HsutZkF5MvwXXHjzXPDgK03/eBRHGFyfDUwsgGYes8XP1IWp9fxYMp5s/mTzPrzIXk
-         m0aZL96tD8JI0J4jEG0mV0ZDPPf/28CyuZE0N/7g=
+        b=FD3vrDkDlo6QTkWauiE9QzwtM+mluPQ6yhVNFD7T9OU9ijug1v0jKhU5B8IENxgZK
+         e4Yg5U8HpJnQtE/yaVj3LmJ44f4giK57g87WSXqoqjcr2evPDuAr4Utmy7yLFx7JC4
+         Rpzd0ypeZLHaLdR6SdaprLtBjpSLXIN8Qo326gNQ=
 From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
 To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
         casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
@@ -38,9 +38,9 @@ Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
         nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
         selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: [PATCH v7 8/8] selinux: include a consumer of the new IMA critical data hook
-Date:   Wed,  9 Dec 2020 11:42:12 -0800
-Message-Id: <20201209194212.5131-9-tusharsu@linux.microsoft.com>
+Subject: [PATCH v7 6/8] IMA: extend critical data hook to limit the measurement based on a label
+Date:   Wed,  9 Dec 2020 11:42:10 -0800
+Message-Id: <20201209194212.5131-7-tusharsu@linux.microsoft.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
 References: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
@@ -48,322 +48,89 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+The IMA hook ima_measure_critical_data() does not support a way to
+specify the source of the critical data provider. Thus, the data
+measurement cannot be constrained based on the data source label
+in the IMA policy.
 
-IMA measures files and buffer data such as keys, command line arguments
-passed to the kernel on kexec system call, etc. While these measurements
-enable monitoring and validating the integrity of the system, it is not
-sufficient. Various data structures, policies and states stored in kernel
-memory also impact the integrity of the system. Updates to these data
-structures would have an impact on the security functionalities.
-For example, SELinux stores the active policy in memory. Changes to this
-data at runtime would have an impact on the security guarantees provided
-by SELinux. Measuring such in-memory data structures through IMA
-subsystem provides a secure way for a remote attestation service to
-know the state of the system and also the runtime changes in the state
-of the system.
+Extend the IMA hook ima_measure_critical_data() to support passing 
+the data source label as an input parameter, so that the policy rule can
+be used to limit the measurements based on the label.
 
-SELinux policy is a critical data for this security module that needs
-to be measured. This measurement can be used by an attestation service,
-for instance, to verify if the policy has been setup correctly and that
-it hasn't been tampered at run-time.
-
-Measure the hash of the loaded policy by calling the IMA hook
-ima_measure_critical_data(). Since the size of the loaded policy can
-be large (several MB), measure the hash of the policy instead of
-the entire policy to avoid bloating the IMA log entry.
-
-Add "selinux" to the list of supported data sources maintained by IMA
-to enable measuring SELinux data.
-
-To enable SELinux data measurement, the following steps are required:
-
-1, Add "ima_policy=critical_data" to the kernel command line arguments
-   to enable measuring SELinux data at boot time.
-For example,
-  BOOT_IMAGE=/boot/vmlinuz-5.10.0-rc1+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
-
-2, Add the following rule to /etc/ima/ima-policy
-   measure func=CRITICAL_DATA data_source=selinux
-
-Sample measurement of the hash of SELinux policy:
-
-To verify the measured data with the current SELinux policy run
-the following commands and verify the output hash values match.
-
-  sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
-
-  grep "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6
-
-Note that the actual verification of SELinux policy would require loading
-the expected policy into an identical kernel on a pristine/known-safe
-system and run the sha256sum /sys/kernel/selinux/policy there to get
-the expected hash.
-
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
 ---
- Documentation/ABI/testing/ima_policy |  3 +-
- security/selinux/Makefile            |  2 +
- security/selinux/include/security.h  | 11 +++-
- security/selinux/measure.c           | 86 ++++++++++++++++++++++++++++
- security/selinux/ss/services.c       | 71 ++++++++++++++++++++---
- 5 files changed, 162 insertions(+), 11 deletions(-)
- create mode 100644 security/selinux/measure.c
+ include/linux/ima.h               |  6 ++++--
+ security/integrity/ima/ima_main.c | 11 ++++++++---
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-index 0f4ee9e0a455..7c7023f7986b 100644
---- a/Documentation/ABI/testing/ima_policy
-+++ b/Documentation/ABI/testing/ima_policy
-@@ -52,8 +52,9 @@ Description:
- 			template:= name of a defined IMA template type
- 			(eg, ima-ng). Only valid when action is "measure".
- 			pcr:= decimal value
--			data_source:= [label]
-+			data_source:= [selinux]|[label]
- 			label:= a unique string used for grouping and limiting critical data.
-+			For example, "selinux" to measure critical data for SELinux.
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index 675f54db6264..6434287a81cd 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -30,7 +30,8 @@ extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ extern void ima_post_path_mknod(struct dentry *dentry);
+ extern int ima_file_hash(struct file *file, char *buf, size_t buf_size);
+ extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
+-extern void ima_measure_critical_data(const char *event_name,
++extern void ima_measure_critical_data(const char *event_data_source,
++				      const char *event_name,
+ 				      const void *buf, int buf_len,
+ 				      bool measure_buf_hash);
  
- 		  default policy:
- 			# PROC_SUPER_MAGIC
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 4d8e0e8adf0b..83d512116341 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
- 
- selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
- 
-+selinux-$(CONFIG_IMA) += measure.o
-+
- ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
- 
- $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 3cc8bab31ea8..18ee65c98446 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -229,7 +229,8 @@ void selinux_policy_cancel(struct selinux_state *state,
- 			struct selinux_policy *policy);
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len);
--
-+int security_read_policy_kernel(struct selinux_state *state,
-+				void **data, size_t *len);
- int security_policycap_supported(struct selinux_state *state,
- 				 unsigned int req_cap);
- 
-@@ -446,4 +447,12 @@ extern void ebitmap_cache_init(void);
- extern void hashtab_cache_init(void);
- extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
- 
-+#ifdef CONFIG_IMA
-+extern void selinux_measure_state(struct selinux_state *selinux_state);
-+#else
-+static inline void selinux_measure_state(struct selinux_state *selinux_state)
-+{
-+}
-+#endif
-+
- #endif /* _SELINUX_SECURITY_H_ */
-diff --git a/security/selinux/measure.c b/security/selinux/measure.c
-new file mode 100644
-index 000000000000..c409ada6ea39
---- /dev/null
-+++ b/security/selinux/measure.c
-@@ -0,0 +1,86 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Measure SELinux state using IMA subsystem.
-+ */
-+#include <linux/vmalloc.h>
-+#include <linux/ktime.h>
-+#include <linux/ima.h>
-+#include "security.h"
-+
-+/*
-+ * This function creates a unique name by appending the timestamp to
-+ * the given string. This string is passed as "event_name" to the IMA
-+ * hook to measure the given SELinux data.
-+ *
-+ * The data provided by SELinux to the IMA subsystem for measuring may have
-+ * already been measured (for instance the same state existed earlier).
-+ * But for SELinux the current data represents a state change and hence
-+ * needs to be measured again. To enable this, pass a unique "event_name"
-+ * to the IMA hook so that IMA subsystem will always measure the given data.
-+ *
-+ * For example,
-+ * At time T0 SELinux data to be measured is "foo". IMA measures it.
-+ * At time T1 the data is changed to "bar". IMA measures it.
-+ * At time T2 the data is changed to "foo" again. IMA will not measure it
-+ * (since it was already measured) unless the event_name, for instance,
-+ * is different in this call.
-+ */
-+static char *selinux_event_name(const char *name_prefix)
-+{
-+	char *event_name = NULL;
-+	struct timespec64 cur_time;
-+
-+	ktime_get_real_ts64(&cur_time);
-+	event_name = kasprintf(GFP_KERNEL, "%s-%lld:%09ld", name_prefix,
-+			       cur_time.tv_sec, cur_time.tv_nsec);
-+	if (!event_name) {
-+		pr_err("%s: event name not allocated.\n", __func__);
-+		return NULL;
-+	}
-+
-+	return event_name;
-+}
-+
-+/*
-+ * selinux_measure_state - Measure hash of the SELinux policy
-+ *
-+ * @state: selinux state struct
-+ *
-+ * NOTE: This function must be called with policy_mutex held.
-+ */
-+void selinux_measure_state(struct selinux_state *state)
-+{
-+	void *policy = NULL;
-+	char *policy_event_name = NULL;
-+	size_t policy_len;
-+	int rc = 0;
-+	bool initialized = selinux_initialized(state);
-+
-+	/*
-+	 * Measure SELinux policy only after initialization is completed.
-+	 */
-+	if (!initialized)
-+		goto out;
-+
-+	policy_event_name = selinux_event_name("selinux-policy-hash");
-+	if (!policy_event_name) {
-+		pr_err("%s: Event name for policy not allocated.\n",
-+		       __func__);
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
-+	rc = security_read_policy_kernel(state, &policy, &policy_len);
-+	if (rc) {
-+		pr_err("%s: Failed to read policy %d.\n", __func__, rc);
-+		goto out;
-+	}
-+
-+	ima_measure_critical_data("selinux", policy_event_name,
-+				  policy, policy_len, true);
-+
-+	vfree(policy);
-+
-+out:
-+	kfree(policy_event_name);
-+}
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 9704c8a32303..dfa2e00894ae 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2180,6 +2180,7 @@ static void selinux_notify_policy_change(struct selinux_state *state,
- 	selinux_status_update_policyload(state, seqno);
- 	selinux_netlbl_cache_invalidate();
- 	selinux_xfrm_notify_policyload();
-+	selinux_measure_state(state);
+@@ -125,7 +126,8 @@ static inline int ima_file_hash(struct file *file, char *buf, size_t buf_size)
  }
  
- void selinux_policy_commit(struct selinux_state *state,
-@@ -3875,8 +3876,33 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
- }
- #endif /* CONFIG_NETLABEL */
+ static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {}
+-static inline void ima_measure_critical_data(const char *event_name,
++static inline void ima_measure_critical_data(const char *event_data_source,
++					     const char *event_name,
+ 					     const void *buf, int buf_len,
+ 					     bool measure_buf_hash) {}
+ #endif /* CONFIG_IMA */
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index ae59f4a4dd70..7c633901f441 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -924,6 +924,7 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
  
-+/**
-+ * security_read_selinux_policy - read the policy.
-+ * @policy: SELinux policy
-+ * @data: binary policy data
-+ * @len: length of data in bytes
-+ *
-+ */
-+static int security_read_selinux_policy(struct selinux_policy *policy,
-+					void *data, size_t *len)
-+{
-+	int rc;
-+	struct policy_file fp;
-+
-+	fp.data = data;
-+	fp.len = *len;
-+
-+	rc = policydb_write(&policy->policydb, &fp);
-+	if (rc)
-+		return rc;
-+
-+	*len = (unsigned long)fp.data - (unsigned long)data;
-+	return 0;
-+}
-+
  /**
-  * security_read_policy - read the policy.
-+ * @state: selinux_state
-  * @data: binary policy data
-  * @len: length of data in bytes
+  * ima_measure_critical_data - measure kernel integrity critical data
++ * @event_data_source: kernel data source being measured
+  * @event_name: event name to be used for the buffer entry
+  * @buf: pointer to buffer containing data to measure
+  * @buf_len: length of buffer(in bytes)
+@@ -932,6 +933,9 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+  * Measure the kernel subsystem data, critical to the integrity of the kernel,
+  * into the IMA log and extend the @pcr.
   *
-@@ -3885,8 +3911,6 @@ int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len)
++ * Use @event_data_source to describe the kernel data source for the buffer
++ * being measured.
++ *
+  * Use @event_name to describe the state/buffer data change.
+  * Examples of critical data (buf) could be kernel in-memory r/o structures,
+  * hash of the memory structures, or data that represents subsystem state
+@@ -944,17 +948,18 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+  *
+  * The data (buf) can only be measured, not appraised.
+  */
+-void ima_measure_critical_data(const char *event_name,
++void ima_measure_critical_data(const char *event_data_source,
++			       const char *event_name,
+ 			       const void *buf, int buf_len,
+ 			       bool measure_buf_hash)
  {
- 	struct selinux_policy *policy;
--	int rc;
--	struct policy_file fp;
+-	if (!event_name || !buf || !buf_len) {
++	if (!event_name || !event_data_source || !buf || !buf_len) {
+ 		pr_err("Invalid arguments passed to %s().\n", __func__);
+ 		return;
+ 	}
  
- 	policy = rcu_dereference_protected(
- 			state->policy, lockdep_is_held(&state->policy_mutex));
-@@ -3898,14 +3922,43 @@ int security_read_policy(struct selinux_state *state,
- 	if (!*data)
- 		return -ENOMEM;
- 
--	fp.data = *data;
--	fp.len = *len;
-+	return security_read_selinux_policy(policy, *data, len);
-+}
- 
--	rc = policydb_write(&policy->policydb, &fp);
--	if (rc)
--		return rc;
-+/**
-+ * security_read_policy_kernel - read the policy.
-+ * @state: selinux_state
-+ * @data: binary policy data
-+ * @len: length of data in bytes
-+ *
-+ * Allocates kernel memory for reading SELinux policy.
-+ * This function is for internal use only and should not
-+ * be used for returning data to user space.
-+ *
-+ * This function must be called with policy_mutex held.
-+ */
-+int security_read_policy_kernel(struct selinux_state *state,
-+				void **data, size_t *len)
-+{
-+	struct selinux_policy *policy;
-+	int rc = 0;
- 
--	*len = (unsigned long)fp.data - (unsigned long)*data;
--	return 0;
-+	policy = rcu_dereference_protected(
-+			state->policy, lockdep_is_held(&state->policy_mutex));
-+	if (!policy) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+
-+	*len = policy->policydb.len;
-+	*data = vmalloc(*len);
-+	if (!*data) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
-+	rc = security_read_selinux_policy(policy, *data, len);
-+
-+out:
-+	return rc;
+ 	process_buffer_measurement(NULL, buf, buf_len, event_name,
+-				   CRITICAL_DATA, 0, NULL,
++				   CRITICAL_DATA, 0, event_data_source,
+ 				   measure_buf_hash);
  }
+ 
 -- 
 2.17.1
 
