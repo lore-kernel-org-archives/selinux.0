@@ -2,402 +2,418 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D365FC4361B
-	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 15:08:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A27AEC433FE
+	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 16:33:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86FD820657
-	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 15:08:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 499F223D3C
+	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 16:33:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405443AbgLKOoZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Dec 2020 09:44:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46874 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404393AbgLKOoG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Dec 2020 09:44:06 -0500
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F75C0613CF
-        for <selinux@vger.kernel.org>; Fri, 11 Dec 2020 06:43:26 -0800 (PST)
-Received: by mail-ej1-x644.google.com with SMTP id b9so12708985ejy.0
-        for <selinux@vger.kernel.org>; Fri, 11 Dec 2020 06:43:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=T8lauiobIgtBp3hAWZtQpP5b5hbtCrRBojzDQvNBIHY=;
-        b=ivR0Z+85vfTF2Pj/j9Fz0B9Zv5kKtu7pgRuNQ2MUqbzqd5zZmZHxL326krEBJQ+0fk
-         ADRLJcjBXz/UBywoHqdLiI5JN+XKFnwBhL6k0eQ7Zf4HN471FPn56k6AnwcqRWCIUmY9
-         +ceQQrMIbuGNJ/GG8j/7OwLK5deZ/QgELrv7K2TslBYQoQf+gSGZeYiTEfpYYpKnq6Up
-         c9hA3SGqftbQx+nO4EQCf2GMi6/0zFkr6hptJJmMaCtAJS74nJtJ3l+wGaxgFny77rpq
-         s02EfqNNNTt9PqU6BbOtany0ukVPBQIZd09R5qsNRTSIsfuUjyaprNSLYS4ElbLBivct
-         mrOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=T8lauiobIgtBp3hAWZtQpP5b5hbtCrRBojzDQvNBIHY=;
-        b=sP4TUjdAMz1RwpXT4ssk6T9MGHyZn7BohQik1IH4IkRjJ9R/HmFPPsrhQyPeb0ja44
-         Doqqnl2tyvyrOy4aScYTL/VHao9rD6HTMFcsg77zjAUiblogMmm1J8TynqAfEZDai8sS
-         nfltc5UDylRve943rIcWdrU3qCARPKlYCcH8pX8/AcafNZY/gH7MMdGQltrs0vER5IhC
-         69wtOgT3/ZqW9wZAvJQtqg9yNkAoG2nJ329NQ6f1EYPB7PheJypHOrwffJ74UvNRs2KP
-         cLTURDZvCq2dYm4kV2kaZLVEOiOgJkAYzQQv3wvJkxuugmAOJ60ZGw6jdC35QNbmDRsv
-         mYWw==
-X-Gm-Message-State: AOAM533S1wVBJa/MU0AfasKm7MacqxcOLqzxTZWhi2Hku7CP74rIoDSf
-        U5SyYxM5HLCen7/1+PoADwSNcGTnqsOwmUFoxs/nWg==
-X-Google-Smtp-Source: ABdhPJx6CMkEPgesoHNc2IGQOR6RYCJFJYJ8xjgdMckc1S2rUiOV388dGbjSEHTREnf5/uouAJQ8r0V368LlAP4C4gY=
-X-Received: by 2002:a17:906:7c49:: with SMTP id g9mr11418451ejp.185.1607697804427;
- Fri, 11 Dec 2020 06:43:24 -0800 (PST)
+        id S1729790AbgLKPhN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Dec 2020 10:37:13 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:47176 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728773AbgLKPhL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Dec 2020 10:37:11 -0500
+Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
+        by linux.microsoft.com (Postfix) with ESMTPSA id BACDD20B717A;
+        Fri, 11 Dec 2020 07:36:27 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com BACDD20B717A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1607700988;
+        bh=kcTyBg/zDy3n5jV/1H1ohE/aFYKH7L5A5APL39V2yWs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RInygby0NZquGdGNdy2OqK8HoxATxAkmdTuQL0ZAV0z8aqwUI5qF0qO18vTur+gJC
+         8uC6tUGxHySC5i0hqZMT2WWluWt4eJM3wqMLm+U+vSEJQBRR9vG06PPwfwsHU/t1dd
+         dIQXbD36bCpA65oHwzmHwhvq59n0ITNrGcoNUQ8g=
+Date:   Fri, 11 Dec 2020 09:36:18 -0600
+From:   Tyler Hicks <tyhicks@linux.microsoft.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com, sashal@kernel.org,
+        jmorris@namei.org, nramas@linux.microsoft.com,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: Re: [PATCH v7 8/8] selinux: include a consumer of the new IMA
+ critical data hook
+Message-ID: <20201211153618.GA4951@sequoia>
+References: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
+ <20201209194212.5131-9-tusharsu@linux.microsoft.com>
 MIME-Version: 1.0
-References: <20201125125402.211692-1-lokeshgidra@google.com>
- <CAFqZXNsry1zqGND-iBaYmwb_KeCvoat-LQFywf04TAp998sqXQ@mail.gmail.com>
- <CA+EESO7KW+ixSoFKOE_aH7P=rgUSuOL6y6TZfg_4Pez-Caw8LA@mail.gmail.com>
- <CAFqZXNtYVrE2GWQtWhTMt2zTKkPaAeZtw95cvuRR9_DbDmKoCA@mail.gmail.com>
- <CA+EESO4EL3ZE4J-Xyoky5fz=nC7WYp3H8eCfKom7hBfkO=FiDg@mail.gmail.com> <CAFqZXNvbGgQVtx3pCX_YyQj6tH7ctb97+8wqryaDjkBtp5BuKw@mail.gmail.com>
-In-Reply-To: <CAFqZXNvbGgQVtx3pCX_YyQj6tH7ctb97+8wqryaDjkBtp5BuKw@mail.gmail.com>
-From:   Lokesh Gidra <lokeshgidra@google.com>
-Date:   Fri, 11 Dec 2020 06:43:13 -0800
-Message-ID: <CA+EESO6CimjatwBS8fiqBGEJ86As-KywWti4uyiH=KLHnTk5Kw@mail.gmail.com>
-Subject: Re: [PATCH v1 1/1] selinux-testsuite: Add userfaultfd test
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        "Cc: Android Kernel" <kernel-team@android.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201209194212.5131-9-tusharsu@linux.microsoft.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 11, 2020 at 5:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Fri, Dec 11, 2020 at 2:40 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > On Fri, Dec 11, 2020 at 1:11 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > >
-> > > On Fri, Dec 11, 2020 at 1:52 AM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > > > Hi Ondrej,
-> > > > On Fri, Nov 27, 2020 at 6:09 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > >
-> > > > > Hi Lokesh,
-> > > > >
-> > > > > On Wed, Nov 25, 2020 at 1:54 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > > > > > Confirm SELinux policies are enforced on userfaultfd operations
-> > > > > > via secure anon-inode interface.
-> > > > > >
-> > > > > > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> > > > > > ---
-> > > > > >  policy/Makefile                 |  2 +-
-> > > > > >  policy/userfaultfd.cil          | 17 ++++++++++++
-> > > > > >  tests/Makefile                  |  2 +-
-> > > > > >  tests/userfaultfd/Makefile      |  3 ++
-> > > > > >  tests/userfaultfd/test          | 15 ++++++++++
-> > > > > >  tests/userfaultfd/userfaultfd.c | 49 +++++++++++++++++++++++++++++++++
-> > > > > >  6 files changed, 86 insertions(+), 2 deletions(-)
-> > > > > >  create mode 100644 policy/userfaultfd.cil
-> > > > > >  create mode 100644 tests/userfaultfd/Makefile
-> > > > > >  create mode 100755 tests/userfaultfd/test
-> > > > > >  create mode 100644 tests/userfaultfd/userfaultfd.c
-> > > > > >
-> > > > > > diff --git a/policy/Makefile b/policy/Makefile
-> > > > > > index 6c49091..02e7568 100644
-> > > > > > --- a/policy/Makefile
-> > > > > > +++ b/policy/Makefile
-> > > > > > @@ -36,7 +36,7 @@ SUPPORTS_CIL = n
-> > > > > >  endif
-> > > > > >
-> > > > > >  ifeq ($(SUPPORTS_CIL),y)
-> > > > > > -CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
-> > > > > > +CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil userfaultfd.cil
-> > > > > >  ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
-> > > > > >  ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
-> > > > > >  # If other MLS tests get written this can be moved outside of the glblub test
-> > > > > > diff --git a/policy/userfaultfd.cil b/policy/userfaultfd.cil
-> > > > > > new file mode 100644
-> > > > > > index 0000000..0743fff
-> > > > > > --- /dev/null
-> > > > > > +++ b/policy/userfaultfd.cil
-> > > > > > @@ -0,0 +1,17 @@
-> > > > > > +(class anon_inode ())
-> > > > > > +(classcommon anon_inode file)
-> > > > > > +(classorder (unordered anon_inode))
-> > > > > > +(type uffd_t)
-> > > > > > +; Label the UFFD with uffd_t; this can be specialized per domain
-> > > > > > +(typetransition unconfined_t unconfined_t anon_inode "[userfaultfd]"    uffd_t)
-> > > > > > +(allow unconfined_t uffd_t (anon_inode (create)))
-> > > > > > +; Permit read() and ioctl() on the UFFD;
-> > > > > > +; Comment out if you want to test read or basic ioctl enforcement.
-> > > > > > +(allow unconfined_t uffd_t (anon_inode (read)))
-> > > > > > +(allow unconfined_t uffd_t (anon_inode (ioctl)))
-> > > > > > +; Uncomment one of the allowx lines below to test ioctl whitelisting.
-> > > > > > +; Currently the first one is uncommented; comment that out if trying another.
-> > > > > > +; None
-> > > > > > +;(allowx unconfined_t uffd_t (ioctl anon_inode ((0x00))))
-> > > > > > +; UFFDIO_API
-> > > > > > +(allowx unconfined_t uffd_t (ioctl anon_inode ((0xaa3f))))
-> > > > > > diff --git a/tests/Makefile b/tests/Makefile
-> > > > > > index 4c00b5f..3871570 100644
-> > > > > > --- a/tests/Makefile
-> > > > > > +++ b/tests/Makefile
-> > > > > > @@ -27,7 +27,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
-> > > > > >         task_setnice task_setscheduler task_getscheduler task_getsid \
-> > > > > >         task_getpgid task_setpgid file ioctl capable_file capable_net \
-> > > > > >         capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
-> > > > > > -       inet_socket overlay checkreqprot mqueue mac_admin atsecure
-> > > > > > +       inet_socket overlay checkreqprot mqueue mac_admin atsecure userfaultfd
-> > > > > >
-> > > > > >  ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
-> > > > > >  ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-> > > > > > diff --git a/tests/userfaultfd/Makefile b/tests/userfaultfd/Makefile
-> > > > > > new file mode 100644
-> > > > > > index 0000000..66d02a1
-> > > > > > --- /dev/null
-> > > > > > +++ b/tests/userfaultfd/Makefile
-> > > > > > @@ -0,0 +1,3 @@
-> > > > > > +all: userfaultfd
-> > > > > > +clean:
-> > > > > > +       rm -f userfaultfd
-> > > > > > diff --git a/tests/userfaultfd/test b/tests/userfaultfd/test
-> > > > > > new file mode 100755
-> > > > > > index 0000000..dd42aa8
-> > > > > > --- /dev/null
-> > > > > > +++ b/tests/userfaultfd/test
-> > > > > > @@ -0,0 +1,15 @@
-> > > > > > +#!/usr/bin/perl
-> > > > > > +
-> > > > > > +use Test;
-> > > > > > +
-> > > > > > +BEGIN {
-> > > > > > +    plan tests => 1;
-> > > > > > +}
-> > > > > > +
-> > > > > > +$basedir = $0;
-> > > > > > +$basedir =~ s|(.*)/[^/]*|$1|;
-> > > > > > +
-> > > > > > +$result = system("$basedir/userfaultfd");
-> > > > > > +ok( $result, 0 );
-> > > > >
-> > > > > This is a good start, but it is only a very basic test :)
-> > > > >
-> > > > > I would expect at least these tests here:
-> > > > > 1. that an userfaultfd node created by a domain *without* the
-> > > > > transition rule gets the context of the creating process (should be
-> > > > > possible by calling fgetxattr(2) on the fd),
-> > > > > 2. that an userfaultfd node created by a domain *with* the transition
-> > > > > rule gets the context specified by the rule,
-> > > > > 3. that a process with context that is *allowed* to { create read
-> > > > > write [...] } a given userfaultfd type by the policy *can* indeed
-> > > > > successfully perform these operations (or at least that the error
-> > > > > returned is not -EACCESS),
-> > > > > 4. that a process with context that is *NOT allowed* to { create read
-> > > > > write [...] } a given userfaultfd type by the policy *cannot* perform
-> > > > > these operations and the error returned is -EACCESS.
-> > > > >
-> > > > > (The more permissions you can test the better, but I'd like to see at
-> > > > > least the three (create, read, write).)
-> > > > >
-> > > > > For this, you will need to define several process types in the test
-> > > > > policy and run the test program(s) with a specific type using runcon
-> > > > > (see e.g. policy/test_link.te and tests/link/test for a simple
-> > > > > example). I suggest using the CIL module only for adding the class and
-> > > > > permissions and a separate .te file to define the process and
-> > > > > userfaultfd types (so that you can use the unconfined_runs_test()
-> > > > > interface for common permissions needed for the process types).
-> > > > >
-> > > > I'm having a bit of a hard time managing the test policy in a cil
-> > > > module and a .te file. My inexperience with SELinux could be a reason
-> > > > :)
-> > > >
-> > > > I defined 'anon_inode' class, like in this patch in the CIL module as follows:
-> > > > (class anon_inode ())
-> > > > (classcommon anon_inode file)
-> > > > (classorder (unordered anon_inode))
-> > > >
-> > > > But then when I used anon_inode in the .te file as follows:
-> > > > ...
-> > > > type uffd_t;
-> > > > type_transition test_userfaultfd_t test_userfaultfd_t : anon_inode
-> > > > uffd_t "[userfaultfd]";
-> > > > allow test_userfaultfd_t uffd_t:anon_inode { create ioctl read };
-> > > >
-> > > > I get a compile error:
-> > > > test_policy.te:<line#>:ERROR 'unknown class anon_inode' at token ';' on line ...
-> > > >
-> > > > Any advice on where I am making mistakes?
-> > >
-> > > Ouch! No, the mistake is mine :) I forgot that the classes/permissions
-> > > added via CIL won't be available in the refpolicy build
-> > > infrastructure... But I think it should be possible to define the
-> > > types and add basic rules for them in .te and only add the necessary
-> > > userfaultfd rules in the .cil file:
-> > >
-> > > test_userfaultfd_newclass.cil:
-> > > ```
-> > > (class anon_inode ())
-> > > (classcommon anon_inode file)
-> > > (classorder (unordered anon_inode))
-> > > (typeattributeset cil_gen_require test_userfaultfd_t)
-> > > (typeattributeset cil_gen_require uffd_t)
-> > > (typetransition test_userfaultfd_t test_userfaultfd_t anon_inode
-> > > "[userfaultfd]" uffd_t)
-> > > (allow test_userfaultfd_t uffd_t (anon_inode (create ioctl read)))
-> > > [...]
-> > > ```
-> > >
-> > > test_userfaultfd.te:
-> > > ```
-> > > type uffd_t;
-> > > type test_userfaultfd_t;
-> > > domain_type(test_userfaultfd_t)
-> > > unconfined_runs_test(test_userfaultfd_t)
-> > > typeattribute test_userfaultfd_t testdomain;
-> > > [...]
-> > > ```
-> > >
-> > Thanks for your prompt reply.
-> >
-> > IIUC, if I have to add policy for another process (say without read
-> > permission), I''ll have to add the following lines in addition to the
-> > above lines right:
-> >
-> > in test_userfaultfd_newclass.cil
-> > ```
-> > (typeattributeset cil_gen_require test_noread_userfaultfd_t)
-> > (typetransition test_noread_userfaultfd_t test_noread_userfaultfd_t
-> > anon_inode "[userfaultfd]" uffd_t)
-> > (allow test_noread_userfaultfd_t uffd_t (anon_inode (create ioctl)))
-> > [...]
-> > ```
-> > and in test_userfaultfd.te
-> > ```
-> > type test_noread_userfaultfd_t;
-> > domain_type(test_noread_userfaultfd_t)
-> > unconfined_runs_test(test_noread_userfaultfd_t)
-> > typeattribute test_noread_userfaultfd_t testdomain;
-> > [...]
-> > ```
-> >
-> > Basically, in order to be able to use domain_type() and
-> > unconfined_runs_test() interface, I need to write part of the policy
-> > in the .te file. Is that right?
->
-> Yes, exactly.
+On 2020-12-09 11:42:12, Tushar Sugandhi wrote:
+> From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> 
+> IMA measures files and buffer data such as keys, command line arguments
+> passed to the kernel on kexec system call, etc. While these measurements
+> enable monitoring and validating the integrity of the system, it is not
+> sufficient. Various data structures, policies and states stored in kernel
+> memory also impact the integrity of the system. Updates to these data
+> structures would have an impact on the security functionalities.
 
-Thanks for confirming. With the above rules compilation is working
-fine, but the test fails
+This is repetitive when looking at the entire series. I think it can be
+dropped.
 
-Based on the tests/link/test, the command I'm using in the test script is:
-$result = system "runcon -t test_userfaultfd_t $basedir/userfaultfd";
+> For example, SELinux stores the active policy in memory. Changes to this
 
-The error message is:
-runcon: 'userfaultfd/userfaultfd': permission denied
+Start here and drop the "For example, ":
 
-Any suggestions?
->
-> >
-> > > We don't have an established way of handling the testing of new
-> > > classes/permissions in the testsuite before they are defined in the
-> > > distribution policy, but I think we could try this way here. The
-> > > downside is that the rules are not in one place, but we can later
-> > > merge everything into one .te file once the new class is widely
-> > > available in the distribution policies.
-> > >
-> > > > > You will likely also need to communicate different locations of
-> > > > > failures / error codes from the test program(s) to the script via exit
-> > > > > code. See tests/keys for an example of such pattern (though you can
-> > > > > use a different approach as long as it gets the job done :)
-> > > > >
-> > > > > Sorry for requiring all the effort, but we're trying to keep
-> > > > > reasonably high standards for tests here. It's sometimes a PITA, but
-> > > > > it pays off in the long run ;)
-> > > > >
-> > > > > Thanks,
-> > > > >
-> > > > > > +
-> > > > > > +exit;
-> > > > > > diff --git a/tests/userfaultfd/userfaultfd.c b/tests/userfaultfd/userfaultfd.c
-> > > > > > new file mode 100644
-> > > > > > index 0000000..9baebd9
-> > > > > > --- /dev/null
-> > > > > > +++ b/tests/userfaultfd/userfaultfd.c
-> > > > > > @@ -0,0 +1,49 @@
-> > > > > > +#include <stdio.h>
-> > > > > > +#include <fcntl.h>
-> > > > > > +#include <unistd.h>
-> > > > > > +
-> > > > > > +#include <sys/types.h>
-> > > > > > +#include <sys/ioctl.h>
-> > > > > > +#include <sys/syscall.h>
-> > > > > > +
-> > > > > > +#include <linux/userfaultfd.h>
-> > > > > > +
-> > > > > > +void print_api(const struct uffdio_api *api)
-> > > > > > +{
-> > > > > > +       printf("api: %llu\n", api->api);
-> > > > > > +       printf("features: %llu\n", api->features);
-> > > > > > +       printf("ioctls: %llu\n", api->ioctls);
-> > > > > > +
-> > > > > > +       printf("\n");
-> > > > > > +}
-> > > > > > +
-> > > > > > +int main (void)
-> > > > > > +{
-> > > > > > +       long uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-> > > > > > +       if (uffd < 0) {
-> > > > > > +               perror("syscall(userfaultfd)");
-> > > > > > +               return -1;
-> > > > > > +       }
-> > > > > > +
-> > > > > > +       struct uffdio_api api = {0};
-> > > > > > +       api.api = UFFD_API;
-> > > > > > +       if (ioctl(uffd, UFFDIO_API, &api) < 0) {
-> > > > > > +               perror("UFFDIO_API");
-> > > > > > +               return -1;
-> > > > > > +       }
-> > > > > > +
-> > > > > > +       print_api(&api);
-> > > > > > +
-> > > > > > +       struct uffd_msg msg = {0};
-> > > > > > +       ssize_t count = read(uffd, &msg, sizeof(msg));
-> > > > > > +       if (count < 0) {
-> > > > > > +               // Expected to fail as no memory range registered.
-> > > > > > +               return 0;
-> > > > > > +       } else if (count == 0) {
-> > > > > > +               printf("read EOF\n\n");
-> > > > > > +       }
-> > > > > > +
-> > > > > > +       printf("read uffd\n\n");
-> > > > > > +
-> > > > > > +       return 0;
-> > > > > > +}
-> > > > > > --
-> > > > > > 2.28.0
-> > > > > >
-> > > > >
-> > > > > --
-> > > > > Ondrej Mosnacek
-> > > > > Software Engineer, Platform Security - SELinux kernel
-> > > > > Red Hat, Inc.
-> > > > >
-> > > >
-> > >
-> > >
-> > > --
-> > > Ondrej Mosnacek
-> > > Software Engineer, Platform Security - SELinux kernel
-> > > Red Hat, Inc.
-> > >
-> >
->
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Platform Security - SELinux kernel
-> Red Hat, Inc.
->
+ SELinux stores the active policy in memory and changes to this data ...
+
+> data at runtime would have an impact on the security guarantees provided
+> by SELinux. Measuring such in-memory data structures through IMA
+> subsystem provides a secure way for a remote attestation service to
+> know the state of the system and also the runtime changes in the state
+> of the system.
+> 
+> SELinux policy is a critical data for this security module that needs
+
+ SELinux policy is critical data and should be measured. This measurement ...
+
+> to be measured. This measurement can be used by an attestation service,
+> for instance, to verify if the policy has been setup correctly and that
+> it hasn't been tampered at run-time.
+> 
+> Measure the hash of the loaded policy by calling the IMA hook
+> ima_measure_critical_data(). Since the size of the loaded policy can
+> be large (several MB), measure the hash of the policy instead of
+> the entire policy to avoid bloating the IMA log entry.
+> 
+> Add "selinux" to the list of supported data sources maintained by IMA
+> to enable measuring SELinux data.
+> 
+> To enable SELinux data measurement, the following steps are required:
+> 
+> 1, Add "ima_policy=critical_data" to the kernel command line arguments
+>    to enable measuring SELinux data at boot time.
+> For example,
+>   BOOT_IMAGE=/boot/vmlinuz-5.10.0-rc1+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
+> 
+> 2, Add the following rule to /etc/ima/ima-policy
+>    measure func=CRITICAL_DATA data_source=selinux
+> 
+> Sample measurement of the hash of SELinux policy:
+> 
+> To verify the measured data with the current SELinux policy run
+> the following commands and verify the output hash values match.
+> 
+>   sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
+> 
+>   grep "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6
+> 
+> Note that the actual verification of SELinux policy would require loading
+> the expected policy into an identical kernel on a pristine/known-safe
+> system and run the sha256sum /sys/kernel/selinux/policy there to get
+> the expected hash.
+> 
+> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  Documentation/ABI/testing/ima_policy |  3 +-
+>  security/selinux/Makefile            |  2 +
+>  security/selinux/include/security.h  | 11 +++-
+>  security/selinux/measure.c           | 86 ++++++++++++++++++++++++++++
+>  security/selinux/ss/services.c       | 71 ++++++++++++++++++++---
+>  5 files changed, 162 insertions(+), 11 deletions(-)
+>  create mode 100644 security/selinux/measure.c
+> 
+> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+> index 0f4ee9e0a455..7c7023f7986b 100644
+> --- a/Documentation/ABI/testing/ima_policy
+> +++ b/Documentation/ABI/testing/ima_policy
+> @@ -52,8 +52,9 @@ Description:
+>  			template:= name of a defined IMA template type
+>  			(eg, ima-ng). Only valid when action is "measure".
+>  			pcr:= decimal value
+> -			data_source:= [label]
+> +			data_source:= [selinux]|[label]
+>  			label:= a unique string used for grouping and limiting critical data.
+> +			For example, "selinux" to measure critical data for SELinux.
+>  
+>  		  default policy:
+>  			# PROC_SUPER_MAGIC
+> diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+> index 4d8e0e8adf0b..83d512116341 100644
+> --- a/security/selinux/Makefile
+> +++ b/security/selinux/Makefile
+> @@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
+>  
+>  selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
+>  
+> +selinux-$(CONFIG_IMA) += measure.o
+> +
+>  ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+>  
+>  $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 3cc8bab31ea8..18ee65c98446 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -229,7 +229,8 @@ void selinux_policy_cancel(struct selinux_state *state,
+>  			struct selinux_policy *policy);
+>  int security_read_policy(struct selinux_state *state,
+>  			 void **data, size_t *len);
+> -
+> +int security_read_policy_kernel(struct selinux_state *state,
+> +				void **data, size_t *len);
+>  int security_policycap_supported(struct selinux_state *state,
+>  				 unsigned int req_cap);
+>  
+> @@ -446,4 +447,12 @@ extern void ebitmap_cache_init(void);
+>  extern void hashtab_cache_init(void);
+>  extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
+>  
+> +#ifdef CONFIG_IMA
+> +extern void selinux_measure_state(struct selinux_state *selinux_state);
+> +#else
+> +static inline void selinux_measure_state(struct selinux_state *selinux_state)
+> +{
+> +}
+> +#endif
+> +
+>  #endif /* _SELINUX_SECURITY_H_ */
+> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+> new file mode 100644
+> index 000000000000..c409ada6ea39
+> --- /dev/null
+> +++ b/security/selinux/measure.c
+> @@ -0,0 +1,86 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * Measure SELinux state using IMA subsystem.
+> + */
+> +#include <linux/vmalloc.h>
+> +#include <linux/ktime.h>
+> +#include <linux/ima.h>
+> +#include "security.h"
+> +
+> +/*
+> + * This function creates a unique name by appending the timestamp to
+> + * the given string. This string is passed as "event_name" to the IMA
+> + * hook to measure the given SELinux data.
+> + *
+> + * The data provided by SELinux to the IMA subsystem for measuring may have
+> + * already been measured (for instance the same state existed earlier).
+> + * But for SELinux the current data represents a state change and hence
+> + * needs to be measured again. To enable this, pass a unique "event_name"
+> + * to the IMA hook so that IMA subsystem will always measure the given data.
+> + *
+> + * For example,
+> + * At time T0 SELinux data to be measured is "foo". IMA measures it.
+> + * At time T1 the data is changed to "bar". IMA measures it.
+> + * At time T2 the data is changed to "foo" again. IMA will not measure it
+> + * (since it was already measured) unless the event_name, for instance,
+> + * is different in this call.
+> + */
+> +static char *selinux_event_name(const char *name_prefix)
+> +{
+> +	char *event_name = NULL;
+> +	struct timespec64 cur_time;
+> +
+> +	ktime_get_real_ts64(&cur_time);
+> +	event_name = kasprintf(GFP_KERNEL, "%s-%lld:%09ld", name_prefix,
+> +			       cur_time.tv_sec, cur_time.tv_nsec);
+> +	if (!event_name) {
+> +		pr_err("%s: event name not allocated.\n", __func__);
+> +		return NULL;
+> +	}
+> +
+> +	return event_name;
+> +}
+> +
+> +/*
+> + * selinux_measure_state - Measure hash of the SELinux policy
+> + *
+> + * @state: selinux state struct
+> + *
+> + * NOTE: This function must be called with policy_mutex held.
+> + */
+> +void selinux_measure_state(struct selinux_state *state)
+> +{
+> +	void *policy = NULL;
+> +	char *policy_event_name = NULL;
+> +	size_t policy_len;
+> +	int rc = 0;
+> +	bool initialized = selinux_initialized(state);
+> +
+> +	/*
+> +	 * Measure SELinux policy only after initialization is completed.
+> +	 */
+> +	if (!initialized)
+> +		goto out;
+> +
+> +	policy_event_name = selinux_event_name("selinux-policy-hash");
+> +	if (!policy_event_name) {
+> +		pr_err("%s: Event name for policy not allocated.\n",
+> +		       __func__);
+
+If the kasprintf() in selinux_event_name() fails, we'll get two similar
+error messages saying that the event name could not be allocated. One of
+these error messages can be removed.
+
+> +		rc = -ENOMEM;
+> +		goto out;
+> +	}
+> +
+> +	rc = security_read_policy_kernel(state, &policy, &policy_len);
+> +	if (rc) {
+> +		pr_err("%s: Failed to read policy %d.\n", __func__, rc);
+
+The calls to pr_err() in this aren't quite following the style of the
+other error SELinux error messages.
+
+ $ git grep pr_err security/selinux
+ security/selinux/hooks.c:               pr_err("SELinux:  out of range capability %d\n", cap);
+ security/selinux/hooks.c:               pr_err("SELinux:  unable to map context to SID"
+ security/selinux/netlink.c:     pr_err("SELinux:  OOM in %s\n", __func__);
+ security/selinux/selinuxfs.c:   pr_err("SELinux:  Runtime disable is deprecated, use selinux=0 on the kernel cmdline.\n");
+ security/selinux/selinuxfs.c:           pr_err("SELinux: failed to load policy booleans\n");
+ security/selinux/selinuxfs.c:           pr_err("SELinux: failed to load policy classes\n");
+ ...
+ security/selinux/ss/services.c:         pr_err("SELinux: %s:  unrecognized SID %d\n",
+ security/selinux/ss/services.c:         pr_err("SELinux: %s:  unrecognized SID %d\n",
+ security/selinux/ss/services.c:         pr_err("SELinux: %s:  unrecognized SID %d\n",
+ security/selinux/ss/services.c:         pr_err("SELinux: %s:  unrecognized SID %d\n",
+ security/selinux/ss/services.c:         pr_err("SELinux: %s:  unrecognized class %s\n",
+
+Prepending your error message strings with "SELinux: " and lowercasing the
+first character after "%s: " ought to do it.
+
+
+All the other code changes in this patch look correct to me.
+
+Tyler
+
+
+> +		goto out;
+> +	}
+> +
+> +	ima_measure_critical_data("selinux", policy_event_name,
+> +				  policy, policy_len, true);
+> +
+> +	vfree(policy);
+> +
+> +out:
+> +	kfree(policy_event_name);
+> +}
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 9704c8a32303..dfa2e00894ae 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2180,6 +2180,7 @@ static void selinux_notify_policy_change(struct selinux_state *state,
+>  	selinux_status_update_policyload(state, seqno);
+>  	selinux_netlbl_cache_invalidate();
+>  	selinux_xfrm_notify_policyload();
+> +	selinux_measure_state(state);
+>  }
+>  
+>  void selinux_policy_commit(struct selinux_state *state,
+> @@ -3875,8 +3876,33 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
+>  }
+>  #endif /* CONFIG_NETLABEL */
+>  
+> +/**
+> + * security_read_selinux_policy - read the policy.
+> + * @policy: SELinux policy
+> + * @data: binary policy data
+> + * @len: length of data in bytes
+> + *
+> + */
+> +static int security_read_selinux_policy(struct selinux_policy *policy,
+> +					void *data, size_t *len)
+> +{
+> +	int rc;
+> +	struct policy_file fp;
+> +
+> +	fp.data = data;
+> +	fp.len = *len;
+> +
+> +	rc = policydb_write(&policy->policydb, &fp);
+> +	if (rc)
+> +		return rc;
+> +
+> +	*len = (unsigned long)fp.data - (unsigned long)data;
+> +	return 0;
+> +}
+> +
+>  /**
+>   * security_read_policy - read the policy.
+> + * @state: selinux_state
+>   * @data: binary policy data
+>   * @len: length of data in bytes
+>   *
+> @@ -3885,8 +3911,6 @@ int security_read_policy(struct selinux_state *state,
+>  			 void **data, size_t *len)
+>  {
+>  	struct selinux_policy *policy;
+> -	int rc;
+> -	struct policy_file fp;
+>  
+>  	policy = rcu_dereference_protected(
+>  			state->policy, lockdep_is_held(&state->policy_mutex));
+> @@ -3898,14 +3922,43 @@ int security_read_policy(struct selinux_state *state,
+>  	if (!*data)
+>  		return -ENOMEM;
+>  
+> -	fp.data = *data;
+> -	fp.len = *len;
+> +	return security_read_selinux_policy(policy, *data, len);
+> +}
+>  
+> -	rc = policydb_write(&policy->policydb, &fp);
+> -	if (rc)
+> -		return rc;
+> +/**
+> + * security_read_policy_kernel - read the policy.
+> + * @state: selinux_state
+> + * @data: binary policy data
+> + * @len: length of data in bytes
+> + *
+> + * Allocates kernel memory for reading SELinux policy.
+> + * This function is for internal use only and should not
+> + * be used for returning data to user space.
+> + *
+> + * This function must be called with policy_mutex held.
+> + */
+> +int security_read_policy_kernel(struct selinux_state *state,
+> +				void **data, size_t *len)
+> +{
+> +	struct selinux_policy *policy;
+> +	int rc = 0;
+>  
+> -	*len = (unsigned long)fp.data - (unsigned long)*data;
+> -	return 0;
+> +	policy = rcu_dereference_protected(
+> +			state->policy, lockdep_is_held(&state->policy_mutex));
+> +	if (!policy) {
+> +		rc = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	*len = policy->policydb.len;
+> +	*data = vmalloc(*len);
+> +	if (!*data) {
+> +		rc = -ENOMEM;
+> +		goto out;
+> +	}
+>  
+> +	rc = security_read_selinux_policy(policy, *data, len);
+> +
+> +out:
+> +	return rc;
+>  }
+> -- 
+> 2.17.1
+> 
