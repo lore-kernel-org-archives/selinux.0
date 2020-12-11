@@ -2,299 +2,309 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B726BC433FE
-	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 00:54:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26D80C4167B
+	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 01:16:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6772723DB4
-	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 00:54:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5D3123380
+	for <selinux@archiver.kernel.org>; Fri, 11 Dec 2020 01:16:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393494AbgLKAxo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Dec 2020 19:53:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394627AbgLKAxQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Dec 2020 19:53:16 -0500
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 756ADC0613CF
-        for <selinux@vger.kernel.org>; Thu, 10 Dec 2020 16:52:36 -0800 (PST)
-Received: by mail-ej1-x641.google.com with SMTP id ce23so10024623ejb.8
-        for <selinux@vger.kernel.org>; Thu, 10 Dec 2020 16:52:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vjVnPnJPAdyC72ucD7wwdyLQxM7HPUaMSTym2Mu5WA8=;
-        b=Ic9y4IOj7usu47TduEj8LujoCqPQTnHw7wyTKuRkH1Pg8BOwgsLCJbNuz+2o5mUjJy
-         qspUpTen27UgFXH2za8c0jzpeAVF9p+d6IE0XJGdGD7JatlWuuprkgMmBu6PRZQ6a5Ux
-         yI7ZQj9shEK4kUCTBBaOCMmeRkBS0bhLJEmVQ7MEz063BYJwY3/nry7dxLxP66i2yMfe
-         yvw4ATlrYqtoozYyekLvsex0iYc42cANalGz1qryOSWYqs17T7VPcz1N/9pi5UWnUNUa
-         H+8w2gc6mqPXXeQg2Vv16yTMelJsR+ySmCxdOKeqcnDN7xl3O8MXJqQhIL00hE1Qgik3
-         YzoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vjVnPnJPAdyC72ucD7wwdyLQxM7HPUaMSTym2Mu5WA8=;
-        b=S//LKtry52MaI8i2teb2UJ0YLi+Kkqh8ChNd3vF5kzmtJoLnrgoHORVmI53qFJDEzF
-         uWY4TcEa7IasfOKssAigTe6xsha7W1y0NrwpQ3HSCFqKbsDjh89jwlvjIUBUn6I4HvaX
-         8XM0x8ajOQt+G+e/LLJ0mPMlASXWgCEmI82zjOpqM0krD0uNqwLre38m2aLphrd6Bb6o
-         iCYsEboU1x+Ge1LzWkiFdKqa79YFZem3GHqlylyxNWSzJSmUglzJLw+GrU755dkDjlid
-         yUh/0QNUumST8wy15zKg2Pmns9i1bhXsVLZNrlpE9ImGhjDWR70Gj31DXz3uQeIvLgHf
-         lM0A==
-X-Gm-Message-State: AOAM533ThYsWHRtNyNgbIxEXy7TG8I2L+VYvObp0ZDxuHXwQR9mmCYd9
-        k2R8kPTXmgvVCL80oxelt7mQQMgsvLp8sTMdMMMQsg==
-X-Google-Smtp-Source: ABdhPJwgzCXpZXfaNyvmTmUUK7sPBXYrUD27cKyHRihYcOGn7I/foy4wUl7m7i6C9RcYOSd/s56247gsW6yVbDJECKc=
-X-Received: by 2002:a17:906:351a:: with SMTP id r26mr8486942eja.409.1607647954929;
- Thu, 10 Dec 2020 16:52:34 -0800 (PST)
+        id S2394533AbgLKBPh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Dec 2020 20:15:37 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:51422 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2394542AbgLKBPX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Dec 2020 20:15:23 -0500
+Received: from [192.168.86.31] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 12A8C20B717A;
+        Thu, 10 Dec 2020 17:14:40 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 12A8C20B717A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1607649280;
+        bh=4R9OG2feuYIo3nqEi8NREDsDSFYwJsGy2XGz3Yt2nvM=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=sTiDW/PuMI3aO/Q82gYQ+B7iQxlhtVwdnoZnEwB/NkxflgskVkpQcqoQF15r3ErRC
+         c+ptSlJOXzoFEPktltGggMW0t/Pt5fpVDb5glK+GVQR9diMOAgGAvnZYa5O9ccYu5E
+         XpZbtwXCNZNErQQLHOADIjMEjPOoSB4AWVHfMLwE=
+Subject: Re: [PATCH v7 1/8] IMA: generalize keyring specific measurement
+ constructs
+To:     Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com, sashal@kernel.org,
+        jmorris@namei.org, nramas@linux.microsoft.com,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20201209194212.5131-1-tusharsu@linux.microsoft.com>
+ <20201209194212.5131-2-tusharsu@linux.microsoft.com>
+ <20201210221417.GF489768@sequoia>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <51908b87-ae39-790e-62c7-d63c4a85b774@linux.microsoft.com>
+Date:   Thu, 10 Dec 2020 17:14:39 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20201125125402.211692-1-lokeshgidra@google.com> <CAFqZXNsry1zqGND-iBaYmwb_KeCvoat-LQFywf04TAp998sqXQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsry1zqGND-iBaYmwb_KeCvoat-LQFywf04TAp998sqXQ@mail.gmail.com>
-From:   Lokesh Gidra <lokeshgidra@google.com>
-Date:   Thu, 10 Dec 2020 16:52:23 -0800
-Message-ID: <CA+EESO7KW+ixSoFKOE_aH7P=rgUSuOL6y6TZfg_4Pez-Caw8LA@mail.gmail.com>
-Subject: Re: [PATCH v1 1/1] selinux-testsuite: Add userfaultfd test
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        "Cc: Android Kernel" <kernel-team@android.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20201210221417.GF489768@sequoia>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Ondrej,
-On Fri, Nov 27, 2020 at 6:09 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Hi Lokesh,
->
-> On Wed, Nov 25, 2020 at 1:54 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > Confirm SELinux policies are enforced on userfaultfd operations
-> > via secure anon-inode interface.
-> >
-> > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> > ---
-> >  policy/Makefile                 |  2 +-
-> >  policy/userfaultfd.cil          | 17 ++++++++++++
-> >  tests/Makefile                  |  2 +-
-> >  tests/userfaultfd/Makefile      |  3 ++
-> >  tests/userfaultfd/test          | 15 ++++++++++
-> >  tests/userfaultfd/userfaultfd.c | 49 +++++++++++++++++++++++++++++++++
-> >  6 files changed, 86 insertions(+), 2 deletions(-)
-> >  create mode 100644 policy/userfaultfd.cil
-> >  create mode 100644 tests/userfaultfd/Makefile
-> >  create mode 100755 tests/userfaultfd/test
-> >  create mode 100644 tests/userfaultfd/userfaultfd.c
-> >
-> > diff --git a/policy/Makefile b/policy/Makefile
-> > index 6c49091..02e7568 100644
-> > --- a/policy/Makefile
-> > +++ b/policy/Makefile
-> > @@ -36,7 +36,7 @@ SUPPORTS_CIL = n
-> >  endif
-> >
-> >  ifeq ($(SUPPORTS_CIL),y)
-> > -CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
-> > +CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil userfaultfd.cil
-> >  ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
-> >  ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
-> >  # If other MLS tests get written this can be moved outside of the glblub test
-> > diff --git a/policy/userfaultfd.cil b/policy/userfaultfd.cil
-> > new file mode 100644
-> > index 0000000..0743fff
-> > --- /dev/null
-> > +++ b/policy/userfaultfd.cil
-> > @@ -0,0 +1,17 @@
-> > +(class anon_inode ())
-> > +(classcommon anon_inode file)
-> > +(classorder (unordered anon_inode))
-> > +(type uffd_t)
-> > +; Label the UFFD with uffd_t; this can be specialized per domain
-> > +(typetransition unconfined_t unconfined_t anon_inode "[userfaultfd]"    uffd_t)
-> > +(allow unconfined_t uffd_t (anon_inode (create)))
-> > +; Permit read() and ioctl() on the UFFD;
-> > +; Comment out if you want to test read or basic ioctl enforcement.
-> > +(allow unconfined_t uffd_t (anon_inode (read)))
-> > +(allow unconfined_t uffd_t (anon_inode (ioctl)))
-> > +; Uncomment one of the allowx lines below to test ioctl whitelisting.
-> > +; Currently the first one is uncommented; comment that out if trying another.
-> > +; None
-> > +;(allowx unconfined_t uffd_t (ioctl anon_inode ((0x00))))
-> > +; UFFDIO_API
-> > +(allowx unconfined_t uffd_t (ioctl anon_inode ((0xaa3f))))
-> > diff --git a/tests/Makefile b/tests/Makefile
-> > index 4c00b5f..3871570 100644
-> > --- a/tests/Makefile
-> > +++ b/tests/Makefile
-> > @@ -27,7 +27,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
-> >         task_setnice task_setscheduler task_getscheduler task_getsid \
-> >         task_getpgid task_setpgid file ioctl capable_file capable_net \
-> >         capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
-> > -       inet_socket overlay checkreqprot mqueue mac_admin atsecure
-> > +       inet_socket overlay checkreqprot mqueue mac_admin atsecure userfaultfd
-> >
-> >  ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
-> >  ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-> > diff --git a/tests/userfaultfd/Makefile b/tests/userfaultfd/Makefile
-> > new file mode 100644
-> > index 0000000..66d02a1
-> > --- /dev/null
-> > +++ b/tests/userfaultfd/Makefile
-> > @@ -0,0 +1,3 @@
-> > +all: userfaultfd
-> > +clean:
-> > +       rm -f userfaultfd
-> > diff --git a/tests/userfaultfd/test b/tests/userfaultfd/test
-> > new file mode 100755
-> > index 0000000..dd42aa8
-> > --- /dev/null
-> > +++ b/tests/userfaultfd/test
-> > @@ -0,0 +1,15 @@
-> > +#!/usr/bin/perl
-> > +
-> > +use Test;
-> > +
-> > +BEGIN {
-> > +    plan tests => 1;
-> > +}
-> > +
-> > +$basedir = $0;
-> > +$basedir =~ s|(.*)/[^/]*|$1|;
-> > +
-> > +$result = system("$basedir/userfaultfd");
-> > +ok( $result, 0 );
->
-> This is a good start, but it is only a very basic test :)
->
-> I would expect at least these tests here:
-> 1. that an userfaultfd node created by a domain *without* the
-> transition rule gets the context of the creating process (should be
-> possible by calling fgetxattr(2) on the fd),
-> 2. that an userfaultfd node created by a domain *with* the transition
-> rule gets the context specified by the rule,
-> 3. that a process with context that is *allowed* to { create read
-> write [...] } a given userfaultfd type by the policy *can* indeed
-> successfully perform these operations (or at least that the error
-> returned is not -EACCESS),
-> 4. that a process with context that is *NOT allowed* to { create read
-> write [...] } a given userfaultfd type by the policy *cannot* perform
-> these operations and the error returned is -EACCESS.
->
-> (The more permissions you can test the better, but I'd like to see at
-> least the three (create, read, write).)
->
-> For this, you will need to define several process types in the test
-> policy and run the test program(s) with a specific type using runcon
-> (see e.g. policy/test_link.te and tests/link/test for a simple
-> example). I suggest using the CIL module only for adding the class and
-> permissions and a separate .te file to define the process and
-> userfaultfd types (so that you can use the unconfined_runs_test()
-> interface for common permissions needed for the process types).
->
-I'm having a bit of a hard time managing the test policy in a cil
-module and a .te file. My inexperience with SELinux could be a reason
-:)
 
-I defined 'anon_inode' class, like in this patch in the CIL module as follows:
-(class anon_inode ())
-(classcommon anon_inode file)
-(classorder (unordered anon_inode))
 
-But then when I used anon_inode in the .te file as follows:
-...
-type uffd_t;
-type_transition test_userfaultfd_t test_userfaultfd_t : anon_inode
-uffd_t "[userfaultfd]";
-allow test_userfaultfd_t uffd_t:anon_inode { create ioctl read };
-
-I get a compile error:
-test_policy.te:<line#>:ERROR 'unknown class anon_inode' at token ';' on line ...
-
-Any advice on where I am making mistakes?
-
-> You will likely also need to communicate different locations of
-> failures / error codes from the test program(s) to the script via exit
-> code. See tests/keys for an example of such pattern (though you can
-> use a different approach as long as it gets the job done :)
->
-> Sorry for requiring all the effort, but we're trying to keep
-> reasonably high standards for tests here. It's sometimes a PITA, but
-> it pays off in the long run ;)
->
-> Thanks,
->
-> > +
-> > +exit;
-> > diff --git a/tests/userfaultfd/userfaultfd.c b/tests/userfaultfd/userfaultfd.c
-> > new file mode 100644
-> > index 0000000..9baebd9
-> > --- /dev/null
-> > +++ b/tests/userfaultfd/userfaultfd.c
-> > @@ -0,0 +1,49 @@
-> > +#include <stdio.h>
-> > +#include <fcntl.h>
-> > +#include <unistd.h>
-> > +
-> > +#include <sys/types.h>
-> > +#include <sys/ioctl.h>
-> > +#include <sys/syscall.h>
-> > +
-> > +#include <linux/userfaultfd.h>
-> > +
-> > +void print_api(const struct uffdio_api *api)
-> > +{
-> > +       printf("api: %llu\n", api->api);
-> > +       printf("features: %llu\n", api->features);
-> > +       printf("ioctls: %llu\n", api->ioctls);
-> > +
-> > +       printf("\n");
-> > +}
-> > +
-> > +int main (void)
-> > +{
-> > +       long uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-> > +       if (uffd < 0) {
-> > +               perror("syscall(userfaultfd)");
-> > +               return -1;
-> > +       }
-> > +
-> > +       struct uffdio_api api = {0};
-> > +       api.api = UFFD_API;
-> > +       if (ioctl(uffd, UFFDIO_API, &api) < 0) {
-> > +               perror("UFFDIO_API");
-> > +               return -1;
-> > +       }
-> > +
-> > +       print_api(&api);
-> > +
-> > +       struct uffd_msg msg = {0};
-> > +       ssize_t count = read(uffd, &msg, sizeof(msg));
-> > +       if (count < 0) {
-> > +               // Expected to fail as no memory range registered.
-> > +               return 0;
-> > +       } else if (count == 0) {
-> > +               printf("read EOF\n\n");
-> > +       }
-> > +
-> > +       printf("read uffd\n\n");
-> > +
-> > +       return 0;
-> > +}
-> > --
-> > 2.28.0
-> >
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Platform Security - SELinux kernel
-> Red Hat, Inc.
->
+On 2020-12-10 2:14 p.m., Tyler Hicks wrote:
+> On 2020-12-09 11:42:05, Tushar Sugandhi wrote:
+>> IMA functions such as ima_match_keyring(), process_buffer_measurement(),
+>> ima_match_policy() etc. handle data specific to keyrings. Currently,
+>> these constructs are not generic to handle any func specific data.
+>> This makes it harder to extend them without code duplication.
+>>
+>> Refactor the keyring specific measurement constructs to be generic and
+>> reusable in other measurement scenarios.
+>>
+>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+> 
+> I've got a few code cleanup suggestions to ima_match_rule_data() below
+> but the current patch is fine:
+> 
+> Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+> 
+>> ---
+>>   security/integrity/ima/ima.h        |  6 ++--
+>>   security/integrity/ima/ima_api.c    |  6 ++--
+>>   security/integrity/ima/ima_main.c   |  6 ++--
+>>   security/integrity/ima/ima_policy.c | 49 ++++++++++++++++++-----------
+>>   4 files changed, 40 insertions(+), 27 deletions(-)
+>>
+>> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+>> index 8e8b1e3cb847..e5622ce8cbb1 100644
+>> --- a/security/integrity/ima/ima.h
+>> +++ b/security/integrity/ima/ima.h
+>> @@ -256,7 +256,7 @@ static inline void ima_process_queued_keys(void) {}
+>>   int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
+>>   		   int mask, enum ima_hooks func, int *pcr,
+>>   		   struct ima_template_desc **template_desc,
+>> -		   const char *keyring);
+>> +		   const char *func_data);
+>>   int ima_must_measure(struct inode *inode, int mask, enum ima_hooks func);
+>>   int ima_collect_measurement(struct integrity_iint_cache *iint,
+>>   			    struct file *file, void *buf, loff_t size,
+>> @@ -268,7 +268,7 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+>>   			   struct ima_template_desc *template_desc);
+>>   void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>>   				const char *eventname, enum ima_hooks func,
+>> -				int pcr, const char *keyring);
+>> +				int pcr, const char *func_data);
+>>   void ima_audit_measurement(struct integrity_iint_cache *iint,
+>>   			   const unsigned char *filename);
+>>   int ima_alloc_init_template(struct ima_event_data *event_data,
+>> @@ -284,7 +284,7 @@ const char *ima_d_path(const struct path *path, char **pathbuf, char *filename);
+>>   int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
+>>   		     enum ima_hooks func, int mask, int flags, int *pcr,
+>>   		     struct ima_template_desc **template_desc,
+>> -		     const char *keyring);
+>> +		     const char *func_data);
+>>   void ima_init_policy(void);
+>>   void ima_update_policy(void);
+>>   void ima_update_policy_flag(void);
+>> diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+>> index 4f39fb93f278..af218babd198 100644
+>> --- a/security/integrity/ima/ima_api.c
+>> +++ b/security/integrity/ima/ima_api.c
+>> @@ -170,7 +170,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+>>    * @func: caller identifier
+>>    * @pcr: pointer filled in if matched measure policy sets pcr=
+>>    * @template_desc: pointer filled in if matched measure policy sets template=
+>> - * @keyring: keyring name used to determine the action
+>> + * @func_data: private data specific to @func, can be NULL.
+>>    *
+>>    * The policy is defined in terms of keypairs:
+>>    *		subj=, obj=, type=, func=, mask=, fsmagic=
+>> @@ -186,14 +186,14 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+>>   int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
+>>   		   int mask, enum ima_hooks func, int *pcr,
+>>   		   struct ima_template_desc **template_desc,
+>> -		   const char *keyring)
+>> +		   const char *func_data)
+>>   {
+>>   	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE | IMA_HASH;
+>>   
+>>   	flags &= ima_policy_flag;
+>>   
+>>   	return ima_match_policy(inode, cred, secid, func, mask, flags, pcr,
+>> -				template_desc, keyring);
+>> +				template_desc, func_data);
+>>   }
+>>   
+>>   /*
+>> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+>> index 68956e884403..e76ef4bfd0f4 100644
+>> --- a/security/integrity/ima/ima_main.c
+>> +++ b/security/integrity/ima/ima_main.c
+>> @@ -786,13 +786,13 @@ int ima_post_load_data(char *buf, loff_t size,
+>>    * @eventname: event name to be used for the buffer entry.
+>>    * @func: IMA hook
+>>    * @pcr: pcr to extend the measurement
+>> - * @keyring: keyring name to determine the action to be performed
+>> + * @func_data: private data specific to @func, can be NULL.
+>>    *
+>>    * Based on policy, the buffer is measured into the ima log.
+>>    */
+>>   void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>>   				const char *eventname, enum ima_hooks func,
+>> -				int pcr, const char *keyring)
+>> +				int pcr, const char *func_data)
+>>   {
+>>   	int ret = 0;
+>>   	const char *audit_cause = "ENOMEM";
+>> @@ -831,7 +831,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+>>   	if (func) {
+>>   		security_task_getsecid(current, &secid);
+>>   		action = ima_get_action(inode, current_cred(), secid, 0, func,
+>> -					&pcr, &template, keyring);
+>> +					&pcr, &template, func_data);
+>>   		if (!(action & IMA_MEASURE))
+>>   			return;
+>>   	}
+>> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+>> index 823a0c1379cb..25419c7ff50b 100644
+>> --- a/security/integrity/ima/ima_policy.c
+>> +++ b/security/integrity/ima/ima_policy.c
+>> @@ -453,30 +453,44 @@ int ima_lsm_policy_change(struct notifier_block *nb, unsigned long event,
+>>   }
+>>   
+>>   /**
+>> - * ima_match_keyring - determine whether the keyring matches the measure rule
+>> - * @rule: a pointer to a rule
+>> - * @keyring: name of the keyring to match against the measure rule
+>> + * ima_match_rule_data - determine whether the given func_data matches
+>> + *			 the measure rule data
+>> + * @rule: IMA policy rule
+>> + * @func_data: data to match against the measure rule data
+>>    * @cred: a pointer to a credentials structure for user validation
+>>    *
+>> - * Returns true if keyring matches one in the rule, false otherwise.
+>> + * Returns true if func_data matches one in the rule, false otherwise.
+>>    */
+>> -static bool ima_match_keyring(struct ima_rule_entry *rule,
+>> -			      const char *keyring, const struct cred *cred)
+>> +static bool ima_match_rule_data(struct ima_rule_entry *rule,
+>> +				const char *func_data,
+>> +				const struct cred *cred)
+>>   {
+>> +	const struct ima_rule_opt_list *opt_list = NULL;
+>>   	bool matched = false;
+>>   	size_t i;
+>>   
+>>   	if ((rule->flags & IMA_UID) && !rule->uid_op(cred->uid, rule->uid))
+>>   		return false;
+>>   
+>> -	if (!rule->keyrings)
+>> -		return true;
+>> +	switch (rule->func) {
+>> +	case KEY_CHECK:
+>> +		if (!rule->keyrings)
+>> +			return true;
+>> +		else
+>> +			opt_list = rule->keyrings;
+> 
+> You return if rule->keyrings is NULL so drop this else and simply make
+> the opt_list assignment.
+> 
+Will do.
+>> +		break;
+>> +	default:
+>> +		break;
+> 
+> I would like to see the 'return false;' happen immediately here instead
+> of waiting for the opt_list check below.
+Will do.
+> 
+>> +	}
+>>   
+>> -	if (!keyring)
+>> +	if (!func_data)
+>> +		return false;
+>> +
+>> +	if (!opt_list)
+>>   		return false;
+> 
+> If you return false in the 'default:' case above, you can just remove this
+> entire conditional because you'll be assigning opt_list in all of the
+> valid cases of the switch statement.
+> 
+Yup. Agreed. Will do.
+~Tushar
+> Tyler
+> 
+>>   
+>> -	for (i = 0; i < rule->keyrings->count; i++) {
+>> -		if (!strcmp(rule->keyrings->items[i], keyring)) {
+>> +	for (i = 0; i < opt_list->count; i++) {
+>> +		if (!strcmp(opt_list->items[i], func_data)) {
+>>   			matched = true;
+>>   			break;
+>>   		}
+>> @@ -493,20 +507,20 @@ static bool ima_match_keyring(struct ima_rule_entry *rule,
+>>    * @secid: the secid of the task to be validated
+>>    * @func: LIM hook identifier
+>>    * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
+>> - * @keyring: keyring name to check in policy for KEY_CHECK func
+>> + * @func_data: private data specific to @func, can be NULL.
+>>    *
+>>    * Returns true on rule match, false on failure.
+>>    */
+>>   static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>>   			    const struct cred *cred, u32 secid,
+>>   			    enum ima_hooks func, int mask,
+>> -			    const char *keyring)
+>> +			    const char *func_data)
+>>   {
+>>   	int i;
+>>   
+>>   	if (func == KEY_CHECK) {
+>>   		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
+>> -		       ima_match_keyring(rule, keyring, cred);
+>> +			ima_match_rule_data(rule, func_data, cred);
+>>   	}
+>>   	if ((rule->flags & IMA_FUNC) &&
+>>   	    (rule->func != func && func != POST_SETATTR))
+>> @@ -610,8 +624,7 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
+>>    * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
+>>    * @pcr: set the pcr to extend
+>>    * @template_desc: the template that should be used for this rule
+>> - * @keyring: the keyring name, if given, to be used to check in the policy.
+>> - *           keyring can be NULL if func is anything other than KEY_CHECK.
+>> + * @func_data: private data specific to @func, can be NULL.
+>>    *
+>>    * Measure decision based on func/mask/fsmagic and LSM(subj/obj/type)
+>>    * conditions.
+>> @@ -623,7 +636,7 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
+>>   int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
+>>   		     enum ima_hooks func, int mask, int flags, int *pcr,
+>>   		     struct ima_template_desc **template_desc,
+>> -		     const char *keyring)
+>> +		     const char *func_data)
+>>   {
+>>   	struct ima_rule_entry *entry;
+>>   	int action = 0, actmask = flags | (flags << 1);
+>> @@ -638,7 +651,7 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
+>>   			continue;
+>>   
+>>   		if (!ima_match_rules(entry, inode, cred, secid, func, mask,
+>> -				     keyring))
+>> +				     func_data))
+>>   			continue;
+>>   
+>>   		action |= entry->flags & IMA_ACTION_FLAGS;
+>> -- 
+>> 2.17.1
+>>
