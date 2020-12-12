@@ -2,195 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B28C433FE
-	for <selinux@archiver.kernel.org>; Sat, 12 Dec 2020 19:22:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 550E0C4167B
+	for <selinux@archiver.kernel.org>; Sat, 12 Dec 2020 20:56:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC6FD22257
-	for <selinux@archiver.kernel.org>; Sat, 12 Dec 2020 19:22:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A2DC230FB
+	for <selinux@archiver.kernel.org>; Sat, 12 Dec 2020 20:56:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501905AbgLLTVo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 12 Dec 2020 14:21:44 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:60692 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2501900AbgLLTVe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 12 Dec 2020 14:21:34 -0500
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id D778E20B717B;
-        Sat, 12 Dec 2020 11:20:51 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D778E20B717B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1607800852;
-        bh=k520jqRvnhL9cGLtydGCC1OmTqOmk5O0XC1t5lPSUzc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LUOSyFmyJ+2q2tJjExToQUHdz/1pApBtOWUezomQoRfyit2Ze13EwZDuGefJeXsPt
-         cAxfFBjwbGPg17UU5iQmldztEuro9+3ckIPNAkK9PF3e27Iid6paQAZ29AinO9HJfp
-         6i7dLXhEwKcX3vWCBFl3Mzb/EVEBEXWh6t5qV/LY=
-Date:   Sat, 12 Dec 2020 13:20:49 -0600
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, paul@paul-moore.com, sashal@kernel.org,
-        jmorris@namei.org, nramas@linux.microsoft.com,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        id S2407910AbgLLU4V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 12 Dec 2020 15:56:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59630 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2407890AbgLLU4U (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 12 Dec 2020 15:56:20 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A606BC0613CF;
+        Sat, 12 Dec 2020 12:55:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=WvFf+jA75Sbv8N99WjSMJITzF6r6kvLC4AxYbTkoaMU=; b=pzSQ419n0/LzeB7FPfxuvjdg1b
+        S+KMbAXTdTnw6SDA8CSdpfxIgeWbEoFXmLZIY5Q4KhhjNwHFcpz8n6hjPG4GTmAH5wdkzfngtMaVq
+        doC3EYKNRYIzoBcoWdq/g71S7JEjPAFCgyPMWBJJYOGJRzMAXbnSlbLMq1kEkCMOeo0ssnaZHSWZg
+        8jruB4/ILM61wOfh2AXUsUZVQbAVUZmhJcF7AhI2AfKp030/D3yPmxW4z6Ac+HEGGXB3j8bTfq8UX
+        Cdx/JUpCZTWPTMRDRidUP3OzTz4MgZ0+cH2yW0r43+wa/77saKX3wXQJCiugCWjC7jwRRkC3srPWz
+        MARMV+pg==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1koBvG-0005AR-R6; Sat, 12 Dec 2020 20:55:22 +0000
+Date:   Sat, 12 Dec 2020 20:55:22 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Stephen Brennan <stephen.s.brennan@oracle.com>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
         linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: Re: [PATCH v9 5/8] IMA: limit critical data measurement based on a
- label
-Message-ID: <20201212192049.GJ4951@sequoia>
-References: <20201212180251.9943-1-tusharsu@linux.microsoft.com>
- <20201212180251.9943-6-tusharsu@linux.microsoft.com>
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] proc: Allow pid_revalidate() during LOOKUP_RCU
+Message-ID: <20201212205522.GF2443@casper.infradead.org>
+References: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201212180251.9943-6-tusharsu@linux.microsoft.com>
+In-Reply-To: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2020-12-12 10:02:48, Tushar Sugandhi wrote:
-> System administrators should be able to limit which kernel subsystems
-> they want to measure the critical data for. To enable that, an IMA policy
-> condition to choose specific kernel subsystems is needed. This policy
-> condition would constrain the measurement of the critical data based on
-> a label for the given subsystems.
-> 
-> Add a new IMA policy condition - "data_source:=" to the IMA func
-> CRITICAL_DATA to allow measurement of various kernel subsystems. This
-> policy condition would enable the system administrators to restrict the
-> measurement to the labels listed in "data_source:=".
-> 
-> Limit the measurement to the labels that are specified in the IMA
-> policy - CRITICAL_DATA+"data_source:=". If "data_sources:=" is not
-> provided with the func CRITICAL_DATA, the data from all the
-> supported kernel subsystems is measured.
-> 
-> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+On Thu, Dec 03, 2020 at 04:02:12PM -0800, Stephen Brennan wrote:
+> -void pid_update_inode(struct task_struct *task, struct inode *inode)
+> +static int do_pid_update_inode(struct task_struct *task, struct inode *inode,
+> +			       unsigned int flags)
 
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+I'm really nitpicking here, but this function only _updates_ the inode
+if flags says it should.  So I was thinking something like this
+(compile tested only).
 
-Tyler
+I'd really appreocate feedback from someone like Casey or Stephen on
+what they need for their security modules.
 
-> ---
->  Documentation/ABI/testing/ima_policy |  2 ++
->  security/integrity/ima/ima_policy.c  | 37 +++++++++++++++++++++++++---
->  2 files changed, 36 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-> index 6ec7daa87cba..0f4ee9e0a455 100644
-> --- a/Documentation/ABI/testing/ima_policy
-> +++ b/Documentation/ABI/testing/ima_policy
-> @@ -52,6 +52,8 @@ Description:
->  			template:= name of a defined IMA template type
->  			(eg, ima-ng). Only valid when action is "measure".
->  			pcr:= decimal value
-> +			data_source:= [label]
-> +			label:= a unique string used for grouping and limiting critical data.
->  
->  		  default policy:
->  			# PROC_SUPER_MAGIC
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index d45c2dbb6d45..fea996a9e26c 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -34,6 +34,7 @@
->  #define IMA_PCR		0x0100
->  #define IMA_FSNAME	0x0200
->  #define IMA_KEYRINGS	0x0400
-> +#define IMA_DATA_SOURCE	0x0800
->  
->  #define UNKNOWN		0
->  #define MEASURE		0x0001	/* same as IMA_MEASURE */
-> @@ -85,6 +86,7 @@ struct ima_rule_entry {
->  	} lsm[MAX_LSM_RULES];
->  	char *fsname;
->  	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
-> +	struct ima_rule_opt_list *data_source; /* Measure data from this source */
->  	struct ima_template_desc *template;
->  };
->  
-> @@ -480,7 +482,11 @@ static bool ima_match_rule_data(struct ima_rule_entry *rule,
->  		opt_list = rule->keyrings;
->  		break;
->  	case CRITICAL_DATA:
-> -		return true;
-> +		if (!rule->data_source)
-> +			return true;
-> +
-> +		opt_list = rule->data_source;
-> +		break;
->  	default:
->  		return false;
->  	}
-> @@ -925,7 +931,7 @@ enum {
->  	Opt_uid_lt, Opt_euid_lt, Opt_fowner_lt,
->  	Opt_appraise_type, Opt_appraise_flag,
->  	Opt_permit_directio, Opt_pcr, Opt_template, Opt_keyrings,
-> -	Opt_err
-> +	Opt_data_source, Opt_err
->  };
->  
->  static const match_table_t policy_tokens = {
-> @@ -962,6 +968,7 @@ static const match_table_t policy_tokens = {
->  	{Opt_pcr, "pcr=%s"},
->  	{Opt_template, "template=%s"},
->  	{Opt_keyrings, "keyrings=%s"},
-> +	{Opt_data_source, "data_source=%s"},
->  	{Opt_err, NULL}
->  };
->  
-> @@ -1129,7 +1136,8 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
->  		if (entry->action & ~(MEASURE | DONT_MEASURE))
->  			return false;
->  
-> -		if (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR))
-> +		if (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
-> +				     IMA_DATA_SOURCE))
->  			return false;
->  
->  		if (ima_rule_contains_lsm_cond(entry))
-> @@ -1339,6 +1347,23 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
->  
->  			entry->flags |= IMA_KEYRINGS;
->  			break;
-> +		case Opt_data_source:
-> +			ima_log_string(ab, "data_source", args[0].from);
-> +
-> +			if (entry->data_source) {
-> +				result = -EINVAL;
-> +				break;
-> +			}
-> +
-> +			entry->data_source = ima_alloc_rule_opt_list(args);
-> +			if (IS_ERR(entry->data_source)) {
-> +				result = PTR_ERR(entry->data_source);
-> +				entry->data_source = NULL;
-> +				break;
-> +			}
-> +
-> +			entry->flags |= IMA_DATA_SOURCE;
-> +			break;
->  		case Opt_fsuuid:
->  			ima_log_string(ab, "fsuuid", args[0].from);
->  
-> @@ -1719,6 +1744,12 @@ int ima_policy_show(struct seq_file *m, void *v)
->  		seq_puts(m, " ");
->  	}
->  
-> +	if (entry->flags & IMA_DATA_SOURCE) {
-> +		seq_puts(m, "data_source=");
-> +		ima_show_rule_opt_list(m, entry->data_source);
-> +		seq_puts(m, " ");
-> +	}
-> +
->  	if (entry->flags & IMA_PCR) {
->  		snprintf(tbuf, sizeof(tbuf), "%d", entry->pcr);
->  		seq_printf(m, pt(Opt_pcr), tbuf);
-> -- 
-> 2.17.1
-> 
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index b362523a9829..771f330bfce7 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1968,6 +1968,25 @@ void pid_update_inode(struct task_struct *task, struct inode *inode)
+ 	security_task_to_inode(task, inode);
+ }
+ 
++/* See if we can avoid the above call.  Assumes RCU lock held */
++static bool inode_needs_pid_update(struct task_struct *task,
++		const struct inode *inode)
++{
++	kuid_t uid;
++	kgid_t gid;
++
++	if (inode->i_mode & (S_ISUID | S_ISGID))
++		return true;
++	task_dump_owner(task, inode->i_mode, &uid, &gid);
++	if (!uid_eq(uid, inode->i_uid) || !gid_eq(gid, inode->i_gid))
++		return true;
++	/*
++	 * XXX: Do we need to call the security system here to see if
++	 * there's a pending update?
++	 */
++	return false;
++}
++
+ /*
+  * Rewrite the inode's ownerships here because the owning task may have
+  * performed a setuid(), etc.
+@@ -1978,8 +1997,15 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
+ 	struct inode *inode;
+ 	struct task_struct *task;
+ 
+-	if (flags & LOOKUP_RCU)
++	if (flags & LOOKUP_RCU) {
++		inode = d_inode_rcu(dentry);
++		task = pid_task(proc_pid(inode), PIDTYPE_PID);
++		if (!task)
++			return 0;
++		if (!inode_needs_pid_update(task, inode))
++			return 1;
+ 		return -ECHILD;
++	}
+ 
+ 	inode = d_inode(dentry);
+ 	task = get_proc_task(inode);
