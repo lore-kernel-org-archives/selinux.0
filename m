@@ -2,120 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79E5AC433FE
-	for <selinux@archiver.kernel.org>; Sun, 13 Dec 2020 14:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F6F2C4361B
+	for <selinux@archiver.kernel.org>; Sun, 13 Dec 2020 16:31:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4BC2F22D2C
-	for <selinux@archiver.kernel.org>; Sun, 13 Dec 2020 14:32:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42BBC23380
+	for <selinux@archiver.kernel.org>; Sun, 13 Dec 2020 16:31:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731199AbgLMOcH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 13 Dec 2020 09:32:07 -0500
-Received: from out01.mta.xmission.com ([166.70.13.231]:51716 "EHLO
-        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730956AbgLMOcH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 13 Dec 2020 09:32:07 -0500
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1koSPE-00Bszy-RQ; Sun, 13 Dec 2020 07:31:24 -0700
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1koSPD-004PaC-M5; Sun, 13 Dec 2020 07:31:24 -0700
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        id S2404268AbgLMQay (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 13 Dec 2020 11:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726166AbgLMQau (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 13 Dec 2020 11:30:50 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 581A3C0613CF;
+        Sun, 13 Dec 2020 08:30:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=QpGd12BxwDvvVIkKTTf0i1nFrqsXOgn1zGbzKOXzb2Q=; b=XOj70mehMbhoTypKf/VZXqTS3L
+        BnV1AJHZeix0ufNXHmsJ88TKAN2s8i8NQdhrMauIH2AKGYkiuFGiMNJYWQpNgJ4pXNQSkKP/2aigw
+        oyqLBwgFRospnqUdy+alblzoDGhQExV6n1ireTuZ7JMHE+ZwPGVn1BgizDA2EYHww+Dx1vYBRfltp
+        DwluvTXNBRIL3yx2qD5geB1+iD3azYOZapI6gvtKscIn4w8LR1Gtrhq3H9UnknR7e6p/nA5NSybqR
+        OD4l5r/iQLq4fvAEj4tMyt1e18sJRL4/UdUoWbj6KYXLjFlWMQJRI9nVPXWJKowzkUU5teo8I+QQp
+        fkgqKW7A==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1koUFh-0004AT-3i; Sun, 13 Dec 2020 16:29:41 +0000
+Date:   Sun, 13 Dec 2020 16:29:41 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         linux-security-module@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-References: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
-Date:   Sun, 13 Dec 2020 08:30:40 -0600
-In-Reply-To: <20201204000212.773032-1-stephen.s.brennan@oracle.com> (Stephen
-        Brennan's message of "Thu, 3 Dec 2020 16:02:12 -0800")
-Message-ID: <87tusplqwf.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1koSPD-004PaC-M5;;;mid=<87tusplqwf.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1/hhLWeR0iNmzKi0FoZCOw50QiC44pJLLw=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v2] proc: Allow pid_revalidate() during LOOKUP_RCU
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Message-ID: <20201213162941.GG2443@casper.infradead.org>
+References: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
+ <20201212205522.GF2443@casper.infradead.org>
+ <877dpln5uf.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <877dpln5uf.fsf@x220.int.ebiederm.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Brennan <stephen.s.brennan@oracle.com> writes:
+On Sun, Dec 13, 2020 at 08:22:32AM -0600, Eric W. Biederman wrote:
+> Matthew Wilcox <willy@infradead.org> writes:
+> 
+> > On Thu, Dec 03, 2020 at 04:02:12PM -0800, Stephen Brennan wrote:
+> >> -void pid_update_inode(struct task_struct *task, struct inode *inode)
+> >> +static int do_pid_update_inode(struct task_struct *task, struct inode *inode,
+> >> +			       unsigned int flags)
+> >
+> > I'm really nitpicking here, but this function only _updates_ the inode
+> > if flags says it should.  So I was thinking something like this
+> > (compile tested only).
+> >
+> > I'd really appreocate feedback from someone like Casey or Stephen on
+> > what they need for their security modules.
+> 
+> Just so we don't have security module questions confusing things
+> can we please make this a 2 patch series?  With the first
+> patch removing security_task_to_inode?
+> 
+> The justification for the removal is that all security_task_to_inode
+> appears to care about is the file type bits in inode->i_mode.  Something
+> that never changes.  Having this in a separate patch would make that
+> logical change easier to verify.
 
-> The pid_revalidate() function requires dropping from RCU into REF lookup
-> mode. When many threads are resolving paths within /proc in parallel,
-> this can result in heavy spinlock contention as each thread tries to
-> grab a reference to the /proc dentry lock (and drop it shortly
-> thereafter).
+I don't think that's right, which is why I keep asking Stephen & Casey
+for their thoughts.  For example,
 
-I am feeling dense at the moment.  Which lock specifically are you
-referring to?  The only locks I can thinking of are sleeping locks,
-not spinlocks.
+ * Sets the smack pointer in the inode security blob
+ */
+static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
+{
+        struct inode_smack *isp = smack_inode(inode);
+        struct smack_known *skp = smk_of_task_struct(p);
 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index ebea9501afb8..833d55a59e20 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -1830,19 +1846,22 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
->  {
->  	struct inode *inode;
->  	struct task_struct *task;
-> +	int rv = 0;
->  
-> -	if (flags & LOOKUP_RCU)
-> -		return -ECHILD;
-> -
-> -	inode = d_inode(dentry);
-> -	task = get_proc_task(inode);
-> -
-> -	if (task) {
-> -		pid_update_inode(task, inode);
-> -		put_task_struct(task);
-> -		return 1;
-> +	if (flags & LOOKUP_RCU) {
+        isp->smk_inode = skp;
+        isp->smk_flags |= SMK_INODE_INSTANT;
+}
 
-Why do we need to test flags here at all?
-Why can't the code simply take an rcu_read_lock unconditionally and just
-pass flags into do_pid_update_inode?
-
-
-> +		inode = d_inode_rcu(dentry);
-> +		task = pid_task(proc_pid(inode), PIDTYPE_PID);
-> +		if (task)
-> +			rv = do_pid_update_inode(task, inode, flags);
-> +	} else {
-> +		inode = d_inode(dentry);
-> +		task = get_proc_task(inode);
-> +		if (task) {
-> +			rv = do_pid_update_inode(task, inode, flags);
-> +			put_task_struct(task);
-> +		}
-
->  	}
-> -	return 0;
-> +	return rv;
->  }
->  
->  static inline bool proc_inode_is_dead(struct inode *inode)
-
-Eric
+That seems to do rather more than checking the file type bits.
