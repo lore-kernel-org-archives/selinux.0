@@ -2,171 +2,153 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34AFCC4361B
-	for <selinux@archiver.kernel.org>; Tue, 15 Dec 2020 18:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 057A7C4361B
+	for <selinux@archiver.kernel.org>; Tue, 15 Dec 2020 21:49:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F422420578
-	for <selinux@archiver.kernel.org>; Tue, 15 Dec 2020 18:10:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA08622A99
+	for <selinux@archiver.kernel.org>; Tue, 15 Dec 2020 21:49:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgLOSK0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Dec 2020 13:10:26 -0500
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:39635
-        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730558AbgLOSKI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Dec 2020 13:10:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1608055762; bh=aogMOmk4bsmznjsALWaTSguRC9pC6jg4i6uPza5PDJk=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Fl/N1A1acpCXp3hv5b9TkN/mGdoop1UOi5hFVVpdYdahCPjXq/SqhPzduUF1c9ikQER2l02p0DjEjYa3F1IwTou6dEy9fUi0UQR5ho9PuhaBwNb0vRNYSE1qY/VIJZmqA0OYm/J0+bS9XKLoxOouCyAsjxTZ4KEOH6mdSP0OSYoxinepJY1HppRmX1BVbQyBusP14VTk8o0aKXObir7Ypsdbn3AH3G751AwsZi+L4hAtRCYW+Nljq0DHYMu3H2LOo6IQVm7iI6VID25pDCHjCQErZSWGQyQGn+0Ktot3UmJo5EgUDsrefOkmYXIlFe9UM5T0uYcOAJKYFMV9W2QFhw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1608055762; bh=khpEFUhYniJCGq9vvq6RUHv+txXviNHPRcq8peiHIha=; h=Subject:To:From:Date:From:Subject; b=AX7XaqCrvWhajtghC7LS8zHCefG6weH+xXIlPyCWk5zZpx7SGx5uaP81nYVbJ+nAHFcuNTCWPK8EJavOK5PL2BF34ShiuoFAgxar+ksPT1b5FiTg3Vq0kvDUzyXUowO/+cikLYXGGJDbz4nA75qhFw0SBbkO6JPKyY3IdAGAeJB14DL7c4gukDhIXguVGH4bOCoPhxZYN48QrSXwYFbUo7iKfzpgosFCUcZyQNGDZj68h8IdA1UddEwYwHxb1PJbcY0w75Do76ntxeHAC3LfEMKUlvgFRZgN+nzz6oGzXOralvHnIcM8SFifTlklMOcb+xydsekkuf35GfLEwQhB7w==
-X-YMail-OSG: NRRNDrYVM1mUn_vYqQNv4JZOQ8Z.xnNcaRyIP09zH4UlPr81IeKtU_WotjsYCix
- WSzFIyJj8GEzDV6xod1SI59kDov4Ip3DnXe9s6ZHoyk0Jfg6m._ba3Ny6ahN0Dy6tDpu5XykNfn.
- ugkDB8WsDr.SgN00l8BCDl7Z7kEUgbPWSCTnP.EeIbKyrgW.4y_tplBj2eEZaGijl1_C91EYFdLo
- GunkoQQLYUnIQzHrSdsnpoAhrF5WwY1s733vXTnLQj5Q9CtR1fQ_0PP0YBC25tiVqMTxL7h4x.nn
- .kJ8j1ujwGdmrZ9_pW8kRNyRtjw8QcAgP7JvWKYh0QUHMRgXtzXpikP1YhS2MmluAIFecP3_7Caw
- 0_UgocZs8VIRSsF58aq4eFn5cGpzDhq58qJh7duzEW96QZ.F3q9NrGSGNr4cw8Zw.0YEwP13oawV
- icSw2H5xGhCQghjyy2iKbpJ01dkQsn6gUf0FcyouSVQ3yHz5fzpCvTDQccSSSwG03Maz7Q9Fo0Bv
- tXIqUmvcoDYUqYlQtBBrYb8WO.9Ee1N7rQAJqqog3RHmUYgBcmbRkKL8zyJta7R89cERWIzPcNK1
- sgd7dxBuSNi5vXDPBNvOPvdgminGfqDdrQgULII8haX5XY51JJZ5Hzr9MdWkqyeaori6n6yBWTFe
- NsNpBGQabMq1CVG3e6ipq90P1AQX15GfTA4Zk3flBRVjE8mCeGu3usGVZZvItigXFGHEKFUeqyuU
- 3RMx90sO4L7B2pb7CSzTqWb_mPR63SMn4771qxYESDra.aO7cLjomJwU.eS1WvA1sE_KEoP_zmTH
- XjbjbkQ3fUU8R.1uBeCJy8YKSfFJwm71HMzA.MCO3LG9H9AqRwe8WS5Q7EFbdGY8eLavgzvpb3td
- cnw8vGxbWotVGAH0dFVwkjZ7cG1WbCpY59HtVj7DgyU61DHKItqNLTNZta0e1chfbMNxbjmgu0Mq
- CU.PF7QIgVygFk049EG7JWjIeks9gh5sQ.Gf29wLd1zbflDkoBAR7B3LT9A94OT3g0hhnskQlUUK
- n1AP6t1cAVScZPioHdZPqhLLw4bB4C2Yrtn1vudxVEfzhoNEkGN6nUHBK7FQFBo9eyw_wgXQXhcK
- Q3WMRp9NRHc7IlTu7KVSBFNGVo5VO0DHl.3ZzXGkRJy5cb3mRAHzKI1foUYQK7BYDf1UUcScAxMJ
- EQMQb5XCEN0ofeXfdjLHFImqOH3o95Kmm_Y4gnDkyz1zfV.bI0q6xWXDAu2yt7IVPjUxpmmVjSd6
- mJ0cRT6PWBBum40jIzPWH8_Wfhpsm2wcZhpJ_Tx_TAiur3kKaYrkFBACFMs.43utiOrAJKrgb6L7
- lRt.Y4ddOnsnpaL1P8erwkici.6IQpqoMAOu2DhlH_xmv3d.x3Vse0rEc.iIuvoc1Hh_YDS5ArlY
- w6SMbngBZR2ppoXSrlVF2LwxiY6X6mMhPAB6lYNLerWkzs6f2H7xccgfULrk_SDfvWj9guvMhe7F
- Djnh84EeWBpn3f1cgTK_QpDXULy3rG8iftrdPfZbpcuGrPKTABsTyWyKmJ.Vv.LJYbZTtApmhA27
- OJv2CTfRj25ERwPuphAU2DYgIXqYKioEdV1JJEwVWd9hpjSVJFWaK0IeUaUFGqXYzliV6LvV.A6K
- 700Fdru0Gq6O7I2gU.Y15Ya2IkmNR3uRBLMtAJRQp_Vwvhb6TPr4K0IpBQmdUOhuIcCnFPamiogY
- r.etCMTCAd6Sef6yM0DG_BD5Qu4tUzz6EvjnLwg9CU4KLejcbr6ZCQJshKjPaGUjuEx0aR71kGW3
- 7fNNGicrK2o9r6MYK2VeEIJXdfPLUYFoo4CHos1GL8rwb5xG1rCf.QO63mYSeqXLQJDjKfHnGZJ1
- imy5CB_3JA1gL1Ox6mosqWZs4DT1214B9Ziog09.KRF50ok5zVaY8jAE0vp7HCKgGPL_t5.z07f1
- 88rAik0MQ6vkl0DHfS1TfHDWpL2WaRMon8dnSyqTBCnSuFPR7GIEU_7KGKEM2bZfugQ177S5KQHU
- gj9bpC3PdnxGGbZrNr6C12j1CGlzOSj5pU7CgooGwU2j6_A1jREdtZHnb_enSjAPoruF2LWrE9OO
- JhRN4IRfErmGbAvXjzNtXXMHFn7UBo3S9DltSw6cdoFM4Vnp15P4jOgs7ip3gZZTyXfPEIploJOo
- ObZaUuw2GJdy_MrA_4I_AEkRcYIspsbXhBQd8GwaaDDPqdHAJp6neXQKajPSl1usNKcuvOxU9YzL
- 3a1wx8HKjLMjr5_u2JBeOxV.wwGqZ0oFxetEEOIhwYmliI7KQqE8GWAou5yqNsCIOcscPAXZchtV
- 3_5vlsPg2rL3fsT_34pZHFd6JYoO3mGb1dzswx_eNIP2sEBU6lRf4xESkstOMoUnb42PAGXFdHOw
- s9WNNLeeVBgoCMitb14h.T4hB_TymEm0TT6ZCCa.U1kgzEizGB9uj_d3xzK85.h1_.jC3MjI6FfP
- wMTJVCP9bJ_T5fKdZtjb4IPGQWuznqHERLmYwm9EYUJRaMw51Mk5mPf17aoEH6CeAkITtxI55mma
- S81LYn9P2oQXfPJyLk.v2id2z4gRuwAuJchtpNR1GOs6t680XTrqbNYvJcVzvo8dDLVgxWDKuB4c
- 95YtzOyDWiRUZcA8qbIa.ng_QY7G.umAeH8g4_LFTBlzEz3vhxf7sX0pdcTHF4ZdDrqVGVQfZI05
- U.1rYMbpRJ4bRkYxj0s9U0IqXMYhJbRnKQ5P5Oq7AyQbazn.6X2cM2aiTLphHO1Ua5Uo_GL.6hLv
- bEmTSVdzvoA3QKJbZ1AhXnZD9gcw5TKv759NpyP3rILlDlEHl76d1C.nI9TX3co9EMU5IQfPRcKD
- N7lln6tvi8v0mh.QHHxJAloM4BcEgVyRuN5aRHwzVjt8320AHwPB7pqxRVbRFf_8vmXT7.4WB4PC
- zJv79uWuN57Hv.XV0Fp6bPPoLaUtIWRJ0pffpwBfaSaasP5ny2X8B.vH8XqPCPguJWYUszob4oZX
- o81IouOPhyrlF4im7zw.bkwj52GW50UcAOWexcmGUsh7IhMNDSDRF0Zy6ZU3i0Z5QOtqfJKfRhB.
- cszBIYWbY6k072XNJxXiGrCtRvJYhML0pJlTaY0h3cYyFyJI882a698QRdmtQ_8N7r0GppKiiQcB
- 2Mt.zQXsaasnKHlqXtbKboqilp6Gpis.s10I5sQoPWA2Qrm71fuG.eeRFTQpo2Yj1XQyzCmVBoVb
- NtxGsE9RyfvdIWqjv_mQKqYjLQZJsz6rPwCcH9A.5pnLSV_1nUN5j12T9vSZEYaKWUshx4nHYGEd
- PDpZ8TtI6DaIJYXlH4BemWuNQl5VN5yiPrYKz_hEeKPzS88bSnDilJnG4cPVnaSA05fwmwPjdqEt
- 2jLdrl4xul.3vzB3R_qnVPk9MrfjFCNDHee4LSPSh.mDmpOcWNoxEcbyc7LDLryq7q9bByt1K7n8
- OP_GKEcxXcSBqwQ147S2PD8CmNBY5uJD5XNyk4BZYwjQZ9FDbjCjVDTRzDYorzrtAwdg_HDQzNsN
- 7Hlg-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Tue, 15 Dec 2020 18:09:22 +0000
-Received: by smtp422.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID d3456e8f81da9775419af5a53f939e16;
-          Tue, 15 Dec 2020 18:09:16 +0000 (UTC)
-Subject: Re: [PATCH v2] proc: Allow pid_revalidate() during LOOKUP_RCU
-To:     Paul Moore <paul@paul-moore.com>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Stephen Brennan <stephen.s.brennan@oracle.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
+        id S1729816AbgLOVrs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Dec 2020 16:47:48 -0500
+Received: from out01.mta.xmission.com ([166.70.13.231]:47236 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728395AbgLOVrh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Dec 2020 16:47:37 -0500
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out01.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1kpI9Q-00GVVa-Dr; Tue, 15 Dec 2020 14:46:32 -0700
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1kpI9P-0000nn-KD; Tue, 15 Dec 2020 14:46:32 -0700
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Stephen Brennan <stephen.s.brennan@oracle.com>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         linux-security-module@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
+        Matthew Wilcox <willy@infradead.org>
 References: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
- <20201212205522.GF2443@casper.infradead.org>
- <877dpln5uf.fsf@x220.int.ebiederm.org>
- <20201213162941.GG2443@casper.infradead.org>
- <CAHC9VhSytjTGPhaKFC7Cq1qotps7oyFjU7vN4oLYSxXrruTfAQ@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <3504e55a-e429-8f51-1b23-b346434086d8@schaufler-ca.com>
-Date:   Tue, 15 Dec 2020 10:09:15 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        <87tusplqwf.fsf@x220.int.ebiederm.org>
+        <87sg88tiex.fsf@stepbren-lnx.us.oracle.com>
+Date:   Tue, 15 Dec 2020 15:45:46 -0600
+In-Reply-To: <87sg88tiex.fsf@stepbren-lnx.us.oracle.com> (Stephen Brennan's
+        message of "Mon, 14 Dec 2020 09:19:02 -0800")
+Message-ID: <87pn3ag2ut.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSytjTGPhaKFC7Cq1qotps7oyFjU7vN4oLYSxXrruTfAQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-X-Mailer: WebService/1.1.17278 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.8)
+Content-Type: text/plain
+X-XM-SPF: eid=1kpI9P-0000nn-KD;;;mid=<87pn3ag2ut.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX19exJiefmNpiIKTjIA+TojL4dkxYhuoRNk=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v2] proc: Allow pid_revalidate() during LOOKUP_RCU
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/13/2020 3:00 PM, Paul Moore wrote:
-> On Sun, Dec 13, 2020 at 11:30 AM Matthew Wilcox <willy@infradead.org> w=
-rote:
->> On Sun, Dec 13, 2020 at 08:22:32AM -0600, Eric W. Biederman wrote:
->>> Matthew Wilcox <willy@infradead.org> writes:
->>>
->>>> On Thu, Dec 03, 2020 at 04:02:12PM -0800, Stephen Brennan wrote:
->>>>> -void pid_update_inode(struct task_struct *task, struct inode *inod=
-e)
->>>>> +static int do_pid_update_inode(struct task_struct *task, struct in=
-ode *inode,
->>>>> +                         unsigned int flags)
->>>> I'm really nitpicking here, but this function only _updates_ the ino=
-de
->>>> if flags says it should.  So I was thinking something like this
->>>> (compile tested only).
->>>>
->>>> I'd really appreocate feedback from someone like Casey or Stephen on=
+Stephen Brennan <stephen.s.brennan@oracle.com> writes:
 
->>>> what they need for their security modules.
->>> Just so we don't have security module questions confusing things
->>> can we please make this a 2 patch series?  With the first
->>> patch removing security_task_to_inode?
->>>
->>> The justification for the removal is that all security_task_to_inode
->>> appears to care about is the file type bits in inode->i_mode.  Someth=
-ing
->>> that never changes.  Having this in a separate patch would make that
->>> logical change easier to verify.
->> I don't think that's right, which is why I keep asking Stephen & Casey=
-
->> for their thoughts.
-> The SELinux security_task_to_inode() implementation only cares about
-> inode->i_mode S_IFMT bits from the inode so that we can set the object
-> class correctly.  The inode's SELinux label is taken from the
-> associated task.
+> ebiederm@xmission.com (Eric W. Biederman) writes:
 >
-> Casey would need to comment on Smack's needs.
-
-SELinux uses different "class"es on subjects and objects.
-Smack does not differentiate, so knows the label it wants
-the inode to have when smack_task_to_inode() is called,
-and sets it accordingly. Nothing is allocated in the process,
-and the new value is coming from the Smack master label list.
-It isn't going to go away. It appears that this is the point
-of the hook. Am I missing something?
-
+>> Stephen Brennan <stephen.s.brennan@oracle.com> writes:
+>>
+>>> The pid_revalidate() function requires dropping from RCU into REF lookup
+>>> mode. When many threads are resolving paths within /proc in parallel,
+>>> this can result in heavy spinlock contention as each thread tries to
+>>> grab a reference to the /proc dentry lock (and drop it shortly
+>>> thereafter).
+>>
+>> I am feeling dense at the moment.  Which lock specifically are you
+>> referring to?  The only locks I can thinking of are sleeping locks,
+>> not spinlocks.
 >
->> For example,
+> The lock in question is the d_lockref field (aliased as d_lock) of
+> struct dentry. It is contended in this code path while processing the
+> "/proc" dentry, switching from RCU to REF mode.
+>
+>     walk_component()
+>       lookup_fast()
+>         d_revalidate()
+>           pid_revalidate() // returns -ECHILD
+>         unlazy_child()
+>           lockref_get_not_dead(&nd->path.dentry->d_lockref)
+>
 >>
->>  * Sets the smack pointer in the inode security blob
->>  */
->> static void smack_task_to_inode(struct task_struct *p, struct inode *i=
-node)
->> {
->>         struct inode_smack *isp =3D smack_inode(inode);
->>         struct smack_known *skp =3D smk_of_task_struct(p);
+>>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+>>> index ebea9501afb8..833d55a59e20 100644
+>>> --- a/fs/proc/base.c
+>>> +++ b/fs/proc/base.c
+>>> @@ -1830,19 +1846,22 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
+>>>  {
+>>>  	struct inode *inode;
+>>>  	struct task_struct *task;
+>>> +	int rv = 0;
+>>>  
+>>> -	if (flags & LOOKUP_RCU)
+>>> -		return -ECHILD;
+>>> -
+>>> -	inode = d_inode(dentry);
+>>> -	task = get_proc_task(inode);
+>>> -
+>>> -	if (task) {
+>>> -		pid_update_inode(task, inode);
+>>> -		put_task_struct(task);
+>>> -		return 1;
+>>> +	if (flags & LOOKUP_RCU) {
 >>
->>         isp->smk_inode =3D skp;
->>         isp->smk_flags |=3D SMK_INODE_INSTANT;
->> }
+>> Why do we need to test flags here at all?
+>> Why can't the code simply take an rcu_read_lock unconditionally and just
+>> pass flags into do_pid_update_inode?
 >>
->> That seems to do rather more than checking the file type bits.
+>
+> I don't have any good reason. If it is safe to update the inode without
+> holding a reference to the task struct (or holding any other lock) then
+> I can consolidate the whole conditional.
 
+
+I am not certain if there is anything that makes it safe to change uid
+and gid on the inode during lookup.  The current code might be buggy in
+that respect.
+
+However it is absoltely safe to read from the task_struct with just the
+rcu_read_lock.  Which means it is only do_pid_update_inode that needs
+locking to update the inode.
+
+>>> +		inode = d_inode_rcu(dentry);
+>>> +		task = pid_task(proc_pid(inode), PIDTYPE_PID);
+>>> +		if (task)
+>>> +			rv = do_pid_update_inode(task, inode, flags);
+>>> +	} else {
+>>> +		inode = d_inode(dentry);
+>>> +		task = get_proc_task(inode);
+>>> +		if (task) {
+>>> +			rv = do_pid_update_inode(task, inode, flags);
+>>> +			put_task_struct(task);
+>>> +		}
+>>
+>>>  	}
+>>> -	return 0;
+>>> +	return rv;
+>>>  }
+>>>  
+>>>  static inline bool proc_inode_is_dead(struct inode *inode)
+>>
+>> Eric
+
+Eric
