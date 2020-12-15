@@ -2,147 +2,165 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44632C4361B
-	for <selinux@archiver.kernel.org>; Mon, 14 Dec 2020 18:47:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D02C9C2BB48
+	for <selinux@archiver.kernel.org>; Tue, 15 Dec 2020 02:20:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E0C722573
-	for <selinux@archiver.kernel.org>; Mon, 14 Dec 2020 18:47:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93403207A0
+	for <selinux@archiver.kernel.org>; Tue, 15 Dec 2020 02:20:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440957AbgLNSqs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Dec 2020 13:46:48 -0500
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com ([66.163.187.152]:42314
-        "EHLO sonic316-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2407595AbgLNSqf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Dec 2020 13:46:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1607971548; bh=P6YkrPT5uA6xxgGjT0j4A8luoT/rgVDj8d9AKZCndQQ=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=gD0EJfovHcz3qsa8+eMNJjx2drp3AU3Ina1cfHT/ks9Z3TgN6gysHm2SJasEDSEDBGP4rghDCFh02O3VaSYG7BMG80JfWDgIFAo2lxTvj7ELCq/rGZUcylHNZN9Mh5QflD2sL4AN3/a/TrO/jeRRsnTtmCLbEs+BvazHmvS1WxD5/4GXIn6bm0etONuNL4Nmcrl+VhcJ1tNcZpTb6kVJAk0MFWb3dVjy1dYbjXCy2h02Su/99rLDD0dHqKsZlRiKGkPoTqZ9bXf89oqowQzSK+fjZ3lhp9uFgk0J66QmkKRH22Q12hOM188XbiEJwhvNEDYcqP0/RCBjhVw2ZR/mog==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1607971548; bh=/OBwNzribKawewf0yP0CIZX3lxcW2uBUaR/pqPx9HA4=; h=Subject:To:From:Date:From:Subject; b=Ns/217mmg0911FZ8WbHOLCfklwn84GUbN9Z0eyynGv2VJZqeFY3ZmRxet7g7w/QwMCDnYsqyrApgE30nYR4l5VVIhAPd5f16S5WE9kxjqlNOWQORFtx1nXci3/BxSw6DyiLWcP6P58lfWj4ne2nyiD+12JPkdIzeAqIar9DEXkfUDnVE5EtJbkci27+gi/XiC+7xiLzs+NiTtta+JJnidQFXsbZhHMWFItCEtINHkqAZTPui59QxVGCn0ogPjt5qV93f/r5p3I/LLXcOEcZTKB4Q2VjMO90SWxkt2ip4UI3NMK/Dlpynwd5Eo4BvOVcHd9XAXjwK4CFiBVq5Wnwu0A==
-X-YMail-OSG: Ami_UT0VM1mwjRcaCIpKoS.69wE7nLWXyDrJXY0HjBrmScQMO1VcC6VBLEb.JZp
- 1ontZBpTvmrmQsCc6QSdWdAtt4Vzux5VH1PwBvSAiRGm.lYtswn1H9455Ic9.sjMyZ_YUSGVl6Cw
- Gv_U4rZ3ugCc0RU6LlttMn.5PXRZXM0n9b07BlBndx.7mVKdISsKRzMhbz9mLzO9.UNxK_pqA5_z
- J40QI2uisbtT.m4Eh2XO7cKxTk1v6lCMeIvHZralisHeduDXZf.5a24rPICDQBUZ7REnYkXv250j
- 6fLbukJcJaEhGau6TE2M3x9RS66kp9UqAzHZO.lgghZpg..KItGXuKNyhD09dpHni0jNVWmpMTok
- UtHCW_GiuQStF84fUQd09VsMVZIb47auyMqiOHm6d7_Ahe5mmpVab.1kGs9yeaVJXNsHxHFv6lbe
- JICKoiUNN02lsRsZgWDl5J6bbTtAVHQpWMdjy5ejoJmiyFw3KwkXwc2BXv7CirfWY0B9Syu82kVP
- QDPyqkCJm0jA9UzROEAUiC6rMEZGfxDQA3x.X7USr7rTdsG6p8G21Bfyv4hNucXvWFHduHahRs7w
- JZgIvJ0O31d2Ey1Bfqlo1NsRhL8fD62uG7Lzy8tPCOgE7g3328f54TuaylGDGqu1tsGptlEQaDT2
- e.MnwERS5Wh7iAPt6xvzBJraAoqqSjwMYWw.N7mtWthjO6Y0j6dr6S4hDdGWTqUcLB17_SRQnfhV
- Vz_N_ifbyFxnv4Va5YZlO5oSWedq4F3TLIqpGXx3Ly55ccdSevtfc7XRuyDlkVTwRwCXK_4NZvS_
- 0XcZFfQoUXbFDlSqv0Ujaba_csQeZhJAnvYUUYz1EF18MXDnGPKSJzDaT_9FsL83K64_xdxu4yxw
- nJ3OcptX.HrwlNogXgM9GVjs4_4YszqPndMuMWuBju1Nq2wkJvg33HMegOsGASGUpwLc8nvQTbKT
- Dkg28imXBzuqqKJAoCq8KfDC.3OBgNOhblYxAwc76HOet23Z29Yr16qxacjUQeeDunRj2yrnro7x
- sazeXF3CzLZz4bH6ldWjyj1TUT7Ge7DIiirjVFbjUd6u.PupElOmwdJELOUpSea8jPhO7XuvXLVM
- NYa3GwScpSi2O7d3XdWHB6Jcz5WSy34MBMrlcu_aKr_f_DeP8rtZ81NSEMyX.A.CSJ21R5L09goK
- vajyYoQ8Fc0hG5GLYPExGRWJ53KDAPPyju_r73Pirdh4bOXMbM7_JhJC2k.EnrBtPol40hk7rzlt
- YbUJouqEe6.fR8_2eYpjGNjlQNLTn.AadXhNFNS6gaPqN4OP3SLvmUo4ELRdDgMim9_C5JO1GFAW
- 6GxILaDWcNYQ7C92_4u3uKCCHzDpOGo_jLF6WIHZXR8qLRgRGI0C.Oc.9VVFg1F_4fOgEpLoKhqC
- a9w1yxY1SLdsdXG0DjS1mfNntBA.S.iPKvT2UFHIZGdQg4mUC4RFsJVsx9msW_S1Vz0fBm59NocE
- j0hoUA9x2T9ujYRZ5w_GrKoxupLYODRZvNXQfOvDL1lGo0vCFympYQwh5zniLqiXONoqAQ7vQGKE
- jdgou53ZX0vJVo2Ag2toXvvdG.zerCjxFFkuVTGYOWm7kFbK0umJaipIqXYiNhC_6p8mWHsonSNH
- wmxZgGo5UjCTw2P_BhRCI4qDEyJu8NkB217ryTGtHNpXfgpXgm43f6n6ZAJocQm10FqzYLDlnj8f
- pD6bizUHUKatuqjUbHLxPS6X969MVK63mJLfGlPND0z80.s.tdv8LGB4OOwJH0ykyhJbjEzgst6t
- vA.SZ8c0kvEO5.uGYYdzNIpkySFf4tlvZYWSyagttXM0THsJXj4FZSUiFu38klQcrklGmQxGCMRl
- 2GbP3iP9P7D0HfI6jnW87wOUbuYNtrlRyuVlwsAjA.gnQXNfsomSrNVycqCZI0jzmvg8m8Jr5fxl
- _P72hg4DbicrNmj9VFwIa9f0s6UMTEhvefw1S3iPt75a.0mRJ4XkHyL036bjodpfJqM56xFvAA8T
- RT2DZp62EBCUYTQEg9bbdPi3nohUdcLNqBngYknLxIHd0OEAbDjSRMkmLKSK8lBCaTBSH7pFnA9s
- n0pnsBMYvhXexVq.PnpuxHholxZTshW6Bw.eQjf_HHwN3Tu042GJRp5MYEMbr5pv9WqQ3WlJHu6O
- zUWLM0pNtHVycn9HWgSz5Zkh2wRKValrPofeWyBiY6yq11fvocL9iOa60jtY8KJSooOH936rfzD_
- c1oVnTGluaUJarDjLTrMRQ_SNrtIDDASqASFrZNOWbS0WMUOSCTyV6Ak9NQGHlF8vFX_eHjBL6TJ
- 0WigKWF5Z_X0kY5GgiVWVeKuSUDQT9xEm7nabAkdjy.TqLC2uNQpCAdzU12_p3xSfaBK3pXbf2g8
- Jyd9bxougExI6nwXS6RAfrHGi0LHIdyvvQ6Qgsn.POa6oLOZDkkPETpo47twE01Rz2RUY2QdBpQx
- 1ZmiCBBHSZQJpJbicDeJoZ_K2Cf_cMU_cERI8gFFTilemVm1VcR6YoaBjSIir5dLCJRAdCCwQs8F
- ujcnmtW6q0mCQh2h1CwHnOQnW5ZKj2zqT.IBhTGBwHO3BbtIz8zER4p9ADhD_bLOfyRDMXXx9EK.
- a5CQuJc3aL3ZCcgKvqL4xGsKxb2baopvAJtqctybdHa9mFDut7Vq8OdGFv_qyNBHjNGJPnaP4Bqf
- tDGUZ4Rw0XJefh.RQZD4.OhSyLOKZZ1vmD5tfylrWIRAUEl5pv2gzKDGpn3IWV7rGBtIqcoZEUZm
- bV9V.CG9u2awDNQuq3s2bUifgEjmguco_zJlthKOTBeqfDJqLwQhvIHFX2vC0.DkOgBqzwGi9k5d
- DpYVYxf3rP_hIc.9uBxBm4y6Z7PDlKY2mbXS90U8tjz6Eh1Pfzn_qSD2XAx9_nDC5HMiAa9B1jIm
- mIXtgFhmP_cqAHx2CauOpE2DvpUslIf0wrILC2FXT_k3VgUyatIzne6fDFrhn3.9EF_BHPbMEcSY
- llOBN1YPYQhK1WJV5O.Pq22VaRnINyniEgqcRr1A0LoeWaA0I.nDFeplhqMVcm8ub79idJ8NjiQu
- PtJ3YkOBXnV_kyGkw_.vuWrEk2B5taXRhJkoerjVu_0Wtywyw69RBQXPQCm.PTXbqULsFqQcyUhA
- atlMObue3yMeHjUGxxzxRrAWPwyWLabHJG36uRrZZ7NDpf3T60gBngiNStknY1GkfeQ6xOhY9R_0
- 7W38F6LU2PouU0Hv1gpYoJKx3TN7A_E0cWG2N_WfFCr7h00.CIpaa15UdPcJIrjUZdN3b.XunU06
- maVk_HJkVtxgt1iWnrXal5VDejcm4wFPTqjGzR6KiT0PEokiiZ52S2YLG8YlPFbYASnvKm3Ap0s2
- b7KoqixbyjctTxLxp4OmA_snkxK4Yu8KvL2y8lFezdq47m3yF9l99pT3wkY9BIibKRbe91a2SLu8
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Mon, 14 Dec 2020 18:45:48 +0000
-Received: by smtp411.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 5cc7bf86203920dd4d4da35148d929fe;
-          Mon, 14 Dec 2020 18:45:44 +0000 (UTC)
-Subject: Re: [PATCH v2] proc: Allow pid_revalidate() during LOOKUP_RCU
-To:     Matthew Wilcox <willy@infradead.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20201204000212.773032-1-stephen.s.brennan@oracle.com>
- <20201212205522.GF2443@casper.infradead.org>
- <877dpln5uf.fsf@x220.int.ebiederm.org>
- <20201213162941.GG2443@casper.infradead.org>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <b18f4448-d31f-c4a7-ffea-e4cf2587b78b@schaufler-ca.com>
-Date:   Mon, 14 Dec 2020 10:45:43 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        id S1726696AbgLOCT6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Dec 2020 21:19:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42826 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726698AbgLOCTN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Dec 2020 21:19:13 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1542C0617A6
+        for <selinux@vger.kernel.org>; Mon, 14 Dec 2020 18:18:32 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id ga15so25423539ejb.4
+        for <selinux@vger.kernel.org>; Mon, 14 Dec 2020 18:18:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=epG8wiJEk1ZMX2bNaXtx4G2PAZzvvEvXiU4VYVabbH0=;
+        b=UDsWdaFAysTob03FiK+EApVxXkCX+rRhlkA9bnaihv6Y03By2IpV1OjJpvTBg6Yquf
+         0CIIvtiajxrLuO776i3rhBnZfS/Pyl0TUIyNBb6hnRhaay4QoUAVhcRv5oQNVAqdZbwu
+         w5eKz9fqgLvOlvBuj9r6z1lrk3m3tVC3VnpTzcIvbY8IvQzZr/S0dekG/C0TAoqpbGN3
+         mV3YZBgtx54LyqOEDnO6qveWVlI8Hs40RppalkzHd17Dy2tC/EpTihEOL1efih+CirxR
+         erZ09FaAxP5FhymaqG7wTZBWDzhuMmnFBjC+CpItQsieELQjFcHIfPoR9N2BFZIKuNn+
+         EXfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=epG8wiJEk1ZMX2bNaXtx4G2PAZzvvEvXiU4VYVabbH0=;
+        b=Adax2eTM8BBGKypGqGONTc3vHEEWuAVaaUwSdzf/5mjNNiBgDAg6GO/mNXr/x8kvyE
+         DgE1qYAYbtwLcPOrTN0MWPtIVeBxkvCVk2E8TiIbhP8VX8Mumg6Ym7sBxIBX7jFMQjVo
+         9jsx9RzGtEukpWbqW9mQ0fctUQF1kpC5MVKbbnrS9aH3VNLQbsK44KHSvLF1nUccrNXC
+         Y5AYbI4NLdb7H4y2hSgX+iOCiMGBPj0u0gflg1SvOCDCPaUzcsn9s2kDTG7odpDU6FuX
+         Mm2pSbXOX0KAGZCg77vrT4MvRKZloLsrS5p/sr7lU7K9FImrpefctD6eUdSKlPiLP1+z
+         zSTw==
+X-Gm-Message-State: AOAM533PNL3vJUJ1lbpJy9ZKi5SUYOGwt7rOhBYUVjp1GWMkjEwbupC0
+        oahqXfq0RKPyfUep4/RE6w+USHZ0l2Cwr7QNefFTmqJk1nB3
+X-Google-Smtp-Source: ABdhPJx4iUs+6Y7IRmemoXw4+mMYFmBN/WiDklGS3zYLAkW2tX/fmAKWtv6YilHMABA3Ss08dKEAollknAt58WSzqpQ=
+X-Received: by 2002:a17:906:aec6:: with SMTP id me6mr6267598ejb.542.1607998711594;
+ Mon, 14 Dec 2020 18:18:31 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201213162941.GG2443@casper.infradead.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.17278 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.8)
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 14 Dec 2020 21:18:20 -0500
+Message-ID: <CAHC9VhT85MwDwrB_pAvU+g12SnGZ1g9Tvqr4nJqBpZfEw1GAdg@mail.gmail.com>
+Subject: [GIT PULL] SELinux patches for v5.11
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/13/2020 8:29 AM, Matthew Wilcox wrote:
-> On Sun, Dec 13, 2020 at 08:22:32AM -0600, Eric W. Biederman wrote:
->> Matthew Wilcox <willy@infradead.org> writes:
->>
->>> On Thu, Dec 03, 2020 at 04:02:12PM -0800, Stephen Brennan wrote:
->>>> -void pid_update_inode(struct task_struct *task, struct inode *inode)
->>>> +static int do_pid_update_inode(struct task_struct *task, struct inode *inode,
->>>> +			       unsigned int flags)
->>> I'm really nitpicking here, but this function only _updates_ the inode
->>> if flags says it should.  So I was thinking something like this
->>> (compile tested only).
->>>
->>> I'd really appreocate feedback from someone like Casey or Stephen on
->>> what they need for their security modules.
->> Just so we don't have security module questions confusing things
->> can we please make this a 2 patch series?  With the first
->> patch removing security_task_to_inode?
->>
->> The justification for the removal is that all security_task_to_inode
->> appears to care about is the file type bits in inode->i_mode.  Something
->> that never changes.  Having this in a separate patch would make that
->> logical change easier to verify.
-> I don't think that's right, which is why I keep asking Stephen & Casey
-> for their thoughts.  For example,
->
->  * Sets the smack pointer in the inode security blob
->  */
-> static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
-> {
->         struct inode_smack *isp = smack_inode(inode);
->         struct smack_known *skp = smk_of_task_struct(p);
->
->         isp->smk_inode = skp;
->         isp->smk_flags |= SMK_INODE_INSTANT;
-> }
->
-> That seems to do rather more than checking the file type bits.
+Hi Linus,
 
-I'm going to have to bring myself up to speed on the
-discussion before I say anything dumb. I'm supposed to
-be Not! Working! today. I will get on it as permitted.
+While we have a small number of SELinux patches for v5.11, there are a
+few changes worth highlighting:
 
+- Change the LSM network hooks to pass flowi_common structs instead of
+the parent flowi struct as the LSMs do not currently need the full
+flowi struct and they do not have enough information to use it safely
+(missing information on the address family).  This patch was discussed
+both with Herbert Xu (representing team netdev) and James Morris
+(representing team LSMs-other-than-SELinux).
+
+- Fix how we handle errors in inode_doinit_with_dentry() so that we
+attempt to properly label the inode on following lookups instead of
+continuing to treat it as unlabeled.
+
+- Tweak the kernel logic around allowx, auditallowx, and dontauditx
+SELinux policy statements such that the auditx/dontauditx are
+effective even without the allowx statement.
+
+Everything passes our test suite and as of an hour or two ago it
+applies cleanly to your tree; please merge for v5.11.
+
+Thanks,
+-Paul
+
+--
+The following changes since commit 3650b228f83adda7e5ee532e2b90429c03f7b9ec:
+
+ Linux 5.10-rc1 (2020-10-25 15:14:11 -0700)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20201214
+
+for you to fetch changes up to 3df98d79215ace13d1e91ddfc5a67a0f5acbd83f:
+
+ lsm,selinux: pass flowi_common instead of flowi to the LSM hooks
+   (2020-11-23 18:36:21 -0500)
+
+----------------------------------------------------------------
+selinux/stable-5.11 PR 20201214
+
+----------------------------------------------------------------
+Gustavo A. R. Silva (1):
+     selinux: Fix fall-through warnings for Clang
+
+Ondrej Mosnacek (1):
+     selinux: drop super_block backpointer from superblock_security_struct
+
+Paul Moore (2):
+     selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
+     lsm,selinux: pass flowi_common instead of flowi to the LSM hooks
+
+Tianyue Ren (1):
+     selinux: fix error initialization in inode_doinit_with_dentry()
+
+bauen1 (1):
+     selinux: allow dontauditx and auditallowx rules to take effect without
+       allowx
+
+.../chelsio/inline_crypto/chtls/chtls_cm.c         |  2 +-
+drivers/net/wireguard/socket.c                     |  4 ++--
+include/linux/lsm_hook_defs.h                      |  4 ++--
+include/linux/lsm_hooks.h                          |  2 +-
+include/linux/security.h                           | 23 +++++++++-------
+include/net/flow.h                                 | 10 +++++++++
+include/net/route.h                                |  6 ++---
+net/dccp/ipv4.c                                    |  2 +-
+net/dccp/ipv6.c                                    |  6 ++---
+net/ipv4/icmp.c                                    |  4 ++--
+net/ipv4/inet_connection_sock.c                    |  4 ++--
+net/ipv4/ip_output.c                               |  2 +-
+net/ipv4/ping.c                                    |  2 +-
+net/ipv4/raw.c                                     |  2 +-
+net/ipv4/syncookies.c                              |  2 +-
+net/ipv4/udp.c                                     |  2 +-
+net/ipv6/af_inet6.c                                |  2 +-
+net/ipv6/datagram.c                                |  2 +-
+net/ipv6/icmp.c                                    |  6 ++---
+net/ipv6/inet6_connection_sock.c                   |  4 ++--
+net/ipv6/netfilter/nf_reject_ipv6.c                |  2 +-
+net/ipv6/ping.c                                    |  2 +-
+net/ipv6/raw.c                                     |  2 +-
+net/ipv6/syncookies.c                              |  2 +-
+net/ipv6/tcp_ipv6.c                                |  4 ++--
+net/ipv6/udp.c                                     |  2 +-
+net/l2tp/l2tp_ip6.c                                |  2 +-
+net/netfilter/nf_synproxy_core.c                   |  2 +-
+net/xfrm/xfrm_state.c                              |  6 +++--
+security/security.c                                | 17 +++++++-------
+security/selinux/hooks.c                           | 26 ++++++++++++------
+security/selinux/include/objsec.h                  |  1 -
+security/selinux/include/xfrm.h                    |  2 +-
+security/selinux/ss/services.c                     |  4 +---
+security/selinux/xfrm.c                            | 13 ++++++-----
+35 files changed, 101 insertions(+), 77 deletions(-)
+
+-- 
+paul moore
+www.paul-moore.com
