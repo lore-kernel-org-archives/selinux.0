@@ -2,152 +2,121 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F110EC3526F
-	for <selinux@archiver.kernel.org>; Sat, 19 Dec 2020 00:07:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57EFAC3526E
+	for <selinux@archiver.kernel.org>; Sat, 19 Dec 2020 10:06:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C228420780
-	for <selinux@archiver.kernel.org>; Sat, 19 Dec 2020 00:07:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1BAFF23BEE
+	for <selinux@archiver.kernel.org>; Sat, 19 Dec 2020 10:06:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726000AbgLSAHi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Dec 2020 19:07:38 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:49348 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725831AbgLSAHi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Dec 2020 19:07:38 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BJ06MVk018009;
-        Sat, 19 Dec 2020 00:06:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2020-01-29;
- bh=h05qvuELutaWEFd0FH0nDiggcQgz3WjMZcVQ54H2AqM=;
- b=g8reo9uoK2ZSBudZW4xxmSItvP+/L42kFQiBXHAnIIwqiUYWSaYFiCVCMUJdD/XyW50R
- hVcc6UthXBb91n9ilE403Q8o7iLtw70p3Pd2drJQmMuqOLx+n6MdR4dAG/gcDaiGG39G
- 9yJ7jshd32I/5o6rwFnuFPh5N7D+RsIAq8VcnsgdlsJUwhAyWYcQMha1150F9QQiZ1lY
- el+BDhsA67ctUdZRbZDJi41WxX7IXuW25pS+nC6MRWJdGxMJMEgXyknSYJh6s/9ajfim
- vH+PMr8q1uHc5JOBSnLj/dyQJmvrxvBtK6gPNUHbLFyiP3jIK9sL+n1uyKBTs3Fr5/oG RQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2130.oracle.com with ESMTP id 35ckcbvw8m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sat, 19 Dec 2020 00:06:32 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BJ05OhR049261;
-        Sat, 19 Dec 2020 00:06:32 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 35g3rgsfn0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 19 Dec 2020 00:06:31 +0000
-Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0BJ06Tmr022519;
-        Sat, 19 Dec 2020 00:06:29 GMT
-Received: from localhost (/10.159.241.141)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 18 Dec 2020 16:06:29 -0800
-From:   Stephen Brennan <stephen.s.brennan@oracle.com>
-To:     Alexey Dobriyan <adobriyan@gmail.com>
-Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
+        id S1726442AbgLSKGN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 19 Dec 2020 05:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726433AbgLSKGM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 19 Dec 2020 05:06:12 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 191AFC0617B0;
+        Sat, 19 Dec 2020 02:05:32 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id q22so6792013eja.2;
+        Sat, 19 Dec 2020 02:05:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7W4RYxZj8lkWpWkE7UHIfL8SS0IH4o1LBa7PCi5M3wI=;
+        b=dhyBJMtvrKQNAWrETDplQ9mjvDaT0lh2/dFwdO2c0yU2efoRcGvwZwz3avH4WtFGC+
+         f28q7HEh/McQ/uRy7sCWOjFq29M+CPf0y7X+bk1MV74YMoA9c9Zy4HtweGrFAgK+oIoz
+         /J8POygW0Q/0TegHzFprmxfxKKXHx5eC7NbNWRvgyWUF/9BK7SZfOm9KNHELouT9K2rO
+         EBA7TD/lYPdWjTU+T7FU81vV+iODZ3YlFNXlhWPNEtjyn3geSy6V2D8ce/s5au8tZc8l
+         NEthhUaBKP6Jk0H3Mpbyx2vroIiDgUo8CKfZI0jmV8FsPsQ+eCf6PGGR7gHodeeGM8kk
+         4GOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7W4RYxZj8lkWpWkE7UHIfL8SS0IH4o1LBa7PCi5M3wI=;
+        b=HZHA98jMvRTwrU25mwCKVkqnraZaErLTQzr2VDCf1xMQ57zfGjZppvO66tcCn3VM/l
+         8zTygnXBP4K6ZhqMMjPrMYjMb114YBjdW4cZv+h7jARQsBdCKAoUOvUgt8qZxWR5fjgJ
+         /1gCr1CfThMj4u2Uwz5xbxmbqZ4E50JBy5hcelZunxdrm7k9Elj+TvCAYcKglpLYt2iL
+         NOcg66tbLjUXhdTmi1exhGeDYch2U3S9DOlz7wXv4PTkAPOOES5s9uK8XVcOdq+V814P
+         0OBDCSPuc0r+jJPOcIdUShj10Yi9jCsiAU7Qvfh+FL7pvXCezfeBpzNVcYrC7bE/AkCX
+         GbeQ==
+X-Gm-Message-State: AOAM532FSSRQWBRr+VVd5CtP6X1h3UIdt4zcl3kgnk9DewpIQsUAGslW
+        GIB0JTWKP3ADDhSpQ8kli5A=
+X-Google-Smtp-Source: ABdhPJze5KIsjiEkOFsbxg5X9Tu9I1qLEYe8iHtQXSOXOjINhhuqqibupHdBQQGJWKLZ7qpz4ZRMxg==
+X-Received: by 2002:a17:906:f153:: with SMTP id gw19mr7918482ejb.272.1608372330717;
+        Sat, 19 Dec 2020 02:05:30 -0800 (PST)
+Received: from localhost.localdomain ([31.210.181.203])
+        by smtp.gmail.com with ESMTPSA id a10sm6633651ejk.92.2020.12.19.02.05.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Dec 2020 02:05:30 -0800 (PST)
+From:   Amir Goldstein <amir73il@gmail.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Michael Labriola <michael.d.labriola@gmail.com>,
+        Jonathan Lebon <jlebon@redhat.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v3 2/2] proc: ensure security hook is called after exec
-Date:   Fri, 18 Dec 2020 16:06:16 -0800
-Message-Id: <20201219000616.197585-2-stephen.s.brennan@oracle.com>
+        Miklos Szeredi <miklos@szeredi.hu>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-unionfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] selinux: fix inconsistency between inode_getxattr and inode_listsecurity
+Date:   Sat, 19 Dec 2020 12:05:27 +0200
+Message-Id: <20201219100527.16060-1-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201219000616.197585-1-stephen.s.brennan@oracle.com>
-References: <20201219000616.197585-1-stephen.s.brennan@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
- spamscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2012180164
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9839 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
- priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 phishscore=0
- malwarescore=0 impostorscore=0 lowpriorityscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012180164
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Smack needs its security_task_to_inode() hook to be called when a task
-execs a new executable. Store the self_exec_id of the task and call the
-hook via pid_update_inode() whenever the exec_id changes.
+When inode has no listxattr op of its own (e.g. squashfs) vfs_listxattr
+calls the LSM inode_listsecurity hooks to list the xattrs that LSMs will
+intercept in inode_getxattr hooks.
 
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+When selinux LSM is installed but not initialized, it will list the
+security.selinux xattr in inode_listsecurity, but will not intercept it
+in inode_getxattr.  This results in -ENODATA for a getxattr call for an
+xattr returned by listxattr.
+
+This situation was manifested as overlayfs failure to copy up lower
+files from squashfs when selinux is built-in but not initialized,
+because ovl_copy_xattr() iterates the lower inode xattrs by
+vfs_listxattr() and vfs_getxattr().
+
+Match the logic of inode_listsecurity to that of inode_getxattr and
+do not list the security.selinux xattr if selinux is not initialized.
+
+Reported-by: Michael Labriola <michael.d.labriola@gmail.com>
+Tested-by: Michael Labriola <michael.d.labriola@gmail.com>
+Link: https://lore.kernel.org/linux-unionfs/2nv9d47zt7.fsf@aldarion.sourceruckus.org/
+Fixes: c8e222616c7e ("selinux: allow reading labels before policy is loaded")
+Cc: stable@vger.kernel.org#v5.9+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
+ security/selinux/hooks.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-As discussed on the v2 of the patch, this should allow Smack to receive a
-security_task_to_inode() call only when the uid/gid changes, or when the task
-execs a new binary. I have verified that this doesn't change the performance of
-the patch set, and that we do fall out of RCU walk on tasks which have recently
-exec'd.
-
- fs/proc/base.c     | 4 +++-
- fs/proc/internal.h | 5 ++++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 4b246e9bd5df..ad59e92e8433 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1917,6 +1917,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb,
- 	}
- 
- 	task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
-+	ei->exec_id = task->self_exec_id;
- 	security_task_to_inode(task, inode);
- 
- out:
-@@ -1965,6 +1966,7 @@ void pid_update_inode(struct task_struct *task, struct inode *inode)
- 	task_dump_owner(task, inode->i_mode, &inode->i_uid, &inode->i_gid);
- 
- 	inode->i_mode &= ~(S_ISUID | S_ISGID);
-+	PROC_I(inode)->exec_id = task->self_exec_id;
- 	security_task_to_inode(task, inode);
- }
- 
-@@ -1979,7 +1981,7 @@ static bool pid_inode_needs_update(struct task_struct *task, struct inode *inode
- 	task_dump_owner(task, inode->i_mode, &uid, &gid);
- 	if (!uid_eq(uid, inode->i_uid) || !gid_eq(gid, inode->i_gid))
- 		return true;
--	return false;
-+	return task->self_exec_id != PROC_I(inode)->exec_id;
- }
- 
- /*
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index f60b379dcdc7..1df9b039dfc3 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -92,7 +92,10 @@ union proc_op {
- 
- struct proc_inode {
- 	struct pid *pid;
--	unsigned int fd;
-+	union {
-+		unsigned int fd;
-+		u32 exec_id;
-+	};
- 	union proc_op op;
- 	struct proc_dir_entry *pde;
- 	struct ctl_table_header *sysctl;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6b1826fc3658..e132e082a5af 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3406,6 +3406,10 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
+ {
+ 	const int len = sizeof(XATTR_NAME_SELINUX);
++
++	if (!selinux_initialized(&selinux_state))
++		return 0;
++
+ 	if (buffer && len <= buffer_size)
+ 		memcpy(buffer, XATTR_NAME_SELINUX, len);
+ 	return len;
 -- 
 2.25.1
 
