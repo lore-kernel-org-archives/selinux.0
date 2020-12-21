@@ -2,66 +2,63 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D80CCC4361B
-	for <selinux@archiver.kernel.org>; Sat, 19 Dec 2020 11:14:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A061DC433DB
+	for <selinux@archiver.kernel.org>; Mon, 21 Dec 2020 18:57:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9CC5B233A2
-	for <selinux@archiver.kernel.org>; Sat, 19 Dec 2020 11:14:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 569622253A
+	for <selinux@archiver.kernel.org>; Mon, 21 Dec 2020 18:57:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726447AbgLSLOU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 19 Dec 2020 06:14:20 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36734 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726442AbgLSLOT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 19 Dec 2020 06:14:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608376372;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NkKxD14BTxc8KsjSCUrd7RJBgO1Js5kVPiaZwEefDiQ=;
-        b=Ky2MrK7dTMn5Y10uuUqJ0gDLh6hRKCt/h0x+GKaUsP0K5HD1l04sSyfptRfI/xYIDynvAH
-        FXYozluEXJ5bX1bG6ZfVcQ+J+L3jOHlBgNecM/zEl2iZ9tpTPT1uztgRx8mMxUM7WCO69Y
-        NNRXpiNC2peUx3n+g9ZPHnOf64ijHDc=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-233-mVqxX6vlN5unTA6Z8Fg3Zw-1; Sat, 19 Dec 2020 06:12:49 -0500
-X-MC-Unique: mVqxX6vlN5unTA6Z8Fg3Zw-1
-Received: by mail-lf1-f72.google.com with SMTP id b11so3270474lfj.21
-        for <selinux@vger.kernel.org>; Sat, 19 Dec 2020 03:12:48 -0800 (PST)
+        id S1726309AbgLUS5b (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Dec 2020 13:57:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57216 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725883AbgLUS5b (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Dec 2020 13:57:31 -0500
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65EA1C0613D3
+        for <selinux@vger.kernel.org>; Mon, 21 Dec 2020 10:56:50 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id m12so26159546lfo.7
+        for <selinux@vger.kernel.org>; Mon, 21 Dec 2020 10:56:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=7s9hr5dA0fkx/QFZ7NM96YTbkBxRmWF3/JfxOfZsQMc=;
+        b=cC2mCzLCRMTQ/nBYz4nuN6Pl2inYkAn6iuDtvKgSLMm28Yh/okc49VAwJduL90FCTT
+         YFqOu6H5ezgYcm/Xm31wbBqeVdL0y1V0Jspa295j/QP4Lb+eZxNAMXSthS/zq9mw+sNd
+         cKG62TYQTzmvDmQuvUgr696xZcycGsSvLrbQPkKZf4RzIQy6qJMakLR4Q6O6hk4tZdK4
+         x0rXo1q2VuJkUgR/tYaWP7aY5Me1yA/5FobpU37in71kZQ0X8uBKVKVvRCvvO9+kQjMr
+         dxb6VgHetww2qew3dT7tnum4qZd6uaSAg9WZDeCqyJeCHvvEz6xihwjxqjwh8qcyXqUq
+         AFyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=NkKxD14BTxc8KsjSCUrd7RJBgO1Js5kVPiaZwEefDiQ=;
-        b=Nbizn0B0D6EeVCX57z11qHjiOPPtoMt4smhGzAe8/QyRAwf7iUFoGTWZ56VLw2MwuE
-         eYVVc7qg0fEhujbWSIqUvc/N0wTPywsz/4C1tyugJCL4shRCz7BN4e3O534GF1OxB30d
-         4Pu7ZKnsOvMd4dq0PA8kaSn9est3o8+e+zhNitSHcxWsEK3ExHbVKJZUdkwpd80w3ZGf
-         /xKVkI1XEczLNJ8eIjcmLreMmXVqJOs9fRIkUfvOcb9tkD3ytCiqkxmOPgJJSZ10gxqj
-         6jmj0Fn2FPoDxy/olsW77i9qEsE9IgJ0kJq76wTkxJVlivEsP55fGHRnzK8N7XZ11qrt
-         JanA==
-X-Gm-Message-State: AOAM5339B73pTii4ipfFswTEkGtRImPd42axXFMLYhs3ETcMy/K5s97L
-        YZc82eYfidMCZ1U14o6OuaWyoQklAH9ggpIcbok90i3qzJPciOJbkSG8L9bWeXyn4Q0bKAbjMh5
-        IltrkYWtMrgGkmL5OS5T4Q4vSHzZB7XXttg==
-X-Received: by 2002:a19:8213:: with SMTP id e19mr2991142lfd.600.1608376367398;
-        Sat, 19 Dec 2020 03:12:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwQyXrMuGmXiMXwI4bI70s/Ri2zwhuFvj4jhXjbG6okE8QhXoIK1aw8c2Nm2HjHAOtq4FyVS8FXW97CulpVbrQ=
-X-Received: by 2002:a19:8213:: with SMTP id e19mr2991137lfd.600.1608376367168;
- Sat, 19 Dec 2020 03:12:47 -0800 (PST)
+        bh=7s9hr5dA0fkx/QFZ7NM96YTbkBxRmWF3/JfxOfZsQMc=;
+        b=kZAUMem69H9KuvUxZrWf56eoW4OxMRviiy3bWBKDu0kOb5VFhspF6CuMWrHn4+EHfD
+         pd5T2nd+PsG6t3s1LzAMCrgeXRWZYuyof9hOlSHeqx05Dcr56H0wLy7AY2MyYBEFHssq
+         BRolP+meXG9Qs31T4jss2UjKgv1Mqb/9Rk+WRU9R0Yah2jqK6A9/KKizi9KKEmXxCiyf
+         plebIqGa5Q7oA1pRVy7JLKASmSNXakqnt7B8n0z4PphLVh48HMlri/GRf6vENF/F+rQz
+         JiIHweI0aAQsgRflx+XSebz12q8oqCA9egSuYM1+0i+Ni05O83qz52vZuEVVEZo5qVcv
+         nHYQ==
+X-Gm-Message-State: AOAM53044in1+QHZFHFNikPDdXUZaprNDBChQIuBwbR6RdNkqdLpwkBb
+        nufAIqFNHw2Zef1QruOCBOlPO9J5CPHxmVAc9jFCH4ZlxA==
+X-Google-Smtp-Source: ABdhPJya3APIOqcDyWt08s07GpfF6usRNvPf7LcRwVxMpAteQvJVL4vTvdssZEwzbuzrjt4u+KGb9OrGLN3CKkyVXrw=
+X-Received: by 2002:a05:6402:1593:: with SMTP id c19mr16694527edv.269.1608566650603;
+ Mon, 21 Dec 2020 08:04:10 -0800 (PST)
 MIME-Version: 1.0
-References: <X9vP2uwRZb1l1ySE@server-build.lan>
-In-Reply-To: <X9vP2uwRZb1l1ySE@server-build.lan>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Sat, 19 Dec 2020 12:12:30 +0100
-Message-ID: <CAFqZXNtvY4tJnH07wNvTGuynzGYQQrwVQiXVWBTDfzWUPCWpsw@mail.gmail.com>
+References: <X9vP2uwRZb1l1ySE@server-build.lan> <CAFqZXNtvY4tJnH07wNvTGuynzGYQQrwVQiXVWBTDfzWUPCWpsw@mail.gmail.com>
+In-Reply-To: <CAFqZXNtvY4tJnH07wNvTGuynzGYQQrwVQiXVWBTDfzWUPCWpsw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 21 Dec 2020 11:03:59 -0500
+Message-ID: <CAHC9VhTfs_qfyiY916dW3GOMtzyUSebgH8W5H-k7GdBii7vHzg@mail.gmail.com>
 Subject: Re: [kernel-secnext] Automated Testing Results Linux
  5.11.0-0.rc0.20201217gite994cc240a3b.102.1.secnext.fc34.x86_64 [12/17/2020 16:38]
-To:     Paul Moore <paul@paul-moore.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     kernel-secnext@googlegroups.com,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -69,157 +66,54 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Dec 17, 2020 at 10:38 PM <paul@paul-moore.com> wrote:
->
-> SYSTEM: test-rawhide-1.lan
-> DATE: Thu, 17 Dec 2020 16:38:34 -0500
->
-> KERNEL: Linux 5.11.0-0.rc0.20201217gite994cc240a3b.102.1.secnext.fc34.x86_64
->
->    audit-testsuite: PASS
->  selinux-testsuite: FAILED
->
-> ### START AUDIT TEST LOG
-> Running as   user    root
->         with context unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
->         on   system  Fedora
->
-> exec_execve/test ......... ok
-> exec_name/test ........... ok
-> file_create/test ......... ok
-> file_delete/test ......... ok
-> file_rename/test ......... ok
-> filter_exclude/test ...... ok
-> filter_saddr_fam/test .... ok
-> filter_sessionid/test .... ok
-> login_tty/test ........... ok
-> lost_reset/test .......... ok
-> netfilter_pkt/test ....... ok
-> syscalls_file/test ....... ok
-> syscall_module/test ...... ok
-> syscall_socketcall/test .. ok
-> time_change/test ......... ok
-> user_msg/test ............ ok
-> fanotify/test ............ ok
-> bpf/test ................. ok
-> All tests successful.
-> Files=18, Tests=200, 28 wallclock secs ( 0.08 usr  0.06 sys +  3.77 cusr  5.35 csys =  9.26 CPU)
-> Result: PASS
-> ### END TEST LOG
->
-> ### START SELINUX TEST LOG
-> Compiling targeted test_policy module
-> Creating targeted test_policy.pp policy package
-> domain_fd_use --> on
-> Running as user root with context unconfined_u:unconfined_r:unconfined_t
->
-> domain_trans/test ........... ok
-> entrypoint/test ............. ok
-> execshare/test .............. ok
-> exectrace/test .............. ok
-> execute_no_trans/test ....... ok
-> fdreceive/test .............. ok
-> inherit/test ................ ok
-> link/test ................... ok
-> mkdir/test .................. ok
-> msg/test .................... ok
-> open/test ................... ok
-> ptrace/test ................. ok
-> readlink/test ............... ok
-> relabel/test ................ ok
-> rename/test ................. ok
-> rxdir/test .................. ok
-> sem/test .................... ok
-> setattr/test ................ ok
-> setnice/test ................ ok
-> shm/test .................... ok
-> sigkill/test ................ ok
-> stat/test ................... ok
-> sysctl/test ................. ok
-> task_create/test ............ ok
-> task_setnice/test ........... ok
-> task_setscheduler/test ...... ok
-> task_getscheduler/test ...... ok
-> task_getsid/test ............ ok
-> task_getpgid/test ........... ok
-> task_setpgid/test ........... ok
-> file/test ................... ok
-> ioctl/test .................. ok
-> capable_file/test ........... ok
-> capable_net/test ............ ok
-> capable_sys/test ............ ok
-> dyntrans/test ............... ok
-> dyntrace/test ............... ok
-> bounds/test ................. ok
-> nnp_nosuid/test ............. ok
-> mmap/test ................... ok
-> unix_socket/test ............ ok
-> inet_socket/test ............ ok
-> overlay/test ................ ok
-> checkreqprot/test ........... ok
-> mqueue/test ................. ok
-> mac_admin/test .............. ok
-> atsecure/test ............... ok
-> cap_userns/test ............. ok
-> extended_socket_class/test .. ok
-> sctp/test ................... ok
-> netlink_socket/test ......... ok
-> prlimit/test ................ ok
-> binder/test ................. ok
-> bpf/test .................... ok
-> keys/test ................... ok
-> key_socket/test ............. ok
-> glblub/test ................. ok
-> infiniband_endport/test ..... ok
-> infiniband_pkey/test Yeah........ ok
-> cgroupfs_label/test ......... ok
-> module_load/test ............ ok
-> tun_tap/test ................ ok
->
-> #   Failed test at perf_event/test line 61.
-> # Looks like you failed 1 test of 9.
-> perf_event/test .............
-> Dubious, test returned 1 (wstat 256, 0x100)
-> Failed 1/9 subtests
+On Sat, Dec 19, 2020 at 6:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Thu, Dec 17, 2020 at 10:38 PM <paul@paul-moore.com> wrote:
+> >
+> > SYSTEM: test-rawhide-1.lan
+> > DATE: Thu, 17 Dec 2020 16:38:34 -0500
+> >
+> > KERNEL: Linux 5.11.0-0.rc0.20201217gite994cc240a3b.102.1.secnext.fc34.x86_64
+> >
+> >    audit-testsuite: PASS
+> >  selinux-testsuite: FAILED
 
-So as you can see, we finally added the perf_event class to Fedora
-policy :) (at least that one for a start...)
+...
 
-The failure seems to be caused by the introduction of CAP_PERFMON (and
-the fact that we haven't yet added *that one* to the policy...). I'll
-try to come up with a patch, but it probably won't happen until next
-year, so if someone wants to have a go at it, they are of course free
-to do so :)
+> > ### START SELINUX TEST LOG
+> > Compiling targeted test_policy module
+> > Creating targeted test_policy.pp policy package
+> > domain_fd_use --> on
+> > Running as user root with context unconfined_u:unconfined_r:unconfined_t
+> >
+> > domain_trans/test ........... ok
 
-> filesystem/ext4/test ........ ok
-> filesystem/xfs/test ......... ok
-> filesystem/jfs/test ......... ok
-> filesystem/vfat/test ........ ok
-> fs_filesystem/ext4/test ..... ok
-> fs_filesystem/xfs/test ...... ok
-> fs_filesystem/jfs/test ...... ok
-> fs_filesystem/vfat/test ..... ok
-> watchkey/test ............... ok
+...
+
+> > tun_tap/test ................ ok
+> >
+> > #   Failed test at perf_event/test line 61.
+> > # Looks like you failed 1 test of 9.
+> > perf_event/test .............
+> > Dubious, test returned 1 (wstat 256, 0x100)
+> > Failed 1/9 subtests
 >
-> Test Summary Report
-> -------------------
-> perf_event/test           (Wstat: 256 Tests: 9 Failed: 1)
->   Failed test:  2
->   Non-zero exit status: 1
-> Files=72, Tests=1226, 276 wallclock secs ( 0.46 usr  0.29 sys + 11.69 cusr 77.38 csys = 89.82 CPU)
-> Result: FAIL
-> Failed 1/72 test programs. 1/1226 subtests failed.
-> make[1]: *** [Makefile:162: test] Error 255
-> make: *** [Makefile:8: test] Error 2
-> ### END TEST LOG
+> So as you can see, we finally added the perf_event class to Fedora
+> policy :) (at least that one for a start...)
 >
-> --
-> You received this message because you are subscribed to the Google Groups "kernel-secnext" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-secnext+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/kernel-secnext/X9vP2uwRZb1l1ySE%40server-build.lan.
+> The failure seems to be caused by the introduction of CAP_PERFMON (and
+> the fact that we haven't yet added *that one* to the policy...). I'll
+> try to come up with a patch, but it probably won't happen until next
+> year, so if someone wants to have a go at it, they are of course free
+> to do so :)
 
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+Thanks for looking into this.  I noticed some consistent test failures
+last week but figured I would give it a few days to see if it resolved
+upstream (test failures during the merge window are not uncommon, and
+they often resolve themselves in a day or two).
 
+At the very least I'll see if there is a quick patch I can do for my
+automated test runs so we don't keep seeing this failure.
+
+-- 
+paul moore
+www.paul-moore.com
