@@ -2,122 +2,121 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7288EC433E6
-	for <selinux@archiver.kernel.org>; Wed, 23 Dec 2020 15:27:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48270C433E0
+	for <selinux@archiver.kernel.org>; Wed, 23 Dec 2020 15:29:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4682C2333D
-	for <selinux@archiver.kernel.org>; Wed, 23 Dec 2020 15:27:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E24962332A
+	for <selinux@archiver.kernel.org>; Wed, 23 Dec 2020 15:29:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727360AbgLWP0p (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Dec 2020 10:26:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
+        id S1726319AbgLWP3v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Dec 2020 10:29:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727353AbgLWP0p (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Dec 2020 10:26:45 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9748FC061794
-        for <selinux@vger.kernel.org>; Wed, 23 Dec 2020 07:26:04 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id u19so16549292edx.2
-        for <selinux@vger.kernel.org>; Wed, 23 Dec 2020 07:26:04 -0800 (PST)
+        with ESMTP id S1726207AbgLWP3v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Dec 2020 10:29:51 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AC5C061794
+        for <selinux@vger.kernel.org>; Wed, 23 Dec 2020 07:29:10 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id ga15so23333248ejb.4
+        for <selinux@vger.kernel.org>; Wed, 23 Dec 2020 07:29:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=aynHpdcYEJRz/G4CBLqyTBkxsILBk/FZ/rPZaYz6pvM=;
-        b=J4wY+oArnYHud7p7/uFKptm8CckBN9kukMJauD8QY6bmx5CRgW5o0MdoSGMVTLGA18
-         ooXDuOQr8hM0lf0AHLQkGVcrv/sB7SQBq4lR/52o/UDgeHRwGqDKZhBS7VbqZpyFyZoW
-         CYT1QuI0Ek5md8N4cDvINmNKPKkhxLbmWXczxt4ywz+M9BCp8B7hZkvheiYjcIc/mggj
-         IJtRDLJmbiIp0BBEtDKX2LfeKswhZgmVTBjdD+c0FE1txdUgLUhJhDdT5mjpz9+aoCsw
-         nu/R2g7GjRfGXFS/gU8HuROZO6vKcAcQOXh6LRKDDEjhf5MINtrloMzbvXKD//VHHemE
-         nvYQ==
+        bh=ilqnS+go6y3VGtHK12pvSTp1wCYjHy/HsLxf7+D7FoI=;
+        b=hIcM5ZdbCV2fCYDLBMSV1oNIHbfGGZA9hK7sNa8ziU+mN9OZcxt1sAmRVYv08xr4u/
+         D9MO+IEYbEjt23X6C2ciGK/6R64T/vmIdHmd88wACo6d4OIq07fPar1u3jHFbnJvw4rc
+         ZxPsP7E6Vb65/6fm5n5T5yVpvWZP6YP34wa6BVVoXTKwSv9F4zQHFDIeO9cDWVeEiNYK
+         B3utL99d4CSOUDbrX8MEHnKpGdwWEuhEYgvFqrBI85rnDz42FaV8OT+jl0Ovo9/+EkdO
+         /7hU3i7k1CMfvzk/6QCF2OPVxtQYoPOgM7LzZQUAh3VUqDPB3Y4780gT+KDIv3HajL8J
+         POgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=aynHpdcYEJRz/G4CBLqyTBkxsILBk/FZ/rPZaYz6pvM=;
-        b=q3fYlwL6PckbVMuY32yxjLFZx0RoUmGIZm03h4jKNBOM6/GrUojfeQ6PRALhCP6o8Z
-         lTzWEmVKrwDOV+ngStuaqCsc57y5N8VeumhB80xDowuAmMV5vZv/gPkE3ZSkyicr9iNr
-         KIj0uepQSY+esqD+jHxv0DW9eXEsWRh8mkM0H1l33FHKSAUusjLVmMy7Yspyq2RS0qNT
-         zeoJjJjhX7HeHgH1FYjK9K663ktqWox4jBxYXwwhL9TrPYZzE7Ku5DESDRCKDZtX0he+
-         n4CpCD5G+qNVraGdOTaqxnbosipq6VyYCJ/uome01cJ14Lr12oOMlsVfzuVuhc8Dl8Gj
-         x/6Q==
-X-Gm-Message-State: AOAM5308FnoKyrNr0QUAYqV58EwOIriRC1cssreMcrUfEIyAqA8/slto
-        1ndC2JTZQWF8QukNgRAK9H6cqz4mF2uKc2O3Ip2x
-X-Google-Smtp-Source: ABdhPJyLihsxjTzvi2HeA+elHryUhKXCikwl0sshvsYpsB9sLKnEzQgaCF/ge7mTmh3r4hbiJgUJdj9GGXXq4Xex2DQ=
-X-Received: by 2002:a05:6402:1593:: with SMTP id c19mr25530180edv.269.1608737163153;
- Wed, 23 Dec 2020 07:26:03 -0800 (PST)
+        bh=ilqnS+go6y3VGtHK12pvSTp1wCYjHy/HsLxf7+D7FoI=;
+        b=lc5ofh+MQAG87ZHVxcJdV6UdYnsXXcbJYK0J9ArAMxHfbum0Zq8mhl4qTjxCDGcF5c
+         fWKd6P5qEkUxMuvwkvv+PQ02AY/tvhBsKIbMXmCAaYcoDgHyjru0w7ev/sKUg80vYi0J
+         QjI1dmjMTWmmsv6xJhYUXBM8U/FYKqwc+njhWCVyV2nS9qSHeW2JOXgD5PPlHTekWY+o
+         /k3T+CTOODhvnDLFgwfXc9AFnddREKJ3F2xDYDWeD32VwikgNfqo40hk4suPVbshr6Bz
+         gcjCYkUq2ChJ7A25wALYq97Geun4xQbvix6OYm48wOAKfY/WSBNte3DMX9w6HRNN9dMg
+         vdNA==
+X-Gm-Message-State: AOAM530FoegCgghIS8vc0fXpXdjHGS4bQsdRNl20PdIlRxV/VdzEY1tu
+        3TD6lwmTzFmtns0jfwUGdj6E5l0gmEerilIPxYwp
+X-Google-Smtp-Source: ABdhPJzkMTwRUL5i/KRE4eD4CuTghMo6naTpAE+x8n8wannLuJr29Tmz/CoLa1+kbCQkUe9yzTG/4HDPqxBKlFLlIAs=
+X-Received: by 2002:a17:907:d9e:: with SMTP id go30mr23759329ejc.488.1608737349200;
+ Wed, 23 Dec 2020 07:29:09 -0800 (PST)
 MIME-Version: 1.0
-References: <X9vP2uwRZb1l1ySE@server-build.lan> <CAFqZXNtvY4tJnH07wNvTGuynzGYQQrwVQiXVWBTDfzWUPCWpsw@mail.gmail.com>
- <CAHC9VhTfs_qfyiY916dW3GOMtzyUSebgH8W5H-k7GdBii7vHzg@mail.gmail.com>
-In-Reply-To: <CAHC9VhTfs_qfyiY916dW3GOMtzyUSebgH8W5H-k7GdBii7vHzg@mail.gmail.com>
+References: <fde38edd69c998624c5eb5be072ca1fa556d312d.1608119587.git.pabeni@redhat.com>
+ <CAHC9VhTUain0=AXvxu3k7e46DCnFuQtcrgQFrEsz9b0uNQnqtQ@mail.gmail.com> <8650019f70725323545e41c5ecf6b1344671b4fa.camel@redhat.com>
+In-Reply-To: <8650019f70725323545e41c5ecf6b1344671b4fa.camel@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 23 Dec 2020 10:25:52 -0500
-Message-ID: <CAHC9VhSZt3YP_TLBvr4nU7CeRqaccj0E1uTK-PcHT_MW2xSGbw@mail.gmail.com>
-Subject: Re: [kernel-secnext] Automated Testing Results Linux
- 5.11.0-0.rc0.20201217gite994cc240a3b.102.1.secnext.fc34.x86_64 [12/17/2020 16:38]
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     kernel-secnext@googlegroups.com,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Wed, 23 Dec 2020 10:28:58 -0500
+Message-ID: <CAHC9VhQxrGNMNj9FN3LYVbqt+Rwgbrv98GySzg4Tzb=jcNWN3g@mail.gmail.com>
+Subject: Re: [PATCH] linux: handle MPTCP consistently with TCP
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        mptcp@lists.01.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 11:03 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Sat, Dec 19, 2020 at 6:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > On Thu, Dec 17, 2020 at 10:38 PM <paul@paul-moore.com> wrote:
+On Wed, Dec 23, 2020 at 10:10 AM Paolo Abeni <pabeni@redhat.com> wrote:
+> On Wed, 2020-12-23 at 09:53 -0500, Paul Moore wrote:
+> > On Wed, Dec 16, 2020 at 6:55 AM Paolo Abeni <pabeni@redhat.com> wrote:
+> > > The MPTCP protocol uses a specific protocol value, even if
+> > > it's an extension to TCP. Additionally, MPTCP sockets
+> > > could 'fall-back' to TCP at run-time, depending on peer MPTCP
+> > > support and available resources.
 > > >
-> > > SYSTEM: test-rawhide-1.lan
-> > > DATE: Thu, 17 Dec 2020 16:38:34 -0500
+> > > As a consequence of the specific protocol number, selinux
+> > > applies the raw_socket class to MPTCP sockets.
 > > >
-> > > KERNEL: Linux 5.11.0-0.rc0.20201217gite994cc240a3b.102.1.secnext.fc34.x86_64
+> > > Existing TCP application converted to MPTCP - or forced to
+> > > use MPTCP socket with user-space hacks - will need an
+> > > updated policy to run successfully.
 > > >
-> > >    audit-testsuite: PASS
-> > >  selinux-testsuite: FAILED
->
-> ...
->
-> > > ### START SELINUX TEST LOG
-> > > Compiling targeted test_policy module
-> > > Creating targeted test_policy.pp policy package
-> > > domain_fd_use --> on
-> > > Running as user root with context unconfined_u:unconfined_r:unconfined_t
+> > > This change lets selinux attach the TCP socket class to
+> > > MPTCP sockets, too, so that no policy changes are needed in
+> > > the above scenario.
 > > >
-> > > domain_trans/test ........... ok
->
-> ...
->
-> > > tun_tap/test ................ ok
+> > > Note that the MPTCP is setting, propagating and updating the
+> > > security context on all the subflows and related request
+> > > socket.
 > > >
-> > > #   Failed test at perf_event/test line 61.
-> > > # Looks like you failed 1 test of 9.
-> > > perf_event/test .............
-> > > Dubious, test returned 1 (wstat 256, 0x100)
-> > > Failed 1/9 subtests
+> > > Link: https://lore.kernel.org/linux-security-module/CAHC9VhTaK3xx0hEGByD2zxfF7fadyPP1kb-WeWH_YCyq9X-sRg@mail.gmail.com/T/#t
+> > > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+> > > ---
+> > >  security/selinux/hooks.c | 3 ++-
+> > >  1 file changed, 2 insertions(+), 1 deletion(-)
 > >
-> > So as you can see, we finally added the perf_event class to Fedora
-> > policy :) (at least that one for a start...)
+> > Based on our discussion in the previous thread, the patch below seems
+> > fine, although it needs to wait until after the merge window closes.
 > >
-> > The failure seems to be caused by the introduction of CAP_PERFMON (and
-> > the fact that we haven't yet added *that one* to the policy...). I'll
-> > try to come up with a patch, but it probably won't happen until next
-> > year, so if someone wants to have a go at it, they are of course free
-> > to do so :)
+> > Paolo, it sounded like there was at least one other small MPTCP fix
+> > needed, likely in the stack itself and not the LSM/SELinux code, has
+> > that patch been submitted already?
 >
-> Thanks for looking into this.  I noticed some consistent test failures
-> last week but figured I would give it a few days to see if it resolved
-> upstream (test failures during the merge window are not uncommon, and
-> they often resolve themselves in a day or two).
->
-> At the very least I'll see if there is a quick patch I can do for my
-> automated test runs so we don't keep seeing this failure.
+> Yes, it's already in the Linus's tree:
 
-I took the easy way out and just downgraded the policy packages and
-blocked the two affected versions :)
+Perfect, thank you.
+
+> commit 0c14846032f2c0a3b63234e1fc2759f4155b6067
+> Author: Paolo Abeni <pabeni@redhat.com>
+> Date:   Wed Dec 16 12:48:32 2020 +0100
+>
+>     mptcp: fix security context on server socket
+>
+> Thanks for the feedback && happy new year;)
+
+Thanks, you too!
 
 -- 
 paul moore
