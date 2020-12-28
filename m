@@ -2,260 +2,595 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3753C433E9
-	for <selinux@archiver.kernel.org>; Mon, 28 Dec 2020 17:56:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44649C433DB
+	for <selinux@archiver.kernel.org>; Mon, 28 Dec 2020 18:09:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C7ECB22B2A
-	for <selinux@archiver.kernel.org>; Mon, 28 Dec 2020 17:56:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2FB7229EF
+	for <selinux@archiver.kernel.org>; Mon, 28 Dec 2020 18:09:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727134AbgL1R4F (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Dec 2020 12:56:05 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39704 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728580AbgL1R4B (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Dec 2020 12:56:01 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BSHVBRr181258;
-        Mon, 28 Dec 2020 12:55:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=575WtQFj0wqQyr0cGY9p3bIWqpxBZ1k/uxC+oK37Iy0=;
- b=L2l2XDVoznzmqLRMDcCy7ZzPiir4Qc+76Tn2I76txrpqZP9bPVh9Kdifvh4Fzkdai673
- rqSOQxuTunKupSuRRvliDMVw2jBJKxa4nQt/iNk89JraLO6B1mPRwohgr4TpuJD+dfsY
- ItKrJpzdoNNIxGpM1h/vQUbY9DXJbH6W6obn90nvxBLMn+2XMIUJCyYL2vJamP3RCuL/
- j4Us1q13QYTDK4aB/0yaqBWxGsFxoe1Lq25lqUtJfef13IQOJYnwGNImXYrerpmEqNhq
- tDBN1d1LE7r+rCN9qt5Cu0hJxct/80vCiqYpeWfj0hQ55034oxtHX5lnRHJ6dxcfgVCQ BA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35qkcjgyvm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Dec 2020 12:55:08 -0500
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BSHYUW6194223;
-        Mon, 28 Dec 2020 12:55:07 -0500
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35qkcjgyuv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Dec 2020 12:55:07 -0500
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BSHbhF5020741;
-        Mon, 28 Dec 2020 17:55:05 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma05fra.de.ibm.com with ESMTP id 35qfp6g3bk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Dec 2020 17:55:05 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BSHt3sR47055324
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Dec 2020 17:55:03 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4007C4C046;
-        Mon, 28 Dec 2020 17:55:03 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5171D4C040;
-        Mon, 28 Dec 2020 17:55:00 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.72.172])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Dec 2020 17:55:00 +0000 (GMT)
-Message-ID: <903c37e9036d167958165ab700e646c1622a9c40.camel@linux.ibm.com>
-Subject: Re: [PATCH v23 02/23] LSM: Create and manage the lsmblob data
- structure.
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Date:   Mon, 28 Dec 2020 12:54:59 -0500
-In-Reply-To: <20201120201507.11993-3-casey@schaufler-ca.com>
-References: <20201120201507.11993-1-casey@schaufler-ca.com>
-         <20201120201507.11993-3-casey@schaufler-ca.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-28_15:2020-12-28,2020-12-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 adultscore=0 spamscore=0 clxscore=1011 mlxscore=0
- impostorscore=0 mlxlogscore=999 malwarescore=0 phishscore=0 bulkscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012280107
+        id S1728929AbgL1SJW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Dec 2020 13:09:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728927AbgL1SJW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Dec 2020 13:09:22 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D02AC061793
+        for <selinux@vger.kernel.org>; Mon, 28 Dec 2020 10:08:41 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id u19so10520023edx.2
+        for <selinux@vger.kernel.org>; Mon, 28 Dec 2020 10:08:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Dh6J3O9I2apnVwd1f3ysFfoozH9h7XYWivnmsNg37SI=;
+        b=DuIvhQwV5dFvto9RYkCAs8sGHOlotBjvz+l3mIxOfDm1eq51Vx1xfQ2qLb9TYh/T3h
+         7xzAT3xvzidLCYX8qsCV0SLGSeu6g9YDvWqv1YLODwnv86t1ZAyHHh7Cy23hYZAvcyhq
+         ntXzkU/FKi+s9ol7xNmMdlk6bu9sBhNATKkaVAchTVAgaqzttxocSESDbyl/ZlC6KM3I
+         W1Efpu/q+bNxvsWT2q+0R80k/K0KHViNfYBn8pJilSQ5DYwgwdprSF06ngAvIvHodKNc
+         RK7zAKefjTxgTyz/LA/b1SE0QorMpyKAYvoEtEN8UEx31yZwhnG4dylGZGbLPp/bbh6S
+         nMzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Dh6J3O9I2apnVwd1f3ysFfoozH9h7XYWivnmsNg37SI=;
+        b=Ym26pPeCkhDfL7tdPcHOtMlZ9T62Tkc+m6gVfAU6oMKHAiFLroEPqshVHWBR1nXRAM
+         U33beY2l/mvedtazkOLTd4TZUsVjKPHvrTARQkRm5T3B2/yM10iNRr1nqDs9aMwiRgbs
+         7Odesen0ZUskzaGEf9oP6Ftl24vT55FQZS3THzjzsn66CZNmhw80EQV1w2DiVoun3lz7
+         xGA3kQOXtPqnBuwKyyws06pQ4ba5g/P8THtwsgZ7rBevTmGytIg0uETS9wXiMvEiyEOC
+         uUnWL6tivir42jdMxzFlkrS0dImS2++dIVf8ZZwOkhn+K/CxaZEAz/WjkO8HJbGrLBsi
+         dLvA==
+X-Gm-Message-State: AOAM531L5cE8akDLwPOowBxWVV9QVla7RhLBq5e3MVbkEgTOyPKCnxOA
+        q4BBWIq7RwmEy0K+FlqDdQPTA9p38jY=
+X-Google-Smtp-Source: ABdhPJy6OQKAg2zabxBw6iaQFlsIIqMj5seG5V9XhjaLeS0GWgVTrsgTaQxfYXvYkBVPx+VcdyjnFA==
+X-Received: by 2002:a05:6402:746:: with SMTP id p6mr43509918edy.313.1609178920059;
+        Mon, 28 Dec 2020 10:08:40 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-010-166-133.77.10.pool.telefonica.de. [77.10.166.133])
+        by smtp.gmail.com with ESMTPSA id b7sm17311131ejz.4.2020.12.28.10.08.39
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Dec 2020 10:08:39 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [RFC DBUS PATCH] selinux: add option to control checking of reply messages
+Date:   Mon, 28 Dec 2020 19:08:32 +0100
+Message-Id: <20201228180832.490838-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.30.0.rc2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Casey,
+Currently all reply messages are checked with the same SELinux
+permission as request messages ("send_mesg").
+Add an option <replycheck> to be able to use a distinc SELinux
+permission for reply messages.
 
-On Fri, 2020-11-20 at 12:14 -0800, Casey Schaufler wrote:
-> When more than one security module is exporting data to
-> audit and networking sub-systems a single 32 bit integer
-> is no longer sufficient to represent the data. Add a
-> structure to be used instead.
-> 
-> The lsmblob structure is currently an array of
-> u32 "secids". There is an entry for each of the
-> security modules built into the system that would
-> use secids if active. The system assigns the module
-> a "slot" when it registers hooks. If modules are
-> compiled in but not registered there will be unused
-> slots.
-> 
-> A new lsm_id structure, which contains the name
-> of the LSM and its slot number, is created. There
-> is an instance for each LSM, which assigns the name
-> and passes it to the infrastructure to set the slot.
-> 
-> The audit rules data is expanded to use an array of
-> security module data rather than a single instance.
-> Because IMA uses the audit rule functions it is
-> affected as well.
+Upstream Merge Request: https://gitlab.freedesktop.org/dbus/dbus/-/merge_requests/199
+---
+ bus/bus.c                               | 26 +++++++++++++
+ bus/bus.h                               |  1 +
+ bus/config-parser-common.c              |  6 +++
+ bus/config-parser-common.h              |  1 +
+ bus/config-parser-trivial.c             | 29 ++++++++++++++
+ bus/config-parser.c                     | 50 ++++++++++++++++++++++++-
+ bus/config-parser.h                     |  1 +
+ bus/selinux.c                           | 39 ++++++++++++++++++-
+ bus/selinux.h                           |  3 ++
+ doc/busconfig.dtd                       |  4 +-
+ doc/dbus-daemon.1.xml.in                | 21 ++++++++++-
+ test/data/valid-config-files/basic.conf |  1 +
+ 12 files changed, 177 insertions(+), 5 deletions(-)
 
-This patch is quite large, even without the audit rule change.  I would
-limit this patch to the new lsm_id structure changes.  The audit rule
-change should be broken out as a separate patch so that the audit
-changes aren't hidden.
-
-In addition, here are a few high level nits:
-- The (patch description) body of the explanation, line wrapped at 75
-columns, which will be copied to the permanent changelog to describe
-this patch. (Refer  Documentation/process/submitting-patches.rst.)
-
-- The brief kernel-doc descriptions should not have a trailing period. 
-Nor should kernel-doc variable definitions have a trailing period. 
-Example(s) inline below.  (The existing kernel-doc is mostly correct.)
-
-- For some reason existing comments that span multiple lines aren't
-formatted properly.   In those cases, where there is another change,
-please fix the comment and function description.
-
-thanks,
-
-Mimi
-
-> 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Acked-by: Paul Moore <paul@paul-moore.com>
-> Acked-by: John Johansen <john.johansen@canonical.com>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-
-> Cc: <bpf@vger.kernel.org>
-> Cc: linux-audit@redhat.com
-> Cc: linux-security-module@vger.kernel.org
-> Cc: selinux@vger.kernel.org
-> ---
-
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index bc2725491560..fdb6e95c98e8 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -132,6 +132,65 @@ enum lockdown_reason {
-> 
->  extern const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1];
-> 
-> +/*
-> + * Data exported by the security modules
-> + *
-> + * Any LSM that provides secid or secctx based hooks must be included.
-> + */
-> +#define LSMBLOB_ENTRIES ( \
-> +	(IS_ENABLED(CONFIG_SECURITY_SELINUX) ? 1 : 0) + \
-> +	(IS_ENABLED(CONFIG_SECURITY_SMACK) ? 1 : 0) + \
-> +	(IS_ENABLED(CONFIG_SECURITY_APPARMOR) ? 1 : 0) + \
-> +	(IS_ENABLED(CONFIG_BPF_LSM) ? 1 : 0))
-> +
-> +struct lsmblob {
-> +	u32     secid[LSMBLOB_ENTRIES];
-> +};
-> +
-> +#define LSMBLOB_INVALID		-1	/* Not a valid LSM slot number */
-> +#define LSMBLOB_NEEDED		-2	/* Slot requested on initialization */
-> +#define LSMBLOB_NOT_NEEDED	-3	/* Slot not requested */
-> +
-> +/**
-> + * lsmblob_init - initialize an lsmblob structure.
-
-Only this kernel-doc brief description is suffixed with a period.  
-Please remove.
-
-> + * @blob: Pointer to the data to initialize
-> + * @secid: The initial secid value
-> + *
-> + * Set all secid for all modules to the specified value.
-> + */
-> +static inline void lsmblob_init(struct lsmblob *blob, u32 secid)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < LSMBLOB_ENTRIES; i++)
-> +		blob->secid[i] = secid;
-> +}
-> +
-> +/**
-> + * lsmblob_is_set - report if there is an value in the lsmblob
-> + * @blob: Pointer to the exported LSM data
-> + *
-> + * Returns true if there is a secid set, false otherwise
-> + */
-> +static inline bool lsmblob_is_set(struct lsmblob *blob)
-> +{
-> +	struct lsmblob empty = {};
-> +
-> +	return !!memcmp(blob, &empty, sizeof(*blob));
-> +}
-> +
-> +/**
-> + * lsmblob_equal - report if the two lsmblob's are equal
-> + * @bloba: Pointer to one LSM data
-> + * @blobb: Pointer to the other LSM data
-> + *
-> + * Returns true if all entries in the two are equal, false otherwise
-> + */
-> +static inline bool lsmblob_equal(struct lsmblob *bloba, struct lsmblob *blobb)
-> +{
-> +	return !memcmp(bloba, blobb, sizeof(*bloba));
-> +}
-> +
->  /* These functions are in security/commoncap.c */
->  extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
-
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index 9b5adeaa47fc..cd393aaa17d5 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
->  	} lsm[MAX_LSM_RULES];
-> @@ -88,6 +88,22 @@ struct ima_rule_entry {
->  	struct ima_template_desc *template;
->  };
-> 
-> +/**
-> + * ima_lsm_isset - Is a rule set for any of the active security modules
-> + * @rules: The set of IMA rules to check.
-
-Nor do kernel-doc variable definitions have a trailing period.
-
-> + *
-> + * If a rule is set for any LSM return true, otherwise return false.
-> + */
-> +static inline bool ima_lsm_isset(void *rules[])
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < LSMBLOB_ENTRIES; i++)
-> +		if (rules[i])
-> +			return true;
-> +	return false;
-> +}
-> +
->  /*
->   * Without LSM specific knowledge, the default policy can only be
->   * written in terms of .action, .func, .mask, .fsmagic, .uid, and .fowner
+diff --git a/bus/bus.c b/bus/bus.c
+index db20bbbc..3f4c1ef6 100644
+--- a/bus/bus.c
++++ b/bus/bus.c
+@@ -57,6 +57,7 @@ struct BusContext
+   char *config_file;
+   char *type;
+   char *servicehelper;
++  char *replycheck_verb;
+   char *address;
+   char *pidfile;
+   char *user;
+@@ -568,6 +569,7 @@ process_config_every_time (BusContext      *context,
+   DBusList **dirs;
+   char *addr;
+   const char *servicehelper;
++  const char *replycheck_verb;
+   char *s;
+ 
+   dbus_bool_t retval;
+@@ -664,6 +666,21 @@ process_config_every_time (BusContext      *context,
+       context->servicehelper = s;
+     }
+ 
++  /* and the replycheck */
++  replycheck_verb = bus_selinux_convert_replycheck_option (bus_config_parser_get_replycheck (parser));
++
++  s = _dbus_strdup(replycheck_verb);
++  if (s == NULL && replycheck_verb != NULL)
++    {
++      BUS_SET_OOM (error);
++      goto failed;
++    }
++  else
++    {
++      dbus_free(context->replycheck_verb);
++      context->replycheck_verb = s;
++    }
++
+   /* Create activation subsystem */
+   if (context->activation)
+     {
+@@ -1222,6 +1239,7 @@ bus_context_unref (BusContext *context)
+       dbus_free (context->address);
+       dbus_free (context->user);
+       dbus_free (context->servicehelper);
++      dbus_free (context->replycheck_verb);
+ 
+       if (context->pidfile)
+ 	{
+@@ -1264,6 +1282,12 @@ bus_context_get_servicehelper (BusContext *context)
+   return context->servicehelper;
+ }
+ 
++const char*
++bus_context_get_replycheck_verb (BusContext *context)
++{
++    return context->replycheck_verb;
++}
++
+ dbus_bool_t
+ bus_context_get_systemd_activation (BusContext *context)
+ {
+@@ -1677,6 +1701,8 @@ bus_context_check_security_policy (BusContext     *context,
+        * go on with the standard checks.
+        */
+       if (!bus_selinux_allows_send (sender, proposed_recipient,
++                                    requested_reply,
++                                    bus_context_get_replycheck_verb (context),
+                                     dbus_message_type_to_string (dbus_message_get_type (message)),
+                                     dbus_message_get_interface (message),
+                                     dbus_message_get_member (message),
+diff --git a/bus/bus.h b/bus/bus.h
+index 99625ca3..5c8d8dcf 100644
+--- a/bus/bus.h
++++ b/bus/bus.h
+@@ -100,6 +100,7 @@ dbus_bool_t       bus_context_get_id                             (BusContext
+ const char*       bus_context_get_type                           (BusContext       *context);
+ const char*       bus_context_get_address                        (BusContext       *context);
+ const char*       bus_context_get_servicehelper                  (BusContext       *context);
++const char*       bus_context_get_replycheck_verb                (BusContext       *context);
+ dbus_bool_t       bus_context_get_systemd_activation             (BusContext       *context);
+ BusRegistry*      bus_context_get_registry                       (BusContext       *context);
+ BusConnections*   bus_context_get_connections                    (BusContext       *context);
+diff --git a/bus/config-parser-common.c b/bus/config-parser-common.c
+index 627c9013..ec069bf3 100644
+--- a/bus/config-parser-common.c
++++ b/bus/config-parser-common.c
+@@ -115,6 +115,10 @@ bus_config_parser_element_name_to_type (const char *name)
+     {
+       return ELEMENT_ASSOCIATE;
+     }
++  else if (strcmp (name, "replycheck") == 0)
++    {
++        return ELEMENT_REPLYCHECK;
++    }
+   else if (strcmp (name, "syslog") == 0)
+     {
+       return ELEMENT_SYSLOG;
+@@ -179,6 +183,8 @@ bus_config_parser_element_type_to_name (ElementType type)
+       return "selinux";
+     case ELEMENT_ASSOCIATE:
+       return "associate";
++    case ELEMENT_REPLYCHECK:
++        return "replycheck";
+     case ELEMENT_SYSLOG:
+       return "syslog";
+     case ELEMENT_KEEP_UMASK:
+diff --git a/bus/config-parser-common.h b/bus/config-parser-common.h
+index 1c601e97..b2e58579 100644
+--- a/bus/config-parser-common.h
++++ b/bus/config-parser-common.h
+@@ -45,6 +45,7 @@ typedef enum
+   ELEMENT_CONFIGTYPE,
+   ELEMENT_SELINUX,
+   ELEMENT_ASSOCIATE,
++  ELEMENT_REPLYCHECK,
+   ELEMENT_STANDARD_SESSION_SERVICEDIRS,
+   ELEMENT_STANDARD_SYSTEM_SERVICEDIRS,
+   ELEMENT_KEEP_UMASK,
+diff --git a/bus/config-parser-trivial.c b/bus/config-parser-trivial.c
+index 9a2087cf..8d74f6bc 100644
+--- a/bus/config-parser-trivial.c
++++ b/bus/config-parser-trivial.c
+@@ -40,6 +40,7 @@ struct BusConfigParser
+   DBusString user;                  /**< User the dbus-daemon runs as */
+   DBusString bus_type;              /**< Message bus type */
+   DBusString service_helper;        /**< Location of the setuid helper */
++  DBusString replycheck;            /**< SELinux checking of reply messages */
+   DBusList *service_dirs;           /**< Directories to look for services in */
+ };
+ 
+@@ -101,11 +102,15 @@ bus_config_parser_new (const DBusString             *basedir,
+     goto failed_type;
+   if (!_dbus_string_init (&parser->service_helper))
+     goto failed_helper;
++  if (!_dbus_string_init (&parser->replycheck))
++    goto failed_reply;
+ 
+   /* woot! */
+   return parser;
+ 
+ /* argh. we have do do this carefully because of OOM */
++failed_reply:
++  _dbus_string_free (&parser->service_helper);
+ failed_helper:
+   _dbus_string_free (&parser->bus_type);
+ failed_type:
+@@ -121,6 +126,7 @@ bus_config_parser_unref (BusConfigParser *parser)
+ {
+   _dbus_string_free (&parser->user);
+   _dbus_string_free (&parser->service_helper);
++  _dbus_string_free (&parser->replycheck);
+   _dbus_string_free (&parser->bus_type);
+   _dbus_list_clear_full (&parser->service_dirs, dbus_free);
+   dbus_free (parser);
+@@ -142,6 +148,7 @@ bus_config_parser_start_element (BusConfigParser   *parser,
+     case ELEMENT_SERVICEHELPER:
+     case ELEMENT_USER:
+     case ELEMENT_CONFIGTYPE:
++    case ELEMENT_REPLYCHECK:
+       /* content about to be handled */
+       break;
+ 
+@@ -284,6 +291,28 @@ bus_config_parser_content (BusConfigParser   *parser,
+       }
+       break;
+ 
++    case ELEMENT_REPLYCHECK:
++      {
++        const char* content_string;
++        if (!_dbus_string_copy (&content_sane, 0, &parser->replycheck, 0))
++          {
++            BUS_SET_OOM (error);
++            goto out_content;
++          }
++
++          content_string = _dbus_string_get_const_data (&content_sane);
++          if (strcmp(content_string, "none") != 0 &&
++            strcmp(content_string, "send") != 0 &&
++            strcmp(content_string, "reply_with_fallback") != 0 &&
++            strcmp(content_string, "reply") != 0)
++            {
++              dbus_set_error (error, DBUS_ERROR_FAILED,
++                              "Element <replycheck> has invalid content %s", content_string);
++              goto out_content;
++            }
++      }
++      break;
++
+     case ELEMENT_NONE:
+     case ELEMENT_BUSCONFIG:
+     case ELEMENT_INCLUDE:
+diff --git a/bus/config-parser.c b/bus/config-parser.c
+index f9b70477..39b673cd 100644
+--- a/bus/config-parser.c
++++ b/bus/config-parser.c
+@@ -115,6 +115,8 @@ struct BusConfigParser
+ 
+   DBusHashTable *service_context_table; /**< Map service names to SELinux contexts */
+ 
++  char *replycheck;      /**< What permission verb to use on message replies */
++
+   unsigned int fork : 1; /**< TRUE to fork into daemon mode */
+ 
+   unsigned int syslog : 1; /**< TRUE to enable syslog */
+@@ -402,6 +404,13 @@ merge_included (BusConfigParser *parser,
+       included->servicehelper = NULL;
+     }
+ 
++  if (included->replycheck != NULL)
++    {
++      dbus_free (parser->replycheck);
++      parser->replycheck = included->replycheck;
++      included->replycheck = NULL;
++    }
++
+   while ((link = _dbus_list_pop_first_link (&included->listen_on)))
+     _dbus_list_append_link (&parser->listen_on, link);
+ 
+@@ -585,6 +594,7 @@ bus_config_parser_unref (BusConfigParser *parser)
+       dbus_free (parser->servicehelper);
+       dbus_free (parser->bus_type);
+       dbus_free (parser->pidfile);
++      dbus_free (parser->replycheck);
+ 
+       _dbus_list_clear_full (&parser->listen_on, dbus_free);
+       _dbus_list_clear_full (&parser->service_dirs,
+@@ -1977,6 +1987,19 @@ start_selinux_child (BusConfigParser   *parser,
+ 					   own_copy, context_copy))
+         goto oom;
+ 
++      return TRUE;
++    }
++  else if (strcmp (element_name, "replycheck") == 0)
++    {
++      if (!check_no_attributes (parser, "replycheck", attribute_names, attribute_values, error))
++          return FALSE;
++
++      if (push_element (parser, ELEMENT_REPLYCHECK) == NULL)
++        {
++          BUS_SET_OOM (error);
++          return FALSE;
++        }
++
+       return TRUE;
+     }
+   else
+@@ -2277,6 +2300,7 @@ bus_config_parser_end_element (BusConfigParser   *parser,
+     case ELEMENT_SERVICEHELPER:
+     case ELEMENT_INCLUDEDIR:
+     case ELEMENT_LIMIT:
++    case ELEMENT_REPLYCHECK:
+       if (!e->had_content)
+         {
+           dbus_set_error (error, DBUS_ERROR_FAILED,
+@@ -2870,6 +2894,20 @@ bus_config_parser_content (BusConfigParser   *parser,
+                        e->d.limit.name);
+       }
+       break;
++
++    case ELEMENT_REPLYCHECK:
++      {
++        char *s;
++
++        e->had_content = TRUE;
++
++        if (!_dbus_string_copy_data (content, &s))
++            goto nomem;
++
++        dbus_free (parser->replycheck);
++        parser->replycheck = s;
++      }
++      break;
+     }
+ 
+   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+@@ -2977,6 +3015,12 @@ bus_config_parser_get_servicehelper (BusConfigParser   *parser)
+   return parser->servicehelper;
+ }
+ 
++const char *
++bus_config_parser_get_replycheck (BusConfigParser   *parser)
++{
++    return parser->replycheck;
++}
++
+ BusPolicy*
+ bus_config_parser_steal_policy (BusConfigParser *parser)
+ {
+@@ -3371,6 +3415,7 @@ elements_equal (const Element *a,
+     case ELEMENT_CONFIGTYPE:
+     case ELEMENT_SELINUX:
+     case ELEMENT_ASSOCIATE:
++    case ELEMENT_REPLYCHECK:
+     case ELEMENT_STANDARD_SESSION_SERVICEDIRS:
+     case ELEMENT_STANDARD_SYSTEM_SERVICEDIRS:
+     case ELEMENT_KEEP_UMASK:
+@@ -3501,7 +3546,7 @@ config_parsers_equal (const BusConfigParser *a,
+ 
+   if (!lists_of_service_dirs_equal (a->service_dirs, b->service_dirs))
+     return FALSE;
+-  
++
+   /* FIXME: compare policy */
+ 
+   /* FIXME: compare service selinux ID table */
+@@ -3512,6 +3557,9 @@ config_parsers_equal (const BusConfigParser *a,
+   if (!strings_equal_or_both_null (a->pidfile, b->pidfile))
+     return FALSE;
+ 
++  if (!strings_equal_or_both_null (a->replycheck, b->replycheck))
++    return FALSE;
++
+   if (! bools_equal (a->fork, b->fork))
+     return FALSE;
+ 
+diff --git a/bus/config-parser.h b/bus/config-parser.h
+index 7f4d2f47..7a79d698 100644
+--- a/bus/config-parser.h
++++ b/bus/config-parser.h
+@@ -65,6 +65,7 @@ dbus_bool_t bus_config_parser_get_syslog       (BusConfigParser *parser);
+ dbus_bool_t bus_config_parser_get_keep_umask   (BusConfigParser *parser);
+ const char* bus_config_parser_get_pidfile      (BusConfigParser *parser);
+ const char* bus_config_parser_get_servicehelper (BusConfigParser *parser);
++const char* bus_config_parser_get_replycheck   (BusConfigParser *parser);
+ DBusList**  bus_config_parser_get_service_dirs (BusConfigParser *parser);
+ DBusList**  bus_config_parser_get_conf_dirs    (BusConfigParser *parser);
+ BusPolicy*  bus_config_parser_steal_policy     (BusConfigParser *parser);
+diff --git a/bus/selinux.c b/bus/selinux.c
+index 42017e7a..8672e083 100644
+--- a/bus/selinux.c
++++ b/bus/selinux.c
+@@ -378,6 +378,7 @@ error:
+  * granted from the connection to the message bus or to another
+  * optionally supplied security identifier (e.g. for a service
+  * context).  Currently these permissions are either send_msg or
++ * reply_msg (depending in the replycheck configuration) or
+  * acquire_svc in the dbus class.
+  *
+  * @param sender_sid source security context
+@@ -534,6 +535,8 @@ bus_selinux_allows_acquire_service (DBusConnection     *connection,
+ dbus_bool_t
+ bus_selinux_allows_send (DBusConnection     *sender,
+                          DBusConnection     *proposed_recipient,
++			 dbus_bool_t        requested_reply,
++			 const char         *replycheck_verb,
+ 			 const char         *msgtype,
+ 			 const char         *interface,
+ 			 const char         *member,
+@@ -557,6 +560,10 @@ bus_selinux_allows_send (DBusConnection     *sender,
+   if (activation_entry)
+     return TRUE;
+ 
++  /* Skip check on reply messages. */
++  if (requested_reply && !replycheck_verb)
++    return TRUE;
++
+   if (!sender || !dbus_connection_get_unix_process_id (sender, &spid))
+     spid = 0;
+   if (!proposed_recipient || !dbus_connection_get_unix_process_id (proposed_recipient, &tpid))
+@@ -631,10 +638,10 @@ bus_selinux_allows_send (DBusConnection     *sender,
+   else
+     recipient_sid = BUS_SID_FROM_SELINUX (bus_sid);
+ 
+-  ret = bus_selinux_check (sender_sid, 
++  ret = bus_selinux_check (sender_sid,
+ 			   recipient_sid,
+ 			   "dbus",
+-			   "send_msg",
++			   requested_reply ? replycheck_verb : "send_msg",
+ 			   &auxdata);
+ 
+   _dbus_string_free (&auxdata);
+@@ -1004,3 +1011,31 @@ bus_selinux_shutdown (void)
+     }
+ #endif /* HAVE_SELINUX */
+ }
++
++/**
++ * Convert the replycheck configuraion string into the SELinux permission verb.
++ */
++const char*
++bus_selinux_convert_replycheck_option(const char *replycheck_option)
++{
++#ifdef HAVE_SELINUX
++    security_class_t security_class;
++
++    if (replycheck_option && strcmp (replycheck_option, "none") == 0)
++      return NULL;
++
++    if (replycheck_option && strcmp (replycheck_option, "send") == 0)
++      return "send_msg";
++
++    if (replycheck_option && strcmp (replycheck_option, "reply") == 0)
++      return "reply_msg";
++
++    security_class = string_to_security_class ("dbus");
++    if (security_class != 0 && string_to_av_perm (security_class, "reply_msg") != 0)
++      return "reply_msg";
++
++    return "send_msg";
++#else
++    return NULL;
++#endif /* HAVE_SELINUX */
++}
+diff --git a/bus/selinux.h b/bus/selinux.h
+index 471f2629..f6b8e43d 100644
+--- a/bus/selinux.h
++++ b/bus/selinux.h
+@@ -55,6 +55,8 @@ dbus_bool_t bus_selinux_allows_acquire_service (DBusConnection *connection,
+ 
+ dbus_bool_t bus_selinux_allows_send            (DBusConnection *sender,
+                                                 DBusConnection *proposed_recipient,
++						dbus_bool_t    requested_reply,
++						const char     *replycheck_verb,
+ 						const char     *msgtype, /* Supplementary audit data */
+ 						const char     *interface,
+ 						const char     *member,
+@@ -66,4 +68,5 @@ dbus_bool_t bus_selinux_allows_send            (DBusConnection *sender,
+ BusSELinuxID* bus_selinux_init_connection_id (DBusConnection *connection,
+                                               DBusError      *error);
+ 
++const char* bus_selinux_convert_replycheck_option(const char *replycheck_option);
+ #endif /* BUS_SELINUX_H */
+diff --git a/doc/busconfig.dtd b/doc/busconfig.dtd
+index 8c5ac334..d8855b1e 100644
+--- a/doc/busconfig.dtd
++++ b/doc/busconfig.dtd
+@@ -59,11 +59,13 @@
+ <!ELEMENT limit (#PCDATA)>
+ <!ATTLIST limit name CDATA #REQUIRED>
+ 
+-<!ELEMENT selinux (associate)*>
++<!ELEMENT selinux (associate|
++                   replycheck)*>
+ <!ELEMENT associate EMPTY>
+ <!ATTLIST associate
+           own CDATA #REQUIRED
+           context CDATA #REQUIRED>
++<!ELEMENT replycheck (#PCDATA)>
+ 
+ <!ELEMENT apparmor EMPTY>
+ <!ATTLIST apparmor
+diff --git a/doc/dbus-daemon.1.xml.in b/doc/dbus-daemon.1.xml.in
+index a9c0b5d5..62c3e334 100644
+--- a/doc/dbus-daemon.1.xml.in
++++ b/doc/dbus-daemon.1.xml.in
+@@ -1154,6 +1154,7 @@ More details below.</para>
+ <itemizedlist remap='TP'>
+ 
+   <listitem><para><emphasis remap='I'>&lt;associate&gt;</emphasis></para></listitem>
++  <listitem><para><emphasis remap='I'>&lt;replycheck&gt;</emphasis></para></listitem>
+ 
+ 
+ </itemizedlist>
+@@ -1187,6 +1188,23 @@ Right now the default will be the security context of the bus itself.</para>
+ <para>If two &lt;associate&gt; elements specify the same name, the element
+ appearing later in the configuration file will be used.</para>
+ 
++
++<para>The &lt;replycheck&gt; element controls how reply messages are checked.
++There are four options:</para>
++<literallayout remap='.nf'>
++      "send"                       : the same SELinux permission as for request
++                                     messages is used (the previous default)
++      "none"                       : reply messages are not checked
++      "reply"                      : reply messages are checked with a distinct
++                                     SELinux permission
++      "reply_with_fallback"        : reply messages are checked with a distinct
++                                     SELinux permission, if this permission is
++                                     defined in the loaded SELinux policy.
++                                     Otherwise the same permission as for request
++                                     messages is used
++</literallayout> <!-- .fi -->
++
++
+ <itemizedlist remap='TP'>
+ 
+   <listitem><para><emphasis remap='I'>&lt;apparmor&gt;</emphasis></para></listitem>
+@@ -1425,7 +1443,8 @@ that class.</para>
+ <para>First, any time a message is routed from one connection to another
+ connection, the bus daemon will check permissions with the security context of
+ the first connection as source, security context of the second connection
+-as target, object class "dbus" and requested permission "send_msg".</para>
++as target, object class "dbus" and requested permission "send_msg" or "reply_msg",
++depending on the message type and the &lt;replycheck&gt; setting.</para>
+ 
+ 
+ <para>If a security context is not available for a connection
+diff --git a/test/data/valid-config-files/basic.conf b/test/data/valid-config-files/basic.conf
+index 5297097d..de68caaf 100644
+--- a/test/data/valid-config-files/basic.conf
++++ b/test/data/valid-config-files/basic.conf
+@@ -27,6 +27,7 @@
+          context="my_selinux_context_t"/>
+         <associate own="org.freedesktop.BlahBlahBlah"
+          context="foo_t"/>
++        <replycheck>reply_with_fallback</replycheck>
+   </selinux>
+ 
+ </busconfig>
+-- 
+2.30.0.rc2
 
