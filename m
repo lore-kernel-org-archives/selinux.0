@@ -7,101 +7,80 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE096C433E0
-	for <selinux@archiver.kernel.org>; Wed, 30 Dec 2020 09:31:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAFE9C433DB
+	for <selinux@archiver.kernel.org>; Wed, 30 Dec 2020 09:32:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD5ED20791
-	for <selinux@archiver.kernel.org>; Wed, 30 Dec 2020 09:31:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72447207AB
+	for <selinux@archiver.kernel.org>; Wed, 30 Dec 2020 09:32:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726240AbgL3Jbn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Dec 2020 04:31:43 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:46664 "EHLO
+        id S1726144AbgL3Jc4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Dec 2020 04:32:56 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:41238 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726218AbgL3Jbn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Dec 2020 04:31:43 -0500
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
+        with ESMTP id S1725853AbgL3Jcz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Dec 2020 04:32:55 -0500
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 8164C564C2F
-        for <selinux@vger.kernel.org>; Wed, 30 Dec 2020 10:30:59 +0100 (CET)
-Received: by mail-oi1-f181.google.com with SMTP id x13so18172526oic.5
-        for <selinux@vger.kernel.org>; Wed, 30 Dec 2020 01:30:59 -0800 (PST)
-X-Gm-Message-State: AOAM533/V2eQlIxEyVV15Qo8kPYhZEeaLIudNsxQMVyIoQbBp33qfmGW
-        d8ef56zxvP9SQpuZtR3Po/omqr61maox3McSRZI=
-X-Google-Smtp-Source: ABdhPJwceVegPrrJBdQr5Q+vUqlms0oDBC+VuZt5tCkVsWL4xI6wbOy5Z7e0TPj7dmg388wIiQrgzeI1GAGbrNN29No=
-X-Received: by 2002:aca:51d8:: with SMTP id f207mr4807026oib.20.1609320658353;
- Wed, 30 Dec 2020 01:30:58 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id B94AC564C3C
+        for <selinux@vger.kernel.org>; Wed, 30 Dec 2020 10:32:13 +0100 (CET)
+Received: by mail-ot1-f46.google.com with SMTP id d8so14943872otq.6
+        for <selinux@vger.kernel.org>; Wed, 30 Dec 2020 01:32:13 -0800 (PST)
+X-Gm-Message-State: AOAM531W23ihtoc3SK9CNb2VU3WdDDBcHvqBmb1ill8ewxsaj0Bb5TGB
+        TLnwVerfvlPWUD2ka6OWBXjOUhP8WVYQth05C5U=
+X-Google-Smtp-Source: ABdhPJynyO85pj1Pe84TgV/r1r/xija6jf7p3aAny+jMr8xBHQwrIv83cGmuRrvGj7Vs2moMOfh8gn4dvZhoJ4HJagw=
+X-Received: by 2002:a05:6830:1e62:: with SMTP id m2mr38050208otr.279.1609320732597;
+ Wed, 30 Dec 2020 01:32:12 -0800 (PST)
 MIME-Version: 1.0
-References: <20201218125430.245995-1-plautrba@redhat.com>
-In-Reply-To: <20201218125430.245995-1-plautrba@redhat.com>
+References: <20201217145949.1230098-1-jhrozek@redhat.com>
+In-Reply-To: <20201217145949.1230098-1-jhrozek@redhat.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 30 Dec 2020 10:30:46 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=n9cRFn-FJEhsB1ePXkK2CxyT1XaoBF6R+EFc57fpjYuw@mail.gmail.com>
-Message-ID: <CAJfZ7=n9cRFn-FJEhsB1ePXkK2CxyT1XaoBF6R+EFc57fpjYuw@mail.gmail.com>
-Subject: Re: [PATCH] Revert "libsemanage/genhomedircon: check usepasswd"
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Vit Mojzis <vmojzis@redhat.com>
+Date:   Wed, 30 Dec 2020 10:32:00 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=nY56B_DFpjf1D5SD4E+-r2UM5_tM6dsv5tTgGu1moyKA@mail.gmail.com>
+Message-ID: <CAJfZ7=nY56B_DFpjf1D5SD4E+-r2UM5_tM6dsv5tTgGu1moyKA@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: Free contents of modkey in semanage_direct_remove
+To:     Jakub Hrozek <jhrozek@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Dec 30 10:31:00 2020 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Dec 30 10:32:14 2020 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 18, 2020 at 1:56 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Thu, Dec 17, 2020 at 4:02 PM Jakub Hrozek <jhrozek@redhat.com> wrote:
 >
-> This reverts commit ce46daab7cc90a6b9cd3bff9f99cf40ff19c3d9a.
+> semanage_direct_remove allocates struct semanage_module_key_t on
+> stack, then calls semanage_module_key_set_name which allocates
+> modkey->name on heap, but modkey->name wasn't free()-d anywhere,
+> creating a small leak.
 >
-> The behavior described in the reverted commit is correct. `useradd -Z`
-> creates new mapping between new created user and *unconfined_u*,
-> `genhomedircon` then uses this new mapping, not /etc/passwd entries, for
-> generating new homedir contexts.
+> Signed-off-by: Jakub Hrozek <jhrozek@redhat.com>
 
-I confirm this behavior. On Fedora 33 (with git master of the
-userspace libraries and "usepasswd=False" in
-/etc/selinux/semanage.conf):
-
-# useradd -Z unconfined_u -d /tmp test
-# matchpathcon /tmp
-/tmp unconfined_u:object_r:user_home_dir_t:s0
-
-# semanage login -l
-Login Name           SELinux User         MLS/MCS Range        Service
-
-__default__          unconfined_u         s0-s0:c0.c1023       *
-root                 unconfined_u         s0-s0:c0.c1023       *
-test                 unconfined_u         s0-s0:c0.c1023       *
-
-# semanage login -d test
-# matchpathcon /tmp
-/tmp system_u:object_r:tmp_t:s0
+Thanks for your patch!
 
 Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-I applied the commit (as it was sent quite some time ago). Thanks!
+I merged it directly.
 Nicolas
 
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 > ---
->  libsemanage/src/genhomedircon.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libsemanage/src/direct_api.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-> index 18d3d99a1254..d08c88de99a7 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-> @@ -1332,7 +1332,7 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
->                         s->fallback->home = NULL;
->                 }
->         }
-> -       if ((s->usepasswd) && (user_context_tpl || username_context_tpl)) {
-> +       if (user_context_tpl || username_context_tpl) {
->                 if (write_username_context(s, out, username_context_tpl,
->                                            s->fallback) != STATUS_SUCCESS) {
->                         retval = STATUS_ERR;
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index d2b91fb2..9a4e7938 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -1951,6 +1951,7 @@ static int semanage_direct_remove(semanage_handle_t * sh, char *module_name)
+>         status = semanage_direct_remove_key(sh, &modkey);
+>
+>  cleanup:
+> +       semanage_module_key_destroy(sh, &modkey);
+>         return status;
+>  }
+>
 > --
-> 2.29.2
+> 2.26.2
 >
 
