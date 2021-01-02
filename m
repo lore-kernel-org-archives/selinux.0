@@ -2,142 +2,111 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B586C433E0
-	for <selinux@archiver.kernel.org>; Fri,  1 Jan 2021 11:59:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE392C433DB
+	for <selinux@archiver.kernel.org>; Sat,  2 Jan 2021 10:36:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A265221E9
-	for <selinux@archiver.kernel.org>; Fri,  1 Jan 2021 11:59:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9834E2151B
+	for <selinux@archiver.kernel.org>; Sat,  2 Jan 2021 10:36:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726604AbhAAL6v (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 Jan 2021 06:58:51 -0500
-Received: from mailomta6-sa.btinternet.com ([213.120.69.12]:56595 "EHLO
-        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726515AbhAAL6u (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 Jan 2021 06:58:50 -0500
-Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
-          by sa-prd-fep-040.btinternet.com with ESMTP
-          id <20210101115806.LXOA29410.sa-prd-fep-040.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Fri, 1 Jan 2021 11:58:06 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1609502286; 
-        bh=Uxjglha661kHqfiitKx+qdSAt5nLX8EavmcxtfsBqLw=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
-        b=lGMfHtDjwsJeYoSXSHDNmgqoz+GKMJWUB/YWSGT5zc3ABGYs9wmEkXp9I4gumgsgclFEwnkW2wkdx2kdJAc5O91aM5GJbVpLEg5wr/4TYA0cqXI2Osd8bMKn6LauZhxRc5CkrVK/zpNyOIcku1A7STbGcBtrJ2qSfnZoNojGIicWWqBCrWq/HMp4mFwJVPv00a4CSK0XEmUeSneCWSOoOqZZHd1u1PrGHjVw1xwpf68jt/39MNJBK2s4lLN58p7u4hd7G9YtPHmISpO3di5KQ+GSTTQPMqyLp0A6/G7Jn6QjhIXgYtia0qMoayttn1cPTFXFVJInvltk69m7iBQjlw==
-Authentication-Results: btinternet.com;
-    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
-X-SNCR-Rigid: 5ED9B661212201BE
-X-Originating-IP: [86.143.182.60]
-X-OWM-Source-IP: 86.143.182.60 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedujedrvddvjedgfeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenogfuuhhsphgvtghtffhomhgrihhnucdlgeelmdenucfjughrpefkuffhvfffjghftggfggfgsehtkeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeiudelheduuedtveejveefheekheeiieeufefhudfhtedtkeekkefgkeefteeuveenucffohhmrghinhepghhithhhuhgsrdgtohhmpdgslhhoghhsphhothdrtghomhdpkhgvrhhnvghlrdhorhhgpdhlfihnrdhnvghtnecukfhppeekiedrudegfedrudekvddriedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplgduledvrdduieekrddurdduleekngdpihhnvghtpeekiedrudegfedrudekvddriedtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeorghshhhishhhmhesmhhvihhsthgrrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhr
-        tghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from [192.168.1.198] (86.143.182.60) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B661212201BE; Fri, 1 Jan 2021 11:58:06 +0000
-Message-ID: <19d0b6c1856836b9d99008bb33747bd4969582a9.camel@btinternet.com>
-Subject: Re: Inputs w.r.t understanding of selinux notification and
- systemcall
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Ashish Mishra <ashishm@mvista.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-Date:   Fri, 01 Jan 2021 11:57:58 +0000
-In-Reply-To: <CAP2OjcgmOz1UDfp0mt-jfO9PetYgRvfBGJrrMPCNNBgUubPvCA@mail.gmail.com>
-References: <CAP2OjchiEZH7sxKipY0Q89L6e4mG9By4JYDKXf1HUWp0nWPtRw@mail.gmail.com>
-         <CAP2OjcgmOz1UDfp0mt-jfO9PetYgRvfBGJrrMPCNNBgUubPvCA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.2 (3.38.2-1.fc33) 
+        id S1726499AbhABKg2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 2 Jan 2021 05:36:28 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:39904 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726327AbhABKg1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 2 Jan 2021 05:36:27 -0500
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 947445654D4
+        for <selinux@vger.kernel.org>; Sat,  2 Jan 2021 11:35:43 +0100 (CET)
+Received: by mail-ot1-f43.google.com with SMTP id a109so21684040otc.1
+        for <selinux@vger.kernel.org>; Sat, 02 Jan 2021 02:35:43 -0800 (PST)
+X-Gm-Message-State: AOAM533X5hx2GgIDi7nCKMfNlYAHdY8WwIszhS3vCxyichTsrFsA2/M9
+        VnKFtLn6Ymnjv/XwNi5gtprw8QyMkisDFcUWTcg=
+X-Google-Smtp-Source: ABdhPJwEPrQ8ZLsPRqzfl0E0eebW/kQE0fKn4MLvM2D4pTW+kJTtn83cnwN5azYvHQ4Aj+SlQhv89lzWrJOoGYKm5Tc=
+X-Received: by 2002:a05:6830:188:: with SMTP id q8mr47471794ota.96.1609583742471;
+ Sat, 02 Jan 2021 02:35:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201230200821.3454892-1-nicolas.iooss@m4x.org> <CAFftDdoTGNizbiX68drThF=M_QUyRdCD7zb3MGjuKtU-yi_+Vw@mail.gmail.com>
+In-Reply-To: <CAFftDdoTGNizbiX68drThF=M_QUyRdCD7zb3MGjuKtU-yi_+Vw@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sat, 2 Jan 2021 11:35:31 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==i=8s=AfVERNfadwdNa-OMJbGdsmCXm=waf1c6w_XrRw@mail.gmail.com>
+Message-ID: <CAJfZ7==i=8s=AfVERNfadwdNa-OMJbGdsmCXm=waf1c6w_XrRw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] GitHub Actions: run SELinux testsuite in Fedora
+ virtual machine
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Jan  2 11:35:44 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2021-01-01 at 12:45 +0530, Ashish Mishra wrote:
-> Hi Group Members ,
-> 
-> Good Morning & Happy new Year !
-> 
-> Can group member please provide any input / feedback for below
-> functionality support in SELINUX :
-> 
-> a) Is there any mechanism to generate an event / notification for
-> selinux denials
->      I came across Logstash, Logentries and Splunk , which i am
-> currently looking at.
->      Is there any selinux equivalent plugin or any other way for
-> selinux specific.
+On Thu, Dec 31, 2020 at 3:43 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> On Wed, Dec 30, 2020 at 2:12 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > Use the Vagrant configuration in scripts/ci in a workflow for GitHub
+> > Actions.
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> > Example of run: https://github.com/fishilico/selinux/runs/1627586446
+> >
+> >  .github/workflows/vm_testsuite.yml | 22 ++++++++++++++++++++++
+> >  1 file changed, 22 insertions(+)
+> >  create mode 100644 .github/workflows/vm_testsuite.yml
+> >
+> > diff --git a/.github/workflows/vm_testsuite.yml b/.github/workflows/vm_testsuite.yml
+> > new file mode 100644
+> > index 000000000000..af2fad1e73f5
+> > --- /dev/null
+> > +++ b/.github/workflows/vm_testsuite.yml
+> > @@ -0,0 +1,22 @@
+> > +name: Run SELinux testsuite in a virtual machine
+> > +
+> > +on: [push, pull_request]
+> > +
+> > +jobs:
+> > +  vm_testsuite:
+> > +
+> > +    # Use VirtualBox+vagrant on macOS, as described in https://github.com/actions/virtual-environments/issues/433
+> > +    runs-on: macos-latest
+>
+> Good find, they support nested virtualization.
+>
+> > +
+> > +    steps:
+> > +    - uses: actions/checkout@v2
+> > +
+> > +    - name: Create Vagrant VM
+> > +      run: |
+> > +        cd scripts/ci
+> > +        vagrant up
+> > +
+> > +    - name: Run SELinux testsuite in the VM
+> > +      run: |
+> > +        cd scripts/ci
+> > +        vagrant ssh -- ./run-selinux-test.sh
+> > --
+> > 2.29.2
+> >
+>
+> LGTM ack. Do you have any fork that has a build with this just to see
+> it running?
 
-Have you looked at using the audit log services (auparse, ausearch
-etc.):
+Yes, I have been testing it on
+https://github.com/fishilico/selinux/actions, with several successful
+builds such as https://github.com/fishilico/selinux/runs/1627586446.
 
-This has the code and a number of examples for detecting AVC entries:
-https://github.com/linux-audit/audit-userspace
-
-Some sample programs here;
-https://security-plus-data-science.blogspot.com/2017/04/writing-basic-auparse-program.html
-
-This is an example where I wanted to detect specific events in the
-testsuite (you should be able to pick the relevant bits):
-https://lore.kernel.org/selinux/20201104164913.11536-2-richard_c_haines@btinternet.com/
-
-
-
-> 
-> b) Is there any mechanism to block certain system call / library
-> calls ?
->     I came across "seccomp" from https://lwn.net/Articles/656307/
->     But is there any selinux equivalent plugin or any other way for
-> selinux specific.
->     or "seccomp" should be the preferred way for this task .
-> 
-> Any pointer / feedback / inputs will be helpful on the same
-> 
-> 
-> Thanks ,
-> Ashish
-> Thanks ,
-> Ashish
-> 
-> 
-> 
-> 
-> On Sun, Dec 27, 2020 at 2:17 PM Ashish Mishra <ashishm@mvista.com>
-> wrote:
-> > 
-> > Hi All ,
-> > 
-> > For one of our internal projects we wanted to evaluate the
-> > functionality below .
-> > Can group member please share any input w.r.t below aspect can be
-> > implemented or any pointers on same :
-> > 
-> > a) Is there any mechanism to generate an event / notification for
-> > selinux denials
-> >     ( like say we have an action which is denied , so instead of
-> > user
-> > reading log
-> >       file if there is any notification mechanism which can be used
-> > )
-> > 
-> > b) If there is any mechanism to block calling of certain system
-> > call's
-> > / library calls .
-> >    ( idea is to discourage certain instances of container to avoid
-> > calling some
-> >      predefined system call & library functions )
-> > 
-> > Any pointers or comments or feedback on these two points will be
-> > helpful .
-> > 
-> > Thanks ,
-> > Ashish
-
+Thanks,
+Nicolas
 
