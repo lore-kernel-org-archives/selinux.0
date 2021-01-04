@@ -2,161 +2,399 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-19.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82972C433E6
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 23:23:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74AA8C433DB
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 23:31:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CBA1225AC
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 23:23:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40B4120789
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 23:31:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727192AbhADXXC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Jan 2021 18:23:02 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:45114 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726333AbhADXXB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 18:23:01 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 104NIkN0157881;
-        Mon, 4 Jan 2021 23:22:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2020-01-29; bh=of7cDloEGBPE5l8WJ889ZLzwlRrbg724FmM0fBM4+OA=;
- b=GtFrS5/8a9nCTxCjnqVUQa91ZYBEEcVT1X9IWYtCbZXrYMFyvDIpjUQYBht/DXkgUWPF
- a4k+J08vTkAqjqEY4HeAN76GhVnFDhG2aTfE1qvd3vzixnYWwbFB1uoqPPPtyBtSoujn
- WLsdwkiDm2K5lx2/XwbJFtLEaD618jhsVxPR4ube9ECoiVwdkG65fZGMK1qubGijhkuP
- DrMO7GOv7KiWQWjZkI4K9VqP39aIT1uYIyEq6DYZOZ9lZ+Y8OZV7VW2fDj/WzY6Sy24+
- eAl7Dw6QC5N9/geVG0wgcRV7HxE3FUByL1IZUDai2c0i6gkR5SIfwKcNPP82BMgP2BY5 fw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2130.oracle.com with ESMTP id 35tebappcg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 04 Jan 2021 23:22:00 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 104NKJmP089224;
-        Mon, 4 Jan 2021 23:21:59 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 35uxnrut8r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 04 Jan 2021 23:21:59 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 104NLq9j000985;
-        Mon, 4 Jan 2021 23:21:54 GMT
-Received: from localhost (/10.159.240.116)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 04 Jan 2021 23:21:52 +0000
-From:   Stephen Brennan <stephen.s.brennan@oracle.com>
-To:     Alexey Dobriyan <adobriyan@gmail.com>
-Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
+        id S1727296AbhADXb3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Jan 2021 18:31:29 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:37454 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727284AbhADXb3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 18:31:29 -0500
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 1A58120B7192;
+        Mon,  4 Jan 2021 15:30:46 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1A58120B7192
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1609803046;
+        bh=ciyRF8ztYZLvsI06NwUYXq6asYcrdgHazc91Umb4Pl4=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZhmE01FCeU4crsNS8TLxkrNqkRRAtO1/Q9l2dBM0Qy3FZZjOriL0DH4tH/dSfDh2W
+         p0Zrr5ceQQIlavPo3HYjK1b0JzncD9eqadmLdwXYg3Gcrk+wULPnGpHxhdjAWyEliR
+         m8C+ghVhW1WMxsT24ayH6cryQxJJwhTGX5RaFUIc=
+Subject: Re: [PATCH v9 8/8] selinux: include a consumer of the new IMA
+ critical data hook
+To:     Paul Moore <paul@paul-moore.com>,
+        Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
-Date:   Mon,  4 Jan 2021 15:21:22 -0800
-Message-Id: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
-X-Mailer: git-send-email 2.25.1
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
+        sashal@kernel.org, James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20201212180251.9943-1-tusharsu@linux.microsoft.com>
+ <20201212180251.9943-9-tusharsu@linux.microsoft.com>
+ <CAHC9VhSao7DGtskbDMax8hN+PhQr8homFXUGjm+c7NtEUCtKhg@mail.gmail.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <2dce2244-adbd-df2a-e890-271bbcc8f9f2@linux.microsoft.com>
+Date:   Mon, 4 Jan 2021 15:30:40 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9854 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 spamscore=0
- malwarescore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101040141
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9854 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0
- priorityscore=1501 spamscore=0 mlxscore=0 clxscore=1015 bulkscore=0
- lowpriorityscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101040141
+In-Reply-To: <CAHC9VhSao7DGtskbDMax8hN+PhQr8homFXUGjm+c7NtEUCtKhg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pid_revalidate() function drops from RCU into REF lookup mode. When
-many threads are resolving paths within /proc in parallel, this can
-result in heavy spinlock contention on d_lockref as each thread tries to
-grab a reference to the /proc dentry (and drop it shortly thereafter).
+On 12/23/20 1:10 PM, Paul Moore wrote:
 
-Investigation indicates that it is not necessary to drop RCU in
-pid_revalidate(), as no RCU data is modified and the function never
-sleeps. So, remove the LOOKUP_RCU check.
+Hi Paul,
 
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
----
-When running running ~100 parallel instances of "TZ=/etc/localtime ps -fe
->/dev/null" on a 100CPU machine, the %sys utilization reaches 90%, and perf
-shows the following code path as being responsible for heavy contention on
-the d_lockref spinlock:
+> ...
+> 
+>> diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+>> index 4d8e0e8adf0b..83d512116341 100644
+>> --- a/security/selinux/Makefile
+>> +++ b/security/selinux/Makefile
+>> @@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
+>>
+>>   selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
+>>
+>> +selinux-$(CONFIG_IMA) += measure.o
+> 
+> Naming things is hard, I get that, but I would prefer if we just
+> called this file "ima.c" or something similar.  The name "measure.c"
+> implies a level of abstraction or general use which simply doesn't
+> exist here.  Let's help make it a bit more obvious what should belong
+> in this file.
+Agreed - I will rename the file to ima.c
 
-      walk_component()
-        lookup_fast()
-          d_revalidate()
-            pid_revalidate() // returns -ECHILD
-          unlazy_child()
-            lockref_get_not_dead(&nd->path.dentry->d_lockref) <-- contention
+> 
+>> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+>> index 3cc8bab31ea8..18ee65c98446 100644
+>> --- a/security/selinux/include/security.h
+>> +++ b/security/selinux/include/security.h
+>> @@ -229,7 +229,8 @@ void selinux_policy_cancel(struct selinux_state *state,
+>>                          struct selinux_policy *policy);
+>>   int security_read_policy(struct selinux_state *state,
+>>                           void **data, size_t *len);
+>> -
+>> +int security_read_policy_kernel(struct selinux_state *state,
+>> +                               void **data, size_t *len);
+>>   int security_policycap_supported(struct selinux_state *state,
+>>                                   unsigned int req_cap);
+>>
+>> @@ -446,4 +447,12 @@ extern void ebitmap_cache_init(void);
+>>   extern void hashtab_cache_init(void);
+>>   extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
+>>
+>> +#ifdef CONFIG_IMA
+>> +extern void selinux_measure_state(struct selinux_state *selinux_state);
+>> +#else
+>> +static inline void selinux_measure_state(struct selinux_state *selinux_state)
+>> +{
+>> +}
+>> +#endif
+> 
+> If you are going to put the SELinux/IMA function(s) into a separate
+> source file, please put the function declarations into a separate
+> header file too.  For example, look at
+> security/selinux/include/{netif,netnode,netport,etc.}.h.
 
-By applying this patch, %sys utilization falls to around 60% under the same
-workload. Although this particular workload is a bit contrived, we have seen
-some monitoring scripts which produced similarly high %sys time due to this
-contention.
+I will create a new header file "security/selinux/include/ima.h" and 
+move the function declarations for IMA functions to that header.
 
-Changes in v4:
-- Simplify by unconditionally calling pid_update_inode() from pid_revalidate,
-  and removing the LOOKUP_RCU check.
-Changes in v3:
-- Rather than call pid_update_inode() with flags, create
-  proc_inode_needs_update() to determine whether the call can be skipped.
-- Restore the call to the security hook (see next patch).
-Changes in v2:
-- Remove get_pid_task_rcu_user() and get_proc_task_rcu(), since they were
-  unnecessary.
-- Remove the call to security_task_to_inode().
+> 
+>> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+>> new file mode 100644
+>> index 000000000000..b7e24358e11d
+>> --- /dev/null
+>> +++ b/security/selinux/measure.c
+>> @@ -0,0 +1,79 @@
+>> +// SPDX-License-Identifier: GPL-2.0-or-later
+>> +/*
+>> + * Measure SELinux state using IMA subsystem.
+>> + */
+>> +#include <linux/vmalloc.h>
+>> +#include <linux/ktime.h>
+>> +#include <linux/ima.h>
+>> +#include "security.h"
+>> +
+>> +/*
+>> + * This function creates a unique name by appending the timestamp to
+>> + * the given string. This string is passed as "event_name" to the IMA
+>> + * hook to measure the given SELinux data.
+>> + *
+>> + * The data provided by SELinux to the IMA subsystem for measuring may have
+>> + * already been measured (for instance the same state existed earlier).
+>> + * But for SELinux the current data represents a state change and hence
+>> + * needs to be measured again. To enable this, pass a unique "event_name"
+>> + * to the IMA hook so that IMA subsystem will always measure the given data.
+>> + *
+>> + * For example,
+>> + * At time T0 SELinux data to be measured is "foo". IMA measures it.
+>> + * At time T1 the data is changed to "bar". IMA measures it.
+>> + * At time T2 the data is changed to "foo" again. IMA will not measure it
+>> + * (since it was already measured) unless the event_name, for instance,
+>> + * is different in this call.
+>> + */
+>> +static char *selinux_event_name(const char *name_prefix)
+>> +{
+>> +       struct timespec64 cur_time;
+>> +
+>> +       ktime_get_real_ts64(&cur_time);
+>> +       return kasprintf(GFP_KERNEL, "%s-%lld:%09ld", name_prefix,
+>> +                        cur_time.tv_sec, cur_time.tv_nsec);
+>> +}
+> 
+> Why is this a separate function?  It's three lines long and only
+> called from selinux_measure_state().  Do you ever see the SELinux/IMA
+> code in this file expanding to the point where this function is nice
+> from a reuse standpoint?
 
- fs/proc/base.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+Earlier I had two measurements - one for SELinux configuration/state and 
+another for SELinux policy. selinux_event_name() was used to generate 
+event name for each of them.
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index f52217f432bc..633ef74e8dfd 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1974,19 +1974,18 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
- {
- 	struct inode *inode;
- 	struct task_struct *task;
-+	int ret = 0;
- 
--	if (flags & LOOKUP_RCU)
--		return -ECHILD;
--
--	inode = d_inode(dentry);
--	task = get_proc_task(inode);
-+	rcu_read_lock();
-+	inode = d_inode_rcu(dentry);
-+	task = pid_task(proc_pid(inode), PIDTYPE_PID);
- 
- 	if (task) {
- 		pid_update_inode(task, inode);
--		put_task_struct(task);
--		return 1;
-+		ret = 1;
- 	}
--	return 0;
-+	rcu_read_unlock();
-+	return ret;
- }
- 
- static inline bool proc_inode_is_dead(struct inode *inode)
--- 
-2.25.1
+In this patch set I have included only one measurement - for SELinux 
+policy. I plan to add "SELinux configuration/state" measurement in a 
+separate patch - I can reuse selinux_event_name() in that patch.
+
+Also, I think the comment in the function header for 
+selinux_event_name() is useful.
+
+I prefer to have a separate function, if that's fine by you.
+
+> 
+> Also, I assume you are not concerned about someone circumventing the
+> IMA measurements by manipulating the time?  In most systems I would
+> expect the time to be a protected entity, but with many systems
+> getting their time from remote systems I thought it was worth
+> mentioning.
+I am using time function to generate a unique name for the IMA 
+measurement event, such as, "selinux-policy-hash-1609790281:860232824". 
+This is to ensure that state changes in SELinux data are always measured.
+
+If you think time manipulation can be an issue, please let me know a 
+better way to generate unique event names.
+
+> 
+>> +/*
+>> + * selinux_measure_state - Measure hash of the SELinux policy
+>> + *
+>> + * @state: selinux state struct
+>> + *
+>> + * NOTE: This function must be called with policy_mutex held.
+>> + */
+>> +void selinux_measure_state(struct selinux_state *state)
+> 
+> Similar to the name of this source file, let's make it clear this is
+> for IMA.  How about calling this selinux_ima_measure_state() or
+> similar?
+Sure - I will change the function name to selinux_ima_measure_state().
+
+> 
+>> +{
+>> +       void *policy = NULL;
+>> +       char *policy_event_name = NULL;
+>> +       size_t policy_len;
+>> +       int rc = 0;
+>> +       bool initialized = selinux_initialized(state);
+> 
+> Why bother with the initialized variable?  Unless I'm missing
+> something it is only used once in the code below.
+You are right - I will remove "initialized" variable and directly get 
+the state using selinux_initialized().
+
+> 
+>> +       /*
+>> +        * Measure SELinux policy only after initialization is completed.
+>> +        */
+>> +       if (!initialized)
+>> +               goto out;
+>> +
+>> +       policy_event_name = selinux_event_name("selinux-policy-hash");
+>> +       if (!policy_event_name) {
+>> +               pr_err("SELinux: %s: event name for policy not allocated.\n",
+>> +                      __func__);
+>> +               rc = -ENOMEM;
+> 
+> This function doesn't return an error code, why bother with setting
+> the rc variable here?
+Yes - it is not necessary. I will remove the line.
+
+> 
+>> +               goto out;
+>> +       }
+>> +
+>> +       rc = security_read_policy_kernel(state, &policy, &policy_len);
+>> +       if (rc) {
+>> +               pr_err("SELinux: %s: failed to read policy %d.\n", __func__, rc);
+>> +               goto out;
+>> +       }
+>> +
+>> +       ima_measure_critical_data("selinux", policy_event_name,
+>> +                                 policy, policy_len, true);
+>> +
+>> +       vfree(policy);
+>> +
+>> +out:
+>> +       kfree(policy_event_name);
+>> +}
+>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+>> index 9704c8a32303..dfa2e00894ae 100644
+>> --- a/security/selinux/ss/services.c
+>> +++ b/security/selinux/ss/services.c
+>> @@ -2180,6 +2180,7 @@ static void selinux_notify_policy_change(struct selinux_state *state,
+>>          selinux_status_update_policyload(state, seqno);
+>>          selinux_netlbl_cache_invalidate();
+>>          selinux_xfrm_notify_policyload();
+>> +       selinux_measure_state(state);
+>>   }
+>>
+>>   void selinux_policy_commit(struct selinux_state *state,
+>> @@ -3875,8 +3876,33 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
+>>   }
+>>   #endif /* CONFIG_NETLABEL */
+>>
+>> +/**
+>> + * security_read_selinux_policy - read the policy.
+>> + * @policy: SELinux policy
+>> + * @data: binary policy data
+>> + * @len: length of data in bytes
+>> + *
+>> + */
+>> +static int security_read_selinux_policy(struct selinux_policy *policy,
+>> +                                       void *data, size_t *len)
+> 
+> Let's just call this "security_read_policy()".
+There is another function in this file with the name security_read_policy().
+
+How about changing the above function name to "read_selinux_policy()" 
+since this is a local/static function.
+
+> 
+>> +{
+>> +       int rc;
+>> +       struct policy_file fp;
+>> +
+>> +       fp.data = data;
+>> +       fp.len = *len;
+>> +
+>> +       rc = policydb_write(&policy->policydb, &fp);
+>> +       if (rc)
+>> +               return rc;
+>> +
+>> +       *len = (unsigned long)fp.data - (unsigned long)data;
+>> +       return 0;
+>> +}
+>> +
+>>   /**
+>>    * security_read_policy - read the policy.
+>> + * @state: selinux_state
+>>    * @data: binary policy data
+>>    * @len: length of data in bytes
+>>    *
+>> @@ -3885,8 +3911,6 @@ int security_read_policy(struct selinux_state *state,
+>>                           void **data, size_t *len)
+>>   {
+>>          struct selinux_policy *policy;
+>> -       int rc;
+>> -       struct policy_file fp;
+>>
+>>          policy = rcu_dereference_protected(
+>>                          state->policy, lockdep_is_held(&state->policy_mutex));
+>> @@ -3898,14 +3922,43 @@ int security_read_policy(struct selinux_state *state,
+>>          if (!*data)> --
+>> 2.17.1
+>>
+> 
+>>                  return -ENOMEM;
+>>
+>> -       fp.data = *data;
+>> -       fp.len = *len;
+>> +       return security_read_selinux_policy(policy, *data, len);
+>> +}
+>>
+>> -       rc = policydb_write(&policy->policydb, &fp);
+>> -       if (rc)
+>> -               return rc;
+>> +/**
+>> + * security_read_policy_kernel - read the policy.
+>> + * @state: selinux_state
+>> + * @data: binary policy data
+>> + * @len: length of data in bytes
+>> + *
+>> + * Allocates kernel memory for reading SELinux policy.
+>> + * This function is for internal use only and should not
+>> + * be used for returning data to user space.
+>> + *
+>> + * This function must be called with policy_mutex held.
+>> + */
+>> +int security_read_policy_kernel(struct selinux_state *state,
+>> +                               void **data, size_t *len)
+> 
+> Let's call this "security_read_state_kernel()".
+Sure - I will rename the function.
+
+> 
+>> +{
+>> +       struct selinux_policy *policy;
+>> +       int rc = 0;
+> 
+> See below, the rc variable is not needed.
+> 
+>> -       *len = (unsigned long)fp.data - (unsigned long)*data;
+>> -       return 0;
+>> +       policy = rcu_dereference_protected(
+>> +                       state->policy, lockdep_is_held(&state->policy_mutex));
+>> +       if (!policy) {
+>> +               rc = -EINVAL;
+>> +               goto out;
+> 
+> Jumping to the out label is a little silly since it is just a return;
+> do a "return -EINVAL;" here instead.
+> 
+>> +       }
+>> +
+>> +       *len = policy->policydb.len;
+>> +       *data = vmalloc(*len);
+>> +       if (!*data) {
+>> +               rc = -ENOMEM;
+>> +               goto out;
+> 
+> Same as above, "return -ENOMEM;" please.
+> 
+>> +       }
+>>
+>> +       rc = security_read_selinux_policy(policy, *data, len);
+> 
+> You should be able to do "return security_read_selinux_policy(...);" here.
+
+I will remove the local variable "rc" and make the three changes you've 
+stated above.
+
+Thanks for reviewing the changes.
+
+  -lakshmi
+
+> 
+>> +
+>> +out:
+>> +       return rc;
+>>   }
+> 
 
