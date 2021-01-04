@@ -8,104 +8,201 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B18C8C433DB
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 16:32:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23B14C433E0
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 16:34:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 843BB2245C
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 16:32:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E338D2245C
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 16:34:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727847AbhADQcX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Jan 2021 11:32:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50740 "EHLO
+        id S1727166AbhADQeZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Jan 2021 11:34:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727522AbhADQcX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 11:32:23 -0500
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8E1C061574
-        for <selinux@vger.kernel.org>; Mon,  4 Jan 2021 08:31:42 -0800 (PST)
-Received: by mail-ot1-x32f.google.com with SMTP id r9so26493292otk.11
-        for <selinux@vger.kernel.org>; Mon, 04 Jan 2021 08:31:42 -0800 (PST)
+        with ESMTP id S1727032AbhADQeZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 11:34:25 -0500
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35353C061574
+        for <selinux@vger.kernel.org>; Mon,  4 Jan 2021 08:33:45 -0800 (PST)
+Received: by mail-ot1-x336.google.com with SMTP id a109so26553239otc.1
+        for <selinux@vger.kernel.org>; Mon, 04 Jan 2021 08:33:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AUjrt1rNDT0BTd3E7WU/61f8DpWjW0jF9UrkkN3R7Pw=;
-        b=agibqpvSByisdSA/Ii02Ovmpsow6kfti5B89KQY7G+KBRJ8MRf3CN3pDacCCTlSMYa
-         fQ9+27zZguRu8yXfOkpdmmOL1Y+Swhiciu5jhSI1s7ZuE3R2pMwP4G8w/7TI0g4V3qXP
-         kA40B5AEN03xPUtBpKKCOdmIvxvoVGvV5eDG+64GCJNc3G96+nfKLCyMvnzQfnnR5LrO
-         KOUnn4SdqvA4ya1YUZftnFB8dk6oW1HP9x/NfImmf8dZkJtKKNCmeIS1kugB8AfYFZ8z
-         xECF5zRgu/qomsXYPTRvj85HVRe+FMMH3rnjvi+92CERburi4xxbaUu0LSgd1YYMswDV
-         WcmQ==
+         :cc:content-transfer-encoding;
+        bh=C/6W8j9xT8CiXl+0IuEcjds+TTF1+SEhkml8K+rBTpM=;
+        b=RE1DRrMrvc/TmzyL7Qrl19mnBTe0P6U5gd1A96pK7ReiN/dK1PR207BhP6Aia3bQ1Y
+         DLQ0CFnd4+JKQuCCdocpArIeMuYAFDCI4kemJDVZqpIvyRRww69zd2k6PBNDJUr9HgYF
+         8YeULDTMi3+kNda74qKPHbY7wb7hTBEuTsCGs2CjzTe/fXveoScQIy7EZFdDVpnsQOQK
+         fraSFZcX0LlO5GP4+b/f6ViI26SKKA4aDj1ZoWozrxP3Kgnw2KMjphKSwbLOzDYV6T7J
+         ygJZqdJZgEhFb+HVoV9Kjpmst/mDPwkIHhkPvqPUYCQ2ogMsc72PdAmoMGjGMzbI2K1g
+         0n4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AUjrt1rNDT0BTd3E7WU/61f8DpWjW0jF9UrkkN3R7Pw=;
-        b=AtHNyAwtGG/zqBrJJZj1yI/cIHKClav2cMpaxFUCLbwsmI4IohxfQlzr0uyDuEIxDH
-         JwgU/24VF/YlLzHCm68K8CqqpMck7U3MIUfxQIEAQvBRPPCx41Lflw31IuONvNqJnrht
-         IsPiLAkSKrHgOLxMU0H+DtJ6WyMFY8f6uwdOTn0QHsrFFyiP4QL28mkpLJZSWLEbDVM2
-         7dKM30zauMIjWetDGsjYyv3vXWCgE+zaz0JA+JCAEjSjyrBUIawVgRoKY3/3jlv9Dxnd
-         yyoVHye9b8XJG+M+SLRpTw4MgpDMW6JD979PHbion4IinztEGhtAwZvtjho9P4/phpKH
-         yDkw==
-X-Gm-Message-State: AOAM530aSgziabTGiXySRW4lUy9YglBcVv8hDw2uBt+XaBRK7eh3gwVn
-        QXWUWtqj6CVh5cwM/7Avhac9CqrAy+X1ePr989N6jEze
-X-Google-Smtp-Source: ABdhPJzHGxxjmXXhKX+U/QpS7/7vkxPyV5u+7iVVDZfnHrlmtRLNW9o+o3G8MFx1b6FkIFZ9R9D04mdARZPAv4+Kf7o=
-X-Received: by 2002:a05:6830:1385:: with SMTP id d5mr24854847otq.295.1609777902372;
- Mon, 04 Jan 2021 08:31:42 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=C/6W8j9xT8CiXl+0IuEcjds+TTF1+SEhkml8K+rBTpM=;
+        b=YVgpNpfak2gf2l/SmTDFdLj3Mh9WIEi9/QflBGHiM4ehdZvCYIW/DIot/tmocAlyLq
+         pGS4VFbqzDgjyGvUTj2Td2HOu+NQU6IqKuJheODGNlL1yQoS6wBOLgMVDkx0H/MDGOqX
+         Yg9ro6WAHRPrh1wbBufec96uqqRkqtLObYxIjFBbuqnN04IBk5sRYAeyGPM2AqegPGTx
+         +FkDg0LeHLnm433OgwGWesWkye8PXwsoJdG4kmj0PxsrsQ0jVbj01ECUFKtTv1yEctSi
+         meg8MUf0IV0fdlbdNbuaFVlVC/sqPJyVq2EB4fw7WK+h46r005rIIS+HybHRlpT87Tt1
+         EgKA==
+X-Gm-Message-State: AOAM530aFUt4c5Q7HEeTTp0o2qDo5h+u6uGTpwWTtRyzmnkfWrwyJHQh
+        Y0fM+HsD1Az+O2E4jmahmzaLm/2n7gbov5c+obvSgwNiVKg=
+X-Google-Smtp-Source: ABdhPJxG3uPJQesBC12g5LfUQd9LLgfxNqngYyDs60/ZbCvN3FETQ7XZE3dQHzbQlul3HxJJsll3LlT/Jestb0Y5prQ=
+X-Received: by 2002:a9d:27a7:: with SMTP id c36mr52783431otb.59.1609778024625;
+ Mon, 04 Jan 2021 08:33:44 -0800 (PST)
 MIME-Version: 1.0
-References: <20201230100746.2549568-1-nicolas.iooss@m4x.org> <20201230100746.2549568-2-nicolas.iooss@m4x.org>
-In-Reply-To: <20201230100746.2549568-2-nicolas.iooss@m4x.org>
+References: <20201230100746.2549568-1-nicolas.iooss@m4x.org> <20201230100746.2549568-3-nicolas.iooss@m4x.org>
+In-Reply-To: <20201230100746.2549568-3-nicolas.iooss@m4x.org>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 4 Jan 2021 11:31:31 -0500
-Message-ID: <CAP+JOzQcM03WUJ-Fg2LuLxzCGiagJnuyJozv7ed6f34vnKEKXA@mail.gmail.com>
-Subject: Re: [PATCH 2/6] libsepol: ensure that hashtab_search is not called
- with a NULL key
+Date:   Mon, 4 Jan 2021 11:33:33 -0500
+Message-ID: <CAP+JOzRqWHUkVfDsY+yijBEvhMf=52HqYD6vQfNLDdcn3hw+_g@mail.gmail.com>
+Subject: Re: [PATCH 3/6] libsepol/cil: constify some strings
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Dec 30, 2020 at 5:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Wed, Dec 30, 2020 at 5:09 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
+:
 >
-> While fuzzing /usr/libexec/hll/pp, a policy module was generated which
-> triggered a NULL result when doing:
+> Function cil_add_file() copies its input into a newly-allocated buffer,
+> and does not modify "name". State these properties in the types of
+> parameters by adding "const" qualifiers.
 >
->     key = pdb->sym_val_to_name[sym][i];
+> This enables using LibFuzzer directly on cil_add_file(), without a
+> warning about discarding "const" qualifier:
 >
-> Detect such unexpected behavior to exit with an error instead of
-> crashing.
->
-> This issue has been found while fuzzing hll/pp with the American Fuzzy
-> Lop.
+>     fuzz-secilc.c: In function =E2=80=98LLVMFuzzerTestOneInput=E2=80=99:
+>     fuzz-secilc.c:57:31: warning: passing argument 3 of =E2=80=98cil_add_=
+file=E2=80=99
+>     discards =E2=80=98const=E2=80=99 qualifier from pointer target type
+>     [-Wdiscarded-qualifiers]
+>        57 |  if (cil_add_file(db, "fuzz", data, size) !=3D SEPOL_OK)
+>           |                               ^~~~
+>     In file included from fuzz-secilc.c:26:
+>     /usr/include/sepol/cil/cil.h:45:57: note: expected =E2=80=98char *=E2=
+=80=99 but
+>     argument is of type =E2=80=98const uint8_t *=E2=80=99 {aka =E2=80=98c=
+onst unsigned char *=E2=80=99}
+>        45 | extern int cil_add_file(cil_db_t *db, char *name, char *data,=
+ size_t size);
+>           |                                                   ~~~~~~^~~~
 >
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  libsepol/src/module_to_cil.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  libsepol/cil/include/cil/cil.h | 4 ++--
+>  libsepol/cil/src/cil.c         | 2 +-
+>  libsepol/cil/src/cil_log.c     | 6 +++---
+>  libsepol/cil/src/cil_parser.c  | 2 +-
+>  libsepol/cil/src/cil_parser.h  | 2 +-
+>  5 files changed, 8 insertions(+), 8 deletions(-)
 >
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index c99790eb76e7..99360a9afdd0 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -3459,6 +3459,10 @@ static int required_scopes_to_cil(int indent, struct policydb *pdb, struct avrul
->                 map = decl->required.scope[sym];
->                 ebitmap_for_each_positive_bit(&map, node, i) {
->                         key = pdb->sym_val_to_name[sym][i];
-> +                       if (key == NULL) {
-> +                               rc = -1;
-> +                               goto exit;
-> +                       }
+> diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/ci=
+l.h
+> index f8cfc3be5015..e6f4503eb33a 100644
+> --- a/libsepol/cil/include/cil/cil.h
+> +++ b/libsepol/cil/include/cil/cil.h
+> @@ -42,7 +42,7 @@ typedef struct cil_db cil_db_t;
+>  extern void cil_db_init(cil_db_t **db);
+>  extern void cil_db_destroy(cil_db_t **db);
 >
->                         scope_datum = hashtab_search(pdb->scope[sym].table, key);
->                         if (scope_datum == NULL) {
+> -extern int cil_add_file(cil_db_t *db, char *name, char *data, size_t siz=
+e);
+> +extern int cil_add_file(cil_db_t *db, const char *name, const char *data=
+, size_t size);
+>
+>  extern int cil_compile(cil_db_t *db);
+>  extern int cil_build_policydb(cil_db_t *db, sepol_policydb_t **sepol_db)=
+;
+> @@ -67,7 +67,7 @@ enum cil_log_level {
+>         CIL_INFO
+>  };
+>  extern void cil_set_log_level(enum cil_log_level lvl);
+> -extern void cil_set_log_handler(void (*handler)(int lvl, char *msg));
+> +extern void cil_set_log_handler(void (*handler)(int lvl, const char *msg=
+));
+>
+>  #ifdef __GNUC__
+>  __attribute__ ((format(printf, 2, 3)))
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index bb7f06d5c4b3..99c8e288912c 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -500,7 +500,7 @@ void cil_root_destroy(struct cil_root *root)
+>         free(root);
+>  }
+>
+> -int cil_add_file(cil_db_t *db, char *name, char *data, size_t size)
+> +int cil_add_file(cil_db_t *db, const char *name, const char *data, size_=
+t size)
+>  {
+>         char *buffer =3D NULL;
+>         int rc;
+> diff --git a/libsepol/cil/src/cil_log.c b/libsepol/cil/src/cil_log.c
+> index b222b155120a..a8e4d2e94a78 100644
+> --- a/libsepol/cil/src/cil_log.c
+> +++ b/libsepol/cil/src/cil_log.c
+> @@ -37,14 +37,14 @@
+>
+>  static enum cil_log_level cil_log_level =3D CIL_ERR;
+>
+> -void cil_default_log_handler(__attribute__((unused)) int lvl, char *msg)
+> +void cil_default_log_handler(__attribute__((unused)) int lvl, const char=
+ *msg)
+>  {
+>         fprintf(stderr, "%s", msg);
+>  }
+>
+> -void (*cil_log_handler)(int lvl, char *msg) =3D &cil_default_log_handler=
+;
+> +void (*cil_log_handler)(int lvl, const char *msg) =3D &cil_default_log_h=
+andler;
+>
+> -void cil_set_log_handler(void (*handler)(int lvl, char *msg))
+> +void cil_set_log_handler(void (*handler)(int lvl, const char *msg))
+>  {
+>         cil_log_handler =3D handler;
+>  }
+> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.=
+c
+> index a8af1dce2c4b..b62043b95806 100644
+> --- a/libsepol/cil/src/cil_parser.c
+> +++ b/libsepol/cil/src/cil_parser.c
+> @@ -196,7 +196,7 @@ static void add_cil_path(struct cil_tree_node **curre=
+nt, char *path)
+>         insert_node(node, *current);
+>  }
+>
+> -int cil_parser(char *_path, char *buffer, uint32_t size, struct cil_tree=
+ **parse_tree)
+> +int cil_parser(const char *_path, char *buffer, uint32_t size, struct ci=
+l_tree **parse_tree)
+>  {
+>
+>         int paren_count =3D 0;
+> diff --git a/libsepol/cil/src/cil_parser.h b/libsepol/cil/src/cil_parser.=
+h
+> index 02ecb784e95c..1cec63944fdf 100644
+> --- a/libsepol/cil/src/cil_parser.h
+> +++ b/libsepol/cil/src/cil_parser.h
+> @@ -32,6 +32,6 @@
+>
+>  #include "cil_tree.h"
+>
+> -int cil_parser(char *path, char *buffer, uint32_t size, struct cil_tree =
+**parse_tree);
+> +int cil_parser(const char *path, char *buffer, uint32_t size, struct cil=
+_tree **parse_tree);
+>
+>  #endif /* CIL_PARSER_H_ */
 > --
 > 2.29.2
 >
-
-This is a similar case as the previous patch. There are other places
-where a check could go, but the check really should happen when
-reading the binary policy.
-
-Jim
