@@ -2,163 +2,166 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A87EFC43381
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 19:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB12BC433DB
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 20:16:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8087E22509
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 19:52:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96899221F8
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 20:16:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727778AbhADTw0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Jan 2021 14:52:26 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:43326 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726074AbhADTw0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 14:52:26 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 104JhsRt035793;
-        Mon, 4 Jan 2021 19:51:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : in-reply-to : references : date : message-id : mime-version :
- content-type; s=corp-2020-01-29;
- bh=aR5E33ngmM7rA62zOVK1kNDHyQ1ZhIMHNofceRK43oY=;
- b=tZ6PDIrmrYEHFS6MJkkZg39L4P9UbJPfi96nsJzOXI7+dwovQUhsLnxFeQo+B9Uvq+6m
- dHovtt15YZRSJL1tCLKJOj/FIa0oBOERJDWL+yD6xe7a8cOTbS/YfKi3XouEcMxrsJJO
- rgd3Ttio6mVEagOCaIcNLq56zQIy2669/WrkV8XgJIy0oGXg+qEgraSGVxASAsByRRvs
- 7JaYIQ/kzXpZTP+FH1NNk3zHrCcRjAWJn6yWThEk8uuHvaRvFx6NoVcJz26WMdhDUrSe
- CRgzS+5Vz0kySVly0+wSrJf8vi8gztS5QM4Tg3gnxlUnX+h2qgg39glbKJ27Ki7rShUB 6w== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 35tg8qwyfj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 04 Jan 2021 19:51:22 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 104JihXY093653;
-        Mon, 4 Jan 2021 19:51:21 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 35v1f7rp4p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 04 Jan 2021 19:51:21 +0000
-Received: from abhmp0008.oracle.com (abhmp0008.oracle.com [141.146.116.14])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 104Jp8Xv017494;
-        Mon, 4 Jan 2021 19:51:08 GMT
-Received: from localhost (/10.159.240.116)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 04 Jan 2021 11:51:07 -0800
-From:   Stephen Brennan <stephen.s.brennan@oracle.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
+        id S1726422AbhADUQa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Jan 2021 15:16:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:32932 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726397AbhADUQ3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 15:16:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1609791302;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=yipqhYl85Rg3f7xXtW5lubqZvbKIS1I1r/l6AhjjZHg=;
+        b=RxlA0KynBRdiHrdSA0lM18aXlA5AhABLeBMtGw9hiNRX29+kgYt9gOseE5vbiQApTNAoOE
+        9iF5PUn2o2mTc9I5+SNX57hyoFPhQrh9wjYDQbAUw6l8BS3PGRG8M4R6EkY76UEp9SineS
+        qsPHcmrpuzNjhOQ5Bdh6tg5MUYh0UtA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-579-h8g_GJL2MpaVsjx1w1qa_w-1; Mon, 04 Jan 2021 15:15:01 -0500
+X-MC-Unique: h8g_GJL2MpaVsjx1w1qa_w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D3C77801817;
+        Mon,  4 Jan 2021 20:14:59 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-115-2.rdu2.redhat.com [10.10.115.2])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 574EF60BE5;
+        Mon,  4 Jan 2021 20:14:59 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id D2D54220BCF; Mon,  4 Jan 2021 15:14:58 -0500 (EST)
+Date:   Mon, 4 Jan 2021 15:14:58 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>, James Carter <jwcart2@gmail.com>,
         SElinux list <selinux@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v3 2/2] proc: ensure security hook is called after exec
-In-Reply-To: <CAEjxPJ4bUxSp3hMV9k5Z5Zpev=ravd6EJheC1Rdg+_72eUiNLA@mail.gmail.com>
-References: <20201219000616.197585-1-stephen.s.brennan@oracle.com>
- <20201219000616.197585-2-stephen.s.brennan@oracle.com>
- <CAEjxPJ4bUxSp3hMV9k5Z5Zpev=ravd6EJheC1Rdg+_72eUiNLA@mail.gmail.com>
-Date:   Mon, 04 Jan 2021 11:51:07 -0800
-Message-ID: <87pn2k5vmc.fsf@stepbren-lnx.us.oracle.com>
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Daniel Walsh <dwalsh@redhat.com>,
+        Zdenek Pytela <zpytela@redhat.com>
+Subject: Re: virtiofs and its optional xattr support vs. fs_use_xattr
+Message-ID: <20210104201458.GA74084@redhat.com>
+References: <CAFqZXNsGabHBfV36nNAVLJgEzjkBev-O3YZ1vnmXyVoaDdjiHQ@mail.gmail.com>
+ <CAP+JOzSWW6HFtN1VSyvKacKeZdtRkBo7TWR7JS4a0ewiopuKww@mail.gmail.com>
+ <CAHC9VhSYt86rQJGg9JFD1ubL4N3PNmLg02sACOvRNHr94=41dg@mail.gmail.com>
+ <CAP+JOzQ-s9ASgqFt7HVyY1R7JKQ85Ee-=iou0C5xRRvaSZo52Q@mail.gmail.com>
+ <CAHC9VhQkSA5VteHfu8TyBp7wqDspoLCOP+sB7vaV4XCQ8vwBeA@mail.gmail.com>
+ <CAFqZXNsfomoMTr+uhisdsj75c7ZdXmGCiDZBsDwtLUpkwEA76w@mail.gmail.com>
+ <20201210221753.GB185111@redhat.com>
+ <CAFqZXNsstwecRnQu3-Gybdo1xwJRPHmt1=ZYZqnXK-v6MT0kng@mail.gmail.com>
+ <20201210223049.GC185111@redhat.com>
+ <CAFqZXNu0_8__73NfNa9tR_iWiaGGqkfvhtOQts7mmnh8v9QWrA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9854 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 phishscore=0
- suspectscore=0 spamscore=0 bulkscore=0 adultscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101040124
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9854 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1015 phishscore=0 bulkscore=0
- spamscore=0 impostorscore=0 suspectscore=0 adultscore=0 mlxlogscore=999
- mlxscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101040124
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFqZXNu0_8__73NfNa9tR_iWiaGGqkfvhtOQts7mmnh8v9QWrA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+On Fri, Dec 11, 2020 at 10:15:57AM +0100, Ondrej Mosnacek wrote:
+> On Thu, Dec 10, 2020 at 11:31 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > On Thu, Dec 10, 2020 at 11:24:30PM +0100, Ondrej Mosnacek wrote:
+> > > On Thu, Dec 10, 2020 at 11:17 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > > > On Thu, Dec 10, 2020 at 10:29:02AM +0100, Ondrej Mosnacek wrote:
+> > > > > On Thu, Dec 10, 2020 at 3:40 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > On Wed, Dec 9, 2020 at 10:37 AM James Carter <jwcart2@gmail.com> wrote:
+> > > > > > > On Tue, Dec 8, 2020 at 6:45 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > > > On Mon, Dec 7, 2020 at 12:17 PM James Carter <jwcart2@gmail.com> wrote:
+> > > > > > > > > On Mon, Dec 7, 2020 at 9:45 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > Hi everyone,
+> > > > > > > > > >
+> > > > > > > > > > In [1] we ran into a problem with the current handling of filesystem
+> > > > > > > > > > labeling rules. Basically, it is only possible to specify either
+> > > > > > > > > > genfscon or fs_use_xattr for a given filesystem, but in the case of
+> > > > > > > > > > virtiofs, certain mounts may support security xattrs, while other ones
+> > > > > > > > > > may not.
+> > > > > > > > > >
+> > > > > > > > > > So we can't use the xattr support by adding fs_use_xattr virtiofs
+> > > > > > > > > > (...); to the policy, because then a non-xattr mount will fail
+> > > > > > > > > > (SELinux does a mount-time check on the root inode to make sure that
+> > > > > > > > > > the xattr handler works), but we also don't want to stay on genfscon,
+> > > > > > > > > > because then we can't relabel files.
+> > > > > > > > > >
+> > > > > > > > > > So my question is how to best address this? One option is to use a
+> > > > > > > > > > similar "hack" as for cgroupfs; i.e. do a kind of mixed genfs-xattr
+> > > > > > > > > > labeling, but that's ugly and requires hard-coding another FS name in
+> > > > > > > > > > the selinux code. The only other alternative I could come up with is
+> > > > > > > > > > to add a new FS labeling statement that would specify some kind of
+> > > > > > > > > > mixed genfscon / fs_use_xattr behavior. That would be a better
+> > > > > > > > > > long-term solution, but leads to more questions on how such statement
+> > > > > > > > > > should actually work... Should it work the cgroupfs way, giving a
+> > > > > > > > > > default label to everything and allowing to set/change labels via
+> > > > > > > > > > xattrs? Or should it rather just detect xattrs support and switch
+> > > > > > > > > > between SECURITY_FS_USE_XATTR and SECURITY_FS_USE_GENFS behavior based
+> > > > > > > > > > on that? In the latter case, should the statement specify two contexts
+> > > > > > > > > > (one for fs_use_xattr and another one for genfscon) or just one for
+> > > > > > > > > > both behaviors?
+> > > > > > > > >
+> > > > > > > > > I don't think adding a new statement is necessary. It seems like
+> > > > > > > > > allowing both fs_use_xattr and genfscon rules for the filesystem in
+> > > > > > > > > policy and then using the fs_use_xattr rule if xattrs are supported
+> > > > > > > > > while falling back to the genfscon rule if they are not would do what
+> > > > > > > > > you need.
+> > > > > > > >
+> > > > > > > > That seems reasonable to me so long as this ambiguity is okay with the
+> > > > > > > > folks who do policy analysis.  Thinking quickly I'm not sure why it
+> > > > > > > > would be a problem, but the thought did occur while I was typing up
+> > > > > > > > this reply ...
+> > > > > > >
+> > > > > > > I don't think that it would cause a problem with policy analysis. I
+> > > > > > > think that you would just assume the genfscon rule is being used,
+> > > > > > > since it is less fine-grained. It wouldn't be much different from how
+> > > > > > > booleans are handled.
+> > > > > >
+> > > > > > Makes sense to me.  Thanks Jim.
+> > > > >
+> > > > > Okay, so I'll look into switching between use_xattr and use_genfs
+> > > > > based on the availability of xattr support and the presence of
+> > > > > corresponding rules in the policy. Thanks everyone for the fruitful
+> > > > > discussion!
+> > > >
+> > > > Hi Ondrej,
+> > > >
+> > > > So this is now purely a policy change and no changes required in kernel?
+> > > > If yes, then the patch Dan Walsh proposed, is that good enough or
+> > > > it needs to be done in a different way.
+> > >
+> > > No, this needs a kernel change in SELinux to interpret the policy
+> > > rules slightly differently *and* basically Dan's patch (modulo the
+> > > typo in the genfscon keyword).
+> >
+> > Ok, thanks. Is this kernel change something you will be able to take
+> > care of. I am afraid that I don't know enough to make this change.
+> 
+> Yes, it's already on my todo list ;) But it might take some time as
+> there are a lot of things competing for my attention right now...
 
-> On Fri, Dec 18, 2020 at 7:06 PM Stephen Brennan
-> <stephen.s.brennan@oracle.com> wrote:
->>
->> Smack needs its security_task_to_inode() hook to be called when a task
->> execs a new executable. Store the self_exec_id of the task and call the
->> hook via pid_update_inode() whenever the exec_id changes.
->>
->> Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
->
-> Sorry to be late in responding, but the proc inode security structure
-> needs to be updated not only upon a context-changing exec but also
-> upon a setcon(3) aka write to /proc/self/attr/current just like the
-> uid/gid needs to be updated not only upon a setuid exec but also upon
-> a setuid(2).  I'm also unclear as to why you can't call
-> security_task_to_inode during RCU lookup; it doesn't block/sleep
-> AFAICT.
-> All it does is take a spinlock and update a few fields.
+Hi Ondrej,
 
-The reason I assumed that we need to drop out of RCU mode to update the
-inode and call the security hooks was simply because that is how the
-code worked originally. I wanted to be conservative in my changes, by
-only leaving RCU mode "when necessary", but this assumed that it was
-necessary to leave RCU mode at all!
+Sorry to bother you on this. Just curious, if you got a chance to make
+progress on this. Will like to solve the issue of SELinux blocking package
+installation on virtiofs in VM based containers.
 
-None of the data in a proc inode (at least, i_mode, i_uid, i_gid) seems
-to be "RCU protected" in the sense that they could not be modified
-during an RCU read critical section. If this were the case, then there
-would have to be some sort of copying and a synchronize_rcu() used
-somewhere.  So it seems that running pid_update_inode() (which does not
-sleep and simply takes some spinlocks) should be safe during RCU mode.
+Vivek
 
-My assumption had originally been that the security_pid_to_inode() calls
-could be liable to sleep. But during this review we've seen that both
-the selinux and smack security_pid_to_inode() implementations are also
-"RCU safe" in that they do not sleep.
+> 
+> -- 
+> Ondrej Mosnacek
+> Software Engineer, Platform Security - SELinux kernel
+> Red Hat, Inc.
+> 
 
-So rather than trying to guess when this security hook would like to be
-called, it seems that it would be safe to take the easiest option: just
-execute pid_revalidate() in RCU mode always, for instance with the
-example changes below. Is there anything obviously wrong with this
-approach that I'm missing?
-
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ebea9501afb8..105581e51032 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1830,19 +1830,18 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
- {
- 	struct inode *inode;
- 	struct task_struct *task;
-+	int rv = 0;
- 
--	if (flags & LOOKUP_RCU)
--		return -ECHILD;
--
--	inode = d_inode(dentry);
--	task = get_proc_task(inode);
-+	rcu_read_lock();
-+	inode = d_inode_rcu(dentry);
-+	task = pid_task(proc_pid(inode), PIDTYPE_PID);
- 
- 	if (task) {
- 		pid_update_inode(task, inode);
--		put_task_struct(task);
--		return 1;
-+		rv = 1;
- 	}
--	return 0;
-+	rcu_read_unlock();
-+	return rv;
- }
- 
- static inline bool proc_inode_is_dead(struct inode *inode)
