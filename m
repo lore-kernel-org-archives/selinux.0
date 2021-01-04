@@ -2,106 +2,163 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E823C433E0
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 18:19:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A87EFC43381
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 19:52:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55AFB21D1B
-	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 18:19:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8087E22509
+	for <selinux@archiver.kernel.org>; Mon,  4 Jan 2021 19:52:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726189AbhADSTa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Jan 2021 13:19:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726098AbhADST3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 13:19:29 -0500
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E500C061574
-        for <selinux@vger.kernel.org>; Mon,  4 Jan 2021 10:18:49 -0800 (PST)
-Received: by mail-oi1-x235.google.com with SMTP id x13so33139978oic.5
-        for <selinux@vger.kernel.org>; Mon, 04 Jan 2021 10:18:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=moujNiHvMWDLKBgul1pFPW3r+wTjA6PsrBGrSOlxHoo=;
-        b=TAIAk/xxaCeciRAC647fEaCsNA8UGykPrD+KnnCAH3LaFsqTSUxJB7gxB1mF4jDWaU
-         ntFw9rHuJ1zieALHHxMorIRDvCXYB/IlpQrnmV34KYcmRHHzbnLZx9IC5xUxvpLv4Gn5
-         GLDYhvLG/t08NuPUnQzzHD5+ihX7wh42giTnfon8phhQG0t33T4yOzQg1CXImKb9KeWu
-         2O9l/9nTkQWxGKoaGZX+FiRfrGEeALRhYaCj1ugtB3moODpQWwSUDZf7y1ORcXXN5KdQ
-         y94ZNme/zO7PlXDBBnqdTq7ZY2mQqhx+9xUG+VEjuofputP+eyLfut/mURhlbttgRgrl
-         dcNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=moujNiHvMWDLKBgul1pFPW3r+wTjA6PsrBGrSOlxHoo=;
-        b=DQfRBckl3EWSXItsqwWlbsvCyRRgg/wpVVvvmxCBvMQsODuYZSv4NsdybSrCUeusZP
-         CEfQEpV3xfYtzUrWhqt25zodSNx4ZQDRENEtgmgFR+3PUTipo9kbFbcH+YasshoIpYpj
-         Z2VdQJrJqdFvcZxadQk3APBXnyqyh4c+xY7pTmx1D1jiv0c8oguRFqHvg3Qwfcle4rcf
-         BLFfWcu86qeNkq4krEwiQWSyQgbxaFcu4lARZjx9jGGh21I3MUcr9Rfaz3v4zty5Df+m
-         ZBex7tjoIiz+3UFEuo2QBROHgoShjbdbCuOfOScKM/z/V5jjzN7BIQNVAN+2WF0Kaf9K
-         NiWw==
-X-Gm-Message-State: AOAM53000i54Z6mEDIuErKLIH8fRhpJES4xYU2rZNZkawOesjD72kQ+S
-        y6+Eex5FwwcWyJ4mTQ5/9XuNIE77nUndF1miqq8=
-X-Google-Smtp-Source: ABdhPJxo4rUbPgGARcveOcPbBBNIj2brEaqW38KQ7HgIHuRtTtf5vuIKFyO206OJmmDPu3v5ILcxFpFkyc4hUVhK8yI=
-X-Received: by 2002:aca:1c0b:: with SMTP id c11mr149677oic.16.1609784329051;
- Mon, 04 Jan 2021 10:18:49 -0800 (PST)
+        id S1727778AbhADTw0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Jan 2021 14:52:26 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:43326 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726074AbhADTw0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Jan 2021 14:52:26 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 104JhsRt035793;
+        Mon, 4 Jan 2021 19:51:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : in-reply-to : references : date : message-id : mime-version :
+ content-type; s=corp-2020-01-29;
+ bh=aR5E33ngmM7rA62zOVK1kNDHyQ1ZhIMHNofceRK43oY=;
+ b=tZ6PDIrmrYEHFS6MJkkZg39L4P9UbJPfi96nsJzOXI7+dwovQUhsLnxFeQo+B9Uvq+6m
+ dHovtt15YZRSJL1tCLKJOj/FIa0oBOERJDWL+yD6xe7a8cOTbS/YfKi3XouEcMxrsJJO
+ rgd3Ttio6mVEagOCaIcNLq56zQIy2669/WrkV8XgJIy0oGXg+qEgraSGVxASAsByRRvs
+ 7JaYIQ/kzXpZTP+FH1NNk3zHrCcRjAWJn6yWThEk8uuHvaRvFx6NoVcJz26WMdhDUrSe
+ CRgzS+5Vz0kySVly0+wSrJf8vi8gztS5QM4Tg3gnxlUnX+h2qgg39glbKJ27Ki7rShUB 6w== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 35tg8qwyfj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 04 Jan 2021 19:51:22 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 104JihXY093653;
+        Mon, 4 Jan 2021 19:51:21 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 35v1f7rp4p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 04 Jan 2021 19:51:21 +0000
+Received: from abhmp0008.oracle.com (abhmp0008.oracle.com [141.146.116.14])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 104Jp8Xv017494;
+        Mon, 4 Jan 2021 19:51:08 GMT
+Received: from localhost (/10.159.240.116)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 04 Jan 2021 11:51:07 -0800
+From:   Stephen Brennan <stephen.s.brennan@oracle.com>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v3 2/2] proc: ensure security hook is called after exec
+In-Reply-To: <CAEjxPJ4bUxSp3hMV9k5Z5Zpev=ravd6EJheC1Rdg+_72eUiNLA@mail.gmail.com>
+References: <20201219000616.197585-1-stephen.s.brennan@oracle.com>
+ <20201219000616.197585-2-stephen.s.brennan@oracle.com>
+ <CAEjxPJ4bUxSp3hMV9k5Z5Zpev=ravd6EJheC1Rdg+_72eUiNLA@mail.gmail.com>
+Date:   Mon, 04 Jan 2021 11:51:07 -0800
+Message-ID: <87pn2k5vmc.fsf@stepbren-lnx.us.oracle.com>
 MIME-Version: 1.0
-References: <20201230100746.2549568-1-nicolas.iooss@m4x.org> <20201230100746.2549568-6-nicolas.iooss@m4x.org>
-In-Reply-To: <20201230100746.2549568-6-nicolas.iooss@m4x.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 4 Jan 2021 13:18:38 -0500
-Message-ID: <CAP+JOzSpZcod2TF6j=XEXNw5VyQoDuaYGJ_65AQAD9G-ymUtSA@mail.gmail.com>
-Subject: Re: [PATCH 6/6] libsepol/cil: destroy perm_datums when
- __cil_resolve_perms fails
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9854 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 phishscore=0
+ suspectscore=0 spamscore=0 bulkscore=0 adultscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101040124
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9854 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1015 phishscore=0 bulkscore=0
+ spamscore=0 impostorscore=0 suspectscore=0 adultscore=0 mlxlogscore=999
+ mlxscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101040124
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Dec 30, 2020 at 5:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> When __cil_resolve_perms fails, it does not destroy perm_datums, which
-> leads to a memory leak reported by OSS-Fuzz with the following CIL
-> policy:
->
->     (class cl01())
->     (classorder(cl01))
->     (type at02)
->     (type tpr3)
->     (allow at02 tpr3(cl01((s))))
->
-> Calling cil_list_destroy() fixes the issue.
->
-> Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28466
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 
-Acked-by: James Carter <jwcart2@gmail.com>
+> On Fri, Dec 18, 2020 at 7:06 PM Stephen Brennan
+> <stephen.s.brennan@oracle.com> wrote:
+>>
+>> Smack needs its security_task_to_inode() hook to be called when a task
+>> execs a new executable. Store the self_exec_id of the task and call the
+>> hook via pid_update_inode() whenever the exec_id changes.
+>>
+>> Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+>
+> Sorry to be late in responding, but the proc inode security structure
+> needs to be updated not only upon a context-changing exec but also
+> upon a setcon(3) aka write to /proc/self/attr/current just like the
+> uid/gid needs to be updated not only upon a setuid exec but also upon
+> a setuid(2).  I'm also unclear as to why you can't call
+> security_task_to_inode during RCU lookup; it doesn't block/sleep
+> AFAICT.
+> All it does is take a spinlock and update a few fields.
 
-> ---
->  libsepol/cil/src/cil_resolve_ast.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index ecd05dfa5dab..255f17ae7e30 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -146,6 +146,7 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
->         return SEPOL_OK;
->
->  exit:
-> +       cil_list_destroy(perm_datums, CIL_FALSE);
->         return rc;
->  }
->
-> --
-> 2.29.2
->
+The reason I assumed that we need to drop out of RCU mode to update the
+inode and call the security hooks was simply because that is how the
+code worked originally. I wanted to be conservative in my changes, by
+only leaving RCU mode "when necessary", but this assumed that it was
+necessary to leave RCU mode at all!
+
+None of the data in a proc inode (at least, i_mode, i_uid, i_gid) seems
+to be "RCU protected" in the sense that they could not be modified
+during an RCU read critical section. If this were the case, then there
+would have to be some sort of copying and a synchronize_rcu() used
+somewhere.  So it seems that running pid_update_inode() (which does not
+sleep and simply takes some spinlocks) should be safe during RCU mode.
+
+My assumption had originally been that the security_pid_to_inode() calls
+could be liable to sleep. But during this review we've seen that both
+the selinux and smack security_pid_to_inode() implementations are also
+"RCU safe" in that they do not sleep.
+
+So rather than trying to guess when this security hook would like to be
+called, it seems that it would be safe to take the easiest option: just
+execute pid_revalidate() in RCU mode always, for instance with the
+example changes below. Is there anything obviously wrong with this
+approach that I'm missing?
+
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index ebea9501afb8..105581e51032 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1830,19 +1830,18 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
+ {
+ 	struct inode *inode;
+ 	struct task_struct *task;
++	int rv = 0;
+ 
+-	if (flags & LOOKUP_RCU)
+-		return -ECHILD;
+-
+-	inode = d_inode(dentry);
+-	task = get_proc_task(inode);
++	rcu_read_lock();
++	inode = d_inode_rcu(dentry);
++	task = pid_task(proc_pid(inode), PIDTYPE_PID);
+ 
+ 	if (task) {
+ 		pid_update_inode(task, inode);
+-		put_task_struct(task);
+-		return 1;
++		rv = 1;
+ 	}
+-	return 0;
++	rcu_read_unlock();
++	return rv;
+ }
+ 
+ static inline bool proc_inode_is_dead(struct inode *inode)
