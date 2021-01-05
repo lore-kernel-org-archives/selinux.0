@@ -2,101 +2,218 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28845C433DB
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 16:02:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE40CC433E0
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 16:08:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D402E22C9D
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 16:02:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C3A822CF8
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 16:08:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725817AbhAEQB5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 11:01:57 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:52756 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725792AbhAEQB4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 11:01:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609862430;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=w6jE4UUJBjyJ60aw3QE12PMwNPh9iX2AVphGgNAwpTU=;
-        b=PpkdTpGGZKiEjyLRxb9jy+dGSntjhaM7w4DyLDS9RvlXmXWYL/VWQTKIxWW60GN3ivOclj
-        yeo/HmF94x5z3E0ciUM5+H33HPwyhSGYkySKOEYV7uGMKYaM1PjPOCUeeHmxzi7kvWHJgE
-        3hXErhNJ7981+ZjDzKOGIrz3cHc6nlc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-540-MOePE6uQPQ-W5-bV1HvZng-1; Tue, 05 Jan 2021 11:00:28 -0500
-X-MC-Unique: MOePE6uQPQ-W5-bV1HvZng-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2B481C7408
-        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 16:00:27 +0000 (UTC)
-Received: from thinkpad-work.redhat.com (unknown [10.40.192.235])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9B1BC71C91
-        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 16:00:26 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] python/semanage: empty stdout before exiting on BrokenPipeError
-Date:   Tue,  5 Jan 2021 17:00:21 +0100
-Message-Id: <20210105160021.160108-1-vmojzis@redhat.com>
+        id S1727966AbhAEQIb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 11:08:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43816 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727036AbhAEQIb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 11:08:31 -0500
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1F2C061574
+        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 08:07:50 -0800 (PST)
+Received: by mail-ot1-x336.google.com with SMTP id n42so88242ota.12
+        for <selinux@vger.kernel.org>; Tue, 05 Jan 2021 08:07:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=OnUVG11dbwEimhRbVRhLxsOl55J9wikg2r8z0YYjwpk=;
+        b=fxwor4CR5/62VCRo3ZewqXSPyvbCU5LY6Mq0fsNWO3dVtqQD2veSgb15WsILPIJYK0
+         i9hZRUlrtSvQ7HXW6NsoLiRbaFowf2aXbgOFoEsXoK9hl4zBqRlJWI0PXXaJlBNhZUgR
+         thioo4X53d1PrssAXfmalc1eOz7sgJ9wLF3Y/0yKkLdgQGadXVIbljUhofhWaHbmkhh1
+         xMFYPDgnEHGdCsGJR+9dah/TvPR3Gn0fCiX4qmZ+i68pY9RW7vfZ2JMk0i39erAVkD5r
+         aXaGJzi6iPTrq8r5LVUSYWcRlMFhlaQdS0Be9xdRvEgvLoKiUIqTvO+urOQtK+Mm+P7z
+         Gtcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OnUVG11dbwEimhRbVRhLxsOl55J9wikg2r8z0YYjwpk=;
+        b=sBWg7SB0JNUz6i4GcHfSr3ufNLId7JQz+9llpd2Zg+RgKyrlRi04JVL3fyvUDjT75u
+         hnTRSQZSLNtyvVGmqYCMOHh54DOEZTXwXayu1YoeOsM6szjBB47TOSbv9HgkZ95Vyfc0
+         0zsjtGQF3Zem1z4xjhwi4z2ZCBB/pduh4DlUQgF9PAhSFiGkPBmE9sft5UDTtZq7OjUd
+         9ifJ542Mq9MvpsH/vT6qH+ouddnqWl5JHvw+eC4pa+LR6p4QLSnzYkSO81Tqx8mAlQXN
+         2x3F5OQ0X65d6Mbls6CQBVxFioHPLYHslfjrYebgdmpyIML4kS7oZ3cOzjWXbjxJ1n/E
+         hl4A==
+X-Gm-Message-State: AOAM5329bASTdz8iHoqxrwG5fEen/9OxpqwGDNbrRnW4lwz5fnakWFjF
+        CuQ8nC7aJPzL/BslLSJUQAbVRiZse0JKrsV8KE4=
+X-Google-Smtp-Source: ABdhPJwR23AceSZ+Nf4WxRmy3eaVMZzFTv6e2hGQaKYKujvV+s0Rm5LV5G7A/I/EaZJImBAOvCu3RzSsN6ZNVgwWAW4=
+X-Received: by 2002:a9d:27a7:: with SMTP id c36mr61631otb.59.1609862870024;
+ Tue, 05 Jan 2021 08:07:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20201230100746.2549568-1-nicolas.iooss@m4x.org>
+ <20201230100746.2549568-3-nicolas.iooss@m4x.org> <CAP+JOzRqWHUkVfDsY+yijBEvhMf=52HqYD6vQfNLDdcn3hw+_g@mail.gmail.com>
+In-Reply-To: <CAP+JOzRqWHUkVfDsY+yijBEvhMf=52HqYD6vQfNLDdcn3hw+_g@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 5 Jan 2021 11:07:39 -0500
+Message-ID: <CAP+JOzRGj637eQLmUBG54J91qqe3yh2BEowmF8AfRwpfvSpgEw@mail.gmail.com>
+Subject: Re: [PATCH 3/6] libsepol/cil: constify some strings
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Empty stdout buffer before exiting when BrokenPipeError is
-encountered. Otherwise python will flush the bufer during exit, which
-may trigger the exception again.
-https://docs.python.org/3/library/signal.html#note-on-sigpipe
+Applied.
 
-Fixes:
-   #semanage fcontext -l | egrep -q -e '^/home'
-   BrokenPipeError: [Errno 32] Broken pipe
-   Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='UTF-8'>
-   BrokenPipeError: [Errno 32] Broken pipe
+Thanks,
+Jim
 
-Note that the error above only appears occasionally (usually only the
-first line is printed).
-
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/semanage/semanage | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index b2fabea6..ce15983b 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -27,6 +27,7 @@ import traceback
- import argparse
- import seobject
- import sys
-+import os
- PROGNAME = "policycoreutils"
- try:
-     import gettext
-@@ -945,6 +946,13 @@ def do_parser():
-         args = commandParser.parse_args(make_args(sys.argv))
-         args.func(args)
-         sys.exit(0)
-+    except BrokenPipeError as e:
-+        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
-+        # Python flushes standard streams on exit; redirect remaining output
-+        # to devnull to avoid another BrokenPipeError at shutdown
-+        devnull = os.open(os.devnull, os.O_WRONLY)
-+        os.dup2(devnull, sys.stdout.fileno())
-+        sys.exit(1)
-     except IOError as e:
-         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
-         sys.exit(1)
--- 
-2.29.2
-
+On Mon, Jan 4, 2021 at 11:33 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Wed, Dec 30, 2020 at 5:09 AM Nicolas Iooss <nicolas.iooss@m4x.org> wro=
+te:
+> >
+> > Function cil_add_file() copies its input into a newly-allocated buffer,
+> > and does not modify "name". State these properties in the types of
+> > parameters by adding "const" qualifiers.
+> >
+> > This enables using LibFuzzer directly on cil_add_file(), without a
+> > warning about discarding "const" qualifier:
+> >
+> >     fuzz-secilc.c: In function =E2=80=98LLVMFuzzerTestOneInput=E2=80=99=
+:
+> >     fuzz-secilc.c:57:31: warning: passing argument 3 of =E2=80=98cil_ad=
+d_file=E2=80=99
+> >     discards =E2=80=98const=E2=80=99 qualifier from pointer target type
+> >     [-Wdiscarded-qualifiers]
+> >        57 |  if (cil_add_file(db, "fuzz", data, size) !=3D SEPOL_OK)
+> >           |                               ^~~~
+> >     In file included from fuzz-secilc.c:26:
+> >     /usr/include/sepol/cil/cil.h:45:57: note: expected =E2=80=98char *=
+=E2=80=99 but
+> >     argument is of type =E2=80=98const uint8_t *=E2=80=99 {aka =E2=80=
+=98const unsigned char *=E2=80=99}
+> >        45 | extern int cil_add_file(cil_db_t *db, char *name, char *dat=
+a, size_t size);
+> >           |                                                   ~~~~~~^~~=
+~
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
+> > ---
+> >  libsepol/cil/include/cil/cil.h | 4 ++--
+> >  libsepol/cil/src/cil.c         | 2 +-
+> >  libsepol/cil/src/cil_log.c     | 6 +++---
+> >  libsepol/cil/src/cil_parser.c  | 2 +-
+> >  libsepol/cil/src/cil_parser.h  | 2 +-
+> >  5 files changed, 8 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/=
+cil.h
+> > index f8cfc3be5015..e6f4503eb33a 100644
+> > --- a/libsepol/cil/include/cil/cil.h
+> > +++ b/libsepol/cil/include/cil/cil.h
+> > @@ -42,7 +42,7 @@ typedef struct cil_db cil_db_t;
+> >  extern void cil_db_init(cil_db_t **db);
+> >  extern void cil_db_destroy(cil_db_t **db);
+> >
+> > -extern int cil_add_file(cil_db_t *db, char *name, char *data, size_t s=
+ize);
+> > +extern int cil_add_file(cil_db_t *db, const char *name, const char *da=
+ta, size_t size);
+> >
+> >  extern int cil_compile(cil_db_t *db);
+> >  extern int cil_build_policydb(cil_db_t *db, sepol_policydb_t **sepol_d=
+b);
+> > @@ -67,7 +67,7 @@ enum cil_log_level {
+> >         CIL_INFO
+> >  };
+> >  extern void cil_set_log_level(enum cil_log_level lvl);
+> > -extern void cil_set_log_handler(void (*handler)(int lvl, char *msg));
+> > +extern void cil_set_log_handler(void (*handler)(int lvl, const char *m=
+sg));
+> >
+> >  #ifdef __GNUC__
+> >  __attribute__ ((format(printf, 2, 3)))
+> > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> > index bb7f06d5c4b3..99c8e288912c 100644
+> > --- a/libsepol/cil/src/cil.c
+> > +++ b/libsepol/cil/src/cil.c
+> > @@ -500,7 +500,7 @@ void cil_root_destroy(struct cil_root *root)
+> >         free(root);
+> >  }
+> >
+> > -int cil_add_file(cil_db_t *db, char *name, char *data, size_t size)
+> > +int cil_add_file(cil_db_t *db, const char *name, const char *data, siz=
+e_t size)
+> >  {
+> >         char *buffer =3D NULL;
+> >         int rc;
+> > diff --git a/libsepol/cil/src/cil_log.c b/libsepol/cil/src/cil_log.c
+> > index b222b155120a..a8e4d2e94a78 100644
+> > --- a/libsepol/cil/src/cil_log.c
+> > +++ b/libsepol/cil/src/cil_log.c
+> > @@ -37,14 +37,14 @@
+> >
+> >  static enum cil_log_level cil_log_level =3D CIL_ERR;
+> >
+> > -void cil_default_log_handler(__attribute__((unused)) int lvl, char *ms=
+g)
+> > +void cil_default_log_handler(__attribute__((unused)) int lvl, const ch=
+ar *msg)
+> >  {
+> >         fprintf(stderr, "%s", msg);
+> >  }
+> >
+> > -void (*cil_log_handler)(int lvl, char *msg) =3D &cil_default_log_handl=
+er;
+> > +void (*cil_log_handler)(int lvl, const char *msg) =3D &cil_default_log=
+_handler;
+> >
+> > -void cil_set_log_handler(void (*handler)(int lvl, char *msg))
+> > +void cil_set_log_handler(void (*handler)(int lvl, const char *msg))
+> >  {
+> >         cil_log_handler =3D handler;
+> >  }
+> > diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parse=
+r.c
+> > index a8af1dce2c4b..b62043b95806 100644
+> > --- a/libsepol/cil/src/cil_parser.c
+> > +++ b/libsepol/cil/src/cil_parser.c
+> > @@ -196,7 +196,7 @@ static void add_cil_path(struct cil_tree_node **cur=
+rent, char *path)
+> >         insert_node(node, *current);
+> >  }
+> >
+> > -int cil_parser(char *_path, char *buffer, uint32_t size, struct cil_tr=
+ee **parse_tree)
+> > +int cil_parser(const char *_path, char *buffer, uint32_t size, struct =
+cil_tree **parse_tree)
+> >  {
+> >
+> >         int paren_count =3D 0;
+> > diff --git a/libsepol/cil/src/cil_parser.h b/libsepol/cil/src/cil_parse=
+r.h
+> > index 02ecb784e95c..1cec63944fdf 100644
+> > --- a/libsepol/cil/src/cil_parser.h
+> > +++ b/libsepol/cil/src/cil_parser.h
+> > @@ -32,6 +32,6 @@
+> >
+> >  #include "cil_tree.h"
+> >
+> > -int cil_parser(char *path, char *buffer, uint32_t size, struct cil_tre=
+e **parse_tree);
+> > +int cil_parser(const char *path, char *buffer, uint32_t size, struct c=
+il_tree **parse_tree);
+> >
+> >  #endif /* CIL_PARSER_H_ */
+> > --
+> > 2.29.2
+> >
