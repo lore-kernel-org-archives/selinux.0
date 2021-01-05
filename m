@@ -2,88 +2,96 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77EF6C433DB
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 06:01:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE795C433DB
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 10:42:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 299A0229C5
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 06:01:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D8E222515
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 10:42:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726212AbhAEGAn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 01:00:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725919AbhAEGAn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 01:00:43 -0500
-Received: from ZenIV.linux.org.uk (zeniv.linux.org.uk [IPv6:2002:c35c:fd02::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17B0C061793;
-        Mon,  4 Jan 2021 22:00:02 -0800 (PST)
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kwfNY-006yqt-0a; Tue, 05 Jan 2021 05:59:36 +0000
-Date:   Tue, 5 Jan 2021 05:59:35 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
-Message-ID: <20210105055935.GT3579531@ZenIV.linux.org.uk>
-References: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
+        id S1728445AbhAEKmJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 05:42:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21641 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728006AbhAEKmI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 05:42:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1609843242;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type;
+        bh=ro2MPIGkKUMRorivTO3ECRjQ5933i9nVdCBgsrV9pOY=;
+        b=UiDWZtLdWFY1NDzT95gXl62b6nk3YP1Xp8eRfCzVgBj26srek2Ma8q0ayvA91ipuBNY5QX
+        YtQpQ8dBnInHZfrtIdGicClXca8PiiiHKZNbRKy9HWDX/ZgkFdMWumFGpZ9cb5kH47EBqF
+        KQsBQsjBBWB1KTHH0ADbU9KX80/A1Y4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-584-sYkbIQxqPiqem9njMbkIMw-1; Tue, 05 Jan 2021 05:40:39 -0500
+X-MC-Unique: sYkbIQxqPiqem9njMbkIMw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1859107ACE3
+        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 10:40:38 +0000 (UTC)
+Received: from localhost (unknown [10.36.110.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3755B5D9C6
+        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 10:40:38 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: Intent to release 3.2-rc1
+Date:   Tue, 05 Jan 2021 11:40:37 +0100
+Message-ID: <87ft3fhdju.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 04, 2021 at 03:21:22PM -0800, Stephen Brennan wrote:
-> The pid_revalidate() function drops from RCU into REF lookup mode. When
-> many threads are resolving paths within /proc in parallel, this can
-> result in heavy spinlock contention on d_lockref as each thread tries to
-> grab a reference to the /proc dentry (and drop it shortly thereafter).
-> 
-> Investigation indicates that it is not necessary to drop RCU in
-> pid_revalidate(), as no RCU data is modified and the function never
-> sleeps. So, remove the LOOKUP_RCU check.
+Hello,
 
-Umm...  I'm rather worried about the side effect you are removing here -
-you are suddenly exposing a bunch of methods in there to RCU mode.
-E.g. is proc_pid_permission() safe with MAY_NOT_BLOCK in the mask?
-generic_permission() call in there is fine, but has_pid_permission()
-doesn't even see the mask.  Is that thing safe in RCU mode?  AFAICS,
-this
-static int selinux_ptrace_access_check(struct task_struct *child,
-                                     unsigned int mode)
-{
-        u32 sid = current_sid();
-        u32 csid = task_sid(child);
+It's more than half a year since 3.1-rc1 and more than a year since
+3.0-rc1 so I'd like to start with 3.2 release process. If there's no
+objection  and no unexpected issues I'd announce 3.2-rc1 release on the
+next Wednesday, January 13.
 
-        if (mode & PTRACE_MODE_READ)
-                return avc_has_perm(&selinux_state,
-                                    sid, csid, SECCLASS_FILE, FILE__READ, NULL);
+According to patchwork there are several patches not accepted:
 
-        return avc_has_perm(&selinux_state,
-                            sid, csid, SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
-}
-is reachable and IIRC avc_has_perm() should *NOT* be called in RCU mode.
-If nothing else, audit handling needs care...
+https://patchwork.kernel.org/patch/11436955/ New [RFC] libsepol,secilc,policycoreutils: add unprivileged sandboxing capability
 
-And LSM-related stuff is only a part of possible issues here.  It does need
-a careful code audit - you are taking a bunch of methods into the conditions
-they'd never been tested in.  ->permission(), ->get_link(), ->d_revalidate(),
-->d_hash() and ->d_compare() instances for objects that subtree.  The last
-two are not there in case of anything in /proc/<pid>, but the first 3 very
-much are.
+without any reaction for a long time
+
+
+https://patchwork.kernel.org/patch/11668455/ New selinux: make use of variables when defining libdir and includedir
+
+Nicolas raised some concerns and asked for a reproducer, without any
+other response.
+
+
+https://patchwork.kernel.org/patch/11993081/ New [1/6] libsepol: do not decode out-of-bound rolebounds
+https://patchwork.kernel.org/patch/11993085/ New [2/6] libsepol: ensure that hashtab_search is not called with a NULL key
+
+I read it as there are some changes requested and therefore need to be updated.
+
+
+https://patchwork.kernel.org/patch/11993087/ New [3/6] libsepol/cil: constify some strings
+https://patchwork.kernel.org/patch/11993089/ New [4/6] libsepol/cil: fix NULL pointer dereference when parsing an improper integer
+https://patchwork.kernel.org/patch/11993083/ New [5/6] libsepol/cil: fix out-of-bound read in cil_print_recursive_blockinherit
+https://patchwork.kernel.org/patch/11993091/ New [6/6] libsepol/cil: destroy perm_datums when __cil_resolve_perms fails
+
+Ack-ed, probably could be merged.
+
+
+https://patchwork.kernel.org/patch/11940309
+https://github.com/SELinuxProject/selinux/pull/273
+
+The patch on the mailing list is not up to date with the PR and needs to
+be resent.
+
+
+Petr
+
+
