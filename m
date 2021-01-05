@@ -2,96 +2,145 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE795C433DB
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 10:42:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1555C433DB
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 12:52:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D8E222515
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 10:42:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1B2822AAA
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 12:52:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728445AbhAEKmJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 05:42:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21641 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728006AbhAEKmI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 05:42:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609843242;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=ro2MPIGkKUMRorivTO3ECRjQ5933i9nVdCBgsrV9pOY=;
-        b=UiDWZtLdWFY1NDzT95gXl62b6nk3YP1Xp8eRfCzVgBj26srek2Ma8q0ayvA91ipuBNY5QX
-        YtQpQ8dBnInHZfrtIdGicClXca8PiiiHKZNbRKy9HWDX/ZgkFdMWumFGpZ9cb5kH47EBqF
-        KQsBQsjBBWB1KTHH0ADbU9KX80/A1Y4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-584-sYkbIQxqPiqem9njMbkIMw-1; Tue, 05 Jan 2021 05:40:39 -0500
-X-MC-Unique: sYkbIQxqPiqem9njMbkIMw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1859107ACE3
-        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 10:40:38 +0000 (UTC)
-Received: from localhost (unknown [10.36.110.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3755B5D9C6
-        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 10:40:38 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: Intent to release 3.2-rc1
-Date:   Tue, 05 Jan 2021 11:40:37 +0100
-Message-ID: <87ft3fhdju.fsf@redhat.com>
+        id S1729070AbhAEMwX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 07:52:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728006AbhAEMwW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 07:52:22 -0500
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E9C4C061574
+        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 04:51:42 -0800 (PST)
+Received: by mail-il1-x129.google.com with SMTP id q5so28453081ilc.10
+        for <selinux@vger.kernel.org>; Tue, 05 Jan 2021 04:51:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9a9VHKjegEEg2LIE5cZ0eHpUSra06BEQwhF9s2Oqbwc=;
+        b=GlqyVy8Hrd8GHxPdc6K0N+hplqOyNdL2a2bj0t6QlaBYdqx5cyekqzy3QGKXlE0Mj3
+         4ujHOIkhH4ivBOOCuDXL/8ZKMUq4SAQRLMHubRCt4NRo8zyGkMI3qImUDIvQ8t5cwqUE
+         wy8rr1HSe6C3l8bI8YqloWsOdeaRzEinFYikNzQmGphu6Zr3WVGdtjZeGp5L2xZ7x7Ol
+         RrsplaH72kPVTaFCSerzN4/lePhnEdtmsdAUaMKhtbRq+3mqdnG8XrwPkIuDncGNWXPj
+         p3BC6FeB8unRcwTnYVVI+UfxyISrqfWWfPUDgHJ6R6goEduT3pziU4rOx1SC7QT5IpO3
+         VQTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9a9VHKjegEEg2LIE5cZ0eHpUSra06BEQwhF9s2Oqbwc=;
+        b=AcyhK1XojpE7rneUKVRyPuxMvNruCqzQU0hrx7vVugohy+bbEUOfPUsGrjxfzYLpH4
+         N9VTMkZf7QYwY7+BauG7AuOjJ0YifDujG25tRj5Ser033k3ouzSyJ3hsuB5BPrUAHEsU
+         10N9iP1j0AkvnQP8pEmYZIurdCdwUd8AG9sxrAcOyW6B7ThF1ze1IPgqDi0Y/gRuqb9F
+         PEN+4JdA6rhkk14DObRPj+HxZRMizQqmZP/BdyuPOm/yUkT2JTFQHvZ5JYK6W5ahBDBI
+         QmuLQ0T+1C4Bthh87SfIoC7HCd5rsOsFq0DB2ibJ7z+y+5qYXlWyH+JMqk2A4SUnQY1T
+         q/4Q==
+X-Gm-Message-State: AOAM5309wFFFrppXxSnn3NERGFH1+Ej6sqoesv5zMx2tGgg1BWUOVV4s
+        L2HEb+Xg5jCg9sbjWXuKxwJyh3TaDTzSa8Vhr3w=
+X-Google-Smtp-Source: ABdhPJyWqOYTRU4eMCjn6hff+Cwz30psooTb66fbmGj7gancvemBMtqpKYyMAkFxwbWRfedzi7+Bd0HLj1KvoFSFOvk=
+X-Received: by 2002:a05:6e02:8d:: with SMTP id l13mr74958540ilm.163.1609851101465;
+ Tue, 05 Jan 2021 04:51:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <20201230100746.2549568-1-nicolas.iooss@m4x.org>
+ <20201230100746.2549568-4-nicolas.iooss@m4x.org> <CAP+JOzROWvSkvB8rYEJmJv9VGrrFkWUM7=T96hGbuBwhRNq2OA@mail.gmail.com>
+In-Reply-To: <CAP+JOzROWvSkvB8rYEJmJv9VGrrFkWUM7=T96hGbuBwhRNq2OA@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Tue, 5 Jan 2021 06:51:30 -0600
+Message-ID: <CAFftDdoUF1fbGDBt2891dT8Jwv0txw_TigF7jdvqkmMJ2q9Z9A@mail.gmail.com>
+Subject: Re: [PATCH 4/6] libsepol/cil: fix NULL pointer dereference when
+ parsing an improper integer
+To:     James Carter <jwcart2@gmail.com>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+On Mon, Jan 4, 2021 at 11:03 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Wed, Dec 30, 2020 at 5:09 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > OSS-Fuzz found a NULL pointer dereference when the CIL compiler tries to
+> > compile a policy with an invalid integer:
+> >
+> >     $ echo '(ioportcon(2())n)' > tmp.cil
+> >     $ secilc tmp.cil
+> >     Segmentation fault (core dumped)
+> >
+> > This is because strtol() is called with a NULL pointer, in
+> > cil_fill_integer().
+> >
+> > Fix this by checking that int_node->data is not NULL. While at it, use
+> > strtoul() instead of strtol() to parse an unsigned integer.
+> >
+> > Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28456
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
+> > ---
+> >  libsepol/cil/src/cil_build_ast.c | 10 +++++-----
+> >  1 file changed, 5 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> > index 67801def0dc0..0c9015cef578 100644
+> > --- a/libsepol/cil/src/cil_build_ast.c
+> > +++ b/libsepol/cil/src/cil_build_ast.c
+> > @@ -5566,15 +5566,15 @@ int cil_fill_integer(struct cil_tree_node *int_node, uint32_t *integer, int base
+> >  {
+> >         int rc = SEPOL_ERR;
+> >         char *endptr = NULL;
+> > -       int val;
+> > +       unsigned long val;
+> >
+> > -       if (int_node == NULL || integer == NULL) {
+> > +       if (int_node == NULL || int_node->data == NULL || integer == NULL) {
+> >                 goto exit;
+> >         }
+> >
+> >         errno = 0;
+> > -       val = strtol(int_node->data, &endptr, base);
+> > -       if (errno != 0 || endptr == int_node->data || *endptr != '\0') {
+> > +       val = strtoul(int_node->data, &endptr, base);
+> > +       if (errno != 0 || endptr == int_node->data || *endptr != '\0' || val > UINT32_MAX) {
+> >                 rc = SEPOL_ERR;
+> >                 goto exit;
+> >         }
+> > @@ -5594,7 +5594,7 @@ int cil_fill_integer64(struct cil_tree_node *int_node, uint64_t *integer, int ba
+> >         char *endptr = NULL;
+> >         uint64_t val;
+> >
+> > -       if (int_node == NULL || integer == NULL) {
+> > +       if (int_node == NULL || int_node->data == NULL || integer == NULL) {
+> >                 goto exit;
+> >         }
+> >
+> > --
+> > 2.29.2
+> >
 
-It's more than half a year since 3.1-rc1 and more than a year since
-3.0-rc1 so I'd like to start with 3.2 release process. If there's no
-objection  and no unexpected issues I'd announce 3.2-rc1 release on the
-next Wednesday, January 13.
+It turns out when GCC fixes a bug with -Wtype-limits, this will cause
+a regression. The current top-level Makefile includes
+exporting CFLAGS -Wextra which will enable this warning. I find it
+surprising this has been a known gcc issue for some time
+and that clang has the same bug.
 
-According to patchwork there are several patches not accepted:
+See:
+  - https://gcc.gnu.org/pipermail/gcc-help/2021-January/139755.html
 
-https://patchwork.kernel.org/patch/11436955/ New [RFC] libsepol,secilc,policycoreutils: add unprivileged sandboxing capability
+I would fix it now.
 
-without any reaction for a long time
-
-
-https://patchwork.kernel.org/patch/11668455/ New selinux: make use of variables when defining libdir and includedir
-
-Nicolas raised some concerns and asked for a reproducer, without any
-other response.
-
-
-https://patchwork.kernel.org/patch/11993081/ New [1/6] libsepol: do not decode out-of-bound rolebounds
-https://patchwork.kernel.org/patch/11993085/ New [2/6] libsepol: ensure that hashtab_search is not called with a NULL key
-
-I read it as there are some changes requested and therefore need to be updated.
-
-
-https://patchwork.kernel.org/patch/11993087/ New [3/6] libsepol/cil: constify some strings
-https://patchwork.kernel.org/patch/11993089/ New [4/6] libsepol/cil: fix NULL pointer dereference when parsing an improper integer
-https://patchwork.kernel.org/patch/11993083/ New [5/6] libsepol/cil: fix out-of-bound read in cil_print_recursive_blockinherit
-https://patchwork.kernel.org/patch/11993091/ New [6/6] libsepol/cil: destroy perm_datums when __cil_resolve_perms fails
-
-Ack-ed, probably could be merged.
-
-
-https://patchwork.kernel.org/patch/11940309
-https://github.com/SELinuxProject/selinux/pull/273
-
-The patch on the mailing list is not up to date with the PR and needs to
-be resent.
-
-
-Petr
-
-
+Bill
