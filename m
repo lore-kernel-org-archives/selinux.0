@@ -2,122 +2,238 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-25.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA6BFC433E9
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 20:01:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E65E2C433E9
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 20:02:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B363D22D6F
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 20:01:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B78C922D5A
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 20:02:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731069AbhAEUAr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 15:00:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52568 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728383AbhAEUAq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 15:00:46 -0500
-Received: from ZenIV.linux.org.uk (zeniv.linux.org.uk [IPv6:2002:c35c:fd02::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77422C061574;
-        Tue,  5 Jan 2021 12:00:06 -0800 (PST)
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kwsUT-0079eH-KD; Tue, 05 Jan 2021 19:59:37 +0000
-Date:   Tue, 5 Jan 2021 19:59:37 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>,
-        Stephen Brennan <stephen.s.brennan@oracle.com>
-Subject: Re: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
-Message-ID: <20210105195937.GX3579531@ZenIV.linux.org.uk>
-References: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
- <20210105055935.GT3579531@ZenIV.linux.org.uk>
- <20210105165005.GV3579531@ZenIV.linux.org.uk>
+        id S1729210AbhAEUCY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 15:02:24 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:42512 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726133AbhAEUCY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 15:02:24 -0500
+Received: from [192.168.86.31] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 9F2CD20B7192;
+        Tue,  5 Jan 2021 12:01:41 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9F2CD20B7192
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1609876902;
+        bh=LuRYEduYvChRlbzYC2/Eci+VKHXFbnYPuBfxG634eaQ=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=TwYWhJvlcWoHRYd9W5LEwt3SQudk1NOJKu3h3jzY4vxnGtFA3U5SwOKklcDLLfL6Z
+         wE/D5gnAyWnmFrSKBDPHWHmYzxAmhFp7OWsuDOyW0Ebj6zxRnaF3QwUgVouwISIHnU
+         1gMzF07z/r449EeB/l2yooL63ZybLGL9t9v/hLLY=
+Subject: Re: [PATCH v9 3/8] IMA: define a hook to measure kernel integrity
+ critical data
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20201212180251.9943-1-tusharsu@linux.microsoft.com>
+ <20201212180251.9943-4-tusharsu@linux.microsoft.com>
+ <5ae72a76664ce7011d3041689efbfe1a2c67d44f.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <9afab02b-4b02-485d-cca2-bdf8b1cf87e7@linux.microsoft.com>
+Date:   Tue, 5 Jan 2021 12:01:40 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210105165005.GV3579531@ZenIV.linux.org.uk>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <5ae72a76664ce7011d3041689efbfe1a2c67d44f.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 05, 2021 at 04:50:05PM +0000, Al Viro wrote:
 
-> LSM_AUDIT_DATA_DENTRY is easy to handle - wrap
->                 audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
-> into grabbing/dropping a->u.dentry->d_lock and we are done.
 
-Incidentally, LSM_AUDIT_DATA_DENTRY in mainline is *not* safe wrt
-rename() - for long-named dentries it is possible to get preempted
-in the middle of
-                audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
-and have the bugger renamed, with old name ending up freed.  The
-same goes for LSM_AUDIT_DATA_INODE...
+On 2020-12-24 5:04 a.m., Mimi Zohar wrote:
+> On Sat, 2020-12-12 at 10:02 -0800, Tushar Sugandhi wrote:
+>> IMA provides capabilities to measure file data, and in-memory buffer
+> 
+> No need for the comma here.
+> 
+> Up to this patch set, all the patches refer to "buffer data", not "in-
+> memory buffer data".  This patch introduces the concept of measuring
+> "in-memory buffer data".   Please remove "in-memory" above.
+> 
+Will update the description accordingly.
+>> data. However, various data structures, policies, and states
+> 
+> Here and everywhere else, there are two blanks after a period.
+> 
+I checked this patch file in multiple text editors, but couldn’t find
+any instance of period followed by two spaces. I will double check again 
+all the patches for multiple spaces, and remove them if any.
 
-Folks, ->d_name.name is not automatically stable and the memory it
-points to is not always guaranteed to last as long as dentry itself does.
-In something like ->rename(), ->mkdir(), etc. - sure, we have the parent
-->i_rwsem held exclusive and nothing's going to rename dentry under us.
-But there's a reason why e.g. d_path() has to be careful.  And there
-are selinux and smack hooks using LSM_AUDIT_DATA_DENTRY in locking
-environment that does not exclude renames.
+>> stored in kernel memory also impact the integrity of the system.
+>> Several kernel subsystems contain such integrity critical data. These
+>> kernel subsystems help protect the integrity of a device. Currently,
+> 
+> ^integrity of the system.
+> 
+Will do.
+>> IMA does not provide a generic function for kernel subsystems to measure
+>> their integrity critical data.
+> 
+> The emphasis should not be on "kernel subsystems".  Simplify to "for
+> measuring kernel integrity critical data".
+> 
+Will do.
+>>   
+>> Define a new IMA hook - ima_measure_critical_data to measure kernel
+>> integrity critical data.
+> 
+> Either "ima_measure_critical_data" is between hyphens or without any
+> hyphens.  If not hyphenated, then you could say "named
+> ima_measure_critical_data", but "named" isn't necessary.  Or reverse "a
+> new IMA hook" and "ima_measure_critical_data", adding comma's like:
+> Define ima_measure_critical_data, a new IMA hook, to ...
+> 
+> Any of the above options work, just not a single hyphen.
+> 
+Thanks for the suggestion.
+I will use “Define ima_measure_critical_data, a new IMA hook, to ...”
 
-AFAICS, that race goes back to 2004: 605303cc340d ("[PATCH] selinux: Add dname
-to audit output when a path cannot be generated.") in historical tree is where
-its first ancestor appears...
+>>
+>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+>> Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+>> ---
+> 
+> <snip>
+> 
+>> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+>> index 0f8409d77602..dff4bce4fb09 100644
+>> --- a/security/integrity/ima/ima_main.c
+>> +++ b/security/integrity/ima/ima_main.c
+>> @@ -922,6 +922,40 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+>>   	fdput(f);
+>>   }
+>>   
+>> +/**
+>> + * ima_measure_critical_data - measure kernel integrity critical data
+>> + * @event_name: event name to be used for the buffer entry
+> 
+> Why future tense?   
+I simply used the description from p_b_m()
+* @eventname: event name to be used for the buffer entry.
 
-The minimal fix is to grab ->d_lock around these audit_log_untrustedstring()
-calls, and IMO that's -stable fodder.  It is a slow path (we are spewing an
-audit record, not to mention anything else), so I don't believe it's worth
-trying to do anything fancier than that.
+By "buffer entry" do you mean a record in the IMA
+> measurement list?
+> 
+Yes, a record in the IMA measurement list.
+Will remove the future tense and reword it to something like:
 
-How about the following?  If nobody objects, I'll drop it into #fixes and
-send a pull request in a few days...
+  * @event_name: event name for the buffer measurement entry
+-or-
+  * @event_name: event name for the record in the IMA measurement list
 
-dump_common_audit_data(): fix racy accesses to ->d_name
-    
-We are not guaranteed the locking environment that would prevent
-dentry getting renamed right under us.  And it's possible for
-old long name to be freed after rename, leading to UAF here.
+>> + * @buf: pointer to buffer containing data to measure
+> 
+> ^pointer to buffer data
+> 
+will do.
+>> + * @buf_len: length of buffer(in bytes)
+> 
+> ^length of buffer data (in bytes)
+> 
+will do.
+>> + * @measure_buf_hash: measure buffer hash
+> 
+> As requested in 2/8, please abbreviate the boolean name to "hash".
+> Refer to section "4) Naming" in Documentation/process/coding-style.rst
+> for variable naming conventions.
+> 
+> ^@hash: measure buffer data hash
+> 
+Sounds good. Will do.
+>> + *
+>> + * Measure the kernel subsystem data, critical to the integrity of the kernel,
+>> + * into the IMA log and extend the @pcr.
+>> + *
+>> + * Use @event_name to describe the state/buffer data change.
+>> + * Examples of critical data (@buf) could be various data structures,
+>> + * policies, and states stored in kernel memory that can impact the integrity
+>> + * of the system.
+>> + *
+>> + * If @measure_buf_hash is set to true - measure hash of the buffer data,
+>> + * else measure the buffer data itself.
+>> + * @measure_buf_hash can be used to save space, if the data being measured
+>> + * is too large.
+>> + *
+>> + * The data (@buf) can only be measured, not appraised.
+> 
+> The "/**" is the start of kernel-doc.  Have you seen anywhere else in
+My impression was the hooks in ima_main.c e.g. ima_file_free()
+ima_file_mmap() required the double-asterisk ("/**"), and internal
+functions like ima_rdwr_violation_check() require a single-asterisk
+("/*")
 
-Cc: stable@kernel.org # v2.6.2+
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
-diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-index 7d8026f3f377..a0cd28cd31a8 100644
---- a/security/lsm_audit.c
-+++ b/security/lsm_audit.c
-@@ -275,7 +275,9 @@ static void dump_common_audit_data(struct audit_buffer *ab,
- 		struct inode *inode;
- 
- 		audit_log_format(ab, " name=");
-+		spin_lock(&a->u.dentry->d_lock);
- 		audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
-+		spin_unlock(&a->u.dentry->d_lock);
- 
- 		inode = d_backing_inode(a->u.dentry);
- 		if (inode) {
-@@ -293,8 +295,9 @@ static void dump_common_audit_data(struct audit_buffer *ab,
- 		dentry = d_find_alias(inode);
- 		if (dentry) {
- 			audit_log_format(ab, " name=");
--			audit_log_untrustedstring(ab,
--					 dentry->d_name.name);
-+			spin_lock(&dentry->d_lock);
-+			audit_log_untrustedstring(ab, dentry->d_name.name);
-+			spin_unlock(&dentry->d_lock);
- 			dput(dentry);
- 		}
- 		audit_log_format(ab, " dev=");
+kernel-doc.rst suggest the double-asterisk ("/**") for function comment
+as well.
+
+Function documentation
+----------------------
+
+The general format of a function and function-like macro kernel-doc 
+comment is::
+
+   /**
+    * function_name() - Brief description of function.
+
+Please let me know if you still want me to remove the double-asterisk
+("/**") here.
+
+> the kernel using the @<variable name> in the longer function
+> description?  Have you seen this style of longer   function
+> description?  Refer to Documentation/doc-guide/kernel-doc.rst and other
+> code for examples.
+> 
+Thanks. I will remove the prefix "@" from <variable name> in the longer 
+function description.
+
+>> + */
+>> +void ima_measure_critical_data(const char *event_name,
+>> +			       const void *buf, int buf_len,
+> 
+> As "buf_len" should always be >= 0, it should not be defined as a
+> signed variable.
+> 
+Good point. I will switch to either size_t or unsigned int.
+
+>> +			       bool measure_buf_hash)
+>> +{
+>> +	if (!event_name || !buf || !buf_len)
+>> +		return;
+>> +
+>> +	process_buffer_measurement(NULL, buf, buf_len, event_name,
+>> +				   CRITICAL_DATA, 0, NULL,
+>> +				   measure_buf_hash);
+> 
+> ^hash
+> 
+Will do.
+> thanks,
+> 
+> Mimi
+> 
+Thanks,
+Tushar
+>> +}
+>> +
+>>   static int __init init_ima(void)
+>>   {
+>>   	int error;
+> 
