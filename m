@@ -2,237 +2,88 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF90C433DB
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 05:26:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77EF6C433DB
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 06:01:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EEC95207B2
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 05:26:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 299A0229C5
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 06:01:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725864AbhAEFZm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 00:25:42 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:50810 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725298AbhAEFZm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 00:25:42 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 8F17520B7192;
-        Mon,  4 Jan 2021 21:24:59 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8F17520B7192
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1609824299;
-        bh=/q6XJShOYkigDSKg8XB5CBj9RGfQRpKmxcZ9rBIUH7U=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=VBO+KwJvOST+yWMes4tjC5pJe30NQqWvbDJShENyh/wX+K2BrtfXps4o5Ztr+SXAU
-         00k8Hshb0dl4LiPl1uQVQkM1dDU9ZB1Pu9EBpFRq0fRHQHtaxvK4vknhr7a7XGhyXn
-         fxz3Gcg8UuYSyntY58WpkU7SRgjFsVb6cDw9en6c=
-Subject: Re: [PATCH v9 8/8] selinux: include a consumer of the new IMA
- critical data hook
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        zohar@linux.ibm.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
-        sashal@kernel.org, James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        id S1726212AbhAEGAn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 01:00:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725919AbhAEGAn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 01:00:43 -0500
+Received: from ZenIV.linux.org.uk (zeniv.linux.org.uk [IPv6:2002:c35c:fd02::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17B0C061793;
+        Mon,  4 Jan 2021 22:00:02 -0800 (PST)
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kwfNY-006yqt-0a; Tue, 05 Jan 2021 05:59:36 +0000
+Date:   Tue, 5 Jan 2021 05:59:35 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Stephen Brennan <stephen.s.brennan@oracle.com>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
         linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20201212180251.9943-1-tusharsu@linux.microsoft.com>
- <20201212180251.9943-9-tusharsu@linux.microsoft.com>
- <CAHC9VhSao7DGtskbDMax8hN+PhQr8homFXUGjm+c7NtEUCtKhg@mail.gmail.com>
- <2dce2244-adbd-df2a-e890-271bbcc8f9f2@linux.microsoft.com>
- <CAHC9VhQ8H+UCnLTJ4Mb=GHCdExGvVEB_+nbK+-keMVie-tnbnQ@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <9d360a9e-5cf2-3d56-d510-8f3d9bd90bcf@linux.microsoft.com>
-Date:   Mon, 4 Jan 2021 21:24:58 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
+Message-ID: <20210105055935.GT3579531@ZenIV.linux.org.uk>
+References: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQ8H+UCnLTJ4Mb=GHCdExGvVEB_+nbK+-keMVie-tnbnQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/4/21 6:13 PM, Paul Moore wrote:
-> On Mon, Jan 4, 2021 at 6:30 PM Lakshmi Ramasubramanian
-> <nramas@linux.microsoft.com> wrote:
->> On 12/23/20 1:10 PM, Paul Moore wrote:
->> Hi Paul,
+On Mon, Jan 04, 2021 at 03:21:22PM -0800, Stephen Brennan wrote:
+> The pid_revalidate() function drops from RCU into REF lookup mode. When
+> many threads are resolving paths within /proc in parallel, this can
+> result in heavy spinlock contention on d_lockref as each thread tries to
+> grab a reference to the /proc dentry (and drop it shortly thereafter).
 > 
-> Hello.
-> 
->>>> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
->>>> new file mode 100644
->>>> index 000000000000..b7e24358e11d
->>>> --- /dev/null
->>>> +++ b/security/selinux/measure.c
->>>> @@ -0,0 +1,79 @@
->>>> +// SPDX-License-Identifier: GPL-2.0-or-later
->>>> +/*
->>>> + * Measure SELinux state using IMA subsystem.
->>>> + */
->>>> +#include <linux/vmalloc.h>
->>>> +#include <linux/ktime.h>
->>>> +#include <linux/ima.h>
->>>> +#include "security.h"
->>>> +
->>>> +/*
->>>> + * This function creates a unique name by appending the timestamp to
->>>> + * the given string. This string is passed as "event_name" to the IMA
->>>> + * hook to measure the given SELinux data.
->>>> + *
->>>> + * The data provided by SELinux to the IMA subsystem for measuring may have
->>>> + * already been measured (for instance the same state existed earlier).
->>>> + * But for SELinux the current data represents a state change and hence
->>>> + * needs to be measured again. To enable this, pass a unique "event_name"
->>>> + * to the IMA hook so that IMA subsystem will always measure the given data.
->>>> + *
->>>> + * For example,
->>>> + * At time T0 SELinux data to be measured is "foo". IMA measures it.
->>>> + * At time T1 the data is changed to "bar". IMA measures it.
->>>> + * At time T2 the data is changed to "foo" again. IMA will not measure it
->>>> + * (since it was already measured) unless the event_name, for instance,
->>>> + * is different in this call.
->>>> + */
->>>> +static char *selinux_event_name(const char *name_prefix)
->>>> +{
->>>> +       struct timespec64 cur_time;
->>>> +
->>>> +       ktime_get_real_ts64(&cur_time);
->>>> +       return kasprintf(GFP_KERNEL, "%s-%lld:%09ld", name_prefix,
->>>> +                        cur_time.tv_sec, cur_time.tv_nsec);
->>>> +}
->>>
->>> Why is this a separate function?  It's three lines long and only
->>> called from selinux_measure_state().  Do you ever see the SELinux/IMA
->>> code in this file expanding to the point where this function is nice
->>> from a reuse standpoint?
->>
->> Earlier I had two measurements - one for SELinux configuration/state and
->> another for SELinux policy. selinux_event_name() was used to generate
->> event name for each of them.
->>
->> In this patch set I have included only one measurement - for SELinux
->> policy. I plan to add "SELinux configuration/state" measurement in a
->> separate patch - I can reuse selinux_event_name() in that patch.
-> 
-> I'm curious about this second measurement.  My apologies if you posted
-> it previously, this patchset has gone through several iterations and
-> simply can't recall all the different versions without digging through
-> the list archives.
-> 
+> Investigation indicates that it is not necessary to drop RCU in
+> pid_revalidate(), as no RCU data is modified and the function never
+> sleeps. So, remove the LOOKUP_RCU check.
 
-The 2nd measurement is for SELinux state data such as "enforcing", 
-"checkreqprot", policycap[__POLICYDB_CAPABILITY_MAX], etc.
+Umm...  I'm rather worried about the side effect you are removing here -
+you are suddenly exposing a bunch of methods in there to RCU mode.
+E.g. is proc_pid_permission() safe with MAY_NOT_BLOCK in the mask?
+generic_permission() call in there is fine, but has_pid_permission()
+doesn't even see the mask.  Is that thing safe in RCU mode?  AFAICS,
+this
+static int selinux_ptrace_access_check(struct task_struct *child,
+                                     unsigned int mode)
+{
+        u32 sid = current_sid();
+        u32 csid = task_sid(child);
 
-> Is there a reason why the second measurement isn't included in this
-> patch?  Or this patchset if it is too big to be a single patch?
-> 
+        if (mode & PTRACE_MODE_READ)
+                return avc_has_perm(&selinux_state,
+                                    sid, csid, SECCLASS_FILE, FILE__READ, NULL);
 
-For illustrating the use of the new IMA hook, that my colleague Tushar 
-has added for measuring kernel critical data, we have included only one 
-SELinux measurement in this patch set - the measurement of SELinux 
-policy. This also helped in keeping this patch smaller.
+        return avc_has_perm(&selinux_state,
+                            sid, csid, SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
+}
+is reachable and IIRC avc_has_perm() should *NOT* be called in RCU mode.
+If nothing else, audit handling needs care...
 
-When this patch set is merged, I'll post a separate patch to add 
-measurement of SELinux state data I have mentioned above.
-
->> Also, I think the comment in the function header for
->> selinux_event_name() is useful.
->>
->> I prefer to have a separate function, if that's fine by you.
-> 
-> Given just this patch I would prefer if you folded
-> selinux_event_name() into selinux_measure_state().  However, I agree
-> with you that the comments in the selinux_event_name() header block is
-> useful, I would suggest moving those into the body of
-> selinux_measure_state() directly above the calls to
-> ktime_get_real_ts64() and kasprintf().
-
-Sure - I will make that change.
-
-> 
->>> Also, I assume you are not concerned about someone circumventing the
->>> IMA measurements by manipulating the time?  In most systems I would
->>> expect the time to be a protected entity, but with many systems
->>> getting their time from remote systems I thought it was worth
->>> mentioning.
->>
->> I am using time function to generate a unique name for the IMA
->> measurement event, such as, "selinux-policy-hash-1609790281:860232824".
->> This is to ensure that state changes in SELinux data are always measured.
->>
->> If you think time manipulation can be an issue, please let me know a
->> better way to generate unique event names.
-> 
-> Yes, I understand that you are using the time value as a way of
-> ensuring you always have a different event name and hence a new
-> measurement.  However, I was wondering if you would be okay if the
-> time was adjusted such that an event name was duplicated and a
-> measurement missed?  Is that a problem for you?  It seems like it
-> might be an issue, but you and Mimi know IMA better than I do.
-
-If the system time was adjusted such that the event name is duplicated, 
-we could miss measurements - this is not okay.
-
-For example:
-  #1 Say, at time T1 SELinux state being measured is "foo" - IMA will 
-measure it.
-  #2 at time T2, the state changes to "bar" - IMA will measure it
-  #3 at time T3, the state changes from "bar" to "foo" again. Unless the 
-"event name" passed in the measurement call is different from what was 
-passed in step #1, IMA will not measure it and hence we'll miss the 
-state change.
-
-If system time can be manipulated to return the same "timer tick" on 
-every call to ktime_get_real_ts64(), we will lose measurement in Step #3 
-above.
-
-But given that we are using ktime_get_real_ts64() to get the timer tick, 
-is it possible to manipulate the system time without compromising the 
-overall functioning of the rest of the system? If yes, then it is an 
-issue - I mean, there is a possibility of losing some measurements.
-
-> 
->>>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->>>> index 9704c8a32303..dfa2e00894ae 100644
->>>> --- a/security/selinux/ss/services.c
->>>> +++ b/security/selinux/ss/services.c
->>>> @@ -3875,8 +3876,33 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
->>>>    }
->>>>    #endif /* CONFIG_NETLABEL */
->>>>
->>>> +/**
->>>> + * security_read_selinux_policy - read the policy.
->>>> + * @policy: SELinux policy
->>>> + * @data: binary policy data
->>>> + * @len: length of data in bytes
->>>> + *
->>>> + */
->>>> +static int security_read_selinux_policy(struct selinux_policy *policy,
->>>> +                                       void *data, size_t *len)
->>>
->>> Let's just call this "security_read_policy()".
->> There is another function in this file with the name security_read_policy().
->>
->> How about changing the above function name to "read_selinux_policy()"
->> since this is a local/static function.
-> 
-> Ooops, sorry about that!  I'm not sure what I was thinking there :)
-> 
-> How about "__security_read_policy()"?
-> 
-
-Sure - I will change the function name to "__security_read_policy()".
-
-thanks,
-  -lakshmi
-
+And LSM-related stuff is only a part of possible issues here.  It does need
+a careful code audit - you are taking a bunch of methods into the conditions
+they'd never been tested in.  ->permission(), ->get_link(), ->d_revalidate(),
+->d_hash() and ->d_compare() instances for objects that subtree.  The last
+two are not there in case of anything in /proc/<pid>, but the first 3 very
+much are.
