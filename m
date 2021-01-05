@@ -2,169 +2,150 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54531C433DB
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 23:19:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CBC5C433E0
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 23:28:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 26D9722E00
-	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 23:19:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E1D7422E00
+	for <selinux@archiver.kernel.org>; Tue,  5 Jan 2021 23:28:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726264AbhAEXTj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 18:19:39 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:32828 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725769AbhAEXTj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 18:19:39 -0500
-Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 4212F561233
-        for <selinux@vger.kernel.org>; Wed,  6 Jan 2021 00:18:56 +0100 (CET)
-Received: by mail-oi1-f179.google.com with SMTP id q205so1430793oig.13
-        for <selinux@vger.kernel.org>; Tue, 05 Jan 2021 15:18:56 -0800 (PST)
-X-Gm-Message-State: AOAM533/vHh6n2o9q4TWR/NO0nFdT/6CymzeYTbgpG8hLMmqQPpgIoTQ
-        RPGJbiceFOFyEdhp3SNl4xFR5vI2fyy4QJg3V3I=
-X-Google-Smtp-Source: ABdhPJye60lPoV/DQHctDOB8IYXJIo+LWgYsy+m/68n4Evv28nkPRY/8fmlcGqx/lWbj3LkK3QTh3qxpDwZDfF9BDso=
-X-Received: by 2002:a05:6808:99a:: with SMTP id a26mr1470499oic.40.1609888735120;
- Tue, 05 Jan 2021 15:18:55 -0800 (PST)
+        id S1727281AbhAEX2a (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 18:28:30 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:34942 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726683AbhAEX2a (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 18:28:30 -0500
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 105NF5mt170674;
+        Tue, 5 Jan 2021 23:27:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : in-reply-to : references : date : message-id : mime-version :
+ content-type; s=corp-2020-01-29;
+ bh=tyV62G40bD/pUWWd9jFwnRCJ68TPKtBWn9L5iARg8W0=;
+ b=D53IVTKPiz3BFnesbpSctdeFdAosPnXlbG3fMixFG9nTKkaBiQXIAM45D4HATcTWLxJT
+ SnmpjvXL56kguDEKEQvysfaZi8uAMS/+c7BkXLXYZ8Fe97ASTg8hNyEjIuY+mGHHnJSk
+ cdbDdviVdq32Chu/Y/a3FnZv43Z4crxPhvJ21eH8JPU3B+3kr/bkdir9cpJW8W7Q+Eit
+ osCVM3XFiz7ScsL/nubict1Vwkwswh0op/xK0N/tddU/I6+TTQillD3HkjU/ZAy/LRKx
+ jFU1QR+vYmeb02zgW8htptX6MRsyiB+CBwz0JxRiXWge6JOW+fQx7x//L9wcfLrWrlCy NQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2130.oracle.com with ESMTP id 35tebau93t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 05 Jan 2021 23:27:22 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 105NGPXj147406;
+        Tue, 5 Jan 2021 23:25:22 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3030.oracle.com with ESMTP id 35v4rbyp9y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 05 Jan 2021 23:25:22 +0000
+Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 105NPDq2008196;
+        Tue, 5 Jan 2021 23:25:15 GMT
+Received: from localhost (/10.159.141.245)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 05 Jan 2021 15:25:13 -0800
+From:   Stephen Brennan <stephen.s.brennan@oracle.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
+In-Reply-To: <20210105195937.GX3579531@ZenIV.linux.org.uk>
+References: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
+ <20210105055935.GT3579531@ZenIV.linux.org.uk>
+ <20210105165005.GV3579531@ZenIV.linux.org.uk>
+ <20210105195937.GX3579531@ZenIV.linux.org.uk>
+Date:   Tue, 05 Jan 2021 15:25:11 -0800
+Message-ID: <87a6tnge5k.fsf@stepbren-lnx.us.oracle.com>
 MIME-Version: 1.0
-References: <20210105215443.238513-1-jwcart2@gmail.com>
-In-Reply-To: <20210105215443.238513-1-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 6 Jan 2021 00:18:44 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==zWr2b9upXx2RZi0cisp0p8apajXYE3zvea+x96ExUiw@mail.gmail.com>
-Message-ID: <CAJfZ7==zWr2b9upXx2RZi0cisp0p8apajXYE3zvea+x96ExUiw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix heap-use-after-free in __class_reset_perm_values()
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Jan  6 00:18:56 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9855 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 mlxscore=0 bulkscore=0
+ suspectscore=0 spamscore=0 adultscore=0 malwarescore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101050133
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9855 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0
+ priorityscore=1501 spamscore=0 mlxscore=0 clxscore=1011 bulkscore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101050133
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 5, 2021 at 10:54 PM James Carter <jwcart2@gmail.com> wrote:
->
-> Nicolas Iooss reports:
->   A few weeks ago, OSS-Fuzz got configured in order to fuzz the CIL
->   policy compiler (cf.
->   https://github.com/SELinuxProject/selinux/issues/215 and
->   https://github.com/google/oss-fuzz/pull/4790). It reported a bunch of
->   simple issues, for which I will submit patches. There are also more
->   subtle bugs, like the one triggered by this CIL policy:
->
->   (class CLASS (PERM))
->   (classorder (CLASS))
->   (sid SID)
->   (sidorder (SID))
->   (sensitivity SENS)
->   (sensitivityorder (SENS))
->   (type TYPE)
->   (allow TYPE self (CLASS (PERM)))
->
->   (block b
->       (optional o
->           (sensitivitycategory SENS (C)) ; Non-existing category
->   triggers disabling the optional
->           (common COMMON (PERM1))
->           (classcommon CLASS COMMON)
->           (allow TYPE self (CLASS (PERM1)))
->       )
->   )
->
->   On my computer, secilc manages to build this policy fine, but when
->   clang's Address Sanitizer is enabled, running secilc leads to the
->   following report:
->
->   $ make -C libsepol/src CC=clang CFLAGS='-g -fsanitize=address' libsepol.a
->   $ clang -g -fsanitize=address secilc/secilc.c libsepol/src/libsepol.a
->   -o my_secilc
->   $ ./my_secilc -vv testcase.cil
->   Parsing testcase.cil
->   Building AST from Parse Tree
->   Destroying Parse Tree
->   Resolving AST
->   Failed to resolve sensitivitycategory statement at testcase.cil:12
->   Disabling optional 'o' at testcase.cil:11
->   Resetting declarations
->   =================================================================
->   ==181743==ERROR: AddressSanitizer: heap-use-after-free on address
->   0x6070000000c0 at pc 0x55ff7e445d24 bp 0x7ffe7eecfba0 sp
->   0x7ffe7eecfb98
->   READ of size 4 at 0x6070000000c0 thread T0
->       #0 0x55ff7e445d23 in __class_reset_perm_values
->   /git/selinux-userspace/libsepol/src/../cil/src/cil_reset_ast.c:17:17
->
-> The problem is that the optional branch is destroyed when it is disabled,
-> so the common has already been destroyed when the reset code tries to
-> access the number of common permissions, so that it can change the
-> value of the class permissions back to their original values.
->
-> The solution is to count the number of class permissions and then
-> calculate the number of common permissions.
->
-> Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->  libsepol/cil/src/cil_reset_ast.c | 20 +++++++++++++++++---
->  1 file changed, 17 insertions(+), 3 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
-> index 43e6b88e..569f630b 100644
-> --- a/libsepol/cil/src/cil_reset_ast.c
-> +++ b/libsepol/cil/src/cil_reset_ast.c
-> @@ -9,6 +9,16 @@ static inline void cil_reset_level(struct cil_level *level);
->  static inline void cil_reset_levelrange(struct cil_levelrange *levelrange);
->  static inline void cil_reset_context(struct cil_context *context);
->
-> +static int __class_count_perms(__attribute__((unused)) hashtab_key_t k, __attribute__((unused)) hashtab_datum_t d, void *args)
-> +{
-> +       int *num = (int *)args;
-> +
-> +       (*num)++;
-> +
-> +       *((int *)args) = *num;
-> +
-> +       return SEPOL_OK;
-> +}
->
->  static int __class_reset_perm_values(__attribute__((unused)) hashtab_key_t k, hashtab_datum_t d, void *args)
->  {
-> @@ -22,11 +32,15 @@ static int __class_reset_perm_values(__attribute__((unused)) hashtab_key_t k, ha
->  static void cil_reset_class(struct cil_class *class)
->  {
->         if (class->common != NULL) {
-> -               struct cil_class *common = class->common;
-> -               cil_symtab_map(&class->perms, __class_reset_perm_values, &common->num_perms);
-> +               /* Must assume that the common has been destroyed */
-> +               int num_class_perms = 0;
-> +               int num_common_perms;
-> +               cil_symtab_map(&class->perms, __class_count_perms, &num_class_perms);
-> +               num_common_perms = class->num_perms - num_class_perms;
-> +               cil_symtab_map(&class->perms, __class_reset_perm_values, &num_common_perms);
->                 /* during a re-resolve, we need to reset the common, so a classcommon
->                  * statement isn't seen as a duplicate */
-> -               class->num_perms -= common->num_perms;
-> +               class->num_perms = num_class_perms;
->                 class->common = NULL; /* Must make this NULL or there will be an error when re-resolving */
->         }
->         class->ordered = CIL_FALSE;
-> --
-> 2.25.4
->
+Al Viro <viro@zeniv.linux.org.uk> writes:
 
-I confirm this patch fixes the issue reported in
-https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28467.
-Nevertheless counting the items of a symtab_t using a callback feels
-strange. Can class->perms.table->nel (or a new accessor function that
-returns the table->nel of a symtab_t structure) be used to replace
-num_class_perms?
+> On Tue, Jan 05, 2021 at 04:50:05PM +0000, Al Viro wrote:
+>
+>> LSM_AUDIT_DATA_DENTRY is easy to handle - wrap
+>>                 audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
+>> into grabbing/dropping a->u.dentry->d_lock and we are done.
+>
+> Incidentally, LSM_AUDIT_DATA_DENTRY in mainline is *not* safe wrt
+> rename() - for long-named dentries it is possible to get preempted
+> in the middle of
+>                 audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
+> and have the bugger renamed, with old name ending up freed.  The
+> same goes for LSM_AUDIT_DATA_INODE...
 
-Thanks,
-Nicolas
+In the case of proc_pid_permission(), this preemption doesn't seem
+possible. We have task_lock() (a spinlock) held by ptrace_may_access()
+during this call, so preemption should be disabled:
 
+proc_pid_permission()
+  has_pid_permissions()
+    ptrace_may_access()
+      task_lock()
+      __ptrace_may_access()
+      | security_ptrace_access_check()
+      |   ptrace_access_check -> selinux_ptrace_access_check()
+      |     avc_has_perm()
+      |       avc_audit() // note that has_pid_permissions() didn't get a
+      |                   // flags field to propagate, so flags will not
+      |                   // contain MAY_NOT_BLOCK
+      |         slow_avc_audit()
+      |           common_lsm_audit()
+      |             dump_common_audit_data()
+      task_unlock()
+
+I understand the issue of d_name.name being freed across a preemption is
+more general than proc_pid_permission() (as other callers may have
+preemption enabled). However, it seems like there's another issue here.
+avc_audit() seems to imply that slow_avc_audit() would sleep:
+ 
+static inline int avc_audit(struct selinux_state *state,
+			    u32 ssid, u32 tsid,
+			    u16 tclass, u32 requested,
+			    struct av_decision *avd,
+			    int result,
+			    struct common_audit_data *a,
+			    int flags)
+{
+	u32 audited, denied;
+	audited = avc_audit_required(requested, avd, result, 0, &denied);
+	if (likely(!audited))
+		return 0;
+	/* fall back to ref-walk if we have to generate audit */
+	if (flags & MAY_NOT_BLOCK)
+		return -ECHILD;
+	return slow_avc_audit(state, ssid, tsid, tclass,
+			      requested, audited, denied, result,
+			      a);
+} 
+
+If there are other cases in here where we might sleep, it would be a
+problem to sleep with the task lock held, correct?
