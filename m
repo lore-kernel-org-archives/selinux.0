@@ -2,115 +2,137 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8485C433E0
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 02:44:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AE0EC433E9
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 05:01:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7293E22D50
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 02:44:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 228E822CAF
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 05:01:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726063AbhAFCoR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 21:44:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59976 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725971AbhAFCoR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Jan 2021 21:44:17 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D00EAC06134D
-        for <selinux@vger.kernel.org>; Tue,  5 Jan 2021 18:43:27 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id b9so3287582ejy.0
-        for <selinux@vger.kernel.org>; Tue, 05 Jan 2021 18:43:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Rl30GHiO7+ok45uxZXaNkdS1h9GOZB8/wNoJsPJg7EY=;
-        b=r3Wpg2DR14agmLIdTiA23ZamhLdjd5Hm7Yrz7aomhIgcxuBcp/fDg++5xrguOlESBz
-         n2O7qtM4JWyW1jfJKnotNRpb7gQ1dFSi+sT8LKIgj//ooGAkIOe9NfFIfluFrnW7g+ZZ
-         Ez5ejKOt7uptWA4vV4/asbGgisa0Sjv7zlGMd+xUTxJeIc/9gWBjLKuupEPDg7iUyC1a
-         xhUyNX38fpxgcLcOd/XsfrF7ERPBwD97GpFrBiVcE+a91hetKV3oUfAxl0armtD0xI39
-         ji1CcYPOVCbt3ygNwrOMhU8BekaxTCfYyijIfRkTC4z7ZjipSBnn+/QOrMLq037LCmKU
-         R1BA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Rl30GHiO7+ok45uxZXaNkdS1h9GOZB8/wNoJsPJg7EY=;
-        b=THnVKNZi4pcGB6vLECw4n5Dv/qpKW6NFJd/Q009sIKmt9NVNBfJeGvouRLF+qU8vO6
-         zR+G67Yg3T2Vpd58/5N9I6XRU0PN70NDUWW82KLYp5IB0u1Lb1fdLr/9b+KCM/VSvjP8
-         DHCw76kvB2JxsORsrv2q3OeD2b71fpQyphGEmQTY5ErNm5I4CWmaGlAgrfGsYk2n3H59
-         IX9utNLBhjwLDrIfZ5iBs4bbQbOqcwyxTksDzw5Rh9WsyVEnFwSC6ZAmtO8K0fLBGnTb
-         4OPsDOWd3YiUpLmJbV7v84K88Eptp4VDX7Q50+qWZ4TnD+bJVxYGjTUmqWgfOCglgFGo
-         cJjw==
-X-Gm-Message-State: AOAM533TGffombsV9VP48qCqw4yrEL/1L7VkCRPKoJSOE2sx0+01HK+d
-        d547SLmt2pirHLZiv6cRi31q+OuizgQSOrZ9pt89
-X-Google-Smtp-Source: ABdhPJxBGghK0hX4bygHQKZbY85SZEF5lnAAJg7KT5u9deBBsKhmsljHRmL87cbGrw8/2aPatl5OyzOxF6pU1QwhjSM=
-X-Received: by 2002:a17:906:2e82:: with SMTP id o2mr1559118eji.106.1609901004776;
- Tue, 05 Jan 2021 18:43:24 -0800 (PST)
+        id S1725800AbhAFFAu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Jan 2021 00:00:50 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:52480 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725562AbhAFFAu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 00:00:50 -0500
+Received: from [192.168.86.31] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 5D80F20B7192;
+        Tue,  5 Jan 2021 21:00:08 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5D80F20B7192
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1609909208;
+        bh=nwBMt/PBxl2PWT1Ssl7JTvs6BvtU4tbh0KnWY20aks4=;
+        h=Subject:From:To:Cc:References:Date:In-Reply-To:From;
+        b=bjthC3ISI/WD9OOIWlN3NGQyAESnBXaoRY3QuBuxwhgNU0uPqopgLMg1cm5JTHvNX
+         hfX1nJTYV2MIOJfOZE0zlKqT3txadd12QSiXDDD9W9ICzNQvTbcgtNPL5yEI0CdpjQ
+         RH95+lukw3ZKEmsjRkaCghEWh2cPv4izzWPtzhBA=
+Subject: Re: [PATCH v9 2/8] IMA: add support to measure buffer data hash
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20201212180251.9943-1-tusharsu@linux.microsoft.com>
+ <20201212180251.9943-3-tusharsu@linux.microsoft.com>
+ <4e83480731b937cea479f688029560444b9cb66a.camel@linux.ibm.com>
+ <3fdb72ae-f291-386b-e7b9-688dfe092dc5@linux.microsoft.com>
+Message-ID: <e401bb98-6b39-b148-fdba-76e48c7c3932@linux.microsoft.com>
+Date:   Tue, 5 Jan 2021 21:00:07 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
- <20210105055935.GT3579531@ZenIV.linux.org.uk> <20210105165005.GV3579531@ZenIV.linux.org.uk>
- <20210105195937.GX3579531@ZenIV.linux.org.uk> <87a6tnge5k.fsf@stepbren-lnx.us.oracle.com>
- <CAHC9VhQnQW8RvTzyb4MTAvGZ7b=AHJXS8PzD=egTcpdDz73Yzg@mail.gmail.com> <20210106003803.GA3579531@ZenIV.linux.org.uk>
-In-Reply-To: <20210106003803.GA3579531@ZenIV.linux.org.uk>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 5 Jan 2021 21:43:13 -0500
-Message-ID: <CAHC9VhQyZOewT5nQ5fqqx-tvSx1kt62i26ruF_Unk5K_iFQTKA@mail.gmail.com>
-Subject: Re: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <3fdb72ae-f291-386b-e7b9-688dfe092dc5@linux.microsoft.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 5, 2021 at 7:38 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
-> On Tue, Jan 05, 2021 at 07:00:59PM -0500, Paul Moore wrote:
+<snip>
 
-...
+>>>   void process_buffer_measurement(struct inode *inode, const void 
+>>> *buf, int size,
+>>>                   const char *eventname, enum ima_hooks func,
+>>> -                int pcr, const char *func_data);
+>>> +                int pcr, const char *func_data,
+>>> +                bool measure_buf_hash);
+>>
+>> Please abbreviate the boolean name to "hash".   The test would then be
+>> "if (hash == true)" or "if (hash)".
+>>
+> Will do.
 
-> > I would expect the problem here to be the currently allocated audit
-> > buffer isn't large enough to hold the full audit record, in which case
-> > it will attempt to expand the buffer by a call to pskb_expand_head() -
-> > don't ask why audit buffers are skbs, it's awful - using a gfp flag
-> > that was established when the buffer was first created.  In this
-> > particular case it is GFP_ATOMIC|__GFP_NOWARN, which I believe should
-> > be safe in that it will not sleep on an allocation miss.
-> >
-> > I need to go deal with dinner, so I can't trace the entire path at the
-> > moment, but I believe the potential audit buffer allocation is the
-> > main issue.
->
-> Nope.  dput() in dump_common_audit_data(), OTOH, is certainly not
-> safe.
+<snip>
 
-My mistake.  My initial reaction is to always assume audit is the
-problem; I should have traced everything through before commenting.
+>>> - * process_buffer_measurement - Measure the buffer to ima log.
+>>> + * process_buffer_measurement - Measure the buffer or the buffer 
+>>> data hash
+>>>    * @inode: inode associated with the object being measured (NULL 
+>>> for KEY_CHECK)
+>>>    * @buf: pointer to the buffer that needs to be added to the log.
+>>>    * @size: size of buffer(in bytes).
+>>> @@ -787,12 +787,23 @@ int ima_post_load_data(char *buf, loff_t size,
+>>>    * @func: IMA hook
+>>>    * @pcr: pcr to extend the measurement
+>>>    * @func_data: private data specific to @func, can be NULL.
+>>> + * @measure_buf_hash: measure buffer hash
+>>
+>> ^@hash: measure buffer data hash
+>>
+> Agreed. Will fix.
+<snip>
+>>>   void process_buffer_measurement(struct inode *inode, const void 
+>>> *buf, int size,
+>>>                   const char *eventname, enum ima_hooks func,
+>>> -                int pcr, const char *func_data)
+>>> +                int pcr, const char *func_data,
+>>> +                bool measure_buf_hash)
+>>>   {
+>>>       int ret = 0;
+>>>       const char *audit_cause = "ENOMEM";
+>>> @@ -807,6 +818,8 @@ void process_buffer_measurement(struct inode 
+>>> *inode, const void *buf, int size,
+>>>           struct ima_digest_data hdr;
+>>>           char digest[IMA_MAX_DIGEST_SIZE];
+>>>       } hash = {};
+>>> +    char buf_hash[IMA_MAX_DIGEST_SIZE];
+>>> +    int buf_hash_len = hash_digest_size[ima_hash_algo];
+>>>       int violation = 0;
+>>>       int action = 0;
+>>>       u32 secid;
+>>> @@ -849,13 +862,27 @@ void process_buffer_measurement(struct inode 
+>>> *inode, const void *buf, int size,
+>>>           goto out;
+>>>       }
+>>> +    if (measure_buf_hash) {
+>>
+>> ^ if (hash) {
+> Yes.
+>>> +        memcpy(buf_hash, hash.hdr.digest, buf_hash_len);
+>>> +
+>>> +        ret = ima_calc_buffer_hash(buf_hash, buf_hash_len,
+>>> +                       iint.ima_hash);
+>>> +        if (ret < 0) {
+>>> +            audit_cause = "measure_buf_hash_error";
 
-> OTTH, it's not really needed there - see vfs.git #work.audit
-> for (untested) turning that sucker non-blocking.  I hadn't tried
-> a followup that would get rid of the entire AVC_NONBLOCKING thing yet,
-> but I suspect that it should simplify the things in there nicely...
 
-It would be nice to be able to get rid of the limitation on when we
-can update the AVC and do proper auditing.  I doubt the impact is
-anything that anyone notices, but I agree that it should make things
-much cleaner.  Thanks Al.
+Hi Mimi,
+There already exist a local struct variable named "hash" in p_b_m().
+I was thinking of using "buf_hash", but that one is taken too.
+Maybe I should use "buf_hash" for the input bool, and rename the
+existing "buf_hash" local variable to "digest_hash"?
+Does it sound ok?
 
--- 
-paul moore
-www.paul-moore.com
+Thanks,
+Tushar
+
+
+<snip>
