@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CFAFC43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8248BC433E9
 	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 13:28:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 642572311C
+	by mail.kernel.org (Postfix) with ESMTP id 444542311A
 	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 13:28:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726430AbhAFN2F (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Jan 2021 08:28:05 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24471 "EHLO
+        id S1726439AbhAFN2D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Jan 2021 08:28:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38929 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726449AbhAFN2D (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 08:28:03 -0500
+        by vger.kernel.org with ESMTP id S1726430AbhAFN2C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 08:28:02 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609939597;
+        s=mimecast20190719; t=1609939596;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=gUXpnHMB5BQWXnJYebKzDvEArZh3kRKXO9Yn4rzEv8g=;
-        b=BEbOqrrzeOAIr+yLOS6iDgF73osrQ+7cTU3MXrGspxEJ2L+rRFCkVsXb5vwOyzo4WumEIG
-        XIG1MNevhUCcXU/+dXYZZtVvoNO91sfTVY79zIM4llsMopIYZXbpqYwM1Wg/BnnKyYrkn0
-        1n4KAoOaDBG+fe3SeOvMOmMogxp4kBI=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-449-u0bHsy_9NOmfLPl4VZjbYA-1; Wed, 06 Jan 2021 08:26:35 -0500
-X-MC-Unique: u0bHsy_9NOmfLPl4VZjbYA-1
-Received: by mail-ed1-f70.google.com with SMTP id h5so1927143edq.3
-        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 05:26:35 -0800 (PST)
+        bh=zih4Bfaq/tVIh8oxdOY97CMjx0ttgE9uKFS1bihmBb0=;
+        b=YsMS7w9A12o27P1wnjbFGOpiEIH1DQ8yR0e5AWJ3IvoCwQ0HnGngz4h8Ebk5U/P0uiX3/k
+        T5Pp1ycNaHkSZuWJWoXuxFpIY+2TuJYFGFBHT8tQ6FWYp77hpT39Z5kdviGAF2xA3NowNk
+        h3/adlYaPeGYeu8lCZ0yXehfIb+tPk8=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-124-0S3iigdxPviSX4bErSURoA-1; Wed, 06 Jan 2021 08:26:32 -0500
+X-MC-Unique: 0S3iigdxPviSX4bErSURoA-1
+Received: by mail-ej1-f69.google.com with SMTP id ov1so1309999ejb.1
+        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 05:26:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gUXpnHMB5BQWXnJYebKzDvEArZh3kRKXO9Yn4rzEv8g=;
-        b=loiKi6MJES5TEsUay2o4j7tzIgDwu28DIZZGUUsEtE13OyaxgsMCwGqhzxPY/R/pSY
-         74iw3KM6o047h4j6aM0CYCFaQK5rVNyHZpsJxEtp60SZoYGDWucmBJh5LlgkzBF7xD+k
-         HiDhNbZ7AhZHc2MWGB9sXTNnuboZrIiWt3LZL5YZkc3UnFr2kIWzxfWNXAzYTr5O8iDp
-         LiiJodbfBswIkU+DGAawYY1/fw42JFV2KHzyFvMiNYyjExH5gNZ2w+tsI0kIBdYgZQ+A
-         eJNsrVlwUKVlydWevTiYiQ0i8KMfTtj1oE+uat2k8c5ZE/FXkctQw6UHD1J7ZpwyCcZ1
-         +Kuw==
-X-Gm-Message-State: AOAM5337Qh3XFwGI5+loYpOaLMp2YEF5JQGn+8WYuvC21EZyzEIHbHvh
-        X9C+4KFULvcnIMA5ObU5wMY1Fb6p7miix34uBnDVrY9ez98urM74Iaf8x0J0fTaq1ZkYx+C8fGK
-        6rMyP2nUuN54L0pKrK7QVvVcRxrSrfiDjYVHntMRoYJ29+G5hMp2O4g5lueduN73DHmjtFQ==
-X-Received: by 2002:a50:ce13:: with SMTP id y19mr3932258edi.241.1609939594008;
-        Wed, 06 Jan 2021 05:26:34 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwUTwu3C5lccobb7OINbVazRCPaRAl4cAYZx1N3eE86k8tLEoOIq809yWAp4rVodNLlJr38bw==
-X-Received: by 2002:a50:ce13:: with SMTP id y19mr3932239edi.241.1609939593662;
-        Wed, 06 Jan 2021 05:26:33 -0800 (PST)
+        bh=zih4Bfaq/tVIh8oxdOY97CMjx0ttgE9uKFS1bihmBb0=;
+        b=D7MpyUgziPouOc9nRd++WPNiAU45OKhubuBVmyKSyuPbEBSyAajZzZQT2vinzglgna
+         JKbOQiNL3mhGcv4UGSuxSwGAXyffxLZ21s/mbdDYaL7loiwIjc8W5dt45uvo72DaUsA5
+         qGSGuEdppROsaOnJqBlcy0DbYEfU4zaQibzmbWSFQWBgq/jUgOc7KbJ1LShsxp60IA7X
+         6AKalg25HGhgVEpazueBt0NdUa5ItysfaFXnsSayOpjpc6z53UoBdMqtCCwj6WJIDWbU
+         Q15b7zpFZKK/zYnqvxZLpBedmI2El4Z0Ox3aAJlivGYac0ZF9K+FGkApkaKQyrLyK725
+         jSww==
+X-Gm-Message-State: AOAM530OpFU6zAylecoNsx/LqvY4NfYKZ8Sn6oag1hdsj7UABlHG41ol
+        Gp3nOv5OBAhRDK+sVmlSw1lXIdbG+IokLtY5QfM9VkbzOCh90mf71MAm+/elPeP9L9nB19Ib4XQ
+        Nb5Uqa4gN5HruT226zFuQONxQEkF38SA47gYXvndiAn00BGWwYDGtQD7nljq7YIrfZcr10Q==
+X-Received: by 2002:a50:f392:: with SMTP id g18mr4008717edm.306.1609939591082;
+        Wed, 06 Jan 2021 05:26:31 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzIeEdxpSFApb+WZ3MR7lIvwESJ+4g6sj5pwOpPy5AMvTiS/0wMHJvudZB28kcTc8WImZ63ng==
+X-Received: by 2002:a50:f392:: with SMTP id g18mr4008707edm.306.1609939590918;
+        Wed, 06 Jan 2021 05:26:30 -0800 (PST)
 Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id bm12sm1225893ejb.117.2021.01.06.05.26.32
+        by smtp.gmail.com with ESMTPSA id bm12sm1225893ejb.117.2021.01.06.05.26.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Jan 2021 05:26:32 -0800 (PST)
+        Wed, 06 Jan 2021 05:26:30 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 4/5] selinux: mark some global variables __ro_after_init
-Date:   Wed,  6 Jan 2021 14:26:21 +0100
-Message-Id: <20210106132622.1122033-5-omosnace@redhat.com>
+Subject: [PATCH 1/5] selinux: remove unused global variables
+Date:   Wed,  6 Jan 2021 14:26:18 +0100
+Message-Id: <20210106132622.1122033-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210106132622.1122033-1-omosnace@redhat.com>
 References: <20210106132622.1122033-1-omosnace@redhat.com>
@@ -73,109 +73,65 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-All of these are never modified outside initcalls, so they can be
-__ro_after_init.
+All of sel_ib_pkey_list, sel_netif_list, sel_netnode_list, and
+sel_netport_list are declared but never used. Remove them.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- security/selinux/avc.c        | 10 +++++-----
- security/selinux/netlink.c    |  2 +-
- security/selinux/selinuxfs.c  |  4 ++--
- security/selinux/ss/avtab.c   |  4 ++--
- security/selinux/ss/ebitmap.c |  2 +-
- security/selinux/ss/hashtab.c |  2 +-
- 6 files changed, 12 insertions(+), 12 deletions(-)
+ security/selinux/ibpkey.c  | 1 -
+ security/selinux/netif.c   | 1 -
+ security/selinux/netnode.c | 1 -
+ security/selinux/netport.c | 1 -
+ 4 files changed, 4 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 3c05827608b6a..ad451cf9375e4 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -118,11 +118,11 @@ void avc_set_cache_threshold(struct selinux_avc *avc,
- 	avc->avc_cache_threshold = cache_threshold;
- }
- 
--static struct avc_callback_node *avc_callbacks;
--static struct kmem_cache *avc_node_cachep;
--static struct kmem_cache *avc_xperms_data_cachep;
--static struct kmem_cache *avc_xperms_decision_cachep;
--static struct kmem_cache *avc_xperms_cachep;
-+static struct avc_callback_node *avc_callbacks __ro_after_init;
-+static struct kmem_cache *avc_node_cachep __ro_after_init;
-+static struct kmem_cache *avc_xperms_data_cachep __ro_after_init;
-+static struct kmem_cache *avc_xperms_decision_cachep __ro_after_init;
-+static struct kmem_cache *avc_xperms_cachep __ro_after_init;
- 
- static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
- {
-diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
-index 621e2e9cd6a1d..1760aee712fd2 100644
---- a/security/selinux/netlink.c
-+++ b/security/selinux/netlink.c
-@@ -19,7 +19,7 @@
- 
- #include "security.h"
- 
--static struct sock *selnl;
-+static struct sock *selnl __ro_after_init;
- 
- static int selnl_msglen(int msgtype)
- {
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 4fdfe7b67df89..01a7d50ed39b8 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2204,8 +2204,8 @@ static struct file_system_type sel_fs_type = {
- 	.kill_sb	= sel_kill_sb,
+diff --git a/security/selinux/ibpkey.c b/security/selinux/ibpkey.c
+index f68a7617cfb95..dbd8fe028b3f2 100644
+--- a/security/selinux/ibpkey.c
++++ b/security/selinux/ibpkey.c
+@@ -40,7 +40,6 @@ struct sel_ib_pkey {
+ 	struct rcu_head rcu;
  };
  
--static struct vfsmount *selinuxfs_mount;
--struct path selinux_null;
-+static struct vfsmount *selinuxfs_mount __ro_after_init;
-+struct path selinux_null __ro_after_init;
+-static LIST_HEAD(sel_ib_pkey_list);
+ static DEFINE_SPINLOCK(sel_ib_pkey_lock);
+ static struct sel_ib_pkey_bkt sel_ib_pkey_hash[SEL_PKEY_HASH_SIZE];
  
- static int __init init_sel_fs(void)
- {
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 0172d87e2b9ae..6dcb6aa4db7f0 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -23,8 +23,8 @@
- #include "avtab.h"
- #include "policydb.h"
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index 86813b46fad5f..1ab03efe74947 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -36,7 +36,6 @@ struct sel_netif {
+ };
  
--static struct kmem_cache *avtab_node_cachep;
--static struct kmem_cache *avtab_xperms_cachep;
-+static struct kmem_cache *avtab_node_cachep __ro_after_init;
-+static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
+ static u32 sel_netif_total;
+-static LIST_HEAD(sel_netif_list);
+ static DEFINE_SPINLOCK(sel_netif_lock);
+ static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
  
- /* Based on MurmurHash3, written by Austin Appleby and placed in the
-  * public domain.
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 14bedc95c6dcf..61fcbb8d0f880 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -26,7 +26,7 @@
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 461fb548453ab..4a7d2ab5b9609 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -54,7 +54,6 @@ struct sel_netnode {
+  * if this becomes a problem we can always add a hash table for each address
+  * family later */
  
- #define BITS_PER_U64	(sizeof(u64) * 8)
+-static LIST_HEAD(sel_netnode_list);
+ static DEFINE_SPINLOCK(sel_netnode_lock);
+ static struct sel_netnode_bkt sel_netnode_hash[SEL_NETNODE_HASH_SIZE];
  
--static struct kmem_cache *ebitmap_node_cachep;
-+static struct kmem_cache *ebitmap_node_cachep __ro_after_init;
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index d340f4dcdf5f0..b8bc3897891d9 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -53,7 +53,6 @@ struct sel_netport {
+  * if this becomes a problem we can always add a hash table for each address
+  * family later */
  
- int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
- {
-diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-index dab8c25c739b9..3881787ce492c 100644
---- a/security/selinux/ss/hashtab.c
-+++ b/security/selinux/ss/hashtab.c
-@@ -9,7 +9,7 @@
- #include <linux/errno.h>
- #include "hashtab.h"
+-static LIST_HEAD(sel_netport_list);
+ static DEFINE_SPINLOCK(sel_netport_lock);
+ static struct sel_netport_bkt sel_netport_hash[SEL_NETPORT_HASH_SIZE];
  
--static struct kmem_cache *hashtab_node_cachep;
-+static struct kmem_cache *hashtab_node_cachep __ro_after_init;
- 
- /*
-  * Here we simply round the number of elements up to the nearest power of two.
 -- 
 2.29.2
 
