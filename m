@@ -2,131 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 868AFC433E0
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 16:40:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75876C433DB
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 18:44:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5B6882311E
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 16:40:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4330423124
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 18:44:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbhAFQk2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Jan 2021 11:40:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49182 "EHLO
+        id S1726076AbhAFSoM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Jan 2021 13:44:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726661AbhAFQk2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 11:40:28 -0500
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D0BBC06134C
-        for <selinux@vger.kernel.org>; Wed,  6 Jan 2021 08:39:48 -0800 (PST)
-Received: from brutus (brutus.defensec.nl [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 8A9E82A0D7E;
-        Wed,  6 Jan 2021 17:39:45 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 8A9E82A0D7E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1609951187;
-        bh=fCpy8DYLVKwWHuXdc0uD1Kj+HoxOO3WoMK8uFet4lN0=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=V8sTVcndXoHohqMOg8fCEuJiEP5cedu57aQI/bCkscdARtF7NvY1alzbjoQwzwZ3R
-         6vx9TbMjJH0dPO1KMsvj3nbBWiOE2XWXj4SAjPJS1ZBDrYXpBw0l2hSb+cVlu369+G
-         NdpFpwevkOMUfL1G13+pU/x7rWPJvFOhac7IMyC8=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Ashish Mishra <ashishm@mvista.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-Subject: Re: Selinux context type is same for root & normal user both
-References: <CAP2OjcjH0=HdTMr3eVkD-LkK++8XVDb05C+TtC9+1ii61kErzg@mail.gmail.com>
-        <ypjlzh1o523g.fsf@defensec.nl>
-        <CAP2Ojcg2+FbjEc0mDuE6uLKL45vtNmUnwQDMAoYp97ST67XL1g@mail.gmail.com>
-        <ypjlv9cc50hj.fsf@defensec.nl>
-        <CAP2Ojch8tfxeYwep2LmouBF7RgUctfJ5Xh_MxvnKZ3fd82Bogw@mail.gmail.com>
-        <ypjla6tmgoka.fsf@defensec.nl>
-        <CAP2OjcjOEXsWM1H2pkMzhb3y2ss7SCTw8_1Tsb23kUnEDVfx-g@mail.gmail.com>
-        <ypjl5z4agmt4.fsf@defensec.nl>
-        <CAP2Ojci-JoSP_DtOecVNFi8AhTKTqKmpu+558Kzpucr8-z3nyg@mail.gmail.com>
-        <ypjlsg7ef6nh.fsf@defensec.nl>
-        <CAP2Ojcg5d=i0FKM0f1DTqtT2N3ftKEEqJq4=zdZr4m22xn4zjA@mail.gmail.com>
-        <ypjlo8i2f519.fsf@defensec.nl>
-        <CAFqZXNuUdij1v4yvSvpLJPi+0KSFSR46k+c52E3=QdF-f_C9yQ@mail.gmail.com>
-        <CAP2Ojci+UGvCCr6XMHYvm6jCr4p9GmwM3j97ZFLoqB2prNH4gQ@mail.gmail.com>
-Date:   Wed, 06 Jan 2021 17:39:43 +0100
-In-Reply-To: <CAP2Ojci+UGvCCr6XMHYvm6jCr4p9GmwM3j97ZFLoqB2prNH4gQ@mail.gmail.com>
-        (Ashish Mishra's message of "Wed, 6 Jan 2021 21:46:13 +0530")
-Message-ID: <ypjlble2f29c.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S1725800AbhAFSoM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 13:44:12 -0500
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5C8C061575
+        for <selinux@vger.kernel.org>; Wed,  6 Jan 2021 10:43:31 -0800 (PST)
+Received: by mail-qt1-x834.google.com with SMTP id v5so2689481qtv.7
+        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 10:43:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JXTEbtSscr05B8RP5AibnnCAg5mK1+GyRlt+y/xSi0c=;
+        b=oH6SG7Cksnb1Vzf1WCpJWbpq3MJzvQ7GN4EaUlW2vTSiDI0UAyL3A2/vXbCv6JtMtL
+         O5t6SLy6F317pebyUp0gBFmlX19+DS49Y3fuP+bfoOTIk2BrlYOCJwunRaLhNfQWBJn6
+         en4G7xSHFv3vnKfcRS7qvzidn7QmpHhKznERDZpEMMz5f39i2PDi4GrFMAfcLiRmVNdv
+         XpqNcOLr8oDJa2oe4oaIGDVICew8vtzHcU4P2F4SCvvUkF1g6NY3NpcF2y4LHbt6Atxz
+         /ynfRPSLioMSziuQgruuUbyzwYdhf2Tezp0U/Mykj+KNwBY2W8LUQ+ipbdLF43SrsQDZ
+         a4dA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JXTEbtSscr05B8RP5AibnnCAg5mK1+GyRlt+y/xSi0c=;
+        b=WC0yhG6t0SY57xkrmQZ75I9Ji6gnIzEIKkfg8JCF0cKlvirGAnDf/2U0Rn4Md0Fr75
+         x0MJFvKvaVYY3kTPEqN+DxjRMDkLK1m0WP6TYK1S29VInr7V08BiyXKZngAG0VtIes2O
+         cqOPKW5JAT3xVNYAVOOUQJLj7PY64XEISCUdhmHGwB+8M18c83lDKqF6wvaVwLmM2slH
+         uLwyz3qDsiv6WnumgeioOdX3KQbROPY4T/OC9YApbMEiFCxGbrFvebwfp6M3CPs/7Xnv
+         3A2M3tXh5Wt+aSW/nB59yjLKdqRCgxCnQnVYLSGqC97OosA7AykFQjaoHakvyMdKUaqe
+         FpeQ==
+X-Gm-Message-State: AOAM531Enc4iCmNTtiPIT6RM6P4SJHnceZbCNVCexIo95uy17B5RlTPz
+        NdLRLYeik57lTMJk15efLTumo2BNC1c=
+X-Google-Smtp-Source: ABdhPJyyxDGWRAnN/9/TjLGmmoGWgb2UrMaEH2x6mxOR6/83wDfCGqoPemHbu4t9jzu1caqiWxQBIw==
+X-Received: by 2002:a05:622a:8b:: with SMTP id o11mr5082461qtw.282.1609958610707;
+        Wed, 06 Jan 2021 10:43:30 -0800 (PST)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id j29sm1523846qtv.11.2021.01.06.10.43.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Jan 2021 10:43:30 -0800 (PST)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/2] libsepol/cil: Update symtab nprim field when adding or removing datums
+Date:   Wed,  6 Jan 2021 13:43:25 -0500
+Message-Id: <20210106184326.272726-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Ashish Mishra <ashishm@mvista.com> writes:
+This field is suppose to be used to track the number of primary names in
+the symtab. It was not being updated or used.
 
-> Hi Dominick / Ondrej ,
->
-> Thanks for valuable inputs , I will try to evaluate them .
->
-> Ashish
+Increment the nprim field when a new datum is added to the symtab and
+decrement the field when a datum is removed.
 
-We have a IRC channel on chat.freenode.net where we can have casual and
-more interactive conversations if youre interested in that
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_symtab.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-https://freenode.net/kb/answer/chat
-
->
-> On Wed, Jan 6, 2021 at 9:30 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->>
->> On Wed, Jan 6, 2021 at 4:40 PM Dominick Grift
->> <dominick.grift@defensec.nl> wrote:
->> > Ashish Mishra <ashishm@mvista.com> writes:
->> >
->> > > Hi Dominick ,
->> > >
->> > > Will look at the re-labelling as you suggested.
->> > > Is there any doc / blog / implementation etc to understand the
->> > > sequence and commands to do this.
->> > > To understand this step in a better way.
->> > >
->> > > We are working with such a setup freshly so any inputs / guidance will
->> > > be helpful.
->> > >
->> > > Thanks for your time & inputs for this long thread .
->> >
->> > For docs i would suggest selinuxproject.org and
->> > https://github.com/SELinuxProject/selinux-notebook/blob/main/src/toc.md
->> >
->> > For implementations i would suggest looking at how OpenWrt implemented
->> > SELinux as this is a very simple implementation and the target seems to
->> > be relatively similar to yours with the exception that OpenWrt does not
->> > use a volatile root but instead uses a read-only squashfs and a overlay.
->> >
->> > You can also look at Fedora CoreOS for inspiration, and Googles SEAndroid.
->> >
->> > Implementing meaningful SELinux for exotic use cases like yours is not
->> > trivial though IMHO. Using reference policy as a base-policy might not
->> > be optimal for your use-case (to say the least) and it would probably be easier to create a
->> > policy from scratch instead in the longer run.
->>
->> Well said. I'll just add that you'll at the very least need to remove
->> the "genfscon" rule for "rootfs" from your policy and replace it with
->> an appropriate "fs_use_xattr" one to be able to relabel the root
->> filesystem. (Assuming it uses tmpfs under the hood (or supports
->> xattrs), otherwise you may need to mount tmpfs somewhere and chroot
->> into it at the beginning of your init script. Or something like
->> that...)
->>
->> --
->> Ondrej Mosnacek
->> Software Engineer, Platform Security - SELinux kernel
->> Red Hat, Inc.
->>
-
+diff --git a/libsepol/cil/src/cil_symtab.c b/libsepol/cil/src/cil_symtab.c
+index 2970b863..579a888e 100644
+--- a/libsepol/cil/src/cil_symtab.c
++++ b/libsepol/cil/src/cil_symtab.c
+@@ -92,6 +92,7 @@ int cil_symtab_insert(symtab_t *symtab, hashtab_key_t key, struct cil_symtab_dat
+ 		datum->name = key;
+ 		datum->fqn = key;
+ 		datum->symtab = symtab;
++		symtab->nprim++;
+ 		cil_list_append(datum->nodes, CIL_NODE, node);
+ 	} else if (rc == SEPOL_EEXIST) {
+ 		cil_list_append(datum->nodes, CIL_NODE, node);
+@@ -111,6 +112,7 @@ void cil_symtab_remove_datum(struct cil_symtab_datum *datum)
+ 	}
+ 
+ 	hashtab_remove(symtab->table, datum->name, NULL, NULL);
++	symtab->nprim--;
+ 	datum->symtab = NULL;
+ }
+ 
 -- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
+2.25.4
+
