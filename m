@@ -2,117 +2,149 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+X-Spam-Status: No, score=-20.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE9F6C4332D
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 13:28:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD004C433DB
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 13:36:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F1F02311E
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 13:28:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82987205F4
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 13:36:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726449AbhAFN2G (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Jan 2021 08:28:06 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:47248 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726456AbhAFN2E (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 08:28:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609939598;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bkmy+sPRJ3GBQ9N4fTsOS+0JPaHqtBA/WIcoxRE4Kqo=;
-        b=bfUaEYcduwk3weIgbRNDOFMU9pqE5mdVvl1AeyVV8k+Szn6Qr5cttIKWGAOypY8XugUcDR
-        6FYuRU0Tnc2/mvxsC4TMoA8O1DoFBpM87SfIkPzbtRBF7p01UAaLkMKR3I9KxWqM7e0S/R
-        O1KVCGnKDplErrCD306XIZuLGqrojtM=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-548-qSM2VcMMMqKTdWIaArEk0w-1; Wed, 06 Jan 2021 08:26:36 -0500
-X-MC-Unique: qSM2VcMMMqKTdWIaArEk0w-1
-Received: by mail-ed1-f71.google.com with SMTP id g6so1909763edw.13
-        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 05:26:36 -0800 (PST)
+        id S1726442AbhAFNgK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Jan 2021 08:36:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48552 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726437AbhAFNgK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 08:36:10 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D124BC06134C
+        for <selinux@vger.kernel.org>; Wed,  6 Jan 2021 05:35:29 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id qw4so4960381ejb.12
+        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 05:35:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3D2C3u8BMyJb9GOZ9/Gdatg+ayFEgr6HmerDrsFyoJc=;
+        b=cwqodgdkWceU8h9eiMiQKcH0RREH3vx7djtsvwU214UuiX+GeTLnsg640Wf9uso6VJ
+         D3pmJhnD0+DQx3nEPe6YtBb7t+oGJelJlq9UOsw7QnRi3eJ8YJvwfY6pVh5/llvvC4KK
+         b/ROqkCPAmvJlxAXhBHPnlQUO7DCh+OrVIX3ziNVRbOjyFlwdurNG5A6adnSObHdogUv
+         ma08gOvt/2rpb7oLyn6htSZNLpbbgo4EFaUruVVkUJePqmDm/8nlxBuhneryP+i0e9AY
+         oROpXlMaS6fZUoRmqm51H6RRhNyT0QsoDJtzITqHk9RIXFEE+pQ/CSGm15/XEV9aHqi1
+         NGJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bkmy+sPRJ3GBQ9N4fTsOS+0JPaHqtBA/WIcoxRE4Kqo=;
-        b=T/BryOGgIPKt/0OU2rS42vqsiGlx8iHM2c+xfo4MfJGQpnIw9wnTUbPxQHvgSkeYK9
-         d5Yc1VXb1M5Mbk95F5RuyHJrnGs78+CcRoQm3fitFc+7+ssM0IOZXR1pkiyhAeZFX43I
-         rq4NkhTOYGNpID2RnubyUD37rpgPTpsN+enJaLmV/l/mTE+fY5Ac8jfN32lYkBMBR7DN
-         oGyvuB0cOu4VDUWKjhpAA+3TsVODMrWc9ttoBQdJKkecVG/9pOZscl1/m0EehoQCdRwA
-         NMj8MDyrIy2zwTbP7BQNQjFH5xVOh7rQXt/FJ7S9+2dx1xYmI0WHO0fMx/Ss4Xi0ZOLJ
-         gSDA==
-X-Gm-Message-State: AOAM532p7xzFIS+D+GYCR+l/0924NQAJzrjWyklYTQtWPTTUnmJzIRyp
-        6M8D0/z2WMKs9L8+v+lQ46jNkoPAgPrT9ODyQ6i5kOhwDUwhunl/PXN8PaRRKruse/AB46zNS/a
-        CHNNoobXyZRGpBA3U7LiZhh6zlGtzCI8lRLtNsXrEuGXDuhj9TagbaXSny3gfrB2zwMfKOQ==
-X-Received: by 2002:a17:906:350b:: with SMTP id r11mr2958682eja.143.1609939595174;
-        Wed, 06 Jan 2021 05:26:35 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwKHYElX2zlnRfoyYzjCpsot7Te0of2+UpUR3Iz4s3GgsiPTf0Jr1Vw6xf+65hiihjoGOMECA==
-X-Received: by 2002:a17:906:350b:: with SMTP id r11mr2958666eja.143.1609939594876;
-        Wed, 06 Jan 2021 05:26:34 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id bm12sm1225893ejb.117.2021.01.06.05.26.33
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3D2C3u8BMyJb9GOZ9/Gdatg+ayFEgr6HmerDrsFyoJc=;
+        b=J78UchBq+VIC7zbh/RrL0qZDPVKmWUogPElAQc03iad+vedQvHt/ayhYJLzxgHMfH9
+         Y6s1XpXrAqPbrlwvAglKwh855pEWdeb3fXlW9swlFRzrERVTyMbav1DsCPCIp3I02Hxg
+         sAkwljwGIRUw8TQGoZOwnMUDX7bNZlMGbCTY/NZDh2jDVGt4wwV5bk8iQMf6esBHqjjj
+         HyAyvwl9SSn9X1TVcYZBJj7rR+Do+9NJ++JK6GdyuBCZhtxq5mkXPS31QsgBeQ4t3Hlw
+         0jPEb46oeYMqoglfQayMQm3iD2GkKpKk1DmED9DpjHXqNnIBTeaKXAsqhySo17kcrvHg
+         OX8A==
+X-Gm-Message-State: AOAM5321vRj5VbRPpUXxDM9IoJ5jMvEqdoM/+eBN6kJXJAlgB3t4FX2K
+        81NQzJcoiwSbDf/hpkbsQP4JZZUfmaMTpQ==
+X-Google-Smtp-Source: ABdhPJypHx3J0UfSYOKmAnHxKk/H+id6+mzM6n8+6m5XZ5CltSBQ16CHVPfMxcGCqC5dpFrEcNquQw==
+X-Received: by 2002:a17:906:40c1:: with SMTP id a1mr2836944ejk.520.1609940128631;
+        Wed, 06 Jan 2021 05:35:28 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-008-033-127.77.8.pool.telefonica.de. [77.8.33.127])
+        by smtp.gmail.com with ESMTPSA id i4sm1266100eje.90.2021.01.06.05.35.28
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Jan 2021 05:26:34 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5/5] selinux: mark selinux_xfrm_refcount as __read_mostly
-Date:   Wed,  6 Jan 2021 14:26:22 +0100
-Message-Id: <20210106132622.1122033-6-omosnace@redhat.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210106132622.1122033-1-omosnace@redhat.com>
-References: <20210106132622.1122033-1-omosnace@redhat.com>
+        Wed, 06 Jan 2021 05:35:28 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] newrole: preserve environment variable XDG_RUNTIME_DIR
+Date:   Wed,  6 Jan 2021 14:34:49 +0100
+Message-Id: <20210106133449.193940-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This is motivated by a perfomance regression of selinux_xfrm_enabled()
-that happened on a RHEL kernel due to false sharing between
-selinux_xfrm_refcount and (the late) selinux_ss.policy_rwlock (i.e. the
-.bss section memory layout changed such that they happened to share the
-same cacheline). Since the policy rwlock's memory region was modified
-upon each read-side critical section, the readers of
-selinux_xfrm_refcount had frequent cache misses, eventually leading to a
-significant performance degradation under a TCP SYN flood on a system
-with many cores (32 in this case, but it's detectable on less cores as
-well).
+XDG_RUNTIME_DIR is required for systemctl --user to work.
+See https://github.com/systemd/systemd/issues/15231
 
-While upstream has since switched to RCU locking, so the same can no
-longer happen here, selinux_xfrm_refcount could still share a cacheline
-with another frequently written region, thus marking it __read_mostly
-still makes sense. __read_mostly helps, because it will put the symbol
-in a separate section along with other read-mostly variables, so there
-should never be a clash with frequently written data.
-
-Since selinux_xfrm_refcount is modified only in case of an explicit
-action, it should be safe to do this (i.e. it shouldn't disrupt other
-read-mostly variables too much).
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/xfrm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ policycoreutils/newrole/newrole.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index c367d36965d4f..634f3db24da67 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -47,7 +47,7 @@
- #include "xfrm.h"
+diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
+index 36e2ba9c..500969e0 100644
+--- a/policycoreutils/newrole/newrole.c
++++ b/policycoreutils/newrole/newrole.c
+@@ -466,7 +466,7 @@ static int extract_pw_data(struct passwd *pw_copy)
+  * Either restore the original environment, or set up a minimal one.
+  *
+  * The minimal environment contains:
+- * TERM, DISPLAY and XAUTHORITY - if they are set, preserve values
++ * TERM, DISPLAY, XAUTHORITY and XDG_RUNTIME_DIR - if they are set, preserve values
+  * HOME, SHELL, USER and LOGNAME - set to contents of /etc/passwd
+  * PATH - set to default value DEFAULT_PATH
+  *
+@@ -478,9 +478,11 @@ static int restore_environment(int preserve_environment,
+ 	char const *term_env;
+ 	char const *display_env;
+ 	char const *xauthority_env;
+-	char *term = NULL;	/* temporary container */
+-	char *display = NULL;	/* temporary container */
++	char const *xdg_runtime_dir_env;
++	char *term = NULL;		/* temporary container */
++	char *display = NULL;		/* temporary container */
+ 	char *xauthority = NULL;	/* temporary container */
++	char *xdg_runtime_dir = NULL;	/* temporary container */
+ 	int rc;
  
- /* Labeled XFRM instance counter */
--atomic_t selinux_xfrm_refcount = ATOMIC_INIT(0);
-+atomic_t selinux_xfrm_refcount __read_mostly = ATOMIC_INIT(0);
+ 	environ = old_environ;
+@@ -491,6 +493,7 @@ static int restore_environment(int preserve_environment,
+ 	term_env = getenv("TERM");
+ 	display_env = getenv("DISPLAY");
+ 	xauthority_env = getenv("XAUTHORITY");
++	xdg_runtime_dir_env = getenv("XDG_RUNTIME_DIR");	/* needed for `systemd --user` operations */
  
- /*
-  * Returns true if the context is an LSM/SELinux context.
+ 	/* Save the variable values we want */
+ 	if (term_env)
+@@ -499,8 +502,12 @@ static int restore_environment(int preserve_environment,
+ 		display = strdup(display_env);
+ 	if (xauthority_env)
+ 		xauthority = strdup(xauthority_env);
+-	if ((term_env && !term) || (display_env && !display) ||
+-	    (xauthority_env && !xauthority)) {
++	if (xdg_runtime_dir_env)
++		xdg_runtime_dir = strdup(xdg_runtime_dir_env);
++	if ((term_env && !term) ||
++	    (display_env && !display) ||
++	    (xauthority_env && !xauthority) ||
++	    (xdg_runtime_dir_env && !xdg_runtime_dir)) {
+ 		rc = -1;
+ 		goto out;
+ 	}
+@@ -518,6 +525,8 @@ static int restore_environment(int preserve_environment,
+ 		rc |= setenv("DISPLAY", display, 1);
+ 	if (xauthority)
+ 		rc |= setenv("XAUTHORITY", xauthority, 1);
++	if (xdg_runtime_dir)
++		rc |= setenv("XDG_RUNTIME_DIR", xdg_runtime_dir, 1);
+ 	rc |= setenv("HOME", pw->pw_dir, 1);
+ 	rc |= setenv("SHELL", pw->pw_shell, 1);
+ 	rc |= setenv("USER", pw->pw_name, 1);
+@@ -527,6 +536,7 @@ static int restore_environment(int preserve_environment,
+ 	free(term);
+ 	free(display);
+ 	free(xauthority);
++	free(xdg_runtime_dir);
+ 	return rc;
+ }
+ 
 -- 
-2.29.2
+2.30.0
 
