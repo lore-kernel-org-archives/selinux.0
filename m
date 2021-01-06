@@ -6,68 +6,68 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8F22C433E0
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 14:26:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8BA6C433DB
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 14:28:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D14D2311B
-	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 14:26:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB0F62310D
+	for <selinux@archiver.kernel.org>; Wed,  6 Jan 2021 14:28:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbhAFO0e (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Jan 2021 09:26:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
+        id S1726396AbhAFO2E (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Jan 2021 09:28:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726932AbhAFO0d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 09:26:33 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7C3C06134C
-        for <selinux@vger.kernel.org>; Wed,  6 Jan 2021 06:25:52 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id r4so2771241wmh.5
-        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 06:25:52 -0800 (PST)
+        with ESMTP id S1726864AbhAFO2E (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Jan 2021 09:28:04 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57821C06134D
+        for <selinux@vger.kernel.org>; Wed,  6 Jan 2021 06:27:23 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id r7so2604116wrc.5
+        for <selinux@vger.kernel.org>; Wed, 06 Jan 2021 06:27:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=mvista-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=5dhyJ/xJkk4KHY5cILcpabqKDi79AzvmWFYTbChZm3c=;
-        b=vN3kRvijqsMLbrlT4BqVa4hjwuUDkZ+B9WYoyfQ+hlcehQouPcpzsB6rUnoRLVDQs/
-         lS5g6wGmPxcm1ViT/Y7BDoLqBRvscbzx/PhFxheNSz7FO5d9lX4ArEZruCGPw7HHVlJf
-         T5rUR56/6RMlK5+4+cDLrQtkvi3+O3IiqWZPGfrK3PbT9jajt7effyVxomJu4SGK5n/a
-         yp8i/oUYa+ss57fFSL34UcS6VQ/EC5jVqSW6jvxZekwnp8JqrLdKnNrpg6V2/KQeKUVG
-         A+CLMJtWcyQnR1G+Pio0cAB356OHSr45NDfcYRfRdD9oZf+7Fluj3L3RVb8p53A+BmBd
-         0AVA==
+        bh=tTRrgnpr8h9ywVMqm3+Gz80+Ibmv0qwovFF+121txYg=;
+        b=HewpIa7L1ruHnxCtptFCaz8Y5KGEwCVvVjHOMM8T2Iy6gAdioJyoX4k3zeARIhRH/A
+         bGz5d3kaXbLTHC2gNnQ5xJUcuN07R6wiMbwwoHsKwBFC303+Wpy9+0pxqIzFOaLSrsJE
+         S13sljAlO089yQHGxbH3+lhACpDXghjlIGTU+GXc9KW/G8OosUaYdlqW9zS5/ahuKDWz
+         z4z3i4+UUwpIn6w5j4+7Lqe2P4Xt44Kf/PeqdKoIz60gE5cJ92sMmz6HpixnAXoW/VlM
+         +KrZ0bt2DooFr2m7yqqQFAxRImLSX2/Th5CHf8pfiwpyHyF+MhsntZq0yMGeyoeUenif
+         Dm9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=5dhyJ/xJkk4KHY5cILcpabqKDi79AzvmWFYTbChZm3c=;
-        b=Z0BA405NuI67fLXjhKKQ2D5epbCRhBaB/C/WlvC57gji/X0qtNdtIu7UkUfzFon6jg
-         H3NsDPmqToP88byHm+9MUbTUWz5qR//hrnrEs224T7DEGj/yQaHwjirGz0giW2H08Ivn
-         hIlQRRpDPkYf/W8mBJtXgb1dBh8LN2HeX0qWKSvJcPiUCgzBRdIo8Mh6Zvs/YKMfNTqE
-         A2bImIA/fd4DY8N6S6s/sJgCs5cUk91gztdO3ayuXzBFzhZTvnJ7xKBUMChpbQioZ2po
-         p26Ah6g+FAKIGUd1mzDwi0cKXk3N0nb2NrQsM8digpX+NWDslB90ZGExj8DD6dQn9bvw
-         k09w==
-X-Gm-Message-State: AOAM5326QGSRq9ebanIKOQqte1yJC+gddnoBByqsC+qCorIoUi943YPt
-        zyiUe+v5kDojzBn0JIKhWc6iMhJ9p3s5cLHYlG+u9upF/Ss5e3mz
-X-Google-Smtp-Source: ABdhPJw/CBJ3bblP1OOGpJHElXIOrw5DyqKE4Ph+dGXuKQPTm3KZ92fhZy8+P+DLkqc6jqbfFtXhszAOGeBYw4+v99k=
-X-Received: by 2002:a7b:c198:: with SMTP id y24mr3957884wmi.151.1609943151353;
- Wed, 06 Jan 2021 06:25:51 -0800 (PST)
+        bh=tTRrgnpr8h9ywVMqm3+Gz80+Ibmv0qwovFF+121txYg=;
+        b=EO2V2pZ77Z4CXiOUjoGOHngLVHGmr0LUWML6tIKxLPUf9b0uZBWf2aHPdZw96AhxDu
+         nBqhPbF/yL7gFyDYr74eHmBCJS6xm4A6UA2aMe6/7wvuKkmp4j5xPbTuMVwaWzRjYJO0
+         +RBcbvUn/sQKQnPDvcoypI0/Zc+Cpg2ocpthreh9zk1EVG49WBrMs9FK8mMxbRVFX5vt
+         fMPYjsRxdaw6cENC21eaGFkXZwt63SxgE5TYbadhD9zcoPNJz1NQnXUnfPN06EjENlPf
+         h0oM1d0x7W0FIzJnorZLu6NV4Ua4pZm4e1zQmpNT0GHugM/XkkrLIE4tKm3WdBL7pVRg
+         o7ZA==
+X-Gm-Message-State: AOAM53057SrZPhzWUU0NBl4VkxxU6/ildC1hLoE7XPopVZFegLsD4nZE
+        MJIFHrqVHI7iW79MPloF2NrJ+Qu4G2ORcKd9AofBnrjWYKQ4Calx
+X-Google-Smtp-Source: ABdhPJycJjkiKMmQ0JGD5vqMOD+vXM/2JMfyBai6u+ilnuqSRNBSifBYfyg34ttyg5MyKyjI7BLLSTupwXtumHP44Ks=
+X-Received: by 2002:a5d:558a:: with SMTP id i10mr4620883wrv.363.1609943241943;
+ Wed, 06 Jan 2021 06:27:21 -0800 (PST)
 MIME-Version: 1.0
 References: <CAP2OjcjH0=HdTMr3eVkD-LkK++8XVDb05C+TtC9+1ii61kErzg@mail.gmail.com>
  <ypjlzh1o523g.fsf@defensec.nl> <CAP2Ojcg2+FbjEc0mDuE6uLKL45vtNmUnwQDMAoYp97ST67XL1g@mail.gmail.com>
  <ypjlv9cc50hj.fsf@defensec.nl>
 In-Reply-To: <ypjlv9cc50hj.fsf@defensec.nl>
 From:   Ashish Mishra <ashishm@mvista.com>
-Date:   Wed, 6 Jan 2021 19:55:40 +0530
-Message-ID: <CAP2OjciFu+MrORgG4fb+Z7iZ3QqFi8n9BtKAMoF3boOSkw6XpQ@mail.gmail.com>
+Date:   Wed, 6 Jan 2021 19:57:10 +0530
+Message-ID: <CAP2OjciUpv0BKDTeRV=ahJ3f2d98RzXXMEAdbtk=HSCpXdxGuA@mail.gmail.com>
 Subject: Re: Selinux context type is same for root & normal user both
 To:     Dominick Grift <dominick.grift@defensec.nl>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>
-Content-Type: multipart/mixed; boundary="000000000000a6a41105b83c1969"
+Content-Type: multipart/mixed; boundary="0000000000000c9abc05b83c1f5f"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---000000000000a6a41105b83c1969
+--0000000000000c9abc05b83c1f5f
 Content-Type: text/plain; charset="UTF-8"
 
 Hi Dominick ,
@@ -87,78 +87,12 @@ I will evaluate the point-1 as suggested .
 Thanks for sharing valuable info.
 Ashish
 
-
-On Mon, Jan 4, 2021 at 6:21 PM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
->
-> Ashish Mishra <ashishm@mvista.com> writes:
->
-> > Hi Dominick ,
-> >
-> > Thanks for inputs .
-> >
-> > a) This is an embedded board which logs in by default as a ROOT user.
-> >      Any pointers as to where can i look to debug the cause due to
-> > which context is "system_u"
->
-> Lack of PAM support or misconfigurated PAM config (pam_selinux needs to
-> be present in the appropriate PAM stacks)
->
-> >
-> > b) Apologies , but can you please help method / approach / debug
-> > points by which
-> >     -> I can evaluate the expected contexts for root & testuser
-> >     -> I can see that the labels are created using ls -alZ .
-> >         Is there any other method / debug point to check filesystems
-> > are labeled according to the policy.
-> >         ( as i am using standard refpolicy to create an default policy
-> > on board )
->
-> You start by determining the current context of the login user (id -Z
-> will print the context of the current shell). Then you determine the
-> context of the directory in which the file is created (ls -dZ)
->
-> With this information you can query:
->
-> sesearch -T -s "type returned by id -Z" | grep "type returned by ls -dZ"
->
-> That should return any existing "type_transition" rules where the type
-> of the user is the source and the type of the destination directory is a target
->
-> >
-> >
-> > Thanks ,
-> > Ashish
->
-> The question is whether you want/need IBAC/RBAC on an embedded device
-> with only one user (root)
->
-> In my policy for OpenWrt (which is a embedded wireless router firmare) i
-> do not use IBAC/RBAC either and i just add a rule that say's when the
-> login program (sshd) executes a shell then assume that this is a login
-> user shell and automatically transition from the sshd context to a specified
-> user context)
->
-> On embedded devices "modular reference policy" does not make sense to
-> use (these devices generally do not have the resources to compile/link
-> policy at runtime) IMHO and the "monolithic reference policy" does not work well with
-> PAM and users.
->
-> But, yes, if you want modular refpolicy on a multi-user system then you
-> probably want PAM
->
-> --
-> gpg --locate-keys dominick.grift@defensec.nl
-> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-> Dominick Grift
-
---000000000000a6a41105b83c1969
+--0000000000000c9abc05b83c1f5f
 Content-Type: text/plain; charset="US-ASCII"; name="secontext-for-folders.txt"
 Content-Disposition: attachment; filename="secontext-for-folders.txt"
 Content-Transfer-Encoding: base64
-Content-ID: <f_kjlikrbz0>
-X-Attachment-Id: f_kjlikrbz0
+Content-ID: <f_kjlimooh0>
+X-Attachment-Id: f_kjlimooh0
 
 aG9tZSAjIHBzIC1aCiAgUElEIENPTlRFWFQgICAgICAgICAgICAgICAgICAgICAgICAgIFNUQVQg
 Q09NTUFORAogICAgMSBzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICBTICAgIGluaXQK
@@ -727,4 +661,4 @@ X3I6cm9vdF90ICAgICAgICAgICAgICAgMTQwIEphbiAgNiAxMjozNyBydW4KfiAjIAogQ1RSTC1B
 IFogZm9yIGhlbHAgfDExNTIwMCA4TjEgfCBOT1IgfCBNaW5pY29tIDIuNi4yICB8IFZUMTAyIHwg
 ICAgICBPZmZsaW5lICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
 ICAgICAgICAgICAgICAgICAgICAgCgo=
---000000000000a6a41105b83c1969--
+--0000000000000c9abc05b83c1f5f--
