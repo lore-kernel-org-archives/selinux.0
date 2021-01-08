@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FAA9C433E0
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 09:12:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C068BC4332E
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 09:53:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 566E82226A
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 09:12:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E5A3236F9
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 09:53:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725791AbhAHJMs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Jan 2021 04:12:48 -0500
-Received: from so254-31.mailgun.net ([198.61.254.31]:48198 "EHLO
+        id S1728301AbhAHJxB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Jan 2021 04:53:01 -0500
+Received: from so254-31.mailgun.net ([198.61.254.31]:22319 "EHLO
         so254-31.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727906AbhAHJMs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 04:12:48 -0500
+        with ESMTP id S1727566AbhAHJxA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 04:53:00 -0500
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1610097142; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=TwVrvVK1OzG/lArxagrlCuTmDgJ2ODUQJRFSPWgtUOk=; b=NGWjR5e3GvShW/klCX72vvj6p6st6W1VvaJPr6PKH/ekfUVm3YCc9Iw+zMkvfDu/q3oSvjw5
- kINsMAvpd50RNf8EZbQp7k2ZJnN51srvDzkRuQfsTZ+gD8NBO15vPRyCy5Mqd0OEMhU20WmT
- 1wVS7CERDFLmb+Ta+cHAMaLwWxY=
+ s=smtp; t=1610099554; h=Message-Id: Date: Subject: Cc: To: From:
+ Sender; bh=TwVrvVK1OzG/lArxagrlCuTmDgJ2ODUQJRFSPWgtUOk=; b=j2UcN/8uNh1hpG8UJPAXxbUEOF3mdXUqcamkhx3eEngMo9dA4inqyaXFabAGURPYMhRMKOIW
+ uB2g1DYGFznqz3PyMH7g1kqSms998DtwTFTwGqsBm31vOyD5qT7QaPa45f0YgT5rMipfHlVK
+ pjAlTAV/Th/atfXB8m01pJ1Vs+o=
 X-Mailgun-Sending-Ip: 198.61.254.31
 X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
 Received: from smtp.codeaurora.org
  (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
- 5ff821d50139c41e8921c659 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 08 Jan 2021 09:11:49
+ smtp-out-n08.prod.us-east-1.postgun.com with SMTP id
+ 5ff82b43d092322d9e7779ed (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 08 Jan 2021 09:52:03
  GMT
 Sender: pnagar=codeaurora.org@mg.codeaurora.org
 Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 818E4C43469; Fri,  8 Jan 2021 09:11:49 +0000 (UTC)
+        id A2CC0C43468; Fri,  8 Jan 2021 09:52:02 +0000 (UTC)
 Received: from pnagar-linux.qualcomm.com (unknown [202.46.22.19])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
         (Authenticated sender: pnagar)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 621BEC433CA;
-        Fri,  8 Jan 2021 09:11:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 621BEC433CA
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id C6A8EC433C6;
+        Fri,  8 Jan 2021 09:51:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org C6A8EC433C6
 Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
 Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=pnagar@codeaurora.org
 From:   Preeti Nagar <pnagar@codeaurora.org>
@@ -51,12 +51,12 @@ To:     arnd@arndb.de, jmorris@namei.org, serge@hallyn.com,
         selinux@vger.kernel.org, linux-arch@vger.kernel.org
 Cc:     psodagud@codeaurora.org, nmardana@codeaurora.org,
         dsule@codeaurora.org, pnagar@codeaurora.org,
-        Joe Perches <joe@perches.com>,
+        Joe Perches <joe@perches.com>, Miguel Ojeda <ojeda@kernel.org>,
         Nick Desaulniers <ndesaulniers@gooogle.com>,
-        Miguel Ojeda <ojeda@kernel.org>, linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] selinux: ARM64: Move selinux_state to a separate page
-Date:   Fri,  8 Jan 2021 14:39:14 +0530
-Message-Id: <1610096956-21347-1-git-send-email-pnagar@codeaurora.org>
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH v2] selinux: security: Move selinux_state to a separate page
+Date:   Fri,  8 Jan 2021 15:19:47 +0530
+Message-Id: <1610099389-28329-1-git-send-email-pnagar@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
