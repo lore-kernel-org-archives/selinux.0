@@ -2,196 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7255C433DB
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 21:32:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C3EFC43381
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 22:16:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8CCE23A9B
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 21:32:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B40523B04
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 22:16:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728664AbhAHVcZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Jan 2021 16:32:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36178 "EHLO
+        id S1725815AbhAHWQV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Jan 2021 17:16:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728153AbhAHVcX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 16:32:23 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D156BC061757
-        for <selinux@vger.kernel.org>; Fri,  8 Jan 2021 13:31:42 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id i24so12583602edj.8
-        for <selinux@vger.kernel.org>; Fri, 08 Jan 2021 13:31:42 -0800 (PST)
+        with ESMTP id S1725791AbhAHWQV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 17:16:21 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591B0C061757;
+        Fri,  8 Jan 2021 14:15:41 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id lj6so4408342pjb.0;
+        Fri, 08 Jan 2021 14:15:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=usABmZbPBqvxIY7U6EdGtDSIYnBKPUAxoopqfJsbtF4=;
-        b=pBGi9wERfXy2hax+45WV3pYPQR65fOvZkuo+5mJBYJm6oCBXdlsNQ8MLB2BBZJghLV
-         krg0LeT8dDbheD2uijN7Xt+GmkSuJtHYSwgxWq/ZMwJHgwuur7rw2L4h0Q84fHnxuYNJ
-         BqLkmzGllNp9DvPfiijxoam7DIejfT06c3wqhBqPdvllpbzncL7z7xc3zfkeYvEFM0/y
-         wLRqioz1SjBMUYCnZJZfs2GaQIr7j9B/ZvO5kT1xaSSlgo1x8DGIuqaPmbr921IxGow9
-         VT3idPThY7BJWa/DhX2K/205uPggSR1O8exx7M439p7jP5pUTCEm50o6MJ2bZAPGa1i1
-         9JFw==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=cPwxujGNNyOBnF0Vwn1tLQOHKm27c8aE8Qm8sfiISfM=;
+        b=rI/GoBBGWlXF5JUC0/uPwoTcwobevsRYyKgkfhrgde/PuiIA7VM71TTPWx2an5anQ0
+         qP3a8g0ZYMtCczxBB+l/0bEOt+goxz88uiM9BRoP1eazMsil4IUXfVqOxTxyItzoE2WJ
+         zpUhjuyTBJRSEslBe/YubfQ6h24QfaoFp3nwEBd28ascrg+EK+0WBe39JNDg4+QQXaIg
+         MTI6n8R1EVdMFWGB74kNH4G/ctcN/hm0lIBglC18rNAJbshB8ktGt7giiftPldRWk2Qf
+         MsTq4cwKOV00oLw2Ln/PMZZD8aQyjSnTCgFzAr/xew0GkKEhHs0pT4ia0p8smIlIBg2V
+         mRcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=usABmZbPBqvxIY7U6EdGtDSIYnBKPUAxoopqfJsbtF4=;
-        b=Q+ahskNwDwzDGi3GH2PTrkrPs24laco7SUty0JS8TNvaHkFZBvKom/M1NxhQnP8yGT
-         HK67j/YNdJD6+OJwpiHDL91zUf4ZvoIdLAt+x/+D2qSaTVovQKYqvG9Vr/kp7hGeDW3Z
-         h9DhjNjnDiWJajtkFNGVd3ykmxq7cajZ609/2xq7KgjkkmwU9H2CDF0WVFJq9XgZwZxZ
-         zB3kyKTul2Cvtaqa/Y5NTJTTiOplsJyB/Y1AlXZqD66lSgCLlB6ZzAt1S1K29EFMqd5Q
-         NhHKZQJ1At2XUAqEa+O49l9vcIwhWq1J7KcRUespWupvISB7kB+Cd78aHNZ8hvySHTCD
-         fS/Q==
-X-Gm-Message-State: AOAM531+3sLMyFrlLuUOwFqlRfeBN195o+ideU3cq6NioN32naH+nCXv
-        78ir1BQ8wZBHziQUhkxW5QEityWrBLIFsHZg2G+4nA==
-X-Google-Smtp-Source: ABdhPJw2qYeDr60GGb3HJnbXtjHALUnLnnC8WnJbfhBCDpJkWDyszY9IxAR+lhJgwDJyVCmFAUsAet6wSO0g94hykG0=
-X-Received: by 2002:aa7:da03:: with SMTP id r3mr6546470eds.155.1610141501281;
- Fri, 08 Jan 2021 13:31:41 -0800 (PST)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=cPwxujGNNyOBnF0Vwn1tLQOHKm27c8aE8Qm8sfiISfM=;
+        b=amQOScDS19s7zi/aipbLnfDqtRwCyRsV6Z/+QUZPn1udV1icLTSP0ymFkbQFWymuKr
+         5EWdtgRovI2u30WvKKdyTshVV7ziU5jWayOuFXGmi0vI2dDg8HYfxNFQVWkCg89o9OQD
+         gBAYgLqg9ovb8/VwOEWoRTf/Yq8XfPKDAUbyK6N3QSE3Ekq1Y2rxMqlWuyFW+ZPZLmlH
+         AzAFzBozCeyxrnPtdujrXwMgPniA/GLgknz3bT1UdlZxZdDlD5AF9NEaEfP6orYXb/09
+         X+mTTSDi03uRRhw7xk2vkty/vb23BoJY1I4MOD1c69MvFYZEHFUHOE6Sw2xEamuNJbws
+         RNJg==
+X-Gm-Message-State: AOAM532iNPtU24/06mb6AQJj83rgI34f6S8Fe7SeSL8CywpcjqcXL9al
+        0ErPgnqD5pp7m42tKTNWp7w=
+X-Google-Smtp-Source: ABdhPJy4f4mlQgM559uJm1g1tPUPB7QKx9c6aaz7sIh4PCKsyofkc+Ulp6tDGlFc4DCvAuSUOc8NtA==
+X-Received: by 2002:a17:90a:6708:: with SMTP id n8mr5974485pjj.35.1610144140538;
+        Fri, 08 Jan 2021 14:15:40 -0800 (PST)
+Received: from google.com ([2620:15c:211:201:7220:84ff:fe09:5e58])
+        by smtp.gmail.com with ESMTPSA id 77sm9968507pfv.16.2021.01.08.14.15.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Jan 2021 14:15:39 -0800 (PST)
+Sender: Minchan Kim <minchan.kim@gmail.com>
+Date:   Fri, 8 Jan 2021 14:15:37 -0800
+From:   Minchan Kim <minchan@kernel.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     akpm@linux-foundation.org, jannh@google.com, keescook@chromium.org,
+        jeffv@google.com, mhocko@suse.com, shakeelb@google.com,
+        rientjes@google.com, edgararriaga@google.com, timmurray@google.com,
+        linux-mm@kvack.org, selinux@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com
+Subject: Re: [PATCH 1/1] mm/madvise: replace ptrace attach requirement for
+ process_madvise
+Message-ID: <X/jZibYD1B42D+r7@google.com>
+References: <20210108205857.1471269-1-surenb@google.com>
 MIME-Version: 1.0
-References: <20201112015359.1103333-1-lokeshgidra@google.com>
- <20201112015359.1103333-4-lokeshgidra@google.com> <CAHC9VhS2WNXn2cVAUcAY5AmmBv+=XsthCevofNNuEOU3=jtLrg@mail.gmail.com>
- <CAEjxPJ6TA_nXrUJ6CjhG-j0_oAj9WU1vRn5pGvjDqQ2Bk9VVag@mail.gmail.com>
- <CA+EESO45ezOtg1-MHfwSk3YNYRS7cYnH+kMz-T_MdaSpyW=8Yw@mail.gmail.com> <CAEjxPJ7CL0WbEeooyh=d_LggZ7xTtcqsLY3TSunJ6oXWNxBOuw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7CL0WbEeooyh=d_LggZ7xTtcqsLY3TSunJ6oXWNxBOuw@mail.gmail.com>
-From:   Lokesh Gidra <lokeshgidra@google.com>
-Date:   Fri, 8 Jan 2021 13:31:30 -0800
-Message-ID: <CA+EESO56RQdB3vV4_BKHT6rhGnbyT07HvrfPcR5s5OFMh1XURw@mail.gmail.com>
-Subject: Re: [PATCH v13 3/4] selinux: teach SELinux about anonymous inodes
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Daniel Colascione <dancol@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210108205857.1471269-1-surenb@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 8, 2021 at 1:24 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jan 8, 2021 at 3:17 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> >
-> > On Fri, Jan 8, 2021 at 11:35 AM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Wed, Jan 6, 2021 at 10:03 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > >
-> > > > On Wed, Nov 11, 2020 at 8:54 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > > > > From: Daniel Colascione <dancol@google.com>
-> > > > >
-> > > > > This change uses the anon_inodes and LSM infrastructure introduced in
-> > > > > the previous patches to give SELinux the ability to control
-> > > > > anonymous-inode files that are created using the new
-> > > > > anon_inode_getfd_secure() function.
-> > > > >
-> > > > > A SELinux policy author detects and controls these anonymous inodes by
-> > > > > adding a name-based type_transition rule that assigns a new security
-> > > > > type to anonymous-inode files created in some domain. The name used
-> > > > > for the name-based transition is the name associated with the
-> > > > > anonymous inode for file listings --- e.g., "[userfaultfd]" or
-> > > > > "[perf_event]".
-> > > > >
-> > > > > Example:
-> > > > >
-> > > > > type uffd_t;
-> > > > > type_transition sysadm_t sysadm_t : anon_inode uffd_t "[userfaultfd]";
-> > > > > allow sysadm_t uffd_t:anon_inode { create };
-> > > > >
-> > > > > (The next patch in this series is necessary for making userfaultfd
-> > > > > support this new interface.  The example above is just
-> > > > > for exposition.)
-> > > > >
-> > > > > Signed-off-by: Daniel Colascione <dancol@google.com>
-> > > > > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> > > > > ---
-> > > > >  security/selinux/hooks.c            | 56 +++++++++++++++++++++++++++++
-> > > > >  security/selinux/include/classmap.h |  2 ++
-> > > > >  2 files changed, 58 insertions(+)
-> > > > >
-> > > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > > > index 6b1826fc3658..d092aa512868 100644
-> > > > > --- a/security/selinux/hooks.c
-> > > > > +++ b/security/selinux/hooks.c
-> > > > > @@ -2927,6 +2927,61 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
-> > > > >         return 0;
-> > > > >  }
-> > > > >
-> > > > > +static int selinux_inode_init_security_anon(struct inode *inode,
-> > > > > +                                           const struct qstr *name,
-> > > > > +                                           const struct inode *context_inode)
-> > > > > +{
-> > > > > +       const struct task_security_struct *tsec = selinux_cred(current_cred());
-> > > > > +       struct common_audit_data ad;
-> > > > > +       struct inode_security_struct *isec;
-> > > > > +       int rc;
-> > > > > +
-> > > > > +       if (unlikely(!selinux_initialized(&selinux_state)))
-> > > > > +               return 0;
-> > > > > +
-> > > > > +       isec = selinux_inode(inode);
-> > > > > +
-> > > > > +       /*
-> > > > > +        * We only get here once per ephemeral inode.  The inode has
-> > > > > +        * been initialized via inode_alloc_security but is otherwise
-> > > > > +        * untouched.
-> > > > > +        */
-> > > > > +
-> > > > > +       if (context_inode) {
-> > > > > +               struct inode_security_struct *context_isec =
-> > > > > +                       selinux_inode(context_inode);
-> > > > > +               if (context_isec->initialized != LABEL_INITIALIZED)
-> > > > > +                       return -EACCES;
-> > Stephen, as per your explanation below, is this check also
-> > problematic? I mean is it possible that /dev/kvm context_inode may not
-> > have its label initialized? If so, then v12 of the patch series can be
-> > used as is. Otherwise, I will send the next version which rollbacks
-> > v14 and v13, except for this check. Kindly confirm.
->
-> The context_inode should always be initialized already.  I'm not fond
-> though of silently returning -EACCES here.  At the least we should
-> have a pr_err() or pr_warn() here.  In reality, this could only occur
-> in the case of a kernel bug or memory corruption so it used to be a
-> candidate for WARN_ON() or BUG_ON() or similar but I know that
-> BUG_ON() at least is frowned upon these days.
+On Fri, Jan 08, 2021 at 12:58:57PM -0800, Suren Baghdasaryan wrote:
+> process_madvise currently requires ptrace attach capability.
+> PTRACE_MODE_ATTACH gives one process complete control over another
+> process. It effectively removes the security boundary between the
+> two processes (in one direction). Granting ptrace attach capability
+> even to a system process is considered dangerous since it creates an
+> attack surface. This severely limits the usage of this API.
+> The operations process_madvise can perform do not affect the correctness
+> of the operation of the target process; they only affect where the data
+> is physically located (and therefore, how fast it can be accessed).
+> What we want is the ability for one process to influence another process
+> in order to optimize performance across the entire system while leaving
+> the security boundary intact.
+> Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
+> and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
+> and CAP_SYS_NICE for influencing process performance.
+> 
+> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 
-Got it. I'll add a pr_err(). Thanks a lot.
+It sounds logical to me.
+If security folks don't see any concern and fix below,
+
+Acked-by: Minchan Kim <minchan@kernel.org>
+
+> @@ -1197,12 +1197,22 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
+>  		goto release_task;
+>  	}
+>  
+> -	mm = mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
+> +	/* Require PTRACE_MODE_READ to avoid leaking ASLR metadata. */
+> +	mm = mm_access(task, PTRACE_MODE_READ_FSCREDS);
+>  	if (IS_ERR_OR_NULL(mm)) {
+>  		ret = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
+>  		goto release_task;
+>  	}
+>  
+> +	/*
+> +	 * Require CAP_SYS_NICE for influencing process performance. Note that
+> +	 * only non-destructive hints are currently supported.
+> +	 */
+> +	if (!capable(CAP_SYS_NICE)) {
+> +		ret = -EPERM;
+> +		goto release_task;
+
+mmput?
+
+> +	}
+> +
+>  	total_len = iov_iter_count(&iter);
+>  
+>  	while (iov_iter_count(&iter)) {
+> -- 
+> 2.30.0.284.gd98b1dd5eaa7-goog
+> 
