@@ -2,188 +2,182 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16716C432C3
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 05:34:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FAA9C433E0
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 09:12:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F0000233EE
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 05:34:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 566E82226A
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 09:12:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbhAHFeU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Jan 2021 00:34:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727926AbhAHFeT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 00:34:19 -0500
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A25C0612A5
-        for <selinux@vger.kernel.org>; Thu,  7 Jan 2021 21:33:09 -0800 (PST)
-Received: by mail-qk1-x749.google.com with SMTP id 188so8360278qkh.7
-        for <selinux@vger.kernel.org>; Thu, 07 Jan 2021 21:33:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:in-reply-to:message-id:mime-version:references:subject
-         :from:to:cc;
-        bh=Cge7zJHdUeDRqJYsTUJX6Q9Nj8WIU/VuWZZ/mr14Zmg=;
-        b=qN+rRwo6MVgxmmI+RbC5qwLL+fMkVwWvNqMlQqHeJpnol+J5bOoiaOWcfCW3r8AHoW
-         GYYLgp3gQHBaShRiCtiKkIw4wc9S4XawwRAb05Yr50CNRnEQgc4HtbkYBvnH7zjiRVOt
-         YhzAdoKFJ+ai7dkkYNr+FZkc6JghkugaPQnpWPR7ptoiw+j3TlHhHENkYG7OqwGTfRIN
-         PXc38cJeTAo8Zgjem7Lr+TtntNEJdbDAzWO2h2zvGPvnmLlfsyNRHE/iO4Yi8/Xq87Rf
-         gLDo3nJWCDrbzKS+T64F/HLNM+Ohsf+j3E0gwRbEEOLHks9b/vd+nA5nmrHvDh++9Tr8
-         5LvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=Cge7zJHdUeDRqJYsTUJX6Q9Nj8WIU/VuWZZ/mr14Zmg=;
-        b=py47pfyraGxAa6Zj3KpHOcPZNR0vibGBTaO2DvG0TF3iAXzDd8ZZNhHA83joCkAofG
-         KBJ+DxEZXVbEqxtLS1AcApCGtopjulSMLWDRZGZRnVuskCGU9mbWQvspCLOYOUnjWgv+
-         wjzH72M1gi8PT5CZS2+B8P3H5oJpNr9utJ4z2t5krEOPbf5vv6Q1RYkuOpQl7Hdxw3GU
-         XvCwwFjT8nvVvdlDkexhtUFz5qMgqMWPr2ZRzM936c2GpAOcbTwSmrYhcx4xjowP/QcF
-         fqGZmZ1qhEW8Ft+XYFP2LiZbk2898fh4JEK7+5irn3xcm4uC/zEOw4q5hQzTYhrL18u4
-         w9Pw==
-X-Gm-Message-State: AOAM531T5NWjbKCNlWQYaUa9qUYtES0qZFq9FfRPLvoDXwrWTKbkbFdN
-        P2PJH173ClHvu2EnCv+58uExbsWCyOisxuckkw==
-X-Google-Smtp-Source: ABdhPJxm8tlrBDnY+v0WVkKBRI5KV7uvRVzcdBOqrHxkpxVhZYwYjuvyY1pgMx2tkFD/UUvuWNqF585dxeWZV3GCAg==
-Sender: "lokeshgidra via sendgmr" <lokeshgidra@lg.mtv.corp.google.com>
-X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:29dd])
- (user=lokeshgidra job=sendgmr) by 2002:a05:6214:714:: with SMTP id
- b20mr2029281qvz.36.1610083989040; Thu, 07 Jan 2021 21:33:09 -0800 (PST)
-Date:   Thu,  7 Jan 2021 21:32:59 -0800
-In-Reply-To: <20210108053259.726613-1-lokeshgidra@google.com>
-Message-Id: <20210108053259.726613-5-lokeshgidra@google.com>
-Mime-Version: 1.0
-References: <20210108053259.726613-1-lokeshgidra@google.com>
-X-Mailer: git-send-email 2.30.0.284.gd98b1dd5eaa7-goog
-Subject: [PATCH v14 4/4] userfaultfd: use secure anon inodes for userfaultfd
-From:   Lokesh Gidra <lokeshgidra@google.com>
-To:     Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        kaleshsingh@google.com, calin@google.com, surenb@google.com,
-        jeffv@google.com, kernel-team@android.com, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>, hch@infradead.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1725791AbhAHJMs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Jan 2021 04:12:48 -0500
+Received: from so254-31.mailgun.net ([198.61.254.31]:48198 "EHLO
+        so254-31.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727906AbhAHJMs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 04:12:48 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1610097142; h=Message-Id: Date: Subject: Cc: To: From:
+ Sender; bh=TwVrvVK1OzG/lArxagrlCuTmDgJ2ODUQJRFSPWgtUOk=; b=NGWjR5e3GvShW/klCX72vvj6p6st6W1VvaJPr6PKH/ekfUVm3YCc9Iw+zMkvfDu/q3oSvjw5
+ kINsMAvpd50RNf8EZbQp7k2ZJnN51srvDzkRuQfsTZ+gD8NBO15vPRyCy5Mqd0OEMhU20WmT
+ 1wVS7CERDFLmb+Ta+cHAMaLwWxY=
+X-Mailgun-Sending-Ip: 198.61.254.31
+X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
+ 5ff821d50139c41e8921c659 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 08 Jan 2021 09:11:49
+ GMT
+Sender: pnagar=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 818E4C43469; Fri,  8 Jan 2021 09:11:49 +0000 (UTC)
+Received: from pnagar-linux.qualcomm.com (unknown [202.46.22.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: pnagar)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 621BEC433CA;
+        Fri,  8 Jan 2021 09:11:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 621BEC433CA
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=pnagar@codeaurora.org
+From:   Preeti Nagar <pnagar@codeaurora.org>
+To:     arnd@arndb.de, jmorris@namei.org, serge@hallyn.com,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-arch@vger.kernel.org
+Cc:     psodagud@codeaurora.org, nmardana@codeaurora.org,
+        dsule@codeaurora.org, pnagar@codeaurora.org,
+        Joe Perches <joe@perches.com>,
+        Nick Desaulniers <ndesaulniers@gooogle.com>,
+        Miguel Ojeda <ojeda@kernel.org>, linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] selinux: ARM64: Move selinux_state to a separate page
+Date:   Fri,  8 Jan 2021 14:39:14 +0530
+Message-Id: <1610096956-21347-1-git-send-email-pnagar@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Daniel Colascione <dancol@google.com>
+The changes introduce a new security feature, RunTime Integrity Check
+(RTIC), designed to protect Linux Kernel at runtime. The motivation
+behind these changes is:
+1. The system protection offered by SE for Android relies on the
+assumption of kernel integrity. If the kernel itself is compromised (by
+a perhaps as yet unknown future vulnerability), SE for Android security
+mechanisms could potentially be disabled and rendered ineffective.
+2. Qualcomm Snapdragon devices use Secure Boot, which adds cryptographic
+checks to each stage of the boot-up process, to assert the authenticity
+of all secure software images that the device executes.  However, due to
+various vulnerabilities in SW modules, the integrity of the system can be
+compromised at any time after device boot-up, leading to un-authorized
+SW executing.
 
-This change gives userfaultfd file descriptors a real security
-context, allowing policy to act on them.
+The feature's idea is to move some sensitive kernel structures to a
+separate page and monitor further any unauthorized changes to these,
+from higher Exception Levels using stage 2 MMU. Moving these to a
+different page will help avoid getting page faults from un-related data.
+Using this mechanism, some sensitive variables of the kernel which are
+initialized after init or are updated rarely can also be protected from
+simple overwrites and attacks trying to modify these.
 
-Signed-off-by: Daniel Colascione <dancol@google.com>
+Currently, the change moves selinux_state structure to a separate page. In
+future we plan to move more security-related kernel assets to this page to
+enhance protection.
 
-[LG: Remove owner inode from userfaultfd_ctx]
-[LG: Use anon_inode_getfd_secure() instead of anon_inode_getfile_secure()
- in userfaultfd syscall]
-[LG: Use inode of file in userfaultfd_read() in resolve_userfault_fork()]
+We want to seek your suggestions and comments on the idea and the changes
+in the patch.
 
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Preeti Nagar <pnagar@codeaurora.org>
 ---
- fs/userfaultfd.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ include/asm-generic/vmlinux.lds.h | 10 ++++++++++
+ include/linux/init.h              |  4 ++++
+ security/Kconfig                  | 10 ++++++++++
+ security/selinux/hooks.c          |  4 ++++
+ 4 files changed, 28 insertions(+)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 894cc28142e7..0be8cdd4425a 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -979,14 +979,14 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index b2b3d81..158dbc2 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -770,6 +770,15 @@
+ 		*(.scommon)						\
+ 	}
  
- static const struct file_operations userfaultfd_fops;
++#ifdef CONFIG_SECURITY_RTIC
++#define RTIC_BSS							\
++	. = ALIGN(PAGE_SIZE);						\
++	KEEP(*(.bss.rtic))						\
++	. = ALIGN(PAGE_SIZE);
++#else
++#define RTIC_BSS
++#endif
++
+ /*
+  * Allow archectures to redefine BSS_FIRST_SECTIONS to add extra
+  * sections to the front of bss.
+@@ -782,6 +791,7 @@
+ 	. = ALIGN(bss_align);						\
+ 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {				\
+ 		BSS_FIRST_SECTIONS					\
++		RTIC_BSS						\
+ 		. = ALIGN(PAGE_SIZE);					\
+ 		*(.bss..page_aligned)					\
+ 		. = ALIGN(PAGE_SIZE);					\
+diff --git a/include/linux/init.h b/include/linux/init.h
+index 7b53cb3..617adcf 100644
+--- a/include/linux/init.h
++++ b/include/linux/init.h
+@@ -300,6 +300,10 @@ void __init parse_early_options(char *cmdline);
+ /* Data marked not to be saved by software suspend */
+ #define __nosavedata __section(".data..nosave")
  
--static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
--				  struct userfaultfd_ctx *new,
-+static int resolve_userfault_fork(struct userfaultfd_ctx *new,
-+				  struct inode *inode,
- 				  struct uffd_msg *msg)
- {
- 	int fd;
++#ifdef CONFIG_SECURITY_RTIC
++#define __rticdata  __section(".bss.rtic")
++#endif
++
+ #ifdef MODULE
+ #define __exit_p(x) x
+ #else
+diff --git a/security/Kconfig b/security/Kconfig
+index 7561f6f..66b61b9 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -291,5 +291,15 @@ config LSM
  
--	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
--			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
-+	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
-+			O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
- 	if (fd < 0)
- 		return fd;
+ source "security/Kconfig.hardening"
  
-@@ -996,7 +996,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
- }
++config SECURITY_RTIC
++        bool "RunTime Integrity Check feature"
++        help
++	  RTIC(RunTime Integrity Check) feature is to protect Linux kernel
++	  at runtime. This relocates some of the security sensitive kernel
++	  structures to a separate page aligned special section.
++
++	  This is to enable monitoring and protection of these kernel assets
++	  from a higher exception level(EL) against any unauthorized changes.
++
+ endmenu
  
- static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
--				    struct uffd_msg *msg)
-+				    struct uffd_msg *msg, struct inode *inode)
- {
- 	ssize_t ret;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -1107,7 +1107,7 @@ static ssize_t userfaultfd_ctx_read(struct userfaultfd_ctx *ctx, int no_wait,
- 	spin_unlock_irq(&ctx->fd_wqh.lock);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6b1826f..7add17c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -104,7 +104,11 @@
+ #include "audit.h"
+ #include "avc_ss.h"
  
- 	if (!ret && msg->event == UFFD_EVENT_FORK) {
--		ret = resolve_userfault_fork(ctx, fork_nctx, msg);
-+		ret = resolve_userfault_fork(fork_nctx, inode, msg);
- 		spin_lock_irq(&ctx->event_wqh.lock);
- 		if (!list_empty(&fork_event)) {
- 			/*
-@@ -1167,6 +1167,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 	ssize_t _ret, ret = 0;
- 	struct uffd_msg msg;
- 	int no_wait = file->f_flags & O_NONBLOCK;
-+	struct inode *inode = file_inode(file);
++#ifdef CONFIG_SECURITY_RTIC
++struct selinux_state selinux_state __rticdata;
++#else
+ struct selinux_state selinux_state;
++#endif
  
- 	if (ctx->state == UFFD_STATE_WAIT_API)
- 		return -EINVAL;
-@@ -1174,7 +1175,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 	for (;;) {
- 		if (count < sizeof(msg))
- 			return ret ? ret : -EINVAL;
--		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg);
-+		_ret = userfaultfd_ctx_read(ctx, no_wait, &msg, inode);
- 		if (_ret < 0)
- 			return ret ? ret : _ret;
- 		if (copy_to_user((__u64 __user *) buf, &msg, sizeof(msg)))
-@@ -1999,8 +2000,8 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
- 	/* prevent the mm struct to be freed */
- 	mmgrab(ctx->mm);
- 
--	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
--			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
-+	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
-+			O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
- 	if (fd < 0) {
- 		mmdrop(ctx->mm);
- 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
+ /* SECMARK reference count */
+ static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
 -- 
-2.30.0.284.gd98b1dd5eaa7-goog
+2.7.4
 
