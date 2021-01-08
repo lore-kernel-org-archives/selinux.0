@@ -2,220 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-26.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DB36C4332B
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 20:59:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65D43C433E0
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 21:00:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E40D72333E
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 20:59:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38A612388B
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 21:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729395AbhAHU7a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Jan 2021 15:59:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59244 "EHLO
+        id S1729107AbhAHU7n (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Jan 2021 15:59:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729225AbhAHU7a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 15:59:30 -0500
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0E4C0612FD
-        for <selinux@vger.kernel.org>; Fri,  8 Jan 2021 12:58:49 -0800 (PST)
-Received: by mail-ej1-x630.google.com with SMTP id 6so16300066ejz.5
-        for <selinux@vger.kernel.org>; Fri, 08 Jan 2021 12:58:49 -0800 (PST)
+        with ESMTP id S1727003AbhAHU7n (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 15:59:43 -0500
+Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C2FC061574
+        for <selinux@vger.kernel.org>; Fri,  8 Jan 2021 12:59:02 -0800 (PST)
+Received: by mail-qv1-xf49.google.com with SMTP id m8so9144085qvk.1
+        for <selinux@vger.kernel.org>; Fri, 08 Jan 2021 12:59:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=khq1BhJKP5TVovoHPldpcRP4cKiwHOG+v7RRKqn8j58=;
-        b=obA6xuhmm9kV3+sXrUgxMMsfFga8AGTLVYwR5OX5nJ2XlW6dNnOubwbilqkj0TMDh8
-         T6qAuoauDw+XXUxxElzoTtfFf8VMi/L3cL9wpra8fzRz/wdI150FS4zxBD61HcPZy1vR
-         A2E91WGbe5uDVTG7ZQVJvENnGfVNZ4Y8niHT1pIza7xgove9CGQ4CF6CSrurFmwazb2q
-         865Ias4cNka3b/TIVm4UJ4SWpJxjm3Az8lE+E/Pn+5qvhwWyelWJb62Lx+uMZ3jLbsH6
-         /OEoKonYp9djudJ6iqMYJ5mJil8vbsCZWb0PG4tjs6RI5UTLM9ZDwq3LR5ukjgANpAYY
-         OBoA==
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=pg2+obVmDdZw2cVJ7QAMiVijjbCTy6dUmk2h4J5JypM=;
+        b=bGwlBNOlqsBerbH0/KNUcpimkFnfnQdqlYIwG/BNL3IRka1C9Q54SMbgiR+Ihs0Qqf
+         PBF2zL6u4tLZSFtNLHF1Y0SodUbYkNODtyJVn/SXmybjq9qupbwXkiNw8G5ljf6WIAt8
+         /901fZEST9OlaVA/TLox3tLuLqNOXg2+Gzuh5jXpQBI3rTiltYyjnxEjs7Oe1mrK7Wn8
+         fnmaaRZKXRRVIOYHKaOXzCtrgHfvIEtCkST1wmua8yZ4JAe0h2Gq+ChYdP0EE4/76B7x
+         nVdrfwoVbCqshvN6rbO9uFv5X4iQBwH5vAK+6sepxIIXUWCfOjOkubfSgSBhLwaFeQHh
+         m9OQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=khq1BhJKP5TVovoHPldpcRP4cKiwHOG+v7RRKqn8j58=;
-        b=M+De8tp00YFTxblgVUKXpMvmP/vdpGaKDEd9r7cxfBhuuYIxSlBGrgeMNWDkbuYri/
-         T0ociiNB962FHU2LOzksvckye7EROF/6XwaZmZZ13rG5Mn0BiAUhRpxTfI10TcsmSEJq
-         rlzN9EbtfGJy/bDHjFehJCwTpBP8LNlmVFk28YpWDB0X3uzjEDs+GaLZNbhLVd4m/rX/
-         FvTZMu3v7Du/IFpIEpHp8k5ta8D3QewoKwM4Toer1hFO3R+/ActQwoiuNhB3OuRQibS+
-         P2kZIYOGF4ZGNY5Gcdh1oMQoaSEFH8BDIM3iwZZAYaZM/9GU06gKyJzYAEqLNdCpQ0E+
-         +iZw==
-X-Gm-Message-State: AOAM530U0kG1f89DGE6Xjthp8Z0Gz754XeC3y985TXCPuFj0BctRJSG3
-        lCBADe1BXCqWsRu8H1cfPWtEabIc4/GGaLSWn6HI
-X-Google-Smtp-Source: ABdhPJyP7SJrjpEnSE+OMOznxeG8QiQoQrfxZc/4hifZZz6dTOsmW0rbarXi+MMdwr3oks6Eb5k7RhEOrKdTQzWv4Mk=
-X-Received: by 2002:a17:906:aec6:: with SMTP id me6mr3822560ejb.542.1610139527942;
- Fri, 08 Jan 2021 12:58:47 -0800 (PST)
-MIME-Version: 1.0
-References: <20201112015359.1103333-1-lokeshgidra@google.com>
- <20201112015359.1103333-4-lokeshgidra@google.com> <CAHC9VhS2WNXn2cVAUcAY5AmmBv+=XsthCevofNNuEOU3=jtLrg@mail.gmail.com>
- <CAEjxPJ6TA_nXrUJ6CjhG-j0_oAj9WU1vRn5pGvjDqQ2Bk9VVag@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6TA_nXrUJ6CjhG-j0_oAj9WU1vRn5pGvjDqQ2Bk9VVag@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 8 Jan 2021 15:58:36 -0500
-Message-ID: <CAHC9VhQHjNwTNGw4PP=w0h+NOvJzcDWHyAsj2Q6s+itJ_hY71g@mail.gmail.com>
-Subject: Re: [PATCH v13 3/4] selinux: teach SELinux about anonymous inodes
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Lokesh Gidra <lokeshgidra@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>, kaleshsingh@google.com,
-        Calin Juravle <calin@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        kernel-team@android.com, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Daniel Colascione <dancol@google.com>
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=pg2+obVmDdZw2cVJ7QAMiVijjbCTy6dUmk2h4J5JypM=;
+        b=AbDzQICXFheCtqToPBn8gyDSr9jLWFGIsd62p4goVJ2h5Y2cQPnlnM5vofOpooDqj+
+         CGgWa7ejqsROOw/HxE+3flDwAykapeoTAKtKMHeOtX/quWHWmo73WFyJ/zAUlWBW4HH+
+         CRDxshdI9LWRUly4Czs2E6Oj6C7rXjbwz+FIh8tq12a2j5uIZcbkDPHBfMmgKP6St2mV
+         /SEoyqdOwlPTzq45+Wj1CDx8aPleMjF8dS1jJGGIsW55BPkRP32TnkG0S8oMmoq1QUxY
+         zun7cMcYdNEGe3H7TynBT5ip/je7Wsg8BwRcikAVR77rzwVgKJA5f+5D2gdoYcePKAay
+         E66Q==
+X-Gm-Message-State: AOAM5315sIlbuehfjXMB+GUjqLlwaN/Elym1rhxJwUSOxXCTQ1Iqk+8/
+        IHCFOpqCwQz6WgAHW9EKDApdyqdRSDE=
+X-Google-Smtp-Source: ABdhPJzkhcWm36Y5z3eQqRcs4DfyJUCy0+z8bCk7zQYdPc0oJNglTollph0feYqWo91RO0orZmPxFLLqhs4=
+Sender: "surenb via sendgmr" <surenb@surenb1.mtv.corp.google.com>
+X-Received: from surenb1.mtv.corp.google.com ([100.98.240.136]) (user=surenb
+ job=sendgmr) by 2002:ad4:4888:: with SMTP id bv8mr5409095qvb.0.1610139542143;
+ Fri, 08 Jan 2021 12:59:02 -0800 (PST)
+Date:   Fri,  8 Jan 2021 12:58:57 -0800
+Message-Id: <20210108205857.1471269-1-surenb@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.30.0.284.gd98b1dd5eaa7-goog
+Subject: [PATCH 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
+From:   Suren Baghdasaryan <surenb@google.com>
+To:     akpm@linux-foundation.org
+Cc:     jannh@google.com, keescook@chromium.org, jeffv@google.com,
+        minchan@kernel.org, mhocko@suse.com, shakeelb@google.com,
+        rientjes@google.com, edgararriaga@google.com, timmurray@google.com,
+        linux-mm@kvack.org, selinux@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, surenb@google.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 8, 2021 at 2:35 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Jan 6, 2021 at 10:03 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Wed, Nov 11, 2020 at 8:54 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
-> > > From: Daniel Colascione <dancol@google.com>
-> > >
-> > > This change uses the anon_inodes and LSM infrastructure introduced in
-> > > the previous patches to give SELinux the ability to control
-> > > anonymous-inode files that are created using the new
-> > > anon_inode_getfd_secure() function.
-> > >
-> > > A SELinux policy author detects and controls these anonymous inodes by
-> > > adding a name-based type_transition rule that assigns a new security
-> > > type to anonymous-inode files created in some domain. The name used
-> > > for the name-based transition is the name associated with the
-> > > anonymous inode for file listings --- e.g., "[userfaultfd]" or
-> > > "[perf_event]".
-> > >
-> > > Example:
-> > >
-> > > type uffd_t;
-> > > type_transition sysadm_t sysadm_t : anon_inode uffd_t "[userfaultfd]";
-> > > allow sysadm_t uffd_t:anon_inode { create };
-> > >
-> > > (The next patch in this series is necessary for making userfaultfd
-> > > support this new interface.  The example above is just
-> > > for exposition.)
-> > >
-> > > Signed-off-by: Daniel Colascione <dancol@google.com>
-> > > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> > > ---
-> > >  security/selinux/hooks.c            | 56 +++++++++++++++++++++++++++++
-> > >  security/selinux/include/classmap.h |  2 ++
-> > >  2 files changed, 58 insertions(+)
-> > >
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 6b1826fc3658..d092aa512868 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -2927,6 +2927,61 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
-> > >         return 0;
-> > >  }
-> > >
-> > > +static int selinux_inode_init_security_anon(struct inode *inode,
-> > > +                                           const struct qstr *name,
-> > > +                                           const struct inode *context_inode)
-> > > +{
-> > > +       const struct task_security_struct *tsec = selinux_cred(current_cred());
-> > > +       struct common_audit_data ad;
-> > > +       struct inode_security_struct *isec;
-> > > +       int rc;
-> > > +
-> > > +       if (unlikely(!selinux_initialized(&selinux_state)))
-> > > +               return 0;
-> > > +
-> > > +       isec = selinux_inode(inode);
-> > > +
-> > > +       /*
-> > > +        * We only get here once per ephemeral inode.  The inode has
-> > > +        * been initialized via inode_alloc_security but is otherwise
-> > > +        * untouched.
-> > > +        */
-> > > +
-> > > +       if (context_inode) {
-> > > +               struct inode_security_struct *context_isec =
-> > > +                       selinux_inode(context_inode);
-> > > +               if (context_isec->initialized != LABEL_INITIALIZED)
-> > > +                       return -EACCES;
-> > > +
-> > > +               isec->sclass = context_isec->sclass;
-> >
-> > Taking the object class directly from the context_inode is
-> > interesting, and I suspect problematic.  In the case below where no
-> > context_inode is supplied the object class is set to
-> > SECCLASS_ANON_INODE, which is correct, but when a context_inode is
-> > supplied there is no guarantee that the object class will be set to
-> > SECCLASS_ANON_INODE.  This could both pose a problem for policy
-> > writers (how do you distinguish the anon inode from other normal file
-> > inodes in this case?) as well as an outright fault later in this
-> > function when we try to check the ANON_INODE__CREATE on an object
-> > other than a SECCLASS_ANON_INODE object.
-> >
-> > It works in the userfaultfd case because the context_inode is
-> > originally created with this function so the object class is correctly
-> > set to SECCLASS_ANON_INODE, but can we always guarantee that to be the
-> > case?  Do we ever need or want to support using a context_inode that
-> > is not SECCLASS_ANON_INODE?
->
-> Sorry, I haven't been following this.  IIRC, the original reason for
-> passing a context_inode was to support the /dev/kvm or similar use
-> cases where the driver is creating anonymous inodes to represent
-> specific objects/interfaces derived from the device node and we want
-> to be able to control subsequent ioctl operations on those anonymous
-> inodes in the same manner as for the device node.  For example, ioctl
-> operations on /dev/kvm can end up returning file descriptors for
-> anonymous inodes representing a specific VM or VCPU or similar.  If we
-> propagate the security class and SID from the /dev/kvm inode (the
-> context inode) to the new anonymous inode, we can write a single
-> policy rule over all ioctl operations related to /dev/kvm.
+process_madvise currently requires ptrace attach capability.
+PTRACE_MODE_ATTACH gives one process complete control over another
+process. It effectively removes the security boundary between the
+two processes (in one direction). Granting ptrace attach capability
+even to a system process is considered dangerous since it creates an
+attack surface. This severely limits the usage of this API.
+The operations process_madvise can perform do not affect the correctness
+of the operation of the target process; they only affect where the data
+is physically located (and therefore, how fast it can be accessed).
+What we want is the ability for one process to influence another process
+in order to optimize performance across the entire system while leaving
+the security boundary intact.
+Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
+and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
+and CAP_SYS_NICE for influencing process performance.
 
-Thanks for the background, and the /dev/kvm example, that is what I was missing.
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+---
+ mm/madvise.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-> That's
-> also why we used the FILE__CREATE permission here originally; that was
-> also intentional.  All the file-related classes including anon_inode
-> inherit a common set of file permissions including create and thus we
-> often use the FILE__<permission> in common code when checking
-> permission against any potentially derived class.
-
-Yes, if all of the anonymous inodes are not going to fall into the
-anon_inode object class then FILE__CREATE makes the most sense.
-
-Thanks Stephen.
-
+diff --git a/mm/madvise.c b/mm/madvise.c
+index 6a660858784b..c2d600386902 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -1197,12 +1197,22 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
+ 		goto release_task;
+ 	}
+ 
+-	mm = mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
++	/* Require PTRACE_MODE_READ to avoid leaking ASLR metadata. */
++	mm = mm_access(task, PTRACE_MODE_READ_FSCREDS);
+ 	if (IS_ERR_OR_NULL(mm)) {
+ 		ret = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
+ 		goto release_task;
+ 	}
+ 
++	/*
++	 * Require CAP_SYS_NICE for influencing process performance. Note that
++	 * only non-destructive hints are currently supported.
++	 */
++	if (!capable(CAP_SYS_NICE)) {
++		ret = -EPERM;
++		goto release_task;
++	}
++
+ 	total_len = iov_iter_count(&iter);
+ 
+ 	while (iov_iter_count(&iter)) {
 -- 
-paul moore
-www.paul-moore.com
+2.30.0.284.gd98b1dd5eaa7-goog
+
