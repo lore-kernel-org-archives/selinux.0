@@ -2,67 +2,66 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 463CCC433E0
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 20:18:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DB36C4332B
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 20:59:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12F6823AC1
-	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 20:18:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E40D72333E
+	for <selinux@archiver.kernel.org>; Fri,  8 Jan 2021 20:59:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729335AbhAHUSN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Jan 2021 15:18:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52784 "EHLO
+        id S1729395AbhAHU7a (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Jan 2021 15:59:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729512AbhAHUSH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 15:18:07 -0500
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96312C0612FD
-        for <selinux@vger.kernel.org>; Fri,  8 Jan 2021 12:17:26 -0800 (PST)
-Received: by mail-ej1-x62d.google.com with SMTP id d17so16126443ejy.9
-        for <selinux@vger.kernel.org>; Fri, 08 Jan 2021 12:17:26 -0800 (PST)
+        with ESMTP id S1729225AbhAHU7a (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Jan 2021 15:59:30 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0E4C0612FD
+        for <selinux@vger.kernel.org>; Fri,  8 Jan 2021 12:58:49 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id 6so16300066ejz.5
+        for <selinux@vger.kernel.org>; Fri, 08 Jan 2021 12:58:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=EwrOgDTg96KrzDvgtinwO514AtzHfwPfpJcfahxEYVI=;
-        b=aGlRquYV7bBoqWOfhg/mBYEuzggSozf1JOKAipPHB6CHoFm9cW3lprBEnleXHV82pE
-         r5stn0vhAinJiv33KPHJ5w2fLw5Icm3NYqX8LQ0wAt21tWNTl6vudMYutWVrDrufXsKL
-         5FFs6hddoUdt10NDUrvs+56xFAfqToaAXTQent1IQQntDeUhmZ/QkLQcxbY/QmNj0Dca
-         4weEE7eCLoFXkAgKjbAxDWd7Haie/lzKOV1kXZl5EnV7TrZ3SpiwDi9RMToSkT0It6C6
-         HcFCJqGsfukio8J9XbsSYIhGB9QtbX2JDlLjWpn94zM1pIQkBdL0pEHk7skG8iTc9zyH
-         kVbw==
+        bh=khq1BhJKP5TVovoHPldpcRP4cKiwHOG+v7RRKqn8j58=;
+        b=obA6xuhmm9kV3+sXrUgxMMsfFga8AGTLVYwR5OX5nJ2XlW6dNnOubwbilqkj0TMDh8
+         T6qAuoauDw+XXUxxElzoTtfFf8VMi/L3cL9wpra8fzRz/wdI150FS4zxBD61HcPZy1vR
+         A2E91WGbe5uDVTG7ZQVJvENnGfVNZ4Y8niHT1pIza7xgove9CGQ4CF6CSrurFmwazb2q
+         865Ias4cNka3b/TIVm4UJ4SWpJxjm3Az8lE+E/Pn+5qvhwWyelWJb62Lx+uMZ3jLbsH6
+         /OEoKonYp9djudJ6iqMYJ5mJil8vbsCZWb0PG4tjs6RI5UTLM9ZDwq3LR5ukjgANpAYY
+         OBoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=EwrOgDTg96KrzDvgtinwO514AtzHfwPfpJcfahxEYVI=;
-        b=glhba8pfK5fEXXTd1tZJdrNXOQGa8uHYo3B8Gy6ao5AIZWEd9loJE++5cIbGIQJRIU
-         pYufS8hGmf4ttq/czdBXFMmFMjEV+zEPzYI86FJlK1WX17+2sdiEZGp8FB/MpS7bU+V+
-         xty2572SBOmc2f1w3eWIX8b/Ly+I1qpS/LeG2WmwWnCzyh1MVrwqJI9UGfDzE1tIL3Y+
-         HpzInDLl5vR4HIjyJpZyjL3/ldLWfnOTm+0xXXfwdZ36KWXi0V6zVyDAZfRHsmyqXcHP
-         tyhEoLPyVC2Y5WkDx3vOTFJYEdMpwmQhf1F0mXONmftsVo8kmhjT6ylCmVmzaIvYwEIT
-         J51g==
-X-Gm-Message-State: AOAM530icsv3ouNtCD4mHFCECiF3rv9wCyu7dNMC6zNRPjMlL2+eO5ff
-        gvz+q9F/DijZLDBSSZJmY7q+AvEuKD2QmqUU5otOtA==
-X-Google-Smtp-Source: ABdhPJye2R3aseIB1YZzP7HfOO+3uXuVcvm7i9jO6SKjJISprsBWoeK3t3aCDNf/qzYvphit8xROqcEb2lZxYjcwLC4=
-X-Received: by 2002:a17:907:101c:: with SMTP id ox28mr3462266ejb.201.1610137044856;
- Fri, 08 Jan 2021 12:17:24 -0800 (PST)
+        bh=khq1BhJKP5TVovoHPldpcRP4cKiwHOG+v7RRKqn8j58=;
+        b=M+De8tp00YFTxblgVUKXpMvmP/vdpGaKDEd9r7cxfBhuuYIxSlBGrgeMNWDkbuYri/
+         T0ociiNB962FHU2LOzksvckye7EROF/6XwaZmZZ13rG5Mn0BiAUhRpxTfI10TcsmSEJq
+         rlzN9EbtfGJy/bDHjFehJCwTpBP8LNlmVFk28YpWDB0X3uzjEDs+GaLZNbhLVd4m/rX/
+         FvTZMu3v7Du/IFpIEpHp8k5ta8D3QewoKwM4Toer1hFO3R+/ActQwoiuNhB3OuRQibS+
+         P2kZIYOGF4ZGNY5Gcdh1oMQoaSEFH8BDIM3iwZZAYaZM/9GU06gKyJzYAEqLNdCpQ0E+
+         +iZw==
+X-Gm-Message-State: AOAM530U0kG1f89DGE6Xjthp8Z0Gz754XeC3y985TXCPuFj0BctRJSG3
+        lCBADe1BXCqWsRu8H1cfPWtEabIc4/GGaLSWn6HI
+X-Google-Smtp-Source: ABdhPJyP7SJrjpEnSE+OMOznxeG8QiQoQrfxZc/4hifZZz6dTOsmW0rbarXi+MMdwr3oks6Eb5k7RhEOrKdTQzWv4Mk=
+X-Received: by 2002:a17:906:aec6:: with SMTP id me6mr3822560ejb.542.1610139527942;
+ Fri, 08 Jan 2021 12:58:47 -0800 (PST)
 MIME-Version: 1.0
 References: <20201112015359.1103333-1-lokeshgidra@google.com>
  <20201112015359.1103333-4-lokeshgidra@google.com> <CAHC9VhS2WNXn2cVAUcAY5AmmBv+=XsthCevofNNuEOU3=jtLrg@mail.gmail.com>
  <CAEjxPJ6TA_nXrUJ6CjhG-j0_oAj9WU1vRn5pGvjDqQ2Bk9VVag@mail.gmail.com>
 In-Reply-To: <CAEjxPJ6TA_nXrUJ6CjhG-j0_oAj9WU1vRn5pGvjDqQ2Bk9VVag@mail.gmail.com>
-From:   Lokesh Gidra <lokeshgidra@google.com>
-Date:   Fri, 8 Jan 2021 12:17:13 -0800
-Message-ID: <CA+EESO45ezOtg1-MHfwSk3YNYRS7cYnH+kMz-T_MdaSpyW=8Yw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 8 Jan 2021 15:58:36 -0500
+Message-ID: <CAHC9VhQHjNwTNGw4PP=w0h+NOvJzcDWHyAsj2Q6s+itJ_hY71g@mail.gmail.com>
 Subject: Re: [PATCH v13 3/4] selinux: teach SELinux about anonymous inodes
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
+Cc:     Lokesh Gidra <lokeshgidra@google.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         James Morris <jmorris@namei.org>,
@@ -90,13 +89,11 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Linux FS Devel <linux-fsdevel@vger.kernel.org>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kalesh Singh <kaleshsingh@google.com>,
+        SElinux list <selinux@vger.kernel.org>, kaleshsingh@google.com,
         Calin Juravle <calin@google.com>,
         Suren Baghdasaryan <surenb@google.com>,
         Jeffrey Vander Stoep <jeffv@google.com>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
+        kernel-team@android.com, linux-mm@kvack.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Christoph Hellwig <hch@infradead.org>,
         Daniel Colascione <dancol@google.com>
@@ -105,11 +102,9 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 8, 2021 at 11:35 AM Stephen Smalley
+On Fri, Jan 8, 2021 at 2:35 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
->
 > On Wed, Jan 6, 2021 at 10:03 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
 > > On Wed, Nov 11, 2020 at 8:54 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
 > > > From: Daniel Colascione <dancol@google.com>
 > > >
@@ -175,12 +170,6 @@ On Fri, Jan 8, 2021 at 11:35 AM Stephen Smalley
 > > > +                       selinux_inode(context_inode);
 > > > +               if (context_isec->initialized != LABEL_INITIALIZED)
 > > > +                       return -EACCES;
-Stephen, as per your explanation below, is this check also
-problematic? I mean is it possible that /dev/kvm context_inode may not
-have its label initialized? If so, then v12 of the patch series can be
-used as is. Otherwise, I will send the next version which rollbacks
-v14 and v13, except for this check. Kindly confirm.
-
 > > > +
 > > > +               isec->sclass = context_isec->sclass;
 > >
@@ -211,11 +200,22 @@ v14 and v13, except for this check. Kindly confirm.
 > anonymous inodes representing a specific VM or VCPU or similar.  If we
 > propagate the security class and SID from the /dev/kvm inode (the
 > context inode) to the new anonymous inode, we can write a single
-> policy rule over all ioctl operations related to /dev/kvm.  That's
+> policy rule over all ioctl operations related to /dev/kvm.
+
+Thanks for the background, and the /dev/kvm example, that is what I was missing.
+
+> That's
 > also why we used the FILE__CREATE permission here originally; that was
 > also intentional.  All the file-related classes including anon_inode
 > inherit a common set of file permissions including create and thus we
 > often use the FILE__<permission> in common code when checking
 > permission against any potentially derived class.
 
-Thanks a lot for the explanation.
+Yes, if all of the anonymous inodes are not going to fall into the
+anon_inode object class then FILE__CREATE makes the most sense.
+
+Thanks Stephen.
+
+-- 
+paul moore
+www.paul-moore.com
