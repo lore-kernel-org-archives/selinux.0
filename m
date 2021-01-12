@@ -2,169 +2,126 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BC5C433E6
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 18:13:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F274AC433E6
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 18:26:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94C4123121
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 18:13:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C5BD92311F
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 18:26:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406367AbhALSMz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jan 2021 13:12:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56932 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2406357AbhALSMz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 13:12:55 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA5BFC06179F
-        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 10:12:15 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id g8so2759253wme.1
-        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 10:12:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=smXyl8aMoZOEr9J+WPP+DzU0ZsazRkPgKalBFLKErx4=;
-        b=pIKsGNS7XHejO5gTe8wbn24/35SeJMW+SvSJ/oeKw17yifkmaFlfbY9+v66BJ7um5N
-         jU+IZrFDd6idbjz3QMSPU1pUH3f9jUl95GJRt8W0v+LVJIO+2jf7snXL3mAKC9L//EMK
-         BnBogYSBWvwjxmqPmRhwtpjK/wFUSLWKW4v7cI9+lddzYKjqxtV51WsYOKjn1kJb7Y8i
-         KuYCguZi4+XAkVMo8O93yjXREx8rmKPnAG1WfT9kpAGQOwTBfmpug7TdUsfvnCpc8zVm
-         40fWFaxeCpSkrVd746bx3+hRw39BqL48JDjWwBi8+2hnQtppjAqXxe/1drWSKIMgYa/Z
-         FwdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=smXyl8aMoZOEr9J+WPP+DzU0ZsazRkPgKalBFLKErx4=;
-        b=Iv1FszB4/oPhUvsNlO6QDSwg1ahg3R0sMDeGTFCb2CneTT0D/CGdIeip68PxINcxGb
-         Rv7wLQ0nd+YfZpEVaTRtkmPdoeD9AerQf9Qat1npJIo62CaiK5clVzJAc0ALMQ2T9jjb
-         YbqpgRjB4BR0Jw3qf1ge9DxPgMK40YBoAAZQKokH19H+Z7Lsyebo7JfBKah+h/bmz2o3
-         QoL2zK6D3NFk4llb+P4nB9+ew3P/1XjU0geTrh7EWZnShuwhCkDdQHxBbAkXcnodo6Oc
-         uLYEMtidGobm5VU9abN/R+15dyTCM0h4noL4GyX1eTKp3ydgoASxOWCg8Z2CTJQBsJ/0
-         qTnQ==
-X-Gm-Message-State: AOAM5300so8ijebePIwokRHRQMVcQZNEphi1O1p0uqSxJrQaKo7coPwC
-        9RRfO5EolPeLXNxbI3agssZf+tsbMTin+qAYMYsWUg==
-X-Google-Smtp-Source: ABdhPJz5caMoBvGVsM71MxbmEH8PEzgl9neSsmGPzQ4gGQozZ+H8IpOItvaPYAYpiMSgpFD+C1qTg+cErr0BdINtfyU=
-X-Received: by 2002:a1c:4e0a:: with SMTP id g10mr502029wmh.88.1610475134449;
- Tue, 12 Jan 2021 10:12:14 -0800 (PST)
+        id S2406333AbhALSZx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jan 2021 13:25:53 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:34916 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391199AbhALSZw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 13:25:52 -0500
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 7792220B6C40;
+        Tue, 12 Jan 2021 10:25:11 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7792220B6C40
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1610475911;
+        bh=qy3ti2dFqNqzP6FP7vg6YhFp5uWu+v5fID15lyNEIuw=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=eKZLZ8Sgxg1EPb8LG5UCoPzpgpSvDYjqzZiuualeGjnsgxXxl3SherhBga/kP7ANP
+         ej7DuYEWImAjRGsusPXz+nj/LZ3ydA9wQyUnhSNCZkPqhtfSDp58m6w5F6PYm1fSNe
+         BbcDvx2wKTWMa/WiQNYpbpUwOJybcWnLkwIozeEg=
+Subject: Re: [PATCH v10 8/8] selinux: include a consumer of the new IMA
+ critical data hook
+To:     Paul Moore <paul@paul-moore.com>,
+        Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
+        sashal@kernel.org, James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20210108040708.8389-1-tusharsu@linux.microsoft.com>
+ <20210108040708.8389-9-tusharsu@linux.microsoft.com>
+ <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <1b076701-3af8-6997-82ae-7196c263a7f4@linux.microsoft.com>
+Date:   Tue, 12 Jan 2021 10:25:11 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20210111170622.2613577-1-surenb@google.com> <20210112074629.GG22493@dhcp22.suse.cz>
-In-Reply-To: <20210112074629.GG22493@dhcp22.suse.cz>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Tue, 12 Jan 2021 10:12:03 -0800
-Message-ID: <CAJuCfpHazLXJ1rpJQ+w9=8-O==rzz3yEVuVtSn-sYMS+a3FoXQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>, selinux@vger.kernel.org,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>,
-        Oleg Nesterov <oleg@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 11, 2021 at 11:46 PM Michal Hocko <mhocko@suse.com> wrote:
->
-> On Mon 11-01-21 09:06:22, Suren Baghdasaryan wrote:
-> > process_madvise currently requires ptrace attach capability.
-> > PTRACE_MODE_ATTACH gives one process complete control over another
-> > process. It effectively removes the security boundary between the
-> > two processes (in one direction). Granting ptrace attach capability
-> > even to a system process is considered dangerous since it creates an
-> > attack surface. This severely limits the usage of this API.
-> > The operations process_madvise can perform do not affect the correctness
-> > of the operation of the target process; they only affect where the data
-> > is physically located (and therefore, how fast it can be accessed).
->
-> Yes it doesn't influence the correctness but it is still a very
-> sensitive operation because it can allow a targeted side channel timing
-> attacks so we should be really careful.
+On 1/12/21 8:27 AM, Paul Moore wrote:
+> On Thu, Jan 7, 2021 at 11:07 PM Tushar Sugandhi
+> <tusharsu@linux.microsoft.com> wrote:
+>> From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+>>
+>> SELinux stores the active policy in memory, so the changes to this data
+>> at runtime would have an impact on the security guarantees provided
+>> by SELinux.  Measuring in-memory SELinux policy through IMA subsystem
+>> provides a secure way for the attestation service to remotely validate
+>> the policy contents at runtime.
+>>
+>> Measure the hash of the loaded policy by calling the IMA hook
+>> ima_measure_critical_data().  Since the size of the loaded policy
+>> can be large (several MB), measure the hash of the policy instead of
+>> the entire policy to avoid bloating the IMA log entry.
+>>
+>> To enable SELinux data measurement, the following steps are required:
+>>
+>> 1, Add "ima_policy=critical_data" to the kernel command line arguments
+>>     to enable measuring SELinux data at boot time.
+>> For example,
+>>    BOOT_IMAGE=/boot/vmlinuz-5.10.0-rc1+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
+>>
+>> 2, Add the following rule to /etc/ima/ima-policy
+>>     measure func=CRITICAL_DATA label=selinux
+>>
+>> Sample measurement of the hash of SELinux policy:
+>>
+>> To verify the measured data with the current SELinux policy run
+>> the following commands and verify the output hash values match.
+>>
+>>    sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
+>>
+>>    grep "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6
+>>
+>> Note that the actual verification of SELinux policy would require loading
+>> the expected policy into an identical kernel on a pristine/known-safe
+>> system and run the sha256sum /sys/kernel/selinux/policy there to get
+>> the expected hash.
+>>
+>> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+>> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>> Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+>> ---
+>>   Documentation/ABI/testing/ima_policy |  3 +-
+>>   security/selinux/Makefile            |  2 +
+>>   security/selinux/ima.c               | 64 ++++++++++++++++++++++++++++
+>>   security/selinux/include/ima.h       | 24 +++++++++++
+>>   security/selinux/include/security.h  |  3 +-
+>>   security/selinux/ss/services.c       | 64 ++++++++++++++++++++++++----
+>>   6 files changed, 149 insertions(+), 11 deletions(-)
+>>   create mode 100644 security/selinux/ima.c
+>>   create mode 100644 security/selinux/include/ima.h
+> 
+> I remain concerned about the possibility of bypassing a measurement by
+> tampering with the time, but I appear to be the only one who is
+> worried about this so I'm not going to block this patch on those
+> grounds.
+> 
+> Acked-by: Paul Moore <paul@paul-moore.com>
 
-Sorry, I missed this comment in my answer. Possibility of affecting
-the target's performance including side channel attack is why we
-require CAP_SYS_NICE.
+Thanks Paul.
 
->
-> > What we want is the ability for one process to influence another process
-> > in order to optimize performance across the entire system while leaving
-> > the security boundary intact.
-> > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
-> > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
-> > and CAP_SYS_NICE for influencing process performance.
->
-> I have to say that ptrace modes are rather obscure to me. So I cannot
-> really judge whether MODE_READ is sufficient. My understanding has
-> always been that this is requred to RO access to the address space. But
-> this operation clearly has a visible side effect. Do we have any actual
-> documentation for the existing modes?
->
-> I would be really curious to hear from Jann and Oleg (now Cced).
->
-> Is CAP_SYS_NICE requirement really necessary?
->
-> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> > Acked-by: Minchan Kim <minchan@kernel.org>
-> > Acked-by: David Rientjes <rientjes@google.com>
-> > ---
-> >  mm/madvise.c | 13 ++++++++++++-
-> >  1 file changed, 12 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/mm/madvise.c b/mm/madvise.c
-> > index 6a660858784b..a9bcd16b5d95 100644
-> > --- a/mm/madvise.c
-> > +++ b/mm/madvise.c
-> > @@ -1197,12 +1197,22 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
-> >               goto release_task;
-> >       }
-> >
-> > -     mm = mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
-> > +     /* Require PTRACE_MODE_READ to avoid leaking ASLR metadata. */
-> > +     mm = mm_access(task, PTRACE_MODE_READ_FSCREDS);
-> >       if (IS_ERR_OR_NULL(mm)) {
-> >               ret = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
-> >               goto release_task;
-> >       }
-> >
-> > +     /*
-> > +      * Require CAP_SYS_NICE for influencing process performance. Note that
-> > +      * only non-destructive hints are currently supported.
-> > +      */
-> > +     if (!capable(CAP_SYS_NICE)) {
-> > +             ret = -EPERM;
-> > +             goto release_mm;
-> > +     }
-> > +
-> >       total_len = iov_iter_count(&iter);
-> >
-> >       while (iov_iter_count(&iter)) {
-> > @@ -1217,6 +1227,7 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
-> >       if (ret == 0)
-> >               ret = total_len - iov_iter_count(&iter);
-> >
-> > +release_mm:
-> >       mmput(mm);
-> >  release_task:
-> >       put_task_struct(task);
-> > --
-> > 2.30.0.284.gd98b1dd5eaa7-goog
-> >
->
-> --
-> Michal Hocko
-> SUSE Labs
+  -lakshmi
+
