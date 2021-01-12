@@ -2,126 +2,150 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F274AC433E6
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 18:26:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC8BFC4332B
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 22:03:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5BD92311F
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 18:26:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2B14221FF
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 22:03:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406333AbhALSZx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jan 2021 13:25:53 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:34916 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391199AbhALSZw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 13:25:52 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 7792220B6C40;
-        Tue, 12 Jan 2021 10:25:11 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7792220B6C40
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1610475911;
-        bh=qy3ti2dFqNqzP6FP7vg6YhFp5uWu+v5fID15lyNEIuw=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=eKZLZ8Sgxg1EPb8LG5UCoPzpgpSvDYjqzZiuualeGjnsgxXxl3SherhBga/kP7ANP
-         ej7DuYEWImAjRGsusPXz+nj/LZ3ydA9wQyUnhSNCZkPqhtfSDp58m6w5F6PYm1fSNe
-         BbcDvx2wKTWMa/WiQNYpbpUwOJybcWnLkwIozeEg=
-Subject: Re: [PATCH v10 8/8] selinux: include a consumer of the new IMA
- critical data hook
-To:     Paul Moore <paul@paul-moore.com>,
-        Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Cc:     zohar@linux.ibm.com,
+        id S2393858AbhALWDf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jan 2021 17:03:35 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:42903 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2393848AbhALWDe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 17:03:34 -0500
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1kzRkU-0003bd-R2; Tue, 12 Jan 2021 22:02:46 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org
+Cc:     John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
-        sashal@kernel.org, James Morris <jmorris@namei.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20210108040708.8389-1-tusharsu@linux.microsoft.com>
- <20210108040708.8389-9-tusharsu@linux.microsoft.com>
- <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <1b076701-3af8-6997-82ae-7196c263a7f4@linux.microsoft.com>
-Date:   Tue, 12 Jan 2021 10:25:11 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH v5 02/42] mount: make {lock,unlock}_mount_hash() static
+Date:   Tue, 12 Jan 2021 23:00:44 +0100
+Message-Id: <20210112220124.837960-3-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210112220124.837960-1-christian.brauner@ubuntu.com>
+References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Patch-Hashes: v=1; h=sha256; i=vO6mqD1pvztvOW1otxIX/33XHCNZr+llU/zGWpmgRcU=; m=urR2rAIlQm7B+Wnhux1HQqMBhK+gzFRqnuakSaYsLEw=; p=FzHd8xIvHJqF6DeGhIkxr3GWqyk+wfjD+OZpRToKI4o=; g=a01f7f9b00b67a1698d6ed6ffbed46e285973451
+X-Patch-Sig: m=pgp; i=christian.brauner@ubuntu.com; s=0x0x91C61BC06578DCA2; b=iHUEABYKAB0WIQRAhzRXHqcMeLMyaSiRxhvAZXjcogUCX/4YtQAKCRCRxhvAZXjcorMkAQDuVqe kjayCqPe3qytw6oZ7nOgpZjngGZBcdjtF8EvVmQD/TTQi6iRuXo2TWtRa3j82P+plXgb3Vj3OCV7l LedXkwo=
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/12/21 8:27 AM, Paul Moore wrote:
-> On Thu, Jan 7, 2021 at 11:07 PM Tushar Sugandhi
-> <tusharsu@linux.microsoft.com> wrote:
->> From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
->>
->> SELinux stores the active policy in memory, so the changes to this data
->> at runtime would have an impact on the security guarantees provided
->> by SELinux.  Measuring in-memory SELinux policy through IMA subsystem
->> provides a secure way for the attestation service to remotely validate
->> the policy contents at runtime.
->>
->> Measure the hash of the loaded policy by calling the IMA hook
->> ima_measure_critical_data().  Since the size of the loaded policy
->> can be large (several MB), measure the hash of the policy instead of
->> the entire policy to avoid bloating the IMA log entry.
->>
->> To enable SELinux data measurement, the following steps are required:
->>
->> 1, Add "ima_policy=critical_data" to the kernel command line arguments
->>     to enable measuring SELinux data at boot time.
->> For example,
->>    BOOT_IMAGE=/boot/vmlinuz-5.10.0-rc1+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
->>
->> 2, Add the following rule to /etc/ima/ima-policy
->>     measure func=CRITICAL_DATA label=selinux
->>
->> Sample measurement of the hash of SELinux policy:
->>
->> To verify the measured data with the current SELinux policy run
->> the following commands and verify the output hash values match.
->>
->>    sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
->>
->>    grep "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6
->>
->> Note that the actual verification of SELinux policy would require loading
->> the expected policy into an identical kernel on a pristine/known-safe
->> system and run the sha256sum /sys/kernel/selinux/policy there to get
->> the expected hash.
->>
->> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
->> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->> Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
->> ---
->>   Documentation/ABI/testing/ima_policy |  3 +-
->>   security/selinux/Makefile            |  2 +
->>   security/selinux/ima.c               | 64 ++++++++++++++++++++++++++++
->>   security/selinux/include/ima.h       | 24 +++++++++++
->>   security/selinux/include/security.h  |  3 +-
->>   security/selinux/ss/services.c       | 64 ++++++++++++++++++++++++----
->>   6 files changed, 149 insertions(+), 11 deletions(-)
->>   create mode 100644 security/selinux/ima.c
->>   create mode 100644 security/selinux/include/ima.h
-> 
-> I remain concerned about the possibility of bypassing a measurement by
-> tampering with the time, but I appear to be the only one who is
-> worried about this so I'm not going to block this patch on those
-> grounds.
-> 
-> Acked-by: Paul Moore <paul@paul-moore.com>
+The lock_mount_hash() and unlock_mount_hash() helpers are never called
+outside a single file. Remove them from the header and make them static
+to reflect this fact. There's no need to have them callable from other
+places right now, as Christoph observed.
 
-Thanks Paul.
+Suggested-by: Christoph Hellwig <hch@lst.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+/* v2 */
+- Christoph Hellwig <hch@lst.de>:
+  - Add a patch to make {lock,unlock)_mount_hash() static.
 
-  -lakshmi
+/* v3 */
+unchanged
+
+/* v4 */
+unchanged
+
+/* v5 */
+base-commit: 7c53f6b671f4aba70ff15e1b05148b10d58c2837
+---
+ fs/mount.h     | 10 ----------
+ fs/namespace.c | 10 ++++++++++
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/fs/mount.h b/fs/mount.h
+index ce6c376e0bc2..0b6e08cf8afb 100644
+--- a/fs/mount.h
++++ b/fs/mount.h
+@@ -124,16 +124,6 @@ static inline void get_mnt_ns(struct mnt_namespace *ns)
+ 
+ extern seqlock_t mount_lock;
+ 
+-static inline void lock_mount_hash(void)
+-{
+-	write_seqlock(&mount_lock);
+-}
+-
+-static inline void unlock_mount_hash(void)
+-{
+-	write_sequnlock(&mount_lock);
+-}
+-
+ struct proc_mounts {
+ 	struct mnt_namespace *ns;
+ 	struct path root;
+diff --git a/fs/namespace.c b/fs/namespace.c
+index dc782ddf603e..8cb2c132525a 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -87,6 +87,16 @@ EXPORT_SYMBOL_GPL(fs_kobj);
+  */
+ __cacheline_aligned_in_smp DEFINE_SEQLOCK(mount_lock);
+ 
++static inline void lock_mount_hash(void)
++{
++	write_seqlock(&mount_lock);
++}
++
++static inline void unlock_mount_hash(void)
++{
++	write_sequnlock(&mount_lock);
++}
++
+ static inline struct hlist_head *m_hash(struct vfsmount *mnt, struct dentry *dentry)
+ {
+ 	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
+-- 
+2.30.0
 
