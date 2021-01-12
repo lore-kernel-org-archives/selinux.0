@@ -5,25 +5,25 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7A32C433E9
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 22:15:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAF0BC433E0
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 22:16:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BDC023127
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 22:15:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B601B23122
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 22:16:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438124AbhALWPx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jan 2021 17:15:53 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:44659 "EHLO
+        id S2438193AbhALWP7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jan 2021 17:15:59 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:44793 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2436786AbhALWPE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 17:15:04 -0500
+        with ESMTP id S2438174AbhALWP5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 17:15:57 -0500
 Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kzRlb-0003bd-4v; Tue, 12 Jan 2021 22:03:55 +0000
+        id 1kzRli-0003bd-Qe; Tue, 12 Jan 2021 22:04:02 +0000
 From:   Christian Brauner <christian.brauner@ubuntu.com>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@infradead.org>,
@@ -61,21 +61,21 @@ Cc:     John Johansen <john.johansen@canonical.com>,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         Christian Brauner <christian.brauner@ubuntu.com>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v5 26/42] fcntl: handle idmapped mounts
-Date:   Tue, 12 Jan 2021 23:01:08 +0100
-Message-Id: <20210112220124.837960-27-christian.brauner@ubuntu.com>
+Subject: [PATCH v5 29/42] ioctl: handle idmapped mounts
+Date:   Tue, 12 Jan 2021 23:01:11 +0100
+Message-Id: <20210112220124.837960-30-christian.brauner@ubuntu.com>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210112220124.837960-1-christian.brauner@ubuntu.com>
 References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-X-Patch-Hashes: v=1; h=sha256; i=79BfejdDgH1ldNWwCcl2HPMsbZ+QshNiYeRA/Vyc6bM=; m=FGBRqZW9kX+0QUrItseootp4lAC2KvbC1yD/fw9Fke8=; p=r9rGnrNawGj5+EUFX+OMWIOsx3y9vDbV91x7CMyj/xU=; g=764e8b39eed7589416effdff14896d5d3ca522b9
-X-Patch-Sig: m=pgp; i=christian.brauner@ubuntu.com; s=0x0x91C61BC06578DCA2; b=iHUEABYKAB0WIQRAhzRXHqcMeLMyaSiRxhvAZXjcogUCX/4YtwAKCRCRxhvAZXjcou+KAQDjcqJ hPMsUm7m6JtnmHbfrJ0uCy40qs0JWJolzFqK4ygD8CvIC1MHT52bxtny+mmxr9VZ096EUZAHp/ZXY Tdpyvg0=
+X-Patch-Hashes: v=1; h=sha256; i=kAwitCaU5Zsp+82CuxVVPm6U8xXlPPtQ0Z0Dh6WXu44=; m=VC5Xd0Zl8AGaO0BlP8YtVNixey9scChiBadwiGTSB5k=; p=oTgP29ybjPTdbnArRS0UjBd62m6f1UrtDPAozi+SHu8=; g=c32d9c1a69a581553f7de28602c01b53e63879e6
+X-Patch-Sig: m=pgp; i=christian.brauner@ubuntu.com; s=0x0x91C61BC06578DCA2; b=iHUEABYKAB0WIQRAhzRXHqcMeLMyaSiRxhvAZXjcogUCX/4YuAAKCRCRxhvAZXjcolFtAP9Jyut NCwljnX8YPYbEbH0TGh2ZGqdwFl7dwrXEioMjsgEAxXesyAYTyhhGHAHOKEZri1frriOo39vmk6H9 U/Lv1wg=
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Enable the setfl() helper to handle idmapped mounts by passing down the
+Enable generic ioctls to handle idmapped mounts by passing down the
 mount's user namespace. If the initial user namespace is passed nothing
 changes so non-idmapped mounts will see identical behavior as before.
 
@@ -92,35 +92,56 @@ patch introduced
 unchanged
 
 /* v4 */
-unchanged
+- Serge Hallyn <serge@hallyn.com>:
+  - Use "mnt_userns" to refer to a vfsmount's userns everywhere to make
+    terminology consistent.
 
 /* v5 */
 base-commit: 7c53f6b671f4aba70ff15e1b05148b10d58c2837
----
- fs/fcntl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 74d99731fd43..58706031e603 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -25,6 +25,7 @@
- #include <linux/user_namespace.h>
- #include <linux/memfd.h>
- #include <linux/compat.h>
-+#include <linux/mount.h>
+- Christoph Hellwig <hch@lst.de>:
+  - Use new file_userns_helper().
+---
+ fs/remap_range.c   | 7 +++++--
+ fs/verity/enable.c | 2 +-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/fs/remap_range.c b/fs/remap_range.c
+index 29a4a4dbfe12..dc68394ec9a1 100644
+--- a/fs/remap_range.c
++++ b/fs/remap_range.c
+@@ -432,13 +432,16 @@ EXPORT_SYMBOL(vfs_clone_file_range);
+ /* Check whether we are allowed to dedupe the destination file */
+ static bool allow_file_dedupe(struct file *file)
+ {
++	struct user_namespace *mnt_userns = file_user_ns(file);
++	struct inode *inode = file_inode(file);
++
+ 	if (capable(CAP_SYS_ADMIN))
+ 		return true;
+ 	if (file->f_mode & FMODE_WRITE)
+ 		return true;
+-	if (uid_eq(current_fsuid(), file_inode(file)->i_uid))
++	if (uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode)))
+ 		return true;
+-	if (!inode_permission(&init_user_ns, file_inode(file), MAY_WRITE))
++	if (!inode_permission(mnt_userns, inode, MAY_WRITE))
+ 		return true;
+ 	return false;
+ }
+diff --git a/fs/verity/enable.c b/fs/verity/enable.c
+index 6809cf8a99b7..9a221e368fa6 100644
+--- a/fs/verity/enable.c
++++ b/fs/verity/enable.c
+@@ -369,7 +369,7 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
+ 	 * has verity enabled, and to stabilize the data being hashed.
+ 	 */
  
- #include <linux/poll.h>
- #include <asm/siginfo.h>
-@@ -46,7 +47,7 @@ static int setfl(int fd, struct file * filp, unsigned long arg)
+-	err = inode_permission(&init_user_ns, inode, MAY_WRITE);
++	err = inode_permission(file_user_ns(filp), inode, MAY_WRITE);
+ 	if (err)
+ 		return err;
  
- 	/* O_NOATIME can only be set by the owner or superuser */
- 	if ((arg & O_NOATIME) && !(filp->f_flags & O_NOATIME))
--		if (!inode_owner_or_capable(&init_user_ns, inode))
-+		if (!inode_owner_or_capable(mnt_user_ns(filp->f_path.mnt), inode))
- 			return -EPERM;
- 
- 	/* required for strict SunOS emulation */
 -- 
 2.30.0
 
