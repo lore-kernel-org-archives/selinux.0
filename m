@@ -7,269 +7,166 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30E85C43381
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 09:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12947C433DB
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 13:52:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C4C322DD3
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 09:38:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC67B23104
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 13:52:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391162AbhALJh6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jan 2021 04:37:58 -0500
-Received: from so254-31.mailgun.net ([198.61.254.31]:12681 "EHLO
-        so254-31.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726211AbhALJh6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 04:37:58 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1610444257; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=dcaBq1lXPNIqcnm6SkqqWpFwh40DCTmtIQVK4VfzQ4E=;
- b=QYpLPlwhzfEwUrgHAz9dasj1Y/SlCBxCe1inZlbO5syyRZWGycZD4D5cBUnnNfKHB8VUl6M2
- 6coWHQ1yPhmwHBG1OiOvRL+5zImvxos4VHoBmXM3EAX357LcPZhytHlhifv74pLsHmu33VVP
- Z3ZCfM7GjV0WuE6Ojk+3GPu9L78=
-X-Mailgun-Sending-Ip: 198.61.254.31
-X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n01.prod.us-west-2.postgun.com with SMTP id
- 5ffd6dbb415a6293c522aaa8 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 12 Jan 2021 09:36:59
- GMT
-Sender: pnagar=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 473B3C43464; Tue, 12 Jan 2021 09:36:59 +0000 (UTC)
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: pnagar)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 24930C43462;
-        Tue, 12 Jan 2021 09:36:57 +0000 (UTC)
+        id S1728519AbhALNwE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jan 2021 08:52:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56996 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727845AbhALNwD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 08:52:03 -0500
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35747C061795
+        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 05:51:23 -0800 (PST)
+Received: by mail-ed1-x52c.google.com with SMTP id b2so2388675edm.3
+        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 05:51:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=gR76E+hgdNRlJHpowh3xLAsehspUfAyQ4NgaYNaNiqI=;
+        b=XSibZhFRvJZDohRMzV6+t73OXFgW6De8K3ufGffee+z31Ye2gR/Ilr01EgaJEmnlwL
+         ZvpXtsqyg8hZMyFXUvtYWyDBrbSkBOoa/mJuQYQckbFEHWup5ZBxuA+Obs8dgGlQiShn
+         S6y1oYFJWXDD7jtkLOY1+PBoYoXaeZ5uiAlEpqgxA1hulebf1LeMSebaZhUw9qisGPUI
+         QYJK+AwC9hk98Qoo4vzmGHmHXJGf7fsEopq1aWLfeL7PD3vZu3ESJrxjWxrMYf+PcEIv
+         tJtfkw6iOT2EwqRpB2ydI4SuETItMfTbuVYTLDoae0FS+uCpP1GKxTdwIlVT163ocGk6
+         72fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gR76E+hgdNRlJHpowh3xLAsehspUfAyQ4NgaYNaNiqI=;
+        b=IUNFQOt7/smB30nDbo7Jsy6al9zxkmJ+9/hCukNfHXZm39RK/hn/uomxncqYMLJjvE
+         EtUgaDNN3CShtIxcDo6FEOboin83LyouVbI+NlkQgttN2kcKLKYWvtwIkW1HEyUX/UpD
+         F38Mgdjut08AD9uEZKcyp2Vt4e+vaUqVQZ3broNblVMW9ucDeHJgFMVp5igcrDwgI5b6
+         M82OFh9+gt6uJVR+2rJXMyQDhITo97M0LDpRT28awTllocx74SUwCS1EIP6Nt1hKFOEW
+         z1s++lnWHh6YWCOBjZrxWEwB+k4QkBr3RtIdJxhDZbTCf+weRYwuyeiHqT2knx7umHjA
+         GPhQ==
+X-Gm-Message-State: AOAM532+ukbssjDbHQRKh43cjdDnVi2m28cACS75+r+Zts15x22O4mIB
+        MZ5GdTcOxD40NKrvkv9XSE4wBjU2pOMHwXI5kXQ0
+X-Google-Smtp-Source: ABdhPJx605NSGp4j1uinNyJCwVFX1VMEUon54nemEZnMArRth7X4vUuuw5rSwz7bOLn+xqkTJxC/1/vEaRcM7/ExqxM=
+X-Received: by 2002:aa7:cd63:: with SMTP id ca3mr3528729edb.164.1610459481682;
+ Tue, 12 Jan 2021 05:51:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Tue, 12 Jan 2021 15:06:57 +0530
-From:   pnagar@codeaurora.org
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     arnd@arndb.de, jmorris@namei.org, serge@hallyn.com,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        psodagud@codeaurora.org, nmardana@codeaurora.org,
-        dsule@codeaurora.org, Joe Perches <joe@perches.com>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH v2] selinux: security: Move selinux_state to a
- separate page
-In-Reply-To: <0f467390-e018-6051-0014-ab475ed76863@schaufler-ca.com>
-References: <1610099389-28329-1-git-send-email-pnagar@codeaurora.org>
- <0f467390-e018-6051-0014-ab475ed76863@schaufler-ca.com>
-Message-ID: <dab6357acbd63edd53099d106d111bf4@codeaurora.org>
-X-Sender: pnagar@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+References: <20201118102342.154277-1-omosnace@redhat.com>
+In-Reply-To: <20201118102342.154277-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 12 Jan 2021 08:51:10 -0500
+Message-ID: <CAHC9VhQWbiqi_C-iw7i=qiz8gSikW6LM-EufNsPjs-pU3ABHcg@mail.gmail.com>
+Subject: Re: [PATCH] vfs: fix fsconfig(2) LSM mount option handling for btrfs
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     linux-fsdevel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, linux-btrfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-01-08 22:41, Casey Schaufler wrote:
-> On 1/8/2021 1:49 AM, Preeti Nagar wrote:
->> The changes introduce a new security feature, RunTime Integrity Check
->> (RTIC), designed to protect Linux Kernel at runtime. The motivation
->> behind these changes is:
->> 1. The system protection offered by SE for Android relies on the
->> assumption of kernel integrity. If the kernel itself is compromised 
->> (by
->> a perhaps as yet unknown future vulnerability), SE for Android 
->> security
->> mechanisms could potentially be disabled and rendered ineffective.
->> 2. Qualcomm Snapdragon devices use Secure Boot, which adds 
->> cryptographic
->> checks to each stage of the boot-up process, to assert the 
->> authenticity
->> of all secure software images that the device executes.  However, due 
->> to
->> various vulnerabilities in SW modules, the integrity of the system can 
->> be
->> compromised at any time after device boot-up, leading to un-authorized
->> SW executing.
-> 
-> It would be helpful if you characterized the "various vulnerabilities"
-> rather than simply asserting their existence. This would allow the 
-> reviewer
-> to determine if the proposed patch addresses the issue.
-> 
-There might not currently be vulnerabilities, but the system is meant 
-more
-specifically to harden valuable assets against future compromises. The 
-key
-value add is a third party independent entity keeping a watch on crucial
-kernel assets.
+On Wed, Nov 18, 2020 at 5:23 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> When SELinux security options are passed to btrfs via fsconfig(2) rather
+> than via mount(2), the operation aborts with an error. What happens is
+> roughly this sequence:
+>
+> 1. vfs_parse_fs_param() eats away the LSM options and parses them into
+>    fc->security.
+> 2. legacy_get_tree() finds nothing in ctx->legacy_data, passes this
+>    nothing to btrfs.
+> [here btrfs calls another layer of vfs_kern_mount(), but let's ignore
+>  that for simplicity]
+> 3. btrfs calls security_sb_set_mnt_opts() with empty options.
+> 4. vfs_get_tree() then calls its own security_sb_set_mnt_opts() with the
+>    options stashed in fc->security.
+> 5. SELinux doesn't like that different options were used for the same
+>    superblock and returns -EINVAL.
+>
+> In the case of mount(2), the options are parsed by
+> legacy_parse_monolithic(), which skips the eating away of security
+> opts because of the FS_BINARY_MOUNTDATA flag, so they are passed to the
+> FS via ctx->legacy_data. The second call to security_sb_set_mnt_opts()
+> (from vfs_get_tree()) now passes empty opts, but the non-empty -> empty
+> sequence is allowed by SELinux for the FS_BINARY_MOUNTDATA case.
+>
+> It is a total mess, but the only sane fix for now seems to be to skip
+> processing the security opts in vfs_parse_fs_param() if the fc has
+> legacy opts set AND the fs specfies the FS_BINARY_MOUNTDATA flag. This
+> combination currently matches only btrfs and coda. For btrfs this fixes
+> the fsconfig(2) behavior, and for coda it makes setting security opts
+> via fsconfig(2) fail the same way as it would with mount(2) (because
+> FS_BINARY_MOUNTDATA filesystems are expected to call the mount opts LSM
+> hooks themselves, but coda never cared enough to do that). I believe
+> that is an acceptable state until both filesystems (or at least btrfs)
+> are converted to the new mount API (at which point btrfs won't need to
+> pretend it takes binary mount data any more and also won't need to call
+> the LSM hooks itself, assuming it will pass the fc->security information
+> properly).
+>
+> Note that we can't skip LSM opts handling in vfs_parse_fs_param() solely
+> based on FS_BINARY_MOUNTDATA because that would break NFS.
+>
+> See here for the original report and reproducer:
+> https://lore.kernel.org/selinux/c02674c970fa292610402aa866c4068772d9ad4e.camel@btinternet.com/
+>
+> Reported-by: Richard Haines <richard_c_haines@btinternet.com>
+> Fixes: 3e1aeb00e6d1 ("vfs: Implement a filesystem superblock creation/configuration context")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  fs/fs_context.c | 28 ++++++++++++++++++++++------
+>  1 file changed, 22 insertions(+), 6 deletions(-)
 
->> 
->> The feature's idea is to move some sensitive kernel structures to a
->> separate page and monitor further any unauthorized changes to these,
->> from higher Exception Levels using stage 2 MMU. Moving these to a
->> different page will help avoid getting page faults from un-related 
->> data.
-> 
-> I've always been a little slow when it comes to understanding the
-> details of advanced memory management facilities. That's part of
-> why I work in access control. Could you expand this a bit, so that
-> someone who doesn't already know how your stage 2 MMU works might
-> be able to evaluate what you're doing here.
-> 
-Sure, will include more details. The mechanism we have been working on
-removes the write permissions for HLOS in the stage 2 page tables for
-the regions to be monitored, such that any modification attempts to 
-these
-will lead to faults being generated and handled by handlers. If the
-protected assets are moved to a separate page, faults will be generated
-corresponding to change attempts to these assets only. If not moved to a
-separate page, write attempts to un-related data which is present on the
-monitored pages will also be generated.
+What do the VFS folks think about this patch?  It has been sitting for
+a couple of months now without any real comment and it would be nice
+to get some initial feedback on this as it fixes a real problem.
 
->> Using this mechanism, some sensitive variables of the kernel which are
->> initialized after init or are updated rarely can also be protected 
->> from
->> simple overwrites and attacks trying to modify these.
-> 
-> How would this interact with or complement __read_mostly?
-> 
-Currently, the mechanism we are working on developing is
-independent of __read_mostly. This is something we can look more into
-while working further on the mechanism.
+> diff --git a/fs/fs_context.c b/fs/fs_context.c
+> index 2834d1afa6e80..cfc5ee2e381ef 100644
+> --- a/fs/fs_context.c
+> +++ b/fs/fs_context.c
+> @@ -106,12 +106,28 @@ int vfs_parse_fs_param(struct fs_context *fc, struct fs_parameter *param)
+>         if (ret != -ENOPARAM)
+>                 return ret;
+>
+> -       ret = security_fs_context_parse_param(fc, param);
+> -       if (ret != -ENOPARAM)
+> -               /* Param belongs to the LSM or is disallowed by the LSM; so
+> -                * don't pass to the FS.
+> -                */
+> -               return ret;
+> +       /*
+> +        * In the legacy+binary mode, skip the security_fs_context_parse_param()
+> +        * call and let the legacy handler process also the security options.
+> +        * It will format them into the monolithic string, where the FS can
+> +        * process them (with FS_BINARY_MOUNTDATA it is expected to do it).
+> +        *
+> +        * Currently, this matches only btrfs and coda. Coda is broken with
+> +        * fsconfig(2) anyway, because it does actually take binary data. Btrfs
+> +        * only *pretends* to take binary data to work around the SELinux's
+> +        * no-remount-with-different-options check, so this allows it to work
+> +        * with fsconfig(2) properly.
+> +        *
+> +        * Once btrfs is ported to the new mount API, this hack can be reverted.
+> +        */
+> +       if (fc->ops != &legacy_fs_context_ops || !(fc->fs_type->fs_flags & FS_BINARY_MOUNTDATA)) {
+> +               ret = security_fs_context_parse_param(fc, param);
+> +               if (ret != -ENOPARAM)
+> +                       /* Param belongs to the LSM or is disallowed by the LSM;
+> +                        * so don't pass to the FS.
+> +                        */
+> +                       return ret;
+> +       }
+>
+>         if (fc->ops->parse_param) {
+>                 ret = fc->ops->parse_param(fc, param);
+> --
+> 2.26.2
 
->> 
->> Currently, the change moves selinux_state structure to a separate 
->> page. In
->> future we plan to move more security-related kernel assets to this 
->> page to
->> enhance protection.
-> 
-> What's special about selinux_state? What about the SELinux policy?
-> How would I, as maintainer of the Smack security module, know if
-> some Smack data should be treated the same way?
-> 
-We are investigating more of the SELinux related and other kernel assets
-which can be included in the protection. The basis of selinux_state is
-because disabling of SELinux is one of the common attack vectors in
-Android. We understand any kernel assets, unauthorized changes to which
-can give way to security or any other type of attack can be considered 
-to
-be a potential asset to be added to the protection.
-
->> 
->> We want to seek your suggestions and comments on the idea and the 
->> changes
->> in the patch.
->> 
->> Signed-off-by: Preeti Nagar <pnagar@codeaurora.org>
->> ---
->>  include/asm-generic/vmlinux.lds.h | 10 ++++++++++
->>  include/linux/init.h              |  4 ++++
->>  security/Kconfig                  | 10 ++++++++++
->>  security/selinux/hooks.c          |  4 ++++
->>  4 files changed, 28 insertions(+)
->> 
->> diff --git a/include/asm-generic/vmlinux.lds.h 
->> b/include/asm-generic/vmlinux.lds.h
->> index b2b3d81..158dbc2 100644
->> --- a/include/asm-generic/vmlinux.lds.h
->> +++ b/include/asm-generic/vmlinux.lds.h
->> @@ -770,6 +770,15 @@
->>  		*(.scommon)						\
->>  	}
->> 
->> +#ifdef CONFIG_SECURITY_RTIC
->> +#define RTIC_BSS							\
->> +	. = ALIGN(PAGE_SIZE);						\
->> +	KEEP(*(.bss.rtic))						\
->> +	. = ALIGN(PAGE_SIZE);
->> +#else
->> +#define RTIC_BSS
->> +#endif
->> +
->>  /*
->>   * Allow archectures to redefine BSS_FIRST_SECTIONS to add extra
->>   * sections to the front of bss.
->> @@ -782,6 +791,7 @@
->>  	. = ALIGN(bss_align);						\
->>  	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {				\
->>  		BSS_FIRST_SECTIONS					\
->> +		RTIC_BSS						\
->>  		. = ALIGN(PAGE_SIZE);					\
->>  		*(.bss..page_aligned)					\
->>  		. = ALIGN(PAGE_SIZE);					\
->> diff --git a/include/linux/init.h b/include/linux/init.h
->> index 7b53cb3..617adcf 100644
->> --- a/include/linux/init.h
->> +++ b/include/linux/init.h
->> @@ -300,6 +300,10 @@ void __init parse_early_options(char *cmdline);
->>  /* Data marked not to be saved by software suspend */
->>  #define __nosavedata __section(".data..nosave")
->> 
->> +#ifdef CONFIG_SECURITY_RTIC
->> +#define __rticdata  __section(".bss.rtic")
->> +#endif
->> +
->>  #ifdef MODULE
->>  #define __exit_p(x) x
->>  #else
->> diff --git a/security/Kconfig b/security/Kconfig
->> index 7561f6f..66b61b9 100644
->> --- a/security/Kconfig
->> +++ b/security/Kconfig
->> @@ -291,5 +291,15 @@ config LSM
->> 
->>  source "security/Kconfig.hardening"
->> 
->> +config SECURITY_RTIC
->> +        bool "RunTime Integrity Check feature"
-> 
-> Shouldn't this depend on the architecture(s) supporting the
-> feature?
-> 
->> +        help
->> +	  RTIC(RunTime Integrity Check) feature is to protect Linux kernel
->> +	  at runtime. This relocates some of the security sensitive kernel
->> +	  structures to a separate page aligned special section.
->> +
->> +	  This is to enable monitoring and protection of these kernel assets
->> +	  from a higher exception level(EL) against any unauthorized 
->> changes.
-> 
-> "if you are unsure ..."
-> 
-We just thought keeping it generic might be a better idea, thus, moved 
-the
-changes to generic files from arch-specific files and thus, kept config 
-also
-independent of the arch. Can surely make this config arch dependent if 
-that is
-a better approach?
-
->> +
->>  endmenu
->> 
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 6b1826f..7add17c 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -104,7 +104,11 @@
->>  #include "audit.h"
->>  #include "avc_ss.h"
->> 
->> +#ifdef CONFIG_SECURITY_RTIC
->> +struct selinux_state selinux_state __rticdata;
->> +#else
->>  struct selinux_state selinux_state;
->> +#endif
-> 
-> Shouldn't the __rticdata tag be applied always, and its
-> definition take care of the cases where it doesn't do anything?
-> 
-Will update this change in the next version of the patch. Thank you.
-
->> 
->>  /* SECMARK reference count */
->>  static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
+-- 
+paul moore
+www.paul-moore.com
