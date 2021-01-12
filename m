@@ -2,390 +2,269 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CA93C433DB
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 16:28:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A636AC433DB
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 16:40:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 275C92080D
-	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 16:28:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 645C223107
+	for <selinux@archiver.kernel.org>; Tue, 12 Jan 2021 16:40:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406729AbhALQ2I (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jan 2021 11:28:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34264 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2406724AbhALQ2I (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 11:28:08 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54BBDC0617A6
-        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 08:27:21 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id e18so2906747ejt.12
-        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 08:27:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=w9XY+SrL1C8QH90qcJqPmDFWdeEzWfdgu1cbhdh73k4=;
-        b=EQ/fT5KTR3MtbCTetUzVn/GWwkD8fDJdMXji5OfxzkRmMlIP58JNlysqqO5iAZ51ta
-         M/v76BBkKQph3OPmuxOLrE56u6UcmQuufbKg0rIHzmYaU9LkndR/x9/rjLDCxLnTDHvK
-         eWFzzz8GVOIFJCCUTh6eMeTaAf6iTx5mqsbkiei8l4Mf1PvTmgPWwwr/4xN1CFMzNgYv
-         Gpk/8WU51A8ksp/8MoHqeJ9c6RmMMVzP1qIxXha4OxZngMLZoQX1Jo1fuC5SZdP5XS9m
-         la+BdHJWU6mKMitROBWVmWqFRKu6fzu0I0CgeXEvwSlZKtn9X0vblx8adBoyLIah5xj9
-         j+Jg==
+        id S1728074AbhALQkB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jan 2021 11:40:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46073 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727203AbhALQkA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jan 2021 11:40:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1610469513;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=N832D6iWE9foW+dNOD3LjWuK/aVrvLdQT3orMUN/ZKQ=;
+        b=ZhAdhAX2aGLUTGz1/c69ee8wV1h/Ek0xp9hQWovfKhB+pblZ9e3Bev2rkgDQVcTGwDBRgg
+        7XVHO5TkUVxekMnWTMnC6gBEDSknfcyqF4zf6wXnEbKa/qNEBrPBVYfpgGmHQ7XRz8TttO
+        Uvq00RNeTve6VSZQpQt+Wg+0Ds1yz/w=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-221-yOZTZmzMO-K0cbABaiL4WA-1; Tue, 12 Jan 2021 11:38:30 -0500
+X-MC-Unique: yOZTZmzMO-K0cbABaiL4WA-1
+Received: by mail-lf1-f70.google.com with SMTP id a19so1259915lfd.8
+        for <selinux@vger.kernel.org>; Tue, 12 Jan 2021 08:38:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=w9XY+SrL1C8QH90qcJqPmDFWdeEzWfdgu1cbhdh73k4=;
-        b=QSCSqLp+FiqEyNtnv/8yXAaZDyJw8DGuoSWbdb4jYvfVQhXHfOAH5vdZabBj+eoWOP
-         jei23OVMCI1zv3nU0OWZWjgqkaW55QNcN1CnaYm9OZQsjXmD0yax0se1i66C31j0AKqB
-         VpUZhGwCgBEq6W3luGi3XWh9HRRacCZKbN4RzYrILD4xnY4NmkXrPvGR+/aRh7yiSFUK
-         A9A2sEGMKZJVC+MGu4Eq2MPis92ZZ03ZmAUHxDI3Fdvnku+PG++ND9nnd6twfM0ytRFM
-         /Q1pFP7Rc+zNokZ1QQsW8DvVOGAbPEVLTq8ELd0f0mJE3txDJEGsvNvHd7SYhKWZoASO
-         OJ/w==
-X-Gm-Message-State: AOAM530p3qxA/KCSORlL3JUghZMWTa7U/3/OZjV0EvuC7V4yhAg+xxqs
-        NZCAq9EkChF2OIqJqSuM/eKLU3F66juztvn6qgAj
-X-Google-Smtp-Source: ABdhPJzaWEEScvWK9P+Ko5jvJwHXBeyvblFzNT50Hx0stb2MQkmev4pVT/wKA4109kJJ3/oW0KUZbO6cXUICkrswLbM=
-X-Received: by 2002:a17:906:3712:: with SMTP id d18mr3920253ejc.178.1610468839776;
- Tue, 12 Jan 2021 08:27:19 -0800 (PST)
+        bh=N832D6iWE9foW+dNOD3LjWuK/aVrvLdQT3orMUN/ZKQ=;
+        b=Ts9BSYCFYXn8cjK617TAUDT7KFhbv23M6kJpHiIGkl2fj+FOzX0I0AIib1K1NRh6ec
+         qymCiFMlpAoTswcSEc2rjsIJSWfGEdBZRBSsA5V9bIqFYUWAC2rL/Ey7neu/wf5KdKV9
+         AKajGwO5ZxVN1JPpemZnz7Qw7MQn/zdlF9CueBxMGAyvaFQFrUW1HoMdNFS+txFlFk8R
+         ieYCxfz8z+xa1qS1JvhNjH5cJz5E8PWe+4bgCe+EmgyUK1cVcAtSjREk1r6qCz8CMomX
+         YN4MmqRJwdY8ocRenqnLh6pfIjZFQ/SZzjQCG/h4QL/iazAVIJdUzIt/BJ7iNaPM75mo
+         hWdg==
+X-Gm-Message-State: AOAM530HPP6zjQcHGSnBmWxvsc1fIv50LXp8BVk9TF/mZNXSmH0EGjHH
+        VGyp/+DyfTwNLWRCzijlae9Jbe3Xewp0aBMGi3ubo8nxFZmLGAhKy9ygHqPLfWH9pbDHDbIIqIm
+        IpMZ7HZBw7/ZBP+3dICTGiMEjxhfPLMfXzg==
+X-Received: by 2002:a19:6b0e:: with SMTP id d14mr2448747lfa.210.1610469508697;
+        Tue, 12 Jan 2021 08:38:28 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxt6Yy8POMDzBv1RKvKkUHy2qHgXjTW+UzKGWuaIsGI7g+r1hxN7vTgEObiY23P+KidVYRClLUFk5EftdcHClo=
+X-Received: by 2002:a19:6b0e:: with SMTP id d14mr2448740lfa.210.1610469508418;
+ Tue, 12 Jan 2021 08:38:28 -0800 (PST)
 MIME-Version: 1.0
-References: <20210108040708.8389-1-tusharsu@linux.microsoft.com> <20210108040708.8389-9-tusharsu@linux.microsoft.com>
-In-Reply-To: <20210108040708.8389-9-tusharsu@linux.microsoft.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 12 Jan 2021 11:27:08 -0500
-Message-ID: <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
-Subject: Re: [PATCH v10 8/8] selinux: include a consumer of the new IMA
- critical data hook
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Cc:     zohar@linux.ibm.com,
+References: <20210105162830.1037459-1-omosnace@redhat.com> <CAHC9VhSAmvH8EWa4GoGP=pDUtbzrzukPNUfDRACb8dwTiX=5Qg@mail.gmail.com>
+In-Reply-To: <CAHC9VhSAmvH8EWa4GoGP=pDUtbzrzukPNUfDRACb8dwTiX=5Qg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 12 Jan 2021 17:38:17 +0100
+Message-ID: <CAFqZXNtsKbChkWwLCGrsz5uW+siguWwU8qFfXzPXY1zbV9eZWg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fall back to SECURITY_FS_USE_GENFS if no xattr support
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
-        sashal@kernel.org, James Morris <jmorris@namei.org>,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+        Vivek Goyal <vgoyal@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 7, 2021 at 11:07 PM Tushar Sugandhi
-<tusharsu@linux.microsoft.com> wrote:
-> From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+On Tue, Jan 12, 2021 at 3:47 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Tue, Jan 5, 2021 at 11:28 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > When a superblock is assigned the SECURITY_FS_USE_XATTR behavior by the
+> > policy yet it lacks xattr support, try to fall back to genfs rather than
+> > rejecting the mount. If a genfscon rule is found for the filesystem,
+> > then change the behavior to SECURITY_FS_USE_GENFS, otherwise reject the
+> > mount as before. A similar fallback is already done in security_fs_use()
+> > if no behavior specification is found for the given filesystem.
+> >
+> > This is needed e.g. for virtiofs, which may or may not support xattrs
+> > depending on the backing host filesystem.
+> >
+> > Example:
+> >     # seinfo --genfs | grep ' ramfs'
+> >        genfscon ramfs /  system_u:object_r:ramfs_t:s0
+> >     # echo '(fsuse xattr ramfs (system_u object_r fs_t ((s0) (s0))))' >ramfs_xattr.cil
+> >     # semodule -i ramfs_xattr.cil
+> >     # mount -t ramfs none /mnt
+> >
+> > Before:
+> >     mount: /mnt: mount(2) system call failed: Operation not supported.
+> >
+> > After:
+> >     (mount succeeds)
+> >     # ls -Z /mnt
+> >     system_u:object_r:ramfs_t:s0 /mnt
+> >
+> > See also:
+> > https://lore.kernel.org/selinux/20210105142148.GA3200@redhat.com/T/
+> > https://github.com/fedora-selinux/selinux-policy/pull/478
+> >
+> > Cc: Vivek Goyal <vgoyal@redhat.com>
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  security/selinux/hooks.c | 78 +++++++++++++++++++++++++++-------------
+> >  1 file changed, 53 insertions(+), 25 deletions(-)
 >
-> SELinux stores the active policy in memory, so the changes to this data
-> at runtime would have an impact on the security guarantees provided
-> by SELinux.  Measuring in-memory SELinux policy through IMA subsystem
-> provides a secure way for the attestation service to remotely validate
-> the policy contents at runtime.
+> This generally looks good to me, just some small suggestions below to
+> cleanup the code a bit.
 >
-> Measure the hash of the loaded policy by calling the IMA hook
-> ima_measure_critical_data().  Since the size of the loaded policy
-> can be large (several MB), measure the hash of the policy instead of
-> the entire policy to avoid bloating the IMA log entry.
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 6b1826fc3658e..0b9b4050b9315 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -484,38 +484,67 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+> >         }
+> >  }
+> >
+> > -static int sb_finish_set_opts(struct super_block *sb)
+> > +static int sb_check_xattr_support(struct super_block *sb)
+> >  {
+> >         struct superblock_security_struct *sbsec = sb->s_security;
+> >         struct dentry *root = sb->s_root;
+> >         struct inode *root_inode = d_backing_inode(root);
+> > -       int rc = 0;
+> > +       u32 sid;
+> > +       int rc;
+> >
+> > -       if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
+> > -               /* Make sure that the xattr handler exists and that no
+> > -                  error other than -ENODATA is returned by getxattr on
+> > -                  the root directory.  -ENODATA is ok, as this may be
+> > -                  the first boot of the SELinux kernel before we have
+> > -                  assigned xattr values to the filesystem. */
+> > -               if (!(root_inode->i_opflags & IOP_XATTR)) {
+> > -                       pr_warn("SELinux: (dev %s, type %s) has no "
+> > -                              "xattr support\n", sb->s_id, sb->s_type->name);
+> > +       /*
+> > +        * Make sure that the xattr handler exists and that no
+> > +        * error other than -ENODATA is returned by getxattr on
+> > +        * the root directory.  -ENODATA is ok, as this may be
+> > +        * the first boot of the SELinux kernel before we have
+> > +        * assigned xattr values to the filesystem.
+> > +        */
+> > +       if (!(root_inode->i_opflags & IOP_XATTR)) {
+> > +               pr_warn("SELinux: (dev %s, type %s) has no xattr support\n",
+> > +                       sb->s_id, sb->s_type->name);
+> > +               rc = -EOPNOTSUPP;
+> > +               goto out;
+> > +       }
+> > +
+> > +       rc = __vfs_getxattr(root, root_inode, XATTR_NAME_SELINUX, NULL, 0);
+> > +       if (rc < 0 && rc != -ENODATA) {
+> > +               if (rc == -EOPNOTSUPP)
+> > +                       pr_warn("SELinux: (dev %s, type %s) has no security xattr handler\n",
+> > +                               sb->s_id, sb->s_type->name);
+> > +               else
+> > +                       pr_warn("SELinux: (dev %s, type %s) getxattr errno %d\n",
+> > +                               sb->s_id, sb->s_type->name, -rc);
+> > +               goto out;
+> > +       }
+> > +       return 0;
 >
-> To enable SELinux data measurement, the following steps are required:
->
-> 1, Add "ima_policy=critical_data" to the kernel command line arguments
->    to enable measuring SELinux data at boot time.
-> For example,
->   BOOT_IMAGE=/boot/vmlinuz-5.10.0-rc1+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
->
-> 2, Add the following rule to /etc/ima/ima-policy
->    measure func=CRITICAL_DATA label=selinux
->
-> Sample measurement of the hash of SELinux policy:
->
-> To verify the measured data with the current SELinux policy run
-> the following commands and verify the output hash values match.
->
->   sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
->
->   grep "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6
->
-> Note that the actual verification of SELinux policy would require loading
-> the expected policy into an identical kernel on a pristine/known-safe
-> system and run the sha256sum /sys/kernel/selinux/policy there to get
-> the expected hash.
->
-> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-> ---
->  Documentation/ABI/testing/ima_policy |  3 +-
->  security/selinux/Makefile            |  2 +
->  security/selinux/ima.c               | 64 ++++++++++++++++++++++++++++
->  security/selinux/include/ima.h       | 24 +++++++++++
->  security/selinux/include/security.h  |  3 +-
->  security/selinux/ss/services.c       | 64 ++++++++++++++++++++++++----
->  6 files changed, 149 insertions(+), 11 deletions(-)
->  create mode 100644 security/selinux/ima.c
->  create mode 100644 security/selinux/include/ima.h
+> This is a borderline absurd nitpick, but a line of vertical whitespace
+> before the jump label would be nice.
 
-I remain concerned about the possibility of bypassing a measurement by
-tampering with the time, but I appear to be the only one who is
-worried about this so I'm not going to block this patch on those
-grounds.
+Fair point. After the rename to "fallback" as suggested below it
+became visually ugly to me as well :)
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+>
+> > +out:
+> > +       /* No xattr support - try to fallback to genfs if possible. */
+> > +       if (rc == -EOPNOTSUPP) {
+>
+> I'm not sure the "rc == -EOPNOTSUPP" is necessary is it?  The only way
+> we get to the "out" label is if rc *is* -EOPNOTSUPP, right?
 
-> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-> index 54fe1c15ed50..8365596cb42b 100644
-> --- a/Documentation/ABI/testing/ima_policy
-> +++ b/Documentation/ABI/testing/ima_policy
-> @@ -52,8 +52,9 @@ Description:
->                         template:= name of a defined IMA template type
->                         (eg, ima-ng). Only valid when action is "measure".
->                         pcr:= decimal value
-> -                       label:= [data_label]
-> +                       label:= [selinux]|[data_label]
->                         data_label:= a unique string used for grouping and limiting critical data.
-> +                       For example, "selinux" to measure critical data for SELinux.
+Not really, but it's true that the control flow can be simplified a bit...
+
+> Somewhat related, since we're talking about minor things, why not
+> change "out" to "fallback" or something similar, "out" isn't really
+> "out" as it is used in this function.
+
+Agreed, "fallback" sounds better here.
+
 >
->                   default policy:
->                         # PROC_SUPER_MAGIC
-> diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-> index 4d8e0e8adf0b..776162444882 100644
-> --- a/security/selinux/Makefile
-> +++ b/security/selinux/Makefile
-> @@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
+> > +               rc = security_genfs_sid(&selinux_state, sb->s_type->name, "/",
+> > +                                       SECCLASS_DIR, &sid);
+> > +               if (rc) {
+> >                         rc = -EOPNOTSUPP;
+> > -                       goto out;
 >
->  selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
+> You might as well just "return -EOPNOSUPP" here.
 >
-> +selinux-$(CONFIG_IMA) += ima.o
-> +
->  ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+> > +               } else {
+> > +                       pr_warn("SELinux: (dev %s, type %s) falling back to genfs\n",
+> > +                               sb->s_id, sb->s_type->name);
+> > +                       sbsec->behavior = SECURITY_FS_USE_GENFS;
+> > +                       sbsec->sid = sid;
+> >                 }
 >
->  $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
-> diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-> new file mode 100644
-> index 000000000000..0b835bdc3aa9
-> --- /dev/null
-> +++ b/security/selinux/ima.c
-> @@ -0,0 +1,64 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Copyright (C) 2021 Microsoft Corporation
-> + *
-> + * Author: Lakshmi Ramasubramanian (nramas@linux.microsoft.com)
-> + *
-> + * Measure critical data structures maintainted by SELinux
-> + * using IMA subsystem.
-> + */
-> +#include <linux/vmalloc.h>
-> +#include <linux/ktime.h>
-> +#include <linux/ima.h>
-> +#include "security.h"
-> +#include "ima.h"
-> +
-> +/*
-> + * selinux_ima_measure_state - Measure hash of the SELinux policy
-> + *
-> + * @state: selinux state struct
-> + *
-> + * NOTE: This function must be called with policy_mutex held.
-> + */
-> +void selinux_ima_measure_state(struct selinux_state *state)
-> +{
-> +       struct timespec64 cur_time;
-> +       void *policy = NULL;
-> +       char *policy_event_name = NULL;
-> +       size_t policy_len;
-> +       int rc = 0;
-> +
-> +       /*
-> +        * Measure SELinux policy only after initialization is completed.
-> +        */
-> +       if (!selinux_initialized(state))
-> +               return;
-> +
-> +       /*
-> +        * Pass a unique "event_name" to the IMA hook so that IMA subsystem
-> +        * will always measure the given data.
-> +        */
-> +       ktime_get_real_ts64(&cur_time);
-> +       policy_event_name = kasprintf(GFP_KERNEL, "%s-%lld:%09ld",
-> +                                     "selinux-policy-hash",
-> +                                     cur_time.tv_sec, cur_time.tv_nsec);
-> +       if (!policy_event_name) {
-> +               pr_err("SELinux: %s: event name for policy not allocated.\n",
-> +                      __func__);
-> +               goto out;
-> +       }
-> +
-> +       rc = security_read_state_kernel(state, &policy, &policy_len);
-> +       if (rc) {
-> +               pr_err("SELinux: %s: failed to read policy %d.\n", __func__, rc);
-> +               goto out;
-> +       }
-> +
-> +       ima_measure_critical_data("selinux", policy_event_name,
-> +                                 policy, policy_len, true);
-> +
-> +       vfree(policy);
-> +
-> +out:
-> +       kfree(policy_event_name);
-> +}
-> diff --git a/security/selinux/include/ima.h b/security/selinux/include/ima.h
-> new file mode 100644
-> index 000000000000..d69c36611423
-> --- /dev/null
-> +++ b/security/selinux/include/ima.h
-> @@ -0,0 +1,24 @@
-> +/* SPDX-License-Identifier: GPL-2.0+ */
-> +/*
-> + * Copyright (C) 2021 Microsoft Corporation
-> + *
-> + * Author: Lakshmi Ramasubramanian (nramas@linux.microsoft.com)
-> + *
-> + * Measure critical data structures maintainted by SELinux
-> + * using IMA subsystem.
-> + */
-> +
-> +#ifndef _SELINUX_IMA_H_
-> +#define _SELINUX_IMA_H_
-> +
-> +#include "security.h"
-> +
-> +#ifdef CONFIG_IMA
-> +extern void selinux_ima_measure_state(struct selinux_state *selinux_state);
-> +#else
-> +static inline void selinux_ima_measure_state(struct selinux_state *selinux_state)
-> +{
-> +}
-> +#endif
-> +
-> +#endif /* _SELINUX_IMA_H_ */
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 3cc8bab31ea8..29cae32d3fc5 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -229,7 +229,8 @@ void selinux_policy_cancel(struct selinux_state *state,
->                         struct selinux_policy *policy);
->  int security_read_policy(struct selinux_state *state,
->                          void **data, size_t *len);
-> -
-> +int security_read_state_kernel(struct selinux_state *state,
-> +                              void **data, size_t *len);
->  int security_policycap_supported(struct selinux_state *state,
->                                  unsigned int req_cap);
+> It also might read a bit better if you got rid of the else block, for example:
 >
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 9704c8a32303..cc8dbc4ed8db 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -65,6 +65,7 @@
->  #include "ebitmap.h"
->  #include "audit.h"
->  #include "policycap_names.h"
-> +#include "ima.h"
+>   rc = security_genfs_sid(...);
+>   if (rc)
+>     return -EOPNOTSUPP;
 >
->  /* Forward declaration. */
->  static int context_struct_to_string(struct policydb *policydb,
-> @@ -2180,6 +2181,7 @@ static void selinux_notify_policy_change(struct selinux_state *state,
->         selinux_status_update_policyload(state, seqno);
->         selinux_netlbl_cache_invalidate();
->         selinux_xfrm_notify_policyload();
-> +       selinux_ima_measure_state(state);
->  }
+>   pr_warn(...);
+>   sbsec->blah = blahblah;
+>   return 0;
+
+Again a good point, will be like that in v2.
+
+Thank you for the valuable suggestions!
+
 >
->  void selinux_policy_commit(struct selinux_state *state,
-> @@ -3875,8 +3877,33 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
->  }
->  #endif /* CONFIG_NETLABEL */
+> > +       }
+> > +       return rc;
+> > +}
+> >
+> > -               rc = __vfs_getxattr(root, root_inode, XATTR_NAME_SELINUX, NULL, 0);
+> > -               if (rc < 0 && rc != -ENODATA) {
+> > -                       if (rc == -EOPNOTSUPP)
+> > -                               pr_warn("SELinux: (dev %s, type "
+> > -                                      "%s) has no security xattr handler\n",
+> > -                                      sb->s_id, sb->s_type->name);
+> > -                       else
+> > -                               pr_warn("SELinux: (dev %s, type "
+> > -                                      "%s) getxattr errno %d\n", sb->s_id,
+> > -                                      sb->s_type->name, -rc);
+> > -                       goto out;
+> > -               }
+> > +static int sb_finish_set_opts(struct super_block *sb)
+> > +{
+> > +       struct superblock_security_struct *sbsec = sb->s_security;
+> > +       struct dentry *root = sb->s_root;
+> > +       struct inode *root_inode = d_backing_inode(root);
+> > +       int rc = 0;
+> > +
+> > +       if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
+> > +               rc = sb_check_xattr_support(sb);
+> > +               if (rc)
+> > +                       return rc;
+> >         }
+> >
+> >         sbsec->flags |= SE_SBINITIALIZED;
+> > @@ -554,7 +583,6 @@ static int sb_finish_set_opts(struct super_block *sb)
+> >                 spin_lock(&sbsec->isec_lock);
+> >         }
+> >         spin_unlock(&sbsec->isec_lock);
+> > -out:
+> >         return rc;
+> >  }
+> >
+> > --
+> > 2.29.2
+> >
 >
-> +/**
-> + * __security_read_policy - read the policy.
-> + * @policy: SELinux policy
-> + * @data: binary policy data
-> + * @len: length of data in bytes
-> + *
-> + */
-> +static int __security_read_policy(struct selinux_policy *policy,
-> +                                 void *data, size_t *len)
-> +{
-> +       int rc;
-> +       struct policy_file fp;
-> +
-> +       fp.data = data;
-> +       fp.len = *len;
-> +
-> +       rc = policydb_write(&policy->policydb, &fp);
-> +       if (rc)
-> +               return rc;
-> +
-> +       *len = (unsigned long)fp.data - (unsigned long)data;
-> +       return 0;
-> +}
-> +
->  /**
->   * security_read_policy - read the policy.
-> + * @state: selinux_state
->   * @data: binary policy data
->   * @len: length of data in bytes
->   *
-> @@ -3885,8 +3912,6 @@ int security_read_policy(struct selinux_state *state,
->                          void **data, size_t *len)
->  {
->         struct selinux_policy *policy;
-> -       int rc;
-> -       struct policy_file fp;
->
->         policy = rcu_dereference_protected(
->                         state->policy, lockdep_is_held(&state->policy_mutex));
-> @@ -3898,14 +3923,35 @@ int security_read_policy(struct selinux_state *state,
->         if (!*data)
->                 return -ENOMEM;
->
-> -       fp.data = *data;
-> -       fp.len = *len;
-> +       return __security_read_policy(policy, *data, len);
-> +}
->
-> -       rc = policydb_write(&policy->policydb, &fp);
-> -       if (rc)
-> -               return rc;
-> +/**
-> + * security_read_state_kernel - read the policy.
-> + * @state: selinux_state
-> + * @data: binary policy data
-> + * @len: length of data in bytes
-> + *
-> + * Allocates kernel memory for reading SELinux policy.
-> + * This function is for internal use only and should not
-> + * be used for returning data to user space.
-> + *
-> + * This function must be called with policy_mutex held.
-> + */
-> +int security_read_state_kernel(struct selinux_state *state,
-> +                              void **data, size_t *len)
-> +{
-> +       struct selinux_policy *policy;
->
-> -       *len = (unsigned long)fp.data - (unsigned long)*data;
-> -       return 0;
-> +       policy = rcu_dereference_protected(
-> +                       state->policy, lockdep_is_held(&state->policy_mutex));
-> +       if (!policy)
-> +               return -EINVAL;
-> +
-> +       *len = policy->policydb.len;
-> +       *data = vmalloc(*len);
-> +       if (!*data)
-> +               return -ENOMEM;
->
-> +       return __security_read_policy(policy, *data, len);
->  }
 > --
-> 2.17.1
+> paul moore
+> www.paul-moore.com
 >
-
 
 -- 
-paul moore
-www.paul-moore.com
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
