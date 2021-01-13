@@ -2,112 +2,102 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B941C433DB
-	for <selinux@archiver.kernel.org>; Wed, 13 Jan 2021 23:40:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A225AC433E9
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 01:53:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C1FFB2339F
-	for <selinux@archiver.kernel.org>; Wed, 13 Jan 2021 23:40:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5450A2074A
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 01:53:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729554AbhAMXkW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Jan 2021 18:40:22 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29923 "EHLO
+        id S1727392AbhANBwg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Jan 2021 20:52:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23781 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729535AbhAMXjD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Jan 2021 18:39:03 -0500
+        by vger.kernel.org with ESMTP id S1729752AbhANAF2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 Jan 2021 19:05:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610581023;
+        s=mimecast20190719; t=1610582641;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=08k6n6PGIvNhiVmynePARtCoLXTd0u+CDY7SgcPehcg=;
-        b=ebsRwyefehwhTDaAcvMxaJjb6ZbC5YGSohi3csQ+O7snLienUt+rgfmZ1hFw+RIOLbKpAA
-        taw7WHwNsFmBEzlBUB8CpYKTgV9gI4qriq2k1y346M/4sj5XuOXNbynycWDuCvVpuxGjaH
-        kPaexU+gEFonwczLb7+4O2Uu2tvY1ew=
+        bh=K4rqK8ZfUfdIUk8J2UerL98B4qfMUtp3Qj54Zkzugqw=;
+        b=Sr7C/MDldQ04HJ1cRC9/hnwRsL9vkxHETFImigk5cnUQCvJz09VLUTXRl62dxUBWeJy3ig
+        NdSOM4f2PPv2Z6m97b6Z57qxvZMc54TxG4QUDz746kmslQrZF1508+SoNb9FQUQ4lyrZRl
+        003kSW+RaW1Q3BPLY8unxU/iqGHXD60=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-141-asruL_VaPzKSYnHKZCJ0fw-1; Wed, 13 Jan 2021 17:56:48 -0500
-X-MC-Unique: asruL_VaPzKSYnHKZCJ0fw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-242-jONvzRE1MDu9GVYun0mMPw-1; Wed, 13 Jan 2021 17:50:16 -0500
+X-MC-Unique: jONvzRE1MDu9GVYun0mMPw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 77CB010051A5;
-        Wed, 13 Jan 2021 22:56:47 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E3585806661;
+        Wed, 13 Jan 2021 22:50:15 +0000 (UTC)
 Received: from localhost (unknown [10.40.193.36])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0B9D5100AE3F;
-        Wed, 13 Jan 2021 22:56:46 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 780B35D71F;
+        Wed, 13 Jan 2021 22:50:15 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: can't unmount /sys/fs/selinux
-In-Reply-To: <CAEjxPJ6jqHX+bSwLoKratsBD47_WNAoQ4OQQN9yWcMzTRoMbzA@mail.gmail.com>
-References: <87wnwga4wm.fsf@redhat.com>
- <CAEjxPJ6jqHX+bSwLoKratsBD47_WNAoQ4OQQN9yWcMzTRoMbzA@mail.gmail.com>
-Date:   Wed, 13 Jan 2021 23:56:46 +0100
-Message-ID: <87k0sga1jl.fsf@redhat.com>
+To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 2/2] python/semanage: Sort imports in alphabetical order
+In-Reply-To: <20210106090007.176771-1-vmojzis@redhat.com>
+References: <CAJfZ7==efgpSLs-U81UEp-0ven0mr3WZMLpP1+1XC8a-ww0uSg@mail.gmail.com>
+ <20210106090007.176771-1-vmojzis@redhat.com>
+Date:   Wed, 13 Jan 2021 23:50:14 +0100
+Message-ID: <87mtxca1uh.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+Vit Mojzis <vmojzis@redhat.com> writes:
 
-> On Wed, Jan 13, 2021 at 4:52 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Hi,
->>
->> we have few tests which uses `umount /sys/fs/selinux` trick to check how
->> userspace works in SELinux "disabled" environment. But it's not possible
->> with the current master:
->>
->>     # umount /sys/fs/selinux
->>     umount: /sys/fs/selinux: target is busy.
->>
->>     # lsof /sys/fs/selinux
->>     COMMAND      PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
->>     systemd        1     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd        1     root   55r   REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd-u    875     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd-u    875     root    6r   REG   0,21        0   19 /sys/fs/selinux/status
->>     dbus-brok   1116     dbus  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     dbus-brok   1116     dbus    5r   REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd-l   1134     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd-l   1134     root    4r   REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd     1643     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     systemd     1643     root   28r   REG   0,21        0   19 /sys/fs/selinux/status
->>     (sd-pam)    1645     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     ...
->>     sshd      218874     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     sshd      218874     root    3r   REG   0,21        0   19 /sys/fs/selinux/status
->>     sshd      218880 plautrba  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>     sshd      218880 plautrba    3r   REG   0,21        0   19 /sys/fs/selinux/status
->>
->> It seems to be caused by commit 05bdc03130d7 ("libselinux: use kernel
->> status page by default") which replaced avc_netlink_open() in
->> avc_init_internal() with selinux_status_open()
->>
->> In case of sshd process, /sys/fs/selinux/status seems to be mapped by
->> selinux_check_access() which is called from pam_selinux and it's left
->> open as there's no selinux_status_close() in selinux_check_access().
->> The similar situations probably happen in systemd and dbus.
->>
->> So is it expected? Is it a bug? Do we need to change other components so
->> that they would call selinux_status_close() when they use check access?
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+Both merged, thanks!
+
+
+> ---
+>  python/semanage/semanage | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 >
-> What if we just close the fd after mmap and not keep it open?  I don't
-> see any use of selinux_status_fd beyond assignment and closing.
-> Tearing down the mapping and re-creating it on every access check
-> would defeat the purpose.
-
-Thanks for this hint! I've checked mmap(2) and it's there: After the
-mmap() call has returned, the file descriptor, fd, can be closed
-immediately without invalidating the mapping.
-
-I'll try it tomorrow.
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index ce15983b..125271df 100644
+> --- a/python/semanage/semanage
+> +++ b/python/semanage/semanage
+> @@ -23,11 +23,13 @@
+>  #
+>  #
+>  
+> -import traceback
+>  import argparse
+> +import os
+> +import re
+>  import seobject
+>  import sys
+> -import os
+> +import traceback
+> +
+>  PROGNAME = "policycoreutils"
+>  try:
+>      import gettext
+> @@ -798,8 +800,6 @@ def setupExportParser(subparsers):
+>      exportParser.add_argument('-f', '--output_file', dest='output_file', action=SetExportFile, help=_('Output file'))
+>      exportParser.set_defaults(func=handleExport)
+>  
+> -import re
+> -
+>  
+>  def mkargv(line):
+>      dquote = "\""
+> -- 
+> 2.29.2
 
