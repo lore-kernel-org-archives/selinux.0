@@ -2,199 +2,140 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1CFFC433E0
-	for <selinux@archiver.kernel.org>; Wed, 13 Jan 2021 15:43:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2768DC433E0
+	for <selinux@archiver.kernel.org>; Wed, 13 Jan 2021 18:09:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B482208BA
-	for <selinux@archiver.kernel.org>; Wed, 13 Jan 2021 15:43:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D58E3233ED
+	for <selinux@archiver.kernel.org>; Wed, 13 Jan 2021 18:09:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726003AbhAMPnM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Jan 2021 10:43:12 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57140 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725902AbhAMPnM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Jan 2021 10:43:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610552505;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MSgsXjZH4k7eQ49DcvuPqbkQqnOJIpQSbp2K1LHHRzM=;
-        b=SvS2nqUL9tbRbg750r/0jVwmk+fKRCuA6bbFUXWeZT/zVvQqABGcoOQ228jbgLN++6mOSO
-        HdiVwgH0W1GTLqNL3eNQKsqm5pcyXXmFWWwe8m1pLslypW90zYccx53QJdihCP++qfxunU
-        GD5dxSG3FFYHhG3Ns2dPC3+fYerjC0o=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-183-VjuUI3k8MOGbTTgWAd7gTQ-1; Wed, 13 Jan 2021 10:41:41 -0500
-X-MC-Unique: VjuUI3k8MOGbTTgWAd7gTQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8287A873161;
-        Wed, 13 Jan 2021 15:41:40 +0000 (UTC)
-Received: from localhost (unknown [10.40.193.36])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 148CB60D08;
-        Wed, 13 Jan 2021 15:41:39 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: [PATCH] setfiles: Do not abort on labeling error
-In-Reply-To: <CAEjxPJ527_NmMn+_gpKMHrq4iDtB2T4UPMEtsBtfzfD6YYF+Vg@mail.gmail.com>
-References: <20210113121120.164565-1-plautrba@redhat.com>
- <CAEjxPJ527_NmMn+_gpKMHrq4iDtB2T4UPMEtsBtfzfD6YYF+Vg@mail.gmail.com>
-Date:   Wed, 13 Jan 2021 16:41:39 +0100
-Message-ID: <8735z4c098.fsf@redhat.com>
+        id S1727980AbhAMSJB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Jan 2021 13:09:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56592 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726429AbhAMSJB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 Jan 2021 13:09:01 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A4CC061786
+        for <selinux@vger.kernel.org>; Wed, 13 Jan 2021 10:08:20 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id t30so3141334wrb.0
+        for <selinux@vger.kernel.org>; Wed, 13 Jan 2021 10:08:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=yH5u9y2wy1keEH/7cm+6LpeR3BpSRhAV0Ow7SdVvy58=;
+        b=Bdwk6nUFlCU+LPWRFAuXQj2yM2oD/qD5nc1ASW24XvBCfyLvhbRO7i0GT9uj20AayT
+         4B+343KPnyqctxOjxfYPws509SjQuI5J8b/pPdcgSc+uDXEV6LyPX+J9ayTX+9A2OCCZ
+         h+nDYj7pStlw/LGEB/Bb2bXgqu1XoeRv1PKo8d5i/nE0KuKXr0kVsdZENuXc4+boAk8x
+         fYxlXgqy4kH8FIaLjvInn0JaKu2+v9aqajNCZ87OH3iY/0siM7zeqtK00jRVHa7r6oOv
+         MoTOEk69/OTdcIZa2OWgDqZDRLKXQNyg0L4+hSEcDw3lwZWMWXI4xYb7hZ6bVxYPZvuG
+         mxUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yH5u9y2wy1keEH/7cm+6LpeR3BpSRhAV0Ow7SdVvy58=;
+        b=DSOMDMwU1rHdSpdCm7Mg6U73gdNYkQ/YqFpy9AVpoyg19YAzRaugMnCv3k0qHK/18C
+         ivtAZlNBtg/TPqvqd1cqKdyrw/yq+DzDryda41897ky6lc1YnzMDNOiF1H5vDLkz6yV/
+         QSDvBWm3ZYER1SGCIyhgAYDC5aCe9veM4fH0943mO8+wzmWyR6ecag6AGtb7pt6s5JHd
+         W8oKX8K18lTTxxbz0nAkY7uHAod+oUXF/sOXkOHD3HX2hK5RaKfmXRmF1wi0uoOp1ZE8
+         mzE/jl+e1MoLtE88A191InOgnsiK9Td0WVYKuOk/QKJ/y18/sUJEMXcTpCAAs1EHtYaJ
+         mIWg==
+X-Gm-Message-State: AOAM531m+pYr/eaGDG3/wy2us57IeTBlEcORyJFyg2aogNwVgmCxTmIK
+        CyhbWS9ZDnmrP6EEH5yCMAAsbDeuMPdhz7/PUzAoag==
+X-Google-Smtp-Source: ABdhPJzvfLlFhauGSP5N6MGXJl9v13+O6cX+vTvVC9ye8FhSO5okdudU++QgL2t0g5Ek15bT4blDIQNiAZWIwiPjFRE=
+X-Received: by 2002:a5d:4a44:: with SMTP id v4mr4006181wrs.106.1610561299128;
+ Wed, 13 Jan 2021 10:08:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+References: <20210111170622.2613577-1-surenb@google.com> <20210112074629.GG22493@dhcp22.suse.cz>
+ <20210112174507.GA23780@redhat.com> <CAJuCfpFQz=x-LvONO3c4iqjKP4NKJMgUuiYc8HACKHAv1Omu0w@mail.gmail.com>
+ <20210113142202.GC22493@dhcp22.suse.cz>
+In-Reply-To: <20210113142202.GC22493@dhcp22.suse.cz>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Wed, 13 Jan 2021 10:08:08 -0800
+Message-ID: <CAJuCfpEccYMENy_6PrVFTC1_Xx3wV2E2805wsSLENbW+C_mbfg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     Oleg Nesterov <oleg@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>, selinux@vger.kernel.org,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
-
-> On Wed, Jan 13, 2021 at 7:15 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Commit 602347c7422e ("policycoreutils: setfiles - Modify to use
->> selinux_restorecon") changed behavior of setfiles. Original
->> implementation skipped files which it couldn't set context to while the
->> new implementation aborts on them. setfiles should abort only if it
->> can't validate 10 contexts from spec_file.
->>
->> Reproducer:
->>
->>     # mkdir -p r/1 r/2 r/3
->>     # touch r/1/1 r/2/1
->>     # chattr +i r/2/1
->>     # touch r/3/1
->>     # setfiles -r r -v /etc/selinux/targeted/contexts/files/file_contexts r
->>     Relabeled r from unconfined_u:object_r:mnt_t:s0 to unconfined_u:object_r:root_t:s0
->>     Relabeled r/2 from unconfined_u:object_r:mnt_t:s0 to unconfined_u:object_r:default_t:s0
->>     setfiles: Could not set context for r/2/1:  Operation not permitted
->>
->> r/3 and r/1 are not relabeled.
->>
->> Also drop some old unused code in order to prevent future confusion.
->>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->> ---
->>  policycoreutils/setfiles/setfiles.c | 49 +----------------------------
->>  1 file changed, 1 insertion(+), 48 deletions(-)
->>
->> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
->> index 422c3767b845..b96ee814bad2 100644
->> --- a/policycoreutils/setfiles/setfiles.c
->> +++ b/policycoreutils/setfiles/setfiles.c
->> @@ -23,14 +23,6 @@ static int nerr;
->>
->>  #define STAT_BLOCK_SIZE 1
->>
->> -/* setfiles will abort its operation after reaching the
->> - * following number of errors (e.g. invalid contexts),
->> - * unless it is used in "debug" mode (-d option).
->> - */
->> -#ifndef ABORT_ON_ERRORS
->> -#define ABORT_ON_ERRORS        10
->> -#endif
->> -
->>  #define SETFILES "setfiles"
->>  #define RESTORECON "restorecon"
->>  static int iamrestorecon;
->> @@ -56,15 +48,6 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
->>         exit(-1);
->>  }
->>
->> -void inc_err(void)
->> -{
->> -       nerr++;
->> -       if (nerr > ABORT_ON_ERRORS - 1 && !r_opts.debug) {
->> -               fprintf(stderr, "Exiting after %d errors.\n", ABORT_ON_ERRORS);
->> -               exit(-1);
->> -       }
->> -}
->> -
->>  void set_rootpath(const char *arg)
->>  {
->>         if (strlen(arg) == 1 && strncmp(arg, "/", 1) == 0) {
->> @@ -82,27 +65,6 @@ void set_rootpath(const char *arg)
->>         }
->>  }
->>
->> -int canoncon(char **contextp)
->> -{
->> -       char *context = *contextp, *tmpcon;
->> -       int rc = 0;
->> -
->> -       if (policyfile) {
->> -               if (sepol_check_context(context) < 0) {
->> -                       fprintf(stderr, "invalid context %s\n", context);
->> -                       exit(-1);
->> -               }
->> -       } else if (security_canonicalize_context_raw(context, &tmpcon) == 0) {
->> -               free(context);
->> -               *contextp = tmpcon;
->> -       } else if (errno != ENOENT) {
->> -               rc = -1;
->> -               inc_err();
->> -       }
->> -
->> -       return rc;
->> -}
->> -
->>  #ifndef USE_AUDIT
->>  static void maybe_audit_mass_relabel(int mass_relabel __attribute__((unused)),
->>                                 int mass_relabel_errs __attribute__((unused)))
->> @@ -181,6 +143,7 @@ int main(int argc, char **argv)
->>         policyfile = NULL;
->>         nerr = 0;
->>
->> +       r_opts.abort_on_error = 0;
->>         r_opts.progname = strdup(argv[0]);
->>         if (!r_opts.progname) {
->>                 fprintf(stderr, "%s:  Out of memory!\n", argv[0]);
->> @@ -193,7 +156,6 @@ int main(int argc, char **argv)
->>                  * setfiles:
->>                  * Recursive descent,
->>                  * Does not expand paths via realpath,
->> -                * Aborts on errors during the file tree walk,
->>                  * Try to track inode associations for conflict detection,
->>                  * Does not follow mounts (sets SELINUX_RESTORECON_XDEV),
->>                  * Validates all file contexts at init time.
->> @@ -201,7 +163,6 @@ int main(int argc, char **argv)
->>                 iamrestorecon = 0;
->>                 r_opts.recurse = SELINUX_RESTORECON_RECURSE;
->>                 r_opts.userealpath = 0; /* SELINUX_RESTORECON_REALPATH */
->> -               r_opts.abort_on_error = SELINUX_RESTORECON_ABORT_ON_ERROR;
->>                 r_opts.add_assoc = SELINUX_RESTORECON_ADD_ASSOC;
->>                 /* FTS_PHYSICAL and FTS_NOCHDIR are always set by selinux_restorecon(3) */
->>                 r_opts.xdev = SELINUX_RESTORECON_XDEV;
->> @@ -225,7 +186,6 @@ int main(int argc, char **argv)
->>                 iamrestorecon = 1;
->>                 r_opts.recurse = 0;
->>                 r_opts.userealpath = SELINUX_RESTORECON_REALPATH;
->> -               r_opts.abort_on_error = 0;
->>                 r_opts.add_assoc = 0;
->>                 r_opts.xdev = 0;
->>                 r_opts.ignore_mounts = 0;
->> @@ -420,13 +380,6 @@ int main(int argc, char **argv)
->>                                 usage(argv[0]);
->>                 }
->>
->> -               /* Use our own invalid context checking function so that
->> -                * we can support either checking against the active policy or
->> -                * checking against a binary policy file.
->> -                */
->> -               cb.func_validate = canoncon;
->> -               selinux_set_callback(SELINUX_CB_VALIDATE, cb);
->> -
+On Wed, Jan 13, 2021 at 6:22 AM Michal Hocko <mhocko@suse.com> wrote:
 >
-> I could be wrong but I think we still need this for setfiles -c.
+> On Tue 12-01-21 09:51:24, Suren Baghdasaryan wrote:
+> > On Tue, Jan 12, 2021 at 9:45 AM Oleg Nesterov <oleg@redhat.com> wrote:
+> > >
+> > > On 01/12, Michal Hocko wrote:
+> > > >
+> > > > On Mon 11-01-21 09:06:22, Suren Baghdasaryan wrote:
+> > > >
+> > > > > What we want is the ability for one process to influence another process
+> > > > > in order to optimize performance across the entire system while leaving
+> > > > > the security boundary intact.
+> > > > > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
+> > > > > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
+> > > > > and CAP_SYS_NICE for influencing process performance.
+> > > >
+> > > > I have to say that ptrace modes are rather obscure to me. So I cannot
+> > > > really judge whether MODE_READ is sufficient. My understanding has
+> > > > always been that this is requred to RO access to the address space. But
+> > > > this operation clearly has a visible side effect. Do we have any actual
+> > > > documentation for the existing modes?
+> > > >
+> > > > I would be really curious to hear from Jann and Oleg (now Cced).
+> > >
+> > > Can't comment, sorry. I never understood these security checks and never tried.
+> > > IIUC only selinux/etc can treat ATTACH/READ differently and I have no idea what
+> > > is the difference.
+> >
+> > I haven't seen a written explanation on ptrace modes but when I
+> > consulted Jann his explanation was:
+> >
+> > PTRACE_MODE_READ means you can inspect metadata about processes with
+> > the specified domain, across UID boundaries.
+> > PTRACE_MODE_ATTACH means you can fully impersonate processes with the
+> > specified domain, across UID boundaries.
+>
+> Maybe this would be a good start to document expectations. Some more
+> practical examples where the difference is visible would be great as
+> well.
 
-Looks like you are right. I'll send updated version.
+I'll do my best but I'm also not a security expert. Will post the next
+version with a draft for the man page (this syscall does not have a
+man page yet AFAIKT) and we can iterate on the wording there.
 
+> > He did agree that in this case PTRACE_MODE_ATTACH seems too
+> > restrictive (we do not try to gain full control or impersonate a
+> > process) and PTRACE_MODE_READ is a better choice.
+>
+> All that being said, I am not against the changed behavior but I do not
+> feel competent to give an ack.
+
+Great. SOunds like the only missing piece is the man page with more
+details. I'll work on it but since it's the first time I will be
+contributing to man pages it might take me a couple days. Thanks
+everyone for the reviews!
+
+> --
+> Michal Hocko
+> SUSE Labs
