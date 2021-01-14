@@ -2,142 +2,154 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40242C433E0
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 16:23:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF114C433E6
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 16:25:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B95C23B4B
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 16:23:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE20A22B2B
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 16:25:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727216AbhANQXc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Jan 2021 11:23:32 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:33376 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725950AbhANQXb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 11:23:31 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id E852C20B6C40;
-        Thu, 14 Jan 2021 08:22:49 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E852C20B6C40
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1610641370;
-        bh=8KBsWFA0uQdPJalWO9bcjGILs5uqsg5GOYsPyXUXKMI=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=mTtI4JG+13FKeFJaS+lUZgtByd4Xfm/FOqBumNKjFfHRu+xm/LtQDQ/NM3rSc1xMG
-         IzpVB4HFbMfxv4HO1I61xiAJ70t9o2xTpczjlXT52C8R3cEw0o8bLbsJsQEkRJxNOp
-         8bWdTMDbEOSZXv1FxLuSKLURovAmUj7+izH48Dpw=
-Subject: Re: [PATCH v10 8/8] selinux: include a consumer of the new IMA
- critical data hook
-To:     Mimi Zohar <zohar@linux.ibm.com>, Paul Moore <paul@paul-moore.com>
-Cc:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
-        sashal@kernel.org, James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-References: <20210108040708.8389-1-tusharsu@linux.microsoft.com>
- <20210108040708.8389-9-tusharsu@linux.microsoft.com>
- <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
- <97328fc71687a0e1c327f6821548be9ba35bb193.camel@linux.ibm.com>
- <CAHC9VhTzaQ_q8gJ0oeok_yJ54XLETNvOuhhKnyRwgqsqvpBLCw@mail.gmail.com>
- <71cddb6c8676ccd63c89364d805cfca76d32cb6e.camel@linux.ibm.com>
- <CAHC9VhRhYWEcK7TepZ=LK1m=9Zn_gtOZyAYfamP-TFU3rRH+zw@mail.gmail.com>
- <e29a618645b0e73ec06960a02b6da465614689ff.camel@linux.ibm.com>
- <CAHC9VhTHqwKem=MyQBY4TNAq-DOVhwEZS8pjrSE=4OxdEVm-GA@mail.gmail.com>
- <3746bc7673df25354411151442a7772b867be396.camel@linux.ibm.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <fc80b1a1-ff4d-3bf2-59bd-2cb56135bf0f@linux.microsoft.com>
-Date:   Thu, 14 Jan 2021 08:22:44 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727524AbhANQZw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Jan 2021 11:25:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727480AbhANQZw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 11:25:52 -0500
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FBBCC0613C1
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 08:25:11 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id o17so8869481lfg.4
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 08:25:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Q7pY4LEEioExlW4yWDhnYeiyl5pXvdolofN+0QDIPNk=;
+        b=qwhoDb0Wfuf2iMA0lHD2EKrF3qedarEGyiB6BAHMptztXM86S38MKgQj/oPbWfms73
+         vsjau+0nMg4lYXetOlofUAiscmzxqWt6HT2lTNdQRpQDar37YM83RODXmzsZlGdliilO
+         +C3qlP2ylaY8bjWRPe/IdqHk5yIzD+29vcD1JjS78p2uPWjRdzrl2Zkvx1x3qPmaiYw5
+         tdrsw9eObg4G7mCT5mueeX+vLj4aByun+cw5U03AIAsVO66FyA8u+D27oNU9y5Od1Air
+         lNuteqN82D84gLSKVct86GhqpG37PSO9Go2hxfx1LrlkZtqCzAvhBvxeuBnEAf9HhdeX
+         zfaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Q7pY4LEEioExlW4yWDhnYeiyl5pXvdolofN+0QDIPNk=;
+        b=rDyMmJz1nx7hLoivjWDyhjHlHNHyz2sYAqkWIJxW6M71CGFNcJ3DpOCOGMfe+aaQ8Q
+         SKcr3xCgC/1V89k/DMA1hnMpaAAukklbMgIaMIDlIH6YWDMZz8Vi2n0S1XtnfEYt5ouP
+         hpZHeUCa+VMGjEj5XBaMiwr3gmtBlAHtcowytwwMVnIeimql9MH1HAWhNPqIX+16ZyU0
+         XigDIh7e9LrqMkbfFAJdTul54VqJRL7Jy6k7yrD/Pju028Gp1+XE1wPlb1unZ0BB0ieO
+         OdO1aKKdvzjJMMUCrBrAraticQSVFRqt6G2HnMqbQSTj/gjLxGLe7XzvBZXsjv8Ts/T0
+         XlLw==
+X-Gm-Message-State: AOAM5339CAUbzufWr9tc5/UNISnG8Cd15xKvR2Pmx/5gCAPoc5NofVmj
+        aNXojoVOMpn1KoUssOtUYn6BRwmsmfQGGFEZnwav9dOm
+X-Google-Smtp-Source: ABdhPJwclETHxKzNFXDImTxMLvw2iioYERcm9/fmEtgqWeF4BLaFs4CVTwvQ9wjs2wG/2IeB3ccWjzVoC0jSAySh3iU=
+X-Received: by 2002:a05:6512:2287:: with SMTP id f7mr3440362lfu.40.1610641509943;
+ Thu, 14 Jan 2021 08:25:09 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <3746bc7673df25354411151442a7772b867be396.camel@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <87wnwga4wm.fsf@redhat.com> <CAEjxPJ6jqHX+bSwLoKratsBD47_WNAoQ4OQQN9yWcMzTRoMbzA@mail.gmail.com>
+ <87k0sga1jl.fsf@redhat.com> <87czy7a9a6.fsf@redhat.com>
+In-Reply-To: <87czy7a9a6.fsf@redhat.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 14 Jan 2021 11:24:58 -0500
+Message-ID: <CAEjxPJ4B7GG38b7umMQNXPhWnLFVZWFN8iFEwxv7g45YNDn3Bw@mail.gmail.com>
+Subject: Re: can't unmount /sys/fs/selinux
+To:     Petr Lautrbach <plautrba@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/13/21 6:49 PM, Mimi Zohar wrote:
+On Thu, Jan 14, 2021 at 9:22 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Petr Lautrbach <plautrba@redhat.com> writes:
+>
+> > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+> >
+> >> On Wed, Jan 13, 2021 at 4:52 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> >>>
+> >>> Hi,
+> >>>
+> >>> we have few tests which uses `umount /sys/fs/selinux` trick to check how
+> >>> userspace works in SELinux "disabled" environment. But it's not possible
+> >>> with the current master:
+> >>>
+> >>>     # umount /sys/fs/selinux
+> >>>     umount: /sys/fs/selinux: target is busy.
+> >>>
+> >>>     # lsof /sys/fs/selinux
+> >>>     COMMAND      PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+> >>>     systemd        1     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd        1     root   55r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd-u    875     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd-u    875     root    6r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     dbus-brok   1116     dbus  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     dbus-brok   1116     dbus    5r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd-l   1134     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd-l   1134     root    4r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd     1643     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     systemd     1643     root   28r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     (sd-pam)    1645     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     ...
+> >>>     sshd      218874     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     sshd      218874     root    3r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     sshd      218880 plautrba  mem    REG   0,21        0   19 /sys/fs/selinux/status
+> >>>     sshd      218880 plautrba    3r   REG   0,21        0   19 /sys/fs/selinux/status
+> >>>
+> >>> It seems to be caused by commit 05bdc03130d7 ("libselinux: use kernel
+> >>> status page by default") which replaced avc_netlink_open() in
+> >>> avc_init_internal() with selinux_status_open()
+> >>>
+> >>> In case of sshd process, /sys/fs/selinux/status seems to be mapped by
+> >>> selinux_check_access() which is called from pam_selinux and it's left
+> >>> open as there's no selinux_status_close() in selinux_check_access().
+> >>> The similar situations probably happen in systemd and dbus.
+> >>>
+> >>> So is it expected? Is it a bug? Do we need to change other components so
+> >>> that they would call selinux_status_close() when they use check access?
+> >>
+> >> What if we just close the fd after mmap and not keep it open?  I don't
+> >> see any use of selinux_status_fd beyond assignment and closing.
+> >> Tearing down the mapping and re-creating it on every access check
+> >> would defeat the purpose.
+> >
+> > Thanks for this hint! I've checked mmap(2) and it's there: After the
+> > mmap() call has returned, the file descriptor, fd, can be closed
+> > immediately without invalidating the mapping.
+> >
+> > I'll try it tomorrow.
+>
+> https://patchwork.kernel.org/project/selinux/patch/20210114133910.282686-1-plautrba@redhat.com/
+>
+> With this patch fd's are closed but the mapped memory is still there:
+>
+>     # umount /sys/fs/selinux
+>     umount: /sys/fs/selinux: target is busy.
+>
+>     # lsof /sys/fs/selinux
+>     COMMAND   PID            USER  FD   TYPE DEVICE SIZE/OFF NODE NAME
+>     systemd     1            root mem    REG   0,21        0   19 /sys/fs/selinux/status
+>     systemd-u 363            root mem    REG   0,21        0   19 /sys/fs/selinux/status
+>     systemd-r 393 systemd-resolve mem    REG   0,21        0   19 /sys/fs/selinux/status
+>     dbus-brok 432            dbus mem    REG   0,21        0   19 /sys/fs/selinux/status
+>     ...
+>
+>
+> For now we have a workaround for our tests - `umount -l /sys/fs/selinux` works.
+>
+> But we should document the side effect of selinux status page change in
+> release notes if there's no better solution.
 
-Hi Mimi,
-
->>>>>>>> I remain concerned about the possibility of bypassing a measurement by
->>>>>>>> tampering with the time, but I appear to be the only one who is
->>>>>>>> worried about this so I'm not going to block this patch on those
->>>>>>>> grounds.
->>>>>>>>
->>>>>>>> Acked-by: Paul Moore <paul@paul-moore.com>
->>>>>>>
->>>>>>> Thanks, Paul.
->>>>>>>
->>>>>>> Including any unique string would cause the buffer hash to change,
->>>>>>> forcing a new measurement.  Perhaps they were concerned with
->>>>>>> overflowing a counter.
->>>>>>
->>>>>> My understanding is that Lakshmi wanted to force a new measurement
->>>>>> each time and felt using a timestamp would be the best way to do that.
->>>>>> A counter, even if it wraps, would have a different value each time
->>>>>> whereas a timestamp is vulnerable to time adjustments.  While a
->>>>>> properly controlled and audited system could be configured and
->>>>>> monitored to detect such an event (I *think*), why rely on that if it
->>>>>> isn't necessary?
->>>>>
->>>>> Why are you saying that even if the counter wraps a new measurement is
->>>>> guaranteed.   I agree with the rest of what you said.
->>>>
->>>> I was assuming that the IMA code simply compares the passed
->>>> "policy_event_name" value to the previous value, if they are different
->>>> a new measurement is taken, if they are the same the measurement
->>>> request is ignored.  If this is the case the counter value is only
->>>> important in as much as that it is different from the previous value,
->>>> even simply toggling a single bit back and forth would suffice in this
->>>> case.  IMA doesn't keep a record of every previous "policy_event_name"
->>>> value does it?  Am I misunderstanding how
->>>> ima_measure_critical_data(...) works?
->>>
->>> Originally, there was quite a bit of discussion as to how much or how
->>> little should be measured for a number of reasons.  One reason is that
->>> the TPM is relatively slow.  Another reason is to limit the size of the
->>> measurement list.  For this reason, duplicate hashes aren't added to
->>> the measurement list or extended into the TPM.
->>>
->>> When a dentry is removed from cache, its also removed from IMA's iint
->>> cache.  A subsequent file read would result in adding the measurement
->>> and extending the TPM again.  ima_lookup_digest_entry() is called to
->>> prevent adding the duplicate entry.
->>>
->>> Lakshmi is trying to address the situation where an event changes a
->>> value, but then is restored to the original value.  The original and
->>> subsequent events are measured, but restoring to the original value
->>> isn't re-measured.  This isn't any different than when a file is
->>> modified and then reverted.
->>>
->>> Instead of changing the name like this, which doesn't work for files,
->>> allowing duplicate measurements should be generic, based on policy.
->>
->> Perhaps it is just the end of the day and I'm a bit tired, but I just
->> read all of the above and I have no idea what your current thoughts
->> are regarding this patch.
-> 
-> Other than appending the timestamp, which is a hack, the patch is fine.
-> Support for re-measuring an event can be upstreamed independently.
-> 
-
-Thanks for clarifying the details related to duplicate measurement 
-detection and re-measuring.
-
-I will keep the timestamp for the time being, even though its a hack, as 
-it helps with re-measuring state changes in SELinux. We will add support 
-for "policy driven" re-measurement as a subsequent patch series.
-
-thanks,
-  -lakshmi
+Is this a problem for clean shutdown/reboot as well or does that
+already use lazy unmount?
+Keeping the status page mapped is by design to avoid needing to
+perform system calls each time to check enforcing status, policy
+seqno, etc.
