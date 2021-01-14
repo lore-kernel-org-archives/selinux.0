@@ -8,56 +8,57 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52B6AC4332E
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:34:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B945C433E0
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:47:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3070123435
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:34:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BB9223A58
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:47:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728059AbhANOe1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Jan 2021 09:34:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37704 "EHLO
+        id S1728952AbhANOrD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Jan 2021 09:47:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727025AbhANOe0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 09:34:26 -0500
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60BFFC061574
-        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 06:33:46 -0800 (PST)
-Received: by mail-io1-xd2a.google.com with SMTP id d9so11512465iob.6
-        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 06:33:46 -0800 (PST)
+        with ESMTP id S1728869AbhANOrC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 09:47:02 -0500
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45793C061574
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 06:46:22 -0800 (PST)
+Received: by mail-io1-xd36.google.com with SMTP id u26so11619533iof.3
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 06:46:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=pSM2rGV8qnCMD36WyMGhNcgXZRdkcegZlAs8F9mEKjw=;
-        b=f/uqkKsXgjh4LfRfIBVPZLlR8dUjv7iVWY6xsIZo5525ol4c1JT7FgrvGYnhDK0X5x
-         jkKLMEVCVZ1VXMf4if5SFT/e1uxk+wt6m45mciJ1DgCFnQ77fOISZjQn5nlEwz0nJQiC
-         7nSBS7RLwp4xh82+YsiV2bj5YlSbCNZqOERXA8HiGZcmPc6mZhpcjtdAnad7KjVK++a9
-         QyJkOtmkPhi8KmMRvZ5xG7nofTa2Kxf5z8hSTJllP8oDR4QsohUuZ9wvMEGBdHb5r5iP
-         DZqk4cso6bAByKhyhRuHs3oyrV91E7BrBsHev+QoJiLCRrQ5eZM/8hgpb7x7VGJX/nBZ
-         lRoQ==
+        bh=KlJB7GkrRJgN7A1mIpndcwY3/HgJ22sHTCYbp+ftbPU=;
+        b=T4rfxsr2PQtv/4YGpKtpVYldJxeaXhRc9snkQJt8KO7IAQXbHjfS0OiHs6hZuyaDVf
+         ynlsgZVCdgksJbXw6LcxSZRF2Bo7Fz//NESFZoFzqZz72Jyd4gkDP3Mzslbkeca5KfB/
+         xoUrovImElsSsHuXg5VQR4P4LxJ2Frer1V9uw+oP8KmpefNia/bPMNJhDi4Hw7Wlm/i1
+         jGToBAf/UEXmriWNfjvJx8LDdv3TqifTsPhD2BegFN9bGRB1einkGSAW9bV3j2ZFehG3
+         5EWmvuMuGu1jDEW6GOarwS9FLB/yNi6BRKtRXiSQTr+Myy5VXy4qWxgh/8uloS6eUMt0
+         GsMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=pSM2rGV8qnCMD36WyMGhNcgXZRdkcegZlAs8F9mEKjw=;
-        b=KyFJd5EOH9ef/xFaMtiIVZlIPRQxz1LzpUItPTKXKs/F6MPARkP6XDW7s2ofDuboQh
-         S48RQRlPvD4PzU4Fmt2nSgudUfOcxI7hrhGvTLVGFluPyFdJEzHpDy6IAPI7fQM4UvLp
-         ZlIuvI5JpHqAPMuRydv29BuBTRSyxDUrh2SmTiQs7yixgkIUCzXqXkPjQyZWnw0Y8xe9
-         xvQDYp/j2JuBYA6eK1+OzTKyeuUi0IGnUe50VeWnYAVMkVjISUKO/guHrZF7HJujhr5/
-         /PgAnPQGzHBJ/NbK4Kqc5ldKXbX+Cy5gsbUHqQxbNh/Pis02K4u/hY4EC+VkewSmzgLH
-         gjOg==
-X-Gm-Message-State: AOAM533fFTuaPaD0nIzDV15JWapGYUVnA/bHWiEWT65Nk8y4fDW02lXP
-        R993ErcO61k6vrxDx1OwZzhxmsUtH28o/fH3Xro=
-X-Google-Smtp-Source: ABdhPJw+LwIy6vmCzYd1MrOrYxUb2/RzSTzHuxEEF4nNr8aFB4xRBBh5WkbKF9OAoJ9o3mak6erCkXfaFe9hIHP7OPc=
-X-Received: by 2002:a92:3002:: with SMTP id x2mr6810821ile.163.1610634825711;
- Thu, 14 Jan 2021 06:33:45 -0800 (PST)
+        bh=KlJB7GkrRJgN7A1mIpndcwY3/HgJ22sHTCYbp+ftbPU=;
+        b=I5xhRJe8jmyclgvinAmZ4Dj+Di4oQuHDV0X6x2GXy7AP5V1p7NnnVmRrNPCZOOeRbW
+         zy5D3S6M5xcbN/Wmzliyh1uxAhbYbfSrFNQgeot7/CQ6HZHaf8OrlyrOJ7dFJT538+94
+         QSlYJp4vYaVXLzPWB8izyiT6f5GIetIb6jtXy/SQANyXiRydFv/KSMtsD2KZEkd4SN23
+         y2s6GRQ+3zp04tAK4W4HSDYOzgpF8YD8vItFiQBIeuQaVGmMMjEIytfuiHD3w6kh3bv8
+         9zSXhsQRl36ZFsuIpU+edR8vFCLXb/ZZ/rKbBtsNs0ZEmeudPlsaQ/pZ58pYZMNnqjcs
+         Hy4g==
+X-Gm-Message-State: AOAM532ftp3nXsvpXVI2/kXWdGFnMuv2iSAqjU+KNj8gxYa3qDY2ywQS
+        UKcpuWmkQKt9lCD3aCN+6ud7oxENYZtvWZXqw0E=
+X-Google-Smtp-Source: ABdhPJyYtlF19dum1a5qAnZmUisj+tHR7f4+VIqd5QsTgXs2EeJ/aobVZgQj+I8xGjYB+fW+bFcgc0es8XrRWuTUnD0=
+X-Received: by 2002:a92:bf06:: with SMTP id z6mr6890021ilh.174.1610635581580;
+ Thu, 14 Jan 2021 06:46:21 -0800 (PST)
 MIME-Version: 1.0
 References: <20210114133910.282686-1-plautrba@redhat.com> <CAFftDdoUFfoztETJmr2TpLOS-mndbmuvbwHLFjfzhArOT=4FEw@mail.gmail.com>
-In-Reply-To: <CAFftDdoUFfoztETJmr2TpLOS-mndbmuvbwHLFjfzhArOT=4FEw@mail.gmail.com>
+ <CAFftDdpOgCsSbsBGMeGbOKqbPFskiTFPAu=Q4viynr04i6dwhw@mail.gmail.com>
+In-Reply-To: <CAFftDdpOgCsSbsBGMeGbOKqbPFskiTFPAu=Q4viynr04i6dwhw@mail.gmail.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 14 Jan 2021 08:33:35 -0600
-Message-ID: <CAFftDdpOgCsSbsBGMeGbOKqbPFskiTFPAu=Q4viynr04i6dwhw@mail.gmail.com>
+Date:   Thu, 14 Jan 2021 08:46:10 -0600
+Message-ID: <CAFftDdrFaByLGOQLb+-L3P7Pg37e46sc3WfZUzCfhCGOjQ4abA@mail.gmail.com>
 Subject: Re: [PATCH] libselinux: Always close status page fd
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
@@ -66,62 +67,76 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 14, 2021 at 8:30 AM William Roberts
+On Thu, Jan 14, 2021 at 8:33 AM William Roberts
 <bill.c.roberts@gmail.com> wrote:
 >
-> On Thu, Jan 14, 2021 at 7:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> On Thu, Jan 14, 2021 at 8:30 AM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
 > >
-> > According to mmap(2) after the mmap() call has returned, the file
-> > descriptor, fd, can be closed immediately without invalidating the
-> > mapping.
+> > On Thu, Jan 14, 2021 at 7:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > >
+> > > According to mmap(2) after the mmap() call has returned, the file
+> > > descriptor, fd, can be closed immediately without invalidating the
+> > > mapping.
+> > >
+> > > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> > > ---
+> > >  libselinux/src/sestatus.c | 6 ++----
+> > >  1 file changed, 2 insertions(+), 4 deletions(-)
+> > >
+> > > diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+> > > index 9ff2785d876a..6a243b7bcdfb 100644
+> > > --- a/libselinux/src/sestatus.c
+> > > +++ b/libselinux/src/sestatus.c
+> > > @@ -298,11 +298,10 @@ int selinux_status_open(int fallback)
+> > >                 goto error;
+> > >
+> > >         selinux_status = mmap(NULL, pagesize, PROT_READ, MAP_SHARED, fd, 0);
+> > > +       close(fd);
+> > >         if (selinux_status == MAP_FAILED) {
+> > > -               close(fd);
+> > >                 goto error;
+> > >         }
+> > > -       selinux_status_fd = fd;
+> > >         last_seqno = (uint32_t)(-1);
+> > >
+> > >         /* sequence must not be changed during references */
+> > > @@ -379,6 +378,7 @@ void selinux_status_close(void)
+> > >                 avc_netlink_release_fd();
+> > >                 avc_netlink_close();
+> > >                 selinux_status = NULL;
+> > > +               close(selinux_status_fd);
+> > >                 return;
+> > >         }
+> > >
+> > > @@ -388,7 +388,5 @@ void selinux_status_close(void)
+> > >                 munmap(selinux_status, pagesize);
+> > >         selinux_status = NULL;
+> > >
+> > > -       close(selinux_status_fd);
+> > > -       selinux_status_fd = -1;
+> > >         last_seqno = (uint32_t)(-1);
+> > >  }
+> > > --
+> > > 2.30.0
+> > >
 > >
-> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> > ---
-> >  libselinux/src/sestatus.c | 6 ++----
-> >  1 file changed, 2 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
-> > index 9ff2785d876a..6a243b7bcdfb 100644
-> > --- a/libselinux/src/sestatus.c
-> > +++ b/libselinux/src/sestatus.c
-> > @@ -298,11 +298,10 @@ int selinux_status_open(int fallback)
-> >                 goto error;
-> >
-> >         selinux_status = mmap(NULL, pagesize, PROT_READ, MAP_SHARED, fd, 0);
-> > +       close(fd);
-> >         if (selinux_status == MAP_FAILED) {
-> > -               close(fd);
-> >                 goto error;
-> >         }
-> > -       selinux_status_fd = fd;
-> >         last_seqno = (uint32_t)(-1);
-> >
-> >         /* sequence must not be changed during references */
-> > @@ -379,6 +378,7 @@ void selinux_status_close(void)
-> >                 avc_netlink_release_fd();
-> >                 avc_netlink_close();
-> >                 selinux_status = NULL;
-> > +               close(selinux_status_fd);
-> >                 return;
-> >         }
-> >
-> > @@ -388,7 +388,5 @@ void selinux_status_close(void)
-> >                 munmap(selinux_status, pagesize);
-> >         selinux_status = NULL;
-> >
-> > -       close(selinux_status_fd);
-> > -       selinux_status_fd = -1;
-> >         last_seqno = (uint32_t)(-1);
-> >  }
-> > --
-> > 2.30.0
-> >
+> > Nack, the fd in the mmap of the status page and the selinux_status_fd
+> > (avc mount) are different fd's.
+> > The selinux_status_fd is for the AVC netlink socket fallback. If you
+> > drop those hunks I'd take the patch.
 >
-> Nack, the fd in the mmap of the status page and the selinux_status_fd
-> (avc mount) are different fd's.
-> The selinux_status_fd is for the AVC netlink socket fallback. If you
-> drop those hunks I'd take the patch.
+> Sorry I misread that, I missed the assignment from fd to that variable...
+>
+> Ack, this should fix that umount issue hopefully I didn't test that though.
 
-Sorry I misread that, I missed the assignment from fd to that variable...
+As an aside though, I did notice a bug in the existing code:
 
-Ack, this should fix that umount issue hopefully I didn't test that though.
+A failure in:
+selinux_status_fd = avc_netlink_acquire_fd();
+
+Will cause the code to still return success to the caller of
+selinux_status_open().
+
+And cause the close to return EBADF which is silently ignored and
+doesn't matter.
