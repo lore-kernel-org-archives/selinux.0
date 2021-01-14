@@ -2,163 +2,199 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D4D7C433E0
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 02:17:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 582D3C433DB
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 02:42:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 545BF23343
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 02:17:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1856423602
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 02:42:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729004AbhAMVOr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Jan 2021 16:14:47 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34169 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728960AbhAMVOR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Jan 2021 16:14:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610572441;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vnhyG9u4hQYDPkbAHWeYwbGqmeC/GOjZ3EmrZsNzI5Y=;
-        b=UtSLcQ54QrI0T5lTgMmr52O74ijm5gpZJAiDUdrnbviC4Pz4ixsiNdhiCKQpNC7AiLOqkO
-        +JoekuY6ZSN8jawXvVa2zajNU//jJ5Pu5W5ziGFES3szmvbqM3OJhAjkPUPmyAkLAJ5tyl
-        1lQCtU0vnEbQzy/IGpwrhb/HcwYSeLA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-483-OxPMIX74OOCBW-KlNJhh1Q-1; Wed, 13 Jan 2021 16:09:57 -0500
-X-MC-Unique: OxPMIX74OOCBW-KlNJhh1Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 54CEE806661
-        for <selinux@vger.kernel.org>; Wed, 13 Jan 2021 21:09:56 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.193.36])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 850A160D08;
-        Wed, 13 Jan 2021 21:09:55 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH v2 2/2] setfiles: drop ABORT_ON_ERRORS and related code
-Date:   Wed, 13 Jan 2021 22:09:48 +0100
-Message-Id: <20210113210948.217575-2-plautrba@redhat.com>
-In-Reply-To: <20210113210948.217575-1-plautrba@redhat.com>
-References: <20210113210948.217575-1-plautrba@redhat.com>
+        id S1726730AbhANClh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Jan 2021 21:41:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54016 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726693AbhANClg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 Jan 2021 21:41:36 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969BBC061795
+        for <selinux@vger.kernel.org>; Wed, 13 Jan 2021 18:40:55 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id d17so6038170ejy.9
+        for <selinux@vger.kernel.org>; Wed, 13 Jan 2021 18:40:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ICU+nSYjt88uUPf04x0vPH+TBGitC4Alk2Ujk58+eBk=;
+        b=PBr7F/CY9lJQhXr1uLV8LuI3z+xDfdoQzQPfc8/FN5JuZQi15Bzh7nDx3yf38EeP1l
+         yj3OFWs/5W4TDOUFTtyqib2EjQV3Vm16kIpZ48IHM9ufSd0TmaCTj+zzDA6vpoWXPEgE
+         xubGG1cGYVnekT00BuI/+bzd9I83XZ4rWcmc18niljoC/97DbJEBDE2zfObQLog9Mzho
+         x0yfaJyiezHYDFsGRHYa/i5W9vJG+IeDSztTd3i6ksvaRNCWgPyujBaZZn2Whnflv0zJ
+         gT8qJgk4zcGsp3GTPTMXKNY4CSU77FzbtI2mJI7rgyy+hr8Fi45mLSMqFAc33WBtGhyR
+         +MKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ICU+nSYjt88uUPf04x0vPH+TBGitC4Alk2Ujk58+eBk=;
+        b=kOPbS9Nx8p66APPC8qyhQqHN5+qUzomtwx8gzmDv4fmDPjPNlix9yOgKUNWI50ttII
+         dkuYJvBEDfr+gTtxxUzpMwPpOxJ7IKuoAL8UFGJ2yYSAYgV0gaPStCUejnRnmy6ijmsl
+         4cSaQPW7BHTzE8MyzZ6SUN+D2mk0rlLHLj+YbSHIzRhKaI93UJvnQ6lnCzL1spQatWny
+         MqVTcj8qaz4YqswasUSKqoW9dAfejnCmTWB4MNbRIb8/LZrHA1MNBr7GR4l2gTz/7DSi
+         L/jCV8Rt9ASq0WODJCoA5idIRwzuQzyu/H8QbLY100trudNDT/j9kHcPpmQo6ipr/mrB
+         Y42g==
+X-Gm-Message-State: AOAM532G2xctt/cxSOK9SF+5KEoX/W9dxEFWClCgW0RHjhvgPpcvftIA
+        W2Hgn0aQgX3pVIGgBNAoqF/TUDx52aAdKZWlaM+R
+X-Google-Smtp-Source: ABdhPJzUScrMCXjP5CjZuyAFSrux9MlxNzRaM71SlD32TfKMxsyMVQgRkoDizyODeHRLGNSje2xpi5j+8NySHCX6SAM=
+X-Received: by 2002:a17:906:aec6:: with SMTP id me6mr3636237ejb.542.1610592054037;
+ Wed, 13 Jan 2021 18:40:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+References: <20210108040708.8389-1-tusharsu@linux.microsoft.com>
+ <20210108040708.8389-9-tusharsu@linux.microsoft.com> <CAHC9VhSJk0wG=WzO3bwsueiy19mMi9m6MamTrQfH8C=gXUtvGw@mail.gmail.com>
+ <97328fc71687a0e1c327f6821548be9ba35bb193.camel@linux.ibm.com>
+ <CAHC9VhTzaQ_q8gJ0oeok_yJ54XLETNvOuhhKnyRwgqsqvpBLCw@mail.gmail.com>
+ <71cddb6c8676ccd63c89364d805cfca76d32cb6e.camel@linux.ibm.com>
+ <CAHC9VhRhYWEcK7TepZ=LK1m=9Zn_gtOZyAYfamP-TFU3rRH+zw@mail.gmail.com> <e29a618645b0e73ec06960a02b6da465614689ff.camel@linux.ibm.com>
+In-Reply-To: <e29a618645b0e73ec06960a02b6da465614689ff.camel@linux.ibm.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 13 Jan 2021 21:40:43 -0500
+Message-ID: <CAHC9VhTHqwKem=MyQBY4TNAq-DOVhwEZS8pjrSE=4OxdEVm-GA@mail.gmail.com>
+Subject: Re: [PATCH v10 8/8] selinux: include a consumer of the new IMA
+ critical data hook
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, tyhicks@linux.microsoft.com,
+        sashal@kernel.org, James Morris <jmorris@namei.org>,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-`setfiles -d` doesn't have any impact on number of errors before it
-aborts. It always aborts on first invalid context in spec file.
+On Wed, Jan 13, 2021 at 6:11 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
+> On Wed, 2021-01-13 at 17:10 -0500, Paul Moore wrote:
+> > On Wed, Jan 13, 2021 at 4:11 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
+> > > On Wed, 2021-01-13 at 14:19 -0500, Paul Moore wrote:
+> > > > On Wed, Jan 13, 2021 at 2:13 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
+> > > > > On Tue, 2021-01-12 at 11:27 -0500, Paul Moore wrote:
+> > > > > > On Thu, Jan 7, 2021 at 11:07 PM Tushar Sugandhi
+> > > > > > <tusharsu@linux.microsoft.com> wrote:
+> > > > > > > From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> > > > > > >
+> > > > > > > SELinux stores the active policy in memory, so the changes to this data
+> > > > > > > at runtime would have an impact on the security guarantees provided
+> > > > > > > by SELinux.  Measuring in-memory SELinux policy through IMA subsystem
+> > > > > > > provides a secure way for the attestation service to remotely validate
+> > > > > > > the policy contents at runtime.
+> > > > > > >
+> > > > > > > Measure the hash of the loaded policy by calling the IMA hook
+> > > > > > > ima_measure_critical_data().  Since the size of the loaded policy
+> > > > > > > can be large (several MB), measure the hash of the policy instead of
+> > > > > > > the entire policy to avoid bloating the IMA log entry.
+> > > > > > >
+> > > > > > > To enable SELinux data measurement, the following steps are required:
+> > > > > > >
+> > > > > > > 1, Add "ima_policy=critical_data" to the kernel command line arguments
+> > > > > > >    to enable measuring SELinux data at boot time.
+> > > > > > > For example,
+> > > > > > >   BOOT_IMAGE=/boot/vmlinuz-5.10.0-rc1+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
+> > > > > > >
+> > > > > > > 2, Add the following rule to /etc/ima/ima-policy
+> > > > > > >    measure func=CRITICAL_DATA label=selinux
+> > > > > > >
+> > > > > > > Sample measurement of the hash of SELinux policy:
+> > > > > > >
+> > > > > > > To verify the measured data with the current SELinux policy run
+> > > > > > > the following commands and verify the output hash values match.
+> > > > > > >
+> > > > > > >   sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
+> > > > > > >
+> > > > > > >   grep "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6
+> > > > > > >
+> > > > > > > Note that the actual verification of SELinux policy would require loading
+> > > > > > > the expected policy into an identical kernel on a pristine/known-safe
+> > > > > > > system and run the sha256sum /sys/kernel/selinux/policy there to get
+> > > > > > > the expected hash.
+> > > > > > >
+> > > > > > > Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> > > > > > > Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > > > > Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+> > > > > > > ---
+> > > > > > >  Documentation/ABI/testing/ima_policy |  3 +-
+> > > > > > >  security/selinux/Makefile            |  2 +
+> > > > > > >  security/selinux/ima.c               | 64 ++++++++++++++++++++++++++++
+> > > > > > >  security/selinux/include/ima.h       | 24 +++++++++++
+> > > > > > >  security/selinux/include/security.h  |  3 +-
+> > > > > > >  security/selinux/ss/services.c       | 64 ++++++++++++++++++++++++----
+> > > > > > >  6 files changed, 149 insertions(+), 11 deletions(-)
+> > > > > > >  create mode 100644 security/selinux/ima.c
+> > > > > > >  create mode 100644 security/selinux/include/ima.h
+> > > > > >
+> > > > > > I remain concerned about the possibility of bypassing a measurement by
+> > > > > > tampering with the time, but I appear to be the only one who is
+> > > > > > worried about this so I'm not going to block this patch on those
+> > > > > > grounds.
+> > > > > >
+> > > > > > Acked-by: Paul Moore <paul@paul-moore.com>
+> > > > >
+> > > > > Thanks, Paul.
+> > > > >
+> > > > > Including any unique string would cause the buffer hash to change,
+> > > > > forcing a new measurement.  Perhaps they were concerned with
+> > > > > overflowing a counter.
+> > > >
+> > > > My understanding is that Lakshmi wanted to force a new measurement
+> > > > each time and felt using a timestamp would be the best way to do that.
+> > > > A counter, even if it wraps, would have a different value each time
+> > > > whereas a timestamp is vulnerable to time adjustments.  While a
+> > > > properly controlled and audited system could be configured and
+> > > > monitored to detect such an event (I *think*), why rely on that if it
+> > > > isn't necessary?
+> > >
+> > > Why are you saying that even if the counter wraps a new measurement is
+> > > guaranteed.   I agree with the rest of what you said.
+> >
+> > I was assuming that the IMA code simply compares the passed
+> > "policy_event_name" value to the previous value, if they are different
+> > a new measurement is taken, if they are the same the measurement
+> > request is ignored.  If this is the case the counter value is only
+> > important in as much as that it is different from the previous value,
+> > even simply toggling a single bit back and forth would suffice in this
+> > case.  IMA doesn't keep a record of every previous "policy_event_name"
+> > value does it?  Am I misunderstanding how
+> > ima_measure_critical_data(...) works?
+>
+> Originally, there was quite a bit of discussion as to how much or how
+> little should be measured for a number of reasons.  One reason is that
+> the TPM is relatively slow.  Another reason is to limit the size of the
+> measurement list.  For this reason, duplicate hashes aren't added to
+> the measurement list or extended into the TPM.
+>
+> When a dentry is removed from cache, its also removed from IMA's iint
+> cache.  A subsequent file read would result in adding the measurement
+> and extending the TPM again.  ima_lookup_digest_entry() is called to
+> prevent adding the duplicate entry.
+>
+> Lakshmi is trying to address the situation where an event changes a
+> value, but then is restored to the original value.  The original and
+> subsequent events are measured, but restoring to the original value
+> isn't re-measured.  This isn't any different than when a file is
+> modified and then reverted.
+>
+> Instead of changing the name like this, which doesn't work for files,
+> allowing duplicate measurements should be generic, based on policy.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- policycoreutils/setfiles/Makefile      |  3 ---
- policycoreutils/setfiles/ru/setfiles.8 |  2 +-
- policycoreutils/setfiles/setfiles.8    |  3 +--
- policycoreutils/setfiles/setfiles.c    | 18 ------------------
- 4 files changed, 2 insertions(+), 24 deletions(-)
+Perhaps it is just the end of the day and I'm a bit tired, but I just
+read all of the above and I have no idea what your current thoughts
+are regarding this patch.
 
-diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
-index bc5a8db789a5..a3bbbe116b7f 100644
---- a/policycoreutils/setfiles/Makefile
-+++ b/policycoreutils/setfiles/Makefile
-@@ -5,8 +5,6 @@ SBINDIR ?= /sbin
- MANDIR = $(PREFIX)/share/man
- AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
- 
--ABORT_ON_ERRORS=$(shell grep "^\#define ABORT_ON_ERRORS" setfiles.c | awk -S '{ print $$3 }')
--
- CFLAGS ?= -g -Werror -Wall -W
- override LDLIBS += -lselinux -lsepol
- 
-@@ -26,7 +24,6 @@ restorecon_xattr: restorecon_xattr.o restore.o
- 
- man:
- 	@cp -af setfiles.8 setfiles.8.man
--	@sed -i "s/ABORT_ON_ERRORS/$(ABORT_ON_ERRORS)/g" setfiles.8.man
- 
- install: all
- 	[ -d $(DESTDIR)$(MANDIR)/man8 ] || mkdir -p $(DESTDIR)$(MANDIR)/man8
-diff --git a/policycoreutils/setfiles/ru/setfiles.8 b/policycoreutils/setfiles/ru/setfiles.8
-index 27815a3f1eee..910101452625 100644
---- a/policycoreutils/setfiles/ru/setfiles.8
-+++ b/policycoreutils/setfiles/ru/setfiles.8
-@@ -47,7 +47,7 @@ setfiles \- установить SELinux-контексты безопаснос
- проверить действительность контекстов относительно указанной двоичной политики.
- .TP
- .B \-d
--показать, какая спецификация соответствует каждому из файлов (не прекращать проверку после получения ошибок ABORT_ON_ERRORS).
-+показать, какая спецификация соответствует каждому из файлов.
- .TP
- .BI \-e \ directory
- исключить каталог (чтобы исключить более одного каталога, этот параметр необходимо использовать соответствующее количество раз).
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index e328a5628682..4d28bc9a95c1 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -57,8 +57,7 @@ option will force a replacement of the entire context.
- check the validity of the contexts against the specified binary policy.
- .TP
- .B \-d
--show what specification matched each file (do not abort validation
--after ABORT_ON_ERRORS errors).
-+show what specification matched each file.
- .TP
- .BI \-e \ directory
- directory to exclude (repeat option for more than one directory).
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 10692d6d94a0..92616571ef2a 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -23,14 +23,6 @@ static int nerr;
- 
- #define STAT_BLOCK_SIZE 1
- 
--/* setfiles will abort its operation after reaching the
-- * following number of errors (e.g. invalid contexts),
-- * unless it is used in "debug" mode (-d option).
-- */
--#ifndef ABORT_ON_ERRORS
--#define ABORT_ON_ERRORS	10
--#endif
--
- #define SETFILES "setfiles"
- #define RESTORECON "restorecon"
- static int iamrestorecon;
-@@ -56,15 +48,6 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
- 	exit(-1);
- }
- 
--void inc_err(void)
--{
--	nerr++;
--	if (nerr > ABORT_ON_ERRORS - 1 && !r_opts.debug) {
--		fprintf(stderr, "Exiting after %d errors.\n", ABORT_ON_ERRORS);
--		exit(-1);
--	}
--}
--
- void set_rootpath(const char *arg)
- {
- 	if (strlen(arg) == 1 && strncmp(arg, "/", 1) == 0) {
-@@ -97,7 +80,6 @@ int canoncon(char **contextp)
- 		*contextp = tmpcon;
- 	} else if (errno != ENOENT) {
- 		rc = -1;
--		inc_err();
- 	}
- 
- 	return rc;
 -- 
-2.30.0
-
+paul moore
+www.paul-moore.com
