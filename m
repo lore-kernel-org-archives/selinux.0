@@ -2,148 +2,140 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADDE9C433E6
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 22:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0D10C433E6
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 22:48:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 84B9523A5E
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 22:11:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E9A623A6C
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 22:48:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728358AbhANWLm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Jan 2021 17:11:42 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:46492 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726880AbhANWLl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 17:11:41 -0500
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1l0ApP-0007xM-ND; Thu, 14 Jan 2021 22:10:51 +0000
-Date:   Thu, 14 Jan 2021 23:10:48 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Dave Chinner <david@fromorbit.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
+        id S1730886AbhANWsN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Jan 2021 17:48:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730805AbhANWsM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 17:48:12 -0500
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24DDC0613D3
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 14:47:31 -0800 (PST)
+Received: by mail-ej1-x62c.google.com with SMTP id jx16so10587532ejb.10
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 14:47:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=2zyDFVEgfwCeZaxKwpzwQSp3ENtudOHEif4oCCEAR3E=;
+        b=TqNDT0u54KKuZPvEJdgLc1BhKdSRJPLW1LJHvOvGAaBvBs4kHyzeqQHQo0Zyrkqjx1
+         lzX6EDXpknEf0RoD3BqR1cWEvy7Z8uUBHF/xWiL+0I8VBjJFwRvAS/8aoouOpLGXmRa7
+         R45rYHgZYLxfjqP3oOGi6u//o07lC9Rgib+kTkm+RXWb6jTjtPe2cWfwVav1JlOPw3sz
+         2JCzNBccFYm//zfrDFPjG6s0COtZziTcerO1SBeMPQNem6Zxuga3Xqxf/r7TbTZqa5mp
+         Rf6D14gNJ1nRU3RODPPftA61SRAPdRRR/U1Jz4R25o4tL7ChogkPHvGilIwEnRVfJoFq
+         F1OA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2zyDFVEgfwCeZaxKwpzwQSp3ENtudOHEif4oCCEAR3E=;
+        b=CnH0KQZHU70i8GDE9AJIDFZx6/M+oBnciG1L3FIHgM5eXt358OwBQL4F9zbrgZoLXT
+         VnlId1j+5kL5ybdaQ+Yv2zbJJD2sXZw/x8KDsUq+RhRQH5aNco2+vWs+GaW3mBxmdB0e
+         mmssp3yu2PlV97BXCyFW+sV0gBYC2mPOqBOadWp4JG3n4Qznxr2hWoIrFtToFYMTk2sq
+         +RlGHwK2zgh1zBXF/aNTWiEAVAwcsxTRr2MHWjMgQ8LN0MR8OqgsPowCioYJtt1j6abF
+         9OEnPtESMw8/2rnAebW4nCISZmHozgDOOVzyeaj+geWL8N44lRHByGqZE5apM9DHf2MJ
+         CYaQ==
+X-Gm-Message-State: AOAM530/+xE5EnWhjSFO518o2i/VcDXJc/nX90e2rcV+rAi7kkZeGn/y
+        +q5CeE4OMAER4tmVdGjOMFmCRBIO47oHYAxUsbYP
+X-Google-Smtp-Source: ABdhPJzsSKmcY/ZVWEMyE355NLC9n/PtlEUotQjvcYcEiSbDaJnFMkRXC21GqZwdsA/4/83NkBdNe4MaxBttarJjJvU=
+X-Received: by 2002:a17:906:2e82:: with SMTP id o2mr6947496eji.106.1610664450156;
+ Thu, 14 Jan 2021 14:47:30 -0800 (PST)
+MIME-Version: 1.0
+References: <20210108222223.952458-1-lokeshgidra@google.com> <CAHC9VhSLFUyeo8he4t7rFoHgRHfpB=URoAioF+a3+xjZP8JdSQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhSLFUyeo8he4t7rFoHgRHfpB=URoAioF+a3+xjZP8JdSQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 14 Jan 2021 17:47:19 -0500
+Message-ID: <CAHC9VhRGZCRV2T6y80MXtutsZRw4hR+wxgte3__vyG50yAn4qw@mail.gmail.com>
+Subject: Re: [PATCH v15 0/4] SELinux support for anonymous inodes and UFFD
+To:     Lokesh Gidra <lokeshgidra@google.com>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
         Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 37/42] xfs: support idmapped mounts
-Message-ID: <20210114221048.ppf2pfuxrjak4kvm@wittgenstein>
-References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210112220124.837960-38-christian.brauner@ubuntu.com>
- <20210114205154.GL331610@dread.disaster.area>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210114205154.GL331610@dread.disaster.area>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        kaleshsingh@google.com, calin@google.com, surenb@google.com,
+        jeffv@google.com, kernel-team@android.com, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>, hch@infradead.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 15, 2021 at 07:51:54AM +1100, Dave Chinner wrote:
-> On Tue, Jan 12, 2021 at 11:01:19PM +0100, Christian Brauner wrote:
-> > From: Christoph Hellwig <hch@lst.de>
-> > 
-> > Enable idmapped mounts for xfs. This basically just means passing down
-> > the user_namespace argument from the VFS methods down to where it is
-> > passed to helper.
-> > 
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ....
-> > @@ -654,6 +658,7 @@ xfs_vn_change_ok(
-> >   */
-> >  static int
-> >  xfs_setattr_nonsize(
-> > +	struct user_namespace	*mnt_userns,
-> >  	struct xfs_inode	*ip,
-> >  	struct iattr		*iattr)
-> >  {
-> > @@ -813,7 +818,7 @@ xfs_setattr_nonsize(
-> >  	 * 	     Posix ACL code seems to care about this issue either.
-> >  	 */
-> >  	if (mask & ATTR_MODE) {
-> > -		error = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
-> > +		error = posix_acl_chmod(mnt_userns, inode, inode->i_mode);
-> >  		if (error)
-> >  			return error;
-> >  	}
-> > @@ -868,7 +873,7 @@ xfs_setattr_size(
-> >  		 * Use the regular setattr path to update the timestamps.
-> >  		 */
-> >  		iattr->ia_valid &= ~ATTR_SIZE;
-> > -		return xfs_setattr_nonsize(ip, iattr);
-> > +		return xfs_setattr_nonsize(&init_user_ns, ip, iattr);
-> 
-> Shouldn't that be passing mnt_userns?
+On Tue, Jan 12, 2021 at 12:15 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Fri, Jan 8, 2021 at 5:22 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+> >
+> > Userfaultfd in unprivileged contexts could be potentially very
+> > useful. We'd like to harden userfaultfd to make such unprivileged use
+> > less risky. This patch series allows SELinux to manage userfaultfd
+> > file descriptors and in the future, other kinds of
+> > anonymous-inode-based file descriptor.
+>
+> ...
+>
+> > Daniel Colascione (3):
+> >   fs: add LSM-supporting anon-inode interface
+> >   selinux: teach SELinux about anonymous inodes
+> >   userfaultfd: use secure anon inodes for userfaultfd
+> >
+> > Lokesh Gidra (1):
+> >   security: add inode_init_security_anon() LSM hook
+> >
+> >  fs/anon_inodes.c                    | 150 ++++++++++++++++++++--------
+> >  fs/libfs.c                          |   5 -
+> >  fs/userfaultfd.c                    |  19 ++--
+> >  include/linux/anon_inodes.h         |   5 +
+> >  include/linux/lsm_hook_defs.h       |   2 +
+> >  include/linux/lsm_hooks.h           |   9 ++
+> >  include/linux/security.h            |  10 ++
+> >  security/security.c                 |   8 ++
+> >  security/selinux/hooks.c            |  57 +++++++++++
+> >  security/selinux/include/classmap.h |   2 +
+> >  10 files changed, 213 insertions(+), 54 deletions(-)
+>
+> With several rounds of reviews done and the corresponding SELinux test
+> suite looking close to being ready I think it makes sense to merge
+> this via the SELinux tree.  VFS folks, if you have any comments or
+> objections please let me know soon.  If I don't hear anything within
+> the next day or two I'll go ahead and merge this for linux-next.
 
-Hey Dave,
+With no comments over the last two days I merged the patchset into
+selinux/next.  Thanks for all your work and patience on this Lokesh.
 
-Thanks for taking a look.
+Also, it looks like you are very close to getting the associated
+SELinux test suite additions merged, please continue to work with
+Ondrej to get those merged soon.
 
-This is the time updating codepath.
-
-xfs_setattr_size();
--> xfs_setattr_nonsize(&init_user_ns);
-
-The xfs_setattr_size() helper will assert:
-
-ASSERT((iattr->ia_valid & (ATTR_UID|ATTR_GID|ATTR_ATIME|ATTR_ATIME_SET|
-	ATTR_MTIME_SET|ATTR_KILL_PRIV|ATTR_TIMES_SET)) == 0);
-
-While the
-
-xfs_setattr_nonsize() helper will further assert:
-
-ASSERT((mask & ATTR_SIZE) == 0);
-
-so xfs_setattr_nonsize() in this callpath is only used to update the
-
-if (!(iattr->ia_valid & (ATTR_CTIME|ATTR_MTIME)))
-	return 0;
-
-so there's no interactions with idmappings in any way. Simply passing
-mnt_userns might be clearer though.
-
-But if this would be using the wrong idmapping the xfstest suite I added
-would've immediately caught that and failed.
-
-But this specific codepath can also be reliably hit from userspace by
-doing ftruncate(fd, 0) so just to be extra sure I added truncate tests
-to the xfstests now for both the idmapped and non-idmapped case.
-
-Christian
+-- 
+paul moore
+www.paul-moore.com
