@@ -2,138 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D464C433DB
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:23:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF0CDC433E0
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:31:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAFE023A69
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:23:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCA152222D
+	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 14:31:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726722AbhANOX0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Jan 2021 09:23:26 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31446 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726381AbhANOX0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 09:23:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610634119;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mbA7+M7N7BCmNRVplbM96pEQ/yIdTMrfouckwkGTKVE=;
-        b=TX+0FWbxFvucRw6ifGTbEvA954mgN2RPElCX9DNZ9lq+z8NKqYX9p/ASMm9tw+s8M25S5x
-        xuGkZHKOklhlVn1hwoHbMiQNifZ1phHv83UoKqbY+ud7of49OkksooykD5VMZb2O7BPVt2
-        VPNF2EHWqmgpqUg5BWPN6/chjccAlR8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-43-6YIEeP3fPFGKoY-9qcGBtQ-1; Thu, 14 Jan 2021 09:21:55 -0500
-X-MC-Unique: 6YIEeP3fPFGKoY-9qcGBtQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C97768066E0;
-        Thu, 14 Jan 2021 14:21:54 +0000 (UTC)
-Received: from localhost (unknown [10.40.195.211])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 542CC6F440;
-        Thu, 14 Jan 2021 14:21:54 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: can't unmount /sys/fs/selinux
-In-Reply-To: <87k0sga1jl.fsf@redhat.com>
-References: <87wnwga4wm.fsf@redhat.com>
- <CAEjxPJ6jqHX+bSwLoKratsBD47_WNAoQ4OQQN9yWcMzTRoMbzA@mail.gmail.com>
- <87k0sga1jl.fsf@redhat.com>
-Date:   Thu, 14 Jan 2021 15:21:53 +0100
-Message-ID: <87czy7a9a6.fsf@redhat.com>
+        id S1727236AbhANObR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Jan 2021 09:31:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726881AbhANObR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 09:31:17 -0500
+Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA39C061574
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 06:30:36 -0800 (PST)
+Received: by mail-io1-xd35.google.com with SMTP id y19so11543575iov.2
+        for <selinux@vger.kernel.org>; Thu, 14 Jan 2021 06:30:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hEo0mpkUgCR813m7VM7qg6MjGublCSWV6TuVJng6a7Q=;
+        b=mZxM0apI9ZthHHZ3tvmSDUSluSGikqZkCrmgC7fx+DkGZSHSuHkWykX2xbIl243MtK
+         y9AuUAxcOuWDMB11k+MTyDjbOSTH+A4uMaToPzP/Hc/vzcONOHpwjv5dD1HNnTpkHmIj
+         ufzDIxRlhpqrFNALEN2KAr8SDCZqBo85HSSaZJn9Fyrtd8I+zmNznw+2hhlBfkGAOzfW
+         vMVHmH0Q/bjCsWKaxFTdBRUGfnKWKWD9YjCtA6Sp34SwGWLlVfFQc3s8x0C/uXlzEAW3
+         i7TmhW01c/IoiWQOVHwh2VFcO7hGqIfMsNp/x74zUuwCwbatPURzH9qIBfN2DX7NXbT+
+         mF9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hEo0mpkUgCR813m7VM7qg6MjGublCSWV6TuVJng6a7Q=;
+        b=OtgACmSVb2HQgaRZ+vDsR8fLj0rXWGYLTlVBohqzw+o0TSpnokLiQi9Kza/Hxh5LAY
+         MRwJXXrSv+vWc/HA4Wk6f7RShHiT97VmCBEvlGcqdWZjDR5tgrA4qF5O3uN61Ek+uNsO
+         UGNrrWFM42qNG344HL6ekJ2DS1IU28HB/sdSCx/vV2knzjFrrvlURs9gTuU7xmDFpBY5
+         Ea8c/pYbriFZupokvXeQWQ5EU6clokvmEdyd5+Z9VYRn8yc/TdELHrBE27lGBw4xqo+d
+         HyQWyJiewB4yAeU5KQp7xwauLgrccZ6vfC41dkkGG2LWCCjFKGyiw2vKhgA+cEP5qlDU
+         wvOQ==
+X-Gm-Message-State: AOAM530pk+OH/1jDER9AdAYOZU31zVZhD21tV+2F2B45MityoTBnzUz7
+        IVXWw+avcs0jD6wT3kMctjBDSDxGlndtY/c/auc=
+X-Google-Smtp-Source: ABdhPJx/au453rNdwgmPJbKw7G3hJOmOGkJ3e2qLjxpRjwtIZHOiWEXkYhH7NZmsKAphZzQ0VFBBKOUqaI1OTFZBgxE=
+X-Received: by 2002:a6b:d007:: with SMTP id x7mr5422793ioa.88.1610634636315;
+ Thu, 14 Jan 2021 06:30:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20210114133910.282686-1-plautrba@redhat.com>
+In-Reply-To: <20210114133910.282686-1-plautrba@redhat.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 14 Jan 2021 08:30:25 -0600
+Message-ID: <CAFftDdoUFfoztETJmr2TpLOS-mndbmuvbwHLFjfzhArOT=4FEw@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: Always close status page fd
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Petr Lautrbach <plautrba@redhat.com> writes:
-
-> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+On Thu, Jan 14, 2021 at 7:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
->> On Wed, Jan 13, 2021 at 4:52 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->>>
->>> Hi,
->>>
->>> we have few tests which uses `umount /sys/fs/selinux` trick to check how
->>> userspace works in SELinux "disabled" environment. But it's not possible
->>> with the current master:
->>>
->>>     # umount /sys/fs/selinux
->>>     umount: /sys/fs/selinux: target is busy.
->>>
->>>     # lsof /sys/fs/selinux
->>>     COMMAND      PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
->>>     systemd        1     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd        1     root   55r   REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd-u    875     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd-u    875     root    6r   REG   0,21        0   19 /sys/fs/selinux/status
->>>     dbus-brok   1116     dbus  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     dbus-brok   1116     dbus    5r   REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd-l   1134     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd-l   1134     root    4r   REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd     1643     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     systemd     1643     root   28r   REG   0,21        0   19 /sys/fs/selinux/status
->>>     (sd-pam)    1645     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     ...
->>>     sshd      218874     root  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     sshd      218874     root    3r   REG   0,21        0   19 /sys/fs/selinux/status
->>>     sshd      218880 plautrba  mem    REG   0,21        0   19 /sys/fs/selinux/status
->>>     sshd      218880 plautrba    3r   REG   0,21        0   19 /sys/fs/selinux/status
->>>
->>> It seems to be caused by commit 05bdc03130d7 ("libselinux: use kernel
->>> status page by default") which replaced avc_netlink_open() in
->>> avc_init_internal() with selinux_status_open()
->>>
->>> In case of sshd process, /sys/fs/selinux/status seems to be mapped by
->>> selinux_check_access() which is called from pam_selinux and it's left
->>> open as there's no selinux_status_close() in selinux_check_access().
->>> The similar situations probably happen in systemd and dbus.
->>>
->>> So is it expected? Is it a bug? Do we need to change other components so
->>> that they would call selinux_status_close() when they use check access?
->>
->> What if we just close the fd after mmap and not keep it open?  I don't
->> see any use of selinux_status_fd beyond assignment and closing.
->> Tearing down the mapping and re-creating it on every access check
->> would defeat the purpose.
+> According to mmap(2) after the mmap() call has returned, the file
+> descriptor, fd, can be closed immediately without invalidating the
+> mapping.
 >
-> Thanks for this hint! I've checked mmap(2) and it's there: After the
-> mmap() call has returned, the file descriptor, fd, can be closed
-> immediately without invalidating the mapping.
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> ---
+>  libselinux/src/sestatus.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 >
-> I'll try it tomorrow.
+> diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+> index 9ff2785d876a..6a243b7bcdfb 100644
+> --- a/libselinux/src/sestatus.c
+> +++ b/libselinux/src/sestatus.c
+> @@ -298,11 +298,10 @@ int selinux_status_open(int fallback)
+>                 goto error;
+>
+>         selinux_status = mmap(NULL, pagesize, PROT_READ, MAP_SHARED, fd, 0);
+> +       close(fd);
+>         if (selinux_status == MAP_FAILED) {
+> -               close(fd);
+>                 goto error;
+>         }
+> -       selinux_status_fd = fd;
+>         last_seqno = (uint32_t)(-1);
+>
+>         /* sequence must not be changed during references */
+> @@ -379,6 +378,7 @@ void selinux_status_close(void)
+>                 avc_netlink_release_fd();
+>                 avc_netlink_close();
+>                 selinux_status = NULL;
+> +               close(selinux_status_fd);
+>                 return;
+>         }
+>
+> @@ -388,7 +388,5 @@ void selinux_status_close(void)
+>                 munmap(selinux_status, pagesize);
+>         selinux_status = NULL;
+>
+> -       close(selinux_status_fd);
+> -       selinux_status_fd = -1;
+>         last_seqno = (uint32_t)(-1);
+>  }
+> --
+> 2.30.0
+>
 
-https://patchwork.kernel.org/project/selinux/patch/20210114133910.282686-1-plautrba@redhat.com/
-
-With this patch fd's are closed but the mapped memory is still there:
-
-    # umount /sys/fs/selinux   
-    umount: /sys/fs/selinux: target is busy.   
-       
-    # lsof /sys/fs/selinux   
-    COMMAND   PID            USER  FD   TYPE DEVICE SIZE/OFF NODE NAME   
-    systemd     1            root mem    REG   0,21        0   19 /sys/fs/selinux/status   
-    systemd-u 363            root mem    REG   0,21        0   19 /sys/fs/selinux/status   
-    systemd-r 393 systemd-resolve mem    REG   0,21        0   19 /sys/fs/selinux/status   
-    dbus-brok 432            dbus mem    REG   0,21        0   19 /sys/fs/selinux/status
-    ...
-
-
-For now we have a workaround for our tests - `umount -l /sys/fs/selinux` works.
-
-But we should document the side effect of selinux status page change in
-release notes if there's no better solution.
-
-Petr
-
+Nack, the fd in the mmap of the status page and the selinux_status_fd
+(avc mount) are different fd's.
+The selinux_status_fd is for the AVC netlink socket fallback. If you
+drop those hunks I'd take the patch.
