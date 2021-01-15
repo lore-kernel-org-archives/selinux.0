@@ -2,104 +2,116 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FE31C433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 17:45:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32431C433DB
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 17:53:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A0B221D7A
-	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 17:45:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F292F23A6C
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 17:53:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725923AbhAORp2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Jan 2021 12:45:28 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:51067 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725946AbhAORp2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 12:45:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610732641;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Tyk+XUKuUhBpf0TcrmLm4g0VHSsyZ1b9KM+hnKhbYTs=;
-        b=beZPka8RuNmQNJMzvXnHnGfkRH/cSAIkWRIP2Z8dbgrSQWdaHlsc3PyB0czX7iABbx704y
-        Xw3ZygYMbuHT1CectEOePqdG2M4hTx2CmORFh4J9rcWy8bJpLXOWSFPem8iRxaoNzt5AHO
-        8k19lv8J5JFRxgaWKDIToM8oK/v+Xvw=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-38-p0XTNzunP-iQdwNMgMlbSA-1; Fri, 15 Jan 2021 12:44:00 -0500
-X-MC-Unique: p0XTNzunP-iQdwNMgMlbSA-1
-Received: by mail-ej1-f72.google.com with SMTP id lw15so3886113ejb.7
-        for <selinux@vger.kernel.org>; Fri, 15 Jan 2021 09:43:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Tyk+XUKuUhBpf0TcrmLm4g0VHSsyZ1b9KM+hnKhbYTs=;
-        b=oS42ZnU2ywVXZ+dQn/+trjC6uhePxlMMxGrjGmbqcQjEZZeyJsaKXnSd66V8u27kcU
-         z4vO9oS0J2X3Lv4slCHMNRpxkDSK8JyWzP8qe9rVJXU3fAHxaAVhOIQofA41gsY3v+qe
-         MlQ31IA9JrCPPD2MJ96GFpR+wPcwqNQck/rhss9J2CcRwMMVK5wbS+FYhI7N++ZjV5cy
-         G7tgebFq76UZtg6ENwkRpzyV3Bm/nPSGCUB45MRWqLUZrtG80uGYFCgI5s5TdSl0lGRa
-         mXEfNxoadj0MdA55Uk+6lAoIK/PqF1ErgPteBV1njLzlXmNd4dtDppkdD7FLwRHJHY+o
-         KIrQ==
-X-Gm-Message-State: AOAM532ACpWyVI+BnizLdlUbNs9kRavxWzLDyqX+93arhPDfSfPr2XxQ
-        5d40nZ+WkYGGDTmVsPoJXI+BGk/H4ROG47WteANpX7WIlZuIOXYTG7qyy+UNeHp7V9glRIRKdaR
-        T3D1+F5vKBTs4q9EfmQ==
-X-Received: by 2002:a17:906:af92:: with SMTP id mj18mr9287068ejb.290.1610732638696;
-        Fri, 15 Jan 2021 09:43:58 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxsn0zz9t4rpo3MQAzVYHc7JsrMrRKrqprK3YStrjTRhLBmoPn8x51DJyxSYyEOp8bN2E1Hlg==
-X-Received: by 2002:a17:906:af92:: with SMTP id mj18mr9287060ejb.290.1610732638474;
-        Fri, 15 Jan 2021 09:43:58 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id g17sm4010343edb.39.2021.01.15.09.43.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Jan 2021 09:43:57 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     linux-nfs@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        David Quigley <dpquigl@davequigley.com>
-Subject: [PATCH] NFSv4.2: fix return value of _nfs4_get_security_label()
-Date:   Fri, 15 Jan 2021 18:43:56 +0100
-Message-Id: <20210115174356.408688-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.29.2
+        id S1727283AbhAORxM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Jan 2021 12:53:12 -0500
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:33202 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726402AbhAORxL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 12:53:11 -0500
+Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 10FHpKnV022119
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 15 Jan 2021 12:51:21 -0500
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 3494715C399F; Fri, 15 Jan 2021 12:51:20 -0500 (EST)
+Date:   Fri, 15 Jan 2021 12:51:20 -0500
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Dave Chinner <david@fromorbit.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        St?phane Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v5 00/42] idmapped mounts
+Message-ID: <YAHWGMb9rTehRsRz@mit.edu>
+References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
+ <20210114171241.GA1164240@magnolia>
+ <20210114204334.GK331610@dread.disaster.area>
+ <20210115162423.GB2179337@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210115162423.GB2179337@infradead.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-An xattr 'get' handler is expected to return the length of the value on
-success, yet _nfs4_get_security_label() (and consequently also
-nfs4_xattr_get_nfs4_label(), which is used as an xattr handler) returns
-just 0 on success.
+On Fri, Jan 15, 2021 at 04:24:23PM +0000, Christoph Hellwig wrote:
+> 
+> That is what the capabilities are designed for and we already check
+> for them.
 
-Fix this by returning label.len instead, which contains the length of
-the result.
+So perhaps I'm confused, but my understanding is that in the
+containers world, capabilities are a lot more complicated.  There is:
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- fs/nfs/nfs4proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+1) The initial namespace capability set
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 2f4679a62712a..28465d8aada64 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5971,7 +5971,7 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
- 		return ret;
- 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
- 		return -ENOENT;
--	return 0;
-+	return label.len;
- }
- 
- static int nfs4_get_security_label(struct inode *inode, void *buf,
--- 
-2.29.2
+2) The container's user-namespace capability set
 
+3) The namespace in which the file system is mounted --- which is
+      "usually, but not necessarily the initial namespace" and
+      presumably could potentially not necessarily be the current
+      container's user name space, is namespaces can be hierarchically
+      arranged.
+
+Is that correct?  If so, how does this patch set change things (if
+any), and and how does this interact with quota administration
+operations?
+
+On a related note, ext4 specifies a "reserved user" or "reserved
+group" which can access the reserved blocks.  If we have a file system
+which is mounted in a namespace running a container which is running
+RHEL or SLES, and in that container, we have a file system mounted (so
+it was not mounted in the initial namespace), with id-mapping --- and
+then there is a further sub-container created with its own user
+sub-namespace further mapping uids/gids --- will the right thing
+happen?  For that matter, how *is* the "right thing" defined?
+
+Sorry if this is a potentially stupid question, but I find user
+namespaces and id and capability mapping to be hopefully confusing for
+my tiny brain.  :-)
+
+						- Ted
