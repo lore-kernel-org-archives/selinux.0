@@ -2,149 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A00A2C4332B
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 22:52:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DE26C433DB
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 12:04:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A9C92389B
-	for <selinux@archiver.kernel.org>; Thu, 14 Jan 2021 22:52:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D863323128
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 12:04:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730990AbhANWwe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Jan 2021 17:52:34 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:39220 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730988AbhANWwe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Jan 2021 17:52:34 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10EMoD9f047144;
-        Thu, 14 Jan 2021 22:51:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : in-reply-to : references : date : message-id : mime-version :
- content-type; s=corp-2020-01-29;
- bh=1GIYbQk4Gp7v6M1E5BZJYVNgEi14/UhOP10cB+FUS7U=;
- b=knIQ32GTS4wk9eBHaer7lidjtvEI5JRPAFIVQS7OREkAa0MPJvCA1WTYbJbuJqYrAoyf
- wR3mJzDynMFEPn+/kYt+PbVZf1N1kIz/D8gjIKkc+wSOLOvxaaqZVt0SeOuBHR3c6FXp
- kCsuEvbrWtckScgxbpnpw0wb3jgIFrWbzNx9pn6QFSeZ9uqIbjllR5ZfgQG7Kp4jrWJv
- /NNKFEuBJkV6UJpQrGEr/sRuPscJHS1P5D5ZzMqVxtZrNlLzHIxNIjugYFqOZtRizSTb
- tPBCHcsBlnYmEVdqIYnHlfWr0A9cFCeaY67Al0/NKL96AzhkDzFe6QViRvJ1yACYbwVv EQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 360kd02j9v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Jan 2021 22:51:29 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10EMoeUa044319;
-        Thu, 14 Jan 2021 22:51:29 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 360kfa695g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Jan 2021 22:51:29 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 10EMpK1v016566;
-        Thu, 14 Jan 2021 22:51:21 GMT
-Received: from localhost (/10.159.145.187)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 14 Jan 2021 14:51:20 -0800
-From:   Stephen Brennan <stephen.s.brennan@oracle.com>
-To:     Al Viro <viro@zeniv.linux.org.uk>, Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v4] proc: Allow pid_revalidate() during LOOKUP_RCU
-In-Reply-To: <20210106003803.GA3579531@ZenIV.linux.org.uk>
-References: <20210104232123.31378-1-stephen.s.brennan@oracle.com>
- <20210105055935.GT3579531@ZenIV.linux.org.uk>
- <20210105165005.GV3579531@ZenIV.linux.org.uk>
- <20210105195937.GX3579531@ZenIV.linux.org.uk>
- <87a6tnge5k.fsf@stepbren-lnx.us.oracle.com>
- <CAHC9VhQnQW8RvTzyb4MTAvGZ7b=AHJXS8PzD=egTcpdDz73Yzg@mail.gmail.com>
- <20210106003803.GA3579531@ZenIV.linux.org.uk>
-Date:   Thu, 14 Jan 2021 14:51:17 -0800
-Message-ID: <87k0sfyvx6.fsf@stepbren-lnx.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9864 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- mlxlogscore=999 phishscore=0 bulkscore=0 spamscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101140132
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9864 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0
- impostorscore=0 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
- lowpriorityscore=0 clxscore=1015 mlxlogscore=999 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101140132
+        id S1728906AbhAOMEJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Jan 2021 07:04:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbhAOMEI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 07:04:08 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C068FC061757;
+        Fri, 15 Jan 2021 04:03:52 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id jx16so12894923ejb.10;
+        Fri, 15 Jan 2021 04:03:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=DZKL8N3bCOLd5d6DHEQ8H/r2ag/CUrBRkfKsXkDdZC4=;
+        b=PH5nw1CRQzbcVNiXb/+ZTZ+co58w9pO7JBjqbwHzJc2SkQkCi2t9JsJUuJYDuNDHok
+         lgWIHNrXKQjb3BddFMR3ZuR0wZ5Vel68eSGj63YsXPTi51wjTUCeUCc0uCgmSkGa/xtA
+         KOx07y75aC8sgiQX9jVBC6bV6I3xmv7xGZv9NP8pv2WyfhraP5M1aeh6Vallki1P9GCd
+         f9PcE4SIFZxqGJdd3jEpq+6GgW3hrmGhWe7lCIfYqguVyIQbsQkTFO6N7bRe/1619X0f
+         0ZH/2mn9ABBlrxu2GAwaPLEKCOIjCW9TfOP7lHbfTMgZbPjNZinDRyhWHKJdOnDdq14Y
+         29Zg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=DZKL8N3bCOLd5d6DHEQ8H/r2ag/CUrBRkfKsXkDdZC4=;
+        b=EdBQWaIW1ERHiqFGCJsol/pVu697m/k6fNsiXvRAyTE2y9sRvRyIzXY+clrHYSEtiQ
+         qtCy37rjKIwlWO1+MegQfYnKkj3LDgMDK4gExzIe0a9orr5p3Zb2cNfsJM23RyEzpjxQ
+         64tHlYJabaKfq4xO8omO47vJ2lBbh2I7Om1PXRJta6rVyWjIwhpan9Xzh+5kO/eKJYNh
+         vOmihyDpQp+vfOtW+7Hbd6OPLz4q8Kn4MMiS26Y6LNekzkLRuMsztfDCiSS2AYmmInnx
+         gfdMJYu5cHXIIA7OT6JqiOO+y3URliXIgaZhG+WozSzG6ZX1dPw+C5vpusePA1DLAVUq
+         jLlA==
+X-Gm-Message-State: AOAM53112KkVgmqnBxE1E3c/Pf3udEIZLMrcl4n3Lwpo3bPD6ZSNQ5An
+        GsTtStg5eFcwi/JcmLlAdhw=
+X-Google-Smtp-Source: ABdhPJyPPqMVbBEXYP+7LoChiNf3GY+blJP0XXqz/DGs5XIuWOLFIH8d3yAEmudH9WjagMJorCBlyA==
+X-Received: by 2002:a17:906:d87:: with SMTP id m7mr8452658eji.108.1610712231381;
+        Fri, 15 Jan 2021 04:03:51 -0800 (PST)
+Received: from felia.fritz.box ([2001:16b8:2d39:a000:7c85:8e80:b862:a8bf])
+        by smtp.gmail.com with ESMTPSA id m5sm3228350eja.11.2021.01.15.04.03.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jan 2021 04:03:50 -0800 (PST)
+From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
+To:     Daniel Colascione <dancol@google.com>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Paul Moore <paul@paul-moore.com>, linux-fsdevel@vger.kernel.org
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-doc@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: [PATCH] fs: anon_inodes: rephrase to appropriate kernel-doc
+Date:   Fri, 15 Jan 2021 13:03:42 +0100
+Message-Id: <20210115120342.8849-1-lukas.bulwahn@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Al Viro <viro@zeniv.linux.org.uk> writes:
-> OTTH, it's not really needed there - see vfs.git #work.audit
-> for (untested) turning that sucker non-blocking.  I hadn't tried
-> a followup that would get rid of the entire AVC_NONBLOCKING thing yet,
-> but I suspect that it should simplify the things in there nicely...
+Commit e7e832ce6fa7 ("fs: add LSM-supporting anon-inode interface") adds
+more kerneldoc description, but also a few new warnings on
+anon_inode_getfd_secure() due to missing parameter descriptions.
 
-I went ahead and pulled down this branch and combined it with my
-pid_revalidate change. Further, I audited all the inode get_link and
-permission() implementations, as well as dentry d_revalidate()
-implementations, in fs/proc (more on that below). Together, all these
-patches have run stable under a steady high load of concurrent PS
-processes on a 104CPU machine for over an hour, and greatly reduced the
-%sys utilization which the patch originally addressed. How would you
-like to proceed with the #work.audit changes? I could include them in a
-v5 of this patch series.
+Rephrase to appropriate kernel-doc for anon_inode_getfd_secure().
 
-Regarding my audit (ha) of dentry and inode functions in the fs/proc/
-directory:
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+---
+ fs/anon_inodes.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-* get_link() receives a NULL dentry pointer when called in RCU mode.
-* permission() receives MAY_NOT_BLOCK in the mode parameter when called
-  from RCU.
-* d_revalidate() receives LOOKUP_RCU in flags.
+diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+index 023337d65a03..a280156138ed 100644
+--- a/fs/anon_inodes.c
++++ b/fs/anon_inodes.c
+@@ -202,13 +202,20 @@ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ EXPORT_SYMBOL_GPL(anon_inode_getfd);
+ 
+ /**
+- * Like anon_inode_getfd(), but creates a new !S_PRIVATE anon inode rather than
+- * reuse the singleton anon inode, and calls the inode_init_security_anon() LSM
+- * hook. This allows the inode to have its own security context and for a LSM
+- * to reject creation of the inode.  An optional @context_inode argument is
+- * also added to provide the logical relationship with the new inode.  The LSM
+- * may use @context_inode in inode_init_security_anon(), but a reference to it
+- * is not held.
++ * anon_inode_getfd_secure - Like anon_inode_getfd(), but creates a new
++ * !S_PRIVATE anon inode rather than reuse the singleton anon inode, and calls
++ * the inode_init_security_anon() LSM hook. This allows the inode to have its
++ * own security context and for a LSM to reject creation of the inode.
++ *
++ * @name:    [in]    name of the "class" of the new file
++ * @fops:    [in]    file operations for the new file
++ * @priv:    [in]    private data for the new file (will be file's private_data)
++ * @flags:   [in]    flags
++ * @context_inode:
++ *           [in]    the logical relationship with the new inode (optional)
++ *
++ * The LSM may use @context_inode in inode_init_security_anon(), but a
++ * reference to it is not held.
+  */
+ int anon_inode_getfd_secure(const char *name, const struct file_operations *fops,
+ 			    void *priv, int flags,
+-- 
+2.17.1
 
-There were generally three groups I found. Group (1) are functions which
-contain a check at the top of the function and return -ECHILD, and so
-appear to be trivially RCU safe (although this is by dropping out of RCU
-completely). Group (2) are functions which have no explicit check, but
-on my audit, I was confident that there were no sleeping function calls,
-and thus were RCU safe as is. Group (3) are functions which appeared to
-be unsafe for some reason or another.
-
-Group (1):
- proc_ns_get_link()
- proc_pid_get_link()
- map_files_d_revalidate()
- proc_misc_d_revalidate()
- tid_fd_revalidate()
-
-Group (2):
- proc_get_link()
- proc_self_get_link()
- proc_thread_self_get_link()
- proc_fd_permission()
-
-Group (3):
- pid_revalidate()            -- addressed by my patch
- proc_map_files_get_link()
- proc_pid_permission()       -- addressed by Al's work.audit branch
-
-proc_map_files_get_link() calls capable() which ends up calling a
-security hook, which can get into the audit guts, and so I marked it as
-potentially unsafe, and added a patch to bail out of this function
-before the capable() check. However, I doubt this is really necessary.
-
-So to conclude, depending on how Al wants to move forward with the
-work.audit branch, I could send a full series with the proposed changes.
-
-Stephen
