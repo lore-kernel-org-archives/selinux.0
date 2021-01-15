@@ -2,111 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8550CC433E6
-	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 16:26:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48EB6C433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 17:24:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A42423976
-	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 16:26:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01D1B2399A
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 17:24:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732608AbhAOQ0l (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Jan 2021 11:26:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33114 "EHLO
+        id S1733254AbhAORYZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Jan 2021 12:24:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727049AbhAOQ0k (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 11:26:40 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 620ACC061757;
-        Fri, 15 Jan 2021 08:25:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=Er+tBpIbbLuj0OIqdNy2chPN/Ve8hzD1kKT3RJP39d0=; b=rwXZgdKUw066MkReZNwTWvdrDZ
-        +O+Z5xhLd7/kx+ppy6ccAkQPteVkBvNBYeFaNHb1vOy5WPgAW8pROAq3ALviE/ofBGb5Z0OIJ5+AX
-        3aTO9JYoy07VWConrD3cxcC01n5AJ/XuQifDlQYUD7Zdk9xhYoZlPu08/WVLh1X6pEs1F95ixJXRs
-        GvyrkCwwE3486p2RN5bLzW9J4juLcJMEweckdeecRjBTjh/0ItC7SFnldUzVWbPOEdW/VcDQv0rsX
-        QN+h7onKLGjZ6CTuzd6MpZCvn+yYvVFCLUl5X+47PEYMBijpxrr/AfP2+Fj9IHKDJgSwUxYKCpsOi
-        aoK+IQOA==;
-Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1l0Rtf-0099Fq-85; Fri, 15 Jan 2021 16:24:27 +0000
-Date:   Fri, 15 Jan 2021 16:24:23 +0000
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Dave Chinner <david@fromorbit.com>
-Cc:     "Darrick J. Wong" <djwong@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        St?phane Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v5 00/42] idmapped mounts
-Message-ID: <20210115162423.GB2179337@infradead.org>
-References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210114171241.GA1164240@magnolia>
- <20210114204334.GK331610@dread.disaster.area>
+        with ESMTP id S1733209AbhAORYX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 12:24:23 -0500
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14449C0613C1
+        for <selinux@vger.kernel.org>; Fri, 15 Jan 2021 09:23:43 -0800 (PST)
+Received: by mail-ed1-x52c.google.com with SMTP id p22so10350301edu.11
+        for <selinux@vger.kernel.org>; Fri, 15 Jan 2021 09:23:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mJrsR9g+dyqkkVVvYtEu6xfD1Zo92dOcpjjoxvFadQo=;
+        b=ge+GnUbEBLY+2evuY9Uj+uaN2jIYKWBKeP45kxv0m+2jXjz3M/6ABWkT/cxfrrGRq1
+         4WNTMkLNR2uAeZ2AccElDyg/YHkMrBs/gGDoGct8UXXHPgz8PXATa6eEOBiANAdkuam1
+         rp+M7bSxWpd33oqT8kvS3U/BVZaLAyBg8GWwIsNdEKl63eBd3Rn+7qjvCaDpG6I6LmIz
+         ppYSC9rjrXDv9oNatkHLla47fsh0+pBergQGzDv+J33+ulldNGXUtGEltU+CgjYMpawp
+         IWlLnc68w4znX2PD84B4cD1COJHGuLzY3SuktMfTPpHDLoXv9Lwn5inJdv8LgtDK3SN3
+         jr3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mJrsR9g+dyqkkVVvYtEu6xfD1Zo92dOcpjjoxvFadQo=;
+        b=Z1jTbEZrso9czDLPFXZWwsOfNg/BzqRvoVAL+kLGmyoJg97haEj4o4+686wI0v/FAr
+         aJf/9fWapUiOTm2iI9svYaV82JXve7an0x/SRdCpIIDxOjjNXlfaPgoEqqQZ4sQh09sy
+         ouijRt2kzKGLcil9L6N+tXa0GeSu/eO5YVlNvSKvkH0vFp73tW14IyuY1Fu5GdIpnYDI
+         fLeCXAxyy+ULxBPf3HNjpC2HeoSu7rx5kcF4DyIBBnDk1KxZCDqcffm3M0nOtdwLzXre
+         th1EsomSUwBgPkcr7DSVJPesdf5NpqIecYV2RxsABTOoIbcRqv9puZM6cC2gGKRRN/JJ
+         dToA==
+X-Gm-Message-State: AOAM530wAMTKb6Nf9r+oBoLOdsos7yjtqLzfuAS81SRpyxGEq87esahI
+        TeJcbJ2+afVXGGb6g7hFwV8sNCaN1gQ1X6OUJqVB
+X-Google-Smtp-Source: ABdhPJxNJ1+S8LITVO12epfE1LpA0SxxE+7Im+Q6DiX6C3VsYyEebNuKAcm5/5AsziFCv15wGpFl9G0psW/zml1Wnk0=
+X-Received: by 2002:a05:6402:ca1:: with SMTP id cn1mr10426635edb.128.1610731421674;
+ Fri, 15 Jan 2021 09:23:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210114204334.GK331610@dread.disaster.area>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+References: <20210115120342.8849-1-lukas.bulwahn@gmail.com>
+In-Reply-To: <20210115120342.8849-1-lukas.bulwahn@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 15 Jan 2021 12:23:28 -0500
+Message-ID: <CAHC9VhSfn9Ux_KcDysAH_vOWhiS3TvPYcXYZLg_5pr9Vee0f2g@mail.gmail.com>
+Subject: Re: [PATCH] fs: anon_inodes: rephrase to appropriate kernel-doc
+To:     Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc:     Daniel Colascione <dancol@google.com>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-doc@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 15, 2021 at 07:43:34AM +1100, Dave Chinner wrote:
-> > That sounds neat.  AFAICT, the VFS passes the filesystem a mount userns
-> > structure, which is then carried down the call stack to whatever
-> > functions actually care about mapping kernel [ug]ids to their ondisk
-> > versions?
-> > 
-> > Does quota still work after this patchset is applied?  There isn't any
-> > mention of that in the cover letter and I don't see a code patch, so
-> > does that mean everything just works?  I'm particularly curious about
-> > whether there can exist processes with CAP_SYS_ADMIN and an idmapped
-> > mount?  Syscalls like bulkstat and quotactl present file [ug]ids to
-> > programs, but afaict there won't be any translating going on?
-> 
-> bulkstat is not allowed inside user namespaces. It's an init
-> namespace only thing because it provides unchecked/unbounded access
-> to all inodes in the filesystem, not just those contained within a
-> specific mount container.
-> 
-> Hence I don't think bulkstat output (and other initns+root only
-> filesystem introspection APIs) should be subject to or concerned
-> about idmapping.
+On Fri, Jan 15, 2021 at 7:03 AM Lukas Bulwahn <lukas.bulwahn@gmail.com> wrote:
+>
+> Commit e7e832ce6fa7 ("fs: add LSM-supporting anon-inode interface") adds
+> more kerneldoc description, but also a few new warnings on
+> anon_inode_getfd_secure() due to missing parameter descriptions.
+>
+> Rephrase to appropriate kernel-doc for anon_inode_getfd_secure().
+>
+> Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+> ---
+>  fs/anon_inodes.c | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
 
-That is what the capabilities are designed for and we already check
-for them.
+Merged into selinux/next with the other related LSM/SELinux anon-inode
+patches, thank you!
+
+-- 
+paul moore
+www.paul-moore.com
