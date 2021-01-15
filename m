@@ -2,131 +2,125 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4501BC43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 12:56:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40EBEC433E9
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 16:24:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0CA472333E
-	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 12:56:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12F0A238A0
+	for <selinux@archiver.kernel.org>; Fri, 15 Jan 2021 16:24:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733246AbhAOMzo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Jan 2021 07:55:44 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57162 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387432AbhAOMzh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 07:55:37 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10FChZkS069087;
-        Fri, 15 Jan 2021 07:54:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=zr8ucYm/euG5aZ/Crxkx/ZKJSlbjbnPNJdYEzl/ZSRM=;
- b=aXcegOv87io7bFkwnJuL0pg8eHaQjh9qE/7XDrZMn0hPDf9YZ9CXmdw8R7sKxvq5V4NS
- V/f8fgoM6mvrlTvZ9toRlVI6yPPgS+K6Wq9dFylsdsiLKLTJhsqR9303KIUZoTUfMiMk
- mN73IHQEcWbmhZ1sMaPKy1tSGZDv0x7+ydrnUYjbAmdxAg8LRTBmtroV/FgIXDgd38tl
- GCorkH93Mr6+giSfYjGQ95q6oSDMul+U2KndiK2nR8NU9cH+2eBOcz50z+0bwTrSCuSE
- jGYwq02jQZWnA2C+dE2VjrQ7uaYjXi1YaMHPf1rDvsMgixCO6SrPOLC9wceAQcKF7R51 Tg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 363ba808u9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Jan 2021 07:54:52 -0500
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10FCspkm150385;
-        Fri, 15 Jan 2021 07:54:51 -0500
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 363ba808t1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Jan 2021 07:54:51 -0500
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 10FCrcRI016803;
-        Fri, 15 Jan 2021 12:54:49 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 35y448c04e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Jan 2021 12:54:49 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 10FCsfKd27656698
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 Jan 2021 12:54:41 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C723C5204F;
-        Fri, 15 Jan 2021 12:54:46 +0000 (GMT)
-Received: from sig-9-65-220-78.ibm.com (unknown [9.65.220.78])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 7B1D05204E;
-        Fri, 15 Jan 2021 12:54:43 +0000 (GMT)
-Message-ID: <5189c15054885863b1b5cb86a43bec09725d8650.camel@linux.ibm.com>
-Subject: Re: [PATCH v10 0/8] IMA: support for measuring kernel integrity
- critical data
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Fri, 15 Jan 2021 07:54:42 -0500
-In-Reply-To: <20210108040708.8389-1-tusharsu@linux.microsoft.com>
-References: <20210108040708.8389-1-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2021-01-15_07:2021-01-15,2021-01-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 phishscore=0 priorityscore=1501 suspectscore=0 adultscore=0
- clxscore=1015 mlxscore=0 impostorscore=0 mlxlogscore=999 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101150077
+        id S1730056AbhAOQYU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Jan 2021 11:24:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60844 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725946AbhAOQYT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 11:24:19 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2766C0613C1;
+        Fri, 15 Jan 2021 08:23:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=EUWYO0kUNOPL0+8rq+jqNdckkmjaAICmJuUUQfapnmg=; b=JYVtCComagNhb7hqCp7+K8cypw
+        3uzb/XWKSiI2wd079jfEh54E6UXbFNCkIXVtdMz85yoJmiYJ9S2w+4QoKhU1MSjyIOqb1p214g57v
+        OYst5auFjT2CF13mk3P4uIRmdte6st+AwYPpwos0v4T/lMifmY9WrdQQJ/mDBdVXp56iuYGKsQtWe
+        O2pK8U4clVUk2Sb9MeZFm3JHZxeH3A33eY9EJJ0tIyij6zOm4YqyFbZOyr+g0qLdX/iyHinGps0g6
+        AsBdYcDqwjotOAlFnNds/nv+o8gK+6xKbVC4xJsqmvstk6kUedtXelBk3y7JipjaWC7Ly0vyoHz+5
+        /kQvaNBw==;
+Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1l0RsA-0099BH-9Q; Fri, 15 Jan 2021 16:22:55 +0000
+Date:   Fri, 15 Jan 2021 16:22:50 +0000
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Dave Chinner <david@fromorbit.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        St?phane Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v5 37/42] xfs: support idmapped mounts
+Message-ID: <20210115162250.GA2179337@infradead.org>
+References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
+ <20210112220124.837960-38-christian.brauner@ubuntu.com>
+ <20210114205154.GL331610@dread.disaster.area>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210114205154.GL331610@dread.disaster.area>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2021-01-07 at 20:07 -0800, Tushar Sugandhi wrote:
-> IMA measures files and buffer data such as keys, command-line arguments
-> passed to the kernel on kexec system call, etc.  While these measurements
-> are necessary for monitoring and validating the integrity of the system,
-> they are not sufficient.  Various data structures, policies, and states
-> stored in kernel memory also impact the integrity of the system.
-> Several kernel subsystems contain such integrity critical data -
-> e.g.  LSMs like SELinux, AppArmor etc.  or device-mapper targets like
-> dm-crypt, dm-verity, dm-integrity etc.  These kernel subsystems help
-> protect the integrity of a system.  Their integrity critical data is not
-> expected to change frequently during run-time.  Some of these structures
-> cannot be defined as __ro_after_init, because they are initialized later.
+On Fri, Jan 15, 2021 at 07:51:54AM +1100, Dave Chinner wrote:
+> > @@ -813,7 +818,7 @@ xfs_setattr_nonsize(
+> >  	 * 	     Posix ACL code seems to care about this issue either.
+> >  	 */
+> >  	if (mask & ATTR_MODE) {
+> > -		error = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
+> > +		error = posix_acl_chmod(mnt_userns, inode, inode->i_mode);
+> >  		if (error)
+> >  			return error;
+> >  	}
+> > @@ -868,7 +873,7 @@ xfs_setattr_size(
+> >  		 * Use the regular setattr path to update the timestamps.
+> >  		 */
+> >  		iattr->ia_valid &= ~ATTR_SIZE;
+> > -		return xfs_setattr_nonsize(ip, iattr);
+> > +		return xfs_setattr_nonsize(&init_user_ns, ip, iattr);
 > 
-> For a given system, various external services/infrastructure tools
-> (including the attestation service) interact with it - both during the
-> setup and during rest of the system run-time.  They share sensitive data
-> and/or execute critical workload on that system.  The external services
-> may want to verify the current run-time state of the relevant kernel
-> subsystems before fully trusting the system with business critical
-> data/workload.  For instance, verifying that SELinux is in "enforce" mode
-> along with the expected policy, disks are encrypted with a certain
-> configuration, secure boot is enabled etc.
+> Shouldn't that be passing mnt_userns?
+
+As Christian already explained we an't hit this with anything related
+to uids/gids, the only thing that will be updated are the timestamps,
+as also mentioned in the comment that only makes it partially into the
+diff context.
+
+> >  	trace_xfs_setattr(ip);
+> >  
+> > -	error = xfs_vn_change_ok(dentry, iattr);
+> > +	error = xfs_vn_change_ok(mnt_userns, dentry, iattr);
+> >  	if (error)
+> >  		return error;
+> >  	return xfs_setattr_size(ip, iattr);
 > 
-> This series provides the necessary IMA functionality for kernel
-> subsystems to ensure their configuration can be measured:
->   - by kernel subsystems themselves,
->   - in a tamper resistant way,
->   - and re-measured - triggered on state/configuration change.
-> 
-> This patch set:
->   - defines a new IMA hook ima_measure_critical_data() to measure
->     integrity critical data,
->   - limits the critical data being measured based on a label,
->   - defines a builtin critical data measurement policy,
->   - and includes an SELinux consumer of the new IMA critical data hook.
+> And this passing mnt_userns down into xfs_setattr_size()?  Seems
+> like a bit of a landmine...
 
-Thanks Tushar, Lakshmi.  This patch set is queued in the next-
-integrity-testing branch.
-
-Mimi
-
+That being said we could just pass down the argument, even if it doesn't
+make much sense for the size update.
