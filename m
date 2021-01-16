@@ -2,129 +2,83 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0410BC4332B
-	for <selinux@archiver.kernel.org>; Sat, 16 Jan 2021 00:28:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3F5AC433DB
+	for <selinux@archiver.kernel.org>; Sat, 16 Jan 2021 12:49:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D502523A01
-	for <selinux@archiver.kernel.org>; Sat, 16 Jan 2021 00:28:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D71B23118
+	for <selinux@archiver.kernel.org>; Sat, 16 Jan 2021 12:49:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbhAPA2N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Jan 2021 19:28:13 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:60998 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726176AbhAPA2N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Jan 2021 19:28:13 -0500
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1l0ZR2-0002Mr-95; Sat, 16 Jan 2021 00:27:20 +0000
-Date:   Sat, 16 Jan 2021 01:27:18 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Dave Chinner <david@fromorbit.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        St?phane Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v5 00/42] idmapped mounts
-Message-ID: <20210116002718.jjs6eov65cvwrata@wittgenstein>
-References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210114171241.GA1164240@magnolia>
- <20210114204334.GK331610@dread.disaster.area>
- <20210115162423.GB2179337@infradead.org>
- <YAHWGMb9rTehRsRz@mit.edu>
+        id S1726629AbhAPMtW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 16 Jan 2021 07:49:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725979AbhAPMtV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 16 Jan 2021 07:49:21 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AA6C061757
+        for <selinux@vger.kernel.org>; Sat, 16 Jan 2021 04:48:40 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id s11so5235693edd.5
+        for <selinux@vger.kernel.org>; Sat, 16 Jan 2021 04:48:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=nhvH/X61UPaWTImifW6SmI44v8XwN9QGMfK7j4xSy3o=;
+        b=rVSjYpITqHGpqF/+miVZ+Pi4D6QKHjAmfdlqK3oYZeO/AZl2vlMUHb2FbX74BxA09k
+         11BgzMWnLB3hxB3tq9/+OEyxI9WfiG/Fo0Op8hWrcWePEhKeoHvd04GBvdKC9+/VYB0e
+         yVqhORG9Dws8wtSwJFXKnOFUUrfgBr691o33ptDz/rDOYLGn9wPPrwbPwWqqtBEKrBY7
+         DGw/+CNiV7ECy10rQ7x2BVl2nfq8cjwfINkixIbJ33F7QkNbNQtIfNcLIagFQTTgE6Ah
+         TD6c/OXA8AGntRjxM+H1ljfONrdhHDyRaLpk1uw2ZXOeEQ9/qS5SJweC578XxiQoLEeH
+         tHVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=nhvH/X61UPaWTImifW6SmI44v8XwN9QGMfK7j4xSy3o=;
+        b=CiqSYInF7r+NlrJifwFo0HIuIoIndHfF978hR5l+jl2vfhpCixqsgzHfHy/KGELowJ
+         9HGacmhn86H8azuV/+p77Q0kHHxZVbqR5MMoyf2z/JEnKDKFZRyjH1+d/YIwxFZRSy1a
+         rIH9rQiWvW/bWvEJaobvkWR8DedasTgQFNYPkBpxcfjB5u3Tv4bJNtzWWKPLovBbjA+w
+         1NR59vsrMrCYmDkiQWldBWrAgBddKrhqP4u61AoVNoWE00ZgIW1Z6pS4at1cA9cdTsK1
+         h80CHqJB4jgik7uxe6I2ZfPNpJFqJh/vV6T0tbYlQzbDTq43I9wQYp1ZQRQkgvvGW4+2
+         /LQg==
+X-Gm-Message-State: AOAM532/0bFafr7fBFpTYc0UbTgqL9vD9UPjfaRcOiz2seK0VDHEnf2q
+        mxu0vPx2C9P0d3hoP6i5OGzhV7t0MLQLWjddFF41ZyB+ywbDSg==
+X-Google-Smtp-Source: ABdhPJwfj/QdJwwGMZUIkiIDd6AwWJqhf3PYCDXrkp9dPPWHQ7N6uqB/BxFeaESyCDBzB5ipp2gc5n2bTSEU9ZxmoyE=
+X-Received: by 2002:a05:6402:11d3:: with SMTP id j19mr13120801edw.314.1610801319060;
+ Sat, 16 Jan 2021 04:48:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YAHWGMb9rTehRsRz@mit.edu>
+From:   =?UTF-8?B?TWFyYy1BbmRyw6kgTHVyZWF1?= <marcandre.lureau@gmail.com>
+Date:   Sat, 16 Jan 2021 16:48:27 +0400
+Message-ID: <CAJ+F1CKqVX6L7HGqiRGqxxTgyhrLAGbCSMvcv4NrBR_3C-Q93w@mail.gmail.com>
+Subject: VSOCK & getpeercon()
+To:     selinux@vger.kernel.org
+Cc:     Gerd Hoffmann <kraxel@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>, paul@paul-moore.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 15, 2021 at 12:51:20PM -0500, Theodore Ts'o wrote:
-> On Fri, Jan 15, 2021 at 04:24:23PM +0000, Christoph Hellwig wrote:
-> > 
-> > That is what the capabilities are designed for and we already check
-> > for them.
-> 
-> So perhaps I'm confused, but my understanding is that in the
-> containers world, capabilities are a lot more complicated.  There is:
-> 
-> 1) The initial namespace capability set
-> 
-> 2) The container's user-namespace capability set
-> 
-> 3) The namespace in which the file system is mounted --- which is
->       "usually, but not necessarily the initial namespace" and
->       presumably could potentially not necessarily be the current
->       container's user name space, is namespaces can be hierarchically
->       arranged.
-> 
-> Is that correct?  If so, how does this patch set change things (if
-> any), and and how does this interact with quota administration
-> operations?
+Hi,
 
-The cases you listed are correct. The patchset doesn't change them.
-Simply put, the patchset doesn't alter capability checking in any way.
+getpeercon() isn't implemented for VSOCK. Note, I am not very familiar
+with SELinux, but I was porting some applications that uses AF_UNIX to
+AF_VSOCK and reached that point.
 
-> 
-> On a related note, ext4 specifies a "reserved user" or "reserved
-> group" which can access the reserved blocks.  If we have a file system
-> which is mounted in a namespace running a container which is running
-> RHEL or SLES, and in that container, we have a file system mounted (so
-> it was not mounted in the initial namespace), with id-mapping --- and
-> then there is a further sub-container created with its own user
-> sub-namespace further mapping uids/gids --- will the right thing
-> happen?  For that matter, how *is* the "right thing" defined?
+I found some previous discussions about VSOCK & LSM from 2013, but the
+reasons it was abandoned don't seem so clear or valid to me:
+https://lore.kernel.org/selinux/1803195.0cVPJuGAEx@sifl/
 
-In short, nothing changes. Whatever happened before happens now.
+To me, SELinux could always associate a VSOCK with a process context,
+at the very least, and thus enforce some communication policies. No?
 
-Specifically s_resuid/s_resgid are superblock mount options and so never
-change on a per-mount basis and thus also aren't affected by idmapped
-mounts.
+thanks
 
-> 
-> Sorry if this is a potentially stupid question, but I find user
-> namespaces and id and capability mapping to be hopefully confusing for
-> my tiny brain.  :-)
-
-No, I really appreciate the questions. :) My brain can most likely
-handle less. :)
-
-Christian
+--=20
+Marc-Andr=C3=A9 Lureau
