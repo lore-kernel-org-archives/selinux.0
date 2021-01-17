@@ -2,83 +2,142 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3F5AC433DB
-	for <selinux@archiver.kernel.org>; Sat, 16 Jan 2021 12:49:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 767CCC433E9
+	for <selinux@archiver.kernel.org>; Sun, 17 Jan 2021 21:07:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D71B23118
-	for <selinux@archiver.kernel.org>; Sat, 16 Jan 2021 12:49:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F3452247F
+	for <selinux@archiver.kernel.org>; Sun, 17 Jan 2021 21:07:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726629AbhAPMtW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 16 Jan 2021 07:49:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725979AbhAPMtV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 16 Jan 2021 07:49:21 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AA6C061757
-        for <selinux@vger.kernel.org>; Sat, 16 Jan 2021 04:48:40 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id s11so5235693edd.5
-        for <selinux@vger.kernel.org>; Sat, 16 Jan 2021 04:48:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=nhvH/X61UPaWTImifW6SmI44v8XwN9QGMfK7j4xSy3o=;
-        b=rVSjYpITqHGpqF/+miVZ+Pi4D6QKHjAmfdlqK3oYZeO/AZl2vlMUHb2FbX74BxA09k
-         11BgzMWnLB3hxB3tq9/+OEyxI9WfiG/Fo0Op8hWrcWePEhKeoHvd04GBvdKC9+/VYB0e
-         yVqhORG9Dws8wtSwJFXKnOFUUrfgBr691o33ptDz/rDOYLGn9wPPrwbPwWqqtBEKrBY7
-         DGw/+CNiV7ECy10rQ7x2BVl2nfq8cjwfINkixIbJ33F7QkNbNQtIfNcLIagFQTTgE6Ah
-         TD6c/OXA8AGntRjxM+H1ljfONrdhHDyRaLpk1uw2ZXOeEQ9/qS5SJweC578XxiQoLEeH
-         tHVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=nhvH/X61UPaWTImifW6SmI44v8XwN9QGMfK7j4xSy3o=;
-        b=CiqSYInF7r+NlrJifwFo0HIuIoIndHfF978hR5l+jl2vfhpCixqsgzHfHy/KGELowJ
-         9HGacmhn86H8azuV/+p77Q0kHHxZVbqR5MMoyf2z/JEnKDKFZRyjH1+d/YIwxFZRSy1a
-         rIH9rQiWvW/bWvEJaobvkWR8DedasTgQFNYPkBpxcfjB5u3Tv4bJNtzWWKPLovBbjA+w
-         1NR59vsrMrCYmDkiQWldBWrAgBddKrhqP4u61AoVNoWE00ZgIW1Z6pS4at1cA9cdTsK1
-         h80CHqJB4jgik7uxe6I2ZfPNpJFqJh/vV6T0tbYlQzbDTq43I9wQYp1ZQRQkgvvGW4+2
-         /LQg==
-X-Gm-Message-State: AOAM532/0bFafr7fBFpTYc0UbTgqL9vD9UPjfaRcOiz2seK0VDHEnf2q
-        mxu0vPx2C9P0d3hoP6i5OGzhV7t0MLQLWjddFF41ZyB+ywbDSg==
-X-Google-Smtp-Source: ABdhPJwfj/QdJwwGMZUIkiIDd6AwWJqhf3PYCDXrkp9dPPWHQ7N6uqB/BxFeaESyCDBzB5ipp2gc5n2bTSEU9ZxmoyE=
-X-Received: by 2002:a05:6402:11d3:: with SMTP id j19mr13120801edw.314.1610801319060;
- Sat, 16 Jan 2021 04:48:39 -0800 (PST)
+        id S1730349AbhAQVHY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 17 Jan 2021 16:07:24 -0500
+Received: from mail107.syd.optusnet.com.au ([211.29.132.53]:44711 "EHLO
+        mail107.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726785AbhAQVHW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 17 Jan 2021 16:07:22 -0500
+Received: from dread.disaster.area (pa49-181-54-82.pa.nsw.optusnet.com.au [49.181.54.82])
+        by mail107.syd.optusnet.com.au (Postfix) with ESMTPS id AB1B4D5ED06;
+        Mon, 18 Jan 2021 08:06:22 +1100 (AEDT)
+Received: from dave by dread.disaster.area with local (Exim 4.92.3)
+        (envelope-from <david@fromorbit.com>)
+        id 1l1FFd-0011Hk-2N; Mon, 18 Jan 2021 08:06:21 +1100
+Date:   Mon, 18 Jan 2021 08:06:21 +1100
+From:   Dave Chinner <david@fromorbit.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v5 37/42] xfs: support idmapped mounts
+Message-ID: <20210117210621.GA78941@dread.disaster.area>
+References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
+ <20210112220124.837960-38-christian.brauner@ubuntu.com>
+ <20210114205154.GL331610@dread.disaster.area>
+ <20210114221048.ppf2pfuxrjak4kvm@wittgenstein>
 MIME-Version: 1.0
-From:   =?UTF-8?B?TWFyYy1BbmRyw6kgTHVyZWF1?= <marcandre.lureau@gmail.com>
-Date:   Sat, 16 Jan 2021 16:48:27 +0400
-Message-ID: <CAJ+F1CKqVX6L7HGqiRGqxxTgyhrLAGbCSMvcv4NrBR_3C-Q93w@mail.gmail.com>
-Subject: VSOCK & getpeercon()
-To:     selinux@vger.kernel.org
-Cc:     Gerd Hoffmann <kraxel@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>, paul@paul-moore.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210114221048.ppf2pfuxrjak4kvm@wittgenstein>
+X-Optus-CM-Score: 0
+X-Optus-CM-Analysis: v=2.3 cv=F8MpiZpN c=1 sm=1 tr=0 cx=a_idp_d
+        a=NAd5MxazP4FGoF8nXO8esw==:117 a=NAd5MxazP4FGoF8nXO8esw==:17
+        a=kj9zAlcOel0A:10 a=EmqxpYm9HcoA:10 a=7-415B0cAAAA:8
+        a=QsOiS33c3F2EFrvaDEcA:9 a=CjuIK1q_8ugA:10 a=biEYGPWJfzWAr4FL6Ov7:22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+On Thu, Jan 14, 2021 at 11:10:48PM +0100, Christian Brauner wrote:
+> On Fri, Jan 15, 2021 at 07:51:54AM +1100, Dave Chinner wrote:
+> > On Tue, Jan 12, 2021 at 11:01:19PM +0100, Christian Brauner wrote:
+> > > From: Christoph Hellwig <hch@lst.de>
+> > > 
+> > > Enable idmapped mounts for xfs. This basically just means passing down
+> > > the user_namespace argument from the VFS methods down to where it is
+> > > passed to helper.
+> > > 
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > ....
+> > > @@ -654,6 +658,7 @@ xfs_vn_change_ok(
+> > >   */
+> > >  static int
+> > >  xfs_setattr_nonsize(
+> > > +	struct user_namespace	*mnt_userns,
+> > >  	struct xfs_inode	*ip,
+> > >  	struct iattr		*iattr)
+> > >  {
+> > > @@ -813,7 +818,7 @@ xfs_setattr_nonsize(
+> > >  	 * 	     Posix ACL code seems to care about this issue either.
+> > >  	 */
+> > >  	if (mask & ATTR_MODE) {
+> > > -		error = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
+> > > +		error = posix_acl_chmod(mnt_userns, inode, inode->i_mode);
+> > >  		if (error)
+> > >  			return error;
+> > >  	}
+> > > @@ -868,7 +873,7 @@ xfs_setattr_size(
+> > >  		 * Use the regular setattr path to update the timestamps.
+> > >  		 */
+> > >  		iattr->ia_valid &= ~ATTR_SIZE;
+> > > -		return xfs_setattr_nonsize(ip, iattr);
+> > > +		return xfs_setattr_nonsize(&init_user_ns, ip, iattr);
+> > 
+> > Shouldn't that be passing mnt_userns?
+> 
+> Hey Dave,
+> 
+> Thanks for taking a look.
+> 
+> This is the time updating codepath.
 
-getpeercon() isn't implemented for VSOCK. Note, I am not very familiar
-with SELinux, but I was porting some applications that uses AF_UNIX to
-AF_VSOCK and reached that point.
+Yes, I understand the code path, that's why I asked the question and
+commented that it's a landmine. That is, if in future we ever need
+to do anything that is is in any way namespace related in the
+truncate path, the wrong thing will happen because we are passing
+the wrong namespace into that function.
 
-I found some previous discussions about VSOCK & LSM from 2013, but the
-reasons it was abandoned don't seem so clear or valid to me:
-https://lore.kernel.org/selinux/1803195.0cVPJuGAEx@sifl/
+Please just pass down the correct namespace for the operation even
+though we don't currently require it for the operations being
+performed in that path.
 
-To me, SELinux could always associate a VSOCK with a process context,
-at the very least, and thus enforce some communication policies. No?
+Cheers,
 
-thanks
-
---=20
-Marc-Andr=C3=A9 Lureau
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
