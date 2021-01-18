@@ -2,142 +2,287 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 767CCC433E9
-	for <selinux@archiver.kernel.org>; Sun, 17 Jan 2021 21:07:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CA3BC433E6
+	for <selinux@archiver.kernel.org>; Mon, 18 Jan 2021 05:58:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F3452247F
-	for <selinux@archiver.kernel.org>; Sun, 17 Jan 2021 21:07:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 568C822522
+	for <selinux@archiver.kernel.org>; Mon, 18 Jan 2021 05:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730349AbhAQVHY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 17 Jan 2021 16:07:24 -0500
-Received: from mail107.syd.optusnet.com.au ([211.29.132.53]:44711 "EHLO
-        mail107.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726785AbhAQVHW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 17 Jan 2021 16:07:22 -0500
-Received: from dread.disaster.area (pa49-181-54-82.pa.nsw.optusnet.com.au [49.181.54.82])
-        by mail107.syd.optusnet.com.au (Postfix) with ESMTPS id AB1B4D5ED06;
-        Mon, 18 Jan 2021 08:06:22 +1100 (AEDT)
-Received: from dave by dread.disaster.area with local (Exim 4.92.3)
-        (envelope-from <david@fromorbit.com>)
-        id 1l1FFd-0011Hk-2N; Mon, 18 Jan 2021 08:06:21 +1100
-Date:   Mon, 18 Jan 2021 08:06:21 +1100
-From:   Dave Chinner <david@fromorbit.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 37/42] xfs: support idmapped mounts
-Message-ID: <20210117210621.GA78941@dread.disaster.area>
-References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210112220124.837960-38-christian.brauner@ubuntu.com>
- <20210114205154.GL331610@dread.disaster.area>
- <20210114221048.ppf2pfuxrjak4kvm@wittgenstein>
+        id S1731481AbhARF6E (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Jan 2021 00:58:04 -0500
+Received: from m43-15.mailgun.net ([69.72.43.15]:11357 "EHLO
+        m43-15.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732300AbhARF50 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Jan 2021 00:57:26 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1610949427; h=Message-ID: Subject: Cc: To: From: Date:
+ Content-Transfer-Encoding: Content-Type: MIME-Version: Sender;
+ bh=Y5tb+FamCD4fE7la8PAvRJnTl96e73Nm7Kz1X9XqF1Y=; b=nKAEyXCSv7yXjOSS0I+YjQOiMSN0q+BmBR530hQgO19Y38rsBjpXkXGGOyKkhazbnJO034X3
+ 02jjf4lWOZ3/Q5UL/EOHxhgbeyRUU/8MWJwCiodBFOaMwHEftcvVUmj4HvFOObjSNv9bgQIx
+ RNJpDySBs7KiVE5OSIu1A7ffEvk=
+X-Mailgun-Sending-Ip: 69.72.43.15
+X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
+ 6005230c02b2f1cb1a7d9ffd (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 18 Jan 2021 05:56:27
+ GMT
+Sender: pnagar=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 1154EC43467; Mon, 18 Jan 2021 05:56:27 +0000 (UTC)
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: pnagar)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 0C868C433CA;
+        Mon, 18 Jan 2021 05:56:24 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210114221048.ppf2pfuxrjak4kvm@wittgenstein>
-X-Optus-CM-Score: 0
-X-Optus-CM-Analysis: v=2.3 cv=F8MpiZpN c=1 sm=1 tr=0 cx=a_idp_d
-        a=NAd5MxazP4FGoF8nXO8esw==:117 a=NAd5MxazP4FGoF8nXO8esw==:17
-        a=kj9zAlcOel0A:10 a=EmqxpYm9HcoA:10 a=7-415B0cAAAA:8
-        a=QsOiS33c3F2EFrvaDEcA:9 a=CjuIK1q_8ugA:10 a=biEYGPWJfzWAr4FL6Ov7:22
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Date:   Mon, 18 Jan 2021 11:26:24 +0530
+From:   pnagar@codeaurora.org
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     arnd@arndb.de, jmorris@namei.org, serge@hallyn.com,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        psodagud@codeaurora.org, nmardana@codeaurora.org,
+        dsule@codeaurora.org, Joe Perches <joe@perches.com>,
+        Miguel Ojeda <ojeda@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH v2] selinux: security: Move selinux_state to a
+ separate page
+Message-ID: <7f33036270f781568858bbc17a496b48@codeaurora.org>
+X-Sender: pnagar@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 14, 2021 at 11:10:48PM +0100, Christian Brauner wrote:
-> On Fri, Jan 15, 2021 at 07:51:54AM +1100, Dave Chinner wrote:
-> > On Tue, Jan 12, 2021 at 11:01:19PM +0100, Christian Brauner wrote:
-> > > From: Christoph Hellwig <hch@lst.de>
-> > > 
-> > > Enable idmapped mounts for xfs. This basically just means passing down
-> > > the user_namespace argument from the VFS methods down to where it is
-> > > passed to helper.
-> > > 
-> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > ....
-> > > @@ -654,6 +658,7 @@ xfs_vn_change_ok(
-> > >   */
-> > >  static int
-> > >  xfs_setattr_nonsize(
-> > > +	struct user_namespace	*mnt_userns,
-> > >  	struct xfs_inode	*ip,
-> > >  	struct iattr		*iattr)
-> > >  {
-> > > @@ -813,7 +818,7 @@ xfs_setattr_nonsize(
-> > >  	 * 	     Posix ACL code seems to care about this issue either.
-> > >  	 */
-> > >  	if (mask & ATTR_MODE) {
-> > > -		error = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
-> > > +		error = posix_acl_chmod(mnt_userns, inode, inode->i_mode);
-> > >  		if (error)
-> > >  			return error;
-> > >  	}
-> > > @@ -868,7 +873,7 @@ xfs_setattr_size(
-> > >  		 * Use the regular setattr path to update the timestamps.
-> > >  		 */
-> > >  		iattr->ia_valid &= ~ATTR_SIZE;
-> > > -		return xfs_setattr_nonsize(ip, iattr);
-> > > +		return xfs_setattr_nonsize(&init_user_ns, ip, iattr);
-> > 
-> > Shouldn't that be passing mnt_userns?
+On 2021-01-12 22:36, Casey Schaufler wrote:
+> On 1/12/2021 1:36 AM, pnagar@codeaurora.org wrote:
+>> On 2021-01-08 22:41, Casey Schaufler wrote:
+>>> On 1/8/2021 1:49 AM, Preeti Nagar wrote:
+>>>> The changes introduce a new security feature, RunTime Integrity 
+>>>> Check
+>>>> (RTIC), designed to protect Linux Kernel at runtime. The motivation
+>>>> behind these changes is:
+>>>> 1. The system protection offered by SE for Android relies on the
+>>>> assumption of kernel integrity. If the kernel itself is compromised 
+>>>> (by
+>>>> a perhaps as yet unknown future vulnerability), SE for Android 
+>>>> security
+>>>> mechanisms could potentially be disabled and rendered ineffective.
+>>>> 2. Qualcomm Snapdragon devices use Secure Boot, which adds 
+>>>> cryptographic
+>>>> checks to each stage of the boot-up process, to assert the 
+>>>> authenticity
+>>>> of all secure software images that the device executes.  However, 
+>>>> due to
+>>>> various vulnerabilities in SW modules, the integrity of the system 
+>>>> can be
+>>>> compromised at any time after device boot-up, leading to 
+>>>> un-authorized
+>>>> SW executing.
+>>> 
+>>> It would be helpful if you characterized the "various 
+>>> vulnerabilities"
+>>> rather than simply asserting their existence. This would allow the 
+>>> reviewer
+>>> to determine if the proposed patch addresses the issue.
+>>> 
+>> There might not currently be vulnerabilities, but the system is meant 
+>> more
+>> specifically to harden valuable assets against future compromises. The 
+>> key
+>> value add is a third party independent entity keeping a watch on 
+>> crucial
+>> kernel assets.
 > 
-> Hey Dave,
+> Could you characterize the potential vulnerabilities, then?
+> Seriously, there's a gazillion ways data integrity can be
+> compromised. Which of those are addressed?
 > 
-> Thanks for taking a look.
+1. Memory Corruption vulnerabilities (example buffer overflows) which 
+can be
+exploited to modify the critical kernel assets as a part of a directed 
+attack
+or inadvertently are the major type of vulnerabilities which this 
+mechanism
+directly addresses.
+2. This can be useful in preventing privilege escalation attacks 
+(modifying
+some critical kernel structures) which can be caused by exploits 
+targetting
+various other types of vulnerabilities such as improper input validation 
+and
+integer overflows.
+
+>> 
+>>>> Using this mechanism, some sensitive variables of the kernel which 
+>>>> are
+>>>> initialized after init or are updated rarely can also be protected 
+>>>> from
+>>>> simple overwrites and attacks trying to modify these.
+>>> 
+>>> How would this interact with or complement __read_mostly?
+>>> 
+>> Currently, the mechanism we are working on developing is
+>> independent of __read_mostly. This is something we can look more into
+>> while working further on the mechanism.
 > 
-> This is the time updating codepath.
+> Please either integrate the two or explain how they differ.
+> It appears that you haven't considered how you might exploit
+> or expand the existing mechanism.
+> 
+On looking up more about __read_mostly and also as David Howells shared, 
+I
+understand there two are different.
+__read_mostly is seemed to be primarily designed for cache-related 
+performance
+improvement [1]. In RTIC design, the idea is of protection and 
+monitoring aspect.
+If there are some security-critical kernel assets which are expected to 
+be
+updated sometimes or rarely, then, we can monitor the writes to these as 
+well
+and check for any unauthorized attempts.
+1. https://lkml.org/lkml/2007/12/13/487
 
-Yes, I understand the code path, that's why I asked the question and
-commented that it's a landmine. That is, if in future we ever need
-to do anything that is is in any way namespace related in the
-truncate path, the wrong thing will happen because we are passing
-the wrong namespace into that function.
+>> 
+>>>> 
+>>>> Currently, the change moves selinux_state structure to a separate 
+>>>> page. In
+>>>> future we plan to move more security-related kernel assets to this 
+>>>> page to
+>>>> enhance protection.
+>>> 
+>>> What's special about selinux_state? What about the SELinux policy?
+>>> How would I, as maintainer of the Smack security module, know if
+>>> some Smack data should be treated the same way?
+>>> 
+>> We are investigating more of the SELinux related and other kernel 
+>> assets
+>> which can be included in the protection. The basis of selinux_state is
+>> because disabling of SELinux is one of the common attack vectors in
+>> Android. We understand any kernel assets, unauthorized changes to 
+>> which
+>> can give way to security or any other type of attack can be considered 
+>> to
+>> be a potential asset to be added to the protection.
+> 
+> Yeah, I get that. It looks like this could be a useful mechanism
+> beyond SELinux. No point in hoarding it.
+> 
+Thank you! Will try and update the commit header line if possible to 
+convey this
+information.
 
-Please just pass down the correct namespace for the operation even
-though we don't currently require it for the operations being
-performed in that path.
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+>> 
+>>>> 
+>>>> We want to seek your suggestions and comments on the idea and the 
+>>>> changes
+>>>> in the patch.
+>>>> 
+>>>> Signed-off-by: Preeti Nagar <pnagar@codeaurora.org>
+>>>> ---
+>>>>  include/asm-generic/vmlinux.lds.h | 10 ++++++++++
+>>>>  include/linux/init.h              |  4 ++++
+>>>>  security/Kconfig                  | 10 ++++++++++
+>>>>  security/selinux/hooks.c          |  4 ++++
+>>>>  4 files changed, 28 insertions(+)
+>>>> 
+>>>> diff --git a/include/asm-generic/vmlinux.lds.h 
+>>>> b/include/asm-generic/vmlinux.lds.h
+>>>> index b2b3d81..158dbc2 100644
+>>>> --- a/include/asm-generic/vmlinux.lds.h
+>>>> +++ b/include/asm-generic/vmlinux.lds.h
+>>>> @@ -770,6 +770,15 @@
+>>>>          *(.scommon)                        \
+>>>>      }
+>>>> 
+>>>> +#ifdef CONFIG_SECURITY_RTIC
+>>>> +#define RTIC_BSS                            \
+>>>> +    . = ALIGN(PAGE_SIZE);                        \
+>>>> +    KEEP(*(.bss.rtic))                        \
+>>>> +    . = ALIGN(PAGE_SIZE);
+>>>> +#else
+>>>> +#define RTIC_BSS
+>>>> +#endif
+>>>> +
+>>>>  /*
+>>>>   * Allow archectures to redefine BSS_FIRST_SECTIONS to add extra
+>>>>   * sections to the front of bss.
+>>>> @@ -782,6 +791,7 @@
+>>>>      . = ALIGN(bss_align);                        \
+>>>>      .bss : AT(ADDR(.bss) - LOAD_OFFSET) {                \
+>>>>          BSS_FIRST_SECTIONS                    \
+>>>> +        RTIC_BSS                        \
+>>>>          . = ALIGN(PAGE_SIZE);                    \
+>>>>          *(.bss..page_aligned)                    \
+>>>>          . = ALIGN(PAGE_SIZE);                    \
+>>>> diff --git a/include/linux/init.h b/include/linux/init.h
+>>>> index 7b53cb3..617adcf 100644
+>>>> --- a/include/linux/init.h
+>>>> +++ b/include/linux/init.h
+>>>> @@ -300,6 +300,10 @@ void __init parse_early_options(char *cmdline);
+>>>>  /* Data marked not to be saved by software suspend */
+>>>>  #define __nosavedata __section(".data..nosave")
+>>>> 
+>>>> +#ifdef CONFIG_SECURITY_RTIC
+>>>> +#define __rticdata  __section(".bss.rtic")
+>>>> +#endif
+>>>> +
+>>>>  #ifdef MODULE
+>>>>  #define __exit_p(x) x
+>>>>  #else
+>>>> diff --git a/security/Kconfig b/security/Kconfig
+>>>> index 7561f6f..66b61b9 100644
+>>>> --- a/security/Kconfig
+>>>> +++ b/security/Kconfig
+>>>> @@ -291,5 +291,15 @@ config LSM
+>>>> 
+>>>>  source "security/Kconfig.hardening"
+>>>> 
+>>>> +config SECURITY_RTIC
+>>>> +        bool "RunTime Integrity Check feature"
+>>> 
+>>> Shouldn't this depend on the architecture(s) supporting the
+>>> feature?
+>>> 
+>>>> +        help
+>>>> +      RTIC(RunTime Integrity Check) feature is to protect Linux 
+>>>> kernel
+>>>> +      at runtime. This relocates some of the security sensitive 
+>>>> kernel
+>>>> +      structures to a separate page aligned special section.
+>>>> +
+>>>> +      This is to enable monitoring and protection of these kernel 
+>>>> assets
+>>>> +      from a higher exception level(EL) against any unauthorized 
+>>>> changes.
+>>> 
+>>> "if you are unsure ..."
+>>> 
+>> We just thought keeping it generic might be a better idea, thus, moved 
+>> the
+>> changes to generic files from arch-specific files and thus, kept 
+>> config also
+>> independent of the arch. Can surely make this config arch dependent if 
+>> that is
+>> a better approach?
+> 
+> It's kind of silly to enable this if the hardware doesn't
+> support it, isn't it?
+> 
+Yes, that makes sense. Will update depends on to the ARM64 arch in the 
+next
+version. Thank you.
