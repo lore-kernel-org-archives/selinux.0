@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E01A5C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8C2CC43603
 	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2D9F2253A
+	by mail.kernel.org (Postfix) with ESMTP id 8B7DB221EA
 	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405230AbhASLMF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Jan 2021 06:12:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48396 "EHLO
+        id S2405219AbhASLLv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Jan 2021 06:11:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388296AbhASJqw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:46:52 -0500
+        with ESMTP id S2387895AbhASJo7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:44:59 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F57C061573;
-        Tue, 19 Jan 2021 01:46:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F4FC0613D3;
+        Tue, 19 Jan 2021 01:44:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=l2WBiCb5duYJRA9nKpihqrJOH1Qjg6utSrFiu8qAdtc=; b=NR8j/MWlkQlAYWwyyPe6lVQHJ6
-        XfT8RXMPsqC8HiUId2Y1GeAidCIEcQHEfncYgXLiQOxRWRAlEcFZ6FtUIdqtL/j/dzO4zawfrgGIC
-        lK4D9Z1XIw05z3hikMSe4Ai93vwZp50zj+2irALoFKEE3bqQ6YhQIcUwq24CVI9PWpn1Zfjfs0g9H
-        z/5YMqP9BkrKUrAvSdrW/dVGuwyweDBUbbQhlP0TO7RjtK0B72F34/iv/0489cVtW44S8sLeiY6qp
-        QPDOqCCtXIy77rLnmGjIlf5bA89o5USVB0StJ0/pxLrwnAkZM56pU1yNSqqiJhmyP+n8f7N57gy6Z
-        E4G1wXPg==;
+        bh=lPUT4BIPvjjCigfj+gwWcq84YOMCaUD9YUasmcIOtgU=; b=kC5U3uMCKrCdQwzr7bsvxcfxzm
+        fewFkXAHif7op94rMpcMd8CgWPxuymKRh0r3QdzGeQWVjr0hvAx3gYLfYrHzQuSBWrfRqg4oQSFzm
+        aqrdqutN/oRSFc3xFbv6tnqZjEp/dsdqkftL/qzUtB4vv2p6XPRAXfWDEf3UqaigjmYarQ4FyypZD
+        PBhQRburzoHMPRsPVBRntHEeZtZ0WugF3YP+PvRkiLFxqxPCK7M5a5Is6txx2oOF17qQ9omG170Iq
+        XKrtxwJ34xba9qhgS8V2a2FWK5Af/bAmlUfHIVHQszylYqdLO4bf4ppjo82Bkwcxq/oyhEZukD+T/
+        gTTYD9GQ==;
 Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1l1na6-00E8VU-Iz; Tue, 19 Jan 2021 09:45:51 +0000
-Date:   Tue, 19 Jan 2021 09:45:46 +0000
+        id 1l1nYQ-00E8Km-9k; Tue, 19 Jan 2021 09:44:02 +0000
+Date:   Tue, 19 Jan 2021 09:44:02 +0000
 From:   Christoph Hellwig <hch@infradead.org>
 To:     Christian Brauner <christian.brauner@ubuntu.com>
 Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -72,19 +72,24 @@ Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 32/42] fs: make helpers idmap mount aware
-Message-ID: <20210119094546.GP3364550@infradead.org>
+Subject: Re: [PATCH v5 29/42] ioctl: handle idmapped mounts
+Message-ID: <20210119094402.GM3364550@infradead.org>
 References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210112220124.837960-33-christian.brauner@ubuntu.com>
+ <20210112220124.837960-30-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210112220124.837960-33-christian.brauner@ubuntu.com>
+In-Reply-To: <20210112220124.837960-30-christian.brauner@ubuntu.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Looks good,
+On Tue, Jan 12, 2021 at 11:01:11PM +0100, Christian Brauner wrote:
+> Enable generic ioctls to handle idmapped mounts by passing down the
+> mount's user namespace. If the initial user namespace is passed nothing
+> changes so non-idmapped mounts will see identical behavior as before.
+
+Looks good, although file_permission would help here as well..
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
