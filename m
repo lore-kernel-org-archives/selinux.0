@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A8E1C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04407C4160E
 	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55C69221EA
-	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3E1C2253A
+	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404646AbhASLLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Jan 2021 06:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45978 "EHLO
+        id S2405221AbhASLLy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Jan 2021 06:11:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387572AbhASJfk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:35:40 -0500
+        with ESMTP id S2388016AbhASJpS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:45:18 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6754BC0613CF;
-        Tue, 19 Jan 2021 01:34:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E00C3C0613D6;
+        Tue, 19 Jan 2021 01:44:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=l2WBiCb5duYJRA9nKpihqrJOH1Qjg6utSrFiu8qAdtc=; b=ZpKTlIrcK/0FsG17kKej0stuN/
-        ROxXFflxxBOF3en3NVbWbbkekqwpoFS38KTp4jLltuU32CzWVVpWLzijVlsmg92ofF5lUrCxhUDwK
-        rCBD7hdOMca3h2h8pkkEhOTjf1jj46go6jdJ7r0MmVmwkZ4d20U2l+JHQ5R11S4i9FlNrIELjnD2M
-        GDQk9rw4aBv8JQmbO3yEc4StMd/+b6fEBR3xOqBSDgWNXwcmia4iPZ1lKP7aUBcMLzqcyHAqQ8HsG
-        AdjaYjlQh2afljE44FtA1qcYiqFJsRI2aj3gPVFNub/V0QRflD+SX7j0EtPWRwPC3nEOi4SmbKkve
-        bzARH3pA==;
+        bh=o+92mnjDv7rdZYp8j8YI4ReUnmBbRpOQQOiVt+8+hxE=; b=GjC8doWnOwIa2OSQr+lX9CLHnm
+        +nzh2bI1+BLva7zYP4UH8uMEhUbdf527UvRXobllJKmGO+fWOvDIOLjqpwkHq6eQkG/9mobiD54Y9
+        mNq4EJksOpTzFqZgpFs5+GaEM2q+0DLJRXAQ4Bgbv2J8TbnD2LwEVZTH7CWUq9q3iG8qp0aBRcsJI
+        Ak4qy4GiZC9iW0b9ZGaNhs0MFlzvwahdOR/hZqoBBU9c3FY9SD+qqTZ0jp5lb+6f0SrrmFmWAILz4
+        eQ6L+lA4w3NpZK9rMfRqhLNF4yT9kXiNoxDCXoa2jj7CqhoQi5cj7UU8pgKXAd1khvJPGwVM98fss
+        hY/8CIeQ==;
 Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1l1nPB-00E7cI-GT; Tue, 19 Jan 2021 09:34:29 +0000
-Date:   Tue, 19 Jan 2021 09:34:29 +0000
+        id 1l1nYw-00E8MW-C5; Tue, 19 Jan 2021 09:44:34 +0000
+Date:   Tue, 19 Jan 2021 09:44:34 +0000
 From:   Christoph Hellwig <hch@infradead.org>
 To:     Christian Brauner <christian.brauner@ubuntu.com>
 Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -72,18 +72,25 @@ Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 21/42] namei: prepare for idmapped mounts
-Message-ID: <20210119093429.GF3364550@infradead.org>
+Subject: Re: [PATCH v5 30/42] would_dump: handle idmapped mounts
+Message-ID: <20210119094434.GN3364550@infradead.org>
 References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210112220124.837960-22-christian.brauner@ubuntu.com>
+ <20210112220124.837960-31-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210112220124.837960-22-christian.brauner@ubuntu.com>
+In-Reply-To: <20210112220124.837960-31-christian.brauner@ubuntu.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
+
+On Tue, Jan 12, 2021 at 11:01:12PM +0100, Christian Brauner wrote:
+> When determining whether or not to create a coredump the vfs will verify
+> that the caller is privileged over the inode. Make the would_dump()
+> helper handle idmapped mounts by passing down the mount's user namespace
+> of the exec file. If the initial user namespace is passed nothing
+> changes so non-idmapped mounts will see identical behavior as before.
 
 Looks good,
 
