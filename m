@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45013C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9E40C43381
 	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F256D2312E
-	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F6ED2312E
+	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732076AbhASLII (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Jan 2021 06:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43492 "EHLO
+        id S2389125AbhASLIz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Jan 2021 06:08:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732735AbhASJYB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:24:01 -0500
+        with ESMTP id S1733215AbhASJ1W (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:27:22 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F39C061574;
-        Tue, 19 Jan 2021 01:23:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE667C061574;
+        Tue, 19 Jan 2021 01:26:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=kxnpvdEioqW2SL/zS2zHQR8JutL4B883AHpsl2zQebg=; b=it9Hptg7/g4IK+bZS7OVTPBwvu
-        uEJwSofsw371xci3PeKBU/FjZML7V0mhZqDGM/lGkG2sEfj+XX/v3+r6ucKos47mtHBGfRbdfMl7S
-        mkKi8Qz9aZJcYyRsKs3CCkAXK63lVddcXS3y+EWvEwVQDRWIIC6QPa9t3tWIdAHTiHQYwDv9eLGWR
-        1R5YiOHnEr/nZ/SA58AW5jMykRQpkhcbJSWRZTR9AwuJy05gz+2oKe4MpWZyRaKOG5Xyg2lLZ2iQG
-        o80tSyIExjTsT8UaNxFm8eZuQOOzWCnxZ6GCz3SWZtCIlSZ2x15M2bHcfBr5kdAwznSdV2VpZUcXh
-        yDnrc9Fg==;
+        bh=l2WBiCb5duYJRA9nKpihqrJOH1Qjg6utSrFiu8qAdtc=; b=BW6tx7OpnvLt5vntSjQgqgymuU
+        qg2g0U0TMdeTHpMFDqa9Ngc4GekeIKJLsh9fJ1/hPrDz6zewzXug0SYNWW5zUHuX//r2gXqyb4lI1
+        MVpm+5DySQytP/KiuxuwuXT2efGcUltJtQrn5wn8/h2awWeoDgoQ6/eTnDBWQVTb3M/nfMoYeeCxB
+        o4YN1xLmJR97N9qeQxrNWWd1VYRvTjtSV4CyYT2ZYPDOb8Vy2bkKhGf89Ximh65XbRzkRGZqgfu+f
+        JjZpvdSW4LYkEYUzOZDh192HdRchj0JbFnPvvMfHYY+2oBYkHN5jhepehP9TDYsNhb4P94iAAxVPZ
+        kcoopEtw==;
 Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1l1nEK-00E6t0-Rv; Tue, 19 Jan 2021 09:23:17 +0000
-Date:   Tue, 19 Jan 2021 09:23:16 +0000
+        id 1l1nHY-00E76h-AH; Tue, 19 Jan 2021 09:26:36 +0000
+Date:   Tue, 19 Jan 2021 09:26:36 +0000
 From:   Christoph Hellwig <hch@infradead.org>
 To:     Christian Brauner <christian.brauner@ubuntu.com>
 Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -72,33 +72,19 @@ Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 11/42] namei: make permission helpers idmapped mount
- aware
-Message-ID: <20210119092316.GC3361757@infradead.org>
+Subject: Re: [PATCH v5 14/42] acl: handle idmapped mounts
+Message-ID: <20210119092636.GF3361757@infradead.org>
 References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210112220124.837960-12-christian.brauner@ubuntu.com>
+ <20210112220124.837960-15-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210112220124.837960-12-christian.brauner@ubuntu.com>
+In-Reply-To: <20210112220124.837960-15-christian.brauner@ubuntu.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 12, 2021 at 11:00:53PM +0100, Christian Brauner wrote:
-> The two helpers inode_permission() and generic_permission() are used by
-> the vfs to perform basic permission checking by verifying that the
-> caller is privileged over an inode. In order to handle idmapped mounts
-> we extend the two helpers with an additional user namespace argument.
-> On idmapped mounts the two helpers will make sure to map the inode
-> according to the mount's user namespace and then peform identical
-> permission checks to inode_permission() and generic_permission(). If the
-> initial user namespace is passed nothing changes so non-idmapped mounts
-> will see identical behavior as before.
-
-More long lines in here.
-
-Otherwise looks good:
+Looks good,
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
