@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8800DC43333
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B10ABC43217
 	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F9CA221EA
+	by mail.kernel.org (Postfix) with ESMTP id 8F6EE2311C
 	for <selinux@archiver.kernel.org>; Tue, 19 Jan 2021 11:17:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391208AbhASLKF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Jan 2021 06:10:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
+        id S2405197AbhASLLY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Jan 2021 06:11:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387582AbhASJeW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:34:22 -0500
+        with ESMTP id S1727781AbhASJkY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jan 2021 04:40:24 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D082C061574;
-        Tue, 19 Jan 2021 01:33:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD65C061574;
+        Tue, 19 Jan 2021 01:39:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=1acN46MpaPD0Uo/eaBisBkwf/+vpr3p34PmGVNKLyj4=; b=KxUOlItbLKC0Avomi+19Gi2mcV
-        gmWIZesVp04Vx271TV9b12XH2uIVL4VVV+bLwXEwvpVa+rJzPrNT0nHJhRYqIYGgwv9CtShnFhybV
-        vqjmZOZPQr8XuVGUTKyPw1JBpMikjjY8GUzwj3sGB0H4dPdwLCC70zMRdWdSTED2xkchcQhXyfqPB
-        AfcImiORPYISXJfLt8J2JIAdaMcaJK/Qc+dlv3Jnyu6CP+oVkJ3k/6iHn+N4D7s2ryGs0vpixWCDF
-        UXeDZ17iiJ8GPw1BHIsY66OMlUpie2S7mvML6r33SJXdD0zMc6Ya/tOubD5xLSxmpKc+Nbx8PUSIK
-        ZGweAYaQ==;
+        bh=l2WBiCb5duYJRA9nKpihqrJOH1Qjg6utSrFiu8qAdtc=; b=e7p28fQeFsTQicxttsEAAv52wm
+        HwxQ/dZ7NskjpL9w8wQu2x5MR3w1D5EeTcwvZ+z/fM52+sbCcBQKUsLIMXpxGuq6DNSj9fAVnt0qm
+        mBceuZQy9Z+81QATIE8CPeMKNI3hl3KPZsfAUsC7wPWtwBUzMY5fH1se4aI15Qumn67+TvhHv92VP
+        mrN4+O1SB/eXgzLHLqH66ZDcyMqW2Qq3Me5ipwgwuow/ZRlklZ4QFQYCYVhLt+amEBEhlfDsTLFQa
+        MNsAr1zVQcDpGcK5Jkjb++jx2N1V5V1GlAy1qIDgdVyBOl0YS3opKOkDf2u5rkoRLQvFQl4SxJSTU
+        A/lGM5Kw==;
 Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1l1nO8-00E7YL-MF; Tue, 19 Jan 2021 09:33:28 +0000
-Date:   Tue, 19 Jan 2021 09:33:24 +0000
+        id 1l1nU3-00E7wG-Eo; Tue, 19 Jan 2021 09:39:33 +0000
+Date:   Tue, 19 Jan 2021 09:39:31 +0000
 From:   Christoph Hellwig <hch@infradead.org>
 To:     Christian Brauner <christian.brauner@ubuntu.com>
 Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -72,31 +72,18 @@ Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 19/42] namei: handle idmapped mounts in may_*() helpers
-Message-ID: <20210119093324.GD3364550@infradead.org>
+Subject: Re: [PATCH v5 24/42] af_unix: handle idmapped mounts
+Message-ID: <20210119093931.GI3364550@infradead.org>
 References: <20210112220124.837960-1-christian.brauner@ubuntu.com>
- <20210112220124.837960-20-christian.brauner@ubuntu.com>
+ <20210112220124.837960-25-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210112220124.837960-20-christian.brauner@ubuntu.com>
+In-Reply-To: <20210112220124.837960-25-christian.brauner@ubuntu.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
-
-On Tue, Jan 12, 2021 at 11:01:01PM +0100, Christian Brauner wrote:
-> The may_follow_link(), may_linkat(), may_lookup(), may_open(),
-> may_o_create(), may_create_in_sticky(), may_delete(), and may_create()
-> helpers determine whether the caller is privileged enough to perform the
-> associated operations. Let them handle idmapped mounts by mapping the
-> inode or fsids according to the mount's user namespace. Afterwards the
-> checks are identical to non-idmapped inodes. The patch takes care to
-> retrieve the mount's user namespace right before performing permission
-> checks and passing it down into the fileystem so the user namespace
-> can't change in between by someone idmapping a mount that is currently
-> not idmapped. If the initial user namespace is passed nothing changes so
-> non-idmapped mounts will see identical behavior as before.
 
 Looks good,
 
