@@ -2,79 +2,102 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AFBAC433E0
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 16:15:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25C01C433E9
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 16:50:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2644233EA
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 16:15:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB95A233EE
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 16:50:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388537AbhATQPJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Jan 2021 11:15:09 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:41849 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391317AbhATQOW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jan 2021 11:14:22 -0500
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 08A64561248;
-        Wed, 20 Jan 2021 17:13:31 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2 1/1] libsepol: do not decode out-of-bound rolebounds
-Date:   Wed, 20 Jan 2021 17:13:21 +0100
-Message-Id: <20210120161321.13656-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.30.0
+        id S2404019AbhATQuJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Jan 2021 11:50:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55052 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403997AbhATQuA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jan 2021 11:50:00 -0500
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B782EC0613C1
+        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 08:49:19 -0800 (PST)
+Received: by mail-wm1-x331.google.com with SMTP id c128so3440005wme.2
+        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 08:49:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DUDg6TphmanEAstHgN26xAlXogE8/4FgyIPvwhmL7gs=;
+        b=pghiOVPTDppHJ45SSMy2+CHFk9YLriSho7mdmM71ABsaxcBoFv3ja6EEAbJkf5fut1
+         moGYip9Q1qdPy8y4PyQmDoI8F3NhweKRHJyYT6RVMgzcirgaWmSM2g7Hs1eCsPvVeqAQ
+         Q9Tap+PfCVJTLJbmIpzQsMDcH4Pgt/9Wg0ut+dezxUd9sU7NI39nu5yftOWPfdjqtC5o
+         f8/TLGh5A3BMY9NwmgGHwE0aiRnk3zEm2KI4zvQhwSbTeZrQvRDJIpVhtw+/fplBTQCo
+         lSpsQygOwAoS1thaJoWKph0ap8WwR3uWeNh6HyM4d1PFoC0cpEZpkxM70rPlvlgCBYPK
+         oAUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DUDg6TphmanEAstHgN26xAlXogE8/4FgyIPvwhmL7gs=;
+        b=KyRi8FQuteO2BlI59FHVGyCyJmwtxFU5Y4enoGR6sd5AiBIP9TN++WNGZ9KHa/B/mI
+         Y5s5lTGrWOxIeIVnSLIgrvNQixFrnMWM+nCh9R8yFuC/iesVqK2FjuasDA6ahFPyT6V+
+         OBzamZvdRiwYhd5ABiwAhYiVwq7RcHfrV3ckcU/B52Edhm9KMJ0bEPY3KcLPgiP3ss5P
+         ew+5oZVYCTJdKvV+XCGQYm1NMq7EsWKvHzMllBc6zliPvstmN7FOMoABVS6JgtRKanjJ
+         cNncAOfOSndt68BRIEzL8t9zdzzY89z2VTNeGrIQ2y9e7RQqEs/hDLJ5kIzAqElZq8rH
+         Vz0g==
+X-Gm-Message-State: AOAM533b/C5PKmXy8sGacjwwK4+0Op2B8Qtzk62y1SpCEmo30C3YxNmT
+        tNMK5v/ogeYU+F+ekra0z37231IkCQ+bP/HauaKNDw==
+X-Google-Smtp-Source: ABdhPJz0wZLMLD+76EyvUtDPstR+U0u7fb1/8zCKqlM+va0UuR2w0QT0/wXXhaj0lNefqt31Z564snWdZ0DTedYcOUo=
+X-Received: by 2002:a05:600c:4e92:: with SMTP id f18mr5148677wmq.126.1611161358342;
+ Wed, 20 Jan 2021 08:49:18 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Jan 20 17:13:31 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <20210111170622.2613577-1-surenb@google.com> <c586aa93-52d7-bd6c-3d5-77be4ed4afae@namei.org>
+In-Reply-To: <c586aa93-52d7-bd6c-3d5-77be4ed4afae@namei.org>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Wed, 20 Jan 2021 08:49:07 -0800
+Message-ID: <CAJuCfpG0+_4x=F7dpKabgmGwDf2KGcCcEfXixLBef6+zg8uNjQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
+To:     James Morris <jmorris@namei.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>, selinux@vger.kernel.org,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-While fuzzing /usr/libexec/hll/pp, a policy module was generated with a
-role->bounds larger that the number of roles in the policy.
+On Tue, Jan 19, 2021 at 9:02 PM James Morris <jmorris@namei.org> wrote:
+>
+> On Mon, 11 Jan 2021, Suren Baghdasaryan wrote:
+>
+> > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
+> > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
+> > and CAP_SYS_NICE for influencing process performance.
+>
+>
+> Almost missed these -- please cc the LSM mailing list when modifying
+> capabilities or other LSM-related things.
 
-This issue has been found while fuzzing hll/pp with the American Fuzzy
-Lop.
+Thanks for the note. Will definitely include it when sending the next version.
 
-This patch was suggested by James Carter <jwcart2@gmail.com> in
-https://lore.kernel.org/selinux/CAP+JOzQc3yXczhk5JfUrr+6rFe3AXis+yJAukCFbz=aQotriQQ@mail.gmail.com/T/#mdd4bed0972c7c6f339e28270f73e9b7b09bb359f
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/src/policydb.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index f5809315cc08..08c4cb18efcf 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1030,6 +1030,8 @@ static int role_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
- 		return -EINVAL;
- 	if (p->p_role_val_to_name[role->s.value - 1] != NULL)
- 		return -EINVAL;
-+	if (role->bounds > p->p_roles.nprim)
-+		return -EINVAL;
- 	p->p_role_val_to_name[role->s.value - 1] = (char *)key;
- 	p->role_val_to_struct[role->s.value - 1] = role;
- 
-@@ -1049,6 +1051,8 @@ static int type_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
- 			return -EINVAL;
- 		if (p->p_type_val_to_name[typdatum->s.value - 1] != NULL)
- 			return -EINVAL;
-+		if (typdatum->bounds > p->p_types.nprim)
-+			return -EINVAL;
- 		p->p_type_val_to_name[typdatum->s.value - 1] = (char *)key;
- 		p->type_val_to_struct[typdatum->s.value - 1] = typdatum;
- 	}
--- 
-2.30.0
-
+>
+> --
+> James Morris
+> <jmorris@namei.org>
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+>
