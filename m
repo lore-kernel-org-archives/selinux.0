@@ -2,151 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FFCFC433E0
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 17:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A029C433E9
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 19:57:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10E1423405
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 17:01:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6217E23442
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 19:57:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404076AbhATRAY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Jan 2021 12:00:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
+        id S1732286AbhATSnZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Jan 2021 13:43:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391720AbhATQ6l (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jan 2021 11:58:41 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B571C0613C1
-        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 08:58:01 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id m2so3458139wmm.1
-        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 08:58:01 -0800 (PST)
+        with ESMTP id S2404384AbhATS1r (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jan 2021 13:27:47 -0500
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6911C061575
+        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 10:27:03 -0800 (PST)
+Received: by mail-oo1-xc2b.google.com with SMTP id j21so5996022oou.11
+        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 10:27:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=rpcAZMiidkdn8kgbweSucunSZNfQr7y4sBDVK9pNMyU=;
-        b=aSKdOyEfUZ7+nbgQG4Oz34S0QFBBEpe0NkmOUgkIRQmr7puRYU8XMppmMlQK5DGLFM
-         0GuKLRPRBMQvkzaw9QCBPnYJ8+Doyqjuf4weUAIPh7K2nTvy5Y9ipXkegUZc0/jbwYMN
-         Z/+ys6EhiyqdFl1caKGMEH7NMXeQT4GVAjgw0ggJJUigQcSJWPWhBUTwagRzTm3SFNUF
-         Vh7dMIiU/ZWLwWHovBCP7+kQOgS1da5mvzAOu1AlNAUshTtLvBSqJVGxkhVPe4yo++Nw
-         +gq/kzv307e98VThRr81N9MAIin6nMYoBnx1wOuKtT9u50vzlv3s0hf29boUw909vpQv
-         283Q==
+        bh=LI/IVhYXuaNjTK7pZ4jpZ7oa9bT6c7zim1UtTH9NDC8=;
+        b=kbyKA7vXVLnZXXA7es8h87hFv8I3f6SF7z5Z/0bBggFX4nIQ7UU1BApwILZON5bMCR
+         HE4G34EvVr7zWKzqzX7OdvD/6GHgpTR05mWWVyG54ovq4FxnQsAWkOyRzwc5v1iUz11b
+         WRqErO4/e4JyzBG8LIh4qPl2idOVghJnpnCNtvKGWW16YtEr7Eh4PwLMY85BJZASpAn2
+         95jP9RAzE8RHmvjmNP05A4gokBKreJNPdLdOWp/cXMTrLU6Pb+YqCkfMpwCdHJZVyM2p
+         RAtWz9Af6GVOO0pALxxG8eY88nrxf5Lov5UElOc62Vk+5t49HNKNlFmmmmDOuad2N7Dw
+         WwGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=rpcAZMiidkdn8kgbweSucunSZNfQr7y4sBDVK9pNMyU=;
-        b=LIB4w5+RUzWcbASDOjkUZw7v/gaFw3xm5mwghinUdzKw/WEEQ/ey5NUKyBuJ6CvrpB
-         M8Zni08LyA2zau1EL8WLO0hJdi8/LqH3sfu02/nurw+652qzRSCwshajOxxLvvFUU+Ke
-         Nj9hZqGf+a0RpyjFX/Tqulubo5JAxY70oMOjwVZlK3j40KgYUHRZOzewovx+rYOax1QC
-         GAciGUDCkqdel4qvyJcNWuFDGJpSmS9dd2BD+kbMCb4phOWe1YsOe6ZbA9NJJriqSC+P
-         rVZSKeuYZ6ihsGVI+JA9ljwX09q3nE23YV0sZdGNw/p6eY36SbHOKpA0z47752s/Wom+
-         fVjg==
-X-Gm-Message-State: AOAM533RCtlz5yL7L53SYWY7mukrhpDOmt6MkqnDbAkkOOE68RRfv2uF
-        CbBmamGQR4JmLFoHVnYr12T9hd8vjd8VVyIUAaOmrA==
-X-Google-Smtp-Source: ABdhPJzk/tqIUvkT/+lRnqF2/87jws3xp9TGgijlSnku7fw8B2GOkgwDvPruEYich6TykilQINnAL5XxzzoViuhPoV4=
-X-Received: by 2002:a1c:98c6:: with SMTP id a189mr5184234wme.88.1611161879809;
- Wed, 20 Jan 2021 08:57:59 -0800 (PST)
+        bh=LI/IVhYXuaNjTK7pZ4jpZ7oa9bT6c7zim1UtTH9NDC8=;
+        b=s80SEDsK1JKSSwBfPaCuA/7wW562022LE3sBC6vG9FvwWAtniAjmI2Uhb34ci4JmUK
+         aLQ2NlcQEs03Y40XLNDL6vTw8liJ0itqRi9Q3QAo7O5jzxkpOLcZN6jYPEzAMvZdMhby
+         AFpaszbRqS1TSfjIlR1Qz55YI84ijy+BNE6045lhtOqKryZr/u2mCMPTOk8fuwS4WWmV
+         UbsCz387UyePy6HP/veoky3kPVRTiFdFscOh3FPSU4dSNb3R0XleeK1zUwRJmStfUH+m
+         7HWSOL0fn+Z9P41eEPQSx0NHRypf8hFaZAzsi603TlQNVfKn05ygTMgOXGnxkkidV12H
+         +68Q==
+X-Gm-Message-State: AOAM530xaPv6VM0sMPUFeePlQ6aF5j5A3ZUQiJjYGP8D3oQ95Xx7iw0y
+        Shuy5+gBpjuOclrA7aLoYyQdvqlhn+lABjN4eV0Bs+sn
+X-Google-Smtp-Source: ABdhPJyqipo4Ye0JSdzePtiGm/CPKMZ9nxZ0tqBIG8liA2wqED06i8HcrrS01m/3T+w1oxLIcg8sVJ/aBZ87IOBfCBA=
+X-Received: by 2002:a4a:c692:: with SMTP id m18mr6916364ooq.59.1611167223116;
+ Wed, 20 Jan 2021 10:27:03 -0800 (PST)
 MIME-Version: 1.0
-References: <20210111170622.2613577-1-surenb@google.com> <20210112074629.GG22493@dhcp22.suse.cz>
- <20210112174507.GA23780@redhat.com> <CAJuCfpFQz=x-LvONO3c4iqjKP4NKJMgUuiYc8HACKHAv1Omu0w@mail.gmail.com>
- <20210113142202.GC22493@dhcp22.suse.cz> <CAG48ez0=QSzuj96+5oVQ2qWqfjedv3oKtfEFzw--C8bzfvj7EQ@mail.gmail.com>
-In-Reply-To: <CAG48ez0=QSzuj96+5oVQ2qWqfjedv3oKtfEFzw--C8bzfvj7EQ@mail.gmail.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Wed, 20 Jan 2021 08:57:48 -0800
-Message-ID: <CAJuCfpHb6PjTJBf67BZrBwSgbavKTeDz1S5bn9msEL4k8NtbVQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-To:     Jann Horn <jannh@google.com>
-Cc:     Michal Hocko <mhocko@suse.com>, Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>
+References: <20210120161321.13656-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20210120161321.13656-1-nicolas.iooss@m4x.org>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 20 Jan 2021 13:26:52 -0500
+Message-ID: <CAP+JOzTiMd7-bghRsbUyrqz2jbPYU2zvvE=_DGC9WMyCVGtxiQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] libsepol: do not decode out-of-bound rolebounds
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 5:18 AM Jann Horn <jannh@google.com> wrote:
+On Wed, Jan 20, 2021 at 11:13 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Wed, Jan 13, 2021 at 3:22 PM Michal Hocko <mhocko@suse.com> wrote:
-> > On Tue 12-01-21 09:51:24, Suren Baghdasaryan wrote:
-> > > On Tue, Jan 12, 2021 at 9:45 AM Oleg Nesterov <oleg@redhat.com> wrote:
-> > > >
-> > > > On 01/12, Michal Hocko wrote:
-> > > > >
-> > > > > On Mon 11-01-21 09:06:22, Suren Baghdasaryan wrote:
-> > > > >
-> > > > > > What we want is the ability for one process to influence another process
-> > > > > > in order to optimize performance across the entire system while leaving
-> > > > > > the security boundary intact.
-> > > > > > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
-> > > > > > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
-> > > > > > and CAP_SYS_NICE for influencing process performance.
-> > > > >
-> > > > > I have to say that ptrace modes are rather obscure to me. So I cannot
-> > > > > really judge whether MODE_READ is sufficient. My understanding has
-> > > > > always been that this is requred to RO access to the address space. But
-> > > > > this operation clearly has a visible side effect. Do we have any actual
-> > > > > documentation for the existing modes?
-> > > > >
-> > > > > I would be really curious to hear from Jann and Oleg (now Cced).
-> > > >
-> > > > Can't comment, sorry. I never understood these security checks and never tried.
-> > > > IIUC only selinux/etc can treat ATTACH/READ differently and I have no idea what
-> > > > is the difference.
+> While fuzzing /usr/libexec/hll/pp, a policy module was generated with a
+> role->bounds larger that the number of roles in the policy.
 >
-> Yama in particular only does its checks on ATTACH and ignores READ,
-> that's the difference you're probably most likely to encounter on a
-> normal desktop system, since some distros turn Yama on by default.
-> Basically the idea there is that running "gdb -p $pid" or "strace -p
-> $pid" as a normal user will usually fail, but reading /proc/$pid/maps
-> still works; so you can see things like detailed memory usage
-> information and such, but you're not supposed to be able to directly
-> peek into a running SSH client and inject data into the existing SSH
-> connection, or steal the cryptographic keys for the current
-> connection, or something like that.
+> This issue has been found while fuzzing hll/pp with the American Fuzzy
+> Lop.
 >
-> > > I haven't seen a written explanation on ptrace modes but when I
-> > > consulted Jann his explanation was:
-> > >
-> > > PTRACE_MODE_READ means you can inspect metadata about processes with
-> > > the specified domain, across UID boundaries.
-> > > PTRACE_MODE_ATTACH means you can fully impersonate processes with the
-> > > specified domain, across UID boundaries.
-> >
-> > Maybe this would be a good start to document expectations. Some more
-> > practical examples where the difference is visible would be great as
-> > well.
+> This patch was suggested by James Carter <jwcart2@gmail.com> in
+> https://lore.kernel.org/selinux/CAP+JOzQc3yXczhk5JfUrr+6rFe3AXis+yJAukCFbz=aQotriQQ@mail.gmail.com/T/#mdd4bed0972c7c6f339e28270f73e9b7b09bb359f
 >
-> Before documenting the behavior, it would be a good idea to figure out
-> what to do with perf_event_open(). That one's weird in that it only
-> requires PTRACE_MODE_READ, but actually allows you to sample stuff
-> like userspace stack and register contents (if perf_event_paranoid is
-> 1 or 2). Maybe for SELinux things (and maybe also for Yama), there
-> should be a level in between that allows fully inspecting the process
-> (for purposes like profiling) but without the ability to corrupt its
-> memory or registers or things like that. Or maybe perf_event_open()
-> should just use the ATTACH mode.
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsepol/src/policydb.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index f5809315cc08..08c4cb18efcf 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -1030,6 +1030,8 @@ static int role_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+>                 return -EINVAL;
+>         if (p->p_role_val_to_name[role->s.value - 1] != NULL)
+>                 return -EINVAL;
+> +       if (role->bounds > p->p_roles.nprim)
+> +               return -EINVAL;
+>         p->p_role_val_to_name[role->s.value - 1] = (char *)key;
+>         p->role_val_to_struct[role->s.value - 1] = role;
+>
+> @@ -1049,6 +1051,8 @@ static int type_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+>                         return -EINVAL;
+>                 if (p->p_type_val_to_name[typdatum->s.value - 1] != NULL)
+>                         return -EINVAL;
+> +               if (typdatum->bounds > p->p_types.nprim)
+> +                       return -EINVAL;
 
-Thanks for additional clarifications, Jann!
-Just to clarify, the documentation I'm preparing is a man page for
-process_madvise(2) which will list the required capabilities but won't
-dive into all the security details.
-I believe the above suggestions are for documenting different PTRACE
-modes and will not be included in that man page. Maybe a separate
-document could do that but I'm definitely not qualified to write it.
+This is very tricky, but for both of these the bounds value cannot be
+0 or >= nprim because the value -1 is used as an index.
+
+It has taken me longer than I thought it would, but I am almost ready
+to send out a patch that should check everything in a policydb_t after
+it is read in. Maybe by the end of the day, but definitely before the
+end of the week.
+
+Thanks,
+Jim
+
+>                 p->p_type_val_to_name[typdatum->s.value - 1] = (char *)key;
+>                 p->type_val_to_struct[typdatum->s.value - 1] = typdatum;
+>         }
+> --
+> 2.30.0
+>
