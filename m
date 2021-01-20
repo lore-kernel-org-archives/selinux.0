@@ -2,76 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72015C433E0
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 05:10:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1A6CC4332D
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 05:12:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 28CDC2311C
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 05:10:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2E1223138
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 05:12:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbhATFAP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Jan 2021 00:00:15 -0500
-Received: from namei.org ([65.99.196.166]:50792 "EHLO mail.namei.org"
+        id S1726552AbhATFKL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Jan 2021 00:10:11 -0500
+Received: from namei.org ([65.99.196.166]:50812 "EHLO mail.namei.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729027AbhATE7p (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 19 Jan 2021 23:59:45 -0500
+        id S1729291AbhATFCm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 20 Jan 2021 00:02:42 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by mail.namei.org (Postfix) with ESMTPS id 6BA181BC;
-        Wed, 20 Jan 2021 04:57:56 +0000 (UTC)
-Date:   Wed, 20 Jan 2021 15:57:56 +1100 (AEDT)
+        by mail.namei.org (Postfix) with ESMTPS id 964A8751;
+        Wed, 20 Jan 2021 05:01:13 +0000 (UTC)
+Date:   Wed, 20 Jan 2021 16:01:13 +1100 (AEDT)
 From:   James Morris <jmorris@namei.org>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-cc:     linux-nfs@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        David Quigley <dpquigl@davequigley.com>
-Subject: Re: [PATCH] NFSv4.2: fix return value of
- _nfs4_get_security_label()
-In-Reply-To: <20210115174356.408688-1-omosnace@redhat.com>
-Message-ID: <2d85fd54-5c4d-391e-f01b-1537017aafa@namei.org>
-References: <20210115174356.408688-1-omosnace@redhat.com>
+To:     Suren Baghdasaryan <surenb@google.com>
+cc:     Andrew Morton <akpm@linux-foundation.org>, jannh@google.com,
+        Kees Cook <keescook@chromium.org>, jeffv@google.com,
+        minchan@kernel.org, mhocko@suse.com, shakeelb@google.com,
+        rientjes@google.com, edgararriaga@google.com, timmurray@google.com,
+        linux-mm@kvack.org, selinux@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement
+ for process_madvise
+In-Reply-To: <20210111170622.2613577-1-surenb@google.com>
+Message-ID: <c586aa93-52d7-bd6c-3d5-77be4ed4afae@namei.org>
+References: <20210111170622.2613577-1-surenb@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 15 Jan 2021, Ondrej Mosnacek wrote:
+On Mon, 11 Jan 2021, Suren Baghdasaryan wrote:
 
-> An xattr 'get' handler is expected to return the length of the value on
-> success, yet _nfs4_get_security_label() (and consequently also
-> nfs4_xattr_get_nfs4_label(), which is used as an xattr handler) returns
-> just 0 on success.
-> 
-> Fix this by returning label.len instead, which contains the length of
-> the result.
-> 
-> Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  fs/nfs/nfs4proc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-> index 2f4679a62712a..28465d8aada64 100644
-> --- a/fs/nfs/nfs4proc.c
-> +++ b/fs/nfs/nfs4proc.c
-> @@ -5971,7 +5971,7 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
->  		return ret;
->  	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
->  		return -ENOENT;
-> -	return 0;
-> +	return label.len;
->  }
+> Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
+> and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
+> and CAP_SYS_NICE for influencing process performance.
 
 
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-
+Almost missed these -- please cc the LSM mailing list when modifying 
+capabilities or other LSM-related things.
 
 -- 
 James Morris
