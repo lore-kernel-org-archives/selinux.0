@@ -2,142 +2,151 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4379C433E6
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 13:25:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32FEAC4332D
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 16:08:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A22F623359
-	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 13:25:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E462F233E2
+	for <selinux@archiver.kernel.org>; Wed, 20 Jan 2021 16:08:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732835AbhATNYp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Jan 2021 08:24:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37694 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733167AbhATNSr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jan 2021 08:18:47 -0500
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 367F0C061575
-        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 05:18:07 -0800 (PST)
-Received: by mail-lf1-x131.google.com with SMTP id o19so34060672lfo.1
-        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 05:18:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KEq8tBsSJotuDC8emCL/6gnLfDlNS7DjovwJhhjL6ms=;
-        b=ULlMSelK9Ah0BMaovUHmsACU3A8+D692YYxmt2OYno3eGXN24zqnixuDonvFpZ2434
-         yGSCIJLnb9rvtjhVV8XPX2nCR1tR5/W56AKUtGD1OkiGVo7IeB4jiaFQf7E/SPuBZCPk
-         d4Lus8TY9Pvv6JwfYfacYCpF4wqkl22vCHCQTbwiluzAHo44vfyw87aw1bj7GxrJh8cR
-         nZV9kGNYb8OxcaZ9Ql7C/WeH9v4zws6ASGW2+LqT3AtKKoJHzqc0nxsas+X7WZpY7KVr
-         OAUDEHg2PDM3TgJfR2sQZHreqITp3VHs1U9nSDMrPkcdRevPf/w7OuV8CjENhYu9SBn6
-         VcWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KEq8tBsSJotuDC8emCL/6gnLfDlNS7DjovwJhhjL6ms=;
-        b=WSlRXJwt9vTf5MlBQFCq2aB3KpBbgjckfA4b7HOYcUxxwSYBOMFbHHdx3KXAhJvu6W
-         ZPoLNNO1TZ+2gNRbt8nchKna3UpHKwTI3iF0q3n7R3j9kwbMt4/735s+MDFnELZXfbav
-         zWoCNIGl75J9Drz2TGgimTY5CdZr4rnew+Kr7+OLZ73szKyX8cNC2zU81RMsjG17ZGCB
-         ffS4F20XXsixZqrYdv/XaHX6wUhbg+DCqtX7+4H2XqfDBSp8lefr93OELCHt7Duw0CgU
-         7GKCt2/54v1vkIgPNfThhlXLitsOI75q7rAelSGPLFzODuX3qBD1E5Oc/wcA5t7XGWjc
-         4P7g==
-X-Gm-Message-State: AOAM530qoM9HG2QZgI8Z3fFBMAXT0UFme6AjShox/qnSYWx51YGMkZ68
-        QqzFjg+xLD1NM5yCag61FUcZapx+lh6wnkG9CVIQTg==
-X-Google-Smtp-Source: ABdhPJzqDqJvZXUcfXv4xFpgmlCE0aHWXWLar3aIIwchg7i4ldiK53CzSQfu3T1ZKIGVaiUK6Qge3/wJtkCQkY/hjps=
-X-Received: by 2002:a19:8cb:: with SMTP id 194mr4180105lfi.463.1611148685415;
- Wed, 20 Jan 2021 05:18:05 -0800 (PST)
+        id S2388486AbhATQC1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Jan 2021 11:02:27 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:44105 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391250AbhATQBi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jan 2021 11:01:38 -0500
+Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 7905A564C48
+        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 17:00:54 +0100 (CET)
+Received: by mail-oo1-f51.google.com with SMTP id j8so5907187oon.3
+        for <selinux@vger.kernel.org>; Wed, 20 Jan 2021 08:00:54 -0800 (PST)
+X-Gm-Message-State: AOAM533aL+vPx0SrvrbM6T8DaZnjMolNYbQ0yfEzM8yP621LCvt4TLx2
+        J8GDcUuk0+KU0FQ4H/nhGktRuwZDfBX/zVKDOMA=
+X-Google-Smtp-Source: ABdhPJxUyFIpfxVXI44FbBr9O2+fSsvUunbWtYWmde71fE1djPaADY+1iI91erfUkGwvpL4GHsM0LiqgT4TIWxnNbyk=
+X-Received: by 2002:a4a:81:: with SMTP id 123mr6674031ooh.46.1611158453316;
+ Wed, 20 Jan 2021 08:00:53 -0800 (PST)
 MIME-Version: 1.0
-References: <20210111170622.2613577-1-surenb@google.com> <20210112074629.GG22493@dhcp22.suse.cz>
- <20210112174507.GA23780@redhat.com> <CAJuCfpFQz=x-LvONO3c4iqjKP4NKJMgUuiYc8HACKHAv1Omu0w@mail.gmail.com>
- <20210113142202.GC22493@dhcp22.suse.cz>
-In-Reply-To: <20210113142202.GC22493@dhcp22.suse.cz>
-From:   Jann Horn <jannh@google.com>
-Date:   Wed, 20 Jan 2021 14:17:39 +0100
-Message-ID: <CAG48ez0=QSzuj96+5oVQ2qWqfjedv3oKtfEFzw--C8bzfvj7EQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Suren Baghdasaryan <surenb@google.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>
+References: <20201230200821.3454892-1-nicolas.iooss@m4x.org>
+ <CAFftDdoTGNizbiX68drThF=M_QUyRdCD7zb3MGjuKtU-yi_+Vw@mail.gmail.com>
+ <CAJfZ7==i=8s=AfVERNfadwdNa-OMJbGdsmCXm=waf1c6w_XrRw@mail.gmail.com>
+ <CAJfZ7=kg7Ko8R7NScc+0T3S7dm__7pTE9st0d2gFpGUd7+KY9A@mail.gmail.com> <CAFqZXNuRMPupvO4cc3cmLz9OmDkxqz_=2a-iS_=jUR4h=pMDJQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNuRMPupvO4cc3cmLz9OmDkxqz_=2a-iS_=jUR4h=pMDJQ@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Wed, 20 Jan 2021 17:00:42 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=m7WdqH1Pbba5EG4fdOBsMwsy=zMHWt6T5JvByeJeR3Jw@mail.gmail.com>
+Message-ID: <CAJfZ7=m7WdqH1Pbba5EG4fdOBsMwsy=zMHWt6T5JvByeJeR3Jw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] GitHub Actions: run SELinux testsuite in Fedora
+ virtual machine
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     William Roberts <bill.c.roberts@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Jan 20 17:00:55 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 13, 2021 at 3:22 PM Michal Hocko <mhocko@suse.com> wrote:
-> On Tue 12-01-21 09:51:24, Suren Baghdasaryan wrote:
-> > On Tue, Jan 12, 2021 at 9:45 AM Oleg Nesterov <oleg@redhat.com> wrote:
-> > >
-> > > On 01/12, Michal Hocko wrote:
-> > > >
-> > > > On Mon 11-01-21 09:06:22, Suren Baghdasaryan wrote:
-> > > >
-> > > > > What we want is the ability for one process to influence another process
-> > > > > in order to optimize performance across the entire system while leaving
-> > > > > the security boundary intact.
-> > > > > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
-> > > > > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
-> > > > > and CAP_SYS_NICE for influencing process performance.
-> > > >
-> > > > I have to say that ptrace modes are rather obscure to me. So I cannot
-> > > > really judge whether MODE_READ is sufficient. My understanding has
-> > > > always been that this is requred to RO access to the address space. But
-> > > > this operation clearly has a visible side effect. Do we have any actual
-> > > > documentation for the existing modes?
-> > > >
-> > > > I would be really curious to hear from Jann and Oleg (now Cced).
-> > >
-> > > Can't comment, sorry. I never understood these security checks and never tried.
-> > > IIUC only selinux/etc can treat ATTACH/READ differently and I have no idea what
-> > > is the difference.
-
-Yama in particular only does its checks on ATTACH and ignores READ,
-that's the difference you're probably most likely to encounter on a
-normal desktop system, since some distros turn Yama on by default.
-Basically the idea there is that running "gdb -p $pid" or "strace -p
-$pid" as a normal user will usually fail, but reading /proc/$pid/maps
-still works; so you can see things like detailed memory usage
-information and such, but you're not supposed to be able to directly
-peek into a running SSH client and inject data into the existing SSH
-connection, or steal the cryptographic keys for the current
-connection, or something like that.
-
-> > I haven't seen a written explanation on ptrace modes but when I
-> > consulted Jann his explanation was:
-> >
-> > PTRACE_MODE_READ means you can inspect metadata about processes with
-> > the specified domain, across UID boundaries.
-> > PTRACE_MODE_ATTACH means you can fully impersonate processes with the
-> > specified domain, across UID boundaries.
+On Tue, Jan 19, 2021 at 3:32 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Maybe this would be a good start to document expectations. Some more
-> practical examples where the difference is visible would be great as
-> well.
+> On Wed, Jan 6, 2021 at 9:19 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > On Sat, Jan 2, 2021 at 11:35 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> > >
+> > > On Thu, Dec 31, 2020 at 3:43 PM William Roberts
+> > > <bill.c.roberts@gmail.com> wrote:
+> > > >
+> > > > On Wed, Dec 30, 2020 at 2:12 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> > > > >
+> > > > > Use the Vagrant configuration in scripts/ci in a workflow for GitHub
+> > > > > Actions.
+> > > > >
+> > > > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > > > > ---
+> > > > > Example of run: https://github.com/fishilico/selinux/runs/1627586446
+> > > > >
+> > > > >  .github/workflows/vm_testsuite.yml | 22 ++++++++++++++++++++++
+> > > > >  1 file changed, 22 insertions(+)
+> > > > >  create mode 100644 .github/workflows/vm_testsuite.yml
+> > > > >
+> > > > > diff --git a/.github/workflows/vm_testsuite.yml b/.github/workflows/vm_testsuite.yml
+> > > > > new file mode 100644
+> > > > > index 000000000000..af2fad1e73f5
+> > > > > --- /dev/null
+> > > > > +++ b/.github/workflows/vm_testsuite.yml
+> > > > > @@ -0,0 +1,22 @@
+> > > > > +name: Run SELinux testsuite in a virtual machine
+> > > > > +
+> > > > > +on: [push, pull_request]
+> > > > > +
+> > > > > +jobs:
+> > > > > +  vm_testsuite:
+> > > > > +
+> > > > > +    # Use VirtualBox+vagrant on macOS, as described in https://github.com/actions/virtual-environments/issues/433
+> > > > > +    runs-on: macos-latest
+> > > >
+> > > > Good find, they support nested virtualization.
+> > > >
+> > > > > +
+> > > > > +    steps:
+> > > > > +    - uses: actions/checkout@v2
+> > > > > +
+> > > > > +    - name: Create Vagrant VM
+> > > > > +      run: |
+> > > > > +        cd scripts/ci
+> > > > > +        vagrant up
+> > > > > +
+> > > > > +    - name: Run SELinux testsuite in the VM
+> > > > > +      run: |
+> > > > > +        cd scripts/ci
+> > > > > +        vagrant ssh -- ./run-selinux-test.sh
+> > > > > --
+> > > > > 2.29.2
+> > > > >
+> > > >
+> > > > LGTM ack. Do you have any fork that has a build with this just to see
+> > > > it running?
+> > >
+> > > Yes, I have been testing it on
+> > > https://github.com/fishilico/selinux/actions, with several successful
+> > > builds such as https://github.com/fishilico/selinux/runs/1627586446.
+> > >
+> > > Thanks,
+> > > Nicolas
+> >
+> > For information, I have been experiencing some failures due to timeout
+> > issues while Github Actions creates the Vagrant environment, for
+> > example in https://github.com/fishilico/selinux/runs/1652713066. I am
+> > currently trying to run test jobs with "config.vm.boot_timeout = 600"
+> > (the default value is 300 seconds) in scripts/ci/Vagrantfile and would
+> > like to wait a little bit before merging this patch, to see whether
+> > this fixes my issue. I do not want to introduce instability in our CI
+> > pipeline.
+>
+> Hi Nicholas, any update here? I have drafted a similar patch for
+> selinux-testsuite's own CI, but have been waiting on your findings
+> regarding the timeouts to avoid needless followups.
+>
+> Thanks a lot for finding a way to make this work with GH Actions!
 
-Before documenting the behavior, it would be a good idea to figure out
-what to do with perf_event_open(). That one's weird in that it only
-requires PTRACE_MODE_READ, but actually allows you to sample stuff
-like userspace stack and register contents (if perf_event_paranoid is
-1 or 2). Maybe for SELinux things (and maybe also for Yama), there
-should be a level in between that allows fully inspecting the process
-(for purposes like profiling) but without the ability to corrupt its
-memory or registers or things like that. Or maybe perf_event_open()
-should just use the ATTACH mode.
+Hi,
+Sorry for the delay. I have been quite busy in the past two weeks, but
+I am catching up on the latest patches and messages.
+
+I am still experiencing occasional boot timeouts (for example in
+https://github.com/fishilico/selinux/runs/1667663667), despite using
+"config.vm.boot_timeout = 600" in Vagrantfile. But when this occurs,
+restarting the GitHub Actions job works. So this is quite annoying but
+I believe we can live with it (this means that someone will need to
+click on "Re-run all jobs" on GitHub when this happens). So I merged
+my patch, and if it becomes too annoying, this workflow can be
+disabled in the future.
+
+Nicolas
+
