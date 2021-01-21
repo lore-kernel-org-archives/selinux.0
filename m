@@ -2,264 +2,171 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0845C433DB
-	for <selinux@archiver.kernel.org>; Thu, 21 Jan 2021 20:05:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A941CC433E6
+	for <selinux@archiver.kernel.org>; Thu, 21 Jan 2021 21:18:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B3FB23A54
-	for <selinux@archiver.kernel.org>; Thu, 21 Jan 2021 20:05:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 798CA22BEF
+	for <selinux@archiver.kernel.org>; Thu, 21 Jan 2021 21:18:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbhAUUFo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Jan 2021 15:05:44 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:48386 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726482AbhAUUDf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Jan 2021 15:03:35 -0500
-Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id ACB1020B7192;
-        Thu, 21 Jan 2021 12:02:52 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com ACB1020B7192
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1611259373;
-        bh=84PuZ9THBM7C7BDS14/NZVcdEbnd3n4d/+WYQmnI1Zs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qWKNVGNflSXeaqnZItzC9Kf+2PWvra2B0D9jjxUV752yTPtKq/Sq9ecrhgSy3VEY/
-         UTYZ7teXoiuOZg1YiJppGvVM+GClnb7hrs8am/dMv3hVl9eJzenu4++VncOKJe+R0a
-         YioPeElPfJz32laPhxjbamqRmrIpWwMsVVst5dIw=
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-To:     zohar@linux.ibm.com, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, tusharsu@linux.microsoft.com
-Cc:     tyhicks@linux.microsoft.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: measure state and policy capabilities
-Date:   Thu, 21 Jan 2021 12:01:50 -0800
-Message-Id: <20210121200150.2448-1-nramas@linux.microsoft.com>
-X-Mailer: git-send-email 2.30.0
+        id S1727060AbhAUVSl convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Jan 2021 16:18:41 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:41650 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726705AbhAUVSY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Jan 2021 16:18:24 -0500
+Received: from mail-oi1-f172.google.com (mail-oi1-f172.google.com [209.85.167.172])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id C9A75564857
+        for <selinux@vger.kernel.org>; Thu, 21 Jan 2021 22:17:30 +0100 (CET)
+Received: by mail-oi1-f172.google.com with SMTP id g69so2949798oib.12
+        for <selinux@vger.kernel.org>; Thu, 21 Jan 2021 13:17:30 -0800 (PST)
+X-Gm-Message-State: AOAM532qFyFBRZXUzaxzXMj8mU9zNlTjPSJ8g1fHS9ZPyPVIZvKuCMPO
+        gae6aN9U+9E1vo9bd0Ss4vM/kAxxDd6F/UwvNW8=
+X-Google-Smtp-Source: ABdhPJxQInUKeEYKfvvecphqOAYQ2wIkLpasGGTNR8L7zyqSSfPvYnBUx+4YVIh0TDDMQNAweVvFwu+lOg3QrHoxjS4=
+X-Received: by 2002:a05:6808:99a:: with SMTP id a26mr1139007oic.40.1611263849641;
+ Thu, 21 Jan 2021 13:17:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210106133449.193940-1-cgzones@googlemail.com>
+In-Reply-To: <20210106133449.193940-1-cgzones@googlemail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Thu, 21 Jan 2021 22:17:18 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=kvVcix_qbTywWAF8v3HHrRx13qeAaW9GQrLHR83cDaow@mail.gmail.com>
+Message-ID: <CAJfZ7=kvVcix_qbTywWAF8v3HHrRx13qeAaW9GQrLHR83cDaow@mail.gmail.com>
+Subject: Re: [PATCH] newrole: preserve environment variable XDG_RUNTIME_DIR
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Jan 21 22:17:31 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-SELinux stores the configuration state and the policy capabilities
-in kernel memory.  Changes to this data at runtime would have an impact
-on the security guarantees provided by SELinux.  Measuring SELinux
-configuration state and policy capabilities through IMA subsystem
-provides a tamper-resistant way for an attestation service to remotely
-validate the runtime state.
+On Wed, Jan 6, 2021 at 2:36 PM Christian Göttsche
+<cgzones@googlemail.com> wrote:
+>
+> XDG_RUNTIME_DIR is required for systemctl --user to work.
+> See https://github.com/systemd/systemd/issues/15231
+>
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>  policycoreutils/newrole/newrole.c | 20 +++++++++++++++-----
+>  1 file changed, 15 insertions(+), 5 deletions(-)
+>
+> diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
+> index 36e2ba9c..500969e0 100644
+> --- a/policycoreutils/newrole/newrole.c
+> +++ b/policycoreutils/newrole/newrole.c
+> @@ -466,7 +466,7 @@ static int extract_pw_data(struct passwd *pw_copy)
+>   * Either restore the original environment, or set up a minimal one.
+>   *
+>   * The minimal environment contains:
+> - * TERM, DISPLAY and XAUTHORITY - if they are set, preserve values
+> + * TERM, DISPLAY, XAUTHORITY and XDG_RUNTIME_DIR - if they are set, preserve values
+>   * HOME, SHELL, USER and LOGNAME - set to contents of /etc/passwd
+>   * PATH - set to default value DEFAULT_PATH
+>   *
+> @@ -478,9 +478,11 @@ static int restore_environment(int preserve_environment,
+>         char const *term_env;
+>         char const *display_env;
+>         char const *xauthority_env;
+> -       char *term = NULL;      /* temporary container */
+> -       char *display = NULL;   /* temporary container */
+> +       char const *xdg_runtime_dir_env;
+> +       char *term = NULL;              /* temporary container */
+> +       char *display = NULL;           /* temporary container */
+>         char *xauthority = NULL;        /* temporary container */
+> +       char *xdg_runtime_dir = NULL;   /* temporary container */
+>         int rc;
+>
+>         environ = old_environ;
+> @@ -491,6 +493,7 @@ static int restore_environment(int preserve_environment,
+>         term_env = getenv("TERM");
+>         display_env = getenv("DISPLAY");
+>         xauthority_env = getenv("XAUTHORITY");
+> +       xdg_runtime_dir_env = getenv("XDG_RUNTIME_DIR");        /* needed for `systemd --user` operations */
+>
+>         /* Save the variable values we want */
+>         if (term_env)
+> @@ -499,8 +502,12 @@ static int restore_environment(int preserve_environment,
+>                 display = strdup(display_env);
+>         if (xauthority_env)
+>                 xauthority = strdup(xauthority_env);
+> -       if ((term_env && !term) || (display_env && !display) ||
+> -           (xauthority_env && !xauthority)) {
+> +       if (xdg_runtime_dir_env)
+> +               xdg_runtime_dir = strdup(xdg_runtime_dir_env);
+> +       if ((term_env && !term) ||
+> +           (display_env && !display) ||
+> +           (xauthority_env && !xauthority) ||
+> +           (xdg_runtime_dir_env && !xdg_runtime_dir)) {
+>                 rc = -1;
+>                 goto out;
+>         }
+> @@ -518,6 +525,8 @@ static int restore_environment(int preserve_environment,
+>                 rc |= setenv("DISPLAY", display, 1);
+>         if (xauthority)
+>                 rc |= setenv("XAUTHORITY", xauthority, 1);
+> +       if (xdg_runtime_dir)
+> +               rc |= setenv("XDG_RUNTIME_DIR", xdg_runtime_dir, 1);
+>         rc |= setenv("HOME", pw->pw_dir, 1);
+>         rc |= setenv("SHELL", pw->pw_shell, 1);
+>         rc |= setenv("USER", pw->pw_name, 1);
+> @@ -527,6 +536,7 @@ static int restore_environment(int preserve_environment,
+>         free(term);
+>         free(display);
+>         free(xauthority);
+> +       free(xdg_runtime_dir);
+>         return rc;
+>  }
 
-Measure the configuration state and policy capabilities by calling
-the IMA hook ima_measure_critical_data().
+Hello,
+I am quite uncomfortable with this approach of keeping only one more
+variable: why is only XDG_RUNTIME_DIR added, and not also
+XDG_DATA_DIRS, XDG_SESSION_ID, XDG_SESSION_PATH, etc.? For example
+someone pointed out in
+https://github.com/systemd/systemd/issues/18301#issuecomment-763933678
+that DBUS_SESSION_BUS_ADDRESS could also need to be preserved, so
+there seem to be a long list of items.
 
-To enable SELinux data measurement, the following steps are required:
+Moreover I am wondering whether this would be fine to keep such
+environment variables while newrole uses the information from another
+user (i.e. when newrole is built with USE_AUDIT and
+audit_getloginuid() != getuid() because the user changed their UID ;
+in such a situation newrole resets $HOME and $SHELL to the HOME of
+audit_getloginuid()).
 
- 1, Add "ima_policy=critical_data" to the kernel command line arguments
-    to enable measuring SELinux data at boot time.
-    For example,
-      BOOT_IMAGE=/boot/vmlinuz-5.11.0-rc3+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
+In my humble opinion, I also do not understand why TERM, DISPLAY and
+XAUTHORITY are kept but not LANG, LC_ALL, and all other LC_...
+variables. I understand that there exist dangerous environment
+variables (LD_LIBRARY_PATH, LD_PRELOAD, ...), that resetting the
+environment to a minimal one is nice, and that using "newrole
+--preserve-environment" could seem dangerous. For information, sudo
+has been maintaining a list of "bad" variables, of variables with
+potential dangerous values and of variables preserved by default, in
+https://github.com/sudo-project/sudo/blob/SUDO_1_9_5p1/plugins/sudoers/env.c#L134-L228.
 
- 2, Add the following rule to /etc/ima/ima-policy
-       measure func=CRITICAL_DATA label=selinux
+This being said, I have never really used newrole but to expose a bug
+in "sudo -r" a few years ago
+(https://bugzilla.sudo.ws/show_bug.cgi?id=611 "root user can change
+its SELinux context without password"). Since then I have always used
+sudo to change role, with the advantage that it can be configured to
+keep some environment variables, so I am not really the best reviewer
+for such a patch (and also I am a little bit confused about the
+"isolation guarantees" that newrole implements, and I am not sure
+whether keeping XDG_RUNTIME_DIR would not break such guarantees).
 
-Sample measurement of SELinux state and policy capabilities:
+TL;DR: can another maintainer more familiar with newrole review this
+patch, please?
 
-10 2122...65d8 ima-buf sha256:13c2...1292 selinux-state 696e...303b
-
-To verify the measurement check the following:
-
-Execute the following command to extract the measured data
-from the IMA log for SELinux configuration (selinux-state).
-
-  grep "selinux-state" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6 | xxd -r -p
-
-The output should be a list of key-value pairs. For example,
- initialized=1;enabled=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
-
-To verify the measured data with the current SELinux state:
-
- => enabled should be set to 1 if /sys/fs/selinux folder exists,
-    0 otherwise
-
-For other entries, compare the integer value in the files
- => /sys/fs/selinux/enforce
- => /sys/fs/selinux/checkreqprot
-And, each of the policy capabilities files under
- => /sys/fs/selinux/policy_capabilities
-
-Note that the actual verification would be against an expected state
-and done on a system other than the measured system, typically
-requiring "initialized=1; enabled=1;enforcing=1;checkreqprot=0;" for
-a secure state and then whatever policy capabilities are actually set
-in the expected policy (which can be extracted from the policy itself
-via seinfo, for example).
-
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-This patch is based on
-commit e58bb688f2e4 "Merge branch 'measure-critical-data' into next-integrity"
-in "next-integrity-testing" branch
-
- security/selinux/hooks.c     |  5 +++
- security/selinux/ima.c       | 68 ++++++++++++++++++++++++++++++++++++
- security/selinux/selinuxfs.c | 10 ++++++
- 3 files changed, 83 insertions(+)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 644b17ec9e63..879a0d90615d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -103,6 +103,7 @@
- #include "netlabel.h"
- #include "audit.h"
- #include "avc_ss.h"
-+#include "ima.h"
- 
- struct selinux_state selinux_state;
- 
-@@ -7407,6 +7408,10 @@ int selinux_disable(struct selinux_state *state)
- 
- 	selinux_mark_disabled(state);
- 
-+	mutex_lock(&state->policy_mutex);
-+	selinux_ima_measure_state(state);
-+	mutex_unlock(&state->policy_mutex);
-+
- 	pr_info("SELinux:  Disabled at runtime.\n");
- 
- 	/*
-diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-index 03715893ff97..e65d462d2d30 100644
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -12,6 +12,60 @@
- #include "security.h"
- #include "ima.h"
- 
-+/*
-+ * read_selinux_state - Read selinux configuration settings
-+ *
-+ * @state_str: Return the configuration settings.
-+ * @state_str_len: Size of the configuration settings string
-+ * @state: selinux_state
-+ *
-+ * Return 0 on success, error code on failure
-+ */
-+static int read_selinux_state(char **state_str, int *state_str_len,
-+			      struct selinux_state *state)
-+{
-+	char *buf;
-+	int i, buf_len, curr;
-+	bool initialized = selinux_initialized(state);
-+	bool enabled = !selinux_disabled(state);
-+	bool enforcing = enforcing_enabled(state);
-+	bool checkreqprot = checkreqprot_get(state);
-+
-+	buf_len = snprintf(NULL, 0, "%s=%d;%s=%d;%s=%d;%s=%d;",
-+			   "initialized", initialized,
-+			   "enabled", enabled,
-+			   "enforcing", enforcing,
-+			   "checkreqprot", checkreqprot);
-+
-+	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
-+		buf_len += snprintf(NULL, 0, "%s=%d;",
-+				    selinux_policycap_names[i],
-+				    state->policycap[i]);
-+	}
-+	++buf_len;
-+
-+	buf = kzalloc(buf_len, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	curr = scnprintf(buf, buf_len, "%s=%d;%s=%d;%s=%d;%s=%d;",
-+			 "initialized", initialized,
-+			 "enabled", enabled,
-+			 "enforcing", enforcing,
-+			 "checkreqprot", checkreqprot);
-+
-+	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
-+		curr += scnprintf((buf + curr), (buf_len - curr), "%s=%d;",
-+				  selinux_policycap_names[i],
-+				  state->policycap[i]);
-+	}
-+
-+	*state_str = buf;
-+	*state_str_len = curr;
-+
-+	return 0;
-+}
-+
- /*
-  * selinux_ima_measure_state - Measure hash of the SELinux policy
-  *
-@@ -21,10 +75,24 @@
-  */
- void selinux_ima_measure_state(struct selinux_state *state)
- {
-+	char *state_str = NULL;
-+	int state_str_len;
- 	void *policy = NULL;
- 	size_t policy_len;
- 	int rc = 0;
- 
-+	rc = read_selinux_state(&state_str, &state_str_len, state);
-+	if (rc) {
-+		pr_err("SELinux: %s: failed to read state %d.\n",
-+			__func__, rc);
-+		return;
-+	}
-+
-+	ima_measure_critical_data("selinux", "selinux-state",
-+				  state_str, state_str_len, false);
-+
-+	kfree(state_str);
-+
- 	/*
- 	 * Measure SELinux policy only after initialization is completed.
- 	 */
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 4bde570d56a2..8b561e1c2caa 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -41,6 +41,7 @@
- #include "security.h"
- #include "objsec.h"
- #include "conditional.h"
-+#include "ima.h"
- 
- enum sel_inos {
- 	SEL_ROOT_INO = 2,
-@@ -182,6 +183,10 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 		selinux_status_update_setenforce(state, new_value);
- 		if (!new_value)
- 			call_blocking_lsm_notifier(LSM_POLICY_CHANGE, NULL);
-+
-+		mutex_lock(&state->policy_mutex);
-+		selinux_ima_measure_state(state);
-+		mutex_unlock(&state->policy_mutex);
- 	}
- 	length = count;
- out:
-@@ -762,6 +767,11 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
- 
- 	checkreqprot_set(fsi->state, (new_value ? 1 : 0));
- 	length = count;
-+
-+	mutex_lock(&fsi->state->policy_mutex);
-+	selinux_ima_measure_state(fsi->state);
-+	mutex_unlock(&fsi->state->policy_mutex);
-+
- out:
- 	kfree(page);
- 	return length;
--- 
-2.30.0
+Thanks,
+Nicolas
 
