@@ -2,178 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 438B1C433E0
-	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 09:42:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FB4EC433E6
+	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 10:31:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC15422DBF
-	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 09:42:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A9CA239D4
+	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 10:31:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727681AbhAVJlu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Jan 2021 04:41:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39384 "EHLO
+        id S1727840AbhAVKbI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Jan 2021 05:31:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44617 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727123AbhAVJkx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Jan 2021 04:40:53 -0500
+        by vger.kernel.org with ESMTP id S1727685AbhAVK3Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Jan 2021 05:29:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611308364;
+        s=mimecast20190719; t=1611311272;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=oSR3M07dyFgJcEzp9DifRiG6WWRvYHAEsVWAFxu1C1w=;
-        b=LgL6Xcw9v2A6HR88gq5NxiDuPMcB42pbwJ5C61owhr7pNYGTbscCkBLemrZLlpUl/B0sQQ
-        Mx5h5B8cTsMK02RYqRvaHR+Ai58Snad0x9D6RBWD30G1veACOxOOuekPcEQIqHTmjgl3ZP
-        DS11KKuEabX56x6bR0JF5wwJIrypfAo=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-567-qvX62Th5Mai4ICs-lmp8xA-1; Fri, 22 Jan 2021 04:39:20 -0500
-X-MC-Unique: qvX62Th5Mai4ICs-lmp8xA-1
-Received: by mail-lf1-f72.google.com with SMTP id 137so1202434lfj.11
-        for <selinux@vger.kernel.org>; Fri, 22 Jan 2021 01:39:20 -0800 (PST)
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=0oYnH5ijVQImDknEjCgOlMv5XkAsji2o0eXOtg7DOnk=;
+        b=EHF9EI8rLMcwLxtJ4LhMsMStuWpsUPR9X9CtfIOPtzyGWqA5pZ/hYFq5DJ/0WSKNlBvADS
+        4sYHqnn0Pocu07zQ8+/KI/u5DdlfYZnXanC/rbGFUmoutdYwG5NTJglHsVBmB++VtATLuy
+        qcCdTMziMQz0DVPiVWw5eBK8SEzOtAk=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-209-7ywrJN95NCeEstMHfg-9OQ-1; Fri, 22 Jan 2021 05:27:50 -0500
+X-MC-Unique: 7ywrJN95NCeEstMHfg-9OQ-1
+Received: by mail-ej1-f70.google.com with SMTP id q11so2044396ejd.0
+        for <selinux@vger.kernel.org>; Fri, 22 Jan 2021 02:27:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oSR3M07dyFgJcEzp9DifRiG6WWRvYHAEsVWAFxu1C1w=;
-        b=k6stJaulMP4Kt+Y58E8lCItpsZK/dcYo/ZhhE7LX/E4J6p1VC64VJ5BSP7tuPIGvH2
-         mk3W3wAf+PkqqMjwDI2j/8LbHHd9qO1R81w19yvkosxoyOYP/hkfwhX83HlgkDTr51og
-         sAs90theHwadRnlWrnDgEUM8YnXPaQLBv4R5tYujjsvpdbFKX6xu9swcqLUTJBjBGUZc
-         5oV9Um8VSns8qDFtiCkhSrEI0HZIVuDEkXaEKg+UG4vKmri1mUASa4H9RH7dmMeet/j8
-         IbTi1UcaqR8PGSPf72iWqW53KXK5gnkPtNttVPI6iS1vh95CeoqULAiOA3Nz/HjUb+QA
-         XZlg==
-X-Gm-Message-State: AOAM533wAjgWo8aVd3d0KOGU+O8CXyXstVB1jPCDfph9mg0QOmDJv4y/
-        BFIWyblnrRmzlSMD5J1RjdaQfjYrvpvdgEhX+CXRKX0YsXCETCvqYbxJfrz0cNrYScqscNEDKpF
-        XJo31+vDFKa7iBe0PvsnAQVNNGL31uzOXGQ==
-X-Received: by 2002:a19:7403:: with SMTP id v3mr1138091lfe.67.1611308358671;
-        Fri, 22 Jan 2021 01:39:18 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxi3S5GsrV7sSxnS0TizLebi4uphun2AjWk4sNO9HF92gWZpST0Cr6aS87+b7y2qufvn8HAlxpSubuiCTKWGPo=
-X-Received: by 2002:a19:7403:: with SMTP id v3mr1138081lfe.67.1611308358434;
- Fri, 22 Jan 2021 01:39:18 -0800 (PST)
-MIME-Version: 1.0
-References: <20201230200821.3454892-1-nicolas.iooss@m4x.org>
- <CAFftDdoTGNizbiX68drThF=M_QUyRdCD7zb3MGjuKtU-yi_+Vw@mail.gmail.com>
- <CAJfZ7==i=8s=AfVERNfadwdNa-OMJbGdsmCXm=waf1c6w_XrRw@mail.gmail.com>
- <CAJfZ7=kg7Ko8R7NScc+0T3S7dm__7pTE9st0d2gFpGUd7+KY9A@mail.gmail.com>
- <CAFqZXNuRMPupvO4cc3cmLz9OmDkxqz_=2a-iS_=jUR4h=pMDJQ@mail.gmail.com> <CAJfZ7=m7WdqH1Pbba5EG4fdOBsMwsy=zMHWt6T5JvByeJeR3Jw@mail.gmail.com>
-In-Reply-To: <CAJfZ7=m7WdqH1Pbba5EG4fdOBsMwsy=zMHWt6T5JvByeJeR3Jw@mail.gmail.com>
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0oYnH5ijVQImDknEjCgOlMv5XkAsji2o0eXOtg7DOnk=;
+        b=Pztm5vvbuiqs/9CHogKAlaqTmmGEHVA4B/4TzQX8vU5PRoDE3dofTJC2Y8Q8yo8hL8
+         lgiTsnCPOSv5MD8pBDpFC4+emOyVL9uz9HBj2yz6YVXR4hncA1vpiHSBzuBwT2W24VMB
+         M1mq0NeLLxpHUdaxqHmkjWZnF4Bx9fKV119Lr66aEBFq4auGTe/tRp0+HNwHwWkKY+vI
+         5UF4xptZPF8rZVTEG0FzpivFK0tnvbgMUeyCMuM5bcGPxfHH1H/btnI9Ghv8Yd05XnLo
+         ldPE8CBP+QrdWjMqn9qAuzbKml4O0DfU5wRsV97FOySEYM0GZTv6TKrTT0PClRoN1gG6
+         zfFA==
+X-Gm-Message-State: AOAM533mO9MFvKgETBENE0UWRmg4UIYc0zwP2od+BxyUIHCSyn7+Khfg
+        KWfVCK0i9qw7sHd2JIghp6Motu5961iCBEXb2CjQPLHwRvXqfyqUxlgm+YDobODCGVDcMRbNT78
+        9DExBZYBLO/EsOwOpdLopg1Cbgj7FbOvIU+phMi6rw41jnvf51uJPo/hiJmbs2Xw0g5A9BQ==
+X-Received: by 2002:aa7:db4e:: with SMTP id n14mr2602767edt.101.1611311269076;
+        Fri, 22 Jan 2021 02:27:49 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyatpKKTD3A8DQl3PDb33cFOHYxGgGjqvitMr1NabJWPy2QCcH8uS1N+a9sEEG6iPn2Mka3pw==
+X-Received: by 2002:aa7:db4e:: with SMTP id n14mr2602761edt.101.1611311268852;
+        Fri, 22 Jan 2021 02:27:48 -0800 (PST)
+Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
+        by smtp.gmail.com with ESMTPSA id z1sm5047556edm.89.2021.01.22.02.27.48
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Jan 2021 02:27:48 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 22 Jan 2021 10:39:08 +0100
-Message-ID: <CAFqZXNt5-Uc_jF7YX25QwLAdMmuwkfsspqjaBC2JztG-QoxEVg@mail.gmail.com>
-Subject: Re: [PATCH 1/1] GitHub Actions: run SELinux testsuite in Fedora
- virtual machine
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     William Roberts <bill.c.roberts@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite 0/2] Migrate CI to GH Actions
+Date:   Fri, 22 Jan 2021 11:27:46 +0100
+Message-Id: <20210122102748.38776-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.29.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 5:07 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> On Tue, Jan 19, 2021 at 3:32 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > On Wed, Jan 6, 2021 at 9:19 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > >
-> > > On Sat, Jan 2, 2021 at 11:35 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > > >
-> > > > On Thu, Dec 31, 2020 at 3:43 PM William Roberts
-> > > > <bill.c.roberts@gmail.com> wrote:
-> > > > >
-> > > > > On Wed, Dec 30, 2020 at 2:12 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > > > > >
-> > > > > > Use the Vagrant configuration in scripts/ci in a workflow for GitHub
-> > > > > > Actions.
-> > > > > >
-> > > > > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> > > > > > ---
-> > > > > > Example of run: https://github.com/fishilico/selinux/runs/1627586446
-> > > > > >
-> > > > > >  .github/workflows/vm_testsuite.yml | 22 ++++++++++++++++++++++
-> > > > > >  1 file changed, 22 insertions(+)
-> > > > > >  create mode 100644 .github/workflows/vm_testsuite.yml
-> > > > > >
-> > > > > > diff --git a/.github/workflows/vm_testsuite.yml b/.github/workflows/vm_testsuite.yml
-> > > > > > new file mode 100644
-> > > > > > index 000000000000..af2fad1e73f5
-> > > > > > --- /dev/null
-> > > > > > +++ b/.github/workflows/vm_testsuite.yml
-> > > > > > @@ -0,0 +1,22 @@
-> > > > > > +name: Run SELinux testsuite in a virtual machine
-> > > > > > +
-> > > > > > +on: [push, pull_request]
-> > > > > > +
-> > > > > > +jobs:
-> > > > > > +  vm_testsuite:
-> > > > > > +
-> > > > > > +    # Use VirtualBox+vagrant on macOS, as described in https://github.com/actions/virtual-environments/issues/433
-> > > > > > +    runs-on: macos-latest
-> > > > >
-> > > > > Good find, they support nested virtualization.
-> > > > >
-> > > > > > +
-> > > > > > +    steps:
-> > > > > > +    - uses: actions/checkout@v2
-> > > > > > +
-> > > > > > +    - name: Create Vagrant VM
-> > > > > > +      run: |
-> > > > > > +        cd scripts/ci
-> > > > > > +        vagrant up
-> > > > > > +
-> > > > > > +    - name: Run SELinux testsuite in the VM
-> > > > > > +      run: |
-> > > > > > +        cd scripts/ci
-> > > > > > +        vagrant ssh -- ./run-selinux-test.sh
-> > > > > > --
-> > > > > > 2.29.2
-> > > > > >
-> > > > >
-> > > > > LGTM ack. Do you have any fork that has a build with this just to see
-> > > > > it running?
-> > > >
-> > > > Yes, I have been testing it on
-> > > > https://github.com/fishilico/selinux/actions, with several successful
-> > > > builds such as https://github.com/fishilico/selinux/runs/1627586446.
-> > > >
-> > > > Thanks,
-> > > > Nicolas
-> > >
-> > > For information, I have been experiencing some failures due to timeout
-> > > issues while Github Actions creates the Vagrant environment, for
-> > > example in https://github.com/fishilico/selinux/runs/1652713066. I am
-> > > currently trying to run test jobs with "config.vm.boot_timeout = 600"
-> > > (the default value is 300 seconds) in scripts/ci/Vagrantfile and would
-> > > like to wait a little bit before merging this patch, to see whether
-> > > this fixes my issue. I do not want to introduce instability in our CI
-> > > pipeline.
-> >
-> > Hi Nicholas, any update here? I have drafted a similar patch for
-> > selinux-testsuite's own CI, but have been waiting on your findings
-> > regarding the timeouts to avoid needless followups.
-> >
-> > Thanks a lot for finding a way to make this work with GH Actions!
->
-> Hi,
-> Sorry for the delay. I have been quite busy in the past two weeks, but
-> I am catching up on the latest patches and messages.
->
-> I am still experiencing occasional boot timeouts (for example in
-> https://github.com/fishilico/selinux/runs/1667663667), despite using
-> "config.vm.boot_timeout = 600" in Vagrantfile. But when this occurs,
-> restarting the GitHub Actions job works. So this is quite annoying but
-> I believe we can live with it (this means that someone will need to
-> click on "Re-run all jobs" on GitHub when this happens). So I merged
-> my patch, and if it becomes too annoying, this workflow can be
-> disabled in the future.
+See individual patches for more details.
 
-Ok, thank you for the update. I'll post my testsuite CI patch then.
+Special thanks to Nicholas Iooss, who figured out this approach.
 
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+Note: I plan to merge this tomorrow (along with the userfaultfd test)
+so that we have working CI again. I might do that also earlier if
+someone acks it fast ;)
+
+Ondrej Mosnacek (2):
+  check-syntax: use 'command -v' instead of 'which'
+  Migrate CI to GH Actions
+
+ .github/workflows/checks.yml |  27 +++++++
+ .travis.yml                  |  40 ----------
+ Vagrantfile                  |  65 ++++++++++++++++
+ tools/check-syntax           |   2 +-
+ travis-ci/LICENSE            |   5 --
+ travis-ci/run-kvm-test.sh    | 141 -----------------------------------
+ travis-ci/run-testsuite.sh   |  58 --------------
+ 7 files changed, 93 insertions(+), 245 deletions(-)
+ create mode 100644 .github/workflows/checks.yml
+ delete mode 100644 .travis.yml
+ create mode 100644 Vagrantfile
+ delete mode 100644 travis-ci/LICENSE
+ delete mode 100755 travis-ci/run-kvm-test.sh
+ delete mode 100755 travis-ci/run-testsuite.sh
+
+-- 
+2.29.2
 
