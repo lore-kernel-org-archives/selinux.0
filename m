@@ -2,107 +2,284 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3E12C433E0
-	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 22:33:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69D14C433E6
+	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 23:04:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7967223B17
-	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 22:33:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3515523B1B
+	for <selinux@archiver.kernel.org>; Fri, 22 Jan 2021 23:04:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbhAVTvf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Jan 2021 14:51:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730170AbhAVTYM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Jan 2021 14:24:12 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 110CFC06178B
-        for <selinux@vger.kernel.org>; Fri, 22 Jan 2021 11:23:32 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id g1so7842064edu.4
-        for <selinux@vger.kernel.org>; Fri, 22 Jan 2021 11:23:31 -0800 (PST)
+        id S1729233AbhAVXCb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Jan 2021 18:02:31 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:56876 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729037AbhAVXBB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Jan 2021 18:01:01 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10MMt2f1046469;
+        Fri, 22 Jan 2021 22:59:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=corp-2020-01-29;
+ bh=oQaCgFr07ErL9O4RN7K+jvz+UJndRmk2E1Tydv/RO5A=;
+ b=klwpE54CCpcZiLNZyl/yZIZY4JbUwqoKRUyxSv0qRtdGwFVuExUpof/cQXGCZBAbD8DP
+ +rvFOW/sMJUGNXeKdVIAin8RWYJXER/Bph6n1dv8Bvbg4TRcxEdgMvKq50IlgHqx5WK+
+ Ta32cIX5h+bZbtPn+o9G3gPEPxmpQWGUyEp3RbSBo/004Mq7Ma9vujU6KSjOTz+BMr7V
+ zgGD4smOVys91hu9cvX4MsKSi/cF8Vgdj/ZCpi2ZvFaqFZLJNchhaxezWDvg+Nbtx0Bx
+ tjZ7hwgyswZU/3ZOcjyVEPw5imnnhBIETNZ6HNJEUIs2QrrtKT51FssbrOw+97YasgMF 1A== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 3668qn6j2h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 22 Jan 2021 22:59:55 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10MMxrpg103184;
+        Fri, 22 Jan 2021 22:59:54 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2175.outbound.protection.outlook.com [104.47.58.175])
+        by userp3030.oracle.com with ESMTP id 3668rhjuse-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 22 Jan 2021 22:59:54 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bdhG3XYkR+Hx/ot9r6c86kiN5pT7JkACLblPIzFgRB+KkbdBP0jjkjWUzGQBLZsBES7r93x1KgNYUJPSRWUD8VECLPH296RVV/+p9cA4Vm61Cd04iJC1/HA031sPCvb27yt2iB1DtJbqe0qMQ0koLE8XkgbhBFpX8fv1tmIojzuu8rR9cXL1tJaOnktLZICnCt6lYPTbCH+/ahu8XlK4manDC4V61Tdh+IkDMkzfUDCj5XzMxkL8YnZgwkP+EOWcxSais4Vea0iemvxAfNFLla5W1gOjXMZOckssjlJdHNUM/XNuxnAXSngwjla+70OqHRC/UWe0jpNJvtnclOcGng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oQaCgFr07ErL9O4RN7K+jvz+UJndRmk2E1Tydv/RO5A=;
+ b=Fo89Nxp7ua7oOWTotdeKdasEw63bemk7Sfd8qGopzrUn5NXi2V47ED1HXR2NlQUS9ZN2J30xhP7OuMJrpvidubT3IsyzJPGloqVxMLQ84ZKpoWYzLWdjj9ixACOfsCMB4Mrk8t40nlNNpdrftaklcrxRZur5fQbhq9DeVFUDxFKX8yMNNymN/7nv4pQ4BeA8S/6nwjzHl8XyYSn9CjLvJSOkkLWVBg6rFy+8/T24JK6lmNqhPdwZkWVsF5c/jDwQLCHn51+PHHDG8LIRoagpH6OjQj8ODpG6L41Yfd+tEOASist85lyHpejoP9PbxEjLUNMB0PxV4hKAJmjMNS27vg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=EHkKA0SOvAxdor7YGNW/4jTUyWoPWoOOdjiWjrjEynY=;
-        b=GRr8xUycUe99wQjmbNBJk/Gn6bETCDEAn/FtKH99rKcnycQZQgyQsJ5uSkacTIYyc7
-         MmK7yKSMWBR2f9/JrxeEylL4yhbf0p2HZard6U2gv+wN9bWnaArSc2//lY4NDj5NippY
-         zmyYzI/NnLDTKu5aWTcliRuKQgsj7iUFS2dT0NyJPkFPLkoXMdef1WrXKsu83pYsC24E
-         RqA9uc49Pa/2iDdZ67XoNLYI5L87lkTUabcW5DWCtv5EgcLopChGFN+8uMKZBCi8fdXt
-         IqI9dA8rRxObtDUlJA6vTfxClo080Ogh5FeNp7haSdkcczr0OjcSNKvunn1gqn0987FR
-         7OmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=EHkKA0SOvAxdor7YGNW/4jTUyWoPWoOOdjiWjrjEynY=;
-        b=Vh/+Qh1TEzI7VN0v5/Pt3CEguylScO5KOqEXGsVNOqiJDdRm/IaSopli8bcLX8d4CN
-         82I9L8euN0qIFJTL9tBNnegk/dIWpPEvdYL1FR0pw7KMMf7nJuIkb7JHBk2u4Sk2Ki7b
-         b06yD9z10YiwD9jkuUn+4xm5ZfK9fM810rbn9tlql/3nTYUC1d0KguZQX3Ln1OV0HOJu
-         cHI1oo2+O79NYyRUXIS5gq6FZOYATr0KMn0+lwcuvjVWeJY9hWiLgArOQt9ADwf1ofAm
-         ljNqlc0uRs2I/KQi3r4afRFPj+RKgyuJrYyFErYctVzx+jAgp11u0MF+BUYzU9BkMNgJ
-         EnSQ==
-X-Gm-Message-State: AOAM533ASceTe4tZKE2l6dtpgWRLCPXODUOGWF70vBhcy4AdDSV2nfIp
-        ZYnR4LsjKSlnGU0wTlxkQHd3GJLsMsEDDUe8m6RA
-X-Google-Smtp-Source: ABdhPJzT10q1bu1UPFwSuzjQxK3sjeXcPvz3DG75lRloWm85Qrqipie1IDcEOrq/CVmI6bnHaC5GvT0v7KUxd8BRx+k=
-X-Received: by 2002:a05:6402:4391:: with SMTP id o17mr4433163edc.196.1611343410639;
- Fri, 22 Jan 2021 11:23:30 -0800 (PST)
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oQaCgFr07ErL9O4RN7K+jvz+UJndRmk2E1Tydv/RO5A=;
+ b=xIKV6N2nvqrZpVvT3QPe2z/r6jIp2tv/L1ux7QIzTy9BMBswwMiL7jQTgMex1kMJxCxqF8RjclW/0dkMN7cECvisklMqxPPUAF4gwhEQKWgoFcmyXzouIqT+uVOY7ILdgwR8s5pGvfMMZtCqUvrLEnvj9cgBgKjWF6Dqx31FNlY=
+Authentication-Results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=oracle.com;
+Received: from BYAPR10MB2823.namprd10.prod.outlook.com (2603:10b6:a03:87::15)
+ by SJ0PR10MB4736.namprd10.prod.outlook.com (2603:10b6:a03:2d6::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3784.11; Fri, 22 Jan
+ 2021 22:59:40 +0000
+Received: from BYAPR10MB2823.namprd10.prod.outlook.com
+ ([fe80::adef:30b8:ee4e:c772]) by BYAPR10MB2823.namprd10.prod.outlook.com
+ ([fe80::adef:30b8:ee4e:c772%3]) with mapi id 15.20.3763.014; Fri, 22 Jan 2021
+ 22:59:40 +0000
+From:   Stephen Brennan <stephen.s.brennan@oracle.com>
+To:     Alexey Dobriyan <adobriyan@gmail.com>
+Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH v5] proc: Allow pid_revalidate() during LOOKUP_RCU
+Date:   Fri, 22 Jan 2021 14:59:25 -0800
+Message-Id: <20210122225925.152845-1-stephen.s.brennan@oracle.com>
+X-Mailer: git-send-email 2.27.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [2606:b400:8301:1041::19]
+X-ClientProxiedBy: DM5PR21CA0062.namprd21.prod.outlook.com
+ (2603:10b6:3:129::24) To BYAPR10MB2823.namprd10.prod.outlook.com
+ (2603:10b6:a03:87::15)
 MIME-Version: 1.0
-References: <20210115174356.408688-1-omosnace@redhat.com>
-In-Reply-To: <20210115174356.408688-1-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 22 Jan 2021 14:23:19 -0500
-Message-ID: <CAHC9VhQV6k3LhgyvGmWSn+rQpuFY1wK4K-5p=xk-mVdUK6eDnQ@mail.gmail.com>
-Subject: Re: [PATCH] NFSv4.2: fix return value of _nfs4_get_security_label()
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     linux-nfs@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        David Quigley <dpquigl@davequigley.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from localhost (2606:b400:8301:1041::19) by DM5PR21CA0062.namprd21.prod.outlook.com (2603:10b6:3:129::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3805.6 via Frontend Transport; Fri, 22 Jan 2021 22:59:40 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: fb15d148-8317-4375-2acf-08d8bf29664e
+X-MS-TrafficTypeDiagnostic: SJ0PR10MB4736:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <SJ0PR10MB4736253D790D09FA7B5358E3DBA09@SJ0PR10MB4736.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ScVXhR/da4R1jzBkb1aKX/bVOIr6VB3dFC55MDL5asnAHzs7jx7GgX2FIkfvGaD1p5EmDcpGKpBCoNVAC/6Oa1pyhEIjO+wC6RM0BOU2j75QS/gaVD2ADv3ta2xafVb5JB0u3Ux+H2EFBjuUoVPzASDMaHzIJuCVs17iNISLewYiI+Kj+v/lUBENO0+HbQzRszFw+9eDVQlEYdEdKvu6ACMkTHusUMOC53b+2KIfdloN6H+4sqP5v8Z9egxVau0HfCZencTmgyobA0gUbSfpA1nbQSrNcoTxaDmMrsaJgRfVTHWzmsoYbsCNRz27NO/haN4qxFYEH4TwcrbuBas8G4/dXQl6bHyRP+sFlWAfR1DNfMcVHyunpwoF3xAlo719pzReZvTcU+bb/m19wQnvC3MX+lbn7W8qkhdDVOWFC/Aei43IN80FPwrLvPuVsMQT0QUlkAbtJODbDueq/DMpEA9xptB3SwUsHV3M13XA/d6FP/4rqP4pSER99Vod6x/9MZumpKA05JcnTkgLQFZwAsVo5ioz1Ts2Mvz/t1Ujzujw8+7l1qfwhVEAJ/WAnkWuOK4BTEWg2j2S6vKCN4YYm7ah27ZIb9Y8zkC5seGR+kyRx9N86RXcVEc8/RSRr0cJbIizjZwyTkfql0HhYWCIBNu2ss3AgE2Fyl8qM5UsH2+xX1SSi95CgfTIKAOfKOba2fDrGlCQOJ/BwXsaNzIcWoULl/UoFoOO+x5/XpK+Vc5CrDUmjHXXQbn/1OSr7RXoqF1UheryGy57P24XCPyD4Yrc6HWd20J7kmERroC6aSKX67c4Oj3Q2nUryOvr1jyO05h7x4oe9WnvwYhZxFsQjZE1dW/MKsU2lYnDvLlB2fXz9xlCKscyZTTurxKvv6+L36ATTIzR9BcAsz/pilYv7g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:5;SRV:;IPV:NLI;SFV:SPM;H:BYAPR10MB2823.namprd10.prod.outlook.com;PTR:;CAT:OSPM;SFS:(366004)(136003)(39860400002)(396003)(376002)(346002)(66556008)(186003)(66476007)(36756003)(16526019)(478600001)(2616005)(103116003)(6666004)(86362001)(7416002)(1076003)(66946007)(6486002)(2906002)(6916009)(8936002)(316002)(83380400001)(54906003)(4326008)(8676002)(52116002)(5660300002)(6496006)(23200700001);DIR:OUT;SFP:1501;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?GZUcjLCVY64VMDTeSOrk3T+OK7Y9YB+OFVVQPu4vyGBRghAQZjoPExRoEazi?=
+ =?us-ascii?Q?0L56XLIu2F0fCD4BgM+7T6BE2m6M0rP5tK+ntX2wZyeJ7buF/Pzs235K/Q2Z?=
+ =?us-ascii?Q?mwvU16/VGccBYtl2ZcUcbho96TbURggBLRWpcS+6zpFyLjHuYZaw84wz1OpL?=
+ =?us-ascii?Q?AnuA1KZ9+8PJMUMUi4UXRPNwWvgNgwg1MXRcN21ioK0B/hhcywZh60LBdfqs?=
+ =?us-ascii?Q?E/7umnO3sAs+nH5XALDbZov4m+u7yuD/mTSvUee/vzmWtahx0Cv67bY9+7Hm?=
+ =?us-ascii?Q?4k0LaqDrfq444A5CwMcgZ7zJyUbjhWe2fchvr1BJAzhK92Xg3UNCYJ7o7e1n?=
+ =?us-ascii?Q?Q/lof4s8u1FBdPccPN3wbwEXgWzyBQtpWrF96G0/mbqrw4d7TLI+1bR6+uYT?=
+ =?us-ascii?Q?XREcRZq3VD8P0O/PNZgxwZDujHAw5TQeEauG9bjGY72PK/eE6A8kD8a7IaCt?=
+ =?us-ascii?Q?OJEhuveEeMCB/e8n1qSqCHNxkkN7jQeIyGDk9d+30mJzrmSPcSjEaVt2iOkF?=
+ =?us-ascii?Q?32X4/YfHw4+0RMxruxoHTwcRzUHEW5mP5hk5kTEPKYZalmA289Ld7A4uoTaf?=
+ =?us-ascii?Q?t1qfoAOp/WrbsrCKUszr9vVETS4u4LM4HOGqCOBm34pI+0YjkK0IwZV0AvH+?=
+ =?us-ascii?Q?tuNfWShXIbTX8v+ASt1MA8phP5SudI966woHPq4MfI7l9blFvKoyvaASnldx?=
+ =?us-ascii?Q?0byxpfEeiwy+mOerifPueehw05jGpjDCem4b/0kaC+N4T48NkhEwnwka9h+n?=
+ =?us-ascii?Q?heJ7e3PB/E8bq+Tt1dOUEgA96wseimidmqKRbfyzPxAPUOXG5T7owznyE5qJ?=
+ =?us-ascii?Q?Ju7bvWr8zeRUdxwL5NvP9DlmBkNDB6uyK8RcCkVQQcdC9c10TAA73TYdXfmw?=
+ =?us-ascii?Q?0Uxkseyjbdup8iYJczhGY3zWde3XZkVR6yQVVpakflcNAQcuSvIIPQ2TUAyk?=
+ =?us-ascii?Q?0ckvkeL4yCftzGKfPvqJ+ml0dwKGweFUHBgldgUqxByb/lE/ljFQ7IArNE9e?=
+ =?us-ascii?Q?EqER3e6PbTJDx0NIJjnyLm+I0OM6lsPSrU/fcal/CEJHBhgdONlDw+80t8Vx?=
+ =?us-ascii?Q?DLXOQoz9w5+zW3foSxFDvuPQJUfF0Q=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fb15d148-8317-4375-2acf-08d8bf29664e
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2823.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jan 2021 22:59:40.5927
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Ya2K5TzOyB1LcdrrrCv63hjUS0sxHzfHjn9JwvJpxq2v3ss/5DC5XqEdA39W3+ZlXcReUB1+7fos6Cv69hyR5ZvsvvbPlDbmipbgzSSY3Eo=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB4736
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9872 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 spamscore=0
+ suspectscore=0 phishscore=0 adultscore=0 mlxlogscore=999 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101220119
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9872 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 priorityscore=1501
+ adultscore=0 impostorscore=0 mlxlogscore=999 spamscore=0 suspectscore=0
+ phishscore=0 clxscore=1011 bulkscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101220118
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 15, 2021 at 12:47 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> An xattr 'get' handler is expected to return the length of the value on
-> success, yet _nfs4_get_security_label() (and consequently also
-> nfs4_xattr_get_nfs4_label(), which is used as an xattr handler) returns
-> just 0 on success.
->
-> Fix this by returning label.len instead, which contains the length of
-> the result.
->
-> Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  fs/nfs/nfs4proc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+The pid_revalidate() function drops from RCU into REF lookup mode. When
+many threads are resolving paths within /proc in parallel, this can
+result in heavy spinlock contention on d_lockref as each thread tries to
+grab a reference to the /proc dentry (and drop it shortly thereafter).
 
-Reviewed-by: Paul Moore <paul@paul-moore.com>
+Investigation indicates that it is not necessary to drop RCU in
+pid_revalidate(), as no RCU data is modified and the function never
+sleeps. So, remove the LOOKUP_RCU check.
 
-> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-> index 2f4679a62712a..28465d8aada64 100644
-> --- a/fs/nfs/nfs4proc.c
-> +++ b/fs/nfs/nfs4proc.c
-> @@ -5971,7 +5971,7 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
->                 return ret;
->         if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
->                 return -ENOENT;
-> -       return 0;
-> +       return label.len;
->  }
->
->  static int nfs4_get_security_label(struct inode *inode, void *buf,
-> --
-> 2.29.2
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+---
 
+When running running ~100 parallel instances of "TZ=/etc/localtime ps -fe
+>/dev/null" on a 100CPU machine, the %sys utilization reaches 90%, and perf
+shows the following code path as being responsible for heavy contention on
+the d_lockref spinlock:
+
+      walk_component()
+        lookup_fast()
+          d_revalidate()
+            pid_revalidate() // returns -ECHILD
+          unlazy_child()
+            lockref_get_not_dead(&nd->path.dentry->d_lockref) <-- contention
+
+By applying this patch, %sys utilization falls to around 60% under the same
+workload. Although this particular workload is a bit contrived, we have
+seen some monitoring scripts which produced similarly high %sys time due to
+this contention.
+
+As a result this patch, several procfs methods which were only called in
+ref-walk mode could now be called from RCU mode. To ensure that this patch
+is safe, I audited all the inode get_link and permission() implementations,
+as well as dentry d_revalidate() implementations, in fs/proc. These methods
+are called in the following ways:
+
+* get_link() receives a NULL dentry pointer when called in RCU mode.
+* permission() receives MAY_NOT_BLOCK in the mode parameter when called
+  from RCU.
+* d_revalidate() receives LOOKUP_RCU in flags.
+
+There were generally three groups I found. Group (1) are functions which
+contain a check at the top of the function and return -ECHILD, and so
+appear to be trivially RCU safe (although this is by dropping out of RCU
+completely). Group (2) are functions which have no explicit check, but
+on my audit, I was confident that there were no sleeping function calls,
+and thus were RCU safe as is. However, I would appreciate any additional
+review if possible. Group (3) are functions which might be be unsafe for some
+reason or another.
+
+Group (1):
+ proc_ns_get_link()
+ proc_pid_get_link()
+ map_files_d_revalidate()
+ proc_misc_d_revalidate()
+ tid_fd_revalidate()
+
+Group (2):
+ proc_get_link()
+ proc_self_get_link()
+ proc_thread_self_get_link()
+ proc_fd_permission()
+
+Group (3):
+ pid_revalidate()            -- addressed by my patch
+ proc_pid_permission()       -- addressed by commits by Al
+ proc_map_files_get_link()   -- calls capable() which could audit
+
+I believe proc_map_files_get_link() is safe despite calling into the audit
+framework, however I'm not confident and so I did not include it in Group 2.
+proc_pid_permission() calls into the audit code, and is not safe with
+LSM_AUDIT_DATA_DENTRY or LSM_AUDIT_DATA_INODE. Al's commits[1] address
+these issues. This patch is tested and stable on the workload described
+at the beginning of this cover letter, on a system with selinux enabled.
+
+[1]: 23d8f5b684fc ("make dump_common_audit_data() safe to be called from
+     RCU pathwalk") and 2 previous
+
+Changes in v5:
+- Al's commits are now in linux-next, resolving proc_pid_permission() issue.
+- Add NULL check after d_inode_rcu(dentry), because inode may become NULL if
+  we do not hold a reference.
+Changes in v4:
+- Simplify by unconditionally calling pid_update_inode() from pid_revalidate,
+  and removing the LOOKUP_RCU check.
+Changes in v3:
+- Rather than call pid_update_inode() with flags, create
+  proc_inode_needs_update() to determine whether the call can be skipped.
+- Restore the call to the security hook (see next patch).
+Changes in v2:
+- Remove get_pid_task_rcu_user() and get_proc_task_rcu(), since they were
+  unnecessary.
+- Remove the call to security_task_to_inode().
+
+ fs/proc/base.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index ebea9501afb8..3e105bd05801 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1830,19 +1830,21 @@ static int pid_revalidate(struct dentry *dentry, unsigned int flags)
+ {
+ 	struct inode *inode;
+ 	struct task_struct *task;
++	int ret = 0;
+ 
+-	if (flags & LOOKUP_RCU)
+-		return -ECHILD;
+-
+-	inode = d_inode(dentry);
+-	task = get_proc_task(inode);
++	rcu_read_lock();
++	inode = d_inode_rcu(dentry);
++	if (!inode)
++		goto out;
++	task = pid_task(proc_pid(inode), PIDTYPE_PID);
+ 
+ 	if (task) {
+ 		pid_update_inode(task, inode);
+-		put_task_struct(task);
+-		return 1;
++		ret = 1;
+ 	}
+-	return 0;
++out:
++	rcu_read_unlock();
++	return ret;
+ }
+ 
+ static inline bool proc_inode_is_dead(struct inode *inode)
 -- 
-paul moore
-www.paul-moore.com
+2.27.0
+
