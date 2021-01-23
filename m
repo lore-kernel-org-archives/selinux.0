@@ -2,181 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3968DC43381
-	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 13:11:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5C64C433E6
+	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 13:40:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 055C722DFA
-	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 13:11:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81DCF22AAF
+	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 13:40:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725766AbhAWNLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 23 Jan 2021 08:11:01 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:45691 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725268AbhAWNK7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 23 Jan 2021 08:10:59 -0500
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1l3Ify-0007vJ-RG; Sat, 23 Jan 2021 13:10:03 +0000
-Date:   Sat, 23 Jan 2021 14:09:58 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     "J. Bruce Fields" <bfields@fieldses.org>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v6 05/39] namei: make permission helpers idmapped mount
- aware
-Message-ID: <20210123130958.3t6kvgkl634njpsm@wittgenstein>
-References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
- <20210121131959.646623-6-christian.brauner@ubuntu.com>
- <20210122222632.GB25405@fieldses.org>
+        id S1725769AbhAWNkt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 23 Jan 2021 08:40:49 -0500
+Received: from mailomta12-re.btinternet.com ([213.120.69.105]:31391 "EHLO
+        re-prd-fep-045.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725768AbhAWNks (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 23 Jan 2021 08:40:48 -0500
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-045.btinternet.com with ESMTP
+          id <20210123134005.EEZF30806.re-prd-fep-045.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Sat, 23 Jan 2021 13:40:05 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1611409205; 
+        bh=qKxwPmI+VJt9NbL+iWKPQrXtWhf1y+ImeoxhhtT0/U0=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=idJvoH7c3ItocjbXex/FwVRgkVteFIlef+QKWUyyMR8TARHDu3a6lY+Fi4PNEbr8I3TmttuVQ19aXdwLFk3FT5FyQ/FUMW62Qn33znOsuw4sVqrCuR+/ryUVnue7S49AaDoBUGzWbrN26tJo82eBBuYXFPU5d6Mu+cpLYx/t6Le4pxmCH7G5xW/Ok8l/6YyI78NDLdJmj5ktjXDlZtYp4U/2ce/LpyhER5Y7eD88dROrmX89gWdyhyPkAIEcnxAtpuHg5gcnG5UMXrwfqE5kfVeFz21c/1B96KIScHPE785FpN5VqfjVDM0FngyA+9r+ApND9IlQJq2R9yCIK4Aufg==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-SNCR-Rigid: 5ED9C5062365CE37
+X-Originating-IP: [109.158.127.107]
+X-OWM-Source-IP: 109.158.127.107 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduledrudekgdehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepvdeiudfhvdejteffjeelvdeuvdehgffflefghfefleegieejjeelkeeljeejhfdvnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphepuddtledrudehkedruddvjedruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopegludelvddrudeikedruddrudelkegnpdhinhgvthepuddtledrudehkedruddvjedruddtjedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoeguohhmihhnihgtkhdrghhrihhfthesuggvfhgvnhhsvggtrdhnlheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugidqrhgvfhhpohhlihgthiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+        pdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from [192.168.1.198] (109.158.127.107) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C5062365CE37; Sat, 23 Jan 2021 13:40:05 +0000
+Message-ID: <beff39b090e852de30059d8c9b3f8914011363ae.camel@btinternet.com>
+Subject: Re: [RFC PATCH 1/1] selinux-notebook: Add new section for Embedded
+ Systems
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Dominick Grift <dominick.grift@defensec.nl>,
+        selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
+Date:   Sat, 23 Jan 2021 13:39:58 +0000
+In-Reply-To: <CAHC9VhRXyA-g929Z+eam-gmYpzD=LeJV2W548_3GkHRyrZY0vw@mail.gmail.com>
+References: <20210119105747.9680-1-richard_c_haines@btinternet.com>
+         <20210119105747.9680-2-richard_c_haines@btinternet.com>
+         <ypjleeihm5e0.fsf@defensec.nl>
+         <8776cbb2687a09ed5b4e5b3cf0c50ade6c018fa6.camel@btinternet.com>
+         <CAHC9VhRXyA-g929Z+eam-gmYpzD=LeJV2W548_3GkHRyrZY0vw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.3 (3.38.3-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210122222632.GB25405@fieldses.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 22, 2021 at 05:26:32PM -0500, J. Bruce Fields wrote:
-> If I NFS-exported an idmapped mount, I think I'd expect idmapped clients
-> to see the mapped IDs.
+On Fri, 2021-01-22 at 17:20 -0500, Paul Moore wrote:
+> On Wed, Jan 20, 2021 at 7:37 AM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > On Tue, 2021-01-19 at 14:18 +0100, Dominick Grift wrote:
+> > > Richard Haines <richard_c_haines@btinternet.com> writes:
+> > > 
+> > > > Add a new section and supporting examples for embedded systems.
+> > > 
+> > > Nice initiative, thanks. Looks pretty solid for a first
+> > > iteration.
+> > > 
+> > > I wrote a document for OpenWrt here [1]. Basically the
+> > > instructions
+> > > needed
+> > > to assemble OpenWrt from modules applicable to a particular
+> > > system,
+> > > but also how
+> > > to build on top of it, or now to just fork it so that you can use
+> > > it
+> > > as
+> > > a base for your own policy.
+> > > 
+> > > [1]
+> > > https://github.com/doverride/openwrt-selinux-policy/blob/master/README.md
+> > > 
+> > > I am currently pretty happy with the results so far (its a work
+> > > in
+> > > progress, and there are known loose ends)
+> > > 
+> > > One of the differences compared with android is that SELinux is
+> > > not
+> > > tightly integrated in OpenWrt, and so most of the tough aspects
+> > > are
+> > > addressed in policy
+> > > rather than adding selinux-awareness all over. SELinux in OpenWrt
+> > > is
+> > > therefore
+> > > fairly self-contained and considering the challenges fairly
+> > > robust.
+> > > 
+> > 
+> > Thanks, I've worked these comments into the next version.
 > 
-> Looks like that means taking the user namespace from the struct
-> svc_export everwhere, for example:
+> I just wanted to check and make sure this next version hasn't been
+> posted to the list yet?  Sometimes the list eats things and I wanted
+> to make sure that wasn't the case here.
 > 
-> On Thu, Jan 21, 2021 at 02:19:24PM +0100, Christian Brauner wrote:
-> > index 66f2ef67792a..8d90796e236a 100644
-> > --- a/fs/nfsd/nfsfh.c
-> > +++ b/fs/nfsd/nfsfh.c
-> > @@ -40,7 +40,8 @@ static int nfsd_acceptable(void *expv, struct dentry *dentry)
-> >  		/* make sure parents give x permission to user */
-> >  		int err;
-> >  		parent = dget_parent(tdentry);
-> > -		err = inode_permission(d_inode(parent), MAY_EXEC);
-> > +		err = inode_permission(&init_user_ns,
-> > +				       d_inode(parent), MAY_EXEC);
-> 
-> 		err = inode_permission(exp->ex_path.mnt->mnt_userns,
-> 				      d_inode(parent, MAY_EXEC);
+No not yet. I plan to post new version on Monday after I've done a few
+minor updates.
 
-Hey Bruce, thanks! Imho, the clean approach for now is to not export
-idmapped mounts until we have ported that part of nfs similar to what we
-do for stacking filesystems for now. I've tested and taken this patch
-into my tree:
-
----
-From 7a6a53bca1ecd8db872de1ee81d1a57e1829e525 Mon Sep 17 00:00:00 2001
-From: Christian Brauner <christian.brauner@ubuntu.com>
-Date: Sat, 23 Jan 2021 12:00:02 +0100
-Subject: [PATCH] nfs: do not export idmapped mounts
-
-Prevent nfs from exporting idmapped mounts until we have ported it to
-support exporting idmapped mounts.
-
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: David Howells <dhowells@redhat.com>
-Cc: "J. Bruce Fields" <bfields@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
-/* v2 */
-
-/* v3 */
-
-/* v4 */
-
-/* v5 */
-
-/* v5 */
-patch introduced
-base-commit: 19c329f6808995b142b3966301f217c831e7cf31
----
- fs/nfsd/export.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/fs/nfsd/export.c b/fs/nfsd/export.c
-index 81e7bb12aca6..e456421f68b4 100644
---- a/fs/nfsd/export.c
-+++ b/fs/nfsd/export.c
-@@ -369,8 +369,9 @@ static struct svc_export *svc_export_update(struct svc_export *new,
- 					    struct svc_export *old);
- static struct svc_export *svc_export_lookup(struct svc_export *);
- 
--static int check_export(struct inode *inode, int *flags, unsigned char *uuid)
-+static int check_export(struct path *path, int *flags, unsigned char *uuid)
- {
-+	struct inode *inode = d_inode(path->dentry);
- 
- 	/*
- 	 * We currently export only dirs, regular files, and (for v4
-@@ -394,6 +395,7 @@ static int check_export(struct inode *inode, int *flags, unsigned char *uuid)
- 	 *       or an FSID number (so NFSEXP_FSID or ->uuid is needed).
- 	 * 2:  We must be able to find an inode from a filehandle.
- 	 *       This means that s_export_op must be set.
-+	 * 3: We must not currently be on an idmapped mount.
- 	 */
- 	if (!(inode->i_sb->s_type->fs_flags & FS_REQUIRES_DEV) &&
- 	    !(*flags & NFSEXP_FSID) &&
-@@ -408,6 +410,11 @@ static int check_export(struct inode *inode, int *flags, unsigned char *uuid)
- 		return -EINVAL;
- 	}
- 
-+	if (mnt_user_ns(path->mnt) != &init_user_ns) {
-+		dprintk("exp_export: export of idmapped mounts not yet supported.\n");
-+		return -EINVAL;
-+	}
-+
- 	if (inode->i_sb->s_export_op->flags & EXPORT_OP_NOSUBTREECHK &&
- 	    !(*flags & NFSEXP_NOSUBTREECHECK)) {
- 		dprintk("%s: %s does not support subtree checking!\n",
-@@ -636,8 +643,7 @@ static int svc_export_parse(struct cache_detail *cd, char *mesg, int mlen)
- 				goto out4;
- 		}
- 
--		err = check_export(d_inode(exp.ex_path.dentry), &exp.ex_flags,
--				   exp.ex_uuid);
-+		err = check_export(&exp.ex_path, &exp.ex_flags, exp.ex_uuid);
- 		if (err)
- 			goto out4;
- 		/*
--- 
-2.30.0
 
