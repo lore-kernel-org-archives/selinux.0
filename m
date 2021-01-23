@@ -2,106 +2,181 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E81C433E6
-	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 09:58:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3968DC43381
+	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 13:11:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A6F8222CB9
-	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 09:58:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 055C722DFA
+	for <selinux@archiver.kernel.org>; Sat, 23 Jan 2021 13:11:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726032AbhAWJ6m (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 23 Jan 2021 04:58:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59832 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726986AbhAWJ50 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 23 Jan 2021 04:57:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611395756;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=28AuRnw5wC1Vle97ZHduufjMVR059Zg280ZOOHY9S4U=;
-        b=Ub1iz+imXLbawnSvtPRIqeZLkQ9JhvidnfxYvguYNkrvgYgZwcvq/Qymi2RAv9lk6fed0T
-        Z5EkLC4JQwKhzI+6GVkrhJbh/aku+LInywii627Y0viqF3AAItLi0RPgDzye6UK1cxhBgs
-        4/0Ot0MNX6CrOfjWbyVOnS8NHU4efow=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-345-5O8TTQqQP3ajoAiUn7yjDQ-1; Sat, 23 Jan 2021 04:55:53 -0500
-X-MC-Unique: 5O8TTQqQP3ajoAiUn7yjDQ-1
-Received: by mail-lj1-f198.google.com with SMTP id a2so3532998ljm.23
-        for <selinux@vger.kernel.org>; Sat, 23 Jan 2021 01:55:53 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=28AuRnw5wC1Vle97ZHduufjMVR059Zg280ZOOHY9S4U=;
-        b=JJ6J7xwJ388QDL8EL2/RK+tPm8mYrBDqWzg5jSy6YKI1UNTryonlC7hJukTXsD/vz5
-         k/TnVfnKLSVsp+GivLsRSQ1WUmIANkiLLvoaZOD0NEYu/Oy5InI4yxKJ15cMKwJ7BZDp
-         3dL9LJWji/suwBtk0HvpGOljM8sEpP4g8GW3gv1Mi94qptjuWPgAvxVS66WFRPPpCTLd
-         TveXLCnG6ndYUKeWy7+txPAzQrw2W3FO9CJUmIhKzziemkAGqy7y3OHVB5egurUBkfOq
-         z0YdrjX/beXvHlY7chk+Vo3GocmLpo5hzzzDr3S8jrTJwarOrlTc9nJTF94/T/rQvuyE
-         CbsA==
-X-Gm-Message-State: AOAM531FHeYPazSKE/MkOk5RDa7LhZj6C5QNVUinFa4uDTeP450aumpn
-        LzLeyFdIDfwIETGoRUWJidxtm2ylKJarbmsdUsT4hOCf8r2GZ8hOx4783ZnFUQb8nhyy+LzVwYg
-        WKoOdllc6qAJWq2ruUhJJ0AyKm4xPKQ4+Iw==
-X-Received: by 2002:a2e:2a86:: with SMTP id q128mr943362ljq.158.1611395751618;
-        Sat, 23 Jan 2021 01:55:51 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzSPURjjj890lIN2bkkW6SflMK2DHogoIfwYZldLTF8Vd8DUAo/E2FRvvPPASSUf4dMRoH5/AwpK10f2+eXrPg=
-X-Received: by 2002:a2e:2a86:: with SMTP id q128mr943357ljq.158.1611395751453;
- Sat, 23 Jan 2021 01:55:51 -0800 (PST)
+        id S1725766AbhAWNLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 23 Jan 2021 08:11:01 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:45691 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725268AbhAWNK7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 23 Jan 2021 08:10:59 -0500
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1l3Ify-0007vJ-RG; Sat, 23 Jan 2021 13:10:03 +0000
+Date:   Sat, 23 Jan 2021 14:09:58 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "J. Bruce Fields" <bfields@fieldses.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6 05/39] namei: make permission helpers idmapped mount
+ aware
+Message-ID: <20210123130958.3t6kvgkl634njpsm@wittgenstein>
+References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
+ <20210121131959.646623-6-christian.brauner@ubuntu.com>
+ <20210122222632.GB25405@fieldses.org>
 MIME-Version: 1.0
-References: <20210122102748.38776-1-omosnace@redhat.com>
-In-Reply-To: <20210122102748.38776-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Sat, 23 Jan 2021 10:55:41 +0100
-Message-ID: <CAFqZXNthGnTdptfjMZhX4CXHpuR9TPX_XbyeTOEJwPrOujvfnA@mail.gmail.com>
-Subject: Re: [PATCH testsuite 0/2] Migrate CI to GH Actions
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210122222632.GB25405@fieldses.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 22, 2021 at 11:27 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> See individual patches for more details.
->
-> Special thanks to Nicholas Iooss, who figured out this approach.
->
-> Note: I plan to merge this tomorrow (along with the userfaultfd test)
-> so that we have working CI again. I might do that also earlier if
-> someone acks it fast ;)
->
-> Ondrej Mosnacek (2):
->   check-syntax: use 'command -v' instead of 'which'
->   Migrate CI to GH Actions
->
->  .github/workflows/checks.yml |  27 +++++++
->  .travis.yml                  |  40 ----------
->  Vagrantfile                  |  65 ++++++++++++++++
->  tools/check-syntax           |   2 +-
->  travis-ci/LICENSE            |   5 --
->  travis-ci/run-kvm-test.sh    | 141 -----------------------------------
->  travis-ci/run-testsuite.sh   |  58 --------------
->  7 files changed, 93 insertions(+), 245 deletions(-)
->  create mode 100644 .github/workflows/checks.yml
->  delete mode 100644 .travis.yml
->  create mode 100644 Vagrantfile
->  delete mode 100644 travis-ci/LICENSE
->  delete mode 100755 travis-ci/run-kvm-test.sh
->  delete mode 100755 travis-ci/run-testsuite.sh
->
-> --
-> 2.29.2
+On Fri, Jan 22, 2021 at 05:26:32PM -0500, J. Bruce Fields wrote:
+> If I NFS-exported an idmapped mount, I think I'd expect idmapped clients
+> to see the mapped IDs.
+> 
+> Looks like that means taking the user namespace from the struct
+> svc_export everwhere, for example:
+> 
+> On Thu, Jan 21, 2021 at 02:19:24PM +0100, Christian Brauner wrote:
+> > index 66f2ef67792a..8d90796e236a 100644
+> > --- a/fs/nfsd/nfsfh.c
+> > +++ b/fs/nfsd/nfsfh.c
+> > @@ -40,7 +40,8 @@ static int nfsd_acceptable(void *expv, struct dentry *dentry)
+> >  		/* make sure parents give x permission to user */
+> >  		int err;
+> >  		parent = dget_parent(tdentry);
+> > -		err = inode_permission(d_inode(parent), MAY_EXEC);
+> > +		err = inode_permission(&init_user_ns,
+> > +				       d_inode(parent), MAY_EXEC);
+> 
+> 		err = inode_permission(exp->ex_path.mnt->mnt_userns,
+> 				      d_inode(parent, MAY_EXEC);
 
-Merged and passing:
-https://github.com/SELinuxProject/selinux-testsuite/actions/runs/505560875
+Hey Bruce, thanks! Imho, the clean approach for now is to not export
+idmapped mounts until we have ported that part of nfs similar to what we
+do for stacking filesystems for now. I've tested and taken this patch
+into my tree:
 
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+---
+From 7a6a53bca1ecd8db872de1ee81d1a57e1829e525 Mon Sep 17 00:00:00 2001
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Date: Sat, 23 Jan 2021 12:00:02 +0100
+Subject: [PATCH] nfs: do not export idmapped mounts
+
+Prevent nfs from exporting idmapped mounts until we have ported it to
+support exporting idmapped mounts.
+
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: "J. Bruce Fields" <bfields@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+/* v2 */
+
+/* v3 */
+
+/* v4 */
+
+/* v5 */
+
+/* v5 */
+patch introduced
+base-commit: 19c329f6808995b142b3966301f217c831e7cf31
+---
+ fs/nfsd/export.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/fs/nfsd/export.c b/fs/nfsd/export.c
+index 81e7bb12aca6..e456421f68b4 100644
+--- a/fs/nfsd/export.c
++++ b/fs/nfsd/export.c
+@@ -369,8 +369,9 @@ static struct svc_export *svc_export_update(struct svc_export *new,
+ 					    struct svc_export *old);
+ static struct svc_export *svc_export_lookup(struct svc_export *);
+ 
+-static int check_export(struct inode *inode, int *flags, unsigned char *uuid)
++static int check_export(struct path *path, int *flags, unsigned char *uuid)
+ {
++	struct inode *inode = d_inode(path->dentry);
+ 
+ 	/*
+ 	 * We currently export only dirs, regular files, and (for v4
+@@ -394,6 +395,7 @@ static int check_export(struct inode *inode, int *flags, unsigned char *uuid)
+ 	 *       or an FSID number (so NFSEXP_FSID or ->uuid is needed).
+ 	 * 2:  We must be able to find an inode from a filehandle.
+ 	 *       This means that s_export_op must be set.
++	 * 3: We must not currently be on an idmapped mount.
+ 	 */
+ 	if (!(inode->i_sb->s_type->fs_flags & FS_REQUIRES_DEV) &&
+ 	    !(*flags & NFSEXP_FSID) &&
+@@ -408,6 +410,11 @@ static int check_export(struct inode *inode, int *flags, unsigned char *uuid)
+ 		return -EINVAL;
+ 	}
+ 
++	if (mnt_user_ns(path->mnt) != &init_user_ns) {
++		dprintk("exp_export: export of idmapped mounts not yet supported.\n");
++		return -EINVAL;
++	}
++
+ 	if (inode->i_sb->s_export_op->flags & EXPORT_OP_NOSUBTREECHK &&
+ 	    !(*flags & NFSEXP_NOSUBTREECHECK)) {
+ 		dprintk("%s: %s does not support subtree checking!\n",
+@@ -636,8 +643,7 @@ static int svc_export_parse(struct cache_detail *cd, char *mesg, int mlen)
+ 				goto out4;
+ 		}
+ 
+-		err = check_export(d_inode(exp.ex_path.dentry), &exp.ex_flags,
+-				   exp.ex_uuid);
++		err = check_export(&exp.ex_path, &exp.ex_flags, exp.ex_uuid);
+ 		if (err)
+ 			goto out4;
+ 		/*
+-- 
+2.30.0
 
