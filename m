@@ -2,95 +2,105 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A247C433E0
-	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 02:34:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A30A9C433E6
+	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 03:00:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D30BC22597
-	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 02:34:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5640022E03
+	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 03:00:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730429AbhAYRMY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Jan 2021 12:12:24 -0500
-Received: from mail.hallyn.com ([178.63.66.53]:50740 "EHLO mail.hallyn.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729955AbhAYRLm (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 25 Jan 2021 12:11:42 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Mon, 25 Jan 2021 12:11:14 EST
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id E0A35CAF; Mon, 25 Jan 2021 11:03:16 -0600 (CST)
-Date:   Mon, 25 Jan 2021 11:03:16 -0600
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        smbarber@chromium.org, Phil Estes <estesp@gmail.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v6 23/40] exec: handle idmapped mounts
-Message-ID: <20210125170316.GA8345@mail.hallyn.com>
-References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
- <20210121131959.646623-24-christian.brauner@ubuntu.com>
- <875z3l0y56.fsf@x220.int.ebiederm.org>
- <20210125164404.aullgl3vlajgkef3@wittgenstein>
+        id S1728751AbhAYN3v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Jan 2021 08:29:51 -0500
+Received: from mailomta23-re.btinternet.com ([213.120.69.116]:44728 "EHLO
+        re-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728850AbhAYN3p (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Jan 2021 08:29:45 -0500
+Received: from re-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.54.5])
+          by re-prd-fep-046.btinternet.com with ESMTP
+          id <20210125132808.EBPO13971.re-prd-fep-046.btinternet.com@re-prd-rgout-002.btmx-prd.synchronoss.net>;
+          Mon, 25 Jan 2021 13:28:08 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1611581288; 
+        bh=ohx2KD33CDJ4GidTp0nREOd9cyjrQ3iS1Rsoj/Uh2Rk=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=Y2hqiHOT8uerWnyylLW/eoeKmSbc06cu4iad5cISTF6j18rStvtV1nEOYARlmzO/cO3o1pZ+jsZRAOh2d0IkIgCVq58j/uWVqnJuEpfSza/3mAMv2Yy0oo1ZAZVCbsc6GQYSZQL0syYIiXUreuhmPxRdLGjZCekxmKMAuZi0ry2RG9HCdg35e86UvMOYatswIDo/RK4CdIhNL9fMnWGcaQYXzn8LAoViE4HkBye5tJTqygMX66SUS+DLih0jTnH76Rw31bMSE+iGjwxdKM92jXV61P9pznutCvjjznJXw5hig7pHzEWMZzAwdN9O7ktPVZsorpBQY1cf9tgvTnfCFg==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-SNCR-Rigid: 5ED9C0CC23A04FA5
+X-Originating-IP: [217.42.114.247]
+X-OWM-Source-IP: 217.42.114.247 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdehtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppedvudejrdegvddruddugedrvdegjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepvddujedrgedvrdduudegrddvgeejpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (217.42.114.247) by re-prd-rgout-002.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C0CC23A04FA5; Mon, 25 Jan 2021 13:28:08 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     paul@paul-moore.com,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] selinux-notebook: Fix document links
+Date:   Mon, 25 Jan 2021 13:28:05 +0000
+Message-Id: <20210125132805.12146-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210125164404.aullgl3vlajgkef3@wittgenstein>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 25, 2021 at 05:44:04PM +0100, Christian Brauner wrote:
-> On Mon, Jan 25, 2021 at 10:39:01AM -0600, Eric W. Biederman wrote:
-> > Christian Brauner <christian.brauner@ubuntu.com> writes:
-> > 
-> > > When executing a setuid binary the kernel will verify in bprm_fill_uid()
-> > > that the inode has a mapping in the caller's user namespace before
-> > > setting the callers uid and gid. Let bprm_fill_uid() handle idmapped
-> > > mounts. If the inode is accessed through an idmapped mount it is mapped
-> > > according to the mount's user namespace. Afterwards the checks are
-> > > identical to non-idmapped mounts. If the initial user namespace is
-> > > passed nothing changes so non-idmapped mounts will see identical
-> > > behavior as before.
-> > 
-> > This does not handle the v3 capabilites xattr with embeds a uid.
-> > So at least at that level you are missing some critical conversions.
-> 
-> Thanks for looking. Vfs v3 caps are handled earlier in the series. I'm
-> not sure what you're referring to here. There are tests in xfstests that
-> verify vfs3 capability behavior.
+Fix navigation links and supporting text.
 
-*just* to make sure i'm not misunderstanding - s/vfs3/v3/ right?
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ src/configuration_files.md       | 12 ++++++------
+ src/implementing_seaware_apps.md |  3 ++-
+ 2 files changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/src/configuration_files.md b/src/configuration_files.md
+index 0d48d09..9fd8d8b 100644
+--- a/src/configuration_files.md
++++ b/src/configuration_files.md
+@@ -21,14 +21,14 @@ as follows:
+ 2. [**Policy Store Configuration Files**](policy_store_config_files.md#policy-store-configuration-files)
+    that are managed by the **semanage**(8) and **semodule**(8) commands. These
+    are used to build the majority of the
+-   [Policy Configuration Files](policy_config_files.md#policy-configuration-files)
++   [**Policy Configuration Files**](policy_config_files.md#policy-configuration-files)
+    and should NOT be edited as together they describe the overall 'policy' configuration.
+-3. [**Policy Configuration Files**](policy_config_files.md) used by an active
+-   (run time) policy/system. Note that there can be multiple policy
+-   configurations on a system (e.g. */etc/selinux/targeted* and
++3. [**Policy Configuration Files**](policy_config_files.md#policy-configuration-files)
++   used by an active (run time) policy/system. Note that there can be multiple
++   policy configurations on a system (e.g. */etc/selinux/targeted* and
+    */etc/selinux/mls*), however only one can be the active policy.
+-4. [**SELinux Filesystem files - Table 6: SELinux filesystem Information**](lsm_selinux.md#selinux-filesystem)
+-   located under the */sys/fs/selinux* directory and reflect the current
++4. The [**SELinux Filesystem**](lsm_selinux.md#selinux-filesystem)
++   located under the */sys/fs/selinux* directory and reflects the current
+    configuration of SELinux for the active policy. This area is used
+    extensively by the libselinux library for userspace object managers and
+    other SELinux-aware applications. These files and directories should not
+diff --git a/src/implementing_seaware_apps.md b/src/implementing_seaware_apps.md
+index ee38258..62e04d9 100644
+--- a/src/implementing_seaware_apps.md
++++ b/src/implementing_seaware_apps.md
+@@ -86,7 +86,8 @@ developing SELinux-aware applications and object managers using
+     *libselinux* 2.0.99, with Linux kernel 2.6.37 and above.
+ 11. There are changes to the way contexts are computed for sockets in
+     kernels 2.6.39 and above as described in the
+-    [**Computing Security Contexts**](computing_security_contexts.md) section.
++    [**Computing Security Contexts**](computing_security_contexts.md#computing-security-contexts)
++    section.
+     The functions affected by this are: ***avc_compute_create**(3)*,
+     ***avc_compute_member**(3)*, ***security_compute_create**(3)*,
+     ***security_compute_member**(3)* and
+-- 
+2.29.2
+
