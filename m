@@ -2,114 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50978C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 825CAC433E6
 	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 19:12:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2519A22A85
+	by mail.kernel.org (Postfix) with ESMTP id 5833C22A84
 	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 19:12:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389022AbhAZF4z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Jan 2021 00:56:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732032AbhAZCDc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Jan 2021 21:03:32 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003CEC061786
-        for <selinux@vger.kernel.org>; Mon, 25 Jan 2021 16:14:12 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id o10so582451wmc.1
-        for <selinux@vger.kernel.org>; Mon, 25 Jan 2021 16:14:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Vz7Wx3SXxaN+HsWZGzhnHFVDxGZAroM2JwH4bW0nEhM=;
-        b=WulKks/yUSJwwUol1tm6wB9TJkukXvTYKvdB2ceQgXomgHQMSU12Q0ukxoGukdPNr8
-         HGAjlTfWtd5HvJzNWyfyy0crd2HH+/syiXerMgHWpnjKX2vL/MjmxngjAkb9Ff2XGB5O
-         2/Kvk7D9kj7xdMH5EBWmOi+BQjBDhtTEW1Gfpa+yh52P9hNpbK7Lr+NmN28rhnuHGel+
-         dO62MQLsOV4fBk09tq1r4tc2zrJUdUMA+jCyQbkJYdTVuaGSVsKAM9Ytr4Ozzu8qwh3t
-         JdPEfNF7P53HhUk4Nx0zB6G5G3rIGu1xvUCi6Vt61QOVMpU8sH7py/rv4XF0bp+yCvWD
-         rXZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Vz7Wx3SXxaN+HsWZGzhnHFVDxGZAroM2JwH4bW0nEhM=;
-        b=IhDRLmbekB/ydYA5WU002GsMBqalk82Qs4q/5Qi9fB6paRbB2T00fS5jhpvhPUO+Uy
-         pQbqgkbZK9PH3uVZzBGbTMVDcxMbgsAbOMWpYawjiDUuaYrlNBwjtuPzg3WFmIGT+48i
-         AVLmtvavWLvVN1F0kxWtEfuOPWt2QhBQvZDdWUuSinBLdZhk4EilfQbHuhOL6lZmR9hM
-         kdw0OBYEI4ZNx018FCAmVpJowHLiE3+7kOD5f9Ao+JhcijXtry5CwCw0F/PpfrhSx0hi
-         6WQyB6kFfaEV1AMUjbWeSd7EG0gYUhdgsIO5QymkTaVj+regDVbKOgLadfl/YcPdFZbg
-         Fd/w==
-X-Gm-Message-State: AOAM531BYBEN09v8EkZ1JNmeh7YRPuzVEd4gzAACX8HW92B1JspQNYSV
-        S4JuSvzu8Dmaa1VAZG5TD9hZFnD6ENTmzLfkdquN9w==
-X-Google-Smtp-Source: ABdhPJytUOFxylJO9GQfWCZxkgmC08Bcn5+HCLBHOxR+Vvj6poU2sA/tL72vkNkKpaNCAmBDljbV4s4UOoZM8sJO7UI=
-X-Received: by 2002:a1c:7906:: with SMTP id l6mr2247505wme.22.1611620051415;
- Mon, 25 Jan 2021 16:14:11 -0800 (PST)
-MIME-Version: 1.0
-References: <20210120202337.1481402-1-surenb@google.com> <20210125131935.GI827@dhcp22.suse.cz>
-In-Reply-To: <20210125131935.GI827@dhcp22.suse.cz>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Mon, 25 Jan 2021 16:14:00 -0800
-Message-ID: <CAJuCfpGu_x4vxXejTUfD4Mjun=qJOsdoRs42gQhiv30EnED=nA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] process_madvise.2: Add process_madvise man page
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     linux-man@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
+        id S2389021AbhAZF4w (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Jan 2021 00:56:52 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:52059 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728867AbhAYRHd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Jan 2021 12:07:33 -0500
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1l45K7-0006lj-0h; Mon, 25 Jan 2021 17:06:43 +0000
+Date:   Mon, 25 Jan 2021 18:06:40 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "Serge E. Hallyn" <serge@hallyn.com>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        smbarber@chromium.org, Phil Estes <estesp@gmail.com>,
         Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>
-Content-Type: text/plain; charset="UTF-8"
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6 23/40] exec: handle idmapped mounts
+Message-ID: <20210125170640.6ycsyod2ftxnzjzy@wittgenstein>
+References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
+ <20210121131959.646623-24-christian.brauner@ubuntu.com>
+ <875z3l0y56.fsf@x220.int.ebiederm.org>
+ <20210125164404.aullgl3vlajgkef3@wittgenstein>
+ <20210125170316.GA8345@mail.hallyn.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210125170316.GA8345@mail.hallyn.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 25, 2021 at 5:19 AM 'Michal Hocko' via kernel-team
-<kernel-team@android.com> wrote:
->
-> On Wed 20-01-21 12:23:37, Suren Baghdasaryan wrote:
-> [...]
-> >     MADV_COLD (since Linux 5.4.1)
-> >         Deactivate a given range of pages by moving them from active to
-> >         inactive LRU list. This is done to accelerate the reclaim of these
-> >         pages. The advice might be ignored for some pages in the range when it
-> >         is not applicable.
->
-> I do not think we want to talk about active/inactive LRU lists here.
-> Wouldn't it be sufficient to say
-> Deactive a given range of pages which will make them a more probable
-> reclaim target should there be a memory pressure. This is a
-> non-destructive operation.
+On Mon, Jan 25, 2021 at 11:03:16AM -0600, Serge Hallyn wrote:
+> On Mon, Jan 25, 2021 at 05:44:04PM +0100, Christian Brauner wrote:
+> > On Mon, Jan 25, 2021 at 10:39:01AM -0600, Eric W. Biederman wrote:
+> > > Christian Brauner <christian.brauner@ubuntu.com> writes:
+> > > 
+> > > > When executing a setuid binary the kernel will verify in bprm_fill_uid()
+> > > > that the inode has a mapping in the caller's user namespace before
+> > > > setting the callers uid and gid. Let bprm_fill_uid() handle idmapped
+> > > > mounts. If the inode is accessed through an idmapped mount it is mapped
+> > > > according to the mount's user namespace. Afterwards the checks are
+> > > > identical to non-idmapped mounts. If the initial user namespace is
+> > > > passed nothing changes so non-idmapped mounts will see identical
+> > > > behavior as before.
+> > > 
+> > > This does not handle the v3 capabilites xattr with embeds a uid.
+> > > So at least at that level you are missing some critical conversions.
+> > 
+> > Thanks for looking. Vfs v3 caps are handled earlier in the series. I'm
+> > not sure what you're referring to here. There are tests in xfstests that
+> > verify vfs3 capability behavior.
+> 
+> *just* to make sure i'm not misunderstanding - s/vfs3/v3/ right?
 
-That sounds better. Will update in the next version.
-
->
-> Other than that, looks good to me from the content POV.
->
-> Thanks!
-
-Thanks for the review Michal!
-
-> --
-> Michal Hocko
-> SUSE Labs
->
-> --
-> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
->
+Yes, in my mind it's always as "vfs v3 caps -> vfs3 caps". Sorry for the
+confusion.
