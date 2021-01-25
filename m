@@ -2,72 +2,221 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1743C433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 939E5C433E6
 	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 19:12:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8874523109
+	by mail.kernel.org (Postfix) with ESMTP id 719BA22B37
 	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 19:12:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727397AbhAZF4i (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Jan 2021 00:56:38 -0500
-Received: from mx2.suse.de ([195.135.220.15]:48444 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728757AbhAYNVT (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 25 Jan 2021 08:21:19 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1611580783; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        id S2388857AbhAZF4m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Jan 2021 00:56:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50694 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730275AbhAYPpd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Jan 2021 10:45:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611589445;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=hvyCg1tArEMURZiCaw0o7rfIdGticTsjrcjPx+/JdNc=;
-        b=A4Vm72+PELLClS/Iy715Uik0vACGATsRtA2iQMVkLUk7pB1NNEp+sD+oPc2YAwpCTCYFWo
-        S6cgCM5W61YrqU3UsTpXfJsNEmMTLpZ92x7E+4u1Hve30Vlh8wUkj93JfsZaBNc0InUmqa
-        E/9B6Y8rEAQXzzf6L5pfNetYN4lnJf8=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id D4325AAC6;
-        Mon, 25 Jan 2021 13:19:42 +0000 (UTC)
-Date:   Mon, 25 Jan 2021 14:19:35 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     linux-man@vger.kernel.org, akpm@linux-foundation.org,
-        jannh@google.com, keescook@chromium.org, jeffv@google.com,
-        minchan@kernel.org, shakeelb@google.com, rientjes@google.com,
-        edgararriaga@google.com, timmurray@google.com, linux-mm@kvack.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-api@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com
-Subject: Re: [PATCH 1/1] process_madvise.2: Add process_madvise man page
-Message-ID: <20210125131935.GI827@dhcp22.suse.cz>
-References: <20210120202337.1481402-1-surenb@google.com>
+        bh=KqL2HMb0MGgl4H/ej8Ody4hZh50x7AhurKsdID6/vTE=;
+        b=dG3PBN86JIjRZ2qerqJHc0/t+/4BrNFi1vyqEDvruHs8LZGgWujJ5ypgR4VHskYe81SZqq
+        sGL33hho+ewEJHk6DFkdN6oHkna5nZX7NmZHZdVuNoQR9b8S8BAD4sYvE6I1oFpIVZkEDT
+        5ZtJRLuAbtL0tMDiCH2MAeF6jERwovM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-345-OiRQeDzYM2Kb3_WOa-7r-A-1; Mon, 25 Jan 2021 10:44:00 -0500
+X-MC-Unique: OiRQeDzYM2Kb3_WOa-7r-A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 76328107ACE4;
+        Mon, 25 Jan 2021 15:43:59 +0000 (UTC)
+Received: from localhost (unknown [10.40.193.58])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id ACE4A60C47;
+        Mon, 25 Jan 2021 15:43:58 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        Christian =?utf-8?Q?G=C3=B6ttsc?= =?utf-8?Q?he?= 
+        <cgzones@googlemail.com>
+Subject: Re: [PATCH] newrole: preserve environment variable XDG_RUNTIME_DIR
+In-Reply-To: <CAJfZ7=kvVcix_qbTywWAF8v3HHrRx13qeAaW9GQrLHR83cDaow@mail.gmail.com>
+References: <20210106133449.193940-1-cgzones@googlemail.com>
+ <CAJfZ7=kvVcix_qbTywWAF8v3HHrRx13qeAaW9GQrLHR83cDaow@mail.gmail.com>
+Date:   Mon, 25 Jan 2021 16:43:57 +0100
+Message-ID: <87im7l10oy.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210120202337.1481402-1-surenb@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed 20-01-21 12:23:37, Suren Baghdasaryan wrote:
-[...]
->     MADV_COLD (since Linux 5.4.1)
->         Deactivate a given range of pages by moving them from active to
->         inactive LRU list. This is done to accelerate the reclaim of these
->         pages. The advice might be ignored for some pages in the range when it
->         is not applicable.
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
-I do not think we want to talk about active/inactive LRU lists here.
-Wouldn't it be sufficient to say
-Deactive a given range of pages which will make them a more probable
-reclaim target should there be a memory pressure. This is a
-non-destructive operation.
+> On Wed, Jan 6, 2021 at 2:36 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+>>
+>> XDG_RUNTIME_DIR is required for systemctl --user to work.
+>> See https://github.com/systemd/systemd/issues/15231
+>>
+>> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>> ---
+>>  policycoreutils/newrole/newrole.c | 20 +++++++++++++++-----
+>>  1 file changed, 15 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole=
+/newrole.c
+>> index 36e2ba9c..500969e0 100644
+>> --- a/policycoreutils/newrole/newrole.c
+>> +++ b/policycoreutils/newrole/newrole.c
+>> @@ -466,7 +466,7 @@ static int extract_pw_data(struct passwd *pw_copy)
+>>   * Either restore the original environment, or set up a minimal one.
+>>   *
+>>   * The minimal environment contains:
+>> - * TERM, DISPLAY and XAUTHORITY - if they are set, preserve values
+>> + * TERM, DISPLAY, XAUTHORITY and XDG_RUNTIME_DIR - if they are set, pre=
+serve values
+>>   * HOME, SHELL, USER and LOGNAME - set to contents of /etc/passwd
+>>   * PATH - set to default value DEFAULT_PATH
+>>   *
+>> @@ -478,9 +478,11 @@ static int restore_environment(int preserve_environ=
+ment,
+>>         char const *term_env;
+>>         char const *display_env;
+>>         char const *xauthority_env;
+>> -       char *term =3D NULL;      /* temporary container */
+>> -       char *display =3D NULL;   /* temporary container */
+>> +       char const *xdg_runtime_dir_env;
+>> +       char *term =3D NULL;              /* temporary container */
+>> +       char *display =3D NULL;           /* temporary container */
+>>         char *xauthority =3D NULL;        /* temporary container */
+>> +       char *xdg_runtime_dir =3D NULL;   /* temporary container */
+>>         int rc;
+>>
+>>         environ =3D old_environ;
+>> @@ -491,6 +493,7 @@ static int restore_environment(int preserve_environm=
+ent,
+>>         term_env =3D getenv("TERM");
+>>         display_env =3D getenv("DISPLAY");
+>>         xauthority_env =3D getenv("XAUTHORITY");
+>> +       xdg_runtime_dir_env =3D getenv("XDG_RUNTIME_DIR");        /* nee=
+ded for `systemd --user` operations */
+>>
+>>         /* Save the variable values we want */
+>>         if (term_env)
+>> @@ -499,8 +502,12 @@ static int restore_environment(int preserve_environ=
+ment,
+>>                 display =3D strdup(display_env);
+>>         if (xauthority_env)
+>>                 xauthority =3D strdup(xauthority_env);
+>> -       if ((term_env && !term) || (display_env && !display) ||
+>> -           (xauthority_env && !xauthority)) {
+>> +       if (xdg_runtime_dir_env)
+>> +               xdg_runtime_dir =3D strdup(xdg_runtime_dir_env);
+>> +       if ((term_env && !term) ||
+>> +           (display_env && !display) ||
+>> +           (xauthority_env && !xauthority) ||
+>> +           (xdg_runtime_dir_env && !xdg_runtime_dir)) {
+>>                 rc =3D -1;
+>>                 goto out;
+>>         }
+>> @@ -518,6 +525,8 @@ static int restore_environment(int preserve_environm=
+ent,
+>>                 rc |=3D setenv("DISPLAY", display, 1);
+>>         if (xauthority)
+>>                 rc |=3D setenv("XAUTHORITY", xauthority, 1);
+>> +       if (xdg_runtime_dir)
+>> +               rc |=3D setenv("XDG_RUNTIME_DIR", xdg_runtime_dir, 1);
+>>         rc |=3D setenv("HOME", pw->pw_dir, 1);
+>>         rc |=3D setenv("SHELL", pw->pw_shell, 1);
+>>         rc |=3D setenv("USER", pw->pw_name, 1);
+>> @@ -527,6 +536,7 @@ static int restore_environment(int preserve_environm=
+ent,
+>>         free(term);
+>>         free(display);
+>>         free(xauthority);
+>> +       free(xdg_runtime_dir);
+>>         return rc;
+>>  }
+>
+> Hello,
+> I am quite uncomfortable with this approach of keeping only one more
+> variable: why is only XDG_RUNTIME_DIR added, and not also
+> XDG_DATA_DIRS, XDG_SESSION_ID, XDG_SESSION_PATH, etc.? For example
+> someone pointed out in
+> https://github.com/systemd/systemd/issues/18301#issuecomment-763933678
+> that DBUS_SESSION_BUS_ADDRESS could also need to be preserved, so
+> there seem to be a long list of items.
+>
+> Moreover I am wondering whether this would be fine to keep such
+> environment variables while newrole uses the information from another
+> user (i.e. when newrole is built with USE_AUDIT and
+> audit_getloginuid() !=3D getuid() because the user changed their UID ;
+> in such a situation newrole resets $HOME and $SHELL to the HOME of
+> audit_getloginuid()).
+>
+> In my humble opinion, I also do not understand why TERM, DISPLAY and
+> XAUTHORITY are kept but not LANG, LC_ALL, and all other LC_...
+> variables. I understand that there exist dangerous environment
+> variables (LD_LIBRARY_PATH, LD_PRELOAD, ...), that resetting the
+> environment to a minimal one is nice, and that using "newrole
+> --preserve-environment" could seem dangerous. For information, sudo
+> has been maintaining a list of "bad" variables, of variables with
+> potential dangerous values and of variables preserved by default, in
+> https://github.com/sudo-project/sudo/blob/SUDO_1_9_5p1/plugins/sudoers/en=
+v.c#L134-L228.
+>
+> This being said, I have never really used newrole but to expose a bug
+> in "sudo -r" a few years ago
+> (https://bugzilla.sudo.ws/show_bug.cgi?id=3D611 "root user can change
+> its SELinux context without password"). Since then I have always used
+> sudo to change role, with the advantage that it can be configured to
+> keep some environment variables, so I am not really the best reviewer
+> for such a patch (and also I am a little bit confused about the
+> "isolation guarantees" that newrole implements, and I am not sure
+> whether keeping XDG_RUNTIME_DIR would not break such guarantees).
+>
+> TL;DR: can another maintainer more familiar with newrole review this
+> patch, please?
+>
 
-Other than that, looks good to me from the content POV.
+From my POV, it does not make much sense to keep XDG_RUNTIME_DIR
 
-Thanks!
--- 
-Michal Hocko
-SUSE Labs
+As I see it when you change a role, type or level, it's like changing a
+linux user and it should be completely new session.
+
+Also using Fedora policy, sysadm_t is not even allow to get status of
+staff_t units:
+
+    [staff@rawhide ~]$ echo $XDG_RUNTIME_DIR
+    /run/user/1001
+    [staff@rawhide ~]$ newrole -r sysadm_r
+    Password:=20
+    [staff@rawhide ~]$ export XDG_RUNTIME_DIR=3D/run/user/1001
+    [staff@rawhide ~]$ systemctl --user list-units
+    Failed to list units: Access denied
+
+    systemd[33326]: selinux: avc:  denied  { status } for auid=3Dn/a uid=3D=
+1001 gid=3D1001 cmdline=3D"" scontext=3Dstaff_u:sysadm_r:sysadm_t:s0-s0:c0.=
+c1023 tcontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=3Dsystem per=
+missive=3D0
+    systemd[33326]: selinux: avc:  denied  { status } for auid=3Dn/a uid=3D=
+1001 gid=3D1001 cmdline=3D"" scontext=3Dstaff_u:sysadm_r:sysadm_t:s0-s0:c0.=
+c1023 tcontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=3Dsystem per=
+missive=3D0
+
+newrole could change level as well and it would be simply inappropriate
+to control systemd user session using different levels.
+
+And you don't need to run newrole to control your user systemd session.
+
