@@ -2,221 +2,368 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 939E5C433E6
-	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 19:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6973C433E0
+	for <selinux@archiver.kernel.org>; Wed, 27 Jan 2021 00:42:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 719BA22B37
-	for <selinux@archiver.kernel.org>; Tue, 26 Jan 2021 19:12:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B49A20679
+	for <selinux@archiver.kernel.org>; Wed, 27 Jan 2021 00:42:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388857AbhAZF4m (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Jan 2021 00:56:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50694 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730275AbhAYPpd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Jan 2021 10:45:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611589445;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=KqL2HMb0MGgl4H/ej8Ody4hZh50x7AhurKsdID6/vTE=;
-        b=dG3PBN86JIjRZ2qerqJHc0/t+/4BrNFi1vyqEDvruHs8LZGgWujJ5ypgR4VHskYe81SZqq
-        sGL33hho+ewEJHk6DFkdN6oHkna5nZX7NmZHZdVuNoQR9b8S8BAD4sYvE6I1oFpIVZkEDT
-        5ZtJRLuAbtL0tMDiCH2MAeF6jERwovM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-345-OiRQeDzYM2Kb3_WOa-7r-A-1; Mon, 25 Jan 2021 10:44:00 -0500
-X-MC-Unique: OiRQeDzYM2Kb3_WOa-7r-A-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 76328107ACE4;
-        Mon, 25 Jan 2021 15:43:59 +0000 (UTC)
-Received: from localhost (unknown [10.40.193.58])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id ACE4A60C47;
-        Mon, 25 Jan 2021 15:43:58 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        Christian =?utf-8?Q?G=C3=B6ttsc?= =?utf-8?Q?he?= 
-        <cgzones@googlemail.com>
-Subject: Re: [PATCH] newrole: preserve environment variable XDG_RUNTIME_DIR
-In-Reply-To: <CAJfZ7=kvVcix_qbTywWAF8v3HHrRx13qeAaW9GQrLHR83cDaow@mail.gmail.com>
-References: <20210106133449.193940-1-cgzones@googlemail.com>
- <CAJfZ7=kvVcix_qbTywWAF8v3HHrRx13qeAaW9GQrLHR83cDaow@mail.gmail.com>
-Date:   Mon, 25 Jan 2021 16:43:57 +0100
-Message-ID: <87im7l10oy.fsf@redhat.com>
+        id S1730767AbhA0Alk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Jan 2021 19:41:40 -0500
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com ([66.163.190.38]:42244
+        "EHLO sonic307-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732059AbhAZRAI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jan 2021 12:00:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1611680361; bh=Lzjaij8NdsHuYdkpeUzszfcOi0xA6IMY+POeXrHp2Uc=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=FIP+wBo3Qld2lq3ByEiDJ0eioTm+HK8Cp/MDJTZjrD+T38RCO0T9hLslEZh/yFmLUe9XhSAVkOi1ZJPghleUOWQ7OyLtxJL8kuCLbTBMteZdqAAmSHacoG7ThEcJtn6Eo0zWkhmgEV87FdBLcW4xfwWSb3m4b+gGY0BMJ3+V4TAa7GsJrTS8Ve1klipgmejmMXg7vV3u/CA/Up9tF0D3Eaikuz7+08cDmL9srn+z8R2I3du706AL3ME7oG3miet9RnLFh56XxUI7JBkrxV3/F7XyUsNQEJyJmJ+FkgBnOLf6VBwdEfekorXWDADjKTQneHl1vAlxeJyHq4UlvTVw1A==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1611680361; bh=q+4xxsf5YBT5CQDRFwfjwiYgzNNafVwTr0FMN2q9vx2=; h=From:To:Subject:Date:From:Subject:Reply-To; b=R9Up0VqAvdpwZ0cSSZiG4MZ6RptLK1ffMdnZ5B5bUTgvLoSEFC8YSZPkroDC6Yv31o8MiITvZtMX9sI40KWiZ4YF7i1eHIHh7KuATca59MyThgPohKBRSvLtIVhSSSLbv7GRizUT9NPTYo43ZFstsax0+j51zMyVeLOu5VA5bAj6hZyCZsRzxUdWZ/4bWKoZSSlp5lBDfzRyZbGL5OVPrkR8nEE16ZWprEPX5ssfx8C441uIp34AIzRXILFsgzAh5UFptyg0N1IE1FRLT9kv1T2v5iwZ+YU19xz1BT20cL8tsmgI//Pw5NGZAWQAJU+107puzEwr+pKGtpugmkBg7A==
+X-YMail-OSG: fo4cTyEVM1nQ.Qsg_dniimdiFtWEG9fCIirVE9t3NZiSYNX9xLnKyopW91Mhs2Y
+ Jh.bho9c7_AgW9OL8uVSFsCcdp8xY.3Ki3fnaLqW1CVx6TGsk_dJ3pH2UAkjhkD4iH8KiLOklIm3
+ QRSIp05TI6.av6oOJdLVIWlzGRuIG_Yje0j8PkHz9vMzonzkdmGkYYE8RxX3fuaMktciek8kVeUz
+ tOAQJMwIIOEQjxXaxtWWmP9Hz3nVqb.hi44KliEIABXGeu9dwjxTpaDncSsrLwpn4hl.VN3SWTEE
+ Ohl0FfU4ARJJ5PP4XxYyp8OhLmqQQ7nCjFzi.XIJZvzOrNgjV94_yW1sVamsTvsIEmRXoX0CJyoI
+ NJlTWI_8ng0q1OlE0qRS2pehmnMDXy9Zxw.qu_QeV6lbRNetJA0E.c12xy8J8Bm.eZ6drh_b06GT
+ NnwAwRk4oVdLqCvIowDdK7S7f2llqbOwE_0JxfFUxlO9wL4qyjq_OgpSo9GyBJfr7QcG8GrMjPFA
+ d5_5J2oyjLIWfGBlqL6pdk_XTOctqOgNqKO0l4PVdUru0ygQzR5iGZVx3H3o0jNtip12QjcsiLIw
+ jKHsVmyXWeQxy2FaBF37O4znm.gyohWNybZc17mVEr8SM01m_K.MerzUveq5tpssf5gA_ukzAxzS
+ 6Zf0W9X4dgBC97dDWI2reqsCCCiVmBaXGVe7AXZ6sgOFAJRCBzi1y6W6Y5o5X7P7ucfKO5FPaujV
+ feREEPOT.SdNTobFKVI16NY0DPeFR_wV3iwVwzjh2e0yinlBBVCOX0odcLtN_g3y.uBqTKsATZhU
+ G0bJBDq.dtxIMnCvJmPbH6ktkPUtEWoHSieB3crcbqHg8tY55OvRX57qf3XeE3Cy14uRjPtqQZ23
+ DzvvNiKKyEzKsH1yxY.NEZ74Cc5j6hCv.56lBmpkKKTIKZjV1.U_Xk43SCkkJdINj_PXab8Qr_0W
+ zk7XxkBKwpTl3OqeZmExZh58NWQtj4Sbm4mXxELf4EHXwggmcyu4JuiFov.wTAspvJeOs.pJ7qAG
+ PocIhXs7Oyvfys.R8SvdF5RNMRUsS3MW7DIz3ydxraJ98o7vm8zRysatLOeT6s2i2TPIFt2KMvR5
+ dGE.IpRa_WaPm8y6oPaCG1NUS9338JinIOYyCULpJ3yvciUGRVml0PuNskc6FQ_PA52LCz96M36e
+ bsYnY9FD_ikgZvRoohEOlwv1tekkmK9w2Ds9.ax4bKqZDHbCh5SDMWGtoyWl9lQjXb4cb_jdX9l6
+ ED2i5SzfkArKPwl71VZQgBYeOqMPqAs3w3f2gCTxGS.Y8a3bJjBhGvCXf.kwaml4Mbzee4W31ChG
+ dBTkjLGSbNkShtXgICLCjMhuHCelt16x0qSewzReoLgR7pwbi5jJb4ZIYaMRpqsPOyGXebaSC5b8
+ w6Syjelwq9nILFkIYxczLhv3H1yLOPuEP7Fv3JX31dYFefRufa5VLnUZeJmbCoogeX6KUPN2y8xL
+ EMMCuffE4U_CpTNAXR5pDHTjq7IMTeySiGOeW.pFjAh.cka1zsCwEDNbqqgaKG.GZVMKwNfmI5jy
+ X6K0kQQvDSE871mqE3Dh96KPlc88AkxnOXq.HV1PQo52uErNrfyt0NPHcGxCeZynSGQgyQpWFxla
+ sXts0zqMFuRdXxvfqfxLWx6YkOX9AIEfPezbMrJYB5euAF.K938ej_I5bSHzC3QdqWQHeLfdJQ8P
+ zAvzCe_eEYPpwwUto1BKti1T.PHOSQoWCtBlhZVd1H.pE2heG2ERxIiKTTqkJHp8R6ZtSHEvhxqz
+ HVZpTkt5pLpIYkkcvd_ExgNkFNJv5cyG1Bj0sTtIOwRNcaAbg_RENn.d.VGsMRICaGnUMDPm16yQ
+ B98vcr6eJXxs0YWUg80CpGy3VfIt8f7ZPASF_wSyulQcC4YXanzEZ7zWosu4k70QJID90Asq_KKD
+ sUmsqW.z0lsHGT7Oetawmwyo0.mGZViTpXmw02DAI7KS_Zrrw5B6KC2u7VjEMy.Zf3QRy_BDxiQy
+ hG8gHujRTyexoUmW8PZSBBff9KpvA8ictmtwWrKDDjiWmuh32hU56.5TLcqmwnGU.931uy6X_5h3
+ sT8NkuI75d.G6iSRanppYFNEVoZwRRgFHwUmEmTwM3gwoGQffnyMJsQ.Xn9sNII39pxc58XivXO.
+ 9PjaXP8erSm2B_fbNz9Z5IvY9A_3o4JZnAKfxuqn1j1gIyqVHXdriCpcVMVPR.L6dqqsWJNtQXPV
+ yDmxHOFqWsgz56KOv2VBbMixknyMbr._G2Gq_WBD0BZOWuEpj35AcAo5JZgAKrxyyZqK_ci6gkR1
+ YraEHuc_5hyk9maZGiImabW_0YvGCknlMz_8yzFtMFd63LVUh0.qwUw1X5sAK69EG6XbfgCRMxDf
+ BISJRphxcmWF2HeJvGIrYp2R8SlXRjLNNv8VPqjDTzMEqRUsDGreZqoI95R.QkinRwky__Tx9MX3
+ mO4k_lZICx4tM5wasL8br62123eKHbQD5HH7vhhNoZ8wJAzIJqJtIjd7DlDdTteb5PRWBMljiyji
+ 53Om9c7vrUU5w7ldho4kqLzx6QrIS3EX3BiI6cWlaAIcwbKh4NxuurPN1gYkjp2e744My6OtphUp
+ DJDuYQXIG1I_bcCtiOPk.7Qp_edkSiEDkhGJ5rpeSTnMeJ8aky..OR42S3LuWPYSIsKKRSlwqAZ.
+ Gh9JWArb4w8JuEtiVVslkc7ClQg.9NX4hBi4D9R0g_z1Q4.TZeajK5xkNtIDRrBFAoR6xuDxrBD_
+ 2wNEdVkjcpLq3uynjJmc_9vBZ7xNvglhreBYm4TcW9z8h417hEDQaDmCMUH35TcIl80lOaWmgeBQ
+ XH8mONWk6HHRe.iJq.jIOfXPTPBAuwihjR2jNyXAWWq5iEA3GcRHyq.nULKrYqaH7t7SpnLX1unq
+ PM5us4Mw0EKg8uvVUC.RwnA8706T5vkUuZPRITEDiON153eUK4MT9D5X_ZcIWRn93G.29Fdl_4pp
+ _nNPggk_6oQysartdxaEovYKc.2Bq34cij3AlaYguQ7IV.dJhHQO11hs2ascR4dbnY2_1oSKDwJp
+ ppuF6UZOqTHp5mss9.C9EwVqBgY3IJ.ERcedT.6pth4MTLwfgrfXwj67iTcq6ol7_vPodU1mBLp4
+ .3UQOF9lFWqsj16Tt84WftyfPglX_LdQvMQjkFjYwpveV5k6oDk97vtuWiy0Z_eBvg1R_rPJNful
+ qFpfzgimxdVKSFcfXjIJY
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Tue, 26 Jan 2021 16:59:21 +0000
+Received: by smtp409.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID ed6776a7f79f77301f8cce1a4603f7ea;
+          Tue, 26 Jan 2021 16:49:00 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org
+Subject: [PATCH v24 07/25] LSM: Use lsmblob in security_secctx_to_secid
+Date:   Tue, 26 Jan 2021 08:40:50 -0800
+Message-Id: <20210126164108.1958-8-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20210126164108.1958-1-casey@schaufler-ca.com>
+References: <20210126164108.1958-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+Change the security_secctx_to_secid interface to use a lsmblob
+structure in place of the single u32 secid in support of
+module stacking. Change its callers to do the same.
 
-> On Wed, Jan 6, 2021 at 2:36 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
->>
->> XDG_RUNTIME_DIR is required for systemctl --user to work.
->> See https://github.com/systemd/systemd/issues/15231
->>
->> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->> ---
->>  policycoreutils/newrole/newrole.c | 20 +++++++++++++++-----
->>  1 file changed, 15 insertions(+), 5 deletions(-)
->>
->> diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole=
-/newrole.c
->> index 36e2ba9c..500969e0 100644
->> --- a/policycoreutils/newrole/newrole.c
->> +++ b/policycoreutils/newrole/newrole.c
->> @@ -466,7 +466,7 @@ static int extract_pw_data(struct passwd *pw_copy)
->>   * Either restore the original environment, or set up a minimal one.
->>   *
->>   * The minimal environment contains:
->> - * TERM, DISPLAY and XAUTHORITY - if they are set, preserve values
->> + * TERM, DISPLAY, XAUTHORITY and XDG_RUNTIME_DIR - if they are set, pre=
-serve values
->>   * HOME, SHELL, USER and LOGNAME - set to contents of /etc/passwd
->>   * PATH - set to default value DEFAULT_PATH
->>   *
->> @@ -478,9 +478,11 @@ static int restore_environment(int preserve_environ=
-ment,
->>         char const *term_env;
->>         char const *display_env;
->>         char const *xauthority_env;
->> -       char *term =3D NULL;      /* temporary container */
->> -       char *display =3D NULL;   /* temporary container */
->> +       char const *xdg_runtime_dir_env;
->> +       char *term =3D NULL;              /* temporary container */
->> +       char *display =3D NULL;           /* temporary container */
->>         char *xauthority =3D NULL;        /* temporary container */
->> +       char *xdg_runtime_dir =3D NULL;   /* temporary container */
->>         int rc;
->>
->>         environ =3D old_environ;
->> @@ -491,6 +493,7 @@ static int restore_environment(int preserve_environm=
-ent,
->>         term_env =3D getenv("TERM");
->>         display_env =3D getenv("DISPLAY");
->>         xauthority_env =3D getenv("XAUTHORITY");
->> +       xdg_runtime_dir_env =3D getenv("XDG_RUNTIME_DIR");        /* nee=
-ded for `systemd --user` operations */
->>
->>         /* Save the variable values we want */
->>         if (term_env)
->> @@ -499,8 +502,12 @@ static int restore_environment(int preserve_environ=
-ment,
->>                 display =3D strdup(display_env);
->>         if (xauthority_env)
->>                 xauthority =3D strdup(xauthority_env);
->> -       if ((term_env && !term) || (display_env && !display) ||
->> -           (xauthority_env && !xauthority)) {
->> +       if (xdg_runtime_dir_env)
->> +               xdg_runtime_dir =3D strdup(xdg_runtime_dir_env);
->> +       if ((term_env && !term) ||
->> +           (display_env && !display) ||
->> +           (xauthority_env && !xauthority) ||
->> +           (xdg_runtime_dir_env && !xdg_runtime_dir)) {
->>                 rc =3D -1;
->>                 goto out;
->>         }
->> @@ -518,6 +525,8 @@ static int restore_environment(int preserve_environm=
-ent,
->>                 rc |=3D setenv("DISPLAY", display, 1);
->>         if (xauthority)
->>                 rc |=3D setenv("XAUTHORITY", xauthority, 1);
->> +       if (xdg_runtime_dir)
->> +               rc |=3D setenv("XDG_RUNTIME_DIR", xdg_runtime_dir, 1);
->>         rc |=3D setenv("HOME", pw->pw_dir, 1);
->>         rc |=3D setenv("SHELL", pw->pw_shell, 1);
->>         rc |=3D setenv("USER", pw->pw_name, 1);
->> @@ -527,6 +536,7 @@ static int restore_environment(int preserve_environm=
-ent,
->>         free(term);
->>         free(display);
->>         free(xauthority);
->> +       free(xdg_runtime_dir);
->>         return rc;
->>  }
->
-> Hello,
-> I am quite uncomfortable with this approach of keeping only one more
-> variable: why is only XDG_RUNTIME_DIR added, and not also
-> XDG_DATA_DIRS, XDG_SESSION_ID, XDG_SESSION_PATH, etc.? For example
-> someone pointed out in
-> https://github.com/systemd/systemd/issues/18301#issuecomment-763933678
-> that DBUS_SESSION_BUS_ADDRESS could also need to be preserved, so
-> there seem to be a long list of items.
->
-> Moreover I am wondering whether this would be fine to keep such
-> environment variables while newrole uses the information from another
-> user (i.e. when newrole is built with USE_AUDIT and
-> audit_getloginuid() !=3D getuid() because the user changed their UID ;
-> in such a situation newrole resets $HOME and $SHELL to the HOME of
-> audit_getloginuid()).
->
-> In my humble opinion, I also do not understand why TERM, DISPLAY and
-> XAUTHORITY are kept but not LANG, LC_ALL, and all other LC_...
-> variables. I understand that there exist dangerous environment
-> variables (LD_LIBRARY_PATH, LD_PRELOAD, ...), that resetting the
-> environment to a minimal one is nice, and that using "newrole
-> --preserve-environment" could seem dangerous. For information, sudo
-> has been maintaining a list of "bad" variables, of variables with
-> potential dangerous values and of variables preserved by default, in
-> https://github.com/sudo-project/sudo/blob/SUDO_1_9_5p1/plugins/sudoers/en=
-v.c#L134-L228.
->
-> This being said, I have never really used newrole but to expose a bug
-> in "sudo -r" a few years ago
-> (https://bugzilla.sudo.ws/show_bug.cgi?id=3D611 "root user can change
-> its SELinux context without password"). Since then I have always used
-> sudo to change role, with the advantage that it can be configured to
-> keep some environment variables, so I am not really the best reviewer
-> for such a patch (and also I am a little bit confused about the
-> "isolation guarantees" that newrole implements, and I am not sure
-> whether keeping XDG_RUNTIME_DIR would not break such guarantees).
->
-> TL;DR: can another maintainer more familiar with newrole review this
-> patch, please?
->
+The security module hook is unchanged, still passing back a secid.
+The infrastructure passes the correct entry from the lsmblob.
 
-From my POV, it does not make much sense to keep XDG_RUNTIME_DIR
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Cc: netdev@vger.kernel.org
+Cc: netfilter-devel@vger.kernel.org
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+---
+ include/linux/security.h          | 26 ++++++++++++++++++--
+ kernel/cred.c                     |  4 +---
+ net/netfilter/nft_meta.c          | 10 ++++----
+ net/netfilter/xt_SECMARK.c        |  7 +++++-
+ net/netlabel/netlabel_unlabeled.c | 23 +++++++++++-------
+ security/security.c               | 40 ++++++++++++++++++++++++++-----
+ 6 files changed, 85 insertions(+), 25 deletions(-)
 
-As I see it when you change a role, type or level, it's like changing a
-linux user and it should be completely new session.
-
-Also using Fedora policy, sysadm_t is not even allow to get status of
-staff_t units:
-
-    [staff@rawhide ~]$ echo $XDG_RUNTIME_DIR
-    /run/user/1001
-    [staff@rawhide ~]$ newrole -r sysadm_r
-    Password:=20
-    [staff@rawhide ~]$ export XDG_RUNTIME_DIR=3D/run/user/1001
-    [staff@rawhide ~]$ systemctl --user list-units
-    Failed to list units: Access denied
-
-    systemd[33326]: selinux: avc:  denied  { status } for auid=3Dn/a uid=3D=
-1001 gid=3D1001 cmdline=3D"" scontext=3Dstaff_u:sysadm_r:sysadm_t:s0-s0:c0.=
-c1023 tcontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=3Dsystem per=
-missive=3D0
-    systemd[33326]: selinux: avc:  denied  { status } for auid=3Dn/a uid=3D=
-1001 gid=3D1001 cmdline=3D"" scontext=3Dstaff_u:sysadm_r:sysadm_t:s0-s0:c0.=
-c1023 tcontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=3Dsystem per=
-missive=3D0
-
-newrole could change level as well and it would be simply inappropriate
-to control systemd user session using different levels.
-
-And you don't need to run newrole to control your user systemd session.
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 5d8dbfb1dabb..af1d69b41f1c 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -196,6 +196,27 @@ static inline bool lsmblob_equal(struct lsmblob *bloba, struct lsmblob *blobb)
+ extern int lsm_name_to_slot(char *name);
+ extern const char *lsm_slot_to_name(int slot);
+ 
++/**
++ * lsmblob_value - find the first non-zero value in an lsmblob structure.
++ * @blob: Pointer to the data
++ *
++ * This needs to be used with extreme caution, as the cases where
++ * it is appropriate are rare.
++ *
++ * Return the first secid value set in the lsmblob.
++ * There should only be one.
++ */
++static inline u32 lsmblob_value(const struct lsmblob *blob)
++{
++	int i;
++
++	for (i = 0; i < LSMBLOB_ENTRIES; i++)
++		if (blob->secid[i])
++			return blob->secid[i];
++
++	return 0;
++}
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, unsigned int opts);
+@@ -513,7 +534,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_ismaclabel(const char *name);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen,
++			     struct lsmblob *blob);
+ void security_release_secctx(char *secdata, u32 seclen);
+ void security_inode_invalidate_secctx(struct inode *inode);
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+@@ -1340,7 +1362,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 
+ static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+-					   u32 *secid)
++					   struct lsmblob *blob)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 22e0e7cbefde..848306c7d823 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -757,14 +757,12 @@ EXPORT_SYMBOL(set_security_override);
+ int set_security_override_from_ctx(struct cred *new, const char *secctx)
+ {
+ 	struct lsmblob blob;
+-	u32 secid;
+ 	int ret;
+ 
+-	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
++	ret = security_secctx_to_secid(secctx, strlen(secctx), &blob);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	lsmblob_init(&blob, secid);
+ 	return set_security_override(new, &blob);
+ }
+ EXPORT_SYMBOL(set_security_override_from_ctx);
+diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+index bf4b3ad5314c..58a994db0069 100644
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -811,21 +811,21 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
+ 
+ static int nft_secmark_compute_secid(struct nft_secmark *priv)
+ {
+-	u32 tmp_secid = 0;
++	struct lsmblob blob;
+ 	int err;
+ 
+-	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
++	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &blob);
+ 	if (err)
+ 		return err;
+ 
+-	if (!tmp_secid)
++	if (!lsmblob_is_set(&blob))
+ 		return -ENOENT;
+ 
+-	err = security_secmark_relabel_packet(tmp_secid);
++	err = security_secmark_relabel_packet(lsmblob_value(&blob));
+ 	if (err)
+ 		return err;
+ 
+-	priv->secid = tmp_secid;
++	priv->secid = lsmblob_value(&blob);
+ 	return 0;
+ }
+ 
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index 75625d13e976..9845d98e6b77 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -43,13 +43,14 @@ secmark_tg(struct sk_buff *skb, const struct xt_action_param *par)
+ 
+ static int checkentry_lsm(struct xt_secmark_target_info *info)
+ {
++	struct lsmblob blob;
+ 	int err;
+ 
+ 	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
+ 	info->secid = 0;
+ 
+ 	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
+-				       &info->secid);
++				       &blob);
+ 	if (err) {
+ 		if (err == -EINVAL)
+ 			pr_info_ratelimited("invalid security context \'%s\'\n",
+@@ -57,6 +58,10 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
+ 		return err;
+ 	}
+ 
++	/* xt_secmark_target_info can't be changed to use lsmblobs because
++	 * it is exposed as an API. Use lsmblob_value() to get the one
++	 * value that got set by security_secctx_to_secid(). */
++	info->secid = lsmblob_value(&blob);
+ 	if (!info->secid) {
+ 		pr_info_ratelimited("unable to map security context \'%s\'\n",
+ 				    info->secctx);
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index ccb491642811..df9448af23dd 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -882,7 +882,7 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
+ 	void *addr;
+ 	void *mask;
+ 	u32 addr_len;
+-	u32 secid;
++	struct lsmblob blob;
+ 	struct netlbl_audit audit_info;
+ 
+ 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
+@@ -906,13 +906,18 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
+ 	ret_val = security_secctx_to_secid(
+ 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+ 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+-				  &secid);
++				  &blob);
+ 	if (ret_val != 0)
+ 		return ret_val;
+ 
++	/* netlbl_unlhsh_add will be changed to pass a struct lsmblob *
++	 * instead of a u32 later in this patch set. security_secctx_to_secid()
++	 * will only be setting one entry in the lsmblob struct, so it is
++	 * safe to use lsmblob_value() to get that one value. */
++
+ 	return netlbl_unlhsh_add(&init_net,
+-				 dev_name, addr, mask, addr_len, secid,
+-				 &audit_info);
++				 dev_name, addr, mask, addr_len,
++				 lsmblob_value(&blob), &audit_info);
+ }
+ 
+ /**
+@@ -933,7 +938,7 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
+ 	void *addr;
+ 	void *mask;
+ 	u32 addr_len;
+-	u32 secid;
++	struct lsmblob blob;
+ 	struct netlbl_audit audit_info;
+ 
+ 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
+@@ -955,13 +960,15 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
+ 	ret_val = security_secctx_to_secid(
+ 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+ 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+-				  &secid);
++				  &blob);
+ 	if (ret_val != 0)
+ 		return ret_val;
+ 
++	/* security_secctx_to_secid() will only put one secid into the lsmblob
++	 * so it's safe to use lsmblob_value() to get the secid. */
+ 	return netlbl_unlhsh_add(&init_net,
+-				 NULL, addr, mask, addr_len, secid,
+-				 &audit_info);
++				 NULL, addr, mask, addr_len,
++				 lsmblob_value(&blob), &audit_info);
+ }
+ 
+ /**
+diff --git a/security/security.c b/security/security.c
+index a3e162c4c0d3..1039f8a8ed09 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2127,10 +2127,22 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+-int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen,
++			     struct lsmblob *blob)
+ {
+-	*secid = 0;
+-	return call_int_hook(secctx_to_secid, 0, secdata, seclen, secid);
++	struct security_hook_list *hp;
++	int rc;
++
++	lsmblob_init(blob, 0);
++	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		rc = hp->hook.secctx_to_secid(secdata, seclen,
++					      &blob->secid[hp->lsmid->slot]);
++		if (rc != 0)
++			return rc;
++	}
++	return 0;
+ }
+ EXPORT_SYMBOL(security_secctx_to_secid);
+ 
+@@ -2281,10 +2293,26 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				optval, optlen, len);
+ }
+ 
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     u32 *secid)
+ {
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
++	struct security_hook_list *hp;
++	int rc = -ENOPROTOOPT;
++
++	/*
++	 * Only one security module should provide a real hook for
++	 * this. A stub or bypass like is used in BPF should either
++	 * (somehow) leave rc unaltered or return -ENOPROTOOPT.
++	 */
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
++			     list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		rc = hp->hook.socket_getpeersec_dgram(sock, skb, secid);
++		if (rc != -ENOPROTOOPT)
++			break;
++	}
++	return rc;
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
+-- 
+2.25.4
 
