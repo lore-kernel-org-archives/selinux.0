@@ -2,212 +2,232 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8F01C433DB
-	for <selinux@archiver.kernel.org>; Wed, 27 Jan 2021 06:10:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8670C433E0
+	for <selinux@archiver.kernel.org>; Wed, 27 Jan 2021 07:06:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B04FD2064B
-	for <selinux@archiver.kernel.org>; Wed, 27 Jan 2021 06:10:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B92E20724
+	for <selinux@archiver.kernel.org>; Wed, 27 Jan 2021 07:06:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235819AbhA0GKK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Jan 2021 01:10:10 -0500
-Received: from mail.hallyn.com ([178.63.66.53]:60128 "EHLO mail.hallyn.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235793AbhA0Fks (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 27 Jan 2021 00:40:48 -0500
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id 93A58864; Tue, 26 Jan 2021 23:40:00 -0600 (CST)
-Date:   Tue, 26 Jan 2021 23:40:00 -0600
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v6 00/40] idmapped mounts
-Message-ID: <20210127054000.GA30832@mail.hallyn.com>
-References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
+        id S317837AbhA0Axt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Jan 2021 19:53:49 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:30860 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731626AbhAZUZF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jan 2021 15:25:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611692618;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=m/u93bfQxIYyXQ08UiKaRmMGUT9o1Hv+NSbQL83syII=;
+        b=QClMe+vbRY3ZnvKLvmziE1ik7T149HPr/nSkKG1ObhoGwILpKBOiFQ59kus43ivPv8puqS
+        mZX1oxQVq5iklVlnbRgSKVtlztFI6VCK6fDguOLbOUY5f612/5eVJKWmoZQLmi93UApx+9
+        vE0jwOUhm8gmJ7WaIavxOFF1IYvlDiA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-314-NwaC3_pbMYK5Ly5YxcYgBQ-1; Tue, 26 Jan 2021 15:23:33 -0500
+X-MC-Unique: NwaC3_pbMYK5Ly5YxcYgBQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 29C52100747E;
+        Tue, 26 Jan 2021 20:23:01 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.10.110.8])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2A0C35D9C2;
+        Tue, 26 Jan 2021 20:22:47 +0000 (UTC)
+Date:   Tue, 26 Jan 2021 15:22:45 -0500
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v24 21/25] audit: add support for non-syscall auxiliary
+ records
+Message-ID: <20210126202245.GN1762914@madcap2.tricolour.ca>
+References: <20210126164108.1958-1-casey@schaufler-ca.com>
+ <20210126164108.1958-22-casey@schaufler-ca.com>
+ <20210126184246.GM1762914@madcap2.tricolour.ca>
+ <e9140e2a-a6ca-9d51-9db4-a0ec0dfd56cc@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210121131959.646623-1-christian.brauner@ubuntu.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <e9140e2a-a6ca-9d51-9db4-a0ec0dfd56cc@schaufler-ca.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 21, 2021 at 02:19:19PM +0100, Christian Brauner wrote:
-> Hey everyone,
+On 2021-01-26 10:58, Casey Schaufler wrote:
+> On 1/26/2021 10:42 AM, Richard Guy Briggs wrote:
+> > On 2021-01-26 08:41, Casey Schaufler wrote:
+> >> Standalone audit records have the timestamp and serial number generated
+> >> on the fly and as such are unique, making them standalone.  This new
+> >> function audit_alloc_local() generates a local audit context that will
+> >> be used only for a standalone record and its auxiliary record(s).  The
+> >> context is discarded immediately after the local associated records are
+> >> produced.
+> >>
+> >> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> >> Cc: linux-audit@redhat.com
+> >> To: Richard Guy Briggs <rgb@redhat.com>
+> > This has been minorly bothering me for several revisions...  Is there a
+> > way for the development/authorship to be accurately reflected
+> > if/when this patch is merged before the contid patch set?
 > 
-> The only major change is the updated version of hch's pach to port xfs
-> to support idmapped mounts. Thanks again to Christoph for doing that
-> work.
-> (Otherwise Acked-bys and Reviewed-bys were added and the tree reordered
->  to decouple filesystem specific conversion from the vfs work so they
->  can proceed independent.
->  For a full list of major changes between versions see the end of this
->  cover letter. Please also note the large xfstests testsuite in patch 42
->  that has been kept as part of this series. It verifies correct vfs
->  behavior with and without idmapped mounts including covering newer vfs
->  features such as io_uring.
->  I currently still plan to target the v5.12 merge window.)
-> 
-> With this patchset we make it possible to attach idmappings to mounts,
-> i.e. simply put different bind mounts can expose the same file or
-> directory with different ownership.
-> Shifting of ownership on a per-mount basis handles a wide range of
-> long standing use-cases. Here are just a few:
-> - Shifting of a subset of ownership-less filesystems (vfat) for use by
->   multiple users, effectively allowing for DAC on such devices
->   (systemd, Android, ...)
-> - Allow remapping uid/gid on external filesystems or paths (USB sticks,
->   network filesystem, ...) to match the local system's user and groups.
->   (David Howells intends to port AFS as a first candidate.)
-> - Shifting of a container rootfs or base image without having to mangle
->   every file (runc, Docker, containerd, k8s, LXD, systemd ...)
-> - Sharing of data between host or privileged containers with
->   unprivileged containers (runC, Docker, containerd, k8s, LXD, ...)
-> - Data sharing between multiple user namespaces with incompatible maps
->   (LXD, k8s, ...)
-> 
-> There has been significant interest in this patchset as evidenced by
-> user commenting on previous version of this patchset. They include
-> containerd, ChromeOS, systemd, LXD and a range of others. There is
-> already a patchset up for containerd, the default Kubernetes container
-> runtime https://github.com/containerd/containerd/pull/4734
-> to make use of this. systemd intends to use it in their systemd-homed
-> implementation for portable home directories. ChromeOS wants to make use
-> of it to share data between the host and the Linux containers they run
-> on Chrome- and Pixelbooks. There's also a few talks that of people who
-> are going to make use of this. The most recent one was a CNCF webinar
-> https://www.cncf.io/wp-content/uploads/2020/12/Rootless-Containers-in-Gitpod.pdf
-> and upcoming talk during FOSDEM.
-> (Fwiw, for fun and since I wanted to do this for a long time I've ported
->  my home directory to be completely portable with a simple service file
->  that now mounts my home directory on an ext4 formatted usb stick with
->  an id mapping mapping all files to the random uid I'm assigned at
->  login.)
-> 
-> Making it possible to share directories and mounts between users with
-> different uids and gids is itself quite an important use-case in
-> distributed systems environments. It's of course especially useful in
-> general for portable usb sticks, sharing data between multiple users in,
-> and sharing home directories between multiple users. The last example is
-> now elegantly expressed in systemd's homed concept for portable home
-> directories. As mentioned above, idmapped mounts also allow data from
-> the host to be shared with unprivileged containers, between privileged
-> and unprivileged containers simultaneously and in addition also between
-> unprivileged containers with different idmappings whenever they are used
-> to isolate one container completely from another container.
-> 
-> We have implemented and proposed multiple solutions to this before. This
-> included the introduction of fsid mappings, a tiny filesystem I've
-> authored with Seth Forshee that is currently carried in Ubuntu that has
-> shown to be the wrong approach, and the conceptual hack of calling
-> override creds directly in the vfs. In addition, to some of these
-> solutions being hacky none of these solutions have covered all of the
-> above use-cases.
-> 
-> Idmappings become a property of struct vfsmount instead of tying it to a
-> process being inside of a user namespace which has been the case for all
-> other proposed approaches. It also allows to pass down the user
-> namespace into the filesystems which is a clean way instead of violating
-> calling conventions by strapping the user namespace information that is
-> a property of the mount to the caller's credentials or similar hacks.
-> Each mount can have a separate idmapping and idmapped mounts can even be
-> created in the initial user namespace unblocking a range of use-cases.
-> 
-> To this end the vfsmount struct gains a new struct user_namespace
-> member. The idmapping of the user namespace becomes the idmapping of the
-> mount. A caller that is privileged with respect to the user namespace of
-> the superblock of the underlying filesystem can create an idmapped
-> mount. In the future, we can enable unprivileged use-cases by checking
-> whether the caller is privileged wrt to the user namespace that an
-> already idmapped mount has been marked with, allowing them to change the
-> idmapping. For now, keep things simple until the need arises.
-> Note, that with syscall interception it is already possible to intercept
-> idmapped mount requests from unprivileged containers and handle them in
-> a sufficiently privileged container manager. Support for this is already
-> available in LXD and will be available in runC where syscall
-> interception is currently in the process of becoming part of the runtime
-> spec: https://github.com/opencontainers/runtime-spec/pull/1074.
-> 
-> The user namespace the mount will be marked with can be specified by
-> passing a file descriptor refering to the user namespace as an argument
-> to the new mount_setattr() syscall together with the new
-> MOUNT_ATTR_IDMAP flag. By default vfsmounts are marked with the initial
-> user namespace and no behavioral or performance changes are observed.
-> All mapping operations are nops for the initial user namespace. When a
-> file/inode is accessed through an idmapped mount the i_uid and i_gid of
-> the inode will be remapped according to the user namespace the mount has
-> been marked with.
-> 
-> In order to support idmapped mounts, filesystems need to be changed and
-> mark themselves with the FS_ALLOW_IDMAP flag in fs_flags. The initial
-> version contains fat, ext4, and xfs including a list of examples.
-> But patches for other filesystems are actively worked on and will be
-> sent out separately. We are here to see this through and there are
-> multiple people involved in converting filesystems. So filesystem
-> developers are not left alone with this and are provided with a large
-> testsuite to verify that their port is correct.
-> 
-> There is a simple tool available at
-> https://github.com/brauner/mount-idmapped that allows to create idmapped
-> mounts so people can play with this patch series. Here are a few
-> illustrations:
-> 
-> 1. Create a simple idmapped mount of another user's home directory
-> 
-> u1001@f2-vm:/$ sudo ./mount-idmapped --map-mount b:1000:1001:1 /home/ubuntu/ /mnt
-> u1001@f2-vm:/$ ls -al /home/ubuntu/
-> total 28
-> drwxr-xr-x 2 ubuntu ubuntu 4096 Oct 28 22:07 .
-> drwxr-xr-x 4 root   root   4096 Oct 28 04:00 ..
-> -rw------- 1 ubuntu ubuntu 3154 Oct 28 22:12 .bash_history
-> -rw-r--r-- 1 ubuntu ubuntu  220 Feb 25  2020 .bash_logout
-> -rw-r--r-- 1 ubuntu ubuntu 3771 Feb 25  2020 .bashrc
-> -rw-r--r-- 1 ubuntu ubuntu  807 Feb 25  2020 .profile
-> -rw-r--r-- 1 ubuntu ubuntu    0 Oct 16 16:11 .sudo_as_admin_successful
-> -rw------- 1 ubuntu ubuntu 1144 Oct 28 00:43 .viminfo
+> I don't know the right way to do that because I had to pull
+> some of what was in the original patch out. Any way you would
+> like it done is fine with me.
 
-So I assume this falls under the buyer beware warning, but it's
-probably important to warn people loudly of the fact that, at this
-point, the user with uid 1001 can chmod u+s any binary under /mnt
-and then run it from /home/ubuntu with euid=1000.  In other words,
-that while this has excellent uses, if you *can* use shared group
-membership, you should :)
+Other than diff context, it appears to be identical to the patch in the
+v9 contid patchset (with one tiny cut/paste below, I don't know how it
+compiles...).  There are minor updates to bring it up to v11.
 
-Very cool though.
+> >> ---
+> >>  include/linux/audit.h |  8 ++++++++
+> >>  kernel/audit.h        |  1 +
+> >>  kernel/auditsc.c      | 33 ++++++++++++++++++++++++++++-----
+> >>  3 files changed, 37 insertions(+), 5 deletions(-)
+> >>
+> >> diff --git a/include/linux/audit.h b/include/linux/audit.h
+> >> index 418a485af114..97cd7471e572 100644
+> >> --- a/include/linux/audit.h
+> >> +++ b/include/linux/audit.h
+> >> @@ -289,6 +289,8 @@ static inline int audit_signal_info(int sig, struct task_struct *t)
+> >>  				/* Public API */
+> >>  extern int  audit_alloc(struct task_struct *task);
+> >>  extern void __audit_free(struct task_struct *task);
+> >> +extern struct audit_context *audit_alloc_local(gfp_t gfpflags);
+> >> +extern void audit_free_context(struct audit_context *context);
+> >>  extern void __audit_syscall_entry(int major, unsigned long a0, unsigned long a1,
+> >>  				  unsigned long a2, unsigned long a3);
+> >>  extern void __audit_syscall_exit(int ret_success, long ret_value);
+> >> @@ -552,6 +554,12 @@ static inline void audit_log_nfcfg(const char *name, u8 af,
+> >>  extern int audit_n_rules;
+> >>  extern int audit_signals;
+> >>  #else /* CONFIG_AUDITSYSCALL */
+> >> ++static inline struct audit_context *audit_alloc_local(gfp_t gfpflags)
+
+This extra "+" that ends up at the beginning of the line looks
+unintentional and I'd have expected the compiler to complain.
+
+> >> +{
+> >> +	return NULL;
+> >> +}
+> >> +static inline void audit_free_context(struct audit_context *context)
+> >> +{ }
+> >>  static inline int audit_alloc(struct task_struct *task)
+> >>  {
+> >>  	return 0;
+> >> diff --git a/kernel/audit.h b/kernel/audit.h
+> >> index ce41886807bb..3f2285e1c6e0 100644
+> >> --- a/kernel/audit.h
+> >> +++ b/kernel/audit.h
+> >> @@ -99,6 +99,7 @@ struct audit_proctitle {
+> >>  struct audit_context {
+> >>  	int		    dummy;	/* must be the first element */
+> >>  	int		    in_syscall;	/* 1 if task is in a syscall */
+> >> +	bool		    local;	/* local context needed */
+> >>  	enum audit_state    state, current_state;
+> >>  	unsigned int	    serial;     /* serial number for record */
+> >>  	int		    major;      /* syscall number */
+> >> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> >> index de2b2ecb3aea..479b3933d788 100644
+> >> --- a/kernel/auditsc.c
+> >> +++ b/kernel/auditsc.c
+> >> @@ -927,11 +927,13 @@ static inline void audit_free_aux(struct audit_context *context)
+> >>  	}
+> >>  }
+> >>  
+> >> -static inline struct audit_context *audit_alloc_context(enum audit_state state)
+> >> +static inline struct audit_context *audit_alloc_context(enum audit_state state,
+> >> +							gfp_t gfpflags)
+> >>  {
+> >>  	struct audit_context *context;
+> >>  
+> >> -	context = kzalloc(sizeof(*context), GFP_KERNEL);
+> >> +	/* We can be called in atomic context via audit_tg() */
+> >> +	context = kzalloc(sizeof(*context), gfpflags);
+> >>  	if (!context)
+> >>  		return NULL;
+> >>  	context->state = state;
+> >> @@ -967,7 +969,8 @@ int audit_alloc(struct task_struct *tsk)
+> >>  		return 0;
+> >>  	}
+> >>  
+> >> -	if (!(context = audit_alloc_context(state))) {
+> >> +	context = audit_alloc_context(state, GFP_KERNEL);
+> >> +	if (!context) {
+> >>  		kfree(key);
+> >>  		audit_log_lost("out of memory in audit_alloc");
+> >>  		return -ENOMEM;
+> >> @@ -979,8 +982,27 @@ int audit_alloc(struct task_struct *tsk)
+> >>  	return 0;
+> >>  }
+> >>  
+> >> -static inline void audit_free_context(struct audit_context *context)
+> >> +struct audit_context *audit_alloc_local(gfp_t gfpflags)
+> >>  {
+> >> +	struct audit_context *context = NULL;
+> >> +
+> >> +	context = audit_alloc_context(AUDIT_RECORD_CONTEXT, gfpflags);
+> >> +	if (!context) {
+> >> +		audit_log_lost("out of memory in audit_alloc_local");
+> >> +		goto out;
+> >> +	}
+> >> +	context->serial = audit_serial();
+> >> +	ktime_get_coarse_real_ts64(&context->ctime);
+> >> +	context->local = true;
+> >> +out:
+> >> +	return context;
+> >> +}
+> >> +EXPORT_SYMBOL(audit_alloc_local);
+> >> +
+> >> +void audit_free_context(struct audit_context *context)
+> >> +{
+> >> +	if (!context)
+> >> +		return;
+> >>  	audit_free_module(context);
+> >>  	audit_free_names(context);
+> >>  	unroll_tree_refs(context, NULL, 0);
+> >> @@ -991,6 +1013,7 @@ static inline void audit_free_context(struct audit_context *context)
+> >>  	audit_proctitle_free(context);
+> >>  	kfree(context);
+> >>  }
+> >> +EXPORT_SYMBOL(audit_free_context);
+> >>  
+> >>  static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+> >>  				 kuid_t auid, kuid_t uid,
+> >> @@ -2214,7 +2237,7 @@ EXPORT_SYMBOL_GPL(__audit_inode_child);
+> >>  int auditsc_get_stamp(struct audit_context *ctx,
+> >>  		       struct timespec64 *t, unsigned int *serial)
+> >>  {
+> >> -	if (!ctx->in_syscall)
+> >> +	if (!ctx->in_syscall && !ctx->local)
+> >>  		return 0;
+> >>  	if (!ctx->serial)
+> >>  		ctx->serial = audit_serial();
+> >> -- 
+> >> 2.25.4
+> >>
+> > - RGB
+
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
+
