@@ -2,274 +2,458 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EFF2C433DB
-	for <selinux@archiver.kernel.org>; Fri, 29 Jan 2021 16:52:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCF7EC433DB
+	for <selinux@archiver.kernel.org>; Fri, 29 Jan 2021 19:20:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F40E64DD6
-	for <selinux@archiver.kernel.org>; Fri, 29 Jan 2021 16:52:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B29864DFB
+	for <selinux@archiver.kernel.org>; Fri, 29 Jan 2021 19:20:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231542AbhA2QwF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 Jan 2021 11:52:05 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:57588 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231705AbhA2QuM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jan 2021 11:50:12 -0500
-Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 3E0F120B7192;
-        Fri, 29 Jan 2021 08:49:30 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3E0F120B7192
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1611938970;
-        bh=HeUFBKPErvpm417Eu/jxjrlR487fuUEJs073J4JmtAg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qA1AzhDbIFOAj34HcN5E1NVwTivAzH0AgGFXVFe1YqXdUIYVQlzGvv3JOtm0fnoxr
-         9PJPCZe1EEx0d2u0LY/ogkr4ZMxvQlI7C1oACm5qHxBm5Kv3tWmiFk7XMfPFAAzOvt
-         oXFUYqIM7YpDC/LeOsQ12COpCjLIBr2cPtx0UWlg=
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-To:     zohar@linux.ibm.com, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com
-Cc:     tusharsu@linux.microsoft.com, tyhicks@linux.microsoft.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] selinux: measure state and policy capabilities
-Date:   Fri, 29 Jan 2021 08:49:26 -0800
-Message-Id: <20210129164926.3939-1-nramas@linux.microsoft.com>
-X-Mailer: git-send-email 2.30.0
+        id S232903AbhA2TUM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 Jan 2021 14:20:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46424 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232888AbhA2TSg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jan 2021 14:18:36 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F698C06174A
+        for <selinux@vger.kernel.org>; Fri, 29 Jan 2021 11:17:50 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id 6so9925386wri.3
+        for <selinux@vger.kernel.org>; Fri, 29 Jan 2021 11:17:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=liQfDKvRKceA7XB6EKb5XWgSjLuEM3AmhST72W3zclo=;
+        b=r/J571DBqfnEqLsI+YdH9pPH3fNemwjMXmCToqWZN0ajmzYjzIB6ybl1uPrEyHWGyE
+         Tm8m8e38iNOFBCSc0OtD5SmSvepHS8GMW7M3mZxKgQE4opvDaAqSJJqKfL3l33nUxWkK
+         8fEyVZME5PgmIXUFNXgJMSAaBTLdjLS06wMkRuEhIWlZOzlCBdvh5epP0I5IHTYU43OP
+         gxwbRAjxdTZ4S1K4q1yC13HUB5ytms5ZYyQpCW7oxdAo+kC/RZIR37XqeqDIu3ikiKYK
+         3rj6bmpJqB481oplLKH3iPPe/xYbbIEdSEnP3msVN4sxw2Hs8A5IDrsWrYsz64AF6RHt
+         2FLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=liQfDKvRKceA7XB6EKb5XWgSjLuEM3AmhST72W3zclo=;
+        b=LC3WEXa7mQX8TcldseTfw2lmp9mIglwPPd6QC/fNEoyurMRuJTW7CSta112pCsSuug
+         DfwmVvY+l+W+Y3Faho9pmDZY3J1iW67hEg3sxGIEZ6AyBPGNPsyg/qW4V2uXzG2XJ5Dn
+         keo+PKpoeyTQmr6UQMK7c8ZqQY2zWSv/Zyrnb824Z4fuvA9+v0Qq3BAw3GqsjaGXmhpF
+         tpEJgsUlXGD7f95gRU8gTqa38+r5er72a9+ZJZZQjBSurTJ/HgWAvXaK/MNZSVZMuZLD
+         yXoRlu1sYBIeKjCB+EfCuIl6IxyNG5w4Z4iOtbrILT5as5sZBDBLaBHXKwS2JUVl4qWN
+         IO5A==
+X-Gm-Message-State: AOAM530SiJ1P34i8jXk9SeELIwENiwrBbyyEYSYHEF3wHTpFPQ0q20DY
+        qsUFFm67soCLP6sRBiWGzPN78Trevxx8ztxBUjcLGg==
+X-Google-Smtp-Source: ABdhPJx5v0ab46b1kJYrdxWZaYXyPlDCIt5iGZT0fcZOugZx0nnLUENhofHF3wQBwn7hh81dmLgKxN8I/Wilxf5OgM8=
+X-Received: by 2002:a5d:538b:: with SMTP id d11mr6364343wrv.334.1611947868795;
+ Fri, 29 Jan 2021 11:17:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210129070340.566340-1-surenb@google.com> <YBPRw5KuegGfnWuh@dhcp22.suse.cz>
+In-Reply-To: <YBPRw5KuegGfnWuh@dhcp22.suse.cz>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Fri, 29 Jan 2021 11:17:37 -0800
+Message-ID: <CAJuCfpGNkQaKeNmkq=MAOJGTkKESLL+c3LMfSxDzLfo1A29aBw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] process_madvise.2: Add process_madvise man page
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     linux-man <linux-man@vger.kernel.org>,
+        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-SELinux stores the configuration state and the policy capabilities
-in kernel memory.  Changes to this data at runtime would have an impact
-on the security guarantees provided by SELinux.  Measuring this data
-through IMA subsystem provides a tamper-resistant way for
-an attestation service to remotely validate it at runtime.
+On Fri, Jan 29, 2021 at 1:13 AM 'Michal Hocko' via kernel-team
+<kernel-team@android.com> wrote:
+>
+> On Thu 28-01-21 23:03:40, Suren Baghdasaryan wrote:
+> > Initial version of process_madvise(2) manual page. Initial text was
+> > extracted from [1], amended after fix [2] and more details added using
+> > man pages of madvise(2) and process_vm_read(2) as examples. It also
+> > includes the changes to required permission proposed in [3].
+> >
+> > [1] https://lore.kernel.org/patchwork/patch/1297933/
+> > [2] https://lkml.org/lkml/2020/12/8/1282
+> > [3] https://patchwork.kernel.org/project/selinux/patch/20210111170622.2613577-1-surenb@google.com/#23888311
+> >
+> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+>
+> Reviewed-by: Michal Hocko <mhocko@suse.com>
 
-Measure the configuration state and policy capabilities by calling
-the IMA hook ima_measure_critical_data().
+Thanks!
 
-To enable SELinux data measurement, the following steps are required:
-
- 1, Add "ima_policy=critical_data" to the kernel command line arguments
-    to enable measuring SELinux data at boot time.
-    For example,
-      BOOT_IMAGE=/boot/vmlinuz-5.11.0-rc3+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
-
- 2, Add the following rule to /etc/ima/ima-policy
-       measure func=CRITICAL_DATA label=selinux
-
-Sample measurement of SELinux state and policy capabilities:
-
-10 2122...65d8 ima-buf sha256:13c2...1292 selinux-state 696e...303b
-
-Execute the following command to extract the measured data
-from the IMA's runtime measurements list:
-
-  grep "selinux-state" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6 | xxd -r -p
-
-The output should be a list of key-value pairs. For example,
- initialized=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
-
-To verify the measurement is consistent with the current SELinux state
-reported on the system, compare the integer values in the following
-files with those set in the IMA measurement (using the following commands):
-
- - cat /sys/fs/selinux/enforce
- - cat /sys/fs/selinux/checkreqprot
- - cat /sys/fs/selinux/policy_capabilities/[capability_file]
-
-Note that the actual verification would be against an expected state
-and done on a separate system (likely an attestation server) requiring
-"initialized=1;enforcing=1;checkreqprot=0;"
-for a secure state and then whatever policy capabilities are actually
-set in the expected policy (which can be extracted from the policy
-itself via seinfo, for example).
-
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Suggested-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/ima.c         | 77 ++++++++++++++++++++++++++++++++--
- security/selinux/include/ima.h |  6 +++
- security/selinux/selinuxfs.c   |  6 +++
- security/selinux/ss/services.c |  2 +-
- 4 files changed, 86 insertions(+), 5 deletions(-)
-
-diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-index 03715893ff97..5c7f73cd1117 100644
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -13,18 +13,73 @@
- #include "ima.h"
- 
- /*
-- * selinux_ima_measure_state - Measure hash of the SELinux policy
-+ * selinux_ima_collect_state - Read selinux configuration settings
-  *
-- * @state: selinux state struct
-+ * @state: selinux_state
-  *
-- * NOTE: This function must be called with policy_mutex held.
-+ * On success returns the configuration settings string.
-+ * On error, returns NULL.
-  */
--void selinux_ima_measure_state(struct selinux_state *state)
-+static char *selinux_ima_collect_state(struct selinux_state *state)
-+{
-+	const char *on = "=1;", *off = "=0;";
-+	char *buf;
-+	int buf_len, i;
-+
-+	/*
-+	 * Size of the following string including the terminating NULL char
-+	 *    initialized=0;enforcing=0;checkreqprot=0;
-+	 */
-+	buf_len = 42;
-+	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++)
-+		buf_len += strlen(selinux_policycap_names[i]) + 3;
-+
-+	buf = kzalloc(buf_len, GFP_KERNEL);
-+	if (!buf)
-+		return NULL;
-+
-+	strscpy(buf, "initialized", buf_len);
-+	strlcat(buf, selinux_initialized(state) ? on : off, buf_len);
-+
-+	strlcat(buf, "enforcing", buf_len);
-+	strlcat(buf, enforcing_enabled(state) ? on : off, buf_len);
-+
-+	strlcat(buf, "checkreqprot", buf_len);
-+	strlcat(buf, checkreqprot_get(state) ? on : off, buf_len);
-+
-+	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
-+		strlcat(buf, selinux_policycap_names[i], buf_len);
-+		strlcat(buf, state->policycap[i] ? on : off, buf_len);
-+	}
-+
-+	return buf;
-+}
-+
-+/*
-+ * selinux_ima_measure_state_locked - Measure SELinux state and hash of policy
-+ *
-+ * @state: selinux state struct
-+ */
-+void selinux_ima_measure_state_locked(struct selinux_state *state)
- {
-+	char *state_str = NULL;
- 	void *policy = NULL;
- 	size_t policy_len;
- 	int rc = 0;
- 
-+	WARN_ON(!mutex_is_locked(&state->policy_mutex));
-+
-+	state_str = selinux_ima_collect_state(state);
-+	if (!state_str) {
-+		pr_err("SELinux: %s: failed to read state.\n", __func__);
-+		return;
-+	}
-+
-+	ima_measure_critical_data("selinux", "selinux-state",
-+				  state_str, strlen(state_str), false);
-+
-+	kfree(state_str);
-+
- 	/*
- 	 * Measure SELinux policy only after initialization is completed.
- 	 */
-@@ -42,3 +97,17 @@ void selinux_ima_measure_state(struct selinux_state *state)
- 
- 	vfree(policy);
- }
-+
-+/*
-+ * selinux_ima_measure_state - Measure SELinux state and hash of policy
-+ *
-+ * @state: selinux state struct
-+ */
-+void selinux_ima_measure_state(struct selinux_state *state)
-+{
-+	WARN_ON(mutex_is_locked(&state->policy_mutex));
-+
-+	mutex_lock(&state->policy_mutex);
-+	selinux_ima_measure_state_locked(state);
-+	mutex_unlock(&state->policy_mutex);
-+}
-diff --git a/security/selinux/include/ima.h b/security/selinux/include/ima.h
-index d69c36611423..75ca92b4a462 100644
---- a/security/selinux/include/ima.h
-+++ b/security/selinux/include/ima.h
-@@ -15,10 +15,16 @@
- 
- #ifdef CONFIG_IMA
- extern void selinux_ima_measure_state(struct selinux_state *selinux_state);
-+extern void selinux_ima_measure_state_locked(
-+			struct selinux_state *selinux_state);
- #else
- static inline void selinux_ima_measure_state(struct selinux_state *selinux_state)
- {
- }
-+static inline void selinux_ima_measure_state_locked(
-+			struct selinux_state *selinux_state)
-+{
-+}
- #endif
- 
- #endif	/* _SELINUX_IMA_H_ */
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 4bde570d56a2..26ec58593ba1 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -41,6 +41,7 @@
- #include "security.h"
- #include "objsec.h"
- #include "conditional.h"
-+#include "ima.h"
- 
- enum sel_inos {
- 	SEL_ROOT_INO = 2,
-@@ -182,6 +183,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 		selinux_status_update_setenforce(state, new_value);
- 		if (!new_value)
- 			call_blocking_lsm_notifier(LSM_POLICY_CHANGE, NULL);
-+
-+		selinux_ima_measure_state(state);
- 	}
- 	length = count;
- out:
-@@ -762,6 +765,9 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
- 
- 	checkreqprot_set(fsi->state, (new_value ? 1 : 0));
- 	length = count;
-+
-+	selinux_ima_measure_state(fsi->state);
-+
- out:
- 	kfree(page);
- 	return length;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2106b5d383e7..cb2866489363 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2179,7 +2179,7 @@ static void selinux_notify_policy_change(struct selinux_state *state,
- 	selinux_status_update_policyload(state, seqno);
- 	selinux_netlbl_cache_invalidate();
- 	selinux_xfrm_notify_policyload();
--	selinux_ima_measure_state(state);
-+	selinux_ima_measure_state_locked(state);
- }
- 
- void selinux_policy_commit(struct selinux_state *state,
--- 
-2.30.0
-
+> Thanks!
+>
+> > ---
+> > changes in v2:
+> > - Changed description of MADV_COLD per Michal Hocko's suggestion
+> > - Appled fixes suggested by Michael Kerrisk
+> >
+> > NAME
+> >     process_madvise - give advice about use of memory to a process
+> >
+> > SYNOPSIS
+> >     #include <sys/uio.h>
+> >
+> >     ssize_t process_madvise(int pidfd,
+> >                            const struct iovec *iovec,
+> >                            unsigned long vlen,
+> >                            int advice,
+> >                            unsigned int flags);
+> >
+> > DESCRIPTION
+> >     The process_madvise() system call is used to give advice or directions
+> >     to the kernel about the address ranges of other process as well as of
+> >     the calling process. It provides the advice to address ranges of process
+> >     described by iovec and vlen. The goal of such advice is to improve system
+> >     or application performance.
+> >
+> >     The pidfd argument is a PID file descriptor (see pidofd_open(2)) that
+> >     specifies the process to which the advice is to be applied.
+> >
+> >     The pointer iovec points to an array of iovec structures, defined in
+> >     <sys/uio.h> as:
+> >
+> >     struct iovec {
+> >         void  *iov_base;    /* Starting address */
+> >         size_t iov_len;     /* Number of bytes to transfer */
+> >     };
+> >
+> >     The iovec structure describes address ranges beginning at iov_base address
+> >     and with the size of iov_len bytes.
+> >
+> >     The vlen represents the number of elements in the iovec structure.
+> >
+> >     The advice argument is one of the values listed below.
+> >
+> >   Linux-specific advice values
+> >     The following Linux-specific advice values have no counterparts in the
+> >     POSIX-specified posix_madvise(3), and may or may not have counterparts
+> >     in the madvise(2) interface available on other implementations.
+> >
+> >     MADV_COLD (since Linux 5.4.1)
+> >         Deactive a given range of pages which will make them a more probable
+> >         reclaim target should there be a memory pressure. This is a non-
+> >         destructive operation. The advice might be ignored for some pages in
+> >         the range when it is not applicable.
+> >
+> >     MADV_PAGEOUT (since Linux 5.4.1)
+> >         Reclaim a given range of pages. This is done to free up memory occupied
+> >         by these pages. If a page is anonymous it will be swapped out. If a
+> >         page is file-backed and dirty it will be written back to the backing
+> >         storage. The advice might be ignored for some pages in the range when
+> >         it is not applicable.
+> >
+> >     The flags argument is reserved for future use; currently, this argument
+> >     must be specified as 0.
+> >
+> >     The value specified in the vlen argument must be less than or equal to
+> >     IOV_MAX (defined in <limits.h> or accessible via the call
+> >     sysconf(_SC_IOV_MAX)).
+> >
+> >     The vlen and iovec arguments are checked before applying any hints. If
+> >     the vlen is too big, or iovec is invalid, an error will be returned
+> >     immediately.
+> >
+> >     The hint might be applied to a part of iovec if one of its elements points
+> >     to an invalid memory region in the remote process. No further elements will
+> >     be processed beyond that point.
+> >
+> >     Permission to provide a hint to another process is governed by a ptrace
+> >     access mode PTRACE_MODE_READ_REALCREDS check (see ptrace(2)); in addition,
+> >     the caller must have the CAP_SYS_ADMIN capability due to performance
+> >     implications of applying the hint.
+> >
+> > RETURN VALUE
+> >     On success, process_madvise() returns the number of bytes advised. This
+> >     return value may be less than the total number of requested bytes, if an
+> >     error occurred after some iovec elements were already processed. The caller
+> >     should check the return value to determine whether a partial advice
+> >     occurred.
+> >
+> >     On error, -1 is returned and errno is set to indicate the error.
+> >
+> > ERRORS
+> >     EFAULT The memory described by iovec is outside the accessible address
+> >            space of the process referred to by pidfd.
+> >     EINVAL flags is not 0.
+> >     EINVAL The sum of the iov_len values of iovec overflows a ssize_t value.
+> >     EINVAL vlen is too large.
+> >     ENOMEM Could not allocate memory for internal copies of the iovec
+> >            structures.
+> >     EPERM The caller does not have permission to access the address space of
+> >           the process pidfd.
+> >     ESRCH The target process does not exist (i.e., it has terminated and been
+> >           waited on).
+> >     EBADF pidfd is not a valid PID file descriptor.
+> >
+> > VERSIONS
+> >     This system call first appeared in Linux 5.10, Support for this system
+> >     call is optional, depending on the setting of the CONFIG_ADVISE_SYSCALLS
+> >     configuration option.
+> >
+> > SEE ALSO
+> >     madvise(2), pidofd_open(2), process_vm_readv(2), process_vm_write(2)
+> >
+> >  man2/process_madvise.2 | 222 +++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 222 insertions(+)
+> >  create mode 100644 man2/process_madvise.2
+> >
+> > diff --git a/man2/process_madvise.2 b/man2/process_madvise.2
+> > new file mode 100644
+> > index 000000000..07553289f
+> > --- /dev/null
+> > +++ b/man2/process_madvise.2
+> > @@ -0,0 +1,222 @@
+> > +.\" Copyright (C) 2021 Suren Baghdasaryan <surenb@google.com>
+> > +.\" and Copyright (C) 2021 Minchan Kim <minchan@kernel.org>
+> > +.\"
+> > +.\" %%%LICENSE_START(VERBATIM)
+> > +.\" Permission is granted to make and distribute verbatim copies of this
+> > +.\" manual provided the copyright notice and this permission notice are
+> > +.\" preserved on all copies.
+> > +.\"
+> > +.\" Permission is granted to copy and distribute modified versions of this
+> > +.\" manual under the conditions for verbatim copying, provided that the
+> > +.\" entire resulting derived work is distributed under the terms of a
+> > +.\" permission notice identical to this one.
+> > +.\"
+> > +.\" Since the Linux kernel and libraries are constantly changing, this
+> > +.\" manual page may be incorrect or out-of-date.  The author(s) assume no
+> > +.\" responsibility for errors or omissions, or for damages resulting from
+> > +.\" the use of the information contained herein.  The author(s) may not
+> > +.\" have taken the same level of care in the production of this manual,
+> > +.\" which is licensed free of charge, as they might when working
+> > +.\" professionally.
+> > +.\"
+> > +.\" Formatted or processed versions of this manual, if unaccompanied by
+> > +.\" the source, must acknowledge the copyright and authors of this work.
+> > +.\" %%%LICENSE_END
+> > +.\"
+> > +.\" Commit ecb8ac8b1f146915aa6b96449b66dd48984caacc
+> > +.\"
+> > +.TH PROCESS_MADVISE 2 2021-01-12 "Linux" "Linux Programmer's Manual"
+> > +.SH NAME
+> > +process_madvise \- give advice about use of memory to a process
+> > +.SH SYNOPSIS
+> > +.nf
+> > +.B #include <sys/uio.h>
+> > +.PP
+> > +.BI "ssize_t process_madvise(int " pidfd ,
+> > +.BI "                       const struct iovec *" iovec ,
+> > +.BI "                       unsigned long " vlen ,
+> > +.BI "                       int " advice ,
+> > +.BI "                       unsigned int " flags ");"
+> > +.fi
+> > +.SH DESCRIPTION
+> > +The
+> > +.BR process_madvise()
+> > +system call is used to give advice or directions to the kernel about the
+> > +address ranges of other process as well as of the calling process.
+> > +It provides the advice to address ranges of process described by
+> > +.I iovec
+> > +and
+> > +.IR vlen .
+> > +The goal of such advice is to improve system or application performance.
+> > +.PP
+> > +The
+> > +.I pidfd
+> > +argument is a PID file descriptor (see
+> > +.BR pidofd_open (2))
+> > +that specifies the process to which the advice is to be applied.
+> > +.PP
+> > +The pointer
+> > +.I iovec
+> > +points to an array of
+> > +.I iovec
+> > +structures, defined in
+> > +.IR <sys/uio.h>
+> > +as:
+> > +.PP
+> > +.in +4n
+> > +.EX
+> > +struct iovec {
+> > +    void  *iov_base;    /* Starting address */
+> > +    size_t iov_len;     /* Number of bytes to transfer */
+> > +};
+> > +.EE
+> > +.in
+> > +.PP
+> > +The
+> > +.I iovec
+> > +structure describes address ranges beginning at
+> > +.I iov_base
+> > +address and with the size of
+> > +.I iov_len
+> > +bytes.
+> > +.PP
+> > +The
+> > +.I vlen
+> > +represents the number of elements in the
+> > +.I iovec
+> > +structure.
+> > +.PP
+> > +The
+> > +.I advice
+> > +argument is one of the values listed below.
+> > +.\"
+> > +.\" ======================================================================
+> > +.\"
+> > +.SS Linux-specific advice values
+> > +The following Linux-specific
+> > +.I advice
+> > +values have no counterparts in the POSIX-specified
+> > +.BR posix_madvise (3),
+> > +and may or may not have counterparts in the
+> > +.BR madvise (2)
+> > +interface available on other implementations.
+> > +.TP
+> > +.BR MADV_COLD " (since Linux 5.4.1)"
+> > +.\" commit 9c276cc65a58faf98be8e56962745ec99ab87636
+> > +Deactive a given range of pages which will make them a more probable
+> > +reclaim target should there be a memory pressure.
+> > +This is a non-destructive operation.
+> > +The advice might be ignored for some pages in the range when it is not
+> > +applicable.
+> > +.TP
+> > +.BR MADV_PAGEOUT " (since Linux 5.4.1)"
+> > +.\" commit 1a4e58cce84ee88129d5d49c064bd2852b481357
+> > +Reclaim a given range of pages.
+> > +This is done to free up memory occupied by these pages.
+> > +If a page is anonymous it will be swapped out.
+> > +If a page is file-backed and dirty it will be written back to the backing
+> > +storage.
+> > +The advice might be ignored for some pages in the range when it is not
+> > +applicable.
+> > +.PP
+> > +The
+> > +.I flags
+> > +argument is reserved for future use; currently, this argument must be
+> > +specified as 0.
+> > +.PP
+> > +The value specified in the
+> > +.I vlen
+> > +argument must be less than or equal to
+> > +.BR IOV_MAX
+> > +(defined in
+> > +.I <limits.h>
+> > +or accessible via the call
+> > +.IR sysconf(_SC_IOV_MAX) ).
+> > +.PP
+> > +The
+> > +.I vlen
+> > +and
+> > +.I iovec
+> > +arguments are checked before applying any hints.
+> > +If the
+> > +.I vlen
+> > +is too big, or
+> > +.I iovec
+> > +is invalid, an error will be returned immediately.
+> > +.PP
+> > +The hint might be applied to a part of
+> > +.I iovec
+> > +if one of its elements points to an invalid memory region in the
+> > +remote process.
+> > +No further elements will be processed beyond that point.
+> > +.PP
+> > +Permission to provide a hint to another process is governed by a
+> > +ptrace access mode
+> > +.B PTRACE_MODE_READ_REALCREDS
+> > +check (see
+> > +.BR ptrace (2));
+> > +in addition, the caller must have the
+> > +.B CAP_SYS_ADMIN
+> > +capability due to performance implications of applying the hint.
+> > +.SH RETURN VALUE
+> > +On success, process_madvise() returns the number of bytes advised.
+> > +This return value may be less than the total number of requested bytes,
+> > +if an error occurred after some iovec elements were already processed.
+> > +The caller should check the return value to determine whether a partial
+> > +advice occurred.
+> > +.PP
+> > +On error, \-1 is returned and
+> > +.I errno
+> > +is set to indicate the error.
+> > +.SH ERRORS
+> > +.TP
+> > +.B EFAULT
+> > +The memory described by
+> > +.I iovec
+> > +is outside the accessible address space of the process referred to by
+> > +.IR pidfd .
+> > +.TP
+> > +.B EINVAL
+> > +.I flags
+> > +is not 0.
+> > +.TP
+> > +.B EINVAL
+> > +The sum of the
+> > +.I iov_len
+> > +values of
+> > +.I iovec
+> > +overflows a
+> > +.I ssize_t
+> > +value.
+> > +.TP
+> > +.B EINVAL
+> > +.I vlen
+> > +is too large.
+> > +.TP
+> > +.B ENOMEM
+> > +Could not allocate memory for internal copies of the
+> > +.I iovec
+> > +structures.
+> > +.TP
+> > +.B EPERM
+> > +The caller does not have permission to access the address space of the process
+> > +.IR pidfd .
+> > +.TP
+> > +.B ESRCH
+> > +The target process does not exist (i.e., it has terminated and been waited on).
+> > +.TP
+> > +.B EBADF
+> > +.I pidfd
+> > +is not a valid PID file descriptor.
+> > +.SH VERSIONS
+> > +This system call first appeared in Linux 5.10,
+> > +.\" commit ecb8ac8b1f146915aa6b96449b66dd48984caacc
+> > +Support for this system call is optional,
+> > +depending on the setting of the
+> > +.B CONFIG_ADVISE_SYSCALLS
+> > +configuration option.
+> > +.SH SEE ALSO
+> > +.BR madvise (2),
+> > +.BR pidofd_open(2),
+> > +.BR process_vm_readv (2),
+> > +.BR process_vm_write (2)
+> > --
+> > 2.30.0.365.g02bc693789-goog
+> >
+>
+> --
+> Michal Hocko
+> SUSE Labs
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+>
