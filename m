@@ -2,114 +2,197 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A54DC433DB
-	for <selinux@archiver.kernel.org>; Fri, 29 Jan 2021 20:06:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF410C433DB
+	for <selinux@archiver.kernel.org>; Sat, 30 Jan 2021 00:51:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE96F61492
-	for <selinux@archiver.kernel.org>; Fri, 29 Jan 2021 20:06:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D97060234
+	for <selinux@archiver.kernel.org>; Sat, 30 Jan 2021 00:51:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbhA2UGX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 Jan 2021 15:06:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:39687 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233129AbhA2UCV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jan 2021 15:02:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611950442;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=kzlpXBXLDpoR8wascPiVhXuZImo4m6XUODbq0/ex+TI=;
-        b=cJbXMoH+Qka7OHYXkljqFl6rQAjVKQJtILpuG2TWklBFHzDBDuXf96Dp6TTQ0bP4Qk0gPz
-        B8ALO540rD9+AVu+/UVV4IJFHvxlLKuPOgnfsYFK8OjCprY0RsJG7CRyavVfK67CZuuOoD
-        0lBtWwJXyfnxcTUcKbCzcIOskFFf/6Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-160-Bx8cIQu5MeS2j7UCNSyoCw-1; Fri, 29 Jan 2021 15:00:40 -0500
-X-MC-Unique: Bx8cIQu5MeS2j7UCNSyoCw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 22BB280670E
-        for <selinux@vger.kernel.org>; Fri, 29 Jan 2021 20:00:39 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.93])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4506860BE2;
-        Fri, 29 Jan 2021 20:00:38 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] scripts/release: Release also tarball with everything
-Date:   Fri, 29 Jan 2021 21:00:34 +0100
-Message-Id: <20210129200034.205263-1-plautrba@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+        id S232019AbhA3Aui (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 Jan 2021 19:50:38 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:58302 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232307AbhA3Aro (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jan 2021 19:47:44 -0500
+Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id C0E1A20B6C41;
+        Fri, 29 Jan 2021 16:45:28 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C0E1A20B6C41
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1611967529;
+        bh=2j8Pk/tJozQLAKykulBJht0UA8oi2+j9h5xFmfPQnxI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=K2FGOBBrSEL+7wMIhzX9K3uPjaMIbgGqBp4xPb/CEbRgfFmL5Wh7UAQgUpUOXmzAm
+         X6FqnOEZT3yIjMVKU8u+ORxlU2mbFeSVIcO1pGmAnKFIxS7o1LETLhbxKjCxjdont6
+         cgcXMZXYgVRRR12eq21IacrcmYNzVV66wuLOCwlg=
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: [PATCH 2/3] IMA: update functions to read allow_dup policy condition
+Date:   Fri, 29 Jan 2021 16:45:18 -0800
+Message-Id: <20210130004519.25106-3-tusharsu@linux.microsoft.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210130004519.25106-1-tusharsu@linux.microsoft.com>
+References: <20210130004519.25106-1-tusharsu@linux.microsoft.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Create and publish with sha256sum also tarball called
-selinux-$VERS.tar.gz with the whole tree. It could be useful for unit
-testing directly from tarball or backporting patches which affects more
-subdirectories. Github already provides similar archive called "Source
-code (tar.gz)" via release assets, but there's no guarantee this file
-would not change.
+IMA functions ima_get_action() and ima_match_policy() do not consume the
+policy condition to allow measuring duplicate entries for integrity
+critical data.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Update ima_get_action() and ima_match_policy() to consume the IMA policy
+condition to measure duplicate buffer entries for integrity critical
+data.
+
+Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
 ---
- scripts/release | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ security/integrity/ima/ima.h          | 4 ++--
+ security/integrity/ima/ima_api.c      | 6 ++++--
+ security/integrity/ima/ima_appraise.c | 2 +-
+ security/integrity/ima/ima_main.c     | 6 +++---
+ security/integrity/ima/ima_policy.c   | 7 ++++++-
+ 5 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/scripts/release b/scripts/release
-index 895a0e1ca1a1..40a9c06f56b9 100755
---- a/scripts/release
-+++ b/scripts/release
-@@ -35,6 +35,8 @@ for i in $DIRS_NEED_PREFIX; do
- 	cd ..
- done
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index aa312472c7c5..59324173497f 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -257,7 +257,7 @@ static inline void ima_process_queued_keys(void) {}
+ int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
+ 		   int mask, enum ima_hooks func, int *pcr,
+ 		   struct ima_template_desc **template_desc,
+-		   const char *func_data);
++		   const char *func_data, bool *allow_dup);
+ int ima_must_measure(struct inode *inode, int mask, enum ima_hooks func);
+ int ima_collect_measurement(struct integrity_iint_cache *iint,
+ 			    struct file *file, void *buf, loff_t size,
+@@ -286,7 +286,7 @@ const char *ima_d_path(const struct path *path, char **pathbuf, char *filename);
+ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
+ 		     enum ima_hooks func, int mask, int flags, int *pcr,
+ 		     struct ima_template_desc **template_desc,
+-		     const char *func_data);
++		     const char *func_data, bool *allow_dup);
+ void ima_init_policy(void);
+ void ima_update_policy(void);
+ void ima_update_policy_flag(void);
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index 1dd70dc68ffd..d273373e6be9 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -171,6 +171,8 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+  * @pcr: pointer filled in if matched measure policy sets pcr=
+  * @template_desc: pointer filled in if matched measure policy sets template=
+  * @func_data: func specific data, may be NULL
++ * @allow_dup: pointer filled in to decide if a duplicate buffer entry
++ *             should be measured
+  *
+  * The policy is defined in terms of keypairs:
+  *		subj=, obj=, type=, func=, mask=, fsmagic=
+@@ -186,14 +188,14 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+ int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
+ 		   int mask, enum ima_hooks func, int *pcr,
+ 		   struct ima_template_desc **template_desc,
+-		   const char *func_data)
++		   const char *func_data, bool *allow_dup)
+ {
+ 	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE | IMA_HASH;
  
-+git archive -o $DEST/selinux-$VERS.tar.gz --prefix=selinux-$VERS/ $VERS
+ 	flags &= ima_policy_flag;
+ 
+ 	return ima_match_policy(inode, cred, secid, func, mask, flags, pcr,
+-				template_desc, func_data);
++				template_desc, func_data, allow_dup);
+ }
+ 
+ /*
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 46ffa38bab12..e317a7698a47 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -77,7 +77,7 @@ int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
+ 
+ 	security_task_getsecid(current, &secid);
+ 	return ima_match_policy(inode, current_cred(), secid, func, mask,
+-				IMA_APPRAISE | IMA_HASH, NULL, NULL, NULL);
++				IMA_APPRAISE | IMA_HASH, NULL, NULL, NULL, NULL);
+ }
+ 
+ static int ima_fix_xattr(struct dentry *dentry,
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 6a429846f90a..2774139845b6 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -219,7 +219,7 @@ static int process_measurement(struct file *file, const struct cred *cred,
+ 	 * Included is the appraise submask.
+ 	 */
+ 	action = ima_get_action(inode, cred, secid, mask, func, &pcr,
+-				&template_desc, NULL);
++				&template_desc, NULL, NULL);
+ 	violation_check = ((func == FILE_CHECK || func == MMAP_CHECK) &&
+ 			   (ima_policy_flag & IMA_MEASURE));
+ 	if (!action && !violation_check)
+@@ -432,7 +432,7 @@ int ima_file_mprotect(struct vm_area_struct *vma, unsigned long prot)
+ 	security_task_getsecid(current, &secid);
+ 	inode = file_inode(vma->vm_file);
+ 	action = ima_get_action(inode, current_cred(), secid, MAY_EXEC,
+-				MMAP_CHECK, &pcr, &template, 0);
++				MMAP_CHECK, &pcr, &template, 0, NULL);
+ 
+ 	/* Is the mmap'ed file in policy? */
+ 	if (!(action & (IMA_MEASURE | IMA_APPRAISE_SUBMASK)))
+@@ -865,7 +865,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 	if (func) {
+ 		security_task_getsecid(current, &secid);
+ 		action = ima_get_action(inode, current_cred(), secid, 0, func,
+-					&pcr, &template, func_data);
++					&pcr, &template, func_data, NULL);
+ 		if (!(action & IMA_MEASURE))
+ 			return;
+ 	}
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index b89eb768dd05..4147c677eb24 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -644,6 +644,8 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
+  * @pcr: set the pcr to extend
+  * @template_desc: the template that should be used for this rule
+  * @func_data: func specific data, may be NULL
++ * @allow_dup: pointer filled in to decide if a duplicate buffer entry
++ *             should be measured
+  *
+  * Measure decision based on func/mask/fsmagic and LSM(subj/obj/type)
+  * conditions.
+@@ -655,7 +657,7 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
+ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
+ 		     enum ima_hooks func, int mask, int flags, int *pcr,
+ 		     struct ima_template_desc **template_desc,
+-		     const char *func_data)
++		     const char *func_data, bool *allow_dup)
+ {
+ 	struct ima_rule_entry *entry;
+ 	int action = 0, actmask = flags | (flags << 1);
+@@ -673,6 +675,9 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
+ 				     func_data))
+ 			continue;
+ 
++		if ((allow_dup) && (func == CRITICAL_DATA))
++			*allow_dup = entry->allow_dup;
 +
- cd $DEST
+ 		action |= entry->flags & IMA_ACTION_FLAGS;
  
- git add .
-@@ -54,13 +56,28 @@ echo ""
- echo "[short log](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/shortlog-$RELEASE_TAG.txt)"
- echo ""
- 
--for i in *.tar.gz; do
-+for i in $DIRS; do
-+	tarball=$i-$VERS.tar.gz
-+	echo -n "[$tarball](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/$tarball) "
-+	sha256sum $tarball | cut -d " " -f 1
-+	echo ""
-+done
- 
--	echo -n "[$i](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/$i) "
--	sha256sum $i | cut -d " " -f 1
-+for i in $DIRS_NEED_PREFIX; do
-+	tarball=selinux-$i-$VERS.tar.gz
-+	echo -n "[$tarball](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/$tarball) "
-+	sha256sum $tarball | cut -d " " -f 1
- 	echo ""
- done
- 
-+echo "### Everything"
-+
-+echo ""
-+
-+echo -n "[selinux-$VERS.tar.gz](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/selinux-$VERS.tar.gz) "
-+sha256sum selinux-$VERS.tar.gz | cut -d " " -f 1
-+echo ""
-+
- echo "And then run:"
- echo "  cd $WIKIDIR"
- echo "  git commit  -m \"Release $RELEASE_TAG\" -a -s"
+ 		action |= entry->action & IMA_DO_MASK;
 -- 
-2.30.0
+2.17.1
 
