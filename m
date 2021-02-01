@@ -2,123 +2,138 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7F52C433E0
-	for <selinux@archiver.kernel.org>; Mon,  1 Feb 2021 14:14:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 893B6C433E0
+	for <selinux@archiver.kernel.org>; Mon,  1 Feb 2021 14:26:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F81D64EA1
-	for <selinux@archiver.kernel.org>; Mon,  1 Feb 2021 14:14:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C97060235
+	for <selinux@archiver.kernel.org>; Mon,  1 Feb 2021 14:26:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232466AbhBAOO3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 1 Feb 2021 09:14:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34102 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231849AbhBAOO2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 1 Feb 2021 09:14:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1612188781;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=UI5GqjcFQspow3+abXaQs58FO7JYwy9g+u0Scm8Z36I=;
-        b=Y0sZDHe1T2mXkPETeavn4nz9HH231AzFP0z5nw5gRyiH009z3DcXVoxUTQLd2QMPR+CfHx
-        pjpINCEFtLWcHmmgpeYZG+RSF/I9QSDWp8zLFIFFif10TYIPwaTdRmSPrBD/BW1cZJlK0r
-        G5NV/8Dpu7KjGQPkNYP1G6dRdl0UVP4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-441-MkDqzNqEMRG1DQFja9A1lQ-1; Mon, 01 Feb 2021 09:12:59 -0500
-X-MC-Unique: MkDqzNqEMRG1DQFja9A1lQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B716D107ACE3;
-        Mon,  1 Feb 2021 14:12:58 +0000 (UTC)
-Received: from localhost (unknown [10.40.192.50])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C49FA5D9DD;
-        Mon,  1 Feb 2021 14:12:57 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH v3] libsemanage: sync filesystem with sandbox
-In-Reply-To: <CAJfZ7=kpTbkjZPF7MdgxshvfbSWumN5+iMdAcN7Cypm6aiqH8w@mail.gmail.com>
-References: <20210131110251.300553-1-plautrba@redhat.com>
- <CAJfZ7=kpTbkjZPF7MdgxshvfbSWumN5+iMdAcN7Cypm6aiqH8w@mail.gmail.com>
-Date:   Mon, 01 Feb 2021 15:12:56 +0100
-Message-ID: <87mtwnswpj.fsf@redhat.com>
+        id S229483AbhBAOZ5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 1 Feb 2021 09:25:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55994 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230008AbhBAOZ0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 1 Feb 2021 09:25:26 -0500
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0951C06174A
+        for <selinux@vger.kernel.org>; Mon,  1 Feb 2021 06:24:45 -0800 (PST)
+Received: by mail-qk1-x734.google.com with SMTP id a19so16346553qka.2
+        for <selinux@vger.kernel.org>; Mon, 01 Feb 2021 06:24:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bcwratD4Re0by9gH+NerdHscYIJgY+vbr4JHZbp+4BQ=;
+        b=eKih+c/JSW5zOOZbwnwWQH7XwATckFJ3lZ9w5H7i5BS1/9ViWI5D+2hGfYRgnp+Xzv
+         C66s7QHdggtEGvdw8gmLSZnjmXDSJfk+rRKdazoJ3Ti93shlgFDQNlM23UsdF4IqDZ4s
+         P1nf+GeRbqO60BuZIiJeWqn3WfVouG9D7X1CFyId95iQ9nqIDG0i/SHGBIvzdwS+dxOV
+         sgIJesKYRgqOhFkwTkXtR873QqCYdU+QRMGUhmddiwOLA9AwDx5vJBMmYMSj1CIv5KsM
+         OCQ08fx5QsgeexHgDYHLxdzWW6hll4AW2Z4kJyTU/Y93nm1J/uC0FOzOE3dQNgTq3gAN
+         2vtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bcwratD4Re0by9gH+NerdHscYIJgY+vbr4JHZbp+4BQ=;
+        b=pcCgOY/R72SoxCGvdlCHdVIdqB1od3eBo1IF+tzwPsLBSwNpcEyc3IXY3H+IbQawgw
+         /XZDViwZXN4p+D3WNaZ6uaydo4ela3pUWIFyckRIYm1yFDHQdcBfX9KuP07JE35+wZSj
+         rJnY8DzvoUg7MXw+8tm8Ovj/QTMWSvvGuATqZbqxfbT7F6m+njpJfxDKsL8kUDVky+Xb
+         GsdU3ahBO+Rqi7j7rVpMwjB/HJk+4qBRx4CXZS76VZ9s0k0zz4kRmJgXY7JI5CIyLKsa
+         FClrCZnoS+Pm9z+9qndknid3alSIIRq3BQ9xDKDqtb4b9wcARzEoYXKh5tk0NUZ34GLQ
+         8BRQ==
+X-Gm-Message-State: AOAM532rrYo4Bi1r0E9uvkEf5J5FCwSLkmQGdJL8O277T1/knQWZ2PNW
+        fm97czB8OrZuTxBXbUyckDXir6037iY=
+X-Google-Smtp-Source: ABdhPJwdetXLSK46cvDlXF9Y5wFL7ZiNKa5uDFpyXxaa4loE6UYbB0mAxuCKi6pwJeyuy24PM+vNsA==
+X-Received: by 2002:a37:4ecd:: with SMTP id c196mr16000691qkb.264.1612189484750;
+        Mon, 01 Feb 2021 06:24:44 -0800 (PST)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id z16sm14215369qtb.73.2021.02.01.06.24.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Feb 2021 06:24:43 -0800 (PST)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Fix heap-use-after-free when using optional blockinherit
+Date:   Mon,  1 Feb 2021 09:24:26 -0500
+Message-Id: <20210201142426.134081-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+This is based on a patch by Nicolas Iooss. He writes:
+    When secilc compiles the following policy:
 
-> On Sun, Jan 31, 2021 at 12:53 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Commit 331a109f91ea ("libsemanage: fsync final files before rename")
->> added fsync() for policy files and improved situation when something
->> unexpected happens right after rename(). However the module store could
->> be affected as well. After the following steps module files could be 0
->> size:
->>
->> 1. Run `semanage fcontext -a -t var_t "/tmp/abc"`
->> 2. Force shutdown the server during the command is run, or right after
->>    it's finished
->> 3. Boot the system and look for empty files:
->>     # find /var/lib/selinux/targeted/ -type f -size 0 | wc -l
->>     1266
->>
->> It looks like this situation can be avoided if the filesystem with the
->> sandbox is sync()ed before we start to rename() directories in the
->> store.
->>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
+        (block b1
+            (optional o1
+                (blockinherit b1)
+                (blockinherit x)
+            )
+        )
 
-Merged.
+    it disables the optional block at pass 3 (CIL_PASS_BLKIN_LINK)
+    because the block "x" does not exist.
+    __cil_resolve_ast_last_child_helper() calls
+    cil_tree_children_destroy() on the optional block, which destroys
+    the two blockinherit statements. But the (blockinherit b1) node
+    was referenced inside (block b1) node, in its block->bi_nodes list.
+    Therefore, when this list is used at pass 4 (CIL_PASS_BLKIN_COPY),
+    it contains a node which was freed: this triggers a use-after-free
+    issue
 
-> Thanks!
-> Nicolas
->
->> ---
->>
->> - syncfs() moved before rename() dance
->>
->>  libsemanage/src/semanage_store.c | 13 +++++++++++++
->>  1 file changed, 13 insertions(+)
->>
->> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
->> index cd5e46bb2401..c6a736fe2d26 100644
->> --- a/libsemanage/src/semanage_store.c
->> +++ b/libsemanage/src/semanage_store.c
->> @@ -1736,6 +1736,19 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
->>         }
->>         close(fd);
->>
->> +       /* sync changes in sandbox to filesystem */
->> +       fd = open(sandbox, O_DIRECTORY);
->> +       if (fd == -1) {
->> +               ERR(sh, "Error while opening %s for syncfs(): %d", sandbox, errno);
->> +               return -1;
->> +       }
->> +       if (syncfs(fd) == -1) {
->> +               ERR(sh, "Error while syncing %s to filesystem: %d", sandbox, errno);
->> +               close(fd);
->> +               return -1;
->> +       }
->> +       close(fd);
->> +
->>         retval = commit_number;
->>
->>         if (semanage_get_active_lock(sh) < 0) {
->> --
->> 2.30.0
->>
+    Fix this issue by removing blockinherit nodes from their lists of
+    nodes block->bi_nodes when they are being destroyed. As
+    cil_destroy_blockinherit() does not have a reference to the node
+    containing the blockinherit data, implement this new logic in
+    cil_tree_node_destroy().
+
+    This issue was found while investigating a testcase from an OSS-Fuzz
+    issue which seems unrelated (a Null-dereference READ in
+    cil_symtab_get_datum,
+    https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29861).
+
+Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_build_ast.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 02481558..3d8367fe 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -283,6 +283,23 @@ void cil_destroy_blockinherit(struct cil_blockinherit *inherit)
+ 		return;
+ 	}
+ 
++	if (inherit->block != NULL && inherit->block->bi_nodes != NULL) {
++		struct cil_tree_node *node;
++		struct cil_list_item *item;
++		int found = CIL_FALSE;
++
++		cil_list_for_each(item, inherit->block->bi_nodes) {
++			node = item->data;
++			if (node->data == inherit) {
++				found = CIL_TRUE;
++				break;
++			}
++		}
++		if (found == CIL_TRUE) {
++			cil_list_remove(inherit->block->bi_nodes, CIL_NODE, node, CIL_FALSE);
++		}
++	}
++
+ 	free(inherit);
+ }
+ 
+-- 
+2.26.2
 
