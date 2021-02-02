@@ -2,83 +2,201 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E89FAC433E0
-	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 07:34:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8DF6C433E6
+	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 10:46:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DCB864EE2
-	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 07:34:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16CBA64D9C
+	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 10:46:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230123AbhBBHeY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Feb 2021 02:34:24 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:47789 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbhBBHeX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Feb 2021 02:34:23 -0500
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 854DD5653C3
-        for <selinux@vger.kernel.org>; Tue,  2 Feb 2021 08:33:41 +0100 (CET)
-Received: by mail-oi1-f181.google.com with SMTP id k142so7355341oib.7
-        for <selinux@vger.kernel.org>; Mon, 01 Feb 2021 23:33:41 -0800 (PST)
-X-Gm-Message-State: AOAM5310n9FpZko17LIa2k9SWCpSxdUeeu/38n5e53K2v9uUwjl+jhKt
-        LqCuzoQRsZ1/dzmbVAXCzW2Qh3qsP3GfHf7yW9s=
-X-Google-Smtp-Source: ABdhPJyldyDVKW8jydI9+bvUrtiWeM3ZKLNW4FcRrXc3wcpBeiuAEvL6fgk3tiBnHv5cQsneh0annJ5pYHeeCbsMuzc=
-X-Received: by 2002:a05:6808:918:: with SMTP id w24mr1896902oih.20.1612251220218;
- Mon, 01 Feb 2021 23:33:40 -0800 (PST)
+        id S229753AbhBBKqD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Feb 2021 05:46:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35918 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229441AbhBBKqB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 2 Feb 2021 05:46:01 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D894EC061573;
+        Tue,  2 Feb 2021 02:45:19 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id p15so19848150wrq.8;
+        Tue, 02 Feb 2021 02:45:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=cc:subject:to:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=cyJs+3SGCj9XR6rS/VsjsM1IE2RFshzJsPr437bOekg=;
+        b=R8CCZUhvPLE+ptZxc8GsaJl3TmtQXWE+yVmgMvkuloUSR8roQI2BOFKdoCN1Z3/lBd
+         CHJb//Dqnu5oJ8Mg5ryuxRPLl8yF0XgbhVZ/GgFyeUjN2xzvkH1MnMTFC5xEu5n2sqrj
+         yApTNm+noDQvdPwKDq/LGeyFQkMefdCjQZ7MAGJLITogCc+A0SUllzCxBWkKBeoSbojG
+         3Ml0bCa0n46GOYn2spBVqp5JSup/Tu5ibPzLCuYqT7cie8TR63+ojVYxctSjGrBZWt5D
+         g/kFmSNzt8SCTl0DYdrZK27v5RU0rH+kz+yXKtff96mRzwsjNmcEg5H3xnXJY2qdwSPA
+         wekw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:cc:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cyJs+3SGCj9XR6rS/VsjsM1IE2RFshzJsPr437bOekg=;
+        b=ISFZZCMm3ZqelQ4jvmHEcbR7mid8/pI1QXskYBAKABJsePGQnay9LuAzT44ZHbxYIl
+         WHx8YYXZiMyLVHWLIw8irRynkVuXYanABlD77tV9b5EuX2UxJ6RG2eKCw9nsmO3aZlXV
+         QzU4/xhkFgvGyRYXGTczYWyTkdpRLZ1dN6MYtxtQnZEBU8K85v5BSoJRTEHeSREbtNLl
+         0xnVNADu4yAm4OlElSG91g9yzC+uSkmJvhEbD+rCXYpPAf7A/zxq5DmkTylJPBvuyqaz
+         HJ9/jSFFUOzsQTGyrtqqHIAJ2PnI09MMAxYSFSyUc1haj/csK9wTj+78DM2TPG7FCkyr
+         dTlg==
+X-Gm-Message-State: AOAM5318lgem+lFFb81cgaEW4ALA6ltkp6/gtMuM+7GJaK8WC5i8s15K
+        73vhYrmKj+dDlblAEb+f9gk=
+X-Google-Smtp-Source: ABdhPJwDwlBcePjdaZRYJS1IF8/IBOZLW5rSrIat6PDunt6i+D5zMu2/LoXBqWkb0y8kvKPjbTwFIw==
+X-Received: by 2002:a5d:6c66:: with SMTP id r6mr22537227wrz.86.1612262718594;
+        Tue, 02 Feb 2021 02:45:18 -0800 (PST)
+Received: from ?IPv6:2001:a61:2542:b001:294f:8948:78a8:d929? ([2001:a61:2542:b001:294f:8948:78a8:d929])
+        by smtp.gmail.com with ESMTPSA id b3sm2647400wme.32.2021.02.02.02.45.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Feb 2021 02:45:17 -0800 (PST)
+Cc:     mtk.manpages@gmail.com, akpm@linux-foundation.org,
+        jannh@google.com, keescook@chromium.org, jeffv@google.com,
+        minchan@kernel.org, mhocko@suse.com, shakeelb@google.com,
+        rientjes@google.com, edgararriaga@google.com, timmurray@google.com,
+        linux-mm@kvack.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel-team@android.com
+Subject: Re: [PATCH v3 1/1] process_madvise.2: Add process_madvise man page
+To:     Suren Baghdasaryan <surenb@google.com>, linux-man@vger.kernel.org
+References: <20210202053046.1653012-1-surenb@google.com>
+From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Message-ID: <079db245-a08c-0dbd-01d4-8065f533652e@gmail.com>
+Date:   Tue, 2 Feb 2021 11:45:14 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 2 Feb 2021 08:33:29 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=mudsPu6FDMY29oXUSVGA7ggqkXPu0RiXa=-=jqwCZzvA@mail.gmail.com>
-Message-ID: <CAJfZ7=mudsPu6FDMY29oXUSVGA7ggqkXPu0RiXa=-=jqwCZzvA@mail.gmail.com>
-Subject: libsepol: signed integer overflow in the HLL line counter of CIL compiler
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb  2 08:33:41 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+In-Reply-To: <20210202053046.1653012-1-surenb@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+Hello Suren (and Minchan and Michal)
 
-OSS-Fuzz found an integer overflow when compiling the following
-(empty) CIL policy:
+Thank you for the revisions!
 
-;;*lms 2147483647 a
-; (empty line)
+I've applied this patch, and done a few light edits.
 
-";;*lms" is a line mark which can be produced by the HLL compiler (if
-I understand correctly the meaning of CIL_KEY_HLL_LMS in
-libsepol/cil/src/cil_parser.c). The line number is parsed as an "int"
-variable:
+However, I have a questions about undocumented pieces in *madvise(2)*,
+as well as one other question. See below. 
 
-  *hll_lineno = strtol(tok.value, &end, 10);
-  if (errno == ERANGE || *end != '\0') {
-    cil_log(CIL_ERR, "Problem parsing line number for line mark\n");
-    goto exit;
-  }
+On 2/2/21 6:30 AM, Suren Baghdasaryan wrote:
+> Initial version of process_madvise(2) manual page. Initial text was
+> extracted from [1], amended after fix [2] and more details added using
+> man pages of madvise(2) and process_vm_read(2) as examples. It also
+> includes the changes to required permission proposed in [3].
+> 
+> [1] https://lore.kernel.org/patchwork/patch/1297933/
+> [2] https://lkml.org/lkml/2020/12/8/1282
+> [3] https://patchwork.kernel.org/project/selinux/patch/20210111170622.2613577-1-surenb@google.com/#23888311
+> 
+> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> Reviewed-by: Michal Hocko <mhocko@suse.com>
+> ---
+> changes in v2:
+> - Changed description of MADV_COLD per Michal Hocko's suggestion
+> - Applied fixes suggested by Michael Kerrisk
+> changes in v3:
+> - Added Michal's Reviewed-by
+> - Applied additional fixes suggested by Michael Kerrisk
+> 
+> NAME
+>     process_madvise - give advice about use of memory to a process
+> 
+> SYNOPSIS
+>     #include <sys/uio.h>
+> 
+>     ssize_t process_madvise(int pidfd,
+>                            const struct iovec *iovec,
+>                            unsigned long vlen,
+>                            int advice,
+>                            unsigned int flags);
+> 
+> DESCRIPTION
+>     The process_madvise() system call is used to give advice or directions
+>     to the kernel about the address ranges of another process or the calling
+>     process. It provides the advice to the address ranges described by iovec
+>     and vlen. The goal of such advice is to improve system or application
+>     performance.
+> 
+>     The pidfd argument is a PID file descriptor (see pidfd_open(2)) that
+>     specifies the process to which the advice is to be applied.
+> 
+>     The pointer iovec points to an array of iovec structures, defined in
+>     <sys/uio.h> as:
+> 
+>     struct iovec {
+>         void  *iov_base;    /* Starting address */
+>         size_t iov_len;     /* Number of bytes to transfer */
+>     };
+> 
+>     The iovec structure describes address ranges beginning at iov_base address
+>     and with the size of iov_len bytes.
+> 
+>     The vlen represents the number of elements in the iovec structure.
+> 
+>     The advice argument is one of the values listed below.
+> 
+>   Linux-specific advice values
+>     The following Linux-specific advice values have no counterparts in the
+>     POSIX-specified posix_madvise(3), and may or may not have counterparts
+>     in the madvise(2) interface available on other implementations.
+> 
+>     MADV_COLD (since Linux 5.4.1)
 
-This code has another issue which is that it silently truncates values
-to 32-bit signed integers on systems where sizeof(long) is 8, because
-hll_lineno is of type "int *", not "long *".
+I just noticed these version numbers now, and thought: they can't be
+right (because the system call appeared only in v5.11). So I removed 
+them. But, of course in another sense the version numbers are (nearly)
+right, since these advice values were added for madvise(2) in Linux 5.4.
+However, they are not documented in the madvise(2) manual page. Is it
+correct to assume that MADV_COLD and MADV_PAGEOUT have exactly the same
+meaning in madvise(2) (but just for the calling process, of course)?
 
-But the issue found by OSS-Fuzz is that when 2147483647 is used (which
-is INT_MAX, 0x7fffffff in hexadecimal), "hll_lineno++;" overflows the
-capacity of signed integers, in cil_parser(), and this is an undefined
-behavior. This could be fixed by limiting the number of lines in a
-source file to some sane value. Another approach consists in emitting
-a warning and resetting the line counter every time it reaches
-INT_MAX. Thoughts?
+>         Deactive a given range of pages which will make them a more probable
 
-For reference (and for the people who have access to it), the related
-OSS-Fuzz issue is
-https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28751.
+I changed: s/Deactive/Deactivate/
 
-Cheers,
-Nicolas
+>         reclaim target should there be a memory pressure. This is a
+>         nondestructive operation. The advice might be ignored for some pages
+>         in the range when it is not applicable.
+> 
+>     MADV_PAGEOUT (since Linux 5.4.1)
+>         Reclaim a given range of pages. This is done to free up memory occupied
+>         by these pages. If a page is anonymous it will be swapped out. If a
+>         page is file-backed and dirty it will be written back to the backing
+>         storage. The advice might be ignored for some pages in the range when
+>         it is not applicable.
 
+[...]
+
+>     The hint might be applied to a part of iovec if one of its elements points
+>     to an invalid memory region in the remote process. No further elements will
+>     be processed beyond that point.
+
+Is the above scenario the one that leads to the partial advice case described in
+RETURN VALUE? If yes, perhaps I should add some words to make that clearer.
+
+You can see the light edits that I made in
+https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=e3ce016472a1b3ec5dffdeb23c98b9fef618a97b
+and following that I restructured DESCRIPTION a little in
+https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=3aac0708a9acee5283e091461de6a8410bc921a6
+
+Thanks,
+
+Michael
+
+
+-- 
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
