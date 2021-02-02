@@ -2,194 +2,224 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-23.2 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD749C433E0
-	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 21:15:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB09DC433DB
+	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 22:14:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 872D064F64
-	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 21:15:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A34A864F63
+	for <selinux@archiver.kernel.org>; Tue,  2 Feb 2021 22:14:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbhBBVPo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Feb 2021 16:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
+        id S234756AbhBBWNt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Feb 2021 17:13:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229684AbhBBVPn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Feb 2021 16:15:43 -0500
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA97C061573
-        for <selinux@vger.kernel.org>; Tue,  2 Feb 2021 13:15:03 -0800 (PST)
-Received: by mail-oi1-x22b.google.com with SMTP id g69so24337152oib.12
-        for <selinux@vger.kernel.org>; Tue, 02 Feb 2021 13:15:03 -0800 (PST)
+        with ESMTP id S234739AbhBBWNj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 2 Feb 2021 17:13:39 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72274C061786
+        for <selinux@vger.kernel.org>; Tue,  2 Feb 2021 14:12:58 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id c4so19366819wru.9
+        for <selinux@vger.kernel.org>; Tue, 02 Feb 2021 14:12:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=j/yRKIgIvjZRX9WvksVHGWUU0bKJ0lLh0+Vf5ccgAnA=;
-        b=fbzDSaN+VAwO1PNEjvdrvRpaIAoc0Sm0HqP2CVIgku7e9V9Swl6XZAwPZrjL98S+d5
-         jDy6vt0X/SJmbBeEpRlEQUf+GqOdpdySw8XknwBl1bZSIjPNjAuRQd/au0VO+C8QjDtc
-         jM7wHk7aIKAqxbY1jdIAblRyksMF9AGJtgTWvA74QNwKXYKOfRfQsbJJkQ/OoS3mM59c
-         Kp933Mms894H2Yl/wyJMFrizwb02fJX4004SRSNzX44gvifklbLSQ4qdexf+bsVwk44b
-         mhOU1zL52A9JqhAPjIAIrCqNljxeXNgSqMztuY5t0tHYvk6D+o5z6MNPt2AoOF4TUjJ1
-         tahg==
+        bh=xqP0a66Os6f9sXyF+kMsv13PEbv0LhzI8V6aeWIM0Ok=;
+        b=TPz3NwZfJQX2n8XN2IcK3GG1+YdjmSwEfCGkkfB/R3l9sej3bWUpfbAM6RCQCZ7zSg
+         wtMWuG93czJxsPaqc/vxVW5m5aofw7Xucq73fsummtWKzVU1OcRLPV1d4bpHrkbnQvc4
+         IGVMEw8sSzmZ9C62tJnk3nveiCu7uLVYsZYtvwViU06V6jZ65gHNw7E+q3Wxw3dk6eXe
+         z5op6gObDb+ORYEdWZ3w4BYU3o2SvM5AHHBAGBxccLb/WJ/Qhq7WY8qKqMIPltmMJ5MP
+         z66weUVMT+YCRplS4JltaxL/GEcdZbNO5Nz0syi3n8gD39XWVSSc8FUArjYvPDInNAiR
+         z2yg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=j/yRKIgIvjZRX9WvksVHGWUU0bKJ0lLh0+Vf5ccgAnA=;
-        b=L4fDI15pQpvRRtb7vnU4bbhvhUklho/ccYomj2lEbLppfYz+ffeHx2r59SZPKZKLtr
-         p6wJVVdS9KSnWXIdPCspTWWfVmGAudq00hv824YgAGSLsIyU/Xw4C3NbZE/4oFL/n80a
-         h513UnFpA7Bzk9/wHYiXqbyEls8vv67v8mOfKQf7u6ICYLJGPXSb6VXTmhNU7wr03yP9
-         sdAq6hU1ViJt8XDQqb55X849w71yyj7EEYc6Ycp9kkQZlbtX2StnB2XDVNeUeWTEVXPK
-         fGkSkZmh15L8Q0cvNRFRR669ewX7oVQdTT8SuX40bMy8VweCTWeOoAk1RbbuD0kROuFl
-         gDXQ==
-X-Gm-Message-State: AOAM532tJDDMKV3xqeLLw8OgmBNONo4imW9RMLDmzm9ImGpW8QrphBgJ
-        pIXrXU6ft1VEyTSCEDurVHA5tK51/97Ukwuy1Mk=
-X-Google-Smtp-Source: ABdhPJwE8WmrNjUUZdpah0ZemikUxA5TLrqXTRrwgYZfvvPJbzpRHICPTN54ia3rublLXRfwpUMzFsSrB+nENEkrdzM=
-X-Received: by 2002:a05:6808:115:: with SMTP id b21mr4078422oie.16.1612300502846;
- Tue, 02 Feb 2021 13:15:02 -0800 (PST)
+        bh=xqP0a66Os6f9sXyF+kMsv13PEbv0LhzI8V6aeWIM0Ok=;
+        b=W4bLjNhr20ifFMClJnl0ttmkXhhx5tfwB9tfbRHpvrYr4olU4WdKcO1vZyAeVJhRSd
+         iQZc2Oz7cGxXO4xmgxmkEdtzNz2ZAaFBUMMjbo8cwJGKcR4NdcbeUGUZ/vNr579nksq+
+         LwZaCM7n/rqtkp+6YhCvhWjZtkkOpQ/NSOvepvd2576UnrC78y4dCA3wak89sPOu6oRk
+         BIRIoZ9cbB5RQLJWJh5tvWKyV+KbZwCg+L/MfkAOXKQAZZGY6e+9CE+HNjjgMRFA12G+
+         +AcKClRG3YFAg0jyzMhQ6SJh9mATxQ3umBAcNis4r9uY8MX23vM4XT6j7hpDft1SaEfX
+         gDpw==
+X-Gm-Message-State: AOAM532n76HrzDZJaFBEUu4qbqzyG3s73edmj2EfRniUv5Xqb0CXzeuT
+        6bLSYMDZHicQjRPS55177qWQEF6nv6JGo2215xUXdg==
+X-Google-Smtp-Source: ABdhPJzXdtevgSVe8n6EmjpNVas/jAjd+jbkaq+OR2OyjZFVqFMgbuoQU4zl5BsooeiKMks3pFo2re/Jz6z7ZkZVsLc=
+X-Received: by 2002:a5d:6884:: with SMTP id h4mr218812wru.106.1612303976784;
+ Tue, 02 Feb 2021 14:12:56 -0800 (PST)
 MIME-Version: 1.0
-References: <20210201142426.134081-1-jwcart2@gmail.com> <CAJfZ7=mZWzLbs5+Ba5bcGaAvOBSYzB5af6hDcGHjJ-i0fXmAVg@mail.gmail.com>
-In-Reply-To: <CAJfZ7=mZWzLbs5+Ba5bcGaAvOBSYzB5af6hDcGHjJ-i0fXmAVg@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 2 Feb 2021 16:14:52 -0500
-Message-ID: <CAP+JOzQpSRqPotgzQOD9yEf7uXxOEVQS5K0DZ9bELCkskj2d8Q@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix heap-use-after-free when using optional blockinherit
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20210202053046.1653012-1-surenb@google.com> <079db245-a08c-0dbd-01d4-8065f533652e@gmail.com>
+In-Reply-To: <079db245-a08c-0dbd-01d4-8065f533652e@gmail.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Tue, 2 Feb 2021 14:12:45 -0800
+Message-ID: <CAJuCfpGotx_04Stn5Nw6Au+TVG9LuAJ=CB_s7uxjMLOLerw-GA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] process_madvise.2: Add process_madvise man page
+To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Cc:     linux-man <linux-man@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 1, 2021 at 5:08 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+Hi Michael,
+
+On Tue, Feb 2, 2021 at 2:45 AM Michael Kerrisk (man-pages)
+<mtk.manpages@gmail.com> wrote:
 >
-> On Mon, Feb 1, 2021 at 3:24 PM James Carter <jwcart2@gmail.com> wrote:
+> Hello Suren (and Minchan and Michal)
+>
+> Thank you for the revisions!
+>
+> I've applied this patch, and done a few light edits.
+
+Thanks!
+
+>
+> However, I have a questions about undocumented pieces in *madvise(2)*,
+> as well as one other question. See below.
+>
+> On 2/2/21 6:30 AM, Suren Baghdasaryan wrote:
+> > Initial version of process_madvise(2) manual page. Initial text was
+> > extracted from [1], amended after fix [2] and more details added using
+> > man pages of madvise(2) and process_vm_read(2) as examples. It also
+> > includes the changes to required permission proposed in [3].
 > >
-> > This is based on a patch by Nicolas Iooss. He writes:
-> >     When secilc compiles the following policy:
+> > [1] https://lore.kernel.org/patchwork/patch/1297933/
+> > [2] https://lkml.org/lkml/2020/12/8/1282
+> > [3] https://patchwork.kernel.org/project/selinux/patch/20210111170622.2613577-1-surenb@google.com/#23888311
 > >
-> >         (block b1
-> >             (optional o1
-> >                 (blockinherit b1)
-> >                 (blockinherit x)
-> >             )
-> >         )
-> >
-> >     it disables the optional block at pass 3 (CIL_PASS_BLKIN_LINK)
-> >     because the block "x" does not exist.
-> >     __cil_resolve_ast_last_child_helper() calls
-> >     cil_tree_children_destroy() on the optional block, which destroys
-> >     the two blockinherit statements. But the (blockinherit b1) node
-> >     was referenced inside (block b1) node, in its block->bi_nodes list.
-> >     Therefore, when this list is used at pass 4 (CIL_PASS_BLKIN_COPY),
-> >     it contains a node which was freed: this triggers a use-after-free
-> >     issue
-> >
-> >     Fix this issue by removing blockinherit nodes from their lists of
-> >     nodes block->bi_nodes when they are being destroyed. As
-> >     cil_destroy_blockinherit() does not have a reference to the node
-> >     containing the blockinherit data, implement this new logic in
-> >     cil_tree_node_destroy().
-> >
-> >     This issue was found while investigating a testcase from an OSS-Fuzz
-> >     issue which seems unrelated (a Null-dereference READ in
-> >     cil_symtab_get_datum,
-> >     https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29861).
-> >
-> > Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> > Reviewed-by: Michal Hocko <mhocko@suse.com>
 > > ---
-> >  libsepol/cil/src/cil_build_ast.c | 17 +++++++++++++++++
-> >  1 file changed, 17 insertions(+)
+> > changes in v2:
+> > - Changed description of MADV_COLD per Michal Hocko's suggestion
+> > - Applied fixes suggested by Michael Kerrisk
+> > changes in v3:
+> > - Added Michal's Reviewed-by
+> > - Applied additional fixes suggested by Michael Kerrisk
 > >
-> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> > index 02481558..3d8367fe 100644
-> > --- a/libsepol/cil/src/cil_build_ast.c
-> > +++ b/libsepol/cil/src/cil_build_ast.c
-> > @@ -283,6 +283,23 @@ void cil_destroy_blockinherit(struct cil_blockinherit *inherit)
-> >                 return;
-> >         }
+> > NAME
+> >     process_madvise - give advice about use of memory to a process
 > >
-> > +       if (inherit->block != NULL && inherit->block->bi_nodes != NULL) {
-> > +               struct cil_tree_node *node;
-> > +               struct cil_list_item *item;
-> > +               int found = CIL_FALSE;
-> > +
-> > +               cil_list_for_each(item, inherit->block->bi_nodes) {
-> > +                       node = item->data;
-> > +                       if (node->data == inherit) {
-> > +                               found = CIL_TRUE;
-> > +                               break;
-> > +                       }
-> > +               }
-> > +               if (found == CIL_TRUE) {
-> > +                       cil_list_remove(inherit->block->bi_nodes, CIL_NODE, node, CIL_FALSE);
-> > +               }
-> > +       }
-> > +
-> >         free(inherit);
-> >  }
+> > SYNOPSIS
+> >     #include <sys/uio.h>
+> >
+> >     ssize_t process_madvise(int pidfd,
+> >                            const struct iovec *iovec,
+> >                            unsigned long vlen,
+> >                            int advice,
+> >                            unsigned int flags);
+> >
+> > DESCRIPTION
+> >     The process_madvise() system call is used to give advice or directions
+> >     to the kernel about the address ranges of another process or the calling
+> >     process. It provides the advice to the address ranges described by iovec
+> >     and vlen. The goal of such advice is to improve system or application
+> >     performance.
+> >
+> >     The pidfd argument is a PID file descriptor (see pidfd_open(2)) that
+> >     specifies the process to which the advice is to be applied.
+> >
+> >     The pointer iovec points to an array of iovec structures, defined in
+> >     <sys/uio.h> as:
+> >
+> >     struct iovec {
+> >         void  *iov_base;    /* Starting address */
+> >         size_t iov_len;     /* Number of bytes to transfer */
+> >     };
+> >
+> >     The iovec structure describes address ranges beginning at iov_base address
+> >     and with the size of iov_len bytes.
+> >
+> >     The vlen represents the number of elements in the iovec structure.
+> >
+> >     The advice argument is one of the values listed below.
+> >
+> >   Linux-specific advice values
+> >     The following Linux-specific advice values have no counterparts in the
+> >     POSIX-specified posix_madvise(3), and may or may not have counterparts
+> >     in the madvise(2) interface available on other implementations.
+> >
+> >     MADV_COLD (since Linux 5.4.1)
 >
-> Hello,
-> The code seems to be too complex for two reasons.
+> I just noticed these version numbers now, and thought: they can't be
+> right (because the system call appeared only in v5.11). So I removed
+> them. But, of course in another sense the version numbers are (nearly)
+> right, since these advice values were added for madvise(2) in Linux 5.4.
+> However, they are not documented in the madvise(2) manual page. Is it
+> correct to assume that MADV_COLD and MADV_PAGEOUT have exactly the same
+> meaning in madvise(2) (but just for the calling process, of course)?
+
+Correct. They should be added in the madvise(2) man page as well IMHO.
+
 >
-> First, doing "if (node->data == inherit) found = CIL_TRUE;" then "if
-> (found == CIL_TRUE){...}" seems too verbose. The code could be
-> simplified to something such as:
+> >         Deactive a given range of pages which will make them a more probable
 >
-> if (inherit->block != NULL && inherit->block->bi_nodes != NULL) {
->   struct cil_list_item *item;
+> I changed: s/Deactive/Deactivate/
+
+thanks!
+
 >
->   /* Find the in bi_nodes the item which contains the inherit object */
->   cil_list_for_each(item, inherit->block->bi_nodes) {
->     struct cil_tree_node *node = item->data;
->     if (node->data == inherit) {
->       cil_list_remove(inherit->block->bi_nodes, CIL_NODE, node, CIL_FALSE);
->       break;
->     }
->   }
-> }
+> >         reclaim target should there be a memory pressure. This is a
+> >         nondestructive operation. The advice might be ignored for some pages
+> >         in the range when it is not applicable.
+> >
+> >     MADV_PAGEOUT (since Linux 5.4.1)
+> >         Reclaim a given range of pages. This is done to free up memory occupied
+> >         by these pages. If a page is anonymous it will be swapped out. If a
+> >         page is file-backed and dirty it will be written back to the backing
+> >         storage. The advice might be ignored for some pages in the range when
+> >         it is not applicable.
 >
-
-I sent a revised patch.
-
-> Second, doing so makes the code browse the inherit->block->bi_nodes
-> list twice (in cil_list_for_each and cil_list_remove). This seems to
-> be easily optimisable by unlinking item when if (node->data ==
-> inherit), but unfortunately there is no helper function for this
-> (because cil_list_item_destroy() does not unlink the item). What do
-> you think of adding a new helper function
-> cil_list_item_unlink_and_destroy(list, item, destroy_data) which would
-> provide a feature between cil_list_remove() and
-> cil_list_item_destroy()?
+> [...]
 >
-I don't know how you can get around walking the list twice. The first
-time through you need to find the node that is going to be removed by
-matching the node's data and the second time through the node is
-removed by matching the list item's data. Not all lists are lists of
-nodes, so the list functions can't search the data of something in the
-list. There are probably a lot of lists of nodes, so perhaps there
-could be a special function that searches the data of a list of nodes
-for a match, but I am not too worried about efficiency here.
+> >     The hint might be applied to a part of iovec if one of its elements points
+> >     to an invalid memory region in the remote process. No further elements will
+> >     be processed beyond that point.
+>
+> Is the above scenario the one that leads to the partial advice case described in
+> RETURN VALUE? If yes, perhaps I should add some words to make that clearer.
 
-I don't understand what you are proposing with
-cil_list_item_unlink_and_destroy().
+Correct. This describes the case when partial advice happens.
 
-Thanks for the comments,
-Jim
+>
+> You can see the light edits that I made in
+> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=e3ce016472a1b3ec5dffdeb23c98b9fef618a97b
+> and following that I restructured DESCRIPTION a little in
+> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=3aac0708a9acee5283e091461de6a8410bc921a6
 
+The edits LGTM.
+Thanks,
+Suren.
 
-> By the way, while testing more the patch I sent, I found out that this
-> introduces a use-after-free issue if inherit->block was freed. I
-> encountered this issue with a simple CIL policy: "(block
-> b2a)(blockinherit b2a)". I will send a patch for this, which performs
-> the opposite operation in cil_destroy_block().
 >
 > Thanks,
-> Nicolas
 >
+> Michael
+>
+>
+> --
+> Michael Kerrisk
+> Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+> Linux/UNIX System Programming Training: http://man7.org/training/
