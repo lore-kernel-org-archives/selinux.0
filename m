@@ -7,102 +7,117 @@ X-Spam-Status: No, score=-16.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 369E6C433E0
-	for <selinux@archiver.kernel.org>; Wed,  3 Feb 2021 08:35:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B2C9C433DB
+	for <selinux@archiver.kernel.org>; Wed,  3 Feb 2021 08:37:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F05D164F68
-	for <selinux@archiver.kernel.org>; Wed,  3 Feb 2021 08:35:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8B0464E46
+	for <selinux@archiver.kernel.org>; Wed,  3 Feb 2021 08:37:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232832AbhBCIfs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Feb 2021 03:35:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:59164 "EHLO
+        id S232758AbhBCIhO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Feb 2021 03:37:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:37039 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232710AbhBCIfr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Feb 2021 03:35:47 -0500
+        by vger.kernel.org with ESMTP id S232644AbhBCIhO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Feb 2021 03:37:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1612341259;
+        s=mimecast20190719; t=1612341348;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=KKq55L2mqVhZMZdJ8VjVfgZsJZRP+wc1k9g1tbdCfOc=;
-        b=EwB2Joz3I60MTw46S4Z7ZyF5WUAuD9yROYKewuqW32lWEBDcjrszZtcansvFgIYYW4qMv9
-        /CdJRW+lCAzzqvNLybCXC+aHC+8DrgMIdHYkSmDwnhrIeCWJEXx6lUG1MfkOizdMn3ZzVc
-        fSY7XEe573eGVWKoR8z4plRAqkp1Dl0=
+        bh=ZdCXAWxYdwhtJDROJS/ZAw21ZEnBBTkJjtt0VroDlTk=;
+        b=JQsX8aRZmk5m8hkynU11yzfXRxKx0hqHM3XneC1EreqtFq5kkFQPc03oQZRfKJ8HXHzDuy
+        Pc3TyZW3NhC8MuI6mdQ9vr1812256JAIwu2mpSIDAS11mM/Kr3BCD/GYCCTqIJ7krXCXrA
+        wlO68ec/aeBkuXjRxa2ojiM1j8nGS14=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-8-Vixm4X1QOKS7cwp93um6KA-1; Wed, 03 Feb 2021 03:34:17 -0500
-X-MC-Unique: Vixm4X1QOKS7cwp93um6KA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-106-N1i2tsTyPnWtA55qadwsQg-1; Wed, 03 Feb 2021 03:35:46 -0500
+X-MC-Unique: N1i2tsTyPnWtA55qadwsQg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5D8E01015C86;
-        Wed,  3 Feb 2021 08:34:16 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E709D107ACF8;
+        Wed,  3 Feb 2021 08:35:44 +0000 (UTC)
 Received: from localhost (unknown [10.40.195.92])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E32645D9F1;
-        Wed,  3 Feb 2021 08:34:15 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 80D9A1001281;
+        Wed,  3 Feb 2021 08:35:44 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH] policycoreutils/setfiles: Drop unused nerr variable
-In-Reply-To: <CAJfZ7==LVUDB7pF2vjr-tRks3svUt-kyy8-N-rVHYjur3HSZNQ@mail.gmail.com>
-References: <20210201143206.389547-1-plautrba@redhat.com>
- <CAJfZ7==LVUDB7pF2vjr-tRks3svUt-kyy8-N-rVHYjur3HSZNQ@mail.gmail.com>
-Date:   Wed, 03 Feb 2021 09:34:15 +0100
-Message-ID: <87y2g5mtx4.fsf@redhat.com>
+Cc:     James Carter <jwcart2@gmail.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 1/1] libsepol/cil: unlink blockinherit->block link when
+ destroying a block
+In-Reply-To: <CAP+JOzROBnb0fRSFM3NVHbqxSk5n7tmvx6pqc7FgzPj0qadFFQ@mail.gmail.com>
+References: <20210201221758.13349-1-nicolas.iooss@m4x.org>
+ <CAP+JOzROBnb0fRSFM3NVHbqxSk5n7tmvx6pqc7FgzPj0qadFFQ@mail.gmail.com>
+Date:   Wed, 03 Feb 2021 09:35:43 +0100
+Message-ID: <87v9b9mtuo.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+James Carter <jwcart2@gmail.com> writes:
 
-> On Mon, Feb 1, 2021 at 3:32 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> On Mon, Feb 1, 2021 at 5:20 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >>
->> Suggested-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> The following CIL policy triggers a heap use-after-free in secilc
+>> because when the blockinherit node is destroyed, the block node was
+>> already destroyed:
+>>
+>>     (block b2a)
+>>     (blockinherit b2a)
+>>
+>> Fix this by setting blockinherit->block to NULL when destroying block.
+>>
+>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-Merged.
+Merged. Thanks!
 
-> Thanks!
-> Nicolas
+
 >> ---
->>  policycoreutils/setfiles/setfiles.c | 5 -----
->>  1 file changed, 5 deletions(-)
+>>  libsepol/cil/src/cil_build_ast.c | 19 ++++++++++++++++++-
+>>  1 file changed, 18 insertions(+), 1 deletion(-)
 >>
->> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
->> index 92616571ef2a..f018d161aa9e 100644
->> --- a/policycoreutils/setfiles/setfiles.c
->> +++ b/policycoreutils/setfiles/setfiles.c
->> @@ -19,7 +19,6 @@ static int warn_no_match;
->>  static int null_terminated;
->>  static int request_digest;
->>  static struct restore_opts r_opts;
->> -static int nerr;
+>> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+>> index 02481558ad11..c6edcde6bc5d 100644
+>> --- a/libsepol/cil/src/cil_build_ast.c
+>> +++ b/libsepol/cil/src/cil_build_ast.c
+>> @@ -231,13 +231,30 @@ exit:
 >>
->>  #define STAT_BLOCK_SIZE 1
+>>  void cil_destroy_block(struct cil_block *block)
+>>  {
+>> +       struct cil_list_item *item;
+>> +       struct cil_tree_node *bi_node;
+>> +       struct cil_blockinherit *inherit;
+>> +
+>>         if (block == NULL) {
+>>                 return;
+>>         }
 >>
->> @@ -161,7 +160,6 @@ int main(int argc, char **argv)
->>         warn_no_match = 0;
->>         request_digest = 0;
->>         policyfile = NULL;
->> -       nerr = 0;
+>>         cil_symtab_datum_destroy(&block->datum);
+>>         cil_symtab_array_destroy(block->symtab);
+>> -       cil_list_destroy(&block->bi_nodes, CIL_FALSE);
+>> +       if (block->bi_nodes != NULL) {
+>> +               /* unlink blockinherit->block */
+>> +               cil_list_for_each(item, block->bi_nodes) {
+>> +                       bi_node = item->data;
+>> +                       /* the conditions should always be true, but better be sure */
+>> +                       if (bi_node->flavor == CIL_BLOCKINHERIT) {
+>> +                               inherit = bi_node->data;
+>> +                               if (inherit->block == block) {
+>> +                                       inherit->block = NULL;
+>> +                               }
+>> +                       }
+>> +               }
+>> +               cil_list_destroy(&block->bi_nodes, CIL_FALSE);
+>> +       }
 >>
->>         r_opts.abort_on_error = 0;
->>         r_opts.progname = strdup(argv[0]);
->> @@ -427,9 +425,6 @@ int main(int argc, char **argv)
->>         r_opts.selabel_opt_digest = (request_digest ? (char *)1 : NULL);
->>         r_opts.selabel_opt_path = altpath;
->>
->> -       if (nerr)
->> -               exit(-1);
->> -
->>         restore_init(&r_opts);
->>
->>         if (use_input_file) {
+>>         free(block);
+>>  }
 >> --
 >> 2.30.0
 >>
