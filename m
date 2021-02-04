@@ -2,120 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C8E6C433E0
-	for <selinux@archiver.kernel.org>; Wed,  3 Feb 2021 17:17:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED59AC433E0
+	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 17:07:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F181564F8C
-	for <selinux@archiver.kernel.org>; Wed,  3 Feb 2021 17:17:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2C9164F65
+	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 17:07:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231757AbhBCRRp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Feb 2021 12:17:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35164 "EHLO
+        id S238115AbhBDRGl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Feb 2021 12:06:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231476AbhBCRRl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Feb 2021 12:17:41 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1D3C0613D6
-        for <selinux@vger.kernel.org>; Wed,  3 Feb 2021 09:17:02 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id l12so524896edt.3
-        for <selinux@vger.kernel.org>; Wed, 03 Feb 2021 09:17:01 -0800 (PST)
+        with ESMTP id S237916AbhBDRGd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Feb 2021 12:06:33 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19298C0613D6
+        for <selinux@vger.kernel.org>; Thu,  4 Feb 2021 09:05:53 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id g10so4428958wrx.1
+        for <selinux@vger.kernel.org>; Thu, 04 Feb 2021 09:05:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=i33UezBDuD8/xEWYRdQB0AXv1sicv5L8V0h+HMhsnDw=;
-        b=mF3qAsxzg4X9W2mCI2cbS+FQs4EeuP6BM+FURsfEL3bOIFCIrkeVPC6VuKX642clOM
-         naUBFyh4rWn/ACHJG0s9DxN6cu1aPvOeGStq4FgfjeKreiA+gIAjeuhXUacwKOKH5yXD
-         8EKUVRbZlZgwv8NdSvofwrohyWy2B/ohAZVcm5Lte1cxRJ7B/VP0RVunx/fjKwNorDcL
-         bFkW5SfoWAm6qP01HuJnUQfDDguSOMUrAXWZx+BustTtEsoz4ZUeRp+z81GXoKcnQCTx
-         ATCpYX5D/EMnKDvvIUpDSzZcASNKaCW0vPSNnPk3pzkjzS/pugNEb+XFc8bbUAE/l39k
-         O/5A==
+        h=from:subject:to:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=vGbgWQizAH1pnJ7dtPQE/gygRFynB0tUurKOjoHp620=;
+        b=fMbgdrBr84DFYywdxVJZnB3TiT58VhDyqu1DUEqrseiLmctfOarzDRvVtUWa3Gc1ae
+         B0fS1/g2BlrEE9qtD7yiilhFAxo4yOgoufYl90XJpYze0BNdFK+dVy98mjSXbcdwjp+B
+         rRJ0idyXSpdZSkBf2fqjvUa6B6G/G14UYDzyS5Qpdn25KRWqk67tApqM7lVR1acJmS7T
+         aEdBm+b6+7v5a82mAzPwnZCzy74lAy7loWsvGuRQxXZuRuB9x/lI3Q348edwwQ1dP2FD
+         ZvuRjcNF5duvFQRjc19ecem0E4uuXrx7bsqxgJhG3cyEr2j3YqFql3ZFpbuTG0soFbBA
+         vLGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=i33UezBDuD8/xEWYRdQB0AXv1sicv5L8V0h+HMhsnDw=;
-        b=lhli9b8F8eWkGZmhnOTq7cvn0qPquq5wW7eT8Y7R1/ePSoO2AOlv7Mw0EyzQQ727VE
-         f0t3Eo/VMN4gilK76S+CCFrS8qx9cF3gRsBkLK2m77dlIeTHWxi0MDj/fDLHYdsNTGh5
-         Y2CZd0ij7uU37LfMBRCjcSGLyKXAVUMFRxbzPG9eypiWSNGEOOGtLNqCgNxF+smX/+Uz
-         tMOqDWIlg+yhp7wKLaqkEEaSccHQ3lga8TuueQtdIe7AgBAO8enorwFV3SlSa/ZzpFzU
-         MmSUnuTtHZTrDNAOzz3KlshBbRN5u8hHMULuPXPfjqKPpBVxQNpqFhXcGCPMv80cqPEc
-         rBQA==
-X-Gm-Message-State: AOAM531V8SDCC0oWGA3iMmcWxoi6eNI+KhAeUeTIKsORO27wM0QgJb0b
-        GsbVI9V7XM510AxwDJSvx8MPTdQLSFI=
-X-Google-Smtp-Source: ABdhPJxyusgpspjfc2be5ZFqlqN/Z9d5X1js89kWM73mWeqhDZCv/gDUI2+YSQTQf44a3NwscXxocw==
-X-Received: by 2002:a50:998f:: with SMTP id m15mr4085541edb.342.1612372620786;
-        Wed, 03 Feb 2021 09:17:00 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-000-080-008.77.0.pool.telefonica.de. [77.0.80.8])
-        by smtp.gmail.com with ESMTPSA id z16sm1256353ejx.73.2021.02.03.09.17.00
+        h=x-gm-message-state:from:subject:to:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=vGbgWQizAH1pnJ7dtPQE/gygRFynB0tUurKOjoHp620=;
+        b=BlJzk1w2aTe5a7wE4X2FjhXFXtIXCpP9ersb9P2206y9dkuUXqLfvbFyBwVP3Q492h
+         23+AXx9rvcvJod0wuHQbaKGWU0V0fvd7WQtOjaDpq1zX7klDONOvzd7FSmbpqPc7ajlP
+         1XGIWpzzDSmdQleBTVzwf0Jbf0ruWnzhjL+qcjF1GDZZkrpT2p3UpSm7bo5bbqkWDIvG
+         IRV6W2ckYh/kKn6ZQ6jHqBh/UwjG7mHHCmtkdjDZNyG8NYH1gVC7k3VR9DVxZlmRi72X
+         OZ7UTLOZncHW94Fgap8SEtfOOF7/COZEnuIIjmvevETBkeCJkr5t9jrRvEoZmgc2umqI
+         A/0A==
+X-Gm-Message-State: AOAM530mfGC33AFaq4BELex2b3b8jOEzuN8ftmF7wvlHGuTOmXtT4NvT
+        CHnK6MCesOXrnwygcvo201ltJcixOzE=
+X-Google-Smtp-Source: ABdhPJzzaALyiwNfsPDmIk0bHSBCHiB+wu2Q309MJeoQesZXiG37y1oEwYT9wgDkoiRgEQ9CtHAVHw==
+X-Received: by 2002:adf:f750:: with SMTP id z16mr289794wrp.243.1612458351858;
+        Thu, 04 Feb 2021 09:05:51 -0800 (PST)
+Received: from ?IPv6:2001:a61:340e:e601:8a:719c:9bc1:dcee? ([2001:a61:340e:e601:8a:719c:9bc1:dcee])
+        by smtp.gmail.com with ESMTPSA id t205sm6784910wmt.28.2021.02.04.09.05.50
         for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Feb 2021 09:17:00 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Feb 2021 09:05:51 -0800 (PST)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+Subject: [PATCH 0/2] secilc/docs: add syntax highlighting for cil examples
 To:     selinux@vger.kernel.org
-Subject: [PATCH 2/2] policycoreutils/fixfiles.8: add missing file systems and merge check and verify
-Date:   Wed,  3 Feb 2021 18:16:54 +0100
-Message-Id: <20210203171654.37002-2-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210203171654.37002-1-cgzones@googlemail.com>
-References: <20210203171654.37002-1-cgzones@googlemail.com>
+Message-ID: <e8b641c5-4e60-a264-1a4e-0c0b2dd98981@gmail.com>
+Date:   Thu, 4 Feb 2021 18:05:49 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Mention the supported file systems ext4, gfs2 and btrfs.
+Hi,
 
-The options check and verify are interchangeable, merge their
-description.
+To make editing the secilc docs easier, I've modified it to use fenced code blocks around all cil examples.
+This way editor syntax highlighting can do a better job and as a result I've found 3 minor bracket issues that are also fixed in patch 1.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- policycoreutils/scripts/fixfiles.8 | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+To allow pandoc to also do syntax highlighting I've written a rudimentary syntax definition in the format consumed by pandoc (https://docs.kde.org/trunk5/en/applications/katepart/highlight.html#katehighlight-xml-format) and enabled it.
+However pandocs default themes aren't the best, some of them don't highlight every keyword I've added, color scheme doesn't fit, etc ...
+On the other side It's very hard to just find 6 colors that work well together.
 
-diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
-index 12342530..c4e894e5 100644
---- a/policycoreutils/scripts/fixfiles.8
-+++ b/policycoreutils/scripts/fixfiles.8
-@@ -35,8 +35,8 @@ database (extended attributes) on filesystems.
- .P
- It can also be run at any time to relabel when adding support for
- new policy, or  just check whether the file contexts are all
--as you expect.  By default it will relabel all mounted ext2, ext3, xfs and 
--jfs file systems as long as they do not have a security context mount 
-+as you expect.  By default it will relabel all mounted ext2, ext3, ext4, gfs2, xfs,
-+jfs and btrfs file systems as long as they do not have a security context mount
- option.  You can use the \-R flag to use rpmpackages as an alternative.
- The file /etc/selinux/fixfiles_exclude_dirs can contain a list of directories
- excluded from relabeling.
-@@ -79,7 +79,7 @@ Modify verbosity from progress to verbose. (Run restorecon with \-v instead of \
- .SH "ARGUMENTS"
- One of:
- .TP 
--.B check
-+.B check | verify
- print any incorrect file context labels, showing old and new context, but do not change them.
- .TP 
- .B restore
-@@ -88,9 +88,6 @@ change any incorrect file context labels.
- .B relabel
- Prompt for removal of contents of /tmp directory and then change any incorrect file context labels to match the install file_contexts file.
- .TP 
--.B verify
--List out files with incorrect file context labels, but do not change them.
--.TP 
- .B [[dir/file] ... ] 
- List of files or directories trees that you wish to check file context on.
- 
--- 
+I've uploaded an example using the default pandoc theme:
+https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide.html
+https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide.pdf
+
+bauen1 (2):
+  secilc/docs: use fenced code blocks for cil examples
+  secilc/docs: add syntax highlighting for secil
+
+ secilc/docs/Makefile                          |  12 +-
+ secilc/docs/cil_access_vector_rules.md        |  33 ++-
+ secilc/docs/cil_call_macro_statements.md      |  10 +
+ .../cil_class_and_permission_statements.md    |  42 ++++
+ secilc/docs/cil_conditional_statements.md     |  16 +-
+ secilc/docs/cil_constraint_statements.md      |  16 ++
+ secilc/docs/cil_container_statements.md       |  16 ++
+ secilc/docs/cil_context_statement.md          |  10 +
+ secilc/docs/cil_file_labeling_statements.md   |  14 ++
+ secilc/docs/cil_infiniband_statements.md      |   9 +-
+ secilc/docs/cil_mls_labeling_statements.md    |  50 +++-
+ .../docs/cil_network_labeling_statements.md   |  16 ++
+ secilc/docs/cil_policy_config_statements.md   |  12 +
+ secilc/docs/cil_reference_guide.md            |  27 +++
+ secilc/docs/cil_role_statements.md            |  26 ++
+ secilc/docs/cil_sid_statements.md             |  12 +
+ secilc/docs/cil_type_statements.md            |  50 ++++
+ secilc/docs/cil_user_statements.md            |  42 +++-
+ secilc/docs/cil_xen_statements.md             |  20 ++
+ secilc/docs/secil.xml                         | 224 ++++++++++++++++++
+ 20 files changed, 644 insertions(+), 13 deletions(-)
+ create mode 100644 secilc/docs/secil.xml
+
+--
 2.30.0
 
