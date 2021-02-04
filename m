@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5372DC433DB
-	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 19:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E145EC433E0
+	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 19:23:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04BF464E7B
-	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 19:22:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A780564F10
+	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 19:23:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239769AbhBDTWm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Feb 2021 14:22:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60864 "EHLO
+        id S239069AbhBDTXB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Feb 2021 14:23:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239699AbhBDTW2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Feb 2021 14:22:28 -0500
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061DBC061786
-        for <selinux@vger.kernel.org>; Thu,  4 Feb 2021 11:21:48 -0800 (PST)
-Received: by mail-ot1-x32b.google.com with SMTP id d7so2271056otq.6
-        for <selinux@vger.kernel.org>; Thu, 04 Feb 2021 11:21:47 -0800 (PST)
+        with ESMTP id S239700AbhBDTWr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Feb 2021 14:22:47 -0500
+Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1798CC061788
+        for <selinux@vger.kernel.org>; Thu,  4 Feb 2021 11:22:07 -0800 (PST)
+Received: by mail-oo1-xc2c.google.com with SMTP id y72so1026925ooa.5
+        for <selinux@vger.kernel.org>; Thu, 04 Feb 2021 11:22:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=vyt5ECATksODRqk7y6CaYLLuBXd2sAczYokqmt7mbsI=;
-        b=NGhtXTDlmG3wZ6nH+gIc8/keqrCLMdRteAVc8BizZOsqnkjb3NXiNsROoyMe2dqUNt
-         Ov4d8gTl0A7IGbXNDV9yAqTc1YTT7FW554bquZRwZdIYL9otr7yBeR9dVAqG5bAhcUlA
-         tzIpUFpXXetW8iomZdYqO88ezJBi1bwPJmD754v8qZp9BCx4+NLwGnGIqJCmGh4UvTUH
-         6fWm5iucXSbwVISHnJSAdrS1d77HV4WVzhUede0X46wDwLW0z4VSj0x4FS1R4fheWsLL
-         FDUOex/VQNtVJOupBeF6WmmgP7b/x13mEg5wvS2K8wDdELk6wn8yIZsDrLCjEJK+Gxd6
-         ErGA==
+        bh=+jy7KG+yUcBRrSqJV9WEUglP+pnST7dxeJiF2xhSpxQ=;
+        b=NtUr+jYf0SnEOi6za8SKnjyAnOHdTaBL6aL2l3fag4xQ/9uNG5CPVyyDl5USFPQvfB
+         WU/Axm1gH/NxFNyZQr2Bic5F0wzE8ayIzEZoPmPaJmD/c/PzJvebhqxUDmoVNI1fEiIw
+         Dl7wraHP7LmW2QzK4YXPQbAFm5KrixvCjdN09MB1oV0HGs6b/CikjjXROv/Y8FS8490P
+         ob0TF5I9ztO9DuLvcZl5C2d0FCyXie52hxBSroWrERLKDZHF1pKGi06cq/T9KcSlPe0B
+         +J/V+GeWiog4g6WDiWdeyLC8olnzP28Ac6PNn+5sEp3MPTmz8oeFcVK1/2BtLc3cjpPA
+         o2Wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=vyt5ECATksODRqk7y6CaYLLuBXd2sAczYokqmt7mbsI=;
-        b=glB+xPVbtFKN6HdTomrPpU4heAENrGqfIShJUsDtNPMSbQTAoyBOCr6ibxXxsg5tqw
-         VThgvFOs/HgJ8MNphzgMnAM1+KcjjsuonZVTqPCEE3D97LCGp4kk9/Fty7uwRqTjufZe
-         HFjnIuE2o28i6TE1J7G8xMuRLXJDytIVqPrssKtWqE5aKYsx8wGpeE3H2Hl67+2/jW2/
-         ut7/fQ1acULb8RgA48AOXzJav3cIqwkQFwXAuuQrBOtzPolXIipxyC6AbcGZZztMsrtY
-         FCh+Fb2huPNdQboUwOeYTgN2CXg/VQrSwkjm4uXRKpbTB4fVn+ukZuh1gEMUiYNjlsyR
-         t0bg==
-X-Gm-Message-State: AOAM530XlZUajGh0Vd5GFsfz+OHm5VcvMPG2icv37xgBPWQUr7VHJcPl
-        Z1naKvqYXRlruXgFqv+bb70/P6F8yjh8QHyksMHXKSi6rDg=
-X-Google-Smtp-Source: ABdhPJwVGZX3p08wRmQJjGUuNffKl8/yeRtin5e80rbx6uKT4IR7zVv/TUSQoW02gsITo0fG/c9lhYDnTSl9wvgiWV4=
-X-Received: by 2002:a05:6830:3482:: with SMTP id c2mr700439otu.59.1612466507509;
- Thu, 04 Feb 2021 11:21:47 -0800 (PST)
+        bh=+jy7KG+yUcBRrSqJV9WEUglP+pnST7dxeJiF2xhSpxQ=;
+        b=Zx682n0lVCwIZNhhgr5j11bYUElr8RPaQArydDsMBB2At4izVV/8KTHrEU/WoUEEMS
+         LZo2brngPAIwlOoUQ7vP1+Z2OZjGYfXzJNSCi2r3th60XSedeBuoweSPCRlPPyWUOIw/
+         sLLAgCvM2At2wgbVIyljjpKNH73rC1s+LAt2FQAItZBatAK2DF4SFth7RzQIPyMsY0BO
+         59fu13Kwtka4YvFd8hgwwB2fMRKu7xmkmldv5XOmjLFjYbqNX9qNxOkyCDJt3WmSmyxS
+         3g/TRa/R5HSjfBJmWSUIrDV2HWOyC66ehdCZZECmXHGWR655jHwi61li5qKyQZ19X67d
+         gyHw==
+X-Gm-Message-State: AOAM5339XTvwBMozNu+FN5gmNeFhDs3lL7/nEpDCXBqpI9CKwZGtM+9h
+        aQd0Hs4cnHnHGyK9hktO6s3wKFAS8bd04qaB40JYDQYDyCY=
+X-Google-Smtp-Source: ABdhPJwR5I+PTo0a8v0/47fIIyAzpaJC6PaT3MLpsE92LctiTheubp3INZkWvJO1eJu7DKOOattZERdcrWdBj8GkGZI=
+X-Received: by 2002:a4a:cb87:: with SMTP id y7mr816536ooq.1.1612466526478;
+ Thu, 04 Feb 2021 11:22:06 -0800 (PST)
 MIME-Version: 1.0
-References: <20210203085846.6680-1-nicolas.iooss@m4x.org> <20210203085846.6680-2-nicolas.iooss@m4x.org>
-In-Reply-To: <20210203085846.6680-2-nicolas.iooss@m4x.org>
+References: <20210203085846.6680-1-nicolas.iooss@m4x.org> <20210203085846.6680-3-nicolas.iooss@m4x.org>
+In-Reply-To: <20210203085846.6680-3-nicolas.iooss@m4x.org>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 4 Feb 2021 14:26:49 -0500
-Message-ID: <CAP+JOzRUB6YWwTK1vx6hUuCw7SmPYa2vJQ1PA8mWbEN+8GLBqQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] libsepol: uniformize prototypes of sepol_mls_contains
- and sepol_mls_check
+Date:   Thu, 4 Feb 2021 14:27:08 -0500
+Message-ID: <CAP+JOzSk62FAj=xP5=8S2NCzdspn23NyxaMEVE4b+LvKyms3dw@mail.gmail.com>
+Subject: Re: [PATCH 3/3] libsepol: include header files in source files when
+ matching declarations
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -69,53 +69,137 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Wed, Feb 3, 2021 at 4:00 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> In libsepol/src/mls.c, functions sepol_mls_contains and sepol_mls_check
-> used "sepol_policydb_t * policydb" even though
-> libsepol/include/sepol/context.h used "const sepol_policydb_t *
-> policydb".
+> It is good practise in C to include the header file that specifies the
+> prototype of functions which are defined in the source file. Otherwise,
+> the function prototypes which be different, which could cause unexpected
+> issues.
 >
-> Add const qualifiers in mls.c in order to match the header file. Detect
-> such mismatching error at compile time by including the header file in
-> mls.c.
+> Add the include directives to do this.
 >
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/mls.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+>  libsepol/cil/src/cil_find.c      | 1 +
+>  libsepol/cil/src/cil_fqn.c       | 1 +
+>  libsepol/cil/src/cil_mem.c       | 1 +
+>  libsepol/cil/src/cil_parser.c    | 1 +
+>  libsepol/cil/src/cil_policy.c    | 1 +
+>  libsepol/cil/src/cil_reset_ast.c | 1 +
+>  libsepol/src/kernel_to_cil.c     | 1 +
+>  libsepol/src/kernel_to_conf.c    | 1 +
+>  libsepol/src/services.c          | 1 +
+>  9 files changed, 9 insertions(+)
 >
-> diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
-> index 1ee90cf8dee1..366a1114ce96 100644
-> --- a/libsepol/src/mls.c
-> +++ b/libsepol/src/mls.c
-> @@ -27,6 +27,7 @@
->   * Implementation of the multi-level security (MLS) policy.
->   */
+> diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
+> index 638b675db826..3898725f18d5 100644
+> --- a/libsepol/cil/src/cil_find.c
+> +++ b/libsepol/cil/src/cil_find.c
+> @@ -30,6 +30,7 @@
+>  #include <sepol/policydb/ebitmap.h>
 >
-> +#include <sepol/context.h>
->  #include <sepol/policydb/policydb.h>
+>  #include "cil_internal.h"
+> +#include "cil_find.h"
+>  #include "cil_flavor.h"
+>  #include "cil_list.h"
+>  #include "cil_log.h"
+> diff --git a/libsepol/cil/src/cil_fqn.c b/libsepol/cil/src/cil_fqn.c
+> index 2e76f8737754..097222a83da9 100644
+> --- a/libsepol/cil/src/cil_fqn.c
+> +++ b/libsepol/cil/src/cil_fqn.c
+> @@ -31,6 +31,7 @@
+>  #include <stdio.h>
+>  #include <string.h>
+>
+> +#include "cil_fqn.h"
+>  #include "cil_internal.h"
+>  #include "cil_log.h"
+>  #include "cil_strpool.h"
+> diff --git a/libsepol/cil/src/cil_mem.c b/libsepol/cil/src/cil_mem.c
+> index f73021b58d50..8e4a1d246f2c 100644
+> --- a/libsepol/cil/src/cil_mem.c
+> +++ b/libsepol/cil/src/cil_mem.c
+> @@ -33,6 +33,7 @@
+>  #include <string.h>
+>
+>  #include "cil_log.h"
+> +#include "cil_mem.h"
+>
+>  void *cil_malloc(size_t size)
+>  {
+> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
+> index b62043b95806..0038eed6dd1b 100644
+> --- a/libsepol/cil/src/cil_parser.c
+> +++ b/libsepol/cil/src/cil_parser.c
+> @@ -38,6 +38,7 @@
+>  #include "cil_mem.h"
+>  #include "cil_tree.h"
+>  #include "cil_lexer.h"
+> +#include "cil_parser.h"
+>  #include "cil_strpool.h"
+>  #include "cil_stack.h"
+>
+> diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
+> index 06d7d74e54c3..74edb34575ea 100644
+> --- a/libsepol/cil/src/cil_policy.c
+> +++ b/libsepol/cil/src/cil_policy.c
+> @@ -41,6 +41,7 @@
+>  #include "cil_flavor.h"
+>  #include "cil_find.h"
+>  #include "cil_mem.h"
+> +#include "cil_policy.h"
+>  #include "cil_tree.h"
+>  #include "cil_list.h"
+>  #include "cil_symtab.h"
+> diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
+> index 52e5f64011d2..3da1b9a64167 100644
+> --- a/libsepol/cil/src/cil_reset_ast.c
+> +++ b/libsepol/cil/src/cil_reset_ast.c
+> @@ -2,6 +2,7 @@
+>  #include "cil_internal.h"
+>  #include "cil_log.h"
+>  #include "cil_list.h"
+> +#include "cil_reset_ast.h"
+>  #include "cil_symtab.h"
+>
+>  static inline void cil_reset_classperms_list(struct cil_list *cp_list);
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index c247b32f9e75..a146ac514018 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -16,6 +16,7 @@
+>  #define IPPROTO_SCTP 132
+>  #endif
+>
+> +#include <sepol/kernel_to_cil.h>
+>  #include <sepol/policydb/avtab.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/hashtab.h>
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+> index 62bf706c1aa0..a22f196df9e9 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -15,6 +15,7 @@
+>  #define IPPROTO_SCTP 132
+>  #endif
+>
+> +#include <sepol/kernel_to_conf.h>
+>  #include <sepol/policydb/avtab.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/hashtab.h>
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index 72b39657cd2e..6596431c38e2 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -59,6 +59,7 @@
 >  #include <sepol/policydb/services.h>
->  #include <sepol/policydb/context.h>
-> @@ -664,7 +665,7 @@ int mls_compute_sid(policydb_t * policydb,
->  }
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/util.h>
+> +#include <sepol/sepol.h>
 >
->  int sepol_mls_contains(sepol_handle_t * handle,
-> -                      sepol_policydb_t * policydb,
-> +                      const sepol_policydb_t * policydb,
->                        const char *mls1, const char *mls2, int *response)
->  {
->
-> @@ -703,7 +704,7 @@ int sepol_mls_contains(sepol_handle_t * handle,
->  }
->
->  int sepol_mls_check(sepol_handle_t * handle,
-> -                   sepol_policydb_t * policydb, const char *mls)
-> +                   const sepol_policydb_t * policydb, const char *mls)
->  {
->
->         int ret;
+>  #include "debug.h"
+>  #include "private.h"
 > --
 > 2.30.0
 >
