@@ -2,117 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED59AC433E0
-	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 17:07:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55CB9C433DB
+	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 17:07:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C2C9164F65
-	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 17:07:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28E2B64E8C
+	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 17:07:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238115AbhBDRGl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Feb 2021 12:06:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59646 "EHLO
+        id S236997AbhBDRHm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Feb 2021 12:07:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237916AbhBDRGd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Feb 2021 12:06:33 -0500
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19298C0613D6
-        for <selinux@vger.kernel.org>; Thu,  4 Feb 2021 09:05:53 -0800 (PST)
-Received: by mail-wr1-x42f.google.com with SMTP id g10so4428958wrx.1
-        for <selinux@vger.kernel.org>; Thu, 04 Feb 2021 09:05:53 -0800 (PST)
+        with ESMTP id S238258AbhBDRAT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Feb 2021 12:00:19 -0500
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66221C0613D6
+        for <selinux@vger.kernel.org>; Thu,  4 Feb 2021 08:59:45 -0800 (PST)
+Received: by mail-ot1-x333.google.com with SMTP id d7so4080645otf.3
+        for <selinux@vger.kernel.org>; Thu, 04 Feb 2021 08:59:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:subject:to:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=vGbgWQizAH1pnJ7dtPQE/gygRFynB0tUurKOjoHp620=;
-        b=fMbgdrBr84DFYywdxVJZnB3TiT58VhDyqu1DUEqrseiLmctfOarzDRvVtUWa3Gc1ae
-         B0fS1/g2BlrEE9qtD7yiilhFAxo4yOgoufYl90XJpYze0BNdFK+dVy98mjSXbcdwjp+B
-         rRJ0idyXSpdZSkBf2fqjvUa6B6G/G14UYDzyS5Qpdn25KRWqk67tApqM7lVR1acJmS7T
-         aEdBm+b6+7v5a82mAzPwnZCzy74lAy7loWsvGuRQxXZuRuB9x/lI3Q348edwwQ1dP2FD
-         ZvuRjcNF5duvFQRjc19ecem0E4uuXrx7bsqxgJhG3cyEr2j3YqFql3ZFpbuTG0soFbBA
-         vLGg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GP3m6XoaTN7hMI01UQqO9epcFrx3jceiizAuXBYXAbM=;
+        b=t7HIIo9ozGymAYGRy0crKYNfeWQL8482+xv5nBGus75WhVdUtzzFifYfF3k9dSo0Iz
+         klhdsmfrCkOPwziNzpdpj9TZNjG7xeEwoHsr0B10dCwLm2OGdsUBpqkOsZTtWRV2y8IQ
+         Y4dwIrfAyxLqw5HwcOOOkzuMae+3DC5oTv50P3YjMuthbxE8qSa7lmgt9FqxpsAZo4yg
+         d2NixjY6vUmFvsNsk9P+8d+6l+SdQLxGOWTGE9gGqVa2B0nCfeGtOsVcMvU9iKHfkNM8
+         DTVdUli5VeTVkHcdyj2xkIiWR6YLVu1C26ckFvr/KqImZ8EFuzfl0SrsQ8938DslHQmX
+         f4UA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=vGbgWQizAH1pnJ7dtPQE/gygRFynB0tUurKOjoHp620=;
-        b=BlJzk1w2aTe5a7wE4X2FjhXFXtIXCpP9ersb9P2206y9dkuUXqLfvbFyBwVP3Q492h
-         23+AXx9rvcvJod0wuHQbaKGWU0V0fvd7WQtOjaDpq1zX7klDONOvzd7FSmbpqPc7ajlP
-         1XGIWpzzDSmdQleBTVzwf0Jbf0ruWnzhjL+qcjF1GDZZkrpT2p3UpSm7bo5bbqkWDIvG
-         IRV6W2ckYh/kKn6ZQ6jHqBh/UwjG7mHHCmtkdjDZNyG8NYH1gVC7k3VR9DVxZlmRi72X
-         OZ7UTLOZncHW94Fgap8SEtfOOF7/COZEnuIIjmvevETBkeCJkr5t9jrRvEoZmgc2umqI
-         A/0A==
-X-Gm-Message-State: AOAM530mfGC33AFaq4BELex2b3b8jOEzuN8ftmF7wvlHGuTOmXtT4NvT
-        CHnK6MCesOXrnwygcvo201ltJcixOzE=
-X-Google-Smtp-Source: ABdhPJzzaALyiwNfsPDmIk0bHSBCHiB+wu2Q309MJeoQesZXiG37y1oEwYT9wgDkoiRgEQ9CtHAVHw==
-X-Received: by 2002:adf:f750:: with SMTP id z16mr289794wrp.243.1612458351858;
-        Thu, 04 Feb 2021 09:05:51 -0800 (PST)
-Received: from ?IPv6:2001:a61:340e:e601:8a:719c:9bc1:dcee? ([2001:a61:340e:e601:8a:719c:9bc1:dcee])
-        by smtp.gmail.com with ESMTPSA id t205sm6784910wmt.28.2021.02.04.09.05.50
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Feb 2021 09:05:51 -0800 (PST)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-Subject: [PATCH 0/2] secilc/docs: add syntax highlighting for cil examples
-To:     selinux@vger.kernel.org
-Message-ID: <e8b641c5-4e60-a264-1a4e-0c0b2dd98981@gmail.com>
-Date:   Thu, 4 Feb 2021 18:05:49 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GP3m6XoaTN7hMI01UQqO9epcFrx3jceiizAuXBYXAbM=;
+        b=DTpgNIXWpUwJk+5xoSjZUF4H8MTEeaF1z3hcjnp/x/OUcwig8RuF2d1T1egikGFqEA
+         kbC55+7Mm623vISQsavhxdnpEV9skGEJ1DYTLjx7TzVGXUMasUJxNjX8vvVwI2h3m6s7
+         dmFsT8TEaXIausCzG/FU4XTsNH1h8cjgD9+/WEk5BQkCjLQE//wC4zWbAgED6ubV/4KZ
+         iatjLBfWFsg+W7U+YiK7UFvDaFp47qTmow6VPWxeNDMMYCKvH4d6gpHTdY+dpKrMvxUG
+         ODW0sGZmsMUvQ+WLYRwUigBDq8vD7HHr8kX26+YGdN2Gn1PNOOwWX4vO9OyMOuU5T44N
+         gvQw==
+X-Gm-Message-State: AOAM531WCOr031cu3rHzjrSCPuROfz+OIw5P/pq1LsFdoWUDcY3ZVd9P
+        9xn1BdceUZKaMrbzwNmGexHLAQVr9k9tyBoKvmU=
+X-Google-Smtp-Source: ABdhPJzuCA3kfwRIBipxn3YaSLIYaG8AYoYIc1iNZj+nvmwM6o/faAxW7d2oTYvAvR8VtygWuImIp0nt9j1ls+K746o=
+X-Received: by 2002:a9d:32e2:: with SMTP id u89mr218172otb.196.1612457984621;
+ Thu, 04 Feb 2021 08:59:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAJfZ7=mudsPu6FDMY29oXUSVGA7ggqkXPu0RiXa=-=jqwCZzvA@mail.gmail.com>
+ <CAFftDdp6sZrysHtrt0vYzBm32CG2WN1KDKQjN+uK6GjGq2ezgg@mail.gmail.com>
+In-Reply-To: <CAFftDdp6sZrysHtrt0vYzBm32CG2WN1KDKQjN+uK6GjGq2ezgg@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 4 Feb 2021 12:04:46 -0500
+Message-ID: <CAP+JOzRXnEK64agg1rhu6+0sqsva7c4UBr6sAbGucAaN2Z3uhg@mail.gmail.com>
+Subject: Re: libsepol: signed integer overflow in the HLL line counter of CIL compiler
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+On Tue, Feb 2, 2021 at 2:42 PM William Roberts <bill.c.roberts@gmail.com> wrote:
+>
+> On Tue, Feb 2, 2021 at 1:37 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > Hello,
+> >
+> > OSS-Fuzz found an integer overflow when compiling the following
+> > (empty) CIL policy:
+> >
+> > ;;*lms 2147483647 a
+> > ; (empty line)
+> >
+> > ";;*lms" is a line mark which can be produced by the HLL compiler (if
+> > I understand correctly the meaning of CIL_KEY_HLL_LMS in
+> > libsepol/cil/src/cil_parser.c). The line number is parsed as an "int"
+> > variable:
+> >
+> >   *hll_lineno = strtol(tok.value, &end, 10);
+> >   if (errno == ERANGE || *end != '\0') {
+> >     cil_log(CIL_ERR, "Problem parsing line number for line mark\n");
+> >     goto exit;
+> >   }
+> >
+> > This code has another issue which is that it silently truncates values
+> > to 32-bit signed integers on systems where sizeof(long) is 8, because
+> > hll_lineno is of type "int *", not "long *".
+> >
+> > But the issue found by OSS-Fuzz is that when 2147483647 is used (which
+> > is INT_MAX, 0x7fffffff in hexadecimal), "hll_lineno++;" overflows the
+> > capacity of signed integers, in cil_parser(), and this is an undefined
+> > behavior. This could be fixed by limiting the number of lines in a
+> > source file to some sane value. Another approach consists in emitting
+> > a warning and resetting the line counter every time it reaches
+> > INT_MAX. Thoughts?
+>
+> I would lean towards using the proper type, so we get the full range depending
+> on architecture and warn on lineno wrap, but let it happen. IIUC,
+> Lineno is a helper.
+> I don't see it really affecting anything, so why make it a fatal error.
+>
 
-To make editing the secilc docs easier, I've modified it to use fenced code blocks around all cil examples.
-This way editor syntax highlighting can do a better job and as a result I've found 3 minor bracket issues that are also fixed in patch 1.
+I agree that it doesn't need to be a fatal error. I think it should be
+read into an unsigned long and then checked using something like what
+Nicolas did in cil_fill_integer() before being saved in hll_lineno.
+Also, it makes sense to just make hll_lineno be a uint32_t.
 
-To allow pandoc to also do syntax highlighting I've written a rudimentary syntax definition in the format consumed by pandoc (https://docs.kde.org/trunk5/en/applications/katepart/highlight.html#katehighlight-xml-format) and enabled it.
-However pandocs default themes aren't the best, some of them don't highlight every keyword I've added, color scheme doesn't fit, etc ...
-On the other side It's very hard to just find 6 colors that work well together.
+I am working on a patch, but I won't be able to send it out until late
+this afternoon.
 
-I've uploaded an example using the default pandoc theme:
-https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide.html
-https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide.pdf
+Jim
 
-bauen1 (2):
-  secilc/docs: use fenced code blocks for cil examples
-  secilc/docs: add syntax highlighting for secil
-
- secilc/docs/Makefile                          |  12 +-
- secilc/docs/cil_access_vector_rules.md        |  33 ++-
- secilc/docs/cil_call_macro_statements.md      |  10 +
- .../cil_class_and_permission_statements.md    |  42 ++++
- secilc/docs/cil_conditional_statements.md     |  16 +-
- secilc/docs/cil_constraint_statements.md      |  16 ++
- secilc/docs/cil_container_statements.md       |  16 ++
- secilc/docs/cil_context_statement.md          |  10 +
- secilc/docs/cil_file_labeling_statements.md   |  14 ++
- secilc/docs/cil_infiniband_statements.md      |   9 +-
- secilc/docs/cil_mls_labeling_statements.md    |  50 +++-
- .../docs/cil_network_labeling_statements.md   |  16 ++
- secilc/docs/cil_policy_config_statements.md   |  12 +
- secilc/docs/cil_reference_guide.md            |  27 +++
- secilc/docs/cil_role_statements.md            |  26 ++
- secilc/docs/cil_sid_statements.md             |  12 +
- secilc/docs/cil_type_statements.md            |  50 ++++
- secilc/docs/cil_user_statements.md            |  42 +++-
- secilc/docs/cil_xen_statements.md             |  20 ++
- secilc/docs/secil.xml                         | 224 ++++++++++++++++++
- 20 files changed, 644 insertions(+), 13 deletions(-)
- create mode 100644 secilc/docs/secil.xml
-
---
-2.30.0
-
+> >
+> > For reference (and for the people who have access to it), the related
+> > OSS-Fuzz issue is
+> > https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28751.
+> >
+> > Cheers,
+> > Nicolas
+> >
