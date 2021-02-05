@@ -2,134 +2,178 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44926C433DB
-	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 10:32:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3EDAC433DB
+	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 18:06:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F155D64F3F
-	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 10:32:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A027D64DD4
+	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 18:06:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230063AbhBEKbj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Feb 2021 05:31:39 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:42504 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231354AbhBEK3g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Feb 2021 05:29:36 -0500
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 98316565A9F
-        for <selinux@vger.kernel.org>; Fri,  5 Feb 2021 11:28:53 +0100 (CET)
-Received: by mail-ot1-f41.google.com with SMTP id d7so6416238otf.3
-        for <selinux@vger.kernel.org>; Fri, 05 Feb 2021 02:28:53 -0800 (PST)
-X-Gm-Message-State: AOAM530rRaqJwFVr2Qjgnk9SOWIupc5z65GED5hCRpGzm7TPWKqRsu7X
-        xtV0jZ63SFx97JIwDr8L0ZAS0+lwiYsQjL1zkNY=
-X-Google-Smtp-Source: ABdhPJxZzs86zIco/r/TTiyEpWCJRZeZ5aZZ9F4+Txq59znOciXUxUUFldYS+bZGAVdE6/HBW6i+0OI1yFRsLgi7g1g=
-X-Received: by 2002:a05:6830:4121:: with SMTP id w33mr2703240ott.361.1612520932500;
- Fri, 05 Feb 2021 02:28:52 -0800 (PST)
+        id S233613AbhBEQXt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Feb 2021 11:23:49 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:60652 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233608AbhBEQUP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Feb 2021 11:20:15 -0500
+Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 1578A205CF84;
+        Fri,  5 Feb 2021 10:01:54 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1578A205CF84
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1612548115;
+        bh=sG8c3V5j/GNMfkgLTSc6ef1pV212YYCAuyDQ9vNbitQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aTJv5WEdDWXiv8DSub2T2iKWOi+ew0aC6UN8s5QsIqPWkvmYtKxOXfQuQE8G3CiOr
+         OlGlTYH021e0UCSihAbUPmTHLnp15ETkiJnV3SnPAldNne5OXhCZcX6lCvBdEhddAJ
+         q16xUifV5+fGOvx3S9QkRJLhHakg0iVshK0Q5rmc=
+Date:   Fri, 5 Feb 2021 12:01:47 -0600
+From:   Tyler Hicks <tyhicks@linux.microsoft.com>
+To:     Mark Salyzyn <salyzyn@android.com>,
+        Miklos Szeredi <miklos@szeredi.hu>
+Cc:     linux-kernel@vger.kernel.org,
+        kernel-team <kernel-team@android.com>,
+        linux-fsdevel@vger.kernel.org,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        LSM <linux-security-module@vger.kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Amir Goldstein <amir73il@gmail.com>, linux-doc@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>
+Subject: Re: [RESEND PATCH v18 2/4] overlayfs: handle XATTR_NOSECURITY flag
+ for get xattr method
+Message-ID: <20210205180131.GA648953@sequoia>
+References: <20201021151903.652827-1-salyzyn@android.com>
+ <20201021151903.652827-3-salyzyn@android.com>
+ <CAJfpegtMoD85j5namV592sJD23QeUMD=+tq4SvFDqjVxsAszYQ@mail.gmail.com>
+ <2fd64e4f-c573-c841-abb6-ec0908f78cdd@android.com>
 MIME-Version: 1.0
-References: <20210204220131.229753-1-jwcart2@gmail.com>
-In-Reply-To: <20210204220131.229753-1-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Fri, 5 Feb 2021 11:28:41 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=mk77mhCh4mkNiEu8LfOt2g88cGajwo39toN0JeT=-Xww@mail.gmail.com>
-Message-ID: <CAJfZ7=mk77mhCh4mkNiEu8LfOt2g88cGajwo39toN0JeT=-Xww@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix integer overflow in the handling of hll
- line marks
-To:     James Carter <jwcart2@gmail.com>,
-        James Carter <jwcart2@tycho.nsa.gov>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        William Roberts <bill.c.roberts@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Feb  5 11:28:54 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2fd64e4f-c573-c841-abb6-ec0908f78cdd@android.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 4, 2021 at 11:01 PM James Carter <jwcart2@gmail.com> wrote:
->
-> From: James Carter <jwcart2@tycho.nsa.gov>
->
-> Nicolass Iooss reports:
+On 2020-10-30 09:00:35, Mark Salyzyn wrote:
+> On 10/30/20 8:07 AM, Miklos Szeredi wrote:
+> > On Wed, Oct 21, 2020 at 5:19 PM Mark Salyzyn <salyzyn@android.com> wrote:
+> > > Because of the overlayfs getxattr recursion, the incoming inode fails
+> > > to update the selinux sid resulting in avc denials being reported
+> > > against a target context of u:object_r:unlabeled:s0.
+> > > 
+> > > Solution is to respond to the XATTR_NOSECURITY flag in get xattr
+> > > method that calls the __vfs_getxattr handler instead so that the
+> > > context can be read in, rather than being denied with an -EACCES
+> > > when vfs_getxattr handler is called.
+> > > 
+> > > For the use case where access is to be blocked by the security layer.
+> > > 
+> > > The path then would be security(dentry) ->
+> > > __vfs_getxattr({dentry...XATTR_NOSECURITY}) ->
+> > > handler->get({dentry...XATTR_NOSECURITY}) ->
+> > > __vfs_getxattr({realdentry...XATTR_NOSECURITY}) ->
+> > > lower_handler->get({realdentry...XATTR_NOSECURITY}) which
+> > > would report back through the chain data and success as expected,
+> > > the logging security layer at the top would have the data to
+> > > determine the access permissions and report back to the logs and
+> > > the caller that the target context was blocked.
+> > > 
+> > > For selinux this would solve the cosmetic issue of the selinux log
+> > > and allow audit2allow to correctly report the rule needed to address
+> > > the access problem.
+> > > 
+> > > Check impure, opaque, origin & meta xattr with no sepolicy audit
+> > > (using __vfs_getxattr) since these operations are internal to
+> > > overlayfs operations and do not disclose any data.  This became
+> > > an issue for credential override off since sys_admin would have
+> > > been required by the caller; whereas would have been inherently
+> > > present for the creator since it performed the mount.
+> > > 
+> > > This is a change in operations since we do not check in the new
+> > > ovl_do_getxattr function if the credential override is off or not.
+> > > Reasoning is that the sepolicy check is unnecessary overhead,
+> > > especially since the check can be expensive.
+> > > 
+> > > Because for override credentials off, this affects _everyone_ that
+> > > underneath performs private xattr calls without the appropriate
+> > > sepolicy permissions and sys_admin capability.  Providing blanket
+> > > support for sys_admin would be bad for all possible callers.
+> > > 
+> > > For the override credentials on, this will affect only the mounter,
+> > > should it lack sepolicy permissions. Not considered a security
+> > > problem since mounting by definition has sys_admin capabilities,
+> > > but sepolicy contexts would still need to be crafted.
+> > This would be a problem when unprivileged mounting of overlay is
+> > introduced.  I'd really like to avoid weakening the current security
+> > model.
+> 
+> The current security model does not deal with non-overlapping security
+> contexts between init (which on android has MAC permissions only when
+> necessary, only enough permissions to perform the mount and other mundane
+> operations, missing exec and read permissions in key spots) and user calls.
+> 
+> We are only weakening (that is actually an incorrect statement, security is
+> there, just not double security of both mounter and caller) the security
+> around calls that retrieve the xattr for administrative and internal
+> purposes. No data is exposed to the caller that it would not otherwise have
+> permissions for.
 
-There is only one S in my first name ;)
+We've ran into the same issues that Mark is trying to solve with this
+series. I came across Mark's series while searching around before I
+wrote up a similar patch to Mark's patch #3.
 
->   OSS-Fuzz found an integer overflow when compiling the following
->   (empty) CIL policy:
->
->   ;;*lms 2147483647 a
->   ; (empty line)
->
-> Change hll_lineno to uint32_t which is the type of the field hll_line
-> in struct cil_tree_node where the line number will be stored eventually.
-> Read the line number into an unsigned long variable using strtoul()
-> instead of strtol(). On systems where ULONG_MAX > UINT32_MAX, set the
-> value to 0 and print a warning if it is larger than UINT32_MAX before
-> storing it in hll_lineno.
->
-> Also change hll_expand to uint32_t, since its value will be either
-> 0 or 1 and there is no need for it to be signed.
->
-> Reported-by: Nicolass Iooss <nicolas.iooss@m4x.org>
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->  libsepol/cil/src/cil_parser.c | 31 ++++++++++++++++++++-----------
->  1 file changed, 20 insertions(+), 11 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
-> index b62043b9..9d3bd580 100644
->[...]
-> @@ -140,11 +141,19 @@ static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int
->                         cil_log(CIL_ERR, "Invalid line mark syntax\n");
->                         goto exit;
->                 }
-> -               *hll_lineno = strtol(tok.value, &end, 10);
-> +
-> +               val = strtoul(tok.value, &end, 10);
->                 if (errno == ERANGE || *end != '\0') {
->                         cil_log(CIL_ERR, "Problem parsing line number for line mark\n");
->                         goto exit;
->                 }
-> +#if ULONG_MAX > UINT32_MAX
-> +               if (val > UINT32_MAX) {
-> +                       cil_log(CIL_WARN, "Line mark line number > UINT32_MAX\n");
-> +                       val = 0;
-> +               }
-> +#endif
-> +               *hll_lineno = val;
+We have a confined process that sets up Overlayfs mounts, then that process
+starts a service confined by another security context, then that service
+may execute binaries that run under a third security context. In this
+case, I'm talking about SELinux security contexts but it could be
+AppArmor or anything else that you use to separate out
+privileges/permissions at fine-grained detail.
 
-Using both cil_log(CIL_ERR, "Problem parsing line number for line
-mark\n"); and cil_log(CIL_WARN, "Line mark line number >
-UINT32_MAX\n"); is inconsistent (if a CIL file is processed on a
-32-bit system and contains a line mark with a number greater than
-UINT32_MAX, the compilation will fail due to the first if).
+We don't want to grant all the privileges/permissions required by the
+service (and its helper utilities) to the process that sets up the
+Overlayfs mounts because we've been very careful in separating them
+apart with security policy. However, we want to make use of Overlayfs
+and adding a mount option to bypass the check on the mounter's cred
+seems like a safe way of using Overlayfs without violating our principle
+of least privilege.
 
-In my humble opinion, the compiler should output an error if val >
-UINT32_MAX here, while accepting to (silently) wrap around UINT32_MAX
-when the line number is later incremented (which is the standard
-behavior with unsigned integers in C, if I remember correctly). This
-way, numbers greater than UINT32_MAX are forbidden in CIL source
-files, both on 32-bit and 64-bit systems. If you disagree and want to
-accept line mark with any line numbers, the first if block needs to be
-changed to use "cil_log(CIL_WARN, "Problem parsing line number for
-line mark\n");val=0;".
+Tyler
 
-Another issue: function add_hll_linemark() currently ends with:
-
-exit:
-  cil_log(CIL_ERR, "Problem with high-level line mark at line %d of
-%s\n", tok.line, path);
-  return SEPOL_ERR;
-
-The %d needs to be replaced with %u in the message. Moreover if you
-want to keep cil_log(CIL_WARN), it would be very useful to have ("...
-at line %u of %s\n", tok.line, path) in the message.
-
-Thanks,
-Nicolas
-
+> 
+> This patch becomes necessary when matched with the PATCH v18 3/4 of the
+> series which fixes the user space break introduced in ~4.6 that formerly
+> used the callers credentials for all accesses in all places. Security is
+> weakened already as-is in overlayfs with all the overriding of the
+> credentials for internal accesses to overlayfs mechanics based on the
+> mounter credentials. Using the mounter credentials as a wider security hole
+> is the problem, at least with PATCH v18 3/4 of the series we go back
+> optionally to only using the caller's credentials to perform the operations.
+> Admittedly some of the internal operations like mknod are privileged, but at
+> least in Android's use case we are not using them with callers without the
+> necessary credentials.
+> 
+> Android does not give the mounter more credentials than the callers, there
+> is very little overlap in the MAC security.
+> 
+> > The big API churn in the 1/4 patch also seems excessive considering
+> > that this seems to be mostly a cosmetic issue for android.  Am I
+> > missing something?
+> 
+> Breaks sepolicy, it no longer has access to the context data at the
+> overlayfs security boundary.
+> 
+> unknown is a symptom of being denied based on the denial to xattr data from
+> the underlying filesystem layer. Being denied the security context of the
+> target is not a good thing within the sepolicy security layer.
+> 
+> > 
+> > Thanks,
+> > Miklos
+> 
+> 
