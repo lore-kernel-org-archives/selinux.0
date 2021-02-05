@@ -2,230 +2,134 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0FCC433E9
-	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 09:53:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44926C433DB
+	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 10:32:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A7AA64FBC
-	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 09:53:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F155D64F3F
+	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 10:32:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229767AbhBEJxg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Feb 2021 04:53:36 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:46889 "EHLO
+        id S230063AbhBEKbj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Feb 2021 05:31:39 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:42504 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbhBEJqw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Feb 2021 04:46:52 -0500
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
+        with ESMTP id S231354AbhBEK3g (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Feb 2021 05:29:36 -0500
+Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 6EC3456129F
-        for <selinux@vger.kernel.org>; Fri,  5 Feb 2021 10:46:09 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 1/3] libsepol/cil: fix NULL pointer dereference with empty macro argument
-Date:   Fri,  5 Feb 2021 10:45:37 +0100
-Message-Id: <20210205094539.388854-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.30.0
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 98316565A9F
+        for <selinux@vger.kernel.org>; Fri,  5 Feb 2021 11:28:53 +0100 (CET)
+Received: by mail-ot1-f41.google.com with SMTP id d7so6416238otf.3
+        for <selinux@vger.kernel.org>; Fri, 05 Feb 2021 02:28:53 -0800 (PST)
+X-Gm-Message-State: AOAM530rRaqJwFVr2Qjgnk9SOWIupc5z65GED5hCRpGzm7TPWKqRsu7X
+        xtV0jZ63SFx97JIwDr8L0ZAS0+lwiYsQjL1zkNY=
+X-Google-Smtp-Source: ABdhPJxZzs86zIco/r/TTiyEpWCJRZeZ5aZZ9F4+Txq59znOciXUxUUFldYS+bZGAVdE6/HBW6i+0OI1yFRsLgi7g1g=
+X-Received: by 2002:a05:6830:4121:: with SMTP id w33mr2703240ott.361.1612520932500;
+ Fri, 05 Feb 2021 02:28:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Feb  5 10:46:09 2021 +0100 (CET))
+References: <20210204220131.229753-1-jwcart2@gmail.com>
+In-Reply-To: <20210204220131.229753-1-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Fri, 5 Feb 2021 11:28:41 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mk77mhCh4mkNiEu8LfOt2g88cGajwo39toN0JeT=-Xww@mail.gmail.com>
+Message-ID: <CAJfZ7=mk77mhCh4mkNiEu8LfOt2g88cGajwo39toN0JeT=-Xww@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Fix integer overflow in the handling of hll
+ line marks
+To:     James Carter <jwcart2@gmail.com>,
+        James Carter <jwcart2@tycho.nsa.gov>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        William Roberts <bill.c.roberts@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Feb  5 11:28:54 2021 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-OSS-Fuzz found a Null-dereference READ in the CIL compiler when trying
-to compile the following policy:
+On Thu, Feb 4, 2021 at 11:01 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> From: James Carter <jwcart2@tycho.nsa.gov>
+>
+> Nicolass Iooss reports:
 
-    (macro m((name n))) (call m(()))
+There is only one S in my first name ;)
 
-When calling the macro, the name (in variable "pc") is NULL, which
-triggers a NULL pointer dereference when using it as a key in
-__cil_insert_name(). The stack trace is:
+>   OSS-Fuzz found an integer overflow when compiling the following
+>   (empty) CIL policy:
+>
+>   ;;*lms 2147483647 a
+>   ; (empty line)
+>
+> Change hll_lineno to uint32_t which is the type of the field hll_line
+> in struct cil_tree_node where the line number will be stored eventually.
+> Read the line number into an unsigned long variable using strtoul()
+> instead of strtol(). On systems where ULONG_MAX > UINT32_MAX, set the
+> value to 0 and print a warning if it is larger than UINT32_MAX before
+> storing it in hll_lineno.
+>
+> Also change hll_expand to uint32_t, since its value will be either
+> 0 or 1 and there is no need for it to be signed.
+>
+> Reported-by: Nicolass Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/cil/src/cil_parser.c | 31 ++++++++++++++++++++-----------
+>  1 file changed, 20 insertions(+), 11 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
+> index b62043b9..9d3bd580 100644
+>[...]
+> @@ -140,11 +141,19 @@ static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int
+>                         cil_log(CIL_ERR, "Invalid line mark syntax\n");
+>                         goto exit;
+>                 }
+> -               *hll_lineno = strtol(tok.value, &end, 10);
+> +
+> +               val = strtoul(tok.value, &end, 10);
+>                 if (errno == ERANGE || *end != '\0') {
+>                         cil_log(CIL_ERR, "Problem parsing line number for line mark\n");
+>                         goto exit;
+>                 }
+> +#if ULONG_MAX > UINT32_MAX
+> +               if (val > UINT32_MAX) {
+> +                       cil_log(CIL_WARN, "Line mark line number > UINT32_MAX\n");
+> +                       val = 0;
+> +               }
+> +#endif
+> +               *hll_lineno = val;
 
-    #0 0x7f4662655a85 in __strlen_avx2 (/usr/lib/libc.so.6+0x162a85)
-    #1 0x556d0b6d150c in __interceptor_strlen.part.0 (/selinux/libsepol/fuzz/fuzz-secilc+0x44850c)
-    #2 0x556d0ba74ed6 in symhash /selinux/libsepol/src/symtab.c:22:9
-    #3 0x556d0b9ef50d in hashtab_search /selinux/libsepol/src/hashtab.c:186:11
-    #4 0x556d0b928e1f in cil_symtab_get_datum /selinux/libsepol/src/../cil/src/cil_symtab.c:121:37
-    #5 0x556d0b8f28f4 in __cil_insert_name /selinux/libsepol/src/../cil/src/cil_resolve_ast.c:96:2
-    #6 0x556d0b908184 in cil_resolve_call1 /selinux/libsepol/src/../cil/src/cil_resolve_ast.c:2835:12
-    #7 0x556d0b91b404 in __cil_resolve_ast_node /selinux/libsepol/src/../cil/src/cil_resolve_ast.c
-    #8 0x556d0b91380f in __cil_resolve_ast_node_helper /selinux/libsepol/src/../cil/src/cil_resolve_ast.c:3773:7
-    #9 0x556d0b932230 in cil_tree_walk_core /selinux/libsepol/src/../cil/src/cil_tree.c:263:9
-    #10 0x556d0b932230 in cil_tree_walk /selinux/libsepol/src/../cil/src/cil_tree.c:307:7
-    #11 0x556d0b932326 in cil_tree_walk_core /selinux/libsepol/src/../cil/src/cil_tree.c:275:9
-    #12 0x556d0b932326 in cil_tree_walk /selinux/libsepol/src/../cil/src/cil_tree.c:307:7
-    #13 0x556d0b911189 in cil_resolve_ast /selinux/libsepol/src/../cil/src/cil_resolve_ast.c:3941:8
-    #14 0x556d0b798729 in cil_compile /selinux/libsepol/src/../cil/src/cil.c:550:7
+Using both cil_log(CIL_ERR, "Problem parsing line number for line
+mark\n"); and cil_log(CIL_WARN, "Line mark line number >
+UINT32_MAX\n"); is inconsistent (if a CIL file is processed on a
+32-bit system and contains a line mark with a number greater than
+UINT32_MAX, the compilation will fail due to the first if).
 
-Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28544
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/cil/src/cil_resolve_ast.c | 79 ++++++++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
+In my humble opinion, the compiler should output an error if val >
+UINT32_MAX here, while accepting to (silently) wrap around UINT32_MAX
+when the line number is later incremented (which is the standard
+behavior with unsigned integers in C, if I remember correctly). This
+way, numbers greater than UINT32_MAX are forbidden in CIL source
+files, both on 32-bit and 64-bit systems. If you disagree and want to
+accept line mark with any line numbers, the first if block needs to be
+changed to use "cil_log(CIL_WARN, "Problem parsing line number for
+line mark\n");val=0;".
 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 0c85eabe5a81..9300cd2be9be 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -2828,6 +2828,12 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 			switch (flavor) {
- 			case CIL_NAME: {
- 				struct cil_name *name;
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				name = __cil_insert_name(args->db, pc->data, current);
- 				if (name != NULL) {
- 					new_arg->arg = (struct cil_symtab_datum *)name;
-@@ -2837,21 +2843,57 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 			}
- 				break;
- 			case CIL_TYPE:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_ROLE:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_USER:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_SENS:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_CAT:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_BOOL:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_CATSET: {
-@@ -2871,6 +2913,11 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					cil_list_append(((struct cil_symtab_datum*)catset)->nodes,
- 									CIL_LIST_ITEM, cat_node);
- 					new_arg->arg = (struct cil_symtab_datum*)catset;
-+				} else if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
- 				} else {
- 					new_arg->arg_str = pc->data;
- 				}
-@@ -2896,6 +2943,11 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					cil_list_append(((struct cil_symtab_datum*)level)->nodes, 
- 									CIL_LIST_ITEM, lvl_node);
- 					new_arg->arg = (struct cil_symtab_datum*)level;
-+				} else if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
- 				} else {
- 					new_arg->arg_str = pc->data;
- 				}
-@@ -2921,6 +2973,11 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					cil_list_append(((struct cil_symtab_datum*)range)->nodes, 
- 									CIL_LIST_ITEM, range_node);
- 					new_arg->arg = (struct cil_symtab_datum*)range;
-+				} else if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
- 				} else {
- 					new_arg->arg_str = pc->data;
- 				}
-@@ -2946,6 +3003,11 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					cil_list_append(((struct cil_symtab_datum*)ipaddr)->nodes,
- 									CIL_LIST_ITEM, addr_node);
- 					new_arg->arg = (struct cil_symtab_datum*)ipaddr;
-+				} else if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
- 				} else {
- 					new_arg->arg_str = pc->data;
- 				}
-@@ -2953,9 +3015,21 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 				break;
- 			}
- 			case CIL_CLASS:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_MAP_CLASS:
-+				if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
- 				new_arg->arg_str = pc->data;
- 				break;
- 			case CIL_CLASSPERMISSION: {
-@@ -2976,6 +3050,11 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					cp_node->data = cp;
- 					cil_list_append(cp->datum.nodes, CIL_LIST_ITEM, cp_node);
- 					new_arg->arg = (struct cil_symtab_datum*)cp;
-+				} else if (pc->data == NULL) {
-+					cil_tree_log(current, CIL_ERR, "Invalid macro parameter");
-+					cil_destroy_args(new_arg);
-+					rc = SEPOL_ERR;
-+					goto exit;
- 				} else {
- 					new_arg->arg_str = pc->data;
- 				}
--- 
-2.30.0
+Another issue: function add_hll_linemark() currently ends with:
+
+exit:
+  cil_log(CIL_ERR, "Problem with high-level line mark at line %d of
+%s\n", tok.line, path);
+  return SEPOL_ERR;
+
+The %d needs to be replaced with %u in the message. Moreover if you
+want to keep cil_log(CIL_WARN), it would be very useful to have ("...
+at line %u of %s\n", tok.line, path) in the message.
+
+Thanks,
+Nicolas
 
