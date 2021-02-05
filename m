@@ -2,155 +2,224 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 718DBC433DB
-	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 23:20:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69221C433E0
+	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 02:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B87064F39
-	for <selinux@archiver.kernel.org>; Thu,  4 Feb 2021 23:20:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B62164FB4
+	for <selinux@archiver.kernel.org>; Fri,  5 Feb 2021 02:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229570AbhBDXT5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Feb 2021 18:19:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55728 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbhBDXT5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Feb 2021 18:19:57 -0500
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49C7AC0613D6
-        for <selinux@vger.kernel.org>; Thu,  4 Feb 2021 15:19:17 -0800 (PST)
-Received: by mail-ot1-x335.google.com with SMTP id d7so5165849otf.3
-        for <selinux@vger.kernel.org>; Thu, 04 Feb 2021 15:19:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=i1bkSvr+ndbppScBcgMHL3trWPemTG7bKtrF1VxWLSE=;
-        b=Qd8WwYg4Py70wuz8jhmU2nxw7b+C5KJU1/FwUY6sXGuHpy3wF2Z3GqBDRbW14frl7E
-         gEZKMRdhKke069L3buxMjS0ToGku7f7h2TZDwJNzF5FbfJn0UrLRoi/ZU8zWLLO4P52Z
-         0eIbCtok7wIui0zvDhF5tDcPRRGds/z5GteP5dA3M9E8K0WLjTq1Tnkb9LdnDdmjlKsz
-         zVj51ZanXrJpYPzzbGl6Aif7wo60EsX+zpavzTr25U1nKyTAh3WKjUWrJMateidTmiYJ
-         GvesW7gATLhiqft7+JLs5pdaC7Ay5JeXHrX+skb1EZE7mfBO+3niCJCXxBAeKbbG5f/G
-         SODw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=i1bkSvr+ndbppScBcgMHL3trWPemTG7bKtrF1VxWLSE=;
-        b=FISukETV0OBs/FYQ1fhwdJ0nN94l8Q9OnmniNNJl1ThkBMuQ9tyYRBJ3QVAPhEW9Sq
-         OmndLMW8S2NRZSihqStaA+DG5D7mfQ6arGQD/O4aulVLV4EsX91k5UjzXJTmRkcXU3nx
-         F2aA/JI078GnkA/BGJCPkdTAVG1gYlkr1CGeqfYvS2iP2Ndi14aIB6/DAUJFv4LsjsaA
-         8RPMkJHznad8Ev7bAgA01EFujTC7bZXDNXgbsux5SRBsVtjZQTstJfFd5zTyIrfjesbn
-         G9K0VWStUUDdIfmzpSWC3Uh/KuhZEDUhY7/qdJtaVQzRzS/CvqoahagZnAz4Q2DIe2AV
-         +Yqw==
-X-Gm-Message-State: AOAM530cYCOCld1TATmbcKU1PNqjEokIi+nVu1Z8ewFQf3e5+zxw2VcV
-        XBVkR4tddFp3uUf11691ubjhqOzgDMRB5ikCs4zB3edx
-X-Google-Smtp-Source: ABdhPJyy1279YIpAyoDK2YdjqwGYqEATTy6CiSKLim1NJDecy/4Q+/yGc942N/7+S2orq1IAe/Fv6T5Grf8UCAP3c6k=
-X-Received: by 2002:a05:6830:3482:: with SMTP id c2mr1324064otu.59.1612480756750;
- Thu, 04 Feb 2021 15:19:16 -0800 (PST)
+        id S229808AbhBECrb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Feb 2021 21:47:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229705AbhBECr3 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 4 Feb 2021 21:47:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38AF464FA7;
+        Fri,  5 Feb 2021 02:46:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612493208;
+        bh=u7fCLAhX1pOwBx9BOcb331n4nXXbCELnac9pfuMdw40=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aKqP2NtJwTWkkRvAXb7ogJw+spwaPwbSFR6MdVHrrbndME/wehMGYfotFjvjy44rN
+         EdnmJvO8unOg33HhXcSolWitHCL+LnXtd/2PDVjdeMUpItQyGKMMp0VBQYQTHSrIqb
+         zLsSTv7Xlht5g1dcjBN4b59L57IfHiVHyB5JQe0ULO5D4icYj+qHxFrhvo2iTR1ZBl
+         CdLEX8Od2/oABQQtdkcHad7hv4GhSaGt6UWHQMeWAigWU0tyrEnoqV/nnqY7ti2V5F
+         g3tD5v2wmksqiD/Bg3SxiISs6hagCAqXIDn8hDPKaoMHfNQ6L4fFxY+1g3oDePZK4W
+         JCnl0mclkQrbg==
+Date:   Fri, 5 Feb 2021 04:46:40 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     David Howells <dhowells@redhat.com>
+Cc:     sprabhu@redhat.com, christian@brauner.io, selinux@vger.kernel.org,
+        keyrings@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, containers@lists.linux-foundation.org
+Subject: Re: [PATCH 1/2] Add namespace tags that can be used for matching
+ without pinning a ns
+Message-ID: <YByxkDi0Ruhb0AA8@kernel.org>
+References: <161246085160.1990927.13137391845549674518.stgit@warthog.procyon.org.uk>
+ <161246085966.1990927.2555272056564793056.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-References: <e8b641c5-4e60-a264-1a4e-0c0b2dd98981@gmail.com>
- <CAP+JOzQ6Vv7dFJfqBUe5SO596UVQ3-SzJ_Vi50nLf7fv6ofTVQ@mail.gmail.com> <82ba2e85-54f6-5a7b-2bc4-b49bc509de18@gmail.com>
-In-Reply-To: <82ba2e85-54f6-5a7b-2bc4-b49bc509de18@gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 4 Feb 2021 18:19:05 -0500
-Message-ID: <CAP+JOzT3Ee=WnMfnME3N=MCytb1um3F=iBZnNUzV6xN6R8PYpg@mail.gmail.com>
-Subject: Re: [PATCH 0/2] secilc/docs: add syntax highlighting for cil examples
-To:     bauen1 <j2468h@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <161246085966.1990927.2555272056564793056.stgit@warthog.procyon.org.uk>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 4, 2021 at 4:28 PM bauen1 <j2468h@googlemail.com> wrote:
->
-> On 2/4/21 9:17 PM, James Carter wrote:
-> > I notice on page 10:
-> > (block unconfined
-> >     (user user)
-> >    ...
-> >
-> > That the second user (which is the name of the user) is highlighted as
-> > well as the user keyword.
-> >
-> > Similar thing happens further done on page 10 with the rule:
-> > (portcon udp 12345 (unconfined.user object_r unconfined.object ((s0) (s0(c0)))))
-> >
-> > The "user" part of "unconfined.user" is highlighted.
-> >
-> > "unconfined.user" is used in other examples as well.
-> >
-> > Changing the first statement to be (user user1) would be fine, but I
-> > would like "unconfined.user" to remain as is.
-> > I am not sure how hard it would be to fix that.
-> >
->
-> I thought this would be harder, but just highlighting the first cil keyword in a block is actually very easy, and I can rework the patch to do just that.
->
-> It becomes more difficult when trying to add (some) highlighting to everything else since keywords are reused as names very often (I do that by design even):
->
-> Some examples from the guide:
->
-> (macro all ((type x))
->     (allow x bin_t (policy.file (execute)))
->     (allowx x bin_t (ioctl policy.file (range 0x1000 0x11FF)))
-> )
-> (call all (bin_t))
->
-> (mlsvalidatetrans file (domby l1 h2))
->
-> (defaultrole char target)
->
-> (type t1)
-> (allow bb.t2 bb.t1 (policy.file (read write execute))))))
->
-> In the above e.g. all is name, but is usually a keyword with a very important meaning, so imho it should be highlighted, in a lesser way this also goes for t1, or domby, ...
->
-> The only way I avoid highlighting _all_ names as keywords is to implement a lot of the CIL grammar in the syntax highlighter, but I'm not really sure if it's worth the effort.
-> It could be done for some keywords, e.g. constraints, filecon.
->
-> A better alternative might be to just highlight less, e.g. drop `low`, `low-high` keywords entirely.
->
-> I've uploaded another version with some small fixes and a debug color theme to better show what-is-what:
->
-> https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide2.html
->
-> and with more keywords removed:
->
-> https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide3.html
->
-> ; only in version 2: file is considered a keyword (builtin), but this should normally only be the case in filecon statements, here it references a class
-> (mlsvalidatetrans file (domby l1 h2))
->
-> ; all, t1, low is considered a keyword (builtin), but is a name
-> (call all (bin_t))
-> (type t1)
-> (userlevel u5 low)
->
-> ; but here t2, t1 are no longer highlighted erroneously.
-> (allow bb.t2 bb.t1 (policy.file (read write execute)))
->
-> I think Version 3 only has mismatches in the example policy due to usage of `all`, `t1` and `t2` as names, so that might be the way to go.
->
+On Thu, Feb 04, 2021 at 05:47:39PM +0000, David Howells wrote:
+> Add a ns tag struct that consists of just a refcount.  It's address can be
+> used to compare namespaces without the need to pin a namespace.  Just the
+> tag needs pinning.
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> ---
+> 
+>  fs/namespace.c            |   18 ++++++++----------
+>  include/linux/ns_common.h |   23 +++++++++++++++++++++++
+>  include/linux/proc_ns.h   |   38 +++++++++++++++++++++++++++++++++++---
+>  init/version.c            |    9 ++++++++-
+>  ipc/msgutil.c             |    7 ++++++-
+>  ipc/namespace.c           |    8 +++-----
+>  kernel/cgroup/cgroup.c    |    5 +++++
+>  kernel/cgroup/namespace.c |    6 +++---
+>  kernel/pid.c              |    5 +++++
+>  kernel/pid_namespace.c    |   18 +++++++++---------
+>  kernel/time/namespace.c   |   13 +++++--------
+>  kernel/user.c             |    5 +++++
+>  kernel/user_namespace.c   |    7 +++----
+>  kernel/utsname.c          |   24 +++++++++++++-----------
+>  net/core/net_namespace.c  |   38 +++++++++++++++-----------------------
+>  15 files changed, 146 insertions(+), 78 deletions(-)
+> 
+> diff --git a/fs/namespace.c b/fs/namespace.c
+> index 9d33909d0f9e..f8da9be8c6f7 100644
+> --- a/fs/namespace.c
+> +++ b/fs/namespace.c
+> @@ -3238,10 +3238,9 @@ static void dec_mnt_namespaces(struct ucounts *ucounts)
+>  
+>  static void free_mnt_ns(struct mnt_namespace *ns)
+>  {
+> -	if (!is_anon_ns(ns))
+> -		ns_free_inum(&ns->ns);
+>  	dec_mnt_namespaces(ns->ucounts);
+>  	put_user_ns(ns->user_ns);
+> +	destroy_ns_common(&ns->ns);
+>  	kfree(ns);
+>  }
+>  
+> @@ -3269,18 +3268,17 @@ static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns, bool a
+>  		dec_mnt_namespaces(ucounts);
+>  		return ERR_PTR(-ENOMEM);
+>  	}
+> -	if (!anon) {
+> -		ret = ns_alloc_inum(&new_ns->ns);
+> -		if (ret) {
+> -			kfree(new_ns);
+> -			dec_mnt_namespaces(ucounts);
+> -			return ERR_PTR(ret);
+> -		}
+> +
+> +	ret = init_ns_common(&new_ns->ns, anon);
+> +	if (ret) {
+> +		destroy_ns_common(&new_ns->ns);
+> +		kfree(new_ns);
+> +		dec_mnt_namespaces(ucounts);
+> +		return ERR_PTR(ret);
+>  	}
+>  	new_ns->ns.ops = &mntns_operations;
+>  	if (!anon)
+>  		new_ns->seq = atomic64_add_return(1, &mnt_ns_seq);
+> -	refcount_set(&new_ns->ns.count, 1);
+>  	INIT_LIST_HEAD(&new_ns->list);
+>  	init_waitqueue_head(&new_ns->poll);
+>  	spin_lock_init(&new_ns->ns_lock);
+> diff --git a/include/linux/ns_common.h b/include/linux/ns_common.h
+> index 0f1d024bd958..45174ad8a435 100644
+> --- a/include/linux/ns_common.h
+> +++ b/include/linux/ns_common.h
+> @@ -3,14 +3,37 @@
+>  #define _LINUX_NS_COMMON_H
+>  
+>  #include <linux/refcount.h>
+> +#include <linux/slab.h>
+>  
+>  struct proc_ns_operations;
+>  
+> +/*
+> + * Comparable tag for namespaces so that namespaces don't have to be pinned by
+> + * something that wishes to detect if a namespace matches a criterion.
+> + */
+> +struct ns_tag {
+> +	refcount_t	usage;
 
-I like version 3 the best, but I really don't like the color used for
-"self", "object_r", "h1" , etc. It just stands out too much.
+Is that indentation necessary? I'd put just a space.
 
-Thanks,
-Jim
+> +};
+> +
+>  struct ns_common {
+>  	atomic_long_t stashed;
+>  	const struct proc_ns_operations *ops;
+> +	struct ns_tag *tag;
+>  	unsigned int inum;
+>  	refcount_t count;
+>  };
+>  
+> +static inline struct ns_tag *get_ns_tag(struct ns_tag *tag)
+> +{
+> +	if (tag)
+> +		refcount_inc(&tag->usage);
+> +	return tag;
+> +}
+> +
+> +static inline void put_ns_tag(struct ns_tag *tag)
+> +{
+> +	if (tag && refcount_dec_and_test(&tag->usage))
+> +		kfree(tag);
+> +}
+> +
+>  #endif
+> diff --git a/include/linux/proc_ns.h b/include/linux/proc_ns.h
+> index 75807ecef880..9fb7eb403923 100644
+> --- a/include/linux/proc_ns.h
+> +++ b/include/linux/proc_ns.h
+> @@ -64,13 +64,45 @@ static inline void proc_free_inum(unsigned int inum) {}
+>  
+>  #endif /* CONFIG_PROC_FS */
+>  
+> -static inline int ns_alloc_inum(struct ns_common *ns)
+> +/**
+> + * init_ns_common - Initialise the common part of a namespace
 
-> > I am not sure if this matters to anyone, but if the document is
-> > printed, the syntax highlighting (particularly for the comments) might
-> > make it a little bit hard to read.
->
-> pandoc can still be run without syntax highlighting (--no-highlight) if you want to actually print the document in greyscale.
->
-> It also looks like I messed up when sending the patches, patch 1, the least problematic one ironically, got lost somewhere.
->
-> --
-> bauen1
-> https://dn42.bauen1.xyz/
+Nit: init_ns_common()
+
+> + * @ns: The namespace to initialise
+> + * @anon: The namespace will be anonymous
+> + *
+> + * Set up the common part of a namespace, assigning an inode number and
+> + * creating a tag.  Returns 0 on success and a negative error code on failure.
+> + * On failure, the caller must call destroy_ns_common().
+
+I've used lately (e.g. arch/x86/kernel/cpu/sgx/ioctl.c) along the lines:
+
+* Return:
+* - 0:          Initialization was successful.
+* - -ENOMEM:    Out of memory.
+
+Looking at the implementation, I guess this is a complete representation of
+what it can return?
+
+The driving point here is that this nicely lines up when rendered with
+"make htmldocs".
+
+> + */
+> +static inline int init_ns_common(struct ns_common *ns, bool anon)
+>  {
+> +	struct ns_tag *tag;
+> +
+> +	tag = kzalloc(sizeof(*tag), GFP_KERNEL);
+> +	if (!tag)
+> +		return -ENOMEM;
+> +
+> +	refcount_set(&tag->usage, 1);
+> +	ns->tag = tag;
+> +	ns->inum = 0;
+>  	atomic_long_set(&ns->stashed, 0);
+> -	return proc_alloc_inum(&ns->inum);
+> +	refcount_set(&ns->count, 1);
+> +
+> +	return anon ? 0 : proc_alloc_inum(&ns->inum);
+>  }
+>  
+> -#define ns_free_inum(ns) proc_free_inum((ns)->inum)
+> +/**
+> + * destroy_ns_common - Clean up the common part of a namespace
+
+Nit: destroy_ns_common()
+
+/Jarkko
