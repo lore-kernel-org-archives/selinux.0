@@ -2,126 +2,114 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07BFFC4332D
-	for <selinux@archiver.kernel.org>; Sat,  6 Feb 2021 03:05:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5CB0C433E6
+	for <selinux@archiver.kernel.org>; Sat,  6 Feb 2021 20:30:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C32C264F92
-	for <selinux@archiver.kernel.org>; Sat,  6 Feb 2021 03:05:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 597E364E33
+	for <selinux@archiver.kernel.org>; Sat,  6 Feb 2021 20:30:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231906AbhBFDFT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Feb 2021 22:05:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41094 "EHLO
+        id S229564AbhBFUaF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 6 Feb 2021 15:30:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232086AbhBFCvN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Feb 2021 21:51:13 -0500
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18713C0617A7
-        for <selinux@vger.kernel.org>; Fri,  5 Feb 2021 14:02:26 -0800 (PST)
-Received: by mail-ot1-x333.google.com with SMTP id 63so8411468oty.0
-        for <selinux@vger.kernel.org>; Fri, 05 Feb 2021 14:02:26 -0800 (PST)
+        with ESMTP id S229506AbhBFUaB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 6 Feb 2021 15:30:01 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252F1C06174A
+        for <selinux@vger.kernel.org>; Sat,  6 Feb 2021 12:29:21 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id sa23so18601887ejb.0
+        for <selinux@vger.kernel.org>; Sat, 06 Feb 2021 12:29:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/ke/iQKdjrVvMf6Ogy6itp5CbE7z37eS5V48khmiPMg=;
-        b=mfT3Yg/d0XxtrSShtxP4GBBXG//aU6AO22p8DniN+7VGoWn5Akr4heKDdikTG2RZ48
-         FW0oDihCLpd6vvFMajcKipoZJ8uF+9oZbtgSwK22f69PZ5rkb/yElOeokfwrudm1+BQ7
-         WF0oG7eGsXGyTBxx4QSfWU5E1TaLqFgn/a1grFLM4blKRCcSYcwtpTDG1DVQCOSRZW8D
-         u2XlJirDcPEt0NUKDR/yHZZijnyqPrbSMnoQ1P8j0+eZ2ckT12Ia/wx9/N+iODNyQaBK
-         k9f5Pb+uJ8gkXI+gXC02kl4WkWigzgllkpx1qWhGQww/tMp+E5QHDd1i5UVEzWJXFn3H
-         7FmQ==
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:references:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=p30Qx9DRFbfS1AlucdRVH8UZnocU5x0bi2tViztCWcg=;
+        b=EApo1L+hYOKfRsSKaH+nEqwAje8Y6XDc5/ufYyO4dkfnlgyUYU6geDnLrVRh2qGAQG
+         RmnhupgytcWz3KnKpuxQqpnlEUwhgOlzlzfCHo+hKjmIL7dvjslsHlwYFEqDL3T2G6Z6
+         ZFowrCUMnkniy67WVxBFs6AyNQvAahOhb9e5yk3TQfZ4TLMnN6I+C4i0rYLF1XVV2Y9j
+         kMUtDhJ1YqINkzagjspaPDmo21+6SjPB4S3+qDXXMKBJtKLnhZozJWj15Y5AgN6jFT73
+         eKd6DEm5qRo7M6jnqBdwJ8dToWYVRXjb2DVL0Q+cQWbiu1hf1dzZycLcbA7cqTLXONz/
+         sVnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/ke/iQKdjrVvMf6Ogy6itp5CbE7z37eS5V48khmiPMg=;
-        b=uTevfp1xNTrNdbTsfrWFT/HM1S91hUJnXlgV1v5ddWkJXE4mDAcuusVJUMsxYIgkb3
-         Vy7catjtAV6Re/OtMmYf06eQEydVJFH03l2Lx/w0bVk+EUYt6qGn0HFD07v5dF4Fk4s6
-         QgjVvZGAwnA77+oeEcvPlh6ZRS3ZOoZYvdNTcmUjQSSqY/1YT6ixw/A5/vK0/qlgYMS/
-         lcGxLUiBvutITGoguCRLjDok70UzqdES6uc9VnyAtsqob2kULjXAsmF7OqwB+MySRQOs
-         XuYjdx1K/ulV6XTP6ymsgfTq0lE3a44jAWYXvth/EDJl0kgf8xCMFphi+3LpAU++8drP
-         IOsg==
-X-Gm-Message-State: AOAM530hNGXiqAC4cwdUx+Ek7h2CZLp2Tef3F9rwrUSaFnDwMzN4/ar0
-        1t7FnxSQLl0+IXisLt19TtPWNtiY+A39hQggG9Lr3bztEsk=
-X-Google-Smtp-Source: ABdhPJxSIxEnCirAasxn4PKEVx1hpVZGnBtimNkdhlNMwhhFXHyV8QIYzj/MrEmk9w5lLzkggdv/oprQvmWvPGtQdSk=
-X-Received: by 2002:a05:6830:3482:: with SMTP id c2mr4910182otu.59.1612562545372;
- Fri, 05 Feb 2021 14:02:25 -0800 (PST)
-MIME-Version: 1.0
-References: <20210205094539.388854-1-nicolas.iooss@m4x.org> <20210205094539.388854-2-nicolas.iooss@m4x.org>
-In-Reply-To: <20210205094539.388854-2-nicolas.iooss@m4x.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 5 Feb 2021 17:02:14 -0500
-Message-ID: <CAP+JOzQv0QzwL_OYBsaOPgFUGP+Bo1WQJGnJkaG2rN8T-O+s=Q@mail.gmail.com>
-Subject: Re: [PATCH 2/3] libsepol/cil: be more robust when encountering <src_info>
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+        h=x-gm-message-state:from:to:cc:references:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=p30Qx9DRFbfS1AlucdRVH8UZnocU5x0bi2tViztCWcg=;
+        b=WdA+eJeEQhEbUGVqVB6p9UoO48l8n/QnMiVVicvHoPddyCOpXILfyGNb6fmQBaKn6e
+         aI5CgRu5xt6Y/L68TjsEzpAhww+CF6p1KNKtb4JMOAYakINz8fNzkPYHv2AIrx9KvcxH
+         z6eeXdFXcjDbP3ikWwbgle+e/p4O+2FhIS7HxNbiMPNsrx/wmjWDxYPD0YMA2UD0TEfe
+         FAf6DjW5C5ngTSvI2PWGhp3oLUSbdty6KaGSPOV2uTvBfJAFia0AVx1b3At1XbFKddOh
+         8+D7DfxWpy5zewJ52rVxO1vWA4rouLDq9yRNhXYZjqx66MhXtlReN/kJGuufJUkOsLcp
+         vITQ==
+X-Gm-Message-State: AOAM5307I36kQ6nZMu5JBQuRvwtPtan4oKGXT27dwgmVdASQcWpISKek
+        X7NykUv3ttDKL4UVsnKURSxZVlRr8n4=
+X-Google-Smtp-Source: ABdhPJx875963J/eRS8efwI2WJna3a7DQAFqJbT0KsyZyxBbw8q6u9pftaOHYzuyBlAQzTEaeCZFDA==
+X-Received: by 2002:a17:906:5846:: with SMTP id h6mr10021074ejs.521.1612643359954;
+        Sat, 06 Feb 2021 12:29:19 -0800 (PST)
+Received: from ?IPv6:2001:a61:340e:e601:8a:719c:9bc1:dcee? ([2001:a61:340e:e601:8a:719c:9bc1:dcee])
+        by smtp.gmail.com with ESMTPSA id s15sm5732630ejy.68.2021.02.06.12.29.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 06 Feb 2021 12:29:19 -0800 (PST)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+To:     James Carter <jwcart2@gmail.com>, bauen1 <j2468h@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <e8b641c5-4e60-a264-1a4e-0c0b2dd98981@gmail.com>
+ <CAP+JOzQ6Vv7dFJfqBUe5SO596UVQ3-SzJ_Vi50nLf7fv6ofTVQ@mail.gmail.com>
+ <82ba2e85-54f6-5a7b-2bc4-b49bc509de18@gmail.com>
+ <CAP+JOzT3Ee=WnMfnME3N=MCytb1um3F=iBZnNUzV6xN6R8PYpg@mail.gmail.com>
+Subject: Re: [PATCH 0/2] secilc/docs: add syntax highlighting for cil examples
+Message-ID: <a8abefda-5c2b-918d-65d9-e21b89e9a2bf@gmail.com>
+Date:   Sat, 6 Feb 2021 21:29:18 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+MIME-Version: 1.0
+In-Reply-To: <CAP+JOzT3Ee=WnMfnME3N=MCytb1um3F=iBZnNUzV6xN6R8PYpg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 5, 2021 at 4:54 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On 2/5/21 12:19 AM, James Carter wrote:
+> On Thu, Feb 4, 2021 at 4:28 PM bauen1 <j2468h@googlemail.com> wrote:
 >
-> OSS-Fuzz found a Null-dereference READ in the CIL compiler when trying
-> to compile the following policy:
->
->     (<src_info>)
->
-> In cil_gen_src_info(), parse_current->next is NULL even though the code
-> expects that both parse_current->next and parse_current->next->next
-> exists.
->
-> Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28457
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>>
+>> https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide3.html
+>>
+> 
+> I like version 3 the best, but I really don't like the color used for
+> "self", "object_r", "h1" , etc. It just stands out too much.
 
-This is an interesting case. All of the <SOMETHING> are generated
-internally. I never even thought about what would happen if they
-actually appeared in the policy. I'll have to think about what the
-best way to handle this is. Your patch works fine, but it might be
-better to check for and reject these in the parser.
+This was originally meant to be a test color scheme to showcase all different "classes" of keywords that could be highlighted, not intended as an actual color theme.
 
-Jim
+I've changed the purple to a lighter pink:
 
-> ---
->  libsepol/cil/src/cil_build_ast.c | 5 +++++
->  libsepol/cil/src/cil_tree.c      | 2 +-
->  2 files changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index 5094d62e2238..726f46cd478d 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -6070,6 +6070,11 @@ int cil_gen_src_info(struct cil_tree_node *parse_current, struct cil_tree_node *
->         /* No need to check syntax, because this is auto generated */
->         struct cil_src_info *info = NULL;
->
-> +       if (parse_current->next == NULL || parse_current->next->next == NULL) {
-> +               cil_tree_log(parse_current, CIL_ERR, "Bad <src_info>");
-> +               return SEPOL_ERR;
-> +       }
-> +
->         cil_src_info_init(&info);
->
->         info->is_cil = (parse_current->next->data == CIL_KEY_SRC_CIL) ? CIL_TRUE : CIL_FALSE;
-> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-> index 886412d1b974..3da972e9cf4e 100644
-> --- a/libsepol/cil/src/cil_tree.c
-> +++ b/libsepol/cil/src/cil_tree.c
-> @@ -69,7 +69,7 @@ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **
->
->         while (node) {
->                 if (node->flavor == CIL_NODE && node->data == NULL) {
-> -                       if (node->cl_head->data == CIL_KEY_SRC_INFO) {
-> +                       if (node->cl_head->data == CIL_KEY_SRC_INFO && node->cl_head->next != NULL && node->cl_head->next->next != NULL) {
->                                 /* Parse Tree */
->                                 *path = node->cl_head->next->next->data;
->                                 *is_cil = (node->cl_head->next->data == CIL_KEY_SRC_CIL);
-> --
-> 2.30.0
->
+https://glados.bauen1.xyz/misc_stuff_might_disappear/CIL_Reference_Guide4.html
+
+In case someone can come up with 6 different colors that go well together, I can put together an updated theme (Colors for Strings+SpecialChars, Function, Operator, BuiltIns, Comment, Keyword).
+
+I will send a v2 of the patch, including the color theme as a separate patch.
+
+> ...
+> I find it easier to maintain if the items were sorted in alphabetical
+> order (this enables inserting new items if the need comes one day,
+> without wondering whether the new items should be at the end of the
+> list or if the order should match the one used in some source
+> files...). Or, if you want to keep this order, please add comments
+> describing how the lists were created, in order to ease future
+> modifications.
+
+Thanks for the feedback, will be implemented.
+
+-- 
+bauen1
+https://dn42.bauen1.xyz/
