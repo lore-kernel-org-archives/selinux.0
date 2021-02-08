@@ -2,166 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37CEEC433E9
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 17:59:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9709AC433DB
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 19:38:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 00E1964EBD
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 17:59:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6AF2664EA1
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 19:38:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234718AbhBHR6q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Feb 2021 12:58:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
+        id S236326AbhBHThU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Feb 2021 14:37:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235149AbhBHR44 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 12:56:56 -0500
-Received: from mail-oo1-xc2a.google.com (mail-oo1-xc2a.google.com [IPv6:2607:f8b0:4864:20::c2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A55ACC0617A7
-        for <selinux@vger.kernel.org>; Mon,  8 Feb 2021 09:45:05 -0800 (PST)
-Received: by mail-oo1-xc2a.google.com with SMTP id l5so404477ooj.7
-        for <selinux@vger.kernel.org>; Mon, 08 Feb 2021 09:45:05 -0800 (PST)
+        with ESMTP id S235258AbhBHTgR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 14:36:17 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F024C061356
+        for <selinux@vger.kernel.org>; Mon,  8 Feb 2021 11:35:47 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id q2so20173316edi.4
+        for <selinux@vger.kernel.org>; Mon, 08 Feb 2021 11:35:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bUqmNee0JlYB/+cXpwI+Rd1zmsaYHY9dP1a09QN/L+s=;
-        b=Z2QoTyvXUJ6+Dra352WmOo7pzH+TYnWIC7HVIvZx8WK12JwVYV7W40VZct0rf+NMft
-         uXaWu/9clDEXAVbU5jV43yPp14/uLoBsV1roiKpO74ijbS9SqoXnRDRRiDoHkVr0UMPS
-         SVXo6r4LweqsD5iEdjLGR0gntz6YA2xAoG6Q6yp1vdkEwZtyW179I5Rwt1zsVk+jmwpj
-         LQikKBbDSi/JDqVArEeyyGyRvWFj6uW7dd4RtPDzrS8ZCHrfGfR7WHRQPeH2++oM+kdp
-         7RG83JDxUtASilEA5YTVyx9hqvHKYCSvBzyIJqnHiqlo5pJAXaV1XnuMM/kJMTxefUlh
-         7jvA==
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:references:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=xiW/e273jQZXlxBn9N+qxX5d2Ibu85Qi15o7bQQ2pGI=;
+        b=X+OprvyXrDpsFK0MvFlRDD2lEwNWEQS6cUtRbCDc/XAisPD07fTvL2PoQow+O9pdVy
+         3mmbnSyLRu/Vm9uXAxuCVoCSPqOuLOxNnXx/dUHSP5NGWHzsPORkaEHeT4Bdd2FWsEOs
+         n2aFCtEBJDRtAECuomq0M0+6Uh8ZuD77Bplb901SdBhaSBCjdSzmoGPMNKMU3qT/Uhii
+         SoVQYdxUdBZtBkCc0YGwjvJcLQhrQNsXAoLHsMz0GagiD2eYkNBaielZquPJ4P9y//0V
+         hmWSEun7V5U7SmizxAy4OOO91cBQkoWCrj0/4MSZTtg2cWthXwyVeOAOc/oNI0/bjjXJ
+         Yenw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bUqmNee0JlYB/+cXpwI+Rd1zmsaYHY9dP1a09QN/L+s=;
-        b=Gf3zqq5X/b9LIwnRGvslKwulK5kO6S+4jbd96HFMqMH2d7nqplmTYmLztr2l1n45rC
-         EDaO+xfvIpaqUgazCsqGxTUQsa3bJnxAOwhk0wUteSFLDpr8lPnjHcxbukzgTurvgHz/
-         M2Ccz+aTw1AExqNu5oN+T7YEK8nFGTCsEKEaTWpgUGbOdQUijHL1tW90V+EaMas6paou
-         dXHDeNf+iabh1EH8Qr+OicrlW7ST2kaCcGpDjQ30BrhQhL6r1P8imhosgC++8kPszUtw
-         5l8tjbw9uY8Vpd+9lnvw/TB0/NkNz+Rz8fh7WND7F+fHvgCVwuuzARv2jlUefrhqlm8w
-         9Mjg==
-X-Gm-Message-State: AOAM533QL1xzdwvOPCw3/bLUo5SufH7MjrPE5o+1KWiTEiSB9mj8GmmJ
-        EyPXqkmMUhM85s8qfR7Eq6pwA9MpLHq3YO6+IaE=
-X-Google-Smtp-Source: ABdhPJxgEhkwHaLrVXIl6n50gjAjDb6sqbUC0xT54MHpwf27d9cXlysdwhkIhrida3Sacwk0uvkRk7WLLpi3AO3BulQ=
-X-Received: by 2002:a4a:aacd:: with SMTP id e13mr3179914oon.35.1612806305162;
- Mon, 08 Feb 2021 09:45:05 -0800 (PST)
-MIME-Version: 1.0
-References: <a8abefda-5c2b-918d-65d9-e21b89e9a2bf@gmail.com> <3cfe5057-8bfe-4058-a0f2-058ecc480ab9@gmail.com>
-In-Reply-To: <3cfe5057-8bfe-4058-a0f2-058ecc480ab9@gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 8 Feb 2021 12:44:54 -0500
-Message-ID: <CAP+JOzRxf31Q+3kVr7UJSFZP0Ywh_+Jq=GQ4r2iukm0mL02Shg@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] secilc/docs: add custom color theme
-To:     bauen1 <j2468h@googlemail.com>
+        h=x-gm-message-state:from:to:cc:references:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=xiW/e273jQZXlxBn9N+qxX5d2Ibu85Qi15o7bQQ2pGI=;
+        b=mAKYybAVfV7LSHfsdSKVBGoS4jaeO7kqoO3rnPYjUijqL/23Y70/abIOGORuIegav6
+         J6V7xK8kReK3fIvexL5C3AbJxNUvbyYhxx+tIIDJX5RTjfGGv6ysDkZ3UjD659YplG3a
+         WbqVAIM+4Rj+FCVFcLEKtSyEoDJJGHJxZKVeYHNCJque/gjVM8G0UR7LvWfuXLpR6qek
+         Sg9ut8xyyxtfxUoPT7p2TrghI1miEY5Gn6ddVJ2BREW+Ak4Sarh2iBWOrAJDaF/GMXZR
+         YtwhQN7f/R6GturrtSqLiavQHGUoyJK2xc1zJBVcFh5aPFNpBu9/iy5xZYnss9MlULmz
+         EnXA==
+X-Gm-Message-State: AOAM532+3NHbWWFi/qVYq3VkN9Ux39gVKVUWNnORiZNe50krCy01O7U/
+        baIeupWrt7XVBQRE46T2YN+vrrRcDO4=
+X-Google-Smtp-Source: ABdhPJwwCU2prAIpHzuv7oYk8sXEtefUa023gVNRL+0V4442xfi4HgWe6WXCb8xKVz2LCftaNwx98Q==
+X-Received: by 2002:a50:e186:: with SMTP id k6mr13389116edl.215.1612812946433;
+        Mon, 08 Feb 2021 11:35:46 -0800 (PST)
+Received: from ?IPv6:2001:a61:340e:e601:8a:719c:9bc1:dcee? ([2001:a61:340e:e601:8a:719c:9bc1:dcee])
+        by smtp.gmail.com with ESMTPSA id hc40sm3434674ejc.50.2021.02.08.11.35.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 Feb 2021 11:35:45 -0800 (PST)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+To:     James Carter <jwcart2@gmail.com>, bauen1 <j2468h@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <a8abefda-5c2b-918d-65d9-e21b89e9a2bf@gmail.com>
+ <90473e07-fe79-18d8-4772-52deb4f8e1bd@gmail.com>
+ <CAP+JOzQBiEHBS7TFAGpyJJ0+G3u2aGKpkDRTxH_PgU7pQrogVA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] secilc/docs: add syntax highlighting for secil
+Message-ID: <79fcad29-da9c-7084-c081-b5d4b529f04f@gmail.com>
+Date:   Mon, 8 Feb 2021 20:35:45 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+MIME-Version: 1.0
+In-Reply-To: <CAP+JOzQBiEHBS7TFAGpyJJ0+G3u2aGKpkDRTxH_PgU7pQrogVA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Feb 6, 2021 at 4:06 PM bauen1 <j2468h@googlemail.com> wrote:
->
-> Since the default pandoc themes either don't highlight everything or
-> don't fit the black/white color style of the html / pdf I've created my
-> own.
->
-> Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
+On 2/8/21 6:43 PM, James Carter wrote:
+> On Sat, Feb 6, 2021 at 4:05 PM bauen1 <j2468h@googlemail.com> wrote:
+>>
+>> +    <list name="function">
+>> +        <item>blockinherit</item>
+>> +        <item>call</item>
+>> +        <item>in</item>
+>> +        <item>macro</item>
+>> +    </list>
+>> +
+> 
+> I am not sure it adds a lot to have these as separate colors.
 
-I am ok with these colors.
+I would at least like to have `macro`, `call` and `blockinherit` as separate colors, as these behave very differently from "normal" keywords / statements and more like function calls from a programming language.
+They are usually also quite important when looking over policy so I think it's warranted.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+I'm less sure about the arrangement of `in`, but due to its special interaction I've also included it.
 
-> ---
->  secilc/docs/Makefile    |  2 +-
->  secilc/docs/theme.theme | 59 +++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 60 insertions(+), 1 deletion(-)
->  create mode 100644 secilc/docs/theme.theme
->
-> diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
-> index a91bcde0..a03ebeed 100644
-> --- a/secilc/docs/Makefile
-> +++ b/secilc/docs/Makefile
-> @@ -28,7 +28,7 @@ FILE_LIST ?= cil_introduction.md \
->
->  PANDOC_FILE_LIST = $(addprefix $(TMPDIR)/,$(FILE_LIST))
->
-> -PANDOC_HIGHLIGHT_STYLE="pygments"
-> +PANDOC_HIGHLIGHT_STYLE="theme.theme"
->
->  PDF_OUT=CIL_Reference_Guide.pdf
->  HTML_OUT=CIL_Reference_Guide.html
-> diff --git a/secilc/docs/theme.theme b/secilc/docs/theme.theme
-> new file mode 100644
-> index 00000000..5ffa9a65
-> --- /dev/null
-> +++ b/secilc/docs/theme.theme
-> @@ -0,0 +1,59 @@
-> +{
-> +    "text-color": null,
-> +    "background-color": null,
-> +    "line-number-color": null,
-> +    "line-number-background-color": null,
-> +    "text-styles": {
-> +        "String": {
-> +            "text-color": "#049b0a",
-> +            "background-color": null,
-> +            "bold": false,
-> +            "italic": false,
-> +            "underline": false
-> +        },
-> +        "SpecialChar": {
-> +            "text-color": "#049b0a",
-> +            "background-color": null,
-> +            "bold": false,
-> +            "italic": false,
-> +            "underline": false
-> +        },
-> +
-> +        "Function": {
-> +            "text-color": "#ff9358",
-> +            "background-color": null,
-> +            "bold": true,
-> +            "italic": false,
-> +            "underline": false
-> +        },
-> +
-> +        "Operator": {
-> +            "text-color": "#43a8ed",
-> +            "background-color": null,
-> +            "bold": true,
-> +            "italic": false,
-> +            "underline": false
-> +        },
-> +        "BuiltIn": {
-> +            "text-color": "#ff6dd3",
-> +            "background-color": null,
-> +            "bold": true,
-> +            "italic": false,
-> +            "underline": false
-> +        },
-> +        "Comment": {
-> +            "text-color": "#bc7a00",
-> +            "background-color": null,
-> +            "bold": false,
-> +            "italic": true,
-> +            "underline": false
-> +        },
-> +        "Keyword": {
-> +            "text-color": "#28648e",
-> +            "background-color": null,
-> +            "bold": true,
-> +            "italic": false,
-> +            "underline": false
-> +        }
-> +    }
-> +}
-> --
-> 2.30.0
->
+> Also, when call is used as a permission, it is highlighted. It would
+> be nice if that could be fixed.
+
+I don't think this could be fixed easily, the same is also true if e.g. `allow` (a keyword) is used as permission, e.g.
+
+ (allow t1 (file (call)))
+ (allow t1 (file (allow)))
+
+This is harder to fix as currently the syntax has no concept of what a "permission" is and I don't want to make things too complicated.
+
+-- 
+bauen1
+https://dn42.bauen1.xyz/
