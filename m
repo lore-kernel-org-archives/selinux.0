@@ -2,105 +2,143 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B45BBC433E0
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:37:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AEFFC433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:49:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7099164DAE
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:37:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C0AF264E74
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:49:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230387AbhBHUhO convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Mon, 8 Feb 2021 15:37:14 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:56237 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231946AbhBHUge (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 15:36:34 -0500
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 81E4B564E85;
-        Mon,  8 Feb 2021 21:35:27 +0100 (CET)
-Received: by mail-ot1-f54.google.com with SMTP id r21so6942281otk.13;
-        Mon, 08 Feb 2021 12:35:27 -0800 (PST)
-X-Gm-Message-State: AOAM5333FPRATLrEjn1RK9c/3Rs5RD0xNbkBzjXv1puYbuBSyB3kpzmS
-        ficGcdaR4YJWCYDqtp60Y0Ck9sLIdYVec2aGlZ8=
-X-Google-Smtp-Source: ABdhPJy+ZN0ibyvgXl9jW88DEzCuz/PtgmuT6GX9Ro8SPUCzukV27gnUSrknh5SROFSUG5xX7iYpl2aFJENFcp4su2Y=
-X-Received: by 2002:a05:6830:4121:: with SMTP id w33mr13233348ott.361.1612816526498;
- Mon, 08 Feb 2021 12:35:26 -0800 (PST)
-MIME-Version: 1.0
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 8 Feb 2021 21:35:15 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=nKqT7mmE73r1K3YjBak=OmPACmDi5ccX=SzKhT9=vJ-g@mail.gmail.com>
-Message-ID: <CAJfZ7=nKqT7mmE73r1K3YjBak=OmPACmDi5ccX=SzKhT9=vJ-g@mail.gmail.com>
-Subject: Recommended value in CONFIG_LSM option on SELinux system?
-To:     linux-security-module@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Feb  8 21:35:27 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+        id S234014AbhBHUtW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Feb 2021 15:49:22 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37186 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233512AbhBHUqi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 15:46:38 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 118KWXgA050385;
+        Mon, 8 Feb 2021 15:45:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=USpxUQd0VGEWjHopywgNAUX7w1A/s/fmhQc03dwNPds=;
+ b=OIEDAoMsQyk0NbOF7l7V4lhSPyQXlN8cij9YNPHTX2k0FNwGGetWZp42hgL7aZvITJyA
+ WTpVp+xoBhUeE8XaI/Df+6ngjv+FI/JdaFYFFPUjQId46JFF1aBhKOPBJZ686u6yM0zy
+ GUDMcJMejXpNbJyqV8YB1g6iwBc3BM9Vy6eIlwiaWZFDR9J99P6P7WTl6ivHLjXPj6l2
+ KdsGDEGdW2waGODzVSs5ylroIFFXfn4lX4Tptp8GfYYg93UyjpjRQIHHziYkZAX6nOsU
+ /Th5IrCvE8me76yfEXTTp+MKYkpc8Ubhya3iK7oZrwj/MgZ6WGqN9J5uErj4LrZ7FHXw Rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36kbpw1d73-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Feb 2021 15:45:37 -0500
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 118KWcVO050839;
+        Mon, 8 Feb 2021 15:45:36 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36kbpw1d6e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Feb 2021 15:45:36 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 118K8gOT011901;
+        Mon, 8 Feb 2021 20:45:34 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 36hqda26b6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Feb 2021 20:45:34 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 118KjVg147251940
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 8 Feb 2021 20:45:31 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C485B4203F;
+        Mon,  8 Feb 2021 20:45:31 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6712E42041;
+        Mon,  8 Feb 2021 20:45:28 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.48.239])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  8 Feb 2021 20:45:28 +0000 (GMT)
+Message-ID: <059e77ffa861680ccac7fd94251fedc7cffe7a7e.camel@linux.ibm.com>
+Subject: Re: [PATCH 1/3] IMA: add policy condition to measure duplicate
+ critical data
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
+        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
+        paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Date:   Mon, 08 Feb 2021 15:45:27 -0500
+In-Reply-To: <20210130004519.25106-2-tusharsu@linux.microsoft.com>
+References: <20210130004519.25106-1-tusharsu@linux.microsoft.com>
+         <20210130004519.25106-2-tusharsu@linux.microsoft.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-08_13:2021-02-08,2021-02-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ adultscore=0 phishscore=0 clxscore=1015 mlxlogscore=999 bulkscore=0
+ spamscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102080119
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+Hi Tushar,
 
-Recently there was a bug in Arch Linux where SELinux was no longer
-enabled after booting [1], because the default kernel configuration
-changed recently [2]:
+On Fri, 2021-01-29 at 16:45 -0800, Tushar Sugandhi wrote:
+> IMA needs to support duplicate measurements of integrity
+> critical data to accurately determine the current state of that data
+> on the system.  Further, since measurement of duplicate data is not
+> required for all the use cases, it needs to be policy driven.
+> 
+> Define "allow_dup", a new IMA policy condition, for the IMA func
+> CRITICAL_DATA to allow duplicate buffer measurement of integrity
+> critical data.
+> 
+> Limit the ability to measure duplicate buffer data when action is
+> "measure" and func is CRITICAL_DATA.
 
--CONFIG_LSM="lockdown,yama"
-+CONFIG_LSM="lockdown,yama,bpf"
+Why?!
 
-By doing so, setting "security=selinux" on the kernel command line
-seemed to break the system, because reading /proc/$PID/attr/current
-resulted in "Invalid argument" errors. Replacing "security=selinux"
-with "lsm=selinux,lockdown,yama,bpf" fixed the issue and everything is
-now fine, but now I am wondering: how should CONFIG_LSM (and option
-"lsm" on the kernel command line) be set, on a system which is using
-SELinux?
+> 
+> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+> ---
+> 
+> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+> index 9b45d064a87d..b89eb768dd05 100644
+> --- a/security/integrity/ima/ima_policy.c
+> +++ b/security/integrity/ima/ima_policy.c
+> @@ -35,6 +35,7 @@
+>  #define IMA_FSNAME	0x0200
+>  #define IMA_KEYRINGS	0x0400
+>  #define IMA_LABEL	0x0800
+> +#define IMA_ALLOW_DUP	0x1000
+>  
+>  #define UNKNOWN		0
+>  #define MEASURE		0x0001	/* same as IMA_MEASURE */
+> @@ -87,6 +88,7 @@ struct ima_rule_entry {
+>  	char *fsname;
+>  	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
+>  	struct ima_rule_opt_list *label; /* Measure data grouped under this label */
 
-Such information is lacking from the documentation [3] [4]. Therefore
-I took a look at Fedora [5] and RHEL [6]:
+Defining a new boolean entry shouldn't be necessary.    The other
+boolean values are just stored in "flags".
 
-* Fedora uses CONFIG_LSM="yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor",
-which was the default value until Linux 5.4 [7].
-* RHEL uses CONFIG_LSM="yama,integrity,selinux".
+>  	struct ima_template_desc *template;
+>  };
 
-It seems to be strange to have an "outdated" configuration value in
-the configuration file, but this could be fine if the new modules are
-not expected to be used without the kernel being booted with a
-"lsm=..." option.
+thanks,
 
-But there is something that I did not understand: setting
-"lsm=selinux,lockdown,yama,bpf" worked, /sys/kernel/security/lsm
-showed "capability,selinux,lockdown,yama,bpf", but this violated what
-the documentation stated [3]:
-"A list of the active security modules can be found by reading
-/sys/kernel/security/lsm. This is a comma separated list, and will
-always include the capability module. The list reflects the order in
-which checks are made. The capability module will always be first,
-followed by any “minor” modules (e.g. Yama) and then the one “major”
-module (e.g. SELinux) if there is one configured."
-
-Is "lsm=selinux,lockdown,yama,bpf" really problematic?
-
-TL;DR: It would be very helpful if there were some clear guidelines
-which were documented in the kernel documentation about how to
-configure CONFIG_LSM on SELinux systems.
-
-Thanks,
-Nicolas
-
-[1] https://github.com/archlinuxhardened/selinux/issues/81
-[2] https://github.com/archlinux/svntogit-packages/commit/69cb8c2d2884181e799e67b09d67fcf7944d8408
-[3] https://www.kernel.org/doc/html/v5.11-rc7/admin-guide/LSM/index.html
-[4] https://www.kernel.org/doc/html/v5.11-rc7/admin-guide/LSM/SELinux.html
-[5] https://src.fedoraproject.org/rpms/kernel/blob/dd9f5d552f96c5171a0f04170dbca7e74e8d13c7/f/kernel-x86_64-fedora.config#_3232
-[6] https://src.fedoraproject.org/rpms/kernel/blob/dd9f5d552f96c5171a0f04170dbca7e74e8d13c7/f/kernel-x86_64-rhel.config#_2834
-[7] commit https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=000d388ed3bbed745f366ce71b2bb7c2ee70f449
+Mimi
 
