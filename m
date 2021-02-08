@@ -2,134 +2,105 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A89B1C433E6
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:26:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B45BBC433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:37:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 623DC64E75
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:26:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7099164DAE
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 20:37:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236748AbhBHU0A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Feb 2021 15:26:00 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40356 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236831AbhBHUZj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 15:25:39 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 118K3GSl106203;
-        Mon, 8 Feb 2021 15:24:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=E2Vl0L4InxHZSx1+Ng/3nKMdG9/JrjbnMCLeby9KtuY=;
- b=CCW5Hsy9oLneS63k2TuZ4ZM8ggNadutIw2MpcaMDJcvMQrnfawjbULiXj4V6EVUdroB6
- kbNUcCBAQNLyAWH6HMeqKvK7O1EgxI8nqrM6Glf0kPHot4A4RBtKfJNKiZ5c8PlAMuyn
- 47uG0Lvlqxmd+7XTzATKYl4xlK96cYSmPqi4Q10OLOV0JBoN7mNTJp7QWelYjnunjYuZ
- mHkm2nhdigis1wjHiq9ctAIkfjLsv16DB63RRvCpZIwBO3yHQrByKvP2utT95qPNfE6q
- U9tnbMLNPeGMRoG29lIwuzqRto1W6+yAn2b9M+RY2PMNyAroPl3/zUxzmpM6X6UqdZer 8Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36kb95hp8k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Feb 2021 15:24:48 -0500
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 118K55i5118354;
-        Mon, 8 Feb 2021 15:24:48 -0500
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36kb95hp6v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Feb 2021 15:24:47 -0500
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 118K8bsa025931;
-        Mon, 8 Feb 2021 20:24:44 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 36hjch17h8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Feb 2021 20:24:44 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 118KOgGE44630474
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 8 Feb 2021 20:24:42 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 01250A4051;
-        Mon,  8 Feb 2021 20:24:42 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 65E2AA404D;
-        Mon,  8 Feb 2021 20:24:38 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.48.239])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  8 Feb 2021 20:24:38 +0000 (GMT)
-Message-ID: <158dc2d3398316edefbafdb1cfea5eca840a06e6.camel@linux.ibm.com>
-Subject: Re: [PATCH 3/3] IMA: add support to measure duplicate buffer for
- critical data hook
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
-        paul@paul-moore.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Date:   Mon, 08 Feb 2021 15:24:37 -0500
-In-Reply-To: <20210130004519.25106-4-tusharsu@linux.microsoft.com>
-References: <20210130004519.25106-1-tusharsu@linux.microsoft.com>
-         <20210130004519.25106-4-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-08_13:2021-02-08,2021-02-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 impostorscore=0 suspectscore=0 mlxlogscore=999
- spamscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0 phishscore=0
- adultscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2102080118
+        id S230387AbhBHUhO convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Mon, 8 Feb 2021 15:37:14 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:56237 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231946AbhBHUge (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 15:36:34 -0500
+Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 81E4B564E85;
+        Mon,  8 Feb 2021 21:35:27 +0100 (CET)
+Received: by mail-ot1-f54.google.com with SMTP id r21so6942281otk.13;
+        Mon, 08 Feb 2021 12:35:27 -0800 (PST)
+X-Gm-Message-State: AOAM5333FPRATLrEjn1RK9c/3Rs5RD0xNbkBzjXv1puYbuBSyB3kpzmS
+        ficGcdaR4YJWCYDqtp60Y0Ck9sLIdYVec2aGlZ8=
+X-Google-Smtp-Source: ABdhPJy+ZN0ibyvgXl9jW88DEzCuz/PtgmuT6GX9Ro8SPUCzukV27gnUSrknh5SROFSUG5xX7iYpl2aFJENFcp4su2Y=
+X-Received: by 2002:a05:6830:4121:: with SMTP id w33mr13233348ott.361.1612816526498;
+ Mon, 08 Feb 2021 12:35:26 -0800 (PST)
+MIME-Version: 1.0
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 8 Feb 2021 21:35:15 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=nKqT7mmE73r1K3YjBak=OmPACmDi5ccX=SzKhT9=vJ-g@mail.gmail.com>
+Message-ID: <CAJfZ7=nKqT7mmE73r1K3YjBak=OmPACmDi5ccX=SzKhT9=vJ-g@mail.gmail.com>
+Subject: Recommended value in CONFIG_LSM option on SELinux system?
+To:     linux-security-module@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Feb  8 21:35:27 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tushar,
+Hello,
 
-On Fri, 2021-01-29 at 16:45 -0800, Tushar Sugandhi wrote:
+Recently there was a bug in Arch Linux where SELinux was no longer
+enabled after booting [1], because the default kernel configuration
+changed recently [2]:
 
-> diff --git a/security/integrity/ima/ima_queue.c b/security/integrity/ima/ima_queue.c
-> 
-> index c096ef8945c7..fbf359495fa8 100644
-> --- a/security/integrity/ima/ima_queue.c
-> +++ b/security/integrity/ima/ima_queue.c
-> @@ -158,7 +158,7 @@ static int ima_pcr_extend(struct tpm_digest *digests_arg, int pcr)
->   */
->  int ima_add_template_entry(struct ima_template_entry *entry, int violation,
->  			   const char *op, struct inode *inode,
-> -			   const unsigned char *filename)
-> +			   const unsigned char *filename, bool allow_dup)
->  {
->  	u8 *digest = entry->digests[ima_hash_algo_idx].digest;
-> 
- 	struct tpm_digestate_entry(struct ima_template_entry *entry, int violation,
->  
->  	mutex_lock(&ima_extend_list_mutex);
->  	if (!violation) {
-> -		if (ima_lookup_digest_entry(digest, entry->pcr)) {
-> +		if (!allow_dup &&
-> +		    ima_lookup_digest_entry(digest, entry->pcr)) {
+-CONFIG_LSM="lockdown,yama"
++CONFIG_LSM="lockdown,yama,bpf"
 
-Can't this change be simplified to "if (!violation && !allow_dup)"?
+By doing so, setting "security=selinux" on the kernel command line
+seemed to break the system, because reading /proc/$PID/attr/current
+resulted in "Invalid argument" errors. Replacing "security=selinux"
+with "lsm=selinux,lockdown,yama,bpf" fixed the issue and everything is
+now fine, but now I am wondering: how should CONFIG_LSM (and option
+"lsm" on the kernel command line) be set, on a system which is using
+SELinux?
 
-Also perhaps instead of passing another variable "allow_dup" to each of
-these functions, pass a mask containing violation and allow_dup.
+Such information is lacking from the documentation [3] [4]. Therefore
+I took a look at Fedora [5] and RHEL [6]:
 
->  			audit_cause = "hash_exists";
->  			result = -EEXIST;
->  			goto out;
+* Fedora uses CONFIG_LSM="yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor",
+which was the default value until Linux 5.4 [7].
+* RHEL uses CONFIG_LSM="yama,integrity,selinux".
 
-thanks,
+It seems to be strange to have an "outdated" configuration value in
+the configuration file, but this could be fine if the new modules are
+not expected to be used without the kernel being booted with a
+"lsm=..." option.
 
-Mimi
+But there is something that I did not understand: setting
+"lsm=selinux,lockdown,yama,bpf" worked, /sys/kernel/security/lsm
+showed "capability,selinux,lockdown,yama,bpf", but this violated what
+the documentation stated [3]:
+"A list of the active security modules can be found by reading
+/sys/kernel/security/lsm. This is a comma separated list, and will
+always include the capability module. The list reflects the order in
+which checks are made. The capability module will always be first,
+followed by any “minor” modules (e.g. Yama) and then the one “major”
+module (e.g. SELinux) if there is one configured."
+
+Is "lsm=selinux,lockdown,yama,bpf" really problematic?
+
+TL;DR: It would be very helpful if there were some clear guidelines
+which were documented in the kernel documentation about how to
+configure CONFIG_LSM on SELinux systems.
+
+Thanks,
+Nicolas
+
+[1] https://github.com/archlinuxhardened/selinux/issues/81
+[2] https://github.com/archlinux/svntogit-packages/commit/69cb8c2d2884181e799e67b09d67fcf7944d8408
+[3] https://www.kernel.org/doc/html/v5.11-rc7/admin-guide/LSM/index.html
+[4] https://www.kernel.org/doc/html/v5.11-rc7/admin-guide/LSM/SELinux.html
+[5] https://src.fedoraproject.org/rpms/kernel/blob/dd9f5d552f96c5171a0f04170dbca7e74e8d13c7/f/kernel-x86_64-fedora.config#_3232
+[6] https://src.fedoraproject.org/rpms/kernel/blob/dd9f5d552f96c5171a0f04170dbca7e74e8d13c7/f/kernel-x86_64-rhel.config#_2834
+[7] commit https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=000d388ed3bbed745f366ce71b2bb7c2ee70f449
 
