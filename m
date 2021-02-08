@@ -2,197 +2,126 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAD42C433DB
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 21:05:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFD62C433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 21:12:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67FBB60230
-	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 21:05:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6EEED64EA4
+	for <selinux@archiver.kernel.org>; Mon,  8 Feb 2021 21:12:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231542AbhBHVEx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Feb 2021 16:04:53 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:39252 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233953AbhBHVEb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 16:04:31 -0500
-Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id C61D8564EEF
-        for <selinux@vger.kernel.org>; Mon,  8 Feb 2021 22:03:33 +0100 (CET)
-Received: by mail-oi1-f178.google.com with SMTP id d20so17101785oiw.10
-        for <selinux@vger.kernel.org>; Mon, 08 Feb 2021 13:03:33 -0800 (PST)
-X-Gm-Message-State: AOAM533MW2mPnkB85BFzBav+U2M7jxJIFN6Sf2SV4fqQrGMnUG45VJDL
-        3hLQAMPm4cnRPhgADfz/qOXT5vFPmIzrriGV5NU=
-X-Google-Smtp-Source: ABdhPJy81E0EcEjgLcu5Wrp4M+i5btkbQX9u2APoAs+IZHY09XrAy7zLxkkOldpRewpbh4OXsOnJo2q3oaTntaXbA0Q=
-X-Received: by 2002:a05:6808:918:: with SMTP id w24mr450007oih.20.1612818212663;
- Mon, 08 Feb 2021 13:03:32 -0800 (PST)
-MIME-Version: 1.0
-References: <20210205144421.279511-1-jwcart2@gmail.com>
-In-Reply-To: <20210205144421.279511-1-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 8 Feb 2021 22:03:21 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==zE4uYDchHDYfF6L3i+1=oqL4nDNHKKQwacn=Q9L8b4g@mail.gmail.com>
-Message-ID: <CAJfZ7==zE4uYDchHDYfF6L3i+1=oqL4nDNHKKQwacn=Q9L8b4g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix integer overflow in the handling of hll
- line marks
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Carter <jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Feb  8 22:03:34 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+        id S235257AbhBHVLo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Feb 2021 16:11:44 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6868 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233982AbhBHVLX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Feb 2021 16:11:23 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 118KVBsY045443;
+        Mon, 8 Feb 2021 16:10:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=GDYLBbFOkVJC1HP/q1fRWBguXnwo/GkM6DQdTcwJ3YI=;
+ b=V77N5/vEoPdRt4Ws2NmbcNKtDX1Q13cE7r5X6J0e2RU+oauQh1BnYXrbWH52CGqi0PUT
+ jquf14wQZMq9dYEFdhLXcVPvqTnuN8xwuh6Pzd0EHdnnhgPNVlrKRgkL2EQiOijCZMnL
+ poXUHQplJeIWOiZs2tpxzMjhh2z7LdwSwKCuI/+2gyuwrGZt3RF6jY6HCNMV8x8P20vU
+ 8BN+PM5LuyB+H3DnnLhdCjbCulr2//1Ifgy25mMKuSpHWtAd6+81zEDP1lPGTa1EjoGG
+ U4oatclm9cKSHPJEcKzzlxXsjvYfL9sXN8KJFtcQyAf1o7q1Oc+kawjCC/hiOVFna8MD XQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36kbuusr3g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Feb 2021 16:10:38 -0500
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 118KskE0130178;
+        Mon, 8 Feb 2021 16:10:38 -0500
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36kbuusr2p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Feb 2021 16:10:38 -0500
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 118KB2Yg006804;
+        Mon, 8 Feb 2021 21:10:36 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 36hskb142s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Feb 2021 21:10:35 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 118LAXAo35455318
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 8 Feb 2021 21:10:33 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 690E111C054;
+        Mon,  8 Feb 2021 21:10:33 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 398B311C04C;
+        Mon,  8 Feb 2021 21:10:30 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.48.239])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  8 Feb 2021 21:10:29 +0000 (GMT)
+Message-ID: <27a4592c3b75861d2b9c8fb1511f593aa987222c.camel@linux.ibm.com>
+Subject: Re: [PATCH 0/3] support for duplicate measurement of integrity
+ critical data
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
+        agk@redhat.com, snitzer@redhat.com, gmazyland@gmail.com,
+        paul@paul-moore.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Date:   Mon, 08 Feb 2021 16:10:29 -0500
+In-Reply-To: <27f73411fc1d6ce6dd16a29344d729d9aa760250.camel@linux.ibm.com>
+References: <20210130004519.25106-1-tusharsu@linux.microsoft.com>
+         <27f73411fc1d6ce6dd16a29344d729d9aa760250.camel@linux.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-08_13:2021-02-08,2021-02-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ adultscore=0 spamscore=0 clxscore=1015 mlxscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102080119
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 5, 2021 at 3:44 PM James Carter <jwcart2@gmail.com> wrote:
->
-> From: James Carter <jwcart2@tycho.nsa.gov>
->
-> Nicolass Iooss reports:
->   OSS-Fuzz found an integer overflow when compiling the following
->   (empty) CIL policy:
->
->   ;;*lms 2147483647 a
->   ; (empty line)
->
-> Change hll_lineno to uint32_t which is the type of the field hll_line
-> in struct cil_tree_node where the line number will be stored eventually.
-> Read the line number into an unsigned long variable using strtoul()
-> instead of strtol(). On systems where ULONG_MAX > UINT32_MAX, return
-> an error if the value is larger than UINT32_MAX.
->
-> Also change hll_expand to uint32_t, since its value will be either
-> 0 or 1 and there is no need for it to be signed.
->
-> Reported-by: Nicolass Iooss <nicolas.iooss@m4x.org>
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+Hi Tushar,
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-By the way this week I have infrequent access to the system I use to
-work on SELinux stuff, so I will not be able to review/test/apply
-patches until next week-end. So feel free to merge this without
-waiting for me.
+On Mon, 2021-02-08 at 15:22 -0500, Mimi Zohar wrote:
+> On Fri, 2021-01-29 at 16:45 -0800, Tushar Sugandhi wrote:
+> > IMA does not measure duplicate buffer data since TPM extend is a very
+> > expensive operation.  However, in some cases for integrity critical
+> > data, the measurement of duplicate data is necessary to accurately
+> > determine the current state of the system.  Eg, SELinux state changing
+> > from 'audit', to 'enforcing', and back to 'audit' again.  In this
+> > example, currently, IMA will not measure the last state change to
+> > 'audit'.  This limits the ability of attestation services to accurately
+> > determine the current state of the integrity critical data on the
+> > system.
+> > 
+> > This series addresses this gap by providing the ability to measure
+> > duplicate entries for integrity critical data, driven by policy.
+> 
+> The same reason for re-measuring buffer data is equally applicable to
+> files.  In both cases, the file or the buffer isn't re-measured if it
+> already exists in the htable.   Please don't limit this patch set to
+> just buffer data.
 
-Thanks,
-Nicolas
+Instead of making the change on a per measurement rule basis, disabling
+"htable" would be the simplest way of forcing re-measurements.  All
+that would be needed is a new Kconfig (e.g. CONFIG_IMA_DISABLE_HTABLE)
+and the associated test in ima_add_template_entry().
 
-> ---
->  libsepol/cil/src/cil_parser.c | 33 +++++++++++++++++++++------------
->  1 file changed, 21 insertions(+), 12 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
-> index 0038eed6..a9306218 100644
-> --- a/libsepol/cil/src/cil_parser.c
-> +++ b/libsepol/cil/src/cil_parser.c
-> @@ -47,11 +47,11 @@ char *CIL_KEY_HLL_LMX;
->  char *CIL_KEY_HLL_LME;
->
->  struct hll_info {
-> -       int hll_lineno;
-> -       int hll_expand;
-> +       uint32_t hll_lineno;
-> +       uint32_t hll_expand;
->  };
->
-> -static void push_hll_info(struct cil_stack *stack, int hll_lineno, int hll_expand)
-> +static void push_hll_info(struct cil_stack *stack, uint32_t hll_lineno, uint32_t hll_expand)
->  {
->         struct hll_info *new = cil_malloc(sizeof(*new));
->
-> @@ -61,7 +61,7 @@ static void push_hll_info(struct cil_stack *stack, int hll_lineno, int hll_expan
->         cil_stack_push(stack, CIL_NONE, new);
->  }
->
-> -static void pop_hll_info(struct cil_stack *stack, int *hll_lineno, int *hll_expand)
-> +static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_lineno, uint32_t *hll_expand)
->  {
->         struct cil_stack_item *curr = cil_stack_pop(stack);
->         struct cil_stack_item *prev = cil_stack_peek(stack);
-> @@ -70,8 +70,8 @@ static void pop_hll_info(struct cil_stack *stack, int *hll_lineno, int *hll_expa
->         free(curr->data);
->
->         if (!prev) {
-> -               *hll_lineno = -1;
-> -               *hll_expand = -1;
-> +               *hll_lineno = 0;
-> +               *hll_expand = 0;
->         } else {
->                 old = prev->data;
->                 *hll_lineno = old->hll_lineno;
-> @@ -79,7 +79,7 @@ static void pop_hll_info(struct cil_stack *stack, int *hll_lineno, int *hll_expa
->         }
->  }
->
-> -static void create_node(struct cil_tree_node **node, struct cil_tree_node *current, int line, int hll_line, void *value)
-> +static void create_node(struct cil_tree_node **node, struct cil_tree_node *current, uint32_t line, uint32_t hll_line, void *value)
->  {
->         cil_tree_node_init(node);
->         (*node)->parent = current;
-> @@ -99,13 +99,14 @@ static void insert_node(struct cil_tree_node *node, struct cil_tree_node *curren
->         current->cl_tail = node;
->  }
->
-> -static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int *hll_expand, struct cil_stack *stack, char *path)
-> +static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno, uint32_t *hll_expand, struct cil_stack *stack, char *path)
->  {
->         char *hll_type;
->         struct cil_tree_node *node;
->         struct token tok;
->         char *hll_file;
->         char *end = NULL;
-> +       unsigned long val;
->
->         cil_lexer_next(&tok);
->         hll_type = cil_strpool_add(tok.value);
-> @@ -141,11 +142,19 @@ static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int
->                         cil_log(CIL_ERR, "Invalid line mark syntax\n");
->                         goto exit;
->                 }
-> -               *hll_lineno = strtol(tok.value, &end, 10);
-> +
-> +               val = strtoul(tok.value, &end, 10);
->                 if (errno == ERANGE || *end != '\0') {
->                         cil_log(CIL_ERR, "Problem parsing line number for line mark\n");
->                         goto exit;
->                 }
-> +#if ULONG_MAX > UINT32_MAX
-> +               if (val > UINT32_MAX) {
-> +                       cil_log(CIL_ERR, "Line mark line number > UINT32_MAX\n");
-> +                       goto exit;
-> +               }
-> +#endif
-> +               *hll_lineno = val;
->
->                 push_hll_info(stack, *hll_lineno, *hll_expand);
->
-> @@ -175,7 +184,7 @@ static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int
->         return SEPOL_OK;
->
->  exit:
-> -       cil_log(CIL_ERR, "Problem with high-level line mark at line %d of %s\n", tok.line, path);
-> +       cil_log(CIL_ERR, "Problem with high-level line mark at line %u of %s\n", tok.line, path);
->         return SEPOL_ERR;
->  }
->
-> @@ -207,8 +216,8 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
->         struct cil_tree_node *current = NULL;
->         char *path = cil_strpool_add(_path);
->         struct cil_stack *stack;
-> -       int hll_lineno = -1;
-> -       int hll_expand = -1;
-> +       uint32_t hll_lineno = 0;
-> +       uint32_t hll_expand = 0;
->         struct token tok;
->         int rc = SEPOL_OK;
->
-> --
-> 2.26.2
->
+thanks,
+
+Mimi
 
