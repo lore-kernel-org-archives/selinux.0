@@ -2,221 +2,183 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9105EC433E0
-	for <selinux@archiver.kernel.org>; Wed, 10 Feb 2021 13:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F96DC433DB
+	for <selinux@archiver.kernel.org>; Wed, 10 Feb 2021 14:34:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5ADD864DD8
-	for <selinux@archiver.kernel.org>; Wed, 10 Feb 2021 13:12:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49F0164E42
+	for <selinux@archiver.kernel.org>; Wed, 10 Feb 2021 14:34:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbhBJNM4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Feb 2021 08:12:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbhBJNMq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 10 Feb 2021 08:12:46 -0500
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F82C061574
-        for <selinux@vger.kernel.org>; Wed, 10 Feb 2021 05:12:05 -0800 (PST)
-Received: by mail-ot1-x32c.google.com with SMTP id a5so547575otq.4
-        for <selinux@vger.kernel.org>; Wed, 10 Feb 2021 05:12:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LZD4I/EvhUxHl+AABOpM+FrQAXxHXfJmNReKQgVWlO0=;
-        b=lHXFi72y99zj6qOm+mcoyR4Fk8VQLrL3jE/cVamrzN53i+ecWzj7k0GVYdkKO3MDwQ
-         SrNVQZfMywtH6nq4jF7wftQCpYhBMLQMufAqxJcKTJiHa6TGk9UOqMLhpbxHO8XEknc3
-         WYf+U4SuaRXWfN3iBU2M8GYSqLIZQk4DpeMKkfeEKg4mEzGRreBVyQDVaKGz+kHDumfq
-         BiVtHfkZ9HejgkD5xc25/ziHz/HvjjLYcxoUdAyWkyUSaXgO/iYRJu2c2QUo1VcnUrJl
-         1pgsO6/EJQiForzwYlrhTvek4Y98wnjH1alL3uEiqVgpcqARTERYTxN1YIxtNXvzRFZc
-         7aMg==
+        id S230048AbhBJOek (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Feb 2021 09:34:40 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53209 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229789AbhBJOei (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Feb 2021 09:34:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1612967590;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mAE7StcBSgollMY00HGhmTWuijqoXhv4hWnM57VF3k8=;
+        b=QrDIpyZxlrI72jP9GNJ9MuirtU4I8kC3Efz/Qpq4EzAm2JAiocwaNaOCRn11waTfYOgx9Z
+        Iz2lmv1dbDUYoUKdpeEEUfHwGwygYLdidFAuC1Hqsh+C2RFYuoT3cK8f//OBW0kdCOMKB6
+        0tMC49gBvdnCyu53YhjO0qfjheFtJRU=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-481-ecmb7uG5OwSjOeeAivYF7A-1; Wed, 10 Feb 2021 09:33:09 -0500
+X-MC-Unique: ecmb7uG5OwSjOeeAivYF7A-1
+Received: by mail-yb1-f197.google.com with SMTP id w11so2671711ybq.8
+        for <selinux@vger.kernel.org>; Wed, 10 Feb 2021 06:33:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=LZD4I/EvhUxHl+AABOpM+FrQAXxHXfJmNReKQgVWlO0=;
-        b=Ph6NrD/zvVSD91aGSTjq5nFErWWCviCUCXuGEiRrYfiy6LxCfQuwZZqaNEpkwR5v+0
-         n01ytI0dRCj9+Mugp3qx8NIN0hVH3gZQScrCL1KeILbytms+uEXYKKIuicuCNInRL48y
-         NmSffkSR52VO5gUzcZpS56n1yx0W4KzM/HrU7VpTPR/xMBW9NddcgsLjpk01ihNpA7tn
-         cBJgC+xJSaN37qqYHH9HQa8JZwWvqh0UgfATyBfKEKZheVOYILn/dBy64Q5+n8dmdm3l
-         l+GCLzYS1Zi3C4OTWf5TTuamHYu20HMKNDcHDOJ60KPrleZ/Gtjg2v+6R6NaMxO48O7g
-         TzDA==
-X-Gm-Message-State: AOAM530te083tHTXW6GgcLuERVg0PNCYKZdm0mZzsP/XJHEoN65XqPrt
-        rAi81y2RP99srrcl32aYJlKL/pc8Yu7f1ML1NqX61PuyCSw=
-X-Google-Smtp-Source: ABdhPJwF64Kx6lsAjok+A/AuG6Frxt+DLfouuYpzZTwGI9FCRKWhWHy+JQLS8zGKKM+KoAf9AgDV6BBZ1mmTOD/xf9g=
-X-Received: by 2002:a05:6830:3482:: with SMTP id c2mr2007440otu.59.1612962722549;
- Wed, 10 Feb 2021 05:12:02 -0800 (PST)
+        bh=mAE7StcBSgollMY00HGhmTWuijqoXhv4hWnM57VF3k8=;
+        b=ddlqx3OJXQR9+qIsSUNFUBVe67x/cwmho96Gf6Q0puvscI5Hr2rVPs7IO7IbGEy11B
+         T6FAWhiDax9EWnkrNtgYWn6MB0ObXlEiKCbYc26J8iecv6w7OyTcAKvXeUIKEO8Nm0BS
+         gtTBkvTliD3fkm2zWog2Ffgg8UCkIOO9ieO1xI5Yop8/o8T1M1d54g6pJZTMXDP11wC0
+         pPlua+q40IhbrNi06v9qbGcxqLLyevZF1FK0mLBI9en3ErTbGnMuJuyFMlSlP7Mqs/hQ
+         NIeGTdn8d2Z6hc3HK+JFjkRtWIVnX4/AnmtNZEaAZ4llEYT7ORk0L7i5i/K7StfTaZmY
+         oCPg==
+X-Gm-Message-State: AOAM533YhqdweIV2OhD9jbzMsr7mZGbf8b6QVKosfAzUDzABJZSuc4Bj
+        zD3eHiGgy33WMWTCWgoL/dbVrvKKC2A4iQ4yo/SWDX1Ipym1C74KcCr7zrDi1xG42m5dC6eNeAJ
+        Az1lOLtmVqs+ejhi5ZskhPvgtE14IbEMUMw==
+X-Received: by 2002:a25:a241:: with SMTP id b59mr4652942ybi.289.1612967587422;
+        Wed, 10 Feb 2021 06:33:07 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxbtzw9BlMQip9ZIJdWx0u5wowz1EfeY2hJNe3kjFNEELczof9itBuk32vY+JVnXp7rpb4pgPiwnyHdFMAGqQg=
+X-Received: by 2002:a25:a241:: with SMTP id b59mr4652915ybi.289.1612967587180;
+ Wed, 10 Feb 2021 06:33:07 -0800 (PST)
 MIME-Version: 1.0
-References: <20210205144421.279511-1-jwcart2@gmail.com> <CAJfZ7==zE4uYDchHDYfF6L3i+1=oqL4nDNHKKQwacn=Q9L8b4g@mail.gmail.com>
-In-Reply-To: <CAJfZ7==zE4uYDchHDYfF6L3i+1=oqL4nDNHKKQwacn=Q9L8b4g@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 10 Feb 2021 08:11:51 -0500
-Message-ID: <CAP+JOzRwtWXAF9A01audwLc5Mby28EwMp8X8PaYcdu+z6xuqkg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix integer overflow in the handling of hll
- line marks
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+References: <20210208112736.247195-1-omosnace@redhat.com> <CAHC9VhTN+2kTxXvu2JtDGM1mATVT6PoBWojE=-xDMz1Mer85Lg@mail.gmail.com>
+In-Reply-To: <CAHC9VhTN+2kTxXvu2JtDGM1mATVT6PoBWojE=-xDMz1Mer85Lg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 10 Feb 2021 15:32:52 +0100
+Message-ID: <CAFqZXNuywOQfY4P=SFpB1szGf0x84S++2ArB_qGD2_8S1W2AfA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix variable scope issue in live sidtab conversion
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Carter <jwcart2@tycho.nsa.gov>
+        Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 8, 2021 at 4:03 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Fri, Feb 5, 2021 at 3:44 PM James Carter <jwcart2@gmail.com> wrote:
+On Tue, Feb 9, 2021 at 3:20 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Feb 8, 2021 at 6:27 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > From: James Carter <jwcart2@tycho.nsa.gov>
+> > Commit 02a52c5c8c3b ("selinux: move policy commit after updating
+> > selinuxfs") moved the selinux_policy_commit() call out of
+> > security_load_policy() into sel_write_load(), which caused a subtle yet
+> > rather serious bug.
 > >
-> > Nicolass Iooss reports:
-> >   OSS-Fuzz found an integer overflow when compiling the following
-> >   (empty) CIL policy:
+> > The problem is that security_load_policy() passes a reference to the
+> > convert_params local variable to sidtab_convert(), which stores it in
+> > the sidtab, where it may be accessed until the policy is swapped over
+> > and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
+> > called directly from security_load_policy(), so the convert_params
+> > pointer remained valid all the way until the old sidtab was destroyed,
+> > but now that's no longer the case and calls to sidtab_context_to_sid()
+> > on the old sidtab after security_load_policy() returns may cause invalid
+> > memory accesses.
 > >
-> >   ;;*lms 2147483647 a
-> >   ; (empty line)
+> > This can be easily triggered using the stress test from commit
+> > ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
+> > performance"):
+> > ```
+> > function rand_cat() {
+> >         echo $(( $RANDOM % 1024 ))
+> > }
 > >
-> > Change hll_lineno to uint32_t which is the type of the field hll_line
-> > in struct cil_tree_node where the line number will be stored eventually.
-> > Read the line number into an unsigned long variable using strtoul()
-> > instead of strtol(). On systems where ULONG_MAX > UINT32_MAX, return
-> > an error if the value is larger than UINT32_MAX.
+> > function do_work() {
+> >         while true; do
+> >                 echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
+> >                         >/sys/fs/selinux/context 2>/dev/null || true
+> >         done
+> > }
 > >
-> > Also change hll_expand to uint32_t, since its value will be either
-> > 0 or 1 and there is no need for it to be signed.
+> > do_work >/dev/null &
+> > do_work >/dev/null &
+> > do_work >/dev/null &
 > >
-> > Reported-by: Nicolass Iooss <nicolas.iooss@m4x.org>
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
->
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-
-This has been applied (with your name corrected)
-Jim
-
-> By the way this week I have infrequent access to the system I use to
-> work on SELinux stuff, so I will not be able to review/test/apply
-> patches until next week-end. So feel free to merge this without
-> waiting for me.
->
-> Thanks,
-> Nicolas
->
+> > while load_policy; do echo -n .; sleep 0.1; done
+> >
+> > kill %1
+> > kill %2
+> > kill %3
+> > ```
+> >
+> > There are several ways to fix this:
+> > 1. Move the sidtab convert parameters to struct selinux_policy.
+> >    Pros:
+> >      * simple change
+> >    Cons:
+> >      * added fields not used during most of the object's lifetime
+> > 2. Move the sidtab convert params to sel_write_load().
+> >    Pros:
+> >      * (nothing specific)
+> >    Cons:
+> >      * layering violation, a lot of types would have to be exposed to
+> >        selinuxfs.c
+> > 3. Merge policy load functions back into one and call
+> >    sel_make_policy_nodes() as a callback.
+> >    Pros:
+> >      * results in simpler code
+> >    Cons:
+> >      * introduces an indirect call (not in hot path, so should be okay)
+> >
+> > I chose to implement option (3.), because IMHO it results in the least
+> > ugly code and has the least bad drawback.
+> >
+> > Note that this commit also fixes the minor issue of logging a
+> > MAC_POLICY_LOAD audit record in case sel_make_policy_nodes() fails (in
+> > which case the new policy isn't actually loaded).
+> >
+> > Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > > ---
-> >  libsepol/cil/src/cil_parser.c | 33 +++++++++++++++++++++------------
-> >  1 file changed, 21 insertions(+), 12 deletions(-)
-> >
-> > diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
-> > index 0038eed6..a9306218 100644
-> > --- a/libsepol/cil/src/cil_parser.c
-> > +++ b/libsepol/cil/src/cil_parser.c
-> > @@ -47,11 +47,11 @@ char *CIL_KEY_HLL_LMX;
-> >  char *CIL_KEY_HLL_LME;
-> >
-> >  struct hll_info {
-> > -       int hll_lineno;
-> > -       int hll_expand;
-> > +       uint32_t hll_lineno;
-> > +       uint32_t hll_expand;
-> >  };
-> >
-> > -static void push_hll_info(struct cil_stack *stack, int hll_lineno, int hll_expand)
-> > +static void push_hll_info(struct cil_stack *stack, uint32_t hll_lineno, uint32_t hll_expand)
-> >  {
-> >         struct hll_info *new = cil_malloc(sizeof(*new));
-> >
-> > @@ -61,7 +61,7 @@ static void push_hll_info(struct cil_stack *stack, int hll_lineno, int hll_expan
-> >         cil_stack_push(stack, CIL_NONE, new);
-> >  }
-> >
-> > -static void pop_hll_info(struct cil_stack *stack, int *hll_lineno, int *hll_expand)
-> > +static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_lineno, uint32_t *hll_expand)
-> >  {
-> >         struct cil_stack_item *curr = cil_stack_pop(stack);
-> >         struct cil_stack_item *prev = cil_stack_peek(stack);
-> > @@ -70,8 +70,8 @@ static void pop_hll_info(struct cil_stack *stack, int *hll_lineno, int *hll_expa
-> >         free(curr->data);
-> >
-> >         if (!prev) {
-> > -               *hll_lineno = -1;
-> > -               *hll_expand = -1;
-> > +               *hll_lineno = 0;
-> > +               *hll_expand = 0;
-> >         } else {
-> >                 old = prev->data;
-> >                 *hll_lineno = old->hll_lineno;
-> > @@ -79,7 +79,7 @@ static void pop_hll_info(struct cil_stack *stack, int *hll_lineno, int *hll_expa
-> >         }
-> >  }
-> >
-> > -static void create_node(struct cil_tree_node **node, struct cil_tree_node *current, int line, int hll_line, void *value)
-> > +static void create_node(struct cil_tree_node **node, struct cil_tree_node *current, uint32_t line, uint32_t hll_line, void *value)
-> >  {
-> >         cil_tree_node_init(node);
-> >         (*node)->parent = current;
-> > @@ -99,13 +99,14 @@ static void insert_node(struct cil_tree_node *node, struct cil_tree_node *curren
-> >         current->cl_tail = node;
-> >  }
-> >
-> > -static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int *hll_expand, struct cil_stack *stack, char *path)
-> > +static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno, uint32_t *hll_expand, struct cil_stack *stack, char *path)
-> >  {
-> >         char *hll_type;
-> >         struct cil_tree_node *node;
-> >         struct token tok;
-> >         char *hll_file;
-> >         char *end = NULL;
-> > +       unsigned long val;
-> >
-> >         cil_lexer_next(&tok);
-> >         hll_type = cil_strpool_add(tok.value);
-> > @@ -141,11 +142,19 @@ static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int
-> >                         cil_log(CIL_ERR, "Invalid line mark syntax\n");
-> >                         goto exit;
-> >                 }
-> > -               *hll_lineno = strtol(tok.value, &end, 10);
-> > +
-> > +               val = strtoul(tok.value, &end, 10);
-> >                 if (errno == ERANGE || *end != '\0') {
-> >                         cil_log(CIL_ERR, "Problem parsing line number for line mark\n");
-> >                         goto exit;
-> >                 }
-> > +#if ULONG_MAX > UINT32_MAX
-> > +               if (val > UINT32_MAX) {
-> > +                       cil_log(CIL_ERR, "Line mark line number > UINT32_MAX\n");
-> > +                       goto exit;
-> > +               }
-> > +#endif
-> > +               *hll_lineno = val;
-> >
-> >                 push_hll_info(stack, *hll_lineno, *hll_expand);
-> >
-> > @@ -175,7 +184,7 @@ static int add_hll_linemark(struct cil_tree_node **current, int *hll_lineno, int
-> >         return SEPOL_OK;
-> >
-> >  exit:
-> > -       cil_log(CIL_ERR, "Problem with high-level line mark at line %d of %s\n", tok.line, path);
-> > +       cil_log(CIL_ERR, "Problem with high-level line mark at line %u of %s\n", tok.line, path);
-> >         return SEPOL_ERR;
-> >  }
-> >
-> > @@ -207,8 +216,8 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
-> >         struct cil_tree_node *current = NULL;
-> >         char *path = cil_strpool_add(_path);
-> >         struct cil_stack *stack;
-> > -       int hll_lineno = -1;
-> > -       int hll_expand = -1;
-> > +       uint32_t hll_lineno = 0;
-> > +       uint32_t hll_expand = 0;
-> >         struct token tok;
-> >         int rc = SEPOL_OK;
-> >
-> > --
-> > 2.26.2
-> >
+> >  security/selinux/include/security.h |  10 +-
+> >  security/selinux/selinuxfs.c        |  18 +---
+> >  security/selinux/ss/services.c      | 159 ++++++++++++----------------
+> >  3 files changed, 78 insertions(+), 109 deletions(-)
 >
+> My concern is that this is something that should be backported to
+> -stable and I wonder if there is an easier way.
+
+This would need to go only into 5.10 (and 5.11 depending on the
+timing), so I think it should still apply cleanly. But there is
+additional value in having small patches for stable (less likelihood
+of mistake), so I'll try to revisit it...
+
+> Since the core issue
+> appears to be the scope/lifetime of the stdtab->convert field, and
+> since the ->convert field is a struct with only three pointers, why
+> not either embed a copy of the sidtab_convert_params struct in the
+> sidtab struct (net increase in two pointers),
+
+This has a hidden catch - also the convert_context_args would need to
+be embedded and that has pointers to policydb and selinux_state, which
+sidtab currently doesn't "know about" (i.e. it would slightly break
+the abstraction).
+
+> or do a memdup() (or
+> similar) into the sidtab->convert in sidtab_convert().  There would
+> need to be some minor additional work in the latter case, but I
+> imagine adding a kfree() to sidtab_cancel_convert() and calling
+> sidtab_cancel_convert() in selinux_policy_commit() should be the bulk
+> of the changes.
+
+This should be possible and relatively easy. I forgot to list it in
+the options - my only problem with that was the unnecessary dynamic
+allocation, but i concur that keeping the patch small is more
+important in this case. I'll try to do it this way in v2.
+
+-- 
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
