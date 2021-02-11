@@ -2,48 +2,62 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0CC6C433E9
-	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 20:23:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56238C433DB
+	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 20:41:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 81A3C64E6C
-	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 20:23:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A02164DD5
+	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 20:41:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231874AbhBKUXB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Feb 2021 15:23:01 -0500
-Received: from p3plsmtpa08-10.prod.phx3.secureserver.net ([173.201.193.111]:52112
-        "EHLO p3plsmtpa08-10.prod.phx3.secureserver.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230238AbhBKUWy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Feb 2021 15:22:54 -0500
-X-Greylist: delayed 525 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Feb 2021 15:22:54 EST
-Received: from mail-wr1-f43.google.com ([209.85.221.43])
-        by :SMTPAUTH: with ESMTPA
-        id AIL3ltrPRJxCKAIL5lHytX; Thu, 11 Feb 2021 13:13:23 -0700
-X-CMAE-Analysis: v=2.4 cv=ZcrYiuZA c=1 sm=1 tr=0 ts=60258fe3
- a=dFnnagVfVWeg+/bq/M6kfQ==:117 a=IkcTkHD0fZMA:10 a=qa6Q16uM49sA:10
- a=oSqZqoiyAAAA:8 a=JzQy7C8ADFe5TzdhByEA:9 a=QEXdDO2ut3YA:10 a=DRj6J5qQIhcA:10
- a=fw9lIXHl4l3rR_lUHM3T:22 a=pHzHmUro8NiASowvMSCR:22 a=6VlIyEUom7LUIeUMNQJH:22
-X-SECURESERVER-ACCT: peterwhittaker@sphyrnasecurity.com
-Received: by mail-wr1-f43.google.com with SMTP id l12so5440427wry.2
-        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 12:13:23 -0800 (PST)
-X-Gm-Message-State: AOAM531tF8dLIDKdxuyUodNmY+05gfe3ABydcJbJCXS9bFQc6fNQIyWG
-        LCc/ZLzjfa+Wij9lmBQnTfefEWms0+HVNsAyrpuvCw==
-X-Google-Smtp-Source: ABdhPJwbJFKgbhww3i4j6UTvt+Ogk2WRZ7TPf0ttBC/nF+C2m5inBLZQDaSITWcHzYHRWUoMZ//Xxq9Ur+AiErtP1E8=
-X-Received: by 2002:a05:6000:1362:: with SMTP id q2mr7278392wrz.31.1613074400651;
- Thu, 11 Feb 2021 12:13:20 -0800 (PST)
+        id S229849AbhBKUlS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Feb 2021 15:41:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229617AbhBKUlS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Feb 2021 15:41:18 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66106C061574
+        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 12:40:37 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id w4so6679586wmi.4
+        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 12:40:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=cmY1yp8k7Hfh2v9Gm4tHQeomgq8Gg1DiQGuzFqddXUQ=;
+        b=bYGegSh+j9w7fLGvKWGyMmQdt4rtAILHByDR8P2mvuFmi8g/5vQ3CjMPaa+GumPFrU
+         ZC+BkSw4byn26+LS/LT5gKFG9iWdwMGeBggzuylCx/ftnRDcCVkRp0chFd/0OaYD4lE0
+         UGEcKBqyA5PK8xrV4L0de2RzDmSZN2hbDmlH68vyPG0S593cCL4wAyHfxidTcDhmOgQU
+         yM3i/gUa6nY1Rf0ePws6MyBN8oIoR0xnDMEZQYv0YLL2u41FuMbfBV6/nm/zmkgQuVj1
+         vtfZGAEp6D6QCGqFoBnQN9ZJKpdE9BCThr8j/xLFV9v4EvjGggMU6zacWSHVAtykxgI7
+         LUqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=cmY1yp8k7Hfh2v9Gm4tHQeomgq8Gg1DiQGuzFqddXUQ=;
+        b=POLZaPf95lEXYRXq7Vqt1guPLHWVGjgRUlPwLfMU7VFEVrE7zYc9Csh4Lc715D2hRk
+         /fGcufYOFk+QbP0ddKLlQoVfXu19AnwurGauG8JdAETbsUTK/dg7yxwgTjY33ou5GdMe
+         uNtFbG9xdYp+8fZO0CWq7Q7VnCIg+kTGdcIUPgBEYizmZlMBNOTtf168Kcnh5wN8ldH2
+         FN0GKOrcQ+m1IZGpq4V4rQ/MsC7JrxJ9rin02wWcZg+torVIROoDu9T9Bk/8WPwXEL5L
+         F4ELTTjyPeYJcxQvPfQI+OVw1LLzkKlWT4wQ75v0CYo3rC5GS0cD3/j5A0XssIcOp66x
+         8bYQ==
+X-Gm-Message-State: AOAM533Mt1ywuUDEDADAi8qUw1HLEP+q321z7ldjQgSnS5Ho1vODhmYR
+        Cld/bHCklolaTU73G8/vO5HtROqrQ2ptdR9mJshe6xHgRvn/jQ==
+X-Google-Smtp-Source: ABdhPJzCguGb0h0Nkktgv8NlPwbBgCkz0stDgWCWqjPWTHDIK/KKw6macKd8Kw3ZNDemFcMSOAq68iTDLh5213lW7yQ=
+X-Received: by 2002:a1c:49d7:: with SMTP id w206mr6727573wma.63.1613076035756;
+ Thu, 11 Feb 2021 12:40:35 -0800 (PST)
 MIME-Version: 1.0
-From:   Peter Whittaker <peterwhittaker@sphyrnasecurity.com>
-Date:   Thu, 11 Feb 2021 15:12:54 -0500
-X-Gmail-Original-Message-ID: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
-Message-ID: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
-Subject: Defining SELinux users, "Unable to get valid context...". Help!
+References: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
+In-Reply-To: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
+From:   Peter Whittaker <pww@edgekeep.com>
+Date:   Thu, 11 Feb 2021 15:40:10 -0500
+Message-ID: <CAGeouKGuHrCVFDPoNECZUpxV_B0=Qynm28phM3AU9jAdMbM68A@mail.gmail.com>
+Subject: Fwd: Defining SELinux users, "Unable to get valid context...". Help!
 To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-CMAE-Envelope: MS4xfJxmuHYgeY+/izQTwqjhSUSgkHs7r6GinKpTUUMdmsVReS7SAqI1sfJ6/EAKyNbSL2kahpIbLUrZwB/V5Fw8XyynVnXdEwtRoZebmORdeirsbcczS7yc
- okXrc9tuv0QDcqEX9uM0SZpYG+XSRHXTijQbTgzR+Zjf3Hm1UFBYk26svKbe7mtTrzXcATVTZl34KYiVzr7ONtYslYghMLwKa9UTlc0XIZ7f1ogMtdhe/Gdv
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
@@ -212,6 +226,3 @@ opened for user icmc01 by LOGIN(uid=0)
 
 
 Peter Whittaker
-Director, Business Development
-www.SphyrnaSecurity.com
-+1 613 864 5337
