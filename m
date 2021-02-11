@@ -2,138 +2,95 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C465C433E6
-	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 16:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03EC9C433E6
+	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 16:36:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B72164E92
-	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 16:25:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D4B4F64D9C
+	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 16:36:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbhBKQZE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Feb 2021 11:25:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36098 "EHLO
+        id S231131AbhBKQft (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Feb 2021 11:35:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231915AbhBKQXB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Feb 2021 11:23:01 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEC2C06178A
-        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 08:22:20 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id s5so7531967edw.8
-        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 08:22:20 -0800 (PST)
+        with ESMTP id S231180AbhBKQdr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Feb 2021 11:33:47 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB2FC061756
+        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 08:32:53 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id b9so10934721ejy.12
+        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 08:32:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=fISj0lmkxJdlwfMzfLy68mXwNSfKyBopPBtH1GZjGf4=;
-        b=pDRPB2crfCbWgwL7PclTalQA4xOKIGosH40ru57sr0bcpkMUiBErkqVunCrTWtmpPZ
-         7IVrA+UUB6qLc5115fRf3TtHGbhKREsmrSwznla/XQDnWUjrwt+9Q9+cyjZu1zc/L7RC
-         n1dG/qh9EMEr4FFolSct+bC/hDjjx7NYq7XxHEu2fdNWfmLV069hohVOZ+eJzm1C9uCG
-         VEkUJBKJEKMGW0Pow2PkUD0Dagy1OA0a7QwlI4G36C2684s8Xr6tSyfk/mrd7MyzjsUK
-         RoQu5nwnnAhoK5tiDjffLwziK2tUxWyTvF5eAX5Kyyyz9mmf0PxVeskyT3Y4YInrOq5Y
-         PPWQ==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=w4256LvFpqrjJWxaCLTjmivG0mWQTVKA8Bzu5/DQPbA=;
+        b=tFpohbmgZGg4MQpbdAo0AKvocbpdtyRxf13vfA+L6tzIIB5fCkBdfXgDj0mGZaidTB
+         wJKuRF6BnmBr/f/jTRkSASCQgTjvC5tFUN22ksT4Vxa/xuGOVBzSc5+da63YKtUHGQz0
+         lGqbtM2Ab030ZvHFq/f4YF3YIpf4T/g477H4RmptG48hhjcLP8zjtO16e+IF8fr4fQ3V
+         qx5SbrTVWnXVbjR/W4so3+BrBC1KsX1vM2djXvzJWOqayGLEoGCTitEH29tm17ZpjFp7
+         pAzhRWVbaohSChSA2F+CtQnqz9VJ7QV0lXiSrw/CpxKJM0GMttLlOw2gbYMVlaG7LXAO
+         4hMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=fISj0lmkxJdlwfMzfLy68mXwNSfKyBopPBtH1GZjGf4=;
-        b=Y0lj1Bs7FwhpFMJlv/b8CygafzrnuGkrhyF98KKWWrmPaCZjc9HSSdgWD8voicj7S/
-         jAtaBBGuBf5f5znhjyTvsY+zj7KwC9yOmdbNJz6QzFFKbOs73QA9ZX5hN1e5sHfpXCLK
-         21SS4KKlja3f5fdiRQeFJwntojGKr22rW+Avt3j44PnMbhnijAYwMzjaX5V2JQa41Na1
-         D4LeYW+fjLrtm0gt0kqN7QLmW5/I/nFA9A0der/lDT+6l1VYl4NoGfuvZ38UdbredrZ0
-         K3DdLvWr7J0QRuxiJTj5baFpbQ33FkYdBGDJdysgqtCCGkwajJDv9EXUaN9M+lY7BUKa
-         dgKA==
-X-Gm-Message-State: AOAM532qC25vC8oid4YLu9jV15Szuj6ZJLYqLhy/jpCfB17xlATdFn2i
-        UIwl727Nv2ul8JB8kDWMjMUTYCMtFBo=
-X-Google-Smtp-Source: ABdhPJy9b0ZgrnA9k3Tf71m1HUwk2y1g7pWm/ZKYfnT2ZrcafFgXCFKxwKD0h5a0OnYOVjuokSg5jQ==
-X-Received: by 2002:a50:fd0b:: with SMTP id i11mr9146990eds.387.1613060539492;
-        Thu, 11 Feb 2021 08:22:19 -0800 (PST)
-Received: from ?IPv6:2001:a61:340e:e601:8a:719c:9bc1:dcee? ([2001:a61:340e:e601:8a:719c:9bc1:dcee])
-        by smtp.gmail.com with ESMTPSA id 35sm4421734edp.85.2021.02.11.08.22.18
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Feb 2021 08:22:19 -0800 (PST)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-To:     selinux <selinux@vger.kernel.org>
-Subject: alternative to glblub defaultrange
-Message-ID: <8cb71055-5bce-768d-860b-9b9c1be92ce5@gmail.com>
-Date:   Thu, 11 Feb 2021 17:22:18 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=w4256LvFpqrjJWxaCLTjmivG0mWQTVKA8Bzu5/DQPbA=;
+        b=DGY8so+zUYLwDJUtnObfslRwkwTE4PXrsoz36lEG3LRlr5v4AfJzRxlVxFGnrwA8xS
+         WgfditBzWnCtky8ktuoRbrF+voOzzL1Xj8+WFzjnC9FnJD6yuqnVA8sINvX+xw7jNYko
+         YvUoyN9gX6dgCpiFk1ceW2h4g25BBYSQ74+Bus/thJoXB6EhGLeoWOmGTHlgeFd6hrad
+         VCOH2Gx2+sL/KK8RwjGK57zy/AAxB762KqqLJF9XtoLw5SDm5zSzlu8HgrWGBDy9sM28
+         yMqwuOdN4SEeWtWrjtlnUiOjFIYSOLZg4qdOfJkqIk2J9ayLAQluAuzQC/nT0ls+cTsX
+         mZfg==
+X-Gm-Message-State: AOAM530XC3zGs4FijWrCBnz2fxCm4qTIau/tIP3Dqc+XwPHVZ+m0hyJY
+        cKAZaHIwIp8WDhkVLeA++pbW+up0uV1GydtS1yAM
+X-Google-Smtp-Source: ABdhPJxYQ438Z9wm2ZtfF0roQWuh5mUn58vDjkODPItVE19H9pc9j1rgBNa0AbgJ4ibX8j2m4e1lcHTPZ/sU32bMDmU=
+X-Received: by 2002:a17:906:35d9:: with SMTP id p25mr9200468ejb.398.1613061172254;
+ Thu, 11 Feb 2021 08:32:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20210209200233.GF3171@redhat.com> <CAHC9VhQYE3ga53AiK2r-568_=2U0BJe+L4g9U_J0dLinzJqXYA@mail.gmail.com>
+ <20210211140147.GA5014@redhat.com>
+In-Reply-To: <20210211140147.GA5014@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 11 Feb 2021 11:32:41 -0500
+Message-ID: <CAHC9VhS=GkB2JbSz++iTygGzb2Ze6WVKuj5rnNaNVTN=p7=dCQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Allow context mounts for unpriviliged overlayfs
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     selinux@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+On Thu, Feb 11, 2021 at 9:01 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+> On Wed, Feb 10, 2021 at 06:50:57PM -0500, Paul Moore wrote:
+> > On Tue, Feb 9, 2021 at 3:02 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > >
+> > > Now overlayfs allow unpriviliged mounts. That is root inside a non-init
+> > > user namespace can mount overlayfs. This was added in 5.10 kernel.
+>
+> Actually this is being added in 5.11 kernel (and not 5.10 kernel).
+>
+> Paul, can you please fix this while committing. If you want me to
+> report, let me know.
 
-While working on my own policy, I've come across the glblub mode for defaultrange.
-It almost does what I need, but not quite. So I wanted to ask if a patch for a new "glblub2" (with a different name) mode has potential to be accepted:
-
-glblub current behavior:
-
- For the new context low level use the greatest intersection of source and target sensitivity and the lowest intersection of categories.
- For the new context high level use the lowest intersection of source and target level.
-
- or in pseudo code:
-
- context_new.low.sens = max(source.low.sens, target.low.sens)
- context_new.low.cats = and(source.low.cats, target.low.cats)
- context_new.high.sens = min(source.high.sens, source.high.sens)
- context_new.high.cats = and(source.low.cats, target.high.cats)
-
-glblub2, what I want:
-
- For the new context low level use the greatest intersection of source and target low level.
- For the new context high level use the lowest intersection of source and target high level.
-
- or in pseudo code (not the change to context_new.low.cats):
-
- context_new.low.sens = max(source.low.sens, target.low.sens)
- context_new.low.cats = or(source.low.cats, target.low.cats)
- context_new.high.sens = min(source.high.sens, source.high.sens)
- context_new.high.cats = and(source.low.cats, target.high.cats)
-
-A bit longer explanation why I need it:
-
-My policy only uses categories, no sensitivities, with the low level for confidentiality and the high level as integrity.
-
-A non-exhaustive list of rules:
-
-* A process can only transition to a lower-or-equal integrity level and a higher-or-equal confidentiality level.
-* A process may only execute a file it the files integrity level is higher-equal than the processes integrity level
-* A process can be trusted with information that has a confidentiality level that is dominated by its integrity level
-
-The confidentiality requirement for process transitions hasn't really been implemented, and I'm debating leaving it out, but by default a process should not drop his confidentiality level to prevent accidents, as glblub would do:
-
-glblub: process s0:c1-s0:c1.c5 executes file s0:c2-s0:c2.c3 resulting in process s0-s0:c2.c3
-glblub2: process s0:c1-s0:c1.c5 executes file s0:c2-s0:c2.c3 resulting in process s0:c1.c2-s0:c1.c3
-
-A more practical example (low = s0, high = s0:c0.c5):
-
-Consider /bin/bash a file with no confidentiality but the highest integrity:
-
-/bin/bash low-high
-
-Executing bash is fine, and should result in just low-high ; no requirement to keep bash secret and bash can't be modified by someone who isn't already x-high.
-
-If a user (low-high) executes a script in a project that e.g. was marked with some integrity and some confidentiality the process should range transition by default (and maybe enforced by constraints as set out above):
-
-/home/abc/myproject/abc.sh s0:c1-s0:c1.c3
-
-executing abc.sh should result in s0:c1-s0:c1.c3 
-
-This ensures that no process without c1 could access any information about "myproject" by accident, and that "myproject" can't compromise the integrity of other processes (e.g. with c4).
-
-If nobody stops me then I'll submit a patch once I've got some time again to work on this.
+Good to know, thanks for the clarification.  As far as updating the
+commit description, while I generally prefer the patch author to make
+changes (my personal opinion is that maintainers should have as light
+a touch as possible outside the mechanical work of merging), this is
+pretty minor and I can fix that up if you want.  Regardless, we've
+likely got ~2.5 weeks before it really matters anyway :)
 
 -- 
-bauen1
-https://dn42.bauen1.xyz/
+paul moore
+www.paul-moore.com
