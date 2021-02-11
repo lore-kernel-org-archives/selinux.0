@@ -2,227 +2,108 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56238C433DB
-	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 20:41:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4218C433E9
+	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 21:25:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A02164DD5
-	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 20:41:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9DFD64DE3
+	for <selinux@archiver.kernel.org>; Thu, 11 Feb 2021 21:25:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229849AbhBKUlS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Feb 2021 15:41:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
+        id S229944AbhBKVZJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Feb 2021 16:25:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbhBKUlS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Feb 2021 15:41:18 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66106C061574
-        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 12:40:37 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id w4so6679586wmi.4
-        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 12:40:37 -0800 (PST)
+        with ESMTP id S229933AbhBKVZJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Feb 2021 16:25:09 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A38C061574
+        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 13:24:28 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id sa23so12311266ejb.0
+        for <selinux@vger.kernel.org>; Thu, 11 Feb 2021 13:24:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=cmY1yp8k7Hfh2v9Gm4tHQeomgq8Gg1DiQGuzFqddXUQ=;
-        b=bYGegSh+j9w7fLGvKWGyMmQdt4rtAILHByDR8P2mvuFmi8g/5vQ3CjMPaa+GumPFrU
-         ZC+BkSw4byn26+LS/LT5gKFG9iWdwMGeBggzuylCx/ftnRDcCVkRp0chFd/0OaYD4lE0
-         UGEcKBqyA5PK8xrV4L0de2RzDmSZN2hbDmlH68vyPG0S593cCL4wAyHfxidTcDhmOgQU
-         yM3i/gUa6nY1Rf0ePws6MyBN8oIoR0xnDMEZQYv0YLL2u41FuMbfBV6/nm/zmkgQuVj1
-         vtfZGAEp6D6QCGqFoBnQN9ZJKpdE9BCThr8j/xLFV9v4EvjGggMU6zacWSHVAtykxgI7
-         LUqg==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=TNQWFiyPdo3ojYabHzl68ZCQOfKSj9UblM8Ayd7V6k8=;
+        b=0UTYGiD+q8sRdd4e9z+0UDeoWRhcEMd6O3vLz6j6fcXyEceSwiC1v+wuvcM9YYHryq
+         kCtgM15eZ/olcm628YFo3W70n2Yd+D4AWaZv7/p0hFJ/QTBNKbS/f8UkjMM4+n3q2RsC
+         Ile04VI8ev0qFWbpKyGQ8Yf60aAId0Tbtmjm8ZnnSlUuFPdQwmbxTBfqwj0Hsw/pPyVl
+         LrkvuvjCoBDFwBxLLaxWKTn6uC3Ho4LvE76WnQ3X/u3DugeJYFJk/dXgNZ9s2JqFiQrq
+         osBN79Qhp+voo132GxBqLj8RAJKV9MS+62ALd1xZLxA/awnNZYa/ZQGUqs36skEcgKzO
+         Z7hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=cmY1yp8k7Hfh2v9Gm4tHQeomgq8Gg1DiQGuzFqddXUQ=;
-        b=POLZaPf95lEXYRXq7Vqt1guPLHWVGjgRUlPwLfMU7VFEVrE7zYc9Csh4Lc715D2hRk
-         /fGcufYOFk+QbP0ddKLlQoVfXu19AnwurGauG8JdAETbsUTK/dg7yxwgTjY33ou5GdMe
-         uNtFbG9xdYp+8fZO0CWq7Q7VnCIg+kTGdcIUPgBEYizmZlMBNOTtf168Kcnh5wN8ldH2
-         FN0GKOrcQ+m1IZGpq4V4rQ/MsC7JrxJ9rin02wWcZg+torVIROoDu9T9Bk/8WPwXEL5L
-         F4ELTTjyPeYJcxQvPfQI+OVw1LLzkKlWT4wQ75v0CYo3rC5GS0cD3/j5A0XssIcOp66x
-         8bYQ==
-X-Gm-Message-State: AOAM533Mt1ywuUDEDADAi8qUw1HLEP+q321z7ldjQgSnS5Ho1vODhmYR
-        Cld/bHCklolaTU73G8/vO5HtROqrQ2ptdR9mJshe6xHgRvn/jQ==
-X-Google-Smtp-Source: ABdhPJzCguGb0h0Nkktgv8NlPwbBgCkz0stDgWCWqjPWTHDIK/KKw6macKd8Kw3ZNDemFcMSOAq68iTDLh5213lW7yQ=
-X-Received: by 2002:a1c:49d7:: with SMTP id w206mr6727573wma.63.1613076035756;
- Thu, 11 Feb 2021 12:40:35 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=TNQWFiyPdo3ojYabHzl68ZCQOfKSj9UblM8Ayd7V6k8=;
+        b=rGvcZYjJY5F7sLuQZjvJ2ktAzwZKjUYDas32C/Qx9oac6Q3eaZS8TbzR6M4OpgUzqF
+         xkSgtcGyRa+nFfohPi//Jk74qJDdSLWiyr+xTLoqqO7KA2BYsgU2OxWYkz9AeBTknaBW
+         oZ5YWmcT2yieIoij5dj6yiq8c68ZFguDa5C7uYS6gkmoKazyxlzVkGJr2ilDNtJo2MOQ
+         W0az/xLLDFpTrKVtv9BMtHRXLNkcJ/w4eKWmKmikYDem9b0v0jdySXa4oAeJl07Cm0Pq
+         LL978UsN5HX3x8JXsFwd9UnoDmxaigkNn3yJg7O/qp4/Q7AH6ggM5MXftOsEwF7PDsQR
+         1OxQ==
+X-Gm-Message-State: AOAM530uydw+vf2WJ0eOsTgaJ7PmhJ8lC/NV49UZ3NYsjmBiLl8vynIF
+        BJ19dY9ybzvtUijU6t/yhfVRx7HDej980INDDi4B
+X-Google-Smtp-Source: ABdhPJzg+xsqK6Q0BsRYV8h1s0SJFG6SaF05PNIQrOtXeBKCsbEGJOUCqJslJ1jhv+m2CVmqraNE739MufK3mqAzEjk=
+X-Received: by 2002:a17:906:c010:: with SMTP id e16mr10170417ejz.91.1613078667508;
+ Thu, 11 Feb 2021 13:24:27 -0800 (PST)
 MIME-Version: 1.0
-References: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
-In-Reply-To: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
-From:   Peter Whittaker <pww@edgekeep.com>
-Date:   Thu, 11 Feb 2021 15:40:10 -0500
-Message-ID: <CAGeouKGuHrCVFDPoNECZUpxV_B0=Qynm28phM3AU9jAdMbM68A@mail.gmail.com>
-Subject: Fwd: Defining SELinux users, "Unable to get valid context...". Help!
-To:     SElinux list <selinux@vger.kernel.org>
+References: <20210211180303.GE5014@redhat.com>
+In-Reply-To: <20210211180303.GE5014@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 11 Feb 2021 16:24:16 -0500
+Message-ID: <CAHC9VhRM6MiF1m2aFpLJKb3CFWXcXEX_SY=EnkLaq7U_X2UTZw@mail.gmail.com>
+Subject: Re: [PATCH][v2] selinux: Allow context mounts for unpriviliged overlayfs
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     selinux@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Good afternoon,
+On Thu, Feb 11, 2021 at 1:03 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+>
+> Now overlayfs allow unpriviliged mounts. That is root inside a non-init
+> user namespace can mount overlayfs. This is being added in 5.11 kernel.
+>
+> Giuseppe tried to mount overlayfs with option "context" and it failed
+> with error -EACCESS.
+>
+> $ su test
+> $ unshare -rm
+> $ mkdir -p lower upper work merged
+> $ mount -t overlay -o lowerdir=lower,workdir=work,upperdir=upper,userxattr,context='system_u:object_r:container_file_t:s0' none merged
+>
+> This fails with -EACCESS. It works if option "-o context" is not specified.
+>
+> Little debugging showed that selinux_set_mnt_opts() returns -EACCESS.
+>
+> So this patch adds "overlay" to the list, where it is fine to specific
+> context from non init_user_ns.
+>
+> v2: Fixed commit message to reflect that unpriveleged overlayfs mount is
+>     being added in 5.11 and not in 5.10 kernel.
+>
+> Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
+> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> ---
+>  security/selinux/hooks.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-    BLUF: Logging in via SSH or directly at the console results
-    in "Unable to get valid context...". Help! Much info included.
+Thanks Vivek, once the merge window closes I'll merge this into
+selinux/next and send a note to this thread.
 
-I'm working on a software diode implementing a linear assured pipeline
-which is secured with SELinux. As part of this, I am defining a number
-of SELinux users, with the goal being that Linux users belonging to a
-specific Linux group will, at login, be assigned to the applicable
-SELinux user, then role, then type, etc.
-
-However. When I log in as my test user, icmc01, via the console or via
-SSH, I get the message "Unable to get valid context for icmc01". A
-check with "id -Z" shows that my test user has the following context:
-
-    system_u:system_r:unconfined_t:s0-s0:c0.c1023
-
-I really want them to have the context:
-
-    CDTml_high2local_u:CDTml_high2local_r:xferHigh2Local_t:s0-s0:c0.c1023
-
-(In fact, I don't care about the MLS/MCS portion, I am more than happy
-to accept system defaults; I'm really only going for the MAC.)
-
-What follows is everything I could think to include, from their passwd
-entry and the group file to semanage settings, from the contexts and
-content of various SELinux configuration files to the relevant snips
-of the TE file itself.
-
-NOTE: This is all under permissive mode, targeted policy.
-
-Any insight or direction will be much appreciated, I am tearing out
-my hair. Thank you!
-
-    % grep icmc01 /etc/passwd
-    icmc01:x:2105:2105::/home/icmc01:/bin/bash
-
-    % grep 2105 /etc/group
-    CDTml_high2local:x:2105:
-
-    % semanage login -l |grep CDTml_high2local_u
-    %CDTml_high2local    CDTml_high2local_u   s0-s0:c0.c1023       *
-
-    % semanage user -l |grep CDTml_high2local_u
-    CDTml_high2local_u user       s0         s0-s0:c0.c1023
-     CDTml_high2local_r
-
-    % ls -lZ /etc/selinux/targeted/contexts/users/CDTml_high2local_u
-    -rw-r--r--. root root system_u:object_r:default_context_t:s0
-/etc/selinux/targeted/contexts/users/CDTml_high2local_u
-
-    % cat /etc/selinux/targeted/contexts/users/CDTml_high2local_u
-    system_r:crond_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:initrc_su_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:local_login_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:remote_login_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:sshd_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    CDTml_high2local_r:xferHigh2Local_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-
-    % ls -lZ /etc/selinux/targeted/contexts/default_*
-    -rw-r--r--. root root system_u:object_r:default_context_t:s0
-/etc/selinux/targeted/contexts/default_contexts
-    -rw-r--r--. root root system_u:object_r:default_context_t:s0
-/etc/selinux/targeted/contexts/default_type
-
-    % cat /etc/selinux/targeted/contexts/default_contexts
-    system_r:crond_t:s0 system_r:system_cronjob_t:s0
-    system_r:local_login_t:s0 user_r:user_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:remote_login_t:s0 user_r:user_t:s0
-CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:sshd_t:s0 user_r:user_t:s0 CDTml_high2local_r:xferHigh2Local_t:s0
-    system_r:sulogin_t:s0 sysadm_r:sysadm_t:s0
-    system_r:xdm_t:s0 user_r:user_t:s0
-
-    % uname -a
-    Linux localhost.localdomain 3.10.0-1160.6.1.el7.x86_64 #1 SMP Wed
-Oct 21 13:44:38 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
-
-    % more /etc/redhat-release
-    Red Hat Enterprise Linux Server release 7.9 (Maipo)
-
-    % yum info installed \*selinux\*|grep -A3 '^Name'
-    Name        : libselinux
-    Arch        : x86_64
-    Version     : 2.5
-    Release     : 15.el7
-    --
-    Name        : libselinux-python
-    Arch        : x86_64
-    Version     : 2.5
-    Release     : 15.el7
-    --
-    Name        : libselinux-utils
-    Arch        : x86_64
-    Version     : 2.5
-    Release     : 15.el7
-    --
-    Name        : selinux-policy
-    Arch        : noarch
-    Version     : 3.13.1
-    Release     : 268.el7_9.2
-    --
-    Name        : selinux-policy-devel
-    Arch        : noarch
-    Version     : 3.13.1
-    Release     : 268.el7_9.2
-    --
-    Name        : selinux-policy-targeted
-    Arch        : noarch
-    Version     : 3.13.1
-    Release     : 268.el7_9.2
-
-    % grep -C3 CDTml_high2local_r CDTml.te
-    # and grant them access to our types
-    role CDTml_low2local_r;
-    role CDTml_local2high_r;
-    role CDTml_high2local_r;
-    role CDTml_local2low_r;
-    role CDTml_auditor_r;
-
-    allow system_r {
-        CDTml_low2local_r
-        CDTml_local2high_r
-        CDTml_high2local_r
-        CDTml_local2low_r
-        CDTml_auditor_r
-    };
-    allow unconfined_r {
-        CDTml_low2local_r
-        CDTml_local2high_r
-        CDTml_high2local_r
-        CDTml_local2low_r
-        CDTml_auditor_r
-    };
-    --
-        xferLocal2High_t
-        xferLocal2High_exec_t
-    };
-    role CDTml_high2local_r types {
-        xferHigh2Local_t
-        xferHigh2Local_exec_t
-    };
-
-    % tail -f /var/log/secure
-    Feb 11 14:57:44 localhost login: pam_selinux(login:session): Open Session
-    Feb 11 14:57:44 localhost login: pam_selinux(login:session): Open Session
-    Feb 11 14:57:44 localhost login: pam_selinux(login:session):
-Username= icmc01 SELinux User= CDTml_high2local_u Level=
-s0-s0:c0.c1023
-    Feb 11 14:57:44 localhost login: pam_selinux(login:session):
-Unable to get valid context for icmc01
-    Feb 11 14:57:44 localhost login: pam_unix(login:session): session
-opened for user icmc01 by LOGIN(uid=0)
-    Feb 11 14:57:44 localhost login: LOGIN ON tty2 BY icmc01
-
-
-Peter Whittaker
+-- 
+paul moore
+www.paul-moore.com
