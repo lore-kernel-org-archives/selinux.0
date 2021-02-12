@@ -2,199 +2,216 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD9BCC4332B
-	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 19:05:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07E55C433E6
+	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 21:21:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9CE9264EC4
-	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 19:05:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8E6964DF2
+	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 21:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbhBLTFj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Feb 2021 14:05:39 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:51530 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229980AbhBLTFf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Feb 2021 14:05:35 -0500
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 608BF20B6C40;
-        Fri, 12 Feb 2021 11:04:52 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 608BF20B6C40
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1613156693;
-        bh=6YnCV6liH82sConSeIcoMvSWdbV+LrQaalBNmKqtnLk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GITEbyMOWmtO06swLLyzbqAndCL6qYoJwEmT2XhJyRqxT/lw3xpO8LZVsa6FeEhyy
-         Zla+9UCM9aT2VCn9g+XvrcPOq6hrKkSXzExsDCw+BNm3xfc6aB/ucA30hTk8Gslh4D
-         mf9uScKCuHbQdzAFC0IQnNVnowxrfhjH6wwp5mJA=
-Date:   Fri, 12 Feb 2021 13:04:50 -0600
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Mark Salyzyn <salyzyn@android.com>,
-        Miklos Szeredi <miklos@szeredi.hu>
-Cc:     linux-kernel@vger.kernel.org,
-        kernel-team <kernel-team@android.com>,
-        linux-fsdevel@vger.kernel.org,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        LSM <linux-security-module@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Amir Goldstein <amir73il@gmail.com>, linux-doc@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        James Morris <jmorris@namei.org>
-Subject: Re: [RESEND PATCH v18 2/4] overlayfs: handle XATTR_NOSECURITY flag
- for get xattr method
-Message-ID: <20210212190450.GB56839@sequoia>
-References: <20201021151903.652827-1-salyzyn@android.com>
- <20201021151903.652827-3-salyzyn@android.com>
- <CAJfpegtMoD85j5namV592sJD23QeUMD=+tq4SvFDqjVxsAszYQ@mail.gmail.com>
- <2fd64e4f-c573-c841-abb6-ec0908f78cdd@android.com>
- <20210205180131.GA648953@sequoia>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210205180131.GA648953@sequoia>
+        id S229923AbhBLVUv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Feb 2021 16:20:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41280 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232035AbhBLVUl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Feb 2021 16:20:41 -0500
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B19BC061574;
+        Fri, 12 Feb 2021 13:20:01 -0800 (PST)
+Received: by mail-il1-x12a.google.com with SMTP id g9so500968ilc.3;
+        Fri, 12 Feb 2021 13:20:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=0Y3RJK3vxi+QhNIpzjNBegnGJj+h/AGZkLMsaZUQL3o=;
+        b=iig/5IGXEtufIDVHhOxGQDevi3GZk8c1kwaI4Ysh/5rMsTUxqckm8zEm0DSTW6iBDd
+         aM8irtmQsmQc4BSeupA2Q0MjCb+xJfrhtG5HRpkacjt0swLzEEzXUGxIT+QaPvmVO6/0
+         fzbCf4QSTw0siT6wjK2+A/k/Cq1BBUIkHk7hdNenz/Bz+wtIc63CkNKAx6AcH4CDE/d6
+         UCYQJKdHFh582piBR01C+mhih8qIVhLx18kpiRMPHYvqhKjK9X78QfKXLUjdb0yNXsMG
+         Z5Q3VMvFNKzJxXM11Hqf16Bb+Mpj8fnhHhOAHgBTQ7U+mI/7jffWq5HCA+ncCZkGOTUv
+         hD+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=0Y3RJK3vxi+QhNIpzjNBegnGJj+h/AGZkLMsaZUQL3o=;
+        b=Yf6+TcbGYPQ+5G+MZlHbFFujApR5sbpFBAUcmeWKDxejqCLGTGyRCxKwBAdkzhGkts
+         3V524YXZOOg8InEUoi85WQZt2+P4Sfeiy7xtZ338L1Ai2KWUp3l4EFCgfufCybjYmcW9
+         iOsWeAyTocLhveUbhSfLelqnZm82x8qRtU6oePD78Zymia7h8BSDc1S1YnKBIOcZUnEP
+         BXnaoi4vDCHTvb+ABUKbHu2oacBCDS2wEQlDGJ+FWTnyCpbZ/kiljIhmpE86MKjVFlOr
+         7tNdrdd3koRJGPtLLtjClOVYtWspxbW9gzLI7A8+50d6rPVP2OhjtbOpuC1JA0bZnMA3
+         w9Xg==
+X-Gm-Message-State: AOAM5306aHAtuoP6XUOY1i6fBZ2B+qj4KeTf01AFa2cwCEA0uRXNR23N
+        hhZ43xfr6rtnSLfBbqjgq2xgYjbQTaeh8w==
+X-Google-Smtp-Source: ABdhPJx6/LwfGstOn9Ozmrb0FJGjAxVPAeNmwhx6imbh78LeKd7jSGl1RkQctVKo4ldRnX673XkG8Q==
+X-Received: by 2002:a92:b011:: with SMTP id x17mr3844690ilh.179.1613164800672;
+        Fri, 12 Feb 2021 13:20:00 -0800 (PST)
+Received: from Olgas-MBP-444.attlocal.net (172-10-226-31.lightspeed.livnmi.sbcglobal.net. [172.10.226.31])
+        by smtp.gmail.com with ESMTPSA id k11sm4685570iop.45.2021.02.12.13.19.59
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Fri, 12 Feb 2021 13:19:59 -0800 (PST)
+From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
+To:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com
+Cc:     linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: [PATCH 1/2] [security] Add new hook to compare new mount to an existing mount
+Date:   Fri, 12 Feb 2021 16:19:54 -0500
+Message-Id: <20210212211955.11239-1-olga.kornievskaia@gmail.com>
+X-Mailer: git-send-email 2.10.1 (Apple Git-78)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-02-05 12:01:55, Tyler Hicks wrote:
-> On 2020-10-30 09:00:35, Mark Salyzyn wrote:
-> > On 10/30/20 8:07 AM, Miklos Szeredi wrote:
-> > > On Wed, Oct 21, 2020 at 5:19 PM Mark Salyzyn <salyzyn@android.com> wrote:
-> > > > Because of the overlayfs getxattr recursion, the incoming inode fails
-> > > > to update the selinux sid resulting in avc denials being reported
-> > > > against a target context of u:object_r:unlabeled:s0.
-> > > > 
-> > > > Solution is to respond to the XATTR_NOSECURITY flag in get xattr
-> > > > method that calls the __vfs_getxattr handler instead so that the
-> > > > context can be read in, rather than being denied with an -EACCES
-> > > > when vfs_getxattr handler is called.
-> > > > 
-> > > > For the use case where access is to be blocked by the security layer.
-> > > > 
-> > > > The path then would be security(dentry) ->
-> > > > __vfs_getxattr({dentry...XATTR_NOSECURITY}) ->
-> > > > handler->get({dentry...XATTR_NOSECURITY}) ->
-> > > > __vfs_getxattr({realdentry...XATTR_NOSECURITY}) ->
-> > > > lower_handler->get({realdentry...XATTR_NOSECURITY}) which
-> > > > would report back through the chain data and success as expected,
-> > > > the logging security layer at the top would have the data to
-> > > > determine the access permissions and report back to the logs and
-> > > > the caller that the target context was blocked.
-> > > > 
-> > > > For selinux this would solve the cosmetic issue of the selinux log
-> > > > and allow audit2allow to correctly report the rule needed to address
-> > > > the access problem.
-> > > > 
-> > > > Check impure, opaque, origin & meta xattr with no sepolicy audit
-> > > > (using __vfs_getxattr) since these operations are internal to
-> > > > overlayfs operations and do not disclose any data.  This became
-> > > > an issue for credential override off since sys_admin would have
-> > > > been required by the caller; whereas would have been inherently
-> > > > present for the creator since it performed the mount.
-> > > > 
-> > > > This is a change in operations since we do not check in the new
-> > > > ovl_do_getxattr function if the credential override is off or not.
-> > > > Reasoning is that the sepolicy check is unnecessary overhead,
-> > > > especially since the check can be expensive.
-> > > > 
-> > > > Because for override credentials off, this affects _everyone_ that
-> > > > underneath performs private xattr calls without the appropriate
-> > > > sepolicy permissions and sys_admin capability.  Providing blanket
-> > > > support for sys_admin would be bad for all possible callers.
-> > > > 
-> > > > For the override credentials on, this will affect only the mounter,
-> > > > should it lack sepolicy permissions. Not considered a security
-> > > > problem since mounting by definition has sys_admin capabilities,
-> > > > but sepolicy contexts would still need to be crafted.
-> > > This would be a problem when unprivileged mounting of overlay is
-> > > introduced.  I'd really like to avoid weakening the current security
-> > > model.
-> > 
-> > The current security model does not deal with non-overlapping security
-> > contexts between init (which on android has MAC permissions only when
-> > necessary, only enough permissions to perform the mount and other mundane
-> > operations, missing exec and read permissions in key spots) and user calls.
-> > 
-> > We are only weakening (that is actually an incorrect statement, security is
-> > there, just not double security of both mounter and caller) the security
-> > around calls that retrieve the xattr for administrative and internal
-> > purposes. No data is exposed to the caller that it would not otherwise have
-> > permissions for.
-> 
-> We've ran into the same issues that Mark is trying to solve with this
-> series. I came across Mark's series while searching around before I
-> wrote up a similar patch to Mark's patch #3.
-> 
-> We have a confined process that sets up Overlayfs mounts, then that process
-> starts a service confined by another security context, then that service
-> may execute binaries that run under a third security context. In this
-> case, I'm talking about SELinux security contexts but it could be
-> AppArmor or anything else that you use to separate out
-> privileges/permissions at fine-grained detail.
-> 
-> We don't want to grant all the privileges/permissions required by the
-> service (and its helper utilities) to the process that sets up the
-> Overlayfs mounts because we've been very careful in separating them
-> apart with security policy. However, we want to make use of Overlayfs
-> and adding a mount option to bypass the check on the mounter's cred
-> seems like a safe way of using Overlayfs without violating our principle
-> of least privilege.
+From: Olga Kornievskaia <kolga@netapp.com>
 
-I just realized that I missed one noteworthy aspect of our use case. We
-would be alright if this functionality to bypass the mounter's cred
-checks (conditional, based on a mount option) was only allowed for
-read-only overlays[1].
+Add a new hook that takes an existing super block and a new mount
+with new options and determines if new options confict with an
+existing mount or not.
 
-I'm not sure if that would meet the needs of Android. Can you comment on
-that, Mark?
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+---
+ include/linux/lsm_hook_defs.h |  1 +
+ include/linux/lsm_hooks.h     |  6 ++++
+ include/linux/security.h      |  1 +
+ security/security.c           |  7 +++++
+ security/selinux/hooks.c      | 54 +++++++++++++++++++++++++++++++++++
+ 5 files changed, 69 insertions(+)
 
-Miklos, would that restriction make this series any more acceptable to
-you?
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 7aaa753b8608..fbfc07d0b3d5 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -62,6 +62,7 @@ LSM_HOOK(int, 0, sb_alloc_security, struct super_block *sb)
+ LSM_HOOK(void, LSM_RET_VOID, sb_free_security, struct super_block *sb)
+ LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, void *mnt_opts)
+ LSM_HOOK(int, 0, sb_eat_lsm_opts, char *orig, void **mnt_opts)
++LSM_HOOK(int, 0, sb_do_mnt_opts_match, struct super_block *sb, void *mnt_opts)
+ LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
+ LSM_HOOK(int, 0, sb_kern_mount, struct super_block *sb)
+ LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index a19adef1f088..a11b062c1847 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -142,6 +142,12 @@
+  *	@orig the original mount data copied from userspace.
+  *	@copy copied data which will be passed to the security module.
+  *	Returns 0 if the copy was successful.
++ * @sb_do_mnt_opts_match:
++ *	Determine if the existing mount options are compatible with the new
++ *	mount options being used.
++ *	@sb superblock being compared
++ *	@mnt_opts new mount options
++ *	Return 1 if options are the same.
+  * @sb_remount:
+  *	Extracts security system specific mount options and verifies no changes
+  *	are being made to those options.
+diff --git a/include/linux/security.h b/include/linux/security.h
+index c35ea0ffccd9..07026db7304d 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -291,6 +291,7 @@ int security_sb_alloc(struct super_block *sb);
+ void security_sb_free(struct super_block *sb);
+ void security_free_mnt_opts(void **mnt_opts);
+ int security_sb_eat_lsm_opts(char *options, void **mnt_opts);
++int security_sb_do_mnt_opts_match(struct super_block *sb, void *mnt_opts);
+ int security_sb_remount(struct super_block *sb, void *mnt_opts);
+ int security_sb_kern_mount(struct super_block *sb);
+ int security_sb_show_options(struct seq_file *m, struct super_block *sb);
+diff --git a/security/security.c b/security/security.c
+index 7b09cfbae94f..dae380916c6a 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -890,6 +890,13 @@ int security_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ }
+ EXPORT_SYMBOL(security_sb_eat_lsm_opts);
+ 
++int security_sb_do_mnt_opts_match(struct super_block *sb,
++				 void *mnt_opts)
++{
++	return call_int_hook(sb_do_mnt_opts_match, 0, sb, mnt_opts);
++}
++EXPORT_SYMBOL(security_sb_do_mnt_opts_match);
++
+ int security_sb_remount(struct super_block *sb,
+ 			void *mnt_opts)
+ {
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 644b17ec9e63..aaa3a725da94 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2656,6 +2656,59 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 	return rc;
+ }
+ 
++static int selinux_sb_do_mnt_opts_match(struct super_block *sb, void *mnt_opts)
++{
++	struct selinux_mnt_opts *opts = mnt_opts;
++	struct superblock_security_struct *sbsec = sb->s_security;
++	u32 sid;
++	int rc;
++
++	/* superblock not initialized (i.e. no options) - reject if any
++	 * options specified, otherwise accept
++	 */
++	if (!(sbsec->flags & SE_SBINITIALIZED))
++		return opts ? 0 : 1;
++
++	/* superblock initialized and no options specified - reject if
++	 * superblock has any options set, otherwise accept
++	 */
++	if (!opts)
++		return (sbsec->flags & SE_MNTMASK) ? 0 : 1;
++
++	if (opts->fscontext) {
++		rc = parse_sid(sb, opts->fscontext, &sid);
++		if (rc)
++			return 0;
++		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
++			return 0;
++	}
++	if (opts->context) {
++		rc = parse_sid(sb, opts->context, &sid);
++		if (rc)
++			return 0;
++		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
++			return 0;
++	}
++	if (opts->rootcontext) {
++		struct inode_security_struct *root_isec;
++
++		root_isec = backing_inode_security(sb->s_root);
++		rc = parse_sid(sb, opts->rootcontext, &sid);
++		if (rc)
++			return 0;
++		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
++			return 0;
++	}
++	if (opts->defcontext) {
++		rc = parse_sid(sb, opts->defcontext, &sid);
++		if (rc)
++			return 0;
++		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
++			return 0;
++	}
++	return 1;
++}
++
+ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+ {
+ 	struct selinux_mnt_opts *opts = mnt_opts;
+@@ -6984,6 +7037,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 
+ 	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+ 	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
++	LSM_HOOK_INIT(sb_do_mnt_opts_match, selinux_sb_do_mnt_opts_match),
+ 	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
+ 	LSM_HOOK_INIT(sb_kern_mount, selinux_sb_kern_mount),
+ 	LSM_HOOK_INIT(sb_show_options, selinux_sb_show_options),
+-- 
+2.27.0
 
-Thanks!
-
-Tyler
-
-[1] https://www.kernel.org/doc/html/latest/filesystems/overlayfs.html#multiple-lower-layers
-
-> 
-> Tyler
-> 
-> > 
-> > This patch becomes necessary when matched with the PATCH v18 3/4 of the
-> > series which fixes the user space break introduced in ~4.6 that formerly
-> > used the callers credentials for all accesses in all places. Security is
-> > weakened already as-is in overlayfs with all the overriding of the
-> > credentials for internal accesses to overlayfs mechanics based on the
-> > mounter credentials. Using the mounter credentials as a wider security hole
-> > is the problem, at least with PATCH v18 3/4 of the series we go back
-> > optionally to only using the caller's credentials to perform the operations.
-> > Admittedly some of the internal operations like mknod are privileged, but at
-> > least in Android's use case we are not using them with callers without the
-> > necessary credentials.
-> > 
-> > Android does not give the mounter more credentials than the callers, there
-> > is very little overlap in the MAC security.
-> > 
-> > > The big API churn in the 1/4 patch also seems excessive considering
-> > > that this seems to be mostly a cosmetic issue for android.  Am I
-> > > missing something?
-> > 
-> > Breaks sepolicy, it no longer has access to the context data at the
-> > overlayfs security boundary.
-> > 
-> > unknown is a symptom of being denied based on the denial to xattr data from
-> > the underlying filesystem layer. Being denied the security context of the
-> > target is not a good thing within the sepolicy security layer.
-> > 
-> > > 
-> > > Thanks,
-> > > Miklos
-> > 
-> > 
