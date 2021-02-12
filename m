@@ -2,124 +2,284 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06008C433DB
-	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 12:00:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F858C433DB
+	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 16:40:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CB82D64DAE
-	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 12:00:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA17564E3D
+	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 16:40:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbhBLMAW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Feb 2021 07:00:22 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42743 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230238AbhBLL7W (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Feb 2021 06:59:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613131070;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SK/ZkHbGSpqOWi3HuJEGZuwe0sg0qFdB5Duu5ePuWio=;
-        b=dMyIwmfy3G5eH4VNaW1/AlK1LbvHLfP1p56ti8uRRfMcqN4n/pR5+OOMr3kWovp/pS3evv
-        bV0dd+vFwe675eHbsxO+8MHEJW6azg61ndqQOfxyjtWGymy1hVPvNzxRyDlZzFfq96oL66
-        47cp5bmWHMZc0a/5LGsYXsuCBL3/RAU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-260-nsBiufmaOy6umPGGTfvDVg-1; Fri, 12 Feb 2021 06:57:46 -0500
-X-MC-Unique: nsBiufmaOy6umPGGTfvDVg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DBF1D804036;
-        Fri, 12 Feb 2021 11:57:44 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.10.110.27])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D76CC60657;
-        Fri, 12 Feb 2021 11:57:41 +0000 (UTC)
-Reply-To: dwalsh@redhat.com
-Subject: Re: [PATCH][v2] selinux: Allow context mounts for unpriviliged
- overlayfs
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Vivek Goyal <vgoyal@redhat.com>, selinux@vger.kernel.org,
-        linux-unionfs@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>
-References: <20210211180303.GE5014@redhat.com>
- <CAHC9VhRM6MiF1m2aFpLJKb3CFWXcXEX_SY=EnkLaq7U_X2UTZw@mail.gmail.com>
- <bb7b8304-b0fe-f6a3-b1fa-c06193f9cc02@redhat.com>
- <CAHC9VhS_+VT5cSXg+msEajnMYNjegKfubLO0EggaSr2p+JfSuA@mail.gmail.com>
-From:   Daniel Walsh <dwalsh@redhat.com>
-Organization: Red Hat
-Message-ID: <36bcaeb0-547b-c8aa-e552-cca05c4103b5@redhat.com>
-Date:   Fri, 12 Feb 2021 06:57:40 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S230521AbhBLQj4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Feb 2021 11:39:56 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:33330 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231304AbhBLQh7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Feb 2021 11:37:59 -0500
+Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 976E120B6C40;
+        Fri, 12 Feb 2021 08:37:15 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 976E120B6C40
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1613147835;
+        bh=4dYjaGkqbmN5KWpdXHTWdgYhxKJ8p+ZKniaAve3eISc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=c8KR/MyefO0xSn/gK0vb9c5lXr2Y2Fc2bUVYRAa5E5hQNMqtTze1Fo4KWaMtHVLwz
+         qwmWJhWVQ6MEpeCmbVVkoi4fBBOriTYmL7N1fyKHvX6RAE5u+AXIA26HO+0QoOL2gE
+         oMW3pw71C16b0UncxaJLzAMMzgJkPjr1Bit+1Bak=
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+To:     zohar@linux.ibm.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com
+Cc:     tusharsu@linux.microsoft.com, tyhicks@linux.microsoft.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v3] selinux: measure state and policy capabilities
+Date:   Fri, 12 Feb 2021 08:37:09 -0800
+Message-Id: <20210212163709.3139-1-nramas@linux.microsoft.com>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhS_+VT5cSXg+msEajnMYNjegKfubLO0EggaSr2p+JfSuA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/11/21 18:28, Paul Moore wrote:
-> On Thu, Feb 11, 2021 at 5:41 PM Daniel Walsh <dwalsh@redhat.com> wrote:
->> On 2/11/21 16:24, Paul Moore wrote:
->>> On Thu, Feb 11, 2021 at 1:03 PM Vivek Goyal <vgoyal@redhat.com> wrote:
->>>> Now overlayfs allow unpriviliged mounts. That is root inside a non-init
->>>> user namespace can mount overlayfs. This is being added in 5.11 kernel.
->>>>
->>>> Giuseppe tried to mount overlayfs with option "context" and it failed
->>>> with error -EACCESS.
->>>>
->>>> $ su test
->>>> $ unshare -rm
->>>> $ mkdir -p lower upper work merged
->>>> $ mount -t overlay -o lowerdir=lower,workdir=work,upperdir=upper,userxattr,context='system_u:object_r:container_file_t:s0' none merged
->>>>
->>>> This fails with -EACCESS. It works if option "-o context" is not specified.
->>>>
->>>> Little debugging showed that selinux_set_mnt_opts() returns -EACCESS.
->>>>
->>>> So this patch adds "overlay" to the list, where it is fine to specific
->>>> context from non init_user_ns.
->>>>
->>>> v2: Fixed commit message to reflect that unpriveleged overlayfs mount is
->>>>       being added in 5.11 and not in 5.10 kernel.
->>>>
->>>> Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
->>>> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
->>>> ---
->>>>    security/selinux/hooks.c |    3 ++-
->>>>    1 file changed, 2 insertions(+), 1 deletion(-)
->>> Thanks Vivek, once the merge window closes I'll merge this into
->>> selinux/next and send a note to this thread.
->> In order for us to take advantage of rootless overlay we need this
->> feature ASAP.
-> It will get merged into selinux/next *after* this upcoming merge
-> window.  I'm sorry, but -rc7 is just too late for new functionality;
-> kernel changes need to soak before hitting Linus' tree and with the
-> merge window opening in about three days that simply isn't enough
-> time.  Come on Dan, even you have to know that ...
->
-Well if that is ASAP, then fine, next window. Sadly this delays us three 
-months
+SELinux stores the configuration state and the policy capabilities
+in kernel memory.  Changes to this data at runtime would have an impact
+on the security guarantees provided by SELinux.  Measuring this data
+through IMA subsystem provides a tamper-resistant way for
+an attestation service to remotely validate it at runtime.
 
-from getting this feature out and tested, but we can live with this.  
-Once it gets into
+Measure the configuration state and policy capabilities by calling
+the IMA hook ima_measure_critical_data().
 
-a Release candidate we can push people to Rawhide to begin testing it.
+To enable SELinux data measurement, the following steps are required:
+
+ 1, Add "ima_policy=critical_data" to the kernel command line arguments
+    to enable measuring SELinux data at boot time.
+    For example,
+      BOOT_IMAGE=/boot/vmlinuz-5.11.0-rc3+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
+
+ 2, Add the following rule to /etc/ima/ima-policy
+       measure func=CRITICAL_DATA label=selinux
+
+Sample measurement of SELinux state and policy capabilities:
+
+10 2122...65d8 ima-buf sha256:13c2...1292 selinux-state 696e...303b
+
+Execute the following command to extract the measured data
+from the IMA's runtime measurements list:
+
+  grep "selinux-state" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6 | xxd -r -p
+
+The output should be a list of key-value pairs. For example,
+ initialized=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
+
+To verify the measurement is consistent with the current SELinux state
+reported on the system, compare the integer values in the following
+files with those set in the IMA measurement (using the following commands):
+
+ - cat /sys/fs/selinux/enforce
+ - cat /sys/fs/selinux/checkreqprot
+ - cat /sys/fs/selinux/policy_capabilities/[capability_file]
+
+Note that the actual verification would be against an expected state
+and done on a separate system (likely an attestation server) requiring
+"initialized=1;enforcing=1;checkreqprot=0;"
+for a secure state and then whatever policy capabilities are actually
+set in the expected policy (which can be extracted from the policy
+itself via seinfo, for example).
+
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Suggested-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/ima.c         | 87 ++++++++++++++++++++++++++++++++--
+ security/selinux/include/ima.h |  6 +++
+ security/selinux/selinuxfs.c   |  6 +++
+ security/selinux/ss/services.c |  2 +-
+ 4 files changed, 96 insertions(+), 5 deletions(-)
+
+diff --git a/security/selinux/ima.c b/security/selinux/ima.c
+index 03715893ff97..34d421861bfc 100644
+--- a/security/selinux/ima.c
++++ b/security/selinux/ima.c
+@@ -13,18 +13,83 @@
+ #include "ima.h"
+ 
+ /*
+- * selinux_ima_measure_state - Measure hash of the SELinux policy
++ * selinux_ima_collect_state - Read selinux configuration settings
+  *
+- * @state: selinux state struct
++ * @state: selinux_state
+  *
+- * NOTE: This function must be called with policy_mutex held.
++ * On success returns the configuration settings string.
++ * On error, returns NULL.
+  */
+-void selinux_ima_measure_state(struct selinux_state *state)
++static char *selinux_ima_collect_state(struct selinux_state *state)
+ {
++	const char *on = "=1;", *off = "=0;";
++	char *buf;
++	int buf_len, len, i, rc;
++
++	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
++
++	len = strlen(on);
++	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++)
++		buf_len += strlen(selinux_policycap_names[i]) + len;
++
++	buf = kzalloc(buf_len, GFP_KERNEL);
++	if (!buf)
++		return NULL;
++
++	rc = strscpy(buf, "initialized", buf_len);
++	WARN_ON(rc < 0);
++
++	rc = strlcat(buf, selinux_initialized(state) ? on : off, buf_len);
++	WARN_ON(rc >= buf_len);
++
++	rc = strlcat(buf, "enforcing", buf_len);
++	WARN_ON(rc >= buf_len);
++
++	rc = strlcat(buf, enforcing_enabled(state) ? on : off, buf_len);
++	WARN_ON(rc >= buf_len);
++
++	rc = strlcat(buf, "checkreqprot", buf_len);
++	WARN_ON(rc >= buf_len);
++
++	rc = strlcat(buf, checkreqprot_get(state) ? on : off, buf_len);
++	WARN_ON(rc >= buf_len);
++
++	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
++		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
++		WARN_ON(rc >= buf_len);
++
++		rc = strlcat(buf, state->policycap[i] ? on : off, buf_len);
++		WARN_ON(rc >= buf_len);
++	}
++
++	return buf;
++}
++
++/*
++ * selinux_ima_measure_state_locked - Measure SELinux state and hash of policy
++ *
++ * @state: selinux state struct
++ */
++void selinux_ima_measure_state_locked(struct selinux_state *state)
++{
++	char *state_str = NULL;
+ 	void *policy = NULL;
+ 	size_t policy_len;
+ 	int rc = 0;
+ 
++	WARN_ON(!mutex_is_locked(&state->policy_mutex));
++
++	state_str = selinux_ima_collect_state(state);
++	if (!state_str) {
++		pr_err("SELinux: %s: failed to read state.\n", __func__);
++		return;
++	}
++
++	ima_measure_critical_data("selinux", "selinux-state",
++				  state_str, strlen(state_str), false);
++
++	kfree(state_str);
++
+ 	/*
+ 	 * Measure SELinux policy only after initialization is completed.
+ 	 */
+@@ -42,3 +107,17 @@ void selinux_ima_measure_state(struct selinux_state *state)
+ 
+ 	vfree(policy);
+ }
++
++/*
++ * selinux_ima_measure_state - Measure SELinux state and hash of policy
++ *
++ * @state: selinux state struct
++ */
++void selinux_ima_measure_state(struct selinux_state *state)
++{
++	WARN_ON(mutex_is_locked(&state->policy_mutex));
++
++	mutex_lock(&state->policy_mutex);
++	selinux_ima_measure_state_locked(state);
++	mutex_unlock(&state->policy_mutex);
++}
+diff --git a/security/selinux/include/ima.h b/security/selinux/include/ima.h
+index d69c36611423..75ca92b4a462 100644
+--- a/security/selinux/include/ima.h
++++ b/security/selinux/include/ima.h
+@@ -15,10 +15,16 @@
+ 
+ #ifdef CONFIG_IMA
+ extern void selinux_ima_measure_state(struct selinux_state *selinux_state);
++extern void selinux_ima_measure_state_locked(
++			struct selinux_state *selinux_state);
+ #else
+ static inline void selinux_ima_measure_state(struct selinux_state *selinux_state)
+ {
+ }
++static inline void selinux_ima_measure_state_locked(
++			struct selinux_state *selinux_state)
++{
++}
+ #endif
+ 
+ #endif	/* _SELINUX_IMA_H_ */
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 4bde570d56a2..26ec58593ba1 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -41,6 +41,7 @@
+ #include "security.h"
+ #include "objsec.h"
+ #include "conditional.h"
++#include "ima.h"
+ 
+ enum sel_inos {
+ 	SEL_ROOT_INO = 2,
+@@ -182,6 +183,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 		selinux_status_update_setenforce(state, new_value);
+ 		if (!new_value)
+ 			call_blocking_lsm_notifier(LSM_POLICY_CHANGE, NULL);
++
++		selinux_ima_measure_state(state);
+ 	}
+ 	length = count;
+ out:
+@@ -762,6 +765,9 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
+ 
+ 	checkreqprot_set(fsi->state, (new_value ? 1 : 0));
+ 	length = count;
++
++	selinux_ima_measure_state(fsi->state);
++
+ out:
+ 	kfree(page);
+ 	return length;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 2106b5d383e7..cb2866489363 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2179,7 +2179,7 @@ static void selinux_notify_policy_change(struct selinux_state *state,
+ 	selinux_status_update_policyload(state, seqno);
+ 	selinux_netlbl_cache_invalidate();
+ 	selinux_xfrm_notify_policyload();
+-	selinux_ima_measure_state(state);
++	selinux_ima_measure_state_locked(state);
+ }
+ 
+ void selinux_policy_commit(struct selinux_state *state,
+-- 
+2.30.0
 
