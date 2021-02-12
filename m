@@ -2,246 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B3BDC433DB
-	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 07:55:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06008C433DB
+	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 12:00:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3440D64E13
-	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 07:55:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB82D64DAE
+	for <selinux@archiver.kernel.org>; Fri, 12 Feb 2021 12:00:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbhBLHzk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Feb 2021 02:55:40 -0500
-Received: from agnus.defensec.nl ([80.100.19.56]:55388 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229611AbhBLHzi (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 12 Feb 2021 02:55:38 -0500
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 7DC992A124E;
-        Fri, 12 Feb 2021 08:54:55 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 7DC992A124E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1613116495;
-        bh=IE10FwMoCZRVPVId3vmwEVPww59nkIaPcDvP/FE245M=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=si8cwr35PlrnsAm8JqHtkmzIMdC/3gEyRvD06l2QKSaMuox9b3w3smpNnjjJ6udEc
-         R0oyC6pkFHHeNZ4cziYxwrlVlxQApGW4X36dbA42Vw15F+cORKXOAy/PGNlsN7fsLA
-         T5651T+U/j7N7gMOJPwv+T8269AQ2Jyu4KJWFdlo=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Peter Whittaker <peterwhittaker@sphyrnasecurity.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: Defining SELinux users, "Unable to get valid context...". Help!
-References: <CAGeouKF3jSsvDosCWDb3q4RSq8g1RiZma6V1N=1ZaSUtf2TadA@mail.gmail.com>
-        <ypjlblcppx6o.fsf@defensec.nl>
-Date:   Fri, 12 Feb 2021 08:54:53 +0100
-In-Reply-To: <ypjlblcppx6o.fsf@defensec.nl> (Dominick Grift's message of "Fri,
-        12 Feb 2021 08:22:39 +0100")
-Message-ID: <ypjl7dndpvoy.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        id S231248AbhBLMAW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Feb 2021 07:00:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42743 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230238AbhBLL7W (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Feb 2021 06:59:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613131070;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SK/ZkHbGSpqOWi3HuJEGZuwe0sg0qFdB5Duu5ePuWio=;
+        b=dMyIwmfy3G5eH4VNaW1/AlK1LbvHLfP1p56ti8uRRfMcqN4n/pR5+OOMr3kWovp/pS3evv
+        bV0dd+vFwe675eHbsxO+8MHEJW6azg61ndqQOfxyjtWGymy1hVPvNzxRyDlZzFfq96oL66
+        47cp5bmWHMZc0a/5LGsYXsuCBL3/RAU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-260-nsBiufmaOy6umPGGTfvDVg-1; Fri, 12 Feb 2021 06:57:46 -0500
+X-MC-Unique: nsBiufmaOy6umPGGTfvDVg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DBF1D804036;
+        Fri, 12 Feb 2021 11:57:44 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.10.110.27])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D76CC60657;
+        Fri, 12 Feb 2021 11:57:41 +0000 (UTC)
+Reply-To: dwalsh@redhat.com
+Subject: Re: [PATCH][v2] selinux: Allow context mounts for unpriviliged
+ overlayfs
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Vivek Goyal <vgoyal@redhat.com>, selinux@vger.kernel.org,
+        linux-unionfs@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>
+References: <20210211180303.GE5014@redhat.com>
+ <CAHC9VhRM6MiF1m2aFpLJKb3CFWXcXEX_SY=EnkLaq7U_X2UTZw@mail.gmail.com>
+ <bb7b8304-b0fe-f6a3-b1fa-c06193f9cc02@redhat.com>
+ <CAHC9VhS_+VT5cSXg+msEajnMYNjegKfubLO0EggaSr2p+JfSuA@mail.gmail.com>
+From:   Daniel Walsh <dwalsh@redhat.com>
+Organization: Red Hat
+Message-ID: <36bcaeb0-547b-c8aa-e552-cca05c4103b5@redhat.com>
+Date:   Fri, 12 Feb 2021 06:57:40 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <CAHC9VhS_+VT5cSXg+msEajnMYNjegKfubLO0EggaSr2p+JfSuA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dominick Grift <dominick.grift@defensec.nl> writes:
+On 2/11/21 18:28, Paul Moore wrote:
+> On Thu, Feb 11, 2021 at 5:41 PM Daniel Walsh <dwalsh@redhat.com> wrote:
+>> On 2/11/21 16:24, Paul Moore wrote:
+>>> On Thu, Feb 11, 2021 at 1:03 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+>>>> Now overlayfs allow unpriviliged mounts. That is root inside a non-init
+>>>> user namespace can mount overlayfs. This is being added in 5.11 kernel.
+>>>>
+>>>> Giuseppe tried to mount overlayfs with option "context" and it failed
+>>>> with error -EACCESS.
+>>>>
+>>>> $ su test
+>>>> $ unshare -rm
+>>>> $ mkdir -p lower upper work merged
+>>>> $ mount -t overlay -o lowerdir=lower,workdir=work,upperdir=upper,userxattr,context='system_u:object_r:container_file_t:s0' none merged
+>>>>
+>>>> This fails with -EACCESS. It works if option "-o context" is not specified.
+>>>>
+>>>> Little debugging showed that selinux_set_mnt_opts() returns -EACCESS.
+>>>>
+>>>> So this patch adds "overlay" to the list, where it is fine to specific
+>>>> context from non init_user_ns.
+>>>>
+>>>> v2: Fixed commit message to reflect that unpriveleged overlayfs mount is
+>>>>       being added in 5.11 and not in 5.10 kernel.
+>>>>
+>>>> Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
+>>>> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+>>>> ---
+>>>>    security/selinux/hooks.c |    3 ++-
+>>>>    1 file changed, 2 insertions(+), 1 deletion(-)
+>>> Thanks Vivek, once the merge window closes I'll merge this into
+>>> selinux/next and send a note to this thread.
+>> In order for us to take advantage of rootless overlay we need this
+>> feature ASAP.
+> It will get merged into selinux/next *after* this upcoming merge
+> window.  I'm sorry, but -rc7 is just too late for new functionality;
+> kernel changes need to soak before hitting Linus' tree and with the
+> merge window opening in about three days that simply isn't enough
+> time.  Come on Dan, even you have to know that ...
+>
+Well if that is ASAP, then fine, next window. Sadly this delays us three 
+months
 
-> Peter Whittaker <peterwhittaker@sphyrnasecurity.com> writes:
->
->> Good afternoon,
->>
->>     BLUF: Logging in via SSH or directly at the console results
->>     in "Unable to get valid context...". Help! Much info included.
->>
->> I'm working on a software diode implementing a linear assured pipeline
->> which is secured with SELinux. As part of this, I am defining a number
->> of SELinux users, with the goal being that Linux users belonging to a
->> specific Linux group will, at login, be assigned to the applicable
->> SELinux user, then role, then type, etc.
->>
->> However. When I log in as my test user, icmc01, via the console or via
->> SSH, I get the message "Unable to get valid context for icmc01". A
->> check with "id -Z" shows that my test user has the following context:
->>
->>     system_u:system_r:unconfined_t:s0-s0:c0.c1023
->>
->> I really want them to have the context:
->>
->>     CDTml_high2local_u:CDTml_high2local_r:xferHigh2Local_t:s0-s0:c0.c1023
->>
->> (In fact, I don't care about the MLS/MCS portion, I am more than happy
->> to accept system defaults; I'm really only going for the MAC.)
->>
->> What follows is everything I could think to include, from their passwd
->> entry and the group file to semanage settings, from the contexts and
->> content of various SELinux configuration files to the relevant snips
->> of the TE file itself.
->
-> A few things that I could find but that are needed for computing
-> contexts are:
->
-> the login programs need to be allowed to manual transition to the user
-> type. So for example if you want to login with sshd_t:
-> allow sshd_t xferHigh2Local_t:process transition;
+from getting this feature out and tested, but we can live with this.  
+Once it gets into
 
-In relation to the above, ensure that the xferHigh2Local_t type is
-associated with the process_user_target typeattribute:
-typeattribute xferHigh2Local_t process_user_target;
+a Release candidate we can push people to Rawhide to begin testing it.
 
->
-> The user type needs to be a bin and shell entry type:
-> allow xferHigh2Local_t { bin_t shell_exec_t }:file entrypoint;
->
-> There is probably more that i am overlooking but these, i think, are
-> important part for computation of contexts
->
-> See where those get you.
->
->>
->> NOTE: This is all under permissive mode, targeted policy.
->>
->> Any insight or direction will be much appreciated, I am tearing out
->> my hair. Thank you!
->>
->>     % grep icmc01 /etc/passwd
->>     icmc01:x:2105:2105::/home/icmc01:/bin/bash
->>
->>     % grep 2105 /etc/group
->>     CDTml_high2local:x:2105:
->>
->>     % semanage login -l |grep CDTml_high2local_u
->>     %CDTml_high2local    CDTml_high2local_u   s0-s0:c0.c1023       *
->>
->>     % semanage user -l |grep CDTml_high2local_u
->>     CDTml_high2local_u user       s0         s0-s0:c0.c1023
->>      CDTml_high2local_r
->>
->>     % ls -lZ /etc/selinux/targeted/contexts/users/CDTml_high2local_u
->>     -rw-r--r--. root root system_u:object_r:default_context_t:s0
->> /etc/selinux/targeted/contexts/users/CDTml_high2local_u
->>
->>     % cat /etc/selinux/targeted/contexts/users/CDTml_high2local_u
->>     system_r:crond_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:initrc_su_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:local_login_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:remote_login_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:sshd_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     CDTml_high2local_r:xferHigh2Local_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>
->>     % ls -lZ /etc/selinux/targeted/contexts/default_*
->>     -rw-r--r--. root root system_u:object_r:default_context_t:s0
->> /etc/selinux/targeted/contexts/default_contexts
->>     -rw-r--r--. root root system_u:object_r:default_context_t:s0
->> /etc/selinux/targeted/contexts/default_type
->>
->>     % cat /etc/selinux/targeted/contexts/default_contexts
->>     system_r:crond_t:s0 system_r:system_cronjob_t:s0
->>     system_r:local_login_t:s0 user_r:user_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:remote_login_t:s0 user_r:user_t:s0
->> CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:sshd_t:s0 user_r:user_t:s0 CDTml_high2local_r:xferHigh2Local_t:s0
->>     system_r:sulogin_t:s0 sysadm_r:sysadm_t:s0
->>     system_r:xdm_t:s0 user_r:user_t:s0
->>
->>     % uname -a
->>     Linux localhost.localdomain 3.10.0-1160.6.1.el7.x86_64 #1 SMP Wed
->> Oct 21 13:44:38 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
->>
->>     % more /etc/redhat-release
->>     Red Hat Enterprise Linux Server release 7.9 (Maipo)
->>
->>     % yum info installed \*selinux\*|grep -A3 '^Name'
->>     Name        : libselinux
->>     Arch        : x86_64
->>     Version     : 2.5
->>     Release     : 15.el7
->>     --
->>     Name        : libselinux-python
->>     Arch        : x86_64
->>     Version     : 2.5
->>     Release     : 15.el7
->>     --
->>     Name        : libselinux-utils
->>     Arch        : x86_64
->>     Version     : 2.5
->>     Release     : 15.el7
->>     --
->>     Name        : selinux-policy
->>     Arch        : noarch
->>     Version     : 3.13.1
->>     Release     : 268.el7_9.2
->>     --
->>     Name        : selinux-policy-devel
->>     Arch        : noarch
->>     Version     : 3.13.1
->>     Release     : 268.el7_9.2
->>     --
->>     Name        : selinux-policy-targeted
->>     Arch        : noarch
->>     Version     : 3.13.1
->>     Release     : 268.el7_9.2
->>
->>     % grep -C3 CDTml_high2local_r CDTml.te
->>     # and grant them access to our types
->>     role CDTml_low2local_r;
->>     role CDTml_local2high_r;
->>     role CDTml_high2local_r;
->>     role CDTml_local2low_r;
->>     role CDTml_auditor_r;
->>
->>     allow system_r {
->>         CDTml_low2local_r
->>         CDTml_local2high_r
->>         CDTml_high2local_r
->>         CDTml_local2low_r
->>         CDTml_auditor_r
->>     };
->>     allow unconfined_r {
->>         CDTml_low2local_r
->>         CDTml_local2high_r
->>         CDTml_high2local_r
->>         CDTml_local2low_r
->>         CDTml_auditor_r
->>     };
->>     --
->>         xferLocal2High_t
->>         xferLocal2High_exec_t
->>     };
->>     role CDTml_high2local_r types {
->>         xferHigh2Local_t
->>         xferHigh2Local_exec_t
->>     };
->>
->>     % tail -f /var/log/secure
->>     Feb 11 14:57:44 localhost login: pam_selinux(login:session): Open Session
->>     Feb 11 14:57:44 localhost login: pam_selinux(login:session): Open Session
->>     Feb 11 14:57:44 localhost login: pam_selinux(login:session):
->> Username= icmc01 SELinux User= CDTml_high2local_u Level=
->> s0-s0:c0.c1023
->>     Feb 11 14:57:44 localhost login: pam_selinux(login:session):
->> Unable to get valid context for icmc01
->>     Feb 11 14:57:44 localhost login: pam_unix(login:session): session
->> opened for user icmc01 by LOGIN(uid=0)
->>     Feb 11 14:57:44 localhost login: LOGIN ON tty2 BY icmc01
->>
->>
->> Peter Whittaker
->> Director, Business Development
->> www.SphyrnaSecurity.com
->> +1 613 864 5337
-
--- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
