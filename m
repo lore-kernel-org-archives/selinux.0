@@ -4,68 +4,88 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72039C433E0
-	for <selinux@archiver.kernel.org>; Sat, 13 Feb 2021 20:44:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 132AEC433E9
+	for <selinux@archiver.kernel.org>; Sat, 13 Feb 2021 22:05:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3876C64E35
-	for <selinux@archiver.kernel.org>; Sat, 13 Feb 2021 20:44:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E0F1864E4F
+	for <selinux@archiver.kernel.org>; Sat, 13 Feb 2021 22:05:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229649AbhBMUoA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 13 Feb 2021 15:44:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57654 "EHLO
+        id S229716AbhBMWFJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 13 Feb 2021 17:05:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbhBMUn7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 13 Feb 2021 15:43:59 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F789C061574
-        for <selinux@vger.kernel.org>; Sat, 13 Feb 2021 12:43:19 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id u16so2810582wmq.1
-        for <selinux@vger.kernel.org>; Sat, 13 Feb 2021 12:43:18 -0800 (PST)
+        with ESMTP id S229647AbhBMWFI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 13 Feb 2021 17:05:08 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DB41C061574;
+        Sat, 13 Feb 2021 14:04:28 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id n8so4149504wrm.10;
+        Sat, 13 Feb 2021 14:04:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:subject:to:cc:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=7iwU5bCzAJQLEQMbPqLfQceTv6Q2lSfs6byFoMWhOjA=;
-        b=hn+5n3vZ4VwM2QEx72QL2s7Vm1ocUN7kQkv59U34rzSPTcneiDwzch7e4MV20Cea60
-         6vX+Mx64IUGGKobOc7FTObd+33iO7DxJa2WSbGNOCFxk9nG7QB7RxG97R7peNlUMfSrT
-         G+mLWRrdGzwJR8kTuOZq5p39N7ZoBx6/C/SwygsfiNIFz11DA8d22sOc153Ya01Z/1fh
-         gnhCQTgqUwqCxJcxgP6W/sTlyixuCO5ZjE5pOtEd9VduHMWGj0cVNMRc6YXdwq7LzUDV
-         V44Pd1IL+1sP4Nf+dcgJUFoqia/tasP+a6IDVDmLYYVBYSgXYuP3Glq3xJ5AOyFt3DFI
-         Fo+g==
+        d=gmail.com; s=20161025;
+        h=cc:subject:to:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8QdWTAJ+beg12quntIhZalfc07GrzP+2YyUm2HopaRE=;
+        b=SDV1e/8p0mhz8BYGtaU8iXpVNnzGc/lsF99FH6PlV6Frz34BSC/wr9tOlTwd5C3qKN
+         JpRnsYIYL1Y0dZLvlX078YM39xoN9Zp9XL+23x8RfR0tB2LrlPgEnUncmxTDqM59VTQA
+         kmBF8JAxAXOGfDFGE9DLJ/fLJQdVFU6kyWA+Sk/WLWIuNal/oijtFn/7nI9ZAbD2qO8K
+         f9a5muDX+ywFF9T/Paz2QiKGuVCRuIcEVB+1/kZEhJyKA5ua4EJtAJ+0Qv0RiaKZ4Ko0
+         zq6al7Wa/ITyzyz3bDJcRhEbBgCy326AtHgR5u4snp9eCx1/cmImE4iHi8ovwUkNPsNC
+         GGoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=7iwU5bCzAJQLEQMbPqLfQceTv6Q2lSfs6byFoMWhOjA=;
-        b=PY4cEqT3ilf/oj+olaEMHTuKkCBvTscr9lW8K1IVAj8qtmAInV3CLdeRDwah5xbC/u
-         wn8jPD0bsN5kE71KaKWbqxSgtiJqJAQloFBK1lc27pThk0RRlO4eYceTp6V1sj/EA122
-         fcIZX2Nbe1OUzAZb84aPU6+ZJFnqKX4POzjFN/TkhlNOUKamrpsE1/CFt3TpGOuOdT1F
-         11K6OitnhCpmfimPFBoD3+FZd5SSSGfg2N9kTgC/fw2naZSpAg185p2eF5IAXRq8yGfV
-         pqqizb0piKknwuVcC+N++MzmMD8/qd9Bs8pjsEfMlfYvO6IIEZA52v6Xj9gclATruM1k
-         C1lA==
-X-Gm-Message-State: AOAM532D7co2WcgJjToL1EOW1dzGBZiOgyH818UtvS/HI4qJBxdTI6bg
-        0KKink3u7gXgwP7GoV+1CXE=
-X-Google-Smtp-Source: ABdhPJy7yYJfT24Cr2N8NHBEfQcIhs9P+2WD4osCp9DksoXu9hWIJjY/RefbeiGIgi/DatrvYYE+eg==
-X-Received: by 2002:a7b:c010:: with SMTP id c16mr7888571wmb.134.1613248997793;
-        Sat, 13 Feb 2021 12:43:17 -0800 (PST)
-Received: from ?IPv6:2001:a61:340e:e601:8a:719c:9bc1:dcee? ([2001:a61:340e:e601:8a:719c:9bc1:dcee])
-        by smtp.gmail.com with ESMTPSA id c6sm12923612wrt.26.2021.02.13.12.43.17
+        h=x-gm-message-state:cc:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8QdWTAJ+beg12quntIhZalfc07GrzP+2YyUm2HopaRE=;
+        b=QSuAnJbFDXUAt1jt6Ktl5azWCKO+AfJZpkBH++pfoKEBbFpnWNnxNy8/NBZ8qaEd7b
+         Xs8x7K5vAlT8Un9a9Hp0UzHWsCzFJl3gcQ1lLT+Qy1sAb+2byEsYB9OnWrujjf0fjjdG
+         5Bqf0waLF61zaofnow/spxTYR5EDmWCr38YtWY4Yo/CjRxd7PwZPxrq0J/ww/kMQiKkk
+         rfv7mCvgo0GQuwmKMw/d1JuHAI2e+2NvVpYGxKpHaGR1y739yQnusggcDATI9W5JSPZL
+         MlyEIv3A9Mor8t2vj0rOuG4uC3RCya+aatoAvxKffLiHFEciiKQOa+pbFyZM9JKQ7Nhe
+         /ygw==
+X-Gm-Message-State: AOAM531BabjrgApEVWi66QGo7Fe+IJYBQzUECnc3w9fDOIZcXtVSUFsn
+        e5vPygFw5PcsNw3ErwkJfB7Oxgx0IRyu5A==
+X-Google-Smtp-Source: ABdhPJyK3AQIsJbi2V5mWgsIJwWnJfg9UssexqDTKfiEhKzTFbke9lDM1hFwoWdxJRbg6g+V5Or4sA==
+X-Received: by 2002:adf:ef86:: with SMTP id d6mr6449258wro.419.1613253867076;
+        Sat, 13 Feb 2021 14:04:27 -0800 (PST)
+Received: from ?IPv6:2001:a61:3a2d:1d01:99ab:4f20:ed7f:402b? ([2001:a61:3a2d:1d01:99ab:4f20:ed7f:402b])
+        by smtp.gmail.com with ESMTPSA id o18sm17971832wmp.19.2021.02.13.14.04.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 13 Feb 2021 12:43:17 -0800 (PST)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-Subject: [PATCH] policycoretuils: sestatus belongs to bin not sbin
-To:     selinux@vger.kernel.org
-Cc:     j2468h@googlemail.com
-Message-ID: <65111b4f-23b9-6758-9cd6-d2f8429916fb@gmail.com>
-Date:   Sat, 13 Feb 2021 21:43:16 +0100
+        Sat, 13 Feb 2021 14:04:26 -0800 (PST)
+Cc:     mtk.manpages@gmail.com, linux-man <linux-man@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=c3=ada?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
+Subject: Re: [PATCH v3 1/1] process_madvise.2: Add process_madvise man page
+To:     Suren Baghdasaryan <surenb@google.com>
+References: <20210202053046.1653012-1-surenb@google.com>
+ <079db245-a08c-0dbd-01d4-8065f533652e@gmail.com>
+ <CAJuCfpGotx_04Stn5Nw6Au+TVG9LuAJ=CB_s7uxjMLOLerw-GA@mail.gmail.com>
+From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Message-ID: <2d303517-cdcd-9ec8-e57d-3d065edb573c@gmail.com>
+Date:   Sat, 13 Feb 2021 23:04:23 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+ Thunderbird/78.6.0
 MIME-Version: 1.0
+In-Reply-To: <CAJuCfpGotx_04Stn5Nw6Au+TVG9LuAJ=CB_s7uxjMLOLerw-GA@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -73,42 +93,151 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-It is quite useful even to non-privileged users and doesn't require any
-privileges to work, except for maybe -v.
+Hello Suren,
 
-Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
----
+On 2/2/21 11:12 PM, Suren Baghdasaryan wrote:
+> Hi Michael,
+> 
+> On Tue, Feb 2, 2021 at 2:45 AM Michael Kerrisk (man-pages)
+> <mtk.manpages@gmail.com> wrote:
+>>
+>> Hello Suren (and Minchan and Michal)
+>>
+>> Thank you for the revisions!
+>>
+>> I've applied this patch, and done a few light edits.
+> 
+> Thanks!
+> 
+>>
+>> However, I have a questions about undocumented pieces in *madvise(2)*,
+>> as well as one other question. See below.
+>>
+>> On 2/2/21 6:30 AM, Suren Baghdasaryan wrote:
+>>> Initial version of process_madvise(2) manual page. Initial text was
+>>> extracted from [1], amended after fix [2] and more details added using
+>>> man pages of madvise(2) and process_vm_read(2) as examples. It also
+>>> includes the changes to required permission proposed in [3].
+>>>
+>>> [1] https://lore.kernel.org/patchwork/patch/1297933/
+>>> [2] https://lkml.org/lkml/2020/12/8/1282
+>>> [3] https://patchwork.kernel.org/project/selinux/patch/20210111170622.2613577-1-surenb@google.com/#23888311
+>>>
+>>> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+>>> Reviewed-by: Michal Hocko <mhocko@suse.com>
+>>> ---
+>>> changes in v2:
+>>> - Changed description of MADV_COLD per Michal Hocko's suggestion
+>>> - Applied fixes suggested by Michael Kerrisk
+>>> changes in v3:
+>>> - Added Michal's Reviewed-by
+>>> - Applied additional fixes suggested by Michael Kerrisk
+>>>
+>>> NAME
+>>>     process_madvise - give advice about use of memory to a process
+>>>
+>>> SYNOPSIS
+>>>     #include <sys/uio.h>
+>>>
+>>>     ssize_t process_madvise(int pidfd,
+>>>                            const struct iovec *iovec,
+>>>                            unsigned long vlen,
+>>>                            int advice,
+>>>                            unsigned int flags);
+>>>
+>>> DESCRIPTION
+>>>     The process_madvise() system call is used to give advice or directions
+>>>     to the kernel about the address ranges of another process or the calling
+>>>     process. It provides the advice to the address ranges described by iovec
+>>>     and vlen. The goal of such advice is to improve system or application
+>>>     performance.
+>>>
+>>>     The pidfd argument is a PID file descriptor (see pidfd_open(2)) that
+>>>     specifies the process to which the advice is to be applied.
+>>>
+>>>     The pointer iovec points to an array of iovec structures, defined in
+>>>     <sys/uio.h> as:
+>>>
+>>>     struct iovec {
+>>>         void  *iov_base;    /* Starting address */
+>>>         size_t iov_len;     /* Number of bytes to transfer */
+>>>     };
+>>>
+>>>     The iovec structure describes address ranges beginning at iov_base address
+>>>     and with the size of iov_len bytes.
+>>>
+>>>     The vlen represents the number of elements in the iovec structure.
+>>>
+>>>     The advice argument is one of the values listed below.
+>>>
+>>>   Linux-specific advice values
+>>>     The following Linux-specific advice values have no counterparts in the
+>>>     POSIX-specified posix_madvise(3), and may or may not have counterparts
+>>>     in the madvise(2) interface available on other implementations.
+>>>
+>>>     MADV_COLD (since Linux 5.4.1)
+>>
+>> I just noticed these version numbers now, and thought: they can't be
+>> right (because the system call appeared only in v5.11). So I removed
+>> them. But, of course in another sense the version numbers are (nearly)
+>> right, since these advice values were added for madvise(2) in Linux 5.4.
+>> However, they are not documented in the madvise(2) manual page. Is it
+>> correct to assume that MADV_COLD and MADV_PAGEOUT have exactly the same
+>> meaning in madvise(2) (but just for the calling process, of course)?
+> 
+> Correct. They should be added in the madvise(2) man page as well IMHO.
 
- Only tested by running `make DESTDIR="$PWD" install` and checking that
- sestatus ends up at /usr/bin/sestatus
+So, I decided to move the description of MADV_COLD and MADV_PAGEOUT
+to madvise(2) and refer to that page from the process_madvise(2)
+page. This avoids repeating the same information in two places.
 
- policycoreutils/sestatus/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+>>>         Deactive a given range of pages which will make them a more probable
+>>
+>> I changed: s/Deactive/Deactivate/
+> 
+> thanks!
+> 
+>>
+>>>         reclaim target should there be a memory pressure. This is a
+>>>         nondestructive operation. The advice might be ignored for some pages
+>>>         in the range when it is not applicable.
+>>>
+>>>     MADV_PAGEOUT (since Linux 5.4.1)
+>>>         Reclaim a given range of pages. This is done to free up memory occupied
+>>>         by these pages. If a page is anonymous it will be swapped out. If a
+>>>         page is file-backed and dirty it will be written back to the backing
+>>>         storage. The advice might be ignored for some pages in the range when
+>>>         it is not applicable.
+>>
+>> [...]
+>>
+>>>     The hint might be applied to a part of iovec if one of its elements points
+>>>     to an invalid memory region in the remote process. No further elements will
+>>>     be processed beyond that point.
+>>
+>> Is the above scenario the one that leads to the partial advice case described in
+>> RETURN VALUE? If yes, perhaps I should add some words to make that clearer.
+> 
+> Correct. This describes the case when partial advice happens.
 
-diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestatus/Makefile
-index 8c4f45f8..ac113814 100644
---- a/policycoreutils/sestatus/Makefile
-+++ b/policycoreutils/sestatus/Makefile
-@@ -1,7 +1,7 @@
- # Installation directories.
- LINGUAS ?= ru
- PREFIX ?= /usr
--SBINDIR ?= $(PREFIX)/sbin
-+BINDIR ?= $(PREFIX)/bin
- MANDIR = $(PREFIX)/share/man
- ETCDIR ?= /etc
- 
-@@ -16,8 +16,8 @@ sestatus: sestatus.o
- install: all
- 	[ -d $(DESTDIR)$(MANDIR)/man8 ] || mkdir -p $(DESTDIR)$(MANDIR)/man8
- 	[ -d $(DESTDIR)$(MANDIR)/man5 ] || mkdir -p $(DESTDIR)$(MANDIR)/man5
--	-mkdir -p $(DESTDIR)$(SBINDIR)
--	install -m 755 sestatus $(DESTDIR)$(SBINDIR)
-+	-mkdir -p $(DESTDIR)$(BINDIR)
-+	install -m 755 sestatus $(DESTDIR)$(BINDIR)
- 	install -m 644 sestatus.8 $(DESTDIR)$(MANDIR)/man8
- 	install -m 644 sestatus.conf.5 $(DESTDIR)$(MANDIR)/man5
- 	for lang in $(LINGUAS) ; do \
+Thanks. I added a few words to clarify this.
+
+
+>> You can see the light edits that I made in
+>> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=e3ce016472a1b3ec5dffdeb23c98b9fef618a97b
+>> and following that I restructured DESCRIPTION a little in
+>> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=3aac0708a9acee5283e091461de6a8410bc921a6
+> 
+> The edits LGTM.
+
+Thanks for checking them.
+
+Cheers,
+
+Michael
+
+
 -- 
-2.30.0
-
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
