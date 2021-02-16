@@ -2,138 +2,150 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC195C433DB
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:10:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A026CC43381
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:34:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DD1E64E08
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:10:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7098564EB6
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:34:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbhBPUKS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Feb 2021 15:10:18 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26203 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229734AbhBPUKR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 15:10:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613506131;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=sUsFs0hFgTOAAYwB3CMC+Dy0+qhTzce9A5e1uqQxn/Q=;
-        b=dowGzLN7lwHOrfYOUF8wnBMl2/vshjGi8mw4ulo2/f5xIeWDJawM0zbox3O7Qmx6QTKpJP
-        U0irVmJAuKihaZwz1rs9LHAuMltRt3kuewT/j6iFw11ixmybE7tUh7BuBXoM72osV2HSkv
-        KOeTeG16sTCn0P/u1cVcaGefCF6moAQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-16-Zq2c-trTMMefgklvYzz-1w-1; Tue, 16 Feb 2021 15:08:45 -0500
-X-MC-Unique: Zq2c-trTMMefgklvYzz-1w-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1710D195D560
-        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 20:08:45 +0000 (UTC)
-Received: from thinkpad-work.redhat.com (unknown [10.40.193.98])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 84115722C6
-        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 20:08:44 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] gui: fix "file type" selection in fcontextPage
-Date:   Tue, 16 Feb 2021 21:08:39 +0100
-Message-Id: <20210216200839.1784987-1-vmojzis@redhat.com>
+        id S229830AbhBPUds (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Feb 2021 15:33:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229639AbhBPUdo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 15:33:44 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49170C061574;
+        Tue, 16 Feb 2021 12:33:04 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id k4so11702481ybp.6;
+        Tue, 16 Feb 2021 12:33:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=HA9QSj7wELOZ8H9SPS6eF8YoQdQ/Co16H+hfPWgYYHA=;
+        b=kfO2wiLPPT0I075ZfZkBaNACrvHTgJW+6BRlQYiUESKASVQzhQ+c+706HUpeDEl8PQ
+         z2SIVS6nXkCaTuZ1+jPd/p0G0rT2Bnc6MiksGTibA8TJNo3yyBjBbtdAUH7TwQ8cQEhZ
+         btmEXmUN1MBlhKZW6NOVLMVoDw5z8HeKKEKsS2Uzn3bEao5ByJ567HnRB+R96eDFOLNB
+         aYJIJDP584gGfBecZNEmdH1qEsn65bU1A/gNBR5CxDhEmNi/AiIfjtd99E00B2ghVegb
+         F6WQru3WLQzuaLwgxnpXxUANL5c7u7eCG/HgGdA/XPEgglnBMSIOKQzY+66qdxyU2Nkb
+         Xi/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=HA9QSj7wELOZ8H9SPS6eF8YoQdQ/Co16H+hfPWgYYHA=;
+        b=mdDlQmwCkxlXTKPJ3ISLEKmqp4Q5Upuyh9VVY36n/LCJ4qu+RWBSuvHuKhmlvN94aq
+         T1dEQZPnztIYwSjsnddHmU/yZIk4kQHjPORLpzTfT+kuyswJGBmSx88JhURSXpXm4cLo
+         oojKVqEPZWamfyDc5+TEO7znVaYtpXDTkelk6Y3DmoJmEzC1jgJee6CV+kfvJdrQiRSk
+         x8dX3u+1TDGgFEdHlunbTWYEK/XwIaCAZf1jOVmDiaLQqJM5I2Dmm5T/u5MRzhTiLYq2
+         D+Yz9ow1GdJO5urQSC3mEvi69orqvA+Wob6kvi3BYoI977wq9yW3Fa0aoLGCYAy1DX4P
+         b1PQ==
+X-Gm-Message-State: AOAM531H3fE1fDIgV7894OTA/Xkp+MIMpWrMNVfX4/dM9HTN3on2eytR
+        OVj4kY6FzK6DkQnd2G2yxmyt4FmkTFTqCbwG6Fc=
+X-Google-Smtp-Source: ABdhPJzkl/xVQdW9SvNUFBc3lshpirOTB/lCIkK1c9kIsdtxFWmtg9EbLB+ps+I/o79J6YKcVYiuSXJ4KicfCU0rzoo=
+X-Received: by 2002:a25:d296:: with SMTP id j144mr32685000ybg.33.1613507583595;
+ Tue, 16 Feb 2021 12:33:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
+In-Reply-To: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
+From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date:   Tue, 16 Feb 2021 21:32:52 +0100
+Message-ID: <CANiq72=O0RaHVRcKFF_YDDO4xDFdxaGdH94PgvuibK-ZzHvOxA@mail.gmail.com>
+Subject: Re: [PATCH] RTIC: selinux: ARM64: Move selinux_state to a separate page
+To:     Preeti Nagar <pnagar@codeaurora.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, jmorris@namei.org, serge@hallyn.com,
+        Paul Moore <paul@paul-moore.com>,
+        stephen.smalley.work@gmail.com, Eric Paris <eparis@parisplace.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, linux-arch <linux-arch@vger.kernel.org>,
+        casey@schaufler-ca.com, Nick Desaulniers <ndesaulniers@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Miguel Ojeda <ojeda@kernel.org>, psodagud@codeaurora.org,
+        nmardana@codeaurora.org, rkavati@codeaurora.org,
+        vsekhar@codeaurora.org, mreichar@codeaurora.org,
+        Johan Hovold <johan@kernel.org>, Joe Perches <joe@perches.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-A change in seobject.py file_type_str_to_option made the "file type"
-list not compatible with items in this ComboBox.
-See: 317743bbe2a235a5c68f1066b4153e0726a3118f
+On Tue, Feb 16, 2021 at 11:22 AM Preeti Nagar <pnagar@codeaurora.org> wrote:
+>
+> The changes introduce a new security feature, RunTime Integrity Check
+> (RTIC), designed to protect Linux Kernel at runtime. The motivation
+> behind these changes is:
+> 1. The system protection offered by Security Enhancements(SE) for
+> Android relies on the assumption of kernel integrity. If the kernel
+> itself is compromised (by a perhaps as yet unknown future vulnerability),
+> SE for Android security mechanisms could potentially be disabled and
+> rendered ineffective.
+> 2. Qualcomm Snapdragon devices use Secure Boot, which adds cryptographic
+> checks to each stage of the boot-up process, to assert the authenticity
+> of all secure software images that the device executes.  However, due to
+> various vulnerabilities in SW modules, the integrity of the system can be
+> compromised at any time after device boot-up, leading to un-authorized
+> SW executing.
+>
+> The feature's idea is to move some sensitive kernel structures to a
+> separate page and monitor further any unauthorized changes to these,
+> from higher Exception Levels using stage 2 MMU. Moving these to a
+> different page will help avoid getting page faults from un-related data.
+> The mechanism we have been working on removes the write permissions for
+> HLOS in the stage 2 page tables for the regions to be monitored, such
+> that any modification attempts to these will lead to faults being
+> generated and handled by handlers. If the protected assets are moved to
+> a separate page, faults will be generated corresponding to change attempts
+> to these assets only. If not moved to a separate page, write attempts to
+> un-related data present on the monitored pages will also be generated.
+>
+> Using this feature, some sensitive variables of the kernel which are
+> initialized after init or are updated rarely can also be protected from
+> simple overwrites and attacks trying to modify these.
+>
+> Currently, the change moves selinux_state structure to a separate page.
+> The page is 2MB aligned not 4K to avoid TLB related performance impact as,
+> for some CPU core designs, the TLB does not cache 4K stage 2 (IPA to PA)
+> mappings if the IPA comes from a stage 1 mapping. In future, we plan to
+> move more security-related kernel assets to this page to enhance
+> protection.
 
-Avoid this in the future by populating the ComboBox using keys from
-file_type_str_to_option.
+Part of this commit message should likely be added as a new file under
+Documentation/ somewhere.
 
-This change disables translations on the file types, but those cause
-other issues (adding file context fails the same way as with 'socket
-file' since the translated strings differ form
-file_type_str_to_option.keys, 'properties' of a file context entry
-shows no file type for the same reason).
+> diff --git a/security/Kconfig b/security/Kconfig
+> index 7561f6f..1af913a 100644
+> --- a/security/Kconfig
+> +++ b/security/Kconfig
+> @@ -291,5 +291,16 @@ config LSM
+>
+>  source "security/Kconfig.hardening"
+>
+> +config SECURITY_RTIC
+> +       bool "RunTime Integrity Check feature"
+> +       depends on ARM64
+> +       help
+> +         RTIC(RunTime Integrity Check) feature is to protect Linux kernel
+> +         at runtime. This relocates some of the security sensitive kernel
+> +         structures to a separate RTIC specific page.
+> +
+> +         This is to enable monitoring and protection of these kernel assets
+> +         from a higher exception level(EL) against any unauthorized changes.
 
-Fixes:
- Traceback (most recent call last):
-  File "/usr/share/system-config-selinux/system-config-selinux.py", line 136, in add
-    self.tabs[self.notebook.get_current_page()].addDialog()
-  File "/usr/share/system-config-selinux/semanagePage.py", line 143, in addDialog
-    if self.add() is False:
-  File "/usr/share/system-config-selinux/fcontextPage.py", line 195, in add
-    (rc, out) = getstatusoutput("semanage fcontext -a -t %s -r %s -f '%s' '%s'" % (type, mls, seobject.file_type_str_to_option[ftype], fspec))
- KeyError: 'socket file'
----
- gui/fcontextPage.py          |  7 +++++++
- gui/system-config-selinux.ui | 26 --------------------------
- 2 files changed, 7 insertions(+), 26 deletions(-)
+Rewording suggestion:
 
-diff --git a/gui/fcontextPage.py b/gui/fcontextPage.py
-index 370bbee4..d26aa1b4 100644
---- a/gui/fcontextPage.py
-+++ b/gui/fcontextPage.py
-@@ -102,6 +102,13 @@ class fcontextPage(semanagePage):
-         self.load()
-         self.fcontextEntry = xml.get_object("fcontextEntry")
-         self.fcontextFileTypeCombo = xml.get_object("fcontextFileTypeCombo")
-+        # Populate file type combo_box
-+        liststore = self.fcontextFileTypeCombo.get_model()
-+        for ftype in seobject.file_type_str_to_option.keys():
-+            iter = liststore.append()
-+            liststore.set_value(iter, 0, ftype)
-+        iter = liststore.get_iter_first()
-+        self.fcontextFileTypeCombo.set_active_iter(iter)
-         self.fcontextTypeEntry = xml.get_object("fcontextTypeEntry")
-         self.fcontextMLSEntry = xml.get_object("fcontextMLSEntry")
- 
-diff --git a/gui/system-config-selinux.ui b/gui/system-config-selinux.ui
-index 7cc1cc53..e7b84a64 100644
---- a/gui/system-config-selinux.ui
-+++ b/gui/system-config-selinux.ui
-@@ -401,32 +401,6 @@ Level</property>
-       <!-- column-name gchararray -->
-       <column type="gchararray"/>
-     </columns>
--    <data>
--      <row>
--        <col id="0" translatable="yes">all files</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">regular file</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">directory</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">character device</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">block device</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">socket file</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">symbolic link</col>
--      </row>
--      <row>
--        <col id="0" translatable="yes">named pipe</col>
--      </row>
--    </data>
-   </object>
-   <object class="GtkDialog" id="fcontextDialog">
-     <property name="can_focus">False</property>
--- 
-2.29.2
+         The RTIC (RunTime Integrity Check) feature protects the kernel
+         at runtime by relocating some of its security-sensitive structures
+         to a separate RTIC-specific page. This enables monitoring and
+         and protecting them from a higher exception level against
+         unauthorized changes.
 
+Cheers,
+Miguel
