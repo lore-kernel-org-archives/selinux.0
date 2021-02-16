@@ -2,242 +2,251 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CFFEC433DB
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 15:27:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF00AC433E0
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 17:45:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D696464DF0
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 15:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE4F864DAF
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 17:45:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229942AbhBPP1W (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Feb 2021 10:27:22 -0500
-Received: from sonic306-20.consmr.mail.gq1.yahoo.com ([98.137.68.83]:42311
-        "EHLO sonic306-20.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229699AbhBPP1V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 10:27:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613489194; bh=W62lh1FNDIGTqfOoKPg3fLtILjHzYCf5zKTQ678bnVY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=fjtq68O77kXy8UhkgCGmsyJa86KoTpMtIwC8UNjXRksYuLn3kOd7K3uDf9Vs9HnaCBqJMBrgBYuJWILC1JFavg4KcfeGBLL/2cOa4c4kMyqhzA6XiLVyme91sckGaZ/vwexoQRcSVW94A30Glj9xcVYHKBnyVNFa4LPXjQyJ8WDNqRXRt5ad2uR6KZ0FmNATXpMekGjRRy61v7lV5Rn29SPNJPDODCO34pGATTLiSAw+w4EraxMn+Pd3vJazhdFLzXSGdPyf9IHT+XH2roCgAD1vxVxms1kkhOa/f21KTKbDKsh7VRpvHiDs35mbepw0Sbc/VaQcf/iiei003fl3Dg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613489194; bh=9fcmK848gRdrSo0CtJht6cTIcysIkqcULNO5DR2Srji=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=iq6QL1VhbMcbHuv7hOznssEjlxRjHypKpdp1QnWRE5HkDQjzzk3y/OKqOFPHqjk+0vUlgPjYDre7rGFnbzh1bm8p3nj2ovVlDV6SjA/LvohzWmZ+MB1tyjyZbwkyQ7qN+ZGrjdw7gteuXuH25HqnrE2yiLXNQSyMxsO1/h5GcbJORpfIf13yOXRfopLSLZ1K8Dq5klzOTvCOMUqYP+OtYpIYRqMNPkPFkUhCsWg0hUpenLvIsa5QhC+H2tCBN2BqixzgmtcmkrZwcA/8XkCoAPhLY3ew9d46txUaspQQlQtOoA5tQcnTahayLlp/6HW5mD6nvjRnAR32t0Y16tKunw==
-X-YMail-OSG: ZCNfqqkVM1lPukTTjpbByVKoh.k1QKLvNZ_EkZj_CZLTg6jrLyhwrQ5H28S1jaG
- 9Cc6vNBVR6.NqaHrPlk2FmSJ.vhVXuUy3RrubPqgnjuu56iVJVxcOtd1x58ozmafrwXe4fgp8I7L
- AXOmVdF6.kSvMZZA5PJ60rOofNLHcTTsdb1HkqBX_aAY7zorwFTPfBRvOHFrmwtVTjT2L4Dz2tZT
- GAYKatqzXC_0SE0p90C_5MmYKMPD9sVrZs.b5tmyhRH6OJp4k9Xnk2cCzOfrTdF5J0qipqsyW46C
- WmYotAiIo2YAomr9JonfMmKyvNKfZsocbw94J8FuIo3A2QJpHrHhsPgzTpeplJoEuaTJKmt3_z5B
- 7WDRvNLE0SmkgKar7RV.VArTmgOa.L81IobGhUFjKch4wJ9cRagNEscLi00MMRDSbWUN6L3WJ_rF
- vb4zc4dPL95Qkr7pFc7U5X8pxwesC4wEOz._EcuALUkZOCObdrnhNFTb4XOU.ddrDdO_aCPmO98m
- RGp40tcpnUR7vjLNNReBNTFk9TetrfnE4N4IVV8rKWP5JskDJvjy3jHyYoyvLJo1_lABbuwyn1m5
- G42Ck.2JV0uWCqhMMVPSUs0IRnOPjCiDkLtg0gln5ksRmoXhPw_iCboGAczGznuLtpKuvKSEoePQ
- Lem8oRq7F.vEa7WCKy3DCvb8hVB5sQvlMwdRS_dJTJZJRakWiuWPuKTL8gLfhkv0e9PZbcP7qAxi
- IJ9P06KzWYFIfmnbFxKdq9X0yR113B9_Tu4w..g4_sib8__mG1dvJESsUy885zk__lTxwnbQHyhn
- hRYOOIsesf1LQSa27qVespp_jJLSNrm7T59SyNRJR_X0XyAIMkXCkQ.tAO_ZKNWtcpO_qNXDLenG
- m.S7EfDWpiKPYn4FvbMbJd7n6m5BCl1WJ6V9tkLUfhJAzh9DFww0suBZLb2YOsUg_GEg4qGoAXO7
- T6xqNhPLlByBP7wkXYITQDhBUFT9iIkjfuQWFiHhhzjxdTozdzDV80LNvnUS0DUOkvCiQtnVp1E1
- YcfKweea2u7QRMX5j4pPPJvZyjWAlWnIo2SBLbfYhXeFDStRBULRPh9euMeeEI4tYU0exBRIFBvL
- kTpa640qMN0kelXw8QQc_gsFXReA6M2vB1GSTzeIgUKEkIFZC4_6mwDzLmfzrERy3xJCt07JEyYi
- Mvo9I.H9LqTOl7fq8oF_Jz3ShnuS6tk17z8lC1eew7Pk34VFnCmx.yXlYztBZ8AA0R_CRazLzWmf
- GuKu8SMS8buQSLahGwBV2g4yE4Ph91K9W73mDArS6e1iq4_mTDbaIOf2GS2sdKe70Gq1XVqtpPdK
- nMsiEb2GBvaJZ8FHnXDov1CivtG2.hzOU4FBFYMTH2dTyX5ZuEp0eb.KesjJXpeVEmSG1PrM8Dfi
- RkcSiLGs6fE3bt_rH3lxk5FLEo.LqMXwRHDNu2avxBZEEANu3.jPRNiZ9Ax_xem7abO6reABSTtJ
- ix9stwIXGmG6zkjb.s0kC_hOl7QtXJxuGleP9b.lsU9H24P1Mbt.B1G10ptd1dAI2jf4qN4oCLJT
- 7udYOzZt3DtSJj3CuHJtTvfZJnbIrEXl96imL.hNMINDzXDbGhHZ7oYoPuQy1YvJIwdN9_aA66tC
- 5c01UfNjoTbDjsGHkwLPLW4rUQfgTnoq5ZyZLn0kD71c.qCWiLI3LKr7NY_mgRlNJ3ex87ee0lyH
- FdOtTZzjvI3UKxadCCl3gjfUtJuOctDv7qjuIytK9oe_wki_n7BFhQHLmtrN1wSq1z8y0pehYR4W
- OI_OjvELZp0t_UicTWfio8KbKwph0vwhGaZ0XHa2UTcgXAOGECdv.EBQGYP_R27ykYjd4PRhjrSu
- rTHJhsy3SrpOjwcqMjoaYeoppdUpNfhUGZ8bUktEHs12xGh9rQTjWC4xdV38tv_koS2gStuSHvNZ
- tz.mjdkgFvmxB9p7Yd8xwFK7M9U.9mUXpi0MIzmsrCBKjo6kwydkDY4BU.AOZ4gYk0d8TNygZVXn
- r9L0227Rl3rLf_MPV.OnYjGhewMi0lZ_X3V9wDEaughsolORV.ZVqhRN4a5NB_L0BEK6c4kC34dM
- uk0e55oBODY7.IRv0hxZbE.HGFfu4GmRE1fOCFYHTxbZybF.YEMiZaV6M2WZogBwicbt2FONBWbe
- nVxhtqo_W0rxCzcyWRIoqSbVvcY8vL0Za2D.8VHZG6qzeuO01ckSy.xklseQ1Bg.Aw_00xf5o2jc
- _bZma2dh4CuF7IeoGOg.ZWQCHG6cmd96EN6MWOgZuA6Ep1yzRrgD5MpvKdzr_rvE9VqDwFhceQVV
- 88qTE.5.G7N4Ji6HO8UVQb2mJDo7TsJkrhwTC6cL8T0TvCYyBBynHj3IZdmvuyA5I2rIS_0Jkddz
- xdOierW.NOEBTdfK7TbOBb7bf75oPfZjlMdJGq37I3UNqNkS.k7K.UMsulnRr0n39L8paWc9OCE8
- WoyST.5BnoliiOOkjoH5RtjvTvGVNlzqDzK2I1j2qfneScRsJXGSOJxNnoaCo5GpqX2wfjDMjffp
- CqGDOi7oynTK3uKtYddTKGEunmk29NvbkKKeyyphWyD4cimhHF8__PbslIF4N4bLobM_GlRPjso3
- 2ZNu8IKbovSVeNybbGCj6CITQIU5ZyPKBjx.obUMR8IIXf.p0UZuhBp_2Tlk0f3eMpbml.kCai_L
- 3XGj.6mGxg2LQN8MaSrg6jdRC1t75WplTGG91SisB1lneQq6sce5mDbkBfpmxNe3f56NtdRvv.sm
- _EqV3CK9ASwgn.UYa4ECDDnL1lEvovv1GFlscsIhB9Xuul2xd1e9s2TcsMr0povCi5U0mw.xWgsD
- Ba7PyuUYeQ.hfIu.e6pqdCcylORE266SMiih8MIvQxMMt8J1BH0gzTruPuaxZz4s4NJ0D0f8-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.gq1.yahoo.com with HTTP; Tue, 16 Feb 2021 15:26:34 +0000
-Received: by smtp422.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6f5b7ba32cd2d33c874cd26015b33c2b;
-          Tue, 16 Feb 2021 15:26:31 +0000 (UTC)
-Subject: Re: [PATCH v24 04/25] IMA: avoid label collisions with stacked LSMs
-To:     Mimi Zohar <zohar@linux.ibm.com>, casey.schaufler@intel.com,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Cc:     linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20210126164108.1958-1-casey@schaufler-ca.com>
- <20210126164108.1958-5-casey@schaufler-ca.com>
- <693f81d9d2f50a920cafbbc8d1d634598b99081a.camel@linux.ibm.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <ae6dcadf-57d5-cb29-a361-d020f6333f59@schaufler-ca.com>
-Date:   Tue, 16 Feb 2021 07:26:30 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S231359AbhBPRpR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Feb 2021 12:45:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230299AbhBPRpH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 12:45:07 -0500
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B44C061786
+        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 09:44:26 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id n8so14165190wrm.10
+        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 09:44:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SG1PJqmUONPMltLHj/NtbdnqP3QjXhIMpbTG2ubKayU=;
+        b=gJMg/HYjzxEkTtYwbl77f/5BHHhcOZMC+zF37X8B/qKaJjS1EDDbB5E9DQoW43x9Ek
+         76E252nanT1F78TvtOW336XdQ5XI2pgkFLuk8lV+8PGCPWvURVZ3vJclriyK4uwRFMuu
+         xGfUjWRAT6bcrntxVeoXoOGx7MwnEXdAtpUU8ZO3L7o9N0UG9lCq4KjQ3HjAgCWQTSqh
+         YN5i1/QKN0WwriXEcU452g8V07c3Z2gHHT9F0sAU9nYWOKC2FS6rNeX02IvXgCzbVWrr
+         gpKWN5c2DYV9aBbrvqsHZss6UZMTz1bFiM1aDIiH1mOpVXo0SQte+allBrV+Wk/LWmiP
+         42VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SG1PJqmUONPMltLHj/NtbdnqP3QjXhIMpbTG2ubKayU=;
+        b=WUVO314NZw0rfP2QBYtvANp3fwJ/SlhHWnYNOc3ppoyiIAWDEqz96CH35hA6+9502e
+         Zok65triEjIvZSMtA5r+8lonbrBmrhmYhQrIWHXzABHWa+o/XVWoKk4Up5jzqRINRn2E
+         K3VcVG1vs/f6iOLw/UKOZww9PYLwPfa0NKVE6Xdu4GmlD+y39Vw83VKNf9hAYWzLO8DZ
+         LXXfbm7WXCbw4+QIpwiDrMTjxKlQhUMeCzJcVKJTKY3khThyexya6qdemwd7xk1zuYFI
+         pjT3NE71hsryWDtF6P+m94vFf/DHfbJGaU+dKXXeqdu1df93jUmCWSiyMA9K6cjXiBIl
+         ckbA==
+X-Gm-Message-State: AOAM530RCdgT7nH11FKO/vVV9B6wG3BZ1Fq57DQj3nijJvvaH5wiyYbm
+        RPhX9yNi7EFkNfuwoLGlCB35AbYVi9Rda25qSzvOHw==
+X-Google-Smtp-Source: ABdhPJzWe51dgFo8YdFDbYkdUYcmO1d7+1mZzYOUd19gMk/Ayscx0kbxSccgEjton406EyAShOmFNYX5kVOyIBhDYao=
+X-Received: by 2002:a5d:610a:: with SMTP id v10mr19205290wrt.334.1613497465050;
+ Tue, 16 Feb 2021 09:44:25 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <693f81d9d2f50a920cafbbc8d1d634598b99081a.camel@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.17712 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.9.1)
+References: <20210202053046.1653012-1-surenb@google.com> <079db245-a08c-0dbd-01d4-8065f533652e@gmail.com>
+ <CAJuCfpGotx_04Stn5Nw6Au+TVG9LuAJ=CB_s7uxjMLOLerw-GA@mail.gmail.com> <2d303517-cdcd-9ec8-e57d-3d065edb573c@gmail.com>
+In-Reply-To: <2d303517-cdcd-9ec8-e57d-3d065edb573c@gmail.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Tue, 16 Feb 2021 09:44:13 -0800
+Message-ID: <CAJuCfpFC0B=jXFEuPYYBZAjgx1B6S8vG-i7_0iBc_RHeWynyzw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] process_madvise.2: Add process_madvise man page
+To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Cc:     linux-man <linux-man@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/14/2021 10:21 AM, Mimi Zohar wrote:
-> Hi Casey,
->
-> On Tue, 2021-01-26 at 08:40 -0800, Casey Schaufler wrote:
->> Integrity measurement may filter on security module information
->> and needs to be clear in the case of multiple active security
->> modules which applies. Provide a boot option ima_rules_lsm= to
->> allow the user to specify an active securty module to apply
->> filters to. If not specified, use the first registered module
->> that supports the audit_rule_match() LSM hook. Allow the user
->> to specify in the IMA policy an lsm= option to specify the
->> security module to use for a particular rule.
-> Thanks, Casey.
->
-> (This patch description line length seems short.)
->
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> To: Mimi Zohar <zohar@linux.ibm.com>
->> To: linux-integrity@vger.kernel.org
->> ---
->>  Documentation/ABI/testing/ima_policy |  8 +++-
->>  security/integrity/ima/ima_policy.c  | 64 ++++++++++++++++++++++------
->>  2 files changed, 57 insertions(+), 15 deletions(-)
->>
->> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
->> index e35263f97fc1..a7943d40466f 100644
->> --- a/Documentation/ABI/testing/ima_policy
->> +++ b/Documentation/ABI/testing/ima_policy
->> @@ -25,7 +25,7 @@ Description:
->>  			base:	[[func=] [mask=] [fsmagic=] [fsuuid=] [uid=]
->>  				[euid=] [fowner=] [fsname=]]
->>  			lsm:	[[subj_user=] [subj_role=] [subj_type=]
->> -				 [obj_user=] [obj_role=] [obj_type=]]
->> +				 [obj_user=] [obj_role=] [obj_type=] [lsm=]]
-> "[lsm=]" either requires all LSM rules types (e.g. {subj/obj}_user,
-> role, type) to be exactly the same for multiple LSMs or all of the LSM
-> rule types are applicable to only a single LSM.  Supporting multiple
-> LSMs with exactly the same LSM labels doesn't seem worth the effort.  
-> Keep it simple - a single rule, containing any LSM rule types, is
-> applicable to a single LSM.
+Hi Michael,
 
-Thank you. I will add this.
+On Sat, Feb 13, 2021 at 2:04 PM Michael Kerrisk (man-pages)
+<mtk.manpages@gmail.com> wrote:
+>
+> Hello Suren,
+>
+> On 2/2/21 11:12 PM, Suren Baghdasaryan wrote:
+> > Hi Michael,
+> >
+> > On Tue, Feb 2, 2021 at 2:45 AM Michael Kerrisk (man-pages)
+> > <mtk.manpages@gmail.com> wrote:
+> >>
+> >> Hello Suren (and Minchan and Michal)
+> >>
+> >> Thank you for the revisions!
+> >>
+> >> I've applied this patch, and done a few light edits.
+> >
+> > Thanks!
+> >
+> >>
+> >> However, I have a questions about undocumented pieces in *madvise(2)*,
+> >> as well as one other question. See below.
+> >>
+> >> On 2/2/21 6:30 AM, Suren Baghdasaryan wrote:
+> >>> Initial version of process_madvise(2) manual page. Initial text was
+> >>> extracted from [1], amended after fix [2] and more details added using
+> >>> man pages of madvise(2) and process_vm_read(2) as examples. It also
+> >>> includes the changes to required permission proposed in [3].
+> >>>
+> >>> [1] https://lore.kernel.org/patchwork/patch/1297933/
+> >>> [2] https://lkml.org/lkml/2020/12/8/1282
+> >>> [3] https://patchwork.kernel.org/project/selinux/patch/20210111170622.2613577-1-surenb@google.com/#23888311
+> >>>
+> >>> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> >>> Reviewed-by: Michal Hocko <mhocko@suse.com>
+> >>> ---
+> >>> changes in v2:
+> >>> - Changed description of MADV_COLD per Michal Hocko's suggestion
+> >>> - Applied fixes suggested by Michael Kerrisk
+> >>> changes in v3:
+> >>> - Added Michal's Reviewed-by
+> >>> - Applied additional fixes suggested by Michael Kerrisk
+> >>>
+> >>> NAME
+> >>>     process_madvise - give advice about use of memory to a process
+> >>>
+> >>> SYNOPSIS
+> >>>     #include <sys/uio.h>
+> >>>
+> >>>     ssize_t process_madvise(int pidfd,
+> >>>                            const struct iovec *iovec,
+> >>>                            unsigned long vlen,
+> >>>                            int advice,
+> >>>                            unsigned int flags);
+> >>>
+> >>> DESCRIPTION
+> >>>     The process_madvise() system call is used to give advice or directions
+> >>>     to the kernel about the address ranges of another process or the calling
+> >>>     process. It provides the advice to the address ranges described by iovec
+> >>>     and vlen. The goal of such advice is to improve system or application
+> >>>     performance.
+> >>>
+> >>>     The pidfd argument is a PID file descriptor (see pidfd_open(2)) that
+> >>>     specifies the process to which the advice is to be applied.
+> >>>
+> >>>     The pointer iovec points to an array of iovec structures, defined in
+> >>>     <sys/uio.h> as:
+> >>>
+> >>>     struct iovec {
+> >>>         void  *iov_base;    /* Starting address */
+> >>>         size_t iov_len;     /* Number of bytes to transfer */
+> >>>     };
+> >>>
+> >>>     The iovec structure describes address ranges beginning at iov_base address
+> >>>     and with the size of iov_len bytes.
+> >>>
+> >>>     The vlen represents the number of elements in the iovec structure.
+> >>>
+> >>>     The advice argument is one of the values listed below.
+> >>>
+> >>>   Linux-specific advice values
+> >>>     The following Linux-specific advice values have no counterparts in the
+> >>>     POSIX-specified posix_madvise(3), and may or may not have counterparts
+> >>>     in the madvise(2) interface available on other implementations.
+> >>>
+> >>>     MADV_COLD (since Linux 5.4.1)
+> >>
+> >> I just noticed these version numbers now, and thought: they can't be
+> >> right (because the system call appeared only in v5.11). So I removed
+> >> them. But, of course in another sense the version numbers are (nearly)
+> >> right, since these advice values were added for madvise(2) in Linux 5.4.
+> >> However, they are not documented in the madvise(2) manual page. Is it
+> >> correct to assume that MADV_COLD and MADV_PAGEOUT have exactly the same
+> >> meaning in madvise(2) (but just for the calling process, of course)?
+> >
+> > Correct. They should be added in the madvise(2) man page as well IMHO.
+>
+> So, I decided to move the description of MADV_COLD and MADV_PAGEOUT
+> to madvise(2) and refer to that page from the process_madvise(2)
+> page. This avoids repeating the same information in two places.
 
->
->>  			option:	[[appraise_type=]] [template=] [permit_directio]
->>  				[appraise_flag=] [keyrings=]
->>  		  base:
->> @@ -114,6 +114,12 @@ Description:
->>
->>  			measure subj_user=_ func=FILE_CHECK mask=MAY_READ
->>
->> +		It is possible to explicitly specify which security
->> +		module a rule applies to using lsm=.  If the security
->> +		modules specified is not active on the system the rule
->> +		will be rejected.  If lsm= is not specified the first
->> +		security module registered on the system will be assumed.
->> +
->>  		Example of measure rules using alternate PCRs::
->>
->>  			measure func=KEXEC_KERNEL_CHECK pcr=4
->> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
->> index 8002683003e6..de72b719c90c 100644
->> --- a/security/integrity/ima/ima_policy.c
->> +++ b/security/integrity/ima/ima_policy.c
->> @@ -82,6 +82,7 @@ struct ima_rule_entry {
->>  		void *rules[LSMBLOB_ENTRIES]; /* LSM file metadata specific */
->>  		char *args_p;	/* audit value */
->>  		int type;	/* audit type */
->> +		int which_lsm; /* which of the rules to use */
->>  	} lsm[MAX_LSM_RULES];
-> Even if we wanted to support multiple LSMs within the same rule having
-> both "rules[LSMBLOB_ENTRIES]" and "which_lsm" shouldn't be necessary.  
-> The LSMBLOB_ENTRIES should already identify the LSM.
->
-> To support a single LSM per policy rule, "which_lsm" should be defined
-> outside of lsm[MAX_LSM_RULES].  This will simplify the rest of the code
-> (e.g. matching/freeing rules).
->
-> 	int which_lsm;          /* which of the rules to use */
-> 	struct {
->                 void *rule;        /* LSM file metadata specific */
->                 char *args_p;   /* audit value */
->                 int type;       /* audit type */
->         } lsm[MAX_LSM_RULES];
-
-You're right, that is better. I'll incorporate the change.
-
->
->
->>  	char *fsname;
->>  	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
->> @@ -90,17 +91,15 @@ struct ima_rule_entry {
->>
->>  /**
->>   * ima_lsm_isset - Is a rule set for any of the active security modules
->> - * @rules: The set of IMA rules to check
->> + * @entry: the rule entry to examine
->> + * @lsm_rule: the specific rule type in question
->>   *
->> - * If a rule is set for any LSM return true, otherwise return false.
->> + * If a rule is set return true, otherwise return false.
->>   */
->> -static inline bool ima_lsm_isset(void *rules[])
->> +static inline bool ima_lsm_isset(struct ima_rule_entry *entry, int lsm_rule)
->>  {
->> -	int i;
->> -
->> -	for (i = 0; i < LSMBLOB_ENTRIES; i++)
->> -		if (rules[i])
->> -			return true;
->> +	if (entry->lsm[lsm_rule].rules[entry->lsm[lsm_rule].which_lsm])
->> +		return true;
-> If each IMA policy rule is limited to a specific LSM, then the test
-> would be "entry->which_lsm".
-
-Which would be an improvement.
+Sounds good.
 
 >
->>  	return false;
->>  }
->>
->> @@ -273,6 +272,20 @@ static int __init default_appraise_policy_setup(char *str)
->>  }
->>  __setup("ima_appraise_tcb", default_appraise_policy_setup);
->>
->> +static int ima_rule_lsm __ro_after_init;
->> +
->> +static int __init ima_rule_lsm_init(char *str)
->> +{
->> +	ima_rule_lsm = lsm_name_to_slot(str);
->> +	if (ima_rule_lsm < 0) {
->> +		ima_rule_lsm = 0;
->> +		pr_err("rule lsm \"%s\" not registered", str);
->> +	}
->> +
->> +	return 1;
->> +}
->> +__setup("ima_rule_lsm=", ima_rule_lsm_init);
-> The patch description refers to "ima_rules_lsm=".  Please update one or
-> the other.
+> >>>         Deactive a given range of pages which will make them a more probable
+> >>
+> >> I changed: s/Deactive/Deactivate/
+> >
+> > thanks!
+> >
+> >>
+> >>>         reclaim target should there be a memory pressure. This is a
+> >>>         nondestructive operation. The advice might be ignored for some pages
+> >>>         in the range when it is not applicable.
+> >>>
+> >>>     MADV_PAGEOUT (since Linux 5.4.1)
+> >>>         Reclaim a given range of pages. This is done to free up memory occupied
+> >>>         by these pages. If a page is anonymous it will be swapped out. If a
+> >>>         page is file-backed and dirty it will be written back to the backing
+> >>>         storage. The advice might be ignored for some pages in the range when
+> >>>         it is not applicable.
+> >>
+> >> [...]
+> >>
+> >>>     The hint might be applied to a part of iovec if one of its elements points
+> >>>     to an invalid memory region in the remote process. No further elements will
+> >>>     be processed beyond that point.
+> >>
+> >> Is the above scenario the one that leads to the partial advice case described in
+> >> RETURN VALUE? If yes, perhaps I should add some words to make that clearer.
+> >
+> > Correct. This describes the case when partial advice happens.
+>
+> Thanks. I added a few words to clarify this.
 
-ima_rules_lsm seem to be more accurate. I'll fix it.
+Any link where I can see the final version?
 
 >
-> thanks,
 >
-> Mimi
+> >> You can see the light edits that I made in
+> >> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=e3ce016472a1b3ec5dffdeb23c98b9fef618a97b
+> >> and following that I restructured DESCRIPTION a little in
+> >> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=3aac0708a9acee5283e091461de6a8410bc921a6
+> >
+> > The edits LGTM.
+>
+> Thanks for checking them.
+>
+> Cheers,
+>
+> Michael
+>
 
-Thanks for the review and recommendations.
+Thanks,
+Suren.
 
+>
+> --
+> Michael Kerrisk
+> Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+> Linux/UNIX System Programming Training: http://man7.org/training/
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+>
