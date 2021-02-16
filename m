@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46E62C433E6
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 14:42:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2AE7C433E0
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 14:42:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E48F64E68
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 14:42:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A68A664E00
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 14:42:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229895AbhBPOl4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Feb 2021 09:41:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54346 "EHLO
+        id S230178AbhBPOma (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Feb 2021 09:42:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229958AbhBPOlw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 09:41:52 -0500
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA83C061574
-        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 06:41:12 -0800 (PST)
-Received: by mail-ot1-x32b.google.com with SMTP id 100so9175935otg.3
-        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 06:41:12 -0800 (PST)
+        with ESMTP id S230133AbhBPOmU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 09:42:20 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22ADC061756
+        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 06:41:39 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id k204so11439984oih.3
+        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 06:41:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=A001vMaPKkrejc2PnvNRSE7uR4tTUYeQmjy5Yi+EBe8=;
-        b=aR7qm3VDdFoNB1zVPA8LgRCchqg/5OC8j549VQ9Yv8ofhVw845xOwsr8N4fdUM5GcU
-         eRp73wHhTKyH0OaW6YdtgFgkJjQeSFkaUzjDIHRpJtAuf7uR/COm/rOXxP45/mjJleTq
-         YAQ4k5DFOKh0rEZ/gYOQ6tx5jnLu3MCvZDWX27IzgR+owi2KYDosqKhCaN+MIOqyowFw
-         IB6H0kc6IeszxOmWgwE+LkQzf+TNygbAWviG2oJmDHzKX/A+bFC9005hsUjwCaiT3vRG
-         zQYUOZzx38g4MeAcCwzPAsE3mzvvzrh3dBxWrf/a8CcbLEK1Hpwu1iaDiPMP24tWWWum
-         JcYQ==
+        bh=dJFUgh2JSgD8nnxpmayUwBa5Tp1jOJ7NEvI1AvduNko=;
+        b=OTXgeXMRN1qr3eOJrCzdTerEPryZcF5xXNX38GaGt8HKGXsa0JpxYtpbAxkcUs+q3n
+         c/quC4pY+QBnPXms+VlDhw3bNU6kI1P0T8NmhIhc0ozXNksWmFpAH++0Lv0ufptwpkT4
+         vT1i0Zyh5qyKoT38saxOYBl4+QgxrM8itvRZY66v1qgYF1L/BVxn9Yn0PphMHz2mNzf2
+         eoqtqENg0haM0CAL2+EwXpmRU/1Qohw9dvC532bAs/u0MWTXRPnDom3KDvViLIqRaMBV
+         4X1oqpI40NNSp1NAynchEn+5mSO+VSZc5fJcwGpb5aY/J4oQMqIr7wWqmcQOQ6kfnC1Y
+         aRfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=A001vMaPKkrejc2PnvNRSE7uR4tTUYeQmjy5Yi+EBe8=;
-        b=tesInPrdARFn76zEJV0vKcwOesfCfsXC7CwYk7zqA9nFmuWBfOP+g//X9C6lffkrBW
-         q+LQnjnIxSnxPXI22BMFChdJocSIxlEpA6DYhMaTpOWACrteF1LgvUlTu34F0ssafQAj
-         AmRk5Iy0nsNy3juuFEgum8NTus9y2YRBw6uYfO477jQSgNj/eO+OaI29W+lxFtvaknQB
-         SN1KxIDHHSHYB95xx1UcXEmT1w/Ky4LIHosIXH7cVQUs0Gr16bZ+vYqdBPvuV20UuTe9
-         hnOTUsp2bE4ESUzoXWO7/JvjGNlbd9h74P5jTh8bVxozpWiAUCfP9a5etzEOncD+ak6f
-         AlzA==
-X-Gm-Message-State: AOAM5321ws//o1HniBGv9C8s2JMzESEgMfTlOW1jIOg25FsGzHvMY9fz
-        0prbIUW23TkBvTBEAnFPEgGxlMSY7KLVqgF5jG4=
-X-Google-Smtp-Source: ABdhPJzF7McU9k7CEDbEVoZ03w/QUeqwwfT4W8ZDz1M9HMpx4Jcql2bvyBBzDVBz99QLZ2PjmfCjUrs2VQDGNIjykjg=
-X-Received: by 2002:a05:6830:1db3:: with SMTP id z19mr14924241oti.295.1613486471957;
- Tue, 16 Feb 2021 06:41:11 -0800 (PST)
+        bh=dJFUgh2JSgD8nnxpmayUwBa5Tp1jOJ7NEvI1AvduNko=;
+        b=DrnBpwMjD5tJaahLzODqKXyIKYXCAm4n1AiQViqE6vTFi9jHEtLHjwjxlasvB3eoFh
+         W1tE1xJqbc9+sFoQOtdHSwhKv4UVNauc5iUp9W5XRZIlh8kODSg+cz11XyCw5zGkHtY2
+         6M4BR8veZEmdFj9o9fijov0T2AH9jUIhYRxw5nCtot9aM1Ur3x9KKo8oiJpkoWGWzyZP
+         zeu+2eAcs/MY2CuMU+Z2/NX2VPFbgJkgtvjQqm/6HNsF6RQ//BBA6Lf/CELN6gjZDRoe
+         vq9gkHMRWqUVZXjTpQwx9oMHnZp1IeHCOpI7b9Oo/xxc34bOj51cxdB9RADgvvUk2oge
+         gUCw==
+X-Gm-Message-State: AOAM5306Ywdw2TUBAvHW20B6WZXV1+INqeYkpuZLFQuAw+8kTHhINdg+
+        l2yvhbRWdMyxSBZDAx8lnLLojOkg+nvyuEzizuLZ2LLSEXI=
+X-Google-Smtp-Source: ABdhPJwaai1ymcTJi9TeQHqYsIHytvHFfnlkZpajCQSSSo0+jynOZkqp9tm4YjsFbgdyhi2e/xyzYG7Zm1tYGhib2D8=
+X-Received: by 2002:aca:f00a:: with SMTP id o10mr2810670oih.128.1613486499452;
+ Tue, 16 Feb 2021 06:41:39 -0800 (PST)
 MIME-Version: 1.0
 References: <a8abefda-5c2b-918d-65d9-e21b89e9a2bf@gmail.com>
- <90473e07-fe79-18d8-4772-52deb4f8e1bd@gmail.com> <CAP+JOzSeJs5X_LTSvKojLtPMQuxQz5xETDfNikxKwTOqNgTwWw@mail.gmail.com>
-In-Reply-To: <CAP+JOzSeJs5X_LTSvKojLtPMQuxQz5xETDfNikxKwTOqNgTwWw@mail.gmail.com>
+ <acce2531-a70b-0df6-e258-d152e5b03bcf@gmail.com> <CAP+JOzR-UDTApuKGE7nNY=4Ds0Lj+cR90G6CnF-FteYpB+EiXg@mail.gmail.com>
+In-Reply-To: <CAP+JOzR-UDTApuKGE7nNY=4Ds0Lj+cR90G6CnF-FteYpB+EiXg@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 16 Feb 2021 09:41:01 -0500
-Message-ID: <CAP+JOzQ+uE3BaUi+RTySF0mONAzSu-m+VTnwPA7pYw8ZKsagYQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] secilc/docs: add syntax highlighting for secil
+Date:   Tue, 16 Feb 2021 09:41:28 -0500
+Message-ID: <CAP+JOzTxAsCt-O=B-UBEpo78Togam24FPA33OpUUonJOsB8gvg@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] secilc/docs: add custom color theme
 To:     bauen1 <j2468h@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -67,15 +67,13 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 11, 2021 at 6:35 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Feb 11, 2021 at 6:37 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Sat, Feb 6, 2021 at 4:05 PM bauen1 <j2468h@googlemail.com> wrote:
+> On Wed, Feb 10, 2021 at 11:01 AM bauen1 <j2468h@googlemail.com> wrote:
 > >
-> > This is done by creating a somewhat rudimentary KDE syntax xml for
-> > pandoc.
-> >
-> > The default styles provided by pandoc don't look very good and don't
-> > highlight e.g. the strings marked as builtin.
+> > Since the default pandoc themes either don't highlight everything or
+> > don't fit the black/white color style of the html / pdf I've created my
+> > own.
 > >
 > > Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
 >
@@ -87,284 +85,93 @@ Thanks,
 Jim
 
 > > ---
-> >  secilc/docs/Makefile  |  10 +-
-> >  secilc/docs/secil.xml | 236 ++++++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 242 insertions(+), 4 deletions(-)
-> >  create mode 100644 secilc/docs/secil.xml
+> >
+> > v3:
+> >     No changes.
+> >
+> >  secilc/docs/Makefile    |  2 +-
+> >  secilc/docs/theme.theme | 59 +++++++++++++++++++++++++++++++++++++++++
+> >  2 files changed, 60 insertions(+), 1 deletion(-)
+> >  create mode 100644 secilc/docs/theme.theme
 > >
 > > diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
-> > index 79a165ba..a91bcde0 100644
+> > index a91bcde0..a03ebeed 100644
 > > --- a/secilc/docs/Makefile
 > > +++ b/secilc/docs/Makefile
-> > @@ -28,6 +28,8 @@ FILE_LIST ?= cil_introduction.md \
+> > @@ -28,7 +28,7 @@ FILE_LIST ?= cil_introduction.md \
 > >
 > >  PANDOC_FILE_LIST = $(addprefix $(TMPDIR)/,$(FILE_LIST))
 > >
-> > +PANDOC_HIGHLIGHT_STYLE="pygments"
-> > +
+> > -PANDOC_HIGHLIGHT_STYLE="pygments"
+> > +PANDOC_HIGHLIGHT_STYLE="theme.theme"
+> >
 > >  PDF_OUT=CIL_Reference_Guide.pdf
 > >  HTML_OUT=CIL_Reference_Guide.html
-> >  PANDOC = pandoc
-> > @@ -54,13 +56,13 @@ $(TMPDIR)/policy.cil: $(TESTDIR)/policy.cil
-> >         $(SED) -i '1i Example Policy\n=========\n```secil' $@
-> >         echo '```' >> $@
-> >
-> > -html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
-> > +html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil secil.xml
-> >         mkdir -p $(HTMLDIR)
-> > -       $(PANDOC) -t html $^ -o $(HTMLDIR)/$(HTML_OUT)
-> > +       $(PANDOC) --highlight-style=$(PANDOC_HIGHLIGHT_STYLE) --syntax-definition=secil.xml --standalone --metadata title="CIL Reference Guide" -t html $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil  -o $(HTMLDIR)/$(HTML_OUT)
-> >
-> > -pdf: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
-> > +pdf: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil secil.xml
-> >         mkdir -p $(PDFDIR)
-> > -       $(PANDOC) --standalone --toc $^ -o $(PDFDIR)/$(PDF_OUT)
-> > +       $(PANDOC) --highlight-style=$(PANDOC_HIGHLIGHT_STYLE) --syntax-definition=secil.xml --standalone --toc $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil -o $(PDFDIR)/$(PDF_OUT)
-> >
-> >  clean:
-> >         rm -rf $(HTMLDIR)
-> > diff --git a/secilc/docs/secil.xml b/secilc/docs/secil.xml
+> > diff --git a/secilc/docs/theme.theme b/secilc/docs/theme.theme
 > > new file mode 100644
-> > index 00000000..daa80ded
+> > index 00000000..5ffa9a65
 > > --- /dev/null
-> > +++ b/secilc/docs/secil.xml
-> > @@ -0,0 +1,236 @@
-> > +<?xml version="1.0" encoding="UTF-8"?>
-> > +<!-- https://docs.kde.org/trunk5/en/applications/katepart/highlight.html#katehighlight-xml-format -->
-> > +<!DOCTYPE language SYSTEM "language.dtd">
-> > +<language name="secil" section="Sources" extensions="*.cil" version="1" kateversion="2.4">
-> > +    <!--
-> > +        The keywords where extracted from libsepol/cil/src/cil.c sorted into the
-> > +        right lists and sorted alphabetically
-> > +    -->
-> > +    <list name="keywords_blockstart">
-> > +        <item>allow</item>
-> > +        <item>allowx</item>
-> > +        <item>auditallow</item>
-> > +        <item>auditallowx</item>
-> > +        <item>block</item>
-> > +        <item>blockabstract</item>
-> > +        <item>boolean</item>
-> > +        <item>booleanif</item>
-> > +        <item>category</item>
-> > +        <item>categoryalias</item>
-> > +        <item>categoryaliasactual</item>
-> > +        <item>categoryorder</item>
-> > +        <item>categoryset</item>
-> > +        <item>class</item>
-> > +        <item>classcommon</item>
-> > +        <item>classmap</item>
-> > +        <item>classmapping</item>
-> > +        <item>classorder</item>
-> > +        <item>classpermission</item>
-> > +        <item>classpermissionset</item>
-> > +        <item>common</item>
-> > +        <item>constrain</item>
-> > +        <item>context</item>
-> > +        <item>defaultrange</item>
-> > +        <item>defaultrole</item>
-> > +        <item>defaulttype</item>
-> > +        <item>defaultuser</item>
-> > +        <item>devicetreecon</item>
-> > +        <item>dontaudit</item>
-> > +        <item>dontauditx</item>
-> > +        <item>expandtypeattribute</item>
-> > +        <item>false</item>
-> > +        <item>filecon</item>
-> > +        <item>fsuse</item>
-> > +        <item>genfscon</item>
-> > +        <item>handleunknown</item>
-> > +        <item>ibendportcon</item>
-> > +        <item>ibpkeycon</item>
-> > +        <item>ioctl</item>
-> > +        <item>iomemcon</item>
-> > +        <item>ioportcon</item>
-> > +        <item>ipaddr</item>
-> > +        <item>level</item>
-> > +        <item>levelrange</item>
-> > +        <item>mls</item>
-> > +        <item>mlsconstrain</item>
-> > +        <item>mlsvalidatetrans</item>
-> > +        <item>netifcon</item>
-> > +        <item>neverallow</item>
-> > +        <item>neverallowx</item>
-> > +        <item>nodecon</item>
-> > +        <item>optional</item>
-> > +        <item>pcidevicecon</item>
-> > +        <item>perm</item>
-> > +        <item>permissionx</item>
-> > +        <item>pirqcon</item>
-> > +        <item>policycap</item>
-> > +        <item>portcon</item>
-> > +        <item>rangetransition</item>
-> > +        <item>role</item>
-> > +        <item>roleallow</item>
-> > +        <item>roleattribute</item>
-> > +        <item>roleattributeset</item>
-> > +        <item>rolebounds</item>
-> > +        <item>roletransition</item>
-> > +        <item>roletype</item>
-> > +        <item>selinuxuser</item>
-> > +        <item>selinuxuserdefault</item>
-> > +        <item>sensitivity</item>
-> > +        <item>sensitivityalias</item>
-> > +        <item>sensitivityaliasactual</item>
-> > +        <item>sensitivitycategory</item>
-> > +        <item>sensitivityorder</item>
-> > +        <item>sid</item>
-> > +        <item>sidcontext</item>
-> > +        <item>sidorder</item>
-> > +        <item>true</item>
-> > +        <item>tunable</item>
-> > +        <item>tunableif</item>
-> > +        <item>type</item>
-> > +        <item>typealias</item>
-> > +        <item>typealiasactual</item>
-> > +        <item>typeattribute</item>
-> > +        <item>typeattributeset</item>
-> > +        <item>typebounds</item>
-> > +        <item>typechange</item>
-> > +        <item>typemember</item>
-> > +        <item>typepermissive</item>
-> > +        <item>typetransition</item>
-> > +        <item>unordered</item>
-> > +        <item>user</item>
-> > +        <item>userattribute</item>
-> > +        <item>userattributeset</item>
-> > +        <item>userbounds</item>
-> > +        <item>userlevel</item>
-> > +        <item>userprefix</item>
-> > +        <item>userrange</item>
-> > +        <item>userrole</item>
-> > +        <item>validatetrans</item>
-> > +    </list>
+> > +++ b/secilc/docs/theme.theme
+> > @@ -0,0 +1,59 @@
+> > +{
+> > +    "text-color": null,
+> > +    "background-color": null,
+> > +    "line-number-color": null,
+> > +    "line-number-background-color": null,
+> > +    "text-styles": {
+> > +        "String": {
+> > +            "text-color": "#049b0a",
+> > +            "background-color": null,
+> > +            "bold": false,
+> > +            "italic": false,
+> > +            "underline": false
+> > +        },
+> > +        "SpecialChar": {
+> > +            "text-color": "#049b0a",
+> > +            "background-color": null,
+> > +            "bold": false,
+> > +            "italic": false,
+> > +            "underline": false
+> > +        },
 > > +
-> > +    <list name="function">
-> > +        <item>blockinherit</item>
-> > +        <item>call</item>
-> > +        <item>in</item>
-> > +        <item>macro</item>
-> > +    </list>
+> > +        "Function": {
+> > +            "text-color": "#ff9358",
+> > +            "background-color": null,
+> > +            "bold": true,
+> > +            "italic": false,
+> > +            "underline": false
+> > +        },
 > > +
-> > +    <list name="operators">
-> > +        <item>and</item>
-> > +        <item>dom</item>
-> > +        <item>domby</item>
-> > +        <item>eq</item>
-> > +        <item>incomp</item>
-> > +        <item>neq</item>
-> > +        <item>not</item>
-> > +        <item>or</item>
-> > +        <item>range</item>
-> > +        <item>xor</item>
-> > +    </list>
-> > +
-> > +    <!-- list of "magic" functions or values -->
-> > +    <list name="builtins">
-> > +        <item>*</item>
-> > +        <item>all</item>
-> > +        <item>dccp</item>
-> > +        <item>false</item>
-> > +        <item>h1</item>
-> > +        <item>h2</item>
-> > +        <item>l1</item>
-> > +        <item>l2</item>
-> > +        <item>object_r</item>
-> > +        <item>r1</item>
-> > +        <item>r2</item>
-> > +        <item>r3</item>
-> > +        <item>sctp</item>
-> > +        <item>self</item>
-> > +        <item>t1</item>
-> > +        <item>t2</item>
-> > +        <item>t3</item>
-> > +        <item>tcp</item>
-> > +        <item>true</item>
-> > +        <item>u1</item>
-> > +        <item>u2</item>
-> > +        <item>u3</item>
-> > +        <item>udp</item>
-> > +
-> > +        <!--
-> > +            Excluded because they lead to a lot of false-positives
-> > +        <item>allow</item>
-> > +        <item>any</item>
-> > +        <item>char</item>
-> > +        <item>deny</item>
-> > +        <item>dir</item>
-> > +        <item>file</item>
-> > +        <item>glblub</item>
-> > +        <item>high</item>
-> > +        <item>low-high</item>
-> > +        <item>low</item>
-> > +        <item>pipe</item>
-> > +        <item>reject</item>
-> > +        <item>socket</item>
-> > +        <item>source</item>
-> > +        <item>symlink</item>
-> > +        <item>target</item>
-> > +        <item>task</item>
-> > +        <item>trans</item>
-> > +        <item>xattr</item>
-> > +        -->
-> > +    </list>
-> > +    <highlighting>
-> > +        <contexts>
-> > +            <context name="Normal" attribute="Normal" lineEndContext="#stay">
-> > +                <DetectChar attribute="Brackets" context="BlockStart" char="("/>
-> > +
-> > +                <DetectChar attribute="Comment" context="Comment" char=";"/>
-> > +            </context>
-> > +            <context name="BlockStart" attribute="Normal" lineEndContext="#stay">
-> > +                <keyword attribute="Keyword" context="Block" String="keywords_blockstart"/>
-> > +                <keyword attribute="Function" context="Block" String="function"/>
-> > +                <keyword attribute="Operator" context="Block" String="operators"/>
-> > +
-> > +                <DetectChar attribute="Comment" context="Comment" char=";"/>
-> > +            </context>
-> > +            <context name="Block" attribute="Normal" lineEndContext="#stay">
-> > +                <keyword attribute="Builtin" context="#stay" String="builtins"/>
-> > +
-> > +                <DetectChar attribute="Comment" context="Comment" char=";"/>
-> > +                <DetectChar attribute="String" context="String" char="&quot;"/>
-> > +
-> > +                <DetectChar attribute="Brackets" context="BlockStart" char="("/>
-> > +                <DetectChar attribute="Brackets" context="#pop" char=")"/>
-> > +            </context>
-> > +
-> > +            <!-- single line comment -->
-> > +            <context name="Comment" attribute="Comment" lineEndContext="#pop"></context>
-> > +
-> > +            <!-- string / name -->
-> > +            <context name="String" attribute="String" lineEndContext="#stay">
-> > +                <RegExpr attribute="Char" context="#stay" String="#\\."/>
-> > +
-> > +                <!-- allow escaping " or similiar -->
-> > +                <HlCStringChar attribute="String Char" context="#stay"/>
-> > +
-> > +                <DetectChar attribute="String" context="#pop" char="&quot;"/>
-> > +            </context>
-> > +        </contexts>
-> > +        <itemDatas>
-> > +            <itemData name="Normal" defStyleNum="dsNormal" />
-> > +            <itemData name="Keyword" defStyleNum="dsKeyword"/>
-> > +            <itemData name="Function" defStyleNum="dsFunction"/>
-> > +            <itemData name="Operator" defStyleNum="dsOperator"/>
-> > +            <itemData name="Builtin" defStyleNum="dsBuiltIn"/>
-> > +
-> > +            <itemData name="Comment" defStyleNum="dsComment"/>
-> > +
-> > +            <itemData name="String" defStyleNum="dsString"/>
-> > +            <itemData name="String Char" defStyleNum="dsSpecialChar"/>
-> > +        </itemDatas>
-> > +    </highlighting>
-> > +    <general>
-> > +        <comments>
-> > +            <comment name="singleLine" start=";"/>
-> > +        </comments>
-> > +        <keywords casesensitive="1" weakDeliminator="."/>
-> > +    </general>
-> > +</language>
+> > +        "Operator": {
+> > +            "text-color": "#43a8ed",
+> > +            "background-color": null,
+> > +            "bold": true,
+> > +            "italic": false,
+> > +            "underline": false
+> > +        },
+> > +        "BuiltIn": {
+> > +            "text-color": "#ff6dd3",
+> > +            "background-color": null,
+> > +            "bold": true,
+> > +            "italic": false,
+> > +            "underline": false
+> > +        },
+> > +        "Comment": {
+> > +            "text-color": "#bc7a00",
+> > +            "background-color": null,
+> > +            "bold": false,
+> > +            "italic": true,
+> > +            "underline": false
+> > +        },
+> > +        "Keyword": {
+> > +            "text-color": "#28648e",
+> > +            "background-color": null,
+> > +            "bold": true,
+> > +            "italic": false,
+> > +            "underline": false
+> > +        }
+> > +    }
+> > +}
 > > --
 > > 2.30.0
 > >
