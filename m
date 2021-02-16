@@ -2,150 +2,169 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A026CC43381
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:34:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEACDC433DB
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:58:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7098564EB6
-	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:34:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A48164E04
+	for <selinux@archiver.kernel.org>; Tue, 16 Feb 2021 20:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229830AbhBPUds (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Feb 2021 15:33:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229639AbhBPUdo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 15:33:44 -0500
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49170C061574;
-        Tue, 16 Feb 2021 12:33:04 -0800 (PST)
-Received: by mail-yb1-xb2d.google.com with SMTP id k4so11702481ybp.6;
-        Tue, 16 Feb 2021 12:33:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HA9QSj7wELOZ8H9SPS6eF8YoQdQ/Co16H+hfPWgYYHA=;
-        b=kfO2wiLPPT0I075ZfZkBaNACrvHTgJW+6BRlQYiUESKASVQzhQ+c+706HUpeDEl8PQ
-         z2SIVS6nXkCaTuZ1+jPd/p0G0rT2Bnc6MiksGTibA8TJNo3yyBjBbtdAUH7TwQ8cQEhZ
-         btmEXmUN1MBlhKZW6NOVLMVoDw5z8HeKKEKsS2Uzn3bEao5ByJ567HnRB+R96eDFOLNB
-         aYJIJDP584gGfBecZNEmdH1qEsn65bU1A/gNBR5CxDhEmNi/AiIfjtd99E00B2ghVegb
-         F6WQru3WLQzuaLwgxnpXxUANL5c7u7eCG/HgGdA/XPEgglnBMSIOKQzY+66qdxyU2Nkb
-         Xi/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HA9QSj7wELOZ8H9SPS6eF8YoQdQ/Co16H+hfPWgYYHA=;
-        b=mdDlQmwCkxlXTKPJ3ISLEKmqp4Q5Upuyh9VVY36n/LCJ4qu+RWBSuvHuKhmlvN94aq
-         T1dEQZPnztIYwSjsnddHmU/yZIk4kQHjPORLpzTfT+kuyswJGBmSx88JhURSXpXm4cLo
-         oojKVqEPZWamfyDc5+TEO7znVaYtpXDTkelk6Y3DmoJmEzC1jgJee6CV+kfvJdrQiRSk
-         x8dX3u+1TDGgFEdHlunbTWYEK/XwIaCAZf1jOVmDiaLQqJM5I2Dmm5T/u5MRzhTiLYq2
-         D+Yz9ow1GdJO5urQSC3mEvi69orqvA+Wob6kvi3BYoI977wq9yW3Fa0aoLGCYAy1DX4P
-         b1PQ==
-X-Gm-Message-State: AOAM531H3fE1fDIgV7894OTA/Xkp+MIMpWrMNVfX4/dM9HTN3on2eytR
-        OVj4kY6FzK6DkQnd2G2yxmyt4FmkTFTqCbwG6Fc=
-X-Google-Smtp-Source: ABdhPJzkl/xVQdW9SvNUFBc3lshpirOTB/lCIkK1c9kIsdtxFWmtg9EbLB+ps+I/o79J6YKcVYiuSXJ4KicfCU0rzoo=
-X-Received: by 2002:a25:d296:: with SMTP id j144mr32685000ybg.33.1613507583595;
- Tue, 16 Feb 2021 12:33:03 -0800 (PST)
+        id S229936AbhBPU6P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Feb 2021 15:58:15 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:55284 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229796AbhBPU6O (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Feb 2021 15:58:14 -0500
+Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id EC256564DE7
+        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 21:57:28 +0100 (CET)
+Received: by mail-oo1-f51.google.com with SMTP id i11so2574794oov.13
+        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 12:57:28 -0800 (PST)
+X-Gm-Message-State: AOAM533HK7AD4s4z65tWw3IAP/EYt2uMw9f2BKmmL63X2Ztc6pnTe+ub
+        RBRBdIfpKkiubvVAABUGrf/Dq11jauO2aHimjZo=
+X-Google-Smtp-Source: ABdhPJxPGmmz0KKBDjD8U0MKr8ldjIkevRGhxcPQU4a7OhlZxM2XsL8q6+QYlo5cPE0hiugw/K1cvHHPt/z7iaY8DrQ=
+X-Received: by 2002:a05:6820:312:: with SMTP id l18mr15651265ooe.46.1613509047884;
+ Tue, 16 Feb 2021 12:57:27 -0800 (PST)
 MIME-Version: 1.0
-References: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
-In-Reply-To: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
-From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date:   Tue, 16 Feb 2021 21:32:52 +0100
-Message-ID: <CANiq72=O0RaHVRcKFF_YDDO4xDFdxaGdH94PgvuibK-ZzHvOxA@mail.gmail.com>
-Subject: Re: [PATCH] RTIC: selinux: ARM64: Move selinux_state to a separate page
-To:     Preeti Nagar <pnagar@codeaurora.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, jmorris@namei.org, serge@hallyn.com,
-        Paul Moore <paul@paul-moore.com>,
-        stephen.smalley.work@gmail.com, Eric Paris <eparis@parisplace.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, linux-arch <linux-arch@vger.kernel.org>,
-        casey@schaufler-ca.com, Nick Desaulniers <ndesaulniers@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Miguel Ojeda <ojeda@kernel.org>, psodagud@codeaurora.org,
-        nmardana@codeaurora.org, rkavati@codeaurora.org,
-        vsekhar@codeaurora.org, mreichar@codeaurora.org,
-        Johan Hovold <johan@kernel.org>, Joe Perches <joe@perches.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20210208162342.410262-1-jwcart2@gmail.com>
+In-Reply-To: <20210208162342.410262-1-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 16 Feb 2021 21:57:17 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mWfKv70TL-RuLZo5UUeNUDhiXbzCJrA9uiEu2m-R_prQ@mail.gmail.com>
+Message-ID: <CAJfZ7=mWfKv70TL-RuLZo5UUeNUDhiXbzCJrA9uiEu2m-R_prQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Destroy disabled optional blocks after pass
+ is complete
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb 16 21:57:29 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 16, 2021 at 11:22 AM Preeti Nagar <pnagar@codeaurora.org> wrote:
+On Mon, Feb 8, 2021 at 5:23 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> The changes introduce a new security feature, RunTime Integrity Check
-> (RTIC), designed to protect Linux Kernel at runtime. The motivation
-> behind these changes is:
-> 1. The system protection offered by Security Enhancements(SE) for
-> Android relies on the assumption of kernel integrity. If the kernel
-> itself is compromised (by a perhaps as yet unknown future vulnerability),
-> SE for Android security mechanisms could potentially be disabled and
-> rendered ineffective.
-> 2. Qualcomm Snapdragon devices use Secure Boot, which adds cryptographic
-> checks to each stage of the boot-up process, to assert the authenticity
-> of all secure software images that the device executes.  However, due to
-> various vulnerabilities in SW modules, the integrity of the system can be
-> compromised at any time after device boot-up, leading to un-authorized
-> SW executing.
+> Nicolas Iooss reports:
+>   I am continuing to investigate OSS-Fuzz crashes and the following one
+>   is quite complex. Here is a CIL policy which triggers a
+>   heap-use-after-free error in the CIL compiler:
 >
-> The feature's idea is to move some sensitive kernel structures to a
-> separate page and monitor further any unauthorized changes to these,
-> from higher Exception Levels using stage 2 MMU. Moving these to a
-> different page will help avoid getting page faults from un-related data.
-> The mechanism we have been working on removes the write permissions for
-> HLOS in the stage 2 page tables for the regions to be monitored, such
-> that any modification attempts to these will lead to faults being
-> generated and handled by handlers. If the protected assets are moved to
-> a separate page, faults will be generated corresponding to change attempts
-> to these assets only. If not moved to a separate page, write attempts to
-> un-related data present on the monitored pages will also be generated.
+>   (class CLASS (PERM2))
+>   (classorder (CLASS))
+>   (classpermission CLSPRM)
+>   (optional o
+>       (mlsvalidatetrans x (domby l1 h1))
+>       (common CLSCOMMON (PERM1))
+>       (classcommon CLASS CLSCOMMON)
+>   )
+>   (classpermissionset CLSPRM (CLASS (PERM1)))
 >
-> Using this feature, some sensitive variables of the kernel which are
-> initialized after init or are updated rarely can also be protected from
-> simple overwrites and attacks trying to modify these.
+>   The issue is that the mlsvalidatetrans fails to resolve in pass
+>   CIL_PASS_MISC3, which comes after the resolution of classcommon (in
+>   pass CIL_PASS_MISC2). So:
 >
-> Currently, the change moves selinux_state structure to a separate page.
-> The page is 2MB aligned not 4K to avoid TLB related performance impact as,
-> for some CPU core designs, the TLB does not cache 4K stage 2 (IPA to PA)
-> mappings if the IPA comes from a stage 1 mapping. In future, we plan to
-> move more security-related kernel assets to this page to enhance
-> protection.
+>   * In pass CIL_PASS_MISC2, the optional block still exists, the
+>   classcommon is resolved and class CLASS is linked with common
+>   CLSCOMMON.
+>   * In pass CIL_PASS_MISC3, the optional block is destroyed, including
+>   the common CLSCOMMON.
+>   * When classpermissionset is resolved, function cil_resolve_classperms
+>   uses "common_symtab = &class->common->perms;", which has been freed.
+>   The use-after-free issue occurs in __cil_resolve_perms (in
+>   libsepol/cil/src/cil_resolve_ast.c):
+>
+>     // common_symtab was freed
+>     rc = cil_symtab_get_datum(common_symtab, curr->data, &perm_datum);
+>
+> The fundamental problem here is that when the optional block is
+> disabled it is immediately destroyed in the middle of the pass, so
+> the class has not been reset and still refers to the now destroyed
+> common when the classpermissionset is resolved later in the same pass.
+>
+> Added a list, disabled_optionals, to struct cil_args_resolve which is
+> passed when resolving the tree. When optionals are disabled, they are
+> now added to this list and then are destroyed after the tree has been
+> reset between passes.
+>
+> Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Part of this commit message should likely be added as a new file under
-Documentation/ somewhere.
+I confirm the patch fixes the issue.
 
-> diff --git a/security/Kconfig b/security/Kconfig
-> index 7561f6f..1af913a 100644
-> --- a/security/Kconfig
-> +++ b/security/Kconfig
-> @@ -291,5 +291,16 @@ config LSM
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Thanks!
+Nicolas
+
+> ---
+>  libsepol/cil/src/cil_resolve_ast.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 >
->  source "security/Kconfig.hardening"
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> index 0c85eabe..49a5d139 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -51,6 +51,7 @@ struct cil_args_resolve {
+>         struct cil_db *db;
+>         enum cil_pass pass;
+>         uint32_t *changed;
+> +       struct cil_list *disabled_optionals;
+>         struct cil_tree_node *optstack;
+>         struct cil_tree_node *boolif;
+>         struct cil_tree_node *macro;
+> @@ -3863,7 +3864,7 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
 >
-> +config SECURITY_RTIC
-> +       bool "RunTime Integrity Check feature"
-> +       depends on ARM64
-> +       help
-> +         RTIC(RunTime Integrity Check) feature is to protect Linux kernel
-> +         at runtime. This relocates some of the security sensitive kernel
-> +         structures to a separate RTIC specific page.
-> +
-> +         This is to enable monitoring and protection of these kernel assets
-> +         from a higher exception level(EL) against any unauthorized changes.
+>                 if (((struct cil_optional *)parent->data)->enabled == CIL_FALSE) {
+>                         *(args->changed) = CIL_TRUE;
+> -                       cil_tree_children_destroy(parent);
+> +                       cil_list_append(args->disabled_optionals, CIL_NODE, parent);
+>                 }
+>
+>                 /* pop off the stack */
+> @@ -3926,6 +3927,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+>         extra_args.in_list = NULL;
+>         extra_args.blockstack = NULL;
+>
+> +       cil_list_init(&extra_args.disabled_optionals, CIL_NODE);
+>         cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
+>         cil_list_init(&extra_args.classorder_lists, CIL_LIST_ITEM);
+>         cil_list_init(&extra_args.unordered_classorder_lists, CIL_LIST_ITEM);
+> @@ -3993,6 +3995,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+>                 }
+>
+>                 if (changed && (pass > CIL_PASS_CALL1)) {
+> +                       struct cil_list_item *item;
+>                         /* Need to re-resolve because an optional was disabled that contained
+>                          * one or more declarations. We only need to reset to the call1 pass
+>                          * because things done in the preceding passes aren't allowed in
+> @@ -4021,6 +4024,11 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+>                                 cil_log(CIL_ERR, "Failed to reset declarations\n");
+>                                 goto exit;
+>                         }
+> +                       cil_list_for_each(item, extra_args.disabled_optionals) {
+> +                               cil_tree_children_destroy(item->data);
+> +                       }
+> +                       cil_list_destroy(&extra_args.disabled_optionals, CIL_FALSE);
+> +                       cil_list_init(&extra_args.disabled_optionals, CIL_NODE);
+>                 }
+>
+>                 /* reset the arguments */
+> @@ -4049,6 +4057,7 @@ exit:
+>         __cil_ordered_lists_destroy(&extra_args.catorder_lists);
+>         __cil_ordered_lists_destroy(&extra_args.sensitivityorder_lists);
+>         __cil_ordered_lists_destroy(&extra_args.unordered_classorder_lists);
+> +       cil_list_destroy(&extra_args.disabled_optionals, CIL_FALSE);
+>         cil_list_destroy(&extra_args.in_list, CIL_FALSE);
+>
+>         return rc;
+> --
+> 2.26.2
+>
 
-Rewording suggestion:
-
-         The RTIC (RunTime Integrity Check) feature protects the kernel
-         at runtime by relocating some of its security-sensitive structures
-         to a separate RTIC-specific page. This enables monitoring and
-         and protecting them from a higher exception level against
-         unauthorized changes.
-
-Cheers,
-Miguel
