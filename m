@@ -2,68 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0481AC433DB
-	for <selinux@archiver.kernel.org>; Wed, 17 Feb 2021 07:40:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3440C433E6
+	for <selinux@archiver.kernel.org>; Wed, 17 Feb 2021 09:43:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB02164D79
-	for <selinux@archiver.kernel.org>; Wed, 17 Feb 2021 07:40:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E47F64E45
+	for <selinux@archiver.kernel.org>; Wed, 17 Feb 2021 09:43:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbhBQHjp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Feb 2021 02:39:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbhBQHjE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Feb 2021 02:39:04 -0500
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C3FF1C06174A
-        for <selinux@vger.kernel.org>; Tue, 16 Feb 2021 23:38:23 -0800 (PST)
-Received: from brutus.. (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 8B56D2A0CF2;
-        Wed, 17 Feb 2021 08:38:21 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 8B56D2A0CF2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1613547501;
-        bh=sAyu7NCbhT1YUHZC+jFQ+5/QixkU5ma5R86Zn1d7VpA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=KRp2jeTZ76sBPPpkdFsfbLAIz+KyqNbfYR+6QulRKkprAMQWAaSKhCBl2lHAvAr6Z
-         A9v5kmtenDOsrPn5n/et+MTlPX+xAokqVG+6wW3mgUdtJfP/kMgadZsALX8NbI5GfZ
-         Tq9fOloakg/jhJiaA+nY9uXSKM6JCH3/sq/zambQ=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [PATCH] secilc: fixes cil_role_statements.md example
-Date:   Wed, 17 Feb 2021 08:37:28 +0100
-Message-Id: <20210217073728.1137112-1-dominick.grift@defensec.nl>
-X-Mailer: git-send-email 2.30.1
+        id S231708AbhBQJmz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Feb 2021 04:42:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231699AbhBQJmz (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 17 Feb 2021 04:42:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D352D64E33;
+        Wed, 17 Feb 2021 09:42:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613554934;
+        bh=VhEXCOKjvsWaqJ+vpm1ijhGk5+VfFUrzvF1popO2QFM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Id5+KHYoDWuGYdQo1dE1OpLx2YfU4ZZIv7fwOocAdnWBNvv+9EEXvMIvCwQlHErze
+         RPaDingzEgyhCyhwogev0wJA8ZLUnxNsOVqiEwhvWvK/62+gGBkJZxNhK8j1jVRxdZ
+         r11RDZks7Npi0HvWJpc6W0k3sfvfckOSwUePsZdjnMhwOFSDQ0QRWD40EpyX1wKszm
+         l+3u2zPys0bfqNEPUsgIsZXSR8TykKLd+eZP+7uAIpkvsqM42gyfZHlCS6M76ccFb3
+         FjBMekm+rcjtuezgFaWQCZtCW8Ju1GnKHkBLZG8TpdTZ0F3+zk26tE88g+O67yDiKk
+         y//9GW5zJRZvg==
+Date:   Wed, 17 Feb 2021 09:42:06 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Preeti Nagar <pnagar@codeaurora.org>, maz@kernel.org,
+        ardb@kernel.org
+Cc:     arnd@arndb.de, jmorris@namei.org, serge@hallyn.com,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        casey@schaufler-ca.com, ndesaulniers@google.com,
+        dhowells@redhat.com, ojeda@kernel.org, psodagud@codeaurora.org,
+        nmardana@codeaurora.org, rkavati@codeaurora.org,
+        vsekhar@codeaurora.org, mreichar@codeaurora.org, johan@kernel.org,
+        joe@perches.com, jeyu@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTIC: selinux: ARM64: Move selinux_state to a separate
+ page
+Message-ID: <20210217094205.GA3570@willie-the-truck>
+References: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
----
- secilc/docs/cil_role_statements.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[Please include arm64 and kvm folks for threads involving the stage-2 MMU]
 
-diff --git a/secilc/docs/cil_role_statements.md b/secilc/docs/cil_role_statements.md
-index ee6a5868..2e1b4047 100644
---- a/secilc/docs/cil_role_statements.md
-+++ b/secilc/docs/cil_role_statements.md
-@@ -339,7 +339,7 @@ In this example the role `test` cannot have greater privileges than `unconfined.
- ```secil
-     (role test)
- 
--    (unconfined
-+    (block unconfined
-         (role role)
-         (rolebounds role .test)
-     )
--- 
-2.30.1
+On Tue, Feb 16, 2021 at 03:47:52PM +0530, Preeti Nagar wrote:
+> The changes introduce a new security feature, RunTime Integrity Check
+> (RTIC), designed to protect Linux Kernel at runtime. The motivation
+> behind these changes is:
+> 1. The system protection offered by Security Enhancements(SE) for
+> Android relies on the assumption of kernel integrity. If the kernel
+> itself is compromised (by a perhaps as yet unknown future vulnerability),
+> SE for Android security mechanisms could potentially be disabled and
+> rendered ineffective.
+> 2. Qualcomm Snapdragon devices use Secure Boot, which adds cryptographic
+> checks to each stage of the boot-up process, to assert the authenticity
+> of all secure software images that the device executes.  However, due to
+> various vulnerabilities in SW modules, the integrity of the system can be
+> compromised at any time after device boot-up, leading to un-authorized
+> SW executing.
+> 
+> The feature's idea is to move some sensitive kernel structures to a
+> separate page and monitor further any unauthorized changes to these,
+> from higher Exception Levels using stage 2 MMU. Moving these to a
+> different page will help avoid getting page faults from un-related data.
+> The mechanism we have been working on removes the write permissions for
+> HLOS in the stage 2 page tables for the regions to be monitored, such
+> that any modification attempts to these will lead to faults being
+> generated and handled by handlers. If the protected assets are moved to
+> a separate page, faults will be generated corresponding to change attempts
+> to these assets only. If not moved to a separate page, write attempts to
+> un-related data present on the monitored pages will also be generated.
+> 
+> Using this feature, some sensitive variables of the kernel which are
+> initialized after init or are updated rarely can also be protected from
+> simple overwrites and attacks trying to modify these.
 
+Although I really like the idea of using stage-2 to protect the kernel, I
+think the approach you outline here is deeply flawed. Identifying "sensitive
+variables" of the kernel to protect is subjective and doesn't scale.
+Furthermore, the triaging of what constitues a valid access is notably
+absent from your description and is assumedly implemented in an opaque blob
+at EL2.
+
+I think a better approach would be along the lines of:
+
+  1. Introduce the protection at stage-1 (like we already have for mapping
+     e.g. the kernel text R/O)
+
+  2. Implement the handlers in the kernel, so the heuristics are clear.
+
+  3. Extend this to involve KVM, so that the host can manage its own
+     stage-2 to firm-up the stage-1 protections.
+
+I also think we should avoid tying this to specific data structures.
+Rather, we should introduce a mechanism to make arbitrary data read-only.
+
+I've CC'd Ard and Marc, as I think they've both been thinking about this
+sort of thing recently as well.
+
+Will
