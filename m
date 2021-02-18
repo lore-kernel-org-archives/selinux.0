@@ -2,225 +2,152 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50048C433DB
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 07:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AE40C433DB
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 14:00:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EDA7964DE9
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 07:59:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD28C64EAD
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 14:00:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231264AbhBRH6d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Feb 2021 02:58:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46616 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230321AbhBRH4R (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 02:56:17 -0500
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20656C061574;
-        Wed, 17 Feb 2021 23:55:37 -0800 (PST)
-Received: by mail-wm1-x32f.google.com with SMTP id m1so2109288wml.2;
-        Wed, 17 Feb 2021 23:55:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=cc:subject:to:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=8VuOr5IRYyD3SOn+5chtalvwQdWPMiTxF9JpEV7axuU=;
-        b=DiTZz/4gmJZPeTC5pv54B/6ep6c4fIy5ngNCoDUIRkkmLho2VvinhJ1mkzcRljbaKw
-         4CJD0yTXHFFSnmhiyBYE4ydfNjhRNJHQ7mYNnqhSS4DeCt4/9PaUd6u48IsL5Qz6nf6p
-         oMrgW9xB+Beq4LiN/xmy0zmV9bThfFonj9oyYnhz1l3I6zmyitlpj6ICdRhN45uMJceG
-         ZvyAVZh9LRLDdbBcH3Bxtk0I3pVm76joUGkkd+A/fglhVxxMtSX5FgisfOVSdQEfXn3Z
-         KOySjv69SsVPdtmtkvy1STkomL3q3xgkqmu9JXTlujoSfZLAH7l9BUcwEH7mjpWdIHVS
-         LN5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:cc:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=8VuOr5IRYyD3SOn+5chtalvwQdWPMiTxF9JpEV7axuU=;
-        b=UarYHgzkbK38jENeWSluZ3kIAxrrobOl+LDH24zCUg3bVhAqrUnFIduMI0AExeik2j
-         46b8X0nXkC+RBFpbGIlf0YJaI1yu9EcJzVWpLlSo1S0qzTeDWmqk7T9ljgCJSmnGjPMe
-         CzoIVVoB8rkbqx0oi4IOgHbA62VIhIDDq/RKNjOtb1LucO1Q3OaNPuK3+wiUdSwZ3jd4
-         R0+HIzsQnZgXdW2rXwcuMJQJ1OWn9ytHSvjgbHU8H2dPMIc1cV5bmlElAoVzoSP2ZE1V
-         PEoQxOy9HT9wolB2g4eX2rgQLvHGFm6XBboCEE3n7gzNMfCZP0Yl4M8EyCGIROPAID9y
-         OrDA==
-X-Gm-Message-State: AOAM533VdgLyAZINtcNTJJcIougqIGnWf/Gbiesh9zOxObpsqZKgHJt6
-        /Xa0XC+Z6Unt6dDDYXK1epY=
-X-Google-Smtp-Source: ABdhPJzB2TIsvhv0bBBak6Op7cXkJ1RH2wz0nb5/aO3RSIANbztDN+kcjVRGxzqpkXPSK0o0IJh9YA==
-X-Received: by 2002:a7b:c2a9:: with SMTP id c9mr2443813wmk.116.1613634935639;
-        Wed, 17 Feb 2021 23:55:35 -0800 (PST)
-Received: from ?IPv6:2001:a61:3a2d:1d01:99ab:4f20:ed7f:402b? ([2001:a61:3a2d:1d01:99ab:4f20:ed7f:402b])
-        by smtp.gmail.com with ESMTPSA id t9sm7401393wrw.76.2021.02.17.23.55.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Feb 2021 23:55:35 -0800 (PST)
-Cc:     mtk.manpages@gmail.com, linux-man <linux-man@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=c3=ada?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>
-Subject: Re: [PATCH v3 1/1] process_madvise.2: Add process_madvise man page
-To:     Suren Baghdasaryan <surenb@google.com>
-References: <20210202053046.1653012-1-surenb@google.com>
- <079db245-a08c-0dbd-01d4-8065f533652e@gmail.com>
- <CAJuCfpGotx_04Stn5Nw6Au+TVG9LuAJ=CB_s7uxjMLOLerw-GA@mail.gmail.com>
- <2d303517-cdcd-9ec8-e57d-3d065edb573c@gmail.com>
- <CAJuCfpFC0B=jXFEuPYYBZAjgx1B6S8vG-i7_0iBc_RHeWynyzw@mail.gmail.com>
-From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Message-ID: <7fb20d93-92d0-14b3-f7f9-8b9af4ebb584@gmail.com>
-Date:   Thu, 18 Feb 2021 08:55:31 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        id S229912AbhBRN7p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Feb 2021 08:59:45 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31016 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232048AbhBRLkb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 06:40:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613648341;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=a8/f1KzD2KLpwCYV4QD0cj33joMCIH88vsXo7b+nZQE=;
+        b=hdJ+ZeADp2r5XwkEA1tzZdYkw+vh0zBJqtuYXW3y00njZXHc/CFLA7HbAJCFr8Ixe4S/Ol
+        ajKFuAEEOBxQXnHv9HcW0UWO6RG6NIrngNvQZRExx8w1XQuWiMfgTfex9hxRnqiz0fl1GW
+        G9SbRvTraM7SPi+I1mBM4hyLb+Psxho=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-395-QLevsGNzNVm16jWNb_aEmQ-1; Thu, 18 Feb 2021 06:27:00 -0500
+X-MC-Unique: QLevsGNzNVm16jWNb_aEmQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F03FB801996;
+        Thu, 18 Feb 2021 11:26:58 +0000 (UTC)
+Received: from localhost (unknown [10.40.194.27])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8A3551007617;
+        Thu, 18 Feb 2021 11:26:57 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+Subject: Re: [PATCH] libselinux: rename gettid() to something which never
+ conflicts with the libc
+In-Reply-To: <20210216211328.3609-1-nicolas.iooss@m4x.org>
+References: <20210216211328.3609-1-nicolas.iooss@m4x.org>
+Date:   Thu, 18 Feb 2021 12:26:57 +0100
+Message-ID: <87pn0xfwfy.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAJuCfpFC0B=jXFEuPYYBZAjgx1B6S8vG-i7_0iBc_RHeWynyzw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello Suren,
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
->> Thanks. I added a few words to clarify this.>
-> Any link where I can see the final version?
+> Musl recently added a wrapper for gettid() syscall. There is no way to
+> detect this new version in a reliable way, so rename our gettid()
+> wrapper to a non-conflicting name.
+>
+> Introduce a new function which, when using a libc known to provide a
+> wrapper for gettid(), calls it, and which, otherwise, performs the
+> syscall directly.
+>
+> Anyway this function is only used on systems where /proc/thread-self
+> does not exist, which are therefore running Linux<3.17.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/282
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Sure:
-https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/process_madvise.2
+Tested on Fedora with musl-1.2.22 scratch build
+https://koji.fedoraproject.org/koji/taskinfo?taskID=3D62214131 :
 
-Also rendered below.
-
-Thanks,
-
-Michael
-
-NAME
-       process_madvise - give advice about use of memory to a process
-
-SYNOPSIS
-       #include <sys/uio.h>
-
-       ssize_t process_madvise(int pidfd, const struct iovec *iovec,
-                               size_t vlen, int advice,
-                               unsigned int flags);
-
-       Note: There is no glibc wrapper for this system call; see NOTES.
-
-DESCRIPTION
-       The process_madvise() system call is used to give advice or direc‐
-       tions to the kernel about the address ranges of another process or
-       of  the  calling  process.  It provides the advice for the address
-       ranges described by iovec and vlen.  The goal of such advice is to
-       improve system or application performance.
-
-       The  pidfd  argument  is a PID file descriptor (see pidfd_open(2))
-       that specifies the process to which the advice is to be applied.
-
-       The pointer iovec points to an array of iovec structures,  defined
-       in <sys/uio.h> as:
-
-           struct iovec {
-               void  *iov_base;    /* Starting address */
-               size_t iov_len;     /* Length of region */
-           };
-
-       The iovec structure describes address ranges beginning at iov_base
-       address and with the size of iov_len bytes.
-
-       The vlen specifies the number of elements in the iovec  structure.
-       This value must be less than or equal to IOV_MAX (defined in <lim‐
-       its.h> or accessible via the call sysconf(_SC_IOV_MAX)).
-
-       The advice argument is one of the following values:
-
-       MADV_COLD
-              See madvise(2).
-
-       MADV_PAGEOUT
-              See madvise(2).
-
-       The flags argument is reserved for future use; currently, this ar‐
-       gument must be specified as 0.
-
-       The  vlen  and iovec arguments are checked before applying any ad‐
-       vice.  If vlen is too big, or iovec is invalid, then an error will
-       be returned immediately and no advice will be applied.
-
-       The  advice might be applied to only a part of iovec if one of its
-       elements points to an invalid memory region in the remote process.
-       No further elements will be processed beyond that point.  (See the
-       discussion regarding partial advice in RETURN VALUE.)
-
-       Permission to apply advice to another process  is  governed  by  a
-       ptrace   access   mode   PTRACE_MODE_READ_REALCREDS   check   (see
-       ptrace(2)); in addition, because of the  performance  implications
-       of applying the advice, the caller must have the CAP_SYS_ADMIN ca‐
-       pability.
-
-RETURN VALUE
-       On success, process_madvise() returns the number of bytes advised.
-       This  return  value may be less than the total number of requested
-       bytes, if an error occurred after some iovec elements were already
-       processed.   The caller should check the return value to determine
-       whether a partial advice occurred.
-
-       On error, -1 is returned and errno is set to indicate the error.
-
-ERRORS
-       EBADF  pidfd is not a valid PID file descriptor.
-
-       EFAULT The memory described by iovec is outside the accessible ad‐
-              dress space of the process referred to by pidfd.
-
-       EINVAL flags is not 0.
-
-       EINVAL The  sum of the iov_len values of iovec overflows a ssize_t
-              value.
-
-       EINVAL vlen is too large.
-
-       ENOMEM Could not allocate memory for internal copies of the  iovec
-              structures.
-
-       EPERM  The  caller  does not have permission to access the address
-              space of the process pidfd.
-
-       ESRCH  The target process does not exist (i.e., it has  terminated
-              and been waited on).
-
-VERSIONS
-       This  system  call first appeared in Linux 5.10.  Support for this
-       system call is optional, depending on  the  setting  of  the  CON‐
-       FIG_ADVISE_SYSCALLS configuration option.
-
-CONFORMING TO
-       The process_madvise() system call is Linux-specific.
-
-NOTES
-       Glibc does not provide a wrapper for this system call; call it us‐
-       ing syscall(2).
-
-SEE ALSO
-       madvise(2),          pidfd_open(2),           process_vm_readv(2),
-       process_vm_write(2)
+Before
+^&^ musl-gcc -D_GNU_SOURCE -I../include procattr.c -c
+procattr.c:38:14: error: static declaration of =E2=80=98gettid=E2=80=99 fol=
+lows non-static declaration
+   38 | static pid_t gettid(void)
+      |              ^~~~~~
+In file included from procattr.c:2:
+/usr/x86_64-linux-musl/include/unistd.h:194:7: note: previous declaration o=
+f =E2=80=98gettid=E2=80=99 with type =E2=80=98pid_t(void)=E2=80=99 {aka =E2=
+=80=98int(void)=E2=80=99}
+  194 | pid_t gettid(void);
+      |       ^~~~~~
 
 
--- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+After
+^&^ musl-gcc -D_GNU_SOURCE -I../include procattr.c -c
+
+
+Seems to work. Thanks!
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+
+
+> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> index 1aa67ac53f39..840570525f5f 100644
+> --- a/libselinux/src/procattr.c
+> +++ b/libselinux/src/procattr.c
+> @@ -25,21 +25,23 @@ static __thread char destructor_initialized;
+>  /* Bionic and glibc >=3D 2.30 declare gettid() system call wrapper in un=
+istd.h and
+>   * has a definition for it */
+>  #ifdef __BIONIC__
+> -  #define OVERRIDE_GETTID 0
+> +  #define HAVE_GETTID 1
+>  #elif !defined(__GLIBC_PREREQ)
+> -  #define OVERRIDE_GETTID 1
+> +  #define HAVE_GETTID 0
+>  #elif !__GLIBC_PREREQ(2,30)
+> -  #define OVERRIDE_GETTID 1
+> +  #define HAVE_GETTID 0
+>  #else
+> -  #define OVERRIDE_GETTID 0
+> +  #define HAVE_GETTID 1
+>  #endif
+>=20=20
+> -#if OVERRIDE_GETTID
+> -static pid_t gettid(void)
+> +static pid_t selinux_gettid(void)
+>  {
+> +#if HAVE_GETTID
+> +	return gettid();
+> +#else
+>  	return syscall(__NR_gettid);
+> -}
+>  #endif
+> +}
+>=20=20
+>  static void procattr_thread_destructor(void __attribute__((unused)) *unu=
+sed)
+>  {
+> @@ -94,7 +96,7 @@ static int openattr(pid_t pid, const char *attr, int fl=
+ags)
+>  		if (fd >=3D 0 || errno !=3D ENOENT)
+>  			goto out;
+>  		free(path);
+> -		tid =3D gettid();
+> +		tid =3D selinux_gettid();
+>  		rc =3D asprintf(&path, "/proc/self/task/%d/attr/%s", tid, attr);
+>  	} else {
+>  		errno =3D EINVAL;
+> --=20
+> 2.30.0
+
