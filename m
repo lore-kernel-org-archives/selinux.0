@@ -2,160 +2,133 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0949DC43381
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 19:55:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FC6DC433E0
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 21:41:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B02E964E0F
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 19:55:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EB7560295
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 21:41:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbhBRTzB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Feb 2021 14:55:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58706 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231964AbhBRTvb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 14:51:31 -0500
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A51C06178C;
-        Thu, 18 Feb 2021 11:50:51 -0800 (PST)
-Received: by mail-il1-x134.google.com with SMTP id e7so2536579ile.7;
-        Thu, 18 Feb 2021 11:50:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=K6aHBRmdypFoZiI71V8Og9gbf+Km/fM8W6HWxpGfeXQ=;
-        b=erQWjgXGJhU52QPR4k1WOcTSGJneg5gJIguR3V794M4+F1i3PtDtfwrMOz0cX+8cDa
-         +Ml0JU67SeB548qFcxNWhWdm5TRkrzaVQvAd93FV1TLPeKrLnwxnHqn0omeIFk4pHE8h
-         xI39NCps/7jI8ntQbZ7aRH2ss1wa/EatdE3Mfs6K3j5A14oaFxhpPMCI6mmLjktU/S5B
-         JOlQHj+qWUuDBKDSb+g2ykqgf2xmGLj+z0Mi6A/FLobs9TgAQ9M4Ii/evvHCeY6eaOJU
-         k3MN2OVccDHzk7sjD7o04tcwyhROIkOiqRrS3YQD+TZs2ivkHAYdTP/NL72WgKMQBUvx
-         +CJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=K6aHBRmdypFoZiI71V8Og9gbf+Km/fM8W6HWxpGfeXQ=;
-        b=IFel2sbj6xUKJjX8oOVp4kX3ZkbRxe6llOYtHwiFnqUGExAsEhKOMRrq5KOFfydLBU
-         Gq2+NiZzCau+z6BSvFM/MLLjr7mrR9AdE2RzALUUWanjzPfJ5HO66UlKR+kVz5Hdyy2+
-         z4S8m6bVvcpH/RobAlOYcTfctJI44TgMxwXiLGH82RNijU/VTQfYoxMPf7/WaCU4rih0
-         0y8OrfmGtIollK7BTpt1m9QVHSY6BUUeSDzg1F/9dP+Lunff3Bisg7CtKh6zFqueskqn
-         epyf+J54qViDa/aS+NHBNvqQLofQQkENL5jfHObk9vPYl65/ck5RbArM5ZU3FoqOXcJY
-         ULMg==
-X-Gm-Message-State: AOAM530HxKy14PiucZixHpUNqYIc88E9q/khGADZnYI7iZfbB6JJfPrq
-        4w5NdfbuCchaqEk7Dl7hJ6E=
-X-Google-Smtp-Source: ABdhPJx8Yktb8qTCYOqHqVe4/Y4TPdE7SSLzGYbtNvnGF9Dmbi+91OYO9XOoRLr7pWgcV79nZt03Gg==
-X-Received: by 2002:a05:6e02:20ca:: with SMTP id 10mr753047ilq.14.1613677851212;
-        Thu, 18 Feb 2021 11:50:51 -0800 (PST)
-Received: from Olgas-MBP-470.attlocal.net (172-10-226-31.lightspeed.livnmi.sbcglobal.net. [172.10.226.31])
-        by smtp.gmail.com with ESMTPSA id l7sm5264557ils.48.2021.02.18.11.50.50
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Thu, 18 Feb 2021 11:50:50 -0800 (PST)
-From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
-To:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com
-Cc:     linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: [PATCH v2 2/2] NFSv4 account for selinux security context when deciding to share superblock
-Date:   Thu, 18 Feb 2021 14:50:46 -0500
-Message-Id: <20210218195046.19280-2-olga.kornievskaia@gmail.com>
-X-Mailer: git-send-email 2.10.1 (Apple Git-78)
-In-Reply-To: <20210218195046.19280-1-olga.kornievskaia@gmail.com>
-References: <20210218195046.19280-1-olga.kornievskaia@gmail.com>
+        id S229539AbhBRVle (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Feb 2021 16:41:34 -0500
+Received: from sonic312-30.consmr.mail.ne1.yahoo.com ([66.163.191.211]:44177
+        "EHLO sonic312-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229620AbhBRVld (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 16:41:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613684447; bh=AKYk+JG9fYomDAHU1FgO6AOrzzXOLoeNBAhQqhK5GkU=; h=Subject:To:References:From:Cc:Date:In-Reply-To:From:Subject:Reply-To; b=qvBpDj/BPHXzrJHekB+FafK+vgoyxesrpA/H/PQ4EaoggBZW3g7wENd6CqTXvPZHqZsZwBiK6GyxLO4F1QW+UDjeDmhWgaJRefsRgnzAM39dbPqTb+kkPAo9+zhiXfdRkqzKsxzcnTB3bn3CEZ33QM6vePpuFrKMZzoFTc1HoOYNYBoH/qj2of/Z7y0byWGwRcy4XrTBK6VVqFLG38f4QSMo+EVVEXXfElffloUYo7/80crGYy2WjxZ4cT/T/lTf3qZJmkMg06B4ZcLMJpHoq+yUcRoOiz663GqK2kYnpk2qW1mVDpAgEFQRuoswrPfJEnX6xWqrZtDXbyjUfZowUw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613684447; bh=yyG0q+1vFn+1KKQDF32jwmZBu7BTIZmCpdqy94kBzDL=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=NvlbvFg7S7n9K0VajQZk/u6UxSjnG2UvkCIW+bFFavKk3nwvLI3cox+QM6EuytasOxQbtMpgOzuWfZn79iWAfsBnBolb1nWKLkzmPMSjTwJ9xHIvBMIDTid8r4tZJRJyxxAlzN6GoN2rI0oJES12niY2xrpOPi4ImODi6dK+h8PTgRmWoYz/ci1dLN6NOXCbQaH4/j0gvBpjUuV23/3dOVasFAo9fwmBB2aT0THrloyDW3iXazBBciDZI55sXj+ts4g82DqtXr5kj1iSPHrylqVFm408Jy6vEm5Hh/J/xuzXLkSTDe4hiyEqcZoTmQb4JwWXIMOfQOxbBwuJ7OJe2A==
+X-YMail-OSG: czdh9G4VM1ncE.bHjFYRO5sK6GJgR8A4ytk9r1HxDWr8kFAHXQrxfskXHYh5m_d
+ IIo2v7nLNDVhdHx.CJ9nsHefy7BYz8FK6Xqyueq1PTEZQK1C3ENpq7Xp1d4cQqhb7782g8CZgoYr
+ US7QT1cbuen8P_C_sogTsLD_Hp1W21qt533gDeGBuPyrcCCsDUdEXgSsrei.Bj8CVibA8Z8ygDW6
+ JswK.999zxknUL5vUt_bA3nt5nQKgT8KfGs7xYfLZHaZTp6Nijn38NQ6G4X5Fs.Pgc_N.sNknX4Q
+ D8Q2wslK4BiQrE1tRUriV5QvKL3j5tYiqIVwE9C0_9piigkuBA3feftwSPWq6aFAMiwJZRotGxBT
+ DkXkHEOQ6Qol67HXkUHlwCiDuwpCX6S68BPWjyiKTVTvQofoUAH9QzANLvxpu7bbdByt4Qsxifqk
+ RNHqEzvRopJWX.4ocstyZthfRkmOuuVxafAKydThzs.3WBLp.J9tFJdYfQAgwTRc0EzaDgI3UYMB
+ QUZrvFZHGFKlNybWJ14CqZgyDG9QRRZnkcndIc79E98l88BGHeMeqmwrVd4djEgdItiTt1QsPrX8
+ f9xbC_Qmf61lmioFuiVu_kX20jbO4QsV6qVW6zkX7SQOklNe35euokppNHq9OOXBU8JyOUOBlNXZ
+ MsLOIot99a7Qlb7VrOVsD41BpMf6uKSCMWxEfxqYM4.Kjj2Nj3aw7.ZLZFafIsTwpQXvH9IXsRdQ
+ 7tOOcrJbzuRPatmFvMk1cvqO6VsbKueSU_VO_XaTkwDgTPuB8E4xULY8Kd3kzOLgM8yndywxiLzZ
+ ByeFVJQch2.wgC1QwgZ1X6RLx91Y0ci3HTrrQ6LjMY.u_.Q__nV4GcgOjAp7WQbSCdLP_orELsTG
+ smWyx4ely5b_2awyZo7eEL2TJUe2J9aNhAaoOvFlEZd14pP3JQVOxp54WFLJC0P4096tEU58my73
+ aHE.DBvxqniIB5WdN3rmRkszaezloeKTWXSJJIZimsI5PZuwAQ1ZTelEzJRqmgiPtIP4pGhZ2GVD
+ 6g_G5x5_FCOsaM0UbLowB1DYboPgdktJ91gUnqZAJIKM6LQotUBwnHXUyN4rkaRHKH0Ht1ThyzXl
+ c2T5ah3smRkHk0rAG4TvJ5zc2.w.x001zeNWEYAVFR3JiHQVZo_q1wjYtLAtGbz.JwJZc4ao4wGY
+ dTbmEl76rtPEgqY6p.cQFt.VqKYOTN.w2evZoP1jzGPAQmundC3l4uRyAS5O_0JJAn.sVtdQuHUk
+ 5rlo21QcxGp8j_UbHqel1G4pEf_6NAWE_l4PC6t5DiH4SLLOZ4l_uEV3aPjyXa3E_ikXmpEUYi1N
+ Gu55MWAkfLCvCojCyXEulYAQ6cVtbfLs.miMvHm_h.fAzv9VctmP6xvdOLpYYjur_Q416n5ZXDR_
+ mBUQxzYKgybJ34_Zw_LWNc3NrAO3oDgAdafHvYhigmQk5JZkqZ7P9eilRy.Y0mHIGzwcT.LohneX
+ gOkxxxLqUMhY0cQkNqMwu79KeA7BJSa4Vu57iUAndYNTgOPQxPZjF9Dat9CCLhzYTednIhLXGI7v
+ R1fJM8k1qYGQi6Pk.IpjqqfA37bZsl.bkc8lNsLFbgTj4B2PEGtKDhhX7PH4nFP09bdgUaqA6PUr
+ D_Uli8MpsZW27AXYZAPfTw0V8a11kmCE6.WhGAufd1TsSBGp_PHklmeB0TcTJ2G4vtldJ0qzcHbG
+ 1mhqBQ7JeGgElrWt8J1BJI26yPfxeQ7_sIwqZgAiyBPTe3u6eLgUTvf2f9HbR5IpC1GNDHcaVPIc
+ _wR9ytKTFJxXfIWw0f4ak2mWK879AsOEhJIbe0EXv___tCs4iz5dj6.4G2PUw87mAYoYugLRnAnx
+ .IQH7hlkJ4a9VVsRscm7ShcgLhbDWc.Y_Mev8AJUL9tYKnYR9oCco_gZq_STmvJVgDd1dcQO_O0K
+ RNxbZVgww4ToWK8R5DO8UEmNJnKypyEEyNRcAFe_uK5ezm0rc2L72eNcggXma_KMdO4ULSl9VHmb
+ Fd2LFmxy7bNT2FAJ2Nq1A5sivxL4DouzyUrxrWWw5Iy_uO8RjxA7Ce17cY08N_GbOcerZIuyV2w1
+ 3mGMP8LbYhtlglMTTlXR_wbX47sfvdO5ex0yH3lpzLDkM5e06L_.spfHI9qnU376VDhNRr5dR6r2
+ nFtjoU3_2GtSSbh1m8tvs2wqdS5wvzDOkiiUgsNGJNWLjIs60NjxjN2IXo6QTfv5HgH2oE96ICJU
+ 8sWA9URnXUYqmlErdM.q9NsR9aZYRr9azHkUJGp_VAhwHigzlOfPazZVIOT42lKo1dR1XwzCUAYJ
+ whbrA8nSUstRDbaIIDo1A7aAaY1GLoDiEJUzt3QTqCVwjuCTe6IHHBR3GQh83RAOIJ9iemY9UdSl
+ M8xbvEYBrdm2Ab6RCnN3s9DMi0_hOSli26OUR8xzDMBqrM9hevkiZcVL569qs2ssxWTnfXZNA4F7
+ Zt.8_iMwjmIYvsT1SAEpOxgmdkjusCI86v1lXIwpiqnIYsuVb5AseQC7K4xsRcLonicUdQX1mgjC
+ g4VXkSpRwpgf9opcF.jJ_c81Jm6.tSP7pTJ_LQeeYmICy9CKWpR2.NXWkEREAKNrj6Db4gA4V9Dw
+ 2sEEimflHK_OMXLWAsbszXj8t.iiP
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Thu, 18 Feb 2021 21:40:47 +0000
+Received: by smtp415.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 27f27257a3f1ca8fd5f2cfd823e318ba;
+          Thu, 18 Feb 2021 21:40:45 +0000 (UTC)
+Subject: Re: security_task_getsecid() and subjective vs objective task creds
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com
+References: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <a38955de-1a71-ab0c-0cff-d63ea258ca81@schaufler-ca.com>
+Date:   Thu, 18 Feb 2021 13:40:43 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Mailer: WebService/1.1.17712 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.9.1)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+On 2/18/2021 11:34 AM, Paul Moore wrote:
+> Hi all,
+>
+> When looking into a problem I noticed that audit was recording the
+> wrong subject label for a process.  Doing a bit of digging I realized
+> this was caused by the SELinux security_task_getsecid() implementation
+> returning the objective security label (taken from task->real_cred),
+> and not the subjective security label (taken from task->cred).
+>
+> Looking around at the other LSMs which implement this hook, Smack and
+> AppArmor, it appears they both do the same thing: return the objective
+> security ID for the process.  Looking quickly at the various non-LSM
+> callers of the security_task_getsecid() hook, it unfortunately looks
+> like all of them expect the subjective security ID to be returned.
+> The only caller I'm not 100% confident in is binder, but from what I
+> can tell it looks like they are expecting the subjective ID too.
+>
+> At least we are consistently wrong :)
 
-Keep track of whether or not there was an selinux context mount
-options during the mount. While deciding if the superblock can be
-shared for the new mount, check for if we had selinux context on
-the existing mount and call into selinux to tell if new passed
-in selinux context is compatible with the existing mount's options.
+We may have come down with a case of helperitis.=20
 
-Previously, NFS wasn't able to do the following 2mounts:
-mount -o vers=4.2,sec=sys,context=system_u:object_r:root_t:s0
-<serverip>:/ /mnt
-mount -o vers=4.2,sec=sys,context=system_u:object_r:swapfile_t:s0
-<serverip>:/scratch /scratch
+>
+> How do we want to fix this?  The obvious fix is to change the SELinux,
+> AppArmor, and Smack security_task_getsecid() implementations to return
+> the subjective security ID (->cred), and likely make a note in
+> lsm_hooks.h,
 
-2nd mount would fail with "mount.nfs: an incorrect mount option was
-specified" and var log messages would have:
-"SElinux: mount invalid. Same superblock, different security
-settings for.."
+That would be my choice.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
----
- fs/nfs/fs_context.c       | 3 +++
- fs/nfs/internal.h         | 1 +
- fs/nfs/super.c            | 4 ++++
- include/linux/nfs_fs_sb.h | 1 +
- 4 files changed, 9 insertions(+)
+>  but if someone can see a case where we would need both
+> the subjective and objective security labels speak up and we can
+> introduce a new hook for the subjective label, and likely add a "_obj"
+> to the end of the existing hook to help make it more clear.  If
+> neither of those options are acceptable, we could convert all of the
+> existing callers to use something like the line below (assumes
+> current), but that is the least appealing option as far as I'm
+> concerned.
+>
+>   security_cred_getsecid(current_cred(), &sid);
+>
+> Opinions?
 
-diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
-index 06894bcdea2d..8067f055d842 100644
---- a/fs/nfs/fs_context.c
-+++ b/fs/nfs/fs_context.c
-@@ -448,6 +448,9 @@ static int nfs_fs_context_parse_param(struct fs_context *fc,
- 	if (opt < 0)
- 		return ctx->sloppy ? 1 : opt;
- 
-+	if (fc->security)
-+		ctx->has_sec_mnt_opts = 1;
-+
- 	switch (opt) {
- 	case Opt_source:
- 		if (fc->source)
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 62d3189745cd..08f4f34e8cf5 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -96,6 +96,7 @@ struct nfs_fs_context {
- 	char			*fscache_uniq;
- 	unsigned short		protofamily;
- 	unsigned short		mountfamily;
-+	bool			has_sec_mnt_opts;
- 
- 	struct {
- 		union {
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 4034102010f0..0a2d252cf90f 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -1058,6 +1058,7 @@ static void nfs_fill_super(struct super_block *sb, struct nfs_fs_context *ctx)
- 						 &sb->s_blocksize_bits);
- 
- 	nfs_super_set_maxbytes(sb, server->maxfilesize);
-+	server->has_sec_mnt_opts = ctx->has_sec_mnt_opts;
- }
- 
- static int nfs_compare_mount_options(const struct super_block *s, const struct nfs_server *b,
-@@ -1174,6 +1175,9 @@ static int nfs_compare_super(struct super_block *sb, struct fs_context *fc)
- 		return 0;
- 	if (!nfs_compare_userns(old, server))
- 		return 0;
-+	if ((old->has_sec_mnt_opts || fc->security) &&
-+			security_sb_mnt_opts_compat(sb, fc->security))
-+		return 0;
- 	return nfs_compare_mount_options(sb, server, fc);
- }
- 
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 38e60ec742df..3f0acada5794 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -254,6 +254,7 @@ struct nfs_server {
- 
- 	/* User namespace info */
- 	const struct cred	*cred;
-+	bool			has_sec_mnt_opts;
- };
- 
- /* Server capabilities */
--- 
-2.27.0
+If the objective cred isn't being used in the access control decision
+it seems pointless to add it to the audit record. If there is a case
+where the task is being treated as an object, signal delivery comes to
+mind, you still want the objective credential. So it seems like care
+may be required to ensure that the correct value (sub vs obj) is
+used.
+
 
