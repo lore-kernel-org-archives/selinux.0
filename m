@@ -2,131 +2,200 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76A55C433E0
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:09:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2450C433E0
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:40:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B4DB64EB6
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:09:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9CA7064DE9
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:40:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230234AbhBRWIp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Feb 2021 17:08:45 -0500
-Received: from sonic317-39.consmr.mail.ne1.yahoo.com ([66.163.184.50]:45111
-        "EHLO sonic317-39.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229990AbhBRWIm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 17:08:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613686076; bh=oIoB2sQbZxqS+rQeBnEAeITRdAGhtUR8DLkpInFZQB8=; h=From:Subject:To:Cc:References:Date:In-Reply-To:From:Subject:Reply-To; b=Ny1H2eOi+GJ1IsL2funNcukU5TU7F66Lo1PWwdt0Ov0ER0ZSFBIzDfy8NdvvuDLwZ2a5gcnnykiXvYCBLh/Ycu7lYJlWGvXNNhB3kspET6V6mVmvRLVrp5alJgxCiyuq+Pet7OXG8ousA6vERoAdXuAzhv8S2wD46EifebTQKwrj0T8NbPCmNOXJbXMlTgL22c9n2f5GVPd4Q3qUsrN98LS0joYh5IMZOvcYh1tJ3x0x/R7u2vbwmPCNqa9sNsxOxKiwm+ssVBdsDfNZ1xtM4pDs9IlIcLdGKmcR6GClMVPbnlKavyC5hs2cQGjtPT6vRJsxnA07rx0gkNNwDTScFQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613686076; bh=WDwI5tSb125ElCjCdSUexQ+FLc0/MLmDEKkkXk7dCcY=; h=X-Sonic-MF:From:Subject:To:Date:From:Subject; b=W5L/OAil1ZuzUIAO4nTU0MqC8EvTtG56euC+9coSkZccgU28Zwb3XxXUAh0jajDaKv1wzp6yAw3iHuCHNGkkELX/jwqIBylaXsDCJzYHe6bdFg1VEiDK1p5DvcM2Lyqix7X+06jSc6CtZkXVUUJEsjzQZ18lodxu2Ef5YQNKwaBfkN9iClBveIqF8hwTQ7LuI9ifTSZ0Yd2RCkp9ltcoFDx3EMTJp6RKnZJF7p5xo25B+T5xWR4tDyhfdiyptnWrmLZ8NQIqEuxXmi1Hi8VIjgzo+gOQYMBq+2WwX4yf5duMHX4uiNDWR5nhkDZet0uJNpu9zC613MWes6dGtNmJ6Q==
-X-YMail-OSG: DLQTCFEVM1nDCkvRdXBLT7_yLNmaPUQ1yAhUsyZh1RPdvzbvZ2l32Wf80TqAI0z
- HNsu6gGfvYapBqfWzPxDIB.hxp.HZXiUI.V1ca_D8fPKE1P1WScvJaH5AKys_GAAlE9zmLWNrIxc
- Le5T8uLQaClF6P0_9UqF.dnrV1kj0y6NzJycRFHdsYzGH9zGjHf0fTMFsRUVN_CnrVRvNKyWudaJ
- H58owMuEGd_.diKtwzhHLwWg4Bphsns.vVb02mpqVbZrgSEyjI_.7hK8AGLEb2y0TzyAAuoN2804
- zJnKMUmYOiqr.M6198hf71Qd07lCFYJt9z.nf5dZPKhltCUi_okRDj_tY1BYupuIjEV3n.nI5VDn
- jBkDr5FlbYQuofkutNM8MmaejqwbLs7LPbomA.Z23RIfyow7eKlFn1j6yTzKEBlP.0qsiuBpkLKl
- qbTIT6K49tJkjP5ypWtFFU4nJ8HSFl7BAl6z0864rjzda.bbDgz_nwVJTzPaQmnF0im6oLj5jhkw
- 8qiApBSRY5esiDC_ZCzOQIpfYkfL13RU_hq2qmjd1lcjLJNwVjNgMQKhPujv0k_esNJndZwNsr4H
- SKNRPE4ZjeN6oXP0q3teH_t8dqFZH2BVITrcBNoO8ng1GBQxaEGRczQdzFxQwFO_ZoooE9hMl6Vw
- buxLSOsjBhnKCuK4lwXsDoEXhgpUmn5Yj0qo8by7nAiBEvWlptVjv5YRa1sRdd24qMwDxPZGJh0x
- OjXrAmdu8d.sId5S3dMcG0aAqCCDrMxAHBqPHtq98FEciUvUF0AiEv2x0ZAWCtUMj5Zunai6NMK8
- u6uMrwdQsdZLLRc1eWNMh0eVzMxtOLswFgk1MBLXqR4LbGdZQIf21J7X0S04lQ67y2_A_Bq2QQYb
- GZztWiePTYlQnBgE5P7lEjEYGpTEb8EuOFaCmo7EH3.FR7W65EtSwj2j7grU0WkgbYK9E9wyepOV
- QX05z.EYfToqAHFrmzqLNN0u68Lk2ElAx_925LNTVzL3VBoYXktMqyvkB8pRaFr8vxU4YlSE7JTl
- 0Yhu2tpTw1D7A4G4GruTPGk6gem8OfPwCA6JSnPvhW1EvRZvdJ8vWN8pEr2HjB0mzqW43BjOVzOS
- KmUkCtVoI7WWrb65vCeoGk54Z2kWiqrxsaqm5ITmE1Ukhsed82.9CiUCfDJrx7P6Yf4DqTqgmge5
- D_nIR9LhSMXoSahi9T7u2Ovk_GVePoMMUBMiiSToOTZMCWNiMTxnutgBWp1xX49Jqpn0zZiIVB7u
- IPqTom9W_Dh4.gpjSe6r8mr1.SvpBgn15OhMFKEvey7lZUB17ilET8foyHX2UTwG4JHinRtlHvVQ
- kTmHuRq7s7Q2wHCup_3KWD3K7pMWXMZ0P7EUFKAMn5jfK_VgmxlfHnsQXQ.Xo.zzb4uF_hueO55A
- p4TUGLyW6e_QXx7g_uyR1vx5cvHPubc0sq9vx90W6mM71jlsQRFTWJcYQZmg9kAgINUuQa6Af4Jf
- ZSHiPr.n3OYygpMnh33FTwFppjlaU9O_F9.Dad50HVe3mabEkJcrW6rE4WedqlTG.VEMAZhf4Llb
- dLYK4B6O8wQSBYMQwJiTkmCcVycU5GCcrx2kdCXanoLM2pmmluit5vzXZX4Kl3BipPMmsvYf9SIo
- AQaqU7WRs04bXpliTzZ9BUH_upjbGNgGaT8wfUA3vFGmjG_3PiJizb2Nmp5aB2X53nNU2f.qXNn.
- h_T4.T2FeTRGQptzV1agsfNbbNtxdXvkIjevimDnQdHZjDmAMDx8Y2DQfP0KNQviHYRqonQh6IV8
- 8surF7TK2NLudY7sIqy40N0DiwI6_ORECULX_VIVajOFhmSMUJzZOBnIsunZXHcsfAE5Q.zUMsKq
- g0WLomelogk2_RT5Q7veK3zDhfFlsGyjmfNYg1lPn97XiugFeJxyjTYGVzqL2Jc5P0_KL4TpSbVa
- agnfKUJ1ofWujcJ5bosxC5rjmwL5kzQ3bHeO5e9bQv5vEcL6lTXns0j8O.tPu009LV8e6W7MFdEU
- p4.LGofGLLcSE1gASeIWQj6uSZinGkmYFBFUo1O6Lhv83fp0wXtzb6a5iznmQhGD1LJGc29.4sE0
- cnwWE26MGGPu5IfU8273lfEPjTPrPLRrQtZugL55UmZhUYB2qh7C5hDA5jU1LvukiRUW77jn1kf_
- 40emat9M_okifu3mVxSVyuAFitarQ.Z1FtL4eDQyyO.c.i1GTUT08c5GnVUTapkxasV388ZQuK0o
- 7tHiu4SAlbYhH.Wu.FfPdZPvKz_rP2x5zTol.uUFviXhOrfEj2D1mPvJI_Qu2j8N8dOYB63NJCPq
- 6JDNdE3DFzwl1IYLZGjHjjZJwzC5Srrsz.d4S1WfowpTUitCRLmWH1TG2yyDr3PbMoWRBNqIbx9p
- xXO7uYpGbuh0S.1ZUwrwAVsMFPpy1UaTtmfDd7V6CVwpBiKVJeR2hJMbyN3suX4kT4HUVeDjgUQ_
- YnyAf6CellcwX_rNXC30SFZwOD1FVrwU.l6.hOUS7XKI_nlVA7xD4ddblHpw0geIPugrEbO1RZwt
- U2wtbM19qBK3JQE9ViAPd3FgU7ORM93JJWEe1V.PLp8d950wAjPeQPPXb9TSxqSav4G7Eg.kVbAU
- 25HjciPP2dNaFZiCfIuMymbnpvTZB7hfkYjLRk_k-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Thu, 18 Feb 2021 22:07:56 +0000
-Received: by smtp415.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID f7e0207a78745023d33a85dae7ffc620;
-          Thu, 18 Feb 2021 22:07:54 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: security_task_getsecid() and subjective vs objective task creds
-To:     Paul Moore <paul@paul-moore.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com
-Cc:     Casey Schaufler <casey@schaufler-ca.com>
-References: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
-Message-ID: <5f8a424a-2aab-f11a-0e06-f8f075c644f6@schaufler-ca.com>
-Date:   Thu, 18 Feb 2021 14:07:52 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S229769AbhBRWkd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Feb 2021 17:40:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38540 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229649AbhBRWk2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 17:40:28 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9EABC061574;
+        Thu, 18 Feb 2021 14:39:47 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id jt13so8440144ejb.0;
+        Thu, 18 Feb 2021 14:39:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=cTCuvFfvg+RVGlmApliroe5RH99dNBSdy6kghqEKeKM=;
+        b=TTRqCZitzKXjbAYcKdh2EHw49afJposyH8zD2++2jW7hSIF7Ws+0DtKovdZLUzO9l6
+         iGyhjkcj+4p4MyMfu2eEQWNRxI9QEvs12dUa9DIP8t7Wee35FfbDmY6KQgLjaAq5umzr
+         BoyHINLcOfXtqvCugu4LSd4u9Y9w85ZDKXBIg1eBAi8SBA/Sj+m1nLSzWnarSRbg3EZe
+         Kh88mGVSdNGFgp1K93BeZI2sqv9brftT0+/F8GXPKYoqlWkyEZYUjJ8N/dJfOIMjujcA
+         lSUDmhSIvjvBTVJbMxFtkPXJym7FFvw78RV40Uzs0rYr7rC8Ns68JFdk4YLrWR8l4Enk
+         ovsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=cTCuvFfvg+RVGlmApliroe5RH99dNBSdy6kghqEKeKM=;
+        b=NRrluC30NtSDK3Cd6U8ArFyBYOseg4ZxvZesVwhG3RevPUh4rkXKGSms0vWqzeOVod
+         IsJJJlnT6ZwAsMcGU429nT61D/2k4wCOQ0xIPNbc9QzujRFrni8lDm933i/psWwW1K+i
+         sWJGR/ANS3hCMNLaLIXvFZgXV5c3XbQSHxmQimz7OvgtT4bP2J4WfCEmqMSskj0W/tIm
+         6OHLVaynb1vXCOKTURz/rKYRcNFN22c33Qu0IoUF4Fi8NIe5IKxjAcVavHiQgz7iK0pY
+         iWJPBpdQWjg+VJvL5vaBmn2cztJ6AURZaDS2paPXIJhxFYg6y92uQ59zuZOy2rHJ89KU
+         z+Vg==
+X-Gm-Message-State: AOAM530inlUQUHrhB0bolGvqNL/vyy8wFDH+Xg+ix6eK6RBpTRzPvz5p
+        4qCQza0gO/mdmL8vBZSwwG+L+NBxmPplFVZD0Dw=
+X-Google-Smtp-Source: ABdhPJxCtFy1BXkoIPKOPFFBWWLaB4B3BTpkzl3DSP+KhBK2OGGEc+89AE0h11okUYBX/wki//shpbWOVRGzLbsG9fI=
+X-Received: by 2002:a17:907:35ca:: with SMTP id ap10mr6079157ejc.451.1613687986394;
+ Thu, 18 Feb 2021 14:39:46 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.17712 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.9.1)
+References: <20210218195046.19280-1-olga.kornievskaia@gmail.com>
+ <20210218195046.19280-2-olga.kornievskaia@gmail.com> <7587df15-6f6f-3581-8bae-a648315cfae9@schaufler-ca.com>
+In-Reply-To: <7587df15-6f6f-3581-8bae-a648315cfae9@schaufler-ca.com>
+From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Date:   Thu, 18 Feb 2021 17:39:35 -0500
+Message-ID: <CAN-5tyGff24KwP-sTezU=h39_zTVTgh10D-6eT220SO=HSk3+w@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] NFSv4 account for selinux security context when
+ deciding to share superblock
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/18/2021 11:34 AM, Paul Moore wrote:
-> Hi all,
+On Thu, Feb 18, 2021 at 5:07 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
 >
-> When looking into a problem I noticed that audit was recording the
-> wrong subject label for a process.  Doing a bit of digging I realized
-> this was caused by the SELinux security_task_getsecid() implementation
-> returning the objective security label (taken from task->real_cred),
-> and not the subjective security label (taken from task->cred).
+> On 2/18/2021 11:50 AM, Olga Kornievskaia wrote:
+> > From: Olga Kornievskaia <kolga@netapp.com>
+> >
+> > Keep track of whether or not there was an selinux context mount
+> > options during the mount.
 >
-> Looking around at the other LSMs which implement this hook, Smack and
-> AppArmor, it appears they both do the same thing: return the objective
-> security ID for the process.  Looking quickly at the various non-LSM
-> callers of the security_task_getsecid() hook, it unfortunately looks
-> like all of them expect the subjective security ID to be returned.
-> The only caller I'm not 100% confident in is binder, but from what I
-> can tell it looks like they are expecting the subjective ID too.
+> This may be the intention, but it's not what the change you're
+> introducing here does.
+
+Can you explain why, as I must be doing something wrong? I'm familiar
+with NFS but not with Selinux and I thought I was doing the correct
+changes to the Selinux. If that's not the case would you share what
+has been done incorrectly.
+
+> >  While deciding if the superblock can be
+> > shared for the new mount, check for if we had selinux context on
+> > the existing mount and call into selinux to tell if new passed
+> > in selinux context is compatible with the existing mount's options.
 >
-> At least we are consistently wrong :)
+> You're describing how you expect the change to be used, not
+> what it does. If I am the author of a security module other
+> than SELinux (which, it turns out, I am) what would I use this
+> for? How might this change interact with my security module?
+> Is this something I might exploit? If I am the author of a
+> filesystem other than NFS (which I am not) should I be doing
+> the same thing?
 
-We may have come down with a case of helperitis. 
+I'm not sure I'm understanding your questions. I'm solving a bug that
+exists when NFS interacts with selinux. This is really not a feature
+that I'm introducing. I thought it was somewhat descriptive with an
+example that if you want to mount with different security contexts but
+whatever you are mounting has a possibility of sharing the same
+superblock, we need to be careful and take security contexts that are
+being used by those mount into account to decide whether or not to
+share the superblock. Again I thought that's exactly what the commit
+states. A different security module, if it acts on security context,
+would have to have the same ability to compare if one context options
+are compatible with anothers. Another filesystem can decide if it
+wants to share superblocks based on compatibility of existing security
+context and new one. Is that what you are asking?
 
-> How do we want to fix this?  The obvious fix is to change the SELinux,
-> AppArmor, and Smack security_task_getsecid() implementations to return
-> the subjective security ID (->cred), and likely make a note in
-> lsm_hooks.h,
 
-That would be my choice.
-
->  but if someone can see a case where we would need both
-> the subjective and objective security labels speak up and we can
-> introduce a new hook for the subjective label, and likely add a "_obj"
-> to the end of the existing hook to help make it more clear.  If
-> neither of those options are acceptable, we could convert all of the
-> existing callers to use something like the line below (assumes
-> current), but that is the least appealing option as far as I'm
-> concerned.
 >
->   security_cred_getsecid(current_cred(), &sid);
+> >
+> > Previously, NFS wasn't able to do the following 2mounts:
+> > mount -o vers=4.2,sec=sys,context=system_u:object_r:root_t:s0
+> > <serverip>:/ /mnt
+> > mount -o vers=4.2,sec=sys,context=system_u:object_r:swapfile_t:s0
+> > <serverip>:/scratch /scratch
+> >
+> > 2nd mount would fail with "mount.nfs: an incorrect mount option was
+> > specified" and var log messages would have:
+> > "SElinux: mount invalid. Same superblock, different security
+> > settings for.."
+> >
+> > Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+> > ---
+> >  fs/nfs/fs_context.c       | 3 +++
+> >  fs/nfs/internal.h         | 1 +
+> >  fs/nfs/super.c            | 4 ++++
+> >  include/linux/nfs_fs_sb.h | 1 +
+> >  4 files changed, 9 insertions(+)
+> >
+> > diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
+> > index 06894bcdea2d..8067f055d842 100644
+> > --- a/fs/nfs/fs_context.c
+> > +++ b/fs/nfs/fs_context.c
+> > @@ -448,6 +448,9 @@ static int nfs_fs_context_parse_param(struct fs_context *fc,
+> >       if (opt < 0)
+> >               return ctx->sloppy ? 1 : opt;
+> >
+> > +     if (fc->security)
+> > +             ctx->has_sec_mnt_opts = 1;
+> > +
+> >       switch (opt) {
+> >       case Opt_source:
+> >               if (fc->source)
+> > diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+> > index 62d3189745cd..08f4f34e8cf5 100644
+> > --- a/fs/nfs/internal.h
+> > +++ b/fs/nfs/internal.h
+> > @@ -96,6 +96,7 @@ struct nfs_fs_context {
+> >       char                    *fscache_uniq;
+> >       unsigned short          protofamily;
+> >       unsigned short          mountfamily;
+> > +     bool                    has_sec_mnt_opts;
+> >
+> >       struct {
+> >               union {
+> > diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+> > index 4034102010f0..0a2d252cf90f 100644
+> > --- a/fs/nfs/super.c
+> > +++ b/fs/nfs/super.c
+> > @@ -1058,6 +1058,7 @@ static void nfs_fill_super(struct super_block *sb, struct nfs_fs_context *ctx)
+> >                                                &sb->s_blocksize_bits);
+> >
+> >       nfs_super_set_maxbytes(sb, server->maxfilesize);
+> > +     server->has_sec_mnt_opts = ctx->has_sec_mnt_opts;
+> >  }
+> >
+> >  static int nfs_compare_mount_options(const struct super_block *s, const struct nfs_server *b,
+> > @@ -1174,6 +1175,9 @@ static int nfs_compare_super(struct super_block *sb, struct fs_context *fc)
+> >               return 0;
+> >       if (!nfs_compare_userns(old, server))
+> >               return 0;
+> > +     if ((old->has_sec_mnt_opts || fc->security) &&
+> > +                     security_sb_mnt_opts_compat(sb, fc->security))
+> > +             return 0;
+> >       return nfs_compare_mount_options(sb, server, fc);
+> >  }
+> >
+> > diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+> > index 38e60ec742df..3f0acada5794 100644
+> > --- a/include/linux/nfs_fs_sb.h
+> > +++ b/include/linux/nfs_fs_sb.h
+> > @@ -254,6 +254,7 @@ struct nfs_server {
+> >
+> >       /* User namespace info */
+> >       const struct cred       *cred;
+> > +     bool                    has_sec_mnt_opts;
+> >  };
+> >
+> >  /* Server capabilities */
 >
-> Opinions?
-
-If the objective cred isn't being used in the access control decision
-it seems pointless to add it to the audit record. If there is a case
-where the task is being treated as an object, signal delivery comes to
-mind, you still want the objective credential. So it seems like care
-may be required to ensure that the correct value (sub vs obj) is
-used.
-
