@@ -2,197 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69A60C433E9
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:08:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76A55C433E0
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:09:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38A6264EB8
-	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:08:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B4DB64EB6
+	for <selinux@archiver.kernel.org>; Thu, 18 Feb 2021 22:09:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbhBRWIJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Feb 2021 17:08:09 -0500
-Received: from sonic316-27.consmr.mail.ne1.yahoo.com ([66.163.187.153]:38557
-        "EHLO sonic316-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230198AbhBRWH7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 17:07:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613686032; bh=UDt0yL5IIM5sD7BMK5vHVep3dYdjNgdwJDnUv1zVBwA=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=jWK5CnSrOLmXJPADf5HVGYQB6IxAAjY9/1ZDDhKRJe5T3NfiHCaqGj5GL4xy0uDOhGbXn9liCzyFuws0FyrEEm5+r1kb546PBX8JhqvjPpODkg5S1/xm1CmnAyZdVQS5R6oCFMSfg3OuU7TQrD+rPBJfQd344HjTUvUxMy5XOPklZ5VX8gzmPlc6oKGrKGtGzI27vCfDU0cinXlxiAf37NanGR1KrRM4JePyTwYuKYHuUQmJZPFgz/GbT71GAxHC/gHlOdSPPpMt4/Xo0WczNf8d/vH45mmegny2WGG3bS0Hq2F+LbkyezmPYUtj/g44NS57UigRezpObaxoOTzUQQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613686032; bh=vlihK3jzkFvpsFTesEazUFjeHlpjZwq7B8dWlImLaW7=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=tvGK/30KeavpZcqAwKJtybkePt5crf8a8Q2r6/RIACE0CBUpNwR3pDwP8Q/GtgOihzAz8DjFFB8/eKYSq+54CKcsy+J/hR+3NAHA92mo2g1ndcPfoMonfZ8wikiFFA8Y3QOn7HORUC687ZvS/hqSVjnw/rYCaLawe7XycGmwFBR+f6gxq9Ve3fEW0b+vDBZfHLlo7QUJrZQiP3e+AQBcSYguV8sMYKkQrwdex73p/kW3tVJZSHoZ4ZPLBS4UjBk20NOiVxs3F9e4jqo8JmM4fS2Loy8LiMcDKhXD9xTuPDPKt8HlnwtosKwhwdXT7QAcO91Spw6PCbEjWv6ecKThGQ==
-X-YMail-OSG: GscAUIUVM1kx7G_uB9tbm8muG96RWNnwPCDZzAx2l0avIScGwmD2mwwQDhKo3nX
- 2a1eNZRfcr0Vb3bKrU9cMirt8KaGtbaE6L8WywYyrZMrQtdto3Z_ZPnbqnXCMxjFmMtGtDcVEuSt
- uEoxP2oS7N1WkvASH0k32KjWQVgOyv02Q4lUY9.TCDvxWwLsTGb_HjhKSplPTTAOlUpxCYy25HQt
- N1bJxyXymxwBKGKXpdPbYX16Ez4tTdc9d7c_c7smGDDGCdwQiZeKJeX279hw.8d0ysVzaJqK1gQ9
- 2E8G3pzvdnHZKbEwXExjsY2O3imxi_.m.ZWvsUUpRlffJ7bPkQfBKguoFo5keJqqnkfi4MJc8qDx
- ApS6AzhL3C72zPmbrH8svkO2tzDwWKar_zw_y5DdAfMiqKLCvMjcCq4.qzJAbzMxH2qhBfW_Mi4A
- LvA_Jn1a1UrU.mQWP05pXKWtR8nF4TnrZ72JkReZDLS7tkRhXM9tweaSSxtAIypyT3C5z5FSG4Uw
- 7XHO06c0CKtR2HoMC_V0iM59GMxS1wkcpY.9yNmzbNfRFiP1kvWOnj21syQU4c6Uo1TgQ7Xxwn7Q
- Z5POwVBteUIjeODdGXtLKyU6znefoQDpISo921hrx.DmS95ls1iKllYLWDBqiEpg0J72fSQRZgRL
- 3qt7mUwCbU4Tz67Ls0sli4oBDpEGRrjBHvoTOEjC8.5tyKTyHeTbfRwTFocOzEWuc6AhMUfGl8C8
- D7pBX0eOfOxR7jUjpxRzkNoniDNC1_3h2YEMaXDvc.1RaTZ6hHiPxNInvPBjNuWvTFn4gzy9B45q
- 8DU7CZaV7GjQ9o.u.L2DTDzsfSPq2tIPMgSiZJBz.DQuHDnXvqCQUEkzvCXckC63B_xx8iHyYRac
- MZvwH81Zm7mzDW5AXh7mlPnKX7a0DOzL6xktwiF2Q_sQs1W67scpM7i4zFBwdjKKzqCHZ5dzOVpE
- PC_Zlx7s1tDZre3LWrfJCpVM3lIa1dpDOyx87DCfHpdvoM_MMaRPnAb.PL7gmqDuP4VpO.l.llMN
- K_ppCf.3ZLgYIsJ4p2zJT2qNKWhRaQmbEz2NbdrRgqxo_5GuYlPdah59YOerjp7kwNtZTpG7e.pa
- MlFsXXDvyRxy48aNfn3Lb6D3q9EnbVleOlUDfY89xKa5nS3jqWDxhtlZRtT8fuOyNndA3kvnMVM5
- 1_ms_gsSnlKHrc7Jc16F7SnfVrLZoncLAVeQPjpcCOQnGBAH7tmlUk_vZraxwW9MpBxYw2U.R3W0
- Lzip4Fs.l4hydfz_6mQaHci.XTRdfzB.A.3OPsu5V5VAALuMThR8GcgCzqzDM.R4CprOQrMWFN1g
- lEvpHZfUaKDZbQcMwWQdyvXz9FI9hR4AugBpAyngLPzQ47RwDg4a_awFkvQRx7DpmIIncRRGXJud
- GLX2XIgnVhGIC98fmsZSN86OhtkmLd89mrWIPNQkMXM5WJNQiZ8VuOBhsP4vMHY4T9wn5bPmiGWY
- pvU.i2DDWcynLXc8gCVBGPhrJyZjdm8KABCx3bxOCC6IeDvxm.4kRAJhm0ZyDtb0MTh41YXYE2bM
- IDilPkv7AGIHpXwtR2VpY9QXRNVS7KT2n985ed3O1mHECd8V.nBv58R4FhrOIvWR9ThFZOHd2t8c
- m_Q7c5Yg4s8Y13rmCDEnQG5vSWMq1Xcp1nCFz8BE_XIO0mrZeuVZhBN5rZOLCCMRkwNwtR9PPMa0
- NIIRl9WtcAZQ7nf422upHlUvREdVBjetnjVYJ5JTReDXVr1PmpancvKFzcvTeDlxrFApX3UUPHg_
- kqpokMqFZnZUBZkH263qmgse0T212885fZk80HkUFwWPXDRwVxWNEMkjOczVzw2eZtlctij1Hd2w
- lV7S.Y3hNFlA3eK9_DFwzFV8AYM_gnqTRiN4FEGuI.WCAtbchY8DTPz.1QKYJ_QpYf8giUgD4jwC
- yWu4j3ox27iQvOwBnAZohYtIBsn59sf46hC9ITrthWKFluueljMjfNXy21Efi6Mq44HCUfLwPIXU
- fFhmQDTz5xJJ6wYCO4veeIqvaqiWYrlB1ns9NuENYCKeH6C0VvWybzfuJUbTx6uKSaOaDfX9cNg8
- xmjD.jR_PFvvzOysCZ0tLlAKyLxlEVIML9xIdnHMfJQS7qDKmhslJ8kTGWL2sORynYz_K30jPk_I
- A_fyya8yKqT.biUV2REHHvwzAKu4eQsVapOsxGruAFNYPKNX4vQZn.m.WSS6Uzw01.AywUvei2xo
- 6FzsguWcUS9EN.ClMK.n5CETwGJAC1QxQq8ps7lDnK1J96Qf.4qf.rLBZzqCLHm5HhcSx4e8UI.E
- i6JipX8mKObkKsI9TCZ908wHV3aupeU7Ed5.11BskTyitjG2q5By.1Y_3GJ.4A2GcHPoFd.OHoB5
- Eoaa56nibP16IV_Vh6YPvR9O5QGpW7Dt_mHyscSeATXf7uyM_zyHXlRfyTzCKinmBvYXkva2KNd7
- q4aOKZvPrlIvrmEboWgzPCr.e1as79C3y85BqArdiyq3ZvYGQ6XpuGc3XFwdPtMp5vE5E7GcxQ14
- .oZPKB9wQGY8uiqoTRVswJEM4cTQuwxpQ0Zib0cAgFaayjlTJRTQ7TrDOFjBL7wXw2LTxdsCl7yt
- roFTl_jJohMKMhssyPbJHM56nY7kqAlIg5AqNeBu7AOb0FE9VXHH.yNwcl9TIkKP_bzsPQJ6Cr5g
- FEHunGSkFhkkETIIOuOiqDnkfHMSd.bb.A0hAc5NIIsZxo.rwFmN6amJMaaXpoq24vhmFDl.JPdW
- dEX4Nju5LfNu62CxvBa2JYOLE8HXqAubuMMgxVhHsFVELff2_mLt48hBciV4Gqx0U9Ro2rj8BFnz
- s8hoewt7sXR2Z6REvInZ7rnTCyCqppIc5lPT410cV7mHgldjd2m67OnB05yg-
+        id S230234AbhBRWIp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Feb 2021 17:08:45 -0500
+Received: from sonic317-39.consmr.mail.ne1.yahoo.com ([66.163.184.50]:45111
+        "EHLO sonic317-39.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229990AbhBRWIm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Feb 2021 17:08:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613686076; bh=oIoB2sQbZxqS+rQeBnEAeITRdAGhtUR8DLkpInFZQB8=; h=From:Subject:To:Cc:References:Date:In-Reply-To:From:Subject:Reply-To; b=Ny1H2eOi+GJ1IsL2funNcukU5TU7F66Lo1PWwdt0Ov0ER0ZSFBIzDfy8NdvvuDLwZ2a5gcnnykiXvYCBLh/Ycu7lYJlWGvXNNhB3kspET6V6mVmvRLVrp5alJgxCiyuq+Pet7OXG8ousA6vERoAdXuAzhv8S2wD46EifebTQKwrj0T8NbPCmNOXJbXMlTgL22c9n2f5GVPd4Q3qUsrN98LS0joYh5IMZOvcYh1tJ3x0x/R7u2vbwmPCNqa9sNsxOxKiwm+ssVBdsDfNZ1xtM4pDs9IlIcLdGKmcR6GClMVPbnlKavyC5hs2cQGjtPT6vRJsxnA07rx0gkNNwDTScFQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613686076; bh=WDwI5tSb125ElCjCdSUexQ+FLc0/MLmDEKkkXk7dCcY=; h=X-Sonic-MF:From:Subject:To:Date:From:Subject; b=W5L/OAil1ZuzUIAO4nTU0MqC8EvTtG56euC+9coSkZccgU28Zwb3XxXUAh0jajDaKv1wzp6yAw3iHuCHNGkkELX/jwqIBylaXsDCJzYHe6bdFg1VEiDK1p5DvcM2Lyqix7X+06jSc6CtZkXVUUJEsjzQZ18lodxu2Ef5YQNKwaBfkN9iClBveIqF8hwTQ7LuI9ifTSZ0Yd2RCkp9ltcoFDx3EMTJp6RKnZJF7p5xo25B+T5xWR4tDyhfdiyptnWrmLZ8NQIqEuxXmi1Hi8VIjgzo+gOQYMBq+2WwX4yf5duMHX4uiNDWR5nhkDZet0uJNpu9zC613MWes6dGtNmJ6Q==
+X-YMail-OSG: DLQTCFEVM1nDCkvRdXBLT7_yLNmaPUQ1yAhUsyZh1RPdvzbvZ2l32Wf80TqAI0z
+ HNsu6gGfvYapBqfWzPxDIB.hxp.HZXiUI.V1ca_D8fPKE1P1WScvJaH5AKys_GAAlE9zmLWNrIxc
+ Le5T8uLQaClF6P0_9UqF.dnrV1kj0y6NzJycRFHdsYzGH9zGjHf0fTMFsRUVN_CnrVRvNKyWudaJ
+ H58owMuEGd_.diKtwzhHLwWg4Bphsns.vVb02mpqVbZrgSEyjI_.7hK8AGLEb2y0TzyAAuoN2804
+ zJnKMUmYOiqr.M6198hf71Qd07lCFYJt9z.nf5dZPKhltCUi_okRDj_tY1BYupuIjEV3n.nI5VDn
+ jBkDr5FlbYQuofkutNM8MmaejqwbLs7LPbomA.Z23RIfyow7eKlFn1j6yTzKEBlP.0qsiuBpkLKl
+ qbTIT6K49tJkjP5ypWtFFU4nJ8HSFl7BAl6z0864rjzda.bbDgz_nwVJTzPaQmnF0im6oLj5jhkw
+ 8qiApBSRY5esiDC_ZCzOQIpfYkfL13RU_hq2qmjd1lcjLJNwVjNgMQKhPujv0k_esNJndZwNsr4H
+ SKNRPE4ZjeN6oXP0q3teH_t8dqFZH2BVITrcBNoO8ng1GBQxaEGRczQdzFxQwFO_ZoooE9hMl6Vw
+ buxLSOsjBhnKCuK4lwXsDoEXhgpUmn5Yj0qo8by7nAiBEvWlptVjv5YRa1sRdd24qMwDxPZGJh0x
+ OjXrAmdu8d.sId5S3dMcG0aAqCCDrMxAHBqPHtq98FEciUvUF0AiEv2x0ZAWCtUMj5Zunai6NMK8
+ u6uMrwdQsdZLLRc1eWNMh0eVzMxtOLswFgk1MBLXqR4LbGdZQIf21J7X0S04lQ67y2_A_Bq2QQYb
+ GZztWiePTYlQnBgE5P7lEjEYGpTEb8EuOFaCmo7EH3.FR7W65EtSwj2j7grU0WkgbYK9E9wyepOV
+ QX05z.EYfToqAHFrmzqLNN0u68Lk2ElAx_925LNTVzL3VBoYXktMqyvkB8pRaFr8vxU4YlSE7JTl
+ 0Yhu2tpTw1D7A4G4GruTPGk6gem8OfPwCA6JSnPvhW1EvRZvdJ8vWN8pEr2HjB0mzqW43BjOVzOS
+ KmUkCtVoI7WWrb65vCeoGk54Z2kWiqrxsaqm5ITmE1Ukhsed82.9CiUCfDJrx7P6Yf4DqTqgmge5
+ D_nIR9LhSMXoSahi9T7u2Ovk_GVePoMMUBMiiSToOTZMCWNiMTxnutgBWp1xX49Jqpn0zZiIVB7u
+ IPqTom9W_Dh4.gpjSe6r8mr1.SvpBgn15OhMFKEvey7lZUB17ilET8foyHX2UTwG4JHinRtlHvVQ
+ kTmHuRq7s7Q2wHCup_3KWD3K7pMWXMZ0P7EUFKAMn5jfK_VgmxlfHnsQXQ.Xo.zzb4uF_hueO55A
+ p4TUGLyW6e_QXx7g_uyR1vx5cvHPubc0sq9vx90W6mM71jlsQRFTWJcYQZmg9kAgINUuQa6Af4Jf
+ ZSHiPr.n3OYygpMnh33FTwFppjlaU9O_F9.Dad50HVe3mabEkJcrW6rE4WedqlTG.VEMAZhf4Llb
+ dLYK4B6O8wQSBYMQwJiTkmCcVycU5GCcrx2kdCXanoLM2pmmluit5vzXZX4Kl3BipPMmsvYf9SIo
+ AQaqU7WRs04bXpliTzZ9BUH_upjbGNgGaT8wfUA3vFGmjG_3PiJizb2Nmp5aB2X53nNU2f.qXNn.
+ h_T4.T2FeTRGQptzV1agsfNbbNtxdXvkIjevimDnQdHZjDmAMDx8Y2DQfP0KNQviHYRqonQh6IV8
+ 8surF7TK2NLudY7sIqy40N0DiwI6_ORECULX_VIVajOFhmSMUJzZOBnIsunZXHcsfAE5Q.zUMsKq
+ g0WLomelogk2_RT5Q7veK3zDhfFlsGyjmfNYg1lPn97XiugFeJxyjTYGVzqL2Jc5P0_KL4TpSbVa
+ agnfKUJ1ofWujcJ5bosxC5rjmwL5kzQ3bHeO5e9bQv5vEcL6lTXns0j8O.tPu009LV8e6W7MFdEU
+ p4.LGofGLLcSE1gASeIWQj6uSZinGkmYFBFUo1O6Lhv83fp0wXtzb6a5iznmQhGD1LJGc29.4sE0
+ cnwWE26MGGPu5IfU8273lfEPjTPrPLRrQtZugL55UmZhUYB2qh7C5hDA5jU1LvukiRUW77jn1kf_
+ 40emat9M_okifu3mVxSVyuAFitarQ.Z1FtL4eDQyyO.c.i1GTUT08c5GnVUTapkxasV388ZQuK0o
+ 7tHiu4SAlbYhH.Wu.FfPdZPvKz_rP2x5zTol.uUFviXhOrfEj2D1mPvJI_Qu2j8N8dOYB63NJCPq
+ 6JDNdE3DFzwl1IYLZGjHjjZJwzC5Srrsz.d4S1WfowpTUitCRLmWH1TG2yyDr3PbMoWRBNqIbx9p
+ xXO7uYpGbuh0S.1ZUwrwAVsMFPpy1UaTtmfDd7V6CVwpBiKVJeR2hJMbyN3suX4kT4HUVeDjgUQ_
+ YnyAf6CellcwX_rNXC30SFZwOD1FVrwU.l6.hOUS7XKI_nlVA7xD4ddblHpw0geIPugrEbO1RZwt
+ U2wtbM19qBK3JQE9ViAPd3FgU7ORM93JJWEe1V.PLp8d950wAjPeQPPXb9TSxqSav4G7Eg.kVbAU
+ 25HjciPP2dNaFZiCfIuMymbnpvTZB7hfkYjLRk_k-
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Thu, 18 Feb 2021 22:07:12 +0000
-Received: by smtp404.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 99ad47f80beab95263c5c047547ac38f;
-          Thu, 18 Feb 2021 22:07:07 +0000 (UTC)
-Subject: Re: [PATCH v2 2/2] NFSv4 account for selinux security context when
- deciding to share superblock
-To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com
-Cc:     linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20210218195046.19280-1-olga.kornievskaia@gmail.com>
- <20210218195046.19280-2-olga.kornievskaia@gmail.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Thu, 18 Feb 2021 22:07:56 +0000
+Received: by smtp415.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID f7e0207a78745023d33a85dae7ffc620;
+          Thu, 18 Feb 2021 22:07:54 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <7587df15-6f6f-3581-8bae-a648315cfae9@schaufler-ca.com>
-Date:   Thu, 18 Feb 2021 14:07:05 -0800
+Subject: Re: security_task_getsecid() and subjective vs objective task creds
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com
+Cc:     Casey Schaufler <casey@schaufler-ca.com>
+References: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
+Message-ID: <5f8a424a-2aab-f11a-0e06-f8f075c644f6@schaufler-ca.com>
+Date:   Thu, 18 Feb 2021 14:07:52 -0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <20210218195046.19280-2-olga.kornievskaia@gmail.com>
+In-Reply-To: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
 X-Mailer: WebService/1.1.17712 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.9.1)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/18/2021 11:50 AM, Olga Kornievskaia wrote:
-> From: Olga Kornievskaia <kolga@netapp.com>
+On 2/18/2021 11:34 AM, Paul Moore wrote:
+> Hi all,
 >
-> Keep track of whether or not there was an selinux context mount
-> options during the mount.
-
-This may be the intention, but it's not what the change you're
-introducing here does.
-
-
->  While deciding if the superblock can be
-> shared for the new mount, check for if we had selinux context on
-> the existing mount and call into selinux to tell if new passed
-> in selinux context is compatible with the existing mount's options.
-
-You're describing how you expect the change to be used, not
-what it does. If I am the author of a security module other
-than SELinux (which, it turns out, I am) what would I use this
-for? How might this change interact with my security module?
-Is this something I might exploit? If I am the author of a
-filesystem other than NFS (which I am not) should I be doing
-the same thing?
-
+> When looking into a problem I noticed that audit was recording the
+> wrong subject label for a process.  Doing a bit of digging I realized
+> this was caused by the SELinux security_task_getsecid() implementation
+> returning the objective security label (taken from task->real_cred),
+> and not the subjective security label (taken from task->cred).
 >
-> Previously, NFS wasn't able to do the following 2mounts:
-> mount -o vers=3D4.2,sec=3Dsys,context=3Dsystem_u:object_r:root_t:s0
-> <serverip>:/ /mnt
-> mount -o vers=3D4.2,sec=3Dsys,context=3Dsystem_u:object_r:swapfile_t:s0=
+> Looking around at the other LSMs which implement this hook, Smack and
+> AppArmor, it appears they both do the same thing: return the objective
+> security ID for the process.  Looking quickly at the various non-LSM
+> callers of the security_task_getsecid() hook, it unfortunately looks
+> like all of them expect the subjective security ID to be returned.
+> The only caller I'm not 100% confident in is binder, but from what I
+> can tell it looks like they are expecting the subjective ID too.
+>
+> At least we are consistently wrong :)
 
-> <serverip>:/scratch /scratch
+We may have come down with a case of helperitis. 
+
+> How do we want to fix this?  The obvious fix is to change the SELinux,
+> AppArmor, and Smack security_task_getsecid() implementations to return
+> the subjective security ID (->cred), and likely make a note in
+> lsm_hooks.h,
+
+That would be my choice.
+
+>  but if someone can see a case where we would need both
+> the subjective and objective security labels speak up and we can
+> introduce a new hook for the subjective label, and likely add a "_obj"
+> to the end of the existing hook to help make it more clear.  If
+> neither of those options are acceptable, we could convert all of the
+> existing callers to use something like the line below (assumes
+> current), but that is the least appealing option as far as I'm
+> concerned.
 >
-> 2nd mount would fail with "mount.nfs: an incorrect mount option was
-> specified" and var log messages would have:
-> "SElinux: mount invalid. Same superblock, different security
-> settings for.."
+>   security_cred_getsecid(current_cred(), &sid);
 >
-> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-> ---
->  fs/nfs/fs_context.c       | 3 +++
->  fs/nfs/internal.h         | 1 +
->  fs/nfs/super.c            | 4 ++++
->  include/linux/nfs_fs_sb.h | 1 +
->  4 files changed, 9 insertions(+)
->
-> diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
-> index 06894bcdea2d..8067f055d842 100644
-> --- a/fs/nfs/fs_context.c
-> +++ b/fs/nfs/fs_context.c
-> @@ -448,6 +448,9 @@ static int nfs_fs_context_parse_param(struct fs_con=
-text *fc,
->  	if (opt < 0)
->  		return ctx->sloppy ? 1 : opt;
-> =20
-> +	if (fc->security)
-> +		ctx->has_sec_mnt_opts =3D 1;
-> +
->  	switch (opt) {
->  	case Opt_source:
->  		if (fc->source)
-> diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-> index 62d3189745cd..08f4f34e8cf5 100644
-> --- a/fs/nfs/internal.h
-> +++ b/fs/nfs/internal.h
-> @@ -96,6 +96,7 @@ struct nfs_fs_context {
->  	char			*fscache_uniq;
->  	unsigned short		protofamily;
->  	unsigned short		mountfamily;
-> +	bool			has_sec_mnt_opts;
-> =20
->  	struct {
->  		union {
-> diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-> index 4034102010f0..0a2d252cf90f 100644
-> --- a/fs/nfs/super.c
-> +++ b/fs/nfs/super.c
-> @@ -1058,6 +1058,7 @@ static void nfs_fill_super(struct super_block *sb=
-, struct nfs_fs_context *ctx)
->  						 &sb->s_blocksize_bits);
-> =20
->  	nfs_super_set_maxbytes(sb, server->maxfilesize);
-> +	server->has_sec_mnt_opts =3D ctx->has_sec_mnt_opts;
->  }
-> =20
->  static int nfs_compare_mount_options(const struct super_block *s, cons=
-t struct nfs_server *b,
-> @@ -1174,6 +1175,9 @@ static int nfs_compare_super(struct super_block *=
-sb, struct fs_context *fc)
->  		return 0;
->  	if (!nfs_compare_userns(old, server))
->  		return 0;
-> +	if ((old->has_sec_mnt_opts || fc->security) &&
-> +			security_sb_mnt_opts_compat(sb, fc->security))
-> +		return 0;
->  	return nfs_compare_mount_options(sb, server, fc);
->  }
-> =20
-> diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-> index 38e60ec742df..3f0acada5794 100644
-> --- a/include/linux/nfs_fs_sb.h
-> +++ b/include/linux/nfs_fs_sb.h
-> @@ -254,6 +254,7 @@ struct nfs_server {
-> =20
->  	/* User namespace info */
->  	const struct cred	*cred;
-> +	bool			has_sec_mnt_opts;
->  };
-> =20
->  /* Server capabilities */
+> Opinions?
+
+If the objective cred isn't being used in the access control decision
+it seems pointless to add it to the audit record. If there is a case
+where the task is being treated as an object, signal delivery comes to
+mind, you still want the objective credential. So it seems like care
+may be required to ensure that the correct value (sub vs obj) is
+used.
 
