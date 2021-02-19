@@ -2,152 +2,256 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE0A1C43332
-	for <selinux@archiver.kernel.org>; Fri, 19 Feb 2021 20:08:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D668C433E0
+	for <selinux@archiver.kernel.org>; Fri, 19 Feb 2021 20:27:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8229A64EB3
-	for <selinux@archiver.kernel.org>; Fri, 19 Feb 2021 20:08:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC9C664EB3
+	for <selinux@archiver.kernel.org>; Fri, 19 Feb 2021 20:27:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbhBSUIS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 19 Feb 2021 15:08:18 -0500
-Received: from mail-mw2nam10on2113.outbound.protection.outlook.com ([40.107.94.113]:44449
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229555AbhBSUIP (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 19 Feb 2021 15:08:15 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iMSiB3ll5WxT+KRfCWYrafWja0+cPu5KxPJvm8NpmsbWTeeCqxJhj5K4gylG/KDy+/aIuNMyzqpk4aKfNnsLmx7/jh5/29XruwISQTmvG1RWX44q3/w43l10cw1MgfSNn99g/4azx5aIa8/skcbxLlgW7/tmwTyGb1rrBL09EWRwCx/2km58vE2OSjS7YzDsig6YEnxrFGuQE6Nfnwg99P24/XFa1i3srduDzUaOlAnbE92kWXPv+WIpXzhYfRZ2Fm2LJ/C2iSNI1oiDHjML//tQT6pa02pCM/2fpCS/pljceZOLIvEDTTU+7JhdhG8XcQXyDlIf864b81Dcu5SPqw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=k0ybscqcnMLaYFF4VCo3oaj8TyffdXh5wdC06aa5rYY=;
- b=Wzz55sQWUBD4ROu8rP0JIe7jhsfMneWDVZ8DrSl93qCGvaUxo5bPJzZ//zgi0gN3/GHcW3zouqt0Jrgrp80nud+gw6+kzUgiA5U0HB4a1kHovsYOvYw3NzsO3mJAReDXLdAK9B9kKHdDs1gSjJtY0fIqHkFDNxQ0DhK04SJYLI2BZ1Fog47G2JYE/Rr0zQ+5x8beKK1ozlUS7DQHrXvvKJbOFDIJ3E+0at0q2+OW/7K0o05f+7ZOGPGMXpRLRr8JcBZmx2E5YZne4HRNLhyZWJ319l7Gmvxh7XUQlMfQB/5mhvd5lQmWuvWRcPjZw9azcTkz12uWVv23d2OVXCAJxQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hammerspace.com; dmarc=pass action=none
- header.from=hammerspace.com; dkim=pass header.d=hammerspace.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hammerspace.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=k0ybscqcnMLaYFF4VCo3oaj8TyffdXh5wdC06aa5rYY=;
- b=UxcNaoFzIawPAH2WZGyl5sI5S3u+eBbWqAwIcpmpclUx8AYK2NzpjngQW3liT4mWJPGtNUgsFTHMpuMGV2H4eaQsq0sruK8p4puzwxUL1L7xtgt1QpRhQylhmW4QW+dj3orT/utyjDDy/gvXbWplzis6Dcu0g5csS1uTsWQ3ljw=
-Received: from CH2PR13MB3525.namprd13.prod.outlook.com (2603:10b6:610:21::29)
- by CH2PR13MB3623.namprd13.prod.outlook.com (2603:10b6:610:98::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.11; Fri, 19 Feb
- 2021 20:07:20 +0000
-Received: from CH2PR13MB3525.namprd13.prod.outlook.com
- ([fe80::f453:2dd2:675:d063]) by CH2PR13MB3525.namprd13.prod.outlook.com
- ([fe80::f453:2dd2:675:d063%3]) with mapi id 15.20.3868.025; Fri, 19 Feb 2021
- 20:07:20 +0000
-From:   Trond Myklebust <trondmy@hammerspace.com>
-To:     "dan.carpenter@oracle.com" <dan.carpenter@oracle.com>,
-        "olga.kornievskaia@gmail.com" <olga.kornievskaia@gmail.com>,
-        "schumaker.anna@gmail.com" <schumaker.anna@gmail.com>
-CC:     "kbuild-all@lists.01.org" <kbuild-all@lists.01.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "kbuild@lists.01.org" <kbuild@lists.01.org>,
-        "lkp@intel.com" <lkp@intel.com>
-Subject: Re: [PATCH v2 2/2] NFSv4 account for selinux security context when
- deciding to share superblock
-Thread-Topic: [PATCH v2 2/2] NFSv4 account for selinux security context when
- deciding to share superblock
-Thread-Index: AQHXBi9e6cNIt3rRBUGTinwY+Y3SlKpfI2oAgACXVQCAAC6HAA==
-Date:   Fri, 19 Feb 2021 20:07:19 +0000
-Message-ID: <9fa77d94ac515e4318877607ec9e65a4eee2856c.camel@hammerspace.com>
-References: <20210218195046.19280-2-olga.kornievskaia@gmail.com>
-         <20210219081908.GQ2087@kadam>
-         <CAN-5tyGrDtfLBXg42XLzp2med482QWPKN_KGXwNH_SP3V5buew@mail.gmail.com>
-In-Reply-To: <CAN-5tyGrDtfLBXg42XLzp2med482QWPKN_KGXwNH_SP3V5buew@mail.gmail.com>
-Accept-Language: en-US, en-GB
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: oracle.com; dkim=none (message not signed)
- header.d=none;oracle.com; dmarc=none action=none header.from=hammerspace.com;
-x-originating-ip: [68.36.133.222]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ec82cd6b-92cb-4499-70a8-08d8d511f6a4
-x-ms-traffictypediagnostic: CH2PR13MB3623:
-x-microsoft-antispam-prvs: <CH2PR13MB36233E855777D153880EBC9CB8849@CH2PR13MB3623.namprd13.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: y2yDh0cQjxxiSaANl8nH4fkBMkpSh1T88vXoluOfkbV4FdlPOPdutJhfJFZfThLgMvwI2GsaQvx2weY17Yw27s4rDQkxRFu2NvOF8gjutvql/8M4ZC5wWpvQggGrgpw3sMCHmp+DoRMj1SUycmH7HSd0iA499Y3UULh+iKaOnyy7iat5pIROA8lJbKArN7oJUcJ55DAIFrE8jVe0aefGB1cXaojNOpnSVdPRxf2A4CdwjzSzKG+DK8SQPuUK5gKehJAReeBbSjElFDuGo8ka71dwRfIB7g2X9DfkK4kMkH6i5u/p81+lzPwEteEo7XDqm5a03FtViNlgkFqKXp20IKrJ2ZfFfcWWIMk23Qyz2g6LjF1lSnQM2gUNQdAwiDkx4I/Q5V90U5hMGD15oPLUbioN95XirBlnS2lbwz7rkwUOr/nU7gFoFshtG5ikZbZcAswvb1H5C0kM8q7PzpbjjeXxe7e7GUJjZPGJD6HvnbuZ3cXca/bt82/j6Btyc6PuGhHl6Uy69z8rLnqUfm1ZQQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR13MB3525.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(39840400004)(366004)(376002)(346002)(396003)(478600001)(66446008)(6512007)(66556008)(36756003)(4326008)(316002)(8936002)(66946007)(54906003)(6506007)(110136005)(8676002)(186003)(76116006)(26005)(2906002)(2616005)(6486002)(5660300002)(71200400001)(66476007)(64756008)(86362001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: =?utf-8?B?cWNYbzRHT3cvU29Vc2M5UGFDejRMRnBnamRPZ0t5cVFLY3hLZGpEc0NEN1NK?=
- =?utf-8?B?L1hDeS9obHBnVGdzdi9qNmVQUHpJTWozZkRIQWprRGI3LzBCQVpBb0s2Tnlm?=
- =?utf-8?B?VGJJbHdycjVSNnZtSnZOUGNPQkRwaDB5N09IY05XNENGTzRiZFRVeVc4cXRS?=
- =?utf-8?B?aWxvc0hFRFliWHdkVmN6RFJRNC9TWXpwbk0rTm03V283K2Z3dGd2VGFBSEV6?=
- =?utf-8?B?LzlCL2lNT3VxRENXWG56aDYzL2Y2Nk9yRUN0VWtIbHAzMHQ0cllPMkhuUmN4?=
- =?utf-8?B?WDJoVUJKZnpsSmFYR2U1ZHZIYjF2MWVrMzYyalE4Z1NQdGZHbFd4TkxEL3Vz?=
- =?utf-8?B?b2NleENjeWNkcTdEd0ZZUEdSZE16bnRJUDVUOU84YnFTVDBndnVXdDdzemZG?=
- =?utf-8?B?RnE1bjE2SmxYaDhDalhZdzIrSlhKYzI5YlhDbnBVVjVHSHN3SjlySGZEcTFs?=
- =?utf-8?B?d2xXWU16SllMblFEMzVmRG1uZjI5eXk1OUN1OG9kTnp2VTV0VVBXcGJVY3Zn?=
- =?utf-8?B?VlFXTSs4M3Vzd09ZZUZ4RTdhNUQvVVVOc2pwZlVmL0hHZkptd0VobXRjR1pW?=
- =?utf-8?B?bFhKOTdPTVIxa2hNemh1SlRUYmVCWU54R09LdEk5aUU5V2ppZjJqNU5UcUor?=
- =?utf-8?B?T0JGK2VRV2xEVlJrYUhVWVhaTFFTZVdHSktNOXNhZGNnTm55Q3lMbk84UnJr?=
- =?utf-8?B?T0VBNkdybFFjYXFCSFE0MGxCbkszWlk4QUxMb2xNcERnUHRTRlIxOHBxME5L?=
- =?utf-8?B?UTBkd09CMFpmbnJ6cnIwYUVmd2kzOTZsTDhuazFCbkxTeGJkMmU3aHRNWVhC?=
- =?utf-8?B?dlo1Y1ZRR1ZWeEtwVE9uc3B1NGtTZzBlU2hwMC9DNHAyMi85aTR6R2l2YVN4?=
- =?utf-8?B?TDVwRDd2c3JNRTRSVTYyYkdzYmV2ZHJPVXhlRU1DbFFldzJkSjZDNUlRa0M4?=
- =?utf-8?B?NENxc1RWMzhDRFc2NVV5Z0IwZTUxVTBrVzcwRStpSFg0YmY1d0Jnd2JTck81?=
- =?utf-8?B?Y1RYUXYwRyt3Nzg0dVVpYVo4Z0N0anJwRGlUdnYvc3V2d1BSM3VFWVpia1ZW?=
- =?utf-8?B?Y0t6VG16SG0rdWtIVGZLcWJpTEN5eHUrL1hNUmxSYlhtZjRLY3ZYZ2VxakdX?=
- =?utf-8?B?SGxDcG9vTGxFZnVCT3NQQ3dPMnFITUFtVGJmdzRLNGtaeGw1VjhYWTFSanpu?=
- =?utf-8?B?UjlUOUJraGZCeEpvYmZHajRVang5RE4yYlVmaGhZQ3dVWDBBcXp4UEkydVV2?=
- =?utf-8?B?bDlLK1VZM3VIcDg2VFFDUWJYUlRORGRwVS9SdXUzU1ZoTTBCdzlXR3M4aVc5?=
- =?utf-8?B?MzZvRW5oNk9JR0MzN29naUJIamo4dFV1MlVWUkJ4UTVDQ0NKNGpXcWhTaCtW?=
- =?utf-8?B?bUhBV21OdmIyaTU3dEpESGdIZDhXaWxtNVh0eU5STDk2ZldhZEVUMXhXWlps?=
- =?utf-8?B?bFpHNDdQTFFYaC9pcjgrM3ZVV0JwNDRoVEY0amZYdnhZVFBiOUl1UUNhV0s4?=
- =?utf-8?B?TTkwVXVaci91VG9oeTN5UEZaSmNKRmZpdEhXNjI2RnpHK0lsd20yc2lTbTBU?=
- =?utf-8?B?YUZnc1M0RWw0c1BNYmRMSWt3S0NTUFphdlE1d3ZIei9PN3RlbnRrTEV6bnJV?=
- =?utf-8?B?elJsb3FCczd4NjNaLzJTZ3FDSWM0Qzd1aThlODVNanBSVDZPcnUrS0VkdldO?=
- =?utf-8?B?Z2lnWVZmNWFLcGxGZzNzQXorcHhLdnRHNnhsckQvaHlTQjF1dFBnVTE0L3ZV?=
- =?utf-8?Q?IANJt5bLDTqIZZWCIx1kZbgW3NyHcw908ex+9I2?=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5DE7654C7CBE4548BA656C7BF99DEB24@namprd13.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S229649AbhBSU06 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 Feb 2021 15:26:58 -0500
+Received: from sonic303-28.consmr.mail.ne1.yahoo.com ([66.163.188.154]:34864
+        "EHLO sonic303-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229943AbhBSU05 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 Feb 2021 15:26:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613766371; bh=IKuo6OOdcvCBqIRNFVpCh2aYhI2cAAckb5YXBk5ByP4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=WnSnhU0p+Nqxw60pGyjYDg97PdBSLaW503MQ6hhgdlwEUWxgeaPHEaUULIWvDpznSZARu95j705+ijyyb49tDWjNRi9tH5VCrOY8Bh7UrYyUEpbM4wyHl0/RphlbFAjSVUDxNe3pQMjx8ZOp5G/CD+kpkVTgCJmwxgbuz9zFnAHR3TGVyBZx2py4sL/oCpLxiCX+u66OuGJlCQlysESIDQxfr0FrA+GP1ohS4Tm7U3JbAw7ZfWKolq1AEJ0EF+CoBW2xpxYkHAUT/Gx8RHcRzKfa5qxsLD5xYvK+1R0dxWPiMXUKTa/n8RkvNoIBWebyFw9iUB9o1GpoPFghiLYhqg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1613766371; bh=EhlzZ2mabVIucQIUaWkqNtaBlg4yTUx0j1jToKtlXbp=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=NYB8y9C9w93NAmtMVAdxo/ygHIuASfSrp5b5Mk6BSU9cjEpS/yiM9Ktb6elkp6q3+4rbuZ5xAfWA4HvRkAwnswk+Zmt82LpSqCaBwXipkoJFusq2U7A9/8nQ07/zK+BPUU3F253eFm9rT642xkJ2diGsGhdp2Kb96ypgZDTKigxIg61iv9w722SWtJ7DCtZRbMDNgd+KfZuB7aF651+iZq5pHHI99Bhj4d3ucVI3UnarjS/C1x/D2w2dMRnYY00oj1+WGcg/xK9E3xL/eo2DSmLV6njzu3nxCvPk3I7P1NkZeXfTof9mdo+XVv0IcjV7NMWKpnjARfyvEEDLI/3+hg==
+X-YMail-OSG: 0TKq0g4VM1nLfAIDEPFHpOSrVU3F4rLWeWjzU6tQQ19iUC0YNGTzxdnh_5hfSiR
+ oCEHTaXbt3bokIDrI3OKq58wcEpGpTcFhzudKIKcxSuZWwJAqa0kNY8UmC0mWevWWDABAR5sQW4M
+ FskvdyrhpYNXUOvdXZl4Ne_BqIEr4tlNJoh_lw8E8Y5ZdEwwCZvmzs2dH234uVehW_Pp7HBiYXEk
+ ueVdZhxSlumTZcmpLnrlq4z_j4VTodtzL94H8WVbvE2T5GzFp12ykn4HRzPeqV_ZkQiXZzDHkGPN
+ baLDPKKkjdbhS4EMtn9E9Jd2Xm8WL7VDp2Yu9oHzEaGTDcUtAcgdFH6QT0yz0XayUeifAs98yV18
+ u6lyRYRBl.2nw0IWJarwX0ao.SpH4sOCmaYsq2yTDw6KG_gQbRTylodOmY92GWhrYRGo3.Xc4wfI
+ RC6diQKBQgQCCJEDk5HroLGb0Po6u8dm5Q.NMP_eLfv1JI6yK2KAFpJTs6q2IVv8glIwDhtMoKWi
+ 6SRAhE33wRMP2RYhyR3y.kVwll4h8Icm_wf.KhzI2_ehMjRFN7fIYokH8B3mW6a6FcQokJf9hIoD
+ fh0.8IrqB30OoZLbIbNT7TLL6Ym7GytKU.uB01S0_nOa3EK8kl6qusP5.wo6XXt.yJ.Mbr46VeYh
+ Ivabdg7w0hqCIjZ.Vcy3GX0C4mn1O8nmTu1e04nYtEDLn2zkUqf66llW4VFBUWYFGFef0WZmc1y4
+ zkHMkTakAoD5z3f8sMODEl5QvTg_i2BwGW7bMHvCGw3EQdDAPjPaIeUxoF3IM3n5n7irOqcORlmS
+ 64oSEormRqAaDhzNiSTaYmZ5uhZV39Msv8bs4TpKjD2U_DRuCFKX9HZCAv4btXITmKEvxIrUTkP9
+ 0ycqw4P0s8ecn4gDowFPvhSC3425N9XFSlsEb2lEbsD3H5fIjA73LbRircwFkXtdEAdm3dsX5KdR
+ hfNLBhpgw17lehFk5OPiWHW30Q9eFK5kdYtOfFAbm_mvp3bzAYCspajVAo6UwNsfw2lE.xFCvp_p
+ Lo5i1ZZpNKTPaA26KMHqnEmZzx7vjzpPlpWAL6n.YPN8Bzox0.vJ..gRUuBBp5l7UNad3O5EhjiI
+ aC6p1qSNBduAnDzpoe7c6TrlciBC39lFevSLA_gUEv3VDdgc_voCjIAVb1rY9EKpNI3sXrrYcfPi
+ KLzQdEwvvQQ0_xDx79zP8eGYLfusAXH_47_JIWj7_UNcaU41L0mNZuH5vGlO_EqiFw0xT.ysOpVk
+ RkyQ.khQRVniy03ejmnmViFSQhqkQxAlKCcvHrRxs01kRpEm38E90WEPQd2N8bQJvgO26T0f5qy1
+ 4dnpvzPnJQJrsDThUrhehGeVTzjNDzm1viMjCgizUbPdrJnjPfFNlBVc_6yeMTSiUgEOzIEg6ggn
+ NQ20RIa39P8Po9gAsq1hlyygwMVx4h9_8q5dwv8ngYGX6eeNeKtgKWsF3WaLaVCjQIGAjuv167MW
+ mzXETHgbzzNpoOVJ5B7J75lwN89pIZeo8vA5xKNWUnZGt3nqpvnggiTXtEmIknrxiAXz4NOouK.V
+ ix0uSIpkxqpznMm4hJVUE9hHNsNDHm83cX3FKaOBlnRmcNnzgkvmL7m0_MdyCl8BttEl2PUx4Lzy
+ RlBrtEo6Tnv.2lUD2ou.aWOstYq.LWnRhnw_0r5i15Q98HDJApOeVjRnXil1BEYPMdG53rYr4rDJ
+ 48qLT4HdJQ1QLIiU9_hDkdMUeN1v7FeGylFNWakrnnlHtDajJBhaW.ZMbzTVqIzkCtOnrKJGsCyt
+ KCsjZ9uPhGt8tDj._GPUVpY0oDHqC4ERWgll_pseM94aSFAREWS5c5UQjziWZMdYnh4GO7YexO7G
+ lsxSFkQrdUR91UMSFmZvKFPJ79xBlKY3HQdKddrHezMapfmM1xKg_bCXE_crRYTiAW.5oNSKkv1D
+ MrSk.smEIBgaUan6R2rnawYMwkZoA0v.DEwI8t1xHCCVuhVNIKTDm1iAOx.k3vL.sUKF1TzBUFpi
+ OKYjyR0NxFoUONzi2u_v2EO6wnI8KfbI1L.3YpL0CBb6FhNvzlJCF4F7wqCpJ.cuz.3og8_Ssn34
+ v86Bm4iIP258YlNWJh5jxzlyaqMXWuOLnDcxhAUSy4oFgGTzFMzncB9PvGZrmj_QXTq9JiaE_UBi
+ 4fsra3Fwc43fdX2vNdb0BnJj1UfJ.iCtpp4AhqBvyb7GZ7K47wde7FIaoROoSacSGKsYG.2Zz6iA
+ 3bPgCEAeq9XOLN0RBLg.4tvk0LY3So7K7bXdz6v5O9pLj9mhRB3EMHPPOyZMXZw9oRPMFTuFrSAJ
+ 7UzKxyEfSvKOVxCpbO1UOYsEWFb8xbJ9MwAOV3UwlvAef3MIg2mm9YU4iVGcsq55OA.L7XtCGDgP
+ Rr6IiSR1tUkk_spqr1S1K4NUqGIW1eEK_kIj1UVIUvh.VK51qwZdPn2SwPStCv5MLDROKL5IMU23
+ bIrS1ZnyFQTVamfmiRAKv2MKQYwz2icjkGlCwNth1Ioud83A0ssVEtaOOkY0TwSEM.rJe_pZ_LaI
+ P2ZldfV.34lDEIECFswrwyMX7fKzyqMymKLR9A6p.0U7eJPQhxWMVmtid3.qTge7cbNcyPr3WRx6
+ l4NUV_WfE_prRjKPfYCVJ6KgAfr3ugkBBm_LBEdLbUNXLk.gNjtr.tlQXlsZPUEyKzuG4.szhw18
+ uqQyMVnbziDtUegClKaKuDvZ_ceAkygfXPpdBoRQk0PwHBu2jjGFX_foHjl7.goNtevgDiZ7clru
+ HL61X4OyqSAddN91t77L.nZRUC5Bh90njwwjTduFC8ONEZKUIuSWJDicXvVouRyUFl6GTOSdzAO0
+ WOwUQHjd7LTBtamA__N2S0qolojNAQjzEjwURFXEhms1h
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Fri, 19 Feb 2021 20:26:11 +0000
+Received: by smtp418.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID e32411f50db2e330209c3093d2d00d84;
+          Fri, 19 Feb 2021 20:26:09 +0000 (UTC)
+Subject: Re: [PATCH v3 1/2] [security] Add new hook to compare new mount to an
+ existing mount
+To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
+        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com
+Cc:     linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+References: <20210219165715.20324-1-olga.kornievskaia@gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <86bcc61a-fdd6-1a6a-d478-c8ce2bc01aa7@schaufler-ca.com>
+Date:   Fri, 19 Feb 2021 12:26:07 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-X-OriginatorOrg: hammerspace.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH2PR13MB3525.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ec82cd6b-92cb-4499-70a8-08d8d511f6a4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Feb 2021 20:07:20.0608
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 0d4fed5c-3a70-46fe-9430-ece41741f59e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: wPtkhK93mj4tZof9KxyKs1YL0tcF83+SPDOQhMEVs81298V/0q6GZDxP0yWg6biGRC1dbgjOcG0MAvt4uQX/2w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR13MB3623
+In-Reply-To: <20210219165715.20324-1-olga.kornievskaia@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.17712 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.9.1)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-T24gRnJpLCAyMDIxLTAyLTE5IGF0IDEyOjIwIC0wNTAwLCBPbGdhIEtvcm5pZXZza2FpYSB3cm90
-ZToNCj4gVHJvbmQvQW5uYSwNCj4gDQo+IEknZCBsaWtlIHlvdXIgb3BpbmlvbiBoZXJlLiBTb21l
-IHN0YXRpYyBjaGVja2luZyBmbGFncyBhICJjdHgiDQo+IGFzc2lnbm1lbnQgaW4gbmZzX2ZpbGxf
-c3VwZXIoKSBpbiB0aGUgbmV3IHBhdGNoLiBJbiBhbiBleGlzdGluZyBjb2RlDQo+IHRoZXJlIGlz
-IGEgY2hlY2sgZm9yIGl0IGlzIE5VTEwgYmVmb3JlIGRlcmVmZXJlbmNpbmcuIEhvd2V2ZXIsICJj
-dHgiDQo+IGNhbiBuZXZlciBiZSBudWxsLiBuZnNfZ2V0X3RyZWVfY29tbW9uKCkgd2hpY2ggY2Fs
-bHMgbmZzX2ZpbGxfc3VwZXIoKQ0KPiBhbmQgcGFzc2VzIGluICJjdHgiIGdldHMgaXQgZnJvbSB0
-aGUgcGFzc2VkIGluICJmc19jb250ZXh0Ii4gSWYgdGhlDQo+IHBhc3NlZCBpbiBhcmcgY2FuIGJl
-IG51bGwgdGhlbiB3ZSBhcmUgZGVyZWZlcmVuY2luZyBpbiB2YXIgYXNzaWdubWVudA0KPiBzbyB0
-aGluZ3Mgd291bGQgYmxvdyB1cCB0aGVyZS4gU28gImN0eCIgY2FuIG5ldmVyIGJlIG51bGwuDQo+
-IA0KPiBTaG91bGQgSSBjcmVhdGUgYW5vdGhlciBjbGVhbiB1cCBwYXRjaCB0byByZW1vdmUgdGhl
-IGNoZWNrIGZvciBudWxsDQo+IGN0eCBpbiBuZnNfZmlsbF9zdXBlcigpIHRvIG1ha2Ugc3RhdGlj
-IGFuYWx5emVycyBoYXBweT8NCj4gDQoNClllcywgYXQgdGhpcyBwb2ludCwgbmZzX2ZpbGxfc3Vw
-ZXIoKSBpcyBvbmx5IGNhbGxlZCBmcm9tDQpuZnNfZ2V0X3RyZWVfY29tbW9uKCksIHdoaWNoIHdv
-dWxkIGNyYXNoIGFuZCBidXJuIHdlbGwgYmVmb3JlIGlmIGN0eA0Kd2VyZSBhbiBpbnZhbGlkIHBv
-aW50ZXIuDQoNClNvIHBsZWFzZSBnbyBhaGVhZCwgYW5kIHJlbW92ZSB0aGUgY2hlY2sgZm9yIGN0
-eCBiZWluZyBOVUxMIGluDQpuZnNfZmlsbF9zdXBlcigpLg0KDQotLSANClRyb25kIE15a2xlYnVz
-dA0KTGludXggTkZTIGNsaWVudCBtYWludGFpbmVyLCBIYW1tZXJzcGFjZQ0KdHJvbmQubXlrbGVi
-dXN0QGhhbW1lcnNwYWNlLmNvbQ0KDQoNCg==
+On 2/19/2021 8:57 AM, Olga Kornievskaia wrote:
+> From: Olga Kornievskaia <kolga@netapp.com>
+>
+> Add a new hook that takes an existing super block and a new mount
+> with new options and determines if new options confict with an
+> existing mount or not.
+>
+> A filesystem can use this new hook to determine if it can share
+> the an existing superblock with a new superblock for the new mount.
+>
+> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+> ---
+>  include/linux/lsm_hook_defs.h |  1 +
+>  include/linux/lsm_hooks.h     |  6 ++++
+>  include/linux/security.h      |  8 +++++
+>  security/security.c           |  7 +++++
+>  security/selinux/hooks.c      | 56 +++++++++++++++++++++++++++++++++++
+>  5 files changed, 78 insertions(+)
+>
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 7aaa753b8608..1b12a5266a51 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -62,6 +62,7 @@ LSM_HOOK(int, 0, sb_alloc_security, struct super_block *sb)
+>  LSM_HOOK(void, LSM_RET_VOID, sb_free_security, struct super_block *sb)
+>  LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, void *mnt_opts)
+>  LSM_HOOK(int, 0, sb_eat_lsm_opts, char *orig, void **mnt_opts)
+> +LSM_HOOK(int, 0, sb_mnt_opts_compat, struct super_block *sb, void *mnt_opts)
+>  LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
+>  LSM_HOOK(int, 0, sb_kern_mount, struct super_block *sb)
+>  LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index a19adef1f088..e2519adccb74 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -142,6 +142,12 @@
+>   *	@orig the original mount data copied from userspace.
+>   *	@copy copied data which will be passed to the security module.
+>   *	Returns 0 if the copy was successful.
+> + * @sb_mnt_opts_compat:
+> + *	Determine if the existing mount options are compatible with the new
+> + *	mount options being used.
+> + *	@sb superblock being compared
+> + *	@mnt_opts new mount options
+> + *	Return 0 if options are the compatible.
+
+s/the //
+
+>   * @sb_remount:
+>   *	Extracts security system specific mount options and verifies no changes
+>   *	are being made to those options.
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index c35ea0ffccd9..50db3d5d1608 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -291,6 +291,7 @@ int security_sb_alloc(struct super_block *sb);
+>  void security_sb_free(struct super_block *sb);
+>  void security_free_mnt_opts(void **mnt_opts);
+>  int security_sb_eat_lsm_opts(char *options, void **mnt_opts);
+> +int security_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts);
+>  int security_sb_remount(struct super_block *sb, void *mnt_opts);
+>  int security_sb_kern_mount(struct super_block *sb);
+>  int security_sb_show_options(struct seq_file *m, struct super_block *sb);
+> @@ -635,6 +636,13 @@ static inline int security_sb_remount(struct super_block *sb,
+>  	return 0;
+>  }
+>  
+> +static inline int security_sb_mnt_opts_compat(struct super_block *sb,
+> +					      void *mnt_opts)
+> +{
+> +	return 0;
+> +}
+> +
+> +
+>  static inline int security_sb_kern_mount(struct super_block *sb)
+>  {
+>  	return 0;
+> diff --git a/security/security.c b/security/security.c
+> index 7b09cfbae94f..56cf5563efde 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -890,6 +890,13 @@ int security_sb_eat_lsm_opts(char *options, void **mnt_opts)
+>  }
+>  EXPORT_SYMBOL(security_sb_eat_lsm_opts);
+>  
+> +int security_sb_mnt_opts_compat(struct super_block *sb,
+> +				void *mnt_opts)
+> +{
+> +	return call_int_hook(sb_mnt_opts_compat, 0, sb, mnt_opts);
+> +}
+> +EXPORT_SYMBOL(security_sb_mnt_opts_compat);
+> +
+>  int security_sb_remount(struct super_block *sb,
+>  			void *mnt_opts)
+>  {
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 644b17ec9e63..afee3a222a0e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2656,6 +2656,61 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+>  	return rc;
+>  }
+>  
+> +static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
+> +{
+> +	struct selinux_mnt_opts *opts = mnt_opts;
+> +	struct superblock_security_struct *sbsec = sb->s_security;
+> +	u32 sid;
+> +	int rc;
+> +
+> +	/*
+> +	 * Superblock not initialized (i.e. no options) - reject if any
+> +	 * options specified, otherwise accept.
+> +	 */
+> +	if (!(sbsec->flags & SE_SBINITIALIZED))
+> +		return opts ? 1 : 0;
+> +
+> +	/*
+> +	 * Superblock initialized and no options specified - reject if
+> +	 * superblock has any options set, otherwise accept.
+> +	 */
+> +	if (!opts)
+> +		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
+> +
+> +	if (opts->fscontext) {
+> +		rc = parse_sid(sb, opts->fscontext, &sid);
+> +		if (rc)
+> +			return 1;
+> +		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
+> +			return 1;
+> +	}
+> +	if (opts->context) {
+> +		rc = parse_sid(sb, opts->context, &sid);
+> +		if (rc)
+> +			return 1;
+> +		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
+> +			return 1;
+> +	}
+> +	if (opts->rootcontext) {
+> +		struct inode_security_struct *root_isec;
+> +
+> +		root_isec = backing_inode_security(sb->s_root);
+> +		rc = parse_sid(sb, opts->rootcontext, &sid);
+> +		if (rc)
+> +			return 1;
+> +		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
+> +			return 1;
+> +	}
+> +	if (opts->defcontext) {
+> +		rc = parse_sid(sb, opts->defcontext, &sid);
+> +		if (rc)
+> +			return 1;
+> +		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
+> +			return 1;
+> +	}
+> +	return 0;
+> +}
+> +
+>  static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+>  {
+>  	struct selinux_mnt_opts *opts = mnt_opts;
+> @@ -6984,6 +7039,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>  
+>  	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+>  	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
+> +	LSM_HOOK_INIT(sb_mnt_opts_compat, selinux_sb_mnt_opts_compat),
+>  	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
+>  	LSM_HOOK_INIT(sb_kern_mount, selinux_sb_kern_mount),
+>  	LSM_HOOK_INIT(sb_show_options, selinux_sb_show_options),
