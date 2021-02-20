@@ -2,95 +2,88 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F319CC433E0
-	for <selinux@archiver.kernel.org>; Sat, 20 Feb 2021 14:45:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EB14C433E9
+	for <selinux@archiver.kernel.org>; Sat, 20 Feb 2021 14:51:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA6B864EE0
-	for <selinux@archiver.kernel.org>; Sat, 20 Feb 2021 14:45:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4931964EE2
+	for <selinux@archiver.kernel.org>; Sat, 20 Feb 2021 14:51:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbhBTOpN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 20 Feb 2021 09:45:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42562 "EHLO
+        id S229678AbhBTOvS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 20 Feb 2021 09:51:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbhBTOpN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 20 Feb 2021 09:45:13 -0500
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5CAC061574
-        for <selinux@vger.kernel.org>; Sat, 20 Feb 2021 06:44:31 -0800 (PST)
-Received: by mail-ed1-x52c.google.com with SMTP id c6so15958766ede.0
-        for <selinux@vger.kernel.org>; Sat, 20 Feb 2021 06:44:31 -0800 (PST)
+        with ESMTP id S229543AbhBTOvP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 20 Feb 2021 09:51:15 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74A4C061574
+        for <selinux@vger.kernel.org>; Sat, 20 Feb 2021 06:50:33 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id d2so15844264edq.10
+        for <selinux@vger.kernel.org>; Sat, 20 Feb 2021 06:50:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JcH1Au1axr2FL2n0WJkJ/xnkEcygLgIq8xrE+zFFwww=;
-        b=w7X4mpyrT9sF+2GccS55jwZtx7nlagHGAtA8eFYKBiJWKTWRmHenRWrZUzTdyF09Ix
-         E7VaO1x48yPxVOCemGgUjhPNd2BhUdjP3MWZ95NeiSkxdiV0oj6BXcBCf+ZDHMudr7Ro
-         MJyxpI55FyekOXQWX7qPw3uadMmBL8nxWM2xxmplHY1PqY8210EQE1WICnuPPTIpQg5i
-         hwLkXA9M8K7owDYz77/CT2QX3zXp04fb6OD1BW6lCqM6ArRIQ7lEI2fVC9qV0IBysLP7
-         u5X34uilU6eiOWwpt71DUrh4p3BRhXWBiIpzEh6sZ18I5zxRX4kQQ6qvaPaFsiExWP89
-         LFgQ==
+        bh=g9x+oRQ4dxdX/Lcd7XzVC8mAPWvFSQ3BbpYDOmT75qU=;
+        b=i1GvJWnnZAmMYuZbNa5SxOkH0LNxxBrMyouPhWfS2CgRWKPx1K1SsgK/q4TcmiLgaz
+         XM8jCX60i599PSPWcd2ecI6TxjeeF7LlcymqdkKntxfLjq5gYh4+S6W7qEURIROkL3m0
+         JwM+2iQzu4ecyYXjddKkeCkV6ZuBx9/BSFMOc8c8AN3rvqwLAy/BCjD2hLQf412U1Tpu
+         L2vWHeTAZeGCYrluhzIm9MAziLEFqq/wdC9nRxtpQRLFwBi/djVoxC3rSsv6umkZzB9W
+         u3msz0I5d7i74DZao+ZbUQ7ee13P3y/wDkc5cs+xcnmqgT2p9ogCWRR4DSlt8J+deGmk
+         OlzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JcH1Au1axr2FL2n0WJkJ/xnkEcygLgIq8xrE+zFFwww=;
-        b=adCzssT5u+HgCCDWFS5ZSDDaSdhBkaCi0yqSy/0zoxmNujMYklfX4QCYnjOoJCKQrz
-         5MNIb3B/L+FccjmsnytnmQ7MyTD/DzQdN/xZ2XtMcg0CIsLuBs/wQp7b9GZxFQNhymre
-         PkoFU3tSvGsmywBbfM+q3U2LgCfTnDbBFLutaAgRvU3Wfuq36qfn0Cznt+wza/KzdmDR
-         NK+uX883FzlgbZK2uyEF+63UzajbPX89dHK3TYLjUfy5T8sfeBSw9nxJXc57rJMK7uhq
-         zLDDtliT51rcojZO/P5l/o0Dkmg88GmUkdqRp6mBcayDi3wBorlbcpi1965frOvMSvOy
-         HYQw==
-X-Gm-Message-State: AOAM532H6Uy1fpZCrgrKjrtQbmfCu82FMUMyICMZEF1bJyObejPxL6qV
-        oWhECFr2SUovCGqctfAROcSSdNSctfICBzTe0l1e
-X-Google-Smtp-Source: ABdhPJw4uzG6aOVrE1Bv5LOsRcaI3+fRj1Lk88hkXx94Q7+sJvBX8lqme6hlap+E/TVRsyXRt2DfqPOJFuxo1NhawLY=
-X-Received: by 2002:a05:6402:4391:: with SMTP id o17mr14334079edc.196.1613832270244;
- Sat, 20 Feb 2021 06:44:30 -0800 (PST)
+        bh=g9x+oRQ4dxdX/Lcd7XzVC8mAPWvFSQ3BbpYDOmT75qU=;
+        b=GNM0NLX/CX359mPuxJ9dPBV+9BeSSgXTjiKNQoVzT8WgS64Yj/JV+oYeQpxnCa5M39
+         5DLIEwA2ScUpJoqvIFf9Ir9Qc8FTGPjpEleFKQzfHW+9yLYwMJShvmrMEyMd7P4cN0lA
+         6pjU8J3UBcwobqvq/JDcxLuiCIv1FVbqSTtIE7gFiEUJQr2pQ7xgDZ/AnVmCnIQatUSQ
+         sJRfUHH2aw27TynLAGtOgbDCr/M1Tj3PVFZvJKl17NXJB3MW5KKiueudyDNTAdvNqZV1
+         5zI+wyV3QFSfpUXlYnwUGMZgCekuiTSUsXvlIlujccvk0mM4siax/krWL5Pbw6cs+xxJ
+         xoIA==
+X-Gm-Message-State: AOAM533XZkzAPsgcAeuajZaexbkXyAUCxg8LTM4uwKOMozgLk+r0Qc87
+        UnTyyABwAx5B8edxu+DKud0nNAZ4yqKrIFB1T1SU
+X-Google-Smtp-Source: ABdhPJxDoQDl1riak88nhmzRFC5m+4Ns2U3daQUcXKO4UHBPAml5XfjQwYfQDJVh7yqcBX+pQqn608ufvJbf4pPLn4Y=
+X-Received: by 2002:a05:6402:438d:: with SMTP id o13mr14030563edc.135.1613832632309;
+ Sat, 20 Feb 2021 06:50:32 -0800 (PST)
 MIME-Version: 1.0
-References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377734508.87807.8537642254664217815.stgit@sifl> <eda68a4e-f4f5-88c9-e748-1f1831f0266a@namei.org>
-In-Reply-To: <eda68a4e-f4f5-88c9-e748-1f1831f0266a@namei.org>
+References: <CAHC9VhSiq5gqY1bfouia4GwYsE9MGGXnUOqwEtHi2u0-1=8aZQ@mail.gmail.com>
+ <67cacc61-4d6a-39d5-f2c0-5530e8d1e39@namei.org>
+In-Reply-To: <67cacc61-4d6a-39d5-f2c0-5530e8d1e39@namei.org>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Sat, 20 Feb 2021 09:44:19 -0500
-Message-ID: <CAHC9VhRJ-CHMag-dmxDVBp0efQbj7mgGdhs2AjfWFP_kDCGTfw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/4] lsm: separate security_task_getsecid() into
- subjective and objective variants
-To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>,
-        linux-audit@redhat.com, James Morris <jmorris@namei.org>
+Date:   Sat, 20 Feb 2021 09:50:21 -0500
+Message-ID: <CAHC9VhRmFFqiF8oW_K_Rm3cKS9iEE97pjHeiTDcnYxR-HrpbeQ@mail.gmail.com>
+Subject: Re: security_task_getsecid() and subjective vs objective task creds
+To:     James Morris <jmorris@namei.org>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 19, 2021 at 9:57 PM James Morris <jmorris@namei.org> wrote:
-> On Fri, 19 Feb 2021, Paul Moore wrote:
-> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> > index c119736ca56ac..39d501261108d 100644
-> > --- a/drivers/android/binder.c
-> > +++ b/drivers/android/binder.c
-> > @@ -2700,7 +2700,7 @@ static void binder_transaction(struct binder_proc *proc,
-> >               u32 secid;
-> >               size_t added_size;
-> >
-> > -             security_task_getsecid(proc->tsk, &secid);
-> > +             security_task_getsecid_subj(proc->tsk, &secid);
-> >               ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
-> >               if (ret) {
-> >                       return_error = BR_FAILED_REPLY;
+On Fri, Feb 19, 2021 at 9:55 PM James Morris <jmorris@namei.org> wrote:
+> On Thu, 18 Feb 2021, Paul Moore wrote:
 >
-> Can someone from the Android project confirm this is correct for binder?
+> > Hi all,
+> >
+> > When looking into a problem I noticed that audit was recording the
+> > wrong subject label for a process.
+>
+> Is this a public bug? It would be good to know what the extent of this
+> issue may be and whether it warrants a CVE.
 
-Yes, please take a look Android folks.  As I mentioned previously,
-review of the binder changes is one area where I think some extra
-review is needed; I'm just not confident enough in my understanding of
-binder.
+Let me rephrase, "When looking into a problem with some new patches
+that I am working on I noticed ...".
+
+I am not aware of any public bugs relating to this subj/obj confusion,
+this was simply something I noticed while doing some new work.  I
+would post those patches now, but they are still incomplete.
+Regardless, this subj/obj confusion is something we should resolve.
 
 -- 
 paul moore
