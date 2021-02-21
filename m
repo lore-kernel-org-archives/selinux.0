@@ -4,62 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC0EDC433DB
-	for <selinux@archiver.kernel.org>; Sun, 21 Feb 2021 22:11:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 263E7C433DB
+	for <selinux@archiver.kernel.org>; Sun, 21 Feb 2021 22:13:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8843664EB4
-	for <selinux@archiver.kernel.org>; Sun, 21 Feb 2021 22:11:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC9226146D
+	for <selinux@archiver.kernel.org>; Sun, 21 Feb 2021 22:13:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbhBUWKx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 21 Feb 2021 17:10:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47670 "EHLO
+        id S231609AbhBUWNU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 21 Feb 2021 17:13:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231522AbhBUWKm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 21 Feb 2021 17:10:42 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D00EC061786
-        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 14:10:02 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id h10so19533409edl.6
-        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 14:10:02 -0800 (PST)
+        with ESMTP id S231600AbhBUWNO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 21 Feb 2021 17:13:14 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFA5C06178A
+        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 14:12:32 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id lu16so26104268ejb.9
+        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 14:12:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=yN1sK8RFllvg7dBWAUIfT/4UQI2B6q3N2wJPnPice2I=;
-        b=bEAmjj4CNm7qVYSlzvKdcWfKM3Cm21yRjERfOjdQ5T6QhmGf+wihCzQl12nngVVKYY
-         QE61CVSvKt2ly76eNWQTS/Gl+IrcqT1jcP3mTpuoK1CEo6+S326R1Y8FfaDqAvSsflGC
-         7tfCsVbD7Ff0DDxCd8tk96/4kJct6ZNl+qIci33Rl2jeXd+PUD32BodBRrXOsUXOuC9R
-         SiwVZJt6OMwq1BbH3iAnXCGbCOO6cplrCpSakhjtN1HL7Co7mx3jdr1MDwu/X8g+Ob3s
-         P4EGlTP/GF3AADTvkLECWBV4LhEnm12qbKSWQmu5s/KnzUOcMpgPaM/1uY5+7RhBp9LD
-         Axqw==
+        bh=JHLbwT/ysBdqWf/COmA52ux7qzFg6vWUUO9UK965XT8=;
+        b=lTnwExIFwzArZnyv4fZz7IOs+S/6QFZAMNLV4esTGEPpr7fcftiAU59BJnKr0rHEgQ
+         SOcXURchNRRSD1iifWyn46RzKL/UlQ3y/2n/rxyV/ch/LROQ6gCTtD0UZiEJzuhx5mNf
+         9ygT3IVEqOPLLsalhZioCreIGHjXj3Bl2NRCA72KX2+BV/1vpnJlpoZY1JQ7xgsw9ZME
+         CycQn18LBv1Rs1eTaYJZFyCOOXElo88WxWIKgTiI4E+l/4fXIHs5YHyPLh6IkyoV7nZ9
+         0oBzouA1rzIJXrimtZ5xw5Pi39+0I8J9rwTNlZj7uFAg14bkOVEDG0qc7nZMoQ+T5C/e
+         Mt0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=yN1sK8RFllvg7dBWAUIfT/4UQI2B6q3N2wJPnPice2I=;
-        b=dPF2oVIeUT/RzPc9C8ZDPDef4WmrRfj1YWni9Dwd6qQg+btxK5rzaV4VCHZ7wYLRHI
-         +tV1NnOyF2TYVsJgITxQRSHj0OmCbaVCx9rpFy9Gx6O4upx8sP6rUgzfM+tEuBYQeAOX
-         rWbntH3IxhV84buaDigMMcdv27jnNi9gb9qvnHa7YeUdtj+xj3Dvozohg6rKaP3xiKUY
-         X3B3h8DLMPTbErso3FD03ZLjMBummPR1Zh5nnLuXjmKxlf/144MCEAWDVr+FbXjfXurG
-         B2z3JA4J81l+FkFxAItbPf3sQVwaChV0JMbq+kZ78DpojXIrn4+Pb2zL19ONbVU/LWHX
-         1Q8w==
-X-Gm-Message-State: AOAM530FTdETj7qzSwwRt0sb7uy7l/Jv814zheNOwBebKkOLnB9lB/ms
-        ptdio6969dKMCcf5znDxPOSAwTrXpGhtZIxYuGoO
-X-Google-Smtp-Source: ABdhPJwE2/G4txzfFpoJa9YYX4zVKE0K5UxfNLw6f6HPda8Lb0pXnEPPV+LE/MsLJtsaszxlMwyr7TomsR8D65/GIPU=
-X-Received: by 2002:a05:6402:438d:: with SMTP id o13mr19363674edc.135.1613945400830;
- Sun, 21 Feb 2021 14:10:00 -0800 (PST)
+        bh=JHLbwT/ysBdqWf/COmA52ux7qzFg6vWUUO9UK965XT8=;
+        b=oiGtKaKZLVMB5AIKYCXlBkQB2uyye+mtEC/7Deq0N31OF8qwu4oT2RFAePPAZa2z62
+         QWhI6/8yWADZ+OpZEP+RFmvcd+YfbZGkTlMW7qlWjbFC/GBUgPvAGMPi0swoi7tI6jd5
+         Xwglv0Wn2qLm8auMSeX7u7GtjCaU/tksN7nhNmJ+CXzXzoIvnCxyoi3jR5dHTl/zfdT4
+         +zNFptptJTtyHsAp446q1pgByobudLtCwbRO4kLvuDUKPn+Yb2CxqRdRnLfkoX/I/W2+
+         Fmuo430LouJB0YtHVDcuFkFXenCleCqnJ6U6ad0+2KPQIl/aPAbwmI2FPL8zEZbHqmV3
+         Oa7w==
+X-Gm-Message-State: AOAM533jJOQEFJQC6US44k7MKnJxkDSRO9FAHgL6bnetePAhHt8Ldfv5
+        rib8OB+PnNFWPddOK+aM4TsAr+DY3GvNb6/0rshn
+X-Google-Smtp-Source: ABdhPJzC8AgWl6lkNnXnwDrKhO1kGPO9s6ErhPfRwnjbiInC6c1hcYVpWVaXQNi3+Iu7IaJg76JIBWJv0tqMaclUMiE=
+X-Received: by 2002:a17:906:8394:: with SMTP id p20mr18467935ejx.178.1613945551482;
+ Sun, 21 Feb 2021 14:12:31 -0800 (PST)
 MIME-Version: 1.0
 References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377734508.87807.8537642254664217815.stgit@sifl> <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
-In-Reply-To: <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
+ <161377736385.87807.7033400948278183233.stgit@sifl> <28174118-93d2-e7a5-50fb-004185354625@canonical.com>
+In-Reply-To: <28174118-93d2-e7a5-50fb-004185354625@canonical.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 21 Feb 2021 17:09:48 -0500
-Message-ID: <CAHC9VhSYW+pRT64ayO2es1_8jt-g8O48h1eUm9-Hm=eiwmeEJg@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/4] lsm: separate security_task_getsecid() into
- subjective and objective variants
+Date:   Sun, 21 Feb 2021 17:12:19 -0500
+Message-ID: <CAHC9VhS+K2tD_8UYcgO5Lzkh3r4TWBEyzJArekagoykwj+fekw@mail.gmail.com>
+Subject: Re: [RFC PATCH 4/4] apparmor: differentiate between subjective and
+ objective task credentials
 To:     John Johansen <john.johansen@canonical.com>
 Cc:     Casey Schaufler <casey@schaufler-ca.com>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
@@ -69,40 +69,21 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 21, 2021 at 7:51 AM John Johansen
+On Sun, Feb 21, 2021 at 7:57 AM John Johansen
 <john.johansen@canonical.com> wrote:
 > On 2/19/21 3:29 PM, Paul Moore wrote:
-> > Of the three LSMs that implement the security_task_getsecid() LSM
-> > hook, all three LSMs provide the task's objective security
-> > credentials.  This turns out to be unfortunate as most of the hook's
-> > callers seem to expect the task's subjective credentials, although
-> > a small handful of callers do correctly expect the objective
-> > credentials.
-> >
-> > This patch is the first step towards fixing the problem: it splits
-> > the existing security_task_getsecid() hook into two variants, one
-> > for the subjective creds, one for the objective creds.
-> >
-> >   void security_task_getsecid_subj(struct task_struct *p,
-> >                                  u32 *secid);
-> >   void security_task_getsecid_obj(struct task_struct *p,
-> >                                 u32 *secid);
-> >
-> > While this patch does fix all of the callers to use the correct
-> > variant, in order to keep this patch focused on the callers and to
-> > ease review, the LSMs continue to use the same implementation for
-> > both hooks.  The net effect is that this patch should not change
-> > the behavior of the kernel in any way, it will be up to the latter
-> > LSM specific patches in this series to change the hook
-> > implementations and return the correct credentials.
+> > With the split of the security_task_getsecid() into subjective and
+> > objective variants it's time to update AppArmor to ensure it is
+> > using the correct task creds.
 > >
 > > Signed-off-by: Paul Moore <paul@paul-moore.com>
 >
-> So far this looks good. I want to take another stab at it and give
-> it some testing
+> This has a couple problems, that I will work on addressing
 
-Thanks John, I appreciate the extra set of eyes.  Let me know if you
-run across anything wonky.
+Yes, I figured that might be the case; I don't have enough
+understanding of the AppArmor internals to do anything more than a ham
+fisted approach - my apologies on that.  Let me know if there is
+anything I can do to help.
 
 -- 
 paul moore
