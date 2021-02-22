@@ -2,163 +2,118 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B247C433E9
-	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 07:16:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AF4AC433DB
+	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 10:04:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5B3A64E00
-	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 07:16:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7B5064E20
+	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 10:04:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229952AbhBVHP4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Feb 2021 02:15:56 -0500
-Received: from z11.mailgun.us ([104.130.96.11]:41757 "EHLO z11.mailgun.us"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229947AbhBVHPc (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 22 Feb 2021 02:15:32 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1613978107; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=bvL7IeBa4MpEPKdjMB22D7Uk+WRT/u8hco4xQMVOEWY=;
- b=GoTNULAjSx0NDk2YA8k31s1AiWxe3pQ/+q/sWH+h9GGQES3EvrgCs51df8Iu3e2JEPTXECcA
- 9tXYmRQ1/5CLuWYGjSlg2X8b1rOjqQXNJ6DQr85lK1jGujuAta772SX8yA11gA9zcM/nlx6p
- qF2CEj6/qpWBB5jm4jmfa4K67fM=
-X-Mailgun-Sending-Ip: 104.130.96.11
-X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
- 603359d70ccf3cf226b46c5f (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 22 Feb 2021 07:14:31
- GMT
-Sender: pnagar=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id C17E8C43467; Mon, 22 Feb 2021 07:14:30 +0000 (UTC)
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: pnagar)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 537E4C433C6;
-        Mon, 22 Feb 2021 07:14:29 +0000 (UTC)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 22 Feb 2021 12:44:29 +0530
-From:   pnagar@codeaurora.org
-To:     Ard Biesheuvel <ardb@kernel.org>, Will Deacon <will@kernel.org>
-Cc:     Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-arch <linux-arch@vger.kernel.org>, casey@schaufler-ca.com,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        David Howells <dhowells@redhat.com>, ojeda@kernel.org,
-        Prasad Sodagudi <psodagud@codeaurora.org>,
-        nmardana@codeaurora.org, johan@kernel.org,
-        Joe Perches <joe@perches.com>, Jessica Yu <jeyu@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+        id S230302AbhBVKDx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Feb 2021 05:03:53 -0500
+Received: from jptosegrel01.sonyericsson.com ([124.215.201.71]:15340 "EHLO
+        JPTOSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230417AbhBVKCY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 22 Feb 2021 05:02:24 -0500
+X-Greylist: delayed 646 seconds by postgrey-1.27 at vger.kernel.org; Mon, 22 Feb 2021 05:02:08 EST
 Subject: Re: [PATCH] RTIC: selinux: ARM64: Move selinux_state to a separate
  page
-In-Reply-To: <CAMj1kXG_qj0A5r+rRnGdcwjomqJUSQPw6aNYyPbSVA8Fr=RjyA@mail.gmail.com>
+To:     Will Deacon <will@kernel.org>,
+        Preeti Nagar <pnagar@codeaurora.org>, <maz@kernel.org>,
+        <ardb@kernel.org>
+CC:     <arnd@arndb.de>, <jmorris@namei.org>, <serge@hallyn.com>,
+        <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+        <eparis@parisplace.org>, <linux-security-module@vger.kernel.org>,
+        <selinux@vger.kernel.org>, <linux-arch@vger.kernel.org>,
+        <casey@schaufler-ca.com>, <ndesaulniers@google.com>,
+        <dhowells@redhat.com>, <ojeda@kernel.org>,
+        <psodagud@codeaurora.org>, <nmardana@codeaurora.org>,
+        <rkavati@codeaurora.org>, <vsekhar@codeaurora.org>,
+        <mreichar@codeaurora.org>, <johan@kernel.org>, <joe@perches.com>,
+        <jeyu@kernel.org>, <linux-kernel@vger.kernel.org>
 References: <1613470672-3069-1-git-send-email-pnagar@codeaurora.org>
  <20210217094205.GA3570@willie-the-truck>
- <CAMj1kXG_qj0A5r+rRnGdcwjomqJUSQPw6aNYyPbSVA8Fr=RjyA@mail.gmail.com>
-Message-ID: <db7be4b7c31828d559ad4b1f4a93b76e@codeaurora.org>
-X-Sender: pnagar@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+From:   peter enderborg <peter.enderborg@sony.com>
+Message-ID: <5f6b5d38-266e-12f7-8e55-07fe794fbf97@sony.com>
+Date:   Mon, 22 Feb 2021 10:50:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20210217094205.GA3570@willie-the-truck>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-GB
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=fqOim2wf c=1 sm=1 tr=0 a=9drRLWArJOlETflmpfiyCA==:117 a=IkcTkHD0fZMA:10 a=qa6Q16uM49sA:10 a=aMTo-Due3bUgzeKeeW4A:9 a=QEXdDO2ut3YA:10
+X-SEG-SpamProfiler-Score: 0
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-02-17 15:23, Ard Biesheuvel wrote:
-> On Wed, 17 Feb 2021 at 10:42, Will Deacon <will@kernel.org> wrote:
->> 
->> [Please include arm64 and kvm folks for threads involving the stage-2 
->> MMU]
->> 
->> On Tue, Feb 16, 2021 at 03:47:52PM +0530, Preeti Nagar wrote:
->> > The changes introduce a new security feature, RunTime Integrity Check
->> > (RTIC), designed to protect Linux Kernel at runtime. The motivation
->> > behind these changes is:
->> > 1. The system protection offered by Security Enhancements(SE) for
->> > Android relies on the assumption of kernel integrity. If the kernel
->> > itself is compromised (by a perhaps as yet unknown future vulnerability),
->> > SE for Android security mechanisms could potentially be disabled and
->> > rendered ineffective.
->> > 2. Qualcomm Snapdragon devices use Secure Boot, which adds cryptographic
->> > checks to each stage of the boot-up process, to assert the authenticity
->> > of all secure software images that the device executes.  However, due to
->> > various vulnerabilities in SW modules, the integrity of the system can be
->> > compromised at any time after device boot-up, leading to un-authorized
->> > SW executing.
->> >
->> > The feature's idea is to move some sensitive kernel structures to a
->> > separate page and monitor further any unauthorized changes to these,
->> > from higher Exception Levels using stage 2 MMU. Moving these to a
->> > different page will help avoid getting page faults from un-related data.
->> > The mechanism we have been working on removes the write permissions for
->> > HLOS in the stage 2 page tables for the regions to be monitored, such
->> > that any modification attempts to these will lead to faults being
->> > generated and handled by handlers. If the protected assets are moved to
->> > a separate page, faults will be generated corresponding to change attempts
->> > to these assets only. If not moved to a separate page, write attempts to
->> > un-related data present on the monitored pages will also be generated.
->> >
->> > Using this feature, some sensitive variables of the kernel which are
->> > initialized after init or are updated rarely can also be protected from
->> > simple overwrites and attacks trying to modify these.
->> 
->> Although I really like the idea of using stage-2 to protect the 
->> kernel, I
->> think the approach you outline here is deeply flawed. Identifying 
->> "sensitive
->> variables" of the kernel to protect is subjective and doesn't scale.
->> Furthermore, the triaging of what constitues a valid access is notably
->> absent from your description and is assumedly implemented in an opaque 
->> blob
->> at EL2.
->> 
->> I think a better approach would be along the lines of:
->> 
->>   1. Introduce the protection at stage-1 (like we already have for 
->> mapping
->>      e.g. the kernel text R/O)
->> 
->>   2. Implement the handlers in the kernel, so the heuristics are 
->> clear.
->> 
->>   3. Extend this to involve KVM, so that the host can manage its own
->>      stage-2 to firm-up the stage-1 protections.
->> 
-> 
-> Agree here. Making an arbitrary set of data structures r/o behind the
-> OS's back doesn't seem like an easy thing to maintain or reason about,
-> especially if this r/o-ness is only enforced on a tiny subset of
-> devices. If something needs to be writable only at boot, we have
-> __ro_after_init, and having hypervisor assisted enforcement of /that/
-> might be a worthwhile thing to consider, including perhaps ways to do
-> controlled patching of this region at runtime.
-> 
+On 2/17/21 10:42 AM, Will Deacon wrote:
+> [Please include arm64 and kvm folks for threads involving the stage-2 MMU]
+>
+> On Tue, Feb 16, 2021 at 03:47:52PM +0530, Preeti Nagar wrote:
+>> The changes introduce a new security feature, RunTime Integrity Check
+>> (RTIC), designed to protect Linux Kernel at runtime. The motivation
+>> behind these changes is:
+>> 1. The system protection offered by Security Enhancements(SE) for
+>> Android relies on the assumption of kernel integrity. If the kernel
+>> itself is compromised (by a perhaps as yet unknown future vulnerability),
+>> SE for Android security mechanisms could potentially be disabled and
+>> rendered ineffective.
+>> 2. Qualcomm Snapdragon devices use Secure Boot, which adds cryptographic
+>> checks to each stage of the boot-up process, to assert the authenticity
+>> of all secure software images that the device executes.  However, due to
+>> various vulnerabilities in SW modules, the integrity of the system can be
+>> compromised at any time after device boot-up, leading to un-authorized
+>> SW executing.
+>>
+>> The feature's idea is to move some sensitive kernel structures to a
+>> separate page and monitor further any unauthorized changes to these,
+>> from higher Exception Levels using stage 2 MMU. Moving these to a
+>> different page will help avoid getting page faults from un-related data.
+>> The mechanism we have been working on removes the write permissions for
+>> HLOS in the stage 2 page tables for the regions to be monitored, such
+>> that any modification attempts to these will lead to faults being
+>> generated and handled by handlers. If the protected assets are moved to
+>> a separate page, faults will be generated corresponding to change attempts
+>> to these assets only. If not moved to a separate page, write attempts to
+>> un-related data present on the monitored pages will also be generated.
+>>
+>> Using this feature, some sensitive variables of the kernel which are
+>> initialized after init or are updated rarely can also be protected from
+>> simple overwrites and attacks trying to modify these.
+> Although I really like the idea of using stage-2 to protect the kernel, I
+> think the approach you outline here is deeply flawed. Identifying "sensitive
+> variables" of the kernel to protect is subjective and doesn't scale.
+> Furthermore, the triaging of what constitues a valid access is notably
+> absent from your description and is assumedly implemented in an opaque blob
+> at EL2.
+>
+> I think a better approach would be along the lines of:
+>
+>   1. Introduce the protection at stage-1 (like we already have for mapping
+>      e.g. the kernel text R/O)
 
-Thank you for the suggestions. We will look into the possibility of 
-protection
-of __ro_after_init and controlled updates to these. I understand, if 
-this can be
-made generic as Will also suggested, it might be more useful and easy to 
-scale
-and maintain.
+Will that really solve the problem? There is a lot of caches that are used
+to resolve policy data in selinux, and this caches will not be protected.
+If you can manipulate kernel data you can do cache poisoning.
 
->> I also think we should avoid tying this to specific data structures.
->> Rather, we should introduce a mechanism to make arbitrary data 
->> read-only.
->> 
->> I've CC'd Ard and Marc, as I think they've both been thinking about 
->> this
->> sort of thing recently as well.
->> 
->> Will
+
+>   2. Implement the handlers in the kernel, so the heuristics are clear.
+>
+>   3. Extend this to involve KVM, so that the host can manage its own
+>      stage-2 to firm-up the stage-1 protections.
+>
+> I also think we should avoid tying this to specific data structures.
+> Rather, we should introduce a mechanism to make arbitrary data read-only.
+>
+> I've CC'd Ard and Marc, as I think they've both been thinking about this
+> sort of thing recently as well.
+>
+> Will
+
+
