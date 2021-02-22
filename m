@@ -2,99 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04C27C433E0
-	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 20:34:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED4F3C433E6
+	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 22:59:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C6DDA64E07
-	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 20:34:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE47264D74
+	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 22:59:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233010AbhBVUeZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Feb 2021 15:34:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
+        id S229999AbhBVW7A (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Feb 2021 17:59:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233236AbhBVUeQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 22 Feb 2021 15:34:16 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BECCC061786
-        for <selinux@vger.kernel.org>; Mon, 22 Feb 2021 12:33:35 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id k13so29534782ejs.10
-        for <selinux@vger.kernel.org>; Mon, 22 Feb 2021 12:33:35 -0800 (PST)
+        with ESMTP id S230495AbhBVW6z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 22 Feb 2021 17:58:55 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674FEC06178C
+        for <selinux@vger.kernel.org>; Mon, 22 Feb 2021 14:57:57 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id lu16so31770610ejb.9
+        for <selinux@vger.kernel.org>; Mon, 22 Feb 2021 14:57:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:references:subject:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=qWTFB28nRj/lNiQB70v1A1m5RvmxIiaGT4g0l6TJ6S8=;
-        b=Ox4RF+MveJvDR3nn1/e7puhzLTwsBdRUriPRPqC/PsDBI/hojhTPbuhu4syK3JakKq
-         MVan6zznUdqfbKGIWVBO9HKKMNhIeH0zvvdPMMmeU2i6YXyZp0YhqhBGEVJj3wUJXihQ
-         gG4bGhwILpZRxlN3uBXdfVVXocuMR0ZpBBONEdvvFhls8d/lVE+hSiZJovK7GG6fcoJP
-         HtIodvkkdZTYr5J5s2friyiSDeGguPtn2YPO2gL/4GYbFMV7V8xXCUiKw9dAXhiUaMI7
-         5CF0wIe46r33nQkna+8vNgFcpl7+0mng/wFMKOVxOGw6kRyoWvoiFZMNG6lE92Vy8Ael
-         R3Mw==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=appB3USc9BYbOHaMaLlCBWgrnFJA97ooreJNgz7Bs+E=;
+        b=NCqNpT0Fh4EhH+R6BF38wGXYMzGMo+UXICnd1zIuLwnjVhP3agDg9U0bBLVLtWbhCh
+         di98VXZ9z5I5PFVSYrWLmTvH24uCvL7jWxLpC+JkbujBGazWMzzl4FGpxWKm+ZfIpyFe
+         GccAnJGvkygmuhZNLEwFV65Sj2a2fZo4qh2SKWQeWpBgjz+EGJVQH/Y+liPFcqUiEndy
+         T11iq+EZeoIVXIZQ6Egp5xVJMPGn9XD35fIEwLeG3ESr8MBFV07M/duyP18fbaabsFfq
+         SPv38UaRGhO9h7dxtcdrUfxirtyw+jdUizJzvm6RAXckgtpa78iLSv9X/5T1i8mRikJQ
+         xP7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:references:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=qWTFB28nRj/lNiQB70v1A1m5RvmxIiaGT4g0l6TJ6S8=;
-        b=LPleShXziuLMGSGjRPb4owBcptGLPblLJySGb+JaI0MrckDKMMTPiRScOCMY/JgIcA
-         ELINCKolUUoaLWqmPmB0QIrdj+dKIyRoH8d+5raVvrRjqKpX1wS4BDdpHZsFXcpam53H
-         hSw9f+5itOH4Uu4Gqd+gJcUXdLC9HLiC53SdRfGSUDO3FMmZpb2mpcemPXdaCCy7pzLD
-         3fmlSAmj0ZuSk5Z97R2fr2JR0LRyO3erwFXWqd/RnzOpuAcVUBTBjAr+kbg7oqhyFY2d
-         3bcnpVBkda///EF+HYEoouzFOFm0oiBzPyQcsapybkt9acs1hyDjDeGuxqP5XdgnlQgB
-         IBLQ==
-X-Gm-Message-State: AOAM531RXnwQ74uhsCZLGax9BHEcnqSBPvo3oFQMLcRknjdEvFg90iAE
-        CCFRVnXZn1s1cXM0SkfO0bvAJfnkSmc=
-X-Google-Smtp-Source: ABdhPJxdOCmg00fbAk0SnoxHnhi2uK9x0P28BeMvv6bLhbkxOYXrMo8lbSPysnV0n+mCVGLG1785nA==
-X-Received: by 2002:a17:906:3e42:: with SMTP id t2mr19947158eji.554.1614026014267;
-        Mon, 22 Feb 2021 12:33:34 -0800 (PST)
-Received: from ?IPv6:2001:a61:3570:aa01:ed31:9d1f:3ad:d0a5? ([2001:a61:3570:aa01:ed31:9d1f:3ad:d0a5])
-        by smtp.gmail.com with ESMTPSA id bw22sm11097130ejb.78.2021.02.22.12.33.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 22 Feb 2021 12:33:33 -0800 (PST)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-To:     Petr Lautrbach <plautrba@redhat.com>,
-        bauen1 <j2468h@googlemail.com>, selinux@vger.kernel.org
-References: <CAEjxPJ5gK_DdNxpjMq8tvvhkq1hxsoE5vTNZAa=hiP-6s=an8Q@mail.gmail.com>
- <6b298117-2dd0-322a-4de2-b8886731265a@gmail.com> <87wnv0555e.fsf@redhat.com>
-Subject: Re: [PATCH v2] chcat: allow usage if binary policy is inaccessible
-Message-ID: <15f30b03-0734-9797-c529-693722daf4e0@gmail.com>
-Date:   Mon, 22 Feb 2021 21:33:33 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=appB3USc9BYbOHaMaLlCBWgrnFJA97ooreJNgz7Bs+E=;
+        b=LQJye5CdNhnU9QgkOk8h2God/M3O54MmASI5K+B681fH+kSdXx/Zd0egYwGRmaRM8C
+         tEtMT2roLfq4SC2tFvy499QVNnOEnZhtMu0zKpV763LdQmj4hSbavj/Ne3F8J4jNP+hc
+         uSt+7cq/5A97aoF8P4VEMclgrh9Nl8mWVWqHcjjfg1/gpXYaD9i4gtnUvGDjEyoQlopJ
+         GqDFyqDyi6S+grEMuV6QT1ehTOtjsWNABCvH/UduQYmZeg4Zz5JZAJSHNA8dlcVFuyxd
+         Zk2ZRAs5H8Hm8iEBWjQiN+X2EPtHjZ3dgqJwm+8MxUYbBKna40MgUjvOqVZcKd3HcyPx
+         mN2Q==
+X-Gm-Message-State: AOAM532Qr08kGU9FYGFZouej51ELOwBspfWzyl9kOS/DHLAn9wR8j056
+        3oK3VjavGweqUA0U74W7uVkP1auzRWFLy+Kls1SE
+X-Google-Smtp-Source: ABdhPJwcKQP0hfOsJylOSmtgZYkORZG40bGafGECNzqdPRMMkAZNAS+HZEFKkU6YD2HR7tbtzsHmq9M0OCnjtOV8xeo=
+X-Received: by 2002:a17:906:2bd6:: with SMTP id n22mr4857616ejg.91.1614034675929;
+ Mon, 22 Feb 2021 14:57:55 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <87wnv0555e.fsf@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <CAHC9VhRkn65jgVW5fTRWOrDe+dXQD-_-BTN+rZ8Kcq5qxFi45Q@mail.gmail.com>
+ <CAHk-=wjs1S_63iF509z6-ZJSXbm5rASYYykMAcOLzjP46eYuRQ@mail.gmail.com>
+In-Reply-To: <CAHk-=wjs1S_63iF509z6-ZJSXbm5rASYYykMAcOLzjP46eYuRQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 22 Feb 2021 17:57:44 -0500
+Message-ID: <CAHC9VhRSYNcaji0E5PhKap0z3Fdszqa5vZy5R3Jdxzr-GtABbA@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux patches for v5.12
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/22/21 7:27 PM, Petr Lautrbach wrote:
-> bauen1 <j2468h@googlemail.com> writes:
-> 
->> Currently, chcat will crash when run as regular user, because import
->> sepolicy throws an Exception when failing to access the binary policy
->> under /etc/selinux/${POLICYNAME}/policy/ which is inaccessible to
->> regular users.
->>
-> 
-> I'd rather follow Nicolas suggestion so I've prepared a patch, see
-> below, which moves the policy initialization in sepolicy module before
-> it's used for the first time. It seems to solve the same problem in more
-> generic way. I need to run some tests on that and then they pass I'll
-> propose it here on the mailing list.
-> 
+On Sun, Feb 21, 2021 at 8:07 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Mon, Feb 15, 2021 at 1:57 PM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > - Add support for labeling anonymous inodes, and extend this new
+> > support to userfaultfd.
+>
+> I've pulled this, but I just have to note how much I hate the function
+> names. "secure inode"? There's nothing particularly secure about the
+> resulting inode.
+>
+> It's gone through the security layer init, that doesn't make it
+> "secure". ALL normal inodes go through it, are all those inodes thus
+> "secure"? No.
+>
+> Naming matters, and I think these things are actively mis-named
+> implying things that they aren't.
 
-Yes, this is a much better approach.
+I don't disagree that naming is important, I would only add,
+non-sarcastically, that naming is hard (as a coworker likes to remind
+me on a regular basis).
+
+My personal take on the "secure" function variant is that it provides
+some indication that this is tied to a LSM hook.  For better or worse,
+all of the LSM hooks start off with "security_" and most (all?) of the
+LSM blob void pointers in various structs throughout the kernel are
+named "security".  While arguments can be made about the merits of
+that depending on how you define "security", the fact remains that
+they are named that way.  If you, or anyone else reading this, has
+another suggestion for the function names I'm listening ...
 
 -- 
-bauen1
-https://dn42.bauen1.xyz/
+paul moore
+www.paul-moore.com
