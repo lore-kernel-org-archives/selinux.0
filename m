@@ -2,89 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 263E7C433DB
-	for <selinux@archiver.kernel.org>; Sun, 21 Feb 2021 22:13:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23554C433DB
+	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 01:08:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DC9226146D
-	for <selinux@archiver.kernel.org>; Sun, 21 Feb 2021 22:13:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F156564E4B
+	for <selinux@archiver.kernel.org>; Mon, 22 Feb 2021 01:08:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbhBUWNU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 21 Feb 2021 17:13:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48204 "EHLO
+        id S230230AbhBVBIH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 21 Feb 2021 20:08:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231600AbhBUWNO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 21 Feb 2021 17:13:14 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFA5C06178A
-        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 14:12:32 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id lu16so26104268ejb.9
-        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 14:12:32 -0800 (PST)
+        with ESMTP id S230212AbhBVBIF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 21 Feb 2021 20:08:05 -0500
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42435C061786
+        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 17:07:25 -0800 (PST)
+Received: by mail-lj1-x22c.google.com with SMTP id c17so53454337ljn.0
+        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 17:07:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JHLbwT/ysBdqWf/COmA52ux7qzFg6vWUUO9UK965XT8=;
-        b=lTnwExIFwzArZnyv4fZz7IOs+S/6QFZAMNLV4esTGEPpr7fcftiAU59BJnKr0rHEgQ
-         SOcXURchNRRSD1iifWyn46RzKL/UlQ3y/2n/rxyV/ch/LROQ6gCTtD0UZiEJzuhx5mNf
-         9ygT3IVEqOPLLsalhZioCreIGHjXj3Bl2NRCA72KX2+BV/1vpnJlpoZY1JQ7xgsw9ZME
-         CycQn18LBv1Rs1eTaYJZFyCOOXElo88WxWIKgTiI4E+l/4fXIHs5YHyPLh6IkyoV7nZ9
-         0oBzouA1rzIJXrimtZ5xw5Pi39+0I8J9rwTNlZj7uFAg14bkOVEDG0qc7nZMoQ+T5C/e
-         Mt0Q==
+        bh=UH4IPTgqw8AV3WlrSAJLfYK0v76O6zMRzSlgWb6EEEk=;
+        b=epNELKSmVgggxleUs/hUx8T5udyukRpdhNESQ+whKzNkBUy6vGiMQQL3+A5y/lgi86
+         +wlCZKqU5cjhFnP3qkh2TQzHIEdpPg79WhCQCoWMn/JtXFV7I/H28CrBZaOs6sPM1AjU
+         MGE+52zLo6WA9tDVuM0CFPYrOyrvsgWxn/oxs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JHLbwT/ysBdqWf/COmA52ux7qzFg6vWUUO9UK965XT8=;
-        b=oiGtKaKZLVMB5AIKYCXlBkQB2uyye+mtEC/7Deq0N31OF8qwu4oT2RFAePPAZa2z62
-         QWhI6/8yWADZ+OpZEP+RFmvcd+YfbZGkTlMW7qlWjbFC/GBUgPvAGMPi0swoi7tI6jd5
-         Xwglv0Wn2qLm8auMSeX7u7GtjCaU/tksN7nhNmJ+CXzXzoIvnCxyoi3jR5dHTl/zfdT4
-         +zNFptptJTtyHsAp446q1pgByobudLtCwbRO4kLvuDUKPn+Yb2CxqRdRnLfkoX/I/W2+
-         Fmuo430LouJB0YtHVDcuFkFXenCleCqnJ6U6ad0+2KPQIl/aPAbwmI2FPL8zEZbHqmV3
-         Oa7w==
-X-Gm-Message-State: AOAM533jJOQEFJQC6US44k7MKnJxkDSRO9FAHgL6bnetePAhHt8Ldfv5
-        rib8OB+PnNFWPddOK+aM4TsAr+DY3GvNb6/0rshn
-X-Google-Smtp-Source: ABdhPJzC8AgWl6lkNnXnwDrKhO1kGPO9s6ErhPfRwnjbiInC6c1hcYVpWVaXQNi3+Iu7IaJg76JIBWJv0tqMaclUMiE=
-X-Received: by 2002:a17:906:8394:: with SMTP id p20mr18467935ejx.178.1613945551482;
- Sun, 21 Feb 2021 14:12:31 -0800 (PST)
+        bh=UH4IPTgqw8AV3WlrSAJLfYK0v76O6zMRzSlgWb6EEEk=;
+        b=bzUBffvBSyyqZyuub+c1gRSgnxsFP/Tm7sV3eirP3AhKvX8WcOQXyJYD+k5U2lNW4h
+         k7ksq59bueD5ube2c2ZP7v1C06a8OW53eQqlYdGr5jWsn4nbh58OLySHQTzQLgydjrr4
+         9YTqpDsAM8Q49u4nufxZYLf1l6gRd7wR9qK+SKdsz+L2c3reKz1ooehhakXV9Ziomcco
+         1bGlKXRU/2JxuLHwBV7FEJ64HybsprYPAGc2IrRHck0wHlhvjduztLCI3lP1LM6kMUDc
+         LXjSX14n1crEvqyxOVvDv3LQ1rGRi8weaqybVo3wBLHcZ4ynoKVzjOqVyiLMkGKdJwVo
+         dUmQ==
+X-Gm-Message-State: AOAM531+6iFIb7ufwrcCbfL5iWrxF5G7tIioaTDNYQOVTbU/1X/swgfy
+        hfB3kqsYNKU8bhAh13WefQWba4zPSTIu6Q==
+X-Google-Smtp-Source: ABdhPJz9PvO1M7JSyav3lhs1y+nwZZpNhGhqJfcpmb5FYzrLgS87wSatGv8oeI95vBaxmpGvG0qZmg==
+X-Received: by 2002:a05:651c:2046:: with SMTP id t6mr12888036ljo.289.1613956043498;
+        Sun, 21 Feb 2021 17:07:23 -0800 (PST)
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com. [209.85.208.181])
+        by smtp.gmail.com with ESMTPSA id g26sm844396lfb.181.2021.02.21.17.07.22
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 21 Feb 2021 17:07:22 -0800 (PST)
+Received: by mail-lj1-f181.google.com with SMTP id g1so47413640ljj.13
+        for <selinux@vger.kernel.org>; Sun, 21 Feb 2021 17:07:22 -0800 (PST)
+X-Received: by 2002:ac2:5184:: with SMTP id u4mr7249839lfi.487.1613956041861;
+ Sun, 21 Feb 2021 17:07:21 -0800 (PST)
 MIME-Version: 1.0
-References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377736385.87807.7033400948278183233.stgit@sifl> <28174118-93d2-e7a5-50fb-004185354625@canonical.com>
-In-Reply-To: <28174118-93d2-e7a5-50fb-004185354625@canonical.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 21 Feb 2021 17:12:19 -0500
-Message-ID: <CAHC9VhS+K2tD_8UYcgO5Lzkh3r4TWBEyzJArekagoykwj+fekw@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/4] apparmor: differentiate between subjective and
- objective task credentials
-To:     John Johansen <john.johansen@canonical.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com
+References: <CAHC9VhRkn65jgVW5fTRWOrDe+dXQD-_-BTN+rZ8Kcq5qxFi45Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhRkn65jgVW5fTRWOrDe+dXQD-_-BTN+rZ8Kcq5qxFi45Q@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 21 Feb 2021 17:07:06 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wjs1S_63iF509z6-ZJSXbm5rASYYykMAcOLzjP46eYuRQ@mail.gmail.com>
+Message-ID: <CAHk-=wjs1S_63iF509z6-ZJSXbm5rASYYykMAcOLzjP46eYuRQ@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux patches for v5.12
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 21, 2021 at 7:57 AM John Johansen
-<john.johansen@canonical.com> wrote:
-> On 2/19/21 3:29 PM, Paul Moore wrote:
-> > With the split of the security_task_getsecid() into subjective and
-> > objective variants it's time to update AppArmor to ensure it is
-> > using the correct task creds.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Mon, Feb 15, 2021 at 1:57 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> This has a couple problems, that I will work on addressing
+> - Add support for labeling anonymous inodes, and extend this new
+> support to userfaultfd.
 
-Yes, I figured that might be the case; I don't have enough
-understanding of the AppArmor internals to do anything more than a ham
-fisted approach - my apologies on that.  Let me know if there is
-anything I can do to help.
+I've pulled this, but I just have to note how much I hate the function
+names. "secure inode"? There's nothing particularly secure about the
+resulting inode.
 
--- 
-paul moore
-www.paul-moore.com
+It's gone through the security layer init, that doesn't make it
+"secure". ALL normal inodes go through it, are all those inodes thus
+"secure"? No.
+
+Naming matters, and I think these things are actively mis-named
+implying things that they aren't.
+
+              Linus
