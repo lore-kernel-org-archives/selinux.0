@@ -2,71 +2,165 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11AD0C433E6
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 22:42:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41A70C433DB
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 23:11:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E1AB764DF2
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 22:42:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 105BB64E7A
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 23:11:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232591AbhBWWlm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Feb 2021 17:41:42 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:37036 "EHLO
+        id S232653AbhBWXJ5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Feb 2021 18:09:57 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:40070 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232831AbhBWWiS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 17:38:18 -0500
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 011C320B6C40;
-        Tue, 23 Feb 2021 14:36:53 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 011C320B6C40
+        with ESMTP id S232729AbhBWXCa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 18:02:30 -0500
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 0208620B6C40;
+        Tue, 23 Feb 2021 15:01:47 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0208620B6C40
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1614119814;
-        bh=u8xSV6mboWtDGea5Rur1TvDYanYtddwU8NnszQ/n/XA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=l/juN9thNxAd+EYyH2zmk6LCkANs5rgZ751fxC58hTY839paqQO8z7oWj+iPq/kUB
-         MQ5YVFmUd5adAA3Ysaepwv+AUZWmU8DDrNvSjgf/zge+oqVPplWvj9VfM1CnK9pUWQ
-         b4TajhAW7wa29NG/JafB93KZ2bPQuMyrm6+R0hFg=
-Date:   Tue, 23 Feb 2021 16:36:52 -0600
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Race between policy reload sidtab conversion and live
- conversion
-Message-ID: <20210223223652.GD6000@sequoia>
-References: <20210223214346.GB6000@sequoia>
- <20210223215054.GC6000@sequoia>
+        s=default; t=1614121308;
+        bh=YgvvF1ZA37nOG01x0OVvh9FjTSqplz7AT39j3cpYs3c=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Tbou0/fsQ80HZAFWAkqhTGGyVkIRBky07qUStocc9fhuyEyurENl1GS6AwsrLN6fN
+         WIIiaKLlFddpFAxN2ob+6WjrrHipM/lrc1EgJrziTwcnaSUJVKrGD8mJ82AzrO7nK9
+         1kSTbQQ5/BjlvYf3+VxUnl1ouQX5XxFd3VmEJRvY=
+Subject: Re: [PATCH] IMA: Add test for selinux measurement
+To:     Petr Vorel <pvorel@suse.cz>
+Cc:     zohar@linux.ibm.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, tusharsu@linux.microsoft.com,
+        ltp@lists.linux.it, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org
+References: <20210222023805.12846-1-nramas@linux.microsoft.com>
+ <YDVCsNAfn+Ot6QIB@pevik>
+ <fdda206c-e156-d66b-7f53-0ee9c1417597@linux.microsoft.com>
+ <YDV+SdQqGnCoykph@pevik>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <21490e27-a965-7d25-4c44-07bd89d0ac40@linux.microsoft.com>
+Date:   Tue, 23 Feb 2021 15:01:47 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210223215054.GC6000@sequoia>
+In-Reply-To: <YDV+SdQqGnCoykph@pevik>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-02-23 15:50:56, Tyler Hicks wrote:
-> On 2021-02-23 15:43:48, Tyler Hicks wrote:
-> > I'm seeing a race during policy load while the "regular" sidtab
-> > conversion is happening and a live conversion starts to take place in
-> > sidtab_context_to_sid().
-> > 
-> > We have an initial policy that's loaded by systemd ~0.6s into boot and
-> > then another policy gets loaded ~2-3s into boot. That second policy load
-> > is what hits the race condition situation because the sidtab is only
-> > partially populated and there's a decent amount of filesystem operations
-> > happening, at the same time, which are triggering live conversions.
+On 2/23/21 2:14 PM, Petr Vorel wrote:
+>> On 2/23/21 10:00 AM, Petr Vorel wrote:
+> 
+> 
+>>>> +++ b/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
+>>> ...
+>>>> +validate_policy_capabilities()
+>>>> +{
+>>>> +	local measured_cap measured_value expected_value
+>>>> +	local result=1
+>>>> +	local inx=7
+>>>> +
+>>>> +	# Policy capabilities flags start from "network_peer_controls"
+>>>> +	# in the measured SELinux state at offset 7 for 'awk'
+>>>> +	while [ $inx -lt 20 ]; do
+>>>> +		measured_cap=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+>>>> +		inx=$(( $inx + 1 ))
+>>>> +
+>>>> +		measured_value=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+>>>> +		expected_value=$(cat "$SELINUX_DIR/policy_capabilities/$measured_cap")
+>>>> +		if [ "$measured_value" != "$expected_value" ];then
+>>>> +			tst_res TWARN "$measured_cap: expected: $expected_value, got: $digest"
+>>> We rarely use TWARN in the tests, only when the error is not related to the test result.
+>>> Otherwise we use TFAIL.
+>> ok - I will change it to TFAIL.
+> Thanks!
+> But I've noticed that this error is handled twice, first in validate_policy_capabilities()
+> as TWARN (or TFAIL) and then in test2(). Let's use TPASS/TFAIL in
+> validate_policy_capabilities():
+Sure - will make that change.
 
-Hmm, perhaps this is the same problem that's fixed by Ondrej's proposed
-change here:
+> 
+> validate_policy_capabilities()
+> {
+> 	local measured_cap measured_value expected_value
+> 	local inx=7
+> 
+> 	# Policy capabilities flags start from "network_peer_controls"
+> 	# in the measured SELinux state at offset 7 for 'awk'
+> 	while [ $inx -lt 20 ]; do
+> 		measured_cap=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+> 		inx=$(($inx + 1))
+> 
+> 		measured_value=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+> 		expected_value=$(cat "$SELINUX_DIR/policy_capabilities/$measured_cap")
+> 		if [ "$measured_value" != "$expected_value" ]; then
+> 			tst_res TFAIL "$measured_cap: expected: $expected_value, got: $digest"
+> 			return
+> 		fi
+> 
+> 		inx=$(($inx + 1))
+> 	done
+> 
+> 	tst_res TPASS "SELinux state measured correctly"
+> }
+> 
+> test2()
+> {
+> 	...
+> 	validate_policy_capabilities $measured_data
+> }
+> 
+> ...
+>>> As we discuss, I'm going tom merge test when patchset is merged in maintainers tree,
+>>> please ping me. And ideally we should mention kernel commit hash as a comment in
+>>> the test.
+>> Will do. Thank you.
+> Thanks!
+> 
+> ...
+>>> +++ testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
+>>> @@ -13,16 +13,14 @@ TST_SETUP="setup"
+>>>    . ima_setup.sh
+>>>    FUNC_CRITICAL_DATA='func=CRITICAL_DATA'
+>>> -REQUIRED_POLICY="^measure.*($FUNC_CRITICAL_DATA)"
+>>> +REQUIRED_POLICY="^measure.*$FUNC_CRITICAL_DATA"
+>>>    setup()
+>>>    {
+>>> -	SELINUX_DIR=$(tst_get_selinux_dir)
+>>> -	if [ -z "$SELINUX_DIR" ]; then
+>>> -		tst_brk TCONF "SELinux is not enabled"
+>>> -		return
+>>> -	fi
+>>> +	tst_require_selinux_enabled
+>> Please correct me if I have misunderstood this one:
+> 
+>> tst_require_selinux_enabled is checking if SELinux is enabled in "enforce"
+>> mode. Would this check fail if SELinux is enabled in "permissive" mode?
+> 
+>> For running the test, we just need SELinux to be enabled. I verify that by
+>> checking for the presence of SELINUX_DIR.
+> 
+> Good catch. Your original version is correct (put it back into ima/selinux.v2.fixes).
+> I didn't put a helper for it, because you need $SELINUX_DIR anyway.
+> Thus removed tst_require_selinux_enabled() as not needed.
+Thanks
 
- https://lore.kernel.org/selinux/20210212185930.130477-3-omosnace@redhat.com/
+> 
+> I renamed tst_selinux_enabled() to tst_selinux_enforced() to make the purpose clearer
+> (commit 82b598ea1 IMA: Add test for selinux measurement).
+> 
+> I've updated branch ima/selinux.v2.fixes with all mentioned changes
+> https://github.com/pevik/ltp/commits/ima/selinux.v2.fixes
+> 
+Thanks again. I'll make my changes in this branch and post the patches 
+later this week.
 
-I'll put these changes through a validation run (the only place that I
-can seem to reproduce this crash) and see how it looks.
+  -lakshmi
 
-Tyler
