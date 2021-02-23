@@ -2,139 +2,130 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 063A3C433E0
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 15:06:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A642C433E0
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 15:34:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C095464E58
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 15:06:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10E7464E4B
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 15:34:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232912AbhBWPFx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Feb 2021 10:05:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60159 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232938AbhBWPFK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 10:05:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614092624;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=o4kQfZ5oUK+B56y8kVdJzXiCNYtKrnaIPNTIIkJXHO8=;
-        b=SoVDhas2Wt+8R8xm9CUhFldW4DgF2oCrD6Hzd9A8HPsfEQ1zfUarAMmJ54WFmIuiY09VTD
-        UYCSjwJORIUOH7ud0RBv6NC31Sg97M8ZKAote5XrIoY3+plwIDj8gtpofJHj3dllM59ZaD
-        Q7ybleDTK7zX/fYE16aLzVenBUlOpI0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-413-5Np8AugwO-CbMnnfxyWcdw-1; Tue, 23 Feb 2021 10:03:38 -0500
-X-MC-Unique: 5Np8AugwO-CbMnnfxyWcdw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B0332846209
-        for <selinux@vger.kernel.org>; Tue, 23 Feb 2021 15:03:36 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.193.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 823795D6CF;
-        Tue, 23 Feb 2021 15:03:35 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] sepolicy: Do not try to load policy on import
-Date:   Tue, 23 Feb 2021 16:03:28 +0100
-Message-Id: <20210223150328.56028-1-plautrba@redhat.com>
+        id S233247AbhBWPeT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Feb 2021 10:34:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233202AbhBWPeT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 10:34:19 -0500
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A7EC061574
+        for <selinux@vger.kernel.org>; Tue, 23 Feb 2021 07:33:37 -0800 (PST)
+Received: by mail-oo1-xc2b.google.com with SMTP id k1so1680517oop.0
+        for <selinux@vger.kernel.org>; Tue, 23 Feb 2021 07:33:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=kTHWm7UMHouWfps98WmZjO3QEmMhc/j++5j7pOb3+Mk=;
+        b=RCPT/xMKboXAJI1PbS7mg91g31FuQjDo8rHWVoEEYe5aGgdTP/jC2+z97z1Sr+Mq7x
+         pmUtWtmU0bMhVqlNcPZMheve4ElRGz+p/Q3VPzseCYqYTFWx24xqDAwmeeryfHjYHtu/
+         jZ7kMn+wCYMk8uV/I0GX1g5d+IXBzxtBxFbN6Q2A22HmJcKPpbvf1ewovE2wetdFo2Sc
+         I8eN3MOB+jBxPmwnGeYYyG1nG8DCnrL+4YpMrI0rJSH8JZg9y65G2BnK+l2L/EfxnZ5G
+         jbVFGwSljwcQZSa4X4y9ArWs5/Rp/iNOcBEtPG8Fi0TGAXG6MnuL3J8B4nSqIKkKbdiz
+         3YdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=kTHWm7UMHouWfps98WmZjO3QEmMhc/j++5j7pOb3+Mk=;
+        b=P5RQgFz0lOGPscyvNe7LrtYyiQHXy/pwFeg+qRwzOVfnw1jDlSI1obA8IQcPRG3Tq7
+         /Hc0x6U/IQi0pBohYcUBZMYPF+73xKix9KhOEftkzHeZiggCcWJ3JvhaP3YU6c6CtC76
+         7zfCWhOMl5dltCDErJoPGEkQaveW1MQbMDcJ2jiRxn9to1z0/51LeUEFA+9YHwPpRjuu
+         ZhB/xX8wYe3BKVJ+dVCbZjTFrOo15Avyt/FBCGgTqvUKlFspmx5Xqo3GkBTBQNpcQbut
+         tkmh47uGfFSk5ovncw3qOCmfV/5mnp0+Y1XjQ0/PPrpOpmvu5m2lkkN8e7quC1a7dgmM
+         eBmA==
+X-Gm-Message-State: AOAM533fWa+q034wBFTeBehSvfH2OpcqwaniBTb7L5aCSYgApkNSoYLx
+        ye8Ga1krxKDFQKx7axGITKqYs6+BSVo7dPtryas=
+X-Google-Smtp-Source: ABdhPJx1OItr1UarGpc7w8jLsVpgirluQud3WnsBeNwCaCknXuOB/LHulAM8SeDIeqI0dizHWOyiJQ/sYtpLv4Aqce8=
+X-Received: by 2002:a4a:b302:: with SMTP id m2mr6094203ooo.59.1614094416088;
+ Tue, 23 Feb 2021 07:33:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+References: <20210220190806.22139-1-cgzones@googlemail.com> <20210223130917.23360-1-cgzones@googlemail.com>
+In-Reply-To: <20210223130917.23360-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 23 Feb 2021 10:33:25 -0500
+Message-ID: <CAP+JOzTz0X+AEF3KJ1N-L8DLitit6r-+nFUegkYorFg=GSSv8g@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol/cil: handle SID without assigned context when
+ writing policy.conf
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When a policy is inaccessible, scripts fail right "import sepolicy". With
-this change we let the "sepolicy" module to import and move the policy
-initialization before it's used for the first time.
+On Tue, Feb 23, 2021 at 8:13 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> CIL permits not assigning a context to a SID, e.g. to an unused initial
+> SID, e.g. 'any_socket'.
+>
+> When using the example policy from the SELinux Notebook,
+> https://github.com/SELinuxProject/selinux-notebook/blob/main/src/notebook=
+-examples/cil-policy/cil-policy.cil,
+> secilc logs:
+>
+>     No context assigned to SID any_socket, omitting from policy at cil-po=
+licy.cil:166
+>
+> But secil2conf segfaults when writing the policy.conf:
+>
+>     ../cil/src/cil_policy.c:274:2: runtime error: member access within nu=
+ll pointer of type 'struct cil_context'
+>
+> Only print the sid context statement if a context was actually assigned.
+> The sid declaration is still included via cil_sid_decls_to_policy().
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Fixes:
-    >>> import seobject
-    Traceback (most recent call last):
-      File "/usr/lib/python3.9/site-packages/sepolicy/__init__.py", line 171, in policy
-        _pol = setools.SELinuxPolicy(policy_file)
-      File "setools/policyrep/selinuxpolicy.pxi", line 73, in setools.policyrep.SELinuxPolicy.__cinit__
-      File "setools/policyrep/selinuxpolicy.pxi", line 695, in setools.policyrep.SELinuxPolicy._load_policy
-    PermissionError: [Errno 13] Permission denied: '//etc/selinux/targeted/policy/policy.33'
+Oops, I should have noticed that. I was too focused on the segfault.
 
-    During handling of the above exception, another exception occurred:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/usr/lib/python3.9/site-packages/seobject.py", line 33, in <module>
-        import sepolicy
-      File "/usr/lib/python3.9/site-packages/sepolicy/__init__.py", line 186, in <module>
-        raise e
-      File "/usr/lib/python3.9/site-packages/sepolicy/__init__.py", line 183, in <module>
-        policy(policy_file)
-      File "/usr/lib/python3.9/site-packages/sepolicy/__init__.py", line 173, in policy
-        raise ValueError(_("Failed to read %s policy file") % policy_file)
-    ValueError: Failed to read //etc/selinux/targeted/policy/policy.33 policy file
-
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
-
-It's based on review from https://lore.kernel.org/selinux/CAEjxPJ5gK_DdNxpjMq8tvvhkq1hxsoE5vTNZAa=hiP-6s=an8Q@mail.gmail.com/T/#m88ed2c2522a5b3907b607fdf08fde5dbf8d48571
-
-
- python/sepolicy/sepolicy/__init__.py | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-index e4540977d042..7309875c7e27 100644
---- a/python/sepolicy/sepolicy/__init__.py
-+++ b/python/sepolicy/sepolicy/__init__.py
-@@ -178,15 +178,15 @@ def load_store_policy(store):
-         return None
-     policy(policy_file)
- 
--try:
-+def init_policy():
-     policy_file = get_installed_policy()
-     policy(policy_file)
--except ValueError as e:
--    if selinux.is_selinux_enabled() == 1:
--        raise e
--
- 
- def info(setype, name=None):
-+    global _pol
-+    if not _pol:
-+        init_policy()
-+
-     if setype == TYPE:
-         q = setools.TypeQuery(_pol)
-         q.name = name
-@@ -337,6 +337,9 @@ def _setools_rule_to_dict(rule):
- 
- 
- def search(types, seinfo=None):
-+    global _pol
-+    if not _pol:
-+        init_policy()
-     if not seinfo:
-         seinfo = {}
-     valid_types = set([ALLOW, AUDITALLOW, NEVERALLOW, DONTAUDIT, TRANSITION, ROLE_ALLOW])
-@@ -916,6 +919,10 @@ def get_all_roles():
-     if roles:
-         return roles
- 
-+    global _pol
-+    if not _pol:
-+        init_policy()
-+
-     q = setools.RoleQuery(_pol)
-     roles = [str(x) for x in q.results() if str(x) != "object_r"]
-     return roles
--- 
-2.30.1
-
+> ---
+> v2:
+>   Drop the statement completely in cil_sid_contexts_to_policy(),
+>   cause cil_sid_decls_to_policy() will have printed the context less
+>   declaration already.
+>
+>  libsepol/cil/src/cil_policy.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.=
+c
+> index 74edb345..91e767b7 100644
+> --- a/libsepol/cil/src/cil_policy.c
+> +++ b/libsepol/cil/src/cil_policy.c
+> @@ -1660,9 +1660,11 @@ static void cil_sid_contexts_to_policy(FILE *out, =
+struct cil_list *sids, int mls
+>
+>         cil_list_for_each(i1, sids) {
+>                 sid =3D i1->data;
+> -               fprintf(out, "sid %s ", sid->datum.fqn);
+> -               cil_context_to_policy(out, sid->context, mls);
+> -               fprintf(out,"\n");
+> +               if (sid->context) {
+> +                       fprintf(out, "sid %s ", sid->datum.fqn);
+> +                       cil_context_to_policy(out, sid->context, mls);
+> +                       fprintf(out,"\n");
+> +               }
+>         }
+>  }
+>
+> --
+> 2.30.1
+>
