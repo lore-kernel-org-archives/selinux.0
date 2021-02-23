@@ -2,121 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95A1BC433E0
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 13:11:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF9BFC433E0
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 14:15:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C1F06023C
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 13:11:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7023864DE9
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 14:15:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbhBWNLT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Feb 2021 08:11:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232473AbhBWNLN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 08:11:13 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A764FC061794
-        for <selinux@vger.kernel.org>; Tue, 23 Feb 2021 05:09:39 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id k13so32613005ejs.10
-        for <selinux@vger.kernel.org>; Tue, 23 Feb 2021 05:09:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zVS/PMB442gJrECqPUB6fPna36XfXvMXZlW80U1BWds=;
-        b=EHe/k4w+Q7QQ+YJd0rol9f8WDMtP+YzhG9eFdR0nO51ki8WBTlaysUw0QXVjstua0n
-         5I4774VPMXDy2pwuYQtwTHPw8dfoksb+ZRu9xp+5eTfQSFscZhEDYywKw7LnSMDmdFYf
-         nnl5OIOokx6ncMejkcA0zASX+LIzgnE+loiarrLG06SQDHerTCq3meKx0csd8vbHXA3X
-         KPkpHk12GcHfpcfzsRtiqDGIYSFeFyP4PvUWFVhxGzHf/yQ9nUYtcePD+B3H8zHKuhU3
-         3PWm0Z99Fq/TihKMhA2zPhaPsXXHmpW/an14ZipqK6mDXpqmJmSSRS8Th4uQH2/7Vot9
-         7iHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zVS/PMB442gJrECqPUB6fPna36XfXvMXZlW80U1BWds=;
-        b=WUsL7c+8nyvcHXZruDb0oxrBlYrSXdk+pLqqBlR1s5toS9Bz5BJHJyrKv7bh8MAr8C
-         Ul0nkW5arFx3CO76X9JCXLSXaxDyUm4Z968I7K78w0Hj3FeIwGgV2NZzRz/otD1BSebD
-         Ipyt6Z0d1OTRwAKbkH9ABFAHFpkHsL24zpRM1Jd65ZR/TzOL9P5zathLk28mn0Gy5KDD
-         o6NklxZ+1rCKpnVAB049KTh+4M9jPV0HkFzHWA2GdudIvX6AF6jb/dmWEQ2hwwbeJRFW
-         8zTVBS93QHXu1sjm+XhsFTGeYZ2LkcXhESuVF4QTXOtt7p1Uhfutp5WpmFFq8MTJRKFk
-         A9lQ==
-X-Gm-Message-State: AOAM532C+HslV97W4aBFhTrUmYqCJ2yxW/8SyP+tnQBy3tWUDCrirq+4
-        Fcp3nkWpzGvKeRAlOXr+5+hW7vK0e9s=
-X-Google-Smtp-Source: ABdhPJzj8uzJXL93iTMl+25q5g7oifY7q4Nuv0p20k1NWxxq0/1o4H6AeA9YUsgwdFjP2guaUkA19A==
-X-Received: by 2002:a17:906:511:: with SMTP id j17mr14246781eja.143.1614085778412;
-        Tue, 23 Feb 2021 05:09:38 -0800 (PST)
-Received: from dlaptop.localdomain (dynamic-077-001-133-101.77.1.pool.telefonica.de. [77.1.133.101])
-        by smtp.gmail.com with ESMTPSA id u18sm12600933ejc.76.2021.02.23.05.09.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Feb 2021 05:09:38 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2] libsepol/cil: handle SID without assigned context when writing policy.conf
-Date:   Tue, 23 Feb 2021 14:09:17 +0100
-Message-Id: <20210223130917.23360-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210220190806.22139-1-cgzones@googlemail.com>
-References: <20210220190806.22139-1-cgzones@googlemail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S232401AbhBWOPj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Feb 2021 09:15:39 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39088 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230174AbhBWOPi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 09:15:38 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11NE3aMZ097181;
+        Tue, 23 Feb 2021 09:14:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=X+C6oACWLWSxH9MVloXSSQ720jGP4d+zlsSm+Rwxu7g=;
+ b=ZTsS8VcOJscxtS0wuQu6oPqboPkkfXTRYHgo0VZqgoOsPS9RbjiWntFZtymxFD4S/FWI
+ ylkMiToKx5UGfXP8xac0FhMauqQ345x5HkKb9SkFmtE/9SXqt8o4vBnnTZAwPFd211gn
+ zqwWp5oAQbQtRmh4khWfNcunGdGL5RYbJMygLy5XVVe5Zs887QagZwuWW6oqOy3pr+Dw
+ gxIXlfo4m5uFHTb9hnm8v5aCOsRFeUjYTTmG2HwuscTEqEMUM8AaIEpedozAF149WWHK
+ GvQFkTmqi9kJAgn2bHB6tY5nzXwy0z6lBP2gOS7G/5GTenE+nOIIOixInuHU6SPgalRO 7A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkg49pq8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 Feb 2021 09:14:54 -0500
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11NE4Akd101111;
+        Tue, 23 Feb 2021 09:14:53 -0500
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkg49pmu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 Feb 2021 09:14:53 -0500
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11NE7huE024401;
+        Tue, 23 Feb 2021 14:14:51 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 36tt289d3u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 Feb 2021 14:14:51 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11NEEaAE33227192
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 23 Feb 2021 14:14:36 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D700E4C040;
+        Tue, 23 Feb 2021 14:14:48 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 225284C046;
+        Tue, 23 Feb 2021 14:14:47 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.211.65.43])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 23 Feb 2021 14:14:46 +0000 (GMT)
+Message-ID: <e03dedaf6f3fc439d1d2240e6c6d5e66301441fd.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH 0/4] Split security_task_getsecid() into subj and
+ obj variants
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     John Johansen <john.johansen@canonical.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com
+Date:   Tue, 23 Feb 2021 09:14:45 -0500
+In-Reply-To: <1ab6d635-53af-6dd9-fc29-482723c80c6a@schaufler-ca.com>
+References: <161377712068.87807.12246856567527156637.stgit@sifl>
+         <9ea5259b-fd84-e176-c042-c52a1c4fcc27@schaufler-ca.com>
+         <CAHC9VhQBbep2WkD6JkCemtcXFLq7j5=AQeM9vVJ4_gmvi7hPQA@mail.gmail.com>
+         <1ab6d635-53af-6dd9-fc29-482723c80c6a@schaufler-ca.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-23_07:2021-02-23,2021-02-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ lowpriorityscore=0 clxscore=1015 priorityscore=1501 mlxscore=0
+ malwarescore=0 bulkscore=0 mlxlogscore=999 spamscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102230119
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-CIL permits not assigning a context to a SID, e.g. to an unused initial
-SID, e.g. 'any_socket'.
+On Mon, 2021-02-22 at 15:58 -0800, Casey Schaufler wrote:
+> On 2/20/2021 6:41 AM, Paul Moore wrote:
+> > On Fri, Feb 19, 2021 at 8:49 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >> On 2/19/2021 3:28 PM, Paul Moore wrote:
+> >>> As discussed briefly on the list (lore link below), we are a little
+> >>> sloppy when it comes to using task credentials, mixing both the
+> >>> subjective and object credentials.  This patch set attempts to fix
+> >>> this by replacing security_task_getsecid() with two new hooks that
+> >>> return either the subjective (_subj) or objective (_obj) credentials.
+> >>>
+> >>> https://lore.kernel.org/linux-security-module/806848326.0ifERbkFSE@x2/T/
+> >>>
+> >>> Casey and John, I made a quick pass through the Smack and AppArmor
+> >>> code in an effort to try and do the right thing, but I will admit
+> >>> that I haven't tested those changes, just the SELinux code.  I
+> >>> would really appreciate your help in reviewing those changes.  If
+> >>> you find it easier, feel free to wholesale replace my Smack/AppArmor
+> >>> patch with one of your own.
+> >> A quick test pass didn't show up anything obviously
+> >> amiss with the Smack changes. I have will do some more
+> >> through inspection, but they look fine so far.
+> > Thanks for testing it out and giving it a look.  Beyond the Smack
+> > specific changes, I'm also interested in making sure all the hook
+> > callers are correct; I believe I made the correct substitutions, but a
+> > second (or third (or fourth ...)) set of eyes is never a bad idea.
+> 
+> I'm still not seeing anything that looks wrong. I'd suggest that Mimi
+> have a look at the IMA bits.
 
-When using the example policy from the SELinux Notebook,
-https://github.com/SELinuxProject/selinux-notebook/blob/main/src/notebook-examples/cil-policy/cil-policy.cil,
-secilc logs:
+Thanks, Casey, Paul.  The IMA changes look fine.  IMA policy rules are
+normally written in terms of a file's LSM labels, the obj_type, so
+hopefully this change has minimal, if any, impact.
 
-    No context assigned to SID any_socket, omitting from policy at cil-policy.cil:166
-
-But secil2conf segfaults when writing the policy.conf:
-
-    ../cil/src/cil_policy.c:274:2: runtime error: member access within null pointer of type 'struct cil_context'
-
-Only print the sid context statement if a context was actually assigned.
-The sid declaration is still included via cil_sid_decls_to_policy().
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2:
-  Drop the statement completely in cil_sid_contexts_to_policy(),
-  cause cil_sid_decls_to_policy() will have printed the context less
-  declaration already.
-
- libsepol/cil/src/cil_policy.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
-index 74edb345..91e767b7 100644
---- a/libsepol/cil/src/cil_policy.c
-+++ b/libsepol/cil/src/cil_policy.c
-@@ -1660,9 +1660,11 @@ static void cil_sid_contexts_to_policy(FILE *out, struct cil_list *sids, int mls
- 
- 	cil_list_for_each(i1, sids) {
- 		sid = i1->data;
--		fprintf(out, "sid %s ", sid->datum.fqn);
--		cil_context_to_policy(out, sid->context, mls);
--		fprintf(out,"\n");
-+		if (sid->context) {
-+			fprintf(out, "sid %s ", sid->datum.fqn);
-+			cil_context_to_policy(out, sid->context, mls);
-+			fprintf(out,"\n");
-+		}
- 	}
- }
- 
--- 
-2.30.1
+Mimi
 
