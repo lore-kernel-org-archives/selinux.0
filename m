@@ -2,167 +2,200 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-29.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8684C433E0
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 18:01:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E903C433DB
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 18:27:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E4186023B
-	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 18:01:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0BD964E7A
+	for <selinux@archiver.kernel.org>; Tue, 23 Feb 2021 18:27:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232986AbhBWSBB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Feb 2021 13:01:01 -0500
-Received: from mx2.suse.de ([195.135.220.15]:38522 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232642AbhBWSBA (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 23 Feb 2021 13:01:00 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 3B9EBAC1D;
-        Tue, 23 Feb 2021 18:00:18 +0000 (UTC)
-Date:   Tue, 23 Feb 2021 19:00:16 +0100
-From:   Petr Vorel <pvorel@suse.cz>
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+        id S232920AbhBWS1K (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Feb 2021 13:27:10 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:33786 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233167AbhBWS1H (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Feb 2021 13:27:07 -0500
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id B93C820A247E;
+        Tue, 23 Feb 2021 10:26:25 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B93C820A247E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1614104785;
+        bh=NUMe5lmR/dT/1V1j2O+ngIlr8sbdiTRotyWRQGMQDvk=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=gDjy5Eym+S5L8KFY91UT0Oj9kY+3k3pJigJ+InDBWUO2Kx9OYeTQPTiEjgJkXxpni
+         niBPEoNxfXtG8RzqR8vduHk1RqYerUFW/Wq/prSapeJtqD1p9jXQK3jsCBzgiwHaF+
+         eRWTjwj9SnSCk1hh5h8VtKroO+uNyw5AcfWiOBoQ=
+Subject: Re: [PATCH] IMA: Add test for selinux measurement
+To:     Petr Vorel <pvorel@suse.cz>
 Cc:     zohar@linux.ibm.com, paul@paul-moore.com,
         stephen.smalley.work@gmail.com, tusharsu@linux.microsoft.com,
         ltp@lists.linux.it, linux-integrity@vger.kernel.org,
         selinux@vger.kernel.org
-Subject: Re: [PATCH] IMA: Add test for selinux measurement
-Message-ID: <YDVCsNAfn+Ot6QIB@pevik>
-Reply-To: Petr Vorel <pvorel@suse.cz>
 References: <20210222023805.12846-1-nramas@linux.microsoft.com>
+ <YDVCsNAfn+Ot6QIB@pevik>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <fdda206c-e156-d66b-7f53-0ee9c1417597@linux.microsoft.com>
+Date:   Tue, 23 Feb 2021 10:26:25 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210222023805.12846-1-nramas@linux.microsoft.com>
+In-Reply-To: <YDVCsNAfn+Ot6QIB@pevik>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Lakshmi,
+On 2/23/21 10:00 AM, Petr Vorel wrote:
 
-> +++ b/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-...
-> +validate_policy_capabilities()
-> +{
-> +	local measured_cap measured_value expected_value
-> +	local result=1
-> +	local inx=7
+> 
+>> +++ b/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
+> ...
+>> +validate_policy_capabilities()
+>> +{
+>> +	local measured_cap measured_value expected_value
+>> +	local result=1
+>> +	local inx=7
+>> +
+>> +	# Policy capabilities flags start from "network_peer_controls"
+>> +	# in the measured SELinux state at offset 7 for 'awk'
+>> +	while [ $inx -lt 20 ]; do
+>> +		measured_cap=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+>> +		inx=$(( $inx + 1 ))
+>> +
+>> +		measured_value=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+>> +		expected_value=$(cat "$SELINUX_DIR/policy_capabilities/$measured_cap")
+>> +		if [ "$measured_value" != "$expected_value" ];then
+>> +			tst_res TWARN "$measured_cap: expected: $expected_value, got: $digest"
+> We rarely use TWARN in the tests, only when the error is not related to the test result.
+> Otherwise we use TFAIL.
+ok - I will change it to TFAIL.
+
+> 
+> The rest LGTM.
+> Reviewed-by: Petr Vorel <pvorel@suse.cz>
+> 
+> I did few formatting and style changes:
+> https://github.com/pevik/ltp/commits/ima/selinux.v2.fixes
+> (branch ima/selinux.v2.fixes), see diff below.
+The changes look. Thanks Petr.
+I do have one comment - please see below.
+
+> 
+> As we discuss, I'm going tom merge test when patchset is merged in maintainers tree,
+> please ping me. And ideally we should mention kernel commit hash as a comment in
+> the test.
+Will do. Thank you.
+
+> 
+> Thanks a lot!
+> 
+> Kind regards,
+> Petr
+> 
+> diff --git testcases/kernel/security/integrity/ima/tests/ima_selinux.sh testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
+> index e5060a5e3..ed758631b 100755
+> --- testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
+> +++ testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
+> @@ -13,16 +13,14 @@ TST_SETUP="setup"
+>   . ima_setup.sh
+>   
+>   FUNC_CRITICAL_DATA='func=CRITICAL_DATA'
+> -REQUIRED_POLICY="^measure.*($FUNC_CRITICAL_DATA)"
+> +REQUIRED_POLICY="^measure.*$FUNC_CRITICAL_DATA"
+>   
+>   setup()
+>   {
+> -	SELINUX_DIR=$(tst_get_selinux_dir)
+> -	if [ -z "$SELINUX_DIR" ]; then
+> -		tst_brk TCONF "SELinux is not enabled"
+> -		return
+> -	fi
+> +	tst_require_selinux_enabled
+Please correct me if I have misunderstood this one:
+
+tst_require_selinux_enabled is checking if SELinux is enabled in 
+"enforce" mode. Would this check fail if SELinux is enabled in 
+"permissive" mode?
+
+For running the test, we just need SELinux to be enabled. I verify that 
+by checking for the presence of SELINUX_DIR.
+
+thanks,
+  -lakshmi
+
+>   	require_ima_policy_content "$REQUIRED_POLICY" '-E' > $TST_TMPDIR/policy.txt
 > +
-> +	# Policy capabilities flags start from "network_peer_controls"
-> +	# in the measured SELinux state at offset 7 for 'awk'
-> +	while [ $inx -lt 20 ]; do
-> +		measured_cap=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
-> +		inx=$(( $inx + 1 ))
-> +
-> +		measured_value=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
-> +		expected_value=$(cat "$SELINUX_DIR/policy_capabilities/$measured_cap")
-> +		if [ "$measured_value" != "$expected_value" ];then
-> +			tst_res TWARN "$measured_cap: expected: $expected_value, got: $digest"
-We rarely use TWARN in the tests, only when the error is not related to the test result.
-Otherwise we use TFAIL.
+> +	SELINUX_DIR=$(tst_get_selinux_dir)
+>   }
+>   
+>   # Format of the measured SELinux state data.
+> @@ -41,16 +39,16 @@ validate_policy_capabilities()
+>   	# in the measured SELinux state at offset 7 for 'awk'
+>   	while [ $inx -lt 20 ]; do
+>   		measured_cap=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+> -		inx=$(( $inx + 1 ))
+> +		inx=$(($inx + 1))
+>   
+>   		measured_value=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
+>   		expected_value=$(cat "$SELINUX_DIR/policy_capabilities/$measured_cap")
+> -		if [ "$measured_value" != "$expected_value" ];then
+> +		if [ "$measured_value" != "$expected_value" ]; then
+>   			tst_res TWARN "$measured_cap: expected: $expected_value, got: $digest"
+>   			result=0
+>   		fi
+>   
+> -		inx=$(( $inx + 1 ))
+> +		inx=$(($inx + 1))
+>   	done
+>   
+>   	return $result
+> @@ -109,7 +107,6 @@ test2()
+>   	local initialized_value
+>   	local enforced_value expected_enforced_value
+>   	local checkreqprot_value expected_checkreqprot_value
+> -	local result
+>   
+>   	tst_res TINFO "verifying SELinux state measurement"
+>   
+> @@ -149,27 +146,25 @@ test2()
+>   	measured_data=$(cat $state_file)
+>   	enforced_value=$(echo $measured_data | awk -F'[=;]' '{print $4}')
+>   	expected_enforced_value=$(cat $SELINUX_DIR/enforce)
+> -	if [ "$expected_enforced_value" != "$enforced_value" ];then
+> +	if [ "$expected_enforced_value" != "$enforced_value" ]; then
+>   		tst_res TFAIL "enforce: expected: $expected_enforced_value, got: $enforced_value"
+>   		return
+>   	fi
+>   
+>   	checkreqprot_value=$(echo $measured_data | awk -F'[=;]' '{print $6}')
+>   	expected_checkreqprot_value=$(cat $SELINUX_DIR/checkreqprot)
+> -	if [ "$expected_checkreqprot_value" != "$checkreqprot_value" ];then
+> +	if [ "$expected_checkreqprot_value" != "$checkreqprot_value" ]; then
+>   		tst_res TFAIL "checkreqprot: expected: $expected_checkreqprot_value, got: $checkreqprot_value"
+>   		return
+>   	fi
+>   
+>   	initialized_value=$(echo $measured_data | awk -F'[=;]' '{print $2}')
+> -	if [ "$initialized_value" != "1" ];then
+> +	if [ "$initialized_value" != "1" ]; then
+>   		tst_res TFAIL "initialized: expected 1, got: $initialized_value"
+>   		return
+>   	fi
+>   
+> -	validate_policy_capabilities $measured_data
+> -	result=$?
+> -	if [ $result = 0 ]; then
+> +	if validate_policy_capabilities $measured_data; then
+>   		tst_res TFAIL "policy capabilities did not match"
+>   		return
+>   	fi
+> 
 
-The rest LGTM.
-Reviewed-by: Petr Vorel <pvorel@suse.cz>
-
-I did few formatting and style changes:
-https://github.com/pevik/ltp/commits/ima/selinux.v2.fixes
-(branch ima/selinux.v2.fixes), see diff below.
-
-As we discuss, I'm going tom merge test when patchset is merged in maintainers tree,
-please ping me. And ideally we should mention kernel commit hash as a comment in
-the test.
-
-Thanks a lot!
-
-Kind regards,
-Petr
-
-diff --git testcases/kernel/security/integrity/ima/tests/ima_selinux.sh testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-index e5060a5e3..ed758631b 100755
---- testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-+++ testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-@@ -13,16 +13,14 @@ TST_SETUP="setup"
- . ima_setup.sh
- 
- FUNC_CRITICAL_DATA='func=CRITICAL_DATA'
--REQUIRED_POLICY="^measure.*($FUNC_CRITICAL_DATA)"
-+REQUIRED_POLICY="^measure.*$FUNC_CRITICAL_DATA"
- 
- setup()
- {
--	SELINUX_DIR=$(tst_get_selinux_dir)
--	if [ -z "$SELINUX_DIR" ]; then
--		tst_brk TCONF "SELinux is not enabled"
--		return
--	fi
-+	tst_require_selinux_enabled
- 	require_ima_policy_content "$REQUIRED_POLICY" '-E' > $TST_TMPDIR/policy.txt
-+
-+	SELINUX_DIR=$(tst_get_selinux_dir)
- }
- 
- # Format of the measured SELinux state data.
-@@ -41,16 +39,16 @@ validate_policy_capabilities()
- 	# in the measured SELinux state at offset 7 for 'awk'
- 	while [ $inx -lt 20 ]; do
- 		measured_cap=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
--		inx=$(( $inx + 1 ))
-+		inx=$(($inx + 1))
- 
- 		measured_value=$(echo $1 | awk -F'[=;]' -v inx="$inx" '{print $inx}')
- 		expected_value=$(cat "$SELINUX_DIR/policy_capabilities/$measured_cap")
--		if [ "$measured_value" != "$expected_value" ];then
-+		if [ "$measured_value" != "$expected_value" ]; then
- 			tst_res TWARN "$measured_cap: expected: $expected_value, got: $digest"
- 			result=0
- 		fi
- 
--		inx=$(( $inx + 1 ))
-+		inx=$(($inx + 1))
- 	done
- 
- 	return $result
-@@ -109,7 +107,6 @@ test2()
- 	local initialized_value
- 	local enforced_value expected_enforced_value
- 	local checkreqprot_value expected_checkreqprot_value
--	local result
- 
- 	tst_res TINFO "verifying SELinux state measurement"
- 
-@@ -149,27 +146,25 @@ test2()
- 	measured_data=$(cat $state_file)
- 	enforced_value=$(echo $measured_data | awk -F'[=;]' '{print $4}')
- 	expected_enforced_value=$(cat $SELINUX_DIR/enforce)
--	if [ "$expected_enforced_value" != "$enforced_value" ];then
-+	if [ "$expected_enforced_value" != "$enforced_value" ]; then
- 		tst_res TFAIL "enforce: expected: $expected_enforced_value, got: $enforced_value"
- 		return
- 	fi
- 
- 	checkreqprot_value=$(echo $measured_data | awk -F'[=;]' '{print $6}')
- 	expected_checkreqprot_value=$(cat $SELINUX_DIR/checkreqprot)
--	if [ "$expected_checkreqprot_value" != "$checkreqprot_value" ];then
-+	if [ "$expected_checkreqprot_value" != "$checkreqprot_value" ]; then
- 		tst_res TFAIL "checkreqprot: expected: $expected_checkreqprot_value, got: $checkreqprot_value"
- 		return
- 	fi
- 
- 	initialized_value=$(echo $measured_data | awk -F'[=;]' '{print $2}')
--	if [ "$initialized_value" != "1" ];then
-+	if [ "$initialized_value" != "1" ]; then
- 		tst_res TFAIL "initialized: expected 1, got: $initialized_value"
- 		return
- 	fi
- 
--	validate_policy_capabilities $measured_data
--	result=$?
--	if [ $result = 0 ]; then
-+	if validate_policy_capabilities $measured_data; then
- 		tst_res TFAIL "policy capabilities did not match"
- 		return
- 	fi
