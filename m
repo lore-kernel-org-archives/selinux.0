@@ -2,148 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC53FC433E0
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 19:34:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E4EAC433DB
+	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 23:28:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 64CB164F18
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 19:34:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D78FB64F06
+	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 23:28:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234282AbhBYTdu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Feb 2021 14:33:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33670 "EHLO
+        id S232471AbhBYX2X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Feb 2021 18:28:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbhBYTbM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 14:31:12 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEB0C061797
-        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 11:30:31 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id g3so8316574edb.11
-        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 11:30:31 -0800 (PST)
+        with ESMTP id S232465AbhBYX2V (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 18:28:21 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC3FFC06174A
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 15:27:40 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id mm21so11407595ejb.12
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 15:27:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=kn5f8U6gSB42zuc8l2XTzx8r5LXOFJ5xpaqkPUZWChs=;
-        b=vw6iwDGNm9M3VzhgkAG09uKHBa3lEvlsot54U4vao2XzrVWVmeYl4VFVF8gJQjiz7u
-         wJ5cANwNPA+syuGoleryxwhWZmYeXrRIbT7wsljR0gRaMP/bZBBFWj7HwSTRcIufl5e8
-         +2ycmUmin5q+8ei7RLLmEJQFiWUw2epjqdpbG9KZeI99UZH5YkycxoEf6PiL8sgKdQ+a
-         Bk5dsbmtYgjXOsz/RtjtBLv5e2If18fCYS0KtANo7cSpe5egW5O3sykVXkYGYpW3yMSm
-         fiunNNHP87T260v60adQOhwpYmOSoEIYVcS2lqwIZSvUEgUZ8aL88LvGzJ5sJ70sHA+H
-         BdEA==
+        bh=bLcmTEjAiF5yFpxf27atOmC91/iDittSsNlvHgP+FGw=;
+        b=WAV1PV1KABzooKU+nDNO9oCfpMmd7hnjojZfiA9jbcjxpJ5euqn3q1lz1J+VxZGzvs
+         TOWw/xoVDYENrYzytLq03NBIbhDH57Jm9hAL/UFdbc/fYldOcIaMgkZOe9xhjoset08E
+         KPFE5YyrjUcy6dFzxw5a1oPyprnC6RPg8cFd2bumvS+D39E3rrrMfyed598M4dsvw1YI
+         0a7Jx66J1XZaiuR2n+n28/7/EjbwBQ92ir4SXmRFyHOegjQ7NNJfK9sCFpm+mg/rg2JF
+         Og6zjWvOrK8ICMQLekXr9xk7mbkW3fjljVVxq8ZhPbr/gMziu1Ohp84sTiPzt0XDsxpl
+         P3SQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=kn5f8U6gSB42zuc8l2XTzx8r5LXOFJ5xpaqkPUZWChs=;
-        b=ECfCXZ8LjM/cB73xcYmNAorjHiAVMTxFbFN5rcfeW2xgm4ktpXYcrlBS3lmivg+Eox
-         xGehgdxJz5hII1TeZ5+/WnW/M5Tf8KoKrJOm7H3BDKzjz9ZSalCY/TtgnB6PPdhmBtQl
-         GvJuXWgWK3z9uBgY/nfWRVL+/wlcFx9DNY4pN8rPIdJtrsjA/FybKyQX7yba1txPwYO1
-         s5HXM77eF/eGRnguLL/B8ThZeOMoJRU9oZD8Dy33EMIDLoYR6BkKXVAavU0r3gFGG/E9
-         D4iZOyH/t/vmU2ee5oAI5glMFuhuNxmGCiQPIUoX6zlr+63R2YcVB9u/mKRyak1+RKSw
-         raPQ==
-X-Gm-Message-State: AOAM530zx4BDZIhQPKSkq+defdqYMmFRn2fE5OTmm5NZM05XUrdKBKJp
-        UqbYKp90MuI1aB+bKj99Lgt6yyf1mObbPZC52AjA
-X-Google-Smtp-Source: ABdhPJwIyysgftrLtDHqbMxD4VspG5ZWJEq9O0sxPLPoY79EYzqPXYKymC4wAKJF/ks3ayGXmxIJA54Pp2Rx1F5ecoQ=
-X-Received: by 2002:aa7:df0a:: with SMTP id c10mr4694506edy.12.1614281430111;
- Thu, 25 Feb 2021 11:30:30 -0800 (PST)
+        bh=bLcmTEjAiF5yFpxf27atOmC91/iDittSsNlvHgP+FGw=;
+        b=S2wuo3D8r21WWfvWoHFW9LvQaonqo8PHRftPtUnDnJKLKhKO1GfXlrOqu9pIR/4lG7
+         7lqaMR+r8Zlnt/2cFjvpnSTM0HLQawiRD15/+XQkdBDZJeDcUOoX4qPhXnAL2yriVv3Z
+         kX/VdqUxdtIY1ocWlOrtLmVIqa6eb1vuSFkbB3IHq+glAv7exizAE8KHycpw5nhm4eAB
+         FvNp99ZkMz8bUBB70Esv6teMmiDLemLDQU14a6JS8HQgTmW0WNFdyG8eJ0LrGl78Y3yb
+         Hmdf4p8193kPzbru9cuebrRSgh77C9ClROWc7TRBTwa/ePLxEdwlOWnGXtD74Nb9eFGq
+         VrVA==
+X-Gm-Message-State: AOAM533iFb4unlXYdTMieKtsmfOzvkGlYRTl73fS1QE18l5rbx+57+kh
+        Tpd4PW3DR/jaLFUfzjWMdctRdAqZAaka6sv3BScT
+X-Google-Smtp-Source: ABdhPJyWVS/hrD+V4AvttM+SSjvEy52dNqah1ffuwMS87KYsNyJ8cUUVc1mTEFfK+8tWKRBoVMuAEFf/vCbdv+CpJ2Y=
+X-Received: by 2002:a17:906:2e91:: with SMTP id o17mr43073eji.488.1614295659553;
+ Thu, 25 Feb 2021 15:27:39 -0800 (PST)
 MIME-Version: 1.0
-References: <20210219222233.20748-1-olga.kornievskaia@gmail.com>
- <CAHC9VhRKLBNNfUE0FMgGJBR5eBQ+Et=oK1rcErUU_i62AGhfsQ@mail.gmail.com> <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
-In-Reply-To: <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
+References: <20210223214346.GB6000@sequoia> <20210223215054.GC6000@sequoia>
+ <20210223223652.GD6000@sequoia> <CAFqZXNvfux46_f8gnvVvRYMKoes24nwm2n3sPbMjrB8vKTW00g@mail.gmail.com>
+ <20210224143651.GE6000@sequoia> <CAFqZXNsNtAD56H0K-oOMkm=M_M6g=zuSvprDAWVk_phwQGk_TQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNsNtAD56H0K-oOMkm=M_M6g=zuSvprDAWVk_phwQGk_TQ@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 25 Feb 2021 14:30:18 -0500
-Message-ID: <CAHC9VhR8hxnpYf7=5PzughBhvx=rvndoZEy9kwzdcHDienAVUA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/3] [security] Add new hook to compare new mount to an
- existing mount
-To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        linux-nfs <linux-nfs@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Thu, 25 Feb 2021 18:27:28 -0500
+Message-ID: <CAHC9VhRTBrBU+PgWWyymeS+wvLKX5LRw8BZFZpS56eo2uMJedg@mail.gmail.com>
+Subject: Re: [BUG] Race between policy reload sidtab conversion and live conversion
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 1:03 PM Olga Kornievskaia
-<olga.kornievskaia@gmail.com> wrote:
-> On Thu, Feb 25, 2021 at 12:53 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Fri, Feb 19, 2021 at 5:25 PM Olga Kornievskaia
-> > <olga.kornievskaia@gmail.com> wrote:
-> > >
-> > > From: Olga Kornievskaia <kolga@netapp.com>
-> > >
-> > > Add a new hook that takes an existing super block and a new mount
-> > > with new options and determines if new options confict with an
-> > > existing mount or not.
-> > >
-> > > A filesystem can use this new hook to determine if it can share
-> > > the an existing superblock with a new superblock for the new mount.
-> > >
-> > > Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-> > > ---
-> > >  include/linux/lsm_hook_defs.h |  1 +
-> > >  include/linux/lsm_hooks.h     |  6 ++++
-> > >  include/linux/security.h      |  8 +++++
-> > >  security/security.c           |  7 +++++
-> > >  security/selinux/hooks.c      | 56 +++++++++++++++++++++++++++++++++++
-> > >  5 files changed, 78 insertions(+)
-> >
-> > ...
-> >
-> > > diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> > > index a19adef1f088..d76aaecfdf0f 100644
-> > > --- a/include/linux/lsm_hooks.h
-> > > +++ b/include/linux/lsm_hooks.h
-> > > @@ -142,6 +142,12 @@
-> > >   *     @orig the original mount data copied from userspace.
-> > >   *     @copy copied data which will be passed to the security module.
-> > >   *     Returns 0 if the copy was successful.
-> > > + * @sb_mnt_opts_compat:
-> > > + *     Determine if the existing mount options are compatible with the new
-> > > + *     mount options being used.
-> >
-> > Full disclosure: I'm a big fan of good documentation, regardless of if
-> > it lives in comments or a separate dedicated resource.  Looking at the
-> > comment above, and the SELinux implementation of this hook below, it
-> > appears that the comment is a bit vague; specifically the use of
-> > "compatible".  Based on the SELinux implementation, "compatible" would
-> > seem to equal, do you envision that to be the case for every
-> > LSM/security-model?  If the answer is yes, then let's say that (and
-> > possibly rename the hook to "sb_mnt_opts_equal").  If the answer is
-> > no, then I think we need to do a better job explaining what
-> > compatibility really means; put yourself in the shoes of someone
-> > writing a LSM, what would they need to know to write an implementation
-> > for this hook?
->
-> That's is tough to do as it is vague. All I was doing was fixing a
-> bug. Selinux didn't allow a new mount because it had a different
-> security context. What that translates to for the new hook, is up to
-> the LSM module whether it would need the options to be exactly the
-> same or if they can be slightly different but yet compatible this is
-> really up to the LSM.
->
-> Do you care to suggest wording to use? It is hard to find words that
-> somebody else is looking for but one is unable to provide them.
+On Thu, Feb 25, 2021 at 11:38 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> Unless someone objects, I'll start working on a patch to switch back
+> to read-write lock for now. If all goes well, I'll send it sometime
+> next week.
 
-I didn't have anything particular in mind, I just *really* don't like
-the ambiguity around "compatible".  Perhaps we can take away some of
-the ambiguity by providing some more explanation, how about something
-like this:
-
-"Determine if the new mount options in @mnt_opts are allowed given the
-existing mounted filesystem at @sb."
-
-... it's a pretty minor change, I'll readily admit that, but it
-exchanges "compatible" for "allowed" which I *think* makes it a bit
-more concrete.
+Sorry, I was looking at other things and just got to this ... I'm not
+overly excited about switching back to the read-write lock so quickly,
+I'd rather we spend some additional time looking into resolving issues
+with the current RCU code.
 
 -- 
 paul moore
