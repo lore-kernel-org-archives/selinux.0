@@ -2,167 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D43D3C433DB
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 16:47:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 280EDC433E0
+	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 17:55:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86E4264EDB
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 16:47:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DEF9564F3F
+	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 17:55:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbhBYQri (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Feb 2021 11:47:38 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:40634 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233864AbhBYQqi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 11:46:38 -0500
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id A1D1920B6C40;
-        Thu, 25 Feb 2021 08:45:55 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A1D1920B6C40
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1614271556;
-        bh=wlRHhMDhdnPoOFiC5N9w8GK8FzHuH7hrSm93HlcK0Lk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RYEpC4RbxF1x4ktJidIkRrotkXepMC9his7/DJxkAzyGquo/8KPx9wknKuEmhPe13
-         Y/lBsSoDiJrB77FAFbGwMEHgmJjgtYlvAGIcUBLD8hIz0UgcfS7bFpPpTjJDs591eh
-         69Kd1+1mIdx5NkHV4Pu1+mWqd3h2J2w1MuPCu4nQ=
-Date:   Thu, 25 Feb 2021 10:45:53 -0600
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Race between policy reload sidtab conversion and live
- conversion
-Message-ID: <20210225164553.GG6000@sequoia>
-References: <20210223214346.GB6000@sequoia>
- <20210223215054.GC6000@sequoia>
- <20210223223652.GD6000@sequoia>
- <CAFqZXNvfux46_f8gnvVvRYMKoes24nwm2n3sPbMjrB8vKTW00g@mail.gmail.com>
- <20210224143651.GE6000@sequoia>
- <CAFqZXNsNtAD56H0K-oOMkm=M_M6g=zuSvprDAWVk_phwQGk_TQ@mail.gmail.com>
+        id S232447AbhBYRzS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Feb 2021 12:55:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233020AbhBYRy2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 12:54:28 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D328C061788
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 09:53:48 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id h10so8005133edl.6
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 09:53:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IgNSI6OFSfnppaC+GMrdAWjNalo2gYA8gIH9UOQ8AyI=;
+        b=EInhMibNQy7yoPTPdzoBOkEWw/tMNCXklzkCg9G6gGpqiKFEvNk1t3g3PlWN9ABngP
+         95lwEZ2BIvfh1UgOe+RbVF8gfaj7tKOQVRp9lVvC/Duz7MAR5LoZLY63eZxkZizfiam/
+         wnhMpzaHUWqfFGEAeuFG0tDiuB2HLTXENPGGhrWVQa8vNECb/88YYB9ckUs5b8N/PgGb
+         m9lUbKUwMX1pGUZLoqvT9/VWmGIHcwwwnnCS930jFrJHeNBoiDwLVknudEBYZJnBt9T0
+         FiV0AF8Mz6UkS8kmqtNooPwefwQ51D8dVFPTqgxrFuKsHO1A4VC4NZBWFvm2+RWNBGez
+         WdTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IgNSI6OFSfnppaC+GMrdAWjNalo2gYA8gIH9UOQ8AyI=;
+        b=leuIIcrXz6LSEasJtPN6tnqky7tFFA8UTYBYCaPmXTKqMrvAmMecsdIdOYMIL/zuoi
+         bliYOsqLmuMDLVhQvOMdgChChqUvwx4386edDdC0BWqoSK47biLtTMCEzeaoCt/eorap
+         P/wnMUhC/sCNQ0lATL1RP7MneM+sLY583z/a0aM1eqeHcGUlM8G5KqiXgbkHgVCtWrDi
+         mMPVZQYkn1JqgFTRTTGGu3nGRsthT/6B/hnagtT/iU7demDhETe7XCgG6eb4fnjJm+yw
+         /2DOQFvnTCu7yRIAeaSfwY3W/7oFaiOzxKvwRwTJRrYhz7nAeTgc2GK0zwPILqm4oWE9
+         BLFw==
+X-Gm-Message-State: AOAM533zVgMBn6pONhqMe+9Ld7MlgAurx7MYYvzxTfQ/jhXDuyLlw0TR
+        DUQawokwqdPi3uVsrBcE71JIxocxjDN1YNTi+ZSe
+X-Google-Smtp-Source: ABdhPJz/O6xMq/eAU3Tt16scLm3nsGPZAvfSl4Uf27U//Dy+Smsnb0KhHRqVnGVDWvdz90JjpiBiPNMoSidkS4U1Rss=
+X-Received: by 2002:aa7:c410:: with SMTP id j16mr4097065edq.135.1614275626835;
+ Thu, 25 Feb 2021 09:53:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFqZXNsNtAD56H0K-oOMkm=M_M6g=zuSvprDAWVk_phwQGk_TQ@mail.gmail.com>
+References: <20210219222233.20748-1-olga.kornievskaia@gmail.com>
+In-Reply-To: <20210219222233.20748-1-olga.kornievskaia@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 25 Feb 2021 12:53:35 -0500
+Message-ID: <CAHC9VhRKLBNNfUE0FMgGJBR5eBQ+Et=oK1rcErUU_i62AGhfsQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] [security] Add new hook to compare new mount to an
+ existing mount
+To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Cc:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-02-25 17:38:25, Ondrej Mosnacek wrote:
-> On Wed, Feb 24, 2021 at 3:43 PM Tyler Hicks <tyhicks@linux.microsoft.com> wrote:
-> > On 2021-02-24 10:33:46, Ondrej Mosnacek wrote:
-> > > On Tue, Feb 23, 2021 at 11:37 PM Tyler Hicks
-> > > <tyhicks@linux.microsoft.com> wrote:
-> > > > On 2021-02-23 15:50:56, Tyler Hicks wrote:
-> > > > > On 2021-02-23 15:43:48, Tyler Hicks wrote:
-> > > > > > I'm seeing a race during policy load while the "regular" sidtab
-> > > > > > conversion is happening and a live conversion starts to take place in
-> > > > > > sidtab_context_to_sid().
-> > > > > >
-> > > > > > We have an initial policy that's loaded by systemd ~0.6s into boot and
-> > > > > > then another policy gets loaded ~2-3s into boot. That second policy load
-> > > > > > is what hits the race condition situation because the sidtab is only
-> > > > > > partially populated and there's a decent amount of filesystem operations
-> > > > > > happening, at the same time, which are triggering live conversions.
-> > > >
-> > > > Hmm, perhaps this is the same problem that's fixed by Ondrej's proposed
-> > > > change here:
-> > > >
-> > > >  https://lore.kernel.org/selinux/20210212185930.130477-3-omosnace@redhat.com/
-> > > >
-> > > > I'll put these changes through a validation run (the only place that I
-> > > > can seem to reproduce this crash) and see how it looks.
-> > >
-> > > Hm... I think there is actually another race condition introduced by
-> > > the switch from rwlock to RCU [1]... Judging from the call trace you
-> > > may be hitting that.
-> >
-> > I believe your patches above fixed the race I was seeing. I was able to
-> > make it through a full validation run without any crashes. Without those
-> > patches applied, I would see several crashes resulting from this race
-> > over the course of a validation run.
-> 
-> Hm... okay so probably you were indeed running into that bug. I tried
-> to reproduce the other race (I added a BUG_ON to help detect it), but
-> wasn't able to reproduce it with my (pretty aggressive) stress test. I
-> only managed to trigger it by adding a conditional delay in the right
-> place. So I now know the second bug is really there, though it' seems
-> to be very unlikely to be hit in practice (might be more likely on
-> systems with many CPU cores, though). The first bug, OTOH, is
-> triggered almost instantly by my stress test.
-> 
-> Unless someone objects, I'll start working on a patch to switch back
-> to read-write lock for now. If all goes well, I'll send it sometime
-> next week.
-> 
-> >
-> > I'll continue to test with your changes and let you know if I end up
-> > running into the other race you spotted.
-> 
-> Thanks, but given the results of my testing it's probably not worth trying :)
+On Fri, Feb 19, 2021 at 5:25 PM Olga Kornievskaia
+<olga.kornievskaia@gmail.com> wrote:
+>
+> From: Olga Kornievskaia <kolga@netapp.com>
+>
+> Add a new hook that takes an existing super block and a new mount
+> with new options and determines if new options confict with an
+> existing mount or not.
+>
+> A filesystem can use this new hook to determine if it can share
+> the an existing superblock with a new superblock for the new mount.
+>
+> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+> ---
+>  include/linux/lsm_hook_defs.h |  1 +
+>  include/linux/lsm_hooks.h     |  6 ++++
+>  include/linux/security.h      |  8 +++++
+>  security/security.c           |  7 +++++
+>  security/selinux/hooks.c      | 56 +++++++++++++++++++++++++++++++++++
+>  5 files changed, 78 insertions(+)
 
-Those changes have now survived through several validation runs. I can
-confidently say that they fix the race I was seeing.
+...
 
-Tyler
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index a19adef1f088..d76aaecfdf0f 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -142,6 +142,12 @@
+>   *     @orig the original mount data copied from userspace.
+>   *     @copy copied data which will be passed to the security module.
+>   *     Returns 0 if the copy was successful.
+> + * @sb_mnt_opts_compat:
+> + *     Determine if the existing mount options are compatible with the new
+> + *     mount options being used.
 
-> 
-> >
-> > Tyler
-> >
-> > >
-> > > Basically, before the switch the sidtab swapover worked like this:
-> > > 1. Start live conversion of new entries.
-> > > 2. Convert existing entries.
-> > > [Still only the old sidtab is visible to readers here.]
-> > > 3. Swap sidtab under write lock.
-> > > 4. Now only the new sidtab is visible to readers, so the old one can
-> > > be destroyed.
-> > >
-> > > After the switch to RCU, we now have:
-> > > 1. Start live conversion of new entries.
-> > > 2. Convert existing entries.
-> > > 3. RCU-assign the new policy pointer to selinux_state.
-> > > [!!! Now actually both old and new sidtab may be referenced by
-> > > readers, since there is no synchronization barrier previously provided
-> > > by the write lock.]
-> > > 4. Wait for synchronize_rcu() to return.
-> > > 5. Now only the new sidtab is visible to readers, so the old one can
-> > > be destroyed.
-> > >
-> > > So the race can happen between 3. and 5., if one thread already sees
-> > > the new sidtab and adds a new entry there, and a second thread still
-> > > has the reference to the old sidtab and also tires to add a new entry;
-> > > live-converting to the new sidtab, which it doesn't expect to change
-> > > by itself. Unfortunately I failed to realize this when reviewing the
-> > > patch :/
-> > >
-> > > I think the only two options to fix it are A) switching back to
-> > > read-write lock (the easy and safe way; undoing the performance
-> > > benefits of [1]), or B) implementing a safe two-way live conversion of
-> > > new sidtab entries, so that both tables are kept in sync while they
-> > > are both available (more complicated and with possible tricky
-> > > implications of different interpretations of contexts by the two
-> > > policies).
-> > >
-> > > [1] 1b8b31a2e612 ("selinux: convert policy read-write lock to RCU")
-> > >
-> > > --
-> > > Ondrej Mosnacek
-> > > Software Engineer, Linux Security - SELinux kernel
-> > > Red Hat, Inc.
-> > >
-> >
-> 
-> 
-> --
-> Ondrej Mosnacek
-> Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
-> 
+Full disclosure: I'm a big fan of good documentation, regardless of if
+it lives in comments or a separate dedicated resource.  Looking at the
+comment above, and the SELinux implementation of this hook below, it
+appears that the comment is a bit vague; specifically the use of
+"compatible".  Based on the SELinux implementation, "compatible" would
+seem to equal, do you envision that to be the case for every
+LSM/security-model?  If the answer is yes, then let's say that (and
+possibly rename the hook to "sb_mnt_opts_equal").  If the answer is
+no, then I think we need to do a better job explaining what
+compatibility really means; put yourself in the shoes of someone
+writing a LSM, what would they need to know to write an implementation
+for this hook?
+
+> + *     @sb superblock being compared
+> + *     @mnt_opts new mount options
+> + *     Return 0 if options are compatible.
+
+-- 
+paul moore
+www.paul-moore.com
