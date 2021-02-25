@@ -7,145 +7,143 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2036C433E0
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 19:24:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC53FC433E0
+	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 19:34:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 391B364E21
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 19:24:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 64CB164F18
+	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 19:34:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229993AbhBYTYE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Feb 2021 14:24:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59654 "EHLO
+        id S234282AbhBYTdu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Feb 2021 14:33:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233811AbhBYTVL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 14:21:11 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91FCBC06174A
-        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 11:20:19 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id t11so10724579ejx.6
-        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 11:20:19 -0800 (PST)
+        with ESMTP id S234964AbhBYTbM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 14:31:12 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEB0C061797
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 11:30:31 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id g3so8316574edb.11
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 11:30:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=eq1qUFSUBrIyWXbKhScI5MKq1mKXDMwpHAizP40dn0E=;
-        b=fQBEDsrpOgcMkxIqLG0zQhmuHOeD9t6OlOD5Roi4L841JJmwe6sky/E7qBoUvZh0P5
-         R4D711ioS3ZpacICUoGqY8kX/FcwXuV9Vl/1bCyqTp34JXtXzBA4/lmhBAa5zxj5QKcx
-         RKwi5KyG160RvAbq3wd8cpg0Sb+eKaecenxwcBvzmGd/1Vb7QIAHIzpgvE888jscUSEe
-         v66fR0M2vjo6XK4Y1FMOhuK0NdJI9BEL2LIm7mtX39v1ShAcgGxjKiioipIb2gObiQsu
-         zQ2SxH6mW5gCQuYoTBvNwnkcmWCJPgpj6D9k7Ydv4U7UdkPn4MBoIp705iX6mIjvf6PC
-         Nwgw==
+        bh=kn5f8U6gSB42zuc8l2XTzx8r5LXOFJ5xpaqkPUZWChs=;
+        b=vw6iwDGNm9M3VzhgkAG09uKHBa3lEvlsot54U4vao2XzrVWVmeYl4VFVF8gJQjiz7u
+         wJ5cANwNPA+syuGoleryxwhWZmYeXrRIbT7wsljR0gRaMP/bZBBFWj7HwSTRcIufl5e8
+         +2ycmUmin5q+8ei7RLLmEJQFiWUw2epjqdpbG9KZeI99UZH5YkycxoEf6PiL8sgKdQ+a
+         Bk5dsbmtYgjXOsz/RtjtBLv5e2If18fCYS0KtANo7cSpe5egW5O3sykVXkYGYpW3yMSm
+         fiunNNHP87T260v60adQOhwpYmOSoEIYVcS2lqwIZSvUEgUZ8aL88LvGzJ5sJ70sHA+H
+         BdEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=eq1qUFSUBrIyWXbKhScI5MKq1mKXDMwpHAizP40dn0E=;
-        b=K6MIIr2p2KZvFxHTPZfmQj28d2GFW4k3A3HSBK76dxWzlT76gEO04+Eg1p6YBvAjMY
-         Y8xVsgTMmOCaHDUwOzXQe8XXK4ytlnB1MGVsmx92dX9hNIdK6YYYjswrfg2uNsI5FCY5
-         0hdoUeKuQcGAcA0DchEck/Vpg1v/VbnUC3n5/UhdPzyVlgvDgoPtIDPlAkz7ROWs8wFm
-         FHPNC+ux3+ExF2xugBY1AeMaJj6iknBdaYBzfvI2K6DCdCXBZ8JUyzCID7Hn/Sz4jqY3
-         BJ2elFjLobxj0U27hH7lXRxWe9mBsbFP1Po0DWJWF6vdDBpuUggV9obdjXqyilYDk42U
-         n++w==
-X-Gm-Message-State: AOAM532JrepStIF4LhiOtvnNln81CTI+pBShhnafpAJivi2NlU6Wjec8
-        B05L+FNB9FS7xnlX24VY7MK/imFGd0Dz6qUCjx2H
-X-Google-Smtp-Source: ABdhPJwDSZY70/O1XZEHHgv01DJQViCxQHt1fiGX9fmxoWREADG7FgvMRGsVCNiagJH0McLqPtP2PsKNMt1RMO+Lkgo=
-X-Received: by 2002:a17:906:3b84:: with SMTP id u4mr4121066ejf.431.1614280818188;
- Thu, 25 Feb 2021 11:20:18 -0800 (PST)
+        bh=kn5f8U6gSB42zuc8l2XTzx8r5LXOFJ5xpaqkPUZWChs=;
+        b=ECfCXZ8LjM/cB73xcYmNAorjHiAVMTxFbFN5rcfeW2xgm4ktpXYcrlBS3lmivg+Eox
+         xGehgdxJz5hII1TeZ5+/WnW/M5Tf8KoKrJOm7H3BDKzjz9ZSalCY/TtgnB6PPdhmBtQl
+         GvJuXWgWK3z9uBgY/nfWRVL+/wlcFx9DNY4pN8rPIdJtrsjA/FybKyQX7yba1txPwYO1
+         s5HXM77eF/eGRnguLL/B8ThZeOMoJRU9oZD8Dy33EMIDLoYR6BkKXVAavU0r3gFGG/E9
+         D4iZOyH/t/vmU2ee5oAI5glMFuhuNxmGCiQPIUoX6zlr+63R2YcVB9u/mKRyak1+RKSw
+         raPQ==
+X-Gm-Message-State: AOAM530zx4BDZIhQPKSkq+defdqYMmFRn2fE5OTmm5NZM05XUrdKBKJp
+        UqbYKp90MuI1aB+bKj99Lgt6yyf1mObbPZC52AjA
+X-Google-Smtp-Source: ABdhPJwIyysgftrLtDHqbMxD4VspG5ZWJEq9O0sxPLPoY79EYzqPXYKymC4wAKJF/ks3ayGXmxIJA54Pp2Rx1F5ecoQ=
+X-Received: by 2002:aa7:df0a:: with SMTP id c10mr4694506edy.12.1614281430111;
+ Thu, 25 Feb 2021 11:30:30 -0800 (PST)
 MIME-Version: 1.0
-References: <20210212185930.130477-1-omosnace@redhat.com> <20210212185930.130477-3-omosnace@redhat.com>
-In-Reply-To: <20210212185930.130477-3-omosnace@redhat.com>
+References: <20210219222233.20748-1-olga.kornievskaia@gmail.com>
+ <CAHC9VhRKLBNNfUE0FMgGJBR5eBQ+Et=oK1rcErUU_i62AGhfsQ@mail.gmail.com> <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
+In-Reply-To: <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 25 Feb 2021 14:20:07 -0500
-Message-ID: <CAHC9VhTfEekRYo=_-RMNHqKenkVdjBr9bA1bgm3EMXojgandZw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux: fix variable scope issue in live sidtab conversion
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 25 Feb 2021 14:30:18 -0500
+Message-ID: <CAHC9VhR8hxnpYf7=5PzughBhvx=rvndoZEy9kwzdcHDienAVUA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] [security] Add new hook to compare new mount to an
+ existing mount
+To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 12, 2021 at 1:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, Feb 25, 2021 at 1:03 PM Olga Kornievskaia
+<olga.kornievskaia@gmail.com> wrote:
+> On Thu, Feb 25, 2021 at 12:53 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Fri, Feb 19, 2021 at 5:25 PM Olga Kornievskaia
+> > <olga.kornievskaia@gmail.com> wrote:
+> > >
+> > > From: Olga Kornievskaia <kolga@netapp.com>
+> > >
+> > > Add a new hook that takes an existing super block and a new mount
+> > > with new options and determines if new options confict with an
+> > > existing mount or not.
+> > >
+> > > A filesystem can use this new hook to determine if it can share
+> > > the an existing superblock with a new superblock for the new mount.
+> > >
+> > > Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+> > > ---
+> > >  include/linux/lsm_hook_defs.h |  1 +
+> > >  include/linux/lsm_hooks.h     |  6 ++++
+> > >  include/linux/security.h      |  8 +++++
+> > >  security/security.c           |  7 +++++
+> > >  security/selinux/hooks.c      | 56 +++++++++++++++++++++++++++++++++++
+> > >  5 files changed, 78 insertions(+)
+> >
+> > ...
+> >
+> > > diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> > > index a19adef1f088..d76aaecfdf0f 100644
+> > > --- a/include/linux/lsm_hooks.h
+> > > +++ b/include/linux/lsm_hooks.h
+> > > @@ -142,6 +142,12 @@
+> > >   *     @orig the original mount data copied from userspace.
+> > >   *     @copy copied data which will be passed to the security module.
+> > >   *     Returns 0 if the copy was successful.
+> > > + * @sb_mnt_opts_compat:
+> > > + *     Determine if the existing mount options are compatible with the new
+> > > + *     mount options being used.
+> >
+> > Full disclosure: I'm a big fan of good documentation, regardless of if
+> > it lives in comments or a separate dedicated resource.  Looking at the
+> > comment above, and the SELinux implementation of this hook below, it
+> > appears that the comment is a bit vague; specifically the use of
+> > "compatible".  Based on the SELinux implementation, "compatible" would
+> > seem to equal, do you envision that to be the case for every
+> > LSM/security-model?  If the answer is yes, then let's say that (and
+> > possibly rename the hook to "sb_mnt_opts_equal").  If the answer is
+> > no, then I think we need to do a better job explaining what
+> > compatibility really means; put yourself in the shoes of someone
+> > writing a LSM, what would they need to know to write an implementation
+> > for this hook?
 >
-> Commit 02a52c5c8c3b ("selinux: move policy commit after updating
-> selinuxfs") moved the selinux_policy_commit() call out of
-> security_load_policy() into sel_write_load(), which caused a subtle yet
-> rather serious bug.
+> That's is tough to do as it is vague. All I was doing was fixing a
+> bug. Selinux didn't allow a new mount because it had a different
+> security context. What that translates to for the new hook, is up to
+> the LSM module whether it would need the options to be exactly the
+> same or if they can be slightly different but yet compatible this is
+> really up to the LSM.
 >
-> The problem is that security_load_policy() passes a reference to the
-> convert_params local variable to sidtab_convert(), which stores it in
-> the sidtab, where it may be accessed until the policy is swapped over
-> and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
-> called directly from security_load_policy(), so the convert_params
-> pointer remained valid all the way until the old sidtab was destroyed,
-> but now that's no longer the case and calls to sidtab_context_to_sid()
-> on the old sidtab after security_load_policy() returns may cause invalid
-> memory accesses.
->
-> This can be easily triggered using the stress test from commit
-> ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
-> performance"):
-> ```
-> function rand_cat() {
->         echo $(( $RANDOM % 1024 ))
-> }
->
-> function do_work() {
->         while true; do
->                 echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
->                         >/sys/fs/selinux/context 2>/dev/null || true
->         done
-> }
->
-> do_work >/dev/null &
-> do_work >/dev/null &
-> do_work >/dev/null &
->
-> while load_policy; do echo -n .; sleep 0.1; done
->
-> kill %1
-> kill %2
-> kill %3
-> ```
->
-> Fix this by allocating the temporary sidtab convert structures
-> dynamically and passing them among the
-> selinux_policy_{load,cancel,commit} functions.
->
-> Note that this commit also fixes the minor issue of logging a
-> MAC_POLICY_LOAD audit record in case sel_make_policy_nodes() fails (in
-> which case the new policy isn't actually loaded).
+> Do you care to suggest wording to use? It is hard to find words that
+> somebody else is looking for but one is unable to provide them.
 
-I think you forgot to remove the paragraph above :)
+I didn't have anything particular in mind, I just *really* don't like
+the ambiguity around "compatible".  Perhaps we can take away some of
+the ambiguity by providing some more explanation, how about something
+like this:
 
-Other than that, and a small nit (below), this looks good to me.
+"Determine if the new mount options in @mnt_opts are allowed given the
+existing mounted filesystem at @sb."
 
-> Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/include/security.h | 15 ++++++---
->  security/selinux/selinuxfs.c        | 10 +++---
->  security/selinux/ss/services.c      | 51 +++++++++++++++++++----------
->  3 files changed, 49 insertions(+), 27 deletions(-)
-
-...
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 5e08ce2c5994..fada4ebc7ef8 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2157,8 +2157,13 @@ static void selinux_policy_cond_free(struct selinux_policy *policy)
->         kfree(policy);
->  }
->
-> +struct selinux_policy_convert_data {
-> +       struct convert_context_args args;
-> +       struct sidtab_convert_params sidtab_params;
-> +};
-
-I generally prefer structs up at the top of the source file, before
-the forward declarations please.
+... it's a pretty minor change, I'll readily admit that, but it
+exchanges "compatible" for "allowed" which I *think* makes it a bit
+more concrete.
 
 -- 
 paul moore
