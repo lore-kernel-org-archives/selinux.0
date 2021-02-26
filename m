@@ -7,61 +7,60 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BB51C433DB
-	for <selinux@archiver.kernel.org>; Fri, 26 Feb 2021 14:48:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A59FC433E0
+	for <selinux@archiver.kernel.org>; Fri, 26 Feb 2021 14:49:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E03B64E20
-	for <selinux@archiver.kernel.org>; Fri, 26 Feb 2021 14:48:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F370D64EDB
+	for <selinux@archiver.kernel.org>; Fri, 26 Feb 2021 14:49:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230042AbhBZOrs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 Feb 2021 09:47:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53395 "EHLO
+        id S230144AbhBZOsz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Feb 2021 09:48:55 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:20877 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229554AbhBZOrs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 Feb 2021 09:47:48 -0500
+        by vger.kernel.org with ESMTP id S230141AbhBZOsv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Feb 2021 09:48:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614350781;
+        s=mimecast20190719; t=1614350845;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=X2s711Vnia0MJxDnuGcc03MEmMLLST5GdwAOKqb2c9E=;
-        b=hjHuyc/YzwWmqX8xsRXYGCkP/v6lt0G+HqYvr39ix1fJPMWwLse0stKCwoPF+sKQW6RaAP
-        dCe+1c9Clps5drpQSAuhaH1F/R31Xt8ybhkatM9AFyuXdsJB9k8lC55Ks6msZDKh8wHx3v
-        5hDFkC0DfRHhWw+F610rOhAy7VdqSW4=
+        bh=m5KKnqfIBK34P3drEk5Y4AAXctfKgO9dLx+u/5dDFy0=;
+        b=Eh6P4aSRtLhXi+DSGnSuPUgSfW/8W+mrWU8MmA/hEUUJtqQE5b5A1+EEt/Ic2YGxPtX6ri
+        RXG+SPeF8PMHBASwc/dFBwlsid3HHbx98sWC8t0U/nngIP0FSYoJYhRR+V41A/E9j4Pr7X
+        3r6tBbSD/pXgcbR3/Or6yUNtgL16GDA=
 Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
  [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-100-wHFdlazdN6qWXuQRGYn0ig-1; Fri, 26 Feb 2021 09:46:18 -0500
-X-MC-Unique: wHFdlazdN6qWXuQRGYn0ig-1
-Received: by mail-yb1-f197.google.com with SMTP id p136so10217901ybc.21
-        for <selinux@vger.kernel.org>; Fri, 26 Feb 2021 06:46:17 -0800 (PST)
+ us-mta-272-_nAmO6tXM9mUCWFw3I8aXQ-1; Fri, 26 Feb 2021 09:47:23 -0500
+X-MC-Unique: _nAmO6tXM9mUCWFw3I8aXQ-1
+Received: by mail-yb1-f197.google.com with SMTP id g17so10225458ybh.4
+        for <selinux@vger.kernel.org>; Fri, 26 Feb 2021 06:47:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=X2s711Vnia0MJxDnuGcc03MEmMLLST5GdwAOKqb2c9E=;
-        b=KEgyTSEpyEkkvBRvcrsVIkArPTzwae+6uYhrjTFD4BUxNewlXZyM22t61llhJS339H
-         /bGR51evkGKjCk3+Lm1mtsIn6zyL/nOcASF6ZfbKDYTdInPfDS2gpr3w6ViNmPp1glv8
-         qe0CtJk6hY27b809VvDlubXZ9e9PVEFCJiEAtgF3tJmKJsoJ0JwBISreRq7sIqP9SV4X
-         XxLWrYMFGt/gSvpY8nQJUD71hhlE/JX6mfTGd0SH2SmxP4yg1PvFHnFkLtBkrHcjdU+r
-         mzzcjDUpmsO3gm6evGPj4JlLeNmChrwThVkix72yHaIp8uhf8SNkYtMrpWjmY5yGcOIY
-         OwPQ==
-X-Gm-Message-State: AOAM532GxAnb1lzlXCg3dMO55Pc5HQhuriULOfSTIm9Llh21CGaO2s72
-        jQGVQXLyLkKbB1ajJaMVHYrgM8kD+33zqQ/utp/+ZIfLjTZcVTDSQD1SV39Etat5hdymxMpDCGe
-        QwCr/yXO6n06gXoRhimpt+Uq/kCnlqHkEOg==
-X-Received: by 2002:a25:d4d0:: with SMTP id m199mr4992234ybf.26.1614350777280;
-        Fri, 26 Feb 2021 06:46:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxSD2Q7nE3eRWVNZ4cnLBx92ZR/4kuk58draSvPeDHxYNOUdz5lkuJjaRVG3hkGCkkmuHEbuI5NwBRe9qrZHgA=
-X-Received: by 2002:a25:d4d0:: with SMTP id m199mr4992204ybf.26.1614350777025;
- Fri, 26 Feb 2021 06:46:17 -0800 (PST)
+        bh=m5KKnqfIBK34P3drEk5Y4AAXctfKgO9dLx+u/5dDFy0=;
+        b=LT/G8AeISgTjuHiEUVdsTqDIxgAeLsYcG+T12sUX/iCkAF5P9R3LBXe3gi1av857OU
+         NF4aMMKSZ3PLRxDAiMtQYbVic3Krt6nlF30QT+D8pKCY7KWyP/OM943OFU5u4YMrmiHP
+         DxxbS/4WPJF933sa4yql9FYN6xOJzsd+0gDnupm9o4Ub5MOgA9tqGHIqLbFCu29Q9OxB
+         Buif21EqzYE1WrHfqrCi24Jy5kj7cZlNb9e/MvaRr6h61yWVpfKK+jZ/N/TSvwkjgGLY
+         3bKbpUn/2UFOcowYz0XAuRvmN8nY+Q2pjm0Btaf4thtwTKGZ+7zdI4FVrGrEZkpzMTAZ
+         C08w==
+X-Gm-Message-State: AOAM530xNjfSfqHaIp1JUSUjDf3arko0SlOB1t1B+DvGTMCW3AVMvgx/
+        rjlYoqVEGmw3CoGT02HxY0gk427Q+a8vidDbBKS8b87PSAtTtFafsWSRlDAaXfyz/3nOBbEznJ/
+        tyuf0MPEnIVUKrbez0DC4WfvXhSMOmqEclQ==
+X-Received: by 2002:a25:83cc:: with SMTP id v12mr4770965ybm.293.1614350842605;
+        Fri, 26 Feb 2021 06:47:22 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzqlWtIdrAElZbl4I9Od4nZ2dRcsAQ6m2D4+2L80mXOcoiTrdVr8cdVpGjWzXQpkDJwLp2Hg1VxoJtxYbD5iac=
+X-Received: by 2002:a25:83cc:: with SMTP id v12mr4770940ybm.293.1614350842404;
+ Fri, 26 Feb 2021 06:47:22 -0800 (PST)
 MIME-Version: 1.0
-References: <20210212185930.130477-1-omosnace@redhat.com> <20210212185930.130477-2-omosnace@redhat.com>
- <CAHC9VhQLJKjY0KSC+=f4b=8d8n-m29j_9J5r_VQ_1BpSY8WD2w@mail.gmail.com>
-In-Reply-To: <CAHC9VhQLJKjY0KSC+=f4b=8d8n-m29j_9J5r_VQ_1BpSY8WD2w@mail.gmail.com>
+References: <20210212185930.130477-1-omosnace@redhat.com> <20210212185930.130477-3-omosnace@redhat.com>
+ <CAHC9VhTfEekRYo=_-RMNHqKenkVdjBr9bA1bgm3EMXojgandZw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTfEekRYo=_-RMNHqKenkVdjBr9bA1bgm3EMXojgandZw@mail.gmail.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 26 Feb 2021 15:46:06 +0100
-Message-ID: <CAFqZXNuBYwAT2-vLaTM8_Zng=vh+XsY_EvnzPYM4Z=PoCydZ+A@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] selinux: don't log MAC_POLICY_LOAD record on
- failed policy load
+Date:   Fri, 26 Feb 2021 15:47:11 +0100
+Message-ID: <CAFqZXNtOMTOC-4=vbL5dw9YjQLb7+kFkbDxxp+bjg4mhq4vb2Q@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] selinux: fix variable scope issue in live sidtab conversion
 To:     Paul Moore <paul@paul-moore.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Stephen Smalley <stephen.smalley.work@gmail.com>
@@ -70,67 +69,93 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 7:15 PM Paul Moore <paul@paul-moore.com> wrote:
+On Thu, Feb 25, 2021 at 8:20 PM Paul Moore <paul@paul-moore.com> wrote:
 >
 > On Fri, Feb 12, 2021 at 1:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > If sel_make_policy_nodes() fails, we should jump to 'out', not 'out1',
-> > as the latter would incorrectly log an MAC_POLICY_LOAD audit record,
-> > even though the policy hasn't actually been reloaded. The 'out1' jump
-> > label now becomes unused and can be removed.
+> > Commit 02a52c5c8c3b ("selinux: move policy commit after updating
+> > selinuxfs") moved the selinux_policy_commit() call out of
+> > security_load_policy() into sel_write_load(), which caused a subtle yet
+> > rather serious bug.
 > >
+> > The problem is that security_load_policy() passes a reference to the
+> > convert_params local variable to sidtab_convert(), which stores it in
+> > the sidtab, where it may be accessed until the policy is swapped over
+> > and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
+> > called directly from security_load_policy(), so the convert_params
+> > pointer remained valid all the way until the old sidtab was destroyed,
+> > but now that's no longer the case and calls to sidtab_context_to_sid()
+> > on the old sidtab after security_load_policy() returns may cause invalid
+> > memory accesses.
+> >
+> > This can be easily triggered using the stress test from commit
+> > ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
+> > performance"):
+> > ```
+> > function rand_cat() {
+> >         echo $(( $RANDOM % 1024 ))
+> > }
+> >
+> > function do_work() {
+> >         while true; do
+> >                 echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
+> >                         >/sys/fs/selinux/context 2>/dev/null || true
+> >         done
+> > }
+> >
+> > do_work >/dev/null &
+> > do_work >/dev/null &
+> > do_work >/dev/null &
+> >
+> > while load_policy; do echo -n .; sleep 0.1; done
+> >
+> > kill %1
+> > kill %2
+> > kill %3
+> > ```
+> >
+> > Fix this by allocating the temporary sidtab convert structures
+> > dynamically and passing them among the
+> > selinux_policy_{load,cancel,commit} functions.
+> >
+> > Note that this commit also fixes the minor issue of logging a
+> > MAC_POLICY_LOAD audit record in case sel_make_policy_nodes() fails (in
+> > which case the new policy isn't actually loaded).
+>
+> I think you forgot to remove the paragraph above :)
+
+Oh, good point :)
+
+>
+> Other than that, and a small nit (below), this looks good to me.
+>
 > > Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
 > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > > ---
-> >  security/selinux/selinuxfs.c | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> >
-> > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> > index 01a7d50ed39b..340711e3dc9a 100644
-> > --- a/security/selinux/selinuxfs.c
-> > +++ b/security/selinux/selinuxfs.c
-> > @@ -651,14 +651,13 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
-> >         length = sel_make_policy_nodes(fsi, newpolicy);
-> >         if (length) {
-> >                 selinux_policy_cancel(fsi->state, newpolicy);
-> > -               goto out1;
-> > +               goto out;
+> >  security/selinux/include/security.h | 15 ++++++---
+> >  security/selinux/selinuxfs.c        | 10 +++---
+> >  security/selinux/ss/services.c      | 51 +++++++++++++++++++----------
+> >  3 files changed, 49 insertions(+), 27 deletions(-)
 >
-> This looks good, especially with AUDIT_MAC_POLICY_LOAD recording
-> "res=1".  However, now that I'm looking at the error path here, we
-> don't display anything if sel_make_policy_nodes() fails, do we?  If
-> security_load_policy fails we at least do a printk(), but if this
-> fails it silently kills the policy load; at the very least I think we
-> want a `pr_warn_ratelimited("SELinux: failed to load policy due to
-> selinuxfs failures")` or something similar.
+> ...
+>
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index 5e08ce2c5994..fada4ebc7ef8 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -2157,8 +2157,13 @@ static void selinux_policy_cond_free(struct selinux_policy *policy)
+> >         kfree(policy);
+> >  }
+> >
+> > +struct selinux_policy_convert_data {
+> > +       struct convert_context_args args;
+> > +       struct sidtab_convert_params sidtab_params;
+> > +};
+>
+> I generally prefer structs up at the top of the source file, before
+> the forward declarations please.
 
-There are error messages in some error paths in
-sel_make_policy_nodes(), but not all. Those are pr_err()s, while in
-sel_write_load() there is a pr_warn_ratelimited(). Could we just unify
-the sel_make_policy_nodes() failure to a single message? (I don't
-think the information on which part has failed is very useful as the
-most likely cause here is a memory allocation failure, not bad
-policy.) If so, should it be a pr_warn() or pr_err()? Ratelimited or
-not?
-
->
-> >         }
-> >
-> >         selinux_policy_commit(fsi->state, newpolicy);
-> >
-> >         length = count;
-> >
-> > -out1:
-> >         audit_log(audit_context(), GFP_KERNEL, AUDIT_MAC_POLICY_LOAD,
-> >                 "auid=%u ses=%u lsm=selinux res=1",
-> >                 from_kuid(&init_user_ns, audit_get_loginuid(current)),
-> > --
-> > 2.29.2
->
-> --
-> paul moore
-> www.paul-moore.com
->
+Ok, I'll move it to the top.
 
 -- 
 Ondrej Mosnacek
