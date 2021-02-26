@@ -6,58 +6,57 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E4EAC433DB
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 23:28:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87EC3C433DB
+	for <selinux@archiver.kernel.org>; Fri, 26 Feb 2021 01:07:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D78FB64F06
-	for <selinux@archiver.kernel.org>; Thu, 25 Feb 2021 23:28:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51BD664EC3
+	for <selinux@archiver.kernel.org>; Fri, 26 Feb 2021 01:07:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232471AbhBYX2X (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Feb 2021 18:28:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56456 "EHLO
+        id S232270AbhBZBHk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Feb 2021 20:07:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232465AbhBYX2V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 18:28:21 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC3FFC06174A
-        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 15:27:40 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id mm21so11407595ejb.12
-        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 15:27:40 -0800 (PST)
+        with ESMTP id S229800AbhBZBHi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 Feb 2021 20:07:38 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F0CC06178A
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 17:06:58 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id a22so11991526ejv.9
+        for <selinux@vger.kernel.org>; Thu, 25 Feb 2021 17:06:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=bLcmTEjAiF5yFpxf27atOmC91/iDittSsNlvHgP+FGw=;
-        b=WAV1PV1KABzooKU+nDNO9oCfpMmd7hnjojZfiA9jbcjxpJ5euqn3q1lz1J+VxZGzvs
-         TOWw/xoVDYENrYzytLq03NBIbhDH57Jm9hAL/UFdbc/fYldOcIaMgkZOe9xhjoset08E
-         KPFE5YyrjUcy6dFzxw5a1oPyprnC6RPg8cFd2bumvS+D39E3rrrMfyed598M4dsvw1YI
-         0a7Jx66J1XZaiuR2n+n28/7/EjbwBQ92ir4SXmRFyHOegjQ7NNJfK9sCFpm+mg/rg2JF
-         Og6zjWvOrK8ICMQLekXr9xk7mbkW3fjljVVxq8ZhPbr/gMziu1Ohp84sTiPzt0XDsxpl
-         P3SQ==
+        bh=hshTohekKVzxbI8Gdg4o7wDfhyGczePTc6NMf/Dm1B0=;
+        b=t8Jhg/Wo4q4oMpwBzWgLwhR2qoUKb1jrUkLmUrJbhzrdFa1lvtizQEf/FQBlf4CxX5
+         kfPYsVQXSwyirI34aU5APwxO2Wi1OfjPAqb9789iPnqnUGIOrQm94kKJ3NVewuGJzH5q
+         70hpGID4SGwqyrlm5Jj8QwiJPPyVoKoVCjS7xmzvr5kBP9/1CxPppioQGyLBb1DMP0de
+         zRvcaQY7LJMjI8lnWjKJnJJC6GIlZRX0jSI0+vuNg0KJc0YcnLVf4wBJHJ+NfKYiXyAY
+         c1KFNQucGUusUaHkNrxPdz/+qJZ0quh0PvJZlao46WMYwCEm0pWdnnSou1wVaY1KI51v
+         famw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=bLcmTEjAiF5yFpxf27atOmC91/iDittSsNlvHgP+FGw=;
-        b=S2wuo3D8r21WWfvWoHFW9LvQaonqo8PHRftPtUnDnJKLKhKO1GfXlrOqu9pIR/4lG7
-         7lqaMR+r8Zlnt/2cFjvpnSTM0HLQawiRD15/+XQkdBDZJeDcUOoX4qPhXnAL2yriVv3Z
-         kX/VdqUxdtIY1ocWlOrtLmVIqa6eb1vuSFkbB3IHq+glAv7exizAE8KHycpw5nhm4eAB
-         FvNp99ZkMz8bUBB70Esv6teMmiDLemLDQU14a6JS8HQgTmW0WNFdyG8eJ0LrGl78Y3yb
-         Hmdf4p8193kPzbru9cuebrRSgh77C9ClROWc7TRBTwa/ePLxEdwlOWnGXtD74Nb9eFGq
-         VrVA==
-X-Gm-Message-State: AOAM533iFb4unlXYdTMieKtsmfOzvkGlYRTl73fS1QE18l5rbx+57+kh
-        Tpd4PW3DR/jaLFUfzjWMdctRdAqZAaka6sv3BScT
-X-Google-Smtp-Source: ABdhPJyWVS/hrD+V4AvttM+SSjvEy52dNqah1ffuwMS87KYsNyJ8cUUVc1mTEFfK+8tWKRBoVMuAEFf/vCbdv+CpJ2Y=
-X-Received: by 2002:a17:906:2e91:: with SMTP id o17mr43073eji.488.1614295659553;
- Thu, 25 Feb 2021 15:27:39 -0800 (PST)
+        bh=hshTohekKVzxbI8Gdg4o7wDfhyGczePTc6NMf/Dm1B0=;
+        b=TAEXjczAtdX9jJK9ohbI5lq9h5V4AWbOrwHvIgOknykdrdaQjM5+DmNdfiqpDk9THN
+         N9keR/re3XPH2npJtaYxk/fzXPV+SevDsNwyGRgIQd74k035vzPw250PKBl9vhy+jrK3
+         VmGllBIbFxlYeIJIZU9w+ybxg8amrzCirRQMoeb+ZmozvLF9YT3pwsnAvR+vJqb9eVre
+         ooR2jP3KJY0gVk6Dui9KLcgRBduVPTuNG3Lopv7SboFa+5qb3aJxVGPM8dQnjWU+d0ut
+         qReKyfP96f3yZln1Z98U4pKUdXM/ZbGV+Mb+QExRMpJh3xn2hiZrQlbsyvDp6cR7KeEb
+         W66Q==
+X-Gm-Message-State: AOAM5331wCCJEDKmaku7MA3u5KbDqdO8zp9J0fSIdptLVHNDjnHTebEt
+        p9vgL9VM+JHNqVLgVW2sr37aM4xwCsKhKtVvLH3v
+X-Google-Smtp-Source: ABdhPJz9Ym22J+71vu28hduTtY1dbebaSSmN+CFMDHNnCACBgGb8WrLJ4GnFK7OSVWzIx5rZEe326i5FwFwvcgLs/QI=
+X-Received: by 2002:a17:907:3e14:: with SMTP id hp20mr509206ejc.106.1614301616841;
+ Thu, 25 Feb 2021 17:06:56 -0800 (PST)
 MIME-Version: 1.0
 References: <20210223214346.GB6000@sequoia> <20210223215054.GC6000@sequoia>
  <20210223223652.GD6000@sequoia> <CAFqZXNvfux46_f8gnvVvRYMKoes24nwm2n3sPbMjrB8vKTW00g@mail.gmail.com>
- <20210224143651.GE6000@sequoia> <CAFqZXNsNtAD56H0K-oOMkm=M_M6g=zuSvprDAWVk_phwQGk_TQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsNtAD56H0K-oOMkm=M_M6g=zuSvprDAWVk_phwQGk_TQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNvfux46_f8gnvVvRYMKoes24nwm2n3sPbMjrB8vKTW00g@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 25 Feb 2021 18:27:28 -0500
-Message-ID: <CAHC9VhRTBrBU+PgWWyymeS+wvLKX5LRw8BZFZpS56eo2uMJedg@mail.gmail.com>
+Date:   Thu, 25 Feb 2021 20:06:45 -0500
+Message-ID: <CAHC9VhSaU-3_fs83kEA5bxBf9xMsE29B_O5nXFpROk4=y9kgXw@mail.gmail.com>
 Subject: Re: [BUG] Race between policy reload sidtab conversion and live conversion
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     Tyler Hicks <tyhicks@linux.microsoft.com>,
@@ -69,15 +68,49 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 11:38 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> Unless someone objects, I'll start working on a patch to switch back
-> to read-write lock for now. If all goes well, I'll send it sometime
-> next week.
+On Wed, Feb 24, 2021 at 4:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> After the switch to RCU, we now have:
+> 1. Start live conversion of new entries.
+> 2. Convert existing entries.
+> 3. RCU-assign the new policy pointer to selinux_state.
+> [!!! Now actually both old and new sidtab may be referenced by
+> readers, since there is no synchronization barrier previously provided
+> by the write lock.]
+> 4. Wait for synchronize_rcu() to return.
+> 5. Now only the new sidtab is visible to readers, so the old one can
+> be destroyed.
+>
+> So the race can happen between 3. and 5., if one thread already sees
+> the new sidtab and adds a new entry there, and a second thread still
+> has the reference to the old sidtab and also tires to add a new entry;
+> live-converting to the new sidtab, which it doesn't expect to change
+> by itself. Unfortunately I failed to realize this when reviewing the
+> patch :/
 
-Sorry, I was looking at other things and just got to this ... I'm not
-overly excited about switching back to the read-write lock so quickly,
-I'd rather we spend some additional time looking into resolving issues
-with the current RCU code.
+It is possible I'm not fully understanding the problem and/or missing
+an important detail - it is rather tricky code, and RCU can be very
+hard to reason at times - but I think we may be able to solve this
+with some lock fixes inside sidtab_context_to_sid().  Let me try to
+explain to see if we are on the same page here ...
+
+The problem is when we have two (or more) threads trying to
+add/convert the same context into a sid; the task with new_sidtab is
+looking to add a new sidtab entry, while the task with old_sidtab is
+looking to convert an entry in old_sidtab into a new entry in
+new_sidtab.  Boom.
+
+Looking at the code in sidtab_context_to_sid(), when we have two
+sidtabs that are currently active (old_sidtab->convert pointer is
+valid) and a task with old_sidtab attempts to add a new entry to both
+sidtabs it first adds it to the old sidtab then it also adds it to the
+new sidtab.  I believe the problem is that in this case while the task
+grabs the old_sidtab->lock, it never grabs the new_sidtab->lock which
+allows it to race with tasks that already see only new_sidtab.  I
+think adding code to sidtab_context_to_sid() which grabs the
+new_sidtab->lock when adding entries to the new_sidtab *should* solve
+the problem.
+
+Did I miss something important? ;)
 
 -- 
 paul moore
