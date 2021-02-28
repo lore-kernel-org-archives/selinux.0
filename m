@@ -7,135 +7,128 @@ X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7561AC433E0
-	for <selinux@archiver.kernel.org>; Sun, 28 Feb 2021 18:38:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA83DC433DB
+	for <selinux@archiver.kernel.org>; Sun, 28 Feb 2021 18:54:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D7AF64DBD
-	for <selinux@archiver.kernel.org>; Sun, 28 Feb 2021 18:38:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F8CF64E83
+	for <selinux@archiver.kernel.org>; Sun, 28 Feb 2021 18:54:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbhB1Sif (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 28 Feb 2021 13:38:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39118 "EHLO
+        id S231157AbhB1Sxp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 28 Feb 2021 13:53:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229715AbhB1Sie (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 28 Feb 2021 13:38:34 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B7E4C06174A
-        for <selinux@vger.kernel.org>; Sun, 28 Feb 2021 10:37:53 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id h10so17707500edl.6
-        for <selinux@vger.kernel.org>; Sun, 28 Feb 2021 10:37:53 -0800 (PST)
+        with ESMTP id S231154AbhB1Sxp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 28 Feb 2021 13:53:45 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D24C061788
+        for <selinux@vger.kernel.org>; Sun, 28 Feb 2021 10:53:04 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id lr13so24106828ejb.8
+        for <selinux@vger.kernel.org>; Sun, 28 Feb 2021 10:53:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ppGDpTFzSXWWlGE51pox82buiuX04gD9pOg1/3MREt0=;
-        b=fzIMkkwc6VXyZF+e5HqKudARIH8IhkbVBJP3UmfsNZH67f1544pHFaGHfwP/FO36aI
-         eTSEfVcBj+15O4ZH9c65NPAXPNS3HPUC/Lm6ORbep6aFgY9jZXo9hKM0YDEubl3+QEEZ
-         CTINTi3RBSFnHKFgHzTHtKafez9J1PpeLBJgvLAMNYRdB+n/LXfvrTkSGFjkKSvOOACN
-         lQ+pJPOjN0mQW6ezEaU7zEYzzEYj97uZ8TZJy1kw/65Ggsci3ud9bVJe2aGxqI+x28ZU
-         XhGu8leiG3yJ2v35aoyo/GnuI1DqaQTUDEY1OwvcWuHmN18TQj7bw84yqAETo1MoFfPz
-         ZqbA==
+        bh=VwQREwvjXQq2EK9+9WS/oLnljsLOZdBWLryisGeWHrE=;
+        b=aFKCgHh7eIYYNYL3+ImdSfygjPjBylz+UiAaRS9+Tx4qhnXk+knwsfxOETxh5uOLVH
+         buVbDc48o+D2tEzUJkbR1eQmvkm6M556v3zrUBNpNMhrNWV0XS5qIuPTiMOzQ8GZ9SNH
+         w0NLPeDGM2RWqR8DqbAtqwR690kwaEKb1kFsKD7yNU4T5HNTAoG23KHW1uYNaXrmbmDI
+         wlPxzwdQ7+D0lCGzTbbUexPNkxzdl5wOFPPSOyIMA//0FyXR4vcsuvRReetH0Wmrfv5Q
+         9ScnSgt45wqVUSvoU47uGuTmFXNyRVoF8VS+rNVrSY4sw0FYFys+MXUNdjfX3yhyE6gM
+         3fCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ppGDpTFzSXWWlGE51pox82buiuX04gD9pOg1/3MREt0=;
-        b=omcQVzeCqKW9mmgIa0npUDVpBeTCXFZpXDLZFTASvIVv1XPh/b3Xcf1JxHk65/PtW+
-         bLLxhcBN28EVgJq72nNJtwEOa3SPcLcwam8GbldIwqxg6dTRlzN1AbPJUeLXyaR37bU7
-         X25ytLGhWnzOu1pnZ4GajcW1qfqO5qSz8SE2PNzh8MXB69xkpp0/HUP+zZ8BbNFOxOCv
-         xcJizr/oPPVohR+UJ77/AAjN+eIKdPrAX/kCElOKbyFqkNE1ZXo4XSA/h7dYJL2uGwi5
-         lPKHkAYo89hQQshDL0vHtxBETHB8gAqAkO7wVdLbhXwi2tAldZs9/lxvHV7jZuoLlKMT
-         r6Mw==
-X-Gm-Message-State: AOAM532VTLhQ7+cFjmMMlG2IkZzvfX8EPQWOO9sRIkzgHa56/A7i+MxQ
-        wpu0qTd9iUMuSSlYV1fESrgGiaRtLm48xpx/DMlY
-X-Google-Smtp-Source: ABdhPJy8sTRUUiKp4ovwElzch6ia8u+MqZN0LydyVqnFlDPVOkQGZgCct6BclpSvPM0shzYvLlp2pVEOiDGHubcT/R0=
-X-Received: by 2002:a05:6402:c96:: with SMTP id cm22mr13096764edb.128.1614537472148;
- Sun, 28 Feb 2021 10:37:52 -0800 (PST)
+        bh=VwQREwvjXQq2EK9+9WS/oLnljsLOZdBWLryisGeWHrE=;
+        b=R3to+MieoMHPUlvlzaffRrHH3ob1+6n23yX0FRF2m5pTGAiiLmjLXPP1qsxpNl4l3u
+         SHdKjmjHtksN1zjyJFV+/8W+VH45WrqYAu+A+1qojpOpGIy76LmH4hyKmUe53P9RpTri
+         6PoxiodsPsJu8cqBq5lyJyy3Boneu7cM9vJMCYIBKG2uvKEpBcd38hyP846wIJB4lj+1
+         taVdjYBlG+BahbpPHi33XYPFBHXjQvGmYhWc0LH4DiiVEg9FtE2B6rpk4fOY79pF4u/v
+         O6U+QDCgg3F7dKcJRgHlfJiiygSUjfRiys5iFXwrMvf4YbqnXzYSOgvmT1AnzJKT8ue5
+         WQnw==
+X-Gm-Message-State: AOAM533pWAXdtWjuFmjVC5s14ljwTkD+NGl9gRnxBR/hB75jAOnwCwUV
+        DKQA+oKir5xx6u6ao4a6NmZ+H+knxZcMCXcll5BA
+X-Google-Smtp-Source: ABdhPJwbelUHTGs4DOgyyVITJExzti+cZ8g9AAgeK0av8RmBgF3ePhWVBlhf7B1/ZMTtXojBVT03OBPlNhyKJgMvixc=
+X-Received: by 2002:a17:907:3e14:: with SMTP id hp20mr12899204ejc.106.1614538383282;
+ Sun, 28 Feb 2021 10:53:03 -0800 (PST)
 MIME-Version: 1.0
-References: <YDvLYzsGu+l1pQ2y@localhost.localdomain> <YDvNF+QVOv3vqDbm@localhost.localdomain>
-In-Reply-To: <YDvNF+QVOv3vqDbm@localhost.localdomain>
+References: <20210212185930.130477-1-omosnace@redhat.com> <20210212185930.130477-2-omosnace@redhat.com>
+ <CAHC9VhQLJKjY0KSC+=f4b=8d8n-m29j_9J5r_VQ_1BpSY8WD2w@mail.gmail.com> <CAFqZXNuBYwAT2-vLaTM8_Zng=vh+XsY_EvnzPYM4Z=PoCydZ+A@mail.gmail.com>
+In-Reply-To: <CAFqZXNuBYwAT2-vLaTM8_Zng=vh+XsY_EvnzPYM4Z=PoCydZ+A@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 28 Feb 2021 13:37:41 -0500
-Message-ID: <CAHC9VhTr0=WGvacsCGgpwiPwU_ziQeThV88ZqZRdVXqO+HafYQ@mail.gmail.com>
-Subject: Re: [PATCH 09/11] pragma once: convert scripts/selinux/genheaders/genheaders.c
-To:     Alexey Dobriyan <adobriyan@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Date:   Sun, 28 Feb 2021 13:52:52 -0500
+Message-ID: <CAHC9VhSzDVyipy2y8ONiR_Q0YG50FnCJxgHsoi9Nee09hN0WCA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] selinux: don't log MAC_POLICY_LOAD record on
+ failed policy load
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 28, 2021 at 12:04 PM Alexey Dobriyan <adobriyan@gmail.com> wrote:
+On Fri, Feb 26, 2021 at 9:46 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Thu, Feb 25, 2021 at 7:15 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Fri, Feb 12, 2021 at 1:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > If sel_make_policy_nodes() fails, we should jump to 'out', not 'out1',
+> > > as the latter would incorrectly log an MAC_POLICY_LOAD audit record,
+> > > even though the policy hasn't actually been reloaded. The 'out1' jump
+> > > label now becomes unused and can be removed.
+> > >
+> > > Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
+> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > ---
+> > >  security/selinux/selinuxfs.c | 3 +--
+> > >  1 file changed, 1 insertion(+), 2 deletions(-)
+> > >
+> > > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> > > index 01a7d50ed39b..340711e3dc9a 100644
+> > > --- a/security/selinux/selinuxfs.c
+> > > +++ b/security/selinux/selinuxfs.c
+> > > @@ -651,14 +651,13 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+> > >         length = sel_make_policy_nodes(fsi, newpolicy);
+> > >         if (length) {
+> > >                 selinux_policy_cancel(fsi->state, newpolicy);
+> > > -               goto out1;
+> > > +               goto out;
+> >
+> > This looks good, especially with AUDIT_MAC_POLICY_LOAD recording
+> > "res=1".  However, now that I'm looking at the error path here, we
+> > don't display anything if sel_make_policy_nodes() fails, do we?  If
+> > security_load_policy fails we at least do a printk(), but if this
+> > fails it silently kills the policy load; at the very least I think we
+> > want a `pr_warn_ratelimited("SELinux: failed to load policy due to
+> > selinuxfs failures")` or something similar.
 >
-> From 097f2c8b2af7d9e88cff59376ea0ad51b95341cb Mon Sep 17 00:00:00 2001
-> From: Alexey Dobriyan <adobriyan@gmail.com>
-> Date: Tue, 9 Feb 2021 00:39:23 +0300
-> Subject: [PATCH 09/11] pragma once: convert scripts/selinux/genheaders/genheaders.c
->
-> Generate security/selinux/flask.h and security/selinux/av_permissions.h
-> without include guards.
->
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
->  scripts/selinux/genheaders/genheaders.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+> There are error messages in some error paths in
+> sel_make_policy_nodes(), but not all. Those are pr_err()s, while in
+> sel_write_load() there is a pr_warn_ratelimited(). Could we just unify
+> the sel_make_policy_nodes() failure to a single message? (I don't
+> think the information on which part has failed is very useful as the
+> most likely cause here is a memory allocation failure, not bad
+> policy.) If so, should it be a pr_warn() or pr_err()? Ratelimited or
+> not?
 
-My LKML subscription must have died at some point due to mail bounces,
-or maybe I dopped it (?), because I'm not seeing the rest of this
-patchset for context.
+My personal opinion is that the kernel only needs to provide the error
+details to userspace which can be useful in determining what wrong,
+and how the user can fix it.  For example, if there is a memory
+allocation failure in the kernel there is often little the user can do
+(and it is often transient anyway due to loading and other factors),
+so simply reporting that there was an allocation failure while
+attempting X is sufficient.
 
-However, unless the rest of the kernel transitions to this, or there
-is some other big win that I'm missing, I don't see much of a reason
-for this; can you provide some compelling reason for why we should
-make this change?  A quick search on "#pragma once" seems to indicate
-it is non-standard, so why replace the simple #ifdef/#define solution
-for this?
-
-> diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
-> index f355b3e0e968..e13ee4221993 100644
-> --- a/scripts/selinux/genheaders/genheaders.c
-> +++ b/scripts/selinux/genheaders/genheaders.c
-> @@ -74,8 +74,8 @@ int main(int argc, char *argv[])
->                         initial_sid_to_string[i] = stoupperx(s);
->         }
->
-> +       fprintf(fout, "#pragma once\n");
->         fprintf(fout, "/* This file is automatically generated.  Do not edit. */\n");
-> -       fprintf(fout, "#ifndef _SELINUX_FLASK_H_\n#define _SELINUX_FLASK_H_\n\n");
->
->         for (i = 0; secclass_map[i].name; i++) {
->                 struct security_class_mapping *map = &secclass_map[i];
-> @@ -109,7 +109,6 @@ int main(int argc, char *argv[])
->         fprintf(fout, "\treturn sock;\n");
->         fprintf(fout, "}\n");
->
-> -       fprintf(fout, "\n#endif\n");
->         fclose(fout);
->
->         fout = fopen(argv[2], "w");
-> @@ -119,8 +118,8 @@ int main(int argc, char *argv[])
->                 exit(4);
->         }
->
-> +       fprintf(fout, "#pragma once\n");
->         fprintf(fout, "/* This file is automatically generated.  Do not edit. */\n");
-> -       fprintf(fout, "#ifndef _SELINUX_AV_PERMISSIONS_H_\n#define _SELINUX_AV_PERMISSIONS_H_\n\n");
->
->         for (i = 0; secclass_map[i].name; i++) {
->                 struct security_class_mapping *map = &secclass_map[i];
-> @@ -136,7 +135,6 @@ int main(int argc, char *argv[])
->                 }
->         }
->
-> -       fprintf(fout, "\n#endif\n");
->         fclose(fout);
->         exit(0);
->  }
-> --
-> 2.29.2
+Beyond that, I think things can get a little fuzzy, e.g. pr_warn() or
+pr_err?  Ratelimit or always emit the message?  I also think the
+answers can change as userspace behaviors change over time.  If one of
+the policy load error paths uses a pr_err() then we should probably
+stick with that; it also seems appropriate as failing to (re)load a
+SELinux policy *is* a serious matter.  As far as the rate limiting is
+concerned, I'm not sure if that is an important difference here; if
+the system is getting enough requests to reload the policy, and
+repeatedly failing, such that the ratelimiting matters there are
+likely other, much larger, issues at play on the system.
 
 -- 
 paul moore
