@@ -2,115 +2,209 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81F5EC43381
-	for <selinux@archiver.kernel.org>; Mon,  1 Mar 2021 17:30:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1729C433E0
+	for <selinux@archiver.kernel.org>; Mon,  1 Mar 2021 20:50:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A8F165278
-	for <selinux@archiver.kernel.org>; Mon,  1 Mar 2021 17:30:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C9293601FE
+	for <selinux@archiver.kernel.org>; Mon,  1 Mar 2021 20:50:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236600AbhCAR3x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 1 Mar 2021 12:29:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60112 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237911AbhCARVA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 1 Mar 2021 12:21:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614619169;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=sQJNdQOa4Fxg9rEeXFCUFrldT8uEc3fyCERILixgnB8=;
-        b=KpAetOCtMNCf4mt1M7BNsAaWRV3FmeJRxAB7Dh68iNbD8AHoaAa4NZ/cCYtrDWoJZA9DmH
-        LYVm7F0D7Rjd6mvIlxCM4Q4UhAhPTRH+AITuz0Dl8EzF+nwdvX8wR8phZqVmn8vYxb48Jf
-        w3bWqa3T047WMNYAfQbk1NDW3sEe2ZU=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-453-adbTffZQNK-U6IBjelcsRg-1; Mon, 01 Mar 2021 12:19:26 -0500
-X-MC-Unique: adbTffZQNK-U6IBjelcsRg-1
-Received: by mail-ej1-f72.google.com with SMTP id jo6so4879911ejb.13
-        for <selinux@vger.kernel.org>; Mon, 01 Mar 2021 09:19:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sQJNdQOa4Fxg9rEeXFCUFrldT8uEc3fyCERILixgnB8=;
-        b=Vew0wBFbL4oEZgTNdVq/X6xhJ8sL8cz6rSjVixy+etzOO40LF9n+zpsrBzKrVhMPGz
-         DVJq9vn8FTXyKCsBwkaijtKXym9KiDhRmjS26T2QDCJgVcqQrEQ4q0dd2X70tXsiWu8n
-         KcUaHSGbDmPqieVe/5CQ5xqJXKGBx4/e9Vygl/SVs/o2bDBODDs1CLafurN1wpyJ0Ozj
-         wl3sLXiRuo0bjO4A3jTkBGYHE8ky7UuPgIsTAzDsokjDnp3IxKyL3c1ujlDgPfYNHwt6
-         6ZbwEtxNfkV3EOrV6OJcS78vghWFtzgG0dUARLZGBjP86vZsyIxeQFVDwCufWxGvf+l+
-         817g==
-X-Gm-Message-State: AOAM530eOhcnXF8G9GgnrW3a19+3kGtieA9dxC1fbNHheNpIvkIKxapT
-        rxAGvLFHEYVtGvBEBaoRfd/ShZMnJALNfpU6UhhZYOi22kuIxdkbk6b6E42Hy8TCpf6bcCpe2Lp
-        cH79XgLys0VB2YP80XLKFegGXVaKKswN8T4xPXU8FEF2eycCnm5wF+1yl9dsZEH43pHySxQ==
-X-Received: by 2002:a17:906:95d1:: with SMTP id n17mr5091944ejy.394.1614619165358;
-        Mon, 01 Mar 2021 09:19:25 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwjsSZ4ENV5TzvDzxudmDp/RCeNOXmwsgKwn6iq6J+laKzDPEeEQWH93dRhwfdmoH+j+Fq9dw==
-X-Received: by 2002:a17:906:95d1:: with SMTP id n17mr5091927ejy.394.1614619165188;
-        Mon, 01 Mar 2021 09:19:25 -0800 (PST)
-Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id hq14sm13383803ejc.30.2021.03.01.09.19.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 09:19:24 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Zdenek Pytela <zpytela@redhat.com>
-Subject: [PATCH userspace] fixfiles: do not exclude /dev and /run in -C mode
-Date:   Mon,  1 Mar 2021 18:19:22 +0100
-Message-Id: <20210301171922.321907-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.29.2
+        id S243615AbhCAUtr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 1 Mar 2021 15:49:47 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:56669 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243656AbhCAUrZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 1 Mar 2021 15:47:25 -0500
+Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1lGpQg-000669-3l; Mon, 01 Mar 2021 20:46:10 +0000
+Date:   Mon, 1 Mar 2021 21:46:08 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "Darrick J. Wong" <djwong@kernel.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6 39/40] xfs: support idmapped mounts
+Message-ID: <20210301204608.ip7nowqh6fpztkhr@wittgenstein>
+References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
+ <20210121131959.646623-40-christian.brauner@ubuntu.com>
+ <20210301200520.GK7272@magnolia>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210301200520.GK7272@magnolia>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I can't think of a good reason why they should be excluded. On the
-contrary, excluding them can cause trouble very easily if some labeling
-rules for these directories change. For example, we changed the label
-for /dev/nvme* from nvme_device_t to fixed_disk_device_t in Fedora
-(updating the allow rules accordingly) and after policy update they
-ended up with an invalid context, causing denials.
+On Mon, Mar 01, 2021 at 12:05:20PM -0800, Darrick J. Wong wrote:
+> On Thu, Jan 21, 2021 at 02:19:58PM +0100, Christian Brauner wrote:
+> > From: Christoph Hellwig <hch@lst.de>
+> > 
+> > Enable idmapped mounts for xfs. This basically just means passing down
+> > the user_namespace argument from the VFS methods down to where it is
+> > passed to the relevant helpers.
+> > 
+> > Note that full-filesystem bulkstat is not supported from inside idmapped
+> > mounts as it is an administrative operation that acts on the whole file
+> > system. The limitation is not applied to the bulkstat single operation
+> > that just operates on a single inode.
+> > 
+> > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> > ---
+> > /* v2 */
+> > 
+> > /* v3 */
+> > 
+> > /* v4 */
+> > 
+> > /* v5 */
+> > base-commit: 7c53f6b671f4aba70ff15e1b05148b10d58c2837
+> > 
+> > /* v6 */
+> > unchanged
+> > base-commit: 19c329f6808995b142b3966301f217c831e7cf31
+> > ---
+> >  fs/xfs/xfs_acl.c     |  3 +--
+> >  fs/xfs/xfs_file.c    |  4 +++-
+> >  fs/xfs/xfs_inode.c   | 26 +++++++++++++++--------
+> >  fs/xfs/xfs_inode.h   | 16 +++++++++------
+> >  fs/xfs/xfs_ioctl.c   | 35 ++++++++++++++++++-------------
+> >  fs/xfs/xfs_ioctl32.c |  6 ++++--
+> >  fs/xfs/xfs_iops.c    | 49 +++++++++++++++++++++++++-------------------
+> >  fs/xfs/xfs_iops.h    |  3 ++-
+> >  fs/xfs/xfs_itable.c  | 17 +++++++++++----
+> >  fs/xfs/xfs_itable.h  |  1 +
+> >  fs/xfs/xfs_qm.c      |  3 ++-
+> >  fs/xfs/xfs_super.c   |  2 +-
+> >  fs/xfs/xfs_symlink.c |  5 +++--
+> >  fs/xfs/xfs_symlink.h |  5 +++--
+> >  14 files changed, 110 insertions(+), 65 deletions(-)
+> 
+> <snip> Sorry for not noticing until after this went upstream, but...
 
-Thus, remove /dev and /run from the excludes. While there, also add
-/root to the basic excludes to match the regex that excludes fc rules
-(that should be effectively no functional change).
+No problem at all.
 
-I did a sanity check on my system by running `restorecon -nv /dev /run`
-and it didn't report any label differences.
+> 
+> > diff --git a/fs/xfs/xfs_itable.c b/fs/xfs/xfs_itable.c
+> > index 16ca97a7ff00..ca310a125d1e 100644
+> > --- a/fs/xfs/xfs_itable.c
+> > +++ b/fs/xfs/xfs_itable.c
+> > @@ -54,10 +54,12 @@ struct xfs_bstat_chunk {
+> >  STATIC int
+> >  xfs_bulkstat_one_int(
+> >  	struct xfs_mount	*mp,
+> > +	struct user_namespace	*mnt_userns,
+> >  	struct xfs_trans	*tp,
+> >  	xfs_ino_t		ino,
+> >  	struct xfs_bstat_chunk	*bc)
+> >  {
+> > +	struct user_namespace	*sb_userns = mp->m_super->s_user_ns;
+> >  	struct xfs_icdinode	*dic;		/* dinode core info pointer */
+> >  	struct xfs_inode	*ip;		/* incore inode pointer */
+> >  	struct inode		*inode;
+> > @@ -86,8 +88,8 @@ xfs_bulkstat_one_int(
+> >  	 */
+> >  	buf->bs_projectid = ip->i_d.di_projid;
+> >  	buf->bs_ino = ino;
+> > -	buf->bs_uid = i_uid_read(inode);
+> > -	buf->bs_gid = i_gid_read(inode);
+> > +	buf->bs_uid = from_kuid(sb_userns, i_uid_into_mnt(mnt_userns, inode));
+> > +	buf->bs_gid = from_kgid(sb_userns, i_gid_into_mnt(mnt_userns, inode));
+> >  	buf->bs_size = dic->di_size;
+> >  
+> >  	buf->bs_nlink = inode->i_nlink;
+> > @@ -173,7 +175,8 @@ xfs_bulkstat_one(
+> >  	if (!bc.buf)
+> >  		return -ENOMEM;
+> >  
+> > -	error = xfs_bulkstat_one_int(breq->mp, NULL, breq->startino, &bc);
+> > +	error = xfs_bulkstat_one_int(breq->mp, breq->mnt_userns, NULL,
+> > +				     breq->startino, &bc);
+> >  
+> >  	kmem_free(bc.buf);
+> >  
+> > @@ -194,9 +197,10 @@ xfs_bulkstat_iwalk(
+> >  	xfs_ino_t		ino,
+> >  	void			*data)
+> >  {
+> > +	struct xfs_bstat_chunk	*bc = data;
+> >  	int			error;
+> >  
+> > -	error = xfs_bulkstat_one_int(mp, tp, ino, data);
+> > +	error = xfs_bulkstat_one_int(mp, bc->breq->mnt_userns, tp, ino, data);
+> >  	/* bulkstat just skips over missing inodes */
+> >  	if (error == -ENOENT || error == -EINVAL)
+> >  		return 0;
+> > @@ -239,6 +243,11 @@ xfs_bulkstat(
+> >  	};
+> >  	int			error;
+> >  
+> > +	if (breq->mnt_userns != &init_user_ns) {
+> > +		xfs_warn_ratelimited(breq->mp,
+> > +			"bulkstat not supported inside of idmapped mounts.");
+> > +		return -EINVAL;
+> 
+> Shouldn't this be -EPERM?
+> 
+> Or -EOPNOTSUPP?
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- policycoreutils/scripts/fixfiles | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+EOPNOTSUPP seems a good choice. Whether or not it's better than EINVAL I
+don't know. With my userspace maintainer hat on I would probably say
+that EOPNOTSUPP feels a bit more natural and might have the advantage
+that it is less overloaded then EINVAL.
 
-diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-index 30dadb4f..6fb12e04 100755
---- a/policycoreutils/scripts/fixfiles
-+++ b/policycoreutils/scripts/fixfiles
-@@ -162,7 +162,7 @@ newer() {
- #
- diff_filecontext() {
- EXCLUDEDIRS="`exclude_dirs_from_relabelling`"
--for i in /sys /proc /dev /run /mnt /var/tmp /var/lib/BackupPC /home /tmp /dev; do
-+for i in /sys /proc /mnt /var/tmp /var/lib/BackupPC /home /root /tmp; do
-     [ -e $i ]  && EXCLUDEDIRS="${EXCLUDEDIRS} -e $i";
- done
- LogExcluded
-@@ -175,7 +175,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
- 	sed -r -e 's,:s0, ,g' $FC | sort -u | \
- 	/usr/bin/diff -b ${PREFCTEMPFILE} - | \
- 	    grep '^[<>]'|cut -c3-| grep ^/ | \
--	    egrep -v '(^/home|^/root|^/tmp|^/dev)' |\
-+	    egrep -v '(^/home|^/root|^/tmp)' |\
- 	sed -r -e 's,[[:blank:]].*,,g' \
- 	       -e 's|\(([/[:alnum:]]+)\)\?|{\1,}|g' \
- 	       -e 's|([/[:alnum:]])\?|{\1,}|g' \
--- 
-2.29.2
+> 
+> Also, I'm not sure why bulkstat won't work in an idmapped mount but
+> bulkstat_single does?  You can use the singleton version to stat inodes
+> that aren't inside the submount.
 
+Christoph will very likely have a better informed opinion than I have
+but as long as bulkstat is able to discern inodes that need to be
+reported idmapped and inodes that don't then I see no reason why this
+shouldn't work (at least for privileged users on the host which I think
+is the case already).
+
+In any case these changes, if any, aren't vfs changes and so you can
+just take them as bugfixes through the xfs tree anyway. So no harm done
+in you not spotting it earlier. :)
+
+Thanks for taking another look!
+Christian
