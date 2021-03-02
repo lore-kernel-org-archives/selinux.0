@@ -2,67 +2,67 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AD1FC43333
-	for <selinux@archiver.kernel.org>; Wed,  3 Mar 2021 04:25:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47FC9C433E0
+	for <selinux@archiver.kernel.org>; Wed,  3 Mar 2021 04:35:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E709664EC3
-	for <selinux@archiver.kernel.org>; Wed,  3 Mar 2021 04:24:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 114BD64E87
+	for <selinux@archiver.kernel.org>; Wed,  3 Mar 2021 04:35:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236403AbhCCEJc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Mar 2021 23:09:32 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:35026 "EHLO
+        id S1352815AbhCCEVm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Mar 2021 23:21:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:43979 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1349654AbhCBLBe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Mar 2021 06:01:34 -0500
+        by vger.kernel.org with ESMTP id S245548AbhCBRXF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 2 Mar 2021 12:23:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614682765;
+        s=mimecast20190719; t=1614705680;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=d2tTfbp98Gdjj/oFSYChzTqiZwvI/CUYfUkGGTcVKYA=;
-        b=XpsAfMS6CJJcm6N3HVsUOyyKHM3radgOYCeXRpAhazpkFY+gAXbM+UNBZyEdCLXlLGC4dE
-        KMDEUnkHZiN2uqLqcZMqBq/dKfXqWQYThv8Iuo/BzSVas/Na5Qg36b1kEb9jNpqLzJqnCF
-        nMeydruFq7YEzuC8RKPPlApd6hdAXIU=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-458-zpdwrpOfNPyQVvzGRO1_Rg-1; Tue, 02 Mar 2021 05:59:22 -0500
-X-MC-Unique: zpdwrpOfNPyQVvzGRO1_Rg-1
-Received: by mail-ej1-f72.google.com with SMTP id ml13so8287537ejb.2
-        for <selinux@vger.kernel.org>; Tue, 02 Mar 2021 02:59:21 -0800 (PST)
+        bh=vVxv61bJ5naCgkuoFC8HHETIUtpy0LyG6DQTSuQrXHE=;
+        b=bFR1JwrgJjqRWGVBZyL06RZWY+7EB7BQxRZAw4nNOYuYBRtDWSuA1jRv+KYIIu4pCCmbYv
+        lDu5g8Lt8jbQE5D3VPJmFflNn8Itrfei7/vxQKoV+Hl+S3Q/imPnVJH/I7mhcdyE1svMjN
+        fUpyvJa+WYZsH5KeS+JWvIvNufTavDE=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-504-rInnf-mQOje_9Rj0x6bBiw-1; Tue, 02 Mar 2021 12:21:18 -0500
+X-MC-Unique: rInnf-mQOje_9Rj0x6bBiw-1
+Received: by mail-ed1-f70.google.com with SMTP id t9so10785567edd.3
+        for <selinux@vger.kernel.org>; Tue, 02 Mar 2021 09:21:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=d2tTfbp98Gdjj/oFSYChzTqiZwvI/CUYfUkGGTcVKYA=;
-        b=pey6Oe9F8JJL98QPykT5Ngl8twfwoYv01MjmeEXhNJG+FBL9CaQMsrGcgaPq5+k1oU
-         JTlLoKvABdMFbDJLUi0wz/UwUUCjL9OxWhcsFa2l6CGETVXRYkjDiS1Hq1ZvoLELVLxi
-         F+YdBMLle6mmAK8I8lkgi07M/88kGpYLwe00XnfLtuv2QMQ8lLtTybccvCih+UY0Zp41
-         9p9Ia92Mm6Fg9YQ19lAbt4Wvq1PThmjDH8ZFoP5OLdNzGgs2gORHC9E1gAaOt3wp40tU
-         ElEPQxGwgAXKh2MjZwQz0OTqOhfEXbQtQp8usz6/BGsZPpvPPbnGraOWIgbZ2X7OChqJ
-         5pIA==
-X-Gm-Message-State: AOAM532zHq1xFctVoKcjvOhn2t0i33uUI+mztL72eRdERz8OdlVmLcJs
-        bQrBoVJMR/DUhME5ZtO8wOjvDrDoETYThCbfT0FEWpoV0mqRdiU81kf91BWDjKWSMJ2s1EBGEAx
-        sfg0s90+N7TzeldvJUVWJWH45lsEdnnNcglHfJ6kyCfPblViWwY5RreVsE4RNUiSoFMrurw==
-X-Received: by 2002:a17:906:3fc3:: with SMTP id k3mr20438109ejj.522.1614682760462;
-        Tue, 02 Mar 2021 02:59:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyCRmPP6AQAGa+BMvoPE14/V5uO9YMLPtD8E88CjVUEX5kDo+jPlI8CZV9SCRnF8P0lOOWd/A==
-X-Received: by 2002:a17:906:3fc3:: with SMTP id k3mr20438096ejj.522.1614682760227;
-        Tue, 02 Mar 2021 02:59:20 -0800 (PST)
+        bh=vVxv61bJ5naCgkuoFC8HHETIUtpy0LyG6DQTSuQrXHE=;
+        b=nTZYfleCZ85vH805SQ/F6EqOsSqtAd84Iadk7KJuEkIR9cXfZ+6rKbJ5qHleV0rfmx
+         TXMylCecSI/j1zpOBcIAxdtdC2NLP5tRfsplwGSx15WzRjiT80PGPbvlyCH5hd2JFL+w
+         /xNHYcLkrGZMQ+mkdlsfCXJVUCAvGNM0sQZF2vTYKQPc5l/lq1WczrM5BsxMTcWRfYON
+         /aRgcG69x3stwYtg1z/7Z99/LxcKM24MKcv8vcqVCrEPc9f0s/nAvMK2r8qYoz48Y/ZU
+         IkfBPHnzMlfXwRipRAyxlASdQkkLCpRJl1xuN9pttX3EO9ldsVBblzEioQXlm2DYiCFY
+         PtqQ==
+X-Gm-Message-State: AOAM533JA8NR8wSX0mfIhbH5IpeQl34lFstSSoWqWRDws3dEUyOrObj8
+        Qm1mPfCi893qRwCFswGfjhQ6g+PQMKlR+hQds0YXTK4JZ6zusqRYfi/JIN7MrPELuf6yLtCiAZp
+        8rLo20BlQOAQV4hktFR8ndXKQhtWHu6JXzlRA9HEVl/GFUbdXb9siCY3z5i5c7uzmFmjnZw==
+X-Received: by 2002:a05:6402:4242:: with SMTP id g2mr21767320edb.103.1614705677295;
+        Tue, 02 Mar 2021 09:21:17 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxoQKD2af0kQgFb9Ken3pCCorM+Sp2uv7+KzuEKhI3uzdrzgktHfY7tZbMwhtJwzCFN7SMsiA==
+X-Received: by 2002:a05:6402:4242:: with SMTP id g2mr21767307edb.103.1614705677120;
+        Tue, 02 Mar 2021 09:21:17 -0800 (PST)
 Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id n2sm17789267ejl.1.2021.03.02.02.59.19
+        by smtp.gmail.com with ESMTPSA id pk5sm17922560ejb.119.2021.03.02.09.21.16
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 02:59:19 -0800 (PST)
+        Tue, 02 Mar 2021 09:21:16 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] lockdown: use debugfs/tracefs to test lockdown permissions
-Date:   Tue,  2 Mar 2021 11:59:17 +0100
-Message-Id: <20210302105917.402896-1-omosnace@redhat.com>
+Subject: [PATCH testsuite 0/3] perf_event: fixes and cleanups
+Date:   Tue,  2 Mar 2021 18:21:11 +0100
+Message-Id: <20210302172114.443689-1-omosnace@redhat.com>
 X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -70,164 +70,17 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The system policy interfaces for things that require lockdown
-permissions will likely grant those permissions, too, so we need to
-open-code them. Thus, use tracefs/debugfs access to test lockdown, as
-the interfaces for these are easier to open-code.
+See individual patches for details.
 
-With this patch, the lockdown test passes with latest Fedora policy in
-Rawhide.
+Ondrej Mosnacek (3):
+  perf_event: measure CPU 0 rather than CPU 1
+  perf_event: fix wrong use of perf_event_open(2) API
+  perf_event: fix CAP_SYS_ADMIN references
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- defconfig               |  5 +++++
- policy/test_lockdown.te | 16 ++++++++--------
- policy/test_policy.if   | 17 +++++++++++++++++
- tests/lockdown/test     | 21 +++++++++++++--------
- 4 files changed, 43 insertions(+), 16 deletions(-)
+ tests/perf_event/perf_event.c | 18 +++++++++++-----
+ tests/perf_event/test         | 39 ++++++++++++++++++++++-------------
+ 2 files changed, 38 insertions(+), 19 deletions(-)
 
-diff --git a/defconfig b/defconfig
-index 46eb673..ca7a877 100644
---- a/defconfig
-+++ b/defconfig
-@@ -117,3 +117,8 @@ CONFIG_VFAT_FS=m
- # They are not required for SELinux operation itself.
- CONFIG_WATCH_QUEUE=y
- CONFIG_KEY_NOTIFICATIONS=y
-+
-+# Test lockdown permissions (via tracefs and debugfs).
-+# This is not required for SELinux operation itself.
-+CONFIG_TRACING=y
-+CONFIG_DEBUG_FS=y
-diff --git a/policy/test_lockdown.te b/policy/test_lockdown.te
-index a7a4b6b..1ec985e 100644
---- a/policy/test_lockdown.te
-+++ b/policy/test_lockdown.te
-@@ -12,8 +12,8 @@ unconfined_runs_test(test_lockdown_all_t)
- typeattribute test_lockdown_all_t lockdowndomain;
- typeattribute test_lockdown_all_t testdomain;
- 
--dev_read_raw_memory(test_lockdown_all_t)
--kernel_read_core_if(test_lockdown_all_t)
-+testsuite_read_debugfs_nolockdown(test_lockdown_all_t)
-+testsuite_read_tracefs_nolockdown(test_lockdown_all_t)
- corecmd_bin_entry_type(test_lockdown_all_t)
- allow test_lockdown_all_t self:lockdown integrity;
- allow test_lockdown_all_t self:lockdown confidentiality;
-@@ -25,8 +25,8 @@ unconfined_runs_test(test_lockdown_integrity_t)
- typeattribute test_lockdown_integrity_t lockdowndomain;
- typeattribute test_lockdown_integrity_t testdomain;
- 
--dev_read_raw_memory(test_lockdown_integrity_t)
--kernel_read_core_if(test_lockdown_integrity_t)
-+testsuite_read_debugfs_nolockdown(test_lockdown_integrity_t)
-+testsuite_read_tracefs_nolockdown(test_lockdown_integrity_t)
- corecmd_bin_entry_type(test_lockdown_integrity_t)
- allow test_lockdown_integrity_t self:lockdown integrity;
- 
-@@ -37,8 +37,8 @@ unconfined_runs_test(test_lockdown_confidentiality_t)
- typeattribute test_lockdown_confidentiality_t lockdowndomain;
- typeattribute test_lockdown_confidentiality_t testdomain;
- 
--dev_read_raw_memory(test_lockdown_confidentiality_t)
--kernel_read_core_if(test_lockdown_confidentiality_t)
-+testsuite_read_debugfs_nolockdown(test_lockdown_confidentiality_t)
-+testsuite_read_tracefs_nolockdown(test_lockdown_confidentiality_t)
- corecmd_bin_entry_type(test_lockdown_confidentiality_t)
- allow test_lockdown_confidentiality_t self:lockdown confidentiality;
- 
-@@ -49,6 +49,6 @@ unconfined_runs_test(test_lockdown_none_t)
- typeattribute test_lockdown_none_t lockdowndomain;
- typeattribute test_lockdown_none_t testdomain;
- 
--dev_read_raw_memory(test_lockdown_none_t)
--kernel_read_core_if(test_lockdown_none_t)
-+testsuite_read_debugfs_nolockdown(test_lockdown_none_t)
-+testsuite_read_tracefs_nolockdown(test_lockdown_none_t)
- corecmd_bin_entry_type(test_lockdown_none_t)
-diff --git a/policy/test_policy.if b/policy/test_policy.if
-index e3c01c8..7023e30 100644
---- a/policy/test_policy.if
-+++ b/policy/test_policy.if
-@@ -87,3 +87,20 @@ interface(`userdom_search_admin_dir', `
- ifdef(`kernel_request_load_module', `', ` dnl
- interface(`kernel_request_load_module', `')
- ')
-+
-+# We need to open-code these interfaces, because the system-provided ones will
-+# likely grant the lockdown permissions we want to test.
-+interface(`testsuite_read_debugfs_nolockdown',`
-+	gen_require(`
-+		type debugfs_t;
-+	')
-+
-+	read_files_pattern($1, debugfs_t, debugfs_t)
-+')
-+interface(`testsuite_read_tracefs_nolockdown',`
-+	gen_require(`
-+		type tracefs_t;
-+	')
-+
-+	read_files_pattern($1, tracefs_t, tracefs_t)
-+')
-diff --git a/tests/lockdown/test b/tests/lockdown/test
-index 0b81cb1..6694a4c 100755
---- a/tests/lockdown/test
-+++ b/tests/lockdown/test
-@@ -3,40 +3,45 @@
- use Test;
- BEGIN { plan tests => 8 }
- 
-+$integrity_cmd       = "head -c 1 /sys/kernel/debug/sched_features";
-+$confidentiality_cmd = "head -c 1 /sys/kernel/debug/tracing/tracing_on";
-+
- # everything is allowed
- $result =
--  system "runcon -t test_lockdown_all_t -- head /dev/mem > /dev/null 2>&1";
-+  system "runcon -t test_lockdown_all_t -- $integrity_cmd > /dev/null 2>&1";
- ok( $result, 0 );
- 
- $result =
--  system "runcon -t test_lockdown_all_t -- head /proc/kcore > /dev/null 2>&1";
-+  system
-+  "runcon -t test_lockdown_all_t -- $confidentiality_cmd > /dev/null 2>&1";
- ok( $result, 0 );
- 
- # only integrity operations allowed
- $result = system
--  "runcon -t test_lockdown_integrity_t -- head /dev/mem > /dev/null 2>&1";
-+  "runcon -t test_lockdown_integrity_t -- $integrity_cmd > /dev/null 2>&1";
- ok( $result, 0 );
- 
- $result = system
--  "runcon -t test_lockdown_integrity_t -- head /proc/kcore > /dev/null 2>&1";
-+"runcon -t test_lockdown_integrity_t -- $confidentiality_cmd > /dev/null 2>&1";
- ok($result);
- 
- # only confidentiality operations allowed
- $result = system
--  "runcon -t test_lockdown_confidentiality_t -- head /dev/mem > /dev/null 2>&1";
-+"runcon -t test_lockdown_confidentiality_t -- $integrity_cmd > /dev/null 2>&1";
- ok($result);
- 
- $result = system
--"runcon -t test_lockdown_confidentiality_t -- head /proc/kcore > /dev/null 2>&1";
-+"runcon -t test_lockdown_confidentiality_t -- $confidentiality_cmd > /dev/null 2>&1";
- ok( $result, 0 );
- 
- # nothing is allowed
- $result =
--  system "runcon -t test_lockdown_none_t -- head /dev/mem > /dev/null 2>&1";
-+  system "runcon -t test_lockdown_none_t -- $integrity_cmd > /dev/null 2>&1";
- ok($result);
- 
- $result =
--  system "runcon -t test_lockdown_none_t -- head /proc/kcore > /dev/null 2>&1";
-+  system
-+  "runcon -t test_lockdown_none_t -- $confidentiality_cmd > /dev/null 2>&1";
- ok($result);
- 
- exit;
 -- 
 2.29.2
 
