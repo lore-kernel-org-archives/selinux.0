@@ -2,108 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 466EBC43331
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6F3FC43603
 	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:14:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E28B64F0D
+	by mail.kernel.org (Postfix) with ESMTP id BAD1064EE3
 	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:14:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244705AbhCDBMT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Mar 2021 20:12:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54082 "EHLO
+        id S244869AbhCDBMV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:12:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1453093AbhCDApc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Mar 2021 19:45:32 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38534C06175F
-        for <selinux@vger.kernel.org>; Wed,  3 Mar 2021 16:44:52 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id dx17so18404040ejb.2
-        for <selinux@vger.kernel.org>; Wed, 03 Mar 2021 16:44:52 -0800 (PST)
+        with ESMTP id S1453129AbhCDArs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Mar 2021 19:47:48 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D314BC061756
+        for <selinux@vger.kernel.org>; Wed,  3 Mar 2021 16:47:07 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id w1so46029536ejf.11
+        for <selinux@vger.kernel.org>; Wed, 03 Mar 2021 16:47:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=g2lURl+ATX2YUjr5q4pNGyS+/f3qF3dd8poyz9I0yIQ=;
-        b=Xyfk5/Fcb12V6kDmD7W7v+gn0U2UIIxqZUvsgdHMsg9weJrveD11LiLFqGMLnoZAWY
-         d797V0gSBEPNHGBPm3H/ZWJ5iwWaCboHKbBlrJC5HEG54LhvHpzrbloG7JmQDSjtB5+3
-         1ho7voJZ0VyS6Vai5CSjlx4B23Xn6866mmeta+7073sgM6V++JYt0Wu3zCwHfAs9JFTg
-         dfgzqFT4qD9gtde4ET4GgARvqYmuKCq692BfAzL17C7BSaoH5TNYBEkQnz++yuWfWKl5
-         9Qbo8ohGynx4Kl42iGMw5p5hc38c0bysHCCVqvGarWTEeN/5g1xptbxCKikxkWa6zxHA
-         8Eaw==
+        bh=mq1f8KTtZiYItxqJI2LgJatX0epQhRAFbaIZi+expz0=;
+        b=Oc+SWz8n0ufa9QRdQhnxQIklG0y9oh4rsTE9dlLij8ea41tPx5uxpQJaw88Sfq8u+l
+         OvxCF5/vojxFgl9UzAyv+YY7eOT3ys9T+CDt0ZnW7n0xjDCmukQgzrsCSca5JuuPnOBB
+         DHgTIHYpsmpCDvb5x0uVoI191R/WOFrBBwFNFe4Y/oZX/liilPeDD5ZWZ9BD9tTk7DT2
+         vopxtWv9nCoCnKLpTkaTYy9Wk7LJ6jWx/zpgvW3gAU8NxnTrNVRTl1/pbSmzhfDYaFq9
+         HBYCPSbLi6gBizNJ86dVk/WaoxjL6P5H0LTQziJSRqLu/dOue8cTTDiqFrAkNSl2DYiw
+         rKnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=g2lURl+ATX2YUjr5q4pNGyS+/f3qF3dd8poyz9I0yIQ=;
-        b=M5glSCU7C5e+l99etkldWGeWbTcEDnaqGKdMP6ItdFDv528Cp0mCu5B1fqTLdyH5uX
-         N9yfu4MtL+vig2xGzklSXTVKwLHNemtu3N+33OfROAUEPzNbgTZPtMT9HZvUkKmkGnR2
-         /q3l9jFXYtTWyByLY4x6YNaqFbppL62A71FbMgBYSpQgtO0pkRoU4R/hdYyRSDREfShJ
-         tUn/XqfRQ7H59S1NqRfq3zZsNz1kOOFo27B9ellFxW4GkhEGDcuRsJVhQVTGnECkTzw/
-         qr4XNncrYJmFE1kTIPQfAASY8MSMaBBCl1+FNEtieTHQnAxA6qag6geMi3VzR+G71qSX
-         JebA==
-X-Gm-Message-State: AOAM530dAaO/uKJvd+o3FtmcWDQ53gP4N0+otmdAPpZ74H2NyfC6YWln
-        1iPPUreM7KABIfP+IJvujEaTgPFv8szR6jIYdq8R
-X-Google-Smtp-Source: ABdhPJwMWPIfRXVxIBCOjcbnyugYHup2arm1/+oo2mo11V8E1LS5uXyCS7vTs7sOAcv3T7QPJc0OjZwXwqq4GYlQLJs=
-X-Received: by 2002:a17:906:a443:: with SMTP id cb3mr1388093ejb.542.1614818690832;
- Wed, 03 Mar 2021 16:44:50 -0800 (PST)
+        bh=mq1f8KTtZiYItxqJI2LgJatX0epQhRAFbaIZi+expz0=;
+        b=CHPWHMxReGenkSw2AN9wY99DDid/Rzyn61moavv7aSkMk0pDavxr/XvGr+Ggy+Y6Dt
+         kw0qDrSzqFg0nbL1RxFqxJ4Se2s1NgQy8tDQT9Aj2NBrpldQcMWy6H5PaMnZhWdjTRIU
+         uuGIQqOJdfnEDhxOxVDRr0r39H6LeS9XWJ8RjpvpZz2jPkNWgLnHnqY0sGunoX15CBH0
+         K6A/yg251x+7KajuCVRcbDSGiD3+bGkJJmZr+tV+UTNWa/EkmypFuzILoyhY6r6fCE5d
+         G+fCfP+8MZGfQXgwgFA9wDRQQseCtt+pu6AT7ohhWkiid1SbVNtSIWTsgwAmbFcfEjqV
+         9h0g==
+X-Gm-Message-State: AOAM53192wx1a3h2dBOb2Uj/+zrhC0+c8eOGzevqQHdbFQi/i5v7ZEYv
+        jRQmNFdBOftAg2dv/v/55MlFl36GCyvQ/8zpegTR
+X-Google-Smtp-Source: ABdhPJzFReVQqWcB51YCLgOXcJ77lmnHR8e1TAPj9TL5+P31gZuqxQKpNr0xnGinbrwwT44eCfFHsDbq+b0OdR4h3Fw=
+X-Received: by 2002:a17:906:e116:: with SMTP id gj22mr1386315ejb.398.1614818826560;
+ Wed, 03 Mar 2021 16:47:06 -0800 (PST)
 MIME-Version: 1.0
 References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377734508.87807.8537642254664217815.stgit@sifl> <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
-In-Reply-To: <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
+ <9ea5259b-fd84-e176-c042-c52a1c4fcc27@schaufler-ca.com> <CAHC9VhQBbep2WkD6JkCemtcXFLq7j5=AQeM9vVJ4_gmvi7hPQA@mail.gmail.com>
+ <1ab6d635-53af-6dd9-fc29-482723c80c6a@schaufler-ca.com>
+In-Reply-To: <1ab6d635-53af-6dd9-fc29-482723c80c6a@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 3 Mar 2021 19:44:40 -0500
-Message-ID: <CAHC9VhTn33cSX=n7a6kr-5=TKeEx8iRbTY8-2XGxG0YC+GhvaA@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/4] lsm: separate security_task_getsecid() into
- subjective and objective variants
-To:     John Johansen <john.johansen@canonical.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+Date:   Wed, 3 Mar 2021 19:46:55 -0500
+Message-ID: <CAHC9VhR3=dNpxHXSo7TgJD6bCezgzfS-iT32f-jAZJgzCsNA3w@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/4] Split security_task_getsecid() into subj and obj variants
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     John Johansen <john.johansen@canonical.com>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com
+        linux-audit@redhat.com, Mimi Zohar <zohar@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 21, 2021 at 7:51 AM John Johansen
-<john.johansen@canonical.com> wrote:
-> On 2/19/21 3:29 PM, Paul Moore wrote:
-> > Of the three LSMs that implement the security_task_getsecid() LSM
-> > hook, all three LSMs provide the task's objective security
-> > credentials.  This turns out to be unfortunate as most of the hook's
-> > callers seem to expect the task's subjective credentials, although
-> > a small handful of callers do correctly expect the objective
-> > credentials.
-> >
-> > This patch is the first step towards fixing the problem: it splits
-> > the existing security_task_getsecid() hook into two variants, one
-> > for the subjective creds, one for the objective creds.
-> >
-> >   void security_task_getsecid_subj(struct task_struct *p,
-> >                                  u32 *secid);
-> >   void security_task_getsecid_obj(struct task_struct *p,
-> >                                 u32 *secid);
-> >
-> > While this patch does fix all of the callers to use the correct
-> > variant, in order to keep this patch focused on the callers and to
-> > ease review, the LSMs continue to use the same implementation for
-> > both hooks.  The net effect is that this patch should not change
-> > the behavior of the kernel in any way, it will be up to the latter
-> > LSM specific patches in this series to change the hook
-> > implementations and return the correct credentials.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Mon, Feb 22, 2021 at 6:59 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 2/20/2021 6:41 AM, Paul Moore wrote:
+> > On Fri, Feb 19, 2021 at 8:49 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >> On 2/19/2021 3:28 PM, Paul Moore wrote:
+> >>> As discussed briefly on the list (lore link below), we are a little
+> >>> sloppy when it comes to using task credentials, mixing both the
+> >>> subjective and object credentials.  This patch set attempts to fix
+> >>> this by replacing security_task_getsecid() with two new hooks that
+> >>> return either the subjective (_subj) or objective (_obj) credentials.
+> >>>
+> >>> https://lore.kernel.org/linux-security-module/806848326.0ifERbkFSE@x2/T/
+> >>>
+> >>> Casey and John, I made a quick pass through the Smack and AppArmor
+> >>> code in an effort to try and do the right thing, but I will admit
+> >>> that I haven't tested those changes, just the SELinux code.  I
+> >>> would really appreciate your help in reviewing those changes.  If
+> >>> you find it easier, feel free to wholesale replace my Smack/AppArmor
+> >>> patch with one of your own.
+> >> A quick test pass didn't show up anything obviously
+> >> amiss with the Smack changes. I have will do some more
+> >> through inspection, but they look fine so far.
+> > Thanks for testing it out and giving it a look.  Beyond the Smack
+> > specific changes, I'm also interested in making sure all the hook
+> > callers are correct; I believe I made the correct substitutions, but a
+> > second (or third (or fourth ...)) set of eyes is never a bad idea.
 >
-> So far this looks good. I want to take another stab at it and give
-> it some testing
+> I'm still not seeing anything that looks wrong. I'd suggest that Mimi
+> have a look at the IMA bits.
 
-Checking in as I know you said you needed to fix/release the AppArmor
-patch in this series ... is this patch still looking okay to you?  If
-so, can I get an ACK at least on this patch?
+Assuming you are still good with these changes Casey, any chance I can
+get an ACK on the LSM and Smack patches?
 
 -- 
 paul moore
