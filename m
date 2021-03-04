@@ -2,104 +2,162 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-28.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6F3FC43603
-	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:14:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F4AFC43381
+	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:20:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BAD1064EE3
-	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:14:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2985B64FCE
+	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:20:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244869AbhCDBMV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Mar 2021 20:12:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
+        id S235578AbhCDBT5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:19:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1453129AbhCDArs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Mar 2021 19:47:48 -0500
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D314BC061756
-        for <selinux@vger.kernel.org>; Wed,  3 Mar 2021 16:47:07 -0800 (PST)
-Received: by mail-ej1-x62f.google.com with SMTP id w1so46029536ejf.11
-        for <selinux@vger.kernel.org>; Wed, 03 Mar 2021 16:47:07 -0800 (PST)
+        with ESMTP id S240941AbhCDBTP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Mar 2021 20:19:15 -0500
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F552C0613D8
+        for <selinux@vger.kernel.org>; Wed,  3 Mar 2021 17:17:56 -0800 (PST)
+Received: by mail-yb1-xb34.google.com with SMTP id f4so26684122ybk.11
+        for <selinux@vger.kernel.org>; Wed, 03 Mar 2021 17:17:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=mq1f8KTtZiYItxqJI2LgJatX0epQhRAFbaIZi+expz0=;
-        b=Oc+SWz8n0ufa9QRdQhnxQIklG0y9oh4rsTE9dlLij8ea41tPx5uxpQJaw88Sfq8u+l
-         OvxCF5/vojxFgl9UzAyv+YY7eOT3ys9T+CDt0ZnW7n0xjDCmukQgzrsCSca5JuuPnOBB
-         DHgTIHYpsmpCDvb5x0uVoI191R/WOFrBBwFNFe4Y/oZX/liilPeDD5ZWZ9BD9tTk7DT2
-         vopxtWv9nCoCnKLpTkaTYy9Wk7LJ6jWx/zpgvW3gAU8NxnTrNVRTl1/pbSmzhfDYaFq9
-         HBYCPSbLi6gBizNJ86dVk/WaoxjL6P5H0LTQziJSRqLu/dOue8cTTDiqFrAkNSl2DYiw
-         rKnw==
+        bh=cDGMmdlKM20UbxSk1D5HECStpUJywJgGf1k2Ph58Sv4=;
+        b=Biwa5C9LBzhQgtedUPAK6nj6XvZwKukqS173MEMYHs8EnBOalCdRzddBpT28z/s4M1
+         C8jiWaLWV/QeBcbnLZuTVpheAwE2sHqBop6iq/q/mBXyF34ewhHxWbtn+X0gHy3oR7U9
+         upFl7iFJXW9cxs22jmCAvu5tsd8n2xCN4g7YTATbMYcezrCQ5pwIF8GgMsOfhUHej2M9
+         NvjUIMacn8ixwWQreNum7fI/cxxMiNbKqyDmZ4BiA2UNW9f61p6vQqOKHOtVPqzoyfo5
+         C32W6Q8M4FOHGBaX5TSrasEPYyOGQLtl8k2JNOOYsoBsLWPWoGB9e1hMX/uuTzqrC7pF
+         TuAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=mq1f8KTtZiYItxqJI2LgJatX0epQhRAFbaIZi+expz0=;
-        b=CHPWHMxReGenkSw2AN9wY99DDid/Rzyn61moavv7aSkMk0pDavxr/XvGr+Ggy+Y6Dt
-         kw0qDrSzqFg0nbL1RxFqxJ4Se2s1NgQy8tDQT9Aj2NBrpldQcMWy6H5PaMnZhWdjTRIU
-         uuGIQqOJdfnEDhxOxVDRr0r39H6LeS9XWJ8RjpvpZz2jPkNWgLnHnqY0sGunoX15CBH0
-         K6A/yg251x+7KajuCVRcbDSGiD3+bGkJJmZr+tV+UTNWa/EkmypFuzILoyhY6r6fCE5d
-         G+fCfP+8MZGfQXgwgFA9wDRQQseCtt+pu6AT7ohhWkiid1SbVNtSIWTsgwAmbFcfEjqV
-         9h0g==
-X-Gm-Message-State: AOAM53192wx1a3h2dBOb2Uj/+zrhC0+c8eOGzevqQHdbFQi/i5v7ZEYv
-        jRQmNFdBOftAg2dv/v/55MlFl36GCyvQ/8zpegTR
-X-Google-Smtp-Source: ABdhPJzFReVQqWcB51YCLgOXcJ77lmnHR8e1TAPj9TL5+P31gZuqxQKpNr0xnGinbrwwT44eCfFHsDbq+b0OdR4h3Fw=
-X-Received: by 2002:a17:906:e116:: with SMTP id gj22mr1386315ejb.398.1614818826560;
- Wed, 03 Mar 2021 16:47:06 -0800 (PST)
+        bh=cDGMmdlKM20UbxSk1D5HECStpUJywJgGf1k2Ph58Sv4=;
+        b=W7LmKPNUzCv8Vektc4NSJQ2M+1KboUZmnsHB7NuCMOeBIxyUESeMMQbQHQAErM7HLL
+         S810oumbpL0zo2Go2nU8U4f4dWnp5zPcuhJ+lZCA9qWdscAkReuL+10iuA8F0XLbU0JW
+         JSVzRmUsswlVVZnKyEuLXBml06DMnVOLyxCiguo8R3XrCjAG7WjoOpQk6W7UzVqebsyR
+         qwVlWxXXKborb+UbHpSQy2IEfbQI46rNKVSkwUrjP/eEcjwbqVHRElHNFoCDpcX0UGwt
+         CrB/8oTY3WQltYfB6gJGWT/Znnn981xtaVKyjxr1mD5F+gFje6fT3g5Tk4MIIoAstbuR
+         /01w==
+X-Gm-Message-State: AOAM531HK5pfSc2xGie7bkhrsUPoVQcctaKXJBxhIrrCZNyopI4t0a1s
+        ATbTMEeSsO5v1Fy+U1boTDKTyh9Sij+LiclcazI9/w==
+X-Google-Smtp-Source: ABdhPJyfPshyKfeDIOoqAVg5Fwk8zLy1gznd2y9ophif2UxaiMhTBt3pbqxOJ6plYf+5MPVAog6sGYQXCN5R/Gnxis0=
+X-Received: by 2002:a5b:751:: with SMTP id s17mr3016364ybq.111.1614820675298;
+ Wed, 03 Mar 2021 17:17:55 -0800 (PST)
 MIME-Version: 1.0
-References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <9ea5259b-fd84-e176-c042-c52a1c4fcc27@schaufler-ca.com> <CAHC9VhQBbep2WkD6JkCemtcXFLq7j5=AQeM9vVJ4_gmvi7hPQA@mail.gmail.com>
- <1ab6d635-53af-6dd9-fc29-482723c80c6a@schaufler-ca.com>
-In-Reply-To: <1ab6d635-53af-6dd9-fc29-482723c80c6a@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 3 Mar 2021 19:46:55 -0500
-Message-ID: <CAHC9VhR3=dNpxHXSo7TgJD6bCezgzfS-iT32f-jAZJgzCsNA3w@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/4] Split security_task_getsecid() into subj and obj variants
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     John Johansen <john.johansen@canonical.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, Mimi Zohar <zohar@linux.ibm.com>
+References: <20210303185807.2160264-1-surenb@google.com> <CALvZod73Uem8jzP3QQdQ6waXbx80UUOTJQS7WBwnmaCdq++8xw@mail.gmail.com>
+ <CAJuCfpFgDRezmQMjCajXzBp86UbMLMJbqEaeo0_J+pneZ5XOgg@mail.gmail.com> <CALvZod4nZ6W05N-4ostUEz5EbCuEvuBpc4LRYfAFgwQU-wb9dQ@mail.gmail.com>
+In-Reply-To: <CALvZod4nZ6W05N-4ostUEz5EbCuEvuBpc4LRYfAFgwQU-wb9dQ@mail.gmail.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Wed, 3 Mar 2021 17:17:44 -0800
+Message-ID: <CAJuCfpFGoG0KaBKqpCzdPP+yXbY=jR24o+TvUkYDiw3uXJJfAw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
+To:     Shakeel Butt <shakeelb@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        David Rientjes <rientjes@google.com>,
+        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
+        Tim Murray <timmurray@google.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        Linux MM <linux-mm@kvack.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 22, 2021 at 6:59 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 2/20/2021 6:41 AM, Paul Moore wrote:
-> > On Fri, Feb 19, 2021 at 8:49 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 2/19/2021 3:28 PM, Paul Moore wrote:
-> >>> As discussed briefly on the list (lore link below), we are a little
-> >>> sloppy when it comes to using task credentials, mixing both the
-> >>> subjective and object credentials.  This patch set attempts to fix
-> >>> this by replacing security_task_getsecid() with two new hooks that
-> >>> return either the subjective (_subj) or objective (_obj) credentials.
-> >>>
-> >>> https://lore.kernel.org/linux-security-module/806848326.0ifERbkFSE@x2/T/
-> >>>
-> >>> Casey and John, I made a quick pass through the Smack and AppArmor
-> >>> code in an effort to try and do the right thing, but I will admit
-> >>> that I haven't tested those changes, just the SELinux code.  I
-> >>> would really appreciate your help in reviewing those changes.  If
-> >>> you find it easier, feel free to wholesale replace my Smack/AppArmor
-> >>> patch with one of your own.
-> >> A quick test pass didn't show up anything obviously
-> >> amiss with the Smack changes. I have will do some more
-> >> through inspection, but they look fine so far.
-> > Thanks for testing it out and giving it a look.  Beyond the Smack
-> > specific changes, I'm also interested in making sure all the hook
-> > callers are correct; I believe I made the correct substitutions, but a
-> > second (or third (or fourth ...)) set of eyes is never a bad idea.
+On Wed, Mar 3, 2021 at 4:04 PM Shakeel Butt <shakeelb@google.com> wrote:
 >
-> I'm still not seeing anything that looks wrong. I'd suggest that Mimi
-> have a look at the IMA bits.
+> On Wed, Mar 3, 2021 at 3:34 PM Suren Baghdasaryan <surenb@google.com> wrote:
+> >
+> > On Wed, Mar 3, 2021 at 3:17 PM Shakeel Butt <shakeelb@google.com> wrote:
+> > >
+> > > On Wed, Mar 3, 2021 at 10:58 AM Suren Baghdasaryan <surenb@google.com> wrote:
+> > > >
+> > > > process_madvise currently requires ptrace attach capability.
+> > > > PTRACE_MODE_ATTACH gives one process complete control over another
+> > > > process. It effectively removes the security boundary between the
+> > > > two processes (in one direction). Granting ptrace attach capability
+> > > > even to a system process is considered dangerous since it creates an
+> > > > attack surface. This severely limits the usage of this API.
+> > > > The operations process_madvise can perform do not affect the correctness
+> > > > of the operation of the target process; they only affect where the data
+> > > > is physically located (and therefore, how fast it can be accessed).
+> > > > What we want is the ability for one process to influence another process
+> > > > in order to optimize performance across the entire system while leaving
+> > > > the security boundary intact.
+> > > > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
+> > > > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
+> > > > and CAP_SYS_NICE for influencing process performance.
+> > > >
+> > > > Cc: stable@vger.kernel.org # 5.10+
+> > > > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> > > > Reviewed-by: Kees Cook <keescook@chromium.org>
+> > > > Acked-by: Minchan Kim <minchan@kernel.org>
+> > > > Acked-by: David Rientjes <rientjes@google.com>
+> > > > ---
+> > > > changes in v3
+> > > > - Added Reviewed-by: Kees Cook <keescook@chromium.org>
+> > > > - Created man page for process_madvise per Andrew's request: https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=a144f458bad476a3358e3a45023789cb7bb9f993
+> > > > - cc'ed stable@vger.kernel.org # 5.10+ per Andrew's request
+> > > > - cc'ed linux-security-module@vger.kernel.org per James Morris's request
+> > > >
+> > > >  mm/madvise.c | 13 ++++++++++++-
+> > > >  1 file changed, 12 insertions(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/mm/madvise.c b/mm/madvise.c
+> > > > index df692d2e35d4..01fef79ac761 100644
+> > > > --- a/mm/madvise.c
+> > > > +++ b/mm/madvise.c
+> > > > @@ -1198,12 +1198,22 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
+> > > >                 goto release_task;
+> > > >         }
+> > > >
+> > > > -       mm = mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
+> > > > +       /* Require PTRACE_MODE_READ to avoid leaking ASLR metadata. */
+> > > > +       mm = mm_access(task, PTRACE_MODE_READ_FSCREDS);
+> > > >         if (IS_ERR_OR_NULL(mm)) {
+> > > >                 ret = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
+> > > >                 goto release_task;
+> > > >         }
+> > > >
+> > > > +       /*
+> > > > +        * Require CAP_SYS_NICE for influencing process performance. Note that
+> > > > +        * only non-destructive hints are currently supported.
+> > >
+> > > How is non-destructive defined? Is MADV_DONTNEED non-destructive?
+> >
+> > Non-destructive in this context means the data is not lost and can be
+> > recovered. I follow the logic described in
+> > https://lwn.net/Articles/794704/ where Minchan was introducing
+> > MADV_COLD and MADV_PAGEOUT as non-destructive versions of MADV_FREE
+> > and MADV_DONTNEED. Following that logic, MADV_FREE and MADV_DONTNEED
+> > would be considered destructive hints.
+> > Note that process_madvise_behavior_valid() allows only MADV_COLD and
+> > MADV_PAGEOUT at the moment, which are both non-destructive.
+> >
+>
+> There is a plan to support MADV_DONTNEED for this syscall. Do we need
+> to change these access checks again with that support?
 
-Assuming you are still good with these changes Casey, any chance I can
-get an ACK on the LSM and Smack patches?
-
--- 
-paul moore
-www.paul-moore.com
+I think so. Destructive hints affect the data, so we will probably
+need stricter checks for those hints.
