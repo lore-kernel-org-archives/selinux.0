@@ -2,144 +2,109 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-31.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A940EC43332
-	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 00:26:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 466EBC43331
+	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:14:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7AC6464EBA
-	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 00:26:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E28B64F0D
+	for <selinux@archiver.kernel.org>; Thu,  4 Mar 2021 01:14:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238195AbhCDAYZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:24:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36132 "EHLO
+        id S244705AbhCDBMT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:12:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1835543AbhCCS67 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Mar 2021 13:58:59 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD24BC0613D7
-        for <selinux@vger.kernel.org>; Wed,  3 Mar 2021 10:58:18 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id b127so15296966ybc.13
-        for <selinux@vger.kernel.org>; Wed, 03 Mar 2021 10:58:18 -0800 (PST)
+        with ESMTP id S1453093AbhCDApc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Mar 2021 19:45:32 -0500
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38534C06175F
+        for <selinux@vger.kernel.org>; Wed,  3 Mar 2021 16:44:52 -0800 (PST)
+Received: by mail-ej1-x633.google.com with SMTP id dx17so18404040ejb.2
+        for <selinux@vger.kernel.org>; Wed, 03 Mar 2021 16:44:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:message-id:mime-version:subject:from:to:cc;
-        bh=8A+Vn1cjgQFOcnDW+QJHWNfY0Snfwko60G1y42Y3xgQ=;
-        b=EpO/7HH81xcIMjmISnM93Lf1cTCniUoMKyu7mC95M0PrCQYm7LXCrQJFJxnhZLebYL
-         7pgo4FkTt/mXEQZGUDVK60yhEbDk+l70ihk7fVZRA7q4x00fCo4K0ZLzvUGDVBUCJ/Ip
-         XMq1817dtkxXcudmkwE9YXFa5LjA/esowmInvI2pZ8JnNxJ4EKkvy5wviOMspFd3DJJE
-         WO7EY93hE9dI9+/koHkwJLl1Bja54aqa7WzriMyAQE1AIbkNDaRz1Gy29w6vUOJQSNRX
-         Ov3RIk4m9opjmKSFTrlLQYe7ndJ/OAJuKsGAHDXeZtV2/2JBNiFf7obXAg8Vb1Pdkhkz
-         ILqg==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=g2lURl+ATX2YUjr5q4pNGyS+/f3qF3dd8poyz9I0yIQ=;
+        b=Xyfk5/Fcb12V6kDmD7W7v+gn0U2UIIxqZUvsgdHMsg9weJrveD11LiLFqGMLnoZAWY
+         d797V0gSBEPNHGBPm3H/ZWJ5iwWaCboHKbBlrJC5HEG54LhvHpzrbloG7JmQDSjtB5+3
+         1ho7voJZ0VyS6Vai5CSjlx4B23Xn6866mmeta+7073sgM6V++JYt0Wu3zCwHfAs9JFTg
+         dfgzqFT4qD9gtde4ET4GgARvqYmuKCq692BfAzL17C7BSaoH5TNYBEkQnz++yuWfWKl5
+         9Qbo8ohGynx4Kl42iGMw5p5hc38c0bysHCCVqvGarWTEeN/5g1xptbxCKikxkWa6zxHA
+         8Eaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
-         :to:cc;
-        bh=8A+Vn1cjgQFOcnDW+QJHWNfY0Snfwko60G1y42Y3xgQ=;
-        b=XhTML6l06m44NkFVG8cxhUnyVNce9wm4xe09Sxl3YReyqdKskvuPDhFVskVGFa/PNZ
-         8ACMSRTJVq7GE9p+9RYfLlzX66E+SfBJ6p/YESP2zBoO073EhZoInKAT8KaGZOj6vFct
-         9gBu1CgClNn5QQ0J460B9edHbi6jm71C5Sf1TGe+sdCQu0iyrxSE7ZEXsqFBNJoETri0
-         26Fx02EAt11bQhI612Yt+x1DyPdGZQO33sh0HAxebvVcZMgFc5WFGtILSpDPFxRHH0MN
-         5lYnxkR7bN3mFQxLgctw9AfBw3S5+PJsT/8cZJ9Z1uZWwGKEOnk3g/hsclY2op4EYi26
-         E5Kw==
-X-Gm-Message-State: AOAM5312JKBcCSTbwRgH0YrAnMge/6MRvTR0flNisdOSVwYSGC6XnWQK
-        BeFZOje3cg66FEjduou2QF3+cWRIYR4=
-X-Google-Smtp-Source: ABdhPJw5vqMC1rNuxjPhDpEuhkpA8XxV6s45QZbFWYlu/dQ45hxGXNv7dGL1NqqF16Ah3hvn7L52qLtxWkQ=
-Sender: "surenb via sendgmr" <surenb@surenb1.mtv.corp.google.com>
-X-Received: from surenb1.mtv.corp.google.com ([2620:15c:211:200:f028:1b0b:1705:8ebb])
- (user=surenb job=sendgmr) by 2002:a25:f40e:: with SMTP id q14mr1113934ybd.230.1614797898171;
- Wed, 03 Mar 2021 10:58:18 -0800 (PST)
-Date:   Wed,  3 Mar 2021 10:58:07 -0800
-Message-Id: <20210303185807.2160264-1-surenb@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
-Subject: [PATCH v3 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-From:   Suren Baghdasaryan <surenb@google.com>
-To:     akpm@linux-foundation.org
-Cc:     jannh@google.com, keescook@chromium.org, jeffv@google.com,
-        minchan@kernel.org, mhocko@suse.com, shakeelb@google.com,
-        rientjes@google.com, edgararriaga@google.com, timmurray@google.com,
-        fweimer@redhat.com, oleg@redhat.com, jmorris@namei.org,
-        linux-mm@kvack.org, selinux@vger.kernel.org,
-        linux-api@vger.kernel.org, linux-security-module@vger.kernel.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com, surenb@google.com
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=g2lURl+ATX2YUjr5q4pNGyS+/f3qF3dd8poyz9I0yIQ=;
+        b=M5glSCU7C5e+l99etkldWGeWbTcEDnaqGKdMP6ItdFDv528Cp0mCu5B1fqTLdyH5uX
+         N9yfu4MtL+vig2xGzklSXTVKwLHNemtu3N+33OfROAUEPzNbgTZPtMT9HZvUkKmkGnR2
+         /q3l9jFXYtTWyByLY4x6YNaqFbppL62A71FbMgBYSpQgtO0pkRoU4R/hdYyRSDREfShJ
+         tUn/XqfRQ7H59S1NqRfq3zZsNz1kOOFo27B9ellFxW4GkhEGDcuRsJVhQVTGnECkTzw/
+         qr4XNncrYJmFE1kTIPQfAASY8MSMaBBCl1+FNEtieTHQnAxA6qag6geMi3VzR+G71qSX
+         JebA==
+X-Gm-Message-State: AOAM530dAaO/uKJvd+o3FtmcWDQ53gP4N0+otmdAPpZ74H2NyfC6YWln
+        1iPPUreM7KABIfP+IJvujEaTgPFv8szR6jIYdq8R
+X-Google-Smtp-Source: ABdhPJwMWPIfRXVxIBCOjcbnyugYHup2arm1/+oo2mo11V8E1LS5uXyCS7vTs7sOAcv3T7QPJc0OjZwXwqq4GYlQLJs=
+X-Received: by 2002:a17:906:a443:: with SMTP id cb3mr1388093ejb.542.1614818690832;
+ Wed, 03 Mar 2021 16:44:50 -0800 (PST)
+MIME-Version: 1.0
+References: <161377712068.87807.12246856567527156637.stgit@sifl>
+ <161377734508.87807.8537642254664217815.stgit@sifl> <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
+In-Reply-To: <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 3 Mar 2021 19:44:40 -0500
+Message-ID: <CAHC9VhTn33cSX=n7a6kr-5=TKeEx8iRbTY8-2XGxG0YC+GhvaA@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/4] lsm: separate security_task_getsecid() into
+ subjective and objective variants
+To:     John Johansen <john.johansen@canonical.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-process_madvise currently requires ptrace attach capability.
-PTRACE_MODE_ATTACH gives one process complete control over another
-process. It effectively removes the security boundary between the
-two processes (in one direction). Granting ptrace attach capability
-even to a system process is considered dangerous since it creates an
-attack surface. This severely limits the usage of this API.
-The operations process_madvise can perform do not affect the correctness
-of the operation of the target process; they only affect where the data
-is physically located (and therefore, how fast it can be accessed).
-What we want is the ability for one process to influence another process
-in order to optimize performance across the entire system while leaving
-the security boundary intact.
-Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
-and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
-and CAP_SYS_NICE for influencing process performance.
+On Sun, Feb 21, 2021 at 7:51 AM John Johansen
+<john.johansen@canonical.com> wrote:
+> On 2/19/21 3:29 PM, Paul Moore wrote:
+> > Of the three LSMs that implement the security_task_getsecid() LSM
+> > hook, all three LSMs provide the task's objective security
+> > credentials.  This turns out to be unfortunate as most of the hook's
+> > callers seem to expect the task's subjective credentials, although
+> > a small handful of callers do correctly expect the objective
+> > credentials.
+> >
+> > This patch is the first step towards fixing the problem: it splits
+> > the existing security_task_getsecid() hook into two variants, one
+> > for the subjective creds, one for the objective creds.
+> >
+> >   void security_task_getsecid_subj(struct task_struct *p,
+> >                                  u32 *secid);
+> >   void security_task_getsecid_obj(struct task_struct *p,
+> >                                 u32 *secid);
+> >
+> > While this patch does fix all of the callers to use the correct
+> > variant, in order to keep this patch focused on the callers and to
+> > ease review, the LSMs continue to use the same implementation for
+> > both hooks.  The net effect is that this patch should not change
+> > the behavior of the kernel in any way, it will be up to the latter
+> > LSM specific patches in this series to change the hook
+> > implementations and return the correct credentials.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+>
+> So far this looks good. I want to take another stab at it and give
+> it some testing
 
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Acked-by: David Rientjes <rientjes@google.com>
----
-changes in v3
-- Added Reviewed-by: Kees Cook <keescook@chromium.org>
-- Created man page for process_madvise per Andrew's request: https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=a144f458bad476a3358e3a45023789cb7bb9f993
-- cc'ed stable@vger.kernel.org # 5.10+ per Andrew's request
-- cc'ed linux-security-module@vger.kernel.org per James Morris's request
+Checking in as I know you said you needed to fix/release the AppArmor
+patch in this series ... is this patch still looking okay to you?  If
+so, can I get an ACK at least on this patch?
 
- mm/madvise.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/mm/madvise.c b/mm/madvise.c
-index df692d2e35d4..01fef79ac761 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -1198,12 +1198,22 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
- 		goto release_task;
- 	}
- 
--	mm = mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
-+	/* Require PTRACE_MODE_READ to avoid leaking ASLR metadata. */
-+	mm = mm_access(task, PTRACE_MODE_READ_FSCREDS);
- 	if (IS_ERR_OR_NULL(mm)) {
- 		ret = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
- 		goto release_task;
- 	}
- 
-+	/*
-+	 * Require CAP_SYS_NICE for influencing process performance. Note that
-+	 * only non-destructive hints are currently supported.
-+	 */
-+	if (!capable(CAP_SYS_NICE)) {
-+		ret = -EPERM;
-+		goto release_mm;
-+	}
-+
- 	total_len = iov_iter_count(&iter);
- 
- 	while (iov_iter_count(&iter)) {
-@@ -1218,6 +1228,7 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
- 	if (ret == 0)
- 		ret = total_len - iov_iter_count(&iter);
- 
-+release_mm:
- 	mmput(mm);
- release_task:
- 	put_task_struct(task);
 -- 
-2.30.1.766.gb4fecdf3b7-goog
-
+paul moore
+www.paul-moore.com
