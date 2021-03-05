@@ -2,78 +2,111 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A2DC433E0
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 02:03:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 825B7C433E0
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 02:10:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C83A064F4C
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 02:03:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3684964FDB
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 02:10:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229463AbhCECDm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Mar 2021 21:03:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43968 "EHLO
+        id S229516AbhCECKI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Mar 2021 21:10:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbhCECDm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Mar 2021 21:03:42 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF44C061574
-        for <selinux@vger.kernel.org>; Thu,  4 Mar 2021 18:03:41 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id h10so492169edl.6
-        for <selinux@vger.kernel.org>; Thu, 04 Mar 2021 18:03:41 -0800 (PST)
+        with ESMTP id S229463AbhCECKI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Mar 2021 21:10:08 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00A8BC061574
+        for <selinux@vger.kernel.org>; Thu,  4 Mar 2021 18:10:06 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id m9so508269edd.5
+        for <selinux@vger.kernel.org>; Thu, 04 Mar 2021 18:10:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=bTELJpjfEybOzohvPLykHd1IZELHzzvHDzUEH2tpYr8=;
-        b=nWzJCeQ9vglQCMOg/QBtS/+86G0/OEx/ba4pWrRctepmKrNK6cJM3ePBw8EidZgUf5
-         qKCwd6iCLeGmn8se3DLMbXQvrq8Lh/gFsb63GT0/qlJaSxqqzy0uz1HUGZw85zo1r30F
-         Rr7broRQtZjP05EIKEOniA02kD3eS1wqgdvtpwHpQcB4Bc+EcyqdoYpirP8dCj4M6YFo
-         V1MO2qLV2AL/5nUwFmHpq2hSPoqtItPnjWypZw+TytDvPm9uhPee69S7SkeNRY7iEH3M
-         cuHwDTKQBcHatJWEkQA1eh8fRk27LywNE6iXg7jm5KBnQtm9AOYyqQuKFwOfITZsqart
-         nN7w==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=O9ReJcy8RlfrDC/fAF+2CwFahTTparPVhDqzUGMBrqE=;
+        b=woUbkBjqxCS2IzG7iYf9ZxU8YwMf3pJO3aanguwN3a9ejhULoWEEOvedgeoMmHRpcB
+         CpQzvoHNNVNY87HzO0gGKcpMCjp4M8uu5mMdOWxgia7GfLsIbD8ES+Z+e3KauORxPdOK
+         tlebWgMEU78s2xbRwVrz2Nj/0VnNV7/j1+3xgsUuaA8Cp3kWX0x+zx//hB3IKKcrleOG
+         A4uNsMamZ+CPRpSooYpTI+Ce17zHiTrsImBHPR3oD8XjSzu42+tZ1c+B1WvAtc3dYg16
+         9MCq6l7p86q7RtEMYjjK8fDmSTdUo6uF+jifM/wooLUjKcs+bS4MI9Ah9al7vOhMrO2s
+         kjAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=bTELJpjfEybOzohvPLykHd1IZELHzzvHDzUEH2tpYr8=;
-        b=kFulThqMXN1VTG2SQ2pk+lPQi2aOxSj8rHQ11m5nSRK6Xho6UAw2D5ABJmoBHYdDwv
-         ayAYcE+YHYAObJDBeiOstNtMr/tnd76J2EyP7I68wAalf9qzmqzbtk7G42JP58dyaRru
-         KazGkTbJMVVnRASSRajSgkVIL5grT+oHi8dmqdXZ0ePfT5k8rRvFK6yDE/NJtQJdKuTp
-         86LD6Y5WRk6VYmm6BoHO5ia8Da8gFAMrr/ddyqYy69vyGFhlC4OoC5qlzVDiLUs/ns+K
-         0wULvy/wujXFoCFHI8Rns9eg0sYcZSJck4VTBeLktZVkQjd6nbKuTvcZoFYnJnXrEWBe
-         GTuw==
-X-Gm-Message-State: AOAM531/qLPIq0gyCF2e/NS2iqT8oXr0Bn0J+KpIJAsbMeLyCBsbuwxw
-        yuoUN8ckX8ek6FdAu4UszWiBtczaoFD/Y01yVYCQQiWk3x+H+3I=
-X-Google-Smtp-Source: ABdhPJwBZFIZ4JsoFqCXl5kV/7O7okFJgkqjuUwGOuKilkc9d7rLPHZfBvrKfGclr7XHypP8HyfiH/a+Jb6I3yl6vg4=
-X-Received: by 2002:aa7:c78e:: with SMTP id n14mr7074598eds.31.1614909820034;
- Thu, 04 Mar 2021 18:03:40 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=O9ReJcy8RlfrDC/fAF+2CwFahTTparPVhDqzUGMBrqE=;
+        b=CHEHSqUYwBqN+lZAr6CTezEBOY3W9+jmoZ32pDI5WWwGDeyQcopdHapxBUYA7NuMh7
+         8ct/1DK+c5JbijH+bwba+F8BCxD4acPfmXHMIK/YYGaPugUYDM0mSKG7sIVvSgQuEfUy
+         ib398gfDu+MwcoGYhlW/zg6bSRxAhciJB78UpuldoCAAe10C3DRCXdOi8k0z0m+kqkeh
+         qWAtrutFIVORRzJCWgxe9cbhwWfLSpj854n4tMnHtJEXahVl3GJ4+l/wX+TVmloHYCOc
+         BRvXxeJFiSD4O4jQPIquwl/K5H7pNx43wMkSYDCwDTexTC12LJ2VmVGUKJBNxtXubZ5H
+         0CZg==
+X-Gm-Message-State: AOAM532G8yCJPdLHHiguwfBV8oIaZWixDNtwZiW3C3rwdJCe8e0DWOK6
+        NJn/bs+aAwXaa9d4wvIk3A5FsFcpK9PUOq9eC1wQ
+X-Google-Smtp-Source: ABdhPJwU/jYv/w94e0kLCOV17GeQZelv+fX7z5DY6QQvma7jKikZr0KQ9k1MEZKv+mWLLb81+E/rWaCcJnm1odjFkpU=
+X-Received: by 2002:a05:6402:1cc1:: with SMTP id ds1mr3615411edb.135.1614910205565;
+ Thu, 04 Mar 2021 18:10:05 -0800 (PST)
 MIME-Version: 1.0
+References: <20210211180303.GE5014@redhat.com> <CAHC9VhRM6MiF1m2aFpLJKb3CFWXcXEX_SY=EnkLaq7U_X2UTZw@mail.gmail.com>
+In-Reply-To: <CAHC9VhRM6MiF1m2aFpLJKb3CFWXcXEX_SY=EnkLaq7U_X2UTZw@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 4 Mar 2021 21:03:29 -0500
-Message-ID: <CAHC9VhTUJAD9KQyb0ibFtCZx1nRRLLRuepbMP_CS3Ni+EQMa0Q@mail.gmail.com>
-Subject: Quick announcement on the selinux/next and audit/next branches
-To:     selinux@vger.kernel.org, linux-audit@redhat.com
+Date:   Thu, 4 Mar 2021 21:09:54 -0500
+Message-ID: <CAHC9VhSrcMS7BxZ9R=RUb-5DkWxT_6ELpcm1-1XwszkzVmwrgQ@mail.gmail.com>
+Subject: Re: [PATCH][v2] selinux: Allow context mounts for unpriviliged overlayfs
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     selinux@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello all,
+On Thu, Feb 11, 2021 at 4:24 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Thu, Feb 11, 2021 at 1:03 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> >
+> > Now overlayfs allow unpriviliged mounts. That is root inside a non-init
+> > user namespace can mount overlayfs. This is being added in 5.11 kernel.
+> >
+> > Giuseppe tried to mount overlayfs with option "context" and it failed
+> > with error -EACCESS.
+> >
+> > $ su test
+> > $ unshare -rm
+> > $ mkdir -p lower upper work merged
+> > $ mount -t overlay -o lowerdir=lower,workdir=work,upperdir=upper,userxattr,context='system_u:object_r:container_file_t:s0' none merged
+> >
+> > This fails with -EACCESS. It works if option "-o context" is not specified.
+> >
+> > Little debugging showed that selinux_set_mnt_opts() returns -EACCESS.
+> >
+> > So this patch adds "overlay" to the list, where it is fine to specific
+> > context from non init_user_ns.
+> >
+> > v2: Fixed commit message to reflect that unpriveleged overlayfs mount is
+> >     being added in 5.11 and not in 5.10 kernel.
+> >
+> > Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
+> > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> > ---
+> >  security/selinux/hooks.c |    3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> Thanks Vivek, once the merge window closes I'll merge this into
+> selinux/next and send a note to this thread.
 
-As many of you are aware, normally with the close of the merge window
-and the release of -rc1 I typically reset the selinux/next and
-audit/next branches to Linus' -rc1 tag.  However, as you may have
-heard already, there is a nasty problem with the early v5.12 kernels,
-including -rc1, which could result in some fairly serious fs
-corruption (see the LWN article below).  With that in mind, I'm not
-going to reset the selinux/next and audit/next branches for this
-development cycle, leaving them based on v5.11-rc2+patches (basically
-the current stable-5.12 branches in each tree).  I don't expect this
-to be a problem, but if necessary we can always rebase the -next
-branches to -rc2 if it proves safe.
-
-* https://lwn.net/Articles/848265
+I just merged this into my local selinux/next and will be pushing it
+to kernel.org later tonight.  Thanks!
 
 -- 
 paul moore
