@@ -2,111 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94BD0C433E6
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 01:32:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8543CC433DB
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 01:45:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F50A64E6B
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 01:32:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53CE565005
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 01:45:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbhCEBcP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Mar 2021 20:32:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
+        id S229494AbhCEBpy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Mar 2021 20:45:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229464AbhCEBcP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Mar 2021 20:32:15 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BC50C061756
-        for <selinux@vger.kernel.org>; Thu,  4 Mar 2021 17:32:15 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id w17so364751ejc.6
-        for <selinux@vger.kernel.org>; Thu, 04 Mar 2021 17:32:15 -0800 (PST)
+        with ESMTP id S229436AbhCEBpx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Mar 2021 20:45:53 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C659C061574
+        for <selinux@vger.kernel.org>; Thu,  4 Mar 2021 17:45:53 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id lr13so404395ejb.8
+        for <selinux@vger.kernel.org>; Thu, 04 Mar 2021 17:45:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=80N8FTktWaHp8/7shNAGY0Bb2p2RGTW77BNazisTaqc=;
-        b=kwO3ZbQJvmoyZEcCsnZ+O5lefcSrFp4+zNeyaTxwbMuTmfsqLF3Zl3diE3rtVg3Nf5
-         XWXIutDh7iwVsvz7hM2SbHDz75L4k1hdS7zjWDfGrEGtSQIalEqcvAeA+6ZMUMeIj4pe
-         CMcbLw1BJUAAT79MYajlSgDqsgLNlVf56KvxaVcF6odqfB14mHAKqbBmKjnjbgbNRFkV
-         /5bGDWxr9WX5/onrBYptac6azV0Lcs/AChdKXyW5sv+uplHNQIj1kdeUTSi0JzenFZwl
-         FovvuSszpmZUmsiCuYj6WrEaKmUvmLlJhO0txFw323fvX3ZlpQ35xFNA7tudurvk0PjE
-         Gwew==
+        bh=2jQAAzkMyDz9j2A6XfWMQGCSaoR8rT2Fso6F62ldjHg=;
+        b=bDqeNAH84+nJyInnN4WTMsRnjdw75/XreazONyhpvGLex+Q0RCII/NWn7wzQUSAu8j
+         lfJAChB1VzlvI1Q739ir64e7tn437yxHNo41Jf5+Cne7k/vtuDrE15H749xSV7gv3Gji
+         jaKUTTrWzJbIGqtcEOn0/3BBNGIQe6dvikIdNltDqGUVCYq0hyuxcaRZj9WQw/AIjL3s
+         2AAz66ATU1T1wKPv/kTZKpbtcfeIfJHwZmmcxmBOssF5QwXTO6Prq1yh6i4/+WNJZIAm
+         E6IfP/BFcuPxGprkW96zr4IHthYoFJETpE+7jIu5SpHvE1gJ9i87BH7TZ1tEpTTB63Vi
+         Vyww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=80N8FTktWaHp8/7shNAGY0Bb2p2RGTW77BNazisTaqc=;
-        b=Gan3pOib7GpPfNamPJgjYx3YtsV6CWVu14H3TXruMPa/CceLOqM/F1q7xWAv495BjO
-         GgUz1PLId33oOiBH/UHCn2ouZMHMbRBca1Ss5ePYhUS0aKY2+uty7fLXZHn+csWgqI37
-         QlEcsvy1Gwenj6PgFGmxGDjSQk3QdysIWAonqIXQszmk1lPI20+2OZeyF7sc1SbVawKk
-         c/Bn6LN/LJebUNMVZ+x82NtkafgGqcT7Qdm3sx4H01SFLRi2lGzZG2RaZNGQH9Ry086S
-         BWkzji2cfT/hTH7pACW87C9WcebNqLd2Mrv1pZX8g9cN+05AvsG9FmWz+l/sOWrQUY9e
-         Ndbw==
-X-Gm-Message-State: AOAM532A1baWcFAudVhDlHaScZrGE2/QRIalScHiiZLuZg2X1EDZjxNH
-        IOgIOVYd+OfIhRRt5l56CckU10Vy3XmURrOD4CiY
-X-Google-Smtp-Source: ABdhPJwXTiyn3oCcRf5J9N21dl1QmjUNUXvdO1Y1u5UMG7hWl+cnxknz1WGXfqwWJgv/kNeDf6uhKrTXixDZprq98tc=
-X-Received: by 2002:a17:906:3b84:: with SMTP id u4mr227254ejf.431.1614907933967;
- Thu, 04 Mar 2021 17:32:13 -0800 (PST)
+        bh=2jQAAzkMyDz9j2A6XfWMQGCSaoR8rT2Fso6F62ldjHg=;
+        b=txOtLDx4PYm+drjRzaqn1UmOYSOdOPuuEnYIP/ygReBt1r/UE5e+f21qfFbAtkEHlW
+         X2p23U9TL4pUDqMbinLg64qRX2erHPRfD4W2t7aeX8k7ZFv3C2/pYUwtq5eMuG19sAHb
+         VuZp9dsyB3nLqJC7WKLB3p5bl/PU9VgMVm0/12Feu9GAVmSwmIg/vWA07HQhK0DBFQml
+         8B5O/25GNE6OIuOcWZshV1NS2LD1QiNTshXn7UA88wlWVC3ygRLMchQFh98r9iGnCMa0
+         4SYviwZUIa6eJcjkNyQTsJ54ceZHIiJvDHfRoEwfPgA/oe8xmG9boi/3G2VsTtbffsyS
+         BQHw==
+X-Gm-Message-State: AOAM532U79oIVl1aqG6g4RY/5BFkXvn994p4uCr7BrhdelUxztNkJJYO
+        nC0o0bGmAZDHF3gQ8zyKeCziF7q1GYJG/MdhLq8g
+X-Google-Smtp-Source: ABdhPJzL6KN7ohNuopHXUHTY5N50drq9D6Opy/MeC8ZA8MApREWAtEryhlz7TohVEuG0EtSlBqyZ1X6NbT5qGO133Ls=
+X-Received: by 2002:a17:906:2bd6:: with SMTP id n22mr271467ejg.91.1614908752118;
+ Thu, 04 Mar 2021 17:45:52 -0800 (PST)
 MIME-Version: 1.0
-References: <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
- <20210227033755.24460-1-olga.kornievskaia@gmail.com> <CAFX2Jfk--KwkAss1gqTPnQt-bKvUUapNdHbuicu=m+jOtjrMyQ@mail.gmail.com>
- <f8f5323c-cdfd-92e8-b359-43caaf9d7490@schaufler-ca.com>
-In-Reply-To: <f8f5323c-cdfd-92e8-b359-43caaf9d7490@schaufler-ca.com>
+References: <20210212163709.3139-1-nramas@linux.microsoft.com> <87273030-2303-e791-4e5d-25373faf0880@linux.microsoft.com>
+In-Reply-To: <87273030-2303-e791-4e5d-25373faf0880@linux.microsoft.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 4 Mar 2021 20:32:02 -0500
-Message-ID: <CAHC9VhR=+uwN8U17JhYWKcXSc9=ExCrG4O9-y+DPJg6xZ=WoYA@mail.gmail.com>
-Subject: Re: [PATCH v4 1/3] [security] Add new hook to compare new mount to an
- existing mount
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>
-Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Date:   Thu, 4 Mar 2021 20:45:41 -0500
+Message-ID: <CAHC9VhT4pnsFTL3N8pZgrgpqzgCU+Odd4V=SGvTA9QcKAGwasw@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: measure state and policy capabilities
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        tusharsu@linux.microsoft.com, tyhicks@linux.microsoft.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com, sashal@kernel.org,
+        James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 2, 2021 at 10:53 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 3/2/2021 10:20 AM, Anna Schumaker wrote:
-> > Hi Casey,
-> >
-> > On Fri, Feb 26, 2021 at 10:40 PM Olga Kornievskaia
-> > <olga.kornievskaia@gmail.com> wrote:
-> >> From: Olga Kornievskaia <kolga@netapp.com>
-> >>
-> >> Add a new hook that takes an existing super block and a new mount
-> >> with new options and determines if new options confict with an
-> >> existing mount or not.
-> >>
-> >> A filesystem can use this new hook to determine if it can share
-> >> the an existing superblock with a new superblock for the new mount.
-> >>
-> >> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-> > Do you have any other thoughts on this patch? I'm also wondering how
-> > you want to handle sending it upstream.
+On Thu, Mar 4, 2021 at 2:20 PM Lakshmi Ramasubramanian
+<nramas@linux.microsoft.com> wrote:
+> On 2/12/21 8:37 AM, Lakshmi Ramasubramanian wrote:
 >
-> James Morris is the maintainer for the security sub-system,
-> so you'll want to send this through him. He will want you to
-> have an ACK from Paul Moore, who is the SELinux maintainer.
+> Hi Paul,
+>
+> > SELinux stores the configuration state and the policy capabilities
+> > in kernel memory.  Changes to this data at runtime would have an impact
+> > on the security guarantees provided by SELinux.  Measuring this data
+> > through IMA subsystem provides a tamper-resistant way for
+> > an attestation service to remotely validate it at runtime.
+> >
+> > Measure the configuration state and policy capabilities by calling
+> > the IMA hook ima_measure_critical_data().
+> >
+>
+> I have addressed your comments on the v2 patch for selinux measurement
+> using IMA. Could you please let me know if there are any other comments
+> that I need to address in this patch?
 
-In the past I've pulled patches such as this (new LSM hook, with only
-a SELinux implementation of the new hook) in via the selinux/next tree
-after the other LSMs have ACK'd the new hook.  This helps limit merge
-problems with other SELinux changes and allows us (the SELinux folks)
-to include it in the ongoing testing that we do during the -rcX
-releases.
-
-So Anna, if you or anyone else on the NFS side of the house want to
-add your ACKs/REVIEWs/etc. please do so as I don't like merging
-patches that cross subsystem boundaries without having all the
-associated ACKs.  Casey, James, and other LSM folks please do the
-same.
+The merge window just closed earlier this week, and there were a
+handful of bugs that needed to be addressed before I could look at
+this patch.  If I don't get a chance to review this patch tonight, I
+will try to get to it this weekend or early next week.
 
 -- 
 paul moore
