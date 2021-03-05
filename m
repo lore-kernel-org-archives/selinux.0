@@ -4,97 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8543CC433DB
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 01:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A2DC433E0
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 02:03:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53CE565005
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 01:45:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C83A064F4C
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 02:03:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbhCEBpy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Mar 2021 20:45:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
+        id S229463AbhCECDm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Mar 2021 21:03:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbhCEBpx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Mar 2021 20:45:53 -0500
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C659C061574
-        for <selinux@vger.kernel.org>; Thu,  4 Mar 2021 17:45:53 -0800 (PST)
-Received: by mail-ej1-x630.google.com with SMTP id lr13so404395ejb.8
-        for <selinux@vger.kernel.org>; Thu, 04 Mar 2021 17:45:53 -0800 (PST)
+        with ESMTP id S229436AbhCECDm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Mar 2021 21:03:42 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF44C061574
+        for <selinux@vger.kernel.org>; Thu,  4 Mar 2021 18:03:41 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id h10so492169edl.6
+        for <selinux@vger.kernel.org>; Thu, 04 Mar 2021 18:03:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2jQAAzkMyDz9j2A6XfWMQGCSaoR8rT2Fso6F62ldjHg=;
-        b=bDqeNAH84+nJyInnN4WTMsRnjdw75/XreazONyhpvGLex+Q0RCII/NWn7wzQUSAu8j
-         lfJAChB1VzlvI1Q739ir64e7tn437yxHNo41Jf5+Cne7k/vtuDrE15H749xSV7gv3Gji
-         jaKUTTrWzJbIGqtcEOn0/3BBNGIQe6dvikIdNltDqGUVCYq0hyuxcaRZj9WQw/AIjL3s
-         2AAz66ATU1T1wKPv/kTZKpbtcfeIfJHwZmmcxmBOssF5QwXTO6Prq1yh6i4/+WNJZIAm
-         E6IfP/BFcuPxGprkW96zr4IHthYoFJETpE+7jIu5SpHvE1gJ9i87BH7TZ1tEpTTB63Vi
-         Vyww==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=bTELJpjfEybOzohvPLykHd1IZELHzzvHDzUEH2tpYr8=;
+        b=nWzJCeQ9vglQCMOg/QBtS/+86G0/OEx/ba4pWrRctepmKrNK6cJM3ePBw8EidZgUf5
+         qKCwd6iCLeGmn8se3DLMbXQvrq8Lh/gFsb63GT0/qlJaSxqqzy0uz1HUGZw85zo1r30F
+         Rr7broRQtZjP05EIKEOniA02kD3eS1wqgdvtpwHpQcB4Bc+EcyqdoYpirP8dCj4M6YFo
+         V1MO2qLV2AL/5nUwFmHpq2hSPoqtItPnjWypZw+TytDvPm9uhPee69S7SkeNRY7iEH3M
+         cuHwDTKQBcHatJWEkQA1eh8fRk27LywNE6iXg7jm5KBnQtm9AOYyqQuKFwOfITZsqart
+         nN7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2jQAAzkMyDz9j2A6XfWMQGCSaoR8rT2Fso6F62ldjHg=;
-        b=txOtLDx4PYm+drjRzaqn1UmOYSOdOPuuEnYIP/ygReBt1r/UE5e+f21qfFbAtkEHlW
-         X2p23U9TL4pUDqMbinLg64qRX2erHPRfD4W2t7aeX8k7ZFv3C2/pYUwtq5eMuG19sAHb
-         VuZp9dsyB3nLqJC7WKLB3p5bl/PU9VgMVm0/12Feu9GAVmSwmIg/vWA07HQhK0DBFQml
-         8B5O/25GNE6OIuOcWZshV1NS2LD1QiNTshXn7UA88wlWVC3ygRLMchQFh98r9iGnCMa0
-         4SYviwZUIa6eJcjkNyQTsJ54ceZHIiJvDHfRoEwfPgA/oe8xmG9boi/3G2VsTtbffsyS
-         BQHw==
-X-Gm-Message-State: AOAM532U79oIVl1aqG6g4RY/5BFkXvn994p4uCr7BrhdelUxztNkJJYO
-        nC0o0bGmAZDHF3gQ8zyKeCziF7q1GYJG/MdhLq8g
-X-Google-Smtp-Source: ABdhPJzL6KN7ohNuopHXUHTY5N50drq9D6Opy/MeC8ZA8MApREWAtEryhlz7TohVEuG0EtSlBqyZ1X6NbT5qGO133Ls=
-X-Received: by 2002:a17:906:2bd6:: with SMTP id n22mr271467ejg.91.1614908752118;
- Thu, 04 Mar 2021 17:45:52 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=bTELJpjfEybOzohvPLykHd1IZELHzzvHDzUEH2tpYr8=;
+        b=kFulThqMXN1VTG2SQ2pk+lPQi2aOxSj8rHQ11m5nSRK6Xho6UAw2D5ABJmoBHYdDwv
+         ayAYcE+YHYAObJDBeiOstNtMr/tnd76J2EyP7I68wAalf9qzmqzbtk7G42JP58dyaRru
+         KazGkTbJMVVnRASSRajSgkVIL5grT+oHi8dmqdXZ0ePfT5k8rRvFK6yDE/NJtQJdKuTp
+         86LD6Y5WRk6VYmm6BoHO5ia8Da8gFAMrr/ddyqYy69vyGFhlC4OoC5qlzVDiLUs/ns+K
+         0wULvy/wujXFoCFHI8Rns9eg0sYcZSJck4VTBeLktZVkQjd6nbKuTvcZoFYnJnXrEWBe
+         GTuw==
+X-Gm-Message-State: AOAM531/qLPIq0gyCF2e/NS2iqT8oXr0Bn0J+KpIJAsbMeLyCBsbuwxw
+        yuoUN8ckX8ek6FdAu4UszWiBtczaoFD/Y01yVYCQQiWk3x+H+3I=
+X-Google-Smtp-Source: ABdhPJwBZFIZ4JsoFqCXl5kV/7O7okFJgkqjuUwGOuKilkc9d7rLPHZfBvrKfGclr7XHypP8HyfiH/a+Jb6I3yl6vg4=
+X-Received: by 2002:aa7:c78e:: with SMTP id n14mr7074598eds.31.1614909820034;
+ Thu, 04 Mar 2021 18:03:40 -0800 (PST)
 MIME-Version: 1.0
-References: <20210212163709.3139-1-nramas@linux.microsoft.com> <87273030-2303-e791-4e5d-25373faf0880@linux.microsoft.com>
-In-Reply-To: <87273030-2303-e791-4e5d-25373faf0880@linux.microsoft.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 4 Mar 2021 20:45:41 -0500
-Message-ID: <CAHC9VhT4pnsFTL3N8pZgrgpqzgCU+Odd4V=SGvTA9QcKAGwasw@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: measure state and policy capabilities
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     zohar@linux.ibm.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        tusharsu@linux.microsoft.com, tyhicks@linux.microsoft.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Thu, 4 Mar 2021 21:03:29 -0500
+Message-ID: <CAHC9VhTUJAD9KQyb0ibFtCZx1nRRLLRuepbMP_CS3Ni+EQMa0Q@mail.gmail.com>
+Subject: Quick announcement on the selinux/next and audit/next branches
+To:     selinux@vger.kernel.org, linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 4, 2021 at 2:20 PM Lakshmi Ramasubramanian
-<nramas@linux.microsoft.com> wrote:
-> On 2/12/21 8:37 AM, Lakshmi Ramasubramanian wrote:
->
-> Hi Paul,
->
-> > SELinux stores the configuration state and the policy capabilities
-> > in kernel memory.  Changes to this data at runtime would have an impact
-> > on the security guarantees provided by SELinux.  Measuring this data
-> > through IMA subsystem provides a tamper-resistant way for
-> > an attestation service to remotely validate it at runtime.
-> >
-> > Measure the configuration state and policy capabilities by calling
-> > the IMA hook ima_measure_critical_data().
-> >
->
-> I have addressed your comments on the v2 patch for selinux measurement
-> using IMA. Could you please let me know if there are any other comments
-> that I need to address in this patch?
+Hello all,
 
-The merge window just closed earlier this week, and there were a
-handful of bugs that needed to be addressed before I could look at
-this patch.  If I don't get a chance to review this patch tonight, I
-will try to get to it this weekend or early next week.
+As many of you are aware, normally with the close of the merge window
+and the release of -rc1 I typically reset the selinux/next and
+audit/next branches to Linus' -rc1 tag.  However, as you may have
+heard already, there is a nasty problem with the early v5.12 kernels,
+including -rc1, which could result in some fairly serious fs
+corruption (see the LWN article below).  With that in mind, I'm not
+going to reset the selinux/next and audit/next branches for this
+development cycle, leaving them based on v5.11-rc2+patches (basically
+the current stable-5.12 branches in each tree).  I don't expect this
+to be a problem, but if necessary we can always rebase the -next
+branches to -rc2 if it proves safe.
+
+* https://lwn.net/Articles/848265
 
 -- 
 paul moore
