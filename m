@@ -2,56 +2,65 @@ Return-Path: <SRS0=hgLN=ID=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 271A9C433E6
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 19:30:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6214BC433E0
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 19:34:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E1B45650A8
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 19:30:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25C24650A8
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 19:34:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhCET37 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Mar 2021 14:29:59 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:51860 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229592AbhCET3s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Mar 2021 14:29:48 -0500
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 1457220B83EA;
-        Fri,  5 Mar 2021 11:29:48 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1457220B83EA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1614972588;
-        bh=C6yfakTHu6d1eI3TYLCRPkMg4Ti+vegwEX0NiykQuoU=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=Hpln3CAQrwyY4794PdvobdjJXJrkT6Eaw6MshSYNHF8DUz7yfgY07jS7s3sQw2ZQt
-         pPPyNSZFBliuZqe1SAFGEDkRlcS18BPnWTHN+dSjR9s5SV9clJYzievx8zSb7UM8Rc
-         /iTnm8a2bMK+Rb4/Rie+s1UND0o8IMxncfyejL1E=
-Subject: Re: [PATCH v3] selinux: measure state and policy capabilities
-To:     Paul Moore <paul@paul-moore.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc:     zohar@linux.ibm.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        tusharsu@linux.microsoft.com, tyhicks@linux.microsoft.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210212163709.3139-1-nramas@linux.microsoft.com>
- <CAHC9VhSMz8FtK5HMPA1+FMeU0cs4vfCCaimxb-J+VDj_Dyk-nA@mail.gmail.com>
- <af0f2d60c6584b613172b08e4fcea4119e231e93.camel@HansenPartnership.com>
- <CAHC9VhRBdJ9Vh1ESezim129OEf1UJ-Mxm1g9FpxEJmt-PUSLjg@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <9170636f-1793-2272-e3fe-1551c18edeb9@linux.microsoft.com>
-Date:   Fri, 5 Mar 2021 11:29:47 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S229791AbhCETeQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Mar 2021 14:34:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43622 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230260AbhCETdx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Mar 2021 14:33:53 -0500
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB7FFC06175F
+        for <selinux@vger.kernel.org>; Fri,  5 Mar 2021 11:33:52 -0800 (PST)
+Received: by mail-qk1-x72b.google.com with SMTP id b130so3119358qkc.10
+        for <selinux@vger.kernel.org>; Fri, 05 Mar 2021 11:33:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=GRCtSa3yJB+HK9tL244/crUgpqfIHU8XqdH30s0jnY4=;
+        b=hEvXqHjPpumwVK4Qh6cP/YzeVfoUeYsARj/fezBgtGZTI+NGV00z2fKQaHst9GOGBt
+         Rz4/EIFUT0zx55OQp18neSjMzYpn4UocsOTzJoIZ7FTLXrb+1bGhorrgRWDvrmd0tcSL
+         k08sM/OpqLt657vryyOPWjbFegEcomvLKkE9Y=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=GRCtSa3yJB+HK9tL244/crUgpqfIHU8XqdH30s0jnY4=;
+        b=dp/YRiUdai1robaERcKfEac4rYR8VFld7tvZ88B9Ecsv5umSlepY1Rb543FXzw2yqP
+         vgopfsdS0AyyThzShkMR3vKtm5YBwWq02HFwprvVe/mnTndleSaerOUwAYO0ttTzYSie
+         RWHMyh2tUzM57Wc8lCgHo6d0jWVFn3Ersg34I8xkW7/0yNVKX3ScgzcOGpyzvjn7J19s
+         9Nj3y0nT66FMjm9e8InXJFFOxhXQeO6NpTY3ZI2VkMBuQWdiK9Buvs8GVHe+2LVY3Qsp
+         UC9kKY1ipTxaYBwKHIUEomNyAc9uBtJqvVrUC1jjG2lE+1xViHew/IISOAYuu0PtemBJ
+         yiYg==
+X-Gm-Message-State: AOAM53134eErXgrmIaq1aWaN213TpfrRd+YUbvGOW9L1u68L+G3ZMuJK
+        RjmME9y+VYcPtYasCu2zygVV0erFW38n9A==
+X-Google-Smtp-Source: ABdhPJzYmcFnAgsX12dR/8wTeiovUvnOcm+FODdtgsNffV55EDdAVjH2Itu3Fr6oNu85FqYC6vjspw==
+X-Received: by 2002:a37:4fcf:: with SMTP id d198mr10811304qkb.277.1614972832109;
+        Fri, 05 Mar 2021 11:33:52 -0800 (PST)
+Received: from fedora.pebenito.net (pool-96-234-173-17.bltmmd.fios.verizon.net. [96.234.173.17])
+        by smtp.gmail.com with ESMTPSA id z11sm2534088qkg.52.2021.03.05.11.33.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Mar 2021 11:33:51 -0800 (PST)
+To:     SElinux list <selinux@vger.kernel.org>,
+        refpolicy <selinux-refpolicy@vger.kernel.org>
+From:   Chris PeBenito <pebenito@ieee.org>
+Subject: ANN: SETools 4.4.0
+Message-ID: <cc1df0ac-bd82-736d-986a-0c228b0dfaf4@ieee.org>
+Date:   Fri, 5 Mar 2021 14:33:50 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhRBdJ9Vh1ESezim129OEf1UJ-Mxm1g9FpxEJmt-PUSLjg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -59,41 +68,32 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/5/21 11:22 AM, Paul Moore wrote:
+SETools 4.3.4 is now available:
 
-Hi Paul,
+https://github.com/SELinuxProject/setools/releases/tag/4.4.0
 
-> On Fri, Mar 5, 2021 at 12:57 PM James Bottomley
-> <James.Bottomley@hansenpartnership.com> wrote:
->> On Fri, 2021-03-05 at 12:52 -0500, Paul Moore wrote:
->> [...]
->>> This draft seems fine to me, but there is a small logistical blocker
->>> at the moment which means I can't merge this until -rc2 is released,
->>> which likely means this coming Monday.  The problem is that this
->>> patch relies on code that went upstream via in the last merge window
->>> via the IMA tree, not the SELinux tree; normally that wouldn't be a
->>> problem as I typically rebase the selinux/next to Linus' -rc1 tag
->>> once the merge window is closed, but in this particular case the -rc1
->>> tag is dangerously broken for some system configurations (the tag has
->>> since been renamed) so I'm not rebasing onto -rc1 this time around.
->>>
->>> Assuming that -rc2 fixes the swapfile/fs-corruption problem, early
->>> next week I'll rebase selinux/next to -rc2 and merge this patch.
->>> However, if the swapfile bug continues past -rc2 we can consider
->>> merging this via the IMA tree, but I'd assume not do that if possible
->>> due to merge conflict and testing reasons.
->>
->> If it helps, we rebased the SCSI tree on top of the merge for the
->> swapfile fix which is this one, without waiting for -rc2:
-> 
-> Considering that -rc2 is only two days away I'm not going to lose a
-> lot of sleep over it.
-> 
+This SETools requires Python 3.6+ and libsepol 3.2+
 
-Thanks for reviewing the patch.
+User Visible Changes
 
-I can wait until the swapfile issue is resolved (in rc2 or later) and 
-you are able to merge this patch. Please take your time.
+* Added support for old Boolean name substitution in seinfo and sesearch.
+* Added sechecker tool which is a configuration file driven analysis tool.
 
-thanks,
-   -lakshmi
+Development Related Changes
+
+* Updated policy representation to handle policydb version 33, compressed
+     filename transitions.
+* Changed apol tab registry to use metaclasses rather than having a multiple
+   static dictionaries in the code.
+* Fixed bug in queries where checks that permissions were part of the specified
+   object class would incorrectly raise exceptions when the object class
+   criteria is a regex.
+* Added type annotations to the code and added static type checking for
+   continuous integration tests.
+* Reduced aggressiveness of default compiler flags. Since the C code is
+   generated by Cython, there typically isn't anything SETools can do when Cython
+   causes compiler warnings.
+
+
+-- 
+Chris PeBenito
