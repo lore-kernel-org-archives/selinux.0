@@ -2,150 +2,90 @@ Return-Path: <SRS0=hgLN=ID=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8285C43331
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 17:53:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD8FEC433E0
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 17:57:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC01B65073
-	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 17:53:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EC1B650AC
+	for <selinux@archiver.kernel.org>; Fri,  5 Mar 2021 17:57:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229512AbhCERxJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Mar 2021 12:53:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49890 "EHLO
+        id S229465AbhCER44 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Mar 2021 12:56:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbhCERwv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Mar 2021 12:52:51 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87F8C061574
-        for <selinux@vger.kernel.org>; Fri,  5 Mar 2021 09:52:50 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id bd6so3759876edb.10
-        for <selinux@vger.kernel.org>; Fri, 05 Mar 2021 09:52:50 -0800 (PST)
+        with ESMTP id S229563AbhCER4f (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Mar 2021 12:56:35 -0500
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E97C061574
+        for <selinux@vger.kernel.org>; Fri,  5 Mar 2021 09:56:35 -0800 (PST)
+Received: by mail-ej1-x633.google.com with SMTP id r17so5090827ejy.13
+        for <selinux@vger.kernel.org>; Fri, 05 Mar 2021 09:56:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9cy6NY2NneFUb+ai21Mer/bJAl+1fOEOH5Xn9JUNG4w=;
-        b=M9iU8Hx8FsBg3SEJvJ/21kHhWBt5rp2CgMqle7NuC5OBFVe2oGQ9SQasL3gILMCMA2
-         uD3OxosJLHMAEeYUlK2woG20Ck5JkBv1jdv2LNDWyOJJEp9NAgKajeSjXQnIGur7zrPI
-         DHFKH+DwiTEZOtzsA2WF0yW4HKrGiGXqAevdSlryAMyuQyb45w7H6W8ZD+hjqAITLJrq
-         tgNhi21v+U2FbLu4WMDpHXXLnaijE1rBsR2W1SwPWFmuMLd34ZH6GdrEK9ltgtqrqu4y
-         u1xBnTnWTM3879W8b7j6MLhih0uRFIg2StKV+DwicGMnw7wSqm+dcs8AV9qsLKSZSqT/
-         ZkQg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=5E6bZ6ysErUKSq3TWCTQGtLovHN6ICf2Z6DeoXuTO+I=;
+        b=jpb8x+g971hT+kM4NGsQO8y1wnGbqFlY8eTWtoCMU5KOVUZciLU8kqv5G+fjtAfgx4
+         L3+bjACKX59tbBTZ6OlmPFJpXeOf+zkZVYTohXIH06urTKPFDUN+EkEyrL5Utw/NdnJg
+         Owv3v+FhJBKl8OdqKjhM1hdOJWV0ApuEhkFi9o5kSaT8fwsSsaXpRPl7deH3WUi9qaLa
+         y1vdEM2Xy4ZzO+M/CKo7OoD2+kIntvQjtXBi1XVRNmBfo0vCXVfPCrSG9bYg1h/3K9Al
+         90afP0q10nFYWXP8j/pK7RNFWAKHLX+DLB//mUP6q6EUeb6FtmInwZnAAay4TQNBeub0
+         P3Sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9cy6NY2NneFUb+ai21Mer/bJAl+1fOEOH5Xn9JUNG4w=;
-        b=FKqOS/DOVS4hPP6wyPGgQqLO2a4dNFpLPVEppeULp5cFag+Fhx4dVggMCwGZ07hg5Y
-         VTrv6CX3UwAxtHEO0L4MBI/GCf0AMBOCoGOfATyn+MPRCiWf1B0kI3K85oi38Ws3KR6p
-         LYpLBcvQwq2vKtSN2cXkm62dkfD6NyodmT3qlqY2qIy4V+rDCff5qc/lhDmVXuHyhpY6
-         9nNjLlQfVFjTurb9NuZby3U0QS1G/2lHfHf+NjKRFzR+THLeyNRm0F3Qose7OfdHV2Yn
-         n7tKqAgtrNkCMhBVylO7RdPBXHzRuNGR+qr9NxHUZmitAsAcOkF2omz2oYgxS/l8dGkP
-         xssQ==
-X-Gm-Message-State: AOAM530eViCcUL1X0FDCyZKtHaAaLIR2sGERTlHH8EfW2XHpwMzvuHfd
-        OoSzqa8Vds4okm9/Tvx1Gq97dAki2qffuG2gCnUY
-X-Google-Smtp-Source: ABdhPJwOI0lS36GAS0Qm3uPRAj87oRmnPCRoE0yZWekW+QEZ0i+1DFUufde+BDoBg2RYBnPYm4uJRenmSYQP12YxeUE=
-X-Received: by 2002:aa7:db4f:: with SMTP id n15mr10224074edt.12.1614966769368;
- Fri, 05 Mar 2021 09:52:49 -0800 (PST)
+         :message-id:subject:to;
+        bh=5E6bZ6ysErUKSq3TWCTQGtLovHN6ICf2Z6DeoXuTO+I=;
+        b=DYKYuHyXx/BF6UEWzDTc/dUERoBM8LlvpiswQeqXxdblS8z1MGzzwpPL5hpqDRaTzM
+         3q4gesMv/GhS5y5qf3s3rJPuCKrnjO23QN4MkRpSmRF4I85e/PL1qdd3LJ4eqgUcJez7
+         WzcF7fZds8aX5KkL6J99khvbMd6uzNe5PlbpeL3LuAK9ahddLTjtzT2B7zs1rr+OMR2c
+         JqdPJHBBfVZS9H6AVhOM4mOxfJ/XGl+PHWotDK+1RdidbSJfXNMf3c6myMTGOQoJPxku
+         h83oUFL2/iEx4qFkBXHqUaMxJaiWokqTWdA4ItjvFvCDfm59I2gKnqLm+5jWWmv1EWyg
+         pjAg==
+X-Gm-Message-State: AOAM533UkkGOB3sEIah/YpQQDh9psi5fcaVm7qT9m3wItenxskadhl/z
+        maJoe2kE9LRGt1WqteXQaQCf8YDvq5yzZDVEBqV9me1/VswibIg=
+X-Google-Smtp-Source: ABdhPJyE/Kpf6oM/bSVK4LDrL3A2hrFAQOEwMaO6YlkD2HFsqYJU4h1TaWbElJWif/5Xd0F9XtBUeIWmqeeNmBEunp0=
+X-Received: by 2002:a17:906:3ac3:: with SMTP id z3mr3451646ejd.106.1614966993911;
+ Fri, 05 Mar 2021 09:56:33 -0800 (PST)
 MIME-Version: 1.0
-References: <20210212163709.3139-1-nramas@linux.microsoft.com>
-In-Reply-To: <20210212163709.3139-1-nramas@linux.microsoft.com>
+References: <CAHC9VhTUJAD9KQyb0ibFtCZx1nRRLLRuepbMP_CS3Ni+EQMa0Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhTUJAD9KQyb0ibFtCZx1nRRLLRuepbMP_CS3Ni+EQMa0Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 5 Mar 2021 12:52:38 -0500
-Message-ID: <CAHC9VhSMz8FtK5HMPA1+FMeU0cs4vfCCaimxb-J+VDj_Dyk-nA@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: measure state and policy capabilities
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     zohar@linux.ibm.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        tusharsu@linux.microsoft.com, tyhicks@linux.microsoft.com,
-        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
-        gmazyland@gmail.com, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Fri, 5 Mar 2021 12:56:22 -0500
+Message-ID: <CAHC9VhQOzw2aV+kT+b_cdmnAJk21MDP7jhoVy3Y-YVrCbqxBJA@mail.gmail.com>
+Subject: Re: Quick announcement on the selinux/next and audit/next branches
+To:     selinux@vger.kernel.org, linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 12, 2021 at 11:37 AM Lakshmi Ramasubramanian
-<nramas@linux.microsoft.com> wrote:
+On Thu, Mar 4, 2021 at 9:03 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> SELinux stores the configuration state and the policy capabilities
-> in kernel memory.  Changes to this data at runtime would have an impact
-> on the security guarantees provided by SELinux.  Measuring this data
-> through IMA subsystem provides a tamper-resistant way for
-> an attestation service to remotely validate it at runtime.
+> Hello all,
 >
-> Measure the configuration state and policy capabilities by calling
-> the IMA hook ima_measure_critical_data().
->
-> To enable SELinux data measurement, the following steps are required:
->
->  1, Add "ima_policy=critical_data" to the kernel command line arguments
->     to enable measuring SELinux data at boot time.
->     For example,
->       BOOT_IMAGE=/boot/vmlinuz-5.11.0-rc3+ root=UUID=fd643309-a5d2-4ed3-b10d-3c579a5fab2f ro nomodeset security=selinux ima_policy=critical_data
->
->  2, Add the following rule to /etc/ima/ima-policy
->        measure func=CRITICAL_DATA label=selinux
->
-> Sample measurement of SELinux state and policy capabilities:
->
-> 10 2122...65d8 ima-buf sha256:13c2...1292 selinux-state 696e...303b
->
-> Execute the following command to extract the measured data
-> from the IMA's runtime measurements list:
->
->   grep "selinux-state" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | tail -1 | cut -d' ' -f 6 | xxd -r -p
->
-> The output should be a list of key-value pairs. For example,
->  initialized=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
->
-> To verify the measurement is consistent with the current SELinux state
-> reported on the system, compare the integer values in the following
-> files with those set in the IMA measurement (using the following commands):
->
->  - cat /sys/fs/selinux/enforce
->  - cat /sys/fs/selinux/checkreqprot
->  - cat /sys/fs/selinux/policy_capabilities/[capability_file]
->
-> Note that the actual verification would be against an expected state
-> and done on a separate system (likely an attestation server) requiring
-> "initialized=1;enforcing=1;checkreqprot=0;"
-> for a secure state and then whatever policy capabilities are actually
-> set in the expected policy (which can be extracted from the policy
-> itself via seinfo, for example).
->
-> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/ima.c         | 87 ++++++++++++++++++++++++++++++++--
->  security/selinux/include/ima.h |  6 +++
->  security/selinux/selinuxfs.c   |  6 +++
->  security/selinux/ss/services.c |  2 +-
->  4 files changed, 96 insertions(+), 5 deletions(-)
+> As many of you are aware, normally with the close of the merge window
+> and the release of -rc1 I typically reset the selinux/next and
+> audit/next branches to Linus' -rc1 tag.  However, as you may have
+> heard already, there is a nasty problem with the early v5.12 kernels,
+> including -rc1, which could result in some fairly serious fs
+> corruption (see the LWN article below).  With that in mind, I'm not
+> going to reset the selinux/next and audit/next branches for this
+> development cycle ...
 
-This draft seems fine to me, but there is a small logistical blocker
-at the moment which means I can't merge this until -rc2 is released,
-which likely means this coming Monday.  The problem is that this patch
-relies on code that went upstream via in the last merge window via the
-IMA tree, not the SELinux tree; normally that wouldn't be a problem as
-I typically rebase the selinux/next to Linus' -rc1 tag once the merge
-window is closed, but in this particular case the -rc1 tag is
-dangerously broken for some system configurations (the tag has since
-been renamed) so I'm not rebasing onto -rc1 this time around.
+That idea was spectacularly short lived :/  Assuming -rc2 fixes the
+swapfile bug, I'll plan on rebasing both -next branches to -rc2 early
+next week.  This should have zero impact on the audit tree (audit/next
+is current empty), and a minimal impact on the selinux/next branch as
+we only have one small patch in there at the moment.
 
-Assuming that -rc2 fixes the swapfile/fs-corruption problem, early
-next week I'll rebase selinux/next to -rc2 and merge this patch.
-However, if the swapfile bug continues past -rc2 we can consider
-merging this via the IMA tree, but I'd assume not do that if possible
-due to merge conflict and testing reasons.
+If for some reason this causes anyone a problem due to merge
+conflicts, you can still submit your patches (assuming they apply
+cleanly to the stable-5.12 branch) and I'll take care of the conflict.
+
+Thanks for your understanding.
 
 -- 
 paul moore
