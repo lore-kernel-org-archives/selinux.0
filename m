@@ -2,36 +2,39 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF670C43381
-	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 03:06:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8932C433E6
+	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 03:09:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A6F7064FF7
-	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 03:06:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF36B64DA3
+	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 03:09:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230490AbhCJDGG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Mar 2021 22:06:06 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:60864 "EHLO
+        id S232108AbhCJDJT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Mar 2021 22:09:19 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:60910 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232119AbhCJDF7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Mar 2021 22:05:59 -0500
+        with ESMTP id S231894AbhCJDJH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Mar 2021 22:09:07 -0500
 Received: from [50.53.41.238] (helo=[192.168.192.153])
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <john.johansen@canonical.com>)
-        id 1lJpAb-00021B-3G; Wed, 10 Mar 2021 03:05:57 +0000
-Subject: Re: [RFC PATCH 2/4] selinux: clarify task subjective and objective
- credentials
-To:     Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        id 1lJpDe-0002FI-DM; Wed, 10 Mar 2021 03:09:06 +0000
+Subject: Re: [RFC PATCH 1/4] lsm: separate security_task_getsecid() into
+ subjective and objective variants
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com
 References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377735153.87807.7492842242100187888.stgit@sifl>
+ <161377734508.87807.8537642254664217815.stgit@sifl>
+ <b2f85cf5-a110-68ae-47b6-276dd8062be7@canonical.com>
+ <CAHC9VhTn33cSX=n7a6kr-5=TKeEx8iRbTY8-2XGxG0YC+GhvaA@mail.gmail.com>
+ <CAHC9VhRVxFiMTzrdtNzKy=1KN10JXU=JC-rohTNH1bGSNj9K_w@mail.gmail.com>
 From:   John Johansen <john.johansen@canonical.com>
 Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgptUUlOQkU1bXJQb0JFQURB
@@ -108,12 +111,12 @@ Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  MDNwYVBDakpoN1hxOXZBenlkTjVVL1VBPT0KPTZQL2IKLS0tLS1FTkQgUEdQIFBVQkxJQyBL
  RVkgQkxPQ0stLS0tLQo=
 Organization: Canonical
-Message-ID: <b27662cf-4bcf-ec23-92f5-49a5b2f8c119@canonical.com>
-Date:   Tue, 9 Mar 2021 19:05:54 -0800
+Message-ID: <a03d801e-75cf-a964-ad90-eb620998cd9a@canonical.com>
+Date:   Tue, 9 Mar 2021 19:09:04 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <161377735153.87807.7492842242100187888.stgit@sifl>
+In-Reply-To: <CAHC9VhRVxFiMTzrdtNzKy=1KN10JXU=JC-rohTNH1bGSNj9K_w@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -121,295 +124,57 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/19/21 3:29 PM, Paul Moore wrote:
-> SELinux has a function, task_sid(), which returns the task's
-> objective credentials, but unfortunately is used in a few places
-> where the subjective task credentials should be used.  Most notably
-> in the new security_task_getsecid_subj() LSM hook.
+On 3/9/21 4:28 PM, Paul Moore wrote:
+> On Wed, Mar 3, 2021 at 7:44 PM Paul Moore <paul@paul-moore.com> wrote:
+>> On Sun, Feb 21, 2021 at 7:51 AM John Johansen
+>> <john.johansen@canonical.com> wrote:
+>>> On 2/19/21 3:29 PM, Paul Moore wrote:
+>>>> Of the three LSMs that implement the security_task_getsecid() LSM
+>>>> hook, all three LSMs provide the task's objective security
+>>>> credentials.  This turns out to be unfortunate as most of the hook's
+>>>> callers seem to expect the task's subjective credentials, although
+>>>> a small handful of callers do correctly expect the objective
+>>>> credentials.
+>>>>
+>>>> This patch is the first step towards fixing the problem: it splits
+>>>> the existing security_task_getsecid() hook into two variants, one
+>>>> for the subjective creds, one for the objective creds.
+>>>>
+>>>>   void security_task_getsecid_subj(struct task_struct *p,
+>>>>                                  u32 *secid);
+>>>>   void security_task_getsecid_obj(struct task_struct *p,
+>>>>                                 u32 *secid);
+>>>>
+>>>> While this patch does fix all of the callers to use the correct
+>>>> variant, in order to keep this patch focused on the callers and to
+>>>> ease review, the LSMs continue to use the same implementation for
+>>>> both hooks.  The net effect is that this patch should not change
+>>>> the behavior of the kernel in any way, it will be up to the latter
+>>>> LSM specific patches in this series to change the hook
+>>>> implementations and return the correct credentials.
+>>>>
+>>>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+>>>
+>>> So far this looks good. I want to take another stab at it and give
+>>> it some testing
+>>
+>> Checking in as I know you said you needed to fix/release the AppArmor
+>> patch in this series ... is this patch still looking okay to you?  If
+>> so, can I get an ACK at least on this patch?
 > 
-> This patch fixes this and attempts to make things more obvious by
-> introducing a new function, task_sid_subj(), and renaming the
-> existing task_sid() function to task_sid_obj().
+> Hi John,
 > 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-
-I have a couple of questions below but the rest looks good
-
-> ---
->  security/selinux/hooks.c |   85 +++++++++++++++++++++++++++-------------------
->  1 file changed, 49 insertions(+), 36 deletions(-)
+> Any objections if I merge the LSM, SELinux, and Smack patches into the
+> selinux/next tree so that we can start getting some wider testing?  If
+> I leave out my poor attempt at an AppArmor patch, the current in-tree
+> AppArmor code should behave exactly as it does today with the
+> apparmor_task_getsecid() function handling both the subjective and
+> objective creds.  I can always merge the AppArmor patch later when you
+> have it ready, or you can merge it via your AppArmor tree at a later
+> date.
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index f311541c4972e..1c53000d28e37 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -229,10 +229,23 @@ static inline u32 cred_sid(const struct cred *cred)
->  	return tsec->sid;
->  }
->  
-> +/*
-> + * get the subjective security ID of a task
-> + */
-> +static inline u32 task_sid_subj(const struct task_struct *task)
-> +{
-> +	u32 sid;
-> +
-> +	rcu_read_lock();
-> +	sid = cred_sid(rcu_dereference(task->cred));
-> +	rcu_read_unlock();
-> +	return sid;
-> +}
-> +
->  /*
->   * get the objective security ID of a task
->   */
-> -static inline u32 task_sid(const struct task_struct *task)
-> +static inline u32 task_sid_obj(const struct task_struct *task)
->  {
->  	u32 sid;
->  
-> @@ -2034,11 +2047,8 @@ static inline u32 open_file_to_av(struct file *file)
->  
->  static int selinux_binder_set_context_mgr(struct task_struct *mgr)
->  {
-> -	u32 mysid = current_sid();
-> -	u32 mgrsid = task_sid(mgr);
-> -
->  	return avc_has_perm(&selinux_state,
-> -			    mysid, mgrsid, SECCLASS_BINDER,
-> +			    current_sid(), task_sid_obj(mgr), SECCLASS_BINDER,
->  			    BINDER__SET_CONTEXT_MGR, NULL);
->  }
->  
-> @@ -2046,8 +2056,8 @@ static int selinux_binder_transaction(struct task_struct *from,
->  				      struct task_struct *to)
->  {
->  	u32 mysid = current_sid();
-> -	u32 fromsid = task_sid(from);
-> -	u32 tosid = task_sid(to);
-> +	u32 fromsid = task_sid_subj(from);
 
-fromsid potentially gets used as both the subject and the object the following
-permission checks. It makes sense to use the same cred for both checks but
-what I am not sure about yet is whether its actually safe to use the subject
-sid when the task isn't current.
-
-ie. I am still trying to determine if there is a race here between the transaction
-request and the permission check.
-
-> +	u32 tosid = task_sid_subj(to);
-its not clear to me that using the subj for to is correct
-
->  	int rc;
->  
->  	if (mysid != fromsid) {
-> @@ -2066,11 +2076,9 @@ static int selinux_binder_transaction(struct task_struct *from,
->  static int selinux_binder_transfer_binder(struct task_struct *from,
->  					  struct task_struct *to)
->  {
-> -	u32 fromsid = task_sid(from);
-> -	u32 tosid = task_sid(to);
-> -
->  	return avc_has_perm(&selinux_state,
-> -			    fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
-> +			    task_sid_subj(from), task_sid_obj(to),
-> +			    SECCLASS_BINDER, BINDER__TRANSFER,
->  			    NULL);
->  }
->  
-> @@ -2078,7 +2086,7 @@ static int selinux_binder_transfer_file(struct task_struct *from,
->  					struct task_struct *to,
->  					struct file *file)
->  {
-> -	u32 sid = task_sid(to);
-> +	u32 sid = task_sid_subj(to);
-
-same question about safety here
-
->  	struct file_security_struct *fsec = selinux_file(file);
->  	struct dentry *dentry = file->f_path.dentry;
->  	struct inode_security_struct *isec;
-> @@ -2114,10 +2122,10 @@ static int selinux_binder_transfer_file(struct task_struct *from,
->  }
->  
->  static int selinux_ptrace_access_check(struct task_struct *child,
-> -				     unsigned int mode)
-> +				       unsigned int mode)
->  {
->  	u32 sid = current_sid();
-> -	u32 csid = task_sid(child);
-> +	u32 csid = task_sid_obj(child);
->  
->  	if (mode & PTRACE_MODE_READ)
->  		return avc_has_perm(&selinux_state,
-> @@ -2130,15 +2138,15 @@ static int selinux_ptrace_access_check(struct task_struct *child,
->  static int selinux_ptrace_traceme(struct task_struct *parent)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    task_sid(parent), current_sid(), SECCLASS_PROCESS,
-> -			    PROCESS__PTRACE, NULL);
-> +			    task_sid_subj(parent), task_sid_obj(current),
-> +			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
->  }
->  
->  static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
->  			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(target), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(target), SECCLASS_PROCESS,
->  			    PROCESS__GETCAP, NULL);
->  }
->  
-> @@ -2263,7 +2271,7 @@ static u32 ptrace_parent_sid(void)
->  	rcu_read_lock();
->  	tracer = ptrace_parent(current);
->  	if (tracer)
-> -		sid = task_sid(tracer);
-> +		sid = task_sid_obj(tracer);
->  	rcu_read_unlock();
->  
->  	return sid;
-> @@ -3916,7 +3924,7 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
->  				       struct fown_struct *fown, int signum)
->  {
->  	struct file *file;
-> -	u32 sid = task_sid(tsk);
-> +	u32 sid = task_sid_obj(tsk);
->  	u32 perm;
->  	struct file_security_struct *fsec;
->  
-> @@ -4135,47 +4143,52 @@ static int selinux_kernel_load_data(enum kernel_load_data_id id, bool contents)
->  static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETPGID, NULL);
->  }
->  
->  static int selinux_task_getpgid(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETPGID, NULL);
->  }
->  
->  static int selinux_task_getsid(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETSESSION, NULL);
->  }
->  
-> -static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
-> +static void selinux_task_getsecid_subj(struct task_struct *p, u32 *secid)
-> +{
-> +	*secid = task_sid_subj(p);
-> +}
-> +
-> +static void selinux_task_getsecid_obj(struct task_struct *p, u32 *secid)
->  {
-> -	*secid = task_sid(p);
-> +	*secid = task_sid_obj(p);
->  }
->  
->  static int selinux_task_setnice(struct task_struct *p, int nice)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
->  static int selinux_task_setioprio(struct task_struct *p, int ioprio)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
->  static int selinux_task_getioprio(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETSCHED, NULL);
->  }
->  
-> @@ -4206,7 +4219,7 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
->  	   upon context transitions.  See selinux_bprm_committing_creds. */
->  	if (old_rlim->rlim_max != new_rlim->rlim_max)
->  		return avc_has_perm(&selinux_state,
-> -				    current_sid(), task_sid(p),
-> +				    current_sid(), task_sid_obj(p),
->  				    SECCLASS_PROCESS, PROCESS__SETRLIMIT, NULL);
->  
->  	return 0;
-> @@ -4215,21 +4228,21 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
->  static int selinux_task_setscheduler(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
->  static int selinux_task_getscheduler(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETSCHED, NULL);
->  }
->  
->  static int selinux_task_movememory(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
-> @@ -4248,14 +4261,14 @@ static int selinux_task_kill(struct task_struct *p, struct kernel_siginfo *info,
->  	else
->  		secid = cred_sid(cred);
->  	return avc_has_perm(&selinux_state,
-> -			    secid, task_sid(p), SECCLASS_PROCESS, perm, NULL);
-> +			    secid, task_sid_obj(p), SECCLASS_PROCESS, perm, NULL);
->  }
->  
->  static void selinux_task_to_inode(struct task_struct *p,
->  				  struct inode *inode)
->  {
->  	struct inode_security_struct *isec = selinux_inode(inode);
-> -	u32 sid = task_sid(p);
-> +	u32 sid = task_sid_obj(p);
->  
->  	spin_lock(&isec->lock);
->  	isec->sclass = inode_mode_to_security_class(inode->i_mode);
-> @@ -6148,7 +6161,7 @@ static int selinux_msg_queue_msgrcv(struct kern_ipc_perm *msq, struct msg_msg *m
->  	struct ipc_security_struct *isec;
->  	struct msg_security_struct *msec;
->  	struct common_audit_data ad;
-> -	u32 sid = task_sid(target);
-> +	u32 sid = task_sid_subj(target);
->  	int rc;
->  
->  	isec = selinux_ipc(msq);
-> @@ -7143,8 +7156,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->  	LSM_HOOK_INIT(task_setpgid, selinux_task_setpgid),
->  	LSM_HOOK_INIT(task_getpgid, selinux_task_getpgid),
->  	LSM_HOOK_INIT(task_getsid, selinux_task_getsid),
-> -	LSM_HOOK_INIT(task_getsecid_subj, selinux_task_getsecid),
-> -	LSM_HOOK_INIT(task_getsecid_obj, selinux_task_getsecid),
-> +	LSM_HOOK_INIT(task_getsecid_subj, selinux_task_getsecid_subj),
-> +	LSM_HOOK_INIT(task_getsecid_obj, selinux_task_getsecid_obj),
->  	LSM_HOOK_INIT(task_setnice, selinux_task_setnice),
->  	LSM_HOOK_INIT(task_setioprio, selinux_task_setioprio),
->  	LSM_HOOK_INIT(task_getioprio, selinux_task_getioprio),
-> 
+I have some questions around selinux and binder but I don't have any
+objections to you merging, we can always drop fixes on top if they
+are necessary
 
