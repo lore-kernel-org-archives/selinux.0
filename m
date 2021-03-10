@@ -2,107 +2,128 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C12A3C433E0
-	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 08:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 522D2C433E0
+	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 17:10:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 84ED164FE3
-	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 08:22:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 142CD64F9A
+	for <selinux@archiver.kernel.org>; Wed, 10 Mar 2021 17:10:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbhCJIVd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Mar 2021 03:21:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36126 "EHLO
+        id S231295AbhCJRJt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Mar 2021 12:09:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230397AbhCJIVX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 10 Mar 2021 03:21:23 -0500
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB04C061760
-        for <selinux@vger.kernel.org>; Wed, 10 Mar 2021 00:21:23 -0800 (PST)
-Received: by mail-lj1-x230.google.com with SMTP id t9so24426307ljt.8
-        for <selinux@vger.kernel.org>; Wed, 10 Mar 2021 00:21:23 -0800 (PST)
+        with ESMTP id S230477AbhCJRJV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Mar 2021 12:09:21 -0500
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289AFC061760
+        for <selinux@vger.kernel.org>; Wed, 10 Mar 2021 09:09:21 -0800 (PST)
+Received: by mail-ej1-x62d.google.com with SMTP id jt13so40235501ejb.0
+        for <selinux@vger.kernel.org>; Wed, 10 Mar 2021 09:09:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DphxTuMCEpgHKRaen67zVxU/WlSz40n3RnzWZz5fZ/U=;
-        b=hkB98JNi6GVUaUzi+cDGghcuo8+TkXWgycu1DMSFaMpSwWDIIFX5XFpv1jh22axdAL
-         B+liBAyMhoNbXQStTb4tOpCeZBz9G50U0Olrga54KXKY/HIKAUnn51n93mAf1bXZ84Uj
-         A4W3G1ew+AaUVetM7mAAEDiHNpkoF6XBsV2wr0LFxcE7wsQhicU1wSxEfgEMrkMdmpuh
-         YUNZy5+cx9zgMdBQmxA/nGn5P5zJV6t8iFoGR3oMAbo5HSgsqNLnNaLrv5PxThdeMR4q
-         LpviLjlHJkmvkQYmtE8r3oiYvjrx4x5mQQ9vhp/Jg9QJoXTFKIljR6ZvEi24Jp2vn4/H
-         gcyQ==
+        d=googlemail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=j7gd64LWBMaLmGw5pIPPvP8F6XFOplek8aMkeIHKKRk=;
+        b=MQYCBJD31d5zQGPeUKEUjRresbfNYNylKpwvPiLVu+BTbQ/RFnbZvNJMU70ha7Wiat
+         H08KePINN5dtcSARHwNRM88Y5xKYF++b2Z/2ifGSG56VEhjy52JoIyxK3Ds4lYZHzCA5
+         mkTmH5gd3WbUXGXtlM2YJ6l/EP/mOqlzjIMYP7JyOmfDOdU3w0bEHF/HuQCG5WlrA0Ba
+         aDtljKV7HYf4DYfP4Gd3gcTvGOm6eY+dthLCq3G0wwmfQo7ObrrXaajr5xzbIfV8f1//
+         49Nk7H7rKKfzzlKljCvRv6vaN50U35Je1ljMNrX/Ix8SpLtNRkSwiuS2HaxukkwcKO6H
+         J4eg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DphxTuMCEpgHKRaen67zVxU/WlSz40n3RnzWZz5fZ/U=;
-        b=Mfvp48svN2n3SEoMJUL6SQlvaA4gonWBYbqmTKZ2I1TXjuwp7olhIO/g0j73QkcdXA
-         jCwCrQfKLszo6Hg0thorPD/LgFvVtYRkJMKhSySIeSMGtMW9CLV6721GYuxWO/X1FXlH
-         0LtzGoYz7QN527yzYiA2/xMqoqM8zsY0Uf7kdsK7n+7SzhFNVC9to5Ip9/nXWqbDQ9Wz
-         TBGMbVrmOgAiuxVWhkzEKWE70ZYVWLrXFwijcw0ZtK7a6jGf5JbSZkFqz+FNs6k5A5to
-         OD5EEjpesA8Chrx+iwR9WJt25LUv7AjRaAmIPdbS/WVyMV5MO/BiCFdKwkvIWhRmbAkY
-         sIig==
-X-Gm-Message-State: AOAM533YcRQLRLPQnInM+gK55m9LksRBHYpLkTAijXpz6iVHtI64NnwB
-        vFLK00qkOH1VqcHz9FVciHpw93u62GOFDhWDlnWFow==
-X-Google-Smtp-Source: ABdhPJwhjLj6sQ6ZjEKwaRzEHOKoqu9UHbgNBLzLvQO/EGBmh1THPhSxBLGTtUEArL0AHLOR0qKXzBhP2SjgDDUl1Vw=
-X-Received: by 2002:a2e:7a11:: with SMTP id v17mr1156617ljc.403.1615364481490;
- Wed, 10 Mar 2021 00:21:21 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=j7gd64LWBMaLmGw5pIPPvP8F6XFOplek8aMkeIHKKRk=;
+        b=NPUQumW8fYa+9tO6J57knjyzwAZ2lp4hvNY+viwbAxcx6X7U6jUtyk/90o4l4TASnK
+         ge1snBqKDvFKmA/gNnSlZE2Ulj/+CGsUUVgrBzWyPriQUAXZXiCkOH8Sv6oy6wXz/6zg
+         b+l9sIb4f1pn90oM9e2k6fPDQ01LwsE5MN4i1GpDJB4CRmKLfIoDNgqky1nCHTW19RhC
+         6qGXtKWEpdu8NSdBRgW4P+vmv1LzZJLmMKKoJ7aNur9j3swPpSnY3LIOMoTO56X9V9c+
+         4Lz1XnDjfbm2f4nH0hPmv9eh99wsax11OfP52s4OMVHG6hsFOYCITOj+Z8n8xMLBS7jF
+         vs9w==
+X-Gm-Message-State: AOAM533JX2TM2Dtn4LUbYXwyDBr/xRAfd6C3J9IOt01XDDcwz/0DrKhh
+        EdCJ7b2aPXfyVl9cbttk4uJnZ4h9h8BWUG1dAvQPBF+0OpM=
+X-Google-Smtp-Source: ABdhPJzYLSTQ/tbRcqWid7tXk5gblZ4yPvNV2L4DzMMBimQ/AogVvFyyMhHTUdYhXUPCqmE5aVFPK7POcAe0RqjSOFM=
+X-Received: by 2002:a17:906:2692:: with SMTP id t18mr4628477ejc.16.1615396159865;
+ Wed, 10 Mar 2021 09:09:19 -0800 (PST)
 MIME-Version: 1.0
-References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377734508.87807.8537642254664217815.stgit@sifl> <eda68a4e-f4f5-88c9-e748-1f1831f0266a@namei.org>
- <CAHC9VhRJ-CHMag-dmxDVBp0efQbj7mgGdhs2AjfWFP_kDCGTfw@mail.gmail.com>
- <CABXk95AXH=KHtQFYw6p76BLC-OEBBbxZnL9hA8tiBqdN8Dj6Pg@mail.gmail.com> <CAHC9VhQzNN=_iq_9xLs6k92__bY1WL+8oFqh7kHTY5iRc7xK7Q@mail.gmail.com>
-In-Reply-To: <CAHC9VhQzNN=_iq_9xLs6k92__bY1WL+8oFqh7kHTY5iRc7xK7Q@mail.gmail.com>
-From:   Jeffrey Vander Stoep <jeffv@google.com>
-Date:   Wed, 10 Mar 2021 09:21:10 +0100
-Message-ID: <CABXk95AodFLLH+ay7tF8fUhScBAMUPjbABr3CdK=M50hB0z4sA@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/4] lsm: separate security_task_getsecid() into
- subjective and objective variants
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>,
-        linux-audit@redhat.com, James Morris <jmorris@namei.org>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Wed, 10 Mar 2021 18:09:09 +0100
+Message-ID: <CAJ2a_Dd_tccbWwA_S8nnRvpAVJW8EcrU3t3R7e=McThsx0L13w@mail.gmail.com>
+Subject: Role attributes in traditional language constraints
+To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 5, 2021 at 12:44 AM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Thu, Mar 4, 2021 at 5:04 AM Jeffrey Vander Stoep <jeffv@google.com> wrote:
-> > On Sat, Feb 20, 2021 at 3:45 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Fri, Feb 19, 2021 at 9:57 PM James Morris <jmorris@namei.org> wrote:
-> > > > On Fri, 19 Feb 2021, Paul Moore wrote:
-> > > > > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> > > > > index c119736ca56ac..39d501261108d 100644
-> > > > > --- a/drivers/android/binder.c
-> > > > > +++ b/drivers/android/binder.c
-> > > > > @@ -2700,7 +2700,7 @@ static void binder_transaction(struct binder_proc *proc,
-> > > > >               u32 secid;
-> > > > >               size_t added_size;
-> > > > >
-> > > > > -             security_task_getsecid(proc->tsk, &secid);
-> > > > > +             security_task_getsecid_subj(proc->tsk, &secid);
-> > > > >               ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
-> > > > >               if (ret) {
-> > > > >                       return_error = BR_FAILED_REPLY;
-> > > >
-> > > > Can someone from the Android project confirm this is correct for binder?
-> >
-> > This looks correct to me.
->
-> Thanks for the verification.  Should I assume the SELinux specific
-> binder changes looked okay too?
->
-Yes, those also look good to me.
-> https://lore.kernel.org/selinux/84053ed8-4778-f246-2177-cf5c1b9516a9@canonical.com/T/#m4ae49d4a5a62d600fa3f3b1a5bba2d6611b1051c
->
-> --
-> paul moore
-> www.paul-moore.com
+Hi list,
+
+I am using in my RefPolicy based policy constraints containing role-attribu=
+tes:
+
+    attribute_role unpriv_roles;
+    ...
+    constrain ...
+        r1 !=3D unpriv_role
+
+This worked fine so far and the language specification [1][2] permits
+the usage of type attributes (by using them in the examples) and
+states not differences between `t1 op names` and `r1 op names`.
+
+Today I debugged a crash of seinfo(1) on generated binary policies of mine.
+`seinfo path/to/build/policy --constrain` segfaults at [3], when run
+on a build binary policy.
+These binary policies are generated by the RefPolicy target `make
+validate`, running either semodule_link(8) and semodule_expand(8)
+(modular build) or checkpolicy(8) (monolithic build).
+
+Running `seinfo --constrain`, using the currently loaded kernel
+policy, works fine and shows the expanded roles in the according
+constrain (e.g. `r1 !=3D { user_r guest_r ... }`).
+
+On further testing I noticed that on Fedora 34 with libsepol 3.2
+building such policies fails entirely:
+
+    ...
+    Validating policy file contexts.
+    libsepol.validate_constraint_nodes: Invalid constraint expr
+    libsepol.validate_class_datum: Invalid class datum
+    libsepol.validate_datum_arrays: Invalid datum arrays
+    libsepol.validate_policydb: Invalid policydb
+    libsepol.sepol_set_policydb_from_file: can't read binary policy: Succes=
+s
+    Error reading policy tmp/policy.bin: Success
+    make: *** [Rules.modular:215: validate] Error 255
+
+This seems to be caused by [4].
+
+From my point of view this is a regression:
+Role-attributes in constraints worked prior libsepol 3.2, work in CIL
+and are not explicitly disallowed by the language specification.
+`validate_constraint_nodes()`[5] should accept attribute_role identifiers.
+
+To fix the original seinfo crash, I'd like to ask whether setools
+should accept role-attribute identifiers in compiled binary policies,
+or if semodule_expand(8) and checkpolicy(8) should expand them at
+build-time (currently they are expanded at load-time (load_policy(8)).
+
+Best regards,
+    Christian G=C3=B6ttsche
+
+
+[1]: https://selinuxproject.org/page/ConstraintStatements
+[2]: https://github.com/SELinuxProject/selinux-notebook/blob/main/src/const=
+raint_statements.md#constraint-statements
+[3]: https://github.com/SELinuxProject/setools/blob/master/setools/policyre=
+p/role.pxi#L34
+[4]: https://github.com/SELinuxProject/selinux/commit/0861c659b59cb106bad1b=
+1d0c9f511a7140a1023
+[5]: https://github.com/SELinuxProject/selinux/blob/master/libsepol/src/pol=
+icydb_validate.c#L170
