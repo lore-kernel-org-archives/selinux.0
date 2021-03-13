@@ -2,143 +2,225 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0621C433DB
-	for <selinux@archiver.kernel.org>; Fri, 12 Mar 2021 22:35:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13E6FC4332E
+	for <selinux@archiver.kernel.org>; Sat, 13 Mar 2021 00:06:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 672E364F6A
-	for <selinux@archiver.kernel.org>; Fri, 12 Mar 2021 22:35:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D438964FA7
+	for <selinux@archiver.kernel.org>; Sat, 13 Mar 2021 00:06:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235590AbhCLWfS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Mar 2021 17:35:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51304 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235585AbhCLWfE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Mar 2021 17:35:04 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE012C061574;
-        Fri, 12 Mar 2021 14:35:03 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id mm21so56228445ejb.12;
-        Fri, 12 Mar 2021 14:35:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XWpIBx1l9eSZdSwA4taVa5NCupfCLbCXfPtWL5IZLkU=;
-        b=H/uOGulMLF9lC+6AmvRl8HfVRAJIZoI+nJpcEA6Qxcex/nog4hUkkIqY8jd/AuQH25
-         RMSsG6xzDdSw/maF9GCVEc12UthelIpUj3WY0xI5X8u5JjizWidTmzWPQsSMXEJX8dZi
-         gmuX7dk1Ks32wmkHLPBoPLIAk9IBuYZc4iNqmn7P/hiYu0+7v/ilkEBL9BNjcJaLB3eR
-         VJ9UwR1gJ33ii05u8GaHuanai3WCUBkdz+d2IyZEjCu2tUEkSpti/cKkcgcKB5v05z2A
-         oO+aeLSPK5FRyWVtj0v49RXOKn/buSv9+JpUN0HnnUHjv+P2hujYz31qhkggkUVj/6us
-         E5rQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XWpIBx1l9eSZdSwA4taVa5NCupfCLbCXfPtWL5IZLkU=;
-        b=mI1cwLaU6LLsVI1H3slvJP+peSi1QbMij0PIAtC2oQgT3euANE/UFzSHSXf6Fl59Vi
-         MY5m3PDgNe2bsVf5PWhVoLGYitflLcpMJ8AZ0MJaGnzPDfSgeIYTPiZippHRD7qukDy3
-         0PATIutAxufh5AjZ/zqUSxycax108f5obkaV7bUI3eYCGg6rRvmn5wi3FJLdpMSPoJqT
-         Vor9pk5012u/tvqR2e7mYoMS3cHU27Vj9C21yUZvQ9BjMHkqGSIfFFZzMp2u4cUT9OyC
-         o//ApES4TSNW4pxyS8WuCwMQag9DJnNR3YOOQ49JrvjIDHydBKtBhKZnEdRCiBQ+ugyK
-         /YmA==
-X-Gm-Message-State: AOAM530Hja/MW5XKCJ72IG/xWpBlAEyDsxQZ6eTf7vYp4Wiysb2uHcVs
-        ySdbQ2q2Wh3jgX61SxWQYzYLRlDZXNiKz3AdR73zb23D
-X-Google-Smtp-Source: ABdhPJy17V0HTw4HcJfBA2lUUw2Z9yxw0+4VblM4Gn8m2qFT3INS8U0nmvAjhGpuxnJ14jdpOwwvOIfyq2dv2awnaJ4=
-X-Received: by 2002:a17:906:18aa:: with SMTP id c10mr10993588ejf.248.1615588502425;
- Fri, 12 Mar 2021 14:35:02 -0800 (PST)
-MIME-Version: 1.0
-References: <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
- <20210227033755.24460-1-olga.kornievskaia@gmail.com> <CAFX2Jfk--KwkAss1gqTPnQt-bKvUUapNdHbuicu=m+jOtjrMyQ@mail.gmail.com>
- <f8f5323c-cdfd-92e8-b359-43caaf9d7490@schaufler-ca.com> <CAHC9VhR=+uwN8U17JhYWKcXSc9=ExCrG4O9-y+DPJg6xZ=WoYA@mail.gmail.com>
- <CAFX2JfnT49o-CkaAE3=c0KW9SDS1U+scP0RD++nmWwyKoBDWkA@mail.gmail.com> <CAHC9VhQNp-GQ6SMABNdN00RcDz30Os5SK217W-5swS8quakxPA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQNp-GQ6SMABNdN00RcDz30Os5SK217W-5swS8quakxPA@mail.gmail.com>
-From:   Olga Kornievskaia <olga.kornievskaia@gmail.com>
-Date:   Fri, 12 Mar 2021 17:34:51 -0500
-Message-ID: <CAN-5tyG95bL8vbkG5B9OmAAXremJ-X5z09f+0ekLyigzibsZ5A@mail.gmail.com>
-Subject: Re: [PATCH v4 1/3] [security] Add new hook to compare new mount to an
- existing mount
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Anna Schumaker <anna.schumaker@netapp.com>,
+        id S235928AbhCMAF6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Mar 2021 19:05:58 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38491 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235922AbhCMAFm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Mar 2021 19:05:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1615593941;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mVXvmcYP1sSR9GWfD7PGzVWbpYUCA5Ac+5UF3mw/8Ks=;
+        b=en25UQwrJkeJku5zlYHghg+cRQDUgKlT1EQkPYv59oW0lRnGkTBYPO1lZ3gRyLAzfLRi+Y
+        TEVLWuy5mZh/vAgjSD8xBHPycXYa1eN/2EFxKpUmEXOazpYI8Gu0V/T+uOJfw3LVcsEEiB
+        dbsTJ7+c2MT61fH/gnBqBNHNeUtxGfQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-488-GopGBo6-M_m5rNeEHuJOdg-1; Fri, 12 Mar 2021 19:05:39 -0500
+X-MC-Unique: GopGBo6-M_m5rNeEHuJOdg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1783939382;
+        Sat, 13 Mar 2021 00:05:34 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-2.rdu2.redhat.com [10.10.114.2])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B94811F065;
+        Sat, 13 Mar 2021 00:05:29 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 49B3622054F; Fri, 12 Mar 2021 19:05:29 -0500 (EST)
+Date:   Fri, 12 Mar 2021 19:05:29 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Arnd Bergmann <arnd@arndb.de>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Geoffrey Thomas <geofft@ldpreload.com>,
+        Mrunal Patel <mpatel@redhat.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
+        Tycho Andersen <tycho@tycho.ws>,
+        David Howells <dhowells@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
+        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
+        Kees Cook <keescook@chromium.org>,
+        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6 02/40] fs: add id translation helpers
+Message-ID: <20210313000529.GA181317@redhat.com>
+References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
+ <20210121131959.646623-3-christian.brauner@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210121131959.646623-3-christian.brauner@ubuntu.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 12, 2021 at 4:55 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Fri, Mar 12, 2021 at 10:45 AM Anna Schumaker
-> <anna.schumaker@netapp.com> wrote:
-> > On Thu, Mar 4, 2021 at 8:34 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Tue, Mar 2, 2021 at 10:53 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > On 3/2/2021 10:20 AM, Anna Schumaker wrote:
-> > > > > Hi Casey,
-> > > > >
-> > > > > On Fri, Feb 26, 2021 at 10:40 PM Olga Kornievskaia
-> > > > > <olga.kornievskaia@gmail.com> wrote:
-> > > > >> From: Olga Kornievskaia <kolga@netapp.com>
-> > > > >>
-> > > > >> Add a new hook that takes an existing super block and a new mount
-> > > > >> with new options and determines if new options confict with an
-> > > > >> existing mount or not.
-> > > > >>
-> > > > >> A filesystem can use this new hook to determine if it can share
-> > > > >> the an existing superblock with a new superblock for the new mount.
-> > > > >>
-> > > > >> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-> > > > > Do you have any other thoughts on this patch? I'm also wondering how
-> > > > > you want to handle sending it upstream.
-> > > >
-> > > > James Morris is the maintainer for the security sub-system,
-> > > > so you'll want to send this through him. He will want you to
-> > > > have an ACK from Paul Moore, who is the SELinux maintainer.
-> > >
-> > > In the past I've pulled patches such as this (new LSM hook, with only
-> > > a SELinux implementation of the new hook) in via the selinux/next tree
-> > > after the other LSMs have ACK'd the new hook.  This helps limit merge
-> > > problems with other SELinux changes and allows us (the SELinux folks)
-> > > to include it in the ongoing testing that we do during the -rcX
-> > > releases.
-> > >
-> > > So Anna, if you or anyone else on the NFS side of the house want to
-> > > add your ACKs/REVIEWs/etc. please do so as I don't like merging
-> > > patches that cross subsystem boundaries without having all the
-> > > associated ACKs.  Casey, James, and other LSM folks please do the
-> > > same.
-> >
-> > Sure:
-> > Acked-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-> >
-> > Are you also going to take patch 3/3 that uses the new hook, or should
-> > that go through the NFS tree? Patch 2/3 is a cleanup that can go
-> > through the NFS tree.
->
-> Generally when patches are posted as patchsets I would apply the whole
-> patchset assuming they patches were all good, however it does seem
-> like patch 2/3 is not strictly related to the other two?  That said,
-> as long as your ACK applies to all three patches in the patchset I
-> have no problem applying all of them to the selinux/next tree once
-> some of the other LSM maintainers provide their ACKs (while there may
-> only a SELinux implementation of the hook at the moment, we need to
-> make sure the other LSMs are okay with the basic hook concept).
->
-> Also, did the v4 posting only include patch 1/3?  I see v3 postings
-> for the other two patches, but the only v4 patch I see is 1/3 ... ?
+On Thu, Jan 21, 2021 at 02:19:21PM +0100, Christian Brauner wrote:
+> Add simple helpers to make it easy to map kuids into and from idmapped
+> mounts. We provide simple wrappers that filesystems can use to e.g.
+> initialize inodes similar to i_{uid,gid}_read() and i_{uid,gid}_write().
+> Accessing an inode through an idmapped mount maps the i_uid and i_gid of
+> the inode to the mount's user namespace. If the fsids are used to
+> initialize inodes they are unmapped according to the mount's user
+> namespace. Passing the initial user namespace to these helpers makes
+> them a nop and so any non-idmapped paths will not be impacted.
+> 
+> Link: https://lore.kernel.org/r/20210112220124.837960-9-christian.brauner@ubuntu.com
+> Cc: David Howells <dhowells@redhat.com>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: linux-fsdevel@vger.kernel.org
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> ---
+> /* v2 */
+> - Christoph Hellwig <hch@lst.de>:
+>   - Get rid of the ifdefs and the config option that hid idmapped mounts.
+> 
+> /* v3 */
+> unchanged
+> 
+> /* v4 */
+> - Serge Hallyn <serge@hallyn.com>:
+>   - Use "mnt_userns" to refer to a vfsmount's userns everywhere to make
+>     terminology consistent.
+> 
+> /* v5 */
+> unchanged
+> base-commit: 7c53f6b671f4aba70ff15e1b05148b10d58c2837
+> 
+> /* v6 */
+> unchanged
+> base-commit: 19c329f6808995b142b3966301f217c831e7cf31
+> ---
+>  include/linux/fs.h | 47 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 47 insertions(+)
+> 
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index fd0b80e6361d..3165998e2294 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -40,6 +40,7 @@
+>  #include <linux/build_bug.h>
+>  #include <linux/stddef.h>
+>  #include <linux/mount.h>
+> +#include <linux/cred.h>
+>  
+>  #include <asm/byteorder.h>
+>  #include <uapi/linux/fs.h>
+> @@ -1573,6 +1574,52 @@ static inline void i_gid_write(struct inode *inode, gid_t gid)
+>  	inode->i_gid = make_kgid(inode->i_sb->s_user_ns, gid);
+>  }
+>  
+> +static inline kuid_t kuid_into_mnt(struct user_namespace *mnt_userns,
+> +				   kuid_t kuid)
+> +{
+> +	return make_kuid(mnt_userns, __kuid_val(kuid));
+> +}
+> +
 
-I didn't not repost patches that didn't change.
+Hi Christian,
 
->
-> --
-> paul moore
-> www.paul-moore.com
+I am having little trouble w.r.t function names and trying to figure
+out whether they are mapping id down or up.
+
+For example, kuid_into_mnt() ultimately calls map_id_down(). That is,
+id visible inside user namespace is mapped to host
+(if observer is in init_user_ns, IIUC).
+
+But fsuid_into_mnt() ultimately calls map_id_up(). That's take a kuid
+and map it into the user_namespace.
+
+So both the helpers end with into_mnt() but one maps id down and
+other maps id up. I found this confusing and was wondering how
+should I visualize it. So thought of asking you.
+
+Is this intentional or can naming be improved so that *_into_mnt()
+means one thing (Either map_id_up() or map_id_down()). And vice-a-versa
+for *_from_mnt().
+
+Thanks
+Vivek
+
+> +static inline kgid_t kgid_into_mnt(struct user_namespace *mnt_userns,
+> +				   kgid_t kgid)
+> +{
+> +	return make_kgid(mnt_userns, __kgid_val(kgid));
+> +}
+> +
+> +static inline kuid_t i_uid_into_mnt(struct user_namespace *mnt_userns,
+> +				    const struct inode *inode)
+> +{
+> +	return kuid_into_mnt(mnt_userns, inode->i_uid);
+> +}
+> +
+> +static inline kgid_t i_gid_into_mnt(struct user_namespace *mnt_userns,
+> +				    const struct inode *inode)
+> +{
+> +	return kgid_into_mnt(mnt_userns, inode->i_gid);
+> +}
+> +
+> +static inline kuid_t kuid_from_mnt(struct user_namespace *mnt_userns,
+> +				   kuid_t kuid)
+> +{
+> +	return KUIDT_INIT(from_kuid(mnt_userns, kuid));
+> +}
+> +
+> +static inline kgid_t kgid_from_mnt(struct user_namespace *mnt_userns,
+> +				   kgid_t kgid)
+> +{
+> +	return KGIDT_INIT(from_kgid(mnt_userns, kgid));
+> +}
+> +
+> +static inline kuid_t fsuid_into_mnt(struct user_namespace *mnt_userns)
+> +{
+> +	return kuid_from_mnt(mnt_userns, current_fsuid());
+> +}
+> +
+> +static inline kgid_t fsgid_into_mnt(struct user_namespace *mnt_userns)
+> +{
+> +	return kgid_from_mnt(mnt_userns, current_fsgid());
+> +}
+> +
+>  extern struct timespec64 current_time(struct inode *inode);
+>  
+>  /*
+> -- 
+> 2.30.0
+> 
+
