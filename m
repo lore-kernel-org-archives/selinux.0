@@ -7,117 +7,139 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5935C433DB
-	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 19:45:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58654C433DB
+	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 19:55:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A79164D9C
-	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 19:45:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 21BF264E64
+	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 19:55:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233966AbhCNTor (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 14 Mar 2021 15:44:47 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:40469 "EHLO
+        id S233369AbhCNTyh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 14 Mar 2021 15:54:37 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:55082 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233641AbhCNTo0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 14 Mar 2021 15:44:26 -0400
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+        with ESMTP id S229870AbhCNTyN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 14 Mar 2021 15:54:13 -0400
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 9F734564671
-        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 20:44:23 +0100 (CET)
-Received: by mail-pj1-f48.google.com with SMTP id s21so7653000pjq.1
-        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 12:44:23 -0700 (PDT)
-X-Gm-Message-State: AOAM532IVyjFFxCNKsoEi8yLs6gPOR9F7jEW2pwZ7Qff60H5OlH/XyYX
-        sbLjJz22nkILSkh8JVxLs0mvCroBqyR9F48/khM=
-X-Google-Smtp-Source: ABdhPJxYmtYlDBCfxJL/Zv2lnkWrEYhFaq9TFaB14I5OHDQGxrFu7b1GaHvvawl/iqa7MShL3FatFKcNlpwy2T7f0cg=
-X-Received: by 2002:a17:90a:4d81:: with SMTP id m1mr1172273pjh.143.1615751062257;
- Sun, 14 Mar 2021 12:44:22 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 522AD564C62
+        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 20:54:05 +0100 (CET)
+Received: by mail-pj1-f45.google.com with SMTP id q2-20020a17090a2e02b02900bee668844dso13214688pjd.3
+        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 12:54:05 -0700 (PDT)
+X-Gm-Message-State: AOAM532PB1Lc5rWzPEJchx3aEiDGaaxr+zjM8glXEkBa/LZ+J9MEVFlb
+        IPaqFFDn9GvponWdEZwezqsGmNkhNaQ03uA6x5Q=
+X-Google-Smtp-Source: ABdhPJxNcmATuKZxpeb5T54G5YdOObGXeAOwzCWtO4ajaKswwn05KxZGxhGRKudGXhFPC7UTCf7GfoFyz+X8tmPT13U=
+X-Received: by 2002:a17:90a:4d81:: with SMTP id m1mr1194381pjh.143.1615751644069;
+ Sun, 14 Mar 2021 12:54:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210309213640.120117-1-jwcart2@gmail.com>
-In-Reply-To: <20210309213640.120117-1-jwcart2@gmail.com>
+References: <20210311154105.195494-1-jwcart2@gmail.com> <20210311154105.195494-2-jwcart2@gmail.com>
+In-Reply-To: <20210311154105.195494-2-jwcart2@gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 14 Mar 2021 20:44:11 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=nXt-xmT040Am4CUTqNMVd4vZYb657L6eyYOpt2WzsQ8Q@mail.gmail.com>
-Message-ID: <CAJfZ7=nXt-xmT040Am4CUTqNMVd4vZYb657L6eyYOpt2WzsQ8Q@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Properly handle types associated to role attributes
+Date:   Sun, 14 Mar 2021 20:53:53 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=k3=1rRbq2us2z+fOtQD1==7MVG9RqprovXYn=NSWuJAA@mail.gmail.com>
+Message-ID: <CAJfZ7=k3=1rRbq2us2z+fOtQD1==7MVG9RqprovXYn=NSWuJAA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libsepol: Check kernel to CIL and Conf functions for
+ supported versions
 To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar 14 20:44:24 2021 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar 14 20:54:05 2021 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 9, 2021 at 10:37 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Mar 11, 2021 at 4:41 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> Types associated to role attributes in optional blocks are not
-> associated with the roles that have that attribute. The problem
-> is that role_fix_callback is called before the avrule_decls are
-> walked.
+> For policy versions between 20 and 23, attributes exist in the
+> policy, but only in the type_attr_map. This means that there are
+> gaps in both the type_val_to_struct and p_type_val_to_name arrays
+> and policy rules can refer to those gaps which can lead to NULL
+> dereferences when using sepol_kernel_policydb_to_conf() and
+> sepol_kernel_policydb_to_cil().
 >
-> Example/
+> This can be seen with the following policy:
 >   class CLASS1
->   sid kernel
+>   sid SID1
 >   class CLASS1 { PERM1 }
+>   attribute TYPE_ATTR1;
 >   type TYPE1;
->   type TYPE1A;
->   allow TYPE1 self : CLASS1 PERM1;
->   attribute_role ROLE_ATTR1A;
+>   typeattribute TYPE1 TYPE_ATTR1;
+>   allow TYPE_ATTR1 self : CLASS1 PERM1;
 >   role ROLE1;
->   role ROLE1A;
->   roleattribute ROLE1A ROLE_ATTR1A;
 >   role ROLE1 types TYPE1;
->   optional {
->     require {
->       class CLASS1 PERM1;
->     }
->     role ROLE_ATTR1A types TYPE1A;
->   }
 >   user USER1 roles ROLE1;
->   sid kernel USER1:ROLE1:TYPE1
+>   sid SID1 USER1:ROLE1:TYPE1
 >
-> In this example ROLE1A will not have TYPE1A associated to it.
+> Compile the policy:
+>   checkpolicy -c 23 -o policy.bin policy.conf
+> Converting back to a policy.conf causes a segfault:
+>   checkpolicy -F -b -o policy.bin.conf policy.bin
 >
-> Call role_fix_callback() after the avrule_decls are walked.
+> Have both sepol_kernel_policydb_to_conf() and
+> sepol_kernel_policydb_to_cil() exit with an error if the kernel
+> policy version is between 20 and 23.
 >
 > Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+For this patch: Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Thanks!
+(for the first one, I reported a regression in "checkpolicy -V")
+
+Thanks,
 Nicolas
 
 > ---
->  libsepol/src/expand.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+>  libsepol/src/kernel_to_cil.c  | 12 ++++++++++++
+>  libsepol/src/kernel_to_conf.c | 12 ++++++++++++
+>  2 files changed, 24 insertions(+)
 >
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index eac7e450..1ee3e48f 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -3017,10 +3017,6 @@ int expand_module(sepol_handle_t * handle,
->         if (hashtab_map(state.base->p_roles.table,
->                         role_bounds_copy_callback, &state))
->                 goto cleanup;
-> -       /* escalate the type_set_t in a role attribute to all regular roles
-> -        * that belongs to it. */
-> -       if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
-> -               goto cleanup;
->
->         /* copy MLS's sensitivity level and categories - this needs to be done
->          * before expanding users (they need to be indexed too) */
-> @@ -3086,6 +3082,11 @@ int expand_module(sepol_handle_t * handle,
->                 goto cleanup;
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index a146ac51..edfebeaf 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -3164,6 +3164,18 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
+>                 goto exit;
 >         }
 >
-> +       /* escalate the type_set_t in a role attribute to all regular roles
-> +        * that belongs to it. */
-> +       if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
-> +               goto cleanup;
+> +       if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
+> +               /*
+> +                * For policy versions between 20 and 23, attributes exist in the policy,
+> +                * but only in the type_attr_map. This means that there are gaps in both
+> +                * the type_val_to_struct and p_type_val_to_name arrays and policy rules
+> +                * can refer to those gaps.
+> +                */
+> +               sepol_log_err("Writing policy versions between 20 and 23 as CIL is not supported");
+> +               rc = -1;
+> +               goto exit;
+> +       }
 > +
->         if (copy_and_expand_avrule_block(&state) < 0) {
->                 ERR(handle, "Error during expand");
->                 goto cleanup;
+>         rc = constraint_rules_to_strs(pdb, mls_constraints, non_mls_constraints);
+>         if (rc != 0) {
+>                 goto exit;
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+> index a22f196d..ea58a026 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -3041,6 +3041,18 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
+>                 goto exit;
+>         }
+>
+> +       if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
+> +               /*
+> +                * For policy versions between 20 and 23, attributes exist in the policy,
+> +                * but only in the type_attr_map. This means that there are gaps in both
+> +                * the type_val_to_struct and p_type_val_to_name arrays and policy rules
+> +                * can refer to those gaps.
+> +                */
+> +               sepol_log_err("Writing policy versions between 20 and 23 as a policy.conf is not supported");
+> +               rc = -1;
+> +               goto exit;
+> +       }
+> +
+>         rc = constraint_rules_to_strs(pdb, mls_constraints, non_mls_constraints);
+>         if (rc != 0) {
+>                 goto exit;
 > --
 > 2.26.2
 >
