@@ -2,225 +2,159 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13E6FC4332E
-	for <selinux@archiver.kernel.org>; Sat, 13 Mar 2021 00:06:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B980BC433DB
+	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 11:28:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D438964FA7
-	for <selinux@archiver.kernel.org>; Sat, 13 Mar 2021 00:06:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A6D664E58
+	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 11:28:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235928AbhCMAF6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Mar 2021 19:05:58 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38491 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235922AbhCMAFm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Mar 2021 19:05:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615593941;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mVXvmcYP1sSR9GWfD7PGzVWbpYUCA5Ac+5UF3mw/8Ks=;
-        b=en25UQwrJkeJku5zlYHghg+cRQDUgKlT1EQkPYv59oW0lRnGkTBYPO1lZ3gRyLAzfLRi+Y
-        TEVLWuy5mZh/vAgjSD8xBHPycXYa1eN/2EFxKpUmEXOazpYI8Gu0V/T+uOJfw3LVcsEEiB
-        dbsTJ7+c2MT61fH/gnBqBNHNeUtxGfQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-488-GopGBo6-M_m5rNeEHuJOdg-1; Fri, 12 Mar 2021 19:05:39 -0500
-X-MC-Unique: GopGBo6-M_m5rNeEHuJOdg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S235029AbhCNL2D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 14 Mar 2021 07:28:03 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:58315 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234904AbhCNL2C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 14 Mar 2021 07:28:02 -0400
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1783939382;
-        Sat, 13 Mar 2021 00:05:34 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-114-2.rdu2.redhat.com [10.10.114.2])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B94811F065;
-        Sat, 13 Mar 2021 00:05:29 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 49B3622054F; Fri, 12 Mar 2021 19:05:29 -0500 (EST)
-Date:   Fri, 12 Mar 2021 19:05:29 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Geoffrey Thomas <geofft@ldpreload.com>,
-        Mrunal Patel <mpatel@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, Alban Crequy <alban@kinvolk.io>,
-        Tycho Andersen <tycho@tycho.ws>,
-        David Howells <dhowells@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, smbarber@chromium.org,
-        Phil Estes <estesp@gmail.com>, Serge Hallyn <serge@hallyn.com>,
-        Kees Cook <keescook@chromium.org>,
-        Todd Kjos <tkjos@google.com>, Paul Moore <paul@paul-moore.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v6 02/40] fs: add id translation helpers
-Message-ID: <20210313000529.GA181317@redhat.com>
-References: <20210121131959.646623-1-christian.brauner@ubuntu.com>
- <20210121131959.646623-3-christian.brauner@ubuntu.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id C22C7564DC5
+        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 12:27:53 +0100 (CET)
+Received: by mail-pg1-f169.google.com with SMTP id n9so17817576pgi.7
+        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 04:27:53 -0700 (PDT)
+X-Gm-Message-State: AOAM531bhrKyRbCmuK1qRJrtaulIalslOivZqo087VNvODMOv1ahQUDD
+        +p59Z4H8WFej85Vicyk+dIZeV73MwndEAcrbL6s=
+X-Google-Smtp-Source: ABdhPJzr7TsfK373oC7M4KBTE50A1HwoFqVHX8ZiVFwxZ8i5j56vfh/fDvzgRUkt0urVsEGh6XYzi5EiTJr7sP5nWBc=
+X-Received: by 2002:a63:494b:: with SMTP id y11mr18777852pgk.99.1615721272453;
+ Sun, 14 Mar 2021 04:27:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210121131959.646623-3-christian.brauner@ubuntu.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+References: <20210311154105.195494-1-jwcart2@gmail.com>
+In-Reply-To: <20210311154105.195494-1-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 14 Mar 2021 12:27:41 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==b4MYBKtAHL-M-YdU5Pk+SbgVad-YN6UZBxi6cvV=Mcg@mail.gmail.com>
+Message-ID: <CAJfZ7==b4MYBKtAHL-M-YdU5Pk+SbgVad-YN6UZBxi6cvV=Mcg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] checkpolicy: Do not automatically upgrade when using
+ "-b" flag
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar 14 12:27:54 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 21, 2021 at 02:19:21PM +0100, Christian Brauner wrote:
-> Add simple helpers to make it easy to map kuids into and from idmapped
-> mounts. We provide simple wrappers that filesystems can use to e.g.
-> initialize inodes similar to i_{uid,gid}_read() and i_{uid,gid}_write().
-> Accessing an inode through an idmapped mount maps the i_uid and i_gid of
-> the inode to the mount's user namespace. If the fsids are used to
-> initialize inodes they are unmapped according to the mount's user
-> namespace. Passing the initial user namespace to these helpers makes
-> them a nop and so any non-idmapped paths will not be impacted.
-> 
-> Link: https://lore.kernel.org/r/20210112220124.837960-9-christian.brauner@ubuntu.com
-> Cc: David Howells <dhowells@redhat.com>
-> Cc: Al Viro <viro@zeniv.linux.org.uk>
-> Cc: linux-fsdevel@vger.kernel.org
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+On Thu, Mar 11, 2021 at 4:41 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> When reading a binary policy, do not automatically change the version
+> to the max policy version supported by libsepol or, if specified, the
+> value given using the "-c" flag.
+>
+> If the binary policy version is less than or equal to version 23
+> (POLICYDB_VERSION_PERMISSIVE) than do not automatically upgrade the
+> policy and if a policy version is specified by the "-c" flag, only set
+> the binary policy to the specified version if it is lower than the
+> current version.
+>
+> If the binary policy version is greater than version 23 than it should
+> be set to the maximum version supported by libsepol or, if specified,
+> the value given by the "-c" flag.
+>
+> The reason for this change is that policy versions 20
+> (POLICYDB_VERSION_AVTAB) to 23 have a more primitive support for type
+> attributes where the datums are not written out, but they exist in the
+> type_attr_map. This means that when the binary policy is read by
+> libsepol, there will be gaps in the type_val_to_struct and
+> p_type_val_to_name arrays and policy rules can refer to those gaps.
+> Certain libsepol functions like sepol_kernel_policydb_to_conf() and
+> sepol_kernel_policydb_to_cil() do not support this behavior and need
+> to be able to identify these policies. Policies before version 20 do not
+> support attributes at all and can be handled by all libsepol functions.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 > ---
-> /* v2 */
-> - Christoph Hellwig <hch@lst.de>:
->   - Get rid of the ifdefs and the config option that hid idmapped mounts.
-> 
-> /* v3 */
-> unchanged
-> 
-> /* v4 */
-> - Serge Hallyn <serge@hallyn.com>:
->   - Use "mnt_userns" to refer to a vfsmount's userns everywhere to make
->     terminology consistent.
-> 
-> /* v5 */
-> unchanged
-> base-commit: 7c53f6b671f4aba70ff15e1b05148b10d58c2837
-> 
-> /* v6 */
-> unchanged
-> base-commit: 19c329f6808995b142b3966301f217c831e7cf31
-> ---
->  include/linux/fs.h | 47 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 47 insertions(+)
-> 
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index fd0b80e6361d..3165998e2294 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -40,6 +40,7 @@
->  #include <linux/build_bug.h>
->  #include <linux/stddef.h>
->  #include <linux/mount.h>
-> +#include <linux/cred.h>
->  
->  #include <asm/byteorder.h>
->  #include <uapi/linux/fs.h>
-> @@ -1573,6 +1574,52 @@ static inline void i_gid_write(struct inode *inode, gid_t gid)
->  	inode->i_gid = make_kgid(inode->i_sb->s_user_ns, gid);
->  }
->  
-> +static inline kuid_t kuid_into_mnt(struct user_namespace *mnt_userns,
-> +				   kuid_t kuid)
-> +{
-> +	return make_kuid(mnt_userns, __kuid_val(kuid));
-> +}
-> +
+>  checkpolicy/checkpolicy.c | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
+>
+> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+> index 5841c5c4..e7b225b8 100644
+> --- a/checkpolicy/checkpolicy.c
+> +++ b/checkpolicy/checkpolicy.c
+> @@ -106,7 +106,7 @@ static int handle_unknown = SEPOL_DENY_UNKNOWN;
+>  static const char *txtfile = "policy.conf";
+>  static const char *binfile = "policy";
+>
+> -unsigned int policyvers = POLICYDB_VERSION_MAX;
+> +unsigned int policyvers = 0;
 
-Hi Christian,
+Hi,
+This change breaks "make test" when testing secilc. This is because
+secilc/Makefile uses "checkpolicy -V" to compute a policy version:
 
-I am having little trouble w.r.t function names and trying to figure
-out whether they are mapping id down or up.
+POL_VERS = $(shell $(CHECKPOLICY) -V | cut -f 1 -d ' ')
 
-For example, kuid_into_mnt() ultimately calls map_id_down(). That is,
-id visible inside user namespace is mapped to host
-(if observer is in init_user_ns, IIUC).
+Before your patch:
 
-But fsuid_into_mnt() ultimately calls map_id_up(). That's take a kuid
-and map it into the user_namespace.
+$ checkpolicy -V
+33 (compatibility range 33-15)
 
-So both the helpers end with into_mnt() but one maps id down and
-other maps id up. I found this confusing and was wondering how
-should I visualize it. So thought of asking you.
+After:
 
-Is this intentional or can naming be improved so that *_into_mnt()
-means one thing (Either map_id_up() or map_id_down()). And vice-a-versa
-for *_from_mnt().
+$ checkpolicy -V
+0 (compatibility range 33-15)
 
-Thanks
-Vivek
+.. which makes secilc/Makefile try using "secilc -c 0 ...", which does not work.
 
-> +static inline kgid_t kgid_into_mnt(struct user_namespace *mnt_userns,
-> +				   kgid_t kgid)
-> +{
-> +	return make_kgid(mnt_userns, __kgid_val(kgid));
-> +}
+Should "policyvers ? policyvers : POLICYDB_VERSION_MAX" also be used
+when "checkpolicy -V" displays version information?
+
+Thanks,
+Nicolas
+
+>
+>  static __attribute__((__noreturn__)) void usage(const char *progname)
+>  {
+> @@ -588,6 +588,16 @@ int main(int argc, char **argv)
+>                                 exit(1);
+>                         }
+>                 }
 > +
-> +static inline kuid_t i_uid_into_mnt(struct user_namespace *mnt_userns,
-> +				    const struct inode *inode)
-> +{
-> +	return kuid_into_mnt(mnt_userns, inode->i_uid);
-> +}
+> +               if (policydbp->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
+> +                       if (policyvers > policydbp->policyvers) {
+> +                               fprintf(stderr, "Binary policies with version <= %u cannot be upgraded\n", POLICYDB_VERSION_PERMISSIVE);
+> +                       } else if (policyvers) {
+> +                               policydbp->policyvers = policyvers;
+> +                       }
+> +               } else {
+> +                       policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
+> +               }
+>         } else {
+>                 if (conf) {
+>                         fprintf(stderr, "Can only generate policy.conf from binary policy\n");
+> @@ -629,6 +639,8 @@ int main(int argc, char **argv)
+>                         policydb_destroy(policydbp);
+>                         policydbp = &policydb;
+>                 }
 > +
-> +static inline kgid_t i_gid_into_mnt(struct user_namespace *mnt_userns,
-> +				    const struct inode *inode)
-> +{
-> +	return kgid_into_mnt(mnt_userns, inode->i_gid);
-> +}
-> +
-> +static inline kuid_t kuid_from_mnt(struct user_namespace *mnt_userns,
-> +				   kuid_t kuid)
-> +{
-> +	return KUIDT_INIT(from_kuid(mnt_userns, kuid));
-> +}
-> +
-> +static inline kgid_t kgid_from_mnt(struct user_namespace *mnt_userns,
-> +				   kgid_t kgid)
-> +{
-> +	return KGIDT_INIT(from_kgid(mnt_userns, kgid));
-> +}
-> +
-> +static inline kuid_t fsuid_into_mnt(struct user_namespace *mnt_userns)
-> +{
-> +	return kuid_from_mnt(mnt_userns, current_fsuid());
-> +}
-> +
-> +static inline kgid_t fsgid_into_mnt(struct user_namespace *mnt_userns)
-> +{
-> +	return kgid_from_mnt(mnt_userns, current_fsgid());
-> +}
-> +
->  extern struct timespec64 current_time(struct inode *inode);
->  
->  /*
-> -- 
-> 2.30.0
-> 
+> +               policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
+>         }
+>
+>         if (policydb_load_isids(&policydb, &sidtab))
+> @@ -654,8 +666,6 @@ int main(int argc, char **argv)
+>                         }
+>                 }
+>
+> -               policydb.policyvers = policyvers;
+> -
+>                 if (!cil) {
+>                         if (!conf) {
+>                                 policydb.policy_type = POLICY_KERN;
+> --
+> 2.26.2
+>
 
