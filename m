@@ -2,208 +2,154 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2A3FC4332E
-	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 20:19:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FAB3C433E6
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 01:44:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E6AC64EBD
-	for <selinux@archiver.kernel.org>; Sun, 14 Mar 2021 20:19:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 723BE64E86
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 01:44:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233959AbhCNUSZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 14 Mar 2021 16:18:25 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:48312 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233985AbhCNURx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 14 Mar 2021 16:17:53 -0400
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 665A05646B4
-        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 21:17:52 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 6/6] libsepol/cil: do not leak avrulex_ioctl_table memory when an error occurs
-Date:   Sun, 14 Mar 2021 21:16:51 +0100
-Message-Id: <20210314201651.474432-6-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210314201651.474432-1-nicolas.iooss@m4x.org>
-References: <20210314201651.474432-1-nicolas.iooss@m4x.org>
+        id S229612AbhCOBoP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 14 Mar 2021 21:44:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229476AbhCOBoB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 14 Mar 2021 21:44:01 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E33EC061762
+        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 18:44:00 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id c10so63476342ejx.9
+        for <selinux@vger.kernel.org>; Sun, 14 Mar 2021 18:44:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8rox5Gfa78gythi9X355MC37LGI5ACIP7AELX+6xKIY=;
+        b=T0UDl3dyO9GitlKTnUuv/yRmu5SNCkrwvmBfnXJkhVOBcXdpOmslgpSaSi99JbJ63u
+         c7rGrgxC1qjwmEBdkyfLDF7dXyUc/noY5W9k8jHIaLC5FDuQoGLp5PWoKOKQcEGtbeCI
+         bXcnUdJFTMQoK6cRG2kpB8gjBeOfvaChJI/LkWz1vmc/8v/I5xe2sF+6qCfNuoLSS+Vn
+         iX/eVhf3CNv+pdoP/dytdeKTm+fSpc8KEcs0SdCkLA8VUuRdMxWhIj+zwDpUkY5E7Pbi
+         e2i4ZenF+UKUhqgVKTWCXuKCEw2zFTP0VqLs//wGgtjyLi5+HvWVshtappULfPmX3Dnr
+         N1TQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8rox5Gfa78gythi9X355MC37LGI5ACIP7AELX+6xKIY=;
+        b=g0CsKC9cnKOT66z2mdvDbvvTtL35oR/2+mB6ToX5Q1PhBc+7k1MGB3+OADD9TryQ9W
+         fDM3zl8L5swiikjSO12T/upgS8teawuvZ+E8BW91HGRcK3l09WfvplgpKBiB872Vwe9s
+         VvWXJSuHe9vY9Nxf4o4htCoqrc9riTR19G7odW88f5H801TEqB4OWKI9YsZcPA3BtJ2s
+         tntq7iTBBwT6rDBwMlunuWYdWCYqs7+tTTreVdCpfzfwEVwktkRj/Qy/jw/wwmEN2+h/
+         oVKpwdOgubSeHbEYxPQFAue0tc6299LI3gIN2/QtrespaWOfGvbiqvdLnOFXHhixNSJe
+         nCiw==
+X-Gm-Message-State: AOAM530DZQWJKY2ueb1idIxxLSU402Jcgw28IqXb98Fp/mHMz08Os+Ic
+        BQH3ywEpgxMTEf3o6Z1Y8H/qxSn1k5P/QJN7DkLA
+X-Google-Smtp-Source: ABdhPJw1qLQS9KJ3Y1R+1QlERFN1YDPFsX8dB3uP6J5P3vVr+fr0gpyYFYBSyA5sGxA/T5/3CN6yiQUD4m3Pay4Gb5E=
+X-Received: by 2002:a17:906:3d62:: with SMTP id r2mr20631098ejf.488.1615772639059;
+ Sun, 14 Mar 2021 18:43:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar 14 21:17:52 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com>
+ <20210227033755.24460-1-olga.kornievskaia@gmail.com> <CAFX2Jfk--KwkAss1gqTPnQt-bKvUUapNdHbuicu=m+jOtjrMyQ@mail.gmail.com>
+ <f8f5323c-cdfd-92e8-b359-43caaf9d7490@schaufler-ca.com> <CAHC9VhR=+uwN8U17JhYWKcXSc9=ExCrG4O9-y+DPJg6xZ=WoYA@mail.gmail.com>
+ <CAFX2JfnT49o-CkaAE3=c0KW9SDS1U+scP0RD++nmWwyKoBDWkA@mail.gmail.com>
+ <CAHC9VhQNp-GQ6SMABNdN00RcDz30Os5SK217W-5swS8quakxPA@mail.gmail.com> <CAN-5tyG95bL8vbkG5B9OmAAXremJ-X5z09f+0ekLyigzibsZ5A@mail.gmail.com>
+In-Reply-To: <CAN-5tyG95bL8vbkG5B9OmAAXremJ-X5z09f+0ekLyigzibsZ5A@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sun, 14 Mar 2021 21:43:48 -0400
+Message-ID: <CAHC9VhTwqt0TDEWV97GaM8B5m4qmEwo+BYXYDeMs2D1LtZzUFg@mail.gmail.com>
+Subject: Re: [PATCH v4 1/3] [security] Add new hook to compare new mount to an
+ existing mount
+To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Cc:     Anna Schumaker <anna.schumaker@netapp.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-OSS-Fuzz found a memory leak when trying to compile the following
-policy:
+On Fri, Mar 12, 2021 at 5:35 PM Olga Kornievskaia
+<olga.kornievskaia@gmail.com> wrote:
+> On Fri, Mar 12, 2021 at 4:55 PM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > On Fri, Mar 12, 2021 at 10:45 AM Anna Schumaker
+> > <anna.schumaker@netapp.com> wrote:
+> > > On Thu, Mar 4, 2021 at 8:34 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Tue, Mar 2, 2021 at 10:53 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > > > On 3/2/2021 10:20 AM, Anna Schumaker wrote:
+> > > > > > Hi Casey,
+> > > > > >
+> > > > > > On Fri, Feb 26, 2021 at 10:40 PM Olga Kornievskaia
+> > > > > > <olga.kornievskaia@gmail.com> wrote:
+> > > > > >> From: Olga Kornievskaia <kolga@netapp.com>
+> > > > > >>
+> > > > > >> Add a new hook that takes an existing super block and a new mount
+> > > > > >> with new options and determines if new options confict with an
+> > > > > >> existing mount or not.
+> > > > > >>
+> > > > > >> A filesystem can use this new hook to determine if it can share
+> > > > > >> the an existing superblock with a new superblock for the new mount.
+> > > > > >>
+> > > > > >> Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+> > > > > > Do you have any other thoughts on this patch? I'm also wondering how
+> > > > > > you want to handle sending it upstream.
+> > > > >
+> > > > > James Morris is the maintainer for the security sub-system,
+> > > > > so you'll want to send this through him. He will want you to
+> > > > > have an ACK from Paul Moore, who is the SELinux maintainer.
+> > > >
+> > > > In the past I've pulled patches such as this (new LSM hook, with only
+> > > > a SELinux implementation of the new hook) in via the selinux/next tree
+> > > > after the other LSMs have ACK'd the new hook.  This helps limit merge
+> > > > problems with other SELinux changes and allows us (the SELinux folks)
+> > > > to include it in the ongoing testing that we do during the -rcX
+> > > > releases.
+> > > >
+> > > > So Anna, if you or anyone else on the NFS side of the house want to
+> > > > add your ACKs/REVIEWs/etc. please do so as I don't like merging
+> > > > patches that cross subsystem boundaries without having all the
+> > > > associated ACKs.  Casey, James, and other LSM folks please do the
+> > > > same.
+> > >
+> > > Sure:
+> > > Acked-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+> > >
+> > > Are you also going to take patch 3/3 that uses the new hook, or should
+> > > that go through the NFS tree? Patch 2/3 is a cleanup that can go
+> > > through the NFS tree.
+> >
+> > Generally when patches are posted as patchsets I would apply the whole
+> > patchset assuming they patches were all good, however it does seem
+> > like patch 2/3 is not strictly related to the other two?  That said,
+> > as long as your ACK applies to all three patches in the patchset I
+> > have no problem applying all of them to the selinux/next tree once
+> > some of the other LSM maintainers provide their ACKs (while there may
+> > only a SELinux implementation of the hook at the moment, we need to
+> > make sure the other LSMs are okay with the basic hook concept).
+> >
+> > Also, did the v4 posting only include patch 1/3?  I see v3 postings
+> > for the other two patches, but the only v4 patch I see is 1/3 ... ?
+>
+> I didn't not repost patches that didn't change.
 
-    (class CLASS (PERM ioctl))
-    (classorder (CLASS))
-    (sid SID)
-    (sidorder (SID))
-    (user USER)
-    (role ROLE)
-    (type TYPE)
-    (category CAT)
-    (categoryorder (CAT))
-    (sensitivity SENS)
-    (sensitivityorder (SENS))
-    (sensitivitycategory SENS (CAT))
-    (allow TYPE self (CLASS (PERM)))
-    (roletype ROLE TYPE)
-    (userrole USER ROLE)
-    (userlevel USER (SENS))
-    (userrange USER ((SENS)(SENS (CAT))))
-    (sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+Okay, so I'm guessing that means path 2/3 and 3/3 didn't change?
 
-    (permissionx ioctl_test (ioctl CLASS (and (range 0x1600 0x19FF) (not (range 0x1750 0x175F)))))
-    (allowx TYPE TYPE ioctl_test)
+While I suppose there are cases where people do not do this, it has
+been my experience that if someone posts a patchset and some portion
+of the patchset changes, due to feedback or other factors, the entire
+patchset is reposted under the new version number.  If nothing else
+this helps ensure people are always looking at the latest draft of a
+particular patch instead of having to dig through the list to
+determine which patch is the most recent.
 
-    (boolean BOOLEAN false)
-
-    (booleanif (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (not (xor (eq BOOLEAN BOOLEAN)
-                (and (eq BOOLEAN BOOLEAN) BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-                BOOLEAN ) ) )
-        (true
-            (allow TYPE TYPE (CLASS (PERM)))
-        )
-    )
-
-When the CIL compiler reports "Conditional expression exceeded max
-allowable depth" because of the loooooong expression in the booleanif
-statement, cil_binary_create_allocated_pdb returns without freeing the
-memory which was allocated to store the keys and values of hash table
-avrulex_ioctl_table.
-
-Fix this by moving the freeing logic to a dedicated destructor function
-and calling it in the exit block of cil_binary_create_allocated_pdb.
-
-Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28618
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/cil/src/cil_binary.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index f80d84679f85..18532aad9801 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -1668,14 +1668,6 @@ exit:
- 		}
- 		cil_list_destroy(&xperms_list, CIL_FALSE);
- 	}
--
--	// hashtab_t does not have a way to free keys or datum since it doesn't
--	// know what they are. We won't need the keys/datum after this function, so
--	// clean them up here.
--	free(avtab_key);
--	ebitmap_destroy(datum);
--	free(datum);
--
- 	return rc;
- }
- 
-@@ -1885,6 +1877,15 @@ exit:
- 	return rc;
- }
- 
-+static int __cil_avrulex_ioctl_destroy(hashtab_key_t k, hashtab_datum_t datum, __attribute__((unused)) void *args)
-+{
-+	free(k);
-+	ebitmap_destroy(datum);
-+	free(datum);
-+
-+	return SEPOL_OK;
-+}
-+
- int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute__((unused)) uint32_t *finished, void *extra_args)
- {
- 	int rc;
-@@ -5037,6 +5038,7 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
- 
- exit:
- 	hashtab_destroy(role_trans_table);
-+	hashtab_map(avrulex_ioctl_table, __cil_avrulex_ioctl_destroy, NULL);
- 	hashtab_destroy(avrulex_ioctl_table);
- 	free(type_value_to_cil);
- 	free(class_value_to_cil);
 -- 
-2.30.2
-
+paul moore
+www.paul-moore.com
