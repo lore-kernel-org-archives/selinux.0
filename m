@@ -7,129 +7,147 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8764FC433E0
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:09:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90E2FC433E0
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:12:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 523A464F0F
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:09:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52F6A64F0F
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:12:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231613AbhCOVJV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Mar 2021 17:09:21 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:47528 "EHLO
+        id S231669AbhCOVL2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Mar 2021 17:11:28 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:39942 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233362AbhCOVJC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:09:02 -0400
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+        with ESMTP id S232611AbhCOVK5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:10:57 -0400
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 753AC56549C
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 22:09:00 +0100 (CET)
-Received: by mail-pf1-f175.google.com with SMTP id 18so7392615pfo.6
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:09:00 -0700 (PDT)
-X-Gm-Message-State: AOAM531H7Yo9oooiIj4kjbqbXNeqnC6iBeKmxjntK5fnKjeH2771DVMK
-        /YEEX4gzMKPQdqMKpXs9yBiEPaQpMLqVsHWJeKI=
-X-Google-Smtp-Source: ABdhPJxfTY2PeUqjyQGVfrl81rZYhnvoChdKowbb2nIY9XKLK5CgFNKf0gcYuBpaQfDNjcsai7WSdeRtqE5GnjeXBf8=
-X-Received: by 2002:a62:5cc3:0:b029:203:54be:e4c9 with SMTP id
- q186-20020a625cc30000b029020354bee4c9mr11824915pfb.80.1615842539362; Mon, 15
- Mar 2021 14:08:59 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id AC5F8560692
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 22:10:55 +0100 (CET)
+Received: by mail-pj1-f48.google.com with SMTP id kk2-20020a17090b4a02b02900c777aa746fso260618pjb.3
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:10:55 -0700 (PDT)
+X-Gm-Message-State: AOAM531deSqcKWcvXzfOogwHPwYJnGEsM1xfBvieBAD82ndeNTZFL3aD
+        doc5e1Rc87+LaRWtc+/zpDEtC87IDIzMPr4rWDc=
+X-Google-Smtp-Source: ABdhPJxEvb8/TDCrstFoOazB3TeT4Wqk/1r2xec3lj3DrIjAYakgkMh/Hfq9cb1ouUEFeXUmKMJRplMoYjudNcgb+Bg=
+X-Received: by 2002:a17:90a:4d81:: with SMTP id m1mr1038311pjh.143.1615842654512;
+ Mon, 15 Mar 2021 14:10:54 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210308204923.71940-1-jwcart2@gmail.com> <CAJfZ7=nJv_KafJFgR1tWDZkvMB6V3zbAqqJQuQkMcaGk2F+bPA@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nJv_KafJFgR1tWDZkvMB6V3zbAqqJQuQkMcaGk2F+bPA@mail.gmail.com>
+References: <20210315150938.320990-1-jwcart2@gmail.com>
+In-Reply-To: <20210315150938.320990-1-jwcart2@gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 15 Mar 2021 22:08:48 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=mNN9Fa7i7505S0TjbBUf1BV2+otraK+mUym_s4pQDBVw@mail.gmail.com>
-Message-ID: <CAJfZ7=mNN9Fa7i7505S0TjbBUf1BV2+otraK+mUym_s4pQDBVw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/checkpolicy: Set user roles using role value
- instead of dominance
+Date:   Mon, 15 Mar 2021 22:10:43 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=miiSjhFfBV1jEBOROLm_kM+o1F+wSiUKLqahvc1bhLdA@mail.gmail.com>
+Message-ID: <CAJfZ7=miiSjhFfBV1jEBOROLm_kM+o1F+wSiUKLqahvc1bhLdA@mail.gmail.com>
+Subject: Re: [PATCH 1/2 v2] checkpolicy: Do not automatically upgrade when
+ using "-b" flag
 To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Mar 15 22:09:01 2021 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Mar 15 22:10:56 2021 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Mar 14, 2021 at 8:59 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Mon, Mar 15, 2021 at 4:10 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Mon, Mar 8, 2021 at 9:50 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > Roles in an optional block have two datums, one in the global block
-> > and one in the avrule_decl where it is declared. The datum in the
-> > global block does not have its dominace set. This is a problem because
-> > the function set_user_role() sets the user's roles based on the global
-> > datum's dominance ebitmap. If a user is declared with an associated role
-> > that was declared in an optional block, then it will not have any roles
-> > set for it because the dominance ebitmap is empty.
-> >
-> > Example/
-> >   # handle_unknown deny
-> >   class CLASS1
-> >   sid kernel
-> >   class CLASS1 { PERM1 }
-> >   type TYPE1;
-> >   allow TYPE1 self:CLASS1 PERM1;
-> >   role ROLE1;
-> >   role ROLE1 types { TYPE1 };
-> >   optional {
-> >     require {
-> >       class CLASS1 { PERM1 };
-> >     }
-> >     role ROLE1A;
-> >     user USER1A roles ROLE1A;
-> >   }
-> >   user USER1 roles ROLE1;
-> >   sid kernel USER1:ROLE1:TYPE1
-> >
-> > In this example, USER1A would not have ROLE1A associated with it.
-> >
-> > Instead of using dominance, which has been deprecated anyway, just
-> > set the bit corresponding to the role's value in the user's roles
-> > ebitmap in set_user_role().
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  checkpolicy/policy_define.c | 9 ++-------
-> >  1 file changed, 2 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index c9286f77..6c035716 100644
-> > --- a/checkpolicy/policy_define.c
-> > +++ b/checkpolicy/policy_define.c
-> > @@ -4088,8 +4088,6 @@ cond_expr_t *define_cond_expr(uint32_t expr_type, void *arg1, void *arg2)
-> >  static int set_user_roles(role_set_t * set, char *id)
-> >  {
-> >         role_datum_t *r;
-> > -       unsigned int i;
-> > -       ebitmap_node_t *node;
-> >
-> >         if (strcmp(id, "*") == 0) {
-> >                 free(id);
-> > @@ -4115,12 +4113,9 @@ static int set_user_roles(role_set_t * set, char *id)
-> >                 return -1;
-> >         }
-> >
-> > -       /* set the role and every role it dominates */
-> > -       ebitmap_for_each_positive_bit(&r->dominates, node, i) {
-> > -               if (ebitmap_set_bit(&set->roles, i, TRUE))
-> > -                       goto oom;
-> > -       }
-> >         free(id);
-> > +       if (ebitmap_set_bit(&set->roles, r->s.value-1, TRUE))
-> > +               goto oom;
-> >         return 0;
-> >        oom:
-> >         yyerror("out of memory");
+> When reading a binary policy, do not automatically change the version
+> to the max policy version supported by libsepol or, if specified, the
+> value given using the "-c" flag.
 >
-> In other places there are spaces between the subtraction operator
-> ("r->s.value - 1") and it would be nicer if this patch also used
-> spaces.
-> This is a minor comment anyway, and this patch looks good to me.
+> If the binary policy version is less than or equal to version 23
+> (POLICYDB_VERSION_PERMISSIVE) than do not automatically upgrade the
+> policy and if a policy version is specified by the "-c" flag, only set
+> the binary policy to the specified version if it is lower than the
+> current version.
 >
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> If the binary policy version is greater than version 23 than it should
+> be set to the maximum version supported by libsepol or, if specified,
+> the value given by the "-c" flag.
+>
+> The reason for this change is that policy versions 20
+> (POLICYDB_VERSION_AVTAB) to 23 have a more primitive support for type
+> attributes where the datums are not written out, but they exist in the
+> type_attr_map. This means that when the binary policy is read by
+> libsepol, there will be gaps in the type_val_to_struct and
+> p_type_val_to_name arrays and policy rules can refer to those gaps.
+> Certain libsepol functions like sepol_kernel_policydb_to_conf() and
+> sepol_kernel_policydb_to_cil() do not support this behavior and need
+> to be able to identify these policies. Policies before version 20 do not
+> support attributes at all and can be handled by all libsepol functions.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+> v2 - Give the proper value when printing the compatibility range
 
-Merged, with added spaces.
+For both patches:
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 Thanks!
 Nicolas
+
+>  checkpolicy/checkpolicy.c | 19 +++++++++++++++----
+>  1 file changed, 15 insertions(+), 4 deletions(-)
+>
+> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+> index 5841c5c4..acf1eac4 100644
+> --- a/checkpolicy/checkpolicy.c
+> +++ b/checkpolicy/checkpolicy.c
+> @@ -106,7 +106,7 @@ static int handle_unknown = SEPOL_DENY_UNKNOWN;
+>  static const char *txtfile = "policy.conf";
+>  static const char *binfile = "policy";
+>
+> -unsigned int policyvers = POLICYDB_VERSION_MAX;
+> +unsigned int policyvers = 0;
+>
+>  static __attribute__((__noreturn__)) void usage(const char *progname)
+>  {
+> @@ -515,7 +515,8 @@ int main(int argc, char **argv)
+>         }
+>
+>         if (show_version) {
+> -               printf("%d (compatibility range %d-%d)\n", policyvers,
+> +               printf("%d (compatibility range %d-%d)\n",
+> +                          policyvers ? policyvers : POLICYDB_VERSION_MAX ,
+>                        POLICYDB_VERSION_MAX, POLICYDB_VERSION_MIN);
+>                 exit(0);
+>         }
+> @@ -588,6 +589,16 @@ int main(int argc, char **argv)
+>                                 exit(1);
+>                         }
+>                 }
+> +
+> +               if (policydbp->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
+> +                       if (policyvers > policydbp->policyvers) {
+> +                               fprintf(stderr, "Binary policies with version <= %u cannot be upgraded\n", POLICYDB_VERSION_PERMISSIVE);
+> +                       } else if (policyvers) {
+> +                               policydbp->policyvers = policyvers;
+> +                       }
+> +               } else {
+> +                       policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
+> +               }
+>         } else {
+>                 if (conf) {
+>                         fprintf(stderr, "Can only generate policy.conf from binary policy\n");
+> @@ -629,6 +640,8 @@ int main(int argc, char **argv)
+>                         policydb_destroy(policydbp);
+>                         policydbp = &policydb;
+>                 }
+> +
+> +               policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
+>         }
+>
+>         if (policydb_load_isids(&policydb, &sidtab))
+> @@ -654,8 +667,6 @@ int main(int argc, char **argv)
+>                         }
+>                 }
+>
+> -               policydb.policyvers = policyvers;
+> -
+>                 if (!cil) {
+>                         if (!conf) {
+>                                 policydb.policy_type = POLICY_KERN;
+> --
+> 2.26.2
+>
 
