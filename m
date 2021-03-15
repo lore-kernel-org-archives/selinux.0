@@ -8,58 +8,57 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36D66C433DB
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:03:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 019D0C433DB
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:04:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4E7764F0F
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:03:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFBAE64F0F
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:04:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232370AbhCOVCz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Mar 2021 17:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
+        id S232494AbhCOVD7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Mar 2021 17:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232322AbhCOVCv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:02:51 -0400
-Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD22C06174A
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:02:50 -0700 (PDT)
-Received: by mail-oo1-xc32.google.com with SMTP id c12-20020a4ae24c0000b02901bad05f40e4so3624649oot.4
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:02:50 -0700 (PDT)
+        with ESMTP id S232059AbhCOVDh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:03:37 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D0DC06174A
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:03:37 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id n23so7661665otq.1
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:03:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=B7PzFc/MJvVvzh3WwpFHzntIsp84nGMmKSlhVLUH5/o=;
-        b=jo90gPXg5yA4Pudc36xAhfvFDCfio1hmNT8UdycjI40d4yMU2FpRwbUcF2XgqMcTvC
-         kReIrGe935OAmjsZfuhMbIkbqaFC0yw0hen4YRzfROgT4izjkR3mXfi00yhGfhoGIP2V
-         Fy1uRFHHDp2aAxOwOI1xu0jWRJUlFaujBbGvJDHTDLnkjpJkuzwISXEIIUygIOIaMduu
-         9jytwFwv1yGSyAnuBIMVtPmc1f0+f58/Wuf658Mv8ixGrSZQwK4GQr9dXa4ikAVgKXmL
-         NeqOaMLvrXdm700Ni3MD3fql90TQabqepnNDTMBmcDjPjZPJkd4L61FLjh910cZegFuR
-         6yJQ==
+        bh=nW7CM/bBf6Gfs6wwwtEFw7VzyiNM9yzRDs00KVN/WF4=;
+        b=HlS/g9qUvTdBTToIHiBTHOWHkdIW4ptwCCQZEHa+v0dUEdZ7IEH5LA8fJGiEYqG3Fm
+         bwfROjjw1ExQJBaIuYgJp58euytw1gDoqGo2RRAN6SJlNBt/QGqn1COzlK899a4vovo2
+         oyen8xy07I1yJVNZBuEu2dSbGKkGXq1M09KFlNi8p6CNUNF442VjyokBmOEWWU1yvMrL
+         1aPfJwKXyRFDmLhcl0UQ86iFq94D9cFpFc9wIuLkqKyVYtRexxW/P1/r9hnh3u8lkv26
+         YlIGHlkUaSFOq0WT2CpeLFNPTKnKbgQTTDFkHfJd4mT86S8unFZIm7H8odEJ19hfhf3N
+         v1tA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=B7PzFc/MJvVvzh3WwpFHzntIsp84nGMmKSlhVLUH5/o=;
-        b=HCkOJF/4VFvR+nI5KXpKSxrVG9DuzoDJI9ns02dNTw/RkHHslB/Cq9D6c2T/mqF47/
-         QJ3rhTzi0389wv2R2F8i4+x50AsTF2cGzHN1Zz7mHnMryBWminJgadsshM+qx3qNQ8rX
-         eNhc68Ko9wvkhGFRjTjpK2JitMPD5+bXwwJr0qItd0aMctldRxGFtn2ZQPm+HFVpf1O6
-         CnIcLAZzftdMztmHWHV+1AwSYv6faGwzYFTo4LK1E/YcyENZ+4kd4/EcUn9gqTCGHC7j
-         pP1n74NQByhkqn3Rsmy5h4oFFAOUk4SIUkkNzPwsPpbFoeOXnSJ+AaFhx117z9WL9FHx
-         IrMw==
-X-Gm-Message-State: AOAM531g1XmBjOfP0k59+sktsFPu9TXfNnezIwKcVo+rY6jh/UaCyCjO
-        3AYpBbh+kBgY9+mOaSCPh73Yn11XqgEhFg+GT8Q=
-X-Google-Smtp-Source: ABdhPJwAPHY+oGnclpZOdESdNwZpSUCpyeLrDIT377uM/UG+RY+Q+b5emVsLZdsONS1z8iIFE3FTKrKG+3fpNP9hFAM=
-X-Received: by 2002:a4a:bb14:: with SMTP id f20mr750922oop.1.1615842169720;
- Mon, 15 Mar 2021 14:02:49 -0700 (PDT)
+        bh=nW7CM/bBf6Gfs6wwwtEFw7VzyiNM9yzRDs00KVN/WF4=;
+        b=rVs6dJBeM9bc0KghQUN7Jcd3EgcY79w5YHgFKGptL/XaPM+TZP98qg+xTJKSXYKiZQ
+         0j4kqKQpKnxxhBgQinkIdRJ8lwM8GHzbX6L3V7bWIveKdEob2c8V74ILjm+q3vDRWOCt
+         cXwM4nBXrzDfd8MeauLTQYizfKFJO4G9X25K39WtiFc8Xr18rdeYz70HLNeX9JaXhWgh
+         tufiYRx+XOr9gbO0hiOsDVg8dHMp1mHo5xpDljRagdi8MucxFzkdXDHKEjxodOvNuGU7
+         wq9YyEoWlMD26dxKG0NOtekXMC5w1Hmr8iPQapx6k/B7XIccAk70BtZbHGVkanLkg8Gh
+         5Y2g==
+X-Gm-Message-State: AOAM532MxyYKe9dFMVrRYmWfKZ83wPcmgethw+dw9iiRMhA/H060XtkQ
+        Qy56h4Z9uyZppbHNd0nB4a7SKgE0Xe6ush6cTgJ3IgDSjvo=
+X-Google-Smtp-Source: ABdhPJyLgmrJnMH0ASsL2uVNUCNPaKdT9wEftb6A388A4mMDO51ShqUcJFSHqxuHd/XtmfeV/SqgSS6FJz9nttzNg5I=
+X-Received: by 2002:a9d:6c94:: with SMTP id c20mr778933otr.59.1615842216854;
+ Mon, 15 Mar 2021 14:03:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210314201651.474432-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20210314201651.474432-1-nicolas.iooss@m4x.org>
+References: <20210314201651.474432-1-nicolas.iooss@m4x.org> <20210314201651.474432-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20210314201651.474432-2-nicolas.iooss@m4x.org>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 15 Mar 2021 17:02:39 -0400
-Message-ID: <CAP+JOzThBfc5-JtYYuPfhBHX6phxWMCJksy8WPggDiDFJyTpaw@mail.gmail.com>
-Subject: Re: [PATCH 1/6] libsepol/cil: fix out-of-bound read of a file context
- pattern ending with "\"
+Date:   Mon, 15 Mar 2021 17:03:26 -0400
+Message-ID: <CAP+JOzTEmNNqx_ajLh7SO3F9D1rz+h00KgtzdgrqGAAPz17xjA@mail.gmail.com>
+Subject: Re: [PATCH 2/6] libsepol/cil: make cil_post_fc_fill_data static
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -67,52 +66,80 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Mar 14, 2021 at 4:23 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Sun, Mar 14, 2021 at 4:22 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> OSS-Fuzz found a Heap-buffer-overflow in the CIL compiler when trying to
-> compile the following policy:
+> cil_post_fc_fill_data() is not used outside of cil_post.c, and is not
+> exported in libsepol.so. Make it static, in order to ease the analysis
+> of static analyzers.
 >
->     (sid SID)
->     (sidorder(SID))
->     (filecon "\" any ())
->     (filecon "" any ())
+> While at it, make its path argument "const char*" and the fields of
+> "struct fc_data" "unsigned int" or "size_t", in order to make the types
+> better match the values.
 >
-> When cil_post_fc_fill_data() processes "\", it goes beyond the NUL
-> terminator of the string. Fix this by returning when '\0' is read after
-> a backslash.
->
-> Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28484
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  libsepol/cil/src/cil_post.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+>  libsepol/cil/src/cil_post.c | 11 +++++++++--
+>  libsepol/cil/src/cil_post.h |  7 -------
+>  2 files changed, 9 insertions(+), 9 deletions(-)
 >
 > diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> index a55df1ea5bb0..5f9cf4efd242 100644
+> index 5f9cf4efd242..783929e50df8 100644
 > --- a/libsepol/cil/src/cil_post.c
 > +++ b/libsepol/cil/src/cil_post.c
-> @@ -179,6 +179,12 @@ void cil_post_fc_fill_data(struct fc_data *fc, char *path)
->                         break;
->                 case '\\':
->                         c++;
-
-The patch below is fine, but I can't figure out the reason for the
-line above. I guess it means that fc->str_len++ will be skipped, but
-if that is the purpose, it is not very clear. Does anyone know if this
-is correct?
-
-Jim
-
-
-> +                       if (path[c] == '\0') {
-> +                               if (!fc->meta) {
-> +                                       fc->stem_len++;
-> +                               }
-> +                               return;
-> +                       }
->                         /* FALLTHRU */
->                 default:
->                         if (!fc->meta) {
+> @@ -27,6 +27,7 @@
+>   * either expressed or implied, of Tresys Technology, LLC.
+>   */
+>
+> +#include <stddef.h>
+>  #include <stdlib.h>
+>  #include <stdio.h>
+>  #include <string.h>
+> @@ -50,6 +51,12 @@
+>  #define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
+>  #define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/src/module_to_cil.c */
+>
+> +struct fc_data {
+> +       unsigned int meta;
+> +       size_t stem_len;
+> +       size_t str_len;
+> +};
+> +
+>  static int __cil_expr_to_bitmap(struct cil_list *expr, ebitmap_t *out, int max, struct cil_db *db);
+>  static int __cil_expr_list_to_bitmap(struct cil_list *expr_list, ebitmap_t *out, int max, struct cil_db *db);
+>
+> @@ -156,9 +163,9 @@ static int cil_verify_is_list(struct cil_list *list, enum cil_flavor flavor)
+>         return CIL_TRUE;
+>  }
+>
+> -void cil_post_fc_fill_data(struct fc_data *fc, char *path)
+> +static void cil_post_fc_fill_data(struct fc_data *fc, const char *path)
+>  {
+> -       int c = 0;
+> +       size_t c = 0;
+>         fc->meta = 0;
+>         fc->stem_len = 0;
+>         fc->str_len = 0;
+> diff --git a/libsepol/cil/src/cil_post.h b/libsepol/cil/src/cil_post.h
+> index 3d5415486b77..b1d2206f9ef6 100644
+> --- a/libsepol/cil/src/cil_post.h
+> +++ b/libsepol/cil/src/cil_post.h
+> @@ -30,13 +30,6 @@
+>  #ifndef CIL_POST_H_
+>  #define CIL_POST_H_
+>
+> -struct fc_data {
+> -       int meta;
+> -       int stem_len;
+> -       int str_len;
+> -};
+> -
+> -void cil_post_fc_fill_data(struct fc_data *fc, char *path);
+>  int cil_post_filecon_compare(const void *a, const void *b);
+>  int cil_post_ibpkeycon_compare(const void *a, const void *b);
+>  int cil_post_portcon_compare(const void *a, const void *b);
 > --
 > 2.30.2
 >
