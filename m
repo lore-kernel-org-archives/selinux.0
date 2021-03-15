@@ -8,157 +8,154 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CC78C433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7538AC433E0
 	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 15:10:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63E4664E10
+	by mail.kernel.org (Postfix) with ESMTP id 4826264DDF
 	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 15:10:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbhCOPKL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Mar 2021 11:10:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59694 "EHLO
+        id S229721AbhCOPKM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Mar 2021 11:10:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbhCOPJm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 11:09:42 -0400
-Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE70C06174A
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 08:09:42 -0700 (PDT)
-Received: by mail-qv1-xf2a.google.com with SMTP id g8so7904574qvx.1
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 08:09:42 -0700 (PDT)
+        with ESMTP id S231441AbhCOPJo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 11:09:44 -0400
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F309DC06174A
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 08:09:43 -0700 (PDT)
+Received: by mail-qv1-xf2c.google.com with SMTP id 30so7900270qva.9
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 08:09:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=C71WjT4ccZwBv1Wpf5ksm6lOf/rD/6ebhGcJsiG16YY=;
-        b=BUhoPDcVWjXqpgrOelOlVhbc41J0NsSm3+5zZCF3TX7nBb07knp/Fpz+DDv1JZ+/wg
-         5cGawtHOZoLePiQNbmEfAV4RuCrRA70ugLIQtMY9sfD5i40DxslTB40NMeRyXuyKy0uk
-         slkRZ26lmBYurvDWnBEpaX/l1mWqkHXT4lEqrBRnRu/QTXOLZC3e53SKmuRfwrTFrm8B
-         MBqIZYlzbyo4Xe2l+UwuhYv5GaMCkFZqQmjbvNtkiRQXQEq8NUXOxMUrObwMrYTh9RXt
-         Z4PiWwcuMjj1tMWXxa3JtUwl7pDOdM1CerMZJh/jdkpop71RGWMysyefkazDjCRkZfXK
-         GQcQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=1gXXGv88cXpjOLLAUTWPysQamCqmYouV/05SQBrD2mg=;
+        b=havOovmk5yYdYpinLomMXiIy3ei/geg7tT20Jq9v0LiKt+KQGCefhoWeOzptZyihZ8
+         KP5hpJHet62KFYAOv+BDmiV1Fj8unSytJx9gca9tml12yVqZ/4R3ofYDtC34XBYrHkJU
+         RKkV5lK7AyJUvjHqrAvjq0hnsu/ZgoM92XfR5qmHbeRj216GAHGYn0xuoAx3pMVGA7LH
+         mde5PUg5/QGicyiFkH8iUDNcBT74Fh7s8OM6K6hYucCwLpRLqSx1FJflvMP3gZWkEfk9
+         s2BrvBEcXlxVY7I1MUNnyipT6HwiFkipgMZuWU3XyJzg/i8l1Y0tYMoQIlGDx3Yebf4E
+         ZL9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=C71WjT4ccZwBv1Wpf5ksm6lOf/rD/6ebhGcJsiG16YY=;
-        b=DMyF5QPke/v9Pf5fd5uhLHFSC64FhVby3iknb9v8USCs+EYOyWUk8aD6DwxtZJbLtK
-         IYrHSpukb/mbAzVnwKtJtb6dCTUuz13yvzZlieCzMZ9qrOy5GijzAC8NizYHSYx3ywNH
-         fXg8HRd+KlvZ/NnF664VTAF2MYh25Lb/DQTD3pg7dM0qqIALQWudKmPopQNssA9pD0Tf
-         V3G37bz0228/OHUDf9N6usVPNumwng6r/LXWuoQ3QhIjXmj6b4y/XxqW+OAsLp4u1Zne
-         S7FMPXB/YUS+8rMF9bBqKYwdfbJTWdw0keShcotGvaEKOgptiGbx48+Qz35A3tP+WIUD
-         l+oQ==
-X-Gm-Message-State: AOAM5339yN+E0PS8ojIAXkmPs8RbcOCYYJ6KuDUhqnaTx+2S7FNCFNgW
-        5ll42zRBfiVlq4EmKXQEfZwfBWsmx5A=
-X-Google-Smtp-Source: ABdhPJykTAn0iK/5kPb17AMHwNv2oTdEYdRyB5x7g5hVX82tD6ZOTEBHzoAl8L3nPQ3nepZWWBVaqw==
-X-Received: by 2002:a0c:f7d1:: with SMTP id f17mr10997152qvo.38.1615820981539;
-        Mon, 15 Mar 2021 08:09:41 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=1gXXGv88cXpjOLLAUTWPysQamCqmYouV/05SQBrD2mg=;
+        b=eg2VWKAvc3ctoDTvzF4C8gDn7xptouxNXPZgs3eiSkmQyJIV7DKjeNlwwIWRDyGTlm
+         gFfRCDQwOKm0BX32or9Oq0gsO3kSe31Te7ueWgLPEZcWKW5mf1rjpMDgU6G/x1ssy/yN
+         M+lb8h5MCgu75Co62xALED5+A4PV0+4pNdMn7+7/jqdTXe/4gf51f2rP8kDaH8FnLzEh
+         KCwAc2CcF4jn3Xdj82rUN0FRZ5jykq0ufaQbtUAjTVwj85c6vz/PrTC4RfS+ZnOfI01h
+         ak9dvzeesM9CzM1s/I3Lib3DgMaHipazdmdTBmDGCRIlqF3CLzwroynTaaCjKepT4VfT
+         h7Uw==
+X-Gm-Message-State: AOAM532j1kLfeShuE0539jso+zrp5FELZWHh1/J119UyHT/5iNo/2iOy
+        NSJNFzRZyrbU3xIYzNk2Q8DRihL3SEI=
+X-Google-Smtp-Source: ABdhPJxRf+Oy0RsbNVQfhTY6sDui6Qz2tu+Ro78L/qGRK3MfCC3Nz7w/uUUaP4/oKy7NU6VrOUOEcw==
+X-Received: by 2002:a0c:e788:: with SMTP id x8mr11337129qvn.48.1615820983044;
+        Mon, 15 Mar 2021 08:09:43 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id m7sm11443045qti.33.2021.03.15.08.09.41
+        by smtp.gmail.com with ESMTPSA id m7sm11443045qti.33.2021.03.15.08.09.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Mar 2021 08:09:41 -0700 (PDT)
+        Mon, 15 Mar 2021 08:09:42 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/2 v2] checkpolicy: Do not automatically upgrade when using "-b" flag
-Date:   Mon, 15 Mar 2021 11:09:37 -0400
-Message-Id: <20210315150938.320990-1-jwcart2@gmail.com>
+Cc:     James Carter <jwcart2@gmail.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: [PATCH 2/2 v2] libsepol: Check kernel to CIL and Conf functions for supported versions
+Date:   Mon, 15 Mar 2021 11:09:38 -0400
+Message-Id: <20210315150938.320990-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210315150938.320990-1-jwcart2@gmail.com>
+References: <20210315150938.320990-1-jwcart2@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When reading a binary policy, do not automatically change the version
-to the max policy version supported by libsepol or, if specified, the
-value given using the "-c" flag.
+For policy versions between 20 and 23, attributes exist in the
+policy, but only in the type_attr_map. This means that there are
+gaps in both the type_val_to_struct and p_type_val_to_name arrays
+and policy rules can refer to those gaps which can lead to NULL
+dereferences when using sepol_kernel_policydb_to_conf() and
+sepol_kernel_policydb_to_cil().
 
-If the binary policy version is less than or equal to version 23
-(POLICYDB_VERSION_PERMISSIVE) than do not automatically upgrade the
-policy and if a policy version is specified by the "-c" flag, only set
-the binary policy to the specified version if it is lower than the
-current version.
+This can be seen with the following policy:
+  class CLASS1
+  sid SID1
+  class CLASS1 { PERM1 }
+  attribute TYPE_ATTR1;
+  type TYPE1;
+  typeattribute TYPE1 TYPE_ATTR1;
+  allow TYPE_ATTR1 self : CLASS1 PERM1;
+  role ROLE1;
+  role ROLE1 types TYPE1;
+  user USER1 roles ROLE1;
+  sid SID1 USER1:ROLE1:TYPE1
 
-If the binary policy version is greater than version 23 than it should
-be set to the maximum version supported by libsepol or, if specified,
-the value given by the "-c" flag.
+Compile the policy:
+  checkpolicy -c 23 -o policy.bin policy.conf
+Converting back to a policy.conf causes a segfault:
+  checkpolicy -F -b -o policy.bin.conf policy.bin
 
-The reason for this change is that policy versions 20
-(POLICYDB_VERSION_AVTAB) to 23 have a more primitive support for type
-attributes where the datums are not written out, but they exist in the
-type_attr_map. This means that when the binary policy is read by
-libsepol, there will be gaps in the type_val_to_struct and
-p_type_val_to_name arrays and policy rules can refer to those gaps.
-Certain libsepol functions like sepol_kernel_policydb_to_conf() and
-sepol_kernel_policydb_to_cil() do not support this behavior and need
-to be able to identify these policies. Policies before version 20 do not
-support attributes at all and can be handled by all libsepol functions.
+Have both sepol_kernel_policydb_to_conf() and
+sepol_kernel_policydb_to_cil() exit with an error if the kernel
+policy version is between 20 and 23.
 
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-v2 - Give the proper value when printing the compatibility range
+v2 - No changes
 
- checkpolicy/checkpolicy.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ libsepol/src/kernel_to_cil.c  | 12 ++++++++++++
+ libsepol/src/kernel_to_conf.c | 12 ++++++++++++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index 5841c5c4..acf1eac4 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -106,7 +106,7 @@ static int handle_unknown = SEPOL_DENY_UNKNOWN;
- static const char *txtfile = "policy.conf";
- static const char *binfile = "policy";
- 
--unsigned int policyvers = POLICYDB_VERSION_MAX;
-+unsigned int policyvers = 0;
- 
- static __attribute__((__noreturn__)) void usage(const char *progname)
- {
-@@ -515,7 +515,8 @@ int main(int argc, char **argv)
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index a146ac51..edfebeaf 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -3164,6 +3164,18 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
+ 		goto exit;
  	}
  
- 	if (show_version) {
--		printf("%d (compatibility range %d-%d)\n", policyvers,
-+		printf("%d (compatibility range %d-%d)\n",
-+			   policyvers ? policyvers : POLICYDB_VERSION_MAX ,
- 		       POLICYDB_VERSION_MAX, POLICYDB_VERSION_MIN);
- 		exit(0);
- 	}
-@@ -588,6 +589,16 @@ int main(int argc, char **argv)
- 				exit(1);
- 			}
- 		}
++	if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
++		/*
++		 * For policy versions between 20 and 23, attributes exist in the policy,
++		 * but only in the type_attr_map. This means that there are gaps in both
++		 * the type_val_to_struct and p_type_val_to_name arrays and policy rules
++		 * can refer to those gaps.
++		 */
++		sepol_log_err("Writing policy versions between 20 and 23 as CIL is not supported");
++		rc = -1;
++		goto exit;
++	}
 +
-+		if (policydbp->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
-+			if (policyvers > policydbp->policyvers) {
-+				fprintf(stderr, "Binary policies with version <= %u cannot be upgraded\n", POLICYDB_VERSION_PERMISSIVE);
-+			} else if (policyvers) {
-+				policydbp->policyvers = policyvers;
-+			}
-+		} else {
-+			policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
-+		}
- 	} else {
- 		if (conf) {
- 			fprintf(stderr, "Can only generate policy.conf from binary policy\n");
-@@ -629,6 +640,8 @@ int main(int argc, char **argv)
- 			policydb_destroy(policydbp);
- 			policydbp = &policydb;
- 		}
-+
-+		policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
+ 	rc = constraint_rules_to_strs(pdb, mls_constraints, non_mls_constraints);
+ 	if (rc != 0) {
+ 		goto exit;
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index a22f196d..ea58a026 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -3041,6 +3041,18 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
+ 		goto exit;
  	}
  
- 	if (policydb_load_isids(&policydb, &sidtab))
-@@ -654,8 +667,6 @@ int main(int argc, char **argv)
- 			}
- 		}
- 
--		policydb.policyvers = policyvers;
--
- 		if (!cil) {
- 			if (!conf) {
- 				policydb.policy_type = POLICY_KERN;
++	if (pdb->policyvers >= POLICYDB_VERSION_AVTAB && pdb->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
++		/*
++		 * For policy versions between 20 and 23, attributes exist in the policy,
++		 * but only in the type_attr_map. This means that there are gaps in both
++		 * the type_val_to_struct and p_type_val_to_name arrays and policy rules
++		 * can refer to those gaps.
++		 */
++		sepol_log_err("Writing policy versions between 20 and 23 as a policy.conf is not supported");
++		rc = -1;
++		goto exit;
++	}
++
+ 	rc = constraint_rules_to_strs(pdb, mls_constraints, non_mls_constraints);
+ 	if (rc != 0) {
+ 		goto exit;
 -- 
 2.26.2
 
