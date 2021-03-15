@@ -7,148 +7,123 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D0B8C433DB
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D6F4C433E0
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:08:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 489E964F38
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:07:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4489664E13
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:08:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231409AbhCOVGk convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Mar 2021 17:06:40 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:34590 "EHLO
+        id S232127AbhCOVIQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Mar 2021 17:08:16 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:57210 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232784AbhCOVGj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:06:39 -0400
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+        with ESMTP id S230139AbhCOVH7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:07:59 -0400
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id E36815650D3
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 22:06:30 +0100 (CET)
-Received: by mail-pj1-f52.google.com with SMTP id kk2-20020a17090b4a02b02900c777aa746fso254719pjb.3
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:06:30 -0700 (PDT)
-X-Gm-Message-State: AOAM533GINwUGcp5O8tlWGs/7bMj1EebB1MYMsbeZrHYDt+B5M+rS3SM
-        SVcM6wXmIP+1V7vSTQQKry27XKMIjhjye1OpfcM=
-X-Google-Smtp-Source: ABdhPJwHvSj6BcKqLg5Z9GbARk2EujhBLn9deWwBqxIEY82NiZZTk7Zc21dgcY2K1DK8p5pQHBZNPJo8eGYuSjmnOO4=
-X-Received: by 2002:a17:902:f702:b029:e3:5e25:85bb with SMTP id
- h2-20020a170902f702b02900e35e2585bbmr13965878plo.56.1615842389649; Mon, 15
- Mar 2021 14:06:29 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 24E28565382
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 22:07:58 +0100 (CET)
+Received: by mail-pj1-f48.google.com with SMTP id f2-20020a17090a4a82b02900c67bf8dc69so224889pjh.1
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:07:58 -0700 (PDT)
+X-Gm-Message-State: AOAM530nAwab2RxWhpa9AHcdTX56Cbsgilgs3RrisCX0K7vpuOVZI5YN
+        HbWr/4V43igtmjogVXhudaL0aZ8HBpbu3f+HLdQ=
+X-Google-Smtp-Source: ABdhPJxSIPODL+4LDGTGnvJoUTvYmLOslC32guIVXCW0oZ/tQGR6ZxfVgCTer+uS/Rw+4MhG5D6tyxAFh/qfNVIwvUg=
+X-Received: by 2002:a17:902:c952:b029:e4:89ad:fae2 with SMTP id
+ i18-20020a170902c952b02900e489adfae2mr13483734pla.14.1615842477022; Mon, 15
+ Mar 2021 14:07:57 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210310193012.166256-1-jwcart2@gmail.com> <CAJ2a_DeSUHcBnXOTmTmexP_teYOz7Jt3zCNbKaHSS_V+fUs=EQ@mail.gmail.com>
- <CAJfZ7=nkqjKj8WqSPaTCJE6HGQvVgKPgOFxZ6OWiuVtHVwttmQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nkqjKj8WqSPaTCJE6HGQvVgKPgOFxZ6OWiuVtHVwttmQ@mail.gmail.com>
+References: <20210309213640.120117-1-jwcart2@gmail.com> <CAJfZ7=nXt-xmT040Am4CUTqNMVd4vZYb657L6eyYOpt2WzsQ8Q@mail.gmail.com>
+In-Reply-To: <CAJfZ7=nXt-xmT040Am4CUTqNMVd4vZYb657L6eyYOpt2WzsQ8Q@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 15 Mar 2021 22:06:18 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==mTeJt-zpnqWkQSFf7heo5kkM1ZBiJQzDVOOREP3MseQ@mail.gmail.com>
-Message-ID: <CAJfZ7==mTeJt-zpnqWkQSFf7heo5kkM1ZBiJQzDVOOREP3MseQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Expand role attributes in constraint expressions
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        James Carter <jwcart2@gmail.com>
+Date:   Mon, 15 Mar 2021 22:07:46 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==t3fKNXQFJV80ywk3M_ofAbprKgNi-F9G5rk=tmo6F3A@mail.gmail.com>
+Message-ID: <CAJfZ7==t3fKNXQFJV80ywk3M_ofAbprKgNi-F9G5rk=tmo6F3A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Properly handle types associated to role attributes
+To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Mar 15 22:06:31 2021 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Mar 15 22:07:58 2021 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Mar 14, 2021 at 9:04 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Sun, Mar 14, 2021 at 8:44 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Wed, Mar 10, 2021 at 9:16 PM Christian Göttsche
-> <cgzones@googlemail.com> wrote:
+> On Tue, Mar 9, 2021 at 10:37 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > Am Mi., 10. März 2021 um 20:30 Uhr schrieb James Carter <jwcart2@gmail.com>:
-> > >
-> > > When creating the kernel binary policy, role attributes in constraint
-> > > expressions are not expanded. This causes the constraint expression
-> > > to refer to a non-existent role in the kernel policy. This can lead
-> > > to a segfault when converting the binary policy back to conf or CIL
-> > > source or when using policy tools such as seinfo.
-> > >
-> > > Expand role attributes in constraint expressions when creating the
-> > > kernel binary policy.
+> > Types associated to role attributes in optional blocks are not
+> > associated with the roles that have that attribute. The problem
+> > is that role_fix_callback is called before the avrule_decls are
+> > walked.
 > >
+> > Example/
+> >   class CLASS1
+> >   sid kernel
+> >   class CLASS1 { PERM1 }
+> >   type TYPE1;
+> >   type TYPE1A;
+> >   allow TYPE1 self : CLASS1 PERM1;
+> >   attribute_role ROLE_ATTR1A;
+> >   role ROLE1;
+> >   role ROLE1A;
+> >   roleattribute ROLE1A ROLE_ATTR1A;
+> >   role ROLE1 types TYPE1;
+> >   optional {
+> >     require {
+> >       class CLASS1 PERM1;
+> >     }
+> >     role ROLE_ATTR1A types TYPE1A;
+> >   }
+> >   user USER1 roles ROLE1;
+> >   sid kernel USER1:ROLE1:TYPE1
 > >
-> > Thanks for the quick fix.
-> > Tested role attribute constraints with bare 3.2, leading to setfiles
-> > failing with `libsepol.validate_constraint_nodes: Invalid constraint
-> > expr`.
-> > Works fine with this patch.
-> > Also seinfo does not crash on the newly generated policy anymore.
+> > In this example ROLE1A will not have TYPE1A associated to it.
 > >
-> > Tested-by: Christian Göttsche <cgzones@googlemail.com>
+> > Call role_fix_callback() after the avrule_decls are walked.
 > >
-> >
-> > >
-> > > Reported-by: Christian Göttsche <cgzones@googlemail.com>
-> > > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
 > Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 Merged.
 
-Thanks,
+Thanks!
 Nicolas
 
-> > > ---
-> > >  libsepol/src/expand.c | 35 +++++++++++++++++++++++++++++++++++
-> > >  1 file changed, 35 insertions(+)
-> > >
-> > > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> > > index eac7e450..2d9cb566 100644
-> > > --- a/libsepol/src/expand.c
-> > > +++ b/libsepol/src/expand.c
-> > > @@ -71,6 +71,38 @@ static int map_ebitmap(ebitmap_t * src, ebitmap_t * dst, uint32_t * map)
-> > >         return 0;
-> > >  }
-> > >
-> > > +static int ebitmap_expand_roles(policydb_t *p, ebitmap_t *roles)
-> > > +{
-> > > +       ebitmap_node_t *node;
-> > > +       unsigned int bit;
-> > > +       role_datum_t *role;
-> > > +       ebitmap_t tmp;
-> > > +
-> > > +       ebitmap_init(&tmp);
-> > > +       ebitmap_for_each_positive_bit(roles, node, bit) {
-> > > +               role = p->role_val_to_struct[bit];
-> > > +               assert(role);
-> > > +               if (role->flavor != ROLE_ATTRIB) {
-> > > +                       if (ebitmap_set_bit(&tmp, bit, 1)) {
-> > > +                               ebitmap_destroy(&tmp);
-> > > +                               return -1;
-> > > +                       }
-> > > +               } else {
-> > > +                       if (ebitmap_union(&tmp, &role->roles)) {
-> > > +                               ebitmap_destroy(&tmp);
-> > > +                               return -1;
-> > > +                       }
-> > > +               }
-> > > +       }
-> > > +       ebitmap_destroy(roles);
-> > > +       if (ebitmap_cpy(roles, &tmp)) {
-> > > +               ebitmap_destroy(&tmp);
-> > > +               return -1;
-> > > +       }
-> > > +       ebitmap_destroy(&tmp);
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
-> > >                               void *data)
-> > >  {
-> > > @@ -333,6 +365,9 @@ static int constraint_node_clone(constraint_node_t ** dst,
-> > >                                         if (map_ebitmap(&expr->names, &new_expr->names, state->rolemap)) {
-> > >                                                 goto out_of_mem;
-> > >                                         }
-> > > +                                       if (ebitmap_expand_roles(state->out, &new_expr->names)) {
-> > > +                                               goto out_of_mem;
-> > > +                                       }
-> > >                                 } else if (new_expr->attr & CEXPR_USER) {
-> > >                                         if (map_ebitmap(&expr->names, &new_expr->names, state->usermap)) {
-> > >                                                 goto out_of_mem;
-> > > --
-> > > 2.26.2
-> > >
+> > ---
+> >  libsepol/src/expand.c | 9 +++++----
+> >  1 file changed, 5 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> > index eac7e450..1ee3e48f 100644
+> > --- a/libsepol/src/expand.c
+> > +++ b/libsepol/src/expand.c
+> > @@ -3017,10 +3017,6 @@ int expand_module(sepol_handle_t * handle,
+> >         if (hashtab_map(state.base->p_roles.table,
+> >                         role_bounds_copy_callback, &state))
+> >                 goto cleanup;
+> > -       /* escalate the type_set_t in a role attribute to all regular roles
+> > -        * that belongs to it. */
+> > -       if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
+> > -               goto cleanup;
+> >
+> >         /* copy MLS's sensitivity level and categories - this needs to be done
+> >          * before expanding users (they need to be indexed too) */
+> > @@ -3086,6 +3082,11 @@ int expand_module(sepol_handle_t * handle,
+> >                 goto cleanup;
+> >         }
+> >
+> > +       /* escalate the type_set_t in a role attribute to all regular roles
+> > +        * that belongs to it. */
+> > +       if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
+> > +               goto cleanup;
+> > +
+> >         if (copy_and_expand_avrule_block(&state) < 0) {
+> >                 ERR(handle, "Error during expand");
+> >                 goto cleanup;
+> > --
+> > 2.26.2
+> >
 
