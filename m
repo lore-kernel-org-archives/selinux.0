@@ -7,147 +7,120 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90E2FC433E0
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:12:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5B4AC433E0
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:35:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52F6A64F0F
-	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:12:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9824C64F51
+	for <selinux@archiver.kernel.org>; Mon, 15 Mar 2021 21:35:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbhCOVL2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Mar 2021 17:11:28 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:39942 "EHLO
+        id S230021AbhCOVe5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Mar 2021 17:34:57 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:52895 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232611AbhCOVK5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:10:57 -0400
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+        with ESMTP id S233137AbhCOVeu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Mar 2021 17:34:50 -0400
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id AC5F8560692
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 22:10:55 +0100 (CET)
-Received: by mail-pj1-f48.google.com with SMTP id kk2-20020a17090b4a02b02900c777aa746fso260618pjb.3
-        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:10:55 -0700 (PDT)
-X-Gm-Message-State: AOAM531deSqcKWcvXzfOogwHPwYJnGEsM1xfBvieBAD82ndeNTZFL3aD
-        doc5e1Rc87+LaRWtc+/zpDEtC87IDIzMPr4rWDc=
-X-Google-Smtp-Source: ABdhPJxEvb8/TDCrstFoOazB3TeT4Wqk/1r2xec3lj3DrIjAYakgkMh/Hfq9cb1ouUEFeXUmKMJRplMoYjudNcgb+Bg=
-X-Received: by 2002:a17:90a:4d81:: with SMTP id m1mr1038311pjh.143.1615842654512;
- Mon, 15 Mar 2021 14:10:54 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id AFFC2564B8A
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 22:34:48 +0100 (CET)
+Received: by mail-pg1-f170.google.com with SMTP id n10so21248191pgl.10
+        for <selinux@vger.kernel.org>; Mon, 15 Mar 2021 14:34:48 -0700 (PDT)
+X-Gm-Message-State: AOAM5324E8YvJ4jnsJtrLZhtrTYtP0s4IsFUKuwS5ZBMJsmWlI0NIdBt
+        Zr34v4CkL2tl+8hXRX4rAG2rMr+9OChBQMNoHWM=
+X-Google-Smtp-Source: ABdhPJyxl0LSHvPDFuRt+ngRZNumz/+aaxIn1P1hSfPIhyTqYeKSiEHNLvTBUz2OJO3OVrrFylm0Oy9NqM8bLpC336g=
+X-Received: by 2002:a62:5cc3:0:b029:203:54be:e4c9 with SMTP id
+ q186-20020a625cc30000b029020354bee4c9mr11901285pfb.80.1615844087430; Mon, 15
+ Mar 2021 14:34:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210315150938.320990-1-jwcart2@gmail.com>
-In-Reply-To: <20210315150938.320990-1-jwcart2@gmail.com>
+References: <20210314201651.474432-1-nicolas.iooss@m4x.org> <CAP+JOzThBfc5-JtYYuPfhBHX6phxWMCJksy8WPggDiDFJyTpaw@mail.gmail.com>
+In-Reply-To: <CAP+JOzThBfc5-JtYYuPfhBHX6phxWMCJksy8WPggDiDFJyTpaw@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 15 Mar 2021 22:10:43 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=miiSjhFfBV1jEBOROLm_kM+o1F+wSiUKLqahvc1bhLdA@mail.gmail.com>
-Message-ID: <CAJfZ7=miiSjhFfBV1jEBOROLm_kM+o1F+wSiUKLqahvc1bhLdA@mail.gmail.com>
-Subject: Re: [PATCH 1/2 v2] checkpolicy: Do not automatically upgrade when
- using "-b" flag
+Date:   Mon, 15 Mar 2021 22:34:36 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==YxFEzOidB4E6SpSEHPdF=9eX2YROXjX_-H4Fi1MU=gA@mail.gmail.com>
+Message-ID: <CAJfZ7==YxFEzOidB4E6SpSEHPdF=9eX2YROXjX_-H4Fi1MU=gA@mail.gmail.com>
+Subject: Re: [PATCH 1/6] libsepol/cil: fix out-of-bound read of a file context
+ pattern ending with "\"
 To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Mar 15 22:10:56 2021 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Mar 15 22:34:49 2021 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 4:10 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, Mar 15, 2021 at 10:02 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> When reading a binary policy, do not automatically change the version
-> to the max policy version supported by libsepol or, if specified, the
-> value given using the "-c" flag.
+> On Sun, Mar 14, 2021 at 4:23 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > OSS-Fuzz found a Heap-buffer-overflow in the CIL compiler when trying to
+> > compile the following policy:
+> >
+> >     (sid SID)
+> >     (sidorder(SID))
+> >     (filecon "\" any ())
+> >     (filecon "" any ())
+> >
+> > When cil_post_fc_fill_data() processes "\", it goes beyond the NUL
+> > terminator of the string. Fix this by returning when '\0' is read after
+> > a backslash.
+> >
+> > Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28484
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >  libsepol/cil/src/cil_post.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+> > index a55df1ea5bb0..5f9cf4efd242 100644
+> > --- a/libsepol/cil/src/cil_post.c
+> > +++ b/libsepol/cil/src/cil_post.c
+> > @@ -179,6 +179,12 @@ void cil_post_fc_fill_data(struct fc_data *fc, char *path)
+> >                         break;
+> >                 case '\\':
+> >                         c++;
 >
-> If the binary policy version is less than or equal to version 23
-> (POLICYDB_VERSION_PERMISSIVE) than do not automatically upgrade the
-> policy and if a policy version is specified by the "-c" flag, only set
-> the binary policy to the specified version if it is lower than the
-> current version.
->
-> If the binary policy version is greater than version 23 than it should
-> be set to the maximum version supported by libsepol or, if specified,
-> the value given by the "-c" flag.
->
-> The reason for this change is that policy versions 20
-> (POLICYDB_VERSION_AVTAB) to 23 have a more primitive support for type
-> attributes where the datums are not written out, but they exist in the
-> type_attr_map. This means that when the binary policy is read by
-> libsepol, there will be gaps in the type_val_to_struct and
-> p_type_val_to_name arrays and policy rules can refer to those gaps.
-> Certain libsepol functions like sepol_kernel_policydb_to_conf() and
-> sepol_kernel_policydb_to_cil() do not support this behavior and need
-> to be able to identify these policies. Policies before version 20 do not
-> support attributes at all and can be handled by all libsepol functions.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
-> v2 - Give the proper value when printing the compatibility range
+> The patch below is fine, but I can't figure out the reason for the
+> line above. I guess it means that fc->str_len++ will be skipped, but
+> if that is the purpose, it is not very clear. Does anyone know if this
+> is correct?
 
-For both patches:
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Which line? "break;" ? In case you and/or other people are confused
+about the code in cil_post_fc_fill_data, this "break;" exits the
+switch(path[c]) block but still executes the lines right after
+("fc->str_len++;" and "c++;"):
 
-Thanks!
+while (path[c] != '\0') {
+    switch (path[c]) {
+    case '.':
+    /* ... */
+    case '{':
+        fc->meta = 1;
+        break;
+    case '\\':
+        c++;
+        /* FALLTHRU */
+    default:
+// This code is executed for every character before a special one
+// (while "meta" is false)
+// and "\c" counts as a single character, for c being anything.
+        if (!fc->meta) {
+            fc->stem_len++;
+        }
+        break;
+    }
+// These lines are executed for every character.
+// "str_len" counts the number of unescaped characters
+// ("\c" counts as a single character)
+    fc->str_len++;
+    c++;
+}
+
+In my opinion, the code looks correct, but this could be verified with
+a new unit test which could computes str_len and stem_len for some
+strings.
+
+Cheers,
 Nicolas
-
->  checkpolicy/checkpolicy.c | 19 +++++++++++++++----
->  1 file changed, 15 insertions(+), 4 deletions(-)
->
-> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index 5841c5c4..acf1eac4 100644
-> --- a/checkpolicy/checkpolicy.c
-> +++ b/checkpolicy/checkpolicy.c
-> @@ -106,7 +106,7 @@ static int handle_unknown = SEPOL_DENY_UNKNOWN;
->  static const char *txtfile = "policy.conf";
->  static const char *binfile = "policy";
->
-> -unsigned int policyvers = POLICYDB_VERSION_MAX;
-> +unsigned int policyvers = 0;
->
->  static __attribute__((__noreturn__)) void usage(const char *progname)
->  {
-> @@ -515,7 +515,8 @@ int main(int argc, char **argv)
->         }
->
->         if (show_version) {
-> -               printf("%d (compatibility range %d-%d)\n", policyvers,
-> +               printf("%d (compatibility range %d-%d)\n",
-> +                          policyvers ? policyvers : POLICYDB_VERSION_MAX ,
->                        POLICYDB_VERSION_MAX, POLICYDB_VERSION_MIN);
->                 exit(0);
->         }
-> @@ -588,6 +589,16 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                 }
-> +
-> +               if (policydbp->policyvers <= POLICYDB_VERSION_PERMISSIVE) {
-> +                       if (policyvers > policydbp->policyvers) {
-> +                               fprintf(stderr, "Binary policies with version <= %u cannot be upgraded\n", POLICYDB_VERSION_PERMISSIVE);
-> +                       } else if (policyvers) {
-> +                               policydbp->policyvers = policyvers;
-> +                       }
-> +               } else {
-> +                       policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
-> +               }
->         } else {
->                 if (conf) {
->                         fprintf(stderr, "Can only generate policy.conf from binary policy\n");
-> @@ -629,6 +640,8 @@ int main(int argc, char **argv)
->                         policydb_destroy(policydbp);
->                         policydbp = &policydb;
->                 }
-> +
-> +               policydbp->policyvers = policyvers ? policyvers : POLICYDB_VERSION_MAX;
->         }
->
->         if (policydb_load_isids(&policydb, &sidtab))
-> @@ -654,8 +667,6 @@ int main(int argc, char **argv)
->                         }
->                 }
->
-> -               policydb.policyvers = policyvers;
-> -
->                 if (!cil) {
->                         if (!conf) {
->                                 policydb.policy_type = POLICY_KERN;
-> --
-> 2.26.2
->
 
