@@ -2,204 +2,215 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B261BC433DB
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 14:36:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0067DC433E0
+	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 15:51:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 698BF64F26
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 14:36:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF8BE64F6C
+	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 15:51:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231849AbhCQOf4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Mar 2021 10:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56424 "EHLO
+        id S232031AbhCQPu5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Mar 2021 11:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231784AbhCQOff (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 10:35:35 -0400
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4026C06174A
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 07:35:35 -0700 (PDT)
-Received: by mail-ot1-x333.google.com with SMTP id v24-20020a9d69d80000b02901b9aec33371so1972253oto.2
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 07:35:35 -0700 (PDT)
+        with ESMTP id S231784AbhCQPuY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 11:50:24 -0400
+Received: from mail-wr1-x449.google.com (mail-wr1-x449.google.com [IPv6:2a00:1450:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8FCC061763
+        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 08:50:24 -0700 (PDT)
+Received: by mail-wr1-x449.google.com with SMTP id n17so18631444wrq.5
+        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 08:50:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ekT2H1fgYsTk514g0nay1e00mkuPeg84o3uNs6TArTo=;
-        b=TihFXeYqOWuoo7t/G25s7M3ch39Q+9WAd/Jm8NCNEX4kPB6cp61IhHVAGuFtC7hinV
-         qunDPgiXmFSI5Si2clKY/35vYZoJ41SkMjQw0oFzh0uJtqXSKQQ75Ke/y/2WUWmrvzyL
-         IlZDU9j5a/PVHcEn4nGcpNQIn7zQu5MBa1WjQAf84m5vTQSQ+SFsJPTqueYkPBnHDMvA
-         RGB4/wveHJOqmREB58z5ldvpxLuINZ0lTusfDjLMpH0AGyHFb2CZm4ilit9fyRE1Vhoo
-         z96CmiLbsJ+avcjcUM3DMYdnUZajd3AG2a0KPZ3KG8cKXl3fg/AutQdhwkpB+SKBQI35
-         LsGw==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=eZ0IaSrEKtqBhBUO7kHmyEE/SbgsMqZRhisBRsFJTV8=;
+        b=V7xt+yDM9UTZWAWIMbyOEfzgodCexInv09lKBQeNYN2aA78GKy7WIK53kbxOX9B23W
+         WxTx6CZLYLVA6LkesJXPxaGgrXwZimaNJ4dsPBZ5QceNimMaXO+P00UEq1sMsn3jxo9x
+         wjR98ct7z+GYONYBiOibp11AaMMk/icEbxM5To7snSBEvfrEHtNmRzfQjkj9EDvYrO1i
+         OlMipoxsiKGPvjTRGHJJkvTlSLMvx34p3FU+1gMB0mkED+TO64NxyuoSlaCsmTdUsGiF
+         BUa2vKUl8YWz2AQIBJ9Ildoiw6Mxb0mVxtArWBdkhxNsUAX6urwDA1nEifC7tCCb2FrV
+         hTeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ekT2H1fgYsTk514g0nay1e00mkuPeg84o3uNs6TArTo=;
-        b=ieB92yRCc17Nr1UEnufTwsfZhzwpcVFBFQo/uAGkBJQ5KyBnD7VoKmmmXU9B/TZpRX
-         JJcRr5aDpL6NFFRyva0rt4jV+0G8FWgWRZlHHUPQ5c8OJnUsE9SOZIy7P4JjhWwPW54+
-         TGBbx/h5eS+E+QOWRsm9hTmn9J/SdTfigmOsjbwVj/g08a2HJE/PLHOYbFqFItFVjRj/
-         KvA04hUfWgTeh82Fv7zk8bjJYePy9zJ1ljASH0/UVY7/LBIDCVR/wef9e9Tlol1hWvBt
-         jLt1R9ap1XbyVEXynTgrVONvHo7IiR6F9KX0BRIMDZ+Xeabh82pUuD3dp1ypra72mfNM
-         xh+Q==
-X-Gm-Message-State: AOAM533Q12OUgzmB5vVC8D7G4iZW40bTBljA3vspXrsEBSM9rA5G2/PX
-        jnIPQl24KZ4q6+LPNOeXV7RkhmlzUqOpPrkQnHtmHShm
-X-Google-Smtp-Source: ABdhPJy+1uhDXTiQRcyW3hPBO33nNhqUDGiHM/aUsYxEonE1WZY+ZNiJ8/ZiwW3j1FoozfGI80eDFrr0B51AN0Tw6OE=
-X-Received: by 2002:a9d:6c94:: with SMTP id c20mr3580966otr.59.1615991735216;
- Wed, 17 Mar 2021 07:35:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210314201651.474432-1-nicolas.iooss@m4x.org>
- <CAP+JOzThBfc5-JtYYuPfhBHX6phxWMCJksy8WPggDiDFJyTpaw@mail.gmail.com>
- <CAJfZ7==YxFEzOidB4E6SpSEHPdF=9eX2YROXjX_-H4Fi1MU=gA@mail.gmail.com>
- <CAP+JOzRFvwFKYhqrdjy=AjLqsiprbT8p2fc-cbuPGEhSMvNFiw@mail.gmail.com> <CAJfZ7=nFZ10MTyBmWsVg_Y4HKRijo1Mrt0b-DTbfg1m-1xqdHw@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nFZ10MTyBmWsVg_Y4HKRijo1Mrt0b-DTbfg1m-1xqdHw@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 17 Mar 2021 10:35:24 -0400
-Message-ID: <CAP+JOzSbCsMX7zSpw9_B6q85OzmBVO++6fippHR0nWpBWoQDdg@mail.gmail.com>
-Subject: Re: [PATCH 1/6] libsepol/cil: fix out-of-bound read of a file context
- pattern ending with "\"
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=eZ0IaSrEKtqBhBUO7kHmyEE/SbgsMqZRhisBRsFJTV8=;
+        b=p7UmytmeuXq9FFExOIi8MV5lNUx+y+Hy1GB9vsH8iPvJCELPycYFz8XDWa804MRXH7
+         TdMuclugPuY41dADtZ2awDxjy72h4YZvT0lpltVmkLobdX4XVOJbJ3sGjWHPo+8W2P8n
+         hIeCEj5DfHK7GcoX4cbE5XCXcyJMMTeebxAMC3M+CN/odvugbhOOazh1zq2RzvilyuPK
+         qhqhTUyS8Fqk5EZFfH6udJugcznjB+IOYv7Z/Vto2hADzkpmPfWfCCs/ypOnjXOOl2+G
+         FAfChZ/VP+W8Wtu3LK+31zKeGUL38U5jtALwwuKBK3Uw6ebu/Dum/5Kw948ZIpM1TR/6
+         KkyA==
+X-Gm-Message-State: AOAM533MSl2SWMumlBP+oUSYYivNtqabvTHrAe8mQr9kWmktbLZmxl2h
+        f2RVJTHcpwIpCjr7NwmkRIU1COnfEMZxUqVFczCAlEuO3y3LS9cUJewmkWuIwbGI9mWWJm0N7wY
+        LfSHK5gJkFCwvBHvPvuNa+w2iPhp79uf6g2rv1tU9/VUlE/zpTw369ql/V4jjRyPpdWCy
+X-Google-Smtp-Source: ABdhPJyAihfXcNLMxfLmDlNAy51x1RvGzXsVoVv2S0gp0kZBj642cmMzEdhuNg+IZnCFBE0gBLfzQVJ5F/cmeA==
+X-Received: from dbrazdil.c.googlers.com ([fda3:e722:ac3:10:28:9cb1:c0a8:7f9b])
+ (user=dbrazdil job=sendgmr) by 2002:a7b:cb89:: with SMTP id
+ m9mr4267737wmi.27.1615995892631; Wed, 17 Mar 2021 08:44:52 -0700 (PDT)
+Date:   Wed, 17 Mar 2021 15:44:48 +0000
+Message-Id: <20210317154448.1034471-1-dbrazdil@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: [PATCH] selinux: vsock: Set SID for socket returned by accept()
+From:   David Brazdil <dbrazdil@google.com>
+To:     selinux@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Alistair Delva <adelva@google.com>,
+        David Brazdil <dbrazdil@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 17, 2021 at 3:45 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Tue, Mar 16, 2021 at 2:34 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > On Mon, Mar 15, 2021 at 5:34 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > >
-> > > On Mon, Mar 15, 2021 at 10:02 PM James Carter <jwcart2@gmail.com> wrote:
-> > > >
-> > > > On Sun, Mar 14, 2021 at 4:23 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > > > >
-> > > > > OSS-Fuzz found a Heap-buffer-overflow in the CIL compiler when trying to
-> > > > > compile the following policy:
-> > > > >
-> > > > >     (sid SID)
-> > > > >     (sidorder(SID))
-> > > > >     (filecon "\" any ())
-> > > > >     (filecon "" any ())
-> > > > >
-> > > > > When cil_post_fc_fill_data() processes "\", it goes beyond the NUL
-> > > > > terminator of the string. Fix this by returning when '\0' is read after
-> > > > > a backslash.
-> > > > >
-> > > > > Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28484
-> > > > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> > > > > ---
-> > > > >  libsepol/cil/src/cil_post.c | 6 ++++++
-> > > > >  1 file changed, 6 insertions(+)
-> > > > >
-> > > > > diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> > > > > index a55df1ea5bb0..5f9cf4efd242 100644
-> > > > > --- a/libsepol/cil/src/cil_post.c
-> > > > > +++ b/libsepol/cil/src/cil_post.c
-> > > > > @@ -179,6 +179,12 @@ void cil_post_fc_fill_data(struct fc_data *fc, char *path)
-> > > > >                         break;
-> > > > >                 case '\\':
-> > > > >                         c++;
-> > > >
-> > > > The patch below is fine, but I can't figure out the reason for the
-> > > > line above. I guess it means that fc->str_len++ will be skipped, but
-> > > > if that is the purpose, it is not very clear. Does anyone know if this
-> > > > is correct?
-> > >
-> > > Which line? "break;" ? In case you and/or other people are confused
-> > > about the code in cil_post_fc_fill_data, this "break;" exits the
-> > > switch(path[c]) block but still executes the lines right after
-> > > ("fc->str_len++;" and "c++;"):
-> > >
-> >
-> > Sorry, I wasn't very clear. I am wondering what the "c++" is doing
-> > here because after the switch statement there is another "c++" (after
-> > "fc->str_length++"), so this skips the character after the "/". Why
-> > would one do that? My only thought is that maybe "/" is not supposed
-> > to count towards the string length and the author thought not counting
-> > the next character works just as well? Except, of course, it doesn't
-> > if there is no next character.
->
-> The matched character is a backslash ("\"), not a slash ("/"). I
+For AF_VSOCK, accept() currently returns sockets that are unlabelled.
+Other socket families derive the child's SID from the SID of the parent
+and the SID of the incoming packet. This is typically done as the
+connected socket is placed in the queue that accept() removes from.
 
-I am an idiot. The code makes a lot more sense now. You only want to
-count an escaped character as one character.
+Implement an LSM hook 'vsock_sk_clone' that takes the parent (server)
+and child (connection) struct socks, and assigns the parent SID to the
+child. There is no packet SID in this case.
 
-> understand that this implementation of "c++; without fc->str_len++;
-> nor fc->stem_len++;" is there in order to count sequences such as
-> "\(", "\.", "\["... as a single character. More precisely, when for
-> example the two-character sequence "\." is encountered in a path
-> (which happens often, as it is the way to escape dots in file context
-> patterns):
->
-> * c is increased twice ("c++;" in present twice in the while loop), in
-> order to go to the character next to the sequence ;
-> * fc->str_len is increased once (this sequence counts as a single
-> non-special character) ;
-> * if fc->meta is false (i.e. if no meta character such as ".", "(",
-> "["... has been encountered yet), fc->stem_len is increased once (this
-> sequence counts as a single non-special character in the "stem" of the
-> path)
->
-> The code I added in my patch made fc->stem_len increase when a path
-> ends with "\" (the character after the backslash character is a NUL
-> string terminator), before exiting cil_post_fc_fill_data. Now I am
-> wondering whether fc->str_len should also be increased, in order to
-> "count the backslash". In fact, finishing a path pattern with an
-> incomplete escape sequence is weird and I do not precisely know the
-> semantic of the length counters in such a case. What do you think?
->
+Signed-off-by: David Brazdil <dbrazdil@google.com>
+---
+This is my first patch in this part of the kernel so please comment if I
+missed anything, specifically whether there is a packet SID that should
+be mixed into the child SID.
 
-I think that it is an invalid path, so maybe I need to add some sort
-of verification to the path at some point.
+Tested on Android.
 
-I finally found the source of this code in
-refpolicy/support/fc_sort.py where the function compute_diffdata() is
-very similar. That function would increment str_len in this case, so
-to be consistent with that fc->str_len should also be incremented.
+ include/linux/lsm_hook_defs.h |  1 +
+ include/linux/lsm_hooks.h     |  7 +++++++
+ include/linux/security.h      |  5 +++++
+ net/vmw_vsock/af_vsock.c      |  1 +
+ security/security.c           |  5 +++++
+ security/selinux/hooks.c      | 10 ++++++++++
+ 6 files changed, 29 insertions(+)
 
-Jim
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 477a597db013..f35e422b2b5c 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -329,6 +329,7 @@ LSM_HOOK(int, 0, sctp_bind_connect, struct sock *sk, int optname,
+ 	 struct sockaddr *address, int addrlen)
+ LSM_HOOK(void, LSM_RET_VOID, sctp_sk_clone, struct sctp_endpoint *ep,
+ 	 struct sock *sk, struct sock *newsk)
++LSM_HOOK(void, LSM_RET_VOID, vsock_sk_clone, struct sock *sock, struct sock *newsk)
+ #endif /* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index fb7f3193753d..1b4e92990401 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1033,6 +1033,13 @@
+  *	@sk pointer to current sock structure.
+  *	@sk pointer to new sock structure.
+  *
++ * Security hooks for vSockets
++ *
++ * @vsock_sk_clone:
++ *	Clone SID from the server socket to a newly connected child socket.
++ *	@sock contains the sock structure.
++ *	@newsk contains the new sock structure.
++ *
+  * Security hooks for Infiniband
+  *
+  * @ib_pkey_access:
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 8aeebd6646dc..ffac67058355 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1404,6 +1404,7 @@ int security_sctp_bind_connect(struct sock *sk, int optname,
+ 			       struct sockaddr *address, int addrlen);
+ void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
+ 			    struct sock *newsk);
++void security_vsock_sk_clone(struct sock *sock, struct sock *newsk);
+ 
+ #else	/* CONFIG_SECURITY_NETWORK */
+ static inline int security_unix_stream_connect(struct sock *sock,
+@@ -1623,6 +1624,10 @@ static inline void security_sctp_sk_clone(struct sctp_endpoint *ep,
+ 					  struct sock *newsk)
+ {
+ }
++
++static inline void security_vsock_sk_clone(struct sock *sock, struct sock *newsk)
++{
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 5546710d8ac1..a9bf3b90cb2f 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -755,6 +755,7 @@ static struct sock *__vsock_create(struct net *net,
+ 		vsk->buffer_size = psk->buffer_size;
+ 		vsk->buffer_min_size = psk->buffer_min_size;
+ 		vsk->buffer_max_size = psk->buffer_max_size;
++		security_vsock_sk_clone(parent, sk);
+ 	} else {
+ 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+ 		vsk->owner = get_current_cred();
+diff --git a/security/security.c b/security/security.c
+index 5ac96b16f8fa..050b653405e0 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2335,6 +2335,11 @@ void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
+ }
+ EXPORT_SYMBOL(security_sctp_sk_clone);
+ 
++void security_vsock_sk_clone(struct sock *sock, struct sock *newsk)
++{
++	call_void_hook(vsock_sk_clone, sock, newsk);
++}
++EXPORT_SYMBOL(security_vsock_sk_clone);
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ddd097790d47..7b92d6f2e0fd 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5616,6 +5616,15 @@ static int selinux_tun_dev_open(void *security)
+ 	return 0;
+ }
+ 
++static void selinux_socket_vsock_sk_clone(struct sock *sock, struct sock *newsk)
++{
++	struct sk_security_struct *sksec_sock = sock->sk_security;
++	struct sk_security_struct *sksec_new = newsk->sk_security;
++
++	/* Always returns 0 when packet SID is SECSID_NULL. */
++	WARN_ON_ONCE(selinux_conn_sid(sksec_sock->sid, SECSID_NULL, &sksec_new->sid));
++}
++
+ #ifdef CONFIG_NETFILTER
+ 
+ static unsigned int selinux_ip_forward(struct sk_buff *skb,
+@@ -7228,6 +7237,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
+ 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
+ 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
++	LSM_HOOK_INIT(vsock_sk_clone, selinux_socket_vsock_sk_clone),
+ #ifdef CONFIG_SECURITY_INFINIBAND
+ 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
+ 	LSM_HOOK_INIT(ib_endport_manage_subnet,
+-- 
+2.31.0.rc2.261.g7f71774620-goog
 
-
-> Nicolas
->
-> > > while (path[c] != '\0') {
-> > >     switch (path[c]) {
-> > >     case '.':
-> > >     /* ... */
-> > >     case '{':
-> > >         fc->meta = 1;
-> > >         break;
-> > >     case '\\':
-> > >         c++;
-> > >         /* FALLTHRU */
-> > >     default:
-> > > // This code is executed for every character before a special one
-> > > // (while "meta" is false)
-> > > // and "\c" counts as a single character, for c being anything.
-> > >         if (!fc->meta) {
-> > >             fc->stem_len++;
-> > >         }
-> > >         break;
-> > >     }
-> > > // These lines are executed for every character.
-> > > // "str_len" counts the number of unescaped characters
-> > > // ("\c" counts as a single character)
-> > >     fc->str_len++;
-> > >     c++;
-> > > }
-> > >
-> > > In my opinion, the code looks correct, but this could be verified with
-> > > a new unit test which could computes str_len and stem_len for some
-> > > strings.
-> > >
-> > > Cheers,
-> > > Nicolas
-> > >
->
