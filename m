@@ -2,215 +2,162 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0067DC433E0
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 15:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39DD4C43331
+	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 19:01:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF8BE64F6C
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 15:51:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 237C664F5E
+	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 19:00:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232031AbhCQPu5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Mar 2021 11:50:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
+        id S231895AbhCQTAX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Mar 2021 15:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231784AbhCQPuY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 11:50:24 -0400
-Received: from mail-wr1-x449.google.com (mail-wr1-x449.google.com [IPv6:2a00:1450:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8FCC061763
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 08:50:24 -0700 (PDT)
-Received: by mail-wr1-x449.google.com with SMTP id n17so18631444wrq.5
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 08:50:24 -0700 (PDT)
+        with ESMTP id S231322AbhCQTAI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 15:00:08 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 193ECC06174A
+        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 12:00:08 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id 73so2211136qtg.13
+        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 12:00:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=eZ0IaSrEKtqBhBUO7kHmyEE/SbgsMqZRhisBRsFJTV8=;
-        b=V7xt+yDM9UTZWAWIMbyOEfzgodCexInv09lKBQeNYN2aA78GKy7WIK53kbxOX9B23W
-         WxTx6CZLYLVA6LkesJXPxaGgrXwZimaNJ4dsPBZ5QceNimMaXO+P00UEq1sMsn3jxo9x
-         wjR98ct7z+GYONYBiOibp11AaMMk/icEbxM5To7snSBEvfrEHtNmRzfQjkj9EDvYrO1i
-         OlMipoxsiKGPvjTRGHJJkvTlSLMvx34p3FU+1gMB0mkED+TO64NxyuoSlaCsmTdUsGiF
-         BUa2vKUl8YWz2AQIBJ9Ildoiw6Mxb0mVxtArWBdkhxNsUAX6urwDA1nEifC7tCCb2FrV
-         hTeg==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/eyXo5/AXt68vDrIptMQQy+zPWF47nPL4n//7APaJYw=;
+        b=H4ucaoKg7siR5PFYhQE+KisT+FHW7x2ciwTI3WxYrxN+jTM/85aAB70Dyyg47QFlIk
+         bCL35b5TzSdtg+IarZmKrd2NtA6os9rHOIVdvI1E6ZHyBrQZGfyPO5lxAXxv6KIGiJ4R
+         AfXgUmfGZ8+3iTG7GGmU6nonwIoeaBT1FjVGTRb3qSXQCouNfuwSaGaHvHoO3LLtCP7w
+         ql9bbro4nKJMNtle4ngeKffw24YvK95T/YG/Mm3982usxLxzTQJnG3+jSGtcH6w6cilr
+         3r8m0PO0DGw1bMY3bhdnUt6Ra6c8w8llg3gMLry8nq/GmWZsxvfAT9A+cGGh5xmTgyKU
+         olAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=eZ0IaSrEKtqBhBUO7kHmyEE/SbgsMqZRhisBRsFJTV8=;
-        b=p7UmytmeuXq9FFExOIi8MV5lNUx+y+Hy1GB9vsH8iPvJCELPycYFz8XDWa804MRXH7
-         TdMuclugPuY41dADtZ2awDxjy72h4YZvT0lpltVmkLobdX4XVOJbJ3sGjWHPo+8W2P8n
-         hIeCEj5DfHK7GcoX4cbE5XCXcyJMMTeebxAMC3M+CN/odvugbhOOazh1zq2RzvilyuPK
-         qhqhTUyS8Fqk5EZFfH6udJugcznjB+IOYv7Z/Vto2hADzkpmPfWfCCs/ypOnjXOOl2+G
-         FAfChZ/VP+W8Wtu3LK+31zKeGUL38U5jtALwwuKBK3Uw6ebu/Dum/5Kw948ZIpM1TR/6
-         KkyA==
-X-Gm-Message-State: AOAM533MSl2SWMumlBP+oUSYYivNtqabvTHrAe8mQr9kWmktbLZmxl2h
-        f2RVJTHcpwIpCjr7NwmkRIU1COnfEMZxUqVFczCAlEuO3y3LS9cUJewmkWuIwbGI9mWWJm0N7wY
-        LfSHK5gJkFCwvBHvPvuNa+w2iPhp79uf6g2rv1tU9/VUlE/zpTw369ql/V4jjRyPpdWCy
-X-Google-Smtp-Source: ABdhPJyAihfXcNLMxfLmDlNAy51x1RvGzXsVoVv2S0gp0kZBj642cmMzEdhuNg+IZnCFBE0gBLfzQVJ5F/cmeA==
-X-Received: from dbrazdil.c.googlers.com ([fda3:e722:ac3:10:28:9cb1:c0a8:7f9b])
- (user=dbrazdil job=sendgmr) by 2002:a7b:cb89:: with SMTP id
- m9mr4267737wmi.27.1615995892631; Wed, 17 Mar 2021 08:44:52 -0700 (PDT)
-Date:   Wed, 17 Mar 2021 15:44:48 +0000
-Message-Id: <20210317154448.1034471-1-dbrazdil@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
-Subject: [PATCH] selinux: vsock: Set SID for socket returned by accept()
-From:   David Brazdil <dbrazdil@google.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/eyXo5/AXt68vDrIptMQQy+zPWF47nPL4n//7APaJYw=;
+        b=N1jZVIfCbmHoLxyuj+9j7JvgJW6ZI9P5ZFdcb/cruTXrcoAbZTkAFn5M5HPVmIpJmC
+         Nu/lm4SE1lW9hzhLk5upvrQV4+Cc0o75qD0N6kKPPcXzmQDixd5NzyS+mScevCfl9rSV
+         p5CvL9zczGoFeaPntW0MUFvDyntEe3Tb6GINmEeSNtcegHApR2HFvGNDxmQTRSPu5pVx
+         04IWBOb64SPDufZh6E1f4T6FvQuajzoSnID1qIGikhUmqFPsczTo8Ekv1w+5af1S3765
+         GPydW/CD3HQzdOqT4+jPjnVG6eQZ122moqgN97reSSGGuWazr7fCa6SiTI3PGY6lubA0
+         MdXQ==
+X-Gm-Message-State: AOAM532XW8lUtQnpatC/02zPJJFryeYArFrZ6j64S72w8pKVtYLud/pv
+        iXRApj89o4snxKBpO9Dafrszr15lOtM=
+X-Google-Smtp-Source: ABdhPJyh8QLw6/z+CZFgapSmWLHJh8UplIRnRzNw7ehxwCDujXzDK2Hlz2y0WcOcb3kQAsGTxU0Qnw==
+X-Received: by 2002:ac8:6746:: with SMTP id n6mr496528qtp.236.1616007607146;
+        Wed, 17 Mar 2021 12:00:07 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id d84sm18222873qke.53.2021.03.17.12.00.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Mar 2021 12:00:06 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Alistair Delva <adelva@google.com>,
-        David Brazdil <dbrazdil@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Cc:     James Carter <jwcart2@gmail.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: [PATCH] libsepol/cil: Destroy classperms list when resetting classpermission
+Date:   Wed, 17 Mar 2021 15:00:02 -0400
+Message-Id: <20210317190002.81465-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-For AF_VSOCK, accept() currently returns sockets that are unlabelled.
-Other socket families derive the child's SID from the SID of the parent
-and the SID of the incoming packet. This is typically done as the
-connected socket is placed in the queue that accept() removes from.
+Nicolas Iooss reports:
+  A few months ago, OSS-Fuzz found a crash in the CIL compiler, which
+  got reported as
+  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28648 (the title
+  is misleading, or is caused by another issue that conflicts with the
+  one I report in this message). Here is a minimized CIL policy which
+  reproduces the issue:
 
-Implement an LSM hook 'vsock_sk_clone' that takes the parent (server)
-and child (connection) struct socks, and assigns the parent SID to the
-child. There is no packet SID in this case.
+  (class CLASS (PERM))
+  (classorder (CLASS))
+  (sid SID)
+  (sidorder (SID))
+  (user USER)
+  (role ROLE)
+  (type TYPE)
+  (category CAT)
+  (categoryorder (CAT))
+  (sensitivity SENS)
+  (sensitivityorder (SENS))
+  (sensitivitycategory SENS (CAT))
+  (allow TYPE self (CLASS (PERM)))
+  (roletype ROLE TYPE)
+  (userrole USER ROLE)
+  (userlevel USER (SENS))
+  (userrange USER ((SENS)(SENS (CAT))))
+  (sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
 
-Signed-off-by: David Brazdil <dbrazdil@google.com>
+  (classpermission CLAPERM)
+
+  (optional OPT
+      (roletype nonexistingrole nonexistingtype)
+      (classpermissionset CLAPERM (CLASS (PERM)))
+  )
+
+  The CIL policy fuzzer (which mimics secilc built with clang Address
+  Sanitizer) reports:
+
+  ==36541==ERROR: AddressSanitizer: heap-use-after-free on address
+  0x603000004f98 at pc 0x56445134c842 bp 0x7ffe2a256590 sp
+  0x7ffe2a256588
+  READ of size 8 at 0x603000004f98 thread T0
+      #0 0x56445134c841 in __cil_verify_classperms
+  /selinux/libsepol/src/../cil/src/cil_verify.c:1620:8
+      #1 0x56445134a43e in __cil_verify_classpermission
+  /selinux/libsepol/src/../cil/src/cil_verify.c:1650:9
+      #2 0x56445134a43e in __cil_pre_verify_helper
+  /selinux/libsepol/src/../cil/src/cil_verify.c:1715:8
+      #3 0x5644513225ac in cil_tree_walk_core
+  /selinux/libsepol/src/../cil/src/cil_tree.c:272:9
+      #4 0x564451322ab1 in cil_tree_walk
+  /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+      #5 0x5644513226af in cil_tree_walk_core
+  /selinux/libsepol/src/../cil/src/cil_tree.c:284:9
+      #6 0x564451322ab1 in cil_tree_walk
+  /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+      #7 0x5644512b88fd in cil_pre_verify
+  /selinux/libsepol/src/../cil/src/cil_post.c:2510:7
+      #8 0x5644512b88fd in cil_post_process
+  /selinux/libsepol/src/../cil/src/cil_post.c:2524:7
+      #9 0x5644511856ff in cil_compile
+  /selinux/libsepol/src/../cil/src/cil.c:564:7
+
+The classperms list of a classpermission rule is created and filled
+in when classpermissionset rules are processed, so it doesn't own any
+part of the list and shouldn't retain any of it when it is reset.
+
+Destroy the classperms list (without destroying the data in it)  when
+resetting a classpermission rule.
+
+Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-This is my first patch in this part of the kernel so please comment if I
-missed anything, specifically whether there is a packet SID that should
-be mixed into the child SID.
+ libsepol/cil/src/cil_reset_ast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tested on Android.
-
- include/linux/lsm_hook_defs.h |  1 +
- include/linux/lsm_hooks.h     |  7 +++++++
- include/linux/security.h      |  5 +++++
- net/vmw_vsock/af_vsock.c      |  1 +
- security/security.c           |  5 +++++
- security/selinux/hooks.c      | 10 ++++++++++
- 6 files changed, 29 insertions(+)
-
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 477a597db013..f35e422b2b5c 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -329,6 +329,7 @@ LSM_HOOK(int, 0, sctp_bind_connect, struct sock *sk, int optname,
- 	 struct sockaddr *address, int addrlen)
- LSM_HOOK(void, LSM_RET_VOID, sctp_sk_clone, struct sctp_endpoint *ep,
- 	 struct sock *sk, struct sock *newsk)
-+LSM_HOOK(void, LSM_RET_VOID, vsock_sk_clone, struct sock *sock, struct sock *newsk)
- #endif /* CONFIG_SECURITY_NETWORK */
+diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
+index 3da1b9a6..db70a535 100644
+--- a/libsepol/cil/src/cil_reset_ast.c
++++ b/libsepol/cil/src/cil_reset_ast.c
+@@ -54,7 +54,7 @@ static void cil_reset_classpermission(struct cil_classpermission *cp)
+ 		return;
+ 	}
  
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index fb7f3193753d..1b4e92990401 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1033,6 +1033,13 @@
-  *	@sk pointer to current sock structure.
-  *	@sk pointer to new sock structure.
-  *
-+ * Security hooks for vSockets
-+ *
-+ * @vsock_sk_clone:
-+ *	Clone SID from the server socket to a newly connected child socket.
-+ *	@sock contains the sock structure.
-+ *	@newsk contains the new sock structure.
-+ *
-  * Security hooks for Infiniband
-  *
-  * @ib_pkey_access:
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 8aeebd6646dc..ffac67058355 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1404,6 +1404,7 @@ int security_sctp_bind_connect(struct sock *sk, int optname,
- 			       struct sockaddr *address, int addrlen);
- void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
- 			    struct sock *newsk);
-+void security_vsock_sk_clone(struct sock *sock, struct sock *newsk);
- 
- #else	/* CONFIG_SECURITY_NETWORK */
- static inline int security_unix_stream_connect(struct sock *sock,
-@@ -1623,6 +1624,10 @@ static inline void security_sctp_sk_clone(struct sctp_endpoint *ep,
- 					  struct sock *newsk)
- {
- }
-+
-+static inline void security_vsock_sk_clone(struct sock *sock, struct sock *newsk)
-+{
-+}
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 5546710d8ac1..a9bf3b90cb2f 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -755,6 +755,7 @@ static struct sock *__vsock_create(struct net *net,
- 		vsk->buffer_size = psk->buffer_size;
- 		vsk->buffer_min_size = psk->buffer_min_size;
- 		vsk->buffer_max_size = psk->buffer_max_size;
-+		security_vsock_sk_clone(parent, sk);
- 	} else {
- 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
- 		vsk->owner = get_current_cred();
-diff --git a/security/security.c b/security/security.c
-index 5ac96b16f8fa..050b653405e0 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2335,6 +2335,11 @@ void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
- }
- EXPORT_SYMBOL(security_sctp_sk_clone);
- 
-+void security_vsock_sk_clone(struct sock *sock, struct sock *newsk)
-+{
-+	call_void_hook(vsock_sk_clone, sock, newsk);
-+}
-+EXPORT_SYMBOL(security_vsock_sk_clone);
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ddd097790d47..7b92d6f2e0fd 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5616,6 +5616,15 @@ static int selinux_tun_dev_open(void *security)
- 	return 0;
+-	cil_reset_classperms_list(cp->classperms);
++	cil_list_destroy(&cp->classperms, CIL_FALSE);
  }
  
-+static void selinux_socket_vsock_sk_clone(struct sock *sock, struct sock *newsk)
-+{
-+	struct sk_security_struct *sksec_sock = sock->sk_security;
-+	struct sk_security_struct *sksec_new = newsk->sk_security;
-+
-+	/* Always returns 0 when packet SID is SECSID_NULL. */
-+	WARN_ON_ONCE(selinux_conn_sid(sksec_sock->sid, SECSID_NULL, &sksec_new->sid));
-+}
-+
- #ifdef CONFIG_NETFILTER
- 
- static unsigned int selinux_ip_forward(struct sk_buff *skb,
-@@ -7228,6 +7237,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
- 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
- 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
-+	LSM_HOOK_INIT(vsock_sk_clone, selinux_socket_vsock_sk_clone),
- #ifdef CONFIG_SECURITY_INFINIBAND
- 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
- 	LSM_HOOK_INIT(ib_endport_manage_subnet,
+ static void cil_reset_classperms_set(struct cil_classperms_set *cp_set)
 -- 
-2.31.0.rc2.261.g7f71774620-goog
+2.26.2
 
