@@ -8,59 +8,57 @@ X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFB73C433E6
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 14:05:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9C6DC433E6
+	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 14:11:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5EFAB64F6C
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 14:05:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C80864F69
+	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 14:11:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231516AbhCQOFD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Mar 2021 10:05:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49760 "EHLO
+        id S231241AbhCQOK5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Mar 2021 10:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231767AbhCQOEz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 10:04:55 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A0D7C06174A
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 07:04:55 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id w65so41863239oie.7
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 07:04:55 -0700 (PDT)
+        with ESMTP id S231211AbhCQOK3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 10:10:29 -0400
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F2BCC06174A
+        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 07:10:29 -0700 (PDT)
+Received: by mail-ot1-x334.google.com with SMTP id 68-20020a9d0f4a0000b02901b663e6258dso1864260ott.13
+        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 07:10:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=ICAG10Hx8TNHJ3USB3AwURB9QlJ612tUbPpZKbgIasU=;
-        b=Ra6Ta69tOGkpWfufItT2dQnFfCbjsDF+ZNnvdI3Rotpom2KZ3OG7mcDzPUO4CblKIB
-         ExvOP/TCrvnlrHMRe976TZf3UZbOxWd6MCKxvqOcfgc0W3VALXVhoz7/20hHvWgPtIhc
-         RAsCitKiZrZGKMvS6wFef3oYxOTfMqxMtlcqrcq9/mddtjmGBI73xTKFWbKadXECEvBY
-         bsBJH2ZtAVpTYwXBvHDL7rB0L+onooKMG2YtXkgcERFzg79vCwohQEv0rkii73MvgmDT
-         pzJKc83kA3eWbJPrg7wfieeNxQf9nUXAjdtRSq6cwepJlPx69NfBYyEEVD16+/WeGIwC
-         f3vw==
+        bh=7KcpmKmwgaqooff84uWNoSqDeOMyCEffrhPrBV6THWo=;
+        b=bSqibWXwFl2fwgbrPx82+p666ibFpJL80GMVh20jRnkfwcCR692PNxibz6WUBwnDMz
+         MCIeYKo0uSoPkuaxr/2OvHnk/4UJDFNIiR0CGwN43GMRjLkeGKiQ3YygnSrQrzpV47f5
+         nbYjNxrIZ0lZiaNrSBWyhgSRNo0sfNsfCU3AlISy2vSLZk7q1ALa5X/F54wm2O3oaV94
+         dwL0frpG26hzOC1s1BQqsk/DG/svqqNCH8mITQGeRnD1DLyqr/AYBZ78xn7dlSElqTgW
+         fHGf1M5tAHSL80dhwUx7B3W9+kg7ihMgzcGvMBfcJjIhp2S/yd5rsESVvuXfiyLTdmI2
+         Z2Yg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ICAG10Hx8TNHJ3USB3AwURB9QlJ612tUbPpZKbgIasU=;
-        b=Yb8yPQRdkb6w8WmFPUDZ+I+J0EFmVz3X9c7u5gqz4B+asadPQN7lLSCMgraNsKgylD
-         3fY2qwDfk43VcXin6KFJFsXNhR9t+AmN4Z+im35b/NUEBjkGTG8TGAHLHvv65NL7Aa18
-         7tyaF0cQBZgNYlG84iFjJnxB+3znVzvea/xVBSUVEw7PIoKPaVqQcXdiJZkud9Lwtq0g
-         uMhM5OZ+0GvBkndC3Y5MHxSAQ3Rrz6vURmVbM9Ctwy6EM2Hl7TSZ+mxBGQMJNHkYhufG
-         Pxdmqw8dnILf6V0kSYeTguum/kkrIU5sZYeLNsVbwBqv3fpe42KJMh97XuMcshgD5fi2
-         7D7Q==
-X-Gm-Message-State: AOAM530M/+85tXQTEbbrbnDcjQxGon2X8mkVmN9mvJ3//NHcCRVMrjzc
-        XLSqz9RdQLU3u2Glb/AdFAtDPf2iA73k3MAL4iQ=
-X-Google-Smtp-Source: ABdhPJzV2JIfQH/nngvkAy/EAtbCl93pDzfeq3756y8TnaX90USGj+489y+DPJAQBX0vjo+XUKj+BS6itNwjuvkIpQo=
-X-Received: by 2002:aca:53cc:: with SMTP id h195mr2525259oib.16.1615989894720;
- Wed, 17 Mar 2021 07:04:54 -0700 (PDT)
+        bh=7KcpmKmwgaqooff84uWNoSqDeOMyCEffrhPrBV6THWo=;
+        b=EzgtsOd5+a1gJXW5etq43GwnZWsHPv9ZEVDPcxH9DmKoUC7yGAqIMJRTsst+GTXRmW
+         T7Hk8bqh4dXX8KrwaEujOPIHrgkRLiY9DwgVB9CHhIl08JmduiRa9XTjgkAR7BRwMw4l
+         l+XwcVLsHTdUKGNrnlBkT+r1Z7vstWBpEFZu8nbf/NQRk7oTFG9ugVEWT3eaEep9JR75
+         nQ0kwaqVvkS0NdH+Bil2xZidy4X9YjOYiQg1h8H2qegp2+kJcxuo2Q3jAbleB3dqktGU
+         b/bXyXBiGD4GwnBsz1Ad2W5dvK4YltouzTNt7tt8050NEU+dwtnCwIVh7B0+usW/VLwa
+         V9vw==
+X-Gm-Message-State: AOAM533khUDtaw6YzvtmgoP67abW5PEttZT37pIDoalgjLeNSYPtIRzS
+        fRklAkpgX6GF0TBwBq/BYeT/dCab6DmmGzKkEnMLfFSdvto=
+X-Google-Smtp-Source: ABdhPJzGH3cisWi1mUOJfO4tsUHlIJvkH8N51ALJNoEEoMwd2PhqMM7K33wKgZYmVKyRD2k8kK8L/fuXwhB78YwWMh4=
+X-Received: by 2002:a05:6830:4d:: with SMTP id d13mr3500185otp.295.1615990228725;
+ Wed, 17 Mar 2021 07:10:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210316204646.52060-1-jwcart2@gmail.com> <20210316204646.52060-4-jwcart2@gmail.com>
- <CAJfZ7=nnUVB+AwEd=s9rtMApc36w75atoC=ZZC+B=zp0ONtu2Q@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nnUVB+AwEd=s9rtMApc36w75atoC=ZZC+B=zp0ONtu2Q@mail.gmail.com>
+References: <20210316222313.19793-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20210316222313.19793-1-nicolas.iooss@m4x.org>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 17 Mar 2021 10:04:43 -0400
-Message-ID: <CAP+JOzRV3QgUkOqfpq=BdmWBRbq-o0aOuK3VgQrh_4O9FK8ffA@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libsepol: Write "NO_IDENTIFIER" for empty CIL
- constraint expression
+Date:   Wed, 17 Mar 2021 10:10:17 -0400
+Message-ID: <CAP+JOzTHnin3potuRfpGoRKmsd=teE=brss88XhGfeu58y+G_Q@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libsepol: make num_* unsigned int in module_to_cil
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -69,168 +67,266 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 16, 2021 at 5:45 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
+On Tue, Mar 16, 2021 at 6:57 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
 :
 >
-> On Tue, Mar 16, 2021 at 9:49 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > If a role or user attribute with nothing associated with it is used
-> > in a constraint expression, then the bitmap will be empty. This is
-> > not a problem for the kernel, but does cause problems when converting
-> > a kernel policy or module to CIL.
-> >
-> > When creating a CIL policy from a kernel policy or module, if an
-> > empty bitmap is encountered, use the string "NO_IDENTIFIER". An
-> > error will occur if an attempt is made to compile the resulting
-> > policy, but a valid policy was not being produced before anyway.
-> > Treat types the same way even though empty bitmaps are not expected.
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  libsepol/src/kernel_to_cil.c |  2 +-
-> >  libsepol/src/module_to_cil.c | 10 +++++++---
-> >  2 files changed, 8 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.=
-c
-> > index 96e0f5d3..c6dd2e12 100644
-> > --- a/libsepol/src/kernel_to_cil.c
-> > +++ b/libsepol/src/kernel_to_cil.c
-> > @@ -189,7 +189,7 @@ static char *constraint_expr_to_str(struct policydb=
- *pdb, struct constraint_expr
-> >                                         names =3D ebitmap_to_str(&curr-=
->names, pdb->p_role_val_to_name, 1);
-> >                                 }
-> >                                 if (!names) {
-> > -                                       goto exit;
-> > +                                       names =3D strdup("NO_IDENTIFIER=
-");
-> >                                 }
-> >                                 if (strchr(names, ' ')) {
-> >                                         new_val =3D create_str("(%s %s =
-(%s))", 3, op, attr1, names);
-> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
-c
-> > index 3cc75b42..2a794f57 100644
-> > --- a/libsepol/src/module_to_cil.c
-> > +++ b/libsepol/src/module_to_cil.c
-> > @@ -1793,9 +1793,13 @@ static int constraint_expr_to_string(struct poli=
-cydb *pdb, struct constraint_exp
-> >                                                 goto exit;
-> >                                         }
-> >                                 }
-> > -                               rc =3D name_list_to_string(name_list, n=
-um_names, &names);
-> > -                               if (rc !=3D 0) {
-> > -                                       goto exit;
-> > +                               if (num_names =3D=3D 0) {
-> > +                                       names =3D strdup("NO_IDENTIFIER=
-");
-> > +                               } else {
-> > +                                       rc =3D name_list_to_string(name=
-_list, num_names, &names);
-> > +                                       if (rc !=3D 0) {
-> > +                                               goto exit;
-> > +                                       }
-> >                                 }
-> >
-> >                                 // length of values/oper + 2 spaces + 2=
- parens + null terminator
->
-> Hello,
-> This change somehow made gcc unhappy:
->
-> $ gcc -O2 -c module_to_cil.c
-> In function =E2=80=98name_list_to_string=E2=80=99,
->     inlined from =E2=80=98constraint_expr_to_string=E2=80=99 at module_to=
-_cil.c:1799:11:
-> module_to_cil.c:1156:8: warning: argument 1 range
-> [18446744071562067968, 18446744073709551615] exceeds maximum object
-> size 9223372036854775807 [-Walloc-size-larger-than=3D]
->  1156 |  str =3D malloc(len);
->       |        ^~~~~~~~~~~
-> In file included from module_to_cil.c:39:
-> module_to_cil.c: In function =E2=80=98constraint_expr_to_string=E2=80=99:
-> /usr/include/stdlib.h:539:14: note: in a call to allocation function
-> =E2=80=98malloc=E2=80=99 declared here
->   539 | extern void *malloc (size_t __size) __THROW __attribute_malloc__
->       |              ^~~~~~
->
-> (With gcc 10.2.0 on Arch Linux and gcc 9.3.0-17ubuntu1 on Ubuntu 20.04
-> which is used by GitHub Actions,
+> Using signed integer to represent counts can troube some gcc
+> optimisation passes, for example in
 > https://github.com/fishilico/selinux/runs/2125501324?check_suite_focus=3D=
 true#step:9:107
-> ; building for x86_64)
 >
-> The main cause of this error is the fact that num_names is considered
-> as a signed integer in name_list_to_string(). This patch fixes the
-> issue:
+>       In function =E2=80=98name_list_to_string=E2=80=99,
+>           inlined from =E2=80=98constraint_expr_to_string=E2=80=99 at mod=
+ule_to_cil.c:1799:11:
+>       module_to_cil.c:1156:8: error: argument 1 range
+>       [18446744071562067968, 18446744073709551615] exceeds maximum
+>       object size 9223372036854775807 [-Werror=3Dalloc-size-larger-than=
+=3D]
+>        1156 |  str =3D malloc(len);
+>             |        ^~~~~~~~~~~
+>       In file included from module_to_cil.c:39:
+>       module_to_cil.c: In function =E2=80=98constraint_expr_to_string=E2=
+=80=99:
+>       /usr/include/stdlib.h:539:14: note: in a call to allocation
+>       function =E2=80=98malloc=E2=80=99 declared here
+>         539 | extern void *malloc (size_t __size) __THROW __attribute_mal=
+loc__
+>             |              ^~~~~~
+>
+> The wide range (from 18446744071562067968 =3D 0xffffffff80000000 to
+> 18446744073709551615 =3D 0xffffffffffffffff) was caused by num_names bein=
+g
+> a signed int used in "len +=3D num_names;", even though it should always
+> be non-negative.
+>
+> Prevent such issues from occurring by using "unsigned int" where
+> appropriate.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+I guess I don't need to make a patch. I thought you were just fixing
+the one function. This is exactly what I was thinking of.
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
+
+> ---
+>  libsepol/src/module_to_cil.c | 62 ++++++++++++++++++------------------
+>  1 file changed, 31 insertions(+), 31 deletions(-)
 >
 > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 2a794f577841..6185c7e4ccb7 100644
+> index a87bc15e7610..cb1069caffdf 100644
 > --- a/libsepol/src/module_to_cil.c
 > +++ b/libsepol/src/module_to_cil.c
-> @@ -1124,7 +1124,7 @@ exit:
+> @@ -717,9 +717,9 @@ exit:
+>         return rc;
+>  }
+>
+> -static int num_digits(int n)
+> +static unsigned int num_digits(unsigned int n)
+>  {
+> -       int num =3D 1;
+> +       unsigned int num =3D 1;
+>         while (n >=3D 10) {
+>                 n /=3D 10;
+>                 num++;
+> @@ -945,7 +945,7 @@ static char *search_attr_list(struct list *attr_list,=
+ int is_type, void *set)
+>         return NULL;
+>  }
+>
+> -static int set_to_names(struct policydb *pdb, int is_type, void *set, st=
+ruct list *attr_list, char ***names, int *num_names)
+> +static int set_to_names(struct policydb *pdb, int is_type, void *set, st=
+ruct list *attr_list, char ***names, unsigned int *num_names)
+>  {
+>         char *attr_name =3D NULL;
+>         int rc =3D 0;
+> @@ -982,12 +982,12 @@ exit:
+>         return rc;
+>  }
+>
+> -static int ebitmap_to_names(struct ebitmap *map, char **vals_to_names, c=
+har ***names, int *num_names)
+> +static int ebitmap_to_names(struct ebitmap *map, char **vals_to_names, c=
+har ***names, unsigned int *num_names)
+>  {
+>         int rc =3D 0;
+>         struct ebitmap_node *node;
+>         uint32_t i;
+> -       uint32_t num;
+> +       unsigned int num;
+>         char **name_arr;
+>
+>         num =3D 0;
+> @@ -1026,7 +1026,7 @@ exit:
+>         return rc;
+>  }
+>
+> -static int process_roleset(struct policydb *pdb, struct role_set *rs, st=
+ruct list *attr_list, char ***names, int *num_names)
+> +static int process_roleset(struct policydb *pdb, struct role_set *rs, st=
+ruct list *attr_list, char ***names, unsigned int *num_names)
+>  {
+>         int rc =3D 0;
+>
+> @@ -1049,7 +1049,7 @@ exit:
+>         return rc;
+>  }
+>
+> -static int process_typeset(struct policydb *pdb, struct type_set *ts, st=
+ruct list *attr_list, char ***names, int *num_names)
+> +static int process_typeset(struct policydb *pdb, struct type_set *ts, st=
+ruct list *attr_list, char ***names, unsigned int *num_names)
+>  {
+>         int rc =3D 0;
+>
+> @@ -1072,7 +1072,7 @@ exit:
+>         return rc;
+>  }
+>
+> -static void names_destroy(char ***names, int *num_names)
+> +static void names_destroy(char ***names, unsigned int *num_names)
+>  {
+>         free(*names);
+>         *names =3D NULL;
+> @@ -1083,7 +1083,7 @@ static int roletype_role_in_ancestor_to_cil(struct =
+policydb *pdb, struct stack *
+>  {
+>         struct list_node *curr;
+>         char **tnames =3D NULL;
+> -       int num_tnames, i;
+> +       unsigned int num_tnames, i;
+>         struct role_list_node *role_node =3D NULL;
+>         int rc;
+>         struct type_set *ts;
+> @@ -1124,12 +1124,12 @@ exit:
 >  }
 >
 >
 > -static int name_list_to_string(char **names, int num_names, char **strin=
 g)
-> +static int name_list_to_string(char **names, unsigned int num_names,
-> char **string)
+> +static int name_list_to_string(char **names, unsigned int num_names, cha=
+r **string)
 >  {
 >         // create a space separated string of the names
 >         int rc =3D -1;
+>         size_t len =3D 0;
+> -       int i;
+> +       unsigned int i;
+>         char *str;
+>         char *strpos;
 >
-
-This looks good to me.
-
-> ... but it would be even better if the type of num_names was
-> consistent. Right now, ebitmap_to_names() initializes a local variable
-> "uint32_t num;" and then does "*num_names =3D num;" with "int
-> *num_names". I believe the code would be more correct if the parameter
-> of ebitmap_to_names() was "uint32_t *num_names" or "unsigned int
-> *num_names" (why is uint32_t used?), and if all its callers used an
-> unsigned type to store this value. What do you think?
+> @@ -1184,7 +1184,7 @@ static int avrule_list_to_cil(int indent, struct po=
+licydb *pdb, struct avrule *a
+>         struct avrule *avrule;
+>         char **snames =3D NULL;
+>         char **tnames =3D NULL;
+> -       int s, t, num_snames, num_tnames;
+> +       unsigned int s, t, num_snames, num_tnames;
+>         struct type_set *ts;
 >
-
-uint32_t is probably used because both startbit in an ebitmap_node_t
-and highbit in an ebitmap_t are uint32_t. Although the ebitmap
-functions take unsigned int for bit position and return unsigned int
-for bit position as well.
-
-I do agree that it would be better to make the type consistent, but,
-since num_names has type int in many places, I would rather change it
-everywhere to unsigned int. I'll send out a patch.
-
-> Moreover, I stumbled upon this code pattern in function name_list_to_stri=
-ng:
+>         for (avrule =3D avrule_list; avrule !=3D NULL; avrule =3D avrule-=
+>next) {
+> @@ -1257,7 +1257,7 @@ static int cond_expr_to_cil(int indent, struct poli=
+cydb *pdb, struct cond_expr *
+>         char *new_val =3D NULL;
+>         char *val1 =3D NULL;
+>         char *val2 =3D NULL;
+> -       int num_params;
+> +       unsigned int num_params;
+>         const char *op;
+>         const char *fmt_str;
+>         const char *type;
+> @@ -1432,11 +1432,11 @@ static int role_trans_to_cil(int indent, struct p=
+olicydb *pdb, struct role_trans
+>         int rc =3D 0;
+>         struct role_trans_rule *rule;
+>         char **role_names =3D NULL;
+> -       int num_role_names =3D 0;
+> -       int role;
+> +       unsigned int num_role_names =3D 0;
+> +       unsigned int role;
+>         char **type_names =3D NULL;
+> -       int num_type_names =3D 0;
+> -       int type;
+> +       unsigned int num_type_names =3D 0;
+> +       unsigned int type;
+>         uint32_t i;
+>         struct ebitmap_node *node;
+>         struct type_set *ts;
+> @@ -1482,10 +1482,10 @@ static int role_allows_to_cil(int indent, struct =
+policydb *pdb, struct role_allo
+>         int rc =3D -1;
+>         struct role_allow_rule *rule;
+>         char **roles =3D NULL;
+> -       int num_roles =3D 0;
+> +       unsigned int num_roles =3D 0;
+>         char **new_roles =3D NULL;
+> -       int num_new_roles =3D 0;
+> -       int i,j;
+> +       unsigned int num_new_roles =3D 0;
+> +       unsigned int i, j;
+>         struct role_set *rs;
 >
-> len +=3D strlen(names[i]);
-> if (len < strlen(names[i])) {
->     log_err("Overflow");
->     return -1;
-> }
+>         for (rule =3D rules; rule !=3D NULL; rule =3D rule->next) {
+> @@ -1525,11 +1525,11 @@ static int range_trans_to_cil(int indent, struct =
+policydb *pdb, struct range_tra
+>         int rc =3D -1;
+>         struct range_trans_rule *rule;
+>         char **stypes =3D NULL;
+> -       int num_stypes =3D 0;
+> -       int stype;
+> +       unsigned int num_stypes =3D 0;
+> +       unsigned int stype;
+>         char **ttypes =3D NULL;
+> -       int num_ttypes =3D 0;
+> -       int ttype;
+> +       unsigned int num_ttypes =3D 0;
+> +       unsigned int ttype;
+>         struct ebitmap_node *node;
+>         uint32_t i;
+>         struct type_set *ts;
+> @@ -1594,11 +1594,11 @@ static int filename_trans_to_cil(int indent, stru=
+ct policydb *pdb, struct filena
+>  {
+>         int rc =3D -1;
+>         char **stypes =3D NULL;
+> -       int num_stypes =3D 0;
+> -       int stype;
+> +       unsigned int num_stypes =3D 0;
+> +       unsigned int stype;
+>         char **ttypes =3D NULL;
+> -       int num_ttypes =3D 0;
+> -       int ttype;
+> +       unsigned int num_ttypes =3D 0;
+> +       unsigned int ttype;
+>         struct type_set *ts;
+>         struct filename_trans_rule *rule;
 >
-> Nowadays, both gcc and clang provide checked arithmetic builtins and I
-> think the intent of this code would be clearer if it used them:
+> @@ -1716,7 +1716,7 @@ static int constraint_expr_to_string(struct policyd=
+b *pdb, struct constraint_exp
+>         const char *attr2;
+>         char *names =3D NULL;
+>         char **name_list =3D NULL;
+> -       int num_names =3D 0;
+> +       unsigned int num_names =3D 0;
+>         struct type_set *ts;
 >
-> if (__builtin_add_overflow(len, strlen(names[i]), &len)) {
->     log_err("Overflow");
->     return -1;
-> }
->
-> Does anyone have an opinion about using checked arithmetic builtins?
-> (I have not used them much, and if someone knows of some compatibility
-> issues, this would be important to know)
->
-
-I don't know about compatibility issues, but I would prefer to use the
-builtins as long as they won't cause problems.
-
-Jim
-
-
-> Cheers,
-> Nicolas
+>         rc =3D stack_init(&stack);
+> @@ -2090,9 +2090,9 @@ static int role_to_cil(int indent, struct policydb =
+*pdb, struct avrule_block *UN
+>         int rc =3D -1;
+>         struct ebitmap_node *node;
+>         uint32_t i;
+> -       int j;
+> +       unsigned int j;
+>         char **types =3D NULL;
+> -       int num_types =3D 0;
+> +       unsigned int num_types =3D 0;
+>         struct role_datum *role =3D datum;
+>         struct type_set *ts;
+>         struct list *attr_list =3D NULL;
+> --
+> 2.31.0
 >
