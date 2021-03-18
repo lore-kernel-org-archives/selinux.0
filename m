@@ -2,81 +2,66 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FEB8C433E0
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 22:15:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3533C433E6
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 22:52:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0943864EBD
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 22:15:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 888AB64F04
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 22:52:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbhCRWOj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Mar 2021 18:14:39 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:58857 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232077AbhCRWOi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 18:14:38 -0400
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 85F54561266
-        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 23:14:36 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2] libsepol/cil: fix out-of-bound read of a file context pattern ending with "\"
-Date:   Thu, 18 Mar 2021 23:14:10 +0100
-Message-Id: <20210318221410.18945-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.31.0
+        id S233282AbhCRWwF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Mar 2021 18:52:05 -0400
+Received: from namei.org ([65.99.196.166]:45956 "EHLO mail.namei.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230368AbhCRWvr (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 18 Mar 2021 18:51:47 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.namei.org (Postfix) with ESMTPS id 9E1ACC6B;
+        Thu, 18 Mar 2021 22:49:03 +0000 (UTC)
+Date:   Fri, 19 Mar 2021 09:49:03 +1100 (AEDT)
+From:   James Morris <jmorris@namei.org>
+To:     Paul Moore <paul@paul-moore.com>
+cc:     Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Olga Kornievskaia <olga.kornievskaia@gmail.com>
+Subject: Re: [PATCH v4 1/3] [security] Add new hook to compare new mount to
+ an existing mount
+In-Reply-To: <CAHC9VhQyck5HKGKBcv-q70fv6zwTHD2hdfJ3e3SnjqoVty6inA@mail.gmail.com>
+Message-ID: <1e3cd4d7-2a80-a5c1-b5cd-919bfb1e493@namei.org>
+References: <CAN-5tyGuV-gs0KzVbKSj42ZMx553zy9wOfVb1SoHoE-WCoN1_w@mail.gmail.com> <20210227033755.24460-1-olga.kornievskaia@gmail.com> <CAFX2Jfk--KwkAss1gqTPnQt-bKvUUapNdHbuicu=m+jOtjrMyQ@mail.gmail.com> <f8f5323c-cdfd-92e8-b359-43caaf9d7490@schaufler-ca.com>
+ <CAHC9VhR=+uwN8U17JhYWKcXSc9=ExCrG4O9-y+DPJg6xZ=WoYA@mail.gmail.com> <CAFX2JfnT49o-CkaAE3=c0KW9SDS1U+scP0RD++nmWwyKoBDWkA@mail.gmail.com> <CAHC9VhQNp-GQ6SMABNdN00RcDz30Os5SK217W-5swS8quakxPA@mail.gmail.com> <CAN-5tyG95bL8vbkG5B9OmAAXremJ-X5z09f+0ekLyigzibsZ5A@mail.gmail.com>
+ <CAHC9VhTwqt0TDEWV97GaM8B5m4qmEwo+BYXYDeMs2D1LtZzUFg@mail.gmail.com> <CAN-5tyHdiuiOBX2bkZBGOTK-AMOccm27=qE-AZ_J9QQ00P91-Q@mail.gmail.com> <CAHC9VhTZe0azgqt_OSk0cy-nM+upz9z2_i0j1wQQLD8UgbX9+Q@mail.gmail.com>
+ <CAHC9VhQyck5HKGKBcv-q70fv6zwTHD2hdfJ3e3SnjqoVty6inA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Mar 18 23:14:36 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-OSS-Fuzz found a Heap-buffer-overflow in the CIL compiler when trying to
-compile the following policy:
+On Thu, 18 Mar 2021, Paul Moore wrote:
 
-    (sid SID)
-    (sidorder(SID))
-    (filecon "\" any ())
-    (filecon "" any ())
+> On Mon, Mar 15, 2021 at 12:15 PM Paul Moore <paul@paul-moore.com> wrote:
+> > As long as we are clear that the latest draft of patch 1/3 is to be
+> > taken from the v4 patch{set} and patches 2/3 and 3/3 are to be taken
+> > from v3 of the patchset I don't think you need to do anything further.
+> > The important bit is for the other LSM folks to ACK the new hook; if I
+> > don't see anything from them, either positive or negative, I'll merge
+> > it towards the end of this week or early next.
+> 
+> LSM folks, this is a reminder that if you want to object you've got
+> until Monday morning to do so :)
 
-When cil_post_fc_fill_data() processes "\", it goes beyond the NUL
-terminator of the string. Fix this by returning when '\0' is read after
-a backslash.
+I'm unclear on whether a new v5 patchset was being posted -- I assume not?
 
-Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28484
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/cil/src/cil_post.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index d2ecbd430aa3..8ebf0fe74e80 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -186,6 +186,16 @@ static void cil_post_fc_fill_data(struct fc_data *fc, const char *path)
- 			break;
- 		case '\\':
- 			c++;
-+			if (path[c] == '\0') {
-+				/* Count an ending backslash as a character, like refpolicy:
-+				 * https://github.com/SELinuxProject/refpolicy/blob/RELEASE_2_20210203/support/fc_sort.py#L38-L61
-+				 */
-+				if (!fc->meta) {
-+					fc->stem_len++;
-+				}
-+				fc->str_len++;
-+				return;
-+			}
- 			/* FALLTHRU */
- 		default:
- 			if (!fc->meta) {
 -- 
-2.31.0
+James Morris
+<jmorris@namei.org>
 
