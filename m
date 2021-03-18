@@ -2,136 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D229CC433DB
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 13:44:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56ACAC433DB
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 13:51:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9892C64F1D
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 13:44:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 105C864F1B
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 13:51:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229951AbhCRNn6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Mar 2021 09:43:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44686 "EHLO
+        id S229931AbhCRNu2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Mar 2021 09:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbhCRNnv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 09:43:51 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE16CC06174A;
-        Thu, 18 Mar 2021 06:43:50 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id w3so4023187ejc.4;
-        Thu, 18 Mar 2021 06:43:50 -0700 (PDT)
+        with ESMTP id S229925AbhCRNt7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 09:49:59 -0400
+Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28970C06174A
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 06:49:59 -0700 (PDT)
+Received: by mail-qk1-x733.google.com with SMTP id 130so1962680qkh.11
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 06:49:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=umich.edu; s=google-2016-06-03;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=93auU8TC5nOFNXfwOL5PMfmDNd9eNbc5Moule/KTGLE=;
-        b=QkYfkMuUl/hSor9sLtBtOZ+FL3IzHHESNNWbWrxdLr6oeDOIyN2W/UYfoiaaWdfWYZ
-         uWNK+3we4yV7chpL6jYxDj6emZKNVRMUeMwBQz0ljTY//2c8zDT/CnhV2iCo+QP5qfvB
-         bXinR7eQ8vbMR3pwbtAdBUA6bWD0LIIYAzaKo7ANVQLPUWD1+LvhrNVSeUmDTZine2zA
-         b7YfiWKhTUVFJSfxj3TJ7Ti2Jlo4N1EQ0hCcX/LyOmsXNQIseOAqkT9l+Q0SYd4vUGGF
-         yFdrjZZdSoKjKkfqSRbsAzh0qEaIqjZNq9mmut83oEG6AfXrJGIEAANnAiW+TvE40SwP
-         wlbw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ew6hB9Jh+pe89VYaqsAAJagp5sC4Hw1LeXJwiZ+zzuI=;
+        b=AOD1JAUp4kbEicZoLCY99uKOujTVmdYS33bIek5iDNt+nobfFwsK1UzT4aBWZ1FI2w
+         +Ll5USOd2A/qod5TmQpm2zaTMArngFMt9fFl/LWD0k4iAz9mVkFr1qF0KjnwmQKzYYmR
+         ceUqTSkgydY/bTmcu8nKChTbHzjwe1rr/varoDeraOlG8Q2qNZFTAHXSIYUTd1lrBoUS
+         t9+yM4wliSOZifl9abWkPGGqdVL6hFyNX9aoBV7dC5SBPWfONApl3ylfnqFQzXAByTal
+         +zyL+3fymRNCpp7Ibge4mIl5zTA7n+8GuxpqcBptcdobJ8C5KoJBGRShTJ2VqQAwk9H/
+         Sczg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=93auU8TC5nOFNXfwOL5PMfmDNd9eNbc5Moule/KTGLE=;
-        b=ackdBcouc9RVhmvAR0+cTbZuNvhhNxaSndoHsgcTiFIzEe4NfiNl7AP2dUsRIAxHdn
-         gf6SHR9TM3GynCap1g3h25Tky0hvysYo+nB/TsjvQXhYP+x2/Ad/+Zw9Sdzl0aoZ4dur
-         56kHvNUthRBSAPjVYur+R5Jo8sOnt3Nltq9ilD86Ry6OsouwribtR5wwUPNiSen3Hxc4
-         Bp7Yln+vYE2eT2182DnKQVc8pnOe6uWpK9yjXQAqeXhxbtchG9wnKF6DK9eazd+X+k9J
-         chiCdNNlYPOqOviZC4g/ni5zchzL97AP42Ci0ahmpkhXgFJ4PdGPFy7IKXBW0bi3xxhx
-         Y39w==
-X-Gm-Message-State: AOAM533ZC0EyWYkJ8Ov3IpCDO3OkqYbjREq/2KR5rANOlQN08p/UH51j
-        lcESBUYsvGpz57WUi5T9TO/Xuo2ayPDSAHrXk8O91la1
-X-Google-Smtp-Source: ABdhPJzYMz81RcPg72Q1p6ElKEfmz0fzTW5K41yvsRleBdMao03nwLaqdsRqvSOIcDqFmBMC9L8KYSVBHZ92jNhkMDQ=
-X-Received: by 2002:a17:906:a0d4:: with SMTP id bh20mr9388293ejb.348.1616075029226;
- Thu, 18 Mar 2021 06:43:49 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ew6hB9Jh+pe89VYaqsAAJagp5sC4Hw1LeXJwiZ+zzuI=;
+        b=lyEDSNVXOVNfZ4ADwh1VACsayxTl0cz5Tomm0rUnzheWeTrc9CrXCgv+kThAZnK508
+         8/y7LRcIs45muy3hhk8wWVMg6/o5F6iR9cRFux1zvXS34UBFacvEGLYHsdbm1t6tt5VF
+         aE0Zq5UYdXfomHjbJGrHgS2ogvji8cFqJiaaWkapBBQzYHK4zyB0d2iRXOM3HLKUDLAg
+         5IfMlEk1G+IpX/c9ukMCezosGpR+OZpg0pWGHjxyZyhIwI9DmQWMg7zcUhU1xcZqQ/xD
+         JdygHBdJi1YI/97p9VFaSE1l5QWLqPJXOkk6mIF6A+Yl+nY3qewF97LdYLNiXuNweC7z
+         uOQA==
+X-Gm-Message-State: AOAM530hlVIkYPr0TAntn7SNKk0eUaIDf9HBf57XHtm4DdWnZButeGt2
+        rFx/dH2tx1218Ha8pM2Fza5kBCNj0QOIxw==
+X-Google-Smtp-Source: ABdhPJzUg2pvsTHEJl+dXoSYKwXR+Dl+yEdusJ6B+7nYe+WmzItXONzbAcTbnH1Jprpm2UxVPYo41Q==
+X-Received: by 2002:a37:589:: with SMTP id 131mr4413042qkf.97.1616075398247;
+        Thu, 18 Mar 2021 06:49:58 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id p186sm1827785qka.66.2021.03.18.06.49.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Mar 2021 06:49:57 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: cil_reset_classperms_set() should not reset classpermission
+Date:   Thu, 18 Mar 2021 09:49:55 -0400
+Message-Id: <20210318134955.128187-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <CAFqZXNvotgdUEvLBfbUNsU1ZNLYvrjO3N8ygyLo45-336u4=ZA@mail.gmail.com>
-In-Reply-To: <CAFqZXNvotgdUEvLBfbUNsU1ZNLYvrjO3N8ygyLo45-336u4=ZA@mail.gmail.com>
-From:   Olga Kornievskaia <aglo@umich.edu>
-Date:   Thu, 18 Mar 2021 09:43:38 -0400
-Message-ID: <CAN-5tyGz2HRq9Y7OcBDLQ4K+=d_oPe4nOQ+VM7QGU27ksJi6EQ@mail.gmail.com>
-Subject: Re: Weird bug in NFS/SELinux
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     linux-nfs <linux-nfs@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 5:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Hello,
->
-> While trying to figure out why the NFS tests in the selinux-testsuite
-> [1] are failing, I ran into this strange bug: When I mount an NFS
-> filesystem on some directory, and then immediately attempt to create
-> exactly the same mount on the same directory (fails with -EBUSY as
-> expected per mount(2)), then all the entries inside the mount (but not
-> the root node) show up as unlabeled
-> (system_u:object_r:unlabeled_t:s0). For some reason this doesn't
-> happen if I list the directory contents between the two mounts.
->
-> It happens at least with kernels 5.12-rc2 and 5.8.6, so it's likely an old bug.
->
-> Minimal reproducer (assumes an SELinux-enabled system and that nothing
-> is mounted at /etc):
-> ```
-> # set up a trivial NFS export
-> systemctl start nfs-server
-> exportfs -o rw,no_root_squash,security_label localhost:/
->
-> #
-> # reference scenario - single mount
-> #
-> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
->
-> ls -lZ /mnt    # labels are correct
-> ls -lZd /mnt   # label is correct
->
-> #
-> # double mount - BUG
-> #
-> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
-> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
->
-> ls -lZ /mnt    # all labels are system_u:object_r:unlabeled_t:s0
-> ls -lZd /mnt   # label is correct
->
-> #
-> # double mount with ls in between - OK
-> #
-> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
-> ls -lZ /mnt    # labels are correct
-> ls -lZd /mnt   # label is correct
-> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
->
-> ls -lZ /mnt    # labels are correct
-> ls -lZd /mnt   # label is correct
+In struct cil_classperms_set, the set field is a pointer to a
+struct cil_classpermission which is looked up in the symbol table.
+Since the cil_classperms_set does not create the cil_classpermission,
+it should not reset it.
 
-Hi Ondrej, a couple of questions about the reproducer. (1) are you
-saying that only "mount, mount, ls" sequence is problematic as you
-write "mount, ls, mount, ls" is correct? (2) what is your selinux
-configuration. I can't reproduce it on my setup. I get the same labels
-regardless of how many times I mount.
+Set the set field to NULL instead of resetting the classpermission
+that it points to.
 
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_reset_ast.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-> ```
->
-> I haven't had time to dig deeper. Hopefully someone who knows the
-> internals of NFS will be able to find the root cause easier than me...
->
-> [1] https://github.com/SELinuxProject/selinux-testsuite/
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
->
+diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
+index db70a535..0c74deeb 100644
+--- a/libsepol/cil/src/cil_reset_ast.c
++++ b/libsepol/cil/src/cil_reset_ast.c
+@@ -59,7 +59,11 @@ static void cil_reset_classpermission(struct cil_classpermission *cp)
+ 
+ static void cil_reset_classperms_set(struct cil_classperms_set *cp_set)
+ {
+-	cil_reset_classpermission(cp_set->set);
++	if (cp_set == NULL) {
++		return;
++	}
++
++	cp_set->set = NULL;
+ }
+ 
+ static inline void cil_reset_classperms_list(struct cil_list *cp_list)
+-- 
+2.26.2
+
