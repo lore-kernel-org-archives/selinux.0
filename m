@@ -2,244 +2,182 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC727C433DB
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 14:23:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 025D6C433DB
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 14:49:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AA68D64E01
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 14:23:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C56B464F10
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 14:49:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230010AbhCROWZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Mar 2021 10:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52954 "EHLO
+        id S229745AbhCROsu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Mar 2021 10:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231305AbhCROVy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 10:21:54 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9DCC06174A
-        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 07:21:53 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id w65so1677613oie.7
-        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 07:21:53 -0700 (PDT)
+        with ESMTP id S229508AbhCROsk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 10:48:40 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5974EC06174A
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 07:48:40 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id u4so6976558edv.9
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 07:48:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=RG81OK/JwO/TdbYyLdHMg5k5lcfnlSClL0XHshLvmt0=;
-        b=bx2HfnfDlz3RRsVJVlHJc05HG/Jjlpxpym3EHYVwd0Vxk57f/ebS5KABBtCi4Qogqo
-         jjUstbafZ2mbsELFGg50u5XNfLFGDDeFyTtrEd94oFQbrpl1ye+NWSyvB7uoQL8NKtWA
-         ynKP8xbgouDyJDrG7TAAounPYKrEyXTMMWvJL5R7NR+ERdYWEnQKhwt6tt1InDX4jhdP
-         yez7bjUkg20Dm7wQTRFrqiV1EFxdHQ1oZDp2CAuKOPS7m2bGj9Ok+YYOSWG2fHjxTN3s
-         pr/MtGPJ8orxqrp78Y5VrHuvrrOuofG56WmZLLh0JzWPrQSjU3F5Kmr5IV5+bwsG4W8n
-         GCIQ==
+        bh=llkf4N+ll8bDZmWY7APR+GrXBKkEkH3Z7OpFCJxOvLI=;
+        b=WjG1erXf8ADRMr5jsJfYDw34gPO7ywBoHfFA+gaa2WB9qLIPnOmhB7ASMjZSNqMuon
+         4fw/QwbBDRC9jsRitt7VyRLieunXzdEzvbpVD8rDBK3Ni6ZTxzQOr0nHKP0QXbTM/0uw
+         b67n5YRxwFejIsmjG5j7OITDAJTkP5J+sk2mCsX++c8hEFe+9rwPHcY6wFJmPXylFUnk
+         TiQeKD5il86lMss75RHCsUewgOO58vecqwgRINZ9pmsy0L78Tel8ny9IJ7WlwDReYHML
+         9FBfQWPij8jC+j4i4h1GO4aq3KNL/rXjEcXu+Dib/QmTYejtYIo2JeSxlMp3RyjWpFvb
+         dcRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=RG81OK/JwO/TdbYyLdHMg5k5lcfnlSClL0XHshLvmt0=;
-        b=iq54jQqkFabpcWBuBentFJT3q/G9Udoh0orhp1d+g3Tz6DyljFCMuldaTfnodfyoZp
-         XzZvMonqUQ46+6ISwN2B2fgtRCi5aMBui0tjgNp2syrL6qAWu+zqC0gnSk02HorzgTON
-         2OG5qkdC6gy/noOY9jUTslZsOz1ZFgTh7iecla9X3otKyUnv8fu5EJf35szptS/oCfNS
-         ke4rkbKczwkVYPzA+xxh1C88T9N8iAVNpTGnlLaTdb7cNIDUJ669o2G8iEyWu0+TlNin
-         3PAmcQ/QzzrHtz8LHxZ2ap693xlH9EKQao5Pq7/zmhQwsLiDvVMDWVP5G3ruJoh7+3ei
-         wFRg==
-X-Gm-Message-State: AOAM532NCvAlt8D3LyijPhT8ARG3lAqNgkPRYzHXDeCKJD4CJlIvGHUz
-        Fobxr5crWorid3hrDpKhac8uhWd+OSf2FGtkMt0=
-X-Google-Smtp-Source: ABdhPJygh2/bITHrZPOZnPJ/7x5rsGOtN5O/rc+QQUgLKyUv5AL95ThnxnQCkr/1Aunq8Ihn3RTu+TuS6j7UkfWKC2M=
-X-Received: by 2002:a05:6808:1482:: with SMTP id e2mr3315860oiw.138.1616077313041;
- Thu, 18 Mar 2021 07:21:53 -0700 (PDT)
+        bh=llkf4N+ll8bDZmWY7APR+GrXBKkEkH3Z7OpFCJxOvLI=;
+        b=WZABYI3o/WXUXWFXKLTo3hZYmUUl3HhL4ybEYkRsIrVj4QvTSfrUKoxI+YID82D7Ey
+         +6UqWYrvdQOnM8++h4HXs+x1t9H6nvWPiLL0ERd4B7gFb6+VltAm6ZV+fKyh7KgYSerD
+         YEKFuC9kRfMvkoywl2Y1jLE4gaeT/0zgVXClj3rNxHhDdQhF+vBF6E3OL+2OWKe5BtlL
+         FfPI2g86nIdAKVIE4DLNtnPfEAjwc4A10ZOwI0jLMeWuMRvDdZeGlP65nT81WJ4z828A
+         oAbW0aSrJmWPkkJIcpuM66yu4Q1g/PHHOv/2V1GNtyx6uv3oyygM+coW3Z7O20yrNspJ
+         e1dA==
+X-Gm-Message-State: AOAM531ezaA9ZsXY9rb5+Oc7jOgcwMQ/SH6JMuiJZ605lPGu3p0xX3uq
+        AIq3bEg1C7eNNQdSp9ogkIWAH+pvBWi5PvSbRLaU
+X-Google-Smtp-Source: ABdhPJzdSYQHE23244GIU8d4xz+1Lkm1o7zR6ssAr8gx3E6rVyl78YYZLnOPXJqP3X2kw52tfSyMQJa5eWGprHjBsgU=
+X-Received: by 2002:a05:6402:105a:: with SMTP id e26mr4141110edu.164.1616078918678;
+ Thu, 18 Mar 2021 07:48:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210316165131.37312-1-jwcart2@gmail.com> <CAJfZ7==dLpSiV04zRKJdSXMg-FS3uZVQcQkixdK9tJ4+4d8xvQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7==dLpSiV04zRKJdSXMg-FS3uZVQcQkixdK9tJ4+4d8xvQ@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 18 Mar 2021 10:21:42 -0400
-Message-ID: <CAP+JOzTHo2+uVHJTgN3AEJxCCAFZFmdmpeKgtGLr66RtPA+Jug@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Check for duplicate blocks, optionals, and macros
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Evgeny Vereshchagin <evvers@ya.ru>
+References: <20210212185930.130477-1-omosnace@redhat.com> <20210212185930.130477-2-omosnace@redhat.com>
+ <CAHC9VhQLJKjY0KSC+=f4b=8d8n-m29j_9J5r_VQ_1BpSY8WD2w@mail.gmail.com>
+ <CAFqZXNuBYwAT2-vLaTM8_Zng=vh+XsY_EvnzPYM4Z=PoCydZ+A@mail.gmail.com>
+ <CAHC9VhSzDVyipy2y8ONiR_Q0YG50FnCJxgHsoi9Nee09hN0WCA@mail.gmail.com>
+ <20210303025558.GH6000@sequoia> <CAFqZXNszZY-6Cg0ZaSUY1Y+EvfP-0QApVTJUOQkNt5jrTSgh5w@mail.gmail.com>
+In-Reply-To: <CAFqZXNszZY-6Cg0ZaSUY1Y+EvfP-0QApVTJUOQkNt5jrTSgh5w@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 18 Mar 2021 10:48:27 -0400
+Message-ID: <CAHC9VhSjtP9JN4XTWi0WyWnbF2j5D5HweQn9-Okut_D==UGQ-A@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] selinux: don't log MAC_POLICY_LOAD record on
+ failed policy load
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Tyler Hicks <tyhicks@linux.microsoft.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 16, 2021 at 4:49 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Tue, Mar 16, 2021 at 5:51 PM James Carter <jwcart2@gmail.com> wrote:
+On Wed, Mar 3, 2021 at 3:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Wed, Mar 3, 2021 at 3:56 AM Tyler Hicks <tyhicks@linux.microsoft.com> wrote:
+> > On 2021-02-28 13:52:52, Paul Moore wrote:
+> > > On Fri, Feb 26, 2021 at 9:46 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > On Thu, Feb 25, 2021 at 7:15 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > On Fri, Feb 12, 2021 at 1:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > >
+> > > > > > If sel_make_policy_nodes() fails, we should jump to 'out', not 'out1',
+> > > > > > as the latter would incorrectly log an MAC_POLICY_LOAD audit record,
+> > > > > > even though the policy hasn't actually been reloaded. The 'out1' jump
+> > > > > > label now becomes unused and can be removed.
+> > > > > >
+> > > > > > Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
+> > > > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > > > > ---
+> > > > > >  security/selinux/selinuxfs.c | 3 +--
+> > > > > >  1 file changed, 1 insertion(+), 2 deletions(-)
+> > > > > >
+> > > > > > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> > > > > > index 01a7d50ed39b..340711e3dc9a 100644
+> > > > > > --- a/security/selinux/selinuxfs.c
+> > > > > > +++ b/security/selinux/selinuxfs.c
+> > > > > > @@ -651,14 +651,13 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+> > > > > >         length = sel_make_policy_nodes(fsi, newpolicy);
+> > > > > >         if (length) {
+> > > > > >                 selinux_policy_cancel(fsi->state, newpolicy);
+> > > > > > -               goto out1;
+> > > > > > +               goto out;
+> > > > >
+> > > > > This looks good, especially with AUDIT_MAC_POLICY_LOAD recording
+> > > > > "res=1".  However, now that I'm looking at the error path here, we
+> > > > > don't display anything if sel_make_policy_nodes() fails, do we?  If
+> > > > > security_load_policy fails we at least do a printk(), but if this
+> > > > > fails it silently kills the policy load; at the very least I think we
+> > > > > want a `pr_warn_ratelimited("SELinux: failed to load policy due to
+> > > > > selinuxfs failures")` or something similar.
+> > > >
+> > > > There are error messages in some error paths in
+> > > > sel_make_policy_nodes(), but not all. Those are pr_err()s, while in
+> > > > sel_write_load() there is a pr_warn_ratelimited(). Could we just unify
+> > > > the sel_make_policy_nodes() failure to a single message? (I don't
+> > > > think the information on which part has failed is very useful as the
+> > > > most likely cause here is a memory allocation failure, not bad
+> > > > policy.) If so, should it be a pr_warn() or pr_err()? Ratelimited or
+> > > > not?
+> > >
+> > > My personal opinion is that the kernel only needs to provide the error
+> > > details to userspace which can be useful in determining what wrong,
+> > > and how the user can fix it.  For example, if there is a memory
+> > > allocation failure in the kernel there is often little the user can do
+> > > (and it is often transient anyway due to loading and other factors),
+> > > so simply reporting that there was an allocation failure while
+> > > attempting X is sufficient.
+> > >
+> > > Beyond that, I think things can get a little fuzzy, e.g. pr_warn() or
+> > > pr_err?  Ratelimit or always emit the message?  I also think the
+> > > answers can change as userspace behaviors change over time.  If one of
+> > > the policy load error paths uses a pr_err() then we should probably
+> > > stick with that; it also seems appropriate as failing to (re)load a
+> > > SELinux policy *is* a serious matter.  As far as the rate limiting is
+> > > concerned, I'm not sure if that is an important difference here; if
+> > > the system is getting enough requests to reload the policy, and
+> > > repeatedly failing, such that the ratelimiting matters there are
+> > > likely other, much larger, issues at play on the system.
 > >
-> > In CIL, blocks, optionals, and macros share the same symbol table so
-> > that the targets of "in" statements can be located. Because of this,
-> > they cannot have the same name in the same namespace, but, because
-> > they do not show up in the final policy, they can have the same name
-> > as long as they are in different namespaces. Unfortunately, when
-> > copying from one namespace to another, no check was being done to see
-> > if there was a conflict.
+> > I was a little surprised to see pr_warn_ratelimited() (from both the
+> > KERN_WARNING and ratelimited perspectives) used in the policy loading error
+> > path so I poked around a bit. The description of commit 4262fb51c9f5 ("selinux:
+> > log errors when loading new policy") explains the reasoning:
 > >
-> > When copying blocks, optionals, and macros, if a datum is found in
-> > the destination namespace, then there is a conflict with a previously
-> > declared block, optional, or macro, so exit with an error.
+> >     If the policy fails to be loaded from userspace then a warning message is
+> >     printed, whereas if a failure occurs after loading policy from userspace an
+> >     error message will be printed with details on where policy loading failed
+> >     (recreating one of /classes/, /policy_capabilities/, /booleans/ in the
+> >     SELinux fs).
 > >
-> > Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> > Reported-by: Evgeny Vereshchagin <evvers@ya.ru>
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > This seems like sound logic and would result in Ondrej using pr_err() in the
+> > sel_make_policy_nodes() error path.
 >
-> I confirm this patch fixes the reported bug, and makes secilc no
-> longer crashes on the non-reduced test case found by OSS-Fuzz.
+> The situation has changed a bit since that was written, though... Back
+> then after the policy had been loaded there was no way to turn back
+> and if sel_make_policy_nodes() failed, the new policy would stay and
+> selinuxfs would have been left behind in an inconsistent/broken state.
+> Now this issue is fixed and the new policy isn't actually applied
+> until the selinuxfs preparation succeeds. So from a certain POV, the
+> selinuxfs failure is no longer that fatal and could just print a
+> warning like the other error path, because the result is the same
+> after both failures (active policy and selinuxfs state remains
+> unchanged).
 >
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
+> Paul (or Stephen if you are reading this and have time to comment),
+> what do you think?
 
-Merged.
-Thanks,
-Jim
+Sorry for the late reply, I lost this in my inbox and since I already
+marked the patchset as "changes requested" in patchwork it fell off my
+radar ...
 
-> Thanks!
-> Nicolas
->
-> > ---
-> >  libsepol/cil/src/cil_copy_ast.c | 89 +++++++++------------------------
-> >  1 file changed, 25 insertions(+), 64 deletions(-)
-> >
-> > diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> > index c9aada9d..ed967861 100644
-> > --- a/libsepol/cil/src/cil_copy_ast.c
-> > +++ b/libsepol/cil/src/cil_copy_ast.c
-> > @@ -100,16 +100,17 @@ int cil_copy_block(__attribute__((unused)) struct cil_db *db, void *data, void *
-> >         struct cil_block *orig = data;
-> >         char *key = orig->datum.name;
-> >         struct cil_symtab_datum *datum = NULL;
-> > +       struct cil_block *new;
-> >
-> >         cil_symtab_get_datum(symtab, key, &datum);
-> > -       if (datum == NULL) {
-> > -               struct cil_block *new;
-> > -               cil_block_init(&new);
-> > -               *copy = new;
-> > -       } else {
-> > -               *copy = datum;;
-> > +       if (datum != NULL) {
-> > +               cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
-> > +               return SEPOL_ERR;
-> >         }
-> >
-> > +       cil_block_init(&new);
-> > +       *copy = new;
-> > +
-> >         return SEPOL_OK;
-> >  }
-> >
-> > @@ -1509,64 +1510,22 @@ int cil_copy_macro(__attribute__((unused)) struct cil_db *db, void *data, void *
-> >         struct cil_macro *orig = data;
-> >         char *key = orig->datum.name;
-> >         struct cil_symtab_datum *datum = NULL;
-> > +       struct cil_macro *new;
-> >
-> >         cil_symtab_get_datum(symtab, key, &datum);
-> > -       if (datum == NULL) {
-> > -               struct cil_macro *new;
-> > -               cil_macro_init(&new);
-> > -               if (orig->params != NULL) {
-> > -                       cil_copy_list(orig->params, &new->params);
-> > -               }
-> > -
-> > -               *copy = new;
-> > -
-> > -       } else {
-> > -               struct cil_list_item *curr_orig = NULL;
-> > -               struct cil_list_item *curr_new = NULL;
-> > -               struct cil_param *param_orig = NULL;
-> > -               struct cil_param *param_new = NULL;
-> > -
-> > -               if (((struct cil_macro*)datum)->params != NULL) {
-> > -                       curr_new = ((struct cil_macro*)datum)->params->head;
-> > -               }
-> > -
-> > -               if (orig->params != NULL) {
-> > -                       curr_orig = orig->params->head;
-> > -               }
-> > -
-> > -               if (curr_orig != NULL && curr_new != NULL) {
-> > -                       while (curr_orig != NULL) {
-> > -                               if (curr_new == NULL) {
-> > -                                       goto exit;
-> > -                               }
-> > -
-> > -                               param_orig = (struct cil_param*)curr_orig->data;
-> > -                               param_new = (struct cil_param*)curr_new->data;
-> > -                               if (param_orig->str != param_new->str) {
-> > -                                       goto exit;
-> > -                               } else if (param_orig->flavor != param_new->flavor) {
-> > -                                       goto exit;
-> > -                               }
-> > -
-> > -                               curr_orig = curr_orig->next;
-> > -                               curr_new = curr_new->next;
-> > -                       }
-> > -
-> > -                       if (curr_new != NULL) {
-> > -                               goto exit;
-> > -                       }
-> > -               } else if (!(curr_orig == NULL && curr_new == NULL)) {
-> > -                       goto exit;
-> > -               }
-> > +       if (datum != NULL) {
-> > +               cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
-> > +               return SEPOL_ERR;
-> > +       }
-> >
-> > -               *copy = datum;
-> > +       cil_macro_init(&new);
-> > +       if (orig->params != NULL) {
-> > +               cil_copy_list(orig->params, &new->params);
-> >         }
-> >
-> > -       return SEPOL_OK;
-> > +       *copy = new;
-> >
-> > -exit:
-> > -       cil_log(CIL_INFO, "cil_copy_macro: macro cannot be redefined\n");
-> > -       return SEPOL_ERR;
-> > +       return SEPOL_OK;
-> >  }
-> >
-> >  int cil_copy_optional(__attribute__((unused)) struct cil_db *db, void *data, void **copy, symtab_t *symtab)
-> > @@ -1574,16 +1533,17 @@ int cil_copy_optional(__attribute__((unused)) struct cil_db *db, void *data, voi
-> >         struct cil_optional *orig = data;
-> >         char *key = orig->datum.name;
-> >         struct cil_symtab_datum *datum = NULL;
-> > +       struct cil_optional *new;
-> >
-> >         cil_symtab_get_datum(symtab, key, &datum);
-> > -       if (datum == NULL) {
-> > -               struct cil_optional *new;
-> > -               cil_optional_init(&new);
-> > -               *copy = new;
-> > -       } else {
-> > -               *copy = datum;
-> > +       if (datum != NULL) {
-> > +               cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
-> > +               return SEPOL_ERR;
-> >         }
-> >
-> > +       cil_optional_init(&new);
-> > +       *copy = new;
-> > +
-> >         return SEPOL_OK;
-> >  }
-> >
-> > @@ -2122,6 +2082,7 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
-> >                         args->dest = new;
-> >                 }
-> >         } else {
-> > +               cil_tree_log(orig, CIL_ERR, "Problem copying %s node", cil_node_to_string(orig));
-> >                 goto exit;
-> >         }
-> >
-> > --
-> > 2.26.2
-> >
->
+Anyway, back to your question ... it does seem like pr_warn() is the
+right answer here for the reasons that Ondrej mentioned above, and I
+personally feel it is in keeping with the original patch's intention
+as well; "If the policy fails to be loaded from userspace then a
+warning message is printed ..."  However, I'm not going to lose a lot
+of sleep over differences between pr_warn() and pr_err() here, if
+someone feels strongly that it should be pr_err() and can back that up
+with some solid reasoning and/or precedence then so be it.
+
+-- 
+paul moore
+www.paul-moore.com
