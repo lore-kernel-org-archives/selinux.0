@@ -2,349 +2,158 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 905DCC433DB
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 21:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 451F9C433E0
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 22:04:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6DD5264F38
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 21:54:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12B8764F30
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 22:04:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbhCRVxl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Mar 2021 17:53:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53301 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231770AbhCRVx1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 17:53:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616104406;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Xuml6FX+QV3znNsmhXkEQUKuBbFZHIk7R0h/7PdbebI=;
-        b=Mc2Yx6sipWXHw66IcGbCqwBE7THF6L7mcOUoAnu7LYMCnvk5+leOdqQUDwXQcMHQ9450RA
-        djP4zdDYuuhfJlhfaYVLEmO1ckprtzSWI261wE9o4IEBlS4DrIbUvrNIbS75icvozf9bZ1
-        ywaywMwsPHhT9c0nlHCjsFbGj5WzikA=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-37-H5KPB4R9Mrm-KsC1tzWgug-1; Thu, 18 Mar 2021 17:53:10 -0400
-X-MC-Unique: H5KPB4R9Mrm-KsC1tzWgug-1
-Received: by mail-ej1-f72.google.com with SMTP id au15so17385315ejc.8
-        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 14:53:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Xuml6FX+QV3znNsmhXkEQUKuBbFZHIk7R0h/7PdbebI=;
-        b=ZczkLzhBGjeq0RW4nmWvP2p3jwUB1OVC5cgRdyA20Ilk149ayE92puE/tf3A6zg7OI
-         0CalVKoF7tXjojsBRAZS2STVj/MlJkznZSTJoPKR034LlqF80tdAB28/7wupg/OkLuJx
-         Z6nE8HCA6oq24Unt6BiGacaZEI0Tbo6IJvv6/mKR7bgworL80sy19A1dXfsMvNuWL9B2
-         SpLMUyU0jIQq4GbXdWpgvKWbrV4Cxpa4Xc1bbfxb8ob/WBVb2CAVYmmIzX9s2mHXt2/b
-         b3c+WvukemznZyD9h0w9yxFkyEFF/74abbfpnkRmfo5iege/lbupx4GmO1RDNl8Vw59Y
-         By4g==
-X-Gm-Message-State: AOAM530b5c4GVur3LpLqg3a3h6RUP9aRqOR3Ody2iaMYDK+69/Qobyey
-        WBl5+ZwnN9LzkFkbrrxla5x9sJiaO+8df8F9mk0E7P/owkse/BfSax4Ug83DTCrOkwslatBVw8P
-        xVEgncGYr8q/KWK9xgQUbjp7N4c9FzuN/8PT8/7HaEOCt3PVyZ6uCkODnkB9/KhsZm0R1ZQ==
-X-Received: by 2002:a17:907:9862:: with SMTP id ko2mr728200ejc.222.1616104388717;
-        Thu, 18 Mar 2021 14:53:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw4eqtdcZ7XbmuiyKvhLIb7WVbJgRqeaWisFCJWTZ3eaOe1XGxfBkTdm5BIuWs13xhiaUMhdA==
-X-Received: by 2002:a17:907:9862:: with SMTP id ko2mr728185ejc.222.1616104388514;
-        Thu, 18 Mar 2021 14:53:08 -0700 (PDT)
-Received: from omos.redhat.com ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id a17sm2620255ejf.20.2021.03.18.14.53.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Mar 2021 14:53:08 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>
-Subject: [PATCH v3 2/3] selinux: fix variable scope issue in live sidtab conversion
-Date:   Thu, 18 Mar 2021 22:53:02 +0100
-Message-Id: <20210318215303.2578052-3-omosnace@redhat.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210318215303.2578052-1-omosnace@redhat.com>
-References: <20210318215303.2578052-1-omosnace@redhat.com>
+        id S231280AbhCRWEW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Mar 2021 18:04:22 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:52905 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230333AbhCRWEA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 18:04:00 -0400
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 69B4D564E44
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 23:03:52 +0100 (CET)
+Received: by mail-pf1-f170.google.com with SMTP id g15so4456150pfq.3
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 15:03:52 -0700 (PDT)
+X-Gm-Message-State: AOAM530nYKrDdq2KS/NGvCCloLdHHclZtsvC5OVS5TOF+0kCw2S0fina
+        PB78d6JRO6VuodiwSDJ5Br+6s2HPpvMG/8fSTZY=
+X-Google-Smtp-Source: ABdhPJyQNTSlz9nweGsj7W3sK5zot2+hwjAOzrA8KgoTpLswqqQBJcwUUz7IpTZ/jj0bubMijBD/2SGCgW00TFSn+Rw=
+X-Received: by 2002:a63:c90c:: with SMTP id o12mr8910302pgg.210.1616105031037;
+ Thu, 18 Mar 2021 15:03:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210317190002.81465-1-jwcart2@gmail.com>
+In-Reply-To: <20210317190002.81465-1-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Thu, 18 Mar 2021 23:03:40 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==R5Gpvxpb--nErHb7ZP3LvCZYP-fPZOpg1ZJsQG_Fi5w@mail.gmail.com>
+Message-ID: <CAJfZ7==R5Gpvxpb--nErHb7ZP3LvCZYP-fPZOpg1ZJsQG_Fi5w@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Destroy classperms list when resetting classpermission
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Mar 18 23:03:53 2021 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Commit 02a52c5c8c3b ("selinux: move policy commit after updating
-selinuxfs") moved the selinux_policy_commit() call out of
-security_load_policy() into sel_write_load(), which caused a subtle yet
-rather serious bug.
+On Wed, Mar 17, 2021 at 8:00 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> Nicolas Iooss reports:
+>   A few months ago, OSS-Fuzz found a crash in the CIL compiler, which
+>   got reported as
+>   https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28648 (the title
+>   is misleading, or is caused by another issue that conflicts with the
+>   one I report in this message). Here is a minimized CIL policy which
+>   reproduces the issue:
+>
+>   (class CLASS (PERM))
+>   (classorder (CLASS))
+>   (sid SID)
+>   (sidorder (SID))
+>   (user USER)
+>   (role ROLE)
+>   (type TYPE)
+>   (category CAT)
+>   (categoryorder (CAT))
+>   (sensitivity SENS)
+>   (sensitivityorder (SENS))
+>   (sensitivitycategory SENS (CAT))
+>   (allow TYPE self (CLASS (PERM)))
+>   (roletype ROLE TYPE)
+>   (userrole USER ROLE)
+>   (userlevel USER (SENS))
+>   (userrange USER ((SENS)(SENS (CAT))))
+>   (sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+>
+>   (classpermission CLAPERM)
+>
+>   (optional OPT
+>       (roletype nonexistingrole nonexistingtype)
+>       (classpermissionset CLAPERM (CLASS (PERM)))
+>   )
+>
+>   The CIL policy fuzzer (which mimics secilc built with clang Address
+>   Sanitizer) reports:
+>
+>   ==36541==ERROR: AddressSanitizer: heap-use-after-free on address
+>   0x603000004f98 at pc 0x56445134c842 bp 0x7ffe2a256590 sp
+>   0x7ffe2a256588
+>   READ of size 8 at 0x603000004f98 thread T0
+>       #0 0x56445134c841 in __cil_verify_classperms
+>   /selinux/libsepol/src/../cil/src/cil_verify.c:1620:8
+>       #1 0x56445134a43e in __cil_verify_classpermission
+>   /selinux/libsepol/src/../cil/src/cil_verify.c:1650:9
+>       #2 0x56445134a43e in __cil_pre_verify_helper
+>   /selinux/libsepol/src/../cil/src/cil_verify.c:1715:8
+>       #3 0x5644513225ac in cil_tree_walk_core
+>   /selinux/libsepol/src/../cil/src/cil_tree.c:272:9
+>       #4 0x564451322ab1 in cil_tree_walk
+>   /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+>       #5 0x5644513226af in cil_tree_walk_core
+>   /selinux/libsepol/src/../cil/src/cil_tree.c:284:9
+>       #6 0x564451322ab1 in cil_tree_walk
+>   /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+>       #7 0x5644512b88fd in cil_pre_verify
+>   /selinux/libsepol/src/../cil/src/cil_post.c:2510:7
+>       #8 0x5644512b88fd in cil_post_process
+>   /selinux/libsepol/src/../cil/src/cil_post.c:2524:7
+>       #9 0x5644511856ff in cil_compile
+>   /selinux/libsepol/src/../cil/src/cil.c:564:7
+>
+> The classperms list of a classpermission rule is created and filled
+> in when classpermissionset rules are processed, so it doesn't own any
+> part of the list and shouldn't retain any of it when it is reset.
+>
+> Destroy the classperms list (without destroying the data in it)  when
+> resetting a classpermission rule.
+>
+> Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/cil/src/cil_reset_ast.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
+> index 3da1b9a6..db70a535 100644
+> --- a/libsepol/cil/src/cil_reset_ast.c
+> +++ b/libsepol/cil/src/cil_reset_ast.c
+> @@ -54,7 +54,7 @@ static void cil_reset_classpermission(struct cil_classpermission *cp)
+>                 return;
+>         }
+>
+> -       cil_reset_classperms_list(cp->classperms);
+> +       cil_list_destroy(&cp->classperms, CIL_FALSE);
+>  }
+>
+>  static void cil_reset_classperms_set(struct cil_classperms_set *cp_set)
 
-The problem is that security_load_policy() passes a reference to the
-convert_params local variable to sidtab_convert(), which stores it in
-the sidtab, where it may be accessed until the policy is swapped over
-and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
-called directly from security_load_policy(), so the convert_params
-pointer remained valid all the way until the old sidtab was destroyed,
-but now that's no longer the case and calls to sidtab_context_to_sid()
-on the old sidtab after security_load_policy() returns may cause invalid
-memory accesses.
+Hello,
+This patch seems to make secilc segfault on a test policy, for example
+on GitHub Actions:
 
-This can be easily triggered using the stress test from commit
-ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
-performance"):
-```
-function rand_cat() {
-	echo $(( $RANDOM % 1024 ))
-}
+make[1]: Entering directory '/home/runner/work/selinux/selinux/secilc'
+./secilc test/policy.cil
+make[1]: *** [Makefile:32: test] Segmentation fault (core dumped)
 
-function do_work() {
-	while true; do
-		echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
-			>/sys/fs/selinux/context 2>/dev/null || true
-	done
-}
+(from https://github.com/fishilico/selinux/runs/2135040809?check_suite_focus=true#step:9:2645).
+It also produces a segmentation fault on my Arch Linux development
+system (building with gcc or clang and the default compilation flags
+of the project).
 
-do_work >/dev/null &
-do_work >/dev/null &
-do_work >/dev/null &
+Is this segfault fixed by the other patches you sent?
 
-while load_policy; do echo -n .; sleep 0.1; done
-
-kill %1
-kill %2
-kill %3
-```
-
-Fix this by allocating the temporary sidtab convert structures
-dynamically and passing them among the
-selinux_policy_{load,cancel,commit} functions.
-
-Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
-Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/include/security.h | 15 +++++--
- security/selinux/selinuxfs.c        | 10 ++---
- security/selinux/ss/services.c      | 63 ++++++++++++++++++-----------
- 3 files changed, 55 insertions(+), 33 deletions(-)
-
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 7130c9648ad1..ac0ece01305a 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -219,14 +219,21 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
- 	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
- }
- 
-+struct selinux_policy_convert_data;
-+
-+struct selinux_load_state {
-+	struct selinux_policy *policy;
-+	struct selinux_policy_convert_data *convert_data;
-+};
-+
- int security_mls_enabled(struct selinux_state *state);
- int security_load_policy(struct selinux_state *state,
--			void *data, size_t len,
--			struct selinux_policy **newpolicyp);
-+			 void *data, size_t len,
-+			 struct selinux_load_state *load_state);
- void selinux_policy_commit(struct selinux_state *state,
--			struct selinux_policy *newpolicy);
-+			   struct selinux_load_state *load_state);
- void selinux_policy_cancel(struct selinux_state *state,
--			struct selinux_policy *policy);
-+			   struct selinux_load_state *load_state);
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len);
- int security_read_state_kernel(struct selinux_state *state,
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 37b32b0035f6..dc7297abe4ea 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -619,7 +619,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 
- {
- 	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
--	struct selinux_policy *newpolicy;
-+	struct selinux_load_state load_state;
- 	ssize_t length;
- 	void *data = NULL;
- 
-@@ -645,19 +645,19 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 	if (copy_from_user(data, buf, count) != 0)
- 		goto out;
- 
--	length = security_load_policy(fsi->state, data, count, &newpolicy);
-+	length = security_load_policy(fsi->state, data, count, &load_state);
- 	if (length) {
- 		pr_warn_ratelimited("SELinux: failed to load policy\n");
- 		goto out;
- 	}
- 
--	length = sel_make_policy_nodes(fsi, newpolicy);
-+	length = sel_make_policy_nodes(fsi, load_state.policy);
- 	if (length) {
--		selinux_policy_cancel(fsi->state, newpolicy);
-+		selinux_policy_cancel(fsi->state, &load_state);
- 		goto out;
- 	}
- 
--	selinux_policy_commit(fsi->state, newpolicy);
-+	selinux_policy_commit(fsi->state, &load_state);
- 
- 	length = count;
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f37375c9553f..08ac1d01c743 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -67,6 +67,17 @@
- #include "policycap_names.h"
- #include "ima.h"
- 
-+struct convert_context_args {
-+	struct selinux_state *state;
-+	struct policydb *oldp;
-+	struct policydb *newp;
-+};
-+
-+struct selinux_policy_convert_data {
-+	struct convert_context_args args;
-+	struct sidtab_convert_params sidtab_params;
-+};
-+
- /* Forward declaration. */
- static int context_struct_to_string(struct policydb *policydb,
- 				    struct context *context,
-@@ -1974,12 +1985,6 @@ static inline int convert_context_handle_invalid_context(
- 	return 0;
- }
- 
--struct convert_context_args {
--	struct selinux_state *state;
--	struct policydb *oldp;
--	struct policydb *newp;
--};
--
- /*
-  * Convert the values in the security context
-  * structure `oldc' from the values specified
-@@ -2159,7 +2164,7 @@ static void selinux_policy_cond_free(struct selinux_policy *policy)
- }
- 
- void selinux_policy_cancel(struct selinux_state *state,
--			struct selinux_policy *policy)
-+			   struct selinux_load_state *load_state)
- {
- 	struct selinux_policy *oldpolicy;
- 
-@@ -2167,7 +2172,8 @@ void selinux_policy_cancel(struct selinux_state *state,
- 					lockdep_is_held(&state->policy_mutex));
- 
- 	sidtab_cancel_convert(oldpolicy->sidtab);
--	selinux_policy_free(policy);
-+	selinux_policy_free(load_state->policy);
-+	kfree(load_state->convert_data);
- }
- 
- static void selinux_notify_policy_change(struct selinux_state *state,
-@@ -2183,9 +2189,9 @@ static void selinux_notify_policy_change(struct selinux_state *state,
- }
- 
- void selinux_policy_commit(struct selinux_state *state,
--			struct selinux_policy *newpolicy)
-+			   struct selinux_load_state *load_state)
- {
--	struct selinux_policy *oldpolicy;
-+	struct selinux_policy *oldpolicy, *newpolicy = load_state->policy;
- 	u32 seqno;
- 
- 	oldpolicy = rcu_dereference_protected(state->policy,
-@@ -2225,6 +2231,7 @@ void selinux_policy_commit(struct selinux_state *state,
- 	/* Free the old policy */
- 	synchronize_rcu();
- 	selinux_policy_free(oldpolicy);
-+	kfree(load_state->convert_data);
- 
- 	/* Notify others of the policy change */
- 	selinux_notify_policy_change(state, seqno);
-@@ -2241,11 +2248,10 @@ void selinux_policy_commit(struct selinux_state *state,
-  * loading the new policy.
-  */
- int security_load_policy(struct selinux_state *state, void *data, size_t len,
--			struct selinux_policy **newpolicyp)
-+			 struct selinux_load_state *load_state)
- {
- 	struct selinux_policy *newpolicy, *oldpolicy;
--	struct sidtab_convert_params convert_params;
--	struct convert_context_args args;
-+	struct selinux_policy_convert_data *convert_data;
- 	int rc = 0;
- 	struct policy_file file = { data, len }, *fp = &file;
- 
-@@ -2275,10 +2281,10 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len,
- 		goto err_mapping;
- 	}
- 
--
- 	if (!selinux_initialized(state)) {
- 		/* First policy load, so no need to preserve state from old policy */
--		*newpolicyp = newpolicy;
-+		load_state->policy = newpolicy;
-+		load_state->convert_data = NULL;
- 		return 0;
- 	}
- 
-@@ -2292,29 +2298,38 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len,
- 		goto err_free_isids;
- 	}
- 
-+	convert_data = kmalloc(sizeof(*convert_data), GFP_KERNEL);
-+	if (!convert_data) {
-+		rc = -ENOMEM;
-+		goto err_free_isids;
-+	}
-+
- 	/*
- 	 * Convert the internal representations of contexts
- 	 * in the new SID table.
- 	 */
--	args.state = state;
--	args.oldp = &oldpolicy->policydb;
--	args.newp = &newpolicy->policydb;
-+	convert_data->args.state = state;
-+	convert_data->args.oldp = &oldpolicy->policydb;
-+	convert_data->args.newp = &newpolicy->policydb;
- 
--	convert_params.func = convert_context;
--	convert_params.args = &args;
--	convert_params.target = newpolicy->sidtab;
-+	convert_data->sidtab_params.func = convert_context;
-+	convert_data->sidtab_params.args = &convert_data->args;
-+	convert_data->sidtab_params.target = newpolicy->sidtab;
- 
--	rc = sidtab_convert(oldpolicy->sidtab, &convert_params);
-+	rc = sidtab_convert(oldpolicy->sidtab, &convert_data->sidtab_params);
- 	if (rc) {
- 		pr_err("SELinux:  unable to convert the internal"
- 			" representation of contexts in the new SID"
- 			" table\n");
--		goto err_free_isids;
-+		goto err_free_convert_data;
- 	}
- 
--	*newpolicyp = newpolicy;
-+	load_state->policy = newpolicy;
-+	load_state->convert_data = convert_data;
- 	return 0;
- 
-+err_free_convert_data:
-+	kfree(convert_data);
- err_free_isids:
- 	sidtab_destroy(newpolicy->sidtab);
- err_mapping:
--- 
-2.30.2
+Thanks,
+Nicolas
 
