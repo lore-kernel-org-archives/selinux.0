@@ -2,146 +2,154 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA240C433DB
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 22:57:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17DAEC433E6
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 09:44:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6EAAD60240
-	for <selinux@archiver.kernel.org>; Wed, 17 Mar 2021 22:57:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD1C764F40
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 09:44:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229508AbhCQW46 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Mar 2021 18:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229512AbhCQW43 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Mar 2021 18:56:29 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B6CC06174A
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 15:56:28 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id r12so933873ejr.5
-        for <selinux@vger.kernel.org>; Wed, 17 Mar 2021 15:56:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=a+08TCMXZyjlZrUSLxo3iiA6zUw9BGeYa2hlwFsECIY=;
-        b=t11two/QxA5RIKVR27oCZ44kE2UoHAGFyECntvDL8K6Xmd5Fg/CLAIU2akBPdDsxQS
-         bqbapnCnu3vl9bgwlT49abRo2lo70BZzk5aKv5xO0flvdI8enW08GUv8vpndhUb0L/sq
-         cPWlYXH9Z0Fb8OKs5aU5l4zWvDQpBiO2fw9+r264W65CIGnYKXaoL3rbC+NzZg7xxytq
-         CrPWw9tRlgKBeXkaSKkIDkQTzRXzTAd0cyi4NrcaD/wrc0blqSsBMlZbI1NYqIO068h1
-         lb1acxj7XvtNlmHn9PMtla4PzreA82UyciHX0PSvZHedakgwPpXRvSn0mNXUo6f5wjPm
-         mSjw==
+        id S229813AbhCRJnf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Mar 2021 05:43:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:27068 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229558AbhCRJnN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 05:43:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616060593;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vR/zt2s7jmFTmNYSYREs6HOTCms/TVsSgO4RcvUd91E=;
+        b=eHmlWUwi8h2lFL7esIjK3qjocSw0tvKmAf2U8XF9kdvxRfTcu17gpz2epE5X12URja35Ml
+        9rOvHkoJFGqrueJc8VhpZHZFfIZO5fKan0Zj7+RLJD9iyJamB4Wu/o1Jgokue4C+Trzmoa
+        Ux4sE1G8swpNM6+4c79pbj7StKNXCuU=
+Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
+ [209.85.219.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-356-mCfwdDMEN7-kbLLcyevROA-1; Thu, 18 Mar 2021 05:43:09 -0400
+X-MC-Unique: mCfwdDMEN7-kbLLcyevROA-1
+Received: by mail-yb1-f200.google.com with SMTP id v6so47897070ybk.9
+        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 02:43:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=a+08TCMXZyjlZrUSLxo3iiA6zUw9BGeYa2hlwFsECIY=;
-        b=oA8CpPU5f/3nmMyW1FOOIVddOlQDoyfmL/mc48rXxqvk4ssgi9G4zVTaJK7Upj6L7H
-         mvbp5iW7jjru8+JldrL4MjyO3PQ9+iCiGOPOIv0q+lb0lwYvMsGYG7bUAfBXoWYhS3uR
-         e4WLh9KIKgkrw4Rb1/DJqimKSKctSCH4j4W59xUuzJXg+jH89fB7q8xk5KKCzT+vDTtm
-         bf2dCcAH3RJ7N9+xDx9N2LHNAAQG7wqWE1mkGbP832VFk61SbPj2QochyXAKm4OgR49y
-         4Ewy/6b5yeIk5MUjNmpppMS2qORu+4ByReDXSSeP73Ni70IJ1j9+JkoTgWMQgFQx4tjf
-         ENQg==
-X-Gm-Message-State: AOAM532jxfxg3CPVNu8dRXmHqDmSMUK0qt1jUGTS/q/z6hNwjLQWmh5R
-        j9RVZUoNREDeMMetUHHF+UzLXAS93N5Duf3H2xgn
-X-Google-Smtp-Source: ABdhPJwQ6DhvzGENYehzx0SNW4HCm0PCWmztvPNIkgcIJ3iZTziPQupBbExCf+lV7Fg3ZHzMlKrtUDUImmoF8nDBLek=
-X-Received: by 2002:a17:906:a443:: with SMTP id cb3mr37538189ejb.542.1616021787231;
- Wed, 17 Mar 2021 15:56:27 -0700 (PDT)
+        bh=vR/zt2s7jmFTmNYSYREs6HOTCms/TVsSgO4RcvUd91E=;
+        b=jGhBfTEinQbs7FG/oTx5bdRbSXzAzn2DrQofb2pgrFzEmaNtaq+vH3tatZhmLck+Wg
+         TD5ut+gJwGETlq+p53+m+1frIDk7yNc9nAhCFGHzfB1B0I54n5WRvzwn2Y3OGCcmD+kA
+         tWHxIVxqy8pQ+VPwgyAmTmmtgu1w/7xzjXNSbX1XcYdHiaTjQZ7zjad6zLl50/A5gtOe
+         EcyudCWWLEEBmFcYqGiNW/8ZH3VXShqLkH9+90WvZnkPPZlVW6tvGamLPls+bZ9gc9B/
+         Hngn+wrVTkC74EeYvoU8Q7NSWnPcvQZff99Rge2whPutkd1roPc3gOZPt4dhLabocD34
+         nbsA==
+X-Gm-Message-State: AOAM531JOce++NME7oAveGNKq2w9WorIGJtgs4ye8nTTWfWWTXB1+qm/
+        DAnJIGg4FtzDgm8JY/yBSZeW9BWWr4RoU7OtduRAfOTW5lGqXS0tbtNUsjF/zzje43dQrbrdi8t
+        YCN01L+xmM55QGebJP8YCRu5eLuqJ0wwWJg==
+X-Received: by 2002:a5b:4a:: with SMTP id e10mr10655649ybp.436.1616060589340;
+        Thu, 18 Mar 2021 02:43:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw7teWrEEwVymwJ1Z9H+EJZJa3vqMjyeSJinwGp6eJiV+YryR1PGYF1CfUr33dHWjIUEYwiFVCq1qKIL0SqkwE=
+X-Received: by 2002:a5b:4a:: with SMTP id e10mr10655630ybp.436.1616060589138;
+ Thu, 18 Mar 2021 02:43:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <161377712068.87807.12246856567527156637.stgit@sifl>
- <161377735153.87807.7492842242100187888.stgit@sifl> <b27662cf-4bcf-ec23-92f5-49a5b2f8c119@canonical.com>
- <CAHC9VhQmwFHFYZ2yCPDLWanjc1hzof7G3XO4fqPEX2ykiHCN3g@mail.gmail.com>
-In-Reply-To: <CAHC9VhQmwFHFYZ2yCPDLWanjc1hzof7G3XO4fqPEX2ykiHCN3g@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 17 Mar 2021 18:56:16 -0400
-Message-ID: <CAHC9VhR5_Fd_vCFME-zZJuap1rSpc5hEBGjK8p10QnaXiGrBug@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/4] selinux: clarify task subjective and objective credentials
-To:     John Johansen <john.johansen@canonical.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com
+References: <20210316144823.2188946-1-omosnace@redhat.com> <CAHC9VhRoTjimpKrrQ5f04SE7AOcGv6p5iBgSnoSRgtiUP47rRg@mail.gmail.com>
+ <YFEAD9UClhwxErgj@zeniv-ca.linux.org.uk>
+In-Reply-To: <YFEAD9UClhwxErgj@zeniv-ca.linux.org.uk>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 18 Mar 2021 10:42:57 +0100
+Message-ID: <CAFqZXNukusUPp+kO7vxPZBt5ehkpH6EUZ5e8XwUq9adOQHdMkQ@mail.gmail.com>
+Subject: Re: [PATCH v2] vfs: fix fsconfig(2) LSM mount option handling for btrfs
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Paul Moore <paul@paul-moore.com>, linux-btrfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 10, 2021 at 11:32 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Tue, Mar 9, 2021 at 10:06 PM John Johansen
-> <john.johansen@canonical.com> wrote:
-> > On 2/19/21 3:29 PM, Paul Moore wrote:
-
-...
-
-> > > @@ -2034,11 +2047,8 @@ static inline u32 open_file_to_av(struct file *file)
+On Tue, Mar 16, 2021 at 8:25 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+> On Tue, Mar 16, 2021 at 02:21:45PM -0400, Paul Moore wrote:
+> > On Tue, Mar 16, 2021 at 10:48 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > > >
-> > >  static int selinux_binder_set_context_mgr(struct task_struct *mgr)
-> > >  {
-> > > -     u32 mysid = current_sid();
-> > > -     u32 mgrsid = task_sid(mgr);
-> > > -
-> > >       return avc_has_perm(&selinux_state,
-> > > -                         mysid, mgrsid, SECCLASS_BINDER,
-> > > +                         current_sid(), task_sid_obj(mgr), SECCLASS_BINDER,
-> > >                           BINDER__SET_CONTEXT_MGR, NULL);
-> > >  }
+> > > When SELinux security options are passed to btrfs via fsconfig(2) rather
+> > > than via mount(2), the operation aborts with an error. What happens is
+> > > roughly this sequence:
 > > >
-> > > @@ -2046,8 +2056,8 @@ static int selinux_binder_transaction(struct task_struct *from,
-> > >                                     struct task_struct *to)
-> > >  {
-> > >       u32 mysid = current_sid();
-> > > -     u32 fromsid = task_sid(from);
-> > > -     u32 tosid = task_sid(to);
-> > > +     u32 fromsid = task_sid_subj(from);
-> >
-> > fromsid potentially gets used as both the subject and the object the following
-> > permission checks. It makes sense to use the same cred for both checks but
-> > what I am not sure about yet is whether its actually safe to use the subject
-> > sid when the task isn't current.
-> >
-> > ie. I am still trying to determine if there is a race here between the transaction
-> > request and the permission check.
+> > > 1. vfs_parse_fs_param() eats away the LSM options and parses them into
+> > >    fc->security.
+> > > 2. legacy_get_tree() finds nothing in ctx->legacy_data, passes this
+> > >    nothing to btrfs.
+> > > [here btrfs calls another layer of vfs_kern_mount(), but let's ignore
+> > >  that for simplicity]
 >
-> Okay, I see what you are concerned about now ... and unfortunately I'm
-> not seeing a lot of precedence in the kernel for this type of usage
-> either; the closest I can find is something like task_lock(), but that
-> doesn't seem to cover the subjective creds.  In fact, looking at
-> override_creds(), there is nothing preventing a task from changing
-> it's subjective creds at any point in time.
+> Let's not.  This is where the root of the problem actually lies.  Take a look
+> at that sucker:
 >
-> Beyond the task_sid_subj() code here, looking back at patch 1 and the
-> use of security_task_getsecid_subj() we look to be mostly safe (where
-> safe means we are only inspecting the current task) with the exception
-> of the binder code once again.  There are some other exceptions but
-> they are in the ptrace and audit code, both of which should be okay
-> given the nature and calling context of the code.
+>         struct fs_context *fc;
+>         struct vfsmount *mnt;
+>         int ret = 0;
 >
-> The problem really does seem to be just binder, and as I look at
-> binder userspace example code, I'm starting to wonder if binder is
-> setup properly to operate sanely in a situation where a process
-> overrides its subject creds.  It may be that we always need to use the
-> objective/real creds with binder.  Jeff, any binder insight here you
-> can share with us?
+>         if (!type)
+>                 return ERR_PTR(-EINVAL);
 >
-> > > +     u32 tosid = task_sid_subj(to);
-> > its not clear to me that using the subj for to is correct
+>         fc = fs_context_for_mount(type, flags);
+>         if (IS_ERR(fc))
+>                 return ERR_CAST(fc);
 >
-> Yes, I believe you are correct.  Jeff, I know you looked at this code
-> already, but I'm guessing you may have missed this (just as I did when
-> I wrote it); are you okay with changing 'tosid' in
-> selinux_binder_transaction() to the task's objective credentials?
+>         if (name)
+>                 ret = vfs_parse_fs_string(fc, "source",
+>                                           name, strlen(name));
+>         if (!ret)
+>                 ret = parse_monolithic_mount_data(fc, data);
+>         if (!ret)
+>                 mnt = fc_mount(fc);
+>         else
+>                 mnt = ERR_PTR(ret);
+>
+>         put_fs_context(fc);
+>         return mnt;
+>
+> That's where the problem comes - you've lost the original context's ->security.
+> Note that there's such thing as security_fs_context_dup(), so you can bloody
+> well either
+>         * provide a variant of vfs_kern_mount() that would take 'base' fc to
+> pick security options from or
+>         * do all options parsing on btrfs fc and then do fs_context_for_mount +
+> security_fs_context_dup + copy (parsed) options to whatever private data you
+> use for btrfs_root context + fc_mount + put_fs_context yourself.
+>
+> My preference would be the latter, but I have *not* looked at btrfs mount options
+> handling in any details.
 
-Hearing no comments from the Android/binder folks, I'm in the process
-of switching this patchset to always use the objective creds in the
-case of binder.  It's safe and I'm not sure binder is really prepared
-for the idea of a task changing it's creds anyway.
+Ack, I'll look into that. I didn't dare to try to touch btrfs mount
+handling (if it was straightforward, someone would've already done it,
+right? :), but it sounds like converting just this one
+vfs_kern_mount() could be relatively easy, would fix the bug, and
+would be an incremental improvement.
 
-Once the kernel builds and passes some basic sanity checks I'll repost
-the patches for review and inclusion, minus the AppArmor patch.
+>
+> > VFS folks, can we get a verdict/feedback on this patch?  The v1 draft
+> > of this patch was posted almost four months ago with no serious
+> > comments/feedback.  It's a bit ugly, but it does appear to work and at
+> > the very least SELinux needs this to handle btrfs properly, other LSMs
+> > may need this too.
+>
+> It's more than a bit ugly; it perpetuates the use of FS_BINARY_MOUNTDATA,
+> and the semantics it gets is quite counterintuitive at that.
 
--- 
-paul moore
-www.paul-moore.com
+Fair enough.
+
+Thank you for the feedback and hints!
+
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
