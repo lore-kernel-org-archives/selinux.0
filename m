@@ -2,149 +2,136 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F602C433DB
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 11:46:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D229CC433DB
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 13:44:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 265C264F2A
-	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 11:46:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9892C64F1D
+	for <selinux@archiver.kernel.org>; Thu, 18 Mar 2021 13:44:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbhCRLpu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Mar 2021 07:45:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21120 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229939AbhCRLpa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 07:45:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616067929;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=UBfCysrQt/O1SesDVY/v9J9KrWqx5M8GujDRavRokHo=;
-        b=i9flgDQJQ6MFZ6Dqw/FLTlnsKHUPSA34wYK+p0dmDclGlG1by6IrBsW45FbSQzlCdRXAfx
-        TZk7m0BY1mJt3aUBUlrbv8nH1gbLhj623TMht3TV+o6vHkdnu5vXr6T1DMbHowZgu8m6h5
-        SMTOJUD9B0uLHn0SEbCCphwt8RN9G94=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-251-hmsBIApFN6uxS2MFe6kT5Q-1; Thu, 18 Mar 2021 07:45:28 -0400
-X-MC-Unique: hmsBIApFN6uxS2MFe6kT5Q-1
-Received: by mail-yb1-f198.google.com with SMTP id b127so48105517ybc.13
-        for <selinux@vger.kernel.org>; Thu, 18 Mar 2021 04:45:27 -0700 (PDT)
+        id S229951AbhCRNn6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Mar 2021 09:43:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229792AbhCRNnv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Mar 2021 09:43:51 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE16CC06174A;
+        Thu, 18 Mar 2021 06:43:50 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id w3so4023187ejc.4;
+        Thu, 18 Mar 2021 06:43:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=umich.edu; s=google-2016-06-03;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=93auU8TC5nOFNXfwOL5PMfmDNd9eNbc5Moule/KTGLE=;
+        b=QkYfkMuUl/hSor9sLtBtOZ+FL3IzHHESNNWbWrxdLr6oeDOIyN2W/UYfoiaaWdfWYZ
+         uWNK+3we4yV7chpL6jYxDj6emZKNVRMUeMwBQz0ljTY//2c8zDT/CnhV2iCo+QP5qfvB
+         bXinR7eQ8vbMR3pwbtAdBUA6bWD0LIIYAzaKo7ANVQLPUWD1+LvhrNVSeUmDTZine2zA
+         b7YfiWKhTUVFJSfxj3TJ7Ti2Jlo4N1EQ0hCcX/LyOmsXNQIseOAqkT9l+Q0SYd4vUGGF
+         yFdrjZZdSoKjKkfqSRbsAzh0qEaIqjZNq9mmut83oEG6AfXrJGIEAANnAiW+TvE40SwP
+         wlbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=UBfCysrQt/O1SesDVY/v9J9KrWqx5M8GujDRavRokHo=;
-        b=hBd5w4a9Jyg6jQ4CoPtuRi3D/TjB0VwgS5iwWfvc8AWsk/7hAwBJ3XuWE+5CAeHYaO
-         hPxWKntwyE6iJ/pRI3vpSO3x6Nc/T3X8NSCl0YDEflSm3oaODGE5T2lpF2QPEUkd1bjr
-         nK07tuwmLXYKlnbnAow/SnmnTqtmQL9GcxwyxUIwiEZfbj+M468AOTE1B2npTzYDFZ5z
-         YkpaGHdYhrZLCnccb3ObDpBks+SBemPqzS0dPcWvsSjAL5C5F3gdse3uIXFPIeNARp+F
-         pk7G69GNue5F2/yYK9Nq15pCFZu9wViXFXHxI/tHWoMBmc4Av/r5l2p0JhNlCZtefYoD
-         BBXw==
-X-Gm-Message-State: AOAM530vPUILfCPHDrHGEoSH8GJ+vo4x953TEelnCN5JTwRnp/iACkYI
-        yR3Azgbe2F3PjAvFuXHsv+NcssEyUhLdrNd27f1fJIxNy9LpVG9TC34FKWINiWXbpINOjrDCEcp
-        GH7TE0oGGoDUUEGIxN8swOPhsyLq/iAm07Q==
-X-Received: by 2002:a5b:d43:: with SMTP id f3mr3831121ybr.81.1616067927381;
-        Thu, 18 Mar 2021 04:45:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwWWhC0Fu1b6XIV1b/nsazMAas4hy+U0JsLHW97FAiivi/vwCUG4ly63YWZ5M21/v7dcd5XsbGpP3ttsIISYQY=
-X-Received: by 2002:a5b:d43:: with SMTP id f3mr3831096ybr.81.1616067927096;
- Thu, 18 Mar 2021 04:45:27 -0700 (PDT)
+        bh=93auU8TC5nOFNXfwOL5PMfmDNd9eNbc5Moule/KTGLE=;
+        b=ackdBcouc9RVhmvAR0+cTbZuNvhhNxaSndoHsgcTiFIzEe4NfiNl7AP2dUsRIAxHdn
+         gf6SHR9TM3GynCap1g3h25Tky0hvysYo+nB/TsjvQXhYP+x2/Ad/+Zw9Sdzl0aoZ4dur
+         56kHvNUthRBSAPjVYur+R5Jo8sOnt3Nltq9ilD86Ry6OsouwribtR5wwUPNiSen3Hxc4
+         Bp7Yln+vYE2eT2182DnKQVc8pnOe6uWpK9yjXQAqeXhxbtchG9wnKF6DK9eazd+X+k9J
+         chiCdNNlYPOqOviZC4g/ni5zchzL97AP42Ci0ahmpkhXgFJ4PdGPFy7IKXBW0bi3xxhx
+         Y39w==
+X-Gm-Message-State: AOAM533ZC0EyWYkJ8Ov3IpCDO3OkqYbjREq/2KR5rANOlQN08p/UH51j
+        lcESBUYsvGpz57WUi5T9TO/Xuo2ayPDSAHrXk8O91la1
+X-Google-Smtp-Source: ABdhPJzYMz81RcPg72Q1p6ElKEfmz0fzTW5K41yvsRleBdMao03nwLaqdsRqvSOIcDqFmBMC9L8KYSVBHZ92jNhkMDQ=
+X-Received: by 2002:a17:906:a0d4:: with SMTP id bh20mr9388293ejb.348.1616075029226;
+ Thu, 18 Mar 2021 06:43:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210212185930.130477-1-omosnace@redhat.com> <20210212185930.130477-3-omosnace@redhat.com>
- <20210303025730.GI6000@sequoia> <CAFqZXNtTV0PS26MYXO3urLvNYiaV9mG2kNqU9+syAnJCPhZ2jA@mail.gmail.com>
- <CAEjxPJ43MY28wXbQrXNZSaAQ-OaLa6q4VRje61WSUXjWfmOimQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ43MY28wXbQrXNZSaAQ-OaLa6q4VRje61WSUXjWfmOimQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 18 Mar 2021 12:45:14 +0100
-Message-ID: <CAFqZXNs9U30ydS76Gw7A2m9v6F6XdPgc2F8HmOyHfOhFt+w1JA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux: fix variable scope issue in live sidtab conversion
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Tyler Hicks <tyhicks@linux.microsoft.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
+References: <CAFqZXNvotgdUEvLBfbUNsU1ZNLYvrjO3N8ygyLo45-336u4=ZA@mail.gmail.com>
+In-Reply-To: <CAFqZXNvotgdUEvLBfbUNsU1ZNLYvrjO3N8ygyLo45-336u4=ZA@mail.gmail.com>
+From:   Olga Kornievskaia <aglo@umich.edu>
+Date:   Thu, 18 Mar 2021 09:43:38 -0400
+Message-ID: <CAN-5tyGz2HRq9Y7OcBDLQ4K+=d_oPe4nOQ+VM7QGU27ksJi6EQ@mail.gmail.com>
+Subject: Re: Weird bug in NFS/SELinux
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     linux-nfs <linux-nfs@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 18, 2021 at 12:22 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Mar 3, 2021 at 4:01 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > On Wed, Mar 3, 2021 at 3:57 AM Tyler Hicks <tyhicks@linux.microsoft.com> wrote:
-> > > On 2021-02-12 19:59:30, Ondrej Mosnacek wrote:
-> > > > Commit 02a52c5c8c3b ("selinux: move policy commit after updating
-> > > > selinuxfs") moved the selinux_policy_commit() call out of
-> > > > security_load_policy() into sel_write_load(), which caused a subtle yet
-> > > > rather serious bug.
-> > > >
-> > > > The problem is that security_load_policy() passes a reference to the
-> > > > convert_params local variable to sidtab_convert(), which stores it in
-> > > > the sidtab, where it may be accessed until the policy is swapped over
-> > > > and RCU synchronized. Before 02a52c5c8c3b, selinux_policy_commit() was
-> > > > called directly from security_load_policy(), so the convert_params
-> > > > pointer remained valid all the way until the old sidtab was destroyed,
-> > > > but now that's no longer the case and calls to sidtab_context_to_sid()
-> > > > on the old sidtab after security_load_policy() returns may cause invalid
-> > > > memory accesses.
-> > > >
-> > > > This can be easily triggered using the stress test from commit
-> > > > ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
-> > > > performance"):
-> > > > ```
-> > > > function rand_cat() {
-> > > >       echo $(( $RANDOM % 1024 ))
-> > > > }
-> > > >
-> > > > function do_work() {
-> > > >       while true; do
-> > > >               echo -n "system_u:system_r:kernel_t:s0:c$(rand_cat),c$(rand_cat)" \
-> > > >                       >/sys/fs/selinux/context 2>/dev/null || true
-> > > >       done
-> > > > }
-> > > >
-> > > > do_work >/dev/null &
-> > > > do_work >/dev/null &
-> > > > do_work >/dev/null &
-> > > >
-> > > > while load_policy; do echo -n .; sleep 0.1; done
-> > > >
-> > > > kill %1
-> > > > kill %2
-> > > > kill %3
-> > > > ```
-> > > >
-> > > > Fix this by allocating the temporary sidtab convert structures
-> > > > dynamically and passing them among the
-> > > > selinux_policy_{load,cancel,commit} functions.
-> > > >
-> > > > Note that this commit also fixes the minor issue of logging a
-> > > > MAC_POLICY_LOAD audit record in case sel_make_policy_nodes() fails (in
-> > > > which case the new policy isn't actually loaded).
-> > > >
-> > > > Fixes: 02a52c5c8c3b ("selinux: move policy commit after updating selinuxfs")
-> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > >
-> > > Tested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-> > > Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-> > >
-> > > Feel free to leave those tags on your v3 submission after making the two
-> > > small changes requested by Paul.
-> >
-> > Thanks!
+On Thu, Mar 18, 2021 at 5:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> I haven't seen a final version of these patches yet.  Did I miss it?
+> Hello,
+>
+> While trying to figure out why the NFS tests in the selinux-testsuite
+> [1] are failing, I ran into this strange bug: When I mount an NFS
+> filesystem on some directory, and then immediately attempt to create
+> exactly the same mount on the same directory (fails with -EBUSY as
+> expected per mount(2)), then all the entries inside the mount (but not
+> the root node) show up as unlabeled
+> (system_u:object_r:unlabeled_t:s0). For some reason this doesn't
+> happen if I list the directory contents between the two mounts.
+>
+> It happens at least with kernels 5.12-rc2 and 5.8.6, so it's likely an old bug.
+>
+> Minimal reproducer (assumes an SELinux-enabled system and that nothing
+> is mounted at /etc):
+> ```
+> # set up a trivial NFS export
+> systemctl start nfs-server
+> exportfs -o rw,no_root_squash,security_label localhost:/
+>
+> #
+> # reference scenario - single mount
+> #
+> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
+>
+> ls -lZ /mnt    # labels are correct
+> ls -lZd /mnt   # label is correct
+>
+> #
+> # double mount - BUG
+> #
+> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
+> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
+>
+> ls -lZ /mnt    # all labels are system_u:object_r:unlabeled_t:s0
+> ls -lZd /mnt   # label is correct
+>
+> #
+> # double mount with ls in between - OK
+> #
+> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
+> ls -lZ /mnt    # labels are correct
+> ls -lZd /mnt   # label is correct
+> mount -t nfs -o "nfsvers=4.2" localhost:/etc /mnt
+>
+> ls -lZ /mnt    # labels are correct
+> ls -lZd /mnt   # label is correct
 
-No, I've been waiting for a reply regarding pr_warn() vs. pr_err(),
-etc. on patch 1/2 (and then it slipped off my mind, so I didn't follow
-up...)
+Hi Ondrej, a couple of questions about the reproducer. (1) are you
+saying that only "mount, mount, ls" sequence is problematic as you
+write "mount, ls, mount, ls" is correct? (2) what is your selinux
+configuration. I can't reproduce it on my setup. I get the same labels
+regardless of how many times I mount.
 
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
 
+> ```
+>
+> I haven't had time to dig deeper. Hopefully someone who knows the
+> internals of NFS will be able to find the root cause easier than me...
+>
+> [1] https://github.com/SELinuxProject/selinux-testsuite/
+>
+> --
+> Ondrej Mosnacek
+> Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+>
