@@ -2,399 +2,296 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3057C433E0
-	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:37:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BFD9C433E0
+	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:41:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A74A664EEE
-	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:37:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7FF364F04
+	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:41:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbhCSNhG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 19 Mar 2021 09:37:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:41123 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229866AbhCSNgm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 19 Mar 2021 09:36:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616161002;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6V3yNWMZ1aDj0B0PeA0TJCqd/uZv8Y6AZM0tzj5XX0U=;
-        b=ZM95EM+Kj5AYwwmsUV7SLlh4zB4+kgU3rV1g0xdnrKW5ka2cHOdhDqU33jcdoAJHDX7BQI
-        aSADrX5isYAaSr3Ww51nQPBTpG2NyBHNJ1muHBgn286AL9V8v6MBUWWNqULTtp99KTvZaU
-        rGHWD/Jeg+3jAAxstX7GFTx3YEMVVYI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-450-9Ib2fQtsMTeta-tQGxixBA-1; Fri, 19 Mar 2021 09:36:38 -0400
-X-MC-Unique: 9Ib2fQtsMTeta-tQGxixBA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 26964190A7A1;
-        Fri, 19 Mar 2021 13:36:37 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.10.110.27])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8201B19C79;
-        Fri, 19 Mar 2021 13:36:28 +0000 (UTC)
-Date:   Fri, 19 Mar 2021 09:36:25 -0400
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, linux-audit@redhat.com,
-        selinux@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>
-Subject: Re: [PATCH v2 2/3] selinux: clarify task subjective and objective
- credentials
-Message-ID: <20210319133625.GD2781019@madcap2.tricolour.ca>
-References: <161609713992.55424.6906498317563652734.stgit@olly>
- <161610014979.55424.673449459081578214.stgit@olly>
+        id S230028AbhCSNkz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 Mar 2021 09:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230008AbhCSNkf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 Mar 2021 09:40:35 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7301C06174A
+        for <selinux@vger.kernel.org>; Fri, 19 Mar 2021 06:40:34 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id z15so4778874oic.8
+        for <selinux@vger.kernel.org>; Fri, 19 Mar 2021 06:40:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=C8ouErZ40mKCsr+7b1S630Th2boq4B7WOLd1gKD70T0=;
+        b=mu2RY7PiB72M5entlbVds9T6q1AGFC7JhTv1cCb2ESZzxjhrZ6kc/URa3yMSuvEDYu
+         QmgVbsKadaPsA0gPDKZpW13QdBvLA8ynNKa5wQXUk/M/K+NWa6WsGrOhXrxxeCvIOGhE
+         jpggb3v+vWVohGT5+0Fo7K+svDo351UoendY6ov0ZKplwrInnQV2UWk5m/Ms1YaRYJGD
+         mh+9Nl/Tjfi53QZLtn6y+g7jDZwnxQzucqea3CvE7hvUq6q4cdZRliUdgiZ1RdDQuoqS
+         yRnAwKpPenzY2s0Q5s+FGun0KEs2cUY1L0FnJ7zy1P8wkN6vuBqIFDZYS+l+HMSYgBLv
+         tJ1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=C8ouErZ40mKCsr+7b1S630Th2boq4B7WOLd1gKD70T0=;
+        b=CcF1pYFeY1WMl4S9FVuCsoCWl+ussLvXfPJL6tWQGyFfUkmabRG1NmkJwVUCzO72Lj
+         znqzzFG4u4rxwo5Z7p7iNl7EgWmBnbDa0RsvHz2ur/ZGbhffgmGQVe5Aldyz8g9FXgyZ
+         K7tC7jJR2KmwLXjXafIEc0dHx1pRTA+IatdboDvl3lmo0QbLZYWJ87jig8jysfhzejbO
+         vAkDFZa1eiVWlnai+Lp8mC9aoDsaooN+/rnpQdc4fZWQLAa5YZRU9D34gnQSSawTPOMT
+         JDGtzOq7eo+5MFHIx3Qnsn0I+xk+4XL26LVFmEVSh4B83UtFXqS+m199VvcBP8Gbkpfe
+         8psQ==
+X-Gm-Message-State: AOAM530bWw6b6Er7L0ChzItejLc8Vst7+kUNgXoB/5562NhXCqw3teNU
+        t7HlDMiWN1rDtpP20TKkpCj/5U6lgGdghxESNjlDz5ll
+X-Google-Smtp-Source: ABdhPJyzEdsS0wUUG9CZaEoQtHbiEZob6IYlMhkR7b6eDfmkCO+xlCnOLAGuiPRyPcng/kItjZKJMI96BTJJiSoMCXQ=
+X-Received: by 2002:aca:53cc:: with SMTP id h195mr1081840oib.16.1616161234087;
+ Fri, 19 Mar 2021 06:40:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <161610014979.55424.673449459081578214.stgit@olly>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+References: <20210318190826.151168-1-jwcart2@gmail.com> <CAJfZ7=nrByi0wG-j9Z3GkDnJKKFOO5VEPG1LTUx0tkV6oJ8juw@mail.gmail.com>
+In-Reply-To: <CAJfZ7=nrByi0wG-j9Z3GkDnJKKFOO5VEPG1LTUx0tkV6oJ8juw@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 19 Mar 2021 09:46:15 -0400
+Message-ID: <CAP+JOzSZL19SJ16oiwwK143coNAHDcKn9ngsO=+CZg_6_SZ2ig@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Exit with an error if declaration name is a
+ reserved word
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-03-18 16:42, Paul Moore wrote:
-> SELinux has a function, task_sid(), which returns the task's
-> objective credentials, but unfortunately is used in a few places
-> where the subjective task credentials should be used.  Most notably
-> in the new security_task_getsecid_subj() LSM hook.
-> 
-> This patch fixes this and attempts to make things more obvious by
-> introducing a new function, task_sid_subj(), and renaming the
-> existing task_sid() function to task_sid_obj().
-> 
-> This patch also adds an interesting function in task_sid_binder().
-> The task_sid_binder() function has a comment which hopefully
-> describes it's reason for being, but it basically boils down to the
-> simple fact that we can't safely access another task's subjective
-> credentials so in the case of binder we need to stick with the
-> objective credentials regardless.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Thu, Mar 18, 2021 at 6:11 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Thu, Mar 18, 2021 at 8:09 PM James Carter <jwcart2@gmail.com> wrote:
+> >
+> > When CIL evaluates sets, conditional expressions, or constraint
+> > expressions, bad things can happen if an identifier has a name that
+> > is the same as an operator. CIL will interpret the name as an
+> > identifier in some places and as an operator in others.
+> >
+> > Example:
+> >   (classmap CM1 (and pm1 pm2))
+> >   (classmapping CM1 and (C1 (P1a)))
+> >   (classmapping CM1 pm1 (C1 (P1b)))
+> >   (classmapping CM1 pm2 (C1 (P1c)))
+> >   (allow TYPE self (CM1 (and pm1 pm2)))
+> > In the classmap and classmapping statements, "and" is the name of an
+> > identifier, but in the allow rule, "and" is an expression operator.
+> > The result is a segfault.
+> >
+> > When an identifier is declared and it is being validated, check if
+> > it has the same name as a reserved word for an expression operator
+> > that can be used with the identifer's flavor and exit with an error
+> > if it does.
+> >
+> > Also, change the name of the function __cil_verify_name() to
+> > cil_verify_name(), since this function is neither static nor a
+> > helper function.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+>
+> Hello,
+> I like this patch, but it makes "make test" fail:
+>
+> make[1]: Entering directory '/selinux/secilc'
+> ./secilc test/policy.cil
+> Name t1 is a reserved word
+> Invalid name
+> Bad type declaration at test/policy.cil:341
+> Failed to compile cildb: -1
+>
+> I guess the test policy needs to be updated in order to no longer use
+> types t1 and t2 (in
+> https://github.com/SELinuxProject/selinux/blob/d155b410d4bbc90d28f361b966f0429598da8188/secilc/test/policy.cil#L341-L354).
+>
 
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+I will need to update the test policy.
 
-> ---
->  security/selinux/hooks.c |  112 ++++++++++++++++++++++++++++++----------------
->  1 file changed, 73 insertions(+), 39 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 24ca545c6e1b..901a3ce453f1 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -229,10 +229,23 @@ static inline u32 cred_sid(const struct cred *cred)
->  	return tsec->sid;
->  }
->  
-> +/*
-> + * get the subjective security ID of a task
-> + */
-> +static inline u32 task_sid_subj(const struct task_struct *task)
-> +{
-> +	u32 sid;
-> +
-> +	rcu_read_lock();
-> +	sid = cred_sid(rcu_dereference(task->cred));
-> +	rcu_read_unlock();
-> +	return sid;
-> +}
-> +
->  /*
->   * get the objective security ID of a task
->   */
-> -static inline u32 task_sid(const struct task_struct *task)
-> +static inline u32 task_sid_obj(const struct task_struct *task)
->  {
->  	u32 sid;
->  
-> @@ -242,6 +255,29 @@ static inline u32 task_sid(const struct task_struct *task)
->  	return sid;
->  }
->  
-> +/*
-> + * get the security ID of a task for use with binder
-> + */
-> +static inline u32 task_sid_binder(const struct task_struct *task)
-> +{
-> +	/*
-> +	 * In many case where this function is used we should be using the
-> +	 * task's subjective SID, but we can't reliably access the subjective
-> +	 * creds of a task other than our own so we must use the objective
-> +	 * creds/SID, which are safe to access.  The downside is that if a task
-> +	 * is temporarily overriding it's creds it will not be reflected here;
-> +	 * however, it isn't clear that binder would handle that case well
-> +	 * anyway.
-> +	 *
-> +	 * If this ever changes and we can safely reference the subjective
-> +	 * creds/SID of another task, this function will make it easier to
-> +	 * identify the various places where we make use of the task SIDs in
-> +	 * the binder code.  It is also likely that we will need to adjust
-> +	 * the main drivers/android binder code as well.
-> +	 */
-> +	return task_sid_obj(task);
-> +}
-> +
->  static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
->  
->  /*
-> @@ -2035,11 +2071,8 @@ static inline u32 open_file_to_av(struct file *file)
->  
->  static int selinux_binder_set_context_mgr(struct task_struct *mgr)
->  {
-> -	u32 mysid = current_sid();
-> -	u32 mgrsid = task_sid(mgr);
-> -
->  	return avc_has_perm(&selinux_state,
-> -			    mysid, mgrsid, SECCLASS_BINDER,
-> +			    current_sid(), task_sid_binder(mgr), SECCLASS_BINDER,
->  			    BINDER__SET_CONTEXT_MGR, NULL);
->  }
->  
-> @@ -2047,8 +2080,7 @@ static int selinux_binder_transaction(struct task_struct *from,
->  				      struct task_struct *to)
->  {
->  	u32 mysid = current_sid();
-> -	u32 fromsid = task_sid(from);
-> -	u32 tosid = task_sid(to);
-> +	u32 fromsid = task_sid_binder(from);
->  	int rc;
->  
->  	if (mysid != fromsid) {
-> @@ -2059,19 +2091,16 @@ static int selinux_binder_transaction(struct task_struct *from,
->  			return rc;
->  	}
->  
-> -	return avc_has_perm(&selinux_state,
-> -			    fromsid, tosid, SECCLASS_BINDER, BINDER__CALL,
-> -			    NULL);
-> +	return avc_has_perm(&selinux_state, fromsid, task_sid_binder(to),
-> +			    SECCLASS_BINDER, BINDER__CALL, NULL);
->  }
->  
->  static int selinux_binder_transfer_binder(struct task_struct *from,
->  					  struct task_struct *to)
->  {
-> -	u32 fromsid = task_sid(from);
-> -	u32 tosid = task_sid(to);
-> -
->  	return avc_has_perm(&selinux_state,
-> -			    fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
-> +			    task_sid_binder(from), task_sid_binder(to),
-> +			    SECCLASS_BINDER, BINDER__TRANSFER,
->  			    NULL);
->  }
->  
-> @@ -2079,7 +2108,7 @@ static int selinux_binder_transfer_file(struct task_struct *from,
->  					struct task_struct *to,
->  					struct file *file)
->  {
-> -	u32 sid = task_sid(to);
-> +	u32 sid = task_sid_binder(to);
->  	struct file_security_struct *fsec = selinux_file(file);
->  	struct dentry *dentry = file->f_path.dentry;
->  	struct inode_security_struct *isec;
-> @@ -2115,10 +2144,10 @@ static int selinux_binder_transfer_file(struct task_struct *from,
->  }
->  
->  static int selinux_ptrace_access_check(struct task_struct *child,
-> -				     unsigned int mode)
-> +				       unsigned int mode)
->  {
->  	u32 sid = current_sid();
-> -	u32 csid = task_sid(child);
-> +	u32 csid = task_sid_obj(child);
->  
->  	if (mode & PTRACE_MODE_READ)
->  		return avc_has_perm(&selinux_state,
-> @@ -2131,15 +2160,15 @@ static int selinux_ptrace_access_check(struct task_struct *child,
->  static int selinux_ptrace_traceme(struct task_struct *parent)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    task_sid(parent), current_sid(), SECCLASS_PROCESS,
-> -			    PROCESS__PTRACE, NULL);
-> +			    task_sid_subj(parent), task_sid_obj(current),
-> +			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
->  }
->  
->  static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
->  			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(target), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(target), SECCLASS_PROCESS,
->  			    PROCESS__GETCAP, NULL);
->  }
->  
-> @@ -2264,7 +2293,7 @@ static u32 ptrace_parent_sid(void)
->  	rcu_read_lock();
->  	tracer = ptrace_parent(current);
->  	if (tracer)
-> -		sid = task_sid(tracer);
-> +		sid = task_sid_obj(tracer);
->  	rcu_read_unlock();
->  
->  	return sid;
-> @@ -3921,7 +3950,7 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
->  				       struct fown_struct *fown, int signum)
->  {
->  	struct file *file;
-> -	u32 sid = task_sid(tsk);
-> +	u32 sid = task_sid_obj(tsk);
->  	u32 perm;
->  	struct file_security_struct *fsec;
->  
-> @@ -4140,47 +4169,52 @@ static int selinux_kernel_load_data(enum kernel_load_data_id id, bool contents)
->  static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETPGID, NULL);
->  }
->  
->  static int selinux_task_getpgid(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETPGID, NULL);
->  }
->  
->  static int selinux_task_getsid(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETSESSION, NULL);
->  }
->  
-> -static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
-> +static void selinux_task_getsecid_subj(struct task_struct *p, u32 *secid)
-> +{
-> +	*secid = task_sid_subj(p);
-> +}
-> +
-> +static void selinux_task_getsecid_obj(struct task_struct *p, u32 *secid)
->  {
-> -	*secid = task_sid(p);
-> +	*secid = task_sid_obj(p);
->  }
->  
->  static int selinux_task_setnice(struct task_struct *p, int nice)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
->  static int selinux_task_setioprio(struct task_struct *p, int ioprio)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
->  static int selinux_task_getioprio(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETSCHED, NULL);
->  }
->  
-> @@ -4211,7 +4245,7 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
->  	   upon context transitions.  See selinux_bprm_committing_creds. */
->  	if (old_rlim->rlim_max != new_rlim->rlim_max)
->  		return avc_has_perm(&selinux_state,
-> -				    current_sid(), task_sid(p),
-> +				    current_sid(), task_sid_obj(p),
->  				    SECCLASS_PROCESS, PROCESS__SETRLIMIT, NULL);
->  
->  	return 0;
-> @@ -4220,21 +4254,21 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
->  static int selinux_task_setscheduler(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
->  static int selinux_task_getscheduler(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__GETSCHED, NULL);
->  }
->  
->  static int selinux_task_movememory(struct task_struct *p)
->  {
->  	return avc_has_perm(&selinux_state,
-> -			    current_sid(), task_sid(p), SECCLASS_PROCESS,
-> +			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
->  			    PROCESS__SETSCHED, NULL);
->  }
->  
-> @@ -4253,14 +4287,14 @@ static int selinux_task_kill(struct task_struct *p, struct kernel_siginfo *info,
->  	else
->  		secid = cred_sid(cred);
->  	return avc_has_perm(&selinux_state,
-> -			    secid, task_sid(p), SECCLASS_PROCESS, perm, NULL);
-> +			    secid, task_sid_obj(p), SECCLASS_PROCESS, perm, NULL);
->  }
->  
->  static void selinux_task_to_inode(struct task_struct *p,
->  				  struct inode *inode)
->  {
->  	struct inode_security_struct *isec = selinux_inode(inode);
-> -	u32 sid = task_sid(p);
-> +	u32 sid = task_sid_obj(p);
->  
->  	spin_lock(&isec->lock);
->  	isec->sclass = inode_mode_to_security_class(inode->i_mode);
-> @@ -6153,7 +6187,7 @@ static int selinux_msg_queue_msgrcv(struct kern_ipc_perm *msq, struct msg_msg *m
->  	struct ipc_security_struct *isec;
->  	struct msg_security_struct *msec;
->  	struct common_audit_data ad;
-> -	u32 sid = task_sid(target);
-> +	u32 sid = task_sid_subj(target);
->  	int rc;
->  
->  	isec = selinux_ipc(msq);
-> @@ -7149,8 +7183,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->  	LSM_HOOK_INIT(task_setpgid, selinux_task_setpgid),
->  	LSM_HOOK_INIT(task_getpgid, selinux_task_getpgid),
->  	LSM_HOOK_INIT(task_getsid, selinux_task_getsid),
-> -	LSM_HOOK_INIT(task_getsecid_subj, selinux_task_getsecid),
-> -	LSM_HOOK_INIT(task_getsecid_obj, selinux_task_getsecid),
-> +	LSM_HOOK_INIT(task_getsecid_subj, selinux_task_getsecid_subj),
-> +	LSM_HOOK_INIT(task_getsecid_obj, selinux_task_getsecid_obj),
->  	LSM_HOOK_INIT(task_setnice, selinux_task_setnice),
->  	LSM_HOOK_INIT(task_setioprio, selinux_task_setioprio),
->  	LSM_HOOK_INIT(task_getioprio, selinux_task_getioprio),
-> 
-> --
-> Linux-audit mailing list
-> Linux-audit@redhat.com
-> https://listman.redhat.com/mailman/listinfo/linux-audit
+I really wish I could allow t1 and the others, especially in macros.
+Maybe I can delay checking the right side until the resolve phase and
+then check first to see if the right side has been declared and only
+if it hasn't would it be treated as the reserved word.
 
-- RGB
+Jim
 
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
 
+> Nicolas
+>
+> > ---
+> >  libsepol/cil/src/cil_build_ast.c | 28 ++--------------
+> >  libsepol/cil/src/cil_verify.c    | 56 +++++++++++++++++++++++++++++++-
+> >  libsepol/cil/src/cil_verify.h    |  2 +-
+> >  3 files changed, 58 insertions(+), 28 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> > index 4e53f06a..e57de662 100644
+> > --- a/libsepol/cil/src/cil_build_ast.c
+> > +++ b/libsepol/cil/src/cil_build_ast.c
+> > @@ -114,7 +114,7 @@ int cil_gen_node(struct cil_db *db, struct cil_tree_node *ast_node, struct cil_s
+> >         symtab_t *symtab = NULL;
+> >         struct cil_symtab_datum *prev;
+> >
+> > -       rc = __cil_verify_name((const char*)key);
+> > +       rc = cil_verify_name((const char*)key, nflavor);
+> >         if (rc != SEPOL_OK) {
+> >                 goto exit;
+> >         }
+> > @@ -1953,12 +1953,6 @@ int cil_gen_roleattribute(struct cil_db *db, struct cil_tree_node *parse_current
+> >                 goto exit;
+> >         }
+> >
+> > -       if (parse_current->next->data == CIL_KEY_SELF) {
+> > -               cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_KEY_SELF);
+> > -               rc = SEPOL_ERR;
+> > -               goto exit;
+> > -       }
+> > -
+> >         cil_roleattribute_init(&attr);
+> >
+> >         key = parse_current->next->data;
+> > @@ -2337,12 +2331,6 @@ int cil_gen_type(struct cil_db *db, struct cil_tree_node *parse_current, struct
+> >                 goto exit;
+> >         }
+> >
+> > -       if (parse_current->next->data == CIL_KEY_SELF) {
+> > -               cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_KEY_SELF);
+> > -               rc = SEPOL_ERR;
+> > -               goto exit;
+> > -       }
+> > -
+> >         cil_type_init(&type);
+> >
+> >         key = parse_current->next->data;
+> > @@ -2391,12 +2379,6 @@ int cil_gen_typeattribute(struct cil_db *db, struct cil_tree_node *parse_current
+> >                 goto exit;
+> >         }
+> >
+> > -       if (parse_current->next->data == CIL_KEY_SELF) {
+> > -               cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_KEY_SELF);
+> > -               rc = SEPOL_ERR;
+> > -               goto exit;
+> > -       }
+> > -
+> >         cil_typeattribute_init(&attr);
+> >
+> >         key = parse_current->next->data;
+> > @@ -3048,12 +3030,6 @@ int cil_gen_alias(struct cil_db *db, struct cil_tree_node *parse_current, struct
+> >                 goto exit;
+> >         }
+> >
+> > -       if (flavor == CIL_TYPEALIAS && parse_current->next->data == CIL_KEY_SELF) {
+> > -               cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_KEY_SELF);
+> > -               rc = SEPOL_ERR;
+> > -               goto exit;
+> > -       }
+> > -
+> >         cil_alias_init(&alias);
+> >
+> >         key = parse_current->next->data;
+> > @@ -5278,7 +5254,7 @@ int cil_gen_macro(struct cil_db *db, struct cil_tree_node *parse_current, struct
+> >
+> >                 param->str =  current_item->cl_head->next->data;
+> >
+> > -               rc = __cil_verify_name(param->str);
+> > +               rc = cil_verify_name(param->str, param->flavor);
+> >                 if (rc != SEPOL_OK) {
+> >                         cil_destroy_param(param);
+> >                         goto exit;
+> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> > index 09e3daf9..c2efbf1c 100644
+> > --- a/libsepol/cil/src/cil_verify.c
+> > +++ b/libsepol/cil/src/cil_verify.c
+> > @@ -47,7 +47,55 @@
+> >
+> >  #include "cil_verify.h"
+> >
+> > -int __cil_verify_name(const char *name)
+> > +static int __cil_is_reserved_name(const char *name, enum cil_flavor flavor)
+> > +{
+> > +       switch (flavor) {
+> > +       case CIL_BOOL:
+> > +       case CIL_TUNABLE:
+> > +               if ((name == CIL_KEY_EQ) || (name == CIL_KEY_NEQ))
+> > +                       return CIL_TRUE;
+> > +               break;
+> > +       case CIL_PERM:
+> > +       case CIL_MAP_PERM:
+> > +               if (name == CIL_KEY_ALL)
+> > +                       return CIL_TRUE;
+> > +               break;
+> > +       case CIL_USER:
+> > +       case CIL_USERATTRIBUTE:
+> > +               if ((name == CIL_KEY_ALL) || (name == CIL_KEY_CONS_U1) || (name == CIL_KEY_CONS_U2) || (name == CIL_KEY_CONS_U3))
+> > +                       return CIL_TRUE;
+> > +               break;
+> > +       case CIL_ROLE:
+> > +       case CIL_ROLEATTRIBUTE:
+> > +               if ((name == CIL_KEY_ALL) || (name == CIL_KEY_CONS_R1) || (name == CIL_KEY_CONS_R2) || (name == CIL_KEY_CONS_R3))
+> > +                       return CIL_TRUE;
+> > +               break;
+> > +       case CIL_TYPE:
+> > +       case CIL_TYPEATTRIBUTE:
+> > +       case CIL_TYPEALIAS:
+> > +               if ((name == CIL_KEY_ALL) || (name == CIL_KEY_SELF) || (name == CIL_KEY_CONS_T1) || (name == CIL_KEY_CONS_T2) || (name == CIL_KEY_CONS_T3))
+> > +                       return CIL_TRUE;
+> > +               break;
+> > +       case CIL_CAT:
+> > +       case CIL_CATSET:
+> > +       case CIL_CATALIAS:
+> > +       case CIL_PERMISSIONX:
+> > +               if ((name == CIL_KEY_ALL) || (name == CIL_KEY_RANGE))
+> > +                       return CIL_TRUE;
+> > +               break;
+> > +       default:
+> > +               return CIL_FALSE;
+> > +               break;
+> > +       }
+> > +
+> > +       if ((name == CIL_KEY_AND) || (name == CIL_KEY_OR) || (name == CIL_KEY_NOT) || (name == CIL_KEY_XOR)) {
+> > +               return CIL_TRUE;
+> > +       }
+> > +
+> > +       return CIL_FALSE;
+> > +}
+> > +
+> > +int cil_verify_name(const char *name, enum cil_flavor flavor)
+> >  {
+> >         int rc = SEPOL_ERR;
+> >         int len;
+> > @@ -77,6 +125,12 @@ int __cil_verify_name(const char *name)
+> >                         goto exit;
+> >                 }
+> >         }
+> > +
+> > +       if (__cil_is_reserved_name(name, flavor)) {
+> > +               cil_log(CIL_ERR, "Name %s is a reserved word\n", name);
+> > +               goto exit;
+> > +       }
+> > +
+> >         return SEPOL_OK;
+> >
+> >  exit:
+> > diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
+> > index 905761b0..1887ae3f 100644
+> > --- a/libsepol/cil/src/cil_verify.h
+> > +++ b/libsepol/cil/src/cil_verify.h
+> > @@ -56,7 +56,7 @@ struct cil_args_verify {
+> >         int *pass;
+> >  };
+> >
+> > -int __cil_verify_name(const char *name);
+> > +int cil_verify_name(const char *name, enum cil_flavor flavor);
+> >  int __cil_verify_syntax(struct cil_tree_node *parse_current, enum cil_syntax s[], int len);
+> >  int cil_verify_expr_syntax(struct cil_tree_node *current, enum cil_flavor op, enum cil_flavor expr_flavor);
+> >  int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_flavor r_flavor, enum cil_flavor op, enum cil_flavor expr_flavor);
+> > --
+> > 2.26.2
+> >
+>
