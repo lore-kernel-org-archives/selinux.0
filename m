@@ -2,117 +2,187 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-28.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47258C433E6
-	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FBA0C433DB
+	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:32:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 113D064F3B
-	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:31:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 505B564F3B
+	for <selinux@archiver.kernel.org>; Fri, 19 Mar 2021 13:32:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230020AbhCSNao (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 19 Mar 2021 09:30:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42496 "EHLO
+        id S229914AbhCSNcR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 Mar 2021 09:32:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230313AbhCSNa3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 19 Mar 2021 09:30:29 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D983C061761
-        for <selinux@vger.kernel.org>; Fri, 19 Mar 2021 06:30:29 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id g25so5498441wmh.0
-        for <selinux@vger.kernel.org>; Fri, 19 Mar 2021 06:30:29 -0700 (PDT)
+        with ESMTP id S229990AbhCSNcL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 Mar 2021 09:32:11 -0400
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4D21C06174A
+        for <selinux@vger.kernel.org>; Fri, 19 Mar 2021 06:32:11 -0700 (PDT)
+Received: by mail-ot1-x32a.google.com with SMTP id y19-20020a0568301d93b02901b9f88a238eso8499484oti.11
+        for <selinux@vger.kernel.org>; Fri, 19 Mar 2021 06:32:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=rqxxjU+wnwYGxcIxMIjRQhxf9BngsTqESHU7cWQvFn8=;
-        b=hstLdqtNpgte2teshQgLp4jcH+bAmgbWUC1tt01NDEu34dQlqudsRenJKjc3dvabkk
-         uE9W+PdVJ5wsu55q7PkkVzpWVJPTth//+Jv8/CIYw2rXsAVyiY/SNMnA40kb1xuOKUU0
-         tuhwAZq2VMMJg6IScvK7TtCXGBIN28yf5aCd0z/YixVCT3Z5/83hg8TEj+gY6c8dQHmo
-         fEj4uRxgA25iQY9bz36/erSl983strDL4wd11vc6Iht1qz3XAXYqijHCa3LSR36XiHFm
-         A+/ZzfcroSa/1vuzqSxnUXwPW3M4MZ8X8/Z2HiVegSeGZB7h5JUMwcyr+DzODbfHR9VI
-         MJRg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AIdfzPmKoULK9bgTX3tU4ZnJOHZW9j+IIFuEOP75ytU=;
+        b=e0MKHWVIS0gAXOuTBaf+EQifbLLAUnLwJ6G3CH2OnAUIRdMhluKj1tbGQKyMfbHMP6
+         +HRfl6sVk8Hl+WmPOYzeDn7pZ8i1in1aVprRiSdwRIWLtyoIdxmApZcQB9T7NsSXwMQh
+         qTwaF/cK+AE7QkC9dlDENoLJLYLyww89qGGuhdimU/cc6DeZI9zqovCepJi3w1Ei7lnD
+         21GDxCuJlhyMZMgslZNS0aDbvMgYQ+nXahZos0ian5u+eCTGMnQgccIoAtfb/q45smrU
+         IirMsxlmi7bkK6QCv6n3db7NQXt2ZmJlRlcb4THWW5gkNAc3DfODoiCTtIkoiJrEnGdm
+         q48g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=rqxxjU+wnwYGxcIxMIjRQhxf9BngsTqESHU7cWQvFn8=;
-        b=WckgCcQPzCrt8iq1W0vrPdi+0hq+nTaRJhvZ0OikI96e0NpUYCYOyDn+zJoy3euCq7
-         +Elx7oLlD8OF2MzQGB0fhcFMzgsFzraexEVSx/YRjuCxoxhycuFCiDiLoBfNWU+L3glV
-         Ut4p5PDwA28r+cpxPjbeNGM3Z4ws/UAbQtnbbtocYFz29q+cQ2xtHdOOi3wYhKiEacST
-         3vw8ASSxHCDh+Gxs/zEFw4Zqxkwd/jpzo9fEYUnQmPwridkooFNH3Y09FT/r2FzZRx3K
-         rAT25RlRH7KOvwnACO1AGHMB7pfZkYjG6UxEjGS6LJtvSWT4FlofQe5lT6HLkzErT2Fu
-         q/Cw==
-X-Gm-Message-State: AOAM532D9v+Zz4SUu4d99b2Y4o3qYzByTD9PsYcTLljwnq3cVkuyCbQx
-        k3mtjMaes4+gDr6banPH7R55OFBJtaMTUg==
-X-Google-Smtp-Source: ABdhPJzYvk8uCKPJKGOQFMvJG0I07hajcvaqheb9rFcjVgyB2PxJHrRQCRGH+Q0cFo4RWSKNO9F2Tg==
-X-Received: by 2002:a1c:e084:: with SMTP id x126mr3765734wmg.37.1616160627793;
-        Fri, 19 Mar 2021 06:30:27 -0700 (PDT)
-Received: from google.com (216.131.76.34.bc.googleusercontent.com. [34.76.131.216])
-        by smtp.gmail.com with ESMTPSA id j13sm7731425wrt.29.2021.03.19.06.30.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Mar 2021 06:30:27 -0700 (PDT)
-Date:   Fri, 19 Mar 2021 13:30:23 +0000
-From:   David Brazdil <dbrazdil@google.com>
-To:     selinux@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Alistair Delva <adelva@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] selinux: vsock: Set SID for socket returned by
- accept()
-Message-ID: <YFSnb/kGpn7xPPR8@google.com>
-References: <20210319130541.2188184-1-dbrazdil@google.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AIdfzPmKoULK9bgTX3tU4ZnJOHZW9j+IIFuEOP75ytU=;
+        b=GsLPaeYfMHlqr1j0lxgCVbH0BQzGKboRegAOd8ebntE5yBVbViaZ67YAc3Qtuj8NxV
+         LxEiQ7T07XU+7W8Bz4ZdXXfyCwmtE5uUl/mULZBBmk38FxaYiIQWArlyF6y2hfxqveN1
+         xGZFl6ZdWFsd2gFG/rsOsEguylweH3BPuHGK1CXURoKqs471kxEnKFwChGK9aHVfIVMo
+         J8hMduftri9niIVZNjUo4zPAZCidtNKjQQp9GIYLEPTmm+2VsUUgg6LriMcd0DfW4gg2
+         9Kf5i6FHc3jD7JZ1YA6UQcucCNZQUhJvqjZjPWUScmyJJNddLTLqb8oXOqgYeApXfP8i
+         O/iw==
+X-Gm-Message-State: AOAM533Livzuc6xz9oSXnrj9btAePpqYtflDh/PVq9iU1raHVSQJ34QC
+        wdhUfdsJRKvoJV2Ghl/jedJn/z2BFRaV04iL84gHfbzociI=
+X-Google-Smtp-Source: ABdhPJwD4p62L5s8OVxrlUsvFfxsS7VR8qouUB2Gbp5F/khiZj222/RDiWk4psJ9CwUaSVac5p9VDeIZ3msuWeFz+gI=
+X-Received: by 2002:a9d:6296:: with SMTP id x22mr1147075otk.196.1616160731151;
+ Fri, 19 Mar 2021 06:32:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210319130541.2188184-1-dbrazdil@google.com>
+References: <20210317190002.81465-1-jwcart2@gmail.com> <CAJfZ7==R5Gpvxpb--nErHb7ZP3LvCZYP-fPZOpg1ZJsQG_Fi5w@mail.gmail.com>
+In-Reply-To: <CAJfZ7==R5Gpvxpb--nErHb7ZP3LvCZYP-fPZOpg1ZJsQG_Fi5w@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 19 Mar 2021 09:37:52 -0400
+Message-ID: <CAP+JOzSi+Toirv=T07QfaCk0wa=z7azTVh3WVXh6XTd9wvgj_Q@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Destroy classperms list when resetting classpermission
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 01:05:41PM +0000, David Brazdil wrote:
-> For AF_VSOCK, accept() currently returns sockets that are unlabelled.
-> Other socket families derive the child's SID from the SID of the parent
-> and the SID of the incoming packet. This is typically done as the
-> connected socket is placed in the queue that accept() removes from.
-> 
-> Reuse the existing 'security_sk_clone' hook to copy the SID from the
-> parent (server) socket to the child. There is no packet SID in this
-> case.
-> 
-> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Cc: <stable@vger.kernel.org>
-> Signed-off-by: David Brazdil <dbrazdil@google.com>
-> ---
-> Tested on Android AOSP and Fedora 33 with v5.12-rc3.
-> Unit test is available here:
->   https://github.com/SELinuxProject/selinux-testsuite/pull/75
-> 
-> Changes since v1:
->   * reuse security_sk_clone instead of adding a new hook
-> 
->  net/vmw_vsock/af_vsock.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 5546710d8ac1..bc7fb9bf3351 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -755,6 +755,7 @@ static struct sock *__vsock_create(struct net *net,
->  		vsk->buffer_size = psk->buffer_size;
->  		vsk->buffer_min_size = psk->buffer_min_size;
->  		vsk->buffer_max_size = psk->buffer_max_size;
-> +		security_sk_clone(parent, sk);
->  	} else {
->  		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
->  		vsk->owner = get_current_cred();
-> -- 
-> 2.31.0.rc2.261.g7f71774620-goog
-> 
+On Thu, Mar 18, 2021 at 6:03 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Wed, Mar 17, 2021 at 8:00 PM James Carter <jwcart2@gmail.com> wrote:
+> >
+> > Nicolas Iooss reports:
+> >   A few months ago, OSS-Fuzz found a crash in the CIL compiler, which
+> >   got reported as
+> >   https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28648 (the title
+> >   is misleading, or is caused by another issue that conflicts with the
+> >   one I report in this message). Here is a minimized CIL policy which
+> >   reproduces the issue:
+> >
+> >   (class CLASS (PERM))
+> >   (classorder (CLASS))
+> >   (sid SID)
+> >   (sidorder (SID))
+> >   (user USER)
+> >   (role ROLE)
+> >   (type TYPE)
+> >   (category CAT)
+> >   (categoryorder (CAT))
+> >   (sensitivity SENS)
+> >   (sensitivityorder (SENS))
+> >   (sensitivitycategory SENS (CAT))
+> >   (allow TYPE self (CLASS (PERM)))
+> >   (roletype ROLE TYPE)
+> >   (userrole USER ROLE)
+> >   (userlevel USER (SENS))
+> >   (userrange USER ((SENS)(SENS (CAT))))
+> >   (sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+> >
+> >   (classpermission CLAPERM)
+> >
+> >   (optional OPT
+> >       (roletype nonexistingrole nonexistingtype)
+> >       (classpermissionset CLAPERM (CLASS (PERM)))
+> >   )
+> >
+> >   The CIL policy fuzzer (which mimics secilc built with clang Address
+> >   Sanitizer) reports:
+> >
+> >   ==36541==ERROR: AddressSanitizer: heap-use-after-free on address
+> >   0x603000004f98 at pc 0x56445134c842 bp 0x7ffe2a256590 sp
+> >   0x7ffe2a256588
+> >   READ of size 8 at 0x603000004f98 thread T0
+> >       #0 0x56445134c841 in __cil_verify_classperms
+> >   /selinux/libsepol/src/../cil/src/cil_verify.c:1620:8
+> >       #1 0x56445134a43e in __cil_verify_classpermission
+> >   /selinux/libsepol/src/../cil/src/cil_verify.c:1650:9
+> >       #2 0x56445134a43e in __cil_pre_verify_helper
+> >   /selinux/libsepol/src/../cil/src/cil_verify.c:1715:8
+> >       #3 0x5644513225ac in cil_tree_walk_core
+> >   /selinux/libsepol/src/../cil/src/cil_tree.c:272:9
+> >       #4 0x564451322ab1 in cil_tree_walk
+> >   /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+> >       #5 0x5644513226af in cil_tree_walk_core
+> >   /selinux/libsepol/src/../cil/src/cil_tree.c:284:9
+> >       #6 0x564451322ab1 in cil_tree_walk
+> >   /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+> >       #7 0x5644512b88fd in cil_pre_verify
+> >   /selinux/libsepol/src/../cil/src/cil_post.c:2510:7
+> >       #8 0x5644512b88fd in cil_post_process
+> >   /selinux/libsepol/src/../cil/src/cil_post.c:2524:7
+> >       #9 0x5644511856ff in cil_compile
+> >   /selinux/libsepol/src/../cil/src/cil.c:564:7
+> >
+> > The classperms list of a classpermission rule is created and filled
+> > in when classpermissionset rules are processed, so it doesn't own any
+> > part of the list and shouldn't retain any of it when it is reset.
+> >
+> > Destroy the classperms list (without destroying the data in it)  when
+> > resetting a classpermission rule.
+> >
+> > Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  libsepol/cil/src/cil_reset_ast.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
+> > index 3da1b9a6..db70a535 100644
+> > --- a/libsepol/cil/src/cil_reset_ast.c
+> > +++ b/libsepol/cil/src/cil_reset_ast.c
+> > @@ -54,7 +54,7 @@ static void cil_reset_classpermission(struct cil_classpermission *cp)
+> >                 return;
+> >         }
+> >
+> > -       cil_reset_classperms_list(cp->classperms);
+> > +       cil_list_destroy(&cp->classperms, CIL_FALSE);
+> >  }
+> >
+> >  static void cil_reset_classperms_set(struct cil_classperms_set *cp_set)
+>
+> Hello,
+> This patch seems to make secilc segfault on a test policy, for example
+> on GitHub Actions:
+>
+> make[1]: Entering directory '/home/runner/work/selinux/selinux/secilc'
+> ./secilc test/policy.cil
+> make[1]: *** [Makefile:32: test] Segmentation fault (core dumped)
+>
+> (from https://github.com/fishilico/selinux/runs/2135040809?check_suite_focus=true#step:9:2645).
+> It also produces a segmentation fault on my Arch Linux development
+> system (building with gcc or clang and the default compilation flags
+> of the project).
+>
+> Is this segfault fixed by the other patches you sent?
+>
+
+I believe this one does:
+libsepol/cil: cil_reset_classperms_set() should not reset classpermission
+
+I hadn't realized the connection when I sent the patches.
+
+Thanks,
+Jim
+
+> Thanks,
+> Nicolas
+>
