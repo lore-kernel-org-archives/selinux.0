@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27C86C433DB
-	for <selinux@archiver.kernel.org>; Mon, 22 Mar 2021 14:10:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7B5CC433EA
+	for <selinux@archiver.kernel.org>; Mon, 22 Mar 2021 16:47:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D05FD6196C
-	for <selinux@archiver.kernel.org>; Mon, 22 Mar 2021 14:10:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A29AB61998
+	for <selinux@archiver.kernel.org>; Mon, 22 Mar 2021 16:47:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230064AbhCVOKK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Mar 2021 10:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45232 "EHLO
+        id S231728AbhCVQrY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Mar 2021 12:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230219AbhCVOKH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 22 Mar 2021 10:10:07 -0400
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55915C061574
-        for <selinux@vger.kernel.org>; Mon, 22 Mar 2021 07:10:07 -0700 (PDT)
-Received: by mail-qt1-x830.google.com with SMTP id s2so12366188qtx.10
-        for <selinux@vger.kernel.org>; Mon, 22 Mar 2021 07:10:07 -0700 (PDT)
+        with ESMTP id S231374AbhCVQrJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 22 Mar 2021 12:47:09 -0400
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347AEC061574
+        for <selinux@vger.kernel.org>; Mon, 22 Mar 2021 09:47:09 -0700 (PDT)
+Received: by mail-qt1-x832.google.com with SMTP id r14so12811481qtt.7
+        for <selinux@vger.kernel.org>; Mon, 22 Mar 2021 09:47:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=p2ZTiqFfxa9/9i99WHWkJ3orKJFSRIjNhM0k6RaTL+o=;
-        b=cY1KNh9LSMIzM2LbB3wYJJdMkzUxSwa5dLLbBB5oY+zHo74ERPjC69fQOfgz5w0Xd7
-         FZqJYbGUrsgAm3T45tIklBJQuCiM6CD0fFbEZLhOKvu5lu895LBOSVpOWYdvq8ReWbxi
-         o65VGhtVBeuHYSPe3HlR+XAg7irCZhVaBZw5TY6q3149urDAf1iUvyrpW50I7XebXjAi
-         nJaHUTgp7ZZOHwAj3H1LJnweZH3yI+3+cPT+xGSocuTCYqST83vyHxlTEIf77Jj9yJvz
-         D5/7JYphz6Uzpk0tP9e92nCHwm+kOoOPqIUY1ffuX2mJD8ZVwB5SdESMCbHTv3GiLtqD
-         7elA==
+        b=BRuOfbAdgINGU8SaeSvum26dQWL8fCr6zryg8J0+dNfAQpBBUwBKUPSnxpFMdOE5oq
+         n9n8WXdDX2Ex0C9fbTq76S93O3OlErnpxf4vt5gb6bmr+PPXuMA/0nvkrK2AzLJ02oEw
+         SGwizCQffVfgWrZwUDfX+wNZ46p4V/5unNsDiZ1UJtbkAAtIoNiv9Kg4vGzUN4imEzIY
+         rZsBxd8s/2MELEZb4YUpl5ITHlJOf0J4COgsctpBq0D2XFgkXfFdBA3VBt6Fn+L3BqY9
+         fA+wQr+VP61kMyHVeD2+fPFS9Esf97F75JfX85BN7CkMvjClAX94vnF1PX3ZznUYjD7t
+         5+Dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=p2ZTiqFfxa9/9i99WHWkJ3orKJFSRIjNhM0k6RaTL+o=;
-        b=PfiNqn9DMIhvOhjjnmrxAJnxTBbsBHyUbnd38wsYIjbTTg5G0ESGqMgmDo8ORiCHKh
-         Jx3v+FGiA8E6XKtyvKygFhPUrHTInsUpTijpNY6iN+knK7JCj6L2VD6v31vUdJ8LxU7W
-         dVbkK+PvZyufWaFX69h8gnhhYLDqTmjQKUAEkE8qrdt5ppFIC7ubOdLyp4dQ9KH9L0VD
-         fc3elT6MbEjUcGAv+4lXZVLmjwBMAw+onMbAdFkJusv45O0aN01hR48sXAQtdwGjkmub
-         Q3hczLLxbdM2rSf5h4TDqk6aYKEDsvGgBNg4SQbVdcWWp0FtRzy5cy9xio3ccnD/9jRY
-         FoKg==
-X-Gm-Message-State: AOAM530SXAck0HBXNu0UUKpj+NRsd8RkklFW2HhjaP/BN9sSFBhekmTz
-        nXJEcSaU06szzPWi1HaZf7rAd3bNn2o5QQ==
-X-Google-Smtp-Source: ABdhPJykhh2irzd4swm6lHWIXvp6rMnGhL9BH7hVxtrYTFfGF6aslW6liwM+Y61MXDEsrabGlvuHtg==
-X-Received: by 2002:ac8:498d:: with SMTP id f13mr100768qtq.54.1616422206364;
-        Mon, 22 Mar 2021 07:10:06 -0700 (PDT)
+        b=bMVdgHG8aOje0EOjLzvBKuj0e0QMOL1p3vMbq2w7pj4tJSnbi1QbfDPa4AanSIn5Vh
+         rJX7D3sG4+ko/aw7Ns5TV5g18NyPwU7YEkShem2UPNErx/oXIP7m4MU3lIU++/XRSE4V
+         2dPTaC4sqWH/dBBYQSobLCfydFzBmYA3BWZJW7U4y5N3VoD8JGNXYqsup7RVkKQa/CV9
+         hZnXFUHIp1ZFeDTmyynRaCy2oaQTjEEnvq/s7K4Z/34nUSshitLWmM74n688PrLXhJAz
+         rL/OvxvVfYelvg/g1CCu5rGe60AydMv5dvR2VACxSqyLOzjMHLslKBOVq39x8FA3rcyi
+         6eTg==
+X-Gm-Message-State: AOAM530j0uhTKBCmvDS2ZtU1Mss30O5TkmtCo5y2XjoVrCG5xmLhd4kS
+        iK75Lb5s+WMi5NuMmyiIDfQT5P+cZEl+6w==
+X-Google-Smtp-Source: ABdhPJzoGsZhz4NCRNo014fbLSkSEeBJa7qwtjvPTt7+XuR1FyFQJ3hZ14LOM3Q6XGg/uFpKFyniJg==
+X-Received: by 2002:ac8:7c8d:: with SMTP id y13mr742958qtv.294.1616431627458;
+        Mon, 22 Mar 2021 09:47:07 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id h5sm9617113qko.83.2021.03.22.07.10.05
+        by smtp.gmail.com with ESMTPSA id f9sm10964106qkk.115.2021.03.22.09.47.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Mar 2021 07:10:05 -0700 (PDT)
+        Mon, 22 Mar 2021 09:47:05 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
 Subject: [PATCH] libsepol/cil: Allow permission expressions when using map classes
-Date:   Mon, 22 Mar 2021 10:10:03 -0400
-Message-Id: <20210322141003.22846-1-jwcart2@gmail.com>
+Date:   Mon, 22 Mar 2021 12:47:00 -0400
+Message-Id: <20210322164703.29564-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
