@@ -2,66 +2,66 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC65AC433E1
-	for <selinux@archiver.kernel.org>; Tue, 30 Mar 2021 17:40:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13B9BC433E3
+	for <selinux@archiver.kernel.org>; Tue, 30 Mar 2021 17:40:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 99AAD61864
+	by mail.kernel.org (Postfix) with ESMTP id D106961987
 	for <selinux@archiver.kernel.org>; Tue, 30 Mar 2021 17:40:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232403AbhC3RkE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Mar 2021 13:40:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58900 "EHLO
+        id S232059AbhC3RkG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Mar 2021 13:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbhC3Rja (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Mar 2021 13:39:30 -0400
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 981FDC061574
-        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:30 -0700 (PDT)
-Received: by mail-qk1-x736.google.com with SMTP id y18so16631017qky.11
-        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:30 -0700 (PDT)
+        with ESMTP id S232292AbhC3Rjh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Mar 2021 13:39:37 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF628C061574
+        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:37 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id i9so16679654qka.2
+        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=g+6TjWfzdMru7Jb6qMivLGdR+Dq1tZsUpNnFX8G7o2c=;
-        b=UN/BDg46sy3Q2I/UduA1mB4eTHCBikj9vk8jEQ/oiAQlADyILoR78EYNP34D09VE0O
-         9HaIDcZlZrQigzUCWp6RRLpW9MWFcUuXr7xHYqr4PSKAGmYM0UlpXaqJEDoMUvwKOR+d
-         oc9uW0tGiVJ+9OZjjonCxg+4IeLSFY2d+ufLvoVjFVoqYoOaplZW9UV8FoXQLJgOFTOO
-         ljn/vIfg2kdxJOKrqAErtGE6Xm565JAa2qtcojt5DECBjvRqPU+ENqWu9zmqp+yj7cR0
-         itRpyJf71I4tZHxEcygp5OXtCYrjK/N72KFiWSInzrWghfdv7s/XY0df86k91dQeuHHo
-         wNDw==
+        bh=nc/zJUbibFsdwu4XOt5o22kI3txgov9uz+pGpG2O6pw=;
+        b=k0wMLIF6FZR+pykf73zz43xrZk/bKpM253l5m6r3Q6kiu2JybIvbHNJMKMg4W8Lp1N
+         aYuQbzzhlE21oRyFYC6PbUilUswSGh8y3DFJnJgwZTRR9JKW36Vo4xr5kVIEWkXRujJH
+         aK/JV6pcOGRHgV0T+sT8ihMLrs5avhfuIAmVqIZkEKkd4XDeBA9mC8SqOgOX8MkgOIS0
+         gSUHdQ9H+YdKgA1jGbOAfARDx8kU9J6sW1j9De0E7otYjF/b2Q9V78gel/cmEijiJRa0
+         zlb6rRuEM4qnI6F8i5P3qVySDnnz3nJBUw1F1gloCku5gigUSVJckK53ztb03rEpCYbW
+         gQ9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=g+6TjWfzdMru7Jb6qMivLGdR+Dq1tZsUpNnFX8G7o2c=;
-        b=rCvDlq2W5x8KcZM1e30nJgpr+nSkbTHPkksHGVNDJRveTwF7DxA36Aqc1WxgRcWA/p
-         DDwmgMKD5NMRAg09cUgPTJN3vkwcPgrGjpRicUo5gOSPKwzxettuXQSZ0l2mHK1WqsXt
-         ZjK17D0EcAuJQJ7bYDvmkLbmOaG5tcsSkFt3GdeLGDNEOwSsHyje04kJi+7G15+j8Vh9
-         v4TWPhm42KrnhS8sMr/ViXWCEFq1SSZTDXTWyx3hBKnWT3oLcYJ68UFQOKURtCm7rsKa
-         eeFlcHx+d/wJP5GwQga1ZESqXTlB7qgmYHoX1bziyMUh4SuBTqa0zFZVuKgpCLnvZx5R
-         pKkQ==
-X-Gm-Message-State: AOAM531WHm5kJREBvkz4RirO+z0QpBE33wMqYWNsAziG+IBg8PyVIofb
-        UEdaT9DNUxVlOZXkg+ga+jXW3/jooM/OlQ==
-X-Google-Smtp-Source: ABdhPJzzMk80/c51MAky2k81dMjdB+VsEoHfIXkz5pB5ukDO1DEAxcISpJ5yZvtBfCR1tKAPMfRIjw==
-X-Received: by 2002:a05:620a:31a:: with SMTP id s26mr31765715qkm.355.1617125969630;
-        Tue, 30 Mar 2021 10:39:29 -0700 (PDT)
+        bh=nc/zJUbibFsdwu4XOt5o22kI3txgov9uz+pGpG2O6pw=;
+        b=Ea1nfeJYp3NK8iO4M5MqzYtKGG377Myqq5Y+8UDWGDb0UzanSHYmuEJJrBQcTRWdWi
+         31AY4ECCwB6CqKqKiK6TZIyWWL2QVgCCvErCRFLLXcFSzKMj8yDL22SQLo5yTZ2PeKVz
+         CDr1Zwf/CIrs24cZHgpJG0CHWZt5gShvjYsDduos1Ez+5INFywyktE8F7kDabYlN/FLv
+         0w2h5CnZGtjtE1i6RIhqThTcXuVVMV/E4bOnH59yqCoV/hl1WSXX2voFFEphrO1EUGbJ
+         NcsdZ2sSAEENIZOTwfGpC0QSyOpjhpX25hN1KMTPReAykbepbZHMoH4xHSBzei/w+J4F
+         c9Fw==
+X-Gm-Message-State: AOAM533ZhLiy35Cc4a3XAJy4WpcM+MNL/8pSXCnFldUUoSDNnr8msWqu
+        +v+sjUsNJwHbf1Bhfz/YFWw4k5H84wZCrA==
+X-Google-Smtp-Source: ABdhPJwsAqcitskiuks/6GuH1Wt3DxhmxnfzAvxh40c7YwEW7o82+Ke0rc1yp7UaKehgcSScj6GxxA==
+X-Received: by 2002:a37:7e87:: with SMTP id z129mr32802798qkc.243.1617125976763;
+        Tue, 30 Mar 2021 10:39:36 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id r7sm13507482qtm.88.2021.03.30.10.39.29
+        by smtp.gmail.com with ESMTPSA id r7sm13507482qtm.88.2021.03.30.10.39.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Mar 2021 10:39:29 -0700 (PDT)
+        Tue, 30 Mar 2021 10:39:36 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 01/12] libsepol/cil: Reorder checks for invalid rules when building AST
-Date:   Tue, 30 Mar 2021 13:39:12 -0400
-Message-Id: <20210330173920.281531-2-jwcart2@gmail.com>
+Subject: [PATCH 04/12] libsepol/cil: Use AST to track blocks and optionals when resolving
+Date:   Tue, 30 Mar 2021 13:39:15 -0400
+Message-Id: <20210330173920.281531-5-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.3
 In-Reply-To: <20210330173920.281531-1-jwcart2@gmail.com>
 References: <20210330173920.281531-1-jwcart2@gmail.com>
@@ -71,216 +71,246 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Reorder checks for invalid rules in the blocks of tunableifs,
-in-statements, macros, and booleanifs when building the AST for
-consistency.
+When resolving the AST, block and optional stacks are used to
+determine if the current rule being resolved is in a block or
+an optional. There is no need to do this since the parent node
+pointers can be used when exiting a block or an optional to
+determine if resolution is still within a block or an optional.
 
-Order the checks in the same order the blocks will be resolved in,
-so tuanbleif, in-statement, macro, booleanif, and then non-block
-rules.
+When entering either a block or an optional, update the appropriate
+tree node pointer. When finished with the last child of a block or
+optional, set the appropriate pointer to NULL. If a parent of the
+same kind is found when the parent node pointers are followed back
+to the root node, then set the pointer to that tree node.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_build_ast.c | 100 +++++++++++++++----------------
- 1 file changed, 50 insertions(+), 50 deletions(-)
+ libsepol/cil/src/cil_resolve_ast.c | 107 +++++++++--------------------
+ 1 file changed, 32 insertions(+), 75 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 4e53f06a..1c530bbc 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -49,10 +49,10 @@
- struct cil_args_build {
- 	struct cil_tree_node *ast;
- 	struct cil_db *db;
--	struct cil_tree_node *macro;
--	struct cil_tree_node *boolif;
- 	struct cil_tree_node *tunif;
- 	struct cil_tree_node *in;
-+	struct cil_tree_node *macro;
-+	struct cil_tree_node *boolif;
- };
- 
- int cil_fill_list(struct cil_tree_node *current, enum cil_flavor flavor, struct cil_list **list)
-@@ -6097,10 +6097,10 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
- 	struct cil_tree_node *ast_current = NULL;
- 	struct cil_db *db = NULL;
- 	struct cil_tree_node *ast_node = NULL;
--	struct cil_tree_node *macro = NULL;
--	struct cil_tree_node *boolif = NULL;
- 	struct cil_tree_node *tunif = NULL;
- 	struct cil_tree_node *in = NULL;
-+	struct cil_tree_node *macro = NULL;
-+	struct cil_tree_node *boolif = NULL;
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index 63beed92..a61462d0 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -52,10 +52,10 @@ struct cil_args_resolve {
+ 	enum cil_pass pass;
+ 	uint32_t *changed;
+ 	struct cil_list *disabled_optionals;
+-	struct cil_tree_node *optstack;
++	struct cil_tree_node *optional;
+ 	struct cil_tree_node *boolif;
+ 	struct cil_tree_node *macro;
+-	struct cil_tree_node *blockstack;
++	struct cil_tree_node *block;
+ 	struct cil_list *sidorder_lists;
+ 	struct cil_list *classorder_lists;
+ 	struct cil_list *unordered_classorder_lists;
+@@ -3777,16 +3777,16 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
  	int rc = SEPOL_ERR;
+ 	struct cil_args_resolve *args = extra_args;
+ 	enum cil_pass pass = args->pass;
+-	struct cil_tree_node *optstack = args->optstack;
++	struct cil_tree_node *optional = args->optional;
+ 	struct cil_tree_node *boolif = args->boolif;
+-	struct cil_tree_node *blockstack = args->blockstack;
++	struct cil_tree_node *block = args->block;
+ 	struct cil_tree_node *macro = args->macro;
  
- 	if (parse_current == NULL || finished == NULL || extra_args == NULL) {
-@@ -6110,10 +6110,10 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
- 	args = extra_args;
- 	ast_current = args->ast;
- 	db = args->db;
--	macro = args->macro;
--	boolif = args->boolif;
- 	tunif = args->tunif;
- 	in = args->in;
-+	macro = args->macro;
-+	boolif = args->boolif;
- 
- 	if (parse_current->parent->cl_head != parse_current) {
- 		/* ignore anything that isn't following a parenthesis */
-@@ -6130,13 +6130,31 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
+ 	if (node == NULL) {
  		goto exit;
  	}
  
-+	if (tunif != NULL) {
-+		if (parse_current->data == CIL_KEY_TUNABLE) {
-+			rc = SEPOL_ERR;
-+			cil_tree_log(parse_current, CIL_ERR, "Found tunable");
-+			cil_log(CIL_ERR, "Tunables cannot be defined within tunableif statement\n");
-+			goto exit;
-+		}
-+	}
-+
-+	if (in != NULL) {
-+		if (parse_current->data == CIL_KEY_IN) {
-+			rc = SEPOL_ERR;
-+			cil_tree_log(parse_current, CIL_ERR, "Found in-statement");
-+			cil_log(CIL_ERR, "in-statements cannot be defined within in-statements\n");
-+			goto exit;
-+		}
-+	}
-+
- 	if (macro != NULL) {
--		if (parse_current->data == CIL_KEY_MACRO ||
--			parse_current->data == CIL_KEY_TUNABLE ||
-+		if (parse_current->data == CIL_KEY_TUNABLE ||
- 			parse_current->data == CIL_KEY_IN ||
- 			parse_current->data == CIL_KEY_BLOCK ||
- 			parse_current->data == CIL_KEY_BLOCKINHERIT ||
--			parse_current->data == CIL_KEY_BLOCKABSTRACT) {
-+			parse_current->data == CIL_KEY_BLOCKABSTRACT ||
-+			parse_current->data == CIL_KEY_MACRO) {
- 			rc = SEPOL_ERR;
- 			cil_tree_log(parse_current, CIL_ERR, "%s is not allowed in macros", (char *)parse_current->data);
- 			goto exit;
-@@ -6144,15 +6162,15 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
- 	}
- 
- 	if (boolif != NULL) {
--		if (parse_current->data != CIL_KEY_CONDTRUE &&
-+		if (parse_current->data != CIL_KEY_TUNABLEIF &&
-+			parse_current->data != CIL_KEY_CALL &&
-+			parse_current->data != CIL_KEY_CONDTRUE &&
- 			parse_current->data != CIL_KEY_CONDFALSE &&
--			parse_current->data != CIL_KEY_AUDITALLOW &&
--			parse_current->data != CIL_KEY_TUNABLEIF &&
- 			parse_current->data != CIL_KEY_ALLOW &&
- 			parse_current->data != CIL_KEY_DONTAUDIT &&
-+			parse_current->data != CIL_KEY_AUDITALLOW &&
- 			parse_current->data != CIL_KEY_TYPETRANSITION &&
--			parse_current->data != CIL_KEY_TYPECHANGE &&
--			parse_current->data != CIL_KEY_CALL) {
-+			parse_current->data != CIL_KEY_TYPECHANGE) {
- 			rc = SEPOL_ERR;
- 			cil_tree_log(parse_current, CIL_ERR, "Found %s", (char*)parse_current->data);
- 			if (((struct cil_booleanif*)boolif->data)->preserved_tunable) {
-@@ -6166,24 +6184,6 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
+-	if (optstack != NULL) {
++	if (optional != NULL) {
+ 		if (node->flavor == CIL_TUNABLE || node->flavor == CIL_MACRO) {
+ 			/* tuanbles and macros are not allowed in optionals*/
+ 			cil_tree_log(node, CIL_ERR, "%s statement is not allowed in optionals", cil_node_to_string(node));
+@@ -3795,7 +3795,7 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
  		}
  	}
  
--	if (tunif != NULL) {
--		if (parse_current->data == CIL_KEY_TUNABLE) {
--			rc = SEPOL_ERR;
--			cil_tree_log(parse_current, CIL_ERR, "Found tunable");
--			cil_log(CIL_ERR, "Tunables cannot be defined within tunableif statement\n");
--			goto exit;
--		}
--	}
--
--	if (in != NULL) {
--		if (parse_current->data == CIL_KEY_IN) {
--			rc = SEPOL_ERR;
--			cil_tree_log(parse_current, CIL_ERR, "Found in-statement");
--			cil_log(CIL_ERR, "in-statements cannot be defined within in-statements\n");
--			goto exit;
--		}
--	}
--
- 	cil_tree_node_init(&ast_node);
+-	if (blockstack != NULL) {
++	if (block != NULL) {
+ 		if (node->flavor == CIL_CAT || node->flavor == CIL_SENS) {
+ 			cil_tree_log(node, CIL_ERR, "%s statement is not allowed in blocks", cil_node_to_string(node));
+ 			rc = SEPOL_ERR;
+@@ -3849,11 +3849,11 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
+ 	if (rc == SEPOL_ENOENT) {
+ 		enum cil_log_level lvl = CIL_ERR;
  
- 	ast_node->parent = ast_current;
-@@ -6469,14 +6469,6 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
+-		if (optstack != NULL) {
++		if (optional != NULL) {
+ 			lvl = CIL_INFO;
  
- 	if (rc == SEPOL_OK) {
- 		if (ast_current->cl_head == NULL) {
--			if (ast_current->flavor == CIL_MACRO) {
--				args->macro = ast_current;
--			}
--
--			if (ast_current->flavor == CIL_BOOLEANIF) {
--				args->boolif = ast_current;
--			}
--
- 			if (ast_current->flavor == CIL_TUNABLEIF) {
- 				args->tunif = ast_current;
- 			}
-@@ -6485,6 +6477,14 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
- 				args->in = ast_current;
- 			}
+-			struct cil_optional *opt = (struct cil_optional *)optstack->data;
+-			struct cil_tree_node *opt_node = opt->datum.nodes->head->data;
++			struct cil_optional *opt = (struct cil_optional *)optional->data;
++			struct cil_tree_node *opt_node = NODE(opt);;
+ 			/* disable an optional if something failed to resolve */
+ 			opt->enabled = CIL_FALSE;
+ 			cil_tree_log(node, lvl, "Failed to resolve %s statement", cil_node_to_string(node));
+@@ -3876,39 +3876,18 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+ {
+ 	int rc = SEPOL_ERR;
+ 	struct cil_args_resolve *args = extra_args;
+-	struct cil_tree_node *optstack = NULL;
+ 	struct cil_tree_node *parent = NULL;
+-	struct cil_tree_node *blockstack = NULL;
+-	struct cil_tree_node *new = NULL;
  
-+			if (ast_current->flavor == CIL_MACRO) {
-+				args->macro = ast_current;
-+			}
-+
-+			if (ast_current->flavor == CIL_BOOLEANIF) {
-+				args->boolif = ast_current;
-+			}
-+
- 			ast_current->cl_head = ast_node;
- 		} else {
- 			ast_current->cl_tail->next = ast_node;
-@@ -6520,14 +6520,6 @@ int __cil_build_ast_last_child_helper(struct cil_tree_node *parse_current, void
- 
- 	args->ast = ast->parent;
- 
--	if (ast->flavor == CIL_MACRO) {
--		args->macro = NULL;
--	}
--
--	if (ast->flavor == CIL_BOOLEANIF) {
--		args->boolif = NULL;
--	}
--
- 	if (ast->flavor == CIL_TUNABLEIF) {
- 		args->tunif = NULL;
- 	}
-@@ -6536,6 +6528,14 @@ int __cil_build_ast_last_child_helper(struct cil_tree_node *parse_current, void
- 		args->in = NULL;
+ 	if (current == NULL || extra_args == NULL) {
+ 		goto exit;
  	}
  
-+	if (ast->flavor == CIL_MACRO) {
-+		args->macro = NULL;
-+	}
-+
-+	if (ast->flavor == CIL_BOOLEANIF) {
-+		args->boolif = NULL;
-+	}
-+
- 	// At this point we no longer have any need for parse_current or any of its
- 	// siblings; they have all been converted to the appropriate AST node. The
- 	// full parse tree will get deleted elsewhere, but in an attempt to
-@@ -6560,10 +6560,10 @@ int cil_build_ast(struct cil_db *db, struct cil_tree_node *parse_tree, struct ci
+-	optstack = args->optstack;
+ 	parent = current->parent;
+-	blockstack = args->blockstack;
  
- 	extra_args.ast = ast;
+-	if (parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
+-		/* push this node onto a stack */
+-		cil_tree_node_init(&new);
+-
+-		new->data = parent->data;
+-		new->flavor = parent->flavor;
+-
+-		if (parent->flavor == CIL_OPTIONAL) {
+-			if (optstack != NULL) {
+-				optstack->parent = new;
+-				new->cl_head = optstack;
+-			}
+-			args->optstack = new;
+-		} else if (parent->flavor == CIL_BLOCK) {
+-			if (blockstack != NULL) {
+-				blockstack->parent = new;
+-				new->cl_head = blockstack;
+-			}
+-			args->blockstack = new;
+-		}
++	if (parent->flavor == CIL_BLOCK) {
++		args->block = parent;
++	} else if (parent->flavor == CIL_OPTIONAL) {
++		args->optional = parent;
+ 	} else if (parent->flavor == CIL_BOOLEANIF) {
+ 		args->boolif = parent;
+ 	} else if (parent->flavor == CIL_MACRO) {
+@@ -3927,7 +3906,6 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+ 	int rc = SEPOL_ERR;
+ 	struct cil_args_resolve *args = extra_args;
+ 	struct cil_tree_node *parent = NULL;
+-	struct cil_tree_node *blockstack = NULL;
+ 
+ 	if (current == NULL ||  extra_args == NULL) {
+ 		goto exit;
+@@ -3938,30 +3916,31 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+ 	if (parent->flavor == CIL_MACRO) {
+ 		args->macro = NULL;
+ 	} else if (parent->flavor == CIL_OPTIONAL) {
+-		struct cil_tree_node *optstack;
+-
++		struct cil_tree_node *n = parent->parent;
+ 		if (((struct cil_optional *)parent->data)->enabled == CIL_FALSE) {
+ 			*(args->changed) = CIL_TRUE;
+ 			cil_list_append(args->disabled_optionals, CIL_NODE, parent);
+ 		}
+-
+-		/* pop off the stack */
+-		optstack = args->optstack;
+-		args->optstack = optstack->cl_head;
+-		if (optstack->cl_head) {
+-			optstack->cl_head->parent = NULL;
++		args->optional = NULL;
++		while (n && n->flavor != CIL_ROOT) {
++			if (n->flavor == CIL_OPTIONAL) {
++				args->optional = n;
++				break;
++			}
++			n = n->parent;
+ 		}
+-		free(optstack);
+ 	} else if (parent->flavor == CIL_BOOLEANIF) {
+ 		args->boolif = NULL;
+ 	} else if (parent->flavor == CIL_BLOCK) {
+-		/* pop off the stack */
+-		blockstack = args->blockstack;
+-		args->blockstack = blockstack->cl_head;
+-		if (blockstack->cl_head) {
+-			blockstack->cl_head->parent = NULL;
++		struct cil_tree_node *n = parent->parent;
++		args->block = NULL;
++		while (n && n->flavor != CIL_ROOT) {
++			if (n->flavor == CIL_BLOCK) {
++				args->block = n;
++				break;
++			}
++			n = n->parent;
+ 		}
+-		free(blockstack);
+ 	}
+ 
+ 	return SEPOL_OK;
+@@ -3970,16 +3949,6 @@ exit:
+ 	return rc;
+ }
+ 
+-static void cil_destroy_tree_node_stack(struct cil_tree_node *curr)
+-{
+-	struct cil_tree_node *next;
+-	while (curr != NULL) {
+-		next = curr->cl_head;
+-		free(curr);
+-		curr = next;
+-	}
+-}
+-
+ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -3994,7 +3963,8 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
  	extra_args.db = db;
--	extra_args.macro = NULL;
--	extra_args.boolif = NULL;
- 	extra_args.tunif = NULL;
- 	extra_args.in = NULL;
-+	extra_args.macro = NULL;
-+	extra_args.boolif = NULL;
+ 	extra_args.pass = pass;
+ 	extra_args.changed = &changed;
+-	extra_args.optstack = NULL;
++	extra_args.block = NULL;
++	extra_args.optional = NULL;
+ 	extra_args.boolif= NULL;
+ 	extra_args.macro = NULL;
+ 	extra_args.sidorder_lists = NULL;
+@@ -4003,7 +3973,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 	extra_args.catorder_lists = NULL;
+ 	extra_args.sensitivityorder_lists = NULL;
+ 	extra_args.in_list = NULL;
+-	extra_args.blockstack = NULL;
  
- 	rc = cil_tree_walk(parse_tree, __cil_build_ast_node_helper, NULL, __cil_build_ast_last_child_helper, &extra_args);
- 	if (rc != SEPOL_OK) {
+ 	cil_list_init(&extra_args.disabled_optionals, CIL_NODE);
+ 	cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
+@@ -4107,17 +4076,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 			}
+ 			cil_list_destroy(&extra_args.disabled_optionals, CIL_FALSE);
+ 			cil_list_init(&extra_args.disabled_optionals, CIL_NODE);
+-		}
+-
+-		/* reset the arguments */
+-		changed = 0;
+-		while (extra_args.optstack != NULL) {
+-			cil_destroy_tree_node_stack(extra_args.optstack);
+-			extra_args.optstack = NULL;
+-		}
+-		while (extra_args.blockstack!= NULL) {
+-			cil_destroy_tree_node_stack(extra_args.blockstack);
+-			extra_args.blockstack = NULL;
++			changed = 0;
+ 		}
+ 	}
+ 
+@@ -4128,8 +4087,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 
+ 	rc = SEPOL_OK;
+ exit:
+-	cil_destroy_tree_node_stack(extra_args.optstack);
+-	cil_destroy_tree_node_stack(extra_args.blockstack);
+ 	__cil_ordered_lists_destroy(&extra_args.sidorder_lists);
+ 	__cil_ordered_lists_destroy(&extra_args.classorder_lists);
+ 	__cil_ordered_lists_destroy(&extra_args.catorder_lists);
 -- 
 2.26.3
 
