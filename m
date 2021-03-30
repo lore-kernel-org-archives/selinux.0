@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C330C433E4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75647C433E8
 	for <selinux@archiver.kernel.org>; Tue, 30 Mar 2021 17:40:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E61561953
+	by mail.kernel.org (Postfix) with ESMTP id 54533619B1
 	for <selinux@archiver.kernel.org>; Tue, 30 Mar 2021 17:40:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232381AbhC3RkI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S232367AbhC3RkI (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 30 Mar 2021 13:40:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58972 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232388AbhC3Rjp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Mar 2021 13:39:45 -0400
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09458C061574
-        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:45 -0700 (PDT)
-Received: by mail-qt1-x82f.google.com with SMTP id 1so11859545qtb.0
-        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:44 -0700 (PDT)
+        with ESMTP id S232381AbhC3Rjn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Mar 2021 13:39:43 -0400
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B55C061574
+        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:43 -0700 (PDT)
+Received: by mail-qk1-x72d.google.com with SMTP id o5so16706976qkb.0
+        for <selinux@vger.kernel.org>; Tue, 30 Mar 2021 10:39:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=s0KbmHCiBoyaD5qRh9OPGvlIT2r7grJT/Aetoyk0myI=;
-        b=hKuJPrCyc4iN4tWgKgSx2w/kHPb6nu0VIcvAF+bNBm7z+leEBEXJzC7jsIR40i4d82
-         AOSSu7V/dTDS2ME+Kd0IdvQU3Tj2PdOPBkD5jxctTdwesrOnzlrKqo2hMGdEGOnJqLVj
-         8frh5gCO9uQGOo36i8EAutfkRdNGumWhTbvMbO3vzcxd+26yIJcefH/xBSxfsx4BANjJ
-         IffQchyqFIeIw9ZYwboUoyliXNW57BNhfuSFMu/DbNKOYAaPvS/FJZpDPDDO4+GMJbFS
-         /9ErkiGjVXf8gQvzujds4Nly7otjjmV7uO//jkNpCM79eNrm71rqsO71MQEwTAMGArO0
-         UmZA==
+        bh=X00LfgVu1NPDynyWs585bitxzMaqOJepRFpelFgqTpA=;
+        b=cGF0EPyyBtGDRTWL5tCgDNmrJzb2LyifNGKzKYBEF2jgRP7wTuwoEBuvshE4t86hmM
+         ikZcooshxa3l0KX9gUgvOhYV67kRAQ43/+7c7J/CHLNINXispcMsKdZJVecWmm/V52DT
+         C3RTpZxcFAyvl7KZzYNur99ZDxTnaxUYvqtKAgwG4EAJUAfG+0nirBBTZZPCxwG25skm
+         0c0A+aFYCfE8LZq51OG9+HPGRI/kC9QYloaUzwZ0F77wvPEaP9ghHfmfxZben7Pe/r+N
+         96OY7GcN01tbDB8rdhTwGaXuzZP8FodSzabfqkLTmfnL1kvGEXRsGKvgdFx0o8+Eze99
+         lxYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=s0KbmHCiBoyaD5qRh9OPGvlIT2r7grJT/Aetoyk0myI=;
-        b=H7qz4So01G6DhNVZXjPbsygZc2jFuunddj/Y29h3CiJ1kncX3Yy036ydrs8sTE86VK
-         r1TvLs+CRU6Klfafydj+50lGa5IH94UELQUwywK1r9B1/5Hv0vOlCV47ufu6zttKofN9
-         0bAku8ZlVtcoTDDlpcLbwDKzJyLtWQBXa9FMhFRBV5I5bobwEdqXTQtpDe0F66Yr3R7Z
-         oP5k+4dCBtuArGvIFeR6R+4//7cG012ZgzMfwM7p2IMptN+9TEocfXYUE5t6qQFHNhsG
-         XhQVokmCmc8IgPqyf/ZmPE1tAwsbWlyi0hzlgs11p10IOmmySlgOtrp3YbFkF+f5x9SP
-         Xoog==
-X-Gm-Message-State: AOAM530926hkZtSJRFCQpVd0DvanWWDA8m+L22ctftmBBg5XYMkdnl+K
-        BWEsNGp7lDt9CuXQgr6QqM9lWbvQDI5vcw==
-X-Google-Smtp-Source: ABdhPJwLIYkOiZJQBQ1Y4DwaoLknnIAT5lW/6n9tu+3GLyUXSVHwBDS0GXMc/XiSjf3v/tUtKVoLHQ==
-X-Received: by 2002:ac8:5f87:: with SMTP id j7mr3647170qta.135.1617125984205;
-        Tue, 30 Mar 2021 10:39:44 -0700 (PDT)
+        bh=X00LfgVu1NPDynyWs585bitxzMaqOJepRFpelFgqTpA=;
+        b=mZc6gi12l/Ypjeh2bP4prd60vKx1saEvB+GX479BK5A4i6IPLE2HBhXSmfKPRpbwNZ
+         XIQ/ifshDPnKNgZqn0HDcvNrn52ouhaKaprksj+TC/yUrYfOq6INjUwlO64nw01A+7IH
+         DXNFN8bZFeGehvmdqxauTWMcH/6qq7zvL3mOl2N30kmgqRPiUrcJK6J085g1513dSk51
+         uMmi9w+4UVcmxdKADbQDD5/AjJ6YwwoYqkBo2pQ/vUgnzCsGWgtHkIK2yObjPAftIXP/
+         nrnQr+1ip0gA9h3U8lUdWL1t4FntnZneEB6D7iG1m+t4BIBDp9j6IthZrmKH71K0OlWO
+         vInQ==
+X-Gm-Message-State: AOAM533zgmrAyoBlju5TLL3chp69GRcSvTRfD5/rnddlTOaHQDzeNPYE
+        kkgOc/Xtu1MvAmGkS5wR94POitqqL4e/Iw==
+X-Google-Smtp-Source: ABdhPJz+aLhsUeHAxQ0O3uiEfWJS7fuNYRFC3+tM88xIdXEcfXwFezVN4J6BNzYrDjedGtkhS3kekg==
+X-Received: by 2002:ae9:f10b:: with SMTP id k11mr31997104qkg.62.1617125982778;
+        Tue, 30 Mar 2021 10:39:42 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id r7sm13507482qtm.88.2021.03.30.10.39.43
+        by smtp.gmail.com with ESMTPSA id r7sm13507482qtm.88.2021.03.30.10.39.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Mar 2021 10:39:43 -0700 (PDT)
+        Tue, 30 Mar 2021 10:39:42 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 09/12] libsepol/cil: Do not allow tunable declarations in in-statements
-Date:   Tue, 30 Mar 2021 13:39:20 -0400
-Message-Id: <20210330173920.281531-10-jwcart2@gmail.com>
+Subject: [PATCH 08/12] libsepol/cil: Sync checks for invalid rules in macros
+Date:   Tue, 30 Mar 2021 13:39:19 -0400
+Message-Id: <20210330173920.281531-9-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.3
 In-Reply-To: <20210330173920.281531-1-jwcart2@gmail.com>
 References: <20210330173920.281531-1-jwcart2@gmail.com>
@@ -71,32 +71,33 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Since tunableifs are resolved before in-statements, do not allow
-tuanble declarations in in-statements.
+When resolving the AST, tunable and in-statements are not considered
+to be invalid in macros. This is inconsistent with the checks when
+building the AST.
 
-Since in-statements are the first flavor of statement that causes
-part of the AST to be copied to another part, there is no need to
-check the in-statements when resolving the AST.
+Add checks to make tunable and in-statments invalid in macros when
+resolving the AST.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_build_ast.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ libsepol/cil/src/cil_resolve_ast.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 1fef25d4..df7bb950 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -6130,7 +6130,8 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index efff0f2e..7229a3b4 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -3796,7 +3796,9 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
  	}
  
- 	if (in != NULL) {
--		if (parse_current->data == CIL_KEY_IN) {
-+		if (parse_current->data == CIL_KEY_TUNABLE ||
-+			parse_current->data == CIL_KEY_IN) {
- 			rc = SEPOL_ERR;
- 			cil_tree_log(parse_current, CIL_ERR, "Found in-statement");
- 			cil_log(CIL_ERR, "in-statements cannot be defined within in-statements\n");
+ 	if (macro != NULL) {
+-		if (node->flavor == CIL_BLOCK ||
++		if (node->flavor == CIL_TUNABLE ||
++			node->flavor == CIL_IN ||
++			node->flavor == CIL_BLOCK ||
+ 		    node->flavor == CIL_BLOCKINHERIT ||
+ 		    node->flavor == CIL_BLOCKABSTRACT ||
+ 		    node->flavor == CIL_MACRO) {
 -- 
 2.26.3
 
