@@ -6,58 +6,58 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BB77C433ED
-	for <selinux@archiver.kernel.org>; Wed, 31 Mar 2021 23:20:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F080C433B4
+	for <selinux@archiver.kernel.org>; Wed, 31 Mar 2021 23:27:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DBA8D61057
-	for <selinux@archiver.kernel.org>; Wed, 31 Mar 2021 23:20:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6003B61056
+	for <selinux@archiver.kernel.org>; Wed, 31 Mar 2021 23:27:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229812AbhCaXUN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 Mar 2021 19:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47922 "EHLO
+        id S232661AbhCaX0l (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 Mar 2021 19:26:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230073AbhCaXT6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 Mar 2021 19:19:58 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55326C061574
-        for <selinux@vger.kernel.org>; Wed, 31 Mar 2021 16:19:58 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id a7so116522ejs.3
-        for <selinux@vger.kernel.org>; Wed, 31 Mar 2021 16:19:58 -0700 (PDT)
+        with ESMTP id S231544AbhCaX0X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 Mar 2021 19:26:23 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E85C061574
+        for <selinux@vger.kernel.org>; Wed, 31 Mar 2021 16:26:22 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id r12so124237ejr.5
+        for <selinux@vger.kernel.org>; Wed, 31 Mar 2021 16:26:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=D5nlFsw7x0LFWfBTRVOqhal/lk1UgZDPLmvDYouVvPM=;
-        b=YVcZyuER2K1L6EOrzazTHN/USCVKXoM6M/K2MSv9w7YcXIzvsVa55OGlKRJ/iWKgem
-         rUGIgv/fo6UDQpymhT7J+tWCLKd2GC70ObLn6AmhzPdCOOCX1gI9uWLi6sJ8wkg9spTu
-         t6rREXfy3K5pfXlLcJ+4EAd/OV4EAb19otyIStklErbJTRlsZfQ+wjlx5FSlivowZtAM
-         4MHnrF2KVEK1yIDbuyaf9GmRpcX2F70Hug6OeP0TfaztoVLr5i/CC170MCo7GgXu2p9/
-         vGu2IQqrCxPgRKeDICjTgQ7QzrZnL/RDjnv/m88ZFnT0kAYmfXATXK6QA95XnjgHJFaE
-         X8xQ==
+        bh=RS1uy0nT2eztFaawDfuJmQ5srj3zOrvKjoC/5Bc8EKc=;
+        b=cgFdY+4b0ISNRwQIe1hp36OkRxiJ1tOA5a2eOyk4/ZMefQbFix3DeSVbXPFSEn8lLt
+         o9K9eRq6p4PQx1r5k1b8qI9KJkYQDP3zY2N72ACPK2fptrRn4ac4i83EoSdwvnH9pTDa
+         UAMAXWF97XrPEfsJ/j4LNXa26xU5+INAai0J0va2var5xnRsEAJo+c6qhW+GtMBPvZf0
+         1GADlXxBvA2bGuu3bIAJsoTzDME2FOSblharGLrswJEKyTRDl9MpffnuTmZujWh18CSO
+         kl+3mjt4+7rvD1QSG5Rcr9cmF0qYJthEj2QOX/hZjCQlCOyHLqKsaquAsznL8wOdOAKs
+         O6/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=D5nlFsw7x0LFWfBTRVOqhal/lk1UgZDPLmvDYouVvPM=;
-        b=pYA4ywR1Zi6Q9ED8N2gMqHHtU/nH16ov7hwagU4dYDPJ4uNboYZs9WTPMNf3F477FO
-         OY/0lkVn1Dbf/EviNwq8B2sjtfjUPiThgTC3wq/DHoidkWNoP3MUTsN3X94nWlEZSqKK
-         tQKx7/j2CgtyVpS4kJMbc8O41mIBXqabZEPvGjm+/UJbgz3ad7C8+JNQXVkDFAV1+Kpr
-         NVQPcliTN1qXRvXv6neIRgrnt75+HxqITXvc2rF0D6uBjQ4kKPlD20kYNwhS4ceZo6Cd
-         8aA+Shr0P6HlT45I7+hQT7ubonZweo9F15hklgym9qFXWPJaBKZO0IypiZUOy7GFBDRv
-         Ry9w==
-X-Gm-Message-State: AOAM530okGYBS5j4wyiIJcifqwmj6/mJdEfReI4ShWJxblOy0MBXN6h1
-        zexN6xIbzBQJ3o+Q7pTdEgIzMPSnJl3GEbCC570p1chVRwxe
-X-Google-Smtp-Source: ABdhPJyGoN5QFLb4H+1+YyCG7g6qUZ1xkq5WrunaxTFcTRNSZZiixwYzD5agdnREM6+CNx2kh9BT9pJW39Xzfqyn2Bo=
-X-Received: by 2002:a17:906:edca:: with SMTP id sb10mr6076842ejb.398.1617232796827;
- Wed, 31 Mar 2021 16:19:56 -0700 (PDT)
+        bh=RS1uy0nT2eztFaawDfuJmQ5srj3zOrvKjoC/5Bc8EKc=;
+        b=U9l/l1JtTXywH6XDGpCrp+/wDRtss88dN2JEv0NuSfYZ2oacZDkIKK3kQZ65Aexd8s
+         PiNwqVFgUoVeJK4LTcH3BwN1gZ+sPBjQwyfkrG10L15hnyF311HiyXA8TNgvGnbzzQDu
+         c1iGCKhuumopRGtzqcUVEQmKSPiOdr8KY4K2V5OaJ3Kas4CT+QWw8UyYmXvnE3JXRing
+         R/JOXSeAfPBePOBcROjF8BmKRaqvo8yPpkuDJ9mjM1RhvdTWkILMGmU0la1NxyitRfrn
+         TnXCMzotaH5lGDS7egh95kJ+K/SvDqH1EDYu2lcPkq4vfY22Qq9b1AM2vp8ZB9LDBzh8
+         1XBA==
+X-Gm-Message-State: AOAM532KJ0Q90yuVMORQciMQKVwtuSDy9SHvomDyGXmzf/sQQvLyC4np
+        ARZo+ajkKEKaVuQ9bLfSJ+/lggz4jrX1LVBIh3rjkY2clQ==
+X-Google-Smtp-Source: ABdhPJxuwJHBoHON7kyFdUfIUKNFFcSTTadNKWQMv3m+QKvH0qF+kS1CE5l2Pjvx/Kn+pNtgZ02/oAnfhIs54nExgnU=
+X-Received: by 2002:a17:906:3ac3:: with SMTP id z3mr6411063ejd.106.1617233181153;
+ Wed, 31 Mar 2021 16:26:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210330131646.1401838-1-omosnace@redhat.com> <20210330131646.1401838-2-omosnace@redhat.com>
- <CAHC9VhQ4Hc1VccUjR7cMq_Lm2YOn=i=w_FahZ7ZFnoxz+iKUPA@mail.gmail.com> <CAFqZXNsus-5PGNMT2t=T4WQQMrzgBSJDu6=qr0KmtDgKCR=hfQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsus-5PGNMT2t=T4WQQMrzgBSJDu6=qr0KmtDgKCR=hfQ@mail.gmail.com>
+References: <20210330131646.1401838-1-omosnace@redhat.com> <CAHC9VhQHTP4eXTEDtd=TztN-wPC=EZ84SG44sX9bZ=KtLfzp=g@mail.gmail.com>
+ <CAFqZXNvoDLmjYBEpgnC5Ba6nDVdi11Hbdj=6v=dJYA_bihQERw@mail.gmail.com>
+In-Reply-To: <CAFqZXNvoDLmjYBEpgnC5Ba6nDVdi11Hbdj=6v=dJYA_bihQERw@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 31 Mar 2021 19:19:45 -0400
-Message-ID: <CAHC9VhRD=SNev8Ptk7idauX+0gzQysKDLBhGkfpD1CETB2TNrA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] selinux: fix cond_list corruption when changing booleans
+Date:   Wed, 31 Mar 2021 19:26:10 -0400
+Message-ID: <CAHC9VhT_odeqzaY1z=NODAk=tZGihD=h6Tmhvr8B5H2R6L8Kqg@mail.gmail.com>
+Subject: Re: [PATCH 0/3] selinux: fix changing booleans
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Stephen Smalley <stephen.smalley.work@gmail.com>
@@ -66,107 +66,45 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 31, 2021 at 5:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Wed, Mar 31, 2021 at 4:04 AM Paul Moore <paul@paul-moore.com> wrote:
+On Wed, Mar 31, 2021 at 4:23 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Wed, Mar 31, 2021 at 3:13 AM Paul Moore <paul@paul-moore.com> wrote:
 > > On Tue, Mar 30, 2021 at 9:16 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-
-...
-
-> > > -int avtab_duplicate(struct avtab *new, struct avtab *orig)
-> > > +int avtab_alloc(struct avtab *h, u32 nrules)
-> > >  {
-> > > -       int i;
-> > > -       struct avtab_node *node, *tmp, *tail;
-> > > -
-> > > -       memset(new, 0, sizeof(*new));
-> > > +       int rc;
-> > > +       u32 shift = 0;
-> > > +       u32 work = nrules;
-> > > +       u32 nslot = 0;
 > > >
-> > > -       new->htable = kvcalloc(orig->nslot, sizeof(void *), GFP_KERNEL);
-> > > -       if (!new->htable)
-> > > -               return -ENOMEM;
-> > > -       new->nslot = orig->nslot;
-> > > -       new->mask = orig->mask;
-> > > -
-> > > -       for (i = 0; i < orig->nslot; i++) {
-> > > -               tail = NULL;
-> > > -               for (node = orig->htable[i]; node; node = node->next) {
-> > > -                       tmp = kmem_cache_zalloc(avtab_node_cachep, GFP_KERNEL);
-> > > -                       if (!tmp)
-> > > -                               goto error;
-> > > -                       tmp->key = node->key;
-> > > -                       if (tmp->key.specified & AVTAB_XPERMS) {
-> > > -                               tmp->datum.u.xperms =
-> > > -                                       kmem_cache_zalloc(avtab_xperms_cachep,
-> > > -                                                       GFP_KERNEL);
-> > > -                               if (!tmp->datum.u.xperms) {
-> > > -                                       kmem_cache_free(avtab_node_cachep, tmp);
-> > > -                                       goto error;
-> > > -                               }
-> > > -                               tmp->datum.u.xperms = node->datum.u.xperms;
-> > > -                       } else
-> > > -                               tmp->datum.u.data = node->datum.u.data;
-> > > -
-> > > -                       if (tail)
-> > > -                               tail->next = tmp;
-> > > -                       else
-> > > -                               new->htable[i] = tmp;
-> > > -
-> > > -                       tail = tmp;
-> > > -                       new->nel++;
-> > > +       if (nrules != 0) {
-> > > +               while (work) {
-> > > +                       work  = work >> 1;
+> > > This series contains a patch that fixes broken conditional AV list
+> > > duplication introduced by c7c556f1e81b ("selinux: refactor changing
+> > > booleans") and a couple "and while I'm here..." cleanup patches on top.
+> > >
+> > > Ondrej Mosnacek (3):
+> > >   selinux: fix cond_list corruption when changing booleans
+> > >   selinux: simplify duplicate_policydb_cond_list() by using kmemdup()
+> > >   selinux: constify some avtab function arguments
 > >
-> > Extra  horizontal  spaces  are  awkward  and  bad.
-> >
-> > > +                       shift++;
-> > >                 }
-> > > +               if (shift > 2)
-> > > +                       shift = shift - 2;
-> >
-> > Since we are getting nit-picky with this code, why not make the
-> > loop/if a bit more elegant?  How about something like below?
-> >
-> >   u32 shift = 2;
-> >   u32 work = nrules >> 4;
-> >   while (work) {
-> >     work >>= 1;
-> >     shift++;
-> >   }
+> > Please don't resubmit, but in the future if you are submitting a patch
+> > (or two (or three ...)) which is potential -stable material (and so
+> > far I think 1/3 qualifies) don't submit it in a patchset with trivial
+> > cleanup patches.  Adding cleanup patches to a patchset that adds a
+> > feature is okay, but fixes should generally stand by themselves.
 >
-> I think you meant:
-> u32 shift = 0;
-> u32 work = nrules >> 2;
-> while (work) {
->     work >>= 1;
->     shift++;
-> }
->
-> ...which is equivalent to the current code and yes, I'll use that :)
+> Okay, but in this case the patches are sort of interdependent, so I
+> didn't want to mess with a rebase and sending conflicting patches... I
+> did move the bugfix patch to the bottom so that at worst you can pick
+> it out and ask me to resubmit the rest some other way.
 
-Well, no, not really, but that's okay as looking at it now we both got
-it wrong :)
+That's understandable, but it results in a patchset which is never
+going to be applied as a whole (the bug fix(es) would go to stable-X,
+the rest to next).  It's not the end of the world, but it's nice when
+there is at least some hope that a patchset could be merged all at
+once.  Moving forward I would suggest keeping the fixes separate and
+submitting the cleanups in a separate patchset with a note that the
+depend on the other patch(es).  Depending on the particular patches
+I'll either just merge them and deal with the conflicts, or hold the
+cleanups until they can be applied without conflict.
 
-Basically I wanted to avoid the odd problem where the current code has
-a dip in the number of slots/buckets when nrules is equal to 4, 5, 6,
-or 7.  While the code I proposed yesterday did that, it inflated the
-number of buckets beyond the current code; your suggestion had
-problems with low numbers resulting in zero buckets.
+> Since I'll need to respin the bugfix patch, will it be better if I
+> repost just the one patch?
 
-I think what we really want is this:
-
-  shift = 2;
-  work = nrules >> 4;
-  while (work) {
-    work >>= 1;
-    shift++;
-  }
-
-... it avoids any dips in the bucket count and it results in similar
-bucket counts as the existing code for larger numbers of rules.
+Let's try the above suggestion and see how it works; if it turns out
+to be a mess, we can work on "patching" the process :)
 
 -- 
 paul moore
