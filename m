@@ -2,69 +2,68 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2401CC433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDE37C43461
 	for <selinux@archiver.kernel.org>; Fri,  2 Apr 2021 08:56:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E192761105
-	for <selinux@archiver.kernel.org>; Fri,  2 Apr 2021 08:56:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C05C61104
+	for <selinux@archiver.kernel.org>; Fri,  2 Apr 2021 08:56:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbhDBI4b (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Apr 2021 04:56:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59866 "EHLO
+        id S229742AbhDBI4c (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Apr 2021 04:56:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:38305 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229742AbhDBI42 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Apr 2021 04:56:28 -0400
+        by vger.kernel.org with ESMTP id S230387AbhDBI4a (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Apr 2021 04:56:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617353787;
+        s=mimecast20190719; t=1617353789;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=gRE5GcGcin1rGCTya2tDyS72EKxIVRDPfIUXPACOCGU=;
-        b=NEj5Kzzh3Zr2zSPzmdjeCGvqTPTBgm8jvJOtgsxCNnTGyE618NImUGN5kezaKMsnqsVpO0
-        yPFefAoyfq6dR9EvWQ28ZYfxwR1Ahpf42r0PKfFu9OX5NKXQ5W5KIosVxkBVeFZlBbpTFV
-        CPMPaIvXxkafBlI1CQj7pQIxHMtIHYQ=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-439-O5tANISkOTG6XV5qcQ1IKA-1; Fri, 02 Apr 2021 04:56:25 -0400
-X-MC-Unique: O5tANISkOTG6XV5qcQ1IKA-1
-Received: by mail-ed1-f70.google.com with SMTP id q12so4304756edv.9
-        for <selinux@vger.kernel.org>; Fri, 02 Apr 2021 01:56:25 -0700 (PDT)
+        bh=KqtLciy0NCnMCuCAwUfSIdViMNmabRdW2NYsYS45WhI=;
+        b=C8zYyMc0g6xQF11iOZfQlSUhRlnP82TGJ7ZHewWSyepChNdnOs4XnYm5wieESZtQYP0jpy
+        acl8MTWcFhchnCnu8+AbRjuM0zV1B1YL4W+yBKifB1u319peWV5JVkw+v09BMbVscDrVQF
+        VJ900kWP7CrGjkKlsvRfbbc6nKhGArU=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-148-2SRwNYLAOCCTiMro1nK05g-1; Fri, 02 Apr 2021 04:56:26 -0400
+X-MC-Unique: 2SRwNYLAOCCTiMro1nK05g-1
+Received: by mail-ej1-f71.google.com with SMTP id au15so3030953ejc.8
+        for <selinux@vger.kernel.org>; Fri, 02 Apr 2021 01:56:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gRE5GcGcin1rGCTya2tDyS72EKxIVRDPfIUXPACOCGU=;
-        b=VnBz2NtrQ2qMTtaJLZwddno6nye1J4WlgswYhVOSSp6gTVfJqQ6Ci837h7i8T/sRQE
-         OCBRxXVHnsZzEWwkqG2F4r9VObFPXI013vcKZHqYmXWIxlwcDvHcLMqE7O1M2xCvUWPM
-         Swvx1aWzRPN9q10X1wLsKc263O2z1nJMedOIsAW7J6H5Z84vdAMAg/uKRpUJnlXvvp1z
-         UEz3tr8oHrOum6TFphq/EYY4OmZsBiAJn6t4tGGRa6AquSX9IM8EtBsvTV1Wa5VEiWc0
-         XZCCSgDdZYUxer6ZzI6ip5lm0k3UfpDxtATk358d9qwyH0vVHXMSdYcfsSJtAyGp8KeJ
-         Vijw==
-X-Gm-Message-State: AOAM530IL+LbGiG+vAmuQQjGFzBH9C45+NrgkmHOX2uPpmmzg9D/LJLc
-        154S6V74MclbwWzi1Zp7g4k4oTsigUsVzDQjdw1zPsCCMsbsZ5Y4OlJlrsbO58vn0xncqzmE3NK
-        VcAT45E1bk5STtGSDtA9wiqnGLs0EFL3eB+gRMVd93wNXawQ0nNbYW7ECrN/h9ZOruFtcQQ==
-X-Received: by 2002:a17:906:170f:: with SMTP id c15mr12883562eje.358.1617353784167;
-        Fri, 02 Apr 2021 01:56:24 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxPfpOIfR/UA/rl15S6eS+RFwSxWLL1pqNRudvqtCVap5xf6bTwfgZdPD5Rjy8Z4Gwem1947Q==
-X-Received: by 2002:a17:906:170f:: with SMTP id c15mr12883547eje.358.1617353783995;
-        Fri, 02 Apr 2021 01:56:23 -0700 (PDT)
+        bh=KqtLciy0NCnMCuCAwUfSIdViMNmabRdW2NYsYS45WhI=;
+        b=G3IXX/0NFlsKMWxNzbEkbz8Kjr1LEWIhF9Sh/D8PsmSdUN5vISpESbTO1B4/UtwH+l
+         xMhh+hc0Zllj1enkFFuNuG8N9N0b5xaa06jqgnf0JHmTAqphmEq4AKWIlfQhxXI5nLni
+         TUHN5IGRsGSF74pd8iU7KKbd0BEG3jJBeoYPIeDYW4svm4XLvlnK2DrFoqJYgaO/ybTF
+         jGj+yABkgSlinRluX/NNuuSgTvDolsfXdCd0n6vUYpn+K9/sSexHzvLW02KiDGnNsTN0
+         nLMac8cc16Z0s43XvYSBqeymvOLp612ulB5+Bs0qyHcSPQ+U8fXl3RZ7nqczNyfF6fMB
+         zmZw==
+X-Gm-Message-State: AOAM533Uj7hCtloFZSItgmzzrdC432zcYkeHPE4CndDeVJP26mOhcgk/
+        xDAiIO3ULhSCoeZLJZIfj4DSLQxRBRwqhBo+qcqJZB/WyDPl9Nxr5ouca+OlL10JPtsuND5bMtI
+        0b6N18zzToE9+pfiVacQJNIBQEcf8wtRlWEH+FhP69IY3h0stV2VXH7AkDP1K7PgleX1qKg==
+X-Received: by 2002:a17:906:5203:: with SMTP id g3mr12649284ejm.95.1617353785284;
+        Fri, 02 Apr 2021 01:56:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyalREvGGWJDIn717F/KoWVFdIBGv7Ypq6UZqq56AdQmP4lRA37h+RsRGAzt7xBg5FbnL2PZw==
+X-Received: by 2002:a17:906:5203:: with SMTP id g3mr12649275ejm.95.1617353785091;
+        Fri, 02 Apr 2021 01:56:25 -0700 (PDT)
 Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id u13sm4019726ejn.59.2021.04.02.01.56.22
+        by smtp.gmail.com with ESMTPSA id u13sm4019726ejn.59.2021.04.02.01.56.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Apr 2021 01:56:23 -0700 (PDT)
+        Fri, 02 Apr 2021 01:56:24 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 1/2] selinux: make nslot handling in avtab more robust
-Date:   Fri,  2 Apr 2021 10:56:18 +0200
-Message-Id: <20210402085619.1763971-2-omosnace@redhat.com>
+Subject: [PATCH v3 2/2] selinux: fix cond_list corruption when changing booleans
+Date:   Fri,  2 Apr 2021 10:56:19 +0200
+Message-Id: <20210402085619.1763971-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210402085619.1763971-1-omosnace@redhat.com>
 References: <20210402085619.1763971-1-omosnace@redhat.com>
@@ -74,102 +73,216 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-1. Make sure all fileds are initialized in avtab_init().
-2. Slightly refactor avtab_alloc() to use the above fact.
-3. Use h->nslot == 0 as a sentinel in the access functions to prevent
-   dereferencing h->htable when it's not allocated.
+Currently, duplicate_policydb_cond_list() first copies the whole
+conditional avtab and then tries to link to the correct entries in
+cond_dup_av_list() using avtab_search(). However, since the conditional
+avtab may contain multiple entries with the same key, this approach
+often fails to find the right entry, potentially leading to wrong rules
+being activated/deactivated when booleans are changed.
 
+To fix this, instead start with an empty conditional avtab and add the
+individual entries one-by-one while building the new av_lists. This
+approach leads to the correct result, since each entry is present in the
+av_lists exactly once.
+
+The issue can be reproduced with Fedora policy as follows:
+
+    # sesearch -s ftpd_t -t public_content_rw_t -c dir -p create -A
+    allow ftpd_t non_security_file_type:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink watch watch_reads write }; [ ftpd_full_access ]:True
+    allow ftpd_t public_content_rw_t:dir { add_name create link remove_name rename reparent rmdir setattr unlink watch watch_reads write }; [ ftpd_anon_write ]:True
+    # setsebool ftpd_anon_write=off ftpd_connect_all_unreserved=off ftpd_connect_db=off ftpd_full_access=off
+
+On fixed kernels, the sesearch output is the same after the setsebool
+command:
+
+    # sesearch -s ftpd_t -t public_content_rw_t -c dir -p create -A
+    allow ftpd_t non_security_file_type:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink watch watch_reads write }; [ ftpd_full_access ]:True
+    allow ftpd_t public_content_rw_t:dir { add_name create link remove_name rename reparent rmdir setattr unlink watch watch_reads write }; [ ftpd_anon_write ]:True
+
+While on the broken kernels, it will be different:
+
+    # sesearch -s ftpd_t -t public_content_rw_t -c dir -p create -A
+    allow ftpd_t non_security_file_type:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink watch watch_reads write }; [ ftpd_full_access ]:True
+    allow ftpd_t non_security_file_type:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink watch watch_reads write }; [ ftpd_full_access ]:True
+    allow ftpd_t non_security_file_type:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink watch watch_reads write }; [ ftpd_full_access ]:True
+
+While there, also simplify the computation of nslots. This changes the
+nslots values for nrules 2 or 3 to just two slots instead of 4, which
+makes the sequence more consistent.
+
+Fixes: c7c556f1e81b ("selinux: refactor changing booleans")
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- security/selinux/ss/avtab.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ security/selinux/ss/avtab.c       | 88 +++++++++----------------------
+ security/selinux/ss/avtab.h       |  2 +-
+ security/selinux/ss/conditional.c | 12 ++---
+ 3 files changed, 33 insertions(+), 69 deletions(-)
 
 diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 6dcb6aa4db7f..2aee4c965c25 100644
+index 2aee4c965c25..75df32906055 100644
 --- a/security/selinux/ss/avtab.c
 +++ b/security/selinux/ss/avtab.c
-@@ -109,7 +109,7 @@ static int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_dat
- 	struct avtab_node *prev, *cur, *newnode;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
--	if (!h)
-+	if (!h || !h->nslot)
- 		return -EINVAL;
- 
- 	hvalue = avtab_hash(key, h->mask);
-@@ -154,7 +154,7 @@ avtab_insert_nonunique(struct avtab *h, struct avtab_key *key, struct avtab_datu
- 	struct avtab_node *prev, *cur;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
--	if (!h)
-+	if (!h || !h->nslot)
- 		return NULL;
- 	hvalue = avtab_hash(key, h->mask);
- 	for (prev = NULL, cur = h->htable[hvalue];
-@@ -184,7 +184,7 @@ struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *key)
- 	struct avtab_node *cur;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
--	if (!h)
-+	if (!h || !h->nslot)
- 		return NULL;
- 
- 	hvalue = avtab_hash(key, h->mask);
-@@ -220,7 +220,7 @@ avtab_search_node(struct avtab *h, struct avtab_key *key)
- 	struct avtab_node *cur;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
--	if (!h)
-+	if (!h || !h->nslot)
- 		return NULL;
- 
- 	hvalue = avtab_hash(key, h->mask);
-@@ -295,6 +295,7 @@ void avtab_destroy(struct avtab *h)
- 	}
- 	kvfree(h->htable);
- 	h->htable = NULL;
-+	h->nel = 0;
- 	h->nslot = 0;
+@@ -308,24 +308,10 @@ void avtab_init(struct avtab *h)
  	h->mask = 0;
  }
-@@ -303,14 +304,15 @@ void avtab_init(struct avtab *h)
- {
- 	h->htable = NULL;
- 	h->nel = 0;
-+	h->nslot = 0;
-+	h->mask = 0;
- }
  
- int avtab_alloc(struct avtab *h, u32 nrules)
+-int avtab_alloc(struct avtab *h, u32 nrules)
++static int avtab_alloc_common(struct avtab *h, u32 nslot)
  {
--	u32 mask = 0;
- 	u32 shift = 0;
- 	u32 work = nrules;
--	u32 nslot = 0;
-+	u32 nslot;
- 
- 	if (nrules == 0)
- 		goto avtab_alloc_out;
-@@ -324,16 +326,15 @@ int avtab_alloc(struct avtab *h, u32 nrules)
- 	nslot = 1 << shift;
- 	if (nslot > MAX_AVTAB_HASH_BUCKETS)
- 		nslot = MAX_AVTAB_HASH_BUCKETS;
--	mask = nslot - 1;
+-	u32 shift = 0;
+-	u32 work = nrules;
+-	u32 nslot;
+-
+-	if (nrules == 0)
+-		goto avtab_alloc_out;
+-
+-	while (work) {
+-		work  = work >> 1;
+-		shift++;
+-	}
+-	if (shift > 2)
+-		shift = shift - 2;
+-	nslot = 1 << shift;
+-	if (nslot > MAX_AVTAB_HASH_BUCKETS)
+-		nslot = MAX_AVTAB_HASH_BUCKETS;
++	if (!nslot)
++		return 0;
  
  	h->htable = kvcalloc(nslot, sizeof(void *), GFP_KERNEL);
  	if (!h->htable)
+@@ -333,59 +319,37 @@ int avtab_alloc(struct avtab *h, u32 nrules)
+ 
+ 	h->nslot = nslot;
+ 	h->mask = nslot - 1;
+-
+-avtab_alloc_out:
+-	pr_debug("SELinux: %d avtab hash slots, %d rules.\n",
+-	       h->nslot, nrules);
+ 	return 0;
+ }
+ 
+-int avtab_duplicate(struct avtab *new, struct avtab *orig)
++int avtab_alloc(struct avtab *h, u32 nrules)
+ {
+-	int i;
+-	struct avtab_node *node, *tmp, *tail;
+-
+-	memset(new, 0, sizeof(*new));
+-
+-	new->htable = kvcalloc(orig->nslot, sizeof(void *), GFP_KERNEL);
+-	if (!new->htable)
+-		return -ENOMEM;
+-	new->nslot = orig->nslot;
+-	new->mask = orig->mask;
+-
+-	for (i = 0; i < orig->nslot; i++) {
+-		tail = NULL;
+-		for (node = orig->htable[i]; node; node = node->next) {
+-			tmp = kmem_cache_zalloc(avtab_node_cachep, GFP_KERNEL);
+-			if (!tmp)
+-				goto error;
+-			tmp->key = node->key;
+-			if (tmp->key.specified & AVTAB_XPERMS) {
+-				tmp->datum.u.xperms =
+-					kmem_cache_zalloc(avtab_xperms_cachep,
+-							GFP_KERNEL);
+-				if (!tmp->datum.u.xperms) {
+-					kmem_cache_free(avtab_node_cachep, tmp);
+-					goto error;
+-				}
+-				tmp->datum.u.xperms = node->datum.u.xperms;
+-			} else
+-				tmp->datum.u.data = node->datum.u.data;
+-
+-			if (tail)
+-				tail->next = tmp;
+-			else
+-				new->htable[i] = tmp;
+-
+-			tail = tmp;
+-			new->nel++;
++	int rc;
++	u32 nslot = 0;
++
++	if (nrules != 0) {
++		u32 shift = 1;
++		u32 work = nrules >> 3;
++		while (work) {
++			work >>= 1;
++			shift++;
+ 		}
++		nslot = 1 << shift;
++		if (nslot > MAX_AVTAB_HASH_BUCKETS)
++			nslot = MAX_AVTAB_HASH_BUCKETS;
++
++		rc = avtab_alloc_common(h, nslot);
++		if (rc)
++			return rc;
+ 	}
+ 
++	pr_debug("SELinux: %d avtab hash slots, %d rules.\n", nslot, nrules);
+ 	return 0;
+-error:
+-	avtab_destroy(new);
+-	return -ENOMEM;
++}
++
++int avtab_alloc_dup(struct avtab *new, const struct avtab *orig)
++{
++	return avtab_alloc_common(new, orig->nslot);
+ }
+ 
+ void avtab_hash_eval(struct avtab *h, char *tag)
+diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+index 4c4445ca9118..f2eeb36265d1 100644
+--- a/security/selinux/ss/avtab.h
++++ b/security/selinux/ss/avtab.h
+@@ -89,7 +89,7 @@ struct avtab {
+ 
+ void avtab_init(struct avtab *h);
+ int avtab_alloc(struct avtab *, u32);
+-int avtab_duplicate(struct avtab *new, struct avtab *orig);
++int avtab_alloc_dup(struct avtab *new, const struct avtab *orig);
+ struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *k);
+ void avtab_destroy(struct avtab *h);
+ void avtab_hash_eval(struct avtab *h, char *tag);
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 0b32f3ab025e..1ef74c085f2b 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -605,7 +605,6 @@ static int cond_dup_av_list(struct cond_av_list *new,
+ 			struct cond_av_list *orig,
+ 			struct avtab *avtab)
+ {
+-	struct avtab_node *avnode;
+ 	u32 i;
+ 
+ 	memset(new, 0, sizeof(*new));
+@@ -615,10 +614,11 @@ static int cond_dup_av_list(struct cond_av_list *new,
  		return -ENOMEM;
  
-- avtab_alloc_out:
--	h->nel = 0;
- 	h->nslot = nslot;
--	h->mask = mask;
-+	h->mask = nslot - 1;
-+
-+avtab_alloc_out:
- 	pr_debug("SELinux: %d avtab hash slots, %d rules.\n",
- 	       h->nslot, nrules);
- 	return 0;
+ 	for (i = 0; i < orig->len; i++) {
+-		avnode = avtab_search_node(avtab, &orig->nodes[i]->key);
+-		if (WARN_ON(!avnode))
+-			return -EINVAL;
+-		new->nodes[i] = avnode;
++		new->nodes[i] = avtab_insert_nonunique(avtab,
++						       &orig->nodes[i]->key,
++						       &orig->nodes[i]->datum);
++		if (!new->nodes[i])
++			return -ENOMEM;
+ 		new->len++;
+ 	}
+ 
+@@ -630,7 +630,7 @@ static int duplicate_policydb_cond_list(struct policydb *newp,
+ {
+ 	int rc, i, j;
+ 
+-	rc = avtab_duplicate(&newp->te_cond_avtab, &origp->te_cond_avtab);
++	rc = avtab_alloc_dup(&newp->te_cond_avtab, &origp->te_cond_avtab);
+ 	if (rc)
+ 		return rc;
+ 
 -- 
 2.30.2
 
