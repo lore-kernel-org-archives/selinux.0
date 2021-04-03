@@ -2,89 +2,93 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDA3CC433ED
-	for <selinux@archiver.kernel.org>; Fri,  2 Apr 2021 17:01:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64BFBC433B4
+	for <selinux@archiver.kernel.org>; Sat,  3 Apr 2021 14:33:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A89006113D
-	for <selinux@archiver.kernel.org>; Fri,  2 Apr 2021 17:01:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A37C61242
+	for <selinux@archiver.kernel.org>; Sat,  3 Apr 2021 14:33:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235590AbhDBRBh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Apr 2021 13:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
+        id S231681AbhDCOdd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 3 Apr 2021 10:33:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229722AbhDBRBh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Apr 2021 13:01:37 -0400
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C698EC0613E6
-        for <selinux@vger.kernel.org>; Fri,  2 Apr 2021 10:01:35 -0700 (PDT)
-Received: by mail-oi1-x235.google.com with SMTP id d12so5464125oiw.12
-        for <selinux@vger.kernel.org>; Fri, 02 Apr 2021 10:01:35 -0700 (PDT)
+        with ESMTP id S236431AbhDCOdc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 3 Apr 2021 10:33:32 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E532C061788
+        for <selinux@vger.kernel.org>; Sat,  3 Apr 2021 07:33:28 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id r12so10932152ejr.5
+        for <selinux@vger.kernel.org>; Sat, 03 Apr 2021 07:33:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=O719XhROizLJyTG0yzD2ZFylJoCsa0pnwYN9IO307FI=;
-        b=ermCAlDk/tuAAbx+QnWDw3Xqok9A85v9MoUHn1Kva/EdVMeQwND6COA6ns0SHFHxlU
-         DP2Rc5F1j8i459ytJA9hZGLfiWA24OyKOAAHqy9mTWNQDNmgvtr1PJQQ4oGrcLp13lSZ
-         pe6pggh6mYfEPqW0vovA6FA2pXtFtxCrfEZvHFFmO6Y1vWHikjgaDQebOT96O1ZNegLd
-         oj/fnZXxy1SU5/LCZFJl2EZicixI/WLgHpvc+v2J7dZpJaRFyUAxu0yEKbiBKUdyCxMN
-         bJuo/1slPACHBvRdKUxSU09F5opvM5yXys1KLNMDkNwSnXLSodwJQuPSja0ge1xhJqVq
-         j/ng==
+        bh=PKvsSUnLc1lwCYoNX9nYiZPdPvhVQHWnDlTVl94e+8E=;
+        b=Qru8VSCrqSAjD7o+EOa552SvpBAaP8nt7nYoCJODXb+JBwYR/u5NgH46hBGm/YQIKA
+         73BzYkX9jUwnhNohQIvFieOgBxjiPuz4xhlOobQSKmVJAypfx/yaGaGner00oVxYD0Je
+         TRGWqIHvevW6VWzTxx4vVJ3sopdLaI6V5p+6QXdZwBCYVsUKe2lQDOMabtbWyL1kGauG
+         /Y8UBbW1SEfVU9o1LhVy/BQJyPEuW7vl7xVKtSspYtQxTlgRWBtnNV5k5S4DThE1F/Bx
+         +xbLdP1nA2KCw6ePO6jDTVxdVHkqv4yanSeSBenoq1YwL6n4i70O1b5AXNFmb0Bh28b/
+         svyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=O719XhROizLJyTG0yzD2ZFylJoCsa0pnwYN9IO307FI=;
-        b=DyW6W8WArT5u5rJVm9cbbxS+xTZFTctdX57zP2wxwE+fN3t63iQKmXUTw8lahqBoUK
-         /0wDPrwrXTZ3JWkMZY4CStubZjROKeScNsPNNF2gobSnsgRE9AShV8O9sMLrOql/seyD
-         EwmPpX1fu6BvW13dpF6CgParw3MLamqw48gwBuISM7Ax6aZXTUpSkRPIBXxE3qK1qXuk
-         SsnNq1EH3hDC+rsJHwAndGEHsDDE4ZcEBOaZkzB3gQi0zF0Ggqs/uBouv+UFFD1EL63Y
-         x+nF9jjwNtWmzFcpl5tjUHXtFXHDj8/GakLOWaYyyGTEoPmToOib0KIPm/PfJXLwntVi
-         M/Mw==
-X-Gm-Message-State: AOAM531qX1MVvOaI3Xs6rE4n4iwLmKkGwi663mZVIf/WJxOKcOWN1Cz6
-        snNMMWUJTJK30zt4yHmf4RwIMXe06rBqXdpcQ9ZdYJlNX1+I/g==
-X-Google-Smtp-Source: ABdhPJyRv+bCl5la//Cvemlfhf2bi9oG4W4egF/kV9ob9ke+/cwMi+DNuLjCNCdGcJZbIFM+EH6oub9fuSPGxC2NvAU=
-X-Received: by 2002:aca:534e:: with SMTP id h75mr10412045oib.16.1617382895241;
- Fri, 02 Apr 2021 10:01:35 -0700 (PDT)
+        bh=PKvsSUnLc1lwCYoNX9nYiZPdPvhVQHWnDlTVl94e+8E=;
+        b=LMJf1OG+OrWfuz26NlcJodEWEZkW3O8l/FHl3SyywcI+mZxuGVCRnc8hAbCCZ4NO7Z
+         yTBXlNFVkr1X5hJeKnlXPk3P4zVIwLlF8+5eFC44UQmzRonwNOy/5cDWFJR/fEQ/Bhei
+         Wvfv0WHetJ8CWPAd4ACrropfPyiC2dMGRn5RZcNVM/KK6Xw4wkMEgp+l2bWld9F4Ec/6
+         WZiIdGhQB1fLW6hUm8y+0ipzpi4hctX6ZomGBZPSGzQcMs/dRJpBjeE6B+48ykpXUYs8
+         nQQ+kVddxHpemxe8RcqyvaOzDa881FQPv38iBtLLIOc9W/6vjUm2gILkDDa8CzDvLZGb
+         Hidg==
+X-Gm-Message-State: AOAM530HzIQLQAApmg8qzuzKHi1Zt4Od8UeylfxziMyk7A9W+894F3Wa
+        3uerQlcM07Evwt617q/iUow7WlZ6YmOPRJSHj45iJTVwQqCG
+X-Google-Smtp-Source: ABdhPJzeDtKTRi8R6rfLL7dQf2L79CQQqmOB0lLBHTMxvkOcLKkWagq/cNB9gf47WxPCqf6dMYGqo1FSNqd/k3AotFM=
+X-Received: by 2002:a17:906:f283:: with SMTP id gu3mr18829894ejb.91.1617460406662;
+ Sat, 03 Apr 2021 07:33:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <df18624a-106a-6fde-6276-0c1aa13d5fd1@phd.unipi.it> <9cab1338-5b88-b30a-19ec-7d557d939668@phd.unipi.it>
-In-Reply-To: <9cab1338-5b88-b30a-19ec-7d557d939668@phd.unipi.it>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 2 Apr 2021 13:01:24 -0400
-Message-ID: <CAP+JOzTKjQcp0reUMHYc4oP9BqYoYWFySFrjZ=kAf1vhVydEKg@mail.gmail.com>
-Subject: Re: [Request] CIL configurations
-To:     lorenzo ceragioli <lorenzo.ceragioli@phd.unipi.it>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <3c63e34b-e54f-9b01-bad4-8fde8528a64d@linux.microsoft.com>
+In-Reply-To: <3c63e34b-e54f-9b01-bad4-8fde8528a64d@linux.microsoft.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sat, 3 Apr 2021 10:33:15 -0400
+Message-ID: <CAHC9VhTD2iXw7CkxgwnOx1zNN_AqMV+x1Vy8FijdMQE1m4AOJA@mail.gmail.com>
+Subject: Re: [BUG] Oops in sidtab_context_to_sid
+To:     Vijay Balakrishna <vijayb@linux.microsoft.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 2, 2021 at 12:51 PM lorenzo ceragioli
-<lorenzo.ceragioli@phd.unipi.it> wrote:
+On Fri, Apr 2, 2021 at 6:35 PM Vijay Balakrishna
+<vijayb@linux.microsoft.com> wrote:
 >
-> Hello,
+> Seeing oops in 5.4.83 sidtab_context_to_sid().  I checked with Tyler (copied),  he said it might be
 >
-> We are currently working on a tool for verifying information flow
-> properties on CIL configurations. We want to allow reasoning about such
-> properties with respect to the constructs of the configuration (block
-> inheritance and nesting, macro). To test our approach, we are looking
-> for configurations that make use of block inheritance, macros etc (hence
-> CIL policies compiled from .pp files are not good for us). Do you know
-> something that may help us? Are there repositories, or groups where we
-> can ask?
+> https://lore.kernel.org/selinux/CAFqZXNu8s5edDbSZuSutetTsy58i08vPuP2h-n9=kT34HcPc4w@mail.gmail.com/
 >
-> Thanks
-> Lorenzo
->
+> Ondrej, can you confirm?  Unfortunately, we don't have a on demand repro.
 
-Try Dominick Grift's CIL policy:
-git clone https://github.com/DefenSec/dssp5.git
+I'm guessing this may be the problem that Tyler reported earlier and
+which appeared to be fixed by the patch below:
 
-Thanks,
-Jim
+https://lore.kernel.org/selinux/20210318215303.2578052-3-omosnace@redhat.com
+
+... which was merged into Linus' tree during the v5.12-rcX development
+phase, any chance you could try that patch to see if it resolves your
+issue?  There are still some issues to be sorted out, but if you
+aren't reloading policy it shouldn't be a concern.
+
+Tyler, since both of you are at Microsoft, do you have a patched
+kernel that Vijay could try?
+
+-- 
+paul moore
+www.paul-moore.com
