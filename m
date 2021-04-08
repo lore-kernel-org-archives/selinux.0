@@ -2,148 +2,113 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38CBFC433ED
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 17:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C549C433B4
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 18:17:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0160D610E5
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 17:36:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41E6161108
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 18:17:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbhDHRgf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Apr 2021 13:36:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37160 "EHLO
+        id S232517AbhDHSRW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Apr 2021 14:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232240AbhDHRgf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 13:36:35 -0400
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505C8C061760
-        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 10:36:24 -0700 (PDT)
-Received: by mail-ot1-x32e.google.com with SMTP id s11-20020a056830124bb029021bb3524ebeso3144814otp.0
-        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 10:36:24 -0700 (PDT)
+        with ESMTP id S231676AbhDHSRW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 14:17:22 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B2BCC061760
+        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 11:17:09 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id a4so3125465wrr.2
+        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 11:17:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xqyyJWZvEacA2V3gCUPT1fTDYzHEHaP4C5mvqKK87/k=;
-        b=iveKizTeBAjxryVAunTyyexCC7IpiLEmpqKX3TS2kLp+bLugAyeLEpnh48PTkX2dRN
-         CROUXwmIKfFMexW0UkoUpAbLtgilrQOY2mAqb+VIZabK5DKQJ4loRHV0SuEs82mIuuZX
-         oxFW4h0mFcQryH1xlmc9fQwRIBXseg7TxyHq0za4pYhU+CoUm0oZ+Opb/+KflN9o7TOw
-         drT3Ssc4UCdDb/Ey4DoK1/3pV42NU9IOAhoXVTJkwFsYTv71PCoDmm26Gk2mFAAOfV9A
-         VEjAe9hKx68aMrlK0hoO+njitchoT2x7yEWUogpiCGGN0uVmbXVS/Ep7D+ab5ej5G9YL
-         JEdg==
+        d=kinvolk.io; s=google;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=w3Hms04HS9iouAnx/gnJaP0ewpZIlIH2J5LETUzqwXY=;
+        b=WEas3H/9mk/oq9DnTz9o8aB/qfoPHLmvSijiAkbpLzOTo6FRrYcIN4S7nBau1xjG6P
+         cal3GYvqUXdKmu+PhGKO2AE6DShjCaQJYRYDilSGPovBefQ0uVG3PxcvA70FpqQc1eNJ
+         SIj/d1RKzXl5vkvYiQ6nj6CZWNC7FkPFt8/uc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xqyyJWZvEacA2V3gCUPT1fTDYzHEHaP4C5mvqKK87/k=;
-        b=EDM0JNq/7mqsRZs2nI/gztY5CY/3tI+yKbtIgrp+hy4bfyPZsUkw7OCfoNiJR8SUAY
-         JGkPPDcSv1CL/1Dz6/lclzqEZlJksG8kV1oYjtCiEJL5nWf/teue1tssxY/mm454iTdn
-         d7jfgL1XnWXrLJ5TYIahv5RX3QbMz71B0VhaeBPkzdseZsW1hlIiLEXgaC1HWpNbVafD
-         8qMg6C86teiGBwoFgfVBNOVCdug9wliNyW09nVXh9z2LUEQ5Mu2XSEYolpepRZQkjMbc
-         2BsqJX5HwT0SSXzGO9yi35HQ83qF+XCM8YosLpEyDLvXTyGOq6rgnZxsy+2b11Gu5RVm
-         1P9w==
-X-Gm-Message-State: AOAM533v9V8zjEl7lUG7bIaV3cxTlhDj9NkCWk9ltBOzqAmS6+UvLnoL
-        ChSHbxnzUrmhIFuJkBSqbL4O0d2tFgB/E33QDDatWqrssw8=
-X-Google-Smtp-Source: ABdhPJxKQ99ButijMZGZlHpTd/8CZ5dVBLd4eySMamKgzBg0B3W93r4KqupJ91fWzWZLsRLmhc6Q579+hqBlRqIkHQs=
-X-Received: by 2002:a9d:aa4:: with SMTP id 33mr8732906otq.295.1617903383723;
- Thu, 08 Apr 2021 10:36:23 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=w3Hms04HS9iouAnx/gnJaP0ewpZIlIH2J5LETUzqwXY=;
+        b=PiLpJwqPmrurNuJJZ1De3tFpJv3uJ85qPNhcIqrWcuWKsWHunxb5QMU9ckyZApZKI7
+         n5qbHHAr2bCBk3cq6KNqu80T6IHb+X9zUJlrjWmDted5dWCZiJvwMw3HMkSaco9ZV/t+
+         94h8QcCgXgohXX+uHrJ2ZZVdwYO2XP5DgwZtVn4a5AiGc6Rkg7P8GEUDN06TUbQFMESE
+         meqtLAVt/4GA18xP7OvQnt+OxW8KBnb1LtZlNwZOfOd/Lw/EYdWby+hUZE/xWDStJhxS
+         7B7Q1oaPBCfJF/osolXRvddszWawwlFf8FkmkFmO+QIxfNUq82kIy1DE2ddKDfE4AmCj
+         D8hw==
+X-Gm-Message-State: AOAM530C+1GKpEKsNGyHtU3HEpW73tPxSfC1caQrKgdn8pTnp+bOENNY
+        Uc+Ip9VjAPoyonGshCut65A6J3Wxhrl5zQdw/GEVInwORhLOTQ==
+X-Google-Smtp-Source: ABdhPJx8taNElmYT05YZ3s6ImgiSPEvbeIbSXzhAGtT47ayvIjpgCljLWbmXdX+puUTMu8tcDjtJNhZKUuSkhfrdBh8=
+X-Received: by 2002:a5d:6a08:: with SMTP id m8mr5766791wru.57.1617905827892;
+ Thu, 08 Apr 2021 11:17:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210324151105.3765449-1-dominick.grift@defensec.nl> <CAP+JOzSRN4g3MCgaMBuRvAVhy4ftZ+sw=zK+KPracuLzCC6AzQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzSRN4g3MCgaMBuRvAVhy4ftZ+sw=zK+KPracuLzCC6AzQ@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 8 Apr 2021 13:36:12 -0400
-Message-ID: <CAP+JOzStdTsOEWy9ANKTur9fraQuyBuLUVDwUvogY2CG7OsrYQ@mail.gmail.com>
-Subject: Re: [PATCH] cil_conditional_statements.md: fix expr definition
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     SElinux list <selinux@vger.kernel.org>
+From:   =?UTF-8?B?S2FpIEzDvGtl?= <kai@kinvolk.io>
+Date:   Thu, 8 Apr 2021 20:16:57 +0200
+Message-ID: <CAL6HQvHN+9pp8+h0kqf9mJAtYS6_ZQvVE2JNkk3QqqUveXiTzg@mail.gmail.com>
+Subject: Detect SELinux by checking if policy is loaded
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 29, 2021 at 11:13 AM James Carter <jwcart2@gmail.com> wrote:
->
-> On Wed, Mar 24, 2021 at 11:13 AM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
-> >
-> > expr "(expr (tunable_id tunable_id))" does not work but "(expr
-> > tunable_id tunable_id)" does work
-> >
-> > for example, this works
-> >
-> > (tunable test1)
-> > (tunable test2)
-> > (tunableif (or test1 test2)
-> >            (true
-> >             (allow a b (c (d)))))
-> >
-> > but this does not work:
-> >
-> > (tunable test1)
-> > (tunable test2)
-> > (tunableif (or (test1 test2))
-> >            (true
-> >             (allow a b (c (d)))))
-> >
-> > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+Hello,
 
-Applied. Thanks,
-Jim
+to detect if SELinux is disabled, in version 2.4 there was a check for
+/proc/PID/attr/current to have something else than "kernel" as value.
+This allowed to distinguish between "Disabled" and "Permissive" when
+the filesystem is mounted and the /enforce file has the value 0.
 
-> > ---
-> >  secilc/docs/cil_conditional_statements.md | 24 +++++++++++------------
-> >  1 file changed, 12 insertions(+), 12 deletions(-)
-> >
-> > diff --git a/secilc/docs/cil_conditional_statements.md b/secilc/docs/cil_conditional_statements.md
-> > index a55a9b6c..55f0bfd6 100644
-> > --- a/secilc/docs/cil_conditional_statements.md
-> > +++ b/secilc/docs/cil_conditional_statements.md
-> > @@ -78,12 +78,12 @@ Contains the run time conditional statements that are instantiated in the binary
-> >  <tr class="odd">
-> >  <td align="left"><p><code>expr</code></p></td>
-> >  <td align="left"><p>Zero or more <code>expr</code>'s, the valid operators and syntax are:</p>
-> > -<p><code>    (and (boolean_id boolean_id))</code></p>
-> > -<p><code>    (or  (boolean_id boolean_id))</code></p>
-> > -<p><code>    (xor (boolean_id boolean_id))</code></p>
-> > -<p><code>    (eq  (boolean_id boolean_id))</code></p>
-> > -<p><code>    (neq (boolean_id boolean_id))</code></p>
-> > -<p><code>    (not (boolean_id))</code></p></td>
-> > +<p><code>    (and boolean_id boolean_id)</code></p>
-> > +<p><code>    (or  boolean_id boolean_id)</code></p>
-> > +<p><code>    (xor boolean_id boolean_id)</code></p>
-> > +<p><code>    (eq  boolean_id boolean_id)</code></p>
-> > +<p><code>    (neq boolean_id boolean_id)</code></p>
-> > +<p><code>    (not boolean_id)</code></p></td>
-> >  </tr>
-> >  <tr class="even">
-> >  <td align="left"><p><code>true</code></p></td>
-> > @@ -196,12 +196,12 @@ Compile time conditional statement that may or may not add CIL statements to be
-> >  <tr class="odd">
-> >  <td align="left"><p><code>expr</code></p></td>
-> >  <td align="left"><p>Zero or more <code>expr</code>'s, the valid operators and syntax are:</p>
-> > -<p><code>    (and (tunable_id tunable_id))</code></p>
-> > -<p><code>    (or  (tunable_id tunable_id))</code></p>
-> > -<p><code>    (xor (tunable_id tunable_id))</code></p>
-> > -<p><code>    (eq  (tunable_id tunable_id))</code></p>
-> > -<p><code>    (neq (tunable_id tunable_id))</code></p>
-> > -<p><code>    (not (tunable_id))</code></p></td>
-> > +<p><code>    (and tunable_id tunable_id)</code></p>
-> > +<p><code>    (or  tunable_id tunable_id)</code></p>
-> > +<p><code>    (xor tunable_id tunable_id)</code></p>
-> > +<p><code>    (eq  tunable_id tunable_id)</code></p>
-> > +<p><code>    (neq tunable_id tunable_id)</code></p>
-> > +<p><code>    (not tunable_id)</code></p></td>
-> >  </tr>
-> >  <tr class="even">
-> >  <td align="left"><p><code>true</code></p></td>
-> > --
-> > 2.30.1
-> >
+That check got removed in later versions and a check was added based
+on whether /etc/selinux/config exists.
+
+This leads to two problems. The first one is that older versions which
+have SELinux disabled in the config file still have the filesystem
+mounted (unless selinux=3D0 is passed as kernel param) which causes the
+newer behavior to think SELinux is "Permissive" instead of disabled.
+
+The second problem is that the existence of the config file is only
+loosely related to whether SELinux is disabled or not. On one hand a
+recent change of the config file (creation/removal) is not valid now
+but only after it got applied, e.g., by a reboot, on the second hand
+the check does not work from containers.=C2=B9
+
+I suggest to drop the config file check and replace it by a
+/proc/PID/attr/current check which is more reliable because it tells
+something about the current state and works from containers.
+What do you think?
+
+For context, this is the GitHub issue where this suggestion originated from=
+:
+https://github.com/kubevirt/kubevirt/issues/5298
+
+Regards,
+Kai
+
+=C2=B9 Here an example:
+$ getenforce ; podman run --rm -it fedora sh -c 'dnf install -y
+/usr/sbin/getenforce >/dev/null && getenforce'
+Permissive
+Disabled
+
+
+
+--=20
+Kinvolk GmbH | Adalbertstr.6a, 10999 Berlin | tel: +491755589364
+
+Gesch=C3=A4ftsf=C3=BChrer/Directors: Alban Crequy, Chris K=C3=BChl, Iago L=
+=C3=B3pez Galeiras
+
+Registergericht/Court of registration: Amtsgericht Charlottenburg
+
+Registernummer/Registration number: HRB 171414 B
+
+Ust-ID-Nummer/VAT ID number: DE302207000
