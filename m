@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50E1BC433B4
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A336C433ED
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1985661103
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 468C061103
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232459AbhDHTQn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Apr 2021 15:16:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
+        id S232538AbhDHTQp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Apr 2021 15:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231918AbhDHTQm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 15:16:42 -0400
-Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D532C061760
-        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 12:16:31 -0700 (PDT)
-Received: by mail-qk1-x729.google.com with SMTP id q3so3368519qkq.12
-        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 12:16:31 -0700 (PDT)
+        with ESMTP id S231918AbhDHTQo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 15:16:44 -0400
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFF01C061760
+        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 12:16:32 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id m16so1690324qtx.9
+        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 12:16:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gKK6va0e2ppEidijJ2JejfttkTrL2zLHSQMqRJT6mMo=;
-        b=SyNgpq9g1AuGWt22IcLyY6s5ZZH7lsGnngZ9Gvyh27CSd2a9nvre7I5s2Pe+i5koIC
-         Ycd9o1B0feiAmncRcy3XiC9fjG9v3o2aUvQXhcA2lCFnBAV/NJD6jb6BGcvDK6eKcYFi
-         X2lsCXxN//AWCe1bNsOTq13aWJjOnbX6xuzOor0b0YXF0XuHnjN1YTuwVh/h+HyfVqYB
-         090cZFcdkNC35M1S1QZFH7nWhIZ25p5lWLd2z3PkpICY0ZaN6DfVdSeeLTb2nOpyMDxd
-         O4QnsrkRd9RSlUUBdzbbRVpx83XYwmdhAwckz9P5B/rF/4K+qB/6WDuMxUhFM3Vv/DmG
-         DpYw==
+        bh=VUnMVq5Sg+6wkeESsHiJc01V1ExtbtG8GfueTl6aNoY=;
+        b=YUguHDFnLrErc4/UGVCEupUKQCZc/DIBpMa7IyA1KwPTHKip+VW1mtndtsN0iuZ8E0
+         +dbAImolZlrLlQp2w1bsO+XTY7An/Y8xTWSr0dlx5hOUpKvci0ZDAm8nBw2UIxwov1tr
+         92nmwzmTTPSfK1cb4+7z3d7ZppFVlGS24yl6YtWOU668A27QTmmlE4R42OL5Z7QsRGJW
+         +Ag6uFzIYO3El8AI2/4D6QkLmZ6kHpJeUHNsXUlPRbcJIKfdAMdJxnFTvlRO0fTJPdZs
+         MXal79HLjifCwzgpLS7yjXPEuWzCbCESuN/l+injVWUwsyOoMaG8anj/mS8S2QsovbQN
+         3xRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gKK6va0e2ppEidijJ2JejfttkTrL2zLHSQMqRJT6mMo=;
-        b=U2s1pndIK+Xha1JkZEPwZuBWi8DanPD+g+UlXqDw5QHM/KMUQZ35widWOf2yrrePlM
-         LvLRTjxaqVhGdnVQJwYZkKSMuc/b28TRF5JXCwCmvqCSk3Sajfjg1Al95uaI1UZu1Q16
-         NqMK/EKrFp+C9cfGWYdhrCA6a2nfKZxgrBnMLZctG3uqT3TVRzeGlO3W4MBZx57d2TQ7
-         ylAcQ52NWZl4Csf+wY0rJsL96DHGxXLN2BSAjKGUqu5iOO1/xRGLBZfZHddEeB9kxejY
-         /KSvnJjsiNqna6NFWGmSPH3CwcRT3rvfStLVLE7/UIKNvyxudHjSMbrGRo2W0EE9HvET
-         0OlQ==
-X-Gm-Message-State: AOAM532mgANCpqmRT903QmRLjjSs+6AODD8+7hoQUFipY/Rus5s2q3F6
-        S3lQLHLLifnZ7rC5Roj5XrkFcR14FsEwAQ==
-X-Google-Smtp-Source: ABdhPJxIIMy4dpZyVf4BdiDxvd5szys9a3x9n1lSLiC0HLoDFbbsk0Mivzbe52ELCSfsdDFuX/dMAA==
-X-Received: by 2002:ae9:f818:: with SMTP id x24mr10169905qkh.101.1617909390444;
-        Thu, 08 Apr 2021 12:16:30 -0700 (PDT)
+        bh=VUnMVq5Sg+6wkeESsHiJc01V1ExtbtG8GfueTl6aNoY=;
+        b=l1YSCy31xsIhyCmShksMSvCgxM/U0pUT9+/zjT+Q8xdpHX+lU6Irsxs0Cp5xlYpdVJ
+         xP8JqBn5XrojYwtBDm/sU7w97WR6xlc+Xnd2SAg5N/C0bLd2kIIya6KltNn77Sdkr0Lh
+         U1T3c3gRNOtoAgJ7JLexsNqTbvHxYtyacTYjXWnxfoTODyp0WuFx0xy4PuNxSoFQyX6X
+         iSsiKWKD9eZ/Jz0XdqpM7fjT1J+e7Jf51ung7X/YG0idrLmKQtvOpqCU641L2BfmE315
+         IQ6wiZfri6WRR48YIdK/R+FEuKAVUAXeIs/h1T0FV+zzdVRdfW14+pmEA6al2QZVlIWy
+         jIGQ==
+X-Gm-Message-State: AOAM532iQ6K2I/FJMplE012h1NDTKr4k5xPSyKCVt1IC/8a2+xLI0fUV
+        6prcW50/nuV9APJgGQ3Xb+7y5jaU86c2Iw==
+X-Google-Smtp-Source: ABdhPJyXaYwsEj/vk34JNqBF+/V+PuGuCYK/gPAR4PkOgjgboCt2tJev+rUsb7REoMQ49xgjCNIndw==
+X-Received: by 2002:a05:622a:2c4:: with SMTP id a4mr9047523qtx.145.1617909391891;
+        Thu, 08 Apr 2021 12:16:31 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id v128sm147949qkc.127.2021.04.08.12.16.29
+        by smtp.gmail.com with ESMTPSA id v128sm147949qkc.127.2021.04.08.12.16.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Apr 2021 12:16:30 -0700 (PDT)
+        Thu, 08 Apr 2021 12:16:31 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 05/11] libsepol/cil: Set class field to NULL when resetting struct cil_classperms
-Date:   Thu,  8 Apr 2021 15:16:08 -0400
-Message-Id: <20210408191614.262173-6-jwcart2@gmail.com>
+Subject: [PATCH 06/11] libsepol/cil: More strict verification of constraint leaf expressions
+Date:   Thu,  8 Apr 2021 15:16:09 -0400
+Message-Id: <20210408191614.262173-7-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.3
 In-Reply-To: <20210408191614.262173-1-jwcart2@gmail.com>
 References: <20210408191614.262173-1-jwcart2@gmail.com>
@@ -71,29 +71,39 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The class field of a struct cil_classperms points to the class looked
-up in the symbol table, so that field should be set to NULL when
-the cil_classperms is reset.
+In constraint expressions u1, u3, r1, r3, t1, and t3 are never
+allowed on the right side of an expression, but there were no checks
+to verify that they were not used on the right side. The result was
+that the expression "(eq t1 t1)" would be silently turned into
+"(eq t1 t2)" when the binary policy was created.
 
-Set the class field to NULL when resetting the struct cil_classperms.
+Verify that u1, u3, r1, r3, t1, and t3 are not used on the right
+side of a constraint expression.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_reset_ast.c | 1 +
- 1 file changed, 1 insertion(+)
+ libsepol/cil/src/cil_verify.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
-index 1d9ca704..76405aba 100644
---- a/libsepol/cil/src/cil_reset_ast.c
-+++ b/libsepol/cil/src/cil_reset_ast.c
-@@ -45,6 +45,7 @@ static inline void cil_reset_classperms(struct cil_classperms *cp)
- 		return;
- 	}
- 
-+	cp->class = NULL;
- 	cil_list_destroy(&cp->perms, CIL_FALSE);
- }
- 
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 09e3daf9..2707b6c9 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -227,7 +227,13 @@ int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_fl
+ 			}
+ 		}
+ 	} else {
+-		if (r_flavor == CIL_CONS_U2) {
++		if (r_flavor == CIL_CONS_U1 || r_flavor == CIL_CONS_R1 || r_flavor == CIL_CONS_T1) {
++			cil_log(CIL_ERR, "u1, r1, and t1 are not allowed on the right side\n");
++			goto exit;
++		} else if (r_flavor == CIL_CONS_U3 || r_flavor == CIL_CONS_R3 || r_flavor == CIL_CONS_T3) {
++			cil_log(CIL_ERR, "u3, r3, and t3 are not allowed on the right side\n");
++			goto exit;
++		} else if (r_flavor == CIL_CONS_U2) {
+ 			if (op != CIL_EQ && op != CIL_NEQ) {
+ 				cil_log(CIL_ERR, "u2 on the right side must be used with eq or neq as the operator\n");
+ 				goto exit;
 -- 
 2.26.3
 
