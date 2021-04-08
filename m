@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC55CC433B4
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D821C43460
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DA5D61103
+	by mail.kernel.org (Postfix) with ESMTP id 04F0F610F9
 	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 19:16:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232515AbhDHTQk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S231420AbhDHTQk (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Thu, 8 Apr 2021 15:16:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59020 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231866AbhDHTQh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 15:16:37 -0400
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F349C061760
-        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 12:16:24 -0700 (PDT)
-Received: by mail-qt1-x833.google.com with SMTP id m16so1689972qtx.9
-        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 12:16:24 -0700 (PDT)
+        with ESMTP id S231940AbhDHTQk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 15:16:40 -0400
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3606C061761
+        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 12:16:26 -0700 (PDT)
+Received: by mail-qt1-x82a.google.com with SMTP id g24so2317660qts.6
+        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 12:16:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=yT1pgVzVhgcQ0yx0VNCZ0mT9YDDPJwzu+O7bptRkNJ8=;
-        b=WcJSJ5s4ja1/idIAWY7qxSdGvwaBED28NCWgC1jtr00ZDVaLuyL6vOa9Fk4Ju/mDd5
-         JcjniUe+lC9E1+gJfAvcdMMYIh45oTuRaxwlMpD6jF2Df5X6xx7ps1ob4kyZ0kOrZja5
-         ERKNB+I98CrbOdpPNOfanuU4WTeKCuFzdX43gjQwNPTGTXEW7Ck7+XCTIlplgTP8Hf9R
-         UxkV9a/Ga56Sg9Mlljp3ucXC4mrOLKIS8KeJsOLZ0oDvkNIRGAI6RGBSCZsGwO0b/yF0
-         IyEmiLNxPjX9pLBuVIZze9cRTu8zv/t5SV6LrJbpqtjdFLVSMiTTKTHJe/2iKw4QBU80
-         kQJA==
+        bh=G08xcHAvZeOnKEFrI6/qJno7ukWbzL3vJBkY5jHXdkI=;
+        b=QbR02fI8qUmALjNLGW2yTnAiWVh3gzitmU7m8ITHmvCTmR6I+8fFr2MC8H8FFT59sT
+         l9trRrVvisPcQmjwfh5p4XxqYGbgOWnEN9sD5bE0caegdgLfbN5rj6FUb7GMXo+zaRo0
+         55ezl04DN6st7jlWyIj0E1XBEtq7mn5plgie9lsSs97Q2Tgp9fimWu+QjszoS+8wFkbx
+         0J1jniHuI6WbLO8/6sd7t6BMtkDW5FQKz9RemsYiKovlLHoQxBj5KaYd/LNkKa+hTuuS
+         fMbGI2t0gbMO7sBcQUXr/beugW7n06upLw0r64QlA0Q/b065tEexstbR7uZZg+k8byhm
+         kU+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yT1pgVzVhgcQ0yx0VNCZ0mT9YDDPJwzu+O7bptRkNJ8=;
-        b=n6vR/x3sfZiHGZEzIAfiXuKLj3Bnm8JxRGDknxxxjDDPb+QrZPlszxlXPW1LVttllo
-         eDbuL0RfT04L5SL0qaY9ehVfCvgN5lHFQJ8pjtZTXVupQQi2R4sQi9lcJyL8fOuQ6EPs
-         XGvNR3kCqMRd3b6L/Ye2Wu0IXMHbL6LS3AOeVffV9LaLBgftvpF0xOGSLH9/Rks/AfdT
-         cYn89KlYvZ1+G5gEiwen+1t6Y6eVGPez2V0BYlZtQ71wJQT7qo+kfQvXp3C+KuKw+6os
-         WUKG8GlSYSot7zcVryTF+5x9j4Rt1qNNSys7c6u1MhmfKPyLjBvvb+3uxsGMf8Z9V3a7
-         OUcw==
-X-Gm-Message-State: AOAM532GHCAKdoyOsJS99xBzaFx/ySFPy1FED2400YZaO6hGUHbeHtba
-        a15Ay9DlH65sPl+07gBblCa9v35F9owd/w==
-X-Google-Smtp-Source: ABdhPJwWgdNdW3/YY37VTj5K72E1E76pBg2EdbtFhWbB+crymIol6dZkYIkOMibEhLglAvnr6oSlbg==
-X-Received: by 2002:ac8:5a0d:: with SMTP id n13mr9085479qta.211.1617909383746;
-        Thu, 08 Apr 2021 12:16:23 -0700 (PDT)
+        bh=G08xcHAvZeOnKEFrI6/qJno7ukWbzL3vJBkY5jHXdkI=;
+        b=CsOB30qUqAYI0anoffV3TGc3KLGdIVTSqtWtSC/4ghbpmVo41V4/0X/m5TtyuOqsrg
+         qd5VXMOe8Qdf/UzNJj8Kotj0A4RMZ4A5hDKLmBhzhrNwRJTVgc6KwYB84mwSi5hc7Xhj
+         la0cZsDRzwgj/CJL4lhfbmd1qcPS1ekF4pS16qXTonecW2nLck8AQvSlN0l5FuuEewvJ
+         SH7lXrnLqHZjUOkJFQ8A6hsBCGVhnecSm3elmPj83NdhdQgSiEHC+rkS83t8ooBCyYEY
+         lGv9tIyakpgMkH7hHqvFeKEPpJMPmJ2/2Rj6hhqPXA71YaqP9G3+nfZJzYJTAFTIlmad
+         Z2dg==
+X-Gm-Message-State: AOAM530iE542vvVBQ/niEAfZdVy4sEcIxjPybbqJpgM64aSgpB3dNX/P
+        a+K3cRlPmStZlmILiTG65I9AUKjFAzIw3g==
+X-Google-Smtp-Source: ABdhPJy0jYzbg4ILOVN4BlOcBT8ogKeRhLiFejdcoC4h429Weq/jaLYxNmTOXvDmki7giMa6jvCWcQ==
+X-Received: by 2002:ac8:734c:: with SMTP id q12mr9265117qtp.160.1617909385776;
+        Thu, 08 Apr 2021 12:16:25 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id v128sm147949qkc.127.2021.04.08.12.16.23
+        by smtp.gmail.com with ESMTPSA id v128sm147949qkc.127.2021.04.08.12.16.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Apr 2021 12:16:23 -0700 (PDT)
+        Thu, 08 Apr 2021 12:16:25 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 01/11] libsepol/cil: Fix out-of-bound read of file context pattern ending with "\"
-Date:   Thu,  8 Apr 2021 15:16:04 -0400
-Message-Id: <20210408191614.262173-2-jwcart2@gmail.com>
+Subject: [PATCH 02/11] libsepol/cil: Destroy classperms list when resetting classpermission
+Date:   Thu,  8 Apr 2021 15:16:05 -0400
+Message-Id: <20210408191614.262173-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.3
 In-Reply-To: <20210408191614.262173-1-jwcart2@gmail.com>
 References: <20210408191614.262173-1-jwcart2@gmail.com>
@@ -71,47 +71,94 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Based on patch by Nicolas Iooss, who writes:
-  OSS-Fuzz found a Heap-buffer-overflow in the CIL compiler when trying
-  to compile the following policy:
+Nicolas Iooss reports:
+  A few months ago, OSS-Fuzz found a crash in the CIL compiler, which
+  got reported as
+  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28648 (the title
+  is misleading, or is caused by another issue that conflicts with the
+  one I report in this message). Here is a minimized CIL policy which
+  reproduces the issue:
 
-    (sid SID)
-    (sidorder(SID))
-    (filecon "\" any ())
-    (filecon "" any ())
+  (class CLASS (PERM))
+  (classorder (CLASS))
+  (sid SID)
+  (sidorder (SID))
+  (user USER)
+  (role ROLE)
+  (type TYPE)
+  (category CAT)
+  (categoryorder (CAT))
+  (sensitivity SENS)
+  (sensitivityorder (SENS))
+  (sensitivitycategory SENS (CAT))
+  (allow TYPE self (CLASS (PERM)))
+  (roletype ROLE TYPE)
+  (userrole USER ROLE)
+  (userlevel USER (SENS))
+  (userrange USER ((SENS)(SENS (CAT))))
+  (sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
 
-  When cil_post_fc_fill_data() processes "\", it goes beyond the NUL
-  terminator of the string. Fix this by returning when '\0' is read
-  after a backslash.
+  (classpermission CLAPERM)
 
-To be consistent with the function compute_diffdata() in
-refpolicy/support/fc_sort.py, also increment str_len in this case.
+  (optional OPT
+      (roletype nonexistingrole nonexistingtype)
+      (classpermissionset CLAPERM (CLASS (PERM)))
+  )
 
-Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28484
+  The CIL policy fuzzer (which mimics secilc built with clang Address
+  Sanitizer) reports:
+
+  ==36541==ERROR: AddressSanitizer: heap-use-after-free on address
+  0x603000004f98 at pc 0x56445134c842 bp 0x7ffe2a256590 sp
+  0x7ffe2a256588
+  READ of size 8 at 0x603000004f98 thread T0
+      #0 0x56445134c841 in __cil_verify_classperms
+  /selinux/libsepol/src/../cil/src/cil_verify.c:1620:8
+      #1 0x56445134a43e in __cil_verify_classpermission
+  /selinux/libsepol/src/../cil/src/cil_verify.c:1650:9
+      #2 0x56445134a43e in __cil_pre_verify_helper
+  /selinux/libsepol/src/../cil/src/cil_verify.c:1715:8
+      #3 0x5644513225ac in cil_tree_walk_core
+  /selinux/libsepol/src/../cil/src/cil_tree.c:272:9
+      #4 0x564451322ab1 in cil_tree_walk
+  /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+      #5 0x5644513226af in cil_tree_walk_core
+  /selinux/libsepol/src/../cil/src/cil_tree.c:284:9
+      #6 0x564451322ab1 in cil_tree_walk
+  /selinux/libsepol/src/../cil/src/cil_tree.c:316:7
+      #7 0x5644512b88fd in cil_pre_verify
+  /selinux/libsepol/src/../cil/src/cil_post.c:2510:7
+      #8 0x5644512b88fd in cil_post_process
+  /selinux/libsepol/src/../cil/src/cil_post.c:2524:7
+      #9 0x5644511856ff in cil_compile
+  /selinux/libsepol/src/../cil/src/cil.c:564:7
+
+The classperms list of a classpermission rule is created and filled
+in when classpermissionset rules are processed, so it doesn't own any
+part of the list and shouldn't retain any of it when it is reset.
+
+Destroy the classperms list (without destroying the data in it)  when
+resetting a classpermission rule.
+
 Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_post.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ libsepol/cil/src/cil_reset_ast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index d2ecbd43..fd4758dc 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -186,6 +186,13 @@ static void cil_post_fc_fill_data(struct fc_data *fc, const char *path)
- 			break;
- 		case '\\':
- 			c++;
-+			if (path[c] == '\0') {
-+				if (!fc->meta) {
-+					fc->stem_len++;
-+				}
-+				fc->str_len++;
-+				return;
-+			}
- 			/* FALLTHRU */
- 		default:
- 			if (!fc->meta) {
+diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
+index 3da1b9a6..db70a535 100644
+--- a/libsepol/cil/src/cil_reset_ast.c
++++ b/libsepol/cil/src/cil_reset_ast.c
+@@ -54,7 +54,7 @@ static void cil_reset_classpermission(struct cil_classpermission *cp)
+ 		return;
+ 	}
+ 
+-	cil_reset_classperms_list(cp->classperms);
++	cil_list_destroy(&cp->classperms, CIL_FALSE);
+ }
+ 
+ static void cil_reset_classperms_set(struct cil_classperms_set *cp_set)
 -- 
 2.26.3
 
