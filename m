@@ -2,147 +2,223 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4447FC433B4
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 10:00:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D57C433ED
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 16:18:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EDCD0610FB
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 10:00:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 94AA4610E8
+	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 16:18:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230351AbhDHKA4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Apr 2021 06:00:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26278 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229686AbhDHKAz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 06:00:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617876044;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=xkqOx5BZaGmSmZbKiIeuRf8bJP1j9FK4DbJUxTUIKFk=;
-        b=g6d+QOJLqTVaQIiOVDDWeMwBggmr2/GyUlfVNoEgu9HjOw1Cu8yqUPrN7xJDpTBPlC5K1P
-        8pddDjZcn7scxQe2HnjQNPGofnNa7hA+et6QFlkyydF4CpPUCwbM45qBcQy9IVrchSS199
-        rT1ukGEJqdkFcWC7S87elnzZixsuntY=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-40-sXtYLawdPgyMAZP6l-KERg-1; Thu, 08 Apr 2021 06:00:41 -0400
-X-MC-Unique: sXtYLawdPgyMAZP6l-KERg-1
-Received: by mail-yb1-f199.google.com with SMTP id n67so1631425ybf.11
-        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 03:00:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xkqOx5BZaGmSmZbKiIeuRf8bJP1j9FK4DbJUxTUIKFk=;
-        b=BvYjtVlT/i3j86C2qKzzNgTztDDzt+aHbjSSRX04k3gtMHAaX7gFDWkS/Z0YQqHyOj
-         3EYAkZn/tJGrLCU1diYBVYCkIoYXDSj1ldWN+2dAcQgRJjfa92/9Bb/HPr4USO/VpdDN
-         3Iq8O9K66KZTDHf2f+jCoG8FgmtKcbkrdbcnM2egJQplqw7NkS2w9KzIJ4TQqtUiULkU
-         EzgJcjr0m34RrqSIpb/fPanEHG5VRIC/ePmrnFBxIJKGDpJiHxmp91Tp4Ydfn7INrtZ4
-         bA91OnAUrjcPdVdcmnn29kj0+Wb6esykEY/hEmiWNCtoT7T98WcvCwOOFPXcQhRsp353
-         brxQ==
-X-Gm-Message-State: AOAM530YX7O5CQzT/i8yoBqGun7KsvIB7bmyXSDbgml71gTih0bXGw+m
-        xA2K5Hdp2U+sPJTAQiK8LlhAvWLUOIKM4JuHbf+ji9Pv+cKmynEp3K0YWkpulne51WRiedHDvni
-        cPADVhgtDTQ8YTm0444oJhJTpDwKTpbStMQ==
-X-Received: by 2002:a5b:8c9:: with SMTP id w9mr10902109ybq.289.1617876041242;
-        Thu, 08 Apr 2021 03:00:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw+8UMHOxF6+C/Xwraf9++IqpSr+miGT0Rww/VAHvnoer6VM/3hIYCA0Cby5R6RKHNglA8OpmCiBaI4PnO1LAs=
-X-Received: by 2002:a5b:8c9:: with SMTP id w9mr10902085ybq.289.1617876041022;
- Thu, 08 Apr 2021 03:00:41 -0700 (PDT)
+        id S232240AbhDHQSW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Apr 2021 12:18:22 -0400
+Received: from sonic310-30.consmr.mail.ne1.yahoo.com ([66.163.186.211]:44657
+        "EHLO sonic310-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231480AbhDHQSV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 12:18:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1617898690; bh=enZo/Yda2EywT1nykAt0YKvcJZOkW+jSi0wjxRqh7jU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=KIF9S5sIDj70Ygz5d0hfL+Ex4/Syb5WrH2WmiU5RXv7NadiOdsx4nlNkmD1hL8rdr3SYy7gaY7whdTouX6o9O1rIHVqrVxSBOrzUXWSUBSpLtFfiERJSfvruR2OfxKjxUWwfeB9NftHSGr+Nsuj5XXS3EDCPWzRmfs33kMbeSYa3zdmy132ETZd5kS3OBrc6okS2czx4c5KKT7Zxi+Um7q2PrKvlF9YA9Oa4kUYkToCE/LR1uQks9IOOBLNxBFkokePppckZmdbyZlWfTyuqkDHi7E7ipTxlSq30FbucNAiTMnyDF3FKZ7v0upowsm2BpTJHzQX+F0Sn3CMVWjgkMw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1617898690; bh=dORPfVfj3AyLqwbE4g200G2f6uLhT+gIDwy4A00IUik=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=O/tTaUTnlD2ldEybgMPa0+OSUuKzsFfevyXhvcHq6q+EhDn5V27nOZxlDjSw4N5vvKzeUdWLO6SIWDhWYk0zI830TvvxOdNwPdFToAxK3LMwoXTLpXJxRHUSy2BvqJPlBFqyzbMqZ1nYwbH9D5X992OWb+1zWIq0CWfm9YL92oMkACXounYtWh6HfSuPyeCb0vqyz1zxpueyBZlw98KrlrUaYp0SiFeqWEDTqonh7MXsHbyIunZ14J6WFxMuHDgVzcT64/VgXbYAjOBtd9+XF62U25J0jWfcQitd+///Mc5wP1+IG6znUsaGLuJhDJCU5GUyrYVIe9/+ClMfl+2AkQ==
+X-YMail-OSG: I7wgwgEVM1kpdLSfejOArdcyK5CKCPF0eyIbxwYcP7umQvEB4uuFzFMh0VBDYSm
+ 8hVy2hTLn0qb5_GQFd.lfRyVAN2vMs4uXhOJ7wJZSjmESMywwtxye.PHmLMGp982ab_F5I6tQAM7
+ kNiiBMhVzFCr3N1sY7EUw8XB2RB_CF.4bq01.mInlPzUslIhTmQJqfbZU8u.nFvXk6jX8OoYIIPO
+ NBARAqC.Rv1KUfmU9KgmmkExgXX8Mh1PJOTU8AlTt.RsgluRhAtcb2xKVsdIFbeo.2Yq14wIMvRc
+ WfIf12azjTEr3ykaYqifmrZplg5Ch5nYG0nFvNA_OiLrEMCJ.ZQRslBkpmodcHHyuWykLrxWKq24
+ aogPYfhdm.vEjKe.YX371AKNbFV5bIbQF1mGPX0iaJv7fMmOaCwKF3BBMB1BIOh9gSzM9StOnZAL
+ 11HIDVcnVPR4NkSQRCX8kGL8sa649YEqo3CF..PlPFiCkd6gg38RNj6v1R4U_jJlj1r_4DW.t7bQ
+ YMZL80rpF5zG4hMRoJNLwQCipStHPo_EcYCI_0dI5CsQa4zUMiBWOgreq6dSIUwYbXrOIaGQ.Ntx
+ S_F26wEB7l6PXzuIz7pSWnvmTMAR9FU5fioRrAA46OBPJ3E6no4lQH8uK6Ppb1Il_6iW6FYLSY.E
+ M3qxcvv9nh8ZnHg84IjNGqHQbF3VykLLNwfS6YaeI4idOPziFvkXcrs9jQxOKC16Zj7rk7H9E1eg
+ ImkeR56UeTbd.ZXw3bzP0QJlpE6mtQytC3vhzUFAXEnYev9Ep6L8rT8W1lzydZvGQHbkjlTk8uXp
+ FyxvAzRdsPf.h1fdQbHZ7Q3HFzeBjdy4JIldHKOL6wBqr81HJ9kYiUxBat.HdGFNQzS0nG5qoAZ9
+ 2TdECjgHLgjLYguwYXnS8_t8LctXqnltFGcXw33gBOhkerRQ9Xy.GWo3St74ayqIAA1z0_R8dky_
+ sDrtrRCvcUzf0W2hf7AFCrCXsRDhWiz9NWEQ6rEoO4bvK0JeDaUUmsLBgiXkCO7UZn_oEodpuEl5
+ 8IG4fLJUbvEYVHDnicHbqUjR3oa5B.hG6bntUif0PVLhiWAxmrfCnZHoX4bG.LQTemZuObvofMl_
+ ZkSm9o7ozThzy7J_cUN9CWNaOeqdm0W2s8D_Axw25elR90iVil4VYOW.XX.127cd2XEsRW2C2dK8
+ to5D_ezlJ9dzdANH8.khIU8nuckL70llfjwtL0JqlpYZJ9oS3Ft_5ffd0rX_LvytnoQ_u4MaCmWr
+ _Io0_69K25rzM.h64sSJxuIDjGOVxXsSYESenwjNWqYEsCfT5DMbJkek0c7zaXBuSOi1RqLxJEKT
+ PUKxxE1InpPYaEK.0zVBs_4aP.lq.UpsMcmndL839wRSeNDlSTRA.jUo7vG1BtgKhCcWi_70p7nC
+ 4ZyGPmKEkUSUoyUdG6ImBVYxZdQ57Xq0UFJVeb4TBuhiM33q9iVmek0npRRhq5u_waucaANAzF6_
+ 67b8pGRJHuB1SoevgPCDef8ZVO.TkW4RVUHyC5wY2yFgAOcrp3lBhP0pI_6rKJaUoOBkf6vqCGWu
+ puP9HQRiA_tKof0uWmKfM0x5P0U0FReZjtR30vZfiOnEgKoANMH3KtgGQJGKIPb_C3jXbmnTQHgE
+ AlcAa7PVfVeEMIWowIarvZUPPcCrBvfXq6juuWizXRwxFYMt7q59coKWmK2aOmvXtDKdj6Bafcz7
+ jj7K_vQvxboT6.7KwtsgF5qPX9sVimmsWckbUMNTX5GOuoQj_kKcywUbm6T.vpkJMhskW0qCA3Gq
+ Cc8ha8BqdQB9oXq0MNcGaKBM5q4eT7oEGZfvipYVdW7M1soTgE_RvRRA.pLB7zXwR_sExZtgZZlv
+ zV9kC...or3ZUJqEh8MuhjzzBrqUFUWADJWEq6801IzuBb1pb5WuDuhQ_sxOrNZ1zzJcjZL6uP5T
+ yib2ck2fDodvOKFG36q5bjgBmgfbivaJoHbM40meAHWK5lk7D3IpEyLqk7EmWb9eyGSc2zt51xGd
+ PYgh15n9h7qUB5RTQTSCmH1pQgQH24snygYt42jqEfVRLwfc6vhITR9YVa7qTZ6ogpopfLy63Npf
+ gC9dTlDtrgfL3caAQGJYtUksk939sE2QOLM8HV0uYVxOKRVtbir4cz9jSr.eNwz5Z0YlqmGuQWtH
+ mHCIg4NpnviYf7vLbvyrI8iZRlDdSjecmvzgrJaJUudwRHdlEOTG.kYWYarJ07qw0h0yMoq7IK4Z
+ dJ1KMiIdoXXQqBQgQ8g._nHyo.F4mJEACKGN6PmATQzu24AyO7kPsCrkgKV7vLZ8H3CFKQwWCwPZ
+ SWZDFQCNzbHANXITKQf9Hv2Rtt5NRoNiUtJKqg8hS6hEnqgZJXKBfOOz9kIs8nBNnLckStqmyIKO
+ JlwCNGylRHDzY.SrnESHfChTZZ5f4FnkXi3XQVPjwPnqMtVOV6vAFAK.Xswa0xEs0inhQBAuIyQW
+ otk6bWZA8rrZrue_POr2jHD0JsVbCKfROMiIK8ZYAyaifa0CfwbBhKy9UlthG9hdJzXBnSNClzE5
+ .7aN23YaeXPq0.FzjviO7Rh9GzEYufLSvOKY9vKtoD_T2qMZt0amdJqnXN8XT1m1NrrYoabL4OAc
+ Lh03di3uSMJ4CoBDS7_E1pv1yQ74XkA19b9r6oeQ9aYRInxkFwbHrlOweDeW1hshfHtBW_AZ9Vp.
+ 32tzSIrfLBOBI4ztUrbsc5sOz6EU5kgmm3gN.YX0cUuuSLAT1m0XkjdEybehzfJXTon3m1g0tHcK
+ 2JbJ.yDvvCwhEVbMbYY_BA08DWDF_lZWmsSW6sjDEzFbSriLOzDvCTjx8_9ct4npWLUznFhL3789
+ jHfImeMlj556iZjgFPnLTKeesz8WbAta1O9Spgqm3o_CrQdI.lu_u9gQAq0xO8ywf6ImE.mmsQO_
+ X9QzIwa8aJUcJX_HRyYZzA6aurn0eXrmsUO3eWiUJdK3u0Tw3f.V299b9NfUJ91q_YAvAs_zUV1L
+ ZETX.aUHNuq2q9fGysIq6nlsVnTjnJ5NIM83FOBMT.UNjDfLh3LIYBE1nuNg_.fFjL4kuA0byCgh
+ oUpuIeit2zHh0eLEYRTLoQ8aRGcJo5wTDOKnNy3tGmRLsGtTyQsl6ETHdpLs4cSadjncoI9R2LPo
+ 7Ok3.qAo5S10u50zdb2B05LNqqL.VOl936vdyX4xqub7OtJV_aTUClo.3KuDdZhYRSlpHyfd1gwx
+ oraekI6p.lBihNwLHuudYQ2Y3Y6xs9kz9xLP18vcBT.bbV7sh_jOWNffVRISkJiDsOsg3lr0qPtG
+ ifhbecajtBTrqmRabxmXgBeaYV7q_h4I3QikVpbRYXnUW5b1f0HoQ.wGE5XlhnSCT1RdME2QHu3a
+ Hm4duivIJtYoE1rkQHMiA66Ei3Fn57658UTmv6caDYAEmuBtKtF8J96X5jEki0cj_t.g6oJUWgw9
+ qIaBxfrYtrw--
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Thu, 8 Apr 2021 16:18:10 +0000
+Received: by kubenode518.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 63e14078f60baa386ac5fb2941f90919;
+          Thu, 08 Apr 2021 16:18:08 +0000 (UTC)
+Subject: Re: [PATCH] selinux:Delete selinux_xfrm_policy_lookup() useless
+ argument
+To:     Zhongjun Tan <hbut_tan@163.com>, steffen.klassert@secunet.com,
+        herbert@gondor.apana.org.au, davem@davemloft.net, kuba@kernel.org,
+        jmorris@namei.org, serge@hallyn.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, ebiederm@xmission.com,
+        gregkh@linuxfoundation.org, dhowells@redhat.com,
+        kpsingh@google.com, christian.brauner@ubuntu.com,
+        zohar@linux.ibm.com
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Zhongjun Tan <tanzhongjun@yulong.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20210408084907.841-1-hbut_tan@163.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <2304b75f-a3d0-3cb3-183c-0a7f62de9895@schaufler-ca.com>
+Date:   Thu, 8 Apr 2021 09:18:07 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.0
 MIME-Version: 1.0
-References: <20210406111022.2472280-1-omosnace@redhat.com> <CA+EESO6p+KuHC+6v3BjsWPNPqNBSmCFBz+T_eG5wLtDXZOKpbw@mail.gmail.com>
-In-Reply-To: <CA+EESO6p+KuHC+6v3BjsWPNPqNBSmCFBz+T_eG5wLtDXZOKpbw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 8 Apr 2021 12:00:27 +0200
-Message-ID: <CAFqZXNusU6TMSCWH4=S8Dnngux_Nbcg1qR_vp6xY6tk4gi=VNA@mail.gmail.com>
-Subject: Re: [PATCH testsuite] Deactivate userfaultfd test policy if no xperm support
-To:     Lokesh Gidra <lokeshgidra@google.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210408084907.841-1-hbut_tan@163.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.18033 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/16)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 6, 2021 at 6:16 PM Lokesh Gidra <lokeshgidra@google.com> wrote:
+On 4/8/2021 1:49 AM, Zhongjun Tan wrote:
+> From: Zhongjun Tan <tanzhongjun@yulong.com>
 >
+> Delete selinux selinux_xfrm_policy_lookup() useless argument.
 >
+> Signed-off-by: Zhongjun Tan <tanzhongjun@yulong.com>
+> ---
+>  include/linux/lsm_hook_defs.h   | 3 +--
+>  include/linux/security.h        | 4 ++--
+>  net/xfrm/xfrm_policy.c          | 6 ++----
+>  security/security.c             | 4 ++--
+>  security/selinux/include/xfrm.h | 2 +-
+>  security/selinux/xfrm.c         | 2 +-
+>  6 files changed, 9 insertions(+), 12 deletions(-)
 >
-> On Tue, Apr 6, 2021 at 4:40 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->>
->> The userfaultfd test policy uses also extended permissions, so only
->> enable the test or its policy if these are supported. This makes the
->> testsuite runnable on certain old distros again.
->>
->> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
->
-> Reviewed-by: Lokesh Gidra <lokeshgidra@google.com>
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 04c0179..2adeea4 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -358,8 +358,7 @@
+>  	 struct xfrm_sec_ctx *polsec, u32 secid)
+>  LSM_HOOK(void, LSM_RET_VOID, xfrm_state_free_security, struct xfrm_state *x)
+>  LSM_HOOK(int, 0, xfrm_state_delete_security, struct xfrm_state *x)
+> -LSM_HOOK(int, 0, xfrm_policy_lookup, struct xfrm_sec_ctx *ctx, u32 fl_secid,
+> -	 u8 dir)
+> +LSM_HOOK(int, 0, xfrm_policy_lookup, struct xfrm_sec_ctx *ctx, u32 fl_secid)
+>  LSM_HOOK(int, 1, xfrm_state_pol_flow_match, struct xfrm_state *x,
+>  	 struct xfrm_policy *xp, const struct flowi_common *flic)
+>  LSM_HOOK(int, 0, xfrm_decode_session, struct sk_buff *skb, u32 *secid,
 
-Thanks, I just merged the patch:
-https://github.com/SELinuxProject/selinux-testsuite/commit/1defa850ae71bc27c9dd101d19f543a42abc9537
+Please update the descriptive comment at the top of the file.
 
-BTW, for some reason your message didn't end up on the mailing list...
-it seems the vger lists are acting up again :/
-
->>
->> ---
->>  policy/Makefile | 9 +++++++--
->>  tests/Makefile  | 2 ++
->>  2 files changed, 9 insertions(+), 2 deletions(-)
->>
->> diff --git a/policy/Makefile b/policy/Makefile
->> index b092bb3..91364d5 100644
->> --- a/policy/Makefile
->> +++ b/policy/Makefile
->> @@ -29,14 +29,19 @@ TARGETS = \
->>         test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
->>         test_transition.te test_unix_socket.te \
->>         test_mmap.te test_overlayfs.te test_mqueue.te \
->> -       test_ibpkey.te test_atsecure.te test_cgroupfs.te test_userfaultfd.te
->> +       test_ibpkey.te test_atsecure.te test_cgroupfs.te
->>
->>  ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
->>  SUPPORTS_CIL = n
->>  endif
->>
->>  ifeq ($(SUPPORTS_CIL),y)
->> -CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil test_userfaultfd.cil
->> +CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
->> +# userfaultfd test policy uses also xperms
->> +ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && echo true),true)
->> +CIL_TARGETS += test_userfaultfd.cil
->> +TARGETS += test_userfaultfd.te
->> +endif
->>  ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
->>  ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
->>  # If other MLS tests get written this can be moved outside of the glblub test
->> diff --git a/tests/Makefile b/tests/Makefile
->> index c19fcd7..7d4e39b 100644
->> --- a/tests/Makefile
->> +++ b/tests/Makefile
->> @@ -135,9 +135,11 @@ SUBDIRS += watchkey
->>  endif
->>  endif
->>
->> +ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && echo true),true)
->>  ifeq ($(shell test -e $(INCLUDEDIR)/linux/userfaultfd.h && echo true),true)
->>  SUBDIRS += userfaultfd
->>  endif
->> +endif
->>
->>  ifeq ($(DISTRO),RHEL4)
->>      SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
->> --
->> 2.30.2
->>
-
-
--- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 06f7c50..24eda04 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1681,7 +1681,7 @@ int security_xfrm_state_alloc_acquire(struct xfrm_state *x,
+>  				      struct xfrm_sec_ctx *polsec, u32 secid);
+>  int security_xfrm_state_delete(struct xfrm_state *x);
+>  void security_xfrm_state_free(struct xfrm_state *x);
+> -int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
+> +int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid);
+>  int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
+>  				       struct xfrm_policy *xp,
+>  				       const struct flowi_common *flic);
+> @@ -1732,7 +1732,7 @@ static inline int security_xfrm_state_delete(struct xfrm_state *x)
+>  	return 0;
+>  }
+>  
+> -static inline int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+> +static inline int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+>  {
+>  	return 0;
+>  }
+> diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+> index 156347f..d5d934e 100644
+> --- a/net/xfrm/xfrm_policy.c
+> +++ b/net/xfrm/xfrm_policy.c
+> @@ -1902,8 +1902,7 @@ static int xfrm_policy_match(const struct xfrm_policy *pol,
+>  
+>  	match = xfrm_selector_match(sel, fl, family);
+>  	if (match)
+> -		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid,
+> -						  dir);
+> +		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid);
+>  	return ret;
+>  }
+>  
+> @@ -2181,8 +2180,7 @@ static struct xfrm_policy *xfrm_sk_policy_lookup(const struct sock *sk, int dir,
+>  				goto out;
+>  			}
+>  			err = security_xfrm_policy_lookup(pol->security,
+> -						      fl->flowi_secid,
+> -						      dir);
+> +						      fl->flowi_secid);
+>  			if (!err) {
+>  				if (!xfrm_pol_hold_rcu(pol))
+>  					goto again;
+> diff --git a/security/security.c b/security/security.c
+> index b38155b..0c1c979 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2466,9 +2466,9 @@ void security_xfrm_state_free(struct xfrm_state *x)
+>  	call_void_hook(xfrm_state_free_security, x);
+>  }
+>  
+> -int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+> +int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+>  {
+> -	return call_int_hook(xfrm_policy_lookup, 0, ctx, fl_secid, dir);
+> +	return call_int_hook(xfrm_policy_lookup, 0, ctx, fl_secid);
+>  }
+>  
+>  int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
+> diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+> index 0a6f34a..7415940 100644
+> --- a/security/selinux/include/xfrm.h
+> +++ b/security/selinux/include/xfrm.h
+> @@ -23,7 +23,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+>  				     struct xfrm_sec_ctx *polsec, u32 secid);
+>  void selinux_xfrm_state_free(struct xfrm_state *x);
+>  int selinux_xfrm_state_delete(struct xfrm_state *x);
+> -int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
+> +int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid);
+>  int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
+>  				      struct xfrm_policy *xp,
+>  				      const struct flowi_common *flic);
+> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+> index 634f3db..be83e5c 100644
+> --- a/security/selinux/xfrm.c
+> +++ b/security/selinux/xfrm.c
+> @@ -150,7 +150,7 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
+>   * LSM hook implementation that authorizes that a flow can use a xfrm policy
+>   * rule.
+>   */
+> -int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+> +int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+>  {
+>  	int rc;
+>  
