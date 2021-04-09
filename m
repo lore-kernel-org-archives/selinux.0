@@ -2,116 +2,181 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 466ACC433ED
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 21:34:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC45FC433ED
+	for <selinux@archiver.kernel.org>; Fri,  9 Apr 2021 05:52:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A2C0610D1
-	for <selinux@archiver.kernel.org>; Thu,  8 Apr 2021 21:34:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76AD161108
+	for <selinux@archiver.kernel.org>; Fri,  9 Apr 2021 05:52:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232488AbhDHVe0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Apr 2021 17:34:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232236AbhDHVeZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Apr 2021 17:34:25 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FFA6C061760
-        for <selinux@vger.kernel.org>; Thu,  8 Apr 2021 14:34:13 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id n8so6423983lfh.1
-        for <selinux@vger.kernel.org>; Thu, 08 Apr 2021 14:34:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=DFUMBm74akct0btoGst1iCmQ2GYkx7dVKwPq9e9RUAA=;
-        b=DY/Mgk8LK5mfus8jy25w4rkj4+fmomrcCZvMxlCxXA9ALJg9bbgj/ueM7Vja0WF5rR
-         2RlGM5gct3n/Fqmp1u7knn4R6MYA4uMB62hyvdFMxywtQuAJRAcwM7FS93xCWbC7kQXl
-         Ft7M44w6mNwrSOH2YOvFNxvGUOm67KoyVlYH8DGHH1yOpscWgKRT/edeBqVT7NlnaNBn
-         rclYJrn9uAP1yPXNZH84zb0YgnLv3upvzsUeNwmK/VXilU8KhUG6X/2D0JHBkUogkrOS
-         04oo5PKNN8haAeG/myXaFZ69H9xqUYmbsY3wWyzszh7MFFHy2uLRqeyxi0N+QHqrlXTK
-         HX3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=DFUMBm74akct0btoGst1iCmQ2GYkx7dVKwPq9e9RUAA=;
-        b=qmTcTa7oxnQKjyFLFVP9VlrJNlRy9DF0mUJYFB9VZsFp0XLaMMi56M3UUzGhEbYFaJ
-         3U4FlQexS2Kl6GtxcmuF/N9Eu3OlyWnybB28gl/jglCBwmZBqSFc1OIaawr7TN3Yo/JS
-         ++zlk6n/FOmK7wuARnJm2LlzaZAMOPnLgN7oAy2HkQxVURgJ9491MYH3VbOmieF/AJ2A
-         l958fBRY+8gRXryGdVFlkQGeVb9nZJzrpeiZy4ocuApJYUpiSjhXPY3AWe/YTj8fBpVR
-         h/t3IUnWsw3E7xxlZvtv2eqoj0tVXo6EDXB/iquTxEsyFcKfvvMifw+LitSG94oUmJ7f
-         hfXA==
-X-Gm-Message-State: AOAM531p1fmK/VqsHwCiTddTIPyfLuOnAFZlfsouZB48WnKdbRsxubLG
-        kQIasNp5u7B7y07c/9vd/AgDVas4hNZegbloB1cWPMlwMsICdg==
-X-Google-Smtp-Source: ABdhPJyGoWCSdpsLqHhGuHGv/snUc5NLgfa7mTDRtyv2Z6Lm3TeIg9rlzUEe73MxZafzbq2P/W4NPEMW069YDfJqEko=
-X-Received: by 2002:ac2:41c4:: with SMTP id d4mr7701744lfi.334.1617917652178;
- Thu, 08 Apr 2021 14:34:12 -0700 (PDT)
+        id S229715AbhDIFwh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Apr 2021 01:52:37 -0400
+Received: from m12-16.163.com ([220.181.12.16]:49472 "EHLO m12-16.163.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229498AbhDIFwh (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 9 Apr 2021 01:52:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=O0Fw6
+        C8nkVcsEdj5tqNF1VdUgPPuLHJN/DPaM3S9r6A=; b=C5rCZ+exjQYqIMxJXI9KL
+        MMEvRNe3NdGIFMN8nu0Pq/y4kOzd6nfqEjyaCmCFXPKm/1CBKePvvmt4c/ljzXA2
+        pyo6exW/U0hB9/dN3zbC4a3BeQo8zXmYDAeBxXWitS07Xdy/3EyrW0AsllYsiCAK
+        ry5p2h8x6xlXsbirYYbNIo=
+Received: from localhost.localdomain (unknown [183.9.194.37])
+        by smtp12 (Coremail) with SMTP id EMCowABnYDjF6m9grpXkkg--.11493S2;
+        Fri, 09 Apr 2021 13:48:56 +0800 (CST)
+From:   =?UTF-8?q?=C2=A0Zhongjun=20Tan?= <hbut_tan@163.com>
+To:     steffen.klassert@secunet.com, herbert@gondor.apana.org.au,
+        davem@davemloft.net, kuba@kernel.org, jmorris@namei.org,
+        serge@hallyn.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, gregkh@linuxfoundation.org,
+        ebiederm@xmission.com, kpsingh@google.com, dhowells@redhat.com,
+        christian.brauner@ubuntu.com, zohar@linux.ibm.com
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Zhongjun Tan <tanzhongjun@yulong.com>
+Subject: [PATCH 2/2] selinux:Delete selinux_xfrm_policy_lookup() useless argument
+Date:   Fri,  9 Apr 2021 13:48:41 +0800
+Message-Id: <20210409054841.320-1-hbut_tan@163.com>
+X-Mailer: git-send-email 2.30.0.windows.2
 MIME-Version: 1.0
-References: <CAL6HQvHN+9pp8+h0kqf9mJAtYS6_ZQvVE2JNkk3QqqUveXiTzg@mail.gmail.com>
-In-Reply-To: <CAL6HQvHN+9pp8+h0kqf9mJAtYS6_ZQvVE2JNkk3QqqUveXiTzg@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 8 Apr 2021 17:34:01 -0400
-Message-ID: <CAEjxPJ4gsSGNO2BBJ27Oogf=dFGrABvvLrNbgmrN_2UNCJzxpg@mail.gmail.com>
-Subject: Re: Detect SELinux by checking if policy is loaded
-To:     =?UTF-8?B?S2FpIEzDvGtl?= <kai@kinvolk.io>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: EMCowABnYDjF6m9grpXkkg--.11493S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxtFWrWr43GrW7CrWkCrW5trb_yoW7Wr15pF
+        4DKFyUKr4UXa4UuFn7JFnruFnIg3yYka9rJrWkCw1YyasrJr1rWws5JryakryFyrWUJFyI
+        9w13CrZ5Gw45trDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jTFALUUUUU=
+X-Originating-IP: [183.9.194.37]
+X-CM-SenderInfo: xkex3sxwdqqiywtou0bp/xtbBqAhvxl75bagm0wAAse
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 8, 2021 at 2:17 PM Kai L=C3=BCke <kai@kinvolk.io> wrote:
->
-> Hello,
->
-> to detect if SELinux is disabled, in version 2.4 there was a check for
-> /proc/PID/attr/current to have something else than "kernel" as value.
-> This allowed to distinguish between "Disabled" and "Permissive" when
-> the filesystem is mounted and the /enforce file has the value 0.
->
-> That check got removed in later versions and a check was added based
-> on whether /etc/selinux/config exists.
+From: Zhongjun Tan <tanzhongjun@yulong.com>
 
-These were commits 685f4aeeadc0b60f3770404d4f149610d656e3c8 and
-c08c4eacab8d55598b9e5caaef8a871a7a476cab respectively;
-the commit descriptions provide the rationale for the changes and the
-associated bugs.
+seliunx_xfrm_policy_lookup() is hooks of security_xfrm_policy_lookup().
+The dir argument is uselss in security_xfrm_policy_lookup(). So
+remove the dir argument from selinux_xfrm_policy_lookup() and
+security_xfrm_policy_lookup().
 
-> This leads to two problems. The first one is that older versions which
-> have SELinux disabled in the config file still have the filesystem
-> mounted (unless selinux=3D0 is passed as kernel param) which causes the
-> newer behavior to think SELinux is "Permissive" instead of disabled.
+Signed-off-by: Zhongjun Tan <tanzhongjun@yulong.com>
+---
+ include/linux/lsm_hook_defs.h   | 3 +--
+ include/linux/security.h        | 4 ++--
+ net/xfrm/xfrm_policy.c          | 6 ++----
+ security/security.c             | 4 ++--
+ security/selinux/include/xfrm.h | 2 +-
+ security/selinux/xfrm.c         | 2 +-
+ 6 files changed, 9 insertions(+), 12 deletions(-)
 
-That shouldn't be the case; selinuxfs is unmounted by
-selinux_init_load_policy() if SELinux is disabled in the config file
-too.
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 04c0179..2adeea4 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -358,8 +358,7 @@
+ 	 struct xfrm_sec_ctx *polsec, u32 secid)
+ LSM_HOOK(void, LSM_RET_VOID, xfrm_state_free_security, struct xfrm_state *x)
+ LSM_HOOK(int, 0, xfrm_state_delete_security, struct xfrm_state *x)
+-LSM_HOOK(int, 0, xfrm_policy_lookup, struct xfrm_sec_ctx *ctx, u32 fl_secid,
+-	 u8 dir)
++LSM_HOOK(int, 0, xfrm_policy_lookup, struct xfrm_sec_ctx *ctx, u32 fl_secid)
+ LSM_HOOK(int, 1, xfrm_state_pol_flow_match, struct xfrm_state *x,
+ 	 struct xfrm_policy *xp, const struct flowi_common *flic)
+ LSM_HOOK(int, 0, xfrm_decode_session, struct sk_buff *skb, u32 *secid,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 06f7c50..24eda04 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1681,7 +1681,7 @@ int security_xfrm_state_alloc_acquire(struct xfrm_state *x,
+ 				      struct xfrm_sec_ctx *polsec, u32 secid);
+ int security_xfrm_state_delete(struct xfrm_state *x);
+ void security_xfrm_state_free(struct xfrm_state *x);
+-int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
++int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid);
+ int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
+ 				       struct xfrm_policy *xp,
+ 				       const struct flowi_common *flic);
+@@ -1732,7 +1732,7 @@ static inline int security_xfrm_state_delete(struct xfrm_state *x)
+ 	return 0;
+ }
+ 
+-static inline int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
++static inline int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+ {
+ 	return 0;
+ }
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 156347f..d5d934e 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -1902,8 +1902,7 @@ static int xfrm_policy_match(const struct xfrm_policy *pol,
+ 
+ 	match = xfrm_selector_match(sel, fl, family);
+ 	if (match)
+-		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid,
+-						  dir);
++		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid);
+ 	return ret;
+ }
+ 
+@@ -2181,8 +2180,7 @@ static struct xfrm_policy *xfrm_sk_policy_lookup(const struct sock *sk, int dir,
+ 				goto out;
+ 			}
+ 			err = security_xfrm_policy_lookup(pol->security,
+-						      fl->flowi_secid,
+-						      dir);
++						      fl->flowi_secid);
+ 			if (!err) {
+ 				if (!xfrm_pol_hold_rcu(pol))
+ 					goto again;
+diff --git a/security/security.c b/security/security.c
+index b38155b..0c1c979 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2466,9 +2466,9 @@ void security_xfrm_state_free(struct xfrm_state *x)
+ 	call_void_hook(xfrm_state_free_security, x);
+ }
+ 
+-int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
++int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+ {
+-	return call_int_hook(xfrm_policy_lookup, 0, ctx, fl_secid, dir);
++	return call_int_hook(xfrm_policy_lookup, 0, ctx, fl_secid);
+ }
+ 
+ int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index 0a6f34a..7415940 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -23,7 +23,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+ 				     struct xfrm_sec_ctx *polsec, u32 secid);
+ void selinux_xfrm_state_free(struct xfrm_state *x);
+ int selinux_xfrm_state_delete(struct xfrm_state *x);
+-int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
++int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid);
+ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
+ 				      struct xfrm_policy *xp,
+ 				      const struct flowi_common *flic);
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 634f3db..be83e5c 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -150,7 +150,7 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
+  * LSM hook implementation that authorizes that a flow can use a xfrm policy
+  * rule.
+  */
+-int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
++int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+ {
+ 	int rc;
+ 
+-- 
+1.9.1
 
-> The second problem is that the existence of the config file is only
-> loosely related to whether SELinux is disabled or not. On one hand a
-> recent change of the config file (creation/removal) is not valid now
-> but only after it got applied, e.g., by a reboot, on the second hand
-> the check does not work from containers.=C2=B9
 
-It is true that the existence of the config file is a weak indicator;
-that check was only added to address a particular bug where systems
-had no /etc/selinux/config and expected SELinux to be treated as
-disabled.
-With respect to containers, the Fedora / Red Hat approach in general
-has always been to treat SELinux as disabled within the container so
-that userspace within the container doesn't try to load policy or set
-labels.
-The entire container is run with a single security context.
-
-> I suggest to drop the config file check and replace it by a
-> /proc/PID/attr/current check which is more reliable because it tells
-> something about the current state and works from containers.
-> What do you think?
-
-This would essentially be a revert of the prior two commits which
-would seem to re-introduce the original issue that was being fixed.
