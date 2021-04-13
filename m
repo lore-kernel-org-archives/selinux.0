@@ -2,182 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D42C1C43461
-	for <selinux@archiver.kernel.org>; Tue, 13 Apr 2021 08:26:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6558C433ED
+	for <selinux@archiver.kernel.org>; Tue, 13 Apr 2021 12:25:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AD7F9613B6
-	for <selinux@archiver.kernel.org>; Tue, 13 Apr 2021 08:26:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77FA561242
+	for <selinux@archiver.kernel.org>; Tue, 13 Apr 2021 12:25:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242956AbhDMI1M (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Apr 2021 04:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50806 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229794AbhDMI1L (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 13 Apr 2021 04:27:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7981161242;
-        Tue, 13 Apr 2021 08:26:43 +0000 (UTC)
-Date:   Tue, 13 Apr 2021 10:26:40 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Anton Altaparmakov <anton@tuxera.com>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@hansenpartnership.com>,
-        "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
-        "alban@kinvolk.io" <alban@kinvolk.io>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "casey@schaufler-ca.com" <casey@schaufler-ca.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "cyphar@cyphar.com" <cyphar@cyphar.com>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        "ebiederm@xmission.com" <ebiederm@xmission.com>,
-        "geofft@ldpreload.com" <geofft@ldpreload.com>,
-        "hch@lst.de" <hch@lst.de>,
-        "hirofumi@mail.parknet.co.jp" <hirofumi@mail.parknet.co.jp>,
-        "john.johansen@canonical.com" <john.johansen@canonical.com>,
-        "josh@joshtriplett.org" <josh@joshtriplett.org>,
-        "keescook@chromium.org" <keescook@chromium.org>,
-        "lennart@poettering.net" <lennart@poettering.net>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-xfs@vger.kernel.org" <linux-xfs@vger.kernel.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mpatel@redhat.com" <mpatel@redhat.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "seth.forshee@canonical.com" <seth.forshee@canonical.com>,
-        "smbarber@chromium.org" <smbarber@chromium.org>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
-        "tkjos@google.com" <tkjos@google.com>,
-        "tycho@tycho.ws" <tycho@tycho.ws>, "tytso@mit.edu" <tytso@mit.edu>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>
-Subject: Re: [PATCH v6 24/40] fs: make helpers idmap mount aware
-Message-ID: <20210413082640.krcmqac6y2esuz24@wittgenstein>
-References: <E901E25F-41FA-444D-B3C7-A7A786DDD5D5@tuxera.com>
- <CAHk-=wiXqbSgqzv53C98sbaHVqpc+c8NZTpXC7bBMQT3OznE4g@mail.gmail.com>
+        id S231381AbhDMMZj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Apr 2021 08:25:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59774 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231337AbhDMMZh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Apr 2021 08:25:37 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F794C061574
+        for <selinux@vger.kernel.org>; Tue, 13 Apr 2021 05:25:15 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id f8so19139590edd.11
+        for <selinux@vger.kernel.org>; Tue, 13 Apr 2021 05:25:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AwCiEql8EAjv7PcY1GadBG6JPtUSXhWz98WtSZQx7F8=;
+        b=ekGGZ0PSgXIdm1ZL0rBJf/fbUyquedhnuM29+0NLMHYzUyVihiyMJQMFf/OoNkORQn
+         jdINztsV9RYy9QOi+gBsu4XcT1woFk7UAF7rnGqHk8V16K579tKMngwIJc4cQWF7YF5c
+         v5O9UCAbDMmd6bh+4mLuJW1XX2jz7jlfkOUIIHdrCp9WLS8B/PQi5eAw9Z3SREz0k1pH
+         RaMMj4Uu41f0rjKvrm2KGA2GjoJAlrIpPyn4GO5HNXYfV09cJr+IJNBSGyfUzx93aRZl
+         h0xWk4rMn/esSvPgRjwnEzS61b+AxYmI3lhmlInpaQY4Ym6KOddxhAjL8O4s4ZpCSQZ/
+         kBEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AwCiEql8EAjv7PcY1GadBG6JPtUSXhWz98WtSZQx7F8=;
+        b=YQaxVGTnbUNayjGq/UQVniGTEUrjLxCIH27NhEvlwZW2h47fvbtB5lnFAEtzAemDb8
+         a4u0LvFxiJCrOmOxf5H4unqwmhBmNWi3mUvt5X9I3MiwX0F5HJUU/EFTES6f/B2UWws+
+         dNj8vAbXDiyQ29ONlNan8gWDS6xjUuVV0cAdxKETOsuNfidKsoYDXrnYiE8HFqOC0/+0
+         jxe2gBQMQ0XUFgz6HBNMrsqK4IhYLjsf3Op/bUpAHGi9JpYvOqnOoLYQGq0Za+XfE8f3
+         vVXMM4rWu+ZSIbIG4R8ytx6rhr6ryodw0rZRPal6of3IjVRJFf4XMhlqb6tY3esewa1J
+         DXog==
+X-Gm-Message-State: AOAM533+Zf+rVEAfm890kFPywCMwwyVcM8hXQBKaOkU9nmRa5BPYQhyL
+        dKr1JwZCMsugLE501MHiw4uNar7749E=
+X-Google-Smtp-Source: ABdhPJzhNahLoZmASCjjUgg5+NZnXBKZDBZ+vJGBKCq6yE035GhlVozA+Jg51AnEAT21sxcsEyuhEQ==
+X-Received: by 2002:a05:6402:280f:: with SMTP id h15mr32160861ede.150.1618316714178;
+        Tue, 13 Apr 2021 05:25:14 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-001-170-158.77.1.pool.telefonica.de. [77.1.170.158])
+        by smtp.gmail.com with ESMTPSA id mp36sm7594438ejc.48.2021.04.13.05.25.13
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Apr 2021 05:25:13 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [RFC SHADOW PATCH 0/7] SELinux modernizations
+Date:   Tue, 13 Apr 2021 14:25:01 +0200
+Message-Id: <20210413122508.24745-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wiXqbSgqzv53C98sbaHVqpc+c8NZTpXC7bBMQT3OznE4g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 12, 2021 at 09:23:38AM -0700, Linus Torvalds wrote:
-> On Mon, Apr 12, 2021 at 5:05 AM Anton Altaparmakov <anton@tuxera.com> wrote:
-> >
-> > Shouldn't that be using mnt_userns instead of &init_user_ns both for the setattr_prepare() and setattr_copy() calls?
-> 
-> It doesn't matter for a filesystem that hasn't marked itself as
-> supporting idmaps.
-> 
-> If the filesystem doesn't set FS_ALLOW_IDMAP, then mnt_userns is
-> always going to be &init_user_ns.
-> 
-> That said, I don't think you are wrong - it would probably be a good
-> idea to pass down the 'mnt_userns' argument just to avoid confusion.
-> But if you look at the history, you'll see that adding the mount
-> namespace argument to the helper functions (like setattr_copy())
-> happened before the actual "switch the filesystem setattr() function
-> over to get the namespace argument".
-> 
-> So the current situation is partly an artifact of how the incremental
-> filesystem changes were done.
+Modernize SELinux parts of shadow
+(https://github.com/shadow-maint/shadow).
 
-I'm not so sure the complaint in the original mail is obviously valid.
-Passing down mnt_userns through all filesystem codepaths at once
-would've caused way more churn. There are filesystems that e.g. do stuff
-like this:
+Upstream pull request: https://github.com/shadow-maint/shadow/pull/323
 
-<fstype>_create()
--> __<fstype>_internal_create()
-<fstype>_mknod()
--> __<fstype>_internal_create()
-<fstype>_rmdir()
--> __<fstype>_internal_create()
 
-where __<fstype>_internal_create() was additionally called in a few
-other places.
-So instead of only changing <fstype>_<i_op> we would've now also have to
-change __<fstype>_internal_create() which would've caused the fs
-specific change to be more invasive than it needed to be. The way we
-did it allowed us to keep the change legible.
+Christian Göttsche (7):
+  struct commonio_db[selinux]: do not use deprecated type
+    security_context_t
+  vipw[selinux]: do not use deprecated typedef and skip context
+    translation
+  selinux.c: do not use deprecated typedef and skip context translation
+  selinux.c:reset_selinux_file_context(): do not fail in permissive mode
+  selinux.c: use modern selabel interface instead of deprecated
+    matchpathcon
+  set_selinux_file_context(): prepare context for actual file type
+  selinux: only open selabel database once
 
-And that's just a simple example.
-There are fses that have more convoluted callpaths:
-- an internal helper used additionally as a callback in a custom ops
-  struct
-- or most i_ops boiling down to a single internal function
-So the choice was also deliberate.
+ lib/commonio.c    |  4 ++--
+ lib/commonio.h    |  6 +----
+ lib/prototypes.h  |  2 +-
+ lib/selinux.c     | 60 ++++++++++++++++++++++++++++++++---------------
+ libmisc/copydir.c |  8 +++----
+ src/useradd.c     |  7 ++++--
+ src/userdel.c     |  3 +++
+ src/usermod.c     |  3 +++
+ src/vipw.c        | 10 ++++----
+ 9 files changed, 65 insertions(+), 38 deletions(-)
 
-We've also tried to be consistent when we actually pass down mnt_userns
-further within the filesystem and when we simply use init_user_ns in
-general. Just looking at setattr_copy() which was in the example:
+-- 
+2.31.0
 
-                   attr.c:void setattr_copy(struct user_namespace *mnt_userns, struct inode *inode,
-                   attr.c:EXPORT_SYMBOL(setattr_copy);
-                   btrfs/inode.c:          setattr_copy(&init_user_ns, inode, attr);
-                   cifs/inode.c:   setattr_copy(&init_user_ns, inode, attrs);
-                   cifs/inode.c:   setattr_copy(&init_user_ns, inode, attrs);
-                   exfat/file.c:   setattr_copy(&init_user_ns, inode, attr);
-                   ext2/inode.c:   setattr_copy(&init_user_ns, inode, iattr);
-**FS_ALLOW_IDMAP** ext4/inode.c:           setattr_copy(mnt_userns, inode, attr);
-                   f2fs/file.c:static void __setattr_copy(struct user_namespace *mnt_userns,
-                   f2fs/file.c:#define __setattr_copy setattr_copy
-                   f2fs/file.c:    __setattr_copy(&init_user_ns, inode, attr);
-                   fat/file.c:      * setattr_copy can't truncate these appropriately, so we'll
-**FS_ALLOW_IDMAP** fat/file.c:     setattr_copy(mnt_userns, inode, attr);
-                   gfs2/inode.c:   setattr_copy(&init_user_ns, inode, attr);
-                   hfs/inode.c:    setattr_copy(&init_user_ns, inode, attr);
-                   hfsplus/inode.c:        setattr_copy(&init_user_ns, inode, attr);
-                   hostfs/hostfs_kern.c:   setattr_copy(&init_user_ns, inode, attr);
-                   hpfs/inode.c:   setattr_copy(&init_user_ns, inode, attr);
-                   hugetlbfs/inode.c:      setattr_copy(&init_user_ns, inode, attr);
-                   jfs/file.c:     setattr_copy(&init_user_ns, inode, iattr);
-                   kernfs/inode.c: setattr_copy(&init_user_ns, inode, iattr);
-**helper library** libfs.c:        setattr_copy(mnt_userns, inode, iattr);
-                   minix/file.c:   setattr_copy(&init_user_ns, inode, attr);
-                   nilfs2/inode.c: setattr_copy(&init_user_ns, inode, iattr);
-                   ocfs2/dlmfs/dlmfs.c:    setattr_copy(&init_user_ns, inode, attr);
-                   ocfs2/file.c:   setattr_copy(&init_user_ns, inode, attr);
-                   omfs/file.c:    setattr_copy(&init_user_ns, inode, attr);
-                   orangefs/inode.c:       setattr_copy(&init_user_ns, inode, iattr);
-                   proc/base.c:    setattr_copy(&init_user_ns, inode, attr);
-                   proc/generic.c: setattr_copy(&init_user_ns, inode, iattr);
-                   proc/proc_sysctl.c:     setattr_copy(&init_user_ns, inode, attr);
-                   ramfs/file-nommu.c:     setattr_copy(&init_user_ns, inode, ia);
-                   reiserfs/inode.c:               setattr_copy(&init_user_ns, inode, attr);
-                   sysv/file.c:    setattr_copy(&init_user_ns, inode, attr);
-                   udf/file.c:     setattr_copy(&init_user_ns, inode, attr);
-                   ufs/inode.c:    setattr_copy(&init_user_ns, inode, attr);
-                   zonefs/super.c: setattr_copy(&init_user_ns, inode, iattr);
-
-so we pass mnt_userns further down for all fses that have FS_ALLOW_IDMAP
-set or where it's located in a helper library like libfs whose helpers
-might be called by an idmapped mount aware fs.
-
-When an fs is made aware of idmapped mounts the mnt_userns will
-naturally be passed down further at which point the relevant fs
-developer can decide how to restructure their own internal helpers
-instead of vfs developers deciding these internals for them.
-
-The xfs port is a good example where the xfs developers had - rightly so
-- opinions on how they wanted the calling conventions for their internal
-helpers to look like and how they wanted to pass around mnt_userns. I
-don't feel in a position to mandate this from a vfs developers
-perspective. I will happily provide input and express my opinion but the
-authority of the vfs-calling-convention police mostly ends at the i_op
-level.
-
-Christian
