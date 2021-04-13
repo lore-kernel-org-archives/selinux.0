@@ -2,131 +2,179 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEDB5C433B4
-	for <selinux@archiver.kernel.org>; Mon, 12 Apr 2021 16:25:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A3A3C433B4
+	for <selinux@archiver.kernel.org>; Tue, 13 Apr 2021 08:13:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C60FA6137C
-	for <selinux@archiver.kernel.org>; Mon, 12 Apr 2021 16:25:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12BAF61242
+	for <selinux@archiver.kernel.org>; Tue, 13 Apr 2021 08:13:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243877AbhDLQZX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Apr 2021 12:25:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243858AbhDLQYe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Apr 2021 12:24:34 -0400
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E25C061347
-        for <selinux@vger.kernel.org>; Mon, 12 Apr 2021 09:24:08 -0700 (PDT)
-Received: by mail-lf1-x131.google.com with SMTP id j18so22392377lfg.5
-        for <selinux@vger.kernel.org>; Mon, 12 Apr 2021 09:24:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ueR+bzUQyBJ6Gmj9fHXIfDenKkhbJd11CuntNjq4ue8=;
-        b=Al2PuI8Jtpzy/NwLxwtBoFYmkJnS/LiklYzPs1W31opZKivVBizLwtQrhvdcCOzNgl
-         iFR4SpalKqJenVbjbDxeUakPBfXOWawua9ad3aoLoJ6u71vmqNsjc2z07HewEM5RCZnE
-         537Yq4lD1OJ7BIDIr0AJhjMl3v314MH/ZEs9g=
+        id S241708AbhDMINm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Apr 2021 04:13:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42621 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229660AbhDMINj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Apr 2021 04:13:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618301599;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=KLyUzT5M5en0X4VIingKMBNaeYaSW+6rovobSSA9k74=;
+        b=Z+eQwLmJH1wz9V3zvCulWMMFSTbzWCgT/QlvLMuqKMaThP5yU6AcT4WFZIyUAj42xF7ZEO
+        DmjGXxxo1+N++bDORuiYc+1Frw6cKKsPTuUs2xiWveSvyqwtwrNz33WaqFf3nWgsLQ9wEx
+        U/wAxph/ydqUBgaL+dc4ARruG555fUs=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-17-NSFUd5u7MfmQ0NVwD-3PlQ-1; Tue, 13 Apr 2021 04:13:18 -0400
+X-MC-Unique: NSFUd5u7MfmQ0NVwD-3PlQ-1
+Received: by mail-yb1-f199.google.com with SMTP id 131so15545376ybp.16
+        for <selinux@vger.kernel.org>; Tue, 13 Apr 2021 01:13:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ueR+bzUQyBJ6Gmj9fHXIfDenKkhbJd11CuntNjq4ue8=;
-        b=MgQxic3dJVvtMdsWM8Y1HFnmq8F4DC+oMoyGWF2f3BcMItnRgjzzZmggGtgYxKFbE4
-         9/CyR8yRKefpgTySRwKcQNAQenjZmJJvSUwOCeYRfsiC2f3M1lhYuB4wDnwGkTSuaQX7
-         GuNMKxyAiHCjziqvXgNNH2OOvxUzJ9iuUI/BeN2MGZWWM/veM6f8Wqo87Eq8jgsnv3Qx
-         +CByznSvtkY7NYB9J7J9fHM4yY6YdpnuB1PxIfnTDL1wTvCnA3FbQdWpoZBAW0ha4IO3
-         YyiSm7w7DTDPYhP7LuLUOnMCWuPYSzNvLXvghiMdSBrPcZ35Ekc/jpfR5S6Ai6q8sWrz
-         l3TQ==
-X-Gm-Message-State: AOAM532gStdUGMGL/7rbJ5I9/EPwoW+6CwT4UTr4T5H9mWr7fR5mLWmM
-        1kosxki4gUnjK8TN3hpTacNdiDHaHKpbZO43
-X-Google-Smtp-Source: ABdhPJzW0DS7ji0Jg8XCK656BItdF+ZeE263L+yrdsG8gvGASKdXbnzPxDN/D2VwvZ4my5gRm/PbZg==
-X-Received: by 2002:a05:6512:39d5:: with SMTP id k21mr9734406lfu.365.1618244647011;
-        Mon, 12 Apr 2021 09:24:07 -0700 (PDT)
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com. [209.85.208.169])
-        by smtp.gmail.com with ESMTPSA id x1sm1360346ljm.127.2021.04.12.09.24.05
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Apr 2021 09:24:06 -0700 (PDT)
-Received: by mail-lj1-f169.google.com with SMTP id a36so5231787ljq.8
-        for <selinux@vger.kernel.org>; Mon, 12 Apr 2021 09:24:05 -0700 (PDT)
-X-Received: by 2002:a05:6512:31c7:: with SMTP id j7mr10731751lfe.41.1618244634563;
- Mon, 12 Apr 2021 09:23:54 -0700 (PDT)
+        bh=KLyUzT5M5en0X4VIingKMBNaeYaSW+6rovobSSA9k74=;
+        b=EU1OSmoAEi0uT73bccdJ9wUvREx7HjZ6bU6cKkrNWk3thkc+7AigBd0WBY1IJX0Z97
+         5b3T1nvNIERW9e4odE4ffZ1qdpAaDLg1UGFiR5PpIR9T44u7ipqhmEm6fsoYv62d4HD+
+         TzST8hSHT8xM6ouxgm3aDd1hISs/EPNhDYThwLeP8FcJs6KSgQU3RP5nejIsRYBmOuL7
+         gkL+te+GhQigSgmF4KWqg2VF/fm8XHMwuLYtv4EcXKq42hl+vYhDhtbXptuppDm976N0
+         6huUqxWz/4DdkHlwodmmPDF39/XRWBgWjHhs1ZH+CIiJikCQob+mrZbfnHPZpUiq7mZ1
+         Enog==
+X-Gm-Message-State: AOAM531p6BdvNYHVFZe1yoqbRMZjj17jC0CpyC3Dbsij/W2JxmB66u1L
+        qjc4qscsQ+Kwbu0KPONGHv+jk3K1dKFTZOy+6yaVuCQtGXR/KICXZdYU7if1XvYrbjjQMdIQVYw
+        koJ8qN7EEBLwM17Ls9c7RXjPTUgHZALFbzA==
+X-Received: by 2002:a25:ce09:: with SMTP id x9mr7099182ybe.81.1618301597499;
+        Tue, 13 Apr 2021 01:13:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyZMvsTkqUxAY9JNxCpjjk3fc9GGC9EFicegDOlF/Jpnn3EnjqB4N6bPUo4PnYHL4tsk1GsNBMxRJOZZ531USk=
+X-Received: by 2002:a25:ce09:: with SMTP id x9mr7099155ybe.81.1618301597217;
+ Tue, 13 Apr 2021 01:13:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <E901E25F-41FA-444D-B3C7-A7A786DDD5D5@tuxera.com>
-In-Reply-To: <E901E25F-41FA-444D-B3C7-A7A786DDD5D5@tuxera.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 12 Apr 2021 09:23:38 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiXqbSgqzv53C98sbaHVqpc+c8NZTpXC7bBMQT3OznE4g@mail.gmail.com>
-Message-ID: <CAHk-=wiXqbSgqzv53C98sbaHVqpc+c8NZTpXC7bBMQT3OznE4g@mail.gmail.com>
-Subject: Re: [PATCH v6 24/40] fs: make helpers idmap mount aware
-To:     Anton Altaparmakov <anton@tuxera.com>
-Cc:     "christian.brauner@ubuntu.com" <christian.brauner@ubuntu.com>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@hansenpartnership.com>,
-        "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
-        "alban@kinvolk.io" <alban@kinvolk.io>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "casey@schaufler-ca.com" <casey@schaufler-ca.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "cyphar@cyphar.com" <cyphar@cyphar.com>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        "ebiederm@xmission.com" <ebiederm@xmission.com>,
-        "geofft@ldpreload.com" <geofft@ldpreload.com>,
-        "hch@lst.de" <hch@lst.de>,
-        "hirofumi@mail.parknet.co.jp" <hirofumi@mail.parknet.co.jp>,
-        "john.johansen@canonical.com" <john.johansen@canonical.com>,
-        "josh@joshtriplett.org" <josh@joshtriplett.org>,
-        "keescook@chromium.org" <keescook@chromium.org>,
-        "lennart@poettering.net" <lennart@poettering.net>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-xfs@vger.kernel.org" <linux-xfs@vger.kernel.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mpatel@redhat.com" <mpatel@redhat.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "seth.forshee@canonical.com" <seth.forshee@canonical.com>,
-        "smbarber@chromium.org" <smbarber@chromium.org>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
-        "tkjos@google.com" <tkjos@google.com>,
-        "tycho@tycho.ws" <tycho@tycho.ws>, "tytso@mit.edu" <tytso@mit.edu>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>
+References: <20191012005747.210722465@goodmis.org> <20191012005921.580293464@goodmis.org>
+In-Reply-To: <20191012005921.580293464@goodmis.org>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 13 Apr 2021 10:13:04 +0200
+Message-ID: <CAFqZXNs4eRC6kjFRe6CdwA-sng-w6bcJZf5io+hoLKwM98TVSA@mail.gmail.com>
+Subject: Re: [PATCH 7/7 v2] tracing: Do not create tracefs files if tracefs
+ lockdown is in effect
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        James Morris James Morris <jmorris@namei.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Herton Krzesinski <hkrzesin@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 12, 2021 at 5:05 AM Anton Altaparmakov <anton@tuxera.com> wrote:
+On Sat, Oct 12, 2019 at 2:59 AM Steven Rostedt <rostedt@goodmis.org> wrote:
+> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 >
-> Shouldn't that be using mnt_userns instead of &init_user_ns both for the setattr_prepare() and setattr_copy() calls?
+> If on boot up, lockdown is activated for tracefs, don't even bother creating
+> the files. This can also prevent instances from being created if lockdown is
+> in effect.
+>
+> Link: http://lkml.kernel.org/r/CAHk-=whC6Ji=fWnjh2+eS4b15TnbsS4VPVtvBOwCy1jjEG_JHQ@mail.gmail.com
+>
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+> ---
+>  fs/tracefs/inode.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+> index eeeae0475da9..0caa151cae4e 100644
+> --- a/fs/tracefs/inode.c
+> +++ b/fs/tracefs/inode.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/namei.h>
+>  #include <linux/tracefs.h>
+>  #include <linux/fsnotify.h>
+> +#include <linux/security.h>
+>  #include <linux/seq_file.h>
+>  #include <linux/parser.h>
+>  #include <linux/magic.h>
+> @@ -390,6 +391,9 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
+>         struct dentry *dentry;
+>         struct inode *inode;
+>
+> +       if (security_locked_down(LOCKDOWN_TRACEFS))
+> +               return NULL;
+> +
+>         if (!(mode & S_IFMT))
+>                 mode |= S_IFREG;
+>         BUG_ON(!S_ISREG(mode));
+> --
+> 2.23.0
 
-It doesn't matter for a filesystem that hasn't marked itself as
-supporting idmaps.
+Hi all,
 
-If the filesystem doesn't set FS_ALLOW_IDMAP, then mnt_userns is
-always going to be &init_user_ns.
+sorry for coming back to an old thread, but it turns out that this
+patch doesn't play well with SELinux's implementation of the
+security_locked_down() hook, which was added a few months later (so
+not your fault :) in commit 59438b46471a ("security,lockdown,selinux:
+implement SELinux lockdown").
 
-That said, I don't think you are wrong - it would probably be a good
-idea to pass down the 'mnt_userns' argument just to avoid confusion.
-But if you look at the history, you'll see that adding the mount
-namespace argument to the helper functions (like setattr_copy())
-happened before the actual "switch the filesystem setattr() function
-over to get the namespace argument".
+What SELinux does is it checks if the current task's creds are allowed
+the lockdown::integrity or lockdown::confidentiality permission in the
+policy whenever security_locked_down() is called. The idea is to be
+able to control at SELinux domain level which tasks can do these
+sensitive operations (when the kernel is not actually locked down by
+the Lockdown LSM).
 
-So the current situation is partly an artifact of how the incremental
-filesystem changes were done.
+With this patch + the SELinux lockdown mechanism in use, when a
+userspace task loads a module that creates some tracefs nodes in its
+initcall SELinux will check if the task has the
+lockdown::confidentiality permission and if not, will report denials
+in audit log and prevent the tracefs entries from being created. But
+that is not a very logical behavior, since the task loading the module
+is itself not (explicitly) doing anything that would breach
+confidentiality. It just indirectly causes some tracefs nodes to be
+created, but doesn't actually use them at that point.
 
-           Linus
+Since it seems the other patches also added security_locked_down()
+calls to the tracefs nodes' open functions, I guess reverting this
+patch could be an acceptable way to fix this problem (please correct
+me if there is something that this call catches, which the other ones
+don't). However, even then I can understand that you (or someone else)
+might want to keep this as an optimization, in which case we could
+instead do this:
+1. Add a new hook security_locked_down_permanently() (the name is open
+for discussion), which would be intended for situations when we want
+to avoid doing some pointless work when the kernel is in a "hard"
+lockdown that can't be taken back (except perhaps in some rescue
+scenario...).
+2. This hook would be backed by the same implementation as
+security_locked_down() in the Lockdown LSM and left unimplemented by
+SELinux.
+3. tracefs_create_file() would call this hook instead of security_locked_down().
+
+This way it would work as before relative to the standard lockdown via
+the Lockdown LSM and would be simply ignored by SELinux. I went over
+all the security_locked_down() call in the kernel and I think this
+alternative hook could also fit better in arch/powerpc/xmon/xmon.c,
+where it seems to be called from interrupt context (so task creds are
+irrelevant, anyway...) and mainly causes some values to be redacted.
+(I also found a couple minor issues with how the hook is used in other
+places, for which I plan to send patches later.)
+
+Thoughts?
+
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
