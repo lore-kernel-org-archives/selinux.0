@@ -2,103 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B83AC433B4
-	for <selinux@archiver.kernel.org>; Wed, 14 Apr 2021 19:18:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA39CC43470
+	for <selinux@archiver.kernel.org>; Thu, 15 Apr 2021 10:04:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 32A4A610FC
-	for <selinux@archiver.kernel.org>; Wed, 14 Apr 2021 19:18:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3AEB6139A
+	for <selinux@archiver.kernel.org>; Thu, 15 Apr 2021 10:04:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353126AbhDNTTL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Apr 2021 15:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41344 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232828AbhDNTTJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Apr 2021 15:19:09 -0400
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14B3C061574
-        for <selinux@vger.kernel.org>; Wed, 14 Apr 2021 12:18:46 -0700 (PDT)
-Received: by mail-oi1-x230.google.com with SMTP id k25so21743703oic.4
-        for <selinux@vger.kernel.org>; Wed, 14 Apr 2021 12:18:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nIJfNBD0BVbMuNQNEwnDEDrvwO7pOazFHcCnSXJOTMY=;
-        b=el9U83kytBg7F0qWNlnB9kN/4QhE1NTkV9pJxH3CjPx50Cr3Q4lZQSPSw/f7LIhUYJ
-         PJVTN9xl4wfeUkFtWHSXy7LB+0QN5DGFUZSJffE3/zdoaV+zt1lKXbkeChEK5yKqc3uA
-         AXkCp6amRWyAkQaBLKcbShbSiWO3JdwPKgwUiMSfZzmtnMLA//KUOVU5AlUpUk/gZ0JT
-         zKZ7L6ebKK63T3LJag3rMwjw1G67+H2p8+5g0XwiGIayN8MJFiDWDFj2cKrbssv87/xO
-         bMyQzlbnRMwLrwt+MsDm/Tl5BlAJG9L/nEa5b+sPSkwydZi7jmXW+2M5wIUI4EMEfqDf
-         70Jw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nIJfNBD0BVbMuNQNEwnDEDrvwO7pOazFHcCnSXJOTMY=;
-        b=tSps0/BEHRwecQsXB8xe+O6KJHp0rTMzR2EKuISV4Ve4XPg9g1GRcVa74Wssk7EZcj
-         a3r+zkMoM8rSrBVfq/0tledqE0Gerr2lz30CZ2bhc9Mj7WHbQwAha1fSP1/D6ITtYf8s
-         NVgGXhMcAdC+V2N+464BG9p210WAVk7fg60cAbYeWvJRmbCTZVg8ybzTtW0GtnGvUoxj
-         5ehMCmv9WvUyZPVg40nrbaLSW5qO8ckLzXBfOSQvITmO6sZxYu6/FklFogIbId4aGE3h
-         +V5JxCteROzyydPErf9GORircXOSxKNLf2v92xqykYpy4iE97Ebg6r/NnbOIZXLFaphd
-         P9Fw==
-X-Gm-Message-State: AOAM532zbv6NoIE7x5nX+Un/mWCcSyxoSPpt3KqDFgCieKg/8xLtgkqC
-        Fd9tQI7lQH0599p07Q7Zw8wWk+yqldC/RFZmpKM=
-X-Google-Smtp-Source: ABdhPJwc87SJCK6kEWSMq9haCP1E7tFguaFa2RTcmn/dBsrYcCggJJTeUJR4DxWuMOz/zz4SYdwqNT6ZJcN+ISjWEgQ=
-X-Received: by 2002:a05:6808:1482:: with SMTP id e2mr3543984oiw.138.1618427926421;
- Wed, 14 Apr 2021 12:18:46 -0700 (PDT)
+        id S232019AbhDOKFP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Apr 2021 06:05:15 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:2861 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230190AbhDOKFO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Apr 2021 06:05:14 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.207])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4FLZZC5H9Fz68BJf;
+        Thu, 15 Apr 2021 17:59:31 +0800 (CST)
+Received: from fraphisprd00473.huawei.com (7.182.8.141) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2106.2; Thu, 15 Apr 2021 12:04:49 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <jmorris@namei.org>, <paul@paul-moore.com>,
+        <casey@schaufler-ca.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+        <reiserfs-devel@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 1/5] xattr: Complete constify ->name member of "struct xattr"
+Date:   Thu, 15 Apr 2021 12:04:31 +0200
+Message-ID: <20210415100435.18619-2-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210415100435.18619-1-roberto.sassu@huawei.com>
+References: <20210415100435.18619-1-roberto.sassu@huawei.com>
 MIME-Version: 1.0
-References: <20210414141027.3494107-1-yochiang@google.com>
-In-Reply-To: <20210414141027.3494107-1-yochiang@google.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 14 Apr 2021 15:18:35 -0400
-Message-ID: <CAP+JOzSCEfgouyWfjkZjPwrEZM0SSKqGH2QJdirp8zkHPyXBfg@mail.gmail.com>
-Subject: Re: [PATCH] secilc.c: Don't fail if input file is empty
-To:     Yi-Yo Chiang <yochiang@google.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [7.182.8.141]
+X-ClientProxiedBy: lhreml752-chm.china.huawei.com (10.201.108.202) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 14, 2021 at 12:32 PM Yi-Yo Chiang <yochiang@google.com> wrote:
->
-> fread(3) returns zero if |size| is zero. This confuses secilc, and
-> causes it to fail with a "Failure reading file" error, even though there
-> is no error.
->
-> Add a shortcut that closes and skips an input file if file size is zero.
->
-> Signed-off-by: Yi-Yo Chiang <yochiang@google.com>
+This patch completes commit 9548906b2bb7 ('xattr: Constify ->name member of
+"struct xattr"'). It fixes the documentation of the inode_init_security
+hook, by removing the xattr name from the objects that are expected to be
+allocated by LSMs (only the value is allocated). Also, it removes the
+kfree() of name and setting it to NULL in the reiserfs code.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Fixes: 9548906b2bb7 ('xattr: Constify ->name member of "struct xattr"')
+Cc: stable@vger.kernel.org
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ fs/reiserfs/xattr_security.c | 2 --
+ include/linux/lsm_hooks.h    | 4 ++--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-> ---
->  secilc/secilc.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/secilc/secilc.c b/secilc/secilc.c
-> index 186c5a73..9c78e425 100644
-> --- a/secilc/secilc.c
-> +++ b/secilc/secilc.c
-> @@ -268,6 +268,12 @@ int main(int argc, char *argv[])
->                 }
->                 file_size = filedata.st_size;
->
-> +               if (!file_size) {
-> +                       fclose(file);
-> +                       file = NULL;
-> +                       continue;
-> +               }
-> +
->                 buffer = malloc(file_size);
->                 rc = fread(buffer, file_size, 1, file);
->                 if (rc != 1) {
-> --
-> 2.31.1.295.g9ea45b61b8-goog
->
+diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
+index 8965c8e5e172..bb2a0062e0e5 100644
+--- a/fs/reiserfs/xattr_security.c
++++ b/fs/reiserfs/xattr_security.c
+@@ -95,9 +95,7 @@ int reiserfs_security_write(struct reiserfs_transaction_handle *th,
+ 
+ void reiserfs_security_free(struct reiserfs_security_handle *sec)
+ {
+-	kfree(sec->name);
+ 	kfree(sec->value);
+-	sec->name = NULL;
+ 	sec->value = NULL;
+ }
+ 
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index fb7f3193753d..c5498f5174ce 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -219,8 +219,8 @@
+  *	This hook is called by the fs code as part of the inode creation
+  *	transaction and provides for atomic labeling of the inode, unlike
+  *	the post_create/mkdir/... hooks called by the VFS.  The hook function
+- *	is expected to allocate the name and value via kmalloc, with the caller
+- *	being responsible for calling kfree after using them.
++ *	is expected to allocate the value via kmalloc, with the caller
++ *	being responsible for calling kfree after using it.
+  *	If the security module does not use security attributes or does
+  *	not wish to put a security attribute on this particular inode,
+  *	then it should return -EOPNOTSUPP to skip this processing.
+-- 
+2.26.2
+
