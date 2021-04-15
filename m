@@ -2,114 +2,105 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C14A3C43461
-	for <selinux@archiver.kernel.org>; Thu, 15 Apr 2021 20:43:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4325C433B4
+	for <selinux@archiver.kernel.org>; Thu, 15 Apr 2021 20:45:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B483613BB
-	for <selinux@archiver.kernel.org>; Thu, 15 Apr 2021 20:43:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CF5961139
+	for <selinux@archiver.kernel.org>; Thu, 15 Apr 2021 20:45:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235215AbhDOUoQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Apr 2021 16:44:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35916 "EHLO
+        id S234748AbhDOUpa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Apr 2021 16:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235546AbhDOUoP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Apr 2021 16:44:15 -0400
-Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A8A0C061574
-        for <selinux@vger.kernel.org>; Thu, 15 Apr 2021 13:43:51 -0700 (PDT)
-Received: by mail-oo1-xc2f.google.com with SMTP id c12-20020a4ae24c0000b02901bad05f40e4so5678057oot.4
-        for <selinux@vger.kernel.org>; Thu, 15 Apr 2021 13:43:51 -0700 (PDT)
+        with ESMTP id S234668AbhDOUp3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Apr 2021 16:45:29 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499D0C061574
+        for <selinux@vger.kernel.org>; Thu, 15 Apr 2021 13:45:06 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id w31-20020a9d36220000b02901f2cbfc9743so23814487otb.7
+        for <selinux@vger.kernel.org>; Thu, 15 Apr 2021 13:45:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=pEM9zn7hCqq9I/q96AYpQa83fQpxz/w9Us/EMcmXzGg=;
-        b=EMGvw/a8Mtl273VWiQaOeE76F68tfym+5p260mMiUXXkLFTJgll7ePCgdMHIvKJYJJ
-         cbQa8hSQ3SfS3qo89OKAsIT0aHC8NW/1LPLqydOdA5FvWmzysQjNA4ATFLyxJrnOqpmL
-         bJWt6W0SmwTS9nLIed+f93Kwk81OUGtYzdkaYPlqVDxNIUOaPQPn0j39vxFDkH3SZ2a3
-         mlClzW4y5ybHlL4LmjheZe0F4a2YkjyC1I6sIEcev/ypT0wXlFrQTJCSHQMPxyFiDdec
-         m/CdR6jgBpuXQZgn1WALwcK5RH9VGw8ZQNzRC7wspx0QtkHTEsU5FrtjL5rDEqcDgzmw
-         Bkbg==
+        bh=20IKulgT8YDTTDbCp7o46YPxSHyaUNopKuFV7T5cxJQ=;
+        b=dk1tyO6T8H/2Vv8C92q6V1Y9kpqXP6qckRCXbzkPsyeY4BJbqS4NnsC6y6xWi17mlK
+         93LOe7oEbIVxs0sKDlvVif2lht8gRgQa9XgV/i5Lb7wGjhdmoO9mfyG+wO2W4Ab5x4T3
+         FKg7Ro8c9/mVpBsHeWHHimB5KDXZfIkTIvMePg60lvRKyCGMLCiUWfJSSvDwlAh62u32
+         hD7is8iTpuFQU1+ykXtNyFhBrT6Xn57h6OUfQrfQif2zvxThz/6DLUI5rHDHlJqAkd5g
+         RMU21gn93ltQ7WyWSjlNuIMhroWtzKRyVkfW6APouQ0Vr3t7ki6C/GWyS20zlW67aOWU
+         E7Pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to;
-        bh=pEM9zn7hCqq9I/q96AYpQa83fQpxz/w9Us/EMcmXzGg=;
-        b=mw0p/i4TmgWwVxHeaZIaSDyBOugJd+Rxy9EGb/asPSOIN7+rGmxdHkuDISBnSNbsdu
-         J/3OOL6jnQ0GmIXZsHkRlVeX6JEd9ax9zZ5Q9AfEV5Xa/aLSKGBjsd8JOUodK90hggtC
-         hz+K/dZeiBABS8due5z737urzIEqFymSoUhj7HuMcaHT8hNiKx+Fi6VZqUO9A3GfxCvB
-         KxTTLkeNNW0IrfEiFCu/zD/hq9UF6qNAUMr9gV071xyAQLyAHvkHzXGqVaH9n59LaYVi
-         LTM74yW/QADOeXssgGBzH23ajoiZO5YtK2jNYjzG7YXGG8C0MUjtoXy9QqCgHTEoLUnm
-         uFSg==
-X-Gm-Message-State: AOAM531nt7F1U3gOhiEXEb0MTNink950yPeuwKNoi2TWPJlhnumnBwb6
-        e0BwLIZ4PCgG7zwvFJ1xHvjy8fNY1YrW4g3OcPS6K2TsLU4=
-X-Google-Smtp-Source: ABdhPJyKTTlLZ+Ktrky5IycVRY8U/UA7cWsMZunqbqNAJnHDHTh1I5qY4/84nzIYF8QqdJju3bquxLGbrXs+73jYxIo=
-X-Received: by 2002:a4a:a389:: with SMTP id s9mr742205ool.1.1618519428755;
- Thu, 15 Apr 2021 13:43:48 -0700 (PDT)
+        bh=20IKulgT8YDTTDbCp7o46YPxSHyaUNopKuFV7T5cxJQ=;
+        b=Xmw15xLSzv53vmIM8F2OYJxLrE9YzFS5UV6X3EsVX5L72z2YqH88+iCvxIvvAmvQih
+         FxCEvAKR2c+/wYjCgDb8Vqk2QYr6lLelmAMocG50yh6g3mHgElyHXScZXeHBMcucgB5a
+         Eq1CsPU8yHO5tWxNCuNgYe9qH68LG0UFvJqBtNHsmE3Eq91ul+CnYKKITSbA6X5yjz0Z
+         oCGc5f3Kf434zzezX0EybLNX2JXDvwePJbLzACN8H4uFOGLGEJwW0m16ovNNp09xhwcv
+         w4In+3WyZwHdtgP3W9xTg9ACHpt8x+RZ139ACnpX8FkQ+sS/YgjuMRzrPshhoODAKh+O
+         PwAA==
+X-Gm-Message-State: AOAM5321WU2Ju56EUJDPj06e+amkPif4O1pFuNbc+JhJSq9a8rwNTB4j
+        63v7ERjSbfwaVjVez7SSLAoPm4YqK7XecPpCpo8aMg04AN0=
+X-Google-Smtp-Source: ABdhPJyx5PiPOaTl/b9HhUHGlsvOLbE7qx16GBr5NY3ZpNQbJdY03c2lbmPYaDOu7F3NSIFrZZeUy9DshWD6LdsvZjA=
+X-Received: by 2002:a9d:aa4:: with SMTP id 33mr828178otq.295.1618519505637;
+ Thu, 15 Apr 2021 13:45:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210330173920.281531-1-jwcart2@gmail.com>
-In-Reply-To: <20210330173920.281531-1-jwcart2@gmail.com>
+References: <20210408191614.262173-1-jwcart2@gmail.com>
+In-Reply-To: <20210408191614.262173-1-jwcart2@gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 15 Apr 2021 16:43:37 -0400
-Message-ID: <CAP+JOzT4WA7U1TZqgOjUqZj=K1ZR-LiJgXQKS_zQALLbnj1gcQ@mail.gmail.com>
-Subject: Re: [PATCH 00/12] Update checks for invalid rules in blocks
+Date:   Thu, 15 Apr 2021 16:44:54 -0400
+Message-ID: <CAP+JOzQo6qA9cd8a_KgDTLF3m0qip=WZaH482fG74BD6imQCCA@mail.gmail.com>
+Subject: Re: [PATCH 00/11] Various CIL patches
 To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 30, 2021 at 1:39 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Apr 8, 2021 at 3:16 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> Looking into a bug that OSS-Fuzz found led to patch 7, Check for
-> statements not allowed in optional blocks, which is the most important
-> patch in this series. Working on patch 7 led to fixing some other
-> problems with the checks for invalid rules, cleaning up some of the code,
-> and improving the CIL documentation.
+> All of these patches (except the first) have been sent to the list in the
+> last month. The first patch is a slight modification of an earlier patch
+> sent by Nicolas Iooss. I also corrected a couple of whitespace errors and
+> updated one patch that would not apply cleanly with one of the earlier
+> patches applied.
 >
-> Patches 1, 2, 4, 5, and 10 are doing various cleanups.
-> Patch 3 fixes a bug that prevents the first rule in a block from being checked.
-> Patches 6, 7, 8, and 9 update the checks for invalid rules.
-> Patch 11 fixes a bug that prevented some error messages from being displayed.
-> Patch 12 updates the CIL documentation.
+> James Carter (11):
+>   libsepol/cil: Fix out-of-bound read of file context pattern ending
+>     with "\"
+>   libsepol/cil: Destroy classperms list when resetting classpermission
+>   libsepol/cil: Destroy classperm list when resetting map perms
+>   libsepol/cil: cil_reset_classperms_set() should not reset
+>     classpermission
+>   libsepol/cil: Set class field to NULL when resetting struct
+>     cil_classperms
+>   libsepol/cil: More strict verification of constraint leaf expressions
+>   libsepol/cil: Exit with an error if declaration name is a reserved
+>     word
+>   libsepol/cil: Allow permission expressions when using map classes
+>   libsepol/cil: Refactor helper function for cil_gen_node()
+>   libsepol/cil: Create function cil_add_decl_to_symtab() and refactor
+>   libsepol/cil: Move check for the shadowing of macro parameters
 >
-> There is still work to do in this area. I am not sure why sensitivity and
-> category statements are not allowed in blocks, but everything else is. That
-> is why I didn't add those checks when building the AST. It is not clear if
-> mls, handleunknown, defaultuser, defaultrole, defaulttype, defaultrange,
-> and policycap should be restricted to the global namespace.
->
-> James Carter (12):
->   libsepol/cil: Reorder checks for invalid rules when building AST
->   libsepol/cil: Cleanup build AST helper functions
->   libsepol/cil: Create new first child helper function for building AST
->   libsepol/cil: Use AST to track blocks and optionals when resolving
->   libsepol/cil: Reorder checks for invalid rules when resolving AST
->   libsepol/cil: Sync checks for invalid rules in booleanifs
->   libsepol/cil: Check for statements not allowed in optional blocks
->   libsepol/cil: Sync checks for invalid rules in macros
->   libsepol/cil: Do not allow tunable declarations in in-statements
->   libsepol/cil: Make invalid statement error messages consistent
->   libsepol/cil: Use CIL_ERR for error messages in cil_compile()
->   secilc/docs: Update the CIL documentation for various blocks
->
->  libsepol/cil/src/cil.c                    |   8 +-
->  libsepol/cil/src/cil_build_ast.c          | 193 ++++++++++++----------
->  libsepol/cil/src/cil_resolve_ast.c        | 174 ++++++++-----------
->  secilc/docs/cil_call_macro_statements.md  |   2 +
->  secilc/docs/cil_conditional_statements.md |   6 +
->  secilc/docs/cil_container_statements.md   |  28 ++--
->  6 files changed, 205 insertions(+), 206 deletions(-)
+>  libsepol/cil/src/cil_build_ast.c | 132 ++++++++++++-------------------
+>  libsepol/cil/src/cil_build_ast.h |   2 +
+>  libsepol/cil/src/cil_copy_ast.c  |  26 +++---
+>  libsepol/cil/src/cil_post.c      |  11 +++
+>  libsepol/cil/src/cil_reset_ast.c |  11 ++-
+>  libsepol/cil/src/cil_verify.c    |  78 +++++++++++++++++-
+>  libsepol/cil/src/cil_verify.h    |   3 +-
+>  7 files changed, 160 insertions(+), 103 deletions(-)
 >
 > --
 > 2.26.3
 >
 
-There hasn't been any comments on this patch set. I am planning on
-merging it next week.
-
+Most of these patches were sent out almost a month ago. I am planning
+on merging them next week.
 Jim
