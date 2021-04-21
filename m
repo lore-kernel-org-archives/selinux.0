@@ -2,211 +2,174 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A17CC433ED
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 08:58:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 357FDC433B4
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:20:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F411B6143E
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 08:58:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 049086144A
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:20:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237693AbhDUI7V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Apr 2021 04:59:21 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:40646 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235170AbhDUI7V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 04:59:21 -0400
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 24543564E51
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:58:47 +0200 (CEST)
-Received: by mail-pg1-f171.google.com with SMTP id w10so29171164pgh.5
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 01:58:47 -0700 (PDT)
-X-Gm-Message-State: AOAM531gNJ/GylyRK5qH9CghV3aWRvLB3+du5A5bR/Em8/InjOtSUzuP
-        P/P6BX/pY2zRJUpZI06clLZP/jDvSHFnhYU8038=
-X-Google-Smtp-Source: ABdhPJzwPfkuisGsuofWMKR8jNv/wxo64t9vQhVJB82KXbCHG0+HrCfBzTsvCV1kRLoVrRERcF4nJaZ669rVFcBWoq0=
-X-Received: by 2002:a62:10b:0:b029:259:fdc3:7c69 with SMTP id
- 11-20020a62010b0000b0290259fdc37c69mr23503822pfb.11.1618995525809; Wed, 21
- Apr 2021 01:58:45 -0700 (PDT)
+        id S244267AbhDUQUl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Apr 2021 12:20:41 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:2896 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244246AbhDUQUi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 12:20:38 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4FQQYl0XrYz6slNm;
+        Thu, 22 Apr 2021 00:12:27 +0800 (CST)
+Received: from roberto-ThinkStation-P620.huawei.com (10.204.62.217) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 21 Apr 2021 18:19:57 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <jmorris@namei.org>, <paul@paul-moore.com>,
+        <casey@schaufler-ca.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+        <reiserfs-devel@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Subject: [PATCH v2 0/6] evm: Prepare for moving to the LSM infrastructure
+Date:   Wed, 21 Apr 2021 18:19:19 +0200
+Message-ID: <20210421161925.968825-1-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20210419152749.88086-1-jwcart2@gmail.com> <CAP+JOzRtCjKaXVW6jVs7k-fhZE+AkkJuP5ORUNap0r3GHy2_Sg@mail.gmail.com>
-In-Reply-To: <CAP+JOzRtCjKaXVW6jVs7k-fhZE+AkkJuP5ORUNap0r3GHy2_Sg@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 21 Apr 2021 10:58:34 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=k6z6aRXtFnpzyjmkBdAYTeXouqYSePsQ-dQLxB=enHMQ@mail.gmail.com>
-Message-ID: <CAJfZ7=k6z6aRXtFnpzyjmkBdAYTeXouqYSePsQ-dQLxB=enHMQ@mail.gmail.com>
-Subject: Re: [PATCH 0/3 v2] Create secil2tree to write CIL AST
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="000000000000360f9905c077c5af"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Apr 21 10:58:47 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.62.217]
+X-ClientProxiedBy: lhreml754-chm.china.huawei.com (10.201.108.204) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---000000000000360f9905c077c5af
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This patch set depends on:
 
-On Tue, Apr 20, 2021 at 7:08 PM James Carter <jwcart2@gmail.com> wrote:
->
-> As an example of how it can be used, I have been using secil2tree
-> recently to make secilc fuzzing test cases readable.
->
-> Running:
-> secil2tree -A build -o fuzz_613136.cil
-> clusterfuzz-testcase-minimized-secilc-fuzzer-6131368317812736
->
-> The attached files shows the original and the output of secil2tree.
->
-> Jim
->
-> On Mon, Apr 19, 2021 at 11:27 AM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > For debugging purposes it would be useful to be able to write out
-> > the CIL AST at various points in the build process.
-> >
-> > This patch set creates secil2tree which can write the CIL parse tree,
-> > the CIL AST after the build phase, or the CIL AST after the resolve
-> > phase (with names fully-qualified).
-> >
-> > Within CIL the function cil_print_tree() has existed from early in
-> > CIL's development, but it was not exported in libsepol and there was no
-> > way to use it except by adding a call to it where you wanted to print
-> > out the CIL AST and then recompiling everything. It also used cil_log()
-> > as its output, so other messages could be mixed in with the output. Thi=
-s
-> > patch set moves all of this code to its own file, updates it, renames i=
-t
-> > as cil_write_ast(), and adds libsepol functions that can be used to cal=
-l
-> > it after each one of the phases mentioned above.
-> >
-> > Both the parse and build CIL AST are valid CIL policies that can be
-> > compiled with secilc, but the resolve CIL AST is not always a valid CIL
-> > policy. The biggest problem is that fully-qualified names can contain
-> > dots and CIL does not allow dots in declaration names. There are other
-> > problems as well. It would be nice to get to the point where the output
-> > for all of the trees are valid CIL, but that is a goal for the future.
-> >
-> > v2:
-> > - Remove whitespace errors in cil_write_ast.h
-> > - Use "const char*" instead of just "char*" when dealing with string
-> > literals to satisfy clang.
-> >
-> > James Carter (3):
-> >   libsepol/cil: Create functions to write the CIL AST
-> >   libsepol/cil: Add functions to make use of cil_write_ast()
-> >   secilc: Create the new program called secil2tree to write out CIL AST
-> >
-> >  libsepol/cil/include/cil/cil.h   |    3 +
-> >  libsepol/cil/src/cil.c           |   92 ++
-> >  libsepol/cil/src/cil_tree.c      | 1471 ----------------------------
-> >  libsepol/cil/src/cil_tree.h      |    2 -
-> >  libsepol/cil/src/cil_write_ast.c | 1573 ++++++++++++++++++++++++++++++
-> >  libsepol/cil/src/cil_write_ast.h |   46 +
-> >  libsepol/src/libsepol.map.in     |    3 +
-> >  secilc/.gitignore                |    2 +
-> >  secilc/Makefile                  |   20 +-
-> >  secilc/secil2tree.8.xml          |   81 ++
-> >  secilc/secil2tree.c              |  206 ++++
-> >  11 files changed, 2024 insertions(+), 1475 deletions(-)
-> >  create mode 100644 libsepol/cil/src/cil_write_ast.c
-> >  create mode 100644 libsepol/cil/src/cil_write_ast.h
-> >  create mode 100644 secilc/secil2tree.8.xml
-> >  create mode 100644 secilc/secil2tree.c
-> >
-> > --
-> > 2.26.3
-> >
+https://lore.kernel.org/linux-integrity/20210409114313.4073-1-roberto.sassu@huawei.com/
+https://lore.kernel.org/linux-integrity/20210407105252.30721-1-roberto.sassu@huawei.com/
 
-Hello,
-Thanks for this tool! It looks great and it seems to work quite well.
+One of the challenges that must be tackled to move IMA and EVM to the LSM
+infrastructure is to ensure that EVM is capable to correctly handle
+multiple stacked LSMs providing an xattr at file creation. At the moment,
+there are few issues that would prevent a correct integration. This patch
+set aims at solving them.
 
-Anyway, while building with some warning flags, gcc reported issues
-about using non-const pointers to hold literal strings. For example:
+From the LSM infrastructure side, the LSM stacking feature added the
+possibility of registering multiple implementations of the security hooks,
+that are called sequentially whenever someone calls the corresponding
+security hook. However, security_inode_init_security() and
+security_old_inode_init_security() are currently limited to support one
+xattr provided by LSM and one by EVM.
 
-../cil/src/cil_write_ast.c: In function =E2=80=98datum_to_str=E2=80=99:
-../cil/src/cil_write_ast.c:51:28: error: return discards =E2=80=98const=E2=
-=80=99
-qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
-   51 |  return datum ? datum->fqn : "<?DATUM>";
-      |         ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
-../cil/src/cil_write_ast.c: In function =E2=80=98write_expr=E2=80=99:
-../cil/src/cil_write_ast.c:122:12: error: assignment discards =E2=80=98cons=
-t=E2=80=99
-qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
-  122 |     op_str =3D "<?OP>";
-      |            ^
+In addition, using the call_int_hook() macro causes some issues. According
+to the documentation in include/linux/lsm_hooks.h, it is a legitimate case
+that an LSM returns -EOPNOTSUPP when it does not want to provide an xattr.
+However, the loop defined in the macro would stop calling subsequent LSMs
+if that happens. In the case of security_old_inode_init_security(), using
+the macro would also cause a memory leak due to replacing the *value
+pointer, if multiple LSMs provide an xattr.
 
-With the attached patch, the code compiles fine. Feel free to directly
-modify the first patch with these fixes.
+From EVM side, the first operation to be done is to change the definition
+of evm_inode_init_security() to be compatible with the security hook
+definition. Unfortunately, the current definition does not provide enough
+information for EVM, as it must have visibility of all xattrs provided by
+LSMs to correctly calculate the HMAC. This patch set changes the security
+hook definition by replacing the name, value and len triple with the xattr
+array allocated by security_inode_init_security().
 
-Thanks,
-Nicolas
+Secondly, EVM must know how many elements are in the xattr array. It seems
+that it is not necessary to add another parameter, as all filesystems that
+define an initxattr function expect that the last element of the array is
+one with the name field set to NULL. EVM reuses the same assumption.
 
---000000000000360f9905c077c5af
-Content-Type: text/x-patch; charset="UTF-8"; 
-	name="0001-Fix-Wdiscarded-qualifiers-issues.patch"
-Content-Disposition: attachment; 
-	filename="0001-Fix-Wdiscarded-qualifiers-issues.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_knr81f220>
-X-Attachment-Id: f_knr81f220
+This patch set has been tested by introducing several instances of a
+TestLSM (some providing an xattr, some not, one with a wrong implementation
+to see how the LSM infrastructure handles it). The patch is not included
+in this set but it is available here:
 
-RnJvbSA1MDlhZmZhMDM3M2I3ODRhNzI2ZjUxZWYxZjE4NDZmMWVmYTIzMjdlIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBOaWNvbGFzIElvb3NzIDxuaWNvbGFzLmlvb3NzQG00eC5vcmc+
-CkRhdGU6IFR1ZSwgMjAgQXByIDIwMjEgMTY6MzM6MDEgKzAyMDAKU3ViamVjdDogW1BBVENIXSBG
-aXggLVdkaXNjYXJkZWQtcXVhbGlmaWVycyBpc3N1ZXMKTUlNRS1WZXJzaW9uOiAxLjAKQ29udGVu
-dC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PVVURi04CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rp
-bmc6IDhiaXQKCkJ1aWxzIHdpdGggJ2djYyAtV2Rpc2NhcmRlZC1xdWFsaWZpZXJzJyBsZWFkcyB0
-byBlcnJvcnMgc3VjaCBhczoKCiAgICAuLi9jaWwvc3JjL2NpbF93cml0ZV9hc3QuYzogSW4gZnVu
-Y3Rpb24g4oCYZGF0dW1fdG9fc3Ry4oCZOgogICAgLi4vY2lsL3NyYy9jaWxfd3JpdGVfYXN0LmM6
-NTE6Mjg6IGVycm9yOiByZXR1cm4gZGlzY2FyZHMg4oCYY29uc3TigJkKICAgIHF1YWxpZmllciBm
-cm9tIHBvaW50ZXIgdGFyZ2V0IHR5cGUgWy1XZXJyb3I9ZGlzY2FyZGVkLXF1YWxpZmllcnNdCiAg
-ICAgICA1MSB8ICByZXR1cm4gZGF0dW0gPyBkYXR1bS0+ZnFuIDogIjw/REFUVU0+IjsKICAgICAg
-ICAgIHwgICAgICAgICB+fn5+fn5+fn5+fn5+fn5+fn5+Xn5+fn5+fn5+fn5+CgogICAgLi4vY2ls
-L3NyYy9jaWxfd3JpdGVfYXN0LmM6IEluIGZ1bmN0aW9uIOKAmHdyaXRlX2V4cHLigJk6CiAgICAu
-Li9jaWwvc3JjL2NpbF93cml0ZV9hc3QuYzoxMjI6MTI6IGVycm9yOiBhc3NpZ25tZW50IGRpc2Nh
-cmRzCiAgICDigJhjb25zdOKAmSBxdWFsaWZpZXIgZnJvbSBwb2ludGVyIHRhcmdldCB0eXBlCiAg
-ICBbLVdlcnJvcj1kaXNjYXJkZWQtcXVhbGlmaWVyc10KICAgICAgMTIyIHwgICAgIG9wX3N0ciA9
-ICI8P09QPiI7CiAgICAgICAgICB8ICAgICAgICAgICAgXgoKU2lnbmVkLW9mZi1ieTogTmljb2xh
-cyBJb29zcyA8bmljb2xhcy5pb29zc0BtNHgub3JnPgotLS0KIGxpYnNlcG9sL2NpbC9zcmMvY2ls
-X3dyaXRlX2FzdC5jIHwgMTIgKysrKysrLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRp
-b25zKCspLCA2IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2xpYnNlcG9sL2NpbC9zcmMvY2ls
-X3dyaXRlX2FzdC5jIGIvbGlic2Vwb2wvY2lsL3NyYy9jaWxfd3JpdGVfYXN0LmMKaW5kZXggNmNi
-NTY3YTY5ZDViLi42MmZhZWZlMzFkZWUgMTAwNjQ0Ci0tLSBhL2xpYnNlcG9sL2NpbC9zcmMvY2ls
-X3dyaXRlX2FzdC5jCisrKyBiL2xpYnNlcG9sL2NpbC9zcmMvY2lsX3dyaXRlX2FzdC5jCkBAIC00
-MSwxMiArNDEsMTIgQEAKICNpbmNsdWRlICJjaWxfd3JpdGVfYXN0LmgiCiAKIAotc3RhdGljIGlu
-bGluZSBjaGFyICpkYXR1bV9vcl9zdHIoc3RydWN0IGNpbF9zeW10YWJfZGF0dW0gKmRhdHVtLCBj
-aGFyICpzdHIpCitzdGF0aWMgaW5saW5lIGNvbnN0IGNoYXIgKmRhdHVtX29yX3N0cihzdHJ1Y3Qg
-Y2lsX3N5bXRhYl9kYXR1bSAqZGF0dW0sIGNvbnN0IGNoYXIgKnN0cikKIHsKIAlyZXR1cm4gZGF0
-dW0gPyBkYXR1bS0+ZnFuIDogc3RyOwogfQogCi1zdGF0aWMgaW5saW5lIGNoYXIgKmRhdHVtX3Rv
-X3N0cihzdHJ1Y3QgY2lsX3N5bXRhYl9kYXR1bSAqZGF0dW0pCitzdGF0aWMgaW5saW5lIGNvbnN0
-IGNoYXIgKmRhdHVtX3RvX3N0cihzdHJ1Y3QgY2lsX3N5bXRhYl9kYXR1bSAqZGF0dW0pCiB7CiAJ
-cmV0dXJuIGRhdHVtID8gZGF0dW0tPmZxbiA6ICI8P0RBVFVNPiI7CiB9CkBAIC04Miw3ICs4Miw3
-IEBAIHN0YXRpYyB2b2lkIHdyaXRlX2V4cHIoRklMRSAqb3V0LCBzdHJ1Y3QgY2lsX2xpc3QgKmV4
-cHIpCiAJCQlmcHJpbnRmKG91dCwgIiVzIiwgZGF0dW1fdG9fc3RyKGN1cnItPmRhdGEpKTsKIAkJ
-CWJyZWFrOwogCQljYXNlIENJTF9PUDogewotCQkJY2hhciAqb3Bfc3RyID0gTlVMTDsKKwkJCWNv
-bnN0IGNoYXIgKm9wX3N0ciA9IE5VTEw7CiAJCQllbnVtIGNpbF9mbGF2b3Igb3BfZmxhdm9yID0g
-KGVudW0gY2lsX2ZsYXZvciljdXJyLT5kYXRhOwogCQkJc3dpdGNoIChvcF9mbGF2b3IpIHsKIAkJ
-CWNhc2UgQ0lMX0FORDoKQEAgLTEyNiw3ICsxMjYsNyBAQCBzdGF0aWMgdm9pZCB3cml0ZV9leHBy
-KEZJTEUgKm91dCwgc3RydWN0IGNpbF9saXN0ICpleHByKQogCQkJYnJlYWs7CiAJCX0KIAkJY2Fz
-ZSBDSUxfQ09OU19PUEVSQU5EOiB7Ci0JCQljaGFyICpvcGVyYW5kX3N0ciA9IE5VTEw7CisJCQlj
-b25zdCBjaGFyICpvcGVyYW5kX3N0ciA9IE5VTEw7CiAJCQllbnVtIGNpbF9mbGF2b3Igb3BlcmFu
-ZF9mbGF2b3IgPSAoZW51bSBjaWxfZmxhdm9yKWN1cnItPmRhdGE7CiAJCQlzd2l0Y2ggKG9wZXJh
-bmRfZmxhdm9yKSB7CiAJCQljYXNlIENJTF9DT05TX1UxOgpAQCAtNDkwLDkgKzQ5MCw5IEBAIHN0
-YXRpYyB2b2lkIHdyaXRlX2NhbGxfYXJnc190cmVlKEZJTEUgKm91dCwgc3RydWN0IGNpbF90cmVl
-X25vZGUgKmFyZ19ub2RlKQogCX0KIH0KIAotc3RhdGljIGNoYXIgKl9fbWFjcm9fcGFyYW1fZmxh
-dm9yX3RvX3N0cmluZyhlbnVtIGNpbF9mbGF2b3IgZmxhdm9yKQorc3RhdGljIGNvbnN0IGNoYXIg
-Kl9fbWFjcm9fcGFyYW1fZmxhdm9yX3RvX3N0cmluZyhlbnVtIGNpbF9mbGF2b3IgZmxhdm9yKQog
-ewotCWNoYXIgKnN0ciA9IE5VTEw7CisJY29uc3QgY2hhciAqc3RyID0gTlVMTDsKIAlzd2l0Y2go
-Zmxhdm9yKSB7CiAJY2FzZSBDSUxfVFlQRToKIAkJc3RyID0gQ0lMX0tFWV9UWVBFOwotLSAKMi4z
-MS4wCgo=
---000000000000360f9905c077c5af--
+https://github.com/robertosassu/linux/commit/dbe867fdf0b61b9bd73332f159e7ce5ca2a9b980
+
+The test, added to ima-evm-utils, is available here:
+
+https://github.com/robertosassu/ima-evm-utils/blob/evm-multiple-lsms-v2-devel-v2/tests/evm_multiple_lsms.test
+
+The test takes a UML kernel built by Travis and launches it several times,
+each time with a different combination of LSMs. After boot, it first checks
+that there is an xattr for each LSM providing it, and then calculates the
+HMAC in user space and compares it with the HMAC calculated by EVM in
+kernel space.
+
+A test report can be obtained here:
+
+https://travis-ci.com/github/robertosassu/ima-evm-utils/jobs/500142666
+
+SELinux Test Suite result (diff 5.11.14-200.fc33.x86_64 5.12.0-rc8+):
+-Files=70, Tests=1099, 82 wallclock secs ( 0.35 usr  0.09 sys +  7.39 cusr 10.14 csys = 17.97 CPU)
++Files=70, Tests=1108, 104 wallclock secs ( 0.35 usr  0.09 sys +  7.35 cusr 11.35 csys = 19.14 CPU)
+ Result: FAIL
+-Failed 2/70 test programs. 5/1099 subtests failed.
++Failed 2/70 test programs. 5/1108 subtests failed.
+
+Smack Test Suite result:
+smack_set_ambient 1 TPASS: Test "smack_set_ambient" success.
+smack_set_current 1 TPASS: Test "smack_set_current" success.
+smack_set_doi 1 TPASS: Test "smack_set_doi" success.
+smack_set_netlabel 1 TPASS: Test "smack_set_netlabel" success.
+smack_set_socket_labels    1  TPASS  :  Test smack_set_socket_labels success.
+smack_set_cipso 1 TPASS: Test "smack_set_cipso" success.
+smack_set_direct 1 TPASS: Test "smack_set_direct" success.
+smack_set_load 1 TPASS: Test "smack_set_load" success.
+smack_set_onlycap 1 TFAIL: The smack label reported for "/smack/onlycap"
+
+Lastly, running the test on reiserfs to check
+security_old_inode_init_security(), some issues have been discovered: a
+free of xattr->name which is not correct after commit 9548906b2bb7 ('xattr:
+Constify ->name member of "struct xattr"'), missing calls to
+reiserfs_security_free() and a misalignment with
+security_inode_init_security() (the old version expects the full xattr name
+with the security. prefix, the new version just the suffix). The last issue
+has not been fixed yet.
+
+Changelog
+
+v1:
+- add calls to reiserfs_security_free() and initialize sec->value to NULL
+  (suggested by Tetsuo and Mimi)
+- change definition of inode_init_security hook, replace the name, value
+  and len triple with the xattr array (suggested by Casey)
+- introduce lsm_find_xattr_slot() helper for LSMs to find an unused slot in
+  the passed xattr array
+
+Roberto Sassu (6):
+  xattr: Complete constify ->name member of "struct xattr"
+  reiserfs: Add missing calls to reiserfs_security_free()
+  security: Pass xattrs allocated by LSMs to the inode_init_security
+    hook
+  security: Support multiple LSMs implementing the inode_init_security
+    hook
+  evm: Align evm_inode_init_security() definition with LSM
+    infrastructure
+  evm: Support multiple LSMs providing an xattr
+
+ fs/reiserfs/namei.c                 |   4 ++
+ fs/reiserfs/xattr_security.c        |   3 +-
+ include/linux/evm.h                 |  17 +++--
+ include/linux/lsm_hook_defs.h       |   4 +-
+ include/linux/lsm_hooks.h           |  22 ++++--
+ security/integrity/evm/evm.h        |   2 +
+ security/integrity/evm/evm_crypto.c |   9 ++-
+ security/integrity/evm/evm_main.c   |  28 +++++---
+ security/security.c                 | 105 +++++++++++++++++++++++-----
+ security/selinux/hooks.c            |  13 ++--
+ security/smack/smack_lsm.c          |  20 +++---
+ 11 files changed, 167 insertions(+), 60 deletions(-)
+
+-- 
+2.25.1
 
