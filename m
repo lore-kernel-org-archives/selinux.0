@@ -2,183 +2,356 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A006C433B4
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:56:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49E6FC43603
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 17:15:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D9F3161454
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:56:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 075C5613C9
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 17:14:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244489AbhDUQ5U (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Apr 2021 12:57:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244484AbhDUQ5U (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 12:57:20 -0400
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E53C06138A
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:56:46 -0700 (PDT)
-Received: by mail-oi1-x230.google.com with SMTP id i81so43062579oif.6
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:56:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=PX29pm3fbINXwEow/9B95B4Iab4aW9hCCo4GCIAf624=;
-        b=muXUDemKvFNNdy/rD7hE4sN/Fnenagw8cq087L0+2y3I07Anwng9ZtSiDcHxOUwBfm
-         JFzIlLe5aT5mjaNicMi2vgcmVCwMF3w8AObf13YNeE0VgH5hq6iS7h4+tXNNeL+hgOAm
-         M7alt1F7/H0OoXIx7XybDAtkol+wCITNWcV3Dj128Z2NTprXnY9Ye+jYGZoqI9sZTlbC
-         uouECD4K0UH4Xxnu1sy5tVLlT5B/ZG4cysqJaJ2TfP1y9jpjvVD/tbsuBB3p7ymBy26b
-         aq5jK6w0+vQWPUjXu1nWuDSi9YoeHomYMJHIoxluY6h6H/fg+knQLDJ8/qyJ984sHjYL
-         NmJQ==
+        id S244460AbhDURPb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Apr 2021 13:15:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29738 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241923AbhDURP1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 13:15:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619025293;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CH/H9EMCPzTVO17F0AhVsjZvQyeIY3RFQ1xi2LaIF3U=;
+        b=Rk5tbT+OUvf4fsiy5qTM0F+z1UIX5mOSKkkDLE3YUtPW6bORuAo6gWjw1j7TM8+nWkF+mX
+        NXP6Ksnl3fRbsDXOZ+2UcqevzSdHmf9UU3WtLJIYBxH1K+dC2OcIkCBVv0tuypwG+Ij4zg
+        WOFfU5dgUniOck9NcRFfkNx+Anr/zKY=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-381-RDkSorbBMvmLdCPFQWxjrQ-1; Wed, 21 Apr 2021 13:14:52 -0400
+X-MC-Unique: RDkSorbBMvmLdCPFQWxjrQ-1
+Received: by mail-ed1-f69.google.com with SMTP id w14-20020aa7da4e0000b02903834aeed684so13626965eds.13
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:14:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=PX29pm3fbINXwEow/9B95B4Iab4aW9hCCo4GCIAf624=;
-        b=NxZEqjcnB6fPan35UXbI9tykdLBeKqXC9Ux5BaZvU7I3+GUaedKGvxuofIBcq6uQYa
-         EcmUcRQ5y+j5aRRNE5ah3BHXNnzd++BW4qq78XyzGYKyBFVPaJCzJRHXV3MzPaHaoO6p
-         aAcey8CcAJ5KIEZYPn1AdWpTsGwuXOenKm1nMl/8Oe6BN5EFhjj265pdoEqsRDbPOaEp
-         OSWRSz4vTx+YrHKUbunR10Raapmk6Ku7kDgDH0UXAAWnHM5SWCiaPnW+Yn/4KVn8u7t9
-         MeMba2W0N8YS8cr30wWuEZHVbeiadmk0CW6DeDiMUQ+FC3Oqeao7Gq1/oegllzcXSjHx
-         kepQ==
-X-Gm-Message-State: AOAM5319uT766WejtvNTPGIsRoUSHqWBO/FHIMdffaMt3T7DnVxlp0Lr
-        30l59gEKDmhD5S+63KAKBGS2ytPAmfOCA5Dy+rZ2U0/hpkM=
-X-Google-Smtp-Source: ABdhPJx5BMxywYAuEmeth2o0fkAWY6hhsXGcEFf90Tm6PaWaQyoyBIzkRuf1u+5GN574G3k147hXBCeA4S53KK2MB+c=
-X-Received: by 2002:aca:abd4:: with SMTP id u203mr5415728oie.16.1619024206182;
- Wed, 21 Apr 2021 09:56:46 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=CH/H9EMCPzTVO17F0AhVsjZvQyeIY3RFQ1xi2LaIF3U=;
+        b=KpcgKQe0ORM0mvh4Mxd/QdeO63ZUN/cwsuM5yfDgoXVTr5TBGUbOgYje2lkWLLulGr
+         kMdTizivIDtKforWPsZUJMkyfvzfbwOEy60EPDLTgD28RBMnee+oc4+NfIxa1AEpiUle
+         vZsecfzukeGRICw4QbkJzxFhXPpVgoif9wNOFdcTNzC2eQ1JgobHBY83KhUUzSKTvvYg
+         4Fl+ZolFYnzN934Ki5faECXUHgnFL1AjkANmPQHBZ7e7cmY/Z9TAnraw/hOWY16Vcwvz
+         O/0HGl2nDz5YgKhXbEch2WGH+eDIPivTFNFfP3yAxGCRY9aClkmra9jQPbBH2qX1z1v0
+         dleA==
+X-Gm-Message-State: AOAM531Ik+x7mn45Mm+XmBb0aPFI55zwSTSDSOw0nBR3bIODoQHLBrhV
+        j/zeMFNQ/2otO4wuH8H/CbkGlMaZKmp/jpGP3hOKXLxrM6UTOQ9qNb0YvUf69s596rubQL1mW5g
+        R+ZpvpKGHEbu7OeeZs7ofl/c+Vz8xP/GGjVKagvMhsaM6Nh0O2nB6/qNDKsw7oOU3Mt4NBw==
+X-Received: by 2002:a17:906:cc48:: with SMTP id mm8mr35075134ejb.58.1619025290702;
+        Wed, 21 Apr 2021 10:14:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzfY4E6B1rqiCEVZTtJIhVGRKBMsxhaixFISYRx97QdosCAdLI1H8CPlvqMBiK9Dx8yD8FXlw==
+X-Received: by 2002:a17:906:cc48:: with SMTP id mm8mr35075104ejb.58.1619025290485;
+        Wed, 21 Apr 2021 10:14:50 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
+        by smtp.gmail.com with ESMTPSA id i1sm22905edt.33.2021.04.21.10.14.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Apr 2021 10:14:49 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     linux-security-module@vger.kernel.org, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH 1/2] LSM,anon_inodes: explicitly distinguish anon inode types
+Date:   Wed, 21 Apr 2021 19:14:45 +0200
+Message-Id: <20210421171446.785507-2-omosnace@redhat.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210421171446.785507-1-omosnace@redhat.com>
+References: <20210421171446.785507-1-omosnace@redhat.com>
 MIME-Version: 1.0
-References: <20210419152749.88086-1-jwcart2@gmail.com> <CAP+JOzRtCjKaXVW6jVs7k-fhZE+AkkJuP5ORUNap0r3GHy2_Sg@mail.gmail.com>
- <CAJfZ7=k6z6aRXtFnpzyjmkBdAYTeXouqYSePsQ-dQLxB=enHMQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7=k6z6aRXtFnpzyjmkBdAYTeXouqYSePsQ-dQLxB=enHMQ@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 21 Apr 2021 12:56:35 -0400
-Message-ID: <CAP+JOzQ_Ghm5nbPdOxwNrMNHTrMKwca59eUW7uNsKL_046=QoA@mail.gmail.com>
-Subject: Re: [PATCH 0/3 v2] Create secil2tree to write CIL AST
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 21, 2021 at 4:58 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
-:
->
-> On Tue, Apr 20, 2021 at 7:08 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > As an example of how it can be used, I have been using secil2tree
-> > recently to make secilc fuzzing test cases readable.
-> >
-> > Running:
-> > secil2tree -A build -o fuzz_613136.cil
-> > clusterfuzz-testcase-minimized-secilc-fuzzer-6131368317812736
-> >
-> > The attached files shows the original and the output of secil2tree.
-> >
-> > Jim
-> >
-> > On Mon, Apr 19, 2021 at 11:27 AM James Carter <jwcart2@gmail.com> wrote=
-:
-> > >
-> > > For debugging purposes it would be useful to be able to write out
-> > > the CIL AST at various points in the build process.
-> > >
-> > > This patch set creates secil2tree which can write the CIL parse tree,
-> > > the CIL AST after the build phase, or the CIL AST after the resolve
-> > > phase (with names fully-qualified).
-> > >
-> > > Within CIL the function cil_print_tree() has existed from early in
-> > > CIL's development, but it was not exported in libsepol and there was =
-no
-> > > way to use it except by adding a call to it where you wanted to print
-> > > out the CIL AST and then recompiling everything. It also used cil_log=
-()
-> > > as its output, so other messages could be mixed in with the output. T=
-his
-> > > patch set moves all of this code to its own file, updates it, renames=
- it
-> > > as cil_write_ast(), and adds libsepol functions that can be used to c=
-all
-> > > it after each one of the phases mentioned above.
-> > >
-> > > Both the parse and build CIL AST are valid CIL policies that can be
-> > > compiled with secilc, but the resolve CIL AST is not always a valid C=
-IL
-> > > policy. The biggest problem is that fully-qualified names can contain
-> > > dots and CIL does not allow dots in declaration names. There are othe=
-r
-> > > problems as well. It would be nice to get to the point where the outp=
-ut
-> > > for all of the trees are valid CIL, but that is a goal for the future=
-.
-> > >
-> > > v2:
-> > > - Remove whitespace errors in cil_write_ast.h
-> > > - Use "const char*" instead of just "char*" when dealing with string
-> > > literals to satisfy clang.
-> > >
-> > > James Carter (3):
-> > >   libsepol/cil: Create functions to write the CIL AST
-> > >   libsepol/cil: Add functions to make use of cil_write_ast()
-> > >   secilc: Create the new program called secil2tree to write out CIL A=
-ST
-> > >
-> > >  libsepol/cil/include/cil/cil.h   |    3 +
-> > >  libsepol/cil/src/cil.c           |   92 ++
-> > >  libsepol/cil/src/cil_tree.c      | 1471 ----------------------------
-> > >  libsepol/cil/src/cil_tree.h      |    2 -
-> > >  libsepol/cil/src/cil_write_ast.c | 1573 ++++++++++++++++++++++++++++=
-++
-> > >  libsepol/cil/src/cil_write_ast.h |   46 +
-> > >  libsepol/src/libsepol.map.in     |    3 +
-> > >  secilc/.gitignore                |    2 +
-> > >  secilc/Makefile                  |   20 +-
-> > >  secilc/secil2tree.8.xml          |   81 ++
-> > >  secilc/secil2tree.c              |  206 ++++
-> > >  11 files changed, 2024 insertions(+), 1475 deletions(-)
-> > >  create mode 100644 libsepol/cil/src/cil_write_ast.c
-> > >  create mode 100644 libsepol/cil/src/cil_write_ast.h
-> > >  create mode 100644 secilc/secil2tree.8.xml
-> > >  create mode 100644 secilc/secil2tree.c
-> > >
-> > > --
-> > > 2.26.3
-> > >
->
-> Hello,
-> Thanks for this tool! It looks great and it seems to work quite well.
->
-> Anyway, while building with some warning flags, gcc reported issues
-> about using non-const pointers to hold literal strings. For example:
->
-> ../cil/src/cil_write_ast.c: In function =E2=80=98datum_to_str=E2=80=99:
-> ../cil/src/cil_write_ast.c:51:28: error: return discards =E2=80=98const=
-=E2=80=99
-> qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->    51 |  return datum ? datum->fqn : "<?DATUM>";
->       |         ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
-> ../cil/src/cil_write_ast.c: In function =E2=80=98write_expr=E2=80=99:
-> ../cil/src/cil_write_ast.c:122:12: error: assignment discards =E2=80=98co=
-nst=E2=80=99
-> qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
->   122 |     op_str =3D "<?OP>";
->       |            ^
->
-> With the attached patch, the code compiles fine. Feel free to directly
-> modify the first patch with these fixes.
->
+Add an enum to <linux/security.h> that allows LSMs to reliably
+distinguish types of anon inodes created via anon_inode_getfd_secure()
+and require callers of this function to pass the type as an argument.
+For the single current user of this function (userfaultfd), add the
+corresponding type and pass it in its anon_inode_getfd_secure() call.
 
-I think that you might have tested the first version. The second
-version actually has everything in your patch.
+While the "name" argument can be used to distinguish different types as
+well, some users of anon_inode_getfd() put some additional information
+here (e.g. KVM anon inodes), so using an explicit numeric identifier is
+preferred to parsing this information from strings.
 
-Thanks,
-Jim
+The new type information will be used by SELinux in a subsequent patch.
 
-> Thanks,
-> Nicolas
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ fs/anon_inodes.c              | 42 ++++++++++++++++++++++-------------
+ fs/userfaultfd.c              |  6 +++--
+ include/linux/anon_inodes.h   |  4 +++-
+ include/linux/lsm_hook_defs.h |  3 ++-
+ include/linux/security.h      | 19 ++++++++++++++++
+ security/security.c           |  3 ++-
+ security/selinux/hooks.c      |  1 +
+ 7 files changed, 57 insertions(+), 21 deletions(-)
+
+diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+index a280156138ed..0c8e77b69893 100644
+--- a/fs/anon_inodes.c
++++ b/fs/anon_inodes.c
+@@ -56,6 +56,7 @@ static struct file_system_type anon_inode_fs_type = {
+ };
+ 
+ static struct inode *anon_inode_make_secure_inode(
++	enum lsm_anon_inode_type type,
+ 	const char *name,
+ 	const struct inode *context_inode)
+ {
+@@ -67,7 +68,8 @@ static struct inode *anon_inode_make_secure_inode(
+ 	if (IS_ERR(inode))
+ 		return inode;
+ 	inode->i_flags &= ~S_PRIVATE;
+-	error =	security_inode_init_security_anon(inode, &qname, context_inode);
++	error =	security_inode_init_security_anon(inode, type, &qname,
++						  context_inode);
+ 	if (error) {
+ 		iput(inode);
+ 		return ERR_PTR(error);
+@@ -75,11 +77,11 @@ static struct inode *anon_inode_make_secure_inode(
+ 	return inode;
+ }
+ 
+-static struct file *__anon_inode_getfile(const char *name,
++static struct file *__anon_inode_getfile(enum lsm_anon_inode_type type,
++					 const char *name,
+ 					 const struct file_operations *fops,
+ 					 void *priv, int flags,
+-					 const struct inode *context_inode,
+-					 bool secure)
++					 const struct inode *context_inode)
+ {
+ 	struct inode *inode;
+ 	struct file *file;
+@@ -87,8 +89,8 @@ static struct file *__anon_inode_getfile(const char *name,
+ 	if (fops->owner && !try_module_get(fops->owner))
+ 		return ERR_PTR(-ENOENT);
+ 
+-	if (secure) {
+-		inode =	anon_inode_make_secure_inode(name, context_inode);
++	if (type != LSM_ANON_INODE_NONE) {
++		inode =	anon_inode_make_secure_inode(type, name, context_inode);
+ 		if (IS_ERR(inode)) {
+ 			file = ERR_CAST(inode);
+ 			goto err;
+@@ -144,15 +146,16 @@ struct file *anon_inode_getfile(const char *name,
+ 				const struct file_operations *fops,
+ 				void *priv, int flags)
+ {
+-	return __anon_inode_getfile(name, fops, priv, flags, NULL, false);
++	return __anon_inode_getfile(LSM_ANON_INODE_NONE, name, fops, priv,
++				    flags, NULL);
+ }
+ EXPORT_SYMBOL_GPL(anon_inode_getfile);
+ 
+-static int __anon_inode_getfd(const char *name,
++static int __anon_inode_getfd(enum lsm_anon_inode_type type,
++			      const char *name,
+ 			      const struct file_operations *fops,
+ 			      void *priv, int flags,
+-			      const struct inode *context_inode,
+-			      bool secure)
++			      const struct inode *context_inode)
+ {
+ 	int error, fd;
+ 	struct file *file;
+@@ -162,8 +165,8 @@ static int __anon_inode_getfd(const char *name,
+ 		return error;
+ 	fd = error;
+ 
+-	file = __anon_inode_getfile(name, fops, priv, flags, context_inode,
+-				    secure);
++	file = __anon_inode_getfile(type, name, fops, priv, flags,
++				    context_inode);
+ 	if (IS_ERR(file)) {
+ 		error = PTR_ERR(file);
+ 		goto err_put_unused_fd;
+@@ -197,7 +200,8 @@ err_put_unused_fd:
+ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ 		     void *priv, int flags)
+ {
+-	return __anon_inode_getfd(name, fops, priv, flags, NULL, false);
++	return __anon_inode_getfd(LSM_ANON_INODE_NONE, name, fops, priv,
++				  flags, NULL);
+ }
+ EXPORT_SYMBOL_GPL(anon_inode_getfd);
+ 
+@@ -207,7 +211,9 @@ EXPORT_SYMBOL_GPL(anon_inode_getfd);
+  * the inode_init_security_anon() LSM hook. This allows the inode to have its
+  * own security context and for a LSM to reject creation of the inode.
+  *
+- * @name:    [in]    name of the "class" of the new file
++ * @type:    [in]    type of the file recognizable by LSMs
++ * @name:    [in]    name of the "class" of the new file (may be more specific
++ *                   than @type)
+  * @fops:    [in]    file operations for the new file
+  * @priv:    [in]    private data for the new file (will be file's private_data)
+  * @flags:   [in]    flags
+@@ -217,11 +223,15 @@ EXPORT_SYMBOL_GPL(anon_inode_getfd);
+  * The LSM may use @context_inode in inode_init_security_anon(), but a
+  * reference to it is not held.
+  */
+-int anon_inode_getfd_secure(const char *name, const struct file_operations *fops,
++int anon_inode_getfd_secure(enum lsm_anon_inode_type type, const char *name,
++			    const struct file_operations *fops,
+ 			    void *priv, int flags,
+ 			    const struct inode *context_inode)
+ {
+-	return __anon_inode_getfd(name, fops, priv, flags, context_inode, true);
++	/* The caller must pass a valid type! */
++	if (WARN_ON(type <= LSM_ANON_INODE_NONE || type > LSM_ANON_INODE_MAX))
++		return -EINVAL;
++	return __anon_inode_getfd(type, name, fops, priv, flags, context_inode);
+ }
+ EXPORT_SYMBOL_GPL(anon_inode_getfd_secure);
+ 
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index 0be8cdd4425a..003f65d752c4 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -985,7 +985,8 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
+ {
+ 	int fd;
+ 
+-	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
++	fd = anon_inode_getfd_secure(LSM_ANON_INODE_USERFAULTFD,
++			"[userfaultfd]", &userfaultfd_fops, new,
+ 			O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
+ 	if (fd < 0)
+ 		return fd;
+@@ -2000,7 +2001,8 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	/* prevent the mm struct to be freed */
+ 	mmgrab(ctx->mm);
+ 
+-	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
++	fd = anon_inode_getfd_secure(LSM_ANON_INODE_USERFAULTFD,
++			"[userfaultfd]", &userfaultfd_fops, ctx,
+ 			O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
+ 	if (fd < 0) {
+ 		mmdrop(ctx->mm);
+diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
+index 71881a2b6f78..37137e994ceb 100644
+--- a/include/linux/anon_inodes.h
++++ b/include/linux/anon_inodes.h
+@@ -9,6 +9,8 @@
+ #ifndef _LINUX_ANON_INODES_H
+ #define _LINUX_ANON_INODES_H
+ 
++#include <linux/security.h>
++
+ struct file_operations;
+ struct inode;
+ 
+@@ -17,7 +19,7 @@ struct file *anon_inode_getfile(const char *name,
+ 				void *priv, int flags);
+ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ 		     void *priv, int flags);
+-int anon_inode_getfd_secure(const char *name,
++int anon_inode_getfd_secure(enum lsm_anon_inode_type type, const char *name,
+ 			    const struct file_operations *fops,
+ 			    void *priv, int flags,
+ 			    const struct inode *context_inode);
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 61f04f7dc1a4..ba03a7d0bf1a 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -115,7 +115,8 @@ LSM_HOOK(int, 0, inode_init_security, struct inode *inode,
+ 	 struct inode *dir, const struct qstr *qstr, const char **name,
+ 	 void **value, size_t *len)
+ LSM_HOOK(int, 0, inode_init_security_anon, struct inode *inode,
+-	 const struct qstr *name, const struct inode *context_inode)
++	 enum lsm_anon_inode_type type, const struct qstr *name,
++	 const struct inode *context_inode)
+ LSM_HOOK(int, 0, inode_create, struct inode *dir, struct dentry *dentry,
+ 	 umode_t mode)
+ LSM_HOOK(int, 0, inode_link, struct dentry *old_dentry, struct inode *dir,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 9aeda3f9e838..7c5117676f29 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -79,6 +79,23 @@ enum lsm_event {
+ 	LSM_POLICY_CHANGE,
+ };
+ 
++/*
++ * Types of anonymous inodes that may be interesting to LSMs.
++ * Passed to anon_inode_getfd_secure() and
++ * security_inode_init_security_anon().
++ */
++enum lsm_anon_inode_type {
++	/* anon inodes invisible to the LSMs */
++	LSM_ANON_INODE_NONE = 0,
++	/* userfaultfd anon inodes */
++	LSM_ANON_INODE_USERFAULTFD,
++	/* (add new types above this line) */
++
++	__LSM_ANON_INODE_MAX,
++	/* max value used for asserts */
++	LSM_ANON_INODE_MAX = __LSM_ANON_INODE_MAX - 1,
++};
++
+ /*
+  * These are reasons that can be passed to the security_locked_down()
+  * LSM hook. Lockdown reasons that protect kernel integrity (ie, the
+@@ -329,6 +346,7 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
+ 				 const struct qstr *qstr,
+ 				 initxattrs initxattrs, void *fs_data);
+ int security_inode_init_security_anon(struct inode *inode,
++				      enum lsm_anon_inode_type type,
+ 				      const struct qstr *name,
+ 				      const struct inode *context_inode);
+ int security_old_inode_init_security(struct inode *inode, struct inode *dir,
+@@ -759,6 +777,7 @@ static inline int security_inode_init_security(struct inode *inode,
+ }
+ 
+ static inline int security_inode_init_security_anon(struct inode *inode,
++						    enum lsm_anon_inode_type type,
+ 						    const struct qstr *name,
+ 						    const struct inode *context_inode)
+ {
+diff --git a/security/security.c b/security/security.c
+index 94383f83ba42..3786932c576c 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1067,10 +1067,11 @@ out:
+ EXPORT_SYMBOL(security_inode_init_security);
+ 
+ int security_inode_init_security_anon(struct inode *inode,
++				      enum lsm_anon_inode_type type,
+ 				      const struct qstr *name,
+ 				      const struct inode *context_inode)
+ {
+-	return call_int_hook(inode_init_security_anon, 0, inode, name,
++	return call_int_hook(inode_init_security_anon, 0, inode, type, name,
+ 			     context_inode);
+ }
+ 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 92f909a2e8f7..dc57ba21d8ff 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3048,6 +3048,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ }
+ 
+ static int selinux_inode_init_security_anon(struct inode *inode,
++					    enum lsm_anon_inode_type type,
+ 					    const struct qstr *name,
+ 					    const struct inode *context_inode)
+ {
+-- 
+2.30.2
+
