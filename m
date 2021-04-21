@@ -2,254 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BD4AC43461
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 17:15:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D094FC433B4
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 17:21:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 673A461456
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 17:15:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93D8E61440
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 17:21:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244584AbhDURQQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Apr 2021 13:16:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57499 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244676AbhDURQI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 13:16:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619025335;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=QrblNtNkcVLchPlCl1+Eivmg6Vmoc7cSJYaPkvwrCAI=;
-        b=HXY7pTC4Sd9uRD9sqtqA9TeKemy0G1x9Ymw2UDGUkC+3fnmgifAyKfd+QAVftNU33wxQs/
-        RkfLvSGIDb2V3pl4N9uaEaXFDbJYfUVvuIbPp4S5MkltFqz33G0If6+gtB6onAcZRIUbrU
-        ZsTEeIL5yhwo+dzGgHWRE8dRJRHMJTw=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-17-2fX_nLyJP22DeGlhRRgfrw-1; Wed, 21 Apr 2021 13:15:33 -0400
-X-MC-Unique: 2fX_nLyJP22DeGlhRRgfrw-1
-Received: by mail-ed1-f71.google.com with SMTP id c13-20020a05640227cdb0290385526e5de5so5340960ede.21
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:15:32 -0700 (PDT)
+        id S238764AbhDURVu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Apr 2021 13:21:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235562AbhDURVu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 13:21:50 -0400
+Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1100C06174A
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:21:16 -0700 (PDT)
+Received: by mail-qv1-xf32.google.com with SMTP id gv2so11392820qvb.8
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:21:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=M4crirPQyi/8fFoSCINNQyNR2RVInRdCCA39bMX/Sk4=;
+        b=SQw57ManoLy3dmcG/O7xdVLPkglzAWtsEWI51nQRod8nT40IEbwWqjROmJyacvvVqV
+         UX3VHgf7juiUynvgt1Iddwc/cthXnTYu0I83Ra/w95wqMsOA7qGLxtvDnWzwJhtVtIPZ
+         a3hOyj9534JxWtDb0yOLyfe8b6HmrOhKesXlLBmyJior9dKCF6S9u93OyFzMSoV+IxiD
+         dUy9Yssu1hENTDFBf2PPZ6qYkNqx59c73t7bNjhPg320Kd2lTqW5nVhmiAKqQQvIw3ec
+         aaGVx++efrsqHtCACGs2L1v01PWrBrF7rzHxIfss2OrZwCNp4cks+76AF6w0IcgiSgzM
+         OI8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=QrblNtNkcVLchPlCl1+Eivmg6Vmoc7cSJYaPkvwrCAI=;
-        b=YfHZ23rWRMNt5lxWgGb8cDKuZk4KBlG46RihpQCCDTeBXAm5XaQ15BQYLqKvPaa8ru
-         vAWmX+gtMinFqxsGUWXkO+JTLmkthu42HH5WNGZBORyDz+imv8UdzUz7Bome6aKVEafA
-         77uc/PWzHj1XzxZVWK2dWS5gaEFq1hghvoFzePzE1XbDpBovtbtyM1/jPfJFQr4CNGuX
-         DBnP2m4VRXnozNnme0LoSOAkG9DCa5VXu7E1pjTIYiiIa/Uqkxb2kUWmHfKNdICUGVPN
-         7NeMs8Q+pfmp2XsNeIGHWTpTt0mUTV/0oifR+jzs5tDDkVsf+byK6Qf2Y33RusuE/m+T
-         UQdQ==
-X-Gm-Message-State: AOAM532EfDaXmjsJ6mxCjgyASV333jEe0YPOQGJiq3p9BRCPwqFk2IQu
-        fgdBls/YlJTw2oq+8lEMN0VGeMcAwYiallUCHvtk3JbYhojAhGUADNZXfjMc5OJRdwIAtToAa3H
-        A0M1Dm1DoxCKHfpeMV/PkziKxEMI3dZdbDMlIETOHZpVtOa6ArYZQPb7CcaSxvTaFspgDow==
-X-Received: by 2002:a17:906:1a09:: with SMTP id i9mr34167821ejf.213.1619025331497;
-        Wed, 21 Apr 2021 10:15:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw9I0rUGkxfZ14sT6Ua5F/bySpMBfYRpI7+tob2Uxoeig1O4X4aABX2cPGdZEpWLWfT42mJhw==
-X-Received: by 2002:a17:906:1a09:: with SMTP id i9mr34167797ejf.213.1619025331286;
-        Wed, 21 Apr 2021 10:15:31 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id v16sm17477edt.53.2021.04.21.10.15.30
+        bh=M4crirPQyi/8fFoSCINNQyNR2RVInRdCCA39bMX/Sk4=;
+        b=G2a4hiH5451PTJwSvioNYNtbOA7C21zxKeQvpxG23OaCFSSEkbcsbW9bFHR3iUEeL+
+         ubn/Q9C/2PHt4qOjT5rS49b2sj7oArxvzIIsrrqqEG8gKpYCq5Y5WOEE5a35PKHhYN6C
+         lBBKiwfGuEKBTrEbT1TMTy2YQV+f3FVSxFT4lJ6B2EqBnlD0KkSIcqZFWCS0OKkuDP1U
+         sY2oNJkRIDTB5sKE3wUK+cnSRAKOsu9NKl9EHjcti5pyyUZkcaRiY7ea1QHlvP+0w8Zn
+         9rlD+elRfvosWg3Gk62AIMrWw02qC8xcTh67+4zidy6PS+UW3+7nRIaI7bmUywy+CEQn
+         YHIA==
+X-Gm-Message-State: AOAM531W83CGYkJpzFSPQMbLBOLF6YowKR5rCZrdZz3jL9Zrwf4+GmW7
+        OwWsg4jzxc3pEc0wi/kOvdF1snWuEA0EHw==
+X-Google-Smtp-Source: ABdhPJy4IOuywhHNToTmDSzwezyZ5iRbMCQdQDY6TJeBQsxlVRSAwUvXdS9bURl2tA58hjQt5A4agw==
+X-Received: by 2002:a05:6214:962:: with SMTP id do2mr9237423qvb.1.1619025676021;
+        Wed, 21 Apr 2021 10:21:16 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id r25sm143051qtm.18.2021.04.21.10.21.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Apr 2021 10:15:30 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
+        Wed, 21 Apr 2021 10:21:15 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
-Cc:     Lokesh Gidra <lokeshgidra@google.com>
-Subject: [RFC PATCH testsuite] Add extended_anon_inode_class policy capability support
-Date:   Wed, 21 Apr 2021 19:15:28 +0200
-Message-Id: <20210421171528.785703-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.30.2
+Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
+Subject: [PATCH 0/3 v3] Create secil2tree to write CIL AST
+Date:   Wed, 21 Apr 2021 13:21:09 -0400
+Message-Id: <20210421172112.13277-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The extended_anon_inode_class policy capability allows to distinguish
-different types of anon inodes by class. Add necessary mechanisms to the
-userfaultfd test policy so that the test works correctly also when this
-capability is enabled by the system policy.
+For debugging purposes it would be useful to be able to write out
+the CIL AST at various points in the build process.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- policy/Makefile                     |   8 +-
- policy/test_anon_inode_extended.cil |   1 +
- policy/test_anon_inode_legacy.cil   |   1 +
- policy/test_userfaultfd.cil         | 127 ++++++++++++++++------------
- 4 files changed, 84 insertions(+), 53 deletions(-)
- create mode 100644 policy/test_anon_inode_extended.cil
- create mode 100644 policy/test_anon_inode_legacy.cil
+This patch set creates secil2tree which can write the CIL parse tree,
+the CIL AST after the build phase, or the CIL AST after the resolve
+phase (with names fully-qualified).
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 91364d5..33951a5 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -41,7 +41,13 @@ CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
- ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && echo true),true)
- CIL_TARGETS += test_userfaultfd.cil
- TARGETS += test_userfaultfd.te
--endif
-+ifeq ($(shell cat $(SELINUXFS)/policy_capabilities/extended_anon_inode_class \
-+	2>/dev/null || echo 0),1)
-+CIL_TARGETS += test_anon_inode_extended.cil
-+else
-+CIL_TARGETS += test_anon_inode_legacy.cil
-+endif # policy_capabilities/extended_anon_inode_class
-+endif # extended permissions
- ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
- ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
- # If other MLS tests get written this can be moved outside of the glblub test
-diff --git a/policy/test_anon_inode_extended.cil b/policy/test_anon_inode_extended.cil
-new file mode 100644
-index 0000000..af5b0d2
---- /dev/null
-+++ b/policy/test_anon_inode_extended.cil
-@@ -0,0 +1 @@
-+(tunable extended_anon_inode true)
-diff --git a/policy/test_anon_inode_legacy.cil b/policy/test_anon_inode_legacy.cil
-new file mode 100644
-index 0000000..4c81e91
---- /dev/null
-+++ b/policy/test_anon_inode_legacy.cil
-@@ -0,0 +1 @@
-+(tunable extended_anon_inode false)
-diff --git a/policy/test_userfaultfd.cil b/policy/test_userfaultfd.cil
-index 18d5f3f..01fe2fa 100644
---- a/policy/test_userfaultfd.cil
-+++ b/policy/test_userfaultfd.cil
-@@ -1,52 +1,75 @@
--; Define new class anon_inode
--(class anon_inode ())
--(classcommon anon_inode file)
--(classorder (unordered anon_inode))
--
--; Allow all anonymous inodes
--(typeattributeset cil_gen_require test_notransition_uffd_t)
--(allow test_notransition_uffd_t self (anon_inode (create getattr ioctl read)))
--
--(typeattributeset cil_gen_require uffd_t)
--
--; Allow all operations on UFFD
--(typeattributeset cil_gen_require test_uffd_t)
--(typetransition test_uffd_t test_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_uffd_t uffd_t (anon_inode (create getattr ioctl read)))
--
--; Don't allow any operation on UFFD
--(typeattributeset cil_gen_require test_nocreate_uffd_t)
--(typetransition test_nocreate_uffd_t test_nocreate_uffd_t anon_inode "[userfaultfd]" uffd_t)
--
--; Don't allow getattr operation on UFFD
--(typeattributeset cil_gen_require test_nogetattr_uffd_t)
--(typetransition test_nogetattr_uffd_t test_nogetattr_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_nogetattr_uffd_t uffd_t (anon_inode (create)))
--
--; Don't allow any ioctl operation on UFFD
--(typeattributeset cil_gen_require test_noioctl_uffd_t)
--(typetransition test_noioctl_uffd_t test_noioctl_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_noioctl_uffd_t uffd_t (anon_inode (create getattr)))
--
--; Only allow UFFDIO_API ioctl
--(typeattributeset cil_gen_require test_api_ioctl_uffd_t)
--(typetransition test_api_ioctl_uffd_t test_api_ioctl_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_api_ioctl_uffd_t uffd_t (anon_inode (create getattr ioctl read)))
--(allowx test_api_ioctl_uffd_t uffd_t (ioctl anon_inode ((0xaa3f))))
--
--; Only allow UFFDIO_API and UFFDIO_REGISTER ioctls
--(typeattributeset cil_gen_require test_register_ioctl_uffd_t)
--(typetransition test_register_ioctl_uffd_t test_register_ioctl_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_register_ioctl_uffd_t uffd_t (anon_inode (create getattr ioctl read)))
--(allowx test_register_ioctl_uffd_t uffd_t (ioctl anon_inode ((0xaa3f 0xaa00))))
--
--; Only allow UFFDIO_API, UFFDIO_REGISTER and UFFDIO_COPY ioctls, which are most used.
--(typeattributeset cil_gen_require test_copy_ioctl_uffd_t)
--(typetransition test_copy_ioctl_uffd_t test_copy_ioctl_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_copy_ioctl_uffd_t uffd_t (anon_inode (create getattr ioctl read)))
--(allowx test_copy_ioctl_uffd_t uffd_t (ioctl anon_inode ((0xaa3f 0xaa00 0xaa03))))
--
--; Don't allow read operation on UFFD.
--(typeattributeset cil_gen_require test_noread_uffd_t)
--(typetransition test_noread_uffd_t test_noread_uffd_t anon_inode "[userfaultfd]" uffd_t)
--(allow test_noread_uffd_t uffd_t (anon_inode (create getattr ioctl)))
-+(macro build_uffd_policy ((class uffd_class))
-+	; Allow all anonymous inodes
-+	(typeattributeset cil_gen_require test_notransition_uffd_t)
-+	(allow test_notransition_uffd_t self (uffd_class (create getattr ioctl read)))
-+
-+	(typeattributeset cil_gen_require uffd_t)
-+
-+	; Allow all operations on UFFD
-+	(typeattributeset cil_gen_require test_uffd_t)
-+	(call uffd_transition (test_uffd_t uffd_t))
-+	(allow test_uffd_t uffd_t (uffd_class (create getattr ioctl read)))
-+
-+	; Don't allow any operation on UFFD
-+	(typeattributeset cil_gen_require test_nocreate_uffd_t)
-+	(call uffd_transition (test_nocreate_uffd_t uffd_t))
-+
-+	; Don't allow getattr operation on UFFD
-+	(typeattributeset cil_gen_require test_nogetattr_uffd_t)
-+	(call uffd_transition (test_nogetattr_uffd_t uffd_t))
-+	(allow test_nogetattr_uffd_t uffd_t (uffd_class (create)))
-+
-+	; Don't allow any ioctl operation on UFFD
-+	(typeattributeset cil_gen_require test_noioctl_uffd_t)
-+	(call uffd_transition (test_noioctl_uffd_t uffd_t))
-+	(allow test_noioctl_uffd_t uffd_t (uffd_class (create getattr)))
-+
-+	; Only allow UFFDIO_API ioctl
-+	(typeattributeset cil_gen_require test_api_ioctl_uffd_t)
-+	(call uffd_transition (test_api_ioctl_uffd_t uffd_t))
-+	(allow test_api_ioctl_uffd_t uffd_t (uffd_class (create getattr ioctl read)))
-+	(allowx test_api_ioctl_uffd_t uffd_t (ioctl uffd_class ((0xaa3f))))
-+
-+	; Only allow UFFDIO_API and UFFDIO_REGISTER ioctls
-+	(typeattributeset cil_gen_require test_register_ioctl_uffd_t)
-+	(call uffd_transition (test_register_ioctl_uffd_t uffd_t))
-+	(allow test_register_ioctl_uffd_t uffd_t (uffd_class (create getattr ioctl read)))
-+	(allowx test_register_ioctl_uffd_t uffd_t (ioctl uffd_class ((0xaa3f 0xaa00))))
-+
-+	; Only allow UFFDIO_API, UFFDIO_REGISTER and UFFDIO_COPY ioctls, which are most used.
-+	(typeattributeset cil_gen_require test_copy_ioctl_uffd_t)
-+	(call uffd_transition (test_copy_ioctl_uffd_t uffd_t))
-+	(allow test_copy_ioctl_uffd_t uffd_t (uffd_class (create getattr ioctl read)))
-+	(allowx test_copy_ioctl_uffd_t uffd_t (ioctl uffd_class ((0xaa3f 0xaa00 0xaa03))))
-+
-+	; Don't allow read operation on UFFD.
-+	(typeattributeset cil_gen_require test_noread_uffd_t)
-+	(call uffd_transition (test_noread_uffd_t uffd_t))
-+	(allow test_noread_uffd_t uffd_t (uffd_class (create getattr ioctl)))
-+)
-+
-+(tunableif extended_anon_inode
-+	(true
-+		; Extended anon_inode support - use the userfaultfd class
-+		(class userfaultfd ())
-+		(classcommon userfaultfd file)
-+		(classorder (unordered userfaultfd))
-+
-+		(macro uffd_transition ((type S) (type T))
-+			(typetransition S S userfaultfd T)
-+		)
-+		(call build_uffd_policy (userfaultfd))
-+	)
-+	(false
-+		; Legacy anon_inode support - use the anon_inode class
-+		; + named transition
-+		(class anon_inode ())
-+		(classcommon anon_inode file)
-+		(classorder (unordered anon_inode))
-+
-+		(macro uffd_transition ((type S) (type T))
-+			(typetransition S S anon_inode "[userfaultfd]" T)
-+		)
-+		(call build_uffd_policy (anon_inode))
-+	)
-+)
+Within CIL the function cil_print_tree() has existed from early in
+CIL's development, but it was not exported in libsepol and there was no
+way to use it except by adding a call to it where you wanted to print
+out the CIL AST and then recompiling everything. It also used cil_log()
+as its output, so other messages could be mixed in with the output. This
+patch set moves all of this code to its own file, updates it, renames it
+as cil_write_ast(), and adds libsepol functions that can be used to call
+it after each one of the phases mentioned above.
+
+Both the parse and build CIL AST are valid CIL policies that can be
+compiled with secilc, but the resolve CIL AST is not always a valid CIL
+policy. The biggest problem is that fully-qualified names can contain
+dots and CIL does not allow dots in declaration names. There are other
+problems as well. It would be nice to get to the point where the output
+for all of the trees are valid CIL, but that is a goal for the future.
+
+v3:
+- -use "-ast-phase=<phase>" in the usage message and man pages instead
+of "-ast-phase <phase>"
+
+v2:
+- Remove whitespace errors in cil_write_ast.h
+- Use "const char*" instead of just "char*" when dealing with string
+literals to satisfy clang.
+
+James Carter (3):
+  libsepol/cil: Create functions to write the CIL AST
+  libsepol/cil: Add functions to make use of cil_write_ast()
+  secilc: Create the new program called secil2tree to write out CIL AST
+
+ libsepol/cil/include/cil/cil.h   |    3 +
+ libsepol/cil/src/cil.c           |   92 ++
+ libsepol/cil/src/cil_tree.c      | 1471 ----------------------------
+ libsepol/cil/src/cil_tree.h      |    2 -
+ libsepol/cil/src/cil_write_ast.c | 1573 ++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_write_ast.h |   46 +
+ libsepol/src/libsepol.map.in     |    3 +
+ secilc/.gitignore                |    2 +
+ secilc/Makefile                  |   20 +-
+ secilc/secil2tree.8.xml          |   81 ++
+ secilc/secil2tree.c              |  206 ++++
+ 11 files changed, 2024 insertions(+), 1475 deletions(-)
+ create mode 100644 libsepol/cil/src/cil_write_ast.c
+ create mode 100644 libsepol/cil/src/cil_write_ast.h
+ create mode 100644 secilc/secil2tree.8.xml
+ create mode 100644 secilc/secil2tree.c
+
 -- 
-2.30.2
+2.26.3
 
