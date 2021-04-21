@@ -4,123 +4,145 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80609C433B4
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 08:27:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0AA3C433B4
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 08:52:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 421C6613E7
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 08:27:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79E576143B
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 08:52:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234876AbhDUI2b (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Apr 2021 04:28:31 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:58003 "EHLO
+        id S230343AbhDUIxE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Apr 2021 04:53:04 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:57143 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbhDUI2a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 04:28:30 -0400
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+        with ESMTP id S237613AbhDUIxD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 04:53:03 -0400
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 3C73A564AC2
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:27:49 +0200 (CEST)
-Received: by mail-pf1-f173.google.com with SMTP id p67so23090219pfp.10
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 01:27:49 -0700 (PDT)
-X-Gm-Message-State: AOAM532dB8kw8/zTfSU32X/Hi4rzs0gfrVGwrrf54OJhQciVC7f4oA0O
-        /IaWNCS7mZGHL07QFpsnOdHVmadROW38jkn5T4w=
-X-Google-Smtp-Source: ABdhPJw+KBtWRecjiwxOOA3FYD+/HcErkowrPMbqoHlV2JOi4k4PVyxaJITmWpXfpvYmTp/tRsyasOVzr4IiSegHuvc=
-X-Received: by 2002:aa7:80d6:0:b029:258:9404:13e with SMTP id
- a22-20020aa780d60000b02902589404013emr26515757pfn.37.1618993667928; Wed, 21
- Apr 2021 01:27:47 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 0FEA0564C61
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 10:52:29 +0200 (CEST)
+Received: by mail-pl1-f172.google.com with SMTP id u15so12706010plf.10
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 01:52:28 -0700 (PDT)
+X-Gm-Message-State: AOAM531rhiUQrYLmjle6qn4PRgXidWJ3NlifCy0d0SLLwtiXEBHKTrNl
+        WUlyANqkRp3siy67h+0leTwjrHPGaQt+Qxq5/Tk=
+X-Google-Smtp-Source: ABdhPJyJjxLx9CmdYe2ZEC7Us7aM/FinLrBJ1mnjKJBTaMggMRTt53Y+FaGJiAft7ub2TL4F4aPsWsZoNakOO6gcN2Y=
+X-Received: by 2002:a17:902:ed83:b029:ec:7aa8:439d with SMTP id
+ e3-20020a170902ed83b02900ec7aa8439dmr26777346plj.28.1618995147798; Wed, 21
+ Apr 2021 01:52:27 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210319213059.2779873-1-omosnace@redhat.com>
-In-Reply-To: <20210319213059.2779873-1-omosnace@redhat.com>
+References: <20210419152749.88086-1-jwcart2@gmail.com> <20210419152749.88086-4-jwcart2@gmail.com>
+In-Reply-To: <20210419152749.88086-4-jwcart2@gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 21 Apr 2021 10:27:36 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=n+0sS0K17JJbAmz6pRg-aV3RYCzA8c6YSGvrJYRZav3Q@mail.gmail.com>
-Message-ID: <CAJfZ7=n+0sS0K17JJbAmz6pRg-aV3RYCzA8c6YSGvrJYRZav3Q@mail.gmail.com>
-Subject: Re: [PATCH userspace] policycoreutils/setfiles: do not create useless
- setfiles.8.man file
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Wed, 21 Apr 2021 10:52:16 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==05kJ75EAS+WYvnPRcDGB8PJvfp4OBH8eAPVWR7dscrQ@mail.gmail.com>
+Message-ID: <CAJfZ7==05kJ75EAS+WYvnPRcDGB8PJvfp4OBH8eAPVWR7dscrQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3 v2] secilc: Create the new program called secil2tree
+ to write out CIL AST
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Apr 21 10:27:49 2021 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Apr 21 10:52:29 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 10:32 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Mon, Apr 19, 2021 at 5:28 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> Seems to have been there to allow for some sed substitution over the
-> text. Now that this is gone, the redundant intermediate file can be
-> removed, too.
+> secil2tree is the SELinux CIL AST writer. It calls the cil functions
+> cil_write_parse_ast(), cil_write_build_ast(), or cil_write_resolve_ast()
+> to write out the parse tree, the CIL AST after the build phase, or the
+> CIL AST after the resolve phase.
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  secilc/.gitignore       |   2 +
+>  secilc/Makefile         |  20 +++-
+>  secilc/secil2tree.8.xml |  81 ++++++++++++++++
+>  secilc/secil2tree.c     | 206 ++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 307 insertions(+), 2 deletions(-)
+>  create mode 100644 secilc/secil2tree.8.xml
+>  create mode 100644 secilc/secil2tree.c
+>
+> [...]
+> diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
+> new file mode 100644
+> index 00000000..1f55d08a
+> --- /dev/null
+> +++ b/secilc/secil2tree.c
+> @@ -0,0 +1,206 @@
+> +/*
+> + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions are met:
+> + *
+> + *    1. Redistributions of source code must retain the above copyright notice,
+> + *       this list of conditions and the following disclaimer.
+> + *
+> + *    2. Redistributions in binary form must reproduce the above copyright notice,
+> + *       this list of conditions and the following disclaimer in the documentation
+> + *       and/or other materials provided with the distribution.
+> + *
+> + * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
+> + * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+> + * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+> + * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+> + * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+> + * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+> + * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+> + * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+> + * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+> + *
+> + * The views and conclusions contained in the software and documentation are those
+> + * of the authors and should not be interpreted as representing official policies,
+> + * either expressed or implied, of Tresys Technology, LLC.
+> + */
+> +
+> +#include <stdlib.h>
+> +#include <stdio.h>
+> +#include <stdint.h>
+> +#include <string.h>
+> +#include <getopt.h>
+> +#include <sys/stat.h>
+> +
+> +#ifdef ANDROID
+> +#include <cil/cil.h>
+> +#else
+> +#include <sepol/cil/cil.h>
+> +#endif
+> +#include <sepol/policydb.h>
+> +
+> +enum write_ast_phase {
+> +       WRITE_AST_PHASE_PARSE = 0,
+> +       WRITE_AST_PHASE_BUILD,
+> +       WRITE_AST_PHASE_RESOLVE,
+> +};
+> +
+> +static __attribute__((__noreturn__)) void usage(const char *prog)
+> +{
+> +       printf("Usage: %s [OPTION]... FILE...\n", prog);
+> +       printf("\n");
+> +       printf("Options:\n");
+> +       printf("  -o, --output=<file>      write AST to <file>. (default: stdout)\n");
+> +       printf("  -P, --preserve-tunables  treat tunables as booleans\n");
+> +       printf("  -A, --ast-phase <phase>  write AST of phase <phase>. Phase must be parse, \n");
+> +       printf("                           build, or resolve. (default: resolve)\n");
+> +       printf("  -v, --verbose            increment verbosity level\n");
+> +       printf("  -h, --help               display usage information\n");
+> +       exit(1);
 
-Hello,
-It seems nobody reviewed this patch, and it looks good to me. So if
-nobody complains, I will merge it tomorrow.
+Small thing: --output is documented with an equal sign
+("--output=<file>") while --ast-phase is with a space ("--ast-phase
+<phase>"), both in the usage function and in the man page. Is this
+inconsistency intentional?
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-
+The rest of this patch looks good to me. I have other comments on the
+series, that I will send.
 Thanks,
 Nicolas
-
-> ---
->  policycoreutils/setfiles/.gitignore | 1 -
->  policycoreutils/setfiles/Makefile   | 9 +++------
->  2 files changed, 3 insertions(+), 7 deletions(-)
->  delete mode 100644 policycoreutils/setfiles/.gitignore
->
-> diff --git a/policycoreutils/setfiles/.gitignore b/policycoreutils/setfiles/.gitignore
-> deleted file mode 100644
-> index 5e899c95..00000000
-> --- a/policycoreutils/setfiles/.gitignore
-> +++ /dev/null
-> @@ -1 +0,0 @@
-> -setfiles.8.man
-> diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
-> index a3bbbe11..63d81850 100644
-> --- a/policycoreutils/setfiles/Makefile
-> +++ b/policycoreutils/setfiles/Makefile
-> @@ -13,7 +13,7 @@ ifeq ($(AUDITH), y)
->         override LDLIBS += -laudit
->  endif
->
-> -all: setfiles restorecon restorecon_xattr man
-> +all: setfiles restorecon restorecon_xattr
->
->  setfiles: setfiles.o restore.o
->
-> @@ -22,16 +22,13 @@ restorecon: setfiles
->
->  restorecon_xattr: restorecon_xattr.o restore.o
->
-> -man:
-> -       @cp -af setfiles.8 setfiles.8.man
-> -
->  install: all
->         [ -d $(DESTDIR)$(MANDIR)/man8 ] || mkdir -p $(DESTDIR)$(MANDIR)/man8
->         -mkdir -p $(DESTDIR)$(SBINDIR)
->         install -m 755 setfiles $(DESTDIR)$(SBINDIR)
->         (cd $(DESTDIR)$(SBINDIR) && ln -sf setfiles restorecon)
->         install -m 755 restorecon_xattr $(DESTDIR)$(SBINDIR)
-> -       install -m 644 setfiles.8.man $(DESTDIR)$(MANDIR)/man8/setfiles.8
-> +       install -m 644 setfiles.8 $(DESTDIR)$(MANDIR)/man8/setfiles.8
->         install -m 644 restorecon.8 $(DESTDIR)$(MANDIR)/man8/restorecon.8
->         install -m 644 restorecon_xattr.8 $(DESTDIR)$(MANDIR)/man8/restorecon_xattr.8
->         for lang in $(LINGUAS) ; do \
-> @@ -42,7 +39,7 @@ install: all
->         done
->
->  clean:
-> -       rm -f setfiles restorecon restorecon_xattr *.o setfiles.8.man
-> +       rm -f setfiles restorecon restorecon_xattr *.o
->
->  indent:
->         ../../scripts/Lindent $(wildcard *.[ch])
-> --
-> 2.30.2
->
 
