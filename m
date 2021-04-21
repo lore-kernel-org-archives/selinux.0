@@ -2,149 +2,173 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0359CC43462
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:21:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B140C433B4
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:55:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDAAA6144D
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:21:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D66F61449
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:55:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242415AbhDUQV4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Apr 2021 12:21:56 -0400
-Received: from frasgout.his.huawei.com ([185.176.79.56]:2901 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242271AbhDUQVz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 12:21:55 -0400
-Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4FQQdj1qVPz6yh4l;
-        Thu, 22 Apr 2021 00:15:53 +0800 (CST)
-Received: from roberto-ThinkStation-P620.huawei.com (10.204.62.217) by
- fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Wed, 21 Apr 2021 18:21:20 +0200
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <zohar@linux.ibm.com>, <jmorris@namei.org>, <paul@paul-moore.com>,
-        <casey@schaufler-ca.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
-        <reiserfs-devel@vger.kernel.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Subject: [PATCH v2 6/6] evm: Support multiple LSMs providing an xattr
-Date:   Wed, 21 Apr 2021 18:19:25 +0200
-Message-ID: <20210421161925.968825-7-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210421161925.968825-1-roberto.sassu@huawei.com>
-References: <20210421161925.968825-1-roberto.sassu@huawei.com>
+        id S241607AbhDUQ4J (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Apr 2021 12:56:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241421AbhDUQ4J (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 12:56:09 -0400
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14FAC06174A
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:55:34 -0700 (PDT)
+Received: by mail-ot1-x333.google.com with SMTP id 5-20020a9d09050000b029029432d8d8c5so13585398otp.11
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:55:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QeI692biWD6cT+rJtvi5co6T0TasrK/WR+jEi+dcMFk=;
+        b=an4zmzG8FWGJIJLpIU+FUnhk8rSiyCndFrGkJDDjQhRIqfrF7/9WGlVknyYXBEd08c
+         ikbCCacTj4jZ2qxpVZQrKGSjzTDvuhkkjHVi93noXOZsgVGY0dIxJwVNMW/ynDEhKndF
+         g9TU04NqikgN0c+rCOhBTE2MMXetBjn9y2OlzbJz9d9duJR+VyV+Qq9Z66dnVRusdOoI
+         a2GMul/W5ZC7jD5ZEBPF0L12RXjSPNccVYYg9g5180IXHQyrAJ0CpyO4w3fsC7XNlMJf
+         e6ZrRi13sB4uY3fcn4JsTl4uhTZu/klMO824D5zthH2TRaMswqFC1hPtxiOmuVn61Box
+         /ZYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QeI692biWD6cT+rJtvi5co6T0TasrK/WR+jEi+dcMFk=;
+        b=l9UN2nTjYVtLAiUi128qGY3SBqCQLWi6kjB+Ji+2RcYC3PqaJzp5X/FYvVwt3P7+tX
+         JOeYYKoiYwIg7/ua/80zmz5k01G8/3b8h0tiU2+N9+DDGcTG8rwOwVplmtjgTSZWqMIG
+         cNJTLm7wWcr03IyRl/fumGhJiw/whVh7sOsXkC8w9yKxKqC6Zh9d4Vf/MLLS9rQLeUdy
+         9kzmnnfTvyELg0s66Dt6HbYWYctxSp0Pgfs2ofI3aKVK0Q0DUOGbPRDvDYwCGCjsmvmM
+         l3VEIZpScDbrBViKNir9yG3ysLwYqzfOxOcevbh+iUBajkEcVJVnKQhJs6+2CqO8SVrM
+         sXpw==
+X-Gm-Message-State: AOAM531BD/Hxa2Rb07XvuMiYnpHj7l45HmovwFys1a/xON3Vhv/lMfp4
+        Xs4aKvAnXnuJnTwisJ+byCt1gu/LnW6eqLPLJ0h2IBxFVHo=
+X-Google-Smtp-Source: ABdhPJzDtzKTfXauAym2Wbxb9kD4IBs5uU/t6zPyunR8mJ+pvk4PSr4W2pLCy9+I/UJw93Y3HaU1sVI2AJq3JesPEPQ=
+X-Received: by 2002:a05:6830:1beb:: with SMTP id k11mr9447691otb.59.1619024133818;
+ Wed, 21 Apr 2021 09:55:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.204.62.217]
-X-ClientProxiedBy: lhreml754-chm.china.huawei.com (10.201.108.204) To
- fraeml714-chm.china.huawei.com (10.206.15.33)
-X-CFilter-Loop: Reflected
+References: <20210419152749.88086-1-jwcart2@gmail.com> <20210419152749.88086-4-jwcart2@gmail.com>
+ <CAJfZ7==05kJ75EAS+WYvnPRcDGB8PJvfp4OBH8eAPVWR7dscrQ@mail.gmail.com>
+In-Reply-To: <CAJfZ7==05kJ75EAS+WYvnPRcDGB8PJvfp4OBH8eAPVWR7dscrQ@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 21 Apr 2021 12:55:22 -0400
+Message-ID: <CAP+JOzQWEJxbwR+28jiFrNR=36AZ9pk5XudX2yJkZDKhZKMVmw@mail.gmail.com>
+Subject: Re: [PATCH 3/3 v2] secilc: Create the new program called secil2tree
+ to write out CIL AST
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Currently, evm_inode_init_security() processes a single LSM xattr from
-the array passed by security_inode_init_security(), and calculates the
-HMAC on it and other inode metadata.
+On Wed, Apr 21, 2021 at 4:52 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Mon, Apr 19, 2021 at 5:28 PM James Carter <jwcart2@gmail.com> wrote:
+> >
+> > secil2tree is the SELinux CIL AST writer. It calls the cil functions
+> > cil_write_parse_ast(), cil_write_build_ast(), or cil_write_resolve_ast()
+> > to write out the parse tree, the CIL AST after the build phase, or the
+> > CIL AST after the resolve phase.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  secilc/.gitignore       |   2 +
+> >  secilc/Makefile         |  20 +++-
+> >  secilc/secil2tree.8.xml |  81 ++++++++++++++++
+> >  secilc/secil2tree.c     | 206 ++++++++++++++++++++++++++++++++++++++++
+> >  4 files changed, 307 insertions(+), 2 deletions(-)
+> >  create mode 100644 secilc/secil2tree.8.xml
+> >  create mode 100644 secilc/secil2tree.c
+> >
+> > [...]
+> > diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
+> > new file mode 100644
+> > index 00000000..1f55d08a
+> > --- /dev/null
+> > +++ b/secilc/secil2tree.c
+> > @@ -0,0 +1,206 @@
+> > +/*
+> > + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+> > + *
+> > + * Redistribution and use in source and binary forms, with or without
+> > + * modification, are permitted provided that the following conditions are met:
+> > + *
+> > + *    1. Redistributions of source code must retain the above copyright notice,
+> > + *       this list of conditions and the following disclaimer.
+> > + *
+> > + *    2. Redistributions in binary form must reproduce the above copyright notice,
+> > + *       this list of conditions and the following disclaimer in the documentation
+> > + *       and/or other materials provided with the distribution.
+> > + *
+> > + * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
+> > + * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+> > + * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+> > + * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+> > + * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+> > + * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+> > + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+> > + * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+> > + * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+> > + * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+> > + *
+> > + * The views and conclusions contained in the software and documentation are those
+> > + * of the authors and should not be interpreted as representing official policies,
+> > + * either expressed or implied, of Tresys Technology, LLC.
+> > + */
+> > +
+> > +#include <stdlib.h>
+> > +#include <stdio.h>
+> > +#include <stdint.h>
+> > +#include <string.h>
+> > +#include <getopt.h>
+> > +#include <sys/stat.h>
+> > +
+> > +#ifdef ANDROID
+> > +#include <cil/cil.h>
+> > +#else
+> > +#include <sepol/cil/cil.h>
+> > +#endif
+> > +#include <sepol/policydb.h>
+> > +
+> > +enum write_ast_phase {
+> > +       WRITE_AST_PHASE_PARSE = 0,
+> > +       WRITE_AST_PHASE_BUILD,
+> > +       WRITE_AST_PHASE_RESOLVE,
+> > +};
+> > +
+> > +static __attribute__((__noreturn__)) void usage(const char *prog)
+> > +{
+> > +       printf("Usage: %s [OPTION]... FILE...\n", prog);
+> > +       printf("\n");
+> > +       printf("Options:\n");
+> > +       printf("  -o, --output=<file>      write AST to <file>. (default: stdout)\n");
+> > +       printf("  -P, --preserve-tunables  treat tunables as booleans\n");
+> > +       printf("  -A, --ast-phase <phase>  write AST of phase <phase>. Phase must be parse, \n");
+> > +       printf("                           build, or resolve. (default: resolve)\n");
+> > +       printf("  -v, --verbose            increment verbosity level\n");
+> > +       printf("  -h, --help               display usage information\n");
+> > +       exit(1);
+>
+> Small thing: --output is documented with an equal sign
+> ("--output=<file>") while --ast-phase is with a space ("--ast-phase
+> <phase>"), both in the usage function and in the man page. Is this
+> inconsistency intentional?
+>
 
-Given that initxattrs(), called by security_inode_init_security(), expects
-that this array is terminated when the xattr name is set to NULL, this
-patch reuses the same assumption for evm_inode_init_security() to scan all
-xattrs and to calculate the HMAC on all of them.
+No, I think for consistency the "=" should be used.
 
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
----
- security/integrity/evm/evm.h        |  2 ++
- security/integrity/evm/evm_crypto.c |  9 ++++++++-
- security/integrity/evm/evm_main.c   | 15 +++++++++++----
- 3 files changed, 21 insertions(+), 5 deletions(-)
+Thanks,
+Jim
 
-diff --git a/security/integrity/evm/evm.h b/security/integrity/evm/evm.h
-index ae590f71ce7d..24eac42b9f32 100644
---- a/security/integrity/evm/evm.h
-+++ b/security/integrity/evm/evm.h
-@@ -49,6 +49,8 @@ struct evm_digest {
- 	char digest[IMA_MAX_DIGEST_SIZE];
- } __packed;
- 
-+int evm_protected_xattr(const char *req_xattr_name);
-+
- int evm_init_key(void);
- int __init evm_init_crypto(void);
- int evm_update_evmxattr(struct dentry *dentry,
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index b66264b53d5d..35c5eec0517d 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -358,6 +358,7 @@ int evm_init_hmac(struct inode *inode, const struct xattr *lsm_xattr,
- 		  char *hmac_val)
- {
- 	struct shash_desc *desc;
-+	const struct xattr *xattr;
- 
- 	desc = init_desc(EVM_XATTR_HMAC, evm_hash_algo);
- 	if (IS_ERR(desc)) {
-@@ -365,7 +366,13 @@ int evm_init_hmac(struct inode *inode, const struct xattr *lsm_xattr,
- 		return PTR_ERR(desc);
- 	}
- 
--	crypto_shash_update(desc, lsm_xattr->value, lsm_xattr->value_len);
-+	for (xattr = lsm_xattr; xattr->name != NULL; xattr++) {
-+		if (!evm_protected_xattr(xattr->name))
-+			continue;
-+
-+		crypto_shash_update(desc, xattr->value, xattr->value_len);
-+	}
-+
- 	hmac_add_misc(desc, inode, EVM_XATTR_HMAC, hmac_val);
- 	kfree(desc);
- 	return 0;
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index 336a421e2e5a..c43e75cd37f3 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -261,7 +261,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
- 	return evm_status;
- }
- 
--static int evm_protected_xattr(const char *req_xattr_name)
-+int evm_protected_xattr(const char *req_xattr_name)
- {
- 	int namelen;
- 	int found = 0;
-@@ -712,14 +712,21 @@ int evm_inode_init_security(struct inode *inode, struct inode *dir,
- 			    struct xattr *xattrs, void *fs_data)
- {
- 	struct evm_xattr *xattr_data;
-+	struct xattr *xattr;
- 	struct xattr *evm_xattr = lsm_find_xattr_slot(xattrs);
--	int rc;
-+	int rc, evm_protected_xattrs = 0;
- 
- 	if (!xattrs || !xattrs->name)
- 		return 0;
- 
--	if (!(evm_initialized & EVM_INIT_HMAC) ||
--	    !evm_protected_xattr(xattrs->name))
-+	if (!(evm_initialized & EVM_INIT_HMAC))
-+		return -EOPNOTSUPP;
-+
-+	for (xattr = xattrs; xattr->name != NULL; xattr++)
-+		if (evm_protected_xattr(xattr->name))
-+			evm_protected_xattrs++;
-+
-+	if (!evm_protected_xattrs)
- 		return -EOPNOTSUPP;
- 
- 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
--- 
-2.25.1
-
+> The rest of this patch looks good to me. I have other comments on the
+> series, that I will send.
+> Thanks,
+> Nicolas
+>
