@@ -2,173 +2,183 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B140C433B4
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:55:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A006C433B4
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:56:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D66F61449
-	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:55:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9F3161454
+	for <selinux@archiver.kernel.org>; Wed, 21 Apr 2021 16:56:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241607AbhDUQ4J (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Apr 2021 12:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
+        id S244489AbhDUQ5U (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Apr 2021 12:57:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241421AbhDUQ4J (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 12:56:09 -0400
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14FAC06174A
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:55:34 -0700 (PDT)
-Received: by mail-ot1-x333.google.com with SMTP id 5-20020a9d09050000b029029432d8d8c5so13585398otp.11
-        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:55:34 -0700 (PDT)
+        with ESMTP id S244484AbhDUQ5U (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Apr 2021 12:57:20 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E53C06138A
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:56:46 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id i81so43062579oif.6
+        for <selinux@vger.kernel.org>; Wed, 21 Apr 2021 09:56:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=QeI692biWD6cT+rJtvi5co6T0TasrK/WR+jEi+dcMFk=;
-        b=an4zmzG8FWGJIJLpIU+FUnhk8rSiyCndFrGkJDDjQhRIqfrF7/9WGlVknyYXBEd08c
-         ikbCCacTj4jZ2qxpVZQrKGSjzTDvuhkkjHVi93noXOZsgVGY0dIxJwVNMW/ynDEhKndF
-         g9TU04NqikgN0c+rCOhBTE2MMXetBjn9y2OlzbJz9d9duJR+VyV+Qq9Z66dnVRusdOoI
-         a2GMul/W5ZC7jD5ZEBPF0L12RXjSPNccVYYg9g5180IXHQyrAJ0CpyO4w3fsC7XNlMJf
-         e6ZrRi13sB4uY3fcn4JsTl4uhTZu/klMO824D5zthH2TRaMswqFC1hPtxiOmuVn61Box
-         /ZYw==
+         :cc:content-transfer-encoding;
+        bh=PX29pm3fbINXwEow/9B95B4Iab4aW9hCCo4GCIAf624=;
+        b=muXUDemKvFNNdy/rD7hE4sN/Fnenagw8cq087L0+2y3I07Anwng9ZtSiDcHxOUwBfm
+         JFzIlLe5aT5mjaNicMi2vgcmVCwMF3w8AObf13YNeE0VgH5hq6iS7h4+tXNNeL+hgOAm
+         M7alt1F7/H0OoXIx7XybDAtkol+wCITNWcV3Dj128Z2NTprXnY9Ye+jYGZoqI9sZTlbC
+         uouECD4K0UH4Xxnu1sy5tVLlT5B/ZG4cysqJaJ2TfP1y9jpjvVD/tbsuBB3p7ymBy26b
+         aq5jK6w0+vQWPUjXu1nWuDSi9YoeHomYMJHIoxluY6h6H/fg+knQLDJ8/qyJ984sHjYL
+         NmJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QeI692biWD6cT+rJtvi5co6T0TasrK/WR+jEi+dcMFk=;
-        b=l9UN2nTjYVtLAiUi128qGY3SBqCQLWi6kjB+Ji+2RcYC3PqaJzp5X/FYvVwt3P7+tX
-         JOeYYKoiYwIg7/ua/80zmz5k01G8/3b8h0tiU2+N9+DDGcTG8rwOwVplmtjgTSZWqMIG
-         cNJTLm7wWcr03IyRl/fumGhJiw/whVh7sOsXkC8w9yKxKqC6Zh9d4Vf/MLLS9rQLeUdy
-         9kzmnnfTvyELg0s66Dt6HbYWYctxSp0Pgfs2ofI3aKVK0Q0DUOGbPRDvDYwCGCjsmvmM
-         l3VEIZpScDbrBViKNir9yG3ysLwYqzfOxOcevbh+iUBajkEcVJVnKQhJs6+2CqO8SVrM
-         sXpw==
-X-Gm-Message-State: AOAM531BD/Hxa2Rb07XvuMiYnpHj7l45HmovwFys1a/xON3Vhv/lMfp4
-        Xs4aKvAnXnuJnTwisJ+byCt1gu/LnW6eqLPLJ0h2IBxFVHo=
-X-Google-Smtp-Source: ABdhPJzDtzKTfXauAym2Wbxb9kD4IBs5uU/t6zPyunR8mJ+pvk4PSr4W2pLCy9+I/UJw93Y3HaU1sVI2AJq3JesPEPQ=
-X-Received: by 2002:a05:6830:1beb:: with SMTP id k11mr9447691otb.59.1619024133818;
- Wed, 21 Apr 2021 09:55:33 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=PX29pm3fbINXwEow/9B95B4Iab4aW9hCCo4GCIAf624=;
+        b=NxZEqjcnB6fPan35UXbI9tykdLBeKqXC9Ux5BaZvU7I3+GUaedKGvxuofIBcq6uQYa
+         EcmUcRQ5y+j5aRRNE5ah3BHXNnzd++BW4qq78XyzGYKyBFVPaJCzJRHXV3MzPaHaoO6p
+         aAcey8CcAJ5KIEZYPn1AdWpTsGwuXOenKm1nMl/8Oe6BN5EFhjj265pdoEqsRDbPOaEp
+         OSWRSz4vTx+YrHKUbunR10Raapmk6Ku7kDgDH0UXAAWnHM5SWCiaPnW+Yn/4KVn8u7t9
+         MeMba2W0N8YS8cr30wWuEZHVbeiadmk0CW6DeDiMUQ+FC3Oqeao7Gq1/oegllzcXSjHx
+         kepQ==
+X-Gm-Message-State: AOAM5319uT766WejtvNTPGIsRoUSHqWBO/FHIMdffaMt3T7DnVxlp0Lr
+        30l59gEKDmhD5S+63KAKBGS2ytPAmfOCA5Dy+rZ2U0/hpkM=
+X-Google-Smtp-Source: ABdhPJx5BMxywYAuEmeth2o0fkAWY6hhsXGcEFf90Tm6PaWaQyoyBIzkRuf1u+5GN574G3k147hXBCeA4S53KK2MB+c=
+X-Received: by 2002:aca:abd4:: with SMTP id u203mr5415728oie.16.1619024206182;
+ Wed, 21 Apr 2021 09:56:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210419152749.88086-1-jwcart2@gmail.com> <20210419152749.88086-4-jwcart2@gmail.com>
- <CAJfZ7==05kJ75EAS+WYvnPRcDGB8PJvfp4OBH8eAPVWR7dscrQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7==05kJ75EAS+WYvnPRcDGB8PJvfp4OBH8eAPVWR7dscrQ@mail.gmail.com>
+References: <20210419152749.88086-1-jwcart2@gmail.com> <CAP+JOzRtCjKaXVW6jVs7k-fhZE+AkkJuP5ORUNap0r3GHy2_Sg@mail.gmail.com>
+ <CAJfZ7=k6z6aRXtFnpzyjmkBdAYTeXouqYSePsQ-dQLxB=enHMQ@mail.gmail.com>
+In-Reply-To: <CAJfZ7=k6z6aRXtFnpzyjmkBdAYTeXouqYSePsQ-dQLxB=enHMQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 21 Apr 2021 12:55:22 -0400
-Message-ID: <CAP+JOzQWEJxbwR+28jiFrNR=36AZ9pk5XudX2yJkZDKhZKMVmw@mail.gmail.com>
-Subject: Re: [PATCH 3/3 v2] secilc: Create the new program called secil2tree
- to write out CIL AST
+Date:   Wed, 21 Apr 2021 12:56:35 -0400
+Message-ID: <CAP+JOzQ_Ghm5nbPdOxwNrMNHTrMKwca59eUW7uNsKL_046=QoA@mail.gmail.com>
+Subject: Re: [PATCH 0/3 v2] Create secil2tree to write CIL AST
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 21, 2021 at 4:52 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Wed, Apr 21, 2021 at 4:58 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
+:
 >
-> On Mon, Apr 19, 2021 at 5:28 PM James Carter <jwcart2@gmail.com> wrote:
+> On Tue, Apr 20, 2021 at 7:08 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > secil2tree is the SELinux CIL AST writer. It calls the cil functions
-> > cil_write_parse_ast(), cil_write_build_ast(), or cil_write_resolve_ast()
-> > to write out the parse tree, the CIL AST after the build phase, or the
-> > CIL AST after the resolve phase.
+> > As an example of how it can be used, I have been using secil2tree
+> > recently to make secilc fuzzing test cases readable.
 > >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  secilc/.gitignore       |   2 +
-> >  secilc/Makefile         |  20 +++-
-> >  secilc/secil2tree.8.xml |  81 ++++++++++++++++
-> >  secilc/secil2tree.c     | 206 ++++++++++++++++++++++++++++++++++++++++
-> >  4 files changed, 307 insertions(+), 2 deletions(-)
-> >  create mode 100644 secilc/secil2tree.8.xml
-> >  create mode 100644 secilc/secil2tree.c
+> > Running:
+> > secil2tree -A build -o fuzz_613136.cil
+> > clusterfuzz-testcase-minimized-secilc-fuzzer-6131368317812736
 > >
-> > [...]
-> > diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
-> > new file mode 100644
-> > index 00000000..1f55d08a
-> > --- /dev/null
-> > +++ b/secilc/secil2tree.c
-> > @@ -0,0 +1,206 @@
-> > +/*
-> > + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
-> > + *
-> > + * Redistribution and use in source and binary forms, with or without
-> > + * modification, are permitted provided that the following conditions are met:
-> > + *
-> > + *    1. Redistributions of source code must retain the above copyright notice,
-> > + *       this list of conditions and the following disclaimer.
-> > + *
-> > + *    2. Redistributions in binary form must reproduce the above copyright notice,
-> > + *       this list of conditions and the following disclaimer in the documentation
-> > + *       and/or other materials provided with the distribution.
-> > + *
-> > + * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
-> > + * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-> > + * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-> > + * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-> > + * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-> > + * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-> > + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-> > + * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-> > + * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-> > + * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-> > + *
-> > + * The views and conclusions contained in the software and documentation are those
-> > + * of the authors and should not be interpreted as representing official policies,
-> > + * either expressed or implied, of Tresys Technology, LLC.
-> > + */
-> > +
-> > +#include <stdlib.h>
-> > +#include <stdio.h>
-> > +#include <stdint.h>
-> > +#include <string.h>
-> > +#include <getopt.h>
-> > +#include <sys/stat.h>
-> > +
-> > +#ifdef ANDROID
-> > +#include <cil/cil.h>
-> > +#else
-> > +#include <sepol/cil/cil.h>
-> > +#endif
-> > +#include <sepol/policydb.h>
-> > +
-> > +enum write_ast_phase {
-> > +       WRITE_AST_PHASE_PARSE = 0,
-> > +       WRITE_AST_PHASE_BUILD,
-> > +       WRITE_AST_PHASE_RESOLVE,
-> > +};
-> > +
-> > +static __attribute__((__noreturn__)) void usage(const char *prog)
-> > +{
-> > +       printf("Usage: %s [OPTION]... FILE...\n", prog);
-> > +       printf("\n");
-> > +       printf("Options:\n");
-> > +       printf("  -o, --output=<file>      write AST to <file>. (default: stdout)\n");
-> > +       printf("  -P, --preserve-tunables  treat tunables as booleans\n");
-> > +       printf("  -A, --ast-phase <phase>  write AST of phase <phase>. Phase must be parse, \n");
-> > +       printf("                           build, or resolve. (default: resolve)\n");
-> > +       printf("  -v, --verbose            increment verbosity level\n");
-> > +       printf("  -h, --help               display usage information\n");
-> > +       exit(1);
+> > The attached files shows the original and the output of secil2tree.
+> >
+> > Jim
+> >
+> > On Mon, Apr 19, 2021 at 11:27 AM James Carter <jwcart2@gmail.com> wrote=
+:
+> > >
+> > > For debugging purposes it would be useful to be able to write out
+> > > the CIL AST at various points in the build process.
+> > >
+> > > This patch set creates secil2tree which can write the CIL parse tree,
+> > > the CIL AST after the build phase, or the CIL AST after the resolve
+> > > phase (with names fully-qualified).
+> > >
+> > > Within CIL the function cil_print_tree() has existed from early in
+> > > CIL's development, but it was not exported in libsepol and there was =
+no
+> > > way to use it except by adding a call to it where you wanted to print
+> > > out the CIL AST and then recompiling everything. It also used cil_log=
+()
+> > > as its output, so other messages could be mixed in with the output. T=
+his
+> > > patch set moves all of this code to its own file, updates it, renames=
+ it
+> > > as cil_write_ast(), and adds libsepol functions that can be used to c=
+all
+> > > it after each one of the phases mentioned above.
+> > >
+> > > Both the parse and build CIL AST are valid CIL policies that can be
+> > > compiled with secilc, but the resolve CIL AST is not always a valid C=
+IL
+> > > policy. The biggest problem is that fully-qualified names can contain
+> > > dots and CIL does not allow dots in declaration names. There are othe=
+r
+> > > problems as well. It would be nice to get to the point where the outp=
+ut
+> > > for all of the trees are valid CIL, but that is a goal for the future=
+.
+> > >
+> > > v2:
+> > > - Remove whitespace errors in cil_write_ast.h
+> > > - Use "const char*" instead of just "char*" when dealing with string
+> > > literals to satisfy clang.
+> > >
+> > > James Carter (3):
+> > >   libsepol/cil: Create functions to write the CIL AST
+> > >   libsepol/cil: Add functions to make use of cil_write_ast()
+> > >   secilc: Create the new program called secil2tree to write out CIL A=
+ST
+> > >
+> > >  libsepol/cil/include/cil/cil.h   |    3 +
+> > >  libsepol/cil/src/cil.c           |   92 ++
+> > >  libsepol/cil/src/cil_tree.c      | 1471 ----------------------------
+> > >  libsepol/cil/src/cil_tree.h      |    2 -
+> > >  libsepol/cil/src/cil_write_ast.c | 1573 ++++++++++++++++++++++++++++=
+++
+> > >  libsepol/cil/src/cil_write_ast.h |   46 +
+> > >  libsepol/src/libsepol.map.in     |    3 +
+> > >  secilc/.gitignore                |    2 +
+> > >  secilc/Makefile                  |   20 +-
+> > >  secilc/secil2tree.8.xml          |   81 ++
+> > >  secilc/secil2tree.c              |  206 ++++
+> > >  11 files changed, 2024 insertions(+), 1475 deletions(-)
+> > >  create mode 100644 libsepol/cil/src/cil_write_ast.c
+> > >  create mode 100644 libsepol/cil/src/cil_write_ast.h
+> > >  create mode 100644 secilc/secil2tree.8.xml
+> > >  create mode 100644 secilc/secil2tree.c
+> > >
+> > > --
+> > > 2.26.3
+> > >
 >
-> Small thing: --output is documented with an equal sign
-> ("--output=<file>") while --ast-phase is with a space ("--ast-phase
-> <phase>"), both in the usage function and in the man page. Is this
-> inconsistency intentional?
+> Hello,
+> Thanks for this tool! It looks great and it seems to work quite well.
+>
+> Anyway, while building with some warning flags, gcc reported issues
+> about using non-const pointers to hold literal strings. For example:
+>
+> ../cil/src/cil_write_ast.c: In function =E2=80=98datum_to_str=E2=80=99:
+> ../cil/src/cil_write_ast.c:51:28: error: return discards =E2=80=98const=
+=E2=80=99
+> qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
+>    51 |  return datum ? datum->fqn : "<?DATUM>";
+>       |         ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+> ../cil/src/cil_write_ast.c: In function =E2=80=98write_expr=E2=80=99:
+> ../cil/src/cil_write_ast.c:122:12: error: assignment discards =E2=80=98co=
+nst=E2=80=99
+> qualifier from pointer target type [-Werror=3Ddiscarded-qualifiers]
+>   122 |     op_str =3D "<?OP>";
+>       |            ^
+>
+> With the attached patch, the code compiles fine. Feel free to directly
+> modify the first patch with these fixes.
 >
 
-No, I think for consistency the "=" should be used.
+I think that you might have tested the first version. The second
+version actually has everything in your patch.
 
 Thanks,
 Jim
 
-> The rest of this patch looks good to me. I have other comments on the
-> series, that I will send.
 > Thanks,
 > Nicolas
->
