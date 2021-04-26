@@ -2,88 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F97AC433ED
-	for <selinux@archiver.kernel.org>; Sun, 25 Apr 2021 16:30:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0495C433B4
+	for <selinux@archiver.kernel.org>; Mon, 26 Apr 2021 11:56:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4EEC761075
-	for <selinux@archiver.kernel.org>; Sun, 25 Apr 2021 16:30:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C09661027
+	for <selinux@archiver.kernel.org>; Mon, 26 Apr 2021 11:56:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230356AbhDYQbL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 25 Apr 2021 12:31:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39716 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230329AbhDYQbK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 25 Apr 2021 12:31:10 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7292C061574;
-        Sun, 25 Apr 2021 09:30:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
-        :Reply-To:Content-ID:Content-Description;
-        bh=aPNKubWNb9Dn9hoicNXX/XrjWTImHJ9wjB29zrOI+os=; b=Fph4OCF3XZKAAJLU90jvZCZz3V
-        8I9KwfRaqw6NbLrQ0g0AGGtMkBMoYbJIU1fMMhz8KTKafhwTO12B1aMkvizWNRwuzc0XtBRrMiNew
-        /aqYSK2pPYCyu951xbhVpq9pzD9491Acvd6/fNDWU7srM7Iburaf1j7zk/skfqdMQERPgHTQuKcLA
-        /Q444dEGXj5KR/y4yRN/nSqtV20ZoaFOWBazHTUEwlVMwVWDOZNZ34Z5GZZWOslhUrQbe7vYR31xw
-        bL+OpgiElguDzXUgCtpD+e3faPWXP1+wBeFBbX9Vbo8+iCw8gG8hIvP5nOHhzgbm5PyWGM9Ba54br
-        2glDPcng==;
-Received: from [2601:1c0:6280:3f0::df68]
-        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1laheL-004Tlo-Cd; Sun, 25 Apr 2021 16:30:26 +0000
-Subject: Re: [PATCH v2] selinux: Corrected comment to match kernel-doc comment
-To:     Souptick Joarder <jrdr.linux@gmail.com>, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1619339737-4824-1-git-send-email-jrdr.linux@gmail.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <8c0fc385-405a-e7df-3750-ff7e2d939f48@infradead.org>
-Date:   Sun, 25 Apr 2021 09:30:22 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S231978AbhDZL5c (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 26 Apr 2021 07:57:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48769 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231876AbhDZL5b (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 26 Apr 2021 07:57:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619438209;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=eqBdIn8k2Fk8huXuWbDqLkP5OxXVK2UAuqAKFBE3naQ=;
+        b=ZbsO9/3MN/DdJ1xW9/4+7anhA9SDywHp6sojZXV52rxVqqYfXxu1SYOaiT2RvnMrWj240N
+        LZ4UZeo+ZxduwgDznU4+Fzpg2zPUCiyYKTe0IylnkwRepEWGoYqRQZgd2aX6Uf+4nMShvl
+        T2mBqmxE9xSsDDY7gSGxVrpbZBxCl6s=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-384-vIOlrtrgP6y7Q5_YurOl7A-1; Mon, 26 Apr 2021 07:56:46 -0400
+X-MC-Unique: vIOlrtrgP6y7Q5_YurOl7A-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6530C8030D5;
+        Mon, 26 Apr 2021 11:56:45 +0000 (UTC)
+Received: from localhost (unknown [10.40.192.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F3D4E61F38;
+        Mon, 26 Apr 2021 11:56:44 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+Subject: Re: [PATCH] libselinux: do not duplicate make target when going
+ into subdirectory
+In-Reply-To: <20210422064356.249361-1-nicolas.iooss@m4x.org>
+References: <20210422064356.249361-1-nicolas.iooss@m4x.org>
+Date:   Mon, 26 Apr 2021 13:56:43 +0200
+Message-ID: <87bla1w96s.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1619339737-4824-1-git-send-email-jrdr.linux@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/25/21 1:35 AM, Souptick Joarder wrote:
-> Minor documentation update.
-> 
-> Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-> Cc: Randy Dunlap <rdunlap@infradead.org>
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
+> When running "make install-pywrap", make displays:
+>
+>     make[1]: Entering directory '/root/selinux/libselinux'
+>     make -C src install-pywrap install-pywrap
+>     make[2]: Entering directory '/root/selinux/libselinux/src'
+>
+> The duplicated "install-pywrap" is not expected. Remove it from the
+> Makefile.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Thanks.
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+Thanks!
+
 
 > ---
->  security/selinux/avc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index ad451cf..c90f455 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -819,7 +819,7 @@ int __init avc_add_callback(int (*callback)(u32 event), u32 events)
->  }
+>  libselinux/Makefile | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/libselinux/Makefile b/libselinux/Makefile
+> index ac16c15e8d0a..439bc6a9b7fd 100644
+> --- a/libselinux/Makefile
+> +++ b/libselinux/Makefile
+> @@ -50,24 +50,24 @@ all install relabel clean distclean indent:
+>  	done
 >  
->  /**
-> - * avc_update_node Update an AVC entry
-> + * avc_update_node - Update an AVC entry
->   * @event : Updating event
->   * @perms : Permission mask bits
->   * @ssid,@tsid,@tclass : identifier of an AVC entry
-> 
-
-
--- 
-~Randy
+>  swigify: all
+> -	$(MAKE) -C src swigify $@
+> +	$(MAKE) -C src $@
+>  
+>  pywrap: 
+> -	$(MAKE) -C src pywrap $@
+> +	$(MAKE) -C src $@
+>  
+>  rubywrap: 
+> -	$(MAKE) -C src rubywrap $@
+> +	$(MAKE) -C src $@
+>  
+>  install-pywrap: 
+> -	$(MAKE) -C src install-pywrap $@
+> +	$(MAKE) -C src $@
+>  
+>  install-rubywrap: 
+> -	$(MAKE) -C src install-rubywrap $@
+> +	$(MAKE) -C src $@
+>  
+>  clean-pywrap:
+> -	$(MAKE) -C src clean-pywrap $@
+> +	$(MAKE) -C src $@
+>  
+>  clean-rubywrap:
+> -	$(MAKE) -C src clean-rubywrap $@
+> +	$(MAKE) -C src $@
+>  
+>  test:
+> -- 
+> 2.31.0
 
