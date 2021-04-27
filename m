@@ -2,167 +2,113 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24848C433ED
-	for <selinux@archiver.kernel.org>; Mon, 26 Apr 2021 23:27:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C329EC433B4
+	for <selinux@archiver.kernel.org>; Tue, 27 Apr 2021 08:33:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD73C61077
-	for <selinux@archiver.kernel.org>; Mon, 26 Apr 2021 23:27:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 783AC61159
+	for <selinux@archiver.kernel.org>; Tue, 27 Apr 2021 08:33:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232116AbhDZX2h (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 26 Apr 2021 19:28:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53462 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232022AbhDZX2h (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 26 Apr 2021 19:28:37 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DEEDC061574
-        for <selinux@vger.kernel.org>; Mon, 26 Apr 2021 16:27:54 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id u3so8215519eja.12
-        for <selinux@vger.kernel.org>; Mon, 26 Apr 2021 16:27:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=vlMq+OnnkaeutSkOJCo2HWQTyPWbMfqniLhEvi6+JTw=;
-        b=PhAsPBcgEIif6QgM58SPw3LjlP/5Grg0OoaeI1HEM3jd+iyGQplCVgIx6ERbwVa7MD
-         gzvupdHqdeGkdaZ63g61IHarvQeWJus31cXq6Hfy2vUWlD3QOD7J7nXdpZ0QEdrIeGhh
-         1TOvT4Awq1hkJ5AfChigOftNwY8l4LJvr/1AtN6kdK35qiebtIiwpCe3YwA4XsA1DYVo
-         rXKrDpasXVO72gAiOeOCsxBnmbf11hFoE07S4k8Rnodd42J1Dq2/WvD2HFXs1oVOTeVy
-         chkDyvvyCIdl9YqOaHFu20SRKoTSxoSW/AhkYohIXPrWzvMx1GswEDYTNfoYhJq36pTt
-         uZZQ==
+        id S230228AbhD0IeP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Apr 2021 04:34:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25744 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235140AbhD0IeO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Apr 2021 04:34:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619512411;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jZWJlXPdkwZ88ZJkc8vnPKUwNq6t1RUPtdauIBnXGqQ=;
+        b=RheNo8nn//n0WrYFv/kHpZvyXqW9ZEFSHMScQm7jJhy5laP3BV/j6sWcOagk1l7NfSPD0C
+        dt2NhczxJnPMaSvWObfHEJgoZwMtJIPR3+0jN3g8L5G/e9j4GN2cUAot3xlgf+YCqUVH4R
+        FTbZWeB/YVnJhG9yRqH/M2zzK0rcqtk=
+Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
+ [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-272-MdbVXkHNP32MWjI5gXkXMw-1; Tue, 27 Apr 2021 04:33:29 -0400
+X-MC-Unique: MdbVXkHNP32MWjI5gXkXMw-1
+Received: by mail-yb1-f198.google.com with SMTP id z8-20020a2566480000b02904e0f6f67f42so37169413ybm.15
+        for <selinux@vger.kernel.org>; Tue, 27 Apr 2021 01:33:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=vlMq+OnnkaeutSkOJCo2HWQTyPWbMfqniLhEvi6+JTw=;
-        b=uMTtIAE6mWA1cpnjKKkmGZ0IRBi3t7dDW9BIk0oyr/cYnWQjK3fOQyq4g+CVt97cRY
-         1i7689ipuZi0Z7iOrtu+T071vqoZjivu+Bhp21jhLK6/CnPoqhKxLDCfPudl25+f5ByN
-         8gZ/LwVVksJ6fNue0/ReSuj21ITNc5xUxmcw1ChDW0nZCI4+cjDNrXN1aHlkzwp8L53q
-         YzgKa8JZ91CPTnbm4gbAezsP0853LWeQAUgk82Wl2r6kLxS0mVzgPglIMIm5VyN5YKAZ
-         AOM2woHok7LQLnIam7Hx4gbphCwFwsxJ0oYA0v5Jje/u8AQ2p5cNRk7p1mcrun+u1Om0
-         8dJQ==
-X-Gm-Message-State: AOAM532CyKaT7zUKQJQ7bldyYr0H3rOc53B5LWIdlPHCY81Di6JVnVA2
-        jrKk6gNEoPS5DbxRf19tcWAmX6DnvXvtjLUST7U3
-X-Google-Smtp-Source: ABdhPJyWAhcjyTttA68bCC5z/U8kw7BEjKy0yIOfXVotmGpMpvUFJHY3UFsievc+TukYzQ2g+OFpJoHgeuClFwTTzvI=
-X-Received: by 2002:a17:906:608a:: with SMTP id t10mr21074575ejj.374.1619479673016;
- Mon, 26 Apr 2021 16:27:53 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jZWJlXPdkwZ88ZJkc8vnPKUwNq6t1RUPtdauIBnXGqQ=;
+        b=BvYvrEV6brS5GSotKMwl3KN1QVfF6ea70DPCPLVg6U3IehDL3qAGqmo/WHzVqKp1Me
+         IXl1vH2XZ/gZIn5bQk0e8wyUAAPHjTCcikkmvr4T2rAyf9FKzr7HmLCO8RdCJjU00ogM
+         mvvQfnT5dbdnS++rvCPL7s0KTcI4IHrvsLn6bQnwMJcCqmkoP4gJPo4yq2NyNueyHZ5k
+         8si+rx+sV7UmHCabCjENVeeRKpTXAjTUtAiRh8rv5WQ27U6NRTkXCop/CMmlqT1cAvO3
+         UyBso9bCI+ID22aOMAYLDdTBuImGPfqDXHn57wI+Ft1W/paG9HVZ9sdjqu1FJQVKlrLo
+         Ghhg==
+X-Gm-Message-State: AOAM531Ic+BwqfXsfhR+qjshu4U9THNHLKHL912leVn8qq66zt0FL0qj
+        Nr7A0p5MyH9NhTh+0Hq7cacGS2itkP3WbcdVhqBO4U4rrDN3ouaWzt5Z9F7c4e2C7e5Vs4xiKsh
+        0ICgn/wnI/0Y2yWOvCwspJDz8Ye/kmchVKA==
+X-Received: by 2002:a25:5d8:: with SMTP id 207mr14356550ybf.436.1619512408681;
+        Tue, 27 Apr 2021 01:33:28 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzHRq0ShF5oqVQUgU21NKz4EX11pPN62qeRjrr631jF5PlCEJsOtpZv/QpOYK5u/Nrh8NnpE8jscgUidLzzuUw=
+X-Received: by 2002:a25:5d8:: with SMTP id 207mr14356524ybf.436.1619512408447;
+ Tue, 27 Apr 2021 01:33:28 -0700 (PDT)
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 26 Apr 2021 19:27:42 -0400
-Message-ID: <CAHC9VhQc7GguPxuN0cU2D0960LBcDK6fW1fHWyMkQCyxNZ_9FA@mail.gmail.com>
-Subject: [GIT PULL] SELinux patches for v5.13
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org
+References: <161947648054.55076.7300753011213416749.stgit@olly>
+In-Reply-To: <161947648054.55076.7300753011213416749.stgit@olly>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 27 Apr 2021 10:33:17 +0200
+Message-ID: <CAFqZXNvHe094zpnfM0eBA8Y=HjwgzVpCkuA9SNfLPdJ4Th-LTQ@mail.gmail.com>
+Subject: Re: [PATCH] testsuite: fix cap_userns for kernels >= v5.12
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+On Tue, Apr 27, 2021 at 12:34 AM Paul Moore <paul@paul-moore.com> wrote:
+> Starting with Linux v5.12 CAP_SETFCAP is required to map UID 0/root.
+> This is due to kernel commit db2e718a4798 ("capabilities: require
+> CAP_SETFCAP to map uid 0").  In order to resolve this in the test
+> suite allow the test_cap_userns_t domain to exercise the setfcap
+> capability.
 
-Here is the SELinux pull request for v5.13, the highlights are below:
+Thanks! We hit this in our mainline kernel CI as well and I was going
+to send a patch for this, but I didn't have the right kernel build at
+hand to test, so I deferred it. One comment below.
 
-* Add support for measuring the SELinux state and policy capabilities using IMA.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  policy/test_cap_userns.te |    1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/policy/test_cap_userns.te b/policy/test_cap_userns.te
+> index ab74325..052afea 100644
+> --- a/policy/test_cap_userns.te
+> +++ b/policy/test_cap_userns.te
+> @@ -14,6 +14,7 @@ typeattribute test_cap_userns_t capusernsdomain;
+>
+>  # This domain is allowed sys_admin on non-init userns for mount.
+>  allow test_cap_userns_t self:cap_userns sys_admin;
+> +allow test_cap_userns_t self:capability setfcap;
 
-* A handful of SELinux/NFS patches to compare the SELinux state of one
-mount with a set of mount options.  Olga goes into more detail in the
-patch descriptions, but this is important as it allows more
-flexibility when using NFS and SELinux context mounts.
+I think we should allow the capability to both domains (i.e. to
+capusernsdomain). We are testing cap_userns::sys_admin here and if the
+tested operation is not denied for a domain that has only
+capability::setfcap, we want the test to fail.
 
-* Properly differentiate between the subjective and objective LSM
-credentials; including support for the SELinux and Smack.  My clumsy
-attempt at a proper fix for AppArmor didn't quite pass muster so John
-is working on a proper AppArmor patch, in the meantime this set of
-patches shouldn't change the behavior of AppArmor in any way.  This
-change explains the bulk of the diffstate beyond security/.
+Also, a comment with a sentence explaining why CAP_SETFCAP is needed
+would be nice :)
 
-* Fix a problem where we were not properly terminating the permission
-list for two SELinux object classes.
-
-Everything has been tested against the selinux-testsuite and as of a
-few moments ago the tag applies cleanly to your tree; please merge
-this for v5.13.
-
-Thanks,
--Paul
+>
+>  # Domain for process that is not allowed non-init userns capabilities
+>  type test_no_cap_userns_t;
+>
 
 --
-The following changes since commit a38fd8748464831584a19438cbb3082b5a2dab15:
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
- Linux 5.12-rc2 (2021-03-05 17:33:41 -0800)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20210426
-
-for you to fetch changes up to e4c82eafb609c2badc56f4e11bc50fcf44b8e9eb:
-
- selinux: add proper NULL termination to the secclass_map permissions
-   (2021-04-21 21:43:25 -0400)
-
-----------------------------------------------------------------
-selinux/stable-5.13 PR 20210426
-
-----------------------------------------------------------------
-Lakshmi Ramasubramanian (1):
-     selinux: measure state and policy capabilities
-
-Olga Kornievskaia (3):
-     lsm,selinux: add new hook to compare new mount to an existing mount
-     nfs: remove unneeded null check in nfs_fill_super()
-     nfs: account for selinux security context when deciding to share
-          superblock
-
-Paul Moore (4):
-     lsm: separate security_task_getsecid() into subjective and objective
-          variants
-     selinux: clarify task subjective and objective credentials
-     smack: differentiate between subjective and objective task credentials
-     selinux: add proper NULL termination to the secclass_map permissions
-
-Vivek Goyal (1):
-     selinux: Allow context mounts for unpriviliged overlayfs
-
-Xiong Zhenwu (2):
-     selinux: fix misspellings using codespell tool
-     selinux: fix misspellings using codespell tool
-
-drivers/android/binder.c              |  11 ++-
-fs/nfs/fs_context.c                   |   3 +
-fs/nfs/internal.h                     |   1 +
-fs/nfs/super.c                        |   6 +-
-include/linux/cred.h                  |   2 +-
-include/linux/lsm_hook_defs.h         |   6 +-
-include/linux/lsm_hooks.h             |  18 +++-
-include/linux/nfs_fs_sb.h             |   1 +
-include/linux/security.h              |  18 +++-
-kernel/audit.c                        |   4 +-
-kernel/auditfilter.c                  |   3 +-
-kernel/auditsc.c                      |   8 +-
-kernel/bpf/bpf_lsm.c                  |   3 +-
-net/netlabel/netlabel_unlabeled.c     |   2 +-
-net/netlabel/netlabel_user.h          |   2 +-
-security/apparmor/lsm.c               |   3 +-
-security/integrity/ima/ima_appraise.c |   2 +-
-security/integrity/ima/ima_main.c     |  14 +--
-security/security.c                   |  20 +++-
-security/selinux/hooks.c              | 170 ++++++++++++++++++++++++------
-security/selinux/ima.c                |  87 +++++++++++++++-
-security/selinux/include/classmap.h   |   5 +-
-security/selinux/include/ima.h        |   6 ++
-security/selinux/include/security.h   |   2 +-
-security/selinux/selinuxfs.c          |   6 ++
-security/selinux/ss/hashtab.c         |   2 +-
-security/selinux/ss/services.c        |   2 +-
-security/smack/smack.h                |  18 +++-
-security/smack/smack_lsm.c            |  39 +++++---
-29 files changed, 372 insertions(+), 92 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
