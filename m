@@ -2,108 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56567C433B4
-	for <selinux@archiver.kernel.org>; Tue, 27 Apr 2021 14:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D100C433ED
+	for <selinux@archiver.kernel.org>; Tue, 27 Apr 2021 20:07:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2C53061001
-	for <selinux@archiver.kernel.org>; Tue, 27 Apr 2021 14:10:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5BF63613ED
+	for <selinux@archiver.kernel.org>; Tue, 27 Apr 2021 20:07:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236269AbhD0OLC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Apr 2021 10:11:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
+        id S235514AbhD0UHq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Apr 2021 16:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236226AbhD0OLC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Apr 2021 10:11:02 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74680C061574
-        for <selinux@vger.kernel.org>; Tue, 27 Apr 2021 07:10:17 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id n21so13507460eji.1
-        for <selinux@vger.kernel.org>; Tue, 27 Apr 2021 07:10:17 -0700 (PDT)
+        with ESMTP id S235416AbhD0UHp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Apr 2021 16:07:45 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0676C061574
+        for <selinux@vger.kernel.org>; Tue, 27 Apr 2021 13:07:01 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id h10so71434267edt.13
+        for <selinux@vger.kernel.org>; Tue, 27 Apr 2021 13:07:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fsUKcENovv6F7snSfbw4AkJEI8bc+D0BVFwGl2051cw=;
-        b=nOMWs7SycB8eUAiGxxTjzwrDZnyicSQTd0qExLGRnf1cafCz/CcjYKf8hxOKXy4szA
-         FuUFrkLYq8TOXpbO6wUwQl1EM6acNGOIBPg5DEh71EaKw0c4YuvywyPCgFzKgGFOhFOy
-         WkAle+FftPnb9EECmbjz0b3gf01Dl+WgTGsZR2xgR+P4kdMZ3y6iaNFq+MzStJhYlq1d
-         QkwOH8Jy3mH1U6BAPitaTYeBnsmfPMajV2JFNLOG3gFCIXMQDiHAT/R9L89uj/wXWXXO
-         B2GKXRxiAfoUFuxrFTlhMaqHCUsR3FJfXfMTWc/mj6QV3fvx+NzlzGsI1xQRu6PYfPTb
-         Tdsg==
+         :cc;
+        bh=x4zI6LsRpIA3ArtBX8ALU0STp81kxL89GVnW2vZhefU=;
+        b=v+mxNSyeOWGx118MXJSSxAxT4BdnRFLkDY2UNYSPuUOw5VVvO6skPiZ4Hkh81aD3eN
+         HIVgsJ1XUvaOumXO97eIUiPef9+8sz8HoKThpxa3GFBqU7EYrsZqWHzczU92b3hytOBY
+         MOOamiia1YInVSlE4bC1tGP1pa8RdrVLxLStHHSovlpaGNovS0/hkLJ/dbxY2hYfa5PS
+         UEvJIjAnl2rU/db+2Rltw0WYqbbeAUTbN2O/F0XkXa1eO3+LtJ6NBzJ7gApttSYoBQc6
+         FXo7z4kJZ8Cd7wloLAXiPMSGgWlYcMCf25+AiRj02fhOZuAo0ILUAevz88tgjeXRf0l6
+         accQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fsUKcENovv6F7snSfbw4AkJEI8bc+D0BVFwGl2051cw=;
-        b=Da1YVb7s3/L2HqTMIxo4ylROwtPrI0lZXx4nm8Tmq5bcgyMPTR73CtndcFdPP+g4TE
-         9+kjDN9CedWWOM2iXdgrlCRnMwUlqslv+y5Yn0CKqqomFlvJeYo6pfSOFZ2MJlkNjoPz
-         k2mCtxWD44pMXIseKsB0au+3soI8g1kW1KNerf8CFmz6lgU4jEremIbz6d+WBeyYxxTE
-         o7gBeNh1ccP0+mMi9L0ydbNTFb7IC4jSltz4KjG8iBS6mrS5woHfmLmLs5048Kadgq2J
-         Y8LUCqvcOsPDR3Nb4FFA8TW4OsXN8LIUns/Zg871Y7PIwJ7hA7Emb+G3LAs2CLLCd5Vt
-         7Wyg==
-X-Gm-Message-State: AOAM532XciSlfyrYvXDGtvwh/bT7QkZh+9ADs0KuwCRz6xcPwrIPbZYq
-        tedPdUAM8Cb/QTmpfcJnwR26ifSHaued+qrO11CuXzNFgw==
-X-Google-Smtp-Source: ABdhPJwrkNz0r+O2D6yizNCrsTYOf979HUZXElLXT+UoNyAHnK+prcr6ctW59hu22/feup6vQAUVitk7tpkPU9aq1Do=
-X-Received: by 2002:a17:906:a006:: with SMTP id p6mr24118748ejy.350.1619532615025;
- Tue, 27 Apr 2021 07:10:15 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=x4zI6LsRpIA3ArtBX8ALU0STp81kxL89GVnW2vZhefU=;
+        b=JrcA3W4Az5sQscO7z82DaehysocZhMY/3zKJr7F6NKbl0SBjdFTpmI3Q+IOgtdL1xR
+         JxrbzL9wk+v0eTblJG9eZkkHErsfxJTWIf6GcxiVAcxQ67/MT2i7aefRBnG4jW7MIuR2
+         E6QwaYcdzT/epQdMp56eaTlzP0WMOgzW2X1mSGCNRzTwenmcB8Fn5+BT0+6PMcsFw5Ga
+         Sv5gCGiSAkeb3OaEw+oIpKgclos+16Ff7AE1ooEYP7oQEIk2USYiE43jZkuAiR2Fy30g
+         hgU1LpuD6LhWlS9hSlYqjFI09fQJBZfHXM0V3IAoQsTIsXPHK0DiLFXxg6bHVB0WLSSZ
+         L3bw==
+X-Gm-Message-State: AOAM5338ZUvr4BjnGMM+mTnzktme8xeM+dv2bsbKfnJmncfzUVfYP8wv
+        RxCvTT6oCAgqoWhrNfOJtnK2x7VJqDjeq4NFx4n2xOcBZw==
+X-Google-Smtp-Source: ABdhPJyM7GKmA4a0erk/M1O0+veXn39oT7K2m3hVriPrHF9ycRMFzgQPACjm0i6lE/jsQwS8A1GZi7dPdB0HYYW48KU=
+X-Received: by 2002:aa7:d30b:: with SMTP id p11mr6418798edq.325.1619554020434;
+ Tue, 27 Apr 2021 13:07:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210413122508.24745-1-cgzones@googlemail.com>
-In-Reply-To: <20210413122508.24745-1-cgzones@googlemail.com>
+References: <161947648054.55076.7300753011213416749.stgit@olly> <CAFqZXNvHe094zpnfM0eBA8Y=HjwgzVpCkuA9SNfLPdJ4Th-LTQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNvHe094zpnfM0eBA8Y=HjwgzVpCkuA9SNfLPdJ4Th-LTQ@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 27 Apr 2021 10:10:03 -0400
-Message-ID: <CAHC9VhSomhz2O6ijJgFnP+1zF54nA8=86Xn5t+tj+k6_121vAQ@mail.gmail.com>
-Subject: Re: [RFC SHADOW PATCH 0/7] SELinux modernizations
-To:     selinux@vger.kernel.org
-Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 27 Apr 2021 16:06:49 -0400
+Message-ID: <CAHC9VhST6bJ=9=6-EUj4=zv-G0py-GX+gG99Fr==nku6_xCrkg@mail.gmail.com>
+Subject: Re: [PATCH] testsuite: fix cap_userns for kernels >= v5.12
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 13, 2021 at 8:25 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Tue, Apr 27, 2021 at 4:33 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Tue, Apr 27, 2021 at 12:34 AM Paul Moore <paul@paul-moore.com> wrote:
+> > diff --git a/policy/test_cap_userns.te b/policy/test_cap_userns.te
+> > index ab74325..052afea 100644
+> > --- a/policy/test_cap_userns.te
+> > +++ b/policy/test_cap_userns.te
+> > @@ -14,6 +14,7 @@ typeattribute test_cap_userns_t capusernsdomain;
+> >
+> >  # This domain is allowed sys_admin on non-init userns for mount.
+> >  allow test_cap_userns_t self:cap_userns sys_admin;
+> > +allow test_cap_userns_t self:capability setfcap;
 >
-> Modernize SELinux parts of shadow
-> (https://github.com/shadow-maint/shadow).
+> I think we should allow the capability to both domains (i.e. to
+> capusernsdomain). We are testing cap_userns::sys_admin here and if the
+> tested operation is not denied for a domain that has only
+> capability::setfcap, we want the test to fail.
 >
-> Upstream pull request: https://github.com/shadow-maint/shadow/pull/323
->
->
-> Christian G=C3=B6ttsche (7):
->   struct commonio_db[selinux]: do not use deprecated type
->     security_context_t
->   vipw[selinux]: do not use deprecated typedef and skip context
->     translation
->   selinux.c: do not use deprecated typedef and skip context translation
->   selinux.c:reset_selinux_file_context(): do not fail in permissive mode
->   selinux.c: use modern selabel interface instead of deprecated
->     matchpathcon
->   set_selinux_file_context(): prepare context for actual file type
->   selinux: only open selabel database once
->
->  lib/commonio.c    |  4 ++--
->  lib/commonio.h    |  6 +----
->  lib/prototypes.h  |  2 +-
->  lib/selinux.c     | 60 ++++++++++++++++++++++++++++++++---------------
->  libmisc/copydir.c |  8 +++----
->  src/useradd.c     |  7 ++++--
->  src/userdel.c     |  3 +++
->  src/usermod.c     |  3 +++
->  src/vipw.c        | 10 ++++----
->  9 files changed, 65 insertions(+), 38 deletions(-)
+> Also, a comment with a sentence explaining why CAP_SETFCAP is needed
+> would be nice :)
 
-SELinux userspace folks, can someone give this patchset a quick look
-to make sure it is sane?  A little birdie tells me this might get
-merged soonish and I don't trust my understanding of the current
-SELinux userspace to do a good enough job making sure these patches do
-The Right Things :)
+Fair enough, v2 will be out shortly.
 
---=20
+-- 
 paul moore
 www.paul-moore.com
