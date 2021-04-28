@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEEF7C433ED
-	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 20:18:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBB01C433B4
+	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 20:18:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D38F6143F
-	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 20:18:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F6D16143F
+	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 20:18:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240778AbhD1USu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Apr 2021 16:18:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54964 "EHLO
+        id S240735AbhD1USw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Apr 2021 16:18:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240735AbhD1USs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Apr 2021 16:18:48 -0400
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0B3C061574
-        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 13:18:02 -0700 (PDT)
-Received: by mail-qk1-x732.google.com with SMTP id 66so25400485qkf.2
-        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 13:18:02 -0700 (PDT)
+        with ESMTP id S230225AbhD1USu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Apr 2021 16:18:50 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0E6C061573
+        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 13:18:03 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id z2so27980973qkb.9
+        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 13:18:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=xR9Ttq3ZYNAd96OGPM3jBsjzU0I1N1UfJBbAkjsIozM=;
-        b=pXJTDrhzY4ZywKONjmRKC0OGVPsEOJPUiNbK7rOtObdb2QTEfMbu5FS6SSCcp3q/45
-         +qG+dpFyBR5OhnmFD05BYfpQujeumpG95WANopkA5yxhMJHm/1CzeszqUj4XRR02JoqB
-         AZcNrN+97rzWUaDy4xa+L45dpKPu2MmB9HUa63wn9/Bhr5WxrhigqZ7ta1vuLnvFmDQN
-         tKHk8828h8ZYNcQBpzYLFtvP7VnEOMyfTjiHff1noklXeCAMkTSvvGW/SS9Z9dhAG8r6
-         7waMXk9wscpikLAS4PCGuZW9gOnySEYlODIP9PUZbD6ZI6hEVo7g/0V2uyzho8nWaeqJ
-         RAag==
+        bh=LEVfIXjfm17908BanwJlYwt1rA/1vdBmbSGySJIefjI=;
+        b=I5/ndJkXXgSaLlyyI0vCXZxCaCVrWWNv7xsiNeMqH2I2k/OLt8+i3LGlNrU8elBSl3
+         p19wicJOGi4FTOoWiKIhVxhbnqaqmPP5QrqhncQW5VjMVmDqNKoUcvfyzf2WEKxx2nrC
+         aP0XVucKuhKFgQkpYFG9uZXUTqAGR6LLtp+d9zNBlaWg6MW6yX7pknRYx/d0rxtIJk7Q
+         nhX4TE8hIcNnnjlq+YuuLnckBkJJb0lwuRsXxnsOSjeq+taWjhaYAh6IDJkiSkJxBjSX
+         7EqYwmu7V2nU6nLRE5Vimd0PcunWC1zDvpmXDlzEMiC+KdxBzQUAd+skC94wRqRK0zPs
+         PNdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xR9Ttq3ZYNAd96OGPM3jBsjzU0I1N1UfJBbAkjsIozM=;
-        b=lrSGWVNFCUahNLPQDts/Z7kN1H/ftZsmi4OY95UqRfjryTlWXfxpxGP4XD93hJ4Fiv
-         5HJonl0rT7747/qQh1WttbTgaPHZI1mGBzMtxOT1AopxX2wruRufnrxUL/TWnf0pVsjI
-         HqWRBPyBPjs8Q7s8WB8mjnvZgkM/QbItzwBR0QrAr4u7VyBsMfYdZRxofvp9ua26Tyf3
-         HKugm13Ful3+RCjPJzxn6khb0Dlf4zYUDA8KtBLoJrTCrt6CophYfkGyzE6c6eCmENzP
-         ok2iH83HGQej5Mv+SQ1FLDx4R2Q0blfvO4xNwOCIer1GzyYcyCmumM9kjc9NrNamz5MU
-         lRCw==
-X-Gm-Message-State: AOAM530SKYSukTk8QtojJOzfvU8+Xh+dfiME/m4fA6woeNo4ht9eOtJe
-        5tpQ1YATNkBLX8mS2mv6tfYnTtc4hqdLbA==
-X-Google-Smtp-Source: ABdhPJy7G/XB9yi8MwjWGiDQ7Uijpo731fv3d9gvb4Z01gvmF0XZDVgIrNzEWwq9GwWncGN8A6V5rQ==
-X-Received: by 2002:a37:e412:: with SMTP id y18mr31814666qkf.40.1619641081264;
-        Wed, 28 Apr 2021 13:18:01 -0700 (PDT)
+        bh=LEVfIXjfm17908BanwJlYwt1rA/1vdBmbSGySJIefjI=;
+        b=DekrnKCrfUlgRuN8LvtlEU6Bkrn93wtdFBhT4gD02GKlt1Imt4ClZsX0Jy1UT+GQ8a
+         LjFrUUCVT5G+BYEl3z7g0MFHvMQaBV3QPsud57FLo5aNWkSgzmP8M3fm1eu5XhVd2rSj
+         MTUPgyaH22YoLTq1ZFzBhnYaF5opmd937unMFV40KuGueJ62anVVdZEsjYq09Ig4iGLz
+         Py7AbsNsFD2kaFK94uGLTqRr3xh/dse35CQZJTmj5DkhbElKIWMexCrIrxFygN3mA3V3
+         I2h5KM6zvj3glGo6tj+MqPsMbbRgTpLBHBR5ItmNPEasvkTKF01cqc9CwvWkcSQyIVSZ
+         Hvzw==
+X-Gm-Message-State: AOAM532Cccb+gI5ddlZ1Z/yMsrS5WsFl3y2wvgPROO0n2ow2VSQcmhCv
+        eVAQcCqCBSYO6vF8q7l8qCT7hIcDPapBFQ==
+X-Google-Smtp-Source: ABdhPJwsyVwQYXVBX5DoF0hN1fQAajNX05cvQCYNhoIA6lzVhOscoYQmYvYkVH/LyVsXkareAj6ECA==
+X-Received: by 2002:a05:620a:11bc:: with SMTP id c28mr22836063qkk.53.1619641082637;
+        Wed, 28 Apr 2021 13:18:02 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id q126sm616666qkd.48.2021.04.28.13.18.00
+        by smtp.gmail.com with ESMTPSA id q126sm616666qkd.48.2021.04.28.13.18.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Apr 2021 13:18:00 -0700 (PDT)
+        Wed, 28 Apr 2021 13:18:02 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/5] libsepol/cil: Detect degenerate inheritance and exit with an error
-Date:   Wed, 28 Apr 2021 16:17:50 -0400
-Message-Id: <20210428201753.282831-3-jwcart2@gmail.com>
+Subject: [PATCH 3/5] libsepol/cil: Check datum in ordered list for expected flavor
+Date:   Wed, 28 Apr 2021 16:17:51 -0400
+Message-Id: <20210428201753.282831-4-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.3
 In-Reply-To: <20210428201753.282831-1-jwcart2@gmail.com>
 References: <20210428201753.282831-1-jwcart2@gmail.com>
@@ -71,133 +71,67 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-A CIL policy with inheritance of the form
-...
-(blockinherit ba)
-(block ba
-  (block b1
-    (blockinherit bb)
-  )
-  (block bb
-    (block b2
-      (blockinherit bc)
-    )
-    (block bc
-      (block b3
-        (blockinherit bd)
-      )
-      (block bd
-        (block b4
-          (blockinherit be)
-        )
-        (block be
-        ...
-will require creating 2^depth copies of the block at the bottom of
-the inheritance chain. This pattern can quickly consume all the
-memory of the system compiling this policy.
+The secilc-fuzzer found an out of bounds memory access occurs
+when building the binary policy if a map class is included in a
+classorder statement.
 
-The depth of the inheritance chain can be found be walking the
-tree up through the parents and noting how many of the parent
-blocks have been inherited. The number of times a block will be
-copied is found by counting the list of nodes in the "bi_nodes"
-list of the block. To minimize legitimate policies from being
-falsely detected as being degenerate, both the depth and breadth
-(number of copies) are checked and an error is given only if both
-exceed the limits (depth >= 12 and breadth >= 4096).
+The order statements in CIL (sidorder, classorder, categoryorder,
+and sensitivityorder) are used to specify an ordering for sids,
+classes, categories, and sensitivities. When the order statments
+are resolved and merged, only in the case of the category order
+list is the datum resolved checked to see if it is the expected
+flavor.
 
-This problem was found by the secilc-fuzzer.
+When resolving the sid, class, and sensitivity order statements,
+check that each name resolved to a datum of the expected flavor
+and return an error if it does not.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_internal.h    |  2 ++
- libsepol/cil/src/cil_resolve_ast.c | 54 ++++++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+)
+ libsepol/cil/src/cil_resolve_ast.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index 9bdcbdd0..74e0b34d 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -48,6 +48,8 @@
- 
- #define CIL_MAX_NAME_LENGTH 2048
- 
-+#define CIL_DEGENERATE_INHERITANCE_DEPTH 12
-+#define CIL_DEGENERATE_INHERITANCE_BREADTH (0x1 << CIL_DEGENERATE_INHERITANCE_DEPTH)
- 
- enum cil_pass {
- 	CIL_PASS_INIT = 0,
 diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 5389df43..68909647 100644
+index 68909647..b081d45d 100644
 --- a/libsepol/cil/src/cil_resolve_ast.c
 +++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -2410,6 +2410,55 @@ exit:
- 	return rc;
- }
+@@ -1488,6 +1488,11 @@ int cil_resolve_classorder(struct cil_tree_node *current, void *extra_args)
+ 			rc = SEPOL_ERR;
+ 			goto exit;
+ 		}
++		if (FLAVOR(datum) != CIL_CLASS) {
++			cil_log(CIL_ERR, "%s is not a class. Only classes are allowed in classorder statements\n", datum->name);
++			rc = SEPOL_ERR;
++			goto exit;
++		}
+ 		cil_list_append(new, CIL_CLASS, datum);
+ 	}
  
-+/*
-+ * Detect degenerate inheritance of the form:
-+ * ...
-+ * (blockinherit ba)
-+ * (block ba
-+ *    (block b1
-+ *      (blockinherit bb)
-+ *    )
-+ *    (block bb
-+ *      (block b2
-+ *        (blockinherit bc)
-+ *      )
-+ *      (block bc
-+ *      ...
-+ */
-+static int cil_check_for_degenerate_inheritance(struct cil_tree_node *current)
-+{
-+	struct cil_block *block = current->data;
-+	struct cil_tree_node *node;
-+	struct cil_list_item *item;
-+	unsigned depth;
-+	unsigned breadth = 0;
-+
-+	cil_list_for_each(item, block->bi_nodes) {
-+		breadth++;
-+	}
-+
-+	if (breadth >= CIL_DEGENERATE_INHERITANCE_BREADTH) {
-+		node = current->parent;
-+		depth = 0;
-+		while (node && node->flavor != CIL_ROOT) {
-+			if (node->flavor == CIL_BLOCK) {
-+				block = node->data;
-+				if (block->bi_nodes != NULL) {
-+					depth++;
-+				}
-+			}
-+			node = node->parent;
+@@ -1526,6 +1531,12 @@ int cil_resolve_sidorder(struct cil_tree_node *current, void *extra_args)
+ 			cil_log(CIL_ERR, "Failed to resolve sid %s in sidorder\n", (char *)curr->data);
+ 			goto exit;
+ 		}
++		if (FLAVOR(datum) != CIL_SID) {
++			cil_log(CIL_ERR, "%s is not a sid. Only sids are allowed in sidorder statements\n", datum->name);
++			rc = SEPOL_ERR;
++			goto exit;
 +		}
 +
-+		if (depth >= CIL_DEGENERATE_INHERITANCE_DEPTH) {
-+			cil_tree_log(current, CIL_ERR, "Degenerate inheritance detected (depth=%u, breadth=%u)", depth, breadth);
-+			return SEPOL_ERR;
+ 		cil_list_append(new, CIL_SID, datum);
+ 	}
+ 
+@@ -1617,6 +1628,11 @@ int cil_resolve_sensitivityorder(struct cil_tree_node *current, void *extra_args
+ 			cil_log(CIL_ERR, "Failed to resolve sensitivty %s in sensitivityorder\n", (char *)curr->data);
+ 			goto exit;
+ 		}
++		if (FLAVOR(datum) != CIL_SENS) {
++			cil_log(CIL_ERR, "%s is not a sensitivity. Only sensitivities are allowed in sensitivityorder statements\n", datum->name);
++			rc = SEPOL_ERR;
++			goto exit;
 +		}
-+	}
-+
-+	return SEPOL_OK;
-+}
-+
- int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_args)
- {
- 	struct cil_block *block = current->data;
-@@ -2426,6 +2475,11 @@ int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_arg
+ 		cil_list_append(new, CIL_SENS, datum);
+ 	}
  
- 	db = args->db;
- 
-+	rc = cil_check_for_degenerate_inheritance(current);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
- 	// Make sure this is the original block and not a merged block from a blockinherit
- 	if (current != block->datum.nodes->head->data) {
- 		rc = SEPOL_OK;
 -- 
 2.26.3
 
