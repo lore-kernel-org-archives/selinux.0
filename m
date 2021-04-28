@@ -2,114 +2,294 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B09BC433ED
-	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 14:27:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6165CC433ED
+	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 16:07:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA8DF61433
-	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 14:27:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1769961151
+	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 16:07:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbhD1O2a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Apr 2021 10:28:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50622 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229520AbhD1O2a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Apr 2021 10:28:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619620065;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SZ9YPVDmnzNgB13RkB7XvgXIuC+t25XF/qjM/sXwn2E=;
-        b=PXbBMx2LQtLA3DohYacMPouQCz0LWfmsQl5ObteUG7xHrHERVzZ2uDw1/SRfaaO+YDXJSe
-        UwBUCYBprCwfQ6owiB4gHyaKHd2/0Xmb+we1/UMoniWZ1hMFyJE39q7CEUb5hEMbbEZPZf
-        MdwLhGNJopFnRXAYynDlaaNDNFfww+M=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-369-gDtiPZ7hMSWxu61cpGrKsg-1; Wed, 28 Apr 2021 10:27:42 -0400
-X-MC-Unique: gDtiPZ7hMSWxu61cpGrKsg-1
-Received: by mail-yb1-f199.google.com with SMTP id i8-20020a0569020688b02904ef3bd00ce7so1670218ybt.7
-        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 07:27:42 -0700 (PDT)
+        id S231396AbhD1QIL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Apr 2021 12:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55816 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229891AbhD1QIL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Apr 2021 12:08:11 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0CCC061573
+        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 09:07:24 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id x54-20020a05683040b6b02902a527443e2fso7724165ott.1
+        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 09:07:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=/qufn+EIhoepSV3JsQcxMoC1hV/hpT7mV/NpPeoUMMY=;
+        b=TLmbtYvWl47b5Atx1Muk4aLnzwCXswBa0m1w3iF4sKLbzG5m7pdYTuE59uVjyGez6T
+         hmjFNIgAWjaRDeJHjGP3tFv6hqGXRRFnr0sP7ZAZI7kfQfr9L8g8UqMvgvkpCboZV7Ly
+         syj32AXuoRadVbYkLSxcehHsZtoAnKWOcmMc9k65rZIDIAgTx1Tl22QYpvAKdAdZgFkW
+         axBU1Jh4aTpgPtNDA1UX+KTJ3M8RjLyu3nPcySqWGmGjcPd71WnHINBpqhGDmigatcM7
+         LE5cF0lup5ulmjv329FKBtsQZj80+7GzUu8iDL43M3xCTvqCSrOhC80MDeVJpWSA7Wqj
+         mMrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SZ9YPVDmnzNgB13RkB7XvgXIuC+t25XF/qjM/sXwn2E=;
-        b=FijX+JbefQmq+szisoK54dBX0c2jqCVZi1Onp+Nv9nP98Y7NsfSHHqzMWBGzx9ZX6o
-         Uom2QdDMBM44cuo3EzPK3z6phD20tSJU0/3nI92aB+Gy5kLdbylKGotxvbAnROpOG9ZV
-         wjRPQ3FAfOGueZMHiaI7qOjue9tMq//r2HxCC+HQFmFFUk2d/s3X4OlidDinuBe98Y88
-         A0ZEwDNMaQQBJaNWFa0BYmNRt0gXIlh6P50FD5OxHjPrMGOQY9cuUXUWrHBxxMFL4pqX
-         S3fv/CPXZ+ryth0BBK+MeDaSduN1MWh838EZPSNozFfMHKnUucGsoMyzAbQC0sEgCYmO
-         UY5Q==
-X-Gm-Message-State: AOAM533zsbdp41W+TwmkR67FtnDTV2Uy5ZN/7rUPNLuuKAkqamwpOpVc
-        upVNbPNKXQ4lBBT1swv85lQG3NgBbi9lilUJTz9rx3fnODGfQvPpph+vNovw6Cir8f1+XrNurmd
-        Ga0h4KSO8GbV03ERZb3jOE5B6i2iWoZeieQ==
-X-Received: by 2002:a25:cccd:: with SMTP id l196mr2838737ybf.26.1619620060394;
-        Wed, 28 Apr 2021 07:27:40 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwBtMoEKIyr1Bo7m89rYmGo4Gr0LyFXf237e6FyvRznXGAWhtgZggtBY96zNOmsBJYdqE/g/XrH+tkpYpIIMi0=
-X-Received: by 2002:a25:cccd:: with SMTP id l196mr2838706ybf.26.1619620060171;
- Wed, 28 Apr 2021 07:27:40 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=/qufn+EIhoepSV3JsQcxMoC1hV/hpT7mV/NpPeoUMMY=;
+        b=ixputTfP/s5AVkgenPgJJwPiSiqCAIomQK5PJry74yWb5CQjnIsQU4typNDz4JUKeI
+         QCnUSTmmf4GVO7Z1rmsqzOKvZlXjJK8oO5X16hh6m3zGmJDbVw6Y55+M+RZ8xHDe5P34
+         9UaaY1msivGxP+B6A1+fHlX3EZKlEfFB3z0rFJyEbqwUFIWqHkd80HEYJR7KfU8ZRBer
+         +duIAERv+akkJDKXkvb9x6URrnIAaFoHgTsQyaEgYwJfviKdNpAayhzO09/P4liTYy/9
+         /NLNeAjiBCxJ9AF2XiPqv4xTGUpnZOqzTKpgALFW4R3Z7SAd6aaPtSTO0jUnxT2wCldV
+         d/+w==
+X-Gm-Message-State: AOAM530B83z55a06lWwiAEBAHTMc4CJzpMeyO7vW1+KwQRkNXs+wpluF
+        NY//q014WPH81MIhoM7RLkQXHeUG5gPPGK+tCM8bXgzaTLQ=
+X-Google-Smtp-Source: ABdhPJwK7UksoroBbLKc21jAbpuqko7l2oAgc4B0Zrae17NJv2xx9h5srIU30765ipahjszpjPhAsFxndgCFjw1njVk=
+X-Received: by 2002:a05:6830:22f4:: with SMTP id t20mr17014860otc.196.1619626044205;
+ Wed, 28 Apr 2021 09:07:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <161955450031.8261.16400002795828868356.stgit@olly>
- <CAFqZXNtwXv8zydfY=oZLD4Ca5m26Ci9MKmRa184GCLpx919zZQ@mail.gmail.com> <CAHC9VhR3HSjQH1DJ=uHr9JPG=iF6LcvZAq3dD6eFF=8dJfiXhA@mail.gmail.com>
-In-Reply-To: <CAHC9VhR3HSjQH1DJ=uHr9JPG=iF6LcvZAq3dD6eFF=8dJfiXhA@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 28 Apr 2021 16:27:29 +0200
-Message-ID: <CAFqZXNumw9=xU9aTUsYUnDQ55bdgtYYwhkLFMy6DiF_Q-LqVtQ@mail.gmail.com>
-Subject: Re: [PATCH 2] testsuite: fix cap_userns for kernels >= v5.12
-To:     Paul Moore <paul@paul-moore.com>
+References: <86d254dd-fd82-e25c-915b-16615b341457@phd.unipi.it>
+In-Reply-To: <86d254dd-fd82-e25c-915b-16615b341457@phd.unipi.it>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 28 Apr 2021 12:07:13 -0400
+Message-ID: <CAP+JOzRsukCmP3v_W8SQ27Q17fMMUPemOX3wzo87PRciiYNJpA@mail.gmail.com>
+Subject: Re: [bug report?] other unexpected behaviours in secilc and CIL semantics
+To:     lorenzo ceragioli <lorenzo.ceragioli@phd.unipi.it>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 28, 2021 at 4:11 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Wed, Apr 28, 2021 at 6:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > On Tue, Apr 27, 2021 at 10:15 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > Starting with Linux v5.12 CAP_SETFCAP is required to map UID 0/root.
-> > > This is due to kernel commit db2e718a4798 ("capabilities: require
-> > > CAP_SETFCAP to map uid 0").  In order to resolve this in the test
-> > > suite allow the cap_userns test domains to exercise the setfcap
-> > > capability.
-> > >
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > ---
-> > >  policy/test_cap_userns.te |    3 +++
-> > >  1 file changed, 3 insertions(+)
-> > >
-> > > diff --git a/policy/test_cap_userns.te b/policy/test_cap_userns.te
-> > > index ab74325..9683870 100644
-> > > --- a/policy/test_cap_userns.te
-> > > +++ b/policy/test_cap_userns.te
-> > > @@ -12,6 +12,9 @@ unconfined_runs_test(test_cap_userns_t)
-> > >  typeattribute test_cap_userns_t testdomain;
-> > >  typeattribute test_cap_userns_t capusernsdomain;
-> > >
-> > > +# linux >= v5.12 needs setfcap to map UID 0
-> > > +allow capusernsdomain self:capability setfcap;
-> > > +
-> > >  # This domain is allowed sys_admin on non-init userns for mount.
-> > >  allow test_cap_userns_t self:cap_userns sys_admin;
-> >
-> > Thanks! Would you mind if I move the new rule to the end of the file
-> > (where other rules for the attribute live) and tweak the subject line?
-> > The final commit is available for preview here:
-> > https://github.com/WOnder93/selinux-testsuite/commit/fd4254f09316f6db0410a9187cb8866571f109b5
+On Wed, Apr 28, 2021 at 8:42 AM lorenzo ceragioli
+<lorenzo.ceragioli@phd.unipi.it> wrote:
 >
-> Sure, do whatever you think is best; you can even replace my little
-> patch with another that you like better.  My main concern is just
-> making sure the test suite is fixed and working :)
+> Hello,
+>
+>
+> I am still performing tests to fully understand the semantics of CIL,
+> here are three strange behaviours I have noticed, I would really
+> appreciate it if you can say if I am wrong and, in case I am not, if
+> they are coherent with the intended meaning of CIL constructs.
+>
+> Please note again that I am currently using the version available on
+> Ubuntu 18.04.5 LTS via packet manager.
+>
+>
+> ########################## Report ##########################
+>
+>
+> 1)
+>
+>
+> Names defined inside the body of a macro are not checked before names
+> defined in the namespace in which the macro is defined. For example, in
+> the following
+>
+> (block A
+>
+> (type a)
+>
+> (macro m ()
+>
+> (type a)
+>
+> (allow a a (file (read)))))
+>
+>
+> (block B
+>
+> (call A.m))
+>
+>
+> I would expect "a" to be resolved as the type "a" in the body of the
+> macro, hence to "B.a" as the allow statement and type definition are
+> copied into block "B". Instead it is resolved as "A.a" (I get =E2=80=9Cal=
+low A.a
+> A.a=E2=80=9D).
+>
+> Basically, it behaves like
+>
+>
+> (block A
+>
+> (type a)
+>
+> (macro m ()
+>
+> (allow a a (file (read)))))
+>
+> (block B
+>
+> (call A.m))
+>
+> and not like
+>
+> (block A(macro m ()(type a)
+>
+> (allow a a (file (read)))))
+>
+> (block B
+>
+> (call A.m))
+>
+> as I expected.
+>
+> I know that the documentation saying:
+>
+> =E2=80=9CNote that when resolving macros the callers namespace is not che=
+cked,
+> only the following places: - Items defined inside the macro
+>
+>      -Items passed into the macro as arguments- Items defined in the
+> same namespace of the macro- Items defined in the global namespace=E2=80=
+=9D
+>
+> is outdated, and that it has been proposed to change it with:
+>
+> "When resolving macros the following places are checked in this order:
+>
+>      - Items defined inside the macro
+>
+> - Items passed into the macro as arguments
+>
+> - Items defined in the same namespace of the macro
+>
+> - Items defined in the callers namespace
+>
+> - Items defined in the global namespace"
+>
+>
+> But the observed behaviour is not coherent with none of these description=
+s.
+>
+> Maybe this could work:
+>
+> "When resolving macros the following places are checked in this order:
+>
+> - Items passed into the macro as arguments
+>
+> - Items defined in the same namespace of the macro
+>
+> - Items defined inside the macro - Items defined in the callers namespace
+>
+> - Items defined in the global namespace"
+>
 
-Ok, I have just pushed it:
-https://github.com/SELinuxProject/selinux-testsuite/commit/fd4254f09316f6db0410a9187cb8866571f109b5
+You are correct, the observed behavior is not consistent with the
+documentation. I might have an idea on how to make it work as
+documented, but, otherwise, the documentation should be changed to
+reflect what actually happens.
 
--- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+> But I think it is not an intuitive way of resolving names.
+>
 
+I will admit that it is somewhat arbitrary. I think that what was in
+mind was policy like:
+(block service1
+  (type t)
+  (macro run ((type x))
+    (allow t x (CLASS1 (PERM1)))
+  )
+)
+(block service2
+  (type t)
+  (allow t self (CLASS2 (PERM2)))
+  (call service1.run(t))
+)
+With the resulting policy being:
+(allow service2.t self (CLASS2 (PERM2)))
+(allow service1.t service2.t (CLASS1 (PERM1)))
+
+>
+> 2)
+>
+> Usually, names inside a macro are resolved using the definitions in the
+> namespace in which the macro is defined before the ones in the caller
+> namespace.
+>
+> I noticed that, in the following
+>
+>
+> (type a)
+>
+>
+> (macro m ()
+>
+> (allow a a (file (read))))
+>
+>
+> (block A
+>
+> (type a)
+>
+> (call m))
+>
+>
+> the name "a" is resolved in "A", not as ".a" in the global namespace,
+> which is the namespace where "m" is defined.
+>
+> Hence I assumed that the rule does not apply to macros defined in the
+> global namespace, can you confirm?
+>
+
+That is as intended. I could make arguments for doing it different,
+but that is how it is.
+You can make sure the allow rule in the macro refers to the global a
+by using (allow .a .a (file (read))).
+
+>
+> 3)
+>
+> I noticed that the types declared in a macro, being copied into the
+> caller namespace, can be used as parameters for the macro itself.
+>
+> For example, in the following
+>
+>
+> (type a)
+>
+>
+> (block A
+>
+> (macro m ((type x))
+>
+>    (type a)
+>
+> (allow x x (file (read))))
+>
+> )
+>
+>
+> (block B
+>
+> (call A.m(a))
+>
+> )
+>
+>
+> the resulting allow rule is (allow B.a B.a (file(read))), which in my
+> opinion is unexpected.
+>
+
+That is weird. I would have expected the global a. I will have to take
+a look at this.
+
+Thanks for your questions!
+Jim
+
+>
+> #############################################################
+>
+>
+> Thank you for your time.
+>
+>
+> Cheers,
+>
+> Lorenzo Ceragioli
