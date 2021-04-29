@@ -2,167 +2,169 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D9C8C433B4
-	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 21:11:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B6F6C433ED
+	for <selinux@archiver.kernel.org>; Thu, 29 Apr 2021 20:24:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E281461408
-	for <selinux@archiver.kernel.org>; Wed, 28 Apr 2021 21:11:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4AA23613F9
+	for <selinux@archiver.kernel.org>; Thu, 29 Apr 2021 20:24:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbhD1VMe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Apr 2021 17:12:34 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:33870 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229632AbhD1VMe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Apr 2021 17:12:34 -0400
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id A1947560618
-        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 23:11:40 +0200 (CEST)
-Received: by mail-pg1-f181.google.com with SMTP id s22so24537788pgk.6
-        for <selinux@vger.kernel.org>; Wed, 28 Apr 2021 14:11:40 -0700 (PDT)
-X-Gm-Message-State: AOAM533HzmmcrHsazIYoW63Bx7c6RV1pqm+ohqID9yIXjxO6pkzzjo+y
-        sFt7sVjRDShDDxOm7AWuc+IkQc9rW0qtFSp+vAo=
-X-Google-Smtp-Source: ABdhPJyn2k1z55MxmMavOiwK+uju3XHIqt78xIfXkWV17toMBSg8xA1PNVPF4OtsqjNa6z4Wnxsm7BcC16b/k2ambLo=
-X-Received: by 2002:a63:5d18:: with SMTP id r24mr29741005pgb.94.1619644299335;
- Wed, 28 Apr 2021 14:11:39 -0700 (PDT)
+        id S233295AbhD2UZ1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Apr 2021 16:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229674AbhD2UZ0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 29 Apr 2021 16:25:26 -0400
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E0DC06138B
+        for <selinux@vger.kernel.org>; Thu, 29 Apr 2021 13:24:39 -0700 (PDT)
+Received: by mail-oo1-xc2b.google.com with SMTP id e9-20020a4ada090000b02901f91091e5acso2902348oou.0
+        for <selinux@vger.kernel.org>; Thu, 29 Apr 2021 13:24:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bLkjtvL2WkbpffQz/3a9+SGF51l7rdW/3Qq75W0FfzA=;
+        b=qm3u3jbSFSR5f8TTg51ShFAl0jFvSW/aqyiBeBTsVi02Phkd47vL4cUTpqwuuya/S9
+         FJyzzEmYhhIRGG4Em0GSLeD7pjfqxrZEfjXFrw+ROnZe++dTyV9nh9PXlv3Odvo5NM8l
+         Y0jF1PodMex8syXxq1N6j6Z4rQzxsj9xZD4AJor5aXAasuQWMZMXvHQR9KWREX6gQui/
+         q/DF+8cB+c7jFqB8TW09jYcb7U0NbphWTab6VouZKlShGQlejK/Z2V8/Oo1I56I9lxf3
+         yBAJ6cidVf1aphFgpPZwFaEEcYf/nWtFctKAZEfNBKC9uRG94htZ72b7kUhc5YlIAqPh
+         /tVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bLkjtvL2WkbpffQz/3a9+SGF51l7rdW/3Qq75W0FfzA=;
+        b=roWjygsGktEH+mrjRhjmMd/Zjs1/U5tBuzo0TQ8sGVcLXMfar51DgFUjvB2xehcxiv
+         S7ZqaK9UuZsxw27NwFnyGc/H7/ryX0MwbPODitW891rC3kGLwYBLR7YyRWuqyYjYxuPy
+         HlBARSoJZykbFYCrrszEvv5l0v1VL75by5+P94RZ2L2PtL2IXkHE0Y3OHtmIhVA8XwJb
+         RI17hrJOz+jks05s94QG1Jct6vMk3VhpszaqTek91PgmcWG3CR53YYg77jlrT5g1IRBY
+         4dodRrNKbjqNknZv7TOQjgTfVvEosuDDAb2XMHqMA6G6/5Sneq0mHnQEMERepNSziUAo
+         sp2w==
+X-Gm-Message-State: AOAM530zde3O6P7fe6QztQBYMYOhvjPZSgLf7EXi9+CTa1lPFwjchDql
+        IGbcZCgERgccEQKUoG3FB7pk9a8CetlVAHOyzDLwCTt6j4AjVw==
+X-Google-Smtp-Source: ABdhPJw1vcKCmlV/ViIlYxVBl3W3jwLZheNOhD4+UG0GNevAVF5AMYVLYhHBZvtvJJNJ8gWcZpU/v9OG5fTskzpNxQM=
+X-Received: by 2002:a4a:bd04:: with SMTP id n4mr1403637oop.35.1619727877323;
+ Thu, 29 Apr 2021 13:24:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210323170830.182553-1-omosnace@redhat.com> <cd8c8721-0194-e2d3-b7a5-2f00834b5f60@sony.com>
- <CAFqZXNvvDypzgzzbsBp9zQ1wOV=P9XmEPidmH_-8Zn2hGp-A5Q@mail.gmail.com>
-In-Reply-To: <CAFqZXNvvDypzgzzbsBp9zQ1wOV=P9XmEPidmH_-8Zn2hGp-A5Q@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 28 Apr 2021 23:11:28 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=mG+8RzeFD3ZOEuPFAhX+acc1YY3wOVi5k2tO9m6YgprA@mail.gmail.com>
-Message-ID: <CAJfZ7=mG+8RzeFD3ZOEuPFAhX+acc1YY3wOVi5k2tO9m6YgprA@mail.gmail.com>
-Subject: Re: [RFC PATCH userspace 0/6] Parallel setfiles/restorecon
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     peter enderborg <peter.enderborg@sony.com>,
-        SElinux list <selinux@vger.kernel.org>
+References: <20210422064604.270374-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20210422064604.270374-1-nicolas.iooss@m4x.org>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 29 Apr 2021 16:24:26 -0400
+Message-ID: <CAP+JOzRS4Q684v+y-Q0hAb_AsoQQqKi1XG0bncOWdSt2L+iRsg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: use checked arithmetic builtin to perform safe addition
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Apr 28 23:11:41 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 24, 2021 at 12:05 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, Apr 22, 2021 at 2:46 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Wed, Mar 24, 2021 at 10:59 AM peter enderborg
-> <peter.enderborg@sony.com> wrote:
-> > On 3/23/21 6:08 PM, Ondrej Mosnacek wrote:
-> > > This series adds basic support for parallel relabeling to the libselinux
-> > > API and the setfiles/restorecon CLI tools. It turns out that doing the
-> > > relabeling in parallel can significantly reduce the time even with a
-> > > relatively simple approach.
-> > Nice! Have you any figures? Is it valid for both solid state and mechanical storage?
+> Checking whether an overflow occurred after adding two values can be
+> achieved using checked arithmetic builtin functions such as:
 >
-> They are in the last patch :) The VM setup I measured that on probably
-> had the storage backed up by an SSD (or something with similar
-> characteristics). I haven't tried it on an HDD yet.
+>     bool __builtin_add_overflow(type1 x, type2 y, type3 *sum);
 >
-> > > The first patch is a small cleanup that was found along the way and can
-> > > be applied independently. Patches 2-4 are small incremental changes that
-> > > make the internal selinux_restorecon functions more thread-safe (I kept
-> > > them separate for ease of of review, but maybe they should be rather
-> > > folded into the netx patch...). Patch 5 then completes the parallel
-> > > relabeling implementation at libselinux level and adds a new function
-> > > to the API that allows to make use of it. Finally, patch 6 adds parallel
-> > > relabeling support to he setfiles/restorecon tools.
-> > >
-> > > The relevant man pages are also updated to reflect the new
-> > > functionality.
-> > >
-> > > The patch descriptions contain more details, namely the last patch has
-> > > also some benchmark numbers.
-> > >
-> > > Please test and review. I'm still not fully confident I got everything
-> > > right (esp. regarding error handling), but I wanted to put this forward
-> > > as an RFC to get some early feedback.
-> > >
-> > > Ondrej Mosnacek (6):
-> > >   selinux_restorecon: simplify fl_head allocation by using calloc()
-> > >   selinux_restorecon: protect file_spec list with a mutex
-> > >   selinux_restorecon: introduce selinux_log_sync()
-> > >   selinux_restorecon: add a global mutex to synchronize progress output
-> > >   selinux_restorecon: introduce selinux_restorecon_parallel(3)
-> > >   setfiles/restorecon: support parallel relabeling
-> > >
-> > >  libselinux/include/selinux/restorecon.h       |  14 +
-> > >  libselinux/man/man3/selinux_restorecon.3      |  29 +
-> > >  .../man/man3/selinux_restorecon_parallel.3    |   1 +
-> > >  libselinux/src/libselinux.map                 |   5 +
-> > >  libselinux/src/selinux_internal.h             |  14 +
-> > >  libselinux/src/selinux_restorecon.c           | 498 ++++++++++++------
-> > >  policycoreutils/setfiles/Makefile             |   2 +-
-> > >  policycoreutils/setfiles/restore.c            |   7 +-
-> > >  policycoreutils/setfiles/restore.h            |   2 +-
-> > >  policycoreutils/setfiles/restorecon.8         |   9 +
-> > >  policycoreutils/setfiles/setfiles.8           |   9 +
-> > >  policycoreutils/setfiles/setfiles.c           |  28 +-
-> > >  12 files changed, 436 insertions(+), 182 deletions(-)
-> > >  create mode 100644 libselinux/man/man3/selinux_restorecon_parallel.3
-> > >
-> >
+> This function is available at least in clang
+> (at least since clang 3.8.0,
+> https://releases.llvm.org/3.8.0/tools/clang/docs/LanguageExtensions.html#checked-arithmetic-builtins)
+> and gcc
+> (https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html,
+> since gcc 5 according to https://gcc.gnu.org/gcc-5/changes.html)
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Hello,
-I haven't seen any review of this RFC, so I decided to take a look.
-The result looks quite good :) What is the current status of this
-series, and can it become a "to-be-merged" patch series?
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Anyway, here are some comments.
-
-First, I was a little puzzled by the introduction of
-selinux_log_sync() and the fact that it is used by
-selinux_restorecon_common(), which means that callers of
-selinux_restorecon() will also take the mutex log_mutex. This
-surprised me because the description of one commit was very clear
-about not depending very hard on libpthread... but in fact your code
-is right there. I have just re-discovered the pthread helpers in
-libselinux/src/selinux_internal.h :)
-
-Nevertheless, now that I saw the pthread helpers, which enable using
-libselinux without linking with libpthread, I am wondering: why is
-introducing selinux_log_sync() like you do (and keeping calls to
-selinux_log_sync() and selinux_log() in the code and praying that all
-invocations from parallel code are converted to selinux_log_sync() )
-better than introducing the mutex directly "in selinux_log()"? I
-understand this is not so easy, because selinux_log is in fact a
-function pointer... what I have in my mind consists in renaming the
-pointer and in renaming a selinux_log_sync() to selinux_log(). This
-would make the code less error-prone, regarding the issue of ensuring
-to never call selinux_log callback in two parallel threads. What do
-you think?
-
-Then, when I compiled your patches with clang and some warning flags,
-I got this warning:
-
-selinux_restorecon.c:867:19: error: possible misuse of comma operator
-here [-Werror,-Wcomma]
-        while ((errno = 0, ftsent = fts_read(fts)) != NULL) {
-                         ^
-selinux_restorecon.c:867:10: note: cast expression to void to silence warning
-        while ((errno = 0, ftsent = fts_read(fts)) != NULL) {
-                ^~~~~~~~~
-                (void)(  )
-/usr/include/errno.h:38:16: note: expanded from macro 'errno'
-# define errno (*__errno_location ())
-               ^
-1 error generated.
-
-Using a comma operator seems to be right, here, and using the
-suggested workaround to silence the compiler warning seems to be fine.
-
-Finally, the generated file
-libselinux/src/selinuxswig_python_exception.i needs to be upgraded,
-because the new function selinux_restorecon_parallel is being added to
-it. It would be nice to have a patch which updates this file, or to
-have this update in patch "selinux_restorecon: introduce
-selinux_restorecon_parallel(3)" (your choice).
-
-Thanks!
-Nicolas
-
+> ---
+>  libsepol/src/context_record.c | 29 ++++++-----------------------
+>  libsepol/src/module_to_cil.c  |  6 ++----
+>  2 files changed, 8 insertions(+), 27 deletions(-)
+>
+> diff --git a/libsepol/src/context_record.c b/libsepol/src/context_record.c
+> index 317a42133884..435f788058c4 100644
+> --- a/libsepol/src/context_record.c
+> +++ b/libsepol/src/context_record.c
+> @@ -267,31 +267,13 @@ int sepol_context_from_string(sepol_handle_t * handle,
+>         return STATUS_ERR;
+>  }
+>
+> -
+> -static inline int safe_sum(size_t *sum, const size_t augends[], const size_t cnt) {
+> -
+> -       size_t a, i;
+> -
+> -       *sum = 0;
+> -       for(i=0; i < cnt; i++) {
+> -               /* sum should not be smaller than the addend */
+> -               a = augends[i];
+> -               *sum += a;
+> -               if (*sum < a) {
+> -                       return i;
+> -               }
+> -       }
+> -
+> -       return 0;
+> -}
+> -
+>  int sepol_context_to_string(sepol_handle_t * handle,
+>                             const sepol_context_t * con, char **str_ptr)
+>  {
+>
+>         int rc;
+>         char *str = NULL;
+> -       size_t total_sz, err;
+> +       size_t total_sz = 0, i;
+>         const size_t sizes[] = {
+>                         strlen(con->user),                 /* user length */
+>                         strlen(con->role),                 /* role length */
+> @@ -300,10 +282,11 @@ int sepol_context_to_string(sepol_handle_t * handle,
+>                         ((con->mls) ? 3 : 2) + 1           /* mls has extra ":" also null byte */
+>         };
+>
+> -       err = safe_sum(&total_sz, sizes, ARRAY_SIZE(sizes));
+> -       if (err) {
+> -               ERR(handle, "invalid size, overflow at position: %zu", err);
+> -               goto err;
+> +       for (i = 0; i < ARRAY_SIZE(sizes); i++) {
+> +               if (__builtin_add_overflow(total_sz, sizes[i], &total_sz)) {
+> +                       ERR(handle, "invalid size, overflow at position: %zu", i);
+> +                       goto err;
+> +               }
+>         }
+>
+>         str = (char *)malloc(total_sz);
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 58df0d4f6d77..496693f4616e 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -1134,16 +1134,14 @@ static int name_list_to_string(char **names, unsigned int num_names, char **stri
+>         char *strpos;
+>
+>         for (i = 0; i < num_names; i++) {
+> -               len += strlen(names[i]);
+> -               if (len < strlen(names[i])) {
+> +               if (__builtin_add_overflow(len, strlen(names[i]), &len)) {
+>                         log_err("Overflow");
+>                         return -1;
+>                 }
+>         }
+>
+>         // add spaces + null terminator
+> -       len += num_names;
+> -       if (len < (size_t)num_names) {
+> +       if (__builtin_add_overflow(len, (size_t)num_names, &len)) {
+>                 log_err("Overflow");
+>                 return -1;
+>         }
+> --
+> 2.31.0
+>
