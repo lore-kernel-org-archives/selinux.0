@@ -2,169 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B6F6C433ED
-	for <selinux@archiver.kernel.org>; Thu, 29 Apr 2021 20:24:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 765B7C433ED
+	for <selinux@archiver.kernel.org>; Fri, 30 Apr 2021 09:11:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4AA23613F9
-	for <selinux@archiver.kernel.org>; Thu, 29 Apr 2021 20:24:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4943D61456
+	for <selinux@archiver.kernel.org>; Fri, 30 Apr 2021 09:11:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233295AbhD2UZ1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Apr 2021 16:25:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229674AbhD2UZ0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Apr 2021 16:25:26 -0400
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E0DC06138B
-        for <selinux@vger.kernel.org>; Thu, 29 Apr 2021 13:24:39 -0700 (PDT)
-Received: by mail-oo1-xc2b.google.com with SMTP id e9-20020a4ada090000b02901f91091e5acso2902348oou.0
-        for <selinux@vger.kernel.org>; Thu, 29 Apr 2021 13:24:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bLkjtvL2WkbpffQz/3a9+SGF51l7rdW/3Qq75W0FfzA=;
-        b=qm3u3jbSFSR5f8TTg51ShFAl0jFvSW/aqyiBeBTsVi02Phkd47vL4cUTpqwuuya/S9
-         FJyzzEmYhhIRGG4Em0GSLeD7pjfqxrZEfjXFrw+ROnZe++dTyV9nh9PXlv3Odvo5NM8l
-         Y0jF1PodMex8syXxq1N6j6Z4rQzxsj9xZD4AJor5aXAasuQWMZMXvHQR9KWREX6gQui/
-         q/DF+8cB+c7jFqB8TW09jYcb7U0NbphWTab6VouZKlShGQlejK/Z2V8/Oo1I56I9lxf3
-         yBAJ6cidVf1aphFgpPZwFaEEcYf/nWtFctKAZEfNBKC9uRG94htZ72b7kUhc5YlIAqPh
-         /tVA==
+        id S231193AbhD3JMN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Apr 2021 05:12:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22188 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229522AbhD3JMN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Apr 2021 05:12:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619773885;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=JG4a+wpzvObAuEp4SKh4VILGIf18YoL3xVa1kMGn9ag=;
+        b=WQnkndUu3dcFJdGsPpAVH/ekjpF9EAl3M5aBLbjNFumPZ5Wh8b0plAsoqr9hwn3Bbt1eez
+        XHpCNIPHhDl/lXapC9WS9CuGUKZO9iHIEzwkFSyhBo6dj0lGY9xwUEAjdjE0lE+6jwp+v+
+        XCG1zvKHyNjyCxeDqbr9uneOtVKOlnk=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-364-Y6zSV5ieMCSqsYlL4gV2dg-1; Fri, 30 Apr 2021 05:11:23 -0400
+X-MC-Unique: Y6zSV5ieMCSqsYlL4gV2dg-1
+Received: by mail-ed1-f72.google.com with SMTP id o4-20020a0564024384b0290378d45ecf57so30227335edc.12
+        for <selinux@vger.kernel.org>; Fri, 30 Apr 2021 02:11:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bLkjtvL2WkbpffQz/3a9+SGF51l7rdW/3Qq75W0FfzA=;
-        b=roWjygsGktEH+mrjRhjmMd/Zjs1/U5tBuzo0TQ8sGVcLXMfar51DgFUjvB2xehcxiv
-         S7ZqaK9UuZsxw27NwFnyGc/H7/ryX0MwbPODitW891rC3kGLwYBLR7YyRWuqyYjYxuPy
-         HlBARSoJZykbFYCrrszEvv5l0v1VL75by5+P94RZ2L2PtL2IXkHE0Y3OHtmIhVA8XwJb
-         RI17hrJOz+jks05s94QG1Jct6vMk3VhpszaqTek91PgmcWG3CR53YYg77jlrT5g1IRBY
-         4dodRrNKbjqNknZv7TOQjgTfVvEosuDDAb2XMHqMA6G6/5Sneq0mHnQEMERepNSziUAo
-         sp2w==
-X-Gm-Message-State: AOAM530zde3O6P7fe6QztQBYMYOhvjPZSgLf7EXi9+CTa1lPFwjchDql
-        IGbcZCgERgccEQKUoG3FB7pk9a8CetlVAHOyzDLwCTt6j4AjVw==
-X-Google-Smtp-Source: ABdhPJw1vcKCmlV/ViIlYxVBl3W3jwLZheNOhD4+UG0GNevAVF5AMYVLYhHBZvtvJJNJ8gWcZpU/v9OG5fTskzpNxQM=
-X-Received: by 2002:a4a:bd04:: with SMTP id n4mr1403637oop.35.1619727877323;
- Thu, 29 Apr 2021 13:24:37 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JG4a+wpzvObAuEp4SKh4VILGIf18YoL3xVa1kMGn9ag=;
+        b=mIcljPphZExTOL2s9HANXBFwB0ybh5oX0iaUrLHkCnVsTgfx67ohm8psN76LNxNJLM
+         GMeNQb7k9zA8FoKRdt6nMol2EvsOT7YmOjxagL4bKxw8A/T1wlAtuprWkzZ/oQDrpaFf
+         AxpdNXIRDw3jMnCg1/6CWYXq0blY7d+QC0RNnsiaJalURN6+rY+H2AMe88NRf2NOXpu5
+         j31fomWcaMJgFYiyULOXP052cfIkAiPedGrQUuOv55SNE680OkD9ZhWp5vGsBp3gP8Mq
+         zAP4DNPZUvH23txSQLuXvI7eeiEQTmqa5bL/FnX08RQudQOSiVH/yV9Fo5nZQjKyAWiM
+         s0Gw==
+X-Gm-Message-State: AOAM532zMNTNwMdLvzG+kGkFa/kD/bJdLMoN07inJ50Xzp+aT4QVYsNp
+        eriDw/pIkWlbqMD8/s1IrfmybcM/ueD6NFyDv1++jRHDwnTGPMfUH4Ead3si9uJF6s4GD8rM0f6
+        o6JPQyFp+K6QqTDtKeEAKWIe0vRNdaG5o8ZKTWcQ5RWLPZU2F1qzW4LSSyUcdWxU3om0Z2A==
+X-Received: by 2002:a17:906:6801:: with SMTP id k1mr3127288ejr.137.1619773881886;
+        Fri, 30 Apr 2021 02:11:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwlk7pscZd7bREbaaPWvkebd4ha1fza9Ecwe3EyXKBrlmuk35QQ3PZNsEWi9dPfHjxgOdqe+Q==
+X-Received: by 2002:a17:906:6801:: with SMTP id k1mr3127268ejr.137.1619773881605;
+        Fri, 30 Apr 2021 02:11:21 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
+        by smtp.gmail.com with ESMTPSA id j20sm1534334ejc.110.2021.04.30.02.11.20
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Apr 2021 02:11:21 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite] policy: only define anon_inode class if not defined in system policy
+Date:   Fri, 30 Apr 2021 11:11:19 +0200
+Message-Id: <20210430091119.607754-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-References: <20210422064604.270374-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20210422064604.270374-1-nicolas.iooss@m4x.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 29 Apr 2021 16:24:26 -0400
-Message-ID: <CAP+JOzRS4Q684v+y-Q0hAb_AsoQQqKi1XG0bncOWdSt2L+iRsg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: use checked arithmetic builtin to perform safe addition
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 22, 2021 at 2:46 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> Checking whether an overflow occurred after adding two values can be
-> achieved using checked arithmetic builtin functions such as:
->
->     bool __builtin_add_overflow(type1 x, type2 y, type3 *sum);
->
-> This function is available at least in clang
-> (at least since clang 3.8.0,
-> https://releases.llvm.org/3.8.0/tools/clang/docs/LanguageExtensions.html#checked-arithmetic-builtins)
-> and gcc
-> (https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html,
-> since gcc 5 according to https://gcc.gnu.org/gcc-5/changes.html)
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+When the system policy already defines this class, loading the test
+policy fails with:
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Re-declaration of class anon_inode
+Previous declaration of class at /var/lib/selinux/targeted/tmp/modules/100/base/cil:1003
+Bad class declaration at /var/lib/selinux/targeted/tmp/modules/400/test_userfaultfd/cil:2
+/usr/sbin/semodule:  Failed!
 
-> ---
->  libsepol/src/context_record.c | 29 ++++++-----------------------
->  libsepol/src/module_to_cil.c  |  6 ++----
->  2 files changed, 8 insertions(+), 27 deletions(-)
->
-> diff --git a/libsepol/src/context_record.c b/libsepol/src/context_record.c
-> index 317a42133884..435f788058c4 100644
-> --- a/libsepol/src/context_record.c
-> +++ b/libsepol/src/context_record.c
-> @@ -267,31 +267,13 @@ int sepol_context_from_string(sepol_handle_t * handle,
->         return STATUS_ERR;
->  }
->
-> -
-> -static inline int safe_sum(size_t *sum, const size_t augends[], const size_t cnt) {
-> -
-> -       size_t a, i;
-> -
-> -       *sum = 0;
-> -       for(i=0; i < cnt; i++) {
-> -               /* sum should not be smaller than the addend */
-> -               a = augends[i];
-> -               *sum += a;
-> -               if (*sum < a) {
-> -                       return i;
-> -               }
-> -       }
-> -
-> -       return 0;
-> -}
-> -
->  int sepol_context_to_string(sepol_handle_t * handle,
->                             const sepol_context_t * con, char **str_ptr)
->  {
->
->         int rc;
->         char *str = NULL;
-> -       size_t total_sz, err;
-> +       size_t total_sz = 0, i;
->         const size_t sizes[] = {
->                         strlen(con->user),                 /* user length */
->                         strlen(con->role),                 /* role length */
-> @@ -300,10 +282,11 @@ int sepol_context_to_string(sepol_handle_t * handle,
->                         ((con->mls) ? 3 : 2) + 1           /* mls has extra ":" also null byte */
->         };
->
-> -       err = safe_sum(&total_sz, sizes, ARRAY_SIZE(sizes));
-> -       if (err) {
-> -               ERR(handle, "invalid size, overflow at position: %zu", err);
-> -               goto err;
-> +       for (i = 0; i < ARRAY_SIZE(sizes); i++) {
-> +               if (__builtin_add_overflow(total_sz, sizes[i], &total_sz)) {
-> +                       ERR(handle, "invalid size, overflow at position: %zu", i);
-> +                       goto err;
-> +               }
->         }
->
->         str = (char *)malloc(total_sz);
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 58df0d4f6d77..496693f4616e 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -1134,16 +1134,14 @@ static int name_list_to_string(char **names, unsigned int num_names, char **stri
->         char *strpos;
->
->         for (i = 0; i < num_names; i++) {
-> -               len += strlen(names[i]);
-> -               if (len < strlen(names[i])) {
-> +               if (__builtin_add_overflow(len, strlen(names[i]), &len)) {
->                         log_err("Overflow");
->                         return -1;
->                 }
->         }
->
->         // add spaces + null terminator
-> -       len += num_names;
-> -       if (len < (size_t)num_names) {
-> +       if (__builtin_add_overflow(len, (size_t)num_names, &len)) {
->                 log_err("Overflow");
->                 return -1;
->         }
-> --
-> 2.31.0
->
+Fix this by only including the anon_inode class declarations when it's
+not found in the system policy headers.
+
+Fixes: 2ea007924363 ("selinux-testsuite: Add userfaultfd test")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ policy/Makefile                  | 3 +++
+ policy/test_anon_inode_class.cil | 4 ++++
+ policy/test_userfaultfd.cil      | 5 -----
+ 3 files changed, 7 insertions(+), 5 deletions(-)
+ create mode 100644 policy/test_anon_inode_class.cil
+
+diff --git a/policy/Makefile b/policy/Makefile
+index 91364d5..dee55a2 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -39,6 +39,9 @@ ifeq ($(SUPPORTS_CIL),y)
+ CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
+ # userfaultfd test policy uses also xperms
+ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && echo true),true)
++ifneq ($(shell grep -q anon_inode $(POLDEV)/include/support/all_perms.spt && echo true),true)
++CIL_TARGETS += test_anon_inode_class.cil
++endif
+ CIL_TARGETS += test_userfaultfd.cil
+ TARGETS += test_userfaultfd.te
+ endif
+diff --git a/policy/test_anon_inode_class.cil b/policy/test_anon_inode_class.cil
+new file mode 100644
+index 0000000..3e36599
+--- /dev/null
++++ b/policy/test_anon_inode_class.cil
+@@ -0,0 +1,4 @@
++; Define new class anon_inode
++(class anon_inode ())
++(classcommon anon_inode file)
++(classorder (unordered anon_inode))
+diff --git a/policy/test_userfaultfd.cil b/policy/test_userfaultfd.cil
+index 18d5f3f..f6a6791 100644
+--- a/policy/test_userfaultfd.cil
++++ b/policy/test_userfaultfd.cil
+@@ -1,8 +1,3 @@
+-; Define new class anon_inode
+-(class anon_inode ())
+-(classcommon anon_inode file)
+-(classorder (unordered anon_inode))
+-
+ ; Allow all anonymous inodes
+ (typeattributeset cil_gen_require test_notransition_uffd_t)
+ (allow test_notransition_uffd_t self (anon_inode (create getattr ioctl read)))
+-- 
+2.30.2
+
