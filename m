@@ -2,100 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC3C2C433B4
-	for <selinux@archiver.kernel.org>; Sat,  1 May 2021 10:44:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2AFBC433B4
+	for <selinux@archiver.kernel.org>; Sat,  1 May 2021 14:34:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B47CB613E7
-	for <selinux@archiver.kernel.org>; Sat,  1 May 2021 10:44:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF2F86157E
+	for <selinux@archiver.kernel.org>; Sat,  1 May 2021 14:34:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231786AbhEAKpO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 1 May 2021 06:45:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54446 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231252AbhEAKpN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 1 May 2021 06:45:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619865864;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=1Vxh0gAdGqHlyRM06hoxyaqbX+y8jhsm78TzVgGOg1g=;
-        b=OVOh1IlfLapkw8ez1Avhu8AocflOSI7YijJXUvobCU6bu2igc0YkiYJroTN4leklosume/
-        tDaMZmV2ADeM4YWOHpKI4k2MyZnWIZq4G4MMSl4L7e9VBmfA8Qd4RJ+cMihwNiCH0hrkh2
-        /JaNhpkEsGjBX4kvY9wzR4ycLDspgbw=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-591-q6p9Vc6mO1qRfgLOc6kUxA-1; Sat, 01 May 2021 06:44:22 -0400
-X-MC-Unique: q6p9Vc6mO1qRfgLOc6kUxA-1
-Received: by mail-wr1-f69.google.com with SMTP id h60-20020adf90420000b029010418c4cd0cso493027wrh.12
-        for <selinux@vger.kernel.org>; Sat, 01 May 2021 03:44:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1Vxh0gAdGqHlyRM06hoxyaqbX+y8jhsm78TzVgGOg1g=;
-        b=agj79LVsfJdsuUwwP5Pr096q1awftUBvvJOTQsMvD/6cWMw43CV94PK5iOQ+Icybf0
-         jLS1Nw6zCiBHEmqEIAx+UTirDEBdcSrB+cRAcdAK8uK+3Na7juO1LAK+pyz4vsvbpor5
-         yg9E4qCgSA/N/Se/d9tulPyeTSyGzrxCcvH0lKr0yR5e7JTjoo6LPLyAcR4PC407601c
-         SVbdrK8/UvKvJKZsjhtk3XVwO4DqbFuNdE98QOmw55qC/JrS2iz5Fij8wR4DA1EpPaqr
-         kkvu8wRAri58wlIULn7pi+EYxfrwJ5VF7FKsi1mXMKo+K91+Gx9leL0sXhYhDShwa0Xl
-         5/5w==
-X-Gm-Message-State: AOAM532D8YZuiC+Z0Z+KGso0dDaijRvpmSlzyXhEJymE+bY8y/SseG5f
-        tIou4i0xYvk13MyrE+6y7mwKJALXkuDtzfJRZ1HmbZSaGaxUyZiEESlHJe9G8UUnbat2th7bn/F
-        Kyi2E+2rGOEpairzySB7OCsBRQdhqZ9lqvXE0s3KOFulzUanlf/S5N2YUYyB8MC1D1W4R0Q==
-X-Received: by 2002:a05:600c:3388:: with SMTP id o8mr1408894wmp.101.1619865860722;
-        Sat, 01 May 2021 03:44:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzdt6pA5eDBQoc/gy7+kVQVLx0OTCpIyCaOE515KH5wN957CRQQU62aNC5pVycgZ6EtbQ1r0A==
-X-Received: by 2002:a05:600c:3388:: with SMTP id o8mr1408880wmp.101.1619865860495;
-        Sat, 01 May 2021 03:44:20 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
-        by smtp.gmail.com with ESMTPSA id m15sm5153031wrx.32.2021.05.01.03.44.19
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 May 2021 03:44:20 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] ci: test also on F34 images
-Date:   Sat,  1 May 2021 12:44:19 +0200
-Message-Id: <20210501104419.20220-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.30.2
+        id S230014AbhEAOeu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 1 May 2021 10:34:50 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:47904 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229979AbhEAOeu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 1 May 2021 10:34:50 -0400
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 7BA3B5654B5
+        for <selinux@vger.kernel.org>; Sat,  1 May 2021 16:33:57 +0200 (CEST)
+Received: by mail-pf1-f172.google.com with SMTP id i190so1042350pfc.12
+        for <selinux@vger.kernel.org>; Sat, 01 May 2021 07:33:57 -0700 (PDT)
+X-Gm-Message-State: AOAM532VZmXxg+ahph4ZY+rQ1OUTuNK1iEHVHSExbkp3AILmvHsNh6cq
+        qsBsbamtqsMGVy+rhPG4MIuqQPA7xMIY3byCGn8=
+X-Google-Smtp-Source: ABdhPJypeKCRBoxxXQAQxV8oXrx6sQdQrZN2rb53faQG/AMoMXk2I2f4cthFe83+e2xJ8/fNpiINEHaxIeX4xyF9baY=
+X-Received: by 2002:a63:1c54:: with SMTP id c20mr9723499pgm.210.1619879636124;
+ Sat, 01 May 2021 07:33:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210428201753.282831-1-jwcart2@gmail.com> <20210428201753.282831-5-jwcart2@gmail.com>
+In-Reply-To: <20210428201753.282831-5-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sat, 1 May 2021 16:33:45 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==fJx3RFAgkkip+3+e1WbpkkJtDryvsxrO9oZ0smHLDgA@mail.gmail.com>
+Message-ID: <CAJfZ7==fJx3RFAgkkip+3+e1WbpkkJtDryvsxrO9oZ0smHLDgA@mail.gmail.com>
+Subject: Re: [PATCH 4/5] libsepol/cil: Check for self-referential loops in sets
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat May  1 16:33:58 2021 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the CI configuration to test also on an F34 image in addition to
-F33 and also test kernel-secnext on F34 instead of F33.
+On Wed, Apr 28, 2021 at 10:18 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> The secilc-fuzzer found a self-referential loop using category sets.
+> Any set declaration in CIL that allows sets in it is susceptible to
+> the creation of a self-referential loop. There is a check, but only
+> for the name of the set being declared being used in the set
+> declaration.
+>
+> Check for self-refential loops in user, role, and type attributes
+> and in category sets. Since all of the sets need to be declared,
+> this check has to be done when verifying the CIL db before doing
+> the post phase.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/cil/src/cil_resolve_ast.c | 31 +---------
+>  libsepol/cil/src/cil_verify.c      | 97 +++++++++++++++++++++---------
+>  libsepol/cil/src/cil_verify.h      |  1 -
+>  3 files changed, 71 insertions(+), 58 deletions(-)
+>
+[...]
+> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> index 5a37dd2f..4c860a21 100644
+> --- a/libsepol/cil/src/cil_verify.c
+> +++ b/libsepol/cil/src/cil_verify.c
+> @@ -430,28 +430,71 @@ int cil_verify_decl_does_not_shadow_macro_parameter(struct cil_macro *macro, str
+>         return SEPOL_OK;
+>  }
+>
+> -int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list)
+> +int cil_verify_no_self_reference(enum cil_flavor flavor, struct cil_symtab_datum *datum, struct cil_symtab_datum *orig);
 
-We could of course test just on F34, but having an older release in the
-test matrix should help ensure that the testsuite will still work on
-older kernel/userspace versions as well, so I'd rather keep both.
+Hello,
+Your patches look fine. Nevertheless it would be cleaner if this
+function was declared "static", as it is not used outside of
+cil_verify.c. This is a suggestion which is not blocking any merge, so
+if you prefer to merge the patches directly, feel free to do so.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- .github/workflows/checks.yml | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-diff --git a/.github/workflows/checks.yml b/.github/workflows/checks.yml
-index 59f1a47..d0e276e 100644
---- a/.github/workflows/checks.yml
-+++ b/.github/workflows/checks.yml
-@@ -15,7 +15,8 @@ jobs:
-       matrix:
-         env:
-           - { version: 33, secnext: 0 }
--          - { version: 33, secnext: 1 }
-+          - { version: 34, secnext: 0 }
-+          - { version: 34, secnext: 1 }
-     env:
-       FEDORA_VERSION: ${{ matrix.env.version }}
-       KERNEL_SECNEXT: ${{ matrix.env.secnext }}
--- 
-2.30.2
+And thanks for working on fixing issues identified by OSS-Fuzz!
+Nicolas
 
