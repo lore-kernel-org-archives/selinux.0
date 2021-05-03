@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C571C43603
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1DA4C433B4
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4F776121D
+	by mail.kernel.org (Postfix) with ESMTP id 992906121D
 	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231397AbhECRzD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S231573AbhECRzD (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Mon, 3 May 2021 13:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39444 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231710AbhECRy5 (ORCPT
+        with ESMTP id S231397AbhECRy5 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:57 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8E2DC061348
-        for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:01 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id u13so4616194edd.3
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117A5C06134A
+        for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:02 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id u13so4616284edd.3
         for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=jVYXLFnlnhsHhy8UnZrHesfEI+ARavA9rlkGZkAsv94=;
-        b=YjyTceZaLHmMvibU8PMOeOuxJ3XG/CwLc5FxFF6Eo8UDYLPzN5dS2jTlu8B0G+2VPe
-         YxRsvL2O6SFgYjwF4y0xyQVR4u2kBz2+iFP4cmiRAWZewEu9Gr3fa/m3rG7Bkxp342TN
-         tbmPHA5plNfe/2AdPAKxCRURW0fsHMR1YhO4pU5vAwdFzgWZz28hNa13SuqzbuoWNHyi
-         qITaY0lQCrs4cAYhTbFRCeHM/y9Xz1vKc/2JvzWWr3IPBBwyD+i4IkUbZgZY2YmIja/6
-         W7wYlQ4qnDIr/cdwA0+AswD80ESkg3KL5lapyWgeOfwgR2EC+FL4vjZ1luoue7LB44X9
-         G0WA==
+        bh=MDAhyImfxXfHrVqJSjeGJs6q7MSayY6jD5V7i6hIELE=;
+        b=uby0xI4d2puC0D0pXUPz73kfxDXYzKV4QNqNJVkfhK9abrJw+urLVmFL2qvekh+wtn
+         lR7w76LREACJ+ynLQUIBPhv99b/ReHm9onjKL0etT3PGnYzuTR4iFVcJtCQLDuy7X4Kg
+         qg64Nc90+uUoRc1KGWMFkHQLntLIt0sjTwBu78g35czt1mW0onoJfkBRpMITOpRXgXVr
+         /zHg9s13UzTBSV0WgzIJ+v1anaOa2XQGth9pqFhg2neTpxV4cyhXS1X/D6oGPQx3OgkS
+         /ak1+qyRmIJeNgGSpS+migKYSCM1KF8diEwWFd/72SiUQ2I3UQWbo4PbEoU7c/UUMo9L
+         vkLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jVYXLFnlnhsHhy8UnZrHesfEI+ARavA9rlkGZkAsv94=;
-        b=TkPMy22rxJU0c9KqPVJLcy4EZTN7l3bDWEce9X3ysXiULc9u9/Xnte1Dk6EgWKOaeD
-         E821iKN5ykITmP+OfjXbAvaLPdr0gkAxp6Toj1oHKipQGd3Y39DPE2w2WfiZ7YEcbsR/
-         NkeDSKZNxJuHpVDA0na5o3Vo/L7dSVG8+hf5YxJAK7lQORNdeOS1uoc4r7ztNAoaQV7A
-         Wr+zaYkguYAXRsed1eIRX97Kvp3ylWJ94/rcFBgUrFS8UcMEUb+4B+Yy1i57esaY1V2M
-         ngu7qecNZM7mGdUnGYWvZ7x21VBp6DHKQ/Gc0PLmqUMwopWbz5nYggYrod+9ncFwy9K0
-         B1fA==
-X-Gm-Message-State: AOAM533uPT4TJKZOKJX35Y92rKQwHsxkHHGV9D4Y2IgYA0IvjRB0ATvX
-        27NdfGkECveeknfmWQyHLMyuV4ZaNggi+w==
-X-Google-Smtp-Source: ABdhPJyN/AgIPSd1uXuss4pdvK4NCDnDCeewmsx0LCH3SOvY4yl+XpzjZCRmuce2ZwdR5jDDf047Rw==
-X-Received: by 2002:a50:ee85:: with SMTP id f5mr21767656edr.8.1620064439644;
-        Mon, 03 May 2021 10:53:59 -0700 (PDT)
+        bh=MDAhyImfxXfHrVqJSjeGJs6q7MSayY6jD5V7i6hIELE=;
+        b=Dm4ZBUJvloAENtJvtdJV0lmEm5R/CgaWxieaZDwyWb3kacWwgzFtyi5i0ZQkQlbyOd
+         rRHZcgtKY2hB8mFprdZTXWSLiU+ATum4mYikSPcOtkRbzK63KJUIKhBng4yZdyY2pDKS
+         PQMwgFLPsl358Zur4ANxUrXHg+cTz4CwmhVUE//GcmTblr/tAAaQcjQXZS+2kc2Tm6ih
+         ya76mpE1kUD4c/EMFf5lfShNdaCPS+t8YkQetDFsr9Z3PkoAfQha299PDyeVlxfOeh7M
+         X6K93zxaILLcUuyuum3tbACUWQrQYOaLaeYVWKZcfiwNHISWtf7/wVjeHhvN9swg2A56
+         MYSw==
+X-Gm-Message-State: AOAM5322oiDoaGkYJoHInT+m/PcIQJ8XBt7djk4bd5sSulDe6y/i4zlv
+        qIP6W/Hna4Xb/Zxeg2WYAmq7QGFjmBdxdw==
+X-Google-Smtp-Source: ABdhPJyIXj0gmYDKHFfqMOBS7iDdFT5ANCdj4nL4yZ3oPh3iv9Y1bVCLdukEa7ifJGABJ+laOFI1XA==
+X-Received: by 2002:a50:fc0b:: with SMTP id i11mr22086046edr.259.1620064440863;
+        Mon, 03 May 2021 10:54:00 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefonica.de. [77.0.172.37])
-        by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.53.59
+        by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.54.00
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 May 2021 10:53:59 -0700 (PDT)
+        Mon, 03 May 2021 10:54:00 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 13/25] libselinux: label_media::init(): drop dead assignment
-Date:   Mon,  3 May 2021 19:53:38 +0200
-Message-Id: <20210503175350.55954-14-cgzones@googlemail.com>
+Subject: [PATCH 17/25] libselinux: matchmediacon(): close file on error
+Date:   Mon,  3 May 2021 19:53:42 +0200
+Message-Id: <20210503175350.55954-18-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503175350.55954-1-cgzones@googlemail.com>
 References: <20210503175350.55954-1-cgzones@googlemail.com>
@@ -72,28 +72,34 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The variable `lineno` is only used in the preceding loop and it always
-set prior that to 0.
+Found by Infer.
 
-Found by clang-analyzer.
+matchmediacon.c:25: error: Resource Leak
+  resource of type `_IO_FILE` acquired to `return` by call to `fopen()` at line 21, column 16 is not released after line 25, column 4.
+  23. 	while (!feof_unlocked(infile)) {
+  24. 		if (!fgets_unlocked(current_line, sizeof(current_line), infile)) {
+  25. 			return -1;
+         ^
+  26. 		}
+  27. 		if (current_line[strlen(current_line) - 1])
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/label_media.c | 1 -
- 1 file changed, 1 deletion(-)
+ libselinux/src/matchmediacon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index d202e5d5..eb27deaf 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -119,7 +119,6 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 			if (process_line(path, line_buf, pass, ++lineno, rec))
- 				goto finish;
+diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
+index 23d01af4..d3d95043 100644
+--- a/libselinux/src/matchmediacon.c
++++ b/libselinux/src/matchmediacon.c
+@@ -22,6 +22,7 @@ int matchmediacon(const char *media, char ** con)
+ 		return -1;
+ 	while (!feof_unlocked(infile)) {
+ 		if (!fgets_unlocked(current_line, sizeof(current_line), infile)) {
++			fclose(infile);
+ 			return -1;
  		}
--		lineno = 0;
- 
- 		if (pass == 0) {
- 			if (data->nspec == 0) {
+ 		if (current_line[strlen(current_line) - 1])
 -- 
 2.31.1
 
