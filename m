@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A719FC43616
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F56BC43618
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7619A61244
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A1EF61244
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231649AbhECRzE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 May 2021 13:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39454 "EHLO
+        id S231710AbhECRzF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 May 2021 13:55:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231718AbhECRy5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:57 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0645EC06174A
-        for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:03 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id u3so9148787eja.12
-        for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:02 -0700 (PDT)
+        with ESMTP id S231594AbhECRy6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:58 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63363C06138E
+        for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:04 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id t4so9234689ejo.0
+        for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=q1c+dSkGvb+QkY/rA9tywMX6zTIRP1JVcE26G5ixBJY=;
-        b=QuafPaT7k/34b0IClduS4aejQlUgQwugA/P39+4cNoqi5wY0kgReeL+jHTwvIEBrzm
-         TxDTsOV7707yURYUxmi3Cfjvq3XSW1x5sSCX3zEND69iFxkvU+omhPWWAHz629OUmqnM
-         3yXC9Mdkxs+QyBHHr1Wu81QkMUa47D5eP1ob/+SNOae82ZCgJh3FsezRBDL26iadaDxS
-         wN2CbhnJg0m3DrItCpNmbwFj5aO/4QLqpWAM2NahDddOmBnNVKtw32vyYhI9++4iMpNi
-         PZWfXmZs4gspSja7SxsCQYMOOdzAYqG5ZL2oomP25GntBXDFoJwN5JYs+kyi51RdDDZp
-         GurQ==
+        bh=osNyx1FIPkAa/wFyAagZJAoLCmCuby1zL1yHhVFkfCs=;
+        b=gsXqDDEFNKBAVxaFOgzGZrkd0qe/K7CP/tO7YMBdzAv5Ul1OxrOHXP4FQjIzxILU0N
+         txtzxKmNBApvkAiEgffdUJMZ6SEe42sheF+291Ng2pqcv324SoAmowqRJQFpB0d/LsCS
+         q1zynCFkxw3yJsClP4cu0v/QKhbpXRGWpK4Y21bKeSp/LmX/Quf7Hhyer+QGe+eKBTkX
+         EDXL4WMwSBlYgY6p7kRdEW+SUwSKSFxMQYgRjPWaiGOGqBzZ3EncR7SzvyiiqzgDV2sN
+         NZF7oSHld+QwnZ6aRBjt4KewJ7sbXTS6hqUc4BnKzc/hmyLSSY/ay+rtXL97KIMvt00Y
+         /tkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=q1c+dSkGvb+QkY/rA9tywMX6zTIRP1JVcE26G5ixBJY=;
-        b=E19DGapMuHma92P4r1V5YQ6vuhfVavq5k8raHN9bmOWnOL2EM2VX+3xQjCNutrFmtn
-         eYlpAQ+iLnS41eczdwpXL5kUBHzfqshZHidqS8/hMtO0EDPKdGK28FYlUJCReggwHECg
-         Ujk8v3doPMiAA/4Hz4SOnI+MZKTvoKztYaVqJDwVQPRlgLzBL1DXpmpNi+hKunl/2K1w
-         d1gQC+h/BimGLFlSoHNArt6OTpBMP3Dzb9qJT85UwuGkiJKweMs1FrBL+Cl+DkhEycx2
-         YpS/3UjXT582c+TwmAbje3S6N62fmBNZjt+yLfNAuJ7qgumKIemevFdF59uHA17CmW7d
-         DhDw==
-X-Gm-Message-State: AOAM5330UZF6PDh6r4a1ruxdF1LW71RCFQc9BpgO76HUE5dZbKes3s1c
-        evUrR68wJxcnzdq0wdOV8869IO4jSwORHg==
-X-Google-Smtp-Source: ABdhPJw46mkbeBi12dwFkmbpQVj2HiRc2+02ic7EiKjgagytNWkAj6P3W2aU3ABDraeK0ensECXQ6w==
-X-Received: by 2002:a17:906:6544:: with SMTP id u4mr17828181ejn.455.1620064441746;
-        Mon, 03 May 2021 10:54:01 -0700 (PDT)
+        bh=osNyx1FIPkAa/wFyAagZJAoLCmCuby1zL1yHhVFkfCs=;
+        b=It4n4prDsrSlh35XAmJ3sWVnJWbtnAWKcOUCH5FmQmqRqXIiDQGhxA8bUc+4uGW187
+         0jQ6RiVXxVsc1sNpICzt6f8OirfLsx2QB2gv6I6odyYsxlA4hlF5HSsMJvo7Iunkiz/W
+         aKDjVHYDJiD88xwO+aOkePkHUsvUUuGQuKkRRljUnPliPnnQUX9Emkdf/kqbyPRbFdX7
+         yckvTVo+R4M077FfTDAqzJN4MoWI1PHNC8j3W4brow0/sAOayWd+2mXJH1TLp3pOylGf
+         qGDjYWj3qXgy4sSpmc6cDnSXlRHOsnl6GiOuvpMS6+iN0N2D/ha/yKjNey89+lC56Sxj
+         kBPA==
+X-Gm-Message-State: AOAM532fCFX7PyfrPF88zNObSMkzlnxw09k5BzhjlBwC1kW59uYfTm6H
+        c7oioN1GGqQna8wuWgrXtnx26CGS6lFQtg==
+X-Google-Smtp-Source: ABdhPJxrpzPK/jYeD00MY/B5EC640O4PyixwZe7fj7W0TgnP6B6IsAO0xmIZ33yIskKZChJtm3eHYA==
+X-Received: by 2002:a17:907:3342:: with SMTP id yr2mr18133267ejb.325.1620064443137;
+        Mon, 03 May 2021 10:54:03 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefonica.de. [77.0.172.37])
-        by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.54.01
+        by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.54.02
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 May 2021 10:54:01 -0700 (PDT)
+        Mon, 03 May 2021 10:54:03 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 20/25] libselinux: matchpathcon: free memory on realloc failure
-Date:   Mon,  3 May 2021 19:53:45 +0200
-Message-Id: <20210503175350.55954-21-cgzones@googlemail.com>
+Subject: [PATCH 25/25] libselinux: label_file.c: fix indent
+Date:   Mon,  3 May 2021 19:53:50 +0200
+Message-Id: <20210503175350.55954-26-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503175350.55954-1-cgzones@googlemail.com>
 References: <20210503175350.55954-1-cgzones@googlemail.com>
@@ -72,75 +72,30 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In case `realloc()` fails and returns NULL, free the passed array,
-instead of just setting the size helper variables to 0.
+Found by clang-tidy.
 
-Also free the string contents in `free_array_elts()` of the array
-`con_array`, instead of just the array of pointers.
-
-Found by cppcheck.
-
-src/matchpathcon.c:86:4: error: Common realloc mistake: 'con_array' nulled but not freed upon failure [memleakOnRealloc]
-   con_array = (char **)realloc(con_array, sizeof(char*) *
-   ^
+libselinux/src/label_file.c:374:4: warning: different indentation for 'if' and corresponding 'else' [readability-misleading-indentation]
+                 else
+                 ^
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/matchpathcon.c | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ libselinux/src/label_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index 9e1fab59..075a3fb3 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -78,17 +78,30 @@ static pthread_once_t once = PTHREAD_ONCE_INIT;
- static pthread_key_t destructor_key;
- static int destructor_key_initialized = 0;
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 39a56133..8139b38c 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -371,7 +371,7 @@ end_arch_check:
  
-+static void free_array_elts(void)
-+{
-+	int i;
-+	for (i = 0; i < con_array_used; i++)
-+		free(con_array[i]);
-+	free(con_array);
-+
-+	con_array_size = con_array_used = 0;
-+	con_array = NULL;
-+}
-+
- static int add_array_elt(char *con)
- {
-+	char **tmp;
- 	if (con_array_size) {
- 		while (con_array_used >= con_array_size) {
- 			con_array_size *= 2;
--			con_array = (char **)realloc(con_array, sizeof(char*) *
-+			tmp = (char **)realloc(con_array, sizeof(char*) *
- 						     con_array_size);
--			if (!con_array) {
--				con_array_size = con_array_used = 0;
-+			if (!tmp) {
-+				free_array_elts();
- 				return -1;
- 			}
-+			con_array = tmp;
- 		}
- 	} else {
- 		con_array_size = 1000;
-@@ -105,13 +118,6 @@ static int add_array_elt(char *con)
- 	return con_array_used++;
- }
+ 		if (stem_id < 0 || stem_id >= (int32_t)stem_map_len)
+ 			spec->stem_id = -1;
+-		 else
++		else
+ 			spec->stem_id = stem_map[stem_id];
  
--static void free_array_elts(void)
--{
--	con_array_size = con_array_used = 0;
--	free(con_array);
--	con_array = NULL;
--}
--
- void set_matchpathcon_invalidcon(int (*f) (const char *p, unsigned l, char *c))
- {
- 	myinvalidcon = f;
+ 		/* retrieve the hasMetaChars bit */
 -- 
 2.31.1
 
