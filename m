@@ -2,104 +2,118 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9E71C433ED
-	for <selinux@archiver.kernel.org>; Sat,  1 May 2021 14:34:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61FCDC433B4
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 13:48:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B67906157E
-	for <selinux@archiver.kernel.org>; Sat,  1 May 2021 14:34:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2613B61186
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 13:48:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbhEAOfa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 1 May 2021 10:35:30 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:56820 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231415AbhEAOf3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 1 May 2021 10:35:29 -0400
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 3020A5654C7
-        for <selinux@vger.kernel.org>; Sat,  1 May 2021 16:34:38 +0200 (CEST)
-Received: by mail-pl1-f175.google.com with SMTP id y1so466642plg.11
-        for <selinux@vger.kernel.org>; Sat, 01 May 2021 07:34:38 -0700 (PDT)
-X-Gm-Message-State: AOAM5314wATf+CVKLwqY33f4CFfP5vs48zJ5J3DnjD8hjw42RrCybetN
-        pcCPOVFP9v7MofHTkTFbwHg3XV9pQYuk5ab8/LE=
-X-Google-Smtp-Source: ABdhPJxOyCiG0yJkOhx+zbqSxbcnYXnKPLNwnVOXVJO3nldWXvLXCsM/vy9YiqxAixrIXzkAoUTyC9cRlDW2iMbJXQo=
-X-Received: by 2002:a17:90b:3558:: with SMTP id lt24mr1456756pjb.156.1619879676856;
- Sat, 01 May 2021 07:34:36 -0700 (PDT)
+        id S232195AbhECNtq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 May 2021 09:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40234 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233336AbhECNto (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 09:49:44 -0400
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0918CC06174A
+        for <selinux@vger.kernel.org>; Mon,  3 May 2021 06:48:51 -0700 (PDT)
+Received: by mail-ot1-x333.google.com with SMTP id q7-20020a9d57870000b02902a5c2bd8c17so4442291oth.5
+        for <selinux@vger.kernel.org>; Mon, 03 May 2021 06:48:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IL7ghQ8MMCoyFJ9NvxJ5JsnLSOMH2l43/Sc5qeSVw+w=;
+        b=nmahqKYz+IgYQpL/Ig+/roY1sSHl+et1uCGZ7M8WTE+LMsbWTMWHg8FMR1kG8+L6tL
+         GU/pk5Cq0BPR6oIb29gJSXUNbBLBtaN1ascy0r8DKk3S9Vwz3OFLFWnptbH1MzY3Ol++
+         Gk1qmIpY3Pxy04hLvsVrm5j8O69b8MGAkYfatCGeDKLEtj3tOY1IqgwkTeAwHD5Eq2lv
+         +YJOzfFwywf1AR53nuUM+vPuhpFtsReLrmh1W6hrqEX3D7+0uZ8Jp+RHo6V1dzn2HCGl
+         2y/Gzf3HSgcje6HlPZ6eCmZe+nmeedryVrbdgutdtwvAHxLB84cngwzaTA20J23s2qjm
+         6YAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IL7ghQ8MMCoyFJ9NvxJ5JsnLSOMH2l43/Sc5qeSVw+w=;
+        b=CeellvF8avFnIq6JdLySQzNjzhTVg9orhFwAzX6bpvSa6UZ+ZWzhWpGFaQBi4g+d8j
+         PViQ7cQKHU3zJ4QbPlYPWgab6FP6rk+zIqfiLeBHnKv/ZbQwPkPyhC6cmhTMrw5b3Xtc
+         iJxH/gV2+vNERHj5cwVr1kW8XaOSPrv09cEFkGKaxJKPEt7TUBqfxPy6zgx8/mg95Z2x
+         KtsEL92V7WXl9IOFhlrLlvOnDCgBpYiPyRa3SVmeSWy41vtDU3iwfjgzQfbp+Hv4FoWZ
+         4sycoxIZLMaDJJgemvxSmlC3RWBgSyiqx5UEFyaeydc3OSzOY3SVG4SaDJWvnBbWLKSY
+         57sg==
+X-Gm-Message-State: AOAM532DwiW7i42mfzRKqF1qdtREpdn9Zn2LfxtfT1e47WVHFYZmRhHt
+        gW2KQe8ZADwdqBjysFdRKMjdl+7mwbi55FMCAlTDT+Md9c0=
+X-Google-Smtp-Source: ABdhPJzMvwHxi5M8vBaAjZZ2SUULc0/5jJiK39EhkC9l8zdoqbCtDsMt7T1dOcpKgPPNlIA/gY2EtQXNfbf4ReHSbD0=
+X-Received: by 2002:a9d:684e:: with SMTP id c14mr7166557oto.295.1620049730456;
+ Mon, 03 May 2021 06:48:50 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210427204333.208637-1-jwcart2@gmail.com>
-In-Reply-To: <20210427204333.208637-1-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sat, 1 May 2021 16:34:26 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==yNja-v36=0bdq2z4u6NsjNyQ4E-Gp_RUL=RUfHEoNPg@mail.gmail.com>
-Message-ID: <CAJfZ7==yNja-v36=0bdq2z4u6NsjNyQ4E-Gp_RUL=RUfHEoNPg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Properly reset an anonymous classperm set
-To:     James Carter <jwcart2@gmail.com>
+References: <20210428201753.282831-1-jwcart2@gmail.com> <20210428201753.282831-5-jwcart2@gmail.com>
+ <CAJfZ7==fJx3RFAgkkip+3+e1WbpkkJtDryvsxrO9oZ0smHLDgA@mail.gmail.com>
+In-Reply-To: <CAJfZ7==fJx3RFAgkkip+3+e1WbpkkJtDryvsxrO9oZ0smHLDgA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 3 May 2021 09:48:39 -0400
+Message-ID: <CAP+JOzQZ6MBoAeReq++Y0Kx5yLGv78UjOc_RVkhaJPcG7F-+sg@mail.gmail.com>
+Subject: Re: [PATCH 4/5] libsepol/cil: Check for self-referential loops in sets
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat May  1 16:34:38 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 27, 2021 at 10:43 PM James Carter <jwcart2@gmail.com> wrote:
+On Sat, May 1, 2021 at 10:33 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> In struct cil_classperms_set, the "set" field is a pointer to a
-> struct cil_classpermission. Normally the classpermission is created
-> in a classpermissionset rule with a name declared in a
-> classpermission rule and stored in a symbol table. Commit c49a8ea0
-> ("libsepol/cil: cil_reset_classperms_set() should not reset
-> classpermission") fixed the resetting of classperms sets by setting
-> the "set" field to NULL rather than resetting the classpermission
-> that it pointed to.
+> On Wed, Apr 28, 2021 at 10:18 PM James Carter <jwcart2@gmail.com> wrote:
+> >
+> > The secilc-fuzzer found a self-referential loop using category sets.
+> > Any set declaration in CIL that allows sets in it is susceptible to
+> > the creation of a self-referential loop. There is a check, but only
+> > for the name of the set being declared being used in the set
+> > declaration.
+> >
+> > Check for self-refential loops in user, role, and type attributes
+> > and in category sets. Since all of the sets need to be declared,
+> > this check has to be done when verifying the CIL db before doing
+> > the post phase.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  libsepol/cil/src/cil_resolve_ast.c | 31 +---------
+> >  libsepol/cil/src/cil_verify.c      | 97 +++++++++++++++++++++---------
+> >  libsepol/cil/src/cil_verify.h      |  1 -
+> >  3 files changed, 71 insertions(+), 58 deletions(-)
+> >
+> [...]
+> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> > index 5a37dd2f..4c860a21 100644
+> > --- a/libsepol/cil/src/cil_verify.c
+> > +++ b/libsepol/cil/src/cil_verify.c
+> > @@ -430,28 +430,71 @@ int cil_verify_decl_does_not_shadow_macro_parameter(struct cil_macro *macro, str
+> >         return SEPOL_OK;
+> >  }
+> >
+> > -int cil_verify_no_self_reference(struct cil_symtab_datum *datum, struct cil_list *datum_list)
+> > +int cil_verify_no_self_reference(enum cil_flavor flavor, struct cil_symtab_datum *datum, struct cil_symtab_datum *orig);
 >
-> But this fix mixed the special case where an anonymous classperm
-> set is passed as an argument to a call. In this case the
-> classpermission is not named and not stored in a symtab, it is
-> created just for the classperms set and its classperms list needs
-> to be reset.
+> Hello,
+> Your patches look fine. Nevertheless it would be cleaner if this
+> function was declared "static", as it is not used outside of
+> cil_verify.c. This is a suggestion which is not blocking any merge, so
+> if you prefer to merge the patches directly, feel free to do so.
 >
-> Reset the classperms list if the classperms set is anonymous (which
-> is when the datum name is NULL).
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-
-Thanks!
-Nicolas
-
-> ---
->  libsepol/cil/src/cil_reset_ast.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
-> index 76405aba..d24d4f81 100644
-> --- a/libsepol/cil/src/cil_reset_ast.c
-> +++ b/libsepol/cil/src/cil_reset_ast.c
-> @@ -60,10 +60,14 @@ static void cil_reset_classpermission(struct cil_classpermission *cp)
->
->  static void cil_reset_classperms_set(struct cil_classperms_set *cp_set)
->  {
-> -       if (cp_set == NULL) {
-> +       if (cp_set == NULL || cp_set->set == NULL) {
->                 return;
->         }
->
-> +       if (cp_set->set->datum.name == NULL) {
-> +               cil_reset_classperms_list(cp_set->set->classperms);
-> +       }
-> +
->         cp_set->set = NULL;
->  }
->
-> --
-> 2.26.3
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
 
+I like your suggestion better.
+Thanks,
+Jim
+
+> And thanks for working on fixing issues identified by OSS-Fuzz!
+> Nicolas
+>
