@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77D26C433ED
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 811C5C4360C
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4DB936121D
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50A5A6121D
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231642AbhECRzC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 May 2021 13:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39446 "EHLO
+        id S231567AbhECRzE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 May 2021 13:55:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbhECRy5 (ORCPT
+        with ESMTP id S231717AbhECRy5 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:57 -0400
 Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E29EC061349
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E9DC061761
         for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:02 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id zg3so9165256ejb.8
+Received: by mail-ej1-x636.google.com with SMTP id u3so9148769eja.12
         for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=6uSO+VAXsI68QiGIglToPcJmQwH6vpV52Zwf88xDxpY=;
-        b=SwGB2wsmGPDyre+2q+1gLPqxIQR0siJFRXle9BKhCc6UnD0uE3AcwTqfm7Eymj3nVR
-         c2m+OTjDK6XMnNMjgim9X3K24zQm7JWQT3h+fMMKNmolVi1bw4p7DYt33PgD9WnwCthp
-         9xoxfI9Y5h7Al0TXDPS6yhaeJdQdr4Ij91G60pi5pc5Cp0gZLUj0OoWwJU8FG4hCqvU8
-         1dmomnwrL3npX1gL54DjQaIQU/CvdlP/kxwAC5wrJnOEFdCSl83XISe3J/OZNm7DFzg1
-         TKy4rr1qex/DFLRyJ2mvkpBh1ukOcHE+RcpFEjGOYdCbFnL75j1O6bVoL+5kZNr4H7lJ
-         ytJQ==
+        bh=mdTJWbH5fYeX8RUN2psmigQmLOEaN7onfXdrssOTbl8=;
+        b=DefnVkgvUFb6yNYkv3qPK5KG7descNdJTUWrchyR2SSDl0CxLkCv1c50+MRT9z1DC1
+         HY8uyXNPxUfxduIBqc7vH6cOrkBGVmmFSgio2WRZKuesJ/u3AvYe3Q/Z4gPoRBR6yhiK
+         Ls6wnHo9MlFXbDFhHfAm2g838j3I+dUQQoLpdjbwqPwq7BvUrjhgFqLJkFDn1YnJm9CU
+         GfWrB8jHkoaTsNTqVTVUSY6jZCmUGD7wdfrC8chNJbywpcgUY3QWZ74T0+4XlEMBVzWR
+         uJmXRq59vsa3rOuHek+6I9cKLpQFJ0pkoTZIJBmiZyPcA31kK+jzoopu3mOCgnORzxIE
+         twqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=6uSO+VAXsI68QiGIglToPcJmQwH6vpV52Zwf88xDxpY=;
-        b=U/IiBCPrVP6hzSljiUh7qhvYQQlk8DutkUUmnAhkuwDtcH4Ca451VIIkDrTX/kV1wh
-         y6rMo0ScXrdaN4DBbhoFZP7ng+Gf8VAp89HqDgzUCmzDaHc+wriaQoiburIBNCWYCV7o
-         Rzt9XouxB4No08IPtMgQ7cgZdilu9vHiMgO2iXKV2nnQiFCoNaUWpib1eNjC4165vrRG
-         djRuUnKKjT0zdngBwxrH8UJX1h3rYtdvRmRj9X6okPA7vbw5I7DkGClDWJ8HF0wk5646
-         Qnzc2dANMo4KVB3gV9Bwj5cnTZZjAPWYQxa0yLKWnL6/XPlO4zibXEvmwUTRYuWvAVM9
-         9FoA==
-X-Gm-Message-State: AOAM533qN5tyZqQ7XZRzvkFL9i1WJmwVzQUT8f9uMr1fKgxK/vzD+PUv
-        bqTDiZD1S9EPgh/Jev5IBC7PN7pI1bLJMg==
-X-Google-Smtp-Source: ABdhPJyoP3cxYPrSrOTpQ7w8qO49wG7FWwUpi9twaJpPQNAYN4e0P5ppA1zVOBru3e7njk4lwFWjFg==
-X-Received: by 2002:a17:907:2176:: with SMTP id rl22mr13551785ejb.155.1620064441141;
+        bh=mdTJWbH5fYeX8RUN2psmigQmLOEaN7onfXdrssOTbl8=;
+        b=QYWdhBoMBn+QVV0RleGOZFkexBVFrP0FtNNm+hb+03UF5M5ecm1alZCyqWWTDDR2EH
+         AeIG3ncSNW3Xci1tHPbgbqvjEY7yMMj9mUEUVAKoRf/XOrOTxKIQaeStj7HeaXav1Mja
+         m2g1o1lUJF0Likh5zjXXf25tWdSslyU4kxdieOfFRWPtAzrdnFRp7Is09EqOJUfPLqkv
+         BUcAkt8BrY/PklHh43iDreywNObERKDqwYzdaW4IYcXIEKNPL1fuKLXm940hNAmOLBNn
+         p4U7ZEa/OtP1xGkKrcpYVcLjBJSs4huiRsBl/i6/YJJdkCmueHuId9RtcIL2biTufB9c
+         +lsg==
+X-Gm-Message-State: AOAM533aGk3HkBPyDgTV0griG6/crYyEzxHKZq0vbmVfUAccPA7Vfq45
+        sBnjNIPuH/HfNdC3Uhc5kWRQjcnElryBIw==
+X-Google-Smtp-Source: ABdhPJzk7Up7qYkBJoW7hvAIhu8IvdTKdVvDcgiMbyOteQYINKK/hvYR97IYKtIcfFopcTKEwmg+9w==
+X-Received: by 2002:a17:907:3f99:: with SMTP id hr25mr14987660ejc.231.1620064441415;
         Mon, 03 May 2021 10:54:01 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefonica.de. [77.0.172.37])
-        by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.54.00
+        by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.54.01
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 May 2021 10:54:00 -0700 (PDT)
+        Mon, 03 May 2021 10:54:01 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 18/25] libselinux: init_selinux_config(): free resources on error
-Date:   Mon,  3 May 2021 19:53:43 +0200
-Message-Id: <20210503175350.55954-19-cgzones@googlemail.com>
+Subject: [PATCH 19/25] libselinux: label_file::init(): do not pass NULL to strdup
+Date:   Mon,  3 May 2021 19:53:44 +0200
+Message-Id: <20210503175350.55954-20-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503175350.55954-1-cgzones@googlemail.com>
 References: <20210503175350.55954-1-cgzones@googlemail.com>
@@ -72,48 +72,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Found by Infer.
+If any of the build flags `BUILD_HOST` or `ANDROID` is set and the
+caller did not pass an option of type `SELABEL_OPT_PATH`, the variable
+`path` might be not set.
+Add a check to avoid calling `strdup()` with a NULL pointer.
 
-selinux_config.c:181: error: Resource Leak
-  resource of type `_IO_FILE` acquired by call to `fopen()` at line 165, column 7 is not released after line 181, column 6.
-  179. 				type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
-  180. 				if (!type)
-  181. 					return;
-            ^
-  182. 				end = type + strlen(type) - 1;
-  183. 				while ((end > type) &&
+Found by cppcheck.
+
+src/label_file.c:759:26: warning: Possible null pointer dereference: path [nullPointer]
+ rec->spec_file = strdup(path);
+                         ^
+src/label_file.c:713:21: note: Assignment 'path=NULL', assigned value is 0
+ const char *path = NULL;
+                    ^
+src/label_file.c:759:26: note: Null pointer dereference
+ rec->spec_file = strdup(path);
+                         ^
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/selinux_config.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ libselinux/src/label_file.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index 6c523895..97f81a8b 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -177,8 +177,11 @@ static void init_selinux_config(void)
- 			if (!strncasecmp(buf_p, SELINUXTYPETAG,
- 					 sizeof(SELINUXTYPETAG) - 1)) {
- 				type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
--				if (!type)
-+				if (!type) {
-+					free(line_buf);
-+					fclose(fp);
- 					return;
-+				}
- 				end = type + strlen(type) - 1;
- 				while ((end > type) &&
- 				       (isspace(*end) || iscntrl(*end))) {
-@@ -187,6 +190,8 @@ static void init_selinux_config(void)
- 				}
- 				if (setpolicytype(type) != 0) {
- 					free(type);
-+					free(line_buf);
-+					fclose(fp);
- 					return;
- 				}
- 				free(type);
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 4d4e3a76..39a56133 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -756,6 +756,10 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 	}
+ 
+ #endif
++
++	if (!path)
++		goto finish;
++
+ 	rec->spec_file = strdup(path);
+ 
+ 	/*
 -- 
 2.31.1
 
