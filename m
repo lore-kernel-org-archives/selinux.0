@@ -2,106 +2,107 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA73C43460
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 16:45:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86E77C433B4
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:46:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB448613B4
-	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 16:45:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5601761183
+	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:46:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbhECQpw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 May 2021 12:45:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21854 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232548AbhECQnt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 12:43:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620060175;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=urZngWBYyqYOZvdMyDp5JZ3apgUdbSts9Kt/2XnTta4=;
-        b=POAGk4CnI/6EW1BMI9YFBs2T5vDzfPKjix3+dSxKOG+s58TjmSg26Joz0vayyZgRwmdd0R
-        rkAFQxiSpsKKNC2LqV6oCU+4smGA4LOdJDXdYBbtqIshJwpbcOnxb6coloDHI2Krh5hC7p
-        dVMgzTGGKg4Jrsoddlx453hTyLMZ5q4=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-510-fT5Ry9hbMcyYl0MWxhq7bw-1; Mon, 03 May 2021 12:42:52 -0400
-X-MC-Unique: fT5Ry9hbMcyYl0MWxhq7bw-1
-Received: by mail-yb1-f197.google.com with SMTP id a3-20020a2580430000b02904f7a1a09012so4661052ybn.3
-        for <selinux@vger.kernel.org>; Mon, 03 May 2021 09:42:52 -0700 (PDT)
+        id S231285AbhECRrk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 May 2021 13:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37788 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229577AbhECRrj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:47:39 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D35C06174A
+        for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:46:45 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id w3so9160759ejc.4
+        for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:46:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=puFpeJ8xPj2aaiwVvulUlTByr85/hI/Yk9PaKda99Lc=;
+        b=QsrHuk7+26muP/9HWz0SBa3glfjkrp/I6cVHAbL82W9WlUHPG5xS4eEN1B9IX5xu6I
+         tmzCFGN0coA/+gD+lP4LPnRoiZdpHP+r9tTCu7h+VaW55bsUgpXY7AJ8ZRHDcFH0Iy4Z
+         enVRkyxh9FHTaMyVT/vBOzHvnLfoVW9vEKFKR9Zvh8YuAYZDcffVPKvSEQZiow1xWlOO
+         slCaFOlz4b3kG0akI5SibPc1tWmxx99jm3ew6uFChzrtSTXHvqoQZFdy1W2q+lP9gMhk
+         DXODJanYHOFBxdsA/AxMoZdU1fHnezNSOgpGeBpJc2uP36J7voiWRAZFD5cPx24e3jbi
+         /4+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=urZngWBYyqYOZvdMyDp5JZ3apgUdbSts9Kt/2XnTta4=;
-        b=QzjT6VFS5oQML1GnFexn0EnD28SSoH2aUO/cFU7glH5xXzg7eu4/bxguevNHGtd1OP
-         NxNS5u/3TbC3SOgbeT1KlXttoiYp44tvv+SXo9EvW4slkvDQCGRBzJEyejhpJjv0748B
-         YVcJ3EVgB+2NxT8mact3XnWz1Rek01Qu9HLAGlIiikc1g8xJYdkcUcS2+Zc1K6/5po6s
-         UGN0mnkdHzxMml5xMCFlbKsMbc46Ft6o8CDVHzdqNjpLOhm06yYtr8PdpnYd7KfD3Ilz
-         cJ02eF72X5b1QUOLhS7dNQHAVH2jyAT/5x3CFESEXvUha5hQQfprb32+WlxMpcLs3LG/
-         Otfg==
-X-Gm-Message-State: AOAM532k2Eg32TAg6ZCTd/IAHtEodHS7WcZimSDu29Y5yTRJoPBOaf/+
-        odk9vggmsN56IILDWrvqzeuoya1E2+NSPycoKorhnxjd4hEttSQbY7YVMEkWgMg4PwyC8JHYdL2
-        R65QYRSAJ391cDT5/d6mfAzd1o958XqJW1Q==
-X-Received: by 2002:a25:e901:: with SMTP id n1mr10675969ybd.340.1620060172183;
-        Mon, 03 May 2021 09:42:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw9rLq+gf7osCDi3XGl/QsAUqwrKzNBMWgiM2MmI7KFvQ0Nw+DsWsW/+v+NYfB4QPPSiitmBeyscFoaiyDFCuQ=
-X-Received: by 2002:a25:e901:: with SMTP id n1mr10675954ybd.340.1620060171988;
- Mon, 03 May 2021 09:42:51 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=puFpeJ8xPj2aaiwVvulUlTByr85/hI/Yk9PaKda99Lc=;
+        b=eic+olcdvMaCBGBV1oKqgQ0kU6GUUJ3AlPW96BAuI3Y33QFGBvPBcyYVmQMkCLTat9
+         cencoMLsAlmc9TKClY9jBVn8wTI3bMNAMBSuASxgB38rb4TcKYg3XSvDs8VQBKOA5nal
+         41A+O/IMLV1FwVFNZJIVf87r5+HYwn8SvLf0e2VyRJ1TFAOYamFwSnMMS5FSEIwRWlCv
+         rbiRn113JUQtQFzqY8LambB43GojHB8lBATRs9HAvrxaj40EFcQJ0ZfK7tYrJX63J3Yl
+         2ZUY37GXqdtfdvNMbOYuAQfVLIHGfubncRNpayZVzdAPj8dXmGCI4IqaGPwJn1QJswrG
+         rGCg==
+X-Gm-Message-State: AOAM532xRwU4+bxlq5uxfdDSS/tcJPArH8GZIK1CxGW6nJwux4Su32lc
+        vRwEyDrhGOZSGR20/+134odnFCWaR88m2g==
+X-Google-Smtp-Source: ABdhPJw9r7q57GtDeiFAf6VTObK6zoZxbp4drIoZyFG900xKohY1boBcs12PKEgxbrTt+No3Flqt/Q==
+X-Received: by 2002:a17:906:fa19:: with SMTP id lo25mr4511602ejb.394.1620064003895;
+        Mon, 03 May 2021 10:46:43 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefonica.de. [77.0.172.37])
+        by smtp.gmail.com with ESMTPSA id u11sm12636985edr.13.2021.05.03.10.46.43
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 May 2021 10:46:43 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libselinux: selinux_check_passwd_access_internal(): respect deny_unknown
+Date:   Mon,  3 May 2021 19:46:36 +0200
+Message-Id: <20210503174636.54579-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <20210501104419.20220-1-omosnace@redhat.com>
-In-Reply-To: <20210501104419.20220-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 3 May 2021 18:42:40 +0200
-Message-ID: <CAFqZXNvqE8LbmfXLn5GZnqC+whwU8VefJAQyGCZc9BpPDNzy1Q@mail.gmail.com>
-Subject: Re: [PATCH testsuite] ci: test also on F34 images
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, May 1, 2021 at 12:44 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> Change the CI configuration to test also on an F34 image in addition to
-> F33 and also test kernel-secnext on F34 instead of F33.
->
-> We could of course test just on F34, but having an older release in the
-> test matrix should help ensure that the testsuite will still work on
-> older kernel/userspace versions as well, so I'd rather keep both.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  .github/workflows/checks.yml | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/.github/workflows/checks.yml b/.github/workflows/checks.yml
-> index 59f1a47..d0e276e 100644
-> --- a/.github/workflows/checks.yml
-> +++ b/.github/workflows/checks.yml
-> @@ -15,7 +15,8 @@ jobs:
->        matrix:
->          env:
->            - { version: 33, secnext: 0 }
-> -          - { version: 33, secnext: 1 }
-> +          - { version: 34, secnext: 0 }
-> +          - { version: 34, secnext: 1 }
->      env:
->        FEDORA_VERSION: ${{ matrix.env.version }}
->        KERNEL_SECNEXT: ${{ matrix.env.secnext }}
-> --
-> 2.30.2
->
+`selinux_check_passwd_access_internal()`, and thereby
+`checkPasswdAccess(3)` and `selinux_check_passwd_access(3)`, does not
+respect the policy defined setting of `deny_unknown`, like
+`selinux_check_access(3)` does.
+This means in case the security class `passwd` is not defined, success
+is returned instead of failure, i.e. permission denied.
 
-Also applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/58eaa31c9e0e0a0567990336ae355b4cd309e6e3
+Most policies should define the `passwd` class and the two affected
+public functions are marked deprecated.
 
+Align the behavior with `selinux_check_passwd_access(3)` and respect
+the deny_unknown setting in case the security class is not defined.
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/checkAccess.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+index b337ea64..022cd6b5 100644
+--- a/libselinux/src/checkAccess.c
++++ b/libselinux/src/checkAccess.c
+@@ -78,7 +78,9 @@ static int selinux_check_passwd_access_internal(access_vector_t requested)
+ 		passwd_class = string_to_security_class("passwd");
+ 		if (passwd_class == 0) {
+ 			freecon(user_context);
+-			return 0;
++			if (security_deny_unknown() == 0)
++				return 0;
++			return -1;
+ 		}
+ 
+ 		retval = security_compute_av_raw(user_context,
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+2.31.1
 
