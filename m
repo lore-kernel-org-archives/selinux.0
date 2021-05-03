@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56AE4C43461
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA5D7C43600
 	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 271536121D
+	by mail.kernel.org (Postfix) with ESMTP id 8CD7461278
 	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231604AbhECRzB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 May 2021 13:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39438 "EHLO
+        id S231285AbhECRzC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 May 2021 13:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbhECRy4 (ORCPT
+        with ESMTP id S231567AbhECRy4 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:56 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D748C061345
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6F3C061346
         for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:01 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id w3so9193666ejc.4
+Received: by mail-ed1-x52a.google.com with SMTP id j28so7295309edy.9
         for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=+l5WaM/XLDKsSixonjdGaNfRI3ejaxla3T48dQ0Gp48=;
-        b=l0nfxgjv9uw0KKZLbm4Z20tgz73geAJJpLx3eFNkPxngU3fURL3lduzqt/FSg381hP
-         xnxCuMHl1W/s9CM1ZKqL2gZjNWlOgM5owTmMQXBL/d4TMeQbZ9T9yYVxqk25Klkcfww1
-         WfmkE0PGc/wqLxbu6D/Xyn0lJLs+fyVHYlo9OEwgyjgoIjvDX2k9r0OuSrVPzQf6CuG/
-         bgoGxeGwXsi7eLTYTT51o4kIh9wABGsQ4YxEHDVgUytyBI3EWwwOA1Tf+FbW55UeLZHO
-         xgqOpIuuGmw2iv+DQT2bTpzZgBhy3diS3jv6HPG9Y70IF5DWach3GlDC22vLH5QdiUKM
-         eQQA==
+        bh=RO441n4/VIEk7ehh6qb3RnHBVuLrEYuAYiYFb0xNGt4=;
+        b=TVK/Nf5+1cIY4X9pRRVLUdNC/ZEBkKwrWnf5APJ/ZAYKPtMhTC698Kc3SB+TX1Noal
+         z/ChnKE6jiZanWtQiQYYUeWjCyt6b07gU9uxtMrcIls0Bw3Wr+x9BU+1poOe0MseX8X8
+         49AdWdNT/QKNOvD+23J3NbSz42Uw3JvEZlqRHEpopRJnoa9P91ULMEiF830qcMCtyPQe
+         1K3ue95jkvykwP+Axu6+RIW1ChO3WgN7zRXMmP2XZJkyHQnIGUgc5+EteRH2TedXwh1c
+         Y+Cmm1x+RqAyiAkl8ocECdscr2wR61pIddqNG+msRuSBXpeeI7WFrJf/fr5lDM2iSH8e
+         UqWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+l5WaM/XLDKsSixonjdGaNfRI3ejaxla3T48dQ0Gp48=;
-        b=OKnSuGEDbO4JfvLJo6sFhOVC22QObhVn8m+sRy7Gr4VFpccHZqYS8GOiuDBpI9ZnJN
-         Sq5Z4CpYKzGIUqNA60edwAndexNZj+IwkBECL7go2AVgJ3a2/LTf4EBn3icUwrffnBtN
-         H/Wz+Jngyg0OZl3F7z8PHXA+vD6DGXGqrKZtpmhUdGsDJ2ZU5W/FqFbAN3pG5YYMteF+
-         eRl1GIWI5LmKkhMK/2YcZOVJNbJgn4VcczVkBoEgRzlQE5y7ZoCdOvr2p4n8I+qdXtGI
-         FE0lZBZWr09OWtUP7csB2WwS5jS3ayuV25VnUYdpoJQI0z67QwkIRQ8BXM4t4z4ofUsr
-         QcwQ==
-X-Gm-Message-State: AOAM530uLRyFq8ee8cVrco3QwbWh9IkWJserflPdQXrXK5bgTtxYOPyZ
-        zx49bknefquVSQZAgys6C2xjtA/Eer1vPw==
-X-Google-Smtp-Source: ABdhPJwJzU5QHnSa+3MLtPi5+7ODMEAlELVQ9rbEJw6gCQShju/O+R8RjpTzeWJSYLgC2gat9bD/BA==
-X-Received: by 2002:a17:906:608a:: with SMTP id t10mr18225787ejj.374.1620064439945;
-        Mon, 03 May 2021 10:53:59 -0700 (PDT)
+        bh=RO441n4/VIEk7ehh6qb3RnHBVuLrEYuAYiYFb0xNGt4=;
+        b=PYD8qVrNIljT0YqISuLd5KxXSNQq//hEwaBreRdRJPoaJ090YDxRN2T1inrnz5aVTD
+         7CIgMzNG7y3Y3NZh+FG9kFjUeu+SH2NK12FX0dnB/XlDXhA216uQTcrofecsTjKcd1Si
+         GdQyb8fJpBSTKnEiFZ1oljb9VCGSpyeemYYImLtayhXuQKe2c/H2FP1iOvp4IhDutRfK
+         Yd8GMqYJ/5KJ4UrEa8DEmUrSL2laS848on41sjO5HI14VRhP+7yiNJzK6KCvXRUXK7Db
+         dolNu+JpZP3Z3msl/yGrPFkXDc74nSLp/d6mPq45tl6+C/vSs8RNa0v+v627GKXSA5y5
+         PgcQ==
+X-Gm-Message-State: AOAM5332qST3qYF8R92JzEi0AuyykN5UV3uGTyuEB7vv83Vk/GvnWcno
+        dzXVO24QH5WTXvhFTaB+/9fa1HrEnA/ffQ==
+X-Google-Smtp-Source: ABdhPJzxKoYs9V4PD/KzBwYJxMySdwzSt+9LUVEKi4Gszzs34p4YKPZWvp/4jnoSndcly4oSHAvHeQ==
+X-Received: by 2002:aa7:cc98:: with SMTP id p24mr21232235edt.187.1620064440231;
+        Mon, 03 May 2021 10:54:00 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefonica.de. [77.0.172.37])
         by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.53.59
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 May 2021 10:53:59 -0700 (PDT)
+        Mon, 03 May 2021 10:54:00 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 14/25] libselinux: setexecfilecon(): drop dead assignment
-Date:   Mon,  3 May 2021 19:53:39 +0200
-Message-Id: <20210503175350.55954-15-cgzones@googlemail.com>
+Subject: [PATCH 15/25] libselinux: getdefaultcon: free memory on multiple same arguments
+Date:   Mon,  3 May 2021 19:53:40 +0200
+Message-Id: <20210503175350.55954-16-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503175350.55954-1-cgzones@googlemail.com>
 References: <20210503175350.55954-1-cgzones@googlemail.com>
@@ -72,28 +72,45 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The variable `rc` is always unconditionally assigned by the next call of
-`setexeccon()` and never read in between.
+Do not leak memory if program arguments get specified more than once.
 
-Found by clang-analyzer.
+Found by clang-anlyzer.
+
+getdefaultcon.c:52:3: warning: Potential leak of memory pointed to by 'level' [unix.Malloc]
+                fprintf(stderr,
+                ^~~~~~~~~~~~~~~
+getdefaultcon.c:52:3: warning: Potential leak of memory pointed to by 'role' [unix.Malloc]
+                fprintf(stderr,
+                ^~~~~~~~~~~~~~~
+getdefaultcon.c:52:3: warning: Potential leak of memory pointed to by 'service' [unix.Malloc]
+                fprintf(stderr,
+                ^~~~~~~~~~~~~~~
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/setexecfilecon.c | 1 -
- 1 file changed, 1 deletion(-)
+ libselinux/utils/getdefaultcon.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/libselinux/src/setexecfilecon.c b/libselinux/src/setexecfilecon.c
-index e72ba0d9..2c6505a9 100644
---- a/libselinux/src/setexecfilecon.c
-+++ b/libselinux/src/setexecfilecon.c
-@@ -37,7 +37,6 @@ int setexecfilecon(const char *filename, const char *fallback_type)
- 		newcon = strdup(context_str(con));
- 		if (!newcon)
- 			goto out;
--		rc = 0;
- 	}
- 
- 	rc = setexeccon(newcon);
+diff --git a/libselinux/utils/getdefaultcon.c b/libselinux/utils/getdefaultcon.c
+index 96a5a8c2..957c1cb2 100644
+--- a/libselinux/utils/getdefaultcon.c
++++ b/libselinux/utils/getdefaultcon.c
+@@ -28,12 +28,15 @@ int main(int argc, char **argv)
+ 	while ((opt = getopt(argc, argv, "l:r:s:v")) > 0) {
+ 		switch (opt) {
+ 		case 'l':
++			free(level);
+ 			level = strdup(optarg);
+ 			break;
+ 		case 'r':
++			free(role);
+ 			role = strdup(optarg);
+ 			break;
+ 		case 's':
++			free(service);
+ 			service = strdup(optarg);
+ 			break;
+ 		case 'v':
 -- 
 2.31.1
 
