@@ -8,49 +8,49 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 346E7C43617
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9F69C4361A
 	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10E6E6121D
+	by mail.kernel.org (Postfix) with ESMTP id AE68961244
 	for <selinux@archiver.kernel.org>; Mon,  3 May 2021 17:54:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231622AbhECRzE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 May 2021 13:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
+        id S231594AbhECRzF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 May 2021 13:55:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231734AbhECRy6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:58 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 419EEC06134B
+        with ESMTP id S231736AbhECRy7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 May 2021 13:54:59 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13097C06138C
         for <selinux@vger.kernel.org>; Mon,  3 May 2021 10:54:04 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id u3so9148837eja.12
-        for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:04 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id gx5so9154377ejb.11
+        for <selinux@vger.kernel.org>; Mon, 03 May 2021 10:54:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=QzQumgOJmDZxWmsBJ+ObYe9igAM8BCQXhoezYQw89vI=;
-        b=L1RW0onlI7NIRF1IucZ7QxZhqULN3+W+MIoAlXfeD6eVJ+Pkw5anYbCx62aFLATi2F
-         JxLK42s14LEcSFhHukkbYoDhm+ZgsHCkXXVJUcvtZuQmm3yLpHNWr6CATJf+Lj8XFC0d
-         aGg/k5oH23BChWr6itzaulRdPSGfkGjwJUq8M9JfizOUEaTJlKyBu967iM/ZbOJz7AEd
-         1q4ZjDVl6CbyJ6SPM9Zn4VwMkaDKz+Y6rlzKRICrm7H89Duqfvo06APq1gR1YuydJFyX
-         D562PzsfW16M2x986V3i4pDePnYUEIFw6LrdJkW2+OvoRBNGWnLWjcFxWm3Uu2h4DIzv
-         dnFA==
+        bh=vio2xh7NH/IqS63KvGAdagJdOQONzhZvJd0dIjpP+hw=;
+        b=fCN3WE9/hLzXS3bQp3S0jh6N68vTZ+VvBXDCt/+Ub6SkxwsGh6XMrVnz3aclIOQULe
+         Vm1/claM7wpc6nG4P2f4ttNnFG++fqZ6/jyN6urbR73aYwxXwm/cYt5mjCXKai6TYdgo
+         0x2twvEqotBy3GwfileIt4Zp1VJ2P2p2brAfmNNSas6/KlhiF19DEfk7urg6R2VSynh2
+         XKbytFcUSbu4ZUw9CShnPYtCHmayErJFTJptwOAs0bJNBdsmIsXEOwW142Q7zhszS16P
+         tcurHzDs4wREB+AsWqxzIRvUZ3+joYYczuEn7vYIxytUxqbge3zN6nF/Zaq4UXnkHi6t
+         hJXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QzQumgOJmDZxWmsBJ+ObYe9igAM8BCQXhoezYQw89vI=;
-        b=D8Wqc1mGo2ntFG0ywV0uw+qwRDivpbT66Sy0oGPk9otiGQ6HgeRKV+r6f5+BtHupbm
-         3A7k08SlcrkxMklZUaF8WYAZjtvwNf8GpKMq+HHt7ZdYlwx1KU8gHY+NhcxodSVugkPz
-         g9Ul99KtwXW0QgalrYNA+7xPhytf4XGIEuAwlejAMzlckAopR1fKzeFxm4u4HpJdpmes
-         ios/y2yw6NBE5ETUACtNilrTMMfqp/5z/7mHB9YjlmzMIhd87STNwQogLdubiggwvKNx
-         hv86XLoEaY8uGyrHyMzvrMzthByUHdRJlkVUIHRcWSpIPiYIOiP7n3XLDYhixBZ2KbqI
-         L2Bg==
-X-Gm-Message-State: AOAM530vAPbu6/ZBGl3Sf/EjOVz+Yz8zAgjE3AjXy6TLU+irJC0CeTzr
-        VrPfPc2yzWU/XGfe07qhHi3kYhN1/Me6MA==
-X-Google-Smtp-Source: ABdhPJyXhj9Hf6wH4UaSUkmGKnMlL1o+xXolKAPVDzUrZSxdYH/HsZ6Xu8B49U6aVlLJUhX/jQxlTg==
-X-Received: by 2002:a17:906:13c9:: with SMTP id g9mr18106296ejc.69.1620064442604;
+        bh=vio2xh7NH/IqS63KvGAdagJdOQONzhZvJd0dIjpP+hw=;
+        b=un855IAV7ysBfjJ3iZhDoO/RRZG9XMahNT24+2KWDc5CFLT1oDytDaKXvjjCjz9zPU
+         0IRmOzQQfkmj4fAx8X/G0PoGeNC5X2aDDLzINa6qclMyDbji+TVoMn4MSDwG00671vYJ
+         GHH4gKcNep3ZN5gL2unWbc9Rk8ZOThITDqls399jYsaK6VtdKmyx3XbQIJo/a0LUrkVC
+         amnebCEddU1oTUpsLBQdbWduOG0cFYo+RjXxCsYgyVV7Pb6tyznWAoRN9fKCn4x/QT/e
+         tsicFnHg6sKdg3camgBQGCYYEJq0NgVfKh0knaNeIOHEzLOmpBXvmFHcsjUmlwO0s9hN
+         w0eQ==
+X-Gm-Message-State: AOAM530N7qZoTGqoayV7+OJ8zrf8rtqjPqhjZij2Ux5EfpaZhyuQVPzQ
+        YYmaNRJmfWuUiwUc9nTGS1+13IF+vWPIPw==
+X-Google-Smtp-Source: ABdhPJx6aLcrym+AcoSNYSM7lRTZg2k0u7vWA2tURQ/5WPLvDmvWPjQlhXV+bJHrmWTkDDtjD4k5Jg==
+X-Received: by 2002:a17:906:e88:: with SMTP id p8mr16984584ejf.31.1620064442865;
         Mon, 03 May 2021 10:54:02 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefonica.de. [77.0.172.37])
         by smtp.gmail.com with ESMTPSA id b17sm1830165edr.80.2021.05.03.10.54.02
@@ -59,9 +59,9 @@ Received: from debianHome.localdomain (dynamic-077-000-172-037.77.0.pool.telefon
         Mon, 03 May 2021 10:54:02 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 23/25] libselinux: sidtab_sid_stats(): unify parameter name
-Date:   Mon,  3 May 2021 19:53:48 +0200
-Message-Id: <20210503175350.55954-24-cgzones@googlemail.com>
+Subject: [PATCH 24/25] libselinux: regex: unify parameter names
+Date:   Mon,  3 May 2021 19:53:49 +0200
+Message-Id: <20210503175350.55954-25-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503175350.55954-1-cgzones@googlemail.com>
 References: <20210503175350.55954-1-cgzones@googlemail.com>
@@ -72,55 +72,37 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Found by clang-tidy.
+Use the same parameter names as in the header `regex.h`.
 
-libselinux/src/avc_sidtab.h:32:6: warning: function 'sidtab_sid_stats' has a definition with different parameter names [readability-inconsistent-declaration-parameter-name]
-void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen) ;
-     ^
-libselinux/src/avc_sidtab.c:103:6: note: the definition seen here
-void sidtab_sid_stats(struct sidtab *h, char *buf, int buflen)
-     ^
-libselinux/src/avc_sidtab.h:32:6: note: differing parameters are named here: ('s'), in definition: ('h')
-void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen) ;
-     ^                               ~
-                                     h
+Found by clang-tidy.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/avc_sidtab.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ libselinux/src/regex.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
-index 8c81cf65..f179d855 100644
---- a/libselinux/src/avc_sidtab.c
-+++ b/libselinux/src/avc_sidtab.c
-@@ -100,7 +100,7 @@ sidtab_context_to_sid(struct sidtab *s,
- 	return rc;
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index 770bc3ea..73987d9f 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -319,7 +319,7 @@ char const *regex_version(void)
  }
  
--void sidtab_sid_stats(struct sidtab *h, char *buf, int buflen)
-+void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen)
+ int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data **regex,
+-		    int unused __attribute__((unused)), bool *regex_compiled)
++		    int do_load_precompregex __attribute__((unused)), bool *regex_compiled)
  {
- 	int i, chain_len, slots_used, max_chain_len;
- 	struct sidtab_node *cur;
-@@ -108,7 +108,7 @@ void sidtab_sid_stats(struct sidtab *h, char *buf, int buflen)
- 	slots_used = 0;
- 	max_chain_len = 0;
- 	for (i = 0; i < SIDTAB_SIZE; i++) {
--		cur = h->htable[i];
-+		cur = s->htable[i];
- 		if (cur) {
- 			slots_used++;
- 			chain_len = 0;
-@@ -124,7 +124,7 @@ void sidtab_sid_stats(struct sidtab *h, char *buf, int buflen)
- 
- 	snprintf(buf, buflen,
- 		 "%s:  %u SID entries and %d/%d buckets used, longest "
--		 "chain length %d\n", avc_prefix, h->nel, slots_used,
-+		 "chain length %d\n", avc_prefix, s->nel, slots_used,
- 		 SIDTAB_SIZE, max_chain_len);
+ 	int rc;
+ 	uint32_t entry_len;
+@@ -387,7 +387,7 @@ static inline pcre_extra *get_pcre_extra(struct regex_data *regex)
  }
  
+ int regex_writef(struct regex_data *regex, FILE *fp,
+-		 int unused __attribute__((unused)))
++		 int do_write_precompregex __attribute__((unused)))
+ {
+ 	int rc;
+ 	size_t len;
 -- 
 2.31.1
 
