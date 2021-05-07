@@ -2,109 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F22DBC43461
-	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 12:58:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46F99C433B4
+	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 13:04:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B0D3C61468
-	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 12:58:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05C216145D
+	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 13:04:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236463AbhEGM7k (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 May 2021 08:59:40 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21507 "EHLO
+        id S237110AbhEGNFx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 May 2021 09:05:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57234 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236728AbhEGM7j (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 May 2021 08:59:39 -0400
+        by vger.kernel.org with ESMTP id S235836AbhEGNFx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 May 2021 09:05:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620392319;
+        s=mimecast20190719; t=1620392693;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=GLhWfHwcaV8aKPVU7+Ft0vYJAChyhrhw9hcFw4aRmbo=;
-        b=irasaOWxzwPAiNVGanYXsDHtcf9sY2z7n1v37Sjs3pfuQ77zfuc10TPb24hlpF8uPkVjGn
-        lZPcZFJtF87vGiYgU5j8XIc9KdKev/8gZZFCGNIZQQaLtPl93H9tE1AG9j2gHfnBthk5NY
-        kAe7iNPgxHUVlH26LTDMPrc0lxHv6a0=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-107-A3RkKKdjMdmNo7uLWbXdFw-1; Fri, 07 May 2021 08:58:37 -0400
-X-MC-Unique: A3RkKKdjMdmNo7uLWbXdFw-1
-Received: by mail-yb1-f198.google.com with SMTP id s8-20020a5b04480000b029049fb35700b9so10029799ybp.5
-        for <selinux@vger.kernel.org>; Fri, 07 May 2021 05:58:37 -0700 (PDT)
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=lASJYthDIsxknJlvXXycKIOfiMDukaQp3L1ZtsysbkU=;
+        b=GEEO5npOaLpMa+/ENvLUiwZcOc15/kI5fo2DIc3KdmkY8H8q0NKLbjtUgymvWlVcinusg8
+        hTXLz9BiYbK1MffTsxgtKhTGI0xpa+GnKdx02kOd/fvQ50upbfkby8Ef7z5/0QqjXjJNtp
+        uQ4SKcJR8wuO03sQ22TqwArDBI5lw+s=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-603-BXEgwnjTPD-1UShr9ImqZg-1; Fri, 07 May 2021 09:04:51 -0400
+X-MC-Unique: BXEgwnjTPD-1UShr9ImqZg-1
+Received: by mail-ej1-f72.google.com with SMTP id w2-20020a1709062f82b0290378745f26d5so2964518eji.6
+        for <selinux@vger.kernel.org>; Fri, 07 May 2021 06:04:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=GLhWfHwcaV8aKPVU7+Ft0vYJAChyhrhw9hcFw4aRmbo=;
-        b=ivMGpvlQXx8hLPYP2mPktxk7iTxkeEohB6v/uruLFzO+/KHykzmH/5ekKQ5Fbhmc0G
-         2lE3t/m57VgNheN31LiWj9mBdRMuojDlyhGbFUJEOKA0oG3ZEopqPlk09boip2FZm8ws
-         HoZgHfky9kG/W64D4PLDJmrLw2zOW4fuMM/6iTbwvDQ4S3yuo4whJk8nLIr+i2c/I1VA
-         DzJDLyBmUQJ7zy2A6Z52c+F55Uu7NujYFNJQQ1kZGh2smW8QF0xRU2ZNOBEU+6o1jMgz
-         KRu+ZnqWbq9Jatnl6zQrK9J14j9UYukwSh5yVS54veWdtUB8nAxp/5clQBZK4cBbYULz
-         Yonw==
-X-Gm-Message-State: AOAM5313Mv3mgTJ2AgtH994TBz2+GXsavF3KUjVBccW/wiQeVGxgEFAc
-        GHiTIAqQeoB8OTPH7nC4zWqqw+yGWl58GSxmrd9iHju+1f3VNSMzFsoaXKxKYpR8zfeViTIwDuN
-        CufK07zjsrJdCI1md/BjemWRhv1PjMyAu3A==
-X-Received: by 2002:a25:640f:: with SMTP id y15mr13270239ybb.436.1620392317280;
-        Fri, 07 May 2021 05:58:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyCaqVgj5WYApshEXCI32XAMx1PCeGQdEs8AyQjiRY6Qh9gAQzI/YAbyK/y3MYqZ6+seWa1q04tEmUBWR4cF20=
-X-Received: by 2002:a25:640f:: with SMTP id y15mr13270200ybb.436.1620392316934;
- Fri, 07 May 2021 05:58:36 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210507115719.140799-1-omosnace@redhat.com> <YJUyJcNT9RDaJc4P@kroah.com>
-In-Reply-To: <YJUyJcNT9RDaJc4P@kroah.com>
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=lASJYthDIsxknJlvXXycKIOfiMDukaQp3L1ZtsysbkU=;
+        b=DKxc1lxAEk/r675C22KPNq32rpNW0u7JMdSnRzqh2id7tzrI203RXNBhuW7uJ/u2rF
+         uktbAeEzlpt9664j7aGRrOENi4oUnzXR6TjebiogTX2tpD8oLwnZfjGuqfm8AawaxvR0
+         gaYlK2dq3ag5A/Z+C37CF8R8uF9gPWeSEaOcbruR46FwG+uHICc98GHME9IrCqUrQX1R
+         Q/ZVDM7cqf1CkgcibRfhsF5H3jGrLAn+pctvDfRHqqBFR7s1IfR7cBCcXEeB1hohm9cE
+         0fGl0/hBMVoyqSmjdsCJA6n9Km8TMBIr006Ku9W+9blWyxGEhQ9BTZKKdTYDOJ48OYmQ
+         LPbQ==
+X-Gm-Message-State: AOAM530JNaRb029VBQ7IU7QV7cVjhnn7QvuUQtKFKPRQI8eunTlOr6uM
+        n8hihIyzGfcUbaNEkbS1Cqhc5Mip/pF0eyvMhpX83vp27uUxsOyfh107ZK8GB5hPWim8W2sIQnT
+        lR/2lhvTTj/yQBVs8Py/a3aTWwdspfgLuEyt0aVvzEEg48+q0t7TBV17eI/DXOXkCvaNvjA==
+X-Received: by 2002:a17:906:8588:: with SMTP id v8mr10018172ejx.550.1620392690477;
+        Fri, 07 May 2021 06:04:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw0rYTwHdlTkJTDbReNrVSOhPf8hiH6wVuW7u+/lbBVnSR0v5bMTKH6m1jwcDz9QdC8+G7OSg==
+X-Received: by 2002:a17:906:8588:: with SMTP id v8mr10018154ejx.550.1620392690271;
+        Fri, 07 May 2021 06:04:50 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
+        by smtp.gmail.com with ESMTPSA id de49sm3489876ejc.16.2021.05.07.06.04.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 May 2021 06:04:49 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 7 May 2021 14:58:23 +0200
-Message-ID: <CAFqZXNudm1F4pPfhf+tVVikYpY_RPL9z816LS0tKc-4Vs2vjPA@mail.gmail.com>
-Subject: Re: [PATCH] serial: core: fix suspicious security_locked_down() call
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-serial@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Subject: [PATCH] selinux: use strlcpy() when copying IB device name
+Date:   Fri,  7 May 2021 15:04:45 +0200
+Message-Id: <20210507130445.145457-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 7, 2021 at 2:27 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> On Fri, May 07, 2021 at 01:57:19PM +0200, Ondrej Mosnacek wrote:
-> > The commit that added this check did so in a very strange way - first
-> > security_locked_down() is called, its value stored into retval, and if
-> > it's nonzero, then an additional check is made for (change_irq ||
-> > change_port), and if this is true, the function returns. However, if
-> > the goto exit branch is not taken, the code keeps the retval value and
-> > continues executing the function. Then, depending on whether
-> > uport->ops->verify_port is set, the retval value may or may not be reset
-> > to zero and eventually the error value from security_locked_down() may
-> > abort the function a few lines below.
-> >
-> > I will go out on a limb and assume that this isn't the intended behavior
-> > and that an error value from security_locked_down() was supposed to
-> > abort the function only in case (change_irq || change_port) is true.
->
-> Are you _sure_ about this?
->
-> Verification from the authors and users of this odd feature might be
-> good to have, as I am loath to change how this works without them
-> weighing in here.
+While the buffer should be large enough (IB_DEVICE_NAME_MAX) for all
+InfiniBand device names, it's better to be defensive and ensure the
+string will be null-terminated even if the hook happens to receive a
+longer name.
 
-I'm not completely sure and I'm with you on not merging this without
-feedback from people involved in the original patch and/or whoever
-understands the logic in said function.
+Found by a Coverity scan (BUFFER_SIZE warning).
 
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 92f909a2e8f7..ec14ed56f508 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6864,7 +6864,7 @@ static int selinux_ib_endport_manage_subnet(void *ib_sec, const char *dev_name,
+ 		return err;
+ 
+ 	ad.type = LSM_AUDIT_DATA_IBENDPORT;
+-	strncpy(ibendport.dev_name, dev_name, sizeof(ibendport.dev_name));
++	strlcpy(ibendport.dev_name, dev_name, sizeof(ibendport.dev_name));
+ 	ibendport.port = port_num;
+ 	ad.u.ibendport = &ibendport;
+ 	return avc_has_perm(&selinux_state,
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+2.31.1
 
