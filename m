@@ -8,133 +8,122 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72106C433B4
-	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 17:37:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6987C433ED
+	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 17:37:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E0FE61469
-	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 17:37:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA4DC6141E
+	for <selinux@archiver.kernel.org>; Fri,  7 May 2021 17:37:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233681AbhEGRit (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 May 2021 13:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41980 "EHLO
+        id S231745AbhEGRix (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 May 2021 13:38:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbhEGRis (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 May 2021 13:38:48 -0400
-Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D4CC061574
-        for <selinux@vger.kernel.org>; Fri,  7 May 2021 10:37:48 -0700 (PDT)
-Received: by mail-qk1-x733.google.com with SMTP id o5so9291033qkb.0
-        for <selinux@vger.kernel.org>; Fri, 07 May 2021 10:37:48 -0700 (PDT)
+        with ESMTP id S233722AbhEGRix (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 May 2021 13:38:53 -0400
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91DE7C061574
+        for <selinux@vger.kernel.org>; Fri,  7 May 2021 10:37:53 -0700 (PDT)
+Received: by mail-qt1-x82a.google.com with SMTP id f8so2997872qth.6
+        for <selinux@vger.kernel.org>; Fri, 07 May 2021 10:37:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6sTiAwv2m1hvS3tWmgbGDvK+yUsIAboN9EEOmEZL710=;
-        b=ou2qT7gQIHFJN2/7O/5VPZ6IIpk1xa9Re9HMSrZC0KxtUkyxm3LkQsnuFGSWcqbcql
-         ggRD189a8MYYtmvc/vQ/odvlhZ3PSPeKVyFUacGLeBtj75XmF/mk52bCvg3l4+Q9r6/m
-         ccfYl8S+s+YjSBjkYXD/wVioQVTzk+bW+9wPNjwkM3uUKV76YrCNOl/kcnnJfzq9PMVi
-         yeS57l6VQZGUx+VQMLw949DxBsMOl/8vOIsOs9mjXLSf0kYjdYM8Yef9oZQFzvHr+/Cd
-         A22Ivh8k5u1dJubmTCC5UVszsCYT08xIphmia3dtlbQgCLWyPkKAwUVGwwbWLW09pAXD
-         pcVg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Qc24INqDpH9n53QfFon6+NSiYgfprG80aEUo2dO32BE=;
+        b=cSg0m+eOG/VrT339AXYhwxim4gN9X/Gl7Os6IHK+AFoIJeoBsUfLhq1JkKBXN99CNu
+         vSFVD36CkZgrp+T2vOeZcyPX+JhIyI21zSjdJZdOoXmBlK/j83HpxXcwT6y6eFgT1Lkx
+         2UILe6mR6eSrxsunuN8faMmksy3xq7KavEqaioV9qgq7WFIBYTXYfxK7pTPMX683asaZ
+         1+n0R/iaZyNiZZipt5gBSLUV9UikwdCOSyWud5Bl3W5obSmJYFjITiLNLdFZn+ne3QSz
+         YQ2TD7QM+yDEaRxSgWx+9NgD1WkRtLq70gecRmBl1WPoF7Iy6O1jpRzejKhQmT9xPaDG
+         Zz7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6sTiAwv2m1hvS3tWmgbGDvK+yUsIAboN9EEOmEZL710=;
-        b=CYfByrnXYzOYIgJAKeFpOjBYB3Os2F6L4dNQk/lItJzrt2nF9dOvIlIEAVajS1Bwsc
-         7xzQNqaMZlZE36dH7HALnHmS1zXCULQyPW8c6e7eT4EIPxuGNCSdt7mulF11+NpWuP4H
-         TS0d0vxGWS9QKXdz49jMvcsE0qfhJhmLU3+VMo0KJ7Oe4rxbkMxj0e+ks9beHZj0iBWw
-         teXCGtPuh7+AIna3/MnkRDMDV9VtQVc4gI4vSnQyA1vnayiWL2vmNPMc7RY2CeEONfF9
-         vQdE0NTve6DjMIEgR8orh613AJ6uwVsLYPx8+sBpefdv4FU2RjY4aG/UDfSCR0CwrU+O
-         ptOQ==
-X-Gm-Message-State: AOAM532jidJKuPvADoFzKiUgWogbEs27WgFDvR14k+v2zjRl/zaZCPc4
-        HiKsJMBQuxrHw90AXb1EZQDLcRfDErfxfg==
-X-Google-Smtp-Source: ABdhPJzmqq2Ds5ccxvQs5Z5cNFTFxd3kyh952jKFxmzp2BQxhwL5CG6qPTIJAHtR6A33dddbkPHB8g==
-X-Received: by 2002:a37:de16:: with SMTP id h22mr10734971qkj.351.1620409068113;
-        Fri, 07 May 2021 10:37:48 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Qc24INqDpH9n53QfFon6+NSiYgfprG80aEUo2dO32BE=;
+        b=I2veTVxR3tCqz70FNrzQRMV16rdgEj2+xQpVNjzkzzX04ZwOpklmZjjc2HCHR0Xfx6
+         GM6/ivlvMumvv7kmNaai2P5SProtExpNUeTuA6mHUQuLYZo+YjNSABKgRbmGX/bOsLU9
+         jLIv2Old6Zoffc+wDgtK3hx77s6Q7vLBoS4hzTukCc3XPp1tWMcLckLxJ9nOmi2PioUS
+         4Jcu/JIEdm6YsBwjlaBlDlcPFr6xMQaTxv/MT9jgOC9E+YhSZ89bGdg3zHIpGg8QuYeC
+         gK/7I+jv6It8vI8W58A90BxoWhxt7EuK3o6nh/4ykmhGjngD0oawAUfVg0N7Yo6Q1Nh0
+         opbw==
+X-Gm-Message-State: AOAM533PZJDRK7rivL8HWP43b2br+b75U1JrE/z0hJDN6wuqZxGXj69+
+        rBe2Y3f5VLw2aHoEQLgRjVHawHeHKqPDOA==
+X-Google-Smtp-Source: ABdhPJzk1aE3EjZ10xFwHoSgz+t7JlbeXu9vJB68Yi6tCBsFz3LYu7oeeeKg/lsujj5jisTbXKl5uQ==
+X-Received: by 2002:a05:622a:100e:: with SMTP id d14mr10532051qte.143.1620409072691;
+        Fri, 07 May 2021 10:37:52 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id f26sm5386475qtg.17.2021.05.07.10.37.47
+        by smtp.gmail.com with ESMTPSA id f26sm5386475qtg.17.2021.05.07.10.37.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 May 2021 10:37:47 -0700 (PDT)
+        Fri, 07 May 2021 10:37:52 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/3] libsepol/cil: Make name resolution in macros work as documented
-Date:   Fri,  7 May 2021 13:37:42 -0400
-Message-Id: <20210507173744.198858-1-jwcart2@gmail.com>
+Subject: [PATCH 3/3] secilc/docs: Relocate and reword macro call name resolution order
+Date:   Fri,  7 May 2021 13:37:44 -0400
+Message-Id: <20210507173744.198858-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.26.3
+In-Reply-To: <20210507173744.198858-1-jwcart2@gmail.com>
+References: <20210507173744.198858-1-jwcart2@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The CIL Reference Guide specifies how name resolution is suppose
-to work within an expanded macro.
-  1. Items defined inside the macro
-  2. Items passed into the macro as arguments
-  3. Items defined in the same namespace of the macro
-  4. Items defined in the caller's namespace
-  5. Items defined in the global namespace
+The listing of the order was in the macro section, but it belongs
+in the call section.
 
-But Lorenzo Ceragioli <lorenzo.ceragioli@phd.unipi.it> found
-that the first step is not done.
-
-So the following policy:
-  (block A
-    (type a)
-    (macro m ()
-      (type a)
-      (allow a self (CLASS (PERM)))
-    )
-  )
-  (block B
-    (call A.m)
-  )
-will result in:
-  (allow A.a self (CLASS (PERM)))
-instead of the expected:
-  (allow B.a self (CLASS (PERM)))
-
-Now when an expanded call is found, the macro's namespace is
-checked first. If the name is found, then the name was declared
-in the macro and it is declared in the expanded call, so only the
-namespace of the call up to and including the global namespace
-will be searched. If the name is not found in the macro's namespace
-then name resolution continues with steps 2-5 above.
+Move the listing of the order to the call section and provide a
+better explanation.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_resolve_ast.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ secilc/docs/cil_call_macro_statements.md | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index f251ed15..bbe86e22 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -4224,10 +4224,18 @@ static int __cil_resolve_name_with_parents(struct cil_tree_node *node, char *nam
- 			break;
- 		case CIL_CALL: {
- 			struct cil_call *call = node->data;
--			rc = cil_resolve_name_call_args(call, name, sym_index, datum);
--			if (rc != SEPOL_OK) {
--				/* Continue search in macro's parent */
--				rc = __cil_resolve_name_with_parents(NODE(call->macro)->parent, name, sym_index, datum);
-+			struct cil_macro *macro = call->macro;
-+			symtab = &macro->symtab[sym_index];
-+			rc = cil_symtab_get_datum(symtab, name, datum);
-+			if (rc == SEPOL_OK) {
-+				/* If the name was declared in the macro, just look on the call side */
-+				rc = SEPOL_ERR;
-+			} else {
-+				rc = cil_resolve_name_call_args(call, name, sym_index, datum);
-+				if (rc != SEPOL_OK) {
-+					/* Continue search in macro's parent */
-+					rc = __cil_resolve_name_with_parents(NODE(call->macro)->parent, name, sym_index, datum);
-+				}
- 			}
- 		}
- 			break;
+diff --git a/secilc/docs/cil_call_macro_statements.md b/secilc/docs/cil_call_macro_statements.md
+index 352a9fb0..3cc14bf8 100644
+--- a/secilc/docs/cil_call_macro_statements.md
++++ b/secilc/docs/cil_call_macro_statements.md
+@@ -8,6 +8,18 @@ Instantiate a [macro](#macro) within the current namespace. There may be zero or
+ 
+ Each parameter passed contains an argument to be resolved by the [macro](#macro), these can be named or anonymous but must conform to the parameter types defined in the [`macro`](cil_call_macro_statements.md#macro) statement.
+ 
++Macro rules are resolved by searching in the following order:
++
++-   The macro namespace (If found this means that the name was declared in the macro and is now declared in the namespace of one of the parents of the call.)
++
++-   The call arguments
++
++-   The parent namespaces of the macro being called (if any) with the exception of the global namespace.
++
++-   The parent namespaces of the call (if any) with the exception of the global namespace.
++
++-   The global namespace
++
+ **Statement definition:**
+ 
+ ```secil
+@@ -46,18 +58,6 @@ macro
+ 
+ Declare a macro in the current namespace with its associated parameters. The macro identifier is used by the [`call`](cil_call_macro_statements.md#call) statement to instantiate the macro and resolve any parameters. The call statement may be within the body of a macro.
+ 
+-When resolving macros the following places are checked in this order:
+-
+--   Items defined inside the macro
+-
+--   Items passed into the macro as arguments
+-
+--   Items defined in the same namespace of the macro
+-
+--   Items defined in the callers namespace
+-
+--   Items defined in the global namespace
+-
+ [`tunable`](cil_conditional_statements.md#tunable), [`in`](cil_container_statements.md#in), [`block`](cil_container_statements.md#block), [`blockinherit`](cil_container_statements.md#blockinherit), [`blockabstract`](cil_container_statements.md#blockabstract), and other [`macro`](cil_call_macro_statements.md#macro) statements are not allowed in [`macro`](cil_call_macro_statements.md#macro) blocks.
+ 
+ **Statement definition:**
 -- 
 2.26.3
 
