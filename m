@@ -8,117 +8,98 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_NONE,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C3B1C41538
-	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB688C43460
+	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C40A61108
-	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCEBA60FDC
+	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230486AbhEJLWT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 May 2021 07:22:19 -0400
-Received: from m12-12.163.com ([220.181.12.12]:42560 "EHLO m12-12.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234673AbhEJLFP (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id; bh=t3DdB1X/hJYHrSUY2b
-        tJvf6c/WLMsfB7TwGWIpSDb+M=; b=kW4xx/RPC8EYo7QoSZi+42uCjLkIA6iWnR
-        jiYS2kyHQcLJa79ncCUsUR94svogx5dhpK0g5P0aXoBz9dSbYI++zrkq0B80gVbd
-        uVbr7B74F55s8+/baUHZm2oyTnjBGd7h6pwAjXes1MqYmBTHWL5JPc2zujeACdRM
-        PcU4TiZQA=
-Received: from mi-OptiPlex-9020.mioffice.cn (unknown [113.50.48.195])
-        by smtp8 (Coremail) with SMTP id DMCowAAX9bkcE5lg+klMDQ--.28741S2;
-        Mon, 10 May 2021 19:04:08 +0800 (CST)
-From:   liwugang <liwugang@163.com>
+        id S234153AbhEJLWW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 May 2021 07:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45530 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235787AbhEJLGH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 07:06:07 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13713C061761
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:52 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id b25so23798052eju.5
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=XJ/Tgui++NoHALSEhni10Dnq7/+CzyDkdUE2MKOJVn8=;
+        b=QP3a9uhblsu/sQiKJRQ8zeflz3mBBYUh/Kq+743ddIMv14js9u7xGHCK78Z3mhiaoi
+         Qcq2I/DgyYDTngJ7p5aTkQIDaT4BzMVFIWEcsWIKMb8Mp+P85QeDcYeOxN/hEntn4ACy
+         sivzPzo758sX5f1qW2aP6pjDygEVXCGfXJEmVga6Q3fCWI/Y7K+KacwkVrr4ZVYORykm
+         ZD58x9lKgy0JEIt9TVsXNPzN7CDUZQggOafs/CwuKOTpCU9iwaFOMae99gRHuu1mV7Lr
+         Hi66QPjWHxGelXAevi/FGnXtLXRgeg45onus0ak8tL3XqQGnd9p6EPVsOaV8PcdiGx9T
+         TGdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=XJ/Tgui++NoHALSEhni10Dnq7/+CzyDkdUE2MKOJVn8=;
+        b=GKhfleGuQ80s8N0lK80KXOzGDQzPcwj7H+yrDNonYMwPecN2k92w9ky+fSPZjCu2+N
+         4RCyjxvUYhhW8bCuL7Wl96u7x3Zr8tkLIV9JSGrwiA2PsghsV1/7alsE/7X2xQlhi83n
+         nuzX/PZyFNUmFCOxVtEcrvJH5Q6OaGtIX2VFrtmdsiDJz5ABxIkn1m+pCzUVqyMqF6av
+         1dWC3/T4sVceEN5yXNcwH/Ns/S1rWt/QEImEw5/Dz8JN0d8Ls4LY5GtcUBaO4fzUmywl
+         wET7YGGzrgMV3kzJP9MNgBY7PrKBnu5i+UIszQiGDpW2y0PcZl7GB3vZs4r4O8wO0ckq
+         cneQ==
+X-Gm-Message-State: AOAM531ih2NRne7eXUVeUEx3+9PRyleL3F50tukVC3HJYpuYTsuS2xOZ
+        6LX3uuezMcT8Tyo+W7n12oyaf8kEpSEs93lP
+X-Google-Smtp-Source: ABdhPJwn+qw5Y4FkKrN0sa3iO9wHYqis7oKBSHGDbGkcx/jBQO8GWWUzhgRHEffHvrd9c7wlokbMXw==
+X-Received: by 2002:a17:906:4a42:: with SMTP id a2mr25080712ejv.343.1620644210757;
+        Mon, 10 May 2021 03:56:50 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-003-162-005.77.3.pool.telefonica.de. [77.3.162.5])
+        by smtp.gmail.com with ESMTPSA id z17sm8884162eju.65.2021.05.10.03.56.50
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 May 2021 03:56:50 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     liwugang <liwugang@163.com>
-Subject: [PATCH] checkpolicy: fix the leak memory when uses xperms
-Date:   Mon, 10 May 2021 19:03:54 +0800
-Message-Id: <20210510110354.3585-1-liwugang@163.com>
-X-Mailer: git-send-email 2.17.1
-X-CM-TRANSID: DMCowAAX9bkcE5lg+klMDQ--.28741S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxAFy3Kw48Jw13KF1UurWDCFg_yoW5tFy8pr
-        srKrZ7AryUWrWfXrn7Ww4jvr4S93yqkw48GFyxAw47AFy8Zw18WayDAryYyF4rWF95Aa93
-        tFn8Xa1UWaykJFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0ziy89_UUUUU=
-X-Originating-IP: [113.50.48.195]
-X-CM-SenderInfo: 5olz3wxdqjqiywtou0bp/xtbBRgiOs13l-lWCsQAAsT
+Subject: [PATCH 2/3] libselinux: make selinux_status_open(3) reentrant
+Date:   Mon, 10 May 2021 12:56:47 +0200
+Message-Id: <20210510105648.14635-3-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210510105648.14635-1-cgzones@googlemail.com>
+References: <20210510105648.14635-1-cgzones@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In the define_te_avtab_ioctl function:
-1. the parameter avrule_template has been copies to
-new elements which added to avrule list through
-the function avrule_cpy, so it should free avrule_template.
-2. And for rangelist, it does not free the allocated memory.
+Do not mmap the status page again if `selinux_status_open(3)` has already
+been called with success.
 
-The memory leak can by found by using memory sanitizer:
-=================================================================
-==20021==ERROR: LeakSanitizer: detected memory leaks
+`selinux_status_open(3)` might be called unintentionally multiple times,
+e.g. once to manually be able to call `selinux_status_getenforce(3)` and
+once indirectly through `selinux_check_access(3)`
+(since libselinux 3.2).
 
-Direct leak of 10336 byte(s) in 76 object(s) allocated from:
-    #0 0x7f8f96d9cb50 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xdeb50)
-    #1 0x55c2e9447fb3 in define_te_avtab_xperms_helper /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2046
-    #2 0x55c2e944a6ca in define_te_avtab_extended_perms /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2479
-    #3 0x55c2e943126b in yyparse /mnt/sources/tools/selinux/checkpolicy/policy_parse.y:494
-    #4 0x55c2e9440221 in read_source_policy /mnt/sources/tools/selinux/checkpolicy/parse_util.c:64
-    #5 0x55c2e945a3df in main /mnt/sources/tools/selinux/checkpolicy/checkpolicy.c:619
-    #6 0x7f8f968eeb96 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b96)
-
-Direct leak of 240 byte(s) in 15 object(s) allocated from:
-    #0 0x7f8f96d9cb50 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xdeb50)
-    #1 0x55c2e9446cd9 in avrule_sort_ioctls /mnt/sources/tools/selinux/checkpolicy/policy_define.c:1846
-    #2 0x55c2e9447d8f in avrule_ioctl_ranges /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2020
-    #3 0x55c2e944a0de in define_te_avtab_ioctl /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2409
-    #4 0x55c2e944a744 in define_te_avtab_extended_perms /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2485
-    #5 0x55c2e94312bf in yyparse /mnt/sources/tools/selinux/checkpolicy/policy_parse.y:503
-    #6 0x55c2e9440221 in read_source_policy /mnt/sources/tools/selinux/checkpolicy/parse_util.c:64
-    #7 0x55c2e945a3df in main /mnt/sources/tools/selinux/checkpolicy/checkpolicy.c:619
-    #8 0x7f8f968eeb96 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b96)
-
-Signed-off-by: liwugang <liwugang@163.com>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/policy_define.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ libselinux/src/sestatus.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 16234f31..04064af2 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -2400,7 +2400,7 @@ int avrule_cpy(avrule_t *dest, avrule_t *src)
- int define_te_avtab_ioctl(avrule_t *avrule_template)
- {
- 	avrule_t *avrule;
--	struct av_ioctl_range_list *rangelist;
-+	struct av_ioctl_range_list *rangelist, *r, *r2;
- 	av_extended_perms_t *complete_driver, *partial_driver, *xperms;
- 	unsigned int i;
+diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+index 12b015e0..531a522c 100644
+--- a/libselinux/src/sestatus.c
++++ b/libselinux/src/sestatus.c
+@@ -282,6 +282,10 @@ int selinux_status_open(int fallback)
+ 	long		pagesize;
+ 	uint32_t	seqno;
  
-@@ -2458,6 +2458,13 @@ done:
- 	if (partial_driver)
- 		free(partial_driver);
- 
-+	r = rangelist;
-+	while (r != NULL) {
-+		r2 = r;
-+		r = r->next;
-+		free(r2);
++	if (selinux_status != NULL) {
++		return 0;
 +	}
 +
- 	return 0;
- }
- 
-@@ -2484,6 +2491,8 @@ int define_te_avtab_extended_perms(int which)
- 		free(id);
- 		if (define_te_avtab_ioctl(avrule_template))
- 			return -1;
-+		avrule_destroy(avrule_template);
-+		free(avrule_template);
- 	} else {
- 		yyerror("only ioctl extended permissions are supported");
- 		free(id);
+ 	if (!selinux_mnt) {
+ 		errno = ENOENT;
+ 		return -1;
 -- 
-2.17.1
-
+2.31.1
 
