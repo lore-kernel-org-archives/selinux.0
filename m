@@ -8,50 +8,50 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_NONE,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFB43C2D0DB
-	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83139C2B9F7
+	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D8E6610A7
-	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 54D35610A7
+	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231776AbhEJLWU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 May 2021 07:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46326 "EHLO
+        id S233494AbhEJLW0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 May 2021 07:22:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235789AbhEJLGH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 07:06:07 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC99C061760
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:51 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id u21so23760114ejo.13
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:51 -0700 (PDT)
+        with ESMTP id S235795AbhEJLGJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 07:06:09 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC76C061763
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:52 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id a4so23860575ejk.1
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Vuq1hJW/CgCs2Iyd3GifxWbjxDnT2DYZYPgLqiUFbi4=;
-        b=CcQPO1bHyBbD1kql0tfSUy01N8/OKKaPOIa5fWj89sMuTud5Yxb7FV2JmeAHwtLNAl
-         OBIq94qQX6ZXxUfxsHQlovpcfzAvdESsv698lAhplV0k7nhw8OISmNdmEzP4dXyfCymR
-         jz8u+J6HNZaeBDJ71pc6sAaW7EEsYcSPtG4An+9HvGZwGkIugtS0B9DMBBIebb47OfLM
-         TiILmLf92vw0H7RAdGmMbjaoisw7XYCq1IsJYE2gvjkdxxy4IDiONrSAF9Rds8707DKe
-         wULT5d9Hb45LTC0sAj6E8JJ2V/OuLIe3O6cgdyPIBgHSIJIhC0AhxBwlhgykG7TIYhDC
-         SF0w==
+        bh=/rcmJv8nTcbgRLLFgkz6QJI4jGsZ2XdOfQEYgTdv044=;
+        b=rZv1PeoJKGfS0Quz9QXMXLQztBNT+C3YrERUyHnnEOQJXjBkX4BCvOnCpQ1KDXiJ5x
+         oyNnI8yPn9BMYcvjXfqTyJ9l1/xgqVcwqupB/FEE7cwqDUBCOQ9MSTbS22Zq7vpWg4zg
+         21bzlWhZKxcFldQymIYQgMybVLqzp0dGk0QfOD2mFceWfAZsOCLXazpAnNzI2DNMIBiH
+         C8/PccTHyatQJdLPVjPo/6LjuZxL7pfkeuaYTvMThzjD41PTSeWPsfEWrPrlBBMBXcaX
+         E6KYQhP/PUsYA365ZAIggdcOVvhopaa3mH9B/xWXgcqIOoT4cJR33Q9V/R/ixQI2y/fZ
+         1fIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Vuq1hJW/CgCs2Iyd3GifxWbjxDnT2DYZYPgLqiUFbi4=;
-        b=VoSFendQNVJoFTr9NtsEt/bMkSVV6zkoFIIFaS1/xhgL+CSbdm9AaOmFa1qCak+4Yn
-         +n45GZL20KlxIOYm2MMfwWvU1AmEQH5D4h3rtaP61h3lRNxe0DYNMMmUIJG4t1rKo9Wm
-         9dfZ5vcLf3aDwP3B0E44nykBOIFH2KuNo6X0J0ktWdm0aUCM4+MYDuyh4YJPUcT/9LTg
-         rkba54Q4WoZdYV23BztzTee8EgJ+dqLT/q4FyvM7COydINiFICl330+bsQGjcL0malYv
-         Xp0H2ss4LOWfPmdngjqf7CWUnHrvF97EbDbN1EUp9JZaC2/c4Pb6WWDJyDQRlQ6FdPN/
-         F91w==
-X-Gm-Message-State: AOAM531YiC5ZUXV+3a/xjHlJTzEAsyrkEsgSSkRcXbBR7u2losE9tqE2
-        yFXBBlsJ6djS0+wxlAJHw8Y99K0ZWzpuZCaa
-X-Google-Smtp-Source: ABdhPJw2XMJl01BOUMffbp8CPMimUYJZssKDIm/G9DC37g35hpCYYgYZulmupr73JCNAwttm42Fuxw==
-X-Received: by 2002:a17:907:294f:: with SMTP id et15mr25506762ejc.324.1620644210494;
-        Mon, 10 May 2021 03:56:50 -0700 (PDT)
+        bh=/rcmJv8nTcbgRLLFgkz6QJI4jGsZ2XdOfQEYgTdv044=;
+        b=ZJkYKhwLSBbzuykM0kbEr1662DJwZeTpba7ydk1e2jT4TqyisUP4/C1ky9VcKMsweo
+         hCfxD3TU2LG6DU2XdjZGM+S0KtLVMb4PmdHnQMeR/tLZel1WhUvIA/GZHWJ+zgRona2N
+         qY1Rt4qVrmjTcxyRiTRGeDCd74tznBrpBu3jpeO1BjngyXJlEH+MM34cK49+S1m7IKN7
+         00t/o0utVWSqqK9Nqk8YEjwUKjoFsBgnLp7lfJvJGkDYThdwhRiiqc9tBvFEXbFkupuJ
+         ORzMoPyC4OFAV8m3T6VQcPekLZKPx5Mp4fYn5ol+Pc1b4U20CMRC+1KQFmCPG6fJftKD
+         FVig==
+X-Gm-Message-State: AOAM53264LWfhGHDCHYoGhDGufsHeAwUoXnaDlAlW6lLmSqfPWZXF5md
+        VUu1PQw7LTn8KGAif5ZPr15EiSV0JiuUQMMC
+X-Google-Smtp-Source: ABdhPJwFcpM3P/SXEvDGOjeqO2qHVXbtI4AiJjA7qwLH0oQncDpiEDEmazqqNUxfzA9ugZV83VbTkw==
+X-Received: by 2002:a17:907:20f7:: with SMTP id rh23mr24580928ejb.276.1620644211028;
+        Mon, 10 May 2021 03:56:51 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-003-162-005.77.3.pool.telefonica.de. [77.3.162.5])
         by smtp.gmail.com with ESMTPSA id z17sm8884162eju.65.2021.05.10.03.56.50
         for <selinux@vger.kernel.org>
@@ -59,9 +59,9 @@ Received: from debianHome.localdomain (dynamic-077-003-162-005.77.3.pool.telefon
         Mon, 10 May 2021 03:56:50 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/3] libselinux: avc_destroy(3) closes status page
-Date:   Mon, 10 May 2021 12:56:46 +0200
-Message-Id: <20210510105648.14635-2-cgzones@googlemail.com>
+Subject: [PATCH 3/3] libselinux: do not use status page fallback mode internally
+Date:   Mon, 10 May 2021 12:56:48 +0200
+Message-Id: <20210510105648.14635-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510105648.14635-1-cgzones@googlemail.com>
 References: <20210510105648.14635-1-cgzones@googlemail.com>
@@ -72,29 +72,44 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Mention in the manpage of avc_destroy(3) that it does close the SELinux
-status page, which might have been opened manually by the client
-application.
+Currently `avc_init_internal()`, called by `avc_open(3)` and
+`avc_init(3)`, does open the SELinux status page with fallback mode
+enabled.
+
+Quote from man:selinux_status_open(3):
+    In this case, this function tries to open a netlink socket using
+    .BR avc_netlink_open (3) and overwrite corresponding callbacks
+    (setenforce and policyload).  Thus, we need to pay attention to the
+    interaction with these interfaces, when fallback mode is enabled.
+
+Calling `selinux_status_open` internally in fallback mode is bad, cause
+it overrides callbacks from client applications or the internal
+fallback-callbacks get overridden by client applications.
+Note that `avc_open(3)` gets called under the hood by
+`selinux_check_access(3)` without checking for failure.
+Also the status page is available since Linux 2.6.37, so failures of
+`selinux_status_open(3)` in non-fallback mode should only be caused by
+policies not allowing the client process to open/read/map
+the /sys/fs/selinux/status file.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/man/man3/avc_open.3 | 3 +++
- 1 file changed, 3 insertions(+)
+ libselinux/src/avc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libselinux/man/man3/avc_open.3 b/libselinux/man/man3/avc_open.3
-index 3090dd50..55683bb6 100644
---- a/libselinux/man/man3/avc_open.3
-+++ b/libselinux/man/man3/avc_open.3
-@@ -26,6 +26,9 @@ initializes the userspace AVC and must be called before any other AVC operation
- destroys the userspace AVC, freeing all internal memory structures.  After this call has been made, 
- .BR avc_open ()
- must be called again before any AVC operations can be performed.
-+.BR avc_destroy ()
-+also closes the SELinux status page, which might have been opened manually by
-+.BR selinux_status_open (3).
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index 8314d7ba..daaedbc6 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -214,7 +214,7 @@ static int avc_init_internal(const char *prefix,
+ 		avc_enforcing = rc;
+ 	}
  
- .BR avc_reset ()
- flushes the userspace AVC, causing it to forget any cached access decisions.  The userspace AVC normally calls this function automatically when needed, see
+-	rc = selinux_status_open(1);
++	rc = selinux_status_open(0);
+ 	if (rc < 0) {
+ 		avc_log(SELINUX_ERROR,
+ 			"%s: could not open selinux status page: %d (%s)\n",
 -- 
 2.31.1
 
