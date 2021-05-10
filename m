@@ -4,112 +4,121 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_NONE,USER_AGENT_GIT autolearn=ham
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_NONE,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B03AC47090
-	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C3B1C41538
+	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08DCD61026
-	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C40A61108
+	for <selinux@archiver.kernel.org>; Mon, 10 May 2021 11:21:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232013AbhEJLWU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 May 2021 07:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235764AbhEJLGE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 07:06:04 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7962CC06175F
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:51 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id j26so14499706edf.9
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 03:56:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=y2aT6UagI7ywkM4BJI0sKc+mPlqXh0V87uCcnB78AK0=;
-        b=CDTqUUu8r6l3LumLRIUntQgmjR2Zw4cXr+9lybLi3C1nTFknq73O1017k0XxSWhlkb
-         HtvsSkBOhE8uX2EqLNb6qL2wsAAbXTmQNTn4X/XnT7/73khiWFo1v1oU4P8kTY8HSNuT
-         GGgMF4D7jFrzATezIXd31Zt5NADYUtXhR57tdlzmdH958LDkGVmjdu8ijrHqG1mRl0t5
-         JSbGKqRew0L3sh1XbHgc6wiSKZtLP1trGgvCMmHF1GnptnluHJWuh05cqx1xip0S48YS
-         OkjiT/dt8On+83geX3Yecw/A3mwNcrcr2/dlDptGd9MBtFtqnknzA0CBDwWsUkywu+G6
-         3z0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=y2aT6UagI7ywkM4BJI0sKc+mPlqXh0V87uCcnB78AK0=;
-        b=gWubakGCULfK7OBp74vrmTxjmRTrDiSmJK2+rogR3Ib4F54fWqq52Kgx8eMY0+eAS0
-         Ebpb+Ss+OtYW//j8OS5UPRjxFsqGySQcYIgML/PrYVETI8vHZJzjD14mwa/A6te7KU4g
-         fzPh8GlYS3jKLkfv0geHUAZveKQ5Fu7Z8TkoLCYmsi+ySv+o5hjt9aVsG6fGXsKyTSI1
-         q9sjBz349wuNiUtTt8sAM4JEPkqW0mM6ZPUnFru9ohx3ER20HluxScKES4YPgEauF51h
-         wLrOE2JN+tr02b2sEwJDFQK426OopfxCmQPFTFGhP+Ng/e4hj5aVu3zMwbQC1/IHiimE
-         EPaA==
-X-Gm-Message-State: AOAM5310raTUE9zRGqCtH7P/GdLQyOX0sBpwXmdrbUEVX2syAr1ngOfW
-        5kZm4//15yrsywhbR2eYrE6NMOdstUkZkTFz
-X-Google-Smtp-Source: ABdhPJwhtA/gEkyec181ia0ezm88XQy7CqOqNZ3BInXdpXAOGCaPJ1hUQaN4tafEOZXUpDG03h354g==
-X-Received: by 2002:a05:6402:36d:: with SMTP id s13mr28973144edw.103.1620644210221;
-        Mon, 10 May 2021 03:56:50 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-003-162-005.77.3.pool.telefonica.de. [77.3.162.5])
-        by smtp.gmail.com with ESMTPSA id z17sm8884162eju.65.2021.05.10.03.56.49
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 03:56:50 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+        id S230486AbhEJLWT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 May 2021 07:22:19 -0400
+Received: from m12-12.163.com ([220.181.12.12]:42560 "EHLO m12-12.163.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234673AbhEJLFP (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id; bh=t3DdB1X/hJYHrSUY2b
+        tJvf6c/WLMsfB7TwGWIpSDb+M=; b=kW4xx/RPC8EYo7QoSZi+42uCjLkIA6iWnR
+        jiYS2kyHQcLJa79ncCUsUR94svogx5dhpK0g5P0aXoBz9dSbYI++zrkq0B80gVbd
+        uVbr7B74F55s8+/baUHZm2oyTnjBGd7h6pwAjXes1MqYmBTHWL5JPc2zujeACdRM
+        PcU4TiZQA=
+Received: from mi-OptiPlex-9020.mioffice.cn (unknown [113.50.48.195])
+        by smtp8 (Coremail) with SMTP id DMCowAAX9bkcE5lg+klMDQ--.28741S2;
+        Mon, 10 May 2021 19:04:08 +0800 (CST)
+From:   liwugang <liwugang@163.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 0/3] libselinux: quirks of the status page
-Date:   Mon, 10 May 2021 12:56:45 +0200
-Message-Id: <20210510105648.14635-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Cc:     liwugang <liwugang@163.com>
+Subject: [PATCH] checkpolicy: fix the leak memory when uses xperms
+Date:   Mon, 10 May 2021 19:03:54 +0800
+Message-Id: <20210510110354.3585-1-liwugang@163.com>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID: DMCowAAX9bkcE5lg+klMDQ--.28741S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxAFy3Kw48Jw13KF1UurWDCFg_yoW5tFy8pr
+        srKrZ7AryUWrWfXrn7Ww4jvr4S93yqkw48GFyxAw47AFy8Zw18WayDAryYyF4rWF95Aa93
+        tFn8Xa1UWaykJFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0ziy89_UUUUU=
+X-Originating-IP: [113.50.48.195]
+X-CM-SenderInfo: 5olz3wxdqjqiywtou0bp/xtbBRgiOs13l-lWCsQAAsT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dominick Grift made me over IRC aware of the issue that systemd on
-Fedora 34 no longer updates its selabel database automatically on
-SELinux policy reloads.
-The issue is caused by libselinux 3.2 defaulting to use the status page
-instead of a netlink socket for reload/enforcing change queries[1].
-I prepared a patch for systemd over at [2].
+In the define_te_avtab_ioctl function:
+1. the parameter avrule_template has been copies to
+new elements which added to avrule list through
+the function avrule_cpy, so it should free avrule_template.
+2. And for rangelist, it does not free the allocated memory.
 
-While writing the patch I noticed two possible issues:
+The memory leak can by found by using memory sanitizer:
+=================================================================
+==20021==ERROR: LeakSanitizer: detected memory leaks
 
-1. selinux_status_open(3) is not reentrant
-selinux_status_open() unconditionally calls mmap(2), regardless whether
-the page is already opened.
-selinux_status_open() might get called multiple times by a client
-application unintentionally, e.g. once manually to be able to call
-selinux_status_updated(3) and react to changes, and indirectly by
-calling selinux_check_access(3), which calls avc_open(3), which since
-3.2[1] also calls selinux_status_open().
+Direct leak of 10336 byte(s) in 76 object(s) allocated from:
+    #0 0x7f8f96d9cb50 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xdeb50)
+    #1 0x55c2e9447fb3 in define_te_avtab_xperms_helper /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2046
+    #2 0x55c2e944a6ca in define_te_avtab_extended_perms /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2479
+    #3 0x55c2e943126b in yyparse /mnt/sources/tools/selinux/checkpolicy/policy_parse.y:494
+    #4 0x55c2e9440221 in read_source_policy /mnt/sources/tools/selinux/checkpolicy/parse_util.c:64
+    #5 0x55c2e945a3df in main /mnt/sources/tools/selinux/checkpolicy/checkpolicy.c:619
+    #6 0x7f8f968eeb96 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b96)
 
-2. In fallback mode selinux_status_open(3) sets internal callbacks
-If selinux_status_open() gets called with fallback enabled and the
-fallback is actually used, it sets the two callbacks for
-SELINUX_CB_SETENFORCE and SELINUX_CB_POLICYLOAD.
-These might be later overridden by client applications, which want to
-install their own callbacks.
-avc_open(3) since 3.2 calls selinux_status_open() with fallback mode
-enabled.
+Direct leak of 240 byte(s) in 15 object(s) allocated from:
+    #0 0x7f8f96d9cb50 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xdeb50)
+    #1 0x55c2e9446cd9 in avrule_sort_ioctls /mnt/sources/tools/selinux/checkpolicy/policy_define.c:1846
+    #2 0x55c2e9447d8f in avrule_ioctl_ranges /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2020
+    #3 0x55c2e944a0de in define_te_avtab_ioctl /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2409
+    #4 0x55c2e944a744 in define_te_avtab_extended_perms /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2485
+    #5 0x55c2e94312bf in yyparse /mnt/sources/tools/selinux/checkpolicy/policy_parse.y:503
+    #6 0x55c2e9440221 in read_source_policy /mnt/sources/tools/selinux/checkpolicy/parse_util.c:64
+    #7 0x55c2e945a3df in main /mnt/sources/tools/selinux/checkpolicy/checkpolicy.c:619
+    #8 0x7f8f968eeb96 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b96)
 
-[1]: https://github.com/SELinuxProject/selinux/commit/05bdc03130d741e53e1fb45a958d0a2c184be503
-[2]: https://github.com/systemd/systemd/pull/19551
+Signed-off-by: liwugang <liwugang@163.com>
+---
+ checkpolicy/policy_define.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Christian Göttsche (3):
-  libselinux: avc_destroy(3) closes status page
-  libselinux: make selinux_status_open(3) reentrant
-  libselinux: do not use status page fallback mode internally
-
- libselinux/man/man3/avc_open.3 | 3 +++
- libselinux/src/avc.c           | 2 +-
- libselinux/src/sestatus.c      | 4 ++++
- 3 files changed, 8 insertions(+), 1 deletion(-)
-
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 16234f31..04064af2 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -2400,7 +2400,7 @@ int avrule_cpy(avrule_t *dest, avrule_t *src)
+ int define_te_avtab_ioctl(avrule_t *avrule_template)
+ {
+ 	avrule_t *avrule;
+-	struct av_ioctl_range_list *rangelist;
++	struct av_ioctl_range_list *rangelist, *r, *r2;
+ 	av_extended_perms_t *complete_driver, *partial_driver, *xperms;
+ 	unsigned int i;
+ 
+@@ -2458,6 +2458,13 @@ done:
+ 	if (partial_driver)
+ 		free(partial_driver);
+ 
++	r = rangelist;
++	while (r != NULL) {
++		r2 = r;
++		r = r->next;
++		free(r2);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -2484,6 +2491,8 @@ int define_te_avtab_extended_perms(int which)
+ 		free(id);
+ 		if (define_te_avtab_ioctl(avrule_template))
+ 			return -1;
++		avrule_destroy(avrule_template);
++		free(avrule_template);
+ 	} else {
+ 		yyerror("only ioctl extended permissions are supported");
+ 		free(id);
 -- 
-2.31.1
+2.17.1
+
 
