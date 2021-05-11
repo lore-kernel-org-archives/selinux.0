@@ -7,77 +7,98 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84E15C43460
-	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:43:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23112C433ED
+	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:49:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E8966162C
-	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:43:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBC7E616E8
+	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230386AbhEKBoN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 May 2021 21:44:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45930 "EHLO
+        id S230383AbhEKBun (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 May 2021 21:50:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230353AbhEKBoL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 21:44:11 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24FB0C06175F
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:43:05 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id s6so20903269edu.10
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:43:05 -0700 (PDT)
+        with ESMTP id S230023AbhEKBun (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 21:50:43 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95280C06175F
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:49:36 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id s7so16259297edq.12
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:49:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=EEU2XINPvxpif27cloGyU3+maD+1yosQV8skN3ngj+c=;
-        b=qebFkT5WoXwc0JDSy73J/CT/GiXF0CG4nWFbLQfsalTDTv1rnAW3qQ9TfEHxAxyLpp
-         iRs9hHawnTzm0KY9y908SSWxYAMQoDpMi0sxUsrWcRdBWzv6JXLV5osZniXxGxi/L3Dq
-         entDR12h5kB1EJdGVx6etkzL08KkdcHJhdXH7+nJ3XxhYGu0yahZkhmLOfgMbUo4Ace6
-         tvNdxwIBuoAi3EPH6+0eFzwRIEgJgSSuuK2KgfeS44NQjkkzfvYB5vV5ZhlatxBT7OT1
-         av9xkMrlj3WyDgThY+3LjLD0Qdoh1mROSz7/evYHa3XtxYX0UTQadY+83mNQPAj5KfJq
-         BpDg==
+        bh=GC+jcwYuSlGwJ2d485mepP4KelpwOyaTe94c08xajfQ=;
+        b=xZeeTRD1Py3Ep5O8bkGrjjCbMORAPBblaI9SG5G7RNQvcwF81lU7VKMHEEx/RZbbis
+         H+eTlm5BQh3XW4suI5xn6He5ui1geRSvdmxGw4kDXGHZMKzThcUNQBrc+QPsOjF7ecNi
+         X3Ks+DVHKy+IDRyoi+WPFcJLy86hLZar9QnLg9lHmteELQIN38+03VEyGnZOpOfUBFEr
+         iibOmzhCeqDu4tLZCsCNDGf622ynCiSOu+5B6xFKtD7kxriPKDFGNwFqs8a/FQOAV/PT
+         eoJMf0C+Q7LrtUzVpQk4L8TK50IWSjEPOjPhbzqV2bBicMp2n2Ty6nLRMnISFyJfAxqm
+         huCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=EEU2XINPvxpif27cloGyU3+maD+1yosQV8skN3ngj+c=;
-        b=LdG+txxkVkHx/0sEUHDuKap82YlOwLVIJ9XsFWHzoYh9BVjCNHISMgSStFjR7w3AsO
-         +An4MsWjYrNdLFZI227Cg8pKwQ/OYLU66m1ONlAUK9sosGng+j6RC8fIIm4MhqvdllES
-         xgJ/m6dXeg4KewpsKKG0NfBNOzum87urePxNeuNe+X2TpBd11FJODzW/CQQgaM+yStFT
-         ZRyVbqXLngRvEKmpq0xTI2fji0hgl/UrZ5VL2DS/LvjAMfN7W3WK87puMh5tijscahDJ
-         YoLxaUqdv9TlISGtFOfTDmZ6SyruYGFUPDlMWgg2v75LVxFEPH34bSkOFcnyqPLMkHn7
-         10TA==
-X-Gm-Message-State: AOAM530f/wxA2XAU4AHMDIatOdT7B0v6xC8yvXyzJti7CTJcKc8inQhX
-        XPoagojUwJwE4b8PEpJyc+fQ6+ZCdwF12HTuRTgO
-X-Google-Smtp-Source: ABdhPJzlZfrvrng9EKXKYI2ccD1ACNjUAx6WBrA4muVbPpFgoo+d7uP3vIzMNuW/aJocugCvTLH7zJH+jLeg1BmiR0M=
-X-Received: by 2002:a05:6402:b2c:: with SMTP id bo12mr33179453edb.196.1620697383831;
- Mon, 10 May 2021 18:43:03 -0700 (PDT)
+        bh=GC+jcwYuSlGwJ2d485mepP4KelpwOyaTe94c08xajfQ=;
+        b=pKBQWxl/TTHcECSGNXUnbxwJaKnBXGizbiUfCDuM82SoUtneBvhJWORr3m9kvvWATm
+         UIFGw2MF9AonqgqnVGca8wHlpccXb2fHXEjvY/vlr4EzxYk63qoFTnJp0JzbHqsVtJTm
+         +MV6nMuv6AkLuSQv2ilkh6xMCM0NG0RLalnSksQ4b6aRI6G9V/TpD6JfhMSLhqAf1+06
+         4UyzDfTQA8mM3SjJmUJOcHXP9V/ea2m5hx1G6QKV1c+vuW/kW8vC1Wi7iYs3d0mvONke
+         s/o0ekkNZfOp2GkdYCTzCOCHbKVLPNBKQwbYLrSpfE/Q7ReHQoayfH3FTytuoAmYUwhN
+         3F8g==
+X-Gm-Message-State: AOAM530OyYNBNYiYteRWUOcSirPck/4W4FvQkrJVgMoDMZ0U2KAtLhpb
+        sIYXtHQw+vQtn5EYjMBxW9ynxlt/9kScM0rpgjK0lmCRuEFy
+X-Google-Smtp-Source: ABdhPJwjVnamGG/jYjAW0Ym/j+pyybJ9iee8648B3crpa2HR6Of28omAtKhJZFw8AuC+pWNa7k/q/lNaLnMvtk51mew=
+X-Received: by 2002:aa7:de9a:: with SMTP id j26mr10088284edv.269.1620697775288;
+ Mon, 10 May 2021 18:49:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <1619339737-4824-1-git-send-email-jrdr.linux@gmail.com>
-In-Reply-To: <1619339737-4824-1-git-send-email-jrdr.linux@gmail.com>
+References: <1619604015-117734-1-git-send-email-jiapeng.chong@linux.alibaba.com>
+In-Reply-To: <1619604015-117734-1-git-send-email-jiapeng.chong@linux.alibaba.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 10 May 2021 21:42:53 -0400
-Message-ID: <CAHC9VhRs8rtCfi6jZVPZTvu0uOG5BzBHCjoeg9AXRXkt_ume7A@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: Corrected comment to match kernel-doc comment
-To:     Souptick Joarder <jrdr.linux@gmail.com>
+Date:   Mon, 10 May 2021 21:49:24 -0400
+Message-ID: <CAHC9VhSxDoxnKrw+bZQ18YVMm56ajza4wzFv=3L3SZf7qd5QgA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Remove redundant assignment to rc
+To:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, rdunlap@infradead.org
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Apr 25, 2021 at 4:35 AM Souptick Joarder <jrdr.linux@gmail.com> wrote:
+On Wed, Apr 28, 2021 at 6:00 AM Jiapeng Chong
+<jiapeng.chong@linux.alibaba.com> wrote:
 >
-> Minor documentation update.
+> Variable rc is set to '-EINVAL' but this value is never read as
+> it is overwritten or not used later on, hence it is a redundant
+> assignment and can be removed.
 >
-> Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-> Cc: Randy Dunlap <rdunlap@infradead.org>
+> Cleans up the following clang-analyzer warning:
+>
+> security/selinux/ss/services.c:2103:3: warning: Value stored to 'rc' is
+> never read [clang-analyzer-deadcode.DeadStores].
+>
+> security/selinux/ss/services.c:2079:2: warning: Value stored to 'rc' is
+> never read [clang-analyzer-deadcode.DeadStores].
+>
+> security/selinux/ss/services.c:2071:2: warning: Value stored to 'rc' is
+> never read [clang-analyzer-deadcode.DeadStores].
+>
+> security/selinux/ss/services.c:2062:2: warning: Value stored to 'rc' is
+> never read [clang-analyzer-deadcode.DeadStores].
+>
+> security/selinux/ss/policydb.c:2592:3: warning: Value stored to 'rc' is
+> never read [clang-analyzer-deadcode.DeadStores].
+>
+> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+> Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 > ---
->  security/selinux/avc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  security/selinux/ss/policydb.c | 1 -
+>  security/selinux/ss/services.c | 4 ----
+>  2 files changed, 5 deletions(-)
 
-Merged into selinux/next, thanks everyone.
+Merged into selinux/next, thanks.
 
 -- 
 paul moore
