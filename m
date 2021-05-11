@@ -7,58 +7,57 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 147D5C433ED
-	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DB4AC433ED
+	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:36:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C938F61623
-	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:34:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 001F46162E
+	for <selinux@archiver.kernel.org>; Tue, 11 May 2021 01:36:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229920AbhEKBfm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 May 2021 21:35:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44014 "EHLO
+        id S230061AbhEKBh3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 May 2021 21:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229628AbhEKBfm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 21:35:42 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B75DC061574
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:34:36 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id b25so27267396eju.5
-        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:34:36 -0700 (PDT)
+        with ESMTP id S230023AbhEKBh3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 May 2021 21:37:29 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2C4C061574
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:36:22 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id gx5so27273446ejb.11
+        for <selinux@vger.kernel.org>; Mon, 10 May 2021 18:36:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=y6ufyLjYEex5aN+DFjzjDFHTD06N7OWtffrZX+Hg2+M=;
-        b=HhDyopFWLxwJ666wRKPYXT+Hq5GBeKh/IQtz1CV/50gEtd3GOnXCamBvP806hLePtS
-         MsgsLigqkzjLworUCcgO2fIwI/mIv6WEewB4Zavl+eATfeJTHBaz3zhUZXQJkGp+4zCq
-         KdNhu0YmPvGdb43bnyOXNe44EhjxAk14/vkoPyl0WBUtnrrWlleQkqydMW84nqR2HfST
-         ONvDTadk+xxslBpAUjYvzqku2pjXbwYDX2c6QXPYkxw7fpr4wZgjrGRjCJz2l7/Zc52I
-         Qrt8gFJbTqNOcMp+axx/j8gMUIM+YCbhI4Vy8HKIsWtoRxUX9fSk04IHRvcM4tWoaTi4
-         RXxg==
+        bh=4y9mRbTc3PZn2/dLr9BQkpDZblFapqpB9t0gbDEudvg=;
+        b=AWLLJ24fPEd5sQH+sAWQN0mnc/TWhOKxkUYNOhOf1vHtrEnH4XawGf0UOmZeja9w/D
+         KAmjheML3NkjGKig/trVFn4XksFAf2k/M1+thszhYFhp3bdgnkh7NWECF5+8Mo+0lakp
+         ez3bAJMOzRHuiY8ieJ29NoHZNgvqR5SU2FpKUQijJXS+KdS8f3YEyqZih31Xg7FkjpBb
+         GYOLqcsaoVJT7Nboy79fmK5H9a8R4vnly3fWFt4M9lr3uZg+ryk3IngQFhnmKRG8S6ml
+         R46j3EdPd0QcW6CT1QCkB3xu3AP7bUlpCY+nG7tdHwVginbO7b3lAfD1arEJVue2wYAm
+         420w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=y6ufyLjYEex5aN+DFjzjDFHTD06N7OWtffrZX+Hg2+M=;
-        b=djMTC96Im6iA6B66lKF0Eu5Yn/y7rd34Zn0jSuZRzGPWgDNbkskkTnA7llwL815Gco
-         h15ZeaHe030O4kNYIrxCgiBIoiD4naacPn2CDl2VlIZNJXL2c65Un+w975K6y2N5BsVo
-         ++Ec2VktD2ifw1eRSbHyKixkdNOb+/JwrUab4V6V/lJG/V0APVTYUAI82Ee5EQafcQsp
-         JQ4zwAkm0qJrzo/Chtr0e+7Qhqv3MnwXZC+iUPgb6cksIGq4cOSuw9TNoy5gvpV/pMM/
-         SMbozBp6eiAfjw0+mruJlqZPmKJcyqs1mA+FxS6j7MoA6wqZ+JBwp2aR0yI7/5gtFKs4
-         hXyw==
-X-Gm-Message-State: AOAM531i03oo5LwBBOUMMJAwDF70byTRgqZvkcIPFNWnPx/baXr9pbUx
-        RKnZuPXRy0yZePho9e9LX6/MuFDhd3Rkq44A9TNG
-X-Google-Smtp-Source: ABdhPJyOqhx/ssF/I+/EChp5VN8xClVMM6LsqNtALrsGAYuchLNsDrLnaPcs8be9tcag0abWhlqrWWkZ/5vuXTZUkjo=
-X-Received: by 2002:a17:906:2510:: with SMTP id i16mr28702968ejb.488.1620696875283;
- Mon, 10 May 2021 18:34:35 -0700 (PDT)
+        bh=4y9mRbTc3PZn2/dLr9BQkpDZblFapqpB9t0gbDEudvg=;
+        b=IA2FXBUzPqI+QUUe3BMtEYgrMBdoZz5l5v6eh+yluyT6cngFAB7rBKAcjt6Fy2bGMX
+         s4s8wHgFGoT0ABOanvi8jmG6du1WRdVCz8Iog2CBDlfKDnaCgY8i7+uJR2m3O//74BWP
+         MzTB31doFjHG28/YMsUSaG+9GzmLXdS2kXxNw1DqH28/fixph2YznEbWtMkur5X3TVSO
+         gIMjgNug9Kg+YaBRNLpBcgawjWsHScHEqx6/pluiApCIBNGuJDzvjV/pU3A8GMPdxtu9
+         bhohNomQs8kQJQjjclRh3Uw8PDYGd9lzCsofnceBjuSTq5dgdTkjCdEWsQH3bXytFiql
+         HleQ==
+X-Gm-Message-State: AOAM532gN44KSK7wNsppc93Ld2uSXGfZ62cDaGnvrzDgAE4po5DwLeGz
+        HxkNhok35HIbwgayOdAak4vWpvZ35GnbeuZMyHhk
+X-Google-Smtp-Source: ABdhPJxcsDZshiNY2t1VSIvwLEUAHHsXTMhJzFhnChEM6dq6dGToshDz7ekKDs1c6ORcGuwbBPognWv+dRX3bXoob18=
+X-Received: by 2002:a17:906:bce7:: with SMTP id op7mr27775673ejb.398.1620696981330;
+ Mon, 10 May 2021 18:36:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210330131646.1401838-1-omosnace@redhat.com> <20210330131646.1401838-3-omosnace@redhat.com>
-In-Reply-To: <20210330131646.1401838-3-omosnace@redhat.com>
+References: <20210330131646.1401838-1-omosnace@redhat.com> <20210330131646.1401838-4-omosnace@redhat.com>
+In-Reply-To: <20210330131646.1401838-4-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 10 May 2021 21:34:24 -0400
-Message-ID: <CAHC9VhTs29CWGOxvi38hwkRB6WocESOz48JmyS9QPeyoMMJ4Ew@mail.gmail.com>
-Subject: Re: [PATCH 2/3] selinux: simplify duplicate_policydb_cond_list() by
- using kmemdup()
+Date:   Mon, 10 May 2021 21:36:10 -0400
+Message-ID: <CAHC9VhTHEd-y+3WKRyX8x=ydD=+cum-_5CXiH=NYv=jAR4N8mw@mail.gmail.com>
+Subject: Re: [PATCH 3/3] selinux: constify some avtab function arguments
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     selinux@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>
@@ -69,15 +68,16 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Tue, Mar 30, 2021 at 9:16 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> We can do the allocation + copying of expr.nodes in one go using
-> kmemdup().
+> This makes the code a bit easier to reason about.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  security/selinux/ss/conditional.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
+>  security/selinux/ss/avtab.c       | 28 +++++++++++++++-------------
+>  security/selinux/ss/avtab.h       | 16 +++++++++-------
+>  security/selinux/ss/conditional.c |  3 ++-
+>  3 files changed, 26 insertions(+), 21 deletions(-)
 
-Merged into selinux/next, thanks.
+Mered into selinux/next, thanks.
 
 -- 
 paul moore
