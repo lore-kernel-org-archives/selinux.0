@@ -5,79 +5,81 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6723C43460
-	for <selinux@archiver.kernel.org>; Thu, 13 May 2021 20:33:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B66F4C433ED
+	for <selinux@archiver.kernel.org>; Thu, 13 May 2021 20:34:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86E826143D
-	for <selinux@archiver.kernel.org>; Thu, 13 May 2021 20:33:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C26861287
+	for <selinux@archiver.kernel.org>; Thu, 13 May 2021 20:34:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232975AbhEMUew (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 May 2021 16:34:52 -0400
-Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:42443
+        id S233040AbhEMUf5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 May 2021 16:35:57 -0400
+Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:41249
         "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232977AbhEMUew (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 May 2021 16:34:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1620938021; bh=7AWaAxB0PKweU7mi6NHi1EuujLQHl/tfii/ELfp3KOg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=PT3CXxrTA2C0RZygmJrktik1Pki5Gbb+ektgKTvZvwv5ISzLnagFT0wuPgtUasvbHY4N8yQyWEo+NWz+l1OVvnmX8iakLoM8Tqeyw/pYHSJq/jZY75I0ai77uDa9budRQtTFhCpvFtgcqHJRFtfdv6poHLgpgEuXsJ62yJvul6WFUuYYHbDKroUA6C4Zozp9ah/suWVlxXGUQ3xd+LEgNP43Wy0SkYGQR8FyrlKtxTMmLoN0eOWu1iX3DjDV/P4yBCp1tSYmZqvV59yiwfbSKMeP91VGJCtYnA4AwoNyKXa0NheqwMkpAbboxpqs10IS+SFc3VjnDSQYWFLX0M2pbw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1620938021; bh=fiCQaKYiWZAWC2nUv5KZOn4t/qLgHtEwW0z50qYqFC6=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=HSSPcglWxBQXfBTp8ikmKxKwBALseYEYJb82WgBsfV8j1D/Pl9z54u/2K7GmaBQSPd9oBzeXsscIUtINtqIEFnovf6wUEN2+XW/JWGBQ3Fso7CTWZI3wCV6GK8HIOUm9EhMSQUVEiuWbSeG50VW9xQt4NTaH3gFC0nsbzOoqaX+GZsyYfJ4lUiBzyZ11RHI5/szX6YhKJ6GaP7IE26Zhsz45dcKDOQRoUJtKQN3OMXBlnS6hyPuPFbZQ+3iS9kZN4uk7MxVjnCfJ59bx7IyTzX87vNP81N3da6cIofIIw0hJhNlKWw5yEzXvxHgAMjinTG8HQLw6p4+A/jIa/CALLA==
-X-YMail-OSG: UAp4DLgVM1lbWvApswB2oghFN6xC4RElwTXWKCnTdHsVwqe38eG9tmeR1DmVR6G
- wywhnX4FdSZCIuFPhySSk4Q5YDFNgVQuF668BRBHQKxHjyGF.hcyKbxbx4vu2AOStdOAqK5Bcufx
- Nuwo0HjFIvjlWrPax1O9_7jv.1GfWQa9njingSNCPcUuaZmKsxIb1zG5.k5yWAX0hu4ptx6O8KPR
- JZyORmqwloThfk3i_h.bvi_QPyxFInr0JDpflrHstoUEGj2_KpRdpiKXO7x1NOeoxiN87usfe_yM
- ykDjMIXPot3lHvcowUzEA4vV5LJRnbZEs.dXb9Hsm9clYQDBKh_j7vDbf.fzERdZqz59jNgDCq3J
- wjUllEAw3TZSEk.ItfaXu1jWtAp50vhFBKhktcYjov46cNBS8fYUZ2j3qyS.ktdrfZCATPvS8ooq
- XVijYBeQtUJHrxhQaN98dgWZXCpYp25jjrhbI30glfRM8Fk5sx3aucZ0ZnjeW2pCmiYHClPL.CY4
- kePoztzBbju8Z0IK0YlW0sarMO.IgcuJKNGPkZGdqlLcjUkPHTuQ.2kvMEmhtgR_VCMQ4cJMYTf.
- SgSX.xY05bxxbUMR0nXIekEhH1rnxCwJOurOK_s_SihWPoiR09syBj0K1BP.w4SB7qQCTwS1QKC7
- cDibeUVBgtLjUlYaR9g6Rw_tEWoBRnm6jOGMCFrNfotQ5kuvURKirOffJir4.8gqnS.ByxnGKZCi
- vxLERufrah6zyGPH8xY4f.UAZ_Mk9fek6837Jr.Hm.gKKTIm8zqZz_7LqlGBZwndy2bla07FQm8b
- egyKzhU4GWy0ihQcJn8xo7.FiCvxWVLvroaVQ0kiC4WJPVZI.Q2E5iWhCQhfYsWunGMdv1PG3kTP
- _W9LIbb42u_DbNlD_13zoXR.uRfqyWGha62FnqWenkJhq3ZY89Kdct1H3ir0oXFPycllk3Uh8h.Z
- gYyy9SZTEkZOLRuFk7AfvM7riuIr1tPQ.AywwwRr1AHUK219Ed9gwQCyLprBUHTwuIt6xBvmpFD0
- f9O42M6bP4t7jLypSuZH9dj3GaaOcqwg.c4N0ULnNOGPK0Llzq9IAIpbGFpSUKzAM2xXTO2yWozc
- BDMDi7X8O5ch2BkbTYDcRvyRKME5Kt_qLlL2uEDaEyGpR7jKD7KYV9Xv_wF5HNkZ0R4OtXgv6YTx
- DG60g9At27rello0Hkjy2E2qvKfRtZQYpV1jKSz5KvshT3losIgK1ozC.rYq3AH7NJELXh2OiCb8
- 1itWCShd71oEXvAroiKbCeD1I212ZvMnRCQOC7NjgVTMEk5HSyB.gWnKbcm6hQ8OHuiRv7f5jBwr
- zT1C3LH4SyF4WJwGlMefufc6XfvYYQ0hjHM9p3A5vrMJmUzQym8f2N7MrW3tE3g.EbenDIPTldEa
- BoTuqd4ntEup.58yuypnAXMxQEbrBGa0A7JzPRWkCCwJS2zKQzaIfn0fUBtK.CcuOhGSZOIa2luT
- GkiYakUYLLwPxzSc3dfBw2GESZwC0VIQ8N8fqBDp5lG2tDBhiPyZFBW8qXgJdMPj.C3.oemYiFU1
- UdIgIkQVR1XF7iUoJ9bqihfzYFjFpm5PktYHdSLQmsNHUdMDqwRsiwH8S7pQpvElauHC34guU3OL
- 0T1nG.cyuhPyEZx23M6yp6gByHFM92m2Zeu1iwDAyzGNwPJzVby0v_QVkEQqGXC4x2qw2SO7vXIg
- D7dgmXQgXqbNy.S3DdaSiU.QQ3Dpi_BG6I7rUvGYn43W9kKKKlKwQT9n7PdH3QiKqLPlKzrzccml
- YVwaFO.4iIMDWRMMw3JeqdnaOM8w2Ex_GervnHuj22dt7mmfmATkZP4OS_iJRVwGniSqmSwPu7AQ
- ZceahTGmJukAzkhn9lghQAtM2Aj4MvrDH0tb1fOGkJFPjb6IizmFRGU4o9fTCATBM0nPApg9SnE8
- XaPtWqdNI7D90Uhd8ymg4SlQ6W6ZyqFjqPfpJF5Q07Stt8.4sP80_tmSS.Cybk89g.CLgVGKA3TG
- 60eGjGbAOpQRZI85wyg0PYSZjty0Nwaz8JbOcu9HxKj_0NeuJjKxN9YuxCiMtHAaGgbk6pHnOfWI
- pF5AdmUlglfl.Tr_ON4rpdCM3RPVR8HZXvU_.s7THTtZdGvRJe2aEAC1b0I5ezOLKmTBdMmG72Ap
- MoTxu3rsrhw9PmM0A1U0TDds42ZuPoYKZyxt5IZTJqVTO9bWE9OGscUH1BwIk.eYRnEk3XlI96KU
- PBgOBaOYax92CltW6ufv5Kr1a0wFPoVnDrH0wtgBB5zUqVi1iNoB47MokYfsKIIdJy92xMvJA.dJ
- slPlLtwZST33TyaGCZ0vI9euowpuut63igKzqla.tMbKBE1k9B61DJaqm81chWhookseSm7orw6L
- IUIQbFmq10bEeeagElmZX25djp8spEw6BfCdsMYJ3brfqGwaYpyWlrK4_LI8ypEfBb2vXH1J82dG
- XeLjrb2IJowDQD1YI7lLG2RN4lRWC7YsksRSBzGGkN3nH0nWnvonP58Oyl8Yys5.mxMeRv16zmrI
- no7EBvW2uCWOMcU3eTEX62T4YHqQtncWUMwHvqP4Qm_USD71iZqWME7Kc_6gFOwbDCmlfRfKPVX0
- Pfjl0nBuiUg5n7suubY0CSykOBbWMIwduqNJtZkBBflaEfO.xhB7DOPp2SdeVucbwhUhKGKxaPg_
- jB8RTf4SAGjnZKm4YkZCq5un5YQ_w8TtbfnCMMNeGiUpuwJmA7SpNyXloxUJ4Qo07iIm0Qki.nK0
- 3i0a4WPilpE4p7qBGLEItjIFk3FDZe.5QbG2mxU7Y3gFvRyS9Tc11MRRVncDB57TjLA_8XrHA0fN
- 2d_DsWVLtNGBhgZxyUZ4gpnJ1dwdfxWgL9wJ5zcn.ZHI2ObUXMMzk8DeHgzAPovxwYetkJNvuj8c
- 1b8PUGVDbKVnUjMUnKTZ54yTvr0fe4Z8JJwnR6edq1LqaaFrt0Em1vHG2bF5sx6xF1vlVsNUROtl
- SRt6ZLAClQLxfxx3r1gtwxDIQbWrr9z_Cn2TTolDwruR7sNA1.K0CLHOLlnozDC8UlOvQVdIRIWs
- 1QTEGC5Qq.bWouRIbKhLwlo334qnflzCRn63LSLUgEy0QqYPuivaOUVUbQG0B3jlrBT8uyJP3sRi
- R
+        by vger.kernel.org with ESMTP id S230421AbhEMUf5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 May 2021 16:35:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1620938087; bh=9nWli++yPqHl27Goa6bURc9CsVwE8MmqYdqxhZMz39A=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=gF4h0U2hoZaxyr/hyVPLzHkgLqnWX3gw7kldVffscVFo22ExlpS3CQikaJXirk2G1dusXaxXcu7DyYxl2bwSk9idInVPZ9vAQjVMzOiW2AmubHskePQ+46F7G8GHd5YTgs/4x/06Kykxf6O7u6di9Hs5RcBKo/n34HZBP8RsB/xaDvMEPVg5u2FVJLUyQQoLnTOwTr4BL77HH7GWj9jMmrYFNR6hf7PXMzp8kP2fufk4mL9T0QgvPjYMrxVRTGnZgkSh7x9zJa0mML0ygmP0ik9g9ENn6mRHnTUDMc6RRX7KsNDvZNSBY/23HrJRI12ogpIoJ3Rw8ROxDh/WvvRiXA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1620938087; bh=r7ZBJr3XdtjThE7Wr9BjH32WLz6tafr/HakW6IsEvpX=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=i/XDprN6yQUcSYHohVmag9yXwK5lo1++VdTuY0Zo0jDoH95bT0ur/OLB1xDEx9iRfjPA+cXTrWFkgGZYexc9YLKBSJ5PeCfWgy/+EJTygHjpWFLnZz0VZ99QKh1IBn10nfBhmcJ4ypq6Rgu/w++tVasZRI3DURKTMVwiv0DkBz4vm+40eW9tVb12PzAEdCtNczPVGVHJ5PWw/S6cIsqJ3RxOWehR0jrYDwSx3Uwg5bkC4aIWjd/+zU8WyjOdvXVaGgdAhTfJyPc6AZZGCL68a0aZm4D2LQBzNOh3EoMAAth+fK09aghvvSEOpqGYKMmi8NrNoGYOPdLdqO0Xe+qkiA==
+X-YMail-OSG: t5xQN4oVM1lT6Dgs0u0LqeqtZZbA60HG2LV0x1NZDsEffWyoS7ip4fi01R_x7Bk
+ lUu1P870ZTUkoLwh8A22c4QkFDwEnfhooYSvBXos2M5GxD9zluzeQhG6AGRGlhqp9w070hHm.Tjt
+ Ri9XiWT4GYmuuXWXkY.ecRelc_6j_fQiXO9VnCvNrBse4iLXraZO0R3HE8SJpr6CASZtio9cPR3n
+ Avg5Ba5upf12j2G9Fgc2rov__hr7AcQkY4fl4jDiN3w4NqPQRmgu9Vd9QrX_H3HInv9.rTWMl8jP
+ 2Tr8PCl4y5PzmfaohWvO_oM3AfcuXzh_KwORQTG18rgX2eBSMj2tDX19ZENQIcRQX9D7lT9m.p67
+ elopRUjkPq7lDJjCTo2VjzzuR3LlEpulQNDUkTX3PyPF8hWhfRYKWsh4lgwJP1uSzVWjZAebS9eJ
+ 184XG.zkurjsvqpltd6OyVScTBp2WnRpqkAq2afov2IoSgd1gPqer8K6pHRWLjIRkUYwGHd_pi6j
+ ZnJBBJem.In6m8Kgadq5gJW75_HlYUXwJCkwd0mblfR9uSTQHTc.EC20ZHpvxokRYTxuYVsuoZc.
+ OBmZKTczkYhOqzed46Pwgk9r0QYvJAblkNC9feM1GBQL5S.JMz7mUHhMn56geHK6DbtKCQqJ_CYk
+ L51jBTtTo8cyb7iAJEuLQ55.TsGsyvSRo..s8LtFLuDzgsgAu_9VbrGiIVkmGRxyEVSM2kVNZy5L
+ _CUG6GYBnVKRzhkMo0SMyNJx0scoP26ze5WW5NPUeoWRVp3jeMj0rT8tmLXAenMRJXRcpdvquUgU
+ X9GwcPCVJ0BNOpjfbwjkHolhaWkiTAettXyaF5esxxhNP07T_1MlmvSRvgFS58xkmxU3iWZJXH6O
+ xbfPZkTK52vpMH4mJmpH7Ol6WnhmEZxUEhU.engU2EYNDod2yZWudIxneYDfUlXCRoRJmJN2epuu
+ 7tCQZKMDRxgAnKQQIqLwsu.DfmrWakAJ1iQ6pD59yu3U4ADYHNCGal3sSw1YTe3YmILoL59xYDqe
+ K59qvGlCxTUecYwt0Dhif3wdRTAasjAusksDvA1ZlDMCaJNjXGnKh5dQ1X5HEh0z70.N0XYe2v29
+ IfVDUQtqvt5vIrxwiAgv5_3AAWqrz08HggIkAqj6yQ6BED74zDnyp2R2.t1R2L0C35.Zpmw8qOOf
+ .nm8QKgczS0Mx75Zkcn4S3nnQvLrOGdHaEvUm5P.I1pGRBBvjmEktEPqSW0aOdYq.ZapiRhpIfBt
+ qxUk1fVwFCWWgyi5.lRYAsewC8wfTCzDwM4j3Rh31szjv63egVqJ7aSZy3D7jhSgiEAzaftSd85K
+ ZV1M_yVlGqbuzbnBVREDjT13bpTUg9at0I3vqQIVxKNYiKj5Oxs2H4XBClY3gwz3kLWYRMfLjoLo
+ lt6984_..i8SHVwhhteaDQffkFGP3yRie1yXjQgMmYdkBl0WM9wkbmKTYtjEHcPZR43Ph0La024d
+ ArzR4NElbTpHxoDm_qjrADn.tuRliGJOyOZKxf.jZqFv8r_h435Jnci13JdygBNqzwOhjrn2zxwv
+ JWluXj1LQ6DqSjQJKqq11CE2Luk5wJ5OgTMHAs_OLWqmR_oRjhnZ.LMww.NA5LM8s0LZk5lWNAwS
+ b_i1r.5q3PCKHkycZFrvfrRZi8YKYTTO.J.bgdzknKRPdFOx8LhPOCnAeo2jkbFS8E7Ainaw5fhc
+ Kg_Q91WzHeoDNk3.bgz5FcgK.6dJb0pe9JO1s8kV82xPUOtyiiCdKn5tzxUTpQwGqAssKf8Zydth
+ GZ4aq4AbOqXBSm1Ybjn5J..0fHa7vG0Q9V.Dj0W09aBtnDEleGdzmJucXi2hgt8Ap9yaNX9pjhO1
+ DIOR3Dv.BsiTV89gts1V6Fbnlpf37aWgzn5anet0Mo.5J171BXbRjiHmPlJzFzfyeklnQAYOxN2x
+ h2PL2HZmKMZfNbPIV1GQcWWGib65VtkD6w.re1XR.44LAQKKTtXoJG.m6HgMX5TkDkRzsT0Le1W0
+ AewxwBmJv5Fvmgga_E8apOdw6iypcyuIMUTIgEdYabDviucxXbsmW7q8_X7mNQhtoR69_46VSY14
+ QKcU61KI.hV7RiNDNF8eYvq9fRaAWVGGyssNnlJY6wMHvhVwHYcVTTlf2Aemyy.AQSITbgz4JBdn
+ 1PiVGencE_70ehyUg2y4u5jx3roOhNrNrBH7viY0ZKsjbjVtY5Zs.ilaVUwnPBqbNEWTQPNH08dD
+ lGEm5aDg08y0wUBEurDvHNDfWkDl3YP7G_TjwjpO5rJqDkeNlzJvlQ2xCk5UWuqdXbvGFO7totDt
+ sqoU3wMLb5KKQzqPyrcZ9Wat0PfjmzNZKJgZxfVRB_wcEsPrKTM6oz09bbcOwGVk4tRRJcuOHQSk
+ pYyYgbF6kSKDHQlmbbHqXcxj6sCQPgzpbtbdDLmVdqHBkNKeLqZa1L5rsTSX7zu8ygemvgD5HBNr
+ mTtXj4k2OCxgMa2aUKzTYSRjKbneo57E_.6KBY.NlvwNkKSSWKg.Wb0Wqa_Eb9ac5k8TsFd4RlPp
+ MlA.Lv9ksWDNvtI44Q_gBn4eQoHHVLcKqJkW8SMigoAvQpIW61XAWZsxhrrwsTNnexauCEfJKszL
+ WA7BeasMm_g8yQaKXi4kssWTfBqsdDW9.ovXB0yK.6bz.y1ah3Ygwih.3pZsDCo90LeQ16zr2y97
+ x4tDVBX8qRaMqZpJBnaB.Dsu3ALpd6xaQ7LQHGj5hrPrVcewj_Ug9rnSp_oiXS_D4UCYI5Kcmdb6
+ iyH_lUeXTKon.VF7cNwCSt2Xn4PYDHePsTKA0klrRotLWJPnQV2PDhooN8kd.9Vubl5wO1.10ruq
+ gVy6vjX.8J.F3kkIjj1L0UylsEpkspmfALbjZuPQ9tKN1s8p1yBl1vbeBIX8XWFntym_LmV2LgPN
+ fl7h6_ghhfHMmUwFJNkg81J36pZ57YT6ln1X4AjgfFgG3gcgYnu_nP8odk_pec0jjaSSguKGV3DB
+ as5RIquu3MSGzdr6gwB6zprMA5WJE33eo7KHzar9bpT0aGk.qHW3DLNCKiNM86uXu0F2hpwKPD23
+ IiU8ahrZ6ejPBh9EmDCV44fO.OMuUowq.QMFFzsJFMILdGL1l0ijjBh.Dqd3j_Rqi9G9a2HCcXjL
+ zuSfDwUmOjF8_Uas9gXmJ7DhEl_grK1P6xK7.pkJrkc_s.9_RGEiYz0GtmCcRarNEu83UQA_9s9G
+ gDodeTqdP4Nj7d9atjLhG4Q3MqO0DViqERFSQCOyxMRKHe7U-
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Thu, 13 May 2021 20:33:41 +0000
-Received: by kubenode570.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 5fc27fed877248912438810f41a118f6;
-          Thu, 13 May 2021 20:33:39 +0000 (UTC)
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Thu, 13 May 2021 20:34:47 +0000
+Received: by kubenode575.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 20a8231ad8c3c41f8549f1ba05b8d168;
+          Thu, 13 May 2021 20:34:45 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org
-Subject: [PATCH v26 23/25] Audit: Add a new record for multiple object LSM  attributes
-Date:   Thu, 13 May 2021 13:08:05 -0700
-Message-Id: <20210513200807.15910-24-casey@schaufler-ca.com>
+        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: [PATCH v26 24/25] LSM: Add /proc attr entry for full LSM context
+Date:   Thu, 13 May 2021 13:08:06 -0700
+Message-Id: <20210513200807.15910-25-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210513200807.15910-1-casey@schaufler-ca.com>
 References: <20210513200807.15910-1-casey@schaufler-ca.com>
@@ -87,310 +89,340 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Create a new audit record type to contain the object information
-when there are multiple security modules that may require such data.
-This record is linked with the same timestamp and serial number.
+Add an entry /proc/.../attr/context which displays the full
+process security "context" in compound format:
+        lsm1\0value\0lsm2\0value\0...
+This entry is not writable.
 
-An example of the MAC_OBJ_CONTEXTS (1421) record is:
+A security module may decide that its policy does not allow
+this information to be displayed. In this case none of the
+information will be displayed.
 
-        type=UNKNOWN[1421]
-        msg=audit(1601152467.009:1050):
-        obj_selinux=unconfined_u:object_r:user_home_t:s0
-
-Not all security modules that can provide object information
-do so in all cases. It is possible that a security module won't
-apply an object attribute in all cases.
-
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Cc: linux-audit@redhat.com
-To: Paul Moore <paul@paul-moore.com>
+Cc: linux-api@vger.kernel.org
+Cc: linux-doc@vger.kernel.org
 ---
- include/linux/audit.h      |  7 ++++
- include/uapi/linux/audit.h |  1 +
- kernel/audit.c             | 53 +++++++++++++++++++++++++++
- kernel/audit.h             |  4 +--
- kernel/auditsc.c           | 73 +++++++-------------------------------
- 5 files changed, 75 insertions(+), 63 deletions(-)
+ Documentation/ABI/testing/procfs-attr-context | 14 ++++
+ Documentation/security/lsm.rst                | 14 ++++
+ fs/proc/base.c                                |  1 +
+ include/linux/lsm_hooks.h                     |  6 ++
+ security/apparmor/include/procattr.h          |  2 +-
+ security/apparmor/lsm.c                       |  8 +-
+ security/apparmor/procattr.c                  | 22 +++---
+ security/security.c                           | 79 +++++++++++++++++++
+ security/selinux/hooks.c                      |  2 +-
+ security/smack/smack_lsm.c                    |  2 +-
+ 10 files changed, 135 insertions(+), 15 deletions(-)
+ create mode 100644 Documentation/ABI/testing/procfs-attr-context
 
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index 229cd71fbf09..b92ad58bc97d 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -189,6 +189,8 @@ extern void		    audit_log_path_denied(int type,
- extern void		    audit_log_lost(const char *message);
+diff --git a/Documentation/ABI/testing/procfs-attr-context b/Documentation/ABI/testing/procfs-attr-context
+new file mode 100644
+index 000000000000..40da1c397c30
+--- /dev/null
++++ b/Documentation/ABI/testing/procfs-attr-context
+@@ -0,0 +1,14 @@
++What:		/proc/*/attr/context
++Contact:	linux-security-module@vger.kernel.org,
++Description:	The current security information used by all Linux
++		security module (LSMs) that are active on the system.
++		The details of permissions required to read from
++		this interface and hence obtain the security state
++		of the task identified is dependent on the LSMs that
++		are active on the system.
++		A process cannot write to this interface.
++		The data provided by this interface will have the form:
++			lsm_name\0lsm_data\0[lsm_name\0lsm_data\0]...
++		where lsm_name is the name of the LSM and the following
++		lsm_data is the process data for that LSM.
++Users:		LSM user-space
+diff --git a/Documentation/security/lsm.rst b/Documentation/security/lsm.rst
+index b77b4a540391..070225ae6ceb 100644
+--- a/Documentation/security/lsm.rst
++++ b/Documentation/security/lsm.rst
+@@ -143,3 +143,17 @@ separated list of the active security modules.
+ The file ``/proc/pid/attr/interface_lsm`` contains the name of the security
+ module for which the ``/proc/pid/attr/current`` interface will
+ apply. This interface can be written to.
++
++The infrastructure does provide an interface for the special
++case where multiple security modules provide a process context.
++This is provided in compound context format.
++
++-  `lsm\0value\0lsm\0value\0`
++
++The `lsm` and `value` fields are NUL-terminated bytestrings.
++Each field may contain whitespace or non-printable characters.
++The NUL bytes are included in the size of a compound context.
++The context ``Bell\0Secret\0Biba\0Loose\0`` has a size of 23.
++
++The file ``/proc/pid/attr/context`` provides the security
++context of the identified process.
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 10de522f3112..23ebfc35435c 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2808,6 +2808,7 @@ static const struct pid_entry attr_dir_stuff[] = {
+ 	ATTR(NULL, "keycreate",		0666),
+ 	ATTR(NULL, "sockcreate",	0666),
+ 	ATTR(NULL, "interface_lsm",	0666),
++	ATTR(NULL, "context",		0444),
+ #ifdef CONFIG_SECURITY_SMACK
+ 	DIR("smack",			0555,
+ 	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index d2c4bc94d47f..f6ffe8b069e2 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1397,6 +1397,12 @@
+  *	@pages contains the number of pages.
+  *	Return 0 if permission is granted.
+  *
++ * @getprocattr:
++ *	Provide the named process attribute for display in special files in
++ *	the /proc/.../attr directory.  Attribute naming and the data displayed
++ *	is at the discretion of the security modules.  The exception is the
++ *	"context" attribute, which will contain the security context of the
++ *	task as a nul terminated text string without trailing whitespace.
+  * @ismaclabel:
+  *	Check if the extended attribute specified by @name
+  *	represents a MAC label. Returns 1 if name is a MAC
+diff --git a/security/apparmor/include/procattr.h b/security/apparmor/include/procattr.h
+index 31689437e0e1..03dbfdb2f2c0 100644
+--- a/security/apparmor/include/procattr.h
++++ b/security/apparmor/include/procattr.h
+@@ -11,7 +11,7 @@
+ #ifndef __AA_PROCATTR_H
+ #define __AA_PROCATTR_H
  
- extern int audit_log_task_context(struct audit_buffer *ab);
-+extern int audit_log_object_context(struct audit_buffer *ab,
-+				    struct lsmblob *blob);
- extern void audit_log_task_info(struct audit_buffer *ab);
- extern void audit_log_lsm(struct audit_context *context);
+-int aa_getprocattr(struct aa_label *label, char **string);
++int aa_getprocattr(struct aa_label *label, char **string, bool newline);
+ int aa_setprocattr_changehat(char *args, size_t size, int flags);
  
-@@ -256,6 +258,11 @@ static inline int audit_log_task_context(struct audit_buffer *ab)
+ #endif /* __AA_PROCATTR_H */
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 4237536106aa..65a004597e53 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -602,6 +602,7 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
+ 	const struct cred *cred = get_task_cred(task);
+ 	struct aa_task_ctx *ctx = task_ctx(current);
+ 	struct aa_label *label = NULL;
++	bool newline = true;
+ 
+ 	if (strcmp(name, "current") == 0)
+ 		label = aa_get_newest_label(cred_label(cred));
+@@ -609,11 +610,14 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
+ 		label = aa_get_newest_label(ctx->previous);
+ 	else if (strcmp(name, "exec") == 0 && ctx->onexec)
+ 		label = aa_get_newest_label(ctx->onexec);
+-	else
++	else if (strcmp(name, "context") == 0) {
++		label = aa_get_newest_label(cred_label(cred));
++		newline = false;
++	} else
+ 		error = -EINVAL;
+ 
+ 	if (label)
+-		error = aa_getprocattr(label, value);
++		error = aa_getprocattr(label, value, newline);
+ 
+ 	aa_put_label(label);
+ 	put_cred(cred);
+diff --git a/security/apparmor/procattr.c b/security/apparmor/procattr.c
+index c929bf4a3df1..be3b083d9b74 100644
+--- a/security/apparmor/procattr.c
++++ b/security/apparmor/procattr.c
+@@ -20,6 +20,7 @@
+  * aa_getprocattr - Return the profile information for @profile
+  * @profile: the profile to print profile info about  (NOT NULL)
+  * @string: Returns - string containing the profile info (NOT NULL)
++ * @newline: Should a newline be added to @string.
+  *
+  * Returns: length of @string on success else error on failure
+  *
+@@ -30,20 +31,21 @@
+  *
+  * Returns: size of string placed in @string else error code on failure
+  */
+-int aa_getprocattr(struct aa_label *label, char **string)
++int aa_getprocattr(struct aa_label *label, char **string, bool newline)
  {
+ 	struct aa_ns *ns = labels_ns(label);
+ 	struct aa_ns *current_ns = aa_get_current_ns();
++	int flags = FLAG_VIEW_SUBNS | FLAG_HIDDEN_UNCONFINED;
+ 	int len;
+ 
+ 	if (!aa_ns_visible(current_ns, ns, true)) {
+ 		aa_put_ns(current_ns);
+ 		return -EACCES;
+ 	}
++	if (newline)
++		flags |= FLAG_SHOW_MODE;
+ 
+-	len = aa_label_snxprint(NULL, 0, current_ns, label,
+-				FLAG_SHOW_MODE | FLAG_VIEW_SUBNS |
+-				FLAG_HIDDEN_UNCONFINED);
++	len = aa_label_snxprint(NULL, 0, current_ns, label, flags);
+ 	AA_BUG(len < 0);
+ 
+ 	*string = kmalloc(len + 2, GFP_KERNEL);
+@@ -52,19 +54,19 @@ int aa_getprocattr(struct aa_label *label, char **string)
+ 		return -ENOMEM;
+ 	}
+ 
+-	len = aa_label_snxprint(*string, len + 2, current_ns, label,
+-				FLAG_SHOW_MODE | FLAG_VIEW_SUBNS |
+-				FLAG_HIDDEN_UNCONFINED);
++	len = aa_label_snxprint(*string, len + 2, current_ns, label, flags);
+ 	if (len < 0) {
+ 		aa_put_ns(current_ns);
+ 		return len;
+ 	}
+ 
+-	(*string)[len] = '\n';
+-	(*string)[len + 1] = 0;
++	if (newline) {
++		(*string)[len] = '\n';
++		(*string)[++len] = 0;
++	}
+ 
+ 	aa_put_ns(current_ns);
+-	return len + 1;
++	return len;
+ }
+ 
+ /**
+diff --git a/security/security.c b/security/security.c
+index bb4c7f6c62ec..d3ff61442877 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -799,6 +799,57 @@ static int lsm_superblock_alloc(struct super_block *sb)
  	return 0;
  }
-+static inline int audit_log_object_context(struct audit_buffer *ab,
-+					   struct lsmblob *blob)
-+{
-+	return 0;
-+}
- static inline void audit_log_task_info(struct audit_buffer *ab)
- { }
- static void audit_log_lsm(struct audit_context *context)
-diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-index 2a63720e56f6..dbb1dce16962 100644
---- a/include/uapi/linux/audit.h
-+++ b/include/uapi/linux/audit.h
-@@ -140,6 +140,7 @@
- #define AUDIT_MAC_CALIPSO_ADD	1418	/* NetLabel: add CALIPSO DOI entry */
- #define AUDIT_MAC_CALIPSO_DEL	1419	/* NetLabel: del CALIPSO DOI entry */
- #define AUDIT_MAC_TASK_CONTEXTS	1420	/* Multiple LSM contexts */
-+#define AUDIT_MAC_OBJ_CONTEXTS	1421	/* Multiple LSM object contexts */
  
- #define AUDIT_FIRST_KERN_ANOM_MSG   1700
- #define AUDIT_LAST_KERN_ANOM_MSG    1799
-diff --git a/kernel/audit.c b/kernel/audit.c
-index 60c027d7759c..5bef8227c526 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -2171,6 +2171,59 @@ int audit_log_task_context(struct audit_buffer *ab)
- }
- EXPORT_SYMBOL(audit_log_task_context);
- 
-+int audit_log_object_context(struct audit_buffer *ab,
-+				    struct lsmblob *blob)
++/**
++ * append_ctx - append a lsm/context pair to a compound context
++ * @ctx: the existing compound context
++ * @ctxlen: size of the old context, including terminating nul byte
++ * @lsm: new lsm name, nul terminated
++ * @new: new context, possibly nul terminated
++ * @newlen: maximum size of @new
++ *
++ * replace @ctx with a new compound context, appending @newlsm and @new
++ * to @ctx. On exit the new data replaces the old, which is freed.
++ * @ctxlen is set to the new size, which includes a trailing nul byte.
++ *
++ * Returns 0 on success, -ENOMEM if no memory is available.
++ */
++static int append_ctx(char **ctx, int *ctxlen, const char *lsm, char *new,
++		      int newlen)
 +{
-+	int i;
-+	int error;
-+	bool sep = false;
-+	struct lsmcontext lsmdata;
-+	struct audit_buffer *lsmab = NULL;
-+	struct audit_context *context = NULL;
++	char *final;
++	size_t llen;
++	size_t nlen;
++	size_t flen;
 +
++	llen = strlen(lsm) + 1;
 +	/*
-+	 * If there is more than one security module that has a
-+	 * object "context" it's necessary to put the object data
-+	 * into a separate record to maintain compatibility.
++	 * A security module may or may not provide a trailing nul on
++	 * when returning a security context. There is no definition
++	 * of which it should be, and there are modules that do it
++	 * each way.
 +	 */
-+	if (lsm_multiple_contexts()) {
-+		audit_log_format(ab, " obj=?");
-+		context = ab->ctx;
-+		if (context)
-+			lsmab = audit_log_start(context, GFP_KERNEL,
-+						AUDIT_MAC_OBJ_CONTEXTS);
-+	}
++	nlen = strnlen(new, newlen);
 +
-+	for (i = 0; i < LSMBLOB_ENTRIES; i++) {
-+		if (blob->secid[i] == 0)
-+			continue;
-+		error = security_secid_to_secctx(blob, &lsmdata, i);
-+		if (error && error != -EINVAL) {
-+			audit_panic("error in audit_log_object_context");
-+			return error;
-+		}
++	flen = *ctxlen + llen + nlen + 1;
++	final = kzalloc(flen, GFP_KERNEL);
 +
-+		if (context) {
-+			audit_log_format(lsmab, "%sobj_%s=%s",
-+					 sep ? " " : "",
-+					 lsm_slot_to_name(i),
-+					 lsmdata.context);
-+			sep = true;
-+		} else
-+			audit_log_format(ab, " obj=%s", lsmdata.context);
++	if (final == NULL)
++		return -ENOMEM;
 +
-+		security_release_secctx(&lsmdata);
-+		if (!context)
-+			break;
-+	}
++	if (*ctxlen)
++		memcpy(final, *ctx, *ctxlen);
 +
-+	if (context)
-+		audit_log_end(lsmab);
++	memcpy(final + *ctxlen, lsm, llen);
++	memcpy(final + *ctxlen + llen, new, nlen);
++
++	kfree(*ctx);
++
++	*ctx = final;
++	*ctxlen = flen;
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL(audit_log_object_context);
 +
- void audit_log_d_path_exe(struct audit_buffer *ab,
- 			  struct mm_struct *mm)
+ /*
+  * The default value of the LSM hook is defined in linux/lsm_hook_defs.h and
+  * can be accessed with:
+@@ -2232,6 +2283,10 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+ 				char **value)
  {
-diff --git a/kernel/audit.h b/kernel/audit.h
-index 5ad0c6819aa8..952c7a1f2f3c 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -78,7 +78,7 @@ struct audit_names {
- 	kuid_t			uid;
- 	kgid_t			gid;
- 	dev_t			rdev;
--	u32			osid;
-+	struct lsmblob		oblob;
- 	struct audit_cap_data	fcap;
- 	unsigned int		fcap_ver;
- 	unsigned char		type;		/* record type */
-@@ -155,7 +155,7 @@ struct audit_context {
- 			kuid_t			uid;
- 			kgid_t			gid;
- 			umode_t			mode;
--			u32			osid;
-+			struct lsmblob		oblob;
- 			int			has_perm;
- 			uid_t			perm_uid;
- 			gid_t			perm_gid;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 55509faf5341..71d5da2f0ee3 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -685,14 +685,6 @@ static int audit_filter_rules(struct task_struct *tsk,
- 			if (f->lsm_isset) {
- 				/* Find files that match */
- 				if (name) {
--					/*
--					 * lsmblob_init sets all values in the
--					 * lsmblob to sid. This is temporary
--					 * until name->osid is converted to a
--					 * lsmblob, which happens later in
--					 * this patch set.
--					 */
--					lsmblob_init(&blob, name->osid);
- 					result = security_audit_rule_match(
- 								&blob,
- 								f->type,
-@@ -700,7 +692,6 @@ static int audit_filter_rules(struct task_struct *tsk,
- 								f->lsm_rules);
- 				} else if (ctx) {
- 					list_for_each_entry(n, &ctx->names_list, list) {
--						lsmblob_init(&blob, name->osid);
- 						if (security_audit_rule_match(
- 								&blob,
- 								f->type,
-@@ -714,8 +705,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				lsmblob_init(&blob, ctx->ipc.osid);
--				if (security_audit_rule_match(&blob,
-+				if (security_audit_rule_match(&ctx->ipc.oblob,
- 							      f->type, f->op,
- 							      f->lsm_rules))
- 					++result;
-@@ -1026,7 +1016,6 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 				 struct lsmblob *blob, char *comm)
- {
- 	struct audit_buffer *ab;
--	struct lsmcontext lsmctx;
- 	int rc = 0;
+ 	struct security_hook_list *hp;
++	char *final = NULL;
++	char *cp;
++	int rc = 0;
++	int finallen = 0;
+ 	int ilsm = lsm_task_ilsm(current);
+ 	int slot = 0;
  
- 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
-@@ -1036,15 +1025,8 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
- 			 from_kuid(&init_user_ns, auid),
- 			 from_kuid(&init_user_ns, uid), sessionid);
--	if (lsmblob_is_set(blob)) {
--		if (security_secid_to_secctx(blob, &lsmctx, LSMBLOB_FIRST)) {
--			audit_log_format(ab, " obj=(none)");
--			rc = 1;
--		} else {
--			audit_log_format(ab, " obj=%s", lsmctx.context);
--			security_release_secctx(&lsmctx);
--		}
--	}
-+	if (lsmblob_is_set(blob))
-+		rc = audit_log_object_context(ab, blob);
- 	audit_log_format(ab, " ocomm=");
- 	audit_log_untrustedstring(ab, comm);
- 	audit_log_end(ab);
-@@ -1271,26 +1253,15 @@ static void show_special(struct audit_context *context, int *call_panic)
- 				context->socketcall.args[i]);
- 		break; }
- 	case AUDIT_IPC: {
--		u32 osid = context->ipc.osid;
-+		struct lsmblob *oblob = &context->ipc.oblob;
+@@ -2259,6 +2314,30 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+ 		return -ENOMEM;
+ 	}
  
- 		audit_log_format(ab, "ouid=%u ogid=%u mode=%#ho",
- 				 from_kuid(&init_user_ns, context->ipc.uid),
- 				 from_kgid(&init_user_ns, context->ipc.gid),
- 				 context->ipc.mode);
--		if (osid) {
--			struct lsmcontext lsmcxt;
--			struct lsmblob blob;
--
--			lsmblob_init(&blob, osid);
--			if (security_secid_to_secctx(&blob, &lsmcxt,
--						     LSMBLOB_FIRST)) {
--				audit_log_format(ab, " osid=%u", osid);
--				*call_panic = 1;
--			} else {
--				audit_log_format(ab, " obj=%s", lsmcxt.context);
--				security_release_secctx(&lsmcxt);
--			}
--		}
-+		if (lsmblob_is_set(oblob) &&
-+		    audit_log_object_context(ab, oblob))
-+			*call_panic = 1;
- 		if (context->ipc.has_perm) {
- 			audit_log_end(ab);
- 			ab = audit_log_start(context, GFP_KERNEL,
-@@ -1433,20 +1404,9 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
- 				 from_kgid(&init_user_ns, n->gid),
- 				 MAJOR(n->rdev),
- 				 MINOR(n->rdev));
--	if (n->osid != 0) {
--		struct lsmblob blob;
--		struct lsmcontext lsmctx;
--
--		lsmblob_init(&blob, n->osid);
--		if (security_secid_to_secctx(&blob, &lsmctx, LSMBLOB_FIRST)) {
--			audit_log_format(ab, " osid=%u", n->osid);
--			if (call_panic)
--				*call_panic = 2;
--		} else {
--			audit_log_format(ab, " obj=%s", lsmctx.context);
--			security_release_secctx(&lsmctx);
--		}
--	}
-+	if (lsmblob_is_set(&n->oblob) &&
-+	    audit_log_object_context(ab, &n->oblob) && call_panic)
-+		*call_panic = 2;
++	if (!strcmp(name, "context")) {
++		hlist_for_each_entry(hp, &security_hook_heads.getprocattr,
++				     list) {
++			rc = hp->hook.getprocattr(p, "context", &cp);
++			if (rc == -EINVAL)
++				continue;
++			if (rc < 0) {
++				kfree(final);
++				return rc;
++			}
++			rc = append_ctx(&final, &finallen, hp->lsmid->lsm,
++					cp, rc);
++			kfree(cp);
++			if (rc < 0) {
++				kfree(final);
++				return rc;
++			}
++		}
++		if (final == NULL)
++			return -EINVAL;
++		*value = final;
++		return finallen;
++	}
++
+ 	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+ 		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
+ 			continue;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b7800fa55a34..0a9af748f77c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6468,7 +6468,7 @@ static int selinux_getprocattr(struct task_struct *p,
+ 			goto bad;
+ 	}
  
- 	/* log the audit_names record type */
- 	switch (n->type) {
-@@ -2034,17 +1994,13 @@ static void audit_copy_inode(struct audit_names *name,
- 			     const struct dentry *dentry,
- 			     struct inode *inode, unsigned int flags)
- {
--	struct lsmblob blob;
--
- 	name->ino   = inode->i_ino;
- 	name->dev   = inode->i_sb->s_dev;
- 	name->mode  = inode->i_mode;
- 	name->uid   = inode->i_uid;
- 	name->gid   = inode->i_gid;
- 	name->rdev  = inode->i_rdev;
--	security_inode_getsecid(inode, &blob);
--	/* scaffolding until osid is updated */
--	name->osid = blob.secid[0];
-+	security_inode_getsecid(inode, &name->oblob);
- 	if (flags & AUDIT_INODE_NOEVAL) {
- 		name->fcap_ver = -1;
- 		return;
-@@ -2390,17 +2346,12 @@ void __audit_mq_getsetattr(mqd_t mqdes, struct mq_attr *mqstat)
- void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
- {
- 	struct audit_context *context = audit_context();
--	struct lsmblob blob;
+-	if (!strcmp(name, "current"))
++	if (!strcmp(name, "current") || !strcmp(name, "context"))
+ 		sid = __tsec->sid;
+ 	else if (!strcmp(name, "prev"))
+ 		sid = __tsec->osid;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index e65497a5c095..1618d7d6154b 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3477,7 +3477,7 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+ 	char *cp;
+ 	int slen;
  
- 	context->ipc.uid = ipcp->uid;
- 	context->ipc.gid = ipcp->gid;
- 	context->ipc.mode = ipcp->mode;
- 	context->ipc.has_perm = 0;
--	security_ipc_getsecid(ipcp, &blob);
--	/* context->ipc.osid will be changed to a lsmblob later in
--	 * the patch series. This will allow auditing of all the object
--	 * labels associated with the ipc object. */
--	context->ipc.osid = lsmblob_value(&blob);
-+	security_ipc_getsecid(ipcp, &context->ipc.oblob);
- 	context->type = AUDIT_IPC;
- }
+-	if (strcmp(name, "current") != 0)
++	if (strcmp(name, "current") != 0 && strcmp(name, "context") != 0)
+ 		return -EINVAL;
  
+ 	cp = kstrdup(skp->smk_known, GFP_KERNEL);
 -- 
 2.29.2
 
