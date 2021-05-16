@@ -2,182 +2,203 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DFE2C433B4
-	for <selinux@archiver.kernel.org>; Sat, 15 May 2021 00:57:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C86E1C433ED
+	for <selinux@archiver.kernel.org>; Sun, 16 May 2021 17:10:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 501DA613C8
-	for <selinux@archiver.kernel.org>; Sat, 15 May 2021 00:57:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A24FE61151
+	for <selinux@archiver.kernel.org>; Sun, 16 May 2021 17:10:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234646AbhEOA6a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 May 2021 20:58:30 -0400
-Received: from sonic309-28.consmr.mail.ne1.yahoo.com ([66.163.184.154]:37824
-        "EHLO sonic309-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230053AbhEOA63 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 May 2021 20:58:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1621040235; bh=OPLVYA6PTN9lQ2PFoMQqxiAJ97QKtgsHa94krTc9ksU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=DubuQ+fv/RFAAPQylfA0PvckacLMPtYg19ueNlsCzAWEb+PrsY9bkM0DAJtqW+KX8o1huPjbwQcgh4+QMYLXhItTcb/jGg25lvk2ekt82e9VyLw9hLR5kfytULuQPa0pEEloJYIYHUG2X9v1BicPaJ/cNbhPEcuFD9jZS/BTh84oJOfaVwitzrF53rkC3j2siUtkiJ10hgifZs+7NTsJhECobHPZaj32Jbi6SGOkH8zSxZfKVVUVIIPV8/XvXSEXyah+eGBp6H8E+4p62jYQOD+a/y3ZEHwvenKk+ws0Jbk3iBOMJ78Jd7Y7UA5QmUsvYwCNA2sRRfdMVLz5T4nmEg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1621040235; bh=e0NqqRzAQzSzTEIadnIqVpfv70OT85Dv4nxEGMsJs8Y=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=T89+lWT/6suHY0cJxMvBejkDydxm+aVcdhfTiqcJX7EXr1mQQR/ZHx/1c8lLi1ADR1YmrjPFzVD+1/2VghqQCuH9iepAWGQTcjSbgFqq3bJfnkxp/LngeyITWO2KyLzTYMkMc5VgFAVWMPQpurFYuUfFDmgj5qM3R2wDpekuBdtvP/QoLZcKQ3irSP+hI50MvMV377zt7P6zs7ntAsXNcWz/HGjDoPeuAEZeelOMfkX1j7xWt3/HEGoWGi2CTlNzNW+/5MaUxily9HV5pb33b8xhmH8i+KvnzN4nCc+LkMVQG1o9TeV9Wrw/ZeZSZ2cAJiRVuv+joJl5RQJWpTLMIw==
-X-YMail-OSG: Th9g6XwVM1nnGsiFhnM3K57fZCpswIuTd5UKh0Me.hsWYXlPqIdTlckH1AzpjSa
- Oxgg5R1l0GjHU0VkRDck59C.P.a.v7VDIyr.djD8ZdRX0A8yXLSnbGBrY8jsx0KhHE3f8oTT4KZq
- iGIyDEFJ85xfLP1btt._fujjDZilaU9DV9WLAkLW9gQ_NA5KQAHpLPffgtHIP2ej_zBXn5BRGPJ3
- qoCKcNz0DzNuVWJJ65E8RUvHGaxg5nKbE2j8pYPcuiVD1gmZCF_GYpbuMPlZckgyvuXZvqmhA5.R
- tR_seR.QsCB6NeIC14g7FU.Q5CSrJ7xTT5Qjsxc93EQ2In_80.XXVHdgGeWZ1HOGbaJjvixGB1tJ
- 4jLxP1Hqj.pLkqQGPNxH2KMNL3rzlrWORs3XwbNGz.zryWaaMxyc2ELNlNVRCa1LbINTqskKRqWO
- Dv7tBX_CZ2K.xIDxmTQqd.e_UO8bya5Z6djnp8YT2SOqlKC6hEC8o4ps4CN3W86PcyzdGMsXwog.
- 6Borb4_LU7ysCemG2evG6_mW4t.gv04JnkrNnjECA7mfYeaJ8t_gMyb8M925UbxqUSO5gwSvxgFi
- QEIq38EI5JgazRzW9sEhnExkmohR1Sy3y_iMXMfo2omFJK.pHGPqQgpWXWKIUTypA93sdh189ht_
- A5_JexvHwYJrD2GL5MM9ePkVmOht_56MSI._qvE4AEzwtYq_7KSgoF662SEAV8lBck2Vk5QAk8ME
- 1Ht5Rg7RSKmNoxXHp2bGQKNOC.9W4_xcGiFnjvDMhzlIT4LaUZmtJspQvgE6p9VLe5xG3OEIxKkA
- 9xqca6vRVIvdhxaNLfFjCwNU903Yyn8iBaNLFgpNnkIMzcc0Iilt6LosF3SBfSJPYG93McEw7ZZL
- BNA5Fw5G5smuLfMXq8BU1ocDJDs9weoQOeiwJCxOOj5daSFTN82vs48k4D3Ks1OggOrO8VMmhDTe
- S779WNuKOmlyjzaYYNhfnvOEkVo_vXxhZfnGtMKtjQs51O7qD4cyaRMvwFqcmXsXPN8oZnKitI5g
- wirwSKKsFx3rjk7rMKvcb7Il5stmlheNiooACH6Ptu.WsqufISdnEMDkB9IgRDtoRwpZEsBclpdR
- 5_ri4GN07iaugSV35ZChrLZ7GSrNdYw5pIvMpiOgjMjqxTXDXYUo2RU9saIoS1MYeGhkM3Can1pL
- OXzmBgWYrVYOVNAwr5sADx6ZXcuSrQeuuYN5kWeVYWd_g3vFt3D7TcPESFHbmIJHG8PYaKq43mbb
- PBXcsZlc861h6ihrYRNBGgv81nmmrpCcVXnxg3VR05cA5Nz2BIi.ddko7NM6BSSjJ_1RJGm5IuuW
- PtDaA9MZqn.R.WHI6G15LMGEXdk_8xOohnrfQNPKZSzfoZ5IU7yLeBnKYMVV2FCfnWMbjltOHm_i
- EAottlvAWDNK0WpIUyEHvVa2Tfm7fRuqLQAUlT9bCk7b52gdqnmwdLN_mAfRYBLyPErSA6vT2x7G
- t1dseEfn4IRtlacmlFlJpWkG.jKz8qYvkxyTUdE3_I4QEY53Bg.2u9Hu6pJ9gNQ92_JyxMQm6swf
- Y5wZq3EO75bM_5x1fohIbSUY4wRdoEEe9F_o6ZbWB0gkYiK_H.9AAUKrSLhzfHO50R.DBvvKURrN
- Tu.TyV2bQHlDw3nTje2pVz4QTn_tvDDL3.3porfKTVLA0DSUUagapmDyCpPQYC_uEBat1U5G3zKz
- FOSlfrKtVmMiPq5czyCwQVQMEiBgu2A98SqjTVUEOS5lQ91g6l75prRSzxiYCiysa5RmuMeMeurm
- 1Oy1sEspGtaUfQeqTd30A_My5DxkU1pMBJX8bgRwpJlnfO4DH_Efd_eOAQeaXfOuBQZ2I.bR4xkI
- mCZWZHfyP9gz6h1RqgzBMi_w9aX5GhuVoWMrCgEpDiGjsN58CeA472MgGrfJrxl0Cj2J2FO5u2m2
- lIvGDQr.r44LzH2C45Ax0fWJDYfYKC3wpoU5F1djVUhkZUguKP2M9WWYNuj1qOwwbZmKb9gAgKpQ
- gb4BrgwQbzZ3AfHPvaCzPVFpzsaiSej4wi0BNzePeMds_.ItbQ.s6e3S0dtN5IUbwE0h3IBXGG8n
- gpB8KKhoN5wpAbnEgRbkWCnvFwX4vfSs3SEQofZ9XRL88CEjZvdhs0WSKZSnV6o9GF2ONzNI8rRo
- bIV_Urw1PA1.azwHyTLju2CHi1BaBPvh2rLudAefZgRH1ma6ieWTP6y7sJPFPOxFlTZN45u5sNJ7
- 7.52qmCsxUwGMCCtA6DvlHWHUnbxpVzeZs5voqdmr4P8kzkqG9JRQkxHy0pqv1Om0Qygne5ZtbSB
- 8MkWoDAMKgKg9xgXRJOPsJAihVRmCEaYFVYxPjVzV3QVGzZ2Fpy8jNwrXPdAON9d5wVjgqQ7L2xe
- UQySe0ExWYdrjIwcDiuviwbB1aMHVmzR4ln6e1sc1jKD16OzcEHh3YuD4Jmhe0aqxag5zPco1pNB
- hjl8somiN5w9BtBSVSvMXjpBxtihqsrROlS4xkPoEHfyQt0hFyA8reVSjP74Lvp26o_fdBPFg6Ys
- ZXsy4a_j0vLl8jz1IFqh9HnATOEsMea.lVnjXjODiSCAVznUYceshrLyhqZrpXIool7UJrKjwTyc
- j3yZx8Ra0NXutlTlPz0roAOTgpU5.Q298qSuyteY6.Gc4rLlmJiTw8g8DclFe127W8cQUkWdKT6W
- SN79syNbAsB0gJZRgYJZYtsySnP6chFmw9qGmGGspzp62x4mhrI76Vokoajs5hYN2h8l12Q1MrXw
- 0dkibwlhPMP.acep9TUw488_qzk01ecNU3O0r_bQhBEQTE3m.zWkPapEJXd9mcrCUCigsly7hJHm
- 4y.oZASv3bLR8Wps3g6OupBnA7ltrA..UeSWiL6RcbeWivYTl68tq1epM2rWhOvuDCyL1NQPQxBy
- B6MkPgkFkMI0jB8Yzs8lIzhFwOOcsC0h4UNaJze0DYi5PyJUNFRU4KSYsF09ztp0mED3mWgeCTpH
- 109bnUdvP6wWAqD5BgiOotdnaYj8s1_C11c1gSoFsBaoqG3vIoOFMOdC4fRxQBRJel7sQWe8.5.D
- xd5adgP_bcDAhsf46kydJk3dLnUxMwH0WUDCqrHlM.SJxYRdHHSYoJpnbHEzWZSCnvx9yZyj87Bf
- hKYmcosXTDFb4USfN7BMfVSz24eaahwsoVTMtDlxk5R3ssEGc8S4jegZ9Ko14HL4Mt8USh6JAnp9
- xr1BeM9BMhdOl98HDAJArYq2lVIq04nj7KVom5Cn3Q4xyHoLAeTQBtZjZ581C7s58TBhUx7SFbGc
- E4F4Lj0rIl58.mVY7x2G383pldqzVaLR6uVqXccGOfH1RW2bnTVO9FmANo....pizyPvZhLFBCgR
- yM61aTChKrLpnb3lPXoBjzeF9V41rfuYzDk6yaKSc1Ki2fXL2ZZigQ3lk91m3kR9xr6V_wPcJOTQ
- 96DN5mun.SD9o3nEbYw6JXxGpg0hkmkxwhDBG2BV7HtjWL8bD0sH7IQGpKCB9glMG1v5DlphqbqM
- _CuAr_m3X1UmD5_h3YIEKTYKCz2TUuvZI5QONuMv_WTJeahutPx34q84QVuuXpwQ-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Sat, 15 May 2021 00:57:15 +0000
-Received: by kubenode532.mail-prod1.omega.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 10c01b97f9e192adb0693999166f13aa;
-          Sat, 15 May 2021 00:57:11 +0000 (UTC)
-Subject: Re: [PATCH] lockdown,selinux: fix bogus SELinux lockdown permission
- checks
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>, network dev <netdev@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20210507114048.138933-1-omosnace@redhat.com>
- <a8d138a6-1d34-1457-9266-4abeddb6fdba@schaufler-ca.com>
- <CAFqZXNtr1YjzRg7fTm+j=0oZF+7C5xEu5J0mCZynP-dgEzvyUg@mail.gmail.com>
- <24a61ff1-e415-adf8-17e8-d212364d4b97@schaufler-ca.com>
- <CAFqZXNvB-EyPz1Qz3cCRTr1u1+D+xT-dp7cUxFocYM1AOYSuxw@mail.gmail.com>
- <e8d60664-c7ad-61de-bece-8ab3316f77bc@schaufler-ca.com>
- <CAFqZXNu_DW1FgnVvtA+CnBMtdRDrzYo5B3_=SzKV7-o1CaV0RA@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <94486043-322f-74bd-dc33-83e43b531068@schaufler-ca.com>
-Date:   Fri, 14 May 2021 17:57:08 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S229661AbhEPRLr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 16 May 2021 13:11:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229459AbhEPRLp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 16 May 2021 13:11:45 -0400
+Received: from out2.migadu.com (out2.migadu.com [IPv6:2001:41d0:2:aacc::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81687C061573
+        for <selinux@vger.kernel.org>; Sun, 16 May 2021 10:10:27 -0700 (PDT)
+Message-ID: <a2816d49-ab77-7bbc-a6fc-d7e5fe55ffcb@billdietrich.me>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=billdietrich.me;
+        s=key1; t=1621185024;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+        to:to:cc:mime-version:mime-version:content-type:content-type:autocrypt:autocrypt;
+        bh=RJ+8rkok/CxFO/8pQ3Xd5HF2nr883kN/SYx7r2WzL1k=;
+        b=b5ep8D3EyZCU3LYJZDxu/dPCe7p5z/I/UhGXoebKbExc6LcNEya+jBpG0+U7tDjZCH3PgV
+        P3HDuRIVwy5OxRHivFWh6MG8y2+EDmGfOj7BiSWit/K9NlkLW5Xr/f/JEtqM25UqLIXNTL
+        qOggS7/hLG2s1yWn7gE4Xi3OG+DmH+h8jOhgEHOHzhukpoTL8qbbexuTLAulriFWpJAZcC
+        v+zPdMJJgoyZjrCyv3bqHH13TJIGBqGawilNkgxbdybvL/Xnam+ZAs8+HfWK++6t8EedeX
+        IBKBb85zUY+cdiCrTDAc9oOkFz8ysl6qYX62xhHgSDIKip4ELMEr+zbnQ08lOg==
+Date:   Sun, 16 May 2021 19:10:23 +0200
 MIME-Version: 1.0
-In-Reply-To: <CAFqZXNu_DW1FgnVvtA+CnBMtdRDrzYo5B3_=SzKV7-o1CaV0RA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-X-Mailer: WebService/1.1.18291 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/16)
+To:     selinux@vger.kernel.org
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Bill Dietrich <bill@billdietrich.me>
+Subject: Relative filename in semanage args ?
+Autocrypt: addr=bill@billdietrich.me; keydata=
+ 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
+ YzSgk+ywHGgZ8Ns=
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="VvegBXcZYGR7utpQXP9AzSJgxji2kE6fB"
+X-Migadu-Flow: FLOW_OUT
+X-Migadu-Auth-User: bill@billdietrich.me
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/14/2021 8:12 AM, Ondrej Mosnacek wrote:
-> On Wed, May 12, 2021 at 7:12 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 5/12/2021 9:44 AM, Ondrej Mosnacek wrote:
->>> On Wed, May 12, 2021 at 6:18 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> On 5/12/2021 6:21 AM, Ondrej Mosnacek wrote:
->>>>> On Sat, May 8, 2021 at 12:17 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>>>> On 5/7/2021 4:40 AM, Ondrej Mosnacek wrote:
->>>>>>> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
->>>>>>> lockdown") added an implementation of the locked_down LSM hook to
->>>>>>> SELinux, with the aim to restrict which domains are allowed to perform
->>>>>>> operations that would breach lockdown.
->>>>>>>
->>>>>>> However, in several places the security_locked_down() hook is called in
->>>>>>> situations where the current task isn't doing any action that would
->>>>>>> directly breach lockdown, leading to SELinux checks that are basically
->>>>>>> bogus.
->>>>>>>
->>>>>>> Since in most of these situations converting the callers such that
->>>>>>> security_locked_down() is called in a context where the current task
->>>>>>> would be meaningful for SELinux is impossible or very non-trivial (and
->>>>>>> could lead to TOCTOU issues for the classic Lockdown LSM
->>>>>>> implementation), fix this by adding a separate hook
->>>>>>> security_locked_down_globally()
->>>>>> This is a poor solution to the stated problem. Rather than adding
->>>>>> a new hook you should add the task as a parameter to the existing hook
->>>>>> and let the security modules do as they will based on its value.
->>>>>> If the caller does not have an appropriate task it should pass NULL.
->>>>>> The lockdown LSM can ignore the task value and SELinux can make its
->>>>>> own decision based on the task value passed.
->>>>> The problem with that approach is that all callers would then need to
->>>>> be updated and I intended to keep the patch small as I'd like it to go
->>>>> to stable kernels as well.
->>>>>
->>>>> But it does seem to be a better long-term solution - would it work for
->>>>> you (and whichever maintainer would be taking the patch(es)) if I just
->>>>> added another patch that refactors it to use the task parameter?
->>>> I can't figure out what you're suggesting. Are you saying that you
->>>> want to add a new hook *and* add the task parameter?
->>> No, just to keep this patch as-is (and let it go to stable in this
->>> form) and post another (non-stable) patch on top of it that undoes the
->>> new hook and re-implements the fix using your suggestion. (Yeah, it'll
->>> look weird, but I'm not sure how better to handle such situation - I'm
->>> open to doing it whatever different way the maintainers prefer.)
->> James gets to make the call on this one. If it was my call I would
->> tell you to make the task parameter change and accept the backport
->> pain. I think that as a security developer community we spend way too
->> much time and effort trying to avoid being noticed in source trees.
-> Hm... actually, what about this attached patch? It switches to a
-> single hook with a cred argument (I figured cred makes more sense than
-> task_struct, since the rest of task_struct should be irrelevant for
-> the LSM, anyway...) right from the start and keeps the original
-> security_locked_down() function only as a simple wrapper around the
-> main hook.
->
-> At that point I think converting the other callers to call
-> security_cred_locked_down() directly isn't really worth it, since the
-> resulting calls would just be more verbose without much benefit. So
-> I'm tempted to just leave the security_locked_down() helper as is, so
-> that the more common pattern can be still achieved with a simpler
-> call.
->
-> What do you think?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--VvegBXcZYGR7utpQXP9AzSJgxji2kE6fB
+Content-Type: multipart/mixed; boundary="zvH1CO6nNxzrBA65QesIoBmCGLgqctlXo";
+ protected-headers="v1"
+From: Bill Dietrich <bill@billdietrich.me>
+To: selinux@vger.kernel.org
+Message-ID: <a2816d49-ab77-7bbc-a6fc-d7e5fe55ffcb@billdietrich.me>
+Subject: Relative filename in semanage args ?
 
-It's still a bit kludgy, but a big improvement over the previous version.
-I wouldn't object to this approach.
+--zvH1CO6nNxzrBA65QesIoBmCGLgqctlXo
+Content-Type: multipart/mixed; boundary="------------maBc6dDkkmSWpIsJpPUq3ByR"
 
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
+--------------maBc6dDkkmSWpIsJpPUq3ByR
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+U29ycnksIEknbSBhIG5ld2JpZSwgbWF5YmUgSSdtIHdyb25nLiAgQnV0IGlzIHRoaXMgYSBi
+dWcgPw0KDQogICAgIHRvdWNoIC4uL3h4eA0KICAgICBzdWRvIHNlbWFuYWdlIGZjb250ZXh0
+IC1hIC10IHNvbWV0aGluZ190IC4uL3h4eA0KICAgICBzdWRvIHNlbWFuYWdlIGZjb250ZXh0
+IC0tbGlzdCB8IGdyZXAgeHh4DQogICAgICMgc2VlICIuLi94eHgiIGFzIGZpbGVuYW1lIGlu
+IGxpc3QNCg0KSSBkb24ndCB0aGluayByZWxhdGl2ZSBmaWxlbmFtZXMgc2hvdWxkIGJlIHB1
+dCBpbiB0aGF0DQpsaXN0LCBzaG91bGQgdGhleSA/ICBTYW1lIHJlbGF0aXZlIGZpbGVuYW1l
+IGFwcGVhcnMgaWYNCkkgY2QgdG8gc29tZXdoZXJlIGVsc2UgYW5kIGRvIHRoZSAtLWxpc3Qg
+Y29tbWFuZCBhZ2Fpbi4NCg0KVGhhbmtzLA0KDQpCaWxsIERpZXRyaWNoDQpiaWxsQGJpbGxk
+aWV0cmljaC5tZQ0K
+--------------maBc6dDkkmSWpIsJpPUq3ByR
+Content-Type: application/pgp-keys; name="OpenPGP_0xF790D4D71624804B.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xF790D4D71624804B.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsDNBF8Yii8BDAC639t0VMAHf2YSJbOlWI37iE3T/AtYX7iyaxrPPRJ7Q4LU6j8DhNfStUJul=
+Zx5
+kqBFaqUPJVvFArWywpm6aM9/vuT64yZde1s0hJoODRSillj3bpd47HwyF0syR1sl+nmm74FR3=
+K1x
+MV6qFbv1M0yjMvLZHQbKfUtjFUOuSnBYWW4MLqhhV1Vj5goOM0Et9nHgrG+wSlnXcDFop2yKb=
+LvR
+ZJvJUGvIdWdU190PfLYTurxH3r6pAHRinKzZHaJBiipwcB/AEii70OHPXDNqrido9m1dLxHi0=
+aW7
+UnI7rAyfuTI4PbRbBuk9OE7ZDFqm/yXsnXCkfHkzBvYKUqiMWqaDVN6Qxc7AB7oPEzxkPWaUK=
+W/d
+Z5m0sSBp64LZJTHZ8fPxpkIwrjx8TOUHI5JTqPouIpBAzP2kB2GsSzcvTPpyGTwiPVuHZptY3=
+mFS
+gmNSqNBRg39norhT8aFyec8L2lvNb/PbA0X7MbQP2m+GgkkS0zcUl/gi8gZC/uvXKtJgqOcAE=
+QEA
+Ac0kQmlsbCBEaWV0cmljaCA8YmlsbEBiaWxsZGlldHJpY2gubWU+wsEJBBMBCAAzFiEEJaTUr=
+pB9
+dqxv81B595DU1xYkgEsFAl8YijACGwMFCwkIBwIGFQgJCgsCBRYCAwEAAAoJEPeQ1NcWJIBL+=
+7IM
+AKsnMlC1sp7wg0WVcVFcMjhJyYzbkN3y6fFlnANsIHpUROXWXMIfslMSYeXMRieT7EJhh/r9Y=
+Nwv
++T52E/92DnmPdzHdsALZ+4GFwvX14Ai72/bZRJOYegHDcXsAXAXOp2cCProQmUnGi+i4UJT25=
+vsu
+0K5T/sQhh6KwsxF+bKW4abjl74qacq194o3Gx1eqUb98Xbkfma14R8OLxV5gxdhCYKpQsIgBO=
+VNz
+sGHk5JtAwXWAPb/bwgS0OgGSvDOELOOm84bsFrHBI4XNmZ7V93CqSvXzCxUyfihdeWOuI2NcZ=
+DOE
+q2C9YnFk0966puMT6yqo4JPcgn608McvaGV36r5vPspF+u1cEEcvikMbKd+6DwUKZGCsLxvK3=
+PJj
+JHsByt8mGlib+7sn64Nue4gKWGf70g7IIKGRWQhdeWjLXHfaPFUF5TxWKgRAWM2tmSjyaC0EV=
+UFM
+q5Jpp7vH0zql80YpIogHj2ihNp7h6urs5y8I9yfOmml2UCmYGbUg6HmDpc7AzQRfGIoxAQwAn=
+9Ek
+w/rbE2qz1rsYPDRJ6+gycKYe8kDRI02UI/boh9SA+A9W0YJr38/n7dPDtYs4H1SYQPWUm2MOV=
+mIt
+koE75bYqxCBTSa2iE1fbBFqT1vKChK5xzD+Fs4Zhmi+ZlpPD0aDOrv9JnllQNRIJUNtBM3jsC=
+KS+
+LaguTahsn1HGjbOE0WA/vSywCtiQwaP/mq6g7tBVxn4IOdbxKHDuXSIyongSXT00z3NHqlgS1=
+yPz
+LPwRVX3V9O6lI6DA88pZG+yv1sONpxS/c7iHQDoQ+19s1WImp/J/wfiuvyLaeq+hAyktBaKEI=
+c9F
+gF+elD3QEYmEJHXCbMg6OdPrUZWFGZY8ZidI92U1D7xs5fSNb23N6NdDL5ayy+Pl9ho+eljBF=
+fAd
+bh5uLnWXcvzJQS2ftI6vVOIrHjteLc2VLF+BvXVBjGazH5vc+vu5W2cloihyUGKl9z3KRehtv=
+4NQ
+u2+/jTZFDNsN0F5R6PyS2yPBYlWuuFb6GZRxKSn30Jw7jQkTfiwRABEBAAHCwPYEGAEIACAWI=
+QQl
+pNSukH12rG/zUHn3kNTXFiSASwUCXxiKMwIbDAAKCRD3kNTXFiSAS36FC/4yparVyGwyW8Gji=
+B+z
+FrZ1mQY/LRn8m5+EH03WCp4Ajy4Pde2qgEiWus1/beQcLi/SD7Ro2tQyJYv4mJfuhroxCYSZc=
+VBx
+t12rIKdJLLd47ZQnyJdemQI+Dnk0NIM/6xT7OYpJ3X6nLTT9VHrcqdlnSVt6Nsy/F9ehk4PNq=
+u7e
+5Exe9F1Q176eUT/mrC/Y4m6qnV0X8y8m+QavFA7qnrdByhbLmyuExPbtV2B46h4qZsLucHQu3=
+L14
+24KSC7UVJA2Xo0CF/a7z6ggyyAns7tMk8/1e5ambr/uYz09uU/7u9W8OwQP22bHJqd3Cytb4T=
+1Ev
+FN3S2AnfIslAJ/KGInLpyKMKaLWd5x4HgOZ0SiCwl86X41QEisAbp5yY7gOsxSXKiuh24LxXG=
+gXO
+/k7hH7eEE8dvj9QvSLEDN35/Ju6+j8PjSajgaNJOiDcql6ByrBiUUiKPATQdaLQjYwxxt4WXs=
+tt/
+B/fXmhXUFNo0gfwVQYJAAIf0YzSgk+ywHGgZ8Ns=3D
+=3DQ3fd
+-----END PGP PUBLIC KEY BLOCK-----
+--------------maBc6dDkkmSWpIsJpPUq3ByR--
+
+
+--zvH1CO6nNxzrBA65QesIoBmCGLgqctlXo--
+
+--VvegBXcZYGR7utpQXP9AzSJgxji2kE6fB
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsD5BAABCAAjFiEEJaTUrpB9dqxv81B595DU1xYkgEsFAmChUf8FAwAAAAAACgkQ95DU1xYkgEtD
+fwv/TItPNAP+MYWjBmDBq2k7dsalTMVUTNoYxSMZHMUDjsYyZxFrbGUYwiPGQMjAsI51GHohoqDt
+VDe5R7oSEgUztY1JcBdKBvtE8JldLyg7M3IfkttxT0X7o90cNLpMEzXhTk78U2VIGcRn7zB4Kikr
+srteWJ9eGVtr8PZCyN/q3of1G+Ra/yB+lLT1K6gp5su3DnHxhnxuNpeaMmIHSH/K99e+6RMuDcET
+m2Oi+1l3cQaPQzi20m61/yhizxe4Dwa0vqorCEwlrq6v//yzBlUyZfe3w8PWyMjDVrwtUqD1AzSm
+WyDP9V+5rNUBBx2zFgAVN1uuqkhCIZ3yzqTF0t8UBhlkyyChZvlnuXsOMVtbXyhRjTnmEQuTUTeC
+1PDDVZrZhxuY/5GRvMDwk3uctlUJwbCyBHz3iLIEtcg2ihjRuoSDUSMRKnnsDqkz4acDu4cumaQG
+TyuDKlCuIFSOyePGB9oEfp6qI/LM+oI+JGDHaxAWxq0V0aJ7x5m6SgF9vHYt
+=CmX4
+-----END PGP SIGNATURE-----
+
+--VvegBXcZYGR7utpQXP9AzSJgxji2kE6fB--
