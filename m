@@ -2,102 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D86EC43461
-	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 11:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BCB3C433B4
+	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 13:42:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07A3761221
-	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 11:00:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2593460FD8
+	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 13:42:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236593AbhEQLB2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 May 2021 07:01:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49832 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236471AbhEQLB2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 May 2021 07:01:28 -0400
-Received: from ozlabs.org (ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB482C061573;
-        Mon, 17 May 2021 04:00:11 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4FkGPL2v7fz9sRK;
-        Mon, 17 May 2021 21:00:06 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1621249208;
-        bh=2Y30Sqquhl/9Xg91SIhYLicrc/NfN9wZV7c3dBixuaM=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=VI5JgnrgZ4xyeV2fG6OMRkRLi9t+nx0yM9RE5QaorROoFyOWMK4Ia15ckRi54qvrV
-         M+w6tLOpjdtpqYyR1YjTNAeSnVWRR5RIXgDzrQsPQt1nWa9Y9ev6r0llmCCwpRp9u5
-         tukI4W67KVjdGfCTlUB5kG8MvJKR3kFs+hSRt4D/EmpGx3efFAQOpCyG2JyaKPFkMy
-         t9NVJ2TggtS98H21zmNkHIxEfdtrweokHsKipNrE4CwK0s04IJEEuV0a8YFGlXvec8
-         FIQmJTzYp/lViFdUAP3QE4RTv9nQWCfzHBBAdqoMSj7x75+zdb+N43yN/oAtcQOUQd
-         lnqc/+sEjPGQA==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-security-module@vger.kernel.org,
-        James Morris <jmorris@namei.org>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
+        id S237446AbhEQNnZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 May 2021 09:43:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44167 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237404AbhEQNnZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 May 2021 09:43:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621258928;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=H6x6dlAzQJeEEcgnxw7b14Lv0Ybic0pb80Lf+1COmZk=;
+        b=NVWLLx9Lg3A/SUDrZKIhi/HHd1y1INi6JNZmBX0Egm7QCNtK2pKAXQSJaJ590a1/k0hRV+
+        xm0cLOq2PgwrjP7JstwEx8eCVooujU8CjQJPoPaq927bSWkDoSJt2RVjh36+8zvhs/xap9
+        eulWkRhuDSnRlI538v/T6Il6rqzEGfM=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-370-vh56Yxl2PEapnVu2XSxSaA-1; Mon, 17 May 2021 09:42:06 -0400
+X-MC-Unique: vh56Yxl2PEapnVu2XSxSaA-1
+Received: by mail-ed1-f71.google.com with SMTP id c21-20020a0564021015b029038c3f08ce5aso3959472edu.18
+        for <selinux@vger.kernel.org>; Mon, 17 May 2021 06:42:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=H6x6dlAzQJeEEcgnxw7b14Lv0Ybic0pb80Lf+1COmZk=;
+        b=Rs9xQRoyzVp++5EWzRxVjmfWSeOlYPSUhUTPbQrSdkdqwmLiJ62Kad80VBmjpMriRo
+         xBMSTMIlIob4z0gcE/OxY6x6TrQXYfhVTm6m+mq5UFu0dlH6rXU8/rQjPs/okVZcA078
+         MCM9hxiDorPo3hDXf/I4W6aFQOuwP3aOpPuq3aP/iBDsWB60LZKh6tEjie4Ur4xj+Jjk
+         bFOyp6kX0fFeaN2DasJJiJb1+znXLeZXuFrMu9LIIEmvx1vFySsubByqd8x0vcDWo51l
+         g9ID0iMeEbxNU5iMC0Bu+zED6KZ2Va8pPKKH858Z2xMpIAhWvFhqSzFFegF7bDd7DP03
+         Z2Fw==
+X-Gm-Message-State: AOAM533yaLQrzbqeQb2B4vJ46eM/+svpX0/Zl/oPfzvPg0e/i2spuTIr
+        ssM7To9Y/iIg1Nc4F7TEkFlGXsKgzGFnUhlhdhhUaJopFSBiRtYm2TO9POEwM43qYioq38npgEG
+        3/UrOAIlk50V23DBsTg==
+X-Received: by 2002:a17:907:1007:: with SMTP id ox7mr4485ejb.82.1621258925020;
+        Mon, 17 May 2021 06:42:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxOnrwdmJm9wKgv4E3uyq02kBsINeKG2K+kyigE4PMhwjioTBtobRTknqqvWz3J64hwJZiBMw==
+X-Received: by 2002:a17:907:1007:: with SMTP id ox7mr4465ejb.82.1621258924851;
+        Mon, 17 May 2021 06:42:04 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
+        by smtp.gmail.com with ESMTPSA id f7sm11302466edd.5.2021.05.17.06.42.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 May 2021 06:42:04 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Olga Kornievskaia <aglo@umich.edu>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        David Howells <dhowells@redhat.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
- permission checks
-In-Reply-To: <20210517092006.803332-1-omosnace@redhat.com>
-References: <20210517092006.803332-1-omosnace@redhat.com>
-Date:   Mon, 17 May 2021 21:00:04 +1000
-Message-ID: <87o8d9k4ln.fsf@mpe.ellerman.id.au>
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH v2 0/2] vfs/security/NFS/btrfs: clean up and fix LSM option handling
+Date:   Mon, 17 May 2021 15:41:59 +0200
+Message-Id: <20210517134201.29271-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Ondrej Mosnacek <omosnace@redhat.com> writes:
-> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
-> lockdown") added an implementation of the locked_down LSM hook to
-> SELinux, with the aim to restrict which domains are allowed to perform
-> operations that would breach lockdown.
->
-> However, in several places the security_locked_down() hook is called in
-> situations where the current task isn't doing any action that would
-> directly breach lockdown, leading to SELinux checks that are basically
-> bogus.
->
-> Since in most of these situations converting the callers such that
-> security_locked_down() is called in a context where the current task
-> would be meaningful for SELinux is impossible or very non-trivial (and
-> could lead to TOCTOU issues for the classic Lockdown LSM
-> implementation), fix this by modifying the hook to accept a struct cred
-> pointer as argument, where NULL will be interpreted as a request for a
-> "global", task-independent lockdown decision only. Then modify SELinux
-> to ignore calls with cred == NULL.
->
-> Since most callers will just want to pass current_cred() as the cred
-> parameter, rename the hook to security_cred_locked_down() and provide
-> the original security_locked_down() function as a simple wrapper around
-> the new hook.
->
-> The callers migrated to the new hook, passing NULL as cred:
-> 1. arch/powerpc/xmon/xmon.c
->      Here the hook seems to be called from non-task context and is only
->      used for redacting some sensitive values from output sent to
->      userspace.
+This series fixes two bugs:
+1. A bug with BTRFS where LSM options are ignored when BTRFS is mounted
+   via the new fsconfig(2) API. (fixed by patch 1)
+2. A bug with NFS + SELinux where an attempt to do the same mount twice
+   might incidentally turn off LSM labeling, making any fresh inode
+   show up as unlabeled. (fixed by patch 2, with patch 1 as a prereq)
 
-It's hard to follow but it actually disables interactive use of xmon
-entirely if lockdown is in confidentiality mode, and disables
-modifications of the kernel in integrity mode.
+For bug (1.) I previously posted a different patch [1], which is no
+longer needed if these patches are applied.
 
-But that's not really that important, the patch looks fine.
+While these patches do add a new fs_type flag (which seems to be frowned
+upon), they also reduce the semantics of FS_BINARY_MOUNT_DATA flag to
+*only* the mount data being binary, while before it was also (ab)used
+to skip mount option processing in SELinux for NFS and BTRFS. The result
+is perhaps still not perfect, but it seems to be the only non-invasive
+solution for these bugs in the short term. Once BTRFS is finally
+converted to the new mount API, a lot of the ugliness can likely be
+refactored to something nicer (and these patches do not really make that
+any harder to do, IMHO).
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+I tested the patches by running the NFS part of the SELinux testsuite
+[2] (which is now fully passing). I also ran the proposed BTRFS SELinux
+test coverage for selinux-testsuite [3], which is now passing.
 
-cheers
+Changes since v1:
+- in BTRFS, move the FS_HANDLES_LSM_OPTS flag to btrfs_root_fs_type, and
+  remove FS_BINARY_MOUNTDATA from both fs_types now
+
+v1: https://lore.kernel.org/selinux/20210409111254.271800-1-omosnace@redhat.com/T/
+
+[1] https://lore.kernel.org/selinux/20210401065403.GA1363493@infradead.org/T/
+[2] https://github.com/SELinuxProject/selinux-testsuite/
+[3] https://lore.kernel.org/selinux/20201103110121.53919-2-richard_c_haines@btinternet.com/
+    ^^ the original patch no longer applies - a rebased version is here:
+    https://github.com/WOnder93/selinux-testsuite/commit/212e76b5bd0775c7507c1996bd172de3bcbff139.patch
+
+Ondrej Mosnacek (2):
+  vfs,LSM: introduce the FS_HANDLES_LSM_OPTS flag
+  selinux: fix SECURITY_LSM_NATIVE_LABELS flag handling on double mount
+
+ fs/btrfs/super.c         | 34 +++++-----------------------------
+ fs/nfs/fs_context.c      |  6 ++++--
+ fs/super.c               | 10 ++++++----
+ include/linux/fs.h       |  3 ++-
+ security/selinux/hooks.c | 32 +++++++++++++++++---------------
+ 5 files changed, 34 insertions(+), 51 deletions(-)
+
+-- 
+2.31.1
+
