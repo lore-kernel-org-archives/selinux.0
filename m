@@ -2,156 +2,390 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA358C433B4
-	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 08:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE02C43462
+	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 09:22:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B9D1461057
-	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 08:34:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14765611BF
+	for <selinux@archiver.kernel.org>; Mon, 17 May 2021 09:22:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235730AbhEQIfx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 May 2021 04:35:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52364 "EHLO
+        id S235942AbhEQJYC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 May 2021 05:24:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:46720 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235656AbhEQIfp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 May 2021 04:35:45 -0400
+        by vger.kernel.org with ESMTP id S235811AbhEQJYB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 May 2021 05:24:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1621240469;
+        s=mimecast20190719; t=1621243364;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=H0rIkLZVSWvcw5d0SRX5kn9M8zHvErYPyZMfehLrUnc=;
-        b=EmQx2Hqy2ATSijsG6cLCYr6bXgME779xCT3WJfMTjnahW/KDZV1dtZfKIZAFmVaQfil4Wz
-        TKifJhsFosbhwCBLbppO1ygE5m9XfOy+a9yfd2gKMVklW/7CkbkPhFJKAR8x76H3iy1/mg
-        Mw7ZTpHhdtV4pkZkggaPHwXE0tOrqwM=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-12-KWIY7CagPyCMaepM4G0qyA-1; Mon, 17 May 2021 04:34:25 -0400
-X-MC-Unique: KWIY7CagPyCMaepM4G0qyA-1
-Received: by mail-yb1-f197.google.com with SMTP id d89-20020a25a3620000b02904dc8d0450c6so8519333ybi.2
-        for <selinux@vger.kernel.org>; Mon, 17 May 2021 01:34:25 -0700 (PDT)
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Lh52OqTC2uVe5TI8Cj5aeQ7Ezjtu05JjDHOo/9GMNws=;
+        b=JXKv2EPKMwFi9rA+q2MzXfNMRvjY4davsX2nxr002fasgUEFJsKwUyhw0w4TTdMKAUXOO1
+        4h4k40oQ+xH3odY26g6gbmKb0aNpfl1RzZiG5XF/Q/S03OyQuRUzsnCF7q//RSDaVzQ4Wn
+        aOWuLNjLcqsYIDsnWTWu3v6T9FsKhEQ=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-334-0KanNKSzPhmk6hcckB9hpQ-1; Mon, 17 May 2021 05:20:12 -0400
+X-MC-Unique: 0KanNKSzPhmk6hcckB9hpQ-1
+Received: by mail-ej1-f72.google.com with SMTP id sd18-20020a170906ce32b02903cedf584542so795717ejb.9
+        for <selinux@vger.kernel.org>; Mon, 17 May 2021 02:20:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=H0rIkLZVSWvcw5d0SRX5kn9M8zHvErYPyZMfehLrUnc=;
-        b=n1zSAOKW4egBAhYr2xL0rlgi7sHpuL7MxcPle4NG42V21n8R/G6XzhUe1UC6J5s0WK
-         rDWXBUFyd70OVhDciWD04bHkbHli36Vm0JZFCnm3hRGKH7Daxn/Xivz5Mt1xayRnG4DW
-         9PpUUNrVy3TbJ336jqFA6X1kgsqzyvaFc/pdQuYzQiv73VsYp+zY6VJusVKcyAmsoGCW
-         ZJfxUPsu7dM1T4o5Q0Iek7dzUHX6mTtZUpZY4xKWEi4LotoiTWoPlwncBHK52tbTzxBM
-         wZsgK1LEGuh/oyOS2ZE75Lz4oB4jsmdelfE6ylFyCGDi5rEwpJfPeHNYDfz5XystbapW
-         shJw==
-X-Gm-Message-State: AOAM532tqnLP9VSULzFDWrK6VgwkhtUgy8F6YsIQOQnYmF5R/wy24LZB
-        9qzmFwowlBwN2wHrVEqEuymgwpfqJ+y866Hta4584WKf23Z+K6UckuiabbT9JXbkt4ip6pGmmy9
-        UPgGVuyay4L6sIHChya05zlSvF14A5aZyhg==
-X-Received: by 2002:a25:7451:: with SMTP id p78mr10684344ybc.227.1621240465228;
-        Mon, 17 May 2021 01:34:25 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzG+xOt2sI6iuR2d62PUilNKaHp2d8mDgxkq88vNwwlef+ekCp0Xow3HwXFMFBuMiPNKcW/vJ9jupOWJKiZWFg=
-X-Received: by 2002:a25:7451:: with SMTP id p78mr10684322ybc.227.1621240465001;
- Mon, 17 May 2021 01:34:25 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210507114048.138933-1-omosnace@redhat.com> <a8d138a6-1d34-1457-9266-4abeddb6fdba@schaufler-ca.com>
- <CAFqZXNtr1YjzRg7fTm+j=0oZF+7C5xEu5J0mCZynP-dgEzvyUg@mail.gmail.com>
- <24a61ff1-e415-adf8-17e8-d212364d4b97@schaufler-ca.com> <CAFqZXNvB-EyPz1Qz3cCRTr1u1+D+xT-dp7cUxFocYM1AOYSuxw@mail.gmail.com>
- <e8d60664-c7ad-61de-bece-8ab3316f77bc@schaufler-ca.com> <CAFqZXNu_DW1FgnVvtA+CnBMtdRDrzYo5B3_=SzKV7-o1CaV0RA@mail.gmail.com>
- <94486043-322f-74bd-dc33-83e43b531068@schaufler-ca.com>
-In-Reply-To: <94486043-322f-74bd-dc33-83e43b531068@schaufler-ca.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Lh52OqTC2uVe5TI8Cj5aeQ7Ezjtu05JjDHOo/9GMNws=;
+        b=gNLKuj9sKK2NZjxh334sPYGDMGKpwIYA78G9NIy2QBn/+5F2ehOZJT/LJJi3SivUcD
+         7ZfYcXJuph1KzEsA/+/pPS9aXH/8xBzkkjGkm1M5/+pdBS+uO5GN8uMie6mmcimhPylf
+         WoW2hqOIoX0CTvieEIJG/iMYHuD20RfGiPlubTmUkDPEp9eJCtof7ebmdi48ucv9INrd
+         zf/LO8sMpU1nYqVCFOZwF8LJ6q5V1vGAjOodtC5HACxbrXLob3Tl0s++Id2rSoYQLIQQ
+         QPF76y/BJm/9NmepRpjO62PkI7/nRJ5DUqzTIMDLGKU/6jla9la9LyNuUV8q7BrnOYrU
+         CojQ==
+X-Gm-Message-State: AOAM531f8LSeEXjaysRaCGSiudxoZEnYuzoQS97ij58/VT130H455uov
+        L0TyXKtEIZuJNhhmqKgnL6s2I4wDVvdvR+my68YHYWbkKwPufANBDi2qTxxpEqXj2jAADVudy1G
+        2NF+FO0Hn0BxZUyghIg==
+X-Received: by 2002:aa7:d9c8:: with SMTP id v8mr15061167eds.186.1621243210391;
+        Mon, 17 May 2021 02:20:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzaCV4robSlfb92PPbNHj/c+tEG3xQ7HbJnmq6teN5zQAr/K9LMUZ4/D22Dap+04FeLklzF3Q==
+X-Received: by 2002:aa7:d9c8:: with SMTP id v8mr15061143eds.186.1621243210166;
+        Mon, 17 May 2021 02:20:10 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b105:dd00:277b:6436:24db:9466])
+        by smtp.gmail.com with ESMTPSA id b9sm1905323edt.71.2021.05.17.02.20.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 May 2021 02:20:09 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 17 May 2021 10:34:12 +0200
-Message-ID: <CAFqZXNucQhcYTZPGmi0MeHOvwCTsxxBSwzZ+W_MODX0_5WgcPg@mail.gmail.com>
-Subject: Re: [PATCH] lockdown,selinux: fix bogus SELinux lockdown permission checks
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
+To:     linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
         Ingo Molnar <mingo@redhat.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>, network dev <netdev@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown permission checks
+Date:   Mon, 17 May 2021 11:20:06 +0200
+Message-Id: <20210517092006.803332-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, May 15, 2021 at 2:57 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 5/14/2021 8:12 AM, Ondrej Mosnacek wrote:
-> > On Wed, May 12, 2021 at 7:12 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 5/12/2021 9:44 AM, Ondrej Mosnacek wrote:
-> >>> On Wed, May 12, 2021 at 6:18 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>>> On 5/12/2021 6:21 AM, Ondrej Mosnacek wrote:
-> >>>>> On Sat, May 8, 2021 at 12:17 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>>>>> On 5/7/2021 4:40 AM, Ondrej Mosnacek wrote:
-> >>>>>>> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
-> >>>>>>> lockdown") added an implementation of the locked_down LSM hook to
-> >>>>>>> SELinux, with the aim to restrict which domains are allowed to perform
-> >>>>>>> operations that would breach lockdown.
-> >>>>>>>
-> >>>>>>> However, in several places the security_locked_down() hook is called in
-> >>>>>>> situations where the current task isn't doing any action that would
-> >>>>>>> directly breach lockdown, leading to SELinux checks that are basically
-> >>>>>>> bogus.
-> >>>>>>>
-> >>>>>>> Since in most of these situations converting the callers such that
-> >>>>>>> security_locked_down() is called in a context where the current task
-> >>>>>>> would be meaningful for SELinux is impossible or very non-trivial (and
-> >>>>>>> could lead to TOCTOU issues for the classic Lockdown LSM
-> >>>>>>> implementation), fix this by adding a separate hook
-> >>>>>>> security_locked_down_globally()
-> >>>>>> This is a poor solution to the stated problem. Rather than adding
-> >>>>>> a new hook you should add the task as a parameter to the existing hook
-> >>>>>> and let the security modules do as they will based on its value.
-> >>>>>> If the caller does not have an appropriate task it should pass NULL.
-> >>>>>> The lockdown LSM can ignore the task value and SELinux can make its
-> >>>>>> own decision based on the task value passed.
-> >>>>> The problem with that approach is that all callers would then need to
-> >>>>> be updated and I intended to keep the patch small as I'd like it to go
-> >>>>> to stable kernels as well.
-> >>>>>
-> >>>>> But it does seem to be a better long-term solution - would it work for
-> >>>>> you (and whichever maintainer would be taking the patch(es)) if I just
-> >>>>> added another patch that refactors it to use the task parameter?
-> >>>> I can't figure out what you're suggesting. Are you saying that you
-> >>>> want to add a new hook *and* add the task parameter?
-> >>> No, just to keep this patch as-is (and let it go to stable in this
-> >>> form) and post another (non-stable) patch on top of it that undoes the
-> >>> new hook and re-implements the fix using your suggestion. (Yeah, it'll
-> >>> look weird, but I'm not sure how better to handle such situation - I'm
-> >>> open to doing it whatever different way the maintainers prefer.)
-> >> James gets to make the call on this one. If it was my call I would
-> >> tell you to make the task parameter change and accept the backport
-> >> pain. I think that as a security developer community we spend way too
-> >> much time and effort trying to avoid being noticed in source trees.
-> > Hm... actually, what about this attached patch? It switches to a
-> > single hook with a cred argument (I figured cred makes more sense than
-> > task_struct, since the rest of task_struct should be irrelevant for
-> > the LSM, anyway...) right from the start and keeps the original
-> > security_locked_down() function only as a simple wrapper around the
-> > main hook.
-> >
-> > At that point I think converting the other callers to call
-> > security_cred_locked_down() directly isn't really worth it, since the
-> > resulting calls would just be more verbose without much benefit. So
-> > I'm tempted to just leave the security_locked_down() helper as is, so
-> > that the more common pattern can be still achieved with a simpler
-> > call.
-> >
-> > What do you think?
->
-> It's still a bit kludgy, but a big improvement over the previous version.
-> I wouldn't object to this approach.
+Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+lockdown") added an implementation of the locked_down LSM hook to
+SELinux, with the aim to restrict which domains are allowed to perform
+operations that would breach lockdown.
 
-Ok, thanks. I'll post it as a v2 then.
+However, in several places the security_locked_down() hook is called in
+situations where the current task isn't doing any action that would
+directly breach lockdown, leading to SELinux checks that are basically
+bogus.
 
+Since in most of these situations converting the callers such that
+security_locked_down() is called in a context where the current task
+would be meaningful for SELinux is impossible or very non-trivial (and
+could lead to TOCTOU issues for the classic Lockdown LSM
+implementation), fix this by modifying the hook to accept a struct cred
+pointer as argument, where NULL will be interpreted as a request for a
+"global", task-independent lockdown decision only. Then modify SELinux
+to ignore calls with cred == NULL.
+
+Since most callers will just want to pass current_cred() as the cred
+parameter, rename the hook to security_cred_locked_down() and provide
+the original security_locked_down() function as a simple wrapper around
+the new hook.
+
+The callers migrated to the new hook, passing NULL as cred:
+1. arch/powerpc/xmon/xmon.c
+     Here the hook seems to be called from non-task context and is only
+     used for redacting some sensitive values from output sent to
+     userspace.
+2. fs/tracefs/inode.c:tracefs_create_file()
+     Here the call is used to prevent creating new tracefs entries when
+     the kernel is locked down. Assumes that locking down is one-way -
+     i.e. if the hook returns non-zero once, it will never return zero
+     again, thus no point in creating these files.
+3. kernel/trace/bpf_trace.c:bpf_probe_read_kernel{,_str}_common()
+     Called when a BPF program calls a helper that could leak kernel
+     memory. The task context is not relevant here, since the program
+     may very well be run in the context of a different task than the
+     consumer of the data.
+     See: https://bugzilla.redhat.com/show_bug.cgi?id=1955585
+4. net/xfrm/xfrm_user.c:copy_to_user_*()
+     Here a cryptographic secret is redacted based on the value returned
+     from the hook. There are two possible actions that may lead here:
+     a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
+        task context is relevant, since the dumped data is sent back to
+        the current task.
+     b) When deleting an SA via XFRM_MSG_DELSA, the dumped SAs are
+        broadcasted to tasks subscribed to XFRM events - here the
+        SELinux check is not meningful as the current task's creds do
+        not represent the tasks that could potentially see the secret.
+     It really doesn't seem worth it to try to preserve the check in the
+     a) case, since the eventual leak can be circumvented anyway via b),
+     plus there is no way for the task to indicate that it doesn't care
+     about the actual key value, so the check could generate a lot of
+     noise.
+
+Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
+Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+
+v2:
+- change to a single hook based on suggestions by Casey Schaufler
+
+v1: https://lore.kernel.org/lkml/20210507114048.138933-1-omosnace@redhat.com/
+
+ arch/powerpc/xmon/xmon.c      |  4 ++--
+ fs/tracefs/inode.c            |  2 +-
+ include/linux/lsm_hook_defs.h |  3 ++-
+ include/linux/lsm_hooks.h     |  3 ++-
+ include/linux/security.h      | 11 ++++++++---
+ kernel/trace/bpf_trace.c      |  4 ++--
+ net/xfrm/xfrm_user.c          |  2 +-
+ security/lockdown/lockdown.c  |  5 +++--
+ security/security.c           |  6 +++---
+ security/selinux/hooks.c      | 12 +++++++++---
+ 10 files changed, 33 insertions(+), 19 deletions(-)
+
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index c8173e92f19d..90992793b4c5 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -299,7 +299,7 @@ static bool xmon_is_locked_down(void)
+ 	static bool lockdown;
+ 
+ 	if (!lockdown) {
+-		lockdown = !!security_locked_down(LOCKDOWN_XMON_RW);
++		lockdown = !!security_cred_locked_down(NULL, LOCKDOWN_XMON_RW);
+ 		if (lockdown) {
+ 			printf("xmon: Disabled due to kernel lockdown\n");
+ 			xmon_is_ro = true;
+@@ -307,7 +307,7 @@ static bool xmon_is_locked_down(void)
+ 	}
+ 
+ 	if (!xmon_is_ro) {
+-		xmon_is_ro = !!security_locked_down(LOCKDOWN_XMON_WR);
++		xmon_is_ro = !!security_cred_locked_down(NULL, LOCKDOWN_XMON_WR);
+ 		if (xmon_is_ro)
+ 			printf("xmon: Read-only due to kernel lockdown\n");
+ 	}
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index 1261e8b41edb..7edde3fc22f5 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -396,7 +396,7 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
+ 	struct dentry *dentry;
+ 	struct inode *inode;
+ 
+-	if (security_locked_down(LOCKDOWN_TRACEFS))
++	if (security_cred_locked_down(NULL, LOCKDOWN_TRACEFS))
+ 		return NULL;
+ 
+ 	if (!(mode & S_IFMT))
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 2adeea44c0d5..0115d7e3db55 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -393,7 +393,8 @@ LSM_HOOK(int, 0, bpf_prog_alloc_security, struct bpf_prog_aux *aux)
+ LSM_HOOK(void, LSM_RET_VOID, bpf_prog_free_security, struct bpf_prog_aux *aux)
+ #endif /* CONFIG_BPF_SYSCALL */
+ 
+-LSM_HOOK(int, 0, locked_down, enum lockdown_reason what)
++LSM_HOOK(int, 0, cred_locked_down, const struct cred *cred,
++	 enum lockdown_reason what)
+ 
+ #ifdef CONFIG_PERF_EVENTS
+ LSM_HOOK(int, 0, perf_event_open, struct perf_event_attr *attr, int type)
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 5c4c5c0602cb..2d2d82ffea34 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1539,10 +1539,11 @@
+  * @bpf_prog_free_security:
+  *	Clean up the security information stored inside bpf prog.
+  *
+- * @locked_down:
++ * @cred_locked_down:
+  *     Determine whether a kernel feature that potentially enables arbitrary
+  *     code execution in kernel space should be permitted.
+  *
++ *     @cred: credential asociated with the operation, or NULL if not applicable
+  *     @what: kernel feature being accessed
+  *
+  * Security hooks for perf events
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 24eda04221e9..6a609787a03a 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -26,6 +26,7 @@
+ #include <linux/kernel_read_file.h>
+ #include <linux/key.h>
+ #include <linux/capability.h>
++#include <linux/cred.h>
+ #include <linux/fs.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
+@@ -33,7 +34,6 @@
+ #include <linux/mm.h>
+ 
+ struct linux_binprm;
+-struct cred;
+ struct rlimit;
+ struct kernel_siginfo;
+ struct sembuf;
+@@ -470,7 +470,7 @@ void security_inode_invalidate_secctx(struct inode *inode);
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
+ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+-int security_locked_down(enum lockdown_reason what);
++int security_cred_locked_down(const struct cred *cred, enum lockdown_reason what);
+ #else /* CONFIG_SECURITY */
+ 
+ static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+@@ -1343,12 +1343,17 @@ static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32
+ {
+ 	return -EOPNOTSUPP;
+ }
+-static inline int security_locked_down(enum lockdown_reason what)
++static inline int security_cred_locked_down(struct cred *cred, enum lockdown_reason what)
+ {
+ 	return 0;
+ }
+ #endif	/* CONFIG_SECURITY */
+ 
++static inline int security_locked_down(enum lockdown_reason what)
++{
++	return security_cred_locked_down(current_cred(), what);
++}
++
+ #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
+ int security_post_notification(const struct cred *w_cred,
+ 			       const struct cred *cred,
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index d2d7cf6cfe83..d8a242837c1e 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -215,7 +215,7 @@ const struct bpf_func_proto bpf_probe_read_user_str_proto = {
+ static __always_inline int
+ bpf_probe_read_kernel_common(void *dst, u32 size, const void *unsafe_ptr)
+ {
+-	int ret = security_locked_down(LOCKDOWN_BPF_READ);
++	int ret = security_cred_locked_down(NULL, LOCKDOWN_BPF_READ);
+ 
+ 	if (unlikely(ret < 0))
+ 		goto fail;
+@@ -246,7 +246,7 @@ const struct bpf_func_proto bpf_probe_read_kernel_proto = {
+ static __always_inline int
+ bpf_probe_read_kernel_str_common(void *dst, u32 size, const void *unsafe_ptr)
+ {
+-	int ret = security_locked_down(LOCKDOWN_BPF_READ);
++	int ret = security_cred_locked_down(NULL, LOCKDOWN_BPF_READ);
+ 
+ 	if (unlikely(ret < 0))
+ 		goto fail;
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index f0aecee4d539..5f45848c4ff3 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -851,7 +851,7 @@ static int copy_user_offload(struct xfrm_state_offload *xso, struct sk_buff *skb
+ static bool xfrm_redact(void)
+ {
+ 	return IS_ENABLED(CONFIG_SECURITY) &&
+-		security_locked_down(LOCKDOWN_XFRM_SECRET);
++		security_cred_locked_down(NULL, LOCKDOWN_XFRM_SECRET);
+ }
+ 
+ static int copy_to_user_auth(struct xfrm_algo_auth *auth, struct sk_buff *skb)
+diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
+index 87cbdc64d272..2a13c866c22a 100644
+--- a/security/lockdown/lockdown.c
++++ b/security/lockdown/lockdown.c
+@@ -55,7 +55,8 @@ early_param("lockdown", lockdown_param);
+  * lockdown_is_locked_down - Find out if the kernel is locked down
+  * @what: Tag to use in notice generated if lockdown is in effect
+  */
+-static int lockdown_is_locked_down(enum lockdown_reason what)
++static int lockdown_is_locked_down(const struct cred *cred,
++				   enum lockdown_reason what)
+ {
+ 	if (WARN(what >= LOCKDOWN_CONFIDENTIALITY_MAX,
+ 		 "Invalid lockdown reason"))
+@@ -72,7 +73,7 @@ static int lockdown_is_locked_down(enum lockdown_reason what)
+ }
+ 
+ static struct security_hook_list lockdown_hooks[] __lsm_ro_after_init = {
+-	LSM_HOOK_INIT(locked_down, lockdown_is_locked_down),
++	LSM_HOOK_INIT(cred_locked_down, lockdown_is_locked_down),
+ };
+ 
+ static int __init lockdown_lsm_init(void)
+diff --git a/security/security.c b/security/security.c
+index 0c1c9796e3e4..c987b70bc16c 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2592,11 +2592,11 @@ void security_bpf_prog_free(struct bpf_prog_aux *aux)
+ }
+ #endif /* CONFIG_BPF_SYSCALL */
+ 
+-int security_locked_down(enum lockdown_reason what)
++int security_cred_locked_down(const struct cred *cred, enum lockdown_reason what)
+ {
+-	return call_int_hook(locked_down, 0, what);
++	return call_int_hook(cred_locked_down, 0, cred, what);
+ }
+-EXPORT_SYMBOL(security_locked_down);
++EXPORT_SYMBOL(security_cred_locked_down);
+ 
+ #ifdef CONFIG_PERF_EVENTS
+ int security_perf_event_open(struct perf_event_attr *attr, int type)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index eaea837d89d1..c415e3ca4f24 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7017,10 +7017,10 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
+ }
+ #endif
+ 
+-static int selinux_lockdown(enum lockdown_reason what)
++static int selinux_lockdown(const struct cred *cred, enum lockdown_reason what)
+ {
+ 	struct common_audit_data ad;
+-	u32 sid = current_sid();
++	u32 sid;
+ 	int invalid_reason = (what <= LOCKDOWN_NONE) ||
+ 			     (what == LOCKDOWN_INTEGRITY_MAX) ||
+ 			     (what >= LOCKDOWN_CONFIDENTIALITY_MAX);
+@@ -7032,6 +7032,12 @@ static int selinux_lockdown(enum lockdown_reason what)
+ 		return -EINVAL;
+ 	}
+ 
++	/* Ignore if there is no relevant cred to check against */
++	if (!cred)
++		return 0;
++
++	sid = cred_sid(cred);
++
+ 	ad.type = LSM_AUDIT_DATA_LOCKDOWN;
+ 	ad.u.reason = what;
+ 
+@@ -7353,7 +7359,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(perf_event_write, selinux_perf_event_write),
+ #endif
+ 
+-	LSM_HOOK_INIT(locked_down, selinux_lockdown),
++	LSM_HOOK_INIT(cred_locked_down, selinux_lockdown),
+ 
+ 	/*
+ 	 * PUT "CLONING" (ACCESSING + ALLOCATING) HOOKS HERE
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+2.31.1
 
