@@ -7,100 +7,158 @@ X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A94FAC04FF3
-	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36CF2C47080
+	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:19:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FC9061164
-	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:18:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B4B361164
+	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:19:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbhEUUT6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 May 2021 16:19:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
+        id S230410AbhEUUUp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 May 2021 16:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230289AbhEUUTw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 16:19:52 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D3CC0613ED
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:18:29 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id i7so14377774ejc.5
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:18:29 -0700 (PDT)
+        with ESMTP id S230375AbhEUUUo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 16:20:44 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F292C06138A
+        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:19:21 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id s22so32006675ejv.12
+        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:19:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=5nlgh0TQ54JfISjNkuE+6vXCbSzvDn6Db13HObefQGo=;
-        b=VXlAiKygqHU4e+y2w1wYEVp8ltO11dQD7mS0i7xMktZsZBOh7IjbrnQlFEHrZgLBPt
-         LPPPjKQMK/I6M3Ex7YXV46hB5k15+DVlVHJufjK14ZdmI1A14k2vnsERbsWl1JamCaFB
-         BV4HyiVHXHnpCjNocTuao5uTcLbVmP7CWfFvYvYHgys3TZo6Iz/6XstxrABVGgjool74
-         2dWU/ilFlcQyXkAXGk9Ta9rB916XDVMw4jU+SiXe/EREXBkEd1W0kq6t4u62HHAJtIbO
-         CKMdGPRrSXZNDhkqDJ2Yegsc5YAn3DfPywaDJPGx2psFOqbvrlhyZjzKr66M6y7OF238
-         ZVNA==
+        bh=aVEzTQ8I4J/3yp3MgA3FQPj62TME7oEjwi3UB54+9j4=;
+        b=y5acabY0hHaFulLVyRw96Upc3Tfg5b6Vkr2way0sktzbQKqkTD9yR07FT7pm2dbtK2
+         OmIX/Fgm2xBpq1gKrI2N3x9jMvF7NuA98vf/xJIjcCcJndHdWK2E02xm9dExvkQ5GvlT
+         h0DXHodT+NB8JKTBfAsvxDtMdKm5KcxkiQcmBzjtyoKUWgK2oHjZtxvU8b6+lwdlDQjc
+         D5hZyeGTTzmQ2/4wUyAApkMxFk9M65r/4JDnrXFYNPAeRoAD80OVIQWfeFAH/8N1BNVg
+         qn061UVWCxSDmBHw6mCcH4UI/nRyNhP8vsZk5WokXPfE22Hielso21jzz8/mj0UnuA1U
+         Ha5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=5nlgh0TQ54JfISjNkuE+6vXCbSzvDn6Db13HObefQGo=;
-        b=NK2nxs878qnQ7U/Il0qgoIvQGXyaKjb+6+VQo4gxfSaX5EXOwrcMMs7KR/BceiduW5
-         s9LL70nTQ+Cn/1MzlCm0Q1Wo83zJ4II8tGlNF7I2u+w+ku9uX70D5bYccg6PEw1f197Z
-         2mZq8DYlt0ruN3DD1v1GHarrRh1xKa8XIHzOb29m3Ij/ZIKORqcjgnldfH9iSaC99zIR
-         lZawzKg73LBOo4kYVAn4Xg3OW+2icxSJ0gxHlK4CoXOgPQzj2Z/zJDIFSj6Wyv5ChIVG
-         K48zXS2Uh2BfTvMWo4JuYdGj/9DmAFYzl+MpVFDJASXDWYcfHO6f61a6KVLkbXRf24JK
-         HaxQ==
-X-Gm-Message-State: AOAM530l1pjAkJSqnG0ypn+3LQwPHQg8OuY7zwgNWAQLAznhI6wABwRV
-        2fbUDAmAQDGTBawPmB3ZY0OEETptOBzY7FWoC0bg
-X-Google-Smtp-Source: ABdhPJyuyS2L6lmTp+jUY7WZYbtb0aAruf3WAqiCiM7sDpi5Jow+cezV/k6G8N/8ymdaUuX65MmhhvE9Q5v4Z/UQj8A=
-X-Received: by 2002:a17:906:9e21:: with SMTP id fp33mr11995874ejc.488.1621628307963;
- Fri, 21 May 2021 13:18:27 -0700 (PDT)
+        bh=aVEzTQ8I4J/3yp3MgA3FQPj62TME7oEjwi3UB54+9j4=;
+        b=Z0eYoTWor3wAUzbHw8UM4IK+PKH5vIUMpBL8fakFu/aYwG8NUYYOUhYNOIw13EboEd
+         Ji3wm+qVzZh9NDimNrD30N9I71ZPpU8KbYr5aJfccPBCC+O65lOM5k5CkI37yZb2EMSc
+         0P/1la3bFQ2QFJQEZM/VylgHXfHSSgVxCPyk0VqpWs3oh/9/kNRMIYCZYHiArpR9scve
+         Y6/27vhAJyUgRK7AThtHSPovxtobV2JN5k1vaU4vJEJl/B5/gVbCAhfrQdNpHO9QxNUz
+         VisxPTi45tMMWrEPSn8CCSSqvbEA/w03nVt1ktNie3JssiuHYtlg+pg07nyHPoXcqtRc
+         kpgA==
+X-Gm-Message-State: AOAM530YXxsl3u5CugOotSyutH/dFpA5Ap4CHnW02jDG3qrQEr6stKaw
+        j8r0kup08DVBOw+1isAr+jTnHgh0XLRNQo6wEyU1
+X-Google-Smtp-Source: ABdhPJziKJYfK7MvqTrwnHeo+NPoz2FUDF+4sST5fBaH9Y8+nll4YIEPRA92LUzjYQjCfkAjrte8Kmy6TkEhHB1xuyQ=
+X-Received: by 2002:a17:906:7e0f:: with SMTP id e15mr11771196ejr.398.1621628359745;
+ Fri, 21 May 2021 13:19:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210513200807.15910-1-casey@schaufler-ca.com> <20210513200807.15910-9-casey@schaufler-ca.com>
-In-Reply-To: <20210513200807.15910-9-casey@schaufler-ca.com>
+References: <20210513200807.15910-1-casey@schaufler-ca.com>
+ <20210513200807.15910-15-casey@schaufler-ca.com> <202105141218.21BDA22F@keescook>
+ <c1ab101a-7ee3-6d20-c8b1-cff5bcdfe98c@schaufler-ca.com>
+In-Reply-To: <c1ab101a-7ee3-6d20-c8b1-cff5bcdfe98c@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 May 2021 16:18:16 -0400
-Message-ID: <CAHC9VhSZDX3KVzGJQuksDo_mfsg7Qb7Vs+goqbzF9qsF7hRUcg@mail.gmail.com>
-Subject: Re: [PATCH v26 08/25] LSM: Use lsmblob in security_secid_to_secctx
+Date:   Fri, 21 May 2021 16:19:08 -0400
+Message-ID: <CAHC9VhScDhmr2k5RpNhj1=6FpO_xPN1C6_qFqbXb6SWUbBiENA@mail.gmail.com>
+Subject: Re: [PATCH v26 14/25] LSM: Specify which LSM to display
 To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
+Cc:     Kees Cook <keescook@chromium.org>, casey.schaufler@intel.com,
+        James Morris <jmorris@namei.org>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        linux-audit@redhat.com, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp,
         Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        netfilter-devel@vger.kernel.org
+        linux-kernel@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-api@vger.kernel.org, linux-doc@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 13, 2021 at 4:17 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Mon, May 17, 2021 at 3:53 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 5/14/2021 12:23 PM, Kees Cook wrote:
+> > On Thu, May 13, 2021 at 01:07:56PM -0700, Casey Schaufler wrote:
+> >> Create a new entry "interface_lsm" in the procfs attr directory for
+> >> controlling which LSM security information is displayed for a
+> >> process. A process can only read or write its own display value.
+> >>
+> >> The name of an active LSM that supplies hooks for
+> >> human readable data may be written to "interface_lsm" to set the
+> >> value. The name of the LSM currently in use can be read from
+> >> "interface_lsm". At this point there can only be one LSM capable
+> >> of display active. A helper function lsm_task_ilsm() is
+> >> provided to get the interface lsm slot for a task_struct.
+> >>
+> >> Setting the "interface_lsm" requires that all security modules using
+> >> setprocattr hooks allow the action. Each security module is
+> >> responsible for defining its policy.
+> >>
+> >> AppArmor hook provided by John Johansen <john.johansen@canonical.com>
+> >> SELinux hook provided by Stephen Smalley <stephen.smalley.work@gmail.com>
+> >>
+> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> >> Cc: Kees Cook <keescook@chromium.org>
+> >> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> >> Cc: Paul Moore <paul@paul-moore.com>
+> >> Cc: John Johansen <john.johansen@canonical.com>
+> >> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >> Cc: linux-api@vger.kernel.org
+> >> Cc: linux-doc@vger.kernel.org
+> >> ---
+> >>  .../ABI/testing/procfs-attr-lsm_display       |  22 +++
+> >>  Documentation/security/lsm.rst                |  14 ++
+> >>  fs/proc/base.c                                |   1 +
+> >>  include/linux/lsm_hooks.h                     |  17 ++
+> >>  security/apparmor/include/apparmor.h          |   3 +-
+> >>  security/apparmor/lsm.c                       |  32 ++++
+> >>  security/security.c                           | 166 ++++++++++++++++--
+> >>  security/selinux/hooks.c                      |  11 ++
+> >>  security/selinux/include/classmap.h           |   2 +-
+> >>  security/smack/smack_lsm.c                    |   7 +
+> >>  10 files changed, 256 insertions(+), 19 deletions(-)
+> >>  create mode 100644 Documentation/ABI/testing/procfs-attr-lsm_display
+
+...
+
+> >> @@ -2171,23 +2203,110 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+> >>                              char **value)
+> >>  {
+> >>      struct security_hook_list *hp;
+> >> +    int ilsm = lsm_task_ilsm(current);
+> >> +    int slot = 0;
+> >> +
+> >> +    if (!strcmp(name, "interface_lsm")) {
+> >> +            /*
+> >> +             * lsm_slot will be 0 if there are no displaying modules.
+> >> +             */
+> >> +            if (lsm_slot == 0)
+> >> +                    return -EINVAL;
+> >> +
+> >> +            /*
+> >> +             * Only allow getting the current process' interface_lsm.
+> >> +             * There are too few reasons to get another process'
+> >> +             * interface_lsm and too many LSM policy issues.
+> >> +             */
+> >> +            if (current != p)
+> >> +                    return -EINVAL;
+> > ... but context isn't established by just checking "current", as this
+> > file handle may have been given to another process.
+> >
+> > I suspect the security_get/setprocattr needs to gain a pointer to "file"
+> > so that the f_cred struct can be examined[1] (i.e. compare opener
+> > against reader/writer).
+> >
+> > [1] https://www.kernel.org/doc/html/latest/security/credentials.html#open-file-credentials
 >
-> Change security_secid_to_secctx() to take a lsmblob as input
-> instead of a u32 secid. It will then call the LSM hooks
-> using the lsmblob element allocated for that module. The
-> callers have been updated as well. This allows for the
-> possibility that more than one module may be called upon
-> to translate a secid to a string, as can occur in the
-> audit code.
->
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: netdev@vger.kernel.org
-> Cc: linux-audit@redhat.com
-> Cc: netfilter-devel@vger.kernel.org
-> To: Pablo Neira Ayuso <pablo@netfilter.org>
-> To: Paul Moore <paul@paul-moore.com>
-> ---
->  drivers/android/binder.c                | 12 +++++++++-
->  include/linux/security.h                |  5 +++--
->  include/net/scm.h                       |  7 +++++-
->  kernel/audit.c                          | 20 +++++++++++++++--
->  kernel/auditsc.c                        | 28 +++++++++++++++++++----
->  net/ipv4/ip_sockglue.c                  |  4 +++-
->  net/netfilter/nf_conntrack_netlink.c    | 14 ++++++++++--
->  net/netfilter/nf_conntrack_standalone.c |  4 +++-
->  net/netfilter/nfnetlink_queue.c         | 11 +++++++--
->  net/netlabel/netlabel_unlabeled.c       | 30 +++++++++++++++++++++----
->  net/netlabel/netlabel_user.c            |  6 ++---
->  security/security.c                     | 11 +++++----
->  12 files changed, 123 insertions(+), 29 deletions(-)
+> It's not credentials being checked here. The check is whether the task that
+> would be affected is "current". Process A can't open /proc/B/attr/interface_lsm
+> with write access. The only process that can open it for write access is B.
+> If process B opens /proc/B/attr/interface_lsm for write access it could send
+> the file handle to process A, but process A can't write to the file because
+> (current != p) that is, (A != B).
+
+Agreed.
 
 Acked-by: Paul Moore <paul@paul-moore.com>
 
