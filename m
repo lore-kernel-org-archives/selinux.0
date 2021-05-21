@@ -4,161 +4,112 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36CF2C47080
-	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:19:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1516C47082
+	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:19:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B4B361164
-	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:19:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C9158613F4
+	for <selinux@archiver.kernel.org>; Fri, 21 May 2021 20:19:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230410AbhEUUUp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 May 2021 16:20:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
+        id S231156AbhEUUVO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 May 2021 16:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230375AbhEUUUo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 16:20:44 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F292C06138A
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:19:21 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id s22so32006675ejv.12
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:19:21 -0700 (PDT)
+        with ESMTP id S230414AbhEUUVC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 16:21:02 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DDAC061346
+        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:19:30 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id p24so30982462ejb.1
+        for <selinux@vger.kernel.org>; Fri, 21 May 2021 13:19:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=aVEzTQ8I4J/3yp3MgA3FQPj62TME7oEjwi3UB54+9j4=;
-        b=y5acabY0hHaFulLVyRw96Upc3Tfg5b6Vkr2way0sktzbQKqkTD9yR07FT7pm2dbtK2
-         OmIX/Fgm2xBpq1gKrI2N3x9jMvF7NuA98vf/xJIjcCcJndHdWK2E02xm9dExvkQ5GvlT
-         h0DXHodT+NB8JKTBfAsvxDtMdKm5KcxkiQcmBzjtyoKUWgK2oHjZtxvU8b6+lwdlDQjc
-         D5hZyeGTTzmQ2/4wUyAApkMxFk9M65r/4JDnrXFYNPAeRoAD80OVIQWfeFAH/8N1BNVg
-         qn061UVWCxSDmBHw6mCcH4UI/nRyNhP8vsZk5WokXPfE22Hielso21jzz8/mj0UnuA1U
-         Ha5w==
+        bh=thIe01+lHwzzxJedNGYnXkOMlihftpqGjXXbGI6UEFA=;
+        b=W+zX4pg+qPV5VVsGwBht13DCLZB6q2mUKw3vLfil5mUEswjFv1dWGsywFmS7Uhiwaf
+         OY8nWzuFL3COW2K+KDmJo+wmSfc7iD4GUN9bLWSMnJW5xM6SlVuCtVwUvwlKmlz5T0ty
+         YksRQKsjYR1UMz/AlMlZ/sz0jauzIecYTsL1pC0us/Ya4PNrNfgoGU8mx/Un9c873cIr
+         AeM0+0cQ2RDqrcouA+tHjxWocqUH62s3o0ySgAVLMu3OIS4NG1xsIfFUUhaHAkjIfuFP
+         3AMrK51OGTsWYM2SzU0A0u1IdUtNQRpeoC++i1qe+n77FVvd36So0CZHQHQn49Ck2gQ1
+         hUTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=aVEzTQ8I4J/3yp3MgA3FQPj62TME7oEjwi3UB54+9j4=;
-        b=Z0eYoTWor3wAUzbHw8UM4IK+PKH5vIUMpBL8fakFu/aYwG8NUYYOUhYNOIw13EboEd
-         Ji3wm+qVzZh9NDimNrD30N9I71ZPpU8KbYr5aJfccPBCC+O65lOM5k5CkI37yZb2EMSc
-         0P/1la3bFQ2QFJQEZM/VylgHXfHSSgVxCPyk0VqpWs3oh/9/kNRMIYCZYHiArpR9scve
-         Y6/27vhAJyUgRK7AThtHSPovxtobV2JN5k1vaU4vJEJl/B5/gVbCAhfrQdNpHO9QxNUz
-         VisxPTi45tMMWrEPSn8CCSSqvbEA/w03nVt1ktNie3JssiuHYtlg+pg07nyHPoXcqtRc
-         kpgA==
-X-Gm-Message-State: AOAM530YXxsl3u5CugOotSyutH/dFpA5Ap4CHnW02jDG3qrQEr6stKaw
-        j8r0kup08DVBOw+1isAr+jTnHgh0XLRNQo6wEyU1
-X-Google-Smtp-Source: ABdhPJziKJYfK7MvqTrwnHeo+NPoz2FUDF+4sST5fBaH9Y8+nll4YIEPRA92LUzjYQjCfkAjrte8Kmy6TkEhHB1xuyQ=
-X-Received: by 2002:a17:906:7e0f:: with SMTP id e15mr11771196ejr.398.1621628359745;
- Fri, 21 May 2021 13:19:19 -0700 (PDT)
+        bh=thIe01+lHwzzxJedNGYnXkOMlihftpqGjXXbGI6UEFA=;
+        b=mIIRh8TCSolG4njUs1jsnqfeDigDofthNYaYEJeEa9lxW8bCPAvD/dMP0Ly+3O0qNu
+         LYwma3XAQteRcWcnt69H+ER7X4r/kOGwqFWo5iE/gvHpezITHVd/8oeZmDA06fph4rg2
+         ewziLUTMruFgmpwjhuowCUZvnT/IXMQwNnjZwbordqPG7PjUgsGbUfA4KYLPh+nqZqp8
+         zsSdJXx6Mt7o5MWSvDdw+rkdh45mSp+zmvKsxbPu/gJewj3HWq/zlQtLmY+UqOJA0xe4
+         G/1g5S2O6sULj4xTisD48PjcHhSAtLvaByHL4Xqm3ip5eQ5X94XPhAG0lt2b4MUL5m4h
+         u/RQ==
+X-Gm-Message-State: AOAM532erWuLbQWY+PX1qEgkk6IcW2HlS6DDCaEvQbPeIYLE952OWJnk
+        ZNsivuPFG7VVmnHeXdF3t9nCDS62cOKDBE50Fs2B
+X-Google-Smtp-Source: ABdhPJw0PVE6pZTKuiQy3zYlqq+cxAQrxa/Xganf0agDkuOLzcXPOC4Z4cnZeLkkxqOOBbAnCmgf66QN4Q0jU9XPK1g=
+X-Received: by 2002:a17:906:840c:: with SMTP id n12mr11897181ejx.431.1621628368643;
+ Fri, 21 May 2021 13:19:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210513200807.15910-1-casey@schaufler-ca.com>
- <20210513200807.15910-15-casey@schaufler-ca.com> <202105141218.21BDA22F@keescook>
- <c1ab101a-7ee3-6d20-c8b1-cff5bcdfe98c@schaufler-ca.com>
-In-Reply-To: <c1ab101a-7ee3-6d20-c8b1-cff5bcdfe98c@schaufler-ca.com>
+References: <20210513200807.15910-1-casey@schaufler-ca.com> <20210513200807.15910-16-casey@schaufler-ca.com>
+In-Reply-To: <20210513200807.15910-16-casey@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 May 2021 16:19:08 -0400
-Message-ID: <CAHC9VhScDhmr2k5RpNhj1=6FpO_xPN1C6_qFqbXb6SWUbBiENA@mail.gmail.com>
-Subject: Re: [PATCH v26 14/25] LSM: Specify which LSM to display
+Date:   Fri, 21 May 2021 16:19:17 -0400
+Message-ID: <CAHC9VhRuUsRC4X6_zpfygUF+yWvevqbk-NYtbJbhocjiX0F6ig@mail.gmail.com>
+Subject: Re: [PATCH v26 15/25] LSM: Ensure the correct LSM context releaser
 To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Kees Cook <keescook@chromium.org>, casey.schaufler@intel.com,
-        James Morris <jmorris@namei.org>,
+Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-kernel@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-api@vger.kernel.org, linux-doc@vger.kernel.org
+        linux-kernel@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        linux-integrity@vger.kernel.org, netdev@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, linux-nfs@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 17, 2021 at 3:53 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 5/14/2021 12:23 PM, Kees Cook wrote:
-> > On Thu, May 13, 2021 at 01:07:56PM -0700, Casey Schaufler wrote:
-> >> Create a new entry "interface_lsm" in the procfs attr directory for
-> >> controlling which LSM security information is displayed for a
-> >> process. A process can only read or write its own display value.
-> >>
-> >> The name of an active LSM that supplies hooks for
-> >> human readable data may be written to "interface_lsm" to set the
-> >> value. The name of the LSM currently in use can be read from
-> >> "interface_lsm". At this point there can only be one LSM capable
-> >> of display active. A helper function lsm_task_ilsm() is
-> >> provided to get the interface lsm slot for a task_struct.
-> >>
-> >> Setting the "interface_lsm" requires that all security modules using
-> >> setprocattr hooks allow the action. Each security module is
-> >> responsible for defining its policy.
-> >>
-> >> AppArmor hook provided by John Johansen <john.johansen@canonical.com>
-> >> SELinux hook provided by Stephen Smalley <stephen.smalley.work@gmail.com>
-> >>
-> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> Cc: Kees Cook <keescook@chromium.org>
-> >> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >> Cc: Paul Moore <paul@paul-moore.com>
-> >> Cc: John Johansen <john.johansen@canonical.com>
-> >> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >> Cc: linux-api@vger.kernel.org
-> >> Cc: linux-doc@vger.kernel.org
-> >> ---
-> >>  .../ABI/testing/procfs-attr-lsm_display       |  22 +++
-> >>  Documentation/security/lsm.rst                |  14 ++
-> >>  fs/proc/base.c                                |   1 +
-> >>  include/linux/lsm_hooks.h                     |  17 ++
-> >>  security/apparmor/include/apparmor.h          |   3 +-
-> >>  security/apparmor/lsm.c                       |  32 ++++
-> >>  security/security.c                           | 166 ++++++++++++++++--
-> >>  security/selinux/hooks.c                      |  11 ++
-> >>  security/selinux/include/classmap.h           |   2 +-
-> >>  security/smack/smack_lsm.c                    |   7 +
-> >>  10 files changed, 256 insertions(+), 19 deletions(-)
-> >>  create mode 100644 Documentation/ABI/testing/procfs-attr-lsm_display
-
-...
-
-> >> @@ -2171,23 +2203,110 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
-> >>                              char **value)
-> >>  {
-> >>      struct security_hook_list *hp;
-> >> +    int ilsm = lsm_task_ilsm(current);
-> >> +    int slot = 0;
-> >> +
-> >> +    if (!strcmp(name, "interface_lsm")) {
-> >> +            /*
-> >> +             * lsm_slot will be 0 if there are no displaying modules.
-> >> +             */
-> >> +            if (lsm_slot == 0)
-> >> +                    return -EINVAL;
-> >> +
-> >> +            /*
-> >> +             * Only allow getting the current process' interface_lsm.
-> >> +             * There are too few reasons to get another process'
-> >> +             * interface_lsm and too many LSM policy issues.
-> >> +             */
-> >> +            if (current != p)
-> >> +                    return -EINVAL;
-> > ... but context isn't established by just checking "current", as this
-> > file handle may have been given to another process.
-> >
-> > I suspect the security_get/setprocattr needs to gain a pointer to "file"
-> > so that the f_cred struct can be examined[1] (i.e. compare opener
-> > against reader/writer).
-> >
-> > [1] https://www.kernel.org/doc/html/latest/security/credentials.html#open-file-credentials
+On Thu, May 13, 2021 at 4:24 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
 >
-> It's not credentials being checked here. The check is whether the task that
-> would be affected is "current". Process A can't open /proc/B/attr/interface_lsm
-> with write access. The only process that can open it for write access is B.
-> If process B opens /proc/B/attr/interface_lsm for write access it could send
-> the file handle to process A, but process A can't write to the file because
-> (current != p) that is, (A != B).
-
-Agreed.
+> Add a new lsmcontext data structure to hold all the information
+> about a "security context", including the string, its size and
+> which LSM allocated the string. The allocation information is
+> necessary because LSMs have different policies regarding the
+> lifecycle of these strings. SELinux allocates and destroys
+> them on each use, whereas Smack provides a pointer to an entry
+> in a list that never goes away.
+>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Acked-by: Chuck Lever <chuck.lever@oracle.com>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: linux-integrity@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-audit@redhat.com
+> Cc: netfilter-devel@vger.kernel.org
+> To: Pablo Neira Ayuso <pablo@netfilter.org>
+> Cc: linux-nfs@vger.kernel.org
+> ---
+>  drivers/android/binder.c                | 10 ++++---
+>  fs/ceph/xattr.c                         |  6 ++++-
+>  fs/nfs/nfs4proc.c                       |  8 ++++--
+>  fs/nfsd/nfs4xdr.c                       |  7 +++--
+>  include/linux/security.h                | 35 +++++++++++++++++++++++--
+>  include/net/scm.h                       |  5 +++-
+>  kernel/audit.c                          | 14 +++++++---
+>  kernel/auditsc.c                        | 12 ++++++---
+>  net/ipv4/ip_sockglue.c                  |  4 ++-
+>  net/netfilter/nf_conntrack_netlink.c    |  4 ++-
+>  net/netfilter/nf_conntrack_standalone.c |  4 ++-
+>  net/netfilter/nfnetlink_queue.c         | 13 ++++++---
+>  net/netlabel/netlabel_unlabeled.c       | 19 +++++++++++---
+>  net/netlabel/netlabel_user.c            |  4 ++-
+>  security/security.c                     | 11 ++++----
+>  15 files changed, 121 insertions(+), 35 deletions(-)
 
 Acked-by: Paul Moore <paul@paul-moore.com>
 
