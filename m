@@ -2,199 +2,217 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-22.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62638C4707E
-	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 08:45:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9243C2B9F2
+	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 12:59:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3785C6105A
-	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 08:45:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9881E61261
+	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 12:59:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230113AbhEVIqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 22 May 2021 04:46:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59320 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230111AbhEVIqx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 22 May 2021 04:46:53 -0400
-X-Greylist: delayed 485 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 22 May 2021 01:45:29 PDT
-Received: from smtp-190c.mail.infomaniak.ch (smtp-190c.mail.infomaniak.ch [IPv6:2001:1600:4:17::190c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D43CC061574
-        for <selinux@vger.kernel.org>; Sat, 22 May 2021 01:45:29 -0700 (PDT)
-Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4FnH0H2rnPzMpwvM;
-        Sat, 22 May 2021 10:37:19 +0200 (CEST)
-Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
-        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4FnH0B6q19zlmrrn;
-        Sat, 22 May 2021 10:37:14 +0200 (CEST)
-Subject: Re: [PATCH v26 02/25] LSM: Add the lsmblob data structure.
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+        id S231142AbhEVNAp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 22 May 2021 09:00:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37978 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230244AbhEVNAm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 22 May 2021 09:00:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621688357;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0jihgK6nUGSssaLZQS5Ili6PzS5KwAtgGpBMxwFQ9h0=;
+        b=KJ/QuEiBwHHOgVSNcmssBvhJqDVjsaKs9fxodzw14X4/cP4h6Xi0QpODH12R1o3xk0J+Fn
+        BWltlYc1ZWum+e8i2Djq+Ny6WkFlVe5+ZmosiFEB5+9wC7LzBmPsQiPHEhS2wpbmGxwehv
+        IgZImuO8DWrW5mIRaaHq4/U6QXxvEHI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-215-zvytTB6vPqu5PNUiXhMBTg-1; Sat, 22 May 2021 08:59:13 -0400
+X-MC-Unique: zvytTB6vPqu5PNUiXhMBTg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0882C107ACC7;
+        Sat, 22 May 2021 12:59:11 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A66A719D9D;
+        Sat, 22 May 2021 12:59:02 +0000 (UTC)
+Date:   Sat, 22 May 2021 08:58:59 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        john.johansen@canonical.com, selinux@vger.kernel.org,
+        netdev@vger.kernel.org, James Morris <jmorris@namei.org>,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
+        casey.schaufler@intel.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v26 22/25] Audit: Add new record for multiple process LSM
+ attributes
+Message-ID: <20210522125859.GF447005@madcap2.tricolour.ca>
 References: <20210513200807.15910-1-casey@schaufler-ca.com>
- <20210513200807.15910-3-casey@schaufler-ca.com>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <206971d6-70c7-e217-299f-1884310afa15@digikod.net>
-Date:   Sat, 22 May 2021 10:39:01 +0200
-User-Agent: 
+ <20210513200807.15910-23-casey@schaufler-ca.com>
+ <CAHC9VhSdFVuZvThMsqWT-L9wcHevA-0yAX+kxqXN0iMmqRc10g@mail.gmail.com>
+ <d753115f-6cbd-0886-473c-b10485cb7c52@schaufler-ca.com>
+ <CAHC9VhR9OPbNCLaKpCEt9mES8yWXpNoTBrgnKW2ER+vEkuNQwQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210513200807.15910-3-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhR9OPbNCLaKpCEt9mES8yWXpNoTBrgnKW2ER+vEkuNQwQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I like this design but there is an issue with Landlock though, see below.
-
-On 13/05/2021 22:07, Casey Schaufler wrote:
-> When more than one security module is exporting data to
-> audit and networking sub-systems a single 32 bit integer
-> is no longer sufficient to represent the data. Add a
-> structure to be used instead.
+On 2021-05-21 22:20, Paul Moore wrote:
+> On Fri, May 21, 2021 at 6:05 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > On 5/21/2021 1:19 PM, Paul Moore wrote:
+> > > On Thu, May 13, 2021 at 4:32 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > >> Create a new audit record type to contain the subject information
+> > >> when there are multiple security modules that require such data.
+> > >> This record is linked with the same timestamp and serial number
+> > >> using the audit_alloc_local() mechanism.
+> > > The record is linked with the other associated records into a single
+> > > event, it doesn't matter if it gets the timestamp/serial from
+> > > audit_alloc_local() or an existing audit event, e.g. ongoing syscall.
+> > >
+> > >> The record is produced only in cases where there is more than one
+> > >> security module with a process "context".
+> > >> In cases where this record is produced the subj= fields of
+> > >> other records in the audit event will be set to "subj=?".
+> > >>
+> > >> An example of the MAC_TASK_CONTEXTS (1420) record is:
+> > >>
+> > >>         type=UNKNOWN[1420]
+> > >>         msg=audit(1600880931.832:113)
+> > >>         subj_apparmor==unconfined
+> > > It should be just a single "=" in the line above.
+> >
+> > AppArmor provides the 2nd "=" as part of the subject context.
+> > What's here is correct. I won't argue that it won't case confusion
+> > or worse.
 > 
-> The lsmblob structure is currently an array of
-> u32 "secids". There is an entry for each of the
-> security modules built into the system that would
-> use secids if active. The system assigns the module
-> a "slot" when it registers hooks. If modules are
-> compiled in but not registered there will be unused
-> slots.
+> Oh, wow, okay.  That needs to change at some point but I agree it's
+> out of scope for this patchset.  In the meantime I might suggest using
+> something other than AppArmor as an example here.
+
+Similar but not identical situation to:
+	BUG: INTEGRITY_POLICY_RULE violates audit message format · Issue #113 · linux-audit/audit-kernel
+	https://github.com/linux-audit/audit-kernel/issues/113
+
+> > >>         subj_smack=_
+> > >>
+> > >> There will be a subj_$LSM= entry for each security module
+> > >> LSM that supports the secid_to_secctx and secctx_to_secid
+> > >> hooks. The BPF security module implements secid/secctx
+> > >> translation hooks, so it has to be considered to provide a
+> > >> secctx even though it may not actually do so.
+> > >>
+> > >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> > >> To: paul@paul-moore.com
+> > >> To: linux-audit@redhat.com
+> > >> To: rgb@redhat.com
+> > >> Cc: netdev@vger.kernel.org
+> > >> ---
+> > >>  drivers/android/binder.c                |  2 +-
+> > >>  include/linux/audit.h                   | 24 ++++++++
+> > >>  include/linux/security.h                | 16 ++++-
+> > >>  include/net/netlabel.h                  |  3 +-
+> > >>  include/net/scm.h                       |  2 +-
+> > >>  include/net/xfrm.h                      | 13 +++-
+> > >>  include/uapi/linux/audit.h              |  1 +
+> > >>  kernel/audit.c                          | 80 ++++++++++++++++++-------
+> > >>  kernel/audit.h                          |  3 +
+> > >>  kernel/auditfilter.c                    |  6 +-
+> > >>  kernel/auditsc.c                        | 75 ++++++++++++++++++++---
+> > >>  net/ipv4/ip_sockglue.c                  |  2 +-
+> > >>  net/netfilter/nf_conntrack_netlink.c    |  4 +-
+> > >>  net/netfilter/nf_conntrack_standalone.c |  2 +-
+> > >>  net/netfilter/nfnetlink_queue.c         |  2 +-
+> > >>  net/netlabel/netlabel_domainhash.c      |  4 +-
+> > >>  net/netlabel/netlabel_unlabeled.c       | 24 ++++----
+> > >>  net/netlabel/netlabel_user.c            | 20 ++++---
+> > >>  net/netlabel/netlabel_user.h            |  6 +-
+> > >>  net/xfrm/xfrm_policy.c                  | 10 ++--
+> > >>  net/xfrm/xfrm_state.c                   | 20 ++++---
+> > >>  security/integrity/ima/ima_api.c        |  7 ++-
+> > >>  security/integrity/integrity_audit.c    |  6 +-
+> > >>  security/security.c                     | 46 +++++++++-----
+> > >>  security/smack/smackfs.c                |  3 +-
+> > >>  25 files changed, 274 insertions(+), 107 deletions(-)
+> > > ...
+> > >
+> > >> diff --git a/include/linux/audit.h b/include/linux/audit.h
+> > >> index 97cd7471e572..229cd71fbf09 100644
+> > >> --- a/include/linux/audit.h
+> > >> +++ b/include/linux/audit.h
+> > >> @@ -386,6 +395,19 @@ static inline void audit_ptrace(struct task_struct *t)
+> > >>                 __audit_ptrace(t);
+> > >>  }
+> > >>
+> > >> +static inline struct audit_context *audit_alloc_for_lsm(gfp_t gfp)
+> > >> +{
+> > >> +       struct audit_context *context = audit_context();
+> > >> +
+> > >> +       if (context)
+> > >> +               return context;
+> > >> +
+> > >> +       if (lsm_multiple_contexts())
+> > >> +               return audit_alloc_local(gfp);
+> > >> +
+> > >> +       return NULL;
+> > >> +}
+> > > See my other comments, but this seems wrong at face value.  The
+> > > additional LSM record should happen as part of the existing audit log
+> > > functions.
+> >
+> > I'm good with that. But if you defer calling audit_alloc_local()
+> > until you know you need it you may be in a place where you can't
+> > associate the new context with the event. I think. I will have
+> > another go at it.
 > 
-> A new lsm_id structure, which contains the name
-> of the LSM and its slot number, is created. There
-> is an instance for each LSM, which assigns the name
-> and passes it to the infrastructure to set the slot.
+> I can't think of a case where you would ever not know if you need to
+> allocate a local context at the start.  If you are unsure, get in
+> touch and we can work it out.
 > 
-> The audit rules data is expanded to use an array of
-> security module data rather than a single instance.
-> Because IMA uses the audit rule functions it is
-> affected as well.
+> > > I think I was distracted with the local context issue and I've lost
+> > > track of the details here, perhaps it's best to fix the local context
+> > > issue first (that should be a big change to this patch) and then we
+> > > can take another look.
+> >
+> > I really need to move forward. I'll give allocation of local contexts
+> > as necessary in audit_log_task_context() another shot.
 > 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Acked-by: Paul Moore <paul@paul-moore.com>
-> Acked-by: John Johansen <john.johansen@canonical.com>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: <bpf@vger.kernel.org>
-> Cc: linux-audit@redhat.com
-> Cc: linux-security-module@vger.kernel.org
-> Cc: selinux@vger.kernel.org
-> To: Mimi Zohar <zohar@linux.ibm.com>
-> To: MickaÃ«l SalaÃ¼n <mic@linux.microsoft.com>
-> ---
->  include/linux/audit.h               |  4 +-
->  include/linux/lsm_hooks.h           | 12 ++++-
->  include/linux/security.h            | 67 +++++++++++++++++++++++++--
->  kernel/auditfilter.c                | 24 +++++-----
->  kernel/auditsc.c                    | 13 +++---
->  security/apparmor/lsm.c             |  7 ++-
->  security/bpf/hooks.c                | 12 ++++-
->  security/commoncap.c                |  7 ++-
->  security/integrity/ima/ima_policy.c | 40 +++++++++++-----
->  security/landlock/cred.c            |  2 +-
->  security/landlock/fs.c              |  2 +-
->  security/landlock/ptrace.c          |  2 +-
->  security/landlock/setup.c           |  4 ++
->  security/landlock/setup.h           |  1 +
->  security/loadpin/loadpin.c          |  8 +++-
->  security/lockdown/lockdown.c        |  7 ++-
->  security/safesetid/lsm.c            |  8 +++-
->  security/security.c                 | 72 ++++++++++++++++++++++++-----
->  security/selinux/hooks.c            |  8 +++-
->  security/smack/smack_lsm.c          |  7 ++-
->  security/tomoyo/tomoyo.c            |  8 +++-
->  security/yama/yama_lsm.c            |  7 ++-
->  22 files changed, 262 insertions(+), 60 deletions(-)
+> I appreciate the desire to move forward, and while I can't speak for
+> everyone, I'll do my best to work with you to find a good solution.
+> If you get stuck or aren't sure you know how to reach me :)
 > 
+> As a start, I might suggest looking at some of the recent audit
+> container ID patchsets from Richard; while they have had some issues,
+> they should serve as a basic example of what we mean when we talk
+> about "local contexts" and how they should be used.
+> 
+> -- 
+> paul moore
+> www.paul-moore.com
+> 
+> --
+> Linux-audit mailing list
+> Linux-audit@redhat.com
+> https://listman.redhat.com/mailman/listinfo/linux-audit
 
-[...]
+- RGB
 
-> diff --git a/security/landlock/setup.c b/security/landlock/setup.c
-> index f8e8e980454c..4a12666a4090 100644
-> --- a/security/landlock/setup.c
-> +++ b/security/landlock/setup.c
-> @@ -23,6 +23,10 @@ struct lsm_blob_sizes landlock_blob_sizes __lsm_ro_after_init = {
->  	.lbs_superblock = sizeof(struct landlock_superblock_security),
->  };
->  
-> +struct lsm_id landlock_lsmid __lsm_ro_after_init = {
-> +	.lsm = LANDLOCK_NAME,
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
 
-It is missing: .slot = LSMBLOB_NEEDED,
-
-You can run the Landlock tests please?
-make -C tools/testing/selftests TARGETS=landlock gen_tar
-tar -xf kselftest.tar.gz && ./run_kselftest.sh
-
-
-> +};
-> +
->  static int __init landlock_init(void)
->  {
->  	landlock_add_cred_hooks();
-
-[...]
-
-> diff --git a/security/security.c b/security/security.c
-> index e12a7c463468..a3276deb1b8a 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -344,6 +344,7 @@ static void __init ordered_lsm_init(void)
->  	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
->  	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
->  	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
-> +	init_debug("lsmblob size         = %zu\n", sizeof(struct lsmblob));
->  
->  	/*
->  	 * Create any kmem_caches needed for blobs
-> @@ -471,21 +472,36 @@ static int lsm_append(const char *new, char **result)
->  	return 0;
->  }
->  
-> +/*
-> + * Current index to use while initializing the lsmblob secid list.
-> + */
-> +static int lsm_slot __lsm_ro_after_init;
-> +
->  /**
->   * security_add_hooks - Add a modules hooks to the hook lists.
->   * @hooks: the hooks to add
->   * @count: the number of hooks to add
-> - * @lsm: the name of the security module
-> + * @lsmid: the identification information for the security module
->   *
->   * Each LSM has to register its hooks with the infrastructure.
-> + * If the LSM is using hooks that export secids allocate a slot
-> + * for it in the lsmblob.
->   */
->  void __init security_add_hooks(struct security_hook_list *hooks, int count,
-> -				char *lsm)
-> +			       struct lsm_id *lsmid)
->  {
->  	int i;
->  
-
-Could you add a WARN_ON(!lsmid->slot || !lsmid->name) here?
-
-
-> +	if (lsmid->slot == LSMBLOB_NEEDED) {
-> +		if (lsm_slot >= LSMBLOB_ENTRIES)
-> +			panic("%s Too many LSMs registered.\n", __func__);
-> +		lsmid->slot = lsm_slot++;
-> +		init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
-> +			   lsmid->slot);
-> +	}
-> +
->  	for (i = 0; i < count; i++) {
-> -		hooks[i].lsm = lsm;
-> +		hooks[i].lsmid = lsmid;
->  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
->  	}
->  
