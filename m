@@ -2,145 +2,199 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 094D7C4707E
-	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 02:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62638C4707E
+	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 08:45:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DCC976135C
-	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 02:36:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3785C6105A
+	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 08:45:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230493AbhEVCiU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 May 2021 22:38:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35838 "EHLO
+        id S230113AbhEVIqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 22 May 2021 04:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230508AbhEVCiT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 22:38:19 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E26C06138B
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 19:36:53 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id b17so25406785ede.0
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 19:36:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/bYvAACSgc8/uW7uI1cczUf6zncLtiw3niodFFHXbfQ=;
-        b=zueRaqvi0ABnvezPF7a/BvC89XCqv9MA5lpZVc06qJfZkfTl6XHxnBOB/b37aSowba
-         MvmSbZcggtkx+qjxr+EQ8Vt4UbkoAt9GxSaZcQWxj+cXScSaCGqbmirFZ3ycLfQgLS/9
-         WMEhgZTGZ+Jyxu49B0c2KfgCbz4b0bJfFQtZl+2Vauh5sD/CpwxFmg9xTbxyFIE5c6Qq
-         a5Oo9V20+jqFrSCcPiFpYwKUeTyINRxOIsc57wXIsZFUmGXsNtcROoIzG3rhmdETAJj3
-         XfuB/9Adbbapv5EF6kx5uRfFhVUGUWtZ6qINh5fUAFO5uZJXq2fxmJfHd2s/zAercPZD
-         AZpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/bYvAACSgc8/uW7uI1cczUf6zncLtiw3niodFFHXbfQ=;
-        b=fkkSHXfvyrSefR7LWTYO4lfofXNDh5E2cGQGzyavrhRG6ND+HxtEPo7hJ4FB//YIv8
-         1y5V+hGlGZdp/3Wy7PmKkq02Vej0cOT0oSTCVmxYfIBzaJgpjgGmgccM2m/kQkLexOfP
-         iWIqvyzK4w//s8HFA3ET1EovDg+ByN6v5/iFldCMJBG6VlAaamQ8h09+eIHHEQ93O4dN
-         p/2UnCTRroWJvYkPvNSMFgishUvgRiKXSyrJ7EQkjwOQe91BjFOKKotETvLsnV90hXd1
-         s4ysX5Qu2ncWo4D20kOxqVr14cuiNxOeBwBifl2PgBj8Y+zQPodPnp1TJUeEvK0uuNoM
-         bm6A==
-X-Gm-Message-State: AOAM533+QX5HH1fN5PvqVb+lrJuy/4XkiEmR7Dp23aFe7uccYh+B8X44
-        Vp0wPnENquMtVU3EMCBGvSjLzmMNuf9fg1cCjodK
-X-Google-Smtp-Source: ABdhPJz9UvC/faFDkiRLsiBXVJ9IkfixZn9C7UN/IQ22MxEe2N1Eq1BZgP//f1I2SXPZB1KVfu8b/AJWi+UrvHYAZ34=
-X-Received: by 2002:aa7:c349:: with SMTP id j9mr13964677edr.135.1621651012073;
- Fri, 21 May 2021 19:36:52 -0700 (PDT)
+        with ESMTP id S230111AbhEVIqx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 22 May 2021 04:46:53 -0400
+X-Greylist: delayed 485 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 22 May 2021 01:45:29 PDT
+Received: from smtp-190c.mail.infomaniak.ch (smtp-190c.mail.infomaniak.ch [IPv6:2001:1600:4:17::190c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D43CC061574
+        for <selinux@vger.kernel.org>; Sat, 22 May 2021 01:45:29 -0700 (PDT)
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4FnH0H2rnPzMpwvM;
+        Sat, 22 May 2021 10:37:19 +0200 (CEST)
+Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
+        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4FnH0B6q19zlmrrn;
+        Sat, 22 May 2021 10:37:14 +0200 (CEST)
+Subject: Re: [PATCH v26 02/25] LSM: Add the lsmblob data structure.
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20210513200807.15910-1-casey@schaufler-ca.com>
+ <20210513200807.15910-3-casey@schaufler-ca.com>
+From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+Message-ID: <206971d6-70c7-e217-299f-1884310afa15@digikod.net>
+Date:   Sat, 22 May 2021 10:39:01 +0200
+User-Agent: 
 MIME-Version: 1.0
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163379461.8379.9691291608621179559.stgit@sifl> <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
-In-Reply-To: <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 May 2021 22:36:40 -0400
-Message-ID: <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
- support to io_uring
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210513200807.15910-3-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 21, 2021 at 8:22 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
-> On 5/21/21 10:49 PM, Paul Moore wrote:
-> > WARNING - This is a work in progress and should not be merged
-> > anywhere important.  It is almost surely not complete, and while it
-> > probably compiles it likely hasn't been booted and will do terrible
-> > things.  You have been warned.
-> >
-> > This patch adds basic auditing to io_uring operations, regardless of
-> > their context.  This is accomplished by allocating audit_context
-> > structures for the io-wq worker and io_uring SQPOLL kernel threads
-> > as well as explicitly auditing the io_uring operations in
-> > io_issue_sqe().  The io_uring operations are audited using a new
-> > AUDIT_URINGOP record, an example is shown below:
-> >
-> >   % <TODO - insert AUDIT_URINGOP record example>
-> >
-> > Thanks to Richard Guy Briggs for review and feedback.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> [...]
-> > diff --git a/fs/io_uring.c b/fs/io_uring.c
-> > index e481ac8a757a..e9941d1ad8fd 100644
-> > --- a/fs/io_uring.c
-> > +++ b/fs/io_uring.c
-> > @@ -78,6 +78,7 @@
-> >  #include <linux/task_work.h>
-> >  #include <linux/pagemap.h>
-> >  #include <linux/io_uring.h>
-> > +#include <linux/audit.h>
-> >
-> >  #define CREATE_TRACE_POINTS
-> >  #include <trace/events/io_uring.h>
-> > @@ -6105,6 +6106,9 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
-> >       if (req->work.creds && req->work.creds != current_cred())
-> >               creds = override_creds(req->work.creds);
-> >
-> > +     if (req->opcode < IORING_OP_LAST)
->
-> always true at this point
+I like this design but there is an issue with Landlock though, see below.
 
-I placed the opcode check before the audit call because the switch
-statement below which handles the operation dispatching has a 'ret =
--EINVAL' for the default case, implying that there are some paths
-where an invalid opcode could be passed into the function.  Obviously
-if that is not the case and you can guarantee that req->opcode will
-always be valid we can easily drop the check prior to the audit call.
+On 13/05/2021 22:07, Casey Schaufler wrote:
+> When more than one security module is exporting data to
+> audit and networking sub-systems a single 32 bit integer
+> is no longer sufficient to represent the data. Add a
+> structure to be used instead.
+> 
+> The lsmblob structure is currently an array of
+> u32 "secids". There is an entry for each of the
+> security modules built into the system that would
+> use secids if active. The system assigns the module
+> a "slot" when it registers hooks. If modules are
+> compiled in but not registered there will be unused
+> slots.
+> 
+> A new lsm_id structure, which contains the name
+> of the LSM and its slot number, is created. There
+> is an instance for each LSM, which assigns the name
+> and passes it to the infrastructure to set the slot.
+> 
+> The audit rules data is expanded to use an array of
+> security module data rather than a single instance.
+> Because IMA uses the audit rule functions it is
+> affected as well.
+> 
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Acked-by: Paul Moore <paul@paul-moore.com>
+> Acked-by: John Johansen <john.johansen@canonical.com>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: <bpf@vger.kernel.org>
+> Cc: linux-audit@redhat.com
+> Cc: linux-security-module@vger.kernel.org
+> Cc: selinux@vger.kernel.org
+> To: Mimi Zohar <zohar@linux.ibm.com>
+> To: Mickaël Salaün <mic@linux.microsoft.com>
+> ---
+>  include/linux/audit.h               |  4 +-
+>  include/linux/lsm_hooks.h           | 12 ++++-
+>  include/linux/security.h            | 67 +++++++++++++++++++++++++--
+>  kernel/auditfilter.c                | 24 +++++-----
+>  kernel/auditsc.c                    | 13 +++---
+>  security/apparmor/lsm.c             |  7 ++-
+>  security/bpf/hooks.c                | 12 ++++-
+>  security/commoncap.c                |  7 ++-
+>  security/integrity/ima/ima_policy.c | 40 +++++++++++-----
+>  security/landlock/cred.c            |  2 +-
+>  security/landlock/fs.c              |  2 +-
+>  security/landlock/ptrace.c          |  2 +-
+>  security/landlock/setup.c           |  4 ++
+>  security/landlock/setup.h           |  1 +
+>  security/loadpin/loadpin.c          |  8 +++-
+>  security/lockdown/lockdown.c        |  7 ++-
+>  security/safesetid/lsm.c            |  8 +++-
+>  security/security.c                 | 72 ++++++++++++++++++++++++-----
+>  security/selinux/hooks.c            |  8 +++-
+>  security/smack/smack_lsm.c          |  7 ++-
+>  security/tomoyo/tomoyo.c            |  8 +++-
+>  security/yama/yama_lsm.c            |  7 ++-
+>  22 files changed, 262 insertions(+), 60 deletions(-)
+> 
 
-> > +             audit_uring_entry(req->opcode);
->
-> So, it adds two if's with memory loads (i.e. current->audit_context)
-> per request in one of the hottest functions here... No way, nack
->
-> Maybe, if it's dynamically compiled into like kprobes if it's
-> _really_ used.
+[...]
 
-I'm open to suggestions on how to tweak the io_uring/audit
-integration, if you don't like what I've proposed in this patchset,
-lets try to come up with a solution that is more palatable.  If you
-were going to add audit support for these io_uring operations, how
-would you propose we do it?  Not being able to properly audit io_uring
-operations is going to be a significant issue for a chunk of users, if
-it isn't already, we need to work to find a solution to this problem.
+> diff --git a/security/landlock/setup.c b/security/landlock/setup.c
+> index f8e8e980454c..4a12666a4090 100644
+> --- a/security/landlock/setup.c
+> +++ b/security/landlock/setup.c
+> @@ -23,6 +23,10 @@ struct lsm_blob_sizes landlock_blob_sizes __lsm_ro_after_init = {
+>  	.lbs_superblock = sizeof(struct landlock_superblock_security),
+>  };
+>  
+> +struct lsm_id landlock_lsmid __lsm_ro_after_init = {
+> +	.lsm = LANDLOCK_NAME,
 
-Unfortunately I don't think dynamically inserting audit calls is
-something that would meet the needs of the audit community (I fear it
-would run afoul of the various security certifications), and it
-definitely isn't something that we support at present.
+It is missing: .slot = LSMBLOB_NEEDED,
 
--- 
-paul moore
-www.paul-moore.com
+You can run the Landlock tests please?
+make -C tools/testing/selftests TARGETS=landlock gen_tar
+tar -xf kselftest.tar.gz && ./run_kselftest.sh
+
+
+> +};
+> +
+>  static int __init landlock_init(void)
+>  {
+>  	landlock_add_cred_hooks();
+
+[...]
+
+> diff --git a/security/security.c b/security/security.c
+> index e12a7c463468..a3276deb1b8a 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -344,6 +344,7 @@ static void __init ordered_lsm_init(void)
+>  	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
+>  	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
+>  	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
+> +	init_debug("lsmblob size         = %zu\n", sizeof(struct lsmblob));
+>  
+>  	/*
+>  	 * Create any kmem_caches needed for blobs
+> @@ -471,21 +472,36 @@ static int lsm_append(const char *new, char **result)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * Current index to use while initializing the lsmblob secid list.
+> + */
+> +static int lsm_slot __lsm_ro_after_init;
+> +
+>  /**
+>   * security_add_hooks - Add a modules hooks to the hook lists.
+>   * @hooks: the hooks to add
+>   * @count: the number of hooks to add
+> - * @lsm: the name of the security module
+> + * @lsmid: the identification information for the security module
+>   *
+>   * Each LSM has to register its hooks with the infrastructure.
+> + * If the LSM is using hooks that export secids allocate a slot
+> + * for it in the lsmblob.
+>   */
+>  void __init security_add_hooks(struct security_hook_list *hooks, int count,
+> -				char *lsm)
+> +			       struct lsm_id *lsmid)
+>  {
+>  	int i;
+>  
+
+Could you add a WARN_ON(!lsmid->slot || !lsmid->name) here?
+
+
+> +	if (lsmid->slot == LSMBLOB_NEEDED) {
+> +		if (lsm_slot >= LSMBLOB_ENTRIES)
+> +			panic("%s Too many LSMs registered.\n", __func__);
+> +		lsmid->slot = lsm_slot++;
+> +		init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
+> +			   lsmid->slot);
+> +	}
+> +
+>  	for (i = 0; i < count; i++) {
+> -		hooks[i].lsm = lsm;
+> +		hooks[i].lsmid = lsmid;
+>  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
+>  	}
+>  
