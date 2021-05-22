@@ -7,193 +7,139 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45FC9C4707E
-	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 02:21:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 094D7C4707E
+	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 02:36:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A6EA61177
-	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 02:21:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCC976135C
+	for <selinux@archiver.kernel.org>; Sat, 22 May 2021 02:36:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230497AbhEVCWX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 May 2021 22:22:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60504 "EHLO
+        id S230493AbhEVCiU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 May 2021 22:38:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230526AbhEVCWW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 22:22:22 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D20DC06138A
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 19:20:57 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id lz27so33079990ejb.11
-        for <selinux@vger.kernel.org>; Fri, 21 May 2021 19:20:57 -0700 (PDT)
+        with ESMTP id S230508AbhEVCiT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 May 2021 22:38:19 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E26C06138B
+        for <selinux@vger.kernel.org>; Fri, 21 May 2021 19:36:53 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id b17so25406785ede.0
+        for <selinux@vger.kernel.org>; Fri, 21 May 2021 19:36:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=AyDr1y/RwJoeqN22oXWBSWyEDma390VYzmRzYEs5lCg=;
-        b=Lu0qQ1XZTBH8t2J0p/fhFAVkq1MZg33JOTinmTXfMebyUQuijZLlB7BQUQZVjoVGRo
-         XNYXlp28jxndHy0kaHyUg3Vzxr5hqkCVLAKplIgebwyICZVy8ihRZvgsbGtM4IFFjSqs
-         8Y/VMARbkoFcTZGMawK9goky0n6N6Z4SuEyeTL7+siu08yC8KFIUu01+i41cSADjo4Y2
-         97pn98cLGkH6MeGG18rMtvAkBFnKsZkeOWo2RFL5F7wA7dk+fXMhsg91ZM4h7jPYzBz2
-         WAVTR7tyLovlaWKbeY0kOGKUZjieOWcesDr1wVGBmBrCfWt5GTIUvaPOwSSZcRnd3HoS
-         INYQ==
+        bh=/bYvAACSgc8/uW7uI1cczUf6zncLtiw3niodFFHXbfQ=;
+        b=zueRaqvi0ABnvezPF7a/BvC89XCqv9MA5lpZVc06qJfZkfTl6XHxnBOB/b37aSowba
+         MvmSbZcggtkx+qjxr+EQ8Vt4UbkoAt9GxSaZcQWxj+cXScSaCGqbmirFZ3ycLfQgLS/9
+         WMEhgZTGZ+Jyxu49B0c2KfgCbz4b0bJfFQtZl+2Vauh5sD/CpwxFmg9xTbxyFIE5c6Qq
+         a5Oo9V20+jqFrSCcPiFpYwKUeTyINRxOIsc57wXIsZFUmGXsNtcROoIzG3rhmdETAJj3
+         XfuB/9Adbbapv5EF6kx5uRfFhVUGUWtZ6qINh5fUAFO5uZJXq2fxmJfHd2s/zAercPZD
+         AZpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=AyDr1y/RwJoeqN22oXWBSWyEDma390VYzmRzYEs5lCg=;
-        b=tObNlayXdOsrxQieEe1+APOuV12p4fMlkbxZDWwbXd5AW8T1paiMUL0xVlUDM1mohy
-         3nhiB9m9ogYgF1uw+lrUx9aZ+QQq6ryFzPPZMUV6MHRNAEyyJ39aGp/Ta4zJ0qQ9spn+
-         BLWq1Myun/A+raU7BK5oO39xFDLFdM+zUCerC0wcG9p6tvgQRErNSeL2UQxIm5dTGZJ+
-         o7bkERpdLfspQNgVTIYF8+XakNi3kRi0k0neD6lF13YvAKLSCj4Fyn89Y1zE+icvl9Zb
-         X4p2gD9jzb4XahmFupwZDpozfQJxQs5fUCbsqfU1YD0seDQs20O+DY1/VFnH0+rOC8G1
-         OVvQ==
-X-Gm-Message-State: AOAM531WzDyjJzAsDfuUPCBncCqX1p+ELOEk74yolEhV6SXfuktlCr5L
-        5JeP81M91PVAvKCjwn791asJeSNri9TNsRLnMUuI
-X-Google-Smtp-Source: ABdhPJxtWsmcVYWOokYryWNIlC9jPQ5n8GMH6qfVU5ht4UMydIgEcs4bWq07Vr1o3LSIKBusJxMLXzOZ+aChS3mtfes=
-X-Received: by 2002:a17:907:1749:: with SMTP id lf9mr13320714ejc.178.1621650055910;
- Fri, 21 May 2021 19:20:55 -0700 (PDT)
+        bh=/bYvAACSgc8/uW7uI1cczUf6zncLtiw3niodFFHXbfQ=;
+        b=fkkSHXfvyrSefR7LWTYO4lfofXNDh5E2cGQGzyavrhRG6ND+HxtEPo7hJ4FB//YIv8
+         1y5V+hGlGZdp/3Wy7PmKkq02Vej0cOT0oSTCVmxYfIBzaJgpjgGmgccM2m/kQkLexOfP
+         iWIqvyzK4w//s8HFA3ET1EovDg+ByN6v5/iFldCMJBG6VlAaamQ8h09+eIHHEQ93O4dN
+         p/2UnCTRroWJvYkPvNSMFgishUvgRiKXSyrJ7EQkjwOQe91BjFOKKotETvLsnV90hXd1
+         s4ysX5Qu2ncWo4D20kOxqVr14cuiNxOeBwBifl2PgBj8Y+zQPodPnp1TJUeEvK0uuNoM
+         bm6A==
+X-Gm-Message-State: AOAM533+QX5HH1fN5PvqVb+lrJuy/4XkiEmR7Dp23aFe7uccYh+B8X44
+        Vp0wPnENquMtVU3EMCBGvSjLzmMNuf9fg1cCjodK
+X-Google-Smtp-Source: ABdhPJz9UvC/faFDkiRLsiBXVJ9IkfixZn9C7UN/IQ22MxEe2N1Eq1BZgP//f1I2SXPZB1KVfu8b/AJWi+UrvHYAZ34=
+X-Received: by 2002:aa7:c349:: with SMTP id j9mr13964677edr.135.1621651012073;
+ Fri, 21 May 2021 19:36:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210513200807.15910-1-casey@schaufler-ca.com>
- <20210513200807.15910-23-casey@schaufler-ca.com> <CAHC9VhSdFVuZvThMsqWT-L9wcHevA-0yAX+kxqXN0iMmqRc10g@mail.gmail.com>
- <d753115f-6cbd-0886-473c-b10485cb7c52@schaufler-ca.com>
-In-Reply-To: <d753115f-6cbd-0886-473c-b10485cb7c52@schaufler-ca.com>
+References: <162163367115.8379.8459012634106035341.stgit@sifl>
+ <162163379461.8379.9691291608621179559.stgit@sifl> <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
+In-Reply-To: <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 May 2021 22:20:44 -0400
-Message-ID: <CAHC9VhR9OPbNCLaKpCEt9mES8yWXpNoTBrgnKW2ER+vEkuNQwQ@mail.gmail.com>
-Subject: Re: [PATCH v26 22/25] Audit: Add new record for multiple process LSM attributes
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Date:   Fri, 21 May 2021 22:36:40 -0400
+Message-ID: <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
+ support to io_uring
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 21, 2021 at 6:05 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 5/21/2021 1:19 PM, Paul Moore wrote:
-> > On Thu, May 13, 2021 at 4:32 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> Create a new audit record type to contain the subject information
-> >> when there are multiple security modules that require such data.
-> >> This record is linked with the same timestamp and serial number
-> >> using the audit_alloc_local() mechanism.
-> > The record is linked with the other associated records into a single
-> > event, it doesn't matter if it gets the timestamp/serial from
-> > audit_alloc_local() or an existing audit event, e.g. ongoing syscall.
+On Fri, May 21, 2021 at 8:22 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
+> On 5/21/21 10:49 PM, Paul Moore wrote:
+> > WARNING - This is a work in progress and should not be merged
+> > anywhere important.  It is almost surely not complete, and while it
+> > probably compiles it likely hasn't been booted and will do terrible
+> > things.  You have been warned.
 > >
-> >> The record is produced only in cases where there is more than one
-> >> security module with a process "context".
-> >> In cases where this record is produced the subj= fields of
-> >> other records in the audit event will be set to "subj=?".
-> >>
-> >> An example of the MAC_TASK_CONTEXTS (1420) record is:
-> >>
-> >>         type=UNKNOWN[1420]
-> >>         msg=audit(1600880931.832:113)
-> >>         subj_apparmor==unconfined
-> > It should be just a single "=" in the line above.
->
-> AppArmor provides the 2nd "=" as part of the subject context.
-> What's here is correct. I won't argue that it won't case confusion
-> or worse.
-
-Oh, wow, okay.  That needs to change at some point but I agree it's
-out of scope for this patchset.  In the meantime I might suggest using
-something other than AppArmor as an example here.
-
-> >>         subj_smack=_
-> >>
-> >> There will be a subj_$LSM= entry for each security module
-> >> LSM that supports the secid_to_secctx and secctx_to_secid
-> >> hooks. The BPF security module implements secid/secctx
-> >> translation hooks, so it has to be considered to provide a
-> >> secctx even though it may not actually do so.
-> >>
-> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> To: paul@paul-moore.com
-> >> To: linux-audit@redhat.com
-> >> To: rgb@redhat.com
-> >> Cc: netdev@vger.kernel.org
-> >> ---
-> >>  drivers/android/binder.c                |  2 +-
-> >>  include/linux/audit.h                   | 24 ++++++++
-> >>  include/linux/security.h                | 16 ++++-
-> >>  include/net/netlabel.h                  |  3 +-
-> >>  include/net/scm.h                       |  2 +-
-> >>  include/net/xfrm.h                      | 13 +++-
-> >>  include/uapi/linux/audit.h              |  1 +
-> >>  kernel/audit.c                          | 80 ++++++++++++++++++-------
-> >>  kernel/audit.h                          |  3 +
-> >>  kernel/auditfilter.c                    |  6 +-
-> >>  kernel/auditsc.c                        | 75 ++++++++++++++++++++---
-> >>  net/ipv4/ip_sockglue.c                  |  2 +-
-> >>  net/netfilter/nf_conntrack_netlink.c    |  4 +-
-> >>  net/netfilter/nf_conntrack_standalone.c |  2 +-
-> >>  net/netfilter/nfnetlink_queue.c         |  2 +-
-> >>  net/netlabel/netlabel_domainhash.c      |  4 +-
-> >>  net/netlabel/netlabel_unlabeled.c       | 24 ++++----
-> >>  net/netlabel/netlabel_user.c            | 20 ++++---
-> >>  net/netlabel/netlabel_user.h            |  6 +-
-> >>  net/xfrm/xfrm_policy.c                  | 10 ++--
-> >>  net/xfrm/xfrm_state.c                   | 20 ++++---
-> >>  security/integrity/ima/ima_api.c        |  7 ++-
-> >>  security/integrity/integrity_audit.c    |  6 +-
-> >>  security/security.c                     | 46 +++++++++-----
-> >>  security/smack/smackfs.c                |  3 +-
-> >>  25 files changed, 274 insertions(+), 107 deletions(-)
-> > ...
+> > This patch adds basic auditing to io_uring operations, regardless of
+> > their context.  This is accomplished by allocating audit_context
+> > structures for the io-wq worker and io_uring SQPOLL kernel threads
+> > as well as explicitly auditing the io_uring operations in
+> > io_issue_sqe().  The io_uring operations are audited using a new
+> > AUDIT_URINGOP record, an example is shown below:
 > >
-> >> diff --git a/include/linux/audit.h b/include/linux/audit.h
-> >> index 97cd7471e572..229cd71fbf09 100644
-> >> --- a/include/linux/audit.h
-> >> +++ b/include/linux/audit.h
-> >> @@ -386,6 +395,19 @@ static inline void audit_ptrace(struct task_struct *t)
-> >>                 __audit_ptrace(t);
-> >>  }
-> >>
-> >> +static inline struct audit_context *audit_alloc_for_lsm(gfp_t gfp)
-> >> +{
-> >> +       struct audit_context *context = audit_context();
-> >> +
-> >> +       if (context)
-> >> +               return context;
-> >> +
-> >> +       if (lsm_multiple_contexts())
-> >> +               return audit_alloc_local(gfp);
-> >> +
-> >> +       return NULL;
-> >> +}
-> > See my other comments, but this seems wrong at face value.  The
-> > additional LSM record should happen as part of the existing audit log
-> > functions.
+> >   % <TODO - insert AUDIT_URINGOP record example>
+> >
+> > Thanks to Richard Guy Briggs for review and feedback.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> [...]
+> > diff --git a/fs/io_uring.c b/fs/io_uring.c
+> > index e481ac8a757a..e9941d1ad8fd 100644
+> > --- a/fs/io_uring.c
+> > +++ b/fs/io_uring.c
+> > @@ -78,6 +78,7 @@
+> >  #include <linux/task_work.h>
+> >  #include <linux/pagemap.h>
+> >  #include <linux/io_uring.h>
+> > +#include <linux/audit.h>
+> >
+> >  #define CREATE_TRACE_POINTS
+> >  #include <trace/events/io_uring.h>
+> > @@ -6105,6 +6106,9 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+> >       if (req->work.creds && req->work.creds != current_cred())
+> >               creds = override_creds(req->work.creds);
+> >
+> > +     if (req->opcode < IORING_OP_LAST)
 >
-> I'm good with that. But if you defer calling audit_alloc_local()
-> until you know you need it you may be in a place where you can't
-> associate the new context with the event. I think. I will have
-> another go at it.
+> always true at this point
 
-I can't think of a case where you would ever not know if you need to
-allocate a local context at the start.  If you are unsure, get in
-touch and we can work it out.
+I placed the opcode check before the audit call because the switch
+statement below which handles the operation dispatching has a 'ret =
+-EINVAL' for the default case, implying that there are some paths
+where an invalid opcode could be passed into the function.  Obviously
+if that is not the case and you can guarantee that req->opcode will
+always be valid we can easily drop the check prior to the audit call.
 
-> > I think I was distracted with the local context issue and I've lost
-> > track of the details here, perhaps it's best to fix the local context
-> > issue first (that should be a big change to this patch) and then we
-> > can take another look.
+> > +             audit_uring_entry(req->opcode);
 >
-> I really need to move forward. I'll give allocation of local contexts
-> as necessary in audit_log_task_context() another shot.
+> So, it adds two if's with memory loads (i.e. current->audit_context)
+> per request in one of the hottest functions here... No way, nack
+>
+> Maybe, if it's dynamically compiled into like kprobes if it's
+> _really_ used.
 
-I appreciate the desire to move forward, and while I can't speak for
-everyone, I'll do my best to work with you to find a good solution.
-If you get stuck or aren't sure you know how to reach me :)
+I'm open to suggestions on how to tweak the io_uring/audit
+integration, if you don't like what I've proposed in this patchset,
+lets try to come up with a solution that is more palatable.  If you
+were going to add audit support for these io_uring operations, how
+would you propose we do it?  Not being able to properly audit io_uring
+operations is going to be a significant issue for a chunk of users, if
+it isn't already, we need to work to find a solution to this problem.
 
-As a start, I might suggest looking at some of the recent audit
-container ID patchsets from Richard; while they have had some issues,
-they should serve as a basic example of what we mean when we talk
-about "local contexts" and how they should be used.
+Unfortunately I don't think dynamically inserting audit calls is
+something that would meet the needs of the audit community (I fear it
+would run afoul of the various security certifications), and it
+definitely isn't something that we support at present.
 
 -- 
 paul moore
