@@ -2,143 +2,89 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CC0AC47084
-	for <selinux@archiver.kernel.org>; Sun, 23 May 2021 20:26:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51CB5C04FF3
+	for <selinux@archiver.kernel.org>; Mon, 24 May 2021 17:23:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3750610A6
-	for <selinux@archiver.kernel.org>; Sun, 23 May 2021 20:26:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D926613EC
+	for <selinux@archiver.kernel.org>; Mon, 24 May 2021 17:23:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbhEWU17 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 23 May 2021 16:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45702 "EHLO
+        id S232860AbhEXRZI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 May 2021 13:25:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231933AbhEWU16 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 23 May 2021 16:27:58 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9558CC061574;
-        Sun, 23 May 2021 13:26:31 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id n17-20020a7bc5d10000b0290169edfadac9so430293wmk.1;
-        Sun, 23 May 2021 13:26:31 -0700 (PDT)
+        with ESMTP id S232543AbhEXRZI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 May 2021 13:25:08 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32057C061574
+        for <selinux@vger.kernel.org>; Mon, 24 May 2021 10:23:39 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id gb17so24952301ejc.8
+        for <selinux@vger.kernel.org>; Mon, 24 May 2021 10:23:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=PygufLx+GftT6TS2etBhgc6+uuLN9BWMi/zqgHpQvsY=;
-        b=esrTniYlKVIz1qwncB0fA1f6EoaGdXdv9Byf2wrzoXpJoI8ojdqkT7UMYtQ9tQdySr
-         dSSenwaL0uFN0kSScz4CSe6aF58av5EQOYX0crNgBe7TucIZqRPeRPClZzCZd7yi8vWW
-         O8nk+31pXBR9ihIKwxvRsCSxf62JDvRBeSK/GiTZ2dw/RpQpabwMEsy6xgjhQ8CbfoP5
-         QLmJcJBTT4BYTPrUanoQCVObQvlzPbKoVnKLRz+H90+AnrvDsodYtO/tWjJExz5Adju5
-         /lQx48WoVzuaUsfWYwEcjGsVXZwjY1oR64OEuEmYacUMdOdrwAbXifj7z1hl61xv6RDW
-         +kLw==
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=iQAvrY84Ev63sotKjQ8XF378hGXrkLjyLXQlVL/CA00=;
+        b=gOe6t1zMDLpe1KD8nft2Dm94wbE0oxJCeuQD1AkUyFsh2QYiIgNIqVuaLsEwGEaCtY
+         ZbzZ4PJrh4mz2uxtvKz0/XjvhPix+/bTE7SZrwBLKjulZfvRTD+GJVh4Ow7jJ6d833J1
+         2jlipTdMd0qfbfZnM95COILIwl51aK1ibB7kcz4+lqgl4oUoXLrCbWE2ykiZcht13XGn
+         5/0OOi/JWMOrZ9GMD+wAyWn8nTI39g4m+UOi/YvyZ5W4BAjtFcJd4SVGQhFwLAy1gTLh
+         VIijvMHVRZa0WZDwcj2+T5KptbnIqn4jG7Nj+htbEuh3GM1HuIwyKUbL0SJo+ju6sUoP
+         KxLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=PygufLx+GftT6TS2etBhgc6+uuLN9BWMi/zqgHpQvsY=;
-        b=gLXj6Ac2l8Z0G8Ix7wJnc9AgD1h16l/ooQAG8LPDBLhJRKDmTde+2jT9rWquNdmVn3
-         Md7APd2kH4SdX6St8WqxD7yMXx9Iten6ufr0VHC0WGQkIyW5Ak8f8C/uoMhZzmaR2tiB
-         6JItb7srFisF6oH6TE6C7ItzXHlE/OdaVqhaw3IEYSOHnGDQu757ijliAYkJ2JSsU2xn
-         uzHPjXOKYNo0Ze9KarabMK5jOFoIqx0ksVb8ZB3eby68thNsFxg8Ca0W+8cEWMduPzWi
-         /4EBFZBbJnzbXuwgOftwH1hB7GwDjzgecb4o8aXEi+yc+eu1LziUfp1TvNfE/Dpeviem
-         txuA==
-X-Gm-Message-State: AOAM530hZhyBzj4zpbyxDDarbQ2COhHDISIQ/FtVtmVQ8RfG+EpucDLj
-        GXs5F+cF11eqJSCVw6prF00F51Z0/rE0jefX
-X-Google-Smtp-Source: ABdhPJwHSQNM+a1cD2dybYGpeqrMJbBTrEBwBzdhWHyWUNWiVsmNBtsEauiH5obSA1GKRpi7NeXYOw==
-X-Received: by 2002:a1c:4b13:: with SMTP id y19mr17332089wma.102.1621801590115;
-        Sun, 23 May 2021 13:26:30 -0700 (PDT)
-Received: from [192.168.8.197] ([185.69.145.65])
-        by smtp.gmail.com with ESMTPSA id 11sm5855772wmo.24.2021.05.23.13.26.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 23 May 2021 13:26:29 -0700 (PDT)
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163379461.8379.9691291608621179559.stgit@sifl>
- <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
- <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
- support to io_uring
-Message-ID: <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com>
-Date:   Sun, 23 May 2021 21:26:22 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=iQAvrY84Ev63sotKjQ8XF378hGXrkLjyLXQlVL/CA00=;
+        b=Sno3scdUGPDbm1T9KN6WYHRyITFszZaofjqg05HQvy69yxpnRBOTt3Zl56tGpYOFXx
+         4IM+cm2HBQPJbEJU5Jp4SeeMBxEgL6HYoaGNNwUmMqy8O+DZVwIVDuKQPmzLxZf/mBfl
+         WThRgPdUsDQmXWVzg/e2VCValXbIbpNXIt3i7lmWnHuJbvR67LqLgXgPAvqQq8hrs0hT
+         +DaiuQbojtruYGqkqFbY4STEcfJvM2Wn/zQkl2tyb7SN9LDPHhhpfuSOklHBUGOFUx0h
+         KCCdgo/B6XWTv6Uniwltgf+xhp5FVH56KTVyXoJ9A7dMA0l7siRmQEJkLSBW9G0YU9qh
+         /thw==
+X-Gm-Message-State: AOAM530kv4Ba260gSOiaOyqplFbAwHjOmH8o4HSG+M8wiygSYB7V/1R0
+        jAPoGzjBcNH6805zm+VTpZd57kb+AAtXDZHcaWkAuUghJWPHPw==
+X-Google-Smtp-Source: ABdhPJwyIfjzoAAoJOyPaQwMMsDgosFiDREG4pD9K0GQJHC6G/cO/wq/6jL/nN5gaAhYaA55NICRa8oMe1krtrvUgd4=
+X-Received: by 2002:a17:906:4089:: with SMTP id u9mr24330124ejj.18.1621877017245;
+ Mon, 24 May 2021 10:23:37 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+From:   Seth Moore <sethmo@google.com>
+Date:   Mon, 24 May 2021 10:23:26 -0700
+Message-ID: <CAJsHiNyV2K2g90YsiiY5HZkONHuprTHGq+65Bs-TiCf988NBGA@mail.gmail.com>
+Subject: selinux_check_access is not thread-safe
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/22/21 3:36 AM, Paul Moore wrote:
-> On Fri, May 21, 2021 at 8:22 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
->> On 5/21/21 10:49 PM, Paul Moore wrote:
-[...]
->>>
->>> +     if (req->opcode < IORING_OP_LAST)
->>
->> always true at this point
-> 
-> I placed the opcode check before the audit call because the switch
-> statement below which handles the operation dispatching has a 'ret =
-> -EINVAL' for the default case, implying that there are some paths
-> where an invalid opcode could be passed into the function.  Obviously
-> if that is not the case and you can guarantee that req->opcode will
-> always be valid we can easily drop the check prior to the audit call.
+Originally posted here: https://github.com/SELinuxProject/selinux/issues/287
 
-It is always true at this point, would be completely broken
-otherwise
+By default, selinux_check_access does not appear to be thread-safe. It
+calls avc_open, which then calls avc_init, passing NULL for all
+callback function tables. The result is that no locking is done for
+the AVC, which can corrupt the cache if multiple threads are calling
+selinux_check_access.
 
->>> +             audit_uring_entry(req->opcode);
->>
->> So, it adds two if's with memory loads (i.e. current->audit_context)
->> per request in one of the hottest functions here... No way, nack
->>
->> Maybe, if it's dynamically compiled into like kprobes if it's
->> _really_ used.
-> 
-> I'm open to suggestions on how to tweak the io_uring/audit
-> integration, if you don't like what I've proposed in this patchset,
-> lets try to come up with a solution that is more palatable.  If you
-> were going to add audit support for these io_uring operations, how
-> would you propose we do it?  Not being able to properly audit io_uring
-> operations is going to be a significant issue for a chunk of users, if
-> it isn't already, we need to work to find a solution to this problem.
+It looks like calling avc_init, supplying lock callbacks, is the
+"easy" answer. However, the avc_init man page says that avc_init is
+deprecated. There's a new function for setting callbacks,
+selinux_set_callback, but it does not seem to support locking.
 
-Who knows. First of all, seems CONFIG_AUDIT is enabled by default
-for many popular distributions, so I assume that is not compiled out.
+I see a few possible solutions:
+1. Update selinux_set_callback to support AVC lock functions.
+2. Update the man pages to indicate selinux is not intended to be
+thread-safe anymore.
+3. Update the avc_init man page, indicating it's safe to use (un-deprecate?)
 
-What are use cases for audit? Always running I guess? Putting aside
-compatibility problems, it sounds that with the amount of overhead
-it adds there is no much profit in using io_uring in the first place.
-Is that so?
+Note that we have observed buggy behavior with Android keystore2. Our
+quick-n-dirty fix was a serializing lock around all selinux calls:
+https://android.googlesource.com/platform/system/security/+/ff188d3a6ca38919e568f0c89f74d90c011526e9
 
-__audit_uring_exit()
--> audit_filter_syscall()
-  -> for (audit_list) if (...) audit_filter_rules()
-    -> ...
--> audit_filter_inodes()
-  -> ...
+My prefered fix is either #1 or #3, as they provide slightly
+finger-grained locking than our fix.
 
-> Unfortunately I don't think dynamically inserting audit calls is
-> something that would meet the needs of the audit community (I fear it
-> would run afoul of the various security certifications), and it
-> definitely isn't something that we support at present.
-
-I see
-
--- 
-Pavel Begunkov
+Cheers,
+Seth
