@@ -2,58 +2,88 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD73FC4708C
-	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 15:49:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03648C47082
+	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 16:39:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C2B74613D3
-	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 15:49:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE101610A0
+	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 16:38:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233819AbhEZPvV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 May 2021 11:51:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:60689 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234962AbhEZPvP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 May 2021 11:51:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1622044163;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=r1Ej9c3HqF4N34dLokWBDDDLrsUjOS1R2qnUxM+2GaA=;
-        b=gLeOeSbNIADyItg1lRsp1iVh7S0MmRXsSW9fjS+qEEgRpsfVfgFoupqELT/N99LtT+dAbw
-        gB8Suu4IF90FoBAEd8IFO/Mt1bx+eiEaVi2Ysgp/3SuJXMF9N0A6MJMVLhDUWYJMnGpvNH
-        01qLVi8Ee003CdAQBNR9Muxh4Iw9bWs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-270-8ehnYgxmNmaY3t-x9HlAHw-1; Wed, 26 May 2021 11:49:18 -0400
-X-MC-Unique: 8ehnYgxmNmaY3t-x9HlAHw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 15355188E3C1;
-        Wed, 26 May 2021 15:49:17 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.3.128.13])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id CE0AC90BE;
-        Wed, 26 May 2021 15:49:07 +0000 (UTC)
-Date:   Wed, 26 May 2021 11:49:05 -0400
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Stefan Metzmacher <metze@samba.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>
+        id S235134AbhEZQka (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 May 2021 12:40:30 -0400
+Received: from sonic308-15.consmr.mail.ne1.yahoo.com ([66.163.187.38]:36678
+        "EHLO sonic308-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234997AbhEZQka (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 May 2021 12:40:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1622047136; bh=S1uCvUeRrkRlNNhizFte879dzyrvDfFrtLEUTbXlxnA=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=VSry5DfhvIQ/vR475iOdgRERNHKUVuicQO6UpRC6vpIhh3tFIpZ/P5Ul9Zq7UPqXQWnbFTw9fUwj+ZQu9kBGcV53Li7vFxPp9GCA/+hVIC+uVt25dPDXXe+EjmXS8byjjxhQs8k+a4kFX3eLeor2eWApf1jvjp6tjZZL4fmnlVV/auA0ltjewIwguv609a27YlLuyZ8voWi/g6poy5PmjVzg+zOYjAx5/IazKdLKugEZ1xUu871crOn+481X/0WUMKr5YH6/yo7GXIMs9i7DoMbLubjaAmJrO/nRHwTRl3mLc+qGGT1cwWWbARJluuBnlFL/iBQghYE6XlfMCuKZiA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1622047136; bh=YhU2c0jxaqiTWK1GpKBrgflwFeJueINRH8R5pCOngg9=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=Z1U4jlSZ4Qz9SJKIxaQ3u/pY0aHaglB3KBogoCLWcAqmyFuoxV1+BXcrkBSU8AlDU8kr/tn3jvx9X80CBkz1FMPlObut1lWCDU/FNqp56b5QxG67zCPHdjM4LLILdihxd7Rn3nENiSF3ToHThN1iGtLganwNTJNbu8Lrs0i5PK6cS/WH6mXs6UuTNZXS+6mFOgg3Mgmf9rHUSeGPfrJSJSqYzQrsac0aD2G8uAWlKBpjyORi32TIB99TsIprGZdCFxZPw5dINJc1g8qUVzh2j96tGUbLSahMkTBzNLUsIAUR7waIUHXy5NvYX5df0FLJ6Qrv1s8rPv7lCIfDmFJv5A==
+X-YMail-OSG: 8lkYVV8VM1kbTqr9Th6F.3C8TFnV1n1rIwqO_GY0lDBydPIeEN.bNEkrr_vPDAE
+ Oauw3Ktk5dM5Jlzu8YJJSuvmoaTE9mL9eZ18jzx3HSwnFdkDSy5_HBO2n2e6auZTE2_f1I8dYIPm
+ E151K5javFD0g9ER.sX48LfoBL1EsCQAU9QQMEOnQgodQnqK55QlUoZ4fMQ2GDanhPsd0IZHo2op
+ nPK0lHMI5JUFaUuMg_iK3h1VscF8h8W1yRX4YPHtnZjIhOu_QyoTQHf_jFEDaB4ceM3hl7TnQdT4
+ k3k3GVAgYGftylkoZSaAldYZZkYFRNjkxNjnfaLEw1DRMcETzmXM8MwK4yes7qM9sAZKYu6.Ywqo
+ 5NpLgVpLohLUiwKIQ5KmKrlFwj8Clsdl5l35ItV8vnbSg0Um5iK0i8M0LGIe_XXu4WPSuxRI_LJp
+ krAUuDRMNZK54oi0I9lZwCPmrXWGKOQK7MlPzEdH7XRbmdZTJ8gO9rAk13_n3WRuPXLweD.HuVOF
+ 9DL.EyafYso3.lt9nMGQd2EwujwviEabdmNzLeJjEeOtaa56XEPCBVragWAUY1Ps_1yp_lLNfUaU
+ 9MdwxK2gmSYPNTnqiTb3jcSC9kwWt7yh0YASSNXTKjZO13atq8IfxIMQYvr1qhK.aIDLyK.Tiy7I
+ ehoJ4.M58jMXoVvRvpQ5tS_meEglf8M3OpCEoqmuZPO9aHMI_YUHywFcUHZonIKTIu.68k1YcqnY
+ n4y19RXC2FZNsEVKyd.Gzb2dCRRu10nFIFxMHrb5u95sYBPgXReWqSkM_92RvXARAX1bEJmwR9NM
+ xDPZZIDOYnHlW3iSYr.aSkyPN2Qd2QlFC11QW2x6LDaLQ5ohcD7NLCOOZaSZz4qMN4lj4d0sZXjZ
+ j6.3YSELNPNohhFu9w5yBT09G8o73pGkvpB4E2iB5xNMHWqJ4TTomz_xexn1a6JldwCWPmyVoPJc
+ 8i30K6vUltnVRjTYoe7Jkc7g5cvIWhVgaFkOywWpeMbyXLOp3q2KDdcedfz5y3fYys.G1hSdPdA2
+ lXZ7Dp3O3EnuqOgiZ7O7kx2rRovY52NufV84tEkub_iZEtKR.ui3HcwggGFztmbO5GyVNmD26jU2
+ tXfsB82W_rM1PtTNAUDYLRV9jwJ14a_Tvj0dskGQhjoRHMHMCseZ066eCeuOTJ1ZJUN_fBh16.wH
+ kLYOueBHZ71CgKgDoablqnvPqnPC5M5.bJ3opuh3cIo1O.N.lE6wE3hKwluTnnHzXDRlx1pWx7kZ
+ xss2hU43QXCuU7EkxIbi1Jbg77D7F4kTHbPMiK0C.pJblc1S8S1HW1rnevpeMd86EwQ3acgK1AS7
+ mBnt0DWKLAPnD4MmS9o8wcp.9YehQKKDgOc1lfD9IHavpWsg0Y9Id1MXlLCp0MWSsB96Pn6gqySQ
+ Vdro_LTXh36muwCsXoDWROhQt8dKwoMuIfLL4fOljuk658QGVCubSfcvrrGEZwJ8s6bSdvqu0ZmF
+ 6aI.GYPauYgOEkkrg44XBjNxYmhj4Q9MObBW11GH4UzD0ZL9j_vq7uiXp.ZNEaT5MH3wtpXGEnRG
+ v6MkIJj0X6hnX.O625STtYFxqhAn5Y_hXDd0TQ_yo.3CMhuzJP1KxRDiuM4JCtTw.gFdjyXZHket
+ hA7rJpjXTU76.Kxctuao2JpHVJV.s6TdJrLn0o.gEfi.hg4o93gZwd1ayQGP65LKYzfFnU2MOS2m
+ Z7.lvSy2LQ9EGf_8tfCRqFkhAbqiYDrnb9IT.A9AGBfsrwdugex7kAikfQnfdbozxYyfAklousl_
+ 9MCmWG.HrIlJ0ig5kvk4ycmur0wOcUShx79ADCzuRioqq_gHwdJl6n_dAxfdfHm7V3FlAays9vnQ
+ p0iOqLB5xXGKnfjZtF3.ZryxVNH3ztPPyWjN4YlgvDHOK.8ukZmNUac2Kgwz576GQafwJuEQcwu4
+ VpGXhYin1WzUkWf114JyigDDzj7OqfiYbXSj3um.h3e9OQiEnkwmv3E6nQQ_.Tn_3XJ2Rp5npSki
+ lqXLXayQCgMGWZY95hyTgiBT8w0JW6ZqTu4Uf5q3Oy82Kf5mhXlwUhhbIk_TeJu7C5T8bTkGz4IZ
+ iaf35lzD3hBG3tFYarfwnVDjAqY1e_24Z1NmSg7Jd5.am4tPnP9GhwGSxOWrn8r1VNfnxBajWv3y
+ Xa9hNlB8vDXM3URelVvGkpy68bXgBvcS9gx7gcbYBjT9u8DB0pOVu7u7ya_eCmqBGbUrzTT_QJ2O
+ zCwZRMbn9il0EwzCsVD.rRSVqmkcsjjs4LWjfTe80BmbcceJl_YDVZwh_nPewzDs7W9QhpHidieI
+ ftUkY5r5bY87mJDHvO5RZ6LqbYYEz1hnC.Ue9YpkpIKXiophJrago2iwo874dcXzqAxqxcN4Lppn
+ n1n.UiCN45R7DHpjX4m27A3j5rRvEf8OX_TpkqR7qZGd7lahBi5NcKQvZ8B1rROVBEhuPrTY6nwH
+ vatjbUtYq4tyVXuzUb9r_rdaa13lp1NTKv6l9aXdlsAjpvG14kcXBis7t99Rrmm8lPRljnNEGzW0
+ 21IOZVyDPooBkGcM719FjZpCQ0YVpR7mYMDhyYIog9EGyfMty8Pa1nn9BdxMg84s_.4zdRmCJfKr
+ tEneTgAhwgfwC3drib_2PAifQhIUJhRQxmajwTfYlPjT.dTUJFOpX_GyErtDW5_JbVkmLn5W8WHN
+ CjyUBgOlBo_2QGQlC74Ftu6NCxIk1b.368oJfjjpH6DRiA3jEGKZFJ4ZvSGmZLBu_blaodFu37ta
+ G7kh4ks1HoKoWG47YJA5UBPA6IF8f5J37i8efafqN5g6C7BhmwjQiPObcbu7m0Iyudm4ufCxjpx4
+ idx9QhsXYzWmOCpUXFZQHprZadeHgJLT2NXu8dSlbXAAN87Rnf.5wPiET2IgOdseCKS8R39EY2or
+ mPZv7xusis.25Rsc9iPqkF.Ave3BXRESVtiMZMJSYnmSkbGStHUu81fxHe3e59mxh91kpQLwzg0p
+ YcPZfUjPObk8maP6zq5p.4X3GxZnLuwav1bFw42ieUgjeRXAdU34dQn2F_L7JhfePHKJ4FiTVQu5
+ Y1UT0AWDied1x2wdzyp_FjZEH83ed5Cz78OLpitGsvnA5P.I2JSg8LCj1ZBe03wCrgol.52rI2AJ
+ V9w0I_YfjZCA_fDDnKcmxG12TJ05GE8idZ.I3dN83PqueBBoBAGUsW5xhS1QRlzi_uCb0WgsSw2a
+ VrTXmd_OkiwmCTo1jxhxeH_Tf5JO711aXCTQhwPY6i9jdfpBkptCFytHfLP9H_m6fnSYseZf73.1
+ Heg--
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Wed, 26 May 2021 16:38:56 +0000
+Received: by kubenode564.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID eea3acaa54f624e35a23ec456cbd982a;
+          Wed, 26 May 2021 16:38:50 +0000 (UTC)
 Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
  support to io_uring
-Message-ID: <20210526154905.GJ447005@madcap2.tricolour.ca>
-References: <162163379461.8379.9691291608621179559.stgit@sifl>
+To:     Victor Stewart <v@nametag.social>,
+        Stefan Metzmacher <metze@samba.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, selinux@vger.kernel.org,
+        io-uring <io-uring@vger.kernel.org>,
+        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        linux-fsdevel@vger.kernel.org,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <162163367115.8379.8459012634106035341.stgit@sifl>
+ <162163379461.8379.9691291608621179559.stgit@sifl>
  <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
  <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
  <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com>
@@ -63,163 +93,69 @@ References: <162163379461.8379.9691291608621179559.stgit@sifl>
  <0a668302-b170-31ce-1651-ddf45f63d02a@gmail.com>
  <CAHC9VhTAvcB0A2dpv1Xn7sa+Kh1n+e-dJr_8wSSRaxS4D0f9Sw@mail.gmail.com>
  <18823c99-7d65-0e6f-d508-a487f1b4b9e7@samba.org>
+ <CAM1kxwjFeawYPudx+ARBMYXgMtU_ypwuSKP7x7U7AQ69LxGQgQ@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <cba563e3-60da-3edf-e5fe-e409415ce3cc@schaufler-ca.com>
+Date:   Wed, 26 May 2021 09:38:49 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <18823c99-7d65-0e6f-d508-a487f1b4b9e7@samba.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <CAM1kxwjFeawYPudx+ARBMYXgMtU_ypwuSKP7x7U7AQ69LxGQgQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Mailer: WebService/1.1.18368 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-05-26 17:17, Stefan Metzmacher wrote:
-> 
-> Am 26.05.21 um 16:38 schrieb Paul Moore:
-> > On Wed, May 26, 2021 at 6:19 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
-> >> On 5/26/21 3:04 AM, Paul Moore wrote:
-> >>> On Tue, May 25, 2021 at 9:11 PM Jens Axboe <axboe@kernel.dk> wrote:
-> >>>> On 5/24/21 1:59 PM, Paul Moore wrote:
-> >>>>> That said, audit is not for everyone, and we have build time and
-> >>>>> runtime options to help make life easier.  Beyond simply disabling
-> >>>>> audit at compile time a number of Linux distributions effectively
-> >>>>> shortcut audit at runtime by adding a "never" rule to the audit
-> >>>>> filter, for example:
-> >>>>>
-> >>>>>  % auditctl -a task,never
-> >>>>
-> >>>> As has been brought up, the issue we're facing is that distros have
-> >>>> CONFIG_AUDIT=y and hence the above is the best real world case outside
-> >>>> of people doing custom kernels. My question would then be how much
-> >>>> overhead the above will add, considering it's an entry/exit call per op.
-> >>>> If auditctl is turned off, what is the expectation in turns of overhead?
-> >>>
-> >>> I commented on that case in my last email to Pavel, but I'll try to go
-> >>> over it again in a little more detail.
-> >>>
-> >>> As we discussed earlier in this thread, we can skip the req->opcode
-> >>> check before both the _entry and _exit calls, so we are left with just
-> >>> the bare audit calls in the io_uring code.  As the _entry and _exit
-> >>> functions are small, I've copied them and their supporting functions
-> >>> below and I'll try to explain what would happen in CONFIG_AUDIT=y,
-> >>> "task,never" case.
-> >>>
-> >>> +  static inline struct audit_context *audit_context(void)
-> >>> +  {
-> >>> +    return current->audit_context;
-> >>> +  }
-> >>>
-> >>> +  static inline bool audit_dummy_context(void)
-> >>> +  {
-> >>> +    void *p = audit_context();
-> >>> +    return !p || *(int *)p;
-> >>> +  }
-> >>>
-> >>> +  static inline void audit_uring_entry(u8 op)
-> >>> +  {
-> >>> +    if (unlikely(audit_enabled && audit_context()))
-> >>> +      __audit_uring_entry(op);
-> >>> +  }
-> >>
-> >> I'd rather agree that it's my cycle-picking. The case I care about
-> >> is CONFIG_AUDIT=y (because everybody enable it), and io_uring
-> >> tracing _not_ enabled at runtime. If enabled let them suffer
-> >> the overhead, it will probably dip down the performance
-> >>
-> >> So, for the case I care about it's two of
-> >>
-> >> if (unlikely(audit_enabled && current->audit_context))
-> >>
-> >> in the hot path. load-test-jump + current, so it will
-> >> be around 7x2 instructions. We can throw away audit_enabled
-> >> as you say systemd already enables it, that will give
-> >> 4x2 instructions including 2 conditional jumps.
-> > 
-> > We've basically got it down to the equivalent of two
-> > "current->audit_context != NULL" checks in the case where audit is
-> > built into the kernel but disabled at runtime, e.g. CONFIG_AUDIT=y and
-> > "task,never".  I'm at a loss for how we can lower the overhead any
-> > further, but I'm open to suggestions.
-> > 
-> >> That's not great at all. And that's why I brought up
-> >> the question about need of pre and post hooks and whether
-> >> can be combined. Would be just 4 instructions and that is
-> >> ok (ish).
-> > 
-> > As discussed previously in this thread that isn't really an option
-> > from an audit perspective.
-> > 
-> >>> We would need to check with the current security requirements (there
-> >>> are distro people on the linux-audit list that keep track of that
-> >>> stuff), but looking at the opcodes right now my gut feeling is that
-> >>> most of the opcodes would be considered "security relevant" so
-> >>> selective auditing might not be that useful in practice.  It would
-> >>> definitely clutter the code and increase the chances that new opcodes
-> >>> would not be properly audited when they are merged.
-> >>
-> >> I'm curious, why it's enabled by many distros by default? Are there
-> >> use cases they use?
-> > 
-> > We've already talked about certain users and environments where audit
-> > is an important requirement, e.g. public sector, health care,
-> > financial institutions, etc.; without audit Linux wouldn't be an
-> > option for these users, at least not without heavy modification,
-> > out-of-tree/ISV patches, etc.  I currently don't have any direct ties
-> > to any distros, "Enterprise" or otherwise, but in the past it has been
-> > my experience that distros much prefer to have a single kernel build
-> > to address the needs of all their users.  In the few cases I have seen
-> > where a second kernel build is supported it is usually for hardware
-> > enablement.  I'm sure there are other cases too, I just haven't seen
-> > them personally; the big distros definitely seem to have a strong
-> > desire to limit the number of supported kernel configs/builds.
-> > 
-> >> Tempting to add AUDIT_IOURING=default N, but won't work I guess
-> > 
-> > One of the nice things about audit is that it can give you a history
-> > of what a user did on a system, which is very important for a number
-> > of use cases.  If we selectively disable audit for certain subsystems
-> > we create a blind spot in the audit log, and in the case of io_uring
-> > this can be a very serious blind spot.  I fear that if we can't come
-> > to some agreement here we will need to make io_uring and audit
-> > mutually exclusive at build time which would be awful; forcing many
-> > distros to either make a hard choice or carry out-of-tree patches.
-> 
-> I'm wondering why it's not enough to have the native auditing just to happen.
+On 5/26/2021 8:49 AM, Victor Stewart wrote:
+>> I'm wondering why it's not enough to have the native auditing just to =
+happen.
+>>
+>> E.g. all (I have checked RECVMSG,SENDMSG,SEND and CONNECT) socket rela=
+ted io_uring opcodes
+>> already go via security_socket_{recvmsg,sendmsg,connect}()
+>>
+>> IORING_OP_OPENAT* goes via do_filp_open() which is in common with the =
+open[at[2]]() syscalls
+>> and should also trigger audit_inode() and security_file_open().
+>>
+>> So why is there anything special needed for io_uring (now that the nat=
+ive worker threads are used)?
+>>
+>> Is there really any io_uring opcode that bypasses the security checks =
+the corresponding native syscall
+>> would do? If so, I think that should just be fixed...
+> stefan's points crossed my mind as well.
+>
+> but assuming iouring buy-in is required, from a design perspective,
+> rather than inserting these audit conditionals in the hotpath,
+> wouldn't a layering model work better?
+> aka enabling auditing changes the function entry point into io_uring
+> and passes operations through an auditing layer, then back to the main
+> entry point. then there is no
+> cost to audit disabled code, and you just force audit to pay whatever
+> double processing cost that entails.
 
-The audit context needs to be set up for each event.  This happens in
-audit_syslog_entry and audit_syslog_exit.
+There seems to be an assumption that the audit code isn't concerned
+about processing cost. This is complete nonsense. While an audit system
+has to be accurate and complete (hence encompassing io_uring) it also
+has to be sufficiently performant for the system to be useful when it
+is enabled. It would have been real handy had the audit and LSM
+requirements been designed into io_uring. The performance implications
+could have been addressed up front. Instead it all has to be retrofit.
+io_uring, Audit and LSM need to perform well and the best way to ensure
+that the combination works is cooperation between the developers. Any
+response that includes the word "just" is unlikely to be helpful.
 
-> E.g. all (I have checked RECVMSG,SENDMSG,SEND and CONNECT) socket related io_uring opcodes
-> already go via security_socket_{recvmsg,sendmsg,connect}()
-> 
-> IORING_OP_OPENAT* goes via do_filp_open() which is in common with the open[at[2]]() syscalls
-> and should also trigger audit_inode() and security_file_open().
 
-These are extra hooks to grab operation-specific (syscall) parameters.
-
-> So why is there anything special needed for io_uring (now that the native worker threads are used)?
-
-Because syscall has been bypassed by a memory-mapped work queue.
-
-> Is there really any io_uring opcode that bypasses the security checks the corresponding native syscall
-> would do? If so, I think that should just be fixed...
-
-This is by design to speed it up.  This is what Paul's iouring entry and
-exit hooks do.
-
-> Additional LSM based restrictions could be hooked into the io_check_restriction() path
-> and setup at io_uring_setup() or early io_uring_register() time.
-> 
-> What do you think?
-> 
-> metze
-
-- RGB
-
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
+>
+> V
+>
+> --
+> Linux-audit mailing list
+> Linux-audit@redhat.com
+> https://listman.redhat.com/mailman/listinfo/linux-audit
+>
 
