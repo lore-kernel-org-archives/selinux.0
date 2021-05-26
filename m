@@ -2,166 +2,231 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E3D1C47088
-	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 02:04:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77D36C47082
+	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 10:02:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6186C6101B
-	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 02:04:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56FEA61432
+	for <selinux@archiver.kernel.org>; Wed, 26 May 2021 10:02:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230445AbhEZCGB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 May 2021 22:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
+        id S233486AbhEZKEO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 May 2021 06:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232859AbhEZCGA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 May 2021 22:06:00 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52A0C061574
-        for <selinux@vger.kernel.org>; Tue, 25 May 2021 19:04:28 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id df21so38597429edb.3
-        for <selinux@vger.kernel.org>; Tue, 25 May 2021 19:04:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AVDziIe4V6YxS8ijZfxm39fjCEHx8wW3u92rBRAH8wk=;
-        b=wO+80CzEAh2K7zjQM/+DAnqTpqxNNVW5Jdf0wlMQ8P4pL3oox/BSLi2p/cUcQIIseY
-         5NHP2F2BEMjNLtOXvK5SSrkFDgxHvO/D7d7QnuX+L4xm48YH9ahiJNoYtCqm2imnh6H3
-         11kAOkwpwqV2bO5gUwjHgu3AYJI+XuECE5mH1GwfKY/TSkQkfvvotCyt57HRRXh/GQHw
-         zkewwScEbupzXXC6ksgTeAxR09CoSUzt/1YXPmgkvyqeED+LaoOOfrSY6QG3Cl6HC4Vg
-         OuMwbo+ryg+zLZSt5wmB9juExFO/KmuGSHCal+vzCamHKvqy1rBT0/iaJRR0JczLKHU/
-         4CGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AVDziIe4V6YxS8ijZfxm39fjCEHx8wW3u92rBRAH8wk=;
-        b=UNQ+3Uh4dEhJIOaweJeAX4rXchJwUsOSmmC8N0bVD2BCf9H2LJWRSSCwINSdWfxPs1
-         wRsj7J/jM8PbrgUkajSZuCkS07us6IlHVhpMX8C5DQHTA87TAQQQsAj+R5TvHe8uWXti
-         9TIpQcjtymCDZ2ITfY0g/YYi+XXN+IMW1uQLYxgW4xMFI1VnD4lgIXma4AMrFkm+o6GG
-         R/jPIsKs+GERzDH+EGUvSM8C/zTXopsLwZEQBMsUuB6FTK+lQF2dSaa/KimteTMfjZK5
-         UX/WVo9FpQqm3AsepqiKuVUb79D1zwu1kTGqK8bM+QkfpqDbEzzmRGpsNEYZLUmQp9Jt
-         +kag==
-X-Gm-Message-State: AOAM530sxVoF80qxikwONPhSLMKinAlnlxedCm/smZT94gPEkOgXQfDw
-        7iZv9SY60xjYIQ+PG89SRxwBpmjv4/vBDvSoS1ClNI+Jaqa7
-X-Google-Smtp-Source: ABdhPJzLxVYWHyIPDuzmWEqrz4zwzl/MN/HfR7rgSiIG2g2/GNZnsS+o3skTAZzrh5FnnRtatTsqRTZDXToXHCfXJnw=
-X-Received: by 2002:aa7:c7cd:: with SMTP id o13mr12537237eds.269.1621994667198;
- Tue, 25 May 2021 19:04:27 -0700 (PDT)
+        with ESMTP id S233264AbhEZKEO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 May 2021 06:04:14 -0400
+X-Greylist: delayed 706 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 26 May 2021 03:02:43 PDT
+Received: from smtp-190f.mail.infomaniak.ch (smtp-190f.mail.infomaniak.ch [IPv6:2001:1600:3:17::190f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E4CC061574
+        for <selinux@vger.kernel.org>; Wed, 26 May 2021 03:02:43 -0700 (PDT)
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+        by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4FqmRM1fDqzMptYc;
+        Wed, 26 May 2021 11:50:55 +0200 (CEST)
+Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
+        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4FqmRJ05YQzlmrrV;
+        Wed, 26 May 2021 11:50:51 +0200 (CEST)
+Subject: Re: [PATCH v26 02/25] LSM: Add the lsmblob data structure.
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20210513200807.15910-1-casey@schaufler-ca.com>
+ <20210513200807.15910-3-casey@schaufler-ca.com>
+ <206971d6-70c7-e217-299f-1884310afa15@digikod.net>
+ <1c3874c1-870a-ac60-03e6-2c16d49e185b@schaufler-ca.com>
+From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+Message-ID: <53108f3e-3297-3d8b-cba9-2b12ca30d666@digikod.net>
+Date:   Wed, 26 May 2021 11:53:00 +0200
+User-Agent: 
 MIME-Version: 1.0
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163379461.8379.9691291608621179559.stgit@sifl> <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
- <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
- <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com> <CAHC9VhSJuddB+6GPS1+mgcuKahrR3UZA=1iO8obFzfRE7_E0gA@mail.gmail.com>
- <8943629d-3c69-3529-ca79-d7f8e2c60c16@kernel.dk>
-In-Reply-To: <8943629d-3c69-3529-ca79-d7f8e2c60c16@kernel.dk>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 25 May 2021 22:04:16 -0400
-Message-ID: <CAHC9VhTYBsh4JHhqV0Uyz=H5cEYQw48xOo=CUdXV0gDvyifPOQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
- support to io_uring
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1c3874c1-870a-ac60-03e6-2c16d49e185b@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, May 25, 2021 at 9:11 PM Jens Axboe <axboe@kernel.dk> wrote:
-> On 5/24/21 1:59 PM, Paul Moore wrote:
-> > That said, audit is not for everyone, and we have build time and
-> > runtime options to help make life easier.  Beyond simply disabling
-> > audit at compile time a number of Linux distributions effectively
-> > shortcut audit at runtime by adding a "never" rule to the audit
-> > filter, for example:
-> >
-> >  % auditctl -a task,never
->
-> As has been brought up, the issue we're facing is that distros have
-> CONFIG_AUDIT=y and hence the above is the best real world case outside
-> of people doing custom kernels. My question would then be how much
-> overhead the above will add, considering it's an entry/exit call per op.
-> If auditctl is turned off, what is the expectation in turns of overhead?
 
-I commented on that case in my last email to Pavel, but I'll try to go
-over it again in a little more detail.
+On 26/05/2021 01:52, Casey Schaufler wrote:
+> On 5/22/2021 1:39 AM, Mickaël Salaün wrote:
+>> I like this design but there is an issue with Landlock though, see below.
+>>
+>> On 13/05/2021 22:07, Casey Schaufler wrote:
+>>> When more than one security module is exporting data to
+>>> audit and networking sub-systems a single 32 bit integer
+>>> is no longer sufficient to represent the data. Add a
+>>> structure to be used instead.
+>>>
+>>> The lsmblob structure is currently an array of
+>>> u32 "secids". There is an entry for each of the
+>>> security modules built into the system that would
+>>> use secids if active. The system assigns the module
+>>> a "slot" when it registers hooks. If modules are
+>>> compiled in but not registered there will be unused
+>>> slots.
+>>>
+>>> A new lsm_id structure, which contains the name
+>>> of the LSM and its slot number, is created. There
+>>> is an instance for each LSM, which assigns the name
+>>> and passes it to the infrastructure to set the slot.
+>>>
+>>> The audit rules data is expanded to use an array of
+>>> security module data rather than a single instance.
+>>> Because IMA uses the audit rule functions it is
+>>> affected as well.
+>>>
+>>> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>> Acked-by: Paul Moore <paul@paul-moore.com>
+>>> Acked-by: John Johansen <john.johansen@canonical.com>
+>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>> Cc: <bpf@vger.kernel.org>
+>>> Cc: linux-audit@redhat.com
+>>> Cc: linux-security-module@vger.kernel.org
+>>> Cc: selinux@vger.kernel.org
+>>> To: Mimi Zohar <zohar@linux.ibm.com>
+>>> To: Mickaël Salaün <mic@linux.microsoft.com>
+>>> ---
+>>>  include/linux/audit.h               |  4 +-
+>>>  include/linux/lsm_hooks.h           | 12 ++++-
+>>>  include/linux/security.h            | 67 +++++++++++++++++++++++++--
+>>>  kernel/auditfilter.c                | 24 +++++-----
+>>>  kernel/auditsc.c                    | 13 +++---
+>>>  security/apparmor/lsm.c             |  7 ++-
+>>>  security/bpf/hooks.c                | 12 ++++-
+>>>  security/commoncap.c                |  7 ++-
+>>>  security/integrity/ima/ima_policy.c | 40 +++++++++++-----
+>>>  security/landlock/cred.c            |  2 +-
+>>>  security/landlock/fs.c              |  2 +-
+>>>  security/landlock/ptrace.c          |  2 +-
+>>>  security/landlock/setup.c           |  4 ++
+>>>  security/landlock/setup.h           |  1 +
+>>>  security/loadpin/loadpin.c          |  8 +++-
+>>>  security/lockdown/lockdown.c        |  7 ++-
+>>>  security/safesetid/lsm.c            |  8 +++-
+>>>  security/security.c                 | 72 ++++++++++++++++++++++++-----
+>>>  security/selinux/hooks.c            |  8 +++-
+>>>  security/smack/smack_lsm.c          |  7 ++-
+>>>  security/tomoyo/tomoyo.c            |  8 +++-
+>>>  security/yama/yama_lsm.c            |  7 ++-
+>>>  22 files changed, 262 insertions(+), 60 deletions(-)
+>>>
+>> [...]
+>>
+>>> diff --git a/security/landlock/setup.c b/security/landlock/setup.c
+>>> index f8e8e980454c..4a12666a4090 100644
+>>> --- a/security/landlock/setup.c
+>>> +++ b/security/landlock/setup.c
+>>> @@ -23,6 +23,10 @@ struct lsm_blob_sizes landlock_blob_sizes __lsm_ro_after_init = {
+>>>  	.lbs_superblock = sizeof(struct landlock_superblock_security),
+>>>  };
+>>>  
+>>> +struct lsm_id landlock_lsmid __lsm_ro_after_init = {
+>>> +	.lsm = LANDLOCK_NAME,
+>> It is missing: .slot = LSMBLOB_NEEDED,
+> 
+> Sorry for the delay.
+> 
+> Landlock does not provide any of the hooks that use a struct lsmblob.
+> That would be secid_to_secctx, secctx_to_secid, inode_getsecid,
+> cred_getsecid, kernel_act_as task_getsecid_subj task_getsecid_obj and
+> ipc_getsecid. Setting .slot = LSMBLOB_NEEDED indicates that the LSM
+> uses a slot in struct lsmblob. Landlock does not need a slot.
 
-As we discussed earlier in this thread, we can skip the req->opcode
-check before both the _entry and _exit calls, so we are left with just
-the bare audit calls in the io_uring code.  As the _entry and _exit
-functions are small, I've copied them and their supporting functions
-below and I'll try to explain what would happen in CONFIG_AUDIT=y,
-"task,never" case.
+Indeed, the (generic) "blob" name misled me. Would it make sense to use
+a name with "secid" in it instead?
 
-+  static inline struct audit_context *audit_context(void)
-+  {
-+    return current->audit_context;
-+  }
+Shouldn't the slot field be set to LSMBLOB_NOT_NEEDED (-3) then (instead
+of the implicit 0)?
 
-+  static inline bool audit_dummy_context(void)
-+  {
-+    void *p = audit_context();
-+    return !p || *(int *)p;
-+  }
+> 
+>>
+>> You can run the Landlock tests please?
+>> make -C tools/testing/selftests TARGETS=landlock gen_tar
+>> tar -xf kselftest.tar.gz && ./run_kselftest.sh
+> 
+> Sure. I'll add them to my routine.
 
-+  static inline void audit_uring_entry(u8 op)
-+  {
-+    if (unlikely(audit_enabled && audit_context()))
-+      __audit_uring_entry(op);
-+  }
+Thanks.
 
-We have one if statement where the conditional checks on two
-individual conditions.  The first (audit_enabled) is simply a check to
-see if anyone has "turned on" auditing at runtime; historically this
-worked rather well, and still does in a number of places, but ever
-since systemd has taken to forcing audit on regardless of the admin's
-audit configuration it is less useful.  The second (audit_context())
-is a check to see if an audit_context has been allocated for the
-current task.  In the case of "task,never" current->audit_context will
-be NULL (see audit_alloc()) and the __audit_uring_entry() slowpath
-will never be called.
+> 
+>>
+>>
+>>> +};
+>>> +
+>>>  static int __init landlock_init(void)
+>>>  {
+>>>  	landlock_add_cred_hooks();
+>> [...]
+>>
+>>> diff --git a/security/security.c b/security/security.c
+>>> index e12a7c463468..a3276deb1b8a 100644
+>>> --- a/security/security.c
+>>> +++ b/security/security.c
+>>> @@ -344,6 +344,7 @@ static void __init ordered_lsm_init(void)
+>>>  	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
+>>>  	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
+>>>  	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
+>>> +	init_debug("lsmblob size         = %zu\n", sizeof(struct lsmblob));
+>>>  
+>>>  	/*
+>>>  	 * Create any kmem_caches needed for blobs
+>>> @@ -471,21 +472,36 @@ static int lsm_append(const char *new, char **result)
+>>>  	return 0;
+>>>  }
+>>>  
+>>> +/*
+>>> + * Current index to use while initializing the lsmblob secid list.
+>>> + */
+>>> +static int lsm_slot __lsm_ro_after_init;
+>>> +
+>>>  /**
+>>>   * security_add_hooks - Add a modules hooks to the hook lists.
+>>>   * @hooks: the hooks to add
+>>>   * @count: the number of hooks to add
+>>> - * @lsm: the name of the security module
+>>> + * @lsmid: the identification information for the security module
+>>>   *
+>>>   * Each LSM has to register its hooks with the infrastructure.
+>>> + * If the LSM is using hooks that export secids allocate a slot
+>>> + * for it in the lsmblob.
+>>>   */
+>>>  void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>>> -				char *lsm)
+>>> +			       struct lsm_id *lsmid)
+>>>  {
+>>>  	int i;
+>>>  
+>> Could you add a WARN_ON(!lsmid->slot || !lsmid->name) here?
+> 
+> Yes. That's reasonable.
 
-Worst case here is checking the value of audit_enabled and
-current->audit_context.  Depending on which you think is more likely
-we can change the order of the check so that the
-current->audit_context check is first if you feel that is more likely
-to be NULL than audit_enabled is to be false (it may be that way now).
+I guess my above comment makes sense if lsmid->slot should not be zero
+but LSMBLOB_NOT_NEEDED instead, otherwise the Landlock lsmid would throw
+a warning.
 
-+  static inline void audit_uring_exit(int success, long code)
-+  {
-+    if (unlikely(!audit_dummy_context()))
-+      __audit_uring_exit(success, code);
-+  }
-
-The exit call is very similar to the entry call, but in the
-"task,never" case it is very simple as the first check to be performed
-is the current->audit_context check which we know to be NULL.  The
-__audit_uring_exit() slowpath will never be called.
-
-> aio never had any audit logging as far as I can tell. I think it'd make
-> a lot more sense to selectively enable audit logging only for opcodes
-> that we care about. File open/create/unlink/mkdir etc, that kind of
-> thing. File level operations that people would care about logging. Would
-> they care about logging a buffer registration or a polled read from a
-> device/file? I highly doubt it, and we don't do that for alternative
-> methods either. Doesn't really make sense for a lot of the other
-> operations, imho.
-
-We would need to check with the current security requirements (there
-are distro people on the linux-audit list that keep track of that
-stuff), but looking at the opcodes right now my gut feeling is that
-most of the opcodes would be considered "security relevant" so
-selective auditing might not be that useful in practice.  It would
-definitely clutter the code and increase the chances that new opcodes
-would not be properly audited when they are merged.
-
--- 
-paul moore
-www.paul-moore.com
+> 
+>>
+>>
+>>> +	if (lsmid->slot == LSMBLOB_NEEDED) {
+>>> +		if (lsm_slot >= LSMBLOB_ENTRIES)
+>>> +			panic("%s Too many LSMs registered.\n", __func__);
+>>> +		lsmid->slot = lsm_slot++;
+>>> +		init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
+>>> +			   lsmid->slot);
+>>> +	}
+>>> +
+>>>  	for (i = 0; i < count; i++) {
+>>> -		hooks[i].lsm = lsm;
+>>> +		hooks[i].lsmid = lsmid;
+>>>  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
+>>>  	}
+>>>  
+> 
