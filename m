@@ -2,133 +2,170 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 879C1C4708B
-	for <selinux@archiver.kernel.org>; Thu, 27 May 2021 17:05:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B521CC47089
+	for <selinux@archiver.kernel.org>; Thu, 27 May 2021 17:27:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B59A61028
-	for <selinux@archiver.kernel.org>; Thu, 27 May 2021 17:05:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97299613BE
+	for <selinux@archiver.kernel.org>; Thu, 27 May 2021 17:27:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236796AbhE0RHT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 May 2021 13:07:19 -0400
-Received: from sonic314-26.consmr.mail.ne1.yahoo.com ([66.163.189.152]:37550
-        "EHLO sonic314-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236849AbhE0RHS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 May 2021 13:07:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1622135145; bh=u6GFmi+eR/n6StK0dBZVA4kg5kqcQ+rdt27+dzUPMSY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=LzIfXZDhVVO3+lwYBv4uijVD57J0InMgaa8oQyIDdp9mNCvkOdqqvnpH64tRUpM7r+ynE0WM+MmQyvoxqQGn9hla3CNM1ZboB/XCO9OlEtnaxjqvOnqijHSyZLAx0D0eVWWjc/2J0pz629YCFzBTobM+zAG9kRZhtvkVKG9BPFH2ycdTgwNxbNkWX30L9O/iUFdZqNaPwLNlXLRcZwEwAZ4dmebReC01FqZ9sNPmJgzwrrBs6sXMXw30J4Gqf7t+kxRAUq20ISiZEWuHeMifttBdJpX612miCbWqLNHKtNyTayK4OR3A1yerkQMH1qZD3i9f8sqPWcgj4qKn1Y6MVA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1622135145; bh=08uRjCsKqwdhED+AiXT157umYagvOotTU14AzAHm47G=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=k3PpNoqaONkI1NDpbGXghESgMn7Hy9Yupo0EDvq0aAEZClOn0xWCFk8ZfgpzojJhoS7MuXcOx0eunLK2AuP7Vw/ACIFTO4m7IvVnDOX0mLQjaGGhQ/tAydAobyRxS2onP5y98UESrhA37AiBaykvpcTi0Wqs5qG2PlV32UxADsQpVrSyPutwkk9dhYu6jn6+Nzf0mghAQ4RZbIKIGmDGTa3/+MNwtTM33NebQJHNaAXEpNxPY8wn3huLvN5oBzDaQPg6lVybhNkIGsGjd47xTyYnGlVboryrVCzEkhLJoQu0r7IGp+jkxQEZi8p9x2KXYcULSOfL70zAk7EKIBCFBw==
-X-YMail-OSG: kZeDwyYVM1lBd1VM68_pFsknsPOh1hM.D1R1B7qpYS1RwvXP7gPDsghr70SVXcx
- 8Df4h8OSB_ZJFNAe8E4yBIEi_gEa63EeXlvS1zzVUtRb.QyS4OBCRSaPzbWVbAH1S24diAqUZr4s
- XrhDtHA1Vbvj_5e94RlW.t_6BJx.xiqnOmqHO87XDWkrsr2et9ajk_MQVg8k.89R3OMPimN9ZAZq
- 4RFETPxNUcVXoGlD6nrLwduwJyNUVI5C99dkJGbXGFnt3YTnBtfS6l5KgirxP.94ttM2H.ib0rKz
- uHRzQ5OY0BbSpp_HAh8biMRLYiiSzCDCMcPJPxWtbnH..Kiwy5zvCndVzrBK0q2fzCqvzcG3Tvaf
- DyYvC2DOsHw21q1Voapnqj4d6_xFtYVV7VMa3N1HVUFirEDP3BoMcf36i0Xb7ewm8H3vK67BlO.q
- 1wXU_Pa5dSQRDU1Tt7T0gIXbpHYScsqUOFJRyZSMWiHi92jVrDa_hcqMEknPxzs3UkU0587LjKjN
- A.704sZraZY7l_QnbBMnAqmbGfExVPlDeT063YlUUH3oy4twWTTNCQ9TD8CEboNi21lqBai_Ij9I
- MiQ8ElT8RHFMFedRbASoXcQg_FRq.YCCC6VD4GwI4RafxpvVnOKNJ2fzWfkvsbWSTvd5rMWLer6L
- KUINNJhgRqGAIKjieTlzpE_aWimPrH6G1sCPBNCXqyzZ4Ax47EJv.t6aPLlmcOe0HGx7xKV4yR9g
- oVynDSXenZeBosen4JmX9j9gJN2AvMMSpBeX0UCAuHHghvHEpkJBaJ9HPkwdwC3y7YASVsi7TY6.
- QlC1vaIhQjocopndchr4tSVPPxneBOS9rB9HU1jm9yNRMKjrRi2QboxM8kfV8EbT9EUo4EbONJg7
- 4CzSN.ClplIotVB6GZcvfe9luvWl0q.oMCGGzqMywD1iWDXN3jY6oJ3sE2cW1nWp548NzmAzy0jK
- vT4B.yMfRe5Q.jU7OfyPQy4PXt0e9Bohb2pu6oJneb4EbyKWSxUOR3_59I2oe1WCHl_7b_MoXwQb
- dfqp1GTdl8y.Twf7R5in1fErSZ22LfHWIVkPHarQIwRt2Nwz6zWYLWhoFvYPcL20UdXAxslXRza8
- GgyRSsqOR1Q37XWl7_Qpw4MIk2Ob4unTQiX8MGdoPUaKAF6i0hxgUm2MUIs2WAM2YmpmBSCHpJRU
- J3pRDkyCuXVhDVZpw8Y_WNQPXD5VaP3il2kmvtcmu4ExJ5kk4Dn_WZaipaSDJ.Kor2tWHJOKSZpE
- iwjm5jyaOEmV0kp5yptjngnqhsuwlYmB9l2l9YPgv.0XYzFPiYpMnhGGsRUjKw41XWV6YhnWC.NQ
- J_oVoRKF3oGFqNayuTGoEnEXjtz59IAyOjACVe88SI36ShRhqCkM3CTVuwiYGDFgB8uyOeHoTYPt
- hIwNOYByAYqudzPOBfGrbYRjA.9aZjD6ihf0ZVzPWmHFRw9a922AMqb74jLDC0taIh5EOpSl0We4
- 1pf_yya8wadT7iitac7WyAy_L5vtQ27BeCDyz2td0i1EAFAYDaLFPM_ScGIkxPHYpO8OwcYPLtCn
- DdhoR4WeoNPukx0QtQj77mx38V1d7Om6rWqm_8U2suOkpi_4P.jmf.yQvqx5hfOPJFr_ObYehnI4
- il9JPlN73A7u820qCInWD77NKI3YriXNdexRQF7yQMu.MKRdto_VbnHTdxNILn5EgdYU2a5iLVmk
- 67intGBPxhwEgPRbFxHCuc304uXkjrnpDPGXdwm7UM3YK0amS6Dkd9StAFseyrF9JOZfx2eD.AzG
- FUoCCZIVgCNW7inPmJeH5ZzCOvvnC3vX3UBKfDSFGg7B.tV0h_xaNn6CeLnyXRGPKdKjk5JDYVcb
- J1qpthYZBTWohhKlF0p.GagfzCpFVa5PF.7T4ErN6Mn2TThYjIZu5JMs5fmWZ3fWYD5Cs1k4OLs4
- 5wWXJJxNIRkPMGmx.MycsdwHc4FthYYy_QLtnkSg6TN_bdo1KqMkbxWpzDJaL733FjdRJTEbx4Lb
- 774wvzmjMAIo4HLsoDFPVFTaT9ScPSnx8DEvKgwWQiLjGrwsZovmmT2QzaDv94H7K_z99XydC1t.
- 8LDZrOqQudjUNQfdIaHC5SRgfwGWLH0U0_ulaV4QnBnRCZJmLANxKc.XelXeD.gLsysDSoDRX0cz
- hkyE5EYkFDMiW6JJORPtR57c7JlraHCw32Bg2RA2LqqIl51cSNG.mHal1yFzlqG6Ic_XKubhex9E
- cQqs632ZOWgBkp0EEznqylG79sne2ut0IQG42K1mXbjtFKlNx_BAM5fvV4JAbJHU16Hfh3bzumco
- zGCDh049H5eJHJ8O.ENiv_JOTsvrwgm7To1Vb0T45sO.MbUAK3_e4SG7lClODVhFEvDmHvVs_1AL
- 37G7NVVr1BD.iSIQmdlB4bg7YRNndqo6ceesjQAyarg_YkmAAbcKS6PSbZ9MBK.UN1Rb8yxoKQED
- cPaKPnYtGRhSUR18CaVNzratk29mVNYAejgNfHnB9r3SzMJCIhkc4RN1C8xFtpwKOv1p1CAig.Om
- nXdP6hZh_uEptab6YlPkHSp1eOWQ5bFth7htSF6_akpbmFUkXQP_J9mSaqsFVW5_5ry1ecOuyULy
- zgVf2T83YkNZEOQdbOvTxrAooDrBYqgeGIsxknJxhknufj7XdrNN8gG3nUrP0JACfD.0LSFeEKCO
- DSGOxEsU7JAp6p4szCY9CND0SSrTC3AyA5VtgIeThQ53JgxvzEqDwyqubgsF25WUABPaicUdoz_U
- MV7GnOQoYxkiTq9Ozeocj4Euxr2.3UMYGbVtc0.nawcjGM3vuxd5qDxwrC4iZoyopgK4.qzHC5yC
- UdOI38OdAxj79itnMStFxX6bXK2R.YFQhzmCJbiuLNkVD58xyoD3JLqw-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Thu, 27 May 2021 17:05:45 +0000
-Received: by kubenode575.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6fc88eb2aa808b1b1f97e6646d642118;
-          Thu, 27 May 2021 17:05:41 +0000 (UTC)
-Subject: Re: [pcmoore-selinux:working-io_uring 9/9]
- security/smack/smack_lsm.c:4702:5: warning: no previous prototype for
- function 'smack_uring_override_creds'
-To:     Paul Moore <paul@paul-moore.com>, kernel test robot <lkp@intel.com>
-Cc:     kbuild-all@lists.01.org, clang-built-linux@googlegroups.com,
-        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <202105270909.1fgRW8Wk-lkp@intel.com>
- <CAHC9VhRy=oD=B9G_ZZejPX0dL1+vsyLkYLs59vj-SJoeVMs53g@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <e061750d-9591-ac2c-5331-85456c3b4135@schaufler-ca.com>
-Date:   Thu, 27 May 2021 10:05:39 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.2
+        id S236982AbhE0R3B (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 May 2021 13:29:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53547 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236972AbhE0R3A (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 May 2021 13:29:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622136447;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=GzMol78bVGcIW11Te4X3+WhXNCOWxLfeqzpVW8dA0z8=;
+        b=DsY4GkVzRmRfzNv9AzCqy8d0hdxDst+FnhMLM1Ta9UXvKkFgRESytN0YpM5hMGXOC0XmMA
+        XbL++7Y3Lbo93E6JU6q4axEUZyLI6i8PwBIG7qye1tks1ajlpXvjoLdFKbL/4Wy0kowAsX
+        aM688UDiQF5+kYWeW5MhA/yk+03RzNc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-43-ViXTwQLXOR-Ms0fFwaEzDw-1; Thu, 27 May 2021 13:27:23 -0400
+X-MC-Unique: ViXTwQLXOR-Ms0fFwaEzDw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3D547801B1E;
+        Thu, 27 May 2021 17:27:21 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.13])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 43DE75D9DC;
+        Thu, 27 May 2021 17:27:10 +0000 (UTC)
+Date:   Thu, 27 May 2021 13:27:07 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Stefan Metzmacher <metze@samba.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-audit@redhat.com, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
+ support to io_uring
+Message-ID: <20210527172707.GI2268484@madcap2.tricolour.ca>
+References: <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
+ <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com>
+ <CAHC9VhSJuddB+6GPS1+mgcuKahrR3UZA=1iO8obFzfRE7_E0gA@mail.gmail.com>
+ <8943629d-3c69-3529-ca79-d7f8e2c60c16@kernel.dk>
+ <CAHC9VhTYBsh4JHhqV0Uyz=H5cEYQw48xOo=CUdXV0gDvyifPOQ@mail.gmail.com>
+ <0a668302-b170-31ce-1651-ddf45f63d02a@gmail.com>
+ <CAHC9VhTAvcB0A2dpv1Xn7sa+Kh1n+e-dJr_8wSSRaxS4D0f9Sw@mail.gmail.com>
+ <18823c99-7d65-0e6f-d508-a487f1b4b9e7@samba.org>
+ <20210526154905.GJ447005@madcap2.tricolour.ca>
+ <aaa98bcc-0515-f0e4-f15f-058ef0eb61e7@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhRy=oD=B9G_ZZejPX0dL1+vsyLkYLs59vj-SJoeVMs53g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.18368 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aaa98bcc-0515-f0e4-f15f-058ef0eb61e7@kernel.dk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/27/2021 8:29 AM, Paul Moore wrote:
-> On Wed, May 26, 2021 at 9:51 PM kernel test robot <lkp@intel.com> wrote:
->> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git working-io_uring
->> head:   1f25193a3f5495eefbc9826b1de1a008a2439351
->> commit: 1f25193a3f5495eefbc9826b1de1a008a2439351 [9/9] Smack: Brutalist io_uring support with debug
->> config: x86_64-randconfig-r013-20210526 (attached as .config)
->> compiler: clang version 13.0.0 (https://github.com/llvm/llvm-project 99155e913e9bad5f7f8a247f8bb3a3ff3da74af1)
->> reproduce (this is a W=1 build):
->>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->>         chmod +x ~/bin/make.cross
->>         # install x86_64 cross compiling tool for clang build
->>         # apt-get install binutils-x86-64-linux-gnu
->>         # https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=1f25193a3f5495eefbc9826b1de1a008a2439351
->>         git remote add pcmoore-selinux https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
->>         git fetch --no-tags pcmoore-selinux working-io_uring
->>         git checkout 1f25193a3f5495eefbc9826b1de1a008a2439351
->>         # save the attached .config to linux build tree
->>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross ARCH=x86_64
->>
->> If you fix the issue, kindly add following tag as appropriate
->> Reported-by: kernel test robot <lkp@intel.com>
->>
->> All warnings (new ones prefixed by >>):
->>
->>>> security/smack/smack_lsm.c:4702:5: warning: no previous prototype for function 'smack_uring_override_creds' [-Wmissing-prototypes]
->>    int smack_uring_override_creds(const struct cred *new)
->>        ^
->>    security/smack/smack_lsm.c:4702:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
->>    int smack_uring_override_creds(const struct cred *new)
->>    ^
->>    static
->>>> security/smack/smack_lsm.c:4739:5: warning: no previous prototype for function 'smack_uring_sqpoll' [-Wmissing-prototypes]
->>    int smack_uring_sqpoll(void)
->>        ^
->>    security/smack/smack_lsm.c:4739:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
->>    int smack_uring_sqpoll(void)
->>    ^
->>    static
->>    2 warnings generated.
-> FYI, Casey I took the liberty of making the Smack functions static (I
-> had made the same mistake with the SELinux code).
+On 2021-05-26 11:22, Jens Axboe wrote:
+> On 5/26/21 9:49 AM, Richard Guy Briggs wrote:
+> >> So why is there anything special needed for io_uring (now that the
+> >> native worker threads are used)?
+> > 
+> > Because syscall has been bypassed by a memory-mapped work queue.
+> 
+> I don't follow this one at all, that's just the delivery mechanism if
+> you choose to use SQPOLL. If you do, then a thread sibling of the
+> original task does the actual system call. There's no magic involved
+> there, and the tasks are related.
+> 
+> So care to expand on that?
 
-Thank you. If there was any doubt, the Smack function declarations
-were taken directly from the SELinux versions. 
+These may be poor examples, but hear me out...
+
+In the case of an open call, I'm guessing that they are mapped 1:1
+syscall to io_uring action so that the action can be asynchronous.  So
+in this case, there is a record of the action, but we don't see the
+result success/failure.  I assume that file paths can only be specified
+in the original syscall and not in an SQPOLL action?
+
+In the case of a syscall read/write (which aren't as interesting
+generally to audit, but I'm concerned there are other similar situations
+that are), the syscall would be called for every buffer that is passed
+back and forth user/kernel and vice versa, providing a way to log all
+that activity.  In the case of SQPOLL, I understand that a syscall sets
+up the action and then io_uring takes over and does the bulk transfer
+and we'd not have the visibility of how many times that action was
+repeated nor that the result success/failure was due to its asynchrony.
+
+Perhaps I am showing my ignorance, so please correct me if I have it
+wrong.
+
+> >> Is there really any io_uring opcode that bypasses the security checks the corresponding native syscall
+> >> would do? If so, I think that should just be fixed...
+> > 
+> > This is by design to speed it up.  This is what Paul's iouring entry and
+> > exit hooks do.
+> 
+> As far as I can tell, we're doing double logging at that point, if the
+> syscall helper does the audit as well. We'll get something logging the
+> io_uring opcode (eg IORING_OP_OPENAT2), then log again when we call the
+> fs helper. That's _assuming_ that we always hit the logging part when we
+> call into the vfs, but that's something that can be updated to be true
+> and kept an eye on for future additions.
+> 
+> Why is the double logging useful? It only tells you that the invocation
+> was via io_uring as the delivery mechanism rather than the usual system
+> call, but the effect is the same - the file is opened, for example.
+> 
+> I feel like I'm missing something here, or the other side is. Or both!
+
+Paul addressed this in his reply, but let me add a more concrete
+example...  There was one corner case I was looking at that showed up
+this issue.  Please indicate if I have mischaracterized or
+misunderstood.
+
+A syscall would generate records something like this:
+
+	AUDIT_SYSCALL
+	AUDIT_...
+	AUDIT_EOE
+
+A io_uring SQPOLL event would generate something like this:
+
+	AUDIT_URINGOP
+	AUDIT_...
+	AUDIT_EOE
+
+The "hybrid" event that is a syscall that starts an io_uring action
+would generate something like this:
+
+	AUDIT_URINGOP
+	[possible AUDIT_CONFIG_CHANGE (from killed_trees)]
+	AUDIT_SYSCALL
+	AUDIT_...
+	AUDIT_EOE
+
+The AUDIT_... is all the operation-specific records that log parameters
+that aren't able to be expressed in the SYSLOG or URINGOP records such
+as pathnames, other arguments, and context (pwd, etc...).  So this isn't
+"double logging".  It is either introducing an io_uring event, or it is
+providing more detail about the io_uring arguments to a syscall event.
+
+> Jens Axboe
+
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
 
