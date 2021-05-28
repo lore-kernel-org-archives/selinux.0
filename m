@@ -2,64 +2,36 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25AB4C4707F
-	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 01:37:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9487DC4708C
+	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 07:10:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E41BC613B4
-	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 01:37:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F64F61184
+	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 07:10:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234364AbhE1BjU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 May 2021 21:39:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232006AbhE1BjT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 May 2021 21:39:19 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AF4FC061761
-        for <selinux@vger.kernel.org>; Thu, 27 May 2021 18:37:45 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id f18so2923006ejq.10
-        for <selinux@vger.kernel.org>; Thu, 27 May 2021 18:37:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OCl/OoNf08gbSAkv21GdMjWI/U5EK/VtpzFkOjaRXDc=;
-        b=POerS0Ux4ct2bWMhkrOhHCReDGmKwGq49OtylDhjF9lBGQePK0TFjOCijyW8C1Kp/o
-         Xh/madiE0TnJlXbz8A9quFOg+/RI5jAUOif+6JsRURl3t/ze4YQnI44921ViT1tdrrM4
-         HjuPpQdlOCOYZPPbHCLCzTx/HQU+AEBcGTknBjcNeZrWDZ8YoRD7/wVOL3h3fMalQU3w
-         RHKDeBAQIYl6E/bgA3OnVAijXoVpCgmqz+qBj1zfhN7HjvWBWklw9U4UDflAOFogdwNn
-         LQdislTgKFgkdjsNn26pf+B5s1Ifqow6EwLkeFnrksRVYEWkqLWG9JczSwAXar565r2c
-         BXqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OCl/OoNf08gbSAkv21GdMjWI/U5EK/VtpzFkOjaRXDc=;
-        b=Jjw7ci47tqhnQ13qxTJx1jXHvJMi6Wu3Bc6jzDBeI3x5tZLdSoG7SAWSyPunmIQr2c
-         7YGWzBlu6r/srsrrp9NUx9rTtOq2WLZ1m9S60LteHJrg210v1VxxyeiE6ColgMzYENjQ
-         8vjOy8HmJYnKulHg+rqRFGjV1HBDXkmaL4P5efC8fmfV1fyV3Ro3PaPd74+kaEalJlnm
-         Jjw83mJAggYQ9TkxqVp2GjMH1tmQvRIZlj7vX0jJFShyR9rXLhzCdC+zFfDjOFKuiWbg
-         BkgE4dupmzzRRUsGOlhfl4xsXz1kcz8Jns5lrzx5iSNHXTNxXq5uNT6J/1Ddro3IBy64
-         92Hw==
-X-Gm-Message-State: AOAM532pljWUQHrgQbyccwetCVoOA8hsFizuVpdWmBlpY4LRucQnMo/l
-        XBU7bjYcC6MehqVWSchzhW00EMSQaXDHGcTL2tbI
-X-Google-Smtp-Source: ABdhPJxLOItL9vdGc/YxGb4zM3gCgphGyyxSx8AHRjJ/9K0sjs3QF6XIJzfJvXSrGS6ej4rkXclv/bfnao0YEc+kFow=
-X-Received: by 2002:a17:906:b2ce:: with SMTP id cf14mr6910759ejb.178.1622165863989;
- Thu, 27 May 2021 18:37:43 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210517092006.803332-1-omosnace@redhat.com>
-In-Reply-To: <20210517092006.803332-1-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 27 May 2021 21:37:33 -0400
-Message-ID: <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
+        id S234618AbhE1HLh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 May 2021 03:11:37 -0400
+Received: from www62.your-server.de ([213.133.104.62]:43568 "EHLO
+        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229574AbhE1HLh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 May 2021 03:11:37 -0400
+Received: from sslproxy03.your-server.de ([88.198.220.132])
+        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1lmWd4-0004Br-Bp; Fri, 28 May 2021 09:09:58 +0200
+Received: from [85.7.101.30] (helo=linux.home)
+        by sslproxy03.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1lmWd4-000WOo-1p; Fri, 28 May 2021 09:09:58 +0200
 Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
  permission checks
-To:     Ondrej Mosnacek <omosnace@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>,
         Steven Rostedt <rostedt@goodmis.org>,
@@ -68,147 +40,162 @@ Cc:     linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
+        Casey Schaufler <casey@schaufler-ca.com>, jolsa@redhat.com
+References: <20210517092006.803332-1-omosnace@redhat.com>
+ <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <01135120-8bf7-df2e-cff0-1d73f1f841c3@iogearbox.net>
+Date:   Fri, 28 May 2021 09:09:57 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.2/26183/Thu May 27 13:07:49 2021)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 17, 2021 at 5:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
-> lockdown") added an implementation of the locked_down LSM hook to
-> SELinux, with the aim to restrict which domains are allowed to perform
-> operations that would breach lockdown.
->
-> However, in several places the security_locked_down() hook is called in
-> situations where the current task isn't doing any action that would
-> directly breach lockdown, leading to SELinux checks that are basically
-> bogus.
->
-> Since in most of these situations converting the callers such that
-> security_locked_down() is called in a context where the current task
-> would be meaningful for SELinux is impossible or very non-trivial (and
-> could lead to TOCTOU issues for the classic Lockdown LSM
-> implementation), fix this by modifying the hook to accept a struct cred
-> pointer as argument, where NULL will be interpreted as a request for a
-> "global", task-independent lockdown decision only. Then modify SELinux
-> to ignore calls with cred == NULL.
+On 5/28/21 3:37 AM, Paul Moore wrote:
+> On Mon, May 17, 2021 at 5:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>>
+>> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+>> lockdown") added an implementation of the locked_down LSM hook to
+>> SELinux, with the aim to restrict which domains are allowed to perform
+>> operations that would breach lockdown.
+>>
+>> However, in several places the security_locked_down() hook is called in
+>> situations where the current task isn't doing any action that would
+>> directly breach lockdown, leading to SELinux checks that are basically
+>> bogus.
+>>
+>> Since in most of these situations converting the callers such that
+>> security_locked_down() is called in a context where the current task
+>> would be meaningful for SELinux is impossible or very non-trivial (and
+>> could lead to TOCTOU issues for the classic Lockdown LSM
+>> implementation), fix this by modifying the hook to accept a struct cred
+>> pointer as argument, where NULL will be interpreted as a request for a
+>> "global", task-independent lockdown decision only. Then modify SELinux
+>> to ignore calls with cred == NULL.
+> 
+> I'm not overly excited about skipping the access check when cred is
+> NULL.  Based on the description and the little bit that I've dug into
+> thus far it looks like using SECINITSID_KERNEL as the subject would be
+> much more appropriate.  *Something* (the kernel in most of the
+> relevant cases it looks like) is requesting that a potentially
+> sensitive disclosure be made, and ignoring it seems like the wrong
+> thing to do.  Leaving the access control intact also provides a nice
+> avenue to audit these requests should users want to do that.
 
-I'm not overly excited about skipping the access check when cred is
-NULL.  Based on the description and the little bit that I've dug into
-thus far it looks like using SECINITSID_KERNEL as the subject would be
-much more appropriate.  *Something* (the kernel in most of the
-relevant cases it looks like) is requesting that a potentially
-sensitive disclosure be made, and ignoring it seems like the wrong
-thing to do.  Leaving the access control intact also provides a nice
-avenue to audit these requests should users want to do that.
+I think the rationale/workaround for ignoring calls with cred == NULL (or the previous
+patch with the unimplemented hook) from Ondrej was two-fold, at least speaking for his
+seen tracing cases:
 
-Those users that generally don't care can grant kernel_t all the
-necessary permissions without much policy.
+   i) The audit events that are triggered due to calls to security_locked_down()
+      can OOM kill a machine, see below details [0].
 
-> Since most callers will just want to pass current_cred() as the cred
-> parameter, rename the hook to security_cred_locked_down() and provide
-> the original security_locked_down() function as a simple wrapper around
-> the new hook.
+  ii) It seems to be causing a deadlock via slow_avc_audit() -> audit_log_end()
+      when presumingly trying to wake up kauditd [1].
 
-I know you and Casey went back and forth on this in v1, but I agree
-with Casey that having two LSM hooks here is a mistake.  I know it
-makes backports hard, but spoiler alert: maintaining complex software
-over any non-trivial period of time is hard, reeeeally hard sometimes
-;)
+How would your suggestion above solve both i) and ii)?
 
-> The callers migrated to the new hook, passing NULL as cred:
-> 1. arch/powerpc/xmon/xmon.c
->      Here the hook seems to be called from non-task context and is only
->      used for redacting some sensitive values from output sent to
->      userspace.
+[0] https://bugzilla.redhat.com/show_bug.cgi?id=1955585 :
 
-This definitely sounds like kernel_t based on the description above.
+   I starting seeing this with F-34. When I run a container that is traced with eBPF
+   to record the syscalls it is doing, auditd is flooded with messages like:
 
-> 2. fs/tracefs/inode.c:tracefs_create_file()
->      Here the call is used to prevent creating new tracefs entries when
->      the kernel is locked down. Assumes that locking down is one-way -
->      i.e. if the hook returns non-zero once, it will never return zero
->      again, thus no point in creating these files.
+   type=AVC msg=audit(1619784520.593:282387): avc:  denied  { confidentiality } for
+    pid=476 comm="auditd" lockdown_reason="use of bpf to read kernel RAM"
+     scontext=system_u:system_r:auditd_t:s0 tcontext=system_u:system_r:auditd_t:s0 tclass=lockdown permissive=0
 
-More kernel_t.
+   This seems to be leading to auditd running out of space in the backlog buffer and
+   eventually OOMs the machine.
 
-> 3. kernel/trace/bpf_trace.c:bpf_probe_read_kernel{,_str}_common()
->      Called when a BPF program calls a helper that could leak kernel
->      memory. The task context is not relevant here, since the program
->      may very well be run in the context of a different task than the
->      consumer of the data.
->      See: https://bugzilla.redhat.com/show_bug.cgi?id=1955585
+   auditd running at 99% CPU presumably processing all the messages, eventually I get:
+   Apr 30 12:20:42 fedora kernel: audit: backlog limit exceeded
+   Apr 30 12:20:42 fedora kernel: audit: backlog limit exceeded
+   Apr 30 12:20:42 fedora kernel: audit: audit_backlog=2152579 > audit_backlog_limit=64
+   Apr 30 12:20:42 fedora kernel: audit: audit_backlog=2152626 > audit_backlog_limit=64
+   Apr 30 12:20:42 fedora kernel: audit: audit_backlog=2152694 > audit_backlog_limit=64
+   Apr 30 12:20:42 fedora kernel: audit: audit_lost=6878426 audit_rate_limit=0 audit_backlog_limit=64
+   Apr 30 12:20:45 fedora kernel: oci-seccomp-bpf invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=-1000
+   Apr 30 12:20:45 fedora kernel: CPU: 0 PID: 13284 Comm: oci-seccomp-bpf Not tainted 5.11.12-300.fc34.x86_64 #1
+   Apr 30 12:20:45 fedora kernel: Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
 
-The access control check isn't so much who is consuming the data, but
-who is requesting a potential violation of a "lockdown", yes?  For
-example, the SELinux policy rule for the current lockdown check looks
-something like this:
+[1] https://lore.kernel.org/linux-audit/CANYvDQN7H5tVp47fbYcRasv4XF07eUbsDwT_eDCHXJUj43J7jQ@mail.gmail.com/ :
 
-  allow <who> <who> : lockdown { <reason> };
+   Upstream kernel 5.11.0-rc7 and later was found to deadlock during a bpf_probe_read_compat()
+   call within a sched_switch tracepoint. The problem is reproducible with the reg_alloc3
+   testcase from SystemTap's BPF backend testsuite on x86_64 as well as the runqlat,runqslower
+   tools from bcc on ppc64le. Example stack trace from [1]:
 
-It seems to me that the task context is relevant here and performing
-the access control check based on the task's domain is correct.  If we
-are also concerned about who has access to this sensitive information
-once it has been determined that the task can cause it to be sent, we
-should have another check point for that, assuming the access isn't
-already covered by another check/hook.
+   [  730.868702] stack backtrace:
+   [  730.869590] CPU: 1 PID: 701 Comm: in:imjournal Not tainted, 5.12.0-0.rc2.20210309git144c79ef3353.166.fc35.x86_64 #1
+   [  730.871605] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+   [  730.873278] Call Trace:
+   [  730.873770]  dump_stack+0x7f/0xa1
+   [  730.874433]  check_noncircular+0xdf/0x100
+   [  730.875232]  __lock_acquire+0x1202/0x1e10
+   [  730.876031]  ? __lock_acquire+0xfc0/0x1e10
+   [  730.876844]  lock_acquire+0xc2/0x3a0
+   [  730.877551]  ? __wake_up_common_lock+0x52/0x90
+   [  730.878434]  ? lock_acquire+0xc2/0x3a0
+   [  730.879186]  ? lock_is_held_type+0xa7/0x120
+   [  730.880044]  ? skb_queue_tail+0x1b/0x50
+   [  730.880800]  _raw_spin_lock_irqsave+0x4d/0x90
+   [  730.881656]  ? __wake_up_common_lock+0x52/0x90
+   [  730.882532]  __wake_up_common_lock+0x52/0x90
+   [  730.883375]  audit_log_end+0x5b/0x100
+   [  730.884104]  slow_avc_audit+0x69/0x90
+   [  730.884836]  avc_has_perm+0x8b/0xb0
+   [  730.885532]  selinux_lockdown+0xa5/0xd0
+   [  730.886297]  security_locked_down+0x20/0x40
+   [  730.887133]  bpf_probe_read_compat+0x66/0xd0
+   [  730.887983]  bpf_prog_250599c5469ac7b5+0x10f/0x820
+   [  730.888917]  trace_call_bpf+0xe9/0x240
+   [  730.889672]  perf_trace_run_bpf_submit+0x4d/0xc0
+   [  730.890579]  perf_trace_sched_switch+0x142/0x180
+   [  730.891485]  ? __schedule+0x6d8/0xb20
+   [  730.892209]  __schedule+0x6d8/0xb20
+   [  730.892899]  schedule+0x5b/0xc0
+   [  730.893522]  exit_to_user_mode_prepare+0x11d/0x240
+   [  730.894457]  syscall_exit_to_user_mode+0x27/0x70
+   [  730.895361]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-> 4. net/xfrm/xfrm_user.c:copy_to_user_*()
->      Here a cryptographic secret is redacted based on the value returned
->      from the hook. There are two possible actions that may lead here:
->      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
->         task context is relevant, since the dumped data is sent back to
->         the current task.
+>> Since most callers will just want to pass current_cred() as the cred
+>> parameter, rename the hook to security_cred_locked_down() and provide
+>> the original security_locked_down() function as a simple wrapper around
+>> the new hook.
+[...]
+> 
+>> 3. kernel/trace/bpf_trace.c:bpf_probe_read_kernel{,_str}_common()
+>>       Called when a BPF program calls a helper that could leak kernel
+>>       memory. The task context is not relevant here, since the program
+>>       may very well be run in the context of a different task than the
+>>       consumer of the data.
+>>       See: https://bugzilla.redhat.com/show_bug.cgi?id=1955585
+> 
+> The access control check isn't so much who is consuming the data, but
+> who is requesting a potential violation of a "lockdown", yes?  For
+> example, the SELinux policy rule for the current lockdown check looks
+> something like this:
+> 
+>    allow <who> <who> : lockdown { <reason> };
+> 
+> It seems to me that the task context is relevant here and performing
+> the access control check based on the task's domain is correct.
+This doesn't make much sense to me, it's /not/ the task 'requesting a potential
+violation of a "lockdown"', but rather the running tracing program which is e.g.
+inspecting kernel data structures around the triggered event. If I understood
+you correctly, having an 'allow' check on, say, httpd would be rather odd since
+things like perf/bcc/bpftrace/systemtap/etc is installing the tracing probe instead.
 
-If the task context is relevant we should use it.
+Meaning, if we would /not/ trace such events (like in the prior mentioned syscall
+example), then there is also no call to the security_locked_down() from that same/
+unmodified application.
 
->      b) When deleting an SA via XFRM_MSG_DELSA, the dumped SAs are
->         broadcasted to tasks subscribed to XFRM events - here the
->         SELinux check is not meningful as the current task's creds do
->         not represent the tasks that could potentially see the secret.
-
-This looks very similar to the BPF hook discussed above, I believe my
-comments above apply here as well.
-
->      It really doesn't seem worth it to try to preserve the check in the
->      a) case ...
-
-After you've read all of the above I hope you can understand why I
-disagree with this.
-
->      ... since the eventual leak can be circumvented anyway via b)
-
-I don't follow the statement above ... ?  However I'm not sure it
-matters much considering my other concerns.
-
->      plus there is no way for the task to indicate that it doesn't care
->      about the actual key value, so the check could generate a lot of
->      noise.
->
-> Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
-> Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> v2:
-> - change to a single hook based on suggestions by Casey Schaufler
->
-> v1: https://lore.kernel.org/lkml/20210507114048.138933-1-omosnace@redhat.com/
->
->  arch/powerpc/xmon/xmon.c      |  4 ++--
->  fs/tracefs/inode.c            |  2 +-
->  include/linux/lsm_hook_defs.h |  3 ++-
->  include/linux/lsm_hooks.h     |  3 ++-
->  include/linux/security.h      | 11 ++++++++---
->  kernel/trace/bpf_trace.c      |  4 ++--
->  net/xfrm/xfrm_user.c          |  2 +-
->  security/lockdown/lockdown.c  |  5 +++--
->  security/security.c           |  6 +++---
->  security/selinux/hooks.c      | 12 +++++++++---
->  10 files changed, 33 insertions(+), 19 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
+Thanks,
+Daniel
