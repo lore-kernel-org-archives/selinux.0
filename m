@@ -2,105 +2,220 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44C42C4708C
-	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 16:03:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E18BC47090
+	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 18:28:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 26B11613DA
-	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 16:03:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EC26613DD
+	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 18:28:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229608AbhE1QEs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 May 2021 12:04:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54250 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234246AbhE1QEq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 May 2021 12:04:46 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E445CC06174A
-        for <selinux@vger.kernel.org>; Fri, 28 May 2021 09:03:10 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id b9so6046740ejc.13
-        for <selinux@vger.kernel.org>; Fri, 28 May 2021 09:03:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=n2mkp1VfbRLXyX9BQ4/sufzNob6zQwJ5kWZnckwzjKg=;
-        b=XN2MWTRNcK+CU7plcx6VTpATsrmsKATolYVbfOniDSO21Y5pEf6h2GpH8bMm+fAQho
-         QkHK8FyZQLQNtBE7JZYv/2AnbIH+DDVekQS3/V/7JGJXqrvtdcZ/O8kYGScYEv9Z4bvm
-         mdJga8p/z8HPfzRFgQd00MyNZTUULOc2FUKYxpVnBTLbNs5wuq9ktq8W1/70TYiNFkVk
-         Ev6r8oW4NAs4E+07r1ee8XbEzaXNon4sr681aBZAPumTSWH3ZQkf0lAdxkmo08ApAqhs
-         +UyR+OvZme+Ckor57XsUteckvvq93NYjoNNkVka6PbHUHdjO+PIkjvAcitoS4O5QKSkb
-         T3tw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=n2mkp1VfbRLXyX9BQ4/sufzNob6zQwJ5kWZnckwzjKg=;
-        b=KwsXZWfi0HVZXmC5dhjhI1b3eza/HUSb92MM5h8JyPpOq+n1nfc9+cZZjooguhj49y
-         KDoGOPlu6N2gLTfdtQRhTSkJFLRZWsLCw84VlUbPUGgn95zn5xq2xZtHJRmYKSPkAF3z
-         atmfvjcM11bdT3LsnlU3OZanrOMDwfYY5FGVEWpsHJFMOHivu00zpxNISx3b+Tik2c/k
-         G/QdYco+GkA8ymQpsOEDaDZaO7Qq58eQzb2nRxJoQ3ie3N9xASdlvrv9BeQrm8qC3uMP
-         h+6pvhf5K1pDWe3qXjC0xKswWEVdJg7MFPZnMJ16+idboKNESSeAJ4MzTWh8+jpqo8mw
-         lk1g==
-X-Gm-Message-State: AOAM530pHBRs3Ii2oDPCoDAwR987ZJkLP43cl2JIijAlvyNEgooQqpps
-        q1Ff24mINE9I5oFp555JIjV/IL+o2y50va9zklGV
-X-Google-Smtp-Source: ABdhPJxRjX3Ws7VBEcmMgQB006OahZcwDvgkWQ9e4I1WzulhYU5E4GfGyPMI6cxRYYL7k/JKuuFBrGiK18GyCTgkyuA=
-X-Received: by 2002:a17:906:4111:: with SMTP id j17mr150091ejk.488.1622217789328;
- Fri, 28 May 2021 09:03:09 -0700 (PDT)
+        id S229581AbhE1SaV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 May 2021 14:30:21 -0400
+Received: from www62.your-server.de ([213.133.104.62]:46032 "EHLO
+        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229463AbhE1SaU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 May 2021 14:30:20 -0400
+Received: from sslproxy02.your-server.de ([78.47.166.47])
+        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1lmgwN-0005jM-Ee; Fri, 28 May 2021 20:10:35 +0200
+Received: from [85.7.101.30] (helo=linux.home)
+        by sslproxy02.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1lmgwN-000BQv-4m; Fri, 28 May 2021 20:10:35 +0200
+Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
+ permission checks
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>, jolsa@redhat.com
+References: <20210517092006.803332-1-omosnace@redhat.com>
+ <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
+ <01135120-8bf7-df2e-cff0-1d73f1f841c3@iogearbox.net>
+ <CAHC9VhR-kYmMA8gsqkiL5=poN9FoL-uCyx1YOLCoG2hRiUBYug@mail.gmail.com>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <c7c2d7e1-e253-dce0-d35c-392192e4926e@iogearbox.net>
+Date:   Fri, 28 May 2021 20:10:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163379461.8379.9691291608621179559.stgit@sifl> <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
- <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
- <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com> <CAHC9VhSJuddB+6GPS1+mgcuKahrR3UZA=1iO8obFzfRE7_E0gA@mail.gmail.com>
- <8943629d-3c69-3529-ca79-d7f8e2c60c16@kernel.dk> <CAHC9VhTYBsh4JHhqV0Uyz=H5cEYQw48xOo=CUdXV0gDvyifPOQ@mail.gmail.com>
- <9e69e4b6-2b87-a688-d604-c7f70be894f5@kernel.dk> <3bef7c8a-ee70-d91d-74db-367ad0137d00@kernel.dk>
- <fa7bf4a5-5975-3e8c-99b4-c8d54c57da10@kernel.dk> <a7669e4a-e7a7-7e94-f6ce-fa48311f7175@kernel.dk>
- <CAHC9VhSKPzADh=qcPp7r7ZVD2cpr2m8kQsui43LAwPr-9BNaxQ@mail.gmail.com>
- <b20f0373-d597-eb0e-5af3-6dcd8c6ba0dc@kernel.dk> <CAHC9VhRZEwtsxjhpZM1DXGNJ9yL59B7T_p2B60oLmC_YxCrOiw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRZEwtsxjhpZM1DXGNJ9yL59B7T_p2B60oLmC_YxCrOiw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 28 May 2021 12:02:58 -0400
-Message-ID: <CAHC9VhSK9PQdxvXuCA2NMC3UUEU=imCz_n7TbWgKj2xB2T=fOQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
- support to io_uring
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhR-kYmMA8gsqkiL5=poN9FoL-uCyx1YOLCoG2hRiUBYug@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.2/26184/Fri May 28 13:05:50 2021)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 26, 2021 at 4:19 PM Paul Moore <paul@paul-moore.com> wrote:
-> ... If we moved the _entry
-> and _exit calls into the individual operation case blocks (quick
-> openat example below) so that only certain operations were able to be
-> audited would that be acceptable assuming the high frequency ops were
-> untouched?  My initial gut feeling was that this would involve >50% of
-> the ops, but Steve Grubb seems to think it would be less; it may be
-> time to look at that a bit more seriously, but if it gets a NACK
-> regardless it isn't worth the time - thoughts?
->
->   case IORING_OP_OPENAT:
->     audit_uring_entry(req->opcode);
->     ret = io_openat(req, issue_flags);
->     audit_uring_exit(!ret, ret);
->     break;
+On 5/28/21 5:47 PM, Paul Moore wrote:
+> On Fri, May 28, 2021 at 3:10 AM Daniel Borkmann <daniel@iogearbox.net> wrote:
+>> On 5/28/21 3:37 AM, Paul Moore wrote:
+>>> On Mon, May 17, 2021 at 5:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>>>>
+>>>> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+>>>> lockdown") added an implementation of the locked_down LSM hook to
+>>>> SELinux, with the aim to restrict which domains are allowed to perform
+>>>> operations that would breach lockdown.
+>>>>
+>>>> However, in several places the security_locked_down() hook is called in
+>>>> situations where the current task isn't doing any action that would
+>>>> directly breach lockdown, leading to SELinux checks that are basically
+>>>> bogus.
+>>>>
+>>>> Since in most of these situations converting the callers such that
+>>>> security_locked_down() is called in a context where the current task
+>>>> would be meaningful for SELinux is impossible or very non-trivial (and
+>>>> could lead to TOCTOU issues for the classic Lockdown LSM
+>>>> implementation), fix this by modifying the hook to accept a struct cred
+>>>> pointer as argument, where NULL will be interpreted as a request for a
+>>>> "global", task-independent lockdown decision only. Then modify SELinux
+>>>> to ignore calls with cred == NULL.
+>>>
+>>> I'm not overly excited about skipping the access check when cred is
+>>> NULL.  Based on the description and the little bit that I've dug into
+>>> thus far it looks like using SECINITSID_KERNEL as the subject would be
+>>> much more appropriate.  *Something* (the kernel in most of the
+>>> relevant cases it looks like) is requesting that a potentially
+>>> sensitive disclosure be made, and ignoring it seems like the wrong
+>>> thing to do.  Leaving the access control intact also provides a nice
+>>> avenue to audit these requests should users want to do that.
+>>
+>> I think the rationale/workaround for ignoring calls with cred == NULL (or the previous
+>> patch with the unimplemented hook) from Ondrej was two-fold, at least speaking for his
+>> seen tracing cases:
+>>
+>>     i) The audit events that are triggered due to calls to security_locked_down()
+>>        can OOM kill a machine, see below details [0].
+>>
+>>    ii) It seems to be causing a deadlock via slow_avc_audit() -> audit_log_end()
+>>        when presumingly trying to wake up kauditd [1].
+>>
+>> How would your suggestion above solve both i) and ii)?
+> 
+> First off, a bit of general commentary - I'm not sure if Ondrej was
+> aware of this, but info like that is good to have in the commit
+> description.  Perhaps it was in the linked RHBZ but I try not to look
+> at those when reviewing patches; the commit descriptions must be
+> self-sufficient since we can't rely on the accessibility or the
+> lifetime of external references.  It's fine if people want to include
+> external links in their commits, I would actually even encourage it in
+> some cases, but the links shouldn't replace a proper description of
+> the problem and why the proposed solution is The Best Solution.
+> 
+> With that out of the way, it sounds like your issue isn't so much the
+> access check, but rather the frequency of the access denials and the
+> resulting audit records in your particular use case.  My initial
+> reaction is that you might want to understand why you are getting so
+> many SELinux access denials, your loaded security policy clearly does
+> not match with your intended use :)  Beyond that, if you want to
+> basically leave things as-is but quiet the high frequency audit
+> records that result from these SELinux denials you might want to look
+> into the SELinux "dontaudit" policy rule, it was created for things
+> like this.  Some info can be found in The SELinux Notebook, relevant
+> link below:
+> 
+> * https://github.com/SELinuxProject/selinux-notebook/blob/main/src/avc_rules.md#dontaudit
+> 
+> The deadlock issue that was previously reported remains an open case
+> as far as I'm concerned; I'm presently occupied trying to sort out a
+> rather serious issue with respect to io_uring and LSM/audit (plus
+> general stuff at $DAYJOB) so I haven't had time to investigate this
+> any further.  Of course anyone else is welcome to dive into it (I
+> always want to encourage this, especially from "performance people"
+> who just want to shut it all off), however if the answer is basically
+> "disable LSM and/or audit checks" you have to know that it is going to
+> result in a high degree of skepticism from me, so heavy documentation
+> on why it is The Best Solution would be a very good thing :)  Beyond
+> that, I think the suggestions above of "why do you have so many policy
+> denials?" and "have you looked into dontaudit?" are solid places to
+> look for a solution in your particular case.
+> 
+>>>> Since most callers will just want to pass current_cred() as the cred
+>>>> parameter, rename the hook to security_cred_locked_down() and provide
+>>>> the original security_locked_down() function as a simple wrapper around
+>>>> the new hook.
+>>
+>> [...]
+>>>
+>>>> 3. kernel/trace/bpf_trace.c:bpf_probe_read_kernel{,_str}_common()
+>>>>        Called when a BPF program calls a helper that could leak kernel
+>>>>        memory. The task context is not relevant here, since the program
+>>>>        may very well be run in the context of a different task than the
+>>>>        consumer of the data.
+>>>>        See: https://bugzilla.redhat.com/show_bug.cgi?id=1955585
+>>>
+>>> The access control check isn't so much who is consuming the data, but
+>>> who is requesting a potential violation of a "lockdown", yes?  For
+>>> example, the SELinux policy rule for the current lockdown check looks
+>>> something like this:
+>>>
+>>>     allow <who> <who> : lockdown { <reason> };
+>>>
+>>> It seems to me that the task context is relevant here and performing
+>>> the access control check based on the task's domain is correct.
+>>
+>> This doesn't make much sense to me, it's /not/ the task 'requesting a potential
+>> violation of a "lockdown"', but rather the running tracing program which is e.g.
+>> inspecting kernel data structures around the triggered event. If I understood
+>> you correctly, having an 'allow' check on, say, httpd would be rather odd since
+>> things like perf/bcc/bpftrace/systemtap/etc is installing the tracing probe instead.
+>>
+>> Meaning, if we would /not/ trace such events (like in the prior mentioned syscall
+>> example), then there is also no call to the security_locked_down() from that same/
+>> unmodified application.
+> 
+> My turn to say that you don't make much sense to me :)
+> 
+> Let's reset.
 
-I wanted to pose this question again in case it was lost in the
-thread, I suspect this may be the last option before we have to "fix"
-things at the Kconfig level.  I definitely don't want to have to go
-that route, and I suspect most everyone on this thread feels the same,
-so I'm hopeful we can find a solution that is begrudgingly acceptable
-to both groups.
+Sure, yep, lets shortly take one step back. :)
 
--- 
-paul moore
-www.paul-moore.com
+> What task_struct is running the BPF tracing program which is calling
+> into security_locked_down()?  My current feeling is that it is this
+> context/domain/cred that should be used for the access control check;
+> in the cases where it is a kernel thread, I think passing NULL is
+> reasonable, but I think the proper thing for SELinux is to interpret
+> NULL as kernel_t.
+
+If this was a typical LSM hook and, say, your app calls into bind(2) where
+we then invoke security_socket_bind() and check 'current' task, then I'm all
+with you, because this was _explicitly initiated_ by the httpd app, so that
+allow/deny policy belongs in the context of httpd.
+
+In the case of tracing, it's different. You install small programs that are
+triggered when certain events fire. Random example from bpftrace's README [0],
+you want to generate a histogram of syscall counts by program. One-liner is:
+
+   bpftrace -e 'tracepoint:raw_syscalls:sys_enter { @[comm] = count(); }'
+
+bpftrace then goes and generates a BPF prog from this internally. One way of
+doing it could be to call bpf_get_current_task() helper and then access
+current->comm via one of bpf_probe_read_kernel{,_str}() helpers. So the
+program itself has nothing to do with httpd or any other random app doing
+a syscall here. The BPF prog _explicitly initiated_ the lockdown check.
+The allow/deny policy belongs in the context of bpftrace: meaning, you want
+to grant bpftrace access to use these helpers, but other tracers on the
+systems like my_random_tracer not. While this works for prior mentioned
+cases of security_locked_down() with open_kcore() for /proc/kcore access
+or the module_sig_check(), it is broken for tracing as-is, and the patch
+I sent earlier fixes this.
+
+Thanks,
+Daniel
+
+   [0] https://github.com/iovisor/bpftrace
