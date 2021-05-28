@@ -2,122 +2,212 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AE46C47089
-	for <selinux@archiver.kernel.org>; Thu, 27 May 2021 17:53:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25AB4C4707F
+	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 01:37:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BD826105A
-	for <selinux@archiver.kernel.org>; Thu, 27 May 2021 17:53:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E41BC613B4
+	for <selinux@archiver.kernel.org>; Fri, 28 May 2021 01:37:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhE0Ryy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 May 2021 13:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39008 "EHLO
+        id S234364AbhE1BjU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 May 2021 21:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235506AbhE0Ryy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 May 2021 13:54:54 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17EF7C061760
-        for <selinux@vger.kernel.org>; Thu, 27 May 2021 10:53:21 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id ss26so1424306ejb.5
-        for <selinux@vger.kernel.org>; Thu, 27 May 2021 10:53:21 -0700 (PDT)
+        with ESMTP id S232006AbhE1BjT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 May 2021 21:39:19 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AF4FC061761
+        for <selinux@vger.kernel.org>; Thu, 27 May 2021 18:37:45 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id f18so2923006ejq.10
+        for <selinux@vger.kernel.org>; Thu, 27 May 2021 18:37:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Pwn/tePQRcSxyC0vCEbvvC8Z286nytYCiGX5Tbprk2o=;
-        b=TgF8d7AVM4JuVx64ZZXoIExkxJLaIjW6ZFpzP5blZaK7bU81qE/k9c9gLu4XEUdcxE
-         Pu2zgaGJEQbBgw9Es3/hNIWM4/iAqNijZsvLXxN3XAZqwEDyG3i07PRcOQYypIqiOTmV
-         ANI4H+XaHbxCvrL9AkjoN2lGs0Prlm3fZRR+BbQJ4Z4DNZLKRBG/EG/A2uiJ8cB0B23Y
-         DueysHMbUTVNLLopNdGixSEGJhjpOB2RD61neReSL5zcFPR5bkQwotBr2mgEyD9kG5HY
-         gYceB00VrEcdxCqhHVipFv12hwUfNqUxG+SeEauTIG904q8uluYPhE6MjIB/qHF6sltX
-         jUiw==
+        bh=OCl/OoNf08gbSAkv21GdMjWI/U5EK/VtpzFkOjaRXDc=;
+        b=POerS0Ux4ct2bWMhkrOhHCReDGmKwGq49OtylDhjF9lBGQePK0TFjOCijyW8C1Kp/o
+         Xh/madiE0TnJlXbz8A9quFOg+/RI5jAUOif+6JsRURl3t/ze4YQnI44921ViT1tdrrM4
+         HjuPpQdlOCOYZPPbHCLCzTx/HQU+AEBcGTknBjcNeZrWDZ8YoRD7/wVOL3h3fMalQU3w
+         RHKDeBAQIYl6E/bgA3OnVAijXoVpCgmqz+qBj1zfhN7HjvWBWklw9U4UDflAOFogdwNn
+         LQdislTgKFgkdjsNn26pf+B5s1Ifqow6EwLkeFnrksRVYEWkqLWG9JczSwAXar565r2c
+         BXqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Pwn/tePQRcSxyC0vCEbvvC8Z286nytYCiGX5Tbprk2o=;
-        b=APZ+fan+5h68d0emF6gsbK5zAQh1CU/6GYtZeG84XX/5PokRjrefODdyiNM+0TfUjv
-         I5IwqPu+UYDE93xkmqNIOxWFgoSwdYFbZOmqPROW0x13Ca+6lre72kR7MnbFpRlmEM8i
-         0OPIGYOiGwKJrvOv4EBN1MdYZrtYJgLyIzs5Hnvk0a3snVcTeneASTx06pSxAvhuVLp+
-         8WKxznsauYdSkzUhDGhcOZj6B7p75Y9umg/oYE56YKTQv5ve57uSMww5W4wgnQR8KOWg
-         EQ1isU1Cla0b/2qtoXhEljoiFHATrzO3ApITHF+rXpJV7ZZeihJo20E7m3RX/IluQx4C
-         bSGw==
-X-Gm-Message-State: AOAM533uMGMm57ojfHd66K65yupdZJJyHy0ocjjzMi1PO9qHjmzUEVJZ
-        V73NYmVAsgnYSntBIzCJH92xPyGi+xnpIkg0ldgg
-X-Google-Smtp-Source: ABdhPJz4mQnOeJyvntXGZ4g2hljvC7fuOpIO7LO6JgYFoLVkEx/uCjcKXAOC/uQ2t5/WFa+YAVMZdW6AVHMT582xgD4=
-X-Received: by 2002:a17:906:5ada:: with SMTP id x26mr1597510ejs.398.1622137999433;
- Thu, 27 May 2021 10:53:19 -0700 (PDT)
+        bh=OCl/OoNf08gbSAkv21GdMjWI/U5EK/VtpzFkOjaRXDc=;
+        b=Jjw7ci47tqhnQ13qxTJx1jXHvJMi6Wu3Bc6jzDBeI3x5tZLdSoG7SAWSyPunmIQr2c
+         7YGWzBlu6r/srsrrp9NUx9rTtOq2WLZ1m9S60LteHJrg210v1VxxyeiE6ColgMzYENjQ
+         8vjOy8HmJYnKulHg+rqRFGjV1HBDXkmaL4P5efC8fmfV1fyV3Ro3PaPd74+kaEalJlnm
+         Jjw83mJAggYQ9TkxqVp2GjMH1tmQvRIZlj7vX0jJFShyR9rXLhzCdC+zFfDjOFKuiWbg
+         BkgE4dupmzzRRUsGOlhfl4xsXz1kcz8Jns5lrzx5iSNHXTNxXq5uNT6J/1Ddro3IBy64
+         92Hw==
+X-Gm-Message-State: AOAM532pljWUQHrgQbyccwetCVoOA8hsFizuVpdWmBlpY4LRucQnMo/l
+        XBU7bjYcC6MehqVWSchzhW00EMSQaXDHGcTL2tbI
+X-Google-Smtp-Source: ABdhPJxLOItL9vdGc/YxGb4zM3gCgphGyyxSx8AHRjJ/9K0sjs3QF6XIJzfJvXSrGS6ej4rkXclv/bfnao0YEc+kFow=
+X-Received: by 2002:a17:906:b2ce:: with SMTP id cf14mr6910759ejb.178.1622165863989;
+ Thu, 27 May 2021 18:37:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <202105270909.1fgRW8Wk-lkp@intel.com> <CAHC9VhRy=oD=B9G_ZZejPX0dL1+vsyLkYLs59vj-SJoeVMs53g@mail.gmail.com>
- <e061750d-9591-ac2c-5331-85456c3b4135@schaufler-ca.com>
-In-Reply-To: <e061750d-9591-ac2c-5331-85456c3b4135@schaufler-ca.com>
+References: <20210517092006.803332-1-omosnace@redhat.com>
+In-Reply-To: <20210517092006.803332-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 27 May 2021 13:53:08 -0400
-Message-ID: <CAHC9VhRgXBRMjUd6r3YPPn0=qttm011JWVvmx7fSXxW93G01Qw@mail.gmail.com>
-Subject: Re: [pcmoore-selinux:working-io_uring 9/9] security/smack/smack_lsm.c:4702:5:
- warning: no previous prototype for function 'smack_uring_override_creds'
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org,
-        clang-built-linux@googlegroups.com, selinux@vger.kernel.org
+Date:   Thu, 27 May 2021 21:37:33 -0400
+Message-ID: <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
+Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
+ permission checks
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 27, 2021 at 1:05 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Mon, May 17, 2021 at 5:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On 5/27/2021 8:29 AM, Paul Moore wrote:
-> > On Wed, May 26, 2021 at 9:51 PM kernel test robot <lkp@intel.com> wrote:
-> >> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git working-io_uring
-> >> head:   1f25193a3f5495eefbc9826b1de1a008a2439351
-> >> commit: 1f25193a3f5495eefbc9826b1de1a008a2439351 [9/9] Smack: Brutalist io_uring support with debug
-> >> config: x86_64-randconfig-r013-20210526 (attached as .config)
-> >> compiler: clang version 13.0.0 (https://github.com/llvm/llvm-project 99155e913e9bad5f7f8a247f8bb3a3ff3da74af1)
-> >> reproduce (this is a W=1 build):
-> >>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> >>         chmod +x ~/bin/make.cross
-> >>         # install x86_64 cross compiling tool for clang build
-> >>         # apt-get install binutils-x86-64-linux-gnu
-> >>         # https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=1f25193a3f5495eefbc9826b1de1a008a2439351
-> >>         git remote add pcmoore-selinux https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-> >>         git fetch --no-tags pcmoore-selinux working-io_uring
-> >>         git checkout 1f25193a3f5495eefbc9826b1de1a008a2439351
-> >>         # save the attached .config to linux build tree
-> >>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross ARCH=x86_64
-> >>
-> >> If you fix the issue, kindly add following tag as appropriate
-> >> Reported-by: kernel test robot <lkp@intel.com>
-> >>
-> >> All warnings (new ones prefixed by >>):
-> >>
-> >>>> security/smack/smack_lsm.c:4702:5: warning: no previous prototype for function 'smack_uring_override_creds' [-Wmissing-prototypes]
-> >>    int smack_uring_override_creds(const struct cred *new)
-> >>        ^
-> >>    security/smack/smack_lsm.c:4702:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
-> >>    int smack_uring_override_creds(const struct cred *new)
-> >>    ^
-> >>    static
-> >>>> security/smack/smack_lsm.c:4739:5: warning: no previous prototype for function 'smack_uring_sqpoll' [-Wmissing-prototypes]
-> >>    int smack_uring_sqpoll(void)
-> >>        ^
-> >>    security/smack/smack_lsm.c:4739:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
-> >>    int smack_uring_sqpoll(void)
-> >>    ^
-> >>    static
-> >>    2 warnings generated.
+> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+> lockdown") added an implementation of the locked_down LSM hook to
+> SELinux, with the aim to restrict which domains are allowed to perform
+> operations that would breach lockdown.
 >
-> > FYI, Casey I took the liberty of making the Smack functions static (I
-> > had made the same mistake with the SELinux code).
+> However, in several places the security_locked_down() hook is called in
+> situations where the current task isn't doing any action that would
+> directly breach lockdown, leading to SELinux checks that are basically
+> bogus.
 >
-> Thank you. If there was any doubt, the Smack function declarations
-> were taken directly from the SELinux versions.
+> Since in most of these situations converting the callers such that
+> security_locked_down() is called in a context where the current task
+> would be meaningful for SELinux is impossible or very non-trivial (and
+> could lead to TOCTOU issues for the classic Lockdown LSM
+> implementation), fix this by modifying the hook to accept a struct cred
+> pointer as argument, where NULL will be interpreted as a request for a
+> "global", task-independent lockdown decision only. Then modify SELinux
+> to ignore calls with cred == NULL.
 
-I figured that was the case, and for whatever it is worth I would have
-done the exact same thing :)
+I'm not overly excited about skipping the access check when cred is
+NULL.  Based on the description and the little bit that I've dug into
+thus far it looks like using SECINITSID_KERNEL as the subject would be
+much more appropriate.  *Something* (the kernel in most of the
+relevant cases it looks like) is requesting that a potentially
+sensitive disclosure be made, and ignoring it seems like the wrong
+thing to do.  Leaving the access control intact also provides a nice
+avenue to audit these requests should users want to do that.
+
+Those users that generally don't care can grant kernel_t all the
+necessary permissions without much policy.
+
+> Since most callers will just want to pass current_cred() as the cred
+> parameter, rename the hook to security_cred_locked_down() and provide
+> the original security_locked_down() function as a simple wrapper around
+> the new hook.
+
+I know you and Casey went back and forth on this in v1, but I agree
+with Casey that having two LSM hooks here is a mistake.  I know it
+makes backports hard, but spoiler alert: maintaining complex software
+over any non-trivial period of time is hard, reeeeally hard sometimes
+;)
+
+> The callers migrated to the new hook, passing NULL as cred:
+> 1. arch/powerpc/xmon/xmon.c
+>      Here the hook seems to be called from non-task context and is only
+>      used for redacting some sensitive values from output sent to
+>      userspace.
+
+This definitely sounds like kernel_t based on the description above.
+
+> 2. fs/tracefs/inode.c:tracefs_create_file()
+>      Here the call is used to prevent creating new tracefs entries when
+>      the kernel is locked down. Assumes that locking down is one-way -
+>      i.e. if the hook returns non-zero once, it will never return zero
+>      again, thus no point in creating these files.
+
+More kernel_t.
+
+> 3. kernel/trace/bpf_trace.c:bpf_probe_read_kernel{,_str}_common()
+>      Called when a BPF program calls a helper that could leak kernel
+>      memory. The task context is not relevant here, since the program
+>      may very well be run in the context of a different task than the
+>      consumer of the data.
+>      See: https://bugzilla.redhat.com/show_bug.cgi?id=1955585
+
+The access control check isn't so much who is consuming the data, but
+who is requesting a potential violation of a "lockdown", yes?  For
+example, the SELinux policy rule for the current lockdown check looks
+something like this:
+
+  allow <who> <who> : lockdown { <reason> };
+
+It seems to me that the task context is relevant here and performing
+the access control check based on the task's domain is correct.  If we
+are also concerned about who has access to this sensitive information
+once it has been determined that the task can cause it to be sent, we
+should have another check point for that, assuming the access isn't
+already covered by another check/hook.
+
+> 4. net/xfrm/xfrm_user.c:copy_to_user_*()
+>      Here a cryptographic secret is redacted based on the value returned
+>      from the hook. There are two possible actions that may lead here:
+>      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
+>         task context is relevant, since the dumped data is sent back to
+>         the current task.
+
+If the task context is relevant we should use it.
+
+>      b) When deleting an SA via XFRM_MSG_DELSA, the dumped SAs are
+>         broadcasted to tasks subscribed to XFRM events - here the
+>         SELinux check is not meningful as the current task's creds do
+>         not represent the tasks that could potentially see the secret.
+
+This looks very similar to the BPF hook discussed above, I believe my
+comments above apply here as well.
+
+>      It really doesn't seem worth it to try to preserve the check in the
+>      a) case ...
+
+After you've read all of the above I hope you can understand why I
+disagree with this.
+
+>      ... since the eventual leak can be circumvented anyway via b)
+
+I don't follow the statement above ... ?  However I'm not sure it
+matters much considering my other concerns.
+
+>      plus there is no way for the task to indicate that it doesn't care
+>      about the actual key value, so the check could generate a lot of
+>      noise.
+>
+> Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
+> Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>
+> v2:
+> - change to a single hook based on suggestions by Casey Schaufler
+>
+> v1: https://lore.kernel.org/lkml/20210507114048.138933-1-omosnace@redhat.com/
+>
+>  arch/powerpc/xmon/xmon.c      |  4 ++--
+>  fs/tracefs/inode.c            |  2 +-
+>  include/linux/lsm_hook_defs.h |  3 ++-
+>  include/linux/lsm_hooks.h     |  3 ++-
+>  include/linux/security.h      | 11 ++++++++---
+>  kernel/trace/bpf_trace.c      |  4 ++--
+>  net/xfrm/xfrm_user.c          |  2 +-
+>  security/lockdown/lockdown.c  |  5 +++--
+>  security/security.c           |  6 +++---
+>  security/selinux/hooks.c      | 12 +++++++++---
+>  10 files changed, 33 insertions(+), 19 deletions(-)
 
 -- 
 paul moore
