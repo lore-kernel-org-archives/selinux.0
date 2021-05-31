@@ -2,137 +2,144 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51464C47096
-	for <selinux@archiver.kernel.org>; Mon, 31 May 2021 08:24:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BC9FC4708F
+	for <selinux@archiver.kernel.org>; Mon, 31 May 2021 09:14:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33942610A8
-	for <selinux@archiver.kernel.org>; Mon, 31 May 2021 08:24:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1421160FDA
+	for <selinux@archiver.kernel.org>; Mon, 31 May 2021 09:14:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbhEaI0L (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 May 2021 04:26:11 -0400
-Received: from www62.your-server.de ([213.133.104.62]:50348 "EHLO
-        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230428AbhEaIZ7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 May 2021 04:25:59 -0400
-Received: from sslproxy05.your-server.de ([78.46.172.2])
-        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1lndDX-000FgJ-MR; Mon, 31 May 2021 10:24:11 +0200
-Received: from [85.7.101.30] (helo=linux-2.home)
-        by sslproxy05.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1lndDX-000Gza-CF; Mon, 31 May 2021 10:24:11 +0200
-Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
- permission checks
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-security-module@vger.kernel.org,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>, jolsa@redhat.com
-References: <20210517092006.803332-1-omosnace@redhat.com>
- <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
- <01135120-8bf7-df2e-cff0-1d73f1f841c3@iogearbox.net>
- <CAHC9VhR-kYmMA8gsqkiL5=poN9FoL-uCyx1YOLCoG2hRiUBYug@mail.gmail.com>
- <c7c2d7e1-e253-dce0-d35c-392192e4926e@iogearbox.net>
- <CAHC9VhS1XRZjKcTFgH1+n5uA-CeT+9BeSP5jvT2+RE5ougLpUg@mail.gmail.com>
-From:   Daniel Borkmann <daniel@iogearbox.net>
-Message-ID: <2e541bdc-ae21-9a07-7ac7-6c6a4dda09e8@iogearbox.net>
-Date:   Mon, 31 May 2021 10:24:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S229550AbhEaJPy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 May 2021 05:15:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37695 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229522AbhEaJPy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 May 2021 05:15:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622452454;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=RQNjY1fRgruQ4QcWkYBY69oNI4eBGaAgZQKTZYUGaDg=;
+        b=AEHoFQbLCUJwKBo/4FfUep/DIsEDKmhY5phio1M8BioDbgMtTOMlQEjXpqFGBrPBg7xuKF
+        L+4IFrknqPy14IUmOlX1ok3MeSkM/U9ayGnFp/F2QIg1ZOyxOfTZ/mlFnPoNrSaX4yyz63
+        5EnSppJ4AWAQ2GBm5L8NNqOjOWRKoy4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-351-jn3_GTrYMTOf8GCe57v7MA-1; Mon, 31 May 2021 05:14:12 -0400
+X-MC-Unique: jn3_GTrYMTOf8GCe57v7MA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 46CEC802B78;
+        Mon, 31 May 2021 09:14:11 +0000 (UTC)
+Received: from localhost (unknown [10.40.192.182])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CA43178620;
+        Mon, 31 May 2021 09:14:10 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     liwugang <liwugang@163.com>, selinux@vger.kernel.org
+Cc:     liwugang <liwugang@163.com>
+Subject: Re: [PATCH] checkpolicy: fix the leak memory when uses xperms
+In-Reply-To: <20210510110354.3585-1-liwugang@163.com>
+References: <20210510110354.3585-1-liwugang@163.com>
+Date:   Mon, 31 May 2021 11:14:09 +0200
+Message-ID: <87o8crcljy.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhS1XRZjKcTFgH1+n5uA-CeT+9BeSP5jvT2+RE5ougLpUg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: daniel@iogearbox.net
-X-Virus-Scanned: Clear (ClamAV 0.103.2/26186/Sun May 30 13:11:19 2021)
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/29/21 8:48 PM, Paul Moore wrote:
-[...]
-> Daniel's patch side steps that worry by just doing the lockdown
-> permission check when the BPF program is loaded, but that isn't a
-> great solution if the policy changes afterward.  I was hoping there
-> might be some way to perform the permission check as needed, but the
-> more I look the more that appears to be difficult, if not impossible
-> (once again, corrections are welcome).
+liwugang <liwugang@163.com> writes:
 
-Your observation is correct, will try to clarify below a bit.
+> In the define_te_avtab_ioctl function:
+> 1. the parameter avrule_template has been copies to
 
-> I'm now wondering if the right solution here is to make use of the LSM
-> notifier mechanism.  I'm not yet entirely sure if this would work from
-> a BPF perspective, but I could envision the BPF subsystem registering
-> a LSM notification callback via register_blocking_lsm_notifier(), see
-> if Infiniband code as an example, and then when the LSM(s) policy
-> changes the BPF subsystem would get a notification and it could
-> revalidate the existing BPF programs and take block/remove/whatever
-> the offending BPF programs.  This obviously requires a few things
-> which I'm not sure are easily done, or even possible:
-> 
-> 1. Somehow the BPF programs would need to be "marked" at
-> load/verification time with respect to their lockdown requirements so
-> that decisions can be made later.  Perhaps a flag in bpf_prog_aux?
-> 
-> 2. While it looks like it should be possible to iterate over all of
-> the loaded BPF programs in the LSM notifier callback via
-> idr_for_each(prog_idr, ...), it is not clear to me if it is possible
-> to safely remove, or somehow disable, BPF programs once they have been
-> loaded.  Hopefully the BPF folks can help answer that question.
-> 
-> 3. Disabling of BPF programs might be preferable to removing them
-> entirely on LSM policy changes as it would be possible to make the
-> lockdown state less restrictive at a future point in time, allowing
-> for the BPF program to be executed again.  Once again, not sure if
-> this is even possible.
+typo? "copied" instead of "copies" ?
 
-Part of why this gets really complex/impossible is that BPF programs in
-the kernel are reference counted from various sides, be it that there
-are references from user space to them (fd from application, BPF fs, or
-BPF links), hooks where they are attached to as well as tail call maps
-where one BPF prog calls into another. There is currently also no global
-infra of some sort where you could piggy back to atomically keep track of
-all the references in a list or such. And the other thing is that BPF progs
-have no ownership that is tied to a specific task after they have been
-loaded. Meaning, once they are loaded into the kernel by an application
-and attached to a specific hook, they can remain there potentially until
-reboot of the node, so lifecycle of the user space application != lifecycle
-of the BPF program.
+> new elements which added to avrule list through
+> the function avrule_cpy, so it should free avrule_template.
+> 2. And for rangelist, it does not free the allocated memory.
+>
+> The memory leak can by found by using memory sanitizer:
+> =================================================================
+> ==20021==ERROR: LeakSanitizer: detected memory leaks
+>
+> Direct leak of 10336 byte(s) in 76 object(s) allocated from:
+>     #0 0x7f8f96d9cb50 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xdeb50)
+>     #1 0x55c2e9447fb3 in define_te_avtab_xperms_helper /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2046
+>     #2 0x55c2e944a6ca in define_te_avtab_extended_perms /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2479
+>     #3 0x55c2e943126b in yyparse /mnt/sources/tools/selinux/checkpolicy/policy_parse.y:494
+>     #4 0x55c2e9440221 in read_source_policy /mnt/sources/tools/selinux/checkpolicy/parse_util.c:64
+>     #5 0x55c2e945a3df in main /mnt/sources/tools/selinux/checkpolicy/checkpolicy.c:619
+>     #6 0x7f8f968eeb96 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b96)
+>
+> Direct leak of 240 byte(s) in 15 object(s) allocated from:
+>     #0 0x7f8f96d9cb50 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xdeb50)
+>     #1 0x55c2e9446cd9 in avrule_sort_ioctls /mnt/sources/tools/selinux/checkpolicy/policy_define.c:1846
+>     #2 0x55c2e9447d8f in avrule_ioctl_ranges /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2020
+>     #3 0x55c2e944a0de in define_te_avtab_ioctl /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2409
+>     #4 0x55c2e944a744 in define_te_avtab_extended_perms /mnt/sources/tools/selinux/checkpolicy/policy_define.c:2485
+>     #5 0x55c2e94312bf in yyparse /mnt/sources/tools/selinux/checkpolicy/policy_parse.y:503
+>     #6 0x55c2e9440221 in read_source_policy /mnt/sources/tools/selinux/checkpolicy/parse_util.c:64
+>     #7 0x55c2e945a3df in main /mnt/sources/tools/selinux/checkpolicy/checkpolicy.c:619
+>     #8 0x7f8f968eeb96 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b96)
+>
+> Signed-off-by: liwugang <liwugang@163.com>
+> ---
+>  checkpolicy/policy_define.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 16234f31..04064af2 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -2400,7 +2400,7 @@ int avrule_cpy(avrule_t *dest, avrule_t *src)
+>  int define_te_avtab_ioctl(avrule_t *avrule_template)
+>  {
+>  	avrule_t *avrule;
+> -	struct av_ioctl_range_list *rangelist;
+> +	struct av_ioctl_range_list *rangelist, *r, *r2;
+>  	av_extended_perms_t *complete_driver, *partial_driver, *xperms;
+>  	unsigned int i;
+>  
+> @@ -2458,6 +2458,13 @@ done:
+>  	if (partial_driver)
+>  		free(partial_driver);
+>  
+> +	r = rangelist;
+> +	while (r != NULL) {
 
-It's maybe best to compare this aspect to kernel modules in the sense that
-you have an application that loads it into the kernel (insmod, etc, where
-you could also enforce lockdown signature check), but after that, they can
-be managed by other entities as well (implicitly refcounted from kernel,
-removed by other applications, etc).
 
-My understanding of the lockdown settings are that users have options
-to select/enforce a lockdown level of CONFIG_LOCK_DOWN_KERNEL_FORCE_{INTEGRITY,
-CONFIDENTIALITY} at compilation time, they have a lockdown={integrity|
-confidentiality} boot-time parameter, /sys/kernel/security/lockdown,
-and then more fine-grained policy via 59438b46471a ("security,lockdown,selinux:
-implement SELinux lockdown"). Once you have set a global policy level,
-you cannot revert back to a less strict mode. So the SELinux policy is
-specifically tied around tasks to further restrict applications in respect
-to the global policy. I presume that would mean for those users that majority
-of tasks have the confidentiality option set via SELinux with just a few
-necessary using the integrity global policy. So overall the enforcing
-option when BPF program is loaded is the only really sensible option to
-me given only there we have the valid current task where such policy can
-be enforced.
+Seems like you could loop using `rangelist` directly only with `r`
+instead of `r2`
 
-Best,
-Daniel
+
+> +		r2 = r;
+> +		r = r->next;
+> +		free(r2);
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> @@ -2484,6 +2491,8 @@ int define_te_avtab_extended_perms(int which)
+>  		free(id);
+>  		if (define_te_avtab_ioctl(avrule_template))
+>  			return -1;
+> +		avrule_destroy(avrule_template);
+> +		free(avrule_template);
+
+avrule_template should be probably free()'d before `return -1`
+
+>  	} else {
+>  		yyerror("only ioctl extended permissions are supported");
+>  		free(id);
+> -- 
+> 2.17.1
+
