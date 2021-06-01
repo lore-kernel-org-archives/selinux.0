@@ -2,180 +2,192 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC9FC4708F
-	for <selinux@archiver.kernel.org>; Tue,  1 Jun 2021 15:35:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FCDFC47092
+	for <selinux@archiver.kernel.org>; Tue,  1 Jun 2021 20:47:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A89D610C8
-	for <selinux@archiver.kernel.org>; Tue,  1 Jun 2021 15:35:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E98E160E0C
+	for <selinux@archiver.kernel.org>; Tue,  1 Jun 2021 20:47:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234305AbhFAPhB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Jun 2021 11:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41426 "EHLO
+        id S234856AbhFAUtK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Jun 2021 16:49:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230385AbhFAPhA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Jun 2021 11:37:00 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC97EC061574
-        for <selinux@vger.kernel.org>; Tue,  1 Jun 2021 08:35:17 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id cb9so6017007edb.1
-        for <selinux@vger.kernel.org>; Tue, 01 Jun 2021 08:35:17 -0700 (PDT)
+        with ESMTP id S234844AbhFAUtH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Jun 2021 16:49:07 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B256EC061756
+        for <selinux@vger.kernel.org>; Tue,  1 Jun 2021 13:47:23 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id i13so173224edb.9
+        for <selinux@vger.kernel.org>; Tue, 01 Jun 2021 13:47:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KSpQElwG390KHxM+KXxPf9g6kpfGgcYGSwyIYUB9xXs=;
-        b=s/HNbDbfl0o5+KKIIMFyBRRZ8vwZ/65WcOBTZulxO896tCwbANHgihZkOLZc4oiOis
-         RPfIa+bB1EFo8yDyPOiFof29l2dyDtYitaCO1EfdvgIsOUrsxpURX2wSBrOKUQyHvxjD
-         fNQcaG4d//PcRdP4KD/zl5qS43KAf6EN2uSpEVpRgQ+kD9lPTehvnwm14ZFxradxFW7h
-         I9M9fjf49PXa4XOp6pNQE250mvA7aCYg2+nWCK39rvoCPidNwS9EMMEJh4GsbNagqIZh
-         xZtZzKNMOL0wExbu0CoKKcTjTRTh2gjBSeZ5detLgzXeqQ0ZAl0jCD0EJ6cEf3DpMPmj
-         coKg==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tTNIBzYtON70L8W0i/P9C9vefa2RWt2U+aq2jjrO0Nw=;
+        b=a7qjHsKTaqa3sWrWdZ5Gh9wO8wYHYyLL1wPg/UcCE7WulKyadI3xcZi7iFuzK0u1Ce
+         IkSY1GVr6EEc8j3nyeg4ebI1UMrBkZhJ4VQc/fi9aoa2EltyNevU04GfDQ5ppE1IbA8B
+         o/MByBqkj1YE9ylhArUoRCj0NUDDOzKmyG/jCGVAasz7umc4Dr4Pd/t6Eyy7zlYWliQq
+         4ArqLMbKLawihtbRZaRj6YUhJNMF+wo/VNZBxG78x6i56+dgCU1YWPsuNdHxjOGUGzvK
+         bHh6Y91IphMkFIda1nqGEdYuSLZ6RDd4IGBJvo9dx8WnU2kK8sOcCJ9N7gn+NW/tjSkf
+         aJhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KSpQElwG390KHxM+KXxPf9g6kpfGgcYGSwyIYUB9xXs=;
-        b=Y+sAsqfY17h0IGV37zWPXUiWpH/U8kCeaypx4sAIBYREQPnGaWpRAlzvWmEGjTm+As
-         NRXDe/1irfrcrac8tEe+C6Ok1Ro6eGG8ne3itehvxW3KrAkYkAvR8X5uyrsoF4BoB290
-         oAN1DyMhMP7X6Fv0iM0Qq5Rd7JHOGmRPDKl4DPOaq+6U+maTqZk1ZwcWYx1ez9PS3uZk
-         zh/VvYPt+ZhrjiRzQU8WVyFVK+aB28AIZg9NlxejcNWmhN6JYuYXdJHugat+4CzD85pD
-         OZ3xMnepqAWWUqXEMG+v7ZE6ZxaDIRJSL6dIo1yCLHFvyTjrf8nGOTVTW273weSVRV7l
-         bdjA==
-X-Gm-Message-State: AOAM5328OEmeUWGuuHz0Hdw06kq8k0iPIo6eDT2IIDjjn9q1s3nwtoZ3
-        lHmB/wtLq6kNhxItfPH9uzhFrxbgHLg=
-X-Google-Smtp-Source: ABdhPJwUZPIkEMZ+NvVHro6aqI92xwksK1XFdOyMeoi/YkXHayrtu/hs93IuxZ95UWoONMRvpn85LA==
-X-Received: by 2002:a50:bec1:: with SMTP id e1mr33397156edk.116.1622561716392;
-        Tue, 01 Jun 2021 08:35:16 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-000-198-161.77.0.pool.telefonica.de. [77.0.198.161])
-        by smtp.gmail.com with ESMTPSA id r12sm8738823edv.82.2021.06.01.08.35.15
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jun 2021 08:35:16 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libselinux: improve getcon(3) man page
-Date:   Tue,  1 Jun 2021 17:35:09 +0200
-Message-Id: <20210601153509.12594-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.32.0.rc2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tTNIBzYtON70L8W0i/P9C9vefa2RWt2U+aq2jjrO0Nw=;
+        b=prUVObt3wa4xGN9Ad+F9+50yHa3hvi8cpw+zC5tOrw9uGmtqwpZ+RLOhIOL/+JykUM
+         9+8tiVOMXc3X0cMWB5iOGSMJQC6hs3kmaG5ngwWNJz1MBQlDvGJY3rwSodvz61bInVb9
+         PWhTIi8cvAC6G4Fh1xFJ4+mmP5aA8K9hDQFKLfJy/dtizw1rE5KYRnUCiov6ASWw7Mnm
+         BwUH+iHEg5KGCXcRlcyOIWPA/YTKaSPxRfyXLEjnTNwpvG9hzW1jGowllUE/Uwrva217
+         kwxqwcU8gs+lQj6jkMG6jlsVUrF23wXjgT/5ghEFb10hVw7ZYs26n5CxVkWwLAHdx1U1
+         dvbw==
+X-Gm-Message-State: AOAM533NrpPcpzqjU22nE0Zw1qURsROMeM2mWIKfFg0pltrp4k7Yn8fX
+        hGoCFMiPmsKrBWxTweVVZXuU3FoYW7nGs7ju7Z+U
+X-Google-Smtp-Source: ABdhPJwU7tcZXG/Pm25o7D7/1VUxLtr+XnMQYQgFFvc5bxqJe1U1fscpsf+4cHErKF2itcPOfxYxe2ICVSz4Nvu1ZGs=
+X-Received: by 2002:aa7:d84e:: with SMTP id f14mr21519965eds.12.1622580442071;
+ Tue, 01 Jun 2021 13:47:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20210517092006.803332-1-omosnace@redhat.com> <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
+ <01135120-8bf7-df2e-cff0-1d73f1f841c3@iogearbox.net> <CAHC9VhR-kYmMA8gsqkiL5=poN9FoL-uCyx1YOLCoG2hRiUBYug@mail.gmail.com>
+ <c7c2d7e1-e253-dce0-d35c-392192e4926e@iogearbox.net> <CAHC9VhS1XRZjKcTFgH1+n5uA-CeT+9BeSP5jvT2+RE5ougLpUg@mail.gmail.com>
+ <2e541bdc-ae21-9a07-7ac7-6c6a4dda09e8@iogearbox.net>
+In-Reply-To: <2e541bdc-ae21-9a07-7ac7-6c6a4dda09e8@iogearbox.net>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 1 Jun 2021 16:47:10 -0400
+Message-ID: <CAHC9VhT464vr9sWxqY3PRB4DAccz=LvRMLgWBsSViWMR0JJvOQ@mail.gmail.com>
+Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
+ permission checks
+To:     Daniel Borkmann <daniel@iogearbox.net>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>, jolsa@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Improve formatting of section DESCRIPTION by adding list points.
-Mention errno is set on failure.
-Mention the returned context might be NULL if SELinux is not enabled.
-Align setcon/_raw parameter by adding const.
+On Mon, May 31, 2021 at 4:24 AM Daniel Borkmann <daniel@iogearbox.net> wrote:
+> On 5/29/21 8:48 PM, Paul Moore wrote:
+> [...]
+> > Daniel's patch side steps that worry by just doing the lockdown
+> > permission check when the BPF program is loaded, but that isn't a
+> > great solution if the policy changes afterward.  I was hoping there
+> > might be some way to perform the permission check as needed, but the
+> > more I look the more that appears to be difficult, if not impossible
+> > (once again, corrections are welcome).
+>
+> Your observation is correct, will try to clarify below a bit.
+>
+> > I'm now wondering if the right solution here is to make use of the LSM
+> > notifier mechanism.  I'm not yet entirely sure if this would work from
+> > a BPF perspective, but I could envision the BPF subsystem registering
+> > a LSM notification callback via register_blocking_lsm_notifier(), see
+> > if Infiniband code as an example, and then when the LSM(s) policy
+> > changes the BPF subsystem would get a notification and it could
+> > revalidate the existing BPF programs and take block/remove/whatever
+> > the offending BPF programs.  This obviously requires a few things
+> > which I'm not sure are easily done, or even possible:
+> >
+> > 1. Somehow the BPF programs would need to be "marked" at
+> > load/verification time with respect to their lockdown requirements so
+> > that decisions can be made later.  Perhaps a flag in bpf_prog_aux?
+> >
+> > 2. While it looks like it should be possible to iterate over all of
+> > the loaded BPF programs in the LSM notifier callback via
+> > idr_for_each(prog_idr, ...), it is not clear to me if it is possible
+> > to safely remove, or somehow disable, BPF programs once they have been
+> > loaded.  Hopefully the BPF folks can help answer that question.
+> >
+> > 3. Disabling of BPF programs might be preferable to removing them
+> > entirely on LSM policy changes as it would be possible to make the
+> > lockdown state less restrictive at a future point in time, allowing
+> > for the BPF program to be executed again.  Once again, not sure if
+> > this is even possible.
+>
+> Part of why this gets really complex/impossible is that BPF programs in
+> the kernel are reference counted from various sides, be it that there
+> are references from user space to them (fd from application, BPF fs, or
+> BPF links), hooks where they are attached to as well as tail call maps
+> where one BPF prog calls into another. There is currently also no global
+> infra of some sort where you could piggy back to atomically keep track of
+> all the references in a list or such. And the other thing is that BPF progs
+> have no ownership that is tied to a specific task after they have been
+> loaded. Meaning, once they are loaded into the kernel by an application
+> and attached to a specific hook, they can remain there potentially until
+> reboot of the node, so lifecycle of the user space application != lifecycle
+> of the BPF program.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libselinux/man/man3/getcon.3 | 41 +++++++++++++++++++++++++-----------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+I don't think the disjoint lifecycle or lack of task ownership is a
+deal breaker from a LSM perspective as the LSMs can stash whatever
+info they need in the security pointer during the program allocation
+hook, e.g. selinux_bpf_prog_alloc() saves the security domain which
+allocates/loads the BPF program.
 
-diff --git a/libselinux/man/man3/getcon.3 b/libselinux/man/man3/getcon.3
-index 67872a4d..e7e394f3 100644
---- a/libselinux/man/man3/getcon.3
-+++ b/libselinux/man/man3/getcon.3
-@@ -7,7 +7,7 @@ freecon, freeconary \- free memory associated with SELinux security contexts
- getpeercon \- get security context of a peer socket
- 
- setcon \- set current security context of a process
--.
-+
- .SH "SYNOPSIS"
- .B #include <selinux/selinux.h>
- .sp
-@@ -31,30 +31,39 @@ setcon \- set current security context of a process
- .sp
- .BI "void freeconary(char **" con );
- .sp
--.BI "int setcon(char *" context );
-+.BI "int setcon(const char *" context );
- .sp
--.BI "int setcon_raw(char *" context );
--.
-+.BI "int setcon_raw(const char *" context );
-+
- .SH "DESCRIPTION"
-+.TP
- .BR getcon ()
- retrieves the context of the current process, which must be free'd with
--freecon.
-+.BR freecon ().
- 
-+.TP
- .BR getprevcon ()
- same as getcon but gets the context before the last exec.
- 
-+.TP
- .BR getpidcon ()
--returns the process context for the specified PID.
-+returns the process context for the specified PID, which must be free'd with
-+.BR freecon ().
- 
-+.TP
- .BR getpeercon ()
--retrieves context of peer socket, and set
--.BI * context
--to refer to it, which must be free'd with
-+retrieves the context of the peer socket, which must be free'd with
- .BR freecon ().
- 
-+.TP
- .BR freecon ()
- frees the memory allocated for a security context.
- 
-+If
-+.I con
-+is NULL, no operation is performed.
-+
-+.TP
- .BR freeconary ()
- frees the memory allocated for a context array.
- 
-@@ -62,6 +71,7 @@ If
- .I con
- is NULL, no operation is performed.
- 
-+.TP
- .BR setcon ()
- sets the current security context of the process to a new value.  Note
- that use of this function requires that the entire application be
-@@ -110,6 +120,8 @@ context and the
- .BR setcon ()
- will fail if it is not allowed by policy.
- 
-+.TP
-+.BR *_raw()
- .BR getcon_raw (),
- .BR getprevcon_raw (),
- .BR getpidcon_raw (),
-@@ -118,9 +130,14 @@ and
- .BR setcon_raw ()
- behave identically to their non-raw counterparts but do not perform context
- translation.
--.
-+
- .SH "RETURN VALUE"
--On error \-1 is returned.  On success 0 is returned.
--.
-+On error \-1 is returned with errno set.  On success 0 is returned.
-+
-+.SH "NOTES"
-+The retrieval functions might return success and set
-+.I *context
-+to NULL if and only if SELinux is not enabled.
-+
- .SH "SEE ALSO"
- .BR selinux "(8), " setexeccon "(3)"
--- 
-2.32.0.rc2
+The thing I'm worried about would be the case where a LSM policy
+change requires that an existing BPF program be removed or disabled.
+I'm guessing based on the refcounting that there is not presently a
+clean way to remove a BPF program from the system, but is this
+something we could resolve?  If we can't safely remove a BPF program
+from the system, can we replace/swap it with an empty/NULL BPF
+program?
 
+> It's maybe best to compare this aspect to kernel modules in the sense that
+> you have an application that loads it into the kernel (insmod, etc, where
+> you could also enforce lockdown signature check), but after that, they can
+> be managed by other entities as well (implicitly refcounted from kernel,
+> removed by other applications, etc).
+
+Well, I guess we could consider BPF programs as out-of-tree kernel
+modules that potentially do very odd and dangerous things, e.g.
+performing access control checks *inside* access control checks ...
+but yeah, I get your point at a basic level, I just think that
+comparing BPF programs to kernel modules is a not-so-great comparison
+in general.
+
+> My understanding of the lockdown settings are that users have options
+> to select/enforce a lockdown level of CONFIG_LOCK_DOWN_KERNEL_FORCE_{INTEGRITY,
+> CONFIDENTIALITY} at compilation time, they have a lockdown={integrity|
+> confidentiality} boot-time parameter, /sys/kernel/security/lockdown,
+> and then more fine-grained policy via 59438b46471a ("security,lockdown,selinux:
+> implement SELinux lockdown"). Once you have set a global policy level,
+> you cannot revert back to a less strict mode.
+
+I don't recall there being anything in the SELinux lockdown support
+that prevents a newly loaded policy from allowing a change in the
+lockdown level, either stricter or more permissive, for a given
+domain.  Looking quickly at the code, that still seems to be the case.
+
+The SELinux lockdown access controls function independently of the
+global build and runtime lockdown configuration.
+
+> So the SELinux policy is
+> specifically tied around tasks to further restrict applications in respect
+> to the global policy.
+
+As a reminder, there is no guarantee that both the SELinux and
+lockdown LSM are both loaded and active at runtime, it is possible
+that only SELinux is active.  If SELinux is the only LSM enforcing
+lockdown access controls, there is no global lockdown setting, it is
+determined per-domain.
+
+> I presume that would mean for those users that majority
+> of tasks have the confidentiality option set via SELinux with just a few
+> necessary using the integrity global policy. So overall the enforcing
+> option when BPF program is loaded is the only really sensible option to
+> me given only there we have the valid current task where such policy can
+> be enforced.
+
+--
+paul moore
+www.paul-moore.com
