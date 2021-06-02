@@ -2,224 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D5DDC4708F
-	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 20:48:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1754C47083
+	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 23:41:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4120361040
-	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 20:48:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A32AF613AE
+	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 23:41:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbhFBUts (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Jun 2021 16:49:48 -0400
-Received: from mail-ej1-f53.google.com ([209.85.218.53]:41731 "EHLO
-        mail-ej1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbhFBUts (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Jun 2021 16:49:48 -0400
-Received: by mail-ej1-f53.google.com with SMTP id gb17so5814509ejc.8
-        for <selinux@vger.kernel.org>; Wed, 02 Jun 2021 13:47:51 -0700 (PDT)
+        id S229727AbhFBXne (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Jun 2021 19:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229533AbhFBXne (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Jun 2021 19:43:34 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCBA8C06174A;
+        Wed,  2 Jun 2021 16:41:36 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id h12-20020a17090aa88cb029016400fd8ad8so2745907pjq.3;
+        Wed, 02 Jun 2021 16:41:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fmjdGsZgyfhH82V3nYsUARig/lnO3sllBQpi/gDMFvc=;
-        b=MuvgcTuAIXOaGGA++L/YavJDqGoEu5mG11y7jbFWn+bjS0yuutVVvCSh4/wsETk1cj
-         irDindvdBjVVC5Nypb04oqK5y9kvwErAOXUzBg/D5+uuE6jmwwFmKdrUxjftl6g9XUpw
-         iZ4AVRmt6rkwr2r0x+v6JlPsB1M2TpcIbf3t4t051jj2McFmGwZ9Pp7WEjFULKlG6fY/
-         RT410/1rOrww8zNzjLW91sxSjKjDDx5/KB5gk2ueLb5xDwQf3FVui57Vq3jYZuAO5Wji
-         qSpqbeI9wNbA64Toaoc6mJ6u7x8aeKU+E+v6bhOdEoH3+902WGdj/Xcrpkcc6rAcFONW
-         CFCA==
+         :cc:content-transfer-encoding;
+        bh=+toArruJ3eRIR/A2mvRnWwBK2Vc1ZfxuTnObnbkQWeM=;
+        b=nwIddzopGo1lXM/ErFpAIVU2mAP8V8VYQU0HtzxOig+9z3Yv+DPQAfqpSKQGIKcCbC
+         6MLTdoAuVoSHFsNLlKRmSI5X5PreVkSLfZ5e8ktnm5chxyEC/KYiQhRWdtrLo9ebMkXz
+         8KLYHBFZSChX0zEfbiCO9goGiOr6HZTc7sS/K9Tj9vlo/GfSbCx+eZGuh0woDFmd2eFe
+         iOKq6Am1idc3kY2gYYNikNotA1jPmY6UpZVbr268E18e4b37N0w4pLKpMshGv4zMwAkn
+         F2kqQYmkGXTSx/KTIWTZR8+PwPxJzwhd+gV5+iNzGm7asFY0xmk3H2yLZAoxnXSXyksP
+         qFXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fmjdGsZgyfhH82V3nYsUARig/lnO3sllBQpi/gDMFvc=;
-        b=oOpIba9wwJkN4CnooUKS94bohEb8/Fiv2FsX4yB69SOg5Mzy0Sr9ipWdd7k+H8Bo+n
-         mdSQWrduTL95Ual1Ynp40FMaOLGz44TBsYGBz2omV3Rj3+14LN/tTdYtAp/HNAciiiPJ
-         UZC/bqxhwsDJ+52uPk3E47vT6BjBSRias1fHXpJAqyhuuc3m2rPmf2JvxafM8eBsvu/Q
-         RnNioRz3SlydNNHaZkUVXE3aOtm2NPrz6IIhkza3Ti8t/38MXW5N9VfsKiij3oRt0tDl
-         Ovh4aFB2Dan9/HU/eP6Vez/SuTZcMDKazzS/mBRbE5V9PNu8J943uzgUfu00n6FiPtsp
-         plWQ==
-X-Gm-Message-State: AOAM531+JBXsHrUGpbJhwRt6OcjjpD5Ky02Y+HKyMSzxJH+sy12lcjMa
-        wVZHga38UTSxgad2Ieszz9AVwsKsRoEIl6z2gc79
-X-Google-Smtp-Source: ABdhPJx/n1S5UyuIfGVXGC2QsiIR2Cy08Xe7mAk9pLAL6gbKDdUveE6w4bsXPazI8bBpKsR9b5qc2FdUOfr3XdARSsY=
-X-Received: by 2002:a17:906:17d8:: with SMTP id u24mr36904730eje.106.1622666810379;
- Wed, 02 Jun 2021 13:46:50 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+toArruJ3eRIR/A2mvRnWwBK2Vc1ZfxuTnObnbkQWeM=;
+        b=T09ff5kWaVVmfi6FSTLiHrpNeTc/otusmEigd2AN61X1wI6hgruph7akCgX+TlR0ps
+         uNdgLHpOu3mpCHHDZVmke3DfFmB5MslSDu8G7NwUPj5/L8N/rWUO8stt8k69+f2zz5Z2
+         fwZJG2ly0LGyOS6gi9fKCu3bObeDoLUMAGXZ+5z+8++6WV/Fw4b/ToZOBnvsn7rp+u5+
+         h4qg8e/t2j2fiq+3cAgeMeVOy23FBnE9yPu1R2CqfY4WtIWU1lVM+po26+e6EEPZGdpI
+         6aXzCLJ5jso4T5PmW+mT3igNnX4BAMWw9QfE9gG5Ey0dD1vwkj4xaoN5C+92yfYaW9W4
+         xD8w==
+X-Gm-Message-State: AOAM533aEreJ46fzRELso/RAdTTJjM/dEnNF93uHs2Owp7jaReSSg84O
+        gQjrvMf357SwlpviIRwF7M26cnkwq1FZ+jAQmKc=
+X-Google-Smtp-Source: ABdhPJySLCX1G+ypM9S8wQTFySJ1G3j5In5iPS3hq4FOP+dvba0eMz3Cry3yzrELiQ3V9hCI0LCcH8Afrh32AV1WekQ=
+X-Received: by 2002:a17:90b:33c3:: with SMTP id lk3mr8138470pjb.33.1622677296349;
+ Wed, 02 Jun 2021 16:41:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163379461.8379.9691291608621179559.stgit@sifl> <20210602172924.GM447005@madcap2.tricolour.ca>
-In-Reply-To: <20210602172924.GM447005@madcap2.tricolour.ca>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 2 Jun 2021 16:46:39 -0400
-Message-ID: <CAHC9VhS0sy_Y8yx4uiZeJhAf_a94ipt1EbE16BOVv6tXtWkgMg@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] audit, io_uring, io-wq: add some basic audit
- support to io_uring
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
+References: <20210602054802.GA984@raspberrypi> <CAHC9VhQdAt2EQqP3pQM=5TifTYuXxnU1QOvOT-aFaDaGiLLJXQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhQdAt2EQqP3pQM=5TifTYuXxnU1QOvOT-aFaDaGiLLJXQ@mail.gmail.com>
+From:   Austin Kim <austindh.kim@gmail.com>
+Date:   Thu, 3 Jun 2021 08:41:27 +0900
+Message-ID: <CADLLry7D8OYStDAFsP4dFzS0fwV6bM2__ZEB2py+oca+R5Zuog@mail.gmail.com>
+Subject: Re: [PATCH] selinux: remove duplicated LABEL_INITIALIZED check routine
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        =?UTF-8?B?6rmA64+Z7ZiE?= <austin.kim@lge.com>,
+        kernel-team@lge.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 2, 2021 at 1:29 PM Richard Guy Briggs <rgb@redhat.com> wrote:
-> On 2021-05-21 17:49, Paul Moore wrote:
-> > WARNING - This is a work in progress and should not be merged
-> > anywhere important.  It is almost surely not complete, and while it
-> > probably compiles it likely hasn't been booted and will do terrible
-> > things.  You have been warned.
+2021=EB=85=84 6=EC=9B=94 2=EC=9D=BC (=EC=88=98) =EC=98=A4=ED=9B=84 11:32, P=
+aul Moore <paul@paul-moore.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
+>
+> On Wed, Jun 2, 2021 at 1:48 AM Austin Kim <austindh.kim@gmail.com> wrote:
 > >
-> > This patch adds basic auditing to io_uring operations, regardless of
-> > their context.  This is accomplished by allocating audit_context
-> > structures for the io-wq worker and io_uring SQPOLL kernel threads
-> > as well as explicitly auditing the io_uring operations in
-> > io_issue_sqe().  The io_uring operations are audited using a new
-> > AUDIT_URINGOP record, an example is shown below:
+> > The 'isec->initialized =3D=3D LABEL_INITIALIZED' is checked twice in a =
+row,
+> > since selinux was mainlined from Linux-2.6.12-rc2.
 > >
-> >   % <TODO - insert AUDIT_URINGOP record example>
+> > Since 'isec->initialized' is protected using spin_lock(&isec->lock)
+> > within various APIs, it had better remove first exceptional routine.
 > >
-> > Thanks to Richard Guy Briggs for review and feedback.
+> > With this commit, the code look simpler, easier to read and maintain.
 > >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > Signed-off-by: Austin Kim <austindh.kim@gmail.com>
 > > ---
-> >  fs/io-wq.c                 |    4 +
-> >  fs/io_uring.c              |   11 +++
-> >  include/linux/audit.h      |   17 ++++
-> >  include/uapi/linux/audit.h |    1
-> >  kernel/audit.h             |    2 +
-> >  kernel/auditsc.c           |  173 ++++++++++++++++++++++++++++++++++++++++++++
-> >  6 files changed, 208 insertions(+)
-
-...
-
-> > diff --git a/fs/io_uring.c b/fs/io_uring.c
-> > index e481ac8a757a..e9941d1ad8fd 100644
-> > --- a/fs/io_uring.c
-> > +++ b/fs/io_uring.c
-> > @@ -78,6 +78,7 @@
-> >  #include <linux/task_work.h>
-> >  #include <linux/pagemap.h>
-> >  #include <linux/io_uring.h>
-> > +#include <linux/audit.h>
-> >
-> >  #define CREATE_TRACE_POINTS
-> >  #include <trace/events/io_uring.h>
-> > @@ -6105,6 +6106,9 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
-> >       if (req->work.creds && req->work.creds != current_cred())
-> >               creds = override_creds(req->work.creds);
-> >
-> > +     if (req->opcode < IORING_OP_LAST)
-> > +             audit_uring_entry(req->opcode);
-
-Note well the override_creds() call right above the audit code that is
-being added, it will be important later in this email.
-
-> > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > index cc89e9f9a753..729849d41631 100644
-> > --- a/kernel/auditsc.c
-> > +++ b/kernel/auditsc.c
-> > @@ -1536,6 +1562,52 @@ static void audit_log_proctitle(void)
-> >       audit_log_end(ab);
-> >  }
-> >
-> > +/**
-> > + * audit_log_uring - generate a AUDIT_URINGOP record
-> > + * @ctx: the audit context
-> > + */
-> > +static void audit_log_uring(struct audit_context *ctx)
-> > +{
-> > +     struct audit_buffer *ab;
-> > +     const struct cred *cred;
-> > +
-> > +     /*
-> > +      * TODO: What do we log here?  I'm tossing in a few things to start the
-> > +      *       conversation, but additional thought needs to go into this.
-> > +      */
-> > +
-> > +     ab = audit_log_start(ctx, GFP_KERNEL, AUDIT_URINGOP);
-> > +     if (!ab)
-> > +             return;
-> > +     cred = current_cred();
+> >  security/selinux/hooks.c | 3 ---
+> >  1 file changed, 3 deletions(-)
 >
-> This may need to be req->work.creds.  I haven't been following if the
-> io_uring thread inherited the user task's creds (and below, comm and
-> exe).
-
-Nope, we're good.  See the existing code in io_issue_sqe() :)
-
-> > +     audit_log_format(ab, "uring_op=%d", ctx->uring_op);
+> This is a common pattern when dealing with lock protected variables:
+> first check the variable before taking the lock (fast path) and if
+> necessary take the lock and re-check the variable when we know we have
+> exclusive access.
 >
-> arch is stored below in __audit_uring_entry() and never used in the
-> AUDIT_CTX_URING case.  That assignment can either be dropped or printed
-> before uring_op similar to the SYSCALL record.
-
-Good point, I'll drop the code that records the arch from _entry(); it
-is really only useful to give the appropriate context if needed for
-other things in the audit stream, and that isn't the case like it is
-with syscalls.
-
-> There aren't really any arg[0-3] to print.
-
-Which is why I didn't print them.
-
-> io_uring_register and io_uring_setup() args are better covered by other
-> records.  io_uring_enter() has 6 args and the last two aren't covered by
-> SYSCALL anyways.
-
- ???
-
-I think you are confusing the io_uring ops with syscalls; they are
-very different things from an audit perspective and the io_uring
-auditing is not intended to replace syscall records.  The
-io_uring_setup() and io_uring_enter() syscalls will be auditing just
-as any other syscalls would be using the existing syscall audit code.
-
-> > +     if (ctx->return_valid != AUDITSC_INVALID)
-> > +             audit_log_format(ab, " success=%s exit=%ld",
-> > +                              (ctx->return_valid == AUDITSC_SUCCESS ?
-> > +                               "yes" : "no"),
-> > +                              ctx->return_code);
-> > +     audit_log_format(ab,
-> > +                      " items=%d"
-> > +                      " ppid=%d pid=%d auid=%u uid=%u gid=%u"
-> > +                      " euid=%u suid=%u fsuid=%u"
-> > +                      " egid=%u sgid=%u fsgid=%u",
-> > +                      ctx->name_count,
-> > +                      task_ppid_nr(current),
-> > +                      task_tgid_nr(current),
-> > +                      from_kuid(&init_user_ns, audit_get_loginuid(current)),
-> > +                      from_kuid(&init_user_ns, cred->uid),
-> > +                      from_kgid(&init_user_ns, cred->gid),
-> > +                      from_kuid(&init_user_ns, cred->euid),
-> > +                      from_kuid(&init_user_ns, cred->suid),
-> > +                      from_kuid(&init_user_ns, cred->fsuid),
-> > +                      from_kgid(&init_user_ns, cred->egid),
-> > +                      from_kgid(&init_user_ns, cred->sgid),
-> > +                      from_kgid(&init_user_ns, cred->fsgid));
+> In the majority of cases the SELinux inode initialization value goes
+> from LABEL_INVALID to LABEL_INITIALIZED and stays there; while there
+> is an invalidation function/hook that is used by some
+> network/distributed filesystems, it isn't a common case to the best of
+> my knowledge.  With that understanding it makes perfect sense to do a
+> quick check to first see if the inode is initialized in
+> inode_doinit_with_dentry() and return quickly, without taking a lock,
+> if it is already initialized.  In the case where the inode has not
+> been previously initialized, or has been invalidated, we take the
+> spinlock to guarantee we are not racing with another task and re-check
+> the initialization value to ensure that another task hasn't
+> initialized the inode and act accordingly.
 >
-> The audit session ID is still important, relevant and qualifies auid.
-> In keeping with the SYSCALL record format, I think we want to keep
-> ses=audit_get_sessionid(current) in here.
+> The existing code is correct.
+>
 
-This might be another case of syscall/io_uring confusion.  An io_uring
-op doesn't necessarily have an audit session ID or an audit UID in the
-conventional sense; for example think about SQPOLL works, shared
-rings, etc.
+Understood, after looking into all routines related to 'isec->initialized' =
+again
+where 'isec->initialized' statement is not always protected
+spin_lock(&isec->lock) during initialization progress.
 
-> I'm pretty sure we also want to keep comm= and exe= too, but may have to
-> reach into req->task to get it.  There are two values for comm possible,
-> one from the original task and second "iou-sqp-<pid>" set at the top of
-> io_sq_thread().
+Thanks for valuable feedback.
 
-I think this is more syscall/io_uring confusion.
-
--- 
-paul moore
-www.paul-moore.com
+> --
+> paul moore
+> www.paul-moore.com
