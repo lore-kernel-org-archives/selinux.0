@@ -2,242 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDC5DC47092
-	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 01:40:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 048C1C47083
+	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 05:48:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2873613D5
-	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 01:40:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CF3A361361
+	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 05:48:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230157AbhFBBl6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Jun 2021 21:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35006 "EHLO
+        id S230118AbhFBFtv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Jun 2021 01:49:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbhFBBl6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Jun 2021 21:41:58 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E19C061574
-        for <selinux@vger.kernel.org>; Tue,  1 Jun 2021 18:40:15 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id a11so648033ejf.3
-        for <selinux@vger.kernel.org>; Tue, 01 Jun 2021 18:40:15 -0700 (PDT)
+        with ESMTP id S229748AbhFBFtv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Jun 2021 01:49:51 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C55EC061574;
+        Tue,  1 Jun 2021 22:48:07 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id b15-20020a17090a550fb029015dad75163dso1110357pji.0;
+        Tue, 01 Jun 2021 22:48:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=7+6GengPTpnBNKRiprYjAxUmTuo80Mwv0XF47zfhAB0=;
-        b=eHaMWPqA67Ms9cMf+MpCDlqXpy7gUU+QZLG79G7lMeuxyBVPP6W+UzN3hICWjKjiBJ
-         44peCH0PgM1siFi8Gc4aqT8FiLU/ehdSIKr0nBCH1uOLEJoZzDBKL2/MsPttMhJSGqeL
-         heKa7CKjkZvPwSBHdRp7V8pLoZ3NIKPFNnJLrybRmV83gMVHIMG9st6DySEqrhg+/2nr
-         Nt1dcVVMckoCjW6RMFbLosyOhYo5n1uhlUEhS/qG6jVenahGHkyqBFBNFyuZH/lDrEXZ
-         Ufysh0UsjrPKikT6wQB8O9OUwbdDrkFBQIdmhfg06tut+RW2/WDitMIf6tve/CvEgA2O
-         1jbg==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=c7MkMWKFtmiiVwlpdWYeE/xiL6bpeZSYnEXl6lxBbgE=;
+        b=ukjO1KdFh+9m9UoJKbxNcsYRNDPpYljr/9FC0nsfh7rt4wChNgtZLryyJELpWTYcuR
+         KPdiz+CJ3ygtvoZzd97ZErBx/W34yb6Ryq8m+x+4EyZvPh321o+8HMxePenhqpStVXz7
+         vL/TOzRUtH0gxeJrzftIu3hbXmb5AzZf8vYchlfRoyQdplMvbQp+rjMAkxEe5k4sSlq3
+         51fXE87RXeUMAfhrUaPgJ2ZLxl7CnG9WhKLBb9i5w3uthAp3f3bv7Us6qiRlJq14edZm
+         orQwOja8ddzJ7TU+AMx9KHwtD/rapUAGaptnzpO/Ed94lyZJt0TSp7BtYpRn2smWuJE0
+         Lrnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7+6GengPTpnBNKRiprYjAxUmTuo80Mwv0XF47zfhAB0=;
-        b=Tl71pO5T2CGNqxEBp2dddjLWrRMkCo3yKFSX+Tr7PxYAhy2E2HI7nudNh/bzHDNhZd
-         oT1o9OrbV91P447YpZSNPOXtLX7vhFk3WwULih+LzanDhE8OeVQ0zmhOqmlYc3gdPmHw
-         3tReoES1zaSBEayIQvoGSsDKU+MItDaffBBf4IB7+pmy7FaXx5unsX6kHCVjaoNhP8y8
-         7ASDcKroETyR6pk9Hknmdy9bCa3Ci9qPalGCCfAl/2gfc5sCPao9isN3bNNDyBT00J5/
-         b+zO15fj/RiJrCKwrmWDhycRejBfiEdJQvPYx91bg1xSEDtTWbznCqmb5XAvlZab70vD
-         4mgQ==
-X-Gm-Message-State: AOAM53017IXMYQirbXYv56uki5w8jj1nkBdNEBHssPk2LZqjtYHDamuu
-        JDF2xoo5oOzQ3z3SpDY5gKgLgQnf8QZ39NpVfloz
-X-Google-Smtp-Source: ABdhPJzKGdNVsjgTej2xcBpuoKPd2C3Oqdgb3f4h5vrwkEShRjjAx36JJyUkFtyB1rEm/0O5DJTEmL545Nl/g7Jerlg=
-X-Received: by 2002:a17:906:2c54:: with SMTP id f20mr14631744ejh.91.1622598014322;
- Tue, 01 Jun 2021 18:40:14 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=c7MkMWKFtmiiVwlpdWYeE/xiL6bpeZSYnEXl6lxBbgE=;
+        b=lHnag4PS9uFdbzutDOqp3CzX5FVIx37OIruVhDQAo0qZ4BQiKTSs7Q8UcpJHoq3QUH
+         ABjDdaBcGxZEIqre98tqV1sXTVdaEjB/0JWW3u8IKO775zxz6w4MaUmu1acBrMyo5qwe
+         3QqCWjwYQTCasqUpA2y2/RoH3oW8mSg+HcSKrGs8Y9XZ0jjUFgHmRygLRhs5Xt986VVn
+         tuDRrjlBhJ5khK0ntXN7AikXEncIz7EoaKoPq7JhVjnzJ/eXp03lwt/twdkuqck6J10J
+         Y1RysEAoVrzLfVuUX6H+rggSy6PsmQLQeXnG0DWE1i0subdAwienR33AOVRSn6iW83z3
+         wZEQ==
+X-Gm-Message-State: AOAM533AAFgLs5mUNbkrL3HtY0078cRR9uQkKiBHQesHH07XIxrH/cQg
+        6WeMdfNe0Qs5UHybNn66UG4=
+X-Google-Smtp-Source: ABdhPJw34DkhCzWHxKxUZ9JZXjtSpSJdliUtYtn01ajOfTEkGjKvv1oYkwo18/7a7jLasD/zmqeSbQ==
+X-Received: by 2002:a17:90b:234d:: with SMTP id ms13mr5410642pjb.135.1622612887022;
+        Tue, 01 Jun 2021 22:48:07 -0700 (PDT)
+Received: from raspberrypi ([125.141.84.155])
+        by smtp.gmail.com with ESMTPSA id n9sm14835961pfd.4.2021.06.01.22.48.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Jun 2021 22:48:06 -0700 (PDT)
+Date:   Wed, 2 Jun 2021 06:48:02 +0100
+From:   Austin Kim <austindh.kim@gmail.com>
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        austin.kim@lge.com, kernel-team@lge.com
+Subject: [PATCH] selinux: remove duplicated LABEL_INITIALIZED check routine
+Message-ID: <20210602054802.GA984@raspberrypi>
 MIME-Version: 1.0
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163380685.8379.17381053199011043757.stgit@sifl> <20210528223544.GL447005@madcap2.tricolour.ca>
- <CAHC9VhTr_hw_RBPf5yGD16j-qV2tbjjPJkimMNNQZBHtrJDbuQ@mail.gmail.com> <20210531134408.GL2268484@madcap2.tricolour.ca>
-In-Reply-To: <20210531134408.GL2268484@madcap2.tricolour.ca>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 1 Jun 2021 21:40:03 -0400
-Message-ID: <CAHC9VhSFNNE7AGGA20fDk201VLvzr5HB60VEqqq5qt9yGTH4mg@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/9] audit: add filtering for io_uring records
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 31, 2021 at 9:44 AM Richard Guy Briggs <rgb@redhat.com> wrote:
-> On 2021-05-30 11:26, Paul Moore wrote:
-> > On Fri, May 28, 2021 at 6:36 PM Richard Guy Briggs <rgb@redhat.com> wrote:
-> > > On 2021-05-21 17:50, Paul Moore wrote:
+The 'isec->initialized == LABEL_INITIALIZED' is checked twice in a row,
+since selinux was mainlined from Linux-2.6.12-rc2.
 
-...
+Since 'isec->initialized' is protected using spin_lock(&isec->lock)
+within various APIs, it had better remove first exceptional routine.
 
-> > > > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > > > index d8aa2c690bf9..4f6ab34020fb 100644
-> > > > --- a/kernel/auditsc.c
-> > > > +++ b/kernel/auditsc.c
-> > > > @@ -799,6 +799,35 @@ static int audit_in_mask(const struct audit_krule *rule, unsigned long val)
-> > > >       return rule->mask[word] & bit;
-> > > >  }
-> > > >
-> > > > +/**
-> > > > + * audit_filter_uring - apply filters to an io_uring operation
-> > > > + * @tsk: associated task
-> > > > + * @ctx: audit context
-> > > > + */
-> > > > +static void audit_filter_uring(struct task_struct *tsk,
-> > > > +                            struct audit_context *ctx)
-> > > > +{
-> > > > +     struct audit_entry *e;
-> > > > +     enum audit_state state;
-> > > > +
-> > > > +     if (auditd_test_task(tsk))
-> > > > +             return;
-> > >
-> > > Is this necessary?  auditd and auditctl don't (intentionally) use any
-> > > io_uring functionality.  Is it possible it might inadvertantly use some
-> > > by virtue of libc or other library calls now or in the future?
-> >
-> > I think the better question is what harm does it do?  Yes, I'm not
-> > aware of an auditd implementation that currently makes use of
-> > io_uring, but it is also not inconceivable some future implementation
-> > might want to make use of it and given the disjoint nature of kernel
-> > and userspace development I don't want the kernel to block such
-> > developments.  However, if you can think of a reason why having this
-> > check here is bad I'm listening (note: we are already in the slow path
-> > here so having the additional check isn't an issue as far as I'm
-> > concerned).
-> >
-> > As a reminder, auditd_test_task() only returns true/1 if the task is
-> > registered with the audit subsystem as an auditd connection, an
-> > auditctl process should not cause this function to return true.
->
-> My main concern was overhead, since the whole goal of io_uring is speed.
+With this commit, the code look simpler, easier to read and maintain.
 
-At the point where this test takes place we are already in the audit
-slow path as far as io_uring is concerned.  I understand your concern,
-but the advantage of being able to effectively use io_uring in the
-future makes this worth keeping in my opinion.
+Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+---
+ security/selinux/hooks.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-> The chances that audit does use this functionality in the future suggest
-> to me that it is best to leave this check in.
-
-Sounds like we are in agreement.  We'll keep it for now.
-
-> > > > +     rcu_read_lock();
-> > > > +     list_for_each_entry_rcu(e, &audit_filter_list[AUDIT_FILTER_URING_EXIT],
-> > > > +                             list) {
-> > > > +             if (audit_in_mask(&e->rule, ctx->uring_op) &&
-> > >
-> > > While this seems like the most obvious approach given the parallels
-> > > between syscalls and io_uring operations, as coded here it won't work
-> > > due to the different mappings of syscall numbers and io_uring
-> > > operations unless we re-use the auditctl -S field with raw io_uring
-> > > operation numbers in the place of syscall numbers.  This should have
-> > > been obvious to me when I first looked at this patch.  It became obvious
-> > > when I started looking at the userspace auditctl.c.
-> >
-> > FWIW, my intention was to treat io_uring opcodes exactly like we treat
-> > syscall numbers.  Yes, this would potentially be an issue if we wanted
-> > to combine syscalls and io_uring opcodes into one filter, but why
-> > would we ever want to do that?  Combining the two into one filter not
-> > only makes the filter lists longer than needed (we will always know if
-> > we are filtering on a syscall or io_uring op) and complicates the
-> > filter rule processing.
-> >
-> > Or is there a problem with this that I'm missing?
->
-> No, I think you have a good understanding of it.  I'm asking hard
-> questions to avoid missing something important.  If we can reuse the
-> syscall infrastructure for this then that is extremely helpful (if not
-> lazy, which isn't necessarily a bad thing).  It does mean that the
-> io_uring op dictionary will need to live in userspace audit the way it
-> is currently implemented ....
-
-Which I currently believe is the right thing to do.
-
-> > > The easy first step would be to use something like this:
-> > >         auditctl -a uring,always -S 18,28 -F key=uring_open
-> > > to monitor file open commands only.  The same is not yet possible for
-> > > the perm field, but there are so few io_uring ops at this point compared
-> > > with syscalls that it might be manageable.  The arch is irrelevant since
-> > > io_uring operation numbers are identical across all hardware as far as I
-> > > can tell.  Most of the rest of the fields should make sense if they do
-> > > for a syscall rule.
-> >
-> > I've never been a fan of audit's "perm" filtering; I've always felt
-> > there were better ways to handle that so I'm not overly upset that we
-> > are skipping that functionality with this initial support.  If it
-> > becomes a problem in the future we can always add that support at a
-> > later date.
->
-> Ok, I don't see a pressing need to add it initially, but should add a
-> check to block that field from being used to avoid the confusion of
-> unpredictable behaviour should someone try to add a perm filter to a
-> io_uring filter.  That should be done protectively in the kernel and
-> proactively in userspace.
-
-Sure, that's reasonable.
-
-> > > Here's a sample of userspace code to support this
-> > > patch:
-> > >         https://github.com/rgbriggs/audit-userspace/commit/a77baa1651b7ad841a220eb962d4cc92bc07dc96
-> > >         https://github.com/linux-audit/audit-userspace/compare/master...rgbriggs:ghau-iouring-filtering.v1.0
-> >
-> > Great, thank you.  I haven't grabbed a copy yet for testing, but I will.
->
-> I've added a perm filter block as an additional patch in userspace and
-> updated the tree so that first commit is no longer the top of tree but
-> the branch name is current.
->
-> I'll add a kernel perm filter check.
->
-> I just noticed some list checking that is missing in tree and watch in
-> your patch.
->
-> Suggested fixup patches to follow...
-
-I see them, thank you, comments will follow over there.  Although to
-be honest I'm mostly focusing on the testing right now while we wait
-to hear back from Jens on what he is willing to accept regarding audit
-calls in io_issue_sqe().  If we can't do the _entry()/_exit() calls
-then this work is pretty much dead and we just have to deal with it in
-Kconfig.  I might make one last, clean patchset and put it in a branch
-for the distros that want to carry the patchset, but it isn't clear to
-me that it is something I would want to maintain long term.  Long
-running out of tree patches are generally A Bad Idea.
-
-> > > If we abuse the syscall infrastructure at first, we'd need a transition
-> > > plan to coordinate user and kernel switchover to seperate mechanisms for
-> > > the two to work together if the need should arise to have both syscall
-> > > and uring filters in the same rule.
-> >
-> > See my comments above, I don't currently see why we would ever want
-> > syscall and io_uring filtering to happen in the same rule.  Please
-> > speak up if you can think of a reason why this would either be needed,
-> > or desirable for some reason.
->
-> I think they can be seperate rules for now.  Either a syscall rule
-> catching all io_uring ops can be added, or an io_uring rule can be added
-> to catch specific ops.  The scenario I was thinking of was catching
-> syscalls of specific io_uring ops.
-
-Perhaps I'm misunderstand you, but that scenario really shouldn't
-exist.  The io_uring ops function independently of syscalls; you can
-*submit* io_uring ops via io_uring_enter(), but they are not
-guaranteed to be dispatched synchronously (obviously), and given the
-cred shenanigans that can happen with io_uring there is no guarantee
-the filters would even be applicable.
-
-It isn't an issue of "can" the filters be separate, they *have* to be separate.
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index fc6a3ab7e179..a236b0a33665 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1448,9 +1448,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	struct dentry *dentry;
+ 	int rc = 0;
+ 
+-	if (isec->initialized == LABEL_INITIALIZED)
+-		return 0;
+-
+ 	spin_lock(&isec->lock);
+ 	if (isec->initialized == LABEL_INITIALIZED)
+ 		goto out_unlock;
 -- 
-paul moore
-www.paul-moore.com
+2.20.1
+
