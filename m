@@ -7,85 +7,90 @@ X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B46B8C47082
-	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 17:06:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF16AC47082
+	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 17:06:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9574A610C9
-	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 17:06:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7816610C9
+	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 17:06:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhFCRIR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Jun 2021 13:08:17 -0400
-Received: from mail-ot1-f54.google.com ([209.85.210.54]:42931 "EHLO
-        mail-ot1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbhFCRIQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Jun 2021 13:08:16 -0400
-Received: by mail-ot1-f54.google.com with SMTP id w23-20020a9d5a970000b02903d0ef989477so1994435oth.9
-        for <selinux@vger.kernel.org>; Thu, 03 Jun 2021 10:06:31 -0700 (PDT)
+        id S229839AbhFCRIU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Jun 2021 13:08:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50074 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229695AbhFCRIU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Jun 2021 13:08:20 -0400
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3E4C06174A
+        for <selinux@vger.kernel.org>; Thu,  3 Jun 2021 10:06:35 -0700 (PDT)
+Received: by mail-ot1-x335.google.com with SMTP id c31-20020a056830349fb02903a5bfa6138bso6408160otu.7
+        for <selinux@vger.kernel.org>; Thu, 03 Jun 2021 10:06:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xIzwe0EI0NwVYf1HKK1lnKsu2urPME2FbeDvij/21u0=;
-        b=MDx7naHZ3NgXR2zyroXJQuzmt9iJtGMvdbDSYqRg3DEsfed4YtIHEpvock/vFhRDBi
-         xexrhWCLARHvw15jYkYbxeDmuUpITms2XQrJKyI6icmvyGn5xVpxqIAUq2jxHK/TcVzU
-         CQNbgRDtuFZ6byL0nHWnGZhUCuLKiISqD3d7Klyzdx4pGCKBaT7HUC93/ZJzlMg7q9oA
-         nPM6MTspXtFSPfY+DUOGF7r6OX44KDdg8YNqUy2DBDvi/cp98LUHMcY98ANT6TsLpNN3
-         GLj1JotXGGRCUdbO/2IRoCtEteKfC5E617i984gFAS3BFOnbjOe0pH5cEAShmZ2Pb34H
-         nyKA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=k+Vwf0CM84VaN4WTzirfXivxVbYqVjlAnMSdLEDl5t4=;
+        b=k24GsG0bZmYbe16z9NUNUQcfHFYFLTUwYgT+lOSbjGD/EiMmkZfYZ/2fNAVTPn88ka
+         nVAYN2UlGj8n9fQqMFb+EbTQ5eAA5IiN7qA5gxbVOEPu3jaXUfhqdfOslyF3rKXu7+/P
+         X8x1LMa22pNaSr0xASPzFX5iH7zEWLKMaHWuOB94m3E/62NxTNTle5gyqz4IwxXBwUmR
+         /T5b9HbyYmNsumAXjQk3lQ0rjtI503v7SCtg2ymef+Wqs9Xk+Kkt8Delfhwa+5AzDaLi
+         F/yJTz9SFm5myB/PkITGR8wAVZH7HbSclAc4awOU0miGl7ysg/UhAA0OnXO+6lR+iGy7
+         pZgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xIzwe0EI0NwVYf1HKK1lnKsu2urPME2FbeDvij/21u0=;
-        b=YCgvP++xNz+e5qcQuYjaHASbf03gH8kZiYCaBDnl16WR/D5I9JGfiBKK8cjSC6ObTa
-         gdvXRlL6L3vRDQIMC0MhRJok6vdiSIPvx0nHvhPVuai+woDyonbtBgr38wXQM1braeMi
-         xZnRL+WsSOTFfTrYdnWNjZh7C/cH61lmJyK0qjzQhyWrBo4wNQcgNI4QfK8uOm6GdHZZ
-         u1oKIMvv49GH2UKbMORgIjjIOoFjff68RIsaU9qUFHEILGi7QtlP/HlIk/6FqhHLJhI0
-         510MSDUM9O6q9498p/nuoe66dhGl3/N6kILts5LtGbWopF5VjgFTQQZn+vC7BKY/gH32
-         96xw==
-X-Gm-Message-State: AOAM5325wx/lotISUDTqiD0KFh4Pxmvwwyz4g0fphRqL7P2jQD7eTlKL
-        UCxsusPUKNoRKmWwHhd0k3ULS955BqNTax68DjyyrOANWxY=
-X-Google-Smtp-Source: ABdhPJxWnLEW2KGUd8KB/wKTx99Ax8LWe78g9LkAsaSjT56sQh8L7ffUp/JjR1Q29LLKFCm4LAnFWf06a7fgbco2RhM=
-X-Received: by 2002:a05:6830:2011:: with SMTP id e17mr222041otp.295.1622739931340;
- Thu, 03 Jun 2021 10:05:31 -0700 (PDT)
+         :message-id:subject:to;
+        bh=k+Vwf0CM84VaN4WTzirfXivxVbYqVjlAnMSdLEDl5t4=;
+        b=kKZ3Gr88ziZ1kzs051WmZV223cqDRC61nXRS9ZXtsunv1sCq1B+e3uO4pnWnWfutuO
+         IAMb4t6/NL2AEQF5qDRt0GVpX2TdsZKOl1/1/2HaKOQLqHtJQ+qhudCn2+E1dEiXFt4w
+         wtIZgpliZdNj0RoHg5GqvWMZYDAnvdGD3E1/MY/1aKE3bvXmc7UHy7EzqOz4iZ65K75m
+         MRTKo4uPU8qFc2+5Yy3b0n8+A1dmNSkWVPow0fuag0xGFgwSiajRt0sEBcQJQ01bAN0n
+         ufiSpt9WhBIbiDzZYwTyksRxN0odc9izF5whQYPPVdxGcleRldqaukwU6Ba8l1F/ULkL
+         lelg==
+X-Gm-Message-State: AOAM532JzsVFGiGMe3aCJNCKykNZAzk9O3cZPwkgkwXqolRJUDY/amgF
+        N8NjyA41DWrTeDSQ8x677ulXO3flDglIFDwSIhJ2KA74LOc=
+X-Google-Smtp-Source: ABdhPJw+BB3YL4tRfQcedl8xd66ir5Ix10X3GFGFoPab4l/2brk5m7NuzX05JaIrS4Ubh8WVAN7hCNS4sUBZUAh6Qlg=
+X-Received: by 2002:a9d:614b:: with SMTP id c11mr243873otk.59.1622739995197;
+ Thu, 03 Jun 2021 10:06:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210513185254.559588-1-jwcart2@gmail.com>
-In-Reply-To: <20210513185254.559588-1-jwcart2@gmail.com>
+References: <20210511200301.407855-1-jwcart2@gmail.com>
+In-Reply-To: <20210511200301.407855-1-jwcart2@gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 3 Jun 2021 13:05:20 -0400
-Message-ID: <CAP+JOzQkcAdJVB5K11EFtPFcY111qX0k_Onza7okuOKHF0N4KQ@mail.gmail.com>
-Subject: Re: [PATCH 0/6] More secilc-fuzzer problems fixed
+Date:   Thu, 3 Jun 2021 13:06:24 -0400
+Message-ID: <CAP+JOzS83Foo1eeXYcaLs2TxgoJRzh_ednHrn2+B-PrM97CU2Q@mail.gmail.com>
+Subject: Re: [PATCH 0/5 v2] secilc/cil: Fix name resolution for macro calls
 To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 13, 2021 at 2:53 PM James Carter <jwcart2@gmail.com> wrote:
+On Tue, May 11, 2021 at 4:03 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> Patches 1-4 fix bug found directly by the secilc-fuzzer.
-> Patch 6 is the same class of bug as that fixed with patch 4.
-> Patch 5 fixes problems found while investigating patch 4 and 6.
+> This patch series fixes name resolution within expanded macro calls and
+> with call arguments.
 >
-> James Carter (6):
->   libsepol/cil: Handle disabled optional blocks in earlier passes
->   libsepol/cil: Destroy the permission nodes when exiting with an error
->   libsepol/cil: Limit the number of open parenthesis allowed
->   libsepol/cil: Resolve anonymous class permission sets only once
->   libsepol/cil: Pointers to datums should be set to NULL when resetting
->   libsepol/cil: Resolve anonymous levels only once
+> The first patch is same as in v1.
+> Patches 2-4 replace patch 2 in v1. The original way of fixing name
+> resolution of call arguments did not work if a disabled optional
+> forced a reset.
+> Patch 5 is the same as patch 3 in v1.
 >
->  libsepol/cil/src/cil_build_ast.c   |  2 +
->  libsepol/cil/src/cil_parser.c      |  7 +++-
->  libsepol/cil/src/cil_reset_ast.c   | 56 +++++++++++++++++++++++++--
->  libsepol/cil/src/cil_resolve_ast.c | 62 +++++++++++++++++-------------
->  4 files changed, 97 insertions(+), 30 deletions(-)
+> James Carter (5):
+>   libsepol/cil: Make name resolution in macros work as documented
+>   libsepol/cil: Do not add NULL node when inserting key into symtab
+>   libsepo/cil: Refactor macro call resolution
+>   libsepol/cil: Do not resolve arguments to declarations in the call
+>   secilc/docs: Relocate and reword macro call name resolution order
+>
+>  libsepol/cil/src/cil_internal.h          |   1 -
+>  libsepol/cil/src/cil_resolve_ast.c       | 635 ++++++++++++-----------
+>  libsepol/cil/src/cil_symtab.c            |   8 +-
+>  secilc/docs/cil_call_macro_statements.md |  24 +-
+>  4 files changed, 354 insertions(+), 314 deletions(-)
 >
 > --
 > 2.26.3
 >
 
-There haven't been any comments on this series, and it has been three
-weeks, so I plan on merging it tomorrow.
+There hasn't been any comments on this series, and it has been more
+than three weeks since I sent it, so I plan on merging it tomorrow.
 Jim
