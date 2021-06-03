@@ -2,122 +2,162 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1754C47083
-	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 23:41:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63B8EC47097
+	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 10:40:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A32AF613AE
-	for <selinux@archiver.kernel.org>; Wed,  2 Jun 2021 23:41:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49841613B8
+	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 10:40:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbhFBXne (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Jun 2021 19:43:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48382 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbhFBXne (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Jun 2021 19:43:34 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCBA8C06174A;
-        Wed,  2 Jun 2021 16:41:36 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id h12-20020a17090aa88cb029016400fd8ad8so2745907pjq.3;
-        Wed, 02 Jun 2021 16:41:36 -0700 (PDT)
+        id S229597AbhFCKmU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Jun 2021 06:42:20 -0400
+Received: from mail-ej1-f52.google.com ([209.85.218.52]:41958 "EHLO
+        mail-ej1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229506AbhFCKmU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Jun 2021 06:42:20 -0400
+Received: by mail-ej1-f52.google.com with SMTP id gb17so8491603ejc.8;
+        Thu, 03 Jun 2021 03:40:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=+toArruJ3eRIR/A2mvRnWwBK2Vc1ZfxuTnObnbkQWeM=;
-        b=nwIddzopGo1lXM/ErFpAIVU2mAP8V8VYQU0HtzxOig+9z3Yv+DPQAfqpSKQGIKcCbC
-         6MLTdoAuVoSHFsNLlKRmSI5X5PreVkSLfZ5e8ktnm5chxyEC/KYiQhRWdtrLo9ebMkXz
-         8KLYHBFZSChX0zEfbiCO9goGiOr6HZTc7sS/K9Tj9vlo/GfSbCx+eZGuh0woDFmd2eFe
-         iOKq6Am1idc3kY2gYYNikNotA1jPmY6UpZVbr268E18e4b37N0w4pLKpMshGv4zMwAkn
-         F2kqQYmkGXTSx/KTIWTZR8+PwPxJzwhd+gV5+iNzGm7asFY0xmk3H2yLZAoxnXSXyksP
-         qFXg==
+        h=to:cc:references:from:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=jjgngqqiD1MzF4drjDhfJO81FwwmSm8rHRAQDoLI4hk=;
+        b=i5zdCu7eh+exc3xVtGwn/14tE99F9S6SruDvOQWgTazyiiWQej8zLeVr2UmL4UvcE4
+         feRfK8yNI/0EVqCRgzt4FDrXsFhXitU/G5Kr7vmnJy2h8CxxTlQ/mY4WUjlcrqgE0epg
+         0GrCkvW1TMNs5xoY5poEBZlfW50G0Ay6IkEFxzGZzaibL52u8IlG09QzmHMajSdAg+dH
+         zzEnJcXMVB6R+FW3kgS0AYEoJyv8HlB6kTD/1F/5+vqfFNTH4qS80g7stAYowIr7O4i6
+         Ir6CJRD/7o6g7jZ9q+1XbuPqThLD+ES/asQm7haHvhoahEOgULrRGaITDwkKWtLHhB2y
+         fFrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=+toArruJ3eRIR/A2mvRnWwBK2Vc1ZfxuTnObnbkQWeM=;
-        b=T09ff5kWaVVmfi6FSTLiHrpNeTc/otusmEigd2AN61X1wI6hgruph7akCgX+TlR0ps
-         uNdgLHpOu3mpCHHDZVmke3DfFmB5MslSDu8G7NwUPj5/L8N/rWUO8stt8k69+f2zz5Z2
-         fwZJG2ly0LGyOS6gi9fKCu3bObeDoLUMAGXZ+5z+8++6WV/Fw4b/ToZOBnvsn7rp+u5+
-         h4qg8e/t2j2fiq+3cAgeMeVOy23FBnE9yPu1R2CqfY4WtIWU1lVM+po26+e6EEPZGdpI
-         6aXzCLJ5jso4T5PmW+mT3igNnX4BAMWw9QfE9gG5Ey0dD1vwkj4xaoN5C+92yfYaW9W4
-         xD8w==
-X-Gm-Message-State: AOAM533aEreJ46fzRELso/RAdTTJjM/dEnNF93uHs2Owp7jaReSSg84O
-        gQjrvMf357SwlpviIRwF7M26cnkwq1FZ+jAQmKc=
-X-Google-Smtp-Source: ABdhPJySLCX1G+ypM9S8wQTFySJ1G3j5In5iPS3hq4FOP+dvba0eMz3Cry3yzrELiQ3V9hCI0LCcH8Afrh32AV1WekQ=
-X-Received: by 2002:a17:90b:33c3:: with SMTP id lk3mr8138470pjb.33.1622677296349;
- Wed, 02 Jun 2021 16:41:36 -0700 (PDT)
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=jjgngqqiD1MzF4drjDhfJO81FwwmSm8rHRAQDoLI4hk=;
+        b=KF7M7MHyQ72Lgsz9h4BAaNPN7OqToOkulRHxtxfp6wxNzBKAsPyW4GcuUud2Lr/dUs
+         DTX94thpJ1fQvGaWS+xKkh2Nb7xR0NTQCmTx0US4mNQZ0Xe5rhRy0pw+9jwYEDRj5P2F
+         CXJ2rSCW4azglrH+G9IQB9nu0t67oiVDv995b/5g9IIlIqwi0QNOC2oPTEQVxWcOIaJW
+         R/rPNDmdotlHCM+J5398FYhnUdLDypfuav1YuvkYB/Ae21I6X/V0vktryn4cOz3IPi/S
+         NndfA/9vm3qSRMlkqqbLctn6yRF+iMrWauRHQsSeOgaDYCmzG7U7uvAqpy5EJjrV/o7y
+         5aTw==
+X-Gm-Message-State: AOAM533SluP/l9klCIlVrqwU3ZB8/dultsiXwI7T45BbgRUE0W3YIKUK
+        uuLwYL+T6J4+E1xtJSZd6xU=
+X-Google-Smtp-Source: ABdhPJxBNyhzAnY+FdObN7pnTAta+DGpnvQFV2i3L7an+ohCIQSKtw/KtDZc/3aOtErcO8sTHGd/6Q==
+X-Received: by 2002:a17:906:af7b:: with SMTP id os27mr23608805ejb.154.1622716761257;
+        Thu, 03 Jun 2021 03:39:21 -0700 (PDT)
+Received: from ?IPv6:2620:10d:c096:310::2410? ([2620:10d:c093:600::2:6c45])
+        by smtp.gmail.com with ESMTPSA id s2sm1565455edu.89.2021.06.03.03.39.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Jun 2021 03:39:20 -0700 (PDT)
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>, Jens Axboe <axboe@kernel.dk>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-audit@redhat.com, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+References: <CAHC9VhTYBsh4JHhqV0Uyz=H5cEYQw48xOo=CUdXV0gDvyifPOQ@mail.gmail.com>
+ <9e69e4b6-2b87-a688-d604-c7f70be894f5@kernel.dk>
+ <3bef7c8a-ee70-d91d-74db-367ad0137d00@kernel.dk>
+ <fa7bf4a5-5975-3e8c-99b4-c8d54c57da10@kernel.dk>
+ <a7669e4a-e7a7-7e94-f6ce-fa48311f7175@kernel.dk>
+ <CAHC9VhSKPzADh=qcPp7r7ZVD2cpr2m8kQsui43LAwPr-9BNaxQ@mail.gmail.com>
+ <b20f0373-d597-eb0e-5af3-6dcd8c6ba0dc@kernel.dk>
+ <CAHC9VhRZEwtsxjhpZM1DXGNJ9yL59B7T_p2B60oLmC_YxCrOiw@mail.gmail.com>
+ <CAHC9VhSK9PQdxvXuCA2NMC3UUEU=imCz_n7TbWgKj2xB2T=fOQ@mail.gmail.com>
+ <94e50554-f71a-50ab-c468-418863d2b46f@gmail.com>
+ <20210602154638.GA3711857@madcap2.tricolour.ca>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
+ support to io_uring
+Message-ID: <dc48fc10-d4f8-4592-02e1-f24094df801a@gmail.com>
+Date:   Thu, 3 Jun 2021 11:39:11 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-References: <20210602054802.GA984@raspberrypi> <CAHC9VhQdAt2EQqP3pQM=5TifTYuXxnU1QOvOT-aFaDaGiLLJXQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhQdAt2EQqP3pQM=5TifTYuXxnU1QOvOT-aFaDaGiLLJXQ@mail.gmail.com>
-From:   Austin Kim <austindh.kim@gmail.com>
-Date:   Thu, 3 Jun 2021 08:41:27 +0900
-Message-ID: <CADLLry7D8OYStDAFsP4dFzS0fwV6bM2__ZEB2py+oca+R5Zuog@mail.gmail.com>
-Subject: Re: [PATCH] selinux: remove duplicated LABEL_INITIALIZED check routine
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        =?UTF-8?B?6rmA64+Z7ZiE?= <austin.kim@lge.com>,
-        kernel-team@lge.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210602154638.GA3711857@madcap2.tricolour.ca>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-2021=EB=85=84 6=EC=9B=94 2=EC=9D=BC (=EC=88=98) =EC=98=A4=ED=9B=84 11:32, P=
-aul Moore <paul@paul-moore.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
->
-> On Wed, Jun 2, 2021 at 1:48 AM Austin Kim <austindh.kim@gmail.com> wrote:
-> >
-> > The 'isec->initialized =3D=3D LABEL_INITIALIZED' is checked twice in a =
-row,
-> > since selinux was mainlined from Linux-2.6.12-rc2.
-> >
-> > Since 'isec->initialized' is protected using spin_lock(&isec->lock)
-> > within various APIs, it had better remove first exceptional routine.
-> >
-> > With this commit, the code look simpler, easier to read and maintain.
-> >
-> > Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-> > ---
-> >  security/selinux/hooks.c | 3 ---
-> >  1 file changed, 3 deletions(-)
->
-> This is a common pattern when dealing with lock protected variables:
-> first check the variable before taking the lock (fast path) and if
-> necessary take the lock and re-check the variable when we know we have
-> exclusive access.
->
-> In the majority of cases the SELinux inode initialization value goes
-> from LABEL_INVALID to LABEL_INITIALIZED and stays there; while there
-> is an invalidation function/hook that is used by some
-> network/distributed filesystems, it isn't a common case to the best of
-> my knowledge.  With that understanding it makes perfect sense to do a
-> quick check to first see if the inode is initialized in
-> inode_doinit_with_dentry() and return quickly, without taking a lock,
-> if it is already initialized.  In the case where the inode has not
-> been previously initialized, or has been invalidated, we take the
-> spinlock to guarantee we are not racing with another task and re-check
-> the initialization value to ensure that another task hasn't
-> initialized the inode and act accordingly.
->
-> The existing code is correct.
->
+On 6/2/21 4:46 PM, Richard Guy Briggs wrote:
+> On 2021-06-02 09:26, Pavel Begunkov wrote:
+>> On 5/28/21 5:02 PM, Paul Moore wrote:
+>>> On Wed, May 26, 2021 at 4:19 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>> ... If we moved the _entry
+>>>> and _exit calls into the individual operation case blocks (quick
+>>>> openat example below) so that only certain operations were able to be
+>>>> audited would that be acceptable assuming the high frequency ops were
+>>>> untouched?  My initial gut feeling was that this would involve >50% of
+>>>> the ops, but Steve Grubb seems to think it would be less; it may be
+>>>> time to look at that a bit more seriously, but if it gets a NACK
+>>>> regardless it isn't worth the time - thoughts?
+>>>>
+>>>>   case IORING_OP_OPENAT:
+>>>>     audit_uring_entry(req->opcode);
+>>>>     ret = io_openat(req, issue_flags);
+>>>>     audit_uring_exit(!ret, ret);
+>>>>     break;
+>>>
+>>> I wanted to pose this question again in case it was lost in the
+>>> thread, I suspect this may be the last option before we have to "fix"
+>>> things at the Kconfig level.  I definitely don't want to have to go
+>>> that route, and I suspect most everyone on this thread feels the same,
+>>> so I'm hopeful we can find a solution that is begrudgingly acceptable
+>>> to both groups.
+>>
+>> May work for me, but have to ask how many, and what is the
+>> criteria? I'd think anything opening a file or manipulating fs:
+>>
+>> IORING_OP_ACCEPT, IORING_OP_CONNECT, IORING_OP_OPENAT[2],
+>> IORING_OP_RENAMEAT, IORING_OP_UNLINKAT, IORING_OP_SHUTDOWN,
+>> IORING_OP_FILES_UPDATE
+>> + coming mkdirat and others.
+>>
+>> IORING_OP_CLOSE? IORING_OP_SEND IORING_OP_RECV?
+>>
+>> What about?
+>> IORING_OP_FSYNC, IORING_OP_SYNC_FILE_RANGE,
+>> IORING_OP_FALLOCATE, IORING_OP_STATX,
+>> IORING_OP_FADVISE, IORING_OP_MADVISE,
+>> IORING_OP_EPOLL_CTL
+>>
+>>
+>> Another question, io_uring may exercise asynchronous paths,
+>> i.e. io_issue_sqe() returns before requests completes.
+>> Shouldn't be the case for open/etc at the moment, but was that
+>> considered?
+> 
+> This would be why audit needs to monitor a thread until it wraps up, to
+> wait for the result code.  My understanding is that both sync and async
+> parts of an op would be monitored.
 
-Understood, after looking into all routines related to 'isec->initialized' =
-again
-where 'isec->initialized' statement is not always protected
-spin_lock(&isec->lock) during initialization progress.
+There may be a misunderstanding
 
-Thanks for valuable feedback.
+audit_start(req)
+ret = io_issue_sqe(req);
+audit_end(ret);
 
-> --
-> paul moore
-> www.paul-moore.com
+io_issue_sqe() may return 0 but leave the request inflight,
+which will be completed asynchronously e.g. by IRQ, not going
+through io_issue_sqe() or any io_read()/etc helpers again, and
+after last audit_end() had already happened.
+That's the case with read/write/timeout, but is not true for
+open/etc.
+
+>> I don't see it happening, but would prefer to keep it open
+>> async reimplementation in a distant future. Does audit sleep?
+> 
+> Some parts do, some parts don't depending on what they are interacting
+> with in the kernel.  It can be made to not sleep if needed.
+
+Ok, good
+
+-- 
+Pavel Begunkov
