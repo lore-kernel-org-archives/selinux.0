@@ -2,95 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2131CC47082
-	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 13:20:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F7C2C47082
+	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 15:54:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 061F0613DE
-	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 13:20:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58036613DA
+	for <selinux@archiver.kernel.org>; Thu,  3 Jun 2021 15:54:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230345AbhFCNWS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Jun 2021 09:22:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+        id S229892AbhFCP4I (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Jun 2021 11:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230343AbhFCNWS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Jun 2021 09:22:18 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96575C06174A
-        for <selinux@vger.kernel.org>; Thu,  3 Jun 2021 06:20:33 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id n12so1774434lft.10
-        for <selinux@vger.kernel.org>; Thu, 03 Jun 2021 06:20:33 -0700 (PDT)
+        with ESMTP id S229752AbhFCP4G (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Jun 2021 11:56:06 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB416C061760
+        for <selinux@vger.kernel.org>; Thu,  3 Jun 2021 08:54:06 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id i13so297613ilk.3
+        for <selinux@vger.kernel.org>; Thu, 03 Jun 2021 08:54:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9e0BCqqV3xLZQKhbq9xBzIaJhOA4JGCkVIihj7Z1xkg=;
-        b=KDCd4P5opTTYJod0I1ULBksaCWpFyWaIbEFlIv+K0QIo7uwBmaBaanGStEKhuESR2D
-         6kgVUzBbLXZgP4ftKdvN1xj8pkFt/iOGtDGVfd+uVgKItEaU9/NMKKud3iOmxzqBrwjl
-         KNCYChdvmTozg0Dm4ilzz/9lOKf0IYenJharVFhdDBoUYWzlidhDGBfOc6SyPqEz115e
-         wUWaI5Xqp+oTSxu4zGra93P3vJs54jeU09nm+cN2i1o6pkIbS4MdHd/fi1nmjCeMUEal
-         UXdfEpxI1QlhoTlGmt8MPRo7PGTxfa/XAbgiLRxegvNfEWrUyVuZ+PLJpW//LuArygU+
-         AsEg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=buCUvWOaV46TEe0pfybKHgNeLuajhkCoUvc4V9kk0GM=;
+        b=AvHRoUndMbsOR2LZQbV9UyOHSi2H1HcMJtDtgjOBthii3UKRGsG7GL9gvctRI4YTI2
+         0X9ilAdtUWDZFiGmyoPZBn+lXmQfQZ6KY1ZpZvgZhJaJ3ULWIl/8uS7SPC8m+7FcnOxS
+         clyfp/+5Vqub24anQIDa/6/e0+sFnJ7s4mkbPZW7i3fnrqBxXoh3C7Ww4vlAz2rtqMe9
+         CtP5aaQ0MyyliBAq/hWpqGP8hPmdjDDu02ogwMSzqRt88NEhbzkmE7EgRb9TkzFDow0c
+         0UAK0ZAB6xYTithTdVkeFKWhJCWDAMu8QETBbIN3cbEdaR/c/XH5/Vhi/x28M2u4PqQB
+         sVzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9e0BCqqV3xLZQKhbq9xBzIaJhOA4JGCkVIihj7Z1xkg=;
-        b=CwiZkdZaz06l8JkqShbbvzvqojYSLgU5zWj3I8Dj0Mn3DKLPdLeyhiIsAdyPpuswYX
-         rx9gxp4Q1bo1fEsZO6FxxArXSkmpM3eCRw4S404IcTjDzGO4nmvKIg5oGan8sIWAFW0U
-         0zc5F6AD6bf4N0fcL+4ZagoCvNw3a0c5HBwjN245cl4KOSBnjn1aXvytkypn5Xi9XYzx
-         J7MVKP9+9lL0aZxI8jLO5FFlCXzdYJYZJIauq02UbAiW6POycNZCP/72VrWypvgeCOWS
-         0MJqBMVAYwcQuiDTuxntdYKkEhjv3rpR4ny6ktMSKo7ck3horFMjeKkcDttYINmUt9EX
-         aWbw==
-X-Gm-Message-State: AOAM530uGs3XuHeTvfZOZWghF4UH+f8LuMbWmXYrKCfx30Nhict+tzlT
-        pazAD7Z+dk4bi6GLo0XgPwZIWMB6KYOB0SJPZW0=
-X-Google-Smtp-Source: ABdhPJw2sIj1nFRkDGOV0qz1EVGuNMjqiFDbdASk8j/7AsYK3PSZsnEDq98iXkV6gsWvg+/T1hdfYbA5S1Lkn7dJt14=
-X-Received: by 2002:a19:cd8:: with SMTP id 207mr11467280lfm.322.1622726431995;
- Thu, 03 Jun 2021 06:20:31 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=buCUvWOaV46TEe0pfybKHgNeLuajhkCoUvc4V9kk0GM=;
+        b=hHWTp0/BiHcjCN+4yGiRGSTGCaMqo6GzMGq91uMBAUnDqfT4wT1STInzeEKTxKFPoQ
+         Cc186aonQIHZ3Puq3bo9/1xDcxwwHh4WCKH3Mxk/yFTvyP14SZHIlc+nKZtgwfQLzE9u
+         7ZeQtZgisPuF2T9YrXI6DOe1GDObo+hmOlOMF1e0rxeyLEXO66ASm9TXajjsWB26UD3Z
+         2Orb9GYJSFYBBKHBkDNIRLNeMrMGUKSx6Gvn/mEGcwYGXvpyKBStZJaEqKTZLJhjwsqb
+         ZNe2iG49pyS8CR18biA0+0xOyJUbsYcHTdmjmpQlX1ERj8uufpBmG2X+1xZeQ3RpcoaJ
+         Sw+w==
+X-Gm-Message-State: AOAM532ExSC+7vlIqxr+XcpqiCMLNWTqKyG9iJvZJnU73v1Tqq8x8/pL
+        WT44EpXjVr5F56+Ea6koEM3nug==
+X-Google-Smtp-Source: ABdhPJxTgRBRHHntkEyxXKkKZCy9JIZBYhMq02FcIt13uKSk14obLbdz2JV2Qm8ADOaXFhFzOvBNQg==
+X-Received: by 2002:a05:6e02:13a9:: with SMTP id h9mr62415ilo.96.1622735645969;
+        Thu, 03 Jun 2021 08:54:05 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id s6sm787512ilt.50.2021.06.03.08.54.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Jun 2021 08:54:05 -0700 (PDT)
+Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
+ support to io_uring
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+References: <162163367115.8379.8459012634106035341.stgit@sifl>
+ <162163379461.8379.9691291608621179559.stgit@sifl>
+ <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
+ <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
+ <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com>
+ <CAHC9VhSJuddB+6GPS1+mgcuKahrR3UZA=1iO8obFzfRE7_E0gA@mail.gmail.com>
+ <8943629d-3c69-3529-ca79-d7f8e2c60c16@kernel.dk>
+ <CAHC9VhTYBsh4JHhqV0Uyz=H5cEYQw48xOo=CUdXV0gDvyifPOQ@mail.gmail.com>
+ <9e69e4b6-2b87-a688-d604-c7f70be894f5@kernel.dk>
+ <3bef7c8a-ee70-d91d-74db-367ad0137d00@kernel.dk>
+ <fa7bf4a5-5975-3e8c-99b4-c8d54c57da10@kernel.dk>
+ <a7669e4a-e7a7-7e94-f6ce-fa48311f7175@kernel.dk>
+ <CAHC9VhSKPzADh=qcPp7r7ZVD2cpr2m8kQsui43LAwPr-9BNaxQ@mail.gmail.com>
+ <b20f0373-d597-eb0e-5af3-6dcd8c6ba0dc@kernel.dk>
+ <CAHC9VhRZEwtsxjhpZM1DXGNJ9yL59B7T_p2B60oLmC_YxCrOiw@mail.gmail.com>
+ <CAHC9VhSK9PQdxvXuCA2NMC3UUEU=imCz_n7TbWgKj2xB2T=fOQ@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <46381e4e-a65d-f217-1d0d-43d1fa8a99aa@kernel.dk>
+Date:   Thu, 3 Jun 2021 09:54:04 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <CAJsHiNyV2K2g90YsiiY5HZkONHuprTHGq+65Bs-TiCf988NBGA@mail.gmail.com>
-In-Reply-To: <CAJsHiNyV2K2g90YsiiY5HZkONHuprTHGq+65Bs-TiCf988NBGA@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 3 Jun 2021 09:20:20 -0400
-Message-ID: <CAEjxPJ4A7KC=+0vTKNU_Z0K-e9Q6hSfTc5WiNms54EN_C5dCLA@mail.gmail.com>
-Subject: Re: selinux_check_access is not thread-safe
-To:     Seth Moore <sethmo@google.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhSK9PQdxvXuCA2NMC3UUEU=imCz_n7TbWgKj2xB2T=fOQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 24, 2021 at 1:24 PM Seth Moore <sethmo@google.com> wrote:
->
-> Originally posted here: https://github.com/SELinuxProject/selinux/issues/287
->
-> By default, selinux_check_access does not appear to be thread-safe. It
-> calls avc_open, which then calls avc_init, passing NULL for all
-> callback function tables. The result is that no locking is done for
-> the AVC, which can corrupt the cache if multiple threads are calling
-> selinux_check_access.
->
-> It looks like calling avc_init, supplying lock callbacks, is the
-> "easy" answer. However, the avc_init man page says that avc_init is
-> deprecated. There's a new function for setting callbacks,
-> selinux_set_callback, but it does not seem to support locking.
->
-> I see a few possible solutions:
-> 1. Update selinux_set_callback to support AVC lock functions.
-> 2. Update the man pages to indicate selinux is not intended to be
-> thread-safe anymore.
-> 3. Update the avc_init man page, indicating it's safe to use (un-deprecate?)
->
-> Note that we have observed buggy behavior with Android keystore2. Our
-> quick-n-dirty fix was a serializing lock around all selinux calls:
-> https://android.googlesource.com/platform/system/security/+/ff188d3a6ca38919e568f0c89f74d90c011526e9
->
-> My prefered fix is either #1 or #3, as they provide slightly
-> finger-grained locking than our fix.
+On 5/28/21 10:02 AM, Paul Moore wrote:
+> On Wed, May 26, 2021 at 4:19 PM Paul Moore <paul@paul-moore.com> wrote:
+>> ... If we moved the _entry
+>> and _exit calls into the individual operation case blocks (quick
+>> openat example below) so that only certain operations were able to be
+>> audited would that be acceptable assuming the high frequency ops were
+>> untouched?  My initial gut feeling was that this would involve >50% of
+>> the ops, but Steve Grubb seems to think it would be less; it may be
+>> time to look at that a bit more seriously, but if it gets a NACK
+>> regardless it isn't worth the time - thoughts?
+>>
+>>   case IORING_OP_OPENAT:
+>>     audit_uring_entry(req->opcode);
+>>     ret = io_openat(req, issue_flags);
+>>     audit_uring_exit(!ret, ret);
+>>     break;
+> 
+> I wanted to pose this question again in case it was lost in the
+> thread, I suspect this may be the last option before we have to "fix"
+> things at the Kconfig level.  I definitely don't want to have to go
+> that route, and I suspect most everyone on this thread feels the same,
+> so I'm hopeful we can find a solution that is begrudgingly acceptable
+> to both groups.
 
-I would recommend #1.
+Sorry for the lack of response here, but to sum up my order of
+preference:
+
+1) It's probably better to just make the audit an opt-out in io_op_defs
+   for each opcode, and avoid needing boiler plate code for each op
+   handler. The opt-out would ensure that new opcodes get it by default
+   it someone doesn't know what it is, and the io_op_defs addition would
+   mean that it's in generic code rather then in the handlers. Yes it's
+   a bit slower, but it's saner imho.
+
+2) With the above, I'm fine with adding this to io_uring. I don't think
+   going the route of mutual exclusion in kconfig helps anyone, it'd
+   be counter productive to both sides.
+
+Hope that works and helps move this forward. I'll be mostly out of touch
+the next week and a half, but wanted to ensure that I sent out my
+(brief) thoughts before going away.
+
+-- 
+Jens Axboe
+
