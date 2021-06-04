@@ -6,202 +6,125 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF701C47083
-	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 04:51:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5826C47083
+	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 05:05:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B63E2610E5
-	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 04:51:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A66946140C
+	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 05:05:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229573AbhFDExB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Jun 2021 00:53:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229527AbhFDExB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Jun 2021 00:53:01 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93DECC06174A
-        for <selinux@vger.kernel.org>; Thu,  3 Jun 2021 21:51:00 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id dg27so9591390edb.12
-        for <selinux@vger.kernel.org>; Thu, 03 Jun 2021 21:51:00 -0700 (PDT)
+        id S230030AbhFDFHd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 4 Jun 2021 01:07:33 -0400
+Received: from mail-ej1-f42.google.com ([209.85.218.42]:38857 "EHLO
+        mail-ej1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229801AbhFDFHd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 4 Jun 2021 01:07:33 -0400
+Received: by mail-ej1-f42.google.com with SMTP id og14so7243923ejc.5
+        for <selinux@vger.kernel.org>; Thu, 03 Jun 2021 22:05:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=x90Q7KLzxGnQdvlJBnm7rr4DDCt1grcPV3Uowt83bVg=;
-        b=xFkKJy1g/Dq99+LDthlyeOkxVL0vc3sgm7407xja7T/KunaG3jM6iEPHGGEd/seTuT
-         hk5+z84vISRo0CRUrakYh6Eqm8bub7dGlU1MbMHJ/9JpVMF+7TiPvML8pXyUWtwXF7+G
-         6XVruZ0XWO1KBzlMWAOH3F6vu+ZYyEOUIDvJny9CD1tSyHNiTGH3b/srW66LpZWAiv9l
-         AXA5AZPFKznr+B/8A0lLT1wraOWm3b4psmw7tSK+CZQGElAFURuG0V+x6RR4UqKzP0dp
-         ZlOSu05H3mFpWi8uuwiea2soWtThhHqWy/mWoaks8qSxbQRQo+bn+sKsL/QBymZEh2hz
-         JI3A==
+        bh=F4KNkxgVBE2IaKKrWIflXpiMTxbcNGtO3JcMgEhgrn4=;
+        b=o94bs7U9IPq9Pa1huceut2mtx1/qS1BIzr2m7/D0ElSnvLcgt/EZJzk5KB3yZ4Skz8
+         o90x3f6tanRZ1P65uIu/7LtBEKoZ7BXvggS5EGo5YSO41QLKC9oI16QIQhUwg4JOUL8d
+         JslQuUfN6xT67ucLy6w+SLo2zZNYLDC7n4wH/8coHXDqIRphosK91tA1d/iUaT/itW40
+         TzTUGjHJH7VgOgntc+QjbNxfCSId1gNZ2lzAIOvt2s1XPzUirumPWP9K/SmySReNkdOi
+         uJNHPw5+1cE6NMrrKaEyRYIH3hizdNeDjUGUKNZlCY/Vi/Z1SEPuW1foC3jGUA2xY2cy
+         PYfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=x90Q7KLzxGnQdvlJBnm7rr4DDCt1grcPV3Uowt83bVg=;
-        b=G6wOZzrUcy9r6whxqKcocCXPES8skR2lj5FpmT5v5UFsEavY37zFfWaH4COp/9aSat
-         SEi/u8z+KtWPSxh6bONtZocagn4UZVeESr39lp9ZWFs8C5VfujgpZsrL9/h84dqqlj1u
-         B89zx2rAsXrmJqFt9n7MEjiBWcNUBA+PDHvHjWpSoILdxuk354+bxswG3ydJ6zLqDvke
-         BeUNm+4vRgV+YZhg3wTp5+uorqINUMCDOM48R1aOL9DWRBklJ97NaIqRO31KjEqSXUS2
-         soPIevcoETslj4MH9mzydnNp3IIHXMZHxrfsQNAiN0W/5VyhUHKXriuFa3q68YplJ4rR
-         pSeg==
-X-Gm-Message-State: AOAM530GIPCLJM4y92M7TqHZwq6EeGabje8v3lH/rf6o+Q4WH1dr795o
-        irvBUUKxdVrOswWPgAWPGvTUF2MeydnEJOJUvOdi
-X-Google-Smtp-Source: ABdhPJxwUDF114o2gy5sFNpwgCfnJzhmnQ0CQLzlaPBqPhlrHJJdrTOWrANK8cv+0mYFczDmrkFW0Ydud/Lrf7jJCok=
-X-Received: by 2002:a05:6402:158e:: with SMTP id c14mr2758605edv.128.1622782259021;
- Thu, 03 Jun 2021 21:50:59 -0700 (PDT)
+        bh=F4KNkxgVBE2IaKKrWIflXpiMTxbcNGtO3JcMgEhgrn4=;
+        b=UX+6I99YMTHz1aGdWzt5SXEhJ1gwbsdQUbguNOyS2wC5T7JgWmgAB9jvGUPREaGGKm
+         aFrl821tne6aqIXZkXkr46I/J23ZEbNshts2GiuHXyvadsTMvTKWT2PPqvexZjQ8mJvD
+         KAXueseAKoX+rM59K9nTKBjBo1k0kODuyUcWsMyp0iKke9OwvRfQMaSOwt1DH/A3tCQ/
+         cBt+FX3wTAp22N8j4b/goQanLVR7x3V0ib/XT9eHSyPIuIUwiSKC6adhRvcEFBiUcoD/
+         nnegumszJrH3x12hHSclP292hKbuw/XXYPNrFSY12hs0J9+xbqaXLzo3R28YdP836kj+
+         T+xA==
+X-Gm-Message-State: AOAM531lMWsaZdOXlXmLPPEcQRfGygor4BHtmxcLBdi1Z3S3m4hDc5C9
+        7cT2fXScHxf/NFwwcJml0q4+SYdYQTo9GYjWitQk
+X-Google-Smtp-Source: ABdhPJwJrbIpifPHt0RmxDhbFGonFTcmrxomuiF8TJjro/LYRcNy1Ukcm+dNkb4N5xI5Zs6y+uH7Kz1ctjm94ABTP34=
+X-Received: by 2002:a17:906:4111:: with SMTP id j17mr2438703ejk.488.1622783076402;
+ Thu, 03 Jun 2021 22:04:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210517092006.803332-1-omosnace@redhat.com> <CAHC9VhTasra0tU=bKwVqAwLRYaC+hYakirRz0Mn5jbVMuDkwrA@mail.gmail.com>
- <01135120-8bf7-df2e-cff0-1d73f1f841c3@iogearbox.net> <CAHC9VhR-kYmMA8gsqkiL5=poN9FoL-uCyx1YOLCoG2hRiUBYug@mail.gmail.com>
- <c7c2d7e1-e253-dce0-d35c-392192e4926e@iogearbox.net> <CAHC9VhS1XRZjKcTFgH1+n5uA-CeT+9BeSP5jvT2+RE5ougLpUg@mail.gmail.com>
- <2e541bdc-ae21-9a07-7ac7-6c6a4dda09e8@iogearbox.net> <CAHC9VhT464vr9sWxqY3PRB4DAccz=LvRMLgWBsSViWMR0JJvOQ@mail.gmail.com>
- <3ca181e3-df32-9ae0-12c6-efb899b7ce7a@iogearbox.net> <CAHC9VhTuPnPs1wMTmoGUZ4fvyy-es9QJpE7O_yTs2JKos4fgbw@mail.gmail.com>
- <f4373013-88fb-b839-aaaa-3826548ebd0c@iogearbox.net>
-In-Reply-To: <f4373013-88fb-b839-aaaa-3826548ebd0c@iogearbox.net>
+References: <162163367115.8379.8459012634106035341.stgit@sifl>
+ <162163379461.8379.9691291608621179559.stgit@sifl> <f07bd213-6656-7516-9099-c6ecf4174519@gmail.com>
+ <CAHC9VhRjzWxweB8d8fypUx11CX6tRBnxSWbXH+5qM1virE509A@mail.gmail.com>
+ <162219f9-7844-0c78-388f-9b5c06557d06@gmail.com> <CAHC9VhSJuddB+6GPS1+mgcuKahrR3UZA=1iO8obFzfRE7_E0gA@mail.gmail.com>
+ <8943629d-3c69-3529-ca79-d7f8e2c60c16@kernel.dk> <CAHC9VhTYBsh4JHhqV0Uyz=H5cEYQw48xOo=CUdXV0gDvyifPOQ@mail.gmail.com>
+ <9e69e4b6-2b87-a688-d604-c7f70be894f5@kernel.dk> <3bef7c8a-ee70-d91d-74db-367ad0137d00@kernel.dk>
+ <fa7bf4a5-5975-3e8c-99b4-c8d54c57da10@kernel.dk> <a7669e4a-e7a7-7e94-f6ce-fa48311f7175@kernel.dk>
+ <CAHC9VhSKPzADh=qcPp7r7ZVD2cpr2m8kQsui43LAwPr-9BNaxQ@mail.gmail.com>
+ <b20f0373-d597-eb0e-5af3-6dcd8c6ba0dc@kernel.dk> <CAHC9VhRZEwtsxjhpZM1DXGNJ9yL59B7T_p2B60oLmC_YxCrOiw@mail.gmail.com>
+ <CAHC9VhSK9PQdxvXuCA2NMC3UUEU=imCz_n7TbWgKj2xB2T=fOQ@mail.gmail.com> <46381e4e-a65d-f217-1d0d-43d1fa8a99aa@kernel.dk>
+In-Reply-To: <46381e4e-a65d-f217-1d0d-43d1fa8a99aa@kernel.dk>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 4 Jun 2021 00:50:47 -0400
-Message-ID: <CAHC9VhS=BeGdaAi8Ae5Fx42Fzy_ybkcXwMNcPwK=uuA6=+SRcg@mail.gmail.com>
-Subject: Re: [PATCH v2] lockdown,selinux: avoid bogus SELinux lockdown
- permission checks
-To:     Daniel Borkmann <daniel@iogearbox.net>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-security-module@vger.kernel.org,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>, jolsa@redhat.com,
-        ast@kernel.org, andrii@kernel.org, davem@davemloft.net,
-        kuba@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 4 Jun 2021 01:04:25 -0400
+Message-ID: <CAHC9VhSMhygpyDQVv+BM9aq7z6_7grEYWKZA5Mb5zvV3eA+_6w@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/9] audit,io_uring,io-wq: add some basic audit
+ support to io_uring
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 3, 2021 at 2:53 PM Daniel Borkmann <daniel@iogearbox.net> wrote:
-> On 6/2/21 5:13 PM, Paul Moore wrote:
-> [...]
-> > Help me out here, is your answer that the access check can only be
-> > done at BPF program load time?  That isn't really a solution from a
-> > SELinux perspective as far as I'm concerned.
+On Thu, Jun 3, 2021 at 11:54 AM Jens Axboe <axboe@kernel.dk> wrote:
+> On 5/28/21 10:02 AM, Paul Moore wrote:
+> > On Wed, May 26, 2021 at 4:19 PM Paul Moore <paul@paul-moore.com> wrote:
+> >> ... If we moved the _entry
+> >> and _exit calls into the individual operation case blocks (quick
+> >> openat example below) so that only certain operations were able to be
+> >> audited would that be acceptable assuming the high frequency ops were
+> >> untouched?  My initial gut feeling was that this would involve >50% of
+> >> the ops, but Steve Grubb seems to think it would be less; it may be
+> >> time to look at that a bit more seriously, but if it gets a NACK
+> >> regardless it isn't worth the time - thoughts?
+> >>
+> >>   case IORING_OP_OPENAT:
+> >>     audit_uring_entry(req->opcode);
+> >>     ret = io_openat(req, issue_flags);
+> >>     audit_uring_exit(!ret, ret);
+> >>     break;
+> >
+> > I wanted to pose this question again in case it was lost in the
+> > thread, I suspect this may be the last option before we have to "fix"
+> > things at the Kconfig level.  I definitely don't want to have to go
+> > that route, and I suspect most everyone on this thread feels the same,
+> > so I'm hopeful we can find a solution that is begrudgingly acceptable
+> > to both groups.
 >
-> That is the current answer. The unfortunate irony is that 59438b46471a
-> ("security,lockdown,selinux: implement SELinux lockdown") broke this in
-> the first place. W/o the SELinux hook implementation it would have been
-> working just fine at runtime, but given it's UAPI since quite a while
-> now, that ship has sailed.
-
-Explaining the other side of the "unfortunate irony ..." comment is
-going to take us in a direction that isn't very constructive so I'm
-going to skip past that now and simply say that if there was better
-cooperation across subsystems, especially with the LSM folks, a lot of
-this pain could be mitigated.
-
-... and yes I said "mitigated", I'm not foolish to think the pain
-could be avoided entirely ;)
-
-> > I understand the ideas I've tossed out aren't practical from a BPF
-> > perspective, but it would be nice if we could find something that does
-> > work.  Surely you BPF folks can think of some way to provide a
-> > runtime, not load time, check?
+> Sorry for the lack of response here, but to sum up my order of
+> preference:
 >
-> I did run this entire discussion by both of the other BPF co-maintainers
-> (Alexei, Andrii, CC'ed) and together we did further brainstorming on the
-> matter on how we could solve this, but couldn't find a sensible & clean
-> solution so far.
-
-Before I jump into the patch below I just want to say that I
-appreciate you looking into solutions on the BPF side of things.
-However, I voted "no" on this patch previously and since you haven't
-really changed it, my "no"/NACK vote remains, at least until we
-exhaust a few more options.
-
-> [PATCH] bpf, lockdown, audit: Fix buggy SELinux lockdown permission checks
+> 1) It's probably better to just make the audit an opt-out in io_op_defs
+>    for each opcode, and avoid needing boiler plate code for each op
+>    handler. The opt-out would ensure that new opcodes get it by default
+>    it someone doesn't know what it is, and the io_op_defs addition would
+>    mean that it's in generic code rather then in the handlers. Yes it's
+>    a bit slower, but it's saner imho.
 >
-> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-> added an implementation of the locked_down LSM hook to SELinux, with the aim
-> to restrict which domains are allowed to perform operations that would breach
-> lockdown. This is indirectly also getting audit subsystem involved to report
-> events. The latter is problematic, as reported by Ondrej and Serhei, since it
-> can bring down the whole system via audit:
+> 2) With the above, I'm fine with adding this to io_uring. I don't think
+>    going the route of mutual exclusion in kconfig helps anyone, it'd
+>    be counter productive to both sides.
 >
->    1) The audit events that are triggered due to calls to security_locked_down()
->       can OOM kill a machine, see below details [0].
->
->    2) It also seems to be causing a deadlock via avc_has_perm()/slow_avc_audit()
->       when trying to wake up kauditd, for example, when using trace_sched_switch()
->       tracepoint, see details in [1]. Triggering this was not via some hypothetical
->       corner case, but with existing tools like runqlat & runqslower from bcc, for
->       example, which make use of this tracepoint. Rough call sequence goes like:
->
->       rq_lock(rq) -> -------------------------+
->         trace_sched_switch() ->               |
->           bpf_prog_xyz() ->                   +-> deadlock
->             selinux_lockdown() ->             |
->               audit_log_end() ->              |
->                 wake_up_interruptible() ->    |
->                   try_to_wake_up() ->         |
->                     rq_lock(rq) --------------+
+> Hope that works and helps move this forward. I'll be mostly out of touch
+> the next week and a half, but wanted to ensure that I sent out my
+> (brief) thoughts before going away.
 
-Since BPF is a bit of chaotic nightmare in the sense that it basically
-out-of-tree kernel code that can be called from anywhere and do pretty
-much anything; it presents quite the challenge for those of us worried
-about LSM access controls.
+Thanks Jens.  I'll revise the patchset based on this (basically doing
+an opt-out version of what you did on May 26th) and do a v2 post with
+the other accumulated fixes/changes.  If there is anything else that
+needs discussion/review I'm sure Pavel can help us out, he's been
+helpful thus far.
 
-You and the other BPF folks have investigated ways in which BPF might
-be able to disable helper functions allowing us to do proper runtime
-access checks but haven't been able to make it work, which brings this
-patch up yet again.  I'm not a fan of this patch as it basically
-allows BPF programs to side-step any changes to the security policy
-once the BPF programs have been loaded; this is Not Good.
-
-So let's look at this from a different angle.  Let's look at the two
-problems you mention above.
-
-If we start with the runqueue deadlock we see the main problem is that
-audit_log_end() pokes the kauditd_wait waitqueue to ensure the
-kauditd_thread thread wakes up and processes the audit queue.  The
-audit_log_start() function does something similar, but it is
-conditional on a number of factors and isn't as likely to be hit.  If
-we relocate these kauditd wakeup calls we can remove the deadlock in
-trace_sched_switch().  In the case of CONFIG_AUDITSYSCALL=y we can
-probably just move the wakeup to __audit_syscall_exit() and in the
-case of CONFIG_AUDITSYSCALL=n we can likely just change the
-wait_event_freezable() call in kauditd_thread to a
-wait_event_freezable_timeout() call with a HZ timeout (the audit
-stream will be much less on these systems anyway so a queue overflow
-is much less likely).  I'm building a kernel with these changes now, I
-should have something to test when I wake up tomorrow morning.  It
-might even provide a bit of a performance boost as we would only be
-calling a wakeup function once for each syscall.
-
-The other issue is related to security_locked_down() and using the
-right subject for the access control check.  As has been pointed out
-several times in this thread, the current code uses the current() task
-as the subject, which is arguably incorrect for many of the BPF helper
-functions.  In the case of BPF, we have talked about using the
-credentials of the task which loaded the BPF program instead of
-current(), and that does make a certain amount of sense.  Such an
-approach should make the security policy easier to develop and
-rationalize, leading to a significant decrease in audit records coming
-from LSM access denials.  The question is how to implement such a
-change.  The current SELinux security_bpf_prog_alloc() hook causes the
-newly loaded BPF program to inherit the subject context from the task
-which loads the BPF program; if it is possible to reference the
-bpf_prog struct, or really just the associated bpf_prog_aux->security
-blob, from inside a security_bpf_locked_down() function we use that
-subject information to perform the access check.  BPF folks, is there
-a way to get that information from within a BPF kernel helper
-function?  If it isn't currently possible, could it be made possible
-(or something similar)?
-
-If it turns out we can do both of these things (relocated audit
-wakeup, bpf_prog reference inside kernel helpers) I think we can
-arrive at a fix which both groups can accept.
-
--- 
+--
 paul moore
 www.paul-moore.com
