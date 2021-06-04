@@ -2,99 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A861C4743D
-	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 16:59:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 532D9C4743E
+	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 17:00:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 09B6C613B4
-	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 16:59:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3BB7D613F4
+	for <selinux@archiver.kernel.org>; Fri,  4 Jun 2021 17:00:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhFDRBZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Jun 2021 13:01:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbhFDRBZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Jun 2021 13:01:25 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1161BC061766
-        for <selinux@vger.kernel.org>; Fri,  4 Jun 2021 09:59:23 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id t10-20020a05683022eab0290304ed8bc759so9675768otc.12
-        for <selinux@vger.kernel.org>; Fri, 04 Jun 2021 09:59:23 -0700 (PDT)
+        id S230313AbhFDRB6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 4 Jun 2021 13:01:58 -0400
+Received: from mail-ot1-f41.google.com ([209.85.210.41]:44909 "EHLO
+        mail-ot1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229963AbhFDRB5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 4 Jun 2021 13:01:57 -0400
+Received: by mail-ot1-f41.google.com with SMTP id r26-20020a056830121ab02902a5ff1c9b81so9681944otp.11
+        for <selinux@vger.kernel.org>; Fri, 04 Jun 2021 09:59:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=ewCPOWq7oQwmP7b8Hg+kvFDKfyr8fyL6aLRpENSaWBg=;
-        b=kso3u06rTaqWBfmqoGwko+7LHDQfgHUTbxqQm1fuLJmvGs51VA6jaUQpHfGSzqqHWw
-         tG48mVkZ/weDouXHwmPtAxtew+kOJ7/7h2mvvyzC/351l8zQ/R54XhQ8qNPpqiMkrBhh
-         GKOl8xIOZCXvkWfgujxeLPkX2HeUQK8w+Cf40YJsdWPKoRQ19Qg5iBZabGmnw6bg09vz
-         6OtKtTkalh4fE5I5Fny/kBa4nMgblQtTYCppqo7SmhVcNzzAvKz0Bi4gDVMT9FVPr62c
-         as/4w10MlxgQLbmVg62jLFKqdOiSQfoTjut158ZhWNyTsKx6euMxPQSuQuKdNN/Gkvw0
-         PPZA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=pHxmBj6l0caCH6kz0zRGVTOigiFx8Y3kroalroTbDPk=;
+        b=DKtpT8Pzr2xx0/PYpg7nyMe+qroO5C84cSY3hEyP7uvdX4b0eoYRWPIvSaW9KhYsqc
+         4x0OTt8Vo7DpFS0TnzS+A0/5hKoTEreJyXQeDBTmRy9ZflgRqpsd6KKGQAv8F8gp4LHG
+         4K1duFbYwB4gHL0UK0v9zpTozdQ2Cgamyxhitcnp+kcoDW2ZoYHJQEyGcl4e/CEmnnI4
+         ILNnRC2Xc3rEUuvirfObnAqZldeJSeaSDjpFpTa9bgIqFfpBDVuHQsq2a1CCsPC8EI0S
+         pkOO6z8C9ueUhMLzJwriLI0KGbIfoyDj9PBRC+CtOzXcyC3WZ4SStvqgL+bXj/1TGK2X
+         Vhrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=ewCPOWq7oQwmP7b8Hg+kvFDKfyr8fyL6aLRpENSaWBg=;
-        b=RvfkypMeG/3CHx3X9Mic5CkRu8NUKeKQiNE2TfYDGKFuiBkDvyoiqtfvADgyFQ1ZIF
-         +vcPfgVXvoeGlRV3qKvvJOUvHImXZBg9iMBlpNLik8qGNGpDLG5TfYpLWYuO63IiC+7I
-         o/UNM01K/vz/LdQkJ3bqHb4yUv1RdqV/KriBLwm6d51Ojt29KbT9/FxaMcjK1xWV2Iev
-         /eBZVLUIxbfAJ9RUlvqdtr2KS537bZ+xZKyBTxy39G4F/Slr3a7r6sUjI2U0uMbg5Tj0
-         grGlENdjUCeBeicPByAQIudmUBw9GFpCJlPn43Xh8OFL+bnaJLRFIuAtAClN7E9yu21I
-         XnfQ==
-X-Gm-Message-State: AOAM530JXKWeU5K7QnP0wqxAlTocphb9h1IQ92mP/JeYF45bQrYxdmVL
-        CTKbou1ThAnjSp7xltxNmve2kv5MBYMbXZOlOq9JIL8f
-X-Google-Smtp-Source: ABdhPJzAK5BmFGCa+2ocd9f0L+hv2fEAyYX1XwS/EcaWnrt19praN4qx+BEnx1RjgbKYMuPksN/+E49eEcqDI9/CzAg=
-X-Received: by 2002:a05:6830:16c7:: with SMTP id l7mr4542870otr.196.1622825962334;
- Fri, 04 Jun 2021 09:59:22 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=pHxmBj6l0caCH6kz0zRGVTOigiFx8Y3kroalroTbDPk=;
+        b=P9uvOiFtVMcrZUB7P7z6C7aB2ihOo/lnq616Bzrw4vi6Eyz+mHghZCQ5e1K/CCwyRU
+         Ozn0PR5NrgtgWoQNIRjuXrv+Po7COO6K41KaXFfEztLsM5EGZey0U0kYo/o5iFS3+ERh
+         ht4ri4+BTl0tCfs6n/N37g8qh88muewTdbhEANIMbOPGR+O4OR74EBL/uLfFSCQY2c1n
+         FaUsu+s8vBRUzx97GOFANPdDbOdkMYkkpFwL+MKgB3aG59dla3f9lapqRRYFd6mGYiUp
+         s/ln89k/zSFtC0xAVA38z/AfWRAwZykyGkaCqHqghmkNt9pEvZBI0MEFjqIUlTgEM0PD
+         YFCg==
+X-Gm-Message-State: AOAM530kLM3jSMrBQvtfDta5In0t0qrMc5vjuZUatuqVLQMfuNdWrFB7
+        Xd2r+f/ZPK8y389ZSW+X442yW8oIixFNuc1auT1pAEYV
+X-Google-Smtp-Source: ABdhPJw2RXQwDMFdUWjfHxmRSly9Kh+ppDYq/gBphoVwp31D0wx66jI7W8YNSLcu9OPFbrVQ2Bm0gk07nrEGHZgVb88=
+X-Received: by 2002:a05:6830:2011:: with SMTP id e17mr4433565otp.295.1622825934376;
+ Fri, 04 Jun 2021 09:58:54 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210511200301.407855-1-jwcart2@gmail.com> <CAP+JOzS83Foo1eeXYcaLs2TxgoJRzh_ednHrn2+B-PrM97CU2Q@mail.gmail.com>
-In-Reply-To: <CAP+JOzS83Foo1eeXYcaLs2TxgoJRzh_ednHrn2+B-PrM97CU2Q@mail.gmail.com>
+References: <20210513185254.559588-1-jwcart2@gmail.com> <CAP+JOzQkcAdJVB5K11EFtPFcY111qX0k_Onza7okuOKHF0N4KQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzQkcAdJVB5K11EFtPFcY111qX0k_Onza7okuOKHF0N4KQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 4 Jun 2021 12:59:11 -0400
-Message-ID: <CAP+JOzREpiUJEG+Nw1QLxXzeR-MutQm76HBCgeosq6Mqwi-BdQ@mail.gmail.com>
-Subject: Re: [PATCH 0/5 v2] secilc/cil: Fix name resolution for macro calls
+Date:   Fri, 4 Jun 2021 12:58:43 -0400
+Message-ID: <CAP+JOzRoc4armwsDTMmQwY8fyQ92rybrqCrc9fgbvXB=J6Nhzg@mail.gmail.com>
+Subject: Re: [PATCH 0/6] More secilc-fuzzer problems fixed
 To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 3, 2021 at 1:06 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Jun 3, 2021 at 1:05 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Tue, May 11, 2021 at 4:03 PM James Carter <jwcart2@gmail.com> wrote:
+> On Thu, May 13, 2021 at 2:53 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > This patch series fixes name resolution within expanded macro calls and
-> > with call arguments.
+> > Patches 1-4 fix bug found directly by the secilc-fuzzer.
+> > Patch 6 is the same class of bug as that fixed with patch 4.
+> > Patch 5 fixes problems found while investigating patch 4 and 6.
 > >
-> > The first patch is same as in v1.
-> > Patches 2-4 replace patch 2 in v1. The original way of fixing name
-> > resolution of call arguments did not work if a disabled optional
-> > forced a reset.
-> > Patch 5 is the same as patch 3 in v1.
+> > James Carter (6):
+> >   libsepol/cil: Handle disabled optional blocks in earlier passes
+> >   libsepol/cil: Destroy the permission nodes when exiting with an error
+> >   libsepol/cil: Limit the number of open parenthesis allowed
+> >   libsepol/cil: Resolve anonymous class permission sets only once
+> >   libsepol/cil: Pointers to datums should be set to NULL when resetting
+> >   libsepol/cil: Resolve anonymous levels only once
 > >
-> > James Carter (5):
-> >   libsepol/cil: Make name resolution in macros work as documented
-> >   libsepol/cil: Do not add NULL node when inserting key into symtab
-> >   libsepo/cil: Refactor macro call resolution
-> >   libsepol/cil: Do not resolve arguments to declarations in the call
-> >   secilc/docs: Relocate and reword macro call name resolution order
-> >
-> >  libsepol/cil/src/cil_internal.h          |   1 -
-> >  libsepol/cil/src/cil_resolve_ast.c       | 635 ++++++++++++-----------
-> >  libsepol/cil/src/cil_symtab.c            |   8 +-
-> >  secilc/docs/cil_call_macro_statements.md |  24 +-
-> >  4 files changed, 354 insertions(+), 314 deletions(-)
+> >  libsepol/cil/src/cil_build_ast.c   |  2 +
+> >  libsepol/cil/src/cil_parser.c      |  7 +++-
+> >  libsepol/cil/src/cil_reset_ast.c   | 56 +++++++++++++++++++++++++--
+> >  libsepol/cil/src/cil_resolve_ast.c | 62 +++++++++++++++++-------------
+> >  4 files changed, 97 insertions(+), 30 deletions(-)
 > >
 > > --
 > > 2.26.3
 > >
 >
-> There hasn't been any comments on this series, and it has been more
-> than three weeks since I sent it, so I plan on merging it tomorrow.
+> There haven't been any comments on this series, and it has been three
+> weeks, so I plan on merging it tomorrow.
 > Jim
 
 This series has been merged.
