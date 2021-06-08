@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F403BC4743D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1B0DC4743F
 	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 15:59:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DCE3B610A2
+	by mail.kernel.org (Postfix) with ESMTP id A20A660FEA
 	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 15:59:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230460AbhFHQB3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jun 2021 12:01:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51314 "EHLO
+        id S231308AbhFHQB2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Jun 2021 12:01:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbhFHQB2 (ORCPT
+        with ESMTP id S230460AbhFHQB2 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 8 Jun 2021 12:01:28 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DE6C061574
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 838BAC061789
         for <selinux@vger.kernel.org>; Tue,  8 Jun 2021 08:59:23 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id ce15so33436923ejb.4
+Received: by mail-ej1-x62d.google.com with SMTP id he7so14012665ejc.13
         for <selinux@vger.kernel.org>; Tue, 08 Jun 2021 08:59:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=uYZQDgKuK3aWpLYQs8mqqUL/L969oc9TyAiq+YPfHF4=;
-        b=Utp1bVygDJqSOaUF6eKd+4euE5e3syeydX2nUNCm6sEbcss/jUBd7Ahk2vXHumEuDG
-         7Q3HDsKYmJxRN8SUDiCBrGf5HcSEMmfu1mtPfJc5xkz0/7GUpTbOqbaFkBmj7rHXG317
-         mAhSjAo4HkyGPaPm6e2cXbefqMFq213gVZVRjuwFQV4Xi2jcjrgLC/nOufILWGCj2jre
-         0qGZ8Yu64Sckq+qH3cDHEsuOsbftk55Rk1ekaxgikUR8U0Uzxn25qgCnQDcx/S5iTz+C
-         zfuser0M+erur739uglIAXXZPTpkwry5fWSvSsTBs5r4R3+wGtXHoCF+le4U7zpOZlSG
-         UhTA==
+        bh=Ty8GekRQ/JaeL0oD8unL+aEzUu4oz9pGY5yY4pa6Ao8=;
+        b=uHMnM1wJ8/2ofH+UrNZCMHL0vGGxPJRbRFNCy1lq3waJAw45hM9kcOQUCtxkUMd4AC
+         CuogF8thbcAwCc1DKuKKwFkYWgKIsX7Al9RNvucE+RL8BCtjyW2zgZoL/IPMy+KkUdTO
+         IITRAKQt7aWnM8+i+8+OKgats+bcyskDabQib/fwt0qw09XffgHd0ZaJvWd5D2LoMcP7
+         qn/CPoEtcuvQSnhXRrYCngM9O7bvvDFnLiAG8N+LpMH67yGhdZfqpSTokGdiwh/iSRse
+         wtUbS+zeEdtoqCz18jg4i8Y42ou5ObYqnVwzEyFOKh//WzUDE6rxKubYu2E38UgMh8A8
+         BrQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=uYZQDgKuK3aWpLYQs8mqqUL/L969oc9TyAiq+YPfHF4=;
-        b=peHH1ftfiwJicrA2h23uPMLSSsWyAod8jI5TOA10uBpxnY3vvM/lwY4GYTLMPCernJ
-         UAKKSw4pVDb+iH7zHYt1ncA7XC44YXxgQC+DjiDmRrJLw8154iYYgCdsoOgL/3b9Stvk
-         1TtlFRGCpb/Yjmv1pA+IP8/TWWqFw59C3QOZZfBxpdfPeuskkVZSEKK+CqK/yVhAucoW
-         Rno5BF/wY6UGdusQu5mCtdyvPqeEcCiNqA9RC11S5Ryny3a1ElVj0mX7Cfxln6pAiGEe
-         FIN9bRvPtqg/yctwmOzfMLz4/N0y1kAL4BewCnOFsMh4MNboyTw2tZybL80GAfQfxqfF
-         kfeA==
-X-Gm-Message-State: AOAM531PH3ppNkRjUDU+UBtdJvgrGUT0vr2l2WT4BUE0ol3MatEWvWQv
-        3ItrwGJXiGS27OHRkq1oxyo6pN0+3zg=
-X-Google-Smtp-Source: ABdhPJy6r2WwBL/dqd6TuwMk4Jbe9y+YrS017JCRAa8EBGWq8rA3mtZB6dTDN9uHwpFKQRPRNEu+EQ==
-X-Received: by 2002:a17:906:3057:: with SMTP id d23mr24196100ejd.131.1623167962019;
-        Tue, 08 Jun 2021 08:59:22 -0700 (PDT)
+        bh=Ty8GekRQ/JaeL0oD8unL+aEzUu4oz9pGY5yY4pa6Ao8=;
+        b=V5QCjZWL+8oWLgrFvKEioSGL6zxRZ2jIsJvwiWkLv000bD9qtsHKk+rl8AH8YJ5Ia4
+         LTj/WlZCd6bd2vn1lS1ymJUdY+BNzHaw/4YX/9kBPtO8jCX5Q5ZYrHowNu1gR0XzG8QD
+         9pALl6R9dl5HM1VhCMXykEcTXlO1Kc8lssaryQ72zrxkAw2Cf4GSU7og+mi+mFNno3dD
+         vf2G6zlNh2m8n0lBYs1tY+p8COgFnPVRbMUOvmaDJzel1PMOfBIFUwql+MxwAdn6QMsz
+         L/uEO4r7VEb/FlesSFkgwkqJ3OR/XR0iKYSGcUVb0crMghFOx2gz4A7w2hCtrLSI9zJE
+         USzw==
+X-Gm-Message-State: AOAM533Aa8YX6A7LL8NLyp6ua0CiiTb435mxlTjJBLQNfyLbtC/kgwIu
+        C8zJV17l712Q/piZBWSv/1JGEY9iWeU=
+X-Google-Smtp-Source: ABdhPJzz6/kNK+B5ku+kEFy/ZCglyqwedLCfV6SQi7PyZ2dWTmTXSAbmPPsC7XmPEG1lUGLDSRivxg==
+X-Received: by 2002:a17:907:3e1a:: with SMTP id hp26mr24275922ejc.77.1623167960424;
+        Tue, 08 Jun 2021 08:59:20 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-112-183-231.95.112.pool.telefonica.de. [95.112.183.231])
-        by smtp.gmail.com with ESMTPSA id n13sm51134ejk.97.2021.06.08.08.59.21
+        by smtp.gmail.com with ESMTPSA id n13sm51134ejk.97.2021.06.08.08.59.19
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jun 2021 08:59:21 -0700 (PDT)
+        Tue, 08 Jun 2021 08:59:20 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 05/23] libsepol: avoid implicit conversions
-Date:   Tue,  8 Jun 2021 17:58:54 +0200
-Message-Id: <20210608155912.32047-6-cgzones@googlemail.com>
+Subject: [PATCH 02/23] libsepol: resolve missing prototypes
+Date:   Tue,  8 Jun 2021 17:58:51 +0200
+Message-Id: <20210608155912.32047-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608155912.32047-1-cgzones@googlemail.com>
 References: <20210608155912.32047-1-cgzones@googlemail.com>
@@ -72,61 +72,197 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Avoid implicit conversions from signed to unsigned values, found by
-UB sanitizers, by using unsigned values in the first place.
+Declare the functions as static or include the corresponding header
+file.
 
-expand.c:1644:18: runtime error: implicit conversion from type 'int' of value -1 (32-bit, signed) to type 'uint32_t' (aka 'unsigned int') changed the value to 4294967295 (32-bit, unsigned)
+assertion.c:294:5: error: no previous prototype for function 'report_assertion_failures' [-Werror,-Wmissing-prototypes]
+int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avrule_t *avrule)
+    ^
 
-expand.c:2892:24: runtime error: implicit conversion from type 'int' of value -2 (32-bit, signed) to type 'unsigned int' changed the value to 4294967294 (32-bit, unsigned)
+context.c:23:5: error: no previous prototype for function 'sepol_check_context' [-Werror,-Wmissing-prototypes]
+int sepol_check_context(const char *context)
+    ^
 
-policy_define.c:2344:4: runtime error: implicit conversion from type 'int' of value -1048577 (32-bit, signed) to type 'unsigned int' changed the value to 4293918719 (32-bit, unsigned)
+expand.c:3377:5: error: no previous prototype for function 'expand_cond_av_node' [-Werror,-Wmissing-prototypes]
+int expand_cond_av_node(policydb_t * p,
+    ^
+
+policydb.c:638:6: error: no previous prototype for function 'role_trans_rule_destroy' [-Werror,-Wmissing-prototypes]
+void role_trans_rule_destroy(role_trans_rule_t * x)
+     ^
+
+policydb.c:1169:5: error: no previous prototype for function 'policydb_index_decls' [-Werror,-Wmissing-prototypes]
+int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
+    ^
+
+policydb.c:1429:6: error: no previous prototype for function 'ocontext_selinux_free' [-Werror,-Wmissing-prototypes]
+void ocontext_selinux_free(ocontext_t **ocontexts)
+     ^
+
+policydb.c:1451:6: error: no previous prototype for function 'ocontext_xen_free' [-Werror,-Wmissing-prototypes]
+void ocontext_xen_free(ocontext_t **ocontexts)
+     ^
+
+policydb.c:1750:5: error: no previous prototype for function 'type_set_or' [-Werror,-Wmissing-prototypes]
+int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
+    ^
+
+policydb.c:2524:5: error: no previous prototype for function 'role_trans_read' [-Werror,-Wmissing-prototypes]
+int role_trans_read(policydb_t *p, struct policy_file *fp)
+    ^
+
+policydb.c:2567:5: error: no previous prototype for function 'role_allow_read' [-Werror,-Wmissing-prototypes]
+int role_allow_read(role_allow_t ** r, struct policy_file *fp)
+    ^
+
+policydb.c:2842:5: error: no previous prototype for function 'filename_trans_read' [-Werror,-Wmissing-prototypes]
+int filename_trans_read(policydb_t *p, struct policy_file *fp)
+    ^
+
+services.c:1027:5: error: no previous prototype for function 'sepol_validate_transition' [-Werror,-Wmissing-prototypes]
+int sepol_validate_transition(sepol_security_id_t oldsid,
+    ^
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/include/sepol/policydb/conditional.h | 2 +-
- libsepol/include/sepol/policydb/policydb.h    | 2 +-
- libsepol/src/expand.c                         | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ libsepol/src/assertion.c        |  2 +-
+ libsepol/src/context_internal.h |  1 +
+ libsepol/src/expand.c           |  6 +++---
+ libsepol/src/policydb.c         | 16 ++++++++--------
+ libsepol/src/services.c         |  2 +-
+ 5 files changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
-index 9c3df3ef..db3ef98d 100644
---- a/libsepol/include/sepol/policydb/conditional.h
-+++ b/libsepol/include/sepol/policydb/conditional.h
-@@ -90,7 +90,7 @@ typedef struct cond_node {
- 	uint32_t expr_pre_comp;
- 	struct cond_node *next;
- 	/* a tunable conditional, calculated and used at expansion */
--#define	COND_NODE_FLAGS_TUNABLE	0x01
-+#define	COND_NODE_FLAGS_TUNABLE	0x01U
- 	uint32_t flags;
- } cond_node_t;
+diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+index 266f67d7..dd2749a0 100644
+--- a/libsepol/src/assertion.c
++++ b/libsepol/src/assertion.c
+@@ -291,7 +291,7 @@ exit:
+ 	return rc;
+ }
  
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 9ef43abc..c29339dc 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -253,7 +253,7 @@ typedef struct class_perm_node {
+-int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avrule_t *avrule)
++static int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avrule_t *avrule)
+ {
+ 	int rc;
+ 	struct avtab_match_args args;
+diff --git a/libsepol/src/context_internal.h b/libsepol/src/context_internal.h
+index 3cae28cc..3dc9cd15 100644
+--- a/libsepol/src/context_internal.h
++++ b/libsepol/src/context_internal.h
+@@ -1,6 +1,7 @@
+ #ifndef _SEPOL_CONTEXT_INTERNAL_H_
+ #define _SEPOL_CONTEXT_INTERNAL_H_
  
- #define xperm_test(x, p) (1 & (p[x >> 5] >> (x & 0x1f)))
- #define xperm_set(x, p) (p[x >> 5] |= (1 << (x & 0x1f)))
--#define xperm_clear(x, p) (p[x >> 5] &= ~(1 << (x & 0x1f)))
-+#define xperm_clear(x, p) (p[x >> 5] &= ~(1U << (x & 0x1f)))
- #define EXTENDED_PERMS_LEN 8
++#include <sepol/context.h>
+ #include <sepol/context_record.h>
  
- typedef struct av_extended_perms {
+ #endif
 diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 84bfcfa3..35e45780 100644
+index a656ffad..84bfcfa3 100644
 --- a/libsepol/src/expand.c
 +++ b/libsepol/src/expand.c
-@@ -1641,7 +1641,7 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
- 		 * AUDITDENY, aka DONTAUDIT, are &= assigned, versus |= for
- 		 * others. Initialize the data accordingly.
- 		 */
--		avdatum.data = key->specified == AVTAB_AUDITDENY ? ~0 : 0;
-+		avdatum.data = key->specified == AVTAB_AUDITDENY ? ~0U : 0U;
- 		/* this is used to get the node - insertion is actually unique */
- 		node = avtab_insert_nonunique(avtab, key, &avdatum);
- 		if (!node) {
+@@ -3374,9 +3374,9 @@ static int expand_cond_insert(cond_av_list_t ** l,
+ 	return 0;
+ }
+ 
+-int expand_cond_av_node(policydb_t * p,
+-			avtab_ptr_t node,
+-			cond_av_list_t ** newl, avtab_t * expa)
++static int expand_cond_av_node(policydb_t * p,
++			       avtab_ptr_t node,
++			       cond_av_list_t ** newl, avtab_t * expa)
+ {
+ 	avtab_key_t *k = &node->key;
+ 	avtab_datum_t *d = &node->datum;
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index ffa27971..3f7ddb11 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -635,7 +635,7 @@ void role_trans_rule_init(role_trans_rule_t * x)
+ 	ebitmap_init(&x->classes);
+ }
+ 
+-void role_trans_rule_destroy(role_trans_rule_t * x)
++static void role_trans_rule_destroy(role_trans_rule_t * x)
+ {
+ 	if (x != NULL) {
+ 		role_set_destroy(&x->roles);
+@@ -1166,7 +1166,7 @@ int policydb_index_bools(policydb_t * p)
+ 	return 0;
+ }
+ 
+-int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
++static int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
+ {
+ 	avrule_block_t *curblock;
+ 	avrule_decl_t *decl;
+@@ -1426,7 +1426,7 @@ static int range_tr_destroy(hashtab_key_t key, hashtab_datum_t datum,
+ 	return 0;
+ }
+ 
+-void ocontext_selinux_free(ocontext_t **ocontexts)
++static void ocontext_selinux_free(ocontext_t **ocontexts)
+ {
+ 	ocontext_t *c, *ctmp;
+ 	int i;
+@@ -1448,7 +1448,7 @@ void ocontext_selinux_free(ocontext_t **ocontexts)
+ 	}
+ }
+ 
+-void ocontext_xen_free(ocontext_t **ocontexts)
++static void ocontext_xen_free(ocontext_t **ocontexts)
+ {
+ 	ocontext_t *c, *ctmp;
+ 	int i;
+@@ -1747,7 +1747,7 @@ int symtab_insert(policydb_t * pol, uint32_t sym,
+ 	return retval;
+ }
+ 
+-int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
++static int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
+ {
+ 	type_set_init(dst);
+ 
+@@ -2521,7 +2521,7 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 	return -1;
+ }
+ 
+-int role_trans_read(policydb_t *p, struct policy_file *fp)
++static int role_trans_read(policydb_t *p, struct policy_file *fp)
+ {
+ 	role_trans_t **t = &p->role_tr;
+ 	unsigned int i;
+@@ -2564,7 +2564,7 @@ int role_trans_read(policydb_t *p, struct policy_file *fp)
+ 	return 0;
+ }
+ 
+-int role_allow_read(role_allow_t ** r, struct policy_file *fp)
++static int role_allow_read(role_allow_t ** r, struct policy_file *fp)
+ {
+ 	unsigned int i;
+ 	uint32_t buf[2], nel;
+@@ -2839,7 +2839,7 @@ err:
+ 	return -1;
+ }
+ 
+-int filename_trans_read(policydb_t *p, struct policy_file *fp)
++static int filename_trans_read(policydb_t *p, struct policy_file *fp)
+ {
+ 	unsigned int i;
+ 	uint32_t buf[1], nel;
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index 6596431c..39fbd979 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -1024,7 +1024,7 @@ static int context_struct_compute_av(context_struct_t * scontext,
+ 	return 0;
+ }
+ 
+-int sepol_validate_transition(sepol_security_id_t oldsid,
++static int sepol_validate_transition(sepol_security_id_t oldsid,
+ 				     sepol_security_id_t newsid,
+ 				     sepol_security_id_t tasksid,
+ 				     sepol_security_class_t tclass)
 -- 
 2.32.0
 
