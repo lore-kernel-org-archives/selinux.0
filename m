@@ -8,57 +8,57 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2AC7C48BCD
-	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 16:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 531FEC4743F
+	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 16:00:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE5E660FEA
-	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 16:00:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D4D3610A2
+	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 16:00:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233500AbhFHQCb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S233559AbhFHQCb (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 8 Jun 2021 12:02:31 -0400
-Received: from mail-ed1-f54.google.com ([209.85.208.54]:43993 "EHLO
-        mail-ed1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233322AbhFHQC3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Jun 2021 12:02:29 -0400
-Received: by mail-ed1-f54.google.com with SMTP id s6so25101498edu.10
-        for <selinux@vger.kernel.org>; Tue, 08 Jun 2021 09:00:26 -0700 (PDT)
+Received: from mail-ej1-f45.google.com ([209.85.218.45]:43563 "EHLO
+        mail-ej1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233622AbhFHQCa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Jun 2021 12:02:30 -0400
+Received: by mail-ej1-f45.google.com with SMTP id ci15so33423479ejc.10
+        for <selinux@vger.kernel.org>; Tue, 08 Jun 2021 09:00:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=H3YB1WMTihvMYXd4viLcaKhMEb0OVXEjSm6kuCa/G6w=;
-        b=XWe9vLXqqo+/Kv0Xmp4p0RLwJmMddDHaBJxe9M1WpYl9dwoYH/H4LSSSvqi4nIuSyY
-         ndK1fAL+OMg693hEAcsfOXTbH7gBx+3LFviVC8Fedu1blUrDXwgB5OCRojilU20NBCkx
-         fpMZ51oSWozYCV0R12cblKrFGSIha1uHKfwkWEZHaceBCjS0W9SdZV0zJEKUkk4cpZYj
-         zi3m12cV7TUdY6LLIBkysKi88c6eokip1r16exbxBDzW0GVYDdithi65taiVaApb5NGQ
-         CPdJv+C4f2Symto1Ysv7GvzdJ9Ozh3ysShh5rCxPB0yhYmjFIBV5FNTg29gtm83dookl
-         N6BQ==
+        bh=P6GPJC2qa5dzk47OPuHyvIvE3Fkla02EA5B4DBJukQ4=;
+        b=luFgcmUYUTGlev2XyEQNnKbsiTHeLQ+avIz4JCUFywX6wcwiljh0TdCgkRVmkgzm90
+         cDAeR9ZQmoFr/TeqiWYijEiJ0mPqUMcd2VvNxTheyrb+KWA6T9TYEzOMt+RNsYSNlds9
+         uH6StFToP21VdoPBBnXej50FFKTp9o2p/q3W3rxbrzoqFtNbXG2xV2SUQWUnHQBlHtDO
+         igdsdhTRIBC90XcWYSbm94pjKzcDKGhhV61gEdcAqpEHNrRLKciDxihAEv+8U08ja9+y
+         FsLibTanWybauSNtwN0dV+irDTmib7bh/qJWuUAAROGMxWxWzWvnVbDWZTmUhYews74u
+         YbuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=H3YB1WMTihvMYXd4viLcaKhMEb0OVXEjSm6kuCa/G6w=;
-        b=AGUQlhDgiCq1fmwI9RtnGYP6SOGoRUoKvmCACK0lK2v4W+qK8+u/gvRQ7kJAIEwqM+
-         kpThGDddhrwhT/LQazVG34pR9KDIFy2sUwMmgXc1KSfveHeKqhqgo6E3t1BouSM2CRyW
-         2LKTdty5On4Ieo8ZJVFEj1edifTj2iKZgVSbsS//k4pR5c80/at7oZDTyMqf6dJEsiB8
-         H726vk7S5ne8d4Z9SudddhXm4tL2Ry+CXtMr5SQCnoHG4bsc/YFEWy/OhhURtvxm1NQV
-         E4Wuqouv++/QusJkuQV6AsBdUdOv8PDS7UFFR/TSRI59tq8lZtugVPvdqjDpxn5yu7Ei
-         rWiQ==
-X-Gm-Message-State: AOAM531l1UL5FS+L6sVrV4K4LmDaj8hHRNRxIS6ByjCExmrwxtaWCu20
-        WC7N3u3xSxXYjHvefoejWQ49sC47o0k=
-X-Google-Smtp-Source: ABdhPJy0jzN2W6y71IEKyEVW1sF94GoA8S2SQZgpCz2HvJ+JfEL6kVXTMDZbHUGg1hBumqrEUbPq6A==
-X-Received: by 2002:aa7:de8b:: with SMTP id j11mr26444793edv.363.1623167965485;
-        Tue, 08 Jun 2021 08:59:25 -0700 (PDT)
+        bh=P6GPJC2qa5dzk47OPuHyvIvE3Fkla02EA5B4DBJukQ4=;
+        b=IPUMLff0WXWjUG5C3KtHo+tPOLIvyRfkiQUCwtgsby9PAo0RBi+XjTnEV4imNorKlu
+         Ffo0K32F3W3hd/eEx5O62STmPQCPcUGCs+12pZxaH+inxKDckmslDvK0krKQS43BMCDa
+         EwIDNqaQohl7Ac20yeKDIMmqxhs+oTcAiMpR0FWaQLWVsJ2bIsOyQOEbrDfn0uUE6K6H
+         ns1pCaVx4RwdMfWYHdUcOFX69vqtQxxLKT6QlBu771ka+sOoviaz1YJk3tUq2ZCWMfQL
+         BmP4ytdr6wwcbsCpnLzxqpWLHnPMzllSrdN4vCODXAjwVzAJQLLydBWoTPQf4ZJIQ740
+         0goA==
+X-Gm-Message-State: AOAM533yuR7SB4HSNmU79PWk9ZepSd/dTbZAYzBnn6V+0+XZP0Ye6cJ1
+        ZpGH//xYeIAkJ127Rsdz038qoY/Ww5g=
+X-Google-Smtp-Source: ABdhPJy2p7tk4N7vdoUAt/GCE22c3WtfUJZf/j9CfZwdIDzTcBZsyJuM+2+QtcP7iEbSbrYNvt3LoQ==
+X-Received: by 2002:a17:907:2bd9:: with SMTP id gv25mr23826906ejc.157.1623167964405;
+        Tue, 08 Jun 2021 08:59:24 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-112-183-231.95.112.pool.telefonica.de. [95.112.183.231])
-        by smtp.gmail.com with ESMTPSA id n13sm51134ejk.97.2021.06.08.08.59.24
+        by smtp.gmail.com with ESMTPSA id n13sm51134ejk.97.2021.06.08.08.59.23
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jun 2021 08:59:25 -0700 (PDT)
+        Tue, 08 Jun 2021 08:59:24 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 11/23] libsepol: mark read-only parameters of type_set_ interfaces const
-Date:   Tue,  8 Jun 2021 17:59:00 +0200
-Message-Id: <20210608155912.32047-12-cgzones@googlemail.com>
+Subject: [PATCH 09/23] libsepol: remove dead stores
+Date:   Tue,  8 Jun 2021 17:58:58 +0200
+Message-Id: <20210608155912.32047-10-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608155912.32047-1-cgzones@googlemail.com>
 References: <20210608155912.32047-1-cgzones@googlemail.com>
@@ -69,61 +69,86 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Make it more obvious which parameters are read-only and not being
-modified and allow callers to pass const pointers.
+conditional.c:391:4: warning: Value stored to 'i' is never read [deadcode.DeadStores]
+                        i = 0;
+                        ^   ~
+conditional.c:718:2: warning: Value stored to 'len' is never read [deadcode.DeadStores]
+        len = 0;
+        ^     ~
+conditional.c:772:2: warning: Value stored to 'len' is never read [deadcode.DeadStores]
+        len = 0;
+        ^     ~
+
+services.c:89:10: warning: Value stored to 'new_stack' during its initialization is never read [deadcode.DeadStores]
+                char **new_stack = stack;
+                       ^~~~~~~~~   ~~~~~
+
+services.c:440:11: warning: Value stored to 'new_expr_list' during its initialization is never read [deadcode.DeadStores]
+                        char **new_expr_list = expr_list;
+                               ^~~~~~~~~~~~~   ~~~~~~~~~
+
+../cil/src/cil_binary.c:2230:24: warning: Value stored to 'cb_node' during its initialization is never read [deadcode.DeadStores]
+        struct cil_tree_node *cb_node = node->cl_head;
+                              ^~~~~~~   ~~~~~~~~~~~~~
+
+Found by clang-analyzer
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/include/sepol/policydb/policydb.h | 4 ++--
- libsepol/src/policydb.c                    | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ libsepol/src/conditional.c | 3 ---
+ libsepol/src/services.c    | 4 ++--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index c29339dc..78699fb4 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -667,8 +667,8 @@ extern int scope_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p);
- extern void class_perm_node_init(class_perm_node_t * x);
- extern void type_set_init(type_set_t * x);
- extern void type_set_destroy(type_set_t * x);
--extern int type_set_cpy(type_set_t * dst, type_set_t * src);
--extern int type_set_or_eq(type_set_t * dst, type_set_t * other);
-+extern int type_set_cpy(type_set_t * dst, const type_set_t * src);
-+extern int type_set_or_eq(type_set_t * dst, const type_set_t * other);
- extern void role_set_init(role_set_t * x);
- extern void role_set_destroy(role_set_t * x);
- extern void avrule_init(avrule_t * x);
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 3389a943..7739b0fb 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1753,7 +1753,7 @@ int symtab_insert(policydb_t * pol, uint32_t sym,
- 	return retval;
- }
+diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+index 823b649a..e3ede694 100644
+--- a/libsepol/src/conditional.c
++++ b/libsepol/src/conditional.c
+@@ -388,7 +388,6 @@ int cond_normalize_expr(policydb_t * p, cond_node_t * cn)
+ 	for (e = cn->expr; e != NULL; e = e->next) {
+ 		switch (e->expr_type) {
+ 		case COND_BOOL:
+-			i = 0;
+ 			/* see if we've already seen this bool */
+ 			if (!bool_present(e->bool, cn->bool_ids, cn->nbools)) {
+ 				/* count em all but only record up to COND_MAX_BOOLS */
+@@ -715,7 +714,6 @@ static int cond_read_av_list(policydb_t * p, void *fp,
  
--static int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
-+static int type_set_or(type_set_t * dst, const type_set_t * a, const type_set_t * b)
+ 	*ret_list = NULL;
+ 
+-	len = 0;
+ 	rc = next_entry(buf, fp, sizeof(uint32_t));
+ 	if (rc < 0)
+ 		return -1;
+@@ -769,7 +767,6 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
+ 
+ 	node->cur_state = le32_to_cpu(buf[0]);
+ 
+-	len = 0;
+ 	rc = next_entry(buf, fp, sizeof(uint32_t));
+ 	if (rc < 0)
+ 		goto err;
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index d647c8f5..c34bb966 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -86,7 +86,7 @@ static int next_stack_entry;
+ static void push(char *expr_ptr)
  {
- 	type_set_init(dst);
+ 	if (next_stack_entry >= stack_len) {
+-		char **new_stack = stack;
++		char **new_stack;
+ 		int new_stack_len;
  
-@@ -1770,7 +1770,7 @@ static int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
- 	return 0;
- }
+ 		if (stack_len == 0)
+@@ -441,7 +441,7 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
+ 	for (e = constraint->expr; e; e = e->next) {
+ 		/* Allocate a stack to hold expression buffer entries */
+ 		if (expr_counter >= expr_list_len) {
+-			char **new_expr_list = expr_list;
++			char **new_expr_list;
+ 			int new_expr_list_len;
  
--int type_set_cpy(type_set_t * dst, type_set_t * src)
-+int type_set_cpy(type_set_t * dst, const type_set_t * src)
- {
- 	type_set_init(dst);
- 
-@@ -1783,7 +1783,7 @@ int type_set_cpy(type_set_t * dst, type_set_t * src)
- 	return 0;
- }
- 
--int type_set_or_eq(type_set_t * dst, type_set_t * other)
-+int type_set_or_eq(type_set_t * dst, const type_set_t * other)
- {
- 	int ret;
- 	type_set_t tmp;
+ 			if (expr_list_len == 0)
 -- 
 2.32.0
 
