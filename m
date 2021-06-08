@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 519D4C4743E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F403BC4743D
 	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 15:59:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3AA7460FEA
+	by mail.kernel.org (Postfix) with ESMTP id DCE3B610A2
 	for <selinux@archiver.kernel.org>; Tue,  8 Jun 2021 15:59:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232031AbhFHQB2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jun 2021 12:01:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51302 "EHLO
+        id S230460AbhFHQB3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Jun 2021 12:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbhFHQB2 (ORCPT
+        with ESMTP id S231794AbhFHQB2 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 8 Jun 2021 12:01:28 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49FB9C061787
-        for <selinux@vger.kernel.org>; Tue,  8 Jun 2021 08:59:21 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id l1so33445553ejb.6
-        for <selinux@vger.kernel.org>; Tue, 08 Jun 2021 08:59:21 -0700 (PDT)
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DE6C061574
+        for <selinux@vger.kernel.org>; Tue,  8 Jun 2021 08:59:23 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id ce15so33436923ejb.4
+        for <selinux@vger.kernel.org>; Tue, 08 Jun 2021 08:59:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=xtIdW4G81bW74Br+IjP1e2QKqelXexDHXVnkHP0CJk4=;
-        b=o3CGXsvqHep38ta0UBAFBAxhxuXKUJx71dPeHdhKJ8VIsT5SmWCLHYNNyqRw/S2t9v
-         Utfm3T45zDqGqhtH6OH/uO9Ol0dDG52f3qHsNJrFGRvBLgl7E0I94aH1Mi4JlBbjbzAf
-         HP7newv3RzEl1kRPH7wI98a7Uke9fbyxodljI9WWwVQg6R1DEyfmQ4tArMmWcX7imaOG
-         oM/IwXxkJsvNLOuiBVJm2JvG5iDqTBJNzdbql40eOMcusr1YprcCa6koDzVFmYADFFEc
-         eH4EXqoqlcQcvZW2J70/dlH7D0+i+MV4fQnkuIxeMA1t9WLr9BfmINm+SOr5fI/t8ilx
-         ILtA==
+        bh=uYZQDgKuK3aWpLYQs8mqqUL/L969oc9TyAiq+YPfHF4=;
+        b=Utp1bVygDJqSOaUF6eKd+4euE5e3syeydX2nUNCm6sEbcss/jUBd7Ahk2vXHumEuDG
+         7Q3HDsKYmJxRN8SUDiCBrGf5HcSEMmfu1mtPfJc5xkz0/7GUpTbOqbaFkBmj7rHXG317
+         mAhSjAo4HkyGPaPm6e2cXbefqMFq213gVZVRjuwFQV4Xi2jcjrgLC/nOufILWGCj2jre
+         0qGZ8Yu64Sckq+qH3cDHEsuOsbftk55Rk1ekaxgikUR8U0Uzxn25qgCnQDcx/S5iTz+C
+         zfuser0M+erur739uglIAXXZPTpkwry5fWSvSsTBs5r4R3+wGtXHoCF+le4U7zpOZlSG
+         UhTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xtIdW4G81bW74Br+IjP1e2QKqelXexDHXVnkHP0CJk4=;
-        b=gfopiam/By9Ufz8nnFMiH7mpmir3sWtq2BvG0v+MOA85N8yghyV/zZlG7oDSTwusjQ
-         WTLRZPy7eylfvP2dtPdxJxaXwjqlf4VhDVnh9BrOQL9POzgUR9DN3EllThabKwi0lg6T
-         3KmEV9LNEAQly2YnujvQx1nHuCkGAy4mktwWJD8IGVlZJ7VoYOrefAd22BdvGvMgHxPD
-         jHrY1VgruO8i7XjSpn9pUPFMszvS2HM03leflBoeoe4dPff/7+RftHrLvA1fZ36VA51z
-         KZjHvxdopgAOHFkLKKKadDzuLY5c7S/5hsqjEecshw6zOEb5Ml65f2GhVXXZl5mm47Gg
-         cJBg==
-X-Gm-Message-State: AOAM530AYsVtgxE0sU4smNrnmAbfSjBQnYOm8KDXOPvK3JXv1n6HSYY4
-        JDIgFbLzJmjakq5jtIEABViBQtLIW/k=
-X-Google-Smtp-Source: ABdhPJxZs7jZ7dKDICnHCFymdcbciFY6QTzp66ZZ2SKacoB5eTbUCKlzp+jLgc6daXIRLjLNh1aAug==
-X-Received: by 2002:a17:906:a854:: with SMTP id dx20mr24616927ejb.128.1623167959871;
-        Tue, 08 Jun 2021 08:59:19 -0700 (PDT)
+        bh=uYZQDgKuK3aWpLYQs8mqqUL/L969oc9TyAiq+YPfHF4=;
+        b=peHH1ftfiwJicrA2h23uPMLSSsWyAod8jI5TOA10uBpxnY3vvM/lwY4GYTLMPCernJ
+         UAKKSw4pVDb+iH7zHYt1ncA7XC44YXxgQC+DjiDmRrJLw8154iYYgCdsoOgL/3b9Stvk
+         1TtlFRGCpb/Yjmv1pA+IP8/TWWqFw59C3QOZZfBxpdfPeuskkVZSEKK+CqK/yVhAucoW
+         Rno5BF/wY6UGdusQu5mCtdyvPqeEcCiNqA9RC11S5Ryny3a1ElVj0mX7Cfxln6pAiGEe
+         FIN9bRvPtqg/yctwmOzfMLz4/N0y1kAL4BewCnOFsMh4MNboyTw2tZybL80GAfQfxqfF
+         kfeA==
+X-Gm-Message-State: AOAM531PH3ppNkRjUDU+UBtdJvgrGUT0vr2l2WT4BUE0ol3MatEWvWQv
+        3ItrwGJXiGS27OHRkq1oxyo6pN0+3zg=
+X-Google-Smtp-Source: ABdhPJy6r2WwBL/dqd6TuwMk4Jbe9y+YrS017JCRAa8EBGWq8rA3mtZB6dTDN9uHwpFKQRPRNEu+EQ==
+X-Received: by 2002:a17:906:3057:: with SMTP id d23mr24196100ejd.131.1623167962019;
+        Tue, 08 Jun 2021 08:59:22 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-112-183-231.95.112.pool.telefonica.de. [95.112.183.231])
-        by smtp.gmail.com with ESMTPSA id n13sm51134ejk.97.2021.06.08.08.59.19
+        by smtp.gmail.com with ESMTPSA id n13sm51134ejk.97.2021.06.08.08.59.21
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jun 2021 08:59:19 -0700 (PDT)
+        Tue, 08 Jun 2021 08:59:21 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 01/23] libsepol: fix typos
-Date:   Tue,  8 Jun 2021 17:58:50 +0200
-Message-Id: <20210608155912.32047-2-cgzones@googlemail.com>
+Subject: [PATCH 05/23] libsepol: avoid implicit conversions
+Date:   Tue,  8 Jun 2021 17:58:54 +0200
+Message-Id: <20210608155912.32047-6-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608155912.32047-1-cgzones@googlemail.com>
 References: <20210608155912.32047-1-cgzones@googlemail.com>
@@ -72,66 +72,61 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Avoid implicit conversions from signed to unsigned values, found by
+UB sanitizers, by using unsigned values in the first place.
+
+expand.c:1644:18: runtime error: implicit conversion from type 'int' of value -1 (32-bit, signed) to type 'uint32_t' (aka 'unsigned int') changed the value to 4294967295 (32-bit, unsigned)
+
+expand.c:2892:24: runtime error: implicit conversion from type 'int' of value -2 (32-bit, signed) to type 'unsigned int' changed the value to 4294967294 (32-bit, unsigned)
+
+policy_define.c:2344:4: runtime error: implicit conversion from type 'int' of value -1048577 (32-bit, signed) to type 'unsigned int' changed the value to 4293918719 (32-bit, unsigned)
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/cil/src/cil_build_ast.c   | 2 +-
- libsepol/cil/src/cil_resolve_ast.c | 2 +-
- libsepol/src/module_to_cil.c       | 2 +-
- libsepol/src/policydb_validate.c   | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ libsepol/include/sepol/policydb/conditional.h | 2 +-
+ libsepol/include/sepol/policydb/policydb.h    | 2 +-
+ libsepol/src/expand.c                         | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 71f14e20..42d10c87 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -3692,7 +3692,7 @@ int cil_gen_sensitivityorder(struct cil_db *db, struct cil_tree_node *parse_curr
+diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
+index 9c3df3ef..db3ef98d 100644
+--- a/libsepol/include/sepol/policydb/conditional.h
++++ b/libsepol/include/sepol/policydb/conditional.h
+@@ -90,7 +90,7 @@ typedef struct cond_node {
+ 	uint32_t expr_pre_comp;
+ 	struct cond_node *next;
+ 	/* a tunable conditional, calculated and used at expansion */
+-#define	COND_NODE_FLAGS_TUNABLE	0x01
++#define	COND_NODE_FLAGS_TUNABLE	0x01U
+ 	uint32_t flags;
+ } cond_node_t;
  
- 	cil_list_for_each(curr, sensorder->sens_list_str) {
- 		if (curr->data == CIL_KEY_UNORDERED) {
--			cil_log(CIL_ERR, "Sensitivy order cannot be unordered.\n");
-+			cil_log(CIL_ERR, "Sensitivity order cannot be unordered.\n");
- 			rc = SEPOL_ERR;
- 			goto exit;
- 		}
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 77ffe0ff..d8481002 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -1619,7 +1619,7 @@ int cil_resolve_sensitivityorder(struct cil_tree_node *current, void *extra_args
- 	cil_list_for_each(curr, sensorder->sens_list_str) {
- 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_SENS, extra_args, &datum);
- 		if (rc != SEPOL_OK) {
--			cil_log(CIL_ERR, "Failed to resolve sensitivty %s in sensitivityorder\n", (char *)curr->data);
-+			cil_log(CIL_ERR, "Failed to resolve sensitivity %s in sensitivityorder\n", (char *)curr->data);
- 			goto exit;
- 		}
- 		if (FLAVOR(datum) != CIL_SENS) {
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 496693f4..41605eb8 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -3972,7 +3972,7 @@ int sepol_module_policydb_to_cil(FILE *fp, struct policydb *pdb, int linked)
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 9ef43abc..c29339dc 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -253,7 +253,7 @@ typedef struct class_perm_node {
  
- 	if (pdb->policy_type != SEPOL_POLICY_BASE &&
- 		pdb->policy_type != SEPOL_POLICY_MOD) {
--		log_err("Policy pakcage is not a base or module");
-+		log_err("Policy package is not a base or module");
- 		rc = -1;
- 		goto exit;
- 	}
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index b2891ddd..246aa6e3 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -641,7 +641,7 @@ static int validate_scope_index(sepol_handle_t *handle, scope_index_t *scope_ind
- 	return 0;
+ #define xperm_test(x, p) (1 & (p[x >> 5] >> (x & 0x1f)))
+ #define xperm_set(x, p) (p[x >> 5] |= (1 << (x & 0x1f)))
+-#define xperm_clear(x, p) (p[x >> 5] &= ~(1 << (x & 0x1f)))
++#define xperm_clear(x, p) (p[x >> 5] &= ~(1U << (x & 0x1f)))
+ #define EXTENDED_PERMS_LEN 8
  
- bad:
--	ERR(handle, "Invalide scope");
-+	ERR(handle, "Invalid scope");
- 	return -1;
- }
- 
+ typedef struct av_extended_perms {
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 84bfcfa3..35e45780 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1641,7 +1641,7 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+ 		 * AUDITDENY, aka DONTAUDIT, are &= assigned, versus |= for
+ 		 * others. Initialize the data accordingly.
+ 		 */
+-		avdatum.data = key->specified == AVTAB_AUDITDENY ? ~0 : 0;
++		avdatum.data = key->specified == AVTAB_AUDITDENY ? ~0U : 0U;
+ 		/* this is used to get the node - insertion is actually unique */
+ 		node = avtab_insert_nonunique(avtab, key, &avdatum);
+ 		if (!node) {
 -- 
 2.32.0
 
