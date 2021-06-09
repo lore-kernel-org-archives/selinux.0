@@ -2,85 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4754CC4743D
-	for <selinux@archiver.kernel.org>; Wed,  9 Jun 2021 02:45:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24686C47095
+	for <selinux@archiver.kernel.org>; Wed,  9 Jun 2021 09:51:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 271BE6101A
-	for <selinux@archiver.kernel.org>; Wed,  9 Jun 2021 02:45:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F9E360BBB
+	for <selinux@archiver.kernel.org>; Wed,  9 Jun 2021 09:51:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbhFICrp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jun 2021 22:47:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231668AbhFICro (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Jun 2021 22:47:44 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEEBBC061756
-        for <selinux@vger.kernel.org>; Tue,  8 Jun 2021 19:45:39 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id g20so35985349ejt.0
-        for <selinux@vger.kernel.org>; Tue, 08 Jun 2021 19:45:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dMJAIATDxck3lPc2v/vOyqYIyHEjWVevdw28uBnRll8=;
-        b=vJCu8FkaI6OA/S5WUg8dM66mAya65Fay5hA/eiMY3Lre1NFLuBR0GAu7PbHt8SbNuJ
-         3YxhvjAdYnFhw3cd6RDn4UKhXeuZzOKQfLKns9hAAtwpeDi3dt518h/j2QA7MZh7MYCi
-         vwgUF+67Jw+sjHIq0nD6k7r7cSn48p3v2T3HFi/z6QgtAUEyMPZtkav5Wy80oAsGLE2O
-         PqFJsyaViE7igCLWDnI6QZn7CKnYPtKIF0UpZAGwaHYcuD7wWL6x/HpU0U7WGvfkeOsL
-         OJftkhEHQH1/uRA5GDUWCh9MO6LuUVLaWWbhUiCd702ZrvrmQYQuxElBUN2sztqmw+RA
-         3+yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dMJAIATDxck3lPc2v/vOyqYIyHEjWVevdw28uBnRll8=;
-        b=Ay0BTGlyER/dhH8K4pL5xJ+3v0oQugQYYVBlCYAAhPVlrAQy2PXP9+REHytOM5AKsr
-         WjxL1nwRpmT93aIql4etGJtSuPH8OagnKMX4/lYHTwNn++tbM+iAMpqiVjUs0cF0q0kQ
-         PbmDVxPyO+VXkHCyr0G+ZAYV0xZG84BSS8wL5XIb0YP39dNOoORIw/Aa4582xXBLpCjX
-         3/B2gXKz26MLhtyRbUSI65uuzxdNHRzD5hQSwY+5aEM/Bn50VgSfcGzB2bF2tOsR1n02
-         aWlePrOs4q1Mwxw5DLo4NJL/3MSFWStpqeuFBv264VbvJFtvJdaJ+53LOkAAkvJ0c0FS
-         nm4g==
-X-Gm-Message-State: AOAM532j+ZjrzIKZaLNM/SB7MGFrMyh6h/3JvqIKLzuCLA6s6gHvFWu3
-        4lCKAtA2hB+tJ+GOc1nmRfYZGNUqjb9a7C38lPrO
-X-Google-Smtp-Source: ABdhPJzL9fIDlYNo3jdwZcRjedeaqhqbGqBRlphCAKBf6dCq1NoGxNou4DjDXOr7lSmB1qXBkGhxlEz2kFZPkYJnhXQ=
-X-Received: by 2002:a17:906:4111:: with SMTP id j17mr25998733ejk.488.1623206738453;
- Tue, 08 Jun 2021 19:45:38 -0700 (PDT)
+        id S238329AbhFIJx0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Jun 2021 05:53:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39259 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233188AbhFIJx0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jun 2021 05:53:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623232291;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uYZMGtW3kcEgfZr2yo2D1dicV1447q0bC+K68QCiJGc=;
+        b=aa9OYKIvztlCt7nXwJbTB+uKXsL06uAiSgsVQ6fgDLl/uR1DbRQFO9iwwcSGTtHON6NjBE
+        ID8WNt+dxxbiFEGCyvGxaM5JHzW9NuvWjKG7XBKWyU7+Z47eQ2SLT8x3drQ16Od5v7n+1b
+        T6EktuzWGT33Ij5pL7uNu+AgvRDtlZs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-453-WYJHpXY7NJuG7oJQIlfLrw-1; Wed, 09 Jun 2021 05:30:03 -0400
+X-MC-Unique: WYJHpXY7NJuG7oJQIlfLrw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F232DBBEFA;
+        Wed,  9 Jun 2021 09:30:01 +0000 (UTC)
+Received: from localhost (unknown [10.40.192.56])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7563D60FC2;
+        Wed,  9 Jun 2021 09:30:01 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH] libselinux: selinux_status_open: return 1 in fallback mode
+In-Reply-To: <87r1hjp54y.fsf@redhat.com>
+References: <20210601150523.7016-1-cgzones@googlemail.com>
+ <87r1hjp54y.fsf@redhat.com>
+Date:   Wed, 09 Jun 2021 11:30:00 +0200
+Message-ID: <8735trpeqv.fsf@redhat.com>
 MIME-Version: 1.0
-References: <CAHC9VhTr_hw_RBPf5yGD16j-qV2tbjjPJkimMNNQZBHtrJDbuQ@mail.gmail.com>
- <3a2903574a4d03f73230047866112b2dad9b4a9e.1622467740.git.rgb@redhat.com>
- <CAHC9VhRa9dvCfPf5WHKYofrvQrGff7Lh+H4HMAhi_z3nK_rtoA@mail.gmail.com> <20210608125504.GA2268484@madcap2.tricolour.ca>
-In-Reply-To: <20210608125504.GA2268484@madcap2.tricolour.ca>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 8 Jun 2021 22:45:27 -0400
-Message-ID: <CAHC9VhQg5WBF72UUyb32s9zB+9G41=DfdouPnudY+vL1g9bAjg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] audit: add filtering for io_uring records, addendum
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 8, 2021 at 8:55 AM Richard Guy Briggs <rgb@redhat.com> wrote:
-> I should have been more explicit.  The intent was to have the fixes
-> incorporated directly into your patches since they aren't committed in
-> any public tree yet, exactly for bisect reasons ...
+Petr Lautrbach <plautrba@redhat.com> writes:
 
-No worries, thanks for the clarification Richard.  I just wanted to
-make sure since the contribution format was a bit unusual given the
-context :)
+> Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
+>
+>> In case of a recurring call to `selinux_status_open(3)`, which
+>> previously has been opened in fallback mode, return `1` according to its
+>> documentation.
+>>
+>> Fixes: c5a699046f4 ("libselinux: make selinux_status_open(3) reentrant")
+>>
+>> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>>
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-Regardless, thanks again for the feedback, I'll get this incorporated.
+This is merged now. Thanks!
 
--- 
-paul moore
-www.paul-moore.com
+
+>
+>> ---
+>>  libselinux/src/sestatus.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+>> index 531a522c..89c1f621 100644
+>> --- a/libselinux/src/sestatus.c
+>> +++ b/libselinux/src/sestatus.c
+>> @@ -283,7 +283,7 @@ int selinux_status_open(int fallback)
+>>  	uint32_t	seqno;
+>>=20=20
+>>  	if (selinux_status !=3D NULL) {
+>> -		return 0;
+>> +		return (selinux_status =3D=3D MAP_FAILED) ? 1 : 0;
+>>  	}
+>>=20=20
+>>  	if (!selinux_mnt) {
+>> --=20
+>> 2.32.0.rc2
+
