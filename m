@@ -4,80 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59944C48BD1
-	for <selinux@archiver.kernel.org>; Fri, 11 Jun 2021 00:26:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECC36C48BD1
+	for <selinux@archiver.kernel.org>; Fri, 11 Jun 2021 00:28:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 340696135C
-	for <selinux@archiver.kernel.org>; Fri, 11 Jun 2021 00:26:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C92206128A
+	for <selinux@archiver.kernel.org>; Fri, 11 Jun 2021 00:28:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231294AbhFKA2y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Jun 2021 20:28:54 -0400
-Received: from sonic314-27.consmr.mail.ne1.yahoo.com ([66.163.189.153]:34925
-        "EHLO sonic314-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230346AbhFKA2y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Jun 2021 20:28:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623371217; bh=0ocsldoX5aiLd/U7MOpua/oUOKyqWZuadpgQ3p8PIps=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=LpLDluwvN0RvGIUTq/zO8CcgnuxbAQSg5yq0iW3Cu29B2uKfiwTN5Dl0bNE+o0PKkk8zN7tyW0B0MywVCCRGfZgvmtOYiwlzTZRj9L98jJ11qHwGa57ggxX5BG1rZcAMPAxx7RU8PbfM7fY9UwkSgSe8kuz4yW1L9LAt0FyLCge2kEm64FBs9ztzGBH223zyNzJ7+t0mACVjHLzI4DgTvcl9Ism8J5OuO8rl1awF+5OoPTf/mwlHijAQ/8zjQHD6RjsdqYmcHjqV7PJHGikos3mgtP+x2zanSjf57tXz44lzjAdLg6E7N3DoZKXJGpSPEllAnJm4u9BmUQDHj98Trg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623371217; bh=zigjhW536bXbp/QKnE0Eyan8mUFMv14n6w9ydJODVcM=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=GohfLFBOVea50i+YMYCOojkRM6NFhtoclCxcpF864gPmmr+eBE6ykocQo19mrLe59PpU8ssIcH733O3kRdAgOyIRo/CHx9sxuwPnUtcvL+a3yDexJ1hHpmwBBBUZ3cuE/lutnn1NcLDJEg4Q+uR4Enq8IVd1fnLXotdzjNm6PCFHmAC5C67hIUlLzwUtb59wPJ2rGaNEAmGwxFyIeFMCZbWukkejGQNPBt66N7gdYQ7bndw39/AiK0CDcB35BCERysjZ0jh3HOdwLaiM4ukZxOqq+MJzuYaEpNA2B5VHc+oaaCdI1ozTLPaTXTTELNWz7Z+xxEeJU0j6LsJ3nPv6xg==
-X-YMail-OSG: xZsLNEsVM1kjFd.vEYoaVog4gMExSvAnbpjo_tQG9Cl9knBqvyxRmv_.XtTQyTm
- l5An0EDksR7G4NXdlVr_ZLQ.3e1Z8eisHZoaG5yB8iDVabm61DLnJeuNwNWDAvnLWmR0JZaoSfSS
- xGIqpXdW3MwzSL_gMGEPvC8nWng9liNRetO5hfSX7aFFVh22GEWwfgPaq5HjU12Ob58R4T_8j4Jq
- X7.6LB05dGmwYnZsEpaTPZx0bItT7NqJKb_LEzBRSBbjfPz3Sqx7wkx_vHLqdZJNX3skN1zUGfhP
- ZcagTmihlDZEmOeHDGk8V9hnZMCP0Q2sSp3U1NaGSnk_2SfwuhgOMyNxZggxVWsa_T5MawaND6JT
- OiRezwYkL_HPDIk.Or3Je4bZ0wRbR8zp6ldrUAAlAuA7umC3L.nNMpLjQoCYmsspK99Ah5qPOlMP
- TwaOGDiGotdb2a972eQLKtr_ynI_EmrjNN_f1WHh0_uASRS9ey.cFiv62yIuCLttEXDl5jewm.nS
- PFqF5dHHfIydiSJAZeD7HDHYoKs5tkq1cFgPkDVZwIgAi_r.fCUWCzSm5OUslAeojC7KWAPxwYO2
- Nk7eB7HCCtXxenQjHJ04vNTRNlX7P.WwW4cdzmgM_tMC2B2WuPRRNQqiZZk..D842HNTGE0v_q05
- _Cj6ebLCw55UleGSHDhIEgLtACALPY9gYRi2YyVfWU2r7cDcxmliykiYEMs__5qFOxFtepj11x7F
- y6bWR9DChD7Hum4VEpcC8mlF6ylTr9XE26xbXI7Er9vsY0_AU5pTOx9Obdf6BelQ7F0JrgjqIwIB
- b4RtCnHpyELV1MhjQJSBbvlw1UX5dk1i6OI91QoIqJPD0KRnNnj6tnsAD2a9i9Sw0yfHhsQgV4LC
- 0PB1H3dG6qPdjx_zhqdie85S7FH5A9QXHstot.gUcA05xV9aP9oCJlPwDa8fM6A7tXsMGJS0RTFt
- vG1GUwZYiepU6Oj0rPmDBp.tUHrvp6Pr7wQEhB8lUqoDi2dEuHqK.QC21Q8iZhoKkcHusAgXwdWZ
- 9gRjLrqdTWHo8LaX0a3IYfo2W4Coh9iGdiDAXjOm6_2Ksq_c3v5zo_JcSFGHEa4TXnxrP6mZbV2y
- v9dYQBgUY7UedNcWXeKrlCv30IKrII38UfuKfTGBJ1TLxPfXZI1DxOTFNY5JvX7yfO2obBMQydVE
- 0xOtDqOkmt0DSRMVxPfG0JaAhwonVKZcxDFbMiUfMD3oVcOwGr_xN7TAymVPVEaC6vUUVUaJzaCr
- 1N6W1TYXB2Od0U29.i.byNILOnnXAjGtoyOdGpHYXQ3BqMZ.XcruBWnwhvVYtiqLpwjWgS.Q4NzH
- 8nBVqur3qEs.zMvI_vDiPoe_B0HyW6Oef3KH0j_7t9W2FSFpJcDFgxMQ6xA4iHsIF_DNpecU1dzu
- pw319LYRXxKvnb1wfEIclhvuPWD5NA5.QckSsi66.gnrzHJ0z6CoO93PRrwjPFNp6swUlzR5N0uG
- eQ6MVw0ymh_Txb_Vq3nOwwqCVgZWY6ycLd6YEpYL.0lzGgE08Cgw2hjhP9kNyeEHGCqVDAdiilgs
- wZak0UQfjjb8CMzwjQjqPtyhHZtfTEqKU5GhLKVdlcPXO4k0XLHbxcOeIpdvfPR2LBjpEh8zizne
- oFAXU2lpdrjz5eLxrdEvySuq9QWYhEu0ehqANJpPRFE.jss1x9MR2p5dBGpK_a6REQClNsZ3eabW
- 7N5pMo0jNR6MmrgUJDjzK_BZ99pVkuAFKGeHToi3oMyymVXYuC.hzWvaqEPOahgy1j.dHerdkUq0
- O_LAAeJp4kvDUJhJEmspdKjdDzz06eF.7O6aHH2XQ8bVYgnc9d7J3d0XeQBRjVV_ORNqbbccIfhj
- FQd3nj4MHzuo3_4YYecNxDYjxmzoD3kme2AnMiPh9O1gp95hRJOKDQb8rAjoOwAAl5AQPm_0HwrN
- UbdjOMyNU9sZ1yu66GU.8taDAbrFqBlcmlhpYTaZJyavpemZ4QL7MAF5UqkmamxXd7m7NflA72JE
- 79jCHy4.59vs1M1sVtCtNyXFsjdW4voteEQJFaKhlylkXn9i9sOx6OMMX6uzScLHFW4740_eVbAz
- ouegnLXNLtWlozMk_DOxlGLlc.0n.Y7xPSyPx4zmXJBgemeFY3k_4xryDXwAlMjynJOQJUsoMNJy
- 2IKjpJsaV4ERIy_uCiAPDh0Bbmrly7feOUbr4h_hOVi.j2fm672MkrreOEPraxG5Z4tcCg7KvWeo
- patKwNEhObZZKgO2vI_vFyNvUg6qoY56otUEBe5EP55eEy8ZFB2o853P76XbP_PSIxEoECiuRvCM
- wRcAZgxHhcgKzeZyZ0.gaq1xb5fI79n35nTEN.wc0uoIhT04a85OEASeD5KkOrV3hv0tkw.kE8jy
- WvmDCk5We5AC_zAjtovtVQyUG4_aL62uPLGo4.y0vipvdnc9m2vqIdPDeZytNVEwIvFsVKv04lr9
- TgwPoinphwZ8UqVCvhwPZit6JIyAhEg6EkC8MnVYzXiSbgfn2VQWkov4cLQ5kosfKYSy_wHAxymO
- ObfhKBgfKX3vDxMnyeJbdOUAUqbSr1S7ujmVwNGIp1PCYn1JRHHBhr9u7e.VuDLhvbMEu3KXXA1u
- dcu4REaIPkLGJfW4zet9LJBUHR9nAKnJnxlrd7JiB.CtO11KqELJ7bIWgkqPGhZQ7pDULwIeuYUr
- L8T9STLev00TO3Wy3WNHxGZDPj1o6jfYhHsoV7.kn57XzH.avXpDR4Oel254vohQXQDztDd4qrJ2
- .jtOxtn0k4LGwlS.QDGS44gRC2jMHWK5YK0JWYwNisXZi9pcI2SivMLH3i9ltvgM4gaevR37v6li
- 88GvzNJKB81jZaDQY6DyZSz0_lryBYM1b6v.8m4Pm_QKJvmWM7p4erZe7ye0gTeWs2nEgJz5eTUd
- 9Le.8cEcV7fkdbukV28D8.rxgg39a14iT0CETZUS.a5K4s1ltPy9Ah8iZRR8gCh6z5s6Wu.BmrdS
- yep.kayPATDwbVOb409VyEZ5QEkA4GXQBCkqJl66nPj5X7CZq5f7imynilMiDWNMjdotZoK04Wgq
- nxFAAuyIdKLijSTiQQbxdustnf0D4c6thoRGrUA1k25_jFiUQH_EV7fYz7qmTeFGDZ0.P7uyj3pE
- Ln7OJ5Uz808hJpmp1YYEp1UJeUzT3BYSaPw--
+        id S230417AbhFKAaC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Jun 2021 20:30:02 -0400
+Received: from sonic312-31.consmr.mail.ne1.yahoo.com ([66.163.191.212]:43763
+        "EHLO sonic312-31.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230083AbhFKAaC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Jun 2021 20:30:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623371285; bh=7V2RZ/HRpW1AoAp/Iq1XcaU0GNuu+Wd9ZV/RFltAMkg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=G0f2JDj9OdpNMHRJKcMyh5PZLlqsiyIr/IqEyK2prB7qunHnf1YAU20IxMf2KZlfEH3T9epstFxLKRaN4BVr4y571gtsYEth4yfWWxXJt27APLi5Lcx7xrB6V8naJiYgk0nPO6aUuF6kBt4OiKskr+De8X+IAYxI9hRBWlRnXDboQdCM6YhPIItg5FcqWFFI8T/Hc/rDB1od8Gkr0VVMLBsy0juimXY66//bGU56XnPCqr+1/28NwkrpMMXuEOeLvPBMgi9bnU39ZAVVdoi8tG7v7a2n8X+YzCKSfHnA80axuAw7tCClTuUim7MFncIDPn3piCtp5mEfd6GP1qjEkQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623371285; bh=vJxgvEmJ50fqSZZQUpBsn1288uDgaGKP4jySsukHIgJ=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=Haainc8GXLFWrjQYZHXiCFJf57+GcmXpV2j/4CbgzxyZPK7zTXGQl7O7y2sM1QBkkJM4GJDcM8zJ+vAj061PU4nIz3Xx8j1zbBAYci+Khl0c6HzBJ9cXyUjHF5vZqaPqVWKrQ9vT54LzGiqy30I9EgLU/olioeHqmZ+WNW+x9LoWrr3Usb6xOuh9jHxNITKQP+xj6WCdB6WPvguVv32/adFquP0XSxqj4SFk3zTUOuSdwDxR0aIHoorzezWuzIQXv6EZznP+jEQ9wX7IC4Pk/x5kNlfYwvs1L2+dHEBSXbh7amQX2vJx4zc+pDcmLhS/BJZoGdLfKmc/hpmclF7mgQ==
+X-YMail-OSG: jHyRJOUVM1nfLGTW2Md_ZjNO6VRfXLCt_w8x.tnfXCj2eVQoAMbsyc3XRgZM7.O
+ GWGYoDrxgOo0GhHvc2Nw05opUWUvuC4kldArZEOHsGz8h22f1byFlcJziikmTela4zgXOBQQmzpe
+ LP6CMuh77l6Mgs5zVH9gG.BLnmYUpw2rqa8avEnf2tISMMFffKaXOLbZ6I4wdbkp5fAmglohYp7c
+ 0NY7k0R3ajR7TdZlA.sap4O.e2Rt_lzG8XKpV6CH9MB6WCnuJCrtJlum7bRWZA_Z37tBIw4rHBJZ
+ VOw804rTUF_eeDIz2t6vZG0FBiU27Y9381KleCTgcE.y.YLwjhuyieEhOA_t8votaTh2BnibNn0M
+ 38Yjvl1G9ysZNDp4h7Ea9tO4xFCVnBLgqVokQOJ391_tvgsbTff3PVjtggvptEQnodmIxHpSqPGQ
+ UT57qJf9WFB_TkyxwFU1cPKa5QuSxTI61pd3_dn7OJWFYlVOdFBXa18ZyEAOFcdpv4zFuxnHCiyZ
+ A43QQvemMpFm.bUgRlp3hIL66jMlTVGrduZNqBTgqarExQctIRefRLdtdqofNqIDE7jclshvhhh2
+ 7eoyadS6nqkdJ0olKfb7uNnqD_Yr740V3CEAt2wwpSHiZXmDNAqEvP_M.P6PlTw3KUKjxdyq8DjX
+ v0gmma_1A0tQVOy_Rdp0ia7ItUCULwXaaAw7dVOyutYZwWWfitAb6UQpKrSM5oGTgpfYGSEljq0_
+ RfsBD6xE7wyxjpDLgHGk8TvOzCSUjntMkYtTQN1jd9YUxYCECBQ4zseEugvb1fBLDL8iNpJrlrBp
+ hXEDUB9p0DazJ0a4QvJ83pRfAYFASR0rS3nhLSGgxdkS2N6xoK1uF2i97h.7PMY2L0J23g9GoYT6
+ exZ3ozLBpZ1rdi4l6hTvGrlImXCQHRRE.A.HpzyK0y6Qb5BHoIyo8rrugCVgeQhfBVLV0zrgYoXA
+ NHNoRntKvMIdkh8ZG0M40TmbbeArpmEM5U1PIerXRiUA3FUBHQNI0SEDschnYYacvkE599sW4FcA
+ Tn_K217A..e0CbYgwZFpv21NcrrKr3kpbSsV7DX_PEXn14sD0GXfypQtlLVtnfkR7xEYsmuSOCf9
+ jre51x7XYxzEjDo9EiQUscYZzzC62iW79dJJtg9ukfi9P.F4YZpKzckWmDQjYarST4RrqZ6HRTeq
+ RtyGDBF.I_KritetrziT4SLcYydFzMjl91gmyh.7rtRZkQs8eCYdpi0.a_.4s.EqXZQ0oXTwqdkH
+ avTqmC1o27LU1wvKX2LKw4d3Va8cY8J5pnh5i5qEqX.ysjNnCxo8FddtFke8Sdx0PGmr0FV8LxlW
+ niblF2rMMX.XzJe.ak2LwyVyw4rIXJYVOvOz2ARMP.doEuSkN7wyS6pmizxCmSxUlpoCG_FtDqRC
+ HfMuE9DFk.4LPKJbrZr.i2QCXA6l1MBQT103Jro_3NX7jU0bHl_54COfCMsf1cZjbZshga5pO8OT
+ uBrGw2ieMc_gXL42VqdakwjM2Ze5eOnVEbaJL6afUT8IwV1rU1269bX1hP6O.KWfUBNyMokdu2Hl
+ Jh353DVFVSXiRptfeu_t_Ix_fkozMHvy08QkbF61ZdKfe9Q1.BmPrRvEHafJKfU13ztWHwokBI5W
+ TBfg0Y0R3USfB_7U3P2PeVp3CAxy_tb92gZrn6IidsB_iw7.X89boyoXx_wmhuv0aaeAsV0LXXRn
+ o.NdBhreWBo87T8Erl2F8V9ooSStP1MS22CdwbQzklE7ddP9sVh3c3PrcPeqocoy4bPx6rMUxmQ5
+ 3pTxXKt3v9uY5PCcdeH96KO2qYafp9rMxQNT1Ahi5jrGnZMfYe4fR3TkytWwhaEBsSP8XgWQVHgA
+ BO_vvvTvYo_Q8LK76pGHPtFEeZF3FWRb9kkALy6SzOJs_qfVtvgWfZLqaPgFVcpBcKjzFQgyrNKz
+ yMafqWidZVC7SCVgnUxBqVEmhy.6Vn4PSIn1_43Cu1sbBTRTb8E8u7RuIafQtfB2Gjik9znNIjMq
+ fexWuxedlizmcVyLWxWjb_w_eb241YzDY3er7.GPaveJLkcf0rW2PC9CBXnmX0db.RVKMXbS8cRT
+ 4NqmFt6oqs0MfU5UoioQwwuSx_LoW2SOrqq1SZca_Eg3VYtbhIkIgD88g.HLPrGy8ac_RCgZPb0s
+ .t4l2Hf2y_rBVYYtQqoE4wzR.9GZXOETfXh9SCxBIUwajk7rX6cL5E5.cumTNZwnI.y9hKM9VjlW
+ IrWTtnyiJ2m_PcWLx3xlyuGNHY6tq7JSql9YMtq1pUHUTl1SJhb8tgGuHe9qwFKiP8mEWGSTObyV
+ UDBln4X8RRrt_RFr6lFGltLBGGkoZadY6j6t1RO00UaD1V7VQuLcoluXjNlNZ9t8eL8_43fRPUrb
+ TtQKUeFjwaMgpjQRqvv0LD.8DBoZoUBvIE8GkOA7LkNMY2M_d5I5Eo4MevOHraxQWHeIvu00pV6N
+ YMnSqfwa_5_DCf0x_n0IQSB3DmyTQ9x.pRuEcoBJxfxl8BrcwlwHJSynAQeJyWv1o3G_mRyFBvNO
+ YIlHYu3KXyU2YfubAbTXbcvVWck8YVbTglfKZczi3ENt8vBIob.S_MQMDpcnq35JSbVZNk9cU.Dp
+ K_Vdsd4lbGW53SogZJy8RumSdT4ECFskivCkh5SC1o5lHs2kTZ_77QBuBn4jmQJxwLSK3Qm.PL_L
+ 0sQQ.tyUVEK3thwTpo2bAQExA2FL4GniCtK5iyH.9zedoK7aSrJwfyhlxli6oGaTQ2WeAruqa58e
+ wDsXcypO.nM.bK4YBJwc5yGvmRgII9MBfRbPVbnut0GujR28KFbkaoNK3LH18_2gm8zyKTne6j54
+ 96YxdpT74ASYxrBrkuq.7uLHgkNGSyhFiSll7ioQzQ.GsL3Q3GcXP3X7OyyzFP3rGxdiEqQfsNDC
+ XCT9uS14prnPvZuQk1vV5.5GBcvQHOxA8ODEVIzXBlHJ80.riSOw5XD5Zm3GoLZLD5hG7NWlxB4D
+ tZiFA8q9ZbNueXMUEq1YGRqExMeNZyoJhEKKoKBmjTiMm1S6a4MQrI4CfjDldNZSW4YymewgBKDP
+ QmZcoIKcGoOlfTFbNF5S1z9kZlh9vL_KBEjnlDAE6eJgWg4R55gJ3LNjxUQqs8nb_WvwHj5Psg9w
+ Xsfqmh9KJQzsF8eq1wo06mEHkzSD91fHDBxMViCSfma63FpwOk5GjCvlXMT4-
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Fri, 11 Jun 2021 00:26:57 +0000
-Received: by kubenode528.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 765bae9a76b99cccc78663309335f09c;
-          Fri, 11 Jun 2021 00:26:51 +0000 (UTC)
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Fri, 11 Jun 2021 00:28:05 +0000
+Received: by kubenode560.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 03105bb17edb9375c7f9fde1dbc1d821;
+          Fri, 11 Jun 2021 00:27:59 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org
-Subject: [PATCH v27 20/25] LSM: Verify LSM display sanity in binder
-Date:   Thu, 10 Jun 2021 17:04:30 -0700
-Message-Id: <20210611000435.36398-21-casey@schaufler-ca.com>
+        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+        Richard Guy Briggs <rgb@redhat.com>
+Subject: [PATCH v27 21/25] audit: add support for non-syscall auxiliary records
+Date:   Thu, 10 Jun 2021 17:04:31 -0700
+Message-Id: <20210611000435.36398-22-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210611000435.36398-1-casey@schaufler-ca.com>
 References: <20210611000435.36398-1-casey@schaufler-ca.com>
@@ -87,62 +88,137 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Verify that the tasks on the ends of a binder transaction
-use the same "interface_lsm" security module. This prevents
-confusion of security "contexts".
+Standalone audit records have the timestamp and serial number generated
+on the fly and as such are unique, making them standalone.  This new
+function audit_alloc_local() generates a local audit context that will
+be used only for a standalone record and its auxiliary record(s).  The
+context is discarded immediately after the local associated records are
+produced.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-audit@redhat.com
+To: Richard Guy Briggs <rgb@redhat.com>
 ---
- security/security.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ include/linux/audit.h |  8 ++++++++
+ kernel/audit.h        |  1 +
+ kernel/auditsc.c      | 33 ++++++++++++++++++++++++++++-----
+ 3 files changed, 37 insertions(+), 5 deletions(-)
 
-diff --git a/security/security.c b/security/security.c
-index a5150de2f3db..ae23b5a8fe87 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -859,9 +859,38 @@ int security_binder_set_context_mgr(struct task_struct *mgr)
- 	return call_int_hook(binder_set_context_mgr, 0, mgr);
- }
- 
-+/**
-+ * security_binder_transaction - Binder driver transaction check
-+ * @from: source of the transaction
-+ * @to: destination of the transaction
-+ *
-+ * Verify that the tasks have the same LSM "display", then
-+ * call the security module hooks.
-+ *
-+ * Returns -EINVAL if the displays don't match, or the
-+ * result of the security module checks.
-+ */
- int security_binder_transaction(struct task_struct *from,
- 				struct task_struct *to)
+diff --git a/include/linux/audit.h b/include/linux/audit.h
+index 418a485af114..97cd7471e572 100644
+--- a/include/linux/audit.h
++++ b/include/linux/audit.h
+@@ -289,6 +289,8 @@ static inline int audit_signal_info(int sig, struct task_struct *t)
+ 				/* Public API */
+ extern int  audit_alloc(struct task_struct *task);
+ extern void __audit_free(struct task_struct *task);
++extern struct audit_context *audit_alloc_local(gfp_t gfpflags);
++extern void audit_free_context(struct audit_context *context);
+ extern void __audit_syscall_entry(int major, unsigned long a0, unsigned long a1,
+ 				  unsigned long a2, unsigned long a3);
+ extern void __audit_syscall_exit(int ret_success, long ret_value);
+@@ -552,6 +554,12 @@ static inline void audit_log_nfcfg(const char *name, u8 af,
+ extern int audit_n_rules;
+ extern int audit_signals;
+ #else /* CONFIG_AUDITSYSCALL */
+++static inline struct audit_context *audit_alloc_local(gfp_t gfpflags)
++{
++	return NULL;
++}
++static inline void audit_free_context(struct audit_context *context)
++{ }
+ static inline int audit_alloc(struct task_struct *task)
  {
-+	int from_ilsm = lsm_task_ilsm(from);
-+	int to_ilsm = lsm_task_ilsm(to);
-+
-+	/*
-+	 * If the ilsm is LSMBLOB_INVALID the first module that has
-+	 * an entry is used. This will be in the 0 slot.
-+	 *
-+	 * This is currently only required if the server has requested
-+	 * peer contexts, but it would be unwieldly to have too much of
-+	 * the binder driver detail here.
-+	 */
-+	if (from_ilsm == LSMBLOB_INVALID)
-+		from_ilsm = 0;
-+	if (to_ilsm == LSMBLOB_INVALID)
-+		to_ilsm = 0;
-+	if (from_ilsm != to_ilsm)
-+		return -EINVAL;
-+
- 	return call_int_hook(binder_transaction, 0, from, to);
+ 	return 0;
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 23a85a470121..27ef690afd30 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -99,6 +99,7 @@ struct audit_proctitle {
+ struct audit_context {
+ 	int		    dummy;	/* must be the first element */
+ 	int		    in_syscall;	/* 1 if task is in a syscall */
++	bool		    local;	/* local context needed */
+ 	enum audit_state    state, current_state;
+ 	unsigned int	    serial;     /* serial number for record */
+ 	int		    major;      /* syscall number */
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 67da23f6bebd..d4e061f95da8 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -925,11 +925,13 @@ static inline void audit_free_aux(struct audit_context *context)
+ 	}
  }
  
+-static inline struct audit_context *audit_alloc_context(enum audit_state state)
++static inline struct audit_context *audit_alloc_context(enum audit_state state,
++							gfp_t gfpflags)
+ {
+ 	struct audit_context *context;
+ 
+-	context = kzalloc(sizeof(*context), GFP_KERNEL);
++	/* We can be called in atomic context via audit_tg() */
++	context = kzalloc(sizeof(*context), gfpflags);
+ 	if (!context)
+ 		return NULL;
+ 	context->state = state;
+@@ -965,7 +967,8 @@ int audit_alloc(struct task_struct *tsk)
+ 		return 0;
+ 	}
+ 
+-	if (!(context = audit_alloc_context(state))) {
++	context = audit_alloc_context(state, GFP_KERNEL);
++	if (!context) {
+ 		kfree(key);
+ 		audit_log_lost("out of memory in audit_alloc");
+ 		return -ENOMEM;
+@@ -977,8 +980,27 @@ int audit_alloc(struct task_struct *tsk)
+ 	return 0;
+ }
+ 
+-static inline void audit_free_context(struct audit_context *context)
++struct audit_context *audit_alloc_local(gfp_t gfpflags)
+ {
++	struct audit_context *context = NULL;
++
++	context = audit_alloc_context(AUDIT_RECORD_CONTEXT, gfpflags);
++	if (!context) {
++		audit_log_lost("out of memory in audit_alloc_local");
++		goto out;
++	}
++	context->serial = audit_serial();
++	ktime_get_coarse_real_ts64(&context->ctime);
++	context->local = true;
++out:
++	return context;
++}
++EXPORT_SYMBOL(audit_alloc_local);
++
++void audit_free_context(struct audit_context *context)
++{
++	if (!context)
++		return;
+ 	audit_free_module(context);
+ 	audit_free_names(context);
+ 	unroll_tree_refs(context, NULL, 0);
+@@ -989,6 +1011,7 @@ static inline void audit_free_context(struct audit_context *context)
+ 	audit_proctitle_free(context);
+ 	kfree(context);
+ }
++EXPORT_SYMBOL(audit_free_context);
+ 
+ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+ 				 kuid_t auid, kuid_t uid,
+@@ -2210,7 +2233,7 @@ EXPORT_SYMBOL_GPL(__audit_inode_child);
+ int auditsc_get_stamp(struct audit_context *ctx,
+ 		       struct timespec64 *t, unsigned int *serial)
+ {
+-	if (!ctx->in_syscall)
++	if (!ctx->in_syscall && !ctx->local)
+ 		return 0;
+ 	if (!ctx->serial)
+ 		ctx->serial = audit_serial();
 -- 
 2.29.2
 
