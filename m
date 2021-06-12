@@ -5,61 +5,63 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A1C3C48BE5
-	for <selinux@archiver.kernel.org>; Sat, 12 Jun 2021 08:52:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C25FC48BE5
+	for <selinux@archiver.kernel.org>; Sat, 12 Jun 2021 09:07:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6EF1261249
-	for <selinux@archiver.kernel.org>; Sat, 12 Jun 2021 08:52:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A1BC611CC
+	for <selinux@archiver.kernel.org>; Sat, 12 Jun 2021 09:07:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229942AbhFLIy2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 12 Jun 2021 04:54:28 -0400
-Received: from mail-lj1-f174.google.com ([209.85.208.174]:45043 "EHLO
-        mail-lj1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229584AbhFLIyZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 12 Jun 2021 04:54:25 -0400
-Received: by mail-lj1-f174.google.com with SMTP id d2so12781688ljj.11;
-        Sat, 12 Jun 2021 01:52:25 -0700 (PDT)
+        id S229942AbhFLJJr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 12 Jun 2021 05:09:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229819AbhFLJJq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 12 Jun 2021 05:09:46 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55E3DC061574
+        for <selinux@vger.kernel.org>; Sat, 12 Jun 2021 02:07:47 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id bp38so12387451lfb.0
+        for <selinux@vger.kernel.org>; Sat, 12 Jun 2021 02:07:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=V7S6ZH1R4O4vB9phX86PXGejafkt2ttc0fjEWi9HJC4=;
-        b=IyA3O3h004nyPm/6s1ZnYNa1mxXKel6ASyZTDhYp0HJVY3LeAbSS4X+98avkDu1lIR
-         ggfErWNdA0ifPu8Fl8rxhq/AZCvPwpH7CklMZwWowFuayof6rQP2fXn4/4d8yCExolbE
-         TtqEIJLvXmgfRqPXr1OJeyLdNluSy3KP7acWssSIbj1/63ttx/TYGCKmHHwlKvFmCbd7
-         Gm6Nh9Y2ufCGbKJD40yI/EQgfVLPG1RiA5rs9W4jaXEvVhnxJsVV2biDq+m5pc1EhAmf
-         U3aqCBfAlW0ZtDrwkuuLZ0s3oEAI+i2D4T4WsEXosX57EUaWVypNRTDGD/trQ2TDshWt
-         XkPw==
+        bh=RQsDxX4sWSJ19LQdZpzLswwsUnaYxuQJU9i2a6N6FGc=;
+        b=mwUs6XsVoDA4rN/oYB5vrWNzrBwta8XQZ+rWmp4HW6HigD6ncU2IbDPrYN7FK15pJr
+         Rbb6tXjHxx0lwbyVPiHZqfeY8AFLrtddQSm6vaiQyTqrH1HNUKP3ub+090hH2WbGEw0/
+         Zw03kM75U00Z6D9jMlgVlPookAXmp+TIGyyysSm8c9bW+H9kD+ZZV6OvaAJBBota1f+9
+         SBQVN9px1etLHn5GXfW4V+v9BwIDrKZFsIAsKUYC/TkO5ROoe6kLcqfqFXl2X1rNBUtm
+         /XkDL4PeXh/kHPLdrUgjkZ/yy2XMd9Lkn/g9HAiUsZ+x9W15fYLh0g8a1ybuL7S2QpFE
+         qxtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=V7S6ZH1R4O4vB9phX86PXGejafkt2ttc0fjEWi9HJC4=;
-        b=bWXKAHZMCERT9CCHDvxYrvCwDV2i8RasxlYp73xaKPisV7S6aPau86FAdIAMWo3/af
-         0ez9MuqdsQcPcTZtS1NknlqVSU3CDecP+tZymab5lv0D+hB8Qv5L6jMvt/v1tHhZSKcq
-         PF0Lt7m+FydRi5rvkelalFQclbDKpA3MoiYhAy4Aw4lkIbDK5NOAiBm5Si5aJU2grNNR
-         nO+PGW4+YsErmX4q82Bhxgqrdn+UBY0WSg0+f5OOR+6KiUp95hocGWTFUYO/TnXUsOV2
-         jIiHXZFCXouYb0+NZz/YTsLWOw1mUMHLZWYWya55/eYXQqrgcGY1/aaEv3kL5IzfQ3NF
-         52lA==
-X-Gm-Message-State: AOAM533YSTSlvJgE0mjsF8ubXxpu6tExB8vsqtQUL8EGL/8RgXxWfIQA
-        HHxHuNDxnZiRX0v6Aax5r1De8ZQ7Jrk=
-X-Google-Smtp-Source: ABdhPJxXsLl0V9DLCHdOhwx88BNQCUs8Uq8P24qw7b6j2kPo5TMBFgXWp73vKAs39tsmCBucPKfHAQ==
-X-Received: by 2002:a2e:a263:: with SMTP id k3mr5768751ljm.41.1623487883692;
-        Sat, 12 Jun 2021 01:51:23 -0700 (PDT)
+        bh=RQsDxX4sWSJ19LQdZpzLswwsUnaYxuQJU9i2a6N6FGc=;
+        b=aAqwQcyLCaJNBMGgrZQGHElOmMz6FsbAaEFqX8kjbZwcGmNYB0/8weObo2+XcnVXm4
+         1Be9VjrFSOyp8oR08Lzt2jVbjD3FV/uTcwioRJjzM5GfJsXCphXLiP1Na4JGtRSJmQ+8
+         8ci2xPTfoY4qthqtVZL3PpEqL+B5MEcmbLlGgPzNpa7pHfU/qmkoE+igv9l3mc6cBxVo
+         Q2RyK1H7UUzAHpzyzjSjY+0dAl3a2BRIQdT+qhQ8ATR/fTZ3ww0rl5ao7Zl5SwGxGnZs
+         gz8dpQkHv1g+Ay3Llra+ZttKmk9wp2i1Af6sYIsFno7a7dwVDjsGjfm0rvKumqhtaF73
+         L1Sg==
+X-Gm-Message-State: AOAM531T+p4fUetuqpcXudICdBmjLnrDDTmbT5yeLoIm4FNRnA8CTbEC
+        KP7svBjDIKvSNOTgohoBsp3cMtarrlw=
+X-Google-Smtp-Source: ABdhPJxCkUCO7k5WXsocskv1C1NwujVU1as/8ooZZtjgvL7AF1QgAv8YSz1rhPcmItOYrfmjbPMcGg==
+X-Received: by 2002:ac2:5d69:: with SMTP id h9mr5104333lft.603.1623488865361;
+        Sat, 12 Jun 2021 02:07:45 -0700 (PDT)
 Received: from localhost.localdomain (88-114-216-93.elisa-laajakaista.fi. [88.114.216.93])
-        by smtp.gmail.com with ESMTPSA id f14sm1034685ljk.42.2021.06.12.01.51.22
+        by smtp.gmail.com with ESMTPSA id n3sm1000973lji.65.2021.06.12.02.07.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Jun 2021 01:51:23 -0700 (PDT)
+        Sat, 12 Jun 2021 02:07:43 -0700 (PDT)
 From:   Topi Miettinen <toiwoton@gmail.com>
-To:     linux-man@vger.kernel.org, alx.manpages@gmail.com,
-        mtk.manpages@gmail.com
-Cc:     selinux@vger.kernel.org, Topi Miettinen <toiwoton@gmail.com>
-Subject: [patch] mount.2: document SELinux use of MS_NOSUID mount flag
-Date:   Sat, 12 Jun 2021 11:51:09 +0300
-Message-Id: <20210612085109.20363-1-toiwoton@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH] selinux.8: document how mount flag nosuid affects SELinux
+Date:   Sat, 12 Jun 2021 12:07:38 +0300
+Message-Id: <20210612090738.22408-1-toiwoton@gmail.com>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -67,29 +69,32 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Using mount flag `MS_NOSUID` also affects SELinux domain transitions but
+Using mount flag `nosuid` also affects SELinux domain transitions but
 this has not been documented well.
 
 Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 ---
- man2/mount.2 | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ libselinux/man/man8/selinux.8 | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/man2/mount.2 b/man2/mount.2
-index d8521880b..d7d5b2ad4 100644
---- a/man2/mount.2
-+++ b/man2/mount.2
-@@ -220,7 +220,9 @@ Do not allow programs to be executed from this filesystem.
- .TP
- .B MS_NOSUID
- Do not honor set-user-ID and set-group-ID bits or file capabilities
--when executing programs from this filesystem.
-+when executing programs from this filesystem. In addition, SELinux domain
-+transitions require permission nosuid_transition, which in turn needs
-+also policy capability nnp_nosuid_transition.
- .\" (This is a security feature to prevent users executing set-user-ID and
- .\" set-group-ID programs from removable disk devices.)
- .TP
+diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
+index 0ef01460..5842150b 100644
+--- a/libselinux/man/man8/selinux.8
++++ b/libselinux/man/man8/selinux.8
+@@ -94,6 +94,13 @@ and reboot.
+ also has this capability.  The
+ .BR restorecon / fixfiles
+ commands are also available for relabeling files.
++
++Please note that using mount flag
++.I nosuid
++also disables SELinux domain transitions, unless permission
++.I nosuid_transition
++is used in the policy to allow this, which in turn needs also policy capability
++.IR nnp_nosuid_transition .
+ .
+ .SH AUTHOR
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
 -- 
 2.30.2
 
