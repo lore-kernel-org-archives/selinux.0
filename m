@@ -2,154 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C32CCC2B9F4
-	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 17:52:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 530A6C2B9F4
+	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 18:03:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A68AA610A3
-	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 17:52:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37915610A3
+	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 18:03:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234198AbhFNRyz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Jun 2021 13:54:55 -0400
-Received: from sonic308-15.consmr.mail.ne1.yahoo.com ([66.163.187.38]:37863
-        "EHLO sonic308-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233975AbhFNRyz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 13:54:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623693171; bh=CjI+Y1jLzQZocS74biMFxJXGXk33MszEbV54guTry/M=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=QF0aq9cOL470KhgZJafw1sqoagAhORXoHQqeJlG3pMcwhrWDHGNRH11/uxi0BlOfqRJgGu7Le6l5TjWNgwqka5Ssz4C9n7gvTW1SWt2PQq+EFT45CQdoEf3ujSkk7us7LLr/Gq5zs2MPRXR9WNQrrKJ8lzIXUBB4yF7cfpx/P+IGY1l1LIKObF2Rv0F4ZYuRf9rQLKZjxwK4eo8u7skdghMWoGkzHBOrUZZoOR1A3PY0k2Y0Abd/yviRpPnl9eRLDC51Yg+jihQsZzPU7z1qEpTLT54edc9cfkNli+euib6VL/m3OjiJlWIKMWyyEJUIDt4yHSQdeIXaU6qSiaUeoA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623693171; bh=oGBvXpwGugeJMD9uvUmVrWkmhJqjqHrIQdTK3p1mAjq=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=SaBYfuU64y9DsnjFIOYgRPzEXiym4AuTIo/p+xMvamKUQERstIRzqNjpKZJdcrz84jUMxFktdp7IwhOSYiosk0GTmz+t+iSbxJO14vF0bwK533aT8daN4S6Rz1wnE1N9xk9nIZUp/f1Isa7soBDDDQJa8qgXGKkw/luHcVAWZhr6as+pxP+CeBOzZYJsBGyN2ReqX/aqohPLNmdOqfEAiRzcnmlWhBtM5nx59k5x61cxE9ERI6afT6RPTqh4T5Mshc3j1vGvkEby/xGGDzklJlC63pfUuAG7SGNQ3Bh5SA7SS+TFnUNpCdX3g9niYJYNurhwdPWJIKoWC/9XByThnA==
-X-YMail-OSG: FRLW7QoVM1m5mMLp7iYVQ6BUDdqVW11jKRS0Wk8RdxffzqPBW95JfK15fuo3xNj
- vxHkcSZaCb8xvyyQBxZ3yhASuNvy.jl8Z38TmW5hIAQw7FWFm8UG6WSO.UFly5MKjeZTBevoUmN3
- tuhimYYQK72mz9O8IMVq9z0FUGfA3Ly9HVU1tc3u3uo5NTo_fIu_2k0LmQhL5Hh_2k_SuWEMBJgV
- qANT_Z5igQGGDulYC5clHbKyPBOQWIOGZawqkmqIPKjh4ftNO1YSc5_t8Zi_SeMdjC2KczGST0Gf
- i1Peq3.8bW0x0DmajJ2vXShGgUioAeYByn6mhuHgPbKp3AtsMYS3PHHXuG5utBSLE4GcLWwJkHML
- WZwb701cNImrAxvGwjBP7L8so8c0hsnKUXN1Fc9i3kBQQqqALVG8a4WV0iy6klmHlsshGKGOfX9c
- x8KONJFw4gseB5tUHh6aAA9njWDyw2hdSd_Ps6ZLIX0DrvymqbghLkD94Bft4aQT2G4rx.P7GS35
- b0LjfRjLGi1gDkYcRafyD4mzCSdUrP1O7oLJ2lr56VRBZvXyIZErWR05ydYxu3_whX.v9B5EVPIz
- lX6jtLCivbZ0nuCX7udJFNhxdtmcuSSIEuy01kYuc00yZAC1pVYQcZ.RCQMJ8zYcMAY6APWwLxx3
- zaDXrNXA8NC1ZFCLw9rAFpCBhrP26gVLnQ41NT70ypdLsZSa0W0PextIMElRzfFSPT2NlzfI6KqW
- q0rjfLU_iys57KpUsHIma8HfhIFagU4mWTtrY0lmyR6MvElSuaO_pZc9CBv7UuqXZLOFFDJrPQM3
- .EFtyUty8hAFsq8UAYrXzIOAbKNQGxxWx2iekb3CB_pY0AVNqvZEGWcQHdlxZ0naXjGrlOTaoQP6
- Ti0plcxWcVrXEeiy99noUX8VAcVgvzMbwvObzMvbwHjbMFwIDR2fMYOY.0ta5rC7cgndpYWa4.CH
- 0Yeo47dwYyjfBxxAozYyWJAeCZk3xuHcDYoCK.BiWBgZ.l6YdCipD4GwmCdBmSJr9yR3s_nystHJ
- .prvudAKc5xpbPv.ydX1QTFf3xVQxtct02.pn.FPl_ZlNFAHOcP6fCNrjT3hp0Nom9SWiD9D7gCe
- 4xtEPybqvbo.HRb6kxjnxkY2xUv8_7w1NDQgGQuxUWFiwk0JnhLWRQmhOhw568H517ftw7wWKr.0
- I_aN4TXgunwdBQfWmtwHbUg1RLrZd9nekfbT7hWndGMp9i3LT_S8VvPy87WhS4XZhvgR3GrUBa1Q
- LZN.rFsYaTyVrNJevcvtb2IhJKI2lMbiBl9LI2xjzPAj1i_w2xzoOBqeYMp_boVpwoG.mXmYhh0y
- jpUSRg4QxgbdoYWUkCtOw85ZRhumoIFX3H4pd.u4vYm3FXc01jdKdgKH79peil3Q4KKgEOUpNQzl
- zIKMgGdkG1mm9MKPfLpZ_oSxLl2U6vX3HM9V1aTdB0ZOh59JZ4TC5Rd5x0UEygdnAPtgOLvbzjk2
- 5U2BqHJeofsF_5zf62Atg5Y7H9Bzmf4w._L0yMcUD_7bpPwQWzfW1pfA7g0LkiElDqnoBMs9T.1v
- TXiKsPrIzoIo92MhgX6_VoF__FjC77JhjOK6mjzEJNTJdpxzx6Jv00MrkGuR5GJttqVr66WL6r.6
- ShRJ5kOtGn2bnl5Kj2mNWZ9RJL_Ne1Pyfh5km4EtzSfCdH_7J0Gi0LUKD9TMPjzjHBEryKtBxUjL
- 54z85r5ZQETvCH5WwdFM3fC6.SY2QaiBGyhWMlplhMjd96qG4luq6KuWL8zNOApZcwsqgClOLTYP
- ZH.R8D3UcYzo4Re2BTFavEn0ig5RYQ9Y7sarKk3Ji9R_qiu_3DiujPggm8vT3sTL7CdevoBjkv7v
- N1tAURgsaP41PrM7PuQhXp5TRZPVpFVYnzZfK.FFwoG0PkhsGqZ7r4kUr7Lt.uqPJwWyTFG1INDq
- PDSkOBThYfVt4fLoOMF7GTmxt4Rkc2ArFbUUgxLJHV1DLOoUttZd6bKwyctE1HIeiJzcakSgLId0
- Q0ASRLY0xQVMlQs6ckeGFeMOj1iPNEJuFp2nFrhKMPCtRyjRsHY8r9MwdMJXeDGFxksMr6J58DEd
- UPCObOPNrH7oElSaHbahipnLD5jJ1nv8MFjXojschLDcmO79aR6Ql68MR7n41TY0NKMOB8EkjA5n
- DTK2jPOcA1PXLnmIyWti3CJQI08Rq8PsRbD2sJd0tmSkYD503f5jY5ndZSi4iPL2x36LvITtaymu
- uDBwpjvJJC2YVIrK.UjcEvr3CDJH_JnyAra5G5S5CRAbM7fVGc9zcJyWEv6n8YZWzK7YgniAUWHn
- X5gGirnm9gBzwaEXjYtFRm8GuOSPBQjPMTd2eo93qSrNbu7DRNBYhCX5o3wTI6OPGXA1QRrBmszh
- UxcDqQrJRy9615oqCclMV_424Ijb7W4E_KJxu_8lSwKaGPhPVoHU94XpIeeirDbGiGxwC_VQRPqr
- RP5jYhOcIKXFN2ZiBFFNfNzpsaGuO4J.GdWAuTGob6fBimpXFZZGfMAbUkBb6EuX07ianmDvsMcI
- fmT5FoCkstJVBj7oczw7ZqeysWV4tnR.WahqSCXjYtSD1UiFO0qir3dSs1VlL6S3Dg9C4H8LUuHZ
- UAEMWDYrta1Ad8qGM42OksMdViRupRWF2w100vZqC.0Lb0yU6_sSV_3FzElbtn7pfNy4edESJRqA
- H.Nz4m795vqsdPVbZ3DYu6KAhTKfP8VCmt.MKmiS4N84hkcL281X8qvaKhqk5nOIdt08YVFupyRI
- dj_wLaOicyTfIUjYDWqkDIMGiZ254HoHe9OWs76NuayaPhniLNz4atCb.tAoU_uZwrLfvnoEfQnj
- pQbWapn3E27W.ENYP4HoJC9n9XkPeO2ycMz8Yz1hnbTisQMtOOLglllm8gwrtqforIazyOHxnmqK
- TxPzGOxJOqtIOmGaQOJIzrJtRYSrQiwCDILlk2pjV3eObjsyaFj8aXQ6S0QJuR.6sZH.9RTGvzXj
- Dv5Dk9rg_ne1w4gzgspibn4PuSrkAD8xWPz8Pe.8s5nvgSRaGlQ2r9xmAsCBmobAAr2rJLNEuAUG
- Yj6mrC.tuIQl2EMiANKYBZexVeUqsjsrwWrEsNUKUWugdXDUlYOye7j6s_feYlhe8ni3lY3EECm8
- Bd6TOsu3KeVyfFMYMzKVBXCyoWUN9p5eIubDxTADZe__hr9FIgw9xt2CviainGMj4HBT.2A_sC.4
- tw.gfJtVhWztD.CCNTekoYSne2rRg9d83n71YhYtHr7i4fdeUX8C4cKSgEcr.uSlOKf1KpAEIiFZ
- UmdNLdHXhVDEnqAb83DThk78qVi5N4QOzOsbLOiiZl7M438D9CSYVwu63YR6M0mGg6HFni2BuRSq
- rg076P4Wf8lHibWTjWLVdJpHWP.xtt6M0E.GT5ILMKW2WEkBFFogC80ltQwCMh3XVmyU-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Mon, 14 Jun 2021 17:52:51 +0000
-Received: by kubenode545.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6300d772aac7e5202316b0b855d6980d;
-          Mon, 14 Jun 2021 17:52:48 +0000 (UTC)
+        id S233559AbhFNSFJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Jun 2021 14:05:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47126 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233358AbhFNSFI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 14:05:08 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A04BC061767
+        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 11:03:05 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id j2so22377334lfg.9
+        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 11:03:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Hth5OJx5DLnrqVkGsO9sFZaOxm24SUjgcf7q16vYO9k=;
+        b=SYh2bWEUABHXqRB6ouYLMnFXIxkuBj3g9OGoJcjymr/uDkZ0b2ocpQIxY7OD3aoqry
+         y/WDysWKakiopu5mag8D+4V2VdjD01blp+N5edF/BQ0EXgzT8QLbBsWXILbf7+h84XUb
+         ftZIOw1NIhwgxMzRUzmXKeXGQC6u8yO//bp98=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Hth5OJx5DLnrqVkGsO9sFZaOxm24SUjgcf7q16vYO9k=;
+        b=nfhaml6Moo2oJHCsEtmweYCVYDCSXeW3vufscJ54AXOdVaYcsqpS9RJY1ogi6GU8ga
+         J9IpeZFxLADJdQ4MTE8Dtww4k4Ur3QpvDIdv2+5maseKsySbrgMFyU7+oPVBdWQg9e6k
+         K6jxNtl0qbebgHkxjIG1ahOL6tq9owExmLtDL1PH7rpXaazDpNWqf311RwokEDXRTzHZ
+         V+pE0GvjotZFjvTHKcW1R6mcojcvMV+jfzDBsTBVKqXT1SYmkdzFPpTokFiLB1/MqScc
+         agbmKbB+QAiy/EKxu6J1CYLfEu5b2BBAAf7hxQkwlmol9KTMq+tJh47NZUtLCbm3CAEf
+         bzmw==
+X-Gm-Message-State: AOAM530QLh1oy45w1av1/skMaHqzmcwxvXhqSHvjtf9jmmI8k5M0+HWy
+        oREvvzOuvrWn6WXzfmbWisfTEoy5thk7avNlt6o=
+X-Google-Smtp-Source: ABdhPJwDlYy2IJR7894CSyqvPwcNF0sS1c2DPULkB2BFEha9GT44OuRm8wfovmjnHHxY7QkS0EY4kw==
+X-Received: by 2002:ac2:44c9:: with SMTP id d9mr12948502lfm.290.1623693783557;
+        Mon, 14 Jun 2021 11:03:03 -0700 (PDT)
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com. [209.85.167.47])
+        by smtp.gmail.com with ESMTPSA id y24sm571544ljj.16.2021.06.14.11.03.02
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Jun 2021 11:03:02 -0700 (PDT)
+Received: by mail-lf1-f47.google.com with SMTP id v22so22548297lfa.3
+        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 11:03:02 -0700 (PDT)
+X-Received: by 2002:a05:6512:3f82:: with SMTP id x2mr12358175lfa.421.1623693782157;
+ Mon, 14 Jun 2021 11:03:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210608171221.276899-1-keescook@chromium.org>
+ <20210614100234.12077-1-youling257@gmail.com> <202106140826.7912F27CD@keescook>
+ <202106140941.7CE5AE64@keescook>
+In-Reply-To: <202106140941.7CE5AE64@keescook>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 14 Jun 2021 11:02:46 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whLBq63v_h71YuBM2aNjCSBprkBEO3fevbWnkp8TDeh5g@mail.gmail.com>
+Message-ID: <CAHk-=whLBq63v_h71YuBM2aNjCSBprkBEO3fevbWnkp8TDeh5g@mail.gmail.com>
 Subject: Re: [PATCH] proc: Track /proc/$pid/attr/ opener mm_struct
-To:     Kees Cook <keescook@chromium.org>,
-        youling257 <youling257@gmail.com>
-Cc:     torvalds@linux-foundation.org, christian.brauner@ubuntu.com,
-        andrea.righi@canonical.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        linux-security-module@vger.kernel.org,
+To:     Kees Cook <keescook@chromium.org>
+Cc:     youling257 <youling257@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
+        LSM List <linux-security-module@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20210608171221.276899-1-keescook@chromium.org>
- <20210614100234.12077-1-youling257@gmail.com>
- <202106140826.7912F27CD@keescook>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <17222cd4-3c2b-9d0c-aa51-64b7a50a9c2c@schaufler-ca.com>
-Date:   Mon, 14 Jun 2021 10:52:48 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <202106140826.7912F27CD@keescook>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-X-Mailer: WebService/1.1.18469 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/14/2021 8:32 AM, Kees Cook wrote:
-> On Mon, Jun 14, 2021 at 06:02:34PM +0800, youling257 wrote:
->> I used mainline kernel on android, this patch cause "failed to retriev=
-e pid context" problem.
->>
->> 06-14 02:15:51.165  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1682) failed to retrieve pid context.
->> 06-14 02:15:51.166  1685  1685 E ServiceManager: add_service('batteryp=
-roperties',1) uid=3D0 - PERMISSION DENIED
->> 06-14 02:15:51.166  1682  1682 I ServiceManager: addService() batteryp=
-roperties failed (err -1 - no service manager yet?).  Retrying...
->> 06-14 02:15:51.197  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1695) failed to retrieve pid context.
->> 06-14 02:15:51.197  1685  1685 E ServiceManager: add_service('android.=
-security.keystore',1) uid=3D1017 - PERMISSION DENIED
->> 06-14 02:15:51.198  1695  1695 I ServiceManager: addService() android.=
-security.keystore failed (err -1 - no service manager yet?).  Retrying...=
-
->> 06-14 02:15:51.207  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1708) failed to retrieve pid context.
->> 06-14 02:15:51.207  1685  1685 E ServiceManager: add_service('android.=
-service.gatekeeper.IGateKeeperService',1) uid=3D1000 - PERMISSION DENIED
->> 06-14 02:15:51.207  1708  1708 I ServiceManager: addService() android.=
-service.gatekeeper.IGateKeeperService failed (err -1 - no service manager=
- yet?).  Retrying...
->> 06-14 02:15:51.275  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1693) failed to retrieve pid context.
->> 06-14 02:15:51.275  1692  1692 I cameraserver: ServiceManager: 0xf6d30=
-9e0
->> 06-14 02:15:51.275  1685  1685 E ServiceManager: add_service('drm.drmM=
-anager',1) uid=3D1019 - PERMISSION DENIED
->> 06-14 02:15:51.276  1693  1693 I ServiceManager: addService() drm.drmM=
-anager failed (err -1 - no service manager yet?).  Retrying...
->>
-> Argh. Are you able to uncover what userspace is doing here?
+On Mon, Jun 14, 2021 at 9:45 AM Kees Cook <keescook@chromium.org> wrote:
 >
-> So far, my test cases are:
->
-> 1) self: open, write, close: allowed
-> 2) self: open, clone thread. thread: change privileges, write, close: a=
-llowed
-> 3) self: open, give to privileged process. privileged process: write: r=
-eject
+>         /* A task may only write when it was the opener. */
+> -       if (file->private_data != current->mm)
+> +       if (!file->private_data || file->private_data != current->mm)
 
-I found an issue under Smack where a privileged process opened
-/proc/self/attr/smack/current, wrote to it successfully, then tried
-to write to it again, which failed because the cred has changed.=20
-That's not a common use case. The usual case is open, write, close.
-If ServiceManager is assuming that it can leave a descriptor open
-while manipulations are in progress it could encounter the same kind
-of problem.
+I don't think this is necessary.
 
+If file->private_data is NULL, then the old test for private_data !=
+current->mm will still work just fine.
 
+Because if you can fool kernel threads to do the write for you, you
+have bigger security issues than that test.
+
+               Linus
