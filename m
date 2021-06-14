@@ -2,98 +2,148 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 530A6C2B9F4
-	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 18:03:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACF3EC2B9F4
+	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 21:28:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 37915610A3
-	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 18:03:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C32A61166
+	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 21:28:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233559AbhFNSFJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Jun 2021 14:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47126 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233358AbhFNSFI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 14:05:08 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A04BC061767
-        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 11:03:05 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id j2so22377334lfg.9
-        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 11:03:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Hth5OJx5DLnrqVkGsO9sFZaOxm24SUjgcf7q16vYO9k=;
-        b=SYh2bWEUABHXqRB6ouYLMnFXIxkuBj3g9OGoJcjymr/uDkZ0b2ocpQIxY7OD3aoqry
-         y/WDysWKakiopu5mag8D+4V2VdjD01blp+N5edF/BQ0EXgzT8QLbBsWXILbf7+h84XUb
-         ftZIOw1NIhwgxMzRUzmXKeXGQC6u8yO//bp98=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Hth5OJx5DLnrqVkGsO9sFZaOxm24SUjgcf7q16vYO9k=;
-        b=nfhaml6Moo2oJHCsEtmweYCVYDCSXeW3vufscJ54AXOdVaYcsqpS9RJY1ogi6GU8ga
-         J9IpeZFxLADJdQ4MTE8Dtww4k4Ur3QpvDIdv2+5maseKsySbrgMFyU7+oPVBdWQg9e6k
-         K6jxNtl0qbebgHkxjIG1ahOL6tq9owExmLtDL1PH7rpXaazDpNWqf311RwokEDXRTzHZ
-         V+pE0GvjotZFjvTHKcW1R6mcojcvMV+jfzDBsTBVKqXT1SYmkdzFPpTokFiLB1/MqScc
-         agbmKbB+QAiy/EKxu6J1CYLfEu5b2BBAAf7hxQkwlmol9KTMq+tJh47NZUtLCbm3CAEf
-         bzmw==
-X-Gm-Message-State: AOAM530QLh1oy45w1av1/skMaHqzmcwxvXhqSHvjtf9jmmI8k5M0+HWy
-        oREvvzOuvrWn6WXzfmbWisfTEoy5thk7avNlt6o=
-X-Google-Smtp-Source: ABdhPJwDlYy2IJR7894CSyqvPwcNF0sS1c2DPULkB2BFEha9GT44OuRm8wfovmjnHHxY7QkS0EY4kw==
-X-Received: by 2002:ac2:44c9:: with SMTP id d9mr12948502lfm.290.1623693783557;
-        Mon, 14 Jun 2021 11:03:03 -0700 (PDT)
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com. [209.85.167.47])
-        by smtp.gmail.com with ESMTPSA id y24sm571544ljj.16.2021.06.14.11.03.02
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Jun 2021 11:03:02 -0700 (PDT)
-Received: by mail-lf1-f47.google.com with SMTP id v22so22548297lfa.3
-        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 11:03:02 -0700 (PDT)
-X-Received: by 2002:a05:6512:3f82:: with SMTP id x2mr12358175lfa.421.1623693782157;
- Mon, 14 Jun 2021 11:03:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210608171221.276899-1-keescook@chromium.org>
- <20210614100234.12077-1-youling257@gmail.com> <202106140826.7912F27CD@keescook>
- <202106140941.7CE5AE64@keescook>
-In-Reply-To: <202106140941.7CE5AE64@keescook>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 14 Jun 2021 11:02:46 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whLBq63v_h71YuBM2aNjCSBprkBEO3fevbWnkp8TDeh5g@mail.gmail.com>
-Message-ID: <CAHk-=whLBq63v_h71YuBM2aNjCSBprkBEO3fevbWnkp8TDeh5g@mail.gmail.com>
-Subject: Re: [PATCH] proc: Track /proc/$pid/attr/ opener mm_struct
-To:     Kees Cook <keescook@chromium.org>
-Cc:     youling257 <youling257@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andrea Righi <andrea.righi@canonical.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+        id S230081AbhFNVaZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Jun 2021 17:30:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22076 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234356AbhFNVaY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 17:30:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623706101;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=RYZqV2QcVTGJp+9kQzTUW7d5kpFaSO22gkZ6p67dNno=;
+        b=dXiIDk7xJYAOqG1CQcliSg61JL3flWWyL9yRyTgznJ8yt85kVZGcD+2efDX6ouj9qJ6wLF
+        f7pQY1QrDoyXLLsjyi4SCneqkgRabmPzO88TB9kPjgZwzPBNnuH6HC6RdHgX/WLvsJOyqa
+        68oq3QTa3uT2YifgzMKgUP7USUIwGtE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-424-tK6Rfjv7NXWei7skeaJShA-1; Mon, 14 Jun 2021 17:28:17 -0400
+X-MC-Unique: tK6Rfjv7NXWei7skeaJShA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 368D68015D0;
+        Mon, 14 Jun 2021 21:28:16 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-174.rdu2.redhat.com [10.10.114.174])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 71CF960877;
+        Mon, 14 Jun 2021 21:28:09 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id DA07F22054F; Mon, 14 Jun 2021 17:28:08 -0400 (EDT)
+Date:   Mon, 14 Jun 2021 17:28:08 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Chirantan Ekbote <chirantan@chromium.org>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+        Dylan Reid <dgreid@chromium.org>,
+        Suleiman Souhlal <suleiman@chromium.org>,
+        fuse-devel@lists.sourceforge.net, selinux@vger.kernel.org
+Subject: Re: [RESEND] [PATCHv4 1/2] uapi: fuse: Add FUSE_SECURITY_CTX
+Message-ID: <20210614212808.GD869400@redhat.com>
+References: <20200722090758.3221812-1-chirantan@chromium.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200722090758.3221812-1-chirantan@chromium.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 14, 2021 at 9:45 AM Kees Cook <keescook@chromium.org> wrote:
->
->         /* A task may only write when it was the opener. */
-> -       if (file->private_data != current->mm)
-> +       if (!file->private_data || file->private_data != current->mm)
+On Wed, Jul 22, 2020 at 06:07:57PM +0900, Chirantan Ekbote wrote:
+> Add the FUSE_SECURITY_CTX flag for the `flags` field of the
+> fuse_init_out struct.  When this flag is set the kernel will append the
+> security context for a newly created inode to the request (create,
+> mkdir, mknod, and symlink).  The server is responsible for ensuring that
+> the inode appears atomically with the requested security context.
+> 
+> For example, if the server is backed by a "real" linux file system then
+> it can write the security context value to
+> /proc/thread-self/attr/fscreate before making the syscall to create the
+> inode.
+> 
+> Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
 
-I don't think this is necessary.
+Hi Chirantan,
 
-If file->private_data is NULL, then the old test for private_data !=
-current->mm will still work just fine.
+I am wondering what's the status of this work now. Looks like it
+was not merged.
 
-Because if you can fool kernel threads to do the write for you, you
-have bigger security issues than that test.
+We also need the capability to set selinux security xattrs on newly
+created files in virtiofs.  
 
-               Linus
+Will you be interested in reviving this work and send patches again
+and copy the selinux as well as linux security module list
+(linux-security-module@vger.kernel.org) as suggested by casey.
+
+How are you managing in the meantime. Carrying patches in your own
+kernel?
+
+Thanks
+Vivek
+
+> ---
+> Changes in v4:
+>   * Added signoff to commit message.
+> 
+>  include/uapi/linux/fuse.h | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
+> index 373cada898159..e2099b45fd44b 100644
+> --- a/include/uapi/linux/fuse.h
+> +++ b/include/uapi/linux/fuse.h
+> @@ -172,6 +172,10 @@
+>   *  - add FUSE_WRITE_KILL_PRIV flag
+>   *  - add FUSE_SETUPMAPPING and FUSE_REMOVEMAPPING
+>   *  - add map_alignment to fuse_init_out, add FUSE_MAP_ALIGNMENT flag
+> + *
+> + *  7.32
+> + *  - add FUSE_SECURITY_CTX flag for fuse_init_out
+> + *  - add security context to create, mkdir, symlink, and mknod requests
+>   */
+>  
+>  #ifndef _LINUX_FUSE_H
+> @@ -207,7 +211,7 @@
+>  #define FUSE_KERNEL_VERSION 7
+>  
+>  /** Minor version number of this interface */
+> -#define FUSE_KERNEL_MINOR_VERSION 31
+> +#define FUSE_KERNEL_MINOR_VERSION 32
+>  
+>  /** The node ID of the root inode */
+>  #define FUSE_ROOT_ID 1
+> @@ -314,6 +318,7 @@ struct fuse_file_lock {
+>   * FUSE_NO_OPENDIR_SUPPORT: kernel supports zero-message opendir
+>   * FUSE_EXPLICIT_INVAL_DATA: only invalidate cached pages on explicit request
+>   * FUSE_MAP_ALIGNMENT: map_alignment field is valid
+> + * FUSE_SECURITY_CTX: add security context to create, mkdir, symlink, and mknod
+>   */
+>  #define FUSE_ASYNC_READ		(1 << 0)
+>  #define FUSE_POSIX_LOCKS	(1 << 1)
+> @@ -342,6 +347,7 @@ struct fuse_file_lock {
+>  #define FUSE_NO_OPENDIR_SUPPORT (1 << 24)
+>  #define FUSE_EXPLICIT_INVAL_DATA (1 << 25)
+>  #define FUSE_MAP_ALIGNMENT	(1 << 26)
+> +#define FUSE_SECURITY_CTX	(1 << 27)
+>  
+>  /**
+>   * CUSE INIT request/reply flags
+> -- 
+> 2.27.0.383.g050319c2ae-goog
+> 
+
