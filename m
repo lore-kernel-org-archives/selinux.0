@@ -2,143 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD355C2B9F4
-	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 13:37:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C076AC2B9F4
+	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 15:05:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A061361107
-	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 13:37:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D66061350
+	for <selinux@archiver.kernel.org>; Mon, 14 Jun 2021 15:05:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233739AbhFNNjE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Jun 2021 09:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44750 "EHLO
+        id S233135AbhFNPH5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Jun 2021 11:07:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233421AbhFNNjE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 09:39:04 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80486C061574
-        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 06:37:01 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id c13so14333903oib.13
-        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 06:37:01 -0700 (PDT)
+        with ESMTP id S233080AbhFNPH4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 11:07:56 -0400
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D249BC061574
+        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 08:05:53 -0700 (PDT)
+Received: by mail-qk1-x72d.google.com with SMTP id d196so33521991qkg.12
+        for <selinux@vger.kernel.org>; Mon, 14 Jun 2021 08:05:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=RI73grzMd+vZQIenlJtoQPzuhouHEtNCph3ICqfWHOs=;
-        b=dxIpyw72QTMm0960SkZWoC+RB9QgySGURczE8vmHJ/X8m2KkycKnb9wkvQfkBBVCK/
-         JEAQn9y7dXareSzM8AgmbPHXrOfBA1h20Ao0KTk9P9BP3Df3bdM5O3uBqcde06xGMIDe
-         6bU8HVHKQuTQly3//O7k76xrqRKWygjMI5q7l53djxC4bQrxZbXm0/Mj/S9fdrVO4/Lo
-         PSTu4FmTibShZUIoxDlKUiNTQxs5pUHYUaRO279uiBGQuxIH85UcG+bdq+YYskFN+rY6
-         nXZBrPo3rQjdyKLbi7+wYOeIwS5tx5GH349xGwpZZ+2VGj+Wyu0cb0LVnWtoBeJRVA6r
-         K2LQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=rK3o1rHoBsNAXJOHw4ZVkW3DyM2rRzcWhvuypNdhVdc=;
+        b=gBTCG2rj4Fc/N2B/r8SwIg7WO2vtaOgx/Q/mDrb2+S52SC+79QIv9pcpOGzKh7q0Fz
+         93OOQ3TZps3EOxm/TFe/Z8Sx2g9hW7e2Mm+Pv4Nl/eyNo0HJdRCTLxZPPoQnd0PyrVa7
+         BpUDXpIGGyA/PPGOyf+N48wtsVe1K8SBDN7HkORcB7TS5fyCWFLyydYmx3CUx9i2uJLr
+         gjiIPvU3NpBq6YIxp+f3yx6U0dxn5YJ2leldeIwZLFy8Czb8mOcEf5BlBRWOOrpSG04L
+         JOXos4LFXX4bPdPF3rnX7zQo9pgiNm/aJYcbI4YFShnL+QWzT0nKMhaHikXvfXYcCQ82
+         wwIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=RI73grzMd+vZQIenlJtoQPzuhouHEtNCph3ICqfWHOs=;
-        b=JJtwrPR4XMKSOf1XZtzfbCRZN47qR5ikPvnPvNcdsaVVQBFsjiak0ZsRWyft8Xo6qZ
-         0IQQfKJdFGZgZq+jdTZ5f7vQsQREDfrVKyrB2wmKkYHZpN9UmenVik+A//ZxduKTOkni
-         86WggmO0tFaShRMPM+9y7gcpeSwcBhSMnl1m6KKHpYjI2GJovi/NF2rC+tTjbsEwl3E4
-         9p4qoKvrDy7KCWysk1VOecXdWxK4r02XXtERTKiDnWP3f55tpV86HFzONVBMQBsk0qtI
-         iyac/3Aj4TPDBAWvbh8CY/w32pOb30N+5t3CQPbD8KQYOrLOGTjez3VNkPU6XyONLQ/c
-         Bkyg==
-X-Gm-Message-State: AOAM533wLjrJwOjl2Vhvn4sCO+8XaHA0cWxgBL3jocnzZhdA1za5mneO
-        xRBYBWyRaUK/JQ1gm2KtiehBp7q9UNz0b0AX6dc/y3htPWE=
-X-Google-Smtp-Source: ABdhPJz12oKjtIjIbmFureIImToGvRkJRZHi7pZ8ORvjy3k+nCHVDAJAUfsXE/AbXLl4Wd5etkicju1rAmcnScls98Q=
-X-Received: by 2002:aca:d5cd:: with SMTP id m196mr12079661oig.138.1623677820881;
- Mon, 14 Jun 2021 06:37:00 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210608193902.55060-1-cgzones@googlemail.com> <CAP+JOzQY9VPK=wZYU=9n-MB9H7bMMsC1iV3BvAbWTQteH=BDCQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzQY9VPK=wZYU=9n-MB9H7bMMsC1iV3BvAbWTQteH=BDCQ@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=rK3o1rHoBsNAXJOHw4ZVkW3DyM2rRzcWhvuypNdhVdc=;
+        b=ZySqF0g4H8j6ZG/RWrq8YMhHq8cyyQVtMjV1ehl0ZfJQEpZAcSdRk+xoJClEKt2fOj
+         lcNrNyyKRSXpIpMjN9Xk5+h/lwo1vRrBqhc67m5x1/zXYgVYPJHlgQZ0PsZKPs4bNMs8
+         yRUvmxVjT3nRIX6GIFKT1V4TeSxtPqvSyHFESg2dg7IlzkpZO3S/T+4+XQDY6p0tbjYH
+         MBRRiwHmYNTYLj5hdzog0aTr+WTUPR/52eB223umymDClUptubPeUdp7pYC9fmgylQPQ
+         gvpMatdrZGbvh7ZzYVx3f+uYZPRaWHDjcbJY5df7Q3xNz3TiO0iQ4cj/PXpSA+N3yjBO
+         vpwA==
+X-Gm-Message-State: AOAM531YqQ8GB4jzZ54wvDC+TqDfvt+T4SKZ0BDPsG7KDHaDy2MqPlwp
+        SEZXd+1G3D51M1JYgn+bCX+FL0nt78fWNQ==
+X-Google-Smtp-Source: ABdhPJyd1ZcXzOK0rwUgc/HHDqTc4g5U9pw81N351y5k/U+ezh56pC8YH9jm08fqRLKrfDlBgOIT5A==
+X-Received: by 2002:a37:618f:: with SMTP id v137mr16865075qkb.282.1623683152956;
+        Mon, 14 Jun 2021 08:05:52 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id 75sm8221014qkm.57.2021.06.14.08.05.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Jun 2021 08:05:52 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 14 Jun 2021 09:36:50 -0400
-Message-ID: <CAP+JOzSnmFf=fNKz-Yt4vcPf2rgN-Urnk2kAM6niJm27-p+vdg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: quote paths in CIL conversion
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To:     selinux@vger.kernel.org
+Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
+Subject: [PATCH 3/5] libsepol/cil: Check for empty list when marking neverallow attributes
+Date:   Mon, 14 Jun 2021 11:05:44 -0400
+Message-Id: <20210614150546.512001-4-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.26.3
+In-Reply-To: <20210614150546.512001-1-jwcart2@gmail.com>
+References: <20210614150546.512001-1-jwcart2@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 9, 2021 at 1:40 PM James Carter <jwcart2@gmail.com> wrote:
->
-> On Tue, Jun 8, 2021 at 3:46 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > When generating CIL policy from kernel or module policy quote paths,
-> > which are allowed to contain spaces, in the statements `genfscon` and
-> > `devicetreecon`.
-> >
-> > Reported by LuK1337 while building policy for Android via IRC.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+When marking a type attribute as used in a neverallow (to help determine
+whether or not it should be expanded), check if the attribute's expression
+list is empty (no attributes are associated with it) before iterating
+over the list.
 
-Merged.
-Thanks,
-Jim
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_post.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> > ---
-> >  libsepol/src/kernel_to_cil.c | 4 ++--
-> >  libsepol/src/module_to_cil.c | 2 +-
-> >  2 files changed, 3 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.=
-c
-> > index 989aacde..30a27bf5 100644
-> > --- a/libsepol/src/kernel_to_cil.c
-> > +++ b/libsepol/src/kernel_to_cil.c
-> > @@ -2654,7 +2654,7 @@ static int write_genfscon_rules_to_cil(FILE *out,=
- struct policydb *pdb)
-> >                                 goto exit;
-> >                         }
-> >
-> > -                       rc =3D strs_create_and_add(strs, "(genfscon %s =
-%s %s)", 3,
-> > +                       rc =3D strs_create_and_add(strs, "(genfscon %s =
-\"%s\" %s)", 3,
-> >                                                  fstype, name, ctx);
-> >                         free(ctx);
-> >                         if (rc !=3D 0) {
-> > @@ -3115,7 +3115,7 @@ static int write_xen_devicetree_rules_to_cil(FILE=
- *out, struct policydb *pdb)
-> >                         goto exit;
-> >                 }
-> >
-> > -               sepol_printf(out, "(devicetreecon %s %s)\n", name, ctx)=
-;
-> > +               sepol_printf(out, "(devicetreecon \"%s\" %s)\n", name, =
-ctx);
-> >
-> >                 free(ctx);
-> >         }
-> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
-c
-> > index 496693f4..19c7c65c 100644
-> > --- a/libsepol/src/module_to_cil.c
-> > +++ b/libsepol/src/module_to_cil.c
-> > @@ -2963,7 +2963,7 @@ static int genfscon_to_cil(struct policydb *pdb)
-> >
-> >         for (genfs =3D pdb->genfs; genfs !=3D NULL; genfs =3D genfs->ne=
-xt) {
-> >                 for (ocon =3D genfs->head; ocon !=3D NULL; ocon =3D oco=
-n->next) {
-> > -                       cil_printf("(genfscon %s %s ", genfs->fstype, o=
-con->u.name);
-> > +                       cil_printf("(genfscon %s \"%s\" ", genfs->fstyp=
-e, ocon->u.name);
-> >                         context_to_cil(pdb, &ocon->context[0]);
-> >                         cil_printf(")\n");
-> >                 }
-> > --
-> > 2.32.0
-> >
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index 05842b64..38544aef 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -1494,6 +1494,10 @@ static void __mark_neverallow_attrs(struct cil_list *expr_list)
+ {
+ 	struct cil_list_item *curr;
+ 
++	if (!expr_list) {
++		return;
++	}
++
+ 	cil_list_for_each(curr, expr_list) {
+ 		if (curr->flavor == CIL_DATUM) {
+ 			if (FLAVOR(curr->data) == CIL_TYPEATTRIBUTE) {
+-- 
+2.26.3
+
