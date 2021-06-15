@@ -4,58 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C3A4C48BE8
-	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 09:35:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 808D7C49361
+	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 13:33:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77450613F1
-	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 09:35:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6FA1D6146D
+	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 13:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231550AbhFOJhv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Jun 2021 05:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55436 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231523AbhFOJhm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Jun 2021 05:37:42 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867F9C061283
-        for <selinux@vger.kernel.org>; Tue, 15 Jun 2021 02:35:34 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id nb6so1284240ejc.10
-        for <selinux@vger.kernel.org>; Tue, 15 Jun 2021 02:35:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/wUc2OfdjdbqnjL6W8FMiwr8yZ9/oxUaW69sqUYNuKM=;
-        b=kNFfY93yyM1OSr4ACCCk1RSsFVhJXWC1MfeZ/3ASEmu5JYM6r+oD/0AT8FYuuOZp3e
-         Z8qLnCYtJiNwPTuT0ipSTL6GWLVciFocanwPijZfqyIaD+yTIrGlutD0qmKWNsTosETJ
-         ZXWxRR+HfQ9bd2jRuElwI9C5LQ8cDz/1J/fAg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/wUc2OfdjdbqnjL6W8FMiwr8yZ9/oxUaW69sqUYNuKM=;
-        b=qbsHCCGgA9g9i2wiGaqzPg7qdOkgCZf5+4smg8WtGmCKslTGfHNADflWi7NunDLUyx
-         WhIomkbXmFHWgViGLgkiron/detlZacsjxsK41FolJPuAak23pe9wPF/mn8+2suKGq+m
-         9fRkOYSzdETOWpU+kewfw9enHaZtQ/VrCwgNWeCT8L6PoD9qQp4GipBsmHo+vhdIJVx3
-         70ra09iqA5XQNwOITuh3hmwH/c8l/jwQ1kypBdJNl8wMyu35MWszJLo/ZVpfA6oUiSB9
-         Gqzzio0vohbWsaXoxxcNn8SGPRNrtB4dEvuIceXTFTBVhZRrt4OMeteh0a29Lc4fZVLS
-         RWBw==
-X-Gm-Message-State: AOAM5339247B8Y6nYKVYMScZkdh066bv9Lr8lOz9fzNCCOsyjDOExWEs
-        PN4xN0BqJu2IfOSlPapxEiaIAn29YBvk2QQoM7Qw7w==
-X-Google-Smtp-Source: ABdhPJx7fh9LOmwCnFieYYThc9zENem+W4yQBvIwptCjcrQ/iz53nv9g6de5F6QmUpPuE4r+whaklEr/9RvGVhPC8Ao=
-X-Received: by 2002:a17:907:20ee:: with SMTP id rh14mr19926420ejb.461.1623749732894;
- Tue, 15 Jun 2021 02:35:32 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200722090758.3221812-1-chirantan@chromium.org> <20210614212808.GD869400@redhat.com>
-In-Reply-To: <20210614212808.GD869400@redhat.com>
-From:   Chirantan Ekbote <chirantan@chromium.org>
-Date:   Tue, 15 Jun 2021 18:35:21 +0900
-Message-ID: <CAJFHJrpu9vewcD2er6oB_xwtF4Pc-njkRaA7rfJwsTvw5Fi2og@mail.gmail.com>
-Subject: Re: [RESEND] [PATCHv4 1/2] uapi: fuse: Add FUSE_SECURITY_CTX
-To:     Vivek Goyal <vgoyal@redhat.com>
+        id S231621AbhFONfR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Jun 2021 09:35:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28234 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231519AbhFONfF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Jun 2021 09:35:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623763979;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VSN2OS40QTnJllmAJbSh1cIS6wfPXK84jgrGK1B8F+k=;
+        b=QzMcfp7T87jUYAqcjfqmou/iAMtH3Taboq9zh4/pktdlDiapjZdVzy7mI/Wj04I4VS/vfT
+        Qv19vhe5o5NiN8vNIwlVkpMz63AUf3n1MQXboReo1DScOJ24st+4vY8h2rQkiTrvA2pauu
+        c7i/pghyncHVdZpDz6zhvKZPFuZksis=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-51-b8iEaStUPEyDpiXD11cNQQ-1; Tue, 15 Jun 2021 09:32:58 -0400
+X-MC-Unique: b8iEaStUPEyDpiXD11cNQQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5095A101F00F;
+        Tue, 15 Jun 2021 13:32:56 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-115-170.rdu2.redhat.com [10.10.115.170])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 971195272D;
+        Tue, 15 Jun 2021 13:32:41 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 23AA2220BCF; Tue, 15 Jun 2021 09:32:41 -0400 (EDT)
+Date:   Tue, 15 Jun 2021 09:32:41 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Chirantan Ekbote <chirantan@chromium.org>
 Cc:     Miklos Szeredi <miklos@szeredi.hu>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Stefan Hajnoczi <stefanha@redhat.com>,
@@ -65,55 +54,78 @@ Cc:     Miklos Szeredi <miklos@szeredi.hu>,
         Suleiman Souhlal <suleiman@chromium.org>,
         fuse-devel <fuse-devel@lists.sourceforge.net>,
         SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RESEND] [PATCHv4 1/2] uapi: fuse: Add FUSE_SECURITY_CTX
+Message-ID: <20210615133241.GA965196@redhat.com>
+References: <20200722090758.3221812-1-chirantan@chromium.org>
+ <20210614212808.GD869400@redhat.com>
+ <CAJFHJrpu9vewcD2er6oB_xwtF4Pc-njkRaA7rfJwsTvw5Fi2og@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJFHJrpu9vewcD2er6oB_xwtF4Pc-njkRaA7rfJwsTvw5Fi2og@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Vivek,
-
-On Tue, Jun 15, 2021 at 6:28 AM Vivek Goyal <vgoyal@redhat.com> wrote:
->
-> On Wed, Jul 22, 2020 at 06:07:57PM +0900, Chirantan Ekbote wrote:
-> > Add the FUSE_SECURITY_CTX flag for the `flags` field of the
-> > fuse_init_out struct.  When this flag is set the kernel will append the
-> > security context for a newly created inode to the request (create,
-> > mkdir, mknod, and symlink).  The server is responsible for ensuring that
-> > the inode appears atomically with the requested security context.
+On Tue, Jun 15, 2021 at 06:35:21PM +0900, Chirantan Ekbote wrote:
+> Hi Vivek,
+> 
+> On Tue, Jun 15, 2021 at 6:28 AM Vivek Goyal <vgoyal@redhat.com> wrote:
 > >
-> > For example, if the server is backed by a "real" linux file system then
-> > it can write the security context value to
-> > /proc/thread-self/attr/fscreate before making the syscall to create the
-> > inode.
+> > On Wed, Jul 22, 2020 at 06:07:57PM +0900, Chirantan Ekbote wrote:
+> > > Add the FUSE_SECURITY_CTX flag for the `flags` field of the
+> > > fuse_init_out struct.  When this flag is set the kernel will append the
+> > > security context for a newly created inode to the request (create,
+> > > mkdir, mknod, and symlink).  The server is responsible for ensuring that
+> > > the inode appears atomically with the requested security context.
+> > >
+> > > For example, if the server is backed by a "real" linux file system then
+> > > it can write the security context value to
+> > > /proc/thread-self/attr/fscreate before making the syscall to create the
+> > > inode.
+> > >
+> > > Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
 > >
-> > Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
->
-> Hi Chirantan,
->
-> I am wondering what's the status of this work now. Looks like it
-> was not merged.
->
-> We also need the capability to set selinux security xattrs on newly
-> created files in virtiofs.
->
-> Will you be interested in reviving this work and send patches again
-> and copy the selinux as well as linux security module list
-> (linux-security-module@vger.kernel.org) as suggested by casey.
->
+> > Hi Chirantan,
+> >
+> > I am wondering what's the status of this work now. Looks like it
+> > was not merged.
+> >
+> > We also need the capability to set selinux security xattrs on newly
+> > created files in virtiofs.
+> >
+> > Will you be interested in reviving this work and send patches again
+> > and copy the selinux as well as linux security module list
+> > (linux-security-module@vger.kernel.org) as suggested by casey.
+> >
+> 
+> Not really.  We have our own local solution for this (see below) so if
+> you or someone else wants to pick it up, please go ahead.
+> 
 
-Not really.  We have our own local solution for this (see below) so if
-you or someone else wants to pick it up, please go ahead.
+Ok.
 
-> How are you managing in the meantime. Carrying patches in your own
-> kernel?
->
+> > How are you managing in the meantime. Carrying patches in your own
+> > kernel?
+> >
+> 
+> Kind of. This patch series changes the protocol and the feature bit we
+> were using was claimed by FUSE_SUBMOUNTS instead so carrying it
+> locally is not really viable long term.  Instead we're carrying a
+> patch similar to the original RFC patch that doesn't change the
+> protocol [1].
 
-Kind of. This patch series changes the protocol and the feature bit we
-were using was claimed by FUSE_SUBMOUNTS instead so carrying it
-locally is not really viable long term.  Instead we're carrying a
-patch similar to the original RFC patch that doesn't change the
-protocol [1].
+Ok, got it. So you went ahead for simpler solution of setting security
+xattr after creating file hence making it non-atomic. But changelog
+suggests that it works for your use case as you always do a restorecon
+on reboot. 
 
-Chirantan
+But I guess upstream will need a solution where file creation and
+security xattr setting can be atomic.
 
-[1]: https://chromium-review.googlesource.com/c/chromiumos/third_party/kernel/+/2581172
+Thanks. If time permits, I might look into the patches you had posted.
+
+Thanks
+Vivek
+
