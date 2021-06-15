@@ -2,133 +2,118 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16C0EC48BE8
-	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 02:24:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C3A4C48BE8
+	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 09:35:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01AF7613F5
-	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 02:24:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77450613F1
+	for <selinux@archiver.kernel.org>; Tue, 15 Jun 2021 09:35:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbhFOC0t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Jun 2021 22:26:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43706 "EHLO
+        id S231550AbhFOJhv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Jun 2021 05:37:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230141AbhFOC0s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jun 2021 22:26:48 -0400
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A351C061767;
-        Mon, 14 Jun 2021 19:24:44 -0700 (PDT)
-Received: by mail-yb1-xb2f.google.com with SMTP id q21so18237515ybg.8;
-        Mon, 14 Jun 2021 19:24:44 -0700 (PDT)
+        with ESMTP id S231523AbhFOJhm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Jun 2021 05:37:42 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867F9C061283
+        for <selinux@vger.kernel.org>; Tue, 15 Jun 2021 02:35:34 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id nb6so1284240ejc.10
+        for <selinux@vger.kernel.org>; Tue, 15 Jun 2021 02:35:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=brCiM+F9mGjut7Dannz5jBzKbs3SodWAdjrUja4GsqQ=;
-        b=HEnAn1olYigaQNwMq7Pg7M9qQXgha1+G3M8Te9QROcv+UPfHbzA+pyQiY/uyUplDho
-         syI/EJ0aS5ILxHohmJkYvgPeUXUvFw0UJ+48gj22wbC9kvUQClmfmZLzrrJbqUr54NI0
-         XIPfavRvfpItyC7jNpihhrsAwdizq3bVqYy7pjJaGlXxf3djw8Jxhaht1pwkyi2g4zHJ
-         FBd13UJ9//BjvbwrXSxXwhNaY/NP7dlPuCEN+qXeWFvbgTzpKowrQL5FWyqdTsKjKqa6
-         /fQvn05zs7IeWE/WtYl+/6FFwsh8P8pcdZxWFaHG//HqMHlmCCUOI3OY9ukreN48hS1s
-         4Y1w==
+        bh=/wUc2OfdjdbqnjL6W8FMiwr8yZ9/oxUaW69sqUYNuKM=;
+        b=kNFfY93yyM1OSr4ACCCk1RSsFVhJXWC1MfeZ/3ASEmu5JYM6r+oD/0AT8FYuuOZp3e
+         Z8qLnCYtJiNwPTuT0ipSTL6GWLVciFocanwPijZfqyIaD+yTIrGlutD0qmKWNsTosETJ
+         ZXWxRR+HfQ9bd2jRuElwI9C5LQ8cDz/1J/fAg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=brCiM+F9mGjut7Dannz5jBzKbs3SodWAdjrUja4GsqQ=;
-        b=hu7Lgg6fZKxGOCmF2jPdWlZstPkRcwPzYuATAMWfheKB57NJo2cicr+7zXfuhrXirU
-         HEPOU62W6QVb7OGmmov2p2YbZNIAMSb0FpZgqA6P15U+fMJs/mrzMrMzZGznv33XWt+l
-         186CPmfgGHV6F+aBUQOFWTB08tYWNwuiwk1aksSjI5JoP90ExJwMsTKp/qeE/4kR+eDu
-         d2ztqTg/VH1id77/VnKwSErlcXuGnWTWz5Zvv7xcPYTQn3CfPLrT4tONmsY/aPnl5V10
-         MgF0EalZInTFTYc7tQtD1yOBEvdRd37Gt+RRwt6jafersu8bGX0uFwqxJmIhYbEdMbgQ
-         RFKQ==
-X-Gm-Message-State: AOAM531pbXe1C0qX/8ya7qst07n5HlKT3r8JJ5qkXYpC3vnx9E9xXYU9
-        BwCVsIpuZVPL6vEHMwbjTXFmSh+tH2zm0mvUjtPfPg3I1QncL5G6dVo=
-X-Google-Smtp-Source: ABdhPJyUqha2rTwXMjRmWbkZlGSaerkycxLOhzZXfvz9QhQZI+3ohv8S/fa3vJSq4wM88YAm4nAw8FYUi/yX/sKJTsg=
-X-Received: by 2002:a9d:730a:: with SMTP id e10mr13703661otk.97.1623722136501;
- Mon, 14 Jun 2021 18:55:36 -0700 (PDT)
+        bh=/wUc2OfdjdbqnjL6W8FMiwr8yZ9/oxUaW69sqUYNuKM=;
+        b=qbsHCCGgA9g9i2wiGaqzPg7qdOkgCZf5+4smg8WtGmCKslTGfHNADflWi7NunDLUyx
+         WhIomkbXmFHWgViGLgkiron/detlZacsjxsK41FolJPuAak23pe9wPF/mn8+2suKGq+m
+         9fRkOYSzdETOWpU+kewfw9enHaZtQ/VrCwgNWeCT8L6PoD9qQp4GipBsmHo+vhdIJVx3
+         70ra09iqA5XQNwOITuh3hmwH/c8l/jwQ1kypBdJNl8wMyu35MWszJLo/ZVpfA6oUiSB9
+         Gqzzio0vohbWsaXoxxcNn8SGPRNrtB4dEvuIceXTFTBVhZRrt4OMeteh0a29Lc4fZVLS
+         RWBw==
+X-Gm-Message-State: AOAM5339247B8Y6nYKVYMScZkdh066bv9Lr8lOz9fzNCCOsyjDOExWEs
+        PN4xN0BqJu2IfOSlPapxEiaIAn29YBvk2QQoM7Qw7w==
+X-Google-Smtp-Source: ABdhPJx7fh9LOmwCnFieYYThc9zENem+W4yQBvIwptCjcrQ/iz53nv9g6de5F6QmUpPuE4r+whaklEr/9RvGVhPC8Ao=
+X-Received: by 2002:a17:907:20ee:: with SMTP id rh14mr19926420ejb.461.1623749732894;
+ Tue, 15 Jun 2021 02:35:32 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a9d:f03:0:0:0:0:0 with HTTP; Mon, 14 Jun 2021 18:55:35 -0700 (PDT)
-In-Reply-To: <202106141503.B3144DFE@keescook>
-References: <20210608171221.276899-1-keescook@chromium.org>
- <20210614100234.12077-1-youling257@gmail.com> <202106140826.7912F27CD@keescook>
- <202106140941.7CE5AE64@keescook> <CAOzgRdZJeN6sQWP=Ou0H3bTrp+7ijKuJikG-f4eer5f1oVjrCQ@mail.gmail.com>
- <202106141503.B3144DFE@keescook>
-From:   youling 257 <youling257@gmail.com>
-Date:   Tue, 15 Jun 2021 09:55:35 +0800
-Message-ID: <CAOzgRdahaEjtk4jS5N=FQEDbsZVnB+-=xD+-WtV9zD9Tgbm0Hg@mail.gmail.com>
-Subject: Re: [PATCH] proc: Track /proc/$pid/attr/ opener mm_struct
-To:     Kees Cook <keescook@chromium.org>
-Cc:     torvalds@linux-foundation.org, christian.brauner@ubuntu.com,
-        andrea.righi@canonical.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
+References: <20200722090758.3221812-1-chirantan@chromium.org> <20210614212808.GD869400@redhat.com>
+In-Reply-To: <20210614212808.GD869400@redhat.com>
+From:   Chirantan Ekbote <chirantan@chromium.org>
+Date:   Tue, 15 Jun 2021 18:35:21 +0900
+Message-ID: <CAJFHJrpu9vewcD2er6oB_xwtF4Pc-njkRaA7rfJwsTvw5Fi2og@mail.gmail.com>
+Subject: Re: [RESEND] [PATCHv4 1/2] uapi: fuse: Add FUSE_SECURITY_CTX
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        virtio-fs-list <virtio-fs@redhat.com>,
+        Dylan Reid <dgreid@chromium.org>,
+        Suleiman Souhlal <suleiman@chromium.org>,
+        fuse-devel <fuse-devel@lists.sourceforge.net>,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-if try to find problem on userspace, i used linux 5.13rc6 on old
-android 7 cm14.1, not aosp android 11.
-http://git.osdn.net/view?p=android-x86/system-core.git;a=blob;f=init/service.cpp;h=a5334f447fc2fc34453d2f6a37523bedccadc690;hb=refs/heads/cm-14.1-x86#l457
+Hi Vivek,
 
- 457         if (!seclabel_.empty()) {
- 458             if (setexeccon(seclabel_.c_str()) < 0) {
- 459                 ERROR("cannot setexeccon('%s'): %s\n",
- 460                       seclabel_.c_str(), strerror(errno));
- 461                 _exit(127);
- 462             }
- 463         }
+On Tue, Jun 15, 2021 at 6:28 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+>
+> On Wed, Jul 22, 2020 at 06:07:57PM +0900, Chirantan Ekbote wrote:
+> > Add the FUSE_SECURITY_CTX flag for the `flags` field of the
+> > fuse_init_out struct.  When this flag is set the kernel will append the
+> > security context for a newly created inode to the request (create,
+> > mkdir, mknod, and symlink).  The server is responsible for ensuring that
+> > the inode appears atomically with the requested security context.
+> >
+> > For example, if the server is backed by a "real" linux file system then
+> > it can write the security context value to
+> > /proc/thread-self/attr/fscreate before making the syscall to create the
+> > inode.
+> >
+> > Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
+>
+> Hi Chirantan,
+>
+> I am wondering what's the status of this work now. Looks like it
+> was not merged.
+>
+> We also need the capability to set selinux security xattrs on newly
+> created files in virtiofs.
+>
+> Will you be interested in reviving this work and send patches again
+> and copy the selinux as well as linux security module list
+> (linux-security-module@vger.kernel.org) as suggested by casey.
+>
 
-2021-06-15 6:50 GMT+08:00, Kees Cook <keescook@chromium.org>:
-> On Tue, Jun 15, 2021 at 02:46:19AM +0800, youling 257 wrote:
->> I test this patch cause "init: cannot setexeccon(u:r:ueventd:s0)
->> operation not permitted.
->> init ctrl_write_limited.
+Not really.  We have our own local solution for this (see below) so if
+you or someone else wants to pick it up, please go ahead.
+
+> How are you managing in the meantime. Carrying patches in your own
+> kernel?
 >
-> Thanks for testing!
->
-> This appears to come from here:
-> https://github.com/aosp-mirror/platform_system_core/blob/master/init/service.cpp#L242
->
->
-> In setexeccon(), I see (pid=0, attr="exec"):
->
->         fd = openattr(pid, attr, O_RDWR | O_CLOEXEC);
-> ...
->                         ret = write(fd, context2, strlen(context2) + 1);
-> ...
->         close(fd);
->
->
-> and openattr() is doing:
-> ...
->                 rc = asprintf(&path, "/proc/thread-self/attr/%s", attr);
->                 if (rc < 0)
->                         return -1;
->                 fd = open(path, flags | O_CLOEXEC);
-> ...
->
-> I'm not sure how the above could fail. (mm_access() always allows
-> introspection...)
->
-> The only way I can understand the check failing is if a process did:
->
-> open, exec, write
->
-> But setexeccon() is not doing anything between the open and the write...
->
-> I will keep looking...
->
-> -Kees
->
-> --
-> Kees Cook
->
+
+Kind of. This patch series changes the protocol and the feature bit we
+were using was claimed by FUSE_SUBMOUNTS instead so carrying it
+locally is not really viable long term.  Instead we're carrying a
+patch similar to the original RFC patch that doesn't change the
+protocol [1].
+
+Chirantan
+
+[1]: https://chromium-review.googlesource.com/c/chromiumos/third_party/kernel/+/2581172
