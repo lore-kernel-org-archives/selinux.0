@@ -2,135 +2,165 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88B2AC48BDF
-	for <selinux@archiver.kernel.org>; Fri, 18 Jun 2021 20:37:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A8B4C49361
+	for <selinux@archiver.kernel.org>; Fri, 18 Jun 2021 22:18:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 68E2A613C2
-	for <selinux@archiver.kernel.org>; Fri, 18 Jun 2021 20:37:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E3D561264
+	for <selinux@archiver.kernel.org>; Fri, 18 Jun 2021 22:18:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233815AbhFRUjR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Jun 2021 16:39:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43956 "EHLO
+        id S234905AbhFRWU3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Jun 2021 18:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233702AbhFRUjR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Jun 2021 16:39:17 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97B2C061574
-        for <selinux@vger.kernel.org>; Fri, 18 Jun 2021 13:37:06 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id r16so15667287ljk.9
-        for <selinux@vger.kernel.org>; Fri, 18 Jun 2021 13:37:06 -0700 (PDT)
+        with ESMTP id S234910AbhFRWU0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Jun 2021 18:20:26 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C329C0613A2
+        for <selinux@vger.kernel.org>; Fri, 18 Jun 2021 15:18:16 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id f10so3294354plg.0
+        for <selinux@vger.kernel.org>; Fri, 18 Jun 2021 15:18:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=XJY4ErYj7kkBIH/QkJMBqMydsEYND/c4qzKMYDvxJQQ=;
-        b=ct8u2bKcb3tbWVVIiliy2aIn+WCkw7+Nf+dcoHXZ5Y8e2SfnsiQPCfJxGvz1VD2J7b
-         lBk1Z812EfCL5BDJKidsmnhDeSXBaUDb581HTvcp672cd5mu0h2DhztT0/Fe61Z7I1Wm
-         Oncr+FYzlSP/bEU2sLZYrMh6y0tPBRmKPlVl5MO9CFNeHKuzix7L0o+FaPIG9IVXgAJc
-         mrIjxJ0PITj2LOZdZ54qbpLREWM9C5ZWRO53n4Xi0Rr03OdtKsH8hOM8pZaREqVsniO7
-         KsNqpwtEoKg+CgBdMoQBDUn5l4td1LZXEoCV2yRs29QFGMDkn/JEkBTYecPhwlDsCZKd
-         4JIQ==
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=FE3ige4IUrzO4rZznPTG12clkaJsue7K7FUGlSBMAfs=;
+        b=Yf/hd/nvGltzFs93oV+O815gndRr0N0A4GD+hlEjUljs8fR/r42/5waH+foBbKS7WR
+         4ieWebjxoeI31qMYukpCCF4suivtuw0KIX1kY4xCHCyeA8Pd+qdR2kMIky/pA2j/9n1z
+         T5UtTANEkuiNSh3GT2iBd2oGjOT4PXXJ8YxOU/uBtqj1IiaNYwuRoT9AQFd4bB3iGSod
+         26qHtN9qmDpGolnh/MwXPQ8M2sR3UfA7xZml5iJWrbGghC/MI1rSVb3r8vzpAHp9WgHN
+         rQlO7Wfj93/2gQ031V5AE3UWSmVQEAXyZXRDPtXzUcgRjadraLTfDfG3fXk5uJ+V0D/n
+         TtDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=XJY4ErYj7kkBIH/QkJMBqMydsEYND/c4qzKMYDvxJQQ=;
-        b=AgLtVvvz2D4J4DLIUqLAscs2ZnZyumJWvns0xHc/KeCvE6ZaB6hZ4LWQkMVzTCf7t/
-         iMex4KMlfVX3TQ3l1fu97zLvPSlQcaNsqI+OqrtlUWlI/qkGhQalNiONlfsNK262INWy
-         Dr1UHyUc9kADgewG8UDJC5odCDj+ahoaLG1dJfK0/pbnXw+97SjIVV+XlKXXNmzDmbuL
-         AB8fIEO4x1RJDwAVxX09CIdaepI3969yevdjG/rDRNJ0f0MfyKMUv1K8bLPYeWFs9A3L
-         6fC5uesZViWBRMMj2QcyLdrnFNzy4DjCzGOr6EwK5wV8bNJFbOr8M9528RCS9Ew45KR3
-         RmVA==
-X-Gm-Message-State: AOAM531GQda38sF3aC0OqvlT69mfEHQIOHQjbofWl+lH6DXdU0c8K+19
-        H0oSZVTbSfCvVtcaQ3eUJrxTy3dTZss=
-X-Google-Smtp-Source: ABdhPJx+A05xWIo6yX7g5geZVjHQ+w5mCqaUHojHymFZrmvB0gTaMk1S4NuaqArxY8u9dm5Cpx0wdw==
-X-Received: by 2002:a2e:2a43:: with SMTP id q64mr10744045ljq.375.1624048625039;
-        Fri, 18 Jun 2021 13:37:05 -0700 (PDT)
-Received: from [192.168.1.37] (88-114-216-93.elisa-laajakaista.fi. [88.114.216.93])
-        by smtp.gmail.com with ESMTPSA id x193sm289258lff.54.2021.06.18.13.37.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Jun 2021 13:37:04 -0700 (PDT)
-Subject: Re: [PATCH] selinux-notebook: describe nosuid and NNP transitions
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-References: <20210612081403.16732-1-toiwoton@gmail.com>
- <CAHC9VhQt=ytU11Gk8hOx1G14bQz9o8RvJHr6VJh8+Y6Tmc5xqg@mail.gmail.com>
- <44734663-73fe-5870-f39a-e3d876efbc45@gmail.com>
- <CAHC9VhQfVqRCuR4Gn7vAOrqVeZQtzE6GjuqvFhQHKVufCk_N3w@mail.gmail.com>
-From:   Topi Miettinen <toiwoton@gmail.com>
-Message-ID: <7d638d58-386f-b0e9-7a3d-e626fc8ba108@gmail.com>
-Date:   Fri, 18 Jun 2021 23:37:02 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=FE3ige4IUrzO4rZznPTG12clkaJsue7K7FUGlSBMAfs=;
+        b=ny+gTLqSpyaOMt09pvl6rIJEgJOypYkDOQbeoBs1jGTd73kdXylrMvWuJRdlCOxF9D
+         yD+9Ls2r+TljvDUSLC19+OG2/bU3eKownXWP4HTTiAbaCx4HDOhMBBt3Cwr6o3YbAef2
+         kxPDTIdQ//KD/QSXXSiF3Od2AXCupGAy8NhJGSkO6vmJOBqUaTOAa9vDNnqtrFBP3hb8
+         HiKmChXCNhV3FNVJA1xNuqAmS7MfZeeVj5vttpvb4HQCFlHaNZrk56K9hn3henJ72vyA
+         YBMvLQS50b+x+1KKiCRmR2Eddcajw4vp4yddZ8ryxFHsgkRmSQ3xisMeG4hnp+fA6I70
+         t0Ow==
+X-Gm-Message-State: AOAM532gslZ+JbyylH5Y42iBkpZmUd3gwPwiN9SGal2x8z6QnBepvcxZ
+        Cf5JfZ6da79k9a9xT3NmJ+wVoyszRoS3LGQjJFLOKg==
+X-Google-Smtp-Source: ABdhPJw3BE/jkA8KN4GViEwVomKCDOYCAzb4JhqF7GBtQ+4ny9zul9rQENwJ5XFkX0U2csBd6emTDpwOakbDlUjAcRc=
+X-Received: by 2002:a17:90a:fc88:: with SMTP id ci8mr24404565pjb.13.1624054695229;
+ Fri, 18 Jun 2021 15:18:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQfVqRCuR4Gn7vAOrqVeZQtzE6GjuqvFhQHKVufCk_N3w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210616085118.1141101-1-omosnace@redhat.com>
+In-Reply-To: <20210616085118.1141101-1-omosnace@redhat.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Fri, 18 Jun 2021 15:18:04 -0700
+Message-ID: <CAPcyv4jvR8CT4rYODR5KUHNdiqMwQSwJZ+OkVf61kLT3JfjC_Q@mail.gmail.com>
+Subject: Re: [PATCH v3] lockdown,selinux: fix wrong subject in some SELinux
+ lockdown checks
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        X86 ML <x86@kernel.org>,
+        Linux ACPI <linux-acpi@vger.kernel.org>,
+        linux-cxl@vger.kernel.org, linux-efi <linux-efi@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux PCI <linux-pci@vger.kernel.org>,
+        Linux-pm mailing list <linux-pm@vger.kernel.org>,
+        linux-serial@vger.kernel.org, bpf@vger.kernel.org,
+        Netdev <netdev@vger.kernel.org>,
+        Kexec Mailing List <kexec@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 18.6.2021 22.32, Paul Moore wrote:
-> On Fri, Jun 18, 2021 at 2:09 PM Topi Miettinen <toiwoton@gmail.com> wrote:
->> On 18.6.2021 6.50, Paul Moore wrote:
->>> On Sat, Jun 12, 2021 at 4:14 AM Topi Miettinen <toiwoton@gmail.com> wrote:
->>>>
->>>> Describe cases where nosuid_transition or nnp_transition are needed.
->>>>
->>>> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
->>>> ---
->>>>    src/computing_security_contexts.md | 9 ++++++++-
->>>>    1 file changed, 8 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/src/computing_security_contexts.md b/src/computing_security_contexts.md
->>>> index bb946b5..7bd1d87 100644
->>>> --- a/src/computing_security_contexts.md
->>>> +++ b/src/computing_security_contexts.md
->>>> @@ -84,7 +84,14 @@ Processes inherit their security context as follows:
->>>>       *default_type* (policy version 28) or if a security-aware process,
->>>>       by calling ***setexeccon**(3)* if permitted by policy prior to
->>>>       invoking exec.
->>>> -3. At any time, a security-aware process may invoke ***setcon**(3)* to
->>>> +3. If the file system is mounted with *nosuid* flag, type transitions
->>>> +   require permission *nosuid_transition*. If the thread has
->>>> +   *no_new_privs* attribute set, the transition requires
->>>> +   *nnp_transition*. For both transitions, policy capability
->>>> +   *nnp_nosuid_transition* is also required. See also
->>>> +   [**Linux Security Module and SELinux**](lsm_selinux.md#linux-security-module-and-selinux)
->>>> +   section.
->>>
->>> Thanks for adding this text, however I might suggest the following changes:
->>>
->>> "If the loaded SELinux policy has the nnp_nosuid_transition policy
->>> capability enabled there are potentially two additional permissions
->>> that are required to permit a domain transition: nosuid_transition for
->>> nosuid mounted filesystems, and nnp_transition for for threads with
->>> the no_new_privs flag."
->>>
->>> ... does that make sense?
->>
->> Yes. I'd then add:
->>
->> "If nnp_nosuid_transition policy capability is disabled, such domain
->> transitions are denied."
-> 
-> In most cases, yes that is correct, but bounded domain transitions are
-> still allowed in the case where the nnp_nosuid_transition policy
-> capability is not enabled.
+On Wed, Jun 16, 2021 at 1:51 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+> lockdown") added an implementation of the locked_down LSM hook to
+> SELinux, with the aim to restrict which domains are allowed to perform
+> operations that would breach lockdown.
+>
+> However, in several places the security_locked_down() hook is called in
+> situations where the current task isn't doing any action that would
+> directly breach lockdown, leading to SELinux checks that are basically
+> bogus.
+>
+> To fix this, add an explicit struct cred pointer argument to
+> security_lockdown() and define NULL as a special value to pass instead
+> of current_cred() in such situations. LSMs that take the subject
+> credentials into account can then fall back to some default or ignore
+> such calls altogether. In the SELinux lockdown hook implementation, use
+> SECINITSID_KERNEL in case the cred argument is NULL.
+>
+> Most of the callers are updated to pass current_cred() as the cred
+> pointer, thus maintaining the same behavior. The following callers are
+> modified to pass NULL as the cred pointer instead:
+> 1. arch/powerpc/xmon/xmon.c
+>      Seems to be some interactive debugging facility. It appears that
+>      the lockdown hook is called from interrupt context here, so it
+>      should be more appropriate to request a global lockdown decision.
+> 2. fs/tracefs/inode.c:tracefs_create_file()
+>      Here the call is used to prevent creating new tracefs entries when
+>      the kernel is locked down. Assumes that locking down is one-way -
+>      i.e. if the hook returns non-zero once, it will never return zero
+>      again, thus no point in creating these files. Also, the hook is
+>      often called by a module's init function when it is loaded by
+>      userspace, where it doesn't make much sense to do a check against
+>      the current task's creds, since the task itself doesn't actually
+>      use the tracing functionality (i.e. doesn't breach lockdown), just
+>      indirectly makes some new tracepoints available to whoever is
+>      authorized to use them.
+> 3. net/xfrm/xfrm_user.c:copy_to_user_*()
+>      Here a cryptographic secret is redacted based on the value returned
+>      from the hook. There are two possible actions that may lead here:
+>      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
+>         task context is relevant, since the dumped data is sent back to
+>         the current task.
+>      b) When adding/deleting/updating an SA via XFRM_MSG_xxxSA, the
+>         dumped SA is broadcasted to tasks subscribed to XFRM events -
+>         here the current task context is not relevant as it doesn't
+>         represent the tasks that could potentially see the secret.
+>      It doesn't seem worth it to try to keep using the current task's
+>      context in the a) case, since the eventual data leak can be
+>      circumvented anyway via b), plus there is no way for the task to
+>      indicate that it doesn't care about the actual key value, so the
+>      check could generate a lot of "false alert" denials with SELinux.
+>      Thus, let's pass NULL instead of current_cred() here faute de
+>      mieux.
+>
+> Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
+> Improvements-suggested-by: Paul Moore <paul@paul-moore.com>
+> Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+[..]
+> diff --git a/drivers/cxl/mem.c b/drivers/cxl/mem.c
+> index 2acc6173da36..c1747b6555c7 100644
+> --- a/drivers/cxl/mem.c
+> +++ b/drivers/cxl/mem.c
+> @@ -568,7 +568,7 @@ static bool cxl_mem_raw_command_allowed(u16 opcode)
+>         if (!IS_ENABLED(CONFIG_CXL_MEM_RAW_COMMANDS))
+>                 return false;
+>
+> -       if (security_locked_down(LOCKDOWN_NONE))
+> +       if (security_locked_down(current_cred(), LOCKDOWN_NONE))
 
-I see. May I propose then:
+Acked-by: Dan Williams <dan.j.williams@intel.com>
 
-"If nnp_nosuid_transition policy capability is disabled, such domain
-transitions are denied but bounded domain transitions are still allowed. 
-In bounded transitions, target domain is only allowed a subset of the 
-permissions of the source domain."
-
--Topi
+...however that usage looks wrong. The expectation is that if kernel
+integrity protections are enabled then raw command access should be
+disabled. So I think that should be equivalent to LOCKDOWN_PCI_ACCESS
+in terms of the command capabilities to filter.
