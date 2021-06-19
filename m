@@ -2,90 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E30C2B9F4
-	for <selinux@archiver.kernel.org>; Sat, 19 Jun 2021 14:22:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69BADC49EAF
+	for <selinux@archiver.kernel.org>; Sat, 19 Jun 2021 17:00:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A05D1610CD
-	for <selinux@archiver.kernel.org>; Sat, 19 Jun 2021 14:22:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55D6C61206
+	for <selinux@archiver.kernel.org>; Sat, 19 Jun 2021 17:00:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbhFSOYh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 19 Jun 2021 10:24:37 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:56401 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230441AbhFSOYg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 19 Jun 2021 10:24:36 -0400
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 19FA45611E2
-        for <selinux@vger.kernel.org>; Sat, 19 Jun 2021 16:22:24 +0200 (CEST)
-Received: by mail-pl1-f181.google.com with SMTP id i4so2445105plt.12
-        for <selinux@vger.kernel.org>; Sat, 19 Jun 2021 07:22:24 -0700 (PDT)
-X-Gm-Message-State: AOAM532rDwsfbe4f5bcJEvsf+Oy8skgJnOvoTpuSlazPIxmirY8hE3eU
-        bNhZy0RHXJPmA0MJK0esOrJRXRVKAhYKJHNLehc=
-X-Google-Smtp-Source: ABdhPJzooGY7nDb88LZmkVbJNwSDgn3zcAG7kkB9ly75m7ID8XRGfKJIt8nMncqozUWjBBFLTWbB44y1lD/R0PMUd6A=
-X-Received: by 2002:a17:902:b717:b029:11a:fae3:ba7c with SMTP id
- d23-20020a170902b717b029011afae3ba7cmr9437365pls.28.1624112542997; Sat, 19
- Jun 2021 07:22:22 -0700 (PDT)
+        id S234872AbhFSRCt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 19 Jun 2021 13:02:49 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:35076 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232203AbhFSRCo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 19 Jun 2021 13:02:44 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1624122031;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=B0WuIzDMWF99bBZuLNCq2ygkfH35IcPVOSY6Jg7e+OI=;
+        b=zWzKICElodmiWYNyww0vsbIf5K1JIwRn9+v/TR+PlrsUkchd2PKtD5ng6LpeFgbgsTCKw4
+        GBwmGVSPosDKlhUUBZWSNx6e7wz2eqzwKRj1CuthEf+l1vTDYf3U+Y7Xu9kTG+70DBDmlK
+        Bk6Dco+InfRE+z5QGnIXhU31JJXAS+rcpcEninckSnnpG0svX6TEdlrLdqMEQTZMVfly3x
+        9TxzUOm6mtr/EJi67HqlweKY04sNhwUhk8rFZHANb9cX23E1VUNpFGkNaiwqoMfPsIyG8B
+        kcgTJwMUfiPDmBVazSTYhENptpnSjrZ1yRGnj0brteKWvQfemy8H9dbCFDc8/A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1624122031;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=B0WuIzDMWF99bBZuLNCq2ygkfH35IcPVOSY6Jg7e+OI=;
+        b=yGz+IcnIfKBafxps3sdFRFstTzITkh1lKwhIXMPHyEs4gwR741lmdzOnbFnqgotz0a8XG7
+        K3OHwMhzVPurVVAg==
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        x86@kernel.org, linux-acpi@vger.kernel.org,
+        linux-cxl@vger.kernel.org, linux-efi@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-serial@vger.kernel.org,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v3] lockdown,selinux: fix wrong subject in some SELinux lockdown checks
+In-Reply-To: <20210616085118.1141101-1-omosnace@redhat.com>
+References: <20210616085118.1141101-1-omosnace@redhat.com>
+Date:   Sat, 19 Jun 2021 19:00:30 +0200
+Message-ID: <8735tdiyc1.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-References: <20210614150546.512001-1-jwcart2@gmail.com> <20210614150546.512001-5-jwcart2@gmail.com>
-In-Reply-To: <20210614150546.512001-5-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sat, 19 Jun 2021 16:22:12 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=n9bi1NO92z41a5OunZik2YVy6sfDxA+aHddpbma6CyDg@mail.gmail.com>
-Message-ID: <CAJfZ7=n9bi1NO92z41a5OunZik2YVy6sfDxA+aHddpbma6CyDg@mail.gmail.com>
-Subject: Re: [PATCH 4/5] libsepol/cil: Reduce the initial symtab sizes for blocks
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Jun 19 16:22:24 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 14, 2021 at 5:05 PM James Carter <jwcart2@gmail.com> wrote:
->
-> It is possible to create bad behaving policy that can consume all
-> of a system's memory (one way is through the use of inheritance).
-> Analyzing these policies shows that most of the memory usage is for
-> the block symtabs.
->
-> Most of the nineteen symtabs will most likely never be used, so give
-> these symtabs an initial size of 1. The others are given more
-> appropriate sizes.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On Wed, Jun 16 2021 at 10:51, Ondrej Mosnacek wrote:
+> diff --git a/arch/x86/mm/testmmiotrace.c b/arch/x86/mm/testmmiotrace.c
+> index bda73cb7a044..c43a13241ae8 100644
+> --- a/arch/x86/mm/testmmiotrace.c
+> +++ b/arch/x86/mm/testmmiotrace.c
+> @@ -116,7 +116,7 @@ static void do_test_bulk_ioremapping(void)
+>  static int __init init(void)
+>  {
+>  	unsigned long size = (read_far) ? (8 << 20) : (16 << 10);
+> -	int ret = security_locked_down(LOCKDOWN_MMIOTRACE);
+> +	int ret = security_locked_down(current_cred(), LOCKDOWN_MMIOTRACE);
 
-For this patch:
+I have no real objection to those patches, but it strikes me odd that
+out of the 62 changed places 58 have 'current_cred()' and 4 have NULL as
+argument.
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+I can't see why this would ever end up with anything else than
+current_cred() or NULL and NULL being the 'special' case. So why not
+having security_locked_down_no_cred() and make current_cred() implicit
+for security_locked_down() which avoids most of the churn and just makes
+the special cases special. I might be missing something though.
 
-Thanks!
+Thanks,
 
-> ---
->  libsepol/cil/src/cil.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index 0d351b49..c6674fc1 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -54,7 +54,7 @@
->
->  int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
->         {64, 64, 64, 1 << 13, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
-> -       {64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
-> +       {8, 8, 8, 32, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
->         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
->         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
->         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-> --
-> 2.26.3
->
-
+        tglx
