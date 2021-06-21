@@ -2,63 +2,63 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85AF4C4743C
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 21:00:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9A3BC4743C
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 21:00:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C2FB61245
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 21:00:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDC1161245
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 21:00:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231270AbhFUVCl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 17:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34398 "EHLO
+        id S231279AbhFUVC5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 17:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230102AbhFUVCk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 17:02:40 -0400
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C101C061574
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 14:00:25 -0700 (PDT)
-Received: by mail-oi1-x231.google.com with SMTP id u11so21370509oiv.1
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 14:00:25 -0700 (PDT)
+        with ESMTP id S230102AbhFUVC5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 17:02:57 -0400
+Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F2B1C061574
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 14:00:43 -0700 (PDT)
+Received: by mail-oo1-xc2c.google.com with SMTP id x22-20020a4a62160000b0290245cf6b7feeso4826328ooc.13
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 14:00:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=2wMWwc5JY8sbX2BbX0t/BYsseNKykyld49l8+wyb1Fg=;
-        b=YYun/Iya+LxPYNPcT5gEpVusNlmFDpg2sjHo+H3YX0asWXv/I1diEYfctNoGowNs04
-         Gfitq6hV1WuFrCMwurvcXkiU4YRIpOgKNqNFPXWZ46A0/Pw5ESy7sMnNchR+TTZxVgtZ
-         7NbuOhnRXhvQGjMGlG4jX7avWRTc6QOoCV2u1j1vkRaqyzIfFoklqgiUTkdkqWyPK4px
-         jAxCzqMjM/7gKnT9gLeqGu3XRX4RdipNv8AUndjYNT5HOTGKj6Sl0IOHvrkmub08ctD5
-         LAcERVYBmBmhDqBbQa4AWf/fE+tVjRwzKfT6w01fg/ryptPTZ0Z7g0Kp92IZwWK7mGYM
-         sfUg==
+        bh=3Z7x4bbPt9qQSY6hw4fEn4aNo271tgmR6y0nMHqtTac=;
+        b=ClmMoRqcZDh/ChziILgfgmVGM69ReNB983vfkXa67sXraIsDGgxAJ7VlMkSE9xyYd4
+         uiun3PJtiExrYzCthH2/i8USMYg47w5FoLqmyVTcUZ7AEnsdatqtDBarXJstKGriKMS5
+         v1oeqyzrfEtqpXrJi0a/lcyX9eaEtWLQ5YTBdw3QLieclypOz7paW5kZUifttG32J5wc
+         cFJGTuCawuVQcrA5GWWUpIXZGJFxs9WpB1nNTdz35E/m9UjSRk5nEFio7mZhJ5Xc6/+I
+         UHRgfd7R6Y2FOG55XHDrnjB8gRk6bN4Vn0Id80y3lkkDCnXhMdkZIA6IW2f6WO/E3bBb
+         d1og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=2wMWwc5JY8sbX2BbX0t/BYsseNKykyld49l8+wyb1Fg=;
-        b=EBkqQ0PKPPiW8qNGPlyFNAQdsPzyXne/V4B7q+qYXtt4T4BvwzzFxB6kHCfZ02Ff6R
-         k+LHZOYYK3nfeqFkzC3qhHOCV4CId6v/sxloVT+jhCJL7vkXLAScYUo5A1v8zM0ObYqH
-         oygvqUVX+QKPCa/KSids6xrxAn8NHFuZixHfmlOraFpDUETiJBncf0jjtWoFwByG/eTP
-         HNV2CS7OxoGlgLg5/km6rkPEIih8BEraHcbSuGpUQJQUP/m3limcqbTdfs6qBc2ZBW0C
-         IoAx0js5E/1FO5Rf08oq6q0H603d35QgLBMw67gWwhT9Xhwiv8F5u9ffa5q6xyHOwl19
-         PoEw==
-X-Gm-Message-State: AOAM532e1E5KvwIorgHTQQx8GUKQeYqn1YOrmuMwk+siRPaZLEKIhJnu
-        L0UBCVdfapNzAR+Y1qcOLmtVclBxG259AUBGydI=
-X-Google-Smtp-Source: ABdhPJzBQJ5T4KglR0PHWdAQfqW46avI9EP/QaJaaKvqcVg7FGTvar9uVDTDQizG+TMOQbQaH2vSyEVW9B66eyHUz68=
-X-Received: by 2002:aca:d5cd:: with SMTP id m196mr296074oig.138.1624309224821;
- Mon, 21 Jun 2021 14:00:24 -0700 (PDT)
+        bh=3Z7x4bbPt9qQSY6hw4fEn4aNo271tgmR6y0nMHqtTac=;
+        b=kdmPtYFCYAuTF08GWsLSrGpZ8EnxjkK8QIi9SSZnBWBPJFDp6r7/SZk/iABD7oR9w2
+         Uf4VfTeqPKZnbRdImWXYiN/wfu2meEbkjZNsxhn3pfDALPYjMONa6BIPe+z32zD1RamC
+         Andm+JYMjfafZPQ8rTMqDVuf38TSpE5+GS2q00Eaki8GK9XU3KWVWekzTPtkIyThkmKD
+         C+5YJHpujE/v3vg127ziI8Y5Zu0v+vXyFTbJO4K+/qewBi2tT/CAR++oSnOkJ65T+o4U
+         7ur2HUAqYCwewHYFYy2UjNy+GRPrILQQ7IDTsM1PDt4bSJv+iPOJZyjEoRxwDpnpiUNk
+         zXLQ==
+X-Gm-Message-State: AOAM5315ocs2Za39i6J6zGwytLwM2pdqa2gCmJgKWASOWovnKBw7KbYO
+        evOwRGYUEffdB8oqce3JYlEPChBq+qWx6/kP71k=
+X-Google-Smtp-Source: ABdhPJzhQBMRovS2MSg3BGgRYN1MMC8Kq7xo+Zhm1PsmIZRNeiLFjlGbnqnidRSY4OJMHAODR/yrXIXcKTCy1fWZU8w=
+X-Received: by 2002:a4a:3011:: with SMTP id q17mr60455oof.35.1624309242563;
+ Mon, 21 Jun 2021 14:00:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-20-cgzones@googlemail.com>
-In-Reply-To: <20210608155912.32047-20-cgzones@googlemail.com>
+References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-23-cgzones@googlemail.com>
+In-Reply-To: <20210608155912.32047-23-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 21 Jun 2021 17:00:14 -0400
-Message-ID: <CAP+JOzS4kznzpVC3rBuzi=A0ZGsY4gFAhZOKc+oJ9Fwp9hLkjw@mail.gmail.com>
-Subject: Re: [PATCH 19/23] libsepol/cil: avoid using maybe uninitialized variables
+Date:   Mon, 21 Jun 2021 17:00:31 -0400
+Message-ID: <CAP+JOzSHyvt2_=CsXp4TOJDZS=a+fFrncFnoJ5p+3qREwk5Scw@mail.gmail.com>
+Subject: Re: [PATCH 22/23] libsepol: declare file local variable static
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,82 +70,34 @@ X-Mailing-List: selinux@vger.kernel.org
 On Tue, Jun 8, 2021 at 12:02 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Initialize variables, as they are set after goto statements, which jump
-> to cleanup code using them.
+> Clang issues:
+>
+>     module_to_cil.c:65:7: warning: no previous extern declaration for non=
+-static variable 'out_file' [-Wmissing-variable-declarations]
+>     FILE *out_file;
+>           ^
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/cil/src/cil_binary.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+>  libsepol/src/module_to_cil.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
-c
-> index 601fe8d1..54d13f2f 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -1073,7 +1073,7 @@ int __cil_type_rule_to_avtab(policydb_t *pdb, const=
- struct cil_db *db, struct ci
->         type_datum_t *sepol_src =3D NULL;
->         type_datum_t *sepol_tgt =3D NULL;
->         class_datum_t *sepol_obj =3D NULL;
-> -       struct cil_list *class_list;
-> +       struct cil_list *class_list =3D NULL;
->         type_datum_t *sepol_result =3D NULL;
->         ebitmap_t src_bitmap, tgt_bitmap;
->         ebitmap_node_t *node1, *node2;
-> @@ -1129,7 +1129,7 @@ int __cil_typetransition_to_avtab(policydb_t *pdb, =
-const struct cil_db *db, stru
->         type_datum_t *sepol_src =3D NULL;
->         type_datum_t *sepol_tgt =3D NULL;
->         class_datum_t *sepol_obj =3D NULL;
-> -       struct cil_list *class_list;
-> +       struct cil_list *class_list =3D NULL;
->         type_datum_t *sepol_result =3D NULL;
->         ebitmap_t src_bitmap, tgt_bitmap;
->         ebitmap_node_t *node1, *node2;
-> @@ -2338,7 +2338,7 @@ int cil_roletrans_to_policydb(policydb_t *pdb, cons=
-t struct cil_db *db, struct c
->         role_datum_t *sepol_src =3D NULL;
->         type_datum_t *sepol_tgt =3D NULL;
->         class_datum_t *sepol_obj =3D NULL;
-> -       struct cil_list *class_list;
-> +       struct cil_list *class_list =3D NULL;
->         role_datum_t *sepol_result =3D NULL;
->         role_trans_t *new =3D NULL;
->         uint32_t *new_role =3D NULL;
-> @@ -3166,7 +3166,7 @@ int cil_rangetransition_to_policydb(policydb_t *pdb=
-, const struct cil_db *db, st
->         type_datum_t *sepol_src =3D NULL;
->         type_datum_t *sepol_tgt =3D NULL;
->         class_datum_t *sepol_class =3D NULL;
-> -       struct cil_list *class_list;
-> +       struct cil_list *class_list =3D NULL;
->         range_trans_t *newkey =3D NULL;
->         struct mls_range *newdatum =3D NULL;
->         ebitmap_t src_bitmap, tgt_bitmap;
-> @@ -3603,7 +3603,7 @@ int cil_default_to_policydb(policydb_t *pdb, struct=
- cil_default *def)
->  {
->         struct cil_list_item *curr;
->         class_datum_t *sepol_class;
-> -       struct cil_list *class_list;
-> +       struct cil_list *class_list =3D NULL;
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 73ec7971..1d724b91 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -62,7 +62,7 @@
+>  #  define UNUSED(x) UNUSED_ ## x
+>  #endif
 >
->         cil_list_for_each(curr, def->class_datums) {
->                 struct cil_list_item *c;
-> @@ -3658,7 +3658,7 @@ int cil_defaultrange_to_policydb(policydb_t *pdb, s=
-truct cil_defaultrange *def)
->  {
->         struct cil_list_item *curr;
->         class_datum_t *sepol_class;
-> -       struct cil_list *class_list;
-> +       struct cil_list *class_list =3D NULL;
+> -FILE *out_file;
+> +static FILE *out_file;
 >
->         cil_list_for_each(curr, def->class_datums) {
->                 struct cil_list_item *c;
+>  #define STACK_SIZE 16
+>  #define DEFAULT_LEVEL "systemlow"
 > --
 > 2.32.0
 >
