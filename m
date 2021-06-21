@@ -8,58 +8,57 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E510DC4743C
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:59:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1DA6C4743C
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:59:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3D1B61245
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:59:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7AE761245
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:59:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230321AbhFUVBT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 17:01:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
+        id S230206AbhFUVB7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 17:01:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230206AbhFUVBS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 17:01:18 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433E8C061574
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:59:03 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id u11so21366267oiv.1
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:59:03 -0700 (PDT)
+        with ESMTP id S230102AbhFUVB7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 17:01:59 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 812C7C061574
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:59:44 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id w127so21414611oig.12
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:59:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Pao5HC4+8/Pf0gevkmYjLBnCbNN583+ZXcqqk7CurZs=;
-        b=NG5Cp29Yhg8e/ymWmqunSH8+EE9EFf7bdeAaFCNaPv5059A9hlaQ2lz5j75qFkmsKN
-         hZDORHab88iyQsW4fmVsG8rUUiHYKb1WFW9xwTLbD3N1OMclzooqcei63pejNTzuEio/
-         il2LN1lI4x0XtE786C+iVZjD3ji1mT5b3LjbUOd2eFsu6Cli0AaTgnIoKIIr/l29b3UR
-         ZZGGzTVdPIp0MLr5iO1sHhU7qhobLkSf10aGIfNywlNt2QFq08rmbfpFpqGHxQ2qbM/Q
-         F+DxE2Kc/6GDe/5UdeycAUqnSaMeP8SKBogZPYcBVuKdiNciBNmsfI0pDH1p9dZ1M2gY
-         kO+A==
+        bh=sWPslvKg712eMrCjeAueNa7WO/EzfdoWjKxSzDAv5y8=;
+        b=ZznqPTvKEkDXZBaTPajD8S/SFSswqJw6ekAccKh1vw22U62X4/w4ahfDbHZ6xsk5/Z
+         dSsLXdyxmYbVMQst3yOvs4liafSkIW86tiVjOMHuZCvlXjBGgGJjOyXfZ8xMtL3JvxUN
+         PzJ2cWC8uOjU0ZzwtCAwh536RoHYpI4/LwEtZOxr7pkqSviDGtbDEqI9H62EK/N8bDrP
+         9CEqcl0YchH/JcNWIOGZaO4+7FDimM/qoso9FhjzARgRJJpqsSMdqsFjJb9pbNADk62F
+         Cr5AE3/+qxHxeXOXa3DiEXKHj14gFlmsfddB0F4QM+mCthQl/tbc5BjeyBJjfIrUf2zw
+         oLpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Pao5HC4+8/Pf0gevkmYjLBnCbNN583+ZXcqqk7CurZs=;
-        b=Y00rcIAHSQDvrECGL+qe44RdSAmlUfoX4NPm4Tv70FDLbZGNqN+Hciv3abLKpuFC2P
-         mdItJLH4PiQPdwyi5s35JSras53TvXp2HLzdDzaNRR//n13CRKzvLlbzcDOrCa2f06UQ
-         dJ/IFoj0lcWD1FrLabaSmXQo4BOc8tScLYUpXIhvlLPz1oQaymBvQkNqItzRyeCMxggS
-         /wxlll4Qk585ldFMl5klgTuzB4k5M+MpH7j3+ZCcRGWOPis6+Ok6xrlnJTSkX7XXs2Hi
-         wKHDS9ules1ij8DE4IfRKWpa9vAByE6PUpN2Pil8MgfUhQiEGXF//olpTVcrpvK7Atgj
-         6vEw==
-X-Gm-Message-State: AOAM532yY5EEjb1dBuISJrU3LfQgrKuU664T9ZP4mSlkGK7hti6Jrhye
-        6pkkOCSkRfGT1xMUSuSqpDSJwRcqwx+wQxG4T3M=
-X-Google-Smtp-Source: ABdhPJwX6jD9km7kFeKOAe5jkiUHIkLaDv6QUoXk/Q39Ex95DI5l7qVhd1mPKryLOcITWZ7PUHmklb5kOds6B30jVkQ=
-X-Received: by 2002:aca:d5cd:: with SMTP id m196mr291291oig.138.1624309142698;
- Mon, 21 Jun 2021 13:59:02 -0700 (PDT)
+        bh=sWPslvKg712eMrCjeAueNa7WO/EzfdoWjKxSzDAv5y8=;
+        b=omuPaTI5KbaPxiigTp2VhRdAXMUYlVl2muuI9rlA0+gE5QE4Ldt5WHAXBijfA5Bslj
+         dNcA1qWFSkf3eqYxuQlpqZGAU3GqqfMLeyeLO4JNJvRykvU86LvCzXZ9pu8JXKc5wbUB
+         svefwfXo5w5XodOI8SRui/ihk1yFegUCVF8Ovw4FnGxioGm37z3pR9xDPepOw8PQaz1x
+         NCB7KgjzwBK5W38vEy2ZXEwBez6ZDYQPFoEyc3nnd7H78zxgFlzRLqj2lXisH4vZYfE8
+         eCkCiwcxDmPE20J/C0V1MZFGckgKzdKSPR9sQDU12gJ8o2Ezgkf56rqK+Lymn2mAcjrs
+         ifoQ==
+X-Gm-Message-State: AOAM5311TIKgyMf7e9/X1C/yEKHMRwVFmp/w+x4wTMcCNXhi2paV0Dr4
+        v+c9TGJftMRmwneuagCeq/pIDQmmT23+1AudRh4=
+X-Google-Smtp-Source: ABdhPJwVthlfuBvY/nMa6tlqec/iMCpCkzsiYRGpVXk9MJZuz+aXL7t3ilYzESf2vIrqJFz/4kDE1QkaZJpTDcSjKEY=
+X-Received: by 2002:aca:30d1:: with SMTP id w200mr460991oiw.16.1624309183999;
+ Mon, 21 Jun 2021 13:59:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-12-cgzones@googlemail.com>
-In-Reply-To: <20210608155912.32047-12-cgzones@googlemail.com>
+References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-13-cgzones@googlemail.com>
+In-Reply-To: <20210608155912.32047-13-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 21 Jun 2021 16:58:52 -0400
-Message-ID: <CAP+JOzSXVzP-W08vh64ygEtP2jcoxKefU7DzjcjeN98c=du=mg@mail.gmail.com>
-Subject: Re: [PATCH 11/23] libsepol: mark read-only parameters of type_set_
- interfaces const
+Date:   Mon, 21 Jun 2021 16:59:32 -0400
+Message-ID: <CAP+JOzSxAfFHu30tX9V1r+v6L01y0yvmeeh0OgQ5wRh3kmq3sg@mail.gmail.com>
+Subject: Re: [PATCH 12/23] libsepol: do not allocate memory of size 0
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -71,69 +70,63 @@ X-Mailing-List: selinux@vger.kernel.org
 On Tue, Jun 8, 2021 at 12:02 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Make it more obvious which parameters are read-only and not being
-> modified and allow callers to pass const pointers.
+> In case cats_ebitmap_len() returns 0, do not allocate but quit.
+>
+> Found by clang-analyzer
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/include/sepol/policydb/policydb.h | 4 ++--
->  libsepol/src/policydb.c                    | 6 +++---
->  2 files changed, 5 insertions(+), 5 deletions(-)
+>  libsepol/src/kernel_to_cil.c  | 5 ++++-
+>  libsepol/src/kernel_to_conf.c | 5 ++++-
+>  2 files changed, 8 insertions(+), 2 deletions(-)
 >
-> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/includ=
-e/sepol/policydb/policydb.h
-> index c29339dc..78699fb4 100644
-> --- a/libsepol/include/sepol/policydb/policydb.h
-> +++ b/libsepol/include/sepol/policydb/policydb.h
-> @@ -667,8 +667,8 @@ extern int scope_destroy(hashtab_key_t key, hashtab_d=
-atum_t datum, void *p);
->  extern void class_perm_node_init(class_perm_node_t * x);
->  extern void type_set_init(type_set_t * x);
->  extern void type_set_destroy(type_set_t * x);
-> -extern int type_set_cpy(type_set_t * dst, type_set_t * src);
-> -extern int type_set_or_eq(type_set_t * dst, type_set_t * other);
-> +extern int type_set_cpy(type_set_t * dst, const type_set_t * src);
-> +extern int type_set_or_eq(type_set_t * dst, const type_set_t * other);
->  extern void role_set_init(role_set_t * x);
->  extern void role_set_destroy(role_set_t * x);
->  extern void avrule_init(avrule_t * x);
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 3389a943..7739b0fb 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1753,7 +1753,7 @@ int symtab_insert(policydb_t * pol, uint32_t sym,
->         return retval;
->  }
->
-> -static int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
-> +static int type_set_or(type_set_t * dst, const type_set_t * a, const typ=
-e_set_t * b)
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 989aacde..17b5ebf0 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -1034,11 +1034,14 @@ static char *cats_ebitmap_to_str(struct ebitmap *=
+cats, char **val_to_name)
 >  {
->         type_set_init(dst);
+>         struct ebitmap_node *node;
+>         uint32_t i, start, range;
+> -       char *catsbuf, *p;
+> +       char *catsbuf =3D NULL, *p;
+>         const char *fmt;
+>         int len, remaining;
 >
-> @@ -1770,7 +1770,7 @@ static int type_set_or(type_set_t * dst, type_set_t=
- * a, type_set_t * b)
->         return 0;
->  }
->
-> -int type_set_cpy(type_set_t * dst, type_set_t * src)
-> +int type_set_cpy(type_set_t * dst, const type_set_t * src)
+>         remaining =3D (int)cats_ebitmap_len(cats, val_to_name);
+> +       if (remaining =3D=3D 0) {
+> +               goto exit;
+> +       }
+>         catsbuf =3D malloc(remaining);
+>         if (!catsbuf) {
+>                 goto exit;
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index 5db47fe4..c1253820 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -1025,12 +1025,15 @@ static char *cats_ebitmap_to_str(struct ebitmap *=
+cats, char **val_to_name)
 >  {
->         type_set_init(dst);
+>         struct ebitmap_node *node;
+>         uint32_t i, start, range, first;
+> -       char *catsbuf, *p;
+> +       char *catsbuf =3D NULL, *p;
+>         const char *fmt;
+>         char sep;
+>         int len, remaining;
 >
-> @@ -1783,7 +1783,7 @@ int type_set_cpy(type_set_t * dst, type_set_t * src=
-)
->         return 0;
->  }
->
-> -int type_set_or_eq(type_set_t * dst, type_set_t * other)
-> +int type_set_or_eq(type_set_t * dst, const type_set_t * other)
->  {
->         int ret;
->         type_set_t tmp;
+>         remaining =3D (int)cats_ebitmap_len(cats, val_to_name);
+> +       if (remaining =3D=3D 0) {
+> +               goto exit;
+> +       }
+>         catsbuf =3D malloc(remaining);
+>         if (!catsbuf) {
+>                 goto exit;
 > --
 > 2.32.0
 >
