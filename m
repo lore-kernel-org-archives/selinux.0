@@ -2,117 +2,130 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90FA1C49361
-	for <selinux@archiver.kernel.org>; Sun, 20 Jun 2021 03:54:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAC7EC49EA6
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 08:45:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E702610A3
-	for <selinux@archiver.kernel.org>; Sun, 20 Jun 2021 03:54:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92FF961221
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 08:45:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbhFTD5A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 19 Jun 2021 23:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56574 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbhFTD5A (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 19 Jun 2021 23:57:00 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E1AC061574;
-        Sat, 19 Jun 2021 20:54:47 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id i4so2995841plt.12;
-        Sat, 19 Jun 2021 20:54:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=cc:subject:to:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=hM4kp+Fh2kyq7dtgUbZatmQI1FiYValUzraIYhuWGOk=;
-        b=bWE1tDmgg/fvKIlK/quzucRRf8ApBx2YOsYzpEyFoHxXglUH8diBY/p++Jir7GSCwY
-         b+1D1YIYaxPOpj2IHtU2sqZU7VD7AZUri1Za3wBzTBUseZXPlUdbPCuByXpF1Lrglxq0
-         g9uRi60Yo6Vmi7wt2H3mM6e4dMtFKoOo/P1hKjhycZcZwd6l9eorddixAQ1ANFJQP11f
-         Ax5e7vO82Quc2Wx+uzwHJHAwxN41aSbp4RV38xjs64BGNrAKsN2OGNOuKSe0vbGdYYEw
-         rdEbL+iK5XJvoMJFrgaEi9PKwexm5EBIp5utYuhLdWQ1U7h6qXX1G/3q6mjLt5HA7U3F
-         xLfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:cc:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=hM4kp+Fh2kyq7dtgUbZatmQI1FiYValUzraIYhuWGOk=;
-        b=P3TUMM8I1i2zpNP9ysI27Q6zhyqywcRWQt/r3Oz9vlR6XiTPOdIiu23uqThr/1edYT
-         g/QkZagU9SsG2fa+IFv2qReS+QX6FRaKrzHG78YN3H9xPOFF5exyfpC5L2CZu6KBlXpd
-         rlYipZivBp0m1SCfAGqnrC5AEQQ2qiyh4dqYx/mJG8hzbrc1GA2mMaxgMwzAp72dtnMm
-         R8rS1xMQ7ZAVfGeOEBdA6WI3dDLRBNUW9CTK2TD4MTL/qmxMGnP4ubYr/6LIErQLXPd7
-         0Uxs8TNXeAs95n3KOr0Jel315MAaYRjWQsRlV2iqCcWGvrkSWpUeQL3GQN4iEKKvaLze
-         wK1g==
-X-Gm-Message-State: AOAM533aA3cl4uJ9FBd9HtaZr+xUKAd0mgtTpfuswI+8r+arbfBpPaUm
-        lldJ810lt9zZK9kf4aNfh1GxzM3F3II=
-X-Google-Smtp-Source: ABdhPJzm3GxvzWNesY7UUjI9q8nj/oBgQFqAhp19UhfemWGnmYNfsrD3dwNJbhMnAFg6TJ53LtC7rg==
-X-Received: by 2002:a17:90b:388a:: with SMTP id mu10mr12333751pjb.101.1624161286730;
-        Sat, 19 Jun 2021 20:54:46 -0700 (PDT)
-Received: from [192.168.1.70] (122-61-176-117-fibre.sparkbb.co.nz. [122.61.176.117])
-        by smtp.gmail.com with ESMTPSA id y80sm4901208pfb.204.2021.06.19.20.54.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 19 Jun 2021 20:54:46 -0700 (PDT)
-Cc:     mtk.manpages@gmail.com, selinux@vger.kernel.org
-Subject: Re: [patch] mount.2: document SELinux use of MS_NOSUID mount flag
-To:     Topi Miettinen <toiwoton@gmail.com>, linux-man@vger.kernel.org,
-        alx.manpages@gmail.com
-References: <20210612085109.20363-1-toiwoton@gmail.com>
-From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Message-ID: <e1f0ced0-7980-0d09-7fbd-636eee67b7ad@gmail.com>
-Date:   Sun, 20 Jun 2021 15:54:42 +1200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S230318AbhFUIrl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 04:47:41 -0400
+Received: from mailout1.secunet.com ([62.96.220.44]:57870 "EHLO
+        mailout1.secunet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229946AbhFUIrk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 04:47:40 -0400
+X-Greylist: delayed 582 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Jun 2021 04:47:37 EDT
+Received: from cas-essen-01.secunet.de (unknown [10.53.40.201])
+        by mailout1.secunet.com (Postfix) with ESMTP id BAFED80004E;
+        Mon, 21 Jun 2021 10:35:39 +0200 (CEST)
+Received: from mbx-essen-01.secunet.de (10.53.40.197) by
+ cas-essen-01.secunet.de (10.53.40.201) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 21 Jun 2021 10:35:39 +0200
+Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
+ (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Mon, 21 Jun
+ 2021 10:35:39 +0200
+Received: by gauss2.secunet.de (Postfix, from userid 1000)
+        id 249D031803E8; Mon, 21 Jun 2021 10:35:39 +0200 (CEST)
+Date:   Mon, 21 Jun 2021 10:35:39 +0200
+From:   Steffen Klassert <steffen.klassert@secunet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+CC:     <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Herbert Xu" <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        <selinux@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <x86@kernel.org>, <linux-acpi@vger.kernel.org>,
+        <linux-cxl@vger.kernel.org>, <linux-efi@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>, <linux-pci@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-serial@vger.kernel.org>,
+        <bpf@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <kexec@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v3] lockdown,selinux: fix wrong subject in some SELinux
+ lockdown checks
+Message-ID: <20210621083539.GY40979@gauss3.secunet.de>
+References: <20210616085118.1141101-1-omosnace@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210612085109.20363-1-toiwoton@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20210616085118.1141101-1-omosnace@redhat.com>
+X-ClientProxiedBy: cas-essen-01.secunet.de (10.53.40.201) To
+ mbx-essen-01.secunet.de (10.53.40.197)
+X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Helo Topi,
-
-On 6/12/21 8:51 PM, Topi Miettinen wrote:
-> Using mount flag `MS_NOSUID` also affects SELinux domain transitions but
-> this has not been documented well.
+On Wed, Jun 16, 2021 at 10:51:18AM +0200, Ondrej Mosnacek wrote:
+> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+> lockdown") added an implementation of the locked_down LSM hook to
+> SELinux, with the aim to restrict which domains are allowed to perform
+> operations that would breach lockdown.
 > 
-> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
-
-Thanks. Patch applied.
-
-Cheers,
-
-Michael
-
-> ---
->  man2/mount.2 | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> However, in several places the security_locked_down() hook is called in
+> situations where the current task isn't doing any action that would
+> directly breach lockdown, leading to SELinux checks that are basically
+> bogus.
 > 
-> diff --git a/man2/mount.2 b/man2/mount.2
-> index d8521880b..d7d5b2ad4 100644
-> --- a/man2/mount.2
-> +++ b/man2/mount.2
-> @@ -220,7 +220,9 @@ Do not allow programs to be executed from this filesystem.
->  .TP
->  .B MS_NOSUID
->  Do not honor set-user-ID and set-group-ID bits or file capabilities
-> -when executing programs from this filesystem.
-> +when executing programs from this filesystem. In addition, SELinux domain
-> +transitions require permission nosuid_transition, which in turn needs
-> +also policy capability nnp_nosuid_transition.
->  .\" (This is a security feature to prevent users executing set-user-ID and
->  .\" set-group-ID programs from removable disk devices.)
->  .TP
+> To fix this, add an explicit struct cred pointer argument to
+> security_lockdown() and define NULL as a special value to pass instead
+> of current_cred() in such situations. LSMs that take the subject
+> credentials into account can then fall back to some default or ignore
+> such calls altogether. In the SELinux lockdown hook implementation, use
+> SECINITSID_KERNEL in case the cred argument is NULL.
 > 
+> Most of the callers are updated to pass current_cred() as the cred
+> pointer, thus maintaining the same behavior. The following callers are
+> modified to pass NULL as the cred pointer instead:
+> 1. arch/powerpc/xmon/xmon.c
+>      Seems to be some interactive debugging facility. It appears that
+>      the lockdown hook is called from interrupt context here, so it
+>      should be more appropriate to request a global lockdown decision.
+> 2. fs/tracefs/inode.c:tracefs_create_file()
+>      Here the call is used to prevent creating new tracefs entries when
+>      the kernel is locked down. Assumes that locking down is one-way -
+>      i.e. if the hook returns non-zero once, it will never return zero
+>      again, thus no point in creating these files. Also, the hook is
+>      often called by a module's init function when it is loaded by
+>      userspace, where it doesn't make much sense to do a check against
+>      the current task's creds, since the task itself doesn't actually
+>      use the tracing functionality (i.e. doesn't breach lockdown), just
+>      indirectly makes some new tracepoints available to whoever is
+>      authorized to use them.
+> 3. net/xfrm/xfrm_user.c:copy_to_user_*()
+>      Here a cryptographic secret is redacted based on the value returned
+>      from the hook. There are two possible actions that may lead here:
+>      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
+>         task context is relevant, since the dumped data is sent back to
+>         the current task.
+>      b) When adding/deleting/updating an SA via XFRM_MSG_xxxSA, the
+>         dumped SA is broadcasted to tasks subscribed to XFRM events -
+>         here the current task context is not relevant as it doesn't
+>         represent the tasks that could potentially see the secret.
+>      It doesn't seem worth it to try to keep using the current task's
+>      context in the a) case, since the eventual data leak can be
+>      circumvented anyway via b), plus there is no way for the task to
+>      indicate that it doesn't care about the actual key value, so the
+>      check could generate a lot of "false alert" denials with SELinux.
+>      Thus, let's pass NULL instead of current_cred() here faute de
+>      mieux.
+> 
+> Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
+> Improvements-suggested-by: Paul Moore <paul@paul-moore.com>
+> Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
+For the xfrm part:
 
--- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
+
