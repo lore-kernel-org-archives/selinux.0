@@ -8,57 +8,57 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 959C9C4743C
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:57:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBD59C4743C
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:58:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7CC9C61245
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:57:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB9F96108E
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:58:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbhFUU7x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 16:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33756 "EHLO
+        id S231127AbhFUVAO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 17:00:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231127AbhFUU7x (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 16:59:53 -0400
+        with ESMTP id S230321AbhFUVAO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 17:00:14 -0400
 Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FCE6C061574
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:57:38 -0700 (PDT)
-Received: by mail-oo1-xc31.google.com with SMTP id z14-20020a4a984e0000b029024a8c622149so4824071ooi.10
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:57:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A02C061574
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:57:59 -0700 (PDT)
+Received: by mail-oo1-xc31.google.com with SMTP id r14-20020a4ad4ce0000b029024b4146e2f5so3161587oos.1
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:57:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=q9vGXCe68qwqLfgX0TNs8Zdb6YGfNWHXp27/yW8Z4UM=;
-        b=K4lbgnYX9D59wGYGT2ZMTw/YYSuRLwJvthw0dON+c6DFhu7kMAz3KxBzhB2sMZA5xy
-         LuvulMb9HGRK7dpdPQwsT/g9sK5spy9Z8HSf9ztR4bSBFFHwL0lfFw5fquanf0S0vDBi
-         NaBrQCRJiEZfh0N2Zsz0NsTot2E8gb9JegdkLfvk74IElAKGU46+7WWayCz/450CGHHO
-         TM8rrXwJFuFbaQuJSWtlpK3ab2uI7y9seR/caThUUEv4l6MTz00voJ4BpDeYDjvIg4hQ
-         vP/sMRGINXsJKtuYQYhWLviGh2SOXRZMsCR58Ub3DsYNXEm5iwrA53eo5hsZgmKHDRKe
-         Cl6g==
+        bh=LLSA8iYG+n9TX1yzq3TX/JqbFc+fZ8BSd2lDwRcPxPc=;
+        b=RB2aYN3jFySungjK62tTUuurWLPGFU154UN4ZidfHj6ZJfE4QShOgZ/xT2UwqMUD+n
+         yn7bYQ7Qb97V/oQDcjs28XdjuAgt7gdwTzi8IRcF7J4SFSGNd4OiLqFe8dZPQ2crgahV
+         Wi9DqnUNsTpubwMY1eaISFJgaeZWtJH7hLSJ3lTFp58+fI6+//7MYHrNbQnEKIZqMKr3
+         EGPs3eLPURX3Qlpct1qItOrsvoD/imFXZ5zZ/6rPEjoZ7HDusLAaz0ZzF3Yr07Xi941f
+         7ffjp19V/tL0mm/n2VA3addop45AKMOaaT+Lo0O7q1/DV8pTeAvTD5jZ+5VoAfHwxJLM
+         UTsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=q9vGXCe68qwqLfgX0TNs8Zdb6YGfNWHXp27/yW8Z4UM=;
-        b=LkE8FJ3E+WDOXx1Dce0tDqsTQPh4H7bKt7JydrGfhcnlgSNfRS0PHuFamhNFUbK1sU
-         ftri/UnsSf6AiBvtu6g0vJwVr7iIULaeE8QgH1dmjROGtGlOz18p1YeRMAUIiyS/1/Kz
-         95xl9eWtyRSqPKq771U4uVSOLh2ATWOrJoa4w5S9l9bmyjRxGNqOYoW0EF4UjpWyPRiK
-         OiiGydKN7cUvnsHGZRoUE3yDEjF2HrkXOAaHMDJKSXyrzhtF0aTNUDt3PUxFAJt9ZDaO
-         p+vge8bMTEAJvgl+epbl1f9CGp0jG2DLQ+sdzWNsTnpVf2na4H3UqYjIIkq+qDynrFHT
-         3ZXw==
-X-Gm-Message-State: AOAM533O0oZJHO3tGL8CZOcEumlH7JESzajUaMd3x21NSVyCDMZUWGvY
-        ZjjS5wYH2ik9UBttUZ5n3LSNh3SopWXtyqL1TAw=
-X-Google-Smtp-Source: ABdhPJyNSNIhv7R52qohWfki2oDp3acmG2qQR7YEhDHSPAr8sYoBbqh0bQ06dyKEIbDAeHhlgrtK43SgeRMSfZ7Wwnc=
-X-Received: by 2002:a4a:3011:: with SMTP id q17mr49627oof.35.1624309058084;
- Mon, 21 Jun 2021 13:57:38 -0700 (PDT)
+        bh=LLSA8iYG+n9TX1yzq3TX/JqbFc+fZ8BSd2lDwRcPxPc=;
+        b=P4dYGmhYR61/wnPQi1fj6wI8ZD91Rv58lfsefnxmvOVlQc/htHdANTn04onnnRxuwg
+         iM2RQVAbMutdLfSVFxmORfPzVXuV7HnC/NxOmKxN6Gf+GY1wuQf2kXcsQtYHHNEwqMqe
+         d3cBR/Qu60O8PQXKFw2TscM1uNjb2njafsNGjhofyHxiF2Oq4flv/9id7oxXglVbdMTX
+         3SGcNkSVm+gh4ukLtmoyNabzcTgImyJZobbEODOFkFpOuPI4qe/5I8eJe/9V3sraolFo
+         ZQs0AuHXVSxEBSBmf9LQS2h7NzxFUSJuzV8vGCbe8Lk+sSd5eo2aW2fkeY+6x8UMHDSH
+         KuSQ==
+X-Gm-Message-State: AOAM532PJ4TSh3yWJTdgg+/EzE0a/Sw6BK07FvrH3XrdHwbXzpz4R50X
+        PDxtpFeK0VT4/H17lZc0zzEdCHY+RQOY0q/nYgE=
+X-Google-Smtp-Source: ABdhPJxdCRDeeohQlLnRvj/0IOY61UZ1kXYlScGCUE9W4wDVLHlSZ/blXApRhD/IW3QgFBkyOnX1+SyCE93xRX/n3hU=
+X-Received: by 2002:a4a:c55:: with SMTP id n21mr45023ooe.59.1624309079315;
+ Mon, 21 Jun 2021 13:57:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-17-cgzones@googlemail.com>
-In-Reply-To: <20210608155912.32047-17-cgzones@googlemail.com>
+References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-22-cgzones@googlemail.com>
+In-Reply-To: <20210608155912.32047-22-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 21 Jun 2021 16:57:27 -0400
-Message-ID: <CAP+JOzR+dHn_5UVKzNB25MiRJOhpTmkJeukjxwt2tV1gH-ZVow@mail.gmail.com>
-Subject: Re: [PATCH 16/23] libsepol/cil: drop extra semicolon
+Date:   Mon, 21 Jun 2021 16:57:48 -0400
+Message-ID: <CAP+JOzTYhG4dkvGk-Cj5dE3b1J5aG+76mPmmc27Y-UR+nkANvg@mail.gmail.com>
+Subject: Re: [PATCH 21/23] libsepol: drop unnecessary casts
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,29 +70,53 @@ X-Mailing-List: selinux@vger.kernel.org
 On Tue, Jun 8, 2021 at 12:02 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
+> `hashtab_search()` does take `const_hashtab_key_t` as second parameter,
+> which is a typedef for `const char *`.
+> Drop the unnecessary and const-violating cast.
+>
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/cil/src/cil_build_ast.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libsepol/src/services.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 >
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_buil=
-d_ast.c
-> index 9a9bc598..da298311 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -4153,7 +4153,7 @@ void cil_destroy_context(struct cil_context *contex=
-t)
->                 return;
->         }
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index f7c31d80..47a3dc14 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -1182,7 +1182,7 @@ int sepol_string_to_security_class(const char *clas=
+s_name,
+>         class_datum_t *tclass_datum;
 >
-> -       cil_symtab_datum_destroy(&context->datum);;
-> +       cil_symtab_datum_destroy(&context->datum);
+>         tclass_datum =3D hashtab_search(policydb->p_classes.table,
+> -                                     (hashtab_key_t) class_name);
+> +                                     class_name);
+>         if (!tclass_datum) {
+>                 ERR(NULL, "unrecognized class %s", class_name);
+>                 return STATUS_ERR;
+> @@ -1211,7 +1211,7 @@ int sepol_string_to_av_perm(sepol_security_class_t =
+tclass,
+>         /* Check for unique perms then the common ones (if any) */
+>         perm_datum =3D (perm_datum_t *)
+>                         hashtab_search(tclass_datum->permissions.table,
+> -                       (hashtab_key_t)perm_name);
+> +                       perm_name);
+>         if (perm_datum !=3D NULL) {
+>                 *av =3D 0x1 << (perm_datum->s.value - 1);
+>                 return STATUS_SUCCESS;
+> @@ -1222,7 +1222,7 @@ int sepol_string_to_av_perm(sepol_security_class_t =
+tclass,
 >
->         if (context->range_str =3D=3D NULL && context->range !=3D NULL) {
->                 cil_destroy_levelrange(context->range);
+>         perm_datum =3D (perm_datum_t *)
+>                         hashtab_search(tclass_datum->comdatum->permission=
+s.table,
+> -                       (hashtab_key_t)perm_name);
+> +                       perm_name);
+>
+>         if (perm_datum !=3D NULL) {
+>                 *av =3D 0x1 << (perm_datum->s.value - 1);
 > --
 > 2.32.0
 >
