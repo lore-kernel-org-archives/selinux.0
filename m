@@ -8,57 +8,58 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA0BC48BC2
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:55:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 639E5C4743C
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:56:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B257861245
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:55:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41AE36108E
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:56:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230321AbhFUU6D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 16:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
+        id S230052AbhFUU6Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 16:58:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231226AbhFUU6D (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 16:58:03 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DEEC061756
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:55:48 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id q10so21338206oij.5
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:55:48 -0700 (PDT)
+        with ESMTP id S229890AbhFUU6Z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 16:58:25 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6FBC061574
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:56:09 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id f3-20020a0568301c23b029044ce5da4794so12517835ote.11
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:56:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=mjSc4BOTtxhGshdGgujPPgHRyx9VQ4G0u29eCSqO/dY=;
-        b=hAk3F9D3mT6XVotAMPAW8ski0ksphgXlc4jaf6/NqIrxF9ekcWphKCXAtkWCGquCHL
-         OJv/h6rPo3jFw/j7NYgJ+6lUEQ61WAfPW1VvEWqulo6O6L2ceLw32cTrE26BcXD0k0oB
-         pu5yCaGv1v++aM7BOC6uRnxfNhq9jlmHEXNI8qIpkTp/hNFVE0+b1UATteUL7qMCENEy
-         t7JWhXAjpZ3KS9CCeJCQURt0esqjmfPZY9aMAC9CLqOubEnEyKeTjwtW7UaiXf5Sfs2o
-         8NK6LgDJ+7L9SldBtREnnrTIHPUdAxxpgwN1lO0YbZKvb1fQvAc671PssD6n6fC0J3vt
-         dccA==
+        bh=TrZTfmoFPlpB/8g/mtu3rz4ibYUTCVQG5S/zygTca8w=;
+        b=Kr/BC9O+z4NSIw5cav578xl3HsPTlMXp9QybAWlco9HEsdIn/atnjZ6qeb5l832f6X
+         ANujD730qzK/Tr7cO8P6nS6moej+a0Np9niPFr+0sQmtHZtuOM0TJaearJYeOdAMIFjr
+         nxk1FF5oxSwFPJQ2Nb2LV9Rvtv1VxEcxF0oeZJetdm2CaIT2LVFrXp65+ykQWsTUvAjL
+         /OzVjFbL1l4krCbateTtMLcnwo+qMp0RtddPYC7cUWLR3F7XH0GnI37CeWFEc1n1Gw2y
+         BWwmdRWVybOFB1BRoANk2HHzNxpZd1oziXY7k5KbYIltcpoJcKfWlUGS9pptqqwSQDJb
+         qNSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=mjSc4BOTtxhGshdGgujPPgHRyx9VQ4G0u29eCSqO/dY=;
-        b=pE8h19kt+OxZ9PKjHxKxnbZvI6wJaxhpauUmls6eWC3GtsKde6ygze2Mk78XwTv2Lb
-         Gf3BngTV02Spi4XolntTgoMZSSBMBtFlxR5sqbIIdSWnZwJMKPbyfa2cj5EU8B66fW9k
-         U8S3IgDP/8GSZG9lOkBxqTCqbiZFYw9d0kmY8y82DAf0q7SLvQdM7ZzPF7+iveL8ckav
-         qlXHw/0wVMgl7Y1LknhpiHnIPWdO0GItyVMHLoGNH0z/WQ/QSljpiQxq6z9++GTpza+9
-         vY+oPt2az0Cq+I91TKv45b7dKMyvQSsIAv11RUI75rjU6lMgRslN9TQSOrhDMIjD6X8x
-         H0Mg==
-X-Gm-Message-State: AOAM533sbTURuSOe69QJygISn+ZVexrlWTKg0MG9bCHCog9W5KR6gW75
-        +jC4S9xX2XcQebwzPmqV7TDM56z6d68vPD+DO/4=
-X-Google-Smtp-Source: ABdhPJzL4A/LoOefcyn8MuWbW2qUBu5ZC07ylESMSDei5mMMhfSvjWNXtFsQy1oFp0Mz+Img2s09likHCLPfodzRjyU=
-X-Received: by 2002:aca:30d1:: with SMTP id w200mr449701oiw.16.1624308948301;
- Mon, 21 Jun 2021 13:55:48 -0700 (PDT)
+        bh=TrZTfmoFPlpB/8g/mtu3rz4ibYUTCVQG5S/zygTca8w=;
+        b=KQ71vrevCfUdaun9CIMwQSpSl0iRddcVyCD8lcB/+PhExm8zDXAVHk/5x00Jyzv11K
+         WMjoNCwEdyKcmuN3XBcUE300fgms8vhPGD/oMe3b0qkboB+d88Q9uimBerA7HY4ldsfZ
+         ESLmoKgEphn5wwB3QwV41/124/5kiphci5pn/Qgb9Lk3+FXr6neFUf5fP2/sNi37OH9E
+         rWflzgzAzZVNDDZh843iAySMPeBVJ6xO0Y4HnhS4mT+bA4LTNs9Bq/tyAfugE2j/ZaGy
+         ZzJU5LEWw1BkT8sRh1hfbfqSoFU461f1zyzW0QNPrATHVyKTRxNkPpIaPSMto/2IvkZN
+         R6FQ==
+X-Gm-Message-State: AOAM532ScDWO55FMTAqVtQE+vB+d1wLISvlOZ6aXvEx/RHS7AdeEw8d0
+        B5S7UPosx3SWErbBqJwvLc25iLi661sliqVLin4=
+X-Google-Smtp-Source: ABdhPJwNfP6Z0JjNTqcir9PgiGLXWdOMJRRq5eOolTiUxtiGMnY24RXhZk4x395JLo1sbFlEh4elIS3jjPMUtutlqDU=
+X-Received: by 2002:a05:6830:411e:: with SMTP id w30mr319242ott.293.1624308968895;
+ Mon, 21 Jun 2021 13:56:08 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-3-cgzones@googlemail.com>
-In-Reply-To: <20210608155912.32047-3-cgzones@googlemail.com>
+References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-11-cgzones@googlemail.com>
+In-Reply-To: <20210608155912.32047-11-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 21 Jun 2021 16:55:37 -0400
-Message-ID: <CAP+JOzQU=r6c23e9-6WivjzSV3uKweo5NVdiU88F-awfL=+d3w@mail.gmail.com>
-Subject: Re: [PATCH 02/23] libsepol: resolve missing prototypes
+Date:   Mon, 21 Jun 2021 16:55:57 -0400
+Message-ID: <CAP+JOzT0f+M2KS2Qnm0ZJ_LA9A35fx8HP=eCMF_FgVZiRBuHTA@mail.gmail.com>
+Subject: Re: [PATCH 10/23] libsepol: mark read-only parameters of ebitmap
+ interfaces const
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,220 +71,157 @@ X-Mailing-List: selinux@vger.kernel.org
 On Tue, Jun 8, 2021 at 12:01 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Declare the functions as static or include the corresponding header
-> file.
->
-> assertion.c:294:5: error: no previous prototype for function 'report_asse=
-rtion_failures' [-Werror,-Wmissing-prototypes]
-> int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avru=
-le_t *avrule)
->     ^
->
-> context.c:23:5: error: no previous prototype for function 'sepol_check_co=
-ntext' [-Werror,-Wmissing-prototypes]
-> int sepol_check_context(const char *context)
->     ^
->
-> expand.c:3377:5: error: no previous prototype for function 'expand_cond_a=
-v_node' [-Werror,-Wmissing-prototypes]
-> int expand_cond_av_node(policydb_t * p,
->     ^
->
-> policydb.c:638:6: error: no previous prototype for function 'role_trans_r=
-ule_destroy' [-Werror,-Wmissing-prototypes]
-> void role_trans_rule_destroy(role_trans_rule_t * x)
->      ^
->
-> policydb.c:1169:5: error: no previous prototype for function 'policydb_in=
-dex_decls' [-Werror,-Wmissing-prototypes]
-> int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
->     ^
->
-> policydb.c:1429:6: error: no previous prototype for function 'ocontext_se=
-linux_free' [-Werror,-Wmissing-prototypes]
-> void ocontext_selinux_free(ocontext_t **ocontexts)
->      ^
->
-> policydb.c:1451:6: error: no previous prototype for function 'ocontext_xe=
-n_free' [-Werror,-Wmissing-prototypes]
-> void ocontext_xen_free(ocontext_t **ocontexts)
->      ^
->
-> policydb.c:1750:5: error: no previous prototype for function 'type_set_or=
-' [-Werror,-Wmissing-prototypes]
-> int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
->     ^
->
-> policydb.c:2524:5: error: no previous prototype for function 'role_trans_=
-read' [-Werror,-Wmissing-prototypes]
-> int role_trans_read(policydb_t *p, struct policy_file *fp)
->     ^
->
-> policydb.c:2567:5: error: no previous prototype for function 'role_allow_=
-read' [-Werror,-Wmissing-prototypes]
-> int role_allow_read(role_allow_t ** r, struct policy_file *fp)
->     ^
->
-> policydb.c:2842:5: error: no previous prototype for function 'filename_tr=
-ans_read' [-Werror,-Wmissing-prototypes]
-> int filename_trans_read(policydb_t *p, struct policy_file *fp)
->     ^
->
-> services.c:1027:5: error: no previous prototype for function 'sepol_valid=
-ate_transition' [-Werror,-Wmissing-prototypes]
-> int sepol_validate_transition(sepol_security_id_t oldsid,
->     ^
+> Make it more obvious which parameters are read-only and not being
+> modified and allow callers to pass const pointers.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/assertion.c        |  2 +-
->  libsepol/src/context_internal.h |  1 +
->  libsepol/src/expand.c           |  6 +++---
->  libsepol/src/policydb.c         | 16 ++++++++--------
->  libsepol/src/services.c         |  2 +-
->  5 files changed, 14 insertions(+), 13 deletions(-)
+>  libsepol/include/sepol/policydb/ebitmap.h | 16 ++++++++--------
+>  libsepol/src/ebitmap.c                    | 18 +++++++++---------
+>  2 files changed, 17 insertions(+), 17 deletions(-)
 >
-> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-> index 266f67d7..dd2749a0 100644
-> --- a/libsepol/src/assertion.c
-> +++ b/libsepol/src/assertion.c
-> @@ -291,7 +291,7 @@ exit:
->         return rc;
+> diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include=
+/sepol/policydb/ebitmap.h
+> index 634436f6..81d0c7a6 100644
+> --- a/libsepol/include/sepol/policydb/ebitmap.h
+> +++ b/libsepol/include/sepol/policydb/ebitmap.h
+> @@ -67,7 +67,7 @@ static inline unsigned int ebitmap_next(ebitmap_node_t =
+** n, unsigned int bit)
+>         return (bit + 1);
 >  }
 >
-> -int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avr=
-ule_t *avrule)
-> +static int report_assertion_failures(sepol_handle_t *handle, policydb_t =
-*p, avrule_t *avrule)
+> -static inline int ebitmap_node_get_bit(ebitmap_node_t * n, unsigned int =
+bit)
+> +static inline int ebitmap_node_get_bit(const ebitmap_node_t * n, unsigne=
+d int bit)
+>  {
+>         if (n->map & (MAPBIT << (bit - n->startbit)))
+>                 return 1;
+> @@ -83,18 +83,18 @@ static inline int ebitmap_node_get_bit(ebitmap_node_t=
+ * n, unsigned int bit)
+>  extern int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2);
+>  extern int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitm=
+ap_t * e2);
+>  extern int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1);
+> -extern int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2);
+> -extern int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2);
+> -extern int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbi=
+t);
+> -extern int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, =
+unsigned int maxbit);
+> -extern unsigned int ebitmap_cardinality(ebitmap_t *e1);
+> -extern int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2);
+> +extern int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitma=
+p_t *e2);
+> +extern int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitma=
+p_t *e2);
+> +extern int ebitmap_not(ebitmap_t *dst, const ebitmap_t *e1, unsigned int=
+ maxbit);
+> +extern int ebitmap_andnot(ebitmap_t *dst, const ebitmap_t *e1, const ebi=
+tmap_t *e2, unsigned int maxbit);
+> +extern unsigned int ebitmap_cardinality(const ebitmap_t *e1);
+> +extern int ebitmap_hamming_distance(const ebitmap_t * e1, const ebitmap_=
+t * e2);
+>  extern int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src);
+>  extern int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2);
+>  extern int ebitmap_match_any(const ebitmap_t *e1, const ebitmap_t *e2);
+>  extern int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit);
+>  extern int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value);
+> -extern unsigned int ebitmap_highest_set_bit(ebitmap_t * e);
+> +extern unsigned int ebitmap_highest_set_bit(const ebitmap_t * e);
+>  extern void ebitmap_destroy(ebitmap_t * e);
+>  extern int ebitmap_read(ebitmap_t * e, void *fp);
+>
+> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+> index 522e14a6..4e9acdf8 100644
+> --- a/libsepol/src/ebitmap.c
+> +++ b/libsepol/src/ebitmap.c
+> @@ -71,7 +71,7 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1=
+)
+>         return 0;
+>  }
+>
+> -int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
+> +int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2=
+)
+>  {
+>         unsigned int i, length =3D min(ebitmap_length(e1), ebitmap_length=
+(e2));
+>         ebitmap_init(dst);
+> @@ -85,7 +85,7 @@ int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_=
+t *e2)
+>         return 0;
+>  }
+>
+> -int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
+> +int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2=
+)
+>  {
+>         unsigned int i, length =3D max(ebitmap_length(e1), ebitmap_length=
+(e2));
+>         ebitmap_init(dst);
+> @@ -98,7 +98,7 @@ int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_=
+t *e2)
+>         return 0;
+>  }
+>
+> -int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit)
+> +int ebitmap_not(ebitmap_t *dst, const ebitmap_t *e1, unsigned int maxbit=
+)
+>  {
+>         unsigned int i;
+>         ebitmap_init(dst);
+> @@ -111,7 +111,7 @@ int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsign=
+ed int maxbit)
+>         return 0;
+>  }
+>
+> -int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigne=
+d int maxbit)
+> +int ebitmap_andnot(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t =
+*e2, unsigned int maxbit)
 >  {
 >         int rc;
->         struct avtab_match_args args;
-> diff --git a/libsepol/src/context_internal.h b/libsepol/src/context_inter=
-nal.h
-> index 3cae28cc..3dc9cd15 100644
-> --- a/libsepol/src/context_internal.h
-> +++ b/libsepol/src/context_internal.h
-> @@ -1,6 +1,7 @@
->  #ifndef _SEPOL_CONTEXT_INTERNAL_H_
->  #define _SEPOL_CONTEXT_INTERNAL_H_
->
-> +#include <sepol/context.h>
->  #include <sepol/context_record.h>
->
->  #endif
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index a656ffad..84bfcfa3 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -3374,9 +3374,9 @@ static int expand_cond_insert(cond_av_list_t ** l,
+>         ebitmap_t e3;
+> @@ -126,10 +126,10 @@ int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, e=
+bitmap_t *e2, unsigned int ma
 >         return 0;
 >  }
 >
-> -int expand_cond_av_node(policydb_t * p,
-> -                       avtab_ptr_t node,
-> -                       cond_av_list_t ** newl, avtab_t * expa)
-> +static int expand_cond_av_node(policydb_t * p,
-> +                              avtab_ptr_t node,
-> +                              cond_av_list_t ** newl, avtab_t * expa)
+> -unsigned int ebitmap_cardinality(ebitmap_t *e1)
+> +unsigned int ebitmap_cardinality(const ebitmap_t *e1)
 >  {
->         avtab_key_t *k =3D &node->key;
->         avtab_datum_t *d =3D &node->datum;
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index ffa27971..3f7ddb11 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -635,7 +635,7 @@ void role_trans_rule_init(role_trans_rule_t * x)
->         ebitmap_init(&x->classes);
+>         unsigned int count =3D 0;
+> -       ebitmap_node_t *n;
+> +       const ebitmap_node_t *n;
+>
+>         for (n =3D e1->node; n; n =3D n->next) {
+>                 count +=3D __builtin_popcountll(n->map);
+> @@ -137,7 +137,7 @@ unsigned int ebitmap_cardinality(ebitmap_t *e1)
+>         return count;
 >  }
 >
-> -void role_trans_rule_destroy(role_trans_rule_t * x)
-> +static void role_trans_rule_destroy(role_trans_rule_t * x)
+> -int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2)
+> +int ebitmap_hamming_distance(const ebitmap_t * e1, const ebitmap_t * e2)
 >  {
->         if (x !=3D NULL) {
->                 role_set_destroy(&x->roles);
-> @@ -1166,7 +1166,7 @@ int policydb_index_bools(policydb_t * p)
+>         int rc;
+>         ebitmap_t tmp;
+> @@ -347,9 +347,9 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, =
+int value)
 >         return 0;
 >  }
 >
-> -int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
-> +static int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
+> -unsigned int ebitmap_highest_set_bit(ebitmap_t * e)
+> +unsigned int ebitmap_highest_set_bit(const ebitmap_t * e)
 >  {
->         avrule_block_t *curblock;
->         avrule_decl_t *decl;
-> @@ -1426,7 +1426,7 @@ static int range_tr_destroy(hashtab_key_t key, hash=
-tab_datum_t datum,
->         return 0;
->  }
+> -       ebitmap_node_t *n;
+> +       const ebitmap_node_t *n;
+>         MAPTYPE map;
+>         unsigned int pos =3D 0;
 >
-> -void ocontext_selinux_free(ocontext_t **ocontexts)
-> +static void ocontext_selinux_free(ocontext_t **ocontexts)
->  {
->         ocontext_t *c, *ctmp;
->         int i;
-> @@ -1448,7 +1448,7 @@ void ocontext_selinux_free(ocontext_t **ocontexts)
->         }
->  }
->
-> -void ocontext_xen_free(ocontext_t **ocontexts)
-> +static void ocontext_xen_free(ocontext_t **ocontexts)
->  {
->         ocontext_t *c, *ctmp;
->         int i;
-> @@ -1747,7 +1747,7 @@ int symtab_insert(policydb_t * pol, uint32_t sym,
->         return retval;
->  }
->
-> -int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
-> +static int type_set_or(type_set_t * dst, type_set_t * a, type_set_t * b)
->  {
->         type_set_init(dst);
->
-> @@ -2521,7 +2521,7 @@ static int type_read(policydb_t * p, hashtab_t h, s=
-truct policy_file *fp)
->         return -1;
->  }
->
-> -int role_trans_read(policydb_t *p, struct policy_file *fp)
-> +static int role_trans_read(policydb_t *p, struct policy_file *fp)
->  {
->         role_trans_t **t =3D &p->role_tr;
->         unsigned int i;
-> @@ -2564,7 +2564,7 @@ int role_trans_read(policydb_t *p, struct policy_fi=
-le *fp)
->         return 0;
->  }
->
-> -int role_allow_read(role_allow_t ** r, struct policy_file *fp)
-> +static int role_allow_read(role_allow_t ** r, struct policy_file *fp)
->  {
->         unsigned int i;
->         uint32_t buf[2], nel;
-> @@ -2839,7 +2839,7 @@ err:
->         return -1;
->  }
->
-> -int filename_trans_read(policydb_t *p, struct policy_file *fp)
-> +static int filename_trans_read(policydb_t *p, struct policy_file *fp)
->  {
->         unsigned int i;
->         uint32_t buf[1], nel;
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index 6596431c..39fbd979 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -1024,7 +1024,7 @@ static int context_struct_compute_av(context_struct=
-_t * scontext,
->         return 0;
->  }
->
-> -int sepol_validate_transition(sepol_security_id_t oldsid,
-> +static int sepol_validate_transition(sepol_security_id_t oldsid,
->                                      sepol_security_id_t newsid,
->                                      sepol_security_id_t tasksid,
->                                      sepol_security_class_t tclass)
 > --
 > 2.32.0
 >
