@@ -2,130 +2,113 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAC7EC49EA6
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 08:45:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5AA2C48BE5
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 09:40:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 92FF961221
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 08:45:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EAAE61002
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 09:40:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbhFUIrl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 04:47:41 -0400
-Received: from mailout1.secunet.com ([62.96.220.44]:57870 "EHLO
-        mailout1.secunet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbhFUIrk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 04:47:40 -0400
-X-Greylist: delayed 582 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Jun 2021 04:47:37 EDT
-Received: from cas-essen-01.secunet.de (unknown [10.53.40.201])
-        by mailout1.secunet.com (Postfix) with ESMTP id BAFED80004E;
-        Mon, 21 Jun 2021 10:35:39 +0200 (CEST)
-Received: from mbx-essen-01.secunet.de (10.53.40.197) by
- cas-essen-01.secunet.de (10.53.40.201) with Microsoft SMTP Server
+        id S230327AbhFUJmT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 05:42:19 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3291 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229661AbhFUJmT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 05:42:19 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4G7kpP3MN4z6H6hX;
+        Mon, 21 Jun 2021 17:32:45 +0800 (CST)
+Received: from roberto-ThinkStation-P620.huawei.com (10.204.62.217) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 21 Jun 2021 10:35:39 +0200
-Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
- (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Mon, 21 Jun
- 2021 10:35:39 +0200
-Received: by gauss2.secunet.de (Postfix, from userid 1000)
-        id 249D031803E8; Mon, 21 Jun 2021 10:35:39 +0200 (CEST)
-Date:   Mon, 21 Jun 2021 10:35:39 +0200
-From:   Steffen Klassert <steffen.klassert@secunet.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-CC:     <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Herbert Xu" <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        <selinux@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <x86@kernel.org>, <linux-acpi@vger.kernel.org>,
-        <linux-cxl@vger.kernel.org>, <linux-efi@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <linux-pci@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <linux-serial@vger.kernel.org>,
-        <bpf@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <kexec@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v3] lockdown,selinux: fix wrong subject in some SELinux
- lockdown checks
-Message-ID: <20210621083539.GY40979@gauss3.secunet.de>
-References: <20210616085118.1141101-1-omosnace@redhat.com>
+ 15.1.2176.2; Mon, 21 Jun 2021 11:40:02 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <paul@paul-moore.com>,
+        <stephen.smalley.work@gmail.com>, <casey@schaufler-ca.com>,
+        <stefanb@linux.ibm.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Subject: [PATCH] evm: Check xattr size misalignment between kernel and user
+Date:   Mon, 21 Jun 2021 11:39:23 +0200
+Message-ID: <20210621093923.1456675-1-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20210616085118.1141101-1-omosnace@redhat.com>
-X-ClientProxiedBy: cas-essen-01.secunet.de (10.53.40.201) To
- mbx-essen-01.secunet.de (10.53.40.197)
-X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.62.217]
+X-ClientProxiedBy: lhreml754-chm.china.huawei.com (10.201.108.204) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 10:51:18AM +0200, Ondrej Mosnacek wrote:
-> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
-> lockdown") added an implementation of the locked_down LSM hook to
-> SELinux, with the aim to restrict which domains are allowed to perform
-> operations that would breach lockdown.
-> 
-> However, in several places the security_locked_down() hook is called in
-> situations where the current task isn't doing any action that would
-> directly breach lockdown, leading to SELinux checks that are basically
-> bogus.
-> 
-> To fix this, add an explicit struct cred pointer argument to
-> security_lockdown() and define NULL as a special value to pass instead
-> of current_cred() in such situations. LSMs that take the subject
-> credentials into account can then fall back to some default or ignore
-> such calls altogether. In the SELinux lockdown hook implementation, use
-> SECINITSID_KERNEL in case the cred argument is NULL.
-> 
-> Most of the callers are updated to pass current_cred() as the cred
-> pointer, thus maintaining the same behavior. The following callers are
-> modified to pass NULL as the cred pointer instead:
-> 1. arch/powerpc/xmon/xmon.c
->      Seems to be some interactive debugging facility. It appears that
->      the lockdown hook is called from interrupt context here, so it
->      should be more appropriate to request a global lockdown decision.
-> 2. fs/tracefs/inode.c:tracefs_create_file()
->      Here the call is used to prevent creating new tracefs entries when
->      the kernel is locked down. Assumes that locking down is one-way -
->      i.e. if the hook returns non-zero once, it will never return zero
->      again, thus no point in creating these files. Also, the hook is
->      often called by a module's init function when it is loaded by
->      userspace, where it doesn't make much sense to do a check against
->      the current task's creds, since the task itself doesn't actually
->      use the tracing functionality (i.e. doesn't breach lockdown), just
->      indirectly makes some new tracepoints available to whoever is
->      authorized to use them.
-> 3. net/xfrm/xfrm_user.c:copy_to_user_*()
->      Here a cryptographic secret is redacted based on the value returned
->      from the hook. There are two possible actions that may lead here:
->      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
->         task context is relevant, since the dumped data is sent back to
->         the current task.
->      b) When adding/deleting/updating an SA via XFRM_MSG_xxxSA, the
->         dumped SA is broadcasted to tasks subscribed to XFRM events -
->         here the current task context is not relevant as it doesn't
->         represent the tasks that could potentially see the secret.
->      It doesn't seem worth it to try to keep using the current task's
->      context in the a) case, since the eventual data leak can be
->      circumvented anyway via b), plus there is no way for the task to
->      indicate that it doesn't care about the actual key value, so the
->      check could generate a lot of "false alert" denials with SELinux.
->      Thus, let's pass NULL instead of current_cred() here faute de
->      mieux.
-> 
-> Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
-> Improvements-suggested-by: Paul Moore <paul@paul-moore.com>
-> Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+The kernel and the user obtain an xattr value in two different ways:
 
-For the xfrm part:
+kernel (EVM): uses vfs_getxattr_alloc() which obtains the xattr value from
+              the filesystem handler (raw value);
 
-Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
+user (ima-evm-utils): uses vfs_getxattr() which obtains the xattr value
+                      from the LSMs (normalized value).
+
+Normally, this does not have an impact unless security.selinux is set with
+setfattr, with a value not terminated by '\0' (this is not the recommended
+way, security.selinux should be set with the appropriate tools such as
+chcon and restorecon).
+
+In this case, the kernel and the user see two different xattr values: the
+former sees the xattr value without '\0' (raw value), the latter sees the
+value with '\0' (value normalized by SELinux).
+
+This could result in two different verification outcomes from EVM and
+ima-evm-utils, if a signature was calculated with a security.selinux value
+terminated by '\0' and the value set in the filesystem is not terminated by
+'\0'. The former would report verification failure due to the missing '\0',
+while the latter would report verification success (because it gets the
+normalized value with '\0').
+
+This patch mitigates this issue by comparing in evm_calc_hmac_or_hash() the
+size of the xattr returned by the two xattr functions and by warning the
+user if there is a misalignment.
+
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+---
+ security/integrity/evm/evm_crypto.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 96b22f2ac27a..462c5258322a 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -221,7 +221,7 @@ static int evm_calc_hmac_or_hash(struct dentry *dentry,
+ 	size_t xattr_size = 0;
+ 	char *xattr_value = NULL;
+ 	int error;
+-	int size;
++	int size, user_space_size;
+ 	bool ima_present = false;
+ 
+ 	if (!(inode->i_opflags & IOP_XATTR) ||
+@@ -276,6 +276,12 @@ static int evm_calc_hmac_or_hash(struct dentry *dentry,
+ 		if (size < 0)
+ 			continue;
+ 
++		user_space_size = vfs_getxattr(&init_user_ns, dentry,
++					       xattr->name, NULL, 0);
++		if (user_space_size != size)
++			pr_debug("file %s: xattr %s size mismatch (kernel: %d, user: %d)\n",
++				 dentry->d_name.name, xattr->name, size,
++				 user_space_size);
+ 		error = 0;
+ 		xattr_size = size;
+ 		crypto_shash_update(desc, (const u8 *)xattr_value, xattr_size);
+-- 
+2.25.1
 
