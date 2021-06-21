@@ -2,433 +2,223 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8018EC49EA5
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 19:18:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E3ECC4743C
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:54:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6894F61040
-	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 19:18:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6842261245
+	for <selinux@archiver.kernel.org>; Mon, 21 Jun 2021 20:54:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbhFUTVB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 15:21:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39990 "EHLO
+        id S230102AbhFUU4f (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jun 2021 16:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231247AbhFUTVA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 15:21:00 -0400
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 175B0C061574
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 12:18:46 -0700 (PDT)
-Received: by mail-qk1-x72c.google.com with SMTP id g142so33274959qke.4
-        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 12:18:46 -0700 (PDT)
+        with ESMTP id S230052AbhFUU4e (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jun 2021 16:56:34 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34577C061574
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:54:19 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id s17so12585506oij.11
+        for <selinux@vger.kernel.org>; Mon, 21 Jun 2021 13:54:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=VOLAduFj40W7aUSByCgcAowRB3H1PJJpHqmocAr6BVw=;
-        b=Eb3IR8eU+vGBv4S7IemaKbsLugcgET/cfA+sg4a8mpJr27QfuC2pyFMR0qyl537SPB
-         y2+WcqvDnMTu7wbqi5HA+TVeYLWq8KZs6GhHzHPWXP6rR6+s51WrcqnGc57Al4FPxUvc
-         iKi4KHd1CigHpdUpECImcC0OoNEWVzqVpw0W3oYB7su/s+mcVQZPqCKAXWY00tiRFZWz
-         arVN72dNFezKKF7UuLzRvxhNebwy6eNxOBuUBq/zOGkExNU+q7z/gkOM8G+FnU+/wXDx
-         bgl12qRjBUREtsyUmshzLiowH9dQ+ZCYY+3eeUU0IIt5DkPjahyMEBCIRi1Nq07kyZ5A
-         wSxQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=fjjeW3aTWPYmi/i+THOlNiAmB8lrkrTtg/MfRW1ACxo=;
+        b=Zu9w6kVQwSbWOwojHvQy41hUxF5msu513NOkwImtOSL6Jafh4WCCdcfWqrAkqYf31f
+         BiomTJ8S0J52xoJJKEJDND5bayHzVAQqZz0bKCsWC+FCX6gnnVxTGc40aKOfP9Z4LYEf
+         kwjyb4hhYuoPKuIi/B5uW5RsQK2YEhIl9L8cFIVykToDbuFHcH2pVb8pA0+WGYrPh1Sr
+         /+7azh/G3w8WEkPOSZwiyu4IQm8w2n6ZAYoFq4MdWuqzAVq353XM5d+Mh+zrNQHVYXjd
+         hOoQ6OqggIkGt81qvmzs8r4Ya9nTotevKYyzHGb2v0EoH9/mqgDHcrmJKZOkc6GiIkiP
+         RH8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=VOLAduFj40W7aUSByCgcAowRB3H1PJJpHqmocAr6BVw=;
-        b=phGmYjHWDZv4iSXSiJHcnASCMw+GeSAxKaDtn824m10GPbnLDRUnUxL2FyozkBOyG4
-         O/ryTQDbfBV6NLZbPieltTbHtouCWRw4Xmu8rmPn7yucGCbnYkhVNiKd2bABJlEbkyR6
-         FlE8Pc2hooPEPPzS5aDCiGSpHci1bmK8Em2eeY6uubApAIZMm9cJrTeTUU6LlpQFUPAx
-         FSBJkXPiajCfnWAnV6XBnk753H1UurCnHvm7FYW3pS21SEWStz+6GtbiSFqCR7y3ddjC
-         5Nhxjyc3pbvJAdqEO33SfcwnLAUt83c2d1/sSpRXfidUB/ek09wbQcJ/i4QSAdVbSU1r
-         JIWg==
-X-Gm-Message-State: AOAM531LzzTqTXh0PKtciLsnYJ1qNQjwOeGyDaI8fM15aoAB7rpsf6rV
-        K+2/fmU/PtuBBKiscWc/JwLhCKIgvZqqtg==
-X-Google-Smtp-Source: ABdhPJyK3CP9t79octebD3UYI0JJO/a6iOz2hkQF0WEcyjnayblqFyawH7UUe4Dkl5Lsgm8cgvV9Hg==
-X-Received: by 2002:a05:620a:4516:: with SMTP id t22mr179049qkp.151.1624303125140;
-        Mon, 21 Jun 2021 12:18:45 -0700 (PDT)
-Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id o5sm10449124qkl.25.2021.06.21.12.18.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Jun 2021 12:18:44 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 5/5 v2] libsepol/cil: Improve degenerate inheritance check
-Date:   Mon, 21 Jun 2021 15:18:33 -0400
-Message-Id: <20210621191833.282874-6-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.26.3
-In-Reply-To: <20210621191833.282874-1-jwcart2@gmail.com>
-References: <20210621191833.282874-1-jwcart2@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=fjjeW3aTWPYmi/i+THOlNiAmB8lrkrTtg/MfRW1ACxo=;
+        b=DgF4/INqwBRjB2+T+h/sf0sODU1LixvpAVDiWfexYB76bFtCA8dr1bZ8PQjYP4CSue
+         qyZqDwpZEEWg7G0FTx95FQwyrJq90kZs32cj7HRDPMO5ybf+bPb2jjv3WB8y+Bis4BDM
+         y5V7m+SaSfwzMQwaTNkS+/xXzqezudoR9jYsSq24XJNKaQfMzFIxgpRGqLbRuEfEe3G1
+         fY48K7wNzkSHoTbeh3T4St64Tc5A3AKWDf3dDD65Lncx4JhK8fC0wgHtc+moJmFPh8Wm
+         QmKOaUvz5oUUYO3pMADijCZpcyULcskC1ymm+ocyNPdwiG81iOYJyy6SeslWwplYkiiG
+         nk2A==
+X-Gm-Message-State: AOAM531mrPgInTWZOZEX9OiqaEHYW7cT/zzeC07rszQvUGkwMaownlwd
+        4EfhQr1cyRXdRd5niR281nqubGWUg7Z359l2eSw=
+X-Google-Smtp-Source: ABdhPJzJElL3rOQ3Khq7fTvZeK1eSpja02hYcG2in/4eCtsv4qk9tO17aY/5aDLipvmC7HMQaee3BIkAnRz5hXvJ86M=
+X-Received: by 2002:aca:1c0d:: with SMTP id c13mr280291oic.128.1624308858645;
+ Mon, 21 Jun 2021 13:54:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210608155912.32047-1-cgzones@googlemail.com> <20210608155912.32047-4-cgzones@googlemail.com>
+In-Reply-To: <20210608155912.32047-4-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 21 Jun 2021 16:54:07 -0400
+Message-ID: <CAP+JOzSG0FaTwHS9m2dbr=8gd2BTXR4N1+ZOcrVaGYJJWOJyWA@mail.gmail.com>
+Subject: Re: [PATCH 03/23] libsepol: remove unused functions
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The commit 74d00a8decebf940d95064ff60042dcb2cbcc2c0 (libsepol/cil:
-Detect degenerate inheritance and exit with an error) detects the
-use of inheritance (mostly by the secilc-fuzzer and not in any real
-policies) that results in the exponential growth of the policy through
-the copying of blocks that takes place with inheritance in CIL.
-Unfortunately, the check takes place during the pass when all the
-blocks are being copied, so it is possible to consume all of a system's
-memory before an error is produced.
+On Tue, Jun 8, 2021 at 12:00 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> The functions `role_set_get_role`, `sepol_validate_transition` and
+> `sepol_sidtab_remove` seem to be unused since the initial import.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-The new check happens in two parts. First, a check is made while the
-block inheritance is being linked to the block it will inherit. In
-this check, all of the parent nodes of the inheritance rule up to the
-root node are checked and if enough of these blocks are being inherited
-(>= CIL_DEGENERATE_INHERITANCE_DEPTH), then a flag is set for a more
-in-depth check after the pass. This in-depth check will determine the
-number of potential inheritances that will occur when resolving the
-all of the inheritance rules. If this value is greater than
-CIL_DEGENERATE_INHERITANCE_GROWTH * the original number of inheritance
-rules and greater than CIL_DEGENERATE_INHERITANCE_MINIMUM (which is
-set to 0x1 << CIL_DEGENERATE_INHERITANCE_DEPTH), then degenerate
-inheritance is determined to have occurred and an error result will
-be returned.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Since the potential number of inheritances can quickly be an extremely
-large number, the count of potential inheritances is aborted as soon
-as the threshold for degenerate inheritance has been exceeded.
-
-Normal policies should rarely, if ever, have the in-depth check occur.
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
-v2:
-  Move depth check into the while loop
-  Only call cil_check_for_degenerate_inheritance() if value of inheritance_check
-    is CIL_TRUE
-
- libsepol/cil/src/cil_internal.h    |   5 +-
- libsepol/cil/src/cil_resolve_ast.c | 226 +++++++++++++++++++----------
- 2 files changed, 151 insertions(+), 80 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index a77c9520..b8610976 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -48,8 +48,9 @@
- 
- #define CIL_MAX_NAME_LENGTH 2048
- 
--#define CIL_DEGENERATE_INHERITANCE_DEPTH 12
--#define CIL_DEGENERATE_INHERITANCE_BREADTH (0x1 << CIL_DEGENERATE_INHERITANCE_DEPTH)
-+#define CIL_DEGENERATE_INHERITANCE_DEPTH 10UL
-+#define CIL_DEGENERATE_INHERITANCE_MINIMUM (0x01 << CIL_DEGENERATE_INHERITANCE_DEPTH)
-+#define CIL_DEGENERATE_INHERITANCE_GROWTH 10UL
- 
- enum cil_pass {
- 	CIL_PASS_INIT = 0,
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 77ffe0ff..09764e26 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -62,6 +62,7 @@ struct cil_args_resolve {
- 	struct cil_list *catorder_lists;
- 	struct cil_list *sensitivityorder_lists;
- 	struct cil_list *in_list;
-+	int *inheritance_check;
- };
- 
- static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key, struct cil_tree_node *ast_node)
-@@ -2306,40 +2307,7 @@ exit:
- 	return rc;
- }
- 
--int cil_resolve_blockinherit_link(struct cil_tree_node *current, void *extra_args)
--{
--	struct cil_blockinherit *inherit = current->data;
--	struct cil_symtab_datum *block_datum = NULL;
--	struct cil_tree_node *node = NULL;
--	int rc = SEPOL_ERR;
--
--	rc = cil_resolve_name(current, inherit->block_str, CIL_SYM_BLOCKS, extra_args, &block_datum);
--	if (rc != SEPOL_OK) {
--		goto exit;
--	}
--
--	node = NODE(block_datum);
--
--	if (node->flavor != CIL_BLOCK) {
--		cil_log(CIL_ERR, "%s is not a block\n", cil_node_to_string(node));
--		rc = SEPOL_ERR;
--		goto exit;
--	}
--
--	inherit->block = (struct cil_block *)block_datum;
--
--	if (inherit->block->bi_nodes == NULL) {
--		cil_list_init(&inherit->block->bi_nodes, CIL_NODE);
--	}
--	cil_list_append(inherit->block->bi_nodes, CIL_NODE, current);
--
--	return SEPOL_OK;
--
--exit:
--	return rc;
--}
--
--void cil_print_recursive_blockinherit(struct cil_tree_node *bi_node, struct cil_tree_node *terminating_node)
-+static void cil_print_recursive_blockinherit(struct cil_tree_node *bi_node, struct cil_tree_node *terminating_node)
- {
- 	struct cil_list *trace = NULL;
- 	struct cil_list_item *item = NULL;
-@@ -2377,7 +2345,7 @@ void cil_print_recursive_blockinherit(struct cil_tree_node *bi_node, struct cil_
- 	cil_list_destroy(&trace, CIL_FALSE);
- }
- 
--int cil_check_recursive_blockinherit(struct cil_tree_node *bi_node)
-+static int cil_check_recursive_blockinherit(struct cil_tree_node *bi_node)
- {
- 	struct cil_tree_node *curr = NULL;
- 	struct cil_blockinherit *bi = NULL;
-@@ -2410,53 +2378,67 @@ exit:
- 	return rc;
- }
- 
--/*
-- * Detect degenerate inheritance of the form:
-- * ...
-- * (blockinherit ba)
-- * (block ba
-- *    (block b1
-- *      (blockinherit bb)
-- *    )
-- *    (block bb
-- *      (block b2
-- *        (blockinherit bc)
-- *      )
-- *      (block bc
-- *      ...
-- */
--static int cil_check_for_degenerate_inheritance(struct cil_tree_node *current)
-+static int cil_possible_degenerate_inheritance(struct cil_tree_node *node)
- {
--	struct cil_block *block = current->data;
--	struct cil_tree_node *node;
--	struct cil_list_item *item;
--	unsigned depth;
--	unsigned breadth = 0;
-+	unsigned depth = 1;
- 
--	cil_list_for_each(item, block->bi_nodes) {
--		breadth++;
--	}
--
--	if (breadth >= CIL_DEGENERATE_INHERITANCE_BREADTH) {
--		node = current->parent;
--		depth = 0;
--		while (node && node->flavor != CIL_ROOT) {
--			if (node->flavor == CIL_BLOCK) {
--				block = node->data;
--				if (block->bi_nodes != NULL) {
--					depth++;
-+	node = node->parent;
-+	while (node && node->flavor != CIL_ROOT) {
-+		if (node->flavor == CIL_BLOCK) {
-+			if (((struct cil_block *)(node->data))->bi_nodes != NULL) {
-+				depth++;
-+				if (depth >= CIL_DEGENERATE_INHERITANCE_DEPTH) {
-+					return CIL_TRUE;
- 				}
- 			}
--			node = node->parent;
- 		}
-+		node = node->parent;
-+	}
- 
--		if (depth >= CIL_DEGENERATE_INHERITANCE_DEPTH) {
--			cil_tree_log(current, CIL_ERR, "Degenerate inheritance detected (depth=%u, breadth=%u)", depth, breadth);
--			return SEPOL_ERR;
--		}
-+	return CIL_FALSE;
-+}
-+
-+int cil_resolve_blockinherit_link(struct cil_tree_node *current, void *extra_args)
-+{
-+	struct cil_args_resolve *args = extra_args;
-+	struct cil_blockinherit *inherit = current->data;
-+	struct cil_symtab_datum *block_datum = NULL;
-+	struct cil_tree_node *node = NULL;
-+	int rc = SEPOL_ERR;
-+
-+	rc = cil_resolve_name(current, inherit->block_str, CIL_SYM_BLOCKS, extra_args, &block_datum);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	node = NODE(block_datum);
-+
-+	if (node->flavor != CIL_BLOCK) {
-+		cil_log(CIL_ERR, "%s is not a block\n", cil_node_to_string(node));
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	inherit->block = (struct cil_block *)block_datum;
-+
-+	rc = cil_check_recursive_blockinherit(current);
-+	if (rc != SEPOL_OK) {
-+			goto exit;
-+	}
-+
-+	if (inherit->block->bi_nodes == NULL) {
-+		cil_list_init(&inherit->block->bi_nodes, CIL_NODE);
-+	}
-+	cil_list_append(inherit->block->bi_nodes, CIL_NODE, current);
-+
-+	if (*(args->inheritance_check) == CIL_FALSE) {
-+		*(args->inheritance_check) = cil_possible_degenerate_inheritance(node);
- 	}
- 
- 	return SEPOL_OK;
-+
-+exit:
-+	return rc;
- }
- 
- int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_args)
-@@ -2475,11 +2457,6 @@ int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_arg
- 
- 	db = args->db;
- 
--	rc = cil_check_for_degenerate_inheritance(current);
--	if (rc != SEPOL_OK) {
--		goto exit;
--	}
--
- 	// Make sure this is the original block and not a merged block from a blockinherit
- 	if (current != block->datum.nodes->head->data) {
- 		rc = SEPOL_OK;
-@@ -3579,6 +3556,88 @@ exit:
- 	return rc;
- }
- 
-+/*
-+ * Degenerate inheritance leads to exponential growth of the policy
-+ * It can take many forms, but here is one example.
-+ * ...
-+ * (blockinherit ba)
-+ * (block b0
-+ *   (block b1
-+ *     (block b2
-+ *       (block b3
-+ *         ...
-+ *       )
-+ *       (blockinherit b3)
-+ *     )
-+ *     (blockinherit b2)
-+ *   )
-+ *   (blockinherit b1)
-+ * )
-+ * (blockinherit b0)
-+ * ...
-+ * This leads to 2^4 copies of the content of block b3, 2^3 copies of the
-+ * contents of block b2, etc.
-+ */
-+static unsigned cil_count_actual(struct cil_tree_node *node)
-+{
-+	unsigned count = 0;
-+
-+	if (node->flavor == CIL_BLOCKINHERIT) {
-+		count += 1;
-+	}
-+
-+	for (node = node->cl_head; node; node = node->next) {
-+		count += cil_count_actual(node);
-+	}
-+
-+	return count;
-+}
-+
-+static unsigned cil_count_potential(struct cil_tree_node *node, unsigned max)
-+{
-+	unsigned count = 0;
-+
-+	if (node->flavor == CIL_BLOCKINHERIT) {
-+		struct cil_blockinherit *bi = node->data;
-+		count += 1;
-+		if (bi->block) {
-+			count += cil_count_potential(NODE(bi->block), max);
-+			if (count > max) {
-+				return count;
-+			}
-+		}
-+	}
-+
-+	for (node = node->cl_head; node; node = node->next) {
-+		count += cil_count_potential(node, max);
-+		if (count > max) {
-+			return count;
-+		}
-+	}
-+
-+	return count;
-+}
-+
-+static int cil_check_for_degenerate_inheritance(struct cil_tree_node *node)
-+{
-+	uint64_t num_actual, num_potential, max;
-+
-+	num_actual = cil_count_actual(node);
-+
-+	max = num_actual * CIL_DEGENERATE_INHERITANCE_GROWTH;
-+	if (max < CIL_DEGENERATE_INHERITANCE_MINIMUM) {
-+		max = CIL_DEGENERATE_INHERITANCE_MINIMUM;
-+	}
-+
-+	num_potential = cil_count_potential(node, max);
-+
-+	if (num_potential > max) {
-+		return SEPOL_ERR;
-+	}
-+
-+	return SEPOL_OK;
-+}
-+
- int __cil_resolve_ast_node(struct cil_tree_node *node, void *extra_args)
- {
- 	int rc = SEPOL_OK;
-@@ -4054,6 +4113,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 	struct cil_args_resolve extra_args;
- 	enum cil_pass pass = CIL_PASS_TIF;
- 	uint32_t changed = 0;
-+	int inheritance_check = 0;
- 
- 	if (db == NULL || current == NULL) {
- 		return rc;
-@@ -4072,6 +4132,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 	extra_args.catorder_lists = NULL;
- 	extra_args.sensitivityorder_lists = NULL;
- 	extra_args.in_list = NULL;
-+	extra_args.inheritance_check = &inheritance_check;
- 
- 	cil_list_init(&extra_args.disabled_optionals, CIL_NODE);
- 	cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
-@@ -4096,6 +4157,15 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 			cil_list_destroy(&extra_args.in_list, CIL_FALSE);
- 		}
- 
-+		if (pass == CIL_PASS_BLKIN_LINK && inheritance_check == CIL_TRUE) {
-+			rc = cil_check_for_degenerate_inheritance(current);
-+			if (rc != SEPOL_OK) {
-+				cil_log(CIL_ERR, "Degenerate inheritance detected\n");
-+				rc = SEPOL_ERR;
-+				goto exit;
-+			}
-+		}
-+
- 		if (pass == CIL_PASS_MISC1) {
- 			db->sidorder = __cil_ordered_lists_merge_all(&extra_args.sidorder_lists, NULL);
- 			if (db->sidorder == NULL) {
--- 
-2.26.3
-
+> ---
+>  libsepol/src/policydb.c | 18 ----------------
+>  libsepol/src/services.c | 47 -----------------------------------------
+>  libsepol/src/sidtab.c   | 31 ---------------------------
+>  3 files changed, 96 deletions(-)
+>
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 3f7ddb11..fc1d0711 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -1791,24 +1791,6 @@ int type_set_or_eq(type_set_t * dst, type_set_t * =
+other)
+>         return ret;
+>  }
+>
+> -int role_set_get_role(role_set_t * x, uint32_t role)
+> -{
+> -       if (x->flags & ROLE_STAR)
+> -               return 1;
+> -
+> -       if (ebitmap_get_bit(&x->roles, role - 1)) {
+> -               if (x->flags & ROLE_COMP)
+> -                       return 0;
+> -               else
+> -                       return 1;
+> -       } else {
+> -               if (x->flags & ROLE_COMP)
+> -                       return 1;
+> -               else
+> -                       return 0;
+> -       }
+> -}
+> -
+>  /***********************************************************************=
+/
+>  /* everything below is for policy reads */
+>
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index 39fbd979..ff91f7d2 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -1024,53 +1024,6 @@ static int context_struct_compute_av(context_struc=
+t_t * scontext,
+>         return 0;
+>  }
+>
+> -static int sepol_validate_transition(sepol_security_id_t oldsid,
+> -                                    sepol_security_id_t newsid,
+> -                                    sepol_security_id_t tasksid,
+> -                                    sepol_security_class_t tclass)
+> -{
+> -       context_struct_t *ocontext;
+> -       context_struct_t *ncontext;
+> -       context_struct_t *tcontext;
+> -       class_datum_t *tclass_datum;
+> -       constraint_node_t *constraint;
+> -
+> -       if (!tclass || tclass > policydb->p_classes.nprim) {
+> -               ERR(NULL, "unrecognized class %d", tclass);
+> -               return -EINVAL;
+> -       }
+> -       tclass_datum =3D policydb->class_val_to_struct[tclass - 1];
+> -
+> -       ocontext =3D sepol_sidtab_search(sidtab, oldsid);
+> -       if (!ocontext) {
+> -               ERR(NULL, "unrecognized SID %d", oldsid);
+> -               return -EINVAL;
+> -       }
+> -
+> -       ncontext =3D sepol_sidtab_search(sidtab, newsid);
+> -       if (!ncontext) {
+> -               ERR(NULL, "unrecognized SID %d", newsid);
+> -               return -EINVAL;
+> -       }
+> -
+> -       tcontext =3D sepol_sidtab_search(sidtab, tasksid);
+> -       if (!tcontext) {
+> -               ERR(NULL, "unrecognized SID %d", tasksid);
+> -               return -EINVAL;
+> -       }
+> -
+> -       constraint =3D tclass_datum->validatetrans;
+> -       while (constraint) {
+> -               if (!constraint_expr_eval_reason(ocontext, ncontext, tcon=
+text,
+> -                                         0, constraint, NULL, 0)) {
+> -                       return -EPERM;
+> -               }
+> -               constraint =3D constraint->next;
+> -       }
+> -
+> -       return 0;
+> -}
+> -
+>  /*
+>   * sepol_validate_transition_reason_buffer - the reason buffer is reallo=
+c'd
+>   * in the constraint_expr_eval_reason() function.
+> diff --git a/libsepol/src/sidtab.c b/libsepol/src/sidtab.c
+> index e6bf5716..255e0725 100644
+> --- a/libsepol/src/sidtab.c
+> +++ b/libsepol/src/sidtab.c
+> @@ -84,37 +84,6 @@ int sepol_sidtab_insert(sidtab_t * s, sepol_security_i=
+d_t sid,
+>         return 0;
+>  }
+>
+> -int sepol_sidtab_remove(sidtab_t * s, sepol_security_id_t sid)
+> -{
+> -       int hvalue;
+> -       sidtab_node_t *cur, *last;
+> -
+> -       if (!s || !s->htable)
+> -               return -ENOENT;
+> -
+> -       hvalue =3D SIDTAB_HASH(sid);
+> -       last =3D NULL;
+> -       cur =3D s->htable[hvalue];
+> -       while (cur !=3D NULL && sid > cur->sid) {
+> -               last =3D cur;
+> -               cur =3D cur->next;
+> -       }
+> -
+> -       if (cur =3D=3D NULL || sid !=3D cur->sid)
+> -               return -ENOENT;
+> -
+> -       if (last =3D=3D NULL)
+> -               s->htable[hvalue] =3D cur->next;
+> -       else
+> -               last->next =3D cur->next;
+> -
+> -       context_destroy(&cur->context);
+> -
+> -       free(cur);
+> -       s->nel--;
+> -       return 0;
+> -}
+> -
+>  context_struct_t *sepol_sidtab_search(sidtab_t * s, sepol_security_id_t =
+sid)
+>  {
+>         int hvalue;
+> --
+> 2.32.0
+>
