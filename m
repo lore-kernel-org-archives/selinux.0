@@ -2,185 +2,126 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA3FAC49EA2
-	for <selinux@archiver.kernel.org>; Tue, 22 Jun 2021 02:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 375B4C48BDF
+	for <selinux@archiver.kernel.org>; Tue, 22 Jun 2021 13:39:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8AD226128A
-	for <selinux@archiver.kernel.org>; Tue, 22 Jun 2021 02:52:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CAA360725
+	for <selinux@archiver.kernel.org>; Tue, 22 Jun 2021 13:39:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231320AbhFVCy7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jun 2021 22:54:59 -0400
-Received: from namei.org ([65.99.196.166]:54102 "EHLO mail.namei.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230045AbhFVCy6 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 21 Jun 2021 22:54:58 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mail.namei.org (Postfix) with ESMTPS id AAD9054D;
-        Tue, 22 Jun 2021 02:46:43 +0000 (UTC)
-Date:   Tue, 22 Jun 2021 12:46:43 +1000 (AEST)
-From:   James Morris <jmorris@namei.org>
-To:     linux-security-module@vger.kernel.org
-cc:     linux-kernel@vger.kernel.org, lwn@lwn.net,
-        fedora-selinux-list@redhat.com, linux-crypto@vger.kernel.org,
-        kernel-hardening@lists.openwall.com,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        Audit-ML <linux-audit@redhat.com>, gentoo-hardened@gentoo.org,
-        keyrings@linux-nfs.org, tpmdd-devel@lists.sourceforge.net,
-        Linux Security Summit Program Committee 
-        <lss-pc@lists.linuxfoundation.org>
-Subject: Re: [ANNOUNCE][CFP] Linux Security Summit 2021
-In-Reply-To: <5b3a0bf-226d-6ee-d0b-d6673eff32b2@namei.org>
-Message-ID: <2db579ee-1d1c-102c-c2d4-c268d89aae8c@namei.org>
-References: <c244f77-56a1-c089-521d-2e670488c10@namei.org> <5b3a0bf-226d-6ee-d0b-d6673eff32b2@namei.org>
+        id S229907AbhFVNlV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 22 Jun 2021 09:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230469AbhFVNlU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 22 Jun 2021 09:41:20 -0400
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DA02C061756
+        for <selinux@vger.kernel.org>; Tue, 22 Jun 2021 06:39:04 -0700 (PDT)
+Received: by mail-oi1-x236.google.com with SMTP id t40so23777468oiw.8
+        for <selinux@vger.kernel.org>; Tue, 22 Jun 2021 06:39:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ylJX21gBwKT0I1/+IJ11AFRJjSc6E/YEFXWARBrelp4=;
+        b=ZgsFDyGNu/x5nNkgWT/5gMgu3yAu/rjnJD4f/blkt7b3vcj3uUVO9SD99K3+2FxIwo
+         miNJbLl+flgvxnxybTNFFKXgf/r6KRbtgFlko1LwGGXYXTzf9gLxO7NaHtoy5CnhFpxa
+         WM9CQYwyDtbsomhJBiQ9zW97MchHXrapjiJPA2eUv0CgpRp+FcoFxFbguqXiPY4MN3Sf
+         I/0Vv4DBw59iAGMP8spR3C9Bv8zUzSrSvnapO3m/rYe4L6pEqvjuCMxbB0DdHzV0kW+K
+         drmkTYI1GZ4eZFRDGJvN0jxHbUTFJR6QLD7wEhNryfkBkuWQwYrJA4rNasvVB47kPQe9
+         MHgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ylJX21gBwKT0I1/+IJ11AFRJjSc6E/YEFXWARBrelp4=;
+        b=HFLfFS5AN5s5yX7Jxy9PDRNQsNnx8dKDkDl75NQwSnS2/kPf2EGZqwRH+MLa5yzxIz
+         JD8x+hsRWuro6yvsKZT8zQ+G2Qa6R+4314omendMURNfcOYy7o/JiypqGwoJ0GdzYgVV
+         DO/QRLEwHXld+JjNRehoh71e0JdD/s6vnhpE0dFhjnTtDckV/UrmE8IXnpmSs8Q0WWm3
+         Ihf95EBQNHCE4xHoleu58BSsG8fqfVIGrxvFSh5TzmCog9t0GNWCfuRrc6zCPdvsyVga
+         2NtwvNQSwBAUZ+4JnALgnUgsWAfbMLtKq4mstJdmnZeTBLb/WgA3M3TOREFPhumcdeT/
+         AxFw==
+X-Gm-Message-State: AOAM530n2yGHMBs7kxVxPqTV0Y0DGPTm2nlQX9e/VnfV3W22lCcDL0cH
+        kK+YzILENimSZVZKNwfw4NKT7OoBUTPmxd+0WE4=
+X-Google-Smtp-Source: ABdhPJyQmiXLPPbMX84vdfsCc+2tJeh+gW5S4HR3H6nsH50sLKursY77P4Jbf3URcv2yamNV+BipEgDrVm7GMMkPgwc=
+X-Received: by 2002:a05:6808:903:: with SMTP id w3mr702411oih.16.1624369143472;
+ Tue, 22 Jun 2021 06:39:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20210616144843.79344-1-jwcart2@gmail.com> <87mtrn1ay3.fsf@redhat.com>
+In-Reply-To: <87mtrn1ay3.fsf@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 22 Jun 2021 09:38:52 -0400
+Message-ID: <CAP+JOzRokFq2R93rKdT1nWNZjRtWLS0=21AJLECSPvSzW5BENQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Quote paths when generating policy.conf from
+ binary policy
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Two further (and hopefully final) changes:
+On Fri, Jun 18, 2021 at 10:53 AM Petr Lautrbach <plautrba@redhat.com> wrote=
+:
+>
+> James Carter <jwcart2@gmail.com> writes:
+>
+> > Christian G=C3=B6ttsche <cgzones@googlemail.com> submitted a similar pa=
+tch
+> > to quote paths when generating CIL policy from a binary policy.
+> >
+> > Since genfscon and devicetreecon rules have paths which are allowed
+> > to contain spaces, always quote the path when writing out these rules.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+>
 
-  - LSS 2021 will now be a hybrid event, catering to both in-person and 
-    remote attendees and presenters
+This has been merged.
+Jim
 
-  - The CFP is extended to July 11th.
-
-
-
-On Wed, 26 May 2021, James Morris wrote:
-
-> Note that the venue of LSS 2021 has now changed to Seattle, USA.
-> 
-> See https://events.linuxfoundation.org/linux-security-summit-north-america/
-> 
-> The new event dates are 29 September to 01 October.
-> 
-> The CFP closes on June 27th.
-> 
-> 
-> 
-> 
-> 
-> On Tue, 9 Feb 2021, James Morris wrote:
-> 
-> > ==============================================================================
-> >                    ANNOUNCEMENT AND CALL FOR PARTICIPATION
-> > 
-> >                          LINUX SECURITY SUMMIT 2021
-> >                              
-> >                               27-29 September
-> >                               Dublin, Ireland
-> > ==============================================================================
-> > 
-> > DESCRIPTION
-> >  
-> > Linux Security Summit (LSS) is a technical forum for collaboration between
-> > Linux developers, researchers, and end-users.  Its primary aim is to foster
-> > community efforts in analyzing and solving Linux security challenges.
-> > 
-> >  The program committee currently seeks proposals for:
-> >  
-> >    * Refereed Presentations:
-> >      45 minutes in length.
-> >  
-> >    * Panel Discussion Topics:
-> >      45 minutes in length.
-> >  
-> >    * Short Topics:
-> >      30 minutes in total, including at least 10 minutes discussion.
-> >  
-> >    * Tutorials
-> >      90 minutes in length.
-> >  
-> > Tutorial sessions should be focused on advanced Linux security defense
-> > topics within areas such as the kernel, compiler, and security-related
-> > libraries.  Priority will be given to tutorials created for this conference,
-> > and those where the presenter a leading subject matter expert on the topic.
-> >  
-> > Topic areas include, but are not limited to:
-> >  
-> >    * Kernel self-protection
-> >    * Access control
-> >    * Cryptography and key management
-> >    * Integrity policy and enforcement
-> >    * Hardware Security
-> >    * IoT and embedded security
-> >    * Virtualization and containers
-> >    * System-specific system hardening
-> >    * Case studies
-> >    * Security tools
-> >    * Security UX
-> >    * Emerging technologies, threats & techniques
-> > 
-> >   Proposals should be submitted via:
-> >     https://events.linuxfoundation.org/linux-security-summit-europe/program/cfp/
-> > 
-> > 
-> > ** Note that for 2021, the North American and European events are combined into
-> > a single event planned for Dublin, Ireland. **
-> >  
-> > 
-> > DATES
-> >  
-> >   * CFP close:            June 27
-> >   * CFP notifications:    July 20
-> >   * Schedule announced:   July 22
-> >   * Event:                September 27-29
-> > 
-> > WHO SHOULD ATTEND
-> >  
-> > We're seeking a diverse range of attendees and welcome participation by
-> > people involved in Linux security development, operations, and research.
-> >  
-> > LSS is a unique global event that provides the opportunity to present and
-> > discuss your work or research with key Linux security community members and
-> > maintainers.  It's also useful for those who wish to keep up with the latest
-> > in Linux security development and to provide input to the development
-> > process.
-> > 
-> > WEB SITE
-> > 
-> >     https://events.linuxfoundation.org/linux-security-summit-europe/
-> > 
-> > TWITTER
-> > 
-> >   For event updates and announcements, follow:
-> > 
-> >     https://twitter.com/LinuxSecSummit
-> >   
-> >     #linuxsecuritysummit
-> > 
-> > PROGRAM COMMITTEE
-> > 
-> >   The program committee for LSS 2021 is:
-> > 
-> >     * James Morris, Microsoft
-> >     * Serge Hallyn, Cisco
-> >     * Paul Moore, Cisco
-> >     * Stephen Smalley, NSA
-> >     * Elena Reshetova, Intel
-> >     * John Johansen, Canonical
-> >     * Kees Cook, Google
-> >     * Casey Schaufler, Intel
-> >     * Mimi Zohar, IBM
-> >     * David A. Wheeler, Institute for Defense Analyses
-> > 
-> >   The program committee may be contacted as a group via email:
-> >     lss-pc () lists.linuxfoundation.org
-> > 
-> > 
-> 
-> -- 
-> James Morris
-> <jmorris@namei.org>
-> 
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
-
+>
+>
+> > ---
+> >  libsepol/src/kernel_to_conf.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_con=
+f.c
+> > index 5db47fe4..ffdf179a 100644
+> > --- a/libsepol/src/kernel_to_conf.c
+> > +++ b/libsepol/src/kernel_to_conf.c
+> > @@ -2527,7 +2527,7 @@ static int write_genfscon_rules_to_conf(FILE *out=
+, struct policydb *pdb)
+> >                               goto exit;
+> >                       }
+> >
+> > -                     rc =3D strs_create_and_add(strs, "genfscon %s %s =
+%s", 3,
+> > +                     rc =3D strs_create_and_add(strs, "genfscon %s \"%=
+s\" %s", 3,
+> >                                                fstype, name, ctx);
+> >                       free(ctx);
+> >                       if (rc !=3D 0) {
+> > @@ -2992,7 +2992,7 @@ static int write_xen_devicetree_rules_to_conf(FIL=
+E *out, struct policydb *pdb)
+> >                       goto exit;
+> >               }
+> >
+> > -             sepol_printf(out, "devicetreecon %s %s\n", name, ctx);
+> > +             sepol_printf(out, "devicetreecon \"%s\" %s\n", name, ctx)=
+;
+> >
+> >               free(ctx);
+> >       }
+> > --
+> > 2.26.3
+>
