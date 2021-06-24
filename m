@@ -2,128 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04DA1C49EA7
-	for <selinux@archiver.kernel.org>; Thu, 24 Jun 2021 15:25:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E830C49EA5
+	for <selinux@archiver.kernel.org>; Thu, 24 Jun 2021 19:58:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE204613DC
-	for <selinux@archiver.kernel.org>; Thu, 24 Jun 2021 15:25:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40A18613B1
+	for <selinux@archiver.kernel.org>; Thu, 24 Jun 2021 19:58:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232257AbhFXP1k (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Jun 2021 11:27:40 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28252 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231942AbhFXP1j (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Jun 2021 11:27:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624548320;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=yv7m1AvCn7O6dTH1q9vdjmlX/RhwF6AeGVa6Oa4+0Qw=;
-        b=hc+MkdR+M9lbcshIxpzaf8acpDNrC3LOd3ZS/LDdnwPvYfmIph+6vLEcnbwcbXiZSVuN3v
-        xNVLSgIBA4ZdwKfH2jPuaMqVYgxsBlBCYNyA8tXNPcloVtUkP4MeGqHnl1wR5AWtUzmt1E
-        2JmQ9+Ta0OrtY0ORPj/lscgUfZzl8Ac=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-532-Z7HpCnA8OyONz5HU0Qkihw-1; Thu, 24 Jun 2021 11:25:18 -0400
-X-MC-Unique: Z7HpCnA8OyONz5HU0Qkihw-1
-Received: by mail-ed1-f71.google.com with SMTP id i19-20020a05640200d3b02903948b71f25cso3531461edu.4
-        for <selinux@vger.kernel.org>; Thu, 24 Jun 2021 08:25:18 -0700 (PDT)
+        id S232825AbhFXUAk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Jun 2021 16:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35194 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232178AbhFXUAj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Jun 2021 16:00:39 -0400
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F206C061574
+        for <selinux@vger.kernel.org>; Thu, 24 Jun 2021 12:58:19 -0700 (PDT)
+Received: by mail-qk1-x72a.google.com with SMTP id x1so12778890qkp.7
+        for <selinux@vger.kernel.org>; Thu, 24 Jun 2021 12:58:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RyfhxQYRr1c0ph2GN73qmvPkpuiobsHq1Nmo7cfwfYU=;
+        b=nnYbv/GPPA+wiZkF7hrrsB2b4xPDY+rmkJDaVuAw0X0YPrqcxJ+s0frz4R5oZti0Lv
+         noWK4M49swX2Y2gUM9BRGe6SHAnK2NRsNEaHdk9jR7Y+Ek3frdvccGKoeOpV6jDHWUfx
+         BG3xbeHN5tfnQak6uk0Xhg9iDHqmI4/QGrh685Vm6sCX6b5Ec8ZsUWtUCbwzv2eghwlX
+         TQ/OYITo+3FVjgeE5/ykCmd76dfvGFrImC66ev/l3MKLUWXCIW4A6d5BSZFjarMrh7MQ
+         NGu/X+6SHmOzBgDNefmcnMO5THXzJtDZamTTGRdKsqegYLpRSPEovWOM3EZkopwH1WbP
+         +aAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=yv7m1AvCn7O6dTH1q9vdjmlX/RhwF6AeGVa6Oa4+0Qw=;
-        b=YnuVI7RWoyPDhiUBI1qBGBUesS0wt74eV/epWGpRhl4cYl8ej9Sjd9aOd2G/g3WLpm
-         FLYSKzsKSsB3Hh5udFOWD8B/8SVJ31d9s4ZZsm9B744YmC4mZb4QG6MPIOE5XzHE5xft
-         Nx1SAHNs2mP0CRTA9Y1TjenYadqJnoGyWqRDXNbpd+3lKCMkCJ7MCDM43o8lWS99yJbj
-         BCUi8QmC9abJBdU5+PSq8L9dnGzbIjHf5kkOD9dgfO2wNnPogfOZygDSrGcz36V2P/OB
-         KFnuZLa7mZv5+e3IY2q6oT3zNaV73bTAuWhCY3ozZhJu/SfFhvzOeroDOv8ntKSvE3ia
-         15Xg==
-X-Gm-Message-State: AOAM533fRkYyEkSCvBlSOrsdw0KhNUS1Vxt88TLjcuXAz8Rq05BbvgX/
-        yedD7gcWk9/fDjqgcXxahQYe4voblM6qX3kjzQXeWsYD4CydNKg3EBNNYdQ1Lp7yH993gneyVRM
-        OyUpkKtzcVL/yAdf2NQ==
-X-Received: by 2002:a17:906:22c6:: with SMTP id q6mr5836124eja.275.1624548317666;
-        Thu, 24 Jun 2021 08:25:17 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxDFvu9eksuXynDzV/xksZCJe2btC6g1NOCWnVD/di1wd6CsF0Z7byzAfEPlhofKBrJp+8MwA==
-X-Received: by 2002:a17:906:22c6:: with SMTP id q6mr5836107eja.275.1624548317485;
-        Thu, 24 Jun 2021 08:25:17 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b105:dd00:d067:83f0:d612:b70f])
-        by smtp.gmail.com with ESMTPSA id a2sm1399830ejp.1.2021.06.24.08.25.16
+        bh=RyfhxQYRr1c0ph2GN73qmvPkpuiobsHq1Nmo7cfwfYU=;
+        b=TQ5lMDW7hX/o8cy2axhtY4h2k2YX8FSADULNqz2rGfpwf8gF5KgVtod/IHEpzSvPil
+         l3Er90Uh7eX6rE9vRFh93hm89CAig1FDK8HC99SqdMNpymsIW3X9/MMdrh7p5jcvtzQb
+         rDMQYoePze/dIBug4w5IWsSaUaa7qODyOT0k7ubto4rxQRi7Vn5aztT73V4CRPr6VdY9
+         1OAFMaojZ2eHCeoNi/EQhoc7LMg8M9oANh7vS+/GaNjgQ/7Up0Si0HQHxbEYI8pZXSHU
+         AcIL65aprUeg/yL95/ZtGgEszR02cnskFRJc4mFlnF9VIJrOxFTTo22nCIVJUmRb5JIK
+         X4ig==
+X-Gm-Message-State: AOAM531z3YKDwlIIDCtU/ZQTtbJ+2Fe6tX2JR/TxlBVY1L645VgjV4JA
+        XpJBFImdQ77zSto+gHSEMMCdFTAGxlNKPQ==
+X-Google-Smtp-Source: ABdhPJyJZo2zhxpKBaallFphz/4ZqfyUejOia+6q+2A97OCG6iEMqYfDYlsPh7j+wAilGKvDszyxKQ==
+X-Received: by 2002:a05:620a:5ee:: with SMTP id z14mr7398294qkg.83.1624564698282;
+        Thu, 24 Jun 2021 12:58:18 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id m19sm3257531qka.22.2021.06.24.12.58.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Jun 2021 08:25:17 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Robert O'Callahan <roc@ocallahan.org>
-Subject: [RFC PATCH] userfaultfd: open userfaultfds with O_RDONLY
-Date:   Thu, 24 Jun 2021 17:25:15 +0200
-Message-Id: <20210624152515.1844133-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.31.1
+        Thu, 24 Jun 2021 12:58:18 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/2] libsepol/cil: Add function to determine if a subtree has a declaration
+Date:   Thu, 24 Jun 2021 15:58:14 -0400
+Message-Id: <20210624195815.148698-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Since userfaultfd doesn't implement a write operation, it is more
-appropriate to open it read-only.
+Create the function cil_tree_subtree_has_decl() that returns CIL_TRUE
+if the subtree has a declaration in it and CIL_FALSE otherwise.
 
-When userfaultfds are opened read-write like it is now, and such fd is
-passed from one process to another, SELinux will check both read and
-write permissions for the target process, even though it can't actually
-do any write operation on the fd later.
-
-Inspired by the following bug report, which has hit the SELinux scenario
-described above:
-https://bugzilla.redhat.com/show_bug.cgi?id=1974559
-
-Reported-by: Robert O'Callahan <roc@ocallahan.org>
-Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
+ libsepol/cil/src/cil_tree.c | 16 ++++++++++++++++
+ libsepol/cil/src/cil_tree.h |  2 ++
+ 2 files changed, 18 insertions(+)
 
-I marked this as RFC, because I'm not sure if this has any unwanted side
-effects. I only ran this patch through selinux-testsuite, which has a
-simple userfaultfd subtest, and a reproducer from the Bugzilla report.
-
-Please tell me whether this makes sense and/or if it passes any
-userfaultfd tests you guys might have.
-
- fs/userfaultfd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 14f92285d04f..24e14c36068f 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -986,7 +986,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
- 	int fd;
+diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+index 067268eb..4cf8dcc8 100644
+--- a/libsepol/cil/src/cil_tree.c
++++ b/libsepol/cil/src/cil_tree.c
+@@ -136,6 +136,22 @@ __attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *n
+ 	cil_log(lvl,"\n");
+ }
  
- 	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
--			O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
-+			O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
- 	if (fd < 0)
- 		return fd;
++int cil_tree_subtree_has_decl(struct cil_tree_node *node)
++{
++	while (node) {
++		if (node->flavor >= CIL_MIN_DECLARATIVE) {
++			return CIL_TRUE;
++		}
++		if (node->cl_head != NULL) {
++			if (cil_tree_subtree_has_decl(node->cl_head))
++				return CIL_TRUE;
++		}
++		node = node->next;
++	}
++
++	return CIL_FALSE;
++}
++
+ int cil_tree_init(struct cil_tree **tree)
+ {
+ 	struct cil_tree *new_tree = cil_malloc(sizeof(*new_tree));
+diff --git a/libsepol/cil/src/cil_tree.h b/libsepol/cil/src/cil_tree.h
+index bac9f1e4..f4d22071 100644
+--- a/libsepol/cil/src/cil_tree.h
++++ b/libsepol/cil/src/cil_tree.h
+@@ -54,6 +54,8 @@ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **
+ char *cil_tree_get_cil_path(struct cil_tree_node *node);
+ __attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *node, enum cil_log_level lvl, const char* msg, ...);
  
-@@ -2088,7 +2088,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
- 	mmgrab(ctx->mm);
- 
- 	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
--			O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
-+			O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
- 	if (fd < 0) {
- 		mmdrop(ctx->mm);
- 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
++int cil_tree_subtree_has_decl(struct cil_tree_node *node);
++
+ int cil_tree_init(struct cil_tree **tree);
+ void cil_tree_destroy(struct cil_tree **tree);
+ void cil_tree_subtree_destroy(struct cil_tree_node *node);
 -- 
-2.31.1
+2.26.3
 
