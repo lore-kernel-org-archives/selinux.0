@@ -2,336 +2,323 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97679C49EA6
-	for <selinux@archiver.kernel.org>; Thu, 24 Jun 2021 20:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D7EEC49ECC
+	for <selinux@archiver.kernel.org>; Fri, 25 Jun 2021 16:56:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77D4661249
-	for <selinux@archiver.kernel.org>; Thu, 24 Jun 2021 20:38:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EAB461965
+	for <selinux@archiver.kernel.org>; Fri, 25 Jun 2021 16:56:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232578AbhFXUk1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Jun 2021 16:40:27 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:45070 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232029AbhFXUk1 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 24 Jun 2021 16:40:27 -0400
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 7B47B2A0018;
-        Thu, 24 Jun 2021 22:38:06 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 7B47B2A0018
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1624567086;
-        bh=1zjqh+bnhXNItOdM9eSux7blhm8kN/xPqju/S1ZPGPE=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=Fk4zY2sKLGd9O9lKFXgfWlmK9xXBeXOZIGyIGMOOlYXOmeAGHuX8031OtDR8wOMNB
-         qBRheYcUDM8/rRtRPgETj9AibRscMqKmBBuWlReme3ay/gcA2TC7R+u/WPnowTz1w9
-         0wF6Xk9Mji+X2kprpaARjaMO1Lik7cJX0MKJjXr8=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: [PATCH 1/4] libsepol/cil: Provide option to allow qualified
- names in declarations
-References: <20210624195919.148828-1-jwcart2@gmail.com>
-        <87y2azovys.fsf@defensec.nl>
-        <CAP+JOzRfQx+ygteZr21SiKN37jPwrNp0sk+4Vhf-64JGCkoQSQ@mail.gmail.com>
-Date:   Thu, 24 Jun 2021 22:38:04 +0200
-In-Reply-To: <CAP+JOzRfQx+ygteZr21SiKN37jPwrNp0sk+4Vhf-64JGCkoQSQ@mail.gmail.com>
-        (James Carter's message of "Thu, 24 Jun 2021 16:35:02 -0400")
-Message-ID: <87tulnov6b.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
+        id S230126AbhFYQ7G (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Jun 2021 12:59:06 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3308 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229630AbhFYQ67 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jun 2021 12:58:59 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4GBNDy142vz6G8m4;
+        Sat, 26 Jun 2021 00:46:26 +0800 (CST)
+Received: from roberto-ThinkStation-P620.huawei.com (10.204.63.22) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 25 Jun 2021 18:56:35 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        <selinux@vger.kernel.org>,
+        Prakhar Srivastava <prsriva02@gmail.com>,
+        Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Subject: [RFC][PATCH 01/12] ima: Add digest, algo, measured parameters to ima_measure_critical_data()
+Date:   Fri, 25 Jun 2021 18:56:03 +0200
+Message-ID: <20210625165614.2284243-2-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210625165614.2284243-1-roberto.sassu@huawei.com>
+References: <20210625165614.2284243-1-roberto.sassu@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.63.22]
+X-ClientProxiedBy: lhreml751-chm.china.huawei.com (10.201.108.201) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
+ima_measure_critical_data() allows any caller in the kernel to provide a
+buffer, so that is measured by IMA if an appropriate policy is set. Some
+information that could be useful to the callers are the digest of the
+buffer included in the new measurement entry, the digest algorithm and
+whether the buffer was measured.
 
-> On Thu, Jun 24, 2021 at 4:21 PM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
->>
->> James Carter <jwcart2@gmail.com> writes:
->>
->> > Qualified names have "dots" in them. They are generated when a CIL
->> > policy is compiled and come from declarations in blocks. If a kernel
->> > policy is decompiled into a CIL policy, the resulting policy could
->> > have decarations that use qualified names. Compiling this policy would
->> > result in an error because "dots" in declarations are not allowed.
->> >
->> > Qualified names in a policy are normally used to refer to the name of
->> > identifiers, blocks, macros, or optionals that are declared in a
->> > different block (that is not a parent). Name resolution is based on
->> > splitting a name based on the "dots", searching the parents up to the
->> > global namespace for the first block using the first part of the name,
->> > using the second part of the name to lookup the next block using the
->> > first block's symbol tables, looking up the third block in the second's
->> > symbol tables, and so on.
->> >
->> > To allow the option of using qualified names in declarations:
->> >
->> > 1) Create a field in the struct cil_db called "qualified_names" which
->> > is set to CIL_TRUE when qualified names are to be used. This field is
->> > checked in cil_verify_name() and "dots" are allowed if qualified names
->> > are being allowed.
->> >
->> > 2) Only allow the direct lookup of the whole name in the global symbol
->> > table. This means that blocks, blockinherits, blockabstracts, and in-
->> > statements cannot be allowed. Use the "qualified_names" field of the
->> > cil_db to know when using one of these should result in an error.
->> >
->> > 3) Create the function cil_set_qualified_names() that is used to set
->> > the "qualified_names" field. Export the function in libsepol.
->>
->> I wonder what the use-case for this functionality is?
->>
->
-> Compiling a kernel policy that has been turned back into CIL.
->
-> Having something like
->   (block b
->      (type t)
->       ....
->   )
-> will result in the type "b.t" in the kernel policy and "b.t" is not
-> valid in a declaration.
->
-> Of course, you can turn the kernel policy into a policy.conf and
-> compile it with checkpolicy, but I would like to be able to compile it
-> with secilc.
->
-> Another use case is with secil2tree. This generates valid CIL if you
-> use "-A build", but not if you use "-A resolve". One reason the policy
-> is not valid is that the names are qualified at this point and will
-> have "dots" in them if there are declarations within blocks in the
-> policy. (Another reason the resulting policy would not be valid is
-> that there are still blocks in it even though they have been
-> essentially "resolved".)
+This patch modifies the definition of ima_measure_critical_data() to
+include three new parameters: digest, algo and measured. If they are NULL,
+the function behaves as before and just measures the buffer, if requested
+with the IMA policy. Otherwise, it also writes the digest, algorithm and
+whether the buffer is measured to the provided pointers.
 
-Understood, thanks.
+If the pointers are not NULL, the digest is calculated also if there is no
+matching rule in the IMA policy.
 
->
-> Jim
->
->
->> >
->> > Signed-off-by: James Carter <jwcart2@gmail.com>
->> > ---
->> >  libsepol/cil/include/cil/cil.h     |  1 +
->> >  libsepol/cil/src/cil.c             |  6 ++++++
->> >  libsepol/cil/src/cil_build_ast.c   | 24 ++++++++++++++++++++++--
->> >  libsepol/cil/src/cil_internal.h    |  1 +
->> >  libsepol/cil/src/cil_resolve_ast.c |  4 ++--
->> >  libsepol/cil/src/cil_verify.c      | 19 ++++++++++++++-----
->> >  libsepol/cil/src/cil_verify.h      |  2 +-
->> >  libsepol/src/libsepol.map.in       |  1 +
->> >  8 files changed, 48 insertions(+), 10 deletions(-)
->> >
->> > diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
->> > index 92fac6e1..482ca522 100644
->> > --- a/libsepol/cil/include/cil/cil.h
->> > +++ b/libsepol/cil/include/cil/cil.h
->> > @@ -51,6 +51,7 @@ extern int cil_selinuxusers_to_string(cil_db_t *db, char **out, size_t *size);
->> >  extern int cil_filecons_to_string(cil_db_t *db, char **out, size_t *size);
->> >  extern void cil_set_disable_dontaudit(cil_db_t *db, int disable_dontaudit);
->> >  extern void cil_set_multiple_decls(cil_db_t *db, int multiple_decls);
->> > +extern void cil_set_qualified_names(struct cil_db *db, int qualified_names);
->> >  extern void cil_set_disable_neverallow(cil_db_t *db, int disable_neverallow);
->> >  extern void cil_set_preserve_tunables(cil_db_t *db, int preserve_tunables);
->> >  extern int cil_set_handle_unknown(cil_db_t *db, int handle_unknown);
->> > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
->> > index 9d5038d9..3f2e6927 100644
->> > --- a/libsepol/cil/src/cil.c
->> > +++ b/libsepol/cil/src/cil.c
->> > @@ -440,6 +440,7 @@ void cil_db_init(struct cil_db **db)
->> >       (*db)->handle_unknown = -1;
->> >       (*db)->mls = -1;
->> >       (*db)->multiple_decls = CIL_FALSE;
->> > +     (*db)->qualified_names = CIL_FALSE;
->> >       (*db)->target_platform = SEPOL_TARGET_SELINUX;
->> >       (*db)->policy_version = POLICYDB_VERSION_MAX;
->> >  }
->> > @@ -1872,6 +1873,11 @@ void cil_set_multiple_decls(struct cil_db *db, int multiple_decls)
->> >       db->multiple_decls = multiple_decls;
->> >  }
->> >
->> > +void cil_set_qualified_names(struct cil_db *db, int qualified_names)
->> > +{
->> > +     db->qualified_names = qualified_names;
->> > +}
->> > +
->> >  void cil_set_target_platform(struct cil_db *db, int target_platform)
->> >  {
->> >       db->target_platform = target_platform;
->> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
->> > index baed3e58..9da90883 100644
->> > --- a/libsepol/cil/src/cil_build_ast.c
->> > +++ b/libsepol/cil/src/cil_build_ast.c
->> > @@ -146,7 +146,7 @@ int cil_gen_node(struct cil_db *db, struct cil_tree_node *ast_node, struct cil_s
->> >       int rc = SEPOL_ERR;
->> >       symtab_t *symtab = NULL;
->> >
->> > -     rc = cil_verify_name((const char*)key, nflavor);
->> > +     rc = cil_verify_name(db, (const char*)key, nflavor);
->> >       if (rc != SEPOL_OK) {
->> >               goto exit;
->> >       }
->> > @@ -204,6 +204,11 @@ int cil_gen_block(struct cil_db *db, struct cil_tree_node *parse_current, struct
->> >               goto exit;
->> >       }
->> >
->> > +     if (db->qualified_names) {
->> > +             cil_log(CIL_ERR, "Blocks are not allowed when the option for qualified names is used\n");
->> > +             goto exit;
->> > +     }
->> > +
->> >       rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
->> >       if (rc != SEPOL_OK) {
->> >               goto exit;
->> > @@ -274,6 +279,11 @@ int cil_gen_blockinherit(struct cil_db *db, struct cil_tree_node *parse_current,
->> >               goto exit;
->> >       }
->> >
->> > +     if (db->qualified_names) {
->> > +             cil_log(CIL_ERR, "Block inherit rules are not allowed when the option for qualified names is used\n");
->> > +             goto exit;
->> > +     }
->> > +
->> >       rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
->> >       if (rc != SEPOL_OK) {
->> >               goto exit;
->> > @@ -331,6 +341,11 @@ int cil_gen_blockabstract(struct cil_db *db, struct cil_tree_node *parse_current
->> >               goto exit;
->> >       }
->> >
->> > +     if (db->qualified_names) {
->> > +             cil_log(CIL_ERR, "Block abstract rules are not allowed when the option for qualified names is used\n");
->> > +             goto exit;
->> > +     }
->> > +
->> >       rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
->> >       if (rc != SEPOL_OK) {
->> >               goto exit;
->> > @@ -376,6 +391,11 @@ int cil_gen_in(struct cil_db *db, struct cil_tree_node *parse_current, struct ci
->> >               goto exit;
->> >       }
->> >
->> > +     if (db->qualified_names) {
->> > +             cil_log(CIL_ERR, "In-statements are not allowed when the option for qualified names is used\n");
->> > +             goto exit;
->> > +     }
->> > +
->> >       rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
->> >       if (rc != SEPOL_OK) {
->> >               goto exit;
->> > @@ -5261,7 +5281,7 @@ int cil_gen_macro(struct cil_db *db, struct cil_tree_node *parse_current, struct
->> >
->> >               param->str =  current_item->cl_head->next->data;
->> >
->> > -             rc = cil_verify_name(param->str, param->flavor);
->> > +             rc = cil_verify_name(db, param->str, param->flavor);
->> >               if (rc != SEPOL_OK) {
->> >                       cil_destroy_param(param);
->> >                       goto exit;
->> > diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
->> > index 8b9aeabf..f184d739 100644
->> > --- a/libsepol/cil/src/cil_internal.h
->> > +++ b/libsepol/cil/src/cil_internal.h
->> > @@ -321,6 +321,7 @@ struct cil_db {
->> >       int handle_unknown;
->> >       int mls;
->> >       int multiple_decls;
->> > +     int qualified_names;
->> >       int target_platform;
->> >       int policy_version;
->> >  };
->> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
->> > index 5245cc15..27efffa6 100644
->> > --- a/libsepol/cil/src/cil_resolve_ast.c
->> > +++ b/libsepol/cil/src/cil_resolve_ast.c
->> > @@ -4409,8 +4409,8 @@ int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, en
->> >
->> >       *datum = NULL;
->> >
->> > -     if (strchr(name,'.') == NULL) {
->> > -             /* No '.' in name */
->> > +     if (db->qualified_names || strchr(name,'.') == NULL) {
->> > +             /* Using qualified names or No '.' in name */
->> >               rc = __cil_resolve_name_helper(db, ast_node->parent, name, sym_index, datum);
->> >               if (rc != SEPOL_OK) {
->> >                       goto exit;
->> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
->> > index 59397f70..9cb1a6f6 100644
->> > --- a/libsepol/cil/src/cil_verify.c
->> > +++ b/libsepol/cil/src/cil_verify.c
->> > @@ -92,7 +92,7 @@ static int __cil_is_reserved_name(const char *name, enum cil_flavor flavor)
->> >       return CIL_FALSE;
->> >  }
->> >
->> > -int cil_verify_name(const char *name, enum cil_flavor flavor)
->> > +int cil_verify_name(struct cil_db *db, const char *name, enum cil_flavor flavor)
->> >  {
->> >       int rc = SEPOL_ERR;
->> >       int len;
->> > @@ -116,10 +116,19 @@ int cil_verify_name(const char *name, enum cil_flavor flavor)
->> >                       goto exit;
->> >       }
->> >
->> > -     for (i = 1; i < len; i++) {
->> > -             if (!isalnum(name[i]) && name[i] != '_' && name[i] != '-') {
->> > -                     cil_log(CIL_ERR, "Invalid character \"%c\" in %s\n", name[i], name);
->> > -                     goto exit;
->> > +     if (db->qualified_names == CIL_FALSE) {
->> > +             for (i = 1; i < len; i++) {
->> > +                     if (!isalnum(name[i]) && name[i] != '_' && name[i] != '-') {
->> > +                             cil_log(CIL_ERR, "Invalid character \"%c\" in %s\n", name[i], name);
->> > +                             goto exit;
->> > +                     }
->> > +             }
->> > +     } else {
->> > +             for (i = 1; i < len; i++) {
->> > +                     if (!isalnum(name[i]) && name[i] != '_' && name[i] != '-' && name[i] != '.') {
->> > +                             cil_log(CIL_ERR, "Invalid character \"%c\" in %s\n", name[i], name);
->> > +                             goto exit;
->> > +                     }
->> >               }
->> >       }
->> >
->> > diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
->> > index 4ea14f5b..8eb3c463 100644
->> > --- a/libsepol/cil/src/cil_verify.h
->> > +++ b/libsepol/cil/src/cil_verify.h
->> > @@ -56,7 +56,7 @@ struct cil_args_verify {
->> >       int *pass;
->> >  };
->> >
->> > -int cil_verify_name(const char *name, enum cil_flavor flavor);
->> > +int cil_verify_name(struct cil_db *db, const char *name, enum cil_flavor flavor);
->> >  int __cil_verify_syntax(struct cil_tree_node *parse_current, enum cil_syntax s[], int len);
->> >  int cil_verify_expr_syntax(struct cil_tree_node *current, enum cil_flavor op, enum cil_flavor expr_flavor);
->> >  int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_flavor r_flavor, enum cil_flavor op, enum cil_flavor expr_flavor);
->> > diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
->> > index 2e503bd1..0e05d606 100644
->> > --- a/libsepol/src/libsepol.map.in
->> > +++ b/libsepol/src/libsepol.map.in
->> > @@ -272,4 +272,5 @@ LIBSEPOL_3.0 {
->> >       cil_write_parse_ast;
->> >       cil_write_build_ast;
->> >       cil_write_resolve_ast;
->> > +     cil_set_qualified_names;
->> >  } LIBSEPOL_1.1;
->>
->> --
->> gpg --locate-keys dominick.grift@defensec.nl
->> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
->> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
->> Dominick Grift
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Cc: Prakhar Srivastava <prsriva02@gmail.com>
+Cc: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Cc: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+---
+ include/linux/ima.h                          |  8 +++--
+ security/integrity/ima/ima.h                 |  3 +-
+ security/integrity/ima/ima_appraise.c        |  3 +-
+ security/integrity/ima/ima_asymmetric_keys.c |  3 +-
+ security/integrity/ima/ima_init.c            |  3 +-
+ security/integrity/ima/ima_main.c            | 32 ++++++++++++++++----
+ security/integrity/ima/ima_queue_keys.c      |  2 +-
+ security/selinux/ima.c                       |  5 +--
+ 8 files changed, 44 insertions(+), 15 deletions(-)
 
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index 61d5723ec303..f7fd931456c7 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -11,6 +11,7 @@
+ #include <linux/fs.h>
+ #include <linux/security.h>
+ #include <linux/kexec.h>
++#include <crypto/hash_info.h>
+ struct linux_binprm;
+ 
+ #ifdef CONFIG_IMA
+@@ -36,7 +37,8 @@ extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
+ extern void ima_measure_critical_data(const char *event_label,
+ 				      const char *event_name,
+ 				      const void *buf, size_t buf_len,
+-				      bool hash);
++				      bool hash, u8 *digest,
++				      enum hash_algo *algo, bool *measured);
+ 
+ #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
+ extern void ima_appraise_parse_cmdline(void);
+@@ -140,7 +142,9 @@ static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {
+ static inline void ima_measure_critical_data(const char *event_label,
+ 					     const char *event_name,
+ 					     const void *buf, size_t buf_len,
+-					     bool hash) {}
++					     bool hash, u8 *digest,
++					     enum hash_algo *algo,
++					     bool *measured) {}
+ 
+ #endif /* CONFIG_IMA */
+ 
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index f0e448ed1f9f..fff31065d600 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -268,7 +268,8 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 				struct inode *inode, const void *buf, int size,
+ 				const char *eventname, enum ima_hooks func,
+ 				int pcr, const char *func_data,
+-				bool buf_hash);
++				bool buf_hash, u8 *digest, enum hash_algo *algo,
++				bool *measured);
+ void ima_audit_measurement(struct integrity_iint_cache *iint,
+ 			   const unsigned char *filename);
+ int ima_alloc_init_template(struct ima_event_data *event_data,
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index ef9dcfce45d4..3fcbf1bfa449 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -357,7 +357,8 @@ int ima_check_blacklist(struct integrity_iint_cache *iint,
+ 		if ((rc == -EPERM) && (iint->flags & IMA_MEASURE))
+ 			process_buffer_measurement(&init_user_ns, NULL, digest, digestsize,
+ 						   "blacklisted-hash", NONE,
+-						   pcr, NULL, false);
++						   pcr, NULL, false, NULL, NULL,
++						   NULL);
+ 	}
+ 
+ 	return rc;
+diff --git a/security/integrity/ima/ima_asymmetric_keys.c b/security/integrity/ima/ima_asymmetric_keys.c
+index c985418698a4..4370bf7b8866 100644
+--- a/security/integrity/ima/ima_asymmetric_keys.c
++++ b/security/integrity/ima/ima_asymmetric_keys.c
+@@ -62,5 +62,6 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
+ 	 */
+ 	process_buffer_measurement(&init_user_ns, NULL, payload, payload_len,
+ 				   keyring->description, KEY_CHECK, 0,
+-				   keyring->description, false);
++				   keyring->description, false, NULL, NULL,
++				   NULL);
+ }
+diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
+index 5076a7d9d23e..a4dcd15187a8 100644
+--- a/security/integrity/ima/ima_init.c
++++ b/security/integrity/ima/ima_init.c
+@@ -154,7 +154,8 @@ int __init ima_init(void)
+ 	ima_init_key_queue();
+ 
+ 	ima_measure_critical_data("kernel_info", "kernel_version",
+-				  UTS_RELEASE, strlen(UTS_RELEASE), false);
++				  UTS_RELEASE, strlen(UTS_RELEASE), false, NULL,
++				  NULL, NULL);
+ 
+ 	return rc;
+ }
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 287b90509006..04d1aed5adae 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -833,6 +833,9 @@ int ima_post_load_data(char *buf, loff_t size,
+  * @pcr: pcr to extend the measurement
+  * @func_data: func specific data, may be NULL
+  * @buf_hash: measure buffer data hash
++ * @digest: buffer digest will be written to
++ * @algo: digest algorithm
++ * @measured: whether the buffer has been measured by IMA
+  *
+  * Based on policy, either the buffer data or buffer data hash is measured
+  */
+@@ -840,7 +843,8 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 				struct inode *inode, const void *buf, int size,
+ 				const char *eventname, enum ima_hooks func,
+ 				int pcr, const char *func_data,
+-				bool buf_hash)
++				bool buf_hash, u8 *digest, enum hash_algo *algo,
++				bool *measured)
+ {
+ 	int ret = 0;
+ 	const char *audit_cause = "ENOMEM";
+@@ -861,7 +865,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 	int action = 0;
+ 	u32 secid;
+ 
+-	if (!ima_policy_flag)
++	if (!ima_policy_flag && (!digest || !algo || !measured))
+ 		return;
+ 
+ 	template = ima_template_desc_buf();
+@@ -883,7 +887,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 		action = ima_get_action(mnt_userns, inode, current_cred(),
+ 					secid, 0, func, &pcr, &template,
+ 					func_data);
+-		if (!(action & IMA_MEASURE))
++		if (!(action & IMA_MEASURE) && (!digest || !algo || !measured))
+ 			return;
+ 	}
+ 
+@@ -914,6 +918,15 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 		event_data.buf_len = digest_hash_len;
+ 	}
+ 
++	if (digest && algo) {
++		memcpy(digest, iint.ima_hash->digest,
++		       hash_digest_size[ima_hash_algo]);
++		*algo = ima_hash_algo;
++	}
++
++	if (!(action & IMA_MEASURE))
++		return;
++
+ 	ret = ima_alloc_init_template(&event_data, &entry, template);
+ 	if (ret < 0) {
+ 		audit_cause = "alloc_entry";
+@@ -924,8 +937,11 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 	if (ret < 0) {
+ 		audit_cause = "store_entry";
+ 		ima_free_template_entry(entry);
++		goto out;
+ 	}
+ 
++	if (measured)
++		*measured = true;
+ out:
+ 	if (ret < 0)
+ 		integrity_audit_message(AUDIT_INTEGRITY_PCR, NULL, eventname,
+@@ -956,7 +972,7 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+ 
+ 	process_buffer_measurement(file_mnt_user_ns(f.file), file_inode(f.file),
+ 				   buf, size, "kexec-cmdline", KEXEC_CMDLINE, 0,
+-				   NULL, false);
++				   NULL, false, NULL, NULL, NULL);
+ 	fdput(f);
+ }
+ 
+@@ -967,6 +983,9 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+  * @buf: pointer to buffer data
+  * @buf_len: length of buffer data (in bytes)
+  * @hash: measure buffer data hash
++ * @digest: buffer digest will be written to
++ * @algo: digest algorithm
++ * @measured: whether the buffer has been measured by IMA
+  *
+  * Measure data critical to the integrity of the kernel into the IMA log
+  * and extend the pcr.  Examples of critical data could be various data
+@@ -976,14 +995,15 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+ void ima_measure_critical_data(const char *event_label,
+ 			       const char *event_name,
+ 			       const void *buf, size_t buf_len,
+-			       bool hash)
++			       bool hash, u8 *digest, enum hash_algo *algo,
++			       bool *measured)
+ {
+ 	if (!event_name || !event_label || !buf || !buf_len)
+ 		return;
+ 
+ 	process_buffer_measurement(&init_user_ns, NULL, buf, buf_len, event_name,
+ 				   CRITICAL_DATA, 0, event_label,
+-				   hash);
++				   hash, digest, algo, measured);
+ }
+ 
+ static int __init init_ima(void)
+diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
+index 979ef6c71f3d..97ed974651fd 100644
+--- a/security/integrity/ima/ima_queue_keys.c
++++ b/security/integrity/ima/ima_queue_keys.c
+@@ -165,7 +165,7 @@ void ima_process_queued_keys(void)
+ 						   entry->keyring_name,
+ 						   KEY_CHECK, 0,
+ 						   entry->keyring_name,
+-						   false);
++						   false, NULL, NULL, NULL);
+ 		list_del(&entry->list);
+ 		ima_free_key_entry(entry);
+ 	}
+diff --git a/security/selinux/ima.c b/security/selinux/ima.c
+index 34d421861bfc..af1016dbb5aa 100644
+--- a/security/selinux/ima.c
++++ b/security/selinux/ima.c
+@@ -86,7 +86,8 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
+ 	}
+ 
+ 	ima_measure_critical_data("selinux", "selinux-state",
+-				  state_str, strlen(state_str), false);
++				  state_str, strlen(state_str), false, NULL,
++				  NULL, NULL);
+ 
+ 	kfree(state_str);
+ 
+@@ -103,7 +104,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
+ 	}
+ 
+ 	ima_measure_critical_data("selinux", "selinux-policy-hash",
+-				  policy, policy_len, true);
++				  policy, policy_len, true, NULL, NULL, NULL);
+ 
+ 	vfree(policy);
+ }
 -- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
+2.25.1
+
