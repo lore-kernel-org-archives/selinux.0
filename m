@@ -2,94 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14C3CC49EA6
-	for <selinux@archiver.kernel.org>; Sat, 26 Jun 2021 12:35:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB1EC48BC2
+	for <selinux@archiver.kernel.org>; Sun, 27 Jun 2021 20:29:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E862961C2C
-	for <selinux@archiver.kernel.org>; Sat, 26 Jun 2021 12:35:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9704619BF
+	for <selinux@archiver.kernel.org>; Sun, 27 Jun 2021 20:29:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229657AbhFZMhW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 26 Jun 2021 08:37:22 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:53630 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbhFZMhW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 26 Jun 2021 08:37:22 -0400
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id B3F885646A2
-        for <selinux@vger.kernel.org>; Sat, 26 Jun 2021 14:34:58 +0200 (CEST)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+        id S231478AbhF0Ubm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 27 Jun 2021 16:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52846 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231473AbhF0Ubm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 27 Jun 2021 16:31:42 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D073FC061574
+        for <selinux@vger.kernel.org>; Sun, 27 Jun 2021 13:29:16 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id bp27so2855032lfb.9
+        for <selinux@vger.kernel.org>; Sun, 27 Jun 2021 13:29:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SXb57i8n7HkUMwZqKpXBQ2YaO7TI3yJAfln+eYi3vVA=;
+        b=a6r/SStCsUQMlVxHAbin8aLodTAer0kH8/TqtidXJztF6cU6KHXrcL+I9M9HV72xaa
+         697FUCtOpZtCCVsXRsNuTKiIE1DXEU7kt5ZroVCYSo9bi6WKBCuWXuEqYcEn17qSjnNd
+         b/wmFiHYVnpMqE7yA8BKePgodozSBiunKaWenfSofZHU0c/F1NOBadO0xC+efnD3Ihte
+         DXDRzmt5oyxM0sch8sQgHiyIcF5qHih5KSsSYKtydwP8um3tm8I8dII30AMhJJneCoCB
+         YRESobC0UzbY6Rb/aSFFTHxdJAjDH0lp4jJIpf5EatFkyi/Jf7Gw3XgN1W7conjnDNpE
+         +XIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SXb57i8n7HkUMwZqKpXBQ2YaO7TI3yJAfln+eYi3vVA=;
+        b=HX+lT+PlTb17re7cDW0SVaFyl2LSFfQtN6EbIJRwnZkGcqujtGB/VHDIT/0Y5QLi6E
+         V0BgA8AUzpqxp+fV/hP+WPxOHoJd50UMtA4PaXODryMSZbkNNDWnqrbfzL4c1SlBVbbb
+         yV+Vi5qj3zFvmoxcDyJNvbEgD20Kyv/9pZX2NPJU3ZBW/MBaBHUp9+vocfY/9jLaO/Vo
+         19KIw4vVjksfwCjxeKUFbUkwHK4wSVQedf6D9xm9uWWoDw64xSlWau3l8etHCy1bWgcF
+         6gjk32BoR0w7g2u9ch1UQyMcyEDTdSTFzs9qcXMlKpbp312uhuc2kYrKNK7FJ4Mr2Dsx
+         hvbQ==
+X-Gm-Message-State: AOAM533KsCfmgTlPEyae7lx9A87AnjysVqNeI3SfovOFhRuRRShFB9mS
+        4EIEvoPY+OU5ejNu2We8DZqNxyChi9w=
+X-Google-Smtp-Source: ABdhPJwsVWetXKsMmaEmSp3HYob3T0GQWc3030DA4BB0pPjysKDlrLG1HrvTUjlw8hjWClf7K/fAJQ==
+X-Received: by 2002:ac2:5e86:: with SMTP id b6mr16478911lfq.241.1624825754938;
+        Sun, 27 Jun 2021 13:29:14 -0700 (PDT)
+Received: from localhost.localdomain (88-114-216-93.elisa-laajakaista.fi. [88.114.216.93])
+        by smtp.gmail.com with ESMTPSA id u21sm935295lja.81.2021.06.27.13.29.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Jun 2021 13:29:14 -0700 (PDT)
+From:   Topi Miettinen <toiwoton@gmail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol/cil: make array cil_sym_sizes const
-Date:   Sat, 26 Jun 2021 14:34:43 +0200
-Message-Id: <20210626123443.12149-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.32.0
+Cc:     Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH v2] selinux-notebook: describe nosuid and NNP transitions
+Date:   Sun, 27 Jun 2021 23:28:59 +0300
+Message-Id: <20210627202859.5124-1-toiwoton@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Jun 26 14:34:59 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The values of this table are never modified.
+Describe cases where nosuid_transition or nnp_transition are needed.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 ---
- libsepol/cil/src/cil.c          | 4 ++--
- libsepol/cil/src/cil_internal.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ src/computing_security_contexts.md | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 9d5038d91add..32e8b3cf419e 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -52,7 +52,7 @@
- #include "cil_strpool.h"
- #include "cil_write_ast.h"
- 
--int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
-+const int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
- 	{64, 64, 64, 1 << 13, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
- 	{8, 8, 8, 32, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
- 	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-@@ -1882,7 +1882,7 @@ void cil_set_policy_version(struct cil_db *db, int policy_version)
- 	db->policy_version = policy_version;
- }
- 
--void cil_symtab_array_init(symtab_t symtab[], int symtab_sizes[CIL_SYM_NUM])
-+void cil_symtab_array_init(symtab_t symtab[], const int symtab_sizes[CIL_SYM_NUM])
- {
- 	uint32_t i = 0;
- 	for (i = 0; i < CIL_SYM_NUM; i++) {
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index 8b9aeabf66e4..3211fc355ec9 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -275,7 +275,7 @@ enum cil_sym_array {
- 	CIL_SYM_ARRAY_NUM
- };
- 
--extern int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM];
-+extern const int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM];
- 
- #define CIL_CLASS_SYM_SIZE	256
- #define CIL_PERMS_PER_CLASS (sizeof(sepol_access_vector_t) * 8)
-@@ -981,7 +981,7 @@ int cil_userprefixes_to_string(struct cil_db *db, char **out, size_t *size);
- int cil_selinuxusers_to_string(struct cil_db *db, char **out, size_t *size);
- int cil_filecons_to_string(struct cil_db *db, char **out, size_t *size);
- 
--void cil_symtab_array_init(symtab_t symtab[], int symtab_sizes[CIL_SYM_NUM]);
-+void cil_symtab_array_init(symtab_t symtab[], const int symtab_sizes[CIL_SYM_NUM]);
- void cil_symtab_array_destroy(symtab_t symtab[]);
- void cil_destroy_ast_symtabs(struct cil_tree_node *root);
- int cil_get_symtab(struct cil_tree_node *ast_node, symtab_t **symtab, enum cil_sym_index sym_index);
+diff --git a/src/computing_security_contexts.md b/src/computing_security_contexts.md
+index bb946b5..ca514d7 100644
+--- a/src/computing_security_contexts.md
++++ b/src/computing_security_contexts.md
+@@ -84,7 +84,18 @@ Processes inherit their security context as follows:
+    *default_type* (policy version 28) or if a security-aware process,
+    by calling ***setexeccon**(3)* if permitted by policy prior to
+    invoking exec.
+-3. At any time, a security-aware process may invoke ***setcon**(3)* to
++3. If the loaded SELinux policy has the nnp_nosuid_transition policy
++   capability enabled there are potentially two additional permissions
++   that are required to permit a domain transition: nosuid_transition
++   for nosuid mounted filesystems, and nnp_transition for for threads
++   with the no_new_privs flag. If nnp_nosuid_transition policy
++   capability is disabled, such domain transitions are denied but
++   bounded domain transitions are still allowed. In bounded
++   transitions, target domain is only allowed a subset of the
++   permissions of the source domain.  See also
++   [**Linux Security Module and SELinux**](lsm_selinux.md#linux-security-module-and-selinux)
++   section.
++4. At any time, a security-aware process may invoke ***setcon**(3)* to
+    switch its security context (if permitted by policy) although this
+    practice is generally discouraged - exec-based transitions are
+    preferred.
 -- 
-2.32.0
+2.30.2
 
