@@ -2,257 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF6EEC11F64
-	for <selinux@archiver.kernel.org>; Mon, 28 Jun 2021 18:55:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E3F1C11F64
+	for <selinux@archiver.kernel.org>; Mon, 28 Jun 2021 20:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D85D61C86
-	for <selinux@archiver.kernel.org>; Mon, 28 Jun 2021 18:55:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C7B361CC9
+	for <selinux@archiver.kernel.org>; Mon, 28 Jun 2021 20:23:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233768AbhF1S6R (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Jun 2021 14:58:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21339 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235545AbhF1S6Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Jun 2021 14:58:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624906550;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8HinIvCMtHYb1qVrOJ0tRZVpQdvLsbcc131aWbfWsnw=;
-        b=N78cWJmaOiC6urzof7baMLxexnMUX+gWDqAfLtqa7x+2RcT2lIXJTrW2Cgl4ztyn2upyDV
-        fXmZtGw90PiF9SLf0Fb0PAXF0pYCsoR8wU/DB/1dHlmgEs3gWUoTGPSf6CYFoTE1MrEXiO
-        yUWIGa7h1JpbDKHTCbXWy1ZTnyM3+g4=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-254-ymH2wt8bPR-IG-82O7gVMQ-1; Mon, 28 Jun 2021 14:55:48 -0400
-X-MC-Unique: ymH2wt8bPR-IG-82O7gVMQ-1
-Received: by mail-qv1-f70.google.com with SMTP id x13-20020a0cfe0d0000b0290264540cb5d3so18422214qvr.17
-        for <selinux@vger.kernel.org>; Mon, 28 Jun 2021 11:55:48 -0700 (PDT)
+        id S234069AbhF1U0V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Jun 2021 16:26:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59426 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230291AbhF1U0V (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Jun 2021 16:26:21 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DAEC061574
+        for <selinux@vger.kernel.org>; Mon, 28 Jun 2021 13:23:54 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id 22so17426820oix.10
+        for <selinux@vger.kernel.org>; Mon, 28 Jun 2021 13:23:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NtZu4IyrCuCTXBUcT4e60ELhUIGNaiUY4VyBQG/PLSo=;
+        b=ohIvrYLBswQIJEH0Fmh0FpMOZkRBCL8RHqFR/vABh7fnaf5CWC6q6IcyYZTgS019ms
+         RJIwHa3fpEM4uxVILUaQACbgX4eNuVA4OipVNFTRf+mtPk0/DMbT6hDSqzc0DB+5iI36
+         smOQjOPWyZAsPAydg3lYLpvltwn+9o9pSjTHUXXZ5mtdLQ5f+q6t7E54xVO7moV4e3Wh
+         sP8Od5s5iKDkOlvx4HBggmIVQ3pgygiZBK0v7RehJPviah0REllkXZsiYrH0x8zFKHmY
+         4KFxmWm8EUVms/owwl/3SxHyNllWw7lAuh/1UJUZB7Nz8z6a75YRfo8YbbH0T5PorzEB
+         5PFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:reply-to:subject:to:cc:references:from
-         :organization:message-id:date:user-agent:mime-version:in-reply-to
-         :content-transfer-encoding:content-language;
-        bh=8HinIvCMtHYb1qVrOJ0tRZVpQdvLsbcc131aWbfWsnw=;
-        b=JDV5N+w/+E30ngfuNxFln7jJlEhCAuz8R6wpXdzalcYgxAUA9HJ0/spmF+dgkJEWnK
-         2Wz1+2DJerC6esr4VOxiKUSYpC7fLtEcSEK2cUzs0xGVk1NqLglzkeaISaOacAem1QLY
-         /EcQOKwku8l9sVTNDY6Rm99gT8l/HlAPdPePZi3TQYjlX1WakiUKJUx3DFMHkM6VchW5
-         x1P27nyOcHNwtgRhrKwnIiesRHKpcR9Rd6BgqmR7oPApoTozMuG/r8M80UhBhkESgA3z
-         9+f1clQVxJAzEepfzs2tH/V6D1qvpGP7tHH/K1M9eqFDCKAUR5pQj8cwS+b5lYnO4+xQ
-         LuIQ==
-X-Gm-Message-State: AOAM533wM+mJpZEEH/JpUuRkvdk0KHMCSvZKxbz2fDsQHSanxjeMVA9O
-        D/qK1+W+/0ZOLN8F3p+V7NPr3vmIdtxnGSnedV1pgJMalUNgtG4dSJGZHKf8jC0PImcpDre4hIP
-        dbHJ73R3CkYoruSB9EAxU+kl5/7vBcSLeG4xh03hw1pA+7Dp1Df87NWa7h01vBTMz/0k=
-X-Received: by 2002:a05:622a:1103:: with SMTP id e3mr19263984qty.390.1624906547917;
-        Mon, 28 Jun 2021 11:55:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxqEW/3cBf2LZoNrjSfaumssIJCB2Hs91eIgGjWvxLJcGsx/bwi1i70Q1f4gaNmEkrdoTFZCQ==
-X-Received: by 2002:a05:622a:1103:: with SMTP id e3mr19263956qty.390.1624906547630;
-        Mon, 28 Jun 2021 11:55:47 -0700 (PDT)
-Received: from localhost.localdomain (cpe-74-65-150-180.maine.res.rr.com. [74.65.150.180])
-        by smtp.gmail.com with ESMTPSA id e12sm6878175qtj.3.2021.06.28.11.55.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Jun 2021 11:55:46 -0700 (PDT)
-Reply-To: dwalsh@redhat.com
-Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
- files if caller has CAP_SYS_RESOURCE
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>
-Cc:     "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "virtio-fs@redhat.com" <virtio-fs@redhat.com>,
-        "dgilbert@redhat.com" <dgilbert@redhat.com>,
-        "berrange@redhat.com" <berrange@redhat.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-References: <20210625191229.1752531-1-vgoyal@redhat.com>
- <BN0PR11MB57275823CE05DED7BC755460FD069@BN0PR11MB5727.namprd11.prod.outlook.com>
- <20210628131708.GA1803896@redhat.com>
- <1b446468-dcf8-9e21-58d3-c032686eeee5@redhat.com>
- <5d8f033c-eba2-7a8b-f19a-1005bbb615ea@schaufler-ca.com>
-From:   Daniel Walsh <dwalsh@redhat.com>
-Organization: Red Hat
-Message-ID: <69016bdc-fcf1-34df-1663-42d8f57c927c@redhat.com>
-Date:   Mon, 28 Jun 2021 14:55:45 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NtZu4IyrCuCTXBUcT4e60ELhUIGNaiUY4VyBQG/PLSo=;
+        b=e8ySwp1/ruFS+nEGGqx6IMi9NYLgex7LzjUa/PCVyatU+7ug1H149ZmXQWDa0Bfl7h
+         Fm7LTivLsLIfF+3srS5wnu+fxWNR9EuSLKCjFdWPgeyta+CpqJwbbOfSJz4y0PYUCB3U
+         ew/ayAma7m4dOjtC8sIFvUQ3K5CxZj23MkY2mZrSzuBegQ0kMu8lguXYcC8QDCh/CCIS
+         x5gw89iSjny238DmxKmHHuERGCvuV2dy+M3EFxhNYPEism6Xa1Td3jDpy1zoOtI8L4v7
+         JXl+g3g7D+wxXliFpVdEId8duFCx5z5gBKygWZL0x+oQR94M+x0BKHeKwirxbDkJtZcM
+         IKFQ==
+X-Gm-Message-State: AOAM530cC+H9OCEt6WRaUMcSizGaLnaIMZMp2/9ui2zeb11UUUAypeX2
+        zcFplRQqEESzwAMTLZ0yymUGnH+zPZ4JGQr8LXs=
+X-Google-Smtp-Source: ABdhPJxSs6HsSFgQadKRTNN6806hiB34mPmjGBDjNOmkjsjbMw9GtLpFSKLYvfd3aJnkQF7/IDvfq4Ik0iavTWpPEsY=
+X-Received: by 2002:a05:6808:148d:: with SMTP id e13mr16823171oiw.138.1624911834090;
+ Mon, 28 Jun 2021 13:23:54 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <5d8f033c-eba2-7a8b-f19a-1005bbb615ea@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20210626123443.12149-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20210626123443.12149-1-nicolas.iooss@m4x.org>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 28 Jun 2021 16:23:43 -0400
+Message-ID: <CAP+JOzS4XPRfBj+uiisUyjthKcR1vWMhL0_6++yNxM7LRnRmuw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: make array cil_sym_sizes const
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/28/21 12:04, Casey Schaufler wrote:
-> On 6/28/2021 6:36 AM, Daniel Walsh wrote:
->> On 6/28/21 09:17, Vivek Goyal wrote:
->>> On Fri, Jun 25, 2021 at 09:49:51PM +0000, Schaufler, Casey wrote:
->>>>> -----Original Message-----
->>>>> From: Vivek Goyal <vgoyal@redhat.com>
->>>>> Sent: Friday, June 25, 2021 12:12 PM
->>>>> To: linux-fsdevel@vger.kernel.org; linux-kernel@vger.kernel.org;
->>>>> viro@zeniv.linux.org.uk
->>>>> Cc: virtio-fs@redhat.com; dwalsh@redhat.com; dgilbert@redhat.com;
->>>>> berrange@redhat.com; vgoyal@redhat.com
->>>> Please include Linux Security Module list <linux-security-module@vger.kernel.org>
->>>> and selinux@vger.kernel.org on this topic.
->>>>
->>>>> Subject: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special files if
->>>>> caller has CAP_SYS_RESOURCE
->>>>>
->>>>> Hi,
->>>>>
->>>>> In virtiofs, actual file server is virtiosd daemon running on host.
->>>>> There we have a mode where xattrs can be remapped to something else.
->>>>> For example security.selinux can be remapped to
->>>>> user.virtiofsd.securit.selinux on the host.
->>>> This would seem to provide mechanism whereby a user can violate
->>>> SELinux policy quite easily.
->>> Hi Casey,
->>>
->>> As david already replied, we are not bypassing host's SELinux policy (if
->>> there is one). We are just trying to provide a mode where host and
->>> guest's SELinux policies could co-exist without interefering
->>> with each other.
->>>
->>> By remappming guests SELinux xattrs (and not host's SELinux xattrs),
->>> a file probably will have two xattrs
->>>
->>> "security.selinux" and "user.virtiofsd.security.selinux". Host will
->>> enforce SELinux policy based on security.selinux xattr and guest
->>> will see the SELinux info stored in "user.virtiofsd.security.selinux"
->>> and guest SELinux policy will enforce rules based on that.
->>> (user.virtiofsd.security.selinux will be remapped to "security.selinux"
->>> when guest does getxattr()).
->>>
->>> IOW, this mode is allowing both host and guest SELinux policies to
->>> co-exist and not interefere with each other. (Remapping guests's
->>> SELinux xattr is not changing hosts's SELinux label and is not
->>> bypassing host's SELinux policy).
->>>
->>> virtiofsd also provides for the mode where if guest process sets
->>> SELinux xattr it shows up as security.selinux on host. But now we
->>> have multiple issues. There are two SELinux policies (host and guest)
->>> which are operating on same lable. And there is a very good chance
->>> that two have not been written in such a way that they work with
->>> each other. In fact there does not seem to exist a notion where
->>> two different SELinux policies are operating on same label.
->>>
->>> At high level, this is in a way similar to files created on
->>> virtio-blk devices. Say this device is backed by a foo.img file
->>> on host. Now host selinux policy will set its own label on
->>> foo.img and provide access control while labels created by guest
->>> are not seen or controlled by host's SELinux policy. Only guest
->>> SELinux policy works with those labels.
->>>
->>> So this is similar kind of attempt. Provide isolation between
->>> host and guests's SELinux labels so that two policies can
->>> co-exist and not interfere with each other.
->>>
->>>>> This remapping is useful when SELinux is enabled in guest and virtiofs
->>>>> as being used as rootfs. Guest and host SELinux policy might not match
->>>>> and host policy might deny security.selinux xattr setting by guest
->>>>> onto host. Or host might have SELinux disabled and in that case to
->>>>> be able to set security.selinux xattr, virtiofsd will need to have
->>>>> CAP_SYS_ADMIN (which we are trying to avoid). Being able to remap
->>>>> guest security.selinux (or other xattrs) on host to something else
->>>>> is also better from security point of view.
->>>> Can you please provide some rationale for this assertion?
->>>> I have been working with security xattrs longer than anyone
->>>> and have trouble accepting the statement.
->>> If guest is not able to interfere or change host's SELinux labels
->>> directly, it sounded better.
->>>
->>> Irrespective of this, my primary concern is that to allow guest
->>> VM to be able to use SELinux seamlessly in diverse host OS
->>> environments (typical of cloud deployments). And being able to
->>> provide a mode where host and guest's security labels can
->>> co-exist and policies can work independently, should be able
->>> to achieve that goal.
->>>
->>>>> But when we try this, we noticed that SELinux relabeling in guest
->>>>> is failing on some symlinks. When I debugged a little more, I
->>>>> came to know that "user.*" xattrs are not allowed on symlinks
->>>>> or special files.
->>>>>
->>>>> "man xattr" seems to suggest that primary reason to disallow is
->>>>> that arbitrary users can set unlimited amount of "user.*" xattrs
->>>>> on these files and bypass quota check.
->>>>>
->>>>> If that's the primary reason, I am wondering is it possible to relax
->>>>> the restrictions if caller has CAP_SYS_RESOURCE. This capability
->>>>> allows caller to bypass quota checks. So it should not be
->>>>> a problem atleast from quota perpective.
->>>>>
->>>>> That will allow me to give CAP_SYS_RESOURCE to virtiofs deamon
->>>>> and remap xattrs arbitrarily.
->>>> On a Smack system you should require CAP_MAC_ADMIN to remap
->>>> security. xattrs. I sounds like you're in serious danger of running afoul
->>>> of LSM attribute policy on a reasonable general level.
->>> I think I did not explain xattr remapping properly and that's why this
->>> confusion is there. Only guests's xattrs will be remapped and not
->>> hosts's xattr. So one can not bypass any access control implemented
->>> by any of the LSM on host.
->>>
->>> Thanks
->>> Vivek
->>>
->> I want to point out that this solves a  couple of other problems also.
-> I am not (usually) adverse to solving problems. My concern is with
-> regard to creating new ones.
+On Sat, Jun 26, 2021 at 8:35 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
->> Currently virtiofsd attempts to write security attributes on the host, which is denied by default on systems without SELinux and no CAP_SYS_ADMIN.
-> Right. Which is as it should be.
-> Also, s/SELinux/a LSM that uses security xattrs/
+> The values of this table are never modified.
 >
->>    This means if you want to run a container or VM
-> A container uses the kernel from the host. A VM uses the kernel
-> from the guest. Unless you're calling a VM a container for
-> marketing purposes. If this scheme works for non-VM based containers
-> there's a problem.
-That is your definition of a container.  Our definition includes 
-container workloads within kvm separation along with their own kernels. 
-(Kata and libkrun).  As opposed to VM workloads which run full operating 
-system workloads including systemd, logging, cron, sshd ...
->> on a host without SELinux support but the VM has SELinux enabled, then virtiofsd needs CAP_SYS_ADMIN.  It would be much more secure if it only needed CAP_SYS_RESOURCE.
-> I don't know, so I'm asking. Does virtiofsd really get run with limited capabilities,
-> or does it get run as root like most system daemons? If it runs as root the argument
-> has no legs.
-I believe it should almost always get run with limited privileges, we 
-are opening a whole from the kvm separated workload into the host.  If 
-there is a bug in virtiofsd, it can attack the host.
->>    If the host has SELinux enabled then it can run without CAP_SYS_ADMIN or CAP_SYS_RESOURCE, but it will only be allowed to write labels that the host system understands, any label not understood will be blocked. Not only this, but the label that is running virtiofsd pretty much has to run as unconfined, since it could be writing any SELinux label.
-> You could fix that easily enough by teaching SELinux about the proper
-> use of CAP_MAC_ADMIN. Alas, I understand that there's no way that's
-> going to happen, and why it would be considered philosophically repugnant
-> in the SELinux community.
-Sure, but this ignores the more important next comment.
->> If virtiofsd is writing Userxattrs with CAP_SYS_RESOURCE, then we can run with a confined SELinux label only allowing it to sexattr on the content in the designated directory, make the container/vm much more secure.
->>
-> User xattrs are less protected than security xattrs. You are exposing the
-> security xattrs on the guest to the possible whims of a malicious, unprivileged
-> actor on the host. All it needs is the right UID.
->
-> We have unused xattr namespaces. Would using the "trusted" namespace
-> work for your purposes?
->
-No because they bring their own issues, and can not be used without 
-CAP_SYS_ADMIN.
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-My number one concern is attacks from the kvm separated work space 
-against the host, since virtiofsd is opening up the attack vector.  
-Running it with the least privs possible from the MAC and DAC point of 
-view is the goal.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-
+> ---
+>  libsepol/cil/src/cil.c          | 4 ++--
+>  libsepol/cil/src/cil_internal.h | 4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index 9d5038d91add..32e8b3cf419e 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -52,7 +52,7 @@
+>  #include "cil_strpool.h"
+>  #include "cil_write_ast.h"
+>
+> -int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
+> +const int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
+>         {64, 64, 64, 1 << 13, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
+>         {8, 8, 8, 32, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+>         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+> @@ -1882,7 +1882,7 @@ void cil_set_policy_version(struct cil_db *db, int policy_version)
+>         db->policy_version = policy_version;
+>  }
+>
+> -void cil_symtab_array_init(symtab_t symtab[], int symtab_sizes[CIL_SYM_NUM])
+> +void cil_symtab_array_init(symtab_t symtab[], const int symtab_sizes[CIL_SYM_NUM])
+>  {
+>         uint32_t i = 0;
+>         for (i = 0; i < CIL_SYM_NUM; i++) {
+> diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
+> index 8b9aeabf66e4..3211fc355ec9 100644
+> --- a/libsepol/cil/src/cil_internal.h
+> +++ b/libsepol/cil/src/cil_internal.h
+> @@ -275,7 +275,7 @@ enum cil_sym_array {
+>         CIL_SYM_ARRAY_NUM
+>  };
+>
+> -extern int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM];
+> +extern const int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM];
+>
+>  #define CIL_CLASS_SYM_SIZE     256
+>  #define CIL_PERMS_PER_CLASS (sizeof(sepol_access_vector_t) * 8)
+> @@ -981,7 +981,7 @@ int cil_userprefixes_to_string(struct cil_db *db, char **out, size_t *size);
+>  int cil_selinuxusers_to_string(struct cil_db *db, char **out, size_t *size);
+>  int cil_filecons_to_string(struct cil_db *db, char **out, size_t *size);
+>
+> -void cil_symtab_array_init(symtab_t symtab[], int symtab_sizes[CIL_SYM_NUM]);
+> +void cil_symtab_array_init(symtab_t symtab[], const int symtab_sizes[CIL_SYM_NUM]);
+>  void cil_symtab_array_destroy(symtab_t symtab[]);
+>  void cil_destroy_ast_symtabs(struct cil_tree_node *root);
+>  int cil_get_symtab(struct cil_tree_node *ast_node, symtab_t **symtab, enum cil_sym_index sym_index);
+> --
+> 2.32.0
+>
