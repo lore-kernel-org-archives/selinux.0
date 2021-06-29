@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF50AC11F69
-	for <selinux@archiver.kernel.org>; Tue, 29 Jun 2021 15:14:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16BDCC11F6A
+	for <selinux@archiver.kernel.org>; Tue, 29 Jun 2021 15:14:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE71C61DAD
-	for <selinux@archiver.kernel.org>; Tue, 29 Jun 2021 15:14:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5B8C61DAD
+	for <selinux@archiver.kernel.org>; Tue, 29 Jun 2021 15:14:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234613AbhF2PQg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Jun 2021 11:16:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
+        id S232521AbhF2PQh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 29 Jun 2021 11:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232521AbhF2PQf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jun 2021 11:16:35 -0400
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD941C061760
-        for <selinux@vger.kernel.org>; Tue, 29 Jun 2021 08:14:08 -0700 (PDT)
-Received: by mail-qt1-x82b.google.com with SMTP id t9so16341682qtw.7
-        for <selinux@vger.kernel.org>; Tue, 29 Jun 2021 08:14:08 -0700 (PDT)
+        with ESMTP id S234675AbhF2PQh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jun 2021 11:16:37 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436CDC061760
+        for <selinux@vger.kernel.org>; Tue, 29 Jun 2021 08:14:09 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id u2so11228196qvp.13
+        for <selinux@vger.kernel.org>; Tue, 29 Jun 2021 08:14:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=nl/6GSi6nJLwX+VAMnsOsFwvaWWKg01e44XxQpPQkWA=;
-        b=NAZLtFf+YwfJ6H2BTqaguJ6EPishUn+MYFbMIlOAX6UjSQVIKynH3rtjvR1TwSuRAx
-         fO3Vic/9zS+jDPt+DNTTN/p8vplvKon9nyUh10rlc+SaJ5Ox06wa8iHJPIePKWUM4Xz9
-         1mKuipn+CakeiVoMot2KuyOyx92LdkigMutAa+EDF81ERZTs4zUQAC4LyvBdL9q+HWsy
-         Gb578TNR5FojDd77KMmxVv0dhakU8PaT3K8vlnK2wxZw5tDUBdtINREPnIj2A8NxQpNH
-         SlFlv5RW/Qo3+Z4QEMZhG/uDedQ+aEvqZqYmj/qlcbdyb/AdK0b0O3+0czly04Lq4w1k
-         1E3w==
+        bh=hOSdcoyirD7T7lz/XB/2NnXaCzqLTb1zPohYa35nAmQ=;
+        b=OaA+/f5Ge7ykqzFdbLqK//5pQ3yAQNvp1InFQZo7hCV9YkNIBpvS7yAFFz501B9lG4
+         MaIFvwhziNfxKK2MVWRG4DCz8Gxw3Kza4UEBcQdlGHDfBI2gFI9iDLSDye1XYsTZ50GO
+         /rPuA9kdh+aLDK+yU1HN8j8ESF/gpX2IWvzj6K7dfYqvofJdvcyyebsZ/MyQAagUCkbX
+         WieiDDefz3miyWUDrDu6o76vS34Dci8nHzjORQV924hFKipjMHjb+tHgv3wsUHqZMd5I
+         PVCzw4J+Z1k6tqHz1XHxiCLKP0ru+GVnTxqitvr0APop2bya+pcMgzh6F7EwxhRB2Uh6
+         MoYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nl/6GSi6nJLwX+VAMnsOsFwvaWWKg01e44XxQpPQkWA=;
-        b=sp9rQw7YWUSCQqTb6sOMYAOteVpgZoD6IXN387QU4a2AOweRSEcr7X7JotoAMx7l5g
-         y5czQXPci+j56o7ACyjVgPg0eCN0xS7AEfBqsJ6rYHFnhPqmi1N6gSqbKDRF+cnFE7lF
-         zw/oqL2ekd0a8wjfIRv5R3RIkvmsc7SNuKHR1+uHqnpzez0xt+U6eem4ejPahnwW4img
-         zglcxTWkyeOEL7M8lp5YTKAzgS3QMSeLR9/WBR7HOWCiJhAaTS6InTFqKNK6G0qz4xFp
-         Vxk8kSUwl5KX+DDvjdtN04/d0JwzCKuxhQfCaxYwfXXQTSMtRyuD8C9OblpiNX1IV6XQ
-         BNyQ==
-X-Gm-Message-State: AOAM530MaIYWC32+Eld99l2Y/qzhRjZ3+OSSMqMB9W445nHqU8NmxbUb
-        W/IwyU9N7hjwqDuVpdmrJ5MF4LRVG2mLvg==
-X-Google-Smtp-Source: ABdhPJwAsJduA/H0n2hGWzO3BYtWD/uJayCiCKKDSQm7f3behK5VzgeqfYedF7Y7lyDHA1EFLKq2Yg==
-X-Received: by 2002:ac8:4b6d:: with SMTP id g13mr13239563qts.288.1624979647669;
-        Tue, 29 Jun 2021 08:14:07 -0700 (PDT)
+        bh=hOSdcoyirD7T7lz/XB/2NnXaCzqLTb1zPohYa35nAmQ=;
+        b=USUR6t4JmL/gFX1PpEiTKfKsIMejm9Ya8XH903dc89RCxbV+5Qxv94WtrQancwJJgm
+         16WNqCpRdtu10UWIwO+MBxNXaQXUY3kxq4DuPiU2EXYW+Qi+oqwygB+OIY9j/Yz+IU3j
+         BRhH0zW5X2m6k5Mu6kZg63+DMPb7V+l2/noIJSAdDoCavsdRd7aUctsXxfb3BTFmx+46
+         c8EYTMt3EchcBdf41M9jZpZPE+F8eLq/i3IeOXbA0Nagj1JqnUcjr6y8aDDgH6napdlA
+         pANcxbe/UevoYHxPM91R8XaE/bdPb7K0lPdGuFkgi26wM0PtRc2qN+FdYLc/m6dsbD1x
+         Hs3w==
+X-Gm-Message-State: AOAM531TfHk3+xEk5m476RSNDepFHZyRkSNZZ6VjxDom8DNrj6sPThwJ
+        ck/A49p53dnK4EJZ8ArnYFVMVRzhP5fv+Q==
+X-Google-Smtp-Source: ABdhPJzD53lwgnuWaAmTbVQhMsjIx0AR6t9VrUi+DLi/8SClMnBaQ+zmBBfBvI0D1zVaYOw6sUBo3w==
+X-Received: by 2002:a0c:9a43:: with SMTP id q3mr31846192qvd.30.1624979648409;
+        Tue, 29 Jun 2021 08:14:08 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
         by smtp.gmail.com with ESMTPSA id e12sm7880721qtj.3.2021.06.29.08.14.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Jun 2021 08:14:07 -0700 (PDT)
+        Tue, 29 Jun 2021 08:14:08 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/4 v2] secilc: Add support for using qualified names to secilc
-Date:   Tue, 29 Jun 2021 11:14:00 -0400
-Message-Id: <20210629151402.41071-2-jwcart2@gmail.com>
+Subject: [PATCH 3/4 v2] libsepol/cil: Add support for using qualified names to secil2tree
+Date:   Tue, 29 Jun 2021 11:14:01 -0400
+Message-Id: <20210629151402.41071-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210629151402.41071-1-jwcart2@gmail.com>
 References: <20210629151402.41071-1-jwcart2@gmail.com>
@@ -86,15 +86,15 @@ Signed-off-by: James Carter <jwcart2@gmail.com>
 v2:
  Changed the language for the man page and "--help" documentation
 
- secilc/secilc.8.xml |  5 +++++
- secilc/secilc.c     | 11 ++++++++++-
+ secilc/secil2tree.8.xml |  5 +++++
+ secilc/secil2tree.c     | 11 ++++++++++-
  2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/secilc/secilc.8.xml b/secilc/secilc.8.xml
-index 2b734f09..e9a121e2 100644
---- a/secilc/secilc.8.xml
-+++ b/secilc/secilc.8.xml
-@@ -75,6 +75,11 @@
+diff --git a/secilc/secil2tree.8.xml b/secilc/secil2tree.8.xml
+index 81382ffe..e95a8947 100644
+--- a/secilc/secil2tree.8.xml
++++ b/secilc/secil2tree.8.xml
+@@ -45,6 +45,11 @@
              <listitem><para>Treat tunables as booleans.</para></listitem>
           </varlistentry>
  
@@ -104,48 +104,48 @@ index 2b734f09..e9a121e2 100644
 +         </varlistentry>
 +
           <varlistentry>
-             <term><option>-m, --multiple-decls</option></term>
-             <listitem><para>Allow some statements to be re-declared.</para></listitem>
-diff --git a/secilc/secilc.c b/secilc/secilc.c
-index 9c78e425..1c4f1ca0 100644
---- a/secilc/secilc.c
-+++ b/secilc/secilc.c
-@@ -63,6 +63,9 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
- 	printf("                                 statement if present in the policy\n");
- 	printf("  -D, --disable-dontaudit        do not add dontaudit rules to the binary policy\n");
- 	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
-+	printf("  -Q, --qualified-names          Allow names containing dots (qualified names).\n");
-+	printf("                                 Blocks, blockinherits, blockabstracts, and\n");
-+	printf("                                 in-statements will not be allowed.\n");
- 	printf("  -m, --multiple-decls           allow some statements to be re-declared\n");
- 	printf("  -N, --disable-neverallow       do not check neverallow rules\n");
- 	printf("  -G, --expand-generated         Expand and remove auto-generated attributes\n");
-@@ -94,6 +97,7 @@ int main(int argc, char *argv[])
- 	int multiple_decls = 0;
- 	int disable_neverallow = 0;
+             <term><option>-A, --ast-phase=&lt;phase></option></term>
+             <listitem><para>Write AST of phase <emphasis role="italic">phase</emphasis>. Must be <emphasis role="bold">parse</emphasis>, <emphasis role="bold">build</emphasis>, or <emphasis role="bold">resolve</emphasis>. (default: <emphasis role="bold">resolve</emphasis>)</para></listitem>
+diff --git a/secilc/secil2tree.c b/secilc/secil2tree.c
+index 218d0583..e5cdf6bd 100644
+--- a/secilc/secil2tree.c
++++ b/secilc/secil2tree.c
+@@ -54,6 +54,9 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
+ 	printf("Options:\n");
+ 	printf("  -o, --output=<file>      write AST to <file>. (default: stdout)\n");
+ 	printf("  -P, --preserve-tunables  treat tunables as booleans\n");
++	printf("  -Q, --qualified-names    Allow names containing dots (qualified names).\n");
++	printf("                           Blocks, blockinherits, blockabstracts, and\n");
++	printf("                           in-statements will not be allowed.\n");
+ 	printf("  -A, --ast-phase=<phase>  write AST of phase <phase>. Phase must be parse, \n");
+ 	printf("                           build, or resolve. (default: resolve)\n");
+ 	printf("  -v, --verbose            increment verbosity level\n");
+@@ -71,6 +74,7 @@ int main(int argc, char *argv[])
+ 	char *output = NULL;
+ 	struct cil_db *db = NULL;
  	int preserve_tunables = 0;
 +	int qualified_names = 0;
- 	int handle_unknown = -1;
- 	int policyvers = POLICYDB_VERSION_MAX;
- 	int attrs_expand_generated = 0;
-@@ -115,6 +119,7 @@ int main(int argc, char *argv[])
- 		{"multiple-decls", no_argument, 0, 'm'},
- 		{"disable-neverallow", no_argument, 0, 'N'},
+ 	enum write_ast_phase write_ast = WRITE_AST_PHASE_RESOLVE;
+ 	int opt_char;
+ 	int opt_index = 0;
+@@ -79,6 +83,7 @@ int main(int argc, char *argv[])
+ 		{"help", no_argument, 0, 'h'},
+ 		{"verbose", no_argument, 0, 'v'},
  		{"preserve-tunables", no_argument, 0, 'P'},
 +		{"qualified-names", no_argument, 0, 'Q'},
  		{"output", required_argument, 0, 'o'},
- 		{"filecontexts", required_argument, 0, 'f'},
- 		{"expand-generated", no_argument, 0, 'G'},
-@@ -125,7 +130,7 @@ int main(int argc, char *argv[])
+ 		{"ast-phase", required_argument, 0, 'A'},
+ 		{0, 0, 0, 0}
+@@ -86,7 +91,7 @@ int main(int argc, char *argv[])
  	int i;
  
  	while (1) {
--		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDmNOc:GX:n", long_opts, &opt_index);
-+		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PQDmNOc:GX:n", long_opts, &opt_index);
+-		opt_char = getopt_long(argc, argv, "o:hvPA:", long_opts, &opt_index);
++		opt_char = getopt_long(argc, argv, "o:hvPQA:", long_opts, &opt_index);
  		if (opt_char == -1) {
  			break;
  		}
-@@ -190,6 +195,9 @@ int main(int argc, char *argv[])
+@@ -97,6 +102,9 @@ int main(int argc, char *argv[])
  			case 'P':
  				preserve_tunables = 1;
  				break;
@@ -155,14 +155,14 @@ index 9c78e425..1c4f1ca0 100644
  			case 'o':
  				output = strdup(optarg);
  				break;
-@@ -238,6 +246,7 @@ int main(int argc, char *argv[])
- 	cil_set_multiple_decls(db, multiple_decls);
- 	cil_set_disable_neverallow(db, disable_neverallow);
+@@ -131,6 +139,7 @@ int main(int argc, char *argv[])
+ 
+ 	cil_db_init(&db);
  	cil_set_preserve_tunables(db, preserve_tunables);
 +	cil_set_qualified_names(db, qualified_names);
- 	if (handle_unknown != -1) {
- 		rc = cil_set_handle_unknown(db, handle_unknown);
- 		if (rc != SEPOL_OK) {
+ 	cil_set_attrs_expand_generated(db, 0);
+ 	cil_set_attrs_expand_size(db, 0);
+ 
 -- 
 2.31.1
 
