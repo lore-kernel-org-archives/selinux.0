@@ -2,52 +2,35 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D1AAC11F69
-	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:27:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B0FBC11F69
+	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:48:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3813561464
-	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:27:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9BB361456
+	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:48:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235177AbhF3OaA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Jun 2021 10:30:00 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:40409 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235034AbhF3O37 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jun 2021 10:29:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625063250;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1d2Jt0MNjAao88bTvZMUVLETujlEaYGrDFgnkx5mKjs=;
-        b=XsZySUiHrOdq/3U0aUKyL9byqUdWqDCuKda3m7MzqANSFOIzzOKo5xtNX6f+7ntsfOSPgU
-        xxg7sIRQRH/sZ6x3ortWbVea19X21pgW/Dcp9q0P4fiU5g0T0Sf3gQ36UJH4+Ze8gypurc
-        Xr7NvyuItMnAypOlPx88uWkspuecTvk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-512-Pi9JRAE1PY6TXLuC1uOyNw-1; Wed, 30 Jun 2021 10:27:22 -0400
-X-MC-Unique: Pi9JRAE1PY6TXLuC1uOyNw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EE3D110C1ADC;
-        Wed, 30 Jun 2021 14:27:19 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-115-222.rdu2.redhat.com [10.10.115.222])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 398F660854;
-        Wed, 30 Jun 2021 14:27:16 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id B0B8222054F; Wed, 30 Jun 2021 10:27:15 -0400 (EDT)
-Date:   Wed, 30 Jun 2021 10:27:15 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Daniel Walsh <dwalsh@redhat.com>,
+        id S235867AbhF3Oun (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Jun 2021 10:50:43 -0400
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:48599 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S235715AbhF3OuT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jun 2021 10:50:19 -0400
+Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 15UEld0I027764
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 30 Jun 2021 10:47:40 -0400
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 8FD6615C3C8E; Wed, 30 Jun 2021 10:47:39 -0400 (EDT)
+Date:   Wed, 30 Jun 2021 10:47:39 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc:     Daniel Walsh <dwalsh@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
         "Schaufler, Casey" <casey.schaufler@intel.com>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
@@ -58,9 +41,8 @@ Cc:     Daniel Walsh <dwalsh@redhat.com>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>
 Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
  files if caller has CAP_SYS_RESOURCE
-Message-ID: <20210630142715.GB75386@redhat.com>
-References: <5d8f033c-eba2-7a8b-f19a-1005bbb615ea@schaufler-ca.com>
- <YNn4p+Zn444Sc4V+@work-vm>
+Message-ID: <YNyECw/1FzDCW3G8@mit.edu>
+References: <YNn4p+Zn444Sc4V+@work-vm>
  <a13f2861-7786-09f4-99a8-f0a5216d0fb1@schaufler-ca.com>
  <YNrhQ9XfcHTtM6QA@work-vm>
  <e6f9ed0d-c101-01df-3dff-85c1b38f9714@schaufler-ca.com>
@@ -69,64 +51,74 @@ References: <5d8f033c-eba2-7a8b-f19a-1005bbb615ea@schaufler-ca.com>
  <20210629173530.GD5231@redhat.com>
  <f4992b3a-a939-5bc4-a5da-0ce8913bd569@redhat.com>
  <YNvvLIv16jY8mfP8@mit.edu>
+ <YNwmXOqT7LgbeVPn@work-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YNvvLIv16jY8mfP8@mit.edu>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+In-Reply-To: <YNwmXOqT7LgbeVPn@work-vm>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 30, 2021 at 12:12:28AM -0400, Theodore Ts'o wrote:
-> On Tue, Jun 29, 2021 at 04:28:24PM -0400, Daniel Walsh wrote:
-> > All this conversation is great, and I look forward to a better solution, but
-> > if we go back to the patch, it was to fix an issue where the kernel is
-> > requiring CAP_SYS_ADMIN for writing user Xattrs on link files and other
-> > special files.
+On Wed, Jun 30, 2021 at 09:07:56AM +0100, Dr. David Alan Gilbert wrote:
+> * Theodore Ts'o (tytso@mit.edu) wrote:
+> > On Tue, Jun 29, 2021 at 04:28:24PM -0400, Daniel Walsh wrote:
+> > > All this conversation is great, and I look forward to a better solution, but
+> > > if we go back to the patch, it was to fix an issue where the kernel is
+> > > requiring CAP_SYS_ADMIN for writing user Xattrs on link files and other
+> > > special files.
+> > > 
+> > > The documented reason for this is to prevent the users from using XATTRS to
+> > > avoid quota.
 > > 
-> > The documented reason for this is to prevent the users from using XATTRS to
-> > avoid quota.
+> > Huh?  Where is it so documented?
 > 
-> Huh?  Where is it so documented?
+> man xattr(7):
+>        The  file permission bits of regular files and directories are
+>        interpreted differently from the file permission bits of special
+>        files and symbolic links.  For regular files and directories the
+>        file permission bits define access to the file's contents,
+>        while for device special files they define access to the device
+>        described by the special file.  The file permissions of symbolic
+>        links are not used in access checks.
 
-Its in "man xattr". David already copied pasted the relevant section in
-another email, so I am not doing it.
+All of this is true...
 
-> How file systems store and account
-> for space used by extended attributes is a file-system specific
-> question,
+>         *** These differences would
+>        allow users to consume filesystem resources in a way not
+>        controllable by disk quotas for group or world writable special
+>        files and directories.****
 
-> but presumably any way that xattr's on regular files are
-> accounted could also be used for xattr's on special files.
+Anyone with group write access to a regular file can append to the
+file, and the blocks written will be charged the owner of the file.
+So it's perfectly "controllable" by the quota system; if you have
+group write access to a file, you can charge against the user's quota.
+This is Working As Intended.
 
-That will be nice. I don't know enough about quota, but I am wondering
-why quota limits can't be enforced (if needed) for symlinks and special
-file xattrs.
+And the creation of device special files take the umask into account,
+just like regular files, so if you have a umask that allows newly
+created files to be group writeable, the same issue would occur for
+regular files as device files.  Given that most users have a umask of
+0077 or 0022, this is generally Not A Problem.
 
-Thanks
-Vivek
-> 
-> Also, xattr's are limited to 32k, so it's not like users can evade
-> _that_ much quota space, at least not without it being pretty painful.
-> (Assuming that quota is even enabled, which most of the time, it
-> isn't.)
-> 
-> 						- Ted
-> 
-> P.S.  I'll note that if ext4's ea_in_inode is enabled, for large
-> xattr's, if you have 2 million files that all have the same 12k
-> windows SID stored as an xattr, ext4 will store that xattr only once.
-> Those two million files might be owned by different uids, so we made
-> an explicit design choice not to worry about accounting for the quota
-> for said 12k xattr value.  After all, if you can save the space and
-> access cost of 2M * 12k if each file had to store its own copy of that
-> xattr, perhaps not including it in the quota calculation isn't that
-> bad.  :-)
-> 
-> We also don't account for the disk space used by symbolic links (since
-> sometimes they can be stored in the inode as fast symlinks, and
-> sometimes they might consume a data block).  But again, that's a file
-> system specific implementation question.
-> 
+I think I see the issue which drove the above text, though, which is
+that Linux's syscall(2) is creating symlinks which do not take umask
+into account; that is, the permissions are always mode ST_IFLNK|0777.
 
+Hence, it might be that the right answer is to remove this fairly
+arbitrary restriction entirely, and change symlink(2) so that it
+creates files which respects the umask.  Posix and SUS doesn't specify
+what the permissions are that are used, and historically (before the
+advent of xattrs) I suspect since it didn't matter, no one cared about
+whether or not umask was applied.
+
+Some people might object to such a change arguing that with
+pre-existing file systems where there are symlinks which
+world-writeable, this might cause people to be able to charge up to
+32k (or whatever the maximum size of the xattr supported by the file
+system) for each symlink.  However, (a) very few people actually use
+quotas, and this would only be an issue for those users, and (b) the
+amount of quota "abuse" that could be carried out this way is small
+enough that I'm not sure it matters.
+
+     	    	  	      	  - Ted
