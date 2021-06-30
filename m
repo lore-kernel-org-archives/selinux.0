@@ -2,166 +2,157 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0EAEC11F65
-	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 15:02:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95712C11F68
+	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 15:09:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BBC716142C
-	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 15:02:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 767A961476
+	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 15:09:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235839AbhF3PFS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Jun 2021 11:05:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22251 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235817AbhF3PFR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jun 2021 11:05:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625065368;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OHjD8pVyx0xZX4QhRB5WBgUBwBi/yaPIVBuvLE0fbPs=;
-        b=IJGckW490ybXJAjg0ye5z5MSFS7tMaCJRKWNzXjvj4mf0ghD6OE/fw7Acd2QXWuvfCyZEM
-        hdIuihPZCoeQFP/vF3+K5LotaQgL1EzFwZ/qg0IiIif8BYIc+TRZltriBMX85THx8OTeOP
-        CawJONv6x/Xm6L10SkBAt89wADljMaI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-572-ZLuIr-fgMjqz-8R2Ph0t6Q-1; Wed, 30 Jun 2021 11:02:46 -0400
-X-MC-Unique: ZLuIr-fgMjqz-8R2Ph0t6Q-1
-Received: by mail-wm1-f71.google.com with SMTP id v25-20020a1cf7190000b0290197a4be97b7so851055wmh.9
-        for <selinux@vger.kernel.org>; Wed, 30 Jun 2021 08:02:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=OHjD8pVyx0xZX4QhRB5WBgUBwBi/yaPIVBuvLE0fbPs=;
-        b=KQjp0d6fMy6aRz0ljUrv5hDg930nAQX8YI6e11aPe9Gmg0jY45EcEnGtOkp1mdeXqH
-         PmZ5X69JdYtH+Sjzic+SD5g+0cTTAGbTZmzT4z0OadlmYDb2JgipUDEyMcszpiaEHuzB
-         BK5hb6WUuj44oFXaicFwcKWqmP/Bg/cZpZ5gHFZM+qaNJLBRnt27T178+ar3ZIpSpGYe
-         UJIlaWr9hmB438TxX5hXOo4bqhZzCuo3ZVxc90QecEPMlrY6E8wQE94Rsj3y6BDCq7sY
-         FpgbuPAXLXHw0VzQ2PNSm+FXypOa8XHBJrkaMtH/w6I58M2BGxQua7p8/QsltRF/reon
-         2ydg==
-X-Gm-Message-State: AOAM531+tY/kzBhgFckpzfl6A6mpbwhHgKJJPD/A43KsEWtvXOZ0wSsc
-        1PYphxU366BpQpVrh1MEZ16kSOB24faGOmY8NGnxorR7l4JFF2+Qt7X350gia4aDW70pQfFPMMn
-        9CCGx391euUvWhe1Piw==
-X-Received: by 2002:a05:6000:1a41:: with SMTP id t1mr39271125wry.175.1625065305828;
-        Wed, 30 Jun 2021 08:01:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx3lPU3a0hHSHya8DIwa8S9wyVNFFEGwVYtz1NeMuaxkx1lgw7Ijq4awOATArwjHFkH7fHvKQ==
-X-Received: by 2002:a05:6000:1a41:: with SMTP id t1mr39271083wry.175.1625065305573;
-        Wed, 30 Jun 2021 08:01:45 -0700 (PDT)
-Received: from work-vm (cpc109021-salf6-2-0-cust453.10-2.cable.virginm.net. [82.29.237.198])
-        by smtp.gmail.com with ESMTPSA id d17sm8593511wro.93.2021.06.30.08.01.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jun 2021 08:01:44 -0700 (PDT)
-Date:   Wed, 30 Jun 2021 16:01:42 +0100
-From:   "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Daniel Walsh <dwalsh@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        id S235565AbhF3PMI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Jun 2021 11:12:08 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3336 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235417AbhF3PMI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jun 2021 11:12:08 -0400
+Received: from fraeml712-chm.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4GFPcv70JTz6K9HN;
+        Wed, 30 Jun 2021 22:59:11 +0800 (CST)
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml712-chm.china.huawei.com (10.206.15.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 30 Jun 2021 17:09:37 +0200
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.2176.012;
+ Wed, 30 Jun 2021 17:09:37 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>
+CC:     "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
+        "prsriva02@gmail.com" <prsriva02@gmail.com>,
+        "tusharsu@linux.microsoft.com" <tusharsu@linux.microsoft.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "virtio-fs@redhat.com" <virtio-fs@redhat.com>,
-        "berrange@redhat.com" <berrange@redhat.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
- files if caller has CAP_SYS_RESOURCE
-Message-ID: <YNyHVhGPe1bFAt+C@work-vm>
-References: <a13f2861-7786-09f4-99a8-f0a5216d0fb1@schaufler-ca.com>
- <YNrhQ9XfcHTtM6QA@work-vm>
- <e6f9ed0d-c101-01df-3dff-85c1b38f9714@schaufler-ca.com>
- <20210629152007.GC5231@redhat.com>
- <78663f5c-d2fd-747a-48e3-0c5fd8b40332@schaufler-ca.com>
- <20210629173530.GD5231@redhat.com>
- <f4992b3a-a939-5bc4-a5da-0ce8913bd569@redhat.com>
- <YNvvLIv16jY8mfP8@mit.edu>
- <YNwmXOqT7LgbeVPn@work-vm>
- <YNyECw/1FzDCW3G8@mit.edu>
+Subject: RE: [PATCH 3/3] ima: Add digest parameter to the functions to measure
+ a buffer
+Thread-Topic: [PATCH 3/3] ima: Add digest parameter to the functions to
+ measure a buffer
+Thread-Index: AQHXbbqSPTqY0Ld1JU6eOssEbBfEiqssgzQAgAAkqvA=
+Date:   Wed, 30 Jun 2021 15:09:36 +0000
+Message-ID: <9d374fab15c8451f8e1ab024412de937@huawei.com>
+References: <20210630141635.2862222-1-roberto.sassu@huawei.com>
+ <20210630141635.2862222-4-roberto.sassu@huawei.com>
+ <e34639b4-145a-05a0-5ab4-ea51f9093e90@linux.microsoft.com>
+In-Reply-To: <e34639b4-145a-05a0-5ab4-ea51f9093e90@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.221.98.153]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YNyECw/1FzDCW3G8@mit.edu>
-User-Agent: Mutt/2.0.7 (2021-05-04)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-* Theodore Ts'o (tytso@mit.edu) wrote:
-> On Wed, Jun 30, 2021 at 09:07:56AM +0100, Dr. David Alan Gilbert wrote:
-> > * Theodore Ts'o (tytso@mit.edu) wrote:
-> > > On Tue, Jun 29, 2021 at 04:28:24PM -0400, Daniel Walsh wrote:
-> > > > All this conversation is great, and I look forward to a better solution, but
-> > > > if we go back to the patch, it was to fix an issue where the kernel is
-> > > > requiring CAP_SYS_ADMIN for writing user Xattrs on link files and other
-> > > > special files.
-> > > > 
-> > > > The documented reason for this is to prevent the users from using XATTRS to
-> > > > avoid quota.
-> > > 
-> > > Huh?  Where is it so documented?
-> > 
-> > man xattr(7):
-> >        The  file permission bits of regular files and directories are
-> >        interpreted differently from the file permission bits of special
-> >        files and symbolic links.  For regular files and directories the
-> >        file permission bits define access to the file's contents,
-> >        while for device special files they define access to the device
-> >        described by the special file.  The file permissions of symbolic
-> >        links are not used in access checks.
-> 
-> All of this is true...
-> 
-> >         *** These differences would
-> >        allow users to consume filesystem resources in a way not
-> >        controllable by disk quotas for group or world writable special
-> >        files and directories.****
-> 
-> Anyone with group write access to a regular file can append to the
-> file, and the blocks written will be charged the owner of the file.
-> So it's perfectly "controllable" by the quota system; if you have
-> group write access to a file, you can charge against the user's quota.
-> This is Working As Intended.
-> 
-> And the creation of device special files take the umask into account,
-> just like regular files, so if you have a umask that allows newly
-> created files to be group writeable, the same issue would occur for
-> regular files as device files.  Given that most users have a umask of
-> 0077 or 0022, this is generally Not A Problem.
-> 
-> I think I see the issue which drove the above text, though, which is
-> that Linux's syscall(2) is creating symlinks which do not take umask
-> into account; that is, the permissions are always mode ST_IFLNK|0777.
-> 
-> Hence, it might be that the right answer is to remove this fairly
-> arbitrary restriction entirely, and change symlink(2) so that it
-> creates files which respects the umask.  Posix and SUS doesn't specify
-> what the permissions are that are used, and historically (before the
-> advent of xattrs) I suspect since it didn't matter, no one cared about
-> whether or not umask was applied.
-> 
-> Some people might object to such a change arguing that with
-> pre-existing file systems where there are symlinks which
-> world-writeable, this might cause people to be able to charge up to
-> 32k (or whatever the maximum size of the xattr supported by the file
-> system) for each symlink.  However, (a) very few people actually use
-> quotas, and this would only be an issue for those users, and (b) the
-> amount of quota "abuse" that could be carried out this way is small
-> enough that I'm not sure it matters.
-
-Even if you fix symlinks, I don't think it fixes device nodes or
-anything else where the permissions bitmap isn't purely used as the
-permissions on the inode.
-
-Dave
-
->      	    	  	      	  - Ted
-> 
--- 
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
-
+PiBGcm9tOiBMYWtzaG1pIFJhbWFzdWJyYW1hbmlhbiBbbWFpbHRvOm5yYW1hc0BsaW51eC5taWNy
+b3NvZnQuY29tXQ0KPiBTZW50OiBXZWRuZXNkYXksIEp1bmUgMzAsIDIwMjEgNDo1NiBQTQ0KPiBP
+biA2LzMwLzIwMjEgNzoxNiBBTSwgUm9iZXJ0byBTYXNzdSB3cm90ZToNCj4gDQo+IEhpIFJvYmVy
+dG8sDQo+IA0KPiA+IFRoaXMgcGF0Y2ggYWRkcyB0aGUgJ2RpZ2VzdCcgcGFyYW1ldGVyIHRvIGlt
+YV9tZWFzdXJlX2NyaXRpY2FsX2RhdGEoKSBhbmQNCj4gPiBwcm9jZXNzX2J1ZmZlcl9tZWFzdXJl
+bWVudCgpLCBzbyB0aGF0IGNhbGxlcnMgY2FuIGdldCB0aGUgZGlnZXN0IG9mIHRoZQ0KPiA+IHBh
+c3NlZCBidWZmZXIuDQo+ID4NCj4gPiBUaGVzZSBmdW5jdGlvbnMgY2FsY3VsYXRlIHRoZSBkaWdl
+c3QgZXZlbiBpZiB0aGVyZSBpcyBubyBzdWl0YWJsZSBydWxlIGluDQo+ID4gdGhlIElNQSBwb2xp
+Y3kgYW5kLCBpbiB0aGlzIGNhc2UsIHRoZXkgc2ltcGx5IHJldHVybiAxIGJlZm9yZSBnZW5lcmF0
+aW5nIGENCj4gPiBuZXcgbWVhc3VyZW1lbnQgZW50cnkuDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5
+OiBSb2JlcnRvIFNhc3N1IDxyb2JlcnRvLnNhc3N1QGh1YXdlaS5jb20+DQo+ID4gLS0tDQo+ID4g
+ICBpbmNsdWRlL2xpbnV4L2ltYS5oICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA0ICstLQ0K
+PiA+ICAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWEuaCAgICAgICAgICAgICAgICAgfCAgMiAr
+LQ0KPiA+ICAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfYXBwcmFpc2UuYyAgICAgICAgfCAg
+MiArLQ0KPiA+ICAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfYXN5bW1ldHJpY19rZXlzLmMg
+fCAgMiArLQ0KPiA+ICAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfaW5pdC5jICAgICAgICAg
+ICAgfCAgMiArLQ0KPiA+ICAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfbWFpbi5jICAgICAg
+ICAgICAgfCAzMSArKysrKysrKysrKysrLS0tLS0tLQ0KPiA+ICAgc2VjdXJpdHkvaW50ZWdyaXR5
+L2ltYS9pbWFfcXVldWVfa2V5cy5jICAgICAgfCAgMiArLQ0KPiA+ICAgc2VjdXJpdHkvc2VsaW51
+eC9pbWEuYyAgICAgICAgICAgICAgICAgICAgICAgfCAgNCArLS0NCj4gPiAgIDggZmlsZXMgY2hh
+bmdlZCwgMzAgaW5zZXJ0aW9ucygrKSwgMTkgZGVsZXRpb25zKC0pDQo+ID4NCj4gDQo+ID4NCj4g
+PiArCWlmIChkaWdlc3QpDQo+ID4gKwkJbWVtY3B5KGRpZ2VzdCwgaWludC5pbWFfaGFzaC0+ZGln
+ZXN0LA0KPiA+ICsJCSAgICAgICBoYXNoX2RpZ2VzdF9zaXplW2ltYV9oYXNoX2FsZ29dKTsNCj4g
+DQo+IEkgdGhpbmsgdGhlIGNhbGxlciBzaG91bGQgYWxzbyBwYXNzIHRoZSBzaXplIG9mIHRoZSBi
+dWZmZXIgYWxsb2NhdGVkIHRvDQo+IHJlY2VpdmUgdGhlIGNhbGN1bGF0ZWQgZGlnZXN0LiBBbmQs
+IGhlcmUgY29weSBvbmx5IHVwIHRvIHRoYXQgbWFueSBieXRlcw0KPiBzbyB3ZSBkb24ndCBhY2Np
+ZGVudGFsbHkgY2F1c2UgYnVmZmVyIG92ZXJydW4uDQoNCkhpIExha3NobWkNCg0KeWVzLCBJIGFn
+cmVlLiBJIHdpbGwgYWRkIGl0IGluIHRoZSBuZXh0IHZlcnNpb24gb2YgdGhlIHBhdGNoIHNldC4N
+Cg0KVGhhbmtzDQoNClJvYmVydG8NCg0KSFVBV0VJIFRFQ0hOT0xPR0lFUyBEdWVzc2VsZG9yZiBH
+bWJILCBIUkIgNTYwNjMNCk1hbmFnaW5nIERpcmVjdG9yOiBMaSBQZW5nLCBMaSBKaWFuLCBTaGkg
+WWFubGkNCg0KPiAgIC1sYWtzaG1pDQo+IA0KPiA+ICsNCj4gPiArCWlmICghaW1hX3BvbGljeV9m
+bGFnIHx8IChmdW5jICYmICEoYWN0aW9uICYgSU1BX01FQVNVUkUpKSkNCj4gPiArCQlyZXR1cm4g
+MTsNCj4gPiArDQo+ID4gICAJcmV0ID0gaW1hX2FsbG9jX2luaXRfdGVtcGxhdGUoJmV2ZW50X2Rh
+dGEsICZlbnRyeSwgdGVtcGxhdGUpOw0KPiA+ICAgCWlmIChyZXQgPCAwKSB7DQo+ID4gICAJCWF1
+ZGl0X2NhdXNlID0gImFsbG9jX2VudHJ5IjsNCj4gPiBAQCAtOTY2LDcgKzk3NSw3IEBAIHZvaWQg
+aW1hX2tleGVjX2NtZGxpbmUoaW50IGtlcm5lbF9mZCwgY29uc3Qgdm9pZA0KPiAqYnVmLCBpbnQg
+c2l6ZSkNCj4gPiAgIAlyZXQgPSBwcm9jZXNzX2J1ZmZlcl9tZWFzdXJlbWVudChmaWxlX21udF91
+c2VyX25zKGYuZmlsZSksDQo+ID4gICAJCQkJCSBmaWxlX2lub2RlKGYuZmlsZSksIGJ1Ziwgc2l6
+ZSwNCj4gPiAgIAkJCQkJICJrZXhlYy1jbWRsaW5lIiwgS0VYRUNfQ01ETElORSwgMCwNCj4gPiAt
+CQkJCQkgTlVMTCwgZmFsc2UpOw0KPiA+ICsJCQkJCSBOVUxMLCBmYWxzZSwgTlVMTCk7DQo+ID4g
+ICAJZmRwdXQoZik7DQo+ID4gICB9DQo+ID4NCj4gPiBAQCAtOTc3LDI2ICs5ODYsMjggQEAgdm9p
+ZCBpbWFfa2V4ZWNfY21kbGluZShpbnQga2VybmVsX2ZkLCBjb25zdCB2b2lkDQo+ICpidWYsIGlu
+dCBzaXplKQ0KPiA+ICAgICogQGJ1ZjogcG9pbnRlciB0byBidWZmZXIgZGF0YQ0KPiA+ICAgICog
+QGJ1Zl9sZW46IGxlbmd0aCBvZiBidWZmZXIgZGF0YSAoaW4gYnl0ZXMpDQo+ID4gICAgKiBAaGFz
+aDogbWVhc3VyZSBidWZmZXIgZGF0YSBoYXNoDQo+ID4gKyAqIEBkaWdlc3Q6IGJ1ZmZlciBkaWdl
+c3Qgd2lsbCBiZSB3cml0dGVuIHRvDQo+ID4gICAgKg0KPiA+ICAgICogTWVhc3VyZSBkYXRhIGNy
+aXRpY2FsIHRvIHRoZSBpbnRlZ3JpdHkgb2YgdGhlIGtlcm5lbCBpbnRvIHRoZSBJTUEgbG9nDQo+
+ID4gICAgKiBhbmQgZXh0ZW5kIHRoZSBwY3IuICBFeGFtcGxlcyBvZiBjcml0aWNhbCBkYXRhIGNv
+dWxkIGJlIHZhcmlvdXMgZGF0YQ0KPiA+ICAgICogc3RydWN0dXJlcywgcG9saWNpZXMsIGFuZCBz
+dGF0ZXMgc3RvcmVkIGluIGtlcm5lbCBtZW1vcnkgdGhhdCBjYW4NCj4gPiAgICAqIGltcGFjdCB0
+aGUgaW50ZWdyaXR5IG9mIHRoZSBzeXN0ZW0uDQo+ID4gICAgKg0KPiA+IC0gKiBSZXR1cm5zIDAg
+aWYgdGhlIGJ1ZmZlciBoYXMgYmVlbiBzdWNjZXNzZnVsbHkgbWVhc3VyZWQsIGEgbmVnYXRpdmUg
+dmFsdWUNCj4gPiAtICogb3RoZXJ3aXNlLg0KPiA+ICsgKiBSZXR1cm5zIDAgaWYgdGhlIGJ1ZmZl
+ciBoYXMgYmVlbiBzdWNjZXNzZnVsbHkgbWVhc3VyZWQsIDEgaWYgdGhlIGRpZ2VzdA0KPiA+ICsg
+KiBoYXMgYmVlbiB3cml0dGVuIHRvIHRoZSBwYXNzZWQgbG9jYXRpb24gYnV0IG5vdCBhZGRlZCB0
+byBhIG1lYXN1cmVtZW50DQo+IGVudHJ5LA0KPiA+ICsgKiBhIG5lZ2F0aXZlIHZhbHVlIG90aGVy
+d2lzZS4NCj4gPiAgICAqLw0KPiA+ICAgaW50IGltYV9tZWFzdXJlX2NyaXRpY2FsX2RhdGEoY29u
+c3QgY2hhciAqZXZlbnRfbGFiZWwsDQo+ID4gICAJCQkgICAgICBjb25zdCBjaGFyICpldmVudF9u
+YW1lLA0KPiA+ICAgCQkJICAgICAgY29uc3Qgdm9pZCAqYnVmLCBzaXplX3QgYnVmX2xlbiwNCj4g
+PiAtCQkJICAgICAgYm9vbCBoYXNoKQ0KPiA+ICsJCQkgICAgICBib29sIGhhc2gsIHU4ICpkaWdl
+c3QpDQo+ID4gICB7DQo+ID4gICAJaWYgKCFldmVudF9uYW1lIHx8ICFldmVudF9sYWJlbCB8fCAh
+YnVmIHx8ICFidWZfbGVuKQ0KPiA+ICAgCQlyZXR1cm4gLUVOT1BBUkFNOw0KPiA+DQo+ID4gICAJ
+cmV0dXJuIHByb2Nlc3NfYnVmZmVyX21lYXN1cmVtZW50KCZpbml0X3VzZXJfbnMsIE5VTEwsIGJ1
+ZiwNCj4gYnVmX2xlbiwNCj4gPiAgIAkJCQkJICBldmVudF9uYW1lLCBDUklUSUNBTF9EQVRBLCAw
+LA0KPiA+IC0JCQkJCSAgZXZlbnRfbGFiZWwsIGhhc2gpOw0KPiA+ICsJCQkJCSAgZXZlbnRfbGFi
+ZWwsIGhhc2gsIGRpZ2VzdCk7DQo+ID4gICB9DQo+ID4NCj4gPiAgIHN0YXRpYyBpbnQgX19pbml0
+IGluaXRfaW1hKHZvaWQpDQo+ID4gZGlmZiAtLWdpdCBhL3NlY3VyaXR5L2ludGVncml0eS9pbWEv
+aW1hX3F1ZXVlX2tleXMuYw0KPiBiL3NlY3VyaXR5L2ludGVncml0eS9pbWEvaW1hX3F1ZXVlX2tl
+eXMuYw0KPiA+IGluZGV4IGUzMDQ3Y2U2NGYzOS4uYWMwMGE0Nzc4YTkxIDEwMDY0NA0KPiA+IC0t
+LSBhL3NlY3VyaXR5L2ludGVncml0eS9pbWEvaW1hX3F1ZXVlX2tleXMuYw0KPiA+ICsrKyBiL3Nl
+Y3VyaXR5L2ludGVncml0eS9pbWEvaW1hX3F1ZXVlX2tleXMuYw0KPiA+IEBAIC0xNjYsNyArMTY2
+LDcgQEAgdm9pZCBpbWFfcHJvY2Vzc19xdWV1ZWRfa2V5cyh2b2lkKQ0KPiA+ICAgCQkJCQkJCSBl
+bnRyeS0NCj4gPmtleXJpbmdfbmFtZSwNCj4gPiAgIAkJCQkJCQkgS0VZX0NIRUNLLCAwLA0KPiA+
+ICAgCQkJCQkJCSBlbnRyeS0NCj4gPmtleXJpbmdfbmFtZSwNCj4gPiAtCQkJCQkJCSBmYWxzZSk7
+DQo+ID4gKwkJCQkJCQkgZmFsc2UsIE5VTEwpOw0KPiA+ICAgCQlsaXN0X2RlbCgmZW50cnktPmxp
+c3QpOw0KPiA+ICAgCQlpbWFfZnJlZV9rZXlfZW50cnkoZW50cnkpOw0KPiA+ICAgCX0NCj4gPiBk
+aWZmIC0tZ2l0IGEvc2VjdXJpdHkvc2VsaW51eC9pbWEuYyBiL3NlY3VyaXR5L3NlbGludXgvaW1h
+LmMNCj4gPiBpbmRleCA0ZGI5ZmEyMTE2MzguLjk2YmQ3ZWFkODA4MSAxMDA2NDQNCj4gPiAtLS0g
+YS9zZWN1cml0eS9zZWxpbnV4L2ltYS5jDQo+ID4gKysrIGIvc2VjdXJpdHkvc2VsaW51eC9pbWEu
+Yw0KPiA+IEBAIC04OCw3ICs4OCw3IEBAIHZvaWQgc2VsaW51eF9pbWFfbWVhc3VyZV9zdGF0ZV9s
+b2NrZWQoc3RydWN0DQo+IHNlbGludXhfc3RhdGUgKnN0YXRlKQ0KPiA+DQo+ID4gICAJbWVhc3Vy
+ZV9yYyA9IGltYV9tZWFzdXJlX2NyaXRpY2FsX2RhdGEoInNlbGludXgiLCAic2VsaW51eC1zdGF0
+ZSIsDQo+ID4gICAJCQkJCSAgICAgICBzdGF0ZV9zdHIsIHN0cmxlbihzdGF0ZV9zdHIpLA0KPiA+
+IC0JCQkJCSAgICAgICBmYWxzZSk7DQo+ID4gKwkJCQkJICAgICAgIGZhbHNlLCBOVUxMKTsNCj4g
+Pg0KPiA+ICAgCWtmcmVlKHN0YXRlX3N0cik7DQo+ID4NCj4gPiBAQCAtMTA1LDcgKzEwNSw3IEBA
+IHZvaWQgc2VsaW51eF9pbWFfbWVhc3VyZV9zdGF0ZV9sb2NrZWQoc3RydWN0DQo+IHNlbGludXhf
+c3RhdGUgKnN0YXRlKQ0KPiA+ICAgCX0NCj4gPg0KPiA+ICAgCW1lYXN1cmVfcmMgPSBpbWFfbWVh
+c3VyZV9jcml0aWNhbF9kYXRhKCJzZWxpbnV4IiwgInNlbGludXgtcG9saWN5LQ0KPiBoYXNoIiwN
+Cj4gPiAtCQkJCQkgICAgICAgcG9saWN5LCBwb2xpY3lfbGVuLCB0cnVlKTsNCj4gPiArCQkJCQkg
+ICAgICAgcG9saWN5LCBwb2xpY3lfbGVuLCB0cnVlLCBOVUxMKTsNCj4gPg0KPiA+ICAgCXZmcmVl
+KHBvbGljeSk7DQo+ID4gICB9DQo+ID4NCg==
