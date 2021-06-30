@@ -2,123 +2,177 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B0FBC11F69
-	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:48:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55853C11F69
+	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:54:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E9BB361456
-	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:48:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28D2C61427
+	for <selinux@archiver.kernel.org>; Wed, 30 Jun 2021 14:54:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235867AbhF3Oun (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Jun 2021 10:50:43 -0400
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:48599 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S235715AbhF3OuT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jun 2021 10:50:19 -0400
-Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 15UEld0I027764
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Jun 2021 10:47:40 -0400
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 8FD6615C3C8E; Wed, 30 Jun 2021 10:47:39 -0400 (EDT)
-Date:   Wed, 30 Jun 2021 10:47:39 -0400
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Cc:     Daniel Walsh <dwalsh@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "virtio-fs@redhat.com" <virtio-fs@redhat.com>,
-        "berrange@redhat.com" <berrange@redhat.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
- files if caller has CAP_SYS_RESOURCE
-Message-ID: <YNyECw/1FzDCW3G8@mit.edu>
-References: <YNn4p+Zn444Sc4V+@work-vm>
- <a13f2861-7786-09f4-99a8-f0a5216d0fb1@schaufler-ca.com>
- <YNrhQ9XfcHTtM6QA@work-vm>
- <e6f9ed0d-c101-01df-3dff-85c1b38f9714@schaufler-ca.com>
- <20210629152007.GC5231@redhat.com>
- <78663f5c-d2fd-747a-48e3-0c5fd8b40332@schaufler-ca.com>
- <20210629173530.GD5231@redhat.com>
- <f4992b3a-a939-5bc4-a5da-0ce8913bd569@redhat.com>
- <YNvvLIv16jY8mfP8@mit.edu>
- <YNwmXOqT7LgbeVPn@work-vm>
+        id S235360AbhF3O45 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Jun 2021 10:56:57 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:44510 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235177AbhF3O45 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jun 2021 10:56:57 -0400
+Received: from [10.137.112.111] (unknown [131.107.147.111])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 28F6D20B7178;
+        Wed, 30 Jun 2021 07:54:28 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 28F6D20B7178
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1625064868;
+        bh=HGkchr0rJ6ttGuCa+aJ+yp5Pb+8sfjGJgBKBkdQo8rE=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=jFdIK0OYuWvmfpON7YXsGTq8lvdrfknvK9jHcnGh/nDEtvBLgkEnT1fm+9p65Aq1z
+         Gb+NDtnzY8Rnj9tq19A1ox0h6apcDqApr/R9MQGsIxJdWzW/NYv5enJveYHVuu6VXo
+         IuMEPeZRUuYERxfS0bXy3o9MfQtfD7aENjE6nO4g=
+Subject: Re: [PATCH 3/3] ima: Add digest parameter to the functions to measure
+ a buffer
+To:     Roberto Sassu <roberto.sassu@huawei.com>, zohar@linux.ibm.com,
+        paul@paul-moore.com
+Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
+        tusharsu@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+References: <20210630141635.2862222-1-roberto.sassu@huawei.com>
+ <20210630141635.2862222-4-roberto.sassu@huawei.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <e34639b4-145a-05a0-5ab4-ea51f9093e90@linux.microsoft.com>
+Date:   Wed, 30 Jun 2021 07:56:24 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YNwmXOqT7LgbeVPn@work-vm>
+In-Reply-To: <20210630141635.2862222-4-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 30, 2021 at 09:07:56AM +0100, Dr. David Alan Gilbert wrote:
-> * Theodore Ts'o (tytso@mit.edu) wrote:
-> > On Tue, Jun 29, 2021 at 04:28:24PM -0400, Daniel Walsh wrote:
-> > > All this conversation is great, and I look forward to a better solution, but
-> > > if we go back to the patch, it was to fix an issue where the kernel is
-> > > requiring CAP_SYS_ADMIN for writing user Xattrs on link files and other
-> > > special files.
-> > > 
-> > > The documented reason for this is to prevent the users from using XATTRS to
-> > > avoid quota.
-> > 
-> > Huh?  Where is it so documented?
+On 6/30/2021 7:16 AM, Roberto Sassu wrote:
+
+Hi Roberto,
+
+> This patch adds the 'digest' parameter to ima_measure_critical_data() and
+> process_buffer_measurement(), so that callers can get the digest of the
+> passed buffer.
 > 
-> man xattr(7):
->        The  file permission bits of regular files and directories are
->        interpreted differently from the file permission bits of special
->        files and symbolic links.  For regular files and directories the
->        file permission bits define access to the file's contents,
->        while for device special files they define access to the device
->        described by the special file.  The file permissions of symbolic
->        links are not used in access checks.
+> These functions calculate the digest even if there is no suitable rule in
+> the IMA policy and, in this case, they simply return 1 before generating a
+> new measurement entry.
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>   include/linux/ima.h                          |  4 +--
+>   security/integrity/ima/ima.h                 |  2 +-
+>   security/integrity/ima/ima_appraise.c        |  2 +-
+>   security/integrity/ima/ima_asymmetric_keys.c |  2 +-
+>   security/integrity/ima/ima_init.c            |  2 +-
+>   security/integrity/ima/ima_main.c            | 31 +++++++++++++-------
+>   security/integrity/ima/ima_queue_keys.c      |  2 +-
+>   security/selinux/ima.c                       |  4 +--
+>   8 files changed, 30 insertions(+), 19 deletions(-)
+> 
 
-All of this is true...
+>   
+> +	if (digest)
+> +		memcpy(digest, iint.ima_hash->digest,
+> +		       hash_digest_size[ima_hash_algo]);
 
->         *** These differences would
->        allow users to consume filesystem resources in a way not
->        controllable by disk quotas for group or world writable special
->        files and directories.****
+I think the caller should also pass the size of the buffer allocated to 
+receive the calculated digest. And, here copy only up to that many bytes 
+so we don't accidentally cause buffer overrun.
 
-Anyone with group write access to a regular file can append to the
-file, and the blocks written will be charged the owner of the file.
-So it's perfectly "controllable" by the quota system; if you have
-group write access to a file, you can charge against the user's quota.
-This is Working As Intended.
+  -lakshmi
 
-And the creation of device special files take the umask into account,
-just like regular files, so if you have a umask that allows newly
-created files to be group writeable, the same issue would occur for
-regular files as device files.  Given that most users have a umask of
-0077 or 0022, this is generally Not A Problem.
-
-I think I see the issue which drove the above text, though, which is
-that Linux's syscall(2) is creating symlinks which do not take umask
-into account; that is, the permissions are always mode ST_IFLNK|0777.
-
-Hence, it might be that the right answer is to remove this fairly
-arbitrary restriction entirely, and change symlink(2) so that it
-creates files which respects the umask.  Posix and SUS doesn't specify
-what the permissions are that are used, and historically (before the
-advent of xattrs) I suspect since it didn't matter, no one cared about
-whether or not umask was applied.
-
-Some people might object to such a change arguing that with
-pre-existing file systems where there are symlinks which
-world-writeable, this might cause people to be able to charge up to
-32k (or whatever the maximum size of the xattr supported by the file
-system) for each symlink.  However, (a) very few people actually use
-quotas, and this would only be an issue for those users, and (b) the
-amount of quota "abuse" that could be carried out this way is small
-enough that I'm not sure it matters.
-
-     	    	  	      	  - Ted
+> +
+> +	if (!ima_policy_flag || (func && !(action & IMA_MEASURE)))
+> +		return 1;
+> +
+>   	ret = ima_alloc_init_template(&event_data, &entry, template);
+>   	if (ret < 0) {
+>   		audit_cause = "alloc_entry";
+> @@ -966,7 +975,7 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+>   	ret = process_buffer_measurement(file_mnt_user_ns(f.file),
+>   					 file_inode(f.file), buf, size,
+>   					 "kexec-cmdline", KEXEC_CMDLINE, 0,
+> -					 NULL, false);
+> +					 NULL, false, NULL);
+>   	fdput(f);
+>   }
+>   
+> @@ -977,26 +986,28 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+>    * @buf: pointer to buffer data
+>    * @buf_len: length of buffer data (in bytes)
+>    * @hash: measure buffer data hash
+> + * @digest: buffer digest will be written to
+>    *
+>    * Measure data critical to the integrity of the kernel into the IMA log
+>    * and extend the pcr.  Examples of critical data could be various data
+>    * structures, policies, and states stored in kernel memory that can
+>    * impact the integrity of the system.
+>    *
+> - * Returns 0 if the buffer has been successfully measured, a negative value
+> - * otherwise.
+> + * Returns 0 if the buffer has been successfully measured, 1 if the digest
+> + * has been written to the passed location but not added to a measurement entry,
+> + * a negative value otherwise.
+>    */
+>   int ima_measure_critical_data(const char *event_label,
+>   			      const char *event_name,
+>   			      const void *buf, size_t buf_len,
+> -			      bool hash)
+> +			      bool hash, u8 *digest)
+>   {
+>   	if (!event_name || !event_label || !buf || !buf_len)
+>   		return -ENOPARAM;
+>   
+>   	return process_buffer_measurement(&init_user_ns, NULL, buf, buf_len,
+>   					  event_name, CRITICAL_DATA, 0,
+> -					  event_label, hash);
+> +					  event_label, hash, digest);
+>   }
+>   
+>   static int __init init_ima(void)
+> diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
+> index e3047ce64f39..ac00a4778a91 100644
+> --- a/security/integrity/ima/ima_queue_keys.c
+> +++ b/security/integrity/ima/ima_queue_keys.c
+> @@ -166,7 +166,7 @@ void ima_process_queued_keys(void)
+>   							 entry->keyring_name,
+>   							 KEY_CHECK, 0,
+>   							 entry->keyring_name,
+> -							 false);
+> +							 false, NULL);
+>   		list_del(&entry->list);
+>   		ima_free_key_entry(entry);
+>   	}
+> diff --git a/security/selinux/ima.c b/security/selinux/ima.c
+> index 4db9fa211638..96bd7ead8081 100644
+> --- a/security/selinux/ima.c
+> +++ b/security/selinux/ima.c
+> @@ -88,7 +88,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
+>   
+>   	measure_rc = ima_measure_critical_data("selinux", "selinux-state",
+>   					       state_str, strlen(state_str),
+> -					       false);
+> +					       false, NULL);
+>   
+>   	kfree(state_str);
+>   
+> @@ -105,7 +105,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
+>   	}
+>   
+>   	measure_rc = ima_measure_critical_data("selinux", "selinux-policy-hash",
+> -					       policy, policy_len, true);
+> +					       policy, policy_len, true, NULL);
+>   
+>   	vfree(policy);
+>   }
+> 
