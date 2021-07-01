@@ -2,135 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E20BC11F64
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 13:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57B7EC11F69
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 15:59:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD6DB601FC
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 13:10:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37F2D613CB
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 15:59:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236621AbhGANNN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 09:13:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:38231 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236618AbhGANNN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 09:13:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625145042;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=D1mka1MCqXkPMDnOJSpZhf+XXpeG/R7ugnhLphP29nc=;
-        b=gyj3jmsY+RIBYFT3yduRG4lqo9MYEcm9EOVIkjAUg9KmBS3PFL9rCWMVWh6W2GnydhZ+Dr
-        huHtV5oVvU9smRGPvvDXRpcfcUD8g+zlOjYDkWPhJVZoCuUQ11Xjek07NsI+P+qPi33q7R
-        mk9/uSwlRPAM4+jeIoSxCl81c0Q8AF4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-150-Hdamh4NqM0i13Qq9_7jUYA-1; Thu, 01 Jul 2021 09:10:41 -0400
-X-MC-Unique: Hdamh4NqM0i13Qq9_7jUYA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2992A80292A;
-        Thu,  1 Jul 2021 13:10:39 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-113-118.rdu2.redhat.com [10.10.113.118])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E524F60C13;
-        Thu,  1 Jul 2021 13:10:30 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 372C822054F; Thu,  1 Jul 2021 09:10:30 -0400 (EDT)
-Date:   Thu, 1 Jul 2021 09:10:30 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Cc:     Theodore Ts'o <tytso@mit.edu>, Daniel Walsh <dwalsh@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "virtio-fs@redhat.com" <virtio-fs@redhat.com>,
-        "berrange@redhat.com" <berrange@redhat.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
- files if caller has CAP_SYS_RESOURCE
-Message-ID: <20210701131030.GB159380@redhat.com>
-References: <20210629152007.GC5231@redhat.com>
- <78663f5c-d2fd-747a-48e3-0c5fd8b40332@schaufler-ca.com>
- <20210629173530.GD5231@redhat.com>
- <f4992b3a-a939-5bc4-a5da-0ce8913bd569@redhat.com>
- <YNvvLIv16jY8mfP8@mit.edu>
- <YNwmXOqT7LgbeVPn@work-vm>
- <YNyECw/1FzDCW3G8@mit.edu>
- <YNyHVhGPe1bFAt+C@work-vm>
- <YNzNLTxflKbDi8W2@mit.edu>
- <YN2BYXv79PswrN2E@work-vm>
+        id S233758AbhGAQBm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 12:01:42 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:59116 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233585AbhGAQBm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 12:01:42 -0400
+Received: from [10.137.112.111] (unknown [131.107.147.111])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 201DB20B7178;
+        Thu,  1 Jul 2021 08:59:11 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 201DB20B7178
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1625155151;
+        bh=tGtlKNJkK5/DZnNBGztqz7wP4h5A4BodXWZyJoZ9Xqk=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=RAOKgrc/aaMD5QhTXy9I86XNptS43VW2TTTHo5I0zoBB/wx6k8k8BvEOVT9neWgvh
+         SL3qLtWSm8h99GXlQLhK7Hy9CM8V7byXin2A1gLB6nDwIiwLmjdPECkwtyQNdEJHyZ
+         JEZFiobbkTNJo83EhFc1IkIU+oqIlsB+nXzlUvCw=
+Subject: Re: [PATCH v2 1/3] ima: Introduce ima_get_current_hash_algo()
+To:     Roberto Sassu <roberto.sassu@huawei.com>, zohar@linux.ibm.com,
+        paul@paul-moore.com
+Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
+        tusharsu@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+References: <20210701125552.2958008-1-roberto.sassu@huawei.com>
+ <20210701125552.2958008-2-roberto.sassu@huawei.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <6c970b4a-08dd-adc2-6570-3d9aa823f88e@linux.microsoft.com>
+Date:   Thu, 1 Jul 2021 09:01:06 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YN2BYXv79PswrN2E@work-vm>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <20210701125552.2958008-2-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 01, 2021 at 09:48:33AM +0100, Dr. David Alan Gilbert wrote:
-> * Theodore Ts'o (tytso@mit.edu) wrote:
-> > On Wed, Jun 30, 2021 at 04:01:42PM +0100, Dr. David Alan Gilbert wrote:
-> > > 
-> > > Even if you fix symlinks, I don't think it fixes device nodes or
-> > > anything else where the permissions bitmap isn't purely used as the
-> > > permissions on the inode.
-> > 
-> > I think we're making a mountain out of a molehill.  Again, very few
-> > people are using quota these days.  And if you give someone write
-> > access to a 8TB disk, do you really care if they can "steal" 32k worth
-> > of space (which is the maximum size of an xattr, enforced by the VFS).
-> > 
-> > OK, but what about character mode devices?  First of all, most users
-> > don't have access to huge number of devices, but let's assume
-> > something absurd.  Let's say that a user has write access to *1024*
-> > devices.  (My /dev has 233 character mode devices, and I have write
-> > access to well under a dozen.)
-> > 
-> > An 8TB disk costs about $200.  So how much of the "stolen" quota space
-> > are we talking about, assuming the user has access to 1024 devices,
-> > and the file system actually supports a 32k xattr.
-> > 
-> >     32k * 1024 * $200 / 8TB / (1024*1024*1024) = $0.000763 = 0.0763 cents
-> > 
-> > A 2TB SSD is less around $180, so even if we calculate the prices
-> > based on SSD space, we're still talking about a quarter of a penny.
-> > 
-> > Why are we worrying about this?
+On 7/1/2021 5:55 AM, Roberto Sassu wrote:
+> This patch introduces the new function ima_get_current_hash_algo(), that
+> callers in the other kernel subsystems might use to obtain the hash
+> algorithm selected by IMA.
 > 
-> I'm not worrying about storage cost, but we would need to define what
-> the rules are on who can write and change a user.* xattr on a device
-> node.  It doesn't feel sane to make it anyone who can write to the
-> device; then everyone can start leaving droppings on /dev/null.
+> Its primary use will be to determine which algorithm has been used to
+> calculate the digest written by ima_measure_critical_data() to the location
+> passed as a new parameter (in a subsequent patch). >
+> Since the hash algorithm does not change after the IMA setup phase, there
+> is no risk of races (obtaining a digest calculated with a different
+> algorithm than the one returned).
+
+Reviewed-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+
+  -lakshmi
+
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>   include/linux/ima.h               | 7 +++++++
+>   security/integrity/ima/ima_main.c | 5 +++++
+>   2 files changed, 12 insertions(+)
 > 
-> The other evilness I can imagine, is if there's a 32k limit on xattrs on
-> a node, an evil user could write almost 32k of junk to the node
-> and then break the next login that tries to add an acl or breaks the
-> next relabel.
-
-I guess 64k is per xattr VFS size limit.
-
-#define XATTR_SIZE_MAX 65536
-
-I just wrote a simple program to write "user.<N>" xattrs of size 1K
-each and could easily write 1M xattrs. So that 1G worth data right
-there. I did not try to push it further.
-
-So a user can write lot of data in the form of user.* xattrs on
-symlinks and device nodes if were to open it unconditionally. Hence
-permission semantics will probably will have to defined properly.
-
-I am wondering will it be alright if owner of the file (or CAP_FOWNER),
-is allowed to write user.* xattrs on symlinks and special files.
-
-Vivek
-
+> diff --git a/include/linux/ima.h b/include/linux/ima.h
+> index 61d5723ec303..81e830d01ced 100644
+> --- a/include/linux/ima.h
+> +++ b/include/linux/ima.h
+> @@ -11,9 +11,11 @@
+>   #include <linux/fs.h>
+>   #include <linux/security.h>
+>   #include <linux/kexec.h>
+> +#include <crypto/hash_info.h>
+>   struct linux_binprm;
+>   
+>   #ifdef CONFIG_IMA
+> +extern enum hash_algo ima_get_current_hash_algo(void);
+>   extern int ima_bprm_check(struct linux_binprm *bprm);
+>   extern int ima_file_check(struct file *file, int mask);
+>   extern void ima_post_create_tmpfile(struct user_namespace *mnt_userns,
+> @@ -64,6 +66,11 @@ static inline const char * const *arch_get_ima_policy(void)
+>   #endif
+>   
+>   #else
+> +static inline enum hash_algo ima_get_current_hash_algo(void)
+> +{
+> +	return HASH_ALGO__LAST;
+> +}
+> +
+>   static inline int ima_bprm_check(struct linux_binprm *bprm)
+>   {
+>   	return 0;
+> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+> index 287b90509006..8ef1fa357e0c 100644
+> --- a/security/integrity/ima/ima_main.c
+> +++ b/security/integrity/ima/ima_main.c
+> @@ -76,6 +76,11 @@ static int __init hash_setup(char *str)
+>   }
+>   __setup("ima_hash=", hash_setup);
+>   
+> +enum hash_algo ima_get_current_hash_algo(void)
+> +{
+> +	return ima_hash_algo;
+> +}
+> +
+>   /* Prevent mmap'ing a file execute that is already mmap'ed write */
+>   static int mmap_violation_check(enum ima_hooks func, struct file *file,
+>   				char **pathbuf, const char **pathname,
+> 
