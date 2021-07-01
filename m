@@ -2,406 +2,168 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F5DDC11F64
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 16:13:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B4CFC11F64
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 16:58:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DC4A261411
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 16:13:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8331B613FD
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 16:58:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231938AbhGAQQW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 12:16:22 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:32808 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbhGAQQV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 12:16:21 -0400
-Received: from [10.137.112.111] (unknown [131.107.147.111])
-        by linux.microsoft.com (Postfix) with ESMTPSA id E9A1A20B7178;
-        Thu,  1 Jul 2021 09:13:50 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E9A1A20B7178
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1625156031;
-        bh=L0TFBV45yon3Rax3W70wgo6HwymisAJAqsNQm2qWezc=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=km8QtdZuDizjDu70EM5Pg7ct9SBQ7RD6pX+X10Qea3rARjFBc7QBzzTVhbQZodeAm
-         w7uLbWEvoh2Ur3bhLb/ua6Npz6EfwWmjnv7VigLWF01zbc9fMFeNWFLScM2kHu6QMl
-         vakqTtk+0CKI8QjLnvvB9DN1fQwSmXMuu5EYKogY=
-Subject: Re: [PATCH v2 2/3] ima: Return int in the functions to measure a
- buffer
-To:     Roberto Sassu <roberto.sassu@huawei.com>, zohar@linux.ibm.com,
-        paul@paul-moore.com
-Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
-        tusharsu@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-References: <20210701125552.2958008-1-roberto.sassu@huawei.com>
- <20210701125552.2958008-3-roberto.sassu@huawei.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <75bf7a3f-fd0e-177b-5725-e5f8b1f68966@linux.microsoft.com>
-Date:   Thu, 1 Jul 2021 09:15:46 -0700
+        id S229967AbhGARBJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 13:01:09 -0400
+Received: from sonic309-27.consmr.mail.ne1.yahoo.com ([66.163.184.153]:33371
+        "EHLO sonic309-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229958AbhGARBI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 13:01:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1625158717; bh=pTBo3a6qeTWyFtKHPmiArodQR9K+DzXWOak/CS0qlaQ=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=N+ri7YF3REupwg6iXCESHBs6cnsLPkru2W5JzKbNiKaQSYn93Da3FJfl8a5sxwhcm1Gb6gzIFlT/g3f4YcBG1OH6TUZzi85MMGqMtLqA7cIyg7Jg04JTlVVMS356Iq6wln+U4xq/ANM+k1IuG57YPb5LSX5SLAbMN0hQPTAoYr6iiw2HKR/Sq/XPtrAGISGTcv6pyao+ta5kEb+4ENXZiyUreNbFaqoq9EJJ/rEtF86ULQDzyLeWKPsNm60w9NztXDrL2MYwa44Crn3oqsZ2ttM24UqdeobA/RoM363hWX7rl3/TCuJ6vEVsdeT9jebPdfRbKjdIeU/4CB2s0ZtRMA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1625158717; bh=NsoD/TcaKCX8MxzI2Fx8I48GSX6goVQUx2RDkjSKc3W=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=p40Aw+TG+WQSecQMu340ycJiGB3FJKPO3rwrIEotVjoX+3Wtb3c74xaFKgHhiC0lsZXNpWu2b/JYcWqKvndshDf6o0mkofhhXdmRzX8p/sjU1tNF+7AqMEtBLph2YMNTZSOUPP9lVARBKwWQ3ovDw3X/l663twx4qLie42a1+RNMDTcOwoT6upUnlU0HuNpg0rOVjikovgyiI9jILdLBbu1/LBdWCxBEqpMAVawk5R+79c/UE5lO10O/Eix5zhBUoy/qfK1oFZPsQP+mow2dC6hSpnymmIA0otzrK3x2F18Dxijy5wVkrSmy3abhEhid5ETQ8mx/xrOwT4KsQnayOQ==
+X-YMail-OSG: pg.cXP4VM1lFl3p7WxP1vIXjP.ik.Pal79QQR5n2V_1NMfgpiFDawSYeHtnG26O
+ H9Wm4yo_cL3YzR8wkSxAko7oqp0PZFnGFzxoUBVqTQSJocpEsvh.Ba68KpHkGz.X7jDVKnhjUEIj
+ xwlaE2rKp84Qx339QJ8bDXGtkocJ.rYi0XWHF.2uyFQHulzhG5ztf5caNGyyMzX9TwEwRvTr9Mqz
+ _Xuh44W5io7Wlr7lkqTlnAR.67_0u0E5or3bfkoZHZ90mvipgGfLjevny8viMmf7Aw5W8D7qEdpA
+ ASRhAfL60gyEafPGo324_C17PEHQxhY2K22UTeaTIMrODCpkNzFDYClagnfjAYYJM.0ylRM97SWW
+ mU726214qyWNftJPTXXTtHFgXV1OnxmMv2rFS_8WmGroAF55tIFY.9RWY5a59xnqCWaohrun8LXY
+ fR1fXgkzF.nw5NyCikAvsGUoGpudzSLmtCov0lz1cCoi3kVJqhrD1hgRorHz90dbMIOcv0cuhoYB
+ TWGvgFV.rbpKI15EKJ._mCMFDbkz8dPKaN.cTKo27f2PHku6pf9Z90c_fkP0c8rECm2Dw0SkWGlK
+ NZKSN66U19wrdb3aVWYeI0G4_YY5anrc9QP8dpE6KhSiDHuCnPIBiEHFJeNDZX5dhWRcX4ZWIvKe
+ c3Nbt1r565bWMXepXuZZYVi1xbAsO1eU2YiM4Vveg3sYnYWWx2WZfOlIv3WON1zLBxJudtwCPVXD
+ iBAeRd_pvjBeTDHn2AiHX2HoTXQqh_H7WXJekPvp0nT0oHyvUNogtgmxHVyHzi4WIU_FCEWzRcGj
+ fYxPiNSHHvVaqnMRdyOow0CyF9AHg4mHPz.PaXpQ5G8tnpT7shcMycFUFrEL.Hr6Qw.PUuUG1pyg
+ fm7y5Hx2lyPJb89Fqx351zPLDL8_w0hD0O.Gg8TEzPNOoFHHvIBeNJcjyV97CEMvtiwIgAEvmcy8
+ Q4CGKMtDMpcLXMecNVOn.7uCWo3haFK6x7VPXDuz2bSmmbKk5uIOLe61VcFsj9wGwG7l45sDJhdK
+ PjBLmm52SCarurb_HBxxTJnGhiWLM72rTAf4baIzj3OknOfc5wCM6M61Gyx2858qUsV3KX9nBlMV
+ DjChBhCFUtAQVNJI_hrvU5Syd0u0QmwG3qF4RkRohzEQHvhKQO_YSXDsTg7ZU54gyr6jGRJKcNVj
+ rJPP5fT7RmuZnyQvS6_FKpgUBKJFJtQwuCZ_qDjg9YwtzMTq5h9ahX1eewKzz4Ddn4UVpoYyTNd4
+ E2R2e9sWdJM5_41HNt4uIqZDmbNPZW4jsbxDpO9HV8iyH3KxTDkcEoAXDGtxvd3wNYWRl.FayUvA
+ 7VHXBaZ10GIsaHTEmYU3qS_WR9ykNE2996nK2RA358gXv9Oi6o8KFgaafLGP8yjBgVuFPouxVQzW
+ BLUQh.YOaoKXekX_LhSw38mWGbrMg.wP3x4XodSv4n0NFS4L8f8wiuwFeIvS5WNDP1iivRgt6PIF
+ 2RRUpmRnBodU.XRxCm6JSwJ2yZbcVHa_wxAS9H_I3Ywpsv9S2sfdRYZ.505iVt.2_7gTNHZBPkGf
+ CRHuRhsGjM4F8saCxxP9kxnuU4GSLK2yi1pBalPAdx3h_T9WbVuuRBNCRJK6rRp9_aoMGpB8KrtD
+ UfFeoKX32M.HJblpnSyXc.XvCpnhbK7m_26g0jTGhjVHBDzuLvTD4WNTXHtwzL_bfPWLSBpc6tlh
+ 1kF7Tbtz8NBWs.Gmesr2LsLelSLKDNO_fr0048t8Fm4IyJK.k9WienFy3VlVEwIF0MZN6t4q6P3v
+ 31NLWuXItxA8TgKfvoRoxzJRc2B.0JD3M23Fz_nA3A7EX9WN6yW2VBqYl0cK_eZpCd4qLWlSL9qe
+ 6kIvct3CJHe.ozrLbHqB8uuZCxG6vDLGkmLZ40uSnJEEdf1YNsiOWBa4PSxzVxGnTnBikMn6pdJk
+ 5YqYBqmLzScLycfYEe8.0k6gNP7Ne4FyyjryRZuuu259qjBWaS1XuY0R6NIKn4KGiPlLoGbbDk7D
+ bM6MrTbODJzwZeImc8w44EUPIbdbRuU2DXFPIGt982fTAYVkGHF0CPQzV5_UQocFeKpbVquinr_A
+ yY_QqfFaNXPotuu5gBaR8I5n30LXJyY70I5ywbh71U1qTr3QN8hzSWH.s7tiz8.1CXhU7RShuiTe
+ MP0EpvhsXeDayROlDLNIhUdMK1AatfwF2Q.GIsk5FbpNKXJCaoVqMo3ytYmqrRIx_FzvobsfYzMr
+ pb4ttoBg.wcVkGlNgbvYEJIWVaDwyFpUZxBj2Mgpb9d_ocbdDhRU769F4Y7bkZeKFDTM10W1s7RL
+ LcXp7IAuks11acfVQ32QW.d6HkEXLM5d3S2B8huLKimNMHWufTXM1NlaTL6NpzyVXp6rDye8UBGn
+ 7iTzGOTHiaaCQ9vL1zWDgEntPOaTZkqqVK2kwYv6iX25Q2xI6T7WKTaYUcbCr3JM4ppWU..lsntV
+ OM3K24YlaCgU5Ywj5skhqrauQZ6AYdP9SmQYf8o8TxVBGxkI8kFGjjcz3HI1YTQw4SIb1hrIn6gF
+ qHv5sZt32bMBmZXMp98qDch1jP2BUN4UD98AaxnRkLe0blwJN8gqgm4t7S9bQFO_EWOvf4HPcQJW
+ VmCi4PAQLI9IZyKoRvcE0OCbWxN.X9s.ooEIE9iTyTqW1moXfXK2hXwleRbh0NNzbnpaqt3OGZ4Y
+ VaxKN8fvI47P6EclLUed2CNd06TrRMlFFTpyoYl8Qd.vwXGRiN41Ad0NNpsJcn7Lx9WrPOxGcA8B
+ FWXtT2ngH35kBDgM65W4rgg66LfZMflPVs9dO5GQBZVFwz9hyY0dtyVVm35eDKbcLEeBOYZsq6f6
+ lFcKQD7Uv9tlH4cLRinK2ySB6qaU4.OTCbGVW3olKmUxSb3N_q3aFFoaGpfIYOs5gWcwBMwqksvL
+ 6I8pIim81vZYAE7Yta_k_MmAyWs4aL8uRB8p0kzS9vrfOjSngWteG3lLFbrA6uALr3a7XlJ_WV9u
+ W4jlLD1kW.aBhDsUn0eaXKYa0_jyHb5eMxPN5IIbGtEE_dUGhPjqmfTrOM69P.vQE7mjNnOVtvWy
+ hUtDkmVMny0Chya5oKAs59X0yCsppBd1Dhq1zXe6UKvA5en9Xa3HqtWjT2YR8PDSYq7ygERBOETL
+ Sgc5LcigeAyuGWM.2vCVIi8iZJdc.ZhGGkReNIQ7nIny0u.3y85YO.rWo.HC5EhYehbjt.VP7rth
+ p0IsidB2I0FajkRzVdHIn5v5_0YR8ZZKwxGA0Ia3aYuBFhtgc3CiJwpgwTDIRAzgNT1YGhVPKPHo
+ 4x5GtiqUA_1QrhjnXqpu978rz719B.WP8vMff4x6kbT.WIj2tJVNjBvFWwH2QAGYECOHdatOrXVm
+ urotRtArR8dt07DDwcr16ZFsWKzFG3EcCyWmxtl9owRaLAfiqmLH4MlwxzrnwtBCOKS76YV98m6m
+ PBYo2d_p9P6.6pQ6DAyh985Am5aX.KGVcn4ZGgMYCbIV_SeqSXk1KV2v4fzuvyilanPfLLcMhTJk
+ jSMzCq0BoCYvsKNIjYhEqaMUeFa3G8.rC2a0wVORIMMe9oaIDSrvgx737_3ZttCZv1g--
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 1 Jul 2021 16:58:37 +0000
+Received: by kubenode529.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 0f3a188a38af10bab7cd85cdd35e4a2b;
+          Thu, 01 Jul 2021 16:58:35 +0000 (UTC)
+Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
+ files if caller has CAP_SYS_RESOURCE
+To:     Vivek Goyal <vgoyal@redhat.com>,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc:     Theodore Ts'o <tytso@mit.edu>, Daniel Walsh <dwalsh@redhat.com>,
+        "Schaufler, Casey" <casey.schaufler@intel.com>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "virtio-fs@redhat.com" <virtio-fs@redhat.com>,
+        "berrange@redhat.com" <berrange@redhat.com>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20210629152007.GC5231@redhat.com>
+ <78663f5c-d2fd-747a-48e3-0c5fd8b40332@schaufler-ca.com>
+ <20210629173530.GD5231@redhat.com>
+ <f4992b3a-a939-5bc4-a5da-0ce8913bd569@redhat.com> <YNvvLIv16jY8mfP8@mit.edu>
+ <YNwmXOqT7LgbeVPn@work-vm> <YNyECw/1FzDCW3G8@mit.edu>
+ <YNyHVhGPe1bFAt+C@work-vm> <YNzNLTxflKbDi8W2@mit.edu>
+ <YN2BYXv79PswrN2E@work-vm> <20210701131030.GB159380@redhat.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <318ec3fd-187e-23cb-b30b-3cb9bb37ca54@schaufler-ca.com>
+Date:   Thu, 1 Jul 2021 09:58:34 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210701125552.2958008-3-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <20210701131030.GB159380@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.18469 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/1/2021 5:55 AM, Roberto Sassu wrote:
-> ima_measure_critical_data() and process_buffer_measurement() currently
-> don't return a result. A caller wouldn't be able to know whether those
-> functions were executed successfully.
-> 
-> This patch modifies the return type from void to int, and returns 0 if the
-> buffer has been successfully measured, a negative value otherwise.
-> 
-> Also, this patch does not modify the behavior of existing callers by
-> processing the returned value. Instead, the value is stored in a variable
-> marked as __maybe_unused.
-> 
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> ---
->   include/linux/ima.h                          | 15 +++---
->   security/integrity/ima/ima.h                 | 10 ++--
->   security/integrity/ima/ima_appraise.c        |  4 +-
->   security/integrity/ima/ima_asymmetric_keys.c |  4 +-
->   security/integrity/ima/ima_init.c            |  6 ++-
->   security/integrity/ima/ima_main.c            | 48 ++++++++++++--------
->   security/integrity/ima/ima_queue_keys.c      | 15 +++---
->   security/selinux/ima.c                       | 10 ++--
->   8 files changed, 66 insertions(+), 46 deletions(-)
-> 
-> diff --git a/include/linux/ima.h b/include/linux/ima.h
-> index 81e830d01ced..60492263aa64 100644
-> --- a/include/linux/ima.h
-> +++ b/include/linux/ima.h
-> @@ -35,10 +35,10 @@ extern void ima_post_path_mknod(struct user_namespace *mnt_userns,
->   extern int ima_file_hash(struct file *file, char *buf, size_t buf_size);
->   extern int ima_inode_hash(struct inode *inode, char *buf, size_t buf_size);
->   extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
-> -extern void ima_measure_critical_data(const char *event_label,
-> -				      const char *event_name,
-> -				      const void *buf, size_t buf_len,
-> -				      bool hash);
-> +extern int ima_measure_critical_data(const char *event_label,
-> +				     const char *event_name,
-> +				     const void *buf, size_t buf_len,
-> +				     bool hash);
->   
->   #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
->   extern void ima_appraise_parse_cmdline(void);
-> @@ -144,10 +144,13 @@ static inline int ima_inode_hash(struct inode *inode, char *buf, size_t buf_size
->   
->   static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {}
->   
-> -static inline void ima_measure_critical_data(const char *event_label,
-> +static inline int ima_measure_critical_data(const char *event_label,
->   					     const char *event_name,
->   					     const void *buf, size_t buf_len,
-> -					     bool hash) {}
-> +					     bool hash)
-> +{
-> +	return -ENOENT;
-> +}
->   
->   #endif /* CONFIG_IMA */
->   
-> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-> index f0e448ed1f9f..03db221324c3 100644
-> --- a/security/integrity/ima/ima.h
-> +++ b/security/integrity/ima/ima.h
-> @@ -264,11 +264,11 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
->   			   struct evm_ima_xattr_data *xattr_value,
->   			   int xattr_len, const struct modsig *modsig, int pcr,
->   			   struct ima_template_desc *template_desc);
-> -void process_buffer_measurement(struct user_namespace *mnt_userns,
-> -				struct inode *inode, const void *buf, int size,
-> -				const char *eventname, enum ima_hooks func,
-> -				int pcr, const char *func_data,
-> -				bool buf_hash);
-> +int process_buffer_measurement(struct user_namespace *mnt_userns,
-> +			       struct inode *inode, const void *buf, int size,
-> +			       const char *eventname, enum ima_hooks func,
-> +			       int pcr, const char *func_data,
-> +			       bool buf_hash);
->   void ima_audit_measurement(struct integrity_iint_cache *iint,
->   			   const unsigned char *filename);
->   int ima_alloc_init_template(struct ima_event_data *event_data,
-> diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-> index ef9dcfce45d4..275a2377743f 100644
-> --- a/security/integrity/ima/ima_appraise.c
-> +++ b/security/integrity/ima/ima_appraise.c
-> @@ -345,6 +345,7 @@ int ima_check_blacklist(struct integrity_iint_cache *iint,
->   	enum hash_algo hash_algo;
->   	const u8 *digest = NULL;
->   	u32 digestsize = 0;
-> +	int process_rc __maybe_unused;
->   	int rc = 0;
->   
->   	if (!(iint->flags & IMA_CHECK_BLACKLIST))
-> @@ -355,7 +356,8 @@ int ima_check_blacklist(struct integrity_iint_cache *iint,
->   
->   		rc = is_binary_blacklisted(digest, digestsize);
->   		if ((rc == -EPERM) && (iint->flags & IMA_MEASURE))
-> -			process_buffer_measurement(&init_user_ns, NULL, digest, digestsize,
-> +			process_rc = process_buffer_measurement(&init_user_ns,
-I think there is no need to make this change now. If and when 
-ima_check_blacklist() needs to look at the return value of p_b_m(), this 
-change can be made.
+On 7/1/2021 6:10 AM, Vivek Goyal wrote:
+> On Thu, Jul 01, 2021 at 09:48:33AM +0100, Dr. David Alan Gilbert wrote:
+>> * Theodore Ts'o (tytso@mit.edu) wrote:
+>>> On Wed, Jun 30, 2021 at 04:01:42PM +0100, Dr. David Alan Gilbert wrote:
+>>>> Even if you fix symlinks, I don't think it fixes device nodes or
+>>>> anything else where the permissions bitmap isn't purely used as the
+>>>> permissions on the inode.
+>>> I think we're making a mountain out of a molehill.  Again, very few
+>>> people are using quota these days.  And if you give someone write
+>>> access to a 8TB disk, do you really care if they can "steal" 32k worth
+>>> of space (which is the maximum size of an xattr, enforced by the VFS).
+>>>
+>>> OK, but what about character mode devices?  First of all, most users
+>>> don't have access to huge number of devices, but let's assume
+>>> something absurd.  Let's say that a user has write access to *1024*
+>>> devices.  (My /dev has 233 character mode devices, and I have write
+>>> access to well under a dozen.)
+>>>
+>>> An 8TB disk costs about $200.  So how much of the "stolen" quota space
+>>> are we talking about, assuming the user has access to 1024 devices,
+>>> and the file system actually supports a 32k xattr.
+>>>
+>>>     32k * 1024 * $200 / 8TB / (1024*1024*1024) = $0.000763 = 0.0763 cents
+>>>
+>>> A 2TB SSD is less around $180, so even if we calculate the prices
+>>> based on SSD space, we're still talking about a quarter of a penny.
+>>>
+>>> Why are we worrying about this?
+>> I'm not worrying about storage cost, but we would need to define what
+>> the rules are on who can write and change a user.* xattr on a device
+>> node.  It doesn't feel sane to make it anyone who can write to the
+>> device; then everyone can start leaving droppings on /dev/null.
+>>
+>> The other evilness I can imagine, is if there's a 32k limit on xattrs on
+>> a node, an evil user could write almost 32k of junk to the node
+>> and then break the next login that tries to add an acl or breaks the
+>> next relabel.
+> I guess 64k is per xattr VFS size limit.
+>
+> #define XATTR_SIZE_MAX 65536
+>
+> I just wrote a simple program to write "user.<N>" xattrs of size 1K
+> each and could easily write 1M xattrs. So that 1G worth data right
+> there. I did not try to push it further.
+>
+> So a user can write lot of data in the form of user.* xattrs on
+> symlinks and device nodes if were to open it unconditionally. Hence
+> permission semantics will probably will have to defined properly.
+>
+> I am wondering will it be alright if owner of the file (or CAP_FOWNER),
+> is allowed to write user.* xattrs on symlinks and special files.
 
-> +						   NULL, digest, digestsize,
->   						   "blacklisted-hash", NONE,
->   						   pcr, NULL, false);
->   	}
-> diff --git a/security/integrity/ima/ima_asymmetric_keys.c b/security/integrity/ima/ima_asymmetric_keys.c
-> index c985418698a4..910367cdd920 100644
-> --- a/security/integrity/ima/ima_asymmetric_keys.c
-> +++ b/security/integrity/ima/ima_asymmetric_keys.c
-> @@ -31,6 +31,7 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
->   				   unsigned long flags, bool create)
->   {
->   	bool queued = false;
-> +	int ret __maybe_unused;
->   
->   	/* Only asymmetric keys are handled by this hook. */
->   	if (key->type != &key_type_asymmetric)
-> @@ -60,7 +61,8 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
->   	 * if the IMA policy is configured to measure a key linked
->   	 * to the given keyring.
->   	 */
-> -	process_buffer_measurement(&init_user_ns, NULL, payload, payload_len,
-> +	ret = process_buffer_measurement(&init_user_ns, NULL,
-> +				   payload, payload_len,
-Same comment as in ima_check_blacklist() - this change be made when needed.
+That would be sensible.
+That's independent of your xattr mapping scheme.
 
->   				   keyring->description, KEY_CHECK, 0,
->   				   keyring->description, false);
->   }
-> diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
-> index 5076a7d9d23e..6790eea88db8 100644
-> --- a/security/integrity/ima/ima_init.c
-> +++ b/security/integrity/ima/ima_init.c
-> @@ -118,6 +118,7 @@ void __init ima_load_x509(void)
->   
->   int __init ima_init(void)
->   {
-> +	int measure_rc __maybe_unused;
->   	int rc;
->   
->   	ima_tpm_chip = tpm_default_chip();
-> @@ -153,8 +154,9 @@ int __init ima_init(void)
->   
->   	ima_init_key_queue();
->   
-> -	ima_measure_critical_data("kernel_info", "kernel_version",
-> -				  UTS_RELEASE, strlen(UTS_RELEASE), false);
-> +	measure_rc = ima_measure_critical_data("kernel_info", "kernel_version",
-> +					       UTS_RELEASE, strlen(UTS_RELEASE),
-> +					       false);
-Same comment as in ima_check_blacklist() - this change be made when needed.
-
->   
->   	return rc;
->   }
-> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> index 8ef1fa357e0c..3386e7436440 100644
-> --- a/security/integrity/ima/ima_main.c
-> +++ b/security/integrity/ima/ima_main.c
-> @@ -827,7 +827,7 @@ int ima_post_load_data(char *buf, loff_t size,
->   	return 0;
->   }
->   
-> -/*
-> +/**
->    * process_buffer_measurement - Measure the buffer or the buffer data hash
->    * @mnt_userns:	user namespace of the mount the inode was found from
->    * @inode: inode associated with the object being measured (NULL for KEY_CHECK)
-> @@ -840,12 +840,15 @@ int ima_post_load_data(char *buf, loff_t size,
->    * @buf_hash: measure buffer data hash
->    *
->    * Based on policy, either the buffer data or buffer data hash is measured
-> + *
-> + * Return: 0 if the buffer has been successfully measured, a negative value
-> + * otherwise.
->    */
-> -void process_buffer_measurement(struct user_namespace *mnt_userns,
-> -				struct inode *inode, const void *buf, int size,
-> -				const char *eventname, enum ima_hooks func,
-> -				int pcr, const char *func_data,
-> -				bool buf_hash)
-> +int process_buffer_measurement(struct user_namespace *mnt_userns,
-> +			       struct inode *inode, const void *buf, int size,
-> +			       const char *eventname, enum ima_hooks func,
-> +			       int pcr, const char *func_data,
-> +			       bool buf_hash)
->   {
->   	int ret = 0;
->   	const char *audit_cause = "ENOMEM";
-> @@ -867,7 +870,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
->   	u32 secid;
->   
->   	if (!ima_policy_flag)
-> -		return;
-> +		return -ENOENT;
->   
->   	template = ima_template_desc_buf();
->   	if (!template) {
-> @@ -889,7 +892,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
->   					secid, 0, func, &pcr, &template,
->   					func_data);
->   		if (!(action & IMA_MEASURE))
-> -			return;
-> +			return -ENOENT;
->   	}
->   
->   	if (!pcr)
-> @@ -937,7 +940,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
->   					func_measure_str(func),
->   					audit_cause, ret, 0, ret);
->   
-> -	return;
-> +	return ret;
->   }
->   
->   /**
-> @@ -951,6 +954,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
->   void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->   {
->   	struct fd f;
-> +	int ret __maybe_unused;
->   
->   	if (!buf || !size)
->   		return;
-> @@ -959,9 +963,10 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->   	if (!f.file)
->   		return;
->   
-> -	process_buffer_measurement(file_mnt_user_ns(f.file), file_inode(f.file),
-> -				   buf, size, "kexec-cmdline", KEXEC_CMDLINE, 0,
-> -				   NULL, false);
-> +	ret = process_buffer_measurement(file_mnt_user_ns(f.file),
-> +					 file_inode(f.file), buf, size,
-> +					 "kexec-cmdline", KEXEC_CMDLINE, 0,
-> +					 NULL, false);
-Since the return value of p_b_m() is not used here, this change can be 
-made when needed.
-
->   	fdput(f);
->   }
->   
-> @@ -977,18 +982,21 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->    * and extend the pcr.  Examples of critical data could be various data
->    * structures, policies, and states stored in kernel memory that can
->    * impact the integrity of the system.
-> + *
-> + * Return: 0 if the buffer has been successfully measured, a negative value
-> + * otherwise.
->    */
-> -void ima_measure_critical_data(const char *event_label,
-> -			       const char *event_name,
-> -			       const void *buf, size_t buf_len,
-> -			       bool hash)
-> +int ima_measure_critical_data(const char *event_label,
-> +			      const char *event_name,
-> +			      const void *buf, size_t buf_len,
-> +			      bool hash)
->   {
->   	if (!event_name || !event_label || !buf || !buf_len)
-> -		return;
-> +		return -ENOPARAM;
->   
-> -	process_buffer_measurement(&init_user_ns, NULL, buf, buf_len, event_name,
-> -				   CRITICAL_DATA, 0, event_label,
-> -				   hash);
-> +	return process_buffer_measurement(&init_user_ns, NULL, buf, buf_len,
-> +					  event_name, CRITICAL_DATA, 0,
-> +					  event_label, hash);
->   }
->   
->   static int __init init_ima(void)
-> diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
-> index 979ef6c71f3d..e3047ce64f39 100644
-> --- a/security/integrity/ima/ima_queue_keys.c
-> +++ b/security/integrity/ima/ima_queue_keys.c
-> @@ -134,6 +134,7 @@ void ima_process_queued_keys(void)
->   {
->   	struct ima_key_entry *entry, *tmp;
->   	bool process = false;
-> +	int ret __maybe_unused;
->   
->   	if (ima_process_keys)
->   		return;
-> @@ -159,13 +160,13 @@ void ima_process_queued_keys(void)
->   
->   	list_for_each_entry_safe(entry, tmp, &ima_keys, list) {
->   		if (!timer_expired)
-> -			process_buffer_measurement(&init_user_ns, NULL,
-> -						   entry->payload,
-> -						   entry->payload_len,
-> -						   entry->keyring_name,
-> -						   KEY_CHECK, 0,
-> -						   entry->keyring_name,
-> -						   false);
-> +			ret = process_buffer_measurement(&init_user_ns, NULL,
-> +							 entry->payload,
-> +							 entry->payload_len,
-> +							 entry->keyring_name,
-> +							 KEY_CHECK, 0,
-> +							 entry->keyring_name,
-> +							 false);
-Same comment as above.
-
->   		list_del(&entry->list);
->   		ima_free_key_entry(entry);
->   	}
-> diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-> index 34d421861bfc..4db9fa211638 100644
-> --- a/security/selinux/ima.c
-> +++ b/security/selinux/ima.c
-> @@ -75,6 +75,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   	char *state_str = NULL;
->   	void *policy = NULL;
->   	size_t policy_len;
-> +	int measure_rc __maybe_unused;
->   	int rc = 0;
->   
->   	WARN_ON(!mutex_is_locked(&state->policy_mutex));
-> @@ -85,8 +86,9 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   		return;
->   	}
->   
-> -	ima_measure_critical_data("selinux", "selinux-state",
-> -				  state_str, strlen(state_str), false);
-> +	measure_rc = ima_measure_critical_data("selinux", "selinux-state",
-> +					       state_str, strlen(state_str),
-> +					       false);
-Since the return value of ima_measure_critical_data() is not used here, 
-this change can be made when needed.
-
->   
->   	kfree(state_str);
->   
-> @@ -102,8 +104,8 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   		return;
->   	}
->   
-> -	ima_measure_critical_data("selinux", "selinux-policy-hash",
-> -				  policy, policy_len, true);
-> +	measure_rc = ima_measure_critical_data("selinux", "selinux-policy-hash",
-> +					       policy, policy_len, true);
-Same comment as above.
-
-  -lakshmi
-
->   
->   	vfree(policy);
->   }
-> 
+>
+> Vivek
+>
