@@ -2,65 +2,50 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0256DC11F64
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 08:48:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BC00C11F64
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 12:21:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C809961417
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 08:48:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0540A6120D
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 12:21:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235429AbhGAIvK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 04:51:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:26295 "EHLO
+        id S236332AbhGAMYP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 08:24:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21450 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235356AbhGAIvJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 04:51:09 -0400
+        by vger.kernel.org with ESMTP id S236192AbhGAMYP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 08:24:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625129319;
+        s=mimecast20190719; t=1625142104;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=FWtBsSNWOGoBz0joLRACuRfxa8gzRbsAHo0rqGyAWsA=;
-        b=hMuf6H639mp4Id89omSVWeUcprotIWsXv2Y2hwMEWUx2D4VtYNcfivkA8h2OWiMFedBlPF
-        tAvMuWNVYU4sey43SFEa8/PL6EllA7rkGCYkSkWaG9DzrPbFi1JWZCRISuoYbqDAjgKYzl
-        ymBVx9CAmhNN2wOVpAcTictE0e7o4e0=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-91-39u-cwYCMJeyVSMAse1u-g-1; Thu, 01 Jul 2021 04:48:37 -0400
-X-MC-Unique: 39u-cwYCMJeyVSMAse1u-g-1
-Received: by mail-wr1-f69.google.com with SMTP id c15-20020a056000184fb0290124a352153cso2222523wri.9
-        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 01:48:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=FWtBsSNWOGoBz0joLRACuRfxa8gzRbsAHo0rqGyAWsA=;
-        b=UpqeaOwtf7OoMwvlMorOY36g5+PdKtPkFl8sn6j4QD5ggAS17dKp9CDXaP9a/h6ulc
-         saqeeCrfM6lMfiLUrd8ta1SqO095o3lebSsVzhqtb07MpYRB8M4FjRlQvYb2VrWLnKBO
-         UAy8V3VTjZHkP1XxSQF7m7lXuKK8afYuUq79UhpbUSdsD//phWPYLYQv25GZn2wWdOpK
-         wBcczAH5TVyC0npaFBte3pZwPaDoNZp4fTi8WIPKvi8L8g5beyXWhnunRGwq8jIhj/Jo
-         LmCtG1SMiePPVNv15BU8xeI4SAh6AcKv5PRnZYIHLO6+/WRbabcwOYbu42RVWOGNLfnp
-         5nwQ==
-X-Gm-Message-State: AOAM530gPVCBhblH0d1KkZJocm/eq4yGFog80B8IaVS9K96kLvpvSnRD
-        mr/3WSiEpp2UtS/+xOr7XI+8ZhFi06mt6GnJS4VWOqg8jjkjVkElq3Rx+nhv9ecdVl2uY5c7eke
-        8tzNyhTi0S+r5l7oq3A==
-X-Received: by 2002:a05:6000:2c4:: with SMTP id o4mr43144748wry.79.1625129316785;
-        Thu, 01 Jul 2021 01:48:36 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxhMTAHjQtfmaMDWAxYyJ7eL0jGVtWwILpGQJOCD3Xe267JSVLAYu8bvCBAHkOGQZBRs7AX9w==
-X-Received: by 2002:a05:6000:2c4:: with SMTP id o4mr43144730wry.79.1625129316604;
-        Thu, 01 Jul 2021 01:48:36 -0700 (PDT)
-Received: from work-vm (cpc109021-salf6-2-0-cust453.10-2.cable.virginm.net. [82.29.237.198])
-        by smtp.gmail.com with ESMTPSA id y7sm6730729wro.51.2021.07.01.01.48.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jul 2021 01:48:35 -0700 (PDT)
-Date:   Thu, 1 Jul 2021 09:48:33 +0100
-From:   "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Daniel Walsh <dwalsh@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+        bh=mHPdWsmZjYMcOFxuAOaWqzMzWtt526mcpijNnuosC6g=;
+        b=BJQOyh8NeQN7EoYMDstn8kF7jLYVqNiMYg+bkAwgsCrmAcwrZACFOJTU+rEn8T0/vZfuR8
+        2bqugG48Lwl767x8Xmraz+itUmisfFGEPqKjc9TnJNGcEw+uC0SGROGNE31EZaB5R5jhrB
+        8QoxlFW5ZTOn22NJNudPwIq4NiHVAOI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-562-XQkEeQaKPiyVPK6UtYTz9Q-1; Thu, 01 Jul 2021 08:21:43 -0400
+X-MC-Unique: XQkEeQaKPiyVPK6UtYTz9Q-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB8EC343CE;
+        Thu,  1 Jul 2021 12:21:41 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-113-118.rdu2.redhat.com [10.10.113.118])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9A9945DA61;
+        Thu,  1 Jul 2021 12:21:36 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 2EAC522054F; Thu,  1 Jul 2021 08:21:36 -0400 (EDT)
+Date:   Thu, 1 Jul 2021 08:21:36 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc:     Theodore Ts'o <tytso@mit.edu>, Daniel Walsh <dwalsh@redhat.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         "Schaufler, Casey" <casey.schaufler@intel.com>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
@@ -72,9 +57,8 @@ Cc:     Daniel Walsh <dwalsh@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>
 Subject: Re: [RFC PATCH 0/1] xattr: Allow user.* xattr on symlink/special
  files if caller has CAP_SYS_RESOURCE
-Message-ID: <YN2BYXv79PswrN2E@work-vm>
-References: <e6f9ed0d-c101-01df-3dff-85c1b38f9714@schaufler-ca.com>
- <20210629152007.GC5231@redhat.com>
+Message-ID: <20210701122136.GA159380@redhat.com>
+References: <20210629152007.GC5231@redhat.com>
  <78663f5c-d2fd-747a-48e3-0c5fd8b40332@schaufler-ca.com>
  <20210629173530.GD5231@redhat.com>
  <f4992b3a-a939-5bc4-a5da-0ce8913bd569@redhat.com>
@@ -83,58 +67,71 @@ References: <e6f9ed0d-c101-01df-3dff-85c1b38f9714@schaufler-ca.com>
  <YNyECw/1FzDCW3G8@mit.edu>
  <YNyHVhGPe1bFAt+C@work-vm>
  <YNzNLTxflKbDi8W2@mit.edu>
+ <YN2BYXv79PswrN2E@work-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YNzNLTxflKbDi8W2@mit.edu>
-User-Agent: Mutt/2.0.7 (2021-05-04)
+In-Reply-To: <YN2BYXv79PswrN2E@work-vm>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-* Theodore Ts'o (tytso@mit.edu) wrote:
-> On Wed, Jun 30, 2021 at 04:01:42PM +0100, Dr. David Alan Gilbert wrote:
+On Thu, Jul 01, 2021 at 09:48:33AM +0100, Dr. David Alan Gilbert wrote:
+> * Theodore Ts'o (tytso@mit.edu) wrote:
+> > On Wed, Jun 30, 2021 at 04:01:42PM +0100, Dr. David Alan Gilbert wrote:
+> > > 
+> > > Even if you fix symlinks, I don't think it fixes device nodes or
+> > > anything else where the permissions bitmap isn't purely used as the
+> > > permissions on the inode.
 > > 
-> > Even if you fix symlinks, I don't think it fixes device nodes or
-> > anything else where the permissions bitmap isn't purely used as the
-> > permissions on the inode.
+> > I think we're making a mountain out of a molehill.  Again, very few
+> > people are using quota these days.  And if you give someone write
+> > access to a 8TB disk, do you really care if they can "steal" 32k worth
+> > of space (which is the maximum size of an xattr, enforced by the VFS).
+> > 
+> > OK, but what about character mode devices?  First of all, most users
+> > don't have access to huge number of devices, but let's assume
+> > something absurd.  Let's say that a user has write access to *1024*
+> > devices.  (My /dev has 233 character mode devices, and I have write
+> > access to well under a dozen.)
+> > 
+> > An 8TB disk costs about $200.  So how much of the "stolen" quota space
+> > are we talking about, assuming the user has access to 1024 devices,
+> > and the file system actually supports a 32k xattr.
+> > 
+> >     32k * 1024 * $200 / 8TB / (1024*1024*1024) = $0.000763 = 0.0763 cents
+> > 
+> > A 2TB SSD is less around $180, so even if we calculate the prices
+> > based on SSD space, we're still talking about a quarter of a penny.
+> > 
+> > Why are we worrying about this?
 > 
-> I think we're making a mountain out of a molehill.  Again, very few
-> people are using quota these days.  And if you give someone write
-> access to a 8TB disk, do you really care if they can "steal" 32k worth
-> of space (which is the maximum size of an xattr, enforced by the VFS).
-> 
-> OK, but what about character mode devices?  First of all, most users
-> don't have access to huge number of devices, but let's assume
-> something absurd.  Let's say that a user has write access to *1024*
-> devices.  (My /dev has 233 character mode devices, and I have write
-> access to well under a dozen.)
-> 
-> An 8TB disk costs about $200.  So how much of the "stolen" quota space
-> are we talking about, assuming the user has access to 1024 devices,
-> and the file system actually supports a 32k xattr.
-> 
->     32k * 1024 * $200 / 8TB / (1024*1024*1024) = $0.000763 = 0.0763 cents
-> 
-> A 2TB SSD is less around $180, so even if we calculate the prices
-> based on SSD space, we're still talking about a quarter of a penny.
-> 
-> Why are we worrying about this?
+> I'm not worrying about storage cost, but we would need to define what
+> the rules are on who can write and change a user.* xattr on a device
+> node.  It doesn't feel sane to make it anyone who can write to the
+> device; then everyone can start leaving droppings on /dev/null.
 
-I'm not worrying about storage cost, but we would need to define what
-the rules are on who can write and change a user.* xattr on a device
-node.  It doesn't feel sane to make it anyone who can write to the
-device; then everyone can start leaving droppings on /dev/null.
+Looks like tmpfs/devtmpfs might not support setting user.* xattrs. So
+devices nodes there should not be a problem.
 
-The other evilness I can imagine, is if there's a 32k limit on xattrs on
-a node, an evil user could write almost 32k of junk to the node
-and then break the next login that tries to add an acl or breaks the
-next relabel.
+# touch /dev/foo.txt
+# setfattr -n "user.foo" -v "bar" /dev/foo.txt
+setfattr: /dev/foo.txt: Operation not supported
 
-Dave
+Vivek
 
-> 						- Ted
 > 
--- 
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+> The other evilness I can imagine, is if there's a 32k limit on xattrs on
+> a node, an evil user could write almost 32k of junk to the node
+> and then break the next login that tries to add an acl or breaks the
+> next relabel.
+> 
+> Dave
+> 
+> > 						- Ted
+> > 
+> -- 
+> Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+> 
 
