@@ -8,63 +8,61 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7DCAC11F64
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:07:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D44BC11F64
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:34:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BFC796140D
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:07:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E34B561402
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:34:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbhGASJq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 14:09:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54092 "EHLO
+        id S229958AbhGAShI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 14:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233800AbhGASJq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 14:09:46 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5738C061762
-        for <selinux@vger.kernel.org>; Thu,  1 Jul 2021 11:07:14 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id df12so9674969edb.2
-        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 11:07:14 -0700 (PDT)
+        with ESMTP id S229934AbhGAShH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 14:37:07 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B22C7C061762
+        for <selinux@vger.kernel.org>; Thu,  1 Jul 2021 11:34:36 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id n25so9751920edw.9
+        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 11:34:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=I86SQHF6nENov9OjccTTB4Vk+kfwrav3TJG11QHP5L8=;
-        b=RuGNdIWI/PdUcRAzZVa6dJO8AFonnUFyCQmy/XJ46UUbMQFpev4/eaWzsjwTfadAX+
-         /hG3g38WfKsgp7AO7qOs7FWLRRbUCSRKrLsmgcER1OMYgL2USsmD8IZH7WFJMYMgcLVg
-         CFrsAM0iumHrhl/12xnfpCAi4wFkfdqKggb9hV5TDFGozsjyjJRThKnpP/sIcVj9xTcE
-         xVdDx/OP4KAxsIEK+iM46Rb4mbQ9jlX0eSvx6eheTHDvhDyho8gfbryTeDXoymVKyCnN
-         rdlgIbJh+g2McgYdUSrS6S3Fk6UmKSZkmGSbuib/cH1Wk1FiNSoRgu1V7ZkBZh/PaWNO
-         dvCA==
+        bh=h/O9/1Xx/lXuOvloFgpj8Qb6XqrhNRAe9a5ix4sIidA=;
+        b=tay0mFHTI5ZLO1sJTzBB9zxRiuK3NX++DCMMTlzrhschqzOe7F0fqmQhD1y6W8AM62
+         KKFhGJv5kMO7vR8eVZ4zRf4kO9nHG/pFI6riPuoZvosK0kxGpbXUd5gDQ02srhahavcB
+         Wm74z29nx8YQTfBC3AhJCDGlE7CyaQeHa7L46ShQ8xXVeLYCiVg619p5KhuHrYAKRFc3
+         ZBUpWsA4H8kRAHyV1ryT+x8HY/hbG2rFSV/pO+V+QNv2P+qSBPLVklIbL3IiupQoAr9D
+         YKqiaQfD00Chy47SfAwJWpmxaTGbJxu/1gLMA3s1rWd7zgBQ51DFJZl0LYZuDGNPpTaB
+         +mAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=I86SQHF6nENov9OjccTTB4Vk+kfwrav3TJG11QHP5L8=;
-        b=UejCwhsQ7Pz9lnBRSsmm3OrV9mracMbV7rMnIMyWqB9so3fVfS7V9mHuZPi/dF3QQY
-         1C0YMKadLOqKN46jDBGPMuVWg2s0BT/yfjySn5rasrfSIslYZEUbC/1uYiaEcgM1YGbt
-         pKakuBUub0gZfybS1quF7Eg+zoWaUi2qZ43URXoiroqPEfGDS/8k5JFp4bz+K3MEvCLz
-         DP99Vafx4vAtqR2WfjUgwVpg2KjSMdjp8rwJ8RyB37TsxXJMePRloanb+Nc7dpLdGPj7
-         zukHGL7NWwGi5E86OJHNnmqPGwv3oz7ZRdRJGOllNiEQlutqCTV5oAGxmlrnGyhDirgM
-         2xCg==
-X-Gm-Message-State: AOAM531WAAciQubpXU4LPO5zA4nGHLxdhKV0FJmIwhUKB5hUcYT3LhQO
-        y2+K7c03iuR1mwn68yBicnj0p5t8XPk=
-X-Google-Smtp-Source: ABdhPJxwIAYysK+QnApzVZvUZapmOLsuFpjmpPXmsnrTH24zYoL27Qro4XRNWtDkai6wAn+A+M1mQw==
-X-Received: by 2002:a50:eb86:: with SMTP id y6mr1464535edr.111.1625162833391;
-        Thu, 01 Jul 2021 11:07:13 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=h/O9/1Xx/lXuOvloFgpj8Qb6XqrhNRAe9a5ix4sIidA=;
+        b=dmMFMerai6sodoKrpebGxR03m1q8vXHx10zZNRrzcgENkklAm4Vk+XO00eBAbDQB26
+         eP2pUtQaVX/rGfKh7GHnJVg5Kkb7sY550ibr6xYlVWaCFhdkWnRzCQO9EKZThOwfCMXc
+         qkVYEjA5TImZxBO/hQY27gKUEXnUUIz8XgVvA10yrln483TeQ1MBXK9dcICS61sUrMTI
+         Ktj2tZjCGUgf8S79+HrCjqUm+QEcUK94i7hirlxqn/FW0lLjwI5uo/guRr0MneEV/40j
+         /BuCowJ5dREfqtDZEv0ydoGn2IdPS/3+fwrjRrQN6dB4A/B/0ZXZ6MEMu8jLjxomGj6w
+         UXLg==
+X-Gm-Message-State: AOAM530JEP9wBLkVbX1ItoguUuPcaTE9doR0iqr1QP2gjZveoXAPFiAw
+        UqUYtALBC9yRRb95/PUAmOMBCyYUTAI=
+X-Google-Smtp-Source: ABdhPJw37SMjsDvIjgHVRrFXHzbWgFT5GeQcHbdH/f8Blv4qdqIleyVW0kTN8p3u8+9i3K1cPYroNg==
+X-Received: by 2002:aa7:c44b:: with SMTP id n11mr1605920edr.83.1625164475211;
+        Thu, 01 Jul 2021 11:34:35 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-006-223-136.77.6.pool.telefonica.de. [77.6.223.136])
-        by smtp.gmail.com with ESMTPSA id j22sm208352ejt.11.2021.07.01.11.07.12
+        by smtp.gmail.com with ESMTPSA id h7sm273618edb.13.2021.07.01.11.34.34
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jul 2021 11:07:13 -0700 (PDT)
+        Thu, 01 Jul 2021 11:34:34 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2 3/3] libsepol: assure string NUL-termination of ibdev_name
-Date:   Thu,  1 Jul 2021 20:07:07 +0200
-Message-Id: <20210701180707.120172-1-cgzones@googlemail.com>
+Subject: [PATCH] libsepol: avoid unsigned integer overflow
+Date:   Thu,  1 Jul 2021 20:34:30 +0200
+Message-Id: <20210701183430.145934-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608155912.32047-14-cgzones@googlemail.com>
-References: <20210608155912.32047-14-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -72,87 +70,48 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Clang complains:
+Unsigned integer overflow is well-defined and not undefined behavior.
+But it is still useful to enable undefined behavior sanitizer checks on
+unsigned arithmetic to detect possible issues on counters or variables
+with similar purpose.
 
-    ibendport_record.c: In function ‘sepol_ibendport_get_ibdev_name’:
-    ibendport_record.c:169:2: error: ‘strncpy’ specified bound 64 equals destination size [-Werror=stringop-truncation]
-      169 |  strncpy(tmp_ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX);
-          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    ibendport_record.c: In function ‘sepol_ibendport_set_ibdev_name’:
-    ibendport_record.c:189:2: error: ‘strncpy’ specified bound 64 equals destination size [-Werror=stringop-truncation]
-      189 |  strncpy(tmp, ibdev_name, IB_DEVICE_NAME_MAX);
-          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use a spaceship operator like comparison instead of subtraction.
 
-strncpy(3) does not NUL-terminate the destination if the source is of
-the same length or longer then the specified size.
-The source of these copies are retrieved from
-sepol_ibendport_alloc_ibdev_name(), which allocates a fixed amount of
-IB_DEVICE_NAME_MAX bytes.
-Reduce the size to copy by 1 of all memory regions allocated by
-sepol_ibendport_alloc_ibdev_name().
+Modern compilers will generate a single comparison instruction instead
+of actually perform the subtraction.
+
+    policydb.c:851:24: runtime error: unsigned integer overflow: 801 - 929 cannot be represented in type 'unsigned int'
+
+This is similar to 1537ea84.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v2:
-  - use at all affected places as pointed out by James Carter
+ libsepol/src/policydb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
- libsepol/src/ibendport_record.c | 8 ++++----
- libsepol/src/ibendports.c       | 2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/libsepol/src/ibendport_record.c b/libsepol/src/ibendport_record.c
-index adf67161..1eb50914 100644
---- a/libsepol/src/ibendport_record.c
-+++ b/libsepol/src/ibendport_record.c
-@@ -62,7 +62,7 @@ int sepol_ibendport_key_create(sepol_handle_t *handle,
- 	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp_key->ibdev_name) < 0)
- 		goto err;
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index ef2217c2..8865a2eb 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -843,15 +843,15 @@ static int rangetr_cmp(hashtab_t h __attribute__ ((unused)),
+ 	const struct range_trans *key2 = (const struct range_trans *)k2;
+ 	int v;
  
--	strncpy(tmp_key->ibdev_name, ibdev_name, IB_DEVICE_NAME_MAX);
-+	strncpy(tmp_key->ibdev_name, ibdev_name, IB_DEVICE_NAME_MAX - 1);
- 	tmp_key->port = port;
+-	v = key1->source_type - key2->source_type;
++	v = (key1->source_type > key2->source_type) - (key1->source_type < key2->source_type);
+ 	if (v)
+ 		return v;
  
- 	*key_ptr = tmp_key;
-@@ -166,7 +166,7 @@ int sepol_ibendport_get_ibdev_name(sepol_handle_t *handle,
- 	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp_ibdev_name) < 0)
- 		goto err;
+-	v = key1->target_type - key2->target_type;
++	v = (key1->target_type > key2->target_type) - (key1->target_type < key2->target_type);
+ 	if (v)
+ 		return v;
  
--	strncpy(tmp_ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX);
-+	strncpy(tmp_ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX - 1);
- 	*ibdev_name = tmp_ibdev_name;
- 	return STATUS_SUCCESS;
+-	v = key1->target_class - key2->target_class;
++	v = (key1->target_class > key2->target_class) - (key1->target_class > key2->target_class);
  
-@@ -186,7 +186,7 @@ int sepol_ibendport_set_ibdev_name(sepol_handle_t *handle,
- 	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp) < 0)
- 		goto err;
- 
--	strncpy(tmp, ibdev_name, IB_DEVICE_NAME_MAX);
-+	strncpy(tmp, ibdev_name, IB_DEVICE_NAME_MAX - 1);
- 	free(ibendport->ibdev_name);
- 	ibendport->ibdev_name = tmp;
- 	return STATUS_SUCCESS;
-@@ -230,7 +230,7 @@ int sepol_ibendport_clone(sepol_handle_t *handle,
- 	if (sepol_ibendport_alloc_ibdev_name(handle, &new_ibendport->ibdev_name) < 0)
- 		goto omem;
- 
--	strncpy(new_ibendport->ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX);
-+	strncpy(new_ibendport->ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX - 1);
- 	new_ibendport->port = ibendport->port;
- 
- 	if (ibendport->con &&
-diff --git a/libsepol/src/ibendports.c b/libsepol/src/ibendports.c
-index 6d56c9a1..ee5cb193 100644
---- a/libsepol/src/ibendports.c
-+++ b/libsepol/src/ibendports.c
-@@ -34,7 +34,7 @@ static int ibendport_from_record(sepol_handle_t *handle,
- 					   &ibdev_name) < 0)
- 		goto err;
- 
--	strncpy(tmp_ibendport->u.ibendport.dev_name, ibdev_name, IB_DEVICE_NAME_MAX);
-+	strncpy(tmp_ibendport->u.ibendport.dev_name, ibdev_name, IB_DEVICE_NAME_MAX - 1);
- 
- 	free(ibdev_name);
- 	ibdev_name = NULL;
+ 	return v;
+ }
 -- 
 2.32.0
 
