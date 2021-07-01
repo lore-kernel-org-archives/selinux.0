@@ -8,61 +8,63 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D44BC11F64
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AA00C11F64
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:38:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E34B561402
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:34:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7372261402
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:38:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229958AbhGAShI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 14:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60390 "EHLO
+        id S229934AbhGASlM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 14:41:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229934AbhGAShH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 14:37:07 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B22C7C061762
-        for <selinux@vger.kernel.org>; Thu,  1 Jul 2021 11:34:36 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id n25so9751920edw.9
-        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 11:34:36 -0700 (PDT)
+        with ESMTP id S229812AbhGASlM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 14:41:12 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7193EC061762
+        for <selinux@vger.kernel.org>; Thu,  1 Jul 2021 11:38:41 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id o5so12031559ejy.7
+        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 11:38:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=h/O9/1Xx/lXuOvloFgpj8Qb6XqrhNRAe9a5ix4sIidA=;
-        b=tay0mFHTI5ZLO1sJTzBB9zxRiuK3NX++DCMMTlzrhschqzOe7F0fqmQhD1y6W8AM62
-         KKFhGJv5kMO7vR8eVZ4zRf4kO9nHG/pFI6riPuoZvosK0kxGpbXUd5gDQ02srhahavcB
-         Wm74z29nx8YQTfBC3AhJCDGlE7CyaQeHa7L46ShQ8xXVeLYCiVg619p5KhuHrYAKRFc3
-         ZBUpWsA4H8kRAHyV1ryT+x8HY/hbG2rFSV/pO+V+QNv2P+qSBPLVklIbL3IiupQoAr9D
-         YKqiaQfD00Chy47SfAwJWpmxaTGbJxu/1gLMA3s1rWd7zgBQ51DFJZl0LYZuDGNPpTaB
-         +mAg==
+        bh=sPIG4k7cOyndmIWVgzxhUQRlIWAHqAGVoByesTbVwaM=;
+        b=TlX7jgpI3WdSUXmhNWyF8+Embz1OuvwOA9ajHWVUrMp0c/rBBk5cIJ88Y6NkAqim+Z
+         0dML9sr3OPYm6WZJIBQ1H8jqrlkMpWKbX7OL/G5aMk/hCbKXk5aSxv8l9tibsk3Yf6cY
+         LsfxBKjH57lGHSg0HXe0cRe6dYmyurKZWbpkqef/yuM7+BIth9dBSEeLlwYI6qLNx24t
+         aQja/kcqf4nPUrQ5iirfyBzMENwLsM01SSC046aySf36lgYPXwIzuqnZON2zKUB/Y49B
+         iVdMdjOUToJe85lZ9q1cUaLOg4qeNbnivsSB75f0xw178VwcZJQtVW53v+S9JmfkzTiW
+         ihEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=h/O9/1Xx/lXuOvloFgpj8Qb6XqrhNRAe9a5ix4sIidA=;
-        b=dmMFMerai6sodoKrpebGxR03m1q8vXHx10zZNRrzcgENkklAm4Vk+XO00eBAbDQB26
-         eP2pUtQaVX/rGfKh7GHnJVg5Kkb7sY550ibr6xYlVWaCFhdkWnRzCQO9EKZThOwfCMXc
-         qkVYEjA5TImZxBO/hQY27gKUEXnUUIz8XgVvA10yrln483TeQ1MBXK9dcICS61sUrMTI
-         Ktj2tZjCGUgf8S79+HrCjqUm+QEcUK94i7hirlxqn/FW0lLjwI5uo/guRr0MneEV/40j
-         /BuCowJ5dREfqtDZEv0ydoGn2IdPS/3+fwrjRrQN6dB4A/B/0ZXZ6MEMu8jLjxomGj6w
-         UXLg==
-X-Gm-Message-State: AOAM530JEP9wBLkVbX1ItoguUuPcaTE9doR0iqr1QP2gjZveoXAPFiAw
-        UqUYtALBC9yRRb95/PUAmOMBCyYUTAI=
-X-Google-Smtp-Source: ABdhPJw37SMjsDvIjgHVRrFXHzbWgFT5GeQcHbdH/f8Blv4qdqIleyVW0kTN8p3u8+9i3K1cPYroNg==
-X-Received: by 2002:aa7:c44b:: with SMTP id n11mr1605920edr.83.1625164475211;
-        Thu, 01 Jul 2021 11:34:35 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=sPIG4k7cOyndmIWVgzxhUQRlIWAHqAGVoByesTbVwaM=;
+        b=WGwmwQ7WmtouOG630ePqtowZ7YITadbde+reMf3KX9v6tbmmnjMghUa5QEWkYBrcMd
+         RaGtrBihSRFF8YthCYBn3gTfKP3Md5fBod3YzRc4Fz4vW+imQp+Rx7lk23OXrRgnG94+
+         Z+82ZrueXnYNqGtOS4mBtcnQjXfFM70Fxvk+77XsJTMzig/W5Xk0wAaT1JbZUNs9WPfH
+         7xnPTMUxWve3wmql0EQmmVYks9eHB03t8TACKEBXdeQUDoepKH/aZMMaWcpmYIPiGlBy
+         b21Ud7Jfg/GlreL4VtwFlSsA1k3CJA5nhu/5LnseZVSOGOGHkpp1FiKPyhmy5Oax7CQl
+         8xHg==
+X-Gm-Message-State: AOAM5311V9JgMzN+ltcgkQmH7YufN62NELBvoS+p49tgJtAUXihOlWIW
+        7wtV172Kj+eq8GN13bKLxkM8qq7aS5I=
+X-Google-Smtp-Source: ABdhPJw8wdn7YPs89Vq9/wT8NzhtVrwKfbzsyYiy0VyiEDQvHgEH/LNd7B0quSR1ENU4lAr28GmjRg==
+X-Received: by 2002:a17:906:28d5:: with SMTP id p21mr1394587ejd.358.1625164719777;
+        Thu, 01 Jul 2021 11:38:39 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-006-223-136.77.6.pool.telefonica.de. [77.6.223.136])
-        by smtp.gmail.com with ESMTPSA id h7sm273618edb.13.2021.07.01.11.34.34
+        by smtp.gmail.com with ESMTPSA id gl26sm217532ejb.72.2021.07.01.11.38.39
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jul 2021 11:34:34 -0700 (PDT)
+        Thu, 01 Jul 2021 11:38:39 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: avoid unsigned integer overflow
-Date:   Thu,  1 Jul 2021 20:34:30 +0200
-Message-Id: <20210701183430.145934-1-cgzones@googlemail.com>
+Subject: [PATCH v2] libsepol: avoid unsigned integer overflow
+Date:   Thu,  1 Jul 2021 20:38:33 +0200
+Message-Id: <20210701183833.146592-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210701183430.145934-1-cgzones@googlemail.com>
+References: <20210701183430.145934-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -90,7 +92,7 @@ Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index ef2217c2..8865a2eb 100644
+index ef2217c2..5ee78b4c 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
 @@ -843,15 +843,15 @@ static int rangetr_cmp(hashtab_t h __attribute__ ((unused)),
@@ -108,7 +110,7 @@ index ef2217c2..8865a2eb 100644
  		return v;
  
 -	v = key1->target_class - key2->target_class;
-+	v = (key1->target_class > key2->target_class) - (key1->target_class > key2->target_class);
++	v = (key1->target_class > key2->target_class) - (key1->target_class < key2->target_class);
  
  	return v;
  }
