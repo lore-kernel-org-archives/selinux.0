@@ -2,111 +2,224 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A440EC11F64
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 17:06:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86303C11F69
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 17:25:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B4AE61400
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 17:06:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 69FB26140B
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 17:25:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbhGARJT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 13:09:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40534 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229971AbhGARJT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 13:09:19 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A117EC061762
-        for <selinux@vger.kernel.org>; Thu,  1 Jul 2021 10:06:48 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id j1so9120654wrn.9
-        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 10:06:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4TdmV/L33lPNiejL11/yHgNnMQK1NSfFR3TOr9zZTps=;
-        b=b2tlKwu9CGSQfY8H5fAM9fUEuX6GxqIXC59Zx5oiHwjjR3+lK75lDUxzeF+KkrNvmc
-         yrVhBiwszOyBZpCcrRlbB04SeFAw9c9JWHPdszU/DBjGeFEAJvGiVh9MyESy9I9Oov5J
-         QkExEAIHWByvGVBpesyWQ9JvQeoPSNK7Hup1roTfEt1pdFSlTKPqZsNbfurhXAoNYM+g
-         AiYq26uMMMKv/GJ/3A4XkrvLlKErx2CEmtTCDIzK1RtrpWtKLssh3I31eUiL41pKRreA
-         kuyjCdq8E73ejSqvhwayvqDV2x9ngZJn5DI8Ph7StJHblLBRvJ761+w7wDP00iUKEKcy
-         cmyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4TdmV/L33lPNiejL11/yHgNnMQK1NSfFR3TOr9zZTps=;
-        b=lRrCifFICt98VuMeUSeJGL/hFvI2xE58fsbG18yhla4cLPEh1HmjYBqDn72xVoW2Y8
-         kwh9wTBeJxbCODZ0TqSK9S2V1AMEhisfWS7fQhXha7fiuOSRTQeXUP/a4JfyW4JgGKaa
-         qSMnk4JIq/uBYKpMsgVyDVIBJjmwE6f6K24H6okX6mA7/NaMlzdi+16SB+nRvt13/LR2
-         8mEZRW04H/585BWiS9U1ZbeBtlx8bTwKgxLXz3GhgSSm23TtclsL5Oj2plQg1fJ2cRU7
-         qx1MP2qGILm7tn2DUHogupDlBoIF+IYPEsrR+fZGZ2MURDIl5RAMvWaOLbxrfNcG0wGn
-         wXTw==
-X-Gm-Message-State: AOAM531rc68zfbbuGt4jaOSB6vCBoJHKYmV5Kkg2+9m+6uuoMrstY4M9
-        gJDXGXQ1kiB1lLasO8CoqqA3R7BSHTaHSA==
-X-Google-Smtp-Source: ABdhPJz9o41pVzB7e1JNfLzx3PCVb8eCaz3uR4yp6lQ9sX92gxBHxvD6hZEoYaJ2F0YVCI88H3Y+yQ==
-X-Received: by 2002:a05:6000:1b0c:: with SMTP id f12mr848519wrz.126.1625159206948;
-        Thu, 01 Jul 2021 10:06:46 -0700 (PDT)
-Received: from kali.home (lfbn-ren-1-1383-171.w86-229.abo.wanadoo.fr. [86.229.230.171])
-        by smtp.gmail.com with ESMTPSA id u1sm2231691wmn.23.2021.07.01.10.06.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jul 2021 10:06:46 -0700 (PDT)
-From:   Fabrice Fontaine <fontaine.fabrice@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     Fabrice Fontaine <fontaine.fabrice@gmail.com>
-Subject: [PATCH] libselinux/utils/getseuser.c: fix build with gcc 4.8
-Date:   Thu,  1 Jul 2021 19:06:19 +0200
-Message-Id: <20210701170619.96954-1-fontaine.fabrice@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        id S233357AbhGAR1l (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 13:27:41 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:41646 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232597AbhGAR1k (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 13:27:40 -0400
+Received: from [10.137.112.111] (unknown [131.107.147.111])
+        by linux.microsoft.com (Postfix) with ESMTPSA id E8C0220B7178;
+        Thu,  1 Jul 2021 10:25:09 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E8C0220B7178
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1625160310;
+        bh=WG5wRGaFi1YEYH/p3kLBgZg0QocaUDBiQ9DllXbQwdg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=fKZbIOvi/02DVVB84hIwaO3QLm9OExz3kLWZ0BGqsJFKP+FQdLzfkvrxfMzURbAHH
+         G/fj86bIc2pAMWtIT4puMHYQaqdksoAZ8v9t77OBel7KCsqaR0E1kP1rX3Kd/d9kSN
+         W4WCwPUdRahfDrA6GD5EeIkuRrpOqfJhspol22L8=
+Subject: Re: [PATCH v2 3/3] ima: Add digest and digest_len params to the
+ functions to measure a buffer
+To:     Roberto Sassu <roberto.sassu@huawei.com>, zohar@linux.ibm.com,
+        paul@paul-moore.com
+Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
+        tusharsu@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+References: <20210701125552.2958008-1-roberto.sassu@huawei.com>
+ <20210701125552.2958008-4-roberto.sassu@huawei.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <25b1fe6f-a378-fbfb-821a-9ca2c3421b5c@linux.microsoft.com>
+Date:   Thu, 1 Jul 2021 10:27:05 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210701125552.2958008-4-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Fix the following build failure with gcc 4.8 which is raised since
-version 3.2 and
-https://github.com/SELinuxProject/selinux/commit/156dd0de5cad31e7d437c64e11a8aef027f0a691
+On 7/1/2021 5:55 AM, Roberto Sassu wrote:
 
-getseuser.c:53:2: error: 'for' loop initial declarations are only allowed in C99 mode
-  for (int i = 0; i < n; i++)
-  ^
+Hi Roberto,
 
-Fixes:
- - http://autobuild.buildroot.org/results/37eb0952a763256fbf6ef3c668f6c95fbdf2dd35
+> This patch adds the 'digest' and 'digest_len' parameters to
+> ima_measure_critical_data() and process_buffer_measurement(), so that
+> callers can get the digest of the passed buffer.
+> 
+> These functions calculate the digest even if there is no suitable rule in
+> the IMA policy and, in this case, they simply return 1 before generating a
+> new measurement entry.
+> 
 
-Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
----
- libselinux/utils/getseuser.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+> index 3386e7436440..b4b1dc25e4fb 100644
+> --- a/security/integrity/ima/ima_main.c
+> +++ b/security/integrity/ima/ima_main.c
+> @@ -838,17 +838,20 @@ int ima_post_load_data(char *buf, loff_t size,
+>    * @pcr: pcr to extend the measurement
+>    * @func_data: func specific data, may be NULL
+>    * @buf_hash: measure buffer data hash
+> + * @digest: buffer digest will be written to
+> + * @digest_len: buffer length
+>    *
+>    * Based on policy, either the buffer data or buffer data hash is measured
+>    *
+> - * Return: 0 if the buffer has been successfully measured, a negative value
+> - * otherwise.
+> + * Return: 0 if the buffer has been successfully measured, 1 if the digest
+> + * has been written to the passed location but not added to a measurement entry,
+> + * a negative value otherwise.
+>    */
+>   int process_buffer_measurement(struct user_namespace *mnt_userns,
+>   			       struct inode *inode, const void *buf, int size,
+>   			       const char *eventname, enum ima_hooks func,
+>   			       int pcr, const char *func_data,
+> -			       bool buf_hash)
+> +			       bool buf_hash, u8 *digest, size_t digest_len)
+>   {
+>   	int ret = 0;
+>   	const char *audit_cause = "ENOMEM";
+> @@ -869,7 +872,10 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
+>   	int action = 0;
+>   	u32 secid;
+>   
+> -	if (!ima_policy_flag)
+> +	if (digest && digest_len < digest_hash_len)
+> +		return -EINVAL;
+> +
+> +	if (!ima_policy_flag && !digest)
+>   		return -ENOENT;
 
-diff --git a/libselinux/utils/getseuser.c b/libselinux/utils/getseuser.c
-index ce1b7b27..34f2e887 100644
---- a/libselinux/utils/getseuser.c
-+++ b/libselinux/utils/getseuser.c
-@@ -9,7 +9,7 @@ int main(int argc, char **argv)
- {
- 	char *seuser = NULL, *level = NULL;
- 	char **contextlist;
--	int rc, n;
-+	int rc, n, i;
- 
- 	if (argc != 3) {
- 		fprintf(stderr, "usage:  %s linuxuser fromcon\n", argv[0]);
-@@ -50,7 +50,7 @@ int main(int argc, char **argv)
- 	if (n == 0)
- 		printf("no valid context found\n");
- 
--	for (int i = 0; i < n; i++)
-+	for (i = 0; i < n; i++)
- 		printf("Context %d\t%s\n", i, contextlist[i]);
- 
- 	freeconary(contextlist);
--- 
-2.30.2
+Just wanted to check if you have verified this scenario:
 
+If ima_policy_flag is 0, the in-memory ima policy data is not yet 
+initialized. In this case calling ima_get_action() will cause kernel 
+panic (NULL exception).
+
+Please verify the above issue doesn't exist if the caller passes 
+non-NULL digest and ima_policy_flag is 0 (ima policy is not initialized).
+
+thanks,
+  -lakshmi
+
+>   
+>   	template = ima_template_desc_buf();
+> @@ -891,7 +897,7 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
+>   		action = ima_get_action(mnt_userns, inode, current_cred(),
+>   					secid, 0, func, &pcr, &template,
+>   					func_data);
+> -		if (!(action & IMA_MEASURE))
+> +		if (!(action & IMA_MEASURE) && !digest)
+>   			return -ENOENT;
+>   	}
+>   
+> @@ -922,6 +928,12 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
+>   		event_data.buf_len = digest_hash_len;
+>   	}
+>   
+> +	if (digest)
+> +		memcpy(digest, iint.ima_hash->digest, digest_hash_len);
+> +
+> +	if (!ima_policy_flag || (func && !(action & IMA_MEASURE)))
+> +		return 1;
+> +
+>   	ret = ima_alloc_init_template(&event_data, &entry, template);
+>   	if (ret < 0) {
+>   		audit_cause = "alloc_entry";
+> @@ -966,7 +978,7 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+>   	ret = process_buffer_measurement(file_mnt_user_ns(f.file),
+>   					 file_inode(f.file), buf, size,
+>   					 "kexec-cmdline", KEXEC_CMDLINE, 0,
+> -					 NULL, false);
+> +					 NULL, false, NULL, 0);
+>   	fdput(f);
+>   }
+>   
+> @@ -977,26 +989,30 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+>    * @buf: pointer to buffer data
+>    * @buf_len: length of buffer data (in bytes)
+>    * @hash: measure buffer data hash
+> + * @digest: buffer digest will be written to
+> + * @digest_len: buffer length
+>    *
+>    * Measure data critical to the integrity of the kernel into the IMA log
+>    * and extend the pcr.  Examples of critical data could be various data
+>    * structures, policies, and states stored in kernel memory that can
+>    * impact the integrity of the system.
+>    *
+> - * Return: 0 if the buffer has been successfully measured, a negative value
+> - * otherwise.
+> + * Return: 0 if the buffer has been successfully measured, 1 if the digest
+> + * has been written to the passed location but not added to a measurement entry,
+> + * a negative value otherwise.
+>    */
+>   int ima_measure_critical_data(const char *event_label,
+>   			      const char *event_name,
+>   			      const void *buf, size_t buf_len,
+> -			      bool hash)
+> +			      bool hash, u8 *digest, size_t digest_len)
+>   {
+>   	if (!event_name || !event_label || !buf || !buf_len)
+>   		return -ENOPARAM;
+>   
+>   	return process_buffer_measurement(&init_user_ns, NULL, buf, buf_len,
+>   					  event_name, CRITICAL_DATA, 0,
+> -					  event_label, hash);
+> +					  event_label, hash, digest,
+> +					  digest_len);
+>   }
+>   
+>   static int __init init_ima(void)
+> diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
+> index e3047ce64f39..b02b061c5fac 100644
+> --- a/security/integrity/ima/ima_queue_keys.c
+> +++ b/security/integrity/ima/ima_queue_keys.c
+> @@ -166,7 +166,7 @@ void ima_process_queued_keys(void)
+>   							 entry->keyring_name,
+>   							 KEY_CHECK, 0,
+>   							 entry->keyring_name,
+> -							 false);
+> +							 false, NULL, 0);
+>   		list_del(&entry->list);
+>   		ima_free_key_entry(entry);
+>   	}
+> diff --git a/security/selinux/ima.c b/security/selinux/ima.c
+> index 4db9fa211638..d5d7b3ca9651 100644
+> --- a/security/selinux/ima.c
+> +++ b/security/selinux/ima.c
+> @@ -88,7 +88,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
+>   
+>   	measure_rc = ima_measure_critical_data("selinux", "selinux-state",
+>   					       state_str, strlen(state_str),
+> -					       false);
+> +					       false, NULL, 0);
+>   
+>   	kfree(state_str);
+>   
+> @@ -105,7 +105,8 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
+>   	}
+>   
+>   	measure_rc = ima_measure_critical_data("selinux", "selinux-policy-hash",
+> -					       policy, policy_len, true);
+> +					       policy, policy_len, true,
+> +					       NULL, 0);
+>   
+>   	vfree(policy);
+>   }
+> 
