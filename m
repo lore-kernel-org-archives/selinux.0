@@ -2,224 +2,168 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86303C11F69
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 17:25:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72280C11F64
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69FB26140B
-	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 17:25:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57E2E6140D
+	for <selinux@archiver.kernel.org>; Thu,  1 Jul 2021 18:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233357AbhGAR1l (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jul 2021 13:27:41 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:41646 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232597AbhGAR1k (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 13:27:40 -0400
-Received: from [10.137.112.111] (unknown [131.107.147.111])
-        by linux.microsoft.com (Postfix) with ESMTPSA id E8C0220B7178;
-        Thu,  1 Jul 2021 10:25:09 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E8C0220B7178
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1625160310;
-        bh=WG5wRGaFi1YEYH/p3kLBgZg0QocaUDBiQ9DllXbQwdg=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=fKZbIOvi/02DVVB84hIwaO3QLm9OExz3kLWZ0BGqsJFKP+FQdLzfkvrxfMzURbAHH
-         G/fj86bIc2pAMWtIT4puMHYQaqdksoAZ8v9t77OBel7KCsqaR0E1kP1rX3Kd/d9kSN
-         W4WCwPUdRahfDrA6GD5EeIkuRrpOqfJhspol22L8=
-Subject: Re: [PATCH v2 3/3] ima: Add digest and digest_len params to the
- functions to measure a buffer
-To:     Roberto Sassu <roberto.sassu@huawei.com>, zohar@linux.ibm.com,
-        paul@paul-moore.com
-Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
-        tusharsu@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-References: <20210701125552.2958008-1-roberto.sassu@huawei.com>
- <20210701125552.2958008-4-roberto.sassu@huawei.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <25b1fe6f-a378-fbfb-821a-9ca2c3421b5c@linux.microsoft.com>
-Date:   Thu, 1 Jul 2021 10:27:05 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S232376AbhGASJD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jul 2021 14:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230006AbhGASJC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jul 2021 14:09:02 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B81C061762
+        for <selinux@vger.kernel.org>; Thu,  1 Jul 2021 11:06:30 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id hr1so8479120ejc.1
+        for <selinux@vger.kernel.org>; Thu, 01 Jul 2021 11:06:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=+54+P8emBnW1pJVqo4/s6Z9GvpXn7pEunSiOisdiNaE=;
+        b=Fsre4/kHxQh9fQmP89ZA2a2LL1XiZZMrbQfNpsJhcfc8F2ObzASz3VAxx+qqOi/4tW
+         iyPaRpdGzArPnd1JfrrqrdoTO+HfBp2YPMG903hz1WrkQwZvVtw41L0z12IpNpGesMkG
+         WE0TPtwgHCaQ/zQ0S58YO0PBVMWrf6dWWWMM+yvNDBe8eTp3/51L+Xm9Mv9N531Bkv5Y
+         ns3Jbteg73r97NrUkLabY44HswHi81lVV8bTJbdJlV0/ew5RVWsASlCZbKGJ/MC0NKT4
+         XHOX61sc4d5k9QkdiBmojSQklSy3GuaeHozyvWkohm1OsVKcOut9w9J+wWCwPYGlW2j3
+         28Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=+54+P8emBnW1pJVqo4/s6Z9GvpXn7pEunSiOisdiNaE=;
+        b=cnjek0nvoAHLakJERtru4iSwqK8viAnO7xHs3mbUCkQtwXXsB8imD4PrpLbW1YBIxG
+         AMCrAynXU7TdUtZ+zPW+ROxrHilN/NGRyGDKZaqt7BTM7ZCsm5Ao8kPn0nPUtf0vYiBH
+         5OivytF/OB0f/eOoj91E2hmc05r74CNBpUpUn0SA+ezsFuwXKyxhIWIaXDljOvgKOfsE
+         27o1iiOBU6Pbz45oJvk0XctLKTsnfPkjUL97JCOcsfK77x3usxhoUNRuNBKzdo0InbEY
+         S88crgjAF8TZB5K683I7EGI8CKq+yV4TqmC+7fn1aGareGyxXXbkMiNEaiMNDkLZYhbU
+         lDcQ==
+X-Gm-Message-State: AOAM533oywu17Yi2f2yS1RCX8kjWclsC8oTaXSM33gJHAveKYqOWionL
+        m5tFwENO1Bmh66Otu2YDsPquy2gmztQ=
+X-Google-Smtp-Source: ABdhPJyg8WUQQvbmZaSLAeCrKCh/nwkc3RhJvmbuGQ6nVY0bPDAIiUAs8f9urCq+IVtPa+/9083J0g==
+X-Received: by 2002:a17:906:fa09:: with SMTP id lo9mr1181420ejb.533.1625162789203;
+        Thu, 01 Jul 2021 11:06:29 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-006-223-136.77.6.pool.telefonica.de. [77.6.223.136])
+        by smtp.gmail.com with ESMTPSA id j24sm243002edv.48.2021.07.01.11.06.28
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Jul 2021 11:06:28 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v2 1/3] libsepol: ignore UBSAN false-positives
+Date:   Thu,  1 Jul 2021 20:06:22 +0200
+Message-Id: <20210701180622.119708-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210608155912.32047-5-cgzones@googlemail.com>
+References: <20210608155912.32047-5-cgzones@googlemail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210701125552.2958008-4-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/1/2021 5:55 AM, Roberto Sassu wrote:
+Unsigned integer overflow is well-defined and not undefined behavior.
+But it is still useful to enable undefined behavior sanitizer checks on
+unsigned arithmetic to detect possible issues on counters or variables
+with similar purpose.
 
-Hi Roberto,
+Annotate functions, in which unsigned overflows are expected to happen,
+with the respective Clang function attribute[1].
+GCC does not support sanitizing unsigned integer arithmetic[2].
 
-> This patch adds the 'digest' and 'digest_len' parameters to
-> ima_measure_critical_data() and process_buffer_measurement(), so that
-> callers can get the digest of the passed buffer.
-> 
-> These functions calculate the digest even if there is no suitable rule in
-> the IMA policy and, in this case, they simply return 1 before generating a
-> new measurement entry.
-> 
+    avtab.c:76:2: runtime error: unsigned integer overflow: 6 * 3432918353 cannot be represented in type 'unsigned int'
+    policydb.c:795:42: runtime error: unsigned integer overflow: 8160943042179512010 * 11 cannot be represented in type 'unsigned long'
+    symtab.c:25:12: runtime error: left shift of 1766601759 by 4 places cannot be represented in type 'unsigned int'
 
-> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> index 3386e7436440..b4b1dc25e4fb 100644
-> --- a/security/integrity/ima/ima_main.c
-> +++ b/security/integrity/ima/ima_main.c
-> @@ -838,17 +838,20 @@ int ima_post_load_data(char *buf, loff_t size,
->    * @pcr: pcr to extend the measurement
->    * @func_data: func specific data, may be NULL
->    * @buf_hash: measure buffer data hash
-> + * @digest: buffer digest will be written to
-> + * @digest_len: buffer length
->    *
->    * Based on policy, either the buffer data or buffer data hash is measured
->    *
-> - * Return: 0 if the buffer has been successfully measured, a negative value
-> - * otherwise.
-> + * Return: 0 if the buffer has been successfully measured, 1 if the digest
-> + * has been written to the passed location but not added to a measurement entry,
-> + * a negative value otherwise.
->    */
->   int process_buffer_measurement(struct user_namespace *mnt_userns,
->   			       struct inode *inode, const void *buf, int size,
->   			       const char *eventname, enum ima_hooks func,
->   			       int pcr, const char *func_data,
-> -			       bool buf_hash)
-> +			       bool buf_hash, u8 *digest, size_t digest_len)
->   {
->   	int ret = 0;
->   	const char *audit_cause = "ENOMEM";
-> @@ -869,7 +872,10 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   	int action = 0;
->   	u32 secid;
->   
-> -	if (!ima_policy_flag)
-> +	if (digest && digest_len < digest_hash_len)
-> +		return -EINVAL;
-> +
-> +	if (!ima_policy_flag && !digest)
->   		return -ENOENT;
+[1]: https://clang.llvm.org/docs/AttributeReference.html#no-sanitize
+[2]: https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
 
-Just wanted to check if you have verified this scenario:
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+  - use a common macro as suggested by Ondrej Mosnacek
+  - mention that GCC does not support unsigned integer sanitation
 
-If ima_policy_flag is 0, the in-memory ima policy data is not yet 
-initialized. In this case calling ima_get_action() will cause kernel 
-panic (NULL exception).
+ libsepol/src/avtab.c    |  1 +
+ libsepol/src/policydb.c |  1 +
+ libsepol/src/private.h  | 11 +++++++++++
+ libsepol/src/symtab.c   |  4 ++++
+ 4 files changed, 17 insertions(+)
 
-Please verify the above issue doesn't exist if the caller passes 
-non-NULL digest and ima_policy_flag is 0 (ima policy is not initialized).
+diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+index 88e9d510..37e8af07 100644
+--- a/libsepol/src/avtab.c
++++ b/libsepol/src/avtab.c
+@@ -52,6 +52,7 @@
+ /* Based on MurmurHash3, written by Austin Appleby and placed in the
+  * public domain.
+  */
++ignore_unsigned_overflow_
+ static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
+ {
+ 	static const uint32_t c1 = 0xcc9e2d51;
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index ef2217c2..0721c81e 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -789,6 +789,7 @@ static int roles_init(policydb_t * p)
+ 	goto out;
+ }
+ 
++ignore_unsigned_overflow_
+ static inline unsigned long
+ partial_name_hash(unsigned long c, unsigned long prevhash)
+ {
+diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+index 72f21262..e54cefdb 100644
+--- a/libsepol/src/private.h
++++ b/libsepol/src/private.h
+@@ -47,6 +47,17 @@
+ #define is_saturated(x) (x == (typeof(x))-1)
+ #define zero_or_saturated(x) ((x == 0) || is_saturated(x))
+ 
++/* Use to ignore intentional unsigned under- and overflows while running under UBSAN. */
++#if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
++#if (__clang_major__ >= 12)
++#define ignore_unsigned_overflow_        __attribute__((no_sanitize("unsigned-integer-overflow", "unsigned-shift-base")))
++#else
++#define ignore_unsigned_overflow_        __attribute__((no_sanitize("unsigned-integer-overflow")))
++#endif
++#else
++#define ignore_unsigned_overflow_
++#endif
++
+ /* Policy compatibility information. */
+ struct policydb_compat_info {
+ 	unsigned int type;
+diff --git a/libsepol/src/symtab.c b/libsepol/src/symtab.c
+index 9a417ca2..a6061851 100644
+--- a/libsepol/src/symtab.c
++++ b/libsepol/src/symtab.c
+@@ -8,9 +8,13 @@
+  */
+ 
+ #include <string.h>
++
++#include "private.h"
++
+ #include <sepol/policydb/hashtab.h>
+ #include <sepol/policydb/symtab.h>
+ 
++ignore_unsigned_overflow_
+ static unsigned int symhash(hashtab_t h, const_hashtab_key_t key)
+ {
+ 	const char *p, *keyp;
+-- 
+2.32.0
 
-thanks,
-  -lakshmi
-
->   
->   	template = ima_template_desc_buf();
-> @@ -891,7 +897,7 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   		action = ima_get_action(mnt_userns, inode, current_cred(),
->   					secid, 0, func, &pcr, &template,
->   					func_data);
-> -		if (!(action & IMA_MEASURE))
-> +		if (!(action & IMA_MEASURE) && !digest)
->   			return -ENOENT;
->   	}
->   
-> @@ -922,6 +928,12 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   		event_data.buf_len = digest_hash_len;
->   	}
->   
-> +	if (digest)
-> +		memcpy(digest, iint.ima_hash->digest, digest_hash_len);
-> +
-> +	if (!ima_policy_flag || (func && !(action & IMA_MEASURE)))
-> +		return 1;
-> +
->   	ret = ima_alloc_init_template(&event_data, &entry, template);
->   	if (ret < 0) {
->   		audit_cause = "alloc_entry";
-> @@ -966,7 +978,7 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->   	ret = process_buffer_measurement(file_mnt_user_ns(f.file),
->   					 file_inode(f.file), buf, size,
->   					 "kexec-cmdline", KEXEC_CMDLINE, 0,
-> -					 NULL, false);
-> +					 NULL, false, NULL, 0);
->   	fdput(f);
->   }
->   
-> @@ -977,26 +989,30 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->    * @buf: pointer to buffer data
->    * @buf_len: length of buffer data (in bytes)
->    * @hash: measure buffer data hash
-> + * @digest: buffer digest will be written to
-> + * @digest_len: buffer length
->    *
->    * Measure data critical to the integrity of the kernel into the IMA log
->    * and extend the pcr.  Examples of critical data could be various data
->    * structures, policies, and states stored in kernel memory that can
->    * impact the integrity of the system.
->    *
-> - * Return: 0 if the buffer has been successfully measured, a negative value
-> - * otherwise.
-> + * Return: 0 if the buffer has been successfully measured, 1 if the digest
-> + * has been written to the passed location but not added to a measurement entry,
-> + * a negative value otherwise.
->    */
->   int ima_measure_critical_data(const char *event_label,
->   			      const char *event_name,
->   			      const void *buf, size_t buf_len,
-> -			      bool hash)
-> +			      bool hash, u8 *digest, size_t digest_len)
->   {
->   	if (!event_name || !event_label || !buf || !buf_len)
->   		return -ENOPARAM;
->   
->   	return process_buffer_measurement(&init_user_ns, NULL, buf, buf_len,
->   					  event_name, CRITICAL_DATA, 0,
-> -					  event_label, hash);
-> +					  event_label, hash, digest,
-> +					  digest_len);
->   }
->   
->   static int __init init_ima(void)
-> diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
-> index e3047ce64f39..b02b061c5fac 100644
-> --- a/security/integrity/ima/ima_queue_keys.c
-> +++ b/security/integrity/ima/ima_queue_keys.c
-> @@ -166,7 +166,7 @@ void ima_process_queued_keys(void)
->   							 entry->keyring_name,
->   							 KEY_CHECK, 0,
->   							 entry->keyring_name,
-> -							 false);
-> +							 false, NULL, 0);
->   		list_del(&entry->list);
->   		ima_free_key_entry(entry);
->   	}
-> diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-> index 4db9fa211638..d5d7b3ca9651 100644
-> --- a/security/selinux/ima.c
-> +++ b/security/selinux/ima.c
-> @@ -88,7 +88,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   
->   	measure_rc = ima_measure_critical_data("selinux", "selinux-state",
->   					       state_str, strlen(state_str),
-> -					       false);
-> +					       false, NULL, 0);
->   
->   	kfree(state_str);
->   
-> @@ -105,7 +105,8 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   	}
->   
->   	measure_rc = ima_measure_critical_data("selinux", "selinux-policy-hash",
-> -					       policy, policy_len, true);
-> +					       policy, policy_len, true,
-> +					       NULL, 0);
->   
->   	vfree(policy);
->   }
-> 
