@@ -2,29 +2,30 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42E84C07E9B
-	for <selinux@archiver.kernel.org>; Mon,  5 Jul 2021 09:09:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BC46C07E9A
+	for <selinux@archiver.kernel.org>; Mon,  5 Jul 2021 09:10:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 275FC6138C
-	for <selinux@archiver.kernel.org>; Mon,  5 Jul 2021 09:09:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57E346162A
+	for <selinux@archiver.kernel.org>; Mon,  5 Jul 2021 09:10:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbhGEJMb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 5 Jul 2021 05:12:31 -0400
-Received: from frasgout.his.huawei.com ([185.176.79.56]:3356 "EHLO
+        id S230367AbhGEJMf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 5 Jul 2021 05:12:35 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3358 "EHLO
         frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbhGEJMb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 5 Jul 2021 05:12:31 -0400
-Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.206])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4GJKKM5zNPz6H8Ls;
-        Mon,  5 Jul 2021 16:55:51 +0800 (CST)
+        with ESMTP id S230305AbhGEJMc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 5 Jul 2021 05:12:32 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4GJKPG0r2hz6M4HV;
+        Mon,  5 Jul 2021 16:59:14 +0800 (CST)
 Received: from roberto-ThinkStation-P620.huawei.com (10.204.63.22) by
  fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 5 Jul 2021 11:09:51 +0200
+ 15.1.2176.2; Mon, 5 Jul 2021 11:09:53 +0200
 From:   Roberto Sassu <roberto.sassu@huawei.com>
 To:     <zohar@linux.ibm.com>, <paul@paul-moore.com>
 CC:     <stephen.smalley.work@gmail.com>, <prsriva02@gmail.com>,
@@ -33,10 +34,12 @@ CC:     <stephen.smalley.work@gmail.com>, <prsriva02@gmail.com>,
         <linux-security-module@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
         Roberto Sassu <roberto.sassu@huawei.com>
-Subject: [PATCH v3 0/3] ima: Provide more info about buffer measurement
-Date:   Mon, 5 Jul 2021 11:09:19 +0200
-Message-ID: <20210705090922.3321178-1-roberto.sassu@huawei.com>
+Subject: [PATCH v3 2/3] ima: Return int in the functions to measure a buffer
+Date:   Mon, 5 Jul 2021 11:09:21 +0200
+Message-ID: <20210705090922.3321178-3-roberto.sassu@huawei.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210705090922.3321178-1-roberto.sassu@huawei.com>
+References: <20210705090922.3321178-1-roberto.sassu@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -48,60 +51,170 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch set provides more information about buffer measurement.
+ima_measure_critical_data() and process_buffer_measurement() currently
+don't return a result. A caller wouldn't be able to know whether those
+functions were executed successfully.
 
-First, it introduces the new function ima_get_current_hash_algo(), to
-obtain the algorithm used to calculate the buffer digest (patch 1).
+This patch modifies the return type from void to int, and returns 0 if the
+buffer has been successfully measured, a negative value otherwise.
 
-Second, it changes the type of return value of ima_measure_critical_data()
-and process_buffer_measurement() from void to int, to signal to the callers
-whether or not the buffer has been measured, or just the digest has been
-calculated and written to the supplied location (patch 2).
+Also, this patch does not modify the behavior of existing callers by
+processing the returned value. For those, the return value is ignored.
 
-Lastly, it adds two new parameters to the functions above ('digest' and
-'digest_len'), so that those functions can write the buffer digest to the
-location supplied by the callers (patch 3).
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ include/linux/ima.h               | 15 +++++++-----
+ security/integrity/ima/ima.h      | 10 ++++----
+ security/integrity/ima/ima_main.c | 40 ++++++++++++++++++-------------
+ 3 files changed, 37 insertions(+), 28 deletions(-)
 
-This patch set replaces the patch 'ima: Add digest, algo, measured
-parameters to ima_measure_critical_data()' in:
-
-https://lore.kernel.org/linux-integrity/20210625165614.2284243-1-roberto.sassu@huawei.com/
-
-Changelog
-
-v2:
-- remove assignments of ima_measure_critical_data() and
-  process_buffer_measurement() return values (suggested by Lakshmi)
-
-v1:
-- add digest_len parameter to ima_measure_critical_data() and
-  process_buffer_measurement() (suggested by Lakshmi)
-- fix doc formatting issues
-
-Huawei Digest Lists patch set:
-- introduce ima_get_current_hash_algo() (suggested by Mimi)
-- remove algo and measured parameters from ima_measure_critical_data() and
-  process_buffer_measurement() (suggested by Mimi)
-- return an integer from ima_measure_critical_data() and
-  process_buffer_measurement() (suggested by Mimi)
-- correctly check when process_buffer_measurement() should return earlier
-
-Roberto Sassu (3):
-  ima: Introduce ima_get_current_hash_algo()
-  ima: Return int in the functions to measure a buffer
-  ima: Add digest and digest_len params to the functions to measure a
-    buffer
-
- include/linux/ima.h                          | 23 +++++--
- security/integrity/ima/ima.h                 | 10 +--
- security/integrity/ima/ima_appraise.c        |  2 +-
- security/integrity/ima/ima_asymmetric_keys.c |  2 +-
- security/integrity/ima/ima_init.c            |  3 +-
- security/integrity/ima/ima_main.c            | 67 ++++++++++++++------
- security/integrity/ima/ima_queue_keys.c      |  2 +-
- security/selinux/ima.c                       |  6 +-
- 8 files changed, 78 insertions(+), 37 deletions(-)
-
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index 81e830d01ced..60492263aa64 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -35,10 +35,10 @@ extern void ima_post_path_mknod(struct user_namespace *mnt_userns,
+ extern int ima_file_hash(struct file *file, char *buf, size_t buf_size);
+ extern int ima_inode_hash(struct inode *inode, char *buf, size_t buf_size);
+ extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
+-extern void ima_measure_critical_data(const char *event_label,
+-				      const char *event_name,
+-				      const void *buf, size_t buf_len,
+-				      bool hash);
++extern int ima_measure_critical_data(const char *event_label,
++				     const char *event_name,
++				     const void *buf, size_t buf_len,
++				     bool hash);
+ 
+ #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
+ extern void ima_appraise_parse_cmdline(void);
+@@ -144,10 +144,13 @@ static inline int ima_inode_hash(struct inode *inode, char *buf, size_t buf_size
+ 
+ static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {}
+ 
+-static inline void ima_measure_critical_data(const char *event_label,
++static inline int ima_measure_critical_data(const char *event_label,
+ 					     const char *event_name,
+ 					     const void *buf, size_t buf_len,
+-					     bool hash) {}
++					     bool hash)
++{
++	return -ENOENT;
++}
+ 
+ #endif /* CONFIG_IMA */
+ 
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index f0e448ed1f9f..03db221324c3 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -264,11 +264,11 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+ 			   struct evm_ima_xattr_data *xattr_value,
+ 			   int xattr_len, const struct modsig *modsig, int pcr,
+ 			   struct ima_template_desc *template_desc);
+-void process_buffer_measurement(struct user_namespace *mnt_userns,
+-				struct inode *inode, const void *buf, int size,
+-				const char *eventname, enum ima_hooks func,
+-				int pcr, const char *func_data,
+-				bool buf_hash);
++int process_buffer_measurement(struct user_namespace *mnt_userns,
++			       struct inode *inode, const void *buf, int size,
++			       const char *eventname, enum ima_hooks func,
++			       int pcr, const char *func_data,
++			       bool buf_hash);
+ void ima_audit_measurement(struct integrity_iint_cache *iint,
+ 			   const unsigned char *filename);
+ int ima_alloc_init_template(struct ima_event_data *event_data,
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 8ef1fa357e0c..b512c06d8ee1 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -827,7 +827,7 @@ int ima_post_load_data(char *buf, loff_t size,
+ 	return 0;
+ }
+ 
+-/*
++/**
+  * process_buffer_measurement - Measure the buffer or the buffer data hash
+  * @mnt_userns:	user namespace of the mount the inode was found from
+  * @inode: inode associated with the object being measured (NULL for KEY_CHECK)
+@@ -840,12 +840,15 @@ int ima_post_load_data(char *buf, loff_t size,
+  * @buf_hash: measure buffer data hash
+  *
+  * Based on policy, either the buffer data or buffer data hash is measured
++ *
++ * Return: 0 if the buffer has been successfully measured, a negative value
++ * otherwise.
+  */
+-void process_buffer_measurement(struct user_namespace *mnt_userns,
+-				struct inode *inode, const void *buf, int size,
+-				const char *eventname, enum ima_hooks func,
+-				int pcr, const char *func_data,
+-				bool buf_hash)
++int process_buffer_measurement(struct user_namespace *mnt_userns,
++			       struct inode *inode, const void *buf, int size,
++			       const char *eventname, enum ima_hooks func,
++			       int pcr, const char *func_data,
++			       bool buf_hash)
+ {
+ 	int ret = 0;
+ 	const char *audit_cause = "ENOMEM";
+@@ -867,7 +870,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 	u32 secid;
+ 
+ 	if (!ima_policy_flag)
+-		return;
++		return -ENOENT;
+ 
+ 	template = ima_template_desc_buf();
+ 	if (!template) {
+@@ -889,7 +892,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 					secid, 0, func, &pcr, &template,
+ 					func_data);
+ 		if (!(action & IMA_MEASURE))
+-			return;
++			return -ENOENT;
+ 	}
+ 
+ 	if (!pcr)
+@@ -937,7 +940,7 @@ void process_buffer_measurement(struct user_namespace *mnt_userns,
+ 					func_measure_str(func),
+ 					audit_cause, ret, 0, ret);
+ 
+-	return;
++	return ret;
+ }
+ 
+ /**
+@@ -977,18 +980,21 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+  * and extend the pcr.  Examples of critical data could be various data
+  * structures, policies, and states stored in kernel memory that can
+  * impact the integrity of the system.
++ *
++ * Return: 0 if the buffer has been successfully measured, a negative value
++ * otherwise.
+  */
+-void ima_measure_critical_data(const char *event_label,
+-			       const char *event_name,
+-			       const void *buf, size_t buf_len,
+-			       bool hash)
++int ima_measure_critical_data(const char *event_label,
++			      const char *event_name,
++			      const void *buf, size_t buf_len,
++			      bool hash)
+ {
+ 	if (!event_name || !event_label || !buf || !buf_len)
+-		return;
++		return -ENOPARAM;
+ 
+-	process_buffer_measurement(&init_user_ns, NULL, buf, buf_len, event_name,
+-				   CRITICAL_DATA, 0, event_label,
+-				   hash);
++	return process_buffer_measurement(&init_user_ns, NULL, buf, buf_len,
++					  event_name, CRITICAL_DATA, 0,
++					  event_label, hash);
+ }
+ 
+ static int __init init_ima(void)
 -- 
 2.25.1
 
