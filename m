@@ -7,40 +7,40 @@ X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F14A2C11F6B
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 11:17:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18CDAC07E96
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 11:30:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E067E61CCF
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 11:17:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 088B461CBB
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 11:30:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbhGFLTi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Jul 2021 07:19:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
+        id S233027AbhGFLdc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Jul 2021 07:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232752AbhGFLTE (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:19:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4348961C4E;
-        Tue,  6 Jul 2021 11:16:25 +0000 (UTC)
+        id S234034AbhGFL24 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:28:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A383261D8C;
+        Tue,  6 Jul 2021 11:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570186;
+        s=k20201202; t=1625570422;
         bh=RRgpOpn7nx8REScTZcY67cESuDeSxWiDmacj4YZfCYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiw7mMar9l999RMOA/dCv+XmvsC7/TCNtri0MTAF+K/uZhEH0WhCH7fwT4FnGqK+h
-         ex20FdClQqKctMif485SNvlqgnJVd2UYBqH9qK5XgRCV2zI3h3tZkCTBfRayFlfvUy
-         ld1gHbWA0+HsXBWxxedxqlBKaSh5ivuoWeUT6f8PG11+k/9r6vqGIuPV9U0pJMT03o
-         wYy+60XYGH9Sitq5/4pYNkYTQp4HIUaiOmpjdjudDv8DWXuQN+WgpiYNh6zUIjaYFa
-         g9HINaWHQCADT3h9sb6yGrq2BSzdF1s5H8Y3wEFocPg9ulRu7/7/nd/5wrVKMePfgK
-         T/VphnrEDDPSw==
+        b=Fve9gQnUCut6vzY1JzYARTCNe8k9rM7PKzi+PYrNofO9llN/gyEgrg4putuET3CNI
+         HFJPfqNPz2gu9iFj5fyZdFXavNb+ybKkhtiqJeJ+djJCBgsP4CBGJJoA2W+pVHae75
+         uUjEQsHPYZBS5o3BbyYWTB1T4atyMwzRyfzrZmzL58N7ZlHNNXVpw537Hhd+Hv2pB7
+         K08ZTe0vsf0CpEX+/89dYDG4ldJviYcmb57n/PibF3QU7TIBVOjAKT18egnWpn5pwo
+         JYB+Ji4m7lRNch1UBv9P/kL05fHqVHkUSvDYuCy3kTm9iIs0zAUtPkhlQ7qUxfIgl+
+         LiQAYkiqiEvlA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Minchan Kim <minchan@kernel.org>, Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 101/189] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
-Date:   Tue,  6 Jul 2021 07:12:41 -0400
-Message-Id: <20210706111409.2058071-101-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 086/160] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
+Date:   Tue,  6 Jul 2021 07:17:12 -0400
+Message-Id: <20210706111827.2060499-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
-References: <20210706111409.2058071-1-sashal@kernel.org>
+In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
+References: <20210706111827.2060499-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
