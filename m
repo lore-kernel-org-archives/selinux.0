@@ -2,45 +2,45 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 821C8C07E9E
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 12:29:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C54CC07E9C
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 12:29:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B663619AB
+	by mail.kernel.org (Postfix) with ESMTP id EC07E619AB
 	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 12:29:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236830AbhGFMcZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S236909AbhGFMcZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 6 Jul 2021 08:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236580AbhGFLfb (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6F2961D3A;
-        Tue,  6 Jul 2021 11:23:42 +0000 (UTC)
+        id S237873AbhGFLhi (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:37:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC8D61F4C;
+        Tue,  6 Jul 2021 11:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570623;
-        bh=gD93Bd/J9PwIC6ylbhcrcIv0gxefV7yCn5BZu7DNqXU=;
+        s=k20201202; t=1625570992;
+        bh=yw59GsYN9fZBYf4Z6YQlWTvK7S0ELg+JgFlEsSrDhuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DS/xpGnT1Lu90YbrwW3mcRGEWiAY+MT8kLyV47vAu1uiX2VqqmUZ/66rRXByay4if
-         O/am54aCSAMjUh/6H+lWR2oQvKt9n7oe9fk5eTaaGgfmI8nc9DUnbVbFhmfdJ1waly
-         Q/nqQdyB+fRATnemg20bD7BqiMlyEzcUkj1pe69XU83ENjdZTv9+4w6esaDBGrPG+z
-         MoQbcjpN6RHNvZDvprzBQSdl39TyAfx1CXg41ZX0+OmZQtg5NJbPkZa7EJHeOKG9uM
-         To0C0NeA6i5n3PgqmXERBVk0iDu3Oi8dAFKAxAtjDDTS4fzRRJz06Imqcp4CSjd86o
-         EGxK8L4/cnffA==
+        b=IsnaCXc6cWQ1Io5esLdB3g1fFHzTxgoqv4u/f8egFxCkm03s23Q9hKe7d/NcTBIeY
+         0jiBVzXJvcba+JM0W0vzm4BDhoMhUGLAgrfoJRP/m/PAtvJOxV/3Nl5qLAaQk2uvkK
+         067NKt1qIB98G7M8Ho/kIfiALJWVyBJcXDuoTiC6tVtn94p0ou5dPRfPa6kjEEyVwU
+         NGLbn1aF8FNvlrmee7pRvE5IdFt7HkbUC7VtS6HiECs6QFTelZKscfhDrsVWKzYc6Q
+         Qb9uQLLtQ/ggik1qX+LYY6C/l30JqlGPZPnniKnpl9p7dguPMe/Vzdl71rcjSspsMO
+         HTZDEaRBj0GEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Minchan Kim <minchan@kernel.org>, Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 077/137] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
-Date:   Tue,  6 Jul 2021 07:21:03 -0400
-Message-Id: <20210706112203.2062605-77-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 17/31] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
+Date:   Tue,  6 Jul 2021 07:29:17 -0400
+Message-Id: <20210706112931.2066397-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
-References: <20210706112203.2062605-1-sashal@kernel.org>
+In-Reply-To: <20210706112931.2066397-1-sashal@kernel.org>
+References: <20210706112931.2066397-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -120,10 +120,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 3c05827608b6..884a014ce2b8 100644
+index f3c473791b69..a16c72c2a967 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
-@@ -297,26 +297,27 @@ static struct avc_xperms_decision_node
+@@ -348,26 +348,27 @@ static struct avc_xperms_decision_node
  	struct avc_xperms_decision_node *xpd_node;
  	struct extended_perms_decision *xpd;
  
@@ -155,7 +155,7 @@ index 3c05827608b6..884a014ce2b8 100644
  		if (!xpd->dontaudit)
  			goto error;
  	}
-@@ -344,7 +345,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
+@@ -395,7 +396,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
  {
  	struct avc_xperms_node *xp_node;
  
@@ -164,7 +164,7 @@ index 3c05827608b6..884a014ce2b8 100644
  	if (!xp_node)
  		return xp_node;
  	INIT_LIST_HEAD(&xp_node->xpd_head);
-@@ -500,7 +501,7 @@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)
+@@ -548,7 +549,7 @@ static struct avc_node *avc_alloc_node(void)
  {
  	struct avc_node *node;
  
