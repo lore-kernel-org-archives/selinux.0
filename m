@@ -2,177 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4C83C07E96
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 12:51:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A00CAC07E96
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 14:58:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B5BD9611AB
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 12:51:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D83C611AE
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 14:58:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbhGFMxp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Jul 2021 08:53:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36308 "EHLO
+        id S231754AbhGFPBF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Jul 2021 11:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239505AbhGFMxf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 08:53:35 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B0F8C061764
-        for <selinux@vger.kernel.org>; Tue,  6 Jul 2021 05:50:57 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id c17so33917760ejk.13
-        for <selinux@vger.kernel.org>; Tue, 06 Jul 2021 05:50:57 -0700 (PDT)
+        with ESMTP id S231266AbhGFPBF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 11:01:05 -0400
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330D1C06178C
+        for <selinux@vger.kernel.org>; Tue,  6 Jul 2021 07:58:25 -0700 (PDT)
+Received: by mail-ot1-x335.google.com with SMTP id 75-20020a9d08510000b02904acfe6bcccaso1720353oty.12
+        for <selinux@vger.kernel.org>; Tue, 06 Jul 2021 07:58:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=T4j1RX/4vxQmgSfWiJVIbkm3BekbD4J1+8zX+K8GVHA=;
-        b=WU/h2d84gwLmZE0PbbvGiG50douLmYVV5vrIcXRSV0wto/x0xQ8gTyNbUDw044mqQJ
-         0MiHY1UlEcdksNDY+HJ+8uCUFDy3qYyTfZLT3LV7ZHnUOfd/VW31CTHNv2E/p/lbpMfN
-         BaG2JAz2sM8CCX/pzy9k/dc+yiC4Gixrd8/maBGCOMYokl1gF84qbzZLeItKIHBonmMU
-         pzxuzhaa9J03k22JxwRDPnU+s8hFl8QI1b4swolMQLDd8HBjlM9HBpF0YkgSVKWgtfIA
-         QECgbxSlEYaycZfGTVvY4jc9gO+NpPOsNQV6A/hggJ4JOc4KYd18vDQzL+uPEp79WOgz
-         Q8mQ==
+        bh=ABHsEDAe7jeHknzilwbQyRf2izfZqjgd1nWnhAiaiQk=;
+        b=uMpnTX44mjzpazAY2ilQcObj5A/pSOGLP/YfsYtsXYlhXK6HRLBFV62AxB2sgzSE70
+         Vcmlk6WA0teR+cdJaTi7N4OfgDjalO3wEDdeYxgjejWTkccbDMck03rd/3VPh5Q3yBUs
+         FwgJklswpjJMN2jvehRU2k+dkRDGnpAlJ8bNKuKP5GF3aFEoV8GoK4wLwCd4Zn0hwUSq
+         sSG0ALBuCmRJir1XVBf+uMR/TN8b3KvYNK+BmIH2juEPo7PhP7chnxXzS3NCObrmCmB4
+         ZG2bot7f1tV+KdZxyN6HF9wy084oICZQ6rc1hpCTUMs4wc4ri6x/DsOYJO8El/zOkh6k
+         +DSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=T4j1RX/4vxQmgSfWiJVIbkm3BekbD4J1+8zX+K8GVHA=;
-        b=Z6uWCfIIKttGRFC9ZviPmTR28AG5NF4GA7zQElcWmkZqXr+FUNhHJ/JBj5q8eBAbEX
-         q2IpWL+xcYY0TmbQ7bvPOOT+f4gcOcUYUtGFEXifcu3guYHVLLqRp6+yLMdiYiYxsbai
-         3XF15zbeFUm8GpBm3otn0ySkJaJkjUTktYD481B/1TSw5m8rG94yy/FcUUJEvYnbWDqZ
-         tgb7c818NwI3ZJU+r9uXN7mKgntp0aNU2sY0A1h1KUA3UNVvh9PtfBroNF0rf9Dk6yTQ
-         MEiUqM/hvvdeVMPNAO6qV4VjqURwX2Yy1t9mB6Bbs5LJwMtxK5pcdNsDQWVTSuPLAiNV
-         pWdw==
-X-Gm-Message-State: AOAM530iKO9rtjOsNUTUuxu05D6v+hjg5KOH48m8EY899jP8qc5+ANvw
-        bDOa5IYRcwN8j+wF1ROczhlIJZsEX/+qqYOVV+hX
-X-Google-Smtp-Source: ABdhPJxb5ymVgv/EPwejbN2/uGp8bQsc3v8V3IPMaTZlLQQ7amZy2CayzGiVgUsfD7rJOTFn6HYIr3bnLREGEKC4j3Q=
-X-Received: by 2002:a17:907:10d8:: with SMTP id rv24mr17992943ejb.542.1625575855534;
- Tue, 06 Jul 2021 05:50:55 -0700 (PDT)
+        bh=ABHsEDAe7jeHknzilwbQyRf2izfZqjgd1nWnhAiaiQk=;
+        b=ffmHpA2O3h3Cw90VypOqdiWEOnCmBX4YOTBO3XNKxZyD5py9E+6dN4U0RBPhz//Gez
+         Yb/uI9lp3Se4awVy1P0ivTRBMxKEfqnauqPjzURpovXW0584iWQM5zVqPASSbjphCR8n
+         ceS7LjIDSzjfx7djl22KOtw0bQvrpnynkOI1NWnRE2Ue3ljHfFevsh1AhfeZl+66yZVx
+         wJEB65LeGkfWqTKWuFsLOqc6AjIsVI5w74U29/hND2uibindisOK44pi9RUquhn7i4uL
+         PdrqwzGu5ffbMTvenZKy0PBZPd+SD2UdtpGuSCOOg2DbZGMl1Mib6LA6muGVujL2YBAs
+         m30w==
+X-Gm-Message-State: AOAM532i+JwZ5AUqk/nd02yFm6xay6Pm7RrU71tz0qG5jZcJS6skBBUO
+        RS9fb5dT7m9RoIpo4NKX9cE6Zn9u+U0HtrfP+K8l3/qFT6KAMA==
+X-Google-Smtp-Source: ABdhPJynjvKz9OedddsT/jy7hHBZ3PDkF/yz4mFRdak2O4QIR/VgeZ8U9ewIKvYtlsWfdw1humGFL9dBok0YiI4kEVQ=
+X-Received: by 2002:a05:6830:16d2:: with SMTP id l18mr703050otr.196.1625583504620;
+ Tue, 06 Jul 2021 07:58:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <0000000000004e5ec705c6318557@google.com> <CACT4Y+YysFa1UzT6zw9GGns69WSFgqrL6P_LjUju6ujcJRTaeA@mail.gmail.com>
- <d11c276d-65a0-5273-d797-1092e1e2692a@schaufler-ca.com> <CAHC9VhSq88YjA-VGSTKkc4hkc_KOK=mnoAYiX1us6O6U0gFzAQ@mail.gmail.com>
- <CACT4Y+bj4epytaY4hhEx5GF+Z2xcMnS4AEg=JcrTEnWvXWFuGQ@mail.gmail.com>
-In-Reply-To: <CACT4Y+bj4epytaY4hhEx5GF+Z2xcMnS4AEg=JcrTEnWvXWFuGQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 6 Jul 2021 08:50:44 -0400
-Message-ID: <CAHC9VhQLi+1r3BmSeQre+EEtEyvhSmmT-ABLjvzk0J-J9v9URw@mail.gmail.com>
-Subject: Re: [syzbot] general protection fault in legacy_parse_param
-To:     Dmitry Vyukov <dvyukov@google.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        syzbot <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+References: <20210702110705.435223-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20210702110705.435223-1-nicolas.iooss@m4x.org>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 6 Jul 2021 10:58:13 -0400
+Message-ID: <CAP+JOzQM=p9Kg2grQWeKzgwWe+N+HTTJNdaiQ++HhW+mPYb9+w@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: do not override previous results of __cil_verify_classperms
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 5, 2021 at 1:52 AM Dmitry Vyukov <dvyukov@google.com> wrote:
-> On Sun, Jul 4, 2021 at 4:14 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Sat, Jul 3, 2021 at 6:16 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > On 7/2/2021 10:51 PM, Dmitry Vyukov wrote:
-> > > > On Sat, Jul 3, 2021 at 7:41 AM syzbot
-> > > > <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com> wrote:
-> > > >> Hello,
-> > > >>
-> > > >> syzbot found the following issue on:
-> > > >>
-> > > >> HEAD commit:    62fb9874 Linux 5.13
-> > > >> git tree:       upstream
-> > > >> console output: https://syzkaller.appspot.com/x/log.txt?x=12ffa118300000
-> > > >> kernel config:  https://syzkaller.appspot.com/x/.config?x=19404adbea015a58
-> > > >> dashboard link: https://syzkaller.appspot.com/bug?extid=d1e3b1d92d25abf97943
-> > > >> compiler:       Debian clang version 11.0.1-2
-> > > >>
-> > > >> Unfortunately, I don't have any reproducer for this issue yet.
-> > > >>
-> > > >> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> > > >> Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
-> > > > +Casey for what looks like a smackfs issue
-> > >
-> > > This is from the new mount infrastructure introduced by
-> > > David Howells in November 2018. It makes sense that there
-> > > may be a problem in SELinux as well, as the code was introduced
-> > > by the same developer at the same time for the same purpose.
-> > >
-> > > > The crash was triggered by this test case:
-> > > >
-> > > > 21:55:33 executing program 1:
-> > > > r0 = fsopen(&(0x7f0000000040)='ext3\x00', 0x1)
-> > > > fsconfig$FSCONFIG_SET_STRING(r0, 0x1, &(0x7f00000002c0)='smackfsroot',
-> > > > &(0x7f0000000300)='default_permissions', 0x0)
-> > > >
-> > > > And I think the issue is in smack_fs_context_parse_param():
-> > > > https://elixir.bootlin.com/linux/latest/source/security/smack/smack_lsm.c#L691
-> > > >
-> > > > But it seems that selinux_fs_context_parse_param() contains the same issue:
-> > > > https://elixir.bootlin.com/linux/latest/source/security/selinux/hooks.c#L2919
-> > > > +So selinux maintainers as well.
-> > > >
-> > > >> general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-> > > >> KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-> > > >> CPU: 0 PID: 20300 Comm: syz-executor.1 Not tainted 5.13.0-syzkaller #0
-> > > >> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> > > >> RIP: 0010:memchr+0x2f/0x70 lib/string.c:1054
-> > > >> Code: 41 54 53 48 89 d3 41 89 f7 45 31 f6 49 bc 00 00 00 00 00 fc ff df 0f 1f 44 00 00 48 85 db 74 3b 48 89 fd 48 89 f8 48 c1 e8 03 <42> 0f b6 04 20 84 c0 75 0f 48 ff cb 48 8d 7d 01 44 38 7d 00 75 db
-> > > >> RSP: 0018:ffffc90001dafd00 EFLAGS: 00010246
-> > > >> RAX: 0000000000000000 RBX: 0000000000000013 RCX: dffffc0000000000
-> > > >> RDX: 0000000000000013 RSI: 000000000000002c RDI: 0000000000000000
-> > > >> RBP: 0000000000000000 R08: ffffffff81e171bf R09: ffffffff81e16f95
-> > > >> R10: 0000000000000002 R11: ffff88807e96b880 R12: dffffc0000000000
-> > > >> R13: ffff888020894000 R14: 0000000000000000 R15: 000000000000002c
-> > > >> FS:  00007fe01ae27700(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-> > > >> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > >> CR2: 00000000005645a8 CR3: 0000000018afc000 CR4: 00000000001506f0
-> > > >> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > > >> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > > >> Call Trace:
-> > > >>  legacy_parse_param+0x461/0x7e0 fs/fs_context.c:537
-> > > >>  vfs_parse_fs_param+0x1e5/0x460 fs/fs_context.c:117
-> >
-> > It's Sunday morning and perhaps my mind is not yet in a "hey, let's
-> > look at VFS kernel code!" mindset, but I'm not convinced the problem
-> > is the 'param->string = NULL' assignment in the LSM hooks.  In both
-> > the case of SELinux and Smack that code ends up returning either a 0
-> > (Smack) or a 1 (SELinux) - that's a little odd in it's own way, but I
-> > don't believe it is relevant here - either way these return values are
-> > not equal to -ENOPARAM so we should end up returning early from
-> > vfs_parse_fs_param before it calls down into legacy_parse_param():
-> >
-> > Taken from https://elixir.bootlin.com/linux/latest/source/fs/fs_context.c#L109 :
-> >
-> >   ret = security_fs_context_parse_param(fc, param);
-> >   if (ret != -ENOPARAM)
-> >     /* Param belongs to the LSM or is disallowed by the LSM; so
-> >      * don't pass to the FS.
-> >      */
-> >     return ret;
-> >
-> >   if (fc->ops->parse_param) {
-> >     ret = fc->ops->parse_param(fc, param);
-> >     if (ret != -ENOPARAM)
-> >       return ret;
-> >   }
+On Fri, Jul 2, 2021 at 7:15 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> Hi Paul,
+> When __cil_verify_map_class() verifies a classpermission, it calls
+> __verify_map_perm_classperms() on each item. If the first item reports a
+> failure and the next one succeeds, the failure is overwritten in
+> map_args->rc. This is a bug which causes a NULL pointer dereference in
+> the CIL compiler when compiling the following policy:
 >
-> You are right.
-> I almost connected the dots, but not exactly.
-> Now that I read more code around, setting "param->string = NULL" in
-> smack_fs_context_parse_param() looks correct to me (the fs copies and
-> takes ownership of the string).
+>     (sid SID)
+>     (sidorder (SID))
 >
-> I don't see how the crash happened...
+>     (class CLASS (PERM1))
+>     (classorder (CLASS))
+>
+>     (classpermission CLSPERM)
+>     (classpermissionset CLSPERM (CLASS (PERM1)))
+>     (classmap files (CLAMAPxx x))
+>     (classmapping files CLAMAPxx CLSPERM)
+>
+> Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30286
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-FWIW, I poked around a bit too and couldn't see anything obvious
-either, but I can't pretend to know as much about the VFS layer as the
-VFS folks.  Hopefully they might have better luck.
+Acked-by: James Carter <jwcart2@gmail.com>
 
--- 
-paul moore
-www.paul-moore.com
+> ---
+>  libsepol/cil/src/cil_verify.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> index 59397f70f2ea..8ad3dc9e114a 100644
+> --- a/libsepol/cil/src/cil_verify.c
+> +++ b/libsepol/cil/src/cil_verify.c
+> @@ -1786,8 +1786,12 @@ static int __verify_map_perm_classperms(__attribute__((unused)) hashtab_key_t k,
+>  {
+>         struct cil_verify_map_args *map_args = args;
+>         struct cil_perm *cmp = (struct cil_perm *)d;
+> +       int rc;
+>
+> -       map_args->rc = __cil_verify_classperms(cmp->classperms, &cmp->datum, &map_args->class->datum, &cmp->datum, CIL_MAP_PERM, 0, 2);
+> +       rc = __cil_verify_classperms(cmp->classperms, &cmp->datum, &map_args->class->datum, &cmp->datum, CIL_MAP_PERM, 0, 2);
+> +       if (rc != SEPOL_OK) {
+> +               map_args->rc = rc;
+> +       }
+>
+>         return SEPOL_OK;
+>  }
+> --
+> 2.32.0
+>
