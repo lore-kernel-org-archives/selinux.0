@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB30FC07E9B
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 17:54:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42AC0C07E9E
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 17:54:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD53961C3C
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 17:54:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2652F61C44
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 17:54:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230364AbhGFR50 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S230379AbhGFR50 (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 6 Jul 2021 13:57:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49826 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230347AbhGFR5Z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 13:57:25 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C35EC061574
+        with ESMTP id S230347AbhGFR50 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 13:57:26 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0AFCC06175F
         for <selinux@vger.kernel.org>; Tue,  6 Jul 2021 10:54:46 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id t3so29133563edt.12
+Received: by mail-ej1-x62e.google.com with SMTP id he13so16875183ejc.11
         for <selinux@vger.kernel.org>; Tue, 06 Jul 2021 10:54:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=kw9tONUBoPcTpbjcLQASEBtB8/lqOXIVnp171hSswSQ=;
-        b=evloRo/PPkU0O/Aj/YCcK/qCQs4I6Gn8w44q40tFd5gW0e+rNHhdcCX5/eAM1aohLZ
-         GKCi3YeF5nR254okP0hIxw7HHldakyW+Doe526tAr9YKfY7MI4H5pQ3+X6/0Wass2Opy
-         sxAqOF0QkyDNJh2EA29oLqjTShgtGshrBkXO01L5rqI5IJiDYN073k9pDH8iwwemf7uQ
-         Pj2twQgTl3h41fs1bsqREDFpxZ2ZKG/7YjOsQMFGOP4AZjvPkppYL8DnxCg5FxYFeEEO
-         aPDdtTK/boMdfg9rzW0DJAv0YtteVektuTSUqPeQNwCrgIAf1nUhiYSb9EbnEgH038Bf
-         4oPQ==
+        bh=5+1JDzrlvP2/smXY+aB9mE2VxwJat1s6od2tQR7lYn0=;
+        b=kA6/IjkbgLTHMRiDWz9AJnz5ouJbacmMw1GdWJCVd1tnfcmM7tGGQHK3SYNsv/T4AX
+         o4qmQy9bRVvzp2BAqznHEYFJv3vuD3/MBeEOZ+arpgw0oK3maZRt/gKOB6XvSNVLwkHh
+         lrYoxbWchPw6c3CYrl5iPIUCAH5OXXOdL+pBVXZwUnogycMJjTW4C3fnW2qB5OggLRL/
+         kJCFxfmu53on/p4folRgDyBdlCz6kyLjxxyaBP1EsYmWA+dCZQUjKCr8yCK9qQxI4oku
+         ah20uc+diOHuu196I25DvVU79FIuXV3ds53dc1B1fwMZhI+FPaY9vvan11cTPX3lgDnA
+         n89w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kw9tONUBoPcTpbjcLQASEBtB8/lqOXIVnp171hSswSQ=;
-        b=sXl8/Mro6ut1pbIoeOc30FIaldbWCPAwX6WnsdTmuE3y4bN0TXUKDRbN8xRrcv3H60
-         tIL7k2pC0MiCWjk8chl+EJeTfi439btsRP0+o1Wv62DzVU6N/SaALhELp+K/WG3pijWP
-         426yAeFFMZ7XqNPE4RYBsubUbBBH9ePYSH4lml928pyP3gG+oLSIbcXUIBETw15XkQGS
-         3Haee2i9TnVrF9BzK9Z+f3B71EcAlYb+lVaVqcGb9mMliwFMoJTeQih7C3vdCqcOiW6n
-         kd9Tg9Wke7cNb//otD/rWtC9fypn3gWTfLlaTzZCqZr35FZeSPyNDsKfsBtmEAbm6pxw
-         Au3A==
-X-Gm-Message-State: AOAM531cBGu2hSEM5Rdx1daAKscMK7113Z5IIyNuhTG9Q6qhMr1A2Xbg
-        zQSyLG97gMskGgeYjUJ5AVdGHs+jBvI=
-X-Google-Smtp-Source: ABdhPJyoBUDFxqYc87/i3zO3EIbaSxrGBKfRZuPhJJAdIvkI8pDKKl5crxPvphxJjOZ1xiZAdR01VA==
-X-Received: by 2002:a05:6402:28b3:: with SMTP id eg51mr321444edb.216.1625594084755;
-        Tue, 06 Jul 2021 10:54:44 -0700 (PDT)
+        bh=5+1JDzrlvP2/smXY+aB9mE2VxwJat1s6od2tQR7lYn0=;
+        b=WYXBJDKr1W+NB/f7XjpeN+ORREID+PM8hkU+lcTAYVWF1OeSNBZCTRpq/enoqnHuYp
+         GrWJeBABLWP9X8RnMU6RYZX7SxhoZTVTe/xqA2swFM54rh4uIV4soSQxKdOZ07vbh8e+
+         2tW+YrDUnXSmCHRBFEHyiJJklTaj2KO3GGpmz6orp2bfX325PWlw5AQ/1TnrMgpM6Zqg
+         V4GjRgkJkYEtpAjmt4Kb7OqvGDQiwOeEzGpEdh0WtqbgtfZrSTSrZHkhGZN5qWzIoSG5
+         8y1sruXOaub1Nkfuy5PbGPU5+00P4GkKSqRm9vFz4F7Blgxf8OBTNntfuzTKjPy1y5o1
+         UIhg==
+X-Gm-Message-State: AOAM533aqWOFTndNu+K+NhlpJo3jyeqbmDlcIb90NvJxmMtcIuq96KSi
+        UK+cK2iKNTpw1XSFgXpkB30AqvVUS80=
+X-Google-Smtp-Source: ABdhPJxi5Qw6IJGND4MyPCyOW30xrqmWFlwX/KjLjIc9P5gJGbMzTqUBDN1seu5p5MxlbbUzf6H9uw==
+X-Received: by 2002:a17:907:3e0b:: with SMTP id hp11mr20492230ejc.523.1625594085372;
+        Tue, 06 Jul 2021 10:54:45 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-116-100-174.95.116.pool.telefonica.de. [95.116.100.174])
         by smtp.gmail.com with ESMTPSA id lg16sm6050950ejb.69.2021.07.06.10.54.44
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Jul 2021 10:54:44 -0700 (PDT)
+        Tue, 06 Jul 2021 10:54:45 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 09/13] checkpolicy: avoid potential use of uninitialized variable
-Date:   Tue,  6 Jul 2021 19:54:29 +0200
-Message-Id: <20210706175433.29270-9-cgzones@googlemail.com>
+Subject: [PATCH 10/13] checkpolicy: drop redundant cast to the same type
+Date:   Tue,  6 Jul 2021 19:54:30 +0200
+Message-Id: <20210706175433.29270-10-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210706175433.29270-1-cgzones@googlemail.com>
 References: <20210706175433.29270-1-cgzones@googlemail.com>
@@ -72,57 +72,26 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-    checkpolicy.c: In function ‘main’:
-    checkpolicy.c:1000:25: error: ‘tsid’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
-     1000 |                         printf("if_sid %d default_msg_sid %d\n", ssid, tsid);
-          |                         ^
-
-    checkpolicy.c: In function ‘main’:
-    checkpolicy.c:971:25: error: ‘tsid’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
-      971 |                         printf("fs_sid %d default_file_sid %d\n", ssid, tsid);
-          |                         ^
-
-Found by GCC 11 with LTO enabled.
+Found by clang-tidy.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/checkpolicy.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ checkpolicy/policy_define.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index c88ca542..04f35eda 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -967,8 +967,12 @@ int main(int argc, char **argv)
- 			printf("fs kdevname?  ");
- 			FGETS(ans, sizeof(ans), stdin);
- 			ans[strlen(ans) - 1] = 0;
--			sepol_fs_sid(ans, &ssid, &tsid);
--			printf("fs_sid %d default_file_sid %d\n", ssid, tsid);
-+			ret = sepol_fs_sid(ans, &ssid, &tsid);
-+			if (ret) {
-+				printf("unknown fs kdevname\n");
-+			} else {
-+				printf("fs_sid %d default_file_sid %d\n", ssid, tsid);
-+			}
- 			break;
- 		case '9':
- 			printf("protocol?  ");
-@@ -996,8 +1000,12 @@ int main(int argc, char **argv)
- 			printf("netif name?  ");
- 			FGETS(ans, sizeof(ans), stdin);
- 			ans[strlen(ans) - 1] = 0;
--			sepol_netif_sid(ans, &ssid, &tsid);
--			printf("if_sid %d default_msg_sid %d\n", ssid, tsid);
-+			ret = sepol_netif_sid(ans, &ssid, &tsid);
-+			if (ret) {
-+				printf("unknown name\n");
-+			} else {
-+				printf("if_sid %d default_msg_sid %d\n", ssid, tsid);
-+			}
- 			break;
- 		case 'b':{
- 				char *p;
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 370ff8e3..462e3994 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1796,7 +1796,7 @@ int define_bool_tunable(int is_tunable)
+ 		return -1;
+ 	}
+ 
+-	datum->state = (int)(bool_value[0] == 'T') ? 1 : 0;
++	datum->state = (bool_value[0] == 'T') ? 1 : 0;
+ 	free(bool_value);
+ 	return 0;
+       cleanup:
 -- 
 2.32.0
 
