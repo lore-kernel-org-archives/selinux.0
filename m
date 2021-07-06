@@ -2,200 +2,147 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25B76C07E96
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 15:40:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF6B3C07E96
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 17:24:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3E246139A
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 15:40:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 911FF619D2
+	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 17:24:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231773AbhGFPnU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Jul 2021 11:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
+        id S230382AbhGFR1b (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Jul 2021 13:27:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232291AbhGFPnU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 11:43:20 -0400
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDD1C061574
-        for <selinux@vger.kernel.org>; Tue,  6 Jul 2021 08:40:41 -0700 (PDT)
-Received: by mail-ot1-x32f.google.com with SMTP id 7-20020a9d0d070000b0290439abcef697so22000582oti.2
-        for <selinux@vger.kernel.org>; Tue, 06 Jul 2021 08:40:41 -0700 (PDT)
+        with ESMTP id S230348AbhGFR1b (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 13:27:31 -0400
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD78C061574
+        for <selinux@vger.kernel.org>; Tue,  6 Jul 2021 10:24:52 -0700 (PDT)
+Received: by mail-oi1-x232.google.com with SMTP id w127so37619oig.12
+        for <selinux@vger.kernel.org>; Tue, 06 Jul 2021 10:24:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=googlemail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YmEelBIjb4Ct5OvBv1rVOyX/ncgLxNspO+0szPtd1ag=;
-        b=QGctOMjm5Nd2DnqWEcg9INo1aaJt5W+VOYbFdmz2JkL7eTE9t4IruOEtLQcwq2qKci
-         Ei+Jl2eZWH9akCylEwkPO0Rglapoq8L+sJDb0/zPPWmg8p/vtbJL/b39C5G+GulM8KLq
-         aU6XC+LSL99AuX0Wr66yr3n0cKG/Z9I02y0vY2Ow3wjdUQTt8sIWdFIs2D4bqzdQuQPd
-         T+Rnro3+ES7pf+KRNGgOApON3UWSPmqzjtFl2OXtdf+dsPlNJqQYqTJV17c76WrpCU93
-         0gtsYICFgMiygheUyDn4gtNwzF2W7Y8Wje32hIEeRw+Gv3PQl43+MyUasmitaH4Bwy97
-         VZnA==
+         :cc:content-transfer-encoding;
+        bh=esQYOqiK3JMW70d53GFUi6T9nvRYv+Fw2gY+RQlq0GU=;
+        b=S8vwaXTxDSDKgu8igXTqhPpNZsorsfoIF4fuhKpY5S10xqKC1j4vn2+F9IkJw6g/PZ
+         8Q5oO7zsDMHf+USILEHlf+cmJ+mzXlB5HbJiLp9+ehYyY4EBJVw4f4fLrSAwW9sU9buo
+         lbS+buYEigPG6YiEaUB7ym3g5A5lI6FCoM/ipRyqk6lFEV8wmAkTPSPjPmwRbeSQLWRE
+         kpALRSB+A36IT6SPtoL7Y2XP5jPgU78BC7Ly08XgkIOZXLy6UVultf/HPXmGhnVXdSaj
+         XDrSqVbWU5+QQ0mV3ei+9C1C9PHDsNIH/hQm9OKMjOadwbcrbUrS9NEwS6m5iuIJL/C/
+         3nkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YmEelBIjb4Ct5OvBv1rVOyX/ncgLxNspO+0szPtd1ag=;
-        b=abeuJx7G5o0/ZZaPIO7Oe0bi8K57wqVMkCjgSna/oB8ewVGPdkyGOrMA4Ywywwus/i
-         xmT4MepqLor2DWcQpaWnUJ6YL5ATC8AjrK39uazUIwIrt9MVmHSEYU0ty+EVGFwnXOdl
-         w5dGyVrXtB9jUC7Hcd/VDEylxjkoNGo511olBmQU7VAmEsNiZzQgIf4UB2QtvJmNCDAO
-         Kb18vQqN9z9xgfn5IgdgGR5h1QHufQiUz0vHL/yudMGx09Nr6XsbBOf7UglPAK0asGtf
-         S/BDiCd1ruLw+Z5uvUmFWPaxWorqMTH04F8rS33E8D+Xx1+jLmB1PJxJZId3NfOpIPv4
-         TyuA==
-X-Gm-Message-State: AOAM531br0NeSbKPg5oX/vnzaYDQWH+QEfLAgslk15XlzFtOr+VtMGE6
-        OE0D2EyS50VlyE+30nj/d+d7t4PwqlWATe4H3r0=
-X-Google-Smtp-Source: ABdhPJwQnwGO3t2N/JlCaG7tVJ/pTjrjSVEp9/+f0ACRql15cCqMz+U2loSmZEJFPIgyfBmBxjojgqGtN+koITUMFZQ=
-X-Received: by 2002:a05:6830:16d2:: with SMTP id l18mr865887otr.196.1625586040956;
- Tue, 06 Jul 2021 08:40:40 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=esQYOqiK3JMW70d53GFUi6T9nvRYv+Fw2gY+RQlq0GU=;
+        b=ArCgYxAmzJX3sufATRN5VImoQPpTuQ2APsQv4Q5O0iqpo9eazc4QgvuRPi07VJ8TCO
+         zse0+5qs/hp2e60PojsK8RX9X7M0xBisvvf1PeD2uAVeE0zu6ZPVL6U7rvTxYMYxDFV0
+         15eyUb8KdsiDQvtf8tGdBMsQjAiil753qkodUwXr4IXEeUnehUAv6ulpxYdS76uekQzp
+         y1Gav8a1U2zqsTuRN6+isgTBE1EVoEWGPgrArMb0GHWw+ZPoxc/1jrCVqX+K+/CZjXMt
+         qxx3Z58O9MnLGwKvM+rZuarVp3u+krcwJjJKfQsrJ9801ILiu40LwKZLw5alFPZyq+bM
+         p5mA==
+X-Gm-Message-State: AOAM530asMOWN46zrL5hTZq4uqumOTZD0HSTAQXzhu6atr5TkLDqpr5M
+        8YPQCvGVY9bVif07fUwc5nKoRT6IfdAsIooBu6SeJl4lde4=
+X-Google-Smtp-Source: ABdhPJzHLqp9bpaHiJzDf4uzXnbLCHSvdm82i89aVk5BTmsc+ZLX1LBCHNvYLekV9VBMjdhyPWLhhl+CboPVCrV2ljQ=
+X-Received: by 2002:aca:618a:: with SMTP id v132mr1284920oib.144.1625592291755;
+ Tue, 06 Jul 2021 10:24:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210703143122.1441578-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20210703143122.1441578-1-nicolas.iooss@m4x.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 6 Jul 2021 11:40:29 -0400
-Message-ID: <CAP+JOzQN3gcViy-3JRyVmLT6G6LvigerT8Fm=3Ukxn=BHzaTUw@mail.gmail.com>
-Subject: Re: [PATCH 1/6] libsepol: silence -Wextra-semi-stmt warning
+References: <20210701183430.145934-1-cgzones@googlemail.com>
+ <20210701183833.146592-1-cgzones@googlemail.com> <CAJfZ7=k5+wSxrmBtTH91Fw6AHO4z-=wYqm2OFEzDtQXLei0=eg@mail.gmail.com>
+In-Reply-To: <CAJfZ7=k5+wSxrmBtTH91Fw6AHO4z-=wYqm2OFEzDtQXLei0=eg@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 6 Jul 2021 19:24:40 +0200
+Message-ID: <CAJ2a_DccPRQhBhmgGBVPrZ6++RCZ2QkV4Wk=4Co4TN1DXiW1+Q@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: avoid unsigned integer overflow
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jul 3, 2021 at 10:32 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Fri, 2 Jul 2021 at 22:36, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Ubuntu 20.04, when building with clang -Werror -Wextra-semi-stmt
-> (which is not the default build configuration), the compiler reports:
+> On Thu, Jul 1, 2021 at 8:38 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Unsigned integer overflow is well-defined and not undefined behavior.
+> > But it is still useful to enable undefined behavior sanitizer checks on
+> > unsigned arithmetic to detect possible issues on counters or variables
+> > with similar purpose.
+> >
+> > Use a spaceship operator like comparison instead of subtraction.
+> >
+> > Modern compilers will generate a single comparison instruction instead
+> > of actually perform the subtraction.
+> >
+> >     policydb.c:851:24: runtime error: unsigned integer overflow: 801 - =
+929 cannot be represented in type 'unsigned int'
+> >
+> > This is similar to 1537ea84.
 >
->   ../cil/src/cil_binary.c:4293:22: error: empty expression statement
->   has no effect; remove unnecessary ';' to silence this warning
->   [-Werror,-Wextra-semi-stmt]
->           mix(k->target_class);
->                               ^
->   ../cil/src/cil_binary.c:4294:21: error: empty expression statement
->   has no effect; remove unnecessary ';' to silence this warning
->   [-Werror,-Wextra-semi-stmt]
->           mix(k->target_type);
->                              ^
->   ../cil/src/cil_binary.c:4295:21: error: empty expression statement
->   has no effect; remove unnecessary ';' to silence this warning
->   [-Werror,-Wextra-semi-stmt]
->           mix(k->source_type);
->                              ^
->   ../cil/src/cil_binary.c:4296:19: error: empty expression statement
->   has no effect; remove unnecessary ';' to silence this warning
->   [-Werror,-Wextra-semi-stmt]
->           mix(k->specified);
->                            ^
+> While I agree with the change, I still see subtractions in gcc 11.1
+> and clang 12. What do you call "modern compilers"?
 >
-> Use a do { ... } while (0) construction to silence this warning.
+> More precisely, I copied the function rangetr_cmp in Godbolt and
+> compiled it with "x86-64 gcc 11.1" and -O2,
+> https://godbolt.org/z/5c4jG7eeh . The generated assembly code
+> contains:
 >
-> Moreover the same warning appears when using two semicolons to end a
-> statement. Remove such occurrences, like what was already done in commit
-> 811185648af2 ("libsepol: drop repeated semicolons").
+>     mov eax, DWORD PTR [rsi]
+>     cmp DWORD PTR [rdi], eax
+>     seta al
+>     movzx eax, al
+>     sbb eax, 0
+>     test eax, eax
+>     jne .L1
 >
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> This really computes a subtraction, with instruction SBB. For people
+> not familiar with x86_64 assembly language:
+>
+> * the first two instructions compare two values,
+> * SETA sets the 8-bit register AL to 1 if the first value was above
+> the other one,
+> * MOVZX ensures that the 32-bit register EAX contains 0 or 1,
+> * SBB computes the subtraction between EAX and the carry flag, which
+> is one only if the first value was below the other one.
+> * TEST checks whether the result of the subtraction is zero.
+>
 
-For all six patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Since I also checked the assembly results with Godbolt, it seems I had
+misinterpreted the results regarding the subtract instruction.
 
-> ---
->  libsepol/cil/src/cil_binary.c      |  4 ++--
->  libsepol/cil/src/cil_resolve_ast.c |  2 +-
->  libsepol/src/avtab.c               |  4 ++--
->  libsepol/tests/libsepol-tests.c    | 18 +++++++++++-------
->  4 files changed, 16 insertions(+), 12 deletions(-)
+> For information, the previous code generated the following instructions:
 >
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index 54d13f2f3945..41105c122bc3 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -4277,7 +4277,7 @@ static unsigned int avrulex_hash(__attribute__((unused)) hashtab_t h, const_hash
+>     mov eax, DWORD PTR [rdi]
+>     sub eax, DWORD PTR [rsi]
+>     jne .L1
 >
->         uint32_t hash = 0;
+> So the previous code generated simpler assembler instructions, but
+> which could trigger an undefined behavior in C.
 >
-> -#define mix(input) { \
-> +#define mix(input) do { \
->         uint32_t v = input; \
->         v *= c1; \
->         v = (v << r1) | (v >> (32 - r1)); \
-> @@ -4285,7 +4285,7 @@ static unsigned int avrulex_hash(__attribute__((unused)) hashtab_t h, const_hash
->         hash ^= v; \
->         hash = (hash << r2) | (hash >> (32 - r2)); \
->         hash = hash * m + n; \
-> -}
-> +} while (0)
+
+It is not undefined behaviour, unsigned integer overflow is well defined
+to be wrapped. And there are legitimate use cases, like for hashing or
+pseudo number generation. But outside of those unsigned integer over-
+and underflow can point to logic errors (when reducing a counter below zero=
+)
+or missed overflow checks on user input.
+
+> TL;DR Anyway, as this change is not about performance but about
+> undefined behaviour in C, it looks good to me. Nevertheless the
+> sentence "Modern compilers will generate a single comparison
+> instruction instead of actually perform the subtraction." seems to be
+> wrong. Could you rephrase it (for example by giving examples of such
+> compilers), or remove it?
 >
->         mix(k->target_class);
->         mix(k->target_type);
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index 32ea64e39b21..9a02e3867659 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -2825,7 +2825,7 @@ static int cil_build_call_args(struct cil_tree_node *call_node, struct cil_call
->                         return SEPOL_OK;
->                 } else {
->                         cil_tree_log(call_node, CIL_ERR, "Unexpected arguments");
-> -                       return SEPOL_ERR;;
-> +                       return SEPOL_ERR;
->                 }
->         }
->         if (call->args_tree == NULL) {
-> diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-> index 88e9d510f981..5e16a0e9899e 100644
-> --- a/libsepol/src/avtab.c
-> +++ b/libsepol/src/avtab.c
-> @@ -63,7 +63,7 @@ static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
->
->         uint32_t hash = 0;
->
-> -#define mix(input) { \
-> +#define mix(input) do { \
->         uint32_t v = input; \
->         v *= c1; \
->         v = (v << r1) | (v >> (32 - r1)); \
-> @@ -71,7 +71,7 @@ static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
->         hash ^= v; \
->         hash = (hash << r2) | (hash >> (32 - r2)); \
->         hash = hash * m + n; \
-> -}
-> +} while (0)
->
->         mix(keyp->target_class);
->         mix(keyp->target_type);
-> diff --git a/libsepol/tests/libsepol-tests.c b/libsepol/tests/libsepol-tests.c
-> index 544c792d2ab5..dc8fd5ce5f6c 100644
-> --- a/libsepol/tests/libsepol-tests.c
-> +++ b/libsepol/tests/libsepol-tests.c
-> @@ -36,13 +36,17 @@
->  int mls;
->
->  #define DECLARE_SUITE(name) \
-> -       suite = CU_add_suite(#name, name##_test_init, name##_test_cleanup); \
-> -       if (NULL == suite) { \
-> -               CU_cleanup_registry(); \
-> -               return CU_get_error(); } \
-> -       if (name##_add_tests(suite)) { \
-> -               CU_cleanup_registry(); \
-> -               return CU_get_error(); }
-> +       do { \
-> +               suite = CU_add_suite(#name, name##_test_init, name##_test_cleanup); \
-> +               if (NULL == suite) { \
-> +                       CU_cleanup_registry(); \
-> +                       return CU_get_error(); \
-> +               } \
-> +               if (name##_add_tests(suite)) { \
-> +                       CU_cleanup_registry(); \
-> +                       return CU_get_error(); \
-> +               } \
-> +       } while (0)
->
->  static void usage(char *progname)
->  {
-> --
-> 2.32.0
->
+
+I'll send a new version with an updated description and also using a compar=
+ison
+macro, to minimize the chance for typos like in the first version.
