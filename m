@@ -8,57 +8,57 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A877C07E95
-	for <selinux@archiver.kernel.org>; Wed,  7 Jul 2021 16:35:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87F76C07E95
+	for <selinux@archiver.kernel.org>; Wed,  7 Jul 2021 16:36:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36DBC61CC1
-	for <selinux@archiver.kernel.org>; Wed,  7 Jul 2021 16:35:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 726C761CC9
+	for <selinux@archiver.kernel.org>; Wed,  7 Jul 2021 16:36:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbhGGQiD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 7 Jul 2021 12:38:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40736 "EHLO
+        id S230110AbhGGQio (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 7 Jul 2021 12:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbhGGQiC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 7 Jul 2021 12:38:02 -0400
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2DDC061574
-        for <selinux@vger.kernel.org>; Wed,  7 Jul 2021 09:35:22 -0700 (PDT)
-Received: by mail-ot1-x32b.google.com with SMTP id o17-20020a9d76510000b02903eabfc221a9so2868109otl.0
-        for <selinux@vger.kernel.org>; Wed, 07 Jul 2021 09:35:22 -0700 (PDT)
+        with ESMTP id S229542AbhGGQio (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 7 Jul 2021 12:38:44 -0400
+Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579DFC061574
+        for <selinux@vger.kernel.org>; Wed,  7 Jul 2021 09:36:03 -0700 (PDT)
+Received: by mail-ot1-x32c.google.com with SMTP id 7-20020a9d0d070000b0290439abcef697so2829014oti.2
+        for <selinux@vger.kernel.org>; Wed, 07 Jul 2021 09:36:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ROOO/St9ifP2Ntyfeoo6tyyU3eqiJk2UgELdSPNdrRw=;
-        b=RgoMzC86ztPFrbL7ekcF7nOjfWSZ11dbbzrtSbusqTp4VIPzghZV8znliXfmz9b4aU
-         ghnEAF1XDJ11li7IcNT37azcQVGcmpRQHVeH/IjBsLiR2rzOWCdIZ0nEOpEWq+bV/D8s
-         95eS4SmQsEu7wDP4MkkKF882q3DSxYlJSxg+GgiUdgwr4IBDfqE+IJfrJ3I/p/Ge1Ax+
-         si2XZaAqkn95i4AwATiPlK6HQNn8MPtv6/6gTC36GOEn4Ttba+gnAsBC+J//yy5ZQPax
-         ijZeoZdzPar54nmVZ5cBqnzq90lLCPKzHWAT3LE7zNAO/hDuFOdI2mAj2DinxhOCMKOf
-         4z6A==
+        bh=fyJ4nc4MuZI4fH4lnK51lM5qWE/7ASmU5xJpSBlw088=;
+        b=bcPbY0/xZ8TBdHJFi6XkGkeZchUX09e9PjC5i07XH13n7uikzGVWpNz7xvldfZDfpn
+         P8D6d12US4dctvnMxvbhjDbZ7wzQSQTDav1GrMA2Xby/q4kdE9rXhxyHs72ldiyTik/g
+         5T38SE5kt/CnVsLx5TawdBl7APkKbyxzVOqwso/fct1OvtKSon1utHqxLgcOcCql0H6d
+         kMvPHPccUUxD5eGtSvM0YCjos3PTBzJCfLCOl1x4wPwvcnJ7s2DmO4nGGHWi/+c5Pt7H
+         AUWbaDgBBFehPw5vfSLXmBZdngS/NTF1pWWEyNOq6LbLB+wIWxLWxlzxMKzcHFLZVmri
+         BGwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ROOO/St9ifP2Ntyfeoo6tyyU3eqiJk2UgELdSPNdrRw=;
-        b=U/gaS+Ik+GDH6Qyli/+jvwYQ1bZeHOrza2NQkJ2jiO1nXwCy1MebuGCwOaDWlYy7Zq
-         3KLDaeN4X1XQpa9vGXX8+SGlJ+6KLIAIwbQaUBTYOlQfQjGXx5PI61j/QQ3uPE+qgy7o
-         wt4VdXIETCVzO2dHGeLszO59ImHT+9DFEKCGX+zaB8qsR7KvTSwyP9fURQc4Ma/wvCIT
-         llOQwxa6V2fKYpifE+eZKchFP3/tbfhnUSsI95+B+B25pkIs+4u9i5JJFKwg1Gb+yA8h
-         tqwFPONSmHdfpG/Tdgj2WPYri3EwFoOvv9JCvmEHAqupMznkCPqFIhNzaou9ZicU40Jq
-         VMIg==
-X-Gm-Message-State: AOAM530q0sugorr5GcJiND6Jzz5zZbGzvRi+VGG5+wRGxemxEFkI3Fw3
-        rAQEyS7nObRfeyBvwscw3j4tneaEInD1eB5w/t+oNWIP0d4=
-X-Google-Smtp-Source: ABdhPJxIQRKoaPXvh+CAh5ZWDL8CG4AOXnIycbOMK7AvqpT62use6uqP5nLtLfM6sgSScAfkfbwSX6M0MFPLRKmOS6o=
-X-Received: by 2002:a05:6830:16d2:: with SMTP id l18mr5610447otr.196.1625675721686;
- Wed, 07 Jul 2021 09:35:21 -0700 (PDT)
+        bh=fyJ4nc4MuZI4fH4lnK51lM5qWE/7ASmU5xJpSBlw088=;
+        b=eyeAoiKFF99r5RhCGASQA+NY9Esgxg8mLPdIJb7BCw40pujHdi0v4z12goeHeOW1kX
+         sqFMdD0nG2I7l1BoKCNvWb9nN0JV8ymxLUJm81BZApcMBhUdYRLc/9zBD9o2RFmMShdZ
+         9GEkG6I1QXsUSpUzUfteB0hBxJuZIvHYVYBNnB0gr5I4V8J72gfqphMeSqMcgBxbUYhm
+         0i+bux0Xrru7XybhwfCAb3e50JVwPk+mj2AVOxDZ4Q7KVgiAj4iieuqlDmV0gHH25UPM
+         23TSdUSFdBp7IHocH76SDGcWWvUofg+biWe6vKG8bTkTedCQapM/hLcJVO6gOi6bVJqt
+         WyiA==
+X-Gm-Message-State: AOAM53255pAKWIebqV6uwsH7ewWMET+N/0XyrIkLznY4Bdbw+BqI5LDA
+        xubN1MCcfrFAIdKv4mcSy7M8C1BhyQXwzhjSxAQ=
+X-Google-Smtp-Source: ABdhPJxctGxG/xK0UoyQ2kdb7Yll7+fIj1lVh4dibZsgUHwQRI/dNkQ9r96QcENLe3wCuPmNy+hubYquNewr2nHDRvU=
+X-Received: by 2002:a05:6830:1058:: with SMTP id b24mr19891802otp.295.1625675762765;
+ Wed, 07 Jul 2021 09:36:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210702110705.435223-1-nicolas.iooss@m4x.org> <CAP+JOzQM=p9Kg2grQWeKzgwWe+N+HTTJNdaiQ++HhW+mPYb9+w@mail.gmail.com>
-In-Reply-To: <CAP+JOzQM=p9Kg2grQWeKzgwWe+N+HTTJNdaiQ++HhW+mPYb9+w@mail.gmail.com>
+References: <20210703143122.1441578-1-nicolas.iooss@m4x.org> <CAP+JOzQN3gcViy-3JRyVmLT6G6LvigerT8Fm=3Ukxn=BHzaTUw@mail.gmail.com>
+In-Reply-To: <CAP+JOzQN3gcViy-3JRyVmLT6G6LvigerT8Fm=3Ukxn=BHzaTUw@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 7 Jul 2021 12:35:10 -0400
-Message-ID: <CAP+JOzS-d9QpCmJMbKiK0j6tEhgwtJQhUdzzCWFNcr-oS3T-Ug@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: do not override previous results of __cil_verify_classperms
+Date:   Wed, 7 Jul 2021 12:35:51 -0400
+Message-ID: <CAP+JOzScxNSWrAwXfO+_dRCWN2yhvF5n3GxvdeBq2o_Ofpdftw@mail.gmail.com>
+Subject: Re: [PATCH 1/6] libsepol: silence -Wextra-semi-stmt warning
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -66,60 +66,143 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 6, 2021 at 10:58 AM James Carter <jwcart2@gmail.com> wrote:
+On Tue, Jul 6, 2021 at 11:40 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Fri, Jul 2, 2021 at 7:15 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> On Sat, Jul 3, 2021 at 10:32 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 > >
-> > When __cil_verify_map_class() verifies a classpermission, it calls
-> > __verify_map_perm_classperms() on each item. If the first item reports a
-> > failure and the next one succeeds, the failure is overwritten in
-> > map_args->rc. This is a bug which causes a NULL pointer dereference in
-> > the CIL compiler when compiling the following policy:
+> > On Ubuntu 20.04, when building with clang -Werror -Wextra-semi-stmt
+> > (which is not the default build configuration), the compiler reports:
 > >
-> >     (sid SID)
-> >     (sidorder (SID))
+> >   ../cil/src/cil_binary.c:4293:22: error: empty expression statement
+> >   has no effect; remove unnecessary ';' to silence this warning
+> >   [-Werror,-Wextra-semi-stmt]
+> >           mix(k->target_class);
+> >                               ^
+> >   ../cil/src/cil_binary.c:4294:21: error: empty expression statement
+> >   has no effect; remove unnecessary ';' to silence this warning
+> >   [-Werror,-Wextra-semi-stmt]
+> >           mix(k->target_type);
+> >                              ^
+> >   ../cil/src/cil_binary.c:4295:21: error: empty expression statement
+> >   has no effect; remove unnecessary ';' to silence this warning
+> >   [-Werror,-Wextra-semi-stmt]
+> >           mix(k->source_type);
+> >                              ^
+> >   ../cil/src/cil_binary.c:4296:19: error: empty expression statement
+> >   has no effect; remove unnecessary ';' to silence this warning
+> >   [-Werror,-Wextra-semi-stmt]
+> >           mix(k->specified);
+> >                            ^
 > >
-> >     (class CLASS (PERM1))
-> >     (classorder (CLASS))
+> > Use a do { ... } while (0) construction to silence this warning.
 > >
-> >     (classpermission CLSPERM)
-> >     (classpermissionset CLSPERM (CLASS (PERM1)))
-> >     (classmap files (CLAMAPxx x))
-> >     (classmapping files CLAMAPxx CLSPERM)
-> >
-> > Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30286
+> > Moreover the same warning appears when using two semicolons to end a
+> > statement. Remove such occurrences, like what was already done in commit
+> > 811185648af2 ("libsepol: drop repeated semicolons").
 > >
 > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
+> For all six patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged.
+All six patches have been merged.
 Thanks,
 Jim
 
 > > ---
-> >  libsepol/cil/src/cil_verify.c | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> >  libsepol/cil/src/cil_binary.c      |  4 ++--
+> >  libsepol/cil/src/cil_resolve_ast.c |  2 +-
+> >  libsepol/src/avtab.c               |  4 ++--
+> >  libsepol/tests/libsepol-tests.c    | 18 +++++++++++-------
+> >  4 files changed, 16 insertions(+), 12 deletions(-)
 > >
-> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-> > index 59397f70f2ea..8ad3dc9e114a 100644
-> > --- a/libsepol/cil/src/cil_verify.c
-> > +++ b/libsepol/cil/src/cil_verify.c
-> > @@ -1786,8 +1786,12 @@ static int __verify_map_perm_classperms(__attribute__((unused)) hashtab_key_t k,
+> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> > index 54d13f2f3945..41105c122bc3 100644
+> > --- a/libsepol/cil/src/cil_binary.c
+> > +++ b/libsepol/cil/src/cil_binary.c
+> > @@ -4277,7 +4277,7 @@ static unsigned int avrulex_hash(__attribute__((unused)) hashtab_t h, const_hash
+> >
+> >         uint32_t hash = 0;
+> >
+> > -#define mix(input) { \
+> > +#define mix(input) do { \
+> >         uint32_t v = input; \
+> >         v *= c1; \
+> >         v = (v << r1) | (v >> (32 - r1)); \
+> > @@ -4285,7 +4285,7 @@ static unsigned int avrulex_hash(__attribute__((unused)) hashtab_t h, const_hash
+> >         hash ^= v; \
+> >         hash = (hash << r2) | (hash >> (32 - r2)); \
+> >         hash = hash * m + n; \
+> > -}
+> > +} while (0)
+> >
+> >         mix(k->target_class);
+> >         mix(k->target_type);
+> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> > index 32ea64e39b21..9a02e3867659 100644
+> > --- a/libsepol/cil/src/cil_resolve_ast.c
+> > +++ b/libsepol/cil/src/cil_resolve_ast.c
+> > @@ -2825,7 +2825,7 @@ static int cil_build_call_args(struct cil_tree_node *call_node, struct cil_call
+> >                         return SEPOL_OK;
+> >                 } else {
+> >                         cil_tree_log(call_node, CIL_ERR, "Unexpected arguments");
+> > -                       return SEPOL_ERR;;
+> > +                       return SEPOL_ERR;
+> >                 }
+> >         }
+> >         if (call->args_tree == NULL) {
+> > diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+> > index 88e9d510f981..5e16a0e9899e 100644
+> > --- a/libsepol/src/avtab.c
+> > +++ b/libsepol/src/avtab.c
+> > @@ -63,7 +63,7 @@ static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
+> >
+> >         uint32_t hash = 0;
+> >
+> > -#define mix(input) { \
+> > +#define mix(input) do { \
+> >         uint32_t v = input; \
+> >         v *= c1; \
+> >         v = (v << r1) | (v >> (32 - r1)); \
+> > @@ -71,7 +71,7 @@ static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
+> >         hash ^= v; \
+> >         hash = (hash << r2) | (hash >> (32 - r2)); \
+> >         hash = hash * m + n; \
+> > -}
+> > +} while (0)
+> >
+> >         mix(keyp->target_class);
+> >         mix(keyp->target_type);
+> > diff --git a/libsepol/tests/libsepol-tests.c b/libsepol/tests/libsepol-tests.c
+> > index 544c792d2ab5..dc8fd5ce5f6c 100644
+> > --- a/libsepol/tests/libsepol-tests.c
+> > +++ b/libsepol/tests/libsepol-tests.c
+> > @@ -36,13 +36,17 @@
+> >  int mls;
+> >
+> >  #define DECLARE_SUITE(name) \
+> > -       suite = CU_add_suite(#name, name##_test_init, name##_test_cleanup); \
+> > -       if (NULL == suite) { \
+> > -               CU_cleanup_registry(); \
+> > -               return CU_get_error(); } \
+> > -       if (name##_add_tests(suite)) { \
+> > -               CU_cleanup_registry(); \
+> > -               return CU_get_error(); }
+> > +       do { \
+> > +               suite = CU_add_suite(#name, name##_test_init, name##_test_cleanup); \
+> > +               if (NULL == suite) { \
+> > +                       CU_cleanup_registry(); \
+> > +                       return CU_get_error(); \
+> > +               } \
+> > +               if (name##_add_tests(suite)) { \
+> > +                       CU_cleanup_registry(); \
+> > +                       return CU_get_error(); \
+> > +               } \
+> > +       } while (0)
+> >
+> >  static void usage(char *progname)
 > >  {
-> >         struct cil_verify_map_args *map_args = args;
-> >         struct cil_perm *cmp = (struct cil_perm *)d;
-> > +       int rc;
-> >
-> > -       map_args->rc = __cil_verify_classperms(cmp->classperms, &cmp->datum, &map_args->class->datum, &cmp->datum, CIL_MAP_PERM, 0, 2);
-> > +       rc = __cil_verify_classperms(cmp->classperms, &cmp->datum, &map_args->class->datum, &cmp->datum, CIL_MAP_PERM, 0, 2);
-> > +       if (rc != SEPOL_OK) {
-> > +               map_args->rc = rc;
-> > +       }
-> >
-> >         return SEPOL_OK;
-> >  }
 > > --
 > > 2.32.0
 > >
