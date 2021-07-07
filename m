@@ -2,300 +2,399 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D64ABC07E9E
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 19:23:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03247C07E95
+	for <selinux@archiver.kernel.org>; Wed,  7 Jul 2021 14:03:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B03F061CAB
-	for <selinux@archiver.kernel.org>; Tue,  6 Jul 2021 19:23:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE3A861C73
+	for <selinux@archiver.kernel.org>; Wed,  7 Jul 2021 14:03:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229879AbhGFTZn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Jul 2021 15:25:43 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:41868 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230002AbhGFTZm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jul 2021 15:25:42 -0400
-Received: from [10.137.112.111] (unknown [131.107.147.111])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 5A77520B7188;
-        Tue,  6 Jul 2021 12:23:03 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5A77520B7188
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1625599383;
-        bh=a9HpKeql7g3OUHLYtjfvVAD8p3dRKWU145pXg7M1vS8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=rUZ/bM7QQjsvKQYPPMj6bPHOyeHm3aT0gjNyHeb7nJNnTQ+jqmkxTavHjcZ+UJJCC
-         aEkLnbdveZFRpSEtl1lnF4AZwER1c+SDZKSV32BtuBgwuS6PKwp4cg9OF9DRzsa2tP
-         1/933wf4xkJ1/s1RixDdg3ChfsWF1T+eklLH6FLw=
-Subject: Re: [PATCH v3 3/3] ima: Add digest and digest_len params to the
- functions to measure a buffer
-To:     Roberto Sassu <roberto.sassu@huawei.com>, zohar@linux.ibm.com,
-        paul@paul-moore.com
-Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
-        tusharsu@linux.microsoft.com, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-References: <20210705090922.3321178-1-roberto.sassu@huawei.com>
- <20210705090922.3321178-4-roberto.sassu@huawei.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <c740a85c-fc0f-b2d7-d7bf-bcca278a94ae@linux.microsoft.com>
-Date:   Tue, 6 Jul 2021 12:24:57 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S231472AbhGGOGF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 7 Jul 2021 10:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34572 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231357AbhGGOGE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 7 Jul 2021 10:06:04 -0400
+Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 764D3C061574
+        for <selinux@vger.kernel.org>; Wed,  7 Jul 2021 07:03:23 -0700 (PDT)
+Received: by mail-ot1-x32c.google.com with SMTP id n99-20020a9d206c0000b029045d4f996e62so2322688ota.4
+        for <selinux@vger.kernel.org>; Wed, 07 Jul 2021 07:03:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bZaTUzBFBFvNaLYW5uebw6J3AJzpxnxFKeEbtUIiqJI=;
+        b=QO9ydFjhg0J9JuzUYSAxFxDaTJeaI+jhpr60dTnVk/OlZKv6ED3b7oEXEc8Y4GXsyE
+         6LLl92EwP0HpAt+sYvc0INmX+mzZMvf5pJGmXL8z9dLZAbGx7gELakU6OJMeomSC4Xk0
+         +qbPfeK3dOWwn2xvOBJ8u2j5XcHzic5UF1eokDQTpzu3qLvpLTbCIzpPwDPvOuX9F7Kn
+         fnV0ZfbAZQm+DPng33Y74HJyz45+ObePX2T3WuGNeC2r75aV60xBFCskKot6A1Jr1fpC
+         FLem0v5Gif53xaAK2scf4ZFP5E9C9pdE75tbsJ/0d/nF/SHY8ZZBVXhh3BnKTj/a861w
+         mAJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bZaTUzBFBFvNaLYW5uebw6J3AJzpxnxFKeEbtUIiqJI=;
+        b=Qf52jkoDg8OtN57Mxr6r/vszaZIniHWf9LVVnDVl5507FbB40FGPqYaMR7MCFXSwXK
+         b4i8n5MlLTns24Icff0jjJ1SEDNJ4NrdpOuI3hNUbg4vpvKyI/R13B54rZXhTIkKeFpJ
+         78IVIXZ2QSmsgtcuA14/Z8uKs/NXClClejseNcUV4+FMKC/zb74cjBvte6dLAdLJiMD0
+         jBpToyHTxd+C9a2hdkCEP6Bhxclb77wohCC43YcC+wsWRoUm57+JK9n4ef4j5Jact5Ah
+         HJMcK4MXraOAF+JpCOjxOki4cK/vZXcaRXuqFiFDXqDHrsNfL2BARoz+qRKzcTwDWcNz
+         y3gQ==
+X-Gm-Message-State: AOAM533eSejHmjOECB7Qkt5sHN78bIDZFOhFfGG8qOQ8enUvJlarOIir
+        LSY+65xh1GYsDgXbBWlxbnpxbTXI+ZfBvApPTzr8chKSKNs=
+X-Google-Smtp-Source: ABdhPJyUvMlMivt6ck6rWpoFfImieeWAr/stB2BcF02pAPBtr1+ePO3JaTWr4rxy1FxFtt8kEMn531ejpeO1WiRgRj8=
+X-Received: by 2002:a05:6830:1058:: with SMTP id b24mr19366323otp.295.1625666602661;
+ Wed, 07 Jul 2021 07:03:22 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210705090922.3321178-4-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210630203459.155577-1-jwcart2@gmail.com> <CAJfZ7=mLBTpK8dMywnJb1AL48acn3iTutUj+hEFc-j8tF6P6iw@mail.gmail.com>
+In-Reply-To: <CAJfZ7=mLBTpK8dMywnJb1AL48acn3iTutUj+hEFc-j8tF6P6iw@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 7 Jul 2021 10:03:11 -0400
+Message-ID: <CAP+JOzQaeSzYa-VYwMY-FGuQs-NQ6zVUdgYvj_-EPtnEFeQbtg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Improve checking for bad inheritance patterns
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/5/2021 2:09 AM, Roberto Sassu wrote:
-> This patch adds the 'digest' and 'digest_len' parameters to
-> ima_measure_critical_data() and process_buffer_measurement(), so that
-> callers can get the digest of the passed buffer.
-> 
-> These functions calculate the digest even if there is no suitable rule in
-> the IMA policy and, in this case, they simply return 1 before generating a
-> new measurement entry.
-> 
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> ---
->   include/linux/ima.h                          |  5 +--
->   security/integrity/ima/ima.h                 |  2 +-
->   security/integrity/ima/ima_appraise.c        |  2 +-
->   security/integrity/ima/ima_asymmetric_keys.c |  2 +-
->   security/integrity/ima/ima_init.c            |  3 +-
->   security/integrity/ima/ima_main.c            | 36 ++++++++++++++------
->   security/integrity/ima/ima_queue_keys.c      |  2 +-
->   security/selinux/ima.c                       |  6 ++--
->   8 files changed, 39 insertions(+), 19 deletions(-)
+On Fri, Jul 2, 2021 at 5:07 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Wed, Jun 30, 2021 at 10:35 PM James Carter <jwcart2@gmail.com> wrote:
+> >
+> > commits 37863b0b1444c85a1ddc6c333c8bfea0c678c592 (libsepol/cil:
+> > Improve degenerate inheritance check) and
+> > 74d00a8decebf940d95064ff60042dcb2cbcc2c0 (libsepol/cil: Detect
+> > degenerate inheritance and exit with an error) attempted to detect
+> > and exit with an error when compiling policies that have degenerate
+> > inheritances. These policies result in the exponential growth of memory
+> > usage while copying the blocks that are inherited.
+> >
+> > There were two problems with the previous attempts to detect this
+> > bad inheritance problem. The first is that the quick check using
+> > cil_possible_degenerate_inheritance() did not detect all patterns
+> > of degenerate inheritance. The second problem is that the detection
+> > of inheritance loops during the CIL_PASS_BLKIN_LINK pass did not
+> > detect all inheritance loops which made it possible for the full
+> > degenerate inheritance checking done with
+> > cil_check_for_degenerate_inheritance() to have a stack overflow
+> > when encountering the inheritance loops. Both the degenerate and
+> > loop inheritance checks need to be done at the same time and done
+> > after the CIL_PASS_BLKIN_LINK pass. Otherwise, if loops are being
+> > detected first, then a degenerate policy can cause the consumption
+> > of all system memory and if degenerate policy is being detected
+> > first, then an inheritance loop can cause a stack overflow.
+> >
+> > With the new approach, the quick check is eliminated and the full
+> > check is always done after the CIL_PASS_BLKIN_LINK pass. Because
+> > of this the "inheritance_check" field in struct cil_resolve_args
+> > is not needed and removed and the functions
+> > cil_print_recursive_blockinherit(), cil_check_recursive_blockinherit(),
+> > and cil_possible_degenerate_inheritance() have been deleted. The
+> > function cil_count_potential() is renamed cil_check_inheritances()
+> > and has checks for both degenerate inheritance and inheritance loops.
+> > The inheritance checking is improved and uses an approach similar
+> > to commit c28525a26fa145cb5fd911fd2a3b9125a275677f (libsepol/cil:
+> > Properly check for loops in sets). Most importantly, the call to
+> > cil_check
+>
+> Hi, this sentence seems to be truncated.
+>
 
-Reviewed-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+I think that I was going to say that cil_check_inheritances() is
+always called now and that the quick check had been eliminated, but
+then decided that I should talk about that at the beginning of the
+paragraph. I'll delete that truncated sentence when I merge the patch.
 
-  -lakshmi
+Thanks,
+Jim
 
-> 
-> diff --git a/include/linux/ima.h b/include/linux/ima.h
-> index 60492263aa64..b6ab66a546ae 100644
-> --- a/include/linux/ima.h
-> +++ b/include/linux/ima.h
-> @@ -38,7 +38,7 @@ extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
->   extern int ima_measure_critical_data(const char *event_label,
->   				     const char *event_name,
->   				     const void *buf, size_t buf_len,
-> -				     bool hash);
-> +				     bool hash, u8 *digest, size_t digest_len);
->   
->   #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
->   extern void ima_appraise_parse_cmdline(void);
-> @@ -147,7 +147,8 @@ static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {
->   static inline int ima_measure_critical_data(const char *event_label,
->   					     const char *event_name,
->   					     const void *buf, size_t buf_len,
-> -					     bool hash)
-> +					     bool hash, u8 *digest,
-> +					     size_t digest_len)
->   {
->   	return -ENOENT;
->   }
-> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-> index 03db221324c3..2f4c20b16ad7 100644
-> --- a/security/integrity/ima/ima.h
-> +++ b/security/integrity/ima/ima.h
-> @@ -268,7 +268,7 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   			       struct inode *inode, const void *buf, int size,
->   			       const char *eventname, enum ima_hooks func,
->   			       int pcr, const char *func_data,
-> -			       bool buf_hash);
-> +			       bool buf_hash, u8 *digest, size_t digest_len);
->   void ima_audit_measurement(struct integrity_iint_cache *iint,
->   			   const unsigned char *filename);
->   int ima_alloc_init_template(struct ima_event_data *event_data,
-> diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-> index ef9dcfce45d4..63bec42c353f 100644
-> --- a/security/integrity/ima/ima_appraise.c
-> +++ b/security/integrity/ima/ima_appraise.c
-> @@ -357,7 +357,7 @@ int ima_check_blacklist(struct integrity_iint_cache *iint,
->   		if ((rc == -EPERM) && (iint->flags & IMA_MEASURE))
->   			process_buffer_measurement(&init_user_ns, NULL, digest, digestsize,
->   						   "blacklisted-hash", NONE,
-> -						   pcr, NULL, false);
-> +						   pcr, NULL, false, NULL, 0);
->   	}
->   
->   	return rc;
-> diff --git a/security/integrity/ima/ima_asymmetric_keys.c b/security/integrity/ima/ima_asymmetric_keys.c
-> index c985418698a4..f6aa0b47a772 100644
-> --- a/security/integrity/ima/ima_asymmetric_keys.c
-> +++ b/security/integrity/ima/ima_asymmetric_keys.c
-> @@ -62,5 +62,5 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
->   	 */
->   	process_buffer_measurement(&init_user_ns, NULL, payload, payload_len,
->   				   keyring->description, KEY_CHECK, 0,
-> -				   keyring->description, false);
-> +				   keyring->description, false, NULL, 0);
->   }
-> diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
-> index 5076a7d9d23e..b26fa67476b4 100644
-> --- a/security/integrity/ima/ima_init.c
-> +++ b/security/integrity/ima/ima_init.c
-> @@ -154,7 +154,8 @@ int __init ima_init(void)
->   	ima_init_key_queue();
->   
->   	ima_measure_critical_data("kernel_info", "kernel_version",
-> -				  UTS_RELEASE, strlen(UTS_RELEASE), false);
-> +				  UTS_RELEASE, strlen(UTS_RELEASE), false,
-> +				  NULL, 0);
->   
->   	return rc;
->   }
-> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> index b512c06d8ee1..360266da5a10 100644
-> --- a/security/integrity/ima/ima_main.c
-> +++ b/security/integrity/ima/ima_main.c
-> @@ -838,17 +838,20 @@ int ima_post_load_data(char *buf, loff_t size,
->    * @pcr: pcr to extend the measurement
->    * @func_data: func specific data, may be NULL
->    * @buf_hash: measure buffer data hash
-> + * @digest: buffer digest will be written to
-> + * @digest_len: buffer length
->    *
->    * Based on policy, either the buffer data or buffer data hash is measured
->    *
-> - * Return: 0 if the buffer has been successfully measured, a negative value
-> - * otherwise.
-> + * Return: 0 if the buffer has been successfully measured, 1 if the digest
-> + * has been written to the passed location but not added to a measurement entry,
-> + * a negative value otherwise.
->    */
->   int process_buffer_measurement(struct user_namespace *mnt_userns,
->   			       struct inode *inode, const void *buf, int size,
->   			       const char *eventname, enum ima_hooks func,
->   			       int pcr, const char *func_data,
-> -			       bool buf_hash)
-> +			       bool buf_hash, u8 *digest, size_t digest_len)
->   {
->   	int ret = 0;
->   	const char *audit_cause = "ENOMEM";
-> @@ -869,7 +872,10 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   	int action = 0;
->   	u32 secid;
->   
-> -	if (!ima_policy_flag)
-> +	if (digest && digest_len < digest_hash_len)
-> +		return -EINVAL;
-> +
-> +	if (!ima_policy_flag && !digest)
->   		return -ENOENT;
->   
->   	template = ima_template_desc_buf();
-> @@ -891,7 +897,7 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   		action = ima_get_action(mnt_userns, inode, current_cred(),
->   					secid, 0, func, &pcr, &template,
->   					func_data);
-> -		if (!(action & IMA_MEASURE))
-> +		if (!(action & IMA_MEASURE) && !digest)
->   			return -ENOENT;
->   	}
->   
-> @@ -922,6 +928,12 @@ int process_buffer_measurement(struct user_namespace *mnt_userns,
->   		event_data.buf_len = digest_hash_len;
->   	}
->   
-> +	if (digest)
-> +		memcpy(digest, iint.ima_hash->digest, digest_hash_len);
-> +
-> +	if (!ima_policy_flag || (func && !(action & IMA_MEASURE)))
-> +		return 1;
-> +
->   	ret = ima_alloc_init_template(&event_data, &entry, template);
->   	if (ret < 0) {
->   		audit_cause = "alloc_entry";
-> @@ -964,7 +976,7 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->   
->   	process_buffer_measurement(file_mnt_user_ns(f.file), file_inode(f.file),
->   				   buf, size, "kexec-cmdline", KEXEC_CMDLINE, 0,
-> -				   NULL, false);
-> +				   NULL, false, NULL, 0);
->   	fdput(f);
->   }
->   
-> @@ -975,26 +987,30 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
->    * @buf: pointer to buffer data
->    * @buf_len: length of buffer data (in bytes)
->    * @hash: measure buffer data hash
-> + * @digest: buffer digest will be written to
-> + * @digest_len: buffer length
->    *
->    * Measure data critical to the integrity of the kernel into the IMA log
->    * and extend the pcr.  Examples of critical data could be various data
->    * structures, policies, and states stored in kernel memory that can
->    * impact the integrity of the system.
->    *
-> - * Return: 0 if the buffer has been successfully measured, a negative value
-> - * otherwise.
-> + * Return: 0 if the buffer has been successfully measured, 1 if the digest
-> + * has been written to the passed location but not added to a measurement entry,
-> + * a negative value otherwise.
->    */
->   int ima_measure_critical_data(const char *event_label,
->   			      const char *event_name,
->   			      const void *buf, size_t buf_len,
-> -			      bool hash)
-> +			      bool hash, u8 *digest, size_t digest_len)
->   {
->   	if (!event_name || !event_label || !buf || !buf_len)
->   		return -ENOPARAM;
->   
->   	return process_buffer_measurement(&init_user_ns, NULL, buf, buf_len,
->   					  event_name, CRITICAL_DATA, 0,
-> -					  event_label, hash);
-> +					  event_label, hash, digest,
-> +					  digest_len);
->   }
->   
->   static int __init init_ima(void)
-> diff --git a/security/integrity/ima/ima_queue_keys.c b/security/integrity/ima/ima_queue_keys.c
-> index 979ef6c71f3d..93056c03bf5a 100644
-> --- a/security/integrity/ima/ima_queue_keys.c
-> +++ b/security/integrity/ima/ima_queue_keys.c
-> @@ -165,7 +165,7 @@ void ima_process_queued_keys(void)
->   						   entry->keyring_name,
->   						   KEY_CHECK, 0,
->   						   entry->keyring_name,
-> -						   false);
-> +						   false, NULL, 0);
->   		list_del(&entry->list);
->   		ima_free_key_entry(entry);
->   	}
-> diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-> index 34d421861bfc..727c4e43219d 100644
-> --- a/security/selinux/ima.c
-> +++ b/security/selinux/ima.c
-> @@ -86,7 +86,8 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   	}
->   
->   	ima_measure_critical_data("selinux", "selinux-state",
-> -				  state_str, strlen(state_str), false);
-> +				  state_str, strlen(state_str), false,
-> +				  NULL, 0);
->   
->   	kfree(state_str);
->   
-> @@ -103,7 +104,8 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
->   	}
->   
->   	ima_measure_critical_data("selinux", "selinux-policy-hash",
-> -				  policy, policy_len, true);
-> +				  policy, policy_len, true,
-> +				  NULL, 0);
->   
->   	vfree(policy);
->   }
-> 
+> Otherwise, this patch looks good to me (and the logic is now much
+> simpler to understand than previously), thanks!
+>
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> > As has been the case with these degenerate inheritance patches,
+> > these issues were discovered by the secilc-fuzzer.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  libsepol/cil/src/cil_resolve_ast.c | 172 +++++++----------------------
+> >  1 file changed, 42 insertions(+), 130 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> > index 0ea5b169..47779a0c 100644
+> > --- a/libsepol/cil/src/cil_resolve_ast.c
+> > +++ b/libsepol/cil/src/cil_resolve_ast.c
+> > @@ -64,7 +64,6 @@ struct cil_args_resolve {
+> >         struct cil_list *sensitivityorder_lists;
+> >         struct cil_list *in_list;
+> >         struct cil_stack *disabled_optionals;
+> > -       int *inheritance_check;
+> >  };
+> >
+> >  static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key, struct cil_tree_node *ast_node)
+> > @@ -2309,100 +2308,8 @@ exit:
+> >         return rc;
+> >  }
+> >
+> > -static void cil_print_recursive_blockinherit(struct cil_tree_node *bi_node, struct cil_tree_node *terminating_node)
+> > -{
+> > -       struct cil_list *trace = NULL;
+> > -       struct cil_list_item *item = NULL;
+> > -       struct cil_tree_node *curr = NULL;
+> > -
+> > -       cil_list_init(&trace, CIL_NODE);
+> > -
+> > -       for (curr = bi_node; curr != terminating_node; curr = curr->parent) {
+> > -               if (curr->flavor == CIL_BLOCK) {
+> > -                       cil_list_prepend(trace, CIL_NODE, curr);
+> > -               } else if (curr->flavor == CIL_BLOCKINHERIT) {
+> > -                       if (curr != bi_node) {
+> > -                               cil_list_prepend(trace, CIL_NODE, NODE(((struct cil_blockinherit *)curr->data)->block));
+> > -                       }
+> > -                       cil_list_prepend(trace, CIL_NODE, curr);
+> > -               } else {
+> > -                       cil_list_prepend(trace, CIL_NODE, curr);
+> > -               }
+> > -       }
+> > -       cil_list_prepend(trace, CIL_NODE, terminating_node);
+> > -
+> > -       cil_list_for_each(item, trace) {
+> > -               curr = item->data;
+> > -               if (curr->flavor == CIL_BLOCK) {
+> > -                       cil_tree_log(curr, CIL_ERR, "block %s", DATUM(curr->data)->name);
+> > -               } else if (curr->flavor == CIL_BLOCKINHERIT) {
+> > -                       cil_tree_log(curr, CIL_ERR, "blockinherit %s", ((struct cil_blockinherit *)curr->data)->block_str);
+> > -               } else if (curr->flavor == CIL_OPTIONAL) {
+> > -                       cil_tree_log(curr, CIL_ERR, "optional %s", DATUM(curr->data)->name);
+> > -               } else {
+> > -                       cil_tree_log(curr, CIL_ERR, "%s", cil_node_to_string(curr));
+> > -               }
+> > -       }
+> > -
+> > -       cil_list_destroy(&trace, CIL_FALSE);
+> > -}
+> > -
+> > -static int cil_check_recursive_blockinherit(struct cil_tree_node *bi_node)
+> > -{
+> > -       struct cil_tree_node *curr = NULL;
+> > -       struct cil_blockinherit *bi = NULL;
+> > -       struct cil_block *block = NULL;
+> > -       int rc = SEPOL_ERR;
+> > -
+> > -       bi = bi_node->data;
+> > -
+> > -       for (curr = bi_node->parent; curr != NULL; curr = curr->parent) {
+> > -               if (curr->flavor != CIL_BLOCK) {
+> > -                       continue;
+> > -               }
+> > -
+> > -               block = curr->data;
+> > -
+> > -               if (block != bi->block) {
+> > -                       continue;
+> > -               }
+> > -
+> > -               cil_log(CIL_ERR, "Recursive blockinherit found:\n");
+> > -               cil_print_recursive_blockinherit(bi_node, curr);
+> > -
+> > -               rc = SEPOL_ERR;
+> > -               goto exit;
+> > -       }
+> > -
+> > -       rc = SEPOL_OK;
+> > -
+> > -exit:
+> > -       return rc;
+> > -}
+> > -
+> > -static int cil_possible_degenerate_inheritance(struct cil_tree_node *node)
+> > -{
+> > -       unsigned depth = 1;
+> > -
+> > -       node = node->parent;
+> > -       while (node && node->flavor != CIL_ROOT) {
+> > -               if (node->flavor == CIL_BLOCK) {
+> > -                       if (((struct cil_block *)(node->data))->bi_nodes != NULL) {
+> > -                               depth++;
+> > -                               if (depth >= CIL_DEGENERATE_INHERITANCE_DEPTH) {
+> > -                                       return CIL_TRUE;
+> > -                               }
+> > -                       }
+> > -               }
+> > -               node = node->parent;
+> > -       }
+> > -
+> > -       return CIL_FALSE;
+> > -}
+> > -
+> >  int cil_resolve_blockinherit_link(struct cil_tree_node *current, void *extra_args)
+> >  {
+> > -       struct cil_args_resolve *args = extra_args;
+> >         struct cil_blockinherit *inherit = current->data;
+> >         struct cil_symtab_datum *block_datum = NULL;
+> >         struct cil_tree_node *node = NULL;
+> > @@ -2423,20 +2330,11 @@ int cil_resolve_blockinherit_link(struct cil_tree_node *current, void *extra_arg
+> >
+> >         inherit->block = (struct cil_block *)block_datum;
+> >
+> > -       rc = cil_check_recursive_blockinherit(current);
+> > -       if (rc != SEPOL_OK) {
+> > -                       goto exit;
+> > -       }
+> > -
+> >         if (inherit->block->bi_nodes == NULL) {
+> >                 cil_list_init(&inherit->block->bi_nodes, CIL_NODE);
+> >         }
+> >         cil_list_append(inherit->block->bi_nodes, CIL_NODE, current);
+> >
+> > -       if (*(args->inheritance_check) == CIL_FALSE) {
+> > -               *(args->inheritance_check) = cil_possible_degenerate_inheritance(node);
+> > -       }
+> > -
+> >         return SEPOL_OK;
+> >
+> >  exit:
+> > @@ -2466,11 +2364,6 @@ int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_arg
+> >         }
+> >
+> >         cil_list_for_each(item, block->bi_nodes) {
+> > -               rc = cil_check_recursive_blockinherit(item->data);
+> > -               if (rc != SEPOL_OK) {
+> > -                       goto exit;
+> > -               }
+> > -
+> >                 rc = cil_copy_ast(db, current, item->data);
+> >                 if (rc != SEPOL_OK) {
+> >                         cil_log(CIL_ERR, "Failed to copy block contents into blockinherit\n");
+> > @@ -3611,34 +3504,58 @@ static unsigned cil_count_actual(struct cil_tree_node *node)
+> >         return count;
+> >  }
+> >
+> > -static unsigned cil_count_potential(struct cil_tree_node *node, unsigned max)
+> > +static int cil_check_inheritances(struct cil_tree_node *node, unsigned max, unsigned *count, struct cil_stack *stack, unsigned *loop)
+> >  {
+> > -       unsigned count = 0;
+> > +       int rc;
+> >
+> >         if (node->flavor == CIL_BLOCKINHERIT) {
+> >                 struct cil_blockinherit *bi = node->data;
+> > -               count += 1;
+> > +               *count += 1;
+> > +               if (*count > max) {
+> > +                       cil_tree_log(node, CIL_ERR, "Degenerate inheritance detected");
+> > +                       return SEPOL_ERR;
+> > +               }
+> >                 if (bi->block) {
+> > -                       count += cil_count_potential(NODE(bi->block), max);
+> > -                       if (count > max) {
+> > -                               return count;
+> > +                       struct cil_tree_node *block_node = NODE(bi->block);
+> > +                       struct cil_stack_item *item;
+> > +                       int i = 0;
+> > +                       cil_stack_for_each(stack, i, item) {
+> > +                               if (block_node == (struct cil_tree_node *)item->data) {
+> > +                                       *loop = CIL_TRUE;
+> > +                                       cil_tree_log(block_node, CIL_ERR, "Block inheritance loop found");
+> > +                                       cil_tree_log(node, CIL_ERR, "  blockinherit");
+> > +                                       return SEPOL_ERR;
+> > +                               }
+> > +                       }
+> > +                       cil_stack_push(stack, CIL_BLOCK, block_node);
+> > +                       rc = cil_check_inheritances(block_node, max, count, stack, loop);
+> > +                       cil_stack_pop(stack);
+> > +                       if (rc != SEPOL_OK) {
+> > +                               if (*loop == CIL_TRUE) {
+> > +                                       cil_tree_log(node, CIL_ERR, "  blockinherit");
+> > +                               }
+> > +                               return SEPOL_ERR;
+> >                         }
+> >                 }
+> >         }
+> >
+> >         for (node = node->cl_head; node; node = node->next) {
+> > -               count += cil_count_potential(node, max);
+> > -               if (count > max) {
+> > -                       return count;
+> > +               rc = cil_check_inheritances(node, max, count, stack, loop);
+> > +               if (rc != SEPOL_OK) {
+> > +                       return SEPOL_ERR;
+> >                 }
+> >         }
+> >
+> > -       return count;
+> > +       return SEPOL_OK;
+> >  }
+> >
+> > -static int cil_check_for_degenerate_inheritance(struct cil_tree_node *node)
+> > +static int cil_check_for_bad_inheritance(struct cil_tree_node *node)
+> >  {
+> > -       uint64_t num_actual, num_potential, max;
+> > +       unsigned num_actual, max;
+> > +       unsigned num_potential = 0;
+> > +       unsigned loop = CIL_FALSE;
+> > +       struct cil_stack *stack;
+> > +       int rc;
+> >
+> >         num_actual = cil_count_actual(node);
+> >
+> > @@ -3647,13 +3564,11 @@ static int cil_check_for_degenerate_inheritance(struct cil_tree_node *node)
+> >                 max = CIL_DEGENERATE_INHERITANCE_MINIMUM;
+> >         }
+> >
+> > -       num_potential = cil_count_potential(node, max);
+> > +       cil_stack_init(&stack);
+> > +       rc = cil_check_inheritances(node, max, &num_potential, stack, &loop);
+> > +       cil_stack_destroy(&stack);
+> >
+> > -       if (num_potential > max) {
+> > -               return SEPOL_ERR;
+> > -       }
+> > -
+> > -       return SEPOL_OK;
+> > +       return rc;
+> >  }
+> >
+> >  int __cil_resolve_ast_node(struct cil_tree_node *node, void *extra_args)
+> > @@ -4127,7 +4042,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+> >         struct cil_args_resolve extra_args;
+> >         enum cil_pass pass = CIL_PASS_TIF;
+> >         uint32_t changed = 0;
+> > -       int inheritance_check = 0;
+> >
+> >         if (db == NULL || current == NULL) {
+> >                 return rc;
+> > @@ -4147,7 +4061,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+> >         extra_args.sensitivityorder_lists = NULL;
+> >         extra_args.in_list = NULL;
+> >         extra_args.disabled_optionals = NULL;
+> > -       extra_args.inheritance_check = &inheritance_check;
+> >
+> >         cil_list_init(&extra_args.to_destroy, CIL_NODE);
+> >         cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
+> > @@ -4174,10 +4087,9 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+> >                         cil_list_destroy(&extra_args.in_list, CIL_FALSE);
+> >                 }
+> >
+> > -               if (pass == CIL_PASS_BLKIN_LINK && inheritance_check == CIL_TRUE) {
+> > -                       rc = cil_check_for_degenerate_inheritance(current);
+> > +               if (pass == CIL_PASS_BLKIN_LINK) {
+> > +                       rc = cil_check_for_bad_inheritance(current);
+> >                         if (rc != SEPOL_OK) {
+> > -                               cil_log(CIL_ERR, "Degenerate inheritance detected\n");
+> >                                 rc = SEPOL_ERR;
+> >                                 goto exit;
+> >                         }
+> > --
+> > 2.31.1
+> >
+>
