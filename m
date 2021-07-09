@@ -2,120 +2,108 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5077BC07E96
-	for <selinux@archiver.kernel.org>; Thu,  8 Jul 2021 18:00:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC5DCC07E9B
+	for <selinux@archiver.kernel.org>; Fri,  9 Jul 2021 09:19:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F4156187E
-	for <selinux@archiver.kernel.org>; Thu,  8 Jul 2021 18:00:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B29F7613D0
+	for <selinux@archiver.kernel.org>; Fri,  9 Jul 2021 09:19:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230130AbhGHSDI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Jul 2021 14:03:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49522 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229956AbhGHSDD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Jul 2021 14:03:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625767221;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sNdGapRBRJZQ1Z2SOCf4wMd2iR2TD2nNsiYZrAOlxeo=;
-        b=KRa053i4gMKqUzf/fJPG0bMHsE//jEm6YsBvzL1ctwuOsvKNNhDRCE9LkNwuWpkj/oM2n6
-        9NCa9spv4nKADMZbiZfHA9LpWq0l8tecLuv2x2z/3zyh54pR8OWhVWV6jXEkI2RCClMyGx
-        H/7kRkofxByO5YGPWGHybsPel4RDYvY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-315-Pm6cBVeaPwyaJ5CA6J_ONg-1; Thu, 08 Jul 2021 14:00:19 -0400
-X-MC-Unique: Pm6cBVeaPwyaJ5CA6J_ONg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C6BD080006E;
-        Thu,  8 Jul 2021 18:00:17 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-114-175.rdu2.redhat.com [10.10.114.175])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 38ED65D9FC;
-        Thu,  8 Jul 2021 18:00:10 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 9FC13223D99; Thu,  8 Jul 2021 14:00:09 -0400 (EDT)
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        viro@zeniv.linux.org.uk
-Cc:     virtio-fs@redhat.com, dwalsh@redhat.com, dgilbert@redhat.com,
-        vgoyal@redhat.com, christian.brauner@ubuntu.com,
-        casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, tytso@mit.edu, miklos@szeredi.hu,
-        gscrivan@redhat.com, jack@suse.cz
-Subject: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special files
-Date:   Thu,  8 Jul 2021 13:57:38 -0400
-Message-Id: <20210708175738.360757-2-vgoyal@redhat.com>
-In-Reply-To: <20210708175738.360757-1-vgoyal@redhat.com>
+        id S231758AbhGIJWF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Jul 2021 05:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55264 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229559AbhGIJWF (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 9 Jul 2021 05:22:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F17B613CC;
+        Fri,  9 Jul 2021 09:19:18 +0000 (UTC)
+Date:   Fri, 9 Jul 2021 11:19:15 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
+        dgilbert@redhat.com, casey.schaufler@intel.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
+        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
+ files
+Message-ID: <20210709091915.2bd4snyfjndexw2b@wittgenstein>
 References: <20210708175738.360757-1-vgoyal@redhat.com>
+ <20210708175738.360757-2-vgoyal@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210708175738.360757-2-vgoyal@redhat.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Currently user.* xattr are not allowed on symlink and special files.
+On Thu, Jul 08, 2021 at 01:57:38PM -0400, Vivek Goyal wrote:
+> Currently user.* xattr are not allowed on symlink and special files.
+> 
+> man xattr and recent discussion suggested that primary reason for this
+> restriction is how file permissions for symlinks and special files
+> are little different from regular files and directories.
+> 
+> For symlinks, they are world readable/writable and if user xattr were
+> to be permitted, it will allow unpriviliged users to dump a huge amount
+> of user.* xattrs on symlinks without any control.
+> 
+> For special files, permissions typically control capability to read/write
+> from devices (and not necessarily from filesystem). So if a user can
+> write to device (/dev/null), does not necessarily mean it should be allowed
+> to write large number of user.* xattrs on the filesystem device node is
+> residing in.
+> 
+> This patch proposes to relax the restrictions a bit and allow file owner
+> or priviliged user (CAP_FOWNER), to be able to read/write user.* xattrs
+> on symlink and special files.
+> 
+> virtiofs daemon has a need to store user.* xatrrs on all the files
+> (including symlinks and special files), and currently that fails. This
+> patch should help.
+> 
+> Link: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.com/
+> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> ---
 
-man xattr and recent discussion suggested that primary reason for this
-restriction is how file permissions for symlinks and special files
-are little different from regular files and directories.
+Seems reasonable and useful.
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 
-For symlinks, they are world readable/writable and if user xattr were
-to be permitted, it will allow unpriviliged users to dump a huge amount
-of user.* xattrs on symlinks without any control.
+One question, do all filesystem supporting xattrs deal with setting them
+on symlinks/device files correctly?
 
-For special files, permissions typically control capability to read/write
-from devices (and not necessarily from filesystem). So if a user can
-write to device (/dev/null), does not necessarily mean it should be allowed
-to write large number of user.* xattrs on the filesystem device node is
-residing in.
-
-This patch proposes to relax the restrictions a bit and allow file owner
-or priviliged user (CAP_FOWNER), to be able to read/write user.* xattrs
-on symlink and special files.
-
-virtiofs daemon has a need to store user.* xatrrs on all the files
-(including symlinks and special files), and currently that fails. This
-patch should help.
-
-Link: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.com/
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- fs/xattr.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 5c8c5175b385..2f1855c8b620 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -120,12 +120,14 @@ xattr_permission(struct user_namespace *mnt_userns, struct inode *inode,
- 	}
- 
- 	/*
--	 * In the user.* namespace, only regular files and directories can have
--	 * extended attributes. For sticky directories, only the owner and
--	 * privileged users can write attributes.
-+	 * In the user.* namespace, for symlinks and special files, only
-+	 * the owner and priviliged users can read/write attributes.
-+	 * For sticky directories, only the owner and privileged users can
-+	 * write attributes.
- 	 */
- 	if (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN)) {
--		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
-+		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode) &&
-+		    !inode_owner_or_capable(mnt_userns, inode))
- 			return (mask & MAY_WRITE) ? -EPERM : -ENODATA;
- 		if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
- 		    (mask & MAY_WRITE) &&
--- 
-2.25.4
-
+>  fs/xattr.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/xattr.c b/fs/xattr.c
+> index 5c8c5175b385..2f1855c8b620 100644
+> --- a/fs/xattr.c
+> +++ b/fs/xattr.c
+> @@ -120,12 +120,14 @@ xattr_permission(struct user_namespace *mnt_userns, struct inode *inode,
+>  	}
+>  
+>  	/*
+> -	 * In the user.* namespace, only regular files and directories can have
+> -	 * extended attributes. For sticky directories, only the owner and
+> -	 * privileged users can write attributes.
+> +	 * In the user.* namespace, for symlinks and special files, only
+> +	 * the owner and priviliged users can read/write attributes.
+> +	 * For sticky directories, only the owner and privileged users can
+> +	 * write attributes.
+>  	 */
+>  	if (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN)) {
+> -		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
+> +		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode) &&
+> +		    !inode_owner_or_capable(mnt_userns, inode))
+>  			return (mask & MAY_WRITE) ? -EPERM : -ENODATA;
+>  		if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
+>  		    (mask & MAY_WRITE) &&
+> -- 
+> 2.25.4
+> 
