@@ -2,139 +2,271 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C70C07E99
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 21:22:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AF21C07E99
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 22:30:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A28A361242
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 21:22:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6436D61206
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 22:30:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233470AbhGLVZA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 17:25:00 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58008 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231878AbhGLVZA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 17:25:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626124931;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NqyKWbYzvJesNMAyFevO8Qmaq3myoLJAWjEns6F9EMg=;
-        b=aL6z+Dt38T4ZM42TEUGOTmSjID2Y4AhSUnHp62yRs1OaPKORrBngIHbE/gebie3Ktr+byU
-        A5F3Wxgw89sxNzzeZ+celYzjIiPVjOAV9D4NKl37JttDzY2gSfUw0g7r4wbdZD8t/keb7X
-        Rap6eEmZ9UrJk/jvf49LP2Ryq4XiKv8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-325-iiQpJbZiMg2bmALGrPHg3A-1; Mon, 12 Jul 2021 17:22:09 -0400
-X-MC-Unique: iiQpJbZiMg2bmALGrPHg3A-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D649A8042DE;
-        Mon, 12 Jul 2021 21:22:07 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-114-176.rdu2.redhat.com [10.10.114.176])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0469E5D9CA;
-        Mon, 12 Jul 2021 21:22:01 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 6A25522054F; Mon, 12 Jul 2021 17:22:01 -0400 (EDT)
-Date:   Mon, 12 Jul 2021 17:22:01 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     "J. Bruce Fields" <bfields@fieldses.org>
-Cc:     Bruce Fields <bfields@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
-        dgilbert@redhat.com, casey.schaufler@intel.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
-        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
- files
-Message-ID: <20210712212201.GD502004@redhat.com>
-References: <20210708175738.360757-2-vgoyal@redhat.com>
- <20210709091915.2bd4snyfjndexw2b@wittgenstein>
- <20210709152737.GA398382@redhat.com>
- <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
- <20210709175947.GB398382@redhat.com>
- <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
- <20210712140247.GA486376@redhat.com>
- <20210712154106.GB18679@fieldses.org>
- <20210712174759.GA502004@redhat.com>
- <20210712193139.GA22997@fieldses.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210712193139.GA22997@fieldses.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+        id S230296AbhGLWd1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 18:33:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229931AbhGLWd1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 18:33:27 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C8CC0613DD
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 15:30:38 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id w5-20020a0569021005b029055b51419c7dso24266041ybt.23
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 15:30:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=AcKTQiqn97MYk2ChbLOaIyItYJmJ17DqrBMBWaOpLLY=;
+        b=guIJSuBLGq4xG3uDNCwB3SVbf/Nn/YHyLuaXiG9NZAguL8iZg0d9MWrLl3cuqp6JSF
+         28dO7BaKOb7BaenIlrr3D4QH5pLfjJFdBGPlCZurONrrza92OQMuU9qfdG55vFlZ/GEe
+         ug9sZ350Ziz2rewy7U+laqUvlqtQThxs5f29+mrw9T3u/ehafFEsCyWqAbi1VtVHOTta
+         OUTq8aR8nRKfQ40zTh1ipPDLDE1RyVk8YvZpCRQylYgHG547MN0qPeazx4W8hgwZgw7d
+         IURexvAI1AFEnnmT1lLFamU+1OO111Ky7ACytrNv7Zo9iOv6zOFpEM7Ym79JISWrdT1+
+         sQmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=AcKTQiqn97MYk2ChbLOaIyItYJmJ17DqrBMBWaOpLLY=;
+        b=cxo1HQNJXzvbjxBgwQ3eJqCavgdhoWzvxLpO6Zvfgxb0Ba0+4iNKUxQ2sUxqPoTccb
+         q77kHWCRQGBPAfmXuGKlxDRYJGfvMItRrCziT9fDS5G9xSsDcTQBuwC8TgDJTlU5pbt7
+         TVRRlqxBYoNPR0RwJ782Q+TV/Vii/neCIjnhJao1LV77ip4Q1trUNyEzHSVmNN5HJDgv
+         K3i7lk2jG/tuMFTK7RnY+3/CddD+ZA2lKBYyULjQkmPKhPbHvGR3IcNJ9hP7Zho/KiYy
+         ZlFa/RHyJljQGpVZrQ3BnFRkD7NoNKLB2SQgapyzlRN9gMbhYBQpgmfyxVzg8QF6VQ49
+         6WFA==
+X-Gm-Message-State: AOAM530JZm4inHf8dpwuwoy9cTVmLRtyP7RDtSZ/1rE3rE3mFqBxIVFg
+        dmUJPsd83l9Xx1BuJrtiInNLQfBHE1l2i9ANRFFemV/DoNRyvHUUUXfu5flD/BWJwxuohD52sre
+        djsYpkkvqs0DgrqVbPrR7Rnb5yVd/jCK89urC0dUAwhP9TV4rKoHg55wjtvfoick=
+X-Google-Smtp-Source: ABdhPJwV2Xg3hBNy1EkhMT/K06i+LZw9d1bJJZ+tk00MAslJgl7VCwhgIW57OEOEGFpFfrjCfRqFKTdQg8w=
+X-Received: from sethmo-lotsa-cores.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2959])
+ (user=sethmo job=sendgmr) by 2002:a25:9a45:: with SMTP id r5mr1577764ybo.450.1626129037801;
+ Mon, 12 Jul 2021 15:30:37 -0700 (PDT)
+Date:   Mon, 12 Jul 2021 22:30:13 +0000
+Message-Id: <20210712223013.2165325-1-sethmo@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.93.g670b81a890-goog
+Subject: [PATCH v2] libselinux: add lock callbacks
+From:   Seth Moore <sethmo@google.com>
+To:     selinux@vger.kernel.org
+Cc:     Seth Moore <sethmo@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 03:31:39PM -0400, J. Bruce Fields wrote:
-> On Mon, Jul 12, 2021 at 01:47:59PM -0400, Vivek Goyal wrote:
-> > On Mon, Jul 12, 2021 at 11:41:06AM -0400, J. Bruce Fields wrote:
-> > > Looks like 0xd is what the server returns to access on a device node
-> > > with mode bits rw- for the caller.
-> > > 
-> > > Commit c11d7fd1b317 "nfsd: take xattr bits into account for permission
-> > > checks" added the ACCESS_X* bits for regular files and directories but
-> > > not others.
-> > > 
-> > > But you don't want to determine permission from the mode bits anyway,
-> > > you want it to depend on the owner,
-> > 
-> > Thinking more about this part. Current implementation of my patch is
-> > effectively doing both the checks. It checks that you are owner or
-> > have CAP_FOWNER in xattr_permission() and then goes on to call
-> > inode_permission(). And that means file mode bits will also play a
-> > role. If caller does not have write permission on the file, it will
-> > be denied setxattr().
-> > 
-> > If I don't call inode_permission(), and just return 0 right away for
-> > file owner (for symlinks and special files), then just being owner
-> > is enough to write user.* xattr. And then even security modules will
-> > not get a chance to block that operation. IOW, if you are owner of
-> > a symlink or special file, you can write as many user.* xattr as you
-> > like and except quota does not look like anything else can block
-> > it. I am wondering if this approach is ok?
-> 
-> Yeah, I'd expect security modules to get a say, and I wouldn't expect
-> mode bits on device nodes to be useful for deciding whether it makes
-> sense for xattrs to be readable or writeable.
+The old mechanism to initialize AVC, avc_init(3), is deprected. This
+leaves libselinux with no way of guarding the AVC cache when accessed
+from multiple threads. When applications call access check APIs from
+multiple threads, the AVC cache may become corrupted.
 
-Actually, calling inode_permission() for symlinks probably should be
-fine.
+This change adds new callback functions to selinux_set_callback(3).
+These new callbacks all correspond to the functions that used to be
+passed via avc_init(3). Multi-threaded applications may set these
+callbacks to guard the AVC cache against simultaneous access by
+multiple threads.
 
-Its the device node which is problematic. Because we started with the
-assumption that mode bits there represent access writes for read/writing
-to device (and not to the filesystem). 
+This change adds the following callbacks:
+  - SELINUX_CB_ALLOC_LOCK
+      is invoked to allocate new locks
+  - SELINUX_CB_GET_LOCK
+      is invoked to acquire a lock
+  - SELINUX_CB_RELEASE_LOCK
+      is invoked to release a previously-acquired lock
+  - SELINUX_CB_FREE_LOCK
+      is invoked to free a previosly-allocated lock
 
-> 
-> But, I don't really know.
+Signed-off-by: Seth Moore <sethmo@google.com>
+---
+ libselinux/include/selinux/selinux.h       | 12 ++++++
+ libselinux/man/man3/selinux_set_callback.3 | 46 ++++++++++++++++++++++
+ libselinux/src/avc_internal.h              | 20 ++++++++--
+ libselinux/src/callbacks.c                 | 13 ++++++
+ 4 files changed, 88 insertions(+), 3 deletions(-)
 
-> 
-> Do we have any other use cases besides this case of storing security
-> labels in user xattrs?
-
-Storing security label was one example. In case of virtiofs, there is
-a good chance that we will end up remapping all the guest xattrs and
-prefix these with "user.virtiofsd".
-
-fuse-overlay is another use case. They are storing real uid/gid in 
-user.* xattrs for files over NFS.
-
-I think overlayfs can be another benefeciary in some form. Now there
-is support for unpriviliged mouting of overlayfs from inside a user
-namespace. And that uses xattrs "user.overlay" on upper files for
-overlayfs specific metadata. Device nodes are not copied up. But
-they might have an issue with symlinks. Miklos, will know more.
-
-Thanks
-Vivek
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index ae98a92e..c3c68b3a 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -166,6 +166,14 @@ __attribute__ ((format(printf, 2, 3)))
+ 	int (*func_setenforce) (int enforcing);
+ 	/* netlink callback for policyload message */
+ 	int (*func_policyload) (int seqno);
++	/* create a lock and return an opaque pointer to it */
++	void *(*func_alloc_lock) (void);
++	/* obtain a given lock, blocking if necessary */
++	void (*func_get_lock) (void *lock);
++	/* release a given lock */
++	void (*func_release_lock) (void *lock);
++	/* destroy a given lock */
++	void (*func_free_lock) (void *lock);
+ };
+ 
+ #define SELINUX_CB_LOG		0
+@@ -173,6 +181,10 @@ __attribute__ ((format(printf, 2, 3)))
+ #define SELINUX_CB_VALIDATE	2
+ #define SELINUX_CB_SETENFORCE	3
+ #define SELINUX_CB_POLICYLOAD	4
++#define SELINUX_CB_ALLOC_LOCK   5
++#define SELINUX_CB_GET_LOCK     6
++#define SELINUX_CB_RELEASE_LOCK 7
++#define SELINUX_CB_FREE_LOCK    8
+ 
+ extern union selinux_callback selinux_get_callback(int type);
+ extern void selinux_set_callback(int type, union selinux_callback cb);
+diff --git a/libselinux/man/man3/selinux_set_callback.3 b/libselinux/man/man3/selinux_set_callback.3
+index 75f49b06..f7371504 100644
+--- a/libselinux/man/man3/selinux_set_callback.3
++++ b/libselinux/man/man3/selinux_set_callback.3
+@@ -116,6 +116,52 @@ The
+ .I seqno
+ argument is the current sequential number of the policy generation in the system.
+ .
++.TP
++.B SELINUX_CB_ALLOC_LOCK
++.BI "void *(*" alloc_lock ") ();"
++
++This callback is used to allocate a fresh lock for protecting critical sections.
++Applications that call selinux library functions from multiple threads must either
++perform their own locking or set each of the following:
++
++.B SELINUX_CB_ALLOC_LOCK
++
++.B SELINUX_CB_GET_LOCK
++
++.B SELINUX_CB_RELEASE_LOCK
++
++.B SELINUX_CB_FREE_LOCK
++
++.TP
++.B SELINUX_CB_GET_LOCK
++.BI "void (*" get_lock ") (void *" lock ");"
++
++This callback acquires the
++.I lock
++that was previously allocated with
++.I alloc_lock.
++This function must block until the
++.I lock
++can be acquired.
++.
++.TP
++.B SELINUX_CB_RELEASE_LOCK
++.BI "void (*" release_lock ") (void *" lock ");"
++
++This callback releases the
++.I lock
++that was previously acquired with
++.I get_lock.
++.
++.TP
++.B SELINUX_CB_FREE_LOCK
++.BI "void (*" free_lock ") (void *" lock ");"
++
++This callback frees the
++.I lock
++that was previously allocated with
++.I alloc_lock.
++.
+ .SH "RETURN VALUE"
+ None.
+ .
+diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
+index a9a4aa0b..1f8e0102 100644
+--- a/libselinux/src/avc_internal.h
++++ b/libselinux/src/avc_internal.h
+@@ -9,6 +9,7 @@
+ #ifndef _SELINUX_AVC_INTERNAL_H_
+ #define _SELINUX_AVC_INTERNAL_H_
+ 
++#include <assert.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -112,26 +113,39 @@ static inline void avc_stop_thread(void *thread)
+ 		avc_func_stop_thread(thread);
+ }
+ 
++static inline void check_lock_callbacks(void)
++{
++    if (avc_func_alloc_lock || avc_func_get_lock
++            || avc_func_release_lock || avc_func_free_lock) {
++        assert(avc_func_alloc_lock && avc_func_get_lock
++                && avc_func_release_lock && avc_func_free_lock);
++    }
++}
++
+ static inline void *avc_alloc_lock(void)
+ {
++	check_lock_callbacks();
+ 	return avc_func_alloc_lock ? avc_func_alloc_lock() : NULL;
+ }
+ 
+ static inline void avc_get_lock(void *lock)
+ {
+-	if (avc_func_get_lock)
++	check_lock_callbacks();
++	if (avc_func_get_lock && lock)
+ 		avc_func_get_lock(lock);
+ }
+ 
+ static inline void avc_release_lock(void *lock)
+ {
+-	if (avc_func_release_lock)
++	check_lock_callbacks();
++	if (avc_func_release_lock && lock)
+ 		avc_func_release_lock(lock);
+ }
+ 
+ static inline void avc_free_lock(void *lock)
+ {
+-	if (avc_func_free_lock)
++	check_lock_callbacks();
++	if (avc_func_free_lock && lock)
+ 		avc_func_free_lock(lock);
+ }
+ 
+diff --git a/libselinux/src/callbacks.c b/libselinux/src/callbacks.c
+index c18ccc54..b635c8d8 100644
+--- a/libselinux/src/callbacks.c
++++ b/libselinux/src/callbacks.c
+@@ -9,6 +9,7 @@
+ #include <errno.h>
+ #include <selinux/selinux.h>
+ #include "callbacks.h"
++#include "avc_internal.h"
+ 
+ /* default implementations */
+ static int __attribute__ ((format(printf, 2, 3)))
+@@ -95,6 +96,18 @@ selinux_set_callback(int type, union selinux_callback cb)
+ 	case SELINUX_CB_POLICYLOAD:
+ 		selinux_netlink_policyload = cb.func_policyload;
+ 		break;
++	case SELINUX_CB_ALLOC_LOCK:
++		avc_func_alloc_lock = cb.func_alloc_lock;
++		break;
++	case SELINUX_CB_GET_LOCK:
++		avc_func_get_lock = cb.func_get_lock;
++		break;
++	case SELINUX_CB_RELEASE_LOCK:
++		avc_func_release_lock = cb.func_release_lock;
++		break;
++	case SELINUX_CB_FREE_LOCK:
++		avc_func_free_lock = cb.func_free_lock;
++		break;
+ 	}
+ }
+ 
+-- 
+2.32.0.93.g670b81a890-goog
 
