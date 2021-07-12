@@ -2,126 +2,132 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F778C07E9B
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:32:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA2DC07E99
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:35:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6148961922
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:32:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2CE761433
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:35:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344996AbhGLHfe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 03:35:34 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:35280 "EHLO
+        id S1344619AbhGLHiI convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 03:38:08 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:37941 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346618AbhGLHeM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 03:34:12 -0400
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+        with ESMTP id S243683AbhGLHgi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 03:36:38 -0400
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5381C56486C
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 09:31:21 +0200 (CEST)
-Received: by mail-pg1-f169.google.com with SMTP id u14so17349992pga.11
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 00:31:21 -0700 (PDT)
-X-Gm-Message-State: AOAM532Gi3p6gkKaexS8l99RCY5YZbntmHdSzYY8wsI4cDeHwXdZjVZw
-        mg7+loeRuADvBwH9L1nZEUC2AjIwk6SrhY5bl64=
-X-Google-Smtp-Source: ABdhPJyKNqSn5ZloqLKXRtjrqHSFxsGjRZ9UzlNH8iO8jpkHTqjvWGjcJRCt78E3ehMOPRMJOhjZ/Aqb9GHr9sjLDK8=
-X-Received: by 2002:aa7:8439:0:b029:313:1d31:1318 with SMTP id
- q25-20020aa784390000b02903131d311318mr50563936pfn.24.1626075080180; Mon, 12
- Jul 2021 00:31:20 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 9F6E4564984
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 09:33:47 +0200 (CEST)
+Received: by mail-pf1-f170.google.com with SMTP id m83so7925214pfd.0
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 00:33:47 -0700 (PDT)
+X-Gm-Message-State: AOAM533x7DhS/1MttvMpb42r4ikO4gqhHqM3ymRtuW8Tn5ZwxDNQ2vdR
+        Tzdh8Ja3dopUPfZtZxj0CQmLLerT5AwHdGAnQxI=
+X-Google-Smtp-Source: ABdhPJwqgUxyS8UZkRg4yXSZ2QxOhB4an/M4Hh0PqCzouCUiIX1+cUmDBQ7DmliYaqUO5QR19wkZcPqQUTnLoLxF5TA=
+X-Received: by 2002:a63:fd43:: with SMTP id m3mr44956978pgj.210.1626075226525;
+ Mon, 12 Jul 2021 00:33:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210710120302.74862-1-evvers@ya.ru>
-In-Reply-To: <20210710120302.74862-1-evvers@ya.ru>
+References: <20210701183430.145934-1-cgzones@googlemail.com> <20210706173629.22032-1-cgzones@googlemail.com>
+In-Reply-To: <20210706173629.22032-1-cgzones@googlemail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 12 Jul 2021 09:31:09 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=m=8t9MQ1gSHE9_9D8aki-mUrWtnYTBVreeuGDwaRK_hA@mail.gmail.com>
-Message-ID: <CAJfZ7=m=8t9MQ1gSHE9_9D8aki-mUrWtnYTBVreeuGDwaRK_hA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] ci: turn on CIFuzz
-To:     Evgeny Vereshchagin <evvers@ya.ru>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Mon, 12 Jul 2021 09:33:35 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=nOpwQD8vZOZvwsc-W7Vo1GHVCKop0tat=OanK=+rqmDg@mail.gmail.com>
+Message-ID: <CAJfZ7=nOpwQD8vZOZvwsc-W7Vo1GHVCKop0tat=OanK=+rqmDg@mail.gmail.com>
+Subject: Re: [PATCH v3] libsepol: avoid unsigned integer overflow
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 09:31:22 2021 +0200 (CEST))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 09:33:48 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jul 10, 2021 at 2:11 PM Evgeny Vereshchagin <evvers@ya.ru> wrote:
+On Tue, Jul 6, 2021 at 7:36 PM Christian Göttsche
+<cgzones@googlemail.com> wrote:
 >
-> Now that almost all the bugs reported by OSS-Fuzz have been
-> fixed libsepol/cil should be stable enough to get CIFuzz working
-> more or less reliably. It should help to catch regressions/new bugs
-> faster.
+> Unsigned integer overflow is well-defined and not undefined behavior.
+> It is commonly used for hashing or pseudo random number generation.
+> But it is still useful to enable undefined behavior sanitizer checks on
+> unsigned arithmetic to detect possible issues on counters or variables
+> with similar purpose or missed overflow checks on user input.
 >
-> https://google.github.io/oss-fuzz/getting-started/continuous-integration/
+> Use a spaceship operator like comparison instead of subtraction.
 >
-> The patch was tested on GitHub in https://github.com/SELinuxProject/selinux/pull/285
-> The CIFuzz job can be found at https://github.com/SELinuxProject/selinux/actions/runs/1017865690
+>     policydb.c:851:24: runtime error: unsigned integer overflow: 801 - 929 cannot be represented in type 'unsigned int'
 >
-> Signed-off-by: Evgeny Vereshchagin <evvers@ya.ru>
-
-For both patches:
+> Follow-up of: 1537ea8412e4 ("libsepol: avoid unsigned integer overflow")
+>
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
 Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-If nobody else has comments, I will apply them tomorrow.
 Thanks!
 Nicolas
 
 > ---
->  .github/workflows/cifuzz.yml | 39 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 .github/workflows/cifuzz.yml
+>  libsepol/src/policydb.c | 10 +++++-----
+>  libsepol/src/private.h  |  2 ++
+>  2 files changed, 7 insertions(+), 5 deletions(-)
 >
-> diff --git a/.github/workflows/cifuzz.yml b/.github/workflows/cifuzz.yml
-> new file mode 100644
-> index 00000000..5c2233a2
-> --- /dev/null
-> +++ b/.github/workflows/cifuzz.yml
-> @@ -0,0 +1,39 @@
-> +---
-> +name: CIFuzz
-> +on:
-> +  push:
-> +    branches:
-> +      - master
-> +  pull_request:
-> +    branches:
-> +      - master
-> +jobs:
-> +  Fuzzing:
-> +    runs-on: ubuntu-latest
-> +    if: github.repository == 'SELinuxProject/selinux'
-> +    strategy:
-> +      fail-fast: false
-> +      matrix:
-> +        sanitizer: [address, undefined, memory]
-> +    steps:
-> +      - name: Build Fuzzers (${{ matrix.sanitizer }})
-> +        id: build
-> +        uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
-> +        with:
-> +          oss-fuzz-project-name: 'selinux'
-> +          dry-run: false
-> +          allowed-broken-targets-percentage: 0
-> +          sanitizer: ${{ matrix.sanitizer }}
-> +      - name: Run Fuzzers (${{ matrix.sanitizer }})
-> +        uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
-> +        with:
-> +          oss-fuzz-project-name: 'selinux'
-> +          fuzz-seconds: 180
-> +          dry-run: false
-> +          sanitizer: ${{ matrix.sanitizer }}
-> +      - name: Upload Crash
-> +        uses: actions/upload-artifact@v1
-> +        if: failure() && steps.build.outcome == 'success'
-> +        with:
-> +          name: ${{ matrix.sanitizer }}-artifacts
-> +          path: ./out/artifacts
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index ef2217c2..0398ceed 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -817,11 +817,11 @@ static int filenametr_cmp(hashtab_t h __attribute__ ((unused)),
+>         const filename_trans_key_t *ft2 = (const filename_trans_key_t *)k2;
+>         int v;
+>
+> -       v = (ft1->ttype > ft2->ttype) - (ft1->ttype < ft2->ttype);
+> +       v = spaceship_cmp(ft1->ttype, ft2->ttype);
+>         if (v)
+>                 return v;
+>
+> -       v = (ft1->tclass > ft2->tclass) - (ft1->tclass < ft2->tclass);
+> +       v = spaceship_cmp(ft1->tclass, ft2->tclass);
+>         if (v)
+>                 return v;
+>
+> @@ -843,15 +843,15 @@ static int rangetr_cmp(hashtab_t h __attribute__ ((unused)),
+>         const struct range_trans *key2 = (const struct range_trans *)k2;
+>         int v;
+>
+> -       v = key1->source_type - key2->source_type;
+> +       v = spaceship_cmp(key1->source_type, key2->source_type);
+>         if (v)
+>                 return v;
+>
+> -       v = key1->target_type - key2->target_type;
+> +       v = spaceship_cmp(key1->target_type, key2->target_type);
+>         if (v)
+>                 return v;
+>
+> -       v = key1->target_class - key2->target_class;
+> +       v = spaceship_cmp(key1->target_class, key2->target_class);
+>
+>         return v;
+>  }
+> diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+> index 72f21262..c63238ab 100644
+> --- a/libsepol/src/private.h
+> +++ b/libsepol/src/private.h
+> @@ -47,6 +47,8 @@
+>  #define is_saturated(x) (x == (typeof(x))-1)
+>  #define zero_or_saturated(x) ((x == 0) || is_saturated(x))
+>
+> +#define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
+> +
+>  /* Policy compatibility information. */
+>  struct policydb_compat_info {
+>         unsigned int type;
 > --
-> 2.31.1
+> 2.32.0
 >
 
