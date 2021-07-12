@@ -2,96 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9A4FC07E99
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 17:50:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6650C07E99
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 19:31:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97AFD61154
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 17:50:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E61061178
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 19:31:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234820AbhGLRxb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 13:53:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:46247 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232979AbhGLRxa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 13:53:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626112241;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fFWgzQHjwe/a8IqaPjJxMDhsIF8i/8K0Ya+rGP8ZwYU=;
-        b=iFypeEQ+4WXO1LmKRJGE7vitcJjrCoayftHQhZDhMWc9UDnSW8mPAxnl/er2momuhRxNVn
-        /KdxpMylyflNeWxf31i23T3I5DnPTB66ZpGnP4foTQhOraHWLEn9JtR5Uspc16TsHqR03Y
-        bAakEJYINfQRJXSqpgpBtgKro67rQ3c=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-296-XQPS2z1LNJaczUXwezog2g-1; Mon, 12 Jul 2021 13:50:38 -0400
-X-MC-Unique: XQPS2z1LNJaczUXwezog2g-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CD65B9F92B;
-        Mon, 12 Jul 2021 17:50:36 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-114-176.rdu2.redhat.com [10.10.114.176])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0A70B5C1D1;
-        Mon, 12 Jul 2021 17:50:33 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 9566922054F; Mon, 12 Jul 2021 13:50:32 -0400 (EDT)
-Date:   Mon, 12 Jul 2021 13:50:32 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        id S236431AbhGLTeb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 15:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236190AbhGLTe2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 15:34:28 -0400
+Received: from fieldses.org (fieldses.org [IPv6:2600:3c00:e000:2f7::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C29C0613DD;
+        Mon, 12 Jul 2021 12:31:40 -0700 (PDT)
+Received: by fieldses.org (Postfix, from userid 2815)
+        id 485F269D6; Mon, 12 Jul 2021 15:31:39 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 fieldses.org 485F269D6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fieldses.org;
+        s=default; t=1626118299;
+        bh=Zn3SvcMF3FFO49+WTI8pt7ML3V5uhGmeYXXeqsXQrcY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=v8DlyIayyg8yDjwJfuxsFYTJvh+t9cDW+Uz+VYzSDSXEbEke0mosrcMLlzmpjVmDX
+         06wu4GYGB/ZF34UAZkd7LRQK1LLMfmlqQkWptRk7aDVwFxxNO8dF2uGtyK7jm+7Tbu
+         RIR8atVX3reEl7AA0HxjsvEmxSoIIB5kZMNxDEwg=
+Date:   Mon, 12 Jul 2021 15:31:39 -0400
+From:   "J. Bruce Fields" <bfields@fieldses.org>
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Bruce Fields <bfields@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Christian Brauner <christian.brauner@ubuntu.com>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
         dgilbert@redhat.com, casey.schaufler@intel.com,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        miklos@szeredi.hu, gscrivan@redhat.com, jack@suse.cz,
-        Christoph Hellwig <hch@infradead.org>
+        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
+        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
  files
-Message-ID: <20210712175032.GB502004@redhat.com>
+Message-ID: <20210712193139.GA22997@fieldses.org>
 References: <20210708175738.360757-1-vgoyal@redhat.com>
  <20210708175738.360757-2-vgoyal@redhat.com>
  <20210709091915.2bd4snyfjndexw2b@wittgenstein>
  <20210709152737.GA398382@redhat.com>
  <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
- <YOizURuWJO9DYGGk@mit.edu>
+ <20210709175947.GB398382@redhat.com>
+ <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
+ <20210712140247.GA486376@redhat.com>
+ <20210712154106.GB18679@fieldses.org>
+ <20210712174759.GA502004@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YOizURuWJO9DYGGk@mit.edu>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+In-Reply-To: <20210712174759.GA502004@redhat.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 09, 2021 at 04:36:33PM -0400, Theodore Ts'o wrote:
-> On Fri, Jul 09, 2021 at 08:34:41AM -0700, Casey Schaufler wrote:
-> > >> One question, do all filesystem supporting xattrs deal with setting them
-> > >> on symlinks/device files correctly?
-> > > Wrote a simple bash script to do setfattr/getfattr user.foo xattr on
-> > > symlink and device node on ext4, xfs and btrfs and it works fine.
+On Mon, Jul 12, 2021 at 01:47:59PM -0400, Vivek Goyal wrote:
+> On Mon, Jul 12, 2021 at 11:41:06AM -0400, J. Bruce Fields wrote:
+> > Looks like 0xd is what the server returns to access on a device node
+> > with mode bits rw- for the caller.
 > > 
-> > How about nfs, tmpfs, overlayfs and/or some of the other less conventional
-> > filesystems?
+> > Commit c11d7fd1b317 "nfsd: take xattr bits into account for permission
+> > checks" added the ACCESS_X* bits for regular files and directories but
+> > not others.
+> > 
+> > But you don't want to determine permission from the mode bits anyway,
+> > you want it to depend on the owner,
 > 
-> As a suggestion, perhaps you could take your bash script and turn it
-> into an xfstests test so we can more easily test various file systems,
-> both now and once the commit is accepted, to look for regressions?
+> Thinking more about this part. Current implementation of my patch is
+> effectively doing both the checks. It checks that you are owner or
+> have CAP_FOWNER in xattr_permission() and then goes on to call
+> inode_permission(). And that means file mode bits will also play a
+> role. If caller does not have write permission on the file, it will
+> be denied setxattr().
+> 
+> If I don't call inode_permission(), and just return 0 right away for
+> file owner (for symlinks and special files), then just being owner
+> is enough to write user.* xattr. And then even security modules will
+> not get a chance to block that operation. IOW, if you are owner of
+> a symlink or special file, you can write as many user.* xattr as you
+> like and except quota does not look like anything else can block
+> it. I am wondering if this approach is ok?
 
-Sounds good. I see there is already an xattr test (generic/062) which
-is broken after my patch. Current test expects that user.* xattrs will
-fail on symlink/special device.
+Yeah, I'd expect security modules to get a say, and I wouldn't expect
+mode bits on device nodes to be useful for deciding whether it makes
+sense for xattrs to be readable or writeable.
 
-I will probably have to query kernel version and modify test so that
-expect failure before a certain version and success otherwise.
+But, I don't really know.
 
-Thanks
-Vivek
+Do we have any other use cases besides this case of storing security
+labels in user xattrs?
 
+--b.
