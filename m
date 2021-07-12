@@ -2,161 +2,139 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56DAFC07E99
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 20:07:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C70C07E99
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 21:22:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3DD4161248
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 20:07:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A28A361242
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 21:22:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbhGLUJu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 16:09:50 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:60517 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231693AbhGLUJt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 16:09:49 -0400
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S233470AbhGLVZA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 17:25:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58008 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231878AbhGLVZA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 17:25:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626124931;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=NqyKWbYzvJesNMAyFevO8Qmaq3myoLJAWjEns6F9EMg=;
+        b=aL6z+Dt38T4ZM42TEUGOTmSjID2Y4AhSUnHp62yRs1OaPKORrBngIHbE/gebie3Ktr+byU
+        A5F3Wxgw89sxNzzeZ+celYzjIiPVjOAV9D4NKl37JttDzY2gSfUw0g7r4wbdZD8t/keb7X
+        Rap6eEmZ9UrJk/jvf49LP2Ryq4XiKv8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-325-iiQpJbZiMg2bmALGrPHg3A-1; Mon, 12 Jul 2021 17:22:09 -0400
+X-MC-Unique: iiQpJbZiMg2bmALGrPHg3A-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id ED7F35646B6
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 22:06:58 +0200 (CEST)
-Received: by mail-pg1-f171.google.com with SMTP id u14so19441374pga.11
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 13:06:58 -0700 (PDT)
-X-Gm-Message-State: AOAM530ky/Zcz/S20w47kI/CFWpV5J7mFcObLglFx6tWhGwdY99bZg1W
-        6it03OsV8sEV9yZFdDc+AuVv1GIuEjBTb7YI92c=
-X-Google-Smtp-Source: ABdhPJyAs4L63XQGYK3pXBl5VqWL2LWNjO3FN9y+ELRIgQu7/pu1khCsOg9xl80KE77zD9SkpvstNCXXkqF6d1QNjHk=
-X-Received: by 2002:a65:60d3:: with SMTP id r19mr812563pgv.94.1626120417767;
- Mon, 12 Jul 2021 13:06:57 -0700 (PDT)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D649A8042DE;
+        Mon, 12 Jul 2021 21:22:07 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-176.rdu2.redhat.com [10.10.114.176])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0469E5D9CA;
+        Mon, 12 Jul 2021 21:22:01 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 6A25522054F; Mon, 12 Jul 2021 17:22:01 -0400 (EDT)
+Date:   Mon, 12 Jul 2021 17:22:01 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     "J. Bruce Fields" <bfields@fieldses.org>
+Cc:     Bruce Fields <bfields@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
+        dgilbert@redhat.com, casey.schaufler@intel.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
+        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
+ files
+Message-ID: <20210712212201.GD502004@redhat.com>
+References: <20210708175738.360757-2-vgoyal@redhat.com>
+ <20210709091915.2bd4snyfjndexw2b@wittgenstein>
+ <20210709152737.GA398382@redhat.com>
+ <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
+ <20210709175947.GB398382@redhat.com>
+ <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
+ <20210712140247.GA486376@redhat.com>
+ <20210712154106.GB18679@fieldses.org>
+ <20210712174759.GA502004@redhat.com>
+ <20210712193139.GA22997@fieldses.org>
 MIME-Version: 1.0
-References: <20210712135038.9405-1-jwcart2@gmail.com>
-In-Reply-To: <20210712135038.9405-1-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 12 Jul 2021 22:06:46 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==HNf7kj0TnVjg5McW=-mPX+cH4ACTUAPndYi-OGcKZog@mail.gmail.com>
-Message-ID: <CAJfZ7==HNf7kj0TnVjg5McW=-mPX+cH4ACTUAPndYi-OGcKZog@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol/cil: Fix handling category sets in an expression
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 22:06:59 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210712193139.GA22997@fieldses.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 3:50 PM James Carter <jwcart2@gmail.com> wrote:
->
-> There are two problems that need to be addressed when resolving an
-> expression with category sets.
->
-> 1. Only expand anonymous category sets in an expression.
->
-> Commit 982ec302b67f3c7f8df667dadb67352b1e4a6d18 (libsepol/cil:
-> Account for anonymous category sets in an expression) attempted to
-> properly handle anonymous category sets when resolving category
-> expressions. Unfortunately, it did not check whether a category set
-> was actually an anonymous category set and expanded all category
-> sets in an expression. If a category set refers to itself in the
-> expression, then everything from the name of the category set to the
-> end of the expression is ignored.
->
-> For example, the rule "(categoryset cs (c0 cs c1 c2))", would be
-> equivalent to the rule "(categoryset cs (c0))" as everything from
-> "cs" to the end would be dropped. The secilc-fuzzer found that the
-> rule "(categoryset cat (not cat))" would cause a segfault since
-> "(not)" is not a valid expression and it is assumed to be valid
-> during later evaluation because syntax checking has already been
-> done.
->
-> Instead, check whether or not the category set is anonymous before
-> expanding it when resolving an expression.
->
-> 2. Category sets cannot be used in a category range
->
-> A category range can be used to specify a large number of categories.
-> The range "(range c0 c1023)" refers to 1024 categories. Only categories
-> and category aliases can be used in a range. Determining if an
-> identifier is a category, an alias, or a set can only be done after
-> resolving the identifer.
->
-> Keep track of the current operator as an expression is being resolved
-> and if the expression involves categories and a category set is
-> encountered, then return an error if the expression is a category
-> range.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On Mon, Jul 12, 2021 at 03:31:39PM -0400, J. Bruce Fields wrote:
+> On Mon, Jul 12, 2021 at 01:47:59PM -0400, Vivek Goyal wrote:
+> > On Mon, Jul 12, 2021 at 11:41:06AM -0400, J. Bruce Fields wrote:
+> > > Looks like 0xd is what the server returns to access on a device node
+> > > with mode bits rw- for the caller.
+> > > 
+> > > Commit c11d7fd1b317 "nfsd: take xattr bits into account for permission
+> > > checks" added the ACCESS_X* bits for regular files and directories but
+> > > not others.
+> > > 
+> > > But you don't want to determine permission from the mode bits anyway,
+> > > you want it to depend on the owner,
+> > 
+> > Thinking more about this part. Current implementation of my patch is
+> > effectively doing both the checks. It checks that you are owner or
+> > have CAP_FOWNER in xattr_permission() and then goes on to call
+> > inode_permission(). And that means file mode bits will also play a
+> > role. If caller does not have write permission on the file, it will
+> > be denied setxattr().
+> > 
+> > If I don't call inode_permission(), and just return 0 right away for
+> > file owner (for symlinks and special files), then just being owner
+> > is enough to write user.* xattr. And then even security modules will
+> > not get a chance to block that operation. IOW, if you are owner of
+> > a symlink or special file, you can write as many user.* xattr as you
+> > like and except quota does not look like anything else can block
+> > it. I am wondering if this approach is ok?
+> 
+> Yeah, I'd expect security modules to get a say, and I wouldn't expect
+> mode bits on device nodes to be useful for deciding whether it makes
+> sense for xattrs to be readable or writeable.
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Actually, calling inode_permission() for symlinks probably should be
+fine.
 
-Thanks!
-Nicolas
+Its the device node which is problematic. Because we started with the
+assumption that mode bits there represent access writes for read/writing
+to device (and not to the filesystem). 
 
-> ---
->  libsepol/cil/src/cil_resolve_ast.c | 28 +++++++++++++++++++++-------
->  1 file changed, 21 insertions(+), 7 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index 145d4e74..18007324 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -3228,6 +3228,7 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
->         struct cil_symtab_datum *res_datum = NULL;
->         enum cil_sym_index sym_index =  CIL_SYM_UNKNOWN;
->         struct cil_list *datum_sub_expr;
-> +       enum cil_flavor op = CIL_NONE;
->
->         switch (str_expr->flavor) {
->         case CIL_BOOL:
-> @@ -3263,14 +3264,24 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
->                         }
->                         if (sym_index == CIL_SYM_CATS && NODE(res_datum)->flavor == CIL_CATSET) {
->                                 struct cil_catset *catset = (struct cil_catset *)res_datum;
-> -                               if (!catset->cats->datum_expr) {
-> -                                       rc = cil_resolve_expr(expr_type, catset->cats->str_expr, &catset->cats->datum_expr, parent, extra_args);
-> -                                       if (rc != SEPOL_OK) {
-> -                                               goto exit;
-> +                               if (op == CIL_RANGE) {
-> +                                       cil_tree_log(parent, CIL_ERR, "Category set not allowed in category range");
-> +                                       rc = SEPOL_ERR;
-> +                                       goto exit;
-> +                               }
-> +                               if (!res_datum->name) {
-> +                                       /* Anonymous category sets need to be resolved when encountered */
-> +                                       if (!catset->cats->datum_expr) {
-> +                                               rc = cil_resolve_expr(expr_type, catset->cats->str_expr, &catset->cats->datum_expr, parent, extra_args);
-> +                                               if (rc != SEPOL_OK) {
-> +                                                       goto exit;
-> +                                               }
->                                         }
-> +                                       cil_copy_list(catset->cats->datum_expr, &datum_sub_expr);
-> +                                       cil_list_append(*datum_expr, CIL_LIST, datum_sub_expr);
-> +                               } else {
-> +                                       cil_list_append(*datum_expr, CIL_DATUM, res_datum);
->                                 }
-> -                               cil_copy_list(catset->cats->datum_expr, &datum_sub_expr);
-> -                               cil_list_append(*datum_expr, CIL_LIST, datum_sub_expr);
->                         } else {
->                                 if (sym_index == CIL_SYM_TYPES && (expr_type == CIL_CONSTRAIN || expr_type == CIL_VALIDATETRANS)) {
->                                         cil_type_used(res_datum, CIL_ATTR_CONSTRAINT);
-> @@ -3287,9 +3298,12 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
->                         break;
->                 }
->                 default:
-> +                       if (curr->flavor == CIL_OP) {
-> +                               op = (enum cil_flavor)(uintptr_t)curr->data;
-> +                       }
->                         cil_list_append(*datum_expr, curr->flavor, curr->data);
->                         break;
-> -               }
-> +               }
->         }
->         return SEPOL_OK;
->
-> --
-> 2.31.1
->
+> 
+> But, I don't really know.
+
+> 
+> Do we have any other use cases besides this case of storing security
+> labels in user xattrs?
+
+Storing security label was one example. In case of virtiofs, there is
+a good chance that we will end up remapping all the guest xattrs and
+prefix these with "user.virtiofsd".
+
+fuse-overlay is another use case. They are storing real uid/gid in 
+user.* xattrs for files over NFS.
+
+I think overlayfs can be another benefeciary in some form. Now there
+is support for unpriviliged mouting of overlayfs from inside a user
+namespace. And that uses xattrs "user.overlay" on upper files for
+overlayfs specific metadata. Device nodes are not copied up. But
+they might have an issue with symlinks. Miklos, will know more.
+
+Thanks
+Vivek
 
