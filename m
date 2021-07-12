@@ -2,130 +2,108 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE9EC07E9A
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 14:03:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9808C07E99
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 14:36:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1864160724
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 14:03:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 995EA61106
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 14:36:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbhGLOFz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 10:05:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54020 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230297AbhGLOFy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 10:05:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626098586;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6QZTkpToWndbC/JY1O8MzhhwkItgB1oCt3LUvlhk+js=;
-        b=NbB31piU9rOSePeduFeIQGvFXqcotfXDHwagXe2Icf4/S4MDF7/vBs7cIbSYnmmys1aFUg
-        5B9loNMyP/jlUMxyO/OjZknhYg0S52Nu+mqp2OkBbnJ+eDcClVeS01Y65s1ZLB4zIk0N9p
-        uMuTC9OxIPp/9SEVNDma3JRSA1C65j4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-18-9z529XwbMaij_RCHZvvi3A-1; Mon, 12 Jul 2021 10:03:02 -0400
-X-MC-Unique: 9z529XwbMaij_RCHZvvi3A-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 99D93101F7C4;
-        Mon, 12 Jul 2021 14:03:00 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-114-176.rdu2.redhat.com [10.10.114.176])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C6C005DF56;
-        Mon, 12 Jul 2021 14:02:47 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 5751522054F; Mon, 12 Jul 2021 10:02:47 -0400 (EDT)
-Date:   Mon, 12 Jul 2021 10:02:47 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Bruce Fields <bfields@redhat.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
-        dgilbert@redhat.com, casey.schaufler@intel.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
-        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
- files
-Message-ID: <20210712140247.GA486376@redhat.com>
-References: <20210708175738.360757-1-vgoyal@redhat.com>
- <20210708175738.360757-2-vgoyal@redhat.com>
- <20210709091915.2bd4snyfjndexw2b@wittgenstein>
- <20210709152737.GA398382@redhat.com>
- <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
- <20210709175947.GB398382@redhat.com>
- <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
+        id S234914AbhGLOjV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 10:39:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58212 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234869AbhGLOjV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 10:39:21 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15F2C0613DD
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 07:36:31 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id w127so24662274oig.12
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 07:36:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zdb6ci63l31ofYtUCTMHkxz9ZCFD/0IPl/QkYgNUtgE=;
+        b=rOe6eG+8tXEY5yCdDQG9Bfsa2pelosD/Gwa9zfoyf6W93C11PA7IpOERKb/VTEhycQ
+         VdYrgVg/xzDbzuXuelHdVsNG00uk48PJwFyIpMiNvSo8t/uwCdkGpQVGnmY8OPnw/W6d
+         kQarC3h6D11gjRTA0PXknqj4ZNDvE+lKj9r3e4ncn3Q5w6XANV3+DoR66MQ9ypnrHSR7
+         q1lCUwaGr/avdC7fcXNXG80a6VtH2w4Y3aIZCTKwgiaI58D6QHcrBU4h0VRR9a6yVV3u
+         jWikjx5dlBrVomFF9BQapZTh3Ne7jY0OZgK+BZBjq9OYNNB+ME3slIIQYRoAq28UneMY
+         eQ6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zdb6ci63l31ofYtUCTMHkxz9ZCFD/0IPl/QkYgNUtgE=;
+        b=jgcXiM0/cEh0pU/EFu8VQfLST8qlAtHckO5i7Mz2Sf80ja3WkdMtH8tNiU8M4Q5+LZ
+         9xPBjP9Tq5ojyyNfEDbyopLzr2hvvHLebO80aldppfKorubBuI+k07NDV1AiiK1qPdsX
+         NVejnc3bcZBE84CbliSsokYtzMaZa9xAS0BiSnEx4iXunLIbcpkd4dfo0iGO+SvgoCss
+         3LtvxtcZjmf8nl7RkjIHDGFnHo81A1P7GofqtGyKmdfYYg2HvJqhxB3jZzAtzKUNzwwC
+         IrwXPALG+OdT6GZ3l4WESs5jDsnw9sqcKKlvfjIKFkg2YeJpmbepE0YU8OHvjLjbwLcJ
+         byJw==
+X-Gm-Message-State: AOAM530+0NJzbKYPyOsrFEhPTO9wNVhy/Au/xjjJw0vtdo+5UCFv98Mb
+        fpzZSGCJ1JCg9oIIfJrS9aK9ODwCKOztp9aOwo8=
+X-Google-Smtp-Source: ABdhPJzgRksGbth3cxVBu0Tsg/ze+YCKbbiROQZ98QuFfxbCMUXtuSGWFCn06Gasx4xluVcsQgRgxHamEY7TpSAG7Lc=
+X-Received: by 2002:aca:a887:: with SMTP id r129mr4508051oie.128.1626100591432;
+ Mon, 12 Jul 2021 07:36:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <20210712084428.73440-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20210712084428.73440-1-nicolas.iooss@m4x.org>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 12 Jul 2021 10:36:20 -0400
+Message-ID: <CAP+JOzR-xRuU9x4qm5Ndp-wbjgxHj2UDxwdcvkGSxTg912=snw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: do not allow \0 in quoted strings
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 09, 2021 at 04:10:16PM -0400, Bruce Fields wrote:
-> On Fri, Jul 9, 2021 at 1:59 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > nfs seems to have some issues.
-> 
-> I'm not sure what the expected behavior is for nfs.  All I have for
-> now is some generic troubleshooting ideas, sorry:
-> 
-> > - I can set user.foo xattr on symlink and query it back using xattr name.
-> >
-> >   getfattr -h -n user.foo foo-link.txt
-> >
-> >   But when I try to dump all xattrs on this file, user.foo is being
-> >   filtered out it looks like. Not sure why.
-> 
-> Logging into the server and seeing what's set there could help confirm
-> whether it's the client or server that's at fault.  (Or watching the
-> traffic in wireshark; there are GET/SET/LISTXATTR ops that should be
-> easy to spot.)
-> 
-> > - I can't set "user.foo" xattr on a device node on nfs and I get
-> >   "Permission denied". I am assuming nfs server is returning this.
-> 
-> Wireshark should tell you whether it's the server or client doing that.
-> 
-> The RFC is https://datatracker.ietf.org/doc/html/rfc8276, and I don't
-> see any explicit statement about what the server should do in the case
-> of symlinks or device nodes, but I do see "Any regular file or
-> directory may have a set of extended attributes", so that was clearly
-> the assumption.  Also, NFS4ERR_WRONG_TYPE is listed as a possible
-> error return for the xattr ops.  But on a quick skim I don't see any
-> explicit checks in the nfsd code, so I *think* it's just relying on
-> the vfs for any file type checks.
+On Mon, Jul 12, 2021 at 4:54 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> Using the '\0' character in strings in a CIL policy is not expected to
+> happen, and makes the flex tokenizer very slow. For example when
+> generating a file with:
+>
+>     python -c 'print("\"" + "\0"*100000 + "\"")' > policy.cil
+>
+> secilc fails after 26 seconds, on my desktop computer. Increasing the
+> numbers of \0 makes this time increase significantly. But replacing \0
+> with another character makes secilc fail in only few milliseconds.
+>
+> Fix this "possible denial of service" issue by forbidding \0 in strings
+> in CIL policies.
+>
+> Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=36016
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Hi Bruce,
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Thanks for the response. I am just trying to do set a user.foo xattr on
-a device node on nfs.
-
-setfattr -n "user.foo" -v "bar" /mnt/nfs/test-dev
-
-and I get -EACCESS.
-
-I put some printk() statements and EACCESS is being returned from here.
-
-nfs4_xattr_set_nfs4_user() {
-        if (!nfs_access_get_cached(inode, current_cred(), &cache, true)) {
-                if (!(cache.mask & NFS_ACCESS_XAWRITE)) {
-                        return -EACCES;
-                }
-        }
-}
-
-Value of cache.mask=0xd at the time of error.
-
-Thanks
-Vivek
-
+> ---
+>  libsepol/cil/src/cil_lexer.l | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil_lexer.l b/libsepol/cil/src/cil_lexer.l
+> index e28c33ecb9f1..8bf2b6e7765a 100644
+> --- a/libsepol/cil/src/cil_lexer.l
+> +++ b/libsepol/cil/src/cil_lexer.l
+> @@ -49,7 +49,7 @@ spec_char     [\[\]\.\@\=\/\*\-\_\$\%\+\-\!\|\&\^\:\~\`\#\{\}\'\<\>\?\,]
+>  symbol         ({digit}|{alpha}|{spec_char})+
+>  white          [ \t]
+>  newline                [\n\r]
+> -qstring                \"[^"\n]*\"
+> +qstring                \"[^"\n\0]*\"
+>  hll_lm          ^;;\*
+>  comment                ;
+>
+> --
+> 2.32.0
+>
