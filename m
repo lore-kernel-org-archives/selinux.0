@@ -7,168 +7,116 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3932CC11F6C
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:03:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04BB4C07E9C
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:14:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 17F2A613F0
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:03:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E269761418
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:14:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242192AbhGLHGY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 03:06:24 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:58187 "EHLO
+        id S243824AbhGLHRK convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 03:17:10 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:50083 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241522AbhGLHDw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 03:03:52 -0400
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+        with ESMTP id S243366AbhGLHQi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 03:16:38 -0400
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id A3739564A1E
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 09:00:56 +0200 (CEST)
-Received: by mail-pf1-f171.google.com with SMTP id o201so10455246pfd.1
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 00:00:56 -0700 (PDT)
-X-Gm-Message-State: AOAM533yNgqpCmOAMJ/ZD2kiu2pZICl9/lzc218by0SHks2lNuLpuFwB
-        rILVbYSxQvOs7o36or59itPcvKHKEU80Q23d58Y=
-X-Google-Smtp-Source: ABdhPJzIvqBp+lQtX/It1P1XN7kJ6Cs7QR7c1qRAOUsV1RTcP0YdQO3kxXIiH+yBfdOa7BAGqwjZ99/AuQJMUekuLMs=
-X-Received: by 2002:a63:fd43:: with SMTP id m3mr44838387pgj.210.1626073255162;
- Mon, 12 Jul 2021 00:00:55 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 8B72D56479B
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 09:13:48 +0200 (CEST)
+Received: by mail-pj1-f47.google.com with SMTP id me13-20020a17090b17cdb0290173bac8b9c9so1655859pjb.3
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 00:13:48 -0700 (PDT)
+X-Gm-Message-State: AOAM532PbVcS/YmKdJEZeZy2L29QkWevwvj7NKVr4EDdZONL6P5fU4K1
+        4gaPpTZH5JX1d4lXylYf9BwpEs2ZqWv8zzrP9/8=
+X-Google-Smtp-Source: ABdhPJxQGCJX5BVIlD1roYDmgb41fzhouXctV+6/8LYTCR8ruVhCKRzp9I3cGsviang1uSinDpDlLSIiuxf3JLrv8TI=
+X-Received: by 2002:a17:902:b717:b029:11a:fae3:ba7c with SMTP id
+ d23-20020a170902b717b029011afae3ba7cmr1246143pls.28.1626074027248; Mon, 12
+ Jul 2021 00:13:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210709141149.59229-1-jwcart2@gmail.com>
-In-Reply-To: <20210709141149.59229-1-jwcart2@gmail.com>
+References: <20210706175433.29270-1-cgzones@googlemail.com> <20210706175433.29270-6-cgzones@googlemail.com>
+In-Reply-To: <20210706175433.29270-6-cgzones@googlemail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 12 Jul 2021 09:00:44 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=n1Q=AOg4gFbDZ+8fqBfxUieJ+6a74Gi5m_t4h7iFzz1w@mail.gmail.com>
-Message-ID: <CAJfZ7=n1Q=AOg4gFbDZ+8fqBfxUieJ+6a74Gi5m_t4h7iFzz1w@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix handling category sets in an expression
-To:     James Carter <jwcart2@gmail.com>
+Date:   Mon, 12 Jul 2021 09:13:36 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kCirOQJAAECLnKQ0hKo7v55X8FpzvUv8x7PjucqvcH1w@mail.gmail.com>
+Message-ID: <CAJfZ7=kCirOQJAAECLnKQ0hKo7v55X8FpzvUv8x7PjucqvcH1w@mail.gmail.com>
+Subject: Re: [PATCH 06/13] checkpolicy: follow declaration-after-statement
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 09:00:57 2021 +0200 (CEST))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 09:13:49 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 9, 2021 at 4:11 PM James Carter <jwcart2@gmail.com> wrote:
+On Tue, Jul 6, 2021 at 7:54 PM Christian Göttsche
+<cgzones@googlemail.com> wrote:
 >
-> There are two problems that need to be addressed when resolving an
-> expression with category sets.
+> Follow the project style of no declaration after statement.
 >
-> 1. Only expand anonymous category sets in an expression.
+> Found by the GCC warning -Wdeclaration-after-statement.
 >
-> Commit 982ec302b67f3c7f8df667dadb67352b1e4a6d18 (libsepol/cil:
-> Account for anonymous category sets in an expression) attempted to
-> properly handle anonymous category sets when resolving category
-> expressions. Unfortunately, it did not check whether a category set
-> was actually an anonymous category set and expanded all category
-> sets in an expression. If a category set refers to itself in the
-> expression, then everything from the name of the category set to the
-> end of the expression is ignored.
->
-> For example, the rule "(categoryset cs (c0 cs c1 c2))", would be
-> equivalent to the rule "(categoryset cs (c0))" as everything from
-> "cs" to the end would be dropped. The secilc-fuzzer found that the
-> rule "(categoryset cat (not cat))" would cause a segfault since
-> "(not)" is not a valid expression and it is assumed to be valid
-> during later evaluation because syntax checking has already been
-> done.
->
-> Instead, check whether or not the category set is anonymous before
-> expanding it when resolving an expression.
->
-> 2. Category sets cannot be used in a category range
->
-> A category range can be used to specify a large number of categories.
-> The range "(range c0 c1023)" refers to 1024 categories. Only categories
-> and category aliases can be used in a range. Determining if an
-> identifier is a category, an alias, or a set can only be done after
-> resolving the identifer.
-
-Misspelling: identifer -> identifier
-
->
-> Keep track of the current operator as an expression is being resolved
-> and if the expression involves categories and a category set is
-> encountered, then return an error if the expression is a category
-> range.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  libsepol/cil/src/cil_resolve_ast.c | 28 +++++++++++++++++++++-------
->  1 file changed, 21 insertions(+), 7 deletions(-)
+>  checkpolicy/checkmodule.c   | 6 ++++--
+>  checkpolicy/policy_define.c | 3 ++-
+>  checkpolicy/test/dismod.c   | 2 +-
+>  3 files changed, 7 insertions(+), 4 deletions(-)
 >
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index 145d4e74..3d3ef955 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -3228,6 +3228,7 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
->         struct cil_symtab_datum *res_datum = NULL;
->         enum cil_sym_index sym_index =  CIL_SYM_UNKNOWN;
->         struct cil_list *datum_sub_expr;
-> +       enum cil_flavor op = CIL_NONE;
+> diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+> index 40d0ec99..316b2898 100644
+> --- a/checkpolicy/checkmodule.c
+> +++ b/checkpolicy/checkmodule.c
+> @@ -288,14 +288,16 @@ int main(int argc, char **argv)
+>         }
 >
->         switch (str_expr->flavor) {
->         case CIL_BOOL:
-> @@ -3263,14 +3264,24 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
->                         }
->                         if (sym_index == CIL_SYM_CATS && NODE(res_datum)->flavor == CIL_CATSET) {
->                                 struct cil_catset *catset = (struct cil_catset *)res_datum;
-> -                               if (!catset->cats->datum_expr) {
-> -                                       rc = cil_resolve_expr(expr_type, catset->cats->str_expr, &catset->cats->datum_expr, parent, extra_args);
-> -                                       if (rc != SEPOL_OK) {
-> -                                               goto exit;
-> +                               if (op == CIL_RANGE) {
-> +                                       cil_tree_log(parent, CIL_ERR, "Category set not allowed in category range");
-> +                                       rc = SEPOL_ERR;
-> +                                       goto exit;
-> +                               }
-> +                               if (!res_datum->name) {
-> +                                       /* Anonymous category sets need to be resolved when encountered */
-> +                                       if (!catset->cats->datum_expr) {
-> +                                               rc = cil_resolve_expr(expr_type, catset->cats->str_expr, &catset->cats->datum_expr, parent, extra_args);
-> +                                               if (rc != SEPOL_OK) {
-> +                                                       goto exit;
-> +                                               }
->                                         }
-> +                                       cil_copy_list(catset->cats->datum_expr, &datum_sub_expr);
-> +                                       cil_list_append(*datum_expr, CIL_LIST, datum_sub_expr);
-> +                               } else {
-> +                                       cil_list_append(*datum_expr, CIL_DATUM, res_datum);
->                                 }
-> -                               cil_copy_list(catset->cats->datum_expr, &datum_sub_expr);
-> -                               cil_list_append(*datum_expr, CIL_LIST, datum_sub_expr);
->                         } else {
->                                 if (sym_index == CIL_SYM_TYPES && (expr_type == CIL_CONSTRAIN || expr_type == CIL_VALIDATETRANS)) {
->                                         cil_type_used(res_datum, CIL_ATTR_CONSTRAINT);
-> @@ -3287,9 +3298,12 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
->                         break;
+>         if (policy_type != POLICY_BASE && outfile) {
+> +               char *out_name;
+> +               char *separator;
+>                 char *mod_name = modpolicydb.name;
+>                 char *out_path = strdup(outfile);
+>                 if (out_path == NULL) {
+>                         fprintf(stderr, "%s:  out of memory\n", argv[0]);
+>                         exit(1);
 >                 }
->                 default:
-> +                       if (curr->flavor == CIL_OP) {
-> +                               op = (enum cil_flavor)curr->data;
-> +                       }
+> -               char *out_name = basename(out_path);
+> -               char *separator = strrchr(out_name, '.');
+> +               out_name = basename(out_path);
+> +               separator = strrchr(out_name, '.');
+>                 if (separator) {
+>                         *separator = '\0';
+>                 }
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 7eff747a..22218c07 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -1904,8 +1904,9 @@ int avrule_read_ioctls(struct av_ioctl_range_list **rangehead)
+>  {
+>         char *id;
+>         struct av_ioctl_range_list *rnew, *r = NULL;
+> -       *rangehead = NULL;
+>         uint8_t omit = 0;
+> +
+> +       *rangehead = NULL;
 
 Hello,
-This patch looks good to me, and it actually also fixes
-https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=35494&q=selinux&can=2
-(memory leak when compiling "(categoryset e(u)) (categoryset u(e))",
-because the categorysets were expanded).
+All the patches of this series look good to me. But here, you
+introduced trailing tabs, which is reported by "git am" when applying
+the patch:
 
-Nevertheless when building with clang 12, I get the following warning:
+        .git/rebase-apply/patch:40: trailing whitespace.
 
-../cil/src/cil_resolve_ast.c:3308:10: error: cast to smaller integer
-type 'enum cil_flavor' from 'void *'
-[-Werror,-Wvoid-pointer-to-enum-cast]
-                                op = (enum cil_flavor)curr->data;
-                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+        .git/rebase-apply/patch:41: trailing whitespace.
+                *rangehead = NULL;
+        warning: 2 lines add whitespace errors.
 
-This issue can be fixed by introducing an intermediate cast to
-uintptr_t, like what was done in commit 32f8ed3d6b0b ("libsepol/cil:
-introduce intermediate cast to silence -Wvoid-pointer-to-enum-cast"):
+Anyway I can remove these tabs when applying this patch.
 
-    op = (enum cil_flavor)(uintptr_t)curr->data;
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-If this looks good to you, could you please fix this?
-
-Cheers,
+If nobody else has comments, I will apply them tomorrow.
+Thanks!
 Nicolas
 
