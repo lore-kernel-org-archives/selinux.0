@@ -2,75 +2,156 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3781CC11F75
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 08:52:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79BE6C07E9C
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 12:49:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F92460FF3
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 08:52:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C0D9610D1
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 12:49:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351528AbhGLIz0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 04:55:26 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:49627 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356416AbhGLIrk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 04:47:40 -0400
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S233996AbhGLMwf convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 08:52:35 -0400
+Received: from us-smtp-delivery-44.mimecast.com ([207.211.30.44]:22201 "EHLO
+        us-smtp-delivery-44.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234015AbhGLMwe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 08:52:34 -0400
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-205-qiylMb6tME2iJBU66RxWTw-1; Mon, 12 Jul 2021 08:49:42 -0400
+X-MC-Unique: qiylMb6tME2iJBU66RxWTw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5D6C45606AD
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 10:44:50 +0200 (CEST)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol/cil: do not allow \0 in quoted strings
-Date:   Mon, 12 Jul 2021 10:44:28 +0200
-Message-Id: <20210712084428.73440-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.32.0
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 69A1C804319;
+        Mon, 12 Jul 2021 12:49:39 +0000 (UTC)
+Received: from bahia.lan (ovpn-114-183.ams2.redhat.com [10.36.114.183])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3530961093;
+        Mon, 12 Jul 2021 12:49:31 +0000 (UTC)
+Date:   Mon, 12 Jul 2021 14:49:30 +0200
+From:   Greg Kurz <groug@kaod.org>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        <gscrivan@redhat.com>, <tytso@mit.edu>, <miklos@szeredi.hu>,
+        <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <virtio-fs@redhat.com>, <casey.schaufler@intel.com>,
+        <linux-security-module@vger.kernel.org>, <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>,
+        <linux-fsdevel@vger.kernel.org>, <jack@suse.cz>
+Subject: Re: [Virtio-fs] [PATCH v2 1/1] xattr: Allow user.* xattr on symlink
+ and special files
+Message-ID: <20210712144849.121c948c@bahia.lan>
+In-Reply-To: <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
+References: <20210708175738.360757-1-vgoyal@redhat.com>
+        <20210708175738.360757-2-vgoyal@redhat.com>
+        <20210709091915.2bd4snyfjndexw2b@wittgenstein>
+        <20210709152737.GA398382@redhat.com>
+        <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 10:44:50 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=groug@kaod.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: kaod.org
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Using the '\0' character in strings in a CIL policy is not expected to
-happen, and makes the flex tokenizer very slow. For example when
-generating a file with:
+On Fri, 9 Jul 2021 08:34:41 -0700
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-    python -c 'print("\"" + "\0"*100000 + "\"")' > policy.cil
+> On 7/9/2021 8:27 AM, Vivek Goyal wrote:
+> > On Fri, Jul 09, 2021 at 11:19:15AM +0200, Christian Brauner wrote:
+> >> On Thu, Jul 08, 2021 at 01:57:38PM -0400, Vivek Goyal wrote:
+> >>> Currently user.* xattr are not allowed on symlink and special files.
+> >>>
+> >>> man xattr and recent discussion suggested that primary reason for this
+> >>> restriction is how file permissions for symlinks and special files
+> >>> are little different from regular files and directories.
+> >>>
+> >>> For symlinks, they are world readable/writable and if user xattr were
+> >>> to be permitted, it will allow unpriviliged users to dump a huge amount
+> >>> of user.* xattrs on symlinks without any control.
+> >>>
+> >>> For special files, permissions typically control capability to read/write
+> >>> from devices (and not necessarily from filesystem). So if a user can
+> >>> write to device (/dev/null), does not necessarily mean it should be allowed
+> >>> to write large number of user.* xattrs on the filesystem device node is
+> >>> residing in.
+> >>>
+> >>> This patch proposes to relax the restrictions a bit and allow file owner
+> >>> or priviliged user (CAP_FOWNER), to be able to read/write user.* xattrs
+> >>> on symlink and special files.
+> >>>
+> >>> virtiofs daemon has a need to store user.* xatrrs on all the files
+> >>> (including symlinks and special files), and currently that fails. This
+> >>> patch should help.
+> >>>
+> >>> Link: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.com/
+> >>> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> >>> ---
+> >> Seems reasonable and useful.
+> >> Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+> >>
+> >> One question, do all filesystem supporting xattrs deal with setting them
+> >> on symlinks/device files correctly?
+> > Wrote a simple bash script to do setfattr/getfattr user.foo xattr on
+> > symlink and device node on ext4, xfs and btrfs and it works fine.
+> 
+> How about nfs, tmpfs, overlayfs and/or some of the other less conventional
+> filesystems?
+> 
 
-secilc fails after 26 seconds, on my desktop computer. Increasing the
-numbers of \0 makes this time increase significantly. But replacing \0
-with another character makes secilc fail in only few milliseconds.
+How about virtiofs then ? :-)
 
-Fix this "possible denial of service" issue by forbidding \0 in strings
-in CIL policies.
-
-Fixes: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=36016
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/cil/src/cil_lexer.l | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libsepol/cil/src/cil_lexer.l b/libsepol/cil/src/cil_lexer.l
-index e28c33ecb9f1..8bf2b6e7765a 100644
---- a/libsepol/cil/src/cil_lexer.l
-+++ b/libsepol/cil/src/cil_lexer.l
-@@ -49,7 +49,7 @@ spec_char	[\[\]\.\@\=\/\*\-\_\$\%\+\-\!\|\&\^\:\~\`\#\{\}\'\<\>\?\,]
- symbol		({digit}|{alpha}|{spec_char})+
- white		[ \t]
- newline		[\n\r]
--qstring		\"[^"\n]*\"
-+qstring		\"[^"\n\0]*\"
- hll_lm          ^;;\*
- comment		;
- 
--- 
-2.32.0
+> >
+> > https://github.com/rhvgoyal/misc/blob/master/generic-programs/user-xattr-special-files.sh
+> >
+> > I probably can add some more filesystems to test.
+> >
+> > Thanks
+> > Vivek
+> >
+> >>>  fs/xattr.c | 10 ++++++----
+> >>>  1 file changed, 6 insertions(+), 4 deletions(-)
+> >>>
+> >>> diff --git a/fs/xattr.c b/fs/xattr.c
+> >>> index 5c8c5175b385..2f1855c8b620 100644
+> >>> --- a/fs/xattr.c
+> >>> +++ b/fs/xattr.c
+> >>> @@ -120,12 +120,14 @@ xattr_permission(struct user_namespace *mnt_userns, struct inode *inode,
+> >>>  	}
+> >>>  
+> >>>  	/*
+> >>> -	 * In the user.* namespace, only regular files and directories can have
+> >>> -	 * extended attributes. For sticky directories, only the owner and
+> >>> -	 * privileged users can write attributes.
+> >>> +	 * In the user.* namespace, for symlinks and special files, only
+> >>> +	 * the owner and priviliged users can read/write attributes.
+> >>> +	 * For sticky directories, only the owner and privileged users can
+> >>> +	 * write attributes.
+> >>>  	 */
+> >>>  	if (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN)) {
+> >>> -		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
+> >>> +		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode) &&
+> >>> +		    !inode_owner_or_capable(mnt_userns, inode))
+> >>>  			return (mask & MAY_WRITE) ? -EPERM : -ENODATA;
+> >>>  		if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
+> >>>  		    (mask & MAY_WRITE) &&
+> >>> -- 
+> >>> 2.25.4
+> >>>
+> 
+> _______________________________________________
+> Virtio-fs mailing list
+> Virtio-fs@redhat.com
+> https://listman.redhat.com/mailman/listinfo/virtio-fs
+> 
 
