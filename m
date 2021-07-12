@@ -2,173 +2,130 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5E58C07E99
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 13:50:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE9EC07E9A
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 14:03:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 83E2E6108B
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 13:50:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1864160724
+	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 14:03:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbhGLNxf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 09:53:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbhGLNxf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 09:53:35 -0400
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF1DC0613DD
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 06:50:47 -0700 (PDT)
-Received: by mail-qt1-x82f.google.com with SMTP id x24so13872599qts.11
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 06:50:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=e4B8gfAsF0/geZuTIMUIRvx1w5RRj+NjVsYlLUiSrIc=;
-        b=PLVPY1os9UJb3al9SZMF4hWtkTh+s7vESLHqwFOauvUtbGZythQkCZP95wVcHxws82
-         BfrYdN0+rCgUW3QoUk6+mwlraXU3ARMS/ljI5+WYgIF+1VCetZlbQNREPKKf2XZO4pY6
-         NNx64gQG6OzPUhYYyTudO2rjq8UZYOJ2RuHOrx7oDbIUA2H+Kpb87J+X7ne7g76oUbaf
-         CJ8R1OO0A/pEOv6Qov/pRFaW4jfHpVOJu3DLycbrooBR7mgacWa13nUCtm8CwH7iq92e
-         jnBFgkZvIHn9/xGT05OWWc6Qr1J0LIZrGXE2yYCX9YIOrZNbjMZHDRaP5aK6QqsFHSQc
-         4WAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=e4B8gfAsF0/geZuTIMUIRvx1w5RRj+NjVsYlLUiSrIc=;
-        b=IhoLrL9kxwA0q4Uqt82ISSpqinZJm/Pwzu9NLk9PSOlVx7c7SMkgpHHtcsgJ1YIG0X
-         dc1q/pnyRZIT73YqDQE2OEV+lVaIRiwjMqrX5t13+QDmKQyQI7IyZT9emofbD/y9/Gk6
-         f86zsfO8LrynBIdDMOOchwitN6+LZvWYe+kQDtvYXcIxEAKiwzg2Pk0ue3cKE5ZpkqIo
-         gia9Y+96N58YenpB4vcLIgDtRQfv7UjJejl+X8VEW7AX9dcgvgS28wWRixWmO+AVXyve
-         RBeFsKt9ugU4l3Z+RBmvKn2aqoBe83YI69ZL9hMu17SMWn2ZNf8C2/aOWuzgQawCkbPe
-         xhdQ==
-X-Gm-Message-State: AOAM5302+/1kOrNqsa+LxUwgbcc310+bOwLdAPRM2aEYdmnz8GsCAKPk
-        huWUmsMCofwLjV+aervQufY0FFU8f280MA==
-X-Google-Smtp-Source: ABdhPJyoJ6l03IE1KqzYtbVUrI22sHA9MCbW+Vqw65Pw2mQ1zHVzub+HmJzVlZxUffH5jscLbztujA==
-X-Received: by 2002:ac8:5cca:: with SMTP id s10mr46995893qta.116.1626097843590;
-        Mon, 12 Jul 2021 06:50:43 -0700 (PDT)
-Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id o10sm5481818qtv.62.2021.07.12.06.50.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jul 2021 06:50:43 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2] libsepol/cil: Fix handling category sets in an expression
-Date:   Mon, 12 Jul 2021 09:50:38 -0400
-Message-Id: <20210712135038.9405-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        id S231562AbhGLOFz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 10:05:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54020 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230297AbhGLOFy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 10:05:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626098586;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6QZTkpToWndbC/JY1O8MzhhwkItgB1oCt3LUvlhk+js=;
+        b=NbB31piU9rOSePeduFeIQGvFXqcotfXDHwagXe2Icf4/S4MDF7/vBs7cIbSYnmmys1aFUg
+        5B9loNMyP/jlUMxyO/OjZknhYg0S52Nu+mqp2OkBbnJ+eDcClVeS01Y65s1ZLB4zIk0N9p
+        uMuTC9OxIPp/9SEVNDma3JRSA1C65j4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-18-9z529XwbMaij_RCHZvvi3A-1; Mon, 12 Jul 2021 10:03:02 -0400
+X-MC-Unique: 9z529XwbMaij_RCHZvvi3A-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 99D93101F7C4;
+        Mon, 12 Jul 2021 14:03:00 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-176.rdu2.redhat.com [10.10.114.176])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C6C005DF56;
+        Mon, 12 Jul 2021 14:02:47 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 5751522054F; Mon, 12 Jul 2021 10:02:47 -0400 (EDT)
+Date:   Mon, 12 Jul 2021 10:02:47 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Bruce Fields <bfields@redhat.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
+        dgilbert@redhat.com, casey.schaufler@intel.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
+        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
+ files
+Message-ID: <20210712140247.GA486376@redhat.com>
+References: <20210708175738.360757-1-vgoyal@redhat.com>
+ <20210708175738.360757-2-vgoyal@redhat.com>
+ <20210709091915.2bd4snyfjndexw2b@wittgenstein>
+ <20210709152737.GA398382@redhat.com>
+ <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
+ <20210709175947.GB398382@redhat.com>
+ <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There are two problems that need to be addressed when resolving an
-expression with category sets.
+On Fri, Jul 09, 2021 at 04:10:16PM -0400, Bruce Fields wrote:
+> On Fri, Jul 9, 2021 at 1:59 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > nfs seems to have some issues.
+> 
+> I'm not sure what the expected behavior is for nfs.  All I have for
+> now is some generic troubleshooting ideas, sorry:
+> 
+> > - I can set user.foo xattr on symlink and query it back using xattr name.
+> >
+> >   getfattr -h -n user.foo foo-link.txt
+> >
+> >   But when I try to dump all xattrs on this file, user.foo is being
+> >   filtered out it looks like. Not sure why.
+> 
+> Logging into the server and seeing what's set there could help confirm
+> whether it's the client or server that's at fault.  (Or watching the
+> traffic in wireshark; there are GET/SET/LISTXATTR ops that should be
+> easy to spot.)
+> 
+> > - I can't set "user.foo" xattr on a device node on nfs and I get
+> >   "Permission denied". I am assuming nfs server is returning this.
+> 
+> Wireshark should tell you whether it's the server or client doing that.
+> 
+> The RFC is https://datatracker.ietf.org/doc/html/rfc8276, and I don't
+> see any explicit statement about what the server should do in the case
+> of symlinks or device nodes, but I do see "Any regular file or
+> directory may have a set of extended attributes", so that was clearly
+> the assumption.  Also, NFS4ERR_WRONG_TYPE is listed as a possible
+> error return for the xattr ops.  But on a quick skim I don't see any
+> explicit checks in the nfsd code, so I *think* it's just relying on
+> the vfs for any file type checks.
 
-1. Only expand anonymous category sets in an expression.
+Hi Bruce,
 
-Commit 982ec302b67f3c7f8df667dadb67352b1e4a6d18 (libsepol/cil:
-Account for anonymous category sets in an expression) attempted to
-properly handle anonymous category sets when resolving category
-expressions. Unfortunately, it did not check whether a category set
-was actually an anonymous category set and expanded all category
-sets in an expression. If a category set refers to itself in the
-expression, then everything from the name of the category set to the
-end of the expression is ignored.
+Thanks for the response. I am just trying to do set a user.foo xattr on
+a device node on nfs.
 
-For example, the rule "(categoryset cs (c0 cs c1 c2))", would be
-equivalent to the rule "(categoryset cs (c0))" as everything from
-"cs" to the end would be dropped. The secilc-fuzzer found that the
-rule "(categoryset cat (not cat))" would cause a segfault since
-"(not)" is not a valid expression and it is assumed to be valid
-during later evaluation because syntax checking has already been
-done.
+setfattr -n "user.foo" -v "bar" /mnt/nfs/test-dev
 
-Instead, check whether or not the category set is anonymous before
-expanding it when resolving an expression.
+and I get -EACCESS.
 
-2. Category sets cannot be used in a category range
+I put some printk() statements and EACCESS is being returned from here.
 
-A category range can be used to specify a large number of categories.
-The range "(range c0 c1023)" refers to 1024 categories. Only categories
-and category aliases can be used in a range. Determining if an
-identifier is a category, an alias, or a set can only be done after
-resolving the identifer.
+nfs4_xattr_set_nfs4_user() {
+        if (!nfs_access_get_cached(inode, current_cred(), &cache, true)) {
+                if (!(cache.mask & NFS_ACCESS_XAWRITE)) {
+                        return -EACCES;
+                }
+        }
+}
 
-Keep track of the current operator as an expression is being resolved
-and if the expression involves categories and a category set is
-encountered, then return an error if the expression is a category
-range.
+Value of cache.mask=0xd at the time of error.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/cil/src/cil_resolve_ast.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 145d4e74..18007324 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -3228,6 +3228,7 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
- 	struct cil_symtab_datum *res_datum = NULL;
- 	enum cil_sym_index sym_index =  CIL_SYM_UNKNOWN;
- 	struct cil_list *datum_sub_expr;
-+	enum cil_flavor op = CIL_NONE;
- 
- 	switch (str_expr->flavor) {
- 	case CIL_BOOL:
-@@ -3263,14 +3264,24 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
- 			}
- 			if (sym_index == CIL_SYM_CATS && NODE(res_datum)->flavor == CIL_CATSET) {
- 				struct cil_catset *catset = (struct cil_catset *)res_datum;
--				if (!catset->cats->datum_expr) {
--					rc = cil_resolve_expr(expr_type, catset->cats->str_expr, &catset->cats->datum_expr, parent, extra_args);
--					if (rc != SEPOL_OK) {
--						goto exit;
-+				if (op == CIL_RANGE) {
-+					cil_tree_log(parent, CIL_ERR, "Category set not allowed in category range");
-+					rc = SEPOL_ERR;
-+					goto exit;
-+				}
-+				if (!res_datum->name) {
-+					/* Anonymous category sets need to be resolved when encountered */
-+					if (!catset->cats->datum_expr) {
-+						rc = cil_resolve_expr(expr_type, catset->cats->str_expr, &catset->cats->datum_expr, parent, extra_args);
-+						if (rc != SEPOL_OK) {
-+							goto exit;
-+						}
- 					}
-+					cil_copy_list(catset->cats->datum_expr, &datum_sub_expr);
-+					cil_list_append(*datum_expr, CIL_LIST, datum_sub_expr);
-+				} else {
-+					cil_list_append(*datum_expr, CIL_DATUM, res_datum);
- 				}
--				cil_copy_list(catset->cats->datum_expr, &datum_sub_expr);
--				cil_list_append(*datum_expr, CIL_LIST, datum_sub_expr);
- 			} else {
- 				if (sym_index == CIL_SYM_TYPES && (expr_type == CIL_CONSTRAIN || expr_type == CIL_VALIDATETRANS)) {
- 					cil_type_used(res_datum, CIL_ATTR_CONSTRAINT);
-@@ -3287,9 +3298,12 @@ int cil_resolve_expr(enum cil_flavor expr_type, struct cil_list *str_expr, struc
- 			break;
- 		}
- 		default:
-+			if (curr->flavor == CIL_OP) {
-+				op = (enum cil_flavor)(uintptr_t)curr->data;
-+			}
- 			cil_list_append(*datum_expr, curr->flavor, curr->data);
- 			break;
--		}				
-+		}
- 	}
- 	return SEPOL_OK;
- 
--- 
-2.31.1
+Thanks
+Vivek
 
