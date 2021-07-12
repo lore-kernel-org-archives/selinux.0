@@ -7,44 +7,45 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1924DC11F9D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FBB6C11FE4
 	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:42:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1066161629
+	by mail.kernel.org (Postfix) with ESMTP id 55FA56144D
 	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 07:42:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233383AbhGLHpJ convert rfc822-to-8bit (ORCPT
+        id S244659AbhGLHpR convert rfc822-to-8bit (ORCPT
         <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 03:45:09 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:59190 "EHLO
+        Mon, 12 Jul 2021 03:45:17 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:37231 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343802AbhGLHhy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 03:37:54 -0400
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+        with ESMTP id S1345948AbhGLHjR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 03:39:17 -0400
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 18ADA5649BE
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 09:34:49 +0200 (CEST)
-Received: by mail-pj1-f45.google.com with SMTP id b5-20020a17090a9905b029016fc06f6c5bso10020766pjp.5
-        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 00:34:49 -0700 (PDT)
-X-Gm-Message-State: AOAM530nx6zF7/n67aiPOtM+Z3hbG+4608DAPMLBQ+mtl80mVWe/CSvp
-        F4aVhuFXDriSxSUDZX9QsA5GzmNaYhqvgY8ymdw=
-X-Google-Smtp-Source: ABdhPJxtQ33e9apwd1f4soMA2dzT574LlQHb9oC273mSiihCcUKi3z+FfgXbKDp22KADYzS0L6uD0JVdCByKFZD9EA4=
-X-Received: by 2002:a17:90a:588b:: with SMTP id j11mr50809081pji.114.1626075287878;
- Mon, 12 Jul 2021 00:34:47 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 93C27564C52
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 09:36:27 +0200 (CEST)
+Received: by mail-pf1-f180.google.com with SMTP id y4so15580072pfi.9
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 00:36:27 -0700 (PDT)
+X-Gm-Message-State: AOAM5327XOiPpPvAmkOSCTAMOjg0/dOj0hqN53kbhdaRXt9nOnVtfXUt
+        kP2/LXEZUi98I/cssDKRCX5MjdMnw3YXCO2qnsE=
+X-Google-Smtp-Source: ABdhPJyVMWj918OpuM6xg9DTsB/bmlSxQd3HVz/qNcmKkw8DV7nxh63KG1QhF2C1xTF1FvVpjcXLL1TyAVC9ndUByGs=
+X-Received: by 2002:a62:b502:0:b029:2ec:a539:e29b with SMTP id
+ y2-20020a62b5020000b02902eca539e29bmr51999431pfe.37.1626075386492; Mon, 12
+ Jul 2021 00:36:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210608155912.32047-5-cgzones@googlemail.com> <20210701180622.119708-1-cgzones@googlemail.com>
-In-Reply-To: <20210701180622.119708-1-cgzones@googlemail.com>
+References: <20210608155912.32047-6-cgzones@googlemail.com> <20210701180645.120082-1-cgzones@googlemail.com>
+In-Reply-To: <20210701180645.120082-1-cgzones@googlemail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 12 Jul 2021 09:34:37 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nVF8grKSGop67d4sPXHDZgP6QLChWsROcrGudJiWb=_A@mail.gmail.com>
-Message-ID: <CAJfZ7=nVF8grKSGop67d4sPXHDZgP6QLChWsROcrGudJiWb=_A@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] libsepol: ignore UBSAN false-positives
+Date:   Mon, 12 Jul 2021 09:36:15 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=mY1DZO=KN0B2Lhd7JrXim-xubMuqhEFT-op=oD1WHrrg@mail.gmail.com>
+Message-ID: <CAJfZ7=mY1DZO=KN0B2Lhd7JrXim-xubMuqhEFT-op=oD1WHrrg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] libsepol: avoid implicit conversions
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 09:34:49 2021 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 12 09:36:28 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -53,21 +54,14 @@ X-Mailing-List: selinux@vger.kernel.org
 On Thu, Jul 1, 2021 at 8:06 PM Christian Göttsche
 <cgzones@googlemail.com> wrote:
 >
-> Unsigned integer overflow is well-defined and not undefined behavior.
-> But it is still useful to enable undefined behavior sanitizer checks on
-> unsigned arithmetic to detect possible issues on counters or variables
-> with similar purpose.
+> Avoid implicit conversions from signed to unsigned values, found by
+> UB sanitizers, by using unsigned values in the first place.
 >
-> Annotate functions, in which unsigned overflows are expected to happen,
-> with the respective Clang function attribute[1].
-> GCC does not support sanitizing unsigned integer arithmetic[2].
+>     expand.c:1644:18: runtime error: implicit conversion from type 'int' of value -1 (32-bit, signed) to type 'uint32_t' (aka 'unsigned int') changed the value to 4294967295 (32-bit, unsigned)
 >
->     avtab.c:76:2: runtime error: unsigned integer overflow: 6 * 3432918353 cannot be represented in type 'unsigned int'
->     policydb.c:795:42: runtime error: unsigned integer overflow: 8160943042179512010 * 11 cannot be represented in type 'unsigned long'
->     symtab.c:25:12: runtime error: left shift of 1766601759 by 4 places cannot be represented in type 'unsigned int'
+>     expand.c:2892:24: runtime error: implicit conversion from type 'int' of value -2 (32-bit, signed) to type 'unsigned int' changed the value to 4294967294 (32-bit, unsigned)
 >
-> [1]: https://clang.llvm.org/docs/AttributeReference.html#no-sanitize
-> [2]: https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+>     policy_define.c:2344:4: runtime error: implicit conversion from type 'int' of value -1048577 (32-bit, signed) to type 'unsigned int' changed the value to 4293918719 (32-bit, unsigned)
 >
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
@@ -75,81 +69,59 @@ Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 Thanks,
 Nicolas
+
 > ---
 > v2:
->   - use a common macro as suggested by Ondrej Mosnacek
->   - mention that GCC does not support unsigned integer sanitation
+>   - use UINT32_C as suggested by Ondrej Mosnacek
 >
->  libsepol/src/avtab.c    |  1 +
->  libsepol/src/policydb.c |  1 +
->  libsepol/src/private.h  | 11 +++++++++++
->  libsepol/src/symtab.c   |  4 ++++
->  4 files changed, 17 insertions(+)
+>  libsepol/include/sepol/policydb/conditional.h | 2 +-
+>  libsepol/include/sepol/policydb/policydb.h    | 6 +++---
+>  libsepol/src/expand.c                         | 2 +-
+>  3 files changed, 5 insertions(+), 5 deletions(-)
 >
-> diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-> index 88e9d510..37e8af07 100644
-> --- a/libsepol/src/avtab.c
-> +++ b/libsepol/src/avtab.c
-> @@ -52,6 +52,7 @@
->  /* Based on MurmurHash3, written by Austin Appleby and placed in the
->   * public domain.
->   */
-> +ignore_unsigned_overflow_
->  static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
->  {
->         static const uint32_t c1 = 0xcc9e2d51;
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index ef2217c2..0721c81e 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -789,6 +789,7 @@ static int roles_init(policydb_t * p)
->         goto out;
->  }
+> diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
+> index 9c3df3ef..49c0d766 100644
+> --- a/libsepol/include/sepol/policydb/conditional.h
+> +++ b/libsepol/include/sepol/policydb/conditional.h
+> @@ -90,7 +90,7 @@ typedef struct cond_node {
+>         uint32_t expr_pre_comp;
+>         struct cond_node *next;
+>         /* a tunable conditional, calculated and used at expansion */
+> -#define        COND_NODE_FLAGS_TUNABLE 0x01
+> +#define        COND_NODE_FLAGS_TUNABLE UINT32_C(0x01)
+>         uint32_t flags;
+>  } cond_node_t;
 >
-> +ignore_unsigned_overflow_
->  static inline unsigned long
->  partial_name_hash(unsigned long c, unsigned long prevhash)
->  {
-> diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-> index 72f21262..e54cefdb 100644
-> --- a/libsepol/src/private.h
-> +++ b/libsepol/src/private.h
-> @@ -47,6 +47,17 @@
->  #define is_saturated(x) (x == (typeof(x))-1)
->  #define zero_or_saturated(x) ((x == 0) || is_saturated(x))
+> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+> index 6976ef48..4bf9f05d 100644
+> --- a/libsepol/include/sepol/policydb/policydb.h
+> +++ b/libsepol/include/sepol/policydb/policydb.h
+> @@ -251,9 +251,9 @@ typedef struct class_perm_node {
+>         struct class_perm_node *next;
+>  } class_perm_node_t;
 >
-> +/* Use to ignore intentional unsigned under- and overflows while running under UBSAN. */
-> +#if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
-> +#if (__clang_major__ >= 12)
-> +#define ignore_unsigned_overflow_        __attribute__((no_sanitize("unsigned-integer-overflow", "unsigned-shift-base")))
-> +#else
-> +#define ignore_unsigned_overflow_        __attribute__((no_sanitize("unsigned-integer-overflow")))
-> +#endif
-> +#else
-> +#define ignore_unsigned_overflow_
-> +#endif
-> +
->  /* Policy compatibility information. */
->  struct policydb_compat_info {
->         unsigned int type;
-> diff --git a/libsepol/src/symtab.c b/libsepol/src/symtab.c
-> index 9a417ca2..a6061851 100644
-> --- a/libsepol/src/symtab.c
-> +++ b/libsepol/src/symtab.c
-> @@ -8,9 +8,13 @@
->   */
+> -#define xperm_test(x, p) (1 & (p[x >> 5] >> (x & 0x1f)))
+> -#define xperm_set(x, p) (p[x >> 5] |= (1 << (x & 0x1f)))
+> -#define xperm_clear(x, p) (p[x >> 5] &= ~(1 << (x & 0x1f)))
+> +#define xperm_test(x, p) (UINT32_C(1) & (p[x >> 5] >> (x & 0x1f)))
+> +#define xperm_set(x, p) (p[x >> 5] |= (UINT32_C(1) << (x & 0x1f)))
+> +#define xperm_clear(x, p) (p[x >> 5] &= ~(UINT32_C(1) << (x & 0x1f)))
+>  #define EXTENDED_PERMS_LEN 8
 >
->  #include <string.h>
-> +
-> +#include "private.h"
-> +
->  #include <sepol/policydb/hashtab.h>
->  #include <sepol/policydb/symtab.h>
->
-> +ignore_unsigned_overflow_
->  static unsigned int symhash(hashtab_t h, const_hashtab_key_t key)
->  {
->         const char *p, *keyp;
+>  typedef struct av_extended_perms {
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 84bfcfa3..aac5b35f 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1641,7 +1641,7 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+>                  * AUDITDENY, aka DONTAUDIT, are &= assigned, versus |= for
+>                  * others. Initialize the data accordingly.
+>                  */
+> -               avdatum.data = key->specified == AVTAB_AUDITDENY ? ~0 : 0;
+> +               avdatum.data = key->specified == AVTAB_AUDITDENY ? ~UINT32_C(0) : UINT32_C(0);
+>                 /* this is used to get the node - insertion is actually unique */
+>                 node = avtab_insert_nonunique(avtab, key, &avdatum);
+>                 if (!node) {
 > --
 > 2.32.0
 >
