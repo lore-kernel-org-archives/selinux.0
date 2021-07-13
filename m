@@ -2,124 +2,188 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A067C07E9A
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 23:48:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73200C07E9A
+	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 00:04:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4A8B6102A
-	for <selinux@archiver.kernel.org>; Mon, 12 Jul 2021 23:48:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F85C61152
+	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 00:04:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231894AbhGLXu4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Jul 2021 19:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43266 "EHLO
+        id S231594AbhGMAHq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Jul 2021 20:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230043AbhGLXuz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 19:50:55 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09242C0613DD;
-        Mon, 12 Jul 2021 16:48:07 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id s18so4672713pgq.3;
-        Mon, 12 Jul 2021 16:48:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=gWdbFfSztY1v3e2xBfjhwshs3cxbjPQ523BPYsx0s7k=;
-        b=U1R5JSPFs8p6mC94aXzLLQcjwaKpe47CQGq3JXmMcbyv0DqUbxsNFqhKLYL5NNt9u/
-         jPZETm0xSKXe4XxshT3/v9ZUjK7jbm3biiLbcQyol5k4S2TDAboya1e7F+HM+rPtu5eD
-         V2puXu+taLH536yRHBOtJGEEDo6GPaFfXieQd+eABMX9jZRy3J3oJBIodmYjeNUlbo3U
-         EqS+r8kBu+AhwRJbskTLtpj9Qpk7k2NEn02k8HGTfXeflQ4YZiKEr4pLb8aEpUnPHU2+
-         90RuTtXFbLBojEQEM8BJbvWv+09AW0g6Wn1qtjbadaF+nspG1K3m0SJzNHvvF2zKf8Sw
-         K6nw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=gWdbFfSztY1v3e2xBfjhwshs3cxbjPQ523BPYsx0s7k=;
-        b=a4k1ylPEKaqcoXIQcxKlTEjJawz6k8+bjuQmwlf4obHCrVyXucCfgugKN833x0S7XJ
-         bOHI0mNzItgHXk4QUfhgkB175d9FKWoUbQj/TXn5ZmUi1Zdgj3YZx2BZ6LjuqYtWk+v2
-         aFq2ltf8Tu9R7poD4OHLCw3aSKL88SRHDuMgb5FHq9eAgd7WAUekhqOkqwRsWrJiYE8+
-         AGXk4a2GwNxISKsTNtJbix6CWM7eRM/MkYpESMH1grYz1p7UkqPXfdSFH9GAlASmoD7P
-         RaFxUBEIj7ytcJ7OLxCZHsoIu85qKrXUvQvH8OMd6byEB6/XxtAwyx8lbwmlorJpBN/I
-         AY1g==
-X-Gm-Message-State: AOAM530gG7MY66MrZ9mSIUwAy5hP5llUD1akxa+OywaV/SwhFXX1+hD6
-        RfQFRCcwjHQwM8nTCIaDo40=
-X-Google-Smtp-Source: ABdhPJxHl0RzB/MEeWXneRp8U0rLADpTymP1Xy7ivk1rr3BFJ+Mm+JS48Y3S68W4RCWzF3Nl5ItooA==
-X-Received: by 2002:aa7:8489:0:b029:2fb:4ce0:339c with SMTP id u9-20020aa784890000b02902fb4ce0339cmr1705899pfn.16.1626133686620;
-        Mon, 12 Jul 2021 16:48:06 -0700 (PDT)
-Received: from raspberrypi ([210.183.35.240])
-        by smtp.gmail.com with ESMTPSA id h18sm19436351pgl.87.2021.07.12.16.48.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jul 2021 16:48:06 -0700 (PDT)
-Date:   Tue, 13 Jul 2021 00:48:01 +0100
-From:   Austin Kim <austindh.kim@gmail.com>
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, omosnace@redhat.com
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        austin.kim@lge.com, kernel-team@lge.com, austindh.kim@gmail.com
-Subject: [PATCH] lsm_audit,selinux: add exception handling for possible NULL
- audit buffers
-Message-ID: <20210712234801.GA29226@raspberrypi>
+        with ESMTP id S230099AbhGMAHq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Jul 2021 20:07:46 -0400
+Received: from forward100j.mail.yandex.net (forward100j.mail.yandex.net [IPv6:2a02:6b8:0:801:2::100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2640DC0613DD
+        for <selinux@vger.kernel.org>; Mon, 12 Jul 2021 17:04:57 -0700 (PDT)
+Received: from sas1-cf895df4fa0e.qloud-c.yandex.net (sas1-cf895df4fa0e.qloud-c.yandex.net [IPv6:2a02:6b8:c14:390f:0:640:cf89:5df4])
+        by forward100j.mail.yandex.net (Yandex) with ESMTP id C0A1250E0B9B
+        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 03:04:51 +0300 (MSK)
+Received: from sas1-37da021029ee.qloud-c.yandex.net (sas1-37da021029ee.qloud-c.yandex.net [2a02:6b8:c08:1612:0:640:37da:210])
+        by sas1-cf895df4fa0e.qloud-c.yandex.net (mxback/Yandex) with ESMTP id k0L7mn4EXl-4pH83Cmb;
+        Tue, 13 Jul 2021 03:04:51 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ya.ru; s=mail; t=1626134691;
+        bh=uTiw33Xe4AoFKSEM2fnCS0cEJuVFGA6kk5tM8HF3p7M=;
+        h=Date:Subject:To:From:Message-Id;
+        b=lvRUUU5T8hUSBcUt2BmGX3IB55EXDRuw0JWmNWsEafkjYX0N9AxyeknqsTib3l1NV
+         WJudmHFmFiJq5D87Ku713wI0KtnKJKFJeEKhHmIr7CtLGr56jpifUZaNQZ4Otlhoad
+         AeAVnG7ru6g5UeuC5hi2azvoeV6CtYTpNO8+4B8A=
+Authentication-Results: sas1-cf895df4fa0e.qloud-c.yandex.net; dkim=pass header.i=@ya.ru
+Received: by sas1-37da021029ee.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id uLMHUkMTjw-4pPuPDjS;
+        Tue, 13 Jul 2021 03:04:51 +0300
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client certificate not present)
+From:   Evgeny Vereshchagin <evvers@ya.ru>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol/cil: move the fuzz target and build script to the selinux repository
+Date:   Tue, 13 Jul 2021 00:04:51 +0000
+Message-Id: <20210713000451.8039-1-evvers@ya.ru>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Austin Kim <austin.kim@lge.com>
+It should make it easier to reproduce bugs found by OSS-Fuzz locally
+without docker. The fuzz target can be built and run with the corpus
+OSS-Fuzz has accumulated so far by running the following commands:
+```
+./scripts/oss-fuzz.sh
+wget https://storage.googleapis.com/selinux-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/selinux_secilc-fuzzer/public.zip
+unzip -d CORPUS public.zip
+./out/secilc-fuzzer CORPUS/
+```
 
-It is possible for audit_log_start() to return NULL on error.
-So add exception handling for possible NULL audit buffers where
-return value can be handled from callers.
+It was tested in https://github.com/google/oss-fuzz/pull/6026
+by pointing OSS-Fuzz to the branch containing the patch and
+running all the tests with all the sanitizers and fuzzing engines
+there: https://github.com/google/oss-fuzz/actions/runs/1024673143
 
-Signed-off-by: Austin Kim <austin.kim@lge.com>
+Signed-off-by: Evgeny Vereshchagin <evvers@ya.ru>
 ---
- security/selinux/hooks.c       | 4 ++++
- security/selinux/ss/services.c | 2 ++
- 2 files changed, 6 insertions(+)
+ libsepol/fuzz/secilc-fuzzer.c | 69 +++++++++++++++++++++++++++++++++++
+ scripts/oss-fuzz.sh           | 28 ++++++++++++++
+ 2 files changed, 97 insertions(+)
+ create mode 100644 libsepol/fuzz/secilc-fuzzer.c
+ create mode 100755 scripts/oss-fuzz.sh
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b0032c42333e..9e84e6635f2f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3325,6 +3325,8 @@ static int selinux_inode_setxattr(struct user_namespace *mnt_userns,
- 			}
- 			ab = audit_log_start(audit_context(),
- 					     GFP_ATOMIC, AUDIT_SELINUX_ERR);
-+			if (!ab)
-+				return rc;
- 			audit_log_format(ab, "op=setxattr invalid_context=");
- 			audit_log_n_untrustedstring(ab, value, audit_size);
- 			audit_log_end(ab);
-@@ -6552,6 +6554,8 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 				ab = audit_log_start(audit_context(),
- 						     GFP_ATOMIC,
- 						     AUDIT_SELINUX_ERR);
-+				if (!ab)
-+					return error;
- 				audit_log_format(ab, "op=fscreate invalid_context=");
- 				audit_log_n_untrustedstring(ab, value, audit_size);
- 				audit_log_end(ab);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d84c77f370dc..e5f1b2757a83 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1673,6 +1673,8 @@ static int compute_sid_handle_invalid_context(
- 	if (context_struct_to_string(policydb, newcontext, &n, &nlen))
- 		goto out;
- 	ab = audit_log_start(audit_context(), GFP_ATOMIC, AUDIT_SELINUX_ERR);
-+	if (!ab)
-+		goto out;
- 	audit_log_format(ab,
- 			 "op=security_compute_sid invalid_context=");
- 	/* no need to record the NUL with untrusted strings */
+diff --git a/libsepol/fuzz/secilc-fuzzer.c b/libsepol/fuzz/secilc-fuzzer.c
+new file mode 100644
+index 00000000..255b3241
+--- /dev/null
++++ b/libsepol/fuzz/secilc-fuzzer.c
+@@ -0,0 +1,69 @@
++#include <stdlib.h>
++#include <stdio.h>
++#include <stdint.h>
++#include <string.h>
++#include <getopt.h>
++#include <sys/stat.h>
++
++#include <sepol/cil/cil.h>
++#include <sepol/policydb.h>
++
++int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
++	enum cil_log_level log_level = CIL_ERR;
++	struct sepol_policy_file *pf = NULL;
++	FILE *dev_null = NULL;
++	int target = SEPOL_TARGET_SELINUX;
++	int disable_dontaudit = 0;
++	int multiple_decls = 0;
++	int disable_neverallow = 0;
++	int preserve_tunables = 0;
++	int policyvers = POLICYDB_VERSION_MAX;
++	int mls = -1;
++	int attrs_expand_generated = 0;
++	struct cil_db *db = NULL;
++	sepol_policydb_t *pdb = NULL;
++
++	cil_set_log_level(log_level);
++
++	cil_db_init(&db);
++	cil_set_disable_dontaudit(db, disable_dontaudit);
++	cil_set_multiple_decls(db, multiple_decls);
++	cil_set_disable_neverallow(db, disable_neverallow);
++	cil_set_preserve_tunables(db, preserve_tunables);
++	cil_set_mls(db, mls);
++	cil_set_target_platform(db, target);
++	cil_set_policy_version(db, policyvers);
++	cil_set_attrs_expand_generated(db, attrs_expand_generated);
++
++	if (cil_add_file(db, "fuzz", (const char *)data, size) != SEPOL_OK)
++		goto exit;
++
++	if (cil_compile(db) != SEPOL_OK)
++		goto exit;
++
++	if (cil_build_policydb(db, &pdb) != SEPOL_OK)
++		goto exit;
++
++	if (sepol_policydb_optimize(pdb) != SEPOL_OK)
++		goto exit;
++
++	dev_null = fopen("/dev/null", "w");
++	if (dev_null == NULL)
++		goto exit;
++
++	if (sepol_policy_file_create(&pf) != 0)
++		goto exit;
++
++	sepol_policy_file_set_fp(pf, dev_null);
++
++	if (sepol_policydb_write(pdb, pf) != 0)
++		goto exit;
++exit:
++	if (dev_null != NULL)
++		fclose(dev_null);
++
++	cil_db_destroy(&db);
++	sepol_policydb_free(pdb);
++	sepol_policy_file_free(pf);
++	return 0;
++}
+diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
+new file mode 100755
+index 00000000..9e720a5c
+--- /dev/null
++++ b/scripts/oss-fuzz.sh
+@@ -0,0 +1,28 @@
++#!/bin/bash
++
++set -eux
++
++export DESTDIR=$(pwd)/DESTDIR
++
++SANITIZER=${SANITIZER:-address}
++flags="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=$SANITIZER -fsanitize=fuzzer-no-link"
++
++export CC=${CC:-clang}
++export CFLAGS=${CFLAGS:-$flags}
++
++export CXX=${CXX:-clang++}
++export CXXFLAGS=${CXXFLAGS:-$flags}
++
++export LDFLAGS="${LDFLAGS:-} $CFLAGS"
++
++export OUT=${OUT:-$(pwd)/out}
++mkdir -p $OUT
++
++export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
++
++find -name Makefile | xargs sed -i 's/,-z,defs//'
++make V=1 -j$(nproc) install
++
++$CC $CFLAGS -I$DESTDIR/usr/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -c -o secilc-fuzzer.o libsepol/fuzz/secilc-fuzzer.c
++$CXX $CXXFLAGS $LIB_FUZZING_ENGINE secilc-fuzzer.o $DESTDIR/usr/lib/libsepol.a -o $OUT/secilc-fuzzer
++zip -r $OUT/secilc-fuzzer_seed_corpus.zip secilc/test
 -- 
-2.20.1
+2.31.1
 
