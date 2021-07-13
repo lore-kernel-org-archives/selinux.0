@@ -2,156 +2,264 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE518C11F66
-	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 14:28:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40F8CC07E95
+	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 19:51:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C106E61288
-	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 14:28:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19B8F611AC
+	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 19:51:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236795AbhGMObe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Jul 2021 10:31:34 -0400
-Received: from sonic308-14.consmr.mail.ne1.yahoo.com ([66.163.187.37]:42904
-        "EHLO sonic308-14.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236721AbhGMObe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Jul 2021 10:31:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1626186524; bh=18BmMZkvH2tBvb+UvZGjk8mOAMpg1SXeFmAfTWxjld4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=ArUFeu3bkk7ikJdPTPJueCjsUsNpbGnjxSwelS9i7L/DrB4KXJUz/dqYE4JNW35+D6XK3AzgXY+0g7f7ArO3au+2ICbCxgoNRLuXQLxKmL6iScdccq84epNmKjLHIqZoaKGzgQW36CUMZ8oCPA4U5xEOtBiQPsNg2qe0Ny3GuKelz5R+eliIXOzLmYf+FYxxW5ZnBbPi+3idbcFMVhwK+YSharzRMuBkrtBFzRtXZmPpzyPrueYtkB9smlRaWVuyMTpUor75bkva50w4v2TcSVperlwbVoqsHW79Hanqeqa5J9W20jJ5WqJGgkAs4g0Ef/JkdmLtvTUz6e0eEBtniQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1626186524; bh=j3tFSHKLFo40tIKO5gPl4ZZ91xtSXbDy2j9mtTOrboP=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=GsnTiNKqjtE98dUWkrt2NEpTX4mDJsjL/CiwEkNbUWAEAFS+umgM5BhJyej5xarrnN00/RIXb3B88ziecXBOQ1iqAGtxax2ks9f1kMpqFtpQmUE9UPbmwmtdbVcEdqEcj0DYJN2+7ytDhc6dYTgSCBTrlj+3d+hparrOEKkQwqRDez+WnQUCa70f8RnU0zaxdPeit9E2jrsuxi3fXgFRKsqdnmQuEFB3V8hSYphp+E1qmj6p1yVrD2UmXSyWgI9jWT7GmUMlZz+cWN0s06oKh3ECAfjuIOvZSimd0qCZgRZ2vvhyTWGvY8/3ppNF3weUXH0Uh6XR+sLc6PJDanhe3g==
-X-YMail-OSG: 19SWruUVM1m4X.taiD7Xf0lhV_qfh0BPVbtnr0_MlTlwNusH.C6ayqqU6UbtfeE
- F7RpVgEmS9cJDJFEMd.TBt2dhfx6AUn2fhFPsSSrCuRw8l7XxwrTQvnGL0yw5p0Zc81C20WRcfl3
- CWQlxgNsjHyVmJ7IFOJwo2H.65TuP4DF_erhcWaNd8gj6MJJSTxkSS9kfIA7ptz5mAqTRCjhI6Xy
- AzxA8OThnqQoIAVHFAK3qpC7sqC0ri.GGGDqvSvYbrCr27dlK72i9VndIMJlT6W.OrXMvBrzi6Fm
- 7Yq.Ck9fKR3P8Bczbs3l3m7EyynzBw8IMcVBPXv3rfgAPTK0.RcFk07YjEazx971vBpya70M_dUC
- Yjc9JwfKgtUZUCCOjQx6vTKmd..PSv0f_q8jH3NfVbx0mFvsX72HcrglomXmFtaE2JW0Rth92ljA
- mxw8Dmv.eUlREwUWg7m35xbkkSzFp9Guf0fyQwQaTClh8NkUgIXhxCRPS26S_P5lh2q2g76Jyx2M
- 1h9DqxFmMkF3f0oI6L3rLlu2wvpMIbc3kGk0OlTzpnMnNcD87up8b9ByksVC_y5ygifOHB_5LTMh
- ZFT4JxiyYm7dYUcnyOv8xtSeSyBPF_9wmgHAIJpyyFzwgnK6fgejhk5lS_CsD06avov5Yv5B5eo7
- IOpgrERI3v13aASzxI.Dt1s23fI_azr3.8ejY777VcqhCBzDyPcPc6EoIlJLBXMNuVEq.ZJEZIEi
- PNLV_aitQAW43k4zeDQt4aAyEVyuHTmLYUItfrJLxhIvVdLAp_K0nw12jc.L5w37RfttK0ZnfjW_
- Fkys6YpieRvz_mn_xsAsosfVzmj9viCC6m93VUOIbq20LFziE4vj.puqzQfr7a.8CBfOyCsrhKB2
- FGU9u2BnAS0pLKX6vth8L28Mvu6IC5J9HQzlusTkL6y7lgnWhNRLfiW9ARv.S9ehZ81olCAM0SyL
- .eHYUOBteXY5jQO3UQhXetBO6bTR5V_7zbQWDXOSQVyuYGx1j_2OGY47BCPihPqaMso0dZXQvJcF
- Mdu5JeQCq8senDEZ2rK1rBJgfUwY.VopNhrL55ISFSaggGHm40ybBVN4.v.6shbA941EwCL94Dfn
- kpm2BMYnM6vPSrVQAix8biC3J0wIkkE0.hYd4svqwMEQdXKBBZ3UiMcnZBDkANHDvIYOEhvaV61c
- pEapMO7KxwqPTI4hkGNYSKV3faX5PtgkiEOMT_UdoBpRsmZkP0ni8B0oMNTCfQQ3DQP9CxUMWh.7
- X7rSFTFgfgWnrSiJOiLJNoPLomOz9hIMv14C2fS7JpHRIUB1bKSQJSGG9CfZRtX0RDh6xEh.Ey97
- z4AWw_1wEiX0nQSyCaKL94DoHPukqwhmVknWtkBG7CH81aFc90s_9irIYqfP_beFMl0mfWUqzYAQ
- KSU0GO5b8P4hKUA3RKzlZevryeqaW6p4yvuawhQVKNaIbHxrE38oqacIS596bKl8jYX7qk8xzgsZ
- xGtV.g6a0yjg.FmgbIVXxluUeVzEauCzmAyMaYACtydcgZpY53SNfbWLREeHA8xRH5hPM9Gnvyvv
- 2pWZWpN7P2lKlPJBQ47NcFH1B23k01MEfkm5lgz7jjLue2Pglm__bPxOx.QRkazeJNiV6qOLpyXA
- EadBfEPo0YqtJb45tl9bLTL6MiqjMdWwn1d64_KwJ0Xw9udo3jY2TvBT3OFNdTFE43exNznkPi5i
- T2eCcM5Tpjnh6vwg2.AjzggSDpAY6nIc_sZorP8MJQyn29EoB2qqsNasF67CfYUD4BOz_yiLi.zh
- nJZWFJ0x.oU27Exkv9xMkC9ojrJpYgZR1KOn6vslXov1k9Mdb.7CsXTrOHYdtH_fjYPXrRW1qAz2
- np44GsTnr5VGQZSI5cluHiBZOXhQo35swS92eRMe51FCVMP74bagVHxSg9RbAwuO7MOyCQVb_MF3
- OBNpto1v_rKABfxQ1dEBvEpOLx4eC74.RHmTfNmIsvGTQ1vpa93o82BB_mVruP9NBP_783NZdAYL
- E5RApal2B9g5lMtBc81iPGBLbM7taBz7uE9q4jm6hzsNGDkufWMlsN8dI13VHL0PUOXtd5yY_QFg
- .q7fpUISxsy9Du7nQF2.usvqo6_TxKdFom0qGX9CCIPJm.OFBmh9vYwcqjgeBgVPxemkKhfm6Jfz
- aYBjaFI2fSISYxkAWzRE9RIJsOAH.lAFSODjXBjg6CYVQbdz7ZdjpTJxxFUjaz1w8W3.bYsvvoaN
- Pq3DMm25T4DUJf5Yp13D.Ekz9p9eItVnTFhS7OyXVoKafsOY2Ov0kz7Zlg2otRGkXcEzaM5_5UxR
- bEMVFxu373lDJsSnz3RITxE6iBJiv.IBrlW6lHWAcdor4ZLPgZvSS.K3bMRLmEqSg0m6SdGgVKUB
- YYQIoEix7BpLRCX9pbXfFnxoyBJdb4ibtvUBJVlT76BB6o6SsO7Npfkd2fPrF7WMLKdHV4eXqAwg
- I.Q66mCta5HdnnuiidorGiIsxCWkqH3MAjyP3jIzTLKXMlSwHKviWO8VS_l2knzFp6t1t44Yn58g
- 9.2UXgh5dko9ZXwGgMfqEEv3_jVBVL4PbyuLmEugxQNlZaJshuJlQQRl2Y74Bb4IUCRU76Uihn_x
- PY9lw.7G7BAe8v.AIxqzRizeL00ZYP2XYU2PJHoV5d7ZbyCHkU0Oa4f0tS7ktx97ckiZtlsAYMT6
- lUr23OTd8GdIIUlld2SP_yEdFwygspQR6Z0D34UnNWy4_RYMNyPXvujZHyt4BVgSh681zkRni8lO
- F9xRYJMa1uEB8lmaDYmDtqzMZ__AWcaf8HQQbU5I7H1S8cUdX1HOC1L9GsnRFZshh5vWSBP6j8Me
- nTwDtq.5FXwY21jfOc4lv6GyfZURLNef4iuG.N6dZrbS6xan5AjJrAlDqpW1Iy2iaS9sUCiGBjfZ
- t4WOjFhWZRFrhVX09Ue9ksqgiZI0T3Zx2mMd3yW1BQI6cEAfre4y8paN9PEWXOov3kRLBgXkwDPj
- 2QV7UGRsLGSB99mCj4i0bB8XN3CMxAXgllST5ZSqgXrBYa1dHoaKyVUctJHp8Cda1VTVKi7ikFIS
- sN2L8ROSYgZN0YnQZQ4c0uiIu10faz2uM9oS2wLMKMLKundpTdHPVqKPz_RlmeNpAKjPTN.dUxXF
- 0dPyMTo2preTy5mD_.eYeGYBYxbSKwRwJXJRneYCYN1hPreuNyejbWlXKnY8bGA_ICA8H4bwwYIq
- bxN3aUtt.XSilNh7MaSydXjqOoMMGL2WCYkmRs7MjFix3ZUA.OFReE3py8ooLR0rbU6nXb_24k5x
- gxaUByUJ3kEPFtfHocm2qekG3HgmeVYRva6pZGj.hBOb5KhGoGhVXEBVFFOaeW7AbKQXIMiDjd3h
- OZ84GRVKdk0UZW3kNbgqkG5Af6wCRdT6Xl7Flq2j5fEZUrUe6QJrPkdlXZ_yCKxmSIEdqRvhIx4T
- tPJQw65d.k5BaTbfrG.dB1WWrjSv36UaA8LuNnc7Pgmf3CbwFyK30FcEcL5X3ujb_5a0wULBQ0gi
- xgQbvLn0Y4roma4DjaT0_SmUUvbqfFYza
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Tue, 13 Jul 2021 14:28:44 +0000
-Received: by kubenode518.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 59e6becde9cf1fc6afb901009309f8fb;
-          Tue, 13 Jul 2021 14:28:39 +0000 (UTC)
-Subject: Re: [Virtio-fs] [PATCH v2 1/1] xattr: Allow user.* xattr on symlink
- and special files
-To:     Greg Kurz <groug@kaod.org>
-Cc:     Vivek Goyal <vgoyal@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        gscrivan@redhat.com, tytso@mit.edu, miklos@szeredi.hu,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        virtio-fs@redhat.com, casey.schaufler@intel.com,
-        linux-security-module@vger.kernel.org, viro@zeniv.linux.org.uk,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-fsdevel@vger.kernel.org, jack@suse.cz,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20210708175738.360757-1-vgoyal@redhat.com>
- <20210708175738.360757-2-vgoyal@redhat.com>
- <20210709091915.2bd4snyfjndexw2b@wittgenstein>
- <20210709152737.GA398382@redhat.com>
- <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
- <20210712144849.121c948c@bahia.lan>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <cea2f545-ab2d-e9a8-0258-9c8bb443784f@schaufler-ca.com>
-Date:   Tue, 13 Jul 2021 07:28:38 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S229944AbhGMTyP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Jul 2021 15:54:15 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:34511 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229478AbhGMTyP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Jul 2021 15:54:15 -0400
+Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id EF55C56121C
+        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 21:51:16 +0200 (CEST)
+Received: by mail-il1-f171.google.com with SMTP id e13so24433061ilc.1
+        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 12:51:16 -0700 (PDT)
+X-Gm-Message-State: AOAM532t3s48VPZEtFxv8/uuOQcVNNmlllAeM8BoAQ2y4P7iTmxNGWQw
+        Gnj9JNTlnXDfgUZomIjzaFf+4+ENiEEqzFPZVxs=
+X-Google-Smtp-Source: ABdhPJznXfURhPu0kx2gLOBzGuUhHcLvyhSWqHG1DTCghANNLRDsOut8PjuFKEb4zPu+mmXEZUlA4QdQhcy39Z6gmmM=
+X-Received: by 2002:a92:dc8e:: with SMTP id c14mr4186805iln.91.1626205875857;
+ Tue, 13 Jul 2021 12:51:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210712144849.121c948c@bahia.lan>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.18469 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20210713000451.8039-1-evvers@ya.ru>
+In-Reply-To: <20210713000451.8039-1-evvers@ya.ru>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 13 Jul 2021 21:51:03 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=nfrUqbvO_HMZUL0QLtu9GOND7X5-kM1ntnwLX7Le_bhg@mail.gmail.com>
+Message-ID: <CAJfZ7=nfrUqbvO_HMZUL0QLtu9GOND7X5-kM1ntnwLX7Le_bhg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: move the fuzz target and build script to
+ the selinux repository
+To:     Evgeny Vereshchagin <evvers@ya.ru>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 13 21:51:17 2021 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/12/2021 5:49 AM, Greg Kurz wrote:
-> On Fri, 9 Jul 2021 08:34:41 -0700
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Tue, Jul 13, 2021 at 2:05 AM Evgeny Vereshchagin <evvers@ya.ru> wrote:
 >
->> On 7/9/2021 8:27 AM, Vivek Goyal wrote:
->>> On Fri, Jul 09, 2021 at 11:19:15AM +0200, Christian Brauner wrote:
->>>> On Thu, Jul 08, 2021 at 01:57:38PM -0400, Vivek Goyal wrote:
->>>>> Currently user.* xattr are not allowed on symlink and special files.
->>>>>
->>>>> man xattr and recent discussion suggested that primary reason for this
->>>>> restriction is how file permissions for symlinks and special files
->>>>> are little different from regular files and directories.
->>>>>
->>>>> For symlinks, they are world readable/writable and if user xattr were
->>>>> to be permitted, it will allow unpriviliged users to dump a huge amount
->>>>> of user.* xattrs on symlinks without any control.
->>>>>
->>>>> For special files, permissions typically control capability to read/write
->>>>> from devices (and not necessarily from filesystem). So if a user can
->>>>> write to device (/dev/null), does not necessarily mean it should be allowed
->>>>> to write large number of user.* xattrs on the filesystem device node is
->>>>> residing in.
->>>>>
->>>>> This patch proposes to relax the restrictions a bit and allow file owner
->>>>> or priviliged user (CAP_FOWNER), to be able to read/write user.* xattrs
->>>>> on symlink and special files.
->>>>>
->>>>> virtiofs daemon has a need to store user.* xatrrs on all the files
->>>>> (including symlinks and special files), and currently that fails. This
->>>>> patch should help.
->>>>>
->>>>> Link: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.com/
->>>>> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
->>>>> ---
->>>> Seems reasonable and useful.
->>>> Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
->>>>
->>>> One question, do all filesystem supporting xattrs deal with setting them
->>>> on symlinks/device files correctly?
->>> Wrote a simple bash script to do setfattr/getfattr user.foo xattr on
->>> symlink and device node on ext4, xfs and btrfs and it works fine.
->> How about nfs, tmpfs, overlayfs and/or some of the other less conventional
->> filesystems?
->>
-> How about virtiofs then ? :-)
+> It should make it easier to reproduce bugs found by OSS-Fuzz locally
+> without docker. The fuzz target can be built and run with the corpus
+> OSS-Fuzz has accumulated so far by running the following commands:
+> ```
+> ./scripts/oss-fuzz.sh
+> wget https://storage.googleapis.com/selinux-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/selinux_secilc-fuzzer/public.zip
+> unzip -d CORPUS public.zip
+> ./out/secilc-fuzzer CORPUS/
+> ```
 
-One of the "less conventional filesystems", surely.
-�
+Hello,
+Thanks for this patch! I have a couple of comments to improve it.
+
+First, the instructions you gave (with wget + unzip) are useful and in
+my humble opinion, they could be documented for example in a comment
+at the beginning of scripts/oss-fuzz.sh ("# Usage: ...").
+
+Second, shellcheck (https://www.shellcheck.net/)  reports many
+warnings, such as missing quotes:
+
+In scripts/oss-fuzz.sh line 19:
+mkdir -p $OUT
+         ^--^ SC2086: Double quote to prevent globbing and word splitting.
+
+Even though naming directories with spaces breaks many tools, it is
+good practice to avoid introducing more breakage, which is why quoting
+paths is required. Could you please take a look at shellcheck output
+and fix the issues it identifies?
+
+More comments below...
+
+> It was tested in https://github.com/google/oss-fuzz/pull/6026
+> by pointing OSS-Fuzz to the branch containing the patch and
+> running all the tests with all the sanitizers and fuzzing engines
+> there: https://github.com/google/oss-fuzz/actions/runs/1024673143
+>
+> Signed-off-by: Evgeny Vereshchagin <evvers@ya.ru>
+> ---
+>  libsepol/fuzz/secilc-fuzzer.c | 69 +++++++++++++++++++++++++++++++++++
+>  scripts/oss-fuzz.sh           | 28 ++++++++++++++
+>  2 files changed, 97 insertions(+)
+>  create mode 100644 libsepol/fuzz/secilc-fuzzer.c
+>  create mode 100755 scripts/oss-fuzz.sh
+>
+> diff --git a/libsepol/fuzz/secilc-fuzzer.c b/libsepol/fuzz/secilc-fuzzer.c
+> new file mode 100644
+> index 00000000..255b3241
+> --- /dev/null
+> +++ b/libsepol/fuzz/secilc-fuzzer.c
+> @@ -0,0 +1,69 @@
+> +#include <stdlib.h>
+> +#include <stdio.h>
+> +#include <stdint.h>
+> +#include <string.h>
+> +#include <getopt.h>
+> +#include <sys/stat.h>
+> +
+> +#include <sepol/cil/cil.h>
+> +#include <sepol/policydb.h>
+> +
+> +int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+> +       enum cil_log_level log_level = CIL_ERR;
+> +       struct sepol_policy_file *pf = NULL;
+> +       FILE *dev_null = NULL;
+> +       int target = SEPOL_TARGET_SELINUX;
+> +       int disable_dontaudit = 0;
+> +       int multiple_decls = 0;
+> +       int disable_neverallow = 0;
+> +       int preserve_tunables = 0;
+> +       int policyvers = POLICYDB_VERSION_MAX;
+> +       int mls = -1;
+> +       int attrs_expand_generated = 0;
+> +       struct cil_db *db = NULL;
+> +       sepol_policydb_t *pdb = NULL;
+> +
+> +       cil_set_log_level(log_level);
+> +
+> +       cil_db_init(&db);
+> +       cil_set_disable_dontaudit(db, disable_dontaudit);
+> +       cil_set_multiple_decls(db, multiple_decls);
+> +       cil_set_disable_neverallow(db, disable_neverallow);
+> +       cil_set_preserve_tunables(db, preserve_tunables);
+> +       cil_set_mls(db, mls);
+> +       cil_set_target_platform(db, target);
+> +       cil_set_policy_version(db, policyvers);
+> +       cil_set_attrs_expand_generated(db, attrs_expand_generated);
+> +
+> +       if (cil_add_file(db, "fuzz", (const char *)data, size) != SEPOL_OK)
+> +               goto exit;
+> +
+> +       if (cil_compile(db) != SEPOL_OK)
+> +               goto exit;
+> +
+> +       if (cil_build_policydb(db, &pdb) != SEPOL_OK)
+> +               goto exit;
+> +
+> +       if (sepol_policydb_optimize(pdb) != SEPOL_OK)
+> +               goto exit;
+> +
+> +       dev_null = fopen("/dev/null", "w");
+> +       if (dev_null == NULL)
+> +               goto exit;
+> +
+> +       if (sepol_policy_file_create(&pf) != 0)
+> +               goto exit;
+> +
+> +       sepol_policy_file_set_fp(pf, dev_null);
+> +
+> +       if (sepol_policydb_write(pdb, pf) != 0)
+> +               goto exit;
+> +exit:
+> +       if (dev_null != NULL)
+> +               fclose(dev_null);
+> +
+> +       cil_db_destroy(&db);
+> +       sepol_policydb_free(pdb);
+> +       sepol_policy_file_free(pf);
+> +       return 0;
+> +}
+> diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
+> new file mode 100755
+> index 00000000..9e720a5c
+> --- /dev/null
+> +++ b/scripts/oss-fuzz.sh
+> @@ -0,0 +1,28 @@
+> +#!/bin/bash
+> +
+> +set -eux
+> +
+> +export DESTDIR=$(pwd)/DESTDIR
+
+It is strange that $OUT is configurable but not $DESTDIR. Please add a
+way to specify DESTDIR too.
+
+> +
+> +SANITIZER=${SANITIZER:-address}
+> +flags="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=$SANITIZER -fsanitize=fuzzer-no-link"
+> +
+> +export CC=${CC:-clang}
+> +export CFLAGS=${CFLAGS:-$flags}
+> +
+> +export CXX=${CXX:-clang++}
+> +export CXXFLAGS=${CXXFLAGS:-$flags}
+> +
+> +export LDFLAGS="${LDFLAGS:-} $CFLAGS"
+
+Why do you need to include CFLAGS in LDFLAGS?
+
+> +
+> +export OUT=${OUT:-$(pwd)/out}
+> +mkdir -p $OUT
+> +
+> +export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
+> +
+> +find -name Makefile | xargs sed -i 's/,-z,defs//'
+
+This is horrible for two reasons: it touches libsemanage/src/Makefile
+even though the fuzzer only needs libsepol, and it modifies in-place
+files which are versionned (with git).
+I understand the issue you are trying to fix here is that building
+with sanitizers leads to undefined symbols, but there are other
+options:
+
+* The most straightforward one is to prevent make from setting the
+variable which adds "-z,defs", by building with "make ...
+LD_SONAME_FLAGS="
+* Another one consists in introducing a new Makefile variable, for
+example named "ALLOW_UNDEFINED_SYMBOLS" and to modify the Makefiles to
+only add -z,defs when this option is not defined.
+
+> +make V=1 -j$(nproc) install
+
+You do not need to build every sub-project. You can restrict the build
+to libsepol with "make -C libsepol ...".
+
+Moreover if the script is being launched from scripts/ ("cd scripts &&
+./oss-fuzz.sh") this does not work. If you intend to be run from the
+root directory, please insert a command which changes to the root
+directory somewhere, like:
+
+cd "$(dirname -- "$0")/.."
+
+Or (if you do not want to chdir) please use a reference to this base
+directory when you are using make and when you are compiling files.
+
+Moreover if libsepol was already built, "make" will not rebuild it
+even if the compiling option changed. Adding "make -C libsepol clean"
+before invoking make could be useful.
+
+> +
+> +$CC $CFLAGS -I$DESTDIR/usr/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -c -o secilc-fuzzer.o libsepol/fuzz/secilc-fuzzer.c
+> +$CXX $CXXFLAGS $LIB_FUZZING_ENGINE secilc-fuzzer.o $DESTDIR/usr/lib/libsepol.a -o $OUT/secilc-fuzzer
+
+Why are you using a C++ compiler to link the files? To my knowledge,
+the fuzzing/sanitizing options available to clang++ linker are the
+same as with clang. It would make the script easier to use if only one
+compiler was used, but you have a reason to prefer using clang++,
+please add a comment (in the script) about this.
+
+> +zip -r $OUT/secilc-fuzzer_seed_corpus.zip secilc/test
+> --
+> 2.31.1
+>
+
+So I believe there are few things to improve in your patch. If you
+have questions or if you disagree with some of my comments, feel free
+to discuss. (And if other SELinux maintainers/members want to comment,
+feel free to do so too ;) ).
+
+Thanks,
+Nicolas
 
