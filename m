@@ -2,69 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FEDFC07E95
-	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 19:58:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46183C07E95
+	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 19:59:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2FFC561178
-	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 19:58:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20FFE61178
+	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 19:59:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230376AbhGMUBC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Jul 2021 16:01:02 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:38031 "EHLO
+        id S234172AbhGMUCK convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Jul 2021 16:02:10 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:59571 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229944AbhGMUBC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Jul 2021 16:01:02 -0400
-Received: from mail-il1-f169.google.com (mail-il1-f169.google.com [209.85.166.169])
+        with ESMTP id S231499AbhGMUCK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Jul 2021 16:02:10 -0400
+Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 789DA5646D0
-        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 21:58:10 +0200 (CEST)
-Received: by mail-il1-f169.google.com with SMTP id a7so5133274iln.6
-        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 12:58:10 -0700 (PDT)
-X-Gm-Message-State: AOAM5303D9hxqWr7eS5LhTbJBBtB9/5+1MOgq964lSJsRqPDrbddqdFK
-        ZCFE26Uo8yMkSz2zKWsB2VrGOga97G2dkH0f8j0=
-X-Google-Smtp-Source: ABdhPJzcyg+vsVMkQBmU5UqYTljZVmwLjyqZqz+xDzUMghxQr7qGPCw0weATTHouslvmEfISzZ6+AFi7Jski5NQV9YE=
-X-Received: by 2002:a92:c10d:: with SMTP id p13mr3947446ile.83.1626206289494;
- Tue, 13 Jul 2021 12:58:09 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 6C2A7564772
+        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 21:59:18 +0200 (CEST)
+Received: by mail-il1-f171.google.com with SMTP id e13so24456045ilc.1
+        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 12:59:18 -0700 (PDT)
+X-Gm-Message-State: AOAM530OwC4csVqis6tCL1xcrN7GlxYT4s0YVXAqX5/PoEpmrb/YJltJ
+        Erh5Xd7xIb3Z6vENmm0ATF4WN917KRvP9AsBrpo=
+X-Google-Smtp-Source: ABdhPJxAF2lZWtTWxlAxKIc/6jphCZTd4C8diGw6qpmW42yduX/1CoI0PWlzvD5ZnTyH/0RinrNGHoDKLZE5DwxfLNE=
+X-Received: by 2002:a05:6e02:20eb:: with SMTP id q11mr3445786ilv.272.1626206357642;
+ Tue, 13 Jul 2021 12:59:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210710120302.74862-1-evvers@ya.ru> <CAJfZ7=m=8t9MQ1gSHE9_9D8aki-mUrWtnYTBVreeuGDwaRK_hA@mail.gmail.com>
-In-Reply-To: <CAJfZ7=m=8t9MQ1gSHE9_9D8aki-mUrWtnYTBVreeuGDwaRK_hA@mail.gmail.com>
+References: <20210706175433.29270-1-cgzones@googlemail.com>
+ <20210706175433.29270-6-cgzones@googlemail.com> <CAJfZ7=kCirOQJAAECLnKQ0hKo7v55X8FpzvUv8x7PjucqvcH1w@mail.gmail.com>
+In-Reply-To: <CAJfZ7=kCirOQJAAECLnKQ0hKo7v55X8FpzvUv8x7PjucqvcH1w@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 13 Jul 2021 21:57:57 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=mxOsGMvHotZYSwYAW6pQLkwZ2-CyeuAEUzBaAAUztbPQ@mail.gmail.com>
-Message-ID: <CAJfZ7=mxOsGMvHotZYSwYAW6pQLkwZ2-CyeuAEUzBaAAUztbPQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] ci: turn on CIFuzz
-To:     Evgeny Vereshchagin <evvers@ya.ru>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Tue, 13 Jul 2021 21:59:06 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=noCkMGqRP9W1J_=cbb+h5BJ8AX0K2NsJSdhZ1AZZ-Myg@mail.gmail.com>
+Message-ID: <CAJfZ7=noCkMGqRP9W1J_=cbb+h5BJ8AX0K2NsJSdhZ1AZZ-Myg@mail.gmail.com>
+Subject: Re: [PATCH 06/13] checkpolicy: follow declaration-after-statement
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 13 21:58:10 2021 +0200 (CEST))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 13 21:59:18 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 9:31 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Mon, Jul 12, 2021 at 9:13 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Sat, Jul 10, 2021 at 2:11 PM Evgeny Vereshchagin <evvers@ya.ru> wrote:
+> On Tue, Jul 6, 2021 at 7:54 PM Christian Göttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > Now that almost all the bugs reported by OSS-Fuzz have been
-> > fixed libsepol/cil should be stable enough to get CIFuzz working
-> > more or less reliably. It should help to catch regressions/new bugs
-> > faster.
+> > Follow the project style of no declaration after statement.
 > >
-> > https://google.github.io/oss-fuzz/getting-started/continuous-integration/
+> > Found by the GCC warning -Wdeclaration-after-statement.
 > >
-> > The patch was tested on GitHub in https://github.com/SELinuxProject/selinux/pull/285
-> > The CIFuzz job can be found at https://github.com/SELinuxProject/selinux/actions/runs/1017865690
+> > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> > ---
+> >  checkpolicy/checkmodule.c   | 6 ++++--
+> >  checkpolicy/policy_define.c | 3 ++-
+> >  checkpolicy/test/dismod.c   | 2 +-
+> >  3 files changed, 7 insertions(+), 4 deletions(-)
 > >
-> > Signed-off-by: Evgeny Vereshchagin <evvers@ya.ru>
+> > diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+> > index 40d0ec99..316b2898 100644
+> > --- a/checkpolicy/checkmodule.c
+> > +++ b/checkpolicy/checkmodule.c
+> > @@ -288,14 +288,16 @@ int main(int argc, char **argv)
+> >         }
+> >
+> >         if (policy_type != POLICY_BASE && outfile) {
+> > +               char *out_name;
+> > +               char *separator;
+> >                 char *mod_name = modpolicydb.name;
+> >                 char *out_path = strdup(outfile);
+> >                 if (out_path == NULL) {
+> >                         fprintf(stderr, "%s:  out of memory\n", argv[0]);
+> >                         exit(1);
+> >                 }
+> > -               char *out_name = basename(out_path);
+> > -               char *separator = strrchr(out_name, '.');
+> > +               out_name = basename(out_path);
+> > +               separator = strrchr(out_name, '.');
+> >                 if (separator) {
+> >                         *separator = '\0';
+> >                 }
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index 7eff747a..22218c07 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -1904,8 +1904,9 @@ int avrule_read_ioctls(struct av_ioctl_range_list **rangehead)
+> >  {
+> >         char *id;
+> >         struct av_ioctl_range_list *rnew, *r = NULL;
+> > -       *rangehead = NULL;
+> >         uint8_t omit = 0;
+> > +
+> > +       *rangehead = NULL;
 >
-> For both patches:
+> Hello,
+> All the patches of this series look good to me. But here, you
+> introduced trailing tabs, which is reported by "git am" when applying
+> the patch:
+>
+>         .git/rebase-apply/patch:40: trailing whitespace.
+>
+>         .git/rebase-apply/patch:41: trailing whitespace.
+>                 *rangehead = NULL;
+>         warning: 2 lines add whitespace errors.
+>
+> Anyway I can remove these tabs when applying this patch.
 >
 > Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
@@ -72,61 +122,7 @@ On Mon, Jul 12, 2021 at 9:31 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 > Thanks!
 > Nicolas
 
-Merged.
+Merged with the trailing whitespaces removed.
 Thanks!
 Nicolas
-
-> > ---
-> >  .github/workflows/cifuzz.yml | 39 ++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 39 insertions(+)
-> >  create mode 100644 .github/workflows/cifuzz.yml
-> >
-> > diff --git a/.github/workflows/cifuzz.yml b/.github/workflows/cifuzz.yml
-> > new file mode 100644
-> > index 00000000..5c2233a2
-> > --- /dev/null
-> > +++ b/.github/workflows/cifuzz.yml
-> > @@ -0,0 +1,39 @@
-> > +---
-> > +name: CIFuzz
-> > +on:
-> > +  push:
-> > +    branches:
-> > +      - master
-> > +  pull_request:
-> > +    branches:
-> > +      - master
-> > +jobs:
-> > +  Fuzzing:
-> > +    runs-on: ubuntu-latest
-> > +    if: github.repository == 'SELinuxProject/selinux'
-> > +    strategy:
-> > +      fail-fast: false
-> > +      matrix:
-> > +        sanitizer: [address, undefined, memory]
-> > +    steps:
-> > +      - name: Build Fuzzers (${{ matrix.sanitizer }})
-> > +        id: build
-> > +        uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
-> > +        with:
-> > +          oss-fuzz-project-name: 'selinux'
-> > +          dry-run: false
-> > +          allowed-broken-targets-percentage: 0
-> > +          sanitizer: ${{ matrix.sanitizer }}
-> > +      - name: Run Fuzzers (${{ matrix.sanitizer }})
-> > +        uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
-> > +        with:
-> > +          oss-fuzz-project-name: 'selinux'
-> > +          fuzz-seconds: 180
-> > +          dry-run: false
-> > +          sanitizer: ${{ matrix.sanitizer }}
-> > +      - name: Upload Crash
-> > +        uses: actions/upload-artifact@v1
-> > +        if: failure() && steps.build.outcome == 'success'
-> > +        with:
-> > +          name: ${{ matrix.sanitizer }}-artifacts
-> > +          path: ./out/artifacts
-> > --
-> > 2.31.1
-> >
 
