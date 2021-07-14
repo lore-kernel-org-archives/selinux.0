@@ -2,263 +2,137 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBF5BC07E95
-	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 20:04:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8D43C07E95
+	for <selinux@archiver.kernel.org>; Wed, 14 Jul 2021 00:11:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5D4C61178
-	for <selinux@archiver.kernel.org>; Tue, 13 Jul 2021 20:04:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BEE73600D4
+	for <selinux@archiver.kernel.org>; Wed, 14 Jul 2021 00:11:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234726AbhGMUHH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Jul 2021 16:07:07 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:40435 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229944AbhGMUHF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Jul 2021 16:07:05 -0400
-Received: from mail-io1-f44.google.com (mail-io1-f44.google.com [209.85.166.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 8D2585647E2
-        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 22:04:13 +0200 (CEST)
-Received: by mail-io1-f44.google.com with SMTP id l18so23782013iow.4
-        for <selinux@vger.kernel.org>; Tue, 13 Jul 2021 13:04:13 -0700 (PDT)
-X-Gm-Message-State: AOAM5329u4UzvSlq80PBkhFdpqTfV+eghBiHRIZirEK/b0BraDDiaqKu
-        yenG4VjhhZGxDWv9Xv+vDdjGTUSvLn5WL5YCxYE=
-X-Google-Smtp-Source: ABdhPJxJcEKlX3ZbZ9VgMqwdUHuFJCVnMTrxrRjwAhhTEDR439H0QWKaDyCY43p42bTmuvaBJ7jAq1YPg0iHwXlIrnk=
-X-Received: by 2002:a5d:8186:: with SMTP id u6mr4487047ion.45.1626206652667;
- Tue, 13 Jul 2021 13:04:12 -0700 (PDT)
+        id S237022AbhGNAOY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Jul 2021 20:14:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236998AbhGNAOY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Jul 2021 20:14:24 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE389C0613DD;
+        Tue, 13 Jul 2021 17:11:32 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id h1so337918plf.6;
+        Tue, 13 Jul 2021 17:11:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=2NwPGcMH3u191Xzah8DNFvqeaN7pXMntM5EVPzjXpXI=;
+        b=XHEhdDQvb46nZF7qgoJhfsKtwPduEdmwOKc8dzdS1FP7zSR79OiJLcvoTiavy5YrXZ
+         uLI4FNADWBYLq6vEW9CzU1kICAySoaSZZkZPMyhUPn40GQXwWKF/j9og9ff3im5aVUFu
+         xFHtNZ6Sfvgy13oh8Dn+Unrqot59J2E/0hx7lbt0jGByiu3eluh7P9QnUwduJVkToNfV
+         8NQc+AMMAWqYYsBhiuiFsYRFY2+x7mc9niM9Yi+AyoRKxLcN4VId3tfVSUm6P1PXjmX6
+         o5p4r8P0Zgppi5JKJfLhzelYqP/O2nU8wVpiPTrgyQuQVyu7Z+kavRBVgW+gAmUuK3Sw
+         p45g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=2NwPGcMH3u191Xzah8DNFvqeaN7pXMntM5EVPzjXpXI=;
+        b=KMy9zB8QOIgIn1njMThe9KYpRoziH1BKDjDVa8Ui/Y/KGjGjH8GEy5gonyMScI30hu
+         kdL4FazkwojROqemVAYnC5CANo6869TDmBI8S+QrzDgVUrGVC5nZkTyZPwzbYHK53ip+
+         c5+jHqELDbqYiG0v2JloveB0IwB6McusTDqrs4KglV/N63fMk5B+Wf/qm82mi8lGPgGi
+         zbVdVoHEKA5/2VwHk2ejn/I2PSnajhfQprQAfBR4BB/5S5wbIkUvIY39ppgTtIYQrGEJ
+         kxb9jJ5SS6qfWmJPcdAL/O3WNluxi2LWL9kLEyWEMQK0aQjYJIyUsQ/nZI/cZn7C6kcF
+         CJSg==
+X-Gm-Message-State: AOAM530K+5NT4wVBmH5FnOvScOlzdayOogp75kapzmXNQu851yHIWXFD
+        Pw700/4IbdV8mt0yz1/RfWs=
+X-Google-Smtp-Source: ABdhPJy9QJsalJEAPuBp++oFrJX2tpSvmER8PZGaqRSpwQFV3Wp6p3vKidUbvNxABexjPWjdqU+67Q==
+X-Received: by 2002:a17:90a:454b:: with SMTP id r11mr6511032pjm.60.1626221492377;
+        Tue, 13 Jul 2021 17:11:32 -0700 (PDT)
+Received: from raspberrypi ([210.183.35.240])
+        by smtp.gmail.com with ESMTPSA id y11sm286842pfm.190.2021.07.13.17.11.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Jul 2021 17:11:32 -0700 (PDT)
+Date:   Wed, 14 Jul 2021 01:11:27 +0100
+From:   Austin Kim <austindh.kim@gmail.com>
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, omosnace@redhat.com
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        austin.kim@lge.com, kernel-team@lge.com, austindh.kim@gmail.com
+Subject: [PATCH v2] lsm_audit,selinux: return early for possible NULL audit
+ buffers
+Message-ID: <20210714001127.GA994@raspberrypi>
 MIME-Version: 1.0
-References: <20210712223013.2165325-1-sethmo@google.com>
-In-Reply-To: <20210712223013.2165325-1-sethmo@google.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 13 Jul 2021 22:04:01 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=kzjJj7oNFdqQFD4nkJpnsLtOKrB1iXTFNmEYoJF2-==g@mail.gmail.com>
-Message-ID: <CAJfZ7=kzjJj7oNFdqQFD4nkJpnsLtOKrB1iXTFNmEYoJF2-==g@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: add lock callbacks
-To:     Seth Moore <sethmo@google.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 13 22:04:13 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 12:30 AM Seth Moore <sethmo@google.com> wrote:
->
-> The old mechanism to initialize AVC, avc_init(3), is deprected. This
-> leaves libselinux with no way of guarding the AVC cache when accessed
-> from multiple threads. When applications call access check APIs from
-> multiple threads, the AVC cache may become corrupted.
->
-> This change adds new callback functions to selinux_set_callback(3).
-> These new callbacks all correspond to the functions that used to be
-> passed via avc_init(3). Multi-threaded applications may set these
-> callbacks to guard the AVC cache against simultaneous access by
-> multiple threads.
->
-> This change adds the following callbacks:
->   - SELINUX_CB_ALLOC_LOCK
->       is invoked to allocate new locks
->   - SELINUX_CB_GET_LOCK
->       is invoked to acquire a lock
->   - SELINUX_CB_RELEASE_LOCK
->       is invoked to release a previously-acquired lock
->   - SELINUX_CB_FREE_LOCK
->       is invoked to free a previosly-allocated lock
->
-> Signed-off-by: Seth Moore <sethmo@google.com>
+From: Austin Kim <austin.kim@lge.com>
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+audit_log_start() may return NULL in below cases:
 
-Thanks,
-Nicolas
+  - when audit is not initialized.
+  - when audit backlog limit exceeds.
 
-> ---
->  libselinux/include/selinux/selinux.h       | 12 ++++++
->  libselinux/man/man3/selinux_set_callback.3 | 46 ++++++++++++++++++++++
->  libselinux/src/avc_internal.h              | 20 ++++++++--
->  libselinux/src/callbacks.c                 | 13 ++++++
->  4 files changed, 88 insertions(+), 3 deletions(-)
->
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-> index ae98a92e..c3c68b3a 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -166,6 +166,14 @@ __attribute__ ((format(printf, 2, 3)))
->         int (*func_setenforce) (int enforcing);
->         /* netlink callback for policyload message */
->         int (*func_policyload) (int seqno);
-> +       /* create a lock and return an opaque pointer to it */
-> +       void *(*func_alloc_lock) (void);
-> +       /* obtain a given lock, blocking if necessary */
-> +       void (*func_get_lock) (void *lock);
-> +       /* release a given lock */
-> +       void (*func_release_lock) (void *lock);
-> +       /* destroy a given lock */
-> +       void (*func_free_lock) (void *lock);
->  };
->
->  #define SELINUX_CB_LOG         0
-> @@ -173,6 +181,10 @@ __attribute__ ((format(printf, 2, 3)))
->  #define SELINUX_CB_VALIDATE    2
->  #define SELINUX_CB_SETENFORCE  3
->  #define SELINUX_CB_POLICYLOAD  4
-> +#define SELINUX_CB_ALLOC_LOCK   5
-> +#define SELINUX_CB_GET_LOCK     6
-> +#define SELINUX_CB_RELEASE_LOCK 7
-> +#define SELINUX_CB_FREE_LOCK    8
->
->  extern union selinux_callback selinux_get_callback(int type);
->  extern void selinux_set_callback(int type, union selinux_callback cb);
-> diff --git a/libselinux/man/man3/selinux_set_callback.3 b/libselinux/man/man3/selinux_set_callback.3
-> index 75f49b06..f7371504 100644
-> --- a/libselinux/man/man3/selinux_set_callback.3
-> +++ b/libselinux/man/man3/selinux_set_callback.3
-> @@ -116,6 +116,52 @@ The
->  .I seqno
->  argument is the current sequential number of the policy generation in the system.
->  .
-> +.TP
-> +.B SELINUX_CB_ALLOC_LOCK
-> +.BI "void *(*" alloc_lock ") ();"
-> +
-> +This callback is used to allocate a fresh lock for protecting critical sections.
-> +Applications that call selinux library functions from multiple threads must either
-> +perform their own locking or set each of the following:
-> +
-> +.B SELINUX_CB_ALLOC_LOCK
-> +
-> +.B SELINUX_CB_GET_LOCK
-> +
-> +.B SELINUX_CB_RELEASE_LOCK
-> +
-> +.B SELINUX_CB_FREE_LOCK
-> +
-> +.TP
-> +.B SELINUX_CB_GET_LOCK
-> +.BI "void (*" get_lock ") (void *" lock ");"
-> +
-> +This callback acquires the
-> +.I lock
-> +that was previously allocated with
-> +.I alloc_lock.
-> +This function must block until the
-> +.I lock
-> +can be acquired.
-> +.
-> +.TP
-> +.B SELINUX_CB_RELEASE_LOCK
-> +.BI "void (*" release_lock ") (void *" lock ");"
-> +
-> +This callback releases the
-> +.I lock
-> +that was previously acquired with
-> +.I get_lock.
-> +.
-> +.TP
-> +.B SELINUX_CB_FREE_LOCK
-> +.BI "void (*" free_lock ") (void *" lock ");"
-> +
-> +This callback frees the
-> +.I lock
-> +that was previously allocated with
-> +.I alloc_lock.
-> +.
->  .SH "RETURN VALUE"
->  None.
->  .
-> diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
-> index a9a4aa0b..1f8e0102 100644
-> --- a/libselinux/src/avc_internal.h
-> +++ b/libselinux/src/avc_internal.h
-> @@ -9,6 +9,7 @@
->  #ifndef _SELINUX_AVC_INTERNAL_H_
->  #define _SELINUX_AVC_INTERNAL_H_
->
-> +#include <assert.h>
->  #include <stdio.h>
->  #include <stdlib.h>
->  #include <string.h>
-> @@ -112,26 +113,39 @@ static inline void avc_stop_thread(void *thread)
->                 avc_func_stop_thread(thread);
->  }
->
-> +static inline void check_lock_callbacks(void)
-> +{
-> +    if (avc_func_alloc_lock || avc_func_get_lock
-> +            || avc_func_release_lock || avc_func_free_lock) {
-> +        assert(avc_func_alloc_lock && avc_func_get_lock
-> +                && avc_func_release_lock && avc_func_free_lock);
-> +    }
-> +}
-> +
->  static inline void *avc_alloc_lock(void)
->  {
-> +       check_lock_callbacks();
->         return avc_func_alloc_lock ? avc_func_alloc_lock() : NULL;
->  }
->
->  static inline void avc_get_lock(void *lock)
->  {
-> -       if (avc_func_get_lock)
-> +       check_lock_callbacks();
-> +       if (avc_func_get_lock && lock)
->                 avc_func_get_lock(lock);
->  }
->
->  static inline void avc_release_lock(void *lock)
->  {
-> -       if (avc_func_release_lock)
-> +       check_lock_callbacks();
-> +       if (avc_func_release_lock && lock)
->                 avc_func_release_lock(lock);
->  }
->
->  static inline void avc_free_lock(void *lock)
->  {
-> -       if (avc_func_free_lock)
-> +       check_lock_callbacks();
-> +       if (avc_func_free_lock && lock)
->                 avc_func_free_lock(lock);
->  }
->
-> diff --git a/libselinux/src/callbacks.c b/libselinux/src/callbacks.c
-> index c18ccc54..b635c8d8 100644
-> --- a/libselinux/src/callbacks.c
-> +++ b/libselinux/src/callbacks.c
-> @@ -9,6 +9,7 @@
->  #include <errno.h>
->  #include <selinux/selinux.h>
->  #include "callbacks.h"
-> +#include "avc_internal.h"
->
->  /* default implementations */
->  static int __attribute__ ((format(printf, 2, 3)))
-> @@ -95,6 +96,18 @@ selinux_set_callback(int type, union selinux_callback cb)
->         case SELINUX_CB_POLICYLOAD:
->                 selinux_netlink_policyload = cb.func_policyload;
->                 break;
-> +       case SELINUX_CB_ALLOC_LOCK:
-> +               avc_func_alloc_lock = cb.func_alloc_lock;
-> +               break;
-> +       case SELINUX_CB_GET_LOCK:
-> +               avc_func_get_lock = cb.func_get_lock;
-> +               break;
-> +       case SELINUX_CB_RELEASE_LOCK:
-> +               avc_func_release_lock = cb.func_release_lock;
-> +               break;
-> +       case SELINUX_CB_FREE_LOCK:
-> +               avc_func_free_lock = cb.func_free_lock;
-> +               break;
->         }
->  }
->
-> --
-> 2.32.0.93.g670b81a890-goog
->
+After the call to audit_log_start() is made and then possible NULL audit
+buffer argument is passed to audit_log_*() functions, 
+audit_log_*() functions return immediately in case of a NULL audit buffer 
+argument.
+
+But it is optimal to return early when audit_log_start() returns NULL,
+because it is not necessary for audit_log_*() functions to be called with
+NULL audit buffer argument.
+
+So add exception handling for possible NULL audit buffers where
+return value can be handled from callers.
+
+Signed-off-by: Austin Kim <austin.kim@lge.com>
+---
+ security/selinux/hooks.c       | 4 ++++
+ security/selinux/ss/services.c | 2 ++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b0032c42333e..9e84e6635f2f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3325,6 +3325,8 @@ static int selinux_inode_setxattr(struct user_namespace *mnt_userns,
+ 			}
+ 			ab = audit_log_start(audit_context(),
+ 					     GFP_ATOMIC, AUDIT_SELINUX_ERR);
++			if (!ab)
++				return rc;
+ 			audit_log_format(ab, "op=setxattr invalid_context=");
+ 			audit_log_n_untrustedstring(ab, value, audit_size);
+ 			audit_log_end(ab);
+@@ -6552,6 +6554,8 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 				ab = audit_log_start(audit_context(),
+ 						     GFP_ATOMIC,
+ 						     AUDIT_SELINUX_ERR);
++				if (!ab)
++					return error;
+ 				audit_log_format(ab, "op=fscreate invalid_context=");
+ 				audit_log_n_untrustedstring(ab, value, audit_size);
+ 				audit_log_end(ab);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index d84c77f370dc..e5f1b2757a83 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1673,6 +1673,8 @@ static int compute_sid_handle_invalid_context(
+ 	if (context_struct_to_string(policydb, newcontext, &n, &nlen))
+ 		goto out;
+ 	ab = audit_log_start(audit_context(), GFP_ATOMIC, AUDIT_SELINUX_ERR);
++	if (!ab)
++		goto out;
+ 	audit_log_format(ab,
+ 			 "op=security_compute_sid invalid_context=");
+ 	/* no need to record the NUL with untrusted strings */
+-- 
+2.20.1
 
