@@ -8,61 +8,63 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0362C07E9A
-	for <selinux@archiver.kernel.org>; Wed, 14 Jul 2021 18:13:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86CFFC11F66
+	for <selinux@archiver.kernel.org>; Wed, 14 Jul 2021 18:13:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF6EA6128D
-	for <selinux@archiver.kernel.org>; Wed, 14 Jul 2021 18:13:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70548613BA
+	for <selinux@archiver.kernel.org>; Wed, 14 Jul 2021 18:13:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229742AbhGNSQ2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Jul 2021 14:16:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
+        id S229651AbhGNSQl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Jul 2021 14:16:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbhGNSQ0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Jul 2021 14:16:26 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B72E6C06175F
-        for <selinux@vger.kernel.org>; Wed, 14 Jul 2021 11:13:33 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id oz7so986627ejc.2
-        for <selinux@vger.kernel.org>; Wed, 14 Jul 2021 11:13:33 -0700 (PDT)
+        with ESMTP id S239092AbhGNSQl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Jul 2021 14:16:41 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B969C061760
+        for <selinux@vger.kernel.org>; Wed, 14 Jul 2021 11:13:49 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id hd33so4752639ejc.9
+        for <selinux@vger.kernel.org>; Wed, 14 Jul 2021 11:13:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Vwe3flzPdkoq+qQPERHJ6lnv+encH4boTRgeJ+9LCAU=;
-        b=WmR5USM424bl/NuCE7EulEXcZhM1H2UN4RpjuSHL4zMZhqhqTYDvTofhjVrTRjmXA4
-         M8KomDh6Z6/cXd28bru4wSPjwth2bW2tb1WQufi6CzxP1ZcF/+2Vbe/BskkwSVPIh9rw
-         UD9/n354UzEiiy1GLMMztK4WtgPhd/adWjTzCPK+n5sxQXlwuV021juW6V4jiwuJJuPC
-         VC11IMyACmYlIwGllP9C8UCcbzHtpZu7zKFdGOPWW1rq/CHYu9p51Kd5dK+F6Vas6066
-         vWTOZ9OWwcsBie0bEfiX5ILWVBEowQOq8qHOrUq9qQJcrjg9Q+jGuzLJflAGIO7fyqot
-         6rtA==
+        bh=X3FlQqkgsJX6pjmpzjzwEzUKoTL2ceRrEt9ap0iYDls=;
+        b=eYRcBM+L/m1cN5xeNup3SQOijcOpEPaqeAlcMwcOpNi05/2bXTzAHCAKxdrq3+ELAf
+         A3JkSY3rlyEcG/DHFx9xWiXiGOWgVuPeDNSI1imnTSnFC2PYWZ1sHxnFGcsou7Sh8IP2
+         b1wFBa0hLYOuUB9mEsDzDlh6J7CyxA3j7tH9QeX+anbrZVTuvn320kE9kn4rRZD+b9JF
+         IYp/nJ9F4/HE3PYzGy1AG6ilSqF8e35IfuI7IhoZX1eApnRHL66DIPLzouKiB705eoJH
+         8cN2BheYVD8J992wLKWo1zM8UKZFaguMhT6gn2YnFs5xpAQmg0Pw06nlQjWyS31+GnHP
+         3+lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Vwe3flzPdkoq+qQPERHJ6lnv+encH4boTRgeJ+9LCAU=;
-        b=KrCORNCI14R10hJoohBpvKfjbmzqATy2LxKml73+n+P7FdJRrHqTeleU7oqoJe9IuI
-         ESCa4sLcajbOOc0YtnFkt5rVOuA4Y0G/66EXDz09tGmRw42Harwi8SkTSrGt+VRJNa+I
-         DIemoDw/JwGiGjooy6FQ+vvFOsA8MvfNvUYNv8NLJmOI71zQSsZIcgyHIO7sMV3n+NaG
-         0GjuQ4TTG7Z3tJG4zLkIQkT+iy8JJWp54JbJenL0Gqu+r5rOioslFrc7O8IDpxUXNQUe
-         gWMCMX8hqT+pPESsYjr2RQM7eTLKcRl6XRr0SBKdKvgGI5b5uLptWmm8UvJzL8A0yZuX
-         X/Zw==
-X-Gm-Message-State: AOAM533cAX4TsTgF7INflj02OiRYjTz2sJlX6Gb24Ze8lWYTQGvsNwln
-        XY4YsJEa5D1WUBQOPNA5OIWKQ0HSALA=
-X-Google-Smtp-Source: ABdhPJwR4e70lNj/x65a1XKshDnenYZNFNe06kgN18Voumh4OL0I4kPUQWNmkPJVKzffPCzvrstEaA==
-X-Received: by 2002:a17:906:39d7:: with SMTP id i23mr13558038eje.121.1626286411332;
-        Wed, 14 Jul 2021 11:13:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=X3FlQqkgsJX6pjmpzjzwEzUKoTL2ceRrEt9ap0iYDls=;
+        b=sgyMsGdbnr6xWtjsF2S0s+lPsLuf0hrdYM4WaxBbX7sgObx8bzfG5Ha7/absedV6d1
+         f11SAwNxjbWMzihVlZK2LmM8772JT99EuxkbR3A7Tn4xLjkhimnvk2H2icQ76WjHVpkO
+         D5E5bEYAsaFLK0Sk3UChzirjvXkUsK5+2RRK10yH4CKAWaOt5tOjnprL7sLmEOgjz4dJ
+         bfQdis3h84bPcwA7Izr4CwLV9WF04utnvtyxiwy1L93VrInOkVEKznJ+rQVn3rBShYFW
+         RSgswu/pojXf1tK3rZDNWt7nfTKHJRtav/ANGyBgQK3WQgcsgHEV/fr/deWAdEBK73aK
+         8yKw==
+X-Gm-Message-State: AOAM532CPiPaeYFb2kjLd25++T7Fp+1wWYNz2HwWuCrBVWO6BHNb4+Gt
+        ekmjxttc8b+BXBpkA43rAbCfKObU/tM=
+X-Google-Smtp-Source: ABdhPJxjQYZU0oscBnl5c5a3IPg3UrOPr2iI2UeTUpQSSpkDV97PseiI0zYLqjBAQn+5goWI4Rrgyg==
+X-Received: by 2002:a17:906:b53:: with SMTP id v19mr13317850ejg.262.1626286427778;
+        Wed, 14 Jul 2021 11:13:47 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-116-198-161.95.116.pool.telefonica.de. [95.116.198.161])
-        by smtp.gmail.com with ESMTPSA id e24sm1030021ejx.100.2021.07.14.11.13.30
+        by smtp.gmail.com with ESMTPSA id ot18sm1020975ejb.109.2021.07.14.11.13.47
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jul 2021 11:13:30 -0700 (PDT)
+        Wed, 14 Jul 2021 11:13:47 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] libselinux/utils: drop requirement to combine compiling and linking
-Date:   Wed, 14 Jul 2021 20:13:25 +0200
-Message-Id: <20210714181325.58688-1-cgzones@googlemail.com>
+Subject: [PATCH 2/6] secilc: fix memory leaks in secilc
+Date:   Wed, 14 Jul 2021 20:13:39 +0200
+Message-Id: <20210714181343.58880-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210714181343.58880-1-cgzones@googlemail.com>
+References: <20210714181343.58880-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -70,38 +72,31 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The extra dependency of sefcontext_compile on its object file causes the
-compile and link step to be separated.
-During the link step the CFLAGS are not passed, which might contain
-optimization or sanitizer flags.
+When specifying -o or -f more than once, the previous allocations leak.
 
-Current behavior:
-
-    gcc-11 **custom CFLAGS** -I../include -D_GNU_SOURCE     -c -o sefcontext_compile.o sefcontext_compile.c
-    gcc-11 -L../src  sefcontext_compile.o ../src/regex.o  -lselinux  -lpcre ../src/libselinux.a -lsepol -o sefcontext_compile
-
-Changed:
-
-    gcc-11 **custom CFLAGS** -I../include -D_GNU_SOURCE    -L../src  sefcontext_compile.c ../src/regex.o  -lselinux  -lpcre ../src/libselinux.a -lsepol -o sefcontext_compile
+Found by scan-build.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/utils/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ secilc/secilc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index b018a08a..f01295fd 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -54,7 +54,7 @@ endif
- 
- sefcontext_compile: LDLIBS += $(PCRE_LDLIBS) ../src/libselinux.a -lsepol
- 
--sefcontext_compile: sefcontext_compile.o ../src/regex.o
-+sefcontext_compile: ../src/regex.o
- 
- all: $(TARGETS)
- 
+diff --git a/secilc/secilc.c b/secilc/secilc.c
+index 1c4f1ca0..80d3583d 100644
+--- a/secilc/secilc.c
++++ b/secilc/secilc.c
+@@ -199,9 +199,11 @@ int main(int argc, char *argv[])
+ 				qualified_names = 1;
+ 				break;
+ 			case 'o':
++				free(output);
+ 				output = strdup(optarg);
+ 				break;
+ 			case 'f':
++				free(filecontexts);
+ 				filecontexts = strdup(optarg);
+ 				break;
+ 			case 'G':
 -- 
 2.32.0
 
