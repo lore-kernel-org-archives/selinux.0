@@ -2,114 +2,149 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE5C9C07E9B
-	for <selinux@archiver.kernel.org>; Mon, 19 Jul 2021 23:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B75F5C07E9D
+	for <selinux@archiver.kernel.org>; Tue, 20 Jul 2021 02:57:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAC816113B
-	for <selinux@archiver.kernel.org>; Mon, 19 Jul 2021 23:38:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89FBD61003
+	for <selinux@archiver.kernel.org>; Tue, 20 Jul 2021 02:57:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343714AbhGSW5N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 19 Jul 2021 18:57:13 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60236 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1358280AbhGSUTG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 19 Jul 2021 16:19:06 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16JKlxbx106523;
-        Mon, 19 Jul 2021 16:59:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=jZHWpDjeE6vOHFw8ZDf6MrL5Q086fduFHeEMPfIw1hY=;
- b=MqDv760rWXrusWKJXFTLhFRqBZuKsGQ7YWs98LPjpqGO3p4c668RqyLIyC51dG4DJSgo
- OGRzcfKX3MnjmJ4Usz50s+NKvrpR6xL8gygfHzVV/VoX4g6c0qLmHLuYy51B6bdzT+Qb
- pKHKpJxn8KeTIsfNKVW1gGhDpdDoxH2fXWrUF3msUmIU178gNjROZmKeo7798kCYA9Yo
- W9j4cjQDT0QlN1zN24/AP25PMBm+FD+J2b9iegsqgK2amZj9LgX4MB/MzQsYv5e6xEWf
- +gXzm7Q5hosd5iqCrmzzsuoqusIBu9VPFMrKxGuneXNASw5VscYkn2pN9forv4Hv7gk+ WA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39wgrcg769-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Jul 2021 16:59:40 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16JKn2c5111036;
-        Mon, 19 Jul 2021 16:59:40 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39wgrcg75k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Jul 2021 16:59:39 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16JKxbpj021216;
-        Mon, 19 Jul 2021 20:59:37 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 39upu88w5s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Jul 2021 20:59:37 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16JKxZOV36831492
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Jul 2021 20:59:35 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 08979A4057;
-        Mon, 19 Jul 2021 20:59:35 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F05F0A4040;
-        Mon, 19 Jul 2021 20:59:32 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.28.163])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 19 Jul 2021 20:59:32 +0000 (GMT)
-Message-ID: <e2f33ad4dca9eba9b2a05a00de571e9f94022343.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 3/3] ima: Add digest and digest_len params to the
- functions to measure a buffer
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>, paul@paul-moore.com
-Cc:     stephen.smalley.work@gmail.com, prsriva02@gmail.com,
-        tusharsu@linux.microsoft.com, nramas@linux.microsoft.com,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-Date:   Mon, 19 Jul 2021 16:59:32 -0400
-In-Reply-To: <20210705090922.3321178-4-roberto.sassu@huawei.com>
-References: <20210705090922.3321178-1-roberto.sassu@huawei.com>
-         <20210705090922.3321178-4-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oViPlRVS_7IGirnDVCX6rF6hGwCr-Wry
-X-Proofpoint-ORIG-GUID: KdozGSTi1aeAoprdV8zr6m1zsnR43faD
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-19_10:2021-07-19,2021-07-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- bulkscore=0 lowpriorityscore=0 impostorscore=0 malwarescore=0
- clxscore=1015 adultscore=0 priorityscore=1501 suspectscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107190116
+        id S1345043AbhGTCRI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 19 Jul 2021 22:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55716 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230146AbhGTCQW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 19 Jul 2021 22:16:22 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACB6C061574
+        for <selinux@vger.kernel.org>; Mon, 19 Jul 2021 19:57:00 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id hr1so32119967ejc.1
+        for <selinux@vger.kernel.org>; Mon, 19 Jul 2021 19:56:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=/TjJ11+mGqv0YTZQILPTlTbnMuqu1sgIatUTm4EDowI=;
+        b=hnQU7KTLH/aX0omnwkEQkfzvKNKseAdXeBZwXCEkrxeZFoAypBDRBkv81LMgvGorKa
+         LUym5vqJoKXWMX+quvGvrM9D9PQCoM8RVbUe3WsXxz99JokSIprBIcfyGInB0kl/Qzgt
+         sNSfsb+U+6P1vw8dr8/3NXNhxygEhFteJOmuEAkIps2IbIxBhwxt+Fe3Lc82+ZH0LYNx
+         GeteuL6LCT1ZvEKnF2MvAhtlXI1EGmDH824eKGC50dZQeoG40IK7Xcl4IOk2z64d6Y4X
+         tr3/UHQVv/tlm5XD7v0zCIW2636hWkiqyXFcXddBXoT/pTQ8ltCkX2pFT/8Es0dbKFBq
+         IL2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=/TjJ11+mGqv0YTZQILPTlTbnMuqu1sgIatUTm4EDowI=;
+        b=W52YfrVvKtSXvgrlWco1bUJdYI2JyoyxbJsn8PHytt/wM8QqwU4EX0F1TWrv9znw/S
+         uQyb9CefRlJkmXNwJqB9N235uuu2adnoZvOCDBJAxrYdKCi6Ky6N9p794JNvLe1kLYti
+         F7YA2+FoVxKy/hj2Kp4DT1cRxYGqVCT4NFjfEcrM9cVm/XA1iFhl7W8mCGJ8ZwqmKBbq
+         uhhTiU1KuUYY//+DVBZu8ixIcSBOTCAtkFcJhfOnmgN/R1d9rC/boWsSYYi9ZCY3yVg1
+         bAd0WXRV8Z0WdbL30hMM/ltKCFeVe3oZeBx8HhtRHYWv+5DtPjjr0cI0W9RhxOSZO/j8
+         OQ8g==
+X-Gm-Message-State: AOAM531tGuY+essW0+ZrqWeMSvAy0dVkyMsvfELZOcZ6sRCpzY0Yltmj
+        yJfhusO1BOs5osVprgBvBXJehY8NU4unLXn9n6H4
+X-Google-Smtp-Source: ABdhPJxDLvp2yIiHA1FaQDtOHdqVvtMYGHN/3oRWC0YEHLKqZbpFUBZaPZhQsEpB4ND+yH2ngWZYEpJdn2JO0yhcy7M=
+X-Received: by 2002:a17:906:814f:: with SMTP id z15mr30528199ejw.178.1626749818592;
+ Mon, 19 Jul 2021 19:56:58 -0700 (PDT)
+MIME-Version: 1.0
+References: <22c0d7a1-b658-64ce-f099-0b3617ef8e38@huawei.com>
+ <CAEjxPJ5-w83HMRGuDHHqMthkju3bxT0gZ-EiiTE=t5UhQqQ_ug@mail.gmail.com> <ec36e53f-5a6d-b86e-790c-d58b7b503aae@huawei.com>
+In-Reply-To: <ec36e53f-5a6d-b86e-790c-d58b7b503aae@huawei.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 19 Jul 2021 22:56:47 -0400
+Message-ID: <CAHC9VhR3ZbcNM8awhJs9_NXmdUXHO4XoH8s2d3MjhMXwkgbh=Q@mail.gmail.com>
+Subject: Re: issues about selinux namespace
+To:     xiujianfeng <xiujianfeng@huawei.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        jamorris@linux.microsoft.com, "Likun(OSLab)" <hw.likun@huawei.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Roberto,
+On Mon, Jul 19, 2021 at 9:55 AM xiujianfeng <xiujianfeng@huawei.com> wrote:
+>
+> thanks stepthen,  I've found James's patch in
+> https://lwn.net/Articles/737949/,
+>
+> but it seems can't resolve my questions, so any futher discussion would
+> be helpfull and welcome.
+>
+> =E5=9C=A8 2021/7/14 20:11, Stephen Smalley =E5=86=99=E9=81=93:
+> > Please take your email to the selinux@vger.kernel.org. You are the
+> > second person to ask about selinux namespaces within the past week or
+> > so. I did upstream the refactoring and encapsulation of the data
+> > structures and code via the selinux_state patches, so those are in the
+> > mainline kernel these days, and Paul Moore and I have periodically
+> > re-based the remaining patches on top of upstream over in the
+> > https://github.com/SELinuxProject/selinux-kernel/tree/working-selinuxns
+> > branch. However, I had to drop the inode and superblock per-ns patches
+> > temporarily because of changes to LSM (inode blob management moved to
+> > the LSM framework out of the security modules), so that would need to
+> > be revisited. There was a separate patch from James Morris to support
+> > per-namespace security.selinux extended attributes; you can dig that
+> > out from the history or mailing lists if you want to revive that. I
+> > won't be able to look at it again until October at the earliest.
+> >
+> > On Wed, Jul 14, 2021 at 6:54 AM xiujianfeng <xiujianfeng@huawei.com> wr=
+ote:
+> >> Hi Stephen,
+> >>
+> >> I am writing to discuss about selinux namespace because I found your
+> >> previous work on github and I think selinux namespace is helpful to
+> >> harden container security. So I try to do further work but there are
+> >> some issues mentioned in the commit message and I have no idea how to
+> >> fix them, it would be great if I can get help from you.
+> >> First is about selinux hook functions, we need to update each hook to
+> >> perform its processing on current namespace and all of its ancestors,
+> >> for object, we can have different sid/tag in different namespace based
+> >> on inode namespace support, but for task, do we need to maintain each
+> >> security context generated in the corresponding namespace?
+> >> Second is the lifecycle management of on-disk inode labels. it's not
+> >> easy to handle this, should we clean all corresponding labels on disk
+> >> when namespace exit? if we do this, it may cost long time to iterate
+> >> inode on disk and must relabel files when container restart, if not, t=
+he
+> >> inode xattr space maybe full and cannot write label again when new
+> >> namespace starts.
+> >> BTW, do you have plan to finish the work?
+> >>
+> >> I look forward to receiving your reply.
+> >>
+> >> Best wishes.
 
-On Mon, 2021-07-05 at 11:09 +0200, Roberto Sassu wrote:
-> This patch adds the 'digest' and 'digest_len' parameters to
-> ima_measure_critical_data() and process_buffer_measurement(), so that
-> callers can get the digest of the passed buffer.
-> 
-> These functions calculate the digest even if there is no suitable rule in
-> the IMA policy and, in this case, they simply return 1 before generating a
-> new measurement entry.
+I understand that many mail clients do not encourage inline/bottom
+replies, but when posting to the various Linux Kernel mailing lists
+please make the effort to reply inline, or at the bottom, as
+appropriate.
 
-I agree ima_measure_critical_data() is special.  Both this patch
-description and 1/3 describe "what", not "why".  Please provide the
-motivation for these changes at least in the cover letter, if not in
-the patch description.
+Namespacing the SELinux kernel code is a rather tricky thing, both
+with respect to the design and the mechanics of the implementation.  I
+don't think we have a concrete idea yet on how we want to proceed in
+all of the areas mentioned; designs - and implementations - have been
+offered, but I think we are missing someone to drive the topic forward
+with demonstrations, sample implementations, etc.  It is never a bad
+idea to ask how you can help a project, but in this case I think the
+answer is to step back for a moment, describe your use-case/problem,
+explain how you envision a namespaced SELinux helping you resolve
+this, and finally how you would want the namespaced SELinux
+implementation to work (how would you interact with it both via policy
+and runtime management).
 
-thanks,
+On a personal note, the regular rebasing of the SELinux namespace work
+has suffered lately due to other time commitments at work.  I have
+recently (today) started a new position which should allow me to
+dedicate much more of my working hours to upstream development; it may
+take me a couple of weeks to get settled in, but you can expect the
+regular rebasing of selinux/working-selinuxns to resume in the future.
 
-Mimi
-
+--=20
+paul moore
+www.paul-moore.com
