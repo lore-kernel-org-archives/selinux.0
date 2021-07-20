@@ -2,149 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B75F5C07E9D
-	for <selinux@archiver.kernel.org>; Tue, 20 Jul 2021 02:57:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9D21C636C9
+	for <selinux@archiver.kernel.org>; Tue, 20 Jul 2021 12:38:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 89FBD61003
-	for <selinux@archiver.kernel.org>; Tue, 20 Jul 2021 02:57:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84E806113C
+	for <selinux@archiver.kernel.org>; Tue, 20 Jul 2021 12:38:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345043AbhGTCRI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 19 Jul 2021 22:17:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55716 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230146AbhGTCQW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 19 Jul 2021 22:16:22 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACB6C061574
-        for <selinux@vger.kernel.org>; Mon, 19 Jul 2021 19:57:00 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id hr1so32119967ejc.1
-        for <selinux@vger.kernel.org>; Mon, 19 Jul 2021 19:56:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/TjJ11+mGqv0YTZQILPTlTbnMuqu1sgIatUTm4EDowI=;
-        b=hnQU7KTLH/aX0omnwkEQkfzvKNKseAdXeBZwXCEkrxeZFoAypBDRBkv81LMgvGorKa
-         LUym5vqJoKXWMX+quvGvrM9D9PQCoM8RVbUe3WsXxz99JokSIprBIcfyGInB0kl/Qzgt
-         sNSfsb+U+6P1vw8dr8/3NXNhxygEhFteJOmuEAkIps2IbIxBhwxt+Fe3Lc82+ZH0LYNx
-         GeteuL6LCT1ZvEKnF2MvAhtlXI1EGmDH824eKGC50dZQeoG40IK7Xcl4IOk2z64d6Y4X
-         tr3/UHQVv/tlm5XD7v0zCIW2636hWkiqyXFcXddBXoT/pTQ8ltCkX2pFT/8Es0dbKFBq
-         IL2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/TjJ11+mGqv0YTZQILPTlTbnMuqu1sgIatUTm4EDowI=;
-        b=W52YfrVvKtSXvgrlWco1bUJdYI2JyoyxbJsn8PHytt/wM8QqwU4EX0F1TWrv9znw/S
-         uQyb9CefRlJkmXNwJqB9N235uuu2adnoZvOCDBJAxrYdKCi6Ky6N9p794JNvLe1kLYti
-         F7YA2+FoVxKy/hj2Kp4DT1cRxYGqVCT4NFjfEcrM9cVm/XA1iFhl7W8mCGJ8ZwqmKBbq
-         uhhTiU1KuUYY//+DVBZu8ixIcSBOTCAtkFcJhfOnmgN/R1d9rC/boWsSYYi9ZCY3yVg1
-         bAd0WXRV8Z0WdbL30hMM/ltKCFeVe3oZeBx8HhtRHYWv+5DtPjjr0cI0W9RhxOSZO/j8
-         OQ8g==
-X-Gm-Message-State: AOAM531tGuY+essW0+ZrqWeMSvAy0dVkyMsvfELZOcZ6sRCpzY0Yltmj
-        yJfhusO1BOs5osVprgBvBXJehY8NU4unLXn9n6H4
-X-Google-Smtp-Source: ABdhPJxDLvp2yIiHA1FaQDtOHdqVvtMYGHN/3oRWC0YEHLKqZbpFUBZaPZhQsEpB4ND+yH2ngWZYEpJdn2JO0yhcy7M=
-X-Received: by 2002:a17:906:814f:: with SMTP id z15mr30528199ejw.178.1626749818592;
- Mon, 19 Jul 2021 19:56:58 -0700 (PDT)
+        id S229631AbhGTL6I convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Jul 2021 07:58:08 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3437 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229608AbhGTL6I (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Jul 2021 07:58:08 -0400
+Received: from fraeml707-chm.china.huawei.com (unknown [172.18.147.206])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4GTdJN0CSYz6J7CM;
+        Tue, 20 Jul 2021 20:27:16 +0800 (CST)
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml707-chm.china.huawei.com (10.206.15.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Tue, 20 Jul 2021 14:38:43 +0200
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.2176.012;
+ Tue, 20 Jul 2021 14:38:43 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>
+CC:     "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
+        "prsriva02@gmail.com" <prsriva02@gmail.com>,
+        "tusharsu@linux.microsoft.com" <tusharsu@linux.microsoft.com>,
+        "nramas@linux.microsoft.com" <nramas@linux.microsoft.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: RE: [PATCH v3 2/3] ima: Return int in the functions to measure a
+ buffer
+Thread-Topic: [PATCH v3 2/3] ima: Return int in the functions to measure a
+ buffer
+Thread-Index: AQHXcX2Ei9vr21t1tkWOaZ1ebtrZQatKtK2AgAEtQtA=
+Date:   Tue, 20 Jul 2021 12:38:43 +0000
+Message-ID: <bd953894da3041d5969da645db2f982e@huawei.com>
+References: <20210705090922.3321178-1-roberto.sassu@huawei.com>
+         <20210705090922.3321178-3-roberto.sassu@huawei.com>
+ <2f4920dbdb16156e1af5cf78f592a5cf07ec3176.camel@linux.ibm.com>
+In-Reply-To: <2f4920dbdb16156e1af5cf78f592a5cf07ec3176.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.221.98.153]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <22c0d7a1-b658-64ce-f099-0b3617ef8e38@huawei.com>
- <CAEjxPJ5-w83HMRGuDHHqMthkju3bxT0gZ-EiiTE=t5UhQqQ_ug@mail.gmail.com> <ec36e53f-5a6d-b86e-790c-d58b7b503aae@huawei.com>
-In-Reply-To: <ec36e53f-5a6d-b86e-790c-d58b7b503aae@huawei.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 19 Jul 2021 22:56:47 -0400
-Message-ID: <CAHC9VhR3ZbcNM8awhJs9_NXmdUXHO4XoH8s2d3MjhMXwkgbh=Q@mail.gmail.com>
-Subject: Re: issues about selinux namespace
-To:     xiujianfeng <xiujianfeng@huawei.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        jamorris@linux.microsoft.com, "Likun(OSLab)" <hw.likun@huawei.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 9:55 AM xiujianfeng <xiujianfeng@huawei.com> wrote:
->
-> thanks stepthen,  I've found James's patch in
-> https://lwn.net/Articles/737949/,
->
-> but it seems can't resolve my questions, so any futher discussion would
-> be helpfull and welcome.
->
-> =E5=9C=A8 2021/7/14 20:11, Stephen Smalley =E5=86=99=E9=81=93:
-> > Please take your email to the selinux@vger.kernel.org. You are the
-> > second person to ask about selinux namespaces within the past week or
-> > so. I did upstream the refactoring and encapsulation of the data
-> > structures and code via the selinux_state patches, so those are in the
-> > mainline kernel these days, and Paul Moore and I have periodically
-> > re-based the remaining patches on top of upstream over in the
-> > https://github.com/SELinuxProject/selinux-kernel/tree/working-selinuxns
-> > branch. However, I had to drop the inode and superblock per-ns patches
-> > temporarily because of changes to LSM (inode blob management moved to
-> > the LSM framework out of the security modules), so that would need to
-> > be revisited. There was a separate patch from James Morris to support
-> > per-namespace security.selinux extended attributes; you can dig that
-> > out from the history or mailing lists if you want to revive that. I
-> > won't be able to look at it again until October at the earliest.
-> >
-> > On Wed, Jul 14, 2021 at 6:54 AM xiujianfeng <xiujianfeng@huawei.com> wr=
-ote:
-> >> Hi Stephen,
-> >>
-> >> I am writing to discuss about selinux namespace because I found your
-> >> previous work on github and I think selinux namespace is helpful to
-> >> harden container security. So I try to do further work but there are
-> >> some issues mentioned in the commit message and I have no idea how to
-> >> fix them, it would be great if I can get help from you.
-> >> First is about selinux hook functions, we need to update each hook to
-> >> perform its processing on current namespace and all of its ancestors,
-> >> for object, we can have different sid/tag in different namespace based
-> >> on inode namespace support, but for task, do we need to maintain each
-> >> security context generated in the corresponding namespace?
-> >> Second is the lifecycle management of on-disk inode labels. it's not
-> >> easy to handle this, should we clean all corresponding labels on disk
-> >> when namespace exit? if we do this, it may cost long time to iterate
-> >> inode on disk and must relabel files when container restart, if not, t=
-he
-> >> inode xattr space maybe full and cannot write label again when new
-> >> namespace starts.
-> >> BTW, do you have plan to finish the work?
-> >>
-> >> I look forward to receiving your reply.
-> >>
-> >> Best wishes.
+> From: Mimi Zohar [mailto:zohar@linux.ibm.com]
+> Sent: Monday, July 19, 2021 10:28 PM
+> Hi Roberto,
+> 
+> On Mon, 2021-07-05 at 11:09 +0200, Roberto Sassu wrote:
+> > ima_measure_critical_data() and process_buffer_measurement() currently
+> > don't return a result. A caller wouldn't be able to know whether those
+> > functions were executed successfully.
+> 
+> Missing is an explanation as to why these functions aren't currently
+> returning a result.   The LSM/IMA hooks only return a negative result
+> for failure to appraise a file's integrity, not measure a file.  Only
+> failure to appraise a file's integrity results in preventing the file
+> from being read/executed/mmaped.  Other failures are only audited.
 
-I understand that many mail clients do not encourage inline/bottom
-replies, but when posting to the various Linux Kernel mailing lists
-please make the effort to reply inline, or at the bottom, as
-appropriate.
+Hi Mimi
 
-Namespacing the SELinux kernel code is a rather tricky thing, both
-with respect to the design and the mechanics of the implementation.  I
-don't think we have a concrete idea yet on how we want to proceed in
-all of the areas mentioned; designs - and implementations - have been
-offered, but I think we are missing someone to drive the topic forward
-with demonstrations, sample implementations, etc.  It is never a bad
-idea to ask how you can help a project, but in this case I think the
-answer is to step back for a moment, describe your use-case/problem,
-explain how you envision a namespaced SELinux helping you resolve
-this, and finally how you would want the namespaced SELinux
-implementation to work (how would you interact with it both via policy
-and runtime management).
+ok, will add it.
 
-On a personal note, the regular rebasing of the SELinux namespace work
-has suffered lately due to other time commitments at work.  I have
-recently (today) started a new position which should allow me to
-dedicate much more of my working hours to upstream development; it may
-take me a couple of weeks to get settled in, but you can expect the
-regular rebasing of selinux/working-selinuxns to resume in the future.
+> > This patch modifies the return type from void to int, and returns 0 if the
+> > buffer has been successfully measured, a negative value otherwise.
+> 
+> Needed here is an explanation as to why ima_measure_critical_data() is
+> special.
 
---=20
-paul moore
-www.paul-moore.com
+We don't want to unnecessarily calculate the digest twice.
+
+> > Also, this patch does not modify the behavior of existing callers by
+> > processing the returned value. For those, the return value is ignored.
+> 
+> I agree that the existing behavior shouldn't change, but will this
+> result in the bots complaining?
+
+If I remember correctly, I didn't get any error even with W=1.
+
+Thanks
+
+Roberto
+
+HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
+Managing Director: Li Peng, Li Jian, Shi Yanli
+
+> thanks,
+> 
+> Mimi
+
