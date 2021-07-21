@@ -2,141 +2,153 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74CAAC12002
-	for <selinux@archiver.kernel.org>; Wed, 21 Jul 2021 13:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AA37C6377A
+	for <selinux@archiver.kernel.org>; Wed, 21 Jul 2021 16:45:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5AA086120A
-	for <selinux@archiver.kernel.org>; Wed, 21 Jul 2021 13:12:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40DCC61246
+	for <selinux@archiver.kernel.org>; Wed, 21 Jul 2021 16:45:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236534AbhGUMcT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Jul 2021 08:32:19 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:12232 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235330AbhGUMcS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Jul 2021 08:32:18 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4GVG7r277vz1CMGb;
-        Wed, 21 Jul 2021 21:07:04 +0800 (CST)
-Received: from dggpeml500023.china.huawei.com (7.185.36.114) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Wed, 21 Jul 2021 21:12:51 +0800
-Received: from [10.67.110.112] (10.67.110.112) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Wed, 21 Jul 2021 21:12:50 +0800
-Subject: Re: issues about selinux namespace
-To:     Paul Moore <paul@paul-moore.com>
-CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        <jamorris@linux.microsoft.com>,
-        "Likun(OSLab)" <hw.likun@huawei.com>,
-        <linux-security-module@vger.kernel.org>, <selinux@vger.kernel.org>
-References: <22c0d7a1-b658-64ce-f099-0b3617ef8e38@huawei.com>
- <CAEjxPJ5-w83HMRGuDHHqMthkju3bxT0gZ-EiiTE=t5UhQqQ_ug@mail.gmail.com>
- <ec36e53f-5a6d-b86e-790c-d58b7b503aae@huawei.com>
- <CAHC9VhR3ZbcNM8awhJs9_NXmdUXHO4XoH8s2d3MjhMXwkgbh=Q@mail.gmail.com>
-From:   xiujianfeng <xiujianfeng@huawei.com>
-Message-ID: <55cef216-315b-df0d-8ddb-42a250f86a8b@huawei.com>
-Date:   Wed, 21 Jul 2021 21:12:36 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S233176AbhGUQEi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Jul 2021 12:04:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40415 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231950AbhGUQEh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Jul 2021 12:04:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626885913;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=elp1aKhIlv/PtbJrnD2zR/phQBsO+w1TcixXTfCb2D0=;
+        b=cMQYTpyBNxvTbRTMtnLPptUu1UJyVfyC/R4CXLNV31OHrKcaWkrJ6AzGjp3XLEW06tYSPk
+        ZUDbxbWJx/ZxIiQ9rchID4uOAGlVozlqppijnOxdbD+B4pXwc0HLjsYdYvK3prpTydO+Ql
+        GjZ5RV0Qmq4EQJdoBdKVyavrm6t5okQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-539-Zk_5eCVFO5K79-c1oM8HgQ-1; Wed, 21 Jul 2021 12:45:12 -0400
+X-MC-Unique: Zk_5eCVFO5K79-c1oM8HgQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A40151008541;
+        Wed, 21 Jul 2021 16:45:10 +0000 (UTC)
+Received: from gerbillo.redhat.com (ovpn-114-219.ams2.redhat.com [10.36.114.219])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E628F797C0;
+        Wed, 21 Jul 2021 16:45:08 +0000 (UTC)
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     netdev@vger.kernel.org
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
+        Eric Dumazet <edumazet@google.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: [PATCH RFC 1/9] sk_buff: track nfct status in newly added skb->_state
+Date:   Wed, 21 Jul 2021 18:44:33 +0200
+Message-Id: <f3708c7208ac32cf35a69ae90e3203bda93be1ce.1626882513.git.pabeni@redhat.com>
+In-Reply-To: <cover.1626882513.git.pabeni@redhat.com>
+References: <cover.1626882513.git.pabeni@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhR3ZbcNM8awhJs9_NXmdUXHO4XoH8s2d3MjhMXwkgbh=Q@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.110.112]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpeml500023.china.huawei.com (7.185.36.114)
-X-CFilter-Loop: Reflected
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+so that we can skip initizialzing such field at skb
+allocation and move such field after 'tail'.
 
-在 2021/7/20 10:56, Paul Moore 写道:
-> On Mon, Jul 19, 2021 at 9:55 AM xiujianfeng <xiujianfeng@huawei.com> wrote:
->> thanks stepthen,  I've found James's patch in
->> https://lwn.net/Articles/737949/,
->>
->> but it seems can't resolve my questions, so any futher discussion would
->> be helpfull and welcome.
->>
->> 在 2021/7/14 20:11, Stephen Smalley 写道:
->>> Please take your email to the selinux@vger.kernel.org. You are the
->>> second person to ask about selinux namespaces within the past week or
->>> so. I did upstream the refactoring and encapsulation of the data
->>> structures and code via the selinux_state patches, so those are in the
->>> mainline kernel these days, and Paul Moore and I have periodically
->>> re-based the remaining patches on top of upstream over in the
->>> https://github.com/SELinuxProject/selinux-kernel/tree/working-selinuxns
->>> branch. However, I had to drop the inode and superblock per-ns patches
->>> temporarily because of changes to LSM (inode blob management moved to
->>> the LSM framework out of the security modules), so that would need to
->>> be revisited. There was a separate patch from James Morris to support
->>> per-namespace security.selinux extended attributes; you can dig that
->>> out from the history or mailing lists if you want to revive that. I
->>> won't be able to look at it again until October at the earliest.
->>>
->>> On Wed, Jul 14, 2021 at 6:54 AM xiujianfeng <xiujianfeng@huawei.com> wrote:
->>>> Hi Stephen,
->>>>
->>>> I am writing to discuss about selinux namespace because I found your
->>>> previous work on github and I think selinux namespace is helpful to
->>>> harden container security. So I try to do further work but there are
->>>> some issues mentioned in the commit message and I have no idea how to
->>>> fix them, it would be great if I can get help from you.
->>>> First is about selinux hook functions, we need to update each hook to
->>>> perform its processing on current namespace and all of its ancestors,
->>>> for object, we can have different sid/tag in different namespace based
->>>> on inode namespace support, but for task, do we need to maintain each
->>>> security context generated in the corresponding namespace?
->>>> Second is the lifecycle management of on-disk inode labels. it's not
->>>> easy to handle this, should we clean all corresponding labels on disk
->>>> when namespace exit? if we do this, it may cost long time to iterate
->>>> inode on disk and must relabel files when container restart, if not, the
->>>> inode xattr space maybe full and cannot write label again when new
->>>> namespace starts.
->>>> BTW, do you have plan to finish the work?
->>>>
->>>> I look forward to receiving your reply.
->>>>
->>>> Best wishes.
-> I understand that many mail clients do not encourage inline/bottom
-> replies, but when posting to the various Linux Kernel mailing lists
-> please make the effort to reply inline, or at the bottom, as
-> appropriate.
->
-> Namespacing the SELinux kernel code is a rather tricky thing, both
-> with respect to the design and the mechanics of the implementation.  I
-> don't think we have a concrete idea yet on how we want to proceed in
-> all of the areas mentioned; designs - and implementations - have been
-> offered, but I think we are missing someone to drive the topic forward
-> with demonstrations, sample implementations, etc.  It is never a bad
-> idea to ask how you can help a project, but in this case I think the
-> answer is to step back for a moment, describe your use-case/problem,
-> explain how you envision a namespaced SELinux helping you resolve
-> this, and finally how you would want the namespaced SELinux
-> implementation to work (how would you interact with it both via policy
-> and runtime management).
+_state uses one byte hole in the header section.
 
-thanks for you reply, I digged the history disscussion from 
-https://marc.info/?l=selinux&m=150696042210126&w=2
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+---
+v1 -> v2:
+ - : NULL
+ - has_nfct = !!nfct -> ovs uses skb_set_nfct(NULL, 0) to clear skb->_nfct
 
-and find one use-case: Running multiple android instances on a single 
-host, this is the same as mine.
+should skb_nfct()/skb_get_nfct() return IP_CT_UNTRACKED
+if SKB_HAS_NFCT is not set?
+---
+ include/linux/skbuff.h | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-Anyway, I'll make a try.
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index f19190820e63..ec3d34d8022f 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -689,6 +689,8 @@ typedef unsigned char *sk_buff_data_t;
+  *		CHECKSUM_UNNECESSARY (max 3)
+  *	@dst_pending_confirm: need to confirm neighbour
+  *	@decrypted: Decrypted SKB
++ *	@_state: bitmap reporting the presence of some skb state info
++ *	@has_nfct: @_state bit for nfct info
+  *	@napi_id: id of the NAPI struct this skb came from
+  *	@sender_cpu: (aka @napi_id) source CPU in XPS
+  *	@secmark: security marking
+@@ -765,9 +767,6 @@ struct sk_buff {
+ #endif
+ 	};
+ 
+-#if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
+-	unsigned long		 _nfct;
+-#endif
+ 	unsigned int		len,
+ 				data_len;
+ 	__u16			mac_len,
+@@ -870,6 +869,12 @@ struct sk_buff {
+ #ifdef CONFIG_TLS_DEVICE
+ 	__u8			decrypted:1;
+ #endif
++	union {
++		__u8		_state;		/* state of extended fields */
++		struct {
++			__u8	has_nfct:1;
++		};
++	};
+ 
+ #ifdef CONFIG_NET_SCHED
+ 	__u16			tc_index;	/* traffic control index */
+@@ -936,6 +941,9 @@ struct sk_buff {
+ 	/* only useable after checking ->active_extensions != 0 */
+ 	struct skb_ext		*extensions;
+ #endif
++#if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
++	unsigned long		 _nfct;
++#endif
+ };
+ 
+ #ifdef __KERNEL__
+@@ -4198,7 +4206,7 @@ static inline void skb_remcsum_process(struct sk_buff *skb, void *ptr,
+ static inline struct nf_conntrack *skb_nfct(const struct sk_buff *skb)
+ {
+ #if IS_ENABLED(CONFIG_NF_CONNTRACK)
+-	return (void *)(skb->_nfct & NFCT_PTRMASK);
++	return skb->has_nfct ? (void *)(skb->_nfct & NFCT_PTRMASK) : NULL;
+ #else
+ 	return NULL;
+ #endif
+@@ -4207,7 +4215,7 @@ static inline struct nf_conntrack *skb_nfct(const struct sk_buff *skb)
+ static inline unsigned long skb_get_nfct(const struct sk_buff *skb)
+ {
+ #if IS_ENABLED(CONFIG_NF_CONNTRACK)
+-	return skb->_nfct;
++	return skb->has_nfct ? skb->_nfct : 0;
+ #else
+ 	return 0UL;
+ #endif
+@@ -4216,6 +4224,7 @@ static inline unsigned long skb_get_nfct(const struct sk_buff *skb)
+ static inline void skb_set_nfct(struct sk_buff *skb, unsigned long nfct)
+ {
+ #if IS_ENABLED(CONFIG_NF_CONNTRACK)
++	skb->has_nfct = !!nfct;
+ 	skb->_nfct = nfct;
+ #endif
+ }
+-- 
+2.26.3
 
->
-> On a personal note, the regular rebasing of the SELinux namespace work
-> has suffered lately due to other time commitments at work.  I have
-> recently (today) started a new position which should allow me to
-> dedicate much more of my working hours to upstream development; it may
-> take me a couple of weeks to get settled in, but you can expect the
-> regular rebasing of selinux/working-selinuxns to resume in the future.
->
