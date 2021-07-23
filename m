@@ -2,176 +2,188 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 117B6C6377D
-	for <selinux@archiver.kernel.org>; Thu, 22 Jul 2021 18:41:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A09C432BE
+	for <selinux@archiver.kernel.org>; Fri, 23 Jul 2021 06:06:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC00860E8D
-	for <selinux@archiver.kernel.org>; Thu, 22 Jul 2021 18:41:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE55460E90
+	for <selinux@archiver.kernel.org>; Fri, 23 Jul 2021 06:06:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbhGVSBG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 22 Jul 2021 14:01:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48526 "EHLO
+        id S233740AbhGWFZx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Jul 2021 01:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229937AbhGVSBG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 22 Jul 2021 14:01:06 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BB4C061757
-        for <selinux@vger.kernel.org>; Thu, 22 Jul 2021 11:41:40 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id gn11so192261ejc.0
-        for <selinux@vger.kernel.org>; Thu, 22 Jul 2021 11:41:40 -0700 (PDT)
+        with ESMTP id S233733AbhGWFZx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jul 2021 01:25:53 -0400
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495E4C061575;
+        Thu, 22 Jul 2021 23:06:27 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id o13so419149qkk.9;
+        Thu, 22 Jul 2021 23:06:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=KuzkAEH8jX8VBFDHnw1v9dX7As+btch3ek3bDh5Lw68=;
-        b=vDJ3EGbHFnC0Z7Q+k9LtMEXwbYlXYGYaeJRqQYTNWlpVFNYY6NIPU/y+QnatVFdntR
-         pppGarNbbiF/tWeeGFOiXcBfwjzSzl4efb+9TkulXj2+098WR8o1cxqW2Dlmq/QgxQp2
-         ix6PlhQXW4Gg6tPb1S+YHMkFcXDEyUYqQ10miar0SIpi5bc3uo/GE+CIwfC7Lg66QnUm
-         jCpSVHvcmd+DiX7jt4gCItiSzC2i5yAod66PItIVB/+/tcwFW+IOhxI2LgrHLH/I6JXY
-         LEVO+aXwc+KgsjikCureyfHrvsGVGvLLOGe3OY9xBBXn49bO1L+vm/xvwtA4mArfkwQZ
-         XQDQ==
+        bh=dnSmAnvNAduU2vw3pFl+YZS79O7vlyGeOi1mUa2at+A=;
+        b=P842otSNV7QxzORmEIrQ+yDBbs/34KjN7qY3F7Og/MtAl1wsvwd1pSQSXzvnEjz4sN
+         U8zhDBmhsOrlgqHBpJ5larUWHvRGq2smErx+FIOTa1VrlfDdujEm3t9RDHbbTLQGW2pp
+         4X2kEwLSMW2A8QMViEgfd0DdmBt4nImoYoz0MPSdoZ0Mbc6dQhBhccXd2C/PBe+u9Ay7
+         EZNeeBs0b59A3gNk3/3G6BT85uJwqa2wBot5nbtgiG3oECZtIY6viR6MLbhfg69sYeoP
+         WlEn1M+VSr5r08g5vtlj2c9f6TWaNSN0bdhqwNb0WkGrckCQktlf1mIGNvgko+Xj48g2
+         ZMVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KuzkAEH8jX8VBFDHnw1v9dX7As+btch3ek3bDh5Lw68=;
-        b=K05viUukuVv66Ie0+ivW8I+CEhcIB0mAqv6tc8kG+G5/HWRXJjg3L4lUUZ3Gnr/4q8
-         UxCKaUtbqLSs7Z9lDJ4dlphewITBnE3JlfP6UaArY1Q62ThXxiOcUssRs/SvmRM27onS
-         dCuEiN8w8QwqQfbQDCPIVOCw3AcQYSJD9g45W0VImhQKy+UIretTxC3f/1CAv4yJtFpb
-         tAkU2WNwxp7M+TuTnxoUj6JJ3t1OWBnK5yvsD0APlmgUnYgEyMUVjflWePdA+xnNUXPi
-         dGjC4HZrvng4J2iELbrLg/dmsty47ohOjn8amO5t26wmHkMqDvv6ee+KeGRRJWnR2bxB
-         a1rQ==
-X-Gm-Message-State: AOAM530BDjvCGHyoDZ1Ek++ohOXvOlfQ3tYn3KVeQaCtxLND0+me4skP
-        k8wGH+8JI7+bpWQ/cmbQk7u+F+9EGX9amtCncYHu
-X-Google-Smtp-Source: ABdhPJxqoxfFgf3e3FcjWkstfzi/EqMzJDQjp97NqjBVXjABGxgpSGclyrXhJ58bh/vrWIVxU2F3iwKduRd6nGCzUoY=
-X-Received: by 2002:a17:906:b794:: with SMTP id dt20mr1120746ejb.431.1626979299101;
- Thu, 22 Jul 2021 11:41:39 -0700 (PDT)
+        bh=dnSmAnvNAduU2vw3pFl+YZS79O7vlyGeOi1mUa2at+A=;
+        b=rxa/B/X+gymtSICqKyKZyDkyjAZUzdZCeBe+Gvczewc4fh2+mlGMI//iFcMp6uuf2F
+         F4jAwMo+5S7Rit0e9xHCoxE2NEd5hPtcfUybjIspkNBZxkaTa6B9+cvB/8Km0HTlQ7Qs
+         nKHM6ptrDM31/QcQqvJVEcQPLabAXE+VImHXCbZeK52IDghGRQC6POV4H86Mm1mUh7SM
+         7oFkiG879953Xynp/rnM31LbrzJboXvIM/JSEX9s4Z+gqu3INoxn3+OurCeOMtBUXLIF
+         q/tr0jw3sIeHK3FsXJuA56QicIHOcPUP+0Qoomf1qQBadNN2imks74jGboZp+1w0yI5C
+         7ljA==
+X-Gm-Message-State: AOAM531LOaoQWRerch+gxjqLEV9OpfjxATa3wNAZ5KwijpFsvrb0OPs4
+        3B4MCJRZ826cDPntLjTAEeCJfD8AexOr6Sk2A8g=
+X-Google-Smtp-Source: ABdhPJyceFpI7tmhazN23LrJE9GoGfvcVYtvpOsVMksqmyOIyvdwUf6gzoszJiEfNYIg/hiILWNzgDNGJzJYt9n4RAE=
+X-Received: by 2002:ae9:ef16:: with SMTP id d22mr3179829qkg.383.1627020386411;
+ Thu, 22 Jul 2021 23:06:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <cover.1626879395.git.pabeni@redhat.com> <1252ad17-3460-5e6a-8f0d-05d91a1a7b96@schaufler-ca.com>
- <e6200ddd38510216f9f32051ce1acff21fc9c6d0.camel@redhat.com>
- <2e9e57f0-98f9-b64d-fd82-aecef84835c5@schaufler-ca.com> <d3fe6ae85b8fad9090288c553f8d248603758506.camel@redhat.com>
-In-Reply-To: <d3fe6ae85b8fad9090288c553f8d248603758506.camel@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 22 Jul 2021 14:41:30 -0400
-Message-ID: <CAHC9VhT0uuBdmmT1HhMjjQswiJxWuy3cZdRQZ4Zzf-H8n5arLQ@mail.gmail.com>
-Subject: Re: [PATCH RFC 0/9] sk_buff: optimize layout for GRO
-To:     Paolo Abeni <pabeni@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Florian Westphal <fw@strlen.de>,
-        Eric Dumazet <edumazet@google.com>,
+References: <CAP198X8TNTv1tqpO6Y7eyE2+iSwK9XHk0qRH6J-Z0Ww=a+53tA@mail.gmail.com>
+ <CAHC9VhSBo1CHCM+k5TocQS7--+bGL5RY0z6WKKunE76-fuR6iw@mail.gmail.com>
+ <CAP198X-7NZ+1QfYK3cUUkMMNoaJTwNzBN8wr27egWT1kVh=g3Q@mail.gmail.com> <c22dcebb-e766-d1e2-1e15-15a85e2124bb@redhat.com>
+In-Reply-To: <c22dcebb-e766-d1e2-1e15-15a85e2124bb@redhat.com>
+From:   Sujithra P <sujithrap@gmail.com>
+Date:   Thu, 22 Jul 2021 23:06:15 -0700
+Message-ID: <CAP198X8Gun1xhzJrmyzFC7Vh0UP=k_5tSPu5ev5FQ+FumE-0iw@mail.gmail.com>
+Subject: Re: AVC denied for docker while trying to set labels for tmpfs mounts
+To:     dwalsh@redhat.com
+Cc:     Paul Moore <paul@paul-moore.com>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 22, 2021 at 12:59 PM Paolo Abeni <pabeni@redhat.com> wrote:
-> On Thu, 2021-07-22 at 09:04 -0700, Casey Schaufler wrote:
-> > On 7/22/2021 12:10 AM, Paolo Abeni wrote:
-> > > On Wed, 2021-07-21 at 11:15 -0700, Casey Schaufler wrote:
-> > > > On 7/21/2021 9:44 AM, Paolo Abeni wrote:
-> > > > > This is a very early draft - in a different world would be
-> > > > > replaced by hallway discussion at in-person conference - aimed at
-> > > > > outlining some ideas and collect feedback on the overall outlook.
-> > > > > There are still bugs to be fixed, more test and benchmark need, etc.
-> > > > >
-> > > > > There are 3 main goals:
-> > > > > - [try to] avoid the overhead for uncommon conditions at GRO time
-> > > > >   (patches 1-4)
-> > > > > - enable backpressure for the veth GRO path (patches 5-6)
-> > > > > - reduce the number of cacheline used by the sk_buff lifecycle
-> > > > >   from 4 to 3, at least in some common scenarios (patches 1,7-9).
-> > > > >   The idea here is avoid the initialization of some fields and
-> > > > >   control their validity with a bitmask, as presented by at least
-> > > > >   Florian and Jesper in the past.
-> > > > If I understand correctly, you're creating an optimized case
-> > > > which excludes ct, secmark, vlan and UDP tunnel. Is this correct,
-> > > > and if so, why those particular fields? What impact will this have
-> > > > in the non-optimal (with any of the excluded fields) case?
-> > > Thank you for the feedback.
-> >
-> > You're most welcome. You did request comments.
-> >
-> > > There are 2 different relevant points:
-> > >
-> > > - the GRO stage.
-> > >   packets carring any of CT, dst, sk or skb_ext will do 2 additional
-> > > conditionals per gro_receive WRT the current code. My understanding is
-> > > that having any of such field set at GRO receive time is quite
-> > > exceptional for real nic. All others packet will do 4 or 5 less
-> > > conditionals, and will traverse a little less code.
-> > >
-> > > - sk_buff lifecycle
-> > >   * packets carrying vlan and UDP will not see any differences: sk_buff
-> > > lifecycle will stil use 4 cachelines, as currently does, and no
-> > > additional conditional is introduced.
-> > >   * packets carring nfct or secmark will see an additional conditional
-> > > every time such field is accessed. The number of cacheline used will
-> > > still be 4, as in the current code. My understanding is that when such
-> > > access happens, there is already a relevant amount of "additional" code
-> > > to be executed, the conditional overhead should not be measurable.
-> >
-> > I'm responsible for some of that "additonal" code. If the secmark
-> > is considered to be outside the performance critical data there are
-> > changes I would like to make that will substantially improve the
-> > performance of that "additional" code that would include a u64
-> > secmark. If use of a secmark is considered indicative of a "slow"
-> > path, the rationale for restricting it to u32, that it might impact
-> > the "usual" case performance, seems specious. I can't say that I
-> > understand all the nuances and implications involved. It does
-> > appear that the changes you've suggested could negate the classic
-> > argument that requires the u32 secmark.
->
-> I see now I did not reply to one of you questions - why I picked-up
->  vlan, tunnel secmark fields to move them at sk_buff tail.
->
-> Tow main drivers on my side:
-> - there are use cases/deployments that do not use them.
-> - moving them around was doable in term of required changes.
->
-> There are no "slow-path" implications on my side. For example, vlan_*
-> fields are very critical performance wise, if the traffic is tagged.
-> But surely there are busy servers not using tagget traffic which will
-> enjoy the reduced cachelines footprint, and this changeset will not
-> impact negatively the first case.
->
-> WRT to the vlan example, secmark and nfct require an extra conditional
-> to fetch the data. My understanding is that such additional conditional
-> is not measurable performance-wise when benchmarking the security
-> modules (or conntrack) because they have to do much more intersting
-> things after fetching a few bytes from an already hot cacheline.
->
-> Not sure if the above somehow clarify my statements.
->
-> As for expanding secmark to 64 bits, I guess that could be an
-> interesting follow-up discussion :)
+Thanks Daniel.
 
-The intersection between netdev and the LSM has a long and somewhat
-tortured past with each party making sacrifices along the way to get
-where we are at today.  It is far from perfect, at least from a LSM
-perspective, but it is what we've got and since performance is usually
-used as a club to beat back any changes proposed by the LSM side, I
-would like to object to these changes that negatively impact the LSM
-performance without some concession in return.  It has been a while
-since Casey and I have spoken about this, but I think the prefered
-option would be to exchange the current __u32 "sk_buff.secmark" field
-with a void* "sk_buff.security" field, like so many other kernel level
-objects.  Previous objections have eventually boiled down to the
-additional space in the sk_buff for the extra bits (there is some
-additional editorializing that could be done here, but I'll refrain),
-but based on the comments thus far in this thread it sounds like
-perhaps we can now make a deal here: move the LSM field down to a
-"colder" cacheline in exchange for converting the LSM field to a
-proper pointer.
+I'm not seeing anything suspicious in the audit logs, the. following
+are the MAC_POLICY_LOAD events
 
-Thoughts?
+type=SYSCALL msg=audit(1622991228.547:183): arch=c000003e syscall=1
+success=yes exit=8577048 a0=4 a1=7fd682c61000 a2=82e018 a3=0 items=0
+ppid=62178 pid=62186 auid=1004 uid=0 gid=0 euid=0 suid=0 fsuid=0
+egid=0 sgid=0 fsgid=0 tty=pts0 ses=1 comm="load_policy"
+exe="/usr/sbin/load_policy"
+subj=unconfined_u:unconfined_r:load_policy_t:s0-s0:c0.c1023 key=(null)
 
--- 
-paul moore
-www.paul-moore.com
+type=MAC_POLICY_LOAD msg=audit(1627002776.825:6075): auid=4294967295
+ses=4294967295 lsm=selinux res=1
+----
+type=MAC_POLICY_LOAD msg=audit(1627008064.852:7615): auid=4294967295
+ses=4294967295 lsm=selinux res=1
+----
+type=MAC_POLICY_LOAD msg=audit(1627008273.029:7617): auid=4294967295
+ses=4294967295 lsm=selinux res=1
+----
+type=MAC_POLICY_LOAD msg=audit(1627009159.383:8392): auid=4294967295
+ses=4294967295 lsm=selinux res=1
+----
+
+On Thu, Jul 22, 2021 at 2:38 AM Daniel Walsh <dwalsh@redhat.com> wrote:
+>
+> On 7/21/21 18:17, Sujithra P wrote:
+> > Thanks Paul!
+> >
+> > Is there any specific centos/RH mailing list that I can ask? Not sure
+> > whether it is a problem with kernel/docker/kubelet.
+> > semodule -R seems to fix the problem, but not sure what is causing the
+> > loaded policy to get corrupt.
+> > Any insight on how to figure this out would be very much appreciated.
+> >
+> > Thanks
+> > Sujithra.
+> I am guessing that one of the containers is loading policy.  You should
+> be able to see something in the auditlog, about a policy load.
+> > On Wed, Jul 21, 2021 at 2:01 PM Paul Moore <paul@paul-moore.com> wrote:
+> >> On Wed, Jul 21, 2021 at 2:46 PM Sujithra P <sujithrap@gmail.com> wrote:
+> >>> Hi SELinux Experts,
+> >>>
+> >>> The following issue is described in the below post as well.
+> >>> https://github.com/containers/container-selinux/issues/141
+> >>>
+> >>> Occasionally running into the following selinux denials for docker
+> >>>
+> >>> type=AVC msg=audit(1626732057.636:4583): avc:  denied  { associate }
+> >>> for  pid=57450 comm="dockerd" name="/" dev="tmpfs" ino=150014
+> >>> scontext=system_u:object_r:container_file_t:s0:c263,c914
+> >>> tcontext=system_u:object_r:lib_t:s0 tclass=filesystem permissive=0
+> >>>
+> >>> type=AVC msg=audit(1626812823.170:9434): avc:  denied  { associate }
+> >>> for  pid=20027 comm="dockerd" name="/" dev="tmpfs" ino=198147
+> >>> scontext=system_u:object_r:container_file_t:s0:c578,c672
+> >>> tcontext=system_u:object_r:locale_t:s0 tclass=filesystem permissive=0
+> >>>
+> >>>
+> >>>   level=error msg="Handler for POST
+> >>> /v1.40/containers/a3a875e7896384e3bff53b8317e91ed4301a13957f42187eb227f28e09bd877c/start
+> >>> returned error: error setting label on mount source
+> >>> '/var/lib/kubelet/pods/f7cee5b2-bcd9-4aa1-9d67-c75b677ba2a1/volumes/kubernetes.io~secret/secret':
+> >>> failed to set file label on
+> >>> /var/lib/kubelet/pods/f7cee5b2-bcd9-4aa1-9d67-c75b677ba2a1/volumes/kubernetes.io~secret/secret:
+> >>> permission denied"
+> >>>
+> >>>
+> >>> Docker is not able to set labels for these tmpfs mounts because they
+> >>> end up having wrong labels when they are created (sometimes
+> >>> "locale_t", sometimes "lib_t" which of course is not the
+> >>> default/correct context for tmpfs fs).
+> >>> Apparently semodule -R and deleting these tmps files or reboot of the
+> >>> node fixes the problem.
+> >>> Not sure what is causing the tmpfs mounts to get wrong labels in the
+> >>> first place.
+> >>>
+> >>> Everything seems to be fine to begin with, but as the system keeps
+> >>> scheduling pods on the node, this behavior is observed sometimes (not
+> >>> consistent always).
+> >>>
+> >>>
+> >>> OS Details:
+> >>>
+> >>> NAME="CentOS Linux"
+> >>> VERSION="8 (Core)"
+> >>> ID="centos"
+> >>> ID_LIKE="rhel fedora"
+> >>> VERSION_ID="8"
+> >>> PLATFORM_ID="platform:el8"
+> >>> PRETTY_NAME="CentOS Linux 8 (Core)"
+> >>>
+> >>> Docker Version:
+> >>> Client: Docker Engine - Community
+> >>> Version: 19.03.13
+> >>> API version: 1.40
+> >>> Go version: go1.13.15
+> >>> Git commit: 4484c46d9d
+> >>> Built: Wed Sep 16 17:02:36 2020
+> >>> OS/Arch: linux/amd64
+> >>> Experimental: false
+> >>>
+> >>> Kubernetes Version*
+> >>> v1.20.8-gke.1500
+> >>>
+> >>>
+> >>> Any help on how to debug this issue  would be greatly appreciated.
+> >> This sounds like it might be a problem with CentOS and/or your Docker
+> >> install, have you tried talking with the RH/CentOS folks about this
+> >> problem?  We focus mostly on upstream issues here and it isn't clear
+> >> to me at this moment that this is an upstream issue.
+> >>
+> >> --
+> >> paul moore
+> >> www.paul-moore.com
+>
+>
