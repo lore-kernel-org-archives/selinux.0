@@ -2,136 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11645C4320E
-	for <selinux@archiver.kernel.org>; Fri, 23 Jul 2021 08:39:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCB73C4338F
+	for <selinux@archiver.kernel.org>; Fri, 23 Jul 2021 08:53:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F1B1C60E77
-	for <selinux@archiver.kernel.org>; Fri, 23 Jul 2021 08:39:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FAC660EBD
+	for <selinux@archiver.kernel.org>; Fri, 23 Jul 2021 08:53:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234386AbhGWH7W (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Jul 2021 03:59:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26070 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234586AbhGWH7V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jul 2021 03:59:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627029595;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0R6geRNUNQC0kRoF+lSv0pifLg2KS6M6ylGJCMhofy4=;
-        b=gZUldsYXEkdpe/4hGdjHeWiQLhYdBvSYDdJUY2Ny4NnLgfBu6TD8kzwA3BfRuYYDtwO+AG
-        g9ahe2PxhRJ+stgBHFkBoLdFLDBAMREjK74sAOQdeRXdXTUppLF01q392Ec/Ll8SAUouLP
-        DJ9ACnO/LLwVay0GjnWn3XI6Y1XPwy8=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-530-e78xadQ_PhCnsVKqVkPURQ-1; Fri, 23 Jul 2021 04:39:51 -0400
-X-MC-Unique: e78xadQ_PhCnsVKqVkPURQ-1
-Received: by mail-yb1-f197.google.com with SMTP id 16-20020a250b100000b029055791ebe1e6so991356ybl.20
-        for <selinux@vger.kernel.org>; Fri, 23 Jul 2021 01:39:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0R6geRNUNQC0kRoF+lSv0pifLg2KS6M6ylGJCMhofy4=;
-        b=h8wF4pLk/4qqj0CEbTWTvXJ9A1JgAY56crV+lVJyyzYn0iUaj/wEmoIQZxLljFqDoo
-         F3dDQj5LMI9hwrNmwkPsZcl8nz/wvmaOfzgl9A0pDTEoajEW1tSkKyQQax2Nt2bqG60E
-         NQjyG2EJBBmKaazeeoN0LUo2G63g20r7JhkqcrZvGs8adhzfZ8b8KrPcofVCrlBRc1lg
-         5Jcj3Nyzm0u8v6+a8RJ5EZtcQSnX5UpdCt9qpjk8USxQJhdmI4aXiKZ57MrI0bG+9VlF
-         /NL9SaVvqJq8jVVIzpRnJme5LbETE1U1XAyFmF2VTO+gIW4kE2y/jFmZupZ8UFPVQYVP
-         BemA==
-X-Gm-Message-State: AOAM531ZVyZ5p8F+UTaqlaGTEoxyXKq5I3ir+i/qvxe9SObf/MGBlzvO
-        Hq1V+nDTHclCtBMzUTlGJX3lau/U5bkmr7baQX7jmeFqSLKLdrgZtAYLlAk+LDz9mfSDX1Zfvlp
-        fUX0ZhBJ0Y14AHTXHID24EfyBbJ6RfcnZdw==
-X-Received: by 2002:a25:ad06:: with SMTP id y6mr4824945ybi.439.1627029591446;
-        Fri, 23 Jul 2021 01:39:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwoipMlzBA/c+4YtmIWldiJukH66ZNqDaJOTH+DaPJOdlJ6BqCck6ROt8is3ynzWvQ2IC9DyGQaGkkj7dNqS/Y=
-X-Received: by 2002:a25:ad06:: with SMTP id y6mr4824924ybi.439.1627029591301;
- Fri, 23 Jul 2021 01:39:51 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210624152515.1844133-1-omosnace@redhat.com>
-In-Reply-To: <20210624152515.1844133-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 23 Jul 2021 10:39:40 +0200
-Message-ID: <CAFqZXNtb-VdL9f8Ntg3RLZtP0x-7ZgEP1D0qL9fWCM7SPWcHXQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] userfaultfd: open userfaultfds with O_RDONLY
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Linux Security Module list 
+        id S230502AbhGWIM5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Jul 2021 04:12:57 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3459 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229492AbhGWIM5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jul 2021 04:12:57 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4GWN8w5q2yz6H8Fs;
+        Fri, 23 Jul 2021 16:41:52 +0800 (CST)
+Received: from roberto-ThinkStation-P620.huawei.com (10.204.63.22) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 23 Jul 2021 10:53:28 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <paul@paul-moore.com>
+CC:     <stephen.smalley.work@gmail.com>, <prsriva02@gmail.com>,
+        <tusharsu@linux.microsoft.com>, <nramas@linux.microsoft.com>,
+        <linux-integrity@vger.kernel.org>,
         <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        "Robert O'Callahan" <roc@ocallahan.org>
-Content-Type: text/plain; charset="UTF-8"
+        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Subject: [PATCH v4 0/3] ima: Provide more info about buffer measurement
+Date:   Fri, 23 Jul 2021 10:53:01 +0200
+Message-ID: <20210723085304.1760138-1-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.63.22]
+X-ClientProxiedBy: lhreml752-chm.china.huawei.com (10.201.108.202) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 24, 2021 at 5:25 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Since userfaultfd doesn't implement a write operation, it is more
-> appropriate to open it read-only.
->
-> When userfaultfds are opened read-write like it is now, and such fd is
-> passed from one process to another, SELinux will check both read and
-> write permissions for the target process, even though it can't actually
-> do any write operation on the fd later.
->
-> Inspired by the following bug report, which has hit the SELinux scenario
-> described above:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1974559
->
-> Reported-by: Robert O'Callahan <roc@ocallahan.org>
-> Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> I marked this as RFC, because I'm not sure if this has any unwanted side
-> effects. I only ran this patch through selinux-testsuite, which has a
-> simple userfaultfd subtest, and a reproducer from the Bugzilla report.
->
-> Please tell me whether this makes sense and/or if it passes any
-> userfaultfd tests you guys might have.
->
->  fs/userfaultfd.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index 14f92285d04f..24e14c36068f 100644
-> --- a/fs/userfaultfd.c
-> +++ b/fs/userfaultfd.c
-> @@ -986,7 +986,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
->         int fd;
->
->         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
-> -                       O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
-> +                       O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
->         if (fd < 0)
->                 return fd;
->
-> @@ -2088,7 +2088,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
->         mmgrab(ctx->mm);
->
->         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
-> -                       O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
-> +                       O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
->         if (fd < 0) {
->                 mmdrop(ctx->mm);
->                 kmem_cache_free(userfaultfd_ctx_cachep, ctx);
-> --
-> 2.31.1
+This patch set provides more information about buffer measurement. It
+requires the modification of the existing functions
+ima_measure_critical_data() and process_buffer_measurement() as, unlike
+for files, there is no integrity_iint_cache structure that can be used to
+store and retrieve at a later time the buffer measurement (there is no
+index, for files it is the inode number).
 
-Ping? Any comments on this patch?
+First, this patch set introduces the new function
+ima_get_current_hash_algo(), to obtain the algorithm used to calculate the
+buffer digest (patch 1).
+
+Second, it changes the type of return value of ima_measure_critical_data()
+and process_buffer_measurement() from void to int, to signal to the callers
+whether or not the buffer has been measured, or just the digest has been
+calculated and written to the supplied location (patch 2).
+
+Lastly, it adds two new parameters to the functions above ('digest' and
+'digest_len'), so that those functions can write the buffer digest to the
+location supplied by the callers (patch 3).
+
+This patch set replaces the patch 'ima: Add digest, algo, measured
+parameters to ima_measure_critical_data()' in:
+
+https://lore.kernel.org/linux-integrity/20210625165614.2284243-1-roberto.sassu@huawei.com/
+
+Changelog
+
+v3:
+- explain better the motivation for the patches (suggested by Mimi)
+
+v2:
+- remove assignments of ima_measure_critical_data() and
+  process_buffer_measurement() return values (suggested by Lakshmi)
+
+v1:
+- add digest_len parameter to ima_measure_critical_data() and
+  process_buffer_measurement() (suggested by Lakshmi)
+- fix doc formatting issues
+
+Huawei Digest Lists patch set:
+- introduce ima_get_current_hash_algo() (suggested by Mimi)
+- remove algo and measured parameters from ima_measure_critical_data() and
+  process_buffer_measurement() (suggested by Mimi)
+- return an integer from ima_measure_critical_data() and
+  process_buffer_measurement() (suggested by Mimi)
+- correctly check when process_buffer_measurement() should return earlier
+
+Roberto Sassu (3):
+  ima: Introduce ima_get_current_hash_algo()
+  ima: Return int in the functions to measure a buffer
+  ima: Add digest and digest_len params to the functions to measure a
+    buffer
+
+ include/linux/ima.h                          | 23 +++++--
+ security/integrity/ima/ima.h                 | 10 +--
+ security/integrity/ima/ima_appraise.c        |  2 +-
+ security/integrity/ima/ima_asymmetric_keys.c |  2 +-
+ security/integrity/ima/ima_init.c            |  3 +-
+ security/integrity/ima/ima_main.c            | 67 ++++++++++++++------
+ security/integrity/ima/ima_queue_keys.c      |  2 +-
+ security/selinux/ima.c                       |  6 +-
+ 8 files changed, 78 insertions(+), 37 deletions(-)
 
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+2.25.1
 
