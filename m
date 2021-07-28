@@ -2,149 +2,266 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0121EC4338F
-	for <selinux@archiver.kernel.org>; Wed, 28 Jul 2021 16:21:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29704C4338F
+	for <selinux@archiver.kernel.org>; Wed, 28 Jul 2021 16:58:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE43F60EC0
-	for <selinux@archiver.kernel.org>; Wed, 28 Jul 2021 16:21:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F272261038
+	for <selinux@archiver.kernel.org>; Wed, 28 Jul 2021 16:58:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbhG1QVW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Jul 2021 12:21:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21769 "EHLO
+        id S229542AbhG1Q6r (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Jul 2021 12:58:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:22053 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229515AbhG1QVW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Jul 2021 12:21:22 -0400
+        by vger.kernel.org with ESMTP id S229515AbhG1Q6q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Jul 2021 12:58:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627489280;
+        s=mimecast20190719; t=1627491524;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N2ROMHHpEqp2zK+5JNFUYl00yJlvuqdMk7fyTdniw0s=;
-        b=dRp2PFy/fKTA0LQUZawZAsP0TOrq/jDoaTzQ4INv3JJOaF7n0JhtjV5NhlKCGOJcWAXoMy
-        2wZOKhcWiS1TRgyhjdvFbU00KXtJ+OtASHMlywfZRQ7Y8omZTcKowTq13LsMxNuEjz/xz9
-        mRto4cu5/F2HV30oGh4Z83jbaGf6fzw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-15-ztQDgPosPDCcDBK5hzi_Iw-1; Wed, 28 Jul 2021 12:21:19 -0400
-X-MC-Unique: ztQDgPosPDCcDBK5hzi_Iw-1
-Received: by mail-wm1-f71.google.com with SMTP id k13-20020a05600c1c8db029025018ac4f7dso1116513wms.2
-        for <selinux@vger.kernel.org>; Wed, 28 Jul 2021 09:21:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=N2ROMHHpEqp2zK+5JNFUYl00yJlvuqdMk7fyTdniw0s=;
-        b=s/iX4nBvDX7QXKLqtLD1iap3l6RLn95Ss4E8CFe4kJ4bGSYyLAVbY7/T+OlL5bqTjM
-         3gzTpahvoiLJn7g+lnLxqeX0OUU77lxowoD7rqMpun+3L+I8wZYeIYsXCy1kFSBB3CeD
-         14xtT7+wjl9pI74BmQb2GCJLL6rI1+6c/a2k9558SFE6ApmdAkeh3/6Cwj1uKTiQcmeO
-         pNZlRaL013WAInZrP22XeCWu6BexsbqkPBCHekY2li3WPPYzCcWOJGn3l+PVx1k5RDNh
-         HBdL1BXniIlaWEcHfoDPH5Lw4dlzHxpBQsiQkshkGUV4YhaOitBYtIyZM6YLBQzMV9IU
-         nKWw==
-X-Gm-Message-State: AOAM532OIdy7h4FPeVsiIbtBV+BZNY1JxBnJVuUYSV4uWknwGxEYGNja
-        s44BKTo/DhzXbyJ6LoDks+J0KFLASBkO1r9J6gxXJjayCNSpoD0Z+bji7s7bfHlXXTPxLUjeIpj
-        hbckwNT4rnLMBBvo4zQ==
-X-Received: by 2002:a05:600c:3554:: with SMTP id i20mr546121wmq.68.1627489277974;
-        Wed, 28 Jul 2021 09:21:17 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzNNG5Lq6mIIGQNCRPOWqDLevyCEmtGBKp0QMEeUSpawS0ZtIhPq1GkHZ2XXOgu0mF9uznUBA==
-X-Received: by 2002:a05:600c:3554:: with SMTP id i20mr546099wmq.68.1627489277751;
-        Wed, 28 Jul 2021 09:21:17 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-97-57.dyn.eolo.it. [146.241.97.57])
-        by smtp.gmail.com with ESMTPSA id p3sm6765905wmp.25.2021.07.28.09.21.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jul 2021 09:21:17 -0700 (PDT)
-Message-ID: <8a07a88f56f25fbc542d7c07cd1a1c04ba7cf860.camel@redhat.com>
-Subject: Re: [PATCH RFC 0/9] sk_buff: optimize layout for GRO
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Florian Westphal <fw@strlen.de>, netdev@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Date:   Wed, 28 Jul 2021 18:21:16 +0200
-In-Reply-To: <CAHC9VhSTputyDZMrdU0SmO0gg=P3uskT6ejJkfOwn6bFgaFB3A@mail.gmail.com>
-References: <cover.1626879395.git.pabeni@redhat.com>
-         <1252ad17-3460-5e6a-8f0d-05d91a1a7b96@schaufler-ca.com>
-         <e6200ddd38510216f9f32051ce1acff21fc9c6d0.camel@redhat.com>
-         <2e9e57f0-98f9-b64d-fd82-aecef84835c5@schaufler-ca.com>
-         <d3fe6ae85b8fad9090288c553f8d248603758506.camel@redhat.com>
-         <CAHC9VhT0uuBdmmT1HhMjjQswiJxWuy3cZdRQZ4Zzf-H8n5arLQ@mail.gmail.com>
-         <20210724185141.GJ9904@breakpoint.cc>
-         <CAHC9VhSsNWSus4xr7erxQs_4GyfJYb7_6a8juisWue6Xc4fVkQ@mail.gmail.com>
-         <20210725162528.GK9904@breakpoint.cc>
-         <75982e4e-f6b1-ade2-311f-1532254e2764@schaufler-ca.com>
-         <20210725225200.GL9904@breakpoint.cc>
-         <d0186e8f-41f8-7d4d-5c2c-706bfe3c30cc@schaufler-ca.com>
-         <CAHC9VhSTputyDZMrdU0SmO0gg=P3uskT6ejJkfOwn6bFgaFB3A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=mlIO1Gw+OYgwgFs1ozS0Bi3nKA7RqRCbct3WZu+8B0A=;
+        b=fA3HjNvtY06C8YfCrOXNZZmkU7R75E4lLcvc6ntlO7UnsAJcL7VQP3Nof12awaE4SL3Jlq
+        JFf5qfC/xhKR9O3P7s+3rZ2XDHQ1V0OqEFH2bfNxfgFu1bdnbzWvkDKFYRv4jQ+sstr97J
+        nv1K2LqYqNS2sR8wUnrPfVosKTJoQnE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-99-WZfKuok_NnG68yJTf8F-4A-1; Wed, 28 Jul 2021 12:58:42 -0400
+X-MC-Unique: WZfKuok_NnG68yJTf8F-4A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7E0F6180FCCD
+        for <selinux@vger.kernel.org>; Wed, 28 Jul 2021 16:58:41 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.40.192.5])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8102960C05;
+        Wed, 28 Jul 2021 16:58:39 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH] Do not use Python slip
+Date:   Wed, 28 Jul 2021 18:58:35 +0200
+Message-Id: <20210728165835.186338-1-plautrba@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2021-07-26 at 22:51 -0400, Paul Moore wrote:
-> On Mon, Jul 26, 2021 at 11:13 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > On 7/25/2021 3:52 PM, Florian Westphal wrote:
-> > > Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > RedHat and android use SELinux and will want this. Ubuntu doesn't
-> > > > yet, but netfilter in in the AppArmor task list. Tizen definitely
-> > > > uses it with Smack. The notion that security modules are only used
-> > > > in fringe cases is antiquated.
-> > > I was not talking about LSM in general, I was referring to the
-> > > extended info that Paul mentioned.
-> > > 
-> > > If thats indeed going to be used on every distro then skb extensions
-> > > are not suitable for this, it would result in extr akmalloc for every
-> > > skb.
-> > 
-> > I am explicitly talking about the use of secmarks. All my
-> > references are uses of secmarks.
-> 
-> I'm talking about a void* which would contain LSM specific data; as I
-> said earlier, think of inodes.  This LSM specific data would include
-> the existing secmark data as well as network peer security information
-> which would finally (!!!) allow us to handle forwarded traffic and
-> enable a number of other fixes and performance improvements.
-> 
-> (The details are a bit beyond this discussion but it basically
-> revolves around us not having to investigate the import the packet
-> headers every time we want to determine the network peer security
-> attributes, we could store the resolved LSM information in the
-> sk_buff.security blob.)
+Python slip is not actively maintained anymore and it was used just as
+a polkit proxy. It looks like polkit dbus interface is quite simple to
+be used directly via python dbus module.
 
-I've investigated the feasibility of extending the secmark field to
-long/void*. I think that performance wise it should be doable on top of
-this series: the amount of allocated memory for sk_buff will not
-change, nor the amount of memory memseted at skb initialization time.
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ dbus/selinux_server.py             | 69 ++++++++++++++++++------------
+ python/sepolicy/sepolicy/sedbus.py |  9 ----
+ 2 files changed, 41 insertions(+), 37 deletions(-)
 
-I stumbled upon some uAPIs issues, as CT/nft expose a secmark related
-field via uAPI, changing that size without breaking esisting user-space 
-looks hard to me.
-
-Additionally, even patch 7/9 is problematic, as there are some in
-kernel users accessing and using the inner_ field regardless skb-
->encapsulation. That works while inner_* field are always
-initializared/zeored, but will break with the mentioned patch. The fix
-is doable, but large and complex. 
-
-To keep the scope of this series sane, I'll drop in the next iteration
-all the problematic patches - that is: no sk_buff layout change at all.
-
-If there is interest for such thing, it could still be added
-incrementally.
-
-Cheers,
-
-Paolo
-
-
+diff --git a/dbus/selinux_server.py b/dbus/selinux_server.py
+index be4f4557a9fa..b7c9378bcb5d 100644
+--- a/dbus/selinux_server.py
++++ b/dbus/selinux_server.py
+@@ -4,26 +4,33 @@ import dbus
+ import dbus.service
+ import dbus.mainloop.glib
+ from gi.repository import GObject
+-import slip.dbus.service
+-from slip.dbus import polkit
+ import os
+ import selinux
+ from subprocess import Popen, PIPE, STDOUT
+ 
+ 
+-class selinux_server(slip.dbus.service.Object):
++class selinux_server(dbus.service.Object):
+     default_polkit_auth_required = "org.selinux.semanage"
+ 
+     def __init__(self, *p, **k):
+         super(selinux_server, self).__init__(*p, **k)
+ 
++    def is_authorized(self, sender, action_id):
++        bus = dbus.SystemBus()
++        proxy = bus.get_object('org.freedesktop.PolicyKit1', '/org/freedesktop/PolicyKit1/Authority')
++        authority = dbus.Interface(proxy, dbus_interface='org.freedesktop.PolicyKit1.Authority')
++        subject = ('system-bus-name', {'name': sender})
++        result = authority.CheckAuthorization(subject, action_id, {}, 1, '')
++        return result[0]
++
+     #
+     # The semanage method runs a transaction on a series of semanage commands,
+     # these commands can take the output of customized
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.semanage")
+-    @dbus.service.method("org.selinux", in_signature='s')
+-    def semanage(self, buf):
++    @dbus.service.method("org.selinux", in_signature='s', sender_keyword="sender")
++    def semanage(self, buf, sender):
++        if not self.is_authorized(sender, "org.selinux.semanage"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         p = Popen(["/usr/sbin/semanage", "import"], stdout=PIPE, stderr=PIPE, stdin=PIPE, universal_newlines=True)
+         p.stdin.write(buf)
+         output = p.communicate()
+@@ -35,9 +42,10 @@ class selinux_server(slip.dbus.service.Object):
+     # on the server.  This output can be used with the semanage method on
+     # another server to make the two systems have duplicate policy.
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.customized")
+-    @dbus.service.method("org.selinux", in_signature='', out_signature='s')
+-    def customized(self):
++    @dbus.service.method("org.selinux", in_signature='', out_signature='s', sender_keyword="sender")
++    def customized(self, sender):
++        if not self.is_authorized(sender, "org.selinux.customized"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         p = Popen(["/usr/sbin/semanage", "export"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+         buf = p.stdout.read()
+         output = p.communicate()
+@@ -49,9 +57,10 @@ class selinux_server(slip.dbus.service.Object):
+     # The semodule_list method will return the output of semodule --list=full, using the customized polkit,
+     # since this is a readonly behaviour
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.semodule_list")
+-    @dbus.service.method("org.selinux", in_signature='', out_signature='s')
+-    def semodule_list(self):
++    @dbus.service.method("org.selinux", in_signature='', out_signature='s', sender_keyword="sender")
++    def semodule_list(self, sender):
++        if not self.is_authorized(sender, "org.selinux.semodule_list"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         p = Popen(["/usr/sbin/semodule", "--list=full"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+         buf = p.stdout.read()
+         output = p.communicate()
+@@ -62,25 +71,28 @@ class selinux_server(slip.dbus.service.Object):
+     #
+     # The restorecon method modifies any file path to the default system label
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.restorecon")
+-    @dbus.service.method("org.selinux", in_signature='s')
+-    def restorecon(self, path):
++    @dbus.service.method("org.selinux", in_signature='s', sender_keyword="sender")
++    def restorecon(self, path, sender):
++        if not self.is_authorized(sender, "org.selinux.restorecon"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         selinux.restorecon(str(path), recursive=1)
+ 
+     #
+     # The setenforce method turns off the current enforcement of SELinux
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.setenforce")
+-    @dbus.service.method("org.selinux", in_signature='i')
+-    def setenforce(self, value):
++    @dbus.service.method("org.selinux", in_signature='i', sender_keyword="sender")
++    def setenforce(self, value, sender):
++        if not self.is_authorized(sender, "org.selinux.setenforce"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         selinux.security_setenforce(value)
+ 
+     #
+     # The setenforce method turns off the current enforcement of SELinux
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.relabel_on_boot")
+-    @dbus.service.method("org.selinux", in_signature='i')
+-    def relabel_on_boot(self, value):
++    @dbus.service.method("org.selinux", in_signature='i', sender_keyword="sender")
++    def relabel_on_boot(self, value, sender):
++        if not self.is_authorized(sender, "org.selinux.relabel_on_boot"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         if value == 1:
+             fd = open("/.autorelabel", "w")
+             fd.close()
+@@ -111,9 +123,10 @@ class selinux_server(slip.dbus.service.Object):
+     #
+     # The change_default_enforcement modifies the current enforcement mode
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.change_default_mode")
+-    @dbus.service.method("org.selinux", in_signature='s')
+-    def change_default_mode(self, value):
++    @dbus.service.method("org.selinux", in_signature='s', sender_keyword="sender")
++    def change_default_mode(self, value, sender):
++        if not self.is_authorized(sender, "org.selinux.change_default_mode"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         values = ["enforcing", "permissive", "disabled"]
+         if value not in values:
+             raise ValueError("Enforcement mode must be %s" % ", ".join(values))
+@@ -122,9 +135,10 @@ class selinux_server(slip.dbus.service.Object):
+     #
+     # The change_default_policy method modifies the policy type
+     #
+-    @slip.dbus.polkit.require_auth("org.selinux.change_default_policy")
+-    @dbus.service.method("org.selinux", in_signature='s')
+-    def change_default_policy(self, value):
++    @dbus.service.method("org.selinux", in_signature='s', sender_keyword="sender")
++    def change_default_policy(self, value, sender):
++        if not self.is_authorized(sender, "org.selinux.change_default_policy"):
++            raise dbus.exceptions.DBusException("Not authorized")
+         path = selinux.selinux_path() + value
+         if os.path.isdir(path):
+             return self.write_selinux_config(policy=value)
+@@ -136,5 +150,4 @@ if __name__ == "__main__":
+     system_bus = dbus.SystemBus()
+     name = dbus.service.BusName("org.selinux", system_bus)
+     object = selinux_server(system_bus, "/org/selinux/object")
+-    slip.dbus.service.set_mainloop(mainloop)
+     mainloop.run()
+diff --git a/python/sepolicy/sepolicy/sedbus.py b/python/sepolicy/sepolicy/sedbus.py
+index 76b259ae27e8..39b53d47753a 100644
+--- a/python/sepolicy/sepolicy/sedbus.py
++++ b/python/sepolicy/sepolicy/sedbus.py
+@@ -2,7 +2,6 @@ import sys
+ import dbus
+ import dbus.service
+ import dbus.mainloop.glib
+-from slip.dbus import polkit
+ 
+ 
+ class SELinuxDBus (object):
+@@ -11,42 +10,34 @@ class SELinuxDBus (object):
+         self.bus = dbus.SystemBus()
+         self.dbus_object = self.bus.get_object("org.selinux", "/org/selinux/object")
+ 
+-    @polkit.enable_proxy
+     def semanage(self, buf):
+         ret = self.dbus_object.semanage(buf, dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def restorecon(self, path):
+         ret = self.dbus_object.restorecon(path, dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def setenforce(self, value):
+         ret = self.dbus_object.setenforce(value, dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def customized(self):
+         ret = self.dbus_object.customized(dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def semodule_list(self):
+         ret = self.dbus_object.semodule_list(dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def relabel_on_boot(self, value):
+         ret = self.dbus_object.relabel_on_boot(value, dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def change_default_mode(self, value):
+         ret = self.dbus_object.change_default_mode(value, dbus_interface="org.selinux")
+         return ret
+ 
+-    @polkit.enable_proxy
+     def change_default_policy(self, value):
+         ret = self.dbus_object.change_default_policy(value, dbus_interface="org.selinux")
+         return ret
+-- 
+2.32.0
 
