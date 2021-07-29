@@ -2,309 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26822C4320E
-	for <selinux@archiver.kernel.org>; Thu, 29 Jul 2021 02:26:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88784C4338F
+	for <selinux@archiver.kernel.org>; Thu, 29 Jul 2021 03:15:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0356A6103A
-	for <selinux@archiver.kernel.org>; Thu, 29 Jul 2021 02:26:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B2D260F59
+	for <selinux@archiver.kernel.org>; Thu, 29 Jul 2021 03:15:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233297AbhG2C0q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Jul 2021 22:26:46 -0400
-Received: from pi.codeconstruct.com.au ([203.29.241.158]:36012 "EHLO
-        codeconstruct.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbhG2C0q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Jul 2021 22:26:46 -0400
-Received: by codeconstruct.com.au (Postfix, from userid 10000)
-        id CC4D120226; Thu, 29 Jul 2021 10:21:03 +0800 (AWST)
-From:   Jeremy Kerr <jk@codeconstruct.com.au>
-To:     netdev@vger.kernel.org
-Cc:     Matt Johnston <matt@codeconstruct.com.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, linux-doc@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
-Subject: [PATCH net-next v4 00/15] Add Management Component Transport Protocol support
-Date:   Thu, 29 Jul 2021 10:20:38 +0800
-Message-Id: <20210729022053.134453-1-jk@codeconstruct.com.au>
-X-Mailer: git-send-email 2.30.2
+        id S233414AbhG2DPi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Jul 2021 23:15:38 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:7765 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233297AbhG2DPh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Jul 2021 23:15:37 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4GZwVm4ggHzYh8R;
+        Thu, 29 Jul 2021 11:09:36 +0800 (CST)
+Received: from dggpeml500023.china.huawei.com (7.185.36.114) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Thu, 29 Jul 2021 11:15:33 +0800
+Received: from ubuntu1804.huawei.com (10.67.174.58) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Thu, 29 Jul 2021 11:15:29 +0800
+From:   Xiu Jianfeng <xiujianfeng@huawei.com>
+To:     <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+        <eparis@parisplace.org>
+CC:     <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <wangweiyang2@huawei.com>
+Subject: [PATCH -next, v2] selinux: correct the return value when loads initial sids
+Date:   Thu, 29 Jul 2021 11:16:44 +0800
+Message-ID: <20210729031644.47679-1-xiujianfeng@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.58]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500023.china.huawei.com (7.185.36.114)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This series adds core MCTP support to the kernel. From the Kconfig
-description:
+It should not return 0 when SID 0 is assigned to isids.
+This patch fixes it.
 
-  Management Component Transport Protocol (MCTP) is an in-system
-  protocol for communicating between management controllers and
-  their managed devices (peripherals, host processors, etc.). The
-  protocol is defined by DMTF specification DSP0236.
+v2: remove the "out" label and return directly.
 
-  This option enables core MCTP support. For communicating with other
-  devices, you'll want to enable a driver for a specific hardware
-  channel.
+Fixes: e3e0b582c321a ("selinux: remove unused initial SIDs and improve handling")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+---
+ security/selinux/ss/policydb.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-This implementation allows a sockets-based API for sending and receiving
-MCTP messages via sendmsg/recvmsg on SOCK_DGRAM sockets. Kernel stack
-control is all via netlink, using existing RTM_* messages. The userspace
-ABI change is fairly small; just the necessary AF_/ETH_P_/ARPHDR_
-constants, a new sockaddr, and a new netlink attribute.
-
-For MAINTAINERS, I've just included netdev@ as the list entry. I'm happy
-to alter this based on preferences here - an alternative would be the
-OpenBMC list (the main user of the MCTP interface), or we can create a
-new list entirely.
-
-We have a couple of interface drivers almost ready to go at the moment,
-but those can wait until the core code has some review.
-
-This is v4 of the series; v1 and v2 were both RFC.
-
-selinux folks: CCing 01/15 due to the new PF_MCTP protocol family.
-
-linux-doc folks: CCing 15/15 for the new MCTP overview document.
-
-Review, comments, questions etc. are most welcome.
-
-Cheers,
-
-
-Jeremy
-
-v2:
- - change to match spec terminology: controller -> component
- - require specific capabilities for bind() & sendmsg()
- - add address and tag defintions to uapi
- - add selinux AF_MCTP table definitions
- - remove strict cflags; warnings are present in common headers
-
-v3:
- - require caps for MCTP bind() & send()
- - comment typo fixes
- - switch to an array for local EIDs
- - fix addrinfo dump iteration & error path
- - add RTM_DELADDR
- - remove GENMASK() and BIT() from uapi
-
-v4:
- - drop tun patch; that can be submitted separately
- - keep nipa happy: add maintainer CCs, including doc and selinux
- - net-next rebase
- - Include AF_MCTP in af_family_slock_keys and pf_family_names
- - Introduce MODULE_ definitions earlier
- - upstream change: set_link_af no longer called with RTNL held
- - add kdoc for net_device.mctp_ptr
- - don't inline mctp_rt_match_eid
- - require rtm_type == RTN_UNICAST in route management handlers
- - remove unused RTAX policy table
- - fix mctp_sock->keys rcu annotations
- - fix spurious rcu_read_unlock in route input
-
-Jeremy Kerr (10):
-  mctp: Add MCTP base
-  mctp: Add base socket/protocol definitions
-  mctp: Add base packet definitions
-  mctp: Add sockaddr_mctp to uapi
-  mctp: Add initial driver infrastructure
-  mctp: Add device handling and netlink interface
-  mctp: Add initial routing framework
-  mctp: Populate socket implementation
-  mctp: Implement message fragmentation & reassembly
-  mctp: Add MCTP overview document
-
-Matt Johnston (6):
-  mctp: Add netlink route management
-  mctp: Add neighbour implementation
-  mctp: Add neighbour netlink interface
-  mctp: Add dest neighbour lladdr to route output
-  mctp: Allow per-netns default networks
-  mctp: Allow MCTP on tun devices
-
- Documentation/networking/index.rst  |    1 +
- Documentation/networking/mctp.rst   |  213 ++++++
- MAINTAINERS                         |   12 +
- drivers/net/Kconfig                 |    2 +
- drivers/net/Makefile                |    1 +
- drivers/net/mctp/Kconfig            |    8 +
- drivers/net/mctp/Makefile           |    0
- include/linux/netdevice.h           |    3 +
- include/linux/socket.h              |    6 +-
- include/net/mctp.h                  |  235 ++++++
- include/net/mctpdevice.h            |   36 +
- include/net/net_namespace.h         |    4 +
- include/net/netns/mctp.h            |   36 +
- include/uapi/linux/if_arp.h         |    1 +
- include/uapi/linux/if_ether.h       |    3 +
- include/uapi/linux/if_link.h        |   10 +
- include/uapi/linux/mctp.h           |   36 +
- net/Kconfig                         |    1 +
- net/Makefile                        |    1 +
- net/mctp/Kconfig                    |   13 +
- net/mctp/Makefile                   |    3 +
- net/mctp/af_mctp.c                  |  396 ++++++++++
- net/mctp/device.c                   |  427 +++++++++++
- net/mctp/neigh.c                    |  342 +++++++++
- net/mctp/route.c                    | 1095 +++++++++++++++++++++++++++
- security/selinux/hooks.c            |    4 +-
- security/selinux/include/classmap.h |    4 +-
- 27 files changed, 2890 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/networking/mctp.rst
- create mode 100644 drivers/net/mctp/Kconfig
- create mode 100644 drivers/net/mctp/Makefile
- create mode 100644 include/net/mctp.h
- create mode 100644 include/net/mctpdevice.h
- create mode 100644 include/net/netns/mctp.h
- create mode 100644 include/uapi/linux/mctp.h
- create mode 100644 net/mctp/Kconfig
- create mode 100644 net/mctp/Makefile
- create mode 100644 net/mctp/af_mctp.c
- create mode 100644 net/mctp/device.c
- create mode 100644 net/mctp/neigh.c
- create mode 100644 net/mctp/route.c
-
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index defc5ef35c66..0ae1b718194a 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -874,7 +874,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+ 	rc = sidtab_init(s);
+ 	if (rc) {
+ 		pr_err("SELinux:  out of memory on SID table init\n");
+-		goto out;
++		return rc;
+ 	}
+ 
+ 	head = p->ocontexts[OCON_ISID];
+@@ -885,7 +885,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+ 		if (sid == SECSID_NULL) {
+ 			pr_err("SELinux:  SID 0 was assigned a context.\n");
+ 			sidtab_destroy(s);
+-			goto out;
++			return -EINVAL;
+ 		}
+ 
+ 		/* Ignore initial SIDs unused by this kernel. */
+@@ -897,12 +897,10 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+ 			pr_err("SELinux:  unable to load initial SID %s.\n",
+ 			       name);
+ 			sidtab_destroy(s);
+-			goto out;
++			return rc;
+ 		}
+ 	}
+-	rc = 0;
+-out:
+-	return rc;
++	return 0;
+ }
+ 
+ int policydb_class_isvalid(struct policydb *p, unsigned int class)
 -- 
-2.30.2
-
-
-
-Jeremy Kerr (10):
-  mctp: Add MCTP base
-  mctp: Add base socket/protocol definitions
-  mctp: Add base packet definitions
-  mctp: Add sockaddr_mctp to uapi
-  mctp: Add initial driver infrastructure
-  mctp: Add device handling and netlink interface
-  mctp: Add initial routing framework
-  mctp: Populate socket implementation
-  mctp: Implement message fragmentation & reassembly
-  mctp: Add MCTP overview document
-
-Matt Johnston (5):
-  mctp: Add netlink route management
-  mctp: Add neighbour implementation
-  mctp: Add neighbour netlink interface
-  mctp: Add dest neighbour lladdr to route output
-  mctp: Allow per-netns default networks
-
- Documentation/networking/index.rst  |    1 +
- Documentation/networking/mctp.rst   |  213 ++++++
- MAINTAINERS                         |   12 +
- drivers/net/Kconfig                 |    2 +
- drivers/net/Makefile                |    1 +
- drivers/net/mctp/Kconfig            |    8 +
- drivers/net/mctp/Makefile           |    0
- include/linux/netdevice.h           |    4 +
- include/linux/socket.h              |    6 +-
- include/net/mctp.h                  |  231 ++++++
- include/net/mctpdevice.h            |   36 +
- include/net/net_namespace.h         |    4 +
- include/net/netns/mctp.h            |   36 +
- include/uapi/linux/if_arp.h         |    1 +
- include/uapi/linux/if_ether.h       |    3 +
- include/uapi/linux/if_link.h        |   10 +
- include/uapi/linux/mctp.h           |   36 +
- net/Kconfig                         |    1 +
- net/Makefile                        |    1 +
- net/core/sock.c                     |    1 +
- net/mctp/Kconfig                    |   13 +
- net/mctp/Makefile                   |    3 +
- net/mctp/af_mctp.c                  |  396 ++++++++++
- net/mctp/device.c                   |  423 +++++++++++
- net/mctp/neigh.c                    |  342 +++++++++
- net/mctp/route.c                    | 1099 +++++++++++++++++++++++++++
- net/socket.c                        |    1 +
- security/selinux/hooks.c            |    4 +-
- security/selinux/include/classmap.h |    4 +-
- 29 files changed, 2889 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/networking/mctp.rst
- create mode 100644 drivers/net/mctp/Kconfig
- create mode 100644 drivers/net/mctp/Makefile
- create mode 100644 include/net/mctp.h
- create mode 100644 include/net/mctpdevice.h
- create mode 100644 include/net/netns/mctp.h
- create mode 100644 include/uapi/linux/mctp.h
- create mode 100644 net/mctp/Kconfig
- create mode 100644 net/mctp/Makefile
- create mode 100644 net/mctp/af_mctp.c
- create mode 100644 net/mctp/device.c
- create mode 100644 net/mctp/neigh.c
- create mode 100644 net/mctp/route.c
-
--- 
-2.30.2
-
-
-Jeremy Kerr (10):
-  mctp: Add MCTP base
-  mctp: Add base socket/protocol definitions
-  mctp: Add base packet definitions
-  mctp: Add sockaddr_mctp to uapi
-  mctp: Add initial driver infrastructure
-  mctp: Add device handling and netlink interface
-  mctp: Add initial routing framework
-  mctp: Populate socket implementation
-  mctp: Implement message fragmentation & reassembly
-  mctp: Add MCTP overview document
-
-Matt Johnston (5):
-  mctp: Add netlink route management
-  mctp: Add neighbour implementation
-  mctp: Add neighbour netlink interface
-  mctp: Add dest neighbour lladdr to route output
-  mctp: Allow per-netns default networks
-
- Documentation/networking/index.rst  |    1 +
- Documentation/networking/mctp.rst   |  213 ++++++
- MAINTAINERS                         |   12 +
- drivers/net/Kconfig                 |    2 +
- drivers/net/Makefile                |    1 +
- drivers/net/mctp/Kconfig            |    8 +
- drivers/net/mctp/Makefile           |    0
- include/linux/netdevice.h           |    4 +
- include/linux/socket.h              |    6 +-
- include/net/mctp.h                  |  231 ++++++
- include/net/mctpdevice.h            |   36 +
- include/net/net_namespace.h         |    4 +
- include/net/netns/mctp.h            |   36 +
- include/uapi/linux/if_arp.h         |    1 +
- include/uapi/linux/if_ether.h       |    3 +
- include/uapi/linux/if_link.h        |   10 +
- include/uapi/linux/mctp.h           |   36 +
- net/Kconfig                         |    1 +
- net/Makefile                        |    1 +
- net/core/sock.c                     |    1 +
- net/mctp/Kconfig                    |   13 +
- net/mctp/Makefile                   |    3 +
- net/mctp/af_mctp.c                  |  396 ++++++++++
- net/mctp/device.c                   |  423 +++++++++++
- net/mctp/neigh.c                    |  342 +++++++++
- net/mctp/route.c                    | 1099 +++++++++++++++++++++++++++
- net/socket.c                        |    1 +
- security/selinux/hooks.c            |    4 +-
- security/selinux/include/classmap.h |    4 +-
- 29 files changed, 2889 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/networking/mctp.rst
- create mode 100644 drivers/net/mctp/Kconfig
- create mode 100644 drivers/net/mctp/Makefile
- create mode 100644 include/net/mctp.h
- create mode 100644 include/net/mctpdevice.h
- create mode 100644 include/net/netns/mctp.h
- create mode 100644 include/uapi/linux/mctp.h
- create mode 100644 net/mctp/Kconfig
- create mode 100644 net/mctp/Makefile
- create mode 100644 net/mctp/af_mctp.c
- create mode 100644 net/mctp/device.c
- create mode 100644 net/mctp/neigh.c
- create mode 100644 net/mctp/route.c
-
--- 
-2.30.2
+2.17.1
 
