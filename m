@@ -7,121 +7,217 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A36BFC4338F
-	for <selinux@archiver.kernel.org>; Sun,  1 Aug 2021 14:31:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD934C4338F
+	for <selinux@archiver.kernel.org>; Sun,  1 Aug 2021 19:23:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E17C60EB5
-	for <selinux@archiver.kernel.org>; Sun,  1 Aug 2021 14:31:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C696460234
+	for <selinux@archiver.kernel.org>; Sun,  1 Aug 2021 19:23:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbhHAOcA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 1 Aug 2021 10:32:00 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:54428 "EHLO agnus.defensec.nl"
+        id S229848AbhHATXs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 1 Aug 2021 15:23:48 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:54430 "EHLO agnus.defensec.nl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232000AbhHAOcA (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sun, 1 Aug 2021 10:32:00 -0400
-X-Greylist: delayed 551 seconds by postgrey-1.27 at vger.kernel.org; Sun, 01 Aug 2021 10:31:59 EDT
-Received: from markus (markus.lan [IPv6:2001:985:d55d::123])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id C230B2A006A
-        for <selinux@vger.kernel.org>; Sun,  1 Aug 2021 16:22:36 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl C230B2A006A
+        id S229497AbhHATXr (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 1 Aug 2021 15:23:47 -0400
+Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 5D1482A006A
+        for <selinux@vger.kernel.org>; Sun,  1 Aug 2021 21:23:38 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 5D1482A006A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1627827756;
-        bh=PcuutTOYlz2jJ84fMACZw3nATXke48r2Nl5Q8vAv1gk=;
-        h=From:To:Subject:Date:From;
-        b=qv5BTWCUdLr4Y6nJJ8MFMWyOArAD55hZVqK0YX9EOCiv723aW7WSJ3WB8HO+d1wip
-         RPW6vdbosx5Ym6p5FgLCFkPrSSr6QoEoIm4GePHU+TctX7t9bh72kFARA0hFEe+7NE
-         2Fc/szpS7nfGAedA6vuzPNoVK7qolBu1iAD2te2o=
+        s=default; t=1627845818;
+        bh=HOk5QK86u+/rA28j2AswXElyAT4RZ56E39qDPfjUREI=;
+        h=From:To:Subject:References:Date:In-Reply-To:From;
+        b=VEo/Eq84br6RVEh5fiDpq1bm7Ez/4lwjiSlGpjhNE1bFqs4eyCudREW6fW3BThbYD
+         VyeW78sn54Py6JSjV7ynlVL9nGRoOBOBNecLXrRzQzC3iYQbeB4moLvusfKC8TgFFk
+         ALrp+CSmECYO0noC/BT3jDFsQVDMol1Z8iS52jmY=
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     selinux@vger.kernel.org
-Subject: libsepol regressions
-Date:   Sun, 01 Aug 2021 16:22:34 +0200
-Message-ID: <871r7dtfbp.fsf@defensec.nl>
+Subject: Re: libsepol regressions
+References: <871r7dtfbp.fsf@defensec.nl>
+Date:   Sun, 01 Aug 2021 21:23:35 +0200
+In-Reply-To: <871r7dtfbp.fsf@defensec.nl> (Dominick Grift's message of "Sun,
+        01 Aug 2021 16:22:34 +0200")
+Message-ID: <87k0l57yvc.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Dominick Grift <dominick.grift@defensec.nl> writes:
 
-Fedora recently decided to pull in various libsepol patches from
-master[1]
+> Fedora recently decided to pull in various libsepol patches from
+> master[1]
 
-My policy has broken down in various way's. Some changes make sense but
-some others I have issues with.
+Here are two examples (test1.cil and test2.cil)  that I think
+demonstrate some of my issues. Comment out the ";;the culprit" blocks to see
+it fail.
 
-An example of something I never expected to be allowed in the first
-place is re-declarations of blocks and recent changes exposed some instances
-where I declared blocks multiple times and got away with it.
+In the test1.cil scenario I previously was able to get around this by
+re-declaring the macro.
 
-However I also encountered issues that i am not sure how to deal
-with.
+In the test2.cil scenario I previously was able to get around this by
+re-declaring the block.
 
-re-declarations of macros are no longer allowed:
+I do not mind not being allowed to re-declare macros and blocks
+but then I would appreciate if I could use "in" to insert into them
+instead. If I cannot either re-declare nor "insert into" then templates
+become pretty useless due to the limitations.
 
-Take this example:
-https://github.com/DefenSec/dssp5/blob/dev/src/dev/termdev.cil
+ ---
 
-Here I inherit a set of macros from the
-"file.all_macro_template_chr_files" template and then I override some of these
-macros by manually re-declaring them with slighty different content (the
-xperm rules are appended).
+cat > test1.cil <<EOF
+;; what is the point of templates when you cannot access them?
 
-This use to be allowed but I am no longer allowed to redeclare macros.
+(sid kernel)
+(sidorder (kernel))
+(class CLASS1 (PERM1 PERM2))
+(classorder (unordered CLASS1))
 
-This would not necessarily be a big problem IF this would instead work:
+(type type)
+(typeattribute typeattr) 
 
-diff --git a/src/dev/termdev.cil b/src/dev/termdev.cil
-index 1c0fe66..4f067db 100644
---- a/src/dev/termdev.cil
-+++ b/src/dev/termdev.cil
-@@ -3,21 +3,9 @@
+(block block_a1
+(block block_a2
+(blockabstract block_a2)
+(macro macro_a1 ((type ARG1))
+(allow ARG1 type (CLASS1 (PERM1))))))
 
- (block termdev
+(block block_b1
+(type type)
+(blockinherit block_a1.block_a2))
 
--       (macro appendinherited_all_chr_files ((type ARG1))
--             (allow ARG1 typeattr appendinherited_chr_file)
--             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
--
--       (macro readwriteinherited_all_chr_files ((type ARG1))
--             (allow ARG1 typeattr readwriteinherited_chr_file)
--             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
--
-        (macro type ((type ARG1))
-              (typeattributeset typeattr ARG1))
+(block block_c1
+(type type)
+(call block_b1.macro_a1 (type)))
 
--       (macro writeinherited_all_chr_files ((type ARG1))
--             (allow ARG1 typeattr writeinherited_chr_file)
--             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
--
-        (typeattribute typeattr)
+(block block_d1
+(type type)
+(blockinherit block_a1.block_a2))
 
-        (blockinherit .file.all_macro_template_chr_files)
-@@ -33,3 +21,12 @@
+;;the culprit
+;;(in block_d1.macro_a1
+;;(allow ARG1 type (CLASS (PERM2))))
 
-              (allow typeattr termdev.typeatt
-                     (chr_file (not (execmod mounton))))))
-+
-+(in termdev.appendinherited_all_chr_files
-+    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
-+
-+(in termdev.readwriteinherited_all_chr_files
-+    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
-+
-+(in termdev.writeinherited_all_chr_files
-+    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+(block block_e1
+(type type)
+(call block_d1.macro_a1 (type)))
+EOF
+secilc test1.cil
 
-But the above in-statements cannot be resolved.
+ ---
 
-This is not the only instance where this approach does not work. I also
-have templates that declare blocks. I use to be allowed to re-declare
-these blocks so that I could add to them but this is no longer
-allowed. However these blocks also cannot be resolved outside of the
-templates, so I cannot use "in" to reference them.
+cat > test2.cil <<EOF
+;; what is the point of templates when you cannot access them?
 
-It seems as if the "in" blocks are resolved before the "blockinherit"
-blocks are expanded.
+(sid kernel)
+(sidorder (kernel))
+(class CLASS1 (PERM1 PERM2))
+(classorder (unordered CLASS1))
 
-[1] https://src.fedoraproject.org/rpms/libsepol/c/c59879b8aa30ceb601ac4e449ee5e958c6659fbc?branch=rawhide
+(type type)
+(typeattribute typeattr) 
+
+(block block_a1
+(type type)
+(allow type self (CLASS1 (PERM1)))
+(block block_a2
+(blockabstract block_a2)
+(type type)
+(allow type self (CLASS1 (PERM1)))
+(block block_a3
+(type type)
+(allow type self (CLASS1 (PERM1))))))
+
+(block block_b1
+(blockinherit block_a1.block_a2)
+(allow type self (CLASS1 (PERM2))))
+
+;;the culprit
+;;(in block_b1.block_a3
+;;(block block_b2
+;;(type type)))
+EOF
+secilc test2.cil
+
+>
+> My policy has broken down in various way's. Some changes make sense but
+> some others I have issues with.
+>
+> An example of something I never expected to be allowed in the first
+> place is re-declarations of blocks and recent changes exposed some instances
+> where I declared blocks multiple times and got away with it.
+>
+> However I also encountered issues that i am not sure how to deal
+> with.
+>
+> re-declarations of macros are no longer allowed:
+>
+> Take this example:
+> https://github.com/DefenSec/dssp5/blob/dev/src/dev/termdev.cil
+>
+> Here I inherit a set of macros from the
+> "file.all_macro_template_chr_files" template and then I override some of these
+> macros by manually re-declaring them with slighty different content (the
+> xperm rules are appended).
+>
+> This use to be allowed but I am no longer allowed to redeclare macros.
+>
+> This would not necessarily be a big problem IF this would instead work:
+>
+> diff --git a/src/dev/termdev.cil b/src/dev/termdev.cil
+> index 1c0fe66..4f067db 100644
+> --- a/src/dev/termdev.cil
+> +++ b/src/dev/termdev.cil
+> @@ -3,21 +3,9 @@
+>
+>  (block termdev
+>
+> -       (macro appendinherited_all_chr_files ((type ARG1))
+> -             (allow ARG1 typeattr appendinherited_chr_file)
+> -             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+> -
+> -       (macro readwriteinherited_all_chr_files ((type ARG1))
+> -             (allow ARG1 typeattr readwriteinherited_chr_file)
+> -             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+> -
+>         (macro type ((type ARG1))
+>               (typeattributeset typeattr ARG1))
+>
+> -       (macro writeinherited_all_chr_files ((type ARG1))
+> -             (allow ARG1 typeattr writeinherited_chr_file)
+> -             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+> -
+>         (typeattribute typeattr)
+>
+>         (blockinherit .file.all_macro_template_chr_files)
+> @@ -33,3 +21,12 @@
+>
+>               (allow typeattr termdev.typeatt
+>                      (chr_file (not (execmod mounton))))))
+> +
+> +(in termdev.appendinherited_all_chr_files
+> +    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+> +
+> +(in termdev.readwriteinherited_all_chr_files
+> +    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+> +
+> +(in termdev.writeinherited_all_chr_files
+> +    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>
+> But the above in-statements cannot be resolved.
+>
+> This is not the only instance where this approach does not work. I also
+> have templates that declare blocks. I use to be allowed to re-declare
+> these blocks so that I could add to them but this is no longer
+> allowed. However these blocks also cannot be resolved outside of the
+> templates, so I cannot use "in" to reference them.
+>
+> It seems as if the "in" blocks are resolved before the "blockinherit"
+> blocks are expanded.
+>
+> [1] https://src.fedoraproject.org/rpms/libsepol/c/c59879b8aa30ceb601ac4e449ee5e958c6659fbc?branch=rawhide
 
 -- 
 gpg --locate-keys dominick.grift@defensec.nl
