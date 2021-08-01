@@ -2,92 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FD0C4338F
-	for <selinux@archiver.kernel.org>; Sat, 31 Jul 2021 03:57:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A36BFC4338F
+	for <selinux@archiver.kernel.org>; Sun,  1 Aug 2021 14:31:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52D3C601FF
-	for <selinux@archiver.kernel.org>; Sat, 31 Jul 2021 03:57:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E17C60EB5
+	for <selinux@archiver.kernel.org>; Sun,  1 Aug 2021 14:31:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbhGaD5Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Jul 2021 23:57:16 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:12433 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231491AbhGaD5Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Jul 2021 23:57:16 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Gc9Nf39Hnzcjxq;
-        Sat, 31 Jul 2021 11:53:38 +0800 (CST)
-Received: from dggpeml500023.china.huawei.com (7.185.36.114) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Sat, 31 Jul 2021 11:57:05 +0800
-Received: from [10.67.110.112] (10.67.110.112) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Sat, 31 Jul 2021 11:57:04 +0800
-Subject: Re: [PATCH -next] selinux: correct the return value when loads
- initial sids
-To:     Paul Moore <paul@paul-moore.com>
-CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, <selinux@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <wangweiyang2@huawei.com>
-References: <20210728063110.3652-1-xiujianfeng@huawei.com>
- <CAHC9VhSAA5KmeG9-0t=A6wRyxuHZPLpZ4H=HE0FbT1fwcUeFnA@mail.gmail.com>
-From:   xiujianfeng <xiujianfeng@huawei.com>
-Message-ID: <8e53b6ba-2528-1509-71ec-b6ff8dad1e18@huawei.com>
-Date:   Sat, 31 Jul 2021 11:57:04 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S231791AbhHAOcA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 1 Aug 2021 10:32:00 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:54428 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232000AbhHAOcA (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 1 Aug 2021 10:32:00 -0400
+X-Greylist: delayed 551 seconds by postgrey-1.27 at vger.kernel.org; Sun, 01 Aug 2021 10:31:59 EDT
+Received: from markus (markus.lan [IPv6:2001:985:d55d::123])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id C230B2A006A
+        for <selinux@vger.kernel.org>; Sun,  1 Aug 2021 16:22:36 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl C230B2A006A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1627827756;
+        bh=PcuutTOYlz2jJ84fMACZw3nATXke48r2Nl5Q8vAv1gk=;
+        h=From:To:Subject:Date:From;
+        b=qv5BTWCUdLr4Y6nJJ8MFMWyOArAD55hZVqK0YX9EOCiv723aW7WSJ3WB8HO+d1wip
+         RPW6vdbosx5Ym6p5FgLCFkPrSSr6QoEoIm4GePHU+TctX7t9bh72kFARA0hFEe+7NE
+         2Fc/szpS7nfGAedA6vuzPNoVK7qolBu1iAD2te2o=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Subject: libsepol regressions
+Date:   Sun, 01 Aug 2021 16:22:34 +0200
+Message-ID: <871r7dtfbp.fsf@defensec.nl>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSAA5KmeG9-0t=A6wRyxuHZPLpZ4H=HE0FbT1fwcUeFnA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.110.112]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500023.china.huawei.com (7.185.36.114)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
-在 2021/7/28 23:56, Paul Moore 写道:
-> On Wed, Jul 28, 2021 at 2:30 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
->> It should not return 0 when SID 0 is assigned to isids.
->> This patch fixes it.
->>
->> Fixes: e3e0b582c321a ("selinux: remove unused initial SIDs and improve handling")
->> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
->> ---
->>   security/selinux/ss/policydb.c | 1 +
->>   1 file changed, 1 insertion(+)
->>
->> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
->> index defc5ef35c66..ad1183e18ce0 100644
->> --- a/security/selinux/ss/policydb.c
->> +++ b/security/selinux/ss/policydb.c
->> @@ -884,6 +884,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
->>
->>                  if (sid == SECSID_NULL) {
->>                          pr_err("SELinux:  SID 0 was assigned a context.\n");
->> +                       rc = -EINVAL;
->>                          sidtab_destroy(s);
->>                          goto out;
->>                  }
-> Hi Xiu Jianfeng,
->
-> Thanks for the patch, but since you are fixing the error handling in
-> policydb_load_isids(), would you mind respinning this patch to get rid
-> of the "out" label and just have all of the associated callers return
-> directly instead?  I generally dislike jump targets that do nothing
-> else other than return a value; those 'goto X;' statements can easily
-> be converted into 'return Y;' statements.
-no problem, please check the v2 patch.
->
-> Thanks.
->
+Fedora recently decided to pull in various libsepol patches from
+master[1]
+
+My policy has broken down in various way's. Some changes make sense but
+some others I have issues with.
+
+An example of something I never expected to be allowed in the first
+place is re-declarations of blocks and recent changes exposed some instances
+where I declared blocks multiple times and got away with it.
+
+However I also encountered issues that i am not sure how to deal
+with.
+
+re-declarations of macros are no longer allowed:
+
+Take this example:
+https://github.com/DefenSec/dssp5/blob/dev/src/dev/termdev.cil
+
+Here I inherit a set of macros from the
+"file.all_macro_template_chr_files" template and then I override some of these
+macros by manually re-declaring them with slighty different content (the
+xperm rules are appended).
+
+This use to be allowed but I am no longer allowed to redeclare macros.
+
+This would not necessarily be a big problem IF this would instead work:
+
+diff --git a/src/dev/termdev.cil b/src/dev/termdev.cil
+index 1c0fe66..4f067db 100644
+--- a/src/dev/termdev.cil
++++ b/src/dev/termdev.cil
+@@ -3,21 +3,9 @@
+
+ (block termdev
+
+-       (macro appendinherited_all_chr_files ((type ARG1))
+-             (allow ARG1 typeattr appendinherited_chr_file)
+-             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+-
+-       (macro readwriteinherited_all_chr_files ((type ARG1))
+-             (allow ARG1 typeattr readwriteinherited_chr_file)
+-             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+-
+        (macro type ((type ARG1))
+              (typeattributeset typeattr ARG1))
+
+-       (macro writeinherited_all_chr_files ((type ARG1))
+-             (allow ARG1 typeattr writeinherited_chr_file)
+-             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+-
+        (typeattribute typeattr)
+
+        (blockinherit .file.all_macro_template_chr_files)
+@@ -33,3 +21,12 @@
+
+              (allow typeattr termdev.typeatt
+                     (chr_file (not (execmod mounton))))))
++
++(in termdev.appendinherited_all_chr_files
++    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
++
++(in termdev.readwriteinherited_all_chr_files
++    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
++
++(in termdev.writeinherited_all_chr_files
++    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+
+But the above in-statements cannot be resolved.
+
+This is not the only instance where this approach does not work. I also
+have templates that declare blocks. I use to be allowed to re-declare
+these blocks so that I could add to them but this is no longer
+allowed. However these blocks also cannot be resolved outside of the
+templates, so I cannot use "in" to reference them.
+
+It seems as if the "in" blocks are resolved before the "blockinherit"
+blocks are expanded.
+
+[1] https://src.fedoraproject.org/rpms/libsepol/c/c59879b8aa30ceb601ac4e449ee5e958c6659fbc?branch=rawhide
+
+-- 
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+Dominick Grift
