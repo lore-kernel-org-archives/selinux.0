@@ -2,169 +2,313 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18A5FC4320A
-	for <selinux@archiver.kernel.org>; Tue,  3 Aug 2021 18:53:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FA7BC4338F
+	for <selinux@archiver.kernel.org>; Wed,  4 Aug 2021 07:36:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EEF6E60725
-	for <selinux@archiver.kernel.org>; Tue,  3 Aug 2021 18:53:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 381C260EBC
+	for <selinux@archiver.kernel.org>; Wed,  4 Aug 2021 07:36:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238111AbhHCSxP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 Aug 2021 14:53:15 -0400
-Received: from mx0b-00105401.pphosted.com ([67.231.152.184]:46090 "EHLO
-        mx0a-00105401.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S238068AbhHCSxO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 Aug 2021 14:53:14 -0400
-X-Greylist: delayed 2466 seconds by postgrey-1.27 at vger.kernel.org; Tue, 03 Aug 2021 14:53:14 EDT
-Received: from pps.filterd (m0081755.ppops.net [127.0.0.1])
-        by mx0b-00105401.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 173I5abE011027;
-        Tue, 3 Aug 2021 18:11:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=collins.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=POD051818;
- bh=76WliAxBglR1+VQHDEUiszQUHeVtV4PvjO47LxYivDc=;
- b=Ps8+aPevKDmUkJXhEzWU1uCh554DePirC67tlU9aVOYkLkTT+70xOjeK5wVCQ6iAQxpf
- 9tQwMJXvEqp9yL2flevhSI/WqdGnVlsihwAktIvbNUl0FadPnbl5r9O/NhvexRGuPakN
- k5gflIa4wM0Lb6/w72JRzjQpvgxTfkcJZhFjzwYSO79AvWEIzxaqOyWckH4pmDbFuj0Z
- kqKywq0Dfj8SyTqTzoQEnt/lqJLyrV3vUhKJ7On0JCgmJ7z1aAfJ3p5zxAK1i/UVCZ7P
- 6X+Y67ukNr2dfAB5w6gTXv4UFFaWD//AouA8dCRUQzpR2LLqTxoAaK7qf/BvJKmulqMg 4A== 
-Received: from xmnpv38.utc.com ([167.17.255.18])
-        by mx0b-00105401.pphosted.com with ESMTP id 3a4wgr74cq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 03 Aug 2021 18:11:53 +0000
-Received: from qusnwadv.utcapp.com (QUSNWADV.utcapp.com [10.161.48.86])
-        by xmnpv38.utc.com (8.16.0.27/8.16.0.27) with ESMTPS id 173IBquj048541
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Tue, 3 Aug 2021 18:11:52 GMT
-Received: from UUSALE0T.utcmail.com (UUSALE0T.utcmail.com [10.220.35.38])
-        by qusnwadv.utcapp.com (8.16.1.2/8.16.1.2) with ESMTPS id 173IBpXa002170
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Tue, 3 Aug 2021 18:11:51 GMT
-Received: from uusale2a.utcmail.com (10.220.63.20) by UUSALE0T.utcmail.com
- (10.220.35.38) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 3 Aug
- 2021 14:11:51 -0400
-Received: from uusale2b.utcmail.com (10.220.63.21) by uusale2a.utcmail.com
- (10.220.63.20) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 3 Aug
- 2021 14:11:51 -0400
-Received: from USG02-CY1-obe.outbound.protection.office365.us (23.103.199.179)
- by uusale2b.utcmail.com (10.220.63.21) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2 via Frontend Transport; Tue, 3 Aug 2021 14:11:51 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector5401; d=microsoft.com; cv=none;
- b=kStAW7uj8CkK3OUakCuLnfQS1IpT8kgsXP3lUhzIoa4F1aofMDe04SVujVUYuEzIyilcsfVHklbMrPKOXBfrNgIDq1qzPS7lI2n9o5pCHFLEbAifbB9cewZY5GiNhtBZsI9heSY4zxUaXryqbBFeTvneaDsdnHOFWTcTw5LIQG3v8IpvaU3fd5CO1zTo8eE6GYPi9ISYA2ReMIPWLiPDhhxlzMSdS8giLV+qzM+5I6UN5xVra6vX9avdSRftzTemu0U7L/wFgw8aaw/AGcdgtP0BJfZpSjzzHZJA/O+g8Yb48bS+vtWAAWxmHk1yRlxCjiY0YyPH0UGDz/koRFGGEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector5401;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=76WliAxBglR1+VQHDEUiszQUHeVtV4PvjO47LxYivDc=;
- b=old3GiqXIre2Qz0VUxgcpJUK4lsWo8w0EGdrtL6rffgrLsih5Pemn3IhHJu4N4iSvgeO9PFe4BtqStYnm4/xJ/7Neg7KHAWLaOIxYI1ZV6e0NLOtKwkxMJUipzsB4I9GS76Y+QDo6TYUarS17lhWA9S2qkYfb39eEtlxkdpBOfMZLp6k2veHw9WeStddop9ECNEtYq4ekXrzgBp0EXnW4QH4L3/WIG7tdwdc25DMZEp14giTBXS5rqL3gxZongxaVh/CAEMr4haqcFWH/O1MCKlGJHkwj7urlDF/H/ekPrTxSQ0PRY+hi/+SYGlRoiRRb+dIQ03D3b5xxPYGzcgJ+A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=collins.com; dmarc=pass action=none header.from=collins.com;
- dkim=pass header.d=collins.com; arc=none
-Received: from CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM (23.103.22.213) by
- CY1P110MB0408.NAMP110.PROD.OUTLOOK.COM (52.145.1.13) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4352.26; Tue, 3 Aug 2021 18:11:50 +0000
-Received: from CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM ([23.103.22.213]) by
- CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM ([23.103.22.213]) with mapi id
- 15.20.4352.035; Tue, 3 Aug 2021 18:11:50 +0000
-From:   "Weber, Matthew L Collins" <Matthew.Weber@collins.com>
-To:     Dominick Grift <dominick.grift@defensec.nl>
-CC:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "Graziano, David D Collins" <david.graziano@collins.com>
-Subject: Re: [External] Re: LSM policy options for new GPIO kernel driver
- interface
-Thread-Topic: [External] Re: LSM policy options for new GPIO kernel driver
- interface
-Thread-Index: AQHXh74Xb4H0KBgsCUed2I7e1DOhn6tiCRAvgAAG8ZA=
-Date:   Tue, 3 Aug 2021 18:11:50 +0000
-Message-ID: <CY1P110MB010233780A4A54DE7580F9FBF2F09@CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM>
-References: <CY1P110MB0102ED0206E9498C742F6DC0F2EF9@CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM>,<87im0m789b.fsf@defensec.nl>
-In-Reply-To: <87im0m789b.fsf@defensec.nl>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: defensec.nl; dkim=none (message not signed)
- header.d=none;defensec.nl; dmarc=none action=none header.from=collins.com;
-x-originating-ip: [50.80.23.253]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 4c6825fe-fd5f-46b1-688b-08d956aa2a40
-x-ms-traffictypediagnostic: CY1P110MB0408:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <CY1P110MB0408A86B4BBCB53AE46C82CCF2F09@CY1P110MB0408.NAMP110.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: WFs8fbL5z3kSASEE1oSZTxHmHSq6BqG5SCX1J1+tg78x4jt5hf4nuEk9NRkfMCUCsQnD632Ryx67LtnAZi/5+ON+5JbXMyB309hKmhb9AGYvpwp80MA+CKbMIBVu6tzDLzBpyCnyDcjq31GjjUduTXeG7Y2jJjubUKXjEuDn/roAikzGcPjhbu72Au1yT3e4cxEx4oyoov4hQgnB95roPDQw4uxkho54PjWcivhQ+jbA2u7Bq/6Hby0a5hyPgiV5ElqSymLyVOuaq48/nFusekZHvResd2A4aHO9QjK6hweMFm1+73rG4macEqYkTm1MWUfXoGX6eWjuWKHYhlUrw4tJgeeyYq0hgSRo6fuzkInINQ+Wc3NxQPmwYlMjiBgPbr6VLFPW9jfrp65D4Q+M25Opi8Q9WdcOQ/yI846bXGWrMTrRASUaFo70SWvlXZj61QUYpeO+gL65q9sHv+oTK2j8trr+ZULeudqEZQa7PcMSJ5pwHPpZu3ejlkf/S9PLtA9p/Q0rpML1U7761YfKkpNyGjP0w+rTa9tyR9nLSRTfwXClPhBSYoCxNUxwovN89DHl856gMq1zA3NyKy2wd7eokQ/raoh+Komf0HU3TWkOPyD/kiEGVG5c71y7ILxv
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(396003)(39860400002)(376002)(136003)(346002)(366004)(6916009)(8936002)(71200400001)(956004)(86362001)(186003)(38070700005)(122000001)(26005)(54906003)(66476007)(52536014)(66556008)(478600001)(66946007)(66446008)(8676002)(64756008)(76116006)(107886003)(38100700002)(55016002)(2906002)(83380400001)(316002)(6506007)(53546011)(33656002)(4326008)(7696005)(9686003)(5660300002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: YAGPdA5bd8oGSDQPSzmELu9KaR5F5aVFDHOj+dzJRulaNfMFiaR3HApWiYTUW5hSFRIyZafEwqfT1TNU9yIpjuuv7bJCVDDPjtSYxrjf4JRgyhu/iIibhH+T2eRkPoZy0mnH+9eAhBUDhrlRuA4jQPaAenGyICFWIsLnwzumm2JWmxwJ+kIDLEOpXZTQeuzlcVZeQEDx6MZXNm5+HwyJz9xcC4jK7qNbIOsvq7UF1p7Ovnf3IGdvEUABE+H+MYg6KaaL0kjsrAlDA4Fz+dcYLocl37YW48QS7CgyLr6nIha/ohlvZw0U5dJw/014bBGEJoIfAOKqKs5tIs/g+fLqJqLE6LcVmLBiz6o/WztBsrk0FprlOo3HnMeJZXG6i8KvzunIVcmjLQ7VBpwyXTHGHe7OUXTgdC8hqPMgl8nAnpZJlNwLTWP24e/OrFK8BFNGBpinA2oA2G52m6IAWec4Br0Xu1go2qj0KLZpGr66q78LnSiEhJUiMB6cbncM871fmuSbdgvifgcRyjorMdn6i3uQlFsMB4PtALOHxd1TXbv+0EAR+soR6N2K57pD2gQjwNn6QWdm03A7iJ73Ec4y3Fm7Inuq7mr+MPt4Ew5nh0WKXa8d7cZadJOvPfbzBqcwjkhcgSJ30BVqGlVLM5U+2zqVy6XEeXvt2MCGBT75rhoJinwz22g/tYLwPAjFCSwF3EDqnGcf2m/Lk4N3N2NuzQ==
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S235946AbhHDHgN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Aug 2021 03:36:13 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:54444 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235809AbhHDHgN (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 4 Aug 2021 03:36:13 -0400
+Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 64BAD2A008A;
+        Wed,  4 Aug 2021 09:35:59 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 64BAD2A008A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1628062559;
+        bh=vACXs95eDeBF1DUeW+hQHZ5wWUO5X4oJYyRvYUIEzxA=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=FZnRyjdUzUWCrt+k/pz5Cngk/HSQCCm9Q7tluY3z31UBbWtYxlLTuWLC+sfbARSBm
+         DeaIqWoU8BMxfFVHHx9QrP5zljJWum/woQ0Six2D6S3S+eaNKw5Urb3E/7AlSgcIHA
+         jDzeMDBHzyCmVjiO1tq/2iQMZkz4laF/SsFZ0Fzo=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Subject: Re: libsepol regressions
+References: <871r7dtfbp.fsf@defensec.nl>
+        <CAP+JOzQt1pxNMZuPK_dzdDHtshrrpEo1ynkFq7CaNpCG1n_JyA@mail.gmail.com>
+Date:   Wed, 04 Aug 2021 09:35:56 +0200
+In-Reply-To: <CAP+JOzQt1pxNMZuPK_dzdDHtshrrpEo1ynkFq7CaNpCG1n_JyA@mail.gmail.com>
+        (James Carter's message of "Mon, 2 Aug 2021 10:50:19 -0400")
+Message-ID: <878s1h7jc3.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY1P110MB0102.NAMP110.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4c6825fe-fd5f-46b1-688b-08d956aa2a40
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Aug 2021 18:11:50.0919
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 7a18110d-ef9b-4274-acef-e62ab0fe28ed
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1P110MB0408
-X-PassedThroughOnPremises: Yes
-X-OriginatorOrg: Collins.com
-X-Proofpoint-GUID: 1imWxFh_mtUfTX8b3Kkdh7S5LL_uUSvj
-X-Proofpoint-ORIG-GUID: 1imWxFh_mtUfTX8b3Kkdh7S5LL_uUSvj
-X-Proofpoint-Spam-Details: rule=outbound_default_notspam policy=outbound_default score=0 adultscore=0
- impostorscore=0 priorityscore=1501 suspectscore=0 mlxlogscore=999
- clxscore=1011 mlxscore=0 spamscore=0 malwarescore=0 bulkscore=0
- phishscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2107140000 definitions=main-2108030117
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dominick,=0A=
-=0A=
-> From: Dominick Grift <dominick.grift@defensec.nl>=0A=
-> Sent: Tuesday, August 3, 2021 12:22 PM=0A=
-> To: Weber, Matthew L Collins <Matthew.Weber@collins.com>=0A=
-> Cc: selinux@vger.kernel.org <selinux@vger.kernel.org>; linux-security-mod=
-ule@vger.kernel.org <linux-security-module@vger.kernel.org>; Graziano, > Da=
-vid D Collins <david.graziano@collins.com>=0A=
-> Subject: [External] Re: LSM policy options for new GPIO kernel driver int=
-erface =0A=
-> =A0=0A=
-=0A=
-[snip]=0A=
-=0A=
-> =0A=
-> SELinux supports IOCTL allow-listing and so access to the various GPIO=0A=
-> IOCTL can probably already be controlled.=0A=
-> =0A=
-=0A=
-We had been looking at this option but noticed the GPIO are broken out in g=
-roups by the "chip" providing them so a granular single IO "write" action c=
-an't be controlled through an allow-listing.  One idea we were going to loo=
-k into was to break out all the IO in a chip as minor dev nodes which then =
-could have specific IOCTL controls applied.  The default policy could restr=
-ict the "chip" node and then have broken out rules for each minor IO.=0A=
-=0A=
-> Other than that you could consider adding LSM hooks for GPIO object=0A=
-> related syscalls and adding SELinux check for GPIO syscall operations=0A=
-> but not sure if that adds any value to the above.=0A=
-=0A=
-Assuming you're referring to something like SECCOMP filtering the IOCTL, th=
-at would shift the responsibility to userspace to properly use the SECCOMP =
-filter...  Or are you referring to new hooks on the kernel side of the sysc=
-all handling that would partially decode the payload of the call?=0A=
-=0A=
-Thanks for the response on this.  I wanted to have some debate before reach=
-ing out to the GPIO maintainers to look at options from their perspective.=
-=0A=
-=0A=
-Best Regards,=0A=
-Matt=
+James Carter <jwcart2@gmail.com> writes:
+
+> On Sun, Aug 1, 2021 at 10:32 AM Dominick Grift
+> <dominick.grift@defensec.nl> wrote:
+>>
+>>
+>> Fedora recently decided to pull in various libsepol patches from
+>> master[1]
+>>
+>> My policy has broken down in various way's. Some changes make sense but
+>> some others I have issues with.
+>>
+>> An example of something I never expected to be allowed in the first
+>> place is re-declarations of blocks and recent changes exposed some instances
+>> where I declared blocks multiple times and got away with it.
+>>
+>> However I also encountered issues that i am not sure how to deal
+>> with.
+>>
+>> re-declarations of macros are no longer allowed:
+>>
+>
+> Re-declarations were never supposed to be allowed (other than the
+> declaration of types and typeattributes when using the -m flag), but
+> there were not sufficient checks being done when copying the CIL AST
+> when expanding macro calls, resolving the inheritance of blocks, and
+> things like that.
+>
+> The result was behavior that depends on the rule order and one of the
+> principles of CIL is that there would be no rule order dependencies.
+>
+>> Take this example:
+>> https://github.com/DefenSec/dssp5/blob/dev/src/dev/termdev.cil
+>>
+>> Here I inherit a set of macros from the
+>> "file.all_macro_template_chr_files" template and then I override some of these
+>> macros by manually re-declaring them with slighty different content (the
+>> xperm rules are appended).
+>>
+>> This use to be allowed but I am no longer allowed to redeclare macros.
+>>
+>
+> I can see that this might be useful behavior.
+>
+>> This would not necessarily be a big problem IF this would instead work:
+>>
+>> diff --git a/src/dev/termdev.cil b/src/dev/termdev.cil
+>> index 1c0fe66..4f067db 100644
+>> --- a/src/dev/termdev.cil
+>> +++ b/src/dev/termdev.cil
+>> @@ -3,21 +3,9 @@
+>>
+>>  (block termdev
+>>
+>> -       (macro appendinherited_all_chr_files ((type ARG1))
+>> -             (allow ARG1 typeattr appendinherited_chr_file)
+>> -             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>> -
+>> -       (macro readwriteinherited_all_chr_files ((type ARG1))
+>> -             (allow ARG1 typeattr readwriteinherited_chr_file)
+>> -             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>> -
+>>         (macro type ((type ARG1))
+>>               (typeattributeset typeattr ARG1))
+>>
+>> -       (macro writeinherited_all_chr_files ((type ARG1))
+>> -             (allow ARG1 typeattr writeinherited_chr_file)
+>> -             (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>> -
+>>         (typeattribute typeattr)
+>>
+>>         (blockinherit .file.all_macro_template_chr_files)
+>> @@ -33,3 +21,12 @@
+>>
+>>               (allow typeattr termdev.typeatt
+>>                      (chr_file (not (execmod mounton))))))
+>> +
+>> +(in termdev.appendinherited_all_chr_files
+>> +    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>> +
+>> +(in termdev.readwriteinherited_all_chr_files
+>> +    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>> +
+>> +(in termdev.writeinherited_all_chr_files
+>> +    (allowx ARG1 typeattr (ioctl chr_file (not (0x5412)))))
+>>
+>> But the above in-statements cannot be resolved.
+>>
+>
+> I think that overriding the macros would make more sense, but I'll
+> have to think about it.
+>
+> It would be a pain, but you could do something like:
+> (block B1
+>   (macro M1 (...)
+>     ...
+>   )
+>   (macro M2 (...)
+>     ...
+>   )
+> )
+>
+> (block B2
+>   (block parent
+>     (blockinherit B1)
+>   )
+>   (macro M1 (...)
+>     (call parent.M1 (...))
+>     ...
+>   )
+>   (macro M2 (...)
+>     (call parent.MA (...))
+>     ...
+>   )
+> )
+>
+>> This is not the only instance where this approach does not work. I also
+>> have templates that declare blocks. I use to be allowed to re-declare
+>> these blocks so that I could add to them but this is no longer
+>> allowed. However these blocks also cannot be resolved outside of the
+>> templates, so I cannot use "in" to reference them.
+>>
+>> It seems as if the "in" blocks are resolved before the "blockinherit"
+>> blocks are expanded.
+>>
+>
+> It is true that in-statements are resolved before inheritance, so what
+> you have above would not work.
+>
+> If you are just adding rules and not declarations, then you don't have
+> to put the rules in the block.
+> Example:
+> (block B1
+>   (block B
+>     (type t)
+>    )
+> )
+> (block B2
+>   (blockinherit B1)
+>   (allow B.t self (CLASS (PERM)))
+> )
+
+Ive been trying to translate this to a actual use-case in my policy to
+see if that would suffice.
+
+I have these high level "content" templates that basically allow you to
+inherit a whole skeleton without filecon's because a skeleton can be
+generic but filecon's are specific so they have to be added later.
+
+(block skel
+  (type type)
+  (allow ...)
+  (block conf
+  (type type)
+  (allow ...))
+  (block exec
+  (type type)
+  (allow ,,,))
+  etc...)
+
+These skeletons can then be inherited and the filecons (and custom rules)
+can be added later:
+
+(block myapp
+  (blockinherit skel)
+  (allow ...))
+
+With 3.2 I was able to mimic in-statements by re-declaring the
+blocks so that I would be able to insert the filecons (and custom rules)
+later:
+
+(block myapp
+  (blockinherit shel)
+  (allow ...)
+  (block conf
+    (filecon "/etc/myapp" file file_context))
+  (block exec
+    (filecon "/bin/myapp" file file_context)))
+
+If in-statements would be resolved after inheritance then I could do:
+
+(block myapp
+  (blockiherit skel)
+  (allow ...))
+
+(in myapp.conf
+  (filecon "/etc/myapp" file file_context))
+
+(in myapp.exec
+  (filecon "/bin/myapp" file file_context))
+
+Your suggestion would be suffice if I would use raw filecons instead of
+context:
+
+(block myapp
+  (blockinherit skel)
+  (allow ...)
+  (filecon "/etc/myapp" file (sys.id sys.role myapp.conf.type
+  ((s0)(s0))))
+  (filecon "/bin/myapp" file (sys.id sys.role myapp.exec.type
+  ((s0)(s0)))))
+
+But then that would be yet another inconsistency that would be hard to explain:
+Can only use file_context keyword in filecon if you don't use
+inheritance.
+
+Not to mention macro's. If there is one thing I dislike then its having to
+duplicate macros everywhere. I like to template macros from the ground
+up to reduce points of failure and to encourage consistency. This
+implies inheritance as well.
+
+I try not to use high level abstractions like these myself, but the idea
+is that users of my policy are able to create/script higher level abstractions
+on top of my policy. So that they can for example create policy
+generation scripts using higher level templates.
+
+This is why consistency matters to me. I can get used to buts-and-ifs but can
+the end-user of my policy do that as well?
+
+Eventually I envision something like:
+
+;; generic high level base template used in a script created by end-users
+(block myapp
+  (blockinherit skel))
+
+;; custom stuff added by the script based on script input
+(in myapp
+  (allow type self (class (perm))))
+
+(in myapp.conf
+  (filecon "/etc/myapp" file file_context)
+  (call .tmp.associate (type))
+
+(in myapp.exec
+  (filecon "/bin/myapp" file file_context))
+
+(in user
+  (call .myapp.run (type)))
+
+>
+> It might be possible to attempt to resolve all in-statements before
+> inheritance as what currently happens and then try to resolve any
+> remaining in-statements after inheritance has been resolved.
+>
+> I'll have to think about the problem a bit.
+>
+> Thanks for the questions,
+> Jim
+>
+>
+>
+> The problem
+>> [1] https://src.fedoraproject.org/rpms/libsepol/c/c59879b8aa30ceb601ac4e449ee5e958c6659fbc?branch=rawhide
+>>
+>> --
+>> gpg --locate-keys dominick.grift@defensec.nl
+>> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+>> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+>> Dominick Grift
+
+-- 
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+Dominick Grift
