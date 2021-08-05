@@ -2,103 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C700C4320A
-	for <selinux@archiver.kernel.org>; Thu,  5 Aug 2021 18:29:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A85BDC4338F
+	for <selinux@archiver.kernel.org>; Thu,  5 Aug 2021 19:26:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 20F7F61158
-	for <selinux@archiver.kernel.org>; Thu,  5 Aug 2021 18:29:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 892A06056B
+	for <selinux@archiver.kernel.org>; Thu,  5 Aug 2021 19:26:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237842AbhHES3z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Aug 2021 14:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240784AbhHES3z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Aug 2021 14:29:55 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7D6C061798
-        for <selinux@vger.kernel.org>; Thu,  5 Aug 2021 11:29:39 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id cf5so9730377edb.2
-        for <selinux@vger.kernel.org>; Thu, 05 Aug 2021 11:29:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=1c3VrQ3FItr1tlZhwJQtIGHjV4vRn9xHIa6kZJ9nIxc=;
-        b=ENJ2jsN+dNUIpx8dGcAJJc8GzMluVKbrtwQDHErnQEU/A81cSqgkoF7qq0hI7vjVBC
-         6SAeq763ZYep6+7i423qXiE3kOy6oCxfX7Y2JfLsPG1JLfWvy5mJ7LfxrZeBqyMCw4YA
-         oEMOdMhyxUTJvSeiTF2Fg4TObSBepBxN/52U/KCJyHXGzFUXGscu8+7rP/mzed1T9JU8
-         Zrf+y/MbvTrSGMA6Mlh/NoQTO+pIt3N1ECtqu9hZj5Mzh3p5OejjLV65uESnUJQiEP1v
-         hUp8MlMC4lWTtoNH1DbTRLzTji+LBgC6kVMhfyCf37jljEY9wcDDBsVAC9WM3psi7tg7
-         v6wQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=1c3VrQ3FItr1tlZhwJQtIGHjV4vRn9xHIa6kZJ9nIxc=;
-        b=eCbFEnC2Y1FCmyhvNwCB/K4ISpDOqRTKy7gxI7neZNZeub26yMM1Y2r1fa07XGYk8r
-         v9ojd5++tKDn0pK9Cz+PaPDk687vd14NwZLqY7OOLsEg+oGgid4Qlc4oMuFvzSM1jFdz
-         sFNAN1zLP3/awejsyaeCQVHJmniJ/27gsj6gFcXsKBVEjELibVzDOVGKN30oIiRD+x2P
-         71PJglS/76y31QljhNjlfEbKCRUfjLp7hnPfnoYvQF06d4VZ/nyzevbk0g/iUjEOXqHk
-         PZQDR57r6Xm3CUOOjBvmu2bjfvZHYnhFfXhP3YnXo++8OS+qhjDgOvJCxQcr04N2Z2iX
-         WURg==
-X-Gm-Message-State: AOAM5304EU0v6K6UwCf5zhBpOM8CGGpemvW6MPhoy5JjhmAKDHD7e0BI
-        HPg98vbQ3aQDfbovFu9lIqzOSFmnDRYLmNRlJCdK
-X-Google-Smtp-Source: ABdhPJxmgP4jWmPz3uLlSNLgR3I1TzKQRWyBUxibakNf4A77O6mTWX6u7RjsU7kbIgC5PZEppaJdr85FcRRrMvhw6P8=
-X-Received: by 2002:a05:6402:b83:: with SMTP id cf3mr8328900edb.12.1628188177841;
- Thu, 05 Aug 2021 11:29:37 -0700 (PDT)
-MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 5 Aug 2021 14:29:27 -0400
-Message-ID: <CAHC9VhSW0zVR7wB9dxR-AkQAMK_H_fKQ75tTbMLomkBQzfzciw@mail.gmail.com>
-Subject: [GIT PULL] SELinux fixes for v5.14 (#1)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        id S242474AbhHET0P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Aug 2021 15:26:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44578 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242698AbhHET0P (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 5 Aug 2021 15:26:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id EA8326056B;
+        Thu,  5 Aug 2021 19:26:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1628191561;
+        bh=9KGkhmbV+QcetOo8YLW1YUGW7Qwk+14a2znCtBgJMLg=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=O2TNzuB1qRUtYDCCv2hBRpSFjT0D/irBjxkhEGtI/p7lUICzRs8egdADuPZPYoa/k
+         JTU1IvVftkTvtOE7UZrgm74pP8m0NPZ2nQxjNOTopzKcMxq4PdJ8EWmTQP8HJG+5b/
+         BqOXvL1v5cPJSuvXncwnogGee+0tvBr8G54XXPUiHcA+fDmljiZv1UnfRS7XFZVv4z
+         rm7zfuKgkga569d3dkPYvhuUIfcLLVUoZ0OU60pK8VEfz/PqHsU/dFEHUeNxCfE2kY
+         yoTpAQMB9WIeprhE0rC7GtohorHuK9/TfmVTSNeT4GrEgqR6pJ4HY5LcT9KTHb2IF6
+         ++LAIdMw9pr1Q==
+Subject: Re: [GIT PULL] SELinux fixes for v5.14 (#1)
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhSW0zVR7wB9dxR-AkQAMK_H_fKQ75tTbMLomkBQzfzciw@mail.gmail.com>
+References: <CAHC9VhSW0zVR7wB9dxR-AkQAMK_H_fKQ75tTbMLomkBQzfzciw@mail.gmail.com>
+X-PR-Tracked-List-Id: <selinux.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhSW0zVR7wB9dxR-AkQAMK_H_fKQ75tTbMLomkBQzfzciw@mail.gmail.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux
+X-PR-Tracked-Commit-Id: 4c156084daa8ee70978e4b150b5eb5fc7b1f15be
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 0b53abfc5f66449d42fb1738c1c191e29e3be2e4
+Message-Id: <162819156084.13342.5530010847920224086.pr-tracker-bot@kernel.org>
+Date:   Thu, 05 Aug 2021 19:26:00 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+The pull request you sent on Thu, 5 Aug 2021 14:29:27 -0400:
 
-One small SELinux fix for v5.14-rcX to fix a problem where an error
-code was not being propagated back up to userspace when a bogus
-SELinux policy is loaded into the kernel.  The patch passes the
-selinux-testsuite and merges cleanly with your tree as of a few
-minutes ago; please merge this for the next release.
+> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux
 
-Thanks,
--Paul
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/0b53abfc5f66449d42fb1738c1c191e29e3be2e4
 
---
-The following changes since commit d99cf13f14200cdb5cbb704345774c9c0698612d:
-
- selinux: kill 'flags' argument in avc_has_perm_flags() and avc_audit() (2021-0
-6-11 13:11:45 -0400)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux
--pr-20210805
-
-for you to fetch changes up to 4c156084daa8ee70978e4b150b5eb5fc7b1f15be:
-
- selinux: correct the return value when loads initial sids (2021-08-02 09:59:50
--0400)
-
-----------------------------------------------------------------
-selinux/stable-5.14 PR 20210805
-
-----------------------------------------------------------------
-Xiu Jianfeng (1):
-     selinux: correct the return value when loads initial sids
-
-security/selinux/ss/policydb.c | 10 ++++------
-1 file changed, 4 insertions(+), 6 deletions(-)
+Thank you!
 
 -- 
-paul moore
-www.paul-moore.com
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
