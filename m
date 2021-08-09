@@ -8,63 +8,61 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44780C4338F
-	for <selinux@archiver.kernel.org>; Mon,  9 Aug 2021 10:52:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 717A0C4338F
+	for <selinux@archiver.kernel.org>; Mon,  9 Aug 2021 10:52:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 275A36023D
-	for <selinux@archiver.kernel.org>; Mon,  9 Aug 2021 10:52:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 554DC6103B
+	for <selinux@archiver.kernel.org>; Mon,  9 Aug 2021 10:52:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbhHIKwm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Aug 2021 06:52:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51886 "EHLO
+        id S233657AbhHIKwr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Aug 2021 06:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233657AbhHIKwl (ORCPT
+        with ESMTP id S233254AbhHIKwl (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 9 Aug 2021 06:52:41 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798EEC061798
-        for <selinux@vger.kernel.org>; Mon,  9 Aug 2021 03:52:20 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id yk17so28093917ejb.11
-        for <selinux@vger.kernel.org>; Mon, 09 Aug 2021 03:52:20 -0700 (PDT)
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBD83C0613D3
+        for <selinux@vger.kernel.org>; Mon,  9 Aug 2021 03:52:19 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id y12so23882799edo.6
+        for <selinux@vger.kernel.org>; Mon, 09 Aug 2021 03:52:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=26jkPL6BJnMb2W2E5wauYB6hl/AYTw6gVBuaalt2rj0=;
-        b=gy/6hT8fy9tiXiuHsQ9EstnxQDX32pGW1DpDUUmmONDKSngj/liDhaUQaMsbFUSoPK
-         YT4dZ5pxO8UzpbxLDWD1WMHaGW+H/rOgUu63z7HqskZ4VjG863dB7dhtejLgQfeA1MHT
-         hJa3ELKPqubxXtDDf/fHMcFRkD4Bn0Uis3KoBEUv94pLRpjHi4slBDs51XUvvchEuhqI
-         fCvdQs/yr6WjG+KxhlfgG42hZEOG6xIuU9kExuDk6XLirqre+K59FKklWl20oVA3iJMC
-         Gue21kRXAgQj/GHq5FigQelgQajjlgHSo0daYWk07RESB8VbEbEcz+POsvsGYjjXeFNH
-         QMqg==
+        bh=aGWOhHmBV5lDY/dlCZgHnJ/tfrnuYkAJZYj8NT8D8BQ=;
+        b=oyYFQQJ4s5esY5JzMO2zpiEla1QMimXSpUdzIaP20ag4IxMnmBAxJ60hd9TE+w9qG6
+         JkVI9XG6rLAWIOuRL86+pqkWomRT8aLR8TkVRs3N/RCjgQmbr2VceGw5SlQKgFF7eAid
+         DBOqUhG+49KnFwUlSknytlNr33Wu9/DI7DE5wiOWf46wemWL+0PZMGWXy9Nhe+1ojH0N
+         ElT6SLXNPCHL6PAj7bp8yqnAdAMKxOt7M+vvwKmNT954od9uYsAQyf0aqC79s+J+RCbk
+         V/upP/qQQu5Ejuv5RB2JV/396NZAx3Ozyoj/F43lgiVnGxWwG9mbGyk2roMCFtPJICy0
+         va2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=26jkPL6BJnMb2W2E5wauYB6hl/AYTw6gVBuaalt2rj0=;
-        b=L59zig7CZCc8d4uy2+TVRsQJYsnHaLcZi/h1/zpHT8lE2ll+d5U5lf1JlWaCWI4X+O
-         6oFwR34XxwXA+l9eh2XRJNGEx/iJgiMEaTP1EeKWfCP8Sqp+v9nRR2K0I0pw6lh8BSMw
-         6sBkGlA7msYBjEhhvd25+6R9dCt1fPbvyXnnWoPs78yBulAUpgbkC5jAeUc9aYZiBxzH
-         1uJueKrvdy5iAossmr3swWXw+3j/SfWQX88Z0XjtsMIH/atR6YY/JjrhQBR4y+q1UFAs
-         8HUj2EL13knMTp0Pvbqk3/rMItsHhxn1B7a4yJHI1/ZLv9otJVF5k/y5kzu2oULHOoqm
-         wkJw==
-X-Gm-Message-State: AOAM532JasWlDKVPunmtxE94+4/M/1IB2cozuTD20PANsomU9P/rCT0M
-        2f4c3eB+QQUXDLGt6gliDaCjNRWk1N848A==
-X-Google-Smtp-Source: ABdhPJwKNzQoxtb4WPKyB78RVEMuYesGORJG950NssmRU6I8yeUdQ1RdPxfKBgGw35Tbwxl0JQYsxw==
-X-Received: by 2002:a17:906:616:: with SMTP id s22mr21908101ejb.210.1628506339019;
-        Mon, 09 Aug 2021 03:52:19 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=aGWOhHmBV5lDY/dlCZgHnJ/tfrnuYkAJZYj8NT8D8BQ=;
+        b=mf21he359TAYER2gbEUc27GKqNoAe5xPgPWBB3bYLrKyR/OjqzMTdepDBDHlRoAXyk
+         xTRpXZV226u3RawF1zqT9PK6LFfYQPGBs2urRyf4y46YqG1Swd1X4OgIUqMRatilY0ct
+         ztj4His7hQ+ORvpOiCGJUXUpuCqF5G43nocfx8psqod5AeDdwv2n0Tu1/PKQduxEy0qP
+         qZLxPvq/MDwyjAHDgVqQDFt5sa7ecnVwb4F8JubrBEELqD37muPO+dXsf8wFUb3AH4eG
+         a0/yZVj98+0X5gGxE5/Pikgg9VG9iCG78WXK4z/0VN+d/JSwvbcgShOk525qqSw3q2nK
+         f2/Q==
+X-Gm-Message-State: AOAM530fCP3rD463AcM2zxyIMqLYS/qY9PbWHmQX2oKZ7Sv5UICpnIV2
+        GrH7joa/Xyh0wm0h7nk6SnQ6XC6ZxNNRxg==
+X-Google-Smtp-Source: ABdhPJyZxEy7aztPaFH6m5JYpnJR00hmv5QdvT+QfaBtE915Dizttghe+7R9GoSjGvpfQ2ekkjQt5A==
+X-Received: by 2002:aa7:da02:: with SMTP id r2mr29253347eds.249.1628506338462;
+        Mon, 09 Aug 2021 03:52:18 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-003-178-135.77.3.pool.telefonica.de. [77.3.178.135])
-        by smtp.gmail.com with ESMTPSA id x20sm2302090ejb.100.2021.08.09.03.52.18
+        by smtp.gmail.com with ESMTPSA id x20sm2302090ejb.100.2021.08.09.03.52.17
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 09 Aug 2021 03:52:18 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 2/2] libsepol: replace strerror by %m
-Date:   Mon,  9 Aug 2021 12:52:09 +0200
-Message-Id: <20210809105209.12705-2-cgzones@googlemail.com>
+Subject: [RFC PATCH 1/2] libselinux: replace strerror by %m
+Date:   Mon,  9 Aug 2021 12:52:08 +0200
+Message-Id: <20210809105209.12705-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210809105209.12705-1-cgzones@googlemail.com>
-References: <20210809105209.12705-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -83,259 +81,401 @@ libselinux already uses the GNU extension format specifier `%ms`.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/ibpkey_record.c  |  7 +++----
- libsepol/src/kernel_to_cil.c  | 11 +++++------
- libsepol/src/kernel_to_conf.c | 11 +++++------
- libsepol/src/module.c         |  8 ++++++--
- libsepol/src/module_to_cil.c  | 11 +++++------
- libsepol/src/node_record.c    | 10 ++++------
- libsepol/src/services.c       |  2 +-
- 7 files changed, 29 insertions(+), 31 deletions(-)
+ libselinux/src/audit2why.c              | 11 ++--
+ libselinux/src/avc.c                    |  9 ++--
+ libselinux/src/avc_internal.c           |  4 +-
+ libselinux/src/label_backends_android.c | 12 +++--
+ libselinux/src/label_file.h             | 12 +++--
+ libselinux/src/load_policy.c            | 20 ++++----
+ libselinux/src/matchpathcon.c           |  8 +--
+ libselinux/src/selinux_restorecon.c     | 68 +++++++++++++------------
+ 8 files changed, 79 insertions(+), 65 deletions(-)
 
-diff --git a/libsepol/src/ibpkey_record.c b/libsepol/src/ibpkey_record.c
-index 6f7aa656..d95e95fe 100644
---- a/libsepol/src/ibpkey_record.c
-+++ b/libsepol/src/ibpkey_record.c
-@@ -38,8 +38,8 @@ static int ibpkey_parse_subnet_prefix(sepol_handle_t *handle,
- 	struct in6_addr in_addr;
- 
- 	if (inet_pton(AF_INET6, subnet_prefix_str, &in_addr) <= 0) {
--		ERR(handle, "could not parse IPv6 address for ibpkey subnet prefix %s: %s",
--		    subnet_prefix_str, strerror(errno));
-+		ERR(handle, "could not parse IPv6 address for ibpkey subnet prefix %s: %m",
-+		    subnet_prefix_str);
- 		return STATUS_ERR;
- 	}
- 
-@@ -64,8 +64,7 @@ static int ibpkey_expand_subnet_prefix(sepol_handle_t *handle,
- 	if (inet_ntop(AF_INET6, &addr, subnet_prefix_str,
- 		      INET6_ADDRSTRLEN) == NULL) {
- 		ERR(handle,
--		    "could not expand IPv6 address to string: %s",
--		    strerror(errno));
-+		    "could not expand IPv6 address to string: %m");
- 		return STATUS_ERR;
- 	}
- 
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index 336d53b0..81427e65 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -2779,13 +2779,13 @@ static int write_selinux_node_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- 	for (node = pdb->ocontexts[4]; node != NULL; node = node->next) {
- 		if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon address is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 029f874f..ca38e13c 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -204,8 +204,8 @@ static int __policy_init(const char *init_path)
+ 		fp = fopen(path, "re");
+ 		if (!fp) {
+ 			snprintf(errormsg, sizeof(errormsg), 
+-				 "unable to open %s:  %s\n",
+-				 path, strerror(errno));
++				 "unable to open %s:  %m\n",
++				 path);
+ 			PyErr_SetString( PyExc_ValueError, errormsg);
+ 			return 1;
  		}
- 
- 		if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon mask is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon mask is invalid: %m");
- 			rc = -1;
- 			goto exit;
+@@ -221,9 +221,8 @@ static int __policy_init(const char *init_path)
+ 		fp = fopen(curpolicy, "re");
+ 		if (!fp) {
+ 			snprintf(errormsg, sizeof(errormsg), 
+-				 "unable to open %s:  %s\n",
+-				 curpolicy,
+-				 strerror(errno));
++				 "unable to open %s:  %m\n",
++				 curpolicy);
+ 			PyErr_SetString( PyExc_ValueError, errormsg);
+ 			return 1;
  		}
-@@ -2819,13 +2819,13 @@ static int write_selinux_node6_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- 	for (node = pdb->ocontexts[6]; node != NULL; node = node->next) {
- 		if (inet_ntop(AF_INET6, &node->u.node6.addr, addr, INET6_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon address is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
- 
- 		if (inet_ntop(AF_INET6, &node->u.node6.mask, mask, INET6_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon mask is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon mask is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-@@ -2867,8 +2867,7 @@ static int write_selinux_ibpkey_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- 		if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
- 			      subnet_prefix_str, INET6_ADDRSTRLEN) == NULL) {
--			sepol_log_err("ibpkeycon subnet_prefix is invalid: %s",
--				      strerror(errno));
-+			sepol_log_err("ibpkeycon subnet_prefix is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index cb8e1380..179f0ad1 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -2652,13 +2652,13 @@ static int write_selinux_node_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- 	for (node = pdb->ocontexts[4]; node != NULL; node = node->next) {
- 		if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon address is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
- 
- 		if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon mask is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon mask is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-@@ -2693,13 +2693,13 @@ static int write_selinux_node6_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- 	for (node6 = pdb->ocontexts[6]; node6 != NULL; node6 = node6->next) {
- 		if (inet_ntop(AF_INET6, &node6->u.node6.addr, addr, INET6_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon address is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
- 
- 		if (inet_ntop(AF_INET6, &node6->u.node6.mask, mask, INET6_ADDRSTRLEN) == NULL) {
--			sepol_log_err("Nodecon mask is invalid: %s", strerror(errno));
-+			sepol_log_err("Nodecon mask is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-@@ -2741,8 +2741,7 @@ static int write_selinux_ibpkey_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- 		if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
- 			      subnet_prefix_str, INET6_ADDRSTRLEN) == NULL) {
--			sepol_log_err("ibpkeycon address is invalid: %s",
--				      strerror(errno));
-+			sepol_log_err("ibpkeycon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-diff --git a/libsepol/src/module.c b/libsepol/src/module.c
-index 9b53bc47..02a5de2c 100644
---- a/libsepol/src/module.c
-+++ b/libsepol/src/module.c
-@@ -796,7 +796,9 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
- 
- 			len = le32_to_cpu(buf[0]);
- 			if (str_read(name, file, len)) {
--				ERR(file->handle, "%s", strerror(errno));
-+				ERR(file->handle,
-+				    "cannot read module name (at section %u): %m",
-+				    i);
- 				goto cleanup;
- 			}
- 
-@@ -809,7 +811,9 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
- 			}
- 			len = le32_to_cpu(buf[0]);
- 			if (str_read(version, file, len)) {
--				ERR(file->handle, "%s", strerror(errno));
-+				ERR(file->handle,
-+				    "cannot read module version (at section %u): %m",
-+				i);
- 				goto cleanup;
- 			}
- 			seen |= SEEN_MOD;
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 21d8e5db..9c7e3d3a 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -2668,8 +2668,7 @@ static int ocontext_selinux_ibpkey_to_cil(struct policydb *pdb,
- 
- 		if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
- 			      subnet_prefix_str, INET6_ADDRSTRLEN) == NULL) {
--			log_err("ibpkeycon subnet_prefix is invalid: %s",
+@@ -242,7 +241,7 @@ static int __policy_init(const char *init_path)
+ 	if (sepol_policy_file_create(&pf) ||
+ 	    sepol_policydb_create(&avc->policydb)) {
+ 		snprintf(errormsg, sizeof(errormsg), 
+-			 "policydb_init failed: %s\n", strerror(errno));
++			 "policydb_init failed: %m\n");
+ 		PyErr_SetString( PyExc_RuntimeError, errormsg);
+ 		fclose(fp);
+ 		return 1;
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index daaedbc6..7493e4b2 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -206,9 +206,8 @@ static int avc_init_internal(const char *prefix,
+ 		rc = security_getenforce();
+ 		if (rc < 0) {
+ 			avc_log(SELINUX_ERROR,
+-				"%s:  could not determine enforcing mode: %s\n",
+-				avc_prefix,
 -				strerror(errno));
-+			log_err("ibpkeycon subnet_prefix is invalid: %m");
- 			rc = -1;
- 			goto exit;
++				"%s:  could not determine enforcing mode: %m\n",
++				avc_prefix);
+ 			goto out;
  		}
-@@ -2714,13 +2713,13 @@ static int ocontext_selinux_node_to_cil(struct policydb *pdb, struct ocontext *n
- 
- 	for (node = nodes; node != NULL; node = node->next) {
- 		if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADDRSTRLEN) == NULL) {
--			log_err("Nodecon address is invalid: %s", strerror(errno));
-+			log_err("Nodecon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
- 
- 		if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADDRSTRLEN) == NULL) {
--			log_err("Nodecon mask is invalid: %s", strerror(errno));
-+			log_err("Nodecon mask is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-@@ -2746,13 +2745,13 @@ static int ocontext_selinux_node6_to_cil(struct policydb *pdb, struct ocontext *
- 
- 	for (node = nodes; node != NULL; node = node->next) {
- 		if (inet_ntop(AF_INET6, &node->u.node6.addr, addr, INET6_ADDRSTRLEN) == NULL) {
--			log_err("Nodecon address is invalid: %s", strerror(errno));
-+			log_err("Nodecon address is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
- 
- 		if (inet_ntop(AF_INET6, &node->u.node6.mask, mask, INET6_ADDRSTRLEN) == NULL) {
--			log_err("Nodecon mask is invalid: %s", strerror(errno));
-+			log_err("Nodecon mask is invalid: %m");
- 			rc = -1;
- 			goto exit;
- 		}
-diff --git a/libsepol/src/node_record.c b/libsepol/src/node_record.c
-index 9ef429da..2e575bf1 100644
---- a/libsepol/src/node_record.c
-+++ b/libsepol/src/node_record.c
-@@ -53,7 +53,7 @@ static int node_parse_addr(sepol_handle_t * handle,
- 
- 			if (inet_pton(AF_INET, addr_str, &in_addr) <= 0) {
- 				ERR(handle, "could not parse IPv4 address "
--				    "%s: %s", addr_str, strerror(errno));
-+				    "%s: %m", addr_str);
- 				return STATUS_ERR;
- 			}
- 
-@@ -66,7 +66,7 @@ static int node_parse_addr(sepol_handle_t * handle,
- 
- 			if (inet_pton(AF_INET6, addr_str, &in_addr) <= 0) {
- 				ERR(handle, "could not parse IPv6 address "
--				    "%s: %s", addr_str, strerror(errno));
-+				    "%s: %m", addr_str);
- 				return STATUS_ERR;
- 			}
- 
-@@ -147,8 +147,7 @@ static int node_expand_addr(sepol_handle_t * handle,
- 				      INET_ADDRSTRLEN) == NULL) {
- 
- 				ERR(handle,
--				    "could not expand IPv4 address to string: %s",
--				    strerror(errno));
-+				    "could not expand IPv4 address to string: %m");
- 				return STATUS_ERR;
- 			}
- 			break;
-@@ -163,8 +162,7 @@ static int node_expand_addr(sepol_handle_t * handle,
- 				      INET6_ADDRSTRLEN) == NULL) {
- 
- 				ERR(handle,
--				    "could not expand IPv6 address to string: %s",
--				    strerror(errno));
-+				    "could not expand IPv6 address to string: %m");
- 				return STATUS_ERR;
- 			}
- 			break;
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 47a3dc14..673b3971 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -145,7 +145,7 @@ int sepol_set_policydb_from_file(FILE * fp)
+ 		avc_enforcing = rc;
+@@ -217,8 +216,8 @@ static int avc_init_internal(const char *prefix,
+ 	rc = selinux_status_open(0);
+ 	if (rc < 0) {
+ 		avc_log(SELINUX_ERROR,
+-			"%s: could not open selinux status page: %d (%s)\n",
+-			avc_prefix, errno, strerror(errno));
++			"%s: could not open selinux status page: %d (%m)\n",
++			avc_prefix, errno);
+ 		goto out;
  	}
- 	if (policydb_read(&mypolicydb, &pf, 0)) {
- 		policydb_destroy(&mypolicydb);
--		ERR(NULL, "can't read binary policy: %s", strerror(errno));
-+		ERR(NULL, "can't read binary policy: %m");
+ 	avc_running = 1;
+diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+index 53a99a1f..71a1357b 100644
+--- a/libselinux/src/avc_internal.c
++++ b/libselinux/src/avc_internal.c
+@@ -308,8 +308,8 @@ int avc_netlink_acquire_fd(void)
+ 		rc = avc_netlink_open(0);
+ 		if (rc < 0) {
+ 			avc_log(SELINUX_ERROR,
+-				"%s: could not open netlink socket: %d (%s)\n",
+-				avc_prefix, errno, strerror(errno));
++				"%s: could not open netlink socket: %d (%m)\n",
++				avc_prefix, errno);
+ 			return rc;
+ 		}
+ 	}
+diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
+index cb8aae26..66d4df2d 100644
+--- a/libselinux/src/label_backends_android.c
++++ b/libselinux/src/label_backends_android.c
+@@ -94,9 +94,15 @@ static int process_line(struct selabel_handle *rec,
+ 	items = read_spec_entries(line_buf, &errbuf, 2, &prop, &context);
+ 	if (items < 0) {
+ 		items = errno;
+-		selinux_log(SELINUX_ERROR,
+-			"%s:  line %u error due to: %s\n", path,
+-			lineno, errbuf ?: strerror(errno));
++		if (errbuf) {
++			selinux_log(SELINUX_ERROR,
++				    "%s:  line %u error due to: %s\n", path,
++				    lineno, errbuf);
++		} else {
++			selinux_log(SELINUX_ERROR,
++				    "%s:  line %u error due to: %m\n", path,
++				    lineno);
++		}
+ 		errno = items;
  		return -1;
  	}
- 	policydb = &mypolicydb;
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 9f633701..343ffc70 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -445,9 +445,15 @@ static inline int process_line(struct selabel_handle *rec,
+ 	items = read_spec_entries(line_buf, &errbuf, 3, &regex, &type, &context);
+ 	if (items < 0) {
+ 		rc = errno;
+-		selinux_log(SELINUX_ERROR,
+-			"%s:  line %u error due to: %s\n", path,
+-			lineno, errbuf ?: strerror(errno));
++		if (errbuf) {
++			selinux_log(SELINUX_ERROR,
++				    "%s:  line %u error due to: %s\n", path,
++				    lineno, errbuf);
++		} else {
++			selinux_log(SELINUX_ERROR,
++				    "%s:  line %u error due to: %m\n", path,
++				    lineno);
++		}
+ 		errno = rc;
+ 		return -1;
+ 	}
+diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+index 5857b821..d8c715ed 100644
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -137,15 +137,15 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
+ 	}
+ 	if (fd < 0) {
+ 		fprintf(stderr,
+-			"SELinux:  Could not open policy file <= %s.%d:  %s\n",
+-			selinux_binary_policy_path(), maxvers, strerror(errno));
++			"SELinux:  Could not open policy file <= %s.%d:  %m\n",
++			selinux_binary_policy_path(), maxvers);
+ 		goto dlclose;
+ 	}
+ 
+ 	if (fstat(fd, &sb) < 0) {
+ 		fprintf(stderr,
+-			"SELinux:  Could not stat policy file %s:  %s\n",
+-			path, strerror(errno));
++			"SELinux:  Could not stat policy file %s:  %m\n",
++			path);
+ 		goto close;
+ 	}
+ 
+@@ -153,8 +153,8 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
+ 	data = map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+ 	if (map == MAP_FAILED) {
+ 		fprintf(stderr,
+-			"SELinux:  Could not map policy file %s:  %s\n",
+-			path, strerror(errno));
++			"SELinux:  Could not map policy file %s:  %m\n",
++			path);
+ 		goto close;
+ 	}
+ 
+@@ -193,8 +193,8 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
+ 	
+ 	if (rc)
+ 		fprintf(stderr,
+-			"SELinux:  Could not load policy file %s:  %s\n",
+-			path, strerror(errno));
++			"SELinux:  Could not load policy file %s:  %m\n",
++			path);
+ 
+       unmap:
+ 	if (data != map)
+@@ -306,7 +306,7 @@ int selinux_init_load_policy(int *enforce)
+ 			*enforce = 0;
+ 		} else {
+ 			/* Only emit this error if selinux was not disabled */
+-			fprintf(stderr, "Mount failed for selinuxfs on %s:  %s\n", SELINUXMNT, strerror(errno));
++			fprintf(stderr, "Mount failed for selinuxfs on %s:  %m\n", SELINUXMNT);
+ 		}
+ 
+ 		if (rc == 0)
+@@ -352,7 +352,7 @@ int selinux_init_load_policy(int *enforce)
+ 	if (orig_enforce != *enforce) {
+ 		rc = security_setenforce(*enforce);
+ 		if (rc < 0) {
+-			fprintf(stderr, "SELinux:  Unable to switch to %s mode:  %s\n", (*enforce ? "enforcing" : "permissive"), strerror(errno));
++			fprintf(stderr, "SELinux:  Unable to switch to %s mode:  %m\n", (*enforce ? "enforcing" : "permissive"));
+ 			if (*enforce)
+ 				goto noload;
+ 		}
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index 075a3fb3..1e7f8890 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -393,8 +393,8 @@ int realpath_not_final(const char *name, char *resolved_path)
+ 
+ 	tmp_path = strdup(name);
+ 	if (!tmp_path) {
+-		myprintf("symlink_realpath(%s) strdup() failed: %s\n",
+-			name, strerror(errno));
++		myprintf("symlink_realpath(%s) strdup() failed: %m\n",
++			name);
+ 		rc = -1;
+ 		goto out;
+ 	}
+@@ -414,8 +414,8 @@ int realpath_not_final(const char *name, char *resolved_path)
+ 	}
+ 
+ 	if (!p) {
+-		myprintf("symlink_realpath(%s) realpath() failed: %s\n",
+-			name, strerror(errno));
++		myprintf("symlink_realpath(%s) realpath() failed: %m\n",
++			name);
+ 		rc = -1;
+ 		goto out;
+ 	}
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 999aa924..04d95650 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -333,8 +333,7 @@ static int add_xattr_entry(const char *directory, bool delete_nonmatch,
+ 		rc = removexattr(directory, RESTORECON_PARTIAL_MATCH_DIGEST);
+ 		if (rc) {
+ 			selinux_log(SELINUX_ERROR,
+-				  "Error: %s removing xattr \"%s\" from: %s\n",
+-				  strerror(errno),
++				  "Error: %m removing xattr \"%s\" from: %s\n",
+ 				  RESTORECON_PARTIAL_MATCH_DIGEST, directory);
+ 			digest_result = ERROR;
+ 		}
+@@ -734,8 +733,8 @@ out1:
+ 	return rc;
+ err:
+ 	selinux_log(SELINUX_ERROR,
+-		    "Could not set context for %s:  %s\n",
+-		    pathname, strerror(errno));
++		    "Could not set context for %s:  %m\n",
++		    pathname);
+ 	rc = -1;
+ 	goto out1;
+ }
+@@ -857,6 +856,7 @@ int selinux_restorecon(const char *pathname_orig,
+ 	dev_t dev_num = 0;
+ 	struct dir_hash_node *current = NULL;
+ 	struct dir_hash_node *head = NULL;
++	int errno_tmp;
+ 
+ 	if (flags.verbose && flags.progress)
+ 		flags.verbose = false;
+@@ -929,8 +929,8 @@ int selinux_restorecon(const char *pathname_orig,
+ 			return 0;
+ 		} else {
+ 			selinux_log(SELINUX_ERROR,
+-				    "lstat(%s) failed: %s\n",
+-				    pathname, strerror(errno));
++				    "lstat(%s) failed: %m\n",
++				    pathname);
+ 			error = -1;
+ 			goto cleanup;
+ 		}
+@@ -954,8 +954,8 @@ int selinux_restorecon(const char *pathname_orig,
+ 	memset(&sfsb, 0, sizeof sfsb);
+ 	if (!S_ISLNK(sb.st_mode) && statfs(pathname, &sfsb) < 0) {
+ 		selinux_log(SELINUX_ERROR,
+-			    "statfs(%s) failed: %s\n",
+-			    pathname, strerror(errno));
++			    "statfs(%s) failed: %m\n",
++			    pathname);
+ 		error = -1;
+ 		goto cleanup;
+ 	}
+@@ -1006,24 +1006,30 @@ int selinux_restorecon(const char *pathname_orig,
+ 		case FTS_DP:
+ 			continue;
+ 		case FTS_DNR:
++			errno_tmp = errno;
++			errno = ftsent->fts_errno;
+ 			selinux_log(SELINUX_ERROR,
+-				    "Could not read %s: %s.\n",
+-				    ftsent->fts_path,
+-						  strerror(ftsent->fts_errno));
++				    "Could not read %s: %m.\n",
++				    ftsent->fts_path);
++			errno = errno_tmp;
+ 			fts_set(fts, ftsent, FTS_SKIP);
+ 			continue;
+ 		case FTS_NS:
++			errno_tmp = errno;
++			errno = ftsent->fts_errno;
+ 			selinux_log(SELINUX_ERROR,
+-				    "Could not stat %s: %s.\n",
+-				    ftsent->fts_path,
+-						  strerror(ftsent->fts_errno));
++				    "Could not stat %s: %m.\n",
++				    ftsent->fts_path);
++			errno = errno_tmp;
+ 			fts_set(fts, ftsent, FTS_SKIP);
+ 			continue;
+ 		case FTS_ERR:
++			errno_tmp = errno;
++			errno = ftsent->fts_errno;
+ 			selinux_log(SELINUX_ERROR,
+-				    "Error on %s: %s.\n",
+-				    ftsent->fts_path,
+-						  strerror(ftsent->fts_errno));
++				    "Error on %s: %m.\n",
++				    ftsent->fts_path);
++			errno = errno_tmp;
+ 			fts_set(fts, ftsent, FTS_SKIP);
+ 			continue;
+ 		case FTS_D:
+@@ -1087,9 +1093,8 @@ int selinux_restorecon(const char *pathname_orig,
+ 			    current->digest,
+ 			    SHA1_HASH_SIZE, 0) < 0) {
+ 				selinux_log(SELINUX_ERROR,
+-					    "setxattr failed: %s: %s\n",
+-					    current->path,
+-					    strerror(errno));
++					    "setxattr failed: %s: %m\n",
++					    current->path);
+ 			}
+ 			current = current->next;
+ 		}
+@@ -1131,16 +1136,16 @@ oom:
+ realpatherr:
+ 	sverrno = errno;
+ 	selinux_log(SELINUX_ERROR,
+-		    "SELinux: Could not get canonical path for %s restorecon: %s.\n",
+-		    pathname_orig, strerror(errno));
++		    "SELinux: Could not get canonical path for %s restorecon: %m.\n",
++		    pathname_orig);
+ 	errno = sverrno;
+ 	error = -1;
+ 	goto cleanup;
+ 
+ fts_err:
+ 	selinux_log(SELINUX_ERROR,
+-		    "fts error while labeling %s: %s\n",
+-		    paths[0], strerror(errno));
++		    "fts error while labeling %s: %m\n",
++		    paths[0]);
+ 	error = -1;
+ 	goto cleanup;
+ }
+@@ -1181,8 +1186,7 @@ struct selabel_handle *selinux_restorecon_default_handle(void)
+ 
+ 	if (!sehandle) {
+ 		selinux_log(SELINUX_ERROR,
+-			    "Error obtaining file context handle: %s\n",
+-						    strerror(errno));
++			    "Error obtaining file context handle: %m\n");
+ 		return NULL;
+ 	}
+ 
+@@ -1202,8 +1206,8 @@ void selinux_restorecon_set_exclude_list(const char **exclude_list)
+ 	for (i = 0; exclude_list[i]; i++) {
+ 		if (lstat(exclude_list[i], &sb) < 0 && errno != EACCES) {
+ 			selinux_log(SELINUX_ERROR,
+-				    "lstat error on exclude path \"%s\", %s - ignoring.\n",
+-				    exclude_list[i], strerror(errno));
++				    "lstat error on exclude path \"%s\", %m - ignoring.\n",
++				    exclude_list[i]);
+ 			break;
+ 		}
+ 		if (add_exclude(exclude_list[i], CALLER_EXCLUDED) &&
+@@ -1269,8 +1273,8 @@ int selinux_restorecon_xattr(const char *pathname, unsigned int xattr_flags,
+ 			return 0;
+ 
+ 		selinux_log(SELINUX_ERROR,
+-			    "lstat(%s) failed: %s\n",
+-			    pathname, strerror(errno));
++			    "lstat(%s) failed: %m\n",
++			    pathname);
+ 		return -1;
+ 	}
+ 
+@@ -1300,8 +1304,8 @@ int selinux_restorecon_xattr(const char *pathname, unsigned int xattr_flags,
+ 	fts = fts_open(paths, fts_flags, NULL);
+ 	if (!fts) {
+ 		selinux_log(SELINUX_ERROR,
+-			    "fts error on %s: %s\n",
+-			    paths[0], strerror(errno));
++			    "fts error on %s: %m\n",
++			    paths[0]);
+ 		return -1;
+ 	}
+ 
 -- 
 2.32.0
 
