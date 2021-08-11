@@ -2,404 +2,190 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A5AAC4338F
-	for <selinux@archiver.kernel.org>; Tue, 10 Aug 2021 18:28:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ACD7C4320A
+	for <selinux@archiver.kernel.org>; Wed, 11 Aug 2021 20:48:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 228E760724
-	for <selinux@archiver.kernel.org>; Tue, 10 Aug 2021 18:28:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F7BF6105A
+	for <selinux@archiver.kernel.org>; Wed, 11 Aug 2021 20:48:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232974AbhHJS2z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 10 Aug 2021 14:28:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35010 "EHLO
+        id S231796AbhHKUsi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Aug 2021 16:48:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232405AbhHJS2y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 10 Aug 2021 14:28:54 -0400
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AB85C0613C1
-        for <selinux@vger.kernel.org>; Tue, 10 Aug 2021 11:28:32 -0700 (PDT)
-Received: by mail-oo1-xc33.google.com with SMTP id f33-20020a4a89240000b029027c19426fbeso5584004ooi.8
-        for <selinux@vger.kernel.org>; Tue, 10 Aug 2021 11:28:32 -0700 (PDT)
+        with ESMTP id S229589AbhHKUsh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Aug 2021 16:48:37 -0400
+Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50A9C0613D5
+        for <selinux@vger.kernel.org>; Wed, 11 Aug 2021 13:48:13 -0700 (PDT)
+Received: by mail-qk1-x731.google.com with SMTP id 14so3940091qkc.4
+        for <selinux@vger.kernel.org>; Wed, 11 Aug 2021 13:48:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=u7TMFOxlIbd/CX3HghAPlce/UeQJKgb4jiIcPR3q0w4=;
-        b=pXC/m8PUqjjUFzBJLr/Ji9O8apCa5ZejMZW59i3xFBgOWSh1J3wPf1ooHXLKf6SPAp
-         Y7r+OeQEYiWPvqd5Li79wkxnxExvxYFEO5ruNm+jiJ0vfKK+SNU1wI0ZRGcL+szZLU7g
-         6xthbP8y7Rzvs6V9qkAmNuzh1XoExHeIwTxeE7hyPZEXewM2kxSrGC6Wg9gRIrVedNL9
-         8IQ8XJVByLBqWigDw92+TcCMsVH7hGHoIuZK9CkYIGhL1PchvbP0FxX5WBTEQm6ZZyuW
-         Lu/UgyAcoCLd7V1OazPVbiexgYxnPUt/2EeiGlzJKff59/WvwCg5/5map6omC1oRTa4r
-         bd/Q==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=zBlBSbAuxRUJW1lgOYptxB+0Lua2LslYZABHs/8DQw8=;
+        b=eUl8wgQjb6gGJUCDXI5DKOavtrZkcpwdJMLOEArw3NWOcmgexnHPccbTvRywxHi2VF
+         LZhJPBU7NvwO9SrJ88aTKEAB03QCnDNJyv0Kdl3dBd4Fzi+i+cJ5TX5/GzYCKLyQU6kn
+         m9vVAUDi5C4Cqw7K/ZN13W3ZGBHOlkBOwZ/cu1OI7p7Y8whLOdJiCMrbfxoCXJTUSYrn
+         NTMVuon/k5gDupO3Q2eWAdaeLdf5NE+eV49IiIYmew0R2IZEXTkfBRcN6kk+er+6YV4p
+         zJ0GgFSw3GQNQrVMVI0KIDdyzSmEjomkORiaNnihPL1Ug3UJG4TbANJeRXA3NWLbNm/V
+         aCqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=u7TMFOxlIbd/CX3HghAPlce/UeQJKgb4jiIcPR3q0w4=;
-        b=K4MyAXV/3titJyvoe/2VKmmASuCmcghyqh3U/BagsZoJY0zj7u3SbP1BbpoFohTjbw
-         rn/5wcX4xfg6MVlRdMflPN8cZTtvFgaZK0Au3ffSPHtxhxS+rjT6bxB0htDMnql/7ZVy
-         pLVf8F9LkHZrtEyEgdk6dZIOmPlsZKDfyKfBhoO8lM15e5A2dEcYbjdE+URO3uTQp+pM
-         DGFaxnbV77GTgV52LLwVnEe0aCSP/RXY+mzCgYGMiapomF5geCcXsIf1Zvu94m+NpbH2
-         Q6FuPHC0oCju89qT1cb+/QM+ilSFBTajD7V2CUeTXSR7HJpUq9Z64pMnLYOun8iop3Mh
-         agdA==
-X-Gm-Message-State: AOAM531+RufVIOFb7a/EUEqK+4p7R1YzwQ7H62YMlJiqYIzoclylVOwJ
-        SqANz+depknoetBt5/yfBKGtCTXmulImWku+Of4=
-X-Google-Smtp-Source: ABdhPJynoj0iyqrYFce2g1MZ4iASZrbBuecGEV5rkd9vSgd6d2qQvlbTvXodc+WjBAgHZjt+pOvS56HK+rTcXsD5t8g=
-X-Received: by 2002:a4a:e9a8:: with SMTP id t8mr19339001ood.59.1628620111554;
- Tue, 10 Aug 2021 11:28:31 -0700 (PDT)
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=zBlBSbAuxRUJW1lgOYptxB+0Lua2LslYZABHs/8DQw8=;
+        b=Ki1TTCl20UpZXb+3GsomGzXK9GujmfG6bezCICjcbs+6WwXfPP6/pw6mOAw3/ZxTrJ
+         52AN/DYktlWoVujGH8sBMNXL9KuOfCAX2HfV3OT1QSOcraOW3vr8+dZG2oyV8K+1FlDf
+         loHgR+16Xahas0cNQIrsYhwzxnToT11cNdnD1FoJ2/dtn+SqCeiGDPaVoYHocfRvpd1H
+         yWvh2v4xvJFaTm9jz0rYwv2kaQDO4NL/EP93QLaT8YT+R2Y5/b4Si900DjpR7QchQEjc
+         YR/5LwEG/XdHPlIROsacDN41gJYpmK/ld06BYJMrkTQwkxD1te1fi1NwRsxzj4I6bI6m
+         wB/Q==
+X-Gm-Message-State: AOAM5333ZOB7m5OxzGQGCFrugm6pX5r+BpUxqfMgxGI2QHJbN2bTa/8z
+        gDlOkgD8rLweEmJ1YY56WxDP
+X-Google-Smtp-Source: ABdhPJydL0ykzGSU3mSv7znsNMhnb+x6axRiQjqG6NUGWFR49FmN7RGZaFHzTlB9WZgH5isKA3x/lQ==
+X-Received: by 2002:a37:b082:: with SMTP id z124mr964004qke.298.1628714892595;
+        Wed, 11 Aug 2021 13:48:12 -0700 (PDT)
+Received: from localhost (pool-96-237-52-188.bstnma.fios.verizon.net. [96.237.52.188])
+        by smtp.gmail.com with ESMTPSA id k1sm159186qkj.21.2021.08.11.13.48.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Aug 2021 13:48:12 -0700 (PDT)
+Subject: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
+From:   Paul Moore <paul@paul-moore.com>
+To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Date:   Wed, 11 Aug 2021 16:48:11 -0400
+Message-ID: <162871480969.63873.9434591871437326374.stgit@olly>
+User-Agent: StGit/1.1
 MIME-Version: 1.0
-References: <20210809105209.12705-1-cgzones@googlemail.com> <20210809105209.12705-2-cgzones@googlemail.com>
-In-Reply-To: <20210809105209.12705-2-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 10 Aug 2021 14:28:20 -0400
-Message-ID: <CAP+JOzS6X-HzwMs9FJOLXdU5t4kEbrEWWsyHmtFobmmAgESuVg@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/2] libsepol: replace strerror by %m
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 9, 2021 at 6:54 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The standard function `strerror(3)` is not thread safe.  This does not
-> only affect the concurrent usage of libselinux itself but also with
-> other `strerror(3)` linked libraries.
-> Use the thread safe GNU extension format specifier `%m`[1].
->
-> libselinux already uses the GNU extension format specifier `%ms`.
->
-> [1]: https://www.gnu.org/software/libc/manual/html_node/Other-Output-Conv=
-ersions.html
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Draft #2 of the patchset which brings auditing and proper LSM access
+controls to the io_uring subsystem.  The original patchset was posted
+in late May and can be found via lore using the link below:
 
-Acked-by: James Carter <jwcart2@gmail.com>
+https://lore.kernel.org/linux-security-module/162163367115.8379.8459012634106035341.stgit@sifl/
 
-> ---
->  libsepol/src/ibpkey_record.c  |  7 +++----
->  libsepol/src/kernel_to_cil.c  | 11 +++++------
->  libsepol/src/kernel_to_conf.c | 11 +++++------
->  libsepol/src/module.c         |  8 ++++++--
->  libsepol/src/module_to_cil.c  | 11 +++++------
->  libsepol/src/node_record.c    | 10 ++++------
->  libsepol/src/services.c       |  2 +-
->  7 files changed, 29 insertions(+), 31 deletions(-)
->
-> diff --git a/libsepol/src/ibpkey_record.c b/libsepol/src/ibpkey_record.c
-> index 6f7aa656..d95e95fe 100644
-> --- a/libsepol/src/ibpkey_record.c
-> +++ b/libsepol/src/ibpkey_record.c
-> @@ -38,8 +38,8 @@ static int ibpkey_parse_subnet_prefix(sepol_handle_t *h=
-andle,
->         struct in6_addr in_addr;
->
->         if (inet_pton(AF_INET6, subnet_prefix_str, &in_addr) <=3D 0) {
-> -               ERR(handle, "could not parse IPv6 address for ibpkey subn=
-et prefix %s: %s",
-> -                   subnet_prefix_str, strerror(errno));
-> +               ERR(handle, "could not parse IPv6 address for ibpkey subn=
-et prefix %s: %m",
-> +                   subnet_prefix_str);
->                 return STATUS_ERR;
->         }
->
-> @@ -64,8 +64,7 @@ static int ibpkey_expand_subnet_prefix(sepol_handle_t *=
-handle,
->         if (inet_ntop(AF_INET6, &addr, subnet_prefix_str,
->                       INET6_ADDRSTRLEN) =3D=3D NULL) {
->                 ERR(handle,
-> -                   "could not expand IPv6 address to string: %s",
-> -                   strerror(errno));
-> +                   "could not expand IPv6 address to string: %m");
->                 return STATUS_ERR;
->         }
->
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index 336d53b0..81427e65 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -2779,13 +2779,13 @@ static int write_selinux_node_rules_to_cil(FILE *=
-out, struct policydb *pdb)
->
->         for (node =3D pdb->ocontexts[4]; node !=3D NULL; node =3D node->n=
-ext) {
->                 if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADD=
-RSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon address is invalid: %s", s=
-trerror(errno));
-> +                       sepol_log_err("Nodecon address is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
->
->                 if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADD=
-RSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon mask is invalid: %s", stre=
-rror(errno));
-> +                       sepol_log_err("Nodecon mask is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2819,13 +2819,13 @@ static int write_selinux_node6_rules_to_cil(FILE =
-*out, struct policydb *pdb)
->
->         for (node =3D pdb->ocontexts[6]; node !=3D NULL; node =3D node->n=
-ext) {
->                 if (inet_ntop(AF_INET6, &node->u.node6.addr, addr, INET6_=
-ADDRSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon address is invalid: %s", s=
-trerror(errno));
-> +                       sepol_log_err("Nodecon address is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
->
->                 if (inet_ntop(AF_INET6, &node->u.node6.mask, mask, INET6_=
-ADDRSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon mask is invalid: %s", stre=
-rror(errno));
-> +                       sepol_log_err("Nodecon mask is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2867,8 +2867,7 @@ static int write_selinux_ibpkey_rules_to_cil(FILE *=
-out, struct policydb *pdb)
->
->                 if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
->                               subnet_prefix_str, INET6_ADDRSTRLEN) =3D=3D=
- NULL) {
-> -                       sepol_log_err("ibpkeycon subnet_prefix is invalid=
-: %s",
-> -                                     strerror(errno));
-> +                       sepol_log_err("ibpkeycon subnet_prefix is invalid=
-: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index cb8e1380..179f0ad1 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -2652,13 +2652,13 @@ static int write_selinux_node_rules_to_conf(FILE =
-*out, struct policydb *pdb)
->
->         for (node =3D pdb->ocontexts[4]; node !=3D NULL; node =3D node->n=
-ext) {
->                 if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADD=
-RSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon address is invalid: %s", s=
-trerror(errno));
-> +                       sepol_log_err("Nodecon address is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
->
->                 if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADD=
-RSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon mask is invalid: %s", stre=
-rror(errno));
-> +                       sepol_log_err("Nodecon mask is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2693,13 +2693,13 @@ static int write_selinux_node6_rules_to_conf(FILE=
- *out, struct policydb *pdb)
->
->         for (node6 =3D pdb->ocontexts[6]; node6 !=3D NULL; node6 =3D node=
-6->next) {
->                 if (inet_ntop(AF_INET6, &node6->u.node6.addr, addr, INET6=
-_ADDRSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon address is invalid: %s", s=
-trerror(errno));
-> +                       sepol_log_err("Nodecon address is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
->
->                 if (inet_ntop(AF_INET6, &node6->u.node6.mask, mask, INET6=
-_ADDRSTRLEN) =3D=3D NULL) {
-> -                       sepol_log_err("Nodecon mask is invalid: %s", stre=
-rror(errno));
-> +                       sepol_log_err("Nodecon mask is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2741,8 +2741,7 @@ static int write_selinux_ibpkey_rules_to_conf(FILE =
-*out, struct policydb *pdb)
->
->                 if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
->                               subnet_prefix_str, INET6_ADDRSTRLEN) =3D=3D=
- NULL) {
-> -                       sepol_log_err("ibpkeycon address is invalid: %s",
-> -                                     strerror(errno));
-> +                       sepol_log_err("ibpkeycon address is invalid: %m")=
-;
->                         rc =3D -1;
->                         goto exit;
->                 }
-> diff --git a/libsepol/src/module.c b/libsepol/src/module.c
-> index 9b53bc47..02a5de2c 100644
-> --- a/libsepol/src/module.c
-> +++ b/libsepol/src/module.c
-> @@ -796,7 +796,9 @@ int sepol_module_package_info(struct sepol_policy_fil=
-e *spf, int *type,
->
->                         len =3D le32_to_cpu(buf[0]);
->                         if (str_read(name, file, len)) {
-> -                               ERR(file->handle, "%s", strerror(errno));
-> +                               ERR(file->handle,
-> +                                   "cannot read module name (at section =
-%u): %m",
-> +                                   i);
->                                 goto cleanup;
->                         }
->
-> @@ -809,7 +811,9 @@ int sepol_module_package_info(struct sepol_policy_fil=
-e *spf, int *type,
->                         }
->                         len =3D le32_to_cpu(buf[0]);
->                         if (str_read(version, file, len)) {
-> -                               ERR(file->handle, "%s", strerror(errno));
-> +                               ERR(file->handle,
-> +                                   "cannot read module version (at secti=
-on %u): %m",
-> +                               i);
->                                 goto cleanup;
->                         }
->                         seen |=3D SEEN_MOD;
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 21d8e5db..9c7e3d3a 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -2668,8 +2668,7 @@ static int ocontext_selinux_ibpkey_to_cil(struct po=
-licydb *pdb,
->
->                 if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
->                               subnet_prefix_str, INET6_ADDRSTRLEN) =3D=3D=
- NULL) {
-> -                       log_err("ibpkeycon subnet_prefix is invalid: %s",
-> -                               strerror(errno));
-> +                       log_err("ibpkeycon subnet_prefix is invalid: %m")=
-;
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2714,13 +2713,13 @@ static int ocontext_selinux_node_to_cil(struct po=
-licydb *pdb, struct ocontext *n
->
->         for (node =3D nodes; node !=3D NULL; node =3D node->next) {
->                 if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADD=
-RSTRLEN) =3D=3D NULL) {
-> -                       log_err("Nodecon address is invalid: %s", strerro=
-r(errno));
-> +                       log_err("Nodecon address is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
->
->                 if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADD=
-RSTRLEN) =3D=3D NULL) {
-> -                       log_err("Nodecon mask is invalid: %s", strerror(e=
-rrno));
-> +                       log_err("Nodecon mask is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2746,13 +2745,13 @@ static int ocontext_selinux_node6_to_cil(struct p=
-olicydb *pdb, struct ocontext *
->
->         for (node =3D nodes; node !=3D NULL; node =3D node->next) {
->                 if (inet_ntop(AF_INET6, &node->u.node6.addr, addr, INET6_=
-ADDRSTRLEN) =3D=3D NULL) {
-> -                       log_err("Nodecon address is invalid: %s", strerro=
-r(errno));
-> +                       log_err("Nodecon address is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
->
->                 if (inet_ntop(AF_INET6, &node->u.node6.mask, mask, INET6_=
-ADDRSTRLEN) =3D=3D NULL) {
-> -                       log_err("Nodecon mask is invalid: %s", strerror(e=
-rrno));
-> +                       log_err("Nodecon mask is invalid: %m");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> diff --git a/libsepol/src/node_record.c b/libsepol/src/node_record.c
-> index 9ef429da..2e575bf1 100644
-> --- a/libsepol/src/node_record.c
-> +++ b/libsepol/src/node_record.c
-> @@ -53,7 +53,7 @@ static int node_parse_addr(sepol_handle_t * handle,
->
->                         if (inet_pton(AF_INET, addr_str, &in_addr) <=3D 0=
-) {
->                                 ERR(handle, "could not parse IPv4 address=
- "
-> -                                   "%s: %s", addr_str, strerror(errno));
-> +                                   "%s: %m", addr_str);
->                                 return STATUS_ERR;
->                         }
->
-> @@ -66,7 +66,7 @@ static int node_parse_addr(sepol_handle_t * handle,
->
->                         if (inet_pton(AF_INET6, addr_str, &in_addr) <=3D =
-0) {
->                                 ERR(handle, "could not parse IPv6 address=
- "
-> -                                   "%s: %s", addr_str, strerror(errno));
-> +                                   "%s: %m", addr_str);
->                                 return STATUS_ERR;
->                         }
->
-> @@ -147,8 +147,7 @@ static int node_expand_addr(sepol_handle_t * handle,
->                                       INET_ADDRSTRLEN) =3D=3D NULL) {
->
->                                 ERR(handle,
-> -                                   "could not expand IPv4 address to str=
-ing: %s",
-> -                                   strerror(errno));
-> +                                   "could not expand IPv4 address to str=
-ing: %m");
->                                 return STATUS_ERR;
->                         }
->                         break;
-> @@ -163,8 +162,7 @@ static int node_expand_addr(sepol_handle_t * handle,
->                                       INET6_ADDRSTRLEN) =3D=3D NULL) {
->
->                                 ERR(handle,
-> -                                   "could not expand IPv6 address to str=
-ing: %s",
-> -                                   strerror(errno));
-> +                                   "could not expand IPv6 address to str=
-ing: %m");
->                                 return STATUS_ERR;
->                         }
->                         break;
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index 47a3dc14..673b3971 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -145,7 +145,7 @@ int sepol_set_policydb_from_file(FILE * fp)
->         }
->         if (policydb_read(&mypolicydb, &pf, 0)) {
->                 policydb_destroy(&mypolicydb);
-> -               ERR(NULL, "can't read binary policy: %s", strerror(errno)=
-);
-> +               ERR(NULL, "can't read binary policy: %m");
->                 return -1;
->         }
->         policydb =3D &mypolicydb;
-> --
-> 2.32.0
->
+This draft should incorporate all of the feedback from the original
+posting as well as a few smaller things I noticed while playing
+further with the code.  The big change is of course the selective
+auditing in the io_uring op servicing, but that has already been
+discussed quite a bit in the original thread so I won't go into
+detail here; the important part is that we found a way to move
+forward and this draft captures that.  For those of you looking to
+play with these patches, they are based on Linus' v5.14-rc5 tag and
+on my test system they boot and appear to function without problem;
+they pass the selinux-testsuite and audit-testsuite and I have not
+noticed any regressions in the normal use of the system.  If you want
+to get a copy of these patches straight from git you can use the
+"working-io_uring" branch in the repo below:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+
+Beyond the existing test suite tests mentioned above, I've cobbled
+together some very basic, very crude tests to exercise some of the
+things I care about from a LSM/audit perspective.  These tests are
+pretty awful (I'm not kidding), but they might be helpful for the
+other LSM/audit developers who want to test things:
+
+https://drop.paul-moore.com/90.kUgq
+
+There are currently two tests: 'iouring.2' and 'iouring.3';
+'iouring.1' was lost in a misguided and overzealous 'rm' command.
+The first test is standalone and basically tests the SQPOLL
+functionality while the second tests sharing io_urings across process
+boundaries and the credential/personality sharing mechanism.  The
+console output of both tests isn't particularly useful, the more
+interesting bits are in the audit and LSM specific logs.  The
+'iouring.2' command requires no special arguments to run but the
+'iouring.3' test is split into a "server" and "client"; the server
+should be run without argument:
+
+  % ./iouring.3s
+  >>> server started, pid = 11678
+  >>> memfd created, fd = 3
+  >>> io_uring created; fd = 5, creds = 1
+
+... while the client should be run with two arguments: the first is
+the PID of the server process, the second is the "memfd" fd number:
+
+  % ./iouring.3c 11678 3
+  >>> client started, server_pid = 11678 server_memfd = 3
+  >>> io_urings = 5 (server) / 5 (client)
+  >>> io_uring ops using creds = 1
+  >>> async op result: 36
+  >>> async op result: 36
+  >>> async op result: 36
+  >>> async op result: 36
+  >>> START file contents
+  What is this life if, full of care,
+  we have no time to stand and stare.
+  >>> END file contents
+
+The tests were hacked together from various sources online,
+attribution and links to additional info can be found in the test
+sources, but I expect these tests to die a fiery death in the not
+to distant future as I work to add some proper tests to the SELinux
+and audit test suites.
+
+As I believe these patches should spend a full -rcX cycle in
+linux-next, my current plan is to continue to solicit feedback on
+these patches while they undergo additional testing (next up is
+verification of the audit filter code for io_uring).  Assuming no
+critical issues are found on the mailing lists or during testing, I
+will post a proper patchset later with the idea of merging it into
+selinux/next after the upcoming merge window closes.
+
+Any comments, feedback, etc. are welcome.
+
+---
+
+Casey Schaufler (1):
+      Smack: Brutalist io_uring support with debug
+
+Paul Moore (8):
+      audit: prepare audit_context for use in calling contexts beyond
+             syscalls
+      audit,io_uring,io-wq: add some basic audit support to io_uring
+      audit: dev/test patch to force io_uring auditing
+      audit: add filtering for io_uring records
+      fs: add anon_inode_getfile_secure() similar to
+          anon_inode_getfd_secure()
+      io_uring: convert io_uring to the secure anon inode interface
+      lsm,io_uring: add LSM hooks to io_uring
+      selinux: add support for the io_uring access controls
+
+
+ fs/anon_inodes.c                    |  29 ++
+ fs/io-wq.c                          |   4 +
+ fs/io_uring.c                       |  69 +++-
+ include/linux/anon_inodes.h         |   4 +
+ include/linux/audit.h               |  26 ++
+ include/linux/lsm_hook_defs.h       |   5 +
+ include/linux/lsm_hooks.h           |  13 +
+ include/linux/security.h            |  16 +
+ include/uapi/linux/audit.h          |   4 +-
+ kernel/audit.h                      |   7 +-
+ kernel/audit_tree.c                 |   3 +-
+ kernel/audit_watch.c                |   3 +-
+ kernel/auditfilter.c                |  15 +-
+ kernel/auditsc.c                    | 483 +++++++++++++++++++-----
+ security/security.c                 |  12 +
+ security/selinux/hooks.c            |  34 ++
+ security/selinux/include/classmap.h |   2 +
+ security/smack/smack_lsm.c          |  64 ++++
+ 18 files changed, 678 insertions(+), 115 deletions(-)
