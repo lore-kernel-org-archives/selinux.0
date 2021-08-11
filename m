@@ -7,56 +7,55 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54958C4338F
-	for <selinux@archiver.kernel.org>; Wed, 11 Aug 2021 20:48:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66DFAC00143
+	for <selinux@archiver.kernel.org>; Wed, 11 Aug 2021 20:48:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3949D6104F
-	for <selinux@archiver.kernel.org>; Wed, 11 Aug 2021 20:48:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 498336104F
+	for <selinux@archiver.kernel.org>; Wed, 11 Aug 2021 20:48:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbhHKUtH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Aug 2021 16:49:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33582 "EHLO
+        id S231933AbhHKUtK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Aug 2021 16:49:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231874AbhHKUsu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Aug 2021 16:48:50 -0400
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36E89C0613D3
-        for <selinux@vger.kernel.org>; Wed, 11 Aug 2021 13:48:26 -0700 (PDT)
-Received: by mail-qk1-x735.google.com with SMTP id t3so3898616qkg.11
-        for <selinux@vger.kernel.org>; Wed, 11 Aug 2021 13:48:26 -0700 (PDT)
+        with ESMTP id S231905AbhHKUtH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Aug 2021 16:49:07 -0400
+Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0290C0617A5
+        for <selinux@vger.kernel.org>; Wed, 11 Aug 2021 13:48:38 -0700 (PDT)
+Received: by mail-qt1-x82b.google.com with SMTP id c5so3182103qtp.13
+        for <selinux@vger.kernel.org>; Wed, 11 Aug 2021 13:48:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=subject:from:to:date:message-id:in-reply-to:references:user-agent
          :mime-version:content-transfer-encoding;
-        bh=W2NLum88q/UIOI3AemafDDoUN3lRSKZQROOt92skCEE=;
-        b=qz15WRfYnDdh5a8bCLWeai2f2N4uizxr90Pv3cQQeyCaVUHucvme881U/fQkTUyBG5
-         dZrx0qIX/XuiJKPebYtKNmn9kqzvubicq0cRrXddPGVJ7qmZ8IMrHjcLWJEPcC3aIQfa
-         ZDTh/69yDUYNOmsIi7+9SpYlX6+MEUUOQPvrTNDaDX0evvyAtDG6Ujr3sx/Yei7JXuPI
-         jWsiSloUyPquYWPUGqe6SPSTQWiv/pKKY7zEzLJutZ6/iSXjLBVXwCzlW2wIWttMNlm2
-         e8cfXKlR166zqO4nXTiLtUFut9MfHG0R281p0CYdrYaTStEr2pdgHIhL3GeUKlD7rcAf
-         45hA==
+        bh=DtMiabXVe2t/Zp2eRgjYPiHEYc/TygDlwFzgOsvocec=;
+        b=mHB4Mq/ymO89PaC6GERZsJRMU2RZQzRN80hB6TZ4vTuahsZHQBmqn99UHdEP8pe9Mb
+         BEZOhSaBAYBD/YTghe3J21RBSIFnv/UHY56gNQdXnHWdjFzn+nVc+Vdsek/3vrfYiP4m
+         qLbTIW0s9LGcjoh8mQkcxOwAAL6Q6PPILx4+2upDSOkZT/YK7EXSkr6D4yTj2F/hB4Ka
+         uxj9NzFE8kCOoRzub52RHK9IXRP31WUd1jCjBnQ+vbLVsUNVb09tSfXx7+j1BSF8WxZ3
+         u7oaIXD+3H7FbCM75ydcFU/gqtH5rc2Zjfhv1pAAogL6tUDNo5KWrCvWczVap90qCrbQ
+         A4xg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:date:message-id:in-reply-to
          :references:user-agent:mime-version:content-transfer-encoding;
-        bh=W2NLum88q/UIOI3AemafDDoUN3lRSKZQROOt92skCEE=;
-        b=hkhGYx6WeC3rzgrfH7a/fUd3I3ma9CaXkKi3+Dru6T618oJOY8mcZ2CRv6lEHmtyoK
-         awHlBDj1rYIE5IM9Th4jwCizw6tu8lIHtwKc3Q2MwW5l40wrBW9PQ5raRsDiEuSRNzbx
-         BdGRdg3AAJUalyM1P0Rrz94oNZpFo6f28gBYYAXBPjJ2P7YyaP+/qa3xLe9GuWZRjZ18
-         hBTVOlVlizuVLVAOUzfah+GSUIdVE7KttxwaKZlRVAMrO0fWAiPOoawUWfc9bGw88KU6
-         av8UdmJdIovLMXBjKPAHXatlPOG42fxHOd4BgnykpBrj5vcAQo3ojtzmMdWkyuKlVtxm
-         O+sA==
-X-Gm-Message-State: AOAM530hUYVYuSCqKbZo9TtgVJ20Osae0dcLHSW3UbIjpgZwNH+CHodV
-        xuUryoJ35xdSwJnXNp//WUKM
-X-Google-Smtp-Source: ABdhPJzQymHVYJREfILrkyeEXtKjl/FAv4etEilK5+UPH5cClpiOb9iDplkL0Zq+Y5O+Rft8cnayCw==
-X-Received: by 2002:a05:620a:2109:: with SMTP id l9mr964547qkl.92.1628714905053;
-        Wed, 11 Aug 2021 13:48:25 -0700 (PDT)
+        bh=DtMiabXVe2t/Zp2eRgjYPiHEYc/TygDlwFzgOsvocec=;
+        b=QlHq64x4ULJmTcZcc/rbZp70zIS3Z3/h5ZETTGOIOddPe1sb0/B8XgFJYhZ2Jay0yG
+         X9XxPi8toad5dtK7CoqjpN3wwDxsrRNon9DPWAEpkxIl076yjRHSi7ZDcOWxUSUx5p1g
+         drH21KZerUsA45Gfeo+/MgO3Ae8LxRkircIc2agCeZTn/r9Z+w7fl9jUxtAOiMnDKFKo
+         5ZkqJDmJrfXc6K2seBetSsYX1PA4+JW0Y3CGFbH7Cd6vR1PsoD8uTvSuJAMQrX2+a/lV
+         EAEHmZ21FtRiJQCMExQdcZIfPY4j4GjSiGyw/fk1vXEzmxwKdaaaoAE6ln2eqnxzzBhl
+         ow9g==
+X-Gm-Message-State: AOAM532yp5JhfVdb28tygVb1z+/2ciLE2CAwouiFoT53Ma/5in8FU3ej
+        aJjH+Ik4JL0yOFMufMVRYvJf
+X-Google-Smtp-Source: ABdhPJy9Mr3jPE5RRqWi1zMGvFe0GdY1f67fZWlXvlp2FSzHM5K2j8qGh27zkuz0EAvq3NKzCfyEOA==
+X-Received: by 2002:ac8:b82:: with SMTP id h2mr608579qti.214.1628714917719;
+        Wed, 11 Aug 2021 13:48:37 -0700 (PDT)
 Received: from localhost (pool-96-237-52-188.bstnma.fios.verizon.net. [96.237.52.188])
-        by smtp.gmail.com with ESMTPSA id j185sm184542qkf.28.2021.08.11.13.48.24
+        by smtp.gmail.com with ESMTPSA id 12sm164548qkk.67.2021.08.11.13.48.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Aug 2021 13:48:24 -0700 (PDT)
-Subject: [RFC PATCH v2 2/9] audit,io_uring,io-wq: add some basic audit support
- to io_uring
+        Wed, 11 Aug 2021 13:48:37 -0700 (PDT)
+Subject: [RFC PATCH v2 4/9] audit: add filtering for io_uring records
 From:   Paul Moore <paul@paul-moore.com>
 To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, io-uring@vger.kernel.org,
@@ -64,8 +63,8 @@ To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Date:   Wed, 11 Aug 2021 16:48:23 -0400
-Message-ID: <162871490393.63873.16998414203890370163.stgit@olly>
+Date:   Wed, 11 Aug 2021 16:48:36 -0400
+Message-ID: <162871491639.63873.699905170296128086.stgit@olly>
 In-Reply-To: <162871480969.63873.9434591871437326374.stgit@olly>
 References: <162871480969.63873.9434591871437326374.stgit@olly>
 User-Agent: StGit/1.1
@@ -81,569 +80,253 @@ anywhere important.  It is almost surely not complete, and while it
 probably compiles it likely hasn't been booted and will do terrible
 things.  You have been warned.
 
-This patch adds basic auditing to io_uring operations, regardless of
-their context.  This is accomplished by allocating audit_context
-structures for the io-wq worker and io_uring SQPOLL kernel threads
-as well as explicitly auditing the io_uring operations in
-io_issue_sqe().  The io_uring operations are audited using a new
-AUDIT_URINGOP record, an example is shown below:
+This patch adds basic audit io_uring filtering, using as much of the
+existing audit filtering infrastructure as possible.  In order to do
+this we reuse the audit filter rule's syscall mask for the io_uring
+operation and we create a new filter for io_uring operations as
+AUDIT_FILTER_URING_EXIT/audit_filter_list[7].
 
-  % <TODO - insert AUDIT_URINGOP record example>
+<TODO - provide some additional guidance for the userspace tools>
 
-Thanks to Richard Guy Briggs for review and feedback.
+Thanks to Richard Guy Briggs for his review and feedback.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 
 ---
 v2:
-- added dummy funcs for audit_uring_{entry,exit}()
-- replaced opcode checks in io_issue_sqe() with audit_skip checks
-- moved fastpath checks into audit_uring_{entry,exit}()
-- audit_log_uring() uses GFP_ATOMIC
-- don't record the arch in __audit_uring_entry()
+- incorporate feedback from Richard
 v1:
 - initial draft
 ---
- fs/io-wq.c                 |    4 +
- fs/io_uring.c              |   55 ++++++++++++--
- include/linux/audit.h      |   26 +++++++
- include/uapi/linux/audit.h |    1 
- kernel/audit.h             |    2 +
- kernel/auditsc.c           |  174 ++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 256 insertions(+), 6 deletions(-)
+ include/uapi/linux/audit.h |    3 +-
+ kernel/audit_tree.c        |    3 +-
+ kernel/audit_watch.c       |    3 +-
+ kernel/auditfilter.c       |   15 ++++++++--
+ kernel/auditsc.c           |   65 ++++++++++++++++++++++++++++++++++----------
+ 5 files changed, 68 insertions(+), 21 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 12fc19353bb0..fb928bac0bf2 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -14,6 +14,7 @@
- #include <linux/rculist_nulls.h>
- #include <linux/cpu.h>
- #include <linux/tracehook.h>
-+#include <linux/audit.h>
- 
- #include "io-wq.h"
- 
-@@ -552,6 +553,8 @@ static int io_wqe_worker(void *data)
- 	snprintf(buf, sizeof(buf), "iou-wrk-%d", wq->task->pid);
- 	set_task_comm(current, buf);
- 
-+	audit_alloc_kernel(current);
-+
- 	while (!test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
- 		long ret;
- 
-@@ -586,6 +589,7 @@ static int io_wqe_worker(void *data)
- 		io_worker_handle_work(worker);
- 	}
- 
-+	audit_free(current);
- 	io_worker_exit(worker);
- 	return 0;
- }
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bf548af0426c..b407a6ea1779 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -78,6 +78,7 @@
- #include <linux/task_work.h>
- #include <linux/pagemap.h>
- #include <linux/io_uring.h>
-+#include <linux/audit.h>
- 
- #define CREATE_TRACE_POINTS
- #include <trace/events/io_uring.h>
-@@ -896,6 +897,8 @@ struct io_op_def {
- 	unsigned		needs_async_setup : 1;
- 	/* should block plug */
- 	unsigned		plug : 1;
-+	/* skip auditing */
-+	unsigned		audit_skip : 1;
- 	/* size of async data needed, if any */
- 	unsigned short		async_size;
- };
-@@ -909,6 +912,7 @@ static const struct io_op_def io_op_defs[] = {
- 		.buffer_select		= 1,
- 		.needs_async_setup	= 1,
- 		.plug			= 1,
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
- 	[IORING_OP_WRITEV] = {
-@@ -918,16 +922,19 @@ static const struct io_op_def io_op_defs[] = {
- 		.pollout		= 1,
- 		.needs_async_setup	= 1,
- 		.plug			= 1,
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
- 	[IORING_OP_FSYNC] = {
- 		.needs_file		= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_READ_FIXED] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollin			= 1,
- 		.plug			= 1,
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
- 	[IORING_OP_WRITE_FIXED] = {
-@@ -936,15 +943,20 @@ static const struct io_op_def io_op_defs[] = {
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
- 		.plug			= 1,
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
- 	[IORING_OP_POLL_ADD] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
-+		.audit_skip		= 1,
-+	},
-+	[IORING_OP_POLL_REMOVE] = {
-+		.audit_skip		= 1,
- 	},
--	[IORING_OP_POLL_REMOVE] = {},
- 	[IORING_OP_SYNC_FILE_RANGE] = {
- 		.needs_file		= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_SENDMSG] = {
- 		.needs_file		= 1,
-@@ -962,18 +974,23 @@ static const struct io_op_def io_op_defs[] = {
- 		.async_size		= sizeof(struct io_async_msghdr),
- 	},
- 	[IORING_OP_TIMEOUT] = {
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_timeout_data),
- 	},
- 	[IORING_OP_TIMEOUT_REMOVE] = {
- 		/* used by timeout updates' prep() */
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_ACCEPT] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollin			= 1,
- 	},
--	[IORING_OP_ASYNC_CANCEL] = {},
-+	[IORING_OP_ASYNC_CANCEL] = {
-+		.audit_skip		= 1,
-+	},
- 	[IORING_OP_LINK_TIMEOUT] = {
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_timeout_data),
- 	},
- 	[IORING_OP_CONNECT] = {
-@@ -988,14 +1005,19 @@ static const struct io_op_def io_op_defs[] = {
- 	},
- 	[IORING_OP_OPENAT] = {},
- 	[IORING_OP_CLOSE] = {},
--	[IORING_OP_FILES_UPDATE] = {},
--	[IORING_OP_STATX] = {},
-+	[IORING_OP_FILES_UPDATE] = {
-+		.audit_skip		= 1,
-+	},
-+	[IORING_OP_STATX] = {
-+		.audit_skip		= 1,
-+	},
- 	[IORING_OP_READ] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollin			= 1,
- 		.buffer_select		= 1,
- 		.plug			= 1,
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
- 	[IORING_OP_WRITE] = {
-@@ -1003,39 +1025,50 @@ static const struct io_op_def io_op_defs[] = {
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
- 		.plug			= 1,
-+		.audit_skip		= 1,
- 		.async_size		= sizeof(struct io_async_rw),
- 	},
- 	[IORING_OP_FADVISE] = {
- 		.needs_file		= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_MADVISE] = {},
- 	[IORING_OP_SEND] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_RECV] = {
- 		.needs_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollin			= 1,
- 		.buffer_select		= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_OPENAT2] = {
- 	},
- 	[IORING_OP_EPOLL_CTL] = {
- 		.unbound_nonreg_file	= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_SPLICE] = {
- 		.needs_file		= 1,
- 		.hash_reg_file		= 1,
- 		.unbound_nonreg_file	= 1,
-+		.audit_skip		= 1,
-+	},
-+	[IORING_OP_PROVIDE_BUFFERS] = {
-+		.audit_skip		= 1,
-+	},
-+	[IORING_OP_REMOVE_BUFFERS] = {
-+		.audit_skip		= 1,
- 	},
--	[IORING_OP_PROVIDE_BUFFERS] = {},
--	[IORING_OP_REMOVE_BUFFERS] = {},
- 	[IORING_OP_TEE] = {
- 		.needs_file		= 1,
- 		.hash_reg_file		= 1,
- 		.unbound_nonreg_file	= 1,
-+		.audit_skip		= 1,
- 	},
- 	[IORING_OP_SHUTDOWN] = {
- 		.needs_file		= 1,
-@@ -6166,6 +6199,9 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
- 	if ((req->flags & REQ_F_CREDS) && req->creds != current_cred())
- 		creds = override_creds(req->creds);
- 
-+	if (!io_op_defs[req->opcode].audit_skip)
-+		audit_uring_entry(req->opcode);
-+
- 	switch (req->opcode) {
- 	case IORING_OP_NOP:
- 		ret = io_nop(req, issue_flags);
-@@ -6272,6 +6308,9 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
- 		break;
- 	}
- 
-+	if (!io_op_defs[req->opcode].audit_skip)
-+		audit_uring_exit(!ret, ret);
-+
- 	if (creds)
- 		revert_creds(creds);
- 	if (ret)
-@@ -6896,6 +6935,8 @@ static int io_sq_thread(void *data)
- 		set_cpus_allowed_ptr(current, cpu_online_mask);
- 	current->flags |= PF_NO_SETAFFINITY;
- 
-+	audit_alloc_kernel(current);
-+
- 	mutex_lock(&sqd->lock);
- 	while (1) {
- 		bool cap_entries, sqt_spin = false;
-@@ -6961,6 +7002,8 @@ static int io_sq_thread(void *data)
- 	io_run_task_work();
- 	mutex_unlock(&sqd->lock);
- 
-+	audit_free(current);
-+
- 	complete(&sqd->exited);
- 	do_exit(0);
- }
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index 82b7c1116a85..d656a06dd909 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -286,7 +286,10 @@ static inline int audit_signal_info(int sig, struct task_struct *t)
- /* These are defined in auditsc.c */
- 				/* Public API */
- extern int  audit_alloc(struct task_struct *task);
-+extern int  audit_alloc_kernel(struct task_struct *task);
- extern void __audit_free(struct task_struct *task);
-+extern void __audit_uring_entry(u8 op);
-+extern void __audit_uring_exit(int success, long code);
- extern void __audit_syscall_entry(int major, unsigned long a0, unsigned long a1,
- 				  unsigned long a2, unsigned long a3);
- extern void __audit_syscall_exit(int ret_success, long ret_value);
-@@ -323,6 +326,21 @@ static inline void audit_free(struct task_struct *task)
- 	if (unlikely(task->audit_context))
- 		__audit_free(task);
- }
-+static inline void audit_uring_entry(u8 op)
-+{
-+	/*
-+	 * We intentionally check audit_context() before audit_enabled as most
-+	 * Linux systems (as of ~2021) rely on systemd which forces audit to
-+	 * be enabled regardless of the user's audit configuration.
-+	 */
-+	if (unlikely(audit_context() && audit_enabled))
-+		__audit_uring_entry(op);
-+}
-+static inline void audit_uring_exit(int success, long code)
-+{
-+	if (unlikely(!audit_dummy_context()))
-+		__audit_uring_exit(success, code);
-+}
- static inline void audit_syscall_entry(int major, unsigned long a0,
- 				       unsigned long a1, unsigned long a2,
- 				       unsigned long a3)
-@@ -554,8 +572,16 @@ static inline int audit_alloc(struct task_struct *task)
- {
- 	return 0;
- }
-+static inline int audit_alloc_kernel(struct task_struct *task)
-+{
-+	return 0;
-+}
- static inline void audit_free(struct task_struct *task)
- { }
-+static inline void audit_uring_entry(u8 op)
-+{ }
-+static inline void audit_uring_exit(int success, long code)
-+{ }
- static inline void audit_syscall_entry(int major, unsigned long a0,
- 				       unsigned long a1, unsigned long a2,
- 				       unsigned long a3)
 diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-index daa481729e9b..a1997697c8b1 100644
+index a1997697c8b1..ecf1edd2affa 100644
 --- a/include/uapi/linux/audit.h
 +++ b/include/uapi/linux/audit.h
-@@ -118,6 +118,7 @@
- #define AUDIT_TIME_ADJNTPVAL	1333	/* NTP value adjustment */
- #define AUDIT_BPF		1334	/* BPF subsystem */
- #define AUDIT_EVENT_LISTENER	1335	/* Task joined multicast read socket */
-+#define AUDIT_URINGOP		1336	/* io_uring operation */
+@@ -167,8 +167,9 @@
+ #define AUDIT_FILTER_EXCLUDE	0x05	/* Apply rule before record creation */
+ #define AUDIT_FILTER_TYPE	AUDIT_FILTER_EXCLUDE /* obsolete misleading naming */
+ #define AUDIT_FILTER_FS		0x06	/* Apply rule at __audit_inode_child */
++#define AUDIT_FILTER_URING_EXIT	0x07	/* Apply rule at io_uring op exit */
  
- #define AUDIT_AVC		1400	/* SE Linux avc denial or grant */
- #define AUDIT_SELINUX_ERR	1401	/* Internal SE Linux Errors */
-diff --git a/kernel/audit.h b/kernel/audit.h
-index 268a13a1c983..834fa18fd6ca 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -100,10 +100,12 @@ struct audit_context {
- 	enum {
- 		AUDIT_CTX_UNUSED,	/* audit_context is currently unused */
- 		AUDIT_CTX_SYSCALL,	/* in use by syscall */
-+		AUDIT_CTX_URING,	/* in use by io_uring */
- 	} context;
- 	enum audit_state    state, current_state;
- 	unsigned int	    serial;     /* serial number for record */
- 	int		    major;      /* syscall number */
-+	int		    uring_op;   /* uring operation */
- 	struct timespec64   ctime;      /* time of syscall entry */
- 	unsigned long	    argv[4];    /* syscall arguments */
- 	long		    return_code;/* syscall return code */
+-#define AUDIT_NR_FILTERS	7
++#define AUDIT_NR_FILTERS	8
+ 
+ #define AUDIT_FILTER_PREPEND	0x10	/* Prepend to front of list */
+ 
+diff --git a/kernel/audit_tree.c b/kernel/audit_tree.c
+index b2be4e978ba3..31bf34844546 100644
+--- a/kernel/audit_tree.c
++++ b/kernel/audit_tree.c
+@@ -726,7 +726,8 @@ int audit_make_tree(struct audit_krule *rule, char *pathname, u32 op)
+ {
+ 
+ 	if (pathname[0] != '/' ||
+-	    rule->listnr != AUDIT_FILTER_EXIT ||
++	    (rule->listnr != AUDIT_FILTER_EXIT &&
++	     rule->listnr != AUDIT_FILTER_URING_EXIT) ||
+ 	    op != Audit_equal ||
+ 	    rule->inode_f || rule->watch || rule->tree)
+ 		return -EINVAL;
+diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
+index 2acf7ca49154..698b62b4a2ec 100644
+--- a/kernel/audit_watch.c
++++ b/kernel/audit_watch.c
+@@ -183,7 +183,8 @@ int audit_to_watch(struct audit_krule *krule, char *path, int len, u32 op)
+ 		return -EOPNOTSUPP;
+ 
+ 	if (path[0] != '/' || path[len-1] == '/' ||
+-	    krule->listnr != AUDIT_FILTER_EXIT ||
++	    (krule->listnr != AUDIT_FILTER_EXIT &&
++	     krule->listnr != AUDIT_FILTER_URING_EXIT) ||
+ 	    op != Audit_equal ||
+ 	    krule->inode_f || krule->watch || krule->tree)
+ 		return -EINVAL;
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index db2c6b59dfc3..d75acb014ccd 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -44,7 +44,8 @@ struct list_head audit_filter_list[AUDIT_NR_FILTERS] = {
+ 	LIST_HEAD_INIT(audit_filter_list[4]),
+ 	LIST_HEAD_INIT(audit_filter_list[5]),
+ 	LIST_HEAD_INIT(audit_filter_list[6]),
+-#if AUDIT_NR_FILTERS != 7
++	LIST_HEAD_INIT(audit_filter_list[7]),
++#if AUDIT_NR_FILTERS != 8
+ #error Fix audit_filter_list initialiser
+ #endif
+ };
+@@ -56,6 +57,7 @@ static struct list_head audit_rules_list[AUDIT_NR_FILTERS] = {
+ 	LIST_HEAD_INIT(audit_rules_list[4]),
+ 	LIST_HEAD_INIT(audit_rules_list[5]),
+ 	LIST_HEAD_INIT(audit_rules_list[6]),
++	LIST_HEAD_INIT(audit_rules_list[7]),
+ };
+ 
+ DEFINE_MUTEX(audit_filter_mutex);
+@@ -151,7 +153,8 @@ char *audit_unpack_string(void **bufp, size_t *remain, size_t len)
+ static inline int audit_to_inode(struct audit_krule *krule,
+ 				 struct audit_field *f)
+ {
+-	if (krule->listnr != AUDIT_FILTER_EXIT ||
++	if ((krule->listnr != AUDIT_FILTER_EXIT &&
++	     krule->listnr != AUDIT_FILTER_URING_EXIT) ||
+ 	    krule->inode_f || krule->watch || krule->tree ||
+ 	    (f->op != Audit_equal && f->op != Audit_not_equal))
+ 		return -EINVAL;
+@@ -248,6 +251,7 @@ static inline struct audit_entry *audit_to_entry_common(struct audit_rule_data *
+ 		pr_err("AUDIT_FILTER_ENTRY is deprecated\n");
+ 		goto exit_err;
+ 	case AUDIT_FILTER_EXIT:
++	case AUDIT_FILTER_URING_EXIT:
+ 	case AUDIT_FILTER_TASK:
+ #endif
+ 	case AUDIT_FILTER_USER:
+@@ -332,6 +336,10 @@ static int audit_field_valid(struct audit_entry *entry, struct audit_field *f)
+ 		if (entry->rule.listnr != AUDIT_FILTER_FS)
+ 			return -EINVAL;
+ 		break;
++	case AUDIT_PERM:
++		if (entry->rule.listnr == AUDIT_FILTER_URING_EXIT)
++			return -EINVAL;
++		break;
+ 	}
+ 
+ 	switch (entry->rule.listnr) {
+@@ -980,7 +988,8 @@ static inline int audit_add_rule(struct audit_entry *entry)
+ 	}
+ 
+ 	entry->rule.prio = ~0ULL;
+-	if (entry->rule.listnr == AUDIT_FILTER_EXIT) {
++	if (entry->rule.listnr == AUDIT_FILTER_EXIT ||
++	    entry->rule.listnr == AUDIT_FILTER_URING_EXIT) {
+ 		if (entry->rule.flags & AUDIT_FILTER_PREPEND)
+ 			entry->rule.prio = ++prio_high;
+ 		else
 diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index c0383d554e61..62fb502da3fc 100644
+index 928f1dd12460..f4a2ca496cac 100644
 --- a/kernel/auditsc.c
 +++ b/kernel/auditsc.c
-@@ -959,6 +959,7 @@ static void audit_reset_context(struct audit_context *ctx)
- 	ctx->current_state = ctx->state;
- 	ctx->serial = 0;
- 	ctx->major = 0;
-+	ctx->uring_op = 0;
- 	ctx->ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
- 	memset(ctx->argv, 0, sizeof(ctx->argv));
- 	ctx->return_code = 0;
-@@ -1044,6 +1045,31 @@ int audit_alloc(struct task_struct *tsk)
- 	return 0;
+@@ -805,6 +805,35 @@ static int audit_in_mask(const struct audit_krule *rule, unsigned long val)
+ 	return rule->mask[word] & bit;
  }
  
 +/**
-+ * audit_alloc_kernel - allocate an audit_context for a kernel task
-+ * @tsk: the kernel task
-+ *
-+ * Similar to the audit_alloc() function, but intended for kernel private
-+ * threads.  Returns zero on success, negative values on failure.
++ * audit_filter_uring - apply filters to an io_uring operation
++ * @tsk: associated task
++ * @ctx: audit context
 + */
-+int audit_alloc_kernel(struct task_struct *tsk)
++static void audit_filter_uring(struct task_struct *tsk,
++			       struct audit_context *ctx)
 +{
-+	/*
-+	 * At the moment we are just going to call into audit_alloc() to
-+	 * simplify the code, but there two things to keep in mind with this
-+	 * approach:
-+	 *
-+	 * 1. Filtering internal kernel tasks is a bit laughable in almost all
-+	 * cases, but there is at least one case where there is a benefit:
-+	 * the '-a task,never' case allows the admin to effectively disable
-+	 * task auditing at runtime.
-+	 *
-+	 * 2. The {set,clear}_task_syscall_work() ops likely have zero effect
-+	 * on these internal kernel tasks, but they probably don't hurt either.
-+	 */
-+	return audit_alloc(tsk);
-+}
++	struct audit_entry *e;
++	enum audit_state state;
 +
- static inline void audit_free_context(struct audit_context *context)
- {
- 	/* resetting is extra work, but it is likely just noise */
-@@ -1546,6 +1572,52 @@ static void audit_log_proctitle(void)
- 	audit_log_end(ab);
- }
- 
-+/**
-+ * audit_log_uring - generate a AUDIT_URINGOP record
-+ * @ctx: the audit context
-+ */
-+static void audit_log_uring(struct audit_context *ctx)
-+{
-+	struct audit_buffer *ab;
-+	const struct cred *cred;
-+
-+	/*
-+	 * TODO: What do we log here?  I'm tossing in a few things to start the
-+	 *       conversation, but additional thought needs to go into this.
-+	 */
-+
-+	ab = audit_log_start(ctx, GFP_ATOMIC, AUDIT_URINGOP);
-+	if (!ab)
-+		return;
-+	cred = current_cred();
-+	audit_log_format(ab, "uring_op=%d", ctx->uring_op);
-+	if (ctx->return_valid != AUDITSC_INVALID)
-+		audit_log_format(ab, " success=%s exit=%ld",
-+				 (ctx->return_valid == AUDITSC_SUCCESS ?
-+				  "yes" : "no"),
-+				 ctx->return_code);
-+	audit_log_format(ab,
-+			 " items=%d"
-+			 " ppid=%d pid=%d auid=%u uid=%u gid=%u"
-+			 " euid=%u suid=%u fsuid=%u"
-+			 " egid=%u sgid=%u fsgid=%u",
-+			 ctx->name_count,
-+			 task_ppid_nr(current),
-+			 task_tgid_nr(current),
-+			 from_kuid(&init_user_ns, audit_get_loginuid(current)),
-+			 from_kuid(&init_user_ns, cred->uid),
-+			 from_kgid(&init_user_ns, cred->gid),
-+			 from_kuid(&init_user_ns, cred->euid),
-+			 from_kuid(&init_user_ns, cred->suid),
-+			 from_kuid(&init_user_ns, cred->fsuid),
-+			 from_kgid(&init_user_ns, cred->egid),
-+			 from_kgid(&init_user_ns, cred->sgid),
-+			 from_kgid(&init_user_ns, cred->fsgid));
-+	audit_log_task_context(ab);
-+	audit_log_key(ab, ctx->filterkey);
-+	audit_log_end(ab);
-+}
-+
- static void audit_log_exit(void)
- {
- 	int i, call_panic = 0;
-@@ -1581,6 +1653,9 @@ static void audit_log_exit(void)
- 		audit_log_key(ab, context->filterkey);
- 		audit_log_end(ab);
- 		break;
-+	case AUDIT_CTX_URING:
-+		audit_log_uring(context);
-+		break;
- 	default:
- 		BUG();
- 		break;
-@@ -1751,6 +1826,105 @@ static void audit_return_fixup(struct audit_context *ctx,
- 	ctx->return_valid = (success ? AUDITSC_SUCCESS : AUDITSC_FAILURE);
- }
- 
-+/**
-+ * __audit_uring_entry - prepare the kernel task's audit context for io_uring
-+ * @op: the io_uring opcode
-+ *
-+ * This is similar to audit_syscall_entry() but is intended for use by io_uring
-+ * operations.  This function should only ever be called from
-+ * audit_uring_entry() as we rely on the audit context checking present in that
-+ * function.
-+ */
-+void __audit_uring_entry(u8 op)
-+{
-+	struct audit_context *ctx = audit_context();
-+
-+	if (ctx->state == AUDIT_STATE_DISABLED)
++	if (auditd_test_task(tsk))
 +		return;
 +
-+	/*
-+	 * NOTE: It's possible that we can be called from the process' context
-+	 *       before it returns to userspace, and before audit_syscall_exit()
-+	 *       is called.  In this case there is not much to do, just record
-+	 *       the io_uring details and return.
-+	 */
-+	ctx->uring_op = op;
-+	if (ctx->context == AUDIT_CTX_SYSCALL)
-+		return;
-+
-+	ctx->dummy = !audit_n_rules;
-+	if (!ctx->dummy && ctx->state == AUDIT_STATE_BUILD)
-+		ctx->prio = 0;
-+
-+	ctx->context = AUDIT_CTX_URING;
-+	ctx->current_state = ctx->state;
-+	ktime_get_coarse_real_ts64(&ctx->ctime);
-+}
-+
-+/**
-+ * __audit_uring_exit - wrap up the kernel task's audit context after io_uring
-+ * @success: true/false value to indicate if the operation succeeded or not
-+ * @code: operation return code
-+ *
-+ * This is similar to audit_syscall_exit() but is intended for use by io_uring
-+ * operations.  This function should only ever be called from
-+ * audit_uring_exit() as we rely on the audit context checking present in that
-+ * function.
-+ */
-+void __audit_uring_exit(int success, long code)
-+{
-+	struct audit_context *ctx = audit_context();
-+
-+	/*
-+	 * TODO: At some point we will likely want to filter on io_uring ops
-+	 *       and other things similar to what we do for syscalls, but that
-+	 *       is something for another day; just record what we can here.
-+	 */
-+
-+	if (ctx->context == AUDIT_CTX_SYSCALL) {
-+		/*
-+		 * NOTE: See the note in __audit_uring_entry() about the case
-+		 *       where we may be called from process context before we
-+		 *       return to userspace via audit_syscall_exit().  In this
-+		 *       case we simply emit a URINGOP record and bail, the
-+		 *       normal syscall exit handling will take care of
-+		 *       everything else.
-+		 *       It is also worth mentioning that when we are called,
-+		 *       the current process creds may differ from the creds
-+		 *       used during the normal syscall processing; keep that
-+		 *       in mind if/when we move the record generation code.
-+		 */
-+
-+		/*
-+		 * We need to filter on the syscall info here to decide if we
-+		 * should emit a URINGOP record.  I know it seems odd but this
-+		 * solves the problem where users have a filter to block *all*
-+		 * syscall records in the "exit" filter; we want to preserve
-+		 * the behavior here.
-+		 */
-+		audit_filter_syscall(current, ctx);
-+		audit_filter_inodes(current, ctx);
-+		if (ctx->current_state != AUDIT_STATE_RECORD)
++	rcu_read_lock();
++	list_for_each_entry_rcu(e, &audit_filter_list[AUDIT_FILTER_URING_EXIT],
++				list) {
++		if (audit_in_mask(&e->rule, ctx->uring_op) &&
++		    audit_filter_rules(tsk, &e->rule, ctx, NULL, &state,
++				       false)) {
++			rcu_read_unlock();
++			ctx->current_state = state;
 +			return;
-+
-+		audit_log_uring(ctx);
-+		return;
++		}
 +	}
-+
-+	/* this may generate CONFIG_CHANGE records */
-+	if (!list_empty(&ctx->killed_trees))
-+		audit_kill_trees(ctx);
-+
-+	audit_filter_inodes(current, ctx);
-+	if (ctx->current_state != AUDIT_STATE_RECORD)
-+		goto out;
-+	audit_return_fixup(ctx, success, code);
-+	audit_log_exit();
-+
-+out:
-+	audit_reset_context(ctx);
++	rcu_read_unlock();
++	return;
 +}
 +
- /**
-  * __audit_syscall_entry - fill in an audit record at syscall entry
-  * @major: major syscall type (function)
+ /* At syscall exit time, this filter is called if the audit_state is
+  * not low enough that auditing cannot take place, but is also not
+  * high enough that we already know we have to write an audit record
+@@ -1765,7 +1794,7 @@ static void audit_log_exit(void)
+  * __audit_free - free a per-task audit context
+  * @tsk: task whose audit context block to free
+  *
+- * Called from copy_process and do_exit
++ * Called from copy_process, do_exit, and the io_uring code
+  */
+ void __audit_free(struct task_struct *tsk)
+ {
+@@ -1783,15 +1812,21 @@ void __audit_free(struct task_struct *tsk)
+ 	 * random task_struct that doesn't doesn't have any meaningful data we
+ 	 * need to log via audit_log_exit().
+ 	 */
+-	if (tsk == current && !context->dummy &&
+-	    context->context == AUDIT_CTX_SYSCALL) {
++	if (tsk == current && !context->dummy) {
+ 		context->return_valid = AUDITSC_INVALID;
+ 		context->return_code = 0;
+-
+-		audit_filter_syscall(tsk, context);
+-		audit_filter_inodes(tsk, context);
+-		if (context->current_state == AUDIT_STATE_RECORD)
+-			audit_log_exit();
++		if (context->context == AUDIT_CTX_SYSCALL) {
++			audit_filter_syscall(tsk, context);
++			audit_filter_inodes(tsk, context);
++			if (context->current_state == AUDIT_STATE_RECORD)
++				audit_log_exit();
++		} else if (context->context == AUDIT_CTX_URING) {
++			/* TODO: verify this case is real and valid */
++			audit_filter_uring(tsk, context);
++			audit_filter_inodes(tsk, context);
++			if (context->current_state == AUDIT_STATE_RECORD)
++				audit_log_uring(context);
++		}
+ 	}
+ 
+ 	audit_set_context(tsk, NULL);
+@@ -1875,12 +1910,6 @@ void __audit_uring_exit(int success, long code)
+ {
+ 	struct audit_context *ctx = audit_context();
+ 
+-	/*
+-	 * TODO: At some point we will likely want to filter on io_uring ops
+-	 *       and other things similar to what we do for syscalls, but that
+-	 *       is something for another day; just record what we can here.
+-	 */
+-
+ 	if (ctx->context == AUDIT_CTX_SYSCALL) {
+ 		/*
+ 		 * NOTE: See the note in __audit_uring_entry() about the case
+@@ -1903,6 +1932,8 @@ void __audit_uring_exit(int success, long code)
+ 		 * the behavior here.
+ 		 */
+ 		audit_filter_syscall(current, ctx);
++		if (ctx->current_state != AUDIT_STATE_RECORD)
++			audit_filter_uring(current, ctx);
+ 		audit_filter_inodes(current, ctx);
+ 		if (ctx->current_state != AUDIT_STATE_RECORD)
+ 			return;
+@@ -1911,7 +1942,9 @@ void __audit_uring_exit(int success, long code)
+ 		return;
+ 	}
+ #if 1
+-	/* XXX - temporary hack to force record generation */
++	/* XXX - temporary hack to force record generation, we are leaving this
++	 *       enabled, but if you want to actually test the filtering you
++	 *       need to disable this #if/#endif block */
+ 	ctx->current_state = AUDIT_STATE_RECORD;
+ #endif
+ 
+@@ -1919,6 +1952,8 @@ void __audit_uring_exit(int success, long code)
+ 	if (!list_empty(&ctx->killed_trees))
+ 		audit_kill_trees(ctx);
+ 
++	/* run through both filters to ensure we set the filterkey properly */
++	audit_filter_uring(current, ctx);
+ 	audit_filter_inodes(current, ctx);
+ 	if (ctx->current_state != AUDIT_STATE_RECORD)
+ 		goto out;
 
