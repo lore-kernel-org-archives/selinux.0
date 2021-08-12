@@ -2,267 +2,138 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 435ADC4338F
-	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 07:53:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30259C4320A
+	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 09:39:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 19B5860FD7
-	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 07:53:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 041B26101E
+	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 09:39:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231520AbhHLHyM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Aug 2021 03:54:12 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:44748 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234860AbhHLHyL (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 12 Aug 2021 03:54:11 -0400
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 3B5452A0397;
-        Thu, 12 Aug 2021 09:53:44 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 3B5452A0397
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1628754824;
-        bh=RHowTx+MaAkaCW/xxCUHpsdE2VOjmtHcDjJfzvJuNb4=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=CjPy7RkyWl3OT8GoO88fcDNt5g7Hc88S9xk8i1qBaxNfN1zYAfz3Nv063F76nQ8Gm
-         mIeDs5Q5eWrxE2ZcBLEFAlNuY85p6mJGdw9KqnbQzdLY0gJMBNcfUzwRN6TSZ53oMZ
-         Hf+NwvwYaL+ik9fRCK8GMXn6vJeReKXFFvknNGU8=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     James Carter <jwcart2@gmail.com>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH] libsepol/cil: Allow some duplicate macro and block
- declarations
-References: <20210811210440.744101-1-jwcart2@gmail.com>
-Date:   Thu, 12 Aug 2021 09:53:41 +0200
-In-Reply-To: <20210811210440.744101-1-jwcart2@gmail.com> (James Carter's
-        message of "Wed, 11 Aug 2021 17:04:40 -0400")
-Message-ID: <87pmuj3xq2.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
+        id S229956AbhHLJkV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Aug 2021 05:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234632AbhHLJkU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Aug 2021 05:40:20 -0400
+X-Greylist: delayed 438 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Aug 2021 02:39:55 PDT
+Received: from smtp-190e.mail.infomaniak.ch (smtp-190e.mail.infomaniak.ch [IPv6:2001:1600:4:17::190e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA59EC0613D3
+        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 02:39:55 -0700 (PDT)
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4GlhL80mW0zMptvC;
+        Thu, 12 Aug 2021 11:32:32 +0200 (CEST)
+Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
+        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4GlhL711hkzlmrry;
+        Thu, 12 Aug 2021 11:32:31 +0200 (CEST)
+Subject: Re: [RFC PATCH v2 5/9] fs: add anon_inode_getfile_secure() similar to
+ anon_inode_getfd_secure()
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <162871492283.63873.8743976556992924333.stgit@olly>
+From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+Message-ID: <1d19ca85-c6f9-7aa5-162a-f9728e0a8ccd@digikod.net>
+Date:   Thu, 12 Aug 2021 11:32:15 +0200
+User-Agent: 
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <162871492283.63873.8743976556992924333.stgit@olly>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
 
-> The commit d155b410d4bbc90d28f361b966f0429598da8188 (libsepol/cil:
-> Check for duplicate blocks, optionals, and macros) added checks when
-> copying blocks, macros, and optionals so that a duplicate would cause
-> an exit with an error. Unfortunately, some policies exist that depend
-> on this behavior when using inheritance.
-
-Thanks. This resolved my issues.
-
-We should probably document this behavior.
-
->
-> The behavior is as follows.
->
-> For macros only the first declared macro matters.
-> ;
-> (macro m ((type ARG1))
->   (allow ARG1 self (CLASS (PERM1)))
-> )
-> (block b
->   (macro m ((type ARG1))
->     (allow ARG1 self (CLASS (PERM2)))
->   )
-> )
-> (blockinherit b)
-> (type t)
-> (call m (t))
-> ;
-> For this policy segment, the macro m in block b will not be called.
-> Only the original macro m will be.
->
-> This behavior has been used to override macros that are going to
-> be inherited. Only the inherited macros that have not already been
-> declared in the destination namespace will be used.
->
-> Blocks seem to work fine even though there are two of them
-> ;
-> (block b1
->   (blockinherit b2)
->   (block b
->     (type t1)
->     (allow t1 self (CLASS (PERM)))
->   )
-> )
-> (block b2
->   (block b
->     (type t2)
->     (allow t2 self (CLASS (PERM)))
->   )
-> )
-> (blockinherit b1)
-> ;
-> In this example, the blockinherit of b2 will cause there to be
-> two block b's in block b1. Note that if both block b's tried to
-> declare the same type, then that would be an error. The blockinherit
-> of b1 will copy both block b's.
->
-> This behavior has been used to allow the use of in-statements for
-> a block that is being inherited. Since the in-statements are resolved
-> before block inheritance, this only works if a block with the same
-> name as the block to be inherited is declared in the namespace.
->
-> To support the use of these two behaviors, allow duplicate blocks
-> and macros when they occur as the result of block inheritance. In
-> any other circumstances and error for a redeclaration will be given.
->
-> Since the duplicate macro is not going to be used it is just skipped.
-> The duplicate block will use the datum of the original block. In both
-> cases a warning message will be produced (it will only be seen if
-> "-v" is used when compiling the policy).
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On 11/08/2021 22:48, Paul Moore wrote:
+> Extending the secure anonymous inode support to other subsystems
+> requires that we have a secure anon_inode_getfile() variant in
+> addition to the existing secure anon_inode_getfd() variant.
+> 
+> Thankfully we can reuse the existing __anon_inode_getfile() function
+> and just wrap it with the proper arguments.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> 
 > ---
->  libsepol/cil/src/cil_copy_ast.c | 69 ++++++++++++++++++++++++---------
->  1 file changed, 50 insertions(+), 19 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> index 9c0231f2..67be2ec8 100644
-> --- a/libsepol/cil/src/cil_copy_ast.c
-> +++ b/libsepol/cil/src/cil_copy_ast.c
-> @@ -43,6 +43,7 @@
->  #include "cil_verify.h"
->  
->  struct cil_args_copy {
-> +	struct cil_tree_node *orig_dest;
->  	struct cil_tree_node *dest;
->  	struct cil_db *db;
->  };
-> @@ -101,17 +102,23 @@ int cil_copy_block(__attribute__((unused)) struct cil_db *db, void *data, void *
->  	struct cil_block *orig = data;
->  	char *key = orig->datum.name;
->  	struct cil_symtab_datum *datum = NULL;
-> -	struct cil_block *new;
->  
->  	cil_symtab_get_datum(symtab, key, &datum);
->  	if (datum != NULL) {
-> -		cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
-> -		return SEPOL_ERR;
-> +		if (FLAVOR(datum) != CIL_BLOCK) {
-> +			cil_tree_log(NODE(orig), CIL_ERR, "Block %s being copied", key);
-> +			cil_tree_log(NODE(datum), CIL_ERR, "  Conflicts with %s already declared", cil_node_to_string(NODE(datum)));
-> +			return SEPOL_ERR;
-> +		}
-> +		cil_tree_log(NODE(orig), CIL_WARN, "Block %s being copied", key);
-> +		cil_tree_log(NODE(datum), CIL_WARN, "  Previously declared", key);
-> +		*copy = datum;
-> +	} else {
-> +		struct cil_block *new;
-> +		cil_block_init(&new);
-> +		*copy = new;
->  	}
->  
-> -	cil_block_init(&new);
-> -	*copy = new;
-> -
->  	return SEPOL_OK;
+> v2:
+> - no change
+> v1:
+> - initial draft
+> ---
+>  fs/anon_inodes.c            |   29 +++++++++++++++++++++++++++++
+>  include/linux/anon_inodes.h |    4 ++++
+>  2 files changed, 33 insertions(+)
+> 
+> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> index a280156138ed..e0c3e33c4177 100644
+> --- a/fs/anon_inodes.c
+> +++ b/fs/anon_inodes.c
+> @@ -148,6 +148,35 @@ struct file *anon_inode_getfile(const char *name,
 >  }
+>  EXPORT_SYMBOL_GPL(anon_inode_getfile);
 >  
-> @@ -1511,21 +1518,26 @@ int cil_copy_macro(__attribute__((unused)) struct cil_db *db, void *data, void *
->  	struct cil_macro *orig = data;
->  	char *key = orig->datum.name;
->  	struct cil_symtab_datum *datum = NULL;
-> -	struct cil_macro *new;
->  
->  	cil_symtab_get_datum(symtab, key, &datum);
->  	if (datum != NULL) {
-> -		cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
-> -		return SEPOL_ERR;
-> -	}
-> -
-> -	cil_macro_init(&new);
-> -	if (orig->params != NULL) {
-> -		cil_copy_list(orig->params, &new->params);
-> +		if (FLAVOR(datum) != CIL_MACRO) {
-> +			cil_tree_log(NODE(orig), CIL_ERR, "Macro %s being copied", key);
-> +			cil_tree_log(NODE(datum), CIL_ERR, "  Conflicts with %s already declared", cil_node_to_string(NODE(datum)));
-> +			return SEPOL_ERR;
-> +		}
-> +		cil_tree_log(NODE(orig), CIL_WARN, "Skipping macro %s", key);
-> +		cil_tree_log(NODE(datum), CIL_WARN, "  Previously declared");
-> +		*copy = NULL;
-> +	} else {
-> +		struct cil_macro *new;
-> +		cil_macro_init(&new);
-> +		if (orig->params != NULL) {
-> +			cil_copy_list(orig->params, &new->params);
-> +		}
-> +		*copy = new;
->  	}
->  
-> -	*copy = new;
-> -
->  	return SEPOL_OK;
->  }
->  
-> @@ -1700,7 +1712,7 @@ int cil_copy_src_info(__attribute__((unused)) struct cil_db *db, void *data, voi
->  	return SEPOL_OK;
->  }
->  
-> -int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) uint32_t *finished, void *extra_args)
-> +int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void *extra_args)
->  {
->  	int rc = SEPOL_ERR;
->  	struct cil_tree_node *parent = NULL;
-> @@ -2005,6 +2017,16 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
->  
->  	rc = (*copy_func)(db, orig->data, &data, symtab);
->  	if (rc == SEPOL_OK) {
-> +		if (orig->flavor == CIL_MACRO && data == NULL) {
-> +			/* Skipping macro re-declaration */
-> +			if (args->orig_dest->flavor != CIL_BLOCKINHERIT) {
-> +				cil_log(CIL_ERR, "  Re-declaration of macro is only allowed when inheriting a block\n");
-> +				return SEPOL_ERR;
-> +			}
-> +			*finished = CIL_TREE_SKIP_HEAD;
-> +			return SEPOL_OK;
-> +		}
-> +
->  		cil_tree_node_init(&new);
->  
->  		new->parent = parent;
-> @@ -2013,7 +2035,15 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
->  		new->flavor = orig->flavor;
->  		new->data = data;
->  
-> -		if (orig->flavor >= CIL_MIN_DECLARATIVE) {
-> +		if (orig->flavor == CIL_BLOCK && DATUM(data)->nodes->head != NULL) {
-> +			/* Duplicate block */
-> +			if (args->orig_dest->flavor != CIL_BLOCKINHERIT) {
-> +				cil_log(CIL_ERR, "  Re-declaration of block is only allowed when inheriting a block\n");
-> +				rc = SEPOL_ERR;
-> +				goto exit;
-> +			}
-> +			cil_list_append(DATUM(new->data)->nodes, CIL_NODE, new);
-> +		} else if (orig->flavor >= CIL_MIN_DECLARATIVE) {
->  			/* Check the flavor of data if was found in the destination symtab */
->  			if (DATUM(data)->nodes->head && FLAVOR(data) != orig->flavor) {
->  				cil_tree_log(orig, CIL_ERR, "Incompatible flavor when trying to copy %s", DATUM(data)->name);
-> @@ -2098,12 +2128,13 @@ int cil_copy_ast(struct cil_db *db, struct cil_tree_node *orig, struct cil_tree_
->  	int rc = SEPOL_ERR;
->  	struct cil_args_copy extra_args;
->  
-> +	extra_args.orig_dest = dest;
->  	extra_args.dest = dest;
->  	extra_args.db = db;
->  
->  	rc = cil_tree_walk(orig, __cil_copy_node_helper, NULL,  __cil_copy_last_child_helper, &extra_args);
->  	if (rc != SEPOL_OK) {
-> -		cil_log(CIL_INFO, "cil_tree_walk failed, rc: %d\n", rc);
-> +		cil_tree_log(dest, CIL_ERR, "Failed to copy %s to %s", cil_node_to_string(orig), cil_node_to_string(dest));
->  		goto exit;
->  	}
+> +/**
+> + * anon_inode_getfile_secure - Like anon_inode_getfile(), but creates a new
+> + *                             !S_PRIVATE anon inode rather than reuse the
+> + *                             singleton anon inode and calls the
+> + *                             inode_init_security_anon() LSM hook.  This
+> + *                             allows for both the inode to have its own
+> + *                             security context and for the LSM to enforce
+> + *                             policy on the inode's creation.
+> + *
+> + * @name:    [in]    name of the "class" of the new file
+> + * @fops:    [in]    file operations for the new file
+> + * @priv:    [in]    private data for the new file (will be file's private_data)
+> + * @flags:   [in]    flags
+> + * @context_inode:
+> + *           [in]    the logical relationship with the new inode (optional)
+> + *
+> + * The LSM may use @context_inode in inode_init_security_anon(), but a
+> + * reference to it is not held.  Returns the newly created file* or an error
+> + * pointer.  See the anon_inode_getfile() documentation for more information.
+> + */
+> +struct file *anon_inode_getfile_secure(const char *name,
+> +				       const struct file_operations *fops,
+> +				       void *priv, int flags,
+> +				       const struct inode *context_inode)
+> +{
+> +	return __anon_inode_getfile(name, fops, priv, flags,
+> +				    context_inode, true);
 
--- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
+This is not directly related to this patch but why using the "secure"
+boolean in __anon_inode_getfile() and __anon_inode_getfd() instead of
+checking that context_inode is not NULL? This would simplify the code,
+remove this anon_inode_getfile_secure() wrapper and avoid potential
+inconsistencies.
+
+> +}
+> +
+>  static int __anon_inode_getfd(const char *name,
+>  			      const struct file_operations *fops,
+>  			      void *priv, int flags,
+> diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
+> index 71881a2b6f78..5deaddbd7927 100644
+> --- a/include/linux/anon_inodes.h
+> +++ b/include/linux/anon_inodes.h
+> @@ -15,6 +15,10 @@ struct inode;
+>  struct file *anon_inode_getfile(const char *name,
+>  				const struct file_operations *fops,
+>  				void *priv, int flags);
+> +struct file *anon_inode_getfile_secure(const char *name,
+> +				       const struct file_operations *fops,
+> +				       void *priv, int flags,
+> +				       const struct inode *context_inode);
+>  int anon_inode_getfd(const char *name, const struct file_operations *fops,
+>  		     void *priv, int flags);
+>  int anon_inode_getfd_secure(const char *name,
+> 
