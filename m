@@ -2,138 +2,72 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30259C4320A
-	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 09:39:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F984C4338F
+	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 11:52:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 041B26101E
-	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 09:39:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2218E60F91
+	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 11:52:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229956AbhHLJkV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Aug 2021 05:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38172 "EHLO
+        id S235600AbhHLLxW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Aug 2021 07:53:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbhHLJkU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Aug 2021 05:40:20 -0400
-X-Greylist: delayed 438 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Aug 2021 02:39:55 PDT
-Received: from smtp-190e.mail.infomaniak.ch (smtp-190e.mail.infomaniak.ch [IPv6:2001:1600:4:17::190e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA59EC0613D3
-        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 02:39:55 -0700 (PDT)
-Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4GlhL80mW0zMptvC;
-        Thu, 12 Aug 2021 11:32:32 +0200 (CEST)
-Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
-        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4GlhL711hkzlmrry;
-        Thu, 12 Aug 2021 11:32:31 +0200 (CEST)
-Subject: Re: [RFC PATCH v2 5/9] fs: add anon_inode_getfile_secure() similar to
- anon_inode_getfd_secure()
-To:     Paul Moore <paul@paul-moore.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-References: <162871480969.63873.9434591871437326374.stgit@olly>
- <162871492283.63873.8743976556992924333.stgit@olly>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <1d19ca85-c6f9-7aa5-162a-f9728e0a8ccd@digikod.net>
-Date:   Thu, 12 Aug 2021 11:32:15 +0200
-User-Agent: 
+        with ESMTP id S235563AbhHLLxW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Aug 2021 07:53:22 -0400
+Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 11BACC061765
+        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 04:52:57 -0700 (PDT)
+Received: from brutus.. (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 50CEF2A006A;
+        Thu, 12 Aug 2021 13:52:53 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 50CEF2A006A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1628769173;
+        bh=sHsV0492acrXTzkO/vr7rPRN1CgRc27DbysRZuR0+Ws=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lsa4W9z7oF7vvTXloqbMLIbT+fxeE03n0thRHE/P9J5Q5ulBx3zQbWB8D8Xv8VDAL
+         t5X9BbksnscmE8fQ6lFx2ohPs8u3APXTA/7Li41UKCriN4c0Tm7BGuDv5yPlNj+dmO
+         MX6+Yj7O04CSaYLyz00E7sm3ZNz8UWhRzQU+wHfQ=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>
+Subject: [PATCH] cil_container_statements.md: clarify in-statement limitations
+Date:   Thu, 12 Aug 2021 13:52:43 +0200
+Message-Id: <20210812115243.224604-1-dominick.grift@defensec.nl>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <162871492283.63873.8743976556992924333.stgit@olly>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+in-statements are resolved before inheritance and this is
+unintuitive. Explain that one can instead re-declare blocks and macros
+that were inherited, effectively yielding similar results.
 
-On 11/08/2021 22:48, Paul Moore wrote:
-> Extending the secure anonymous inode support to other subsystems
-> requires that we have a secure anon_inode_getfile() variant in
-> addition to the existing secure anon_inode_getfd() variant.
-> 
-> Thankfully we can reuse the existing __anon_inode_getfile() function
-> and just wrap it with the proper arguments.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> 
-> ---
-> v2:
-> - no change
-> v1:
-> - initial draft
-> ---
->  fs/anon_inodes.c            |   29 +++++++++++++++++++++++++++++
->  include/linux/anon_inodes.h |    4 ++++
->  2 files changed, 33 insertions(+)
-> 
-> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-> index a280156138ed..e0c3e33c4177 100644
-> --- a/fs/anon_inodes.c
-> +++ b/fs/anon_inodes.c
-> @@ -148,6 +148,35 @@ struct file *anon_inode_getfile(const char *name,
->  }
->  EXPORT_SYMBOL_GPL(anon_inode_getfile);
->  
-> +/**
-> + * anon_inode_getfile_secure - Like anon_inode_getfile(), but creates a new
-> + *                             !S_PRIVATE anon inode rather than reuse the
-> + *                             singleton anon inode and calls the
-> + *                             inode_init_security_anon() LSM hook.  This
-> + *                             allows for both the inode to have its own
-> + *                             security context and for the LSM to enforce
-> + *                             policy on the inode's creation.
-> + *
-> + * @name:    [in]    name of the "class" of the new file
-> + * @fops:    [in]    file operations for the new file
-> + * @priv:    [in]    private data for the new file (will be file's private_data)
-> + * @flags:   [in]    flags
-> + * @context_inode:
-> + *           [in]    the logical relationship with the new inode (optional)
-> + *
-> + * The LSM may use @context_inode in inode_init_security_anon(), but a
-> + * reference to it is not held.  Returns the newly created file* or an error
-> + * pointer.  See the anon_inode_getfile() documentation for more information.
-> + */
-> +struct file *anon_inode_getfile_secure(const char *name,
-> +				       const struct file_operations *fops,
-> +				       void *priv, int flags,
-> +				       const struct inode *context_inode)
-> +{
-> +	return __anon_inode_getfile(name, fops, priv, flags,
-> +				    context_inode, true);
+Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+---
+ secilc/docs/cil_container_statements.md | 2 ++
+ 1 file changed, 2 insertions(+)
 
-This is not directly related to this patch but why using the "secure"
-boolean in __anon_inode_getfile() and __anon_inode_getfd() instead of
-checking that context_inode is not NULL? This would simplify the code,
-remove this anon_inode_getfile_secure() wrapper and avoid potential
-inconsistencies.
+diff --git a/secilc/docs/cil_container_statements.md b/secilc/docs/cil_container_statements.md
+index 41a4612c..0259778c 100644
+--- a/secilc/docs/cil_container_statements.md
++++ b/secilc/docs/cil_container_statements.md
+@@ -282,6 +282,8 @@ Allows the insertion of CIL statements into a named container ([`block`](cil_con
+ 
+ Not allowed in [`macro`](cil_call_macro_statements.md#macro), [`booleanif`](cil_conditional_statements.md#booleanif), and other [`in`](cil_container_statements.md#in) blocks.
+ 
++Note that [`in`](cil_container_statements.md#in) statements referencing blocks and macros that were inherited cannot be resolved and that instead it is allowed to re-declare blocks and macros that were inherited, resulting in similar behavior.
++
+ [`tunable`](cil_conditional_statements.md#tunable) and [`in`](cil_container_statements.md#in) statements are not allowed in [`in`](cil_container_statements.md#in) blocks.
+ 
+ **Statement definition:**
+-- 
+2.32.0
 
-> +}
-> +
->  static int __anon_inode_getfd(const char *name,
->  			      const struct file_operations *fops,
->  			      void *priv, int flags,
-> diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
-> index 71881a2b6f78..5deaddbd7927 100644
-> --- a/include/linux/anon_inodes.h
-> +++ b/include/linux/anon_inodes.h
-> @@ -15,6 +15,10 @@ struct inode;
->  struct file *anon_inode_getfile(const char *name,
->  				const struct file_operations *fops,
->  				void *priv, int flags);
-> +struct file *anon_inode_getfile_secure(const char *name,
-> +				       const struct file_operations *fops,
-> +				       void *priv, int flags,
-> +				       const struct inode *context_inode);
->  int anon_inode_getfd(const char *name, const struct file_operations *fops,
->  		     void *priv, int flags);
->  int anon_inode_getfd_secure(const char *name,
-> 
