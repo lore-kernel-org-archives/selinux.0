@@ -2,104 +2,159 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82FA4C4338F
-	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 13:37:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0F05C4338F
+	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 14:33:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5853D604AC
-	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 13:37:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A34D86104F
+	for <selinux@archiver.kernel.org>; Thu, 12 Aug 2021 14:33:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231984AbhHLNhd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Aug 2021 09:37:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
+        id S238090AbhHLOd2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Aug 2021 10:33:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230033AbhHLNhd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Aug 2021 09:37:33 -0400
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38ADAC061756
-        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 06:37:08 -0700 (PDT)
-Received: by mail-ot1-x32d.google.com with SMTP id c23-20020a0568301af7b029050cd611fb72so7745331otd.3
-        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 06:37:08 -0700 (PDT)
+        with ESMTP id S236944AbhHLOd1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Aug 2021 10:33:27 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AC4C061756
+        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 07:33:02 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id b15so11959535ejg.10
+        for <selinux@vger.kernel.org>; Thu, 12 Aug 2021 07:33:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uVwtkNWZWdaavzMlBlFxaDlpi3wqQH+augWMIKgaRuM=;
-        b=iBX4rZUIa3vhfNGeOKUkTBm4fJKRIHDBQzFR24S/BNr0Sw/jeS6fAA91klG7FUAAPb
-         jlOyQkDO/tMMFGYoggjg8a4Dsvp8Mno5Ol0bBjuKqO7Cr9Nf9MY1mUZBe7RUup7DZogn
-         GfhO6Z9U7jmFWwgUDGvMibK3qpholsTYb3oE8imD0Q9lE3ptrFUvfy08ESj6ayrpYE8u
-         7J7JVZB0UIV6rW035kq4IFyANOT9b9P1f7xS463G0TfH6SRP/mINvmxILeSSkdegpki8
-         fZi8jLKFmo1Eh0t9hkklu10mzEAlJxyoWT8E09uQjGJwXTWSWkw6s3aA+WvHH4n3zfdO
-         qNqg==
+         :cc:content-transfer-encoding;
+        bh=Tf3TpEvP9E7186InLyyaf92hJ3EmJ36m+RywVZpSgPY=;
+        b=R/MuhpWp9RvhseRjm4R0jGRMhlHQsOmEJE1n2UUz0eGJ/hijPkEUFgXK1gUyCDZsN4
+         GOJMZdHsaYi6ZpN2Qg2ML12TUevHGmF40wJBD3TVT612ErE7duytSyU5zvwCRExQTL8m
+         5gkvg3x8jeY8EFUNS3dfNUKLt31Zot49diHU1ua9oWvrU2f5P1DwegTgSdWXMqoLeTV0
+         FRCueROZZsOmtAmIT9Zm7916s1YUYohTZzvUvjdDlrTLl0iBlkS0K80nyMKP+AVY0sqg
+         n3gQDqdWk7cPkxkXRfkLunbkGT6cAAaTGP3BC7O3rwIQuNWWx9PcPczRmfwKJ+D1U3B0
+         NzOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uVwtkNWZWdaavzMlBlFxaDlpi3wqQH+augWMIKgaRuM=;
-        b=gpsKdnN/ceMYPO3djOC92WHQpshdmk3BHcZECz8mgyi4IYOEOVjUHJIvKlK4RAEEBU
-         gxW9bI90EEQQcwGWnPajOz1CF5TGKHnC/2XJwdGE70AQ+D9tunMGD/LsdFWr4NpwTUIb
-         fDuoYe+Y0XE1HYIXz5eWEZVuIJzKwriQIidUKBfb2k8C8SRdDyxvNCPlwfY8fort7sEb
-         ntYh14WjymkNLRBZN54yyGyTII1+21CPbO5l5/eJMhmIGPQlYL0b1+BiLejIoxUP3E5/
-         26S3wkTdbmVKowN1tGMvzrU4JUUmrhPRSyctsxJSwDyUFCayWTHkJwZhYBjJoBIeiBqH
-         lbSg==
-X-Gm-Message-State: AOAM532B2jyD1xxP8AQPk5ItnXGUlGwxXCkbaIPr6IZ+mx5lPltl/z2U
-        BuymdN0nlnPvRafpOOvpiwoPnN77vqazHd472f1swDcqzLI=
-X-Google-Smtp-Source: ABdhPJz5VXphgvivzuatjkzBDJXHBVuO35nQSDvPWI1KHocW0ihJ3G3mgpaV5aI6H1/oQjFI+QuGuGdFBIsaCx45MHo=
-X-Received: by 2002:a9d:7a90:: with SMTP id l16mr3415300otn.59.1628775427654;
- Thu, 12 Aug 2021 06:37:07 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Tf3TpEvP9E7186InLyyaf92hJ3EmJ36m+RywVZpSgPY=;
+        b=ruXGhRKDSernJX65gk+ZebpIYGNEoM4itvLThLAEdhz/YWf88h5FTZJTj1JzfebykQ
+         QHfxgbij0751vClyeJ2gc4OEnjV2EnjIAMoL1l91gW3F+WpNd8yFslvudiYayUUfEHQ0
+         At6WYc/32ujPVO3QYUpd6lIZDfzf5fyiibBuyhRNExGn/kjAMVMw0k4t0I89ExDJuEci
+         uBpHcejTl+ASEw6a11PtZnoaVOgdWDkhZ2Gcakeb78kE2xkvgATHyu/XO/MzFHxA2g2S
+         24uRna5++h7yVk63MY+On2hssLmqfOFYnPpIFKslsMKQIv5uypJxYtaoWUJGgwjUlpIG
+         Bmcg==
+X-Gm-Message-State: AOAM5303hkcZ1DV4GoVJHt9EAZjk69E78G/IG/SiVCZsY9TSakeAjBjy
+        I7Fn/gA8cmtwzOqPIUQnsaUMOogKFSdfn/ENcQOL
+X-Google-Smtp-Source: ABdhPJzAG+KxRcFQg5frwrLx7u2ThZW6azkYAv7FMiBSgbLG3jxMShQvp886ILKHc2KwMX5wMmNXVbVHSV9qauldwmg=
+X-Received: by 2002:a17:907:3345:: with SMTP id yr5mr3971377ejb.542.1628778780618;
+ Thu, 12 Aug 2021 07:33:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210812115243.224604-1-dominick.grift@defensec.nl>
-In-Reply-To: <20210812115243.224604-1-dominick.grift@defensec.nl>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 12 Aug 2021 09:36:56 -0400
-Message-ID: <CAP+JOzSrMj03VjOn3yAKGk5gGBdRg8dPbtn_CMivBMCqO8H6ow@mail.gmail.com>
-Subject: Re: [PATCH] cil_container_statements.md: clarify in-statement limitations
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <162871492283.63873.8743976556992924333.stgit@olly> <1d19ca85-c6f9-7aa5-162a-f9728e0a8ccd@digikod.net>
+In-Reply-To: <1d19ca85-c6f9-7aa5-162a-f9728e0a8ccd@digikod.net>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 12 Aug 2021 10:32:49 -0400
+Message-ID: <CAHC9VhRe3cgYuaV7w-BUwj_i=8_uuy3+5-8oA6QVsdXp3JgVtw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 5/9] fs: add anon_inode_getfile_secure() similar to anon_inode_getfd_secure()
+To:     =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 12, 2021 at 8:33 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
+On Thu, Aug 12, 2021 at 5:32 AM Micka=C3=ABl Sala=C3=BCn <mic@digikod.net> =
+wrote:
+> On 11/08/2021 22:48, Paul Moore wrote:
+> > Extending the secure anonymous inode support to other subsystems
+> > requires that we have a secure anon_inode_getfile() variant in
+> > addition to the existing secure anon_inode_getfd() variant.
+> >
+> > Thankfully we can reuse the existing __anon_inode_getfile() function
+> > and just wrap it with the proper arguments.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >
+> > ---
+> > v2:
+> > - no change
+> > v1:
+> > - initial draft
+> > ---
+> >  fs/anon_inodes.c            |   29 +++++++++++++++++++++++++++++
+> >  include/linux/anon_inodes.h |    4 ++++
+> >  2 files changed, 33 insertions(+)
+> >
+> > diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> > index a280156138ed..e0c3e33c4177 100644
+> > --- a/fs/anon_inodes.c
+> > +++ b/fs/anon_inodes.c
+> > @@ -148,6 +148,35 @@ struct file *anon_inode_getfile(const char *name,
+> >  }
+> >  EXPORT_SYMBOL_GPL(anon_inode_getfile);
+> >
+> > +/**
+> > + * anon_inode_getfile_secure - Like anon_inode_getfile(), but creates =
+a new
+> > + *                             !S_PRIVATE anon inode rather than reuse=
+ the
+> > + *                             singleton anon inode and calls the
+> > + *                             inode_init_security_anon() LSM hook.  T=
+his
+> > + *                             allows for both the inode to have its o=
+wn
+> > + *                             security context and for the LSM to enf=
+orce
+> > + *                             policy on the inode's creation.
+> > + *
+> > + * @name:    [in]    name of the "class" of the new file
+> > + * @fops:    [in]    file operations for the new file
+> > + * @priv:    [in]    private data for the new file (will be file's pri=
+vate_data)
+> > + * @flags:   [in]    flags
+> > + * @context_inode:
+> > + *           [in]    the logical relationship with the new inode (opti=
+onal)
+> > + *
+> > + * The LSM may use @context_inode in inode_init_security_anon(), but a
+> > + * reference to it is not held.  Returns the newly created file* or an=
+ error
+> > + * pointer.  See the anon_inode_getfile() documentation for more infor=
+mation.
+> > + */
+> > +struct file *anon_inode_getfile_secure(const char *name,
+> > +                                    const struct file_operations *fops=
+,
+> > +                                    void *priv, int flags,
+> > +                                    const struct inode *context_inode)
+> > +{
+> > +     return __anon_inode_getfile(name, fops, priv, flags,
+> > +                                 context_inode, true);
 >
-> in-statements are resolved before inheritance and this is
-> unintuitive. Explain that one can instead re-declare blocks and macros
-> that were inherited, effectively yielding similar results.
->
-> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> This is not directly related to this patch but why using the "secure"
+> boolean in __anon_inode_getfile() and __anon_inode_getfd() instead of
+> checking that context_inode is not NULL? This would simplify the code,
+> remove this anon_inode_getfile_secure() wrapper and avoid potential
+> inconsistencies.
 
-I am working on an optional extension of the behavior of the
-in-statement that I hope to send out soon. If that works out, then the
-documentation is going to change, so let's hold off on this patch for
-now to see how that turns out.
+The issue is that it is acceptable for the context_inode to be either
+valid or NULL for callers who request the "secure" code path.
 
-Thanks,
-Jim
+Look at the SELinux implementation of the anonymous inode hook in
+selinux_inode_init_security_anon() and you will see that in cases
+where the context_inode is valid we simply inherit the label from the
+given inode, whereas if context_inode is NULL we do a type transition
+using the requesting task and the anonymous inode's "name".
 
-> ---
->  secilc/docs/cil_container_statements.md | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/secilc/docs/cil_container_statements.md b/secilc/docs/cil_container_statements.md
-> index 41a4612c..0259778c 100644
-> --- a/secilc/docs/cil_container_statements.md
-> +++ b/secilc/docs/cil_container_statements.md
-> @@ -282,6 +282,8 @@ Allows the insertion of CIL statements into a named container ([`block`](cil_con
->
->  Not allowed in [`macro`](cil_call_macro_statements.md#macro), [`booleanif`](cil_conditional_statements.md#booleanif), and other [`in`](cil_container_statements.md#in) blocks.
->
-> +Note that [`in`](cil_container_statements.md#in) statements referencing blocks and macros that were inherited cannot be resolved and that instead it is allowed to re-declare blocks and macros that were inherited, resulting in similar behavior.
-> +
->  [`tunable`](cil_conditional_statements.md#tunable) and [`in`](cil_container_statements.md#in) statements are not allowed in [`in`](cil_container_statements.md#in) blocks.
->
->  **Statement definition:**
-> --
-> 2.32.0
->
+--=20
+paul moore
+www.paul-moore.com
