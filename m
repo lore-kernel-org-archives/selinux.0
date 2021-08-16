@@ -2,283 +2,164 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7D6BC4338F
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 20:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 171C3C4338F
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 20:38:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9641B60232
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 20:10:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E362560EFE
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 20:38:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231481AbhHPUK4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 16:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59654 "EHLO
+        id S231618AbhHPUjM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 16:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbhHPUK4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 16:10:56 -0400
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F7F9C061764
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 13:10:24 -0700 (PDT)
-Received: by mail-qv1-xf2f.google.com with SMTP id j9so560384qvt.4
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 13:10:24 -0700 (PDT)
+        with ESMTP id S231594AbhHPUjK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 16:39:10 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6962BC061764
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 13:38:38 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id d11so34132444eja.8
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 13:38:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=n+kzG2DK/HmOBf9mhg2ouBqg3PKiGND6k0b4EQgDkaY=;
-        b=HrexspJ4sgQC26VSb8loDusbOmy/KtpcgD5t7n6oCv1VpQSdR0HSyUkpA6noTSQQd2
-         mi1cqGX/PNnf9TblExPsr1YPp6PyThZfCGHwnwTcQj2M4X2yahx0DHaOFR9nzulH0deZ
-         sbU5B7yeiQ+OUEOAk3TxcseqsHc3vFAF9i5Nq9VbG89gdzXVSoK5ghFB6DVJeeEs6gXl
-         aRo4UnwlLiD5n1qU+HAJPJqa9ptepVc8ITDPU2Pfaa0COBUJTr66JLyBg21vTNrcykVm
-         H3+nQCPPFGtj47+0sJkG5XUNfe8AvFyhmVj2mvJtlLYg3YmPHPA89z3hg/PUsdiznspI
-         P43g==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hZPOl68Ndzvm/jlAcQLcOKVl2CP6rfKuQA3mCtKk+5Y=;
+        b=EyJ0Pj0Plj9ahrMvvgiE4I5Ud6jufC7nuHPp7yJR6lkuufX81PlPc2m8REkMCTSuqp
+         gnlLKI7fnj1Yl6ODMuR8nOii7Eimjti03Se/JP+9kGDBaJM1dYICIr+rFNkNxELeKDdA
+         zIC7pIc7pTryZMAsmmvs/0gdI3eKcsGDrayHyjQX1zCwA/ORJlrrhFAVfNgWogL7qKOB
+         b11wQLw2dSxGH9ZHbfySUYkUE9TW5+UyA23l13/fZnBjw+W/HLmbBhBtU9RxsmM4wRIl
+         nXh0i5oLfaRVfVhp9e0hYloPRmHrxwtGmMCOYUUvZyJJ2K/Uy5N80QYKVvkpJhQwmiz2
+         weaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=n+kzG2DK/HmOBf9mhg2ouBqg3PKiGND6k0b4EQgDkaY=;
-        b=ImqLyOuFGR5t6WMjfVr8FoRVc9iSDaDMrEw/jGOiTzQQ307W6UfvvHaigQX/de5CeD
-         MjaZSQcZ0lRBBdWUpUvIIdnWPajDUKn/zciEKqmQ58bc6qTCWI9aFzKN7+9z+ZxrLtQK
-         19Xk0JWLX/KXIJ18ou7TXEaQErUuXPDyFeDxtKp+qmSXYS8YKVTgZOUAr1oeghSu/rKw
-         hyUjQKNZj80NQ+Vzzeru//NKJH+1rlA4o3GtRKVZJc0h4vek61hEfhinrWoqQz2ly+3Z
-         JS98rH2q/7Wwti8DOf3DtKW+Y4XJ7ssTmj9ysF5mR2EKgdG8myF4+Fh0BMu5kU4C8bul
-         SAPw==
-X-Gm-Message-State: AOAM53008bVmP//r7Vq4/g13vXgIh6Ef/8NghFM1uytYAtbZJs93kBZU
-        kRYn4f1OFW8Xzme0x8dnBMAZ3zMYbDx7MA==
-X-Google-Smtp-Source: ABdhPJy8U6YAyGAi6bpqga4Axiz2joOdXXesbtnpL7fmvdpuauHHQ4K43DmnThZzwPQ4W/M23JVgTw==
-X-Received: by 2002:a0c:be85:: with SMTP id n5mr482422qvi.59.1629144623293;
-        Mon, 16 Aug 2021 13:10:23 -0700 (PDT)
-Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id a14sm151296qtb.57.2021.08.16.13.10.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Aug 2021 13:10:23 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2] libsepol/cil: Allow some duplicate macro and block declarations
-Date:   Mon, 16 Aug 2021 16:10:19 -0400
-Message-Id: <20210816201019.925773-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hZPOl68Ndzvm/jlAcQLcOKVl2CP6rfKuQA3mCtKk+5Y=;
+        b=OY7sjI244U8kN40ugBBULuNuQNu2wSY3ZJ0L+X8Yxs0MoTmFQZcWia0OOMLIKlY0cs
+         DzwHmWie2yc+TG2+J8YJzn+da9QNfQLFp51rUvFde4yUD+UdCazf/LvtUipU9y0FlvPh
+         z4i9em7z+w3qe57dMXOl0ObvnYPTBjCaiN5cbPL0QTRsAqYOPS/wOzi7ygV+C2bKHt93
+         lmIbzD6GqwrHJPuafP/Aa97mhD2ahn8/0ith8TZAV/VnjO6YLShV+8KdutWlnhdman1s
+         ISOqrbXoSsvsZqsVXDwbDY6Kks7sqLZ9y92aVwGNfoAUJWItXAHywv3orGILLO/MX3JZ
+         m10A==
+X-Gm-Message-State: AOAM531vNzSCsQ34USNGlzU2blRApSCnHlYy6ewfzx6g6BoiWANzmnQ3
+        joGVMy2v6EHcjZzbgAowVvs9ATxeEozm5sEe/UUo
+X-Google-Smtp-Source: ABdhPJxH9kJEGkTnoGGI3uF5KPYORmjXaL2OKMsRAJztVGnqJddqlOz7APpEC/HJvR1f4elLyafcmXzM+9oX7Wcp2Cs=
+X-Received: by 2002:a17:906:95c9:: with SMTP id n9mr335603ejy.178.1629146316874;
+ Mon, 16 Aug 2021 13:38:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210728140313.68096-1-omosnace@redhat.com> <CAHC9VhTDagTt1CKDRPkVrcvHwWPbSzzPp3HSS3ZzsbLapTBAxw@mail.gmail.com>
+ <CAFqZXNuT=-m2QVgw+Awm3HcK5pt8niKb+yu2Tspy2RCsLByrWQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNuT=-m2QVgw+Awm3HcK5pt8niKb+yu2Tspy2RCsLByrWQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 16 Aug 2021 16:38:25 -0400
+Message-ID: <CAHC9VhT6YcAWn4KrsfjpJQGDetEVy7LNh8DsrMrycW8y57Y20Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix race condition when computing ocontext SIDs
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Sujithra Periasamy <sujithra@google.com>,
+        Xinjie Zheng <xinjie@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The commit d155b410d4bbc90d28f361b966f0429598da8188 (libsepol/cil:
-Check for duplicate blocks, optionals, and macros) added checks when
-copying blocks, macros, and optionals so that a duplicate would cause
-an exit with an error. Unfortunately, some policies exist that depend
-on this behavior when using inheritance.
+On Mon, Aug 16, 2021 at 8:51 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Thu, Aug 5, 2021 at 10:48 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Wed, Jul 28, 2021 at 10:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> [...]
+> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > > index 0a5ce001609b..c8db8a3432e4 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -2369,6 +2369,43 @@ err_policy:
+> > >         return rc;
+> > >  }
+> > >
+> > > +/**
+> > > + * ocontext_to_sid - Helper to safely get sid for an ocontext
+> > > + * @sidtab: SID table
+> > > + * @c: ocontext structure
+> > > + * @index: index of the context entry (0 or 1)
+> > > + * @out_sid: pointer to the resulting SID value
+> > > + *
+> > > + * For all ocontexts except OCON_ISID the SID fields are populated
+> > > + * on-demand when needed. Since updating the SID value is an SMP-sensitive
+> > > + * operation, this helper must be used to do that safely.
+> > > + *
+> > > + * WARNING: This function may return -ESTALE, indicating that the caller
+> > > + * must retry the operation after re-acquiring the policy pointer!
+> > > + */
+> > > +static int ocontext_to_sid(struct sidtab *sidtab, struct ocontext *c,
+> > > +                          size_t index, u32 *out_sid)
+> > > +{
+> > > +       int rc;
+> > > +       u32 sid;
+> > > +
+> > > +       /* Ensure the associated sidtab entry is visible to this thread. */
+> > > +       sid = smp_load_acquire(&c->sid[index]);
+> >
+> > Is there a reason why you decided to use smp_{load,store} to guard
+> > ocontext.sid[] as opposed to RCU/spinlock?  RCU would allow us to
+> > avoid the memory barrier in smp_load_acquire() on every call to
+> > ocontext_to_sid() and it looks like all of the non-exclusive callers
+> > are already in a RCU protected section so the additional impact on an
+> > already cached value should be next to nothing.  The spinlock would
+> > make things slightly more complicated (take the lock, recheck
+> > ocontext.sid, set/bail, unlock, etc.) but we are already in the slow
+> > path at that point.
+>
+> I don't see any sane way to use RCU here - the implicit data
+> dependency that the memory barrier is guarding us against here is
+> between the sid field(s) and the memory regions in sidtab that hold
+> the struct context corresponding to the SID stored in the field. You'd
+> have to put both the SID value and the sidtab pointer behind some
+> dynamically allocated structure and that would just be horrible...
 
-The behavior is as follows.
+I'm jumping between the io_uring stuff, stacking/audit issues, and now
+this today and I fear that context switches have taken their toll
+already and I haven't resolve this in my own mind yet.  However, since
+this patch has been languishing in inboxes with a week or so between
+replies I wanted to at least impart this comment today ...
 
-For macros only the first declared macro matters.
-;
-(macro m ((type ARG1))
-  (allow ARG1 self (CLASS (PERM1)))
-)
-(block b
-  (macro m ((type ARG1))
-    (allow ARG1 self (CLASS (PERM2)))
-  )
-)
-(blockinherit b)
-(type t)
-(call m (t))
-;
-For this policy segment, the macro m in block b will not be called.
-Only the original macro m will be.
+You need to start thinking more about how this code is going to be
+maintained long term.  To clarify, when I say "long term" I'm talking
+about +10 years from now when most everyone involved has forgotten the
+subtle data dependencies you're talking about now.  While memory
+barriers are sometimes necessary due to the unavoidable complexity in
+the kernel, they shouldn't be an excuse for properly crafting, and
+synchronizing access to data structures.  My initial take two weeks
+ago was that this patch has some nice ideas, e.g. the consolidation
+into ocontext_to_sid(), but the use of memory barriers as a solution
+to synchronizing the cached SID and underlying context was just not a
+good first option (especially considering the minimal comments
+explaining need for the barrier).  Maybe we get back to this solution
+eventually, but I'm really hoping there is a better way, and your
+commit made no comment about what other options you may have explored.
 
-This behavior has been used to override macros that are going to
-be inherited. Only the inherited macros that have not already been
-declared in the destination namespace will be used.
+Please try to come up with a better solution that leverages proper
+locking primitives, and if that isn't possible please explain (in
+detail) why.
 
-Blocks seem to work fine even though there are two of them
-;
-(block b1
-  (blockinherit b2)
-  (block b
-    (type t1)
-    (allow t1 self (CLASS (PERM)))
-  )
-)
-(block b2
-  (block b
-    (type t2)
-    (allow t2 self (CLASS (PERM)))
-  )
-)
-(blockinherit b1)
-;
-In this example, the blockinherit of b2 will cause there to be
-two block b's in block b1. Note that if both block b's tried to
-declare the same type, then that would be an error. The blockinherit
-of b1 will copy both block b's.
+> I assume that by using spinlock you mean something like:
+>
+> sid = READ_ONCE(c->sid);
+> if (!sid) {
+>         spin_lock(...);
+>         sidtab_context_to_sid(..., &sid);
+>         WRITE_ONCE(c->sid, sid);
+>         spin_unlock(...);
+> }
+>
+> ...because taking the spinlock every time would obviously be less
+> efficient than this patch :)
 
-This behavior has been used to allow the use of in-statements for
-a block that is being inherited. Since the in-statements are resolved
-before block inheritance, this only works if a block with the same
-name as the block to be inherited is declared in the namespace.
+I didn't think I needed to clarify that, but yes, that is what I meant.
 
-To support the use of these two behaviors, allow duplicate blocks
-and macros when they occur as the result of block inheritance. In
-any other circumstances and error for a redeclaration will be given.
-
-Since the duplicate macro is not going to be used it is just skipped.
-The duplicate block will use the datum of the original block. In both
-cases a warning message will be produced (it will only be seen if
-"-v" is used when compiling the policy).
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
-v2:
- Removed extra format argument "key"
-
- libsepol/cil/src/cil_copy_ast.c | 69 ++++++++++++++++++++++++---------
- 1 file changed, 50 insertions(+), 19 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-index 9c0231f2..ef793448 100644
---- a/libsepol/cil/src/cil_copy_ast.c
-+++ b/libsepol/cil/src/cil_copy_ast.c
-@@ -43,6 +43,7 @@
- #include "cil_verify.h"
- 
- struct cil_args_copy {
-+	struct cil_tree_node *orig_dest;
- 	struct cil_tree_node *dest;
- 	struct cil_db *db;
- };
-@@ -101,17 +102,23 @@ int cil_copy_block(__attribute__((unused)) struct cil_db *db, void *data, void *
- 	struct cil_block *orig = data;
- 	char *key = orig->datum.name;
- 	struct cil_symtab_datum *datum = NULL;
--	struct cil_block *new;
- 
- 	cil_symtab_get_datum(symtab, key, &datum);
- 	if (datum != NULL) {
--		cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
--		return SEPOL_ERR;
-+		if (FLAVOR(datum) != CIL_BLOCK) {
-+			cil_tree_log(NODE(orig), CIL_ERR, "Block %s being copied", key);
-+			cil_tree_log(NODE(datum), CIL_ERR, "  Conflicts with %s already declared", cil_node_to_string(NODE(datum)));
-+			return SEPOL_ERR;
-+		}
-+		cil_tree_log(NODE(orig), CIL_WARN, "Block %s being copied", key);
-+		cil_tree_log(NODE(datum), CIL_WARN, "  Previously declared");
-+		*copy = datum;
-+	} else {
-+		struct cil_block *new;
-+		cil_block_init(&new);
-+		*copy = new;
- 	}
- 
--	cil_block_init(&new);
--	*copy = new;
--
- 	return SEPOL_OK;
- }
- 
-@@ -1511,21 +1518,26 @@ int cil_copy_macro(__attribute__((unused)) struct cil_db *db, void *data, void *
- 	struct cil_macro *orig = data;
- 	char *key = orig->datum.name;
- 	struct cil_symtab_datum *datum = NULL;
--	struct cil_macro *new;
- 
- 	cil_symtab_get_datum(symtab, key, &datum);
- 	if (datum != NULL) {
--		cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
--		return SEPOL_ERR;
--	}
--
--	cil_macro_init(&new);
--	if (orig->params != NULL) {
--		cil_copy_list(orig->params, &new->params);
-+		if (FLAVOR(datum) != CIL_MACRO) {
-+			cil_tree_log(NODE(orig), CIL_ERR, "Macro %s being copied", key);
-+			cil_tree_log(NODE(datum), CIL_ERR, "  Conflicts with %s already declared", cil_node_to_string(NODE(datum)));
-+			return SEPOL_ERR;
-+		}
-+		cil_tree_log(NODE(orig), CIL_WARN, "Skipping macro %s", key);
-+		cil_tree_log(NODE(datum), CIL_WARN, "  Previously declared");
-+		*copy = NULL;
-+	} else {
-+		struct cil_macro *new;
-+		cil_macro_init(&new);
-+		if (orig->params != NULL) {
-+			cil_copy_list(orig->params, &new->params);
-+		}
-+		*copy = new;
- 	}
- 
--	*copy = new;
--
- 	return SEPOL_OK;
- }
- 
-@@ -1700,7 +1712,7 @@ int cil_copy_src_info(__attribute__((unused)) struct cil_db *db, void *data, voi
- 	return SEPOL_OK;
- }
- 
--int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) uint32_t *finished, void *extra_args)
-+int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void *extra_args)
- {
- 	int rc = SEPOL_ERR;
- 	struct cil_tree_node *parent = NULL;
-@@ -2005,6 +2017,16 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
- 
- 	rc = (*copy_func)(db, orig->data, &data, symtab);
- 	if (rc == SEPOL_OK) {
-+		if (orig->flavor == CIL_MACRO && data == NULL) {
-+			/* Skipping macro re-declaration */
-+			if (args->orig_dest->flavor != CIL_BLOCKINHERIT) {
-+				cil_log(CIL_ERR, "  Re-declaration of macro is only allowed when inheriting a block\n");
-+				return SEPOL_ERR;
-+			}
-+			*finished = CIL_TREE_SKIP_HEAD;
-+			return SEPOL_OK;
-+		}
-+
- 		cil_tree_node_init(&new);
- 
- 		new->parent = parent;
-@@ -2013,7 +2035,15 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
- 		new->flavor = orig->flavor;
- 		new->data = data;
- 
--		if (orig->flavor >= CIL_MIN_DECLARATIVE) {
-+		if (orig->flavor == CIL_BLOCK && DATUM(data)->nodes->head != NULL) {
-+			/* Duplicate block */
-+			if (args->orig_dest->flavor != CIL_BLOCKINHERIT) {
-+				cil_log(CIL_ERR, "  Re-declaration of block is only allowed when inheriting a block\n");
-+				rc = SEPOL_ERR;
-+				goto exit;
-+			}
-+			cil_list_append(DATUM(new->data)->nodes, CIL_NODE, new);
-+		} else if (orig->flavor >= CIL_MIN_DECLARATIVE) {
- 			/* Check the flavor of data if was found in the destination symtab */
- 			if (DATUM(data)->nodes->head && FLAVOR(data) != orig->flavor) {
- 				cil_tree_log(orig, CIL_ERR, "Incompatible flavor when trying to copy %s", DATUM(data)->name);
-@@ -2098,12 +2128,13 @@ int cil_copy_ast(struct cil_db *db, struct cil_tree_node *orig, struct cil_tree_
- 	int rc = SEPOL_ERR;
- 	struct cil_args_copy extra_args;
- 
-+	extra_args.orig_dest = dest;
- 	extra_args.dest = dest;
- 	extra_args.db = db;
- 
- 	rc = cil_tree_walk(orig, __cil_copy_node_helper, NULL,  __cil_copy_last_child_helper, &extra_args);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_INFO, "cil_tree_walk failed, rc: %d\n", rc);
-+		cil_tree_log(dest, CIL_ERR, "Failed to copy %s to %s", cil_node_to_string(orig), cil_node_to_string(dest));
- 		goto exit;
- 	}
- 
 -- 
-2.31.1
-
+paul moore
+www.paul-moore.com
