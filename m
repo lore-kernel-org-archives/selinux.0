@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDBA0C4320A
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 19:58:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76D0EC4338F
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 19:58:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C875260F38
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 19:58:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52A1860F38
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 19:58:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbhHPT6d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 15:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56746 "EHLO
+        id S231331AbhHPT6e (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 15:58:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229802AbhHPT6b (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 15:58:31 -0400
-Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B670C0613C1
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:57:59 -0700 (PDT)
-Received: by mail-qv1-xf2a.google.com with SMTP id g11so1185066qvd.2
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:57:59 -0700 (PDT)
+        with ESMTP id S230481AbhHPT6c (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 15:58:32 -0400
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16181C061796
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:58:00 -0700 (PDT)
+Received: by mail-qv1-xf31.google.com with SMTP id v1so9943519qva.7
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:58:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=xpxPrrTiM5SRC2n12ZPGSGD0+g4rIv6oPky8lykdC70=;
-        b=um9hgn/4nnAcXov+PAuHQUb7rvIICe/CFnsMFz9Nrt1Z7y3voBRUu6y2V1icnvFB49
-         xUV3Hm41r0MNLMPrDuzRiEJISr4YQVy7qL/EwZTPVs07iOaDnXJ7RZlb69pT9+6rnjML
-         wykkvaGCUkrgWnTc3ixtmTkSXSRVayTtb6zOoKFBvvO4BoqLW7yrQDbecwXVTuCT9YXE
-         25OJWFt4BgQNqOmuOzKoIo2T+sojWqONePkReKIXyMm/enf1nfW3WzvYe/N75DqtDL9W
-         PlKM0m6vJOE9nWdErxvhrO4Z1MZGeEWklrUWLRFjpzbrvfePMXSutN3Q5ZxqZwnhCOCC
-         T3tA==
+        bh=4umRkcaGpCtbzgqA5jpMX6247ba4PQmUVExObBh0Pr8=;
+        b=tG6ftrXW1TCOMIEavf4w9uemXGdpsKLdquvoq4YwaWWsEWWrr9i5nJ26tbL3j0Eznk
+         VrYf1Ai09bbBup2nAqO7ZJDc5nRQw3PXMb4BfovsHSi3HmLqdC3saNJ6Fz44H1T2zC9y
+         cC+du10XB8Jh8yP/nDOCC6EazrfUNrK+oQWCX+Q2qLMORJYnvrYqFH7WxWAs4pVh8XsU
+         x2WpYTDmTBkePx+I/pOraRHb23t1/2kqWWL7YpP0aSmnYgNWTS1oIpB8/Vbqbz+Zai4r
+         FTx4IePZADtSQsACO6CFXgti5Rc8ONsu5i1AE8pdFuGTLoaleMV7Kb7m5ao2R15PTz4j
+         hl2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xpxPrrTiM5SRC2n12ZPGSGD0+g4rIv6oPky8lykdC70=;
-        b=accgTQz+nSqTsPevwLa2WldbkmlyvHJYBIdAK62rgbRFP9qkRsZ0lLQdjCyJx8W85O
-         ABEIgIuyHyJmvxgEuisV/xSIml3yF8YBHIopA3AJvXG70IckdTO8JPurgrvWaxmwpAdj
-         shao28FrPaSUuyou4aUAYuf2l6DFSqYNbyU04J+StOGW/rQzM6CQCZglgo+OfWEdqA9M
-         bZuh9LVymxvi9jv4q6Zfpl8Dct3A+B7tlUul0036Iz4r0ufvjkVHGbQjYHD8ag51eh36
-         5hE3oWQn0HtDOjBBuDBOE/mYijAh0Pao4Wt9GLZIk1pJpeFy5QljYqz+cYjaU0/FVqBS
-         X8Tg==
-X-Gm-Message-State: AOAM533aXKbqVniDjTixDqL2D40pRm2dBpwVMbHFxZdnBA0v9hf5JeuD
-        S8Vb5wU1U3BFWmud03ogRSLIYV52UnlIIA==
-X-Google-Smtp-Source: ABdhPJyTZhi9dvdVK2lP/kGKklw4Eh3Q+9pZI+zJ75NDLyxFFBL00xjpYGAD0F2xVVqaRt1fw2RQoQ==
-X-Received: by 2002:a0c:fe6a:: with SMTP id b10mr480956qvv.6.1629143878102;
-        Mon, 16 Aug 2021 12:57:58 -0700 (PDT)
+        bh=4umRkcaGpCtbzgqA5jpMX6247ba4PQmUVExObBh0Pr8=;
+        b=oXE74f5uOpqTaBomhDRsnwpP5QNtBHFy06k2R9pctpWGYIoyuQ3Vc27uedBxfIlgQP
+         FJXq/yA9MLfXKoY9IL0W24sIz2oR87lJVFhHU876eILUQXAKzp8Qlg6eiU0IqX5wTwvx
+         ZQr8PJYeK/+K3IV/IeVs+V6EgApx3b3WFYhvlh8ZbTLYYyZcaIUGEJhQIPqMFm7H396E
+         uq1AvS0ir1yvahY4M00E8X/jfFzqAVjBAmYE7DcLy1x1Nl4ERO5K9nTfq8Mrpgx7UBDx
+         wbxZLFoyRN8pisRSrs/g/2DPmcvu1Zu/K2swJU56GW56gy/NH4UFSsGLjHHkXJLTNJ9F
+         EcnQ==
+X-Gm-Message-State: AOAM533QUB0DfPZSwwucCdDj8wixgOqjkjgBpk+hmglTlUjfZvx0akWc
+        7jb6opoVxXxKvRnF3QX5FV8Wy1ZQkmmI1A==
+X-Google-Smtp-Source: ABdhPJy8z0lHMT51anwy95Nv8Dqu/mQNGGMUhDpMET0s9+EMsyKsCjoNhA0RuHQ/tJX9ZMo4f5Ekqg==
+X-Received: by 2002:a05:6214:508:: with SMTP id v8mr375667qvw.33.1629143879164;
+        Mon, 16 Aug 2021 12:57:59 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id f11sm135147qtf.45.2021.08.16.12.57.57
+        by smtp.gmail.com with ESMTPSA id f11sm135147qtf.45.2021.08.16.12.57.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Aug 2021 12:57:57 -0700 (PDT)
+        Mon, 16 Aug 2021 12:57:58 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/7 v2] libsepol/cil: Check syntax of src_info statement
-Date:   Mon, 16 Aug 2021 15:57:46 -0400
-Message-Id: <20210816195752.923028-2-jwcart2@gmail.com>
+Subject: [PATCH 3/7 v2] libsepol/cil: Check for valid line mark type immediately
+Date:   Mon, 16 Aug 2021 15:57:48 -0400
+Message-Id: <20210816195752.923028-4-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210816195752.923028-1-jwcart2@gmail.com>
 References: <20210816195752.923028-1-jwcart2@gmail.com>
@@ -71,69 +71,56 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Every rule other than src_info has their syntax checked when
-building the AST. It wasn't considered necessary for src_info rules
-because they were expected to always be generated by the parser and
-aren't part of the CIL language. But there is no check preventing
-them from occurring in a policy and the secilc fuzzer found some bugs
-by using src_info rules in a policy. This caused some syntax checking
-to be added. Since the parse AST from secil2tree will contain src_info
-rules and since the goal is to be able to compile the output of
-secil2tree, it makes sense to check the syntax of src_info rules
-in the same way that all of the other rules are checked.
+It clearer to check that the line mark type is a valid option right
+after getting the token.
 
-Check the syntax of src_info statements in the same way every other
-rule is checked.
+Check that the line mark type is one of the expected values right
+awasy.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_build_ast.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ libsepol/cil/src/cil_parser.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 9da90883..5e65a266 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -6075,12 +6075,24 @@ void cil_destroy_mls(struct cil_mls *mls)
- 
- int cil_gen_src_info(struct cil_tree_node *parse_current, struct cil_tree_node *ast_node)
- {
--	/* No need to check syntax, because this is auto generated */
-+	int rc = SEPOL_ERR;
-+	enum cil_syntax syntax[] = {
-+		CIL_SYN_STRING,
-+		CIL_SYN_STRING,
-+		CIL_SYN_STRING,
-+		CIL_SYN_N_LISTS | CIL_SYN_END,
-+		CIL_SYN_END
-+	};
-+	int syntax_len = sizeof(syntax)/sizeof(*syntax);
- 	struct cil_src_info *info = NULL;
- 
--	if (parse_current->next == NULL || parse_current->next->next == NULL) {
--		cil_tree_log(parse_current, CIL_ERR, "Bad <src_info>");
--		return SEPOL_ERR;
-+	if (parse_current == NULL || ast_node == NULL) {
+diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
+index fc90caec..24386f60 100644
+--- a/libsepol/cil/src/cil_parser.c
++++ b/libsepol/cil/src/cil_parser.c
+@@ -116,6 +116,10 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+ 		goto exit;
+ 	}
+ 	hll_type = cil_strpool_add(tok.value);
++	if (hll_type != CIL_KEY_HLL_LME && hll_type != CIL_KEY_HLL_LMS && hll_type != CIL_KEY_HLL_LMX) {
++		cil_log(CIL_ERR, "Invalid line mark syntax\n");
 +		goto exit;
 +	}
-+
-+	rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
- 	}
+ 	if (hll_type == CIL_KEY_HLL_LME) {
+ 		if (cil_stack_is_empty(stack)) {
+ 			cil_log(CIL_ERR, "Line mark end without start\n");
+@@ -134,15 +138,6 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+ 		create_node(&node, *current, tok.line, *hll_lineno, CIL_KEY_SRC_HLL);
+ 		insert_node(node, *current);
  
- 	cil_src_info_init(&info);
-@@ -6092,6 +6104,10 @@ int cil_gen_src_info(struct cil_tree_node *parse_current, struct cil_tree_node *
- 	ast_node->flavor = CIL_SRC_INFO;
+-		if (hll_type == CIL_KEY_HLL_LMS) {
+-			*hll_expand = 0;
+-		} else if (hll_type == CIL_KEY_HLL_LMX) {
+-			*hll_expand = 1;
+-		} else {
+-			cil_log(CIL_ERR, "Invalid line mark syntax\n");
+-			goto exit;
+-		}
+-
+ 		cil_lexer_next(&tok);
+ 		if (tok.type != SYMBOL) {
+ 			cil_log(CIL_ERR, "Invalid line mark syntax\n");
+@@ -161,6 +156,7 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+ 		}
+ #endif
+ 		*hll_lineno = val;
++		*hll_expand = (hll_type == CIL_KEY_HLL_LMX) ? 1 : 0;
  
- 	return SEPOL_OK;
-+
-+exit:
-+	cil_tree_log(parse_current, CIL_ERR, "Bad src info");
-+	return rc;
- }
+ 		push_hll_info(stack, *hll_lineno, *hll_expand);
  
- void cil_destroy_src_info(struct cil_src_info *info)
 -- 
 2.31.1
 
