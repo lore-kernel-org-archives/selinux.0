@@ -2,256 +2,533 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 262E7C4338F
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 09:16:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E180C4338F
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 09:23:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04D3561B5E
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 09:16:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E44DC61AFC
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 09:23:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235091AbhHPJRA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 05:17:00 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:50302 "EHLO
+        id S235344AbhHPJYY convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 05:24:24 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:56915 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233053AbhHPJRA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 05:17:00 -0400
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+        with ESMTP id S235287AbhHPJYY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 05:24:24 -0400
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 3CEC45605D7
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 11:16:26 +0200 (CEST)
-Received: by mail-pj1-f49.google.com with SMTP id m24-20020a17090a7f98b0290178b1a81700so26420479pjl.4
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 02:16:26 -0700 (PDT)
-X-Gm-Message-State: AOAM531zRzghK05OuTGI1DOxIiVsGBFOKLwd1fkhcQfg9OHh6Z70Aa4A
-        mkSdZ6FqUzwaspOubMorQACdvaU9uha5aNejVr4=
-X-Google-Smtp-Source: ABdhPJyiFW0e2mUtisSKsMAP//FB0370kH+Jdk7V1nspg847xvNXjte+uzL6R4OawrULtPu98surAkciSgMf4LLu7vI=
-X-Received: by 2002:a62:5ec6:0:b0:3e1:d20:957b with SMTP id
- s189-20020a625ec6000000b003e10d20957bmr13935881pfb.24.1629105384732; Mon, 16
- Aug 2021 02:16:24 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id C7C4D564792
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 11:23:50 +0200 (CEST)
+Received: by mail-pj1-f45.google.com with SMTP id j12-20020a17090aeb0c00b00179530520b3so10890823pjz.0
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 02:23:50 -0700 (PDT)
+X-Gm-Message-State: AOAM5310FURhjO8dX1bkSXR8KBHigMVF3E+Vl67pEBPjN3FU9libnbqj
+        BTcu7529FZQ+0JClCWgMo8nRl/FvxVGpc07CoeU=
+X-Google-Smtp-Source: ABdhPJznvzclzhS25TZkTBlHPwCs5Lebe254YFs2xZqYsQDP5Fuy4sFYS4VVSs4A5mBZI3tuO3i2Y4joGyKKjSySM04=
+X-Received: by 2002:a17:90a:a96:: with SMTP id 22mr16391263pjw.156.1629105829107;
+ Mon, 16 Aug 2021 02:23:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAJfZ7=nfrUqbvO_HMZUL0QLtu9GOND7X5-kM1ntnwLX7Le_bhg@mail.gmail.com>
- <20210715061135.2756-1-evvers@ya.ru>
-In-Reply-To: <20210715061135.2756-1-evvers@ya.ru>
+References: <20210810180537.669439-1-jwcart2@gmail.com> <20210810180537.669439-8-jwcart2@gmail.com>
+In-Reply-To: <20210810180537.669439-8-jwcart2@gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 16 Aug 2021 11:16:13 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=mDwifrEnFpcJxznSHTDbPwYhkzo1MyZ+-pvsUyiCTBWA@mail.gmail.com>
-Message-ID: <CAJfZ7=mDwifrEnFpcJxznSHTDbPwYhkzo1MyZ+-pvsUyiCTBWA@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol/cil: move the fuzz target and build script to
- the selinux repository
-To:     Evgeny Vereshchagin <evvers@ya.ru>
+Date:   Mon, 16 Aug 2021 11:23:38 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=nsPMgBFrfHiAdAhOVY9XNJxDuR7=sSbE8=fP1EAFuNPw@mail.gmail.com>
+Message-ID: <CAJfZ7=nsPMgBFrfHiAdAhOVY9XNJxDuR7=sSbE8=fP1EAFuNPw@mail.gmail.com>
+Subject: Re: [PATCH 7/8] libsepol/cil: Report correct high-level language line numbers
+To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Aug 16 11:16:26 2021 +0200 (CEST))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Aug 16 11:23:51 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 15, 2021 at 8:11 AM Evgeny Vereshchagin <evvers@ya.ru> wrote:
+On Tue, Aug 10, 2021 at 8:22 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> It should make it easier to reproduce bugs found by OSS-Fuzz locally
-> without docker. The fuzz target can be built and run with the corpus
-> OSS-Fuzz has accumulated so far by running the following commands:
-> ```
-> ./scripts/oss-fuzz.sh
-> wget https://storage.googleapis.com/selinux-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/selinux_secilc-fuzzer/public.zip
-> unzip -d CORPUS public.zip
-> ./out/secilc-fuzzer CORPUS/
-> ```
+> CIL supports specifiying the original high-level language file and
+> line numbers when reporting errors. This is done through line marks
+> and is mostly used to report the original Refpolicy file and line
+> number for neverallow rules that have been converted to CIL.
 >
-> It was tested in https://github.com/google/oss-fuzz/pull/6026
-> by pointing OSS-Fuzz to the branch containing the patch and
-> running all the tests with all the sanitizers and fuzzing engines
-> there: https://github.com/google/oss-fuzz/actions/runs/1024673143
+> As long as the line mark remain simple, everything works fine, but
+> the wrong line numbers will be reported with more complex nextings
+> of line marks.
 >
-> [v2]
-> [1] oss-fuzz: make shellcheck happy
+> Example:
+> ;;* lms 100 file01.hll
+> (type t1a)
+> (allow t1a self (CLASS (PERM)))
+> ;;* lmx 200 file02.hll
+> (type t2a)
+> (allow t2a self (CLASS (PERM)))
+> ;;* lme
+> (type t1b)
+> (allow t1b self (CLASS (PERM)))
+> (allow bad1b self (CLASS (PERM))) ; file01.hll:101 (Should be 106)
+> ;;* lme
 >
-> [2] oss-fuzz: build libsepol only
+> The primary problem is that the tree nodes can only store one hll
+> line number. Instead a number is needed that can be used by any
+> number of stacked line mark sections. This number would increment
+> line a normal line number except when in lmx sections (that have
+> the same line number throughout the section because they represent
+> an expansion of a line -- like the expansion of a macro call. This
+> number can go backwards when exiting a lms section within a lmx
+> section, because line number will increase in the lms section, but
+> outside the lmx section, the line number did not advance.
 >
-> The fuzz target covers libsepol so it's unnecessary to build everything
-> else. Apart from that, the "LDFLAGS" kludge was removed since libsepol
-> is compatible with the sanitizers flags passed via CFLAGS only. It
-> should be brought back one way or another eventually though to fix
-> build failures like
-> ```
-> clang -L/home/vagrant/selinux/selinux/DESTDIR/usr/lib -L/home/vagrant/selinux/selinux/DESTDIR/usr/lib -L../src  sefcontext_compile.o ../src/regex.o  -lselinux  -lpcre  ../src/libselinux.a -lsepol -o sefcontext_compile
-> /usr/bin/ld: sefcontext_compile.o: in function `usage':
-> /home/vagrant/selinux/selinux/libselinux/utils/sefcontext_compile.c:271: undefined reference to `__asan_report_load8'
-> /usr/bin/ld: /home/vagrant/selinux/selinux/libselinux/utils/sefcontext_compile.c:292: undefined reference to `__asan_handle_no_return'
-> /usr/bin/ld: sefcontext_compile.o: in function `asan.module_ctor':
-> ```
+> This number is called the hll_offset and this is the value that is
+> now stored in tree nodes instead of the hll line number. To calculate
+> the hll line number for a rule, a search is made for an ancestor of
+> the node that is a line mark and the line number for a lms section
+> is the hll line number stored in the line mark, plus the hll offset
+> of the rule, minus the hll offset of the line mark node, minus one.
+> (hll_lineno + hll_offset_rule - hll_offset_lm - 1)
 >
-> [3] oss-fuzz: make it possible to run the script more than once
-> by removing various build artifacts
->
-> [4] oss-fuzz: make it possible to run the script from any directory
->
-> [5] oss-fuzz: be a little bit more specific about what the script does
->
-> [6] oss-fuzz: stop overwriting all the Makefiles
->
-> Signed-off-by: Evgeny Vereshchagin <evvers@ya.ru>
-
-Sorry for the delay. I have now been able to review and test your
-script and it seems to work perfectly. Thanks!
-
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-
-Thanks,
-Nicolas
-
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 > ---
->  libsepol/fuzz/secilc-fuzzer.c | 69 +++++++++++++++++++++++++++++++++++
->  scripts/oss-fuzz.sh           | 59 ++++++++++++++++++++++++++++++
->  2 files changed, 128 insertions(+)
->  create mode 100644 libsepol/fuzz/secilc-fuzzer.c
->  create mode 100755 scripts/oss-fuzz.sh
+>  libsepol/cil/src/cil_binary.c    |  9 ++--
+>  libsepol/cil/src/cil_build_ast.c |  4 +-
+>  libsepol/cil/src/cil_copy_ast.c  |  2 +-
+>  libsepol/cil/src/cil_parser.c    | 74 +++++++++++++++++++-------------
+>  libsepol/cil/src/cil_tree.c      | 53 +++++++++++++++--------
+>  libsepol/cil/src/cil_tree.h      |  4 +-
+>  6 files changed, 90 insertions(+), 56 deletions(-)
 >
-> diff --git a/libsepol/fuzz/secilc-fuzzer.c b/libsepol/fuzz/secilc-fuzzer.c
-> new file mode 100644
-> index 00000000..255b3241
-> --- /dev/null
-> +++ b/libsepol/fuzz/secilc-fuzzer.c
-> @@ -0,0 +1,69 @@
-> +#include <stdlib.h>
-> +#include <stdio.h>
-> +#include <stdint.h>
-> +#include <string.h>
-> +#include <getopt.h>
-> +#include <sys/stat.h>
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> index 2b65c622..43c37fc2 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -4480,7 +4480,8 @@ static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *no
+>         avrule_t *avrule;
+>         struct cil_tree_node *source_node;
+>         char *source_path;
+> -       int is_cil;
+> +       char *lm_kind;
+> +       uint32_t hll_line;
+>
+>         avrule = cil_malloc(sizeof(avrule_t));
+>         avrule->specified = kind;
+> @@ -4492,11 +4493,11 @@ static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *no
+>
+>         avrule->source_filename = NULL;
+>         avrule->source_line = node->line;
+> -       source_node = cil_tree_get_next_path(node, &source_path, &is_cil);
+> +       source_node = cil_tree_get_next_path(node, &lm_kind, &hll_line, &source_path);
+>         if (source_node) {
+>                 avrule->source_filename = source_path;
+> -               if (!is_cil) {
+> -                       avrule->source_line = node->hll_line;
+> +               if (lm_kind != CIL_KEY_SRC_CIL) {
+> +                       avrule->source_line = hll_line + node->hll_offset - source_node->hll_offset - 1;
+>                 }
+>         }
+>
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> index a0f58b1e..a5afc267 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -619,7 +619,7 @@ int cil_gen_perm_nodes(struct cil_db *db, struct cil_tree_node *current_perm, st
+>                 cil_tree_node_init(&new_ast);
+>                 new_ast->parent = ast_node;
+>                 new_ast->line = current_perm->line;
+> -               new_ast->hll_line = current_perm->hll_line;
+> +               new_ast->hll_offset = current_perm->hll_offset;
+>
+>                 rc = cil_gen_perm(db, current_perm, new_ast, flavor, num_perms);
+>                 if (rc != SEPOL_OK) {
+> @@ -6203,7 +6203,7 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
+>
+>         ast_node->parent = ast_current;
+>         ast_node->line = parse_current->line;
+> -       ast_node->hll_line = parse_current->hll_line;
+> +       ast_node->hll_offset = parse_current->hll_offset;
+>
+>         if (parse_current->data == CIL_KEY_BLOCK) {
+>                 rc = cil_gen_block(db, parse_current, ast_node, 0);
+> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+> index 02b9828f..34282a92 100644
+> --- a/libsepol/cil/src/cil_copy_ast.c
+> +++ b/libsepol/cil/src/cil_copy_ast.c
+> @@ -2010,7 +2010,7 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
+>
+>                 new->parent = parent;
+>                 new->line = orig->line;
+> -               new->hll_line = orig->hll_line;
+> +               new->hll_offset = orig->hll_offset;
+>                 new->flavor = orig->flavor;
+>                 new->data = data;
+>
+> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
+> index 842c327c..3ccef5d7 100644
+> --- a/libsepol/cil/src/cil_parser.c
+> +++ b/libsepol/cil/src/cil_parser.c
+> @@ -45,21 +45,21 @@
+>  #define CIL_PARSER_MAX_EXPR_DEPTH (0x1 << 12)
+>
+>  struct hll_info {
+> -       uint32_t hll_lineno;
+> +       uint32_t hll_offset;
+>         uint32_t hll_expand;
+>  };
+>
+> -static void push_hll_info(struct cil_stack *stack, uint32_t hll_lineno, uint32_t hll_expand)
+> +static void push_hll_info(struct cil_stack *stack, uint32_t hll_offset, uint32_t hll_expand)
+>  {
+>         struct hll_info *new = cil_malloc(sizeof(*new));
+>
+> -       new->hll_lineno = hll_lineno;
+> +       new->hll_offset = hll_offset;
+>         new->hll_expand = hll_expand;
+>
+>         cil_stack_push(stack, CIL_NONE, new);
+>  }
+>
+> -static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_lineno, uint32_t *hll_expand)
+> +static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_offset, uint32_t *hll_expand)
+>  {
+>         struct cil_stack_item *curr = cil_stack_pop(stack);
+>         struct hll_info *info;
+> @@ -69,17 +69,17 @@ static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_lineno, uint32_t
+>         }
+>         info = curr->data;
+>         *hll_expand = info->hll_expand;
+> -       *hll_lineno = info->hll_lineno;
+> +       *hll_offset = info->hll_offset;
+>         free(curr->data);
+>  }
+>
+> -static void create_node(struct cil_tree_node **node, struct cil_tree_node *current, uint32_t line, uint32_t hll_line, void *value)
+> +static void create_node(struct cil_tree_node **node, struct cil_tree_node *current, uint32_t line, uint32_t hll_offset, void *value)
+>  {
+>         cil_tree_node_init(node);
+>         (*node)->parent = current;
+>         (*node)->flavor = CIL_NODE;
+>         (*node)->line = line;
+> -       (*node)->hll_line = hll_line;
+> +       (*node)->hll_offset = hll_offset;
+>         (*node)->data = value;
+>  }
+>
+> @@ -93,12 +93,12 @@ static void insert_node(struct cil_tree_node *node, struct cil_tree_node *curren
+>         current->cl_tail = node;
+>  }
+>
+> -static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno, uint32_t *hll_expand, struct cil_stack *stack, char *path)
+> +static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_offset, uint32_t *hll_expand, struct cil_stack *stack, char *path)
+>  {
+>         char *hll_type;
+>         struct cil_tree_node *node;
+>         struct token tok;
+> -       int rc;
+> +       uint32_t prev_hll_expand, prev_hll_offset;
+
+In this function, gcc (in GitHub Actions CI) reports:
+
+  ../cil/src/cil_parser.c: In function ‘cil_parser’:
+  ../cil/src/cil_parser.c:181:16: error: ‘hll_offset’ may be used
+uninitialized in this function [-Werror=maybe-uninitialized]
+    181 |   (*hll_offset)++;
+        |   ~~~~~~~~~~~~~^~
+  ../cil/src/cil_parser.c:222:11: note: ‘hll_offset’ was declared here
+    222 |  uint32_t hll_offset = 1;
+        |           ^~~~~~~~~~
+
+In fact the warning is misleading because it comes from
+prev_hll_offset not being initialized and gcc having trouble figuring
+out it is initialized in calls to pop_hll_info.
+
+To silence this warning, could you initialize prev_hll_offset to some value?
+
+>
+>         cil_lexer_next(&tok);
+>         if (tok.type != SYMBOL) {
+> @@ -115,19 +115,33 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+>                         cil_log(CIL_ERR, "Line mark end without start\n");
+>                         goto exit;
+>                 }
+> -               pop_hll_info(stack, hll_lineno, hll_expand);
+> +               prev_hll_expand = *hll_expand;
+> +               pop_hll_info(stack, &prev_hll_offset, hll_expand);
+> +               if (*hll_expand) {
+> +                       /* This is needed when exiting an lms section within an lmx section.
+> +                        * In the lms section, hll_offset will increment and then revert
+> +                        * back to its previous value when going back into the lmx section.
+> +                        */
+> +                       *hll_offset = prev_hll_offset;
+> +               }
+> +               if (prev_hll_expand && !*hll_expand) {
+> +                       /* This is needed to count the lme at the end of an lmx section
+> +                        * within an lms section (or within no hll section).
+> +                        */
+> +                       (*hll_offset)++;
+> +               }
+>                 *current = (*current)->parent;
+>         } else {
+> -               push_hll_info(stack, *hll_lineno, *hll_expand);
+> +               push_hll_info(stack, *hll_offset, *hll_expand);
+>
+> -               create_node(&node, *current, tok.line, *hll_lineno, NULL);
+> +               create_node(&node, *current, tok.line, *hll_offset, NULL);
+>                 insert_node(node, *current);
+>                 *current = node;
+>
+> -               create_node(&node, *current, tok.line, *hll_lineno, CIL_KEY_SRC_INFO);
+> +               create_node(&node, *current, tok.line, *hll_offset, CIL_KEY_SRC_INFO);
+>                 insert_node(node, *current);
+>
+> -               create_node(&node, *current, tok.line, *hll_lineno, hll_type);
+> +               create_node(&node, *current, tok.line, *hll_offset, hll_type);
+>                 insert_node(node, *current);
+>
+>                 cil_lexer_next(&tok);
+> @@ -136,16 +150,9 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+>                         goto exit;
+>                 }
+>
+> -               create_node(&node, *current, tok.line, *hll_lineno, cil_strpool_add(tok.value));
+> +               create_node(&node, *current, tok.line, *hll_offset, cil_strpool_add(tok.value));
+>                 insert_node(node, *current);
+>
+> -               rc = cil_string_to_uint32(tok.value, hll_lineno, 10);
+> -               if (rc != SEPOL_OK) {
+> -                       goto exit;
+> -               }
+> -
+> -               *hll_expand = (hll_type == CIL_KEY_SRC_HLL_LMX) ? 1 : 0;
+> -
+>                 cil_lexer_next(&tok);
+>                 if (tok.type != SYMBOL && tok.type != QSTRING) {
+>                         cil_log(CIL_ERR, "Invalid line mark syntax\n");
+> @@ -157,8 +164,10 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+>                         tok.value = tok.value+1;
+>                 }
+>
+> -               create_node(&node, *current, tok.line, *hll_lineno, cil_strpool_add(tok.value));
+> +               create_node(&node, *current, tok.line, *hll_offset, cil_strpool_add(tok.value));
+>                 insert_node(node, *current);
 > +
-> +#include <sepol/cil/cil.h>
-> +#include <sepol/policydb.h>
+> +               *hll_expand = (hll_type == CIL_KEY_SRC_HLL_LMX) ? 1 : 0;
+>         }
+>
+>         cil_lexer_next(&tok);
+> @@ -167,6 +176,11 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+>                 goto exit;
+>         }
+>
+> +       if (!*hll_expand) {
+> +               /* Need to increment because of the NEWLINE */
+> +               (*hll_offset)++;
+> +       }
 > +
-> +int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-> +       enum cil_log_level log_level = CIL_ERR;
-> +       struct sepol_policy_file *pf = NULL;
-> +       FILE *dev_null = NULL;
-> +       int target = SEPOL_TARGET_SELINUX;
-> +       int disable_dontaudit = 0;
-> +       int multiple_decls = 0;
-> +       int disable_neverallow = 0;
-> +       int preserve_tunables = 0;
-> +       int policyvers = POLICYDB_VERSION_MAX;
-> +       int mls = -1;
-> +       int attrs_expand_generated = 0;
-> +       struct cil_db *db = NULL;
-> +       sepol_policydb_t *pdb = NULL;
+>         return SEPOL_OK;
+>
+>  exit:
+> @@ -205,7 +219,7 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
+>         struct cil_tree_node *current = NULL;
+>         char *path = cil_strpool_add(_path);
+>         struct cil_stack *stack;
+> -       uint32_t hll_lineno = 0;
+> +       uint32_t hll_offset = 1;
+>         uint32_t hll_expand = 0;
+>         struct token tok;
+>         int rc = SEPOL_OK;
+> @@ -223,7 +237,7 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
+>                 cil_lexer_next(&tok);
+>                 switch (tok.type) {
+>                 case HLL_LINEMARK:
+> -                       rc = add_hll_linemark(&current, &hll_lineno, &hll_expand, stack, path);
+> +                       rc = add_hll_linemark(&current, &hll_offset, &hll_expand, stack, path);
+>                         if (rc != SEPOL_OK) {
+>                                 goto exit;
+>                         }
+> @@ -234,7 +248,7 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
+>                                 cil_log(CIL_ERR, "Number of open parenthesis exceeds limit of %d at line %d of %s\n", CIL_PARSER_MAX_EXPR_DEPTH, tok.line, path);
+>                                 goto exit;
+>                         }
+> -                       create_node(&node, current, tok.line, hll_lineno, NULL);
+> +                       create_node(&node, current, tok.line, hll_offset, NULL);
+>                         insert_node(node, current);
+>                         current = node;
+>                         break;
+> @@ -256,12 +270,12 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
+>                                 goto exit;
+>                         }
+>
+> -                       create_node(&node, current, tok.line, hll_lineno, cil_strpool_add(tok.value));
+> +                       create_node(&node, current, tok.line, hll_offset, cil_strpool_add(tok.value));
+>                         insert_node(node, current);
+>                         break;
+>                 case NEWLINE :
+>                         if (!hll_expand) {
+> -                               hll_lineno++;
+> +                               hll_offset++;
+>                         }
+>                         break;
+>                 case COMMENT:
+> @@ -269,7 +283,7 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
+>                                 cil_lexer_next(&tok);
+>                         }
+>                         if (!hll_expand) {
+> -                               hll_lineno++;
+> +                               hll_offset++;
+>                         }
+>                         if (tok.type != END_OF_FILE) {
+>                                 break;
+> @@ -306,7 +320,7 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
+>
+>  exit:
+>         while (!cil_stack_is_empty(stack)) {
+> -               pop_hll_info(stack, &hll_lineno, &hll_expand);
+> +               pop_hll_info(stack, &hll_offset, &hll_expand);
+>         }
+>         cil_lexer_destroy();
+>         cil_stack_destroy(&stack);
+> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+> index 52b28999..4fdf339d 100644
+> --- a/libsepol/cil/src/cil_tree.c
+> +++ b/libsepol/cil/src/cil_tree.c
+> @@ -50,10 +50,12 @@ __attribute__((noreturn)) __attribute__((format (printf, 1, 2))) void cil_tree_e
+>         exit(1);
+>  }
+>
+> -struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **path, int* is_cil)
+> +struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **info_kind, uint32_t *hll_line, char **path)
+>  {
+> +       int rc;
 > +
-> +       cil_set_log_level(log_level);
-> +
-> +       cil_db_init(&db);
-> +       cil_set_disable_dontaudit(db, disable_dontaudit);
-> +       cil_set_multiple_decls(db, multiple_decls);
-> +       cil_set_disable_neverallow(db, disable_neverallow);
-> +       cil_set_preserve_tunables(db, preserve_tunables);
-> +       cil_set_mls(db, mls);
-> +       cil_set_target_platform(db, target);
-> +       cil_set_policy_version(db, policyvers);
-> +       cil_set_attrs_expand_generated(db, attrs_expand_generated);
-> +
-> +       if (cil_add_file(db, "fuzz", (const char *)data, size) != SEPOL_OK)
+>         if (!node) {
+> -               return NULL;
 > +               goto exit;
-> +
-> +       if (cil_compile(db) != SEPOL_OK)
-> +               goto exit;
-> +
-> +       if (cil_build_policydb(db, &pdb) != SEPOL_OK)
-> +               goto exit;
-> +
-> +       if (sepol_policydb_optimize(pdb) != SEPOL_OK)
-> +               goto exit;
-> +
-> +       dev_null = fopen("/dev/null", "w");
-> +       if (dev_null == NULL)
-> +               goto exit;
-> +
-> +       if (sepol_policy_file_create(&pf) != 0)
-> +               goto exit;
-> +
-> +       sepol_policy_file_set_fp(pf, dev_null);
-> +
-> +       if (sepol_policydb_write(pdb, pf) != 0)
-> +               goto exit;
+>         }
+>
+>         node = node->parent;
+> @@ -62,16 +64,21 @@ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **
+>                 if (node->flavor == CIL_NODE && node->data == NULL) {
+>                         if (node->cl_head->data == CIL_KEY_SRC_INFO && node->cl_head->next != NULL && node->cl_head->next->next != NULL) {
+>                                 /* Parse Tree */
+> -                               *path = node->cl_head->next->next->data;
+> -                               *is_cil = (node->cl_head->next->data == CIL_KEY_SRC_CIL);
+> +                               *info_kind = node->cl_head->next->data;
+> +                               rc = cil_string_to_uint32(node->cl_head->next->next->data, hll_line, 10);
+> +                               if (rc != SEPOL_OK) {
+> +                                       goto exit;
+> +                               }
+> +                               *path = node->cl_head->next->next->next->data;
+>                                 return node;
+>                         }
+>                         node = node->parent;
+>                 } else if (node->flavor == CIL_SRC_INFO) {
+>                                 /* AST */
+>                                 struct cil_src_info *info = node->data;
+> +                               *info_kind = info->kind;
+> +                               *hll_line = info->hll_line;
+>                                 *path = info->path;
+> -                               *is_cil = (info->kind == CIL_KEY_SRC_CIL);
+>                                 return node;
+>                 } else {
+>                         if (node->flavor == CIL_CALL) {
+> @@ -86,17 +93,22 @@ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **
+>                 }
+>         }
+>
 > +exit:
-> +       if (dev_null != NULL)
-> +               fclose(dev_null);
+> +       *info_kind = NULL;
+> +       *hll_line = 0;
+> +       *path = NULL;
+>         return NULL;
+>  }
+>
+>  char *cil_tree_get_cil_path(struct cil_tree_node *node)
+>  {
+> -       char *path = NULL;
+> -       int is_cil;
+> +       char *info_kind;
+> +       uint32_t hll_line;
+> +       char *path;
+>
+>         while (node) {
+> -               node = cil_tree_get_next_path(node, &path, &is_cil);
+> -               if (node && is_cil) {
+> +               node = cil_tree_get_next_path(node, &info_kind, &hll_line, &path);
+> +               if (node && info_kind == CIL_KEY_SRC_CIL) {
+>                         return path;
+>                 }
+>         }
+> @@ -114,8 +126,7 @@ __attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *n
+>
+>         if (node) {
+>                 char *path = NULL;
+> -               int is_cil;
+> -               unsigned hll_line = node->hll_line;
+> +               uint32_t hll_offset = node->hll_offset;
+>
+>                 path = cil_tree_get_cil_path(node);
+>
+> @@ -124,12 +135,20 @@ __attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *n
+>                 }
+>
+>                 while (node) {
+> -                       node = cil_tree_get_next_path(node, &path, &is_cil);
+> -                       if (node && !is_cil) {
+> +                       do {
+> +                               char *info_kind;
+> +                               uint32_t hll_line;
 > +
-> +       cil_db_destroy(&db);
-> +       sepol_policydb_free(pdb);
-> +       sepol_policy_file_free(pf);
-> +       return 0;
-> +}
-> diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
-> new file mode 100755
-> index 00000000..16cc3c0a
-> --- /dev/null
-> +++ b/scripts/oss-fuzz.sh
-> @@ -0,0 +1,59 @@
-> +#!/bin/bash
+> +                               node = cil_tree_get_next_path(node, &info_kind, &hll_line, &path);
+> +                               if (!node || info_kind == CIL_KEY_SRC_CIL) {
+> +                                       break;
+> +                               }
+> +                               if (info_kind == CIL_KEY_SRC_HLL_LMS) {
+> +                                       hll_line += hll_offset - node->hll_offset - 1;
+> +                               }
 > +
-> +# The script is used to build the fuzz targets run on ClusterFuzz. It has to be
-> +# compatible with the "build.sh" script described at
-> +# https://google.github.io/oss-fuzz/getting-started/new-project-guide/#buildsh
-> +# More precisely, it should use environment variables like OUT, LIB_FUZZING_ENGINE
-> +# and so on (https://google.github.io/oss-fuzz/getting-started/new-project-guide/#buildsh-script-environment),
-> +# and the fuzz targets have to be linked with $CXX even though the project is written
-> +# in C: https://google.github.io/oss-fuzz/getting-started/new-project-guide/#Requirements
-> +
-> +# To make it easier to build the fuzz targets locally, the script can also work in "local"
-> +# mode. To run secilc-fuzzer against a test case (named, say, CRASH) triggering an issue
-> +# the following commands should be run
-> +#
-> +# $ ./scripts/oss-fuzz.sh
-> +# $ ./out/secilc-fuzzer CRASH
-> +
-> +# To run the fuzzer against the corpus OSS-Fuzz has accumulated so far it should be
-> +# downloaded, unpacked and passed to the fuzzer:
-> +#
-> +# $ wget https://storage.googleapis.com/selinux-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/selinux_secilc-fuzzer/public.zip
-> +# $ unzip -d CORPUS public.zip
-> +# $ ./out/secilc-fuzzer CORPUS/
-> +
-> +set -eux
-> +
-> +cd "$(dirname -- "$0")/.."
-> +
-> +export DESTDIR=${DESTDIR:-$(pwd)/DESTDIR}
-> +
-> +SANITIZER=${SANITIZER:-address}
-> +flags="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=$SANITIZER -fsanitize=fuzzer-no-link"
-> +
-> +export CC=${CC:-clang}
-> +export CFLAGS=${CFLAGS:-$flags}
-> +
-> +export CXX=${CXX:-clang++}
-> +export CXXFLAGS=${CXXFLAGS:-$flags}
-> +
-> +export OUT=${OUT:-$(pwd)/out}
-> +mkdir -p "$OUT"
-> +
-> +export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
-> +
-> +rm -rf "$DESTDIR"
-> +make -C libsepol clean
-> +# LIBSO and LIBMAP shouldn't be expanded here because their values are unknown until Makefile
-> +# has been read by make
-> +# shellcheck disable=SC2016
-> +make -C libsepol V=1 LD_SONAME_FLAGS='-soname,$(LIBSO),--version-script=$(LIBMAP)' -j"$(nproc)" install
-> +
-> +# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepted by
-> +# the compiler/linker so they shouldn't be quoted
-> +# shellcheck disable=SC2086
-> +$CC $CFLAGS -I"$DESTDIR/usr/include" -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -c -o secilc-fuzzer.o libsepol/fuzz/secilc-fuzzer.c
-> +# shellcheck disable=SC2086
-> +$CXX $CXXFLAGS $LIB_FUZZING_ENGINE secilc-fuzzer.o "$DESTDIR/usr/lib/libsepol.a" -o "$OUT/secilc-fuzzer"
-> +
-> +zip -r "$OUT/secilc-fuzzer_seed_corpus.zip" secilc/test
+>                                 cil_log(lvl," from %s:%d", path, hll_line);
+
+While modifying this code, it would be nice if this "%d" was modified
+to "%u", as hll_line should never be negative.
+
+> -                               path = NULL;
+> -                               hll_line = node->hll_line;
+> -                       }
+> +                       } while (1);
+>                 }
+>         }
+>
+> @@ -222,7 +241,7 @@ void cil_tree_node_init(struct cil_tree_node **node)
+>         new_node->next = NULL;
+>         new_node->flavor = CIL_ROOT;
+>         new_node->line = 0;
+> -       new_node->hll_line = 0;
+> +       new_node->hll_offset = 0;
+>
+>         *node = new_node;
+>  }
+> diff --git a/libsepol/cil/src/cil_tree.h b/libsepol/cil/src/cil_tree.h
+> index f4d22071..5a98da55 100644
+> --- a/libsepol/cil/src/cil_tree.h
+> +++ b/libsepol/cil/src/cil_tree.h
+> @@ -46,11 +46,11 @@ struct cil_tree_node {
+>         struct cil_tree_node *next;             //Each element in the list points to the next element
+>         enum cil_flavor flavor;
+>         uint32_t line;
+> -       uint32_t hll_line;
+> +       uint32_t hll_offset;
+>         void *data;
+>  };
+>
+> -struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **path, int* is_cil);
+> +struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **info_kind, uint32_t *hll_line, char **path);
+>  char *cil_tree_get_cil_path(struct cil_tree_node *node);
+>  __attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *node, enum cil_log_level lvl, const char* msg, ...);
+>
 > --
 > 2.31.1
 >
