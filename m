@@ -8,50 +8,50 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76D0EC4338F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2F59C4320A
 	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 19:58:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52A1860F38
+	by mail.kernel.org (Postfix) with ESMTP id CA1DD60EE0
 	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 19:58:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231331AbhHPT6e (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 15:58:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56754 "EHLO
+        id S230481AbhHPT6f (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 15:58:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230481AbhHPT6c (ORCPT
+        with ESMTP id S230026AbhHPT6c (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 15:58:32 -0400
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16181C061796
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:58:00 -0700 (PDT)
-Received: by mail-qv1-xf31.google.com with SMTP id v1so9943519qva.7
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:58:00 -0700 (PDT)
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E55FC0613CF
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:57:59 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id 14so20422725qkc.4
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 12:57:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=4umRkcaGpCtbzgqA5jpMX6247ba4PQmUVExObBh0Pr8=;
-        b=tG6ftrXW1TCOMIEavf4w9uemXGdpsKLdquvoq4YwaWWsEWWrr9i5nJ26tbL3j0Eznk
-         VrYf1Ai09bbBup2nAqO7ZJDc5nRQw3PXMb4BfovsHSi3HmLqdC3saNJ6Fz44H1T2zC9y
-         cC+du10XB8Jh8yP/nDOCC6EazrfUNrK+oQWCX+Q2qLMORJYnvrYqFH7WxWAs4pVh8XsU
-         x2WpYTDmTBkePx+I/pOraRHb23t1/2kqWWL7YpP0aSmnYgNWTS1oIpB8/Vbqbz+Zai4r
-         FTx4IePZADtSQsACO6CFXgti5Rc8ONsu5i1AE8pdFuGTLoaleMV7Kb7m5ao2R15PTz4j
-         hl2A==
+        bh=BjBl9mguH+i1u3Ey1Gjg/Kzz47+b97m7foNy6YKoWBA=;
+        b=Xyi/x2nQuXIybBkmgPELz2+nAGVWey2k06biGuigLsVzSAGe7iTpZn7q/3xSy81uLe
+         6oFpS00EHC5f5OFXq/3jEwX0QjQE5Frk2xyBtkRPdhxwXgbuv4o/8VssX0IPztph1x5N
+         fIydaLHctoerJiu1ZzyKeLve96fzFbG7FQZyL1sVOIcz0o6XkO3P+1v+NKR/WEzXW0h2
+         EKjbkpisSAHKY6eVU5M340lga0Y/cq7vQpT5eGXLKkxN08TKV7AdfcQU/da8MIgN8B71
+         3vytu/e2p9OYAsvxbkJGRWRRQ8oElNaMqElqxLI+87QIjQCDCsu3MZJJmL4vnc9AR0KQ
+         v/7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=4umRkcaGpCtbzgqA5jpMX6247ba4PQmUVExObBh0Pr8=;
-        b=oXE74f5uOpqTaBomhDRsnwpP5QNtBHFy06k2R9pctpWGYIoyuQ3Vc27uedBxfIlgQP
-         FJXq/yA9MLfXKoY9IL0W24sIz2oR87lJVFhHU876eILUQXAKzp8Qlg6eiU0IqX5wTwvx
-         ZQr8PJYeK/+K3IV/IeVs+V6EgApx3b3WFYhvlh8ZbTLYYyZcaIUGEJhQIPqMFm7H396E
-         uq1AvS0ir1yvahY4M00E8X/jfFzqAVjBAmYE7DcLy1x1Nl4ERO5K9nTfq8Mrpgx7UBDx
-         wbxZLFoyRN8pisRSrs/g/2DPmcvu1Zu/K2swJU56GW56gy/NH4UFSsGLjHHkXJLTNJ9F
-         EcnQ==
-X-Gm-Message-State: AOAM533QUB0DfPZSwwucCdDj8wixgOqjkjgBpk+hmglTlUjfZvx0akWc
-        7jb6opoVxXxKvRnF3QX5FV8Wy1ZQkmmI1A==
-X-Google-Smtp-Source: ABdhPJy8z0lHMT51anwy95Nv8Dqu/mQNGGMUhDpMET0s9+EMsyKsCjoNhA0RuHQ/tJX9ZMo4f5Ekqg==
-X-Received: by 2002:a05:6214:508:: with SMTP id v8mr375667qvw.33.1629143879164;
-        Mon, 16 Aug 2021 12:57:59 -0700 (PDT)
+        bh=BjBl9mguH+i1u3Ey1Gjg/Kzz47+b97m7foNy6YKoWBA=;
+        b=HK21lg+dCzG+YJrfB/RpC6vtTceJTwfaDTt+Rj8E5VSruXlRCHax0OGd4F7pYQERre
+         p471lMpvJCcT/4YCT/+XqNg0p0QJEu6CZhYaRnF+I0A1lFn9avNoAOEsDi7M2jNP8KlR
+         8c7IvpHzbO47wuU3TA1CJmwvCttCzC2aN5CE5NyZUXHN+ug7ZD6fplINn/bHIzhVx+zd
+         ycMCp0p2t7cOg6LibitGAoHjJIYktFaiAiw+3n5p/4qw57YFs/9uEhpYQE1rgTHgszqK
+         027ER07fUAO3ZwsZl1sZU1cL10WdvC5aYWwAgL5c2B7x8t8UY4MV6qCn2ghPGrSDxWoW
+         Vw6Q==
+X-Gm-Message-State: AOAM532DN0jduyHV0jUsPugQrCA6DunhEclaBzM1MKDtE5PPavhIzlJt
+        ylhXE3rMVgM+J73YEu0jTXZnLBxVsS2pbw==
+X-Google-Smtp-Source: ABdhPJz7AssQNM3WsS8ipMGsxYTdiZxxQm0cl9GLXbz6h5HEufpJs37TCQp6Ius6QoxaKr9FwffyVg==
+X-Received: by 2002:ae9:c015:: with SMTP id u21mr1566qkk.205.1629143878640;
+        Mon, 16 Aug 2021 12:57:58 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
         by smtp.gmail.com with ESMTPSA id f11sm135147qtf.45.2021.08.16.12.57.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
@@ -59,9 +59,9 @@ Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/7 v2] libsepol/cil: Check for valid line mark type immediately
-Date:   Mon, 16 Aug 2021 15:57:48 -0400
-Message-Id: <20210816195752.923028-4-jwcart2@gmail.com>
+Subject: [PATCH 2/7 v2] libsepol/cil: Check the token type after getting the next token
+Date:   Mon, 16 Aug 2021 15:57:47 -0400
+Message-Id: <20210816195752.923028-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210816195752.923028-1-jwcart2@gmail.com>
 References: <20210816195752.923028-1-jwcart2@gmail.com>
@@ -71,56 +71,31 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-It clearer to check that the line mark type is a valid option right
-after getting the token.
+In add_hll_linemark(), cil_lexer_next() is called and the token
+type is not checked after the call for the expected type (SYMBOL).
 
-Check that the line mark type is one of the expected values right
-awasy.
+Check that the token type is SYMBOL after calling cil_lexer_next().
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/src/cil_parser.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ libsepol/cil/src/cil_parser.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
-index fc90caec..24386f60 100644
+index fb95f401..fc90caec 100644
 --- a/libsepol/cil/src/cil_parser.c
 +++ b/libsepol/cil/src/cil_parser.c
-@@ -116,6 +116,10 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
- 		goto exit;
- 	}
- 	hll_type = cil_strpool_add(tok.value);
-+	if (hll_type != CIL_KEY_HLL_LME && hll_type != CIL_KEY_HLL_LMS && hll_type != CIL_KEY_HLL_LMX) {
+@@ -111,6 +111,10 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
+ 	unsigned long val;
+ 
+ 	cil_lexer_next(&tok);
++	if (tok.type != SYMBOL) {
 +		cil_log(CIL_ERR, "Invalid line mark syntax\n");
 +		goto exit;
 +	}
+ 	hll_type = cil_strpool_add(tok.value);
  	if (hll_type == CIL_KEY_HLL_LME) {
  		if (cil_stack_is_empty(stack)) {
- 			cil_log(CIL_ERR, "Line mark end without start\n");
-@@ -134,15 +138,6 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
- 		create_node(&node, *current, tok.line, *hll_lineno, CIL_KEY_SRC_HLL);
- 		insert_node(node, *current);
- 
--		if (hll_type == CIL_KEY_HLL_LMS) {
--			*hll_expand = 0;
--		} else if (hll_type == CIL_KEY_HLL_LMX) {
--			*hll_expand = 1;
--		} else {
--			cil_log(CIL_ERR, "Invalid line mark syntax\n");
--			goto exit;
--		}
--
- 		cil_lexer_next(&tok);
- 		if (tok.type != SYMBOL) {
- 			cil_log(CIL_ERR, "Invalid line mark syntax\n");
-@@ -161,6 +156,7 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
- 		}
- #endif
- 		*hll_lineno = val;
-+		*hll_expand = (hll_type == CIL_KEY_HLL_LMX) ? 1 : 0;
- 
- 		push_hll_info(stack, *hll_lineno, *hll_expand);
- 
 -- 
 2.31.1
 
