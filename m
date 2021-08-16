@@ -2,324 +2,165 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59D64C4338F
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 09:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1783FC4338F
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 12:51:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 35F1661B51
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 09:39:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB38B63275
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 12:51:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235189AbhHPJjn convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 05:39:43 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:60753 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbhHPJjn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 05:39:43 -0400
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 7002C560079
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 11:39:10 +0200 (CEST)
-Received: by mail-pj1-f47.google.com with SMTP id gz13-20020a17090b0ecdb0290178c0e0ce8bso18597446pjb.1
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 02:39:10 -0700 (PDT)
-X-Gm-Message-State: AOAM5326ASkVLr5qW2RN4gwBJRNPtQVxaqHFIlXYUPWewLaRrbB3o05Q
-        O0T8PTrLQv8gqUqKpOiibYbYqiK1/uBuTLsFpSI=
-X-Google-Smtp-Source: ABdhPJw7cUxehGHLq5evaukQ/fXQImjqYZuQjHNz7t06MLeG+4PaA+TmNyRGlMvMKAmhxp3ExR94sMfiWtv+Lz1aeh8=
-X-Received: by 2002:a63:3244:: with SMTP id y65mr15163858pgy.210.1629106748970;
- Mon, 16 Aug 2021 02:39:08 -0700 (PDT)
+        id S230213AbhHPMvk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 08:51:40 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33027 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229832AbhHPMvj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 08:51:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629118268;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=nF8rzVVgmDA9/DXrtxYuY3V4ctspk/z6daKpbRk0VmU=;
+        b=WL95dOgAWRIhyG7bSo0Fu86ArORhTF1Xr99rHjb/32KtV2Ea/v/mJI0z4WnoXtQ5Dbk/xK
+        3coDGckA19dkf15nyPZZ8rXSzDUj40baw9I4d6wTTkuzqAyetC8ht23Tj4aW3JxUyvqfR+
+        qCja4+gqb6M+0YHXXYE0LLw52YXpc8g=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-521-3IQ9thhjN66Fg-hIv5Lpmw-1; Mon, 16 Aug 2021 08:51:06 -0400
+X-MC-Unique: 3IQ9thhjN66Fg-hIv5Lpmw-1
+Received: by mail-yb1-f197.google.com with SMTP id o3-20020a2541030000b0290557cf3415f8so16744984yba.1
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 05:51:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nF8rzVVgmDA9/DXrtxYuY3V4ctspk/z6daKpbRk0VmU=;
+        b=JAp4wLpgagTNdAM73kaq77Ql5qbmt1yV0KlQ/rW4Pn3eMkbAwH2/G6SfZM+cDXUH9o
+         bVAOINLKMNO2+ImjfPLIXCftBC18aoHOysiWue+RpCFWZQ/EGxb/eLw7/yJqZ+pumos3
+         2AKKWHJWZHtytArAkbkBK8eWLlMppOXf/Kz6gChogLhylHLwGgYZyvIzH4dhiV2MOFtS
+         rVCfM9edvPtwBLN2fGcM3nluIjDRv3AqOzn4ptmCCsJH4Cqc5KdF9dLL53N7ricH8kBi
+         aI8CiGO69Rscjrm+vQC4kNZpXshGep92bdOpkpGGxSlEMRbQnn1LbFyYmbQXPj0PXyD4
+         QMzg==
+X-Gm-Message-State: AOAM5317DE++d5gqbTfzFXerXWF74ZbIPYbIdch+qvzsloi6R5vTB1l7
+        P0tb8owVFYBnU5QHmFek/uUGfa2SamsI61hUyCDwNdpGsyssAXSVdp1b4l7/C0dZhAtPzf4jip+
+        Kmk/DDNr3JxmxHJ8agJGSgKM7uEEs6mAbEg==
+X-Received: by 2002:a25:918c:: with SMTP id w12mr20448362ybl.226.1629118266238;
+        Mon, 16 Aug 2021 05:51:06 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwO2CZi/yMz2SQT9VJhdSzBgQWyF8aQq5hDbzLvGIGEALmWTyF70gplPielGfC6bW1l0+2PyfQ3qkPFZqo+Dj4=
+X-Received: by 2002:a25:918c:: with SMTP id w12mr20448338ybl.226.1629118265994;
+ Mon, 16 Aug 2021 05:51:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210810180537.669439-1-jwcart2@gmail.com> <20210810180537.669439-7-jwcart2@gmail.com>
-In-Reply-To: <20210810180537.669439-7-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 16 Aug 2021 11:38:58 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nuGHfTqf2CBHcODi3R=5tc+a5ZiamiXuJTF2gJk_rk-Q@mail.gmail.com>
-Message-ID: <CAJfZ7=nuGHfTqf2CBHcODi3R=5tc+a5ZiamiXuJTF2gJk_rk-Q@mail.gmail.com>
-Subject: Re: [PATCH 6/8] libsepol/cil: Add line mark kind and line number to
- src info
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20210728140313.68096-1-omosnace@redhat.com> <CAHC9VhTDagTt1CKDRPkVrcvHwWPbSzzPp3HSS3ZzsbLapTBAxw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTDagTt1CKDRPkVrcvHwWPbSzzPp3HSS3ZzsbLapTBAxw@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 16 Aug 2021 14:50:55 +0200
+Message-ID: <CAFqZXNuT=-m2QVgw+Awm3HcK5pt8niKb+yu2Tspy2RCsLByrWQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix race condition when computing ocontext SIDs
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Sujithra Periasamy <sujithra@google.com>,
+        Xinjie Zheng <xinjie@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Aug 16 11:39:10 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 10, 2021 at 8:22 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Aug 5, 2021 at 10:48 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Jul 28, 2021 at 10:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+[...]
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index 0a5ce001609b..c8db8a3432e4 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -2369,6 +2369,43 @@ err_policy:
+> >         return rc;
+> >  }
+> >
+> > +/**
+> > + * ocontext_to_sid - Helper to safely get sid for an ocontext
+> > + * @sidtab: SID table
+> > + * @c: ocontext structure
+> > + * @index: index of the context entry (0 or 1)
+> > + * @out_sid: pointer to the resulting SID value
+> > + *
+> > + * For all ocontexts except OCON_ISID the SID fields are populated
+> > + * on-demand when needed. Since updating the SID value is an SMP-sensitive
+> > + * operation, this helper must be used to do that safely.
+> > + *
+> > + * WARNING: This function may return -ESTALE, indicating that the caller
+> > + * must retry the operation after re-acquiring the policy pointer!
+> > + */
+> > +static int ocontext_to_sid(struct sidtab *sidtab, struct ocontext *c,
+> > +                          size_t index, u32 *out_sid)
+> > +{
+> > +       int rc;
+> > +       u32 sid;
+> > +
+> > +       /* Ensure the associated sidtab entry is visible to this thread. */
+> > +       sid = smp_load_acquire(&c->sid[index]);
 >
-> To be able to write line mark information when writing the AST,
-> the line mark kind and line number is needed in the src info.
->
-> Instead of indicating whether the src info is for CIL or a hll,
-> differentiate between CIL, a normal hll line mark, and an expanded
-> hll line mark. Also include the line mark line number in the src
-> info nodes.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->  libsepol/cil/src/cil.c           | 13 +++++++++----
->  libsepol/cil/src/cil_build_ast.c | 17 +++++++++++++++--
->  libsepol/cil/src/cil_copy_ast.c  |  3 ++-
->  libsepol/cil/src/cil_internal.h  |  7 +++++--
->  libsepol/cil/src/cil_parser.c    | 27 +++++++++++----------------
->  libsepol/cil/src/cil_tree.c      |  2 +-
->  6 files changed, 43 insertions(+), 26 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index bdd16eb8..caec5dad 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -220,7 +220,9 @@ char *CIL_KEY_IOCTL;
->  char *CIL_KEY_UNORDERED;
->  char *CIL_KEY_SRC_INFO;
->  char *CIL_KEY_SRC_CIL;
-> -char *CIL_KEY_SRC_HLL;
-> +char *CIL_KEY_SRC_HLL_LMS;
-> +char *CIL_KEY_SRC_HLL_LMX;
-> +char *CIL_KEY_SRC_HLL_LME;
->
->  static void cil_init_keys(void)
->  {
-> @@ -384,8 +386,10 @@ static void cil_init_keys(void)
->         CIL_KEY_IOCTL = cil_strpool_add("ioctl");
->         CIL_KEY_UNORDERED = cil_strpool_add("unordered");
->         CIL_KEY_SRC_INFO = cil_strpool_add("<src_info>");
-> -       CIL_KEY_SRC_CIL = cil_strpool_add("<src_cil>");
-> -       CIL_KEY_SRC_HLL = cil_strpool_add("<src_hll>");
-> +       CIL_KEY_SRC_CIL = cil_strpool_add("cil");
-> +       CIL_KEY_SRC_HLL_LMS = cil_strpool_add("lms");
-> +       CIL_KEY_SRC_HLL_LMX = cil_strpool_add("lmx");
-> +       CIL_KEY_SRC_HLL_LME = cil_strpool_add("lme");
->  }
->
->  void cil_db_init(struct cil_db **db)
-> @@ -2881,6 +2885,7 @@ void cil_mls_init(struct cil_mls **mls)
->  void cil_src_info_init(struct cil_src_info **info)
->  {
->         *info = cil_malloc(sizeof(**info));
-> -       (*info)->is_cil = 0;
-> +       (*info)->kind = NULL;
-> +       (*info)->hll_line = 0;
->         (*info)->path = NULL;
->  }
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index ffbd3082..a0f58b1e 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -6060,6 +6060,7 @@ int cil_gen_src_info(struct cil_tree_node *parse_current, struct cil_tree_node *
->                 CIL_SYN_STRING,
->                 CIL_SYN_STRING,
->                 CIL_SYN_STRING,
-> +               CIL_SYN_STRING,
->                 CIL_SYN_N_LISTS | CIL_SYN_END,
->                 CIL_SYN_END
->         };
-> @@ -6077,8 +6078,19 @@ int cil_gen_src_info(struct cil_tree_node *parse_current, struct cil_tree_node *
->
->         cil_src_info_init(&info);
->
-> -       info->is_cil = (parse_current->next->data == CIL_KEY_SRC_CIL) ? CIL_TRUE : CIL_FALSE;
-> -       info->path = parse_current->next->next->data;
-> +       info->kind = parse_current->next->data;
-> +       if (info->kind != CIL_KEY_SRC_CIL && info->kind != CIL_KEY_SRC_HLL_LMS && info->kind != CIL_KEY_SRC_HLL_LMX) {
-> +               cil_log(CIL_ERR, "Invalid src info kind\n");
-> +               rc = SEPOL_ERR;
-> +               goto exit;
-> +       }
-> +
-> +       rc = cil_string_to_uint32(parse_current->next->next->data, &info->hll_line, 10);
-> +       if (rc != SEPOL_OK) {
-> +               goto exit;
-> +       }
-> +
-> +       info->path = parse_current->next->next->next->data;
->
->         ast_node->data = info;
->         ast_node->flavor = CIL_SRC_INFO;
-> @@ -6087,6 +6099,7 @@ int cil_gen_src_info(struct cil_tree_node *parse_current, struct cil_tree_node *
->
->  exit:
->         cil_tree_log(parse_current, CIL_ERR, "Bad src info");
-> +       cil_destroy_src_info(info);
->         return rc;
->  }
->
-> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> index 9c0231f2..02b9828f 100644
-> --- a/libsepol/cil/src/cil_copy_ast.c
-> +++ b/libsepol/cil/src/cil_copy_ast.c
-> @@ -1692,7 +1692,8 @@ int cil_copy_src_info(__attribute__((unused)) struct cil_db *db, void *data, voi
->
->         cil_src_info_init(&new);
->
-> -       new->is_cil = orig->is_cil;
-> +       new->kind = orig->kind;
-> +       new->hll_line = orig->hll_line;
->         new->path = orig->path;
->
->         *copy = new;
-> diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-> index b9a03a37..385677d4 100644
-> --- a/libsepol/cil/src/cil_internal.h
-> +++ b/libsepol/cil/src/cil_internal.h
-> @@ -236,7 +236,9 @@ extern char *CIL_KEY_IOCTL;
->  extern char *CIL_KEY_UNORDERED;
->  extern char *CIL_KEY_SRC_INFO;
->  extern char *CIL_KEY_SRC_CIL;
-> -extern char *CIL_KEY_SRC_HLL;
-> +extern char *CIL_KEY_SRC_HLL_LMS;
-> +extern char *CIL_KEY_SRC_HLL_LMX;
-> +extern char *CIL_KEY_SRC_HLL_LME;
->
->  /*
->         Symbol Table Array Indices
-> @@ -963,7 +965,8 @@ struct cil_mls {
->  };
->
->  struct cil_src_info {
-> -       int is_cil;
-> +       char *kind;
-> +       uint32_t hll_line;
->         char *path;
->  };
->
-> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
-> index 9ca1432e..842c327c 100644
-> --- a/libsepol/cil/src/cil_parser.c
-> +++ b/libsepol/cil/src/cil_parser.c
-> @@ -44,10 +44,6 @@
->
->  #define CIL_PARSER_MAX_EXPR_DEPTH (0x1 << 12)
->
-> -char *CIL_KEY_HLL_LMS;
-> -char *CIL_KEY_HLL_LMX;
-> -char *CIL_KEY_HLL_LME;
-> -
->  struct hll_info {
->         uint32_t hll_lineno;
->         uint32_t hll_expand;
-> @@ -102,7 +98,6 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
->         char *hll_type;
->         struct cil_tree_node *node;
->         struct token tok;
-> -       char *hll_file;
->         int rc;
->
->         cil_lexer_next(&tok);
-> @@ -111,11 +106,11 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
->                 goto exit;
->         }
->         hll_type = cil_strpool_add(tok.value);
-> -       if (hll_type != CIL_KEY_HLL_LME && hll_type != CIL_KEY_HLL_LMS && hll_type != CIL_KEY_HLL_LMX) {
-> +       if (hll_type != CIL_KEY_SRC_HLL_LME && hll_type != CIL_KEY_SRC_HLL_LMS && hll_type != CIL_KEY_SRC_HLL_LMX) {
->                 cil_log(CIL_ERR, "Invalid line mark syntax\n");
->                 goto exit;
->         }
-> -       if (hll_type == CIL_KEY_HLL_LME) {
-> +       if (hll_type == CIL_KEY_SRC_HLL_LME) {
->                 if (cil_stack_is_empty(stack)) {
->                         cil_log(CIL_ERR, "Line mark end without start\n");
->                         goto exit;
-> @@ -132,7 +127,7 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
->                 create_node(&node, *current, tok.line, *hll_lineno, CIL_KEY_SRC_INFO);
->                 insert_node(node, *current);
->
-> -               create_node(&node, *current, tok.line, *hll_lineno, CIL_KEY_SRC_HLL);
-> +               create_node(&node, *current, tok.line, *hll_lineno, hll_type);
->                 insert_node(node, *current);
->
->                 cil_lexer_next(&tok);
-> @@ -141,12 +136,15 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
->                         goto exit;
->                 }
->
-> +               create_node(&node, *current, tok.line, *hll_lineno, cil_strpool_add(tok.value));
-> +               insert_node(node, *current);
-> +
->                 rc = cil_string_to_uint32(tok.value, hll_lineno, 10);
->                 if (rc != SEPOL_OK) {
->                         goto exit;
->                 }
->
-> -               *hll_expand = (hll_type == CIL_KEY_HLL_LMX) ? 1 : 0;
-> +               *hll_expand = (hll_type == CIL_KEY_SRC_HLL_LMX) ? 1 : 0;
->
->                 cil_lexer_next(&tok);
->                 if (tok.type != SYMBOL && tok.type != QSTRING) {
-> @@ -159,9 +157,7 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_lineno
->                         tok.value = tok.value+1;
->                 }
->
-> -               hll_file = cil_strpool_add(tok.value);
-> -
-> -               create_node(&node, *current, tok.line, *hll_lineno, hll_file);
-> +               create_node(&node, *current, tok.line, *hll_lineno, cil_strpool_add(tok.value));
->                 insert_node(node, *current);
->         }
->
-> @@ -192,6 +188,9 @@ static void add_cil_path(struct cil_tree_node **current, char *path)
->         create_node(&node, *current, 0, 0, CIL_KEY_SRC_CIL);
->         insert_node(node, *current);
->
-> +       create_node(&node, *current, 0, 0, "1");
-> +       insert_node(node, *current);
-> +
+> Is there a reason why you decided to use smp_{load,store} to guard
+> ocontext.sid[] as opposed to RCU/spinlock?  RCU would allow us to
+> avoid the memory barrier in smp_load_acquire() on every call to
+> ocontext_to_sid() and it looks like all of the non-exclusive callers
+> are already in a RCU protected section so the additional impact on an
+> already cached value should be next to nothing.  The spinlock would
+> make things slightly more complicated (take the lock, recheck
+> ocontext.sid, set/bail, unlock, etc.) but we are already in the slow
+> path at that point.
 
-Using this raw "1" here looks strange, while every other case uses
-cil_strpool_add indirections. gcc complains about this:
+I don't see any sane way to use RCU here - the implicit data
+dependency that the memory barrier is guarding us against here is
+between the sid field(s) and the memory regions in sidtab that hold
+the struct context corresponding to the SID stored in the field. You'd
+have to put both the SID value and the sidtab pointer behind some
+dynamically allocated structure and that would just be horrible...
 
-../cil/src/cil_parser.c: In function ‘add_cil_path’:
-../cil/src/cil_parser.c:205:44: error: passing argument 5 of
-‘create_node’ discards ‘const’ qualifier from pointer target type
-[-Werror=discarded-qualifiers]
-  205 |         create_node(&node, *current, 0, 0, "1");
-      |                                            ^~~
-../cil/src/cil_parser.c:76:127: note: expected ‘void *’ but argument
-is of type ‘const char *’
-   76 | tree_node **node, struct cil_tree_node *current, uint32_t
-line, uint32_t hll_offset, void *value)
-      |
+I assume that by using spinlock you mean something like:
 
-I understand that cil_strpool_add is used in order to be able to
-quickly compare some strings using raw pointer comparisons. So I do
-not know whether a proper fix would consist in using create_note(...,
-(void *)"1") or in introducing a char *CIL_KEY_ONE =
-cil_strpool_add("1"), or in making (struct cil_tree_node).data const.
+sid = READ_ONCE(c->sid);
+if (!sid) {
+        spin_lock(...);
+        sidtab_context_to_sid(..., &sid);
+        WRITE_ONCE(c->sid, sid);
+        spin_unlock(...);
+}
 
->         create_node(&node, *current, 0, 0, path);
->         insert_node(node, *current);
->  }
-> @@ -211,10 +210,6 @@ int cil_parser(const char *_path, char *buffer, uint32_t size, struct cil_tree *
->         struct token tok;
->         int rc = SEPOL_OK;
+...because taking the spinlock every time would obviously be less
+efficient than this patch :)
+
+That would, however, not solve the data dependency problem, so you'd
+still need smp_*() instead of *_ONCE() and at that point the spinlock
+would be redundant (and you're back to exactly what this patch does).
+
 >
-> -       CIL_KEY_HLL_LMS = cil_strpool_add("lms");
-> -       CIL_KEY_HLL_LMX = cil_strpool_add("lmx");
-> -       CIL_KEY_HLL_LME = cil_strpool_add("lme");
-> -
->         cil_stack_init(&stack);
+> > +       if (!sid) {
+> > +               rc = sidtab_context_to_sid(sidtab, &c->context[index], &sid);
+> > +               if (rc)
+> > +                       return rc;
+> > +
+> > +               /*
+> > +                * Ensure the new sidtab entry is visible to other threads
+> > +                * when they see the SID.
+> > +                */
+> > +               smp_store_release(&c->sid[index], sid);
+> > +       }
+> > +       *out_sid = sid;
+> > +       return 0;
+> > +}
 >
->         cil_lexer_setup(buffer, size);
-> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-> index 4cf8dcc8..52b28999 100644
-> --- a/libsepol/cil/src/cil_tree.c
-> +++ b/libsepol/cil/src/cil_tree.c
-> @@ -71,7 +71,7 @@ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **
->                                 /* AST */
->                                 struct cil_src_info *info = node->data;
->                                 *path = info->path;
-> -                               *is_cil = info->is_cil;
-> +                               *is_cil = (info->kind == CIL_KEY_SRC_CIL);
->                                 return node;
->                 } else {
->                         if (node->flavor == CIL_CALL) {
 > --
-> 2.31.1
+> paul moore
+> www.paul-moore.com
 >
+
+
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
