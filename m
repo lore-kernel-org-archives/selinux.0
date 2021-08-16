@@ -8,60 +8,58 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E363C432BE
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 14:44:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C3D5C432BE
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 15:23:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F23E6054E
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 14:44:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 856E260ED5
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 15:23:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbhHPOpV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 10:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40022 "EHLO
+        id S232556AbhHPPXm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 11:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231952AbhHPOpV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 10:45:21 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED2EC061764
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 07:44:49 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id r17-20020a0568302371b0290504f3f418fbso21159622oth.12
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 07:44:49 -0700 (PDT)
+        with ESMTP id S232462AbhHPPXm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 11:23:42 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC17C061764
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 08:23:10 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id r26so1206558oij.2
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 08:23:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=+nDhgqyZxnxS4EWJpQv/GwNeZOQ45JLRcJfjtT74w4U=;
-        b=vD3l8RnsVhqoCYLrQLsP4NN4lhstsD9p2ktB8XwtnFmxGJmLWw7uPFVqAo90/2EQ/M
-         S4dor/X6D1K1T4SZ+AJ0OvB3/eXrewfrr4jrAvAgOOT5opVR2beA4cqfdbMNJWHU7DFF
-         +AP5xr1ZDeplIub6WBlvcDnZWvxAqsJLhxELOs7MMbhw8ATlW5zEw/XoJ3oeRIZTMO6r
-         6njggFUpn6tyCbRhw5D6pAaKVhJboZ89Yw+jx7+pBAAbc5HHVjhq9+9aydFryKJTs9Xz
-         Dx1LdZ6izmUG85K8P6x/xbbwPx6cCkb4K7hLCiD5pT7wuTPYSwz8nzyTzaNdjkIyXuRz
-         tPHg==
+        bh=LmP1qTfHSomN33YORzMfCq4hGjtXtPKG0CM0IacmTCI=;
+        b=LuTsLgBelcrI4Ie1gX3uUzDHZtbK/7F1QrhhQmsbgVcf7bgKX2rpAezn1G9A9dSYd4
+         N16oF99R1LwsiOP5eOQFohyvQGynhUuSL58cL9K3MwRTW4SZEUrx45/jTd6ewdUHkwSx
+         7xzW383hfVyn+j/zRZRAWobQmPgcXyKjNyDPCdJuKVBbVR0ti0kryvVfSzF5i9GhLSS+
+         CacE5qAmZOxkJFe977idRvCaKpAQqhwTkR2i/ZvRyyZGlB5z77OGrgynx06LAjetuVSv
+         dKN9egFoXgviQO4vKND6U4kXt8Vxe8/OZql0h4qjaFutL7Nl1Hm8xrciY0UwvQGrFhpl
+         9sRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=+nDhgqyZxnxS4EWJpQv/GwNeZOQ45JLRcJfjtT74w4U=;
-        b=Yici3VgT8sI4idCOsLxGnYZL0SJATCJiMIk8UdcyBAb/xkbBoHbYFaoTyONwP+14vy
-         EAZIim0bz/piRa95+3nw0YzCjD0uaq3a6wky5MN3wWOxVVZk7idPOQvJqOXmHKNk7nBj
-         ycrEz2U1yCSuMj/zOrLH42QN+G7rwFdtx7ULtemZsPPfTtpOOkcCPSDzJFXYdKs9s0Sh
-         91YHbNHHu2z5a7ZAjddzke9RBX/COU+Lt5B1Ct31W9pBbR7LkNkY4AZ9EPpcVyPx31Bk
-         99L69k94KQOi6Bx5J6iD2YlVNUf29b3iV90yjmE7jEcWxVhugk8T4APR2V/Eom+5Tntd
-         CrbA==
-X-Gm-Message-State: AOAM533TC5USSbI7l1Piy5Dy0hOPPac8nlbddocHNg36+PzOlgK2Kvem
-        sdjevBaYfJaM0uChv2+igH4nF9FGfK2t5oMVFCgkC4ZNOhM=
-X-Google-Smtp-Source: ABdhPJyueRxnW/Gh+y9yeC2t2nG5khLl2FK0Z0OkKMdt2VP+lbXWTyggWMuzMuicQPZcg3Kqbinmfihdvhhnl1ADuxI=
-X-Received: by 2002:a05:6830:108d:: with SMTP id y13mr12960786oto.295.1629125088897;
- Mon, 16 Aug 2021 07:44:48 -0700 (PDT)
+        bh=LmP1qTfHSomN33YORzMfCq4hGjtXtPKG0CM0IacmTCI=;
+        b=oolaJsdsbiiEDSLPr/MC1l28HvrHAOfa1N/YZibOa0/cCnVPGJiCgKV0BpPEGXUqwb
+         N35J4r9OCcDk9iFZu8JaEYspXhLwRNkR4QR6mYFA0uh3GuyQbN/M5ksly4VeiVxgjQ9Z
+         ppVtvRNrrjntQTaX6chlKgPfhYgQ1MRHvWViJds0Rp9Kl8SqLryegtsmoBag2WwmfvDo
+         XfKQbrjZZfBfhE94NxCNppaNWKtPUJy2K0oB2dml+kHKDDIDEKEJWqniXMPJsw1e2KdN
+         kqV2r9SEOh4DZSzPH9tFDWZFD5SrKq9agUFMi6TwRmNd86/Z0RCnuQ4iKFefRDdLIy+5
+         Zz1g==
+X-Gm-Message-State: AOAM5314NVL/4GwlIAlkTGbfXXvr3uw2F6a+1n17ep3SddYfC6EJki/P
+        XBvLrJef4N52D8Vl9XCAp196N4IQ5qecTii5ouo=
+X-Google-Smtp-Source: ABdhPJyUjL6Rf1H5Br2Q8TQb969y76ueT87GIJ3lxBDVPhDk4M+9IKC8MsfhLwMlckopDQfN2wV1plKpowAk/NXE75g=
+X-Received: by 2002:aca:4b49:: with SMTP id y70mr11816430oia.16.1629127389613;
+ Mon, 16 Aug 2021 08:23:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210810180537.669439-1-jwcart2@gmail.com> <20210810180537.669439-7-jwcart2@gmail.com>
- <CAJfZ7=nuGHfTqf2CBHcODi3R=5tc+a5ZiamiXuJTF2gJk_rk-Q@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nuGHfTqf2CBHcODi3R=5tc+a5ZiamiXuJTF2gJk_rk-Q@mail.gmail.com>
+References: <20210809105209.12705-1-cgzones@googlemail.com> <CAP+JOzTn_4eD5AxOg0W=Gm_K906k3zNSSQLNiKCnGDq=6zbKFQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzTn_4eD5AxOg0W=Gm_K906k3zNSSQLNiKCnGDq=6zbKFQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 16 Aug 2021 10:44:38 -0400
-Message-ID: <CAP+JOzQ0JN6Yezwa6LoPCM25HbPi0gcZHw4xX15onbyGNY_1nA@mail.gmail.com>
-Subject: Re: [PATCH 6/8] libsepol/cil: Add line mark kind and line number to
- src info
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 16 Aug 2021 11:22:58 -0400
+Message-ID: <CAP+JOzQ0FdN6YbB3N9sCyHZqseT2jwWgqEW9o9o9JX3x1Bz4gA@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/2] libselinux: replace strerror by %m
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -69,320 +67,489 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 5:39 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
-:
+On Tue, Aug 10, 2021 at 2:27 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Tue, Aug 10, 2021 at 8:22 PM James Carter <jwcart2@gmail.com> wrote:
+> On Mon, Aug 9, 2021 at 6:54 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > To be able to write line mark information when writing the AST,
-> > the line mark kind and line number is needed in the src info.
+> > The standard function `strerror(3)` is not thread safe.  This does not
+> > only affect the concurrent usage of libselinux itself but also with
+> > other `strerror(3)` linked libraries.
+> > Use the thread safe GNU extension format specifier `%m`[1].
 > >
-> > Instead of indicating whether the src info is for CIL or a hll,
-> > differentiate between CIL, a normal hll line mark, and an expanded
-> > hll line mark. Also include the line mark line number in the src
-> > info nodes.
+> > libselinux already uses the GNU extension format specifier `%ms`.
 > >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  libsepol/cil/src/cil.c           | 13 +++++++++----
-> >  libsepol/cil/src/cil_build_ast.c | 17 +++++++++++++++--
-> >  libsepol/cil/src/cil_copy_ast.c  |  3 ++-
-> >  libsepol/cil/src/cil_internal.h  |  7 +++++--
-> >  libsepol/cil/src/cil_parser.c    | 27 +++++++++++----------------
-> >  libsepol/cil/src/cil_tree.c      |  2 +-
-> >  6 files changed, 43 insertions(+), 26 deletions(-)
+> > [1]: https://www.gnu.org/software/libc/manual/html_node/Other-Output-Co=
+nversions.html
 > >
-> > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> > index bdd16eb8..caec5dad 100644
-> > --- a/libsepol/cil/src/cil.c
-> > +++ b/libsepol/cil/src/cil.c
-> > @@ -220,7 +220,9 @@ char *CIL_KEY_IOCTL;
-> >  char *CIL_KEY_UNORDERED;
-> >  char *CIL_KEY_SRC_INFO;
-> >  char *CIL_KEY_SRC_CIL;
-> > -char *CIL_KEY_SRC_HLL;
-> > +char *CIL_KEY_SRC_HLL_LMS;
-> > +char *CIL_KEY_SRC_HLL_LMX;
-> > +char *CIL_KEY_SRC_HLL_LME;
-> >
-> >  static void cil_init_keys(void)
-> >  {
-> > @@ -384,8 +386,10 @@ static void cil_init_keys(void)
-> >         CIL_KEY_IOCTL =3D cil_strpool_add("ioctl");
-> >         CIL_KEY_UNORDERED =3D cil_strpool_add("unordered");
-> >         CIL_KEY_SRC_INFO =3D cil_strpool_add("<src_info>");
-> > -       CIL_KEY_SRC_CIL =3D cil_strpool_add("<src_cil>");
-> > -       CIL_KEY_SRC_HLL =3D cil_strpool_add("<src_hll>");
-> > +       CIL_KEY_SRC_CIL =3D cil_strpool_add("cil");
-> > +       CIL_KEY_SRC_HLL_LMS =3D cil_strpool_add("lms");
-> > +       CIL_KEY_SRC_HLL_LMX =3D cil_strpool_add("lmx");
-> > +       CIL_KEY_SRC_HLL_LME =3D cil_strpool_add("lme");
-> >  }
-> >
-> >  void cil_db_init(struct cil_db **db)
-> > @@ -2881,6 +2885,7 @@ void cil_mls_init(struct cil_mls **mls)
-> >  void cil_src_info_init(struct cil_src_info **info)
-> >  {
-> >         *info =3D cil_malloc(sizeof(**info));
-> > -       (*info)->is_cil =3D 0;
-> > +       (*info)->kind =3D NULL;
-> > +       (*info)->hll_line =3D 0;
-> >         (*info)->path =3D NULL;
-> >  }
-> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bu=
-ild_ast.c
-> > index ffbd3082..a0f58b1e 100644
-> > --- a/libsepol/cil/src/cil_build_ast.c
-> > +++ b/libsepol/cil/src/cil_build_ast.c
-> > @@ -6060,6 +6060,7 @@ int cil_gen_src_info(struct cil_tree_node *parse_=
-current, struct cil_tree_node *
-> >                 CIL_SYN_STRING,
-> >                 CIL_SYN_STRING,
-> >                 CIL_SYN_STRING,
-> > +               CIL_SYN_STRING,
-> >                 CIL_SYN_N_LISTS | CIL_SYN_END,
-> >                 CIL_SYN_END
-> >         };
-> > @@ -6077,8 +6078,19 @@ int cil_gen_src_info(struct cil_tree_node *parse=
-_current, struct cil_tree_node *
-> >
-> >         cil_src_info_init(&info);
-> >
-> > -       info->is_cil =3D (parse_current->next->data =3D=3D CIL_KEY_SRC_=
-CIL) ? CIL_TRUE : CIL_FALSE;
-> > -       info->path =3D parse_current->next->next->data;
-> > +       info->kind =3D parse_current->next->data;
-> > +       if (info->kind !=3D CIL_KEY_SRC_CIL && info->kind !=3D CIL_KEY_=
-SRC_HLL_LMS && info->kind !=3D CIL_KEY_SRC_HLL_LMX) {
-> > +               cil_log(CIL_ERR, "Invalid src info kind\n");
-> > +               rc =3D SEPOL_ERR;
-> > +               goto exit;
-> > +       }
-> > +
-> > +       rc =3D cil_string_to_uint32(parse_current->next->next->data, &i=
-nfo->hll_line, 10);
-> > +       if (rc !=3D SEPOL_OK) {
-> > +               goto exit;
-> > +       }
-> > +
-> > +       info->path =3D parse_current->next->next->next->data;
-> >
-> >         ast_node->data =3D info;
-> >         ast_node->flavor =3D CIL_SRC_INFO;
-> > @@ -6087,6 +6099,7 @@ int cil_gen_src_info(struct cil_tree_node *parse_=
-current, struct cil_tree_node *
-> >
-> >  exit:
-> >         cil_tree_log(parse_current, CIL_ERR, "Bad src info");
-> > +       cil_destroy_src_info(info);
-> >         return rc;
-> >  }
-> >
-> > diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_cop=
-y_ast.c
-> > index 9c0231f2..02b9828f 100644
-> > --- a/libsepol/cil/src/cil_copy_ast.c
-> > +++ b/libsepol/cil/src/cil_copy_ast.c
-> > @@ -1692,7 +1692,8 @@ int cil_copy_src_info(__attribute__((unused)) str=
-uct cil_db *db, void *data, voi
-> >
-> >         cil_src_info_init(&new);
-> >
-> > -       new->is_cil =3D orig->is_cil;
-> > +       new->kind =3D orig->kind;
-> > +       new->hll_line =3D orig->hll_line;
-> >         new->path =3D orig->path;
-> >
-> >         *copy =3D new;
-> > diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_int=
-ernal.h
-> > index b9a03a37..385677d4 100644
-> > --- a/libsepol/cil/src/cil_internal.h
-> > +++ b/libsepol/cil/src/cil_internal.h
-> > @@ -236,7 +236,9 @@ extern char *CIL_KEY_IOCTL;
-> >  extern char *CIL_KEY_UNORDERED;
-> >  extern char *CIL_KEY_SRC_INFO;
-> >  extern char *CIL_KEY_SRC_CIL;
-> > -extern char *CIL_KEY_SRC_HLL;
-> > +extern char *CIL_KEY_SRC_HLL_LMS;
-> > +extern char *CIL_KEY_SRC_HLL_LMX;
-> > +extern char *CIL_KEY_SRC_HLL_LME;
-> >
-> >  /*
-> >         Symbol Table Array Indices
-> > @@ -963,7 +965,8 @@ struct cil_mls {
-> >  };
-> >
-> >  struct cil_src_info {
-> > -       int is_cil;
-> > +       char *kind;
-> > +       uint32_t hll_line;
-> >         char *path;
-> >  };
-> >
-> > diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parse=
-r.c
-> > index 9ca1432e..842c327c 100644
-> > --- a/libsepol/cil/src/cil_parser.c
-> > +++ b/libsepol/cil/src/cil_parser.c
-> > @@ -44,10 +44,6 @@
-> >
-> >  #define CIL_PARSER_MAX_EXPR_DEPTH (0x1 << 12)
-> >
-> > -char *CIL_KEY_HLL_LMS;
-> > -char *CIL_KEY_HLL_LMX;
-> > -char *CIL_KEY_HLL_LME;
-> > -
-> >  struct hll_info {
-> >         uint32_t hll_lineno;
-> >         uint32_t hll_expand;
-> > @@ -102,7 +98,6 @@ static int add_hll_linemark(struct cil_tree_node **c=
-urrent, uint32_t *hll_lineno
-> >         char *hll_type;
-> >         struct cil_tree_node *node;
-> >         struct token tok;
-> > -       char *hll_file;
-> >         int rc;
-> >
-> >         cil_lexer_next(&tok);
-> > @@ -111,11 +106,11 @@ static int add_hll_linemark(struct cil_tree_node =
-**current, uint32_t *hll_lineno
-> >                 goto exit;
-> >         }
-> >         hll_type =3D cil_strpool_add(tok.value);
-> > -       if (hll_type !=3D CIL_KEY_HLL_LME && hll_type !=3D CIL_KEY_HLL_=
-LMS && hll_type !=3D CIL_KEY_HLL_LMX) {
-> > +       if (hll_type !=3D CIL_KEY_SRC_HLL_LME && hll_type !=3D CIL_KEY_=
-SRC_HLL_LMS && hll_type !=3D CIL_KEY_SRC_HLL_LMX) {
-> >                 cil_log(CIL_ERR, "Invalid line mark syntax\n");
-> >                 goto exit;
-> >         }
-> > -       if (hll_type =3D=3D CIL_KEY_HLL_LME) {
-> > +       if (hll_type =3D=3D CIL_KEY_SRC_HLL_LME) {
-> >                 if (cil_stack_is_empty(stack)) {
-> >                         cil_log(CIL_ERR, "Line mark end without start\n=
-");
-> >                         goto exit;
-> > @@ -132,7 +127,7 @@ static int add_hll_linemark(struct cil_tree_node **=
-current, uint32_t *hll_lineno
-> >                 create_node(&node, *current, tok.line, *hll_lineno, CIL=
-_KEY_SRC_INFO);
-> >                 insert_node(node, *current);
-> >
-> > -               create_node(&node, *current, tok.line, *hll_lineno, CIL=
-_KEY_SRC_HLL);
-> > +               create_node(&node, *current, tok.line, *hll_lineno, hll=
-_type);
-> >                 insert_node(node, *current);
-> >
-> >                 cil_lexer_next(&tok);
-> > @@ -141,12 +136,15 @@ static int add_hll_linemark(struct cil_tree_node =
-**current, uint32_t *hll_lineno
-> >                         goto exit;
-> >                 }
-> >
-> > +               create_node(&node, *current, tok.line, *hll_lineno, cil=
-_strpool_add(tok.value));
-> > +               insert_node(node, *current);
-> > +
-> >                 rc =3D cil_string_to_uint32(tok.value, hll_lineno, 10);
-> >                 if (rc !=3D SEPOL_OK) {
-> >                         goto exit;
-> >                 }
-> >
-> > -               *hll_expand =3D (hll_type =3D=3D CIL_KEY_HLL_LMX) ? 1 :=
- 0;
-> > +               *hll_expand =3D (hll_type =3D=3D CIL_KEY_SRC_HLL_LMX) ?=
- 1 : 0;
-> >
-> >                 cil_lexer_next(&tok);
-> >                 if (tok.type !=3D SYMBOL && tok.type !=3D QSTRING) {
-> > @@ -159,9 +157,7 @@ static int add_hll_linemark(struct cil_tree_node **=
-current, uint32_t *hll_lineno
-> >                         tok.value =3D tok.value+1;
-> >                 }
-> >
-> > -               hll_file =3D cil_strpool_add(tok.value);
-> > -
-> > -               create_node(&node, *current, tok.line, *hll_lineno, hll=
-_file);
-> > +               create_node(&node, *current, tok.line, *hll_lineno, cil=
-_strpool_add(tok.value));
-> >                 insert_node(node, *current);
-> >         }
-> >
-> > @@ -192,6 +188,9 @@ static void add_cil_path(struct cil_tree_node **cur=
-rent, char *path)
-> >         create_node(&node, *current, 0, 0, CIL_KEY_SRC_CIL);
-> >         insert_node(node, *current);
-> >
-> > +       create_node(&node, *current, 0, 0, "1");
-> > +       insert_node(node, *current);
-> > +
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Using this raw "1" here looks strange, while every other case uses
-> cil_strpool_add indirections. gcc complains about this:
->
-> ../cil/src/cil_parser.c: In function =E2=80=98add_cil_path=E2=80=99:
-> ../cil/src/cil_parser.c:205:44: error: passing argument 5 of
-> =E2=80=98create_node=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier =
-from pointer target type
-> [-Werror=3Ddiscarded-qualifiers]
->   205 |         create_node(&node, *current, 0, 0, "1");
->       |                                            ^~~
-> ../cil/src/cil_parser.c:76:127: note: expected =E2=80=98void *=E2=80=99 b=
-ut argument
-> is of type =E2=80=98const char *=E2=80=99
->    76 | tree_node **node, struct cil_tree_node *current, uint32_t
-> line, uint32_t hll_offset, void *value)
->       |
->
-> I understand that cil_strpool_add is used in order to be able to
-> quickly compare some strings using raw pointer comparisons. So I do
-> not know whether a proper fix would consist in using create_note(...,
-> (void *)"1") or in introducing a char *CIL_KEY_ONE =3D
-> cil_strpool_add("1"), or in making (struct cil_tree_node).data const.
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-I think that I would prefer to go with (void*)"1", since the "1" is
-not a keyword of any sort.
-
-Thanks for the review.
+Both of these have been merged.
+Thanks,
 Jim
 
-
-> >         create_node(&node, *current, 0, 0, path);
-> >         insert_node(node, *current);
-> >  }
-> > @@ -211,10 +210,6 @@ int cil_parser(const char *_path, char *buffer, ui=
-nt32_t size, struct cil_tree *
-> >         struct token tok;
-> >         int rc =3D SEPOL_OK;
+> > ---
+> >  libselinux/src/audit2why.c              | 11 ++--
+> >  libselinux/src/avc.c                    |  9 ++--
+> >  libselinux/src/avc_internal.c           |  4 +-
+> >  libselinux/src/label_backends_android.c | 12 +++--
+> >  libselinux/src/label_file.h             | 12 +++--
+> >  libselinux/src/load_policy.c            | 20 ++++----
+> >  libselinux/src/matchpathcon.c           |  8 +--
+> >  libselinux/src/selinux_restorecon.c     | 68 +++++++++++++------------
+> >  8 files changed, 79 insertions(+), 65 deletions(-)
 > >
-> > -       CIL_KEY_HLL_LMS =3D cil_strpool_add("lms");
-> > -       CIL_KEY_HLL_LMX =3D cil_strpool_add("lmx");
-> > -       CIL_KEY_HLL_LME =3D cil_strpool_add("lme");
-> > -
-> >         cil_stack_init(&stack);
+> > diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+> > index 029f874f..ca38e13c 100644
+> > --- a/libselinux/src/audit2why.c
+> > +++ b/libselinux/src/audit2why.c
+> > @@ -204,8 +204,8 @@ static int __policy_init(const char *init_path)
+> >                 fp =3D fopen(path, "re");
+> >                 if (!fp) {
+> >                         snprintf(errormsg, sizeof(errormsg),
+> > -                                "unable to open %s:  %s\n",
+> > -                                path, strerror(errno));
+> > +                                "unable to open %s:  %m\n",
+> > +                                path);
+> >                         PyErr_SetString( PyExc_ValueError, errormsg);
+> >                         return 1;
+> >                 }
+> > @@ -221,9 +221,8 @@ static int __policy_init(const char *init_path)
+> >                 fp =3D fopen(curpolicy, "re");
+> >                 if (!fp) {
+> >                         snprintf(errormsg, sizeof(errormsg),
+> > -                                "unable to open %s:  %s\n",
+> > -                                curpolicy,
+> > -                                strerror(errno));
+> > +                                "unable to open %s:  %m\n",
+> > +                                curpolicy);
+> >                         PyErr_SetString( PyExc_ValueError, errormsg);
+> >                         return 1;
+> >                 }
+> > @@ -242,7 +241,7 @@ static int __policy_init(const char *init_path)
+> >         if (sepol_policy_file_create(&pf) ||
+> >             sepol_policydb_create(&avc->policydb)) {
+> >                 snprintf(errormsg, sizeof(errormsg),
+> > -                        "policydb_init failed: %s\n", strerror(errno))=
+;
+> > +                        "policydb_init failed: %m\n");
+> >                 PyErr_SetString( PyExc_RuntimeError, errormsg);
+> >                 fclose(fp);
+> >                 return 1;
+> > diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+> > index daaedbc6..7493e4b2 100644
+> > --- a/libselinux/src/avc.c
+> > +++ b/libselinux/src/avc.c
+> > @@ -206,9 +206,8 @@ static int avc_init_internal(const char *prefix,
+> >                 rc =3D security_getenforce();
+> >                 if (rc < 0) {
+> >                         avc_log(SELINUX_ERROR,
+> > -                               "%s:  could not determine enforcing mod=
+e: %s\n",
+> > -                               avc_prefix,
+> > -                               strerror(errno));
+> > +                               "%s:  could not determine enforcing mod=
+e: %m\n",
+> > +                               avc_prefix);
+> >                         goto out;
+> >                 }
+> >                 avc_enforcing =3D rc;
+> > @@ -217,8 +216,8 @@ static int avc_init_internal(const char *prefix,
+> >         rc =3D selinux_status_open(0);
+> >         if (rc < 0) {
+> >                 avc_log(SELINUX_ERROR,
+> > -                       "%s: could not open selinux status page: %d (%s=
+)\n",
+> > -                       avc_prefix, errno, strerror(errno));
+> > +                       "%s: could not open selinux status page: %d (%m=
+)\n",
+> > +                       avc_prefix, errno);
+> >                 goto out;
+> >         }
+> >         avc_running =3D 1;
+> > diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_interna=
+l.c
+> > index 53a99a1f..71a1357b 100644
+> > --- a/libselinux/src/avc_internal.c
+> > +++ b/libselinux/src/avc_internal.c
+> > @@ -308,8 +308,8 @@ int avc_netlink_acquire_fd(void)
+> >                 rc =3D avc_netlink_open(0);
+> >                 if (rc < 0) {
+> >                         avc_log(SELINUX_ERROR,
+> > -                               "%s: could not open netlink socket: %d =
+(%s)\n",
+> > -                               avc_prefix, errno, strerror(errno));
+> > +                               "%s: could not open netlink socket: %d =
+(%m)\n",
+> > +                               avc_prefix, errno);
+> >                         return rc;
+> >                 }
+> >         }
+> > diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/l=
+abel_backends_android.c
+> > index cb8aae26..66d4df2d 100644
+> > --- a/libselinux/src/label_backends_android.c
+> > +++ b/libselinux/src/label_backends_android.c
+> > @@ -94,9 +94,15 @@ static int process_line(struct selabel_handle *rec,
+> >         items =3D read_spec_entries(line_buf, &errbuf, 2, &prop, &conte=
+xt);
+> >         if (items < 0) {
+> >                 items =3D errno;
+> > -               selinux_log(SELINUX_ERROR,
+> > -                       "%s:  line %u error due to: %s\n", path,
+> > -                       lineno, errbuf ?: strerror(errno));
+> > +               if (errbuf) {
+> > +                       selinux_log(SELINUX_ERROR,
+> > +                                   "%s:  line %u error due to: %s\n", =
+path,
+> > +                                   lineno, errbuf);
+> > +               } else {
+> > +                       selinux_log(SELINUX_ERROR,
+> > +                                   "%s:  line %u error due to: %m\n", =
+path,
+> > +                                   lineno);
+> > +               }
+> >                 errno =3D items;
+> >                 return -1;
+> >         }
+> > diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> > index 9f633701..343ffc70 100644
+> > --- a/libselinux/src/label_file.h
+> > +++ b/libselinux/src/label_file.h
+> > @@ -445,9 +445,15 @@ static inline int process_line(struct selabel_hand=
+le *rec,
+> >         items =3D read_spec_entries(line_buf, &errbuf, 3, &regex, &type=
+, &context);
+> >         if (items < 0) {
+> >                 rc =3D errno;
+> > -               selinux_log(SELINUX_ERROR,
+> > -                       "%s:  line %u error due to: %s\n", path,
+> > -                       lineno, errbuf ?: strerror(errno));
+> > +               if (errbuf) {
+> > +                       selinux_log(SELINUX_ERROR,
+> > +                                   "%s:  line %u error due to: %s\n", =
+path,
+> > +                                   lineno, errbuf);
+> > +               } else {
+> > +                       selinux_log(SELINUX_ERROR,
+> > +                                   "%s:  line %u error due to: %m\n", =
+path,
+> > +                                   lineno);
+> > +               }
+> >                 errno =3D rc;
+> >                 return -1;
+> >         }
+> > diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.=
+c
+> > index 5857b821..d8c715ed 100644
+> > --- a/libselinux/src/load_policy.c
+> > +++ b/libselinux/src/load_policy.c
+> > @@ -137,15 +137,15 @@ int selinux_mkload_policy(int preservebools __att=
+ribute__((unused)))
+> >         }
+> >         if (fd < 0) {
+> >                 fprintf(stderr,
+> > -                       "SELinux:  Could not open policy file <=3D %s.%=
+d:  %s\n",
+> > -                       selinux_binary_policy_path(), maxvers, strerror=
+(errno));
+> > +                       "SELinux:  Could not open policy file <=3D %s.%=
+d:  %m\n",
+> > +                       selinux_binary_policy_path(), maxvers);
+> >                 goto dlclose;
+> >         }
 > >
-> >         cil_lexer_setup(buffer, size);
-> > diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-> > index 4cf8dcc8..52b28999 100644
-> > --- a/libsepol/cil/src/cil_tree.c
-> > +++ b/libsepol/cil/src/cil_tree.c
-> > @@ -71,7 +71,7 @@ struct cil_tree_node *cil_tree_get_next_path(struct c=
-il_tree_node *node, char **
-> >                                 /* AST */
-> >                                 struct cil_src_info *info =3D node->dat=
-a;
-> >                                 *path =3D info->path;
-> > -                               *is_cil =3D info->is_cil;
-> > +                               *is_cil =3D (info->kind =3D=3D CIL_KEY_=
-SRC_CIL);
-> >                                 return node;
+> >         if (fstat(fd, &sb) < 0) {
+> >                 fprintf(stderr,
+> > -                       "SELinux:  Could not stat policy file %s:  %s\n=
+",
+> > -                       path, strerror(errno));
+> > +                       "SELinux:  Could not stat policy file %s:  %m\n=
+",
+> > +                       path);
+> >                 goto close;
+> >         }
+> >
+> > @@ -153,8 +153,8 @@ int selinux_mkload_policy(int preservebools __attri=
+bute__((unused)))
+> >         data =3D map =3D mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0=
+);
+> >         if (map =3D=3D MAP_FAILED) {
+> >                 fprintf(stderr,
+> > -                       "SELinux:  Could not map policy file %s:  %s\n"=
+,
+> > -                       path, strerror(errno));
+> > +                       "SELinux:  Could not map policy file %s:  %m\n"=
+,
+> > +                       path);
+> >                 goto close;
+> >         }
+> >
+> > @@ -193,8 +193,8 @@ int selinux_mkload_policy(int preservebools __attri=
+bute__((unused)))
+> >
+> >         if (rc)
+> >                 fprintf(stderr,
+> > -                       "SELinux:  Could not load policy file %s:  %s\n=
+",
+> > -                       path, strerror(errno));
+> > +                       "SELinux:  Could not load policy file %s:  %m\n=
+",
+> > +                       path);
+> >
+> >        unmap:
+> >         if (data !=3D map)
+> > @@ -306,7 +306,7 @@ int selinux_init_load_policy(int *enforce)
+> >                         *enforce =3D 0;
 > >                 } else {
-> >                         if (node->flavor =3D=3D CIL_CALL) {
-> > --
-> > 2.31.1
+> >                         /* Only emit this error if selinux was not disa=
+bled */
+> > -                       fprintf(stderr, "Mount failed for selinuxfs on =
+%s:  %s\n", SELINUXMNT, strerror(errno));
+> > +                       fprintf(stderr, "Mount failed for selinuxfs on =
+%s:  %m\n", SELINUXMNT);
+> >                 }
 > >
->
+> >                 if (rc =3D=3D 0)
+> > @@ -352,7 +352,7 @@ int selinux_init_load_policy(int *enforce)
+> >         if (orig_enforce !=3D *enforce) {
+> >                 rc =3D security_setenforce(*enforce);
+> >                 if (rc < 0) {
+> > -                       fprintf(stderr, "SELinux:  Unable to switch to =
+%s mode:  %s\n", (*enforce ? "enforcing" : "permissive"), strerror(errno));
+> > +                       fprintf(stderr, "SELinux:  Unable to switch to =
+%s mode:  %m\n", (*enforce ? "enforcing" : "permissive"));
+> >                         if (*enforce)
+> >                                 goto noload;
+> >                 }
+> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathco=
+n.c
+> > index 075a3fb3..1e7f8890 100644
+> > --- a/libselinux/src/matchpathcon.c
+> > +++ b/libselinux/src/matchpathcon.c
+> > @@ -393,8 +393,8 @@ int realpath_not_final(const char *name, char *reso=
+lved_path)
+> >
+> >         tmp_path =3D strdup(name);
+> >         if (!tmp_path) {
+> > -               myprintf("symlink_realpath(%s) strdup() failed: %s\n",
+> > -                       name, strerror(errno));
+> > +               myprintf("symlink_realpath(%s) strdup() failed: %m\n",
+> > +                       name);
+> >                 rc =3D -1;
+> >                 goto out;
+> >         }
+> > @@ -414,8 +414,8 @@ int realpath_not_final(const char *name, char *reso=
+lved_path)
+> >         }
+> >
+> >         if (!p) {
+> > -               myprintf("symlink_realpath(%s) realpath() failed: %s\n"=
+,
+> > -                       name, strerror(errno));
+> > +               myprintf("symlink_realpath(%s) realpath() failed: %m\n"=
+,
+> > +                       name);
+> >                 rc =3D -1;
+> >                 goto out;
+> >         }
+> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
+ux_restorecon.c
+> > index 999aa924..04d95650 100644
+> > --- a/libselinux/src/selinux_restorecon.c
+> > +++ b/libselinux/src/selinux_restorecon.c
+> > @@ -333,8 +333,7 @@ static int add_xattr_entry(const char *directory, b=
+ool delete_nonmatch,
+> >                 rc =3D removexattr(directory, RESTORECON_PARTIAL_MATCH_=
+DIGEST);
+> >                 if (rc) {
+> >                         selinux_log(SELINUX_ERROR,
+> > -                                 "Error: %s removing xattr \"%s\" from=
+: %s\n",
+> > -                                 strerror(errno),
+> > +                                 "Error: %m removing xattr \"%s\" from=
+: %s\n",
+> >                                   RESTORECON_PARTIAL_MATCH_DIGEST, dire=
+ctory);
+> >                         digest_result =3D ERROR;
+> >                 }
+> > @@ -734,8 +733,8 @@ out1:
+> >         return rc;
+> >  err:
+> >         selinux_log(SELINUX_ERROR,
+> > -                   "Could not set context for %s:  %s\n",
+> > -                   pathname, strerror(errno));
+> > +                   "Could not set context for %s:  %m\n",
+> > +                   pathname);
+> >         rc =3D -1;
+> >         goto out1;
+> >  }
+> > @@ -857,6 +856,7 @@ int selinux_restorecon(const char *pathname_orig,
+> >         dev_t dev_num =3D 0;
+> >         struct dir_hash_node *current =3D NULL;
+> >         struct dir_hash_node *head =3D NULL;
+> > +       int errno_tmp;
+> >
+> >         if (flags.verbose && flags.progress)
+> >                 flags.verbose =3D false;
+> > @@ -929,8 +929,8 @@ int selinux_restorecon(const char *pathname_orig,
+> >                         return 0;
+> >                 } else {
+> >                         selinux_log(SELINUX_ERROR,
+> > -                                   "lstat(%s) failed: %s\n",
+> > -                                   pathname, strerror(errno));
+> > +                                   "lstat(%s) failed: %m\n",
+> > +                                   pathname);
+> >                         error =3D -1;
+> >                         goto cleanup;
+> >                 }
+> > @@ -954,8 +954,8 @@ int selinux_restorecon(const char *pathname_orig,
+> >         memset(&sfsb, 0, sizeof sfsb);
+> >         if (!S_ISLNK(sb.st_mode) && statfs(pathname, &sfsb) < 0) {
+> >                 selinux_log(SELINUX_ERROR,
+> > -                           "statfs(%s) failed: %s\n",
+> > -                           pathname, strerror(errno));
+> > +                           "statfs(%s) failed: %m\n",
+> > +                           pathname);
+> >                 error =3D -1;
+> >                 goto cleanup;
+> >         }
+> > @@ -1006,24 +1006,30 @@ int selinux_restorecon(const char *pathname_ori=
+g,
+> >                 case FTS_DP:
+> >                         continue;
+> >                 case FTS_DNR:
+> > +                       errno_tmp =3D errno;
+> > +                       errno =3D ftsent->fts_errno;
+> >                         selinux_log(SELINUX_ERROR,
+> > -                                   "Could not read %s: %s.\n",
+> > -                                   ftsent->fts_path,
+> > -                                                 strerror(ftsent->fts_=
+errno));
+> > +                                   "Could not read %s: %m.\n",
+> > +                                   ftsent->fts_path);
+> > +                       errno =3D errno_tmp;
+> >                         fts_set(fts, ftsent, FTS_SKIP);
+> >                         continue;
+> >                 case FTS_NS:
+> > +                       errno_tmp =3D errno;
+> > +                       errno =3D ftsent->fts_errno;
+> >                         selinux_log(SELINUX_ERROR,
+> > -                                   "Could not stat %s: %s.\n",
+> > -                                   ftsent->fts_path,
+> > -                                                 strerror(ftsent->fts_=
+errno));
+> > +                                   "Could not stat %s: %m.\n",
+> > +                                   ftsent->fts_path);
+> > +                       errno =3D errno_tmp;
+> >                         fts_set(fts, ftsent, FTS_SKIP);
+> >                         continue;
+> >                 case FTS_ERR:
+> > +                       errno_tmp =3D errno;
+> > +                       errno =3D ftsent->fts_errno;
+> >                         selinux_log(SELINUX_ERROR,
+> > -                                   "Error on %s: %s.\n",
+> > -                                   ftsent->fts_path,
+> > -                                                 strerror(ftsent->fts_=
+errno));
+> > +                                   "Error on %s: %m.\n",
+> > +                                   ftsent->fts_path);
+> > +                       errno =3D errno_tmp;
+> >                         fts_set(fts, ftsent, FTS_SKIP);
+> >                         continue;
+> >                 case FTS_D:
+> > @@ -1087,9 +1093,8 @@ int selinux_restorecon(const char *pathname_orig,
+> >                             current->digest,
+> >                             SHA1_HASH_SIZE, 0) < 0) {
+> >                                 selinux_log(SELINUX_ERROR,
+> > -                                           "setxattr failed: %s: %s\n"=
+,
+> > -                                           current->path,
+> > -                                           strerror(errno));
+> > +                                           "setxattr failed: %s: %m\n"=
+,
+> > +                                           current->path);
+> >                         }
+> >                         current =3D current->next;
+> >                 }
+> > @@ -1131,16 +1136,16 @@ oom:
+> >  realpatherr:
+> >         sverrno =3D errno;
+> >         selinux_log(SELINUX_ERROR,
+> > -                   "SELinux: Could not get canonical path for %s resto=
+recon: %s.\n",
+> > -                   pathname_orig, strerror(errno));
+> > +                   "SELinux: Could not get canonical path for %s resto=
+recon: %m.\n",
+> > +                   pathname_orig);
+> >         errno =3D sverrno;
+> >         error =3D -1;
+> >         goto cleanup;
+> >
+> >  fts_err:
+> >         selinux_log(SELINUX_ERROR,
+> > -                   "fts error while labeling %s: %s\n",
+> > -                   paths[0], strerror(errno));
+> > +                   "fts error while labeling %s: %m\n",
+> > +                   paths[0]);
+> >         error =3D -1;
+> >         goto cleanup;
+> >  }
+> > @@ -1181,8 +1186,7 @@ struct selabel_handle *selinux_restorecon_default=
+_handle(void)
+> >
+> >         if (!sehandle) {
+> >                 selinux_log(SELINUX_ERROR,
+> > -                           "Error obtaining file context handle: %s\n"=
+,
+> > -                                                   strerror(errno));
+> > +                           "Error obtaining file context handle: %m\n"=
+);
+> >                 return NULL;
+> >         }
+> >
+> > @@ -1202,8 +1206,8 @@ void selinux_restorecon_set_exclude_list(const ch=
+ar **exclude_list)
+> >         for (i =3D 0; exclude_list[i]; i++) {
+> >                 if (lstat(exclude_list[i], &sb) < 0 && errno !=3D EACCE=
+S) {
+> >                         selinux_log(SELINUX_ERROR,
+> > -                                   "lstat error on exclude path \"%s\"=
+, %s - ignoring.\n",
+> > -                                   exclude_list[i], strerror(errno));
+> > +                                   "lstat error on exclude path \"%s\"=
+, %m - ignoring.\n",
+> > +                                   exclude_list[i]);
+> >                         break;
+> >                 }
+> >                 if (add_exclude(exclude_list[i], CALLER_EXCLUDED) &&
+> > @@ -1269,8 +1273,8 @@ int selinux_restorecon_xattr(const char *pathname=
+, unsigned int xattr_flags,
+> >                         return 0;
+> >
+> >                 selinux_log(SELINUX_ERROR,
+> > -                           "lstat(%s) failed: %s\n",
+> > -                           pathname, strerror(errno));
+> > +                           "lstat(%s) failed: %m\n",
+> > +                           pathname);
+> >                 return -1;
+> >         }
+> >
+> > @@ -1300,8 +1304,8 @@ int selinux_restorecon_xattr(const char *pathname=
+, unsigned int xattr_flags,
+> >         fts =3D fts_open(paths, fts_flags, NULL);
+> >         if (!fts) {
+> >                 selinux_log(SELINUX_ERROR,
+> > -                           "fts error on %s: %s\n",
+> > -                           paths[0], strerror(errno));
+> > +                           "fts error on %s: %m\n",
+> > +                           paths[0]);
+> >                 return -1;
+> >         }
+> >
+> > --
+> > 2.32.0
+> >
