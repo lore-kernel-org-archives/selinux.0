@@ -8,58 +8,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F03CC432BE
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 14:43:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E363C432BE
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 14:44:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7FDD661078
-	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 14:43:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F23E6054E
+	for <selinux@archiver.kernel.org>; Mon, 16 Aug 2021 14:44:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbhHPOno (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 10:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38962 "EHLO
+        id S231995AbhHPOpV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 10:45:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231799AbhHPOlU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 10:41:20 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19800C061764
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 07:40:17 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id o20so26969898oiw.12
-        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 07:40:17 -0700 (PDT)
+        with ESMTP id S231952AbhHPOpV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Aug 2021 10:45:21 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED2EC061764
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 07:44:49 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id r17-20020a0568302371b0290504f3f418fbso21159622oth.12
+        for <selinux@vger.kernel.org>; Mon, 16 Aug 2021 07:44:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=iqc+5vfvmzI22b4zGBgC55IW4Zjw7lY4e9VOLMo5yOg=;
-        b=DeRKfNbjDtN9870mHV1x0bcpV3SIqdBvn483FvMwepbd2Wn7q7MPEMqDUZNLBUyB+N
-         CdA43/94UQbgURT6COZ2oECI0yx3fFnOScKjnyA6Qx7dqU7qemNFWh5jSgzcgCYdh3dl
-         XPe8K5PQjTTWteai0WmSstdKvdlPIDLYYUkVKNdxVswQ9kTNhzpA8Z7QUtEY+ScY8Fx7
-         GKLusmGYoWWOm6koL8wpa2bEcb0dWQsOGSC0JHyFhD5767g2Bz6tedq2kVuSr40aUWLf
-         QSbSvqZ69KGHb7680emSZVb7zqwED4g8hSgKdWbYnjgFm9ObS0k4Sti1DDgKv/PFzXAv
-         MeWw==
+        bh=+nDhgqyZxnxS4EWJpQv/GwNeZOQ45JLRcJfjtT74w4U=;
+        b=vD3l8RnsVhqoCYLrQLsP4NN4lhstsD9p2ktB8XwtnFmxGJmLWw7uPFVqAo90/2EQ/M
+         S4dor/X6D1K1T4SZ+AJ0OvB3/eXrewfrr4jrAvAgOOT5opVR2beA4cqfdbMNJWHU7DFF
+         +AP5xr1ZDeplIub6WBlvcDnZWvxAqsJLhxELOs7MMbhw8ATlW5zEw/XoJ3oeRIZTMO6r
+         6njggFUpn6tyCbRhw5D6pAaKVhJboZ89Yw+jx7+pBAAbc5HHVjhq9+9aydFryKJTs9Xz
+         Dx1LdZ6izmUG85K8P6x/xbbwPx6cCkb4K7hLCiD5pT7wuTPYSwz8nzyTzaNdjkIyXuRz
+         tPHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=iqc+5vfvmzI22b4zGBgC55IW4Zjw7lY4e9VOLMo5yOg=;
-        b=r5WUoTdbVdLE3XCNOpCFPvYxxDkxj15ZA1qBVUUxEaejX7wFD97bVXa07qMJJH8QkX
-         /SMFPJG02RdtkR7lSXZrHTueloStPzBH795JX5GVACEz+GArLXjjarLfhxqH+D/Xneej
-         Tuxs8p5IdmQ7hQHgxc1L9M8XOQmWOPlstTpdsrCAqwsc/qWfNJtY948BEqb4DbrrEd3k
-         86GxBkufa5UqlLrHouVvYnjQofvLfyhGSa7Wja3v/VeuLRYGXOyt515/khpJcg0i1kWO
-         NoDgK5xjVDtwQ7YPnmUDbS2bFZCI5Ne9B9OLF1r0E9Um6TeDWUS7DFWu66khwThJz6FS
-         WA4Q==
-X-Gm-Message-State: AOAM5321XIjK3NmBovrD7VqKjnhnDPRImms2WYeXg4OFjZ4ExqLO5QM5
-        K88yWgycjW687UP4DcWFpvuyuPwpiwL82VpoaCQ=
-X-Google-Smtp-Source: ABdhPJya8N0/9N5lHlmDRrYAn+NOPQf1Zm7EwTqmFMhWLUYjnFGxc1qStTvwit8cSkuyncjuhl6buwkCwbNUrZ4CNOk=
-X-Received: by 2002:aca:1815:: with SMTP id h21mr12003851oih.128.1629124816311;
- Mon, 16 Aug 2021 07:40:16 -0700 (PDT)
+        bh=+nDhgqyZxnxS4EWJpQv/GwNeZOQ45JLRcJfjtT74w4U=;
+        b=Yici3VgT8sI4idCOsLxGnYZL0SJATCJiMIk8UdcyBAb/xkbBoHbYFaoTyONwP+14vy
+         EAZIim0bz/piRa95+3nw0YzCjD0uaq3a6wky5MN3wWOxVVZk7idPOQvJqOXmHKNk7nBj
+         ycrEz2U1yCSuMj/zOrLH42QN+G7rwFdtx7ULtemZsPPfTtpOOkcCPSDzJFXYdKs9s0Sh
+         91YHbNHHu2z5a7ZAjddzke9RBX/COU+Lt5B1Ct31W9pBbR7LkNkY4AZ9EPpcVyPx31Bk
+         99L69k94KQOi6Bx5J6iD2YlVNUf29b3iV90yjmE7jEcWxVhugk8T4APR2V/Eom+5Tntd
+         CrbA==
+X-Gm-Message-State: AOAM533TC5USSbI7l1Piy5Dy0hOPPac8nlbddocHNg36+PzOlgK2Kvem
+        sdjevBaYfJaM0uChv2+igH4nF9FGfK2t5oMVFCgkC4ZNOhM=
+X-Google-Smtp-Source: ABdhPJyueRxnW/Gh+y9yeC2t2nG5khLl2FK0Z0OkKMdt2VP+lbXWTyggWMuzMuicQPZcg3Kqbinmfihdvhhnl1ADuxI=
+X-Received: by 2002:a05:6830:108d:: with SMTP id y13mr12960786oto.295.1629125088897;
+ Mon, 16 Aug 2021 07:44:48 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210810180537.669439-1-jwcart2@gmail.com> <20210810180537.669439-8-jwcart2@gmail.com>
- <CAJfZ7=nsPMgBFrfHiAdAhOVY9XNJxDuR7=sSbE8=fP1EAFuNPw@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nsPMgBFrfHiAdAhOVY9XNJxDuR7=sSbE8=fP1EAFuNPw@mail.gmail.com>
+References: <20210810180537.669439-1-jwcart2@gmail.com> <20210810180537.669439-7-jwcart2@gmail.com>
+ <CAJfZ7=nuGHfTqf2CBHcODi3R=5tc+a5ZiamiXuJTF2gJk_rk-Q@mail.gmail.com>
+In-Reply-To: <CAJfZ7=nuGHfTqf2CBHcODi3R=5tc+a5ZiamiXuJTF2gJk_rk-Q@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 16 Aug 2021 10:40:05 -0400
-Message-ID: <CAP+JOzQfmRSN8UWY5bWNaGHte9+SeH0KK7W1K2u+0Kt5dMwccw@mail.gmail.com>
-Subject: Re: [PATCH 7/8] libsepol/cil: Report correct high-level language line numbers
+Date:   Mon, 16 Aug 2021 10:44:38 -0400
+Message-ID: <CAP+JOzQ0JN6Yezwa6LoPCM25HbPi0gcZHw4xX15onbyGNY_1nA@mail.gmail.com>
+Subject: Re: [PATCH 6/8] libsepol/cil: Add line mark kind and line number to
+ src info
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -68,583 +69,319 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 16, 2021 at 5:23 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
+On Mon, Aug 16, 2021 at 5:39 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
 :
 >
 > On Tue, Aug 10, 2021 at 8:22 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > CIL supports specifiying the original high-level language file and
-> > line numbers when reporting errors. This is done through line marks
-> > and is mostly used to report the original Refpolicy file and line
-> > number for neverallow rules that have been converted to CIL.
+> > To be able to write line mark information when writing the AST,
+> > the line mark kind and line number is needed in the src info.
 > >
-> > As long as the line mark remain simple, everything works fine, but
-> > the wrong line numbers will be reported with more complex nextings
-> > of line marks.
-> >
-> > Example:
-> > ;;* lms 100 file01.hll
-> > (type t1a)
-> > (allow t1a self (CLASS (PERM)))
-> > ;;* lmx 200 file02.hll
-> > (type t2a)
-> > (allow t2a self (CLASS (PERM)))
-> > ;;* lme
-> > (type t1b)
-> > (allow t1b self (CLASS (PERM)))
-> > (allow bad1b self (CLASS (PERM))) ; file01.hll:101 (Should be 106)
-> > ;;* lme
-> >
-> > The primary problem is that the tree nodes can only store one hll
-> > line number. Instead a number is needed that can be used by any
-> > number of stacked line mark sections. This number would increment
-> > line a normal line number except when in lmx sections (that have
-> > the same line number throughout the section because they represent
-> > an expansion of a line -- like the expansion of a macro call. This
-> > number can go backwards when exiting a lms section within a lmx
-> > section, because line number will increase in the lms section, but
-> > outside the lmx section, the line number did not advance.
-> >
-> > This number is called the hll_offset and this is the value that is
-> > now stored in tree nodes instead of the hll line number. To calculate
-> > the hll line number for a rule, a search is made for an ancestor of
-> > the node that is a line mark and the line number for a lms section
-> > is the hll line number stored in the line mark, plus the hll offset
-> > of the rule, minus the hll offset of the line mark node, minus one.
-> > (hll_lineno + hll_offset_rule - hll_offset_lm - 1)
+> > Instead of indicating whether the src info is for CIL or a hll,
+> > differentiate between CIL, a normal hll line mark, and an expanded
+> > hll line mark. Also include the line mark line number in the src
+> > info nodes.
 > >
 > > Signed-off-by: James Carter <jwcart2@gmail.com>
 > > ---
-> >  libsepol/cil/src/cil_binary.c    |  9 ++--
-> >  libsepol/cil/src/cil_build_ast.c |  4 +-
-> >  libsepol/cil/src/cil_copy_ast.c  |  2 +-
-> >  libsepol/cil/src/cil_parser.c    | 74 +++++++++++++++++++-------------
-> >  libsepol/cil/src/cil_tree.c      | 53 +++++++++++++++--------
-> >  libsepol/cil/src/cil_tree.h      |  4 +-
-> >  6 files changed, 90 insertions(+), 56 deletions(-)
+> >  libsepol/cil/src/cil.c           | 13 +++++++++----
+> >  libsepol/cil/src/cil_build_ast.c | 17 +++++++++++++++--
+> >  libsepol/cil/src/cil_copy_ast.c  |  3 ++-
+> >  libsepol/cil/src/cil_internal.h  |  7 +++++--
+> >  libsepol/cil/src/cil_parser.c    | 27 +++++++++++----------------
+> >  libsepol/cil/src/cil_tree.c      |  2 +-
+> >  6 files changed, 43 insertions(+), 26 deletions(-)
 > >
-> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binar=
-y.c
-> > index 2b65c622..43c37fc2 100644
-> > --- a/libsepol/cil/src/cil_binary.c
-> > +++ b/libsepol/cil/src/cil_binary.c
-> > @@ -4480,7 +4480,8 @@ static avrule_t *__cil_init_sepol_avrule(uint32_t=
- kind, struct cil_tree_node *no
-> >         avrule_t *avrule;
-> >         struct cil_tree_node *source_node;
-> >         char *source_path;
-> > -       int is_cil;
-> > +       char *lm_kind;
-> > +       uint32_t hll_line;
+> > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> > index bdd16eb8..caec5dad 100644
+> > --- a/libsepol/cil/src/cil.c
+> > +++ b/libsepol/cil/src/cil.c
+> > @@ -220,7 +220,9 @@ char *CIL_KEY_IOCTL;
+> >  char *CIL_KEY_UNORDERED;
+> >  char *CIL_KEY_SRC_INFO;
+> >  char *CIL_KEY_SRC_CIL;
+> > -char *CIL_KEY_SRC_HLL;
+> > +char *CIL_KEY_SRC_HLL_LMS;
+> > +char *CIL_KEY_SRC_HLL_LMX;
+> > +char *CIL_KEY_SRC_HLL_LME;
 > >
-> >         avrule =3D cil_malloc(sizeof(avrule_t));
-> >         avrule->specified =3D kind;
-> > @@ -4492,11 +4493,11 @@ static avrule_t *__cil_init_sepol_avrule(uint32=
-_t kind, struct cil_tree_node *no
+> >  static void cil_init_keys(void)
+> >  {
+> > @@ -384,8 +386,10 @@ static void cil_init_keys(void)
+> >         CIL_KEY_IOCTL =3D cil_strpool_add("ioctl");
+> >         CIL_KEY_UNORDERED =3D cil_strpool_add("unordered");
+> >         CIL_KEY_SRC_INFO =3D cil_strpool_add("<src_info>");
+> > -       CIL_KEY_SRC_CIL =3D cil_strpool_add("<src_cil>");
+> > -       CIL_KEY_SRC_HLL =3D cil_strpool_add("<src_hll>");
+> > +       CIL_KEY_SRC_CIL =3D cil_strpool_add("cil");
+> > +       CIL_KEY_SRC_HLL_LMS =3D cil_strpool_add("lms");
+> > +       CIL_KEY_SRC_HLL_LMX =3D cil_strpool_add("lmx");
+> > +       CIL_KEY_SRC_HLL_LME =3D cil_strpool_add("lme");
+> >  }
 > >
-> >         avrule->source_filename =3D NULL;
-> >         avrule->source_line =3D node->line;
-> > -       source_node =3D cil_tree_get_next_path(node, &source_path, &is_=
-cil);
-> > +       source_node =3D cil_tree_get_next_path(node, &lm_kind, &hll_lin=
-e, &source_path);
-> >         if (source_node) {
-> >                 avrule->source_filename =3D source_path;
-> > -               if (!is_cil) {
-> > -                       avrule->source_line =3D node->hll_line;
-> > +               if (lm_kind !=3D CIL_KEY_SRC_CIL) {
-> > +                       avrule->source_line =3D hll_line + node->hll_of=
-fset - source_node->hll_offset - 1;
-> >                 }
-> >         }
-> >
+> >  void cil_db_init(struct cil_db **db)
+> > @@ -2881,6 +2885,7 @@ void cil_mls_init(struct cil_mls **mls)
+> >  void cil_src_info_init(struct cil_src_info **info)
+> >  {
+> >         *info =3D cil_malloc(sizeof(**info));
+> > -       (*info)->is_cil =3D 0;
+> > +       (*info)->kind =3D NULL;
+> > +       (*info)->hll_line =3D 0;
+> >         (*info)->path =3D NULL;
+> >  }
 > > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bu=
 ild_ast.c
-> > index a0f58b1e..a5afc267 100644
+> > index ffbd3082..a0f58b1e 100644
 > > --- a/libsepol/cil/src/cil_build_ast.c
 > > +++ b/libsepol/cil/src/cil_build_ast.c
-> > @@ -619,7 +619,7 @@ int cil_gen_perm_nodes(struct cil_db *db, struct ci=
-l_tree_node *current_perm, st
-> >                 cil_tree_node_init(&new_ast);
-> >                 new_ast->parent =3D ast_node;
-> >                 new_ast->line =3D current_perm->line;
-> > -               new_ast->hll_line =3D current_perm->hll_line;
-> > +               new_ast->hll_offset =3D current_perm->hll_offset;
+> > @@ -6060,6 +6060,7 @@ int cil_gen_src_info(struct cil_tree_node *parse_=
+current, struct cil_tree_node *
+> >                 CIL_SYN_STRING,
+> >                 CIL_SYN_STRING,
+> >                 CIL_SYN_STRING,
+> > +               CIL_SYN_STRING,
+> >                 CIL_SYN_N_LISTS | CIL_SYN_END,
+> >                 CIL_SYN_END
+> >         };
+> > @@ -6077,8 +6078,19 @@ int cil_gen_src_info(struct cil_tree_node *parse=
+_current, struct cil_tree_node *
 > >
-> >                 rc =3D cil_gen_perm(db, current_perm, new_ast, flavor, =
-num_perms);
-> >                 if (rc !=3D SEPOL_OK) {
-> > @@ -6203,7 +6203,7 @@ int __cil_build_ast_node_helper(struct cil_tree_n=
-ode *parse_current, uint32_t *f
+> >         cil_src_info_init(&info);
 > >
-> >         ast_node->parent =3D ast_current;
-> >         ast_node->line =3D parse_current->line;
-> > -       ast_node->hll_line =3D parse_current->hll_line;
-> > +       ast_node->hll_offset =3D parse_current->hll_offset;
+> > -       info->is_cil =3D (parse_current->next->data =3D=3D CIL_KEY_SRC_=
+CIL) ? CIL_TRUE : CIL_FALSE;
+> > -       info->path =3D parse_current->next->next->data;
+> > +       info->kind =3D parse_current->next->data;
+> > +       if (info->kind !=3D CIL_KEY_SRC_CIL && info->kind !=3D CIL_KEY_=
+SRC_HLL_LMS && info->kind !=3D CIL_KEY_SRC_HLL_LMX) {
+> > +               cil_log(CIL_ERR, "Invalid src info kind\n");
+> > +               rc =3D SEPOL_ERR;
+> > +               goto exit;
+> > +       }
+> > +
+> > +       rc =3D cil_string_to_uint32(parse_current->next->next->data, &i=
+nfo->hll_line, 10);
+> > +       if (rc !=3D SEPOL_OK) {
+> > +               goto exit;
+> > +       }
+> > +
+> > +       info->path =3D parse_current->next->next->next->data;
 > >
-> >         if (parse_current->data =3D=3D CIL_KEY_BLOCK) {
-> >                 rc =3D cil_gen_block(db, parse_current, ast_node, 0);
+> >         ast_node->data =3D info;
+> >         ast_node->flavor =3D CIL_SRC_INFO;
+> > @@ -6087,6 +6099,7 @@ int cil_gen_src_info(struct cil_tree_node *parse_=
+current, struct cil_tree_node *
+> >
+> >  exit:
+> >         cil_tree_log(parse_current, CIL_ERR, "Bad src info");
+> > +       cil_destroy_src_info(info);
+> >         return rc;
+> >  }
+> >
 > > diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_cop=
 y_ast.c
-> > index 02b9828f..34282a92 100644
+> > index 9c0231f2..02b9828f 100644
 > > --- a/libsepol/cil/src/cil_copy_ast.c
 > > +++ b/libsepol/cil/src/cil_copy_ast.c
-> > @@ -2010,7 +2010,7 @@ int __cil_copy_node_helper(struct cil_tree_node *=
-orig, __attribute__((unused)) u
+> > @@ -1692,7 +1692,8 @@ int cil_copy_src_info(__attribute__((unused)) str=
+uct cil_db *db, void *data, voi
 > >
-> >                 new->parent =3D parent;
-> >                 new->line =3D orig->line;
-> > -               new->hll_line =3D orig->hll_line;
-> > +               new->hll_offset =3D orig->hll_offset;
-> >                 new->flavor =3D orig->flavor;
-> >                 new->data =3D data;
+> >         cil_src_info_init(&new);
+> >
+> > -       new->is_cil =3D orig->is_cil;
+> > +       new->kind =3D orig->kind;
+> > +       new->hll_line =3D orig->hll_line;
+> >         new->path =3D orig->path;
+> >
+> >         *copy =3D new;
+> > diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_int=
+ernal.h
+> > index b9a03a37..385677d4 100644
+> > --- a/libsepol/cil/src/cil_internal.h
+> > +++ b/libsepol/cil/src/cil_internal.h
+> > @@ -236,7 +236,9 @@ extern char *CIL_KEY_IOCTL;
+> >  extern char *CIL_KEY_UNORDERED;
+> >  extern char *CIL_KEY_SRC_INFO;
+> >  extern char *CIL_KEY_SRC_CIL;
+> > -extern char *CIL_KEY_SRC_HLL;
+> > +extern char *CIL_KEY_SRC_HLL_LMS;
+> > +extern char *CIL_KEY_SRC_HLL_LMX;
+> > +extern char *CIL_KEY_SRC_HLL_LME;
+> >
+> >  /*
+> >         Symbol Table Array Indices
+> > @@ -963,7 +965,8 @@ struct cil_mls {
+> >  };
+> >
+> >  struct cil_src_info {
+> > -       int is_cil;
+> > +       char *kind;
+> > +       uint32_t hll_line;
+> >         char *path;
+> >  };
 > >
 > > diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parse=
 r.c
-> > index 842c327c..3ccef5d7 100644
+> > index 9ca1432e..842c327c 100644
 > > --- a/libsepol/cil/src/cil_parser.c
 > > +++ b/libsepol/cil/src/cil_parser.c
-> > @@ -45,21 +45,21 @@
+> > @@ -44,10 +44,6 @@
+> >
 > >  #define CIL_PARSER_MAX_EXPR_DEPTH (0x1 << 12)
 > >
+> > -char *CIL_KEY_HLL_LMS;
+> > -char *CIL_KEY_HLL_LMX;
+> > -char *CIL_KEY_HLL_LME;
+> > -
 > >  struct hll_info {
-> > -       uint32_t hll_lineno;
-> > +       uint32_t hll_offset;
+> >         uint32_t hll_lineno;
 > >         uint32_t hll_expand;
-> >  };
-> >
-> > -static void push_hll_info(struct cil_stack *stack, uint32_t hll_lineno=
-, uint32_t hll_expand)
-> > +static void push_hll_info(struct cil_stack *stack, uint32_t hll_offset=
-, uint32_t hll_expand)
-> >  {
-> >         struct hll_info *new =3D cil_malloc(sizeof(*new));
-> >
-> > -       new->hll_lineno =3D hll_lineno;
-> > +       new->hll_offset =3D hll_offset;
-> >         new->hll_expand =3D hll_expand;
-> >
-> >         cil_stack_push(stack, CIL_NONE, new);
-> >  }
-> >
-> > -static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_lineno=
-, uint32_t *hll_expand)
-> > +static void pop_hll_info(struct cil_stack *stack, uint32_t *hll_offset=
-, uint32_t *hll_expand)
-> >  {
-> >         struct cil_stack_item *curr =3D cil_stack_pop(stack);
-> >         struct hll_info *info;
-> > @@ -69,17 +69,17 @@ static void pop_hll_info(struct cil_stack *stack, u=
-int32_t *hll_lineno, uint32_t
-> >         }
-> >         info =3D curr->data;
-> >         *hll_expand =3D info->hll_expand;
-> > -       *hll_lineno =3D info->hll_lineno;
-> > +       *hll_offset =3D info->hll_offset;
-> >         free(curr->data);
-> >  }
-> >
-> > -static void create_node(struct cil_tree_node **node, struct cil_tree_n=
-ode *current, uint32_t line, uint32_t hll_line, void *value)
-> > +static void create_node(struct cil_tree_node **node, struct cil_tree_n=
-ode *current, uint32_t line, uint32_t hll_offset, void *value)
-> >  {
-> >         cil_tree_node_init(node);
-> >         (*node)->parent =3D current;
-> >         (*node)->flavor =3D CIL_NODE;
-> >         (*node)->line =3D line;
-> > -       (*node)->hll_line =3D hll_line;
-> > +       (*node)->hll_offset =3D hll_offset;
-> >         (*node)->data =3D value;
-> >  }
-> >
-> > @@ -93,12 +93,12 @@ static void insert_node(struct cil_tree_node *node,=
- struct cil_tree_node *curren
-> >         current->cl_tail =3D node;
-> >  }
-> >
-> > -static int add_hll_linemark(struct cil_tree_node **current, uint32_t *=
-hll_lineno, uint32_t *hll_expand, struct cil_stack *stack, char *path)
-> > +static int add_hll_linemark(struct cil_tree_node **current, uint32_t *=
-hll_offset, uint32_t *hll_expand, struct cil_stack *stack, char *path)
-> >  {
+> > @@ -102,7 +98,6 @@ static int add_hll_linemark(struct cil_tree_node **c=
+urrent, uint32_t *hll_lineno
 > >         char *hll_type;
 > >         struct cil_tree_node *node;
 > >         struct token tok;
-> > -       int rc;
-> > +       uint32_t prev_hll_expand, prev_hll_offset;
->
-> In this function, gcc (in GitHub Actions CI) reports:
->
->   ../cil/src/cil_parser.c: In function =E2=80=98cil_parser=E2=80=99:
->   ../cil/src/cil_parser.c:181:16: error: =E2=80=98hll_offset=E2=80=99 may=
- be used
-> uninitialized in this function [-Werror=3Dmaybe-uninitialized]
->     181 |   (*hll_offset)++;
->         |   ~~~~~~~~~~~~~^~
->   ../cil/src/cil_parser.c:222:11: note: =E2=80=98hll_offset=E2=80=99 was =
-declared here
->     222 |  uint32_t hll_offset =3D 1;
->         |           ^~~~~~~~~~
->
-> In fact the warning is misleading because it comes from
-> prev_hll_offset not being initialized and gcc having trouble figuring
-> out it is initialized in calls to pop_hll_info.
->
-> To silence this warning, could you initialize prev_hll_offset to some val=
-ue?
->
-
-Yes, I will do that.
-Thanks,
-Jim
-
+> > -       char *hll_file;
+> >         int rc;
 > >
 > >         cil_lexer_next(&tok);
-> >         if (tok.type !=3D SYMBOL) {
-> > @@ -115,19 +115,33 @@ static int add_hll_linemark(struct cil_tree_node =
+> > @@ -111,11 +106,11 @@ static int add_hll_linemark(struct cil_tree_node =
 **current, uint32_t *hll_lineno
+> >                 goto exit;
+> >         }
+> >         hll_type =3D cil_strpool_add(tok.value);
+> > -       if (hll_type !=3D CIL_KEY_HLL_LME && hll_type !=3D CIL_KEY_HLL_=
+LMS && hll_type !=3D CIL_KEY_HLL_LMX) {
+> > +       if (hll_type !=3D CIL_KEY_SRC_HLL_LME && hll_type !=3D CIL_KEY_=
+SRC_HLL_LMS && hll_type !=3D CIL_KEY_SRC_HLL_LMX) {
+> >                 cil_log(CIL_ERR, "Invalid line mark syntax\n");
+> >                 goto exit;
+> >         }
+> > -       if (hll_type =3D=3D CIL_KEY_HLL_LME) {
+> > +       if (hll_type =3D=3D CIL_KEY_SRC_HLL_LME) {
+> >                 if (cil_stack_is_empty(stack)) {
 > >                         cil_log(CIL_ERR, "Line mark end without start\n=
 ");
 > >                         goto exit;
-> >                 }
-> > -               pop_hll_info(stack, hll_lineno, hll_expand);
-> > +               prev_hll_expand =3D *hll_expand;
-> > +               pop_hll_info(stack, &prev_hll_offset, hll_expand);
-> > +               if (*hll_expand) {
-> > +                       /* This is needed when exiting an lms section w=
-ithin an lmx section.
-> > +                        * In the lms section, hll_offset will incremen=
-t and then revert
-> > +                        * back to its previous value when going back i=
-nto the lmx section.
-> > +                        */
-> > +                       *hll_offset =3D prev_hll_offset;
-> > +               }
-> > +               if (prev_hll_expand && !*hll_expand) {
-> > +                       /* This is needed to count the lme at the end o=
-f an lmx section
-> > +                        * within an lms section (or within no hll sect=
-ion).
-> > +                        */
-> > +                       (*hll_offset)++;
-> > +               }
-> >                 *current =3D (*current)->parent;
-> >         } else {
-> > -               push_hll_info(stack, *hll_lineno, *hll_expand);
-> > +               push_hll_info(stack, *hll_offset, *hll_expand);
-> >
-> > -               create_node(&node, *current, tok.line, *hll_lineno, NUL=
-L);
-> > +               create_node(&node, *current, tok.line, *hll_offset, NUL=
-L);
+> > @@ -132,7 +127,7 @@ static int add_hll_linemark(struct cil_tree_node **=
+current, uint32_t *hll_lineno
+> >                 create_node(&node, *current, tok.line, *hll_lineno, CIL=
+_KEY_SRC_INFO);
 > >                 insert_node(node, *current);
-> >                 *current =3D node;
 > >
 > > -               create_node(&node, *current, tok.line, *hll_lineno, CIL=
-_KEY_SRC_INFO);
-> > +               create_node(&node, *current, tok.line, *hll_offset, CIL=
-_KEY_SRC_INFO);
-> >                 insert_node(node, *current);
-> >
-> > -               create_node(&node, *current, tok.line, *hll_lineno, hll=
-_type);
-> > +               create_node(&node, *current, tok.line, *hll_offset, hll=
+_KEY_SRC_HLL);
+> > +               create_node(&node, *current, tok.line, *hll_lineno, hll=
 _type);
 > >                 insert_node(node, *current);
 > >
 > >                 cil_lexer_next(&tok);
-> > @@ -136,16 +150,9 @@ static int add_hll_linemark(struct cil_tree_node *=
-*current, uint32_t *hll_lineno
+> > @@ -141,12 +136,15 @@ static int add_hll_linemark(struct cil_tree_node =
+**current, uint32_t *hll_lineno
 > >                         goto exit;
 > >                 }
 > >
-> > -               create_node(&node, *current, tok.line, *hll_lineno, cil=
+> > +               create_node(&node, *current, tok.line, *hll_lineno, cil=
 _strpool_add(tok.value));
-> > +               create_node(&node, *current, tok.line, *hll_offset, cil=
-_strpool_add(tok.value));
-> >                 insert_node(node, *current);
+> > +               insert_node(node, *current);
+> > +
+> >                 rc =3D cil_string_to_uint32(tok.value, hll_lineno, 10);
+> >                 if (rc !=3D SEPOL_OK) {
+> >                         goto exit;
+> >                 }
 > >
-> > -               rc =3D cil_string_to_uint32(tok.value, hll_lineno, 10);
-> > -               if (rc !=3D SEPOL_OK) {
-> > -                       goto exit;
-> > -               }
-> > -
-> > -               *hll_expand =3D (hll_type =3D=3D CIL_KEY_SRC_HLL_LMX) ?=
+> > -               *hll_expand =3D (hll_type =3D=3D CIL_KEY_HLL_LMX) ? 1 :=
+ 0;
+> > +               *hll_expand =3D (hll_type =3D=3D CIL_KEY_SRC_HLL_LMX) ?=
  1 : 0;
-> > -
+> >
 > >                 cil_lexer_next(&tok);
 > >                 if (tok.type !=3D SYMBOL && tok.type !=3D QSTRING) {
-> >                         cil_log(CIL_ERR, "Invalid line mark syntax\n");
-> > @@ -157,8 +164,10 @@ static int add_hll_linemark(struct cil_tree_node *=
-*current, uint32_t *hll_lineno
+> > @@ -159,9 +157,7 @@ static int add_hll_linemark(struct cil_tree_node **=
+current, uint32_t *hll_lineno
 > >                         tok.value =3D tok.value+1;
 > >                 }
 > >
-> > -               create_node(&node, *current, tok.line, *hll_lineno, cil=
-_strpool_add(tok.value));
-> > +               create_node(&node, *current, tok.line, *hll_offset, cil=
+> > -               hll_file =3D cil_strpool_add(tok.value);
+> > -
+> > -               create_node(&node, *current, tok.line, *hll_lineno, hll=
+_file);
+> > +               create_node(&node, *current, tok.line, *hll_lineno, cil=
 _strpool_add(tok.value));
 > >                 insert_node(node, *current);
-> > +
-> > +               *hll_expand =3D (hll_type =3D=3D CIL_KEY_SRC_HLL_LMX) ?=
- 1 : 0;
 > >         }
 > >
-> >         cil_lexer_next(&tok);
-> > @@ -167,6 +176,11 @@ static int add_hll_linemark(struct cil_tree_node *=
-*current, uint32_t *hll_lineno
-> >                 goto exit;
-> >         }
+> > @@ -192,6 +188,9 @@ static void add_cil_path(struct cil_tree_node **cur=
+rent, char *path)
+> >         create_node(&node, *current, 0, 0, CIL_KEY_SRC_CIL);
+> >         insert_node(node, *current);
 > >
-> > +       if (!*hll_expand) {
-> > +               /* Need to increment because of the NEWLINE */
-> > +               (*hll_offset)++;
-> > +       }
+> > +       create_node(&node, *current, 0, 0, "1");
+> > +       insert_node(node, *current);
 > > +
-> >         return SEPOL_OK;
-> >
-> >  exit:
-> > @@ -205,7 +219,7 @@ int cil_parser(const char *_path, char *buffer, uin=
-t32_t size, struct cil_tree *
-> >         struct cil_tree_node *current =3D NULL;
-> >         char *path =3D cil_strpool_add(_path);
-> >         struct cil_stack *stack;
-> > -       uint32_t hll_lineno =3D 0;
-> > +       uint32_t hll_offset =3D 1;
-> >         uint32_t hll_expand =3D 0;
+>
+> Using this raw "1" here looks strange, while every other case uses
+> cil_strpool_add indirections. gcc complains about this:
+>
+> ../cil/src/cil_parser.c: In function =E2=80=98add_cil_path=E2=80=99:
+> ../cil/src/cil_parser.c:205:44: error: passing argument 5 of
+> =E2=80=98create_node=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier =
+from pointer target type
+> [-Werror=3Ddiscarded-qualifiers]
+>   205 |         create_node(&node, *current, 0, 0, "1");
+>       |                                            ^~~
+> ../cil/src/cil_parser.c:76:127: note: expected =E2=80=98void *=E2=80=99 b=
+ut argument
+> is of type =E2=80=98const char *=E2=80=99
+>    76 | tree_node **node, struct cil_tree_node *current, uint32_t
+> line, uint32_t hll_offset, void *value)
+>       |
+>
+> I understand that cil_strpool_add is used in order to be able to
+> quickly compare some strings using raw pointer comparisons. So I do
+> not know whether a proper fix would consist in using create_note(...,
+> (void *)"1") or in introducing a char *CIL_KEY_ONE =3D
+> cil_strpool_add("1"), or in making (struct cil_tree_node).data const.
+>
+
+I think that I would prefer to go with (void*)"1", since the "1" is
+not a keyword of any sort.
+
+Thanks for the review.
+Jim
+
+
+> >         create_node(&node, *current, 0, 0, path);
+> >         insert_node(node, *current);
+> >  }
+> > @@ -211,10 +210,6 @@ int cil_parser(const char *_path, char *buffer, ui=
+nt32_t size, struct cil_tree *
 > >         struct token tok;
 > >         int rc =3D SEPOL_OK;
-> > @@ -223,7 +237,7 @@ int cil_parser(const char *_path, char *buffer, uin=
-t32_t size, struct cil_tree *
-> >                 cil_lexer_next(&tok);
-> >                 switch (tok.type) {
-> >                 case HLL_LINEMARK:
-> > -                       rc =3D add_hll_linemark(&current, &hll_lineno, =
-&hll_expand, stack, path);
-> > +                       rc =3D add_hll_linemark(&current, &hll_offset, =
-&hll_expand, stack, path);
-> >                         if (rc !=3D SEPOL_OK) {
-> >                                 goto exit;
-> >                         }
-> > @@ -234,7 +248,7 @@ int cil_parser(const char *_path, char *buffer, uin=
-t32_t size, struct cil_tree *
-> >                                 cil_log(CIL_ERR, "Number of open parent=
-hesis exceeds limit of %d at line %d of %s\n", CIL_PARSER_MAX_EXPR_DEPTH, t=
-ok.line, path);
-> >                                 goto exit;
-> >                         }
-> > -                       create_node(&node, current, tok.line, hll_linen=
-o, NULL);
-> > +                       create_node(&node, current, tok.line, hll_offse=
-t, NULL);
-> >                         insert_node(node, current);
-> >                         current =3D node;
-> >                         break;
-> > @@ -256,12 +270,12 @@ int cil_parser(const char *_path, char *buffer, u=
-int32_t size, struct cil_tree *
-> >                                 goto exit;
-> >                         }
 > >
-> > -                       create_node(&node, current, tok.line, hll_linen=
-o, cil_strpool_add(tok.value));
-> > +                       create_node(&node, current, tok.line, hll_offse=
-t, cil_strpool_add(tok.value));
-> >                         insert_node(node, current);
-> >                         break;
-> >                 case NEWLINE :
-> >                         if (!hll_expand) {
-> > -                               hll_lineno++;
-> > +                               hll_offset++;
-> >                         }
-> >                         break;
-> >                 case COMMENT:
-> > @@ -269,7 +283,7 @@ int cil_parser(const char *_path, char *buffer, uin=
-t32_t size, struct cil_tree *
-> >                                 cil_lexer_next(&tok);
-> >                         }
-> >                         if (!hll_expand) {
-> > -                               hll_lineno++;
-> > +                               hll_offset++;
-> >                         }
-> >                         if (tok.type !=3D END_OF_FILE) {
-> >                                 break;
-> > @@ -306,7 +320,7 @@ int cil_parser(const char *_path, char *buffer, uin=
-t32_t size, struct cil_tree *
+> > -       CIL_KEY_HLL_LMS =3D cil_strpool_add("lms");
+> > -       CIL_KEY_HLL_LMX =3D cil_strpool_add("lmx");
+> > -       CIL_KEY_HLL_LME =3D cil_strpool_add("lme");
+> > -
+> >         cil_stack_init(&stack);
 > >
-> >  exit:
-> >         while (!cil_stack_is_empty(stack)) {
-> > -               pop_hll_info(stack, &hll_lineno, &hll_expand);
-> > +               pop_hll_info(stack, &hll_offset, &hll_expand);
-> >         }
-> >         cil_lexer_destroy();
-> >         cil_stack_destroy(&stack);
+> >         cil_lexer_setup(buffer, size);
 > > diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-> > index 52b28999..4fdf339d 100644
+> > index 4cf8dcc8..52b28999 100644
 > > --- a/libsepol/cil/src/cil_tree.c
 > > +++ b/libsepol/cil/src/cil_tree.c
-> > @@ -50,10 +50,12 @@ __attribute__((noreturn)) __attribute__((format (pr=
-intf, 1, 2))) void cil_tree_e
-> >         exit(1);
-> >  }
-> >
-> > -struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *nod=
-e, char **path, int* is_cil)
-> > +struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *nod=
-e, char **info_kind, uint32_t *hll_line, char **path)
-> >  {
-> > +       int rc;
-> > +
-> >         if (!node) {
-> > -               return NULL;
-> > +               goto exit;
-> >         }
-> >
-> >         node =3D node->parent;
-> > @@ -62,16 +64,21 @@ struct cil_tree_node *cil_tree_get_next_path(struct=
- cil_tree_node *node, char **
-> >                 if (node->flavor =3D=3D CIL_NODE && node->data =3D=3D N=
-ULL) {
-> >                         if (node->cl_head->data =3D=3D CIL_KEY_SRC_INFO=
- && node->cl_head->next !=3D NULL && node->cl_head->next->next !=3D NULL) {
-> >                                 /* Parse Tree */
-> > -                               *path =3D node->cl_head->next->next->da=
-ta;
-> > -                               *is_cil =3D (node->cl_head->next->data =
-=3D=3D CIL_KEY_SRC_CIL);
-> > +                               *info_kind =3D node->cl_head->next->dat=
-a;
-> > +                               rc =3D cil_string_to_uint32(node->cl_he=
-ad->next->next->data, hll_line, 10);
-> > +                               if (rc !=3D SEPOL_OK) {
-> > +                                       goto exit;
-> > +                               }
-> > +                               *path =3D node->cl_head->next->next->ne=
-xt->data;
-> >                                 return node;
-> >                         }
-> >                         node =3D node->parent;
-> >                 } else if (node->flavor =3D=3D CIL_SRC_INFO) {
+> > @@ -71,7 +71,7 @@ struct cil_tree_node *cil_tree_get_next_path(struct c=
+il_tree_node *node, char **
 > >                                 /* AST */
 > >                                 struct cil_src_info *info =3D node->dat=
 a;
-> > +                               *info_kind =3D info->kind;
-> > +                               *hll_line =3D info->hll_line;
 > >                                 *path =3D info->path;
-> > -                               *is_cil =3D (info->kind =3D=3D CIL_KEY_=
+> > -                               *is_cil =3D info->is_cil;
+> > +                               *is_cil =3D (info->kind =3D=3D CIL_KEY_=
 SRC_CIL);
 > >                                 return node;
 > >                 } else {
 > >                         if (node->flavor =3D=3D CIL_CALL) {
-> > @@ -86,17 +93,22 @@ struct cil_tree_node *cil_tree_get_next_path(struct=
- cil_tree_node *node, char **
-> >                 }
-> >         }
-> >
-> > +exit:
-> > +       *info_kind =3D NULL;
-> > +       *hll_line =3D 0;
-> > +       *path =3D NULL;
-> >         return NULL;
-> >  }
-> >
-> >  char *cil_tree_get_cil_path(struct cil_tree_node *node)
-> >  {
-> > -       char *path =3D NULL;
-> > -       int is_cil;
-> > +       char *info_kind;
-> > +       uint32_t hll_line;
-> > +       char *path;
-> >
-> >         while (node) {
-> > -               node =3D cil_tree_get_next_path(node, &path, &is_cil);
-> > -               if (node && is_cil) {
-> > +               node =3D cil_tree_get_next_path(node, &info_kind, &hll_=
-line, &path);
-> > +               if (node && info_kind =3D=3D CIL_KEY_SRC_CIL) {
-> >                         return path;
-> >                 }
-> >         }
-> > @@ -114,8 +126,7 @@ __attribute__((format (printf, 3, 4))) void cil_tre=
-e_log(struct cil_tree_node *n
-> >
-> >         if (node) {
-> >                 char *path =3D NULL;
-> > -               int is_cil;
-> > -               unsigned hll_line =3D node->hll_line;
-> > +               uint32_t hll_offset =3D node->hll_offset;
-> >
-> >                 path =3D cil_tree_get_cil_path(node);
-> >
-> > @@ -124,12 +135,20 @@ __attribute__((format (printf, 3, 4))) void cil_t=
-ree_log(struct cil_tree_node *n
-> >                 }
-> >
-> >                 while (node) {
-> > -                       node =3D cil_tree_get_next_path(node, &path, &i=
-s_cil);
-> > -                       if (node && !is_cil) {
-> > +                       do {
-> > +                               char *info_kind;
-> > +                               uint32_t hll_line;
-> > +
-> > +                               node =3D cil_tree_get_next_path(node, &=
-info_kind, &hll_line, &path);
-> > +                               if (!node || info_kind =3D=3D CIL_KEY_S=
-RC_CIL) {
-> > +                                       break;
-> > +                               }
-> > +                               if (info_kind =3D=3D CIL_KEY_SRC_HLL_LM=
-S) {
-> > +                                       hll_line +=3D hll_offset - node=
-->hll_offset - 1;
-> > +                               }
-> > +
-> >                                 cil_log(lvl," from %s:%d", path, hll_li=
-ne);
->
-> While modifying this code, it would be nice if this "%d" was modified
-> to "%u", as hll_line should never be negative.
->
-> > -                               path =3D NULL;
-> > -                               hll_line =3D node->hll_line;
-> > -                       }
-> > +                       } while (1);
-> >                 }
-> >         }
-> >
-> > @@ -222,7 +241,7 @@ void cil_tree_node_init(struct cil_tree_node **node=
-)
-> >         new_node->next =3D NULL;
-> >         new_node->flavor =3D CIL_ROOT;
-> >         new_node->line =3D 0;
-> > -       new_node->hll_line =3D 0;
-> > +       new_node->hll_offset =3D 0;
-> >
-> >         *node =3D new_node;
-> >  }
-> > diff --git a/libsepol/cil/src/cil_tree.h b/libsepol/cil/src/cil_tree.h
-> > index f4d22071..5a98da55 100644
-> > --- a/libsepol/cil/src/cil_tree.h
-> > +++ b/libsepol/cil/src/cil_tree.h
-> > @@ -46,11 +46,11 @@ struct cil_tree_node {
-> >         struct cil_tree_node *next;             //Each element in the l=
-ist points to the next element
-> >         enum cil_flavor flavor;
-> >         uint32_t line;
-> > -       uint32_t hll_line;
-> > +       uint32_t hll_offset;
-> >         void *data;
-> >  };
-> >
-> > -struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *nod=
-e, char **path, int* is_cil);
-> > +struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *nod=
-e, char **info_kind, uint32_t *hll_line, char **path);
-> >  char *cil_tree_get_cil_path(struct cil_tree_node *node);
-> >  __attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tr=
-ee_node *node, enum cil_log_level lvl, const char* msg, ...);
-> >
 > > --
 > > 2.31.1
 > >
