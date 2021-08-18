@@ -2,481 +2,116 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79975C4338F
-	for <selinux@archiver.kernel.org>; Tue, 17 Aug 2021 21:05:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A13BEC4338F
+	for <selinux@archiver.kernel.org>; Wed, 18 Aug 2021 21:59:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 54C2F60295
-	for <selinux@archiver.kernel.org>; Tue, 17 Aug 2021 21:05:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 849BB610FF
+	for <selinux@archiver.kernel.org>; Wed, 18 Aug 2021 21:59:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbhHQVGb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 17 Aug 2021 17:06:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbhHQVGb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 17 Aug 2021 17:06:31 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB06EC061764
-        for <selinux@vger.kernel.org>; Tue, 17 Aug 2021 14:05:57 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id o185so1088288oih.13
-        for <selinux@vger.kernel.org>; Tue, 17 Aug 2021 14:05:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pu+h0JuS04HrQAg6alqJjwUQR8hN/2BbiR7EH3fl8dI=;
-        b=VDAiYriDG3ZW+P5eajUmb+Pi1hr1aGJVtGGEYvAZaxYBQdFTWvXax5x9azKQX63T4m
-         rm5MAJoK3XS5q6GxjH/RLhNKkvAYsMzGKQ3r6a0R0MI2gDQOZQIQmDRx4PLvOqVVuX7r
-         VWVp1NhWXJ9lqKww/9TQ59HKDukppDYEWiieO/UwCXseFvcjL7H74B6yAjzCVbmGer2Q
-         8hTG0ezKXfsFVKZ4M6M4e2jRqvj6q89MBNVuY4LNDQXdQo+mTtzhsjoWBMqdQGcg1IcM
-         93pg1jUy30CMOSuvTjzY5/4+KmnYQ9i/UiCUrUyFx/6clxDU8s7uTHUdgiGGgSwF3CBl
-         VS4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pu+h0JuS04HrQAg6alqJjwUQR8hN/2BbiR7EH3fl8dI=;
-        b=XDixGxAa2mGprDqz4qjc0TishyjhclgCGXdSnq2bA69OfX6qtTWReOM5RSo/p6BVe1
-         vB/PHSblqPouwybGyjYue5NHVSs/ORlcKtYhpI+c6/Ococr6yJmVACmIcEp8aQni67c2
-         kmJGNvQz/Tf0qo4JhsJfDlpa9Noe65hlb6N4kSPkBdqq+lNekdhiyrJtUV1jGpR6RSVx
-         /PkxS04tDUZvtXRfvw7n8fEt+nhEZdtWfs+QSR/ykcsHNsi+r1EO3LddrxbOayjqhuxS
-         6csXI15dR0G3qtty9F316FKhKGmoBeMSFvc0H+SPFW46gR8/c6G2VOre/7K4/SRBmeTh
-         TO2Q==
-X-Gm-Message-State: AOAM533x7fETsPFc323fqIu4V/BU5U8jWKTavcebcc5WADKeD5+TjkHg
-        NGJIKuDQo9VKt1LjoE0eQGofO8xEkJULwDKLauE=
-X-Google-Smtp-Source: ABdhPJzCarCM5UsThTny3KlEaSwlM6BhBh2YBa0kc3D6DLPkALwufnG/nkEc4UTDb/tomO2QRlb9TQUaLglMxxtWsCA=
-X-Received: by 2002:aca:4b49:: with SMTP id y70mr4021820oia.16.1629234357103;
- Tue, 17 Aug 2021 14:05:57 -0700 (PDT)
+        id S234207AbhHRWAL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Aug 2021 18:00:11 -0400
+Received: from sonic314-27.consmr.mail.ne1.yahoo.com ([66.163.189.153]:35685
+        "EHLO sonic314-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234106AbhHRWAL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Aug 2021 18:00:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1629323975; bh=lnmedOGXtnaTue3pxG43s+zb9gQCzOS0h/0CPflLdOs=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=SZPGj2+XUYJr/mcOJe0pqt+uULH18lX9SVsub85EzSNanCqt8cooOc6b1f2lXXrhNe4ZhLhGEYsD2Zdith9MagwqVWVDXew4ZDV7dYfHPTty2hhL6BcqXk++Eqzy+ffshrD8onZLrwWzL766w/rCvf2b5lHr3a6NkSMAz08hMNykC7SmHchOejHOsQTZ/TBaLbGE4dFs66pbsDdVwzT4nA1bfnswZi+ZGlac+1FLKtT5BH05HROK1waHwpGtER4hNIkOK1MBBeRnr4StzWPgWKh/4KaARCaROkLPSOf+hFFKheVF0txuNZIROPFAGx5WHNjCrcMguRV2zAb33Y+wAw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1629323975; bh=PPUkspLdV4rsG5XczA0CxsIibcnza0vLeB3MfL05NKY=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=PMbk5Vd1mHL1/9NR8tThjI5oDOkkp+G51EC7PjR6Y+rXsastzbBUVyiATLA4hHkThIygeD5uyNjFWh4N24Xly3MFb0H8pxOUDZuuyhTKiqh+D91I9vBFo2d1u/8Y6FSXNPNIqLKqWkyOl1a3XZOyw262/xyvO9LJQ6FOMVihG6pzM8xxcfzjY5VZ5K1bdbOQ2lVmlo5NhjccjN34pXsQK+Arm9paf0Ww/5shherT58m8kJUDtcQmftYxHFnfgi/4QDHWywBjyYxsXd9AEZVKSutW9uNqxbzJooHtB9RNSKYm5ZEKzwdozvxdNHJPLoXGefOTbFuLxU2pdrDElSrqjg==
+X-YMail-OSG: CYzPlzYVM1mqumdfHiUEKOjHeZuld4xAJebnywy4157IDApYdBbaZM5HdNK1_fP
+ YoTaKiVmblOuG.KqmVJhzOK599fBKEs4uLnjc641bVYNuH0CwpmTaICWv..GEn43__8GZC10Yr3e
+ mraB1IfiKDwSotkaIoTBjo4v.3QwdB00D_NrbRi8ypkIxJNRnCiqRJAsvr8TX8qnM9XTeA_eEQbC
+ q1hAi8DsdIemKAhuRn.XXa3fh9RCfndQ7Cbd8CSFdoQVMzJ2zQvScJJpheE4._usG9x3sda2lbbq
+ DaKBATJ.3CYcnGHzxdt6jiqxJZeScvNdefyRMJNlKaTrJgR.6jngAoSv0zgNah3gOoESr3FCvxpo
+ 2L3abdoKF8PD7UKbORiuRl1R_S8TLh3OkHcHX279VsSOilHfwKHX_0mPrW1MXU_dBEM42wiftchP
+ zUPBgF8l9gLd6Un6hxiseEHS088pwF7tYP777Xe0shEQq050JwLlfJ9S6MvT9g5.5sSDgNrmwtXz
+ bT_Ksu1hVCmD.OM9ewAqdVPHaAwnMUCmitTt2mZwYMy9kOseNPCv0BGDf9zonWq8eVV7Rd.OPDqy
+ TXe0rQpzGKEcHKLGuR_A7OKdJCGlgAQYj5Nx_CueIx38CjLyfe1vGoYxKZ0KQBrEBkKJD1ZT5nci
+ .Eck_Kp.nGc7qJlGDMytpuS2L02.JQD0kVTYwzsafzflFDlQlyMxazSbRKZQBrSFLPDhKYl1iKI.
+ Vptba50f7j6myo2NWKqVRzpahD.79S8rvvBXKPckdcyecXsryLMh_Nb8xIdRZWGJjfP45KG3SSJH
+ JdbIrBv337Y.IOUrk.6_9t9mHe.n50o7tckaCVpgnb2nfIcwjCEc8hGTo9.yYr2o5FVeA06Tkgeq
+ lcW_u2eA57OpR41Nld5i1kbJNTxD9_GKJfQiN.nt5G9X7FQAOHS1IvGqdC2JNMkVxcs4m8_iNQu1
+ BiESt36BjcjWVgLiJp1..7mv.kx8ZQcMQ78Z.jiSJiQJwsKgwCD9Qnfp4BPuz2X22sGuwjOF5xYY
+ 6dRSJKxK8GRnelaLGGmVNbH2.Hr8LTHqFnlVezg9TJJiK_Tz84nCzxrAVKLpOj823Vqi2in9t9UW
+ 7f2c15YMlxs8KWXK51uVsTf0Wjv5WBCU3RsLuFZ_BNsRGIwR_KDKYe3I8WEl9CR7OWjL3a0auqRC
+ e0TZLR5FTZbNXqZA4PPaCdzTGIDwWc5VMJAjLWeXLOCQFFUy7MtRD9UizrVjwL7GdtYCSnJ6Bc03
+ La6xCl8phRZNlEv4rEwz7ALjpnXUjDCSkdsFsUek.zSMfSifjg_gTYjtuYjo9OT9CGFgIUcqjzcG
+ jFkj2gYzUMdEpNPGrWPw_wU7XxcxD3LomxajqLxp.AUSjd81nxHHuQtYWXKvDp2HWu8.1Ua9BcuQ
+ 7NdG57bK7uWOBJhCeorMSNoHddhGG.hRugEoB4iaOTs_.EyzehdAgtWuUAjeu_vUtWbLgUm6wzen
+ bWbKuSeHXKBK7mv3yplPCHt6nfqEgrca3oMInMsNLMFA3iME1jo7ZEUkpR.XH2TWN81ls0dxBY1R
+ tq0k6WoVktaNliV10OCmMdr_ZD89_TCetKV1gT2EEJ82v.lIpGzUmkcRr2BtGwHLXZgoD4Q7_lT_
+ tQSpCC_L1m0Ms1jtjy4n7WFyY3QmYcOz65XNTfD5eOg18RuEvlD2fKUb3aFsco.tWFy5MYiyLSLU
+ xMzYzbggu7kZ1tnORKNDLN4xOKow_GGoLNajGA9LH31kkBrTuTdN0gZ9_uaPppVrHU9VNJ.fuK08
+ Be1ZhueH0pKTPn3x0YyfNBv2JsGnPhNU3fSWHt5Rf8yuVTYh9JMJ0v0hL.Ooy9vtXh9dV29khB3y
+ iHzbbwuZ8kM0czLfGUOUv1aYqp2FeicJ90.YI5.ovv7oMecBNjOoPmn4Euey0IsEyUGOppzuyI7U
+ 0hLfQbgZJfB5utG4I2ek_oZAcWOYrkPvs3BDWKqqWOkVg5MSPZ5PMeBOFfhxn8THqH_UvA1w3uxl
+ q0es2IMS7Hn5hUrbo3QTO6kX93fmZhQB5jScu0IwV4lLK7QQWlBt4S.S.8fQddYbxNBWaU.GYNgk
+ jRX_5NPSr_AT2jtHvd8..LaeulFxpsdyNZu6t0X3.v36N4Hp5OcPoGItdQs.gRC31xBa87W8yI5j
+ xzfW8PiNI3jBnXxhUeRCkDRKIliil5lDTFh6fiqFETyukGj.Mv0TNRAIPxCZxJOA8VDVzrjA54Zj
+ O7xBkS0kc6LR1heWHnxxV8Jct0fIXhP3p7LCIzRH5EGk98nTlK2LSK8aMnPRvavjfp1PgmoBpaN4
+ iPJ6E.5uw.AfVO_KKnKb6e9NVZm1wSJO04GL.pDVETrQi2D4r6j_aRw--
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Wed, 18 Aug 2021 21:59:35 +0000
+Received: by kubenode528.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 217b5544d85edfe7e42d0af03f2f1fbd;
+          Wed, 18 Aug 2021 21:59:32 +0000 (UTC)
+Subject: Re: [PATCH v28 22/25] Audit: Add record for multiple process LSM
+ attributes
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20210722004758.12371-1-casey@schaufler-ca.com>
+ <20210722004758.12371-23-casey@schaufler-ca.com>
+ <CAHC9VhTj2OJ7E6+iSBLNZaiPK-16UY0zSFJikpz+teef3JOosg@mail.gmail.com>
+ <ace9d273-3560-3631-33fa-7421a165b038@schaufler-ca.com>
+ <CAHC9VhSSASAL1mVwDo1VS3HcEF7Yb3LTTaoajEtq1HsA-8R+xQ@mail.gmail.com>
+ <fba1a123-d6e5-dcb0-3d49-f60b26f65b29@schaufler-ca.com>
+ <CAHC9VhQxG+LXxgtczhH=yVdeh9mTO+Xhe=TeQ4eihjtkQ2=3Fw@mail.gmail.com>
+ <3ebad75f-1887-bb31-db23-353bfc9c0b4a@schaufler-ca.com>
+ <CAHC9VhQCN2_MsCoXfU7Z-syYHj2o8HaSECf5E62ZFcNZd9_4QA@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <062ba5f9-e4e8-31f4-7815-826f44b35654@schaufler-ca.com>
+Date:   Wed, 18 Aug 2021 14:59:31 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-References: <20210813115157.789302-1-jwcart2@gmail.com> <20210813115157.789302-2-jwcart2@gmail.com>
- <CAJfZ7==cV13-tVy9H1bvsAAviMdxK=Dwb5WL5+B4aCyN0fBviQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7==cV13-tVy9H1bvsAAviMdxK=Dwb5WL5+B4aCyN0fBviQ@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 17 Aug 2021 17:05:46 -0400
-Message-ID: <CAP+JOzRPJvuTGwNzNLOL8c+XPQhd631rFZwqbhb+pvUixarvOQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol/cil: Improve in-statement to allow use after inheritance
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Dominick Grift <dominick.grift@defensec.nl>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhQCN2_MsCoXfU7Z-syYHj2o8HaSECf5E62ZFcNZd9_4QA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Mailer: WebService/1.1.18850 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 17, 2021 at 4:31 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
->  On Fri, Aug 13, 2021 at 1:52 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > CIL's in-statement is resolved before block inheritance. This has
-> > the advantage of allowing an in-statement to add rules to a base
-> > block (say for a new permission) and having those rules also be
-> > added everywhere that base block is inherited. But the disadvantage
-> > of this behavior is that it is not possible to use an in-statement
-> > on a block that is inherited for the simple reason that that block
-> > does not exist when the in-statment is resolved.
-> >
-> > Change the syntax of the in-statement to allow specifying whether
-> > the rules should be added before or after inheritance. If neither
-> > is specified, then the behavior remains the same. All current
-> > in-statements will work as before.
-> >
-> > Either the old syntax
-> >   (in container_id
-> >       cil_statement
-> >       ...
-> >   )
-> > or the new syntax
-> >   (in before|after container_id
-> >       cil_statement
-> >       ...
-> >   )
-> > may be used for in-statements. But only "(in after ..." will have
-> > the new behavior. Using "(in before ..." will give the same
-> > behavior as before.
-> >
-> > Macro Example
-> > ;
-> > (block b1
-> >   (macro m1 ((type ARG1))
-> >     (allow ARG1 self (C1 (P1a)))
-> >   )
-> > )
-> > (in after b1.m1
-> >   (allow ARG1 self (C1 (P1c)))
-> > )
-> > (type t1a)
-> > (call b1.m1 (t1a))
-> > (blockinherit b1)
-> > (in after m1
-> >   (allow ARG1 self (C1 (P1b)))
-> > )
-> > (type t1b)
-> > (call m1 (t1b))
-> > ;
-> > This results in the following rules:
-> >   (allow t1a self (C1 (P1a)))
-> >   (allow t1a self (C1 (P1c)))
-> >   (allow t1b self (C1 (P1a)))
-> >   (allow t1b self (C1 (P1b)))
-> >
-> > Block Example
-> > ;
-> > (block b2
-> >   (block b
-> >     (type ta)
-> >     (allow ta self (C2 (P2a)))
-> >   )
-> > )
-> > (in before b2.b
-> >   (type tb)
-> >   (allow tb self (C2 (P2b)))
-> > )
-> > (block c2
-> >   (blockinherit b2)
-> >   (in after b
-> >     (type tc)
-> >     (allow tc self (C2 (P2c)))
-> >   )
-> > )
-> > ;
-> > This results in the following rules:
-> >   (allow b2.b.ta self (C2 (P2a)))
-> >   (allow b2.b.tb self (C2 (P2b)))
-> >   (allow c2.b.ta self (C2 (P2a)))
-> >   (allow c2.b.tb self (C2 (P2b)))
-> >   (allow c2.b.tc self (C2 (P2c)))
-> >
-> > Using in-statements on optionals also works as expected.
-> >
-> > One additional change is that blockabstract and blockinherit rules
-> > are not allowed when using an after in-statement. This is because
-> > both of those are resolved before an after in-statement would be
-> > resolved.
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  libsepol/cil/src/cil.c             |  5 +++
-> >  libsepol/cil/src/cil_build_ast.c   | 31 +++++++++++++++++--
-> >  libsepol/cil/src/cil_internal.h    |  6 +++-
-> >  libsepol/cil/src/cil_resolve_ast.c | 49 +++++++++++++++++++++---------
-> >  4 files changed, 72 insertions(+), 19 deletions(-)
-> >
-> > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> > index d24c81c8..672342b5 100644
-> > --- a/libsepol/cil/src/cil.c
-> > +++ b/libsepol/cil/src/cil.c
-> > @@ -142,6 +142,8 @@ char *CIL_KEY_HANDLEUNKNOWN_DENY;
-> >  char *CIL_KEY_HANDLEUNKNOWN_REJECT;
-> >  char *CIL_KEY_MACRO;
-> >  char *CIL_KEY_IN;
-> > +char *CIL_KEY_IN_BEFORE;
-> > +char *CIL_KEY_IN_AFTER;
-> >  char *CIL_KEY_MLS;
-> >  char *CIL_KEY_DEFAULTRANGE;
-> >  char *CIL_KEY_BLOCKINHERIT;
-> > @@ -353,6 +355,8 @@ static void cil_init_keys(void)
-> >         CIL_KEY_DEFAULTTYPE = cil_strpool_add("defaulttype");
-> >         CIL_KEY_MACRO = cil_strpool_add("macro");
-> >         CIL_KEY_IN = cil_strpool_add("in");
-> > +       CIL_KEY_IN_BEFORE = cil_strpool_add("before");
-> > +       CIL_KEY_IN_AFTER = cil_strpool_add("after");
-> >         CIL_KEY_MLS = cil_strpool_add("mls");
-> >         CIL_KEY_DEFAULTRANGE = cil_strpool_add("defaultrange");
-> >         CIL_KEY_GLOB = cil_strpool_add("*");
-> > @@ -2121,6 +2125,7 @@ void cil_in_init(struct cil_in **in)
-> >         *in = cil_malloc(sizeof(**in));
-> >
-> >         cil_symtab_array_init((*in)->symtab, cil_sym_sizes[CIL_SYM_ARRAY_IN]);
-> > +       (*in)->is_after = CIL_FALSE;
-> >         (*in)->block_str = NULL;
-> >  }
-> >
-> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> > index 9da90883..4a87e212 100644
-> > --- a/libsepol/cil/src/cil_build_ast.c
-> > +++ b/libsepol/cil/src/cil_build_ast.c
-> > @@ -380,7 +380,8 @@ int cil_gen_in(struct cil_db *db, struct cil_tree_node *parse_current, struct ci
-> >         enum cil_syntax syntax[] = {
-> >                 CIL_SYN_STRING,
-> >                 CIL_SYN_STRING,
-> > -               CIL_SYN_N_LISTS,
-> > +               CIL_SYN_STRING | CIL_SYN_N_LISTS,
-> > +               CIL_SYN_N_LISTS | CIL_SYN_END,
-> >                 CIL_SYN_END
-> >         };
->
-> Hello,
-> I am unfamiliar with __cil_verify_syntax, but when I see this
-> definition of syntax, it makes me think that the syntax allows {...,
-> CIL_SYN_N_LISTS, CIL_SYN_N_LISTS, CIL_SYN_END}, which is not supposed
-> to be allowed. Nevertheless when this happens,
-> parse_current->next->next->data should be NULL (if I understand
-> correctly what __cil_verify_syntax does with CIL_SYN_N_LISTS) so the
-> in statement is treated as a current in statement (with no
-> before/after keywords).
->
-> After more digging in __cil_verify_syntax, it seems that this first
-> interpretation is partially unsound ("two successive CIL_SYN_N_LISTS"
-> does not make sense) but in fact using "CIL_SYN_STRING |
-> CIL_SYN_N_LISTS" could cause issues, because this can match a list
-> (i.e. a sequence of nodes such that c->data == NULL && c->cl_head !=
-> NULL) ended with a string (i.e. c->data != NULL && c->cl_head ==
-> NULL). So I guess that it is possible to craft a CIL policy with "(in
-> container_id (cil_statements) some_string (other_cil_statements))",
-> and the current code could behave unexpectedly on "some_string".
-> This could in fact be a bug in __cil_verify_syntax, which should
-> verify that either the current node is a string or that the current
-> and its successors are all list nodes, but not a mix of "a list of
-> list nodes ended with a string", when CIL_SYN_STRING | CIL_SYN_N_LISTS
-> is used.
->
+On 8/16/2021 11:57 AM, Paul Moore wrote:
+> On Fri, Aug 13, 2021 at 5:47 PM Casey Schaufler <casey@schaufler-ca.com=
+> wrote:
+>> On 8/13/2021 1:43 PM, Paul Moore wrote:
+=2E..
+> Yeah, the thought occurred to me, but we are clearly already in the
+> maybe-the-assumptions-are-wrong stage so I'm not going to rely on that
+> being 100%.  We definitely need to track this down before we start
+> making to many more guesses about what is working and what is not.
 
-I think that your analysis might be correct here. I will take a look
-at this. I think that __cil_verify_syntax() is limited and might not
-be capable of catching everything. So at the very least, I probably
-need to do more checking in cil_gen_in().
+I've been tracking down where the audit context isn't set where
+we'd expect it to be, I've identified 5 cases:
 
-> I do not currently have time to check that there is actually a bug
-> (and will not have before the end of August). So I am sharing my
-> thoughts to make you aware of this. If you see something that I missed
-> (and this is likely), please do not hesitate to reply that I am wrong.
->
+	1000	AUDIT_GET 		- Get Status
+	1001	AUDIT_SET 		- Set status enable/disable/auditd
+	1010	AUDIT_SIGNAL_INFO
+	1130	AUDIT_SERVICE_START
+	1131	AUDIT_SEVICE_STOP
 
-As always, thanks for your comments,
-Jim
+These are all events that relate to the audit system itself.
+It seems plausible that these really aren't syscalls and hence
+shouldn't be expected to have an audit_context. I will create a
+patch that treats these as the special cases I believe them to be.
 
-> Thanks,
-> Nicolas
->
-> >         int syntax_len = sizeof(syntax)/sizeof(*syntax);
-> > @@ -403,14 +404,29 @@ int cil_gen_in(struct cil_db *db, struct cil_tree_node *parse_current, struct ci
-> >
-> >         cil_in_init(&in);
-> >
-> > -       in->block_str = parse_current->next->data;
-> > +       if (parse_current->next->next->data) {
-> > +               char *is_after_str = parse_current->next->data;
-> > +               if (is_after_str == CIL_KEY_IN_BEFORE) {
-> > +                       in->is_after = CIL_FALSE;
-> > +               } else if (is_after_str == CIL_KEY_IN_AFTER) {
-> > +                       in->is_after = CIL_TRUE;
-> > +               } else {
-> > +                       cil_log(CIL_ERR, "Value must be either \'before\' or \'after\'\n");
-> > +                       rc = SEPOL_ERR;
-> > +                       goto exit;
-> > +               }
-> > +               in->block_str = parse_current->next->next->data;
-> > +       } else {
-> > +               in->is_after = CIL_FALSE;
-> > +               in->block_str = parse_current->next->data;
-> > +       }
-> >
-> >         ast_node->data = in;
-> >         ast_node->flavor = CIL_IN;
-> >
-> >         return SEPOL_OK;
-> >  exit:
-> > -       cil_tree_log(parse_current, CIL_ERR, "Bad in statement");
-> > +       cil_tree_log(parse_current, CIL_ERR, "Bad in-statement");
-> >         cil_destroy_in(in);
-> >         return rc;
-> >  }
-> > @@ -6136,12 +6152,21 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
-> >         }
-> >
-> >         if (in != NULL) {
-> > +               struct cil_in *in_block = in->data;
-> >                 if (parse_current->data == CIL_KEY_TUNABLE ||
-> >                         parse_current->data == CIL_KEY_IN) {
-> >                         rc = SEPOL_ERR;
-> >                         cil_tree_log(parse_current, CIL_ERR, "%s is not allowed in in-statement", (char *)parse_current->data);
-> >                         goto exit;
-> >                 }
-> > +               if (in_block->is_after == CIL_TRUE) {
-> > +                       if (parse_current->data == CIL_KEY_BLOCKINHERIT ||
-> > +                               parse_current->data == CIL_KEY_BLOCKABSTRACT) {
-> > +                               rc = SEPOL_ERR;
-> > +                               cil_tree_log(parse_current, CIL_ERR, "%s is not allowed in an after in-statement", (char *)parse_current->data);
-> > +                               goto exit;
-> > +                       }
-> > +               }
-> >         }
-> >
-> >         if (macro != NULL) {
-> > diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-> > index 98e303d1..d33c66bc 100644
-> > --- a/libsepol/cil/src/cil_internal.h
-> > +++ b/libsepol/cil/src/cil_internal.h
-> > @@ -56,10 +56,11 @@ enum cil_pass {
-> >         CIL_PASS_INIT = 0,
-> >
-> >         CIL_PASS_TIF,
-> > -       CIL_PASS_IN,
-> > +       CIL_PASS_IN_BEFORE,
-> >         CIL_PASS_BLKIN_LINK,
-> >         CIL_PASS_BLKIN_COPY,
-> >         CIL_PASS_BLKABS,
-> > +       CIL_PASS_IN_AFTER,
-> >         CIL_PASS_CALL1,
-> >         CIL_PASS_CALL2,
-> >         CIL_PASS_ALIAS1,
-> > @@ -158,6 +159,8 @@ extern char *CIL_KEY_HANDLEUNKNOWN_DENY;
-> >  extern char *CIL_KEY_HANDLEUNKNOWN_REJECT;
-> >  extern char *CIL_KEY_MACRO;
-> >  extern char *CIL_KEY_IN;
-> > +extern char *CIL_KEY_IN_BEFORE;
-> > +extern char *CIL_KEY_IN_AFTER;
-> >  extern char *CIL_KEY_MLS;
-> >  extern char *CIL_KEY_DEFAULTRANGE;
-> >  extern char *CIL_KEY_BLOCKINHERIT;
-> > @@ -355,6 +358,7 @@ struct cil_blockabstract {
-> >
-> >  struct cil_in {
-> >         symtab_t symtab[CIL_SYM_NUM];
-> > +       int is_after;
-> >         char *block_str;
-> >  };
-> >
-> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> > index 18007324..77e0d402 100644
-> > --- a/libsepol/cil/src/cil_resolve_ast.c
-> > +++ b/libsepol/cil/src/cil_resolve_ast.c
-> > @@ -62,7 +62,8 @@ struct cil_args_resolve {
-> >         struct cil_list *unordered_classorder_lists;
-> >         struct cil_list *catorder_lists;
-> >         struct cil_list *sensitivityorder_lists;
-> > -       struct cil_list *in_list;
-> > +       struct cil_list *in_list_before;
-> > +       struct cil_list *in_list_after;
-> >         struct cil_stack *disabled_optionals;
-> >  };
-> >
-> > @@ -2449,10 +2450,8 @@ exit:
-> >         return rc;
-> >  }
-> >
-> > -int cil_resolve_in_list(void *extra_args)
-> > +int cil_resolve_in_list(struct cil_list *in_list, void *extra_args)
-> >  {
-> > -       struct cil_args_resolve *args = extra_args;
-> > -       struct cil_list *ins = args->in_list;
-> >         struct cil_list_item *curr = NULL;
-> >         struct cil_tree_node *node = NULL;
-> >         struct cil_tree_node *last_failed_node = NULL;
-> > @@ -2466,7 +2465,7 @@ int cil_resolve_in_list(void *extra_args)
-> >                 resolved = 0;
-> >                 unresolved = 0;
-> >
-> > -               cil_list_for_each(curr, ins) {
-> > +               cil_list_for_each(curr, in_list) {
-> >                         if (curr->flavor != CIL_NODE) {
-> >                                 continue;
-> >                         }
-> > @@ -3590,12 +3589,10 @@ int __cil_resolve_ast_node(struct cil_tree_node *node, void *extra_args)
-> >         int rc = SEPOL_OK;
-> >         struct cil_args_resolve *args = extra_args;
-> >         enum cil_pass pass = 0;
-> > -       struct cil_list *ins;
-> >
-> >         if (node == NULL || args == NULL) {
-> >                 goto exit;
-> >         }
-> > -       ins = args->in_list;
-> >
-> >         pass = args->pass;
-> >         switch (pass) {
-> > @@ -3604,11 +3601,14 @@ int __cil_resolve_ast_node(struct cil_tree_node *node, void *extra_args)
-> >                         rc = cil_resolve_tunif(node, args);
-> >                 }
-> >                 break;
-> > -       case CIL_PASS_IN:
-> > +       case CIL_PASS_IN_BEFORE:
-> >                 if (node->flavor == CIL_IN) {
-> >                         // due to ordering issues, in statements are just gathered here and
-> >                         // resolved together in cil_resolve_in_list once all are found
-> > -                       cil_list_prepend(ins, CIL_NODE, node);
-> > +                       struct cil_in *in = node->data;
-> > +                       if (in->is_after == CIL_FALSE) {
-> > +                               cil_list_prepend(args->in_list_before, CIL_NODE, node);
-> > +                       }
-> >                 }
-> >                 break;
-> >         case CIL_PASS_BLKIN_LINK:
-> > @@ -3626,6 +3626,16 @@ int __cil_resolve_ast_node(struct cil_tree_node *node, void *extra_args)
-> >                         rc = cil_resolve_blockabstract(node, args);
-> >                 }
-> >                 break;
-> > +       case CIL_PASS_IN_AFTER:
-> > +               if (node->flavor == CIL_IN) {
-> > +                       // due to ordering issues, in statements are just gathered here and
-> > +                       // resolved together in cil_resolve_in_list once all are found
-> > +                       struct cil_in *in = node->data;
-> > +                       if (in->is_after == CIL_TRUE) {
-> > +                               cil_list_prepend(args->in_list_after, CIL_NODE, node);
-> > +                       }
-> > +               }
-> > +               break;
-> >         case CIL_PASS_CALL1:
-> >                 if (node->flavor == CIL_CALL && args->macro == NULL) {
-> >                         rc = cil_resolve_call(node, args);
-> > @@ -4073,7 +4083,8 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
-> >         extra_args.unordered_classorder_lists = NULL;
-> >         extra_args.catorder_lists = NULL;
-> >         extra_args.sensitivityorder_lists = NULL;
-> > -       extra_args.in_list = NULL;
-> > +       extra_args.in_list_before = NULL;
-> > +       extra_args.in_list_after = NULL;
-> >         extra_args.disabled_optionals = NULL;
-> >
-> >         cil_list_init(&extra_args.to_destroy, CIL_NODE);
-> > @@ -4082,7 +4093,8 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
-> >         cil_list_init(&extra_args.unordered_classorder_lists, CIL_LIST_ITEM);
-> >         cil_list_init(&extra_args.catorder_lists, CIL_LIST_ITEM);
-> >         cil_list_init(&extra_args.sensitivityorder_lists, CIL_LIST_ITEM);
-> > -       cil_list_init(&extra_args.in_list, CIL_IN);
-> > +       cil_list_init(&extra_args.in_list_before, CIL_IN);
-> > +       cil_list_init(&extra_args.in_list_after, CIL_IN);
-> >         cil_stack_init(&extra_args.disabled_optionals);
-> >
-> >         for (pass = CIL_PASS_TIF; pass < CIL_PASS_NUM; pass++) {
-> > @@ -4093,12 +4105,18 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
-> >                         goto exit;
-> >                 }
-> >
-> > -               if (pass == CIL_PASS_IN) {
-> > -                       rc = cil_resolve_in_list(&extra_args);
-> > +               if (pass == CIL_PASS_IN_BEFORE) {
-> > +                       rc = cil_resolve_in_list(extra_args.in_list_before, &extra_args);
-> > +                       if (rc != SEPOL_OK) {
-> > +                               goto exit;
-> > +                       }
-> > +                       cil_list_destroy(&extra_args.in_list_before, CIL_FALSE);
-> > +               } else if (pass == CIL_PASS_IN_AFTER) {
-> > +                       rc = cil_resolve_in_list(extra_args.in_list_after, &extra_args);
-> >                         if (rc != SEPOL_OK) {
-> >                                 goto exit;
-> >                         }
-> > -                       cil_list_destroy(&extra_args.in_list, CIL_FALSE);
-> > +                       cil_list_destroy(&extra_args.in_list_after, CIL_FALSE);
-> >                 }
-> >
-> >                 if (pass == CIL_PASS_BLKIN_LINK) {
-> > @@ -4217,7 +4235,8 @@ exit:
-> >         __cil_ordered_lists_destroy(&extra_args.sensitivityorder_lists);
-> >         __cil_ordered_lists_destroy(&extra_args.unordered_classorder_lists);
-> >         cil_list_destroy(&extra_args.to_destroy, CIL_FALSE);
-> > -       cil_list_destroy(&extra_args.in_list, CIL_FALSE);
-> > +       cil_list_destroy(&extra_args.in_list_before, CIL_FALSE);
-> > +       cil_list_destroy(&extra_args.in_list_after, CIL_FALSE);
-> >         cil_stack_destroy(&extra_args.disabled_optionals);
-> >
-> >         return rc;
-> > --
-> > 2.31.1
-> >
->
+
