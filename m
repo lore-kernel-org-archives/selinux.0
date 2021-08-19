@@ -8,58 +8,57 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21B13C4338F
-	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 19:20:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBBE4C4338F
+	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 19:21:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 082CC6056B
-	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 19:20:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA25260C3E
+	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 19:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234126AbhHSTVP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Aug 2021 15:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55382 "EHLO
+        id S234121AbhHSTV4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Aug 2021 15:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233995AbhHSTVO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Aug 2021 15:21:14 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D143C061575
-        for <selinux@vger.kernel.org>; Thu, 19 Aug 2021 12:20:38 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id r26so9918917oij.2
-        for <selinux@vger.kernel.org>; Thu, 19 Aug 2021 12:20:38 -0700 (PDT)
+        with ESMTP id S233995AbhHSTVz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Aug 2021 15:21:55 -0400
+Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F144C061575
+        for <selinux@vger.kernel.org>; Thu, 19 Aug 2021 12:21:17 -0700 (PDT)
+Received: by mail-oi1-x22d.google.com with SMTP id bd1so9921733oib.3
+        for <selinux@vger.kernel.org>; Thu, 19 Aug 2021 12:21:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=bLwByC7BGaVevrVFtomE8pULrW13VxfSrNSZHQzlggA=;
-        b=eyvnyWRGppAZnhyt+wYiB4+NUJejAKEufSAz+Vo14PjQ8aNpzHYbTER4b3vcqzspTw
-         hzYrCr2zsVA2dPPWVeTE/c/c3O56EsHX/aSZOfQ8j7EZWiPvoqqf6CwPhQBJ/qphwxVY
-         w/xpYeuHjX6ElOAiKArutCDzRn/pBUO18iQDMaZ39mxQksMHeIWKKJoIbmhcT/3GC42Y
-         U+D4uMoedt5mY0tWJhdCbesda4CWzN02SFVK1jKe2+cMTm4xhtBfGHdmlN24ypbwYT/6
-         96f7nfaLuX4LtKeIpDW3l5r8Nctwa7pwMthszMNdB0PqxUixhC/g2z6T4Kfgl+6x03us
-         H+MQ==
+        bh=Ll9M/o5EuTFB1UBgRykjz45LlJtLmVwQEQYDbFrBwz8=;
+        b=uhM+BujbX6wPokyPZRPBVz4V1LmO2XUv/TVAkJjvIeapiECJBFTc62pTfAnC5c4PRE
+         uCSEYYMxujVbJ57l1T0oWWv1H2ioTv0/JNnHyQwne3h0pRW6OQ7QFp9E30LMNCLgmzUy
+         KcZvyp0p8lI45C9Wx/ZGxfWCqaujg7PhSS0KrTJNV5IF3YdEF9XMGq0MMoX9+skXLVAH
+         6qDxuK0aE37xTbsEs6lWpf5XkekPudTB0QvnGplK6jY+c456zMFgOAhL2FCFISugUGpf
+         wvc9hnnny0EaA7/cFQKzxoEagY8Q23C60BwQ6k4DHBDnebhJt0RBH7kJABRjE81Wj98e
+         4LAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=bLwByC7BGaVevrVFtomE8pULrW13VxfSrNSZHQzlggA=;
-        b=Djq5QryUxaLj1LWTmpfDTJe5dTEj/9I1fiDZj5ABKdkOAdJ6JRmAI33soC8jCwBl00
-         rERz+FJKSRJQE7gfNMEKoat/5ed7OakTLQo1ueRKISdBraxvv5Cs/oyGBlMQPFa4qtS7
-         LosbWS+4KCZiaEwjlsBhOowCSaf+IyiWpxGMqT/zCDhxoaxfnls7qxtgaib0hCDSsjxo
-         G0WpiTyT5b20gbRhUd90OTwmi8eXhHeFftG63Ez3mrYhv6fG5PbaRPLW2yF+E2ZJbiCh
-         5sBS9CVZxMQQt88gYlFu9R4PC6F7HKVy0wmeloCfWPcNhS/6TYbm9VQDXeztkFSUN+BN
-         ImIg==
-X-Gm-Message-State: AOAM532q/22xg+C1mrfpLg+j7NXenb+YvLZmusfUvvwA7pl4hWIJAvw2
-        z8Z9Tneqr4nrmRvcrfnpvjWs/bfX8FC/hF6ZmkY=
-X-Google-Smtp-Source: ABdhPJwK1iFImOklHFgEOdEhdpnuxTssz9A27yQLJWkKXyhXPBF9bsTlwyw4bHcDJfiprT9WWsqEfggAEM24Z7EqkhM=
-X-Received: by 2002:aca:4b49:: with SMTP id y70mr250800oia.16.1629400837655;
- Thu, 19 Aug 2021 12:20:37 -0700 (PDT)
+        bh=Ll9M/o5EuTFB1UBgRykjz45LlJtLmVwQEQYDbFrBwz8=;
+        b=LqQVkV/7urc5RkiwZrM0yV+1GHUeyp1QUmA30uALJldPso6XBC4KFMspy0vv4UO9ZC
+         Bw0l7nejwoyj94TjSjW23Mpwu/xPU7va3G0v66qjrERhEEhQcB8sIineGRuTaQwsgHwb
+         BI9Q2QYMUXQ4Czu1BSrS+0MNhKTvfxYSAw0QijGTfC3L0lQI4Hp85AjW/eGaZrkbfv9H
+         gAbpLSmqD/iIQW2rq+SoUpkMEt3aQg8D+WuTTPXCzp+lzcqUXOc6qoETnMFD943Nx76k
+         BFxL+HOFiP2v/aruCL8XsFs5CAqInnUKSxd2wBFfI1UNK3b6vEY8A9KE6jt7TvOg7dWT
+         WF4A==
+X-Gm-Message-State: AOAM532a/qKx8B5njGnjOGc/IhE5PouG+rjZhxb5EaskXh7J4NPk75rK
+        K2WGqz3nqAVn+zLKv7oJgGGeyfaYsC9f67XMdVI=
+X-Google-Smtp-Source: ABdhPJyxcduzi/1Mgh4RlnpVzadDr18RnrNYQ8NLHyVhGEEzhJy1A7IKwlK42JaibUKaSoGYfZ78QxLXCBzw/KvMIzY=
+X-Received: by 2002:aca:4b49:: with SMTP id y70mr253007oia.16.1629400876638;
+ Thu, 19 Aug 2021 12:21:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210816195752.923028-1-jwcart2@gmail.com> <CAJfZ7=nn9pNt=nXZsQ=gPaLULGDy=wVvZV3GCywvLvmx3RQmEA@mail.gmail.com>
- <CAP+JOzQ2Ao_i9tAQb9Yr1C2G=9BE+iLMLESS_+rn0HQnys3S0g@mail.gmail.com> <CAJfZ7=my7UiXD9R-0e8vi-=waZX-dAsTTk=9C6YQbMbcpdZJow@mail.gmail.com>
-In-Reply-To: <CAJfZ7=my7UiXD9R-0e8vi-=waZX-dAsTTk=9C6YQbMbcpdZJow@mail.gmail.com>
+References: <20210816201019.925773-1-jwcart2@gmail.com> <CAJfZ7=kDkU0kAhXca+eDFzJjjqWdiHXCsqa4=bRYjwHia9pGWQ@mail.gmail.com>
+In-Reply-To: <CAJfZ7=kDkU0kAhXca+eDFzJjjqWdiHXCsqa4=bRYjwHia9pGWQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 19 Aug 2021 15:20:26 -0400
-Message-ID: <CAP+JOzQAjat1JFXAuWFmS3bVoSMmQfJZkzJe2itOcuKLoMddHQ@mail.gmail.com>
-Subject: Re: [PATCH 0/7 v2] libsepol/cil: Line mark cleanup and fix
+Date:   Thu, 19 Aug 2021 15:21:05 -0400
+Message-ID: <CAP+JOzQoEKgWjf_rD-PYe-VeCXbJM7y1da2Y8z2rER8cWqLBAg@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol/cil: Allow some duplicate macro and block declarations
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -67,33 +66,76 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 17, 2021 at 4:43 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Tue, Aug 17, 2021 at 4:44 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Tue, Aug 17, 2021 at 10:15 PM James Carter <jwcart2@gmail.com> wrote:
+> On Mon, Aug 16, 2021 at 10:10 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > On Tue, Aug 17, 2021 at 3:34 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > >
-> > > On Mon, Aug 16, 2021 at 9:57 PM James Carter <jwcart2@gmail.com> wrote:
-> > > >
-> > > > Patches 1-5 cleanup minor issues with CIL's line marks.
-> > > >
-> > > > Patches 6-7 fix the way line mark works so that the correct line
-> > > > numbers will be given for nested line marks.
-> > > >
-> > > > Patch 8 writes out line mark information when writing out the AST.
-> > >
-> > > Hello,
-> > > Patch 8 is missing from the v2 (the series only contains 7 patches).
-> > > Should the previous patch 8 ("libsepol/cil: When writing AST use line
-> > > marks for src_info nodes") be also considered for review?
-> > >
+> > The commit d155b410d4bbc90d28f361b966f0429598da8188 (libsepol/cil:
+> > Check for duplicate blocks, optionals, and macros) added checks when
+> > copying blocks, macros, and optionals so that a duplicate would cause
+> > an exit with an error. Unfortunately, some policies exist that depend
+> > on this behavior when using inheritance.
 > >
-> > Yes, I got caught up in correcting patch 7 that I never applied patch
-> > 8 when updating. There are no changes to that patch.
-> > Thanks,
-> > Jim
->
-> OK. For all 8 patches:
+> > The behavior is as follows.
+> >
+> > For macros only the first declared macro matters.
+> > ;
+> > (macro m ((type ARG1))
+> >   (allow ARG1 self (CLASS (PERM1)))
+> > )
+> > (block b
+> >   (macro m ((type ARG1))
+> >     (allow ARG1 self (CLASS (PERM2)))
+> >   )
+> > )
+> > (blockinherit b)
+> > (type t)
+> > (call m (t))
+> > ;
+> > For this policy segment, the macro m in block b will not be called.
+> > Only the original macro m will be.
+> >
+> > This behavior has been used to override macros that are going to
+> > be inherited. Only the inherited macros that have not already been
+> > declared in the destination namespace will be used.
+> >
+> > Blocks seem to work fine even though there are two of them
+> > ;
+> > (block b1
+> >   (blockinherit b2)
+> >   (block b
+> >     (type t1)
+> >     (allow t1 self (CLASS (PERM)))
+> >   )
+> > )
+> > (block b2
+> >   (block b
+> >     (type t2)
+> >     (allow t2 self (CLASS (PERM)))
+> >   )
+> > )
+> > (blockinherit b1)
+> > ;
+> > In this example, the blockinherit of b2 will cause there to be
+> > two block b's in block b1. Note that if both block b's tried to
+> > declare the same type, then that would be an error. The blockinherit
+> > of b1 will copy both block b's.
+> >
+> > This behavior has been used to allow the use of in-statements for
+> > a block that is being inherited. Since the in-statements are resolved
+> > before block inheritance, this only works if a block with the same
+> > name as the block to be inherited is declared in the namespace.
+> >
+> > To support the use of these two behaviors, allow duplicate blocks
+> > and macros when they occur as the result of block inheritance. In
+> > any other circumstances and error for a redeclaration will be given.
+> >
+> > Since the duplicate macro is not going to be used it is just skipped.
+> > The duplicate block will use the datum of the original block. In both
+> > cases a warning message will be produced (it will only be seen if
+> > "-v" is used when compiling the policy).
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
 > Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
@@ -105,31 +147,151 @@ Jim
 > Thanks,
 > Nicolas
 >
-> > > > Changes in v2
-> > > > In patch 6, use cil_strpool_add("1") instead of "1"
-> > > > In patch 7, fix confusing usage of pre_hll_expand and pre_hll_offset; initialize pre_hll_offset, change format specifiers in cil_tree.c to use %u instead of %d.
-> > > >
-> > > > James Carter (7):
-> > > >   libsepol/cil: Check syntax of src_info statement
-> > > >   libsepol/cil: Check the token type after getting the next token
-> > > >   libsepol/cil: Check for valid line mark type immediately
-> > > >   libsepol/cil: Push line mark state first when processing a line mark
-> > > >   libsepol/cil: Create common string-to-unsigned-integer functions
-> > > >   libsepol/cil: Add line mark kind and line number to src info
-> > > >   libsepol/cil: Report correct high-level language line numbers
-> > > >
-> > > >  libsepol/cil/src/cil.c           |  70 ++++++++++++++++-
-> > > >  libsepol/cil/src/cil_binary.c    |   9 ++-
-> > > >  libsepol/cil/src/cil_build_ast.c |  77 ++++++++++--------
-> > > >  libsepol/cil/src/cil_copy_ast.c  |   5 +-
-> > > >  libsepol/cil/src/cil_internal.h  |   9 ++-
-> > > >  libsepol/cil/src/cil_parser.c    | 129 +++++++++++++++----------------
-> > > >  libsepol/cil/src/cil_tree.c      |  57 +++++++++-----
-> > > >  libsepol/cil/src/cil_tree.h      |   4 +-
-> > > >  8 files changed, 226 insertions(+), 134 deletions(-)
-> > > >
-> > > > --
-> > > > 2.31.1
-> > > >
-> > >
+> > ---
+> > v2:
+> >  Removed extra format argument "key"
+> >
+> >  libsepol/cil/src/cil_copy_ast.c | 69 ++++++++++++++++++++++++---------
+> >  1 file changed, 50 insertions(+), 19 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+> > index 9c0231f2..ef793448 100644
+> > --- a/libsepol/cil/src/cil_copy_ast.c
+> > +++ b/libsepol/cil/src/cil_copy_ast.c
+> > @@ -43,6 +43,7 @@
+> >  #include "cil_verify.h"
+> >
+> >  struct cil_args_copy {
+> > +       struct cil_tree_node *orig_dest;
+> >         struct cil_tree_node *dest;
+> >         struct cil_db *db;
+> >  };
+> > @@ -101,17 +102,23 @@ int cil_copy_block(__attribute__((unused)) struct cil_db *db, void *data, void *
+> >         struct cil_block *orig = data;
+> >         char *key = orig->datum.name;
+> >         struct cil_symtab_datum *datum = NULL;
+> > -       struct cil_block *new;
+> >
+> >         cil_symtab_get_datum(symtab, key, &datum);
+> >         if (datum != NULL) {
+> > -               cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
+> > -               return SEPOL_ERR;
+> > +               if (FLAVOR(datum) != CIL_BLOCK) {
+> > +                       cil_tree_log(NODE(orig), CIL_ERR, "Block %s being copied", key);
+> > +                       cil_tree_log(NODE(datum), CIL_ERR, "  Conflicts with %s already declared", cil_node_to_string(NODE(datum)));
+> > +                       return SEPOL_ERR;
+> > +               }
+> > +               cil_tree_log(NODE(orig), CIL_WARN, "Block %s being copied", key);
+> > +               cil_tree_log(NODE(datum), CIL_WARN, "  Previously declared");
+> > +               *copy = datum;
+> > +       } else {
+> > +               struct cil_block *new;
+> > +               cil_block_init(&new);
+> > +               *copy = new;
+> >         }
+> >
+> > -       cil_block_init(&new);
+> > -       *copy = new;
+> > -
+> >         return SEPOL_OK;
+> >  }
+> >
+> > @@ -1511,21 +1518,26 @@ int cil_copy_macro(__attribute__((unused)) struct cil_db *db, void *data, void *
+> >         struct cil_macro *orig = data;
+> >         char *key = orig->datum.name;
+> >         struct cil_symtab_datum *datum = NULL;
+> > -       struct cil_macro *new;
+> >
+> >         cil_symtab_get_datum(symtab, key, &datum);
+> >         if (datum != NULL) {
+> > -               cil_tree_log(NODE(datum), CIL_ERR, "Re-declaration of %s %s", cil_node_to_string(NODE(datum)), key);
+> > -               return SEPOL_ERR;
+> > -       }
+> > -
+> > -       cil_macro_init(&new);
+> > -       if (orig->params != NULL) {
+> > -               cil_copy_list(orig->params, &new->params);
+> > +               if (FLAVOR(datum) != CIL_MACRO) {
+> > +                       cil_tree_log(NODE(orig), CIL_ERR, "Macro %s being copied", key);
+> > +                       cil_tree_log(NODE(datum), CIL_ERR, "  Conflicts with %s already declared", cil_node_to_string(NODE(datum)));
+> > +                       return SEPOL_ERR;
+> > +               }
+> > +               cil_tree_log(NODE(orig), CIL_WARN, "Skipping macro %s", key);
+> > +               cil_tree_log(NODE(datum), CIL_WARN, "  Previously declared");
+> > +               *copy = NULL;
+> > +       } else {
+> > +               struct cil_macro *new;
+> > +               cil_macro_init(&new);
+> > +               if (orig->params != NULL) {
+> > +                       cil_copy_list(orig->params, &new->params);
+> > +               }
+> > +               *copy = new;
+> >         }
+> >
+> > -       *copy = new;
+> > -
+> >         return SEPOL_OK;
+> >  }
+> >
+> > @@ -1700,7 +1712,7 @@ int cil_copy_src_info(__attribute__((unused)) struct cil_db *db, void *data, voi
+> >         return SEPOL_OK;
+> >  }
+> >
+> > -int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) uint32_t *finished, void *extra_args)
+> > +int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void *extra_args)
+> >  {
+> >         int rc = SEPOL_ERR;
+> >         struct cil_tree_node *parent = NULL;
+> > @@ -2005,6 +2017,16 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
+> >
+> >         rc = (*copy_func)(db, orig->data, &data, symtab);
+> >         if (rc == SEPOL_OK) {
+> > +               if (orig->flavor == CIL_MACRO && data == NULL) {
+> > +                       /* Skipping macro re-declaration */
+> > +                       if (args->orig_dest->flavor != CIL_BLOCKINHERIT) {
+> > +                               cil_log(CIL_ERR, "  Re-declaration of macro is only allowed when inheriting a block\n");
+> > +                               return SEPOL_ERR;
+> > +                       }
+> > +                       *finished = CIL_TREE_SKIP_HEAD;
+> > +                       return SEPOL_OK;
+> > +               }
+> > +
+> >                 cil_tree_node_init(&new);
+> >
+> >                 new->parent = parent;
+> > @@ -2013,7 +2035,15 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
+> >                 new->flavor = orig->flavor;
+> >                 new->data = data;
+> >
+> > -               if (orig->flavor >= CIL_MIN_DECLARATIVE) {
+> > +               if (orig->flavor == CIL_BLOCK && DATUM(data)->nodes->head != NULL) {
+> > +                       /* Duplicate block */
+> > +                       if (args->orig_dest->flavor != CIL_BLOCKINHERIT) {
+> > +                               cil_log(CIL_ERR, "  Re-declaration of block is only allowed when inheriting a block\n");
+> > +                               rc = SEPOL_ERR;
+> > +                               goto exit;
+> > +                       }
+> > +                       cil_list_append(DATUM(new->data)->nodes, CIL_NODE, new);
+> > +               } else if (orig->flavor >= CIL_MIN_DECLARATIVE) {
+> >                         /* Check the flavor of data if was found in the destination symtab */
+> >                         if (DATUM(data)->nodes->head && FLAVOR(data) != orig->flavor) {
+> >                                 cil_tree_log(orig, CIL_ERR, "Incompatible flavor when trying to copy %s", DATUM(data)->name);
+> > @@ -2098,12 +2128,13 @@ int cil_copy_ast(struct cil_db *db, struct cil_tree_node *orig, struct cil_tree_
+> >         int rc = SEPOL_ERR;
+> >         struct cil_args_copy extra_args;
+> >
+> > +       extra_args.orig_dest = dest;
+> >         extra_args.dest = dest;
+> >         extra_args.db = db;
+> >
+> >         rc = cil_tree_walk(orig, __cil_copy_node_helper, NULL,  __cil_copy_last_child_helper, &extra_args);
+> >         if (rc != SEPOL_OK) {
+> > -               cil_log(CIL_INFO, "cil_tree_walk failed, rc: %d\n", rc);
+> > +               cil_tree_log(dest, CIL_ERR, "Failed to copy %s to %s", cil_node_to_string(orig), cil_node_to_string(dest));
+> >                 goto exit;
+> >         }
+> >
+> > --
+> > 2.31.1
+> >
 >
