@@ -2,133 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46C65C4338F
-	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 00:47:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFCF6C4320A
+	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 00:56:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C0CE60F57
-	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 00:47:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C236610D2
+	for <selinux@archiver.kernel.org>; Thu, 19 Aug 2021 00:56:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234778AbhHSAsR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Aug 2021 20:48:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52174 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234744AbhHSAsR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Aug 2021 20:48:17 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3346C0613CF
-        for <selinux@vger.kernel.org>; Wed, 18 Aug 2021 17:47:41 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id gt38so8843299ejc.13
-        for <selinux@vger.kernel.org>; Wed, 18 Aug 2021 17:47:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=n3118yHZBGo6DRzRXBqG3ftlGaa+KyJKRgYLmI/eYAI=;
-        b=ODY/2RDrQWGsGpgT+Y2j7ZtLc8aOfrKuoS37Pp/TOPHfExYYe//wDgXm5uZEFPpNcE
-         blOCp9cFdhz+h+xkHnF2WqBNLkRcASpltA6eapWAtov8YirRNCm01ODgKigeNrjcuqKL
-         VZ3gvxXqcTLbziY64RDiO9PUXO8XM/rodECa1RBRIY3Qj8nUD7kUPo2tVHXtbKlqeeQB
-         3plvVKmJDK2Hc9OGSjyld8qr91VZVtR+F2F8B1jX1hJqGfx8eBDUREYZhWIMjOSrN4md
-         gAwo6QppkjT6UIU1WRoLqE4cdXjATrPzYEkC9vky3/aQ/d90PeUyEx1cM1eajc3rQy3M
-         TvUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=n3118yHZBGo6DRzRXBqG3ftlGaa+KyJKRgYLmI/eYAI=;
-        b=Yxb8l2B2Juvs1E5mbecMZ86aZ5tzx/Y/Uo+sBHVyGzfR57pcuOnexewHtir8l1s9Ok
-         LP3wrxXu77fFsc/IvegZBumO50JFkT7XIQVC2rYMMPEk65HaSJkwlxdW+pekKLFvXCpp
-         kU00LyKmeEmfXnL6a6ZrjJYwitumqKmbDAs1eTFEuANOmtiC5hsiURMoLrCQU6ho26LY
-         hi593FkvjdZH7XSNi5aTxJKAdErPAn+iLMuwtWXfGLVvYnG9kufWKlRKYXf1Qb+XgtXw
-         ZefAfcsPfj5ZPx7VxYA8E4qC9n170XD1M47tMDJCWiRJw2CR6dQBLjqRxsUZ6RgvCFeT
-         92iA==
-X-Gm-Message-State: AOAM533d6/EVewZjj6l9joi2ee8pJLrjI0PhPng84mgjvxojdTncdHvP
-        FxcbAqB+Cn9tzcdlsxd7FOLjZMIKc/m4jNFuRamQ
-X-Google-Smtp-Source: ABdhPJxUhG6RMHG8hWBMBx9UdS8uXzdLCCmnu/rsRxmxhGzDLA3tVGwIkTsYw0JMOGWrJ57On2kUIZFxTiG1hRC+Pv4=
-X-Received: by 2002:a17:906:2755:: with SMTP id a21mr12347619ejd.488.1629334060204;
- Wed, 18 Aug 2021 17:47:40 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210722004758.12371-1-casey@schaufler-ca.com>
- <20210722004758.12371-23-casey@schaufler-ca.com> <CAHC9VhTj2OJ7E6+iSBLNZaiPK-16UY0zSFJikpz+teef3JOosg@mail.gmail.com>
- <ace9d273-3560-3631-33fa-7421a165b038@schaufler-ca.com> <CAHC9VhSSASAL1mVwDo1VS3HcEF7Yb3LTTaoajEtq1HsA-8R+xQ@mail.gmail.com>
- <fba1a123-d6e5-dcb0-3d49-f60b26f65b29@schaufler-ca.com> <CAHC9VhQxG+LXxgtczhH=yVdeh9mTO+Xhe=TeQ4eihjtkQ2=3Fw@mail.gmail.com>
- <3ebad75f-1887-bb31-db23-353bfc9c0b4a@schaufler-ca.com> <CAHC9VhQCN2_MsCoXfU7Z-syYHj2o8HaSECf5E62ZFcNZd9_4QA@mail.gmail.com>
- <062ba5f9-e4e8-31f4-7815-826f44b35654@schaufler-ca.com>
-In-Reply-To: <062ba5f9-e4e8-31f4-7815-826f44b35654@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 18 Aug 2021 20:47:29 -0400
-Message-ID: <CAHC9VhT=QL5pKekaPB-=LDzU3hck9nXDiL5n1-upSqPg3gq=7w@mail.gmail.com>
-Subject: Re: [PATCH v28 22/25] Audit: Add record for multiple process LSM attributes
-To:     Casey Schaufler <casey@schaufler-ca.com>
+        id S230180AbhHSA52 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Aug 2021 20:57:28 -0400
+Received: from sonic307-16.consmr.mail.ne1.yahoo.com ([66.163.190.39]:44904
+        "EHLO sonic307-16.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232954AbhHSA5X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Aug 2021 20:57:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1629334606; bh=SfnLOs+vldwxKv1kTvgNMHz6BgnV6ALefQ3wBXiRAvY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=Ca8iZBIBwxTAVZf98/4Gb9DfB4Q2hjdV6Nhie9FcIVbPYJQz1KWnV46p0pCA7otpNWXWcLwfywoXRCGGNlCAY68PkMou9k3EAG26Sd/D1Ic+oM50NDcpzdcgcepoZNiXXY5AlRjgU3ZhAZCSNokJc40FVoGTDMhNop/0tbDyasefQBOOt1IIjQODkzs0iL2pN8ZWY/f7wA5Vctz4sK9Eh+35/5yUbFl9K0/DcG/3qgtZnNOQLaiiLCwmsVu64T6diMaiDc7q6PzaKi89ZxCYkAWrSFqqq0onyo9R5m52ONZUoP/yk3PwK6+OuQQiTzHiefyOt5usIT0P1oBaVGRrxw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1629334606; bh=x2wzthF1649NF2uq/HBMbopToQeTdpdUiXab/3SjrjZ=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=UuFAXw4Ie5ZKB7idAI0VF0jaJPGP36oeAaAIOQh45f1i8kBw3d8wvtP27z7aHf4C7RzW+7E/QHlQm1ScWUd+EJbmfv6EUVSb7NtUntxyd5TT3MskGMuaeNhrKlSWo2YE8s5TQgP8OmU+TNvz2QUHso88HJi0z8wZXmLfnVyQtukqKDoS2OwFcM5q7mGpI1eaxnUTkp3GtpkBbyhLb/U29SfPDNQ/7mz3nO2pYRzly3QH19kRO9bdGVtYm7Br94lfPrC7NoI7Sj3ZsOkem/pIC1S0QEX6+ELa/5AhxvWi//Dl1/JBCZYO/wILQch965nrbFwNqTTiImNBVRYaeATXxQ==
+X-YMail-OSG: QLAfCaEVM1lrXJbNyeEHYmiE4YVMPKQ9lsfHZXqCoQJJdNyuNHOo8yLGe7ruc2Z
+ Y6kfEKIdubVC4YDmgfXOQBH7FvcGk2f18vuTmuxg06G2AyfS080ukOnCPv4LRSivxFtUraYN7SyC
+ vVTxI2yQvvVOeUr_obhvq9CrTM.kcMM5Q2_G1gP_UdFNRQ4r15lsMCGbaQLgvUmrWrbIPtzDjnHY
+ nWdnVfrB_G4BqxS4pmVeLm8QXXERMVBsVCF7L3o23mOE2Kym.sy6iD5upYYVfC36pl_iFGmM7Yo.
+ 45e4cZeNvwHw0V7KUD0.6yWke9v7plRqO5iSQEhvDo.W.FoXlbmFfO4XHc5ZN.DfnM1wILny1rV7
+ wDGgnCIjn08qRrFEhxCsh7sWAWyyTXxR8Ujb.U3LpfBGAbciIPRTX_FcMXeQX_hmOMZ3pd4JOOvp
+ Ll1vRQj8MPiE2s2UwWwHVPsZNUyC0ecBXY12YcSK5hxKkPLnPP9emRt3aB2qYjFMzkv8bnXkg8nM
+ lE20eav8tvRY9yBiZ1TnqotjEz9gPDXdC9dPW8oXuTvfa0rwS.AQIbO7sTmS7SG368HYCaD59DU2
+ BpEkv7SOuH28b_T7srnZZMHkgt8VF87c7IsQA6jC1rPNVo3LFeMOiTlrAjjAjQKDs1nXNrbqXYEe
+ UMo3hGugBIxMX3RcK6CIM.o3MD6IkxvHTN4wtnj6WgmslFv6OpILyfEvUc0CZ6Xga7IE0ERhuJ5z
+ 6um0LjrZ0A4eWX4UiMr6AjI6sXvMequrKMAtAg.GEpGV1fOrsmIOwn24CWUO.PFPZewR_TMiIGAF
+ XCsxYg_nYTJVhzj.sRQWJiwxnOqkW2BnKqEkI_9gFMr9.GWYlYifKzLvoyE9Itl81f3eeI4LquUG
+ a9qmV4j3aDcWBx17jP1YHg5.HtPzn_O4.vrLCLmN5ZgRNwtkdg6SVLOVdcEiWfz9AxbeBOGkYsEu
+ Ibh07cAouuRyRQ5wUrtDyOmTPfM8f4QeKKJ.1JKYwLfZbyiufcCY3R9FZk3KcGa7leELsD5c5wlL
+ WWyY2eGP0TO5WLrSeN0TY2sifM47p.if89eIVelS1kmODdMn9mtFBlLT8hW4uLhFobQ7JCbKiOHH
+ iPt7J3YZqR.2wn3ZuUMEaOaIhh7dJJLxhBm0nPpv0M9f137KiISuHOqadtqEeagsG2dEOXrcOOIY
+ 0f2K2_vWhuAkk2JoSGe7cvFmMw.D5O3hqXVD7F2aKYlyreUXPKFommWIOEzrOiloSRwOOW3wFx3g
+ iPpqQnxwadtOtHP1vJMbZZP1MT7FfKC2nF6c89RjSRwhBcSSmr9xRJpPmAlLwA26eidotn1_oBKk
+ UoJLxfILnUiN6AJKun6iqtkPQgOFLYa6Mii0G4xl7qzWTc.C7WHIlOYnDoxp.r9KoceTdFMJh5hy
+ GOn0gdVGQC4nX2o.4763FhcMMAezyY_vEs8RD7dT5kru.Iov6sqzchHad5t23Xnt0U6XRrrPZhu2
+ HVNTvYaMnLvElMr4x3n5mFsW_qwddTUihNoex6PoGQENKE0SHD2W3Vihbl8ebHUgmnnk5lCRtm72
+ 6GBRpZ.7Id.6dEuNp_eWqnMyjQUpnck5Ea6FrV6aw_gLvO6hKEKabLon.a3hGsmXfZ6046MqT.Se
+ BcdPve.s7mL0SumdjKTu_X.NtcVWqD1m.TdZIJK4qUc0gX8ao2rZ7QuIL5i.NZn3ZaYx5toCqCWC
+ AXgyOWW9.wiT.eFi_Yl0uym8S6Qm0tAMFJwXsb8MfSSvD1e9cBe0tq8vI7_IaTKsHB9eAFqiMu.4
+ stBdK.imRQO6Db7QP8mlDMtcfKPjI6wEuJ6ej_p4EoeN9FGFQHk8K._IWtIwLJ2zsxJrZHaIJ1EH
+ TaErx5AFEsEXczLDg8PV68NFYxQ8pCgP0h.1asLJDBzIbnKwqskHT6zsjvnXFT1kbfpzMrc0NDbG
+ 7G61jzaes53tsEFRYapSr3M_VFRB9eiLNkYwZlOsoEG3Z32HWPpBo4OzaFM0Xuuu31g_CYzZmGgO
+ 1mIosty_T7b.sQ2l8WHaQcasWimq2ufJzHhM685.OILrB1z1VvHuYvWW.r9QpY_qZxqENhZ.XoKt
+ G4IJGYcBpHPuplSTIzkISbUHIsOD54GkOAClj2VM2k.bl5_wyhz9skVd8ocfWzvqJ6gxOHl1XXF_
+ z7S0eFFUhfswON3KIlS7eZ4QUIxBO3VkyFz.wWyr0u87YWgyCKX4mb22O76236wDYBq7jefYLiEh
+ 3BVmlkZcnIqtfgfjxSuIKVZDI4iBKNGW3fzUJh2xTIkzIglY3oOUYMCgTE2MEr5TR1k9FOHIgOfT
+ SD024FXQMmpPjKjTvLPKhqvXTWTiTX8kwJXqlBk9UMsuI3Rx.2N9ydJU6WaGrOw--
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Thu, 19 Aug 2021 00:56:46 +0000
+Received: by kubenode550.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 1409c36ab02d6bd3bfe1692eee4d859b;
+          Thu, 19 Aug 2021 00:56:44 +0000 (UTC)
+Subject: Re: [PATCH v28 22/25] Audit: Add record for multiple process LSM
+ attributes
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20210722004758.12371-1-casey@schaufler-ca.com>
+ <20210722004758.12371-23-casey@schaufler-ca.com>
+ <CAHC9VhTj2OJ7E6+iSBLNZaiPK-16UY0zSFJikpz+teef3JOosg@mail.gmail.com>
+ <ace9d273-3560-3631-33fa-7421a165b038@schaufler-ca.com>
+ <CAHC9VhSSASAL1mVwDo1VS3HcEF7Yb3LTTaoajEtq1HsA-8R+xQ@mail.gmail.com>
+ <fba1a123-d6e5-dcb0-3d49-f60b26f65b29@schaufler-ca.com>
+ <CAHC9VhQxG+LXxgtczhH=yVdeh9mTO+Xhe=TeQ4eihjtkQ2=3Fw@mail.gmail.com>
+ <3ebad75f-1887-bb31-db23-353bfc9c0b4a@schaufler-ca.com>
+ <CAHC9VhQCN2_MsCoXfU7Z-syYHj2o8HaSECf5E62ZFcNZd9_4QA@mail.gmail.com>
+ <062ba5f9-e4e8-31f4-7815-826f44b35654@schaufler-ca.com>
+ <CAHC9VhT=QL5pKekaPB-=LDzU3hck9nXDiL5n1-upSqPg3gq=7w@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <f3137410-185a-3012-1e38-e05a175495cc@schaufler-ca.com>
+Date:   Wed, 18 Aug 2021 17:56:43 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhT=QL5pKekaPB-=LDzU3hck9nXDiL5n1-upSqPg3gq=7w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.18850 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 18, 2021 at 5:59 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> On 8/16/2021 11:57 AM, Paul Moore wrote:
-> > On Fri, Aug 13, 2021 at 5:47 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 8/13/2021 1:43 PM, Paul Moore wrote:
+On 8/18/2021 5:47 PM, Paul Moore wrote:
 > ...
-> > Yeah, the thought occurred to me, but we are clearly already in the
-> > maybe-the-assumptions-are-wrong stage so I'm not going to rely on that
-> > being 100%.  We definitely need to track this down before we start
-> > making to many more guesses about what is working and what is not.
->
-> I've been tracking down where the audit context isn't set where
-> we'd expect it to be, I've identified 5 cases:
->
->         1000    AUDIT_GET               - Get Status
->         1001    AUDIT_SET               - Set status enable/disable/auditd
->         1010    AUDIT_SIGNAL_INFO
->         1130    AUDIT_SERVICE_START
->         1131    AUDIT_SEVICE_STOP
->
-> These are all events that relate to the audit system itself.
-> It seems plausible that these really aren't syscalls and hence
-> shouldn't be expected to have an audit_context. I will create a
-> patch that treats these as the special cases I believe them to be.
+> I just spent a few minutes tracing the code paths up from audit
+> through netlink and then through the socket layer and I'm not seeing
+> anything obvious where the path differs from any other syscall;
+> current->audit_context *should* be valid just like any other syscall.
+> However, I do have to ask, are you only seeing these audit records
+> with a current->audit_context equal to NULL during early boot?
 
-Yes, all but two of these could be considered to be audit subsystem
-control messages, but AUDIT_SERVICE_{START,STOP} I think definitely
-fall outside the audit subsystem control message category.  The
-AUDIT_SERVICE_{START,STOP} records are used to indicate when a
-service, e.g. NetworkManager, starts and stops; on my fedora test
-system they are generated by systemd since it manages service state on
-that system; a quick example is below, but I'm sure you've seen plenty
-of these already.
+Nope. Sorry.
 
-% ausearch -m SERVICE_START
-time->Wed Aug 18 20:13:00 2021
-type=SERVICE_START msg=audit(1629331980.779:1186): pid=1 uid=0 auid=4294967295 s
-es=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=NetworkManager-dispatch
-er comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? re
-s=success'
-
-However, regardless of if the message is related to controlling the
-audit subsystem or not, we do want to be able to associate those
-records with other related records, e.g. SYSCALL records.  Looking at
-the message types you listed above, they are all records that are
-triggered by userspace via netlink messages; if you haven't already I
-would start poking along that code path to see if something looks
-awry.
-
-I just spent a few minutes tracing the code paths up from audit
-through netlink and then through the socket layer and I'm not seeing
-anything obvious where the path differs from any other syscall;
-current->audit_context *should* be valid just like any other syscall.
-However, I do have to ask, are you only seeing these audit records
-with a current->audit_context equal to NULL during early boot?
-
--- 
-paul moore
-www.paul-moore.com
