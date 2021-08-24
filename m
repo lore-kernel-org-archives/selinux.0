@@ -2,169 +2,154 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BBF5C4338F
-	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 13:33:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2C95C4338F
+	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 14:45:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B483613A7
-	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 13:33:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9A0661214
+	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 14:45:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234226AbhHXNeB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Aug 2021 09:34:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
+        id S238045AbhHXOqN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Aug 2021 10:46:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237591AbhHXNd7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Aug 2021 09:33:59 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0449BC0613C1;
-        Tue, 24 Aug 2021 06:33:15 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id k24so19790111pgh.8;
-        Tue, 24 Aug 2021 06:33:14 -0700 (PDT)
+        with ESMTP id S238047AbhHXOqM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Aug 2021 10:46:12 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FEE9C061757
+        for <selinux@vger.kernel.org>; Tue, 24 Aug 2021 07:45:28 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id d6so32165475edt.7
+        for <selinux@vger.kernel.org>; Tue, 24 Aug 2021 07:45:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=xBb3ZyQvb4VRddrOmbezmniUyEwoDvBRNY4xhO/mzFE=;
-        b=pmqylbIkUXIiBjp2a0mSg7vZamKOTdoF4mgWbJiekfcmePrnq/uH0McSwzV8vx+BDD
-         xg7+WJYiO5J5OLbSRVPi5kegrODWIU4Rggz+DFfbvG7CYQR1GW3jTSvzM7XO7m/PHkxr
-         c8kTEAAAIb2IZzANhR6N+RueVnfcwcv7sT8oFWW19w9MJyEizfcZHLPepDXTwXJLuln5
-         5NLU647zmxE9P8cINDdIESQm3pbS5RMlW3byZjEkBCvbA3ULBW0y8ltWuiQKIFNFjrix
-         i4PaV30q2OX7XAcZ3XcNxoaCGfg8cepANkr61wTanFJANcQ5bM6rPeKFA2zYiOZ2wIj9
-         Em+Q==
+         :cc;
+        bh=NGYM+nSaUU+WoSwLMVnhosx4OKbywoUeevoN8omCjXI=;
+        b=BxvjgvjbNilMABkl9WxzYlGQBlwXr04YXhsknOLaZtW6pJJWKhlCcsrKeXlX6fSSJA
+         HmnzGLbBoN/mUhddbrF9ZyTKg3IIvRk/dM48HAHMvuubC6hYB6ZCivpS6gg8ZGbfmJzH
+         kkv+V+3OZFj+AaKbrw5eJlufVExXMoBcfsf0TD/f6SZjjStYa2l5HQM2kkNcjOwb+Ydu
+         vTBYWEtk2e2lsVq33id7zV8IYdrMZmAFtz3fokDHsvA5l/0PnXgHfhPD2TAqCYukDr0k
+         1LDUhlyIjBfvrI8u8uHGVbj29n6den5MbS14s3q44VaQzjyR7HdfjkyYzwBJuiNtSA4R
+         vqHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=xBb3ZyQvb4VRddrOmbezmniUyEwoDvBRNY4xhO/mzFE=;
-        b=f15Wk6ImD/l71EtedNi7X1aF33iDNLOcgVsAR3TGGI7ROusmEsAxoMUJSwM9ixbPAz
-         HQDhlUkoQofm0YNWTEG0iFvZ0IkosW+NpJ3sd3N8TEwuNt8B8GVj03GXxAjGZg1s0JDT
-         Y6N+gCdrtF1aPNbePeZ6uumYCg9elbCbc8Yl+VZomMzPMxrWqTja8941BnyZYM1fv1/s
-         ZSfwP+lPxELwJfgMKjs3zy7aT8zQ50tuWHVfWR86bpdSbaxVd8VxX8yQDhCYwwWwaEqo
-         uTA2FKY95NU9ISh3hq1wJNQWdlPL6I14h5F+9lco0q024x1Wu+FJlZvbefQDj0+0e24I
-         298g==
-X-Gm-Message-State: AOAM531dXzz5AAbFGEHeEpEX0edmc81t+Avzfs5kKQFV+YzzGwpuXdjZ
-        pXOCoWSBJHZRoQlX89xCu59m7ydsT7yBtXDr9+U=
-X-Google-Smtp-Source: ABdhPJwxcOT7TmMuiwZFQsYDdZuJgMjPnGvfI/orQEq5Y7KMzmQGBalj1yi2QRtldSf4ofUiYdNzULvZmKyJBGWhGJs=
-X-Received: by 2002:a63:2242:: with SMTP id t2mr36064978pgm.111.1629811994392;
- Tue, 24 Aug 2021 06:33:14 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=NGYM+nSaUU+WoSwLMVnhosx4OKbywoUeevoN8omCjXI=;
+        b=OETkSdynfP8RlSeXDYdOiOb3GSw8TAxbelobbCVHw9m9kowrv5EkJMMgMB2St1GAzs
+         GLKQjOxs90kgOrve9APHUct0dkWm9kgO0Uv1IzgRE6IY1YRCR6oel/GTl4wUDOtKk91U
+         DJjI8VLovDlbr6xZiOo3EFTGJu1V5c5/rjyLVdraG14EHsKfH0LY9pNgoMUBRe7KfFaO
+         7RX6G+H5qgxOROLQx2ZNH1ewENagv7Slpozr/b5W5SuXdkDT/ZPFvy+s5Ts3Qx2dnFQj
+         asmu+TGsxKXsosRcj4xj112pi4rY7Sah+xyi3aUneOO+kTRG9pJ4tbR4eMBBjtjzVXVx
+         82qA==
+X-Gm-Message-State: AOAM531DQ7IYPGz5fHoMxUQvc+1k0Kpmnp1OhMUzh+yv/+SiCtySv5Iq
+        4CcafFDsc6JGRfG/YhgzrloCM1zAceCYyjT3oDnwj+Lipw==
+X-Google-Smtp-Source: ABdhPJzUQNFZ76OJidu5ZnOAPqidwPTAgucoSeldGoH3rBmrNnTDQK/YtmgsG9PpDDQGvmE36qPj2R6wKLqMgCCH3ZY=
+X-Received: by 2002:a05:6402:1246:: with SMTP id l6mr43168604edw.12.1629816326536;
+ Tue, 24 Aug 2021 07:45:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210824022247.GA22908@raspberrypi> <CAFqZXNuOnMpV4RJDej2tp8_2OkZLuxuC9X7jBpKGs00MAQADPQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNuOnMpV4RJDej2tp8_2OkZLuxuC9X7jBpKGs00MAQADPQ@mail.gmail.com>
-From:   Austin Kim <austindh.kim@gmail.com>
-Date:   Tue, 24 Aug 2021 22:33:03 +0900
-Message-ID: <CADLLry6kOGBEjfGYjS=4qCU_V=0deJLQKqeNXTsx3Hp8XEFh-Q@mail.gmail.com>
-Subject: Re: [PATCH] selinux: remove duplicated initialization of 'i' for clean-up
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        kernel-team@lge.com, =?UTF-8?B?6rmA64+Z7ZiE?= <austin.kim@lge.com>
+References: <20210722004758.12371-1-casey@schaufler-ca.com>
+ <20210722004758.12371-23-casey@schaufler-ca.com> <CAHC9VhTj2OJ7E6+iSBLNZaiPK-16UY0zSFJikpz+teef3JOosg@mail.gmail.com>
+ <ace9d273-3560-3631-33fa-7421a165b038@schaufler-ca.com> <CAHC9VhSSASAL1mVwDo1VS3HcEF7Yb3LTTaoajEtq1HsA-8R+xQ@mail.gmail.com>
+ <fba1a123-d6e5-dcb0-3d49-f60b26f65b29@schaufler-ca.com> <CAHC9VhQxG+LXxgtczhH=yVdeh9mTO+Xhe=TeQ4eihjtkQ2=3Fw@mail.gmail.com>
+ <3ebad75f-1887-bb31-db23-353bfc9c0b4a@schaufler-ca.com> <CAHC9VhQCN2_MsCoXfU7Z-syYHj2o8HaSECf5E62ZFcNZd9_4QA@mail.gmail.com>
+ <062ba5f9-e4e8-31f4-7815-826f44b35654@schaufler-ca.com> <CAHC9VhT=QL5pKekaPB-=LDzU3hck9nXDiL5n1-upSqPg3gq=7w@mail.gmail.com>
+ <f3137410-185a-3012-1e38-e05a175495cc@schaufler-ca.com> <6f219a4d-8686-e35a-6801-eb66f98c8032@schaufler-ca.com>
+ <CAHC9VhSsJoEc=EDkUCrHr5Uid9DhsoininpvPVt+Ab6RsqieOQ@mail.gmail.com>
+ <93d97b1e-d3ea-0fe0-f0c2-62db09d01889@schaufler-ca.com> <be20e3c8-a068-4aa2-be52-8601cf2d30a6@schaufler-ca.com>
+In-Reply-To: <be20e3c8-a068-4aa2-be52-8601cf2d30a6@schaufler-ca.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 24 Aug 2021 10:45:15 -0400
+Message-ID: <CAHC9VhT-MfsU-azbV4QQ-asQFqdCG8fAeB-BOV3MKAdtSOW8Nw@mail.gmail.com>
+Subject: Re: [PATCH v28 22/25] Audit: Add record for multiple process LSM attributes
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-2021=EB=85=84 8=EC=9B=94 24=EC=9D=BC (=ED=99=94) =EC=98=A4=ED=9B=84 8:28, O=
-ndrej Mosnacek <omosnace@redhat.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
+On Fri, Aug 20, 2021 at 7:48 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > On 8/20/2021 12:06 PM, Paul Moore wrote:
+> >> Unless you explicitly enable audit on the kernel cmdline, e.g.
+> >> "audit=1", processes started before userspace enables audit will not
+> >> have a properly allocated audit_context; see the "if
+> >> (likely(!audit_ever_enabled))" check at the top of audit_alloc() for
+> >> the reason why.
 >
-> Hi Austin,
+> I found a hack-around that no one will like. I changed that check to be
 >
-> On Tue, Aug 24, 2021 at 4:23 AM Austin Kim <austindh.kim@gmail.com> wrote=
-:
-> >
-> > From: Austin Kim <austin.kim@lge.com>
-> >
-> > The local variable 'i' is used to be incremented inside while loop
-> > within sidtab_convert_tree(). Before while loop, 'i' is set to 0
-> > inside if/else statement.
-> >
-> > Since there is no 'goto' statement within sidtab_convert_tree(),
-> > it had better initialize 'i' as 0 once before if/else statement.
-> >
-> > Signed-off-by: Austin Kim <austin.kim@lge.com>
-> > ---
-> >  security/selinux/ss/sidtab.c | 4 +---
-> >  1 file changed, 1 insertion(+), 3 deletions(-)
-> >
-> > diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.=
-c
-> > index 656d50b09f76..301620de63d3 100644
-> > --- a/security/selinux/ss/sidtab.c
-> > +++ b/security/selinux/ss/sidtab.c
-> > @@ -374,7 +374,7 @@ static int sidtab_convert_tree(union sidtab_entry_i=
-nner *edst,
-> >                                struct sidtab_convert_params *convert)
-> >  {
-> >         int rc;
-> > -       u32 i;
-> > +       u32 i =3D 0;
-> >
-> >         if (level !=3D 0) {
-> >                 if (!edst->ptr_inner) {
-> > @@ -383,7 +383,6 @@ static int sidtab_convert_tree(union sidtab_entry_i=
-nner *edst,
-> >                         if (!edst->ptr_inner)
-> >                                 return -ENOMEM;
-> >                 }
-> > -               i =3D 0;
-> >                 while (i < SIDTAB_INNER_ENTRIES && *pos < count) {
+> (likely(!audit_ever_enabled) && !lsm_multiple_contexts())
 >
-> I must say I prefer the original version more, because it makes it
-> clear when you look at the loop that it starts at 0. Once you move the
-> initialization to the declaration section, readers will have to scan
-> the code upwards to find it out.
+> It probably introduces a memory leak and/or performance degradation,
+> but it has the desired affect.
 
-Thanks for sharing the full story of the original version.
+I can't speak for everyone, but I know I don't like that as a solution
+;)  I imagine such a change would also draw the ire of the never-audit
+crowd and the distros themselves.  However, I understand the need to
+just get *something* in place so you can continue to test/develop;
+it's fine to keep that for now, but I'm going to be very disappointed
+if that line finds its way into the next posted patchset revision.
 
-The original code is more readable since 'i' is mainly used
-in 'for' loop rather than 'while' loop. Also agreed that
-reader might attempt to scan the initial value of 'i'.
+I'm very much open to ideas but my gut feeling is that the end
+solution is going to be changes to audit_log_start() and
+audit_log_end().  In my mind the primary reason for this hunch is that
+support for multiple LSMs[*] needs to be transparent to the various
+callers in the kernel; this means the existing audit pattern of ...
 
-Thanks,
-Austin Kim
+  audit_log_start(...);
+  audit_log_format(...);
+  audit_log_end(...);
 
- As is, it's also less prone to error
-> if e.g. someone adds another loop before the existing ones and reuses
-> the variable.
->
-> In case anyone is wondering why I didn't make these for loops when I
-> wrote this code: Since the loop condition a little more than the usual
-> "for(i =3D 0; i < n; i++)" pattern, my intention was to emphasize that
-> this is not a "regular" for loop and that readers should read the loop
-> carefully to not miss something. But perhaps that's not a good reason
-> and they would look more natural as for loops. If others think a for
-> loop would look better here, I'd be OK with a patch that makes these
-> into for loops instead.
->
-> >                         rc =3D sidtab_convert_tree(&edst->ptr_inner->en=
-tries[i],
-> >                                                  &esrc->ptr_inner->entr=
-ies[i],
-> > @@ -400,7 +399,6 @@ static int sidtab_convert_tree(union sidtab_entry_i=
-nner *edst,
-> >                         if (!edst->ptr_leaf)
-> >                                 return -ENOMEM;
-> >                 }
-> > -               i =3D 0;
-> >                 while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
-> >                         rc =3D convert->func(&esrc->ptr_leaf->entries[i=
-].context,
-> >                                            &edst->ptr_leaf->entries[i].=
-context,
-> > --
-> > 2.20.1
-> >
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
->
+... should be preserved and be unchanged from what it is now.  We've
+already talked in some general terms about what such changes might
+look like, but to summarize the previous discussions, I think we would
+need to think about the following things:
+
+* Adding a timestamp/serial field to the audit_buffer struct, it could
+even be in a union with the audit_context pointer as we would never
+need both at the same time: if the audit_context ptr is non-NULL you
+use that, otherwise you use the timestamp.  The audit_buffer timestamp
+would not eliminate the need for the timestamp info in the
+audit_context struct for what I hope are obvious reasons.
+
+* Additional logic in audit_log_end() to generate additional ancillary
+records for LSM labels.  This will likely mean storing the message
+"type" passed to audit_log_start() in the audit_record struct and
+using that information in audit_log_end() to decide if a LSM ancillary
+record is needed.  Logistically this would likely mean converting the
+existing audit_log_end() function into a static/private
+__audit_log_end() and converting audit_log_end() into something like
+this:
+
+  void audit_log_end(ab)
+  {
+    __audit_log_end(ab); // rm the ab cleanup from __audit_log_end
+    if (ab->anc_mlsm) {
+      // generate the multiple lsm record
+    }
+    audit_buffer_free(ab);
+  }
+
+* Something else that I'm surely forgetting :)
+
+At the end of all this we may find that the "local" audit_context
+concept is no longer needed.  It was originally created to deal with
+grouping ancillary records with non-syscall records into a single
+event; while what we are talking about above is different, I believe
+that our likely solution will also work to solve the original "local"
+audit_context use case as well.  We'll have to see how this goes.
+
+[*] I expect that the audit container ID work will have similar issues
+and need a similar solution, I'm surprised it hasn't come up yet.
+
+-- 
+paul moore
+www.paul-moore.com
