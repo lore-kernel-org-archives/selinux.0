@@ -2,137 +2,146 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D2A0C4338F
-	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 10:55:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDBDFC4338F
+	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 11:28:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 156DA610E6
-	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 10:55:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B55A36135F
+	for <selinux@archiver.kernel.org>; Tue, 24 Aug 2021 11:28:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236320AbhHXK4Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Aug 2021 06:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236423AbhHXK4P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Aug 2021 06:56:15 -0400
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5649C061764
-        for <selinux@vger.kernel.org>; Tue, 24 Aug 2021 03:55:31 -0700 (PDT)
-Received: by mail-lj1-x22a.google.com with SMTP id f2so36893622ljn.1
-        for <selinux@vger.kernel.org>; Tue, 24 Aug 2021 03:55:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=j3iKJyks9Lr5CSLNWkR0jeOEs3hLf3OtUTvJSXpj9sg=;
-        b=DuaMnGf2NkhZH7pqQmOHZs5q9Y1DicYtktJku8iBeHGrbcSohr+lbiKQ0KPR9KSmKR
-         uVcZ818+7tyI45/EPSx/VQP+xTGD0sTsbSigxlpzontV2KZggISLGtnnC880VwdDH8l3
-         9TD2cXYPeFb4wtSbr+7yEIEyZ1FKqW9c/9CZAJwxhnI6069pU+6s59XGRyJ6pyZEkk8Z
-         6y11+lU8wlTzrKUAKcxOa+l1V5LMWEF9nOk1CyMIF2i0lSigsISLIsVU440KS9oiTj/0
-         FSpepvNAoz3P1UVvYfOdP71zrAIobZahlUhF8ycirnDwq1vVth5Ykczbqv6CMNRZbyVJ
-         uTFQ==
+        id S235618AbhHXL27 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Aug 2021 07:28:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36682 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235125AbhHXL25 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Aug 2021 07:28:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629804493;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=csZdA38ecZk4uzGs0BOWcnl0I/SkMeploJ4X7WtB8Yg=;
+        b=aztByu6WayThQN53bp0LtYjSVKzhL8s5DffGpULa8175eJT+vQFitqw9sYReGKefpKToXp
+        OGga6MhKf1AsXC0Iu9wjjiFzhQ0qrj32iCnu5+Gyt2Ft9MVJNUU7tPCwUSxIc5JKPoKllF
+        ifG3VG8W61MNWPvKZLFymAR9Qrq0Ud0=
+Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
+ [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-120-7A-vuqoEOduiYa-52z_pJQ-1; Tue, 24 Aug 2021 07:28:11 -0400
+X-MC-Unique: 7A-vuqoEOduiYa-52z_pJQ-1
+Received: by mail-yb1-f198.google.com with SMTP id q13-20020a25820d000000b0059a84a55d89so4712522ybk.23
+        for <selinux@vger.kernel.org>; Tue, 24 Aug 2021 04:28:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=j3iKJyks9Lr5CSLNWkR0jeOEs3hLf3OtUTvJSXpj9sg=;
-        b=N7ell3RHeNmJmW3v2Dy0p8kP6A+n+9Ua4URw89NlNLBYBdODrPxkeFjBVkFUPiq0JG
-         L4QcDLAMw4B0Y1wT3dSTRL13s+wf+Yyoosb4A9cWDbGCMP6jiNKNzgh4mbC78AVq2xBe
-         1kHA07xHwVpgQ0fIfYQht9CykcFjLGwpjCXkesFWwL8qsLAdF/kw8jlTWHFThj9xZwLh
-         X4S6Sm9/INbjMbyP0j0zgeekoNHStwIaYmYl2MLxRfEt6tduPHoIeaseVFzvx7njCyWk
-         1RYNa89ZtmSq5fCCyEklPz6YjkuE6eDRy19o7eRr1IXS3uvBG3AuyejBgLiWxrdN8j9T
-         6EGg==
-X-Gm-Message-State: AOAM531zCdixTMbYdnrFP1pOYFSau7RaMXZaRjDCt5anQIfftsJpWVoE
-        DoWDko7G7q7ctfMKmn+d4ZchL1cZL1vM/Q==
-X-Google-Smtp-Source: ABdhPJxBbu3zAX9/ZRUTFLK1h60eCL6tH9rP0+92Q8UiblaqcW73imo+xSxHYgG3Y+hYwNOQBhUN2A==
-X-Received: by 2002:a2e:8881:: with SMTP id k1mr9031854lji.443.1629802529852;
-        Tue, 24 Aug 2021 03:55:29 -0700 (PDT)
-Received: from [192.168.1.38] (88-114-216-93.elisa-laajakaista.fi. [88.114.216.93])
-        by smtp.gmail.com with ESMTPSA id g16sm1726477lfh.144.2021.08.24.03.55.28
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Aug 2021 03:55:29 -0700 (PDT)
-To:     SElinux list <selinux@vger.kernel.org>
-From:   Topi Miettinen <toiwoton@gmail.com>
-Subject: security/selinux/hooks.c: FILE__ perms used as DIR__ perms
-Message-ID: <f505f5bd-437a-2e38-5a93-b4abfac9fe81@gmail.com>
-Date:   Tue, 24 Aug 2021 13:55:26 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=csZdA38ecZk4uzGs0BOWcnl0I/SkMeploJ4X7WtB8Yg=;
+        b=I1/jj+qRHYO6jI3ouNAylY0iF0Prx0sdldD/a60my0J78xNunmI2r8hPeL9Eo7Wze0
+         u1gDijHQEhnkfP2KBZOv3A5hgfgTjxVqenY3qI/IuOjscCii/9mrDlxfkVAbn+jwYqhm
+         gI1oD6tWpI9gT68AORB+ONddmu+jXfeV762u/y+1pc6WOj4g+SwcUJYTYk+xiT+RI5eQ
+         ymDjxNhbPuxy8motvGfFg1Dt/I+3aaBafQBB3NssvULDzaK4RECuHT01XhBO4u0Mf6YR
+         F0HWfvdQ+9EKwT6duvru5bmlHciDrC00tv73SHWsv98/gBUd47cl+2zlVq/oVCeyB0g1
+         6aEQ==
+X-Gm-Message-State: AOAM533NufXE3ZZmLI4Je3cI2gCM70WgEbdkH74BKtsBwqjD5N6k7Rsx
+        MmM8a27PV0+xHS8XU336fEWYbXxJNbDXkfXb6rA9wAMtiT45fPcFfUNGN1igyEVunS3+VGXxUb+
+        X7CyVhMHStRZl5RRj/HRm/uGsnZbAT5ZVpA==
+X-Received: by 2002:a25:6b50:: with SMTP id o16mr24086391ybm.400.1629804491445;
+        Tue, 24 Aug 2021 04:28:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwhxz4MIsdc6SyQJMK3YjKVl+ABJrorZOL2PApPZT9gBrMSKrcSMF+pCYDUGd9qq3de3bXD6B1RjNxJHljcSJU=
+X-Received: by 2002:a25:6b50:: with SMTP id o16mr24086370ybm.400.1629804491221;
+ Tue, 24 Aug 2021 04:28:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210824022247.GA22908@raspberrypi>
+In-Reply-To: <20210824022247.GA22908@raspberrypi>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 24 Aug 2021 13:27:59 +0200
+Message-ID: <CAFqZXNuOnMpV4RJDej2tp8_2OkZLuxuC9X7jBpKGs00MAQADPQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: remove duplicated initialization of 'i' for clean-up
+To:     Austin Kim <austindh.kim@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        kernel-team@lge.com, austin.kim@lge.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+Hi Austin,
 
-Doing some post-processing of the SELinux policy (more about this some 
-other time), I noticed that permissions for class "dir" could be 
-tightened, for example "execmod" doesn't make a lot of sense for 
-directories. Perhaps there are even more useless permissions? Let's grep 
-for all use cases of permissions with DIR__ prefix:
+On Tue, Aug 24, 2021 at 4:23 AM Austin Kim <austindh.kim@gmail.com> wrote:
+>
+> From: Austin Kim <austin.kim@lge.com>
+>
+> The local variable 'i' is used to be incremented inside while loop
+> within sidtab_convert_tree(). Before while loop, 'i' is set to 0
+> inside if/else statement.
+>
+> Since there is no 'goto' statement within sidtab_convert_tree(),
+> it had better initialize 'i' as 0 once before if/else statement.
+>
+> Signed-off-by: Austin Kim <austin.kim@lge.com>
+> ---
+>  security/selinux/ss/sidtab.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+>
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index 656d50b09f76..301620de63d3 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -374,7 +374,7 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
+>                                struct sidtab_convert_params *convert)
+>  {
+>         int rc;
+> -       u32 i;
+> +       u32 i = 0;
+>
+>         if (level != 0) {
+>                 if (!edst->ptr_inner) {
+> @@ -383,7 +383,6 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
+>                         if (!edst->ptr_inner)
+>                                 return -ENOMEM;
+>                 }
+> -               i = 0;
+>                 while (i < SIDTAB_INNER_ENTRIES && *pos < count) {
 
-$ git grep DIR__ -- :^drivers/ :^arch/
-security/selinux/hooks.c:                         DIR__ADD_NAME | 
-DIR__SEARCH,
-security/selinux/hooks.c:       av = DIR__SEARCH;
-security/selinux/hooks.c:       av |= (kind ? DIR__REMOVE_NAME : 
-DIR__ADD_NAME);
-security/selinux/hooks.c:               av = DIR__RMDIR;
-security/selinux/hooks.c:                         DIR__REMOVE_NAME | 
-DIR__SEARCH, &ad);
-security/selinux/hooks.c: 
-old_isec->sclass, DIR__REPARENT, &ad);
-security/selinux/hooks.c:       av = DIR__ADD_NAME | DIR__SEARCH;
-security/selinux/hooks.c:               av |= DIR__REMOVE_NAME;
-security/selinux/hooks.c:                                 (new_is_dir ? 
-DIR__RMDIR : FILE__UNLINK), &ad);
-security/selinux/hooks.c:                       av |= DIR__SEARCH;
-security/selinux/hooks.c:                       av |= DIR__WRITE;
-security/selinux/hooks.c:                       av |= DIR__READ;
+I must say I prefer the original version more, because it makes it
+clear when you look at the loop that it starts at 0. Once you move the
+initialization to the declaration section, readers will have to scan
+the code upwards to find it out. As is, it's also less prone to error
+if e.g. someone adds another loop before the existing ones and reuses
+the variable.
 
-So, no instances of for example DIR__IOCTL or DIR__OPEN can be seen. But 
-blindly removing all unreferenced DIR__ perms from policy is a big 
-mistake, which I learned the hard way as the system didn't work normally 
-anymore after installing such a filtered policy.
+In case anyone is wondering why I didn't make these for loops when I
+wrote this code: Since the loop condition a little more than the usual
+"for(i = 0; i < n; i++)" pattern, my intention was to emphasize that
+this is not a "regular" for loop and that readers should read the loop
+carefully to not miss something. But perhaps that's not a good reason
+and they would look more natural as for loops. If others think a for
+loop would look better here, I'd be OK with a patch that makes these
+into for loops instead.
 
-The reason for this is that in security/selinux/hooks.c, FILE__ perms 
-are used sometimes as DIR__ perms and "git grep" won't find them. While 
-semantically incorrect, the #defines for DIR__xyz are identical bitwise 
-to corresponding FILE__xyz and so either works.
+>                         rc = sidtab_convert_tree(&edst->ptr_inner->entries[i],
+>                                                  &esrc->ptr_inner->entries[i],
+> @@ -400,7 +399,6 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
+>                         if (!edst->ptr_leaf)
+>                                 return -ENOMEM;
+>                 }
+> -               i = 0;
+>                 while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
+>                         rc = convert->func(&esrc->ptr_leaf->entries[i].context,
+>                                            &edst->ptr_leaf->entries[i].context,
+> --
+> 2.20.1
+>
 
-Perhaps the situation could be improved:
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
-1. Add a comment to security/selinux/hooks.c to alert readers that 
-FILE__ perms are sometimes used in place of DIR__ perms and why this is 
-in fact OK.
-
-2. Add static asserts to verify the hard way that each DIR__abc #define 
-matches the corresponding FILE__abc #define. If one day this would no 
-longer be the case, the compiler would warn.
-
-3. Add a new unified set of #defines, for example COMMON_INODE__xyz, to 
-document that the same perms are used for both files and directories.
-
-4. Replace the semantically incorrect uses of FILE__ with something more 
-complex (but technically useless) like
-if (S_ISDIR(xyz)
-	av = DIR__abc
-else
-	av = FILE__abc
-and since the values are identical bitwise, compilers could be expected 
-to eliminate the useless checks and branches.
-
-Would patches be acceptable along some of these ideas?
-
-Maybe the unused permissions could be even removed entirely with lots of 
-work and perhaps no real benefit.
-
--Topi
