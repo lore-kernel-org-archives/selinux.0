@@ -2,160 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A95BC4320E
-	for <selinux@archiver.kernel.org>; Wed, 25 Aug 2021 19:41:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E31F9C432BE
+	for <selinux@archiver.kernel.org>; Wed, 25 Aug 2021 20:26:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D183610A7
-	for <selinux@archiver.kernel.org>; Wed, 25 Aug 2021 19:41:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3B636054E
+	for <selinux@archiver.kernel.org>; Wed, 25 Aug 2021 20:26:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236938AbhHYTmX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Aug 2021 15:42:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57428 "EHLO
+        id S242636AbhHYU1V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Aug 2021 16:27:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234627AbhHYTmX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Aug 2021 15:42:23 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE63BC0613CF
-        for <selinux@vger.kernel.org>; Wed, 25 Aug 2021 12:41:36 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id bt14so821488ejb.3
-        for <selinux@vger.kernel.org>; Wed, 25 Aug 2021 12:41:36 -0700 (PDT)
+        with ESMTP id S242695AbhHYU1T (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Aug 2021 16:27:19 -0400
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBECC061757
+        for <selinux@vger.kernel.org>; Wed, 25 Aug 2021 13:26:32 -0700 (PDT)
+Received: by mail-lj1-x236.google.com with SMTP id l18so761393lji.12
+        for <selinux@vger.kernel.org>; Wed, 25 Aug 2021 13:26:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=QBVskMaUIVDs4HS+hyH9+QzivYsdZb5+81X6Kp6nbqA=;
-        b=wpsfR5q5tePN80NgpQqbp421hM8TDiCvCTTwB1JkcEmAvAtp6ZrK1p2rQe2/Yu79HH
-         0S+ppvqMdpB16ip556YNxs39E4gt3FPJPdzJ94g1Fl76f55k5RTGOwgZ0XR5aSgYpUCz
-         PPLFKNbOM2yJU7S1M6rBJnVDKPFg6YDnQvl8fC4eYYIjPnKwcpgeGdVAmPrL2b+yD1FU
-         gzNnKCPreHAyI7Q0PIGKGZ2O3Iit9mu8uyShULHJS1XXrBvd4wClZV6UCOP84vEKHP8i
-         BGzWieL8PoLFLRk/LfL6NDusPTM0MD7PEwfgb5goTc51LYpYwr+rxbJ8dNTaJUpGSLiR
-         iNIA==
+        bh=jikZ2+vMFPnNiSHsd2uLSJLYBovN135PYLIWgdPsntw=;
+        b=epu/VFj7LeDI77ePLImpcY9zTHvQH7SJsx/IG/exzzsHuf6YAGz8t5I0Xmxg/qzmGx
+         BHijtwM9x8opRkwWTv2HFcW5bGs3fdBO0emxEMuPUdfWK0JrJZP+A6kRTOArbeE/UV7b
+         yon2ikVdwSBmFwiheQPC7wr9uYVEc4gqPzB8M9gzzAnvpihJ2yLUfTIMx4atoPEpAmYg
+         jkGGriDf/t/q74Kchuz816kBI7z+BBmaj4jc74LWFf9yC9bPHkJKLT6Eu4XxtGHCsPPT
+         aB13RoHsA3EFt38TBvt1S/a3F/+UV5qoQFeZUyHKb/PU2Fdn9PJiJXB48qDl4mzE8FN2
+         aX0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=QBVskMaUIVDs4HS+hyH9+QzivYsdZb5+81X6Kp6nbqA=;
-        b=msxKJIUZXMn/kLSur1Cl2aV2qYCD6sh28sLpzBLWACJhPl/Di7+dgW3gxKdkI7uiDV
-         xwMh28GratzvmPTkPx47NJQ/oIHMVtkG2XvnJScRfY4fHykZHV5Cub4D5NUDL2CQxnBg
-         vDyRUbTFkiTAwqGpegHGXCH2gUU2lHKTI4yNdLwrJX0Vp9YIbQW4nkqW8FjLZI+WCpLt
-         sVfB9T9xp4UQmYTqI5dwC1UflNxJTeKgiJc2D8lrD/l8cz3M2GluvWEBEtQYzxNkkufO
-         mzOKVFt1pU4AQmVOKlSxs/hiKEIVXiscWZUg9Pa11UqSlAFLTLReumCzXzxHWZ+y1cvZ
-         RMzA==
-X-Gm-Message-State: AOAM533DOSKlb7Ao4/GKuHKxbX0x+1nr3mTsyOL/QUh1N+2gtY/R6hE0
-        gESqFOe5Gxai256aw12LRVUyLXJ73VC8IFWiI2q4iphiLw==
-X-Google-Smtp-Source: ABdhPJyvFsCKbYMAS8hVKgJcJEfi6swZHjePix9TNIzxa6quNsOL1W81ezTdFJUOAIEacZVvSAaXx84O2BGDkg2VI8c=
-X-Received: by 2002:a17:906:f8c4:: with SMTP id lh4mr295852ejb.542.1629920495168;
- Wed, 25 Aug 2021 12:41:35 -0700 (PDT)
+        bh=jikZ2+vMFPnNiSHsd2uLSJLYBovN135PYLIWgdPsntw=;
+        b=GHtzEO0Tzz70STdFkNEFxZzxjwNlDf6pzSxmj2vYlu1sMzPKtqaa9Uk8L7pvwAMxg+
+         fn/sayNKUOxObVJPRm701CVPOg9a9uMf2RPCFDCIbLPx5qi8+U85a6yDSLjPZHt/SUlR
+         BptGTXoPzS0P2ujwC/H4daD+6OJHpfK9FSFw3KWl8ZognliILKkCka/UUs5rxOcjZwmu
+         YyrvW42j/jdpVEnj37RkkWYmKw2SsAkgG7taHuoaOObegG+Qywm+TPWCG5cWG8Be6rQG
+         udDLFxBebRHXxSqWTGsIU+9Q4cB555tO0AUTN1IEpf98ofLm96Oj+Kw7F5b/HI/j1qEW
+         3P7A==
+X-Gm-Message-State: AOAM532JE1IbNjkWFSiywR04bTMtJU9LiSSW5nbBQ+drovRSSiXvOaK8
+        sw7H3sJQKEUnKVt5O8efg1fPeOoFJzbUcf+/ju8=
+X-Google-Smtp-Source: ABdhPJwRLNEo6k6EOVNTC+Vcjoe+xf4I4cIf4utpjz2Tkjvnwfjp5Bq4OnWav6USX66Be3ToyJqKvr7YEnmwBA0YL5E=
+X-Received: by 2002:a2e:2f04:: with SMTP id v4mr39141ljv.43.1629923190917;
+ Wed, 25 Aug 2021 13:26:30 -0700 (PDT)
 MIME-Version: 1.0
-References: <162163367115.8379.8459012634106035341.stgit@sifl>
- <162163379461.8379.9691291608621179559.stgit@sifl> <20210602172924.GM447005@madcap2.tricolour.ca>
- <CAHC9VhS0sy_Y8yx4uiZeJhAf_a94ipt1EbE16BOVv6tXtWkgMg@mail.gmail.com> <20210825012102.GC490529@madcap2.tricolour.ca>
-In-Reply-To: <20210825012102.GC490529@madcap2.tricolour.ca>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 25 Aug 2021 15:41:24 -0400
-Message-ID: <CAHC9VhQtHDt_F_ah3EDRMYeMXkSB5dHDgcdXGEMF_tXV5idbpg@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] audit, io_uring, io-wq: add some basic audit
- support to io_uring
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Alexander Viro <viro@zeniv.linux.org.uk>
+References: <5ab91c4a-1916-02a3-4011-93ea2c7a9fb2@redhat.com>
+In-Reply-To: <5ab91c4a-1916-02a3-4011-93ea2c7a9fb2@redhat.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 25 Aug 2021 16:26:19 -0400
+Message-ID: <CAEjxPJ61LJK5tOX2Fr4F2Aubjfo-rkW1EAe9YDG_G6CQ-gr=-w@mail.gmail.com>
+Subject: Re: There is an interesting conversation going on about virtiofsd and SELinux
+To:     dwalsh@redhat.com
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 24, 2021 at 9:21 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+On Wed, Aug 25, 2021 at 3:19 PM Daniel Walsh <dwalsh@redhat.com> wrote:
 >
-> On 2021-06-02 13:46, Paul Moore wrote:
-> > On Wed, Jun 2, 2021 at 1:29 PM Richard Guy Briggs <rgb@redhat.com> wrote:
-> > > On 2021-05-21 17:49, Paul Moore wrote:
-> > > > WARNING - This is a work in progress and should not be merged
-> > > > anywhere important.  It is almost surely not complete, and while it
-> > > > probably compiles it likely hasn't been booted and will do terrible
-> > > > things.  You have been warned.
-> > > >
-> > > > This patch adds basic auditing to io_uring operations, regardless of
-> > > > their context.  This is accomplished by allocating audit_context
-> > > > structures for the io-wq worker and io_uring SQPOLL kernel threads
-> > > > as well as explicitly auditing the io_uring operations in
-> > > > io_issue_sqe().  The io_uring operations are audited using a new
-> > > > AUDIT_URINGOP record, an example is shown below:
-> > > >
-> > > >   % <TODO - insert AUDIT_URINGOP record example>
-> > > >
-> > > > Thanks to Richard Guy Briggs for review and feedback.
-> > > >
-> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > > ---
-> > > >  fs/io-wq.c                 |    4 +
-> > > >  fs/io_uring.c              |   11 +++
-> > > >  include/linux/audit.h      |   17 ++++
-> > > >  include/uapi/linux/audit.h |    1
-> > > >  kernel/audit.h             |    2 +
-> > > >  kernel/auditsc.c           |  173 ++++++++++++++++++++++++++++++++++++++++++++
-> > > >  6 files changed, 208 insertions(+)
-
-...
-
-> > > > +     if (ctx->return_valid != AUDITSC_INVALID)
-> > > > +             audit_log_format(ab, " success=%s exit=%ld",
-> > > > +                              (ctx->return_valid == AUDITSC_SUCCESS ?
-> > > > +                               "yes" : "no"),
-> > > > +                              ctx->return_code);
-> > > > +     audit_log_format(ab,
-> > > > +                      " items=%d"
-> > > > +                      " ppid=%d pid=%d auid=%u uid=%u gid=%u"
-> > > > +                      " euid=%u suid=%u fsuid=%u"
-> > > > +                      " egid=%u sgid=%u fsgid=%u",
-> > > > +                      ctx->name_count,
-> > > > +                      task_ppid_nr(current),
-> > > > +                      task_tgid_nr(current),
-> > > > +                      from_kuid(&init_user_ns, audit_get_loginuid(current)),
-> > > > +                      from_kuid(&init_user_ns, cred->uid),
-> > > > +                      from_kgid(&init_user_ns, cred->gid),
-> > > > +                      from_kuid(&init_user_ns, cred->euid),
-> > > > +                      from_kuid(&init_user_ns, cred->suid),
-> > > > +                      from_kuid(&init_user_ns, cred->fsuid),
-> > > > +                      from_kgid(&init_user_ns, cred->egid),
-> > > > +                      from_kgid(&init_user_ns, cred->sgid),
-> > > > +                      from_kgid(&init_user_ns, cred->fsgid));
-> > >
-> > > The audit session ID is still important, relevant and qualifies auid.
-> > > In keeping with the SYSCALL record format, I think we want to keep
-> > > ses=audit_get_sessionid(current) in here.
-> >
-> > This might be another case of syscall/io_uring confusion.  An io_uring
-> > op doesn't necessarily have an audit session ID or an audit UID in the
-> > conventional sense; for example think about SQPOLL works, shared
-> > rings, etc.
+> The problem is how do we handle a VM with SELinux enabled and the rootfs
+> handled by virtiofsd? Or if the SELinux inside of the VM wanted to write
+> multiple different labels on a volume mounted in via virtiofsd.
 >
-> Right, but those syscalls are what instigate io_uring operations, so
-> whatever process starts that operation, or gets handed that handle
-> should be tracked with auid and sessionid (the two work together to
-> track) unless we can easily track io_uring ops to connect them to a
-> previous setup syscall.  If we see a need to keep the auid, then the
-> sessionid goes with it.
+> Here is how Vivek defines it:
+>
+> ```
+> How do we manage SELinux host and guest policy with passthrough
+> filesystems like virtiofs. Both guest and host might have different
+> SELinux policies and can conflict with each other in various ways. And
+> this problem exacerbates where there are nested VM guests. Now there
+> are 3 entities with possibly 3 different SELinux policies and still
+> all the real security.selinux xattr is created and stored on host
+> filesystem.
+>
+> One possible proposal is to remap guest SELinux xattrs to some other
+> name, say user.virtiofs.security.selinux. That way host will enforce
+> SELinux policy based on security.selinux xattr stored on file. Guest
+> will get labels stored in user.virtiofs.security.selinux and guest
+> kernel will enforce that. This in theory provides both guest and
+> host policies to co-exist and work. And this can be extended to
+> nested guest where its attrs are prefixed by one more level of
+> user.virtiofs. IOW, user.virtiofs.user.virtiofs.security.selinux
+> will be the xattr on host which will show up as security.selinux
+> xattr when nested guest does getxattr().
+>
+> Virtiofsd currently has capability to do this remapping. One problem
+> we have is that we are using "user" xattr namespace and one can
+> not use "user" xattr on symlinks and special files. So when guest
+> tries relabeling or chcon on these files, it fails. May be this is
+> fixable. I have done an RFC propsal upstream.
+>
+> https://lore.kernel.org/linux-fsdevel/20210708175738.360757-1-vgoyal@redhat.com/
+>
+> Looking for thoughts how to fix the issue of SELinux with passthrough
+> filesystems. What's the best way to solve this issue.
+>
+> Thanks
+> Vivek
+>
+> ```
+>
+> We used to talk about this way back when, but never found a good solution. Theoretically
+> labeled NFS has the same issue, but I don't believe there are any NFS rootfs using SELinux.
 
-As a reminder, once the io_uring is created appropriately one can
-issue io_uring operations without making a syscall.  Further, sharing
-a io_uring across process boundaries means that both the audit session
-ID and audit login UID used to create the io_uring might not be the
-same as the subject which issues operations to the io_uring.
+The early labeled NFS work included a notion of a label
+domain-of-interpretation (DOI) field and label translation as part of
+the infrastructure but I don't think that made it into mainline?
+It is however part of the NFSv4.2 spec I believe (called a label
+format specifier or LFS).
+At present I believe the assumption is that either the NFS server is
+just a "dumb" server that is not enforcing any SELinux policy at all
+(just storing the labels for use by clients) or is enforcing the same
+policy as the clients.
 
-Any io_uring operations that happen synchronously as the result of a
-syscall should be associated with the SYSCALL record so the session ID
-and login UID will be part of the event.  Asynchronous operations will
-not have that information because we don't have a way to get it.
+A while ago James Morris proposed an approach to namespaced selinux
+xattrs to support selinux namespaces,
+https://lore.kernel.org/linux-security-module/alpine.LFD.2.20.1711212009330.6297@localhost/
+.
+However, that keeps them in the security.* namespace which on the one
+hand better protects them from tampering but runs afoul of virtiofsd's
+goal of avoiding the need to run with capabilities.
 
--- 
-paul moore
-www.paul-moore.com
+If we use the user. namespace we need a way to control which processes
+can change these attributes (or remove them) on the host; optimally we
+could limit it to only virtiofsd itself and no other processes not
+even
+root processes on the host. That presumably requires some kind of LSM
+hook or hook call; the current SELinux setxattr and removexattr hooks
+don't care about user.* beyond a general setattr permission check.
