@@ -2,196 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F35F5C4320E
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 01:34:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C52C4320A
+	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 11:33:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D89CC60EE4
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 01:34:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30FC560551
+	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 11:33:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235985AbhHZBff (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Aug 2021 21:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52428 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235823AbhHZBfe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Aug 2021 21:35:34 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B6C7C0613D9
-        for <selinux@vger.kernel.org>; Wed, 25 Aug 2021 18:34:48 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id h9so2507897ejs.4
-        for <selinux@vger.kernel.org>; Wed, 25 Aug 2021 18:34:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OdpPAw8AF8pl2PyKEL1hUSGpJT552rYtVLGch5FQNUg=;
-        b=s89enEjVtwLIczScDXvlL5in2XUoikWwI1bI+2XIGm2ig7sM5+jzPbFrXyNmfNdt2B
-         TDlubVQ+1eZq248F/C+SNj6f+K+RdXGRYLkkW5UKa6L2motdIlcnIwPZwir7Xi/cnEXH
-         XD0B8/HiUxBqhBHG2IY8riO83umDevioXM/2sMa2lTEKgVdF3YD0N9Tcz/70f50m1Coq
-         SQJ8qkY/a+ny0ogrYPNQKm7wO7kz1foyig/wKcNgz8MBzJjYWe9Z/YKJx9ausGyx+0Iw
-         aPO7Q9koxTNXa0W0ZJe7DARZulbU3i7KDNBRiWkzx777xyYYbk1YQlgkfNuV87hvcXeU
-         htBA==
+        id S242116AbhHZLd4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Aug 2021 07:33:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37128 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234382AbhHZLdz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Aug 2021 07:33:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629977588;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=mz356938IR4rW5sXJhiayALMXMcBwIGvM/TDEbUhy24=;
+        b=R18KQuvAIMVt7T1es7aqEgVVj2ZDt0fvsMUeCMLkk6PxcC6NT/iHCaCFR2qcaF1G7WF2WR
+        a39gqeLk+aIl9jrpEWevqVsBjCWaAJ2rCHFQ6okTlvOC5hUnps6YDOCri4jKsG8utOfo83
+        UMaM0h+qj1jph04+xJempJmp8b79bYk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-303-JwE1RpUAPOya2fQKXXBKAQ-1; Thu, 26 Aug 2021 07:33:06 -0400
+X-MC-Unique: JwE1RpUAPOya2fQKXXBKAQ-1
+Received: by mail-wm1-f69.google.com with SMTP id x125-20020a1c3183000000b002e73f079eefso2892221wmx.0
+        for <selinux@vger.kernel.org>; Thu, 26 Aug 2021 04:33:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OdpPAw8AF8pl2PyKEL1hUSGpJT552rYtVLGch5FQNUg=;
-        b=Om288i+J2aD0sUHZmynRRBscVPcDg0QfXFGav8GjP5F1i5eDYOeNhKsH/wVvraoqXA
-         SPTBf+NBSbcDOEAtUN+Uv6TpvMBIoBk16g9hygnpVmBOAJ/aScbtI8oaj3PEZfJS713N
-         9gL4eG6BHHFdnn8FajpH0eI08fx95X9WhDNZXsWidHXqfN6tCF/Z/JUcIOt8aam9xQC2
-         CPOO/Cxye3uC751w+YhmzWcxOWnAu53RR/YUDB3jfMfPS64itzpndJ3GwR7My46xLiXD
-         1LjQlBkGF/mwwPL9n5KYf7tnBwvemhkf1xLD8ameOxkegOZoHm7Wh4sHPWrSoxGHCSA9
-         QFDA==
-X-Gm-Message-State: AOAM5337NdQgRA1elVNP0KO8j5HPm6U5EsJU31DHEhcOSB63pLU9vyO7
-        46TO7z+Rr5BQv/OIHXiZacxRbwWwMVI/z8LSCv5d
-X-Google-Smtp-Source: ABdhPJwkxAUzZb4BAOoTmtyvge3L60MS4GRf3O1WiYNyf8fZr3jqwYlcLQ7K6iZEQJc0kSAgJ9KIlKQXtyNl3hpd2NQ=
-X-Received: by 2002:a17:906:2cd6:: with SMTP id r22mr1559201ejr.398.1629941686387;
- Wed, 25 Aug 2021 18:34:46 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:message-id:date:user-agent
+         :mime-version:content-transfer-encoding:content-language;
+        bh=mz356938IR4rW5sXJhiayALMXMcBwIGvM/TDEbUhy24=;
+        b=cGBtZcythX54k35gEj+WLN2hrk9aYlVxHibwO5VsE1q4yKvpGNi54vxNjmk/ITOzzx
+         NOUHw+u9ATbJM97Mh9nhNX6iVY//I3/J16fTlMIzAvJSaNfuM70cSMEX+u/DY5mG5jd7
+         ui9jkNaACd+pe43tO7oGRcjL3l5a+kVCrIahuHGli3wiBeQ1PmLRozrlzA6gK5NZb2lR
+         QmUZNFDJ0xtO5y2Ln/CtheszwSGmL5cozSzZKwFw/Pvl6EJReq0c+8P1YY8f9RK0cpa7
+         wS0U2ZLinpq6/DDh0WkVmZYZV6KoS7GMPd7ledMdnbHt5pvUnkbLqW4KI0jQFYypbmCq
+         jg6Q==
+X-Gm-Message-State: AOAM5333oFHxVxs8NBmFDMxAYyv4tJWM4DWSnj7CBM1mz5oKRL7prfeM
+        R2vjK3jhlQIQNAmkEHC2TBry03/+ekVRL3xxsK0bqXB8HZTT/2puHl8vqYH/tGrTqeCyFbcZILa
+        mq4z5X4OMPntUpJI77g==
+X-Received: by 2002:a5d:500d:: with SMTP id e13mr3462528wrt.413.1629977585028;
+        Thu, 26 Aug 2021 04:33:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw9ZDAU3Q+itesaDjk1URw4IokwD+Tp9yNFTs5k46NEuJFEZSC3tSfqnIXFAG24UP2If9pHdA==
+X-Received: by 2002:a5d:500d:: with SMTP id e13mr3462513wrt.413.1629977584882;
+        Thu, 26 Aug 2021 04:33:04 -0700 (PDT)
+Received: from [192.168.0.108] ([86.49.156.126])
+        by smtp.gmail.com with ESMTPSA id j17sm2793591wrh.67.2021.08.26.04.33.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Aug 2021 04:33:04 -0700 (PDT)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Lukas Vrabec <lvrabec@redhat.com>
+Subject: Cil block inheritance
+Message-ID: <81ea2624-ace9-4d86-9506-d6527a770cf6@redhat.com>
+Date:   Thu, 26 Aug 2021 13:33:03 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <162871480969.63873.9434591871437326374.stgit@olly>
- <20210824205724.GB490529@madcap2.tricolour.ca> <20210826011639.GE490529@madcap2.tricolour.ca>
-In-Reply-To: <20210826011639.GE490529@madcap2.tricolour.ca>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 25 Aug 2021 21:34:35 -0400
-Message-ID: <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 25, 2021 at 9:16 PM Richard Guy Briggs <rgb@redhat.com> wrote:
->
-> On 2021-08-24 16:57, Richard Guy Briggs wrote:
-> > On 2021-08-11 16:48, Paul Moore wrote:
-> > > Draft #2 of the patchset which brings auditing and proper LSM access
-> > > controls to the io_uring subsystem.  The original patchset was posted
-> > > in late May and can be found via lore using the link below:
-> > >
-> > > https://lore.kernel.org/linux-security-module/162163367115.8379.8459012634106035341.stgit@sifl/
-> > >
-> > > This draft should incorporate all of the feedback from the original
-> > > posting as well as a few smaller things I noticed while playing
-> > > further with the code.  The big change is of course the selective
-> > > auditing in the io_uring op servicing, but that has already been
-> > > discussed quite a bit in the original thread so I won't go into
-> > > detail here; the important part is that we found a way to move
-> > > forward and this draft captures that.  For those of you looking to
-> > > play with these patches, they are based on Linus' v5.14-rc5 tag and
-> > > on my test system they boot and appear to function without problem;
-> > > they pass the selinux-testsuite and audit-testsuite and I have not
-> > > noticed any regressions in the normal use of the system.  If you want
-> > > to get a copy of these patches straight from git you can use the
-> > > "working-io_uring" branch in the repo below:
-> > >
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-> > >
-> > > Beyond the existing test suite tests mentioned above, I've cobbled
-> > > together some very basic, very crude tests to exercise some of the
-> > > things I care about from a LSM/audit perspective.  These tests are
-> > > pretty awful (I'm not kidding), but they might be helpful for the
-> > > other LSM/audit developers who want to test things:
-> > >
-> > > https://drop.paul-moore.com/90.kUgq
-> > >
-> > > There are currently two tests: 'iouring.2' and 'iouring.3';
-> > > 'iouring.1' was lost in a misguided and overzealous 'rm' command.
-> > > The first test is standalone and basically tests the SQPOLL
-> > > functionality while the second tests sharing io_urings across process
-> > > boundaries and the credential/personality sharing mechanism.  The
-> > > console output of both tests isn't particularly useful, the more
-> > > interesting bits are in the audit and LSM specific logs.  The
-> > > 'iouring.2' command requires no special arguments to run but the
-> > > 'iouring.3' test is split into a "server" and "client"; the server
-> > > should be run without argument:
-> > >
-> > >   % ./iouring.3s
-> > >   >>> server started, pid = 11678
-> > >   >>> memfd created, fd = 3
-> > >   >>> io_uring created; fd = 5, creds = 1
-> > >
-> > > ... while the client should be run with two arguments: the first is
-> > > the PID of the server process, the second is the "memfd" fd number:
-> > >
-> > >   % ./iouring.3c 11678 3
-> > >   >>> client started, server_pid = 11678 server_memfd = 3
-> > >   >>> io_urings = 5 (server) / 5 (client)
-> > >   >>> io_uring ops using creds = 1
-> > >   >>> async op result: 36
-> > >   >>> async op result: 36
-> > >   >>> async op result: 36
-> > >   >>> async op result: 36
-> > >   >>> START file contents
-> > >   What is this life if, full of care,
-> > >   we have no time to stand and stare.
-> > >   >>> END file contents
-> > >
-> > > The tests were hacked together from various sources online,
-> > > attribution and links to additional info can be found in the test
-> > > sources, but I expect these tests to die a fiery death in the not
-> > > to distant future as I work to add some proper tests to the SELinux
-> > > and audit test suites.
-> > >
-> > > As I believe these patches should spend a full -rcX cycle in
-> > > linux-next, my current plan is to continue to solicit feedback on
-> > > these patches while they undergo additional testing (next up is
-> > > verification of the audit filter code for io_uring).  Assuming no
-> > > critical issues are found on the mailing lists or during testing, I
-> > > will post a proper patchset later with the idea of merging it into
-> > > selinux/next after the upcoming merge window closes.
-> > >
-> > > Any comments, feedback, etc. are welcome.
-> >
-> > Thanks for the tests.  I have a bunch of userspace patches to add to the
-> > last set I posted and these tests will help exercise them.  I also have
-> > one more kernel patch to post...  I'll dive back into that now.  I had
-> > wanted to post them before now but got distracted with AUDIT_TRIM
-> > breakage.
->
-> Please tell me about liburing.h that is needed for these.  There is one
-> in tools/io_uring/liburing.h but I don't think that one is right.
->
-> The next obvious one would be include/uapi/linux/io_uring.h
->
-> I must be missing something obvious here...
+Hi,
+recent changes in block inheritance broke our use case where we use 
+block inheritance for generating container policies 
+(https://github.com/containers/udica/tree/main/udica/templates). 
+Basically the policy is composed by inheriting selected "template" 
+blocks, all of which inherit "container" block, so that they can use 
+types defined there.
 
-You are looking for the liburing header files, the upstream is here:
--> https://github.com/axboe/liburing
+Reproducer:
+(block template1 (type t) )
+(block template2 (blockinherit template1))
+(block b (blockinherit template1) (blockinherit template2))
 
-If you are on a RH/IBM based distro it is likely called liburing[-devel]:
+#semodule -i test.cil
+Re-declaration of type t
+Previous declaration of type at 
+/var/lib/selinux/targeted/tmp/modules/400/test/cil:1
+Failed to copy block contents into blockinherit
+Failed to resolve AST
+semodule: Failed!
 
-% dnf whatprovides */liburing.h
-Last metadata expiration check: 0:38:37 ago on Wed 25 Aug 2021 08:54:22 PM EDT.
-liburing-devel-2.0-2.fc35.i686 : Development files for Linux-native io_uring I/O
-                              : access library
-Repo        : rawhide
-Matched from:
-Filename    : /usr/include/liburing.h
+This used to work just fine.
 
-liburing-devel-2.0-2.fc35.x86_64 : Development files for Linux-native io_uring
-                                : I/O access library
-Repo        : @System
-Matched from:
-Filename    : /usr/include/liburing.h
+The following workaround seems to be working as intended, but I'm not 
+sure if it's the best approach. Types are only defined in template1 and 
+the rest contains "optional" block, so that I can use types defined in 
+template1).
 
-liburing-devel-2.0-2.fc35.x86_64 : Development files for Linux-native io_uring
-                                : I/O access library
-Repo        : rawhide
-Matched from:
-Filename    : /usr/include/liburing.h
+(block template1 (type t))
+(block template2
+      (optional o
+          (allow t t ( file ( read )))
+      )
+)
+(block b (blockinherit template1) (blockinherit template2))
 
--- 
-paul moore
-www.paul-moore.com
+#semodule -i test.cil
+#sesearch -A -s b.t
+allow b.t b.t:file read;
+
+Any pointers would be appreciated.
+
+Thank you.
+
+Vit
+
