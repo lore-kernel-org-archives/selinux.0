@@ -7,29 +7,32 @@ X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30A64C432BE
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 13:21:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 370DDC432BE
+	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 13:46:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 16B3160FC1
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 13:21:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17EEC60F44
+	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 13:46:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233789AbhHZNWD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Aug 2021 09:22:03 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:41786 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229844AbhHZNWD (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 26 Aug 2021 09:22:03 -0400
+        id S242696AbhHZNrZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Aug 2021 09:47:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241640AbhHZNrZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Aug 2021 09:47:25 -0400
+Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 20E87C061757
+        for <selinux@vger.kernel.org>; Thu, 26 Aug 2021 06:46:38 -0700 (PDT)
 Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id EAD812A00B8;
-        Thu, 26 Aug 2021 15:21:14 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl EAD812A00B8
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 2C5E32A00B8;
+        Thu, 26 Aug 2021 15:46:37 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 2C5E32A00B8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1629984075;
-        bh=UpZRy070Bb0UFawomW4gcgDORhjBnF5cjq5zNk+OtPQ=;
+        s=default; t=1629985597;
+        bh=1Vhj0CgFDEKy8FZsYSeHBielrAND9WwVGg1q3p0ryvs=;
         h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=FLdxqEVUVH5xMSaxWtDgpP9UFHEmyxtJexGGwQiAHkuhCTewAVH48FphAIljUPSn0
-         S0QIbJXTgIi50jbIgSKhaIoWa1DEsSz3X98yWx4Vkz+nKBUiNkACEduP1iqNWIIzbC
-         j4umKFX3yKNIs46FC0tjEdO4t8ViLzV+T7IStKJo=
+        b=s1TMVJtdPWDlFJ0NcEpEsJUmvfGwPws+cnku7C2n5H0e87BfrdNOjKjYO5+wABBbE
+         0QDfUXcet5YV1lMznJvtHCQcqddz+B+LHPiV6/OCeL+Sg7eIsSTMUOQRKKdIY9igRf
+         EPpkdWRGyCRoJiG4WSoI9C3px63Pz2gT7SelKjIc=
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     Vit Mojzis <vmojzis@redhat.com>
 Cc:     selinux@vger.kernel.org, Lukas Vrabec <lvrabec@redhat.com>
@@ -37,10 +40,10 @@ Subject: Re: Cil block inheritance
 References: <81ea2624-ace9-4d86-9506-d6527a770cf6@redhat.com>
         <877dg8l83w.fsf@defensec.nl>
         <ce82e933-ceb8-a293-c57e-6dd6f8c31254@redhat.com>
-Date:   Thu, 26 Aug 2021 15:21:12 +0200
+Date:   Thu, 26 Aug 2021 15:46:33 +0200
 In-Reply-To: <ce82e933-ceb8-a293-c57e-6dd6f8c31254@redhat.com> (Vit Mojzis's
         message of "Thu, 26 Aug 2021 14:38:30 +0200")
-Message-ID: <8735qwl4tz.fsf@defensec.nl>
+Message-ID: <87y28ojp3a.fsf@defensec.nl>
 User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -85,9 +88,6 @@ lly
 > (block template2 (blockinherit template1))
 > (block template3 (blockinherit template1))
 > (block b (blockinherit template2) (blockinherit template3))
-
-This boils down to the same as above, yes.
-
 >
 > # semodule -i test.cil
 > Re-declaration of type t
@@ -150,15 +150,9 @@ template3))
 > Again, I'm not sure if this is the best solution, just the only one I man=
 aged to get working.
 
-Looks good enough to me (if it works then it works). I am just surprised th=
-at
-the duplicate 'o' optional block is allowed.
-
-Duplicate type declarations are no longer allowed as you noticed, but
-fortunately you do not need them.
-
-Whether this eventually is the best solution probably depends on other
-aspects of the policy and on the requirements.
+Regardless, when push comes to shove compatiblity is probably just
+broken. People might have modules loaded that rely on this old
+behavior and upgrading SELinux user space could probably cause issues.
 
 >
 > Vit
