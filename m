@@ -2,253 +2,218 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B135CC432BE
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 16:27:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4521C432BE
+	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 16:32:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 967A860F4C
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 16:27:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9BAE260FC0
+	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 16:32:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242967AbhHZQ2a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Aug 2021 12:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59392 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233532AbhHZQ23 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Aug 2021 12:28:29 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9B2C061757;
-        Thu, 26 Aug 2021 09:27:42 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id p15so6207591ljn.3;
-        Thu, 26 Aug 2021 09:27:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vTVe3K2jzyVGGpaJ21J8YZk9RJ+xgkCK4sscol6OLcI=;
-        b=h2Z248qR8jh2Xeg+JlqhLsvFrqHGATu0KQWd8YpcMU51OQKeH56frWQ67fRWTnO/Ju
-         rOBbBpXf0BJsBjx2NJ2k7lm6+LQqdaRM60+NU6xs887cL6+W+Ku7wGuspzE2wkhxSGl0
-         NDimIeTV7CpXkPL0XSqigsGrz2kh812I5v6zGPCjrhxVLIi+WdFpkuQatQC+9DbgiNja
-         vTschAyju0helD3IrqS9TXVl43krtDg5N7Ik/zIrHIatc0eI1J4fXz+jjtilDy06yYdn
-         1og2WEcnS/QexiJLAxqtcjHlgf9BI7XVRbD4BNHHW1kc0Dwes7gXiKR87hwj2qwiZ9eZ
-         F0NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vTVe3K2jzyVGGpaJ21J8YZk9RJ+xgkCK4sscol6OLcI=;
-        b=NXA0DB/SbfqOnYwdOGjkUeCrE9gc5vBFHQm4950jGrpi/AKQFClgFGviePe99EEKoj
-         /d8ljmj5nDv6yyGNWj9cTIAK42mtyp3/q+NtfLFqrmIAhBYhdhlERdEF8K9MMgLRivxr
-         awHFE62tt5BbvGlUBp8mTPmIt9w0PTtvUBjouDanASIJbb8SwOi8uo1JQYnIu+g4cjc4
-         NKQpQf6XNcqRhYBFxEoEy+EANwWJdQZFUdR8qeVErnSjN2Qa3ZdOdSecPxyKJvCq146E
-         2BSWE61+pZbanCqqwXqyAUe8y74/PigptIn8TX5boDJVk3Cy1u+jZtKnAFjAFNvr0enP
-         oinw==
-X-Gm-Message-State: AOAM530v/yIDWz46WFLTCMnOgSBdkZ+YbqDL45SPgJA2BD64EhAgb8UE
-        FGo+Ohgzr4pwLeheCosylL2HCXai+5c5iLfejvo=
-X-Google-Smtp-Source: ABdhPJyvMjEmiRpSEsjZizA4a8YqQH45aQoDuDtT0hs6cVXpkxZGFkDE/E90EiooNGvJOObPWKIechjSqjoA+123iNw=
-X-Received: by 2002:a2e:b52d:: with SMTP id z13mr3871472ljm.376.1629995260363;
- Thu, 26 Aug 2021 09:27:40 -0700 (PDT)
+        id S232855AbhHZQdn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Aug 2021 12:33:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:32224 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232496AbhHZQdl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Aug 2021 12:33:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629995573;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Mvndeg+d9AUzKsJUiHLgdSj6dkN+QuNNHkmD7Yxkv1o=;
+        b=V+OesNydd87c/PZJjwJGYr3g5axeOBTLbMLAVXlWYBJDz90KokNg7tVaKsXUQHJK90Btr0
+        40N7Q6lJTZwgXQ0oufg2iP76bYwJR+3ZvkQVkXvD+TITB0NDflUnKQrbGTKUzjFl5DJfGK
+        8lCnh542c2+f5CCYtTU1QQsFU6mGm30=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-243-8Dfjts3COpSpbXo9MUWRgQ-1; Thu, 26 Aug 2021 12:32:49 -0400
+X-MC-Unique: 8Dfjts3COpSpbXo9MUWRgQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AA565193F595;
+        Thu, 26 Aug 2021 16:32:35 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.14])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5B55C6F549;
+        Thu, 26 Aug 2021 16:32:33 +0000 (UTC)
+Date:   Thu, 26 Aug 2021 12:32:30 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to
+ io_uring
+Message-ID: <20210826163230.GF490529@madcap2.tricolour.ca>
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <20210824205724.GB490529@madcap2.tricolour.ca>
+ <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
 MIME-Version: 1.0
-References: <5ab91c4a-1916-02a3-4011-93ea2c7a9fb2@redhat.com>
- <CAEjxPJ61LJK5tOX2Fr4F2Aubjfo-rkW1EAe9YDG_G6CQ-gr=-w@mail.gmail.com>
- <5001fd3a-7abc-9163-c912-c7d975c2fab3@schaufler-ca.com> <CAEjxPJ6dVT5XDh7jJrtcXTA4sfJwcJtvj2LOvXYRWKAz86xGyg@mail.gmail.com>
- <74d0e554-1c22-75ba-e427-1ea3501ec8e8@schaufler-ca.com> <CAEjxPJ6LZ9MATpEoWcARDQgmAVJ222RcRk=ri6O61fviSqrKcA@mail.gmail.com>
- <d47062d7-eeab-3094-80dd-a50cd7e626e6@schaufler-ca.com>
-In-Reply-To: <d47062d7-eeab-3094-80dd-a50cd7e626e6@schaufler-ca.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 26 Aug 2021 12:27:28 -0400
-Message-ID: <CAEjxPJ4411vL3+Ab-J0yrRTmXoEf8pVR3x3CSRgPjfzwiUcDtw@mail.gmail.com>
-Subject: Re: There is an interesting conversation going on about virtiofsd and SELinux
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     dwalsh@redhat.com, Vivek Goyal <vgoyal@redhat.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 26, 2021 at 11:09 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> On 8/26/2021 6:46 AM, Stephen Smalley wrote:
-> > On Wed, Aug 25, 2021 at 6:12 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 8/25/2021 2:24 PM, Stephen Smalley wrote:
-> >>> On Wed, Aug 25, 2021 at 5:06 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>>> On 8/25/2021 1:26 PM, Stephen Smalley wrote:
-> >>>>> On Wed, Aug 25, 2021 at 3:19 PM Daniel Walsh <dwalsh@redhat.com> wrote:
-> >>>>>> The problem is how do we handle a VM with SELinux enabled and the rootfs
-> >>>>>> handled by virtiofsd? Or if the SELinux inside of the VM wanted to write
-> >>>>>> multiple different labels on a volume mounted in via virtiofsd.
-> >>>>>>
-> >>>>>> Here is how Vivek defines it:
-> >>>>>>
-> >>>>>> ```
-> >>>>>> How do we manage SELinux host and guest policy with passthrough
-> >>>>>> filesystems like virtiofs. Both guest and host might have different
-> >>>>>> SELinux policies and can conflict with each other in various ways. And
-> >>>>>> this problem exacerbates where there are nested VM guests. Now there
-> >>>>>> are 3 entities with possibly 3 different SELinux policies and still
-> >>>>>> all the real security.selinux xattr is created and stored on host
-> >>>>>> filesystem.
-> >>>>>>
-> >>>>>> One possible proposal is to remap guest SELinux xattrs to some other
-> >>>>>> name, say user.virtiofs.security.selinux. That way host will enforce
-> >>>>>> SELinux policy based on security.selinux xattr stored on file. Guest
-> >>>>>> will get labels stored in user.virtiofs.security.selinux and guest
-> >>>>>> kernel will enforce that. This in theory provides both guest and
-> >>>>>> host policies to co-exist and work. And this can be extended to
-> >>>>>> nested guest where its attrs are prefixed by one more level of
-> >>>>>> user.virtiofs. IOW, user.virtiofs.user.virtiofs.security.selinux
-> >>>>>> will be the xattr on host which will show up as security.selinux
-> >>>>>> xattr when nested guest does getxattr().
-> >>>>>>
-> >>>>>> Virtiofsd currently has capability to do this remapping. One problem
-> >>>>>> we have is that we are using "user" xattr namespace and one can
-> >>>>>> not use "user" xattr on symlinks and special files. So when guest
-> >>>>>> tries relabeling or chcon on these files, it fails. May be this is
-> >>>>>> fixable. I have done an RFC propsal upstream.
-> >>>>>>
-> >>>>>> https://lore.kernel.org/linux-fsdevel/20210708175738.360757-1-vgoyal@redhat.com/
-> >>>>>>
-> >>>>>> Looking for thoughts how to fix the issue of SELinux with passthrough
-> >>>>>> filesystems. What's the best way to solve this issue.
-> >>>>>>
-> >>>>>> Thanks
-> >>>>>> Vivek
-> >>>>>>
-> >>>>>> ```
-> >>>>>>
-> >>>>>> We used to talk about this way back when, but never found a good solution. Theoretically
-> >>>>>> labeled NFS has the same issue, but I don't believe there are any NFS rootfs using SELinux.
-> >>>>> The early labeled NFS work included a notion of a label
-> >>>>> domain-of-interpretation (DOI) field and label translation as part of
-> >>>>> the infrastructure but I don't think that made it into mainline?
-> >>>>> It is however part of the NFSv4.2 spec I believe (called a label
-> >>>>> format specifier or LFS).
-> >>>>> At present I believe the assumption is that either the NFS server is
-> >>>>> just a "dumb" server that is not enforcing any SELinux policy at all
-> >>>>> (just storing the labels for use by clients) or is enforcing the same
-> >>>>> policy as the clients.
-> >>>>>
-> >>>>> A while ago James Morris proposed an approach to namespaced selinux
-> >>>>> xattrs to support selinux namespaces,
-> >>>>> https://lore.kernel.org/linux-security-module/alpine.LFD.2.20.1711212009330.6297@localhost/
-> >>>>> .
-> >>>>> However, that keeps them in the security.* namespace which on the one
-> >>>>> hand better protects them from tampering but runs afoul of virtiofsd's
-> >>>>> goal of avoiding the need to run with capabilities.
-> >>>>>
-> >>>>> If we use the user. namespace we need a way to control which processes
-> >>>>> can change these attributes (or remove them) on the host; optimally we
-> >>>>> could limit it to only virtiofsd itself and no other processes not
-> >>>>> even
-> >>>>> root processes on the host. That presumably requires some kind of LSM
-> >>>>> hook or hook call; the current SELinux setxattr and removexattr hooks
-> >>>>> don't care about user.* beyond a general setattr permission check.
-> >>>>         "Wow, if only there was a round thing we could attach to this
-> >>>>          wagon so it wouldn't be so hard to pull."
-> >>>>
-> >>>> I must be missing something really obvious. User namespaces map uids
-> >>>> and gids to their parent namespace. An xattr namespace could do exactly
-> >>>> the same thing, mapping security.selinux=foo in the child namespace to
-> >>>> security.selinux=bar in the parent namespace. We know how to do this for
-> >>>> uids, and have found and addressed a bunch of issues. Why do something
-> >>>> different? There's no reason to make this LSM specific, or even something
-> >>>> that's only useful for security attributes. I know that we've got partial
-> >>>> "solutions", including virtiofs and various LSM specific namespace schemes.
-> >>>> Nothing I've seen wouldn't be better served by an xattr namespace.
-> >>>>
-> >>>> Warning: I am not a fan of namespaces. I am less a fan of having dozens
-> >>>> of "solutions", none of which work with any of the others, all of which
-> >>>> have to be made to play nice together by user-space services.
-> >>> The uid mappings for user namespaces are simplified by the fact that
-> >>> uids are totally ordered so you can express the mapping compactly
-> >>> using ranges.
-> >> True. A useful optimization.
-> >>
-> >>> Even for MLS/BLP, labels are only partially ordered and in TE, there
-> >>> is no order at all among types.
-> >> Ordering or the lack thereof is not critical to the issue.
-> >>
-> >>> Defining a complete mapping of all SELinux labels (to include all
-> >>> possible category sets with all possible sensitivities with all
-> >>> possible types...) would be huge.
-> >> Without question. But you really only need the labels identified in
-> >> the policy, right? SELinux has to be able to deal with a combination
-> >> of categories that it hasn't seen before already.
-> >>
-> >>> There may not even be any one label in any of the policies in question
-> >>> that can serve as the "ground truth" label that can be stored in the
-> >>> filesystem xattr and mapped to a label in every other policy.
-> >> That's true with UIDs and GIDs as well. Except for UID 0, of course,
-> >> but that's special in user namespaces. I'm also not convinced that
-> >> the policies in the child namespace are really going to deviate from
-> >> those in the parent that greatly. Writing a system level SELinux policy
-> >> (or Smack rule set, for that matter) is *hard*. Sure, I can see running
-> >> an Android policy in a container on a RHEL system, but the mapping has
-> >> to be done once by someone in the community, not for every deployment.
-> >> And at that, most of the policy will be common.
-> >>
-> >> I realize that the issues aren't trivial. But to dismiss a technology
-> >> because you can't apply a specific set of optimizations to it in a
-> >> specific case just ain't right.
-> > As a concrete example, an Android policy from a particular
-> > device/firmware has 565 file types defined while a CentOS 8.4 policy
-> > has 2990 file types defined.
-> > There are no types in common between them. Both policies make use of
-> > category sets for different purposes; Android encodes information
-> > about the
-> > user and app IDs into the category set associated with the app data
-> > files in order to enforce user/app isolation while CentOS encodes
-> > information about the
-> > container ID into the category set associated with all container files
-> > in order to enforce container isolation. On the host, all files
-> > associated with the container
-> > are labeled with a single type and a per-container category set.
-> > Within the Android container, the files use the full range of types in
-> > the Android policy and
-> > app data files are assigned a category set representing their user/app
-> > ID.  This is just one use case among many.
->
-> The virtiofs proposal has the same problem. Any "mapping" mechanism
-> has the same problem. The virtiofs mechanism puts guest MAC data into
-> attributes protected by DAC on the host. It has a number of other
-> issues that have been discussed on the thread. It's a clever hack,
-> but like most clever hacks some clever attacker(s) probably already
-> have exploits lined up.
->
-> If mapping labels and/or policy is too expensive and/or difficult,
-> what does make sense? I mean in general, not in just in a special
-> case like a VM host exporting a filesystem to its guest?
+On 2021-08-25 21:34, Paul Moore wrote:
+> On Wed, Aug 25, 2021 at 9:16 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> >
+> > On 2021-08-24 16:57, Richard Guy Briggs wrote:
+> > > On 2021-08-11 16:48, Paul Moore wrote:
+> > > > Draft #2 of the patchset which brings auditing and proper LSM access
+> > > > controls to the io_uring subsystem.  The original patchset was posted
+> > > > in late May and can be found via lore using the link below:
+> > > >
+> > > > https://lore.kernel.org/linux-security-module/162163367115.8379.8459012634106035341.stgit@sifl/
+> > > >
+> > > > This draft should incorporate all of the feedback from the original
+> > > > posting as well as a few smaller things I noticed while playing
+> > > > further with the code.  The big change is of course the selective
+> > > > auditing in the io_uring op servicing, but that has already been
+> > > > discussed quite a bit in the original thread so I won't go into
+> > > > detail here; the important part is that we found a way to move
+> > > > forward and this draft captures that.  For those of you looking to
+> > > > play with these patches, they are based on Linus' v5.14-rc5 tag and
+> > > > on my test system they boot and appear to function without problem;
+> > > > they pass the selinux-testsuite and audit-testsuite and I have not
+> > > > noticed any regressions in the normal use of the system.  If you want
+> > > > to get a copy of these patches straight from git you can use the
+> > > > "working-io_uring" branch in the repo below:
+> > > >
+> > > > git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+> > > >
+> > > > Beyond the existing test suite tests mentioned above, I've cobbled
+> > > > together some very basic, very crude tests to exercise some of the
+> > > > things I care about from a LSM/audit perspective.  These tests are
+> > > > pretty awful (I'm not kidding), but they might be helpful for the
+> > > > other LSM/audit developers who want to test things:
+> > > >
+> > > > https://drop.paul-moore.com/90.kUgq
+> > > >
+> > > > There are currently two tests: 'iouring.2' and 'iouring.3';
+> > > > 'iouring.1' was lost in a misguided and overzealous 'rm' command.
+> > > > The first test is standalone and basically tests the SQPOLL
+> > > > functionality while the second tests sharing io_urings across process
+> > > > boundaries and the credential/personality sharing mechanism.  The
+> > > > console output of both tests isn't particularly useful, the more
+> > > > interesting bits are in the audit and LSM specific logs.  The
+> > > > 'iouring.2' command requires no special arguments to run but the
+> > > > 'iouring.3' test is split into a "server" and "client"; the server
+> > > > should be run without argument:
+> > > >
+> > > >   % ./iouring.3s
+> > > >   >>> server started, pid = 11678
+> > > >   >>> memfd created, fd = 3
+> > > >   >>> io_uring created; fd = 5, creds = 1
+> > > >
+> > > > ... while the client should be run with two arguments: the first is
+> > > > the PID of the server process, the second is the "memfd" fd number:
+> > > >
+> > > >   % ./iouring.3c 11678 3
+> > > >   >>> client started, server_pid = 11678 server_memfd = 3
+> > > >   >>> io_urings = 5 (server) / 5 (client)
+> > > >   >>> io_uring ops using creds = 1
+> > > >   >>> async op result: 36
+> > > >   >>> async op result: 36
+> > > >   >>> async op result: 36
+> > > >   >>> async op result: 36
+> > > >   >>> START file contents
+> > > >   What is this life if, full of care,
+> > > >   we have no time to stand and stare.
+> > > >   >>> END file contents
+> > > >
+> > > > The tests were hacked together from various sources online,
+> > > > attribution and links to additional info can be found in the test
+> > > > sources, but I expect these tests to die a fiery death in the not
+> > > > to distant future as I work to add some proper tests to the SELinux
+> > > > and audit test suites.
+> > > >
+> > > > As I believe these patches should spend a full -rcX cycle in
+> > > > linux-next, my current plan is to continue to solicit feedback on
+> > > > these patches while they undergo additional testing (next up is
+> > > > verification of the audit filter code for io_uring).  Assuming no
+> > > > critical issues are found on the mailing lists or during testing, I
+> > > > will post a proper patchset later with the idea of merging it into
+> > > > selinux/next after the upcoming merge window closes.
+> > > >
+> > > > Any comments, feedback, etc. are welcome.
+> > >
+> > > Thanks for the tests.  I have a bunch of userspace patches to add to the
+> > > last set I posted and these tests will help exercise them.  I also have
+> > > one more kernel patch to post...  I'll dive back into that now.  I had
+> > > wanted to post them before now but got distracted with AUDIT_TRIM
+> > > breakage.
+> >
+> > Please tell me about liburing.h that is needed for these.  There is one
+> > in tools/io_uring/liburing.h but I don't think that one is right.
+> >
+> > The next obvious one would be include/uapi/linux/io_uring.h
+> >
+> > I must be missing something obvious here...
+> 
+> You are looking for the liburing header files, the upstream is here:
+> -> https://github.com/axboe/liburing
+> 
+> If you are on a RH/IBM based distro it is likely called liburing[-devel]:
 
-I think you are conflating things. Any label mapping/translation
-mechanism where the label at every layer has to resolve to a single
-underlying label will have problems with divergent policies between
-the host and guest.
-The virtiofsd approach avoids that problem by allowing each layer to
-store its own label that only needs to be meaningful with respect to
-its policy. Within each layer, that label is protected by the layer's
-MAC policy. No mapping is required.
-At the host, the guest label is also protected by the host's MAC
-policy but not as a MAC label (because it isn't a MAC label for the
-host), just as an attribute of the file. In the case of SELinux, a
-process must have setattr permission
-to the file to set one of its attributes; that's a MAC check separate
-from the DAC check.
-So for example if the host policy says that only virtiofsd can set
-attributes on those files, then the guest MAC labels along with all
-the other attributes are protected against tampering by any other
-process on the host.
-And obviously virtiofsd was already free to fake whatever guest MAC
-labels it wants since it is implementing the filesystem to the guest.
-Offering an explicit check over the ability of a process on the host
-to set one of these guest MAC label attributes would be nice for
-additional safety (especially if we cannot in fact limit setting of
-attributes of these files
-to only virtiofsd on the host) but it isn't strictly required.
+Found it but struct io_uring missing "features" in everything except
+rawhide.  Forced upgrade of my test VMs.  :-)
+
+audit-testsuite still passes.
+
+I'm getting:
+	# ./iouring.2                                                
+	Kernel thread io_uring-sq is not running.                                      
+	Unable to setup io_uring: Permission denied
+
+	# ./iouring.3s
+	>>> server started, pid = 2082                                                 
+	>>> memfd created, fd = 3                                                      
+	io_uring_queue_init: Permission denied
+
+I have CONFIG_IO_URING=y set, what else is needed?
+
+> % dnf whatprovides */liburing.h
+> Last metadata expiration check: 0:38:37 ago on Wed 25 Aug 2021 08:54:22 PM EDT.
+> liburing-devel-2.0-2.fc35.i686 : Development files for Linux-native io_uring I/O
+>                               : access library
+> Repo        : rawhide
+> Matched from:
+> Filename    : /usr/include/liburing.h
+> 
+> liburing-devel-2.0-2.fc35.x86_64 : Development files for Linux-native io_uring
+>                                 : I/O access library
+> Repo        : @System
+> Matched from:
+> Filename    : /usr/include/liburing.h
+> 
+> liburing-devel-2.0-2.fc35.x86_64 : Development files for Linux-native io_uring
+>                                 : I/O access library
+> Repo        : rawhide
+> Matched from:
+> Filename    : /usr/include/liburing.h
+> 
+> -- 
+> paul moore
+
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
+
