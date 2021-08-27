@@ -2,210 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2B80C432BE
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 19:17:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 262AFC432BE
+	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 13:36:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A3D8E60F14
-	for <selinux@archiver.kernel.org>; Thu, 26 Aug 2021 19:17:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 059C160234
+	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 13:36:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243388AbhHZTSa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Aug 2021 15:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42354 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243360AbhHZTSa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Aug 2021 15:18:30 -0400
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A80A6C061757
-        for <selinux@vger.kernel.org>; Thu, 26 Aug 2021 12:17:42 -0700 (PDT)
-Received: by mail-ot1-x333.google.com with SMTP id y14-20020a0568302a0e00b0051acbdb2869so4921327otu.2
-        for <selinux@vger.kernel.org>; Thu, 26 Aug 2021 12:17:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sAlwgZAKnn9F3IJmt2ZARV/nJSfuWNPeIv7TOzA7cQM=;
-        b=ezDNTFjQlZuPhM6BqBQ3qMOpSDJa6trQeNfEtzd2hAnfWT002Ep4LzKD8SeiWUfpC2
-         O44T0JFYwPsUjhQWOIij5rs4Li+9jNkP2LqkCFBOzL8naaDixfpDzIz/WmyJ+UT0LeBX
-         avLLIQ2aZet0nLeaLbhDYhdwOfISDrmLxuR5aaT9M2A5Xxv7DJJ/npqZRGXBjZ8kNRXU
-         nEyLSohBXBNoYDOhf+21/I51piRDGYd6k2z/Uijt8ImvaLCEUwMwVvLw09vbetXq/QMA
-         lZ6UNxIM0af4iwyVdWUhViPITAGAKghZRUVe4oc6C0pwDW/WfnvAUSDkPfhzyoIDZ9EL
-         arDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sAlwgZAKnn9F3IJmt2ZARV/nJSfuWNPeIv7TOzA7cQM=;
-        b=eU6G0ZLI/fmMZVRFpYONhL1UBs5ghCdQdyfapg5EQd0Y9ThFKIBOsUmVdD7od0Tc9i
-         AedaBQiGW+fERjEMyUH8196r4rOTjs+w57I7/Y4rha8VwWF5ZzkZ4KulFLQPzZOUE4NT
-         aCthsValKnrrSpKJ/jKZDSlAtclhGkP/TqDhoDv6UrDI3Cw0KJqAEpYGxFSTvMH1hIjc
-         dO5jWqT7NI9/IY6VfPsohX7Fqkj3RqQ0sG0j0PwU5OZlocWEHgvU8Y5AGhFyt0cUAPKv
-         ADC9+8ZdQeU/FunG+NzJgNklW7hm3/Aa34Rao+p8mhKPTmscawEv9t9hLi1cbHn6glHa
-         GGYw==
-X-Gm-Message-State: AOAM531DAX60iLVhD4gKB9iDrKpk/7AMa40QAehpRBRB3VUL6L1GZtFX
-        4gDmB1GsG/jbuC5Yqmhs50Yf/XGlzUsP0vipB8mN3na7
-X-Google-Smtp-Source: ABdhPJwRGTJIXT4oiYXoqGPp2apmxXXx8cpB8O2XZENjl5IznsRC5SLUyxN16HSKKWm1jvP1YdX3a1mMkVjOGg55Ezo=
-X-Received: by 2002:a05:6830:1589:: with SMTP id i9mr4670840otr.196.1630005456044;
- Thu, 26 Aug 2021 12:17:36 -0700 (PDT)
+        id S245136AbhH0NhC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Aug 2021 09:37:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53163 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232603AbhH0NhB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Aug 2021 09:37:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630071372;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/NIYyavBh8XnOVQ6CtLDeu7aH39KozHfLZib7zDJx5I=;
+        b=GYFPhQc90UDnlj1auBquT3DTQk9Suc8Qz4/sVx6xeSZA/ELe8+ycrGT8w5RfBQOMhH1Le/
+        +0FCMuc+kdlzLWiiNk8KZYwY7ASdG/Zb6Q+6CvD0ugeDOJJAc4JG9fq+aeZnQXu0usTmy/
+        Vzwlljzvs7DI8FiIH4OErO9X1uATzY0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-151-kuszwh0aNLGhF1LuDxAjYg-1; Fri, 27 Aug 2021 09:36:11 -0400
+X-MC-Unique: kuszwh0aNLGhF1LuDxAjYg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E63E8190B2A3;
+        Fri, 27 Aug 2021 13:36:09 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.14])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 54051604CC;
+        Fri, 27 Aug 2021 13:36:02 +0000 (UTC)
+Date:   Fri, 27 Aug 2021 09:35:59 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to
+ io_uring
+Message-ID: <20210827133559.GG490529@madcap2.tricolour.ca>
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <20210824205724.GB490529@madcap2.tricolour.ca>
+ <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+ <20210826163230.GF490529@madcap2.tricolour.ca>
+ <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
 MIME-Version: 1.0
-References: <81ea2624-ace9-4d86-9506-d6527a770cf6@redhat.com>
- <877dg8l83w.fsf@defensec.nl> <ce82e933-ceb8-a293-c57e-6dd6f8c31254@redhat.com>
- <8735qwl4tz.fsf@defensec.nl>
-In-Reply-To: <8735qwl4tz.fsf@defensec.nl>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 26 Aug 2021 15:25:01 -0400
-Message-ID: <CAP+JOzRGVqZ1+qEam8pcNXDQRuLJ3VaEyp+zBCx5Cvu2mCQgqw@mail.gmail.com>
-Subject: Re: Cil block inheritance
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     Vit Mojzis <vmojzis@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Lukas Vrabec <lvrabec@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 26, 2021 at 9:21 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
->
-> Vit Mojzis <vmojzis@redhat.com> writes:
->
-> > On 26. 08. 21 14:10, Dominick Grift wrote:
-> >> Vit Mojzis <vmojzis@redhat.com> writes:
-> >>
-> >>> Hi,
-> >>> recent changes in block inheritance broke our use case where we use
-> >>> block inheritance for generating container policies
-> >>> (https://github.com/containers/udica/tree/main/udica/templates). Basically
-> >>> the policy is composed by inheriting selected "template" blocks, all
-> >>> of which inherit "container" block, so that they can use types defined
-> >>> there.
-> >>>
-> >>> Reproducer:
-> >>> (block template1 (type t) )
-> >>> (block template2 (blockinherit template1))
-> >>> (block b (blockinherit template1) (blockinherit template2))
-> >> In this example there is no point in inheriting template1, because
-> >> template2 already inherits it.
-> >>
-> >> (block template1
-> >>         (type t))
-> >> (block template2
-> >>         (blockinherit template1))
-> >> (block b (blockinherit template2)
-> >>         (allow t t (file (read))))
-> >>
-> >> semodule -i test.cil
-> >> seinfo -t b.t
-> > Sure, but with more templates (as we have in udica) we get the same issue.
+On 2021-08-26 15:14, Paul Moore wrote:
+> On Thu, Aug 26, 2021 at 12:32 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> > I'm getting:
+> >         # ./iouring.2
+> >         Kernel thread io_uring-sq is not running.
+> >         Unable to setup io_uring: Permission denied
 > >
-> > (block template1 (type t) )
-> > (block template2 (blockinherit template1))
-> > (block template3 (blockinherit template1))
-> > (block b (blockinherit template2) (blockinherit template3))
->
-> This boils down to the same as above, yes.
->
+> >         # ./iouring.3s
+> >         >>> server started, pid = 2082
+> >         >>> memfd created, fd = 3
+> >         io_uring_queue_init: Permission denied
 > >
-> > # semodule -i test.cil
-> > Re-declaration of type t
-> > Previous declaration of type at /var/lib/selinux/targeted/tmp/modules/400/test/cil:1
-> > Failed to copy block contents into blockinherit
-> > Failed to resolve AST
-> > semodule:  Failed!
-> >
-> >
-> > Template2 and template3 mostly inherit template1 for the type defined
-> > there (so that they can define rules containing the type).
-> >
-> >>
-> >>> #semodule -i test.cil
-> >>> Re-declaration of type t
-> >>> Previous declaration of type at
-> >>> /var/lib/selinux/targeted/tmp/modules/400/test/cil:1
-> >>> Failed to copy block contents into blockinherit
-> >>> Failed to resolve AST
-> >>> semodule: Failed!
-> >>>
-> >>> This used to work just fine.
-> >>>
-> >>> The following workaround seems to be working as intended, but I'm not
-> >>> sure if it's the best approach. Types are only defined in template1
-> >>> and the rest contains "optional" block, so that I can use types
-> >>> defined in template1).
-> >>>
-> >>> (block template1 (type t))
-> >>> (block template2
-> >>>       (optional o
-> >>>           (allow t t ( file ( read )))
-> >>>       )
-> >>> )
-> >>> (block b (blockinherit template1) (blockinherit template2))
-> >> You can just do something like this:
-> >>
-> >> (block template1 (type t))
-> >> (block template2 (blockinherit template1) (optional o (allow t t (file
-> >> (read))))
-> >> (block b (blockinherit template2))
-> >> semodule -i test.cil
-> >> sesearch -A -t b.t
-> > With more templates, this break as well.
-> >
-> > But the following works:
-> >
-> > (block template1 (type t))
-> > (block template2 (optional o (allow t t (file (read)))))
-> > (block template3 (optional o (allow t t (file (write)))))
-> > (block b (blockinherit template1) (blockinherit template2) (blockinherit template3))
-> >
-> > #semodule -i test.cil
-> > #sesearch -A -s b.t
-> > allow b.t b.t:file { read write };
-> >
-> > Again, I'm not sure if this is the best solution, just the only one I managed to get working.
->
-> Looks good enough to me (if it works then it works). I am just surprised that
-> the duplicate 'o' optional block is allowed.
->
+> > I have CONFIG_IO_URING=y set, what else is needed?
+> 
+> I'm not sure how you tried to run those tests, but try running as root
+> and with SELinux in permissive mode.
 
-Duplicate optional blocks are allowed unless an in-statement refers to
-one of them, because that is the only time the name matters.
+Ok, they ran, including iouring.4.  iouring.2 claimed twice: "Kernel
+thread io_uring-sq is not running." and I didn't get any URING records
+with ausearch.  I don't know if any of this is expected.
 
-> Duplicate type declarations are no longer allowed as you noticed, but
-> fortunately you do not need them.
->
+> paul moore
 
-Duplicate types are allowed when using secilc with the "-m" option.
-Unfortunately, that doesn't help when using semodule. It would
-probably be possible to add the option if necessary.
+- RGB
 
-Jim
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
 
-> Whether this eventually is the best solution probably depends on other
-> aspects of the policy and on the requirements.
->
-> >
-> > Vit
-> >
-> >>> #semodule -i test.cil
-> >>> #sesearch -A -s b.t
-> >>> allow b.t b.t:file read;
-> >>>
-> >>> Any pointers would be appreciated.
-> >>>
-> >>> Thank you.
-> >>>
-> >>> Vit
-> >>>
-> >
->
-> --
-> gpg --locate-keys dominick.grift@defensec.nl
-> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-> Dominick Grift
