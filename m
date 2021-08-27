@@ -2,101 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 262AFC432BE
-	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 13:36:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1A8FC432BE
+	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 14:15:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 059C160234
-	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 13:36:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5F9A60F42
+	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 14:15:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245136AbhH0NhC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Aug 2021 09:37:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53163 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232603AbhH0NhB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Aug 2021 09:37:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630071372;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=/NIYyavBh8XnOVQ6CtLDeu7aH39KozHfLZib7zDJx5I=;
-        b=GYFPhQc90UDnlj1auBquT3DTQk9Suc8Qz4/sVx6xeSZA/ELe8+ycrGT8w5RfBQOMhH1Le/
-        +0FCMuc+kdlzLWiiNk8KZYwY7ASdG/Zb6Q+6CvD0ugeDOJJAc4JG9fq+aeZnQXu0usTmy/
-        Vzwlljzvs7DI8FiIH4OErO9X1uATzY0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-151-kuszwh0aNLGhF1LuDxAjYg-1; Fri, 27 Aug 2021 09:36:11 -0400
-X-MC-Unique: kuszwh0aNLGhF1LuDxAjYg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E63E8190B2A3;
-        Fri, 27 Aug 2021 13:36:09 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.3.128.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 54051604CC;
-        Fri, 27 Aug 2021 13:36:02 +0000 (UTC)
-Date:   Fri, 27 Aug 2021 09:35:59 -0400
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to
- io_uring
-Message-ID: <20210827133559.GG490529@madcap2.tricolour.ca>
-References: <162871480969.63873.9434591871437326374.stgit@olly>
- <20210824205724.GB490529@madcap2.tricolour.ca>
- <20210826011639.GE490529@madcap2.tricolour.ca>
- <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
- <20210826163230.GF490529@madcap2.tricolour.ca>
- <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+        id S231455AbhH0OQ2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Aug 2021 10:16:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45664 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230108AbhH0OQ1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Aug 2021 10:16:27 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FE38C061757
+        for <selinux@vger.kernel.org>; Fri, 27 Aug 2021 07:15:38 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id m7-20020a9d4c87000000b0051875f56b95so8059530otf.6
+        for <selinux@vger.kernel.org>; Fri, 27 Aug 2021 07:15:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=6OsZEBvJyWMrqBmB6Oa0N4RQH4c0bw82607TpfDJf+0=;
+        b=k6Uwn6d8buYDNTFSdxflkLmyRq5XlNrJ7yELo70y/zgr9ByTEqOAZKJ3XYPKQe/kaV
+         sNYlTKrE8wAYclPuQ1J7fB+CBhmgUC/idtdMtgfSGiLtO/occfQy8XhjeADkkj3/BQ+d
+         rGcGY66nNY1XNMZ6WQnrPPL1xmvAjegiNej1FkZY1sKIKnowc4VUTrRwPG7KOkU6oCgK
+         5MMdlaIXYWTvOAM1fOFlVgpk/acKv52IRISeHUlpIgsgPb/CIZ9iv2HtNYhz8QJLqsp9
+         +IS9t2oGh8I4YM8OCnM79NM7lGVO6Mt/5HhgIZ1mhW0LjIlBSGucRDbBXuyZM2v32fM3
+         Hhrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=6OsZEBvJyWMrqBmB6Oa0N4RQH4c0bw82607TpfDJf+0=;
+        b=Zr0ot7C9CAnvuZLr46t0fbIzcFmpYe9tDnH31SG2gpYWYMadJDkUqOVkOtlcMx9Xnx
+         uegMsmxijRte5jQiTcIZpgMwg5a+Oe3Mndnlqzwe492nQaFo+GTcxqbzjDXdfoAaJfTj
+         DQgRvFBdz79ZXIRFTiujBTFiKjsxyP0nkOU2xmyYHNZt9e0CKJ7eiGge5ypDO3atG+LH
+         cxp6QN3N77HU31cfVHzzIBy5SPoonpWiyHWBzwe7aBct5t8HHf4tw+oG92nBOowYvo//
+         IroVeJvRck/VqiecszW+q6NmFMV7M5ELRAbr3oYic+5NRBAB+oAk8UxgmmG4fKrV9se6
+         x/RA==
+X-Gm-Message-State: AOAM531YW2zYOBfcVHQqEeknT4T9wKdFJlFe3jG6c7NrPzkkU4zicclj
+        fUa0WllQHLiC9v1vtrbLlhDoXRZBmTEN2/za7xFuMEFR
+X-Google-Smtp-Source: ABdhPJy8jRVJgOAjzFR/KC8B0XqHSMHuP+W2IsvQjq9nyMUjQZ/F/BbNc/fbXDynmSsNAlL2Bnx2mxmxkmMun0Xw0Go=
+X-Received: by 2002:a05:6830:1589:: with SMTP id i9mr8234665otr.196.1630073736589;
+ Fri, 27 Aug 2021 07:15:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20210823204841.175324-1-jwcart2@gmail.com>
+In-Reply-To: <20210823204841.175324-1-jwcart2@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 27 Aug 2021 10:15:25 -0400
+Message-ID: <CAP+JOzSgiaWqCe7HiPr6qzuGM02Ci_vsqAEcxRwtQZW9vxs8Jg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Properly check parse tree when printing
+ error messages
+To:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-08-26 15:14, Paul Moore wrote:
-> On Thu, Aug 26, 2021 at 12:32 PM Richard Guy Briggs <rgb@redhat.com> wrote:
-> > I'm getting:
-> >         # ./iouring.2
-> >         Kernel thread io_uring-sq is not running.
-> >         Unable to setup io_uring: Permission denied
-> >
-> >         # ./iouring.3s
-> >         >>> server started, pid = 2082
-> >         >>> memfd created, fd = 3
-> >         io_uring_queue_init: Permission denied
-> >
-> > I have CONFIG_IO_URING=y set, what else is needed?
-> 
-> I'm not sure how you tried to run those tests, but try running as root
-> and with SELinux in permissive mode.
+On Mon, Aug 23, 2021 at 4:48 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> The function cil_tree_get_next_path() does not check whether the
+> parse tree node that stores the high-level language file path of a
+> src_info rule actually exists before trying to read the path. This
+> can result in a NULL dereference.
+>
+> Check that all of the parse tree nodes of a src_info rule exist
+> before reading the data from them.
+>
+> This bug was found by the secilc-fuzzer.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/cil/src/cil_tree.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+> index 75293005..3fcf5d12 100644
+> --- a/libsepol/cil/src/cil_tree.c
+> +++ b/libsepol/cil/src/cil_tree.c
+> @@ -62,7 +62,10 @@ struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **
+>
+>         while (node) {
+>                 if (node->flavor == CIL_NODE && node->data == NULL) {
+> -                       if (node->cl_head->data == CIL_KEY_SRC_INFO && node->cl_head->next != NULL && node->cl_head->next->next != NULL) {
+> +                       if (node->cl_head->data == CIL_KEY_SRC_INFO) {
 
-Ok, they ran, including iouring.4.  iouring.2 claimed twice: "Kernel
-thread io_uring-sq is not running." and I didn't get any URING records
-with ausearch.  I don't know if any of this is expected.
+It should never be NULL, but I should still check that node->cl_head
+is not NULL here.
 
-> paul moore
+I have a couple of more fixes for bugs found by the secilc-fuzzer, so
+I will send an updated patch with those other two patches.
+Jim
 
-- RGB
-
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
-
+> +                               if (node->cl_head->next == NULL || node->cl_head->next->next == NULL || node->cl_head->next->next->next == NULL) {
+> +                                       goto exit;
+> +                               }
+>                                 /* Parse Tree */
+>                                 *info_kind = node->cl_head->next->data;
+>                                 rc = cil_string_to_uint32(node->cl_head->next->next->data, hll_line, 10);
+> --
+> 2.31.1
+>
