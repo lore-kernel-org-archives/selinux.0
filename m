@@ -2,169 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36DEBC432BE
-	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 16:26:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2809C4320E
+	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 19:49:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1036460F14
-	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 16:26:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9CF3361002
+	for <selinux@archiver.kernel.org>; Fri, 27 Aug 2021 19:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232131AbhH0Q1m (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Aug 2021 12:27:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34196 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229854AbhH0Q1l (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 27 Aug 2021 12:27:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D7A460E99;
-        Fri, 27 Aug 2021 16:26:43 +0000 (UTC)
-Date:   Fri, 27 Aug 2021 18:26:40 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        syzbot <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
-Subject: Re: [syzbot] general protection fault in legacy_parse_param
-Message-ID: <20210827162640.lziu6alrd4vtxxzn@wittgenstein>
-References: <0000000000004e5ec705c6318557@google.com>
- <CACT4Y+YysFa1UzT6zw9GGns69WSFgqrL6P_LjUju6ujcJRTaeA@mail.gmail.com>
- <d11c276d-65a0-5273-d797-1092e1e2692a@schaufler-ca.com>
- <CAHC9VhSq88YjA-VGSTKkc4hkc_KOK=mnoAYiX1us6O6U0gFzAQ@mail.gmail.com>
- <CACT4Y+bj4epytaY4hhEx5GF+Z2xcMnS4AEg=JcrTEnWvXWFuGQ@mail.gmail.com>
- <CAHC9VhQLi+1r3BmSeQre+EEtEyvhSmmT-ABLjvzk0J-J9v9URw@mail.gmail.com>
- <20210827153041.z3jundji5usj3afj@wittgenstein>
- <cda5e293-869c-8b7b-5da6-892bf901afc7@schaufler-ca.com>
+        id S231255AbhH0Tu0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Aug 2021 15:50:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38400 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231174AbhH0Tu0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Aug 2021 15:50:26 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4175C06179A
+        for <selinux@vger.kernel.org>; Fri, 27 Aug 2021 12:49:36 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id a25so16144832ejv.6
+        for <selinux@vger.kernel.org>; Fri, 27 Aug 2021 12:49:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MarwsWWGC0vgeYe2TT0Bknreciph81Y5zQko1bbo3dg=;
+        b=VDp9L1aSEtB6Ja57TrDn9eWLnenyIwAPGW7I3DZLgoSo3HZ0yIzE269UHR381x5vj1
+         ysj2a3K4xBRAtql47MJkvyqD3biO5iHkTxq7LUxf8A7YxN2DAdkNqD3E0FwgSb+YvXNs
+         ge+kQcRBgUBgUxfo9Q/xTcK9QPgqQYaRBeGPxqZ83AwOcZXP0AOoTClsQ1FEe1Yl1ctC
+         VLfSCOhfKOcbp/nG0AlQCx7+XHBM0dihc955Q6L1ITt6cPmsqG6jKyITvbaDxCYaXjNm
+         QqLm8lse9PxFEpOgXgN88LgyE3rCEyQCUhUCK6eKot8KK/v9AKpN5zjuwgExd7flJ/iJ
+         nMsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MarwsWWGC0vgeYe2TT0Bknreciph81Y5zQko1bbo3dg=;
+        b=PMgLgn3JTPZ1oBQcLTyCBKX0YikT403rEYRqlE0AMK+s1cIMVQ9m4inn5rKwL25iW+
+         PMuqls6luPy3bERpRMXhdhIbvk3S0gw3SGLpnKuB2Ze68PCnB4Nwh9EXqQ3oJ768ui6c
+         5fNztJDrFx/KtcYiaRh2ytqMJ+YPUfzBji83EWl8X1yc373xkz8h5Z3XDkuXFDgFwTwo
+         sM3Y49h5OZSta/1t7C1qQtZKJRrtV6KOR5srkP9ymP8hXq/EdNA6jrRgYX5q7Ln1u3TY
+         p8NpokLJs9/mROCtvMEvuXS2cIA53zBfCwdhkTAgnwUmOxXx+D8vuEnxeP+iWP6PLXDI
+         xYnw==
+X-Gm-Message-State: AOAM532NDvt5bszyVAyhGnrr9afEL7O9L9zOazzI+6aMa1VdiFmz8M3O
+        Zw/zTGm/D8yrG00Z/paZmUPAflQOOAFHm/Tp1VKL
+X-Google-Smtp-Source: ABdhPJx8Cuhrg3SXaR2CWgIvHRns6qh4/y+RRqlTaCS2oPMgn9tWv4WqNnZLocutZJdvMikV0ssmc2A4ucAVfrKNtmY=
+X-Received: by 2002:a17:907:2a85:: with SMTP id fl5mr510228ejc.91.1630093774900;
+ Fri, 27 Aug 2021 12:49:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <cda5e293-869c-8b7b-5da6-892bf901afc7@schaufler-ca.com>
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <20210824205724.GB490529@madcap2.tricolour.ca> <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+ <20210826163230.GF490529@madcap2.tricolour.ca> <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+ <20210827133559.GG490529@madcap2.tricolour.ca>
+In-Reply-To: <20210827133559.GG490529@madcap2.tricolour.ca>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 27 Aug 2021 15:49:24 -0400
+Message-ID: <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 27, 2021 at 08:40:15AM -0700, Casey Schaufler wrote:
-> On 8/27/2021 8:30 AM, Christian Brauner wrote:
-> > On Tue, Jul 06, 2021 at 08:50:44AM -0400, Paul Moore wrote:
-> >> On Mon, Jul 5, 2021 at 1:52 AM Dmitry Vyukov <dvyukov@google.com> wrote:
-> >>> On Sun, Jul 4, 2021 at 4:14 PM Paul Moore <paul@paul-moore.com> wrote:
-> >>>> On Sat, Jul 3, 2021 at 6:16 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>>>> On 7/2/2021 10:51 PM, Dmitry Vyukov wrote:
-> >>>>>> On Sat, Jul 3, 2021 at 7:41 AM syzbot
-> >>>>>> <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com> wrote:
-> >>>>>>> Hello,
-> >>>>>>>
-> >>>>>>> syzbot found the following issue on:
-> >>>>>>>
-> >>>>>>> HEAD commit:    62fb9874 Linux 5.13
-> >>>>>>> git tree:       upstream
-> >>>>>>> console output: https://syzkaller.appspot.com/x/log.txt?x=12ffa118300000
-> >>>>>>> kernel config:  https://syzkaller.appspot.com/x/.config?x=19404adbea015a58
-> >>>>>>> dashboard link: https://syzkaller.appspot.com/bug?extid=d1e3b1d92d25abf97943
-> >>>>>>> compiler:       Debian clang version 11.0.1-2
-> >>>>>>>
-> >>>>>>> Unfortunately, I don't have any reproducer for this issue yet.
-> >>>>>>>
-> >>>>>>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> >>>>>>> Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
-> >>>>>> +Casey for what looks like a smackfs issue
-> >>>>> This is from the new mount infrastructure introduced by
-> >>>>> David Howells in November 2018. It makes sense that there
-> >>>>> may be a problem in SELinux as well, as the code was introduced
-> >>>>> by the same developer at the same time for the same purpose.
-> >>>>>
-> >>>>>> The crash was triggered by this test case:
-> >>>>>>
-> >>>>>> 21:55:33 executing program 1:
-> >>>>>> r0 = fsopen(&(0x7f0000000040)='ext3\x00', 0x1)
-> >>>>>> fsconfig$FSCONFIG_SET_STRING(r0, 0x1, &(0x7f00000002c0)='smackfsroot',
-> >>>>>> &(0x7f0000000300)='default_permissions', 0x0)
-> >>>>>>
-> >>>>>> And I think the issue is in smack_fs_context_parse_param():
-> >>>>>> https://elixir.bootlin.com/linux/latest/source/security/smack/smack_lsm.c#L691
-> >>>>>>
-> >>>>>> But it seems that selinux_fs_context_parse_param() contains the same issue:
-> >>>>>> https://elixir.bootlin.com/linux/latest/source/security/selinux/hooks.c#L2919
-> >>>>>> +So selinux maintainers as well.
-> >>>>>>
-> >>>>>>> general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-> >>>>>>> KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-> >>>>>>> CPU: 0 PID: 20300 Comm: syz-executor.1 Not tainted 5.13.0-syzkaller #0
-> >>>>>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> >>>>>>> RIP: 0010:memchr+0x2f/0x70 lib/string.c:1054
-> >>>>>>> Code: 41 54 53 48 89 d3 41 89 f7 45 31 f6 49 bc 00 00 00 00 00 fc ff df 0f 1f 44 00 00 48 85 db 74 3b 48 89 fd 48 89 f8 48 c1 e8 03 <42> 0f b6 04 20 84 c0 75 0f 48 ff cb 48 8d 7d 01 44 38 7d 00 75 db
-> >>>>>>> RSP: 0018:ffffc90001dafd00 EFLAGS: 00010246
-> >>>>>>> RAX: 0000000000000000 RBX: 0000000000000013 RCX: dffffc0000000000
-> >>>>>>> RDX: 0000000000000013 RSI: 000000000000002c RDI: 0000000000000000
-> >>>>>>> RBP: 0000000000000000 R08: ffffffff81e171bf R09: ffffffff81e16f95
-> >>>>>>> R10: 0000000000000002 R11: ffff88807e96b880 R12: dffffc0000000000
-> >>>>>>> R13: ffff888020894000 R14: 0000000000000000 R15: 000000000000002c
-> >>>>>>> FS:  00007fe01ae27700(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-> >>>>>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >>>>>>> CR2: 00000000005645a8 CR3: 0000000018afc000 CR4: 00000000001506f0
-> >>>>>>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> >>>>>>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> >>>>>>> Call Trace:
-> >>>>>>>  legacy_parse_param+0x461/0x7e0 fs/fs_context.c:537
-> >>>>>>>  vfs_parse_fs_param+0x1e5/0x460 fs/fs_context.c:117
-> >>>> It's Sunday morning and perhaps my mind is not yet in a "hey, let's
-> >>>> look at VFS kernel code!" mindset, but I'm not convinced the problem
-> >>>> is the 'param->string = NULL' assignment in the LSM hooks.  In both
-> >>>> the case of SELinux and Smack that code ends up returning either a 0
-> >>>> (Smack) or a 1 (SELinux) - that's a little odd in it's own way, but I
-> >>>> don't believe it is relevant here - either way these return values are
-> >>>> not equal to -ENOPARAM so we should end up returning early from
-> >>>> vfs_parse_fs_param before it calls down into legacy_parse_param():
-> >>>>
-> >>>> Taken from https://elixir.bootlin.com/linux/latest/source/fs/fs_context.c#L109 :
-> >>>>
-> >>>>   ret = security_fs_context_parse_param(fc, param);
-> >>>>   if (ret != -ENOPARAM)
-> >>>>     /* Param belongs to the LSM or is disallowed by the LSM; so
-> >>>>      * don't pass to the FS.
-> >>>>      */
-> >>>>     return ret;
-> >>>>
-> >>>>   if (fc->ops->parse_param) {
-> >>>>     ret = fc->ops->parse_param(fc, param);
-> >>>>     if (ret != -ENOPARAM)
-> >>>>       return ret;
-> >>>>   }
-> >>> Hi Paul,
-> >>>
-> >>> You are right.
-> >>> I almost connected the dots, but not exactly.
-> >>> Now that I read more code around, setting "param->string = NULL" in
-> >>> smack_fs_context_parse_param() looks correct to me (the fs copies and
-> >>> takes ownership of the string).
-> >>>
-> >>> I don't see how the crash happened...
-> >> FWIW, I poked around a bit too and couldn't see anything obvious
-> >> either, but I can't pretend to know as much about the VFS layer as the
-> >> VFS folks.  Hopefully they might have better luck.
-> > I'm not sure that's right.
-> > If the smack hook runs first, it will set
+On Fri, Aug 27, 2021 at 9:36 AM Richard Guy Briggs <rgb@redhat.com> wrote:
+> On 2021-08-26 15:14, Paul Moore wrote:
+> > On Thu, Aug 26, 2021 at 12:32 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> > > I'm getting:
+> > >         # ./iouring.2
+> > >         Kernel thread io_uring-sq is not running.
+> > >         Unable to setup io_uring: Permission denied
+> > >
+> > >         # ./iouring.3s
+> > >         >>> server started, pid = 2082
+> > >         >>> memfd created, fd = 3
+> > >         io_uring_queue_init: Permission denied
+> > >
+> > > I have CONFIG_IO_URING=y set, what else is needed?
 > >
-> > param->string = NULL
-> >
-> > now the selinux hook runs. But the selinux param hook doesn't end up in
-> > selinux_add_opt() instead it will fail before
-> > opt = fs_parse(fc, selinux_fs_parameters, param, &result);
-> > which will return -ENOPARAM since it's not a selinux option subsequently
-> > causing the crash.
-> >
-> > Does that sound plausible?
-> 
-> No. You can't (currently) have both Smack and SELinux enabled at
+> > I'm not sure how you tried to run those tests, but try running as root
+> > and with SELinux in permissive mode.
+>
+> Ok, they ran, including iouring.4.  iouring.2 claimed twice: "Kernel
+> thread io_uring-sq is not running." and I didn't get any URING records
+> with ausearch.  I don't know if any of this is expected.
 
-Ah, I thought that already worked. :)
+Now that I've written iouring.4, I would skip the others; while
+helpful at the time, they are pretty crap.
 
-I'm EOD here but I'll try to look closer tomorrow or after the weekend.
+I have no idea what kernel you are running, but I'm going to assume
+you've applied the v2 patches (if not, you obviously need to do that
+<g>).  Beyond that you may need to set a filter for the
+io_uring_enter() syscall to force the issue; theoretically your audit
+userspace patches should allow a uring op specifically to be filtered
+but I haven't had a chance to try that yet so either the kernel or
+userspace portion could be broken.
 
-Christian
+At this point if you are running into problems you'll probably need to
+spend some time debugging them, as I think you're the only person who
+has tested your audit userspace patches at this point (and the only
+one who has access to your latest bits).
+
+-- 
+paul moore
+www.paul-moore.com
