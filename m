@@ -2,255 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D2EC4320E
-	for <selinux@archiver.kernel.org>; Sat, 28 Aug 2021 15:04:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CC22C4320A
+	for <selinux@archiver.kernel.org>; Sun, 29 Aug 2021 15:18:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 815B3606A5
-	for <selinux@archiver.kernel.org>; Sat, 28 Aug 2021 15:04:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D71C60F3A
+	for <selinux@archiver.kernel.org>; Sun, 29 Aug 2021 15:18:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231703AbhH1PFD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 28 Aug 2021 11:05:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:27047 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230271AbhH1PFC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 28 Aug 2021 11:05:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630163051;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wglBM2MJS2lBJlgPHQBwj1WY2WdgpcdiWGWzu/KrEVc=;
-        b=b5Gzkjt9nxU0RSLyNa8Piec9tPfy4DSmsc+7gDGSfu5luCKlb8JFGTTW1LfHKdhWPiqQe5
-        qGvktRMuKmYMS5ZwvADh11c1CvFecCAP5P883TC6v88FwHnUc07bJj53EPsJ692EmBo+kR
-        7Pk3fL50tAn5iZnjafHgoAgjmeCq9/g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-267-lyzpeIZ6MuKCbueB33J4iQ-1; Sat, 28 Aug 2021 11:04:09 -0400
-X-MC-Unique: lyzpeIZ6MuKCbueB33J4iQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D44EF1082923;
-        Sat, 28 Aug 2021 15:04:07 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.3.128.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A02AE18428;
-        Sat, 28 Aug 2021 15:03:59 +0000 (UTC)
-Date:   Sat, 28 Aug 2021 11:03:56 -0400
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
+        id S235590AbhH2PTh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 29 Aug 2021 11:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235579AbhH2PTc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 29 Aug 2021 11:19:32 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89CDEC061756
+        for <selinux@vger.kernel.org>; Sun, 29 Aug 2021 08:18:39 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id bt14so25431068ejb.3
+        for <selinux@vger.kernel.org>; Sun, 29 Aug 2021 08:18:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WMCQKvetI0XkPpqOn9T5HvUMfbn/ZoV4rfgKei7DRbQ=;
+        b=AUUV3UubwIyhdd3QwL/BBxhZ19xpizfCaKyOw0a60FAYj9f66viJmJP7tYy41TL9Wo
+         eNf6jSSenKzez1einuBFP0+fY9nxF6hdr1wO8rBa3ENpUIALSpb4xoQIe/FnGz9OdKr4
+         akd3h/x4wweRLZcDu6qCobE/A7Z+xWpOUJyaSVSIMFFdmJFI1BFVv9+MTwOs3ranzCkd
+         oGxztcxgF7GefWZbnqsGU98ezJNZs0M34yqlyXDBLekLrFowEkt6Te8nTfcICh1kqHvv
+         hxVzVNp/aWF2NVcn274Ko4GkP2ceS0SC5ZOsxYWUhGAioPzZG9dDe5rsYQsNxZdwDVK5
+         euJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WMCQKvetI0XkPpqOn9T5HvUMfbn/ZoV4rfgKei7DRbQ=;
+        b=UzGPVBP+dRNgltvj346rWaX5NvuqHnJl4jjMLBGsXCihIq2Ljqpwi6FkQOVFAxuowb
+         uMylmFF0q8ZQjtimSqLhyzFx6nvxUY0ds0NXXwjQmy+GxYYiRSoHVUk+J4pFuOzqBVpg
+         wUMIS4giQhrWxokCfjn3KFH4kP66BvXUKmMp9EeG/nTQVrkeBLvV2KaAMNOOOQHpnGUg
+         XRCDIH+orcUsrHD4ogdYCIBNPl+DWIWIU7bl3Mk0sO3Gw+MPh9xmhYOdZ96O5AzItq2l
+         NqbPtr0ud0pGlXzO1G0iW8i97/nHwELGw3kgq6xgnOJa5BAbN1GJ6+7ZPU60thePWQ4N
+         +jww==
+X-Gm-Message-State: AOAM530576g6Qpdthk/iih2GihBp+G7+1k31E8YA+0p0OeG1jYhCIqAG
+        2IfPT/OYAm6PB5AMjcW/tEBfjLuGa1AXiBuCS9Mr
+X-Google-Smtp-Source: ABdhPJzddDAP4GwVgg5xjP+pa+Pe/nyxAGXU1kyChZOijuG2A5i+rzFXA53gOJ+xW6ZKS9R2sDtfMTdkLKe1+YuoHoI=
+X-Received: by 2002:a17:906:8597:: with SMTP id v23mr13342286ejx.178.1630250318016;
+ Sun, 29 Aug 2021 08:18:38 -0700 (PDT)
+MIME-Version: 1.0
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <20210824205724.GB490529@madcap2.tricolour.ca> <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+ <20210826163230.GF490529@madcap2.tricolour.ca> <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+ <20210827133559.GG490529@madcap2.tricolour.ca> <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
+ <20210828150356.GH490529@madcap2.tricolour.ca>
+In-Reply-To: <20210828150356.GH490529@madcap2.tricolour.ca>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sun, 29 Aug 2021 11:18:26 -0400
+Message-ID: <CAHC9VhRgc_Fhi4c6L__butuW7cmSFJxTMxb+BBn6P-8Yt0ck_w@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
+To:     Richard Guy Briggs <rgb@redhat.com>
 Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, io-uring@vger.kernel.org,
         linux-fsdevel@vger.kernel.org,
         Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to
- io_uring
-Message-ID: <20210828150356.GH490529@madcap2.tricolour.ca>
-References: <162871480969.63873.9434591871437326374.stgit@olly>
- <20210824205724.GB490529@madcap2.tricolour.ca>
- <20210826011639.GE490529@madcap2.tricolour.ca>
- <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
- <20210826163230.GF490529@madcap2.tricolour.ca>
- <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
- <20210827133559.GG490529@madcap2.tricolour.ca>
- <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Sat, Aug 28, 2021 at 11:04 AM Richard Guy Briggs <rgb@redhat.com> wrote:
+> I did set a syscall filter for
+>         -a exit,always -F arch=b64 -S io_uring_enter,io_uring_setup,io_uring_register -F key=iouringsyscall
+> and that yielded some records with a couple of orphans that surprised me
+> a bit.
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Without looking too closely at the log you sent, you can expect URING
+records without an associated SYSCALL record when the uring op is
+being processed in the io-wq or sqpoll context.  In the io-wq case the
+processing is happening after the thread finished the syscall but
+before the execution context returns to userspace and in the case of
+sqpoll the processing is handled by a separate kernel thread with no
+association to a process thread.
 
-On 2021-08-27 15:49, Paul Moore wrote:
-> On Fri, Aug 27, 2021 at 9:36 AM Richard Guy Briggs <rgb@redhat.com> wrote:
-> > On 2021-08-26 15:14, Paul Moore wrote:
-> > > On Thu, Aug 26, 2021 at 12:32 PM Richard Guy Briggs <rgb@redhat.com> wrote:
-> > > > I'm getting:
-> > > >         # ./iouring.2
-> > > >         Kernel thread io_uring-sq is not running.
-> > > >         Unable to setup io_uring: Permission denied
-> > > >
-> > > >         # ./iouring.3s
-> > > >         >>> server started, pid = 2082
-> > > >         >>> memfd created, fd = 3
-> > > >         io_uring_queue_init: Permission denied
-> > > >
-> > > > I have CONFIG_IO_URING=y set, what else is needed?
-> > >
-> > > I'm not sure how you tried to run those tests, but try running as root
-> > > and with SELinux in permissive mode.
-> >
-> > Ok, they ran, including iouring.4.  iouring.2 claimed twice: "Kernel
-> > thread io_uring-sq is not running." and I didn't get any URING records
-> > with ausearch.  I don't know if any of this is expected.
-> 
-> Now that I've written iouring.4, I would skip the others; while
-> helpful at the time, they are pretty crap.
-
-Ok.
-
-> I have no idea what kernel you are running, but I'm going to assume
-> you've applied the v2 patches (if not, you obviously need to do that
-> <g>).  Beyond that you may need to set a filter for the
-> io_uring_enter() syscall to force the issue; theoretically your audit
-> userspace patches should allow a uring op specifically to be filtered
-> but I haven't had a chance to try that yet so either the kernel or
-> userspace portion could be broken.
-
-I'm running audit/next (on 5.14-rc1) with your v2 patches.
-
-I did set a syscall filter for
-	-a exit,always -F arch=b64 -S io_uring_enter,io_uring_setup,io_uring_register -F key=iouringsyscall
-and that yielded some records with a couple of orphans that surprised me
-a bit.  I've attached that log.  I was a bit surprised there were no
-records for ./iouring.3*.
-
-I'm now testing the new "-a uring,always -U ..." to get that userspace
-code working as expected...
-
-> At this point if you are running into problems you'll probably need to
-> spend some time debugging them, as I think you're the only person who
-> has tested your audit userspace patches at this point (and the only
-> one who has access to your latest bits).
-
-Yes, I'll do some basic debugging and then publish to avoid wasting
-people's time on silly bugs, but to get help on the more serious ones.
-
-> paul moore
-
-- RGB
-
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
-
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="audit.log-2021-08-27-1"
-
-----
-type=PROCTITLE msg=audit(2021-08-27 16:41:56.190:328) : proctitle=auditctl -a exit,always -F arch b64 -S io_uring_enter,io_uring_setup,io_uring_register -F key=iouringsyscall 
-type=SYSCALL msg=audit(2021-08-27 16:41:56.190:328) : arch=x86_64 syscall=sendto success=yes exit=1072 a0=0x4 a1=0x7ffff3e0dc10 a2=0x430 a3=0x0 items=0 ppid=543 pid=12433 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=auditctl exe=/usr/sbin/auditctl subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null) 
-type=CONFIG_CHANGE msg=audit(2021-08-27 16:41:56.190:328) : auid=root ses=1 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=add_rule key=iouringsyscall list=exit res=yes 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.032:329) : proctitle=./iouring.2 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.032:329) : arch=x86_64 syscall=io_uring_setup success=yes exit=3 a0=0x8 a1=0x7fff6037b890 a2=0x7f38ee9de7a7 a3=0x3 items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.034:330) : proctitle=./iouring.2 
-type=MMAP msg=audit(2021-08-27 16:42:22.034:330) : fd=3 flags=MAP_SHARED|MAP_POPULATE 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.034:330) : arch=x86_64 syscall=mmap success=yes exit=139882499366912 a0=0x0 a1=0x260 a2=PROT_READ|PROT_WRITE a3=MAP_SHARED|MAP_POPULATE items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null) 
-type=AVC msg=audit(2021-08-27 16:42:22.034:330) : avc:  denied  { write } for  pid=12437 comm=iouring.2 path=anon_inode:[io_uring] dev="anon_inodefs" ino=26726 scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:unconfined_t:s0 tclass=anon_inode permissive=1 
-type=AVC msg=audit(2021-08-27 16:42:22.034:330) : avc:  denied  { map } for  pid=12437 comm=iouring.2 path=anon_inode:[io_uring] dev="anon_inodefs" ino=26726 scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:unconfined_t:s0 tclass=anon_inode permissive=1 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.036:331) : proctitle=./iouring.2 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.036:331) : arch=x86_64 syscall=io_uring_register success=yes exit=0 a0=0x3 a1=0x2 a2=0x7fff6037b854 a3=0x1 items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.037:332) : proctitle=./iouring.2 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.037:332) : arch=x86_64 syscall=io_uring_enter success=yes exit=2 a0=0x3 a1=0x2 a2=0x0 a3=0x2 items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.037:333) : proctitle=./iouring.2 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.037:333) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x3 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.038:334) : proctitle=./iouring.2 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.038:334) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x3 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:22.084:335) : proctitle=./iouring.2 
-type=SYSCALL msg=audit(2021-08-27 16:42:22.084:335) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x3 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12437 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.2 exe=/root/rgb/testing/iouring/iouring.2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.624:336) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.624:336) : arch=x86_64 syscall=io_uring_setup success=yes exit=4 a0=0x8 a1=0x7fefe5ac10d8 a2=0x7fefe5ac10d8 a3=0x3 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.625:337) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.625:337) : arch=x86_64 syscall=io_uring_register success=yes exit=1 a0=0x4 a1=0x9 a2=0x0 a3=0x0 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.626:338) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.626:338) : arch=x86_64 syscall=io_uring_enter success=yes exit=1 a0=0x4 a1=0x1 a2=0x0 a3=0x2 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.627:341) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.627:341) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=URINGOP msg=audit(2021-08-27 16:42:30.628:339) : uring_op=18 success=no exit=EAGAIN(Resource temporarily unavailable) items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null) 
-----
-type=PATH msg=audit(2021-08-27 16:42:30.628:340) : item=1 name=/tmp/iouring.4.txt inode=33 dev=00:1f mode=file,644 ouid=root ogid=root rdev=00:00 obj=unconfined_u:object_r:user_tmp_t:s0 nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
-type=PATH msg=audit(2021-08-27 16:42:30.628:340) : item=0 name=/tmp/ inode=1 dev=00:1f mode=dir,sticky,777 ouid=root ogid=root rdev=00:00 obj=system_u:object_r:tmp_t:s0 nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
-type=CWD msg=audit(2021-08-27 16:42:30.628:340) : cwd=/root/rgb/testing/iouring 
-type=URINGOP msg=audit(2021-08-27 16:42:30.628:340) : uring_op=18 success=yes exit=0 items=2 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null) 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.629:342) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.629:342) : arch=x86_64 syscall=io_uring_register success=yes exit=0 a0=0x4 a1=0x2 a2=0x7ffff75290a8 a3=0x1 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.629:343) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.629:343) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.631:344) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.631:344) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.632:346) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.632:346) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=URINGOP msg=audit(2021-08-27 16:42:30.633:345) : uring_op=19 success=yes exit=0 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null) 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:30.634:347) : proctitle=./iouring.4 sqpoll 
-type=SYSCALL msg=audit(2021-08-27 16:42:30.634:347) : arch=x86_64 syscall=io_uring_register success=yes exit=0 a0=0x4 a1=0x3 a2=0x0 a3=0x0 items=0 ppid=543 pid=12447 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.895:348) : proctitle=./iouring.4 t1 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.895:348) : arch=x86_64 syscall=io_uring_setup success=yes exit=4 a0=0x8 a1=0x7fcaf2b8a0d8 a2=0x7fcaf2b8a0d8 a3=0x3 items=0 ppid=543 pid=12451 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.896:349) : proctitle=./iouring.4 t1 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.896:349) : arch=x86_64 syscall=io_uring_register success=yes exit=1 a0=0x4 a1=0x9 a2=0x0 a3=0x0 items=0 ppid=543 pid=12451 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.902:350) : proctitle=./iouring.4 t1_child 
-type=PATH msg=audit(2021-08-27 16:42:36.902:350) : item=0 name=/tmp/iouring.4.txt nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
-type=CWD msg=audit(2021-08-27 16:42:36.902:350) : cwd=/root/rgb/testing/iouring 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.902:350) : arch=x86_64 syscall=io_uring_enter success=yes exit=1 a0=0x4 a1=0x1 a2=0x0 a3=0x0 items=1 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-type=URINGOP msg=audit(2021-08-27 16:42:36.902:350) : uring_op=18 items=1 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PATH msg=audit(2021-08-27 16:42:36.902:351) : item=0 name=/tmp/iouring.4.txt inode=33 dev=00:1f mode=file,644 ouid=root ogid=root rdev=00:00 obj=unconfined_u:object_r:user_tmp_t:s0 nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
-type=CWD msg=audit(2021-08-27 16:42:36.902:351) : cwd=/root/rgb/testing/iouring 
-type=URINGOP msg=audit(2021-08-27 16:42:36.902:351) : uring_op=18 success=yes exit=0 items=1 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null) 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.902:352) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.902:352) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.902:353) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.902:353) : arch=x86_64 syscall=io_uring_register success=yes exit=0 a0=0x4 a1=0x2 a2=0x7ffc0645bcb8 a3=0x1 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.903:354) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.903:354) : arch=x86_64 syscall=io_uring_enter success=yes exit=1 a0=0x4 a1=0x1 a2=0x0 a3=0x0 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.903:355) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.903:355) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.903:356) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.903:356) : arch=x86_64 syscall=io_uring_enter success=yes exit=1 a0=0x4 a1=0x1 a2=0x0 a3=0x0 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.903:357) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.903:357) : arch=x86_64 syscall=io_uring_enter success=yes exit=0 a0=0x4 a1=0x0 a2=0x1 a3=0x1 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.904:358) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.904:358) : arch=x86_64 syscall=io_uring_enter success=yes exit=1 a0=0x4 a1=0x1 a2=0x0 a3=0x0 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-type=URINGOP msg=audit(2021-08-27 16:42:36.904:358) : uring_op=19 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-type=PROCTITLE msg=audit(2021-08-27 16:42:36.904:359) : proctitle=./iouring.4 t1_child 
-type=SYSCALL msg=audit(2021-08-27 16:42:36.904:359) : arch=x86_64 syscall=io_uring_register success=yes exit=0 a0=0x4 a1=0x3 a2=0x0 a3=0x0 items=0 ppid=12451 pid=12452 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=ttyS0 ses=1 comm=iouring.4 exe=/root/rgb/testing/iouring/iouring.4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=iouringsyscall 
-----
-
---45Z9DzgjV8m4Oswq--
-
+-- 
+paul moore
+www.paul-moore.com
