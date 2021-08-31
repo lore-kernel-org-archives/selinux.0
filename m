@@ -2,177 +2,145 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C02EC432BE
-	for <selinux@archiver.kernel.org>; Mon, 30 Aug 2021 18:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0334DC43214
+	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 07:38:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44BCB60F42
-	for <selinux@archiver.kernel.org>; Mon, 30 Aug 2021 18:45:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF05E60240
+	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 07:38:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbhH3Sqb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Aug 2021 14:46:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55466 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230378AbhH3Sqa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Aug 2021 14:46:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630349135;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=i7iUH7l5Sh0OpUsn92+ULA9isAZYjj/3KpoIKNS+nc0=;
-        b=Y1Bfj6zdquZRuaxwOY0yd0FwnqB6CVPSBvZ+JY3GeNb9D2nVRYjfFB7rI1f8WF1V+y4Hmo
-        3LkBx35FQTgDAqUR5lxFQxyYHHIflf7nOIDnfXQED7HhCUlW7QY7jJxtKRzYbHDJmxa0pk
-        UXx5r+xoZlI4/q4EBcRSv2hJQ505odE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-342-jnQEB5U4OBineMHHI0DrUA-1; Mon, 30 Aug 2021 14:45:33 -0400
-X-MC-Unique: jnQEB5U4OBineMHHI0DrUA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 822448799EE;
-        Mon, 30 Aug 2021 18:45:31 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.8.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3255D2AF99;
-        Mon, 30 Aug 2021 18:45:26 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 93FA72241BF; Mon, 30 Aug 2021 14:45:25 -0400 (EDT)
-Date:   Mon, 30 Aug 2021 14:45:25 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
+        id S239892AbhHaHj0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 31 Aug 2021 03:39:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47766 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239830AbhHaHjU (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 31 Aug 2021 03:39:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E09B560ED4;
+        Tue, 31 Aug 2021 07:38:20 +0000 (UTC)
+Date:   Tue, 31 Aug 2021 09:38:18 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
 To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     "J. Bruce Fields" <bfields@fieldses.org>,
-        Bruce Fields <bfields@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        viro@zeniv.linux.org.uk, virtio-fs@redhat.com, dwalsh@redhat.com,
-        dgilbert@redhat.com, casey.schaufler@intel.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
-        jack@suse.cz, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v2 1/1] xattr: Allow user.* xattr on symlink and special
- files
-Message-ID: <YS0nRQeuxEFppDxG@redhat.com>
-References: <20210708175738.360757-2-vgoyal@redhat.com>
- <20210709091915.2bd4snyfjndexw2b@wittgenstein>
- <20210709152737.GA398382@redhat.com>
- <710d1c6f-d477-384f-0cc1-8914258f1fb1@schaufler-ca.com>
- <20210709175947.GB398382@redhat.com>
- <CAPL3RVGKg4G5qiiHo7KYPcsWWgeoW=qNPOSQpd3Sv329jrWrLQ@mail.gmail.com>
- <20210712140247.GA486376@redhat.com>
- <20210712154106.GB18679@fieldses.org>
- <20210712174759.GA502004@redhat.com>
- <3d55ff30-c6cf-46c4-0e32-3b578099343d@schaufler-ca.com>
+Cc:     David Howells <dhowells@redhat.com>,
+        syzbot <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com>,
+        andriin@fb.com, ast@kernel.org, bpf@vger.kernel.org,
+        daniel@iogearbox.net, dvyukov@google.com, jmorris@namei.org,
+        kafai@fb.com, kpsingh@google.com, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        paul@paul-moore.com, selinux@vger.kernel.org,
+        songliubraving@fb.com, stephen.smalley.work@gmail.com,
+        syzkaller-bugs@googlegroups.com, tonymarislogistics@yandex.com,
+        viro@zeniv.linux.org.uk, yhs@fb.com
+Subject: Re: [syzbot] general protection fault in legacy_parse_param
+Message-ID: <20210831073818.oojyjqyiogel7hll@wittgenstein>
+References: <0000000000004e5ec705c6318557@google.com>
+ <0000000000008d2a0005ca951d94@google.com>
+ <20210830122348.jffs5dmq6z25qzw5@wittgenstein>
+ <61bf6b11-80f8-839e-4ae7-54c2c6021ed5@schaufler-ca.com>
+ <89d0e012-4caf-4cda-3c4e-803a2c6ebc2b@schaufler-ca.com>
+ <20210830165733.emqlg3orflaqqfio@wittgenstein>
+ <3354839e-5e7a-08c7-277a-9bbebfbfc0bc@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <3d55ff30-c6cf-46c4-0e32-3b578099343d@schaufler-ca.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <3354839e-5e7a-08c7-277a-9bbebfbfc0bc@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 07:17:00AM -0700, Casey Schaufler wrote:
-> On 7/12/2021 10:47 AM, Vivek Goyal wrote:
-> > On Mon, Jul 12, 2021 at 11:41:06AM -0400, J. Bruce Fields wrote:
-> >> On Mon, Jul 12, 2021 at 10:02:47AM -0400, Vivek Goyal wrote:
-> >>> On Fri, Jul 09, 2021 at 04:10:16PM -0400, Bruce Fields wrote:
-> >>>> On Fri, Jul 9, 2021 at 1:59 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> >>>>> nfs seems to have some issues.
-> >>>> I'm not sure what the expected behavior is for nfs.  All I have for
-> >>>> now is some generic troubleshooting ideas, sorry:
-> >>>>
-> >>>>> - I can set user.foo xattr on symlink and query it back using xattr name.
+On Mon, Aug 30, 2021 at 10:41:29AM -0700, Casey Schaufler wrote:
+> On 8/30/2021 9:57 AM, Christian Brauner wrote:
+> > On Mon, Aug 30, 2021 at 09:40:57AM -0700, Casey Schaufler wrote:
+> >> On 8/30/2021 7:25 AM, Casey Schaufler wrote:
+> >>> On 8/30/2021 5:23 AM, Christian Brauner wrote:
+> >>>> On Fri, Aug 27, 2021 at 07:11:18PM -0700, syzbot wrote:
+> >>>>> syzbot has bisected this issue to:
 > >>>>>
-> >>>>>   getfattr -h -n user.foo foo-link.txt
+> >>>>> commit 54261af473be4c5481f6196064445d2945f2bdab
+> >>>>> Author: KP Singh <kpsingh@google.com>
+> >>>>> Date:   Thu Apr 30 15:52:40 2020 +0000
 > >>>>>
-> >>>>>   But when I try to dump all xattrs on this file, user.foo is being
-> >>>>>   filtered out it looks like. Not sure why.
-> >>>> Logging into the server and seeing what's set there could help confirm
-> >>>> whether it's the client or server that's at fault.  (Or watching the
-> >>>> traffic in wireshark; there are GET/SET/LISTXATTR ops that should be
-> >>>> easy to spot.)
+> >>>>>     security: Fix the default value of fs_context_parse_param hook
+> >>>>>
+> >>>>> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=160c5d75300000
+> >>>>> start commit:   77dd11439b86 Merge tag 'drm-fixes-2021-08-27' of git://ano..
+> >>>>> git tree:       upstream
+> >>>>> final oops:     https://syzkaller.appspot.com/x/report.txt?x=150c5d75300000
+> >>>>> console output: https://syzkaller.appspot.com/x/log.txt?x=110c5d75300000
+> >>>>> kernel config:  https://syzkaller.appspot.com/x/.config?x=2fd902af77ff1e56
+> >>>>> dashboard link: https://syzkaller.appspot.com/bug?extid=d1e3b1d92d25abf97943
+> >>>>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=126d084d300000
+> >>>>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16216eb1300000
+> >>>>>
+> >>>>> Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
+> >>>>> Fixes: 54261af473be ("security: Fix the default value of fs_context_parse_param hook")
+> >>>>>
+> >>>>> For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+> >>>> So ok, this seems somewhat clear now. When smack and 
+> >>>> CONFIG_BPF_LSM=y
+> >>>> is selected the bpf LSM will register NOP handlers including
 > >>>>
-> >>>>> - I can't set "user.foo" xattr on a device node on nfs and I get
-> >>>>>   "Permission denied". I am assuming nfs server is returning this.
-> >>>> Wireshark should tell you whether it's the server or client doing that.
+> >>>> bpf_lsm_fs_context_fs_param()
 > >>>>
-> >>>> The RFC is https://datatracker.ietf.org/doc/html/rfc8276, and I don't
-> >>>> see any explicit statement about what the server should do in the case
-> >>>> of symlinks or device nodes, but I do see "Any regular file or
-> >>>> directory may have a set of extended attributes", so that was clearly
-> >>>> the assumption.  Also, NFS4ERR_WRONG_TYPE is listed as a possible
-> >>>> error return for the xattr ops.  But on a quick skim I don't see any
-> >>>> explicit checks in the nfsd code, so I *think* it's just relying on
-> >>>> the vfs for any file type checks.
-> >>> Hi Bruce,
+> >>>> for the
+> >>>>
+> >>>> fs_context_fs_param
+> >>>>
+> >>>> LSM hook. The bpf LSM runs last, i.e. after smack according to:
+> >>>>
+> >>>> CONFIG_LSM="landlock,lockdown,yama,safesetid,integrity,tomoyo,smack,bpf"
+> >>>>
+> >>>> in the appended config. The smack hook runs and sets
+> >>>>
+> >>>> param->string = NULL
+> >>>>
+> >>>> then the bpf NOP handler runs returning -ENOPARM indicating to the vfs
+> >>>> parameter parser that this is not a security module option so it should
+> >>>> proceed processing the parameter subsequently causing the crash because
+> >>>> param->string is not allowed to be NULL (Which the vfs parameter parser
+> >>>> verifies early in fsconfig().).
+> >>> The security_fs_context_parse_param() function is incorrectly
+> >>> implemented using the call_int_hook() macro. It should return
+> >>> zero if any of the modules return zero. It does not follow the
+> >>> usual failure model of LSM hooks. It could be argued that the
+> >>> code was fine before the addition of the BPF hook, but it was
+> >>> going to fail as soon as any two security modules provided
+> >>> mount options.
 > >>>
-> >>> Thanks for the response. I am just trying to do set a user.foo xattr on
-> >>> a device node on nfs.
-> >>>
-> >>> setfattr -n "user.foo" -v "bar" /mnt/nfs/test-dev
-> >>>
-> >>> and I get -EACCESS.
-> >>>
-> >>> I put some printk() statements and EACCESS is being returned from here.
-> >>>
-> >>> nfs4_xattr_set_nfs4_user() {
-> >>>         if (!nfs_access_get_cached(inode, current_cred(), &cache, true)) {
-> >>>                 if (!(cache.mask & NFS_ACCESS_XAWRITE)) {
-> >>>                         return -EACCES;
-> >>>                 }
-> >>>         }
-> >>> }
-> >>>
-> >>> Value of cache.mask=0xd at the time of error.
-> >> Looks like 0xd is what the server returns to access on a device node
-> >> with mode bits rw- for the caller.
-> >>
-> >> Commit c11d7fd1b317 "nfsd: take xattr bits into account for permission
-> >> checks" added the ACCESS_X* bits for regular files and directories but
-> >> not others.
-> >>
-> >> But you don't want to determine permission from the mode bits anyway,
-> >> you want it to depend on the owner,
-> > Thinking more about this part. Current implementation of my patch is
-> > effectively doing both the checks. It checks that you are owner or
-> > have CAP_FOWNER in xattr_permission() and then goes on to call
-> > inode_permission(). And that means file mode bits will also play a
-> > role. If caller does not have write permission on the file, it will
-> > be denied setxattr().
+> >>> Regardless, I will have a patch later today. Thank you for
+> >>> tracking this down.
+> >> Here's my proposed patch. I'll tidy it up with a proper
+> >> commit message if it looks alright to y'all. I've tested
+> >> with Smack and with and without BPF.
+> > Looks good to me.
+> > On question, in contrast to smack, selinux returns 1 instead of 0 on
+> > success. So selinux would cause an early return preventing other hooks
+> > from running. Just making sure that this is intentional.
 > >
-> > If I don't call inode_permission(), and just return 0 right away for
-> > file owner (for symlinks and special files), then just being owner
-> > is enough to write user.* xattr. And then even security modules will
-> > not get a chance to block that operation.
+> > Iirc, this would mean that selinux causes fsconfig() to return a
+> > positive value to userspace which I think is a bug; likely in selinux.
+> > So I think selinux should either return 0 or the security hook itself
+> > needs to overwrite a positive value with a sensible errno that can be
+> > seen by userspace.
 > 
-> That isn't going to fly. SELinux and Smack don't rely on ownership
-> as a criteria for access. Being the owner of a symlink conveys no
-> special privilege. The LSM must be consulted to determine if the
-> module's policy allows the access.
+> I think that I agree. The SELinux and Smack versions of the
+> hook are almost identical except for setting rc to 1 in the
+> SELinux case. And returning 1 makes no sense if you follow
+> the callers back. David Howells wrote both the SELinux and
+> Smack versions. David - why are they different? which is correct?
 
-Getting back to this thread after a while. Sorry got busy in other
-things.
+The documentation for fs_context_parse_param notes:
 
-I noticed that if we skip calling inode_permission() for special files,
-then we will skip calling security_inode_permission() but we will
-still call security hooks for setxattr/getxattr/removexattr etc.
+ * @fs_context_parse_param:
+ *	Userspace provided a parameter to configure a superblock.  The LSM may
+ *	reject it with an error and may use it for itself, in which case it
+ *	should return 0; otherwise it should return -ENOPARAM to pass it on to
+ *	the filesystem.
+ *	@fc indicates the filesystem context.
+ *	@param The parameter
 
-security_inode_setxattr()
-security_inode_getxattr()
-security_inode_removexattr()
-
-So LSMs will still get a chance whether to allow/disallow this operation
-or not.
-
-And skipping security_inode_permission() kind of makes sense that for
-special files, I am not writing to device. So taking permission from
-LSMs, will not make much sense.
-
-Thanks
-Vivek
-
+So we should simply make selinux return 0 on top of your patch when it
+has consumed the option.
