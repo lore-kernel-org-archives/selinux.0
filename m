@@ -4,129 +4,131 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1409CC41537
-	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 13:53:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDEA6C4320A
+	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 14:45:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F126D60241
-	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 13:53:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE30160200
+	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 14:45:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239637AbhHaNyj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 31 Aug 2021 09:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
+        id S239130AbhHaOqJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 31 Aug 2021 10:46:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238215AbhHaNyi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 31 Aug 2021 09:54:38 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76385C0617A8
-        for <selinux@vger.kernel.org>; Tue, 31 Aug 2021 06:53:42 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id dm15so26930196edb.10
-        for <selinux@vger.kernel.org>; Tue, 31 Aug 2021 06:53:42 -0700 (PDT)
+        with ESMTP id S232214AbhHaOp2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 31 Aug 2021 10:45:28 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90068C0612A4
+        for <selinux@vger.kernel.org>; Tue, 31 Aug 2021 07:44:17 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id dm15so27189541edb.10
+        for <selinux@vger.kernel.org>; Tue, 31 Aug 2021 07:44:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=0KsdRco5g3Rxsur7HnzmWia1aqV1LswyiZ+q0x+vuSY=;
-        b=HQ7YjqNn+GvyrMyaEw4Ts6k7wU5aPcFPAWZ/MvIgnb/b3nJTG/bZDiK6JU5Urc0OGw
-         eYdX1ndiXPm2WmlL+IK4/u/BaFz6AbYdNIgxPmK/jtKVgAB4AXg1YnEwThk50eDSwxKa
-         5zamzfT+Mw9ZsLCNbbSg/KnigE4n5pxUzOD+A/0pPF9mh4JO0EwgAg6tp4mjPp+2ybhC
-         LKwkjJVc1hih9nB2NRvpLDKH15CvIzCDRkybcb8PHSW6J2tGC65jUPq2wh7pHwEv7mh1
-         GGntJW/v2BIHeuezNaO8q8z3cKspObfYA7MpK111176yeraZmzPIIb/SJwoe9ailV5zQ
-         GIEQ==
+        bh=ZgczlerqsLLyl2VhT0frihVj435uIvC1cuXaGZGKBOI=;
+        b=vZnH7ZNB8UX++P9uCn5rQiuS1KJDPUjiSAvxsYaqrGtgX4eBg7GHDhggOyskZpJCNJ
+         l54tySrGWs+VGlp2ibgfUetYZO5z9JWmsqcqQAbA4fNx6dgMzZ4yGFUi42SXqCROzi3g
+         FS9XZXeeyeyvrgx57qZFe/82GbC4fNokogIHI8XnksgwLntZT9VJnnqkWrKuW75Cnvsf
+         +7e1G9kohqRq+nrQHuIAj87Tghsw3vDATIqBceH6jYq1aOqfVXsPdLVX3WaBcQK3GN4p
+         c6550BzBTBRy+H9PqzgSx+/D8kyYY8+KbY3RT+uhXQYjsXUqt063Wwk7D37opRPywhBH
+         PkzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=0KsdRco5g3Rxsur7HnzmWia1aqV1LswyiZ+q0x+vuSY=;
-        b=jVP12Yl3J/s5/zyKVm9JlgZ8KzUCDUGQE5vXh4/FXulkAGr4gQym/E67njM+JZrS37
-         5fUTpYixXSgrYLJAQtMdp0kmDWq4o4JwHhElGcqhtR4wEFP5O+d8Yq1tohU2g/TAp4I5
-         FaABuo8dEZzJNj/of3dnzBjR1L/purUAQmKNYFYlXpKJFaB38Shrj4/5gGE7iVAy466H
-         P5xJqWH8Hb2VCcMIBDmmXTqeQrgKPIHSUS/yMWej9c+tMkFLtPc+P6yJWenTcAMrxByZ
-         aCCZHE2uSB5+cqMxgpn8tVqKn1LvH/AM0mDi6nRzblkyhMyx6bj9lwpryLK95zs72WXZ
-         ufsw==
-X-Gm-Message-State: AOAM530DwjJyrN0V+EriyJMEt0aNDhaLapf0LYT6wI8vXnmS6HOtQMvC
-        pO5sbr4Mdk4eOdPg7sq2RiNNQNEibhf5C2eYPuuF
-X-Google-Smtp-Source: ABdhPJws3lszVbtjZiLZOptaWsbrL101boZlKAvA+uSpyGqWqgyhydVacfD22Otuw8Ioe1qUU+ZoAgTEh8gbHZtS+70=
-X-Received: by 2002:a05:6402:4cf:: with SMTP id n15mr30419950edw.269.1630418020725;
- Tue, 31 Aug 2021 06:53:40 -0700 (PDT)
+        bh=ZgczlerqsLLyl2VhT0frihVj435uIvC1cuXaGZGKBOI=;
+        b=sq8lFu2Uc4o/AyctLXMrqFzi/XCSNCSm1o30O6FgotAJoPrSmh1VMewhPwPpOQ6W8+
+         5zOdYCiTVIDlSKldQQmxKThLzGeV9Uh8YdT7OXNWLohujfdWHfSqrSOZLobNWTcE1TTZ
+         dbznzcRM1vWWQAqaL+NbtbVIsr+8XZ60XK+dy6jq4I2kfgmo7J32dIeC8OaspkaqBKgF
+         WK3zbmfRpM5JzNPZTT+Rwdfd31JafN5L9gg87j0525uzFf07rwpB0LWLKVUkGkCibXUu
+         AEigYH8kat2b0wJs+rH49NhLt3XDYT3Cz5lTP1MrcXigMQuCFMwS4wObNED2kQFX/ggt
+         LhFw==
+X-Gm-Message-State: AOAM533/DMVzK46w3zGWwWnlQrYH0J0aIpLjVMW/LV+FSw/DaH3+3ajx
+        rJYj21IrYvqylJRN0Ztg3nceqpQjJmp+PdBrfPAF
+X-Google-Smtp-Source: ABdhPJxbttl+pKPJFUUvqGQMjsVPM20zpWUvXsGRTjRdvPPkDxQWNi7BI9HiCjmjrGOfcCWQfO3dlyXR34/S8Enb9H4=
+X-Received: by 2002:a50:ed09:: with SMTP id j9mr29852978eds.164.1630421056093;
+ Tue, 31 Aug 2021 07:44:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210616085118.1141101-1-omosnace@redhat.com> <CAPcyv4jvR8CT4rYODR5KUHNdiqMwQSwJZ+OkVf61kLT3JfjC_Q@mail.gmail.com>
- <CAFqZXNtuH0329Xvcb415Kar-=o6wwrkFuiP8BZ_2OQhHLqkkAg@mail.gmail.com>
-In-Reply-To: <CAFqZXNtuH0329Xvcb415Kar-=o6wwrkFuiP8BZ_2OQhHLqkkAg@mail.gmail.com>
+References: <162871480969.63873.9434591871437326374.stgit@olly> <162871494794.63873.18299137802334845525.stgit@olly>
+In-Reply-To: <162871494794.63873.18299137802334845525.stgit@olly>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 31 Aug 2021 09:53:29 -0400
-Message-ID: <CAHC9VhTGECM2p+Q8n48aSdfJzY6XrpXQ5tcFurjWc4A3n8Qxjg@mail.gmail.com>
-Subject: Re: [PATCH v3] lockdown,selinux: fix wrong subject in some SELinux
- lockdown checks
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        X86 ML <x86@kernel.org>,
-        Linux ACPI <linux-acpi@vger.kernel.org>,
-        linux-cxl@vger.kernel.org, linux-efi <linux-efi@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux PCI <linux-pci@vger.kernel.org>,
-        Linux-pm mailing list <linux-pm@vger.kernel.org>,
-        linux-serial@vger.kernel.org, bpf <bpf@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Kexec Mailing List <kexec@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
+Date:   Tue, 31 Aug 2021 10:44:05 -0400
+Message-ID: <CAHC9VhSPW0R=AQGCaz9HNO5mXmCtscto-7O=9Af9B_EuCa5W=A@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 9/9] Smack: Brutalist io_uring support with debug
+To:     casey@schaufler-ca.com
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 31, 2021 at 5:09 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Sat, Jun 19, 2021 at 12:18 AM Dan Williams <dan.j.williams@intel.com> wrote:
-> > On Wed, Jun 16, 2021 at 1:51 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-
-...
-
-> > > diff --git a/drivers/cxl/mem.c b/drivers/cxl/mem.c
-> > > index 2acc6173da36..c1747b6555c7 100644
-> > > --- a/drivers/cxl/mem.c
-> > > +++ b/drivers/cxl/mem.c
-> > > @@ -568,7 +568,7 @@ static bool cxl_mem_raw_command_allowed(u16 opcode)
-> > >         if (!IS_ENABLED(CONFIG_CXL_MEM_RAW_COMMANDS))
-> > >                 return false;
-> > >
-> > > -       if (security_locked_down(LOCKDOWN_NONE))
-> > > +       if (security_locked_down(current_cred(), LOCKDOWN_NONE))
-> >
-> > Acked-by: Dan Williams <dan.j.williams@intel.com>
-> >
-> > ...however that usage looks wrong. The expectation is that if kernel
-> > integrity protections are enabled then raw command access should be
-> > disabled. So I think that should be equivalent to LOCKDOWN_PCI_ACCESS
-> > in terms of the command capabilities to filter.
+On Wed, Aug 11, 2021 at 4:49 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> Yes, the LOCKDOWN_NONE seems wrong here... but it's a pre-existing bug
-> and I didn't want to go down yet another rabbit hole trying to fix it.
-> I'll look at this again once this patch is settled - it may indeed be
-> as simple as replacing LOCKDOWN_NONE with LOCKDOWN_PCI_ACCESS.
+> From: Casey Schaufler <casey@schaufler-ca.com>
+>
+> Add Smack privilege checks for io_uring. Use CAP_MAC_OVERRIDE
+> for the override_creds case and CAP_MAC_ADMIN for creating a
+> polling thread. These choices are based on conjecture regarding
+> the intent of the surrounding code.
+>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> [PM: make the smack_uring_* funcs static]
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+>
+> ---
+> v2:
+> - made the smack_uring_* funcs static
+> v1:
+> - initial draft
+> ---
+>  security/smack/smack_lsm.c |   64 ++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 64 insertions(+)
+>
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 223a6da0e6dc..7fb094098f38 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -4691,6 +4691,66 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
+>         return 0;
+>  }
+>
+> +#ifdef CONFIG_IO_URING
+> +/**
+> + * smack_uring_override_creds - Is io_uring cred override allowed?
+> + * @new: the target creds
+> + *
+> + * Check to see if the current task is allowed to override it's credentials
+> + * to service an io_uring operation.
+> + */
+> +static int smack_uring_override_creds(const struct cred *new)
+> +{
+> +       struct task_smack *tsp = smack_cred(current_cred());
+> +       struct task_smack *nsp = smack_cred(new);
+> +
+> +#if 1
+> +       if (tsp->smk_task == nsp->smk_task)
+> +               pr_info("%s: Smack matches %s\n", __func__,
+> +                       tsp->smk_task->smk_known);
+> +       else
+> +               pr_info("%s: Smack override check %s to %s\n", __func__,
+> +                       tsp->smk_task->smk_known, nsp->smk_task->smk_known);
+> +#endif
 
-At this point you should be well aware of my distaste for merging
-patches that have known bugs in them.  Yes, this is a pre-existing
-condition, but it seems well within the scope of this work to address
-it as well.
+Casey, with the idea of posting a v3 towards the end of the merge
+window next week, without the RFC tag and with the intention of
+merging it into -next during the first/second week of the -rcX phase,
+do you have any objections to me removing the debug code (#if 1 ...
+#endif) from your patch?  Did you have any other changes?
 
-This isn't something that is going to get merged while the merge
-window is open, so at the very least you've got almost two weeks to
-sort this out - please do that.
 
--- 
+--
 paul moore
 www.paul-moore.com
