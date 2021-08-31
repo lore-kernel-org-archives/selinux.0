@@ -2,140 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E60CCC43214
-	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 18:59:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 293D5C432BE
+	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 20:06:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C999D6109E
-	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 18:59:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 057676054E
+	for <selinux@archiver.kernel.org>; Tue, 31 Aug 2021 20:06:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239639AbhHaTAk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 31 Aug 2021 15:00:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239481AbhHaTAj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 31 Aug 2021 15:00:39 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0365AC061760
-        for <selinux@vger.kernel.org>; Tue, 31 Aug 2021 11:59:44 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id bt14so1029507ejb.3
-        for <selinux@vger.kernel.org>; Tue, 31 Aug 2021 11:59:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=K4O58ZgiMsf0cCMtsvw/t7AJFM1T3tlDvm3uUGsU/to=;
-        b=m/p6PQxMro/Ee7fR7WvozEwx71BnscpCpL2xs1XR6unVL7bfCWki5mm/DL8tzkxtlv
-         IgmDAUJlZv7+KUUNuYAb3NRkVROzdUIxdGRwwrqEOUO0vD6Cu/HZq+bSFieTd9983AeD
-         YktyhmMz20Tq1h8uROtJTQQFwlHuUy+Bds8+ZIoQqHDYDTRBZ7xIrXRop6SBBaMcqz3D
-         KSsC4i4L46l25F26x2rXCk4fmowpOEt5kNPUpUjO3ZN5jtoqzJulRjdNVM64Yw8ZBWOt
-         rXYGE77kjE3hfKV3j/NE4j8c0xfhsFszf/XJGAR6u3atTQlztdBXyq7sYYSIi6VfUO2y
-         mhuw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=K4O58ZgiMsf0cCMtsvw/t7AJFM1T3tlDvm3uUGsU/to=;
-        b=dsPnPG2S7vv7wM3LQOQUkTkuIcTEhE0SONF7cjnk7JuPlGT6n3g+fdZfDwDcM2xm7G
-         U7r24pWUCSxRy22gJkVl+kUbuCdBKoEJjGs63pGXNVdRdnNxkS/YvCX9W8whPWBqJuti
-         E8iGOKQSGU0FI0FjzlHoMZErPLO4ey5NAGv+kMRveyReMHYJQ2o9I+A96FWNUDiuQSEz
-         QuUQhY4lA8ZpW297mufA8bXBX/mGn2d7zwKPML/+vS4PgYVZDlTRJax+C84KgiNMqNAY
-         jDRw8OfZcuO+8puqK9anpHBUmMvc5TpxcAdy0ePPWBQ1N/L05QKLeqZMJ+zfLiuZC+D2
-         akBQ==
-X-Gm-Message-State: AOAM533C2Cl7MiYiB87XNVDgT56ItBnQ0VwkhhzpjsAWNlSu+uQoOYqe
-        dj7lodp3LuJga6AYX4aEMgIz5B1XeHLivplTCAKl
-X-Google-Smtp-Source: ABdhPJynhzjWiT5WygcinC1v/vpSrVXtKhAajoj91Y8oOaAf641QOi9pajzp20JXEjTMXZ2nBzK8acBfiZKG6sYGsHg=
-X-Received: by 2002:a17:906:2cd6:: with SMTP id r22mr31706715ejr.398.1630436382385;
- Tue, 31 Aug 2021 11:59:42 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210616085118.1141101-1-omosnace@redhat.com> <CAPcyv4jvR8CT4rYODR5KUHNdiqMwQSwJZ+OkVf61kLT3JfjC_Q@mail.gmail.com>
- <CAFqZXNtuH0329Xvcb415Kar-=o6wwrkFuiP8BZ_2OQhHLqkkAg@mail.gmail.com>
- <CAHC9VhTGECM2p+Q8n48aSdfJzY6XrpXQ5tcFurjWc4A3n8Qxjg@mail.gmail.com> <CAPcyv4i8YXo=xOL2vO67KLABQRDNAxzrzT=a1xtwtrts5pVPKw@mail.gmail.com>
-In-Reply-To: <CAPcyv4i8YXo=xOL2vO67KLABQRDNAxzrzT=a1xtwtrts5pVPKw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 31 Aug 2021 14:59:31 -0400
-Message-ID: <CAHC9VhReGcV=cngDMmAcEiS2NpkXZQ6b09go9m0omzxLdrUQXg@mail.gmail.com>
-Subject: Re: [PATCH v3] lockdown,selinux: fix wrong subject in some SELinux
- lockdown checks
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        X86 ML <x86@kernel.org>,
-        Linux ACPI <linux-acpi@vger.kernel.org>,
-        linux-cxl@vger.kernel.org, linux-efi <linux-efi@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux PCI <linux-pci@vger.kernel.org>,
-        Linux-pm mailing list <linux-pm@vger.kernel.org>,
-        linux-serial@vger.kernel.org, bpf <bpf@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Kexec Mailing List <kexec@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S234672AbhHaUHc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 31 Aug 2021 16:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229476AbhHaUHc (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 31 Aug 2021 16:07:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 64D886054E;
+        Tue, 31 Aug 2021 20:06:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630440396;
+        bh=671R0W6BoCjcyUP/o/JoH6eMm1f7i+EfnB0Bg1vlmGM=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=itRBkDwkaBRAuY7xkfKbKo30MXVU4KAa+v/i4/Fn3D60oxe271TD/OkKrRJCWEMBQ
+         csTS9vBqGWhpmin30dK51akwV92pdMu4BY2ZsJpgU5au0sItBqPzCbAU2EF93b62od
+         2F6fzCEbPaFmMNlIgT/IP/eKqNACi282LEbDMp4zAQTBA3yXsXLlNouePYQ/XYO38c
+         4C8Ovj+aXI4lrpdz+GosEP7iLA4Wl67XqPOeZ9VidspEZv1xiG0oyDyDrQE5A7Nv3E
+         AAJcsbkz8TYIcY7nhaWqfLZePHXIPotxkY5c6s4yAjXHJ9NO24GVtBwsNWNtcYkyPQ
+         y/nmZmfbHuuBw==
+Subject: Re: [GIT PULL] SELinux patches for v5.15
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhQDQ2WF+gsRdC+3g6FLa19nvbka99zE0s_ZbupucpmJmQ@mail.gmail.com>
+References: <CAHC9VhQDQ2WF+gsRdC+3g6FLa19nvbka99zE0s_ZbupucpmJmQ@mail.gmail.com>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhQDQ2WF+gsRdC+3g6FLa19nvbka99zE0s_ZbupucpmJmQ@mail.gmail.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20210830
+X-PR-Tracked-Commit-Id: 893c47d1964f5c9b00c5468f2cd1a1e9351fbb6a
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: befa491ce6954adadb181c464d0318925f18e499
+Message-Id: <163044039629.15638.5361450733762426279.pr-tracker-bot@kernel.org>
+Date:   Tue, 31 Aug 2021 20:06:36 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 31, 2021 at 2:58 PM Dan Williams <dan.j.williams@intel.com> wrote:
-> On Tue, Aug 31, 2021 at 6:53 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Tue, Aug 31, 2021 at 5:09 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > On Sat, Jun 19, 2021 at 12:18 AM Dan Williams <dan.j.williams@intel.com> wrote:
-> > > > On Wed, Jun 16, 2021 at 1:51 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > ...
-> >
-> > > > > diff --git a/drivers/cxl/mem.c b/drivers/cxl/mem.c
-> > > > > index 2acc6173da36..c1747b6555c7 100644
-> > > > > --- a/drivers/cxl/mem.c
-> > > > > +++ b/drivers/cxl/mem.c
-> > > > > @@ -568,7 +568,7 @@ static bool cxl_mem_raw_command_allowed(u16 opcode)
-> > > > >         if (!IS_ENABLED(CONFIG_CXL_MEM_RAW_COMMANDS))
-> > > > >                 return false;
-> > > > >
-> > > > > -       if (security_locked_down(LOCKDOWN_NONE))
-> > > > > +       if (security_locked_down(current_cred(), LOCKDOWN_NONE))
-> > > >
-> > > > Acked-by: Dan Williams <dan.j.williams@intel.com>
-> > > >
-> > > > ...however that usage looks wrong. The expectation is that if kernel
-> > > > integrity protections are enabled then raw command access should be
-> > > > disabled. So I think that should be equivalent to LOCKDOWN_PCI_ACCESS
-> > > > in terms of the command capabilities to filter.
-> > >
-> > > Yes, the LOCKDOWN_NONE seems wrong here... but it's a pre-existing bug
-> > > and I didn't want to go down yet another rabbit hole trying to fix it.
-> > > I'll look at this again once this patch is settled - it may indeed be
-> > > as simple as replacing LOCKDOWN_NONE with LOCKDOWN_PCI_ACCESS.
-> >
-> > At this point you should be well aware of my distaste for merging
-> > patches that have known bugs in them.  Yes, this is a pre-existing
-> > condition, but it seems well within the scope of this work to address
-> > it as well.
-> >
-> > This isn't something that is going to get merged while the merge
-> > window is open, so at the very least you've got almost two weeks to
-> > sort this out - please do that.
->
-> Yes, apologies, I should have sent the fix shortly after noticing the
-> problem. I'll get the CXL bug fix out of the way so Ondrej can move
-> this along.
+The pull request you sent on Mon, 30 Aug 2021 12:36:41 -0400:
 
-Thanks Dan.
+> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20210830
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/befa491ce6954adadb181c464d0318925f18e499
+
+Thank you!
 
 -- 
-paul moore
-www.paul-moore.com
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
