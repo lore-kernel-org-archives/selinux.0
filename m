@@ -8,110 +8,189 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8E62C432BE
-	for <selinux@archiver.kernel.org>; Wed,  1 Sep 2021 20:42:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37DBCC4320A
+	for <selinux@archiver.kernel.org>; Wed,  1 Sep 2021 20:43:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BAE46101B
-	for <selinux@archiver.kernel.org>; Wed,  1 Sep 2021 20:42:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16A526101B
+	for <selinux@archiver.kernel.org>; Wed,  1 Sep 2021 20:43:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230391AbhIAUn4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Sep 2021 16:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60570 "EHLO
+        id S229884AbhIAUn5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Sep 2021 16:43:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229884AbhIAUnz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Sep 2021 16:43:55 -0400
-Received: from mail-qv1-xf33.google.com (mail-qv1-xf33.google.com [IPv6:2607:f8b0:4864:20::f33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BFFC061575
-        for <selinux@vger.kernel.org>; Wed,  1 Sep 2021 13:42:58 -0700 (PDT)
-Received: by mail-qv1-xf33.google.com with SMTP id e18so643151qvo.1
-        for <selinux@vger.kernel.org>; Wed, 01 Sep 2021 13:42:58 -0700 (PDT)
+        with ESMTP id S231420AbhIAUn4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Sep 2021 16:43:56 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D21C061757
+        for <selinux@vger.kernel.org>; Wed,  1 Sep 2021 13:42:59 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id g11so642534qvd.2
+        for <selinux@vger.kernel.org>; Wed, 01 Sep 2021 13:42:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oBdo6BIoWnUCgTbxazMexOgxpUKVdyGWCV36lfgA5qQ=;
-        b=oJuTX5xgMPRQGqgBL/d8Q+ftmhEBpIBgxAm3Kxkg5Dij1GP/qLyMCs/VuV39gwkJ7F
-         f1wc7qm4xEXvxoxEzJi3NsPVL4o8jYOef04DqzobijG/YA9D2h0Px9SiDZH24o5enIj3
-         du9+D6JV9EtClexYeAlaGyt8x2LGLWsgrfv/yMHjhqHqgfs33+0dMXv1TDrG675eH8hJ
-         Vzlt5kqV2TzS798ekQ6Rq0UkyzZXcTFJStpgocxu6tUfAwRtnSEYqYtvuzKE59qd+pQC
-         1yItDMI04qd1KllWuliKekrScj7VIqatX77u6TaeGJ86fINRwrZz0muGJ3AVV1aaHZ3n
-         5EJg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=/NjZwsYCiHGjuSDMshk1Clj4cS/+ywxfVtoDuut/2LI=;
+        b=cpiV2HH371nYWGKNgAVrKgojJwurYlnBNK1l6FwlUw23wBiorWCJppQHz/IE8az5nY
+         LZ4UNHhCZCLFl23FSctpsWNnNuJMKXL/0LBLLKFe2muKbdOgc3ncg5VYaq4F8fEAXiYe
+         8K7zahTAyMkPEgsa5GiUNMTbV7IgyC3mRvdBtxEH6PbOjHBp4Di6v17eCsHKnlw/Xyov
+         DLVXeb0ZgO/d/AGPOvxDFe8aydUG/kDYTxM7X0Rc+4xLPZ/j0MTHZc3TdB8/wLUjIb+1
+         8i9mgJk/hs7PB/tT506D60gVG7f+oTDGZD1+LLcTin30HjcjZpBVSn13qAn4gnPppWPx
+         vksQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oBdo6BIoWnUCgTbxazMexOgxpUKVdyGWCV36lfgA5qQ=;
-        b=emg1PZedS+BJ2o+UWH5FbrEG93sKE/Ic4S79omxKSuEAzzpDMjowkkJLYl2NIgk8ub
-         u1udxYRXqFJAzPXCwUxos0O03CAFqMvCkaRMwdfRRoqDq0d+fqHbf2IYq4n3Dv8FyXIw
-         Aa2CRHO/VB8JeV5asXIh24gxinrhiDBtdFsTLaG1K6M6DrjYcMbN7OdH994Ij0eo27qZ
-         8tTKKTYpKOe139i9HjHR3BR8nY6X2ETz6eJFOi4BX5++fziO68oh80Zhe0C6gf4fpjDO
-         AXZEHzY4hxxwfNqqYvCPAb3GqJByM+b/Yce10TiVPcq8DbiyIZC1STjiWR07b3+wYU+h
-         A2Jg==
-X-Gm-Message-State: AOAM533KYut5/RcJyZ8fvedkCCB1hPKlqZvBVsSq+vwK/4lQhctj4ckL
-        m+QHBLzwAWpbIBVgzrV9PhQvq4e44Ug=
-X-Google-Smtp-Source: ABdhPJzM5tMteuiy3Km0eJZjfAA9IGBzn049qWGfHY18kzeROgCFf1r4yRFnfHfaTCa1LMkvzvUGjA==
-X-Received: by 2002:a0c:e803:: with SMTP id y3mr1762772qvn.39.1630528977404;
-        Wed, 01 Sep 2021 13:42:57 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=/NjZwsYCiHGjuSDMshk1Clj4cS/+ywxfVtoDuut/2LI=;
+        b=s8SS+EPDJX9ocA4UVn+XLfWiCUVf9SWxh8IFG/8XReK6C/VMclp76HY37Qkv9BRfKa
+         9x6LVU0jaI5r2WZJkqabWEdKoEVXSfWSqloVg1r9AC8E1uHZE2/XKQD075Ajvyme9z+y
+         dC5012Zr18b2LaruD1ansBX+WHPQihjwylMDKeMhxYqq+yyhPdMTGZkz99Qd/ryOqOhq
+         IU2OU4QgmCTrNpDVJ+tiLOUw7fHBSRlvmgnGfBhhTJ7B46GbCxSBcGnKsOZ1a9l4OBRE
+         oWi0csrYbAszfziO2UZoYig/ZIGoC+C0CBwzIauCKUUmMzldqwsq20A5JT07O03pU4CJ
+         XFiQ==
+X-Gm-Message-State: AOAM532C0qtSjG+brOsBOLM7f5VonIbfgFP4aV9fz6MrrwKZrgPQOuGR
+        vblogxodKM0sYsEgnLTBtmHQ4a0PnSs=
+X-Google-Smtp-Source: ABdhPJwq7zvxwZuXm828SQDC923HQtZbSluyHhcD4Lee4Qpob+98xKy+N7dfbBJXTFEt4bcllLsDhg==
+X-Received: by 2002:a0c:d6cd:: with SMTP id l13mr1791737qvi.24.1630528978680;
+        Wed, 01 Sep 2021 13:42:58 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id x23sm500098qkn.29.2021.09.01.13.42.56
+        by smtp.gmail.com with ESMTPSA id x23sm500098qkn.29.2021.09.01.13.42.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Sep 2021 13:42:57 -0700 (PDT)
+        Wed, 01 Sep 2021 13:42:58 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/3 v2] libsepol/cil: Remove redundant syntax checking
-Date:   Wed,  1 Sep 2021 16:42:50 -0400
-Message-Id: <20210901204252.635570-1-jwcart2@gmail.com>
+Subject: [PATCH 3/3 v2] libsepol/cil: Fix syntax checking in __cil_verify_syntax()
+Date:   Wed,  1 Sep 2021 16:42:52 -0400
+Message-Id: <20210901204252.635570-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210901204252.635570-1-jwcart2@gmail.com>
+References: <20210901204252.635570-1-jwcart2@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-For every call to cil_fill_classperms_list(), the syntax of the
-whole rule, including the class permissions, has already been
-checked. There is no reason to check it again. Also, because the
-class permissions appear in the middle of some rules, like
-constraints, the syntax array does not end with CIL_SYN_END. This
-is the only case where the syntax array does not end with CIL_SYN_END.
-This prevents __cil_verify_syntax() from requiring that the syntax
-array ends with CIL_SYN_END.
+The function __cil_verify_syntax() is used to check the syntax of
+CIL rules (and a few other common things like contexts and class
+permissions). It does not correctly check the syntax combination
+"CIL_SYN_STRING | CIL_SYN_N_LISTS, CIL_SYN_N_LISTS | CIL_SYN_END".
+This should mean either a string followed by any number of lists
+or any number of lists followed by the end of the rule. Instead,
+while allowing the correct syntax, it allows any number of lists
+followed by a string followed by any number of more lists followed
+by the end of the rule and, also, any number of lists followed by a
+string followed by the end of the rule.
 
-Remove the redundant syntax checking in cil_fill_classperms_list().
+Refactor the function to make it clearer to follow and so that once
+checking begins for CIL_SYN_N_LISTS or CIL_SYN_N_STRINGS, then only
+strings or lists are allowed until the end of the rule is found. In
+addition, always check for CIL_SYN_END at the end.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-v2: Same as v1
+v2: Put parenthesis around bitwise operations.
+    Using size_t for len and i as changed by patch 2.
 
- libsepol/cil/src/cil_build_ast.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ libsepol/cil/src/cil_verify.c | 71 ++++++++++++-----------------------
+ 1 file changed, 23 insertions(+), 48 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index a5afc267..f0bb8c0c 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -736,20 +736,11 @@ int cil_fill_classperms_list(struct cil_tree_node *parse_current, struct cil_lis
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 6438ceba..5502c4d5 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -146,68 +146,43 @@ exit:
+ 
+ int __cil_verify_syntax(struct cil_tree_node *parse_current, enum cil_syntax s[], size_t len)
  {
- 	int rc = SEPOL_ERR;
- 	struct cil_tree_node *curr;
--	enum cil_syntax syntax[] = {
--		CIL_SYN_STRING | CIL_SYN_LIST,
--	};
--	int syntax_len = sizeof(syntax)/sizeof(*syntax);
+-	int rc = SEPOL_ERR;
+-	int num_extras = 0;
+ 	struct cil_tree_node *c = parse_current;
+ 	size_t i = 0;
+-	while (i < len) {
+-		if ((s[i] & CIL_SYN_END) && c == NULL) {
+-			break;
+-		}
  
- 	if (parse_current == NULL || cp_list == NULL) {
- 		goto exit;
- 	}
- 
--	rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
--	if (rc != SEPOL_OK) {
--		goto exit;
--	}
+-		if (s[i] & CIL_SYN_N_LISTS || s[i] & CIL_SYN_N_STRINGS) {
+-			if (c == NULL) {
+-				if (num_extras > 0) {
+-					i++;
+-					continue;
++	while (i < len && c != NULL) {
++		if ((s[i] & CIL_SYN_STRING) && c->data != NULL && c->cl_head == NULL) {
++			c = c->next;
++			i++;
++		} else if ((s[i] & CIL_SYN_LIST) && c->data == NULL && c->cl_head != NULL) {
++			c = c->next;
++			i++;
++		} else if ((s[i] & CIL_SYN_EMPTY_LIST) && c->data == NULL && c->cl_head == NULL) {
++			c = c->next;
++			i++;
++		} else if ((s[i] & CIL_SYN_N_LISTS) || (s[i] & CIL_SYN_N_STRINGS)) {
++			while (c != NULL) {
++				if ((s[i] & CIL_SYN_N_LISTS) && c->data == NULL && c->cl_head != NULL) {
++					c = c->next;
++				} else if ((s[i] & CIL_SYN_N_STRINGS) && c->data != NULL && c->cl_head == NULL) {
++					c = c->next;
+ 				} else {
+ 					goto exit;
+ 				}
+-			} else if ((s[i] & CIL_SYN_N_LISTS) && (c->data == NULL && c->cl_head != NULL)) {
+-				c = c->next;
+-				num_extras++;
+-				continue;
+-			} else if ((s[i] & CIL_SYN_N_STRINGS) && (c->data != NULL && c->cl_head == NULL)) {
+-				c = c->next;
+-				num_extras++;
+-				continue;
+ 			}
+-		}
 -
- 	cil_list_init(cp_list, CIL_CLASSPERMS);
+-		if (c == NULL) {
++			i++;
++			break; /* Only CIL_SYN_END allowed after these */
++		} else {
+ 			goto exit;
+ 		}
++	}
  
- 	curr = parse_current->cl_head;
+-		if (s[i] & CIL_SYN_STRING) {
+-			if (c->data != NULL && c->cl_head == NULL) {
+-				c = c->next;
+-				i++;
+-				continue;
+-			}
+-		}
+-
+-		if (s[i] & CIL_SYN_LIST) {
+-			if (c->data == NULL && c->cl_head != NULL) {
+-				c = c->next;
+-				i++;
+-				continue;
+-			}
+-		}
+-
+-		if (s[i] & CIL_SYN_EMPTY_LIST) {
+-			if (c->data == NULL && c->cl_head == NULL) {
+-				c = c->next;
+-				i++;
+-				continue;
+-			}
+-		}
+-		goto exit;
++	if (i < len && (s[i] & CIL_SYN_END) && c == NULL) {
++		return SEPOL_OK;
+ 	}
+-	return SEPOL_OK;
+ 
+ exit:
+ 	cil_log(CIL_ERR, "Invalid syntax\n");
+-	return rc;
++	return SEPOL_ERR;
+ }
+ 
+ int cil_verify_expr_syntax(struct cil_tree_node *current, enum cil_flavor op, enum cil_flavor expr_flavor)
 -- 
 2.31.1
 
