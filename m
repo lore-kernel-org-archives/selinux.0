@@ -7,79 +7,81 @@ X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F252AC433F5
-	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 18:55:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 227ECC433EF
+	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 19:20:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C7395610A2
-	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 18:55:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F07EF61056
+	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 19:20:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347038AbhIBS4W (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Sep 2021 14:56:22 -0400
-Received: from sonic308-15.consmr.mail.ne1.yahoo.com ([66.163.187.38]:39972
+        id S1347361AbhIBTVK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Sep 2021 15:21:10 -0400
+Received: from sonic308-15.consmr.mail.ne1.yahoo.com ([66.163.187.38]:42239
         "EHLO sonic308-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1347156AbhIBS4T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 2 Sep 2021 14:56:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1630608919; bh=0WOeJpk/zazIMthMyub2nCD0LfMvutspgWyuKpVKBQ8=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=dm+1+cFX1mXKPPvenxSl5lSM0hXw7HZgEyBytyO34ugBwSbNWHENw/W4vnj3js5wy+ZFRFYxdZ7wQlgyfU60mRCp23Qa/ASY9c37dTfG6yVSjVBzy8eZSOJY24IRDDOCbYMRtsZUqVNi7TGXSFhM5UDi0b5HiTzoVo1UnUEYmRn9zYF6sBxaoNLe6SvQT5Lhn9E93PHm8ZzcgH7nOQszLR2rsgf4lQehRlUm9S3uMzyf7zAdFgXyFiOO0LP5U4efKRDmjiccgAGpM5gcIudCct6lyrs+VgfnqHIJ1Q204VQT+NkMrv0loFCvrWnHA+G2E85ziU4BkbkUQpnGYjgPGQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1630608919; bh=1Xtx0bDAJIi5P8PdlWEisRpQ9wjTIKOu/DTJPSYgtKo=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=LU+yKezY1IHcXtNVwjPDcUw/Wu1Ic5/gy5UZwFm7vyvxC4EhoZp8S0As8Wcws/HgfB7bhGOGqTHo3ATMSi53Z22m/gla9W0tYIZEPOxVGfeMnWn5B2pQchUHCXgmmPNUwlPnYK+Au7mUATi4qF1iMqd07M56d2c1zaL5+2huVFgxG4uDmwpIDCnJ8NTu7+xPQ6eSGm02ICTLbuXkP9PAsbKtzGwcCkCirzK+8ASAHz1K+TmATZnuSXdX4LMdFsrL26mnBMGj5FjoBUsvPZMxahWdWmIXgTIrw5RhdAIysKOzsrkc8mcrBQ70y1u/vIdeRWZ97QZczVBugCIvbM/pLg==
-X-YMail-OSG: nPUKm7MVM1llNN5jCWhNCIAaOoOqRogcLaoS9aPriR00O3Jmahp97eDihP8HsQf
- l_AJxpya68H968tmfJsRMHkT5wjB68TPgWZkWmMlrnI0KKrPwlQCHoYnqzk76.D0chxk7gZgp4ga
- wV2c3prfn35qYKK6Qw5d4nAHSc_gFyUJCKhUN7OZBVuevxzEtFF3SIxAhod6sbZXFbFJ595ftuhZ
- NlLBk1pxEYTo_IgOTIc4pnFJOhD4_.7MDvHp1FLDH6sWz4T9JV08khSLGrdblKEXsH1AdfO_7KL0
- .BlHbJbQ9V2celSbBz77oH5royLYIamGWUIPu8QIfiwNOQO7duJRKuPdXrjQrYwifj8g8cBUQjfI
- OkciLChE_ubtl1L.GlJq7zziIIS3BeAvytL4MKF2U0OelmDxoOFzATM2H3o1oIN61t661kMhEiRt
- 3UZSG3kbiWo8y0eklWnRzIgrr2XIcEoYujPeQzYJ8.EFtCeKuNpeWOEcqqtHodOCSffKqx5qm9dF
- 3vj60h16B9bsD67pHo8I0oBtof15KKvN5ytg5L.hIuyB_u8wifgmuoG9OuZE3MQITih3wCrMA1D8
- GRJrYD4hI.Ijg3c1alL04TFAR.7YNSQ5JnHwxm1aN7CB6PjJI2TCyu1m_.yFf1RqkgHvKohnR1jc
- h_py9ZT1cturacEyZDRzP8jDpp.8OEifoTRbUFN5XTpIcSfFCfFU3tnCQmF4gu1w5Rw3UrzjLfy6
- cp6r2OZ.tt00tGqZTwNnQSPfWbXRd_S20y1eGZeXC_WrGRifO_5iRdoJDcqTmJNPMSmXo.O7k79R
- 4y9VK6h270FC2jnfFEsNV5gvAFfhv_870pYkzk3Jmwb6vbHqVHxa7GaYTDklCww.WRoJclWiE0CO
- TeNCJzap1Q._SnRVY1RI9at_1_HVQtYLDo47C6_x2WHNXuT6XL9z44t25mD6o3zltceCgHu3vigh
- _PbR6M1Ayr0Lj94RkMFPe0JZjgI.JV_mnjnYqTWt7ppT0N2GMp5oFlu4_f3OajYKh5jlAQjvXecT
- dfSZ4JLfq4n_Aap8_BXc5V0dbIYhUVrdYMjogg9hdXQn5w_rTQPSsJ7P3Wj61.cEMSHUJBNyDJTP
- B5JELiWbI9xyGNMQxKoxIS9_3bFx9NJ5ArKZeacXv2qMgJRIXs5wdXWUDgobP0nNBWfnLU5TgFTr
- _QF7I7ReyC1CWy0IOX0p_AD7eJsYh7QdTORfYb8finBv3voxCsbu2JuWpVzpfwHFkGtIGC.QK5PZ
- ul.YIYs87p2bx_PsWVITJQ28a9IUY14lt8_3xVsZ5KNLbQcBodJ8zoL_sSIIqTl5uEEsoPJj0AHp
- DRKdiHNXSib2FBKuVXWN_ZfqOnNg586WHAJkqRmYu4tjKthURNi_7dsLmFLMbaxwSt.URbIkCFh2
- KJp3CLW8bgCr95goLct.So2l4bqu0si7P4amPLlz7KOrVxWuMpxfFSCI6T5IQ8Dt.fPn5Nbh_dtK
- eJrUJQ4.zuq2TupRaKMMbESCH7sAT1GQvXPU6viJDiBiS8VsFHRGhWeYg4uvTg_mrxRM.fGZ5K9M
- 02zLrP3SSeNIfHjqgTUqLRLBC.1R.eDoeCX.bWEE320UjLC3IC0n2zgrMPODCCKeIWp0hcvvYeOa
- 8jD8kopQ2jNaiA2BrpL7UmPhaz9do_tV.7c_v_3TfAHd5dsHOBH0M5ec.rtz_Tl4caa_sR.hh84J
- N0SJm.sAbCTX.voVXzanw42rmaldD2TQdQBRB1A8SLknSuHCaHAanZFImGp56Li7PwUPNzx8eSBE
- 1ypaITgFQEqBDHWpCqeTUR3DuQR579xhmCTIa0wTm31vbRyXNVvADmtE.BRnj5xP76gTYoZZFr.J
- SGZEDHqdRaqamvin7azleh87.105W9cDOnJsBpFtQyq2gMdjmUF4Wk_njrPWAdFgrxTMH9amLzzI
- 4SP.yoyzZ6ahqX9VrL.aKUWtT0zB1oqlsEJ7bvUiPbwgF076O6QlkMJxlXau.knlCC6zvJf0qH17
- EXnUnDau5mnbewdGhdeU65Wy8aqcyCLK4HiY.dE_cFiWwQ6Q23TttwCX9NRcAcjRX6uL6mrGxkev
- Y8oRKxNV.3YKGjMwGyQ8OCAPvh2uVMFYLlKaW3zsr6asAEf4mUb3eTrsfeKa.588nNfzR4cmiJti
- u5GFks7rlCTF.g2rn9DvQxl5dDo8GQnqLaIDrgMWou_FJjxodXvzba6NSU6WO9itD2lL3NuDR0FW
- fmEfAU8qsRYhjhfKGqWrVTT8SqlDu_8VotOaDvb6bg5kWRoVyz0KLfAAWCLmUjjr3RKKQplOudiP
- DIF_CJHtqVOngIZz4jJebtnBOJJnd.E_oj3bFd4JOwa.8ssSEbizp4hPY3iaVrsWUhWjqRq9ZpyI
- 9HsryI.CvQED2hiskjyaIpCHGizUvaXwVef0O_SXNA1Xbq.GRDepHkiO6Ou3DkNpR_dVQW0jtHtr
- emt3aZChmrFcr
+        by vger.kernel.org with ESMTP id S1347358AbhIBTVC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 2 Sep 2021 15:21:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1630610403; bh=5g1XEZzAWFktTaX29oZVU313MlCGCdyLEEo/HSTsE48=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=qW949QlTlna5+NG2mn2w6JJdRr++EbWB3Kk++WWPtBbKAueU3SEgoJ1BPpQZUYiFsXI86t55rrgnpx//DQ9fUtifxzNtl0fknUAsdsE2fA3PmLFvBisBiakeU4DHccpu0HTiIazoVZqBVmFXDSZDK0LIUwupeGVk0P26hibC5Y9adszDLSgbNNnUtRucKcTZdsMWnLCoAE186Cke0zPKX0Ba3VMaiZE2Xr/ww+nVRU2KKDKTxgceSnkWJhqWSYvOvo4J3E4rqUIfEHhex6wryqi22cfqq/piv1hfhy65041MQR1UUP6gHt6BoWS6YI11k1zBuV2EpavezaM/W7h52w==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1630610403; bh=P03CqILEN5fj69nSRgrOpzWXwnXU2noUJzuka3keEQb=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=RDbxtUa2pbUj8Thl3veWFKo+1yNMzCaoDMw/FszeuICYvsl+uh5o2zKPaNsRi754zHL006fnm3JvnUIp210raYY0mvkXFQHbet9oIlc9j/3prnTF1sNjeA5aznMWGo2ylGg2Fku3gvbViajbIgL7pQce7RFEwSgiU8ylMFFNK/swvYRwsPZJfDc0n/FbRho4SYiao0RYCzMC/wWKSaG+C3/CmIqjsC6W8ZM05MBIaYOS0D2sPz1uAXEutQq6gI1E/JuOLLJdEeX9WtbwWqleuHMD5CPu/2Luqi5iQnr1RNJfFQRtEMl6Ls/+0ZSZQBiPsXKZtPruiN1METdAOR+OZg==
+X-YMail-OSG: X1CwLN0VM1k2IDo.CcbEJiIffWj7OMv8WteW8UDfIGAxki3jwKDpwVw.K9a1oMa
+ Mnh1oE.pyyTf.d_DzDx0bqDWipzXU6Oeh2J9n4viGEBwB48Owu3UPPj_zWsD67QWRdrBqggZPgWD
+ wY9Xs8AJjpV7TZAuMfSOVvIAgiDL3T8PWVyuUmM21iJiSRSpEBrYKm4au2TayiFUvCcEdebohmuR
+ grVZvtEHlqzDhgbUQdyPe0U1kH8LmIn2TQSxOa4iZYJ5ITUEsUl5oBtiXl3msAIjYV_jdfNXjoRZ
+ Ln3bRoZwr5pUZ2ZWGH1fRVwhBYEyP1Erehma40v.VY.1bi1NL8Y402NKKjIPjJMKtYa6XglScaHm
+ hqniefwSl3zPTVQjJ8AVx0JKi7MQuCbONebYPhvsnivcDNS1kzDZs8TcJU2bC9b3.8YZOVmlEeRo
+ Ffl3z8N8PcQ_MkBbPCzZ2JNMwacpz6RpfdD.XM6C4WVNcwL44Gam.X2UIsKv7u1GClCbun6QN7kz
+ EbWHsxHKCSIdR6WN1je1SNK41446FfQhR.8SD8t4ddYvdBLk1Iw6E9i2a4zEPW7En2cgNjkAkXm4
+ YsP4i9JFC_PjB1KyorxsM1pSY2b3bd4RtiiQUHL9C.Nx3FmbEtR7VKKdiawnGLJlYzqFk3QNk4LL
+ Cc7qU4oBAm41Xof6MZLzdTDCGwrUS8KUezK_eraydEd3uTOKyfNWCylsaEO93hIS22zEfH_enixQ
+ h_gIcRZpsRnnDnBT4VYxJx3watFrx2X54YyrtG9cSJIjFvZ0No8N1z5Ud0Go198K91a8oedw7Q_8
+ z5C1iDVImvJRjZXOgeHBkcODuknmc43Cfn9Fe9z63zFZCloXhNGGbtadHRhBdw8f6GYoadku2vgh
+ lGeODFAx5Yn3BVjlWGL_MW9Cp6_N4fvjRWW4Ab66co1M0KmSRFwXwTjARag06OiXv9dREAHr7JSq
+ ZVdQlslg1rHenkUYlfc_NMJUbe9HlUBbVbCXxk1vt2T1XooXguc9X5Qx1faYKyg0NHGhg4np.jPM
+ vQHoeyqytoDIUd2ra2umtEMa3vH4tJHfh_c62BKhZbQR0GNsyeGSIfcQ7Uq4NBujmUO4yACSc44m
+ ibnrg6Ikx6gP.iXKbGnRstTjUJbtaBGqgVBC2mltVpaXRXlBQQDKFcW9sTZ0KZlhn37IgHakM1vD
+ oXvusc7E1QJEEXsaRcA06GTOHY_76VA5oefNOtQ7zz0eMQ9zO1y9FQmTDXedsyzDjgumAe2lo1k9
+ LQmgKLeSZnXFVxg1b5uyneumfiqIskigye7p3X6p3F_eCqhNpCfUvubqIIAMN4gmMC6hcrd6C6lu
+ .7X_C0CsiWh9Nb8JtrsYZTFx3a6Ph90AF6kEzzyErBWWFEV9.McxdfMye4jvXdjDeXaIA1ZDIV7m
+ kHZGghT7At5XhxOdgbx5xrqW16yvezO6Rm4D7BGyFG6jLme5OevXy..BrqsFKzQj6e88wFVUZCSp
+ FGIel4rn5ex5hHU3_Sa9qZZioIHYuD.Upnh08X9a5dnKg2wEl9akMX1wfQ.4ZAEhWoeyWApw_s2L
+ xtXUvokqy6qkNvkyXMPMuVToGqbTb7EA_DSEAwKQE4mc6oT6VIMiuvm9_JVQcjoeyzFsjwicTEIL
+ TEoIGfdeCdrAWVzRN9gwdKNkW4fysEJK4r6F.XTzVY3M8A2XpP_6zqKBdmHRsc5LAPaqFtc5aUHX
+ eqhTBPtYeC9q6ZNzuF9a6gtG8qvSsGz.bpEVf8Vp5iv.UGyzZyAEpQfyPI8yvRRkjZY4PLF0tgb8
+ XlBnbbsZiN638fmxKfGkO_e4c2SXEwWayBQvMqkOpOwCjI3T2R7d_Z22Q8OBMckTI1eL6n8iTgtv
+ PdxhG1dI9mNFQ145uIrmO9UBcel.y2qkzAKDDSrGvzQTyGxYifO7sufUal2UhxJg_Hm.HFAb7HM1
+ KT7TMimuFZpsKXFMHYBRJrWx7lDcJRiySyGAh8PulGr6seU0RFASnkSYPb4iln4azcj717bMQf1_
+ gsRtcdlhUAH2Nmmi.1SKIIBgV_zQjx25WBrgPSRFt5vlyQOzPDf82Kn_F6KVxnl2wQ.n.pDWpFpi
+ YX7SIwUdFF02MaVaDexWaSdnBgNQPqIpMlsR1UAdxi28kMqWaHtUPO_B0rKkpItmJDhEdxRIBD69
+ tPfF7Lw4yyxOBzar4n.FtjGcTGs_b8rLDyzKjXl5qyqhORwGuowxxDmIDqIj1v27dfkQ7Y_cxu.3
+ vDFTN.PYM94xJvuNohcqK9saTkHKyTMG2y7UbXsAMsqqix3aMG.zdhMhW_7GdWcT2RBHZLE..iPt
+ GQJPr25p2ldq4RYsNiSdc6ntCT2bYLHAkSyJdcuMn5Jeq1Lut9FKSrBbZirZ5ZIPB9kdAVXKRly6
+ dmWqOBIa68QYE.D8p8VaG
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Thu, 2 Sep 2021 18:55:19 +0000
-Received: by kubenode547.mail-prod1.omega.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 13fdf96c7e3db0dad6d6bf59b80ecbdc;
-          Thu, 02 Sep 2021 18:55:15 +0000 (UTC)
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Thu, 2 Sep 2021 19:20:03 +0000
+Received: by kubenode542.mail-prod1.omega.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID aa6438e1d146c0c33dc71ca26432e3e5;
+          Thu, 02 Sep 2021 19:19:57 +0000 (UTC)
 Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
-To:     Vivek Goyal <vgoyal@redhat.com>
-Cc:     viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, virtio-fs@redhat.com,
+To:     Vivek Goyal <vgoyal@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, virtio-fs@redhat.com,
         dwalsh@redhat.com, dgilbert@redhat.com,
         christian.brauner@ubuntu.com, casey.schaufler@intel.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
-        bfields@redhat.com, stephen.smalley.work@gmail.com,
-        agruenba@redhat.com, david@fromorbit.com,
+        LSM <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
+        Miklos Szeredi <miklos@szeredi.hu>, gscrivan@redhat.com,
+        "Fields, Bruce" <bfields@redhat.com>,
+        stephen.smalley.work@gmail.com, Dave Chinner <david@fromorbit.com>,
         Casey Schaufler <casey@schaufler-ca.com>
 References: <20210902152228.665959-1-vgoyal@redhat.com>
- <79dcd300-a441-cdba-e523-324733f892ca@schaufler-ca.com>
- <YTEEPZJ3kxWkcM9x@redhat.com> <YTENEAv6dw9QoYcY@redhat.com>
+ <CAHc6FU4foW+9ZwTRis3DXSJSMAvdb4jXcq7EFFArYgX7FQ1QYg@mail.gmail.com>
+ <YTEcYkAA2F1FhOvF@redhat.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <3bca47d0-747d-dd49-a03f-e0fa98eaa2f7@schaufler-ca.com>
-Date:   Thu, 2 Sep 2021 11:55:11 -0700
+Message-ID: <12b37acc-401a-4d44-085f-8f51077a0d10@schaufler-ca.com>
+Date:   Thu, 2 Sep 2021 12:19:54 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <YTENEAv6dw9QoYcY@redhat.com>
+In-Reply-To: <YTEcYkAA2F1FhOvF@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
@@ -88,217 +90,187 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/2/2021 10:42 AM, Vivek Goyal wrote:
-> On Thu, Sep 02, 2021 at 01:05:01PM -0400, Vivek Goyal wrote:
->> On Thu, Sep 02, 2021 at 08:43:50AM -0700, Casey Schaufler wrote:
->>> On 9/2/2021 8:22 AM, Vivek Goyal wrote:
->>>> Hi,
->>>>
->>>> This is V3 of the patch. Previous versions were posted here.
->>>>
->>>> v2:
->>>> https://lore.kernel.org/linux-fsdevel/20210708175738.360757-1-vgoyal=
-@redhat.com/
->>>> v1:
->>>> https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoya=
-l@redhat.co
->>>> +m/
->>>>
->>>> Changes since v2
->>>> ----------------
->>>> - Do not call inode_permission() for special files as file mode bits=
-
->>>>   on these files represent permissions to read/write from/to device
->>>>   and not necessarily permission to read/write xattrs. In this case
->>>>   now user.* extended xattrs can be read/written on special files
->>>>   as long as caller is owner of file or has CAP_FOWNER.
->>>> =20
->>>> - Fixed "man xattr". Will post a patch in same thread little later. =
-(J.
->>>>   Bruce Fields)
->>>>
->>>> - Fixed xfstest 062. Changed it to run only on older kernels where
->>>>   user extended xattrs are not allowed on symlinks/special files. Ad=
-ded
->>>>   a new replacement test 648 which does exactly what 062. Just that
->>>>   it is supposed to run on newer kernels where user extended xattrs
->>>>   are allowed on symlinks and special files. Will post patch in=20
->>>>   same thread (Ted Ts'o).
->>>>
->>>> Testing
->>>> -------
->>>> - Ran xfstest "./check -g auto" with and without patches and did not=
-
->>>>   notice any new failures.
->>>>
->>>> - Tested setting "user.*" xattr with ext4/xfs/btrfs/overlay/nfs
->>>>   filesystems and it works.
->>>> =20
->>>> Description
->>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->>>>
->>>> Right now we don't allow setting user.* xattrs on symlinks and speci=
-al
->>>> files at all. Initially I thought that real reason behind this
->>>> restriction is quota limitations but from last conversation it seeme=
-d
->>>> that real reason is that permission bits on symlink and special file=
-s
->>>> are special and different from regular files and directories, hence
->>>> this restriction is in place. (I tested with xfs user quota enabled =
-and
->>>> quota restrictions kicked in on symlink).
->>>>
->>>> This version of patch allows reading/writing user.* xattr on symlink=
- and
->>>> special files if caller is owner or priviliged (has CAP_FOWNER) w.r.=
-t inode.
->>> This part of your project makes perfect sense. There's no good
->>> security reason that you shouldn't set user.* xattrs on symlinks
->>> and/or special files.
+On 9/2/2021 11:48 AM, Vivek Goyal wrote:
+> On Thu, Sep 02, 2021 at 07:52:41PM +0200, Andreas Gruenbacher wrote:
+>> Hi,
+>>
+>> On Thu, Sep 2, 2021 at 5:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+>>> This is V3 of the patch. Previous versions were posted here.
 >>>
->>> However, your virtiofs use case is unreasonable.
->> Ok. So we can merge this patch irrespective of the fact whether virtio=
-fs
->> should make use of this mechanism or not, right?
-
-I don't see a security objection. I did see that Andreas Gruenbacher
-<agruenba@redhat.com> has objections to the behavior.
-
-
->>>> Who wants to set user.* xattr on symlink/special files
->>>> -----------------------------------------------------
->>>> I have primarily two users at this point of time.
->>>>
->>>> - virtiofs daemon.
->>>>
->>>> - fuse-overlay. Giuseppe, seems to set user.* xattr attrs on unprivi=
-liged
->>>>   fuse-overlay as well and he ran into similar issue. So fuse-overla=
-y
->>>>   should benefit from this change as well.
->>>>
->>>> Why virtiofsd wants to set user.* xattr on symlink/special files
->>>> ----------------------------------------------------------------
->>>> In virtiofs, actual file server is virtiosd daemon running on host.
->>>> There we have a mode where xattrs can be remapped to something else.=
-
->>>> For example security.selinux can be remapped to
->>>> user.virtiofsd.securit.selinux on the host.
->>> As I have stated before, this introduces a breach in security.
->>> It allows an unprivileged process on the host to manipulate the
->>> security state of the guest. This is horribly wrong. It is not
->>> sufficient to claim that the breach requires misconfiguration
->>> to exploit. Don't do this.
->> So couple of things.
->>
->> - Right now whole virtiofs model is relying on the fact that host
->>   unpriviliged users don't have access to shared directory. Otherwise
->>   guest process can simply drop a setuid root binary in shared directo=
-ry
->>   and unpriviliged process can execute it and take over host system.
->>
->>   So if virtiofs makes use of this mechanism, we are well with-in
->>   the existing constraints. If users don't follow the constraints,
->>   bad things can happen.
->>
->> - I think Smalley provided a solution for your concern in other thread=
-
->>   we discussed this issue.
->>
->>   https://lore.kernel.org/selinux/CAEjxPJ4411vL3+Ab-J0yrRTmXoEf8pVR3x3=
-CSRgPjfzwiUcDtw@mail.gmail.com/T/#mddea4cec7a68c3ee5e8826d650020361030209=
-d6
->>
->>
->>   "So for example if the host policy says that only virtiofsd can set
->> attributes on those files, then the guest MAC labels along with all
->> the other attributes are protected against tampering by any other
->> process on the host."
-
-You can't count on SELinux policy to address the issue on a
-system running Smack. Or any other user of system.* xattrs,
-be they in the kernel or user space. You can't even count on
-SELinux policy to be correct. virtiofs has to present a "safe"
-situation regardless of how security.* xattrs are used and
-regardless of which, if any, LSMs are configured. You can't
-do that with user.* attributes.
-
-
->>
->>  Apart from hiding the shared directory from unpriviliged processes,
->>  we could design selinux policy in such a way that only virtiofsd
->>  is allowed "setattr". That should make sure even in case of
->>  misconfiguration, unprivileged process is not able to change
->>  guest security xattrs stored in "user.virtiofs.security.selinux".
->>
->>  I think that sounds like a very reasonable proposition.
->>
->>>> This remapping is useful when SELinux is enabled in guest and virtio=
-fs
->>>> as being used as rootfs. Guest and host SELinux policy might not mat=
-ch
->>>> and host policy might deny security.selinux xattr setting by guest
->>>> onto host. Or host might have SELinux disabled and in that case to
->>>> be able to set security.selinux xattr, virtiofsd will need to have
->>>> CAP_SYS_ADMIN (which we are trying to avoid).
->>> Adding this mapping to virtiofs provides the breach for any
->>> LSM using xattrs.
->> I think both the points above answer this as well.
->>
->>>>  Being able to remap
->>>> guest security.selinux (or other xattrs) on host to something else
->>>> is also better from security point of view.
->>>>
->>>> But when we try this, we noticed that SELinux relabeling in guest
->>>> is failing on some symlinks. When I debugged a little more, I
->>>> came to know that "user.*" xattrs are not allowed on symlinks
->>>> or special files.
->>>>
->>>> So if we allow owner (or CAP_FOWNER) to set user.* xattr, it will
->>>> allow virtiofs to arbitrarily remap guests's xattrs to something
->>>> else on host and that solves this SELinux issue nicely and provides
->>>> two SELinux policies (host and guest) to co-exist nicely without
->>>> interfering with each other.
->>> virtiofs could use security.* or system.* xattrs instead of user.*
->>> xattrs. Don't use user.* xattrs.
->> So requirement is that every layer (host, guest and nested guest), wil=
+>>> v2: https://lore.kernel.org/linux-fsdevel/20210708175738.360757-1-vgo=
+yal@redhat.com/
+>>> v1: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vg=
+oyal@redhat.com/
+>>>
+>>> Changes since v2
+>>> ----------------
+>>> - Do not call inode_permission() for special files as file mode bits
+>>>   on these files represent permissions to read/write from/to device
+>>>   and not necessarily permission to read/write xattrs. In this case
+>>>   now user.* extended xattrs can be read/written on special files
+>>>   as long as caller is owner of file or has CAP_FOWNER.
+>>>
+>>> - Fixed "man xattr". Will post a patch in same thread little later. (=
+J.
+>>>   Bruce Fields)
+>>>
+>>> - Fixed xfstest 062. Changed it to run only on older kernels where
+>>>   user extended xattrs are not allowed on symlinks/special files. Add=
+ed
+>>>   a new replacement test 648 which does exactly what 062. Just that
+>>>   it is supposed to run on newer kernels where user extended xattrs
+>>>   are allowed on symlinks and special files. Will post patch in
+>>>   same thread (Ted Ts'o).
+>>>
+>>> Testing
+>>> -------
+>>> - Ran xfstest "./check -g auto" with and without patches and did not
+>>>   notice any new failures.
+>>>
+>>> - Tested setting "user.*" xattr with ext4/xfs/btrfs/overlay/nfs
+>>>   filesystems and it works.
+>>>
+>>> Description
+>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>
+>>> Right now we don't allow setting user.* xattrs on symlinks and specia=
 l
->> have a separate security.selinux label and virtiofsd should be able
->> to retrieve/set any of the labels depending on access.
->>
->> How do we achieve that with single security.selinux label per inode on=
- host.
-> I guess we could think of using trusted.* but that requires CAP_SYS_ADM=
-IN
-> in init_user_ns. And we wanted to retain capability to run virtiofsd
-> inside user namespace too. Also we wanted to give minimum required
-> capabilities to virtiofsd to reduce the risk what if virtiofsd gets
-> compromised. So amount of damage it can do to system is minimum.
+>>> files at all. Initially I thought that real reason behind this
+>>> restriction is quota limitations but from last conversation it seemed=
+
+>>> that real reason is that permission bits on symlink and special files=
+
+>>> are special and different from regular files and directories, hence
+>>> this restriction is in place. (I tested with xfs user quota enabled a=
+nd
+>>> quota restrictions kicked in on symlink).
+>>>
+>>> This version of patch allows reading/writing user.* xattr on symlink =
+and
+>>> special files if caller is owner or priviliged (has CAP_FOWNER) w.r.t=
+ inode.
+>> the idea behind user.* xattrs is that they behave similar to file
+>> contents as far as permissions go. It follows from that that symlinks
+>> and special files cannot have user.* xattrs. This has been the model
+>> for many years now and applications may be expecting these semantics,
+>> so we cannot simply change the behavior. So NACK from me.
+> Directories with sticky bit break this general rule and don't follow
+> permission bit model.
+
+The sticky bit is a hack. It was introduced to stave off proposed
+implementations of Access Control Lists, which it did successfully
+for quite some time.
+
+> man xattr says.
 >
-> So guest security.selinux xattr could potentially be mapped to.
+> *****************************************************************
+> and access to user extended  attributes  is  re=E2=80=90
+>        stricted  to  the  owner and to users with appropriate capabilit=
+ies for
+>        directories with the sticky bit set
+> ******************************************************************
 >
-> trusted.virtiofs.security.selinux
+> So why not allow similar exceptions for symlinks and device files.
+
+Limiting exceptions is usually a good thing. If every system mechanism
+devolves into a heap of special cases it becomes very difficult to
+describe your system semantics or the system security model.=20
+
+> I can understand the concern about behavior change suddenly and
+> applications being surprised. If that's the only concern we could
+> think of making user opt-in for this new behavior based on a kernel
+> CONFIG, kernel command line or something else.
+
+That doesn't work in the world of distros. But you knew that.
+
+
+>>> Who wants to set user.* xattr on symlink/special files
+>>> -----------------------------------------------------
+>>> I have primarily two users at this point of time.
+>>>
+>>> - virtiofs daemon.
+>>>
+>>> - fuse-overlay. Giuseppe, seems to set user.* xattr attrs on unprivil=
+iged
+>>>   fuse-overlay as well and he ran into similar issue. So fuse-overlay=
+
+>>>   should benefit from this change as well.
+>>>
+>>> Why virtiofsd wants to set user.* xattr on symlink/special files
+>>> ----------------------------------------------------------------
+>>> In virtiofs, actual file server is virtiosd daemon running on host.
+>>> There we have a mode where xattrs can be remapped to something else.
+>>> For example security.selinux can be remapped to
+>>> user.virtiofsd.securit.selinux on the host.
+>>>
+>>> This remapping is useful when SELinux is enabled in guest and virtiof=
+s
+>>> as being used as rootfs. Guest and host SELinux policy might not matc=
+h
+>>> and host policy might deny security.selinux xattr setting by guest
+>>> onto host. Or host might have SELinux disabled and in that case to
+>>> be able to set security.selinux xattr, virtiofsd will need to have
+>>> CAP_SYS_ADMIN (which we are trying to avoid). Being able to remap
+>>> guest security.selinux (or other xattrs) on host to something else
+>>> is also better from security point of view.
+>>>
+>>> But when we try this, we noticed that SELinux relabeling in guest
+>>> is failing on some symlinks. When I debugged a little more, I
+>>> came to know that "user.*" xattrs are not allowed on symlinks
+>>> or special files.
+>>>
+>>> So if we allow owner (or CAP_FOWNER) to set user.* xattr, it will
+>>> allow virtiofs to arbitrarily remap guests's xattrs to something
+>>> else on host and that solves this SELinux issue nicely and provides
+>>> two SELinux policies (host and guest) to co-exist nicely without
+>>> interfering with each other.
+>> The fact that user.* xattrs don't work in this remapping scenario
+>> should have told you that you're doing things wrong; the user.*
+>> namespace seriously was never meant to be abused in this way.
+> Guest's security label is not be parsed by host kernel. Host kernel
+> will have its own security label and will take decisions based on
+> that. In that aspect making use of "user.*" xattr seemed to make
+> lot of sense
+
+It doesn't make sense. For files, directories or anything. It's
+freaking hazardous.
+
+>  and we were wondering why user.* xattr is limited to
+> regualr files and directories only and can we change that behavior.
 >
-> nested guest selinux xattrs could be mapped to.
+>> You may be able to get away with using trusted.* xattrs which support
+>> roughly the kind of daemon use I think you're talking about here, but
+>> I'm not sure selinux will be happy with labels that aren't fully under=
+
+>> its own control. I really wonder why this wasn't obvious enough.
+> I guess trusted.* will do same thing. But it requires CAP_SYS_ADMIN
+> in init_user_ns.
+
+Right. That's because you're doing dangerous things.
+
+>  And that rules out running virtiofsd unpriviliged
+
+Right. That's because you're doing dangerous things.
+
+> or inside a user namespace. Also it reduces the risk posted by
+> virtiofsd on host filesystem due to CAP_SYS_ADMIN. That's why we
+> were trying to steer clear of trusted.* xattr space.
+
+Yeah, I get it. What's wrong with admitting that what you're
+trying to do is dangerous, and that you have to be careful?
+
+> Also, trusted.* xattr space does not work with NFS.
+
+So, fix that?
+
 >
-> trusted.virtiofs.trusted.virtiofs.security.selinux
+> $ setfattr -n "trusted.virtiofs" -v "foo" test.txt
+> setfattr: test.txt: Operation not supported
 >
-> And given reading/setting trusted.* requires CAP_SYS_ADMIN, that means
-> unpriviliged processes can't change these security attributes of a
-> file.
+> We want to be able run virtiofsd over NFS mounted dir too.
 >
-> And trade-off is that virtiofsd process needs to be given CAP_SYS_ADMIN=
-=2E
->
-> Frankly speaking, we are more concerned about the security of host
-> system (as opposed to something changing in file for guest). So while
-> using "trusted.*" is still an option, I would think that not running
-> virtiofsd with CAP_SYS_ADMIN probably has its advantages too. On host
-> if we can just hide the shared dir from unpriviliged processes then
-> we get best of both the worlds. Unpriviliged processes can't change
-> anything on the shared file at the same time, possible damage by
-> virtiofsd is less if it gets compromised.
+> So its not that we did not consider trusted.* xattrs. We ran
+> into above issues.
 >
 > Thanks
 > Vivek
