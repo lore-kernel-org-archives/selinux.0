@@ -5,144 +5,93 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EC95C4320E
-	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 15:22:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 301B1C4320E
+	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 15:39:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 035C2610CD
-	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 15:22:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B552610CE
+	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 15:39:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345762AbhIBPXq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Sep 2021 11:23:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54499 "EHLO
+        id S1345839AbhIBPj6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Sep 2021 11:39:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:26984 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1345756AbhIBPXp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 2 Sep 2021 11:23:45 -0400
+        by vger.kernel.org with ESMTP id S1345810AbhIBPjy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 2 Sep 2021 11:39:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630596165;
+        s=mimecast20190719; t=1630597135;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=JjAGCB+wUR9bfmDDGweER9kazklYGOtSqRBC47EM9+I=;
-        b=Mv9PW4232vxdHPb97diMT5dJll1X0LmKC5lWk7CKGNwqnehgst6zTxZ9pq7HeJoBhAkKL+
-        9t3xGpr6qhzUDNCCuHHLgAlFwZLYqYe1qGoArhYlGStPREtsyhrJLem/rNkBCMr4uMskmx
-        aWvVTDktZ99olo5gqHhISQx2UzMs++w=
+        bh=dThrFUEauS0PVKV2QOhWb7PoGtgPW3EHRoCBlNIp8ng=;
+        b=GdV4Q3M/yb5GB8iBS1zWk5RORuPPol5m8SZsaCmciWDmRkUkVid3OH9ce6so5VoXKgyLC8
+        Fd8OXuGwQNWKRuuJcW5RiFG9Hg9mSLHjDu286eyMeMoZtKZIyCPdlH2UtUVzjHv3FZGaJE
+        32b1qzSuvNhTHyZMyAUS09jZ2xgDO4A=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-246-pt0Vm-YRN3S039kDJd623Q-1; Thu, 02 Sep 2021 11:22:44 -0400
-X-MC-Unique: pt0Vm-YRN3S039kDJd623Q-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+ us-mta-509-fWh-sNzWP9GaIwZRi3O0-A-1; Thu, 02 Sep 2021 11:38:54 -0400
+X-MC-Unique: fWh-sNzWP9GaIwZRi3O0-A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 157C8802C89;
-        Thu,  2 Sep 2021 15:22:43 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7C0A6801AE3;
+        Thu,  2 Sep 2021 15:38:52 +0000 (UTC)
 Received: from horse.redhat.com (unknown [10.22.8.149])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3D17A60657;
-        Thu,  2 Sep 2021 15:22:39 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B2AF728554;
+        Thu,  2 Sep 2021 15:38:48 +0000 (UTC)
 Received: by horse.redhat.com (Postfix, from userid 10451)
-        id C97D32281B4; Thu,  2 Sep 2021 11:22:38 -0400 (EDT)
+        id 52139220257; Thu,  2 Sep 2021 11:38:48 -0400 (EDT)
+Date:   Thu, 2 Sep 2021 11:38:48 -0400
 From:   Vivek Goyal <vgoyal@redhat.com>
-To:     viro@zeniv.linux.org.uk
+To:     linux-api@vger.kernel.org, mtk.manpages@gmail.com
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         virtio-fs@redhat.com, dwalsh@redhat.com, dgilbert@redhat.com,
-        vgoyal@redhat.com, christian.brauner@ubuntu.com,
-        casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, tytso@mit.edu, miklos@szeredi.hu,
-        gscrivan@redhat.com, bfields@redhat.com,
-        stephen.smalley.work@gmail.com, agruenba@redhat.com,
-        david@fromorbit.com
-Subject: [PATCH v3 1/1] xattr: Allow user.* xattr on symlink and special files
-Date:   Thu,  2 Sep 2021 11:22:28 -0400
-Message-Id: <20210902152228.665959-2-vgoyal@redhat.com>
-In-Reply-To: <20210902152228.665959-1-vgoyal@redhat.com>
+        christian.brauner@ubuntu.com, casey.schaufler@intel.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
+        bfields@redhat.com, stephen.smalley.work@gmail.com,
+        agruenba@redhat.com, david@fromorbit.com, viro@zeniv.linux.org.uk
+Subject: [PATCH 2/1] man-pages: xattr.7: Update text for user extended xattr
+ behavior change
+Message-ID: <YTDwCFbO9Jl6a7vP@redhat.com>
 References: <20210902152228.665959-1-vgoyal@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210902152228.665959-1-vgoyal@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Currently user.* xattr are not allowed on symlink and special files.
+I have proposed a patch to relax restrictions on user extended xattrs and
+allow file owner (or CAP_FOWNER) to get/set user extended xattrs on symlink
+and device files.
 
-man xattr and recent discussion suggested that primary reason for this
-restriction is how file permissions for symlinks and special files
-are little different from regular files and directories.
-
-For symlinks, they are world readable/writable and if user xattr were
-to be permitted, it will allow unpriviliged users to dump a huge amount
-of user.* xattrs on symlinks without any control. (I think quota control
-still works with symlinks, just that quota is not typically deployed).
-
-For special files, permissions typically control capability to read/write
-from devices (and not necessarily from filesystem). So if a user can
-write to device (/dev/null), does not necessarily mean it should be allowed
-to write large number of user.* xattrs on the filesystem device node is
-residing in.
-
-This patch proposes to relax the restrictions a bit and allow file owner
-or privileged user (CAP_FOWNER), to be able to read/write user.* xattrs
-on symlink and special files.
-
-Note, for special files, file mode bits represent permission to access
-device and not necessarily permission to read/write xattrs.
-Hence, inode_permission() is not called on special files and just
-being owner (or CAP_FOWNER) is enough to read/write user extended
-xattrs on special files.
-
-LSM will still get a chance to allow/deny this operation as xattr
-related security hooks are still called. (security_inode_setxattr(),
-security_inode_getxattr(), security_inode_removexattr(),
-security_inode_listxattr())
-
-virtiofs daemon has a need to store user.* xatrrs on all the files
-(including symlinks and special files), and currently that fails. This
-patch should help.
-
-Link: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.com/
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/xattr.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ man7/xattr.7 |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 5c8c5175b385..69be1681477f 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -120,13 +120,26 @@ xattr_permission(struct user_namespace *mnt_userns, struct inode *inode,
- 	}
- 
- 	/*
--	 * In the user.* namespace, only regular files and directories can have
--	 * extended attributes. For sticky directories, only the owner and
--	 * privileged users can write attributes.
-+	 * In the user.* namespace, for symlinks and special files, only
-+	 * the owner and priviliged users can read/write attributes.
-+	 * For sticky directories, only the owner and privileged users can
-+	 * write attributes.
- 	 */
- 	if (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN)) {
--		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
--			return (mask & MAY_WRITE) ? -EPERM : -ENODATA;
-+		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode)) {
-+			if (!inode_owner_or_capable(mnt_userns, inode)) {
-+				return (mask & MAY_WRITE) ? -EPERM : -ENODATA;
-+			}
-+			/*
-+			 * This is special file and file mode bits represent
-+			 * permission to access device and not
-+			 * necessarily permission to read/write xattrs.
-+			 * Hence do not call inode_permission() and return
-+			 * success.
-+			 */
-+			if (!S_ISLNK(inode->i_mode))
-+				return 0;
-+		}
- 		if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
- 		    (mask & MAY_WRITE) &&
- 		    !inode_owner_or_capable(mnt_userns, inode))
--- 
-2.31.1
+Index: man-pages/man7/xattr.7
+===================================================================
+--- man-pages.orig/man7/xattr.7	2021-09-01 13:46:16.165016463 -0400
++++ man-pages/man7/xattr.7	2021-09-01 16:31:51.038016463 -0400
+@@ -129,8 +129,13 @@ a way not controllable by disk quotas fo
+ special files and directories.
+ .PP
+ For this reason,
+-user extended attributes are allowed only for regular files and directories,
+-and access to user extended attributes is restricted to the
++user extended attributes are allowed only for regular files and directories
++till kernel 5.14. In newer kernel (5.15 onwards), restrictions have been
++relaxed a bit and user extended attributes are also allowed on symlinks
++and special files as long as caller is either owner of the file or is
++privileged (CAP_FOWNER).
++
++Access to user extended attributes is restricted to the
+ owner and to users with appropriate capabilities for directories with the
+ sticky bit set (see the
+ .BR chmod (1)
 
