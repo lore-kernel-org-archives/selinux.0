@@ -2,212 +2,222 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22789C83027
-	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 16:33:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15A1CC83028
+	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 17:05:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04F17600CC
-	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 16:33:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EAA1F61041
+	for <selinux@archiver.kernel.org>; Thu,  2 Sep 2021 17:05:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234548AbhIBQev (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Sep 2021 12:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49308 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346365AbhIBQev (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 2 Sep 2021 12:34:51 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A2CC061575
-        for <selinux@vger.kernel.org>; Thu,  2 Sep 2021 09:33:52 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id h133so3272970oib.7
-        for <selinux@vger.kernel.org>; Thu, 02 Sep 2021 09:33:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=5iRwJJgryotcfb66t1x+mQaRP8BafsS7dy8OCkBaXQ0=;
-        b=M1zThEQfsDdVVFNnwangaMwKrS09B2tqFiqELdaoAim4pa322ktzIaMf6QWtXVLv0j
-         LOs749mkX3MNdGz7JsQAt4nrRlC+6v3DRFTLH/TmmaWPNrNG8s5jpgFnHZQcl9Rj+sOJ
-         heLaMC8WE6tZHnYE3UjOjCpJ498hIYvGz07iwIRCUrBvR1EJGU+RwD7czk2QM+X8WSBV
-         MN1Plvuv8/UHXa+LE3im4ivWw5YWtXPMM+/CwYJqdWpAqs5uwTDztztDqIqthhg2Fsqa
-         iHsIiiX+oJ0LdR1OX9FBqlbxMMrMxi8HaRLmaCrTr9/e3+A9Y4E6AcrfxJ9EIRhIML1I
-         Cw+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5iRwJJgryotcfb66t1x+mQaRP8BafsS7dy8OCkBaXQ0=;
-        b=l16qShNgiCdjTgajhDtzBZ0VoZ4iDTxFe+zdve5pNaXBLTSUTsEg6uRnOEm09UPPzr
-         +Hg3UHYF95FCItC76LQr8BRx+gXIa2seWHXzCTiPPF1BukibDOPaKBXs5SYFC1q+SwgG
-         OnQlZPbwjVr8ajHJEYhaNh7jzCJ+kxasBD/CK+AAnKS3AH9MAwKRaT3ZA30Qy20qY4nT
-         QZruFXxdD7zobZAvU36cEuf+euO00ioRavB/wB9eqv5U0QCLg7dBkkGU+VwmcahUkxAA
-         m6l55QKP9/Xlve5JnbRCtFclfKPQ2/HipVtlcrDM4QQGyXDZwztLch2kZgFLvI5fL4ot
-         kilA==
-X-Gm-Message-State: AOAM532+Hv+BsIpOPhd+ds+E6hFbvGtpLUioxj0RdO8p3S+39opJhczW
-        Cv6K1ovLru6ngdHWuUgs0iLWa8LQkHFbL2mtVLZJjlrL
-X-Google-Smtp-Source: ABdhPJxmN8K4enlEhAxG+fHxp5CB7zLOdLNJld13N0fXavtP1H+P2r5gLlIKW+Ykv5bPJ5hFUc09VyKfkTp9yZymO+U=
-X-Received: by 2002:aca:f189:: with SMTP id p131mr2927907oih.128.1630600432141;
- Thu, 02 Sep 2021 09:33:52 -0700 (PDT)
+        id S1346355AbhIBRGM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Sep 2021 13:06:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21580 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242920AbhIBRGM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 2 Sep 2021 13:06:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630602313;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SbLj+GYEcJ41edegu0Sccc892j7drnITPWL8f1PR9T4=;
+        b=hC3tEpz/Xg4UJO9szXPeRz8Oe/0QKy6hsgoLYNYAhi5JtChJTnF6NKVVylIQm0syFLuoHk
+        ZdILlDFmM447o8DTyJKfsnQq1ekJQner0xZJ3/RTwXvX4ZTGoX3ujm7/O/aMl7r9GNKoJu
+        DgZUY6cM4QTIHhnl/+pVFCI8rgouOG4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-221-oiqpSa5kMCC_FquKOR23-A-1; Thu, 02 Sep 2021 13:05:12 -0400
+X-MC-Unique: oiqpSa5kMCC_FquKOR23-A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 31A026D581;
+        Thu,  2 Sep 2021 17:05:10 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.8.149])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 079ED27CAA;
+        Thu,  2 Sep 2021 17:05:02 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 50141220257; Thu,  2 Sep 2021 13:05:01 -0400 (EDT)
+Date:   Thu, 2 Sep 2021 13:05:01 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, virtio-fs@redhat.com,
+        dwalsh@redhat.com, dgilbert@redhat.com,
+        christian.brauner@ubuntu.com, casey.schaufler@intel.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        tytso@mit.edu, miklos@szeredi.hu, gscrivan@redhat.com,
+        bfields@redhat.com, stephen.smalley.work@gmail.com,
+        agruenba@redhat.com, david@fromorbit.com
+Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
+Message-ID: <YTEEPZJ3kxWkcM9x@redhat.com>
+References: <20210902152228.665959-1-vgoyal@redhat.com>
+ <79dcd300-a441-cdba-e523-324733f892ca@schaufler-ca.com>
 MIME-Version: 1.0
-References: <20210830182442.491886-1-jwcart2@gmail.com> <CAJfZ7==eOkW7ckauF2fYLpX=Gt6e0N750CbnH6rWdbNbTQbvGg@mail.gmail.com>
-In-Reply-To: <CAJfZ7==eOkW7ckauF2fYLpX=Gt6e0N750CbnH6rWdbNbTQbvGg@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 2 Sep 2021 12:33:41 -0400
-Message-ID: <CAP+JOzQHmeT7CbkvxUeO2Ee9AaUNryHdOMdf7ayMuOoLJQVZuw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol/cil: Don't destroy optionals whose parent
- will be destroyed
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <79dcd300-a441-cdba-e523-324733f892ca@schaufler-ca.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 1, 2021 at 3:26 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
->  On Mon, Aug 30, 2021 at 8:24 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Sep 02, 2021 at 08:43:50AM -0700, Casey Schaufler wrote:
+> On 9/2/2021 8:22 AM, Vivek Goyal wrote:
+> > Hi,
 > >
-> > If an optional that is to be disabled is the child of an optional that
-> > is going to be disabled, then there is no reason to add that optional
-> > to the stack of disabled optionals, because it is going to be destroyed
-> > anyways. This means that there is no reason to maintain a stack of
-> > disabled optionals at all.
+> > This is V3 of the patch. Previous versions were posted here.
 > >
-> > Instead of using a stack to track disabled optionals, use a pointer
-> > that points to the top-most optional that is to be disabled. When a
-> > rule fails to resolve in an optional, if the disabled optional pointer
-> > has not been set, then set it to that optional. If the pointer has
-> > been set already, then the optional is already going to be destroyed,
-> > so nothing else needs to be done. The resolution failure and the fact
-> > that the optional is being disabled is reported in either case.
+> > v2:
+> > https://lore.kernel.org/linux-fsdevel/20210708175738.360757-1-vgoyal@redhat.com/
+> > v1:
+> > https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.co
+> > +m/
 > >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
->
-> For the 3 patches:
->
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
+> > Changes since v2
+> > ----------------
+> > - Do not call inode_permission() for special files as file mode bits
+> >   on these files represent permissions to read/write from/to device
+> >   and not necessarily permission to read/write xattrs. In this case
+> >   now user.* extended xattrs can be read/written on special files
+> >   as long as caller is owner of file or has CAP_FOWNER.
+> >  
+> > - Fixed "man xattr". Will post a patch in same thread little later. (J.
+> >   Bruce Fields)
+> >
+> > - Fixed xfstest 062. Changed it to run only on older kernels where
+> >   user extended xattrs are not allowed on symlinks/special files. Added
+> >   a new replacement test 648 which does exactly what 062. Just that
+> >   it is supposed to run on newer kernels where user extended xattrs
+> >   are allowed on symlinks and special files. Will post patch in 
+> >   same thread (Ted Ts'o).
+> >
+> > Testing
+> > -------
+> > - Ran xfstest "./check -g auto" with and without patches and did not
+> >   notice any new failures.
+> >
+> > - Tested setting "user.*" xattr with ext4/xfs/btrfs/overlay/nfs
+> >   filesystems and it works.
+> >  
+> > Description
+> > ===========
+> >
+> > Right now we don't allow setting user.* xattrs on symlinks and special
+> > files at all. Initially I thought that real reason behind this
+> > restriction is quota limitations but from last conversation it seemed
+> > that real reason is that permission bits on symlink and special files
+> > are special and different from regular files and directories, hence
+> > this restriction is in place. (I tested with xfs user quota enabled and
+> > quota restrictions kicked in on symlink).
+> >
+> > This version of patch allows reading/writing user.* xattr on symlink and
+> > special files if caller is owner or priviliged (has CAP_FOWNER) w.r.t inode.
+> 
+> This part of your project makes perfect sense. There's no good
+> security reason that you shouldn't set user.* xattrs on symlinks
+> and/or special files.
+> 
+> However, your virtiofs use case is unreasonable.
 
-This series has been merged.
+Ok. So we can merge this patch irrespective of the fact whether virtiofs
+should make use of this mechanism or not, right?
 
-> (I liked these simplifications, and if someone encounters a stack
-> exhaustion issue because of changing cil_tree_children_destroy to a
-> recursive function, I guess a reasonable recursion limit could be
-> added where it would make sense)
->
-Yes, my thought was that since cil_tree_walk() & cil_tree_walk_core()
-have similar
-limits, that it wouldn't be a problem. And, if it was, we could add a
-recursion limit as you suggest.
+> 
+> > Who wants to set user.* xattr on symlink/special files
+> > -----------------------------------------------------
+> > I have primarily two users at this point of time.
+> >
+> > - virtiofs daemon.
+> >
+> > - fuse-overlay. Giuseppe, seems to set user.* xattr attrs on unpriviliged
+> >   fuse-overlay as well and he ran into similar issue. So fuse-overlay
+> >   should benefit from this change as well.
+> >
+> > Why virtiofsd wants to set user.* xattr on symlink/special files
+> > ----------------------------------------------------------------
+> > In virtiofs, actual file server is virtiosd daemon running on host.
+> > There we have a mode where xattrs can be remapped to something else.
+> > For example security.selinux can be remapped to
+> > user.virtiofsd.securit.selinux on the host.
+> 
+> As I have stated before, this introduces a breach in security.
+> It allows an unprivileged process on the host to manipulate the
+> security state of the guest. This is horribly wrong. It is not
+> sufficient to claim that the breach requires misconfiguration
+> to exploit. Don't do this.
 
-Thanks,
-Jim
+So couple of things.
 
-> Thanks,
-> Nicolas
->
-> > ---
-> >  libsepol/cil/src/cil_resolve_ast.c | 17 +++++++----------
-> >  1 file changed, 7 insertions(+), 10 deletions(-)
+- Right now whole virtiofs model is relying on the fact that host
+  unpriviliged users don't have access to shared directory. Otherwise
+  guest process can simply drop a setuid root binary in shared directory
+  and unpriviliged process can execute it and take over host system.
+
+  So if virtiofs makes use of this mechanism, we are well with-in
+  the existing constraints. If users don't follow the constraints,
+  bad things can happen.
+
+- I think Smalley provided a solution for your concern in other thread
+  we discussed this issue.
+
+  https://lore.kernel.org/selinux/CAEjxPJ4411vL3+Ab-J0yrRTmXoEf8pVR3x3CSRgPjfzwiUcDtw@mail.gmail.com/T/#mddea4cec7a68c3ee5e8826d650020361030209d6
+
+
+  "So for example if the host policy says that only virtiofsd can set
+attributes on those files, then the guest MAC labels along with all
+the other attributes are protected against tampering by any other
+process on the host."
+
+ Apart from hiding the shared directory from unpriviliged processes,
+ we could design selinux policy in such a way that only virtiofsd
+ is allowed "setattr". That should make sure even in case of
+ misconfiguration, unprivileged process is not able to change
+ guest security xattrs stored in "user.virtiofs.security.selinux".
+
+ I think that sounds like a very reasonable proposition.
+
+> 
+> > This remapping is useful when SELinux is enabled in guest and virtiofs
+> > as being used as rootfs. Guest and host SELinux policy might not match
+> > and host policy might deny security.selinux xattr setting by guest
+> > onto host. Or host might have SELinux disabled and in that case to
+> > be able to set security.selinux xattr, virtiofsd will need to have
+> > CAP_SYS_ADMIN (which we are trying to avoid).
+> 
+> Adding this mapping to virtiofs provides the breach for any
+> LSM using xattrs.
+
+I think both the points above answer this as well.
+
+> 
+> >  Being able to remap
+> > guest security.selinux (or other xattrs) on host to something else
+> > is also better from security point of view.
 > >
-> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> > index 18007324..aeedc7dd 100644
-> > --- a/libsepol/cil/src/cil_resolve_ast.c
-> > +++ b/libsepol/cil/src/cil_resolve_ast.c
-> > @@ -56,6 +56,7 @@ struct cil_args_resolve {
-> >         struct cil_tree_node *block;
-> >         struct cil_tree_node *macro;
-> >         struct cil_tree_node *optional;
-> > +       struct cil_tree_node *disabled_optional;
-> >         struct cil_tree_node *boolif;
-> >         struct cil_list *sidorder_lists;
-> >         struct cil_list *classorder_lists;
-> > @@ -63,7 +64,6 @@ struct cil_args_resolve {
-> >         struct cil_list *catorder_lists;
-> >         struct cil_list *sensitivityorder_lists;
-> >         struct cil_list *in_list;
-> > -       struct cil_stack *disabled_optionals;
-> >  };
+> > But when we try this, we noticed that SELinux relabeling in guest
+> > is failing on some symlinks. When I debugged a little more, I
+> > came to know that "user.*" xattrs are not allowed on symlinks
+> > or special files.
 > >
-> >  static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key, struct cil_tree_node *ast_node)
-> > @@ -3873,7 +3873,6 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
-> >         struct cil_tree_node *macro = args->macro;
-> >         struct cil_tree_node *optional = args->optional;
-> >         struct cil_tree_node *boolif = args->boolif;
-> > -       struct cil_stack *disabled_optionals = args->disabled_optionals;
-> >
-> >         if (node == NULL) {
-> >                 goto exit;
-> > @@ -3956,7 +3955,9 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
-> >                 if (optional == NULL) {
-> >                         cil_tree_log(node, CIL_ERR, "Failed to resolve %s statement", cil_node_to_string(node));
-> >                 } else {
-> > -                       cil_stack_push(disabled_optionals, CIL_NODE, optional);
-> > +                       if (!args->disabled_optional) {
-> > +                               args->disabled_optional = optional;
-> > +                       }
-> >                         cil_tree_log(node, CIL_INFO, "Failed to resolve %s statement", cil_node_to_string(node));
-> >                         cil_tree_log(optional, CIL_INFO, "Disabling optional '%s'", DATUM(optional->data)->name);
-> >                         rc = SEPOL_OK;
-> > @@ -4003,7 +4004,6 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
-> >  {
-> >         int rc = SEPOL_ERR;
-> >         struct cil_args_resolve *args = extra_args;
-> > -       struct cil_stack *disabled_optionals = args->disabled_optionals;
-> >         struct cil_tree_node *parent = NULL;
-> >
-> >         if (current == NULL ||  extra_args == NULL) {
-> > @@ -4026,11 +4026,10 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
-> >                 args->macro = NULL;
-> >         } else if (parent->flavor == CIL_OPTIONAL) {
-> >                 struct cil_tree_node *n = parent->parent;
-> > -               struct cil_stack_item *item = cil_stack_peek(disabled_optionals);
-> > -               if (item && item->data == parent) {
-> > -                       cil_stack_pop(disabled_optionals);
-> > +               if (args->disabled_optional == parent) {
-> >                         *(args->changed) = CIL_TRUE;
-> >                         cil_list_append(args->to_destroy, CIL_NODE, parent);
-> > +                       args->disabled_optional = NULL;
-> >                 }
-> >                 args->optional = NULL;
-> >                 while (n && n->flavor != CIL_ROOT) {
-> > @@ -4067,6 +4066,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
-> >         extra_args.block = NULL;
-> >         extra_args.macro = NULL;
-> >         extra_args.optional = NULL;
-> > +       extra_args.disabled_optional = NULL;
-> >         extra_args.boolif= NULL;
-> >         extra_args.sidorder_lists = NULL;
-> >         extra_args.classorder_lists = NULL;
-> > @@ -4074,7 +4074,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
-> >         extra_args.catorder_lists = NULL;
-> >         extra_args.sensitivityorder_lists = NULL;
-> >         extra_args.in_list = NULL;
-> > -       extra_args.disabled_optionals = NULL;
-> >
-> >         cil_list_init(&extra_args.to_destroy, CIL_NODE);
-> >         cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
-> > @@ -4083,7 +4082,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
-> >         cil_list_init(&extra_args.catorder_lists, CIL_LIST_ITEM);
-> >         cil_list_init(&extra_args.sensitivityorder_lists, CIL_LIST_ITEM);
-> >         cil_list_init(&extra_args.in_list, CIL_IN);
-> > -       cil_stack_init(&extra_args.disabled_optionals);
-> >
-> >         for (pass = CIL_PASS_TIF; pass < CIL_PASS_NUM; pass++) {
-> >                 extra_args.pass = pass;
-> > @@ -4218,7 +4216,6 @@ exit:
-> >         __cil_ordered_lists_destroy(&extra_args.unordered_classorder_lists);
-> >         cil_list_destroy(&extra_args.to_destroy, CIL_FALSE);
-> >         cil_list_destroy(&extra_args.in_list, CIL_FALSE);
-> > -       cil_stack_destroy(&extra_args.disabled_optionals);
-> >
-> >         return rc;
-> >  }
-> > --
-> > 2.31.1
-> >
->
+> > So if we allow owner (or CAP_FOWNER) to set user.* xattr, it will
+> > allow virtiofs to arbitrarily remap guests's xattrs to something
+> > else on host and that solves this SELinux issue nicely and provides
+> > two SELinux policies (host and guest) to co-exist nicely without
+> > interfering with each other.
+> 
+> virtiofs could use security.* or system.* xattrs instead of user.*
+> xattrs. Don't use user.* xattrs.
+
+So requirement is that every layer (host, guest and nested guest), will
+have a separate security.selinux label and virtiofsd should be able
+to retrieve/set any of the labels depending on access.
+
+How do we achieve that with single security.selinux label per inode on host.
+
+Vivek
+
