@@ -2,99 +2,106 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E10EC433F5
-	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 14:57:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 335DDC433F5
+	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 17:54:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04D9560F9E
-	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 14:57:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 067A960555
+	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 17:54:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243687AbhIFO6D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Sep 2021 10:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243636AbhIFO6A (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Sep 2021 10:58:00 -0400
-Received: from mail-vk1-xa2b.google.com (mail-vk1-xa2b.google.com [IPv6:2607:f8b0:4864:20::a2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFB1C06175F
-        for <selinux@vger.kernel.org>; Mon,  6 Sep 2021 07:56:56 -0700 (PDT)
-Received: by mail-vk1-xa2b.google.com with SMTP id d7so2297186vko.6
-        for <selinux@vger.kernel.org>; Mon, 06 Sep 2021 07:56:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+wm+1SxyPhgZ2xyPaqVHOlIIYUpLoXtqsuq+0VC3Sjc=;
-        b=moj6OWG2vw6GntXNWeTQgm7Smvy1QpBa4fBHcAMupAuzUukRol/FdrWgU5z93l3NPQ
-         6MKcKRVOHIc1gnlY06/SaTKFIeV+7N4mqBXunJXSVgBRCYLv1sIi2A1t7PSoceroEu42
-         nlrzfwR/cKNVYtbEIrt0+iEauNFt1iHYtCXY0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+wm+1SxyPhgZ2xyPaqVHOlIIYUpLoXtqsuq+0VC3Sjc=;
-        b=AMW6zY4Mx+65idOF+kMMj/C/Hw89nSBr+tucghsatpXlKkU3OT0TjRBJ/QRQxtKQto
-         +Miq3AlIVmr73dnX+mXW0jF3+3Z6Eud+kUyO5A86QzsJaUEtRki+2pxs64SNw6RId5Y3
-         F1SPlx9hjTsetgtT0XXlLndZ/VEJWv3K802PMMEUgRN2mnxaHVK6YNASrXnEL4cmTLsl
-         mw2EnGyuFrfB8RkeEgUHJE2kCixilxsIXNbqsIvccQrOB+9m2hM6X1p0gbUyYMQ6bryd
-         /6LuSm780GoqGe4D75YmgL6lQgo4ku6Z+JDN8KnQqhKbYDvqmWQw8mLKOk/MjdQqcYn0
-         0PQA==
-X-Gm-Message-State: AOAM532G06Od30e7V3aCYZ+yyldstUuzW1xYdZ6lbivE9ELOr59LLqgO
-        4DKRFSeDqljgXiLAEflgm3O5O9xWkU1tg8qmjFISaQ==
-X-Google-Smtp-Source: ABdhPJzqc2z0O4HypL+N5TiFC1yajscDCqIXhB97hRi7jls6qKs/M/pVB7E0LSC2ATi0XpZDADaqMYws03dQ9iRqjxM=
-X-Received: by 2002:a05:6122:1430:: with SMTP id o16mr5404231vkp.14.1630940215149;
- Mon, 06 Sep 2021 07:56:55 -0700 (PDT)
+        id S244122AbhIFRzI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Sep 2021 13:55:08 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:40371 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243962AbhIFRzH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Sep 2021 13:55:07 -0400
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id AF16C564771
+        for <selinux@vger.kernel.org>; Mon,  6 Sep 2021 19:54:00 +0200 (CEST)
+Received: by mail-pj1-f50.google.com with SMTP id i13so4716832pjv.5
+        for <selinux@vger.kernel.org>; Mon, 06 Sep 2021 10:54:00 -0700 (PDT)
+X-Gm-Message-State: AOAM530yBPQU5sehBBGhVUTP8TFc3dXpyJkN3XH70ywt7qaj5XUArGaj
+        Q2q0EGW7MUsaRr7FQHmN+zzMfUEvRGn7WF8DWXI=
+X-Google-Smtp-Source: ABdhPJwN6AYxiUPF9g6oipN4C58Hu+Dek6k6W1hPlvXUZY5bOdkYWV4+gpRRBxfUjOJaRVvqWClEXcP+98Ej67ORexk=
+X-Received: by 2002:a17:90a:6507:: with SMTP id i7mr254548pjj.205.1630950839171;
+ Mon, 06 Sep 2021 10:53:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210902152228.665959-1-vgoyal@redhat.com> <CAHc6FU4foW+9ZwTRis3DXSJSMAvdb4jXcq7EFFArYgX7FQ1QYg@mail.gmail.com>
- <YTYoEDT+YOtCHXW0@work-vm>
-In-Reply-To: <YTYoEDT+YOtCHXW0@work-vm>
-From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Mon, 6 Sep 2021 16:56:44 +0200
-Message-ID: <CAJfpegvbkmdneMxMjYMuNM4+RmWT8S7gaTiDzaq+TCzb0UrQrw@mail.gmail.com>
-Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
-To:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        virtio-fs-list <virtio-fs@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        casey.schaufler@intel.com,
-        LSM <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        "Fields, Bruce" <bfields@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Dave Chinner <david@fromorbit.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
+References: <20210901204252.635570-1-jwcart2@gmail.com>
+In-Reply-To: <20210901204252.635570-1-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 6 Sep 2021 19:53:48 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kr1AxWqEV66kiAA0zkBpQ5mJ+woGL-my8_Szs7T_-LpA@mail.gmail.com>
+Message-ID: <CAJfZ7=kr1AxWqEV66kiAA0zkBpQ5mJ+woGL-my8_Szs7T_-LpA@mail.gmail.com>
+Subject: Re: [PATCH 1/3 v2] libsepol/cil: Remove redundant syntax checking
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Sep  6 19:54:01 2021 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 6 Sept 2021 at 16:39, Dr. David Alan Gilbert
-<dgilbert@redhat.com> wrote:
+On Wed, Sep 1, 2021 at 10:42 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> For every call to cil_fill_classperms_list(), the syntax of the
+> whole rule, including the class permissions, has already been
+> checked. There is no reason to check it again. Also, because the
+> class permissions appear in the middle of some rules, like
+> constraints, the syntax array does not end with CIL_SYN_END. This
+> is the only case where the syntax array does not end with CIL_SYN_END.
+> This prevents __cil_verify_syntax() from requiring that the syntax
+> array ends with CIL_SYN_END.
+>
+> Remove the redundant syntax checking in cil_fill_classperms_list().
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+> v2: Same as v1
 
-> IMHO the real problem here is that the user/trusted/system/security
-> 'namespaces' are arbitrary hacks rather than a proper namespacing
-> mechanism that allows you to create new (nested) namespaces and associate
-> permissions with each one.
+For these 3 patches:
 
-Indeed.
-
-This is what Eric Biederman suggested at some point for supporting
-trusted xattrs within a user namespace:
-
-| For trusted xattrs I think it makes sense in principle.   The namespace
-| would probably become something like "trusted<ns-root-uid>.".
-
-Theory sounds simple enough.  Anyone interested in looking at the details?
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 Thanks,
-Miklos
+Nicolas
+
+>
+>  libsepol/cil/src/cil_build_ast.c | 9 ---------
+>  1 file changed, 9 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> index a5afc267..f0bb8c0c 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -736,20 +736,11 @@ int cil_fill_classperms_list(struct cil_tree_node *parse_current, struct cil_lis
+>  {
+>         int rc = SEPOL_ERR;
+>         struct cil_tree_node *curr;
+> -       enum cil_syntax syntax[] = {
+> -               CIL_SYN_STRING | CIL_SYN_LIST,
+> -       };
+> -       int syntax_len = sizeof(syntax)/sizeof(*syntax);
+>
+>         if (parse_current == NULL || cp_list == NULL) {
+>                 goto exit;
+>         }
+>
+> -       rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
+> -       if (rc != SEPOL_OK) {
+> -               goto exit;
+> -       }
+> -
+>         cil_list_init(cp_list, CIL_CLASSPERMS);
+>
+>         curr = parse_current->cl_head;
+> --
+> 2.31.1
+>
+
