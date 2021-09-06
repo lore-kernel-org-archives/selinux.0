@@ -2,131 +2,234 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72FBDC433F5
-	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 10:54:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A3ECC433F5
+	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 14:39:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CF6E60BD3
-	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 10:54:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D0DC60EE6
+	for <selinux@archiver.kernel.org>; Mon,  6 Sep 2021 14:39:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233720AbhIFKzq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Sep 2021 06:55:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39176 "EHLO
+        id S243494AbhIFOk0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Sep 2021 10:40:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55820 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233893AbhIFKzp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Sep 2021 06:55:45 -0400
+        by vger.kernel.org with ESMTP id S243326AbhIFOkW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Sep 2021 10:40:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630925680;
+        s=mimecast20190719; t=1630939157;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=CDkol6FDHVv9qx4guuQGsLXsKQVdwPpG05iaeadJP3M=;
-        b=OBxMVA6kKDuFwhDg10WTrQOV2JIkGFXgeJ+JUsA4a+fwV5Qa6iPS6fbjUco4vgMYrG0zJk
-        f1ggoMgTDRhzarjbzpZICTYdvo8ezZlTZXI/hpdRmOtpiAHEsf8rDDqbnNUIJ0zwxOSUWq
-        SlWA4fZW26j0FqijQcQpEDAyEpv9gVc=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-175-48QfucfDOhuTrVGeMUKboQ-1; Mon, 06 Sep 2021 06:54:39 -0400
-X-MC-Unique: 48QfucfDOhuTrVGeMUKboQ-1
-Received: by mail-wm1-f71.google.com with SMTP id m22-20020a7bcb96000000b002f7b840d9dcso3088018wmi.1
-        for <selinux@vger.kernel.org>; Mon, 06 Sep 2021 03:54:39 -0700 (PDT)
+        bh=+z2oy7uRo+rUCluRBsFNUqB8lI2Md370z/AcYxkK4jA=;
+        b=dzn6PFHNUFHWYUP46l4Gh4mmFTiQCxPy3le4ZDQg3hKmXRPv76oHCWXPE0jcdmss9KB5EH
+        NJBd/9L1wL79MneU9YWnHy9HSWMp/mZIHDBFPKt/dWYqlz/pc+BDskkAtkjJ1KKPleR9rn
+        n18SdT2EyozbmiflQqF5owa6qK00UWs=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-179-ynDoh47WM8GmFgRHB9w7_g-1; Mon, 06 Sep 2021 10:39:16 -0400
+X-MC-Unique: ynDoh47WM8GmFgRHB9w7_g-1
+Received: by mail-wr1-f70.google.com with SMTP id z16-20020adfdf90000000b00159083b5966so1243014wrl.23
+        for <selinux@vger.kernel.org>; Mon, 06 Sep 2021 07:39:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=CDkol6FDHVv9qx4guuQGsLXsKQVdwPpG05iaeadJP3M=;
-        b=SoixeJdFczptx8JfsZk261Oswq7om2Yu0Qn6u1Wcj/gx1vITG4+WVRWv24JOH+yv9o
-         gwuH/oivbK6Tl9IUWFjMeTkRWtSGLALthnq7ynzLt5msfq82FbPhxfUbDmBSikORai6m
-         LH9QnqAngP/7c7ryu5tT9h3U9uJQuByzDSFmQD3BjE09AKJrCU0x46svGaLzWwyo3nLR
-         vEm1K7IDvW6UXG0CiH3PtSigtgpLOHuBhkkSutSMUyZ/tnv3Cp/XI3GF7RCUvR3Bznce
-         IEAY8mZpgxQ9wnM76MGk8V/Ca1flWQ3mPA8YVPNtpKzWi+Ch1qGms54aqMrf3c4nZL05
-         Q+Lg==
-X-Gm-Message-State: AOAM531CXRncgonIE6oaK/kYcZFjamO7jABq3oWSD7r939cuT5ApUt8V
-        Pnk2fXzHZuS8UYAAUQxqzGCwd+MM7SUCryyzT5gSdcsdKZsPoQ+2oieqUpFvOFjS3OGhTZGFIUV
-        NWbtRecmlzFvrM3ISYvgWxX9uDrdkz561ZVRfYuGdobx4YzP2oY42epstp0kuWHlhg6BHMA==
-X-Received: by 2002:adf:b78d:: with SMTP id s13mr12924893wre.344.1630925678268;
-        Mon, 06 Sep 2021 03:54:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJytrvdYyamS4xx993Ols2qjqKFqI6n8cnhpUD19B+OlY8SjEfFM1JSPrtpMhMzL6SCH5+9ovw==
-X-Received: by 2002:adf:b78d:: with SMTP id s13mr12924867wre.344.1630925678009;
-        Mon, 06 Sep 2021 03:54:38 -0700 (PDT)
-Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id m12sm7461878wrq.29.2021.09.06.03.54.37
-        for <selinux@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=+z2oy7uRo+rUCluRBsFNUqB8lI2Md370z/AcYxkK4jA=;
+        b=HD4D8l8NXSjW2i9YkRrQk4pftAMhPVQGrkwg3/WExUevyYKBWia9ZSP+VpB9vOJdg6
+         NTRqeuxuEnusJE7GyCYuWsRGfx5mAJk/jPtGMPBY/mbpzl2a+aEKqMiwv4uIzGn+5Lus
+         oIrIGfQP3h8QJt1RLRyamXdkbZWl2ODL5YdYWMHo1le6+rY3GNlZ41Nyw+6VCwdi35tu
+         Kz0uuDl9o7iRuh8pYUwwDinr6XMaw6V7PJnFg19crD4iY9Y32/hGnNuLbBeK2SbLYHSz
+         N8C13Qqk8kq5QKN2H2946tQh25J/RUqS7lEhYwij18BSRZcode4+qutfK0ufsIsRLoyH
+         YYmw==
+X-Gm-Message-State: AOAM530pRXmNB9sNUJECYJGVrP2h/8sDlGQxT3vknCSjaP98FCuJXIty
+        3fnODWbnd7Zu/TmMMxNDKnPr9QWnRjSJs5MFed+XkS5+2vQ2Z2P/5UcwOeSvU3ocGgkpSFsEych
+        qORt8XcQ3hc9aaFECWA==
+X-Received: by 2002:adf:d231:: with SMTP id k17mr13829227wrh.389.1630939155291;
+        Mon, 06 Sep 2021 07:39:15 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyeRatgQ0xCt0UI+SY5SQtyOXtLxDfFiIuJsWPUTO5VpZ73PMk33KS8HQ6FV/teH8sV8VDRwQ==
+X-Received: by 2002:adf:d231:: with SMTP id k17mr13829186wrh.389.1630939154987;
+        Mon, 06 Sep 2021 07:39:14 -0700 (PDT)
+Received: from work-vm (cpc109021-salf6-2-0-cust453.10-2.cable.virginm.net. [82.29.237.198])
+        by smtp.gmail.com with ESMTPSA id u9sm8160923wrm.70.2021.09.06.07.39.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Sep 2021 03:54:37 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 2/2] tests/module_load: use the right compiler to build kernel modules
-Date:   Mon,  6 Sep 2021 12:54:35 +0200
-Message-Id: <20210906105435.96417-2-omosnace@redhat.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210906105435.96417-1-omosnace@redhat.com>
-References: <20210906105435.96417-1-omosnace@redhat.com>
+        Mon, 06 Sep 2021 07:39:14 -0700 (PDT)
+Date:   Mon, 6 Sep 2021 15:39:12 +0100
+From:   "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+To:     Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, virtio-fs@redhat.com,
+        dwalsh@redhat.com, christian.brauner@ubuntu.com,
+        casey.schaufler@intel.com,
+        LSM <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
+        Miklos Szeredi <miklos@szeredi.hu>, gscrivan@redhat.com,
+        "Fields, Bruce" <bfields@redhat.com>,
+        stephen.smalley.work@gmail.com, Dave Chinner <david@fromorbit.com>
+Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
+Message-ID: <YTYoEDT+YOtCHXW0@work-vm>
+References: <20210902152228.665959-1-vgoyal@redhat.com>
+ <CAHc6FU4foW+9ZwTRis3DXSJSMAvdb4jXcq7EFFArYgX7FQ1QYg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHc6FU4foW+9ZwTRis3DXSJSMAvdb4jXcq7EFFArYgX7FQ1QYg@mail.gmail.com>
+User-Agent: Mutt/2.0.7 (2021-05-04)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Kernel modules need to be built with the same compiler as the kernel was
-built with. Thus, try to explicitly pass the right compiler (detected
-from kernel config) to Make when compiling the modules, so that the
-testsuite can be successfully built also on systems with clang-built
-kernel, but with GCC as the default compiler.
+* Andreas Gruenbacher (agruenba@redhat.com) wrote:
+> Hi,
+> 
+> On Thu, Sep 2, 2021 at 5:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > This is V3 of the patch. Previous versions were posted here.
+> >
+> > v2: https://lore.kernel.org/linux-fsdevel/20210708175738.360757-1-vgoyal@redhat.com/
+> > v1: https://lore.kernel.org/linux-fsdevel/20210625191229.1752531-1-vgoyal@redhat.com/
+> >
+> > Changes since v2
+> > ----------------
+> > - Do not call inode_permission() for special files as file mode bits
+> >   on these files represent permissions to read/write from/to device
+> >   and not necessarily permission to read/write xattrs. In this case
+> >   now user.* extended xattrs can be read/written on special files
+> >   as long as caller is owner of file or has CAP_FOWNER.
+> >
+> > - Fixed "man xattr". Will post a patch in same thread little later. (J.
+> >   Bruce Fields)
+> >
+> > - Fixed xfstest 062. Changed it to run only on older kernels where
+> >   user extended xattrs are not allowed on symlinks/special files. Added
+> >   a new replacement test 648 which does exactly what 062. Just that
+> >   it is supposed to run on newer kernels where user extended xattrs
+> >   are allowed on symlinks and special files. Will post patch in
+> >   same thread (Ted Ts'o).
+> >
+> > Testing
+> > -------
+> > - Ran xfstest "./check -g auto" with and without patches and did not
+> >   notice any new failures.
+> >
+> > - Tested setting "user.*" xattr with ext4/xfs/btrfs/overlay/nfs
+> >   filesystems and it works.
+> >
+> > Description
+> > ===========
+> >
+> > Right now we don't allow setting user.* xattrs on symlinks and special
+> > files at all. Initially I thought that real reason behind this
+> > restriction is quota limitations but from last conversation it seemed
+> > that real reason is that permission bits on symlink and special files
+> > are special and different from regular files and directories, hence
+> > this restriction is in place. (I tested with xfs user quota enabled and
+> > quota restrictions kicked in on symlink).
+> >
+> > This version of patch allows reading/writing user.* xattr on symlink and
+> > special files if caller is owner or priviliged (has CAP_FOWNER) w.r.t inode.
+> 
+> the idea behind user.* xattrs is that they behave similar to file
+> contents as far as permissions go. It follows from that that symlinks
+> and special files cannot have user.* xattrs. This has been the model
+> for many years now and applications may be expecting these semantics,
+> so we cannot simply change the behavior. So NACK from me.
+> 
+> > Who wants to set user.* xattr on symlink/special files
+> > -----------------------------------------------------
+> > I have primarily two users at this point of time.
+> >
+> > - virtiofs daemon.
+> >
+> > - fuse-overlay. Giuseppe, seems to set user.* xattr attrs on unpriviliged
+> >   fuse-overlay as well and he ran into similar issue. So fuse-overlay
+> >   should benefit from this change as well.
+> >
+> > Why virtiofsd wants to set user.* xattr on symlink/special files
+> > ----------------------------------------------------------------
+> > In virtiofs, actual file server is virtiosd daemon running on host.
+> > There we have a mode where xattrs can be remapped to something else.
+> > For example security.selinux can be remapped to
+> > user.virtiofsd.securit.selinux on the host.
+> >
+> > This remapping is useful when SELinux is enabled in guest and virtiofs
+> > as being used as rootfs. Guest and host SELinux policy might not match
+> > and host policy might deny security.selinux xattr setting by guest
+> > onto host. Or host might have SELinux disabled and in that case to
+> > be able to set security.selinux xattr, virtiofsd will need to have
+> > CAP_SYS_ADMIN (which we are trying to avoid). Being able to remap
+> > guest security.selinux (or other xattrs) on host to something else
+> > is also better from security point of view.
+> >
+> > But when we try this, we noticed that SELinux relabeling in guest
+> > is failing on some symlinks. When I debugged a little more, I
+> > came to know that "user.*" xattrs are not allowed on symlinks
+> > or special files.
+> >
+> > So if we allow owner (or CAP_FOWNER) to set user.* xattr, it will
+> > allow virtiofs to arbitrarily remap guests's xattrs to something
+> > else on host and that solves this SELinux issue nicely and provides
+> > two SELinux policies (host and guest) to co-exist nicely without
+> > interfering with each other.
+> 
+> The fact that user.* xattrs don't work in this remapping scenario
+> should have told you that you're doing things wrong; the user.*
+> namespace seriously was never meant to be abused in this way.
+> 
+> You may be able to get away with using trusted.* xattrs which support
+> roughly the kind of daemon use I think you're talking about here, but
+> I'm not sure selinux will be happy with labels that aren't fully under
+> its own control. I really wonder why this wasn't obvious enough.
 
-Note that the rest of the testsuite doesn't currently build with clang,
-so just changing CC for the whole testuite is not enough as a
-workaround. And even after fixing testsuite to build with clang, it will
-be beneficial to be able to use a different compiler to build the
-testsuite than the one needed for the kernel modules - for example to
-find more bugs by building the test programs with multiple compilers in
-CI.
+It was; however in our use case it wasn't an issue in general, because
+the selinux instance that was setting the labels was inside an untrusted
+guest, as such it's labels on the host are themselves untrusted, and
+hence user. made some sense to the host - until we found out the
+restrictons on user. the hard way.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- tests/module_load/Makefile | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+The mapping code we have doesn't explicitly set user. - it's an
+arbitrary remapper that can map to anything you like, trusted. whatever,
+but user. feels (to us) like it's right for an untrusted guest.
 
-diff --git a/tests/module_load/Makefile b/tests/module_load/Makefile
-index ce34241..272872d 100644
---- a/tests/module_load/Makefile
-+++ b/tests/module_load/Makefile
-@@ -4,9 +4,28 @@ TARGETS = finit_load init_load
- LDLIBS += -lselinux
- KDIR = /lib/modules/$(shell uname -r)/build
- 
-+# Make sure to use the same compiler as the kernel was built with.
-+# If the compilers don't match, the build will fail on unsupported compiler
-+# flags and even if not, the resulting module would likely fail to load.
-+# If the kernel was compiled with neither GCC nor clang (currently the only
-+# supported compilers), fall back to the default compiler and hope for the best.
-+# In all cases allow the user to override the compiler via the KCC variable.
-+DETECTED_KCC = unknown
-+ifeq ($(shell grep -qFx CONFIG_CC_IS_GCC=y $(KDIR)/.config && echo true),true)
-+	DETECTED_KCC = gcc
-+endif
-+ifeq ($(shell grep -qFx CONFIG_CC_IS_CLANG=y $(KDIR)/.config && echo true),true)
-+	DETECTED_KCC = clang
-+endif
-+ifneq ($(DETECTED_KCC),unknown)
-+	KCC ?= $(DETECTED_KCC)
-+else
-+	KCC ?= $(CC)
-+endif
-+
- all: $(TARGETS)
--	$(MAKE) -C $(KDIR) M=$(PWD)
-+	$(MAKE) -C $(KDIR) CC=$(KCC) M=$(PWD)
- 
- clean:
- 	rm -f $(TARGETS)
--	$(MAKE) -C $(KDIR) M=$(PWD) clean
-+	$(MAKE) -C $(KDIR) CC=$(KCC) M=$(PWD) clean
+IMHO the real problem here is that the user/trusted/system/security
+'namespaces' are arbitrary hacks rather than a proper namespacing
+mechanism that allows you to create new (nested) namespaces and associate
+permissions with each one.
+
+Each one carries with it some arbitrary baggage (trusted not working on
+NFS, user. having the special rules on symlinks etc).
+
+Then every fs or application that trips over these arbitrary limits adds
+some hack to work around them in a different way to every other fs or
+app that's doing the same thing; (see 9p, overlayfs, fuse-overlayfs,
+crosvm etc etc all that do some level of renaming)
+
+What we really need is a namespace where you can do anything you like,
+but it's then limited by the security modules, so that I could allow
+user.virtiofsd.guest1 to be able to set labels on symlinks for example.
+
+Dave
+
+> Thanks,
+> Andreas
+> 
+> > Thanks
+> > Vivek
+> >
+> > Vivek Goyal (1):
+> >   xattr: Allow user.* xattr on symlink and special files
+> >
+> >  fs/xattr.c | 23 ++++++++++++++++++-----
+> >  1 file changed, 18 insertions(+), 5 deletions(-)
+> >
+> > --
+> > 2.31.1
+> >
+> 
 -- 
-2.31.1
+Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
 
