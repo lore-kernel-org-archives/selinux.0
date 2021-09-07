@@ -2,67 +2,66 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02D67C433EF
-	for <selinux@archiver.kernel.org>; Tue,  7 Sep 2021 17:59:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFB13C433F5
+	for <selinux@archiver.kernel.org>; Tue,  7 Sep 2021 19:58:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1A3960F14
-	for <selinux@archiver.kernel.org>; Tue,  7 Sep 2021 17:59:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BACF661132
+	for <selinux@archiver.kernel.org>; Tue,  7 Sep 2021 19:58:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233525AbhIGSA0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Sep 2021 14:00:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:23275 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239840AbhIGSA0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Sep 2021 14:00:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631037558;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=6etvgvsQuueZz79Q15OrEoj09jXhUgI7cQ+vzFeoAYc=;
-        b=SEOfPo67T7u/j5BKyXcj5VjqSl7/U5PYdLUGt0O3lB8WwxrUBaa8J63xCSrg38/eZWt+Bm
-        MUSq6bQlk1GCfzyVgScsAdkX/RSB5TdA2tO7wtj+9p+2GGvJccDMknXJy4rlWreOwIMc/v
-        7k3syhv0VY6HV54oW9+IPFqdNz9zbso=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-334-hNPDvD5XPhur4ItLpcAc_A-1; Tue, 07 Sep 2021 13:59:17 -0400
-X-MC-Unique: hNPDvD5XPhur4ItLpcAc_A-1
-Received: by mail-ej1-f69.google.com with SMTP id cf17-20020a170906b2d100b005d42490f86bso4104380ejb.3
-        for <selinux@vger.kernel.org>; Tue, 07 Sep 2021 10:59:17 -0700 (PDT)
+        id S1346125AbhIGT76 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Sep 2021 15:59:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346120AbhIGT75 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Sep 2021 15:59:57 -0400
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DB7C061575
+        for <selinux@vger.kernel.org>; Tue,  7 Sep 2021 12:58:51 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id u4so454293qta.2
+        for <selinux@vger.kernel.org>; Tue, 07 Sep 2021 12:58:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=f/8TFe6tAHzDHnDetSM2X0UNNumWSsyLm0/Xi77Z/zs=;
+        b=lsR4kpWSWbSyzfvCOK+dt32Bxm7f5qNF6N16QpUbrrEdN/XgSxc5zVqlveWhnhgRbz
+         zqbKt0yTc+apM0h8rfAk16wMUn8dFldxbtSbFCEaqQZUiNNtvOhTsmJvCs4NfRcPkk1a
+         HnK24CZCIaRpUnidlfQmAQje93LvB5JLMgw9RQNMpPeLiqM3hqQ0MpxwOl6uFpdh7idc
+         H7/bRbjVdeeYYzWQjaU0nwAwkB/I65WyLxuHCR5UkueanxTXuG1V+PbJa3zuz6DNMyrM
+         al1ifJtE/+aYJrD8kcm6gxyycWlYllZTU3WMxjAtFKStwSFCNDrKFwne08+W3pMDqvyd
+         Vs9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=6etvgvsQuueZz79Q15OrEoj09jXhUgI7cQ+vzFeoAYc=;
-        b=fv5JRcQ7114kdq95KfCIaeQ9uBvmrpvXJLgERjp539skARR0FZRxKpvD2XlTHDaaYa
-         Rorwm8uWBSOzDzfPGCrBd5IkvGA7+BTlpTq9mSSBO1cIke3nrLrDPm5qxg/ghjhWshfX
-         /aJoxadMIhZWHz2wk28Dk3jS+w4dNDoB/fyr1T6+K1JtGJj8qSisB8xNWGOhwnifm+1R
-         uHIKjjfs+BPAfSjhLgsFc00NbA7rkvj3zeWI81CxP0q3VXsFXCTZ0K64l9jjG5F0YnG2
-         0AL8fFBmhAPzFmf82xS1JjTmT9oLA8He5FsNz68PHyQNBVRal2qIhz9K1Y/9gV2lczlX
-         I3ZQ==
-X-Gm-Message-State: AOAM531fjpEM44wzU5bRZcuNsSCWVm9P/XSi99LskUu7CCHgZ3WOCASa
-        T+kHi5orRfFuQlHzMGsirGyL2rs+aEmD747g6a0NT4cXkamLaRNMMhSp7h2YSQ6oyMz0tNPNB4l
-        jxUQzlW2kiTzSx4MZMHsLf+VHLxRZ3AAH1HozG4AkslDXRf4jTVFPgHmuEH0Sy8jzK65c9g==
-X-Received: by 2002:aa7:d7d5:: with SMTP id e21mr757440eds.27.1631037556383;
-        Tue, 07 Sep 2021 10:59:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzXKpyL62l7Uzhvhp/kYVb10/9UVIGWTbUzTxlU35NjmOJevyAGpDuXYiGMb+9/wmLjHMOh/w==
-X-Received: by 2002:aa7:d7d5:: with SMTP id e21mr757415eds.27.1631037556137;
-        Tue, 07 Sep 2021 10:59:16 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b105:dd00:d067:83f0:d612:b70f])
-        by smtp.gmail.com with ESMTPSA id i6sm5714847ejd.57.2021.09.07.10.59.15
-        for <selinux@vger.kernel.org>
+        bh=f/8TFe6tAHzDHnDetSM2X0UNNumWSsyLm0/Xi77Z/zs=;
+        b=bpTS1nxJisoq8VsGNbETrKPb7uaNiD2uG52CxnryALKsqlSvmMBn2UHGd3Im6pHUXo
+         jScGFqlV7inLS7/ATW9m0sU6In5AN4YONVd3WYZw6m5p30D5cdMUHJM3xRVrZJwO1s+R
+         RoUscVmMZZZiT/QxIXEtudEuIWsX5EvgC0OWTTZKKtNCiXkyBIZU/fVCOYVvNehLWHfx
+         qg24oum8LeNGeyhSZ1TGbnVYs/wflIh9zgYgctJFtWYTfvc+k2i6GuWHoTX2l8eAK5Nw
+         LgjrnZWrpT2K98w0vOfv9gnNArBTLRLngJsAQyQj7U4WKZFREMCn9EoLfVzAbcuxJWwl
+         IcjA==
+X-Gm-Message-State: AOAM530GBxsficaKD/P1DKcf5WA1IIGXs0KQ6U9++Yi4gEDqkMOmM3ml
+        gflBvU9hg9cg8f6ih8ZPVTOA/Ynyueg=
+X-Google-Smtp-Source: ABdhPJxRTmj0HxKluaFFr2oga4WFL0VSrMEALLcQ5Ja2qm32lGG9gQ9ksq4XhdL6C/aAri++FODxCw==
+X-Received: by 2002:ac8:7194:: with SMTP id w20mr117854qto.217.1631044730227;
+        Tue, 07 Sep 2021 12:58:50 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id s187sm38181qkf.34.2021.09.07.12.58.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 10:59:15 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
+        Tue, 07 Sep 2021 12:58:49 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] tests: exclude vsock_socket test where it wouldn't build
-Date:   Tue,  7 Sep 2021 19:59:13 +0200
-Message-Id: <20210907175913.222919-1-omosnace@redhat.com>
+Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/2] libsepol/cil: Add function to get number of items in a stack
+Date:   Tue,  7 Sep 2021 15:58:44 -0400
+Message-Id: <20210907195845.809083-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -70,41 +69,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The test requires the <linux/vm_sockets.h> header to be available and
-contain th definition for VMADDR_CID_LOCAL, so wrap it under a check for
-these preconditions.
+Add the function, cil_stack_number_of_items(), to return the number
+of items in the stack.
 
-Without this patch the testsuite wouldn't build on RHEL-7 and earlier.
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- tests/Makefile | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ libsepol/cil/src/cil_stack.c | 5 +++++
+ libsepol/cil/src/cil_stack.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/tests/Makefile b/tests/Makefile
-index e59ddc0..725d208 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -27,7 +27,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	task_setnice task_setscheduler task_getscheduler task_getsid \
- 	task_getpgid task_setpgid file ioctl capable_file capable_net \
- 	capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
--	inet_socket overlay checkreqprot mqueue mac_admin atsecure vsock_socket
-+	inet_socket overlay checkreqprot mqueue mac_admin atsecure
+diff --git a/libsepol/cil/src/cil_stack.c b/libsepol/cil/src/cil_stack.c
+index bbfb961a..70a77bc1 100644
+--- a/libsepol/cil/src/cil_stack.c
++++ b/libsepol/cil/src/cil_stack.c
+@@ -67,6 +67,11 @@ int cil_stack_is_empty(struct cil_stack *stack)
+ 	return (stack->pos == -1);
+ }
  
- ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-@@ -141,6 +141,10 @@ SUBDIRS += userfaultfd
- endif
- endif
- 
-+ifeq ($(shell grep -qs VMADDR_CID_LOCAL $(INCLUDEDIR)/linux/vm_sockets.h && echo true),true)
-+SUBDIRS += vsock_socket
-+endif
++int cil_stack_number_of_items(struct cil_stack *stack)
++{
++	return stack->pos + 1;
++}
 +
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
- endif
+ void cil_stack_push(struct cil_stack *stack, enum cil_flavor flavor, void *data)
+ {
+ 	stack->pos++;
+diff --git a/libsepol/cil/src/cil_stack.h b/libsepol/cil/src/cil_stack.h
+index b78535ac..0e3eff66 100644
+--- a/libsepol/cil/src/cil_stack.h
++++ b/libsepol/cil/src/cil_stack.h
+@@ -52,6 +52,7 @@ void cil_stack_destroy(struct cil_stack **stack);
+ 
+ void cil_stack_empty(struct cil_stack *stack);
+ int cil_stack_is_empty(struct cil_stack *stack);
++int cil_stack_number_of_items(struct cil_stack *stack);
+ 
+ void cil_stack_push(struct cil_stack *stack, enum cil_flavor flavor, void *data);
+ struct cil_stack_item *cil_stack_pop(struct cil_stack *stack);
 -- 
 2.31.1
 
