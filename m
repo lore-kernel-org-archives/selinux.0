@@ -2,103 +2,89 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B093C433EF
-	for <selinux@archiver.kernel.org>; Tue,  7 Sep 2021 21:40:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0DE9C433F5
+	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 07:10:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8366361100
-	for <selinux@archiver.kernel.org>; Tue,  7 Sep 2021 21:40:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 950036113D
+	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 07:10:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347304AbhIGVlq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Sep 2021 17:41:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34695 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229875AbhIGVlq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Sep 2021 17:41:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631050838;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TFUHSqTOgBpyXCJk72fmTEBK22tiTY8OPr/j1HO3TGY=;
-        b=NLFq9iQMTwKVrWygZXVAMNeXyK8DHSM927HQNsQbT8V2jxlF3UXN6x/JB3VR/9R/CE/Z1x
-        zus8huocADMgEEVARCI1A68Yn6yiq/nhhdME4rD+IXzV9Mr2aq7cdzjRyy6Z1tHxJYaja3
-        2rj7yy0iiB6e6zAK9Wf2mxQVDb70pAM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-522-cFUE1bGMNm2M9M7pOz2g5Q-1; Tue, 07 Sep 2021 17:40:37 -0400
-X-MC-Unique: cFUE1bGMNm2M9M7pOz2g5Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S244941AbhIHHMB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Sep 2021 03:12:01 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:43460 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345429AbhIHHMB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Sep 2021 03:12:01 -0400
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DD2EE814244;
-        Tue,  7 Sep 2021 21:40:35 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.17.57])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 551DE6060F;
-        Tue,  7 Sep 2021 21:40:32 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id D2EE2220257; Tue,  7 Sep 2021 17:40:31 -0400 (EDT)
-Date:   Tue, 7 Sep 2021 17:40:31 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        virtio-fs-list <virtio-fs@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        casey.schaufler@intel.com,
-        LSM <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Theodore Ts'o <tytso@mit.edu>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        "Fields, Bruce" <bfields@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Dave Chinner <david@fromorbit.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
-Message-ID: <YTfcT1JUactPhwSA@redhat.com>
-References: <20210902152228.665959-1-vgoyal@redhat.com>
- <CAHc6FU4foW+9ZwTRis3DXSJSMAvdb4jXcq7EFFArYgX7FQ1QYg@mail.gmail.com>
- <YTYoEDT+YOtCHXW0@work-vm>
- <CAJfpegvbkmdneMxMjYMuNM4+RmWT8S7gaTiDzaq+TCzb0UrQrw@mail.gmail.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 0E95A5605E1
+        for <selinux@vger.kernel.org>; Wed,  8 Sep 2021 09:10:51 +0200 (CEST)
+Received: by mail-pf1-f182.google.com with SMTP id y17so1131233pfl.13
+        for <selinux@vger.kernel.org>; Wed, 08 Sep 2021 00:10:50 -0700 (PDT)
+X-Gm-Message-State: AOAM531cB4Ckqj/cRP/TAXLR6c1KLpm7VL/+8FM1YAbrzvJJQhpGRnYD
+        hjFTgKwSxAZ5LTWgId5XSfgDUbNCHmLw+7/hypk=
+X-Google-Smtp-Source: ABdhPJw8/SUwK3swH5xftSCZlUSCXducBHTzPeNEggg9lDoHHotJTX2/atq/NwZFoIq2wE89eTAKuHwq8Bq88OMr9Qw=
+X-Received: by 2002:a63:3d4c:: with SMTP id k73mr2369211pga.44.1631085049612;
+ Wed, 08 Sep 2021 00:10:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJfpegvbkmdneMxMjYMuNM4+RmWT8S7gaTiDzaq+TCzb0UrQrw@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+References: <20210907195845.809083-1-jwcart2@gmail.com> <20210907195845.809083-2-jwcart2@gmail.com>
+In-Reply-To: <20210907195845.809083-2-jwcart2@gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Wed, 8 Sep 2021 09:10:38 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kkjvsTXYs0toWydn=s5C8JzX-pLo1xuTj3yoS5eXDUXg@mail.gmail.com>
+Message-ID: <CAJfZ7=kkjvsTXYs0toWydn=s5C8JzX-pLo1xuTj3yoS5eXDUXg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libsepol/cil: Limit the number of active line marks
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Sep  8 09:10:51 2021 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 06, 2021 at 04:56:44PM +0200, Miklos Szeredi wrote:
-> On Mon, 6 Sept 2021 at 16:39, Dr. David Alan Gilbert
-> <dgilbert@redhat.com> wrote:
-> 
-> > IMHO the real problem here is that the user/trusted/system/security
-> > 'namespaces' are arbitrary hacks rather than a proper namespacing
-> > mechanism that allows you to create new (nested) namespaces and associate
-> > permissions with each one.
-> 
-> Indeed.
-> 
-> This is what Eric Biederman suggested at some point for supporting
-> trusted xattrs within a user namespace:
-> 
-> | For trusted xattrs I think it makes sense in principle.   The namespace
-> | would probably become something like "trusted<ns-root-uid>.".
-> 
-> Theory sounds simple enough.  Anyone interested in looking at the details?
+On Tue, Sep 7, 2021 at 9:58 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> A line mark functions like an open parenthesis, so the number of
+> active line marks should be limited like the number of open
+> parenthesis.
+>
+> This issue was found by the secilc-fuzzer.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-So this namespaced trusted.* xattr domain will basically avoid the need
-to have CAP_SYS_ADMIN in init_user_ns, IIUC.  I guess this is better
-than giving CAP_SYS_ADMIN in init_user_ns.
+For both patches:
 
-Vivek
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Thanks,
+Nicolas
+
+> ---
+>  libsepol/cil/src/cil_parser.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
+> index a967b9ed..5375d49a 100644
+> --- a/libsepol/cil/src/cil_parser.c
+> +++ b/libsepol/cil/src/cil_parser.c
+> @@ -131,6 +131,10 @@ static int add_hll_linemark(struct cil_tree_node **current, uint32_t *hll_offset
+>                 *current = (*current)->parent;
+>         } else {
+>                 push_hll_info(stack, *hll_offset, *hll_expand);
+> +               if (cil_stack_number_of_items(stack) > CIL_PARSER_MAX_EXPR_DEPTH) {
+> +                       cil_log(CIL_ERR, "Number of active line marks exceeds limit of %d\n", CIL_PARSER_MAX_EXPR_DEPTH);
+> +                       goto exit;
+> +               }
+>
+>                 create_node(&node, *current, tok.line, *hll_offset, NULL);
+>                 insert_node(node, *current);
+> --
+> 2.31.1
+>
 
