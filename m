@@ -2,122 +2,116 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74462C433EF
-	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 14:21:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24217C433EF
+	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 19:13:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4EA926113D
-	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 14:21:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C271610C8
+	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 19:13:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348570AbhIHOWi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Sep 2021 10:22:38 -0400
-Received: from out02.mta.xmission.com ([166.70.13.232]:42616 "EHLO
-        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbhIHOWh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Sep 2021 10:22:37 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51]:37094)
-        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1mNyS5-002ZZZ-SF; Wed, 08 Sep 2021 08:21:25 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95]:42036 helo=email.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1mNyS4-00BBdJ-GW; Wed, 08 Sep 2021 08:21:25 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     Vivek Goyal <vgoyal@redhat.com>,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        virtio-fs-list <virtio-fs@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        LSM <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        "Fields\, Bruce" <bfields@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Dave Chinner <david@fromorbit.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>
-References: <20210902152228.665959-1-vgoyal@redhat.com>
-        <CAHc6FU4foW+9ZwTRis3DXSJSMAvdb4jXcq7EFFArYgX7FQ1QYg@mail.gmail.com>
-        <YTYoEDT+YOtCHXW0@work-vm>
-        <CAJfpegvbkmdneMxMjYMuNM4+RmWT8S7gaTiDzaq+TCzb0UrQrw@mail.gmail.com>
-        <YTfcT1JUactPhwSA@redhat.com>
-        <CAJfpegumUMsQ1Zk4MjnSXhrcnX_RJfM5LJ2oL6W3Um_wFNPRFQ@mail.gmail.com>
-Date:   Wed, 08 Sep 2021 09:20:32 -0500
-In-Reply-To: <CAJfpegumUMsQ1Zk4MjnSXhrcnX_RJfM5LJ2oL6W3Um_wFNPRFQ@mail.gmail.com>
-        (Miklos Szeredi's message of "Wed, 8 Sep 2021 09:37:17 +0200")
-Message-ID: <87lf47tahb.fsf@disp2133>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S241184AbhIHTO7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Sep 2021 15:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40420 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240049AbhIHTOz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Sep 2021 15:14:55 -0400
+Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A40C06129F
+        for <selinux@vger.kernel.org>; Wed,  8 Sep 2021 12:13:45 -0700 (PDT)
+Received: by mail-qk1-x731.google.com with SMTP id m21so3496218qkm.13
+        for <selinux@vger.kernel.org>; Wed, 08 Sep 2021 12:13:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=D/FXimiKho42IU2a1fP5LSxakjpKmxTWsOjQYRzsc8Q=;
+        b=AhrK8qX9K4yoGoJEBLyBd/ARt5xBXYPocrH9y63FLjSvCSmPdsIK/HFheZVyCkkawl
+         8qBMuNwbN+1L4Jjql2Ezob5l3tgw2M10AHEgb8ogvg6eHR0y7pEh/7yxfBmJMlVaeVJX
+         eXCXa3HeAP681LhZsjztV3jXSw4nzudpsaITU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=D/FXimiKho42IU2a1fP5LSxakjpKmxTWsOjQYRzsc8Q=;
+        b=Oezx+SZ7AT1prDjoqywxZ/NqIpwHHctqR/o+kzCPx3tTWhM7nHV8sFVxJND8+REBB5
+         w18I0NLzDC3crOc9kWy8HWWG8IBaKU1saKUTscvqDhZU1Vh480XGYOwP6fBMRsc3PiEQ
+         XVZOUjbS/K2LLoIrjy31pqS27S/Cd9W+tYNHpy06Ek+YXooGVLKOz1NDkBGinhJjuFq6
+         DMHuTjsBwtmEDOSBFe540EKH1TXBgiQgxK5xUZgUCkbp81tZc+lmy5OQ6k1bsYiGEGSf
+         afSLF1iq7ixbm2XU0LSmJ3eSOgR/XyAC+YSry1k+0rPehOFEq+qoWauOXymo+js8R3xL
+         34UQ==
+X-Gm-Message-State: AOAM533+AnLtV3lEUNXR8TybTaZ2QlWFc25q+Diqg0WbN8UAMLGS/oF/
+        VJNm9BHtB8s7ppBm496BccVqGzZQnRz5qQ==
+X-Google-Smtp-Source: ABdhPJyT17CgfieqNFQL0IRxjXIInfuGJfIRCTL4ovuipJWaGv0OhwELvePQehqBo7MoqrxI9kailw==
+X-Received: by 2002:ae9:ef96:: with SMTP id d144mr5064711qkg.9.1631128423901;
+        Wed, 08 Sep 2021 12:13:43 -0700 (PDT)
+Received: from fedora.pebenito.net ([72.85.44.115])
+        by smtp.gmail.com with ESMTPSA id n11sm3981qkk.17.2021.09.08.12.13.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Sep 2021 12:13:43 -0700 (PDT)
+To:     refpolicy <selinux-refpolicy@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
+From:   Chris PeBenito <pebenito@ieee.org>
+Subject: ANN: Reference Policy 2.20210908
+Message-ID: <31d5ee99-c5f6-7f5c-b336-d89fbc60514d@ieee.org>
+Date:   Wed, 8 Sep 2021 15:13:41 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1mNyS4-00BBdJ-GW;;;mid=<87lf47tahb.fsf@disp2133>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+SrgV0tKVopvxRdxK+6dEdGv6cwF2N0VI=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> writes:
+https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20210908
 
-> On Tue, 7 Sept 2021 at 23:40, Vivek Goyal <vgoyal@redhat.com> wrote:
->>
->> On Mon, Sep 06, 2021 at 04:56:44PM +0200, Miklos Szeredi wrote:
->> > On Mon, 6 Sept 2021 at 16:39, Dr. David Alan Gilbert
->> > <dgilbert@redhat.com> wrote:
->> >
->> > > IMHO the real problem here is that the user/trusted/system/security
->> > > 'namespaces' are arbitrary hacks rather than a proper namespacing
->> > > mechanism that allows you to create new (nested) namespaces and associate
->> > > permissions with each one.
->> >
->> > Indeed.
->> >
->> > This is what Eric Biederman suggested at some point for supporting
->> > trusted xattrs within a user namespace:
->> >
->> > | For trusted xattrs I think it makes sense in principle.   The namespace
->> > | would probably become something like "trusted<ns-root-uid>.".
->> >
->> > Theory sounds simple enough.  Anyone interested in looking at the details?
->>
->> So this namespaced trusted.* xattr domain will basically avoid the need
->> to have CAP_SYS_ADMIN in init_user_ns, IIUC.  I guess this is better
->> than giving CAP_SYS_ADMIN in init_user_ns.
->
-> That's the objective, yes.  I think the trick is getting filesystems
-> to store yet another xattr type.
+One major activity for this release was to remove modules for programs that are 
+no longer maintained or used.
 
-Using the uid of the root user of a user namespace is probably the best
-idea we have so far for identifying a user namespace in persistent
-on-disk meta-data.  We ran into a little trouble using that idea
-for file capabilities.
+Removed Modules:
 
-The key problem was there are corner cases where some nested user
-namespaces have the same root user id as their parent namespaces.  This
-has the potential to allow privilege escalation if the creator of the
-user namespace does not have sufficient capabilities.
+  - aiccu
+  - bcfg2
+  - callweaver
+  - ccs
+  - cipe
+  - clockspeed
+  - clogd
+  - cmirrord
+  - dcc
+  - denyhosts
+  - dspam
+  - ddcprobe
+  - howl
+  - imaze
+  - jockey
+  - ktalk
+  - lockdev
+  - mailscanner
+  - oav
+  - polipo
+  - pyicqt
+  - rgmanager
+  - rhcs
+  - ricci
 
-The solution we adopted can be seen in db2e718a4798 ("capabilities:
-require CAP_SETFCAP to map uid 0").
 
-That solution is basically not allowing the creation of user namespaces
-that could have problems.  I think use trusted xattrs this way the code
-would need to treat CAP_SYS_ADMIN the same way it currently treats
-CAP_SETFCAP.
+Notable changes:
 
-Eric
+  - Use user_fonts_config_t in user font dirs, instead of xdg_config_t.
+  - Add a secure_mode_boolean to disable boolean changing. Change generic 
+booleans to boolean_t.
+  - Drop second parameter of systemd_tmpfilesd_managed().
+  - Add a new type for ICMP packets.
+  - Add support for the blkmapd RPC service.
+  - Set ubifs as an extended attribute handling filesystem.
+  - Many other minor rule fixes.
+
+
+-- 
+Chris PeBenito
