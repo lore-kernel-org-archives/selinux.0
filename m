@@ -2,116 +2,80 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24217C433EF
-	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 19:13:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9396C433F5
+	for <selinux@archiver.kernel.org>; Thu,  9 Sep 2021 16:45:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C271610C8
-	for <selinux@archiver.kernel.org>; Wed,  8 Sep 2021 19:13:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9627961100
+	for <selinux@archiver.kernel.org>; Thu,  9 Sep 2021 16:45:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241184AbhIHTO7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Sep 2021 15:14:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40420 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240049AbhIHTOz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Sep 2021 15:14:55 -0400
-Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A40C06129F
-        for <selinux@vger.kernel.org>; Wed,  8 Sep 2021 12:13:45 -0700 (PDT)
-Received: by mail-qk1-x731.google.com with SMTP id m21so3496218qkm.13
-        for <selinux@vger.kernel.org>; Wed, 08 Sep 2021 12:13:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=D/FXimiKho42IU2a1fP5LSxakjpKmxTWsOjQYRzsc8Q=;
-        b=AhrK8qX9K4yoGoJEBLyBd/ARt5xBXYPocrH9y63FLjSvCSmPdsIK/HFheZVyCkkawl
-         8qBMuNwbN+1L4Jjql2Ezob5l3tgw2M10AHEgb8ogvg6eHR0y7pEh/7yxfBmJMlVaeVJX
-         eXCXa3HeAP681LhZsjztV3jXSw4nzudpsaITU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=D/FXimiKho42IU2a1fP5LSxakjpKmxTWsOjQYRzsc8Q=;
-        b=Oezx+SZ7AT1prDjoqywxZ/NqIpwHHctqR/o+kzCPx3tTWhM7nHV8sFVxJND8+REBB5
-         w18I0NLzDC3crOc9kWy8HWWG8IBaKU1saKUTscvqDhZU1Vh480XGYOwP6fBMRsc3PiEQ
-         XVZOUjbS/K2LLoIrjy31pqS27S/Cd9W+tYNHpy06Ek+YXooGVLKOz1NDkBGinhJjuFq6
-         DMHuTjsBwtmEDOSBFe540EKH1TXBgiQgxK5xUZgUCkbp81tZc+lmy5OQ6k1bsYiGEGSf
-         afSLF1iq7ixbm2XU0LSmJ3eSOgR/XyAC+YSry1k+0rPehOFEq+qoWauOXymo+js8R3xL
-         34UQ==
-X-Gm-Message-State: AOAM533+AnLtV3lEUNXR8TybTaZ2QlWFc25q+Diqg0WbN8UAMLGS/oF/
-        VJNm9BHtB8s7ppBm496BccVqGzZQnRz5qQ==
-X-Google-Smtp-Source: ABdhPJyT17CgfieqNFQL0IRxjXIInfuGJfIRCTL4ovuipJWaGv0OhwELvePQehqBo7MoqrxI9kailw==
-X-Received: by 2002:ae9:ef96:: with SMTP id d144mr5064711qkg.9.1631128423901;
-        Wed, 08 Sep 2021 12:13:43 -0700 (PDT)
-Received: from fedora.pebenito.net ([72.85.44.115])
-        by smtp.gmail.com with ESMTPSA id n11sm3981qkk.17.2021.09.08.12.13.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Sep 2021 12:13:43 -0700 (PDT)
-To:     refpolicy <selinux-refpolicy@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-From:   Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: Reference Policy 2.20210908
-Message-ID: <31d5ee99-c5f6-7f5c-b336-d89fbc60514d@ieee.org>
-Date:   Wed, 8 Sep 2021 15:13:41 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S236823AbhIIQqZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Sep 2021 12:46:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49100 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234862AbhIIQqX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Sep 2021 12:46:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631205913;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=t7M3RxP1Oiuk/Zqk5owCkcD91WVw7hrBHPYgaymT/aU=;
+        b=JK2YgPGLX2QX4cmRK1hvlNvgEjfMt7gL5WnsJq+w+llSdUULuLzKH7g1ov2rmWL94rWzYx
+        tzmojee//z6JiCU8XpeHFBr/IEA0236Dtmbj+cDVLReSfqtXmrQMkfbKvJ0uAjgr3I7c4g
+        UvLDeH38/M/vgDMhCzYrvwjGBGQuCJU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-515-idy-TcnOMsiU0il3JfgIAw-1; Thu, 09 Sep 2021 12:45:12 -0400
+X-MC-Unique: idy-TcnOMsiU0il3JfgIAw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A84C11015DDC
+        for <selinux@vger.kernel.org>; Thu,  9 Sep 2021 16:44:46 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.40.192.29])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DADFC2C00F;
+        Thu,  9 Sep 2021 16:44:45 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH] libsepol/cil: Fix detected RESOURCE_LEAK (CWE-772)
+Date:   Thu,  9 Sep 2021 18:44:41 +0200
+Message-Id: <20210909164441.354970-1-plautrba@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20210908
+libsepol/cil/src/cil_binary.c:4823: alloc_arg: "bounds_check_type" allocates memory that is stored into "bad".
+libsepol/cil/src/cil_binary.c:4840: var_assign: Assigning: "cur" = "bad".
+libsepol/cil/src/cil_binary.c:4844: noescape: Resource "cur" is not freed or pointed-to in "cil_avrule_from_sepol".
+libsepol/cil/src/cil_binary.c:4847: leaked_storage: Variable "cur" going out of scope leaks the storage it points to.
+libsepol/cil/src/cil_binary.c:4847: leaked_storage: Variable "bad" going out of scope leaks the storage it points to.
 
-One major activity for this release was to remove modules for programs that are 
-no longer maintained or used.
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libsepol/cil/src/cil_binary.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Removed Modules:
-
-  - aiccu
-  - bcfg2
-  - callweaver
-  - ccs
-  - cipe
-  - clockspeed
-  - clogd
-  - cmirrord
-  - dcc
-  - denyhosts
-  - dspam
-  - ddcprobe
-  - howl
-  - imaze
-  - jockey
-  - ktalk
-  - lockdev
-  - mailscanner
-  - oav
-  - polipo
-  - pyicqt
-  - rgmanager
-  - rhcs
-  - ricci
-
-
-Notable changes:
-
-  - Use user_fonts_config_t in user font dirs, instead of xdg_config_t.
-  - Add a secure_mode_boolean to disable boolean changing. Change generic 
-booleans to boolean_t.
-  - Drop second parameter of systemd_tmpfilesd_managed().
-  - Add a new type for ICMP packets.
-  - Add support for the blkmapd RPC service.
-  - Set ubifs as an extended attribute handling filesystem.
-  - Many other minor rule fixes.
-
-
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 43c37fc24686..4a80cb562424 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -4842,6 +4842,7 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
+ 				rc = cil_avrule_from_sepol(pdb, cur, &target, type_value_to_cil, class_value_to_cil, perm_value_to_cil);
+ 				if (rc != SEPOL_OK) {
+ 					cil_log(CIL_ERR, "Failed to convert sepol avrule to CIL\n");
++					bounds_destroy_bad(bad);
+ 					goto exit;
+ 				}
+ 				__cil_print_rule("  ", "allow", &target);
 -- 
-Chris PeBenito
+2.32.0
+
