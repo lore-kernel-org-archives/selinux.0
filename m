@@ -2,167 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F76BC433EF
-	for <selinux@archiver.kernel.org>; Fri, 10 Sep 2021 08:30:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63ECFC433EF
+	for <selinux@archiver.kernel.org>; Fri, 10 Sep 2021 12:13:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 70E10610C7
-	for <selinux@archiver.kernel.org>; Fri, 10 Sep 2021 08:30:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B7F6611C7
+	for <selinux@archiver.kernel.org>; Fri, 10 Sep 2021 12:13:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231665AbhIJIbi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Sep 2021 04:31:38 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53230 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231502AbhIJIbh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Sep 2021 04:31:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631262626;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fCR1mBVegqCwSw7ZzcWonDH5tjefCKFvwRMVnC3J5ak=;
-        b=flj0ctiuoJhbw2TfEYP/ImrOSUMg0GZERTUXf5M1NgJEeWNLz8BVbt4A+CrYdflyPUtpAq
-        iX6XD7M+qmtfF/JWawCqBDHS0m8ugg+BvvT9Bxza4XwDL72ZuQ28TVVQf8UoIUXp/ueZuB
-        pFbvmhqo3ThU5k++wTAMIdypZ9moXLs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-491-ATheJQH4PVGQQlU8zJDLOQ-1; Fri, 10 Sep 2021 04:30:23 -0400
-X-MC-Unique: ATheJQH4PVGQQlU8zJDLOQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F0E89835DE2;
-        Fri, 10 Sep 2021 08:30:22 +0000 (UTC)
-Received: from localhost (unknown [10.40.192.29])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 898D477F29;
-        Fri, 10 Sep 2021 08:30:22 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
+        id S232982AbhIJMON (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Sep 2021 08:14:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233088AbhIJMOL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Sep 2021 08:14:11 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F374C061574
+        for <selinux@vger.kernel.org>; Fri, 10 Sep 2021 05:13:00 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id k4so3598848lfj.7
+        for <selinux@vger.kernel.org>; Fri, 10 Sep 2021 05:13:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=z+RFjCoXQqxJY5jppB0NdqJwCsB+dXD64dlW0gdum88=;
+        b=gMFvm08XbiF7kKArg/X2Nv5pDbh958m9QE7L9ON/kkrrk3EblX3Fgg0t9rD7K5/AeH
+         k4vMexZ0ulvYwIEx8tAYPJXc41X5V6CWh4OttqZluWGUJYy0SZZHYJFiQyLiULWTEOlo
+         NaSve5QsqhqXWcEfYWLoRVoCInVOMBPdojwju5tq3b4jtuxrZ6aC52SJFA7oVxqTGHd2
+         qVOhUS6a0Khwvhbmzwxk6mnpStPQN5r35feUBkxK0+xtHCCXLwqv9zA3GJ/amxPI7adH
+         iNA2BgVEfkDsfxRQ68Hm3u3IuhHWE8nnry+QeSD8WUtPm83NMWTKFZmW5aBFcktu/XDr
+         wXcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=z+RFjCoXQqxJY5jppB0NdqJwCsB+dXD64dlW0gdum88=;
+        b=NikERm87GLx991ivS0ZTnA9lqOKOnJ6KCjh3K1weYVbaVWXEgJuw6VQiZ6Yl4cpNIS
+         wvzTlWaBFq4EPuElMW1LE0V14MqIVaTT33w/Coo8V35a7bH2zGJe539QSBV1VGcaoMvq
+         tqj6JgC3o1V5uwxj4zaUIpK5SvpXxngKDLeUbEcztYdrn2O4LfdFturHMCwb9/+/hRwI
+         xks1rrxY5UmWP1xSMHEyytAi8TKF5WKUGykjxPeSp92wgtxTjFipuZErghDkSffH7zN6
+         rL4+z+rVZtBjNm9uzeSBob/cN9TKRiN7snMEGLcFe43fE3cSIQ3vC8iBycFEU3QIxihJ
+         WO+w==
+X-Gm-Message-State: AOAM530/HJ8+qE00zTNZdHvBFX7DSSeVx3eABo155VfGQcJQQEaj4EdD
+        tmZZaHUjZQi+nfk6LtGoxSiVvrCRPWw=
+X-Google-Smtp-Source: ABdhPJxD+NC4XRP0kh0tGoR5lz4RVoR7MO3kj5BJOEL5L7aUZiEU8m/nFqlIFACStyDIEa+h99tnuA==
+X-Received: by 2002:a05:6512:102e:: with SMTP id r14mr3447860lfr.639.1631275978621;
+        Fri, 10 Sep 2021 05:12:58 -0700 (PDT)
+Received: from localhost.localdomain (85-156-66-84.elisa-laajakaista.fi. [85.156.66.84])
+        by smtp.gmail.com with ESMTPSA id i5sm555210ljg.53.2021.09.10.05.12.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Sep 2021 05:12:58 -0700 (PDT)
+From:   Topi Miettinen <toiwoton@gmail.com>
 To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Free duplicate datums in original calling
- function
-In-Reply-To: <20210909212759.894402-1-jwcart2@gmail.com>
-References: <20210909212759.894402-1-jwcart2@gmail.com>
-Date:   Fri, 10 Sep 2021 10:30:21 +0200
-Message-ID: <87zgsk96jm.fsf@redhat.com>
+Cc:     Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH] libsepol: fix typo
+Date:   Fri, 10 Sep 2021 15:12:52 +0300
+Message-Id: <20210910121252.71710-1-toiwoton@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
+Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+---
+ libsepol/src/module_to_cil.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Duplicate declarations are allowed for type, typeattribute, and
-> optional statements. When an allowed duplicate declaration is found,
-> the duplicate datum is free'd in cil_add_decl_to_symtab() and SEPOL_OK
-> is returned. This works for all the rules where a duplicate declaration
-> is allowed, but it confuses scanning tools.
->
-> When cil_add_decl_to_symtab() finds an allowed duplicate declaration,
-> return SEPOL_EEXIST and free the duplicate datum in the original
-> calling function.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
->
-
-I've tested the patch and the scanner doesn't report defects from
-https://lore.kernel.org/selinux/874kat9dch.fsf@redhat.com/T/#t anymore.
-
-Thanks!
-
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
-
-
-> ---
->  libsepol/cil/src/cil_build_ast.c | 27 +++++++++++++++++++++------
->  libsepol/cil/src/cil_copy_ast.c  |  9 ++++++++-
->  2 files changed, 29 insertions(+), 7 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index f1f09f11..9c34be23 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -134,8 +134,7 @@ int cil_add_decl_to_symtab(struct cil_db *db, symtab_t *symtab, hashtab_key_t ke
->  		/* multiple_decls is enabled and works for this datum type, add node */
->  		cil_list_append(prev->nodes, CIL_NODE, node);
->  		node->data = prev;
-> -		cil_symtab_datum_destroy(datum);
-> -		free(datum);
-> +		return SEPOL_EEXIST;
->  	}
->  
->  	return SEPOL_OK;
-> @@ -2367,7 +2366,12 @@ int cil_gen_type(struct cil_db *db, struct cil_tree_node *parse_current, struct
->  	key = parse_current->next->data;
->  	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)type, (hashtab_key_t)key, CIL_SYM_TYPES, CIL_TYPE);
->  	if (rc != SEPOL_OK) {
-> -		goto exit;
-> +		if (rc == SEPOL_EEXIST) {
-> +			cil_destroy_type(type);
-> +			type = NULL;
-> +		} else {
-> +			goto exit;
-> +		}
->  	}
->  
->  	return SEPOL_OK;
-> @@ -2415,7 +2419,12 @@ int cil_gen_typeattribute(struct cil_db *db, struct cil_tree_node *parse_current
->  	key = parse_current->next->data;
->  	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)attr, (hashtab_key_t)key, CIL_SYM_TYPES, CIL_TYPEATTRIBUTE);
->  	if (rc != SEPOL_OK) {
-> -		goto exit;
-> +		if (rc == SEPOL_EEXIST) {
-> +			cil_destroy_typeattribute(attr);
-> +			attr = NULL;
-> +		} else {
-> +			goto exit;
-> +		}
->  	}
->  
->  	return SEPOL_OK;
-> @@ -5480,8 +5489,14 @@ int cil_gen_optional(struct cil_db *db, struct cil_tree_node *parse_current, str
->  	key = parse_current->next->data;
->  
->  	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)optional, (hashtab_key_t)key, CIL_SYM_BLOCKS, CIL_OPTIONAL);
-> -	if (rc != SEPOL_OK)
-> -		goto exit;
-> +	if (rc != SEPOL_OK) {
-> +		if (rc == SEPOL_EEXIST) {
-> +			cil_destroy_optional(optional);
-> +			optional = NULL;
-> +		} else {
-> +			goto exit;
-> +		}
-> +	}
->  
->  	return SEPOL_OK;
->  
-> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> index cdbc84e7..7c5ae9e1 100644
-> --- a/libsepol/cil/src/cil_copy_ast.c
-> +++ b/libsepol/cil/src/cil_copy_ast.c
-> @@ -2056,7 +2056,14 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void
->  
->  			rc = cil_add_decl_to_symtab(db, symtab, DATUM(orig->data)->name, DATUM(data), new);
->  			if (rc != SEPOL_OK) {
-> -				goto exit;
-> +				if (rc == SEPOL_EEXIST) {
-> +					cil_symtab_datum_destroy(data);
-> +					free(data);
-> +					data = NULL;
-> +					rc = SEPOL_OK;
-> +				} else {
-> +					goto exit;
-> +				}
->  			}
->  
->  			namespace = new;
-> -- 
-> 2.31.1
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 9c7e3d3a..3c8ba10a 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -573,7 +573,7 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
+ 		rule = "auditallow";
+ 		break;
+ 	case AVRULE_AUDITDENY:
+-		rule = "auditdenty";
++		rule = "auditdeny";
+ 		break;
+ 	case AVRULE_DONTAUDIT:
+ 		rule = "dontaudit";
+-- 
+2.30.2
 
