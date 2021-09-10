@@ -2,168 +2,133 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18B97C433EF
-	for <selinux@archiver.kernel.org>; Thu,  9 Sep 2021 21:28:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21548C43217
+	for <selinux@archiver.kernel.org>; Fri, 10 Sep 2021 01:01:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F035E6103E
-	for <selinux@archiver.kernel.org>; Thu,  9 Sep 2021 21:28:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE94461208
+	for <selinux@archiver.kernel.org>; Fri, 10 Sep 2021 01:01:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345078AbhIIV3Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Sep 2021 17:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347274AbhIIV3P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Sep 2021 17:29:15 -0400
-Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94F7C061574
-        for <selinux@vger.kernel.org>; Thu,  9 Sep 2021 14:28:05 -0700 (PDT)
-Received: by mail-qk1-x72a.google.com with SMTP id p4so3549128qki.3
-        for <selinux@vger.kernel.org>; Thu, 09 Sep 2021 14:28:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oGlKTO867McaEsMRzKlL2tLDkukIIVnduGcseNojlIM=;
-        b=AMYFezUwXfTqLHieGkZDndqi3Bw9fVJ/x02WGdDVZxOvuib4X9smHB2gfOj5x9NTaW
-         P5CfU5qsDQjIuw/EKs9TcIXyX2YVq0+R14tCGco6lBc+RkKU6OCMP3TDFrxXHHL0vbi6
-         6/puR8i5AxJH0i5VPptfdY0OEFODJaL56JitxqCwT7+XzI1A8Spyc6Pz3V/yj7DcNYsW
-         nH1QkapQ5HrN0y/dvYEG4gWao5dU6MKG9/gfAF86XpCPWNJt2MT7hE6iGfPrDv/zfVTf
-         yt02a9Ui+0OM8N/mi7XVf40CcmDSPAcW5JCamGEJYVIdYtCRyMx33hN1mAeEXhuzjSdp
-         FQdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oGlKTO867McaEsMRzKlL2tLDkukIIVnduGcseNojlIM=;
-        b=PSd2mUPPoKhEcnBDpmx2bQsO/J8D1m3BoiF3K3EbPNn5LwT7UxgsbBhflwoxe8bcYs
-         qEtKzkDV9q6WJC/t4oblUH6SHgdF4MTExh1L5kiOpeAVqY+Stdy/8+dbbisafLqCOHQX
-         0JrkPa6u/ICD9mqabFHzD5++Sb7FUZTCoaikyT9zi5nkf9JTIA9amp2xiidoKUzQJa89
-         01t6MiaBII+8VCMrKfCiS7bTejlzS6s2YMP41rOnj9YLfHOxRCsaAr6EQI+CyoeIgqbX
-         R4ggMrP3dqLNJwSeNkNU2zY5HNQp7MB6K4WWFjeO+OqwaEo43IXjexFGXJFrmDo6bnko
-         SVLw==
-X-Gm-Message-State: AOAM531ymuUiBGRwe5TMAqli063eV77CkGjnjf74MAdEeFQbG5StJdnv
-        d+R5ZkJ3YMfRv0XEKSpqKdGfZl0Du90=
-X-Google-Smtp-Source: ABdhPJzM/ZuqhMiphjuSv37wibUg+l3OvtqEAIUODgSEhz9RSQMtMB+Phhyq6a33cX16jEJl790Yvg==
-X-Received: by 2002:a05:620a:166d:: with SMTP id d13mr4676105qko.491.1631222884851;
-        Thu, 09 Sep 2021 14:28:04 -0700 (PDT)
-Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id g5sm2194758qkl.48.2021.09.09.14.28.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Sep 2021 14:28:04 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     plautrba@redhat.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol/cil: Free duplicate datums in original calling function
-Date:   Thu,  9 Sep 2021 17:27:59 -0400
-Message-Id: <20210909212759.894402-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        id S232408AbhIJBCR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Sep 2021 21:02:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48318 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232140AbhIJBAa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Sep 2021 21:00:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631235554;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=rEYBK0tEXu7q0azGTgiJfTmsZEZVrhulDelo/AmjQLo=;
+        b=STF4/ZihYH5UsMM77Y/fjcqhSui4izuSaZTxuWdtDJ/JBS1APiZ5KkzzTsHzsVT1JbwFhz
+        dOOuO/22ztR/xQW1aACqCGic/ijJecBszxuadVeEqVInI7uj6lgGJylfrOWRKRtkrwapuf
+        oTP4tmGXsJDagh7+4zeS+zpaLMdez/o=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-581-nO22jQVyOLC4bLxymQTwYg-1; Thu, 09 Sep 2021 20:59:13 -0400
+X-MC-Unique: nO22jQVyOLC4bLxymQTwYg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 03CC11084685;
+        Fri, 10 Sep 2021 00:59:12 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.14])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9A4D819D9B;
+        Fri, 10 Sep 2021 00:59:01 +0000 (UTC)
+Date:   Thu, 9 Sep 2021 20:58:58 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>, sgrubb@redhat.com
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to
+ io_uring
+Message-ID: <20210910005858.GL490529@madcap2.tricolour.ca>
+References: <20210824205724.GB490529@madcap2.tricolour.ca>
+ <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+ <20210826163230.GF490529@madcap2.tricolour.ca>
+ <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+ <20210827133559.GG490529@madcap2.tricolour.ca>
+ <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
+ <20210828150356.GH490529@madcap2.tricolour.ca>
+ <CAHC9VhRgc_Fhi4c6L__butuW7cmSFJxTMxb+BBn6P-8Yt0ck_w@mail.gmail.com>
+ <CAHC9VhQD8hKekqosjGgWPxZFqS=EFy-_kQL5zAo1sg0MU=6n5A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhQD8hKekqosjGgWPxZFqS=EFy-_kQL5zAo1sg0MU=6n5A@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Duplicate declarations are allowed for type, typeattribute, and
-optional statements. When an allowed duplicate declaration is found,
-the duplicate datum is free'd in cil_add_decl_to_symtab() and SEPOL_OK
-is returned. This works for all the rules where a duplicate declaration
-is allowed, but it confuses scanning tools.
+On 2021-09-01 15:21, Paul Moore wrote:
+> On Sun, Aug 29, 2021 at 11:18 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Sat, Aug 28, 2021 at 11:04 AM Richard Guy Briggs <rgb@redhat.com> wrote:
+> > > I did set a syscall filter for
+> > >         -a exit,always -F arch=b64 -S io_uring_enter,io_uring_setup,io_uring_register -F key=iouringsyscall
+> > > and that yielded some records with a couple of orphans that surprised me
+> > > a bit.
+> >
+> > Without looking too closely at the log you sent, you can expect URING
+> > records without an associated SYSCALL record when the uring op is
+> > being processed in the io-wq or sqpoll context.  In the io-wq case the
+> > processing is happening after the thread finished the syscall but
+> > before the execution context returns to userspace and in the case of
+> > sqpoll the processing is handled by a separate kernel thread with no
+> > association to a process thread.
+> 
+> I spent some time this morning/afternoon playing with the io_uring
+> audit filtering capability and with your audit userspace
+> ghau-iouring-filtering.v1.0 branch it appears to work correctly.  Yes,
+> the userspace tooling isn't quite 100% yet (e.g. `auditctl -l` doesn't
+> map the io_uring ops correctly), but I know you mentioned you have a
+> number of fixes/improvements still as a work-in-progress there so I'm
+> not too concerned.  The important part is that the kernel pieces look
+> to be working correctly.
 
-When cil_add_decl_to_symtab() finds an allowed duplicate declaration,
-return SEPOL_EEXIST and free the duplicate datum in the original
-calling function.
+Ok, I have squashed and pushed the audit userspace support for iouring:
+	https://github.com/rgbriggs/audit-userspace/commit/e8bd8d2ea8adcaa758024cb9b8fa93895ae35eea
+	https://github.com/linux-audit/audit-userspace/compare/master...rgbriggs:ghak-iouring-filtering.v2.1
+There are test rpms for f35 here:
+	http://people.redhat.com/~rbriggs/ghak-iouring/git-e8bd8d2-fc35/
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/cil/src/cil_build_ast.c | 27 +++++++++++++++++++++------
- libsepol/cil/src/cil_copy_ast.c  |  9 ++++++++-
- 2 files changed, 29 insertions(+), 7 deletions(-)
+userspace v2 changelog:
+- check for watch before adding perm
+- update manpage to include filesystem filter
+- update support for the uring filter list: doc, -U op, op names
+- add support for the AUDIT_URINGOP record type
+- add uringop support to ausearch
+- add uringop support to aureport
+- lots of bug fixes
 
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index f1f09f11..9c34be23 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -134,8 +134,7 @@ int cil_add_decl_to_symtab(struct cil_db *db, symtab_t *symtab, hashtab_key_t ke
- 		/* multiple_decls is enabled and works for this datum type, add node */
- 		cil_list_append(prev->nodes, CIL_NODE, node);
- 		node->data = prev;
--		cil_symtab_datum_destroy(datum);
--		free(datum);
-+		return SEPOL_EEXIST;
- 	}
- 
- 	return SEPOL_OK;
-@@ -2367,7 +2366,12 @@ int cil_gen_type(struct cil_db *db, struct cil_tree_node *parse_current, struct
- 	key = parse_current->next->data;
- 	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)type, (hashtab_key_t)key, CIL_SYM_TYPES, CIL_TYPE);
- 	if (rc != SEPOL_OK) {
--		goto exit;
-+		if (rc == SEPOL_EEXIST) {
-+			cil_destroy_type(type);
-+			type = NULL;
-+		} else {
-+			goto exit;
-+		}
- 	}
- 
- 	return SEPOL_OK;
-@@ -2415,7 +2419,12 @@ int cil_gen_typeattribute(struct cil_db *db, struct cil_tree_node *parse_current
- 	key = parse_current->next->data;
- 	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)attr, (hashtab_key_t)key, CIL_SYM_TYPES, CIL_TYPEATTRIBUTE);
- 	if (rc != SEPOL_OK) {
--		goto exit;
-+		if (rc == SEPOL_EEXIST) {
-+			cil_destroy_typeattribute(attr);
-+			attr = NULL;
-+		} else {
-+			goto exit;
-+		}
- 	}
- 
- 	return SEPOL_OK;
-@@ -5480,8 +5489,14 @@ int cil_gen_optional(struct cil_db *db, struct cil_tree_node *parse_current, str
- 	key = parse_current->next->data;
- 
- 	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)optional, (hashtab_key_t)key, CIL_SYM_BLOCKS, CIL_OPTIONAL);
--	if (rc != SEPOL_OK)
--		goto exit;
-+	if (rc != SEPOL_OK) {
-+		if (rc == SEPOL_EEXIST) {
-+			cil_destroy_optional(optional);
-+			optional = NULL;
-+		} else {
-+			goto exit;
-+		}
-+	}
- 
- 	return SEPOL_OK;
- 
-diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-index cdbc84e7..7c5ae9e1 100644
---- a/libsepol/cil/src/cil_copy_ast.c
-+++ b/libsepol/cil/src/cil_copy_ast.c
-@@ -2056,7 +2056,14 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void
- 
- 			rc = cil_add_decl_to_symtab(db, symtab, DATUM(orig->data)->name, DATUM(data), new);
- 			if (rc != SEPOL_OK) {
--				goto exit;
-+				if (rc == SEPOL_EEXIST) {
-+					cil_symtab_datum_destroy(data);
-+					free(data);
-+					data = NULL;
-+					rc = SEPOL_OK;
-+				} else {
-+					goto exit;
-+				}
- 			}
- 
- 			namespace = new;
--- 
-2.31.1
+"auditctl -a uring,always -S ..." will now throw an error and require
+"-U" instead.
+
+> As usual, if you notice anything awry while playing with the userspace
+> changes please let me know.
+
+Same for userspace...  I think I already see one mapping uring op names
+in ausearch...
+
+> paul moore
+
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
 
