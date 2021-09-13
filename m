@@ -2,87 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4262DC433FE
-	for <selinux@archiver.kernel.org>; Mon, 13 Sep 2021 10:23:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AAFCC433FE
+	for <selinux@archiver.kernel.org>; Mon, 13 Sep 2021 13:44:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D55360F9B
-	for <selinux@archiver.kernel.org>; Mon, 13 Sep 2021 10:23:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 535B561AFE
+	for <selinux@archiver.kernel.org>; Mon, 13 Sep 2021 13:44:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235037AbhIMKYs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Sep 2021 06:24:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39051 "EHLO
+        id S243380AbhIMNpv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Sep 2021 09:45:51 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53675 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238591AbhIMKYo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Sep 2021 06:24:44 -0400
+        by vger.kernel.org with ESMTP id S240298AbhIMNne (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Sep 2021 09:43:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631528609;
+        s=mimecast20190719; t=1631540536;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/nzkwe3pr/qPUFlHM8thmADhxRTA4dSRMErI6BImOww=;
-        b=I+aDEz/xtCHz/hloUfHFzQo2IPa7fuHbjeXFyfee6j3TcaL/ExRDTzBT0cYsyBCIQBDj+o
-        Ri+VtAu5qgPBVti2CKjwinxOJIcWS/RkRrMCmaqyoloKf4pO+D+ZtpKYucnhr9RG7zjDsJ
-        0J4DHazHuC/ToGS28PhmkmCby50m/sM=
+        bh=7Qsu86+Cgy2AgclASO+ThEjfuTg38MT9+OIEQdMLt7U=;
+        b=i60925PvgjUwcKhbRegOYfAS/fIldFwTr2zmJL0kTAo+2zw4HUNCRzEHeCVuuXMdhdc2qy
+        MYasM25SPoU1H+LOlSZnZcRKQUyVeB/oJWtpWHGLqotIQCjWAPM53ZoETu6zJ9yNWzK2ee
+        868h7Hv5U4VzzJi+q//56Lno6ryngVA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-67--V7vw2jsOni4c7SRmCQniw-1; Mon, 13 Sep 2021 06:23:26 -0400
-X-MC-Unique: -V7vw2jsOni4c7SRmCQniw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+ us-mta-486-d-AB8HdcO7CajSqWZtwuvw-1; Mon, 13 Sep 2021 09:42:13 -0400
+X-MC-Unique: d-AB8HdcO7CajSqWZtwuvw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A3D07835DE9;
-        Mon, 13 Sep 2021 10:23:23 +0000 (UTC)
-Received: from asgard.redhat.com (unknown [10.36.110.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 23C4377F35;
-        Mon, 13 Sep 2021 10:23:18 +0000 (UTC)
-Date:   Mon, 13 Sep 2021 12:23:16 +0200
-From:   Eugene Syromiatnikov <esyr@redhat.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Antony Antony <antony.antony@secunet.com>,
-        Christian Langrock <christian.langrock@secunet.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        network dev <netdev@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        "Dmitry V. Levin" <ldv@strace.io>,
-        Linux API <linux-api@vger.kernel.org>
-Subject: Re: [PATCH v2] include/uapi/linux/xfrm.h: Fix XFRM_MSG_MAPPING ABI
- breakage
-Message-ID: <20210913102316.GA30886@asgard.redhat.com>
-References: <20210912122234.GA22469@asgard.redhat.com>
- <CAFqZXNtmN9827MQ0aX7ZcUia5amXuZWppb-9-ySxVP0QBy=O8Q@mail.gmail.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A2E9784A5E8;
+        Mon, 13 Sep 2021 13:42:12 +0000 (UTC)
+Received: from localhost (unknown [10.40.194.143])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3E8D910013C1;
+        Mon, 13 Sep 2021 13:42:12 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     James Carter <jwcart2@gmail.com>,
+        Topi Miettinen <toiwoton@gmail.com>
+Subject: Re: [PATCH] libsepol: fix typo
+In-Reply-To: <CAP+JOzSd28YWZdzFcJ9m33bWk6n9LdnYfjW=9Baz540G4Zt76g@mail.gmail.com>
+References: <20210910121252.71710-1-toiwoton@gmail.com>
+ <CAP+JOzSd28YWZdzFcJ9m33bWk6n9LdnYfjW=9Baz540G4Zt76g@mail.gmail.com>
+Date:   Mon, 13 Sep 2021 15:42:11 +0200
+Message-ID: <87tuioa8y4.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAFqZXNtmN9827MQ0aX7ZcUia5amXuZWppb-9-ySxVP0QBy=O8Q@mail.gmail.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 09:16:39AM +0200, Ondrej Mosnacek wrote:
-> Perhaps it would be a good idea to put a comment here to make it less
-> likely that this repeats in the future. Something like:
-> 
-> /* IMPORTANT: Only insert new entries right above this line, otherwise
-> you break ABI! */
+James Carter <jwcart2@gmail.com> writes:
 
-Well, this statement is true for (almost) every UAPI-exposed enum, and
-netlink is vast and relies on enums heavily.  I think it is already
-mentioned somewhere in the documentation, and in the end it falls on the
-shoulders of the maintainers—to pay additional attention to UAPI changes.
+> On Fri, Sep 10, 2021 at 8:13 AM Topi Miettinen <toiwoton@gmail.com> wrote:
+>>
+>> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+
+Merged, thanks!
+
+
+
+>> ---
+>>  libsepol/src/module_to_cil.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+>> index 9c7e3d3a..3c8ba10a 100644
+>> --- a/libsepol/src/module_to_cil.c
+>> +++ b/libsepol/src/module_to_cil.c
+>> @@ -573,7 +573,7 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
+>>                 rule = "auditallow";
+>>                 break;
+>>         case AVRULE_AUDITDENY:
+>> -               rule = "auditdenty";
+>> +               rule = "auditdeny";
+>>                 break;
+>>         case AVRULE_DONTAUDIT:
+>>                 rule = "dontaudit";
+>> --
+>> 2.30.2
+>>
 
