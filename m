@@ -2,111 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0068C433F5
-	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 15:01:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AD04C433EF
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 19:45:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A902D6103B
-	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 15:01:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 501C360F58
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 19:45:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234402AbhINPCc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Sep 2021 11:02:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27183 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234089AbhINPCc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 11:02:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631631674;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=f4doVZdRhwwzGkMFAoRi2PUNaC9z4kzqnDQ6De1+mEk=;
-        b=Y53JofNK1EGyD5cIt2cehClYrsSMeKGmy2ehe6TD7dqeKQjE+D1fnIL0B91N4EXaT5Bd6/
-        pG35x6FcVw3EruoKY/dOUF9mgy678L6eHt2qWN/Q8oA61Xx5MQfTIpkQOIb+tcx5Ir7geb
-        gyNjJzW+T0A6Dm9LOMg0TASx9/1Trb0=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-574-MEUFN3PlPp6NfxE3xX1VeQ-1; Tue, 14 Sep 2021 11:01:12 -0400
-X-MC-Unique: MEUFN3PlPp6NfxE3xX1VeQ-1
-Received: by mail-io1-f69.google.com with SMTP id g2-20020a6b7602000000b005be59530196so16514533iom.0
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 08:01:12 -0700 (PDT)
+        id S232391AbhINTq5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Sep 2021 15:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230390AbhINTq4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 15:46:56 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E3BC061574
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 12:45:38 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id w19so754114oik.10
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 12:45:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=LYvtm4EcpP5lbl0jlkPLx1l1wKiz5iNuQRo5sW4+u64=;
+        b=S2qn84d2ePWLjTrF6YNvTXrcurWRsb6/ELgipVWKxPpoyvX4uKThOQvEyv0hGMKj4c
+         25XT5Zf90cOBUITfiGN5Mdu0fRcIE8rs2LGk/LVRo2dsciP/jUQ1Z2bu0tvfN5tXTTbT
+         CH4clNhi8KUg44lyytZHCSJALAclOG3kIBjgQPhHV0NEVcW3gTNtghq+Bo3LO1t+HEqQ
+         NF71yntQxnOzT/3ZQGOtkxAElVuoxLX0qd7PC3yXTYaic/XRGwCty6g46EH8lyAgchkR
+         CVc6ozwbAZkaIGXTQYEHp5nbbztZKn34qwRU/TLxmV5eF+0agZ9BStcm/9713JccfzPO
+         kWNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=f4doVZdRhwwzGkMFAoRi2PUNaC9z4kzqnDQ6De1+mEk=;
-        b=fyi+Gmcn9JPE33QfWHIb8EnQUduEh/gX6EIBuYzCQajyc0RfuKEGZRYiDpGLTHXaUP
-         3JRiaQucAqbV6EzU8jxtwUxM5kc19N9qUrIu2d6W9UrM3qXiMBQBFvLsq++ufBePdi9Y
-         f8rXHOQAsfC2W94TrFGmKaWjGoTe9nButV5gjrJP9Oo6R8ggzCcWR9g1001e25dFlyQN
-         LcLb1Eetx3ojBjVjwg7fhe3GlPjt5VnWEoLx2HZogcsZoGRlZqK14z7G4H0SMmkYxUZe
-         CN3g/dYg5SXmpJH9OAdYgTc4WLa+w9NZb3kgVV2eD6EtmuN3rNwt6/CG5rt4DB24UUJ8
-         xnOA==
-X-Gm-Message-State: AOAM531wRJMP7Cpfb0SBHpJt2N8rLZxfsQcVGf0S2KlMbe6i6ieN2vIr
-        fz1tj0ibonZGZi9Ugo36tAO981QZoB5hV+KQ0OwhSEUXDa+syBms2iPVb1QVQyppAtehkdG2k89
-        BRSEkP0oNdhHKTHCu5ET4MvDtjA6TfUhoFA==
-X-Received: by 2002:a05:6e02:1b88:: with SMTP id h8mr12302574ili.29.1631631671752;
-        Tue, 14 Sep 2021 08:01:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyaAeiekMMKeZruAEeYbCxZpJjpmCzKAy5WCzmfRtD8PhxXBHVBLZZb+MFaozIMIyxqQwE9MVbD21EwvnT+xp8=
-X-Received: by 2002:a05:6e02:1b88:: with SMTP id h8mr12302560ili.29.1631631671531;
- Tue, 14 Sep 2021 08:01:11 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=LYvtm4EcpP5lbl0jlkPLx1l1wKiz5iNuQRo5sW4+u64=;
+        b=uC5q2FbNhzhCjkysNUaNeDxyB0OLR9OdgRFeV9WjYKSx2MrrGfXwUfGNjXHIkFULfK
+         rY7Jij33lDtDeFFdoIvJ+Ucx7NP3x9o5FOrXDYr33/uIhHsXtPNo3ojm7bgIvGg2XHf2
+         cuu7ewFN8saMNiEK3zhhz93QwzSpp06guSjndAzRV5gIBvmSrRiTv7CpvTDGw5sykWGU
+         9mzAkH93z6TXWMpMCjboG6btb6ZXVfxRLtnGWTEF0uEZecesCsoKx1Je+jsDemy1H/mJ
+         XhGr8aqQXMcjlgt7LxjGOcbUyxgyEFOXRpSrnHntZP7sABOsI6J1ZRtJb6BEQsXg2pIJ
+         LNdw==
+X-Gm-Message-State: AOAM533y39ia3yoLHyjCyyWg8AZ9Nih4qRX9De5UtWGyA2KcshofZTI3
+        ONmb2yUlekGPRsFB0ibwkkWVNN05JFREB6EDhmA=
+X-Google-Smtp-Source: ABdhPJyZZlR/+shhBhvF6EgiMOA7HGw46i8SSstJlUW+t1W33sjMSTWtF/hsRVGRg8HvHpUBvJzRMwieIcgl9pYW/ok=
+X-Received: by 2002:aca:f189:: with SMTP id p131mr2816748oih.128.1631648738230;
+ Tue, 14 Sep 2021 12:45:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <79dcd300-a441-cdba-e523-324733f892ca@schaufler-ca.com>
- <YTEEPZJ3kxWkcM9x@redhat.com> <YTENEAv6dw9QoYcY@redhat.com>
- <3bca47d0-747d-dd49-a03f-e0fa98eaa2f7@schaufler-ca.com> <YTEur7h6fe4xBJRb@redhat.com>
- <1f33e6ef-e896-09ef-43b1-6c5fac40ba5f@schaufler-ca.com> <YTYr4MgWnOgf/SWY@work-vm>
- <496e92bf-bf9e-a56b-bd73-3c1d0994a064@schaufler-ca.com> <YUCa6pWpr5cjCNrU@redhat.com>
- <CAPL3RVHB=E_s1AW1sQMEgrLYJ8ADCdr=qaKsDrpYjVzW-Apq8w@mail.gmail.com> <YUCybaYK/0RLvY9J@redhat.com>
-In-Reply-To: <YUCybaYK/0RLvY9J@redhat.com>
-From:   Bruce Fields <bfields@redhat.com>
-Date:   Tue, 14 Sep 2021 11:01:00 -0400
-Message-ID: <CAPL3RVGXWtakCS9bvE60gWp0tcsduJFKfoU4aoqANRgp7HvFow@mail.gmail.com>
-Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
-To:     Vivek Goyal <vgoyal@redhat.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, virtio-fs@redhat.com,
-        Daniel Walsh <dwalsh@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        LSM <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        stephen.smalley.work@gmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Dave Chinner <david@fromorbit.com>
+References: <20210914124828.19488-1-cgzones@googlemail.com> <20210914124828.19488-10-cgzones@googlemail.com>
+In-Reply-To: <20210914124828.19488-10-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 14 Sep 2021 15:45:27 -0400
+Message-ID: <CAP+JOzTVpNXsTMvMC2bY9x9M54VzCYYD+vLLRA83s=xp4B=6hg@mail.gmail.com>
+Subject: Re: [PATCH 09/13] checkpolicy: resolve dismod memory leaks
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 10:32 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> open_by_handle_at() requires CAP_DAC_READ_SEARCH.
-
-Or some sort of access to the network.  If you can send rpc requests
-to the nfs server that appear to be from someone with access to the
-export, you can guess filehandles that allow access to objects under
-that directory.  You'll need access to particular objects, but you
-won't need read or lookup access to the directory.
-
-You can prevent that if you set things up right, but these
-filehandle-issues are poorly understood, and people often forget to
-take them into account.
-
---b.
-
-> And if you have
-> CAP_DAC_READ_SEARCH, you don't need to even guess file handles. You
-> should be able to read/search through all directories, IIUC.
+On Tue, Sep 14, 2021 at 8:51 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> So how does one make sure that shared directory on host is not
-> accessible to unprivileged entities. If making directory accessible
-> to root only is weaker security, what are the options for stronger
-> security.
+> Example leak:
+>
+>     Indirect leak of 4 byte(s) in 1 object(s) allocated from:
+>         #0 0x49bacd in __interceptor_malloc (./checkpolicy/test/dismod+0x=
+49bacd)
+>         #1 0x58ae54 in add_i_to_a ./libsepol/src/util.c:55:21
+>         #2 0x53ea8e in symtab_insert ./libsepol/src/policydb.c:1729:6
+>         #3 0x536252 in roles_init ./libsepol/src/policydb.c:772:7
+>         #4 0x536252 in policydb_init ./libsepol/src/policydb.c:892:7
+>         #5 0x562ff1 in sepol_policydb_create ./libsepol/src/policydb_publ=
+ic.c:69:6
+>         #6 0x521a7c in module_package_init ./libsepol/src/module.c:96:6
+>         #7 0x521a7c in sepol_module_package_create ./libsepol/src/module.=
+c:126:7
+>         #8 0x4cfb80 in read_policy ./checkpolicy/test/dismod.c:750:7
+>         #9 0x4cda10 in main ./checkpolicy/test/dismod.c:878:6
+>         #10 0x7f8538d01e49 in __libc_start_main csu/../csu/libc-start.c:3=
+14:16
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  checkpolicy/test/dismod.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+> index 90c29318..9550b999 100644
+> --- a/checkpolicy/test/dismod.c
+> +++ b/checkpolicy/test/dismod.c
+> @@ -751,12 +751,15 @@ static int read_policy(char *filename, policydb_t *=
+ policy)
+>                         fprintf(stderr, "%s:  Out of memory!\n", __FUNCTI=
+ON__);
+>                         exit(1);
+>                 }
+> +               policydb_destroy((policydb_t *) package->policy);
+> +               free(package->policy);
 
+Should use "sepol_policydb_free(package->policy)" here. It does both
+of these lines.
+Jim
+
+
+>                 package->policy =3D (sepol_policydb_t *) policy;
+>                 package->file_contexts =3D NULL;
+>                 retval =3D
+>                     sepol_module_package_read(package,
+>                                               (sepol_policy_file_t *) & f=
+, 1);
+> -               free(package->file_contexts);
+> +               package->policy =3D NULL;
+> +               sepol_module_package_free(package);
+>         } else {
+>                 if (policydb_init(policy)) {
+>                         fprintf(stderr, "%s:  Out of memory!\n", __FUNCTI=
+ON__);
+> --
+> 2.33.0
+>
