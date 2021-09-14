@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCD5FC43217
-	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 12:50:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B47D8C433FE
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 12:50:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5BEE60F58
-	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 12:50:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B68E60F58
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 12:50:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233023AbhINMwI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Sep 2021 08:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43116 "EHLO
+        id S233026AbhINMwJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Sep 2021 08:52:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
         with ESMTP id S233001AbhINMwI (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 08:52:08 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA10CC061574
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:50 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id i6so19703987edu.1
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:50 -0700 (PDT)
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C46DC061574
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:51 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id t6so18301848edi.9
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=jbHyGrMlok17SW/pWY9FgQdMybgrvAFwKYR5B7F6db4=;
-        b=QMD64R+31/coEtekDEor0Nincgb7o+ayPS42KqbcujGkUtmI0/uoIEdxiXGclE1enb
-         sVZy+GLgaHkAHbRLaWEkSvjlRRgRhNLb67Vz4zF0Lt5upggejV1KajI1w8vCyAl4sE+o
-         XIM+VZqHmDOq1VnyirHtuxd67UmskOLgTnSAHjPFZixs915AE2P7qkQ9ugJ03grL8f/6
-         Uc2omXwbjUP+F4SpimB8zvb9IGn/G69w0AGlcyPqerp071DgD8Uk2YDVH8tdjA0hZ0cc
-         1Sn2PZsA5cAvVZNycYeQM8k4lWJRcqIwE1XDDI6jCsTJZV2ynv4JjU+P/7cQuwD1liW1
-         qqnw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8Rsk95+j2kBdsvDB7iVlc79S0zZ58HTgFew6DTB9SyQ=;
+        b=TRlEb2geos3vU9ysoWQSX8+nkMI4q9ySX6bxq764A2dFtCfo/vmrYHE76R63KR1Nm4
+         rhp+RIzNduyQrm7ZiyUNmbCP2lsyr3HvK17wMrsyRps9GND/wmMVPdnoAlRTRnH554sA
+         Wb9t91UupXKn1eFqtXVvOqcEh9e2FT+W0wsvYDZuOauohx+Jrhw8Xh+cBJs+gclSvhCZ
+         0CfDgxrIKamY10q1LuxH6djOyeDMhULDIuOVVk8ZbsqRDv8CAZlFjKbgIrqjxiUwkq+F
+         wNTYIZ96Fh0KlRgj+KadP8F6hFq78j8v+IDkc8VWyP1NlOI6eY1AMRglFVDcKeYYoiTo
+         dJWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jbHyGrMlok17SW/pWY9FgQdMybgrvAFwKYR5B7F6db4=;
-        b=FoEDa/Ha5Z86ZVUB8vMxIELS3reS+of7JSNH2YTHJHLo46JN0HjI6WQ5tz+8QLyQrh
-         asyo8QQuvLn58mlS3UyUDbQiJ7Y4x/Xq8+tb5MCXsV13dGJGjtVaXK/B7vBKkebNo42g
-         HNKwyIZ0h7SRHCIMNYNTSK/YN9VvhxCp82QThAgYYjRtc4iw6QQu44Szhbq/KhohB7Lt
-         FuV1ytnxP5QH33AWBgg7hSRe9Kie7mUmjFnJNH3m7LU0ALg2+1Sx7YmeLi2pyPv9UyJA
-         F1xiGIiHZcDlWn4wxnJFk8jv3wcGWqc0ytAUHvHHMwncbPSRw8zRbxu/DiwypxccK6Zs
-         3M5w==
-X-Gm-Message-State: AOAM530ykp0Nmhr/J8Zznl5chdlMra9gHXODC1Yz+GgdMANXZ54DdBVl
-        0qpv8+4dhKNusYCyFhE7/WRTvSKGQQg=
-X-Google-Smtp-Source: ABdhPJy7+T2+RqH4S4WpL+EKA1RQLJbrfjNbDnyOKKamZ4fblt1iNaopg5KpxDOyUchcrbajoh8fEA==
-X-Received: by 2002:aa7:da41:: with SMTP id w1mr17670680eds.344.1631623849310;
+        bh=8Rsk95+j2kBdsvDB7iVlc79S0zZ58HTgFew6DTB9SyQ=;
+        b=B/7ux83Ai51045kEctq8O6tgce2fVXL+68+XTa5/jbfTJGpaPSABh+taZToZmgGpu1
+         mr5AivjZWKMM+QCRxt3hB71mOh6CyWDl8gG2OXS2+nyUWca7hdVWu72HIA/5RIDIG8pR
+         3QdXsEvmgvvcsVfRlhIb+p67CA562UF24RCXB1oYbdtW2sRYbBRv1TVKaNw87EKqBwcf
+         +1Wjb6PDzSrxasI9+2mf+2H3wwEHmJ2SyvHlW4A5gXNFbnV5vc74x1F9V0N9BGzrv9VH
+         xuMGAE97SyVtjhP4PqgNjWZ68HFjk1Vze/KJuZJkC3pkPGnjjE1PmQNyi86qYGotC4dh
+         ETWw==
+X-Gm-Message-State: AOAM530QfFsZGRoG2tDlXE5S6bjAPEQwnW92v1HcfXdkFrLAuya/3+wt
+        Gp8vA09pdnVeQwxikfMfUO1Ho91QfGM=
+X-Google-Smtp-Source: ABdhPJwtEWTPsvCE764nWdvzTf8fmpzr0SvUlys+QZm1bcOmCjSJRFsl/VNtOdFzYWfka4bSIHUsBw==
+X-Received: by 2002:aa7:c988:: with SMTP id c8mr12849731edt.105.1631623849933;
         Tue, 14 Sep 2021 05:50:49 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-003-237-250.77.3.pool.telefonica.de. [77.3.237.250])
-        by smtp.gmail.com with ESMTPSA id r8sm5567865eds.39.2021.09.14.05.50.48
-        for <selinux@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id r8sm5567865eds.39.2021.09.14.05.50.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 14 Sep 2021 05:50:49 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 12/13] checkpolicy: print warning on source line overflow
-Date:   Tue, 14 Sep 2021 14:48:27 +0200
-Message-Id: <20210914124828.19488-13-cgzones@googlemail.com>
+Cc:     liwugang <liwugang@163.com>
+Subject: [PATCH 13/13] checkpolicy: free extended permission memory
+Date:   Tue, 14 Sep 2021 14:48:28 +0200
+Message-Id: <20210914124828.19488-14-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210914124828.19488-1-cgzones@googlemail.com>
 References: <20210914124828.19488-1-cgzones@googlemail.com>
@@ -72,60 +72,94 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In case the source line value overflows or has a too big value in the
-source policy print a warning.
+define_te_avtab_xperms_helper() allocates memory for the avrule, while
+define_te_avtab_ioctl() does not transfer any ownership of it.
+Free the affected memory.
 
-    policy_scan.l:273:19: runtime error: implicit conversion from type 'int' of value -2 (32-bit, signed) to type 'unsigned long' changed the value to 18446744073709551614 (64-bit, unsigned)
-    policy_scan.l:66:20: runtime error: unsigned integer overflow: 18446744073709551615 + 1 cannot be represented in type 'unsigned long'
+    Direct leak of 272 byte(s) in 2 object(s) allocated from:
+        #0 0x49bb8d in __interceptor_malloc (./checkpolicy/checkmodule+0x49bb8d)
+        #1 0x4f379c in define_te_avtab_xperms_helper ./checkpolicy/policy_define.c:2047:24
+        #2 0x4f379c in define_te_avtab_extended_perms ./checkpolicy/policy_define.c:2469:6
+        #3 0x4cf417 in yyparse ./checkpolicy/policy_parse.y:494:30
+        #4 0x4eaf35 in read_source_policy ./checkpolicy/parse_util.c:63:6
+        #5 0x50cccd in main ./checkpolicy/checkmodule.c:278:7
+        #6 0x7fbfa455ce49 in __libc_start_main csu/../csu/libc-start.c:314:16
 
+    Direct leak of 32 byte(s) in 2 object(s) allocated from:
+        #0 0x49bb8d in __interceptor_malloc (./checkpolicy/checkmodule+0x49bb8d)
+        #1 0x4f4a38 in avrule_sort_ioctls ./checkpolicy/policy_define.c:1844:12
+        #2 0x4f4a38 in avrule_ioctl_ranges ./checkpolicy/policy_define.c:2021:6
+        #3 0x4f4a38 in define_te_avtab_ioctl ./checkpolicy/policy_define.c:2399:6
+        #4 0x4f4a38 in define_te_avtab_extended_perms ./checkpolicy/policy_define.c:2475:7
+        #5 0x4cf417 in yyparse ./checkpolicy/policy_parse.y:494:30
+        #6 0x4eaf35 in read_source_policy ./checkpolicy/parse_util.c:63:6
+        #7 0x50cccd in main ./checkpolicy/checkmodule.c:278:7
+        #8 0x7fbfa455ce49 in __libc_start_main csu/../csu/libc-start.c:314:16
+
+Reported-by: liwugang <liwugang@163.com>
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/policy_scan.l | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ checkpolicy/policy_define.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index 4067268b..129a8a2a 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -59,12 +59,17 @@ alnum   [a-zA-Z0-9]
- hexval	[0-9A-Fa-f]
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index c71e0571..185d5704 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -2390,7 +2390,7 @@ static int avrule_cpy(avrule_t *dest, const avrule_t *src)
+ static int define_te_avtab_ioctl(const avrule_t *avrule_template)
+ {
+ 	avrule_t *avrule;
+-	struct av_ioctl_range_list *rangelist;
++	struct av_ioctl_range_list *rangelist, *r;
+ 	av_extended_perms_t *complete_driver, *partial_driver, *xperms;
+ 	unsigned int i;
  
- %%
--\n.*				{ strncpy(linebuf[lno], yytext+1, 255);
--                                  linebuf[lno][254] = 0;
--                                  lno = 1 - lno; 
--                                  policydb_lineno++;
--				  source_lineno++;
--                                  yyless(1); }
-+\n.*				{
-+				  strncpy(linebuf[lno], yytext+1, 255);
-+				  linebuf[lno][254] = 0;
-+				  lno = 1 - lno;
-+				  policydb_lineno++;
-+				  if (source_lineno == ULONG_MAX)
-+				      yywarn("source line number overflow");
-+				  else
-+				      source_lineno++;
-+				  yyless(1);
-+				}
- CLONE |
- clone				{ return(CLONE); }
- COMMON |
-@@ -270,7 +275,13 @@ GLBLUB				{ return(GLBLUB); }
- {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
- {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
- #line[ ]1[ ]\"[^\n]*\"		{ set_source_file(yytext+9); }
--#line[ ]{digit}+	        { source_lineno = atoi(yytext+6)-1; }
-+#line[ ]{digit}+	        {
-+				  errno = 0;
-+				  source_lineno = strtoul(yytext+6, NULL, 10) - 1;
-+				  if (errno) {
-+				    yywarn("source line number too big");
-+				  }
-+				}
- #[^\n]*                         { /* delete comments */ }
- [ \t\f]+			{ /* delete whitespace */ }
- "==" 				{ return(EQUALS); }
+@@ -2448,6 +2448,12 @@ done:
+ 	if (partial_driver)
+ 		free(partial_driver);
+ 
++	while (rangelist != NULL) {
++		r = rangelist;
++		rangelist = rangelist->next;
++		free(r);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -2456,6 +2462,7 @@ int define_te_avtab_extended_perms(int which)
+ 	char *id;
+ 	unsigned int i;
+ 	avrule_t *avrule_template;
++	int rc = 0;
+ 
+ 	if (pass == 1) {
+ 		for (i = 0; i < 4; i++) {
+@@ -2471,15 +2478,17 @@ int define_te_avtab_extended_perms(int which)
+ 
+ 	id = queue_remove(id_queue);
+ 	if (strcmp(id,"ioctl") == 0) {
+-		free(id);
+-		if (define_te_avtab_ioctl(avrule_template))
+-			return -1;
++		rc = define_te_avtab_ioctl(avrule_template);
+ 	} else {
+ 		yyerror("only ioctl extended permissions are supported");
+-		free(id);
+-		return -1;
++		rc = -1;
+ 	}
+-	return 0;
++
++	free(id);
++	avrule_destroy(avrule_template);
++	free(avrule_template);
++
++	return rc;
+ }
+ 
+ static int define_te_avtab_helper(int which, avrule_t ** rule)
 -- 
 2.33.0
 
