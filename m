@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 291C3C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA06EC43217
 	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 12:50:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E8BB60F58
+	by mail.kernel.org (Postfix) with ESMTP id BD24760F70
 	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 12:50:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbhINMwC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Sep 2021 08:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
+        id S232898AbhINMwD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Sep 2021 08:52:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232613AbhINMwC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 08:52:02 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7666C061574
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:44 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id z94so13508066ede.8
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:44 -0700 (PDT)
+        with ESMTP id S232986AbhINMwD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 08:52:03 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0AB7C061574
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:45 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id n10so19678151eda.10
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 05:50:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=wxVrwi7fqRCUdi0rstdW3xmsLEx4av06gtb8OTs43dA=;
-        b=VEyv86Gb6XT6v6opXjl3kKKyRNRgOTf0cr/0ciRCGV7ti6/l3FSJcWpD8OeywbPSBk
-         RGbEoQYv+hydsvjrVFTkpRrMUy51RUfjynd/Vxty37HvMIjF3ILL5uS3634DVOBhZA4V
-         dli22+Y6pFlgIBhSn3VayghjMzt8nvjbsHG3OYuIDu30WdIL8F5FVV8NGUGxUBZqwCJn
-         OxJfHMB7XAk15kcv1nHFysWwbY0865pqZnJAwbL0x0YmREHyizSNkc9oc0w5HbvK48jj
-         ED3+lkTeX1NB1E7wZBnNJaVuVvdEH70muKZuGS8uMvh2QMALn7lQNM/jZlLJ52gqi6rB
-         9U4w==
+        bh=4018gBXnpw2V2+Rsdr197n0FQegQy70vC//idsvaing=;
+        b=Z5RUpYzpwodlQBmHbbAQlJxzhOn3FQ+iG9dmNCwQDt0Ti+y5DNLsiAsucTS2Oi4Evm
+         54Qq8xCetka8gA+3APGeRza7tESBthSxtswHjb9proKIYp6F+DFJD0sqz41acVfZ95mQ
+         76w10ysjb3YbFlj5Z93KWnNWKgk0xmEucjI+GlO38CBLeuZY/R1/WZEkhdXWN1MFZU9d
+         NJNtQheIYoPXQCBA0jLierI52X8EwXrE2uAE8FlRI+q0HcC7CFWor3Hr9ZCtW/ExS7i0
+         Fl9RX026VRtZNScCw4sAcoyM5TW8tgAjyIBSwaYlRGmU6xUZYnA/nhslCY2u8d9mnIaq
+         IBwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=wxVrwi7fqRCUdi0rstdW3xmsLEx4av06gtb8OTs43dA=;
-        b=364RJKvX8X+Edv1pDn/Hwzu9CSi/7AYZ+3CQfoBxbTVHWB/NJuXCPxe4EvdlZhV9ny
-         ZFv1F2GGxCCOuzRF2wyMPs3W3c2l6ljK+Mb5E1SyFYRkWn3+/G2Le7By1U5yPByip1aP
-         t96ykcO4MRomE339SWMLU4tvbmQPvs8QkuJTIAPxPCJtKQxNmTyYkoNT50kOjr5KSP9X
-         I6z/av0D1rOPjcFRbh58BGZxHce3CkZkls6gLERl2rI81vEYQ2v0gnEDsmEAkfq8oYMA
-         a5nx/E59CggWHqMNuQIx7ZgSgmXEpnn2SUHAVSDpI6B3uLEdatF20zvDfIBxpMLbwGjn
-         ii8w==
-X-Gm-Message-State: AOAM530izUZ1qTyb3ZTJhVHeDuwgiY460nv+ZXoa8xqStKnKJDaR+5ec
-        LkqEVEPDusU4v+dd9Jtxv8QqD9y+9UA=
-X-Google-Smtp-Source: ABdhPJxKWKMvotIZz2YXsuwPMGx3oWBmNr7lNiyNajgrkga7jxpL8kqTpDoNqPs1OKQrLxQEu0wvsQ==
-X-Received: by 2002:a05:6402:49a:: with SMTP id k26mr19613030edv.279.1631623843176;
-        Tue, 14 Sep 2021 05:50:43 -0700 (PDT)
+        bh=4018gBXnpw2V2+Rsdr197n0FQegQy70vC//idsvaing=;
+        b=SC4dh20BQi2AX1JYCU+yB5QGj/m8mC7yG22fxzhJkKXNzIBJNp9qoFBd89yzXplhze
+         PBns9ycnUSWfvXGWWUHl6pg82Ebt/STYBzP640RL7RkDQM+0O3dvFUBIyjhUGwrvOqDG
+         IUI7sSqv4f+dzGdnNkkTMuealGizs31eNtqEd3dPHl0ZSaAjcSSuIQoTqgLjbmzyoE5o
+         ldQrVwnDB1diCoz0Yx5fp81MRhO+Eqp7G/iHA0yOQKKH5fEqZzPjzspuB+8Iwj9fkRDM
+         hve3ZwN3bW+ROREwGSUrjDA0aUI8kzpYfTA3gT4h2j68Dvpjw2BX53NY5IQtasulwGvK
+         SeZA==
+X-Gm-Message-State: AOAM530QasYTbunPxqxF5fRZfWT/XEOJjtcBgCgF1SZ7Vc/JsuGWeUrj
+        WToLesPOy1gEVEuDNsN3lxmTSgccuq8=
+X-Google-Smtp-Source: ABdhPJyH5EBkn7s58ml3MAy10f+oF6vdMoJC67K83Z3KxXCMKb+o2FluAWTEYhGi7ZG3MJr1SX1TXQ==
+X-Received: by 2002:aa7:d78e:: with SMTP id s14mr6612269edq.171.1631623844208;
+        Tue, 14 Sep 2021 05:50:44 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-003-237-250.77.3.pool.telefonica.de. [77.3.237.250])
-        by smtp.gmail.com with ESMTPSA id r8sm5567865eds.39.2021.09.14.05.50.42
+        by smtp.gmail.com with ESMTPSA id r8sm5567865eds.39.2021.09.14.05.50.43
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Sep 2021 05:50:42 -0700 (PDT)
+        Tue, 14 Sep 2021 05:50:43 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 01/13] libsepol: avoid implicit conversions
-Date:   Tue, 14 Sep 2021 14:48:16 +0200
-Message-Id: <20210914124828.19488-2-cgzones@googlemail.com>
+Subject: [PATCH 03/13] checkpolicy: enclose macro argument in parentheses
+Date:   Tue, 14 Sep 2021 14:48:18 +0200
+Message-Id: <20210914124828.19488-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210914124828.19488-1-cgzones@googlemail.com>
 References: <20210914124828.19488-1-cgzones@googlemail.com>
@@ -72,29 +72,48 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Avoid implicit conversions from signed to unsigned values, found by
-UB sanitizers, by using unsigned values in the first place.
-
-    util.c:95:15: runtime error: left shift of 1 by 31 places cannot be represented in type 'int'
+Found by clang-tidy
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/util.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ checkpolicy/policy_define.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/libsepol/src/util.c b/libsepol/src/util.c
-index a47cae87..902c63c5 100644
---- a/libsepol/src/util.c
-+++ b/libsepol/src/util.c
-@@ -92,7 +92,7 @@ char *sepol_av_to_string(policydb_t * policydbp, uint32_t tclass,
- 	cladatum = policydbp->class_val_to_struct[tclass - 1];
- 	p = avbuf;
- 	for (i = 0; i < cladatum->permissions.nprim; i++) {
--		if (av & (1 << i)) {
-+		if (av & (UINT32_C(1) << i)) {
- 			v.val = i + 1;
- 			rc = hashtab_map(cladatum->permissions.table,
- 					 perm_name, &v);
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 75a67d5c..7e7801d3 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -2143,13 +2143,13 @@ out:
+ }
+ 
+ /* index of the u32 containing the permission */
+-#define XPERM_IDX(x) (x >> 5)
++#define XPERM_IDX(x) ((x) >> 5)
+ /* set bits 0 through x-1 within the u32 */
+-#define XPERM_SETBITS(x) ((1U << (x & 0x1f)) - 1)
++#define XPERM_SETBITS(x) ((1U << ((x) & 0x1f)) - 1)
+ /* low value for this u32 */
+-#define XPERM_LOW(x) (x << 5)
++#define XPERM_LOW(x) ((x) << 5)
+ /* high value for this u32 */
+-#define XPERM_HIGH(x) (((x + 1) << 5) - 1)
++#define XPERM_HIGH(x) ((((x) + 1) << 5) - 1)
+ void avrule_xperm_setrangebits(uint16_t low, uint16_t high,
+ 				av_extended_perms_t *xperms)
+ {
+@@ -2189,9 +2189,9 @@ int avrule_xperms_used(const av_extended_perms_t *xperms)
+  * dir, size, driver, and function. Only the driver and function fields
+  * are considered here
+  */
+-#define IOC_DRIV(x) (x >> 8)
+-#define IOC_FUNC(x) (x & 0xff)
+-#define IOC_CMD(driver, func) ((driver << 8) + func)
++#define IOC_DRIV(x) ((x) >> 8)
++#define IOC_FUNC(x) ((x) & 0xff)
++#define IOC_CMD(driver, func) (((driver) << 8) + (func))
+ int avrule_ioctl_partialdriver(struct av_ioctl_range_list *rangelist,
+ 				av_extended_perms_t *complete_driver,
+ 				av_extended_perms_t **extended_perms)
 -- 
 2.33.0
 
