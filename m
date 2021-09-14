@@ -2,182 +2,143 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 634A5C433EF
-	for <selinux@archiver.kernel.org>; Mon, 13 Sep 2021 21:05:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 643C9C4332F
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 01:50:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 441626103B
-	for <selinux@archiver.kernel.org>; Mon, 13 Sep 2021 21:05:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B7CF60FDA
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 01:50:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347882AbhIMVGd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Sep 2021 17:06:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53504 "EHLO
+        id S232448AbhINBvr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Sep 2021 21:51:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbhIMVGd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Sep 2021 17:06:33 -0400
+        with ESMTP id S231976AbhINBvo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Sep 2021 21:51:44 -0400
 Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C3FC061574
-        for <selinux@vger.kernel.org>; Mon, 13 Sep 2021 14:05:16 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id c22so14977439edn.12
-        for <selinux@vger.kernel.org>; Mon, 13 Sep 2021 14:05:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E885FC061760
+        for <selinux@vger.kernel.org>; Mon, 13 Sep 2021 18:50:27 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id n10so17235253eda.10
+        for <selinux@vger.kernel.org>; Mon, 13 Sep 2021 18:50:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=373m7inPGNTCDOiEZsbke1WmzoymEFvAttGADuwHDDA=;
-        b=dZApan+/iH4NW1oyIBh56hyWC0xvVWqlTSK28qynQC4TgDjgqY/p3DDGCieGAdnE+I
-         0aAGZTbnqRM5fK3TAuLjdF7NMMeCiV0kCAfGdpzcWIOkp6sGMVlUrfxYCH3SD3gyogJC
-         4YUBZARL2myz4qpAuMZTGYV2rnkRZ9K57xrX/1azGmh55BtgXM4p6fR98t3Lj/TtI5og
-         R/GBhjg5GXvtd+GgOVsER1+uWOFoeaerYmB9DSE925/Yk+BqT4PYFMFnKhDH3tmHZ5eB
-         xUYs9eTg/9uBmvVggoWXp8e0Cnzsirc3guy7n646rKKVwHb6iHMN/jX2KPg7JseQr8+1
-         ToQQ==
+        bh=jPu3h9CQPcnJEoZBnk22cJi+iEEAQklCzeiD4Yt6F+4=;
+        b=ViM5QgV3bdhBUnRbzSzh9HBc/gtTqBCotJ+JMSFQthJmEDXZ9S9mjR1RKsWsWlI3D/
+         DvpQAeCLfEdvvtfSo0kxE0IL7QiAMaQeHPwLKM5DSFGsAu+o5T+hXxZy3zq0vI4ArzZu
+         cGA2HBMNSt56w0+6BO3RwBu6GVVjRsR6v6PjsTnK9pSz25FxtFWjPG4vmvhyiLFoqNcl
+         x42bOj4TXZrV2i1+MvQMWj4Dc8JJLhyVIS0GaMF1NPB++uv9dab/nVRbOvkD1Pt4jx8Y
+         JE8FZo7CE6G5j6ErdyzN5p/04LD8zrnYw2TRBSLojwarDBtqFnxHcCQoYFFadNIrVpiI
+         lZrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=373m7inPGNTCDOiEZsbke1WmzoymEFvAttGADuwHDDA=;
-        b=Yg8sU3aCzeQleGDVvaeTAoSkHZlEQq5bbn9EY3UMMCC+q7KdZ+foaJTDa/VeDvew2T
-         w+kXT4+6cCVPBm+5SVjPKloNEYbhdv2oOMWXXZQWD8Tpurmi3NdJwyhLpfYzWPCNpOCz
-         Zw7m38nshKdorCzn24mD1rmftCX0esw5NoKiKi4YtZy1y1UCfjgpR5aSnGO6W7lo0oMv
-         Iy7QLAHkgBomnHwAWGg4MA9OfYNMUkds4bbaULnIqS/M9bKIG/BMNFpMCIufwlAXKrup
-         +DiWNVZ7c/ikm7rChnAmC3M7MChhWVahyS1Vnxy/5cp5Tm82P7opmX7YX8vsMAh4sSqO
-         +xmw==
-X-Gm-Message-State: AOAM532PtqI4l4n7QgGk86cwUL2PscCedtmavssuecRe3rrWpkcg6yUO
-        5WpyDqRLMZUV8zJR2M3h/THuaptaGKJySEgzJxIK
-X-Google-Smtp-Source: ABdhPJyhjptYpi0mwh96yMlLzxckfq2tRXqkGTb/ZQJf0dLr8KeUC8PkrIaOITSWhjWsL1Ai+gNDn5oE1rgV2wDOPdI=
-X-Received: by 2002:a05:6402:2810:: with SMTP id h16mr14507917ede.293.1631567115278;
- Mon, 13 Sep 2021 14:05:15 -0700 (PDT)
+        bh=jPu3h9CQPcnJEoZBnk22cJi+iEEAQklCzeiD4Yt6F+4=;
+        b=AclBB45pFAhFnUSNkkZ+xuuBv9rRxV8GNd2vgMwBlutLLQx6VVwTFEjeyJJqnWEE1o
+         9oGQWL/S7h/4gQCUxD4nvCBK3lzAuvKZ3Xn0MlC2FJQRCtV8yk2pLWvQuRmTHiY/2HwG
+         6e0IFNWE9ridFd2lsF6qPzkdO9yQ8yEBPzKfl+B2QXT3mhpgkGKTB1FghhvQdD8F7Ap+
+         Ty27f2TasBtsBHGGPJkw48sPsuKiUNpn4ntu0OsChtieT6ZIjONVdzhVJEso6Hf/VOyw
+         8shMOnKPIYG29J47JqwdU1KSm07mkGNQCD6/9+XxEFgtBJc713Jo/6c9iROZbVg1reKV
+         dolg==
+X-Gm-Message-State: AOAM5320sz6vRZRVsxYpkBOVEYVkx1m677aSbxHPRZ6GV6x3g9DXOEfz
+        +Ojo+CpyBDniEK4NCMz0dU9wg/A49N2kf5nnHQbs
+X-Google-Smtp-Source: ABdhPJxh9C/8a1CsAbh15aNiNt0zThWTeKtkQZUPvHU1ASlce16mrq98gj9qsXKgpDoK44hWmc7N9M7URgGcpkj+mxk=
+X-Received: by 2002:a05:6402:13d0:: with SMTP id a16mr12628569edx.155.1631584226307;
+ Mon, 13 Sep 2021 18:50:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210913140229.24797-1-omosnace@redhat.com>
-In-Reply-To: <20210913140229.24797-1-omosnace@redhat.com>
+References: <20210824205724.GB490529@madcap2.tricolour.ca> <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+ <20210826163230.GF490529@madcap2.tricolour.ca> <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+ <20210827133559.GG490529@madcap2.tricolour.ca> <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
+ <20210828150356.GH490529@madcap2.tricolour.ca> <CAHC9VhRgc_Fhi4c6L__butuW7cmSFJxTMxb+BBn6P-8Yt0ck_w@mail.gmail.com>
+ <CAHC9VhQD8hKekqosjGgWPxZFqS=EFy-_kQL5zAo1sg0MU=6n5A@mail.gmail.com>
+ <20210910005858.GL490529@madcap2.tricolour.ca> <CAHC9VhSRJYW7oRq6iLCH_UYukeFfE0pEJ_wBLdr1mw2QGUPh-Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhSRJYW7oRq6iLCH_UYukeFfE0pEJ_wBLdr1mw2QGUPh-Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 13 Sep 2021 17:05:04 -0400
-Message-ID: <CAHC9VhRw-S+zZUFz5QFFLMBATjo+YbPAiR21jX6p7cT0T+MVLA@mail.gmail.com>
-Subject: Re: [PATCH v4] lockdown,selinux: fix wrong subject in some SELinux
- lockdown checks
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     linux-security-module@vger.kernel.org,
-        James Morris <jmorris@namei.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        x86@kernel.org, linux-acpi@vger.kernel.org,
-        linux-cxl@vger.kernel.org, linux-efi@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-serial@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Dan Williams <dan.j.williams@intel.com>
+Date:   Mon, 13 Sep 2021 21:50:15 -0400
+Message-ID: <CAHC9VhTrimTds_miuyRhhHjoG_Fhmk2vH7G3hKeeFWO3BdLpKw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     sgrubb@redhat.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-audit@redhat.com,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 10:02 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Mon, Sep 13, 2021 at 3:23 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Thu, Sep 9, 2021 at 8:59 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> > On 2021-09-01 15:21, Paul Moore wrote:
+> > > On Sun, Aug 29, 2021 at 11:18 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Sat, Aug 28, 2021 at 11:04 AM Richard Guy Briggs <rgb@redhat.com> wrote:
+> > > > > I did set a syscall filter for
+> > > > >         -a exit,always -F arch=b64 -S io_uring_enter,io_uring_setup,io_uring_register -F key=iouringsyscall
+> > > > > and that yielded some records with a couple of orphans that surprised me
+> > > > > a bit.
+> > > >
+> > > > Without looking too closely at the log you sent, you can expect URING
+> > > > records without an associated SYSCALL record when the uring op is
+> > > > being processed in the io-wq or sqpoll context.  In the io-wq case the
+> > > > processing is happening after the thread finished the syscall but
+> > > > before the execution context returns to userspace and in the case of
+> > > > sqpoll the processing is handled by a separate kernel thread with no
+> > > > association to a process thread.
+> > >
+> > > I spent some time this morning/afternoon playing with the io_uring
+> > > audit filtering capability and with your audit userspace
+> > > ghau-iouring-filtering.v1.0 branch it appears to work correctly.  Yes,
+> > > the userspace tooling isn't quite 100% yet (e.g. `auditctl -l` doesn't
+> > > map the io_uring ops correctly), but I know you mentioned you have a
+> > > number of fixes/improvements still as a work-in-progress there so I'm
+> > > not too concerned.  The important part is that the kernel pieces look
+> > > to be working correctly.
+> >
+> > Ok, I have squashed and pushed the audit userspace support for iouring:
+> >         https://github.com/rgbriggs/audit-userspace/commit/e8bd8d2ea8adcaa758024cb9b8fa93895ae35eea
+> >         https://github.com/linux-audit/audit-userspace/compare/master...rgbriggs:ghak-iouring-filtering.v2.1
+> > There are test rpms for f35 here:
+> >         http://people.redhat.com/~rbriggs/ghak-iouring/git-e8bd8d2-fc35/
+> >
+> > userspace v2 changelog:
+> > - check for watch before adding perm
+> > - update manpage to include filesystem filter
+> > - update support for the uring filter list: doc, -U op, op names
+> > - add support for the AUDIT_URINGOP record type
+> > - add uringop support to ausearch
+> > - add uringop support to aureport
+> > - lots of bug fixes
+> >
+> > "auditctl -a uring,always -S ..." will now throw an error and require
+> > "-U" instead.
 >
-> Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
-> lockdown") added an implementation of the locked_down LSM hook to
-> SELinux, with the aim to restrict which domains are allowed to perform
-> operations that would breach lockdown.
+> Thanks Richard.
 >
-> However, in several places the security_locked_down() hook is called in
-> situations where the current task isn't doing any action that would
-> directly breach lockdown, leading to SELinux checks that are basically
-> bogus.
->
-> To fix this, add an explicit struct cred pointer argument to
-> security_lockdown() and define NULL as a special value to pass instead
-> of current_cred() in such situations. LSMs that take the subject
-> credentials into account can then fall back to some default or ignore
-> such calls altogether. In the SELinux lockdown hook implementation, use
-> SECINITSID_KERNEL in case the cred argument is NULL.
->
-> Most of the callers are updated to pass current_cred() as the cred
-> pointer, thus maintaining the same behavior. The following callers are
-> modified to pass NULL as the cred pointer instead:
-> 1. arch/powerpc/xmon/xmon.c
->      Seems to be some interactive debugging facility. It appears that
->      the lockdown hook is called from interrupt context here, so it
->      should be more appropriate to request a global lockdown decision.
-> 2. fs/tracefs/inode.c:tracefs_create_file()
->      Here the call is used to prevent creating new tracefs entries when
->      the kernel is locked down. Assumes that locking down is one-way -
->      i.e. if the hook returns non-zero once, it will never return zero
->      again, thus no point in creating these files. Also, the hook is
->      often called by a module's init function when it is loaded by
->      userspace, where it doesn't make much sense to do a check against
->      the current task's creds, since the task itself doesn't actually
->      use the tracing functionality (i.e. doesn't breach lockdown), just
->      indirectly makes some new tracepoints available to whoever is
->      authorized to use them.
-> 3. net/xfrm/xfrm_user.c:copy_to_user_*()
->      Here a cryptographic secret is redacted based on the value returned
->      from the hook. There are two possible actions that may lead here:
->      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
->         task context is relevant, since the dumped data is sent back to
->         the current task.
->      b) When adding/deleting/updating an SA via XFRM_MSG_xxxSA, the
->         dumped SA is broadcasted to tasks subscribed to XFRM events -
->         here the current task context is not relevant as it doesn't
->         represent the tasks that could potentially see the secret.
->      It doesn't seem worth it to try to keep using the current task's
->      context in the a) case, since the eventual data leak can be
->      circumvented anyway via b), plus there is no way for the task to
->      indicate that it doesn't care about the actual key value, so the
->      check could generate a lot of "false alert" denials with SELinux.
->      Thus, let's pass NULL instead of current_cred() here faute de
->      mieux.
->
-> Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
-> Improvements-suggested-by: Paul Moore <paul@paul-moore.com>
-> Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-> Acked-by: Dan Williams <dan.j.williams@intel.com>         [cxl]
-> Acked-by: Steffen Klassert <steffen.klassert@secunet.com> [xfrm]
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> v4:
-> - rebase on top of TODO
-> - fix rebase conflicts:
->   * drivers/cxl/pci.c
->     - trivial: the lockdown reason was corrected in mainline
->   * kernel/bpf/helpers.c, kernel/trace/bpf_trace.c
->     - trivial: LOCKDOWN_BPF_READ was renamed to LOCKDOWN_BPF_READ_KERNEL
->       in mainline
->   * kernel/power/hibernate.c
->     - trivial: !secretmem_active() was added to the condition in
->       hibernation_available()
-> - cover new security_locked_down() call in kernel/bpf/helpers.c
->   (LOCKDOWN_BPF_WRITE_USER in BPF_FUNC_probe_write_user case)
->
-> v3: https://lore.kernel.org/lkml/20210616085118.1141101-1-omosnace@redhat.com/
-> - add the cred argument to security_locked_down() and adapt all callers
-> - keep using current_cred() in BPF, as the hook calls have been shifted
->   to program load time (commit ff40e51043af ("bpf, lockdown, audit: Fix
->   buggy SELinux lockdown permission checks"))
-> - in SELinux, don't ignore hook calls where cred == NULL, but use
->   SECINITSID_KERNEL as the subject instead
-> - update explanations in the commit message
->
-> v2: https://lore.kernel.org/lkml/20210517092006.803332-1-omosnace@redhat.com/
-> - change to a single hook based on suggestions by Casey Schaufler
->
-> v1: https://lore.kernel.org/lkml/20210507114048.138933-1-omosnace@redhat.com/
+> FYI, I rebased the io_uring/LSM/audit patchset on top of v5.15-rc1
+> today and tested both with your v1.0 and with your v2.1 branch and the
+> various combinations seemed to work just fine (of course the v2.1
+> userspace branch was more polished, less warts, etc.).  I'm going to
+> go over the patch set one more time to make sure everything is still
+> looking good, write up an updated cover letter, and post a v3 revision
+> later tonight with the hope of merging it into -next later this week.
 
-The changes between v3 and v4 all seem sane to me, but I'm going to
-let this sit for a few days in hopes that we can collect a few more
-Reviewed-bys and ACKs.  If I don't see any objections I'll merge it
-mid-week(ish) into selinux/stable-5.15 and plan on sending it to Linus
-after it goes through a build/test cycle.
+Best laid plans of mice and men ...
+
+It turns out the LSM hook macros are full of warnings-now-errors that
+should likely be resolved before sending anything LSM related to
+Linus.  I'll post v3 once I fix this, which may not be until tomorrow.
+
+(To be clear, the warnings/errors aren't new to this patchset, I'm
+likely just the first person to notice them.)
 
 -- 
 paul moore
