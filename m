@@ -8,57 +8,57 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AD04C433EF
-	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 19:45:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C43DC433EF
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 20:44:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 501C360F58
-	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 19:45:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F2C2610A2
+	for <selinux@archiver.kernel.org>; Tue, 14 Sep 2021 20:44:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232391AbhINTq5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Sep 2021 15:46:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57170 "EHLO
+        id S233145AbhINUp1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Sep 2021 16:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230390AbhINTq4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 15:46:56 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E3BC061574
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 12:45:38 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id w19so754114oik.10
-        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 12:45:38 -0700 (PDT)
+        with ESMTP id S233713AbhINUpU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Sep 2021 16:45:20 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2ACAC061574
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 13:44:02 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id l7-20020a0568302b0700b0051c0181deebso338144otv.12
+        for <selinux@vger.kernel.org>; Tue, 14 Sep 2021 13:44:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=LYvtm4EcpP5lbl0jlkPLx1l1wKiz5iNuQRo5sW4+u64=;
-        b=S2qn84d2ePWLjTrF6YNvTXrcurWRsb6/ELgipVWKxPpoyvX4uKThOQvEyv0hGMKj4c
-         25XT5Zf90cOBUITfiGN5Mdu0fRcIE8rs2LGk/LVRo2dsciP/jUQ1Z2bu0tvfN5tXTTbT
-         CH4clNhi8KUg44lyytZHCSJALAclOG3kIBjgQPhHV0NEVcW3gTNtghq+Bo3LO1t+HEqQ
-         NF71yntQxnOzT/3ZQGOtkxAElVuoxLX0qd7PC3yXTYaic/XRGwCty6g46EH8lyAgchkR
-         CVc6ozwbAZkaIGXTQYEHp5nbbztZKn34qwRU/TLxmV5eF+0agZ9BStcm/9713JccfzPO
-         kWNA==
+        bh=TEa9Mt88FI7+RMLSYIfN85ZdoIIbbYXSIgk66poijwA=;
+        b=AsJqpkgqt/lPwmt3tAZNdVui/1s2UV/pxFy7luiZIEJCFH5nnxV7LqOoj52kbLqHBY
+         +ykvGnQYWIzUF5HlIJzxCMUotlzfMG6U1E0Bl1XhDzTan83cnpT0liJRh8D6/nR79Ql/
+         QFG/KbtYpukTrP4FA9d6L36OQpwGwvGEdEG7mdtOda5Geh4nNik7Ngtf095Vd1pualUD
+         VXA46+rlnr/NdAynqB11/o3bE7ennssD5e5udMdJeDHNynQDYg4MT+CmoYpXMyLEvH0A
+         cIaJrRC9cptjvtLsTxT8+cr8UCseqrfjAB++CoXCukgIABlCqPhSKKYpv1kGw3dOdIRM
+         qPJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=LYvtm4EcpP5lbl0jlkPLx1l1wKiz5iNuQRo5sW4+u64=;
-        b=uC5q2FbNhzhCjkysNUaNeDxyB0OLR9OdgRFeV9WjYKSx2MrrGfXwUfGNjXHIkFULfK
-         rY7Jij33lDtDeFFdoIvJ+Ucx7NP3x9o5FOrXDYr33/uIhHsXtPNo3ojm7bgIvGg2XHf2
-         cuu7ewFN8saMNiEK3zhhz93QwzSpp06guSjndAzRV5gIBvmSrRiTv7CpvTDGw5sykWGU
-         9mzAkH93z6TXWMpMCjboG6btb6ZXVfxRLtnGWTEF0uEZecesCsoKx1Je+jsDemy1H/mJ
-         XhGr8aqQXMcjlgt7LxjGOcbUyxgyEFOXRpSrnHntZP7sABOsI6J1ZRtJb6BEQsXg2pIJ
-         LNdw==
-X-Gm-Message-State: AOAM533y39ia3yoLHyjCyyWg8AZ9Nih4qRX9De5UtWGyA2KcshofZTI3
-        ONmb2yUlekGPRsFB0ibwkkWVNN05JFREB6EDhmA=
-X-Google-Smtp-Source: ABdhPJyZZlR/+shhBhvF6EgiMOA7HGw46i8SSstJlUW+t1W33sjMSTWtF/hsRVGRg8HvHpUBvJzRMwieIcgl9pYW/ok=
-X-Received: by 2002:aca:f189:: with SMTP id p131mr2816748oih.128.1631648738230;
- Tue, 14 Sep 2021 12:45:38 -0700 (PDT)
+        bh=TEa9Mt88FI7+RMLSYIfN85ZdoIIbbYXSIgk66poijwA=;
+        b=xDP6SF3siNl1QCxVvoUK4JKkCpMRY5EB8o+KWZP26Inkt+D7krKT2G4FqnT1RWLqc4
+         Gt6JxntoBIbMmxcHpP4ca4RvUHpdNihuwGxHDsMzHa0eEoV/ZwG7IcTAEpyCHOu+HmeL
+         MKWnXSzyHsSSyIx9l7TviEVy+foYDQSMRvrVV4rLDq9xiteeeSnP2IHUTxQk9TkrGlM4
+         ZkFhS90W3McSsIdND+YCCEcyhIpmeOcnKQREZFkLTytjrIYBCrfaaN1nxhEAAcitWffg
+         hGz0lXDQUfIGxOqYHIVk54eDTxCcH1CQhU1c/7OgDEXFY6/0M+f9ZVZvA5VXv8tyjWSw
+         Oltw==
+X-Gm-Message-State: AOAM531Ze65hbmHF0DfMHrpCP4bVcyJ3DvSRD4nwHvJugPJ5RL1fRqYf
+        gJ3kX6tRxvrGTG1WgkpSwrqM2BSROWPS10Xswdpa8ujau6g=
+X-Google-Smtp-Source: ABdhPJws8XoX1Em4xauNBbvl2Qw6/c2WlWuBRG9sMHUaMcPM696xPkuj7xj7r007MKqIxuoJmaZ6rd3kGPe3BjJu33c=
+X-Received: by 2002:a05:6830:1f0a:: with SMTP id u10mr16692092otg.53.1631652242015;
+ Tue, 14 Sep 2021 13:44:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210914124828.19488-1-cgzones@googlemail.com> <20210914124828.19488-10-cgzones@googlemail.com>
-In-Reply-To: <20210914124828.19488-10-cgzones@googlemail.com>
+References: <20210914124828.19488-1-cgzones@googlemail.com> <20210914124828.19488-12-cgzones@googlemail.com>
+In-Reply-To: <20210914124828.19488-12-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 14 Sep 2021 15:45:27 -0400
-Message-ID: <CAP+JOzTVpNXsTMvMC2bY9x9M54VzCYYD+vLLRA83s=xp4B=6hg@mail.gmail.com>
-Subject: Re: [PATCH 09/13] checkpolicy: resolve dismod memory leaks
+Date:   Tue, 14 Sep 2021 16:43:51 -0400
+Message-ID: <CAP+JOzTkGLzLtSL8P0uTh2O9Vh4SzHLBuivGY8bEwqOf-96r3w@mail.gmail.com>
+Subject: Re: [PATCH 11/13] checkpolicy: error out on parsing too big integers
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,61 +70,71 @@ X-Mailing-List: selinux@vger.kernel.org
 On Tue, Sep 14, 2021 at 8:51 AM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Example leak:
+> Error out instead of silently converting too big integer values in
+> policy sources.
 >
->     Indirect leak of 4 byte(s) in 1 object(s) allocated from:
->         #0 0x49bacd in __interceptor_malloc (./checkpolicy/test/dismod+0x=
-49bacd)
->         #1 0x58ae54 in add_i_to_a ./libsepol/src/util.c:55:21
->         #2 0x53ea8e in symtab_insert ./libsepol/src/policydb.c:1729:6
->         #3 0x536252 in roles_init ./libsepol/src/policydb.c:772:7
->         #4 0x536252 in policydb_init ./libsepol/src/policydb.c:892:7
->         #5 0x562ff1 in sepol_policydb_create ./libsepol/src/policydb_publ=
-ic.c:69:6
->         #6 0x521a7c in module_package_init ./libsepol/src/module.c:96:6
->         #7 0x521a7c in sepol_module_package_create ./libsepol/src/module.=
-c:126:7
->         #8 0x4cfb80 in read_policy ./checkpolicy/test/dismod.c:750:7
->         #9 0x4cda10 in main ./checkpolicy/test/dismod.c:878:6
->         #10 0x7f8538d01e49 in __libc_start_main csu/../csu/libc-start.c:3=
-14:16
+>     policy_parse.y:893:41: runtime error: implicit conversion from type '=
+unsigned long' of value 18446744073709551615 (64-bit, unsigned) to type 'un=
+signed int' changed the value to 4294967295 (32-bit, unsigned)
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
->  checkpolicy/test/dismod.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  checkpolicy/policy_parse.y | 16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
 >
-> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-> index 90c29318..9550b999 100644
-> --- a/checkpolicy/test/dismod.c
-> +++ b/checkpolicy/test/dismod.c
-> @@ -751,12 +751,15 @@ static int read_policy(char *filename, policydb_t *=
- policy)
->                         fprintf(stderr, "%s:  Out of memory!\n", __FUNCTI=
-ON__);
->                         exit(1);
->                 }
-> +               policydb_destroy((policydb_t *) package->policy);
-> +               free(package->policy);
+> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+> index 6098eb50..e969d973 100644
+> --- a/checkpolicy/policy_parse.y
+> +++ b/checkpolicy/policy_parse.y
+> @@ -890,10 +890,22 @@ filename          : FILENAME
+>                         { yytext[strlen(yytext) - 1] =3D '\0'; if (insert=
+_id(yytext + 1,0)) return -1; }
+>                         ;
+>  number                 : NUMBER
+> -                       { $$ =3D strtoul(yytext,NULL,0); }
+> +                       { unsigned long x;
+> +                         errno =3D 0;
+> +                         x =3D strtoul(yytext, NULL, 0);
+> +                         if (errno || x > UINT_MAX)
+> +                             return -1;
 
-Should use "sepol_policydb_free(package->policy)" here. It does both
-of these lines.
+Some compilers will emit a warning if unsigned long is 32 bits. To
+prevent this use:
+
+if (errno)
+   return -1;
+
+#if ULONG_MAX > UINT_MAX
+    if (val > UINT_MAX) {
+        return -1;
+    }
+#endif
+
+See commit b7ea65f547c67bfbae4ae133052583b090747e5a
+
+And discussion:
+https://lore.kernel.org/selinux/CAFftDdrGoQezmVSOnrFrPKaOnS3pejQXzYpfjwQ+QB=
+HH_Pv02w@mail.gmail.com/
+
 Jim
 
 
->                 package->policy =3D (sepol_policydb_t *) policy;
->                 package->file_contexts =3D NULL;
->                 retval =3D
->                     sepol_module_package_read(package,
->                                               (sepol_policy_file_t *) & f=
-, 1);
-> -               free(package->file_contexts);
-> +               package->policy =3D NULL;
-> +               sepol_module_package_free(package);
->         } else {
->                 if (policydb_init(policy)) {
->                         fprintf(stderr, "%s:  Out of memory!\n", __FUNCTI=
-ON__);
+
+> +                         $$ =3D (unsigned int) x;
+> +                       }
+>                         ;
+>  number64               : NUMBER
+> -                       { $$ =3D strtoull(yytext,NULL,0); }
+> +                       { unsigned long long x;
+> +                         errno =3D 0;
+> +                         x =3D strtoull(yytext, NULL, 0);
+> +                         if (errno)
+> +                             return -1;
+> +                         $$ =3D (uint64_t) x;
+> +                       }
+>                         ;
+>  ipv6_addr              : IPV6_ADDR
+>                         { if (insert_id(yytext,0)) return -1; }
 > --
 > 2.33.0
 >
