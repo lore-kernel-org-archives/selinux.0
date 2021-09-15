@@ -2,152 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D33A2C433EF
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 13:20:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA627C433FE
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 13:40:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC88B61263
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 13:20:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D4094600AA
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 13:40:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229441AbhIONVT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Sep 2021 09:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43582 "EHLO
+        id S233472AbhIONlY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Sep 2021 09:41:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234561AbhIONVT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 09:21:19 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBF0C061768
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 06:20:00 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id i6so4347979edu.1
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 06:19:59 -0700 (PDT)
+        with ESMTP id S233440AbhIONlX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 09:41:23 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A441BC061574
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 06:40:04 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id s12so1265874ljg.0
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 06:40:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=tPTA0jiUuV1I+kYvgXc0X+kLx7Bg2CCrrJlWbG4TWj4=;
-        b=FdZL9zHAZ2wA5dVMA/WCcTI4wDRwCzmHiwiaMQB64PyA3nUiLdi3MYm51JVddYN0FQ
-         K/GvwlD7z4igO2xbEFaZkusTMjN12eCDY2gfwkmDOkU9SYSNJIYfMKyv3YCUqzJLghOK
-         mFwJExnwl4NjM/ei8jC5X4i+3pEEW6Y+Ygdr8l/oewoncVDbXvDd0JrNobeO4QMHno1z
-         598xNbphMT2iI5upSVk79zsnpIBw97f5mHkOKycWTc29JPFZRkQrmfHw86Qrox681U8/
-         8xNusqcrGD9rw7sX5wORUkip5n9iJD+cVNvnJas2HMo9RUmTNfiUYjUFhYDNDMuineGj
-         GfAA==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=V+4duhIR1J4kPcgYwRMPD2IvOj4buFCKFfrM7rP9qF4=;
+        b=J0SMdbylPja++XFPyNABBFRkvN9EwRSRbVUAFalVHSXfijpHRkbeADymYh/FRXIme2
+         gf7UT4L4tJau/zerCXV5Njo6owkKhlgcorpzmv/lHXPlAlPoRd3cyYgbijdxEpfPbUvG
+         KeA3S5ob0bTY38ljB0cM9mFhX4livKP/mwTrjy+Cr1rbRV62+ulDBpiHopmft93Z89gQ
+         EbyDM86NqgJ6TMKOoEweRhh15juzpCt8HhzYGPE//ow2GX5uDL2/Z6j4R6jI5nFSYiDB
+         lqoaMkNLKxRK8BKzLKFi75MvLjlxNqkYv/BP+hdnLDd3F0mn2oMXvR8A5qB4HF3i0XaR
+         WhYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tPTA0jiUuV1I+kYvgXc0X+kLx7Bg2CCrrJlWbG4TWj4=;
-        b=Buq1kcOQf0XJInmmqxVJeYa/9SITNciJ1mAeDf+tMxpeeAGO/ijnDN5cRybJsZenkY
-         uYiRuuuzp7ZJ2DoiJBrIDgAASWqx7W0fnV6e1ESdpEJPfQ5H3J4vLr2VvHSIjucp6Hfn
-         z3383R67BPoqAAfW8fwXkT0Ygt3QzPa3hwB1I9tcA2lx7mcxt5k5p0LKfAsRuw+4Tpeg
-         LA0v99q1gqkF/NNvZPgBKMwzqkBx+XA8MOkYiIqRgwOogoH9HHymTk+vjl1+ZQK6MzJk
-         pRzRQYhua9t6Ps694F52yDFCe/QiJH/ymOOoDbXDZLjQLCHiVVH8uN5PSE47pwqgcKjN
-         i1Cw==
-X-Gm-Message-State: AOAM5325I6oOR7sCSUfeupSBkNTNzUWicsVFoGVDOZ/CsekE5/uApxMR
-        F4Y0N8zkKacuQFJ4nIkM9DBPw0pYVPE=
-X-Google-Smtp-Source: ABdhPJxlAbohALepUUY7xw5SQ1K9ztCiolvf7x8FShG3958Gl5W1BqkZGgnJ75OY+mfmdaXTBqjCOA==
-X-Received: by 2002:a50:bae6:: with SMTP id x93mr11584744ede.232.1631711998587;
-        Wed, 15 Sep 2021 06:19:58 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-095-112-239-251.95.112.pool.telefonica.de. [95.112.239.251])
-        by smtp.gmail.com with ESMTPSA id o22sm7258379edi.89.2021.09.15.06.19.57
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Sep 2021 06:19:58 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v3 02/13] libsepol: free memory after policy validation
-Date:   Wed, 15 Sep 2021 15:19:52 +0200
-Message-Id: <20210915131952.26767-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210915131109.25114-1-cgzones@googlemail.com>
-References: <20210915131109.25114-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=V+4duhIR1J4kPcgYwRMPD2IvOj4buFCKFfrM7rP9qF4=;
+        b=rChoBi7tcSioVxI5jD0HGMQdTizb5djodY4ZZaTg76S5ARQZ4HTZQGfOl8C8KZKMTc
+         wkesI0s/EIw4qTSpSeD3uXkwYemvlK1lJ2Z9UUzBAsjsf+QmLLcb6cEmQzbAcubWjIP+
+         xcV9QDWAR9ROP3k7E1JuVrAzOG5pI+/b6XBHCC662Kx4k0ifOI8faBt0cYo9fCBXxoat
+         TZ1Ng2pImHOkwtoMMCXbomWjQzJyQUsZ9k12bHhPf0tqUsKT7PD1TvzF2icKXGmSXsmQ
+         MEgYK1yO13/moGe9oLfVcQpNyyin7tg4ukM3/q5gg8817bmmaJO4fAhqyVa+4bWsqTZ2
+         FSJw==
+X-Gm-Message-State: AOAM532XUjheYTJJMCnYWvYLNjBDSApJ56e0/5KK87SLP3H7oIEX3vlU
+        u91J3svG+gl+HQT/YLUYri2QggZDXKcTm9MdjVI=
+X-Google-Smtp-Source: ABdhPJw36H1T5/rYrLb6LIuTLjkl3QyB8uvwS582QSqBwOPLDrmcrtIL487cL/NuUapIk7T256/z4XvcAeoQGPOznsg=
+X-Received: by 2002:a05:651c:512:: with SMTP id o18mr20983923ljp.199.1631713202889;
+ Wed, 15 Sep 2021 06:40:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <2439a94e3a0c83964af66681dadc016769a6e167.camel@fb.com>
+ <CAEjxPJ6Rp+kPoLc9DvZFv=pZZ4LTT+w=A6JUS7iVLpa8R3QFxQ@mail.gmail.com> <6051546ef6299b0a1e3ae545f3640280187f7c13.camel@fb.com>
+In-Reply-To: <6051546ef6299b0a1e3ae545f3640280187f7c13.camel@fb.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 15 Sep 2021 09:39:51 -0400
+Message-ID: <CAEjxPJ5qUknxN3jzH2d35G9xpPzXdFO8Rzi1CJT3uU8pMDDmsg@mail.gmail.com>
+Subject: Re: [RFC] Signals upon avc denial
+To:     Josh Gao <jmgao@fb.com>
+Cc:     "omosnace@redhat.com" <omosnace@redhat.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "jeffv@google.com" <jeffv@google.com>,
+        "tweek@google.com" <tweek@google.com>, Nick Kralevich <nnk@fb.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Found while running the checkpolicy/test/dispol binary.
+On Wed, Sep 15, 2021 at 2:27 AM Josh Gao <jmgao@fb.com> wrote:
+>
+> On Tue, 2021-09-14 at 10:38 -0400, Stephen Smalley wrote:
+> > Currently in the case of SELinux those attribute values are stored in
+> > the cred security blob, which
+> > used to be the task security blob (hence the legacy
+> > task_security_struct name) before creds existed.
+> > Later LSM revived support for a separate task security blob for the
+> > sake of TOMOYO so that does exist
+> > if needed but SELinux doesn't currently allocate or use it. AppArmor
+> > switched to using it for its task-specific
+> > state after it was restored; SELinux could split its current
+> > task_security_struct into two parts (per-cred and
+> > per-task) and do likewise if that is worthwhile (not sure).
+>
+> My understanding is that `struct cred` is a per-task attribute, not
+> per-thread-group, so different threads can have different task security
+> blobs. Do you know if this is possible without doing something weird
+> like setuid in a multithreaded process?
 
-    Direct leak of 24 byte(s) in 1 object(s) allocated from:
-        #0 0x49bacd in __interceptor_malloc (./checkpolicy/test/dispol+0x49bacd)
-        #1 0x5551e1 in ebitmap_set_bit ./libsepol/src/ebitmap.c:326:27
-        #2 0x517873 in create_gap_ebitmap ./libsepol/src/policydb_validate.c:23:8
-        #3 0x517873 in validate_init ./libsepol/src/policydb_validate.c:34:6
-        #4 0x50fa47 in validate_array_init ./libsepol/src/policydb_validate.c:44:6
-        #5 0x50fa47 in validate_policydb ./libsepol/src/policydb_validate.c:732:6
-        #6 0x4f22df in policydb_read ./libsepol/src/policydb.c:4538:6
-        #7 0x4cddb3 in main ./checkpolicy/test/dispol.c:437:8
-        #8 0x7f5980e47e49 in __libc_start_main csu/../csu/libc-start.c:314:16
-
-    Indirect leak of 48 byte(s) in 2 object(s) allocated from:
-        #0 0x49bacd in __interceptor_malloc (./checkpolicy/test/dispol+0x49bacd)
-        #1 0x5551e1 in ebitmap_set_bit ./libsepol/src/ebitmap.c:326:27
-        #2 0x517873 in create_gap_ebitmap ./libsepol/src/policydb_validate.c:23:8
-        #3 0x517873 in validate_init ./libsepol/src/policydb_validate.c:34:6
-        #4 0x50fa47 in validate_array_init ./libsepol/src/policydb_validate.c:44:6
-        #5 0x50fa47 in validate_policydb ./libsepol/src/policydb_validate.c:732:6
-        #6 0x4f22df in policydb_read ./libsepol/src/policydb.c:4538:6
-        #7 0x4cddb3 in main ./checkpolicy/test/dispol.c:437:8
-        #8 0x7f5980e47e49 in __libc_start_main csu/../csu/libc-start.c:314:16
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v3:
-  - fix indentation
-v2:
-  - name function validate_array_destroy(), similar to the allocating
-    validate_array_init()
-
-
- libsepol/src/policydb_validate.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 246aa6e3..5804d247 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -722,12 +722,21 @@ bad:
- 	return -1;
- }
- 
-+static void validate_array_destroy(validate_t flavors[])
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < SYM_NUM; i++) {
-+		ebitmap_destroy(&flavors[i].gaps);
-+	}
-+}
-+
- /*
-  * Validate policydb
-  */
- int validate_policydb(sepol_handle_t *handle, policydb_t *p)
- {
--	validate_t flavors[SYM_NUM];
-+	validate_t flavors[SYM_NUM] = {};
- 
- 	if (validate_array_init(p, flavors))
- 		goto bad;
-@@ -756,9 +765,12 @@ int validate_policydb(sepol_handle_t *handle, policydb_t *p)
- 	if (validate_datum_arrays(handle, p, flavors))
- 		goto bad;
- 
-+	validate_array_destroy(flavors);
-+
- 	return 0;
- 
- bad:
- 	ERR(handle, "Invalid policydb");
-+	validate_array_destroy(flavors);
- 	return -1;
- }
--- 
-2.33.0
-
+You can't just set the audit signal once in the first thread before
+creating multiple threads and let the child threads inherit it across
+clone(2)?
+Currently ->exit_signal and ->pdeath_signal are part of task_struct,
+so it seems consistent to put this into something per-task,
+whether part of task->security or task->cred->security. If not and it
+needs to be shared across a thread group, I guess you could try to
+get a new security field added to the appropriate structure instead.
