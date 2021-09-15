@@ -4,85 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 996B5C433EF
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:49:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4344BC433F5
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:49:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 856B06113E
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:49:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C1CD610E9
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:49:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230030AbhIOQvI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Sep 2021 12:51:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36522 "EHLO
+        id S229970AbhIOQvL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Sep 2021 12:51:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229812AbhIOQvE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 12:51:04 -0400
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C56C061574
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:49:45 -0700 (PDT)
-Received: by mail-qv1-xf2d.google.com with SMTP id z12so2273338qvx.5
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:49:45 -0700 (PDT)
+        with ESMTP id S230005AbhIOQvL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 12:51:11 -0400
+Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA310C061575
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:49:51 -0700 (PDT)
+Received: by mail-qv1-xf30.google.com with SMTP id di6so2294436qvb.1
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:49:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=subject:from:to:date:message-id:in-reply-to:references:user-agent
          :mime-version:content-transfer-encoding;
-        bh=Y1TkJrYx+ov8z66ALV7f2Sg5s1JjZX16Pw/yL09jGtA=;
-        b=MOUBXl8jVr3QXSJbfF+JqSmSkyrC2sjFL9Mgn1PEPX2Ucq9xMq7Ym6t9beKr3oLpUC
-         t8gjfU+RE6wjzifXOKbYF/LaSZCRbnIiYcQC0FAOmqnMJRQhBO9+OapXZnpgDmOy/80n
-         jQ+0wm+8FccsibXplvv+t5+ew0QksmeyH2Co7yzsUtnM6PPwOdb0+HLGW2Xu9uMWmdCM
-         jZsG9Rdul9sLY1XUby2wOGkDCIRpcP2KW1dE7Tyh1XXcoRT1V8ukuinqYkSDbVoS786m
-         lgFvCGlVL/HN/tQcxv5Pm6Nwf6B0mpgkuUble2HHmKTK2bjB1UuyZQ+KpbCFaCrnl2r+
-         QdIA==
+        bh=osh6NDovzw+ZlXVVDOUZQCSNWZPxEeXF/7ss3wLmtKA=;
+        b=Kv3Vj3lzxRAZJd4JPCmdm40i8ty++ilePqyolEIaYhWs/o1fsLgK9efzsYW3QiD44f
+         dms6SjJGKaaKHs5OrsE76GSk9SUZrOJOg2mfde7/vQWKTyEz//5FOYazl86x/k86H2C6
+         pzSGsuPJS5TY7ow0hCZY8At/mH1zfcz9x2lMbZZv0wNu4qOMGmSvlpuS9syvXWZ5LXaQ
+         B45Xuz4AEHia38q0cLJVHdWqua3pPkdy/WV5G73xpcRw10OAj3hTWZsZruIDq3lw2LcJ
+         bcsQhdDmLYW2sDUkqGKpMu6lvkXH8yTosOklEuX7aKMxuwyUPplAbFpqOH6/IyvPuTOJ
+         b2eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:from:to:date:message-id:in-reply-to
          :references:user-agent:mime-version:content-transfer-encoding;
-        bh=Y1TkJrYx+ov8z66ALV7f2Sg5s1JjZX16Pw/yL09jGtA=;
-        b=zoz+idUnM0ihuvyhrgfz7YJh0mvTeKjQnnc1/qzwQcXOCvL7puSUikj9/YyeLumlmF
-         FTewCXTFNWDsNg3NudVm8m+2u7ZIbQdwRKuDZNxVW9WtMtj0tnRsIInfJ0p73UDT17tF
-         Wv7r358cd5nDYl1+btbyrsfG6NulVIfLcQKjFfi45MAWPlLdOSCHH2jGoJ4rp28YyDay
-         sstlQ/m1T8EmdydBbdBEJ1yVcvmjoLl9cBAJtjcrbHAEl4SxIFeVcGhuVJA8VwuC0SRW
-         t6Kjki16+J9K7eFZbdBf9A3mtd72mn4hJ98tyO57FseVC5F2sEqPZUY6NvA0mjmh9OCo
-         rI9g==
-X-Gm-Message-State: AOAM530mpFPNHA2klQ5D9MClj3dmMYG1GdBynAr4tNsZlCY+HG08JD0Q
-        dL9ND1QnkUJjDCvPMAhdQV6d
-X-Google-Smtp-Source: ABdhPJzkEEdLdy0cmCrWtOnT2Cl0+J/Y8K0llmm4G08TjUGg5mP2ZlZheVR6JwnNE/XlH+vcZDoLOg==
-X-Received: by 2002:ad4:54ce:: with SMTP id j14mr653905qvx.32.1631724584929;
-        Wed, 15 Sep 2021 09:49:44 -0700 (PDT)
+        bh=osh6NDovzw+ZlXVVDOUZQCSNWZPxEeXF/7ss3wLmtKA=;
+        b=CwOjOH0OFO8hp54Y97Rclju4wYcU0nCxO6K2ModpQ0PnyoHQ0OP+ffXLXcC9t3Tei/
+         Q8KWjraxNMnjLVwtG8K0QhjJ14re5qg4ZG2iyaKzWA1LzFhSetVHEhWP/x6ijHmZok7V
+         BYyS3ZhY3+NGG2xLLUaSc0YTMqIajXGrXQc/NRXHJLrsm992PWwz89F1glWUghy7xJ1b
+         ofVD0SoazTzUlFtTYiSm+HlNCpplb68MJOZdS8h1LmV06/mUCDVIvBZW3vn1RmZ4Dmxc
+         D+mFUBlsTWWsgDuZbmlq1G2oFpvBH89nZmUvJ8AAMscFavsvghId/fe1L9yB+TxLmTOl
+         4yaQ==
+X-Gm-Message-State: AOAM533hfIuFKg/8UvrbsquxPNEFYd5NSyfH/lt3EzqxCF/BxBQoTTrh
+        1mB+CmiHfaeYUqiMcJmXMUIl
+X-Google-Smtp-Source: ABdhPJyL+cxrJfyT+g4h6UtkmldJivzlVA9vPqio5LiheuUJzccqirZH/QPK9x2hW9PO0FHnZb0Duw==
+X-Received: by 2002:a05:6214:11f0:: with SMTP id e16mr650335qvu.30.1631724591078;
+        Wed, 15 Sep 2021 09:49:51 -0700 (PDT)
 Received: from localhost (pool-96-237-52-188.bstnma.fios.verizon.net. [96.237.52.188])
-        by smtp.gmail.com with ESMTPSA id g12sm268749qtq.92.2021.09.15.09.49.44
+        by smtp.gmail.com with ESMTPSA id h9sm390273qkl.4.2021.09.15.09.49.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Sep 2021 09:49:44 -0700 (PDT)
-Subject: [PATCH v4 4/8] fs: add anon_inode_getfile_secure() similar to
- anon_inode_getfd_secure()
+        Wed, 15 Sep 2021 09:49:50 -0700 (PDT)
+Subject: [PATCH v4 5/8] io_uring: convert io_uring to the secure anon inode
+ interface
 From:   Paul Moore <paul@paul-moore.com>
 To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, io-uring@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>,
         Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Date:   Wed, 15 Sep 2021 12:49:43 -0400
-Message-ID: <163172458385.88001.9452390680679491195.stgit@olly>
+Date:   Wed, 15 Sep 2021 12:49:50 -0400
+Message-ID: <163172459001.88001.17463922586800990358.stgit@olly>
 In-Reply-To: <163172413301.88001.16054830862146685573.stgit@olly>
 References: <163172413301.88001.16054830862146685573.stgit@olly>
 User-Agent: StGit/1.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Extending the secure anonymous inode support to other subsystems
-requires that we have a secure anon_inode_getfile() variant in
-addition to the existing secure anon_inode_getfd() variant.
+Converting io_uring's anonymous inode to the secure anon inode API
+enables LSMs to enforce policy on the io_uring anonymous inodes if
+they chose to do so.  This is an important first step towards
+providing the necessary mechanisms so that LSMs can apply security
+policy to io_uring operations.
 
-Thankfully we can reuse the existing __anon_inode_getfile() function
-and just wrap it with the proper arguments.
-
-Acked-by: Mickaël Salaün <mic@linux.microsoft.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 
 ---
@@ -95,63 +93,22 @@ v2:
 v1:
 - initial draft
 ---
- fs/anon_inodes.c            |   29 +++++++++++++++++++++++++++++
- include/linux/anon_inodes.h |    4 ++++
- 2 files changed, 33 insertions(+)
+ fs/io_uring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-index a280156138ed..e0c3e33c4177 100644
---- a/fs/anon_inodes.c
-+++ b/fs/anon_inodes.c
-@@ -148,6 +148,35 @@ struct file *anon_inode_getfile(const char *name,
- }
- EXPORT_SYMBOL_GPL(anon_inode_getfile);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 388754b24785..56cc9aba0d01 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -10155,8 +10155,8 @@ static struct file *io_uring_get_file(struct io_ring_ctx *ctx)
+ 		return ERR_PTR(ret);
+ #endif
  
-+/**
-+ * anon_inode_getfile_secure - Like anon_inode_getfile(), but creates a new
-+ *                             !S_PRIVATE anon inode rather than reuse the
-+ *                             singleton anon inode and calls the
-+ *                             inode_init_security_anon() LSM hook.  This
-+ *                             allows for both the inode to have its own
-+ *                             security context and for the LSM to enforce
-+ *                             policy on the inode's creation.
-+ *
-+ * @name:    [in]    name of the "class" of the new file
-+ * @fops:    [in]    file operations for the new file
-+ * @priv:    [in]    private data for the new file (will be file's private_data)
-+ * @flags:   [in]    flags
-+ * @context_inode:
-+ *           [in]    the logical relationship with the new inode (optional)
-+ *
-+ * The LSM may use @context_inode in inode_init_security_anon(), but a
-+ * reference to it is not held.  Returns the newly created file* or an error
-+ * pointer.  See the anon_inode_getfile() documentation for more information.
-+ */
-+struct file *anon_inode_getfile_secure(const char *name,
-+				       const struct file_operations *fops,
-+				       void *priv, int flags,
-+				       const struct inode *context_inode)
-+{
-+	return __anon_inode_getfile(name, fops, priv, flags,
-+				    context_inode, true);
-+}
-+
- static int __anon_inode_getfd(const char *name,
- 			      const struct file_operations *fops,
- 			      void *priv, int flags,
-diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
-index 71881a2b6f78..5deaddbd7927 100644
---- a/include/linux/anon_inodes.h
-+++ b/include/linux/anon_inodes.h
-@@ -15,6 +15,10 @@ struct inode;
- struct file *anon_inode_getfile(const char *name,
- 				const struct file_operations *fops,
- 				void *priv, int flags);
-+struct file *anon_inode_getfile_secure(const char *name,
-+				       const struct file_operations *fops,
-+				       void *priv, int flags,
-+				       const struct inode *context_inode);
- int anon_inode_getfd(const char *name, const struct file_operations *fops,
- 		     void *priv, int flags);
- int anon_inode_getfd_secure(const char *name,
+-	file = anon_inode_getfile("[io_uring]", &io_uring_fops, ctx,
+-					O_RDWR | O_CLOEXEC);
++	file = anon_inode_getfile_secure("[io_uring]", &io_uring_fops, ctx,
++					 O_RDWR | O_CLOEXEC, NULL);
+ #if defined(CONFIG_UNIX)
+ 	if (IS_ERR(file)) {
+ 		sock_release(ctx->ring_sock);
 
