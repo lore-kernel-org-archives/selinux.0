@@ -2,97 +2,128 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DE28C433F5
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:24:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9BFAC433EF
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:49:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08EE761216
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:24:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B80176113E
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:49:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbhIOQZi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Sep 2021 12:25:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58436 "EHLO
+        id S229479AbhIOQus (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Sep 2021 12:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230405AbhIOQZc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 12:25:32 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46B86C0613D8
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:24:00 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id g21so5704965edw.4
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:24:00 -0700 (PDT)
+        with ESMTP id S229690AbhIOQuk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 12:50:40 -0400
+Received: from mail-qv1-xf33.google.com (mail-qv1-xf33.google.com [IPv6:2607:f8b0:4864:20::f33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB6BC061764
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:49:21 -0700 (PDT)
+Received: by mail-qv1-xf33.google.com with SMTP id a13so2262670qvo.9
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:49:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=subject:from:to:date:message-id:user-agent:mime-version
          :content-transfer-encoding;
-        bh=8L1ObEbhewVu5Z9L+F5pzMdKDppRrP8OC4GS9huW5tg=;
-        b=hR7XWEFYJgEALLGJNOqB0F2cbk7SgsXdibmukCsOBrXOfgnf0K1jW2SvX2W8/REsIJ
-         j/Rg/9YB5rPc95AgYzWw0j+iyQB2RtyqAkHKJ23Xu4ZF+zFdeKhWCRMkbOGmKG24XlDZ
-         u6M1qArSkDMmlqZb85Bm3o+SAAJwp1AKmqEYFsFVukvISgkszZV7lXZqyVCaNU6EoZmn
-         oB2cwAo8GRULNHeVUExTW+dnyPGlyoOcC5lq7n5/FdAuj7jtRDrxVLPI+BqExSduzUyO
-         c4F17gAIb9LgCuHFeSEtDNq3sVBXeRHXMEVI9oqh+gblLvWl/m4VACrWtAPMCNd53pYz
-         SsNw==
+        bh=tZwBVZ5ivrPb6DCSmr/gfWXOF5H7MpGJkku89V1qfH0=;
+        b=GmYCadx8bMhGbpmSXQkaENi2AwpsDk4eicoMJAb8ftUwKq8x4RRfBTKM3YrGwJXIcK
+         LTK6/KOqdno7n7n/55XdVcVV23K7/9TedZipQAkrJVt9BcIZsNpl8JYvQOP7jTlkWoeS
+         IAmFraZ0WZGN9UOPi3qaJYgrE/bpl69T7juHgOdJBV+YMrSOGrQL5mY0nPqzlJKsHlgc
+         W/BkFiRcn58ZyCHY7Y7xVr20AzfPaXsL5J3W/BakFi4bUrDljf6RTA71kzPXXaoC+SAP
+         MWjc7HE3QZxgCn6M3Npq4lqaLjnXSGmIz5KB953JeZ90Cshp3gYGTGfKAu0Z2sGSNpnf
+         T+jw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8L1ObEbhewVu5Z9L+F5pzMdKDppRrP8OC4GS9huW5tg=;
-        b=JRS0IJPGGARh+HHWEtLFTeAxqbfC66cnIhwJ0ia5j2TGK6GM831QoX4bZo2FwyacOJ
-         u2CUKnxUPR3o1r9DZhhW43oPBvXzwCXwmxM72tnypZiMZkAMBvfk3TrUjSQRTX6lqB+F
-         ODPtjHyZWMiIiKzXnulWvGVFcVieKzOjv3QBBl2ij6gB/TVSeu+l0J5Mg3pfxzP4Fyft
-         9Xy7t1O2JttmFV+32SWWv3xpSb1su96b/5yb7L1cw2txcfBBpX6hp7gTJcVbGF9A3fuP
-         dSfzwuYkPKBmmFYKbDF3zCaQQI1y+3X5CfZdgsgbiHYbP55rXtvQIcVQ4mgXEv7p3kOV
-         7nMg==
-X-Gm-Message-State: AOAM532RU3S2rt9K9H+2k7Nigi8IfFF4XGFrPiM+i26v+UlzGNcA1hfO
-        lHwV51ywYoKFowQT839BejibWYk6CSg=
-X-Google-Smtp-Source: ABdhPJx3rntDXISX2moUzlJMKri4GvivfbdRy5GftVRFmTQIkf2r5ym+7Vo5NMfIYCfupTQ8U+7r1A==
-X-Received: by 2002:a17:906:b46:: with SMTP id v6mr888926ejg.262.1631723038827;
-        Wed, 15 Sep 2021 09:23:58 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-095-112-239-251.95.112.pool.telefonica.de. [95.112.239.251])
-        by smtp.gmail.com with ESMTPSA id x25sm192699ejy.46.2021.09.15.09.23.57
-        for <selinux@vger.kernel.org>
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=tZwBVZ5ivrPb6DCSmr/gfWXOF5H7MpGJkku89V1qfH0=;
+        b=4YHw1R6tF6WMtiXhjDMV6Msy8UvjNYlzARz/gfvu60275dOFWS3nOnYibiUBqu57eP
+         v2eGETrMAEZnzb9lDnbHymUcXLoZ+Xkyw6nHmRjq7N3XLzOz+1+IHm9de8ziuSWmhzYT
+         t0VxJdo5z2D/qoy4R6WCNkpljITn/y6jH41mnAq1EGMOJH0UcnLBR7P/ivVgIhHsdIPY
+         oCzxyOP8xkKrmKiOiKZV/JAL6dCLuKxOgRWC1ftv9sM4UCidhUoRj1qxmHyQORxB6rN9
+         Yef8mhAS27ZmPq2xHELDvYthHjwiwWGYu5EXPhFBh7tCvcCZhEoISHAdJsCgPDeBOvWK
+         nvjg==
+X-Gm-Message-State: AOAM532tcRa1jAuWWvs+PBv7uGqgb3Y23PBKWsZesgMT4IYT6qh4xITU
+        bx2bAUB+rQDQ5nqoGi2xRT9M
+X-Google-Smtp-Source: ABdhPJw8vf5IO3EobDwbYHe2XkhMkNPHww7tMzZRabrqUnjoI4PvPa3dInjX+UhLg8nS5HeMJcXDpA==
+X-Received: by 2002:ad4:55b3:: with SMTP id f19mr727008qvx.16.1631724560204;
+        Wed, 15 Sep 2021 09:49:20 -0700 (PDT)
+Received: from localhost (pool-96-237-52-188.bstnma.fios.verizon.net. [96.237.52.188])
+        by smtp.gmail.com with ESMTPSA id h9sm389334qkl.4.2021.09.15.09.49.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Sep 2021 09:23:58 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] selinux: enable genfscon labeling for securityfs
-Date:   Wed, 15 Sep 2021 18:23:26 +0200
-Message-Id: <20210915162326.392808-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.33.0
+        Wed, 15 Sep 2021 09:49:19 -0700 (PDT)
+Subject: [PATCH v4 0/8] Add LSM access controls and auditing to io_uring
+From:   Paul Moore <paul@paul-moore.com>
+To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Date:   Wed, 15 Sep 2021 12:49:18 -0400
+Message-ID: <163172413301.88001.16054830862146685573.stgit@olly>
+User-Agent: StGit/1.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add support for genfscon per-file labeling of securityfs files. This allows
-for separate labels and therby permissions for different files, e.g.
-/sys/kernel/security/integrity/ima/policy.
+A quick update to the v3 patchset with a small change to the audit
+record format (remove the audit login ID on io_uring records) and
+a subject line fix on the Smack patch.  I also caught a few minor
+things in the code comments and fixed those up.  All told, nothing
+significant but I really dislike merging patches that haven't hit
+the list so here ya go ...
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+As a reminder, I'm planning to merge these in the selinux/next tree
+later this week and it would be *really* nice to get some ACKs from
+the io_uring folks; this patchset is implementing the ideas we all
+agreed to back in the v1 patchset so there shouldn't be anything
+surprising in here.
+
+For reference the v3 patchset can be found here:
+https://lore.kernel.org/linux-security-module/163159032713.470089.11728103630366176255.stgit@olly/T/#t
+
+Those who would prefer to fetch these patches directly from git can
+do so using the tree/branch below:
+git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+ (checkout branch "working-io_uring")
+
 ---
- security/selinux/hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6517f221d52c..a18626424731 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -760,7 +760,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	    !strcmp(sb->s_type->name, "tracefs") ||
- 	    !strcmp(sb->s_type->name, "binder") ||
- 	    !strcmp(sb->s_type->name, "bpf") ||
--	    !strcmp(sb->s_type->name, "pstore"))
-+	    !strcmp(sb->s_type->name, "pstore") ||
-+	    !strcmp(sb->s_type->name, "securityfs"))
- 		sbsec->flags |= SE_SBGENFS;
- 
- 	if (!strcmp(sb->s_type->name, "sysfs") ||
--- 
-2.33.0
+Casey Schaufler (1):
+      Smack: Brutalist io_uring support
 
+Paul Moore (7):
+      audit: prepare audit_context for use in calling contexts beyond syscalls
+      audit,io_uring,io-wq: add some basic audit support to io_uring
+      audit: add filtering for io_uring records
+      fs: add anon_inode_getfile_secure() similar to anon_inode_getfd_secure()
+      io_uring: convert io_uring to the secure anon inode interface
+      lsm,io_uring: add LSM hooks to io_uring
+      selinux: add support for the io_uring access controls
+
+
+ fs/anon_inodes.c                    |  29 ++
+ fs/io-wq.c                          |   4 +
+ fs/io_uring.c                       |  69 +++-
+ include/linux/anon_inodes.h         |   4 +
+ include/linux/audit.h               |  26 ++
+ include/linux/lsm_hook_defs.h       |   5 +
+ include/linux/lsm_hooks.h           |  13 +
+ include/linux/security.h            |  16 +
+ include/uapi/linux/audit.h          |   4 +-
+ kernel/audit.h                      |   7 +-
+ kernel/audit_tree.c                 |   3 +-
+ kernel/audit_watch.c                |   3 +-
+ kernel/auditfilter.c                |  15 +-
+ kernel/auditsc.c                    | 469 ++++++++++++++++++++++------
+ security/security.c                 |  12 +
+ security/selinux/hooks.c            |  34 ++
+ security/selinux/include/classmap.h |   2 +
+ security/smack/smack_lsm.c          |  46 +++
+ 18 files changed, 646 insertions(+), 115 deletions(-)
