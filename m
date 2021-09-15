@@ -2,164 +2,145 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A55FC433F5
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:50:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE2DAC433F5
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:59:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EABD061216
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:50:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBC256121F
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 16:59:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbhIOQvc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Sep 2021 12:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230439AbhIOQv3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 12:51:29 -0400
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B763AC061766
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:50:10 -0700 (PDT)
-Received: by mail-qv1-xf2d.google.com with SMTP id gs10so2246277qvb.13
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 09:50:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:date:message-id:in-reply-to:references:user-agent
-         :mime-version:content-transfer-encoding;
-        bh=znV6h22uLT4tju8GfDCyoAJth/iE5nhq2gX552Nh+J8=;
-        b=yR4M9FMq5YkZZZnLVBGoHE8n/L7LBcuRYu45AIK6rpu6q86Bt8q97V42UpmZakk9Hk
-         qy1Abyuha691Im0rYc9EK/tOxPEZ+1p++dVyuU49SBOnF3DsCPgp/ECkkaOcSk9hOYg9
-         uZwNWDENAneb/b3kwwfPpFtKTclqgTySmd7avIWwSBqFJauyZ+YBc6bH4I/Gmz4clP5w
-         UOG2/ZoGWt1ti8+ruNUFKiGZJPPEEa2XjAF0DA2xVI/cJ3BaH4r06uP8JDKIZQ63Cap9
-         ayT/rIEu7My8B35KdwQFfy0AsExXY/vMA5Y0BemiwrEF4O/6W75CvXEWvQeBY3Bhk5kO
-         rFyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:from:to:date:message-id:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=znV6h22uLT4tju8GfDCyoAJth/iE5nhq2gX552Nh+J8=;
-        b=j8NEAx/0sfNWl//9GnL+JsNlvgcmv2qmBCUqY0sykIXLE+aDRHu580m2saUEyIJt+v
-         kkcvX1hxkS6J17tfihkZQ7Ppme5ryOz2RaEmHytd/aMuiorCKViYy3ZH0zRQnPnZCVD5
-         HLP63uYskgJin0jDPM4yDDMcwVUl0948ObC/Ss/LMoiEOqi6cGTdHYJP0wuf3MSIHYi5
-         BsVSgDfZ4h7jTVnjDlfjawUEgkrH4ekjqGxUz7XxggUp96VMMNOUI++XgSHPDO/ZmqL8
-         V1hkWuEnnZhhAtjsC2mETAU2OLiw0Z4SUl3/lJCwRPG4vARQMlmvsP1ehIvnWlZEkVBK
-         yhGQ==
-X-Gm-Message-State: AOAM530YusPUKJCW0cFyqiBXRTa+ZL2WIpvWX+6VcLisgOUPM7GrXTCE
-        wzXpA/DAZONNtFcuQot+kEhA
-X-Google-Smtp-Source: ABdhPJx75T0dQPzt4WSic6uHD74Uop3/gZqSo+/ev3KVEiS5rzNOA3M5qoWYDRrYR2z4q+uilRE4LA==
-X-Received: by 2002:a05:6214:1394:: with SMTP id g20mr812980qvz.21.1631724609746;
-        Wed, 15 Sep 2021 09:50:09 -0700 (PDT)
-Received: from localhost (pool-96-237-52-188.bstnma.fios.verizon.net. [96.237.52.188])
-        by smtp.gmail.com with ESMTPSA id w20sm377308qkj.116.2021.09.15.09.50.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Sep 2021 09:50:09 -0700 (PDT)
-Subject: [PATCH v4 8/8] Smack: Brutalist io_uring support
-From:   Paul Moore <paul@paul-moore.com>
-To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Date:   Wed, 15 Sep 2021 12:50:08 -0400
-Message-ID: <163172460848.88001.15344229885190060624.stgit@olly>
-In-Reply-To: <163172413301.88001.16054830862146685573.stgit@olly>
-References: <163172413301.88001.16054830862146685573.stgit@olly>
-User-Agent: StGit/1.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S229746AbhIORBQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Sep 2021 13:01:16 -0400
+Received: from wind.enjellic.com ([76.10.64.91]:58928 "EHLO wind.enjellic.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229690AbhIORBQ (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 15 Sep 2021 13:01:16 -0400
+X-Greylist: delayed 1542 seconds by postgrey-1.27 at vger.kernel.org; Wed, 15 Sep 2021 13:01:15 EDT
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id 18FGXT0I002910;
+        Wed, 15 Sep 2021 11:33:29 -0500
+Received: (from greg@localhost)
+        by wind.enjellic.com (8.15.2/8.15.2/Submit) id 18FGXRgh002909;
+        Wed, 15 Sep 2021 11:33:27 -0500
+Date:   Wed, 15 Sep 2021 11:33:27 -0500
+From:   "Dr. Greg" <greg@enjellic.com>
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Bruce Fields <bfields@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, virtio-fs@redhat.com,
+        Daniel Walsh <dwalsh@redhat.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        LSM <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        stephen.smalley.work@gmail.com,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Dave Chinner <david@fromorbit.com>
+Subject: Re: [PATCH v3 0/1] Relax restrictions on user.* xattr
+Message-ID: <20210915163327.GA2324@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <YTEEPZJ3kxWkcM9x@redhat.com> <YTENEAv6dw9QoYcY@redhat.com> <3bca47d0-747d-dd49-a03f-e0fa98eaa2f7@schaufler-ca.com> <YTEur7h6fe4xBJRb@redhat.com> <1f33e6ef-e896-09ef-43b1-6c5fac40ba5f@schaufler-ca.com> <YTYr4MgWnOgf/SWY@work-vm> <496e92bf-bf9e-a56b-bd73-3c1d0994a064@schaufler-ca.com> <YUCa6pWpr5cjCNrU@redhat.com> <CAPL3RVHB=E_s1AW1sQMEgrLYJ8ADCdr=qaKsDrpYjVzW-Apq8w@mail.gmail.com> <YUCybaYK/0RLvY9J@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YUCybaYK/0RLvY9J@redhat.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Wed, 15 Sep 2021 11:33:29 -0500 (CDT)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+On Tue, Sep 14, 2021 at 10:32:13AM -0400, Vivek Goyal wrote:
 
-Add Smack privilege checks for io_uring. Use CAP_MAC_OVERRIDE
-for the override_creds case and CAP_MAC_ADMIN for creating a
-polling thread. These choices are based on conjecture regarding
-the intent of the surrounding code.
+Good morning, I hope the day is going well for everyone.
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-[PM: make the smack_uring_* funcs static, remove debug code]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+> On Tue, Sep 14, 2021 at 09:59:19AM -0400, Bruce Fields wrote:
+> > On Tue, Sep 14, 2021 at 8:52 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > > Same is the requirement for regular containers and that's why
+> > > podman (and possibly other container managers), make top level
+> > > storage directory only readable and searchable by root, so that
+> > > unpriveleged entities on host can not access container root filesystem
+> > > data.
+> > 
+> > Note--if that directory is on NFS, making it readable and searchable
+> > by root is very weak protection, since it's often possible for an
+> > attacker to guess filehandles and access objects without the need for
+> > directory lookups.
 
----
-v4:
-- updated subject line
-v3:
-- removed debug code
-v2:
-- made the smack_uring_* funcs static
-v1:
-- initial draft
----
- security/smack/smack_lsm.c |   46 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+> open_by_handle_at() requires CAP_DAC_READ_SEARCH. And if you have
+> CAP_DAC_READ_SEARCH, you don't need to even guess file handles. You
+> should be able to read/search through all directories, IIUC.
+>
+> So how does one make sure that shared directory on host is not
+> accessible to unprivileged entities. If making directory accessible
+> to root only is weaker security, what are the options for stronger
+> security.
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index cacbe7518519..f90ab1efeb6d 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4691,6 +4691,48 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
- 	return 0;
- }
- 
-+#ifdef CONFIG_IO_URING
-+/**
-+ * smack_uring_override_creds - Is io_uring cred override allowed?
-+ * @new: the target creds
-+ *
-+ * Check to see if the current task is allowed to override it's credentials
-+ * to service an io_uring operation.
-+ */
-+static int smack_uring_override_creds(const struct cred *new)
-+{
-+	struct task_smack *tsp = smack_cred(current_cred());
-+	struct task_smack *nsp = smack_cred(new);
-+
-+	/*
-+	 * Allow the degenerate case where the new Smack value is
-+	 * the same as the current Smack value.
-+	 */
-+	if (tsp->smk_task == nsp->smk_task)
-+		return 0;
-+
-+	if (smack_privileged_cred(CAP_MAC_OVERRIDE, current_cred()))
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+/**
-+ * smack_uring_sqpoll - check if a io_uring polling thread can be created
-+ *
-+ * Check to see if the current task is allowed to create a new io_uring
-+ * kernel polling thread.
-+ */
-+static int smack_uring_sqpoll(void)
-+{
-+	if (smack_privileged_cred(CAP_MAC_ADMIN, current_cred()))
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+#endif /* CONFIG_IO_URING */
-+
- struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
- 	.lbs_cred = sizeof(struct task_smack),
- 	.lbs_file = sizeof(struct smack_known *),
-@@ -4843,6 +4885,10 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(inode_copy_up, smack_inode_copy_up),
- 	LSM_HOOK_INIT(inode_copy_up_xattr, smack_inode_copy_up_xattr),
- 	LSM_HOOK_INIT(dentry_create_files_as, smack_dentry_create_files_as),
-+#ifdef CONFIG_IO_URING
-+	LSM_HOOK_INIT(uring_override_creds, smack_uring_override_creds),
-+	LSM_HOOK_INIT(uring_sqpoll, smack_uring_sqpoll),
-+#endif
- };
- 
- 
+I've been watching this thread, with some interest, given what we have
+been working on with respect to providing a new security framework
+that merges IMA and LSM and external security co-processor technology.
 
+Some observations based on those experiences and this thread.
+
+Casey is an expert on MAC and capability based security systems,
+unfortunately for our industry, particularly bog standard system
+administrators, a rarefied set of skills.  It may be helpful to
+consider his concerns and position on the issues involved in the
+framework of the number of systems that have, and blog posts that
+recommend, setting 'selinux=0' on the kernel command-line.
+
+I believe the best summary of his position on this issue, is the
+notion that placing security labels, even in transitive form in user
+accessible attributes, subordinates the security of the guest system,
+regardless of the MAC policy it implements, to the DAC based policy on
+the host system.
+
+Given that, there are no legitimate security guarantees that are
+inferrable based on the guest MAC policy.
+
+A legitimate pundit, could and probably should question, in the face
+of container filesystems and virtual machine images, whether any type
+of inferrable security guarantees are possible, but that is a question
+and argument for another day.
+
+I didn't see any mention of EVM brought up in these discussions, which
+may provide some options to improve the security integrity state of
+the guest.
+
+The 800 pound gorilla in the corner in all of this, is that inferrable
+security guarantees in guests require a certifiable chain of trust
+from the creator of the object to the kernel context that is making
+the security gating decisions on the object.  A hard to implement and
+prove concept in bare metal trusted systems, let alone the myriad of
+edge cases lurking in namespaced and virtual environments.
+
+Which, in a nod to the other corner of the ring, may simply mean, with
+our current state of deployable technology, you pay your money and
+take your chances in these virtual environments.  Which would in turn
+support the notion of a minimum security, ie. DAC, based effort.
+
+> Vivek
+
+Have a good remainder of the week.
+
+Dr. Greg
+
+As always,
+Dr. Greg Wettstein, Ph.D, Worker      Autonomously self-defensive
+Enjellic Systems Development, LLC     IOT platforms and edge devices.
+4206 N. 19th Ave.
+Fargo, ND  58102
+PH: 701-281-1686                      EMAIL: dg@enjellic.com
+------------------------------------------------------------------------------
+"This place is so screwed up.  It's just like the Titanic, only
+ we don't even have a band playing.
+                                -- Terrance George Wieland
+                                   Resurrection.
