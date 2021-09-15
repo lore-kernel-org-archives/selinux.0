@@ -2,99 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA627C433FE
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 13:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E582C433EF
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 14:12:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4094600AA
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 13:40:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 497FF611C1
+	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 14:12:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233472AbhIONlY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Sep 2021 09:41:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48164 "EHLO
+        id S234504AbhIOONw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Sep 2021 10:13:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbhIONlX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 09:41:23 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A441BC061574
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 06:40:04 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id s12so1265874ljg.0
-        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 06:40:04 -0700 (PDT)
+        with ESMTP id S237845AbhIOONr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 10:13:47 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C30ADC061766
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 07:12:21 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id b10so6365647ejg.11
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 07:12:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=V+4duhIR1J4kPcgYwRMPD2IvOj4buFCKFfrM7rP9qF4=;
-        b=J0SMdbylPja++XFPyNABBFRkvN9EwRSRbVUAFalVHSXfijpHRkbeADymYh/FRXIme2
-         gf7UT4L4tJau/zerCXV5Njo6owkKhlgcorpzmv/lHXPlAlPoRd3cyYgbijdxEpfPbUvG
-         KeA3S5ob0bTY38ljB0cM9mFhX4livKP/mwTrjy+Cr1rbRV62+ulDBpiHopmft93Z89gQ
-         EbyDM86NqgJ6TMKOoEweRhh15juzpCt8HhzYGPE//ow2GX5uDL2/Z6j4R6jI5nFSYiDB
-         lqoaMkNLKxRK8BKzLKFi75MvLjlxNqkYv/BP+hdnLDd3F0mn2oMXvR8A5qB4HF3i0XaR
-         WhYw==
+        bh=v0pohU1aHJ77epfHLj6ryM5BHHmhwa0qDe7dPwHtdd0=;
+        b=eR9PEA1KsnhcujiaSp4R8mWZA6mpDIsh7VwjmTZYtFbgFhGfhC2lDUVPNLsgqluhp1
+         ZuikeH6ISYHE0Hn7f+PMrZCFW44ut07bmJZ1SQKvFPC6gjbKsgOvLQZ9auK4V9BR8R8T
+         M2bLbsFY3FbDICQAhyIRjW6ppEhUxmEQVUaDKjMbU0nARv/4wsYZYt2AyqQQtAJZpdRY
+         5h+2cTsdVYZjWjc50/PPZAppcgb+L8yoY198lgv5cyCD/FGYpqYqoRkKbMWyBhI0bIsc
+         x6/KxbY5LcJYMtVQDTniz+9Z+fFHikG6d0ecHdSblx52D5SB7gvPkFyJ72x1ZdhpkNLb
+         NScQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=V+4duhIR1J4kPcgYwRMPD2IvOj4buFCKFfrM7rP9qF4=;
-        b=rChoBi7tcSioVxI5jD0HGMQdTizb5djodY4ZZaTg76S5ARQZ4HTZQGfOl8C8KZKMTc
-         wkesI0s/EIw4qTSpSeD3uXkwYemvlK1lJ2Z9UUzBAsjsf+QmLLcb6cEmQzbAcubWjIP+
-         xcV9QDWAR9ROP3k7E1JuVrAzOG5pI+/b6XBHCC662Kx4k0ifOI8faBt0cYo9fCBXxoat
-         TZ1Ng2pImHOkwtoMMCXbomWjQzJyQUsZ9k12bHhPf0tqUsKT7PD1TvzF2icKXGmSXsmQ
-         MEgYK1yO13/moGe9oLfVcQpNyyin7tg4ukM3/q5gg8817bmmaJO4fAhqyVa+4bWsqTZ2
-         FSJw==
-X-Gm-Message-State: AOAM532XUjheYTJJMCnYWvYLNjBDSApJ56e0/5KK87SLP3H7oIEX3vlU
-        u91J3svG+gl+HQT/YLUYri2QggZDXKcTm9MdjVI=
-X-Google-Smtp-Source: ABdhPJw36H1T5/rYrLb6LIuTLjkl3QyB8uvwS582QSqBwOPLDrmcrtIL487cL/NuUapIk7T256/z4XvcAeoQGPOznsg=
-X-Received: by 2002:a05:651c:512:: with SMTP id o18mr20983923ljp.199.1631713202889;
- Wed, 15 Sep 2021 06:40:02 -0700 (PDT)
+        bh=v0pohU1aHJ77epfHLj6ryM5BHHmhwa0qDe7dPwHtdd0=;
+        b=oVODr9uNf4DOb5nLHno1KtYdsASLjFiTafBA9E1GbFqcF06MkfTlx1gKFtCzCzzjYJ
+         +wVuWaIjheAQrEz6y5nqcaPVOSHrp1Inr4ojIPwEec78KSCKefQl4IplFtB9aOWeG44c
+         FA8SzCvp4k8vqmvSAXWCxljYbb5hy+xn2Ky79x1pnryLDQx8OKlaDSQcRskGzy1je8DZ
+         x+KDQkm3ioRgnnmc38xrXgso2Xu9MfloQIU+YWskPKQBW1feoZnpWa/qOll9d44LqwRQ
+         Y2ZaNo7uPQdDmaRA+iNC5K5XRpzzMlA+sLGOLCkqSrE+Z2CwTiEBsSdg1jMUH9TIfdkZ
+         E+hw==
+X-Gm-Message-State: AOAM533x3m7J+nDSKbEtFfbkqfc/qhOaybgHUVGea8C3W0CvoxV8xDmD
+        VPvzr2XQ4ItI44iaFh6/BBZ39Qyhuvmx34qxGtYl
+X-Google-Smtp-Source: ABdhPJwpk1md/Mu8TgFO2mVRBp4z/f1TQbOQxsU9h62w+09HhO3nxNPTIDXE3aB83Bt17saG3dLwywyDDJELQSMAYB8=
+X-Received: by 2002:a17:907:16ab:: with SMTP id hc43mr187667ejc.195.1631715139966;
+ Wed, 15 Sep 2021 07:12:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <2439a94e3a0c83964af66681dadc016769a6e167.camel@fb.com>
- <CAEjxPJ6Rp+kPoLc9DvZFv=pZZ4LTT+w=A6JUS7iVLpa8R3QFxQ@mail.gmail.com> <6051546ef6299b0a1e3ae545f3640280187f7c13.camel@fb.com>
-In-Reply-To: <6051546ef6299b0a1e3ae545f3640280187f7c13.camel@fb.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 15 Sep 2021 09:39:51 -0400
-Message-ID: <CAEjxPJ5qUknxN3jzH2d35G9xpPzXdFO8Rzi1CJT3uU8pMDDmsg@mail.gmail.com>
-Subject: Re: [RFC] Signals upon avc denial
-To:     Josh Gao <jmgao@fb.com>
-Cc:     "omosnace@redhat.com" <omosnace@redhat.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "jeffv@google.com" <jeffv@google.com>,
-        "tweek@google.com" <tweek@google.com>, Nick Kralevich <nnk@fb.com>
+References: <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+ <20210827133559.GG490529@madcap2.tricolour.ca> <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
+ <20210828150356.GH490529@madcap2.tricolour.ca> <CAHC9VhRgc_Fhi4c6L__butuW7cmSFJxTMxb+BBn6P-8Yt0ck_w@mail.gmail.com>
+ <CAHC9VhQD8hKekqosjGgWPxZFqS=EFy-_kQL5zAo1sg0MU=6n5A@mail.gmail.com>
+ <20210910005858.GL490529@madcap2.tricolour.ca> <CAHC9VhSRJYW7oRq6iLCH_UYukeFfE0pEJ_wBLdr1mw2QGUPh-Q@mail.gmail.com>
+ <CAHC9VhTrimTds_miuyRhhHjoG_Fhmk2vH7G3hKeeFWO3BdLpKw@mail.gmail.com>
+ <CAHC9VhTUKsijBVV-a3eHajYyOFYLQPWTTqxJ812NnB3_Y=UMeQ@mail.gmail.com> <20210915122907.GM490529@madcap2.tricolour.ca>
+In-Reply-To: <20210915122907.GM490529@madcap2.tricolour.ca>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 15 Sep 2021 10:12:08 -0400
+Message-ID: <CAHC9VhRWzizGXuMk3+qK8jcYSDFEqjj+MOtFhHKYH0mpnA52=w@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     sgrubb@redhat.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-audit@redhat.com,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 2:27 AM Josh Gao <jmgao@fb.com> wrote:
->
-> On Tue, 2021-09-14 at 10:38 -0400, Stephen Smalley wrote:
-> > Currently in the case of SELinux those attribute values are stored in
-> > the cred security blob, which
-> > used to be the task security blob (hence the legacy
-> > task_security_struct name) before creds existed.
-> > Later LSM revived support for a separate task security blob for the
-> > sake of TOMOYO so that does exist
-> > if needed but SELinux doesn't currently allocate or use it. AppArmor
-> > switched to using it for its task-specific
-> > state after it was restored; SELinux could split its current
-> > task_security_struct into two parts (per-cred and
-> > per-task) and do likewise if that is worthwhile (not sure).
->
-> My understanding is that `struct cred` is a per-task attribute, not
-> per-thread-group, so different threads can have different task security
-> blobs. Do you know if this is possible without doing something weird
-> like setuid in a multithreaded process?
+On Wed, Sep 15, 2021 at 8:29 AM Richard Guy Briggs <rgb@redhat.com> wrote:
+> I was in the middle of reviewing the v2 patchset to add my acks when I
+> forgot to add the comment that you still haven't convinced me that ses=
+> isn't needed or relevant if we are including auid=.
 
-You can't just set the audit signal once in the first thread before
-creating multiple threads and let the child threads inherit it across
-clone(2)?
-Currently ->exit_signal and ->pdeath_signal are part of task_struct,
-so it seems consistent to put this into something per-task,
-whether part of task->security or task->cred->security. If not and it
-needs to be shared across a thread group, I guess you could try to
-get a new security field added to the appropriate structure instead.
+[Side note: v3 was posted on Monday, it would be more helpful to see
+the Reviewed-by tags on the v3 patchset.]
+
+Ah, okay, it wasn't clear to me from your earlier comments that this
+was your concern.  It sounded as if you were arguing that both session
+ID and audit ID needed to be logged for every io_uring op, which
+doesn't make sense (as previously discussed).  However, I see your
+point, and in fact pulling the audit ID from @current in the
+audit_log_uring() function is just plain wrong ... likely a vestige of
+the original copy-n-paste or format matching, I'll drop that now.
+Thanks.
+
+While a small code change, it is somewhat significant so I'll post an
+updated v4 patchset later today once it passes through a round of
+testing.
+
+-- 
+paul moore
+www.paul-moore.com
