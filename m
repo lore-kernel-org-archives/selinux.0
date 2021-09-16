@@ -2,158 +2,125 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A880C433F5
-	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 14:47:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A0E0C433EF
+	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 18:50:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0322661130
-	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 14:47:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16DAA60FA0
+	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 18:50:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238869AbhIPOsv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Sep 2021 10:48:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52720 "EHLO
+        id S1349504AbhIPSwS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Sep 2021 14:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238863AbhIPOsv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Sep 2021 10:48:51 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F65C061764
-        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 07:47:30 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id i6so17834276edu.1
-        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 07:47:30 -0700 (PDT)
+        with ESMTP id S1349459AbhIPSwP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Sep 2021 14:52:15 -0400
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41262C121BE7
+        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 10:41:31 -0700 (PDT)
+Received: by mail-ot1-x334.google.com with SMTP id l16-20020a9d6a90000000b0053b71f7dc83so9305330otq.7
+        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 10:41:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/LN2BDmi9UsBIWySN0ychwT/uhYm29Xfzmok+wmBDy8=;
-        b=AEC8lQsO9zbk8axhvjI03XhRIUJx/B4a9jFhaBa3v37vO8TCEmLvpdoY7wlJ6Lu7S0
-         b6bX8mGLqsaqxaE0ks8Jv5N/BgZK/BVnsw9oDjdf33Utbxa/T6L+3MKRLnU1QJo9AiOz
-         NAzhoiewaYehtagaq7yLAR1V2QSSkq58aYyVedF6dYoo1iUzhXa2xHOtU+N401lDDaay
-         jAPJmKLnpkn9C/CS3vQf0wu+8uGJG8Vjpeig+iaW8iSMyVFeQQaQLz0q5MqxbGgd6Xfb
-         MnOllDna+U77qIIxrcmXjPwNWE4hkTidkb3AqcBA5OBq0a4SX6qtK3Sh3g82pNa80m97
-         8gsg==
+         :cc:content-transfer-encoding;
+        bh=G9zvWE77w7x29csTgfNiHfUPEbGIFJ3MdK/XtErrU+c=;
+        b=I3coV31rVzPvBHjThkzuKPkrqRvCeOeTfjAFsLY7PI/7a+4p+4eT5l9i6CLw2FkFMB
+         WJwnIeA7JBqW6iG++WcY0t0ahJUy7Yb1mOr/6q3CVgecUsR1hFDY/7zaKS/wT9/4K4Fg
+         0PsNGZgO6lw9KwvwS4sm9kN27WDMbipM/aElXLCZmHC4Yyje91q7V6L4BC9cJ4n/GWG5
+         0enMrUGymehNJfgtKb6fhOCxr9Ks+VGMyqYcS6uRIuy2nGSQgLoWZYveAU7aJkQdsExB
+         VYgkaLCLThvjC/TeOwm49nv5i0yxx0MFO8T5mmgZPR+eCxOnDE+kwdc+8zBYxQ82Kq0Z
+         zpQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/LN2BDmi9UsBIWySN0ychwT/uhYm29Xfzmok+wmBDy8=;
-        b=LBAnHR5nMzgmMtWUUlO0+p0caV0fwV8QubGqnXJkouuE9AhlhN+lhFeTGLRUUUCSTj
-         RWoVgdFYtLc3kpmkHjGEa8z+2aMKHkm8XjoL53wtGJ/d0kzHkH4E0Yl+nf3Fskh68Ibe
-         MaFBZVeHpl4AhF9BsKfc/CpPHStTg+Od/LFIU/h2kK6702BCqdA5JzXlXsYjPX278n7S
-         aA3EhgaTKUyPTyviwaptIKdV3W4F0zDLVhIpJIK150wGzvKSldkkHQD3YFMnNF9rs+P3
-         PRVmX+GlNCL82/5DrfX2njzBE4rrhHXE36OhWvtgtGHPeRxjz2/gE7VEgC3b11GXKkFs
-         MDpg==
-X-Gm-Message-State: AOAM530zY2TUKvdi/uD/C+G6zrovAHvnFRSgaCOZzsIF2OhGhmGHBOrN
-        CPKxpL+PHl9zF9t4WHGNZh/Ub+FEWgFgk8YKUOfp
-X-Google-Smtp-Source: ABdhPJzbE9JbdEMAljCVP0OQkTSQ2+WpTRWjM1H7jtthNk52AzYJG8qEWm1u5LejTzmCtwxSRqQp8HbZECnGpK5a4yY=
-X-Received: by 2002:a17:906:686:: with SMTP id u6mr6524873ejb.569.1631803648838;
- Thu, 16 Sep 2021 07:47:28 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=G9zvWE77w7x29csTgfNiHfUPEbGIFJ3MdK/XtErrU+c=;
+        b=mqZljA/mJ1IfheDiwVSacrteydAMjOVejdUhpJa6raD/b6ZcMNF32Jcdq9XhW6PIMP
+         cnofwzTpMgxlBrG2tglY7zHS0CsQj8NDYzGMUJVYmz3pIODEYi+fL5VbXpn6za8YH1xL
+         VuwBaWXeR2tsdUDxHDf+XRm9txc5WLbLg+G8hTa9nt6YmeVnr+cLtMjEAiwBR5JrXbWd
+         TIJica7qM8H2YNqBzNQEpf4aRlg3x8dNuimuG1a2jCBlgFue39Ss7kpGtBYS3R2jgQrs
+         kJMnqPr0+Gjpo9rdFwCm50YJga+mUC23svN/HZrpb+0OH4SlKiNn65i+KRdFBY4Qr0dA
+         ry9w==
+X-Gm-Message-State: AOAM532K29Pyz+rBf+eQqhHfd5pwHcjWxvdEn6LoIBCUyaSMxIB8MsWM
+        mXWdOEOiWdWx8Wkeqh3DeJAPPIPZcuw0XtiutX/B/i+4xsQ=
+X-Google-Smtp-Source: ABdhPJxczr0XIChxEVRdBi1Krivu1K8w6JCiFYD4QVSV2MY7eS5rl+6AogxgGlq4HDCohEPQRnAUvlyW38tbOf01tMA=
+X-Received: by 2002:a05:6830:4003:: with SMTP id h3mr5918398ots.56.1631814090584;
+ Thu, 16 Sep 2021 10:41:30 -0700 (PDT)
 MIME-Version: 1.0
-References: <163172413301.88001.16054830862146685573.stgit@olly>
- <163172457152.88001.12700049763432531651.stgit@olly> <20210916133308.GP490529@madcap2.tricolour.ca>
- <CAHC9VhSEj8b7+jH9Atkj3FH+SOdc5iwytxhS3_O1HmTahdj3dQ@mail.gmail.com> <20210916141935.GQ490529@madcap2.tricolour.ca>
-In-Reply-To: <20210916141935.GQ490529@madcap2.tricolour.ca>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 16 Sep 2021 10:47:17 -0400
-Message-ID: <CAHC9VhTo8XPEeNPddHzXS8qCvzTvJUnLALF38VxeFEsXJRbn_Q@mail.gmail.com>
-Subject: Re: [PATCH v4 2/8] audit,io_uring,io-wq: add some basic audit support
- to io_uring
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>
+References: <20210915162326.392808-1-cgzones@googlemail.com> <CAHC9VhTcyz5i7jRiz1iAg7U_Ru1cJi6APv0GyMw408d+2aJmqw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTcyz5i7jRiz1iAg7U_Ru1cJi6APv0GyMw408d+2aJmqw@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 16 Sep 2021 19:41:19 +0200
+Message-ID: <CAJ2a_DeuF2tqQ08piCUnJZwxOkWXfu7rBOrfoRP5f4ughYxBdQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: enable genfscon labeling for securityfs
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 16, 2021 at 10:19 AM Richard Guy Briggs <rgb@redhat.com> wrote:
-> On 2021-09-16 10:02, Paul Moore wrote:
-> > On Thu, Sep 16, 2021 at 9:33 AM Richard Guy Briggs <rgb@redhat.com> wrote:
-> > > On 2021-09-15 12:49, Paul Moore wrote:
-> > > > This patch adds basic auditing to io_uring operations, regardless of
-> > > > their context.  This is accomplished by allocating audit_context
-> > > > structures for the io-wq worker and io_uring SQPOLL kernel threads
-> > > > as well as explicitly auditing the io_uring operations in
-> > > > io_issue_sqe().  Individual io_uring operations can bypass auditing
-> > > > through the "audit_skip" field in the struct io_op_def definition for
-> > > > the operation; although great care must be taken so that security
-> > > > relevant io_uring operations do not bypass auditing; please contact
-> > > > the audit mailing list (see the MAINTAINERS file) with any questions.
-> > > >
-> > > > The io_uring operations are audited using a new AUDIT_URINGOP record,
-> > > > an example is shown below:
-> > > >
-> > > >   type=UNKNOWN[1336] msg=audit(1630523381.288:260):
-> > > >     uring_op=19 success=yes exit=0 items=0 ppid=853 pid=1204
-> > > >     uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
-> > > >     subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> > > >     key=(null)
-> > > >     AUID="root" UID="root" GID="root" EUID="root" SUID="root"
-> > > >     FSUID="root" EGID="root" SGID="root" FSGID="root"
-> > > >
-> > > > Thanks to Richard Guy Briggs for review and feedback.
-> > >
-> > > I share Steve's concerns about the missing auid and ses.  The userspace
-> > > log interpreter conjured up AUID="root" from the absent auid=.
-> > >
-> > > Some of the creds are here including ppid, pid, a herd of *id and subj.
-> > > *Something* initiated this action and then delegated it to iouring to
-> > > carry out.  That should be in there somewhere.  You had a concern about
-> > > shared queues and mis-attribution.  All of these creds including auid
-> > > and ses should be kept together to get this right.
-> >
-> > Look, there are a lot of things about io_uring that frustrate me from
-> > a security perspective - this is one of them - but I've run out of
-> > ways to say it's not possible to reliably capture the audit ID or
-> > session ID here.  With io_uring it is possible to submit an io_uring
-> > operation, and capture the results, by simply reading and writing to a
-> > mmap'd buffer.  Yes, it would be nice to have that information, but I
-> > don't believe there is a practical way to capture it.  If you have any
-> > suggestions on how to do so, please share, but please make it
-> > concrete; hand wavy solutions aren't useful at this stage.
+On Wed, 15 Sept 2021 at 20:28, Paul Moore <paul@paul-moore.com> wrote:
 >
-> I was hoping to give a more concrete solution but have other
-> distractions at the moment.  My concern is adding it later once the
-> message format is committed.  We have too many field orderings already.
-> Recognizing this adds useless characters to the record type at this
-> time, I'm even thinking auid=? ses=? until a solution can be found.
+> On Wed, Sep 15, 2021 at 12:24 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Add support for genfscon per-file labeling of securityfs files. This al=
+lows
+> > for separate labels and therby permissions for different files, e.g.
+> > /sys/kernel/security/integrity/ima/policy.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  security/selinux/hooks.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> Hi Christian,
+>
+> It would be nice if you could add some additional notes on how this
+> was tested to the description above.
+>
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 6517f221d52c..a18626424731 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -760,7 +760,8 @@ static int selinux_set_mnt_opts(struct super_block =
+*sb,
+> >             !strcmp(sb->s_type->name, "tracefs") ||
+> >             !strcmp(sb->s_type->name, "binder") ||
+> >             !strcmp(sb->s_type->name, "bpf") ||
+> > -           !strcmp(sb->s_type->name, "pstore"))
+> > +           !strcmp(sb->s_type->name, "pstore") ||
+> > +           !strcmp(sb->s_type->name, "securityfs"))
+> >                 sbsec->flags |=3D SE_SBGENFS;
+> >
+> >         if (!strcmp(sb->s_type->name, "sysfs") ||
+> > --
+> > 2.33.0
+>
+> --
+> paul moore
+> www.paul-moore.com
 
-You know my feelings on audit record field orderings, so let's not
-follow that distraction right now.
+Something like:
 
-Regarding proactively inserting a placeholder for auid= and ses=, I'm
-reasonably convinced it is not practical, and likely not possible, to
-capture that information for the audit record.  As a result, I see no
-reason to waste the space in the record.  However, if you  (or anyone
-else for that matter) can show that we can reliably capture that
-information then I'm in complete agreement that it should be added.
+    Add support for genfscon per-file labeling of securityfs files. This al=
+lows
+    for separate labels and thereby access control for different files.
+    For example a genfscon statement
+        genfscon securityfs /integrity/ima/policy
+system_u:object_r:ima_policy_t:s0
+    will set a specific label to the IMA policy file and thus allow to
+control the ability
+    to set the IMA policy.
+    Setting labels directly, e.g. via chcon(1) or setfiles(8), is
+still not supported.
 
-What I'm not going to do is hold this patchset any longer on a vague
-feeling that it should be possible.  On the plus side I'm only merging
-this into selinux/next, not selinux/stable-5.15, so worst case you
-have a couple more weeks before things are "set".  I realize we all
-have competing priorities, but as the saying goes, "it's time to put
-up or shut up" ;)
-
-> So you are sure the rest of the creds are correct?
-
-Yes, the credentials that are logged in audit_log_uring() are all
-taken from the currently executing task via a call to current_cred().
-Regardless of the io_uring calling context (synchronous, io-wq,
-sqpoll) the current_cred() call should always return the correct
-credentials; look at how io_uring manages credentials in
-io_issue_sqe().  While the audit log treats the audit ID just as if it
-were another credential on the system, it is definitely not like a
-normal credential and requires special handling; this is why there was
-the mixup where I mistakenly left it in the audit record, and one of
-the reasons why we will not always have a valid audit ID for io_uring
-operations.
-
--- 
-paul moore
-www.paul-moore.com
+?
