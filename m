@@ -2,321 +2,188 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F238FC433FE
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 21:48:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26689C433FE
+	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 02:59:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D85D5610E8
-	for <selinux@archiver.kernel.org>; Wed, 15 Sep 2021 21:48:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F012061186
+	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 02:59:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbhIOVt7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Sep 2021 17:49:59 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29797 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229543AbhIOVt5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 17:49:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631742518;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4JQbxGAJkeSEPdQ0jyX0sTG6pB3VM96R1fLSbgXGIXg=;
-        b=RGWeILj/9AzfSr3lyOfw2XJHpn5wqgUYlvL7M4zAuJseIpMG7bh9gVjU9rWKrx7Zni+/Sm
-        QIFYrdZKXCgnJmmEFvFmeJivEKFdS0WRjH6k8PxsB8D2PdRhn2jB9UdQaWE5nkywAG2PVb
-        3WiuhXi3hMObEc9W/4KRk/2qjg6Kpn0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-212-3U94tmNfNP2ezU7a4PMyWA-1; Wed, 15 Sep 2021 17:48:35 -0400
-X-MC-Unique: 3U94tmNfNP2ezU7a4PMyWA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 858451006AA1;
-        Wed, 15 Sep 2021 21:48:33 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.3.128.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 85A481B46B;
-        Wed, 15 Sep 2021 21:48:23 +0000 (UTC)
-Date:   Wed, 15 Sep 2021 17:48:20 -0400
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Subject: Re: [PATCH v4 3/8] audit: add filtering for io_uring records
-Message-ID: <20210915214820.GO490529@madcap2.tricolour.ca>
-References: <163172413301.88001.16054830862146685573.stgit@olly>
- <163172457764.88001.5016839648172573823.stgit@olly>
+        id S234108AbhIPDA5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Sep 2021 23:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60754 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233979AbhIPDA4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Sep 2021 23:00:56 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3653C061574
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 19:59:36 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id v22so6928096edd.11
+        for <selinux@vger.kernel.org>; Wed, 15 Sep 2021 19:59:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bK17SO3X70z4YqfpudbGkJpUfQn3wXsVxii6aCrF/hI=;
+        b=EyxUWdCtuNTuayC9lkcXPgWleZ8bHcRF7PdMazQqlX+DjN9DeK/P5kGPXL3QuXc4XW
+         kCgGjVmBNRQnk+BE9t74LsnVFUsl79l/tR744ZWrHrY1q1f8UXZIfqGeNr9nIVh/Q8XZ
+         dWMhuOOQvK/PO5kIKb7pDZQmaBTkjQ3/i/zTAK5Zm+2YJjLZG5lfLuc2ORkyvnY34dye
+         Xj+oZOtcMXWk5RLjnJN9KnknPwThumRU8WZHr0gufgDmlXKMMBoCNzRhyy4O28ek49cR
+         P8hMd3liqmlSRporSijNz40h8Nv8X4Chbv8pQaKssVolCWCDl8dX0L29zoZoTm+1Zjjd
+         Qr2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bK17SO3X70z4YqfpudbGkJpUfQn3wXsVxii6aCrF/hI=;
+        b=DKc9EEqYcd6fAp/VlcC+YOce9gQlVPDHZ/VgnOcSpqEDnECrGZfK5gAGsPuNMiCjj3
+         6KzC0mPoqiVvdJHLtyvhMh74PWD9d6YvIwK10m171Ya/hC5MAV5t5Ow637BL6AlVbzhf
+         uxJjHADhcKiDvV8MqbIVf0kVCw2SGj+RXDsACqh5VksrGoEOGplsC33tM/cW15O21AyO
+         Noy7DjbH56vlpukdMJZxTI76Psi/9gP3XGc8cbxgDIJqyRYJDI2av3QJZ7LvW/0Smi0P
+         5bot9iQyPYsbcl5eQEzhCCuUYKknjx7xZhMqS/EHGEFTdeDVFTTMIHa9ZBKBbhlsKgov
+         3GzQ==
+X-Gm-Message-State: AOAM531rWvjKm+WbtaTW4NG2aLczUr2Y0+jj5+HJAZR2J/+CIyG64Ukg
+        LOeuQ9OAAl/4gXEHHN+00rT+l8Kt1Nem18TcJ+IN
+X-Google-Smtp-Source: ABdhPJxYzI63Wh7B932JufxmCVl5MRmcZoWxKUOX5ts9dsculQ1nMB73xM3IEM0/sD5sdM0oPHDUFMQFvAvBgYyICR4=
+X-Received: by 2002:a17:907:76e7:: with SMTP id kg7mr3719013ejc.344.1631761175250;
+ Wed, 15 Sep 2021 19:59:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <163172457764.88001.5016839648172573823.stgit@olly>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+References: <20210913140229.24797-1-omosnace@redhat.com> <CAHC9VhRw-S+zZUFz5QFFLMBATjo+YbPAiR21jX6p7cT0T+MVLA@mail.gmail.com>
+In-Reply-To: <CAHC9VhRw-S+zZUFz5QFFLMBATjo+YbPAiR21jX6p7cT0T+MVLA@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 15 Sep 2021 22:59:23 -0400
+Message-ID: <CAHC9VhQyejnmLn0NHQiWzikHs8ZdzAUdZ2WqNxgGM6xhJ4mvMQ@mail.gmail.com>
+Subject: Re: [PATCH v4] lockdown,selinux: fix wrong subject in some SELinux
+ lockdown checks
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        x86@kernel.org, linux-acpi@vger.kernel.org,
+        linux-cxl@vger.kernel.org, linux-efi@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-serial@vger.kernel.org,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2021-09-15 12:49, Paul Moore wrote:
-> This patch adds basic audit io_uring filtering, using as much of the
-> existing audit filtering infrastructure as possible.  In order to do
-> this we reuse the audit filter rule's syscall mask for the io_uring
-> operation and we create a new filter for io_uring operations as
-> AUDIT_FILTER_URING_EXIT/audit_filter_list[7].
-> 
-> Thanks to Richard Guy Briggs for his review, feedback, and work on
-> the corresponding audit userspace changes.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Mon, Sep 13, 2021 at 5:05 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Mon, Sep 13, 2021 at 10:02 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+> > lockdown") added an implementation of the locked_down LSM hook to
+> > SELinux, with the aim to restrict which domains are allowed to perform
+> > operations that would breach lockdown.
+> >
+> > However, in several places the security_locked_down() hook is called in
+> > situations where the current task isn't doing any action that would
+> > directly breach lockdown, leading to SELinux checks that are basically
+> > bogus.
+> >
+> > To fix this, add an explicit struct cred pointer argument to
+> > security_lockdown() and define NULL as a special value to pass instead
+> > of current_cred() in such situations. LSMs that take the subject
+> > credentials into account can then fall back to some default or ignore
+> > such calls altogether. In the SELinux lockdown hook implementation, use
+> > SECINITSID_KERNEL in case the cred argument is NULL.
+> >
+> > Most of the callers are updated to pass current_cred() as the cred
+> > pointer, thus maintaining the same behavior. The following callers are
+> > modified to pass NULL as the cred pointer instead:
+> > 1. arch/powerpc/xmon/xmon.c
+> >      Seems to be some interactive debugging facility. It appears that
+> >      the lockdown hook is called from interrupt context here, so it
+> >      should be more appropriate to request a global lockdown decision.
+> > 2. fs/tracefs/inode.c:tracefs_create_file()
+> >      Here the call is used to prevent creating new tracefs entries when
+> >      the kernel is locked down. Assumes that locking down is one-way -
+> >      i.e. if the hook returns non-zero once, it will never return zero
+> >      again, thus no point in creating these files. Also, the hook is
+> >      often called by a module's init function when it is loaded by
+> >      userspace, where it doesn't make much sense to do a check against
+> >      the current task's creds, since the task itself doesn't actually
+> >      use the tracing functionality (i.e. doesn't breach lockdown), just
+> >      indirectly makes some new tracepoints available to whoever is
+> >      authorized to use them.
+> > 3. net/xfrm/xfrm_user.c:copy_to_user_*()
+> >      Here a cryptographic secret is redacted based on the value returned
+> >      from the hook. There are two possible actions that may lead here:
+> >      a) A netlink message XFRM_MSG_GETSA with NLM_F_DUMP set - here the
+> >         task context is relevant, since the dumped data is sent back to
+> >         the current task.
+> >      b) When adding/deleting/updating an SA via XFRM_MSG_xxxSA, the
+> >         dumped SA is broadcasted to tasks subscribed to XFRM events -
+> >         here the current task context is not relevant as it doesn't
+> >         represent the tasks that could potentially see the secret.
+> >      It doesn't seem worth it to try to keep using the current task's
+> >      context in the a) case, since the eventual data leak can be
+> >      circumvented anyway via b), plus there is no way for the task to
+> >      indicate that it doesn't care about the actual key value, so the
+> >      check could generate a lot of "false alert" denials with SELinux.
+> >      Thus, let's pass NULL instead of current_cred() here faute de
+> >      mieux.
+> >
+> > Improvements-suggested-by: Casey Schaufler <casey@schaufler-ca.com>
+> > Improvements-suggested-by: Paul Moore <paul@paul-moore.com>
+> > Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
+> > Acked-by: Dan Williams <dan.j.williams@intel.com>         [cxl]
+> > Acked-by: Steffen Klassert <steffen.klassert@secunet.com> [xfrm]
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >
+> > v4:
+> > - rebase on top of TODO
+> > - fix rebase conflicts:
+> >   * drivers/cxl/pci.c
+> >     - trivial: the lockdown reason was corrected in mainline
+> >   * kernel/bpf/helpers.c, kernel/trace/bpf_trace.c
+> >     - trivial: LOCKDOWN_BPF_READ was renamed to LOCKDOWN_BPF_READ_KERNEL
+> >       in mainline
+> >   * kernel/power/hibernate.c
+> >     - trivial: !secretmem_active() was added to the condition in
+> >       hibernation_available()
+> > - cover new security_locked_down() call in kernel/bpf/helpers.c
+> >   (LOCKDOWN_BPF_WRITE_USER in BPF_FUNC_probe_write_user case)
+> >
+> > v3: https://lore.kernel.org/lkml/20210616085118.1141101-1-omosnace@redhat.com/
+> > - add the cred argument to security_locked_down() and adapt all callers
+> > - keep using current_cred() in BPF, as the hook calls have been shifted
+> >   to program load time (commit ff40e51043af ("bpf, lockdown, audit: Fix
+> >   buggy SELinux lockdown permission checks"))
+> > - in SELinux, don't ignore hook calls where cred == NULL, but use
+> >   SECINITSID_KERNEL as the subject instead
+> > - update explanations in the commit message
+> >
+> > v2: https://lore.kernel.org/lkml/20210517092006.803332-1-omosnace@redhat.com/
+> > - change to a single hook based on suggestions by Casey Schaufler
+> >
+> > v1: https://lore.kernel.org/lkml/20210507114048.138933-1-omosnace@redhat.com/
+>
+> The changes between v3 and v4 all seem sane to me, but I'm going to
+> let this sit for a few days in hopes that we can collect a few more
+> Reviewed-bys and ACKs.  If I don't see any objections I'll merge it
+> mid-week(ish) into selinux/stable-5.15 and plan on sending it to Linus
+> after it goes through a build/test cycle.
 
-Looks good.
+Time's up, I just merged this into selinux/stable-5.15 and I'll send
+this to Linus once it passes testing.
 
-Acked-by: Richard Guy Briggs <rgb@redhat.com>
-
-> ---
-> v4:
-> - no change
-> v3:
-> - removed work-in-progress warning from the description
-> v2:
-> - incorporate feedback from Richard
-> v1:
-> - initial draft
-> ---
->  include/uapi/linux/audit.h |    3 +-
->  kernel/audit_tree.c        |    3 +-
->  kernel/audit_watch.c       |    3 +-
->  kernel/auditfilter.c       |   15 +++++++++--
->  kernel/auditsc.c           |   61 ++++++++++++++++++++++++++++++++++----------
->  5 files changed, 65 insertions(+), 20 deletions(-)
-> 
-> diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-> index a1997697c8b1..ecf1edd2affa 100644
-> --- a/include/uapi/linux/audit.h
-> +++ b/include/uapi/linux/audit.h
-> @@ -167,8 +167,9 @@
->  #define AUDIT_FILTER_EXCLUDE	0x05	/* Apply rule before record creation */
->  #define AUDIT_FILTER_TYPE	AUDIT_FILTER_EXCLUDE /* obsolete misleading naming */
->  #define AUDIT_FILTER_FS		0x06	/* Apply rule at __audit_inode_child */
-> +#define AUDIT_FILTER_URING_EXIT	0x07	/* Apply rule at io_uring op exit */
->  
-> -#define AUDIT_NR_FILTERS	7
-> +#define AUDIT_NR_FILTERS	8
->  
->  #define AUDIT_FILTER_PREPEND	0x10	/* Prepend to front of list */
->  
-> diff --git a/kernel/audit_tree.c b/kernel/audit_tree.c
-> index 2cd7b5694422..338c53a961c5 100644
-> --- a/kernel/audit_tree.c
-> +++ b/kernel/audit_tree.c
-> @@ -726,7 +726,8 @@ int audit_make_tree(struct audit_krule *rule, char *pathname, u32 op)
->  {
->  
->  	if (pathname[0] != '/' ||
-> -	    rule->listnr != AUDIT_FILTER_EXIT ||
-> +	    (rule->listnr != AUDIT_FILTER_EXIT &&
-> +	     rule->listnr != AUDIT_FILTER_URING_EXIT) ||
->  	    op != Audit_equal ||
->  	    rule->inode_f || rule->watch || rule->tree)
->  		return -EINVAL;
-> diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
-> index 2acf7ca49154..698b62b4a2ec 100644
-> --- a/kernel/audit_watch.c
-> +++ b/kernel/audit_watch.c
-> @@ -183,7 +183,8 @@ int audit_to_watch(struct audit_krule *krule, char *path, int len, u32 op)
->  		return -EOPNOTSUPP;
->  
->  	if (path[0] != '/' || path[len-1] == '/' ||
-> -	    krule->listnr != AUDIT_FILTER_EXIT ||
-> +	    (krule->listnr != AUDIT_FILTER_EXIT &&
-> +	     krule->listnr != AUDIT_FILTER_URING_EXIT) ||
->  	    op != Audit_equal ||
->  	    krule->inode_f || krule->watch || krule->tree)
->  		return -EINVAL;
-> diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-> index db2c6b59dfc3..d75acb014ccd 100644
-> --- a/kernel/auditfilter.c
-> +++ b/kernel/auditfilter.c
-> @@ -44,7 +44,8 @@ struct list_head audit_filter_list[AUDIT_NR_FILTERS] = {
->  	LIST_HEAD_INIT(audit_filter_list[4]),
->  	LIST_HEAD_INIT(audit_filter_list[5]),
->  	LIST_HEAD_INIT(audit_filter_list[6]),
-> -#if AUDIT_NR_FILTERS != 7
-> +	LIST_HEAD_INIT(audit_filter_list[7]),
-> +#if AUDIT_NR_FILTERS != 8
->  #error Fix audit_filter_list initialiser
->  #endif
->  };
-> @@ -56,6 +57,7 @@ static struct list_head audit_rules_list[AUDIT_NR_FILTERS] = {
->  	LIST_HEAD_INIT(audit_rules_list[4]),
->  	LIST_HEAD_INIT(audit_rules_list[5]),
->  	LIST_HEAD_INIT(audit_rules_list[6]),
-> +	LIST_HEAD_INIT(audit_rules_list[7]),
->  };
->  
->  DEFINE_MUTEX(audit_filter_mutex);
-> @@ -151,7 +153,8 @@ char *audit_unpack_string(void **bufp, size_t *remain, size_t len)
->  static inline int audit_to_inode(struct audit_krule *krule,
->  				 struct audit_field *f)
->  {
-> -	if (krule->listnr != AUDIT_FILTER_EXIT ||
-> +	if ((krule->listnr != AUDIT_FILTER_EXIT &&
-> +	     krule->listnr != AUDIT_FILTER_URING_EXIT) ||
->  	    krule->inode_f || krule->watch || krule->tree ||
->  	    (f->op != Audit_equal && f->op != Audit_not_equal))
->  		return -EINVAL;
-> @@ -248,6 +251,7 @@ static inline struct audit_entry *audit_to_entry_common(struct audit_rule_data *
->  		pr_err("AUDIT_FILTER_ENTRY is deprecated\n");
->  		goto exit_err;
->  	case AUDIT_FILTER_EXIT:
-> +	case AUDIT_FILTER_URING_EXIT:
->  	case AUDIT_FILTER_TASK:
->  #endif
->  	case AUDIT_FILTER_USER:
-> @@ -332,6 +336,10 @@ static int audit_field_valid(struct audit_entry *entry, struct audit_field *f)
->  		if (entry->rule.listnr != AUDIT_FILTER_FS)
->  			return -EINVAL;
->  		break;
-> +	case AUDIT_PERM:
-> +		if (entry->rule.listnr == AUDIT_FILTER_URING_EXIT)
-> +			return -EINVAL;
-> +		break;
->  	}
->  
->  	switch (entry->rule.listnr) {
-> @@ -980,7 +988,8 @@ static inline int audit_add_rule(struct audit_entry *entry)
->  	}
->  
->  	entry->rule.prio = ~0ULL;
-> -	if (entry->rule.listnr == AUDIT_FILTER_EXIT) {
-> +	if (entry->rule.listnr == AUDIT_FILTER_EXIT ||
-> +	    entry->rule.listnr == AUDIT_FILTER_URING_EXIT) {
->  		if (entry->rule.flags & AUDIT_FILTER_PREPEND)
->  			entry->rule.prio = ++prio_high;
->  		else
-> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> index 6dda448fb826..7c66a9fea5e6 100644
-> --- a/kernel/auditsc.c
-> +++ b/kernel/auditsc.c
-> @@ -805,6 +805,35 @@ static int audit_in_mask(const struct audit_krule *rule, unsigned long val)
->  	return rule->mask[word] & bit;
->  }
->  
-> +/**
-> + * audit_filter_uring - apply filters to an io_uring operation
-> + * @tsk: associated task
-> + * @ctx: audit context
-> + */
-> +static void audit_filter_uring(struct task_struct *tsk,
-> +			       struct audit_context *ctx)
-> +{
-> +	struct audit_entry *e;
-> +	enum audit_state state;
-> +
-> +	if (auditd_test_task(tsk))
-> +		return;
-> +
-> +	rcu_read_lock();
-> +	list_for_each_entry_rcu(e, &audit_filter_list[AUDIT_FILTER_URING_EXIT],
-> +				list) {
-> +		if (audit_in_mask(&e->rule, ctx->uring_op) &&
-> +		    audit_filter_rules(tsk, &e->rule, ctx, NULL, &state,
-> +				       false)) {
-> +			rcu_read_unlock();
-> +			ctx->current_state = state;
-> +			return;
-> +		}
-> +	}
-> +	rcu_read_unlock();
-> +	return;
-> +}
-> +
->  /* At syscall exit time, this filter is called if the audit_state is
->   * not low enough that auditing cannot take place, but is also not
->   * high enough that we already know we have to write an audit record
-> @@ -1757,7 +1786,7 @@ static void audit_log_exit(void)
->   * __audit_free - free a per-task audit context
->   * @tsk: task whose audit context block to free
->   *
-> - * Called from copy_process and do_exit
-> + * Called from copy_process, do_exit, and the io_uring code
->   */
->  void __audit_free(struct task_struct *tsk)
->  {
-> @@ -1775,15 +1804,21 @@ void __audit_free(struct task_struct *tsk)
->  	 * random task_struct that doesn't doesn't have any meaningful data we
->  	 * need to log via audit_log_exit().
->  	 */
-> -	if (tsk == current && !context->dummy &&
-> -	    context->context == AUDIT_CTX_SYSCALL) {
-> +	if (tsk == current && !context->dummy) {
->  		context->return_valid = AUDITSC_INVALID;
->  		context->return_code = 0;
-> -
-> -		audit_filter_syscall(tsk, context);
-> -		audit_filter_inodes(tsk, context);
-> -		if (context->current_state == AUDIT_STATE_RECORD)
-> -			audit_log_exit();
-> +		if (context->context == AUDIT_CTX_SYSCALL) {
-> +			audit_filter_syscall(tsk, context);
-> +			audit_filter_inodes(tsk, context);
-> +			if (context->current_state == AUDIT_STATE_RECORD)
-> +				audit_log_exit();
-> +		} else if (context->context == AUDIT_CTX_URING) {
-> +			/* TODO: verify this case is real and valid */
-> +			audit_filter_uring(tsk, context);
-> +			audit_filter_inodes(tsk, context);
-> +			if (context->current_state == AUDIT_STATE_RECORD)
-> +				audit_log_uring(context);
-> +		}
->  	}
->  
->  	audit_set_context(tsk, NULL);
-> @@ -1867,12 +1902,6 @@ void __audit_uring_exit(int success, long code)
->  {
->  	struct audit_context *ctx = audit_context();
->  
-> -	/*
-> -	 * TODO: At some point we will likely want to filter on io_uring ops
-> -	 *       and other things similar to what we do for syscalls, but that
-> -	 *       is something for another day; just record what we can here.
-> -	 */
-> -
->  	if (ctx->context == AUDIT_CTX_SYSCALL) {
->  		/*
->  		 * NOTE: See the note in __audit_uring_entry() about the case
-> @@ -1895,6 +1924,8 @@ void __audit_uring_exit(int success, long code)
->  		 * the behavior here.
->  		 */
->  		audit_filter_syscall(current, ctx);
-> +		if (ctx->current_state != AUDIT_STATE_RECORD)
-> +			audit_filter_uring(current, ctx);
->  		audit_filter_inodes(current, ctx);
->  		if (ctx->current_state != AUDIT_STATE_RECORD)
->  			return;
-> @@ -1907,6 +1938,8 @@ void __audit_uring_exit(int success, long code)
->  	if (!list_empty(&ctx->killed_trees))
->  		audit_kill_trees(ctx);
->  
-> +	/* run through both filters to ensure we set the filterkey properly */
-> +	audit_filter_uring(current, ctx);
->  	audit_filter_inodes(current, ctx);
->  	if (ctx->current_state != AUDIT_STATE_RECORD)
->  		goto out;
-> 
-
-- RGB
-
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
-
+-- 
+paul moore
+www.paul-moore.com
