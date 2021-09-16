@@ -2,125 +2,159 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A0E0C433EF
-	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 18:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAD53C433EF
+	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 20:29:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 16DAA60FA0
-	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 18:50:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C84EE60FBF
+	for <selinux@archiver.kernel.org>; Thu, 16 Sep 2021 20:29:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349504AbhIPSwS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Sep 2021 14:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50522 "EHLO
+        id S232565AbhIPUa3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Sep 2021 16:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349459AbhIPSwP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Sep 2021 14:52:15 -0400
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41262C121BE7
-        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 10:41:31 -0700 (PDT)
-Received: by mail-ot1-x334.google.com with SMTP id l16-20020a9d6a90000000b0053b71f7dc83so9305330otq.7
-        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 10:41:31 -0700 (PDT)
+        with ESMTP id S230338AbhIPUa2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Sep 2021 16:30:28 -0400
+Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50261C061574
+        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 13:29:07 -0700 (PDT)
+Received: by mail-qt1-x82e.google.com with SMTP id s15so6769232qta.10
+        for <selinux@vger.kernel.org>; Thu, 16 Sep 2021 13:29:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=G9zvWE77w7x29csTgfNiHfUPEbGIFJ3MdK/XtErrU+c=;
-        b=I3coV31rVzPvBHjThkzuKPkrqRvCeOeTfjAFsLY7PI/7a+4p+4eT5l9i6CLw2FkFMB
-         WJwnIeA7JBqW6iG++WcY0t0ahJUy7Yb1mOr/6q3CVgecUsR1hFDY/7zaKS/wT9/4K4Fg
-         0PsNGZgO6lw9KwvwS4sm9kN27WDMbipM/aElXLCZmHC4Yyje91q7V6L4BC9cJ4n/GWG5
-         0enMrUGymehNJfgtKb6fhOCxr9Ks+VGMyqYcS6uRIuy2nGSQgLoWZYveAU7aJkQdsExB
-         VYgkaLCLThvjC/TeOwm49nv5i0yxx0MFO8T5mmgZPR+eCxOnDE+kwdc+8zBYxQ82Kq0Z
-         zpQg==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VlffJO7/GZKVv1zcXAh2oqtlwJf6ik+d398CSaDNNT4=;
+        b=KzM9z7PFvNi8UYAJfz2nQgcpSBG50+yMcz7IkDTyJI7i0tUVOwZEvXQrZm6bLRAnr9
+         bTzr58EbNWdGabJFPumUlTP31QkCFfD7wfd1cPgK5ISXcfYxXPwV1yO5ZstCfBmQHUS+
+         PP0kmIsrYk4/oXYss02wEgoeW6/hyrPOPSdX1dvFOKz2hFGXNX0WXFVqg6l0LcN8bdGo
+         2JnxN3LfLWCfs+COUf07/CbNyEW2SotmDLe9aqL79BzRDonK224U/D8nftl2Nb//qshu
+         e7lOnSsjyBbhuyvEXjwPV2IEd6ScC3K5oazkeV+Tn019SOu+jiFsYMnw/JN2QpcyhbbE
+         wE0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=G9zvWE77w7x29csTgfNiHfUPEbGIFJ3MdK/XtErrU+c=;
-        b=mqZljA/mJ1IfheDiwVSacrteydAMjOVejdUhpJa6raD/b6ZcMNF32Jcdq9XhW6PIMP
-         cnofwzTpMgxlBrG2tglY7zHS0CsQj8NDYzGMUJVYmz3pIODEYi+fL5VbXpn6za8YH1xL
-         VuwBaWXeR2tsdUDxHDf+XRm9txc5WLbLg+G8hTa9nt6YmeVnr+cLtMjEAiwBR5JrXbWd
-         TIJica7qM8H2YNqBzNQEpf4aRlg3x8dNuimuG1a2jCBlgFue39Ss7kpGtBYS3R2jgQrs
-         kJMnqPr0+Gjpo9rdFwCm50YJga+mUC23svN/HZrpb+0OH4SlKiNn65i+KRdFBY4Qr0dA
-         ry9w==
-X-Gm-Message-State: AOAM532K29Pyz+rBf+eQqhHfd5pwHcjWxvdEn6LoIBCUyaSMxIB8MsWM
-        mXWdOEOiWdWx8Wkeqh3DeJAPPIPZcuw0XtiutX/B/i+4xsQ=
-X-Google-Smtp-Source: ABdhPJxczr0XIChxEVRdBi1Krivu1K8w6JCiFYD4QVSV2MY7eS5rl+6AogxgGlq4HDCohEPQRnAUvlyW38tbOf01tMA=
-X-Received: by 2002:a05:6830:4003:: with SMTP id h3mr5918398ots.56.1631814090584;
- Thu, 16 Sep 2021 10:41:30 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VlffJO7/GZKVv1zcXAh2oqtlwJf6ik+d398CSaDNNT4=;
+        b=juRx6POCABvQskzvoHlYNZAtGuf18TgY0F/3uMi8nbMRrRtK06en5+LN8eXO8aspeq
+         O1ivBJRKdFddCwvc2NsggfTfU+Tu+kChcU4OsOmoSaL8yhuBH9MyXozHM0T4fv/cq4YC
+         d6XAy5fN8hYRmpdBMaoq6recMP+R2/cEv4wMnpS8BjVOi3rmMOKX2iMIKBZknEdYnzn9
+         XzPs2fHc/C58VsvqZYRYsTn6HJ+OwImJTwdWrh/mm4jf41UE65W9I4YkzOMBvzo5zz5r
+         wTi9TXKtunTzQgc/4MIw7bNjL2pm0hofhpqJevYzPlggq7JKcVjOe0fnGLr0upFPItpQ
+         2Xag==
+X-Gm-Message-State: AOAM532v+3ITe8Mkoy6v6F4cjPVyfDda5Lkd6ayia91NlBG2BBymY2Iq
+        nn3/DyH8rYOiIe0OXpx9DzG4JhDkuE0=
+X-Google-Smtp-Source: ABdhPJxBk/qD0dDdbfklLoxzoG0JNRi8iw6aTH4OAild0PDQFSpzo7P0+DTzbH8D8g+Agae2jbS2+g==
+X-Received: by 2002:ac8:3b51:: with SMTP id r17mr6995833qtf.139.1631824146247;
+        Thu, 16 Sep 2021 13:29:06 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id c10sm2927472qtb.20.2021.09.16.13.29.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Sep 2021 13:29:05 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Handle operations in a class mapping when verifying
+Date:   Thu, 16 Sep 2021 16:29:00 -0400
+Message-Id: <20210916202900.1157917-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <20210915162326.392808-1-cgzones@googlemail.com> <CAHC9VhTcyz5i7jRiz1iAg7U_Ru1cJi6APv0GyMw408d+2aJmqw@mail.gmail.com>
-In-Reply-To: <CAHC9VhTcyz5i7jRiz1iAg7U_Ru1cJi6APv0GyMw408d+2aJmqw@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Thu, 16 Sep 2021 19:41:19 +0200
-Message-ID: <CAJ2a_DeuF2tqQ08piCUnJZwxOkWXfu7rBOrfoRP5f4ughYxBdQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: enable genfscon labeling for securityfs
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 15 Sept 2021 at 20:28, Paul Moore <paul@paul-moore.com> wrote:
->
-> On Wed, Sep 15, 2021 at 12:24 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Add support for genfscon per-file labeling of securityfs files. This al=
-lows
-> > for separate labels and therby permissions for different files, e.g.
-> > /sys/kernel/security/integrity/ima/policy.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  security/selinux/hooks.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> Hi Christian,
->
-> It would be nice if you could add some additional notes on how this
-> was tested to the description above.
->
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 6517f221d52c..a18626424731 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -760,7 +760,8 @@ static int selinux_set_mnt_opts(struct super_block =
-*sb,
-> >             !strcmp(sb->s_type->name, "tracefs") ||
-> >             !strcmp(sb->s_type->name, "binder") ||
-> >             !strcmp(sb->s_type->name, "bpf") ||
-> > -           !strcmp(sb->s_type->name, "pstore"))
-> > +           !strcmp(sb->s_type->name, "pstore") ||
-> > +           !strcmp(sb->s_type->name, "securityfs"))
-> >                 sbsec->flags |=3D SE_SBGENFS;
-> >
-> >         if (!strcmp(sb->s_type->name, "sysfs") ||
-> > --
-> > 2.33.0
->
-> --
-> paul moore
-> www.paul-moore.com
+When checking for circular class permission declarations and a class
+mapping is encountered, the class permissions for each map permission
+must be checked. An assumption was made that there were no operators
+in the class permissions. An operator in the class permissions would
+cause a segfault.
 
-Something like:
+Example causing segault:
+  (classmap cm1 (mp1))
+  (classmapping cm1 mp1 (CLASS (PERM)))
+  (classpermission cp1)
+  (classpermissionset cp1 (cm1 (all)))
 
-    Add support for genfscon per-file labeling of securityfs files. This al=
-lows
-    for separate labels and thereby access control for different files.
-    For example a genfscon statement
-        genfscon securityfs /integrity/ima/policy
-system_u:object_r:ima_policy_t:s0
-    will set a specific label to the IMA policy file and thus allow to
-control the ability
-    to set the IMA policy.
-    Setting labels directly, e.g. via chcon(1) or setfiles(8), is
-still not supported.
+For map class permissions, check each item in the permission list to
+see if it is an operator. If it is not, then verify the class
+permissions associated with the map permission. If it is an operator
+and the operator is "all", then create a list of all permissions for
+that map class and verify the class permissions associated with each
+map permission. If it is a different operator, then it can be skipped.
 
-?
+This bug was found by the secilc-fuzzer.
+
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_verify.c | 40 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 35 insertions(+), 5 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 5502c4d5..dc29ea66 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -1689,6 +1689,15 @@ exit:
+ 	return rc;
+ }
+ 
++static int __add_perm_to_list(__attribute__((unused)) hashtab_key_t k, hashtab_datum_t d, void *args)
++{
++	struct cil_list *perm_list = (struct cil_list *)args;
++
++	cil_list_append(perm_list, CIL_DATUM, d);
++
++	return SEPOL_OK;
++}
++
+ static int __cil_verify_classperms(struct cil_list *classperms,
+ 				   struct cil_symtab_datum *orig,
+ 				   struct cil_symtab_datum *parent,
+@@ -1730,13 +1739,34 @@ static int __cil_verify_classperms(struct cil_list *classperms,
+ 			if (FLAVOR(cp->class) != CIL_CLASS) { /* MAP */
+ 				struct cil_list_item *i = NULL;
+ 				cil_list_for_each(i, cp->perms) {
+-					struct cil_perm *cmp = i->data;
+-					rc = __cil_verify_classperms(cmp->classperms, orig, &cp->class->datum, &cmp->datum, CIL_MAP_PERM, steps, limit);
+-					if (rc != SEPOL_OK) {
+-						goto exit;
++					if (i->flavor != CIL_OP) {
++						struct cil_perm *cmp = i->data;
++						rc = __cil_verify_classperms(cmp->classperms, orig, &cp->class->datum, &cmp->datum, CIL_MAP_PERM, steps, limit);
++						if (rc != SEPOL_OK) {
++							goto exit;
++						}
++					} else {
++						enum cil_flavor op = (enum cil_flavor)i->data;
++						if (op == CIL_ALL) {
++							struct cil_class *mc = cp->class;
++							struct cil_list *perm_list;
++							struct cil_list_item *j = NULL;
++
++							cil_list_init(&perm_list, CIL_MAP_PERM);
++							cil_symtab_map(&mc->perms, __add_perm_to_list, perm_list);
++							cil_list_for_each(j, perm_list) {
++								struct cil_perm *cmp = j->data;
++								rc = __cil_verify_classperms(cmp->classperms, orig, &cp->class->datum, &cmp->datum, CIL_MAP_PERM, steps, limit);
++								if (rc != SEPOL_OK) {
++									cil_list_destroy(&perm_list, CIL_FALSE);
++									goto exit;
++								}
++							}
++							cil_list_destroy(&perm_list, CIL_FALSE);
++						}
+ 					}
+ 				}
+-			}	
++			}
+ 		} else { /* SET */
+ 			struct cil_classperms_set *cp_set = curr->data;
+ 			struct cil_classpermission *cp = cp_set->set;
+-- 
+2.31.1
+
