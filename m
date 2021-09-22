@@ -2,133 +2,139 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B154C433F5
-	for <selinux@archiver.kernel.org>; Mon, 20 Sep 2021 02:45:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC2F4C433F5
+	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 07:53:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C41960F6E
-	for <selinux@archiver.kernel.org>; Mon, 20 Sep 2021 02:45:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81E5A61215
+	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 07:53:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231657AbhITCq3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 19 Sep 2021 22:46:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231586AbhITCq3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 19 Sep 2021 22:46:29 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35247C061764
-        for <selinux@vger.kernel.org>; Sun, 19 Sep 2021 19:45:03 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id j13so55278953edv.13
-        for <selinux@vger.kernel.org>; Sun, 19 Sep 2021 19:45:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=3Ifk3gkF4EZgOSOMd5BgLpaHigpIrEHERLHWxDsnhms=;
-        b=LVf1yeUaOvahbvnAr8QSl4J6ZtcbeULCwPTL7dt53FaJqSzp6G2JD/v8RAm+KDo8sc
-         1qAdKYmaeRzsm7I3CY1R1cnpCx+XM862SyESXguq2cv13yt5vMg1VMR4JFhGE4vfhoKk
-         w8FVR6rMzHt8XvuNyTW6Ztp7bihmi8Iypi1Iisxahzi1iAxmuj1yVBWgavP0uthDHohY
-         lvKtLRtrDQLxh5uiOZNgN/MaR4JIYdgjHT8oMYOZiABn2JTBBFrxq0vBroAsfzZG0X3A
-         o05l6ouifQ63PVw5owy9FwvYWmqGfcvrcVTtTDeJkvIMcYW7WHBeZl73sqRhvcmhAGOR
-         DzCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=3Ifk3gkF4EZgOSOMd5BgLpaHigpIrEHERLHWxDsnhms=;
-        b=px0+qppQLES07uOwS10YnKE13bcd25EYVAyELS9n1uKe6ZYTbKxBYn35m1tZmR2atJ
-         30Ze4Kp0KCAxNbO3fpBP4HJrr/LjWCRxLlO7AVUjRV8e28MyJpcilDZFE7WKKc0WIOQ2
-         yQZOBC8EA3xFWDaOGM1HlwYoYFSC9fdLx8IUGKsKex5z26rCMQWSYR5WwrLP9BQ07kT+
-         YE4Eb6DeSuHjzpzZwmh7UgZbgtwooS66P+3I/pWxNN/N8fWv/lO6pVms7ZKSOnGSn/8G
-         UGecCrLg5S3/VFzrFS8PqaxZKzP2VThxd/Qm5+Mg5U4aSZ6G9UOw9VTAdeF/Uyl+KhDT
-         zM/A==
-X-Gm-Message-State: AOAM530Bhbjdy37u9+wsU9d/FSaLY2GGh3m+Xm5UlZrp7pzAiB3D2uCu
-        Ozo36SgB9ukDNVO2uHWAH9qXg4UsG6T90OB/q6H1
-X-Google-Smtp-Source: ABdhPJw2UlastqklS4OK5FaL+3CWPBvyDVpEb1e1t4MZvuTxLVTwSniWgJwO2vosjrYuK5Il/R6vvtG2InMyHm29HSQ=
-X-Received: by 2002:a50:cf48:: with SMTP id d8mr16576051edk.293.1632105901532;
- Sun, 19 Sep 2021 19:45:01 -0700 (PDT)
+        id S233290AbhIVHyc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Sep 2021 03:54:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:35886 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233283AbhIVHyc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Sep 2021 03:54:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632297182;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=d27ue2RC2k5D3v9Lr/0rKFI4o+5xp95rtQImu/BTZSk=;
+        b=W6kRLJu3nkVN8Sr1RSj8pT81K/EJOyFUneN9avIGHM+HpLlRo55xQ7OJDXQLCZuJMP8yQT
+        ZcSSyGM7SJy3lVHRpra5Z+z1siTzt9yvRAAnR+BUjkeY9dOdAvoIZZMlexdsYQqUq8Z61Y
+        Z6k+TlAqOHTgkMIni4z/nspspsNEx1M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-119-jSxdF1oiNoibRTowtp1SHw-1; Wed, 22 Sep 2021 03:53:00 -0400
+X-MC-Unique: jSxdF1oiNoibRTowtp1SHw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 74DE684A5E3;
+        Wed, 22 Sep 2021 07:52:59 +0000 (UTC)
+Received: from localhost (unknown [10.40.194.63])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 002E45C261;
+        Wed, 22 Sep 2021 07:52:58 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH] libsepol/cil: Do not use original type and
+ typeattribute datums
+In-Reply-To: <20210913182600.1016101-1-jwcart2@gmail.com>
+References: <20210913182600.1016101-1-jwcart2@gmail.com>
+Date:   Wed, 22 Sep 2021 09:52:57 +0200
+Message-ID: <87lf3pujvq.fsf@redhat.com>
 MIME-Version: 1.0
-References: <163172413301.88001.16054830862146685573.stgit@olly>
-In-Reply-To: <163172413301.88001.16054830862146685573.stgit@olly>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 19 Sep 2021 22:44:50 -0400
-Message-ID: <CAHC9VhSn3pvUgUo5_T=TfiBXw3=f6Pn6GaAUVS=jfg-Kfr_ZEw@mail.gmail.com>
-Subject: Re: [PATCH v4 0/8] Add LSM access controls and auditing to io_uring
-To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 12:49 PM Paul Moore <paul@paul-moore.com> wrote:
+James Carter <jwcart2@gmail.com> writes:
+
+> When compiling CIL policy using secilc's "-m" option (which allows
+> duplicate declarations for types and type attributes), a segfault
+> will occur if the type or type attribute being copied has already
+> been declared. This is because a search of the symbol table is made
+> during the copy and the original datum will be used if one is found.
+> The original datum will be considered a duplicate when an attempt is
+> made to add it to the symbol table. The original datum, which is still
+> in use, will then be destroyed and a segfault will follow soon after
+> that.
 >
-> A quick update to the v3 patchset with a small change to the audit
-> record format (remove the audit login ID on io_uring records) and
-> a subject line fix on the Smack patch.  I also caught a few minor
-> things in the code comments and fixed those up.  All told, nothing
-> significant but I really dislike merging patches that haven't hit
-> the list so here ya go ...
+> Instead, always create a new datum. When it is added the new datum
+> will be destroyed if it is a duplicate and duplicate declarations
+> are allowed.
 >
-> As a reminder, I'm planning to merge these in the selinux/next tree
-> later this week and it would be *really* nice to get some ACKs from
-> the io_uring folks; this patchset is implementing the ideas we all
-> agreed to back in the v1 patchset so there shouldn't be anything
-> surprising in here.
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 >
-> For reference the v3 patchset can be found here:
-> https://lore.kernel.org/linux-security-module/163159032713.470089.11728103630366176255.stgit@olly/T/#t
->
-> Those who would prefer to fetch these patches directly from git can
-> do so using the tree/branch below:
-> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
->  (checkout branch "working-io_uring")
->
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+
 > ---
+>  libsepol/cil/src/cil_copy_ast.c | 32 ++++++++------------------------
+>  1 file changed, 8 insertions(+), 24 deletions(-)
 >
-> Casey Schaufler (1):
->       Smack: Brutalist io_uring support
->
-> Paul Moore (7):
->       audit: prepare audit_context for use in calling contexts beyond syscalls
->       audit,io_uring,io-wq: add some basic audit support to io_uring
->       audit: add filtering for io_uring records
->       fs: add anon_inode_getfile_secure() similar to anon_inode_getfd_secure()
->       io_uring: convert io_uring to the secure anon inode interface
->       lsm,io_uring: add LSM hooks to io_uring
->       selinux: add support for the io_uring access controls
->
->
->  fs/anon_inodes.c                    |  29 ++
->  fs/io-wq.c                          |   4 +
->  fs/io_uring.c                       |  69 +++-
->  include/linux/anon_inodes.h         |   4 +
->  include/linux/audit.h               |  26 ++
->  include/linux/lsm_hook_defs.h       |   5 +
->  include/linux/lsm_hooks.h           |  13 +
->  include/linux/security.h            |  16 +
->  include/uapi/linux/audit.h          |   4 +-
->  kernel/audit.h                      |   7 +-
->  kernel/audit_tree.c                 |   3 +-
->  kernel/audit_watch.c                |   3 +-
->  kernel/auditfilter.c                |  15 +-
->  kernel/auditsc.c                    | 469 ++++++++++++++++++++++------
->  security/security.c                 |  12 +
->  security/selinux/hooks.c            |  34 ++
->  security/selinux/include/classmap.h |   2 +
->  security/smack/smack_lsm.c          |  46 +++
->  18 files changed, 646 insertions(+), 115 deletions(-)
+> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+> index 7c5ae9e1..2fad972c 100644
+> --- a/libsepol/cil/src/cil_copy_ast.c
+> +++ b/libsepol/cil/src/cil_copy_ast.c
+> @@ -590,20 +590,12 @@ int cil_copy_roleallow(__attribute__((unused)) struct cil_db *db, void *data, vo
+>  	return SEPOL_OK;
+>  }
+>  
+> -int cil_copy_type(__attribute__((unused)) struct cil_db *db, void *data, void **copy, symtab_t *symtab)
+> +int cil_copy_type(__attribute__((unused)) struct cil_db *db, __attribute__((unused)) void *data, void **copy, __attribute__((unused)) symtab_t *symtab)
+>  {
+> -	struct cil_type *orig = data;
+> -	char *key = orig->datum.name;
+> -	struct cil_symtab_datum *datum = NULL;
+> +	struct cil_type *new;
+>  
+> -	cil_symtab_get_datum(symtab, key, &datum);
+> -	if (datum == NULL) {
+> -		struct cil_type *new;
+> -		cil_type_init(&new);
+> -		*copy = new;
+> -	} else {
+> -		*copy = datum;
+> -	}
+> +	cil_type_init(&new);
+> +	*copy = new;
+>  
+>  	return SEPOL_OK;
+>  }
+> @@ -622,20 +614,12 @@ int cil_copy_typepermissive(__attribute__((unused)) struct cil_db *db, void *dat
+>  	return SEPOL_OK;
+>  }
+>  
+> -int cil_copy_typeattribute(__attribute__((unused)) struct cil_db *db, void *data, void **copy, symtab_t *symtab)
+> +int cil_copy_typeattribute(__attribute__((unused)) struct cil_db *db, __attribute__((unused)) void *data, void **copy, __attribute__((unused)) symtab_t *symtab)
+>  {
+> -	struct cil_typeattribute *orig = data;
+> -	char *key = orig->datum.name;
+> -	struct cil_symtab_datum *datum = NULL;
+> +	struct cil_typeattribute *new;
+>  
+> -	cil_symtab_get_datum(symtab, key, &datum);
+> -	if (datum == NULL) {
+> -		struct cil_typeattribute *new;
+> -		cil_typeattribute_init(&new);
+> -		*copy = new;
+> -	} else {
+> -		*copy = datum;
+> -	}
+> +	cil_typeattribute_init(&new);
+> +	*copy = new;
+>  
+>  	return SEPOL_OK;
+>  }
+> -- 
+> 2.31.1
 
-With no serious objections or outstanding comments, I just merged
-these patches into selinux/next.  If anyone has any follow-on patches
-please base them against selinux/next, thanks.
-
--- 
-paul moore
-www.paul-moore.com
