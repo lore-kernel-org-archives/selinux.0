@@ -2,70 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22BCBC433EF
-	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 21:10:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E29DFC433EF
+	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 21:40:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0CA63611C6
-	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 21:10:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C116F611CA
+	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 21:40:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236476AbhIVVMZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 Sep 2021 17:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37820 "EHLO
+        id S238199AbhIVVlo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Sep 2021 17:41:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237966AbhIVVMZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 Sep 2021 17:12:25 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67184C061757
-        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 14:10:54 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id z24so17809772lfu.13
-        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 14:10:54 -0700 (PDT)
+        with ESMTP id S238192AbhIVVln (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Sep 2021 17:41:43 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29C62C061756
+        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 14:40:13 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id c21so15188525edj.0
+        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 14:40:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=GP6CZBA3eD/IT4DzplzBkxmwKra5+3ru6Q3LIyU/W9A=;
-        b=KqSSJtCeked0SA1tw/NjFwzUk1jRrGMLi5V8kYMtiu7V4P6830H33s76KRGF3uMy6N
-         u7Pc12nQ5gfzOhaoMByd+dxZFQ0sG8BD0uu2/A+2aejrflzaBvY7PnAXLpGDxOCK2wkT
-         mb1upbY4uHLAqEGFsh3W1U9+aPS45OucgtjF8=
+        bh=7yUAunh6/B1SSbZrz9wmLc4dr4D+i+n+StWnT5gfwxI=;
+        b=8AMS1OWfH+m8OlWLakX39s9CFCl10Wb1+IQBBz1G9wBBbUxcQTDmbczC0bJ7SlHarh
+         +n8UXbfSyXblRygBYIp/CcSdPPol63rkMONHJCSNkEpnSvN0Cu6oJ5E/pfbKoybDOJkB
+         XzR4PfS/1H0KsVW7mn8xQ+aYfbVJW4RvXIA3AyE4ghg8Bl2CFkyVpTv3K+Aqrh/b4qvL
+         Au15lRofpVsQAWeASOv8XxyuW4fTOfqw/PvXmR2n8YoWsNOnfk0i6Sg4Wuw0UDlT1WEI
+         j1LABZbQhoy04as9QqXfnX6c0v6o6qwGlgAtQGSu3tvPtZE7P4qWv+VHh7Ei873MmqTq
+         317A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=GP6CZBA3eD/IT4DzplzBkxmwKra5+3ru6Q3LIyU/W9A=;
-        b=OFOIE7fAjm3JzYj+trKUgl0H59zshPIQS1C7ZltVrp78qWPpQKC1t+DqR5bfAeSo9c
-         1jYqEj50MahsnlwKBuN7xH5aBy9rUBWJ8E2V/wLHlvMQtKDh0G9wofoqFAOsPbdcGO9x
-         XwzGwVboPEuKMpOuBaFn5IijQ7OY98NcQz7dJl6rN05ag4FCAv89qoQWf2BQ605uA+Ph
-         HNDNTJuUGJMV2f2o0IeD2bGMzQ4zc2ujyrL79Wz/TkCc/pgYQrgX4frmapu8wdpFtupj
-         gGufM7tY2qVl2mUGsxfJvxamJKhiYnLKgozIoHm2/wAfj7tyAI9AAuuuNkr+s1+8sKim
-         Hd5Q==
-X-Gm-Message-State: AOAM530OJvR/gbRrd3sXVcJZmpZF3CfCvgOuR3AgVotxSD02fNRrVGGm
-        kcUCMXGma4fc8t1bXF+1rzHwV67L1a0PfyOIBAU=
-X-Google-Smtp-Source: ABdhPJyaIUeHIx0ROfloJPZRdXEhhMRMBzSbK4NSeZApW1BVoUksj1X1gmlEWE2LTX6qeDxtU41ZDg==
-X-Received: by 2002:a2e:a7cf:: with SMTP id x15mr1425058ljp.227.1632345052523;
-        Wed, 22 Sep 2021 14:10:52 -0700 (PDT)
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com. [209.85.167.46])
-        by smtp.gmail.com with ESMTPSA id m12sm265319lfc.26.2021.09.22.14.10.51
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Sep 2021 14:10:51 -0700 (PDT)
-Received: by mail-lf1-f46.google.com with SMTP id x27so17452837lfu.5
-        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 14:10:51 -0700 (PDT)
-X-Received: by 2002:a2e:7f1c:: with SMTP id a28mr1466277ljd.56.1632345050955;
- Wed, 22 Sep 2021 14:10:50 -0700 (PDT)
+        bh=7yUAunh6/B1SSbZrz9wmLc4dr4D+i+n+StWnT5gfwxI=;
+        b=jYw0VPM0pJGshxP7bXXgOePl2UK/9a+zfcCbSz5Zs5EGctYGeZNC7almZd/wgt2DL2
+         F8EDwdvzueRH6mD2/XxKkauEpW1M9Iym6XhfIm3gx0KfKRJ7OlFTsohyZ0/dEsmw3CJ3
+         rLF1lkGETFSwLPqMTW+XA81yGA6Lu+EnoHbmTNtyAQuJIttkUZH/B2/YOCjoga4AVQwh
+         wt6LRNvTaUHw1K6STLr/Ial6qVQEDWgyGX4dGE62g/bPm4fvCL18+ljH/wMLcxNdl+1I
+         8oPimwXJQmwFi72IJY2miM+JfpdGqw/GLhLiBnB/x0FtmVngCifFQe68bSzTOrmHPKc0
+         939w==
+X-Gm-Message-State: AOAM530TqjL9rIQBkCPla1ch8ulf6WgNlcbwCsfu+FdlBhcC1efWPqIJ
+        iIBSLFzZazfflev3xBKmsbYl0ST+o4cz7wmYrkmwJIvz+Q==
+X-Google-Smtp-Source: ABdhPJw9Jd3adL5gvFPfg8v5tsZxNf8e5DGyBzypEea1X9T7NzGxvH9h8cT+f4Q44+P9M1hCL5QNgsXcobRxjmKV284=
+X-Received: by 2002:a50:cf48:: with SMTP id d8mr1708015edk.293.1632346811617;
+ Wed, 22 Sep 2021 14:40:11 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAHC9VhQcxm=Zhe2XEesx3UsBgr8H6H=BtJc92roqeF8o+DK+XQ@mail.gmail.com>
- <CAHC9VhSu=ZWymS3RHa7jakQOU8gujGQ=PKO1BTcrNAM9-P4bmQ@mail.gmail.com> <CAHk-=wj=ADdpVjsKGuOyKDT2eO2UwfgW+cGsKAkxvTkP7=1Osg@mail.gmail.com>
-In-Reply-To: <CAHk-=wj=ADdpVjsKGuOyKDT2eO2UwfgW+cGsKAkxvTkP7=1Osg@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 22 Sep 2021 14:10:34 -0700
-X-Gmail-Original-Message-ID: <CAHk-=winh0gLMqnQipt7VpbsxBL1frJQ-hJpRpe=kbR3U+DRHg@mail.gmail.com>
-Message-ID: <CAHk-=winh0gLMqnQipt7VpbsxBL1frJQ-hJpRpe=kbR3U+DRHg@mail.gmail.com>
+ <CAHC9VhSu=ZWymS3RHa7jakQOU8gujGQ=PKO1BTcrNAM9-P4bmQ@mail.gmail.com>
+ <CAHk-=wj=ADdpVjsKGuOyKDT2eO2UwfgW+cGsKAkxvTkP7=1Osg@mail.gmail.com> <CAHk-=winh0gLMqnQipt7VpbsxBL1frJQ-hJpRpe=kbR3U+DRHg@mail.gmail.com>
+In-Reply-To: <CAHk-=winh0gLMqnQipt7VpbsxBL1frJQ-hJpRpe=kbR3U+DRHg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 22 Sep 2021 17:40:00 -0400
+Message-ID: <CAHC9VhSZp1-Qi7ApoQHauaFXDgoNaFTwFEieEFFuBtdPqAtXQg@mail.gmail.com>
 Subject: Re: [GIT PULL] SELinux fixes for v5.15 (#1)
-To:     Paul Moore <paul@paul-moore.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         LSM List <linux-security-module@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
@@ -74,31 +68,47 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 22, 2021 at 1:55 PM Linus Torvalds
+On Wed, Sep 22, 2021 at 5:10 PM Linus Torvalds
 <torvalds@linux-foundation.org> wrote:
 >
-> Make the regular security_locked_down() function do that, and add a
+> On Wed, Sep 22, 2021 at 1:55 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+> >
+> > Make the regular security_locked_down() function do that, and add a
+> >
+> >     if (WARN_ON_ONCE(!in_task()))
+> >         return -EPERM;
+> >
+> > so that any bad cases get flagged and refuse to continue.
 >
->     if (WARN_ON_ONCE(!in_task()))
->         return -EPERM;
+> Actually, no, I take that back.
 >
-> so that any bad cases get flagged and refuse to continue.
+> It's not the "!in_task()" case that is the problem. That's just the symptom.
+>
+> The real problem is that we clearly have some lock-down rule that
+> seems to care about credentials and who it is that does the lockdown
+> query. That seems to be the real issue here. Doing lockdown checks
+> from interrupts should be fine.
 
-Actually, no, I take that back.
+The basic idea, or problem from a LSM point of view, is that in some
+cases you have a user task which is doing the lockdown access check
+and in others you have the kernel itself; the creds parameter to
+security_locked_down() hook was intended to be used to indicate if it
+was a user task (param == current_cred()) or the kernel (param ==
+NULL).  There was a discussion about using two different hooks/funcs,
+e.g. security_locked_down() and security_locked_down_kern(), instead
+of the creds parameter, but there were more votes for the param
+variant.
 
-It's not the "!in_task()" case that is the problem. That's just the symptom.
+As I type this I'm trying to muster something other than indifference
+towards this patch, but the reality is I just want to be done with it.
+If you'll merge a revision of this patch that does away with the cred
+parameter and goes with the two hooks I'm not going to argue against
+it.
 
-The real problem is that we clearly have some lock-down rule that
-seems to care about credentials and who it is that does the lockdown
-query. That seems to be the real issue here. Doing lockdown checks
-from interrupts should be fine.
+During the review of the latest draft of this patch I half-jokingly
+said it was cursed, perhaps it's time to honestly consider it cursed.
 
-The security layer really seems to be doing odd and random things.
-Maybe we should have some debug switch with the above WARN_ON() inside
-current_cred() (and a number of other 'current' users too). Just to
-see if there are other cases where people look up basically random
-credentials.
-
-When the security layer is confused, that's not a good sign.
-
-                 Linus
+-- 
+paul moore
+www.paul-moore.com
