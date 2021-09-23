@@ -2,116 +2,232 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6DB0C433F5
-	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 23:44:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7E9DC433F5
+	for <selinux@archiver.kernel.org>; Thu, 23 Sep 2021 10:16:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B64160F6B
-	for <selinux@archiver.kernel.org>; Wed, 22 Sep 2021 23:44:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A703860FC1
+	for <selinux@archiver.kernel.org>; Thu, 23 Sep 2021 10:16:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbhIVXpa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 Sep 2021 19:45:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230412AbhIVXp0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 Sep 2021 19:45:26 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0994AC061574
-        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 16:43:55 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id i25so19032665lfg.6
-        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 16:43:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=e9k72VTW22NLqhNCFibUNzlVRlOLQo+ivDkN/xGzIL0=;
-        b=iAQ5fOkNypbYTDMHDwefmxHPG3BnavaFtPjdsc6K5IFf8v4Aa05F1WOz/dqXf9D5eN
-         VU9v9NDhqobgAH7LoBpnsbaNZxLD7pRX/kq2DnHdo1fZh5AcIdAV8GkZH4839jcnx9EZ
-         W1YcQ3jdEj1KMiYH+mn3Qra281xA8lW3Id9vs=
+        id S240305AbhIWKRz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 23 Sep 2021 06:17:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53815 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240383AbhIWKRz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 23 Sep 2021 06:17:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632392182;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=U7pCbMK+PWMJRRwHbP4h2tYp5rub24F2amGE1DhxsWQ=;
+        b=aV2IzgIyTGIHz64RMT+8Qa5b+X8XtqvzuSC/aWIBOdeaUPO66mGPyzM0uNGe96mHKAaqhk
+        LcRnoft8U5hNmIkWmMogQlF7DVjDvLv1QFAe4bSXXnkHY0CgXa9a1gwwp3APgU/pHj5QvU
+        VWpToUrCz4ni6yXRm0um3/5peUaHCKU=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-218-KFjPoAigPuWFWcXbI66nHQ-1; Thu, 23 Sep 2021 06:16:21 -0400
+X-MC-Unique: KFjPoAigPuWFWcXbI66nHQ-1
+Received: by mail-ed1-f69.google.com with SMTP id s12-20020a05640217cc00b003cde58450f1so6329936edy.9
+        for <selinux@vger.kernel.org>; Thu, 23 Sep 2021 03:16:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=e9k72VTW22NLqhNCFibUNzlVRlOLQo+ivDkN/xGzIL0=;
-        b=RDf2a2i/vCmAoNGyLC9MUaOKcWg8qtu9K88N32t0li1TMTAZ8HmG8e4LwBr0GBwOOA
-         6MW6JHLbhoYAFjG3UBCRsOBYdlFoJTtgQSpxwKiycwEZSsmfCtJ9KIcKx0Wuxo/rb6o7
-         9Wu+2940tZdhUrfAGFskaQVIKGNYjAAKofDDg7VHWNY+NFmYw9zr0qrq2QR6dmTUaVAK
-         mQDI/FwISWA6plhgZTPfgETRt/beGcCd44gVvcKn3rGOHW3N8qQxVjoagPMBJrX1xHXg
-         FBr7ZXuJ23tTLbQrwXxlpvt0jNn9ROyqwhriZAS7lYP8jblIDUp5H5uQRInUFqWvt7Yl
-         hMTg==
-X-Gm-Message-State: AOAM5301ELt8BFFWLrA8dsOM/6MYkGXaxU4zDDfOHW2BIGjqhPT5S/76
-        QFLuWvH7+vz9HXDv2M1nRrF5lqXj8Fd9LDQAqGE=
-X-Google-Smtp-Source: ABdhPJy71xvVxGb+TIIduz+p1K3ETAXirP1Zo+V723+KNxBqBTl6Iv+T4ZYk5IllRPWXbbaNimcRUw==
-X-Received: by 2002:ac2:442f:: with SMTP id w15mr1413808lfl.491.1632354234093;
-        Wed, 22 Sep 2021 16:43:54 -0700 (PDT)
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com. [209.85.167.45])
-        by smtp.gmail.com with ESMTPSA id x33sm290681lfu.8.2021.09.22.16.43.53
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=U7pCbMK+PWMJRRwHbP4h2tYp5rub24F2amGE1DhxsWQ=;
+        b=DSuudHJxdZUlUD3gcP2fPKzcXQXrLQ3OSTjdRt8SRAsao00+UKz2bZYjxztNaQFRsJ
+         SY8aGLGdWq5F+/peayD9G9Osh5vW7g8yWQgtHM7dJhJYIiuBnl2GFVJHi+o5HHixuW0I
+         MyaEnw8o2hgqzboDhc5rSuTysYDJWfIVhB4dn9mVc43a+Tfc1IEGQ1SVeJ2QyiD7+78E
+         NHhVyYA4Bcxq5EBo7IAPInoaLPcr/t82aYPprw53WRKsdWxoGqMSRiLofY5VOCxF/4gp
+         qqVvzusAH2SqQfCFxGxB6oQ/L/joGzNq1bRuI7R+lP7RKNfkgmAu8QFRfSrYJY+inuHg
+         Qmvg==
+X-Gm-Message-State: AOAM532E0ryDjRpKnt4zBfSoHhCMA0RJvKNfHXgRnr2UVFpZ5IyeFH94
+        2gbQKvrPelxBTu3W4fB/K5kI/eg5EFJJ9tlrmAKT3DfMpF2H8ZV3++hdeg3vCNxaFpQ5kwajlF+
+        H8Tf0CRNgUpkz4ZNxlcgbTQEifI1Jjhzb+Yvg34DKllp2xOq9255fg3EfDbMrYRHMG6UWjQ==
+X-Received: by 2002:a50:cfc1:: with SMTP id i1mr4367875edk.251.1632392179943;
+        Thu, 23 Sep 2021 03:16:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwZ/U2npbaxf2c993ekaKZb6VSWsxQFAd+ORsN6vqvN6mI1jakDKPgDZOC7vFnja6enmeXiKA==
+X-Received: by 2002:a50:cfc1:: with SMTP id i1mr4367851edk.251.1632392179640;
+        Thu, 23 Sep 2021 03:16:19 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id t4sm3270192edc.2.2021.09.23.03.16.18
         for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Sep 2021 16:43:53 -0700 (PDT)
-Received: by mail-lf1-f45.google.com with SMTP id b20so18949876lfv.3
-        for <selinux@vger.kernel.org>; Wed, 22 Sep 2021 16:43:53 -0700 (PDT)
-X-Received: by 2002:a05:6512:984:: with SMTP id w4mr268356lft.141.1632354233111;
- Wed, 22 Sep 2021 16:43:53 -0700 (PDT)
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Sep 2021 03:16:19 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/perf_event: don't assume CPU#0 is online
+Date:   Thu, 23 Sep 2021 12:16:18 +0200
+Message-Id: <20210923101618.599881-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <CAHC9VhQcxm=Zhe2XEesx3UsBgr8H6H=BtJc92roqeF8o+DK+XQ@mail.gmail.com>
- <CAHC9VhSu=ZWymS3RHa7jakQOU8gujGQ=PKO1BTcrNAM9-P4bmQ@mail.gmail.com>
- <CAHk-=wj=ADdpVjsKGuOyKDT2eO2UwfgW+cGsKAkxvTkP7=1Osg@mail.gmail.com>
- <CAHk-=winh0gLMqnQipt7VpbsxBL1frJQ-hJpRpe=kbR3U+DRHg@mail.gmail.com> <CAHC9VhSZp1-Qi7ApoQHauaFXDgoNaFTwFEieEFFuBtdPqAtXQg@mail.gmail.com>
-In-Reply-To: <CAHC9VhSZp1-Qi7ApoQHauaFXDgoNaFTwFEieEFFuBtdPqAtXQg@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 22 Sep 2021 16:43:37 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whoExoB6xGD0as0kpfwr38B=W7GRkO2NXWDRW-tmQS6Qw@mail.gmail.com>
-Message-ID: <CAHk-=whoExoB6xGD0as0kpfwr38B=W7GRkO2NXWDRW-tmQS6Qw@mail.gmail.com>
-Subject: Re: [GIT PULL] SELinux fixes for v5.15 (#1)
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 22, 2021 at 2:40 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> The basic idea, or problem from a LSM point of view, is that in some
-> cases you have a user task which is doing the lockdown access check
-> and in others you have the kernel itself
+The perf_event test currently uses hard-coded 0 as the CPU index.
+Howver, if CPU#0 happens to be offline, the test then fails because
+perf_event_open(2) returns -ENODEV.
 
-I don't understand. In that case, it would be a boolean for "kernel vs user".
+To fix this, try to find the index of the first online CPU and use that
+instead of the hard-coded value.
 
-But that's not what it is. It literally seems to care about _which_
-user, and looks at cred_sid().
+Verified to work well on a machine with the first 8 CPU cores offline.
 
-This is what makes no sense to me. If it's about lockdown,. then the
-user is immaterial. Either it's locked down, or it's not.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/perf_event/perf_event.c | 23 ++++++++++++++---------
+ tests/perf_event/test         | 32 +++++++++++++++++++++++---------
+ 2 files changed, 37 insertions(+), 18 deletions(-)
 
-Yeah, yeah, clearly that isn't how it works. Something is very rotten
-in the state of lockdown. But that rottenness shouldn't then be
-exposed as a horrible interface.
+diff --git a/tests/perf_event/perf_event.c b/tests/perf_event/perf_event.c
+index 453aa91..0e8bdce 100644
+--- a/tests/perf_event/perf_event.c
++++ b/tests/perf_event/perf_event.c
+@@ -20,13 +20,14 @@ enum {
+ static void print_usage(char *progname)
+ {
+ 	fprintf(stderr,
+-		"usage:  %s [-f|-m] [-v] EVENT_ID\n"
++		"usage:  %s [-f|-m] [-v] CPU EVENT_ID\n"
+ 		"Where:\n\t"
++		"CPU       target CPU (must be online)\n\n\t"
+ 		"EVENT_ID  target ftrace event ID\n\n\t"
+-		"-f  Read perf_event info using read(2)\n\t"
+-		"-m  Read perf_event info using mmap(2)\n\t"
+-		"    Default is to use read(2) and mmap(2)\n\t"
+-		"-v  Print information\n", progname);
++		"-f        Read perf_event info using read(2)\n\t"
++		"-m        Read perf_event info using mmap(2)\n\t"
++		"          Default is to use read(2) and mmap(2)\n\t"
++		"-v        Print information\n", progname);
+ 	exit(-1);
+ }
+ 
+@@ -39,7 +40,7 @@ static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
+ 
+ int main(int argc, char **argv)
+ {
+-	int opt, result, page_size, mmap_size, fd;
++	int opt, result, page_size, mmap_size, fd, cpu;
+ 	long long count, event_id;
+ 	bool verbose = false;
+ 	char *context;
+@@ -65,10 +66,14 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	if ((argc - optind) != 1)
++	if ((argc - optind) != 2)
+ 		print_usage(argv[0]);
+ 
+-	event_id = atoll(argv[optind]);
++	cpu = atoi(argv[optind]);
++	if (cpu < 0)
++		print_usage(argv[0]);
++
++	event_id = atoll(argv[optind + 1]);
+ 	if (event_id < 0)
+ 		print_usage(argv[0]);
+ 
+@@ -90,7 +95,7 @@ int main(int argc, char **argv)
+ 	pe_attr.disabled = 1;
+ 	pe_attr.exclude_hv = 1;
+ 
+-	fd = perf_event_open(&pe_attr, -1, 0, -1, 0);
++	fd = perf_event_open(&pe_attr, -1, cpu, -1, 0);
+ 	if (fd < 0) {
+ 		fprintf(stderr, "Failed perf_event_open(): %s\n",
+ 			strerror(errno));
+diff --git a/tests/perf_event/test b/tests/perf_event/test
+index 380d9cc..c336477 100755
+--- a/tests/perf_event/test
++++ b/tests/perf_event/test
+@@ -48,56 +48,70 @@ BEGIN {
+     plan tests => $test_count;
+ }
+ 
++# find some CPU that is online
++for ( $cpu = 0 ; -e "/sys/devices/system/cpu/cpu$cpu" ; $cpu++ ) {
++
++    # if the "online" file doesn't exist, the CPU can't be offline
++    last unless -e "/sys/devices/system/cpu/cpu$cpu/online";
++
++    $online = `cat /sys/devices/system/cpu/cpu$cpu/online`;
++    chomp($online);
++    last if ( $online eq "1" );
++}
++
+ $event_id = `cat /sys/kernel/debug/tracing/events/ftrace/function/id`;
+ chomp($event_id);
+ 
+ # perf_event { open cpu kernel tracepoint read write };
+ print "Test perf_event\n";
+-$result = system "runcon -t test_perf_t $basedir/perf_event $v $event_id";
++$result = system "runcon -t test_perf_t $basedir/perf_event $v $cpu $event_id";
+ ok( $result eq 0 );
+ 
+ if ($capability) {
+ 
+     # Deny capability { perfmon } - EACCES perf_event_open(2)
+     $result = system
+-      "runcon -t test_perf_no_cap_t $basedir/perf_event $v $event_id 2>&1";
++      "runcon -t test_perf_no_cap_t $basedir/perf_event $v $cpu $event_id 2>&1";
+     ok( $result >> 8 eq 1 );
+ }
+ 
+ # Deny perf_event { open } - EACCES perf_event_open(2)
+ $result =
+-  system "runcon -t test_perf_no_open_t $basedir/perf_event $v $event_id 2>&1";
++  system
++  "runcon -t test_perf_no_open_t $basedir/perf_event $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 1 );
+ 
+ # Deny perf_event { cpu } - EACCES perf_event_open(2)
+ $result =
+-  system "runcon -t test_perf_no_cpu_t $basedir/perf_event $v $event_id 2>&1";
++  system
++  "runcon -t test_perf_no_cpu_t $basedir/perf_event $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 1 );
+ 
+ # Deny perf_event { kernel } - EACCES perf_event_open(2)
+ $result = system
+-  "runcon -t test_perf_no_kernel_t $basedir/perf_event $v $event_id 2>&1";
++  "runcon -t test_perf_no_kernel_t $basedir/perf_event $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 1 );
+ 
+ # Deny perf_event { tracepoint } - EACCES perf_event_open(2)
+ $result =
+   system
+-  "runcon -t test_perf_no_tracepoint_t $basedir/perf_event $v $event_id 2>&1";
++"runcon -t test_perf_no_tracepoint_t $basedir/perf_event $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 1 );
+ 
+ # Deny perf_event { read } - EACCES mmap(2)
+ $result = system
+-  "runcon -t test_perf_no_read_t $basedir/perf_event -m $v $event_id 2>&1";
++  "runcon -t test_perf_no_read_t $basedir/perf_event -m $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 6 );
+ 
+ # Deny perf_event { read } - EACCES read(2)
+ $result = system
+-  "runcon -t test_perf_no_read_t $basedir/perf_event -f $v $event_id 2>&1";
++  "runcon -t test_perf_no_read_t $basedir/perf_event -f $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 7 );
+ 
+ # Deny perf_event { write } - EACCES ioctl(2) write
+ $result =
+-  system "runcon -t test_perf_no_write_t $basedir/perf_event $v $event_id 2>&1";
++  system
++  "runcon -t test_perf_no_write_t $basedir/perf_event $v $cpu $event_id 2>&1";
+ ok( $result >> 8 eq 2 );
+ 
+ exit;
+-- 
+2.31.1
 
-Why has selinux allowed the SID to be an issue for SECCLASS_LOCKDOWN at all?
-
-And why is selinux foceing it's very odd and arguably completely
-misguided "lockdown" logic onto the security layer?
-
-Yes, using "current_sid()" in selinux_lockdown() is clearly wrong,
-since it's not sensible in an interrupt, but lockdown questions are.
-
-But why isn't that just considered a selinux bug, and that
-
-        u32 sid = current_sid();
-
-just replaced with something silly like
-
-        // lockdown is lockdown, user labeling isn't relevant
-        u32 sid = SECINITSID_UNLABELED;
-
-and solve that issue that way? Just say that lockdown cannot depend on
-who is asking for it.
-
-         Linus
