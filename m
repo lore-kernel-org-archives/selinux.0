@@ -2,100 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4760EC433F5
-	for <selinux@archiver.kernel.org>; Thu, 23 Sep 2021 20:24:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF4F7C433F5
+	for <selinux@archiver.kernel.org>; Thu, 23 Sep 2021 21:18:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 27A5861241
-	for <selinux@archiver.kernel.org>; Thu, 23 Sep 2021 20:24:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E2CD60F6D
+	for <selinux@archiver.kernel.org>; Thu, 23 Sep 2021 21:18:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243151AbhIWU0G (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 23 Sep 2021 16:26:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
+        id S235628AbhIWVUF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 23 Sep 2021 17:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243102AbhIWU0G (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 23 Sep 2021 16:26:06 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F3AC061757
-        for <selinux@vger.kernel.org>; Thu, 23 Sep 2021 13:24:34 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id c21so27041390edj.0
-        for <selinux@vger.kernel.org>; Thu, 23 Sep 2021 13:24:34 -0700 (PDT)
+        with ESMTP id S243273AbhIWVUF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 23 Sep 2021 17:20:05 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5222EC061574
+        for <selinux@vger.kernel.org>; Thu, 23 Sep 2021 14:18:33 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id gs10so5018766qvb.13
+        for <selinux@vger.kernel.org>; Thu, 23 Sep 2021 14:18:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=nMzcp/8joR6kTSo7ETzEZ9Ek7QuPuXXM7c+XEqSTszY=;
-        b=k90zC2dDnOWMj1ojN2z5cwtMiHENl0n9hahhuAs1vIhflh5w2sgJiZjW+bYqbmccNz
-         S6I9ng3ak36HQ9v5edxRLITAwXPL1rgimE5JYeB0Y552u6dwI/MeDUfSEupeeKpmK4A3
-         ix1Hkwffoj6vEl/v65bX7Q1IRmRdKEps54qSHER6Q9hN575KY6nAc71x0DRCRVly5u09
-         PZmZg4XEc50XIwGLJvgiVcE4/mc6mRxOa7DjThJH9QUCsABo2COmmgEam0tOga94fIkW
-         qCicuafOMTP7lqVoITloVlQQHd2A1OsuSo2jjmrGUDYh1O8rjAr4JWkEtRLz03xkpXGl
-         qmQw==
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=qDg9v7GfS68GbP8VGxakpRfPg3Js+mkKfYW40P58MfY=;
+        b=KY0z3VOvXBy0yPQrxoDoysSkfrCNw9k5jyfp1/0RQ/ynuUiyjSj84caH3l8OjjsGFv
+         jrFg+8/oAPizxA1nYI9LD6jQemoZOATqlDTU7jWtRBhocEH1mcq/bPM3x2UvwTfsZ+l4
+         rzrZFnLbQsOZ49j3C/zSDm+8ygeMmMToqgUxEEzosqc3aXQoKWp5mDuzcIogaw+0Wsen
+         P58V7qXvYtKsQ6syVeNpMP2vh/vc15S1Ex8ELFarJvcVNuS5ZreG4EIB/NK8TNUkVvxX
+         H96Ubh1insC1DJ3zIx05Lx2mL+t3JaA57L/c8drEK8QVXQm8Q6Oal8Fze5uSnnyD0Sv6
+         lQDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=nMzcp/8joR6kTSo7ETzEZ9Ek7QuPuXXM7c+XEqSTszY=;
-        b=UXzT2t41p3/E7O1dfYbOXrqe72s3eYzJdw8XvQYuAW91Lw1vLcs3YGden5KiR7UF/u
-         q9pQRzAgT6UAFGdZax4i+t6h9HNBfwF81g2ld3acG/0xSqiXTq9yO0+XqxbZCWUc2b1q
-         QreQGHtetWH5gYtR0roCDfJUKNPfPITrbsUTX4sefh2FEPAV2Gww8Y+geNuTYNMnx4bS
-         1hNEKAz8eoR7lv/VWTzVurG/xc5eZejjcPplNrJFmTecJtcQG3vxiiTRCzkK1tNm4H/r
-         vx+YKi014DwdJ9yCClcjijAXtykOOcfHJLvpuhsYWplwWPDI3Pvieh8wS9Ups9JtUN3y
-         8p6A==
-X-Gm-Message-State: AOAM530yAOneR1/R7uzQzSWrtKxxImWmB4zOO0TtXYFfJynkKAynYm3N
-        g8ixaswbxfHGKGP/5tbwvYvCtIIfdUAOi0It4rsf
-X-Google-Smtp-Source: ABdhPJzjfVn2kJzHgPgX66bIldWuZc1mF4G8aWl7bssVGl4Ij9cybr/bXTM1hHJq4NbXfqrofi44jEvLdRy+HCvc0Ng=
-X-Received: by 2002:a05:6402:3587:: with SMTP id y7mr866912edc.362.1632428672314;
- Thu, 23 Sep 2021 13:24:32 -0700 (PDT)
-MIME-Version: 1.0
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=qDg9v7GfS68GbP8VGxakpRfPg3Js+mkKfYW40P58MfY=;
+        b=cKXnSJAoXw41w6NqJ+kcxei+VW7F1+3yEp+vSKXu8sLcKLve6kzGjs30K8GaJnMzH9
+         WFcVc4IsGzQ2ZwlDazho/6YOMay/XAuu5Z7jHHtbDehQOlTYzhmeB6Yvi2VbQZfv9T/u
+         ugE6ZxnjdCwIJZgGljg3d1sxMF0lgzJdm1dakuSt8HYL6LWmWR+WWSRa8kTegtJ571l+
+         a5jNz4UhgPKpm1QTSfyBiPDdhuySmFvaFy5BoOGPLbBBAW9EWK7xbfCyxpqSQ1t2jR7p
+         CBLFBIUFdKlPwIyC6s5quKPC2qCmXzR4Qc+0GWXszzYj1y8WtFPKxDboMZ4vCkI82jeL
+         Fwkg==
+X-Gm-Message-State: AOAM532kBk5fMp7t5mY4vJg/81+lqxhOuTSjeuKt3dLutNUETMaNJl2P
+        bh8kqaSQOyL226El8u8MN8W6f2zLbnEu
+X-Google-Smtp-Source: ABdhPJySUwFo6XwRR7e5WOUE73Mv1rC4kpIeJexVijJZLeWkD9HNOxSnax314uLIwxfiRHxt3dUxuA==
+X-Received: by 2002:a0c:aa4f:: with SMTP id e15mr6760553qvb.43.1632431912034;
+        Thu, 23 Sep 2021 14:18:32 -0700 (PDT)
+Received: from localhost (pool-96-237-52-188.bstnma.fios.verizon.net. [96.237.52.188])
+        by smtp.gmail.com with ESMTPSA id v8sm4041055qtk.49.2021.09.23.14.18.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Sep 2021 14:18:31 -0700 (PDT)
+Subject: [RFC PATCH] selinux: use SECINITSID_KERNEL as the subj/obj in the
+ lockdown hook
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 23 Sep 2021 16:24:21 -0400
-Message-ID: <CAHC9VhSDOQpQPfzMfvEd+hCZeyJiZ4WbvjjG7rGgYAUS=7vZBQ@mail.gmail.com>
-Subject: [GIT PULL] SELinux/Smack fixes for v5.15 (#2)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org
+Date:   Thu, 23 Sep 2021 17:18:30 -0400
+Message-ID: <163243191040.178880.4295195865966623164.stgit@olly>
+User-Agent: StGit/1.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+The original SELinux lockdown implementation in 59438b46471a
+("security,lockdown,selinux: implement SELinux lockdown") used the
+current task's credentials as both the subject and object in the
+SELinux lockdown hook, selinux_lockdown().  Unfortunately that
+proved to be incorrect in a number of cases as the core kernel was
+calling the LSM lockdown hook in places where the credentials from
+the "current" task_struct were not the correct credentials to use
+in the SELinux access check.
 
-Another one patch PR for SELinux, as well as Smack, that should be
-merged during the v5.15-rcX cycle.  It fixes some credential misuse
-and is explained reasonably well in the patch description.  Please
-merge.
+Attempts were made to resolve this by adding a credential pointer
+to the LSM lockdown hook as well as suggesting that the single hook
+be split into two: one for user tasks, one for kernel tasks; however
+neither approach was deemed acceptable by Linus.
 
--Paul
+In order to resolve the problem of an incorrect SELinux domain being
+used in the lockdown check, this patch makes the decision to perform
+all of the lockdown access control checks against the
+SECINITSID_KERNEL domain.  This is far from ideal, but it is what
+we have available to us at this point in time.
+
+Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+
 --
-The following changes since commit 6880fa6c56601bb8ed59df6c30fd390cc5f6dd8f:
 
- Linux 5.15-rc1 (2021-09-12 16:28:37 -0700)
+NOTES: While trivial, this patch is completely untested; I'm posting
+this simply to see what comments there may be within the SELinux
+community to such an approach as the current code is flawed and needs
+to be corrected.
+---
+ security/selinux/hooks.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-are available in the Git repository at:
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6517f221d52c..4f016a49e3a6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7016,7 +7016,7 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
+ static int selinux_lockdown(enum lockdown_reason what)
+ {
+ 	struct common_audit_data ad;
+-	u32 sid = current_sid();
++	u32 sid = SECINITSID_KERNEL;
+ 	int invalid_reason = (what <= LOCKDOWN_NONE) ||
+ 			     (what == LOCKDOWN_INTEGRITY_MAX) ||
+ 			     (what >= LOCKDOWN_CONFIDENTIALITY_MAX);
 
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20210923
-
-for you to fetch changes up to a3727a8bac0a9e77c70820655fd8715523ba3db7:
-
- selinux,smack: fix subjective/objective credential use mixups
-   (2021-09-23 12:30:59 -0400)
-
-----------------------------------------------------------------
-selinux/stable-5.15 PR 20210923
-
-----------------------------------------------------------------
-Paul Moore (1):
-     selinux,smack: fix subjective/objective credential use mixups
-
-security/selinux/hooks.c   | 4 ++--
-security/smack/smack_lsm.c | 4 ++--
-2 files changed, 4 insertions(+), 4 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
