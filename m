@@ -2,92 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E1F3C433EF
-	for <selinux@archiver.kernel.org>; Fri, 24 Sep 2021 19:11:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 774A5C433EF
+	for <selinux@archiver.kernel.org>; Fri, 24 Sep 2021 19:25:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 84F07610FD
-	for <selinux@archiver.kernel.org>; Fri, 24 Sep 2021 19:11:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57760610CB
+	for <selinux@archiver.kernel.org>; Fri, 24 Sep 2021 19:25:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346462AbhIXTMd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Sep 2021 15:12:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47514 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346404AbhIXTMc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Sep 2021 15:12:32 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D27FC061571
-        for <selinux@vger.kernel.org>; Fri, 24 Sep 2021 12:10:59 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id dj4so39950510edb.5
-        for <selinux@vger.kernel.org>; Fri, 24 Sep 2021 12:10:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=snUDhOuSj3eKOiR11ubTWh6qf8t64LbYv6iha3GxxsE=;
-        b=YwTgKT7fuLEq8EbheSlYCofubOzhsqXSu9fBs5U2rZpeTxVNEnIDEPCovfm4b1/8xM
-         SbKjdikcuNbdrYaq2jA6y29kV4dg2a28KeyBUt+1IKxfJcMlpNfRTEvAUnI8ZVaaMmkR
-         TMaHEwexBTIRlxpfeDFQeYq3pUN2B0Jk1b3NNP2XdKzrELMUgvWHpkRjH1iTrBblwJXc
-         0dWdsUXlXxgalkMMlG/HQZTVpxmw/54lHNJi42WdwyBWg7re1IiME0rnaJjp4ZmNei9s
-         kqzaClzyxEo0IbFOxaEHIDQY1RtBX0Kscr7AZGC7eG3XPgQuoj5QAT0iLX+Q1M/3IZR3
-         9PbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=snUDhOuSj3eKOiR11ubTWh6qf8t64LbYv6iha3GxxsE=;
-        b=UXK3M5Z01zaCSPPkhraoJwBDOnZvwVm6UzPqL8DGSnTozXfP/n/m55fo7F7J7+q7qf
-         uhptYJ6QCHP+BrRty8RwIfltfzCLbEtvWJ0bztNJU8OvpMtp4NqyuwZI26gExNfbtx9I
-         H/oal/liTokUHC4k0GvgNjEvajDYs90oqwaV+dmXE7iVBnf8G1//SFxr/Zy7jIodcOCC
-         zbcVBUksdfEwvDzHvVE84WhxudRZUPGiVKPxIOQa1PqH6ebhtKNi+MqJUKXrlunj4xOz
-         ZwC+SyIpNa1p3PR2hIvFYJW1vHLx5PcEcpWsLvBIMRjVFKQo9J8LGek9xvqvWHjwu6Ux
-         1c5w==
-X-Gm-Message-State: AOAM531jyMNdRNRwUFL9971SAg4ZTNKBARFcTDrU80wUmRhpGULxRjUY
-        lhhg+EHBM4bT755HySB7SXNcUaSdIeIu0owQf2jc
-X-Google-Smtp-Source: ABdhPJxEY0vbvM4DVW68xu80mz/KUKRbouFqyHSkVgUS/5+UwB9NDN/JGMOYSr6MwTKht7zZxo2VUmhLK7x4WuiYOnM=
-X-Received: by 2002:a17:906:f15:: with SMTP id z21mr12987609eji.177.1632510657758;
- Fri, 24 Sep 2021 12:10:57 -0700 (PDT)
+        id S1346562AbhIXT0h (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Sep 2021 15:26:37 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:45860 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1346497AbhIXT0h (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Sep 2021 15:26:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632511503;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=/PIrdaQ3mTr2jUUovAmAPxxxH+2EzMe5cu2pNMdSelk=;
+        b=gNLhSkhO1y4/JuAvyuSNkvan0OCyFWAcTQTNVo6el/uZyisIBL1curdL8FZbN2KNvTtr+q
+        GeBU2LesjiEmFxDwe6YLZ+WvM1ytIyjFxFbPPuUmD6moyYQLTZZJ/L+0C0GJkB9nvNlNMe
+        duyN/r8lU3gSQaOUQ2eNa6MvnZVQi1k=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-7-gOD2J--zOuGk25l4esDDIA-1; Fri, 24 Sep 2021 15:25:02 -0400
+X-MC-Unique: gOD2J--zOuGk25l4esDDIA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AAEE78145E6;
+        Fri, 24 Sep 2021 19:25:00 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.32.185])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E4845C1A3;
+        Fri, 24 Sep 2021 19:24:57 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 5D275222E4F; Fri, 24 Sep 2021 15:24:56 -0400 (EDT)
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
+Cc:     chirantan@chromium.org, vgoyal@redhat.com, miklos@szeredi.hu,
+        stephen.smalley.work@gmail.com, dwalsh@redhat.com
+Subject: [PATCH 0/2] fuse: Send file/inode security context during creation
+Date:   Fri, 24 Sep 2021 15:24:40 -0400
+Message-Id: <20210924192442.916927-1-vgoyal@redhat.com>
 MIME-Version: 1.0
-References: <163243191040.178880.4295195865966623164.stgit@olly>
- <CAEjxPJ5pxox=oE0TxmEFA-PkFGPDbAjtK_nqM3y-xaT0e3or0w@mail.gmail.com>
- <CAHC9VhTAY0povyGpv3QhiE9n4WDmnSYTi9Cq8ZnVO_AkH8M6EA@mail.gmail.com>
- <CAEjxPJ7wkCyPZb7h3C_U3zVmJtiVtm4FAi5K+6U7kS63g0Vm-w@mail.gmail.com> <CAFqZXNvM_RkaubR6pbAQVUyWjTgc-PTN5NZzOAk3sQ2q199hBg@mail.gmail.com>
-In-Reply-To: <CAFqZXNvM_RkaubR6pbAQVUyWjTgc-PTN5NZzOAk3sQ2q199hBg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 24 Sep 2021 15:10:46 -0400
-Message-ID: <CAHC9VhQDK_FQxSzw2WsNtKDSiXezkhRZjp7t0psuJTdYRGA+Gw@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: use SECINITSID_KERNEL as the subj/obj in the
- lockdown hook
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 24, 2021 at 12:38 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> I would vote for just removing it rather than basically duplicating
-> the Lockdown LSM functionality.
+Hi,
 
-/me records the vote
+When a file is created (create, mknod, mkdir, symlink), typically file
+systems call  ecurity_inode_init_security() to initialize security
+context of an inode. But this does not very well with remote filesystems
+as inode is not there yet. Client will send a creation request to
+server and once server has created the file, client will instantiate
+the inode.
 
-> (Well... I *tried* to make this thing work, but it really feels like
-> too much hassle to reasonably tweak all the existing callers to
-> fulfill the SELinux expectations to be worth it. I admit I'll be kind
-> of relieved to see the lockdown class go - it brought me nothing but
-> pain :) It would be a nice feature if done right, but that would have
-> to be a new patch that somehow deals with all the intricacies...
-> Either someone finds enough motivation to do it, or it just shouldn't
-> be there, IMHO.)
+So filesystems like nfs and ceph use security_dentry_init_security()
+instead. This takes in a dentry and returns the security context of
+file if any. 
 
-I'm really only willing to entertain one of two options here: 1) stick
-to a lockdown-esque, always kernel_t hook or 2) remove the SELinux
-hook implementation.  Anyone who sends me a patch doing something else
-is likely going to see it NACK'd as soon as I check my email.  Maybe
-I'll soften my stance on this in a year or two, but I *really* don't
-like having email exchanges with Linus like what I had this week.
+These patches call security_dentry_init_security() and send security
+label of file along with creation request (FUSE_CREATE, FUSE_MKDIR,
+FUSE_MKNOD, FUSE_SYMLINK). This will give server an opportunity
+to create new file and also set security label (possibly atomically
+where possible).
+
+These patches are based on the work Chirantan Ekbote did some time
+back but it never got upstreamed. So I have taken his patches,
+made some modifications and posting again.
+
+https://listman.redhat.com/archives/virtio-fs/2020-July/msg00014.html
+https://listman.redhat.com/archives/virtio-fs/2020-July/msg00015.html
+
+These patches will allow us to support SELinux on virtiofs.
+
+Vivek Goyal (2):
+  fuse: Add a flag FUSE_SECURITY_CTX
+  fuse: Send security context of inode on file creation
+
+ fs/fuse/dir.c             | 114 ++++++++++++++++++++++++++++++++++++--
+ fs/fuse/fuse_i.h          |   3 +
+ fs/fuse/inode.c           |   4 +-
+ include/uapi/linux/fuse.h |  20 ++++++-
+ 4 files changed, 134 insertions(+), 7 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.31.1
+
