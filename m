@@ -2,72 +2,89 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0B24C433EF
-	for <selinux@archiver.kernel.org>; Mon, 27 Sep 2021 08:06:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0E24C433EF
+	for <selinux@archiver.kernel.org>; Mon, 27 Sep 2021 08:36:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3C2C60EB4
-	for <selinux@archiver.kernel.org>; Mon, 27 Sep 2021 08:06:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8BBB460F94
+	for <selinux@archiver.kernel.org>; Mon, 27 Sep 2021 08:36:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233326AbhI0IIX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Sep 2021 04:08:23 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:33394 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233273AbhI0IIW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Sep 2021 04:08:22 -0400
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 60BEF564AF7
-        for <selinux@vger.kernel.org>; Mon, 27 Sep 2021 10:06:43 +0200 (CEST)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH userspace] GitHub Actions: do not use macOS latest runner for now
-Date:   Mon, 27 Sep 2021 10:06:34 +0200
-Message-Id: <20210927080634.4668-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.32.0
+        id S233479AbhI0Ihq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Sep 2021 04:37:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:32259 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233403AbhI0Ihp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Sep 2021 04:37:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632731767;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=pDyTmS/MY5ciWf1QpkxWUNMKXUYhtNFfr+n6QkYQvgE=;
+        b=TBcVTUQ1LMDDpBnI3XM0kvBJKL4pEC2D0cf/frFM72hSVRtwYny/S4o6P6wTk93QbcdSmE
+        fbm0siqUVKZ8fZ8axnQQ4R3MRsAXrNGOU0zkDbQVh/sqd09tAoCEeTEgi3ilEe5UbhYb89
+        f46dL5/UUu8qncYfExcPOvnZsjcWHs8=
+Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
+ [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-484-anJ1Em6HNdexsDyxghuoMg-1; Mon, 27 Sep 2021 04:36:03 -0400
+X-MC-Unique: anJ1Em6HNdexsDyxghuoMg-1
+Received: by mail-yb1-f198.google.com with SMTP id o1-20020a056902110100b005b69483a0b4so1745448ybu.0
+        for <selinux@vger.kernel.org>; Mon, 27 Sep 2021 01:36:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=pDyTmS/MY5ciWf1QpkxWUNMKXUYhtNFfr+n6QkYQvgE=;
+        b=VD8jRIoJ+DVoEoiTwXG0C3fmoXYHgot6vCKqKBi0l0eWYne/Rmydp22opBr/kz9/xk
+         adlElEBKyyo+mQBqNoslsfehe9z3TgkfTySwXZdVqG+J8R67mdm3hwqUJH+s7kiTJLX4
+         ZPqHhqCVVKHoBldEIQmfOQDi+f34QF/DVvxZVTAUsH652bQvV4vYjiHOFkV8UlccCElB
+         fJ072WDIo2vA0Nb7Z1mnMhVXC3HjMaRDje982uwa6LHAPFrtKkEBm/8qO2jSjfHoPbuu
+         yOuMRsnurGA4v619VvqjutXulqkbhSWERUPawXp0qob/lQPKFsJD/MGPG1xVcj/8n+Bd
+         Ueog==
+X-Gm-Message-State: AOAM532AekM9mLkxokTrbfFUKKa2alrdTwmUFTrd2Z/qi44tGydhxwUU
+        wA8zn1QwkJTl/g4UwjsCd4TuwiqsW3s/GEIFm0CkvJeGJ5togk0fZEIosewQaZpiwYA6LzAe5nk
+        ZzLx5HNK655cNDJzobrDmZhYaUg0WcsXNrQ==
+X-Received: by 2002:a05:6902:1148:: with SMTP id p8mr27984165ybu.513.1632731763023;
+        Mon, 27 Sep 2021 01:36:03 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyjMBi0XpFum9ahWoQP84DaopYfrHi6LwburdACzjeRJ0WKKjlpIZohJVFXA1oFiNtDxWB9VkBHqS1mQZbEgm0=
+X-Received: by 2002:a05:6902:1148:: with SMTP id p8mr27984146ybu.513.1632731762797;
+ Mon, 27 Sep 2021 01:36:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Sep 27 10:06:43 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <20210923101618.599881-1-omosnace@redhat.com>
+In-Reply-To: <20210923101618.599881-1-omosnace@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 27 Sep 2021 10:35:51 +0200
+Message-ID: <CAFqZXNvEYwvikQeYv3E99KzMueXmS0Ywm1HekHtEvhO06Rtzwg@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/perf_event: don't assume CPU#0 is online
+To:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-GitHub is currently migrating its macos-latest runner to macOS 11:
-https://github.com/actions/virtual-environments/issues/4060
+On Thu, Sep 23, 2021 at 12:16 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> The perf_event test currently uses hard-coded 0 as the CPU index.
+> Howver, if CPU#0 happens to be offline, the test then fails because
+> perf_event_open(2) returns -ENODEV.
+>
+> To fix this, try to find the index of the first online CPU and use that
+> instead of the hard-coded value.
+>
+> Verified to work well on a machine with the first 8 CPU cores offline.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  tests/perf_event/perf_event.c | 23 ++++++++++++++---------
+>  tests/perf_event/test         | 32 +++++++++++++++++++++++---------
+>  2 files changed, 37 insertions(+), 18 deletions(-)
 
-Unfortunately, installing VirtualBox and Vagrant on this new version of
-macOS is not easy, and the current macos-11 runner does not support
-running virtual machines using Vagrant. This issue is being fixed on
-https://github.com/actions/virtual-environments/pull/4010 .
+Now applied [1], along with a small workaround for module metadata
+issue on F33 [2].
 
-Until this Pull Request is merged, use macos-10.15 runner instead of
-macos-latest, to continue using Vagrant to run the SELinux testsuite in
-a virtual machine.
+[1] https://github.com/SELinuxProject/selinux-testsuite/commit/7d737e1605f62ccce5ff36e8d1643afd66fc9abf
+[2] https://github.com/SELinuxProject/selinux-testsuite/commit/29c42c865a9f43a15ae72ebd19642c3d88a7d5ce
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
-
-For information, I tested this patch on
-https://github.com/fishilico/selinux/actions/runs/1273275936
-
- .github/workflows/vm_testsuite.yml | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/.github/workflows/vm_testsuite.yml b/.github/workflows/vm_testsuite.yml
-index af2fad1e73f5..601276ddcf50 100644
---- a/.github/workflows/vm_testsuite.yml
-+++ b/.github/workflows/vm_testsuite.yml
-@@ -6,7 +6,8 @@ jobs:
-   vm_testsuite:
- 
-     # Use VirtualBox+vagrant on macOS, as described in https://github.com/actions/virtual-environments/issues/433
--    runs-on: macos-latest
-+    # Use an old version of macOS until https://github.com/actions/virtual-environments/pull/4010 is merged.
-+    runs-on: macos-10.15
- 
-     steps:
-     - uses: actions/checkout@v2
 -- 
-2.32.0
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
