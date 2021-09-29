@@ -2,96 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2676EC433EF
-	for <selinux@archiver.kernel.org>; Wed, 29 Sep 2021 19:19:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E526FC433F5
+	for <selinux@archiver.kernel.org>; Wed, 29 Sep 2021 20:25:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0066F61505
-	for <selinux@archiver.kernel.org>; Wed, 29 Sep 2021 19:19:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB75861159
+	for <selinux@archiver.kernel.org>; Wed, 29 Sep 2021 20:25:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346547AbhI2TVP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Sep 2021 15:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54778 "EHLO
+        id S1346709AbhI2U0m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Sep 2021 16:26:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345142AbhI2TVO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Sep 2021 15:21:14 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5642CC061764
-        for <selinux@vger.kernel.org>; Wed, 29 Sep 2021 12:19:33 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id g8so12856076edt.7
-        for <selinux@vger.kernel.org>; Wed, 29 Sep 2021 12:19:33 -0700 (PDT)
+        with ESMTP id S1346361AbhI2U0m (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Sep 2021 16:26:42 -0400
+Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4029C061764
+        for <selinux@vger.kernel.org>; Wed, 29 Sep 2021 13:25:00 -0700 (PDT)
+Received: by mail-qk1-x736.google.com with SMTP id b65so3564318qkc.13
+        for <selinux@vger.kernel.org>; Wed, 29 Sep 2021 13:25:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=JMtOTrplDvFfeNYGyrJ/J6i2JTh/PixwMka1xBwXDXk=;
-        b=g+mVIFzhjhtRHCRqkW9mWTlicacgsZPX0dE0hBUVwGbAqbtDGhrMCzDxPB5YlDAq2J
-         gEpi/ET6eOOeSuhpVZULYgHCo6OpktnB5yCY321LD5n2SlidUzLRRWPr3+DvpKVGJBRO
-         N6c6PLOp8+AYkC3dh8Z/U5bzhc9KO78TU/1/J0DMEIpnbXHASE1zVlZiwQASNClUX2/7
-         fUqFxCccvSrZ0VBHGVqNDdSe+PsAI50a5vjssbHu/aqMP7Ju6H6zGkzMerja5cBn7Iq4
-         IF+0vpDY8VZo4zvnYxHUdqp3jRguXyjfIBtextcBcskrAr3nAgNtSbM0gjL4ibexg6Hw
-         1ByQ==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ugyveUtxMtB5pIitUNl12Ivv6agkSLLpH1Hobn1Osfw=;
+        b=VZ9iFgtqOgRGXFWp8VOzfEqCqvZdJs4FRa2Hv+Xg1Z1WMTC9/PQPAOW1TztSHJku/P
+         tDEbqyUOQLwtPUrn19WvA6MDrz2G76AWV8k9oNH3llNqEqd/qijKIHXQC6WM2m8W5Od9
+         /oPuLecSP+ImGu8pqpQGk/vIBFVhRwOIgh+JkfYyA3VPK6h8F5+Mz2WPP0kyY8u3VbRX
+         H/Mfu0RjPAF5j2yb/U3q9OE6N7s1QvB991enOGq4bn5zYBFmF6CJ3PdsHbkKIIKydfZS
+         z/NhQUJpNe/pgJMLpLDTKjkAyscIPEtNB7lJVeQMXI5bUETapCxFHuhdCrcrY8hwpH2h
+         mS0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=JMtOTrplDvFfeNYGyrJ/J6i2JTh/PixwMka1xBwXDXk=;
-        b=y8JDO7RRz5MyHFBaApr4vg8R81w2Rxpw3NpqcKXhhm9F51ukVtsZYywJPq89NkCarC
-         JpH870+gqDxYkmlBWahUaalxITZX5Fde2PCc9k3MEVUM824mURcAkrGBNWZq3nqU4Sj4
-         d9dtvJHsQ3MRUxGPjx99J2b4bFmNxE7cpz/GpE3rr3SsVeqTmFpIVorXL22A2MyJEAEU
-         UVu7By1Ahi/5EMaWUDdAhk5BfomwMIjRVWLz/42xWHGOCOQrFYlxtb6OQAivQb48sFYh
-         Q+pr7b4G8mUrgIFsl2OygDwolEViXIVAKsg/kWVSmSOhLV1PeLi/qYF1PNHmD2h5dC1O
-         omwg==
-X-Gm-Message-State: AOAM532MS+4JRHzQN5JXMifYZ7066HoGGKxc0xUjFunCAbwdvuWr9LJ2
-        VO8R40wMFrKJufzNaOLiUvhAoxyF3ngE/DN22qfLX2oGHw==
-X-Google-Smtp-Source: ABdhPJx3cpmGhALXBTZIpW26/jyXlQ1paVrzbkRsVfmfNguooKFe00gnVDUhCPlU7yRwHlsqjbEVMF634hH7HjphquE=
-X-Received: by 2002:a17:907:7601:: with SMTP id jx1mr1750058ejc.69.1632943171484;
- Wed, 29 Sep 2021 12:19:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ugyveUtxMtB5pIitUNl12Ivv6agkSLLpH1Hobn1Osfw=;
+        b=u6l/Vujivu+Gzf6ohqhdprnUAywl22DYpLh+S4JfBk8d+BXqtH/bqZ0l3kWQeHjROr
+         Bw3dQYdw6UkAOkw/5TFKcOFfBf47veFy5HyH/orrt9wFiCJ6Or0qdj1tpGhNhCyxr60q
+         iD2x5IbEl+bRxchKDl3dLmLmOBMNtzQ7VgcOAVPpBwsNCEtV67CW9E7t04Shw73ImHVZ
+         w/2n9dTjsCnojZgBphqSGsrXhOXV2K7dhSPcYs5vu6803W15OvZmEpfRJ7QGl0WfVs3n
+         oG1/FJ6GQdQE6TAjwrxe7F5HXmSqjXhMZP8CvvAnfOQdfgWeC4RMDT4Ny/ozsxTWsgLA
+         AZ/g==
+X-Gm-Message-State: AOAM533bvMMvoV2j1SrnKY/fgjkiQtPtxiwWDn+kN87AaPCn4CPusF1g
+        /GJraku21jnSV+ijNLGfgsMVTqnzWWo=
+X-Google-Smtp-Source: ABdhPJyXbmYrLhnFfm2+QU5DcnOrN5OXmNXS17dgtLy6lCq/SuwEocAJkEXvM5HIaqdMYHWP3yeJ/g==
+X-Received: by 2002:a37:5f02:: with SMTP id t2mr1610648qkb.264.1632947099822;
+        Wed, 29 Sep 2021 13:24:59 -0700 (PDT)
+Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
+        by smtp.gmail.com with ESMTPSA id c3sm471998qtp.58.2021.09.29.13.24.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Sep 2021 13:24:59 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Do not skip macros when resolving until later passes
+Date:   Wed, 29 Sep 2021 16:24:54 -0400
+Message-Id: <20210929202454.136401-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <163294304032.208242.9097581875096098591.stgit@olly>
-In-Reply-To: <163294304032.208242.9097581875096098591.stgit@olly>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 29 Sep 2021 15:19:20 -0400
-Message-ID: <CAHC9VhSbBCtb72b+kCDJsC9vF=m+zjQ-pfqqe+2jE==4boQqaw@mail.gmail.com>
-Subject: Re: [PATCH] lsm: security_task_getsecid_subj() -> security_current_getsecid_subj()
-To:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 29, 2021 at 3:17 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> The security_task_getsecid_subj() LSM hook invites misuse by allowing
-> callers to specify a task even though the hook is only safe when the
-> current task is referenced.  Fix this by removing the task_struct
-> argument to the hook, requiring LSM implementations to use the
-> current task.  While we are changing the hook declaration we also
-> rename the function to security_current_getsecid_subj() in an effort
-> to reinforce that the hook captures the subjective credentials of the
-> current task and not an arbitrary task on the system.
->
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  include/linux/lsm_hook_defs.h         |    3 +--
->  include/linux/lsm_hooks.h             |    8 +++-----
->  include/linux/security.h              |    4 ++--
->  kernel/audit.c                        |    4 ++--
->  kernel/auditfilter.c                  |    3 +--
->  kernel/auditsc.c                      |   10 +++++++++-
->  net/netlabel/netlabel_unlabeled.c     |    2 +-
->  net/netlabel/netlabel_user.h          |    2 +-
->  security/apparmor/lsm.c               |   13 ++++++++++---
->  security/integrity/ima/ima_appraise.c |    2 +-
->  security/integrity/ima/ima_main.c     |   14 +++++++-------
->  security/security.c                   |    6 +++---
->  security/selinux/hooks.c              |   19 +++----------------
->  security/smack/smack.h                |   16 ----------------
->  security/smack/smack_lsm.c            |    9 ++++-----
->  15 files changed, 48 insertions(+), 67 deletions(-)
+Since only tunableifs need to be resolved in a macro before the macro
+is copied for each call, macros were being skipped after resolving
+tunableifs. Statments not allowed to be in macros would be found during
+the pass that resolved tunableifs. Unfortunately, in-statments are
+resolved after tunableifs and they can be used to add statements to
+macros that are not allowed.
 
-FYI, this patch is based on v5.15-rc3 as it needs the LSM subj/obj
-credential fix present in the v5.15-rcX releases.  Applying it on top
-of previous releases will result in compilation errors.
+Instead, do not skip macros until after the pass that resolves in-
+statements that are to be resolved after block inheritance. This
+allows blocks, blockinherits, blockabstracts, and macros that were
+added by an in-statement to be found and an error reported.
 
+This bug was found by the secilc-fuzzer.
+
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_resolve_ast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index 2cf94368..e97a9f46 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -3946,7 +3946,7 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
+ 	}
+ 
+ 	if (node->flavor == CIL_MACRO) {
+-		if (pass != CIL_PASS_TIF) {
++		if (pass > CIL_PASS_IN_AFTER) {
+ 			*finished = CIL_TREE_SKIP_HEAD;
+ 			rc = SEPOL_OK;
+ 			goto exit;
 -- 
-paul moore
-www.paul-moore.com
+2.31.1
+
