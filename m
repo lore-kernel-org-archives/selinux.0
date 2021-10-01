@@ -2,296 +2,396 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5ACAC433EF
-	for <selinux@archiver.kernel.org>; Thu, 30 Sep 2021 20:20:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33389C433F5
+	for <selinux@archiver.kernel.org>; Fri,  1 Oct 2021 02:45:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B50B261A35
-	for <selinux@archiver.kernel.org>; Thu, 30 Sep 2021 20:20:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 140FA61A65
+	for <selinux@archiver.kernel.org>; Fri,  1 Oct 2021 02:45:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347747AbhI3UWH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Sep 2021 16:22:07 -0400
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:38005
-        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1347725AbhI3UWH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Sep 2021 16:22:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1633033224; bh=yRNS+XIAmEfLJPvZ1zdMVmZLYm7h0+Tar1TrOaXMv3s=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=i83nmD7rd9Pw2xebh9inLA/RW5HWgby2qt1s910GtSAVDckH/AmxmFkvw1Dm3SFR4PV/Z9XfC3aT12HLlHIqzP0rum3edzvJdH1FQh51o1SvQFf1F+ppELjb3+LCI1Ukk5SSuGa+bR4QTHy0LRy7LzCdzWZm4FUZJutpt7N9oGOM5NaXD8ysD+PgY9to7jGvktYbrnrewveCEbDW5UveTPuvXTUm4ilbYepNF0Tjy2GRcRGyI3VJpjANkscRydc/C8CoU9KLYvdDGnIxHJNWWuwMAnRfwoId+26Pi37PhyiI7/Oock67TA3wBtMhWabK+oZzc/treIVuSC6glr+EXA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1633033224; bh=sSWkLBrlfYVfz/stQTpUGZ+of45VTzuEe0rBpu9mlJZ=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=fIN10PhhpIvcdO/EMl4tfARe7v12znWER5mgNM3ISA1OXtcYNGVUatIEL5KQX5hfdWEQkl4w6F3ioFw6s9o9FBDfVInC4GbHt1vebBRoPAoL8oWoLhMEsZYtQM0iUJxSrTHswASgvsz7oJiFqPFdj7ul9COKsiLk/YIeos5l0W61WXfbd8ZgcIwnjeoS30462V23nMTsFuqd/MK0XRcKEaNdcZBbRgh2G58siOtf1xrL/jt/mbpZOv32fjz23WKwPMsm/hEag+7XPXUWCc6pCPWaKK9ctUkqzoRfyxIieOR6BywNV3w6QubeIynWWTC3mDR0YNvu1TMFj/kTH9v2cg==
-X-YMail-OSG: EFxnAHIVM1l26aoBdncDHqYQQNKfIlluRY4ySoqsMpvh6zUsFXmNzKhQud_BpYU
- FCTUhv3vphGGB_saJzUXoRTrgDWttdWkUhJfyVVKRpYOZkoVKqu0UkZnMmmGN8XO6vSVR15iSosY
- qFpaNsuCnXwyL0ZJPZ_OwBkHkgn4ucL9kHyJnXyNWsQl85eHfA5y7LaLITNsksOgQHchXndzWRDZ
- BOctYXEEgre7j.UWBHFKi2zhKr6QftDkG1HEa5714N4p90qSTRL86vP7sVgviZsVtab7m5vRTwF3
- wBURG3OCyNDMRGLFAo3aQMVdS_I5ogMCj_59CTLcq8tyWhqSjttTMQSXgJja3KWZA.izmrQC9Waq
- iGlQddjAVi72n7Nieb43NLJQ3scI_5UKpw7kREjwG1ipElq_E2i9KVWW9oQw28i6eIgXofs4S_b7
- X1zsmFXrOb9aV.51daEjJEyRfumStQXcijie0Da9XI.vOCtM7zYV4PADoMCTfu9zDaGCrewC6XuR
- T_73KN0slb0wxr0j38gfiEbWk8AA1HlizqCwmO8vLIZUSU5S_X3zG6kUIlwBLQTc2OCKAOfsAAkN
- 9HWNa3PBWn1XaZcp7GtNFBY4x3sSwL_.vyNBQHnW41vzlCyaNMCQOoGwgm1njSwj1VPWb6ku9Qgj
- domwQ2l503kd_QGJBlPiKozIWKifDus8ChpuvHAtOVjtHiXofrNtxMKRKk_2cttEQ0cURbCIrnos
- _fM8gtWryNv5TTzKpi_e7h9EvcTc2x79slyY6Lq2CtFdgdZ1tQkmduILfTBolAwF._JfdIuiVDGS
- 2a8eBrg1b8kIywvMsAvZ7tBq1buncdfvjzJYBzxoqXh30ovL.s7xfnhXFzbZaDX72RILdgxPBJTx
- MEgipSDODcD_3M0vXHoib5oJ6remnpZi25Mt7qZsshJAFAyZ9oiWVKM2NeYRCl6ndQk4TFKlJIQe
- vGjLlVK3wK4wpLg7Oixudx3SwhTACaTnK5aaS.C6H5kb3jN27Ze6t2i_J6mJ_dudUhazIa_qNQAK
- aQ0VyDFfT74l8RZ3dJqtRPtGEspQc29nubUlw6OO_RBtCg_CXsCrI95T_OKOdag6C5w5dcRlsDtD
- JTMnbPOzG4FrNrIg6EqzvFCuI5InjvQR2ttMdErx_OYDF9IigBEBdoxEsm7nk92TWr4sRKGu6CUw
- 6gXREyqMHSJdjGWULNS5t8jLlPkafkv9uRTfvrdw888wldgtnbNDiBq6QKXdXxB7Cp4mBrmQN8f5
- O2K2EZlC9Sz9FMn4H4.ouLq8nMlJy329YEMNa47z2MXF8wdsJfEKuudq5fnCv5AdJp1pYx2GWWRw
- 72Ie4qxsLzRNPeHNRZgTRIrpRW3ttJQRvD0EBaon61c_9_6V4py6sIINT4OGXeyVfKqfeoKPB.F5
- tmn5fx0AsdNhSbdoQp9Qlj0maL0K1xpz20XnrsgP2cF6DTHKjDLQJTc1yhMGzMI6Gf48xpt1YnLb
- 8sRcGL4MvWZnYGlNz_bm06no2JbKAWLig3oY6InhsQQ1lk4iNPU6bXmBBnddtkzhKK1shQ6SENPI
- EHwU_UmjokwCku5uW.1dJ.HqfP8VR8fKq4o9YRsUm4edV6Qgy4_hDSa5lTU.NuA5jVZngk9IUUt2
- XI1S7AkQjN_4vfWpH.BW23mOJP01IHuSsfDzD0hrMqB0p.a86i_eQ5K0UuaaaDwdgKX690fbHWmA
- nXruU4TrOILP6tnU2KM.wbzv2DoZwhX0tkSARtubJFTSlJjZyFbQ7cxaf8AKGgEo_bW.sVLHuWYr
- q_F2EjI3Y.ZwEfTaBkKpxySaF2fgDA4DHzXsXZsJGovZra769Kph11GDFZzlSj9MZqWCxDJ2lkN2
- 5w63YHTbqnjFzm3I2ec_C_UkJy.AwG8koPuspnxMCju13QmM8eg8B5bh_TMEq0kPEFNUp3sVZuJQ
- iGrVpYDrAhBvJWEVtTEmgmOE33wz_h5KMdgcitMJCpEYnSqTHsYd8Yli9Pd8z4jYP2yRgLW3FcZr
- 2Yogh7MhHua759Gb7hUO.Mhqz0CVSZeyLLN9mRPHosaA85KLBo8n9BsIxzXOHieTL7RAv66XbLGR
- mAWzcX1kqQICbp6zJgggd_59ViUwaUV6es8zH6x53Bu.67nABka7.YQgmtG2INy8KvkjyVwN2VFV
- bxZpSOxwb1fqKzaxGd.p1YggLCLA1UkWSqDSX8Bog7AqKe2FwxPopR1dh8Uqx99JaosBtiGc95yc
- iMZ98RATNt7EbJE.XVUJVfYD45O1wrK4632fV8rtvPzPK2EJS_ugsiMf9LBN_9qA1CSoKAWonSja
- hLPUjEFX7DQWuwwnZAj58y7Sq771urtuM2xZZKisJpFUK0_p.bPjcWQkBujo7wLEcm.WjSwoAz17
- IoL5WgBKzUUYnAHfX3ASaO84A25o-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Thu, 30 Sep 2021 20:20:24 +0000
-Received: by kubenode522.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 131a3f0a43c1f37da1d6ec227236d215;
-          Thu, 30 Sep 2021 20:20:19 +0000 (UTC)
-Subject: Re: [PATCH] security: Return xattr name from
- security_dentry_init_security()
-To:     Vivek Goyal <vgoyal@redhat.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Daniel J Walsh <dwalsh@redhat.com>, jlayton@kernel.org,
-        idryomov@gmail.com, ceph-devel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, bfields@fieldses.org,
-        chuck.lever@oracle.com, stephen.smalley.work@gmail.com,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <YVYI/p1ipDFiQ5OR@redhat.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <a0d6e05c-6ec4-ff9b-954a-4974fb800de4@schaufler-ca.com>
-Date:   Thu, 30 Sep 2021 13:20:18 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-MIME-Version: 1.0
-In-Reply-To: <YVYI/p1ipDFiQ5OR@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-X-Mailer: WebService/1.1.19076 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+        id S1351682AbhJACq6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Sep 2021 22:46:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34344 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351650AbhJACq5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Sep 2021 22:46:57 -0400
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D04C06176A
+        for <selinux@vger.kernel.org>; Thu, 30 Sep 2021 19:45:14 -0700 (PDT)
+Received: by mail-qk1-x749.google.com with SMTP id i16-20020a05620a249000b004558dcb5663so15436361qkn.9
+        for <selinux@vger.kernel.org>; Thu, 30 Sep 2021 19:45:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=G6Dd4fU8g9huNz1dWEdvWgTqiDe5ms3HW/qSB0NVe+o=;
+        b=n6elO3Bc5TGwgkMmuAUCBn8HnVWttDeVKtQ/p4HBROaTUeM2t2Ifit05G/UeGA4Rnb
+         G30etjPlPZIma6GcrS3wws2bB6GksuGqPO4mz9LZO4JAf/3td3MSD7X6RYuTT39aH2mN
+         Wl+lDZ+Cl4ch4i5/X1vtjPeqU8Vm8uXBpuBjlw7QSPaOoWr1gO9AwG4Dci1sOzhMYJTx
+         t29WYszrZSh58xBukibyYlRBThyKid2NOafVnZwvtAy50qaYUqnP2JNJAkMqdouX0qw3
+         d482eLLSHaKicRUi0lzZoeJx+COMl6HmffrYQj3OGAeFm1CRUjyK9JkmuLaAsTUTRATS
+         FgMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=G6Dd4fU8g9huNz1dWEdvWgTqiDe5ms3HW/qSB0NVe+o=;
+        b=5dquqITQjNe2iyvgarLxnCdZFTmvNnPrHF/+J6b8vzeOD8blcpFKHZGVcfIiT2VoBL
+         v/b+lfbZG7utvILY3F+ZBUUmz4qHOQhR1hz3Gd59mXU2r+kFMQ8Zp4sdF3AXokZBKvpG
+         7GuFLZM4GX+Y80utfL9WiGdHUJuONScnxoWClkZdRe3DFMjPt9AdwBzXkRt8eF+Vtn2K
+         lRdOYQUfJ7FFKegHeBluWLNrk7lpxHmPgDukO7TZB5KfmpTLi0Dd7oYulz0gHvMJVcE0
+         kABLIoj/ISvdLNzHajtf7JbH6Z970+t8GzN/sPf3bLWIxT6EeQojxyxmGVjqMjl7JiFg
+         ANzQ==
+X-Gm-Message-State: AOAM5314EQ4HljsRSG56QvAVWmSd3ifOmN6p8Z1Ta39xETGLUBKESJ1t
+        F+8NCA3lBtwe3sk3rzMzlmkEOuwSAg==
+X-Google-Smtp-Source: ABdhPJyH3tpl88+f2XkK4k1ciI2A73eGmsJKXEJRn0QYhDsbd6e22B49ve2+9vpoulRsr4pwImBw56/a4A==
+X-Received: from ava-linux2.mtv.corp.google.com ([2620:15c:211:200:628d:14b1:db70:715b])
+ (user=tkjos job=sendgmr) by 2002:a05:6214:1046:: with SMTP id
+ l6mr7013069qvr.6.1633056312784; Thu, 30 Sep 2021 19:45:12 -0700 (PDT)
+Date:   Thu, 30 Sep 2021 19:45:06 -0700
+Message-Id: <20211001024506.3762647-1-tkjos@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.33.0.800.g4c38ced690-goog
+Subject: [PATCH] binder: use cred instead of task for selinux checks
+From:   Todd Kjos <tkjos@google.com>
+To:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io, jmorris@namei.org,
+        serge@hallyn.com, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, jannh@google.com, jeffv@google.com,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org
+Cc:     joel@joelfernandes.org, kernel-team@android.com,
+        Todd Kjos <tkjos@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/30/2021 11:59 AM, Vivek Goyal wrote:
-> Right now security_dentry_init_security() only supports single security=
+Save the struct cred associated with a binder process
+at initial open to avoid potential race conditions
+when converting to a security ID.
 
-> label and is used by SELinux only. There are two users of of this hook,=
+Since binder was integrated with selinux, it has passed
+'struct task_struct' associated with the binder_proc
+to represent the source and target of transactions.
+The conversion of task to SID was then done in the hook
+implementations. It turns out that there are race conditions
+which can result in an incorrect security context being used.
 
-> namely ceph and nfs.
->
-> NFS does not care about xattr name. Ceph hardcodes the xattr name to
-> security.selinux (XATTR_NAME_SELINUX).
->
-> I am making changes to fuse/virtiofs to send security label to virtiofs=
-d
-> and I need to send xattr name as well. I also hardcoded the name of
-> xattr to security.selinux.
->
-> Stephen Smalley suggested that it probably is a good idea to modify
-> security_dentry_init_security() to also return name of xattr so that
-> we can avoid this hardcoding in the callers.
->
-> This patch adds a new parameter "const char **xattr_name" to
-> security_dentry_init_security() and LSM puts the name of xattr
-> too if caller asked for it (xattr_name !=3D NULL).
->
-> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Fix by saving the 'struct cred' during binder_open and pass
+it to the selinux subsystem.
 
-This is a reasonable step. It doesn't address the possibility
-of multiple security attributes, but that's not a real issue today.
-It will prevent ceph from using the wrong attribute should a
-security module other than SELinux provide a hook.
+Fixes: 79af73079d75 ("Add security hooks to binder and implement the
+hooks for SELinux.")
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Cc: stable@vger.kernel.org # 5.14 (need backport for earlier stables)
+---
+ drivers/android/binder.c          | 14 +++++----
+ drivers/android/binder_internal.h |  3 ++
+ include/linux/lsm_hook_defs.h     | 14 ++++-----
+ include/linux/security.h          | 28 +++++++++---------
+ security/security.c               | 14 ++++-----
+ security/selinux/hooks.c          | 48 +++++++++----------------------
+ 6 files changed, 52 insertions(+), 69 deletions(-)
 
-> ---
->
-> I have compile tested this patch. Don't know how to setup ceph and
-> test it. Its a very simple change. Hopefully ceph developers can
-> have a quick look at it.
->
-> A similar attempt was made three years back.
->
-> https://lore.kernel.org/linux-security-module/20180626080429.27304-1-zy=
-an@redhat.com/T/
-
-My, but I dislike reliving my old arguments.
-
-> ---
->  fs/ceph/xattr.c               |    3 +--
->  fs/nfs/nfs4proc.c             |    3 ++-
->  include/linux/lsm_hook_defs.h |    3 ++-
->  include/linux/lsm_hooks.h     |    1 +
->  include/linux/security.h      |    6 ++++--
->  security/security.c           |    7 ++++---
->  security/selinux/hooks.c      |    6 +++++-
->  7 files changed, 19 insertions(+), 10 deletions(-)
->
-> Index: redhat-linux/security/selinux/hooks.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/security/selinux/hooks.c	2021-09-28 11:36:03.5597=
-85943 -0400
-> +++ redhat-linux/security/selinux/hooks.c	2021-09-30 14:01:05.869195347=
- -0400
-> @@ -2948,7 +2948,8 @@ static void selinux_inode_free_security(
->  }
-> =20
->  static int selinux_dentry_init_security(struct dentry *dentry, int mod=
-e,
-> -					const struct qstr *name, void **ctx,
-> +					const struct qstr *name,
-> +					const char **xattr_name, void **ctx,
->  					u32 *ctxlen)
->  {
->  	u32 newsid;
-> @@ -2961,6 +2962,9 @@ static int selinux_dentry_init_security(
->  	if (rc)
->  		return rc;
-> =20
-> +	if (xattr_name)
-> +		*xattr_name =3D XATTR_NAME_SELINUX;
-> +
->  	return security_sid_to_context(&selinux_state, newsid, (char **)ctx,
->  				       ctxlen);
->  }
-> Index: redhat-linux/security/security.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/security/security.c	2021-08-16 10:39:28.518988836=
- -0400
-> +++ redhat-linux/security/security.c	2021-09-30 13:54:36.367195347 -040=
-0
-> @@ -1052,11 +1052,12 @@ void security_inode_free(struct inode *i
->  }
-> =20
->  int security_dentry_init_security(struct dentry *dentry, int mode,
-> -					const struct qstr *name, void **ctx,
-> -					u32 *ctxlen)
-> +				  const struct qstr *name,
-> +				  const char **xattr_name, void **ctx,
-> +				  u32 *ctxlen)
->  {
->  	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mode,=
-
-> -				name, ctx, ctxlen);
-> +				name, xattr_name, ctx, ctxlen);
->  }
->  EXPORT_SYMBOL(security_dentry_init_security);
-> =20
-> Index: redhat-linux/include/linux/lsm_hooks.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/include/linux/lsm_hooks.h	2021-06-02 10:20:27.717=
-485143 -0400
-> +++ redhat-linux/include/linux/lsm_hooks.h	2021-09-30 13:56:48.44019534=
-7 -0400
-> @@ -196,6 +196,7 @@
->   *	@dentry dentry to use in calculating the context.
->   *	@mode mode used to determine resource type.
->   *	@name name of the last path component used to create file
-> + *	@xattr_name pointer to place the pointer to security xattr name
->   *	@ctx pointer to place the pointer to the resulting context in.
->   *	@ctxlen point to place the length of the resulting context.
->   * @dentry_create_files_as:
-> Index: redhat-linux/include/linux/security.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/include/linux/security.h	2021-08-16 10:39:28.4849=
-88836 -0400
-> +++ redhat-linux/include/linux/security.h	2021-09-30 13:59:00.288195347=
- -0400
-> @@ -317,8 +317,9 @@ int security_add_mnt_opt(const char *opt
->  				int len, void **mnt_opts);
->  int security_move_mount(const struct path *from_path, const struct pat=
-h *to_path);
->  int security_dentry_init_security(struct dentry *dentry, int mode,
-> -					const struct qstr *name, void **ctx,
-> -					u32 *ctxlen);
-> +				  const struct qstr *name,
-> +				  const char **xattr_name, void **ctx,
-> +				  u32 *ctxlen);
->  int security_dentry_create_files_as(struct dentry *dentry, int mode,
->  					struct qstr *name,
->  					const struct cred *old,
-> @@ -739,6 +740,7 @@ static inline void security_inode_free(s
->  static inline int security_dentry_init_security(struct dentry *dentry,=
-
->  						 int mode,
->  						 const struct qstr *name,
-> +						 const char **xattr_name,
->  						 void **ctx,
->  						 u32 *ctxlen)
->  {
-> Index: redhat-linux/include/linux/lsm_hook_defs.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/include/linux/lsm_hook_defs.h	2021-07-07 11:54:59=
-=2E673549151 -0400
-> +++ redhat-linux/include/linux/lsm_hook_defs.h	2021-09-30 14:02:13.1141=
-95347 -0400
-> @@ -83,7 +83,8 @@ LSM_HOOK(int, 0, sb_add_mnt_opt, const c
->  LSM_HOOK(int, 0, move_mount, const struct path *from_path,
->  	 const struct path *to_path)
->  LSM_HOOK(int, 0, dentry_init_security, struct dentry *dentry,
-> -	 int mode, const struct qstr *name, void **ctx, u32 *ctxlen)
-> +	 int mode, const struct qstr *name, const char **xattr_name,
-> +	 void **ctx, u32 *ctxlen)
->  LSM_HOOK(int, 0, dentry_create_files_as, struct dentry *dentry, int mo=
-de,
->  	 struct qstr *name, const struct cred *old, struct cred *new)
-> =20
-> Index: redhat-linux/fs/nfs/nfs4proc.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/fs/nfs/nfs4proc.c	2021-07-14 14:47:42.732842926 -=
-0400
-> +++ redhat-linux/fs/nfs/nfs4proc.c	2021-09-30 14:06:02.249195347 -0400
-> @@ -127,7 +127,8 @@ nfs4_label_init_security(struct inode *d
->  		return NULL;
-> =20
->  	err =3D security_dentry_init_security(dentry, sattr->ia_mode,
-> -				&dentry->d_name, (void **)&label->label, &label->len);
-> +				&dentry->d_name, NULL,
-> +				(void **)&label->label, &label->len);
->  	if (err =3D=3D 0)
->  		return label;
-> =20
-> Index: redhat-linux/fs/ceph/xattr.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- redhat-linux.orig/fs/ceph/xattr.c	2021-09-09 13:05:21.800611264 -04=
-00
-> +++ redhat-linux/fs/ceph/xattr.c	2021-09-30 14:14:59.892195347 -0400
-> @@ -1311,7 +1311,7 @@ int ceph_security_init_secctx(struct den
->  	int err;
-> =20
->  	err =3D security_dentry_init_security(dentry, mode, &dentry->d_name,
-> -					    &as_ctx->sec_ctx,
-> +					    &name, &as_ctx->sec_ctx,
->  					    &as_ctx->sec_ctxlen);
->  	if (err < 0) {
->  		WARN_ON_ONCE(err !=3D -EOPNOTSUPP);
-> @@ -1335,7 +1335,6 @@ int ceph_security_init_secctx(struct den
->  	 * It only supports single security module and only selinux has
->  	 * dentry_init_security hook.
->  	 */
-> -	name =3D XATTR_NAME_SELINUX;
->  	name_len =3D strlen(name);
->  	err =3D ceph_pagelist_reserve(pagelist,
->  				    4 * 2 + name_len + as_ctx->sec_ctxlen);
->
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 9edacc8b9768..ca599ebdea4a 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2056,7 +2056,7 @@ static int binder_translate_binder(struct flat_binder_object *fp,
+ 		ret = -EINVAL;
+ 		goto done;
+ 	}
+-	if (security_binder_transfer_binder(proc->tsk, target_proc->tsk)) {
++	if (security_binder_transfer_binder(proc->cred, target_proc->cred)) {
+ 		ret = -EPERM;
+ 		goto done;
+ 	}
+@@ -2102,7 +2102,7 @@ static int binder_translate_handle(struct flat_binder_object *fp,
+ 				  proc->pid, thread->pid, fp->handle);
+ 		return -EINVAL;
+ 	}
+-	if (security_binder_transfer_binder(proc->tsk, target_proc->tsk)) {
++	if (security_binder_transfer_binder(proc->cred, target_proc->cred)) {
+ 		ret = -EPERM;
+ 		goto done;
+ 	}
+@@ -2190,7 +2190,7 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset,
+ 		ret = -EBADF;
+ 		goto err_fget;
+ 	}
+-	ret = security_binder_transfer_file(proc->tsk, target_proc->tsk, file);
++	ret = security_binder_transfer_file(proc->cred, target_proc->cred, file);
+ 	if (ret < 0) {
+ 		ret = -EPERM;
+ 		goto err_security;
+@@ -2595,8 +2595,8 @@ static void binder_transaction(struct binder_proc *proc,
+ 			return_error_line = __LINE__;
+ 			goto err_invalid_target_handle;
+ 		}
+-		if (security_binder_transaction(proc->tsk,
+-						target_proc->tsk) < 0) {
++		if (security_binder_transaction(proc->cred,
++						target_proc->cred) < 0) {
+ 			return_error = BR_FAILED_REPLY;
+ 			return_error_param = -EPERM;
+ 			return_error_line = __LINE__;
+@@ -4353,6 +4353,7 @@ static void binder_free_proc(struct binder_proc *proc)
+ 	}
+ 	binder_alloc_deferred_release(&proc->alloc);
+ 	put_task_struct(proc->tsk);
++	put_cred(proc->cred);
+ 	binder_stats_deleted(BINDER_STAT_PROC);
+ 	kfree(proc);
+ }
+@@ -4564,7 +4565,7 @@ static int binder_ioctl_set_ctx_mgr(struct file *filp,
+ 		ret = -EBUSY;
+ 		goto out;
+ 	}
+-	ret = security_binder_set_context_mgr(proc->tsk);
++	ret = security_binder_set_context_mgr(proc->cred);
+ 	if (ret < 0)
+ 		goto out;
+ 	if (uid_valid(context->binder_context_mgr_uid)) {
+@@ -5055,6 +5056,7 @@ static int binder_open(struct inode *nodp, struct file *filp)
+ 	spin_lock_init(&proc->outer_lock);
+ 	get_task_struct(current->group_leader);
+ 	proc->tsk = current->group_leader;
++	proc->cred = get_cred(filp->f_cred);
+ 	INIT_LIST_HEAD(&proc->todo);
+ 	init_waitqueue_head(&proc->freeze_wait);
+ 	proc->default_priority = task_nice(current);
+diff --git a/drivers/android/binder_internal.h b/drivers/android/binder_internal.h
+index 402c4d4362a8..886fc327a534 100644
+--- a/drivers/android/binder_internal.h
++++ b/drivers/android/binder_internal.h
+@@ -364,6 +364,8 @@ struct binder_ref {
+  *                        (invariant after initialized)
+  * @tsk                   task_struct for group_leader of process
+  *                        (invariant after initialized)
++ * @cred                  struct cred for group_leader of process
++ *                        (invariant after initialized)
+  * @deferred_work_node:   element for binder_deferred_list
+  *                        (protected by binder_deferred_lock)
+  * @deferred_work:        bitmap of deferred work to perform
+@@ -426,6 +428,7 @@ struct binder_proc {
+ 	struct list_head waiting_threads;
+ 	int pid;
+ 	struct task_struct *tsk;
++	const struct cred *cred;
+ 	struct hlist_node deferred_work_node;
+ 	int deferred_work;
+ 	int outstanding_txns;
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 2adeea44c0d5..61590c1f2d33 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -26,13 +26,13 @@
+  *   #undef LSM_HOOK
+  * };
+  */
+-LSM_HOOK(int, 0, binder_set_context_mgr, struct task_struct *mgr)
+-LSM_HOOK(int, 0, binder_transaction, struct task_struct *from,
+-	 struct task_struct *to)
+-LSM_HOOK(int, 0, binder_transfer_binder, struct task_struct *from,
+-	 struct task_struct *to)
+-LSM_HOOK(int, 0, binder_transfer_file, struct task_struct *from,
+-	 struct task_struct *to, struct file *file)
++LSM_HOOK(int, 0, binder_set_context_mgr, const struct cred *mgr)
++LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
++	 const struct cred *to)
++LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
++	 const struct cred *to)
++LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
++	 const struct cred *to, struct file *file)
+ LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
+ 	 unsigned int mode)
+ LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 5b7288521300..6344d3362df7 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -258,13 +258,13 @@ extern int security_init(void);
+ extern int early_security_init(void);
+ 
+ /* Security operations */
+-int security_binder_set_context_mgr(struct task_struct *mgr);
+-int security_binder_transaction(struct task_struct *from,
+-				struct task_struct *to);
+-int security_binder_transfer_binder(struct task_struct *from,
+-				    struct task_struct *to);
+-int security_binder_transfer_file(struct task_struct *from,
+-				  struct task_struct *to, struct file *file);
++int security_binder_set_context_mgr(const struct cred *mgr);
++int security_binder_transaction(const struct cred *from,
++				const struct cred *to);
++int security_binder_transfer_binder(const struct cred *from,
++				    const struct cred *to);
++int security_binder_transfer_file(const struct cred *from,
++				  const struct cred *to, struct file *file);
+ int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
+ int security_ptrace_traceme(struct task_struct *parent);
+ int security_capget(struct task_struct *target,
+@@ -508,25 +508,25 @@ static inline int early_security_init(void)
+ 	return 0;
+ }
+ 
+-static inline int security_binder_set_context_mgr(struct task_struct *mgr)
++static inline int security_binder_set_context_mgr(const struct cred *mgr)
+ {
+ 	return 0;
+ }
+ 
+-static inline int security_binder_transaction(struct task_struct *from,
+-					      struct task_struct *to)
++static inline int security_binder_transaction(const struct cred *from,
++					      const struct cred *to)
+ {
+ 	return 0;
+ }
+ 
+-static inline int security_binder_transfer_binder(struct task_struct *from,
+-						  struct task_struct *to)
++static inline int security_binder_transfer_binder(const struct cred *from,
++						  const struct cred *to)
+ {
+ 	return 0;
+ }
+ 
+-static inline int security_binder_transfer_file(struct task_struct *from,
+-						struct task_struct *to,
++static inline int security_binder_transfer_file(const struct cred *from,
++						const struct cred *to,
+ 						struct file *file)
+ {
+ 	return 0;
+diff --git a/security/security.c b/security/security.c
+index 9ffa9e9c5c55..67264cb08fb3 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -747,25 +747,25 @@ static int lsm_superblock_alloc(struct super_block *sb)
+ 
+ /* Security operations */
+ 
+-int security_binder_set_context_mgr(struct task_struct *mgr)
++int security_binder_set_context_mgr(const struct cred *mgr)
+ {
+ 	return call_int_hook(binder_set_context_mgr, 0, mgr);
+ }
+ 
+-int security_binder_transaction(struct task_struct *from,
+-				struct task_struct *to)
++int security_binder_transaction(const struct cred *from,
++				const struct cred *to)
+ {
+ 	return call_int_hook(binder_transaction, 0, from, to);
+ }
+ 
+-int security_binder_transfer_binder(struct task_struct *from,
+-				    struct task_struct *to)
++int security_binder_transfer_binder(const struct cred *from,
++				    const struct cred *to)
+ {
+ 	return call_int_hook(binder_transfer_binder, 0, from, to);
+ }
+ 
+-int security_binder_transfer_file(struct task_struct *from,
+-				  struct task_struct *to, struct file *file)
++int security_binder_transfer_file(const struct cred *from,
++				  const struct cred *to, struct file *file)
+ {
+ 	return call_int_hook(binder_transfer_file, 0, from, to, file);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e7ebd45ca345..c8bf3db90c8b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -255,29 +255,6 @@ static inline u32 task_sid_obj(const struct task_struct *task)
+ 	return sid;
+ }
+ 
+-/*
+- * get the security ID of a task for use with binder
+- */
+-static inline u32 task_sid_binder(const struct task_struct *task)
+-{
+-	/*
+-	 * In many case where this function is used we should be using the
+-	 * task's subjective SID, but we can't reliably access the subjective
+-	 * creds of a task other than our own so we must use the objective
+-	 * creds/SID, which are safe to access.  The downside is that if a task
+-	 * is temporarily overriding it's creds it will not be reflected here;
+-	 * however, it isn't clear that binder would handle that case well
+-	 * anyway.
+-	 *
+-	 * If this ever changes and we can safely reference the subjective
+-	 * creds/SID of another task, this function will make it easier to
+-	 * identify the various places where we make use of the task SIDs in
+-	 * the binder code.  It is also likely that we will need to adjust
+-	 * the main drivers/android binder code as well.
+-	 */
+-	return task_sid_obj(task);
+-}
+-
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
+ 
+ /*
+@@ -2066,18 +2043,19 @@ static inline u32 open_file_to_av(struct file *file)
+ 
+ /* Hook functions begin here. */
+ 
+-static int selinux_binder_set_context_mgr(struct task_struct *mgr)
++static int selinux_binder_set_context_mgr(const struct cred *mgr)
+ {
+ 	return avc_has_perm(&selinux_state,
+-			    current_sid(), task_sid_binder(mgr), SECCLASS_BINDER,
++			    current_sid(), cred_sid(mgr), SECCLASS_BINDER,
+ 			    BINDER__SET_CONTEXT_MGR, NULL);
+ }
+ 
+-static int selinux_binder_transaction(struct task_struct *from,
+-				      struct task_struct *to)
++static int selinux_binder_transaction(const struct cred *from,
++				      const struct cred *to)
+ {
+ 	u32 mysid = current_sid();
+-	u32 fromsid = task_sid_binder(from);
++	u32 fromsid = cred_sid(from);
++	u32 tosid = cred_sid(to);
+ 	int rc;
+ 
+ 	if (mysid != fromsid) {
+@@ -2088,24 +2066,24 @@ static int selinux_binder_transaction(struct task_struct *from,
+ 			return rc;
+ 	}
+ 
+-	return avc_has_perm(&selinux_state, fromsid, task_sid_binder(to),
++	return avc_has_perm(&selinux_state, fromsid, tosid,
+ 			    SECCLASS_BINDER, BINDER__CALL, NULL);
+ }
+ 
+-static int selinux_binder_transfer_binder(struct task_struct *from,
+-					  struct task_struct *to)
++static int selinux_binder_transfer_binder(const struct cred *from,
++					  const struct cred *to)
+ {
+ 	return avc_has_perm(&selinux_state,
+-			    task_sid_binder(from), task_sid_binder(to),
++			    cred_sid(from), cred_sid(to),
+ 			    SECCLASS_BINDER, BINDER__TRANSFER,
+ 			    NULL);
+ }
+ 
+-static int selinux_binder_transfer_file(struct task_struct *from,
+-					struct task_struct *to,
++static int selinux_binder_transfer_file(const struct cred *from,
++					const struct cred *to,
+ 					struct file *file)
+ {
+-	u32 sid = task_sid_binder(to);
++	u32 sid = cred_sid(to);
+ 	struct file_security_struct *fsec = selinux_file(file);
+ 	struct dentry *dentry = file->f_path.dentry;
+ 	struct inode_security_struct *isec;
+-- 
+2.33.0.800.g4c38ced690-goog
 
