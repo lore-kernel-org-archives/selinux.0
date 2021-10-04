@@ -2,123 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A9AC433EF
-	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 13:56:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8695FC433F5
+	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 13:57:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E2BE860F6C
-	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 13:56:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6AA1060F4F
+	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 13:57:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235717AbhJDN60 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Oct 2021 09:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40322 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238752AbhJDN6K (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Oct 2021 09:58:10 -0400
-Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BD0C061363
-        for <selinux@vger.kernel.org>; Mon,  4 Oct 2021 06:52:58 -0700 (PDT)
-Received: by mail-ot1-x331.google.com with SMTP id c26-20020a056830349a00b0054d96d25c1eso21550817otu.9
-        for <selinux@vger.kernel.org>; Mon, 04 Oct 2021 06:52:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3dSUp9r5XDGMqXPtIio+X0gdA8JX/ybxrc0IeZcY+8Y=;
-        b=T3WcGaQ19rpH6N+76Gd3ECmvLLTEMOTqnLtja/AF9ekN4V09g+7ULroVS++h/LRILa
-         95j8eupVzpwfsLoNE5Jj/o9uStgWuZov3MAfgOWDeGYrPQwYRCfqF3UZdoEiyUA49Toz
-         NaDzq2LcmEaIG0rguO2aZ/H2YlK2XtCUQUxuHt6b1pBsUKsD11KpWqfWRFUhhssBHOdg
-         c+7OUeUr554OBrxTFrbBcq1s3aY2w0lO4P+ifndto5DrWGlVu574HPV7+KybzdaOjE1P
-         MsMmFHFMqVHZtgMHPvGAvWeK49J1yn8xjjeCqmmDTqBcRujLH/6kfbFVHStVZPQvWFOE
-         rfMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3dSUp9r5XDGMqXPtIio+X0gdA8JX/ybxrc0IeZcY+8Y=;
-        b=wiblLXS45s9u84KBjXrgZD5qom/aLZuoiq5T+04oZlsCvZpEw5mcXr8EE+oPIawgR3
-         Ltvum52tR4RHRvyJIz5VCqM2xB0cvODd+q631u2YBFYjQsT41sbS4MZ8G3rnqH8JodG4
-         iphLCV0tq9XKbUD0GkimJSUXiyrU6qiGOTi8Vc4NS0xB4onARgmdhlxy4aUPlXx+jIMX
-         kwI4xvkzQ4pVfi1R09IYNCFDk0WnK/78gTSrJlXayrr7qoTSwipOKKryHMEoM4I5uIuN
-         vVFIHultKplOPhuSZeXASvRDeFkJzHB1jt9tMFPznZR907VzgXQyrtqzH/ukR6B772WT
-         XUcw==
-X-Gm-Message-State: AOAM531q04xx3tNNLCtStiEq8UzrbdeqIJtmHLw9vy4wJJNEi2daGJCM
-        jlwoV7Mssf0xLAyU+vxI8ycUZwXUaF6v06TXhWU=
-X-Google-Smtp-Source: ABdhPJxgT6FI4DqtECu0W/cdZGqTWINtUeWLyejSlkd7RbSQPB0VrSMJM1cFJXq0Zm+jnhYHazHkvP9Dy9Knk76pZdA=
-X-Received: by 2002:a9d:5f85:: with SMTP id g5mr9532406oti.139.1633355577502;
- Mon, 04 Oct 2021 06:52:57 -0700 (PDT)
+        id S238659AbhJDN7F (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Oct 2021 09:59:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49398 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238525AbhJDN7B (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Oct 2021 09:59:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633355832;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/iyWzaXPA7uZntCBGk8rDAII8rV1j7qwLPsi35Cy0yI=;
+        b=Opal2cqg+f7uYugEjlBIN6Uby8XOj4TegTuUe9nGC9+k1bxffW2OEVKFlhiy3w/nBGt3Mu
+        UNz8jizla2wT7gVBtMCSIpi3yw5NS22u/mjoIXbYzZtwufKq8newFNl81r3oeVDoupmw91
+        1kY5fJ6dLLHzI1BvarvIds3NxhtjL7w=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-337-4dTg2-56MCCYRBfQHq4Qig-1; Mon, 04 Oct 2021 09:57:10 -0400
+X-MC-Unique: 4dTg2-56MCCYRBfQHq4Qig-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 45AAF9F92A;
+        Mon,  4 Oct 2021 13:57:08 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.17.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C17D560C17;
+        Mon,  4 Oct 2021 13:57:00 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 0C074220BDB; Mon,  4 Oct 2021 09:57:00 -0400 (EDT)
+Date:   Mon, 4 Oct 2021 09:56:59 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+        casey@schaufler-ca.com, Miklos Szeredi <miklos@szeredi.hu>,
+        Daniel J Walsh <dwalsh@redhat.com>, jlayton@kernel.org,
+        idryomov@gmail.com, ceph-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, bfields@fieldses.org,
+        chuck.lever@oracle.com, stephen.smalley.work@gmail.com
+Subject: Re: [PATCH] security: Return xattr name from
+ security_dentry_init_security()
+Message-ID: <YVsIK/I1/Wm7sela@redhat.com>
+References: <YVYI/p1ipDFiQ5OR@redhat.com>
+ <YVigrS1Bc8J8bO1Y@zeniv-ca.linux.org.uk>
 MIME-Version: 1.0
-References: <20210927080634.4668-1-nicolas.iooss@m4x.org> <CAFqZXNucwVdeRf5hsjGraMRL060ninZOp=QbKWS=vofSBzmQLg@mail.gmail.com>
-In-Reply-To: <CAFqZXNucwVdeRf5hsjGraMRL060ninZOp=QbKWS=vofSBzmQLg@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 4 Oct 2021 09:52:46 -0400
-Message-ID: <CAP+JOzQjWBiFQk8Ajw=qQx01jUetabYM8PTMrVcDWK4rcuqb0g@mail.gmail.com>
-Subject: Re: [PATCH userspace] GitHub Actions: do not use macOS latest runner
- for now
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YVigrS1Bc8J8bO1Y@zeniv-ca.linux.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 5:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Mon, Sep 27, 2021 at 10:06 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > GitHub is currently migrating its macos-latest runner to macOS 11:
-> > https://github.com/actions/virtual-environments/issues/4060
-> >
-> > Unfortunately, installing VirtualBox and Vagrant on this new version of
-> > macOS is not easy, and the current macos-11 runner does not support
-> > running virtual machines using Vagrant. This issue is being fixed on
-> > https://github.com/actions/virtual-environments/pull/4010 .
-> >
-> > Until this Pull Request is merged, use macos-10.15 runner instead of
-> > macos-latest, to continue using Vagrant to run the SELinux testsuite in
-> > a virtual machine.
-> >
-> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-> It seems to me there is a decent chance that the PR will be merged
-> before the migration takes effect, but I guess it's better to be safe
-> than sorry :)
->
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
->
+On Sat, Oct 02, 2021 at 06:10:53PM +0000, Al Viro wrote:
+> On Thu, Sep 30, 2021 at 02:59:10PM -0400, Vivek Goyal wrote:
+> > Right now security_dentry_init_security() only supports single security
+> > label and is used by SELinux only. There are two users of of this hook,
+> > namely ceph and nfs.
+> > 
+> > NFS does not care about xattr name. Ceph hardcodes the xattr name to
+> > security.selinux (XATTR_NAME_SELINUX).
+> > 
+> > I am making changes to fuse/virtiofs to send security label to virtiofsd
+> > and I need to send xattr name as well. I also hardcoded the name of
+> > xattr to security.selinux.
+> > 
+> > Stephen Smalley suggested that it probably is a good idea to modify
+> > security_dentry_init_security() to also return name of xattr so that
+> > we can avoid this hardcoding in the callers.
+> > 
+> > This patch adds a new parameter "const char **xattr_name" to
+> > security_dentry_init_security() and LSM puts the name of xattr
+> > too if caller asked for it (xattr_name != NULL).
+> 
+> Umm...  Why not return the damn thing on success and ERR_PTR(-E...)
+> on failure, instead of breeding extra arguments?
 
-This patch has been merged.
-Thanks,
-Jim
+Because of the way generic security hook infrastructure is written. There
+seem to be only two kind of hooks. Either they return "int" or "void".
+And this assumption is built into other helper functions. For example
+call_int_hook() and call_void_hook().
 
-> > ---
-> >
-> > For information, I tested this patch on
-> > https://github.com/fishilico/selinux/actions/runs/1273275936
-> >
-> >  .github/workflows/vm_testsuite.yml | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/.github/workflows/vm_testsuite.yml b/.github/workflows/vm_testsuite.yml
-> > index af2fad1e73f5..601276ddcf50 100644
-> > --- a/.github/workflows/vm_testsuite.yml
-> > +++ b/.github/workflows/vm_testsuite.yml
-> > @@ -6,7 +6,8 @@ jobs:
-> >    vm_testsuite:
-> >
-> >      # Use VirtualBox+vagrant on macOS, as described in https://github.com/actions/virtual-environments/issues/433
-> > -    runs-on: macos-latest
-> > +    # Use an old version of macOS until https://github.com/actions/virtual-environments/pull/4010 is merged.
-> > +    runs-on: macos-10.15
-> >
-> >      steps:
-> >      - uses: actions/checkout@v2
-> > --
-> > 2.32.0
-> >
->
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
->
+So I think it much easier to just add additional parameter and stick
+to existing convention of returning an "int", instead of trying to
+return a "const char *".
+
+Thanks
+Vivek
+
