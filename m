@@ -2,176 +2,171 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BD00C433F5
-	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 22:13:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29587C433F5
+	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 22:29:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03F596136F
-	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 22:13:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A62E61058
+	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 22:29:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234894AbhJDWPa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Oct 2021 18:15:30 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:59693 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbhJDWPa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Oct 2021 18:15:30 -0400
-Received: from mail-il1-f180.google.com (mail-il1-f180.google.com [209.85.166.180])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 1B94B5605CA
-        for <selinux@vger.kernel.org>; Tue,  5 Oct 2021 00:13:39 +0200 (CEST)
-Received: by mail-il1-f180.google.com with SMTP id b6so19957956ilv.0
-        for <selinux@vger.kernel.org>; Mon, 04 Oct 2021 15:13:39 -0700 (PDT)
-X-Gm-Message-State: AOAM531zhNAmmajEjOjvudhCHf3s7V/ZdbsIYUKByuh0JnO+HyquFX19
-        dBVDGy/ibj4PcjdI6K4vI1sm7U/mwnpy4c0Baq0=
-X-Google-Smtp-Source: ABdhPJyl2coe1xrsEFbUTV+RXza0rV+HIVC+k/1/w+lKpk04IaDr2yc3r1PLpf+A8AsHRY+M4juvCZdXA4K8hpjhYBc=
-X-Received: by 2002:a05:6e02:1aa5:: with SMTP id l5mr343006ilv.73.1633385618160;
- Mon, 04 Oct 2021 15:13:38 -0700 (PDT)
+        id S235490AbhJDWbQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Oct 2021 18:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49838 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235550AbhJDWbP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Oct 2021 18:31:15 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482E4C061745
+        for <selinux@vger.kernel.org>; Mon,  4 Oct 2021 15:29:25 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id x27so77964137lfu.5
+        for <selinux@vger.kernel.org>; Mon, 04 Oct 2021 15:29:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=um4Fcr2fRzJCbuqb6umRyrAwaJXGfwl9VTVZmIntFmY=;
+        b=azmyGfTEmdbEJHm+SlhRjjeQax/I1DRRaIkHgTN4T7Jcza4Q0DN4yXcxnjzsUyiSIO
+         wesrHq+r64z1z1P6Ck+CGOVWAIhXFEk/k5e/E2RvXZi+fUhkoeZRV9ifX8bxLC30LI7a
+         yey+Enhe6gT/eAg03pHu9jiX6/WexDBqOn0KFD9sNQXxoS8I+Zcd93ndmcs+opzvMtOt
+         67065Q6A2selnkErXNaPY46ULEyJevFiohL8dCMnW1syunxS+Q3JyZ7XYBR6yGcxHzO9
+         G2tGr+dHvGy4+QQoXusqgtaIGAlPdnfbpq2MR3df2xhvmf2DSSibzNom38jGEHLBKcgt
+         UmWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=um4Fcr2fRzJCbuqb6umRyrAwaJXGfwl9VTVZmIntFmY=;
+        b=tene/ntIJO25CEKHtuQlgZuZiy8vpsv8HJEpoDgWMKIcU115BPNFWWe0hEz7LG2Coz
+         pN9Ejz4QvP58N6iw4kGFU8wXh7ryJuJH4UyIaYu8Bwpz5B3C0S9kJ6yCwNpTJpriBG5/
+         J84t/urCk0YhCFKwj5vx+yZmnit4lhQx5s00EkwukWjk89r8uRoDlfVm6gvQzNFr++0O
+         6z6cSQ/e4g2QJcFVu3eMB4bAU5bk9GyfsJA9bRV0/qMgIEOeedEWgBrQXT3Hc69uyr7i
+         FDw0SgABrdBCs80Nf5omnHWiR9nhkerVZFteDDofujmE3K9OcQc8LcRMuZ0dcEdpxVpa
+         zSbQ==
+X-Gm-Message-State: AOAM531zeP369kZxMR7V5JgU87S4TeAf8AhA0osyjxKT4AFQWXvLO3o2
+        +uyw55dYav91xVFOV2hyO0WI5dqmvPrx2I08nhH9qg==
+X-Google-Smtp-Source: ABdhPJykxc+U57C0bYOepxwQRGK6sUfG/2fmg1ryrkmQhSafCwiTubKiNfdXkMC9JaMoYBco6qzyBu7W+0Rrjgm8A2U=
+X-Received: by 2002:ac2:4f92:: with SMTP id z18mr16805817lfs.354.1633386563407;
+ Mon, 04 Oct 2021 15:29:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210928175521.79432-1-jwcart2@gmail.com>
-In-Reply-To: <20210928175521.79432-1-jwcart2@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 5 Oct 2021 00:13:26 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=kLPLT=jsqL7rMFEP=+LW6jHX_5icxjFp9u9j5h0qyDpg@mail.gmail.com>
-Message-ID: <CAJfZ7=kLPLT=jsqL7rMFEP=+LW6jHX_5icxjFp9u9j5h0qyDpg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Limit the amount of reporting for bounds failures
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20211001175521.3853257-1-tkjos@google.com> <c6a650e4-15e4-2943-f759-0e9577784c7a@schaufler-ca.com>
+ <CAG48ez2tejBUXJGf0R9qpEiauL9-ABgkds6mZTQD7sZKLMdAAQ@mail.gmail.com>
+ <CAG48ez1SRau1Tnge5HVqxCFsNCizmnQLErqnC=eSeERv8jg-zQ@mail.gmail.com>
+ <f59c6e9f-2892-32da-62f8-8bbeec18ee4c@schaufler-ca.com> <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
+ <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com>
+In-Reply-To: <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Tue, 5 Oct 2021 00:28:57 +0200
+Message-ID: <CAG48ez3qc+2sc6xTJQVqLTRcjCiw_Adx13KT3OvPMCjBLjZvgA@mail.gmail.com>
+Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Todd Kjos <tkjos@google.com>, gregkh@linuxfoundation.org,
+        arve@android.com, tkjos@android.com, maco@android.com,
+        christian@brauner.io, jmorris@namei.org, serge@hallyn.com,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, keescook@chromium.org, jeffv@google.com,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
+        kernel-team@android.com, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Oct  5 00:13:39 2021 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 28, 2021 at 7:55 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, Oct 4, 2021 at 6:19 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 10/1/2021 3:58 PM, Jann Horn wrote:
+> > On Fri, Oct 1, 2021 at 10:10 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >> On 10/1/2021 12:50 PM, Jann Horn wrote:
+> >>> On Fri, Oct 1, 2021 at 9:36 PM Jann Horn <jannh@google.com> wrote:
+> >>>> On Fri, Oct 1, 2021 at 8:46 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >>>>> On 10/1/2021 10:55 AM, Todd Kjos wrote:
+> >>>>>> Save the struct cred associated with a binder process
+> >>>>>> at initial open to avoid potential race conditions
+> >>>>>> when converting to a security ID.
+> >>>>>>
+> >>>>>> Since binder was integrated with selinux, it has passed
+> >>>>>> 'struct task_struct' associated with the binder_proc
+> >>>>>> to represent the source and target of transactions.
+> >>>>>> The conversion of task to SID was then done in the hook
+> >>>>>> implementations. It turns out that there are race conditions
+> >>>>>> which can result in an incorrect security context being used.
+> >>>>> In the LSM stacking patch set I've been posting for a while
+> >>>>> (on version 29 now) I use information from the task structure
+> >>>>> to ensure that the security information passed via the binder
+> >>>>> interface is agreeable to both sides. Passing the cred will
+> >>>>> make it impossible to do this check. The task information
+> >>>>> required is not appropriate to have in the cred.
+> >>>> Why not? Why can't you put the security identity of the task into the creds?
+> >>> Ah, I get it now, you're concerned about different processes wanting
+> >>> to see security contexts formatted differently (e.g. printing the
+> >>> SELinux label vs printing the AppArmor label), right?
+> >> That is correct.
+> >>
+> >>> But still, I don't think you can pull that information from the
+> >>> receiving task. Maybe the easiest solution would be to also store that
+> >>> in the creds? Or you'd have to manually grab that information when
+> >>> /dev/binder is opened.
+> >> I'm storing the information in the task security blob because that's
+> >> the appropriate scope. Today the LSM hook is given both task_struct's.
+> > Which is wrong, because you have no idea who the semantic "recipient
+> > task" is - any task that has a mapping of the binder fd can
+> > effectively receive transactions from it.
+> >
+> > (And the current "sender task" is also wrong, because binder looks at
+> > the task that opened the binder device, not the task currently
+> > performing the action.)
 >
-> Type bounds are checked when creating the CIL binary using libsepol
-> functions on the binary policy db. The bad rule is reported and, to
-> provide better error reporting, a search is made for matching rules
-> in the CIL policy. These matching rules as well as their parents are
-> written out with their locations to make it easier to find the rules
-> that violate the type bounds.
->
-> It is possible to craft CIL policies where there are many rules
-> that violate a bounds check each with many matching rules as well.
-> This can make the error messages very difficult to deal with. For
-> example, if there are 100 rules in the binary policy db that violate
-> a type bounds and each of these rules has 100 matches, then 10,000
-> matching rules along with their parents will be written out as part
-> of the error message.
->
-> Limit the error reporting to two rules for each type bounds violation
-> along with two matches for each of those rules.
->
-> This problem was found with the secilc-fuzzer.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> I'm confused. Are you saying that the existing binder code is
+> completely broken? Are you saying that neither "task" is correct?
 
-Hello,
-I confirm this fixes the issue reported in
-https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=36246&q=selinux&can=2
-which can be reproduced with this CIL policy:
+Yeah, basically - but luckily the actual impact this has is limited by
+the transitions that SELinux permits. If domain1 has no way to
+transition to domain2, then it can't abuse this bug to pretend to be
+domain2. I do have a reproducer that lets Android's "shell" domain
+send a binder transaction that appears to come from "runas", but
+luckily "runas" has no interesting privileges with regards to binder,
+so that's not exploitable.
 
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-(category CAT)
-(categoryorder (CAT))
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (CAT))
-(allow TYPE self (CLASS (PERM)))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (CAT))))
-(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-(boolean BOOL false)
-(type TYPE_2)
-(typeattribute TYPEATTR)
-(block B0
-(blockinherit B1)(block B1
-(blockinherit B2)(block B2
-(blockinherit B3)(block B3
-(blockinherit B4)(block B4
-(blockinherit B5)(block B5
-(blockinherit B6)(block B6
-(blockinherit B7)(block B7
-(type TYPE_3)
-(typebounds TYPE_2 TYPE_3)
-(typeattributeset TYPEATTR TYPE_3)
-(booleanif BOOL(true(allow TYPEATTR TYPE (CLASS (PERM)))))
-))))))))
+> How does passing the creds from the wrong tasks "fix" the problem?
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+This patch is not passing the creds from the "wrong" tasks at all. It
+relies on the basic idea that when a security context opens a
+resource, and then hands that resource to another context for
+read/write operations, then you can effectively treat this as a
+delegation of privileges from the original opener, and perform access
+checks against the credentials using which the resource was opened.
 
-By the way, even though the patch looks good to me, my personal
-preference would have been to use "unsigned int" types (or size_t) to
-count rules, instead of signed int.
+In particular, we already have those semantics in the core kernel for
+->read() and ->write() VFS operations - they are *not allowed* to look
+at the credentials of the caller, and if they want to make security
+checks, they have to instead check against file->f_cred, which are the
+credentials using which the file was originally opened. (Yes, some
+places still get that wrong.) Passing a file descriptor to another
+task is a delegation of access, and the other task can then call
+syscalls like read() / write() / mmap() on the file descriptor without
+needing to have any access to the underlying file.
 
-Thanks,
-Nicolas
+You can't really attribute binder transactions to specific tasks that
+are actually involved in the specific transaction, neither on the
+sending side nor on the receiving side, because binder is built around
+passing data through memory mappings. Memory mappings can be accessed
+by multiple tasks, and even a task that does not currently have it
+mapped could e.g. map it at a later time. And on top of that you have
+the problem that the receiving task might also go through privileged
+execve() transitions.
 
-> ---
->  libsepol/cil/src/cil_binary.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
+> >> It's easy to compare to make sure the tasks are compatible.
+> > It would be, if you actually had a pair of tasks that accurately
+> > represent the sender and the recipient.
+> >
+> >> Adding the
+> >> information to the cred would be yet another case where the scope of
+> >> security information is wrong.
+> > Can you elaborate on why you think that?
 >
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index 4a80cb56..ec5f01e5 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -4825,6 +4825,7 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
->                         avtab_ptr_t cur;
->                         struct cil_avrule target;
->                         struct cil_tree_node *n1 = NULL;
-> +                       int count_bad = 0;
->
->                         *violation = CIL_TRUE;
->
-> @@ -4838,6 +4839,8 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
->                         for (cur = bad; cur; cur = cur->next) {
->                                 struct cil_list_item *i2;
->                                 struct cil_list *matching;
-> +                               int num_matching = 0;
-> +                               int count_matching = 0;
->
->                                 rc = cil_avrule_from_sepol(pdb, cur, &target, type_value_to_cil, class_value_to_cil, perm_value_to_cil);
->                                 if (rc != SEPOL_OK) {
-> @@ -4855,6 +4858,9 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
->                                         bounds_destroy_bad(bad);
->                                         goto exit;
->                                 }
-> +                               cil_list_for_each(i2, matching) {
-> +                                       num_matching++;
-> +                               }
->                                 cil_list_for_each(i2, matching) {
->                                         struct cil_tree_node *n2 = i2->data;
->                                         struct cil_avrule *r2 = n2->data;
-> @@ -4865,9 +4871,19 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
->                                                 __cil_print_parents("    ", n2);
->                                                 __cil_print_rule("      ", "allow", r2);
->                                         }
-> +                                       count_matching++;
-> +                                       if (count_matching >= 2) {
-> +                                               cil_log(CIL_ERR, "    Only first 2 of %d matching rules shown\n", num_matching);
-> +                                               break;
-> +                                       }
->                                 }
->                                 cil_list_destroy(&matching, CIL_FALSE);
->                                 cil_list_destroy(&target.perms.classperms, CIL_TRUE);
-> +                               count_bad++;
-> +                               if (count_bad >= 2) {
-> +                                       cil_log(CIL_ERR, "  Only first 2 of %d bad rules shown\n", numbad);
-> +                                       break;
-> +                               }
->                         }
->                         bounds_destroy_bad(bad);
->                 }
-> --
-> 2.31.1
->
+> The information identifies how the task is going to display
+> the security "context". It isn't used in access checks.
 
+But it is data that AFAICS needs to be preserved in the same places
+where the creds need to be preserved, and it is also related to
+security labels, so isn't "struct cred" a logical place to stuff it
+anyway?
