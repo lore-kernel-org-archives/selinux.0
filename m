@@ -2,82 +2,81 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EDB3C433F5
-	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 16:19:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58536C4332F
+	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 16:39:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 102D961206
-	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 16:19:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41EDD6137D
+	for <selinux@archiver.kernel.org>; Mon,  4 Oct 2021 16:39:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234590AbhJDQU7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Oct 2021 12:20:59 -0400
-Received: from sonic307-15.consmr.mail.ne1.yahoo.com ([66.163.190.38]:35389
-        "EHLO sonic307-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236614AbhJDQU5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Oct 2021 12:20:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1633364348; bh=mY7WN61pldcW5w9M+Qq0QbpFbxJpAORC0hm78GtixUY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=awzUlRwuRvU8ZaC+IxNKjo2uaT9qBom3JlFeXBqaEBYzXCigALfbzOPIRbGj9G4QCrtutuLYesg7wJCN55JZ8rBGsCMR76tMIJf4pr0FE8lHLW3NvT1/L/IOTuyIM/e292x61hld49hZIoqWVbRs+ydazXC0twUqWQJRNGQuEGtlVPtod/DS+ZQOhXqJrpYuGhqwfXPd2zeEZZMsH05oJkmEgyWqPu4cxK3N2EnftR7BnXGP+KZk4bFGE6HxSQmpxr40rJDiPaycPuujDb8NzqddpJ09ntoue6ndvJ/g40wSjN5RsXOMYkMW25+fLQy1IRcRUdypxx/N3N3xoc5ihQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1633364348; bh=IOyCt/jN1iZCaTXIb2MvAFsfFiY4NcJ6xUvOTOjgfzE=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=NRRX1CoNjzdt24zkbdU5dwx2B0LZxBFnSDSpDcWUi+3nvxAlFQMR2M/acThytn6H4fnRriZ0dWntKCQNZiaTS+T9yHADnDOPEWrq8F3vUYOIpe4hE39WOXK0TzHHu12GcNknGiRGjC/ImuvETKucEeUGvU38bPlWRn82uhTrzWvGhqQ3lSPwQ0VeTZyaRgYfMVwJp+Pqs0R5XxS396upgk12/VfCWrKu5slmH6MBscZJacwDDZaKGAerneAeOMCITy/aSGbhubdoj+NsadLABgp3OAaPJm7heo3PmQq0mdsZrEcRAN4DMfDZ4ioyhzeABIK2QLUhdaFj2a3+Y5V7Lw==
-X-YMail-OSG: _YNEJFkVM1nLkTKq0WW1nyHy3k1soK5D6P.ap7q9A9gzAgbb1Zhu7Rd4A.xp2an
- c5I15VhYweUie8GFh4hEVeIdYUJnAm8NriYarnm9O.9Asxmu9qVtQrA0P4QoP2nWBaumkcsfSqEN
- Gw1rkL8oqhanK9CTOvQw5ElCT_kFje3ZJvr51_5gHUVL_kN0kfYdDr_NoCxkHiMCj7kjF7aRg5VR
- IOb5FxgoJCwY81nOcTjXH8IC9I_Z_UzMFa_jdf..r62xmwZv4JvgleWv8d6B_kKSJKKmM0uk4yg.
- 2c.deQ8Zx.zbqjJDC4o2_GjZMmSmXo27jN.W.0rmd.nBWSGXGorWDMvXr7AliqMyZjLHSdlRnbSk
- 6dqtQVQOtG_jMHUuN1t6nx9Xi3oJ8ubEpAs8u76JpPrRQ3hqHj8gvGMF3.KPes8YUj.OEuaAZ8m0
- qGEm9ycst_Yeso9Ro0DntLAYjy4zT__jUIducYgV3M2soyfOE51xuXWY_18EHU3DVxd29dYURwy1
- xXKmVmQp7VndsnDFWm_6RMQciLQ1U8s8jtmubue1Dkb40AHwobJ1MqyXYqwLnQprgpG0tsgjNe0L
- PH9AefYMFHrzFByCUEMiyCKMkMCJRUXPI_fGmIZzlh0on0eY0ATEgKLnX6imN.7F.rQjSAvqaftC
- PKcKNgm_E5YpL5ywFYSSN8obokAToFLKoen0aKj4TWnNirBb3.UhiaIyfhFUWyZRmc.A20pqONoM
- MRnaGvTdmBMf2mYpzyuxtQNnQkZT.V4rstaNJPdO0AAsSHKz8coRPczYVOwEEMPLj18CswKYDmXH
- Nr.5.rf1ERxuND9bmkdrPMZMaFZzwoxc_947.67IiL9xL8C1iVird6lpi6hSBjawuYwGYPWa4dXJ
- w0s2ir67Ax.2hONwoZ18aBU_mR1KROph4klDQFP8NCQ7.3wPnYJ4_eETWN6M1c0xsLtY2V.KvgIs
- l.iL0.lQsoJd7IBA8geMcI9ak1_2gUs0mcMmAr0lN7pq4bpHRQoMVyaqH5ohwDRYD2FqIKFhaIIg
- L5m7UzkW_Wjpn7veIp3gRmhAw.tycRepbYimTFPOUN.OBVT156eTNnsAqIkELjUHz2aAWQFVtEqb
- m1MoWtm6q4MDeFq6MODPnc6v9Dvz5sR08GZ9vJD38_D5XWiPZaSH.YELp3WYT4lbfLqQKdfinLWs
- GQrDVyCLFcq3y048SiasLdjnBrxu5RA9TvthjCGCfS.CjiMkGLHgXj_QbcZD1MlkZzqdOFw7u.XL
- a81ApPoHUP9zclWfImy2kitcdRA8UcEYEl2CoayCg.L3J4ckBjq_hptLeukUkxnbbdco9PnJET3v
- GvFGnQE3XNhiNwFwIpQsRZboBh_EdQBMtxF7Q7zc2TFaEI_8C9.dbmHJpcJjw_.7VSoDnxJUQbBu
- 96kG5QncOhCMq08fR9eG2.WWVq2_lIwUymt.orYVgHjRtm1rcgQjoiCzA3DzGB_uB5Vz2ro8Douc
- VPOdk3jBr9VJKpe4A1aXYFs3tDpdlYAuGsil0Wqa.d4sorlQWWxhWM1O.V05tbGJfReaBHmDslE3
- scXnJ.0yTnESd7HOpa9GVhMWuFznQY0eiYLxSeP2cfGF6N.GzVEbXUaenWOSPIE21JdVf04.akCe
- d_oTRCfx.VNQsslRAQaUXwIEo6ukX67sXfI46kgvIKFc10U7_MbnULmn6YQsh8R0JjshFm4J03rh
- u2TRZ9C4bNyYYfm9pxtsCnGdAdN3lnAtnM5XcXFpfU6j9KC7te9n9BssbleEfOcVBQDDXMeNPMwQ
- QDQRuILlodAcA0TwTZAab2xMxiq0eF9xdjrN27vIxmEMfjNtEjMFbw5Q4mhWj9i7da__p9RVhBxw
- vbMwLERCneDeuFmDfow_BAFLimSjvvCx_XHbFalJUOyhWGPw9apKTUlEw9SjCg9vle4f4RO_VWzU
- 57lCJgcTWsgqTQrXmaGE1Lxi32gq.Yp1ugKvNZBVSWPi.NXLK7sn_JEIeqLImPdUrt71fXzk.sQI
- Mo22dQqO_1SxerIZZjkiUF7kZLW9wuGhWacL1U5fzEkZHHCqZ8jHMywMrDUYdiV4ohT9w1gJyBh7
- v.gUx3D8ovVaiV7AJ2AxZdCfs7pHE322O7OlbT3rGTeGjxWo4vrRK1IwUUQ8wqgo95p0m26LpTdH
- FrYJKGFZiVu2GT3JPfZVlatKjyLR82Vna_bkDS5LcNWRrJBwVWa.M2V6uJ.GYAPdm9j_8C4aUNz7
- 4h1z47jEbpBLyWMHdebfzol1RjO3dytFmvnzSgUYwXk21Rm1SG_VEyrSg9ljqadDaZ363VQ9IMXk
- JshWuyXr5sfA7slk6eyPxFhkzWcZnVJTIFEx7f6wcBIs-
+        id S237238AbhJDQlm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Oct 2021 12:41:42 -0400
+Received: from sonic315-26.consmr.mail.ne1.yahoo.com ([66.163.190.152]:45415
+        "EHLO sonic315-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237241AbhJDQlh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Oct 2021 12:41:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1633365588; bh=a7iV5plvCSvco/VkhdYOk4i6CwBUUoL1+EGA/VqxJpE=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=fK2WoVUSvON4B55BSpzR5q92QQvs6BEKq99SsENXTEOxrNyAhRz+y6swqFdemA51gMBjRKfWyfm+WWAGGJmVMAIgPUbiFpHDrDgG+HcX2WZFk0Bn8w+oc5W7krgXN9UGwCfnKWSMY4YKFlEVzLGLup1cIEMppWuWuBsk/XEwhzS1X4DEZUa+IjgyHrDGEmNKXgCJrqmIm2Sp/U0DRwFBfgXHtDQUGv558QWrfTnliFiGnfzsccjUZ4i+yctvEReOA6XuGfXsIYdHtR5PLKI8ajkvXcDT5qxiTuQJLs9XIuoHRt2mHff88YvcH23Ui2dzAnVGQHPytV7yYqDz5yvdYg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1633365588; bh=7LHKcYBnbK1FSu/J3UAZBdyQZ/D7sy1hbIhLQcw+0aZ=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=i4VYJVkFqK5z7u5prE0CI/kHnDVuZn2vMDnnJqxZ0dOJvDXbBVyFf+Q9IxUp2K/xkXKLC9Ep+VVnZKSCMY+jW6A87f8BgeOZhDXTsQDCSdePxmFsR44kvRMpLFTX0h6ZmGL0GaGMsBeJZwMAh2IVUlyR/BBeleXEDFBIi2AFdetdizaogk1hVzggwVaUZQoJ9nwSxB01hiSaXCAgmodGBsyKQy89VSEfrhd2Y0VCEL5T5aGEhTP7+MoBAkf/4sXDSCdq3nwB521mI6jxcvKWvwriebXAlYautgiYJRV8RbSCiRFp7Rm9z83c3iWDh4TxFXlZjFt35zfbGAo29vpCJQ==
+X-YMail-OSG: xZTID10VM1mViedzn3ivEbQ9oPhCrCWNR3RUnJQub8f9Q5UnBloWfLz8daeOFnb
+ bM_fqt_ypWH6m64uO6GetsgUGlIXM0TByolmoC43H6U.N46zoBFkDlyeZ2ex4IzcvfMRgwc5GHDK
+ 2JPBqDw0ZwFJtVclTMx_Y9yp19l.txWv2qCPWcHhq52kZttsFjHnONadzHfb49liLhaM8UjILl4S
+ V3AfyLkCUO1umZarsQb1dsPmhEcl1xBaAijXj9DNovbqJ9cKVxKgSk1nR_CxBkcCR87.zwRs0WIO
+ joiTL47nZTGsHMwRye1LNYyX0wZ0f1WV4OAOqrN_aNmyG1vOw6.jAxDrSFj.4i.B8O9ow3jqoySY
+ EpBPnw6Cb7kPwI26WSUNAHHy4dTInSHXWqBL1z6pXlXzxsHpSPeaCODCGmDNaIkWuEyyBjCa_kgk
+ YwsDdArlyA529JWSD5EJ_LkI4gllBe5vhvBsWoksUBHvXO3T8UHpxMaW0LJ3b9u9TWtadTRO1zqJ
+ j1aQKMBq_XcLDWKY41heTY2u7QbtpsuIMbdaA2gVtyjOpiusxrMsWe8m.bWoL8srFCn3CNWGM2UY
+ wo6Ot097VGz7ZekRJv5IEcbp212NiYq_Y5JVkxqAn845fioOkILgxOo5yxt6aTJ1IX0qlfaXJy9s
+ JQLup_hw.Pt.4pPOS7aEaJcIModozKbJI8TNrpiXdDW13D1Fjgom2BqC6QCLa1SCxJNuP4i9lTeh
+ FiB_IUUgJHdPskGwp3yD0FKvE66tWOy9TNmUVPM32RPvjNHgfrlBotRuqfjIH62yquibwLf1sqmB
+ Qrh0VLfHIjsnZ7wE1GqjSg5V.oSNlrh.kI0fdwvwtwD43fOgzkUMBHGJ9RhiaJwgPyQDvyYGGIqW
+ pR_cnCLEIEz3i51Cz8U0FG45b2gsjXpj.mSzHZQpsY6Vzoooz52mGxsXSd9p8g9yviTDtnW.Ws4o
+ fjcArKTS06HPV3wM3fGRm7sQMu8bKullP6LJEsfux9G_1BjndpjpsMaHWTd1vyjq9R971Ccn4w2n
+ GznOtUcMLAFhUiNpOEGP6c9RqISit1tWHjcCcLQPk7oXyhP4SgvRjRjQp_G0YfsMXjcQqkzifI40
+ S.RTxf5qcP9_54Ca_Qm7su32rSM7qyTU1RRqz28Vy_Ys2r7Wn0LeZwZDiOqFcIstfhZRoVP8Nky5
+ xtuvVzay0vtoXjUARcX9lhR9yE6.eeCV51k1mkQiuQRb3dYYD2FFV0xIQO8wxXiyyKIRDo7LPiGF
+ VmBIFHuaz2.W6v29QxnZYmfP5YtP.kTQTaA0eBOTef2_.C16snFLF0TBPxGIJwbJyaTzw3FFRW9t
+ 4.R1QfV7YodMBPubZlqRTiGek_klF.SryIbFfLyOQ72_CxS50bvnovGI4vyqhwiYismRj_knwJ98
+ v2opw38R6s2SZhFi70CtAM6CQ6jSLcpifUO3bzRBW2Qc.H9DZWQIU3TWht8ee3FsLBcvI2vR1sdv
+ .eQuXt7GGyTviBVNfRhY2DP6ptIgsrB.H7wvEbduNKX6UQpuBtDzZmO9boYOKbyBpcBhXA8mciik
+ GvP3M8spDEqyuB0Y19GvkWiN3pnB01MOjnI6R9LlCWIvw7XV0RTKY3yosFk4.OelIZAd_S2sApg3
+ pfop0vBrVxaTWq1lc6vQNCRy_dX1uuU2id_OZMRZuwGrVT5s.FvQ3O6D2ibxKWdVY896f53b1xW1
+ jajsXypvKT5J_8sodP2W0GwT6B2KgHv4BGiT2LEwDhseM1RC2DsOZTpDr851WBIZm3lJ__mZpS4e
+ 9dpU4h3gH0tEI9An.Ru9WO49BzsoRFHr8C3CkW2Uv_8rJ0atea66z_bhkRwy3DEqBQZIIDS9MBfb
+ Rvz7U9yo6GK87korTbdHJTvfHuXHx21ibE9Rh6lXJp2ACj_h5pu4lbhrYbTeb772DmEKmokCLB4d
+ _gtu.iGobJ7iXW_B2cUYTfvydhySq0KDKgE75VGfxd3GLqDqDm0_eUzwM2P2pQenQMC2iHg7IrGB
+ cq5eb7uVcSjZyC6gtwaZzPN7_CklLBXNAgpe_rOHdbWKyDqYoar0ORV85OZa7BNgtDJS5Kr9SZno
+ 421BXagjfkw2dxk8gp92cqORDoNDHOkIoLrcbX_sgSAAMKkdNtI2zkkluknP68DsBPmhy0XSQDCM
+ DnFxnDSgKmGtUSDAkUZpdyamBDWdDsLwAStnEiu70IEVczwqBBwQWjC8rY9D5M62NIOd5rSgRyY9
+ ODjr0ziQxy8MFSrXkTJBvnvZ0YCQVntvvVqzhluyc1VzTK1MEw1qhaY.QTjgTSDUKHAFTobzgJrB
+ D3VJVnQE20eUHjmXEcv3ZTRbE8ZV4AhewzdhEEWHXnY91xALkLblaDbCoJflPkv7t_GZXGVIuKnl
+ .af.O21OFDgl1RbKu7VFWvfccDTpNOEERzeSpb5UvfABVCFQKHhy79UOYWLheZjxOQ_yLh5YNU4S
+ meMZ5q29H
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Mon, 4 Oct 2021 16:19:08 +0000
-Received: by kubenode510.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6372976e85edb1cbbbfc2c0ba5be9d7a;
-          Mon, 04 Oct 2021 16:19:03 +0000 (UTC)
-Subject: Re: [PATCH v2] binder: use cred instead of task for selinux checks
-To:     Jann Horn <jannh@google.com>
-Cc:     Todd Kjos <tkjos@google.com>, gregkh@linuxfoundation.org,
-        arve@android.com, tkjos@android.com, maco@android.com,
-        christian@brauner.io, jmorris@namei.org, serge@hallyn.com,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, keescook@chromium.org, jeffv@google.com,
-        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
-        kernel-team@android.com, stable@vger.kernel.org,
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Mon, 4 Oct 2021 16:39:48 +0000
+Received: by kubenode522.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID deb54572e2524d030925a3958cf6bd0c;
+          Mon, 04 Oct 2021 16:39:45 +0000 (UTC)
+Subject: Re: [PATCH] security: Return xattr name from
+ security_dentry_init_security()
+To:     Jeff Layton <jlayton@kernel.org>, Vivek Goyal <vgoyal@redhat.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Daniel J Walsh <dwalsh@redhat.com>, idryomov@gmail.com,
+        ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org,
+        bfields@fieldses.org, chuck.lever@oracle.com,
+        stephen.smalley.work@gmail.com,
         Casey Schaufler <casey@schaufler-ca.com>
-References: <20211001175521.3853257-1-tkjos@google.com>
- <c6a650e4-15e4-2943-f759-0e9577784c7a@schaufler-ca.com>
- <CAG48ez2tejBUXJGf0R9qpEiauL9-ABgkds6mZTQD7sZKLMdAAQ@mail.gmail.com>
- <CAG48ez1SRau1Tnge5HVqxCFsNCizmnQLErqnC=eSeERv8jg-zQ@mail.gmail.com>
- <f59c6e9f-2892-32da-62f8-8bbeec18ee4c@schaufler-ca.com>
- <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
+References: <YVYI/p1ipDFiQ5OR@redhat.com>
+ <1583ffb057e8442fa7af40dabcb38960982211ba.camel@kernel.org>
+ <06a82de9-1c3e-1102-7738-f40905ea9ee4@schaufler-ca.com>
+ <7404892c92592507506038ef9bdcfc1780311000.camel@kernel.org>
 From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <e0c1fab9-cb97-d5af-1f4b-f15b6b2097fd@schaufler-ca.com>
-Date:   Mon, 4 Oct 2021 09:19:02 -0700
+Message-ID: <a7ab4daf-e577-abcc-f4a0-09d7eb9c4cb7@schaufler-ca.com>
+Date:   Mon, 4 Oct 2021 09:39:44 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <CAG48ez0yF0u=QBLVL2XrGB8r8ouQj-_aS9SScu4O4f+LhZxCDw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <7404892c92592507506038ef9bdcfc1780311000.camel@kernel.org>
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
 X-Mailer: WebService/1.1.19076 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
@@ -85,67 +84,274 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/1/2021 3:58 PM, Jann Horn wrote:
-> On Fri, Oct 1, 2021 at 10:10 PM Casey Schaufler <casey@schaufler-ca.com=
-> wrote:
->> On 10/1/2021 12:50 PM, Jann Horn wrote:
->>> On Fri, Oct 1, 2021 at 9:36 PM Jann Horn <jannh@google.com> wrote:
->>>> On Fri, Oct 1, 2021 at 8:46 PM Casey Schaufler <casey@schaufler-ca.c=
-om> wrote:
->>>>> On 10/1/2021 10:55 AM, Todd Kjos wrote:
->>>>>> Save the struct cred associated with a binder process
->>>>>> at initial open to avoid potential race conditions
->>>>>> when converting to a security ID.
->>>>>>
->>>>>> Since binder was integrated with selinux, it has passed
->>>>>> 'struct task_struct' associated with the binder_proc
->>>>>> to represent the source and target of transactions.
->>>>>> The conversion of task to SID was then done in the hook
->>>>>> implementations. It turns out that there are race conditions
->>>>>> which can result in an incorrect security context being used.
->>>>> In the LSM stacking patch set I've been posting for a while
->>>>> (on version 29 now) I use information from the task structure
->>>>> to ensure that the security information passed via the binder
->>>>> interface is agreeable to both sides. Passing the cred will
->>>>> make it impossible to do this check. The task information
->>>>> required is not appropriate to have in the cred.
->>>> Why not? Why can't you put the security identity of the task into th=
-e creds?
->>> Ah, I get it now, you're concerned about different processes wanting
->>> to see security contexts formatted differently (e.g. printing the
->>> SELinux label vs printing the AppArmor label), right?
->> That is correct.
+On 10/4/2021 9:01 AM, Jeff Layton wrote:
+> On Mon, 2021-10-04 at 08:54 -0700, Casey Schaufler wrote:
+>> On 10/4/2021 8:20 AM, Jeff Layton wrote:
+>>> On Thu, 2021-09-30 at 14:59 -0400, Vivek Goyal wrote:
+>>>> Right now security_dentry_init_security() only supports single secur=
+ity
+>>>> label and is used by SELinux only. There are two users of of this ho=
+ok,
+>>>> namely ceph and nfs.
+>>>>
+>>>> NFS does not care about xattr name. Ceph hardcodes the xattr name to=
+
+>>>> security.selinux (XATTR_NAME_SELINUX).
+>>>>
+>>>> I am making changes to fuse/virtiofs to send security label to virti=
+ofsd
+>>>> and I need to send xattr name as well. I also hardcoded the name of
+>>>> xattr to security.selinux.
+>>>>
+>>>> Stephen Smalley suggested that it probably is a good idea to modify
+>>>> security_dentry_init_security() to also return name of xattr so that=
+
+>>>> we can avoid this hardcoding in the callers.
+>>>>
+>>>> This patch adds a new parameter "const char **xattr_name" to
+>>>> security_dentry_init_security() and LSM puts the name of xattr
+>>>> too if caller asked for it (xattr_name !=3D NULL).
+>>>>
+>>>> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+>>>> ---
+>>>>
+>>>> I have compile tested this patch. Don't know how to setup ceph and
+>>>> test it. Its a very simple change. Hopefully ceph developers can
+>>>> have a quick look at it.
+>>>>
+>>>> A similar attempt was made three years back.
+>>>>
+>>>> https://lore.kernel.org/linux-security-module/20180626080429.27304-1=
+-zyan@redhat.com/T/
+>>>> ---
+>>>>  fs/ceph/xattr.c               |    3 +--
+>>>>  fs/nfs/nfs4proc.c             |    3 ++-
+>>>>  include/linux/lsm_hook_defs.h |    3 ++-
+>>>>  include/linux/lsm_hooks.h     |    1 +
+>>>>  include/linux/security.h      |    6 ++++--
+>>>>  security/security.c           |    7 ++++---
+>>>>  security/selinux/hooks.c      |    6 +++++-
+>>>>  7 files changed, 19 insertions(+), 10 deletions(-)
+>>>>
+>>>> Index: redhat-linux/security/selinux/hooks.c
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/security/selinux/hooks.c	2021-09-28 11:36:03.5=
+59785943 -0400
+>>>> +++ redhat-linux/security/selinux/hooks.c	2021-09-30 14:01:05.869195=
+347 -0400
+>>>> @@ -2948,7 +2948,8 @@ static void selinux_inode_free_security(
+>>>>  }
+>>>> =20
+>>> I agree with Al that it would be cleaner to just return the string, b=
+ut
+>>> the call_*_hook stuff makes that a bit more tricky. I suppose this is=
+ a
+>>> reasonable compromise.
+>> call_int_hook() and call_void_hook() were introduced to reduce the mon=
+otonous
+>> repetition in the source. They are cosmetic and add no real value. The=
+y shouldn't
+>> be a consideration in the discussion.
 >>
->>> But still, I don't think you can pull that information from the
->>> receiving task. Maybe the easiest solution would be to also store tha=
-t
->>> in the creds? Or you'd have to manually grab that information when
->>> /dev/binder is opened.
->> I'm storing the information in the task security blob because that's
->> the appropriate scope. Today the LSM hook is given both task_struct's.=
+>> There is a problem with Al's suggestion. The interface as used today h=
+as two real
+>> problems. It returns an attribute value without identifying the attrib=
+ute. Al's
+>> interface would address this issue. The other problem is that the inte=
+rface can't
+>> provide multiple attribute+value pairs. The interface is going to need=
+ changed to
+>> support that for full module stacking. I don't see a rational way to e=
+xtend the
+>> interface if it returns a string when there are multiple attributes to=
+ choose from.
+>>
+> Is that also a problem for the ctx parameter? In the case of full modul=
+e
+> stacking do you get back multiple contexts as well?
 
-> Which is wrong, because you have no idea who the semantic "recipient
-> task" is - any task that has a mapping of the binder fd can
-> effectively receive transactions from it.
->
-> (And the current "sender task" is also wrong, because binder looks at
-> the task that opened the binder device, not the task currently
-> performing the action.)
+That's a bigger discussion than is probably appropriate on this thread.
+In the module stacking case the caller needs to identify which security
+module's context it wants. If the caller is capable of dealing with
+multiple attributes (none currently are, but they all assume that you're
+using SELinux and only support what SELinux needs) it will need to
+do something different. We have chickens and eggs involved. The LSM
+infrastructure doesn't need to handle it because none of its callers
+are capable of dealing with it. None of the callers try, in part because
+they have no way to get the information they would need, and in part
+because they don't care about anything beyond SELinux. Ceph, for example,=
 
-I'm confused. Are you saying that the existing binder code is
-completely broken? Are you saying that neither "task" is correct?
-How does passing the creds from the wrong tasks "fix" the problem?
+is hard coded to expect "security.selinux".
 
->> It's easy to compare to make sure the tasks are compatible.
-> It would be, if you actually had a pair of tasks that accurately
-> represent the sender and the recipient.
->
->> Adding the
->> information to the cred would be yet another case where the scope of
->> security information is wrong.
-> Can you elaborate on why you think that?
+On further reflection, Al's suggestion could be made to work if the
+caller identified which attribute its looking for.
+=A0
 
-The information identifies how the task is going to display
-the security "context". It isn't used in access checks.
+>>>>  static int selinux_dentry_init_security(struct dentry *dentry, int =
+mode,
+>>>> -					const struct qstr *name, void **ctx,
+>>>> +					const struct qstr *name,
+>>>> +					const char **xattr_name, void **ctx,
+>>>>  					u32 *ctxlen)
+>>>>  {
+>>>>  	u32 newsid;
+>>>> @@ -2961,6 +2962,9 @@ static int selinux_dentry_init_security(
+>>>>  	if (rc)
+>>>>  		return rc;
+>>>> =20
+>>>> +	if (xattr_name)
+>>>> +		*xattr_name =3D XATTR_NAME_SELINUX;
+>>>> +
+>>>>  	return security_sid_to_context(&selinux_state, newsid, (char **)ct=
+x,
+>>>>  				       ctxlen);
+>>>>  }
+>>>> Index: redhat-linux/security/security.c
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/security/security.c	2021-08-16 10:39:28.518988=
+836 -0400
+>>>> +++ redhat-linux/security/security.c	2021-09-30 13:54:36.367195347 -=
+0400
+>>>> @@ -1052,11 +1052,12 @@ void security_inode_free(struct inode *i
+>>>>  }
+>>>> =20
+>>>>  int security_dentry_init_security(struct dentry *dentry, int mode,
+>>>> -					const struct qstr *name, void **ctx,
+>>>> -					u32 *ctxlen)
+>>>> +				  const struct qstr *name,
+>>>> +				  const char **xattr_name, void **ctx,
+>>>> +				  u32 *ctxlen)
+>>>>  {
+>>>>  	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mo=
+de,
+>>>> -				name, ctx, ctxlen);
+>>>> +				name, xattr_name, ctx, ctxlen);
+>>>>  }
+>>>>  EXPORT_SYMBOL(security_dentry_init_security);
+>>>> =20
+>>>> Index: redhat-linux/include/linux/lsm_hooks.h
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/include/linux/lsm_hooks.h	2021-06-02 10:20:27.=
+717485143 -0400
+>>>> +++ redhat-linux/include/linux/lsm_hooks.h	2021-09-30 13:56:48.44019=
+5347 -0400
+>>>> @@ -196,6 +196,7 @@
+>>>>   *	@dentry dentry to use in calculating the context.
+>>>>   *	@mode mode used to determine resource type.
+>>>>   *	@name name of the last path component used to create file
+>>>> + *	@xattr_name pointer to place the pointer to security xattr name
+>>> It might be a good idea to also document the lifetime for xattr_name
+>>> here. In particular you're returning a pointer to a static string, an=
+d
+>>> it would be good to note that the caller needn't free it or anything.=
 
+>>>
+>>>>   *	@ctx pointer to place the pointer to the resulting context in.
+>>>>   *	@ctxlen point to place the length of the resulting context.
+>>>>   * @dentry_create_files_as:
+>>>> Index: redhat-linux/include/linux/security.h
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/include/linux/security.h	2021-08-16 10:39:28.4=
+84988836 -0400
+>>>> +++ redhat-linux/include/linux/security.h	2021-09-30 13:59:00.288195=
+347 -0400
+>>>> @@ -317,8 +317,9 @@ int security_add_mnt_opt(const char *opt
+>>>>  				int len, void **mnt_opts);
+>>>>  int security_move_mount(const struct path *from_path, const struct =
+path *to_path);
+>>>>  int security_dentry_init_security(struct dentry *dentry, int mode,
+>>>> -					const struct qstr *name, void **ctx,
+>>>> -					u32 *ctxlen);
+>>>> +				  const struct qstr *name,
+>>>> +				  const char **xattr_name, void **ctx,
+>>>> +				  u32 *ctxlen);
+>>>>  int security_dentry_create_files_as(struct dentry *dentry, int mode=
+,
+>>>>  					struct qstr *name,
+>>>>  					const struct cred *old,
+>>>> @@ -739,6 +740,7 @@ static inline void security_inode_free(s
+>>>>  static inline int security_dentry_init_security(struct dentry *dent=
+ry,
+>>>>  						 int mode,
+>>>>  						 const struct qstr *name,
+>>>> +						 const char **xattr_name,
+>>>>  						 void **ctx,
+>>>>  						 u32 *ctxlen)
+>>>>  {
+>>>> Index: redhat-linux/include/linux/lsm_hook_defs.h
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/include/linux/lsm_hook_defs.h	2021-07-07 11:54=
+:59.673549151 -0400
+>>>> +++ redhat-linux/include/linux/lsm_hook_defs.h	2021-09-30 14:02:13.1=
+14195347 -0400
+>>>> @@ -83,7 +83,8 @@ LSM_HOOK(int, 0, sb_add_mnt_opt, const c
+>>>>  LSM_HOOK(int, 0, move_mount, const struct path *from_path,
+>>>>  	 const struct path *to_path)
+>>>>  LSM_HOOK(int, 0, dentry_init_security, struct dentry *dentry,
+>>>> -	 int mode, const struct qstr *name, void **ctx, u32 *ctxlen)
+>>>> +	 int mode, const struct qstr *name, const char **xattr_name,
+>>>> +	 void **ctx, u32 *ctxlen)
+>>>>  LSM_HOOK(int, 0, dentry_create_files_as, struct dentry *dentry, int=
+ mode,
+>>>>  	 struct qstr *name, const struct cred *old, struct cred *new)
+>>>> =20
+>>>> Index: redhat-linux/fs/nfs/nfs4proc.c
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/fs/nfs/nfs4proc.c	2021-07-14 14:47:42.73284292=
+6 -0400
+>>>> +++ redhat-linux/fs/nfs/nfs4proc.c	2021-09-30 14:06:02.249195347 -04=
+00
+>>>> @@ -127,7 +127,8 @@ nfs4_label_init_security(struct inode *d
+>>>>  		return NULL;
+>>>> =20
+>>>>  	err =3D security_dentry_init_security(dentry, sattr->ia_mode,
+>>>> -				&dentry->d_name, (void **)&label->label, &label->len);
+>>>> +				&dentry->d_name, NULL,
+>>>> +				(void **)&label->label, &label->len);
+>>>>  	if (err =3D=3D 0)
+>>>>  		return label;
+>>>> =20
+>>>> Index: redhat-linux/fs/ceph/xattr.c
+>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>>> --- redhat-linux.orig/fs/ceph/xattr.c	2021-09-09 13:05:21.800611264 =
+-0400
+>>>> +++ redhat-linux/fs/ceph/xattr.c	2021-09-30 14:14:59.892195347 -0400=
+
+>>>> @@ -1311,7 +1311,7 @@ int ceph_security_init_secctx(struct den
+>>>>  	int err;
+>>>> =20
+>>>>  	err =3D security_dentry_init_security(dentry, mode, &dentry->d_nam=
+e,
+>>>> -					    &as_ctx->sec_ctx,
+>>>> +					    &name, &as_ctx->sec_ctx,
+>>>>  					    &as_ctx->sec_ctxlen);
+>>>>  	if (err < 0) {
+>>>>  		WARN_ON_ONCE(err !=3D -EOPNOTSUPP);
+>>>> @@ -1335,7 +1335,6 @@ int ceph_security_init_secctx(struct den
+>>>>  	 * It only supports single security module and only selinux has
+>>>>  	 * dentry_init_security hook.
+>>>>  	 */
+>>>> -	name =3D XATTR_NAME_SELINUX;
+>>>>  	name_len =3D strlen(name);
+>>>>  	err =3D ceph_pagelist_reserve(pagelist,
+>>>>  				    4 * 2 + name_len + as_ctx->sec_ctxlen);
+>>>>
+>>> Looks reasonable overall.
+>>>
+>>> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+>>>
 
