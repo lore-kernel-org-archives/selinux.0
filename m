@@ -2,103 +2,76 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B851C433EF
-	for <selinux@archiver.kernel.org>; Thu,  7 Oct 2021 00:46:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 204D4C433EF
+	for <selinux@archiver.kernel.org>; Thu,  7 Oct 2021 15:34:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E922D60F4A
-	for <selinux@archiver.kernel.org>; Thu,  7 Oct 2021 00:46:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0685A6113E
+	for <selinux@archiver.kernel.org>; Thu,  7 Oct 2021 15:34:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240142AbhJGAsi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Oct 2021 20:48:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39690 "EHLO
+        id S232833AbhJGPg3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Oct 2021 11:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240144AbhJGAsd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Oct 2021 20:48:33 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE2AC061766
-        for <selinux@vger.kernel.org>; Wed,  6 Oct 2021 17:46:40 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id d81-20020a251d54000000b005b55772ca97so5639210ybd.19
-        for <selinux@vger.kernel.org>; Wed, 06 Oct 2021 17:46:40 -0700 (PDT)
+        with ESMTP id S230060AbhJGPg2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Oct 2021 11:36:28 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97A64C061570
+        for <selinux@vger.kernel.org>; Thu,  7 Oct 2021 08:34:34 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id l7so24772747edq.3
+        for <selinux@vger.kernel.org>; Thu, 07 Oct 2021 08:34:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=zPCs1rEpKuQz4LUSoTxaJ0G3vwf7KAFSlUITLwZs6tU=;
-        b=p7C8NObDL/qgsnHg5/TYMe/e2qJ6I/Lq4YqPZ2gUnySyfykd5F/A2vU/1m3ceyFytV
-         I/7OeC1DNhDBO/Sg1SZmblT8zSDOS20AEaXhLm2H/qlJpIU+UkrwJgwQR6ZhajMJlwdg
-         H0AQ8c2Ji4cC5UGLPFyjbyHiVLS1+KBXJaeDkVYrBsKAL2mDeRIuBNWlxuMFkZA9ZGV8
-         A7qky4OO4I/PaZtI6fTe4+d1q4NwNuqcs2UJX5Gqm7isuGeOruusB375wUngfU0n4dV1
-         v6iAo7zDuAInyEyLRn9Rt/0nvTXYRScq+aeug+gsRlashaZxAnGdEcAqgBxeJf60frPU
-         Y76A==
+        bh=30JNIa4RlokMYXSVP5L6GtMmeCNwMX56FXAsRya7W3Y=;
+        b=G0/H4dTaPug2FHRNe4cauETexoqEHUZOCKYPe5TJ8isY7yL7ddD/5Kn9w1Il3cDS6K
+         hQdRPjXvD01qzYvcp12nYQ3y5m90+oBvysHw7CDgWNaCyo/CBshytkzEdwanAAkGnoWI
+         fch5DnQ3P08aOvAF3KBBkWXHq8zm0mYHe9tGuA8KFUQjo5riQAPRucPY0SoGSITON9KJ
+         VFxRBVrsy1drt+VTRKtrXQlUYWZh6NO3r7shIrYkWq2w1vrIRzOHax/tVus1RIrFL47v
+         A1id3QpQ3dEF24qvtN7pI/x8U4Mhn/EF1ENjINlV4z5d/HMTBq3mRrhUn5YDn2U3J8ve
+         mkKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=zPCs1rEpKuQz4LUSoTxaJ0G3vwf7KAFSlUITLwZs6tU=;
-        b=B1n9pXRhcjd1H3hTua/Mo8SH4wzLUX4n+cdeYg/4juIzbe8dG7ANMYnOhG0/WzUmg8
-         7Jb7xV8+Sla0e+8+02DmWurWQQr9zWrlT8eGrG1B569FGqTtppyZIro7KSGVAy+92V9b
-         CTRP+tMLCKIcPWPJ1y+j2MKL/0PpqR13nNVysDWxncx9ocj3lLGCylN8H39Wb8f0/+L8
-         yJvo+4aAH+tm3XM5PyCSU9Ko1GrPB0RwixkbQTnC6f6Wb1Zj7ldWMSwvV6Ur7SddyjiW
-         qcWPgVLvOf+fAJ+xIAX6Nz25JfxzsTqZONlpsoJuCjkMo1UkLoGEeX9+2Fefxt+PsJaE
-         PwgA==
-X-Gm-Message-State: AOAM531UInk+eI/CIG7ghf0gJjyPbuyifckBlUesn/1v4w5OFqiV02g/
-        v2MxfrdKgNqkT4FMaCZa0IgJ25WZgw==
-X-Google-Smtp-Source: ABdhPJyjO6u79sIe1Ctn1/EYwfXuBQtVGMw40kM5yChFcDVNsb4RU39eXJBDBGttGXiLTmWRzysZNXQWxg==
-X-Received: from ava-linux2.mtv.corp.google.com ([2620:15c:211:200:6ff2:347f:ac4a:8a04])
- (user=tkjos job=sendgmr) by 2002:a5b:501:: with SMTP id o1mr1359354ybp.402.1633567600035;
- Wed, 06 Oct 2021 17:46:40 -0700 (PDT)
-Date:   Wed,  6 Oct 2021 17:46:29 -0700
-In-Reply-To: <20211007004629.1113572-1-tkjos@google.com>
-Message-Id: <20211007004629.1113572-4-tkjos@google.com>
-Mime-Version: 1.0
-References: <20211007004629.1113572-1-tkjos@google.com>
-X-Mailer: git-send-email 2.33.0.800.g4c38ced690-goog
-Subject: [PATCH v4 3/3] binder: use euid from cred instead of using task
-From:   Todd Kjos <tkjos@google.com>
-To:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, christian@brauner.io, jmorris@namei.org,
-        serge@hallyn.com, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        keescook@chromium.org, jannh@google.com, jeffv@google.com,
-        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org
-Cc:     joel@joelfernandes.org, kernel-team@android.com,
-        Todd Kjos <tkjos@google.com>, stable@vger.kernel.org
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=30JNIa4RlokMYXSVP5L6GtMmeCNwMX56FXAsRya7W3Y=;
+        b=NWRpUpMrJOEPMHOwds3jLHHaEy/MIf8ZtYORB3rxoWR3s4mLzPfAZVM5oKq2oXtZSQ
+         pITPy8sGTrFMnlPK/jBcU4foWpwpKlpJlcXaw00hkLfBfjCc/P7KLyEhOwhdXT2ZIBdB
+         c05RlSIsP5DuBn5OMUO/DU1H+3t8xE9YGY+XpXeAMFI5/RI/cph42RcPTqKgvZMKMTV2
+         ZoUSJDYymzdt9sW9bBLeTPpEqkbJg/28A5Z/tusv2FgXI0in7qz8q6EAbvlx21gBrgUF
+         BfO1LSqXHonUtvTh6ALt1wWpxprss039hkpmu9RAEnzTNEb2po39Nl+q/dk1YprPY0TZ
+         9dJw==
+X-Gm-Message-State: AOAM532qdB7+Cgp+xYsWEcRTWwrW24xlxoFGTe5z/CDJhaBLxVgILoIp
+        pkVDQAKmeEgPbVMrht/u6UwOP4Zr5Eic3LCZutWROsSm7g==
+X-Google-Smtp-Source: ABdhPJz7IPBm/0Srv9g2vOg1YL/Hoa2LXQilekjg13BL3eDHwKqpgczTSSfEZlM5JM7A1oaUmccIZrlsqSwPd96L+1s=
+X-Received: by 2002:a17:906:2f16:: with SMTP id v22mr6250586eji.126.1633620870949;
+ Thu, 07 Oct 2021 08:34:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210728140313.68096-1-omosnace@redhat.com> <CAHC9VhTDagTt1CKDRPkVrcvHwWPbSzzPp3HSS3ZzsbLapTBAxw@mail.gmail.com>
+ <CAFqZXNuT=-m2QVgw+Awm3HcK5pt8niKb+yu2Tspy2RCsLByrWQ@mail.gmail.com> <CAHC9VhT6YcAWn4KrsfjpJQGDetEVy7LNh8DsrMrycW8y57Y20Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhT6YcAWn4KrsfjpJQGDetEVy7LNh8DsrMrycW8y57Y20Q@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 7 Oct 2021 11:34:21 -0400
+Message-ID: <CAHC9VhQF9R76ojBBrAQ=WHOAgHNGKJDobY+a_qohJJCQWQDw4w@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix race condition when computing ocontext SIDs
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Sujithra Periasamy <sujithra@google.com>,
+        Xinjie Zheng <xinjie@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Set a transaction's sender_euid from the 'struct cred'
-saved at binder_open() instead of looking up the euid
-from the binder proc's 'struct task'. This ensures
-the euid is associated with the security context that
-of the task that opened binder.
+On Mon, Aug 16, 2021 at 4:38 PM Paul Moore <paul@paul-moore.com> wrote:
+> Please try to come up with a better solution that leverages proper
+> locking primitives, and if that isn't possible please explain (in
+> detail) why.
 
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: stable@vger.kernel.org # 4.4+
----
-v3: added this patch to series
+It's been a little while so I wanted to check the status of this ...
+have you spent any time on this, or is your position such that this is
+the best you can come up with for a fix?
 
- drivers/android/binder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 989afd0804ca..26382e982c5e 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2711,7 +2711,7 @@ static void binder_transaction(struct binder_proc *proc,
- 		t->from = thread;
- 	else
- 		t->from = NULL;
--	t->sender_euid = task_euid(proc->tsk);
-+	t->sender_euid = proc->cred->euid;
- 	t->to_proc = target_proc;
- 	t->to_thread = target_thread;
- 	t->code = tr->code;
 -- 
-2.33.0.800.g4c38ced690-goog
-
+paul moore
+www.paul-moore.com
