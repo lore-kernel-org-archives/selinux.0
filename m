@@ -2,193 +2,118 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3D39C4332F
-	for <selinux@archiver.kernel.org>; Fri,  8 Oct 2021 21:10:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68B7CC433EF
+	for <selinux@archiver.kernel.org>; Fri,  8 Oct 2021 21:12:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD48260F5E
-	for <selinux@archiver.kernel.org>; Fri,  8 Oct 2021 21:10:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56C2660F92
+	for <selinux@archiver.kernel.org>; Fri,  8 Oct 2021 21:12:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243261AbhJHVMf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Oct 2021 17:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55698 "EHLO
+        id S243339AbhJHVOx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Oct 2021 17:14:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231696AbhJHVMf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Oct 2021 17:12:35 -0400
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B020FC061570
-        for <selinux@vger.kernel.org>; Fri,  8 Oct 2021 14:10:39 -0700 (PDT)
-Received: by mail-qk1-x72c.google.com with SMTP id ay35so2031513qkb.10
-        for <selinux@vger.kernel.org>; Fri, 08 Oct 2021 14:10:39 -0700 (PDT)
+        with ESMTP id S231721AbhJHVOt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Oct 2021 17:14:49 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C33DC061570
+        for <selinux@vger.kernel.org>; Fri,  8 Oct 2021 14:12:53 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id y12so27969911eda.4
+        for <selinux@vger.kernel.org>; Fri, 08 Oct 2021 14:12:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=wif+ppgPYXztMvb7yzrli0enkiBCtR1mqSF5JOtF2dI=;
-        b=pnnoJfMtbwOxH0150A2VdovFur/cPooOhrabjcxIEI0hiPLmJTpB2zmjLpQKjElkNy
-         Fetz7fN/WUJFgzw3rVSPmw3wuZqUaFBmqVKsWWTTBoHil1mIFzqKNEaeH+Swqi1MX0iC
-         UXMpbPztdI9yEqU5Ro91v8rqsExvqWyHDXZ7MKfgood2nnKBO9PFiPhha/gSrZVOoSDc
-         tw2Uml+S9KKp1F+pso0VvYG6dpJG15rxlFC9kVqUQ+KMdn+wuXjzKhbmHKTFQacm8s7h
-         wYonWmcDg/8OODPq5dRq4uY9RtCEg1Fooetj+V6TqFB40QUKiGlhdwH7/9iNnLh84evS
-         +ZfA==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EbVIsJCQSO+vbMr39E67OTfH62jkz85HI8YV0eMVgIY=;
+        b=T7Z+PBZZ38/6eeh/G0tV6G+yxjOETQG+WszM1muqiScaLBeF+ZqJusgY97w/t0aTO3
+         +MI1AGLBQEIWws+2qXERwclzdSHvOyGM7RvutJ6OjcI7wphFhBL8D5d5R9wT+v/lKNUB
+         RPO1tE0qnxQiqKveu0tAXLppvxkNPbIAXXLwxZmmyTdBM2cKXrAx05BsmTQiQWyiKieo
+         8UluRsflN+2B2C34sdt78fRGMCCkYjzFOnqjur3cgIrnOhZXe2MMxQHhg+TLsVrM2pDw
+         DT5a17au43scpkF9zLSKfbSqon56fcuuQng06yVjEfMY5U05F0x/WSFA6+HITs3i5nPO
+         Kjdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=wif+ppgPYXztMvb7yzrli0enkiBCtR1mqSF5JOtF2dI=;
-        b=y4M6PAI7m2UDqh5hufrIS+nDam3POD2tfZI4PZXOZzfOOcKucovXOhFg20mBt1jj++
-         fUYcnm+qQDkThd+EpWcJb3XpQK66AAnvovfyPSvcMbMvD71kkOc6jT/2hlyhxS1rt1Zg
-         //jRY8M0RKzAxMOYLNO0hidkP0Tarcujqn1QGv3vFpa6SL8vdddMso2VHwG1nL6FFKRl
-         Q0t4RoXrbXkbwrsaB1vQAdkKD8mfrgayZ5BFm7OMFAQtrOArgAyecz+nz0p5/TBGUpU/
-         JTJpDS2TgLqSUXfnWbt6jEs/c7ttO4H7S7v+tZ7QcV7R+h2AtqmSIWlVGAwlX6C5VNh3
-         xZeQ==
-X-Gm-Message-State: AOAM5338J32HWIZIfOlIuBsSOmFN8jNrn4rquiASq+ookDou4eMnazJS
-        VeYZ6JiwY4ew+IRLfKCf6pyRYpIv5CU=
-X-Google-Smtp-Source: ABdhPJxcFwGpomOuoHXbBRjWW47VzcErnXRUWUii7QfEE717ERWMyZX1UQYZ1wvdgwUWrIwr6Bd8kQ==
-X-Received: by 2002:a05:620a:5f7:: with SMTP id z23mr4803891qkg.198.1633727438745;
-        Fri, 08 Oct 2021 14:10:38 -0700 (PDT)
-Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id u9sm332453qta.90.2021.10.08.14.10.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Oct 2021 14:10:38 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     nicolas.iooss@m4x.org, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 4/4] libselinux: Fix potential undefined shifts
-Date:   Fri,  8 Oct 2021 17:10:31 -0400
-Message-Id: <20211008211031.393884-4-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211008211031.393884-1-jwcart2@gmail.com>
-References: <20211008211031.393884-1-jwcart2@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EbVIsJCQSO+vbMr39E67OTfH62jkz85HI8YV0eMVgIY=;
+        b=i/0GPN7nCoMgRhXcM7owS6/UNDDRATloBiubbb2b7aLWnnyXHZZNrVvAHO0NwzKu89
+         3pyVa1PjY26VsRXejHXAmgG6/WR7YhnGSqeNSSt1loZNLg5wpoVCk/9ivxt75iE/7MQ4
+         DJaPS0S4scf3XcoueXAJOZCpzbahnV/EQMLDwgriICK13ZlZYtS/ctAHISqonP0WwXlN
+         FNcHlxFgclwfgjDjCapZDBWijyZHDpa2s8UQsY/yLOKA1IKch7LW/cGjG71o5g7j40Yz
+         BzqC4gkyyRX7PwzfsgDgzgbEt8bgTikDNwLBIFNkL9f2RmPIBvc+aTfXHZ9CBqXI6dbQ
+         cU3Q==
+X-Gm-Message-State: AOAM533HumxdrWKQzgTq/tfvJVGK6T85ug5irruqYaCBOR5K/ONubrJn
+        11f6KW0d64Ym4YHemee2bHs50FkkADrLejuELBvr
+X-Google-Smtp-Source: ABdhPJxgroJYCNaXqAYWnw5dFNkqDUN49FqbTznbw+BDWQCcH7lTpM7uryrWhhByaIb7UK+S2FmjYrhHEtPE4oeuQhs=
+X-Received: by 2002:a17:907:7601:: with SMTP id jx1mr7240204ejc.69.1633727571022;
+ Fri, 08 Oct 2021 14:12:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211007004629.1113572-1-tkjos@google.com> <20211007004629.1113572-4-tkjos@google.com>
+In-Reply-To: <20211007004629.1113572-4-tkjos@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 8 Oct 2021 17:12:39 -0400
+Message-ID: <CAHC9VhTRTcZW9eyXXvAN7T=ZCQ_zwH5iBz+d0h2ntf7=XHE-Vw@mail.gmail.com>
+Subject: Re: [PATCH v4 3/3] binder: use euid from cred instead of using task
+To:     Todd Kjos <tkjos@google.com>, casey@schaufler-ca.com
+Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io,
+        James Morris <jmorris@namei.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
+        jannh@google.com, Jeffrey Vander Stoep <jeffv@google.com>,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
+        kernel-team@android.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-An expression of the form "1 << x" is undefined if x == 31 because
-the "1" is an int and cannot be left shifted by 31.
+On Wed, Oct 6, 2021 at 8:46 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> Set a transaction's sender_euid from the 'struct cred'
+> saved at binder_open() instead of looking up the euid
+> from the binder proc's 'struct task'. This ensures
+> the euid is associated with the security context that
+> of the task that opened binder.
+>
+> Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+> Signed-off-by: Todd Kjos <tkjos@google.com>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: stable@vger.kernel.org # 4.4+
+> ---
+> v3: added this patch to series
+>
+>  drivers/android/binder.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Instead, use "UINT32_C(1) << x" which will be an unsigned int of
-at least 32 bits.
+This is an interesting ordering of the patches.  Unless I'm missing
+something I would have expected patch 3/3 to come first, followed by
+2/3, with patch 1/3 at the end; basically the reverse of what was
+posted here.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libselinux/src/mapping.c   | 22 +++++++++++-----------
- libselinux/src/stringrep.c |  8 ++++----
- 2 files changed, 15 insertions(+), 15 deletions(-)
+My reading of the previous thread was that Casey has made his peace
+with these changes so unless anyone has any objections I'll plan on
+merging 2/3 and 3/3 into selinux/stable-5.15 and merging 1/3 into
+selinux/next.
 
-diff --git a/libselinux/src/mapping.c b/libselinux/src/mapping.c
-index 96395fd4..dd2f1039 100644
---- a/libselinux/src/mapping.c
-+++ b/libselinux/src/mapping.c
-@@ -144,9 +144,9 @@ unmap_perm(security_class_t tclass, access_vector_t tperm)
- 		access_vector_t kperm = 0;
- 
- 		for (i = 0; i < current_mapping[tclass].num_perms; i++)
--			if (tperm & (1<<i)) {
-+			if (tperm & (UINT32_C(1)<<i)) {
- 				kperm |= current_mapping[tclass].perms[i];
--				tperm &= ~(1<<i);
-+				tperm &= ~(UINT32_C(1)<<i);
- 			}
- 		return kperm;
- 	}
-@@ -191,7 +191,7 @@ map_perm(security_class_t tclass, access_vector_t kperm)
- 
- 		for (i = 0; i < current_mapping[tclass].num_perms; i++)
- 			if (kperm & current_mapping[tclass].perms[i]) {
--				tperm |= 1<<i;
-+				tperm |= UINT32_C(1)<<i;
- 				kperm &= ~current_mapping[tclass].perms[i];
- 			}
- 
-@@ -216,30 +216,30 @@ map_decision(security_class_t tclass, struct av_decision *avd)
- 
- 		for (i = 0, result = 0; i < n; i++) {
- 			if (avd->allowed & mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 			else if (allow_unknown && !mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 		}
- 		avd->allowed = result;
- 
- 		for (i = 0, result = 0; i < n; i++) {
- 			if (avd->decided & mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 			else if (allow_unknown && !mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 		}
- 		avd->decided = result;
- 
- 		for (i = 0, result = 0; i < n; i++)
- 			if (avd->auditallow & mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 		avd->auditallow = result;
- 
- 		for (i = 0, result = 0; i < n; i++) {
- 			if (avd->auditdeny & mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 			else if (!allow_unknown && !mapping->perms[i])
--				result |= 1<<i;
-+				result |= UINT32_C(1)<<i;
- 		}
- 
- 		/*
-@@ -248,7 +248,7 @@ map_decision(security_class_t tclass, struct av_decision *avd)
- 		 * a bug in the object manager.
- 		 */
- 		for (; i < (sizeof(result)*8); i++)
--			result |= 1<<i;
-+			result |= UINT32_C(1)<<i;
- 		avd->auditdeny = result;
- 	}
- }
-diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-index 012a740a..2fe69f43 100644
---- a/libselinux/src/stringrep.c
-+++ b/libselinux/src/stringrep.c
-@@ -229,7 +229,7 @@ access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
- 		size_t i;
- 		for (i = 0; i < MAXVECTORS && node->perms[i] != NULL; i++)
- 			if (strcmp(node->perms[i],s) == 0)
--				return map_perm(tclass, 1<<i);
-+				return map_perm(tclass, UINT32_C(1)<<i);
- 	}
- 
- 	errno = EINVAL;
-@@ -261,7 +261,7 @@ const char *security_av_perm_to_string(security_class_t tclass,
- 	node = get_class_cache_entry_value(tclass);
- 	if (av && node)
- 		for (i = 0; i<MAXVECTORS; i++)
--			if ((1<<i) & av)
-+			if ((UINT32_C(1)<<i) & av)
- 				return node->perms[i];
- 
- 	return NULL;
-@@ -279,7 +279,7 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
- 	/* first pass computes the required length */
- 	for (i = 0; tmp; tmp >>= 1, i++) {
- 		if (tmp & 1) {
--			str = security_av_perm_to_string(tclass, av & (1<<i));
-+			str = security_av_perm_to_string(tclass, av & (UINT32_C(1)<<i));
- 			if (str)
- 				len += strlen(str) + 1;
- 		}
-@@ -303,7 +303,7 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
- 	ptr += sprintf(ptr, "{ ");
- 	for (i = 0; tmp; tmp >>= 1, i++) {
- 		if (tmp & 1) {
--			str = security_av_perm_to_string(tclass, av & (1<<i));
-+			str = security_av_perm_to_string(tclass, av & (UINT32_C(1)<<i));
- 			if (str)
- 				ptr += sprintf(ptr, "%s ", str);
- 		}
--- 
-2.31.1
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 989afd0804ca..26382e982c5e 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -2711,7 +2711,7 @@ static void binder_transaction(struct binder_proc *proc,
+>                 t->from = thread;
+>         else
+>                 t->from = NULL;
+> -       t->sender_euid = task_euid(proc->tsk);
+> +       t->sender_euid = proc->cred->euid;
+>         t->to_proc = target_proc;
+>         t->to_thread = target_thread;
+>         t->code = tr->code;
+> --
+> 2.33.0.800.g4c38ced690-goog
 
+--
+paul moore
+www.paul-moore.com
