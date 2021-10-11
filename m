@@ -2,174 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A8CAC433EF
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 14:31:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6D16C433EF
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2C776023F
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 14:31:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C52C60E8B
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241969AbhJKOdt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 10:33:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43756 "EHLO
+        id S231976AbhJKQ2X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 12:28:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231716AbhJKOdp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 10:33:45 -0400
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90182C061346;
-        Mon, 11 Oct 2021 07:25:41 -0700 (PDT)
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-        (envelope-from <fw@breakpoint.cc>)
-        id 1mZwFF-0001Vl-OB; Mon, 11 Oct 2021 16:25:37 +0200
-From:   Florian Westphal <fw@strlen.de>
+        with ESMTP id S231972AbhJKQ2X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 12:28:23 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D39FC061570
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:23 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id a25so54087124edx.8
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=AX5qh+ur3qJAl3DtWyHZtpg/G37EwbOeU+AeMnO9V0o=;
+        b=pnOd0iVbfnT8nhNQs9vBRuzGaJ3FrU7uD2qrFOijhj30Sw1QD+l+6aKFigJ6dVQORR
+         xlxKaVps4fjqSmqDuhS08E5KgChDQ2Ju8zt95gFpP6aNM9cCxe6lB3e+MhAftMdv/suk
+         1S28MmTQALbSUW5k8TUeZ5/qAjjwon/tH5hdOJGRCIG7x/aIe1PN0ZLdnd1ezQeNo1yf
+         AxAv6Uj2i/yIPa8t1VHAPzkV2bKXBXLPkjBUBk79ZildkpB9BPlcBZXM6ce1Cq87+XyW
+         GiiWyJndlfRISSavXTvl9OoWeR6uvJMJ85HHjXLu0N2afpRlf17IlShOtI1PSPDiMv0u
+         1S0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=AX5qh+ur3qJAl3DtWyHZtpg/G37EwbOeU+AeMnO9V0o=;
+        b=gY6ktqYidUkDOYs9wuGo62j1xyA1s0UQbuGWPNET+bqW5ookErATD1/tzTUIbBZjM5
+         MVj1jV8eQkCQ/3xytARhyPK4mNm14CpuE5e0IAybkBvqxt/KkbGqMmgze/YnyubzVfN0
+         Tf2btyvwsqFP+QXDfcNCKQUtGJ0ecukT6vwEcLZVzJIjZQK4+xZ+H1JNeylN8QH074LL
+         vgrNb8SkqeN/KnkQOAqg9bNMj6QS5h6jBA/rKIH5h0RaSX0Vw0KR781pQaHJkVBE2eAq
+         53k2Pc9pJ35GnC3kWRPmcwdQxF1p4abWVAP0SEMdHvbrneagl2GLVbLt+uP2YPuz5dQR
+         krow==
+X-Gm-Message-State: AOAM530DjQYSMo78gZgQGM/4ok61bUMM8AnBs/4V87pYKf61pIKaEIi1
+        wYtgkhcOEbM1uhEBNsdNbjMVIWoV1e0=
+X-Google-Smtp-Source: ABdhPJyhnF/VpKlPkuH47BsqxMpDnJWFaO26J75XkalgE4l3rU6aVmcaQbxA0ss/IN9YiG1ADc5yfA==
+X-Received: by 2002:a05:6402:2805:: with SMTP id h5mr38363456ede.169.1633969581824;
+        Mon, 11 Oct 2021 09:26:21 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefonica.de. [77.10.85.58])
+        by smtp.gmail.com with ESMTPSA id a1sm4489514edu.43.2021.10.11.09.26.21
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Oct 2021 09:26:21 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, linux-kernel@vger.kernel.org,
-        Florian Westphal <fw@strlen.de>
-Subject: [PATCH v2 selinux] selinux: remove unneeded ipv6 hook wrappers
-Date:   Mon, 11 Oct 2021 16:24:16 +0200
-Message-Id: <20211011142416.26798-1-fw@strlen.de>
-X-Mailer: git-send-email 2.32.0
+Subject: [RFC PATCH 01/35] cifuzz: enable report-unreproducible-crashes
+Date:   Mon, 11 Oct 2021 18:24:59 +0200
+Message-Id: <20211011162533.53404-2-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211011162533.53404-1-cgzones@googlemail.com>
+References: <20211011162533.53404-1-cgzones@googlemail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Netfilter places the protocol number the hook function is getting called
-from in state->pf, so we can use that instead of an extra wrapper.
+Fail and report unreproducible fuzzing crashes and leaks. Such failures
+are probably related to some global state not properly reset in the
+fuzzer and can cause OSS-Fuzz to report flaky issues.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Suggested-by: Evgeny Vereshchagin
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- v2: add back '#endif /* CONFIG_NETFILTER */' erronously axed in v1.
- Applies to 'next' branch of
- https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/
+ .github/workflows/cifuzz.yml | 1 +
+ 1 file changed, 1 insertion(+)
 
- security/selinux/hooks.c | 52 ++++++++++------------------------------
- 1 file changed, 12 insertions(+), 40 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e7ebd45ca345..831b857d5dd7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5746,22 +5746,13 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ipv4_forward(void *priv,
-+static unsigned int selinux_hook_forward(void *priv,
- 					 struct sk_buff *skb,
- 					 const struct nf_hook_state *state)
- {
--	return selinux_ip_forward(skb, state->in, PF_INET);
-+	return selinux_ip_forward(skb, state->in, state->pf);
- }
- 
--#if IS_ENABLED(CONFIG_IPV6)
--static unsigned int selinux_ipv6_forward(void *priv,
--					 struct sk_buff *skb,
--					 const struct nf_hook_state *state)
--{
--	return selinux_ip_forward(skb, state->in, PF_INET6);
--}
--#endif	/* IPV6 */
--
- static unsigned int selinux_ip_output(struct sk_buff *skb,
- 				      u16 family)
- {
-@@ -5804,21 +5795,12 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ipv4_output(void *priv,
--					struct sk_buff *skb,
--					const struct nf_hook_state *state)
--{
--	return selinux_ip_output(skb, PF_INET);
--}
--
--#if IS_ENABLED(CONFIG_IPV6)
--static unsigned int selinux_ipv6_output(void *priv,
-+static unsigned int selinux_hook_output(void *priv,
- 					struct sk_buff *skb,
- 					const struct nf_hook_state *state)
- {
--	return selinux_ip_output(skb, PF_INET6);
-+	return selinux_ip_output(skb, state->pf);
- }
--#endif	/* IPV6 */
- 
- static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 						int ifindex,
-@@ -5994,22 +5976,12 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ipv4_postroute(void *priv,
-+static unsigned int selinux_hook_postroute(void *priv,
- 					   struct sk_buff *skb,
- 					   const struct nf_hook_state *state)
- {
--	return selinux_ip_postroute(skb, state->out, PF_INET);
-+	return selinux_ip_postroute(skb, state->out, state->pf);
- }
--
--#if IS_ENABLED(CONFIG_IPV6)
--static unsigned int selinux_ipv6_postroute(void *priv,
--					   struct sk_buff *skb,
--					   const struct nf_hook_state *state)
--{
--	return selinux_ip_postroute(skb, state->out, PF_INET6);
--}
--#endif	/* IPV6 */
--
- #endif	/* CONFIG_NETFILTER */
- 
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
-@@ -7470,38 +7442,38 @@ DEFINE_LSM(selinux) = {
- 
- static const struct nf_hook_ops selinux_nf_ops[] = {
- 	{
--		.hook =		selinux_ipv4_postroute,
-+		.hook =		selinux_hook_postroute,
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_POST_ROUTING,
- 		.priority =	NF_IP_PRI_SELINUX_LAST,
- 	},
- 	{
--		.hook =		selinux_ipv4_forward,
-+		.hook =		selinux_hook_forward,
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_FORWARD,
- 		.priority =	NF_IP_PRI_SELINUX_FIRST,
- 	},
- 	{
--		.hook =		selinux_ipv4_output,
-+		.hook =		selinux_hook_output,
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_LOCAL_OUT,
- 		.priority =	NF_IP_PRI_SELINUX_FIRST,
- 	},
- #if IS_ENABLED(CONFIG_IPV6)
- 	{
--		.hook =		selinux_ipv6_postroute,
-+		.hook =		selinux_hook_postroute,
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_POST_ROUTING,
- 		.priority =	NF_IP6_PRI_SELINUX_LAST,
- 	},
- 	{
--		.hook =		selinux_ipv6_forward,
-+		.hook =		selinux_hook_forward,
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_FORWARD,
- 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
- 	},
- 	{
--		.hook =		selinux_ipv6_output,
-+		.hook =		selinux_hook_output,
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_LOCAL_OUT,
- 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
+diff --git a/.github/workflows/cifuzz.yml b/.github/workflows/cifuzz.yml
+index 5c2233a2..b28eb71a 100644
+--- a/.github/workflows/cifuzz.yml
++++ b/.github/workflows/cifuzz.yml
+@@ -30,6 +30,7 @@ jobs:
+           oss-fuzz-project-name: 'selinux'
+           fuzz-seconds: 180
+           dry-run: false
++          report-unreproducible-crashes: true
+           sanitizer: ${{ matrix.sanitizer }}
+       - name: Upload Crash
+         uses: actions/upload-artifact@v1
 -- 
-2.32.0
+2.33.0
 
