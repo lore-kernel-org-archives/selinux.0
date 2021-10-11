@@ -2,50 +2,50 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31279C4332F
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6F04C433F5
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1CFAB60EE5
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D33B660EE5
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbhJKQ2j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S232228AbhJKQ2j (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Mon, 11 Oct 2021 12:28:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44044 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232215AbhJKQ2g (ORCPT
+        with ESMTP id S232242AbhJKQ2g (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 12:28:36 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D452C061749
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEF1C061762
         for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:35 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id g10so69242331edj.1
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:34 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id w14so18197755edv.11
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=j90EYZcqqF1wB5E7bK0Mtcxhi5SeIjBfNkP6EzOzIAo=;
-        b=PHwJWgXUQ3koI7r3BcBSa8Yk67dt01368xSwDl4MZI+iJ0mS0Xz/VtpMD437UHuMDu
-         2uE9iKbd02UzuVyAMhetRwW5lAICuJknUnXqjnw9H5kWBi7koXQ22Qi07dudlShLoUbW
-         X1Vq/tp78CXn4o2nSOJFQy+a4hhxmWqWfHrG4XXzr0Bytml0PfG8DAlLDMWsxdiMs2gY
-         x9xbsNvTEM4MiVQH+NkZfLAUOioYbvbVO7/vNIthfBLWQUmyM6WxYYOncleix2XseeUv
-         nAGSZ2dERj5ldfemycGV7NIuMyB9SLqVpn/kS473lhHnPx4y+hediRopBCuXcEpHqp0G
-         qQ1w==
+        bh=5y0Drt15itF2C/GZnjFvFERiJrniCQG2zJxSpdTv2As=;
+        b=PNs+UAExMsz+aCvo9zlVBwgIxuAhChZMabFVi6jsLMxS/298rLZjG1S6GRg6g3+QEY
+         zYC1ZLpGPErzyvGxFve45lyGR3/Y+AvoE3lBy7jJ0jwBSOKaK5bJC6MuITs9xGuw+EK5
+         Fo7pxvTOqkTVANrWj4AkuFD4KApBapIG7rEYp1N3cFA+85/8IHB3v2zIrAT7jAb/xwg4
+         4pdlnXWXllA7Lu/bCX3CDSRmxdJhNHmAEUxD6SUt904pVvTE1XdZ1xNuu0LIXty42DgE
+         xR7Z2hSJM9pcdZ8cssaXQNbX2aynqaC7xYQDAngQiV278+DQn+83rZmBmmisO5EvMivQ
+         l07w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=j90EYZcqqF1wB5E7bK0Mtcxhi5SeIjBfNkP6EzOzIAo=;
-        b=ToK+QbFzU1U83FfPYUHcn5ks40gcckV+CGeT1bpx+q/QqJD/Bw2b1noqBKomMsS40G
-         XvIaGMd2FeKDjEAoW83jV1dgYyRzdAh0uvsTJ4YD9KC6AQi0dwRAqzJFm2RoTRdpYQSz
-         FDRsOrmMt8RR+9uJLaIkt1IgKbXXIlgorOot2ko8PmPEWtC7VFEvWBA0N5GOy9DMYCPa
-         q0KqPKa9UgmANcDrlenSQhaQGHGNd9E3lvbh1R524GAZ7AfiBxaZLaunIfOZi9lLKv/7
-         oYNuq20lXMEjy8qBkzveWL9sgMssMPLeNSUcqIsolbdOsek15+0hTPBwf4mQQE7VMDeQ
-         ZMVg==
-X-Gm-Message-State: AOAM531x15jw8JE4VeTEbYNKt0DZg6ln655f6O1EilW9vpych9TFpvQ4
-        9gorpnokXm+Fr8za+8qy4f/RQmj7Ihk=
-X-Google-Smtp-Source: ABdhPJzwu4yJZtosl4Xa9SmvlbZNpgNX8yN2BX3iBE3sR/Jbtu4MMj1L5apPsx3ChIKgIdC1EdxDfA==
-X-Received: by 2002:a17:907:7803:: with SMTP id la3mr27559960ejc.235.1633969593639;
-        Mon, 11 Oct 2021 09:26:33 -0700 (PDT)
+        bh=5y0Drt15itF2C/GZnjFvFERiJrniCQG2zJxSpdTv2As=;
+        b=r52Db/WIjAUMBhaWy1V8bA/JHli/Up944y/1i42AOmAwDPBDa28nMPhu0j/NOmCh4b
+         1HBhvB4geDMdnTW4Y8mGgoRHJ0maIPTMEyWuojVg8Q7LljNS3ql1vG4/e/d19steKk8b
+         /P1LVVaTlOcsQiy67lZY9fiBy6Fg2j9sPoqar2Mm/OmPuuOpznscsfmcpCDcEN0ermBo
+         TMu7r0w7ivhck/eiOR7Az3KA5/mIv6QOZTRflawnoGzr3G6D/lEyfKXuAfRswJb8kpkr
+         5V9c5aOqOxDCGmP4dbJNmyWr+wN2LKH7YWp5bi1ku4h1f0xMAxvSAUkNldsySBQknsjZ
+         PEoQ==
+X-Gm-Message-State: AOAM532GgUtRxuy5Q4edLtf2p7qSdPeCcaKOiYtoNUWMwlfq/lKOyBge
+        V1E2oNe49YP3bqau98Ae0hY/P16Ycec=
+X-Google-Smtp-Source: ABdhPJyuVqF6gNG00NIomRfN2rTsqVSh95AkTPyEX117M2qsQf+HlV07sEbamx02tr9uDOB3ALELww==
+X-Received: by 2002:a05:6402:51d0:: with SMTP id r16mr43166287edd.353.1633969594129;
+        Mon, 11 Oct 2021 09:26:34 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefonica.de. [77.10.85.58])
         by smtp.gmail.com with ESMTPSA id a1sm4489514edu.43.2021.10.11.09.26.33
         for <selinux@vger.kernel.org>
@@ -53,9 +53,9 @@ Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefo
         Mon, 11 Oct 2021 09:26:33 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 23/35] libsepol: resolve log message mismatch
-Date:   Mon, 11 Oct 2021 18:25:21 +0200
-Message-Id: <20211011162533.53404-24-cgzones@googlemail.com>
+Subject: [RFC PATCH 24/35] libsepol: zero member before potential dereference
+Date:   Mon, 11 Oct 2021 18:25:22 +0200
+Message-Id: <20211011162533.53404-25-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011162533.53404-1-cgzones@googlemail.com>
 References: <20211011162533.53404-1-cgzones@googlemail.com>
@@ -66,24 +66,49 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+The `next` member might be checked against NULL and dereferenced before
+it gets assigned, due to jumps from failure gotos to the cleanup
+section.
+
+    ==31017==ERROR: AddressSanitizer: SEGV on unknown address (pc 0x000000579654 bp 0x7ffd3a07d110 sp 0x7ffd3a07d000 T0)
+    ==31017==The signal is caused by a READ memory access.
+    ==31017==Hint: this fault was caused by a dereference of a high value address (see register values below).  Disassemble the provided pc to learn which register was used.
+        #0 0x579654 in filename_trans_read_one ./libsepol/src/policydb.c:2874:55
+        #1 0x579654 in filename_trans_read ./libsepol/src/policydb.c:2902:9
+        #2 0x5771b7 in policydb_read ./libsepol/src/policydb.c:4509:7
+        #3 0x55a1f5 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:24:6
+        #4 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
+        #5 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
+        #6 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
+        #7 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
+        #8 0x7f2a4e7f97ec in __libc_start_main csu/../csu/libc-start.c:332:16
+        #9 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/policydb_validate.c | 2 +-
+ libsepol/src/policydb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 7ec0675c..fa128794 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -229,7 +229,7 @@ static int validate_role_datum(sepol_handle_t *handle, role_datum_t *role, valid
- 	return 0;
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 51fbd7c8..d246918b 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -2815,6 +2815,7 @@ static int filename_trans_read_one(policydb_t *p, struct policy_file *fp)
+ 		if (!datum)
+ 			goto err;
  
- bad:
--	ERR(handle, "Invalid class datum");
-+	ERR(handle, "Invalid role datum");
- 	return -1;
- }
++		datum->next = NULL;
+ 		*dst = datum;
  
+ 		/* ebitmap_read() will at least init the bitmap */
+@@ -2832,7 +2833,6 @@ static int filename_trans_read_one(policydb_t *p, struct policy_file *fp)
+ 
+ 		dst = &datum->next;
+ 	}
+-	*dst = NULL;
+ 
+ 	if (ndatum > 1 && filename_trans_check_datum(first))
+ 		goto err;
 -- 
 2.33.0
 
