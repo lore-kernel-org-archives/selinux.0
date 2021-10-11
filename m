@@ -2,208 +2,138 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5071C433EF
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 20:22:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8EB9C433F5
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 21:33:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF05560F14
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 20:22:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8635660E54
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 21:33:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234867AbhJKUYn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 16:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41088 "EHLO
+        id S235294AbhJKVff (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 17:35:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234845AbhJKUYn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 16:24:43 -0400
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A124EC061570;
-        Mon, 11 Oct 2021 13:22:42 -0700 (PDT)
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-        (envelope-from <fw@breakpoint.cc>)
-        id 1ma1ol-00038Z-0n; Mon, 11 Oct 2021 22:22:39 +0200
-From:   Florian Westphal <fw@strlen.de>
-To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, linux-kernel@vger.kernel.org,
-        omosnace@redhat.com, Florian Westphal <fw@strlen.de>
-Subject: [PATCH selinux v3] selinux: remove unneeded ipv6 hook wrappers
-Date:   Mon, 11 Oct 2021 22:22:29 +0200
-Message-Id: <20211011202229.28289-1-fw@strlen.de>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S230114AbhJKVfe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 17:35:34 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E389EC061570
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 14:33:33 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id w19so12880631edd.2
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 14:33:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GGoeVfz6OToFDd2j2G5lbQgP/Z/GdhCpDi+ufur7oeE=;
+        b=Mq0m5Xj0EIW9KQayGt47Wid8m2/y3C0+he9zd+pv9/BVQrByW2jeqsDk26w8giHJFp
+         RyBPr79fPF2JLVPMFCgdiV9TYRAOAR8li5ucmX7NCHHokbh2xqjr11yAzW0uh4zTeFHS
+         5srV58tAbEENRyCVmS6rTeyrgWzw5wZpL9KwPXBMsOicKR53b7hrdYGjlStYNJzjrwII
+         a9jrE2ND8gNxujmSrVfvwX9vPFWJGRBCcT4/c/qVDGZwvBE3POvfs87DlVxSSYX9PkQ5
+         7E+ID/16RUI0DjtyQyGjSUylCBXioY+y+swnoWsugIa6bCSwukf/U7XxX2s433TYf8WQ
+         RdGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GGoeVfz6OToFDd2j2G5lbQgP/Z/GdhCpDi+ufur7oeE=;
+        b=KzMylFZU5792ixUi+7kKNamE7r1yuiv6IjbHIFsLTskASPgYchrMauLNvSCn0+0syN
+         f/64JDJNBau7R3n1vNuhCNsG8caHiZzamTkMCazgwvTbkmxuYX4xWaJrQQjboYqeHtpO
+         mhiTdEYYF8ozFJ2fmOHhFLvYnHhYdxkljEFatOPiKpHqDIUfMVzOgmp/Kvu+v+LdBQoR
+         Xip5weu9rha7IVC9LDiGT8Wa+sMKtLRUYTSY3l2GHDELXA5ij6s5UzO5Kpg7zO4iM5QJ
+         tujmC/A2GZMBFe4emRooyyt3OADnJStXi7lMqnElxMSRUHDWS0YvUOo0K1TIB52+TGYN
+         /4Pg==
+X-Gm-Message-State: AOAM531LFbIpGH7r6l5P7ycURbwk/vTuxWMqvU4CgVb8GnTZJsJLbPMF
+        XuqhLBp7kop2FOqW9W4mxTDutXON9lTxz9VlgQCv/UrdqQ==
+X-Google-Smtp-Source: ABdhPJx9AGRTTYFCiQKOTA6jSrrQf8NQGirG9ufQKc9MzXqqtVvRPEka65LpUbML3Hzub2vP+riRnQA01bq2XN6Yfr4=
+X-Received: by 2002:a50:e1cd:: with SMTP id m13mr45973619edl.93.1633988012430;
+ Mon, 11 Oct 2021 14:33:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211007004629.1113572-1-tkjos@google.com> <20211007004629.1113572-3-tkjos@google.com>
+In-Reply-To: <20211007004629.1113572-3-tkjos@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 11 Oct 2021 17:33:21 -0400
+Message-ID: <CAHC9VhSDnwapGk6Pvn5iuKv0zCtZSbfnGAkZwKcxVYLVRH6CLg@mail.gmail.com>
+Subject: Re: [PATCH v4 2/3] binder: use cred instead of task for getsecid
+To:     Todd Kjos <tkjos@google.com>
+Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io,
+        James Morris <jmorris@namei.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
+        jannh@google.com, Jeffrey Vander Stoep <jeffv@google.com>,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
+        kernel-team@android.com, kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Netfilter places the protocol number the hook function is getting called
-from in state->pf, so we can use that instead of an extra wrapper.
+On Wed, Oct 6, 2021 at 8:46 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> Use the 'struct cred' saved at binder_open() to lookup
+> the security ID via security_cred_getsecid(). This
+> ensures that the security context that opened binder
+> is the one used to generate the secctx.
+>
+> Fixes: ec74136ded79 ("binder: create node flag to request sender's
+> security context")
+> Signed-off-by: Todd Kjos <tkjos@google.com>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: stable@vger.kernel.org # 5.4+
+> ---
+> v3: added this patch to series
+> v4: fix build-break for !CONFIG_SECURITY
+>
+>  drivers/android/binder.c | 11 +----------
+>  include/linux/security.h |  4 ++++
+>  2 files changed, 5 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index ca599ebdea4a..989afd0804ca 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -2722,16 +2722,7 @@ static void binder_transaction(struct binder_proc *proc,
+>                 u32 secid;
+>                 size_t added_size;
+>
+> -               /*
+> -                * Arguably this should be the task's subjective LSM secid but
+> -                * we can't reliably access the subjective creds of a task
+> -                * other than our own so we must use the objective creds, which
+> -                * are safe to access.  The downside is that if a task is
+> -                * temporarily overriding it's creds it will not be reflected
+> -                * here; however, it isn't clear that binder would handle that
+> -                * case well anyway.
+> -                */
+> -               security_task_getsecid_obj(proc->tsk, &secid);
+> +               security_cred_getsecid(proc->cred, &secid);
+>                 ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
+>                 if (ret) {
+>                         return_error = BR_FAILED_REPLY;
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 6344d3362df7..f02cc0211b10 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1041,6 +1041,10 @@ static inline void security_transfer_creds(struct cred *new,
+>  {
+>  }
+>
+> +static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +}
 
-While at it, remove one-line wrappers too and make
-selinux_ip_{out,forward,postroute} useable as hook function.
+Since security_cred_getsecid() doesn't return an error code we should
+probably set the secid to 0 in this case, for example:
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
----
- v3: also remove the one-line wrappers, just adjust function signature
- of the actual functions (Ondrej Mosnacek)
+  static inline void security_cred_getsecid(...)
+  {
+    *secid = 0;
+  }
 
- security/selinux/hooks.c | 80 +++++++++-------------------------------
- 1 file changed, 18 insertions(+), 62 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e7ebd45ca345..3f6462451921 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5688,10 +5688,11 @@ static int selinux_tun_dev_open(void *security)
- 
- #ifdef CONFIG_NETFILTER
- 
--static unsigned int selinux_ip_forward(struct sk_buff *skb,
--				       const struct net_device *indev,
--				       u16 family)
-+static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
-+				       const struct nf_hook_state *state)
- {
-+	const struct net_device *indev = state->in;
-+	u16 family = state->pf;
- 	int err;
- 	char *addrp;
- 	u32 peer_sid;
-@@ -5746,25 +5747,10 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ipv4_forward(void *priv,
--					 struct sk_buff *skb,
--					 const struct nf_hook_state *state)
--{
--	return selinux_ip_forward(skb, state->in, PF_INET);
--}
--
--#if IS_ENABLED(CONFIG_IPV6)
--static unsigned int selinux_ipv6_forward(void *priv,
--					 struct sk_buff *skb,
--					 const struct nf_hook_state *state)
--{
--	return selinux_ip_forward(skb, state->in, PF_INET6);
--}
--#endif	/* IPV6 */
--
--static unsigned int selinux_ip_output(struct sk_buff *skb,
--				      u16 family)
-+static unsigned int selinux_ip_output(void *priv, struct sk_buff *skb,
-+				      const struct nf_hook_state *state)
- {
-+	u16 family = state->pf;
- 	struct sock *sk;
- 	u32 sid;
- 
-@@ -5804,21 +5790,6 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ipv4_output(void *priv,
--					struct sk_buff *skb,
--					const struct nf_hook_state *state)
--{
--	return selinux_ip_output(skb, PF_INET);
--}
--
--#if IS_ENABLED(CONFIG_IPV6)
--static unsigned int selinux_ipv6_output(void *priv,
--					struct sk_buff *skb,
--					const struct nf_hook_state *state)
--{
--	return selinux_ip_output(skb, PF_INET6);
--}
--#endif	/* IPV6 */
- 
- static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 						int ifindex,
-@@ -5854,10 +5825,12 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ip_postroute(struct sk_buff *skb,
--					 const struct net_device *outdev,
--					 u16 family)
-+static unsigned int selinux_ip_postroute(void *priv,
-+					 struct sk_buff *skb,
-+					 const struct nf_hook_state *state)
- {
-+	const struct net_device *outdev = state->out;
-+	u16 family = state->pf;
- 	u32 secmark_perm;
- 	u32 peer_sid;
- 	int ifindex = outdev->ifindex;
-@@ -5993,23 +5966,6 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb,
- 
- 	return NF_ACCEPT;
- }
--
--static unsigned int selinux_ipv4_postroute(void *priv,
--					   struct sk_buff *skb,
--					   const struct nf_hook_state *state)
--{
--	return selinux_ip_postroute(skb, state->out, PF_INET);
--}
--
--#if IS_ENABLED(CONFIG_IPV6)
--static unsigned int selinux_ipv6_postroute(void *priv,
--					   struct sk_buff *skb,
--					   const struct nf_hook_state *state)
--{
--	return selinux_ip_postroute(skb, state->out, PF_INET6);
--}
--#endif	/* IPV6 */
--
- #endif	/* CONFIG_NETFILTER */
- 
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
-@@ -7470,38 +7426,38 @@ DEFINE_LSM(selinux) = {
- 
- static const struct nf_hook_ops selinux_nf_ops[] = {
- 	{
--		.hook =		selinux_ipv4_postroute,
-+		.hook =		selinux_ip_postroute,
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_POST_ROUTING,
- 		.priority =	NF_IP_PRI_SELINUX_LAST,
- 	},
- 	{
--		.hook =		selinux_ipv4_forward,
-+		.hook =		selinux_ip_forward,
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_FORWARD,
- 		.priority =	NF_IP_PRI_SELINUX_FIRST,
- 	},
- 	{
--		.hook =		selinux_ipv4_output,
-+		.hook =		selinux_ip_output,
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_LOCAL_OUT,
- 		.priority =	NF_IP_PRI_SELINUX_FIRST,
- 	},
- #if IS_ENABLED(CONFIG_IPV6)
- 	{
--		.hook =		selinux_ipv6_postroute,
-+		.hook =		selinux_ip_postroute,
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_POST_ROUTING,
- 		.priority =	NF_IP6_PRI_SELINUX_LAST,
- 	},
- 	{
--		.hook =		selinux_ipv6_forward,
-+		.hook =		selinux_ip_forward,
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_FORWARD,
- 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
- 	},
- 	{
--		.hook =		selinux_ipv6_output,
-+		.hook =		selinux_ip_output,
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_LOCAL_OUT,
- 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
 -- 
-2.32.0
-
+paul moore
+www.paul-moore.com
