@@ -2,49 +2,49 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C94C8C433F5
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23D9CC4332F
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B770660E8B
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 088A860E8B
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232256AbhJKQ2g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 12:28:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44014 "EHLO
+        id S232185AbhJKQ2h (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 12:28:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232185AbhJKQ2d (ORCPT
+        with ESMTP id S232198AbhJKQ2d (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 12:28:33 -0400
 Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D9C3C061749
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D01C06161C
         for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:32 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id d9so46037486edh.5
+Received: by mail-ed1-x535.google.com with SMTP id i20so53524277edj.10
         for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=EAcjYo/UANBtXSL6TDkzco2wBxRBoJWi6Qv9xG+KoXc=;
-        b=fBhI9Ogi2uxbRANQgQBA9HWJT7jlBlKeM9Bsjxsplmckd7hbu4piQyz1+nJKa0mGnC
-         Ekp3wq/XssuXFmzSUCixkQ1ft2GrQRHjZPAOgFMxKTSGXovYnD6AjnUr5T2GxP0j9Kld
-         u3o1DH+zxmY2jDoMYxtFRTqeVlDuBGK6oyL4nFzcTBoTyGmHXQ42dugYSWMli3zQO9rS
-         SNP/X/d4kYIe5GXImti9B34UL9HKRbiNZ+NsThezQF82Ep9slb2T8c0gCqTOr9OoOxTs
-         ROf3djXNqeGdiyLVY/sa4/WIdmbHF5F3Znx3pPb2tGLhCIwDxVkG1bUMhwPwcQ+gyExS
-         1BAg==
+        bh=BHup1qlMaWZvty1dyVJCc9ZAK6lZDscNovHZ5OLEpxY=;
+        b=LXhCppsUdPHpuEoMgptjPR7ch5NeENM0VU5h2PnXmPvzTlrHiAMcltQm/KnjvRHIj4
+         QE4Kk3UDjIQzbBsKvysv05Yff4+8lfzt9xmZEzcga+GYXmSDR9rPJkGgxUpxnkDGpNHG
+         4BCJR3GFL0mX3cjStAZquLf1E4VYmHbkMhg1BpdlX8kWwp8W+6p+X8pK4xaPU/OWhF4+
+         oP3sQ3HnHS+siJ7AZLYqEBXIJUXckoM4klgeofmNAf+3ygzdtn3RPleRubzrT+IEw7yo
+         Fkx15HWylKgls4O/5ImUJUvLHTukhiCa8Y+d8tq7PTP44ma+nJaSUzW+jbPRgWBez9J3
+         WSbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=EAcjYo/UANBtXSL6TDkzco2wBxRBoJWi6Qv9xG+KoXc=;
-        b=DvvCE9RAERD9emHBeHUYQoZ2ZFS3khXIxGKvSXv+eKJFGf0IceskPQlU0Nr1MqyH6S
-         oE5+GviupY4oBt3K0/eafLj2blAl4VqceXcl5XwG2uKV9tdEOPwdp/3MtZy44DwYt0Zz
-         89MVwAos4bIXwMVhVwMMbDJjHHzFvLl0ZjqbEH7cyeY8WNIx3P3xhh7PuhcQZrP1xBE0
-         po2cr+Pf0wnCWiQg0fQwNrzUDRLkgR7mAbvJ/rmjnpC7ORtT+SF7uN17C3eVzZdXsJUX
-         A/88cND0HcwUOtgzsSmRaDxIc+3WMOnA3HQGwAxq0kykWrn5LQ22ZHPc1jRnrYmG92SM
-         9vkg==
-X-Gm-Message-State: AOAM5314EsFS/NUROTSUfYkNmMoGwU8QaYBKEMvclI0nPjyRYAJTN9tt
-        qyNYSoBKadqTbLhVssJk9qR8N/+Uk6Y=
-X-Google-Smtp-Source: ABdhPJzsb0cZX932+buHKkfU/L693MzSQGxt28wmrbHkrUc6fZ6+abpILRunA1C6RJfHAJc/nGg81g==
-X-Received: by 2002:a17:906:2bc7:: with SMTP id n7mr26375048ejg.238.1633969590986;
+        bh=BHup1qlMaWZvty1dyVJCc9ZAK6lZDscNovHZ5OLEpxY=;
+        b=Q++V0vqDUlIQ/lQwiddeRyzNcW/sAiPzFBJ043m+bZciFoc5XiTVaT9LKyV4I15rze
+         xPRRrgwHKWKY7AL3UUWITx7LP7FFKQHiWEq20n/eJLKqpxFnNld/6xsWCo76NNsrfvjK
+         pMaddzANzbUlx3RiF0pZxyb6rdBJIFz2AwXt7uUgDPjWUKQWF8HTyDg2BizXQjmn1Cd6
+         90jaXKdK/H6uUjuTFFmNz5If8rsiWkZgXVwqv6rSYJPQUAiaV8THT0Dp9be0MS5+DJHJ
+         pvSKqqttDuNZl2bbaiVjSi9LYOo6YmnXfoqFvtYDzhOONlnBELT+5QiTM0GL9STydJ4S
+         NRAQ==
+X-Gm-Message-State: AOAM531Qrdw4vrlMfOIOMzzz400ELTWf1E9P/lF659QmDeW4bg5JS/QQ
+        b/6UL+sHXXVPOma39y+Mf7JB276CK6I=
+X-Google-Smtp-Source: ABdhPJz7Bg2gXI3N5sMx1MDj3Mm+TT2/tHifHM4HRj6cahUL1EfTJtVQa77jz0hHyxPtR99QMMkDZA==
+X-Received: by 2002:a17:906:3148:: with SMTP id e8mr26916093eje.240.1633969590474;
         Mon, 11 Oct 2021 09:26:30 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefonica.de. [77.10.85.58])
         by smtp.gmail.com with ESMTPSA id a1sm4489514edu.43.2021.10.11.09.26.30
@@ -53,9 +53,9 @@ Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefo
         Mon, 11 Oct 2021 09:26:30 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 18/35] libsepol: use size_t for indexes in strs helpers
-Date:   Mon, 11 Oct 2021 18:25:16 +0200
-Message-Id: <20211011162533.53404-19-cgzones@googlemail.com>
+Subject: [RFC PATCH 17/35] libsepol: validate types
+Date:   Mon, 11 Oct 2021 18:25:15 +0200
+Message-Id: <20211011162533.53404-18-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011162533.53404-1-cgzones@googlemail.com>
 References: <20211011162533.53404-1-cgzones@googlemail.com>
@@ -66,65 +66,69 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use size_t, as the strs struct uses it for its size member.
+Check all types are valid values, especially important for aliases.
+
+    ==9702==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000af8 at pc 0x000000560698 bp 0x7ffcca93b9f0 sp 0x7ffcca93b9e8
+    READ of size 8 at 0x602000000af8 thread T0
+        #0 0x560697 in write_type_alias_rules_to_conf ./libsepol/src/kernel_to_conf.c:1424:10
+        #1 0x55af16 in sepol_kernel_policydb_to_conf ./libsepol/src/kernel_to_conf.c:3131:7
+        #2 0x55a34f in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:38:9
+        #3 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
+        #4 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
+        #5 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
+        #6 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
+        #7 0x7f518b1d57ec in __libc_start_main csu/../csu/libc-start.c:332:16
+        #8 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/kernel_to_common.c | 8 ++++----
- libsepol/src/kernel_to_common.h | 4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ libsepol/src/policydb_validate.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 51df8c25..47c02d61 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -159,7 +159,7 @@ int strs_add(struct strs *strs, char *s)
- {
- 	if (strs->num + 1 > strs->size) {
- 		char **new;
--		unsigned i = strs->size;
-+		size_t i = strs->size;
- 		strs->size *= 2;
- 		new = reallocarray(strs->list, strs->size, sizeof(char *));
- 		if (!new) {
-@@ -212,11 +212,11 @@ char *strs_remove_last(struct strs *strs)
- 	return strs->list[strs->num];
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index a6ae728a..c9700399 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -348,6 +348,14 @@ static int validate_level(__attribute__ ((unused))hashtab_key_t k, hashtab_datum
+ 	return validate_mls_level(level->level, &flavors[SYM_LEVELS], &flavors[SYM_CATS]);
  }
  
--int strs_add_at_index(struct strs *strs, char *s, unsigned index)
-+int strs_add_at_index(struct strs *strs, char *s, size_t index)
++static int validate_datum(__attribute__ ((unused))hashtab_key_t k, hashtab_datum_t d, void *args)
++{
++	symtab_datum_t *s = d;
++	uint32_t *nprim = (uint32_t *)args;
++
++	return !value_isvalid(s->value, *nprim);
++}
++
+ static int validate_datum_arrays(sepol_handle_t *handle, policydb_t *p, validate_t flavors[])
  {
- 	if (index >= strs->size) {
- 		char **new;
--		unsigned i = strs->size;
-+		size_t i = strs->size;
- 		while (index >= strs->size) {
- 			strs->size *= 2;
+ 	unsigned int i;
+@@ -406,6 +414,9 @@ static int validate_datum_arrays(sepol_handle_t *handle, policydb_t *p, validate
  		}
-@@ -237,7 +237,7 @@ int strs_add_at_index(struct strs *strs, char *s, unsigned index)
- 	return 0;
+ 	}
+ 
++	if (hashtab_map(p->p_types.table, validate_datum, &flavors[SYM_TYPES]))
++		goto bad;
++
+ 	if (hashtab_map(p->p_levels.table, validate_level, flavors))
+ 		goto bad;
+ 
+@@ -707,14 +718,6 @@ bad:
+ 	return -1;
  }
  
--char *strs_read_at_index(struct strs *strs, unsigned index)
-+char *strs_read_at_index(struct strs *strs, size_t index)
+-static int validate_datum(__attribute__ ((unused))hashtab_key_t k, hashtab_datum_t d, void *args)
+-{
+-	symtab_datum_t *s = d;
+-	uint32_t *nprim = (uint32_t *)args;
+-
+-	return !value_isvalid(s->value, *nprim);
+-}
+-
+ static int validate_symtabs(sepol_handle_t *handle, symtab_t symtabs[], validate_t flavors[])
  {
- 	if (index >= strs->num) {
- 		return NULL;
-diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_common.h
-index 8aa483fa..e9932d30 100644
---- a/libsepol/src/kernel_to_common.h
-+++ b/libsepol/src/kernel_to_common.h
-@@ -99,8 +99,8 @@ int strs_add(struct strs *strs, char *s);
- __attribute__ ((format(printf, 2, 4)))
- int strs_create_and_add(struct strs *strs, const char *fmt, int num, ...);
- char *strs_remove_last(struct strs *strs);
--int strs_add_at_index(struct strs *strs, char *s, unsigned index);
--char *strs_read_at_index(struct strs *strs, unsigned index);
-+int strs_add_at_index(struct strs *strs, char *s, size_t index);
-+char *strs_read_at_index(struct strs *strs, size_t index);
- void strs_sort(struct strs *strs);
- unsigned strs_num_items(struct strs *strs);
- size_t strs_len_items(struct strs *strs);
+ 	unsigned int i;
 -- 
 2.33.0
 
