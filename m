@@ -2,61 +2,62 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8EB9C433F5
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 21:33:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBB95C433EF
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 21:34:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8635660E54
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 21:33:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D30C860E52
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 21:34:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235294AbhJKVff (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 17:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57008 "EHLO
+        id S235277AbhJKVga (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 17:36:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230114AbhJKVfe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 17:35:34 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E389EC061570
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 14:33:33 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id w19so12880631edd.2
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 14:33:33 -0700 (PDT)
+        with ESMTP id S235281AbhJKVg3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 17:36:29 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D78C061570
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 14:34:28 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id w14so21074334edv.11
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 14:34:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=GGoeVfz6OToFDd2j2G5lbQgP/Z/GdhCpDi+ufur7oeE=;
-        b=Mq0m5Xj0EIW9KQayGt47Wid8m2/y3C0+he9zd+pv9/BVQrByW2jeqsDk26w8giHJFp
-         RyBPr79fPF2JLVPMFCgdiV9TYRAOAR8li5ucmX7NCHHokbh2xqjr11yAzW0uh4zTeFHS
-         5srV58tAbEENRyCVmS6rTeyrgWzw5wZpL9KwPXBMsOicKR53b7hrdYGjlStYNJzjrwII
-         a9jrE2ND8gNxujmSrVfvwX9vPFWJGRBCcT4/c/qVDGZwvBE3POvfs87DlVxSSYX9PkQ5
-         7E+ID/16RUI0DjtyQyGjSUylCBXioY+y+swnoWsugIa6bCSwukf/U7XxX2s433TYf8WQ
-         RdGA==
+        bh=2ASvbaX4mULlaQ5VNPfAMnoxqnz/X2X3p0hluU+FIx0=;
+        b=GiaUqRzMzNZdxYScPjPe67tmbRfAkynuVW7jg+j+0HBDVYAZ68l2sqeWVWgHuZrcBU
+         k6U7oTLA4aSdUOyJNK92QwUQlGj8rxB0exbbQpz1TWi70ip96mgchR3g5BpCZXnQwRMz
+         H+lXteD9kB9UeLgfxAE/A7DZMwh4T1CLoYvQ1dSezaMFim857pG5rcZ1bH+r0wmceFAs
+         OEW87b2KDx+sdoXDzWliapO3EmyyxQbo1T2z2wDIuy0Gtu0fEuv8qmg2TBrLvCLBepJm
+         H01rmaiD2lU2pNAU2sCoIHLBayWlWbtQcGUzWQSuIyTIxd1ZozWZMrw6e8DPm6ydlhsF
+         fyGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=GGoeVfz6OToFDd2j2G5lbQgP/Z/GdhCpDi+ufur7oeE=;
-        b=KzMylFZU5792ixUi+7kKNamE7r1yuiv6IjbHIFsLTskASPgYchrMauLNvSCn0+0syN
-         f/64JDJNBau7R3n1vNuhCNsG8caHiZzamTkMCazgwvTbkmxuYX4xWaJrQQjboYqeHtpO
-         mhiTdEYYF8ozFJ2fmOHhFLvYnHhYdxkljEFatOPiKpHqDIUfMVzOgmp/Kvu+v+LdBQoR
-         Xip5weu9rha7IVC9LDiGT8Wa+sMKtLRUYTSY3l2GHDELXA5ij6s5UzO5Kpg7zO4iM5QJ
-         tujmC/A2GZMBFe4emRooyyt3OADnJStXi7lMqnElxMSRUHDWS0YvUOo0K1TIB52+TGYN
-         /4Pg==
-X-Gm-Message-State: AOAM531LFbIpGH7r6l5P7ycURbwk/vTuxWMqvU4CgVb8GnTZJsJLbPMF
-        XuqhLBp7kop2FOqW9W4mxTDutXON9lTxz9VlgQCv/UrdqQ==
-X-Google-Smtp-Source: ABdhPJx9AGRTTYFCiQKOTA6jSrrQf8NQGirG9ufQKc9MzXqqtVvRPEka65LpUbML3Hzub2vP+riRnQA01bq2XN6Yfr4=
-X-Received: by 2002:a50:e1cd:: with SMTP id m13mr45973619edl.93.1633988012430;
- Mon, 11 Oct 2021 14:33:32 -0700 (PDT)
+        bh=2ASvbaX4mULlaQ5VNPfAMnoxqnz/X2X3p0hluU+FIx0=;
+        b=Qy/kvp6i9tLApvG+Qg2HHS0Qi0aFcPgRXaodxCzLbRmCJvCuiMeGnp/3eUP3c/22wA
+         52shCKwGToRUNowp+b6bQtS+m0Bsp4M1NCf121QTEvg4zMMBjuxajkdDOTDGStpTSdB2
+         TvFNXFk0tYhqljdLoQ1y88qZcNDxAmbokH93fkw+moT1hr/QR8zrrdlEkx5ZHHXSxIcv
+         p0HehgZXUwlEd0h7hC5Au9A/YA5625veXnh0ki5Syl0RZKQWue2xIg3b7x1SZVPPPCPh
+         jcA5Fg2KHTr4FeUacztSx+jH0ZMcLbHvNcy7SxU+DzBvi5BHAw4OtZmYRWV3fUxMSIoX
+         mj0Q==
+X-Gm-Message-State: AOAM531ESJVx86gGv+nbjbN7d2SCxw+UOgZK3+mHAOwrkBDArGV10wco
+        lb2Rvx0xpIXr2YCCFvaZZpwxOVwbzZGy6XAUI9qo
+X-Google-Smtp-Source: ABdhPJyO3wD+tHrVQmXHAZ7sE5WYEdQl0aKMJ//KoLlskSOmk+AfJORoEj9x9vQTLaFdFxfB1vfKy3dWfszaiXIkUn8=
+X-Received: by 2002:a17:906:2f16:: with SMTP id v22mr27539784eji.126.1633988066527;
+ Mon, 11 Oct 2021 14:34:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211007004629.1113572-1-tkjos@google.com> <20211007004629.1113572-3-tkjos@google.com>
-In-Reply-To: <20211007004629.1113572-3-tkjos@google.com>
+References: <20211007004629.1113572-1-tkjos@google.com> <20211007004629.1113572-4-tkjos@google.com>
+ <CAHC9VhTRTcZW9eyXXvAN7T=ZCQ_zwH5iBz+d0h2ntf7=XHE-Vw@mail.gmail.com> <6dd3cdff-c4eb-6457-f04c-199263acd80b@schaufler-ca.com>
+In-Reply-To: <6dd3cdff-c4eb-6457-f04c-199263acd80b@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 11 Oct 2021 17:33:21 -0400
-Message-ID: <CAHC9VhSDnwapGk6Pvn5iuKv0zCtZSbfnGAkZwKcxVYLVRH6CLg@mail.gmail.com>
-Subject: Re: [PATCH v4 2/3] binder: use cred instead of task for getsecid
-To:     Todd Kjos <tkjos@google.com>
-Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, christian@brauner.io,
-        James Morris <jmorris@namei.org>,
+Date:   Mon, 11 Oct 2021 17:34:15 -0400
+Message-ID: <CAHC9VhQfPn88QZSMEw1d04V4f9MWwJxUDd-ibTd+6GTBiYLAPg@mail.gmail.com>
+Subject: Re: [PATCH v4 3/3] binder: use euid from cred instead of using task
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Todd Kjos <tkjos@google.com>, gregkh@linuxfoundation.org,
+        arve@android.com, tkjos@android.com, maco@android.com,
+        christian@brauner.io, James Morris <jmorris@namei.org>,
         Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
@@ -64,75 +65,45 @@ Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
         zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, devel@driverdev.osuosl.org,
         linux-kernel@vger.kernel.org, joel@joelfernandes.org,
-        kernel-team@android.com, kernel test robot <lkp@intel.com>,
-        stable@vger.kernel.org
+        kernel-team@android.com, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 6, 2021 at 8:46 PM Todd Kjos <tkjos@google.com> wrote:
+On Fri, Oct 8, 2021 at 5:25 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
 >
-> Use the 'struct cred' saved at binder_open() to lookup
-> the security ID via security_cred_getsecid(). This
-> ensures that the security context that opened binder
-> is the one used to generate the secctx.
+> On 10/8/2021 2:12 PM, Paul Moore wrote:
+> > On Wed, Oct 6, 2021 at 8:46 PM Todd Kjos <tkjos@google.com> wrote:
+> >> Set a transaction's sender_euid from the 'struct cred'
+> >> saved at binder_open() instead of looking up the euid
+> >> from the binder proc's 'struct task'. This ensures
+> >> the euid is associated with the security context that
+> >> of the task that opened binder.
+> >>
+> >> Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+> >> Signed-off-by: Todd Kjos <tkjos@google.com>
+> >> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> >> Cc: stable@vger.kernel.org # 4.4+
+> >> ---
+> >> v3: added this patch to series
+> >>
+> >>  drivers/android/binder.c | 2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> > This is an interesting ordering of the patches.  Unless I'm missing
+> > something I would have expected patch 3/3 to come first, followed by
+> > 2/3, with patch 1/3 at the end; basically the reverse of what was
+> > posted here.
+> >
+> > My reading of the previous thread was that Casey has made his peace
+> > with these changes
 >
-> Fixes: ec74136ded79 ("binder: create node flag to request sender's
-> security context")
-> Signed-off-by: Todd Kjos <tkjos@google.com>
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Cc: stable@vger.kernel.org # 5.4+
-> ---
-> v3: added this patch to series
-> v4: fix build-break for !CONFIG_SECURITY
->
->  drivers/android/binder.c | 11 +----------
->  include/linux/security.h |  4 ++++
->  2 files changed, 5 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> index ca599ebdea4a..989afd0804ca 100644
-> --- a/drivers/android/binder.c
-> +++ b/drivers/android/binder.c
-> @@ -2722,16 +2722,7 @@ static void binder_transaction(struct binder_proc *proc,
->                 u32 secid;
->                 size_t added_size;
->
-> -               /*
-> -                * Arguably this should be the task's subjective LSM secid but
-> -                * we can't reliably access the subjective creds of a task
-> -                * other than our own so we must use the objective creds, which
-> -                * are safe to access.  The downside is that if a task is
-> -                * temporarily overriding it's creds it will not be reflected
-> -                * here; however, it isn't clear that binder would handle that
-> -                * case well anyway.
-> -                */
-> -               security_task_getsecid_obj(proc->tsk, &secid);
-> +               security_cred_getsecid(proc->cred, &secid);
->                 ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
->                 if (ret) {
->                         return_error = BR_FAILED_REPLY;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 6344d3362df7..f02cc0211b10 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1041,6 +1041,10 @@ static inline void security_transfer_creds(struct cred *new,
->  {
->  }
->
-> +static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
-> +{
-> +}
+> Yes. I will address the stacking concerns more directly.
+> I am still somewhat baffled by the intent of the hook, the data
+> passed to it, and the SELinux policy enforcement decisions, but
+> that's beyond my scope.
 
-Since security_cred_getsecid() doesn't return an error code we should
-probably set the secid to 0 in this case, for example:
-
-  static inline void security_cred_getsecid(...)
-  {
-    *secid = 0;
-  }
+Okay, I just wanted to make sure there were no objections.
 
 -- 
 paul moore
