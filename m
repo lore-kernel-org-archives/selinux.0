@@ -2,60 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 599FDC4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3C3EC433FE
 	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4171360EE5
+	by mail.kernel.org (Postfix) with ESMTP id CE7C960E8B
 	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbhJKQ20 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 12:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43958 "EHLO
+        id S232035AbhJKQ21 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 12:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232035AbhJKQ2Z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 12:28:25 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E8A5C061570
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:25 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id a25so54087426edx.8
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:25 -0700 (PDT)
+        with ESMTP id S232087AbhJKQ20 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 12:28:26 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72ABBC061570
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:26 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id i20so53523262edj.10
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=+jacl8Al8Q58H+wLtpDSJ9c94xGremV+a4pxFon+T1Y=;
-        b=QsgY4LKgclzOCvaI847Yq7FGnrAtBgv+cj+N/3lTM1ym5uurRsotyZm0NZeQ2VXt59
-         2FniJgIwWpcQsVs1l3y2eJpv4MYlUxqN5wAUZSd2GC2BSmRXCXF9sVsq9J7qvn+BegMK
-         LjsHlIwADpneEfXGOq9/+eA7/dw2tnHbgNS05ZZLgwfFkhzahBqniy1MvFhXt/LMlfAy
-         h8A5cH6wCY6kS9NQfPzwqfplhwXKrKadrrb2S2MnIufbQD+FB2ejBrisGbBN/HTYW6Jl
-         0v4mio4r5WtmAF+oaOxFP7LCHl5HVWU27HIXtL2lZA+BalN1y1NMvH/t/h5O5FiBDDxj
-         0Luw==
+        bh=dMS8W/GAYYtBc6YxJ9Pe2XzQ2RnoX9Ik1pXdcIcfWic=;
+        b=ZuDqiT2xiwnyiJ4jpfqlw/jQg2CE/D4QygxTQ8/QMyFDuS+xna6EzJh5hg+NkLYsYK
+         wco3rU1Arg2xBTy573BbtdQPHgCja+ExOYo32+VKq6il6kaBwzaatF5ilcAzamEAzcqy
+         5Qt1d5xIGt/yt/pDyWG076WYxi7h4AUcveorxmWpm+tEUEhTETiCWlhg0IxSGn1q3ncM
+         JSxtlfazfE2MVThtIW7/XzZgoH+BPzdESKEQ2LYloCBuQzfLdY+OceDsFt29DDr3tg1L
+         Xg92yVlHCifysz85AHDbhn6IAP81phRaAJbdZjvxKioMwQllDluoIp4LDLTZJv5QVNq3
+         Ving==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+jacl8Al8Q58H+wLtpDSJ9c94xGremV+a4pxFon+T1Y=;
-        b=AfRM5raNBW1E7rQKwh27Ap++sE2n+3CDIHPgrtRCv13pHbSn8YR0kF2vaoo7j9MDsr
-         XNusAu5dNaYumijw35BZVNkRbeHs91iKkmTujjOesTd0G1uPskn3jqtHdcuIxO3mo6ok
-         sk1Q5VF+ErbGw9Z/15Jp3JTTlef25qnATVdFniM8cF/wUJ1wnzakIHdTdwiI6mkQq41K
-         V+2IknnYUnwASu5DyV62ezIrvFqNtN25J3hlo19Rm54FRg330WeIxzM6qQWDwl/Nhl7E
-         jsb5Ms0l6ifgmj+ZtoFIMcnkm6doAQJ2NvzollwRuBbZSw2Azpa3rpcTElsc7MjdKVMd
-         MAUg==
-X-Gm-Message-State: AOAM531gY//5FSdOyR+hpzuwNyK5wMw6SDAC3c6A8/W+F/qg7LEtLwjK
-        dZ4Ssl19sO9dzADAfvdiTFeqVVi550M=
-X-Google-Smtp-Source: ABdhPJzQcUzZkEkBWnvjVTb4f8nZW4EYn7sHmhYieo9ucCwiYKCZuEkZeOP8uhYk2sDfKH/WvjXPKw==
-X-Received: by 2002:a17:906:26c4:: with SMTP id u4mr25515248ejc.511.1633969583846;
-        Mon, 11 Oct 2021 09:26:23 -0700 (PDT)
+        bh=dMS8W/GAYYtBc6YxJ9Pe2XzQ2RnoX9Ik1pXdcIcfWic=;
+        b=opfh4W3GfVI77XU046m0iBbc8ySO0JjXjjc3eiUU/TFcx775RGFwzJiaQtz0QoPmfW
+         UxDCCLmKRVaihy94WtsCkN/ENBVVi/rH2Ax15vaJzrDATjURAsHYqet9zG6dH1fuubez
+         n8uEKmK88hMcPnfTPbGM5JiknWa/2F6PCiH1WqVw2owAEMEcFXJQ58TnTgRkBb4mXAZc
+         mMmn7NnX1vUSsQksQpJTaxSEIFfhDj1dyf0vq1KG0E/trdOaLKM9VYPQC/AvUdQ+shi3
+         xaNITTG+0rUwdK6CmrBnprhof+zM9LjGJZpbLXdHYmuaE0yR6t2LPBUbtoIUedO/0PtG
+         HslA==
+X-Gm-Message-State: AOAM530FTpehEdSwJkrpfKHHKpMlHxgxwfB3bQsWdlG2Z+SzAMxLYuWJ
+        b9ZC0pQGNbyjskdAyfhLcinSZg5Qr7U=
+X-Google-Smtp-Source: ABdhPJzxv1hztce1RGKIaitFH2oLimRZY37qiFonFxyYyP6nq/DSuaOy4qI6Llws0YDgrafxeyq0JA==
+X-Received: by 2002:a17:906:d1d6:: with SMTP id bs22mr27041632ejb.554.1633969584940;
+        Mon, 11 Oct 2021 09:26:24 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefonica.de. [77.10.85.58])
-        by smtp.gmail.com with ESMTPSA id a1sm4489514edu.43.2021.10.11.09.26.23
+        by smtp.gmail.com with ESMTPSA id a1sm4489514edu.43.2021.10.11.09.26.24
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Oct 2021 09:26:23 -0700 (PDT)
+        Mon, 11 Oct 2021 09:26:24 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 05/35] libsepol/fuzz: limit element sizes for fuzzing
-Date:   Mon, 11 Oct 2021 18:25:03 +0200
-Message-Id: <20211011162533.53404-6-cgzones@googlemail.com>
+Subject: [RFC PATCH 07/35] libsepol: use logging framework in ebitmap.c
+Date:   Mon, 11 Oct 2021 18:25:05 +0200
+Message-Id: <20211011162533.53404-8-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011162533.53404-1-cgzones@googlemail.com>
 References: <20211011162533.53404-1-cgzones@googlemail.com>
@@ -66,100 +66,103 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Limit the maximum length of read sizes, like string length of module
-version and name or keys and number of symtab entries.  This avoids the
-fuzzer to report oom events for huge allocations (it also improves the
-number of executions per seconds of the fuzzer).
-
-This change only affects the fuzzer build.
-
-    ==15211== ERROR: libFuzzer: out-of-memory (malloc(3115956666))
-       To change the out-of-memory limit use -rss_limit_mb=<N>
-
-        #0 0x52dc61 in __sanitizer_print_stack_trace (./out/binpolicy-fuzzer+0x52dc61)
-        #1 0x475618 in fuzzer::PrintStackTrace() fuzzer.o
-        #2 0x458855 in fuzzer::Fuzzer::HandleMalloc(unsigned long) fuzzer.o
-        #3 0x45876a in fuzzer::MallocHook(void const volatile*, unsigned long) fuzzer.o
-        #4 0x534557 in __sanitizer::RunMallocHooks(void const*, unsigned long) (./out/binpolicy-fuzzer+0x534557)
-        #5 0x4aa7d7 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (./out/binpolicy-fuzzer+0x4aa7d7)
-        #6 0x4aa143 in __asan::asan_malloc(unsigned long, __sanitizer::BufferedStackTrace*) (./out/binpolicy-fuzzer+0x4aa143)
-        #7 0x5259cb in malloc (./out/binpolicy-fuzzer+0x5259cb)
-        #8 0x59d307 in str_read ./libsepol/src/services.c:1746:8
-        #9 0x585b97 in perm_read ./libsepol/src/policydb.c:2063:5
-        #10 0x581f8a in common_read ./libsepol/src/policydb.c:2119:7
-        #11 0x576681 in policydb_read ./libsepol/src/policydb.c:4417:8
-        #12 0x55a214 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:26:6
-        #13 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
-        #14 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
-        #15 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
-        #16 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
-        #17 0x7fe1ec88a7ec in __libc_start_main csu/../csu/libc-start.c:332:16
-        #18 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
-
-    ==13584== ERROR: libFuzzer: out-of-memory (malloc(2560137369))
-       To change the out-of-memory limit use -rss_limit_mb=<N>
-
-        #0 0x52dc61 in __sanitizer_print_stack_trace (./out/binpolicy-fuzzer+0x52dc61)
-        #1 0x475618 in fuzzer::PrintStackTrace() fuzzer.o
-        #2 0x458855 in fuzzer::Fuzzer::HandleMalloc(unsigned long) fuzzer.o
-        #3 0x45876a in fuzzer::MallocHook(void const volatile*, unsigned long) fuzzer.o
-        #4 0x534557 in __sanitizer::RunMallocHooks(void const*, unsigned long) (./out/binpolicy-fuzzer+0x534557)
-        #5 0x4aa7d7 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (./out/binpolicy-fuzzer+0x4aa7d7)
-        #6 0x4aa143 in __asan::asan_malloc(unsigned long, __sanitizer::BufferedStackTrace*) (./out/binpolicy-fuzzer+0x4aa143)
-        #7 0x5259cb in malloc (./out/binpolicy-fuzzer+0x5259cb)
-        #8 0x581cc4 in common_read ./libsepol/src/policydb.c:2108:8
-        #9 0x576681 in policydb_read ./libsepol/src/policydb.c:4409:8
-        #10 0x55a214 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:26:6
-        #11 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
-        #12 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
-        #13 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
-        #14 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
-        #15 0x7fa6431787ec in __libc_start_main csu/../csu/libc-start.c:332:16
-        #16 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
-
-    ==12683== ERROR: libFuzzer: out-of-memory (malloc(2526451450))
-       To change the out-of-memory limit use -rss_limit_mb=<N>
-
-        #0 0x52dc61 in __sanitizer_print_stack_trace (./out/binpolicy-fuzzer+0x52dc61)
-        #1 0x475618 in fuzzer::PrintStackTrace() fuzzer.o
-        #2 0x458855 in fuzzer::Fuzzer::HandleMalloc(unsigned long) fuzzer.o
-        #3 0x45876a in fuzzer::MallocHook(void const volatile*, unsigned long) fuzzer.o
-        #4 0x534557 in __sanitizer::RunMallocHooks(void const*, unsigned long) (./out/binpolicy-fuzzer+0x534557)
-        #5 0x4aa7d7 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (./out/binpolicy-fuzzer+0x4aa7d7)
-        #6 0x4aa143 in __asan::asan_malloc(unsigned long, __sanitizer::BufferedStackTrace*) (./out/binpolicy-fuzzer+0x4aa143)
-        #7 0x5259cb in malloc (./out/binpolicy-fuzzer+0x5259cb)
-        #8 0x575f8a in policydb_read ./libsepol/src/policydb.c:4356:18
-        #9 0x55a214 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:26:6
-        #10 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
-        #11 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
-        #12 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
-        #13 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
-        #14 0x7fa737b377ec in __libc_start_main csu/../csu/libc-start.c:332:16
-        #15 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
+Use the internal logging framework instead of directly writing to
+stdout as it might be undesired to do so within a library.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/private.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ libsepol/src/ebitmap.c | 27 ++++++++++-----------------
+ 1 file changed, 10 insertions(+), 17 deletions(-)
 
-diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-index 71287282..6146f59f 100644
---- a/libsepol/src/private.h
-+++ b/libsepol/src/private.h
-@@ -44,7 +44,12 @@
+diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+index 1de3816a..fa728558 100644
+--- a/libsepol/src/ebitmap.c
++++ b/libsepol/src/ebitmap.c
+@@ -406,8 +406,7 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 	count = le32_to_cpu(buf[2]);
  
- #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+ 	if (mapsize != MAPSIZE) {
+-		printf
+-		    ("security: ebitmap: map size %d does not match my size %zu (high bit was %d)\n",
++		ERR(NULL, "security: ebitmap: map size %d does not match my size %zu (high bit was %d)\n",
+ 		     mapsize, MAPSIZE, e->highbit);
+ 		goto bad;
+ 	}
+@@ -416,8 +415,7 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 		goto ok;
+ 	}
+ 	if (e->highbit & (MAPSIZE - 1)) {
+-		printf
+-		    ("security: ebitmap: high bit (%d) is not a multiple of the map size (%zu)\n",
++		ERR(NULL, "security: ebitmap: high bit (%d) is not a multiple of the map size (%zu)\n",
+ 		     e->highbit, MAPSIZE);
+ 		goto bad;
+ 	}
+@@ -429,12 +427,12 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 	for (i = 0; i < count; i++) {
+ 		rc = next_entry(buf, fp, sizeof(uint32_t));
+ 		if (rc < 0) {
+-			printf("security: ebitmap: truncated map\n");
++			ERR(NULL, "security: ebitmap: truncated map\n");
+ 			goto bad;
+ 		}
+ 		n = (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t));
+ 		if (!n) {
+-			printf("security: ebitmap: out of memory\n");
++			ERR(NULL, "security: ebitmap: out of memory\n");
+ 			rc = -ENOMEM;
+ 			goto bad;
+ 		}
+@@ -443,34 +441,30 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 		n->startbit = le32_to_cpu(buf[0]);
  
--#define is_saturated(x) (x == (typeof(x))-1)
-+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-+# define is_saturated(x) (x == (typeof(x))-1 || (x) > (1U << 16))
-+#else
-+# define is_saturated(x) (x == (typeof(x))-1)
-+#endif
-+
- #define zero_or_saturated(x) ((x == 0) || is_saturated(x))
+ 		if (n->startbit & (MAPSIZE - 1)) {
+-			printf
+-			    ("security: ebitmap start bit (%d) is not a multiple of the map size (%zu)\n",
++			ERR(NULL, "security: ebitmap start bit (%d) is not a multiple of the map size (%zu)\n",
+ 			     n->startbit, MAPSIZE);
+ 			goto bad_free;
+ 		}
+ 		if (n->startbit > (e->highbit - MAPSIZE)) {
+-			printf
+-			    ("security: ebitmap start bit (%d) is beyond the end of the bitmap (%zu)\n",
++			ERR(NULL, "security: ebitmap start bit (%d) is beyond the end of the bitmap (%zu)\n",
+ 			     n->startbit, (e->highbit - MAPSIZE));
+ 			goto bad_free;
+ 		}
+ 		rc = next_entry(&map, fp, sizeof(uint64_t));
+ 		if (rc < 0) {
+-			printf("security: ebitmap: truncated map\n");
++			ERR(NULL, "security: ebitmap: truncated map\n");
+ 			goto bad_free;
+ 		}
+ 		n->map = le64_to_cpu(map);
  
- #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
+ 		if (!n->map) {
+-			printf
+-			    ("security: ebitmap: null map in ebitmap (startbit %d)\n",
++			ERR(NULL, "security: ebitmap: null map in ebitmap (startbit %d)\n",
+ 			     n->startbit);
+ 			goto bad_free;
+ 		}
+ 		if (l) {
+ 			if (n->startbit <= l->startbit) {
+-				printf
+-				    ("security: ebitmap: start bit %d comes after start bit %d\n",
++				ERR(NULL, "security: ebitmap: start bit %d comes after start bit %d\n",
+ 				     n->startbit, l->startbit);
+ 				goto bad_free;
+ 			}
+@@ -481,8 +475,7 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 		l = n;
+ 	}
+ 	if (count && l->startbit + MAPSIZE != e->highbit) {
+-		printf
+-		    ("security: ebitmap: high bit %u has not the expected value %zu\n",
++		ERR(NULL, "security: ebitmap: high bit %u has not the expected value %zu\n",
+ 		     e->highbit, l->startbit + MAPSIZE);
+ 		goto bad;
+ 	}
 -- 
 2.33.0
 
