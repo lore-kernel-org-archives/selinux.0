@@ -2,107 +2,105 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1DCAC433FE
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90EFAC433F5
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 17:10:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC42E60E8B
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 16:26:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E6B260E98
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 17:10:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232242AbhJKQ2q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 12:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44092 "EHLO
+        id S232740AbhJKRMM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 13:12:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbhJKQ2l (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 12:28:41 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD62C06161C
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:41 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id p13so70637342edw.0
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 09:26:41 -0700 (PDT)
+        with ESMTP id S232560AbhJKRML (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 13:12:11 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B704C061570
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 10:10:11 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id g10so69709809edj.1
+        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 10:10:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=RZ5+gxXPH9Zd+h08Fh/97W+plWtGJeY6+EoQt7QAdMk=;
-        b=WeWBVoW2jSbPeQ6AEo8wtegK+CzlFGbDAp84nDcQRVrNJfFVEtnw8bvmRw/tpN1mct
-         kznpS56ZFDafkYrZT9hRE4oySSoMh7l6XuVngFWUhV2qq2o2QHZlQBw41nUrd1AIl23a
-         bLYqDTQ4ghpX8EERdVMBz6/b/DKvkCBVRESyMxnqbGKsUClpmlUmMq0oHRRZi8q4MIFO
-         51B+aKGBZeAdwXzRddtJsbGqrhNcqP9aooz0A2kjb/KJO9OcEAINctISDG4t3SBG66P2
-         FRPaZlDdbTFxqvWb9HQffTQh4ieZR1qjfCo9p7VJRzBVmpIhXcb22tIxEvDFu2Ec4oHu
-         uxVA==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=J3T0XXQ9iBmgBchuIgIIl9wx2la12Dzs8VkR/un8jEw=;
+        b=ezJOM4hBes4xYUVhlKeDqbXlGycEoqtDLUNr+6lQJn9RmUus/42blIVIx2UaJr0Fhj
+         5JeNZi1v3dL1xAkPppkoxi9ZnGx5IisQOMGR084jnNOE0COmma7UfMgRHeWf3w2KrIAc
+         jYughpS9bFQjFrExAgVpLBjKsFAMrk03QS421wIIlLgWG9NFFm19AZ5u1k4CEbsJcc7P
+         TVFzJaMs+CoWcygZgio9dchFuZPzhq118g80tPnCUu3KUN4MIkQLs7Xlr8ptvyFVQj/D
+         5oJ9gBREkqv+6NSUW3WVRohXhxAGfE5CnRDhCF/YlBlOc3m+fCB1kgsc1cN27aJ4oZaM
+         4B7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=RZ5+gxXPH9Zd+h08Fh/97W+plWtGJeY6+EoQt7QAdMk=;
-        b=bag8D87IgQfpkkFsT+OXzFoM+JhtWIqxvFYc5DB5pTjT/GJGBKpeDVy3784xbe5IEd
-         /vA3qCFV7kb8bKWv/+3Hsj9frtLbxoJrSXpykIhrSl9KGBTBAqwKRGBOfUxqKnhCMZoe
-         cvma3UFUe6zCc2UP3n1vj6gH1B1oIyoum4ZdfTXg/Ais0s9xhBx4ejEW9XxWfl2tayYc
-         Fi5Y0rHrN7Rs0RLaGczX9Crx4+oSCgGBAb57qseosZPoNAF20Gn+s9eWcb/+ynPttRqX
-         DGm+lmaZPkjCRfZNovZDMVWoqR1wPXpXmPNOmr9YQr6VXxp0/BitqQGDtRlXZH/dnJ+g
-         /Qrw==
-X-Gm-Message-State: AOAM531qpklJ/PoW1KhVzth+GICPjbcJ7tU2UEy6K4eqcnR7rSVDVTD3
-        O3JJFPciFNeM8GphGqF1AP8wVVvU1Bs=
-X-Google-Smtp-Source: ABdhPJx72ewRXGwldsY1BD/9bucySIEdoSkn/8TZTE9hYb9m6Zwhcvl8j8sa0cdcDcLq4YDalruLsg==
-X-Received: by 2002:a17:906:1e55:: with SMTP id i21mr26385522ejj.547.1633969599768;
-        Mon, 11 Oct 2021 09:26:39 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-010-085-058.77.10.pool.telefonica.de. [77.10.85.58])
-        by smtp.gmail.com with ESMTPSA id a1sm4489514edu.43.2021.10.11.09.26.39
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Oct 2021 09:26:39 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 35/35] libsepol: do not create a string list with initial size zero
-Date:   Mon, 11 Oct 2021 18:25:33 +0200
-Message-Id: <20211011162533.53404-36-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011162533.53404-1-cgzones@googlemail.com>
-References: <20211011162533.53404-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=J3T0XXQ9iBmgBchuIgIIl9wx2la12Dzs8VkR/un8jEw=;
+        b=5U/Uzf0YzcHL8xrzua2sA4ksvsZE2Bhke7Dv1nZo1eK7QdD/UNdspT2bQHIBUqsPIp
+         RYX2k3sUg6Fqigv5dz5j+J1/HzHlLYQWqjl5N2Yz+zpQmfGQJJSOPWfSu0yVIJhSAxSv
+         F5XqQsSgoEtx8QP4Jow4dOXKiiNOmsWodcv5LE+pfksjskxeWDFBM8qjhJOMHxPip04h
+         XFYaQ0EKXHCkEK11dcwEMx7Sj7xsku8SnMX77HuhLsNwhRrS/HbHC4Z+xDBuncwS/A7I
+         eAOUbVH4X1DQ9rgSqtpYdBvGWUSROys9OlEnC0+MT7Gkoj66UY5P2i/PTfQLhh7HQaeJ
+         eSyw==
+X-Gm-Message-State: AOAM533uLVogzAduF5tOx4JlqB+IY5juJtjY6q/2YNo5ilD0e7A3QfCa
+        32Gt4BV+q8vlSL+/zRdXhCEr6gdEYJQQv7f4/3DR
+X-Google-Smtp-Source: ABdhPJxgayxznnnxmue4CT3ei5lWb+27Pl8LfmJev+eNAqxOQ0N6p+h65bpmJOrt5jn5xhnm78bzY3GMjnEzUc4JNJg=
+X-Received: by 2002:a17:907:629b:: with SMTP id nd27mr26861071ejc.24.1633972209503;
+ Mon, 11 Oct 2021 10:10:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20211011142416.26798-1-fw@strlen.de>
+In-Reply-To: <20211011142416.26798-1-fw@strlen.de>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 11 Oct 2021 13:09:58 -0400
+Message-ID: <CAHC9VhRBYMMSucVbqUkcWTtyeuJ7SSuzDED=Cg=svWiaByo3Qw@mail.gmail.com>
+Subject: Re: [PATCH v2 selinux] selinux: remove unneeded ipv6 hook wrappers
+To:     Florian Westphal <fw@strlen.de>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Currently is it implementation defined, due to the size being passed to
-calloc(3), whether the operations fails nor not.
-Also strs_add() does not handle a size of zero, cause it just multiplies
-the size by two.
+On Mon, Oct 11, 2021 at 10:25 AM Florian Westphal <fw@strlen.de> wrote:
+>
+> Netfilter places the protocol number the hook function is getting called
+> from in state->pf, so we can use that instead of an extra wrapper.
+>
+> Signed-off-by: Florian Westphal <fw@strlen.de>
+> ---
+>  v2: add back '#endif /* CONFIG_NETFILTER */' erronously axed in v1.
+>  Applies to 'next' branch of
+>  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/
+>
+>  security/selinux/hooks.c | 52 ++++++++++------------------------------
+>  1 file changed, 12 insertions(+), 40 deletions(-)
 
-Use a default size of 1 if 0 is passed and swap the calloc arguments for
-consistency.
+...
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/kernel_to_common.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e7ebd45ca345..831b857d5dd7 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -7470,38 +7442,38 @@ DEFINE_LSM(selinux) = {
+>
+>  static const struct nf_hook_ops selinux_nf_ops[] = {
+>         {
+> -               .hook =         selinux_ipv4_postroute,
+> +               .hook =         selinux_hook_postroute,
+>                 .pf =           NFPROTO_IPV4,
+>                 .hooknum =      NF_INET_POST_ROUTING,
+>                 .priority =     NF_IP_PRI_SELINUX_LAST,
+>         },
 
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 152f2816..9f5400c9 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -107,6 +107,10 @@ int strs_init(struct strs **strs, size_t size)
- {
- 	struct strs *new;
- 
-+	if (size == 0) {
-+		size = 1;
-+	}
-+
- 	*strs = NULL;
- 
- 	new = malloc(sizeof(struct strs));
-@@ -115,7 +119,7 @@ int strs_init(struct strs **strs, size_t size)
- 		return -1;
- 	}
- 
--	new->list = calloc(sizeof(char *), size);
-+	new->list = calloc(size, sizeof(char *));
- 	if (!new->list) {
- 		sepol_log_err("Out of memory");
- 		free(new);
+Thanks for the patch Florian, although the name "selinux_hook_*" seems
+a bit ambiguous to me, after all we have a little more than 200
+"hooks" in the SELinux LSM implementation.  Would you be okay with
+calling the netfilter hook functions "selinux_nf_*" or something
+similar?  If you don't have time I can do the rename during the merge
+assuming we can all agree on a name.
+
 -- 
-2.33.0
-
+paul moore
+www.paul-moore.com
