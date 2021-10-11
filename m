@@ -2,86 +2,172 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06D6DC433FE
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 08:25:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC54C433EF
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 08:37:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE2E260EB1
-	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 08:25:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B3C360EB6
+	for <selinux@archiver.kernel.org>; Mon, 11 Oct 2021 08:37:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234921AbhJKI15 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Oct 2021 04:27:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:48574 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234910AbhJKI15 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 04:27:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633940757;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=zPIDn6jZ4xcKU3yErhqkhpAbDMT4kGrK2fHigOjqNqk=;
-        b=DIRi0AqnlUhQQVDgriKJrjX6JkBBW2WsXr5ZalhSTT+NAbVbkNqBVbZB9JEv4mPyBlWva7
-        xTwKOyFopVwvVKemHLp3ET67z5zXlztU/+d6k4BpD63BJvYC1vIUq4rcffUn2SaAUsyJrZ
-        c9AWAVfrMF7n+6G5o1ycPQszTN4LD9k=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-57-CWN5olSiNZ2WNRz2xe_Aeg-1; Mon, 11 Oct 2021 04:25:56 -0400
-X-MC-Unique: CWN5olSiNZ2WNRz2xe_Aeg-1
-Received: by mail-yb1-f199.google.com with SMTP id p8-20020a056902114800b005bad2571fbeso10927137ybu.23
-        for <selinux@vger.kernel.org>; Mon, 11 Oct 2021 01:25:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zPIDn6jZ4xcKU3yErhqkhpAbDMT4kGrK2fHigOjqNqk=;
-        b=Pp5CVo4CbX5h6hhE5RK7uYTiNN5s3fp34Elf2YehHIRqqBg/mAkSLex5IpIDuYliMa
-         xyGahcVg2cD3yqnFmnjvXKmJYXdMeVqP1cOfJTryGvHRth151WEaPciSkYZWR341ngBT
-         OUFCUJst9OxVVmcglPBEnKEyT4JYXR2fEK9WOl09z6kEVcU7SYGk3zMx9vWlCicRHnzV
-         mWb3NOwupsWqocVkVQ/OsUkMmiZm2K2zD6VOVxnwArevUCu0RQnb3w0hw99cdAbjcfl8
-         1XbvUW4LMuzKN2NB18K6rd93GTXQ9Nt+HpXJ7d1kG+aqek6he9olvR4RECNH612LgRWU
-         eywA==
-X-Gm-Message-State: AOAM533Q/y2ObjCMKD5WDqf8QzGyJ+nCHpwyyyxrh2m1GiQ2xl1eQqXC
-        wKX7aOCINfX7yloJ0n2Mxf47sa6K+cAXviOz5g1nwiBSQz/MDs13avE/lhXuAb8EgbEmKOQYCd+
-        X2oRwJmF68GqPWKYmd0k0QAqFMHbb5wEB/w==
-X-Received: by 2002:a25:e650:: with SMTP id d77mr20741305ybh.256.1633940755630;
-        Mon, 11 Oct 2021 01:25:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzJTAi4Z0o58EbzREqFbZm2UUnUA7fJpAuvm1bjyaeutp6cihN4K6AG1bOHkTTnjPexupVkQ+HgW6rn7RZPV/8=
-X-Received: by 2002:a25:e650:: with SMTP id d77mr20741291ybh.256.1633940755405;
- Mon, 11 Oct 2021 01:25:55 -0700 (PDT)
+        id S235105AbhJKIjf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Oct 2021 04:39:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234971AbhJKIje (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Oct 2021 04:39:34 -0400
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3760C061570;
+        Mon, 11 Oct 2021 01:37:34 -0700 (PDT)
+Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
+        (envelope-from <fw@breakpoint.cc>)
+        id 1mZqoL-0007zu-Tu; Mon, 11 Oct 2021 10:37:29 +0200
+From:   Florian Westphal <fw@strlen.de>
+To:     selinux@vger.kernel.org
+Cc:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, linux-kernel@vger.kernel.org,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH security-next] selinux: remove ipv6 hook wrappers
+Date:   Mon, 11 Oct 2021 10:37:17 +0200
+Message-Id: <20211011083717.396885-1-fw@strlen.de>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <20210728140313.68096-1-omosnace@redhat.com> <CAHC9VhTDagTt1CKDRPkVrcvHwWPbSzzPp3HSS3ZzsbLapTBAxw@mail.gmail.com>
- <CAFqZXNuT=-m2QVgw+Awm3HcK5pt8niKb+yu2Tspy2RCsLByrWQ@mail.gmail.com>
- <CAHC9VhT6YcAWn4KrsfjpJQGDetEVy7LNh8DsrMrycW8y57Y20Q@mail.gmail.com> <CAHC9VhQF9R76ojBBrAQ=WHOAgHNGKJDobY+a_qohJJCQWQDw4w@mail.gmail.com>
-In-Reply-To: <CAHC9VhQF9R76ojBBrAQ=WHOAgHNGKJDobY+a_qohJJCQWQDw4w@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 11 Oct 2021 10:25:44 +0200
-Message-ID: <CAFqZXNs_hU_r6uxiUiWPGiYhJ5EzdxMWWwtbp-ZPMfaZ1rTNCg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix race condition when computing ocontext SIDs
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Sujithra Periasamy <sujithra@google.com>,
-        Xinjie Zheng <xinjie@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 7, 2021 at 5:34 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Aug 16, 2021 at 4:38 PM Paul Moore <paul@paul-moore.com> wrote:
-> > Please try to come up with a better solution that leverages proper
-> > locking primitives, and if that isn't possible please explain (in
-> > detail) why.
->
-> It's been a little while so I wanted to check the status of this ...
-> have you spent any time on this, or is your position such that this is
-> the best you can come up with for a fix?
+Netfilter places the protocol number the hook function is getting called
+from in state->pf, so we can use that instead of an extra wrapper.
 
-Sorry, I had to put this on the "let me get back to this later" list
-because of other priorities and didn't get to pop it out of that list
-yet :/ I haven't yet looked at other alternatives.
+Signed-off-by: Florian Westphal <fw@strlen.de>
+---
+ security/selinux/hooks.c | 53 +++++++++-------------------------------
+ 1 file changed, 12 insertions(+), 41 deletions(-)
 
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e7ebd45ca345..135fb12bd894 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5746,22 +5746,13 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb,
+ 	return NF_ACCEPT;
+ }
+ 
+-static unsigned int selinux_ipv4_forward(void *priv,
++static unsigned int selinux_hook_forward(void *priv,
+ 					 struct sk_buff *skb,
+ 					 const struct nf_hook_state *state)
+ {
+-	return selinux_ip_forward(skb, state->in, PF_INET);
++	return selinux_ip_forward(skb, state->in, state->pf);
+ }
+ 
+-#if IS_ENABLED(CONFIG_IPV6)
+-static unsigned int selinux_ipv6_forward(void *priv,
+-					 struct sk_buff *skb,
+-					 const struct nf_hook_state *state)
+-{
+-	return selinux_ip_forward(skb, state->in, PF_INET6);
+-}
+-#endif	/* IPV6 */
+-
+ static unsigned int selinux_ip_output(struct sk_buff *skb,
+ 				      u16 family)
+ {
+@@ -5804,21 +5795,12 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
+ 	return NF_ACCEPT;
+ }
+ 
+-static unsigned int selinux_ipv4_output(void *priv,
+-					struct sk_buff *skb,
+-					const struct nf_hook_state *state)
+-{
+-	return selinux_ip_output(skb, PF_INET);
+-}
+-
+-#if IS_ENABLED(CONFIG_IPV6)
+-static unsigned int selinux_ipv6_output(void *priv,
++static unsigned int selinux_hook_output(void *priv,
+ 					struct sk_buff *skb,
+ 					const struct nf_hook_state *state)
+ {
+-	return selinux_ip_output(skb, PF_INET6);
++	return selinux_ip_output(skb, state->pf);
+ }
+-#endif	/* IPV6 */
+ 
+ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 						int ifindex,
+@@ -5994,24 +5976,13 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb,
+ 	return NF_ACCEPT;
+ }
+ 
+-static unsigned int selinux_ipv4_postroute(void *priv,
++static unsigned int selinux_hook_postroute(void *priv,
+ 					   struct sk_buff *skb,
+ 					   const struct nf_hook_state *state)
+ {
+-	return selinux_ip_postroute(skb, state->out, PF_INET);
++	return selinux_ip_postroute(skb, state->out, state->pf);
+ }
+ 
+-#if IS_ENABLED(CONFIG_IPV6)
+-static unsigned int selinux_ipv6_postroute(void *priv,
+-					   struct sk_buff *skb,
+-					   const struct nf_hook_state *state)
+-{
+-	return selinux_ip_postroute(skb, state->out, PF_INET6);
+-}
+-#endif	/* IPV6 */
+-
+-#endif	/* CONFIG_NETFILTER */
+-
+ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+ {
+ 	int rc = 0;
+@@ -7470,38 +7441,38 @@ DEFINE_LSM(selinux) = {
+ 
+ static const struct nf_hook_ops selinux_nf_ops[] = {
+ 	{
+-		.hook =		selinux_ipv4_postroute,
++		.hook =		selinux_hook_postroute,
+ 		.pf =		NFPROTO_IPV4,
+ 		.hooknum =	NF_INET_POST_ROUTING,
+ 		.priority =	NF_IP_PRI_SELINUX_LAST,
+ 	},
+ 	{
+-		.hook =		selinux_ipv4_forward,
++		.hook =		selinux_hook_forward,
+ 		.pf =		NFPROTO_IPV4,
+ 		.hooknum =	NF_INET_FORWARD,
+ 		.priority =	NF_IP_PRI_SELINUX_FIRST,
+ 	},
+ 	{
+-		.hook =		selinux_ipv4_output,
++		.hook =		selinux_hook_output,
+ 		.pf =		NFPROTO_IPV4,
+ 		.hooknum =	NF_INET_LOCAL_OUT,
+ 		.priority =	NF_IP_PRI_SELINUX_FIRST,
+ 	},
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	{
+-		.hook =		selinux_ipv6_postroute,
++		.hook =		selinux_hook_postroute,
+ 		.pf =		NFPROTO_IPV6,
+ 		.hooknum =	NF_INET_POST_ROUTING,
+ 		.priority =	NF_IP6_PRI_SELINUX_LAST,
+ 	},
+ 	{
+-		.hook =		selinux_ipv6_forward,
++		.hook =		selinux_hook_forward,
+ 		.pf =		NFPROTO_IPV6,
+ 		.hooknum =	NF_INET_FORWARD,
+ 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
+ 	},
+ 	{
+-		.hook =		selinux_ipv6_output,
++		.hook =		selinux_hook_output,
+ 		.pf =		NFPROTO_IPV6,
+ 		.hooknum =	NF_INET_LOCAL_OUT,
+ 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
+-- 
+2.31.1
 
