@@ -2,62 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6860FC433EF
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 20:38:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03A58C433F5
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 21:10:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53CEA61050
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 20:38:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5BCA60E90
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 21:10:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233495AbhJLUku (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Oct 2021 16:40:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:57745 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234822AbhJLUku (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 16:40:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634071127;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=lPXrGW7Wzg5CZO/WUvHvqIECHK6Z+3ytx9wzhk4o/9k=;
-        b=fcSbEBB8jkVYnEq3R25iJbb0UJ705znyKcTznYoFad9j1U94Z7dqpN5hxSY0olUN2vdG2v
-        sA2x3kR5slwAG0MgC4PkGTQG5DrC6JShpOBfde64kdIZEgZUlHefJqZqN+nOYegNqvDG61
-        M/WaZnC4ZAG1kVI9TvJILU//vIDSG0Y=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-476-9Gm3zNDING-qF698028bWg-1; Tue, 12 Oct 2021 16:38:46 -0400
-X-MC-Unique: 9Gm3zNDING-qF698028bWg-1
-Received: by mail-yb1-f197.google.com with SMTP id b197-20020a2534ce000000b005b71a4e189eso735938yba.5
-        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 13:38:46 -0700 (PDT)
+        id S232797AbhJLVMH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Oct 2021 17:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232542AbhJLVMG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 17:12:06 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0359C061745
+        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 14:10:04 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id g10so1475166edj.1
+        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 14:10:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=EIc7J0I6FwSkiki0MmnUpJSfDb1DE1q0Qfd20XtQZGE=;
+        b=sCl/s36AnuHjjSjZlTl4dMn27h1JVRb4iDvBU/MdVjbwFaWy1Zy9l9+e40FQLo/UG9
+         WgE216AhaJMkhWLLRr45EOFJ6Qj2n6j+0sjKP0U44jvE6oo+PJYHNO1hlhfsruegmRlD
+         YPZ7h6tjM0R3fFU6HRwID9wFC3kxvVHnYzS8AS71LTqdNxgCUccyZzqXtTDuKBhqoT4i
+         rpJumK9Q3+9vuNUTDb8LhJ0bgWQflES/c+XJ7mriPBb6J2jOglaWERCpri8UOIPtgmFY
+         o/DXY8IGKWd7AGetWMTFcZJNohPPQebDr/P/KWANobgAPXeBCdiYKIK6UBOG6XVDChaL
+         DFbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=lPXrGW7Wzg5CZO/WUvHvqIECHK6Z+3ytx9wzhk4o/9k=;
-        b=msU6M/kk1g2sWSy9mca4h59m+mz/DwmiZrVNoMTCMNxbSi9TBvWPCLnIHBX8BUZFAF
-         jCNJiUB2X8Awr5fLSaN6h7PxSoeOygUKS8cycTiLr4PVTUbXAYTemkaXW7sm9QPYk8U/
-         FtHbMEsN7i+gbS3MHUq0eEhnbCoOaRrHGeyFKru3DxW3JjbTvK+gT+IEVCrCvz4mcQjy
-         5Y2ez7c2Ap1lINyfBIodPuJ9WVbEOUmg+aMMcyhxt9O7ToC6w79HMYELpPItd2w7hA28
-         K8PgUnVZCPt28wRzA0W11hZwC7Wd84lZbkJglZD3YCKKgXCBhEkOgkG45KSiuwZIS1bf
-         ezUQ==
-X-Gm-Message-State: AOAM530d8NZo3yAenwHtCMuAbrdCQkTJ6Mj62yUEfNqQodaj1lVKtFCj
-        C2NJJwa1dTkNaor5lcxSHFBcR7NpPfQoyrVG0myuVb2KFrzH9y226i84OE6cUC5yjT1Tx5WrxC+
-        Ixzu3sRqpoM8NNdzkD52W5qdDelQKSUoIXQ==
-X-Received: by 2002:a25:7452:: with SMTP id p79mr29045966ybc.513.1634071126082;
-        Tue, 12 Oct 2021 13:38:46 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyEU5vT4UFfcnZfY5xNAyPOcDFTq1ZFkCTMKD6fioEcrkK5mEiIyzhK7Uicufz2eibyoa+V+DelHPWBrS4wHkA=
-X-Received: by 2002:a25:7452:: with SMTP id p79mr29045936ybc.513.1634071125770;
- Tue, 12 Oct 2021 13:38:45 -0700 (PDT)
+        bh=EIc7J0I6FwSkiki0MmnUpJSfDb1DE1q0Qfd20XtQZGE=;
+        b=CloLN0p3C7qIV5mTri1TGfzgS0CKFCUUYGus+AQZt6vyfESPEY0lYhoeTp8DexoF97
+         EyqmN7KK0yG7nZJUUa5kia6mtEuzvi4EyPT1x2QtSpa1cRObjRBPOmVvDa4HcPVvPedj
+         U7J4bqXpBqf+HqWe+Ve+/H8o2OU2m/+kSD/WtkKNtgxMaTOdidenZbelCQmtVaxsDXVw
+         vjTXBllLPt6EayTtqHsIN35Kpmwbab/JFs1u8d4Zj07NHuJ5Jf3XjdtrB/gX0m7L+q23
+         h2tywKmrp9HOh6D3gvKftvgb64Feh520yRAkbKBU0T7wXk8PlcWnFrf0Lz7joIK+NZoI
+         81Xw==
+X-Gm-Message-State: AOAM532KvfTKlc9wLQkk4hKJnz99AvjKoaKRoWNhbVtgWJYDJjX6kORj
+        TQ9NRzUhcC8zG3JWPiUB8hqO8zApNXlRwO00GOAA
+X-Google-Smtp-Source: ABdhPJwoz8GHidIBsTuYLRywH+7rV4r6zIPCZy4GmxzdM4b+0NCo6+Qre0OXbJU2v/mBZ3BAvCDSEyiXFRAnNEvY/MU=
+X-Received: by 2002:a05:6402:1778:: with SMTP id da24mr2941132edb.318.1634073003025;
+ Tue, 12 Oct 2021 14:10:03 -0700 (PDT)
 MIME-Version: 1.0
 References: <20211011133704.1704369-1-brauner@kernel.org> <06b6f249-06e6-f472-c74c-bb3ff6f4b4ee@digikod.net>
  <20211012103830.s7kzijrn25ucjasr@wittgenstein> <CAHC9VhSd32Q_tCctwYB0y4EXGCV8_9QajkNkkc96EwjdFsVkJw@mail.gmail.com>
-In-Reply-To: <CAHC9VhSd32Q_tCctwYB0y4EXGCV8_9QajkNkkc96EwjdFsVkJw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 12 Oct 2021 22:38:32 +0200
-Message-ID: <CAFqZXNu7OEFVaS-oJH_JhsCWg3aN67Hajbiw8U8Zd+TSMKatOQ@mail.gmail.com>
+ <CAFqZXNu7OEFVaS-oJH_JhsCWg3aN67Hajbiw8U8Zd+TSMKatOQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNu7OEFVaS-oJH_JhsCWg3aN67Hajbiw8U8Zd+TSMKatOQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 12 Oct 2021 17:09:51 -0400
+Message-ID: <CAHC9VhR2kvwaYWZtXrZty7X_uQCr+pHnm6rHFAGzUDrstBpT_g@mail.gmail.com>
 Subject: Re: [PATCH] security/landlock: use square brackets around "landlock-ruleset"
-To:     Paul Moore <paul@paul-moore.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     Chris PeBenito <pebenito@ieee.org>,
         Petr Lautrbach <plautrba@redhat.com>,
         =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
@@ -72,63 +70,72 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 12, 2021 at 8:12 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Tue, Oct 12, 2021 at 6:38 AM Christian Brauner
-> <christian.brauner@ubuntu.com> wrote:
-> > On Mon, Oct 11, 2021 at 04:38:55PM +0200, Micka=C3=ABl Sala=C3=BCn wrot=
-e:
-> > > On 11/10/2021 15:37, Christian Brauner wrote:
-> > > > From: Christian Brauner <christian.brauner@ubuntu.com>
+On Tue, Oct 12, 2021 at 4:38 PM Ondrej Mosnacek <omosnace@redhat.com> wrote=
+:
+>
+> On Tue, Oct 12, 2021 at 8:12 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Tue, Oct 12, 2021 at 6:38 AM Christian Brauner
+> > <christian.brauner@ubuntu.com> wrote:
+> > > On Mon, Oct 11, 2021 at 04:38:55PM +0200, Micka=C3=ABl Sala=C3=BCn wr=
+ote:
+> > > > On 11/10/2021 15:37, Christian Brauner wrote:
+> > > > > From: Christian Brauner <christian.brauner@ubuntu.com>
+> > > > >
+> > > > > Make the name of the anon inode fd "[landlock-ruleset]" instead o=
+f
+> > > > > "landlock-ruleset". This is minor but most anon inode fds already
+> > > > > carry square brackets around their name:
+> > > > >
+> > > > >     [eventfd]
+> > > > >     [eventpoll]
+> > > > >     [fanotify]
+> > > > >     [fscontext]
+> > > > >     [io_uring]
+> > > > >     [pidfd]
+> > > > >     [signalfd]
+> > > > >     [timerfd]
+> > > > >     [userfaultfd]
+> > > > >
+> > > > > For the sake of consistency lets do the same for the landlock-rul=
+eset anon
+> > > > > inode fd that comes with landlock. We did the same in
+> > > > > 1cdc415f1083 ("uapi, fsopen: use square brackets around "fscontex=
+t" [ver #2]")
+> > > > > for the new mount api.
 > > > >
-> > > > Make the name of the anon inode fd "[landlock-ruleset]" instead of
-> > > > "landlock-ruleset". This is minor but most anon inode fds already
-> > > > carry square brackets around their name:
-> > > >
-> > > >     [eventfd]
-> > > >     [eventpoll]
-> > > >     [fanotify]
-> > > >     [fscontext]
-> > > >     [io_uring]
-> > > >     [pidfd]
-> > > >     [signalfd]
-> > > >     [timerfd]
-> > > >     [userfaultfd]
-> > > >
-> > > > For the sake of consistency lets do the same for the landlock-rules=
-et anon
-> > > > inode fd that comes with landlock. We did the same in
-> > > > 1cdc415f1083 ("uapi, fsopen: use square brackets around "fscontext"=
- [ver #2]")
-> > > > for the new mount api.
+> > > > Before creating "landlock-ruleset" FD, I looked at other anonymous =
+FD
+> > > > and saw this kind of inconsistency. I don't get why we need to add =
+extra
+> > > > characters to names, those brackets seem useless. If it should be p=
+art
 > > >
-> > > Before creating "landlock-ruleset" FD, I looked at other anonymous FD
-> > > and saw this kind of inconsistency. I don't get why we need to add ex=
-tra
-> > > characters to names, those brackets seem useless. If it should be par=
-t
+> > > Past inconsistency shouldn't justify future inconsistency. If you hav=
+e a
+> > > strong opinion about this for landlock I'm not going to push for it.
+> > > Exchanging more than 2-3 email about something like this seems too mu=
+ch.
 > >
-> > Past inconsistency shouldn't justify future inconsistency. If you have =
-a
-> > strong opinion about this for landlock I'm not going to push for it.
-> > Exchanging more than 2-3 email about something like this seems too much=
-.
+> > [NOTE: adding the SELinux list as well as Chris (SELinux refrence
+> > policy maintainer) and Petr (Fedora/RHEL SELinux)]
+> >
+> > Chris and Petr, do either of you currently have any policy that
+> > references the "landlock-ruleset" anonymous inode?  In other words,
+> > would adding the brackets around the name cause you any problems?
 >
-> [NOTE: adding the SELinux list as well as Chris (SELinux refrence
-> policy maintainer) and Petr (Fedora/RHEL SELinux)]
->
-> Chris and Petr, do either of you currently have any policy that
-> references the "landlock-ruleset" anonymous inode?  In other words,
-> would adding the brackets around the name cause you any problems?
+> AFAIU, the anon_inode transitions (the only mechanism where the "file
+> name" would be exposed to the policy) are done only for inodes created
+> by anon_inode_getfd_secure(), which is currently only used by
+> userfaultfd. So you don't even need to ask that question; at this
+> point it should be safe to change any of the names except
+> "[userfaultfd]" as far as SELinux policy is concerned.
 
-AFAIU, the anon_inode transitions (the only mechanism where the "file
-name" would be exposed to the policy) are done only for inodes created
-by anon_inode_getfd_secure(), which is currently only used by
-userfaultfd. So you don't even need to ask that question; at this
-point it should be safe to change any of the names except
-"[userfaultfd]" as far as SELinux policy is concerned.
+There is also io_uring if you look at selinux/next.
+
+Regardless, thanks, I didn't check to see if landlock was using the
+new anon inode interface, since both Micka=C3=ABl and Christian were
+concerned about breaking SELinux I had assumed they were using it :)
 
 --=20
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+paul moore
+www.paul-moore.com
