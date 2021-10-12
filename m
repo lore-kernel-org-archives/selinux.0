@@ -2,91 +2,76 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FF5EC433EF
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 15:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84A3BC433F5
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 15:02:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0425161076
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 15:00:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63AC461074
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 15:02:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233435AbhJLPCl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Oct 2021 11:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38720 "EHLO
+        id S236905AbhJLPEE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Oct 2021 11:04:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbhJLPCl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 11:02:41 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98D7FC061570
-        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 08:00:39 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id ec8so729388edb.6
-        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 08:00:39 -0700 (PDT)
+        with ESMTP id S230195AbhJLPED (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 11:04:03 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B9AC061570
+        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 08:02:01 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id d3so787365edp.3
+        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 08:02:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=F9v2tsR8yi6K0apGvpNwcYZaOTcOOEcmQbu1A2f9nBg=;
-        b=HM4zX20pgBNz15oI7lh46YcvpRpdCBmLke4yNKcQitDMVmqdRsw3FYYiNzDP7VBhkD
-         LTQyXt/6odnbENvh2kU0ZT2u1OfW63HaIZm31NFfvtL0nKXIb0weWFFwp7dfxh1TCGw9
-         uq4TlP7JLk8UErAiVVPgnlgkjX6GDmjL7pPseTCyoXBT5KPuOxGekm8wsJ0aadBhAHgW
-         0i4EjEmO7ZPSGALn/MYno3HjnvjPgWja1BlOuCp7PN85DsOLjvuVaK0ZWA9QdZvg3tiK
-         L+3CEeb1m1SI8VU1Oec21eHx4YoBPs+eP4Hn+UmLzHyrCtF3nMpNyhv32PE1DOGGlcpl
-         ciBw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=/p2JpLVwY1rUQlmn5MvkOkvipDx0E07Cvy9Ru60bUFA=;
+        b=HbldBI/EiAff+3kOBfQsxVhyxcY3J9L70k2SL6+0BxLzt8lYapKoj8UO68ZiwUHoJi
+         vtJIH6od72nwJHz3YUvWtOqFISom/jO6lf4BK4YEa+b4pFAlbTW8va5gbTJ/FpkXndz7
+         3l+HHOFf/X7rxKOJGwYBg9vgd8KeGj6WNXRqstK/vLvOsZFdlq4NpytgJMGavYgAkS8g
+         vtTQFoDNSPsouOoMVHeFW3/+2yMaS1u03NIMJr52184ApXE6v7hj3oRphfxWT/vFXgDk
+         pZOwqHJICbOCPNJ2IIX1gicSBh34lKakI12lbeVZAT1NjJrvqFBdobg7kTV2UnpH4tyJ
+         h49g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=F9v2tsR8yi6K0apGvpNwcYZaOTcOOEcmQbu1A2f9nBg=;
-        b=8Cl6LFagjgm0FyzPUSvb5uo/wY6JR5sBHDBcDbH+4Scbz67OBHkFCEx0y+ftzh6NOo
-         OXVlcbRuuvEEA/9Er8hwD6+mCh7rEjGgYrbcomvFvzJysi57sAJJT9+iowmL1Oy+oQZj
-         0sYBY+UkVfuNLcpaO6pAGlU5rvFdDVu/ykKKz5RWdz7xs1hPfJaAndUrKLqEIJULG2qD
-         dxhkKw9iUIkuUndvQ91zTb65qUDaqkEA5PIqFIzp7RnlgOROdFnSVuviZRD5KGH+pTDd
-         r5jnrJysovCm9hyew3b9UHH07CRMhjKyYH7LoMMKdK2f2X3TKn3ZMkODStn2NCxtCIo8
-         k3Pg==
-X-Gm-Message-State: AOAM532EQMJk7vEyK3bq8qEytnGMUmmK3g1AF0UndmZcsEKf0KAF3X+R
-        h9UZXy1KhVQrGJA71GSwW+cviQcUqrCdqr0oZ5y5
-X-Google-Smtp-Source: ABdhPJyII5JkgE4xi9+sdqZ8DQ6h1ycBx/7H206XZ6TG3cRAfxD39cHvFtfkawGv8c822tiy6eGYT03lOisZVF7YMOg=
-X-Received: by 2002:a17:907:7601:: with SMTP id jx1mr34347014ejc.69.1634050837769;
- Tue, 12 Oct 2021 08:00:37 -0700 (PDT)
+         :message-id:subject:to;
+        bh=/p2JpLVwY1rUQlmn5MvkOkvipDx0E07Cvy9Ru60bUFA=;
+        b=1ePD+ZxDregxEBnn9N3CqqF63H6W40D0c8jCqfn5evoOai7YskDTWWvJ4Pv6qLQeYH
+         zEgsIZK7KwTsiokEI/ac6CFtZPhu1Ru8Lszi7N69/F5/i78qU8zmGDOXEGbfLOZPbOBF
+         b0/p+5qU/FmF6wQml1cynrHypXmLUC3lSi560lWKTgdXa+m0QfvpjoZgUsYg6iUwoOEz
+         qjGPBydmgNbcm108wvv+Cx+15sgBzQQ1skyHMbveidUYAu4FzLnB8wzO03jXuVDHtf79
+         QdWqF7tNDnYHtMMpKSVAzb9cgRqK+cG/VcJrZwSbw39MioXpaR9rZnC/AcXKkpQEklEe
+         /4Fw==
+X-Gm-Message-State: AOAM5339kYQRcNaNa6Y1LIi5mLHU03sNtwLG7JOUYWzbPAaSZ458T8E1
+        9S6agOCO9S8CW/3Z/uS5U8E3YxvvmeNh+bc5MDtVPH27jw==
+X-Google-Smtp-Source: ABdhPJw5oUKTL7XXgMWLXXOS2RflsrrfpDY50aDW97G423OXFi9zYIt9Cjzu3/ZWp5chJi64BhebZW12tWmBOwzTzkM=
+X-Received: by 2002:a05:6402:5114:: with SMTP id m20mr471857edd.256.1634050918818;
+ Tue, 12 Oct 2021 08:01:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210728140313.68096-1-omosnace@redhat.com> <CAHC9VhTDagTt1CKDRPkVrcvHwWPbSzzPp3HSS3ZzsbLapTBAxw@mail.gmail.com>
- <CAFqZXNuT=-m2QVgw+Awm3HcK5pt8niKb+yu2Tspy2RCsLByrWQ@mail.gmail.com>
- <CAHC9VhT6YcAWn4KrsfjpJQGDetEVy7LNh8DsrMrycW8y57Y20Q@mail.gmail.com>
- <CAHC9VhQF9R76ojBBrAQ=WHOAgHNGKJDobY+a_qohJJCQWQDw4w@mail.gmail.com>
- <CAFqZXNs_hU_r6uxiUiWPGiYhJ5EzdxMWWwtbp-ZPMfaZ1rTNCg@mail.gmail.com>
- <CAHC9VhRQdyF0tMGLgW1dzvwrKeH32z-n49ohxbhwFQLTVghxjg@mail.gmail.com> <CAFqZXNv7nWMvvZQDJjbFJ1vuyrQL=7B3Fxrsb660prJgC+jLhA@mail.gmail.com>
-In-Reply-To: <CAFqZXNv7nWMvvZQDJjbFJ1vuyrQL=7B3Fxrsb660prJgC+jLhA@mail.gmail.com>
+References: <163399358463.185926.1386262780774440656.stgit@olly>
+In-Reply-To: <163399358463.185926.1386262780774440656.stgit@olly>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 12 Oct 2021 11:00:26 -0400
-Message-ID: <CAHC9VhRmWFngOjAENcimNY-Ha9x8PFXuJLijqz=fn85khwDv_g@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix race condition when computing ocontext SIDs
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Sujithra Periasamy <sujithra@google.com>,
-        Xinjie Zheng <xinjie@google.com>
+Date:   Tue, 12 Oct 2021 11:01:48 -0400
+Message-ID: <CAHC9VhQA+RMAGmzBpr6UEAi6EAp5bZ7jWKFSCWpJWZvJuW8Q5g@mail.gmail.com>
+Subject: Re: [PATCH] selinux: make better use of the nf_hook_state passed to
+ the NF hooks
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 12, 2021 at 10:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Tue, Oct 12, 2021 at 1:27 AM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > Okay.  I'm going to go ahead and merge this simply because it does fix
-> > a visible problem, but I really would like you to revisit this in the
-> > near future to see if there is a better fix.
-> >
-> > While I'm going to mark this with the stable tag, considering the
-> > relatively low rate of occurrence on modern kernels and the fact that
-> > I'm not in love with the fix, I'm going to merge this into
-> > selinux/next and not selinux/stable-5.15.  This should give us another
-> > couple of weeks in case you come up with a better fix in the near
-> > term.
+On Mon, Oct 11, 2021 at 7:06 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> OK, though it seems something went wrong when you applied the patch -
-> in the commit it's missing the subject line:
+> This patch builds on a previous SELinux/netfilter patch by Florian
+> Westphal and makes better use of the nf_hook_state variable passed
+> into the SELinux/netfilter hooks as well as a number of other small
+> cleanups in the related code.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/selinux/hooks.c |   53 +++++++++++++++++++++-------------------------
+>  1 file changed, 24 insertions(+), 29 deletions(-)
 
-Thanks for the heads-up, I fixed the subject line and force pushed the
-branch.  Portions of the patch had to be merged by hand and when I
-copied the description over I must have missed the subject line.
+FYI, I just merged this into selinux/next.
 
 -- 
 paul moore
