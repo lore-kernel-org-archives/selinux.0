@@ -2,122 +2,113 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD6BFC433F5
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 18:06:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C99DC433F5
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 18:12:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BAE2360D07
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 18:06:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B6C36058D
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 18:12:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233378AbhJLSIx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Oct 2021 14:08:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37023 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232694AbhJLSIv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 14:08:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634062009;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FZFmdZ4LWa9uT8PNPvB/BKNj7TZotZ+Fld6yJ/gLGwI=;
-        b=c14/JUNN2/i3CeiADD57vZv+UEz1gZL1V5QJPryPCVVlkD8RAFk+ztkLYIVx9yiCAuh76L
-        Vf4QiEqbeljqeYtA1n7gPvg6YhZ/FF3sdUxmLE1hjVhQzU0RCG8CHH1gnCs1dmHwHp1w5i
-        RdfHfxlWhh2maL/kyCkTxjsQ/ckgXG4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-246-5T28nNFbOHyRf7XaGlDNyw-1; Tue, 12 Oct 2021 14:06:43 -0400
-X-MC-Unique: 5T28nNFbOHyRf7XaGlDNyw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 56C7F1006AA5;
-        Tue, 12 Oct 2021 18:06:42 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.9.35])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9C6705D9CA;
-        Tue, 12 Oct 2021 18:06:36 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 27DD0220C99; Tue, 12 Oct 2021 14:06:36 -0400 (EDT)
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, miklos@szeredi.hu
-Cc:     virtio-fs@redhat.com, chirantan@chromium.org, vgoyal@redhat.com,
-        stephen.smalley.work@gmail.com, dwalsh@redhat.com,
-        casey@schaufler-ca.com, omosnace@redhat.com
-Subject: [PATCH v2 1/2] fuse: Add a flag FUSE_SECURITY_CTX
-Date:   Tue, 12 Oct 2021 14:06:23 -0400
-Message-Id: <20211012180624.447474-2-vgoyal@redhat.com>
-In-Reply-To: <20211012180624.447474-1-vgoyal@redhat.com>
-References: <20211012180624.447474-1-vgoyal@redhat.com>
+        id S229824AbhJLSOQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Oct 2021 14:14:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231974AbhJLSOP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 14:14:15 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69241C061745
+        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 11:12:13 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id z20so2688060edc.13
+        for <selinux@vger.kernel.org>; Tue, 12 Oct 2021 11:12:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=28fl1nTBgmIQBFZ9f2d7lRM9Q7pbKbE882y/uhziIGg=;
+        b=2WY15VLyjFjF3rY3UPMRXoOYaTDQ4nt+Skk3R1cqeUz52l091yzGDuC/VysGOQtFle
+         uObxgKbVFnPzp0r9814n/p3juPHRYKTG4FaZq+AD8fhqthC9MpnK1VUUDQ1e8Yynk5QG
+         HEMEEfSi9skWVprEXW/VFl4mwp0Ovnto7TUe/usZSZH4qDuNHbRGiOKIBAjO2MX9omM6
+         dQas0yagpMN7z9z6NbvE9/UJqfIJ4NF4Fwml0/FZOSitv4HLcnW4iNsdng9aaQHUyj6S
+         sktqK5AKLG45Qwx3kLBEcN/+2EpMpwIKiqP9NbcoQkgGbZHw+gJ0BKyiJEUJKfmNC47m
+         VE2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=28fl1nTBgmIQBFZ9f2d7lRM9Q7pbKbE882y/uhziIGg=;
+        b=qW5JhYU38WvyOzgghmih2CNsT2mOubdxjwntlUQq7jz9On+W9G3omA7XcaNNIhyxRb
+         Jf2clCkXq1GGW1fTzjbJ0/5MFVuDmiZUfZcFroUP97j0qQ6O6WcXLaToGpnhfVdchdYL
+         JqhDPK9N8kZVAZAiP2s6J9d3xKNkLQyE09WglRoESvBK0CzP+V9uG+Y4O2WQwhykdFUm
+         GIQ7R36zv0AIXhshwz50KYC+aH579dRUdP35zDof8Gj+n6IeywhKzp0b1PQ1E6nWuXtc
+         6wD8RHXwKUALli5W7GQSN8JU6w9UbE5aPV8xfHT5o0iePwN7WXtja73ZEKipvW+G8lK1
+         ydMQ==
+X-Gm-Message-State: AOAM530plktgvdrzxbWV3UAQX6Q69K1NkMVfnR21M+esNkHMyaUL++x2
+        tapElHDdTjMJe9K0kDUkLEMIHPhHe11Q+YOaJyoM
+X-Google-Smtp-Source: ABdhPJy+pOh0Np8HVEkYOsZpNYYFFOiLhuFaSuutRuadLVS9grROMqGni6Wx2+PNpFwdUJHuA3zSMSfPxFUiOHjFwI4=
+X-Received: by 2002:a05:6402:5112:: with SMTP id m18mr1721511edd.101.1634062330710;
+ Tue, 12 Oct 2021 11:12:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <20211011133704.1704369-1-brauner@kernel.org> <06b6f249-06e6-f472-c74c-bb3ff6f4b4ee@digikod.net>
+ <20211012103830.s7kzijrn25ucjasr@wittgenstein>
+In-Reply-To: <20211012103830.s7kzijrn25ucjasr@wittgenstein>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 12 Oct 2021 14:11:59 -0400
+Message-ID: <CAHC9VhSd32Q_tCctwYB0y4EXGCV8_9QajkNkkc96EwjdFsVkJw@mail.gmail.com>
+Subject: Re: [PATCH] security/landlock: use square brackets around "landlock-ruleset"
+To:     Chris PeBenito <pebenito@ieee.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+Cc:     =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Christian Brauner <brauner@kernel.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add the FUSE_SECURITY_CTX flag for the `flags` field of the
-fuse_init_out struct.  When this flag is set the kernel will append the
-security context for a newly created inode to the request (create,
-mkdir, mknod, and symlink).  The server is responsible for ensuring that
-the inode appears atomically (preferrably) with the requested security context.
+On Tue, Oct 12, 2021 at 6:38 AM Christian Brauner
+<christian.brauner@ubuntu.com> wrote:
+> On Mon, Oct 11, 2021 at 04:38:55PM +0200, Micka=C3=ABl Sala=C3=BCn wrote:
+> > On 11/10/2021 15:37, Christian Brauner wrote:
+> > > From: Christian Brauner <christian.brauner@ubuntu.com>
+> > >
+> > > Make the name of the anon inode fd "[landlock-ruleset]" instead of
+> > > "landlock-ruleset". This is minor but most anon inode fds already
+> > > carry square brackets around their name:
+> > >
+> > >     [eventfd]
+> > >     [eventpoll]
+> > >     [fanotify]
+> > >     [fscontext]
+> > >     [io_uring]
+> > >     [pidfd]
+> > >     [signalfd]
+> > >     [timerfd]
+> > >     [userfaultfd]
+> > >
+> > > For the sake of consistency lets do the same for the landlock-ruleset=
+ anon
+> > > inode fd that comes with landlock. We did the same in
+> > > 1cdc415f1083 ("uapi, fsopen: use square brackets around "fscontext" [=
+ver #2]")
+> > > for the new mount api.
+> >
+> > Before creating "landlock-ruleset" FD, I looked at other anonymous FD
+> > and saw this kind of inconsistency. I don't get why we need to add extr=
+a
+> > characters to names, those brackets seem useless. If it should be part
+>
+> Past inconsistency shouldn't justify future inconsistency. If you have a
+> strong opinion about this for landlock I'm not going to push for it.
+> Exchanging more than 2-3 email about something like this seems too much.
 
-For example, if the server is backed by a "real" linux file system then
-it can write the security context value to
-/proc/thread-self/attr/fscreate before making the syscall to create the
-inode.
+[NOTE: adding the SELinux list as well as Chris (SELinux refrence
+policy maintainer) and Petr (Fedora/RHEL SELinux)]
 
-Vivek:
-This patch is slightly modified version of patch from
-Chirantan Ekbote <chirantan@chromium.org>. I made changes so that this
-patch applies to latest kernel.
+Chris and Petr, do either of you currently have any policy that
+references the "landlock-ruleset" anonymous inode?  In other words,
+would adding the brackets around the name cause you any problems?
 
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- include/uapi/linux/fuse.h | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
-index 36ed092227fa..2fe54c80051a 100644
---- a/include/uapi/linux/fuse.h
-+++ b/include/uapi/linux/fuse.h
-@@ -184,6 +184,10 @@
-  *
-  *  7.34
-  *  - add FUSE_SYNCFS
-+ *
-+ *  7.35
-+ *  - add FUSE_SECURITY_CTX flag for fuse_init_out
-+ *  - add security context to create, mkdir, symlink, and mknod requests
-  */
- 
- #ifndef _LINUX_FUSE_H
-@@ -219,7 +223,7 @@
- #define FUSE_KERNEL_VERSION 7
- 
- /** Minor version number of this interface */
--#define FUSE_KERNEL_MINOR_VERSION 34
-+#define FUSE_KERNEL_MINOR_VERSION 35
- 
- /** The node ID of the root inode */
- #define FUSE_ROOT_ID 1
-@@ -336,6 +340,8 @@ struct fuse_file_lock {
-  *			write/truncate sgid is killed only if file has group
-  *			execute permission. (Same as Linux VFS behavior).
-  * FUSE_SETXATTR_EXT:	Server supports extended struct fuse_setxattr_in
-+ * FUSE_SECURITY_CTX:	add security context to create, mkdir, symlink, and
-+ * 			mknod
-  */
- #define FUSE_ASYNC_READ		(1 << 0)
- #define FUSE_POSIX_LOCKS	(1 << 1)
-@@ -367,6 +373,7 @@ struct fuse_file_lock {
- #define FUSE_SUBMOUNTS		(1 << 27)
- #define FUSE_HANDLE_KILLPRIV_V2	(1 << 28)
- #define FUSE_SETXATTR_EXT	(1 << 29)
-+#define FUSE_SECURITY_CTX	(1 << 30)
- 
- /**
-  * CUSE INIT request/reply flags
--- 
-2.31.1
-
+--
+paul moore
+www.paul-moore.com
