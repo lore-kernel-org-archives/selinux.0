@@ -2,147 +2,315 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79E75C433F5
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 19:09:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 798F3C433EF
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 19:22:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53F8C61050
-	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 19:09:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35FB960273
+	for <selinux@archiver.kernel.org>; Tue, 12 Oct 2021 19:22:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231755AbhJLTLk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Oct 2021 15:11:40 -0400
-Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:40392
-        "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232434AbhJLTLk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 15:11:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1634065777; bh=PPc0yEkHBh7vGwpDaIbMgP8xtJQEaRw6slb/cxioqtY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=lHjP9tlXMoK13UVN5YvDqc65wa/MFABWtbD9r0kFr/H+Z0azdai16/tUzHjnVInEnzBaLLxMYN7gSF2Y6F8yTS8zIObF19xrUqxZXtfkay7NIw/Sj78ae1K3A7JD8uN0NP6Xz1YCgvWIBjU4Q+cS/C9kv5lpX0p5kokbSyr3IsncnY4k0T3R33ShhS5KG+XgCoo4/QuTtRs305tl1Tlk3ftvHEFAvaoXxsZ1uzA9wlYFiHa+DzQO/rzxVQZBMzEmvyP5cX7KaGXaCxbVA0/wARqWuH1E5RmNnfa/K22G9fOKx5qOhu5bQGqUNaGGzkK9zUDT6XuJqiwIAPM4y06+Bw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1634065777; bh=9G+zhhsRP+n7cJO3iKxP6CE+G3F3lcWRB0v3pDj82sJ=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=XPZ6C4/uVihfrLKDz28Myk05s3TeBYdEanwt5aDatKWvq49N68I5fu2sP/ZvBlM/IXtuwPmhMhsoVCqpJb9ZLg4yCB4azkgc3ywJwKgAndkPc7sEmghgM1UU+xdZEBCK3qyFcD1rVzt7lTJIV4dO/od0xrnQrJ42QIS4fRlTobi0J6Fzrx6W2xMsgPS0EQhNRej1u/CqF8YbjgZHPEdtVSVi7lfOqu2rtXpWRR959TljDG8gstCciw64ocyxLIv+SoDiTWjERR8xKLvrwHrTIL05vNe9FKAdoQW63x1J+xHDhxbbJInk9n+air0nkrKrlweygxBVRNWk91CjzYIKOA==
-X-YMail-OSG: g91y4l0VM1nRUcvf2ULwXbr_HDTvirSBldveXo99jypulElJlA9Ei_DXVhqLorW
- hr6QUAzbkoEM9BTvwpjNjRwVgY6CiukXUfDSXsqtriHZPVipIVrZaonewurtpxTSye9SCJUlkD1k
- O9TaGmUdXJNnjA4EgswizfLvQxtM261Q0zTsxZsGQH1pRsTIeoRiedB4gLx_Rj2b295.4c7Q.2YC
- z2fqDT_pcFOMTRX3bCwqRL2N0WILBXGx9dH4fuWuMKQH5mehKY0Es2kSfK3kQGer5P1EyFykKPK9
- k5If3vUo1AkD73Y0xqK2eE0XyQyAPVa1z3562t6DCSNeqB8EojXm52dYFYv0fFK1hykcaPNcHPHu
- vMyyfdg0rBNmcbUuxzH3y2Foq_W0N22aZO3WWpe4U6b8eBBQYjxddkR9KB2zIOvpIgz8BwlHUsw4
- n5ZR2jceJmbFDEk1bX4xLOT_K0CPpOoirjnn485IV8h9Zp5Epkur3GYV4catuFRQZJw5wEi.X0SD
- CLTm57qv7jdz7klSAz84DuyNkl2_704OaljIH98ZIbBHZnQldelJXfAMeyJ4Qdxyvkn0ChDPXiMx
- B.tcsl5n7RomcQKPbvEhpudoh9iUY170kbGnVul8EwJ.rmzsdomXRzq87o_.U9W.vTmKIW6Dmv3p
- MbV.pD3ORwdhZWqcvY4DR0u93ZjEU05aqn6fEuS81bvIN6rFRsu8S6UFUtOFX0XT4awnGdvUcsr2
- PXHmE6FNiXNFz5UmxFlTnBVLIZiTC.TxEv4MU1nc6fs._OtlWW5O4b9LgV69yFCYIBLyEPLV4Sz.
- lLP_LvvnkofDw2cAaz96BfeoKYWQKsCyLnxeMS_k3YPjxP2Qn9LQrYdBz1VuqR5mVcf_SSSGHFlc
- kyLz_W63XZeazDhZLowtdIdA.2jGlsN_P4hxTKKV6_shw77OQoJ_sr1Kr7OIXtPIreMp1MdDtVbj
- KXpOWybiIFhxdejy0XuuArnE8NvIlvzOgpqTjdwZ2GX3Nuwr3T2URv7q6psOaPJk.DJJXWF5dx3n
- wPk33_n7xB29bRqS8AOuiFLgzw6QBBAwh7.GwFfK4hjBogzGqojOLRJt63Qc6ZyQP4EoxUZ0MQXl
- XwtQOiz_JU3QIPIfFqPEZjdT6L7oEbT92zxhHzIV9s8tshYcxqVMW4iemOvnz6SIjaNdiLt_Z_nx
- CtDdd_vVHEU0xT.x6Z0WiJ8ns1azRdjAnxMhjZ009G7gSmrzm1AliBBtF2XbE_cbEuuSyUxX.inR
- myQ5zUWy7Oql1jS0pzXfUVqT17NUAKuuNOwj.al0GGyBFEDYy7lRBF0i8qnR5BnBKHP_glIZwbVB
- HHmrlauU_ValEgCkms516yqjMAn3irGRqqTBcejJSfJ5HvPwv_1uE1qeKT71LNYzJm8KRUykvp6v
- _nuNhNBRBKh0NTtyIEZl2eYOyIfg0M1tTWPiZvra4jF3P5S7w9pENDRStvpyR8RMFNkrgACkoNmw
- VMiX2VjJDB07eVSzPhTZjghIKNshIUHpUiKHERJFpn5DHgDhB7OMKuYy91pM6NghQdMKhZH_40YA
- cPtf5WhUFmcqyNdLtDW4Gq.VGLTEorMqyls19tWXYyHZF2HvbR9lloEnwrCkFLJ_os4bkaT3goTF
- jvyMoRUhZ9UzIidXJOIYZ_buhHhk5bkUo5e.DOrwkEk69Cb.fzBqWfJP39iOs6pjfqfmClQ3Cn0w
- 8HRxtLsxV5MAQoWtFk_ZHwjLArw6ETdA5qoBE5MnycWtjRLs.tXpR9LrJt1c1gyZ7v6NNNuzsrUq
- x0FUyNGiyWs6rn6PHCLcxrNiSXFrXuJXPJOZu7i6zastTDD.Tr9oBF1Zno_0enV1f1wjFzqMTlz7
- 845bJhQm3JQu.rbxRd50P4FCmC6f4.9J8c3ZLkGPhzB6KC.Nj2uiGpx3l1j5tMo0J6hS4597qKmy
- m2kbjj_KkEO5nshKZILRClUfFO4_wtNUE6Ew1Ag8C535qVsij5LasJN8eJvB4H2kElceFLRoIbJL
- YyxYp3vnN6ND8QyOp6OSCS2.iEH1uoZFhTTq9WMKxbajsIE_nNSaB8H3fdMcHQn36JIEeB8iHKpb
- seNaodmwcLESZM3C6NOUKmNferL5PKttiUkwoC.PtKxXhrHyRDiT2oTFfluDAuQvNydZMieU1D79
- prJ2_hpViGo48vTHZI7joRPFp_fjasimGodizZtHiCtlf70Fyui9.5DtdJlEhwRpNMbX.fAia4nX
- jiMZqT6PtasSEwBV0fU9Dvmx71k6PiOU-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Tue, 12 Oct 2021 19:09:37 +0000
-Received: by kubenode524.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID b7c3aae7b555a6527db6974de8268a0b;
-          Tue, 12 Oct 2021 19:09:35 +0000 (UTC)
-Subject: Re: [PATCH v2 1/2] fuse: Add a flag FUSE_SECURITY_CTX
-To:     Vivek Goyal <vgoyal@redhat.com>, linux-fsdevel@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        miklos@szeredi.hu
-Cc:     virtio-fs@redhat.com, chirantan@chromium.org,
-        stephen.smalley.work@gmail.com, dwalsh@redhat.com,
-        omosnace@redhat.com, Casey Schaufler <casey@schaufler-ca.com>
-References: <20211012180624.447474-1-vgoyal@redhat.com>
- <20211012180624.447474-2-vgoyal@redhat.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <2a7afeee-1f34-fb1c-13b1-0af1dcd95b68@schaufler-ca.com>
-Date:   Tue, 12 Oct 2021 12:09:35 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S232486AbhJLTYE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Oct 2021 15:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232148AbhJLTYE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Oct 2021 15:24:04 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1ABC061570;
+        Tue, 12 Oct 2021 12:22:01 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id x27so1365109lfu.5;
+        Tue, 12 Oct 2021 12:22:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=F4cY9GcvIfvBxAnJRpUfdJ3XchXgtnRELeuFUTiwt9A=;
+        b=WMK7LLPkn9Z0uxjW072psLU24ynN1P3Bl2LphoDOOKMJkEqbkAF+uQphON7Y7eaj/h
+         a5n5boQ/8Srkj9356hs/bUWY96stk6UHby4viQXaQAPpVcyxjGx7bIhmBrkmf1Xfmawq
+         sbtXF2ntjgYbtov39Hc1xYbu9Ui1sAfIRRrCPFDDPNMAbUos+FDiUl/hBr6Qzp3Ksw44
+         WYmOIuHxs0NmXwA75zyzREsiQQ90nVSN0atj+E61ZNtiXBZ3jUAXvTurj0haKC6buQ82
+         pXaVykwdZIDr640bZV5SVfjuS8iUz9SVBed+cj6HPmTCY/IhorEfF6N3XEUAGTzMFxwP
+         rqUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=F4cY9GcvIfvBxAnJRpUfdJ3XchXgtnRELeuFUTiwt9A=;
+        b=ilUxC8Liv5ral4K2L6VadPo/IxMXmhcWKuXJUpYcpxmex09LU9t24cZxAiKCwX/Fff
+         q24kfxWq6RBKOzyvfJavgDmUCyzuXmlpm9qK/+R5X1eZAv/IQ4Ez57EANthT9E9WAZ9A
+         5HHLt6AFwmGkVlPr327NnqGUinMKqp+wRkydsxF2GkMGG12gtYMvi7q3SsnUeHUthcMU
+         nGRQC4k/WmlH33cwqymCkJmB2xEj7DSHuvipCLeRXQg7fdrmqytW72251zV6QUnjQUak
+         yMF/JiiXscjoOD+rD1yNowLOlu125x0ffCmgSJTf22wFR1J2xsEvQs2dR2G0T5R9XOY3
+         aCQg==
+X-Gm-Message-State: AOAM533dXNlCLUFeTTPHDnT3ld0ud1ovSSlao2cJ8cA+5MGgW5VUnjto
+        Gp7TSSjB8mwqrLNOvcpu8czRN1LQM0EUTRfEkYI=
+X-Google-Smtp-Source: ABdhPJzkwugGjoeCSR2zja5bXDk9neyN9MelG2qK80Ryk0tjJRB8N3r5NH8iG/3YQha0tAMK47iXp4X5O8oFpCLHOEI=
+X-Received: by 2002:ac2:4f92:: with SMTP id z18mr35966059lfs.354.1634066520017;
+ Tue, 12 Oct 2021 12:22:00 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20211012180624.447474-2-vgoyal@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.19116 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20210517134201.29271-1-omosnace@redhat.com> <20210517134201.29271-2-omosnace@redhat.com>
+ <CAN-5tyF8J2+kpVtHHmwc9rASmn=EJmei8RB47cQAgYC6P1=GSw@mail.gmail.com>
+In-Reply-To: <CAN-5tyF8J2+kpVtHHmwc9rASmn=EJmei8RB47cQAgYC6P1=GSw@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 12 Oct 2021 15:21:48 -0400
+Message-ID: <CAEjxPJ6TuqEf31z9bjyK7Nkhxw=b06xkLh1263Fz2xmNn-KUnA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] vfs,LSM: introduce the FS_HANDLES_LSM_OPTS flag
+To:     Olga Kornievskaia <aglo@umich.edu>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        linux-btrfs@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        David Howells <dhowells@redhat.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/12/2021 11:06 AM, Vivek Goyal wrote:
-> Add the FUSE_SECURITY_CTX flag for the `flags` field of the
-> fuse_init_out struct.  When this flag is set the kernel will append the
-> security context for a newly created inode to the request (create,
-> mkdir, mknod, and symlink).  The server is responsible for ensuring that
-> the inode appears atomically (preferrably) with the requested security context.
+On Wed, May 19, 2021 at 1:08 PM Olga Kornievskaia <aglo@umich.edu> wrote:
 >
-> For example, if the server is backed by a "real" linux file system then
-> it can write the security context value to
-> /proc/thread-self/attr/fscreate before making the syscall to create the
-> inode.
+> On Mon, May 17, 2021 at 9:42 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Add a new FS_HANDLES_LSM_OPTS filesystem flag to singal to VFS that the
+> > filesystem does LSM option setting for the given mount on its own, so
+> > the security_sb_set_mnt_opts() call in vfs_get_tree() can be skipped.
+> >
+> > This allows the following simplifications:
+> > 1. Removal of explicit LSM option handling from BTRFS.
+> >
+> >    This exists only because of the double-layer mount that BTRFS is
+> >    doing for its subvolume support. Setting FS_HANDLES_LSM_OPTS on the
+> >    inner layer (btrfs_root_fs_type) and unsetting FS_BINARY_MOUNTDATA
+> >    from both layers allows us to leave the LSM option handling entirely
+> >    on VFS as part of the outer vfs_get_tree() call.
+> >
+> > 2. Removal of FS_BINARY_MOUNTDATA flags from BTRFS's fs_types.
+> >
+> >    After applying (1.), we can let VFS eat away LSM opts at the outer
+> >    mount layer and then do selinux_set_mnt_opts() with these opts, so
+> >    setting the flag is no longer needed neither for preserving the LSM
+> >    opts, nor for the SELinux double-set_mnt_opts exception.
+> >
+> > 3. Removal of the ugly FS_BINARY_MOUNTDATA special case from
+> >    selinux_set_mnt_opts().
+> >
+> >    Applying (1.) and also setting FS_HANDLES_LSM_OPTS on NFS fs_types
+> >    (which needs to unavoidably do the LSM options handling on its own
+> >    due to the SECURITY_LSM_NATIVE_LABELS flag usage) gets us to the
+> >    state where there is an exactly one security_sb_set_mnt_opts() or
+> >    security_sb_clone_mnt_opts() call for each superblock, so the rather
+> >    hacky FS_BINARY_MOUNTDATA special case can be finally removed from
+> >    security_sb_set_mnt_opts().
+> >
+> > The only other filesystem that sets FS_BINARY_MOUNTDATA is coda, which
+> > is also the only one that has binary mount data && doesn't do its own
+> > LSM options handling. So for coda we leave FS_HANDLES_LSM_OPTS unset and
+> > the behavior remains unchanged - with fsconfig(2) it (probably) won't
+> > even mount and with mount(2) it still won't support LSM options (and the
+> > security_sb_set_mnt_opts() will be always performed with empty LSM
+> > options as before).
+> >
+> > AFAICT, this shouldn't negatively affect the other LSMs. In fact, I
+> > think AppArmor will now gain the ability to do its DFA matching on BTRFS
+> > mount options, which was prevented before due to FS_BINARY_MOUNTDATA
+> > being set on both its fs_types.
+>
+> Tested-by: Olga Kornievskaia <kolga@netapp.com> (both patches).
 
-his only works for SELinux, as I've mentioned before. Perhaps:
-
-If the server is using SELinux and backed by a "real" linux file system
-that supports extended attributes it can write the security context value
-to /proc/thread-self/attr/fscreate before making the syscall to create
-the inode.
+Is this stalled on getting an Ack from vfs maintainers?
 
 >
-> Vivek:
-> This patch is slightly modified version of patch from
-> Chirantan Ekbote <chirantan@chromium.org>. I made changes so that this
-> patch applies to latest kernel.
->
-> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> ---
->  include/uapi/linux/fuse.h | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->
-> diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
-> index 36ed092227fa..2fe54c80051a 100644
-> --- a/include/uapi/linux/fuse.h
-> +++ b/include/uapi/linux/fuse.h
-> @@ -184,6 +184,10 @@
->   *
->   *  7.34
->   *  - add FUSE_SYNCFS
-> + *
-> + *  7.35
-> + *  - add FUSE_SECURITY_CTX flag for fuse_init_out
-> + *  - add security context to create, mkdir, symlink, and mknod requests
->   */
->  
->  #ifndef _LINUX_FUSE_H
-> @@ -219,7 +223,7 @@
->  #define FUSE_KERNEL_VERSION 7
->  
->  /** Minor version number of this interface */
-> -#define FUSE_KERNEL_MINOR_VERSION 34
-> +#define FUSE_KERNEL_MINOR_VERSION 35
->  
->  /** The node ID of the root inode */
->  #define FUSE_ROOT_ID 1
-> @@ -336,6 +340,8 @@ struct fuse_file_lock {
->   *			write/truncate sgid is killed only if file has group
->   *			execute permission. (Same as Linux VFS behavior).
->   * FUSE_SETXATTR_EXT:	Server supports extended struct fuse_setxattr_in
-> + * FUSE_SECURITY_CTX:	add security context to create, mkdir, symlink, and
-> + * 			mknod
->   */
->  #define FUSE_ASYNC_READ		(1 << 0)
->  #define FUSE_POSIX_LOCKS	(1 << 1)
-> @@ -367,6 +373,7 @@ struct fuse_file_lock {
->  #define FUSE_SUBMOUNTS		(1 << 27)
->  #define FUSE_HANDLE_KILLPRIV_V2	(1 << 28)
->  #define FUSE_SETXATTR_EXT	(1 << 29)
-> +#define FUSE_SECURITY_CTX	(1 << 30)
->  
->  /**
->   * CUSE INIT request/reply flags
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  fs/btrfs/super.c         | 34 +++++-----------------------------
+> >  fs/nfs/fs_context.c      |  6 ++++--
+> >  fs/super.c               | 10 ++++++----
+> >  include/linux/fs.h       |  3 ++-
+> >  security/selinux/hooks.c | 15 ---------------
+> >  5 files changed, 17 insertions(+), 51 deletions(-)
+> >
+> > diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+> > index 4a396c1147f1..80716ead1cde 100644
+> > --- a/fs/btrfs/super.c
+> > +++ b/fs/btrfs/super.c
+> > @@ -1666,19 +1666,12 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
+> >         struct btrfs_device *device = NULL;
+> >         struct btrfs_fs_devices *fs_devices = NULL;
+> >         struct btrfs_fs_info *fs_info = NULL;
+> > -       void *new_sec_opts = NULL;
+> >         fmode_t mode = FMODE_READ;
+> >         int error = 0;
+> >
+> >         if (!(flags & SB_RDONLY))
+> >                 mode |= FMODE_WRITE;
+> >
+> > -       if (data) {
+> > -               error = security_sb_eat_lsm_opts(data, &new_sec_opts);
+> > -               if (error)
+> > -                       return ERR_PTR(error);
+> > -       }
+> > -
+> >         /*
+> >          * Setup a dummy root and fs_info for test/set super.  This is because
+> >          * we don't actually fill this stuff out until open_ctree, but we need
+> > @@ -1688,10 +1681,9 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
+> >          * superblock with our given fs_devices later on at sget() time.
+> >          */
+> >         fs_info = kvzalloc(sizeof(struct btrfs_fs_info), GFP_KERNEL);
+> > -       if (!fs_info) {
+> > -               error = -ENOMEM;
+> > -               goto error_sec_opts;
+> > -       }
+> > +       if (!fs_info)
+> > +               return ERR_PTR(-ENOMEM);
+> > +
+> >         btrfs_init_fs_info(fs_info);
+> >
+> >         fs_info->super_copy = kzalloc(BTRFS_SUPER_INFO_SIZE, GFP_KERNEL);
+> > @@ -1748,9 +1740,6 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
+> >                         set_bit(BTRFS_FS_CSUM_IMPL_FAST, &fs_info->flags);
+> >                 error = btrfs_fill_super(s, fs_devices, data);
+> >         }
+> > -       if (!error)
+> > -               error = security_sb_set_mnt_opts(s, new_sec_opts, 0, NULL);
+> > -       security_free_mnt_opts(&new_sec_opts);
+> >         if (error) {
+> >                 deactivate_locked_super(s);
+> >                 return ERR_PTR(error);
+> > @@ -1762,8 +1751,6 @@ error_close_devices:
+> >         btrfs_close_devices(fs_devices);
+> >  error_fs_info:
+> >         btrfs_free_fs_info(fs_info);
+> > -error_sec_opts:
+> > -       security_free_mnt_opts(&new_sec_opts);
+> >         return ERR_PTR(error);
+> >  }
+> >
+> > @@ -1925,17 +1912,6 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
+> >         sync_filesystem(sb);
+> >         set_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
+> >
+> > -       if (data) {
+> > -               void *new_sec_opts = NULL;
+> > -
+> > -               ret = security_sb_eat_lsm_opts(data, &new_sec_opts);
+> > -               if (!ret)
+> > -                       ret = security_sb_remount(sb, new_sec_opts);
+> > -               security_free_mnt_opts(&new_sec_opts);
+> > -               if (ret)
+> > -                       goto restore;
+> > -       }
+> > -
+> >         ret = btrfs_parse_options(fs_info, data, *flags);
+> >         if (ret)
+> >                 goto restore;
+> > @@ -2385,7 +2361,7 @@ static struct file_system_type btrfs_fs_type = {
+> >         .name           = "btrfs",
+> >         .mount          = btrfs_mount,
+> >         .kill_sb        = btrfs_kill_super,
+> > -       .fs_flags       = FS_REQUIRES_DEV | FS_BINARY_MOUNTDATA,
+> > +       .fs_flags       = FS_REQUIRES_DEV,
+> >  };
+> >
+> >  static struct file_system_type btrfs_root_fs_type = {
+> > @@ -2393,7 +2369,7 @@ static struct file_system_type btrfs_root_fs_type = {
+> >         .name           = "btrfs",
+> >         .mount          = btrfs_mount_root,
+> >         .kill_sb        = btrfs_kill_super,
+> > -       .fs_flags       = FS_REQUIRES_DEV | FS_BINARY_MOUNTDATA,
+> > +       .fs_flags       = FS_REQUIRES_DEV | FS_HANDLES_LSM_OPTS,
+> >  };
+> >
+> >  MODULE_ALIAS_FS("btrfs");
+> > diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
+> > index d95c9a39bc70..b5db4160e89b 100644
+> > --- a/fs/nfs/fs_context.c
+> > +++ b/fs/nfs/fs_context.c
+> > @@ -1557,7 +1557,8 @@ struct file_system_type nfs_fs_type = {
+> >         .init_fs_context        = nfs_init_fs_context,
+> >         .parameters             = nfs_fs_parameters,
+> >         .kill_sb                = nfs_kill_super,
+> > -       .fs_flags               = FS_RENAME_DOES_D_MOVE|FS_BINARY_MOUNTDATA,
+> > +       .fs_flags               = FS_RENAME_DOES_D_MOVE|FS_BINARY_MOUNTDATA|
+> > +                                 FS_HANDLES_LSM_OPTS,
+> >  };
+> >  MODULE_ALIAS_FS("nfs");
+> >  EXPORT_SYMBOL_GPL(nfs_fs_type);
+> > @@ -1569,7 +1570,8 @@ struct file_system_type nfs4_fs_type = {
+> >         .init_fs_context        = nfs_init_fs_context,
+> >         .parameters             = nfs_fs_parameters,
+> >         .kill_sb                = nfs_kill_super,
+> > -       .fs_flags               = FS_RENAME_DOES_D_MOVE|FS_BINARY_MOUNTDATA,
+> > +       .fs_flags               = FS_RENAME_DOES_D_MOVE|FS_BINARY_MOUNTDATA|
+> > +                                 FS_HANDLES_LSM_OPTS,
+> >  };
+> >  MODULE_ALIAS_FS("nfs4");
+> >  MODULE_ALIAS("nfs4");
+> > diff --git a/fs/super.c b/fs/super.c
+> > index 11b7e7213fd1..918c77b8c161 100644
+> > --- a/fs/super.c
+> > +++ b/fs/super.c
+> > @@ -1520,10 +1520,12 @@ int vfs_get_tree(struct fs_context *fc)
+> >         smp_wmb();
+> >         sb->s_flags |= SB_BORN;
+> >
+> > -       error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+> > -       if (unlikely(error)) {
+> > -               fc_drop_locked(fc);
+> > -               return error;
+> > +       if (!(fc->fs_type->fs_flags & FS_HANDLES_LSM_OPTS)) {
+> > +               error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+> > +               if (unlikely(error)) {
+> > +                       fc_drop_locked(fc);
+> > +                       return error;
+> > +               }
+> >         }
+> >
+> >         /*
+> > diff --git a/include/linux/fs.h b/include/linux/fs.h
+> > index c3c88fdb9b2a..36f9cd37bc83 100644
+> > --- a/include/linux/fs.h
+> > +++ b/include/linux/fs.h
+> > @@ -2469,7 +2469,8 @@ struct file_system_type {
+> >  #define FS_HAS_SUBTYPE         4
+> >  #define FS_USERNS_MOUNT                8       /* Can be mounted by userns root */
+> >  #define FS_DISALLOW_NOTIFY_PERM        16      /* Disable fanotify permission events */
+> > -#define FS_ALLOW_IDMAP         32      /* FS has been updated to handle vfs idmappings. */
+> > +#define FS_ALLOW_IDMAP         32      /* FS has been updated to handle vfs idmappings. */
+> > +#define FS_HANDLES_LSM_OPTS    64      /* FS handles LSM opts on its own - skip it in VFS */
+> >  #define FS_THP_SUPPORT         8192    /* Remove once all fs converted */
+> >  #define FS_RENAME_DOES_D_MOVE  32768   /* FS will handle d_move() during rename() internally. */
+> >         int (*init_fs_context)(struct fs_context *);
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index eaea837d89d1..041529cbf214 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -684,21 +684,6 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+> >                 goto out;
+> >         }
+> >
+> > -       /*
+> > -        * Binary mount data FS will come through this function twice.  Once
+> > -        * from an explicit call and once from the generic calls from the vfs.
+> > -        * Since the generic VFS calls will not contain any security mount data
+> > -        * we need to skip the double mount verification.
+> > -        *
+> > -        * This does open a hole in which we will not notice if the first
+> > -        * mount using this sb set explict options and a second mount using
+> > -        * this sb does not set any security options.  (The first options
+> > -        * will be used for both mounts)
+> > -        */
+> > -       if ((sbsec->flags & SE_SBINITIALIZED) && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
+> > -           && !opts)
+> > -               goto out;
+> > -
+> >         root_isec = backing_inode_security_novalidate(root);
+> >
+> >         /*
+> > --
+> > 2.31.1
+> >
