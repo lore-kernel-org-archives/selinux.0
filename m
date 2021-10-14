@@ -2,120 +2,93 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02902C433EF
-	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 14:11:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1511C433F5
+	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 14:53:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D083F610F9
-	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 14:11:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C611560F23
+	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 14:53:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231388AbhJNONI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Oct 2021 10:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35872 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230177AbhJNONI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Oct 2021 10:13:08 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2D3C061570
-        for <selinux@vger.kernel.org>; Thu, 14 Oct 2021 07:11:03 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id q129so8707442oib.0
-        for <selinux@vger.kernel.org>; Thu, 14 Oct 2021 07:11:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=GAPwSrMlgstEqnt4oWmCp73phbCZIxt636RYBd96XCs=;
-        b=UlUGRlgxdl9UfE/CcaDPUp+946caiKvNqM30exkpm5LMoUKMBMtR2n4aOzVSDM9AL2
-         iO0TTigP+ggNTlcaqJ72gpcgv6HbSWhY/8py+Q0uAOmJ4UtSho+e4kKeEfc7VawjHBHm
-         /FCG7TwTSwQWJWWDW3n3tVp2HDVcLkAd4WkLsDJsbkumg0nbzli+20U0Wbjd+SW3ScJY
-         2VWWjF8amChH4F9cXMx81+weHnttYRSPWcQDSZtgKURnTcmNxkcvFIRleqywXZgRNDmq
-         /AG81rGCHLEWMyl7Ow+wL4slo/xtiNyffThqKtAYlRnXjm0NGvSFMuYm/B0ueUWzfHM1
-         3oEw==
+        id S231871AbhJNOza (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Oct 2021 10:55:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:38425 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230359AbhJNOz3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Oct 2021 10:55:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634223204;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sw9AyOM2fnUVdoGnx7vC5NrxnM5onpdxqgZxIXEGFfw=;
+        b=HZ1lcaHQKd2o+fVUo6ECSZ0HlBPBI8wMhN22at8dcdpc0IwBVEw5e8/CRC8CFGDxNqXLwZ
+        RARbh7BF0kWjUKe9u8RGV815FE1kHpJlo8CNqwyX3+qxyQgGLRL/upbi399q/dMsoO78cn
+        wBgrQGt6uvJJ4aP74ztQh4iSGNXm/PQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-442-3NcFiP8pPQ6YY6tDB8FCGw-1; Thu, 14 Oct 2021 10:53:23 -0400
+X-MC-Unique: 3NcFiP8pPQ6YY6tDB8FCGw-1
+Received: by mail-wr1-f72.google.com with SMTP id v15-20020adfa1cf000000b00160940b17a2so4739506wrv.19
+        for <selinux@vger.kernel.org>; Thu, 14 Oct 2021 07:53:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=GAPwSrMlgstEqnt4oWmCp73phbCZIxt636RYBd96XCs=;
-        b=QWsIra74mYCPoqTg0fsO9C/rGmxYwIr00K42EKi7M0Pam0SpUL+jD/I4z/XTEEDTQ0
-         lAPfUsZgOKYHXm+FmfYCe59puJIOPmJz5ldCryYJIYTcLKbNAz55UfXCgzwjIxP7rbZ7
-         92RFAbD0C8JSuDBjkL1j5S5VbpTeJopO2JbevvcXz+i2a05YzvDQdNesJmXGeinWAHYq
-         6fUvQWplKPqZVB9L4D3P+6NZPebjSJeHHuGukhOKJCoMJMg0nEMTn4KyDlxBoILmfMJL
-         xLE7cEL0K4CuJ5lene/5j0D/0qefTVufI0Jzhp6NOuMZWdvpJmu2T8iTXfHBGOPB6OdX
-         pa5w==
-X-Gm-Message-State: AOAM531P6j/0VT9dlK8IGVi2Kg7hlXcvqC29/yIfLoTGGgd5PmpJQLR5
-        BYB0Wg8v9Wm9yp0XsbbWH50enXbOX9u9QIm/1f4=
-X-Google-Smtp-Source: ABdhPJzlrk4LNsYq/bijP7sxHUEIdQ6oyonwKrxqjjbgi5FLSafMTo++F6lDAm0emdyLvtxWfAaJxVMuLmx18aNK43Y=
-X-Received: by 2002:a05:6808:545:: with SMTP id i5mr4132683oig.16.1634220662867;
- Thu, 14 Oct 2021 07:11:02 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=sw9AyOM2fnUVdoGnx7vC5NrxnM5onpdxqgZxIXEGFfw=;
+        b=YUdJD6Jpu0dr7d2oVIVd8Vd1t1hnTPpC0cuW7THxgvcHsseEG8QmEEh6nk9tAYXPYt
+         n+mC7jYpI0iNWpNWlmjbT9X9Y2VcGnqwQcTG8aripFvg/CNPDdCI7lpYx6wS/MSOFsVn
+         x4TnNaYlZt7SFNg84FiNOglgjFx8gN3PN0FkmvPOPKiaqLaVxupzAmoghB48d9/q0wNl
+         TZFVLe8+M9hY8PSjcxsKTo9LNf4eVTVU2K2BDDblWox+Z5bi7WIAgJn7VpC66r3kziaH
+         1JaDxdwqf/xBBzxTnEdH/EXgAsGM8EMI0WJP4xxUrT0PF5nMFHaqVbucDPCY4S04s+J8
+         nhVA==
+X-Gm-Message-State: AOAM533VWOpRXymRhCna0Uc6LxfPSPMsup1EpbCqU2PtdxC8EUq3fVRO
+        nAnqnz+mTEYcDsdOIsptdOP2eapb6nGWsr4WQgq4u33+MvzT38Als4JGFdC13cUi1BsTtQFDLsy
+        SI1yl7qy2GGrceYnOrs4shLdHqG6ffkWOFnqlDItisCYs6ZKySMwsYeA9fPOFIGS4OD3fEg==
+X-Received: by 2002:a05:6000:1884:: with SMTP id a4mr7307131wri.356.1634223201864;
+        Thu, 14 Oct 2021 07:53:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxt/ENmLwaMH3Jru3wabo+Up0vhOtZB/f6NV71fMBk8fjrzEV7ZS0dImpqbjOb40eEcKGRq5w==
+X-Received: by 2002:a05:6000:1884:: with SMTP id a4mr7307094wri.356.1634223201539;
+        Thu, 14 Oct 2021 07:53:21 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id k17sm2485489wrc.93.2021.10.14.07.53.20
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Oct 2021 07:53:21 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH userspace v2 1/6] selinux_restorecon: simplify fl_head allocation by using calloc()
+Date:   Thu, 14 Oct 2021 16:53:14 +0200
+Message-Id: <20211014145319.798740-2-omosnace@redhat.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211014145319.798740-1-omosnace@redhat.com>
+References: <20211014145319.798740-1-omosnace@redhat.com>
 MIME-Version: 1.0
-References: <20211011162533.53404-1-cgzones@googlemail.com> <20211011162533.53404-30-cgzones@googlemail.com>
-In-Reply-To: <20211011162533.53404-30-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 14 Oct 2021 10:10:52 -0400
-Message-ID: <CAP+JOzSkFNDjOMDWgP+xeJPS=Q5Xzwx=6wrYqx2_n0vLPA4dPg@mail.gmail.com>
-Subject: Re: [RFC PATCH 29/35] libsepol: validate genfs contexts
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 11, 2021 at 12:41 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libsepol/src/policydb_validate.c | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index 5c06e6f4..63fd935c 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -712,6 +712,25 @@ bad:
->         return -1;
->  }
->
-> +static int validate_genfs(sepol_handle_t *handle, policydb_t *p, validat=
-e_t flavors[])
-> +{
-> +       genfs_t *genfs;
-> +       ocontext_t *octx;
-> +
-> +       for (genfs =3D p->genfs; genfs; genfs =3D genfs->next) {
-> +               for (octx =3D genfs->head; octx; octx =3D octx->next) {
-> +                       if (validate_context(&octx->context[0], flavors, =
-p->mls))
-> +                               goto bad;
-> +               }
-> +       }
-> +
-> +       return 0;
-> +
-> +bad:
-> +       ERR(handle, "Invalid genfs");
-> +       return -1;
-> +}
-> +
->  /*
->   * Functions to validate a module policydb
->   */
-> @@ -898,6 +917,8 @@ int validate_policydb(sepol_handle_t *handle, policyd=
-b_t *p)
->                         goto bad;
->                 if (validate_ocontexts(handle, p, flavors))
->                         goto bad;
-> +               if (validate_genfs(handle, p, flavors))
-> +                       goto bad;
->                 if (p->policyvers >=3D POLICYDB_VERSION_FILENAME_TRANS)
->                         if (validate_filename_trans_hashtab(handle, p->fi=
-lename_trans, flavors))
->                                 goto bad;
-> --
-> 2.33.0
->
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ libselinux/src/selinux_restorecon.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Like ocontexts, genfs rules can be in base modules.
-Jim
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 04d95650..15129336 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -425,10 +425,9 @@ static int filespec_add(ino_t ino, const char *con, const char *file,
+ 	struct stat64 sb;
+ 
+ 	if (!fl_head) {
+-		fl_head = malloc(sizeof(file_spec_t) * HASH_BUCKETS);
++		fl_head = calloc(HASH_BUCKETS, sizeof(file_spec_t));
+ 		if (!fl_head)
+ 			goto oom;
+-		memset(fl_head, 0, sizeof(file_spec_t) * HASH_BUCKETS);
+ 	}
+ 
+ 	h = (ino + (ino >> HASH_BITS)) & HASH_MASK;
+-- 
+2.31.1
+
