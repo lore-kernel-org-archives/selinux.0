@@ -2,123 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AC1EC433FE
-	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 14:53:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 955CBC433EF
+	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 21:34:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E6245610D1
-	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 14:53:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6BBB461041
+	for <selinux@archiver.kernel.org>; Thu, 14 Oct 2021 21:34:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbhJNOzl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Oct 2021 10:55:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55256 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231938AbhJNOzk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Oct 2021 10:55:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634223215;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Pc/PxkTJEkG61Iip5Le2urOnh92JCs0AOkQZTlXxBPQ=;
-        b=aB9ypTJNCSkByDPTYMv8q2Pf8pj10CNEo0C5IOXEw2tJh5ZY1FN8u+28R5IWgEx/f/uX1A
-        xfZOu1XEoNjeZnT70Coo43dtZ4hzMMy6VXOBPDqTu3Ge35Sio47TSGDDd+tYdtzA1f6vks
-        slDeh7+jGYDeMIKxXuRP4vffkrxOew4=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-420-mdKTL2NANsKbcI8fgBkAMA-1; Thu, 14 Oct 2021 10:53:32 -0400
-X-MC-Unique: mdKTL2NANsKbcI8fgBkAMA-1
-Received: by mail-wr1-f71.google.com with SMTP id k2-20020adfc702000000b0016006b2da9bso4775334wrg.1
-        for <selinux@vger.kernel.org>; Thu, 14 Oct 2021 07:53:24 -0700 (PDT)
+        id S231410AbhJNVgG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Oct 2021 17:36:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52122 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230327AbhJNVgG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Oct 2021 17:36:06 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7EB4C061753
+        for <selinux@vger.kernel.org>; Thu, 14 Oct 2021 14:34:00 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id t16so29599961eds.9
+        for <selinux@vger.kernel.org>; Thu, 14 Oct 2021 14:34:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QoPu0jnNDwspHFj/KwTjXTK5IovBXrFnYnRM3qY9AfI=;
+        b=a6KNglUwuPfv6oIfTS0ZYiZ4KlAFHaiXh7LKObdDfk5CWQzJWVBf4zQfr+h2DcJC+q
+         /6GC8MY8aeLSG9gRqlIj5iz++B4UI0/XaeMbc1vyyC9cmgmj1Ga6sYbPgi13jZB/PdGw
+         EjaDJ6X3eS1fm/ZL1GEQ8kxsLVPysO+XqTkMqqpFK6X+OPSHu9t9dspGa0ODwtJrnwYa
+         2JCH5e8jK6dlNwBA2rh7BCfstK7WIld8g4LPRuxYNWh6XAQpRoLFqbqi+PtyK5d/X2pq
+         MYKYgIXToadW9qIHhG8Z1QRBqXaqWeEHOjtwPhK/AqNf065c7fPuruiSGzVXxkmlA/rG
+         NEnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Pc/PxkTJEkG61Iip5Le2urOnh92JCs0AOkQZTlXxBPQ=;
-        b=yawpFYOP2ve4mOO2RsWX8Tis5Q7tzpVTrQYy+c4CBgu2KoKm/J7U+MbBSU5dpEaMdI
-         USFcLo40xMrcwKnaCRFawL3nqG2Mo+0Ix+MBklOcbmVEriVo1ie40hs83LWTsKg6zTzX
-         G5JRTuW2Mk0Kvo4nzNCyPNIKwX+ZvODlYZniVJKZBVNQnc6MfslUrAsU8WmdindjAtiR
-         6c5HutbBvCv0hPQ1DA8SP4bqiQY1fKxMgVibqLdKPVtgNSBntZD6kNP4Gqdr5+upd25U
-         pQO289/mXyBABtGTYawpTq5sfaYpAfZ2dC334weYH6AhPjOktaBpnzlW+sam4R8XjM41
-         sHtA==
-X-Gm-Message-State: AOAM531Rjy3JbDBjMomE/j2w2U7ibjKDH1bTWvT8YoYMH/WzE7zH4DzQ
-        3ggzqGKFu14/UaRXEwyHS6wC30dUGwkx3j27f8ajRmJKLeAHNHqsQefgFq9bVh2AhoAa+WnYHpt
-        T0xQxOMF8Uppe2O/UjbG+r1nOXEDPUVW29SQljjIGHfp1QcPBkbvYyxsRuvavc9QYMosSYQ==
-X-Received: by 2002:adf:a194:: with SMTP id u20mr7304620wru.275.1634223201224;
-        Thu, 14 Oct 2021 07:53:21 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyM5OSG5x2DHBDExX4H34pQZMDItOMLRRVDZCOVZyVzM0wgE/cCulydDW2OT4jAmYsVqd82ZQ==
-X-Received: by 2002:adf:a194:: with SMTP id u20mr7304574wru.275.1634223200887;
-        Thu, 14 Oct 2021 07:53:20 -0700 (PDT)
-Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id k17sm2485489wrc.93.2021.10.14.07.53.20
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Oct 2021 07:53:20 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH userspace v2 0/6] Parallel setfiles/restorecon
-Date:   Thu, 14 Oct 2021 16:53:13 +0200
-Message-Id: <20211014145319.798740-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.31.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QoPu0jnNDwspHFj/KwTjXTK5IovBXrFnYnRM3qY9AfI=;
+        b=Km/vTCrh0hbbe26+BLG8xUoi7aOX/sjzoAJFUjgqdN56oY/rdWDnaZf2pKLq3dQIEh
+         SpFYDcp166+2L1H+gAt/KQADAihnuXkGMIAVm1kvoglGDsI2TD4CuMovmCppMxpthMzP
+         /14ekHw3JOKVaFrTDi4n0DnnPZPEYM3Wdz9f28Hstipb+CLK3XaDb4PpGcs+q/uOReFN
+         luI9XxAwV64tKrszhHQ7njUp9j4KXDzHmdSDrUq1QoFJJ8YntNGm1W34SpPTmqnwA9HC
+         Rgndi/8Y2wrKhKgfRa67KWkdLhn+bbltY3avML6/xgiEH++6aR776XLSX9bJBQnkCt3M
+         A0LA==
+X-Gm-Message-State: AOAM531bikJm0ErSWYkxvD77ZuiU52G0z/I7JiwnnI2nFxBLJftinLOF
+        iTE45f+eNpmFx5TVNpxm6vs1x8WzYQTd81ZwCrUJ
+X-Google-Smtp-Source: ABdhPJwdxSsmYhKsafUPIKuDs91ExUIKE/+rIIpYnPbV6xJvCFR8GllgoKtB9zmq6jGKXojYL90idam79iMgX4lDJwQ=
+X-Received: by 2002:a05:6402:2552:: with SMTP id l18mr12249192edb.370.1634247239018;
+ Thu, 14 Oct 2021 14:33:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211012165614.2873369-1-tkjos@google.com>
+In-Reply-To: <20211012165614.2873369-1-tkjos@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 14 Oct 2021 17:33:48 -0400
+Message-ID: <CAHC9VhQ6W=8rX6hryk_d+iTc90MAoZOw=KVDhjXsXE5Laccn_A@mail.gmail.com>
+Subject: Re: [PATCH v5 0/3] binder: use cred instead of task for security context
+To:     Todd Kjos <tkjos@google.com>
+Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io,
+        James Morris <jmorris@namei.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
+        jannh@google.com, Jeffrey Vander Stoep <jeffv@google.com>,
+        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
+        kernel-team@android.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This series adds basic support for parallel relabeling to the libselinux
-API and the setfiles/restorecon CLI tools. It turns out that doing the
-relabeling in parallel can significantly reduce the time even with a
-relatively simple approach.
+On Tue, Oct 12, 2021 at 12:56 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> This series fixes the possible use of an incorrect security context
+> when checking selinux permissions, getting a security ID, or lookup
+> up the euid.
+>
+> The previous behavior was to save the group_leader 'struct task_struct'
+> in binder_open() and using that to obtain security IDs or euids.
+>
+> This has been shown to be unreliable, so this series instead saves the
+> 'struct cred' of the task that called binder_open(). This cred is used
+> for these lookups instead of the task.
 
-The first patch is a small cleanup that was found along the way and can
-be applied independently. Patches 2-4 are small incremental changes that
-make the internal selinux_restorecon functions more thread-safe (I kept
-them separate for ease of of review, but maybe they should be rather
-folded into the netx patch...). Patch 5 then completes the parallel
-relabeling implementation at libselinux level and adds a new function
-to the API that allows to make use of it. Finally, patch 6 adds parallel
-relabeling support to he setfiles/restorecon tools.
+Hi Todd,
 
-The relevant man pages are also updated to reflect the new
-functionality.
-
-The patch descriptions contain more details, namely the last patch has
-also some benchmark numbers.
-
-Changes v1->v2:
-- make selinux_log() synchronized instead of introducing selinux_log_sync()
-- fix -Wcomma warning
-- update the swig files as well
-- bump new symbol version to LIBSELINUX_3.3 (this may need further update
-  depending on when this gets merged)
-
-Ondrej Mosnacek (6):
-  selinux_restorecon: simplify fl_head allocation by using calloc()
-  selinux_restorecon: protect file_spec list with a mutex
-  libselinux: make selinux_log() thread-safe
-  selinux_restorecon: add a global mutex to synchronize progress output
-  selinux_restorecon: introduce selinux_restorecon_parallel(3)
-  setfiles/restorecon: support parallel relabeling
-
- libselinux/include/selinux/restorecon.h       |  14 +
- libselinux/man/man3/selinux_restorecon.3      |  29 ++
- .../man/man3/selinux_restorecon_parallel.3    |   1 +
- libselinux/src/callbacks.c                    |   8 +-
- libselinux/src/callbacks.h                    |  13 +-
- libselinux/src/libselinux.map                 |   5 +
- libselinux/src/selinux_internal.h             |  14 +
- libselinux/src/selinux_restorecon.c           | 466 ++++++++++++------
- libselinux/src/selinuxswig_python.i           |   6 +-
- libselinux/src/selinuxswig_python_exception.i |   8 +
- policycoreutils/setfiles/Makefile             |   2 +-
- policycoreutils/setfiles/restore.c            |   7 +-
- policycoreutils/setfiles/restore.h            |   2 +-
- policycoreutils/setfiles/restorecon.8         |   9 +
- policycoreutils/setfiles/setfiles.8           |   9 +
- policycoreutils/setfiles/setfiles.c           |  28 +-
- 16 files changed, 444 insertions(+), 177 deletions(-)
- create mode 100644 libselinux/man/man3/selinux_restorecon_parallel.3
+I just merged all three patches into selinux/next, thanks for your
+help patience on this patchset.  Ultimately I merged these patches
+into selinux/next as opposed to selinux/stable-5.15 because I felt
+that a couple of weeks in -next before going to Linus would be a good
+thing.  I'm also not certain how widespread binder is outside of
+Android so I figured the practical difference between next and
+stable-5.15 is likely very small.  Regardless, all of your Fixes and
+stable tags remain in the patches so as soon as they go up to Linus
+during the next merge window the stable folks will be notified.
 
 -- 
-2.31.1
-
+paul moore
+www.paul-moore.com
