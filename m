@@ -2,135 +2,147 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9090C433FE
-	for <selinux@archiver.kernel.org>; Fri, 15 Oct 2021 11:55:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65C86C433EF
+	for <selinux@archiver.kernel.org>; Fri, 15 Oct 2021 12:31:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF45C6101D
-	for <selinux@archiver.kernel.org>; Fri, 15 Oct 2021 11:55:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4ABB36108E
+	for <selinux@archiver.kernel.org>; Fri, 15 Oct 2021 12:31:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235258AbhJOL50 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Oct 2021 07:57:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47708 "EHLO
+        id S232123AbhJOMdn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Oct 2021 08:33:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235134AbhJOL50 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Oct 2021 07:57:26 -0400
-X-Greylist: delayed 511 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 15 Oct 2021 04:55:19 PDT
-Received: from smtp-42a9.mail.infomaniak.ch (smtp-42a9.mail.infomaniak.ch [IPv6:2001:1600:3:17::42a9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC964C061570
-        for <selinux@vger.kernel.org>; Fri, 15 Oct 2021 04:55:19 -0700 (PDT)
-Received: from smtp-2-0000.mail.infomaniak.ch (unknown [10.5.36.107])
-        by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4HW4HR0DnrzMqBGg;
-        Fri, 15 Oct 2021 13:46:43 +0200 (CEST)
-Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
-        by smtp-2-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4HW4HP55gTzlhP4W;
-        Fri, 15 Oct 2021 13:46:41 +0200 (CEST)
-Subject: Re: [PATCH] security/landlock: use square brackets around
- "landlock-ruleset"
-To:     Linux API <linux-api@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Chris PeBenito <pebenito@ieee.org>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-References: <20211011133704.1704369-1-brauner@kernel.org>
- <06b6f249-06e6-f472-c74c-bb3ff6f4b4ee@digikod.net>
- <20211012103830.s7kzijrn25ucjasr@wittgenstein>
- <CAHC9VhSd32Q_tCctwYB0y4EXGCV8_9QajkNkkc96EwjdFsVkJw@mail.gmail.com>
- <CAFqZXNu7OEFVaS-oJH_JhsCWg3aN67Hajbiw8U8Zd+TSMKatOQ@mail.gmail.com>
- <CAHC9VhR2kvwaYWZtXrZty7X_uQCr+pHnm6rHFAGzUDrstBpT_g@mail.gmail.com>
- <cfbb70a1-360f-37e7-f3c5-487e1330a65a@digikod.net>
- <20211015091010.3ht6lvwoxw5ygkca@wittgenstein>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <d638892e-12fd-ab69-9230-ba0864cf173f@digikod.net>
-Date:   Fri, 15 Oct 2021 13:47:48 +0200
-User-Agent: 
+        with ESMTP id S231949AbhJOMdl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Oct 2021 08:33:41 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1F6C061570
+        for <selinux@vger.kernel.org>; Fri, 15 Oct 2021 05:31:35 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id z20so37633963edc.13
+        for <selinux@vger.kernel.org>; Fri, 15 Oct 2021 05:31:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NyApQozSX200HwnAI8pkJ1bhLO4qI2vHbgZYhs0AGnA=;
+        b=UpwMNTHC4UFbx/APNlXycY5N9Yl3ct9vgImWT53zqVOpnN0oUXKvVuSmLq2KXbeQLy
+         6dq/kDGf01gE5ANFXaWk8DsCvYtxLUa0Nz6phdJVazYZmNEsS+YSqRhraUCbV//+9zex
+         Jq3s/81oWEMkqlWBfdbD309W+Ykehag7NtfQM5MS/KfRoy15oMNtBI8L9+zcVUveHr1s
+         WazNdpZ0ExwiHiACNwMF+zm1h1VUVJIbgBSOUgSDZPsVHFKBAkqx3Pk9x5yWq93ZeRWN
+         Vs2Sezg88J6+wyOKCSQfV+N0PhKlsSRrBxQUFxU2c4er6QrWnwSXeWK6LQKUEZerLdYx
+         yvjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NyApQozSX200HwnAI8pkJ1bhLO4qI2vHbgZYhs0AGnA=;
+        b=ri8Ft6+uWTeGWCvgducgcyWG8RtYpvDK7OsOK8mMGcYj4Nv0ZPnGFwvTZ9YsRrLbsv
+         IewOomTJ+0vZXFo7UBlneUvPsgFxwHpBOtg8lJCMXWcyqWVo1qxwm2/wzsAuIBt2oxVA
+         LpPj7nvj9UOgbngljZPVKGiu8Hirh+OF2EjAyEmBnKfB5QIkZIE/CVQk0lVZYNN2hwdE
+         uYZeWcNHQLa2ruxWM+eNi/I0/TGO7wxUcvRlEJEpN0bB2vpiUpTlxXmbe9FsOQlVVSyZ
+         qaTKgii0ZDQZt62nudC8yB3d7gLsImpgvDPbc5YhyUftDPW6Vtx3pfUQDXJQLYt9TmCe
+         u9GQ==
+X-Gm-Message-State: AOAM533G3pjTL7RO2x7uhh7zQHkiMbrgXBAPgM4o4gz+iAjTbT8CA8co
+        ojgVfmJAEfrB1Hygawd8zXgY9+b4re0=
+X-Google-Smtp-Source: ABdhPJw+ceVOVF/lvS2VXIbCMowED/n8IM+6/Xq1g9VDPqKmXrCBxicuA45Ld8JlfwGghFMN/mHFRA==
+X-Received: by 2002:a17:906:9241:: with SMTP id c1mr6503963ejx.125.1634301093610;
+        Fri, 15 Oct 2021 05:31:33 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-003-236-205.77.3.pool.telefonica.de. [77.3.236.205])
+        by smtp.gmail.com with ESMTPSA id s3sm4180378ejm.49.2021.10.15.05.31.32
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Oct 2021 05:31:33 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libselinux: use dummy variable to silence glibc 2.34 warnings
+Date:   Fri, 15 Oct 2021 14:31:00 +0200
+Message-Id: <20211015123100.15785-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-In-Reply-To: <20211015091010.3ht6lvwoxw5ygkca@wittgenstein>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-CCing linux-api and stable to give them a chance to confirm that
-changing proc symlink content is OK.
+Glibc 2.34 added an access function attribute to pthread_setspecific(3).
+This leads to the following GCC warnings:
 
+    In file included from matchpathcon.c:5:
+    matchpathcon.c: In function ‘matchpathcon_init_prefix’:
+    selinux_internal.h:38:25: error: ‘pthread_setspecific’ expecting 1 byte in a region of size 0 [-Werror=stringop-overread]
+       38 |                         pthread_setspecific(KEY, VALUE);        \
+          |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    matchpathcon.c:359:9: note: in expansion of macro ‘__selinux_setspecific’
+      359 |         __selinux_setspecific(destructor_key, (void *)1);
+          |         ^~~~~~~~~~~~~~~~~~~~~
+    In file included from selinux_internal.h:2,
+                     from matchpathcon.c:5:
+    /usr/include/pthread.h:1167:12: note: in a call to function ‘pthread_setspecific’ declared with attribute ‘access (none, 2)’
+     1167 | extern int pthread_setspecific (pthread_key_t __key,
+          |            ^~~~~~~~~~~~~~~~~~~
 
-On 15/10/2021 11:10, Christian Brauner wrote:
-> On Wed, Oct 13, 2021 at 05:47:53PM +0200, Mickaël Salaün wrote:
->>
->> On 12/10/2021 23:09, Paul Moore wrote:
->>> On Tue, Oct 12, 2021 at 4:38 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->>>>
->>>> On Tue, Oct 12, 2021 at 8:12 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>> On Tue, Oct 12, 2021 at 6:38 AM Christian Brauner
->>>>> <christian.brauner@ubuntu.com> wrote:
->>>>>> On Mon, Oct 11, 2021 at 04:38:55PM +0200, Mickaël Salaün wrote:
->>>>>>> On 11/10/2021 15:37, Christian Brauner wrote:
->>>>>>>> From: Christian Brauner <christian.brauner@ubuntu.com>
->>>>>>>>
->>>>>>>> Make the name of the anon inode fd "[landlock-ruleset]" instead of
->>>>>>>> "landlock-ruleset". This is minor but most anon inode fds already
->>>>>>>> carry square brackets around their name:
->>>>>>>>
->>>>>>>>     [eventfd]
->>>>>>>>     [eventpoll]
->>>>>>>>     [fanotify]
->>>>>>>>     [fscontext]
->>>>>>>>     [io_uring]
->>>>>>>>     [pidfd]
->>>>>>>>     [signalfd]
->>>>>>>>     [timerfd]
->>>>>>>>     [userfaultfd]
->>>>>>>>
->>>>>>>> For the sake of consistency lets do the same for the landlock-ruleset anon
->>>>>>>> inode fd that comes with landlock. We did the same in
->>>>>>>> 1cdc415f1083 ("uapi, fsopen: use square brackets around "fscontext" [ver #2]")
->>>>>>>> for the new mount api.
->>>>>>>
->>>>>>> Before creating "landlock-ruleset" FD, I looked at other anonymous FD
->>>>>>> and saw this kind of inconsistency. I don't get why we need to add extra
->>>>>>> characters to names, those brackets seem useless. If it should be part
->>>>>>
->>>>>> Past inconsistency shouldn't justify future inconsistency. If you have a
->>>>>> strong opinion about this for landlock I'm not going to push for it.
->>>>>> Exchanging more than 2-3 email about something like this seems too much.
->>>>>
->>>>> [NOTE: adding the SELinux list as well as Chris (SELinux refrence
->>>>> policy maintainer) and Petr (Fedora/RHEL SELinux)]
->>>>>
->>>>> Chris and Petr, do either of you currently have any policy that
->>>>> references the "landlock-ruleset" anonymous inode?  In other words,
->>>>> would adding the brackets around the name cause you any problems?
->>>>
->>>> AFAIU, the anon_inode transitions (the only mechanism where the "file
->>>> name" would be exposed to the policy) are done only for inodes created
->>>> by anon_inode_getfd_secure(), which is currently only used by
->>>> userfaultfd. So you don't even need to ask that question; at this
->>>> point it should be safe to change any of the names except
->>>> "[userfaultfd]" as far as SELinux policy is concerned.
->>>
->>> There is also io_uring if you look at selinux/next.
->>>
->>> Regardless, thanks, I didn't check to see if landlock was using the
->>> new anon inode interface, since both Mickaël and Christian were
->>> concerned about breaking SELinux I had assumed they were using it :)
->>>
->>
->> Ok, thanks Paul and Ondrej.
->>
->> Such anonymous inode names seem to be only exposed to proc for now.
->> Let's change this name then. I think it make sense to backport this
->> patch down to 5.13 to fix all the inconsistencies.
-> 
-> Thank you. I do appreciate the point about this being annoying that we
-> have this inconsistency and it has bothered me too.
-> 
-> Christian
-> 
+The actual value and the validity of the passed pointer is irrelevant,
+since it does not gets accessed internally by glibc and
+pthread_getspecific(3) is not used.
+Use a pointer to a (temporary) valid object to please GCC.
+
+Closes: https://github.com/SELinuxProject/selinux/issues/311
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/matchpathcon.c   | 4 +++-
+ libselinux/src/procattr.c       | 4 +++-
+ libselinux/src/setrans_client.c | 4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index 1e7f8890..b0ec1e8b 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -352,11 +352,13 @@ static void matchpathcon_init_once(void)
+ 
+ int matchpathcon_init_prefix(const char *path, const char *subset)
+ {
++	int dummy;
++
+ 	if (!mycanoncon)
+ 		mycanoncon = default_canoncon;
+ 
+ 	__selinux_once(once, matchpathcon_init_once);
+-	__selinux_setspecific(destructor_key, (void *)1);
++	__selinux_setspecific(destructor_key, &dummy);
+ 
+ 	options[SELABEL_OPT_SUBSET].type = SELABEL_OPT_SUBSET;
+ 	options[SELABEL_OPT_SUBSET].value = subset;
+diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+index 6552ee01..24cee323 100644
+--- a/libselinux/src/procattr.c
++++ b/libselinux/src/procattr.c
+@@ -68,7 +68,9 @@ void  __attribute__((destructor)) procattr_destructor(void)
+ static inline void init_thread_destructor(void)
+ {
+ 	if (destructor_initialized == 0) {
+-		__selinux_setspecific(destructor_key, (void *)1);
++		int dummy;
++
++		__selinux_setspecific(destructor_key, &dummy);
+ 		destructor_initialized = 1;
+ 	}
+ }
+diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_client.c
+index 52a8ba78..515d2d4d 100644
+--- a/libselinux/src/setrans_client.c
++++ b/libselinux/src/setrans_client.c
+@@ -272,7 +272,9 @@ static inline void init_thread_destructor(void)
+ 	if (!has_setrans)
+ 		return;
+ 	if (destructor_initialized == 0) {
+-		__selinux_setspecific(destructor_key, (void *)1);
++		int dummy;
++
++		__selinux_setspecific(destructor_key, &dummy);
+ 		destructor_initialized = 1;
+ 	}
+ }
+-- 
+2.33.0
+
