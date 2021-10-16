@@ -2,149 +2,145 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F89BC433F5
-	for <selinux@archiver.kernel.org>; Sat, 16 Oct 2021 18:43:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82FDDC433EF
+	for <selinux@archiver.kernel.org>; Sat, 16 Oct 2021 19:30:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38CFC61152
-	for <selinux@archiver.kernel.org>; Sat, 16 Oct 2021 18:43:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5493460F6E
+	for <selinux@archiver.kernel.org>; Sat, 16 Oct 2021 19:30:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244579AbhJPSp3 convert rfc822-to-8bit (ORCPT
+        id S234634AbhJPTcq convert rfc822-to-8bit (ORCPT
         <rfc822;selinux@archiver.kernel.org>);
-        Sat, 16 Oct 2021 14:45:29 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:36310 "EHLO
+        Sat, 16 Oct 2021 15:32:46 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:34291 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244569AbhJPSpZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 16 Oct 2021 14:45:25 -0400
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+        with ESMTP id S234586AbhJPTcq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 16 Oct 2021 15:32:46 -0400
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 45B915605C4
-        for <selinux@vger.kernel.org>; Sat, 16 Oct 2021 20:43:15 +0200 (CEST)
-Received: by mail-pl1-f179.google.com with SMTP id t21so476436plr.6
-        for <selinux@vger.kernel.org>; Sat, 16 Oct 2021 11:43:15 -0700 (PDT)
-X-Gm-Message-State: AOAM533SDEZzfqZWVj4PEZebcLBpQPNXHJTZivqiEQExbbdGJ9VXdG9d
-        jR36XbKCn/dnw/+M1x123kR8X8+sgwpq/ZsNtRU=
-X-Google-Smtp-Source: ABdhPJz0zkkcTGLdDM7cHOUsgFum+JPbOXWoW8xp00q7aMZ01O9jVqceiqNJWL5v5arO4DreITBhiHXFRNuDPyFvMTo=
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 42817564783
+        for <selinux@vger.kernel.org>; Sat, 16 Oct 2021 21:30:36 +0200 (CEST)
+Received: by mail-pl1-f170.google.com with SMTP id v20so8545328plo.7
+        for <selinux@vger.kernel.org>; Sat, 16 Oct 2021 12:30:36 -0700 (PDT)
+X-Gm-Message-State: AOAM530NvAtZ514xcccpLgtXRWxeLRNPxYbd6MNH9FrBpie+NYfKG13y
+        gFFi6aZgn0LzHytA+yu1DA0NcZnGrUK7Cku3FRQ=
+X-Google-Smtp-Source: ABdhPJy6ZglpLAD/1lifVpj0zKzhRX5wIkJgakfohqBNagzKzUAJMte/OSqhQd2SBBKxEHG2RaN7ImM7Jv9Nyj7nS/o=
 X-Received: by 2002:a17:902:e843:b0:13f:2212:d64c with SMTP id
- t3-20020a170902e84300b0013f2212d64cmr17848758plg.16.1634409793669; Sat, 16
- Oct 2021 11:43:13 -0700 (PDT)
+ t3-20020a170902e84300b0013f2212d64cmr18020597plg.16.1634412634738; Sat, 16
+ Oct 2021 12:30:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211015123100.15785-1-cgzones@googlemail.com>
-In-Reply-To: <20211015123100.15785-1-cgzones@googlemail.com>
+References: <20211013125358.15534-1-cgzones@googlemail.com>
+In-Reply-To: <20211013125358.15534-1-cgzones@googlemail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sat, 16 Oct 2021 20:43:02 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nUJOScc+gSLd6xLouFm69iW9-a8WrvxCPZxCO34YABpQ@mail.gmail.com>
-Message-ID: <CAJfZ7=nUJOScc+gSLd6xLouFm69iW9-a8WrvxCPZxCO34YABpQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: use dummy variable to silence glibc 2.34 warnings
+Date:   Sat, 16 Oct 2021 21:30:23 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kcmhox2sToZjCS0YKfwZ0TgNqsMpTOe5PUR80zPgB4ig@mail.gmail.com>
+Message-ID: <CAJfZ7=kcmhox2sToZjCS0YKfwZ0TgNqsMpTOe5PUR80zPgB4ig@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsepol: do not pass NULL to memcpy
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Oct 16 20:43:15 2021 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Oct 16 21:30:36 2021 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 15, 2021 at 2:31 PM Christian Göttsche
+On Wed, Oct 13, 2021 at 2:54 PM Christian Göttsche
 <cgzones@googlemail.com> wrote:
 >
-> Glibc 2.34 added an access function attribute to pthread_setspecific(3).
-> This leads to the following GCC warnings:
+> For the first iteration `mod->perm_map[sclassi]` is NULL, thus do not
+> use it as source of a memcpy(3), even with a size of 0.  memcpy(3) might
+> be annotated with the function attribute nonnull and UBSan then
+> complains:
 >
->     In file included from matchpathcon.c:5:
->     matchpathcon.c: In function ‘matchpathcon_init_prefix’:
->     selinux_internal.h:38:25: error: ‘pthread_setspecific’ expecting 1 byte in a region of size 0 [-Werror=stringop-overread]
->        38 |                         pthread_setspecific(KEY, VALUE);        \
->           |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->     matchpathcon.c:359:9: note: in expansion of macro ‘__selinux_setspecific’
->       359 |         __selinux_setspecific(destructor_key, (void *)1);
->           |         ^~~~~~~~~~~~~~~~~~~~~
->     In file included from selinux_internal.h:2,
->                      from matchpathcon.c:5:
->     /usr/include/pthread.h:1167:12: note: in a call to function ‘pthread_setspecific’ declared with attribute ‘access (none, 2)’
->      1167 | extern int pthread_setspecific (pthread_key_t __key,
->           |            ^~~~~~~~~~~~~~~~~~~
+>     link.c:193:3: runtime error: null pointer passed as argument 2, which is declared to never be null
 >
-> The actual value and the validity of the passed pointer is irrelevant,
-> since it does not gets accessed internally by glibc and
-> pthread_getspecific(3) is not used.
-> Use a pointer to a (temporary) valid object to please GCC.
+> Use a realloc + memset instead of a calloc and free to increase the size
+> of `mod->perm_map[sclassi]`.
 >
-> Closes: https://github.com/SELinuxProject/selinux/issues/311
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  libselinux/src/matchpathcon.c   | 4 +++-
->  libselinux/src/procattr.c       | 4 +++-
->  libselinux/src/setrans_client.c | 4 +++-
->  3 files changed, 9 insertions(+), 3 deletions(-)
+>  libsepol/src/link.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 >
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-> index 1e7f8890..b0ec1e8b 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -352,11 +352,13 @@ static void matchpathcon_init_once(void)
->
->  int matchpathcon_init_prefix(const char *path, const char *subset)
->  {
-> +       int dummy;
-> +
->         if (!mycanoncon)
->                 mycanoncon = default_canoncon;
->
->         __selinux_once(once, matchpathcon_init_once);
-> -       __selinux_setspecific(destructor_key, (void *)1);
-> +       __selinux_setspecific(destructor_key, &dummy);
->
->         options[SELABEL_OPT_SUBSET].type = SELABEL_OPT_SUBSET;
->         options[SELABEL_OPT_SUBSET].value = subset;
-> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-> index 6552ee01..24cee323 100644
-> --- a/libselinux/src/procattr.c
-> +++ b/libselinux/src/procattr.c
-> @@ -68,7 +68,9 @@ void  __attribute__((destructor)) procattr_destructor(void)
->  static inline void init_thread_destructor(void)
->  {
->         if (destructor_initialized == 0) {
-> -               __selinux_setspecific(destructor_key, (void *)1);
-> +               int dummy;
-> +
-> +               __selinux_setspecific(destructor_key, &dummy);
->                 destructor_initialized = 1;
->         }
->  }
-> diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_client.c
-> index 52a8ba78..515d2d4d 100644
-> --- a/libselinux/src/setrans_client.c
-> +++ b/libselinux/src/setrans_client.c
-> @@ -272,7 +272,9 @@ static inline void init_thread_destructor(void)
->         if (!has_setrans)
->                 return;
->         if (destructor_initialized == 0) {
-> -               __selinux_setspecific(destructor_key, (void *)1);
-> +               int dummy;
-> +
-> +               __selinux_setspecific(destructor_key, &dummy);
->                 destructor_initialized = 1;
->         }
->  }
-> --
-> 2.33.0
->
+> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+> index 7512a4d9..75ce2b20 100644
+> --- a/libsepol/src/link.c
+> +++ b/libsepol/src/link.c
+> @@ -185,14 +185,12 @@ static int permission_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+>          * may have originated from the class -or- it could be from
+>          * the class's common parent.*/
+>         if (perm->s.value > mod->perm_map_len[sclassi]) {
+> -               uint32_t *newmap = calloc(perm->s.value, sizeof(*newmap));
+> +               uint32_t *newmap = realloc(mod->perm_map[sclassi], perm->s.value * sizeof(*newmap));
 
 Hello,
-Thanks for working on this. While this patch fixes the precise
-warning, I fear that future improvements on the analysis performed by
-compilers (or by static analysis tools) will lead to future warnings,
-as we are still abusing the pthread_setspecific interface after your
-patch: "dummy" is not initialized (so a tool could report a "use of
-uninitialized variable"), and is destroyed after the scope of the
-functions (so a tool could report a "use after free" or a "use of a
-stack pointer beyond its scope").
+It seems sad to transform a calloc call to an explicit multiplication
+which can overflow. Nowadays glibc provides reallocarray, for a
+"realloc with multiplication overflow checking". Could you use it here
+instead?
 
-These issues can be fixed by making dummy "static char dummy;" for
-example. What do you think?
+I saw in another patch ([RFC PATCH 09/35] libsepol: use reallocarray
+wrapper to avoid overflows ;
+https://lore.kernel.org/selinux/20211011162533.53404-10-cgzones@googlemail.com/T/#u)
+that you introduced reallocarray calls in other places, with a
+fallback implementation for systems which lack it. When I saw it, I
+was wondering: which C library does not provide this function?
+
+- glibc has it since version 2.29 (according to
+https://man7.org/linux/man-pages/man3/realloc.3.html ; this version
+was released on 2019-02-01)
+- musl has it since version 1.2.2 (thanks to
+https://git.musl-libc.org/cgit/musl/commit/?id=821083ac7b54eaa040d5a8ddc67c6206a175e0ca
+; released on 2021-01-15)
+- bionic has it since 2018
+(https://android.googlesource.com/platform/bionic/+/b177085ce7219562eecf77f2e8de49f8f2605005%5E%21/)
+- newlib has it since 2017
+(https://sourceware.org/git/?p=newlib-cygwin.git;a=commitdiff;h=eb14d0cc649978c10928bf38c1847f295bf0de69)
+
+However uclic-ng 1.0.39 (released ten days ago) does not provide
+reallocarray. It is the only maintained and open-source C library
+compatible with Linux that I could find which would not provide
+reallocarray. Did I miss a library which is likely to be used by
+libsepol users?
+
+In my humble opinion, this means that for future releases we can
+consider that systems are expected to provide reallocarray, and that
+we can introduce a Makefile variable which would introduce a custom
+internal reallocarray implementation in libsepol. This means that I
+suggest using something like this in libsepol/src/Makefile:
+
+USE_INTERNAL_REALLOCARRAY ?= n
+ifeq (USE_INTERNAL_REALLOCARRAY, y)
+  CFLAGS += -DUSE_INTERNAL_REALLOCARRAY
+endif
+
+and I suggest putting the internal reallocarray implementation from
+your patch in libsepol/src/private.h (like you did), around "#ifdef
+USE_INTERNAL_REALLOCARRAY" statements. This way, libsepol would work
+out-of-the-box on most systems, would be compatible on systems without
+reallocarray by using "make USE_INTERNAL_REALLOCARRAY=y", and would
+not try to auto-detect it at build-time by some compiler magic in
+Makefile (which would avoid issues similar as the one libapparmor had
+in http://lists.busybox.net/pipermail/buildroot/2020-October/294691.html).
+What do you think of these suggestions?
 
 Thanks,
 Nicolas
+
+>                 if (newmap == NULL) {
+>                         ERR(state->handle, "Out of memory!");
+>                         return -1;
+>                 }
+> -               memcpy(newmap, mod->perm_map[sclassi],
+> -                      mod->perm_map_len[sclassi] * sizeof(*newmap));
+> -               free(mod->perm_map[sclassi]);
+> +               memset(newmap + mod->perm_map_len[sclassi], '\0', perm->s.value - mod->perm_map_len[sclassi]);
+>                 mod->perm_map[sclassi] = newmap;
+>                 mod->perm_map_len[sclassi] = perm->s.value;
+>         }
+> --
+> 2.33.0
+>
 
