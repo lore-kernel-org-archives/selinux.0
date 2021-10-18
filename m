@@ -2,247 +2,107 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8217C433F5
-	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 12:36:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E15FC433F5
+	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 19:55:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F6BF60FD9
-	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 12:36:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6198161038
+	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 19:55:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231676AbhJRMia (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Oct 2021 08:38:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39605 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230346AbhJRMia (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Oct 2021 08:38:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634560578;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5Jv3rNXTm7ES8GL61uhJSQXotnqqkJ8OFeNdlH1Vozk=;
-        b=RU1JdHIyJ6AhQp/Ky/uQDgPYaz+oMKuyutP5/J4onEtwWrKLOeXVB9c3rHudR5AILAObtj
-        B8sP16ohVNHJ0yAACdpuDZR8njRUcg58/byp/3aZ598cf0chIbwbAVlo9Rt4zgCj4EQvUS
-        1jzIVFi5RI0+RBbQromzoXaTq7Oi9Eo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-246-utP4HSasPUSFGE-MIPnLFQ-1; Mon, 18 Oct 2021 08:36:15 -0400
-X-MC-Unique: utP4HSasPUSFGE-MIPnLFQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF6C51966320;
-        Mon, 18 Oct 2021 12:36:11 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B949BB8551;
-        Mon, 18 Oct 2021 12:35:49 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id D710922045E; Mon, 18 Oct 2021 08:35:48 -0400 (EDT)
-Date:   Mon, 18 Oct 2021 08:35:48 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     jmorris@namei.org
-Cc:     linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
-        Miklos Szeredi <miklos@szeredi.hu>, dwalsh@redhat.com,
-        jlayton@kernel.org, idryomov@gmail.com, ceph-devel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, bfields@fieldses.org,
-        chuck.lever@oracle.com, anna.schumaker@netapp.com,
-        trond.myklebust@hammerspace.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        serge@hallyn.com
-Subject: Re: [PATCH v2] security: Return xattr name from
- security_dentry_init_security()
-Message-ID: <YW1qJKLHYHWia2Nd@redhat.com>
-References: <YWWMO/ZDrvDZ5X4c@redhat.com>
+        id S231398AbhJRT5L (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Oct 2021 15:57:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230159AbhJRT5K (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Oct 2021 15:57:10 -0400
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694CEC06161C
+        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 12:54:59 -0700 (PDT)
+Received: by mail-ot1-x32b.google.com with SMTP id x27-20020a9d459b000000b0055303520cc4so1190381ote.13
+        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 12:54:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Z7IaHMLE7PpZawobaTgnkIB2Ut2P0OwughnalZmJnHI=;
+        b=IAKrIEF/TmAEmrWooxvbbugU1P1y4Qcsvyzl6TJ2+vmEHZ59TQnxVGooUJvtzRPUQf
+         04+U93zHfDz5Nj6rHhz8E4bhdQOKSdarVMdYfiFDmiLs58FWqNxKzqTG/Bl29g4aC8HD
+         GZeDCNxcr2Nhu4nnix+a18RBJpe+E0JfHq2tXp3M8U1GZ30WklpHETUlVilSsu89XujJ
+         Mg1Yg9eqz5Wr2LOsz5o+jZTNFcr4npha5vMR25tGF78gTDOvk+Q0GsEY5C5LH2m6ppWV
+         WSmrKqHt8ucfF09LyL29EW6C82r46qjixCjljY95yAVfyXJND/NvygFVRYFJruj0qOHt
+         4q3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Z7IaHMLE7PpZawobaTgnkIB2Ut2P0OwughnalZmJnHI=;
+        b=IWzMHjdXzkdF5pDVjOv370zBVOjQ9PjmLnb+IkjWmRjOqDA4Iytrr7GFi/zS0AQhxm
+         1EKrFuQMjrcA+B8yQoUQFEkj47GhbCLxsIvlo+NbzqUzIJIJ1VBfeDmkBaaQOQGFCQ0C
+         9fMVmsXA7O6xx29h6w1q4ZNWGiG2PfGkO7R+npMH6yZKEv2Yv5CTUD99TGnMGnIsWjvC
+         xFjX9hp+vPFvpXE91ezAuwIhagiP6apu3bBc1uX4glLHbLD94G275C80P1TK0R1MTtnT
+         frEKhsfo2GYmK+aeTL7ucCzB5CrOg+wMZ7OTMEgYfEqOImAsZqlkaDbinXmd1WlOfa9Z
+         3Nsw==
+X-Gm-Message-State: AOAM53202TsaAkHNDQuWJmQNW1n1sOPjdUzSU/YnZPN2BSVba3dKiYwM
+        AhwcOaSwCklXs6xEOQskvYOjK3oe5NV5zt2znUQb3yp+
+X-Google-Smtp-Source: ABdhPJys44rcH78BeDGVoUQCFHh3j47ky9A6wIp1GyQV6InxdMoJ8m8O/ArZSvjmESkJKkb/xqsecQRJ9szFKmvvXg4=
+X-Received: by 2002:a9d:5f85:: with SMTP id g5mr1552058oti.139.1634586898816;
+ Mon, 18 Oct 2021 12:54:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YWWMO/ZDrvDZ5X4c@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20211011162533.53404-1-cgzones@googlemail.com> <20211011162533.53404-26-cgzones@googlemail.com>
+In-Reply-To: <20211011162533.53404-26-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 18 Oct 2021 15:54:47 -0400
+Message-ID: <CAP+JOzR4z=n7L00DetEKJzY8HygS17e5bqmJ+bujqh3hCVRSug@mail.gmail.com>
+Subject: Re: [RFC PATCH 25/35] libsepol: validate avtab types
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi James,
-
-I am assuming this patch will need to be routed through security tree.
-Can you please consider it for inclusion.
-
-Thanks
-Vivek
-
-On Tue, Oct 12, 2021 at 09:23:07AM -0400, Vivek Goyal wrote:
-> Right now security_dentry_init_security() only supports single security
-> label and is used by SELinux only. There are two users of of this hook,
-> namely ceph and nfs.
-> 
-> NFS does not care about xattr name. Ceph hardcodes the xattr name to
-> security.selinux (XATTR_NAME_SELINUX).
-> 
-> I am making changes to fuse/virtiofs to send security label to virtiofsd
-> and I need to send xattr name as well. I also hardcoded the name of
-> xattr to security.selinux.
-> 
-> Stephen Smalley suggested that it probably is a good idea to modify
-> security_dentry_init_security() to also return name of xattr so that
-> we can avoid this hardcoding in the callers.
-> 
-> This patch adds a new parameter "const char **xattr_name" to
-> security_dentry_init_security() and LSM puts the name of xattr
-> too if caller asked for it (xattr_name != NULL).
-> 
-> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+On Mon, Oct 11, 2021 at 12:41 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Check for invalid avtab types.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
-> 
-> Changes since v1:
-> - Updated comment to make it clear caller does not have to free the
->   xattr_name. (Jeff Layton).
-> - Captured Jeff's Reviewed-by ack.
-> 
-> I have tested this patch with virtiofs and compile tested for ceph and nfs.
-> 
-> NFS changes are trivial. Looking for an ack from NFS maintainers.
-> 
-> ---
->  fs/ceph/xattr.c               |    3 +--
->  fs/nfs/nfs4proc.c             |    3 ++-
->  include/linux/lsm_hook_defs.h |    3 ++-
->  include/linux/lsm_hooks.h     |    3 +++
->  include/linux/security.h      |    6 ++++--
->  security/security.c           |    7 ++++---
->  security/selinux/hooks.c      |    6 +++++-
->  7 files changed, 21 insertions(+), 10 deletions(-)
-> 
-> Index: redhat-linux/security/selinux/hooks.c
-> ===================================================================
-> --- redhat-linux.orig/security/selinux/hooks.c	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/security/selinux/hooks.c	2021-10-06 15:20:57.745247170 -0400
-> @@ -2948,7 +2948,8 @@ static void selinux_inode_free_security(
->  }
->  
->  static int selinux_dentry_init_security(struct dentry *dentry, int mode,
-> -					const struct qstr *name, void **ctx,
-> +					const struct qstr *name,
-> +					const char **xattr_name, void **ctx,
->  					u32 *ctxlen)
->  {
->  	u32 newsid;
-> @@ -2961,6 +2962,9 @@ static int selinux_dentry_init_security(
->  	if (rc)
->  		return rc;
->  
-> +	if (xattr_name)
-> +		*xattr_name = XATTR_NAME_SELINUX;
-> +
->  	return security_sid_to_context(&selinux_state, newsid, (char **)ctx,
->  				       ctxlen);
->  }
-> Index: redhat-linux/security/security.c
-> ===================================================================
-> --- redhat-linux.orig/security/security.c	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/security/security.c	2021-10-06 15:20:57.749247170 -0400
-> @@ -1052,11 +1052,12 @@ void security_inode_free(struct inode *i
->  }
->  
->  int security_dentry_init_security(struct dentry *dentry, int mode,
-> -					const struct qstr *name, void **ctx,
-> -					u32 *ctxlen)
-> +				  const struct qstr *name,
-> +				  const char **xattr_name, void **ctx,
-> +				  u32 *ctxlen)
->  {
->  	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mode,
-> -				name, ctx, ctxlen);
-> +				name, xattr_name, ctx, ctxlen);
->  }
->  EXPORT_SYMBOL(security_dentry_init_security);
->  
-> Index: redhat-linux/include/linux/lsm_hooks.h
-> ===================================================================
-> --- redhat-linux.orig/include/linux/lsm_hooks.h	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/include/linux/lsm_hooks.h	2021-10-12 09:05:00.830399245 -0400
-> @@ -196,6 +196,9 @@
->   *	@dentry dentry to use in calculating the context.
->   *	@mode mode used to determine resource type.
->   *	@name name of the last path component used to create file
-> + *	@xattr_name pointer to place the pointer to security xattr name.
-> + *		    Caller does not have to free the resulting pointer. Its
-> + *		    a pointer to static string.
->   *	@ctx pointer to place the pointer to the resulting context in.
->   *	@ctxlen point to place the length of the resulting context.
->   * @dentry_create_files_as:
-> Index: redhat-linux/include/linux/security.h
-> ===================================================================
-> --- redhat-linux.orig/include/linux/security.h	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/include/linux/security.h	2021-10-06 15:20:57.751247170 -0400
-> @@ -317,8 +317,9 @@ int security_add_mnt_opt(const char *opt
->  				int len, void **mnt_opts);
->  int security_move_mount(const struct path *from_path, const struct path *to_path);
->  int security_dentry_init_security(struct dentry *dentry, int mode,
-> -					const struct qstr *name, void **ctx,
-> -					u32 *ctxlen);
-> +				  const struct qstr *name,
-> +				  const char **xattr_name, void **ctx,
-> +				  u32 *ctxlen);
->  int security_dentry_create_files_as(struct dentry *dentry, int mode,
->  					struct qstr *name,
->  					const struct cred *old,
-> @@ -739,6 +740,7 @@ static inline void security_inode_free(s
->  static inline int security_dentry_init_security(struct dentry *dentry,
->  						 int mode,
->  						 const struct qstr *name,
-> +						 const char **xattr_name,
->  						 void **ctx,
->  						 u32 *ctxlen)
->  {
-> Index: redhat-linux/include/linux/lsm_hook_defs.h
-> ===================================================================
-> --- redhat-linux.orig/include/linux/lsm_hook_defs.h	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/include/linux/lsm_hook_defs.h	2021-10-06 15:20:57.752247170 -0400
-> @@ -83,7 +83,8 @@ LSM_HOOK(int, 0, sb_add_mnt_opt, const c
->  LSM_HOOK(int, 0, move_mount, const struct path *from_path,
->  	 const struct path *to_path)
->  LSM_HOOK(int, 0, dentry_init_security, struct dentry *dentry,
-> -	 int mode, const struct qstr *name, void **ctx, u32 *ctxlen)
-> +	 int mode, const struct qstr *name, const char **xattr_name,
-> +	 void **ctx, u32 *ctxlen)
->  LSM_HOOK(int, 0, dentry_create_files_as, struct dentry *dentry, int mode,
->  	 struct qstr *name, const struct cred *old, struct cred *new)
->  
-> Index: redhat-linux/fs/nfs/nfs4proc.c
-> ===================================================================
-> --- redhat-linux.orig/fs/nfs/nfs4proc.c	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/fs/nfs/nfs4proc.c	2021-10-06 15:20:57.754247170 -0400
-> @@ -127,7 +127,8 @@ nfs4_label_init_security(struct inode *d
->  		return NULL;
->  
->  	err = security_dentry_init_security(dentry, sattr->ia_mode,
-> -				&dentry->d_name, (void **)&label->label, &label->len);
-> +				&dentry->d_name, NULL,
-> +				(void **)&label->label, &label->len);
->  	if (err == 0)
->  		return label;
->  
-> Index: redhat-linux/fs/ceph/xattr.c
-> ===================================================================
-> --- redhat-linux.orig/fs/ceph/xattr.c	2021-10-04 15:40:28.978453324 -0400
-> +++ redhat-linux/fs/ceph/xattr.c	2021-10-06 15:20:57.756247170 -0400
-> @@ -1311,7 +1311,7 @@ int ceph_security_init_secctx(struct den
->  	int err;
->  
->  	err = security_dentry_init_security(dentry, mode, &dentry->d_name,
-> -					    &as_ctx->sec_ctx,
-> +					    &name, &as_ctx->sec_ctx,
->  					    &as_ctx->sec_ctxlen);
->  	if (err < 0) {
->  		WARN_ON_ONCE(err != -EOPNOTSUPP);
-> @@ -1335,7 +1335,6 @@ int ceph_security_init_secctx(struct den
->  	 * It only supports single security module and only selinux has
->  	 * dentry_init_security hook.
->  	 */
-> -	name = XATTR_NAME_SELINUX;
->  	name_len = strlen(name);
->  	err = ceph_pagelist_reserve(pagelist,
->  				    4 * 2 + name_len + as_ctx->sec_ctxlen);
-> 
+>  libsepol/src/policydb_validate.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+>
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
+idate.c
+> index fa128794..89830ff3 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -441,6 +441,20 @@ static int validate_avtab_key(avtab_key_t *key, vali=
+date_t flavors[])
+>                 goto bad;
+>         if (validate_value(key->target_class, &flavors[SYM_CLASSES]))
+>                 goto bad;
+> +       switch (0xFFF & key->specified) {
+> +       case AVTAB_ALLOWED:
+> +       case AVTAB_AUDITALLOW:
+> +       case AVTAB_AUDITDENY:
+> +       case AVTAB_XPERMS_ALLOWED:
+> +       case AVTAB_XPERMS_AUDITALLOW:
+> +       case AVTAB_XPERMS_DONTAUDIT:
+> +       case AVTAB_TRANSITION:
+> +       case AVTAB_MEMBER:
+> +       case AVTAB_CHANGE:
+> +               break;
+> +       default:
+> +               goto bad;
+> +       }
+>
+>         return 0;
+>
+> --
+> 2.33.0
+>
 
+avrule_t also has a specified field that could be checked.
+
+Thanks,
+Jim
