@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E15FC433F5
-	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 19:55:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CF21C433F5
+	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 19:57:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6198161038
-	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 19:55:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 044AB61002
+	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 19:57:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbhJRT5L (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Oct 2021 15:57:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
+        id S233582AbhJRT7X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Oct 2021 15:59:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230159AbhJRT5K (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Oct 2021 15:57:10 -0400
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694CEC06161C
-        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 12:54:59 -0700 (PDT)
-Received: by mail-ot1-x32b.google.com with SMTP id x27-20020a9d459b000000b0055303520cc4so1190381ote.13
-        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 12:54:59 -0700 (PDT)
+        with ESMTP id S233096AbhJRT7X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Oct 2021 15:59:23 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099D7C06161C
+        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 12:57:12 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id l10-20020a056830154a00b00552b74d629aso1250408otp.5
+        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 12:57:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Z7IaHMLE7PpZawobaTgnkIB2Ut2P0OwughnalZmJnHI=;
-        b=IAKrIEF/TmAEmrWooxvbbugU1P1y4Qcsvyzl6TJ2+vmEHZ59TQnxVGooUJvtzRPUQf
-         04+U93zHfDz5Nj6rHhz8E4bhdQOKSdarVMdYfiFDmiLs58FWqNxKzqTG/Bl29g4aC8HD
-         GZeDCNxcr2Nhu4nnix+a18RBJpe+E0JfHq2tXp3M8U1GZ30WklpHETUlVilSsu89XujJ
-         Mg1Yg9eqz5Wr2LOsz5o+jZTNFcr4npha5vMR25tGF78gTDOvk+Q0GsEY5C5LH2m6ppWV
-         WSmrKqHt8ucfF09LyL29EW6C82r46qjixCjljY95yAVfyXJND/NvygFVRYFJruj0qOHt
-         4q3w==
+        bh=Hfwz25wvdaTmjWJpK6/a6QHTSwEfu7uUgJy28Y+GOlg=;
+        b=X76IHddXeWYaDJvTALewHWwXx7H2wJtXCNQuR3UXULYRlPh7bcQCeFN4BINHSRUYme
+         lLu10SluXq1gxrWDTAjkBQSahv9UilQSKinZnllX5/5/I1OpreEeeDPllhi6ft+AQBw0
+         OxbcVRB/KbdAvQc67Jdo6EcHvCrs0lJ4eOr67YX8syo0saVa+9qurhQHOEFkQJsUhuAo
+         +nImrkOXhi6KyxrC3T+KTSEfSj9E7Z5i91BLmHz/kqMroJSFt7NKxU5LytXcU8sHEHR6
+         /7xnvctUEd9CtaiKUAAiEIDN91nZGPMvibdvkv/APE4jqFThRz0BDWeAOKlekf4Exp8e
+         gVrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Z7IaHMLE7PpZawobaTgnkIB2Ut2P0OwughnalZmJnHI=;
-        b=IWzMHjdXzkdF5pDVjOv370zBVOjQ9PjmLnb+IkjWmRjOqDA4Iytrr7GFi/zS0AQhxm
-         1EKrFuQMjrcA+B8yQoUQFEkj47GhbCLxsIvlo+NbzqUzIJIJ1VBfeDmkBaaQOQGFCQ0C
-         9fMVmsXA7O6xx29h6w1q4ZNWGiG2PfGkO7R+npMH6yZKEv2Yv5CTUD99TGnMGnIsWjvC
-         xFjX9hp+vPFvpXE91ezAuwIhagiP6apu3bBc1uX4glLHbLD94G275C80P1TK0R1MTtnT
-         frEKhsfo2GYmK+aeTL7ucCzB5CrOg+wMZ7OTMEgYfEqOImAsZqlkaDbinXmd1WlOfa9Z
-         3Nsw==
-X-Gm-Message-State: AOAM53202TsaAkHNDQuWJmQNW1n1sOPjdUzSU/YnZPN2BSVba3dKiYwM
-        AhwcOaSwCklXs6xEOQskvYOjK3oe5NV5zt2znUQb3yp+
-X-Google-Smtp-Source: ABdhPJys44rcH78BeDGVoUQCFHh3j47ky9A6wIp1GyQV6InxdMoJ8m8O/ArZSvjmESkJKkb/xqsecQRJ9szFKmvvXg4=
-X-Received: by 2002:a9d:5f85:: with SMTP id g5mr1552058oti.139.1634586898816;
- Mon, 18 Oct 2021 12:54:58 -0700 (PDT)
+        bh=Hfwz25wvdaTmjWJpK6/a6QHTSwEfu7uUgJy28Y+GOlg=;
+        b=Ogqu87xlk3AmRxwExV0nvIRB2IlXQmXFsfuay9Iy+jqqnzZVeRj8+OwabFnXsBFRkA
+         Tn+i37CbgSTpUg2LBklMjn82Hg0M9LikQPsoW9mw7SIRA/3wy0VXfyNJLm83UpuV+5Tu
+         KLz1WLJjhOGG+CRCIYZl7jjfQd1Fafp8xhM1Yj0QvZJdagMNNizk7grPaSxNZ3O4QD4v
+         Fb8MpDmhXUgpdy2OnVtj/quxFxEs+CIL9GjvZKbsMOrY/GksaZYv+6f8eoZMQnIjTn4u
+         v2PlL0wv0Fo8GKdsHMyH+ZPKFmzaevOH3CNYNQugZeC+lphbf++dAV4TRWHFXkJpjRG2
+         joHQ==
+X-Gm-Message-State: AOAM531Y3gCCeYUT3322UsXhj+Y+9WUZcRJVrFchjtQu2TLd3bk9aWr1
+        IyR9PjnlqoR0PLFY4ut2oxRDAqa0BbHWCFLPb8b6RJXp
+X-Google-Smtp-Source: ABdhPJysUmFIdVDdU3TefgaN+s8snSxCkPtZTsXi3GjgUVqm2Q69y0iOIjqoKr8y1v9ljmRtPvc5mEqm7gw066bfsNk=
+X-Received: by 2002:a9d:7182:: with SMTP id o2mr1607920otj.53.1634587031429;
+ Mon, 18 Oct 2021 12:57:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211011162533.53404-1-cgzones@googlemail.com> <20211011162533.53404-26-cgzones@googlemail.com>
-In-Reply-To: <20211011162533.53404-26-cgzones@googlemail.com>
+References: <20211011162533.53404-1-cgzones@googlemail.com> <20211011162533.53404-15-cgzones@googlemail.com>
+In-Reply-To: <20211011162533.53404-15-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 18 Oct 2021 15:54:47 -0400
-Message-ID: <CAP+JOzR4z=n7L00DetEKJzY8HygS17e5bqmJ+bujqh3hCVRSug@mail.gmail.com>
-Subject: Re: [RFC PATCH 25/35] libsepol: validate avtab types
+Date:   Mon, 18 Oct 2021 15:57:00 -0400
+Message-ID: <CAP+JOzQY596M+nOLCTKn1+3tMgpJDMcLJonCrh8D9VbspxG44A@mail.gmail.com>
+Subject: Re: [RFC PATCH 14/35] libsepol: reject invalid fsuse types
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -64,45 +64,50 @@ X-Mailing-List: selinux@vger.kernel.org
 On Mon, Oct 11, 2021 at 12:41 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Check for invalid avtab types.
+> Reject loading a policy with invalid fsuse declarations, except xattr,
+> trans and task, so that all following code, e.g. the different output
+> modes, do not need to handle unsupported ones.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
->  libsepol/src/policydb_validate.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+>  libsepol/src/policydb.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 >
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index fa128794..89830ff3 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -441,6 +441,20 @@ static int validate_avtab_key(avtab_key_t *key, vali=
-date_t flavors[])
->                 goto bad;
->         if (validate_value(key->target_class, &flavors[SYM_CLASSES]))
->                 goto bad;
-> +       switch (0xFFF & key->specified) {
-> +       case AVTAB_ALLOWED:
-> +       case AVTAB_AUDITALLOW:
-> +       case AVTAB_AUDITDENY:
-> +       case AVTAB_XPERMS_ALLOWED:
-> +       case AVTAB_XPERMS_AUDITALLOW:
-> +       case AVTAB_XPERMS_DONTAUDIT:
-> +       case AVTAB_TRANSITION:
-> +       case AVTAB_MEMBER:
-> +       case AVTAB_CHANGE:
-> +               break;
-> +       default:
-> +               goto bad;
-> +       }
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 70b503e1..980af059 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -48,6 +48,7 @@
+>  #include <sepol/policydb/expand.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/avrule_block.h>
+> +#include <sepol/policydb/services.h>
+>  #include <sepol/policydb/util.h>
 >
->         return 0;
->
+>  #include "kernel_to_common.h"
+> @@ -3099,6 +3100,14 @@ static int ocontext_read_selinux(const struct poli=
+cydb_compat_info *info,
+>                                 if (rc < 0)
+>                                         return -1;
+>                                 c->v.behavior =3D le32_to_cpu(buf[0]);
+> +                               switch (c->v.behavior) {
+> +                               case SECURITY_FS_USE_XATTR:
+> +                               case SECURITY_FS_USE_TRANS:
+> +                               case SECURITY_FS_USE_TASK:
+> +                                       break;
+> +                               default:
+> +                                       return -1;
+> +                               }
+>                                 len =3D le32_to_cpu(buf[1]);
+>                                 if (zero_or_saturated(len))
+>                                         return -1;
 > --
 > 2.33.0
 >
 
-avrule_t also has a specified field that could be checked.
+I think that I would prefer this to be in policydb_validate.c
+somewhere. Eventually it would be nice to call validate_policydb() on
+a policydb before writing it as well as after reading it.
 
 Thanks,
 Jim
