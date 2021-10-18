@@ -2,271 +2,247 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 070AFC433EF
-	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 08:56:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8217C433F5
+	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 12:36:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7481610A6
-	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 08:56:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F6BF60FD9
+	for <selinux@archiver.kernel.org>; Mon, 18 Oct 2021 12:36:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231149AbhJRI7A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Oct 2021 04:59:00 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:23382 "EHLO
+        id S231676AbhJRMia (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Oct 2021 08:38:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39605 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231404AbhJRI6z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Oct 2021 04:58:55 -0400
+        by vger.kernel.org with ESMTP id S230346AbhJRMia (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Oct 2021 08:38:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634547399;
+        s=mimecast20190719; t=1634560578;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ZWfU0zLIvN4aK0Dkn8RYhS/QZTITqYHPc42V6M3c9ro=;
-        b=X4E+Tp+35UlWR/jwuv3pXS+hwU9u6WGfyzdg1jk2Hm38GG7oVNQm8g64CDy9cYNJKUKn0Y
-        Uz/MvVuq7HDNCgUC0FRuKuHjqhIVOTbAfV0YLtvxTlV48m9KL8JJVRnYAfUA7PYp64Jsml
-        TaCwrw0bsPZS96L6nzY8JTFQWoX+9vM=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-304-UtLisYbtObK9QPPgKVE_HQ-1; Mon, 18 Oct 2021 04:56:38 -0400
-X-MC-Unique: UtLisYbtObK9QPPgKVE_HQ-1
-Received: by mail-yb1-f199.google.com with SMTP id t7-20020a258387000000b005b6d7220c79so19256684ybk.16
-        for <selinux@vger.kernel.org>; Mon, 18 Oct 2021 01:56:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ZWfU0zLIvN4aK0Dkn8RYhS/QZTITqYHPc42V6M3c9ro=;
-        b=r2ixe4pX9U7G8tr/EvBZuY5hVSN5c896ani/lD9keTKklOGsHc2dqi6Hl+ggytzkB6
-         XcuK6bQbT7d1XVseL4IPYcRiKF3Cw1cHkl/8NvFqKoMErgLQx5wb6WmI+qcolmw7N4Ed
-         uLdEXNo0U6sM2fCfsCsf75ZJYldnd5w6zSOQuf98iqeU+HYnniBdWmzxrWhon8/XagvZ
-         k2bjiyaZVIO/7cOcZysrvYdfdhl1MS0GDU9WpDVzKFXqb4ppwUVXRftvESHH+Pu/LSGr
-         RX74YKs7CoqK8DCnJfp4kBNJcaDXsnflFOpKohPtss8x0Wt9Hy156HrWEEB9zCxkawq5
-         BVlA==
-X-Gm-Message-State: AOAM533ybiW4mQ5CowX2CWidSEoRWO/90Dfe5naqY7wMKrXQL5O/PG4c
-        KnheNk3Xzey9HJxSqCkeIulz4AnEVBgV7CbUJ4vRbxhrFwk8qa8bMWe2lhdTnR/rF6Uw3Ita556
-        eu/7TKMdo5eHuL5W01zEB6jpWvgH2tdj23A==
-X-Received: by 2002:a5b:eca:: with SMTP id a10mr8247599ybs.237.1634547397580;
-        Mon, 18 Oct 2021 01:56:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzu+57L7OkmBKtHL9DLjd8H0Ma2m2z44ugz0r1N6ikdtJS0fWyYkcy6NzisHIdZMxvQQbBvxQ5wx35C1MH9314=
-X-Received: by 2002:a5b:eca:: with SMTP id a10mr8247572ybs.237.1634547397191;
- Mon, 18 Oct 2021 01:56:37 -0700 (PDT)
+        bh=5Jv3rNXTm7ES8GL61uhJSQXotnqqkJ8OFeNdlH1Vozk=;
+        b=RU1JdHIyJ6AhQp/Ky/uQDgPYaz+oMKuyutP5/J4onEtwWrKLOeXVB9c3rHudR5AILAObtj
+        B8sP16ohVNHJ0yAACdpuDZR8njRUcg58/byp/3aZ598cf0chIbwbAVlo9Rt4zgCj4EQvUS
+        1jzIVFi5RI0+RBbQromzoXaTq7Oi9Eo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-246-utP4HSasPUSFGE-MIPnLFQ-1; Mon, 18 Oct 2021 08:36:15 -0400
+X-MC-Unique: utP4HSasPUSFGE-MIPnLFQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF6C51966320;
+        Mon, 18 Oct 2021 12:36:11 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.33.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B949BB8551;
+        Mon, 18 Oct 2021 12:35:49 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id D710922045E; Mon, 18 Oct 2021 08:35:48 -0400 (EDT)
+Date:   Mon, 18 Oct 2021 08:35:48 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     jmorris@namei.org
+Cc:     linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+        Miklos Szeredi <miklos@szeredi.hu>, dwalsh@redhat.com,
+        jlayton@kernel.org, idryomov@gmail.com, ceph-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, bfields@fieldses.org,
+        chuck.lever@oracle.com, anna.schumaker@netapp.com,
+        trond.myklebust@hammerspace.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        serge@hallyn.com
+Subject: Re: [PATCH v2] security: Return xattr name from
+ security_dentry_init_security()
+Message-ID: <YW1qJKLHYHWia2Nd@redhat.com>
+References: <YWWMO/ZDrvDZ5X4c@redhat.com>
 MIME-Version: 1.0
-References: <20211014145319.798740-1-omosnace@redhat.com> <CAJ2a_DdKTg8qoFV6HG71d_3Ufbpn6=xiYJ-M8UDcUrkqVEm80g@mail.gmail.com>
- <CAFqZXNtWW+U+bNhM_AJ-A6WCj_jHo+=DXH1QHT7i7G-X+vYDqg@mail.gmail.com>
-In-Reply-To: <CAFqZXNtWW+U+bNhM_AJ-A6WCj_jHo+=DXH1QHT7i7G-X+vYDqg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 18 Oct 2021 10:56:26 +0200
-Message-ID: <CAFqZXNuL-jb=QptF2ZuQ8208j9g1-xJXTAkfPia7MwYZmfEbWA@mail.gmail.com>
-Subject: Re: [PATCH userspace v2 0/6] Parallel setfiles/restorecon
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YWWMO/ZDrvDZ5X4c@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 15, 2021 at 3:25 PM Ondrej Mosnacek <omosnace@redhat.com> wrote=
-:
-> On Fri, Oct 15, 2021 at 2:37 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> > On Thu, 14 Oct 2021 at 16:53, Ondrej Mosnacek <omosnace@redhat.com> wro=
-te:
-> > >
-> > > This series adds basic support for parallel relabeling to the libseli=
-nux
-> > > API and the setfiles/restorecon CLI tools. It turns out that doing th=
-e
-> > > relabeling in parallel can significantly reduce the time even with a
-> > > relatively simple approach.
-> > >
-> > > The first patch is a small cleanup that was found along the way and c=
-an
-> > > be applied independently. Patches 2-4 are small incremental changes t=
-hat
-> > > make the internal selinux_restorecon functions more thread-safe (I ke=
-pt
-> > > them separate for ease of of review, but maybe they should be rather
-> > > folded into the netx patch...). Patch 5 then completes the parallel
-> > > relabeling implementation at libselinux level and adds a new function
-> > > to the API that allows to make use of it. Finally, patch 6 adds paral=
-lel
-> > > relabeling support to he setfiles/restorecon tools.
-> > >
-> > > The relevant man pages are also updated to reflect the new
-> > > functionality.
-> > >
-> > > The patch descriptions contain more details, namely the last patch ha=
-s
-> > > also some benchmark numbers.
-> > >
-> > > Changes v1->v2:
-> > > - make selinux_log() synchronized instead of introducing selinux_log_=
-sync()
-> > > - fix -Wcomma warning
-> > > - update the swig files as well
-> > > - bump new symbol version to LIBSELINUX_3.3 (this may need further up=
-date
-> > >   depending on when this gets merged)
-> > >
-> > > Ondrej Mosnacek (6):
-> > >   selinux_restorecon: simplify fl_head allocation by using calloc()
-> > >   selinux_restorecon: protect file_spec list with a mutex
-> > >   libselinux: make selinux_log() thread-safe
-> > >   selinux_restorecon: add a global mutex to synchronize progress outp=
-ut
-> > >   selinux_restorecon: introduce selinux_restorecon_parallel(3)
-> > >   setfiles/restorecon: support parallel relabeling
-> > >
-> > >  libselinux/include/selinux/restorecon.h       |  14 +
-> > >  libselinux/man/man3/selinux_restorecon.3      |  29 ++
-> > >  .../man/man3/selinux_restorecon_parallel.3    |   1 +
-> > >  libselinux/src/callbacks.c                    |   8 +-
-> > >  libselinux/src/callbacks.h                    |  13 +-
-> > >  libselinux/src/libselinux.map                 |   5 +
-> > >  libselinux/src/selinux_internal.h             |  14 +
-> > >  libselinux/src/selinux_restorecon.c           | 466 ++++++++++++----=
---
-> > >  libselinux/src/selinuxswig_python.i           |   6 +-
-> > >  libselinux/src/selinuxswig_python_exception.i |   8 +
-> > >  policycoreutils/setfiles/Makefile             |   2 +-
-> > >  policycoreutils/setfiles/restore.c            |   7 +-
-> > >  policycoreutils/setfiles/restore.h            |   2 +-
-> > >  policycoreutils/setfiles/restorecon.8         |   9 +
-> > >  policycoreutils/setfiles/setfiles.8           |   9 +
-> > >  policycoreutils/setfiles/setfiles.c           |  28 +-
-> > >  16 files changed, 444 insertions(+), 177 deletions(-)
-> > >  create mode 100644 libselinux/man/man3/selinux_restorecon_parallel.3
-> > >
-> > > --
-> > > 2.31.1
-> > >
-> >
-> >
-> > Running under ThreadSanitizer shows multiple instances of the following=
- issue:
-> >
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > WARNING: ThreadSanitizer: data race (pid=3D16933)
-> >   Read of size 4 at 0x7f8790d636f4 by thread T2:
-> >     #0 lookup_all ./libselinux/src/label_file.c:954 (libselinux.so.1+0x=
-14d1b)
-> >     #1 lookup_common ./libselinux/src/label_file.c:997 (libselinux.so.1=
-+0x14f62)
-> >     #2 lookup ./libselinux/src/label_file.c:1095 (libselinux.so.1+0x14f=
-ff)
-> >     #3 selabel_lookup_common ./libselinux/src/label.c:167
-> > (libselinux.so.1+0x12291)
-> >     #4 selabel_lookup_raw ./libselinux/src/label.c:256 (libselinux.so.1=
-+0x126ca)
-> >     #5 restorecon_sb ./libselinux/src/selinux_restorecon.c:638
-> > (libselinux.so.1+0x20c76)
-> >     #6 selinux_restorecon_thread
-> > ./libselinux/src/selinux_restorecon.c:947 (libselinux.so.1+0x21e99)
-> >
-> >   Previous write of size 4 at 0x7f8790d636f4 by thread T1:
-> >     #0 lookup_all ./libselinux/src/label_file.c:954 (libselinux.so.1+0x=
-14d29)
-> >     #1 lookup_common ./libselinux/src/label_file.c:997 (libselinux.so.1=
-+0x14f62)
-> >     #2 lookup ./libselinux/src/label_file.c:1095 (libselinux.so.1+0x14f=
-ff)
-> >     #3 selabel_lookup_common ./libselinux/src/label.c:167
-> > (libselinux.so.1+0x12291)
-> >     #4 selabel_lookup_raw ./libselinux/src/label.c:256 (libselinux.so.1=
-+0x126ca)
-> >     #5 restorecon_sb ./libselinux/src/selinux_restorecon.c:638
-> > (libselinux.so.1+0x20c76)
-> >     #6 selinux_restorecon_thread
-> > ./libselinux/src/selinux_restorecon.c:947 (libselinux.so.1+0x21e99)
-> >
-> >   Location is heap block of size 267120 at 0x7f8790d45000 allocated by
-> > main thread:
-> >     #0 malloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix=
-.cpp:655
-> > (libtsan.so.0+0x31799)
-> >     #1 sort_specs ./libselinux/src/label_file.h:207 (libselinux.so.1+0x=
-17bd9)
-> >     #2 init ./libselinux/src/label_file.c:795 (libselinux.so.1+0x17bd9)
-> >     #3 selabel_file_init ./libselinux/src/label_file.c:1293
-> > (libselinux.so.1+0x1835b)
-> >     #4 selabel_open ./libselinux/src/label.c:228 (libselinux.so.1+0x125=
-d8)
-> >     #5 restore_init ./policycoreutils/setfiles/restore.c:30 (setfiles+0=
-x3886)
-> >     #6 main ./policycoreutils/setfiles/setfiles.c:434 (setfiles+0x344e)
-> >
-> >   Thread T2 (tid=3D16940, running) created by main thread at:
-> >     #0 pthread_create
-> > ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:969
-> > (libtsan.so.0+0x5ad75)
-> >     #1 selinux_restorecon_common
-> > ./libselinux/src/selinux_restorecon.c:1197 (libselinux.so.1+0x2341c)
-> >     #2 selinux_restorecon_parallel
-> > ./libselinux/src/selinux_restorecon.c:1306 (libselinux.so.1+0x23985)
-> >     #3 process_glob ./policycoreutils/setfiles/restore.c:94 (setfiles+0=
-x3ba4)
-> >     #4 main ./policycoreutils/setfiles/setfiles.c:463 (setfiles+0x362a)
-> >
-> >   Thread T1 (tid=3D16939, running) created by main thread at:
-> >     #0 pthread_create
-> > ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:969
-> > (libtsan.so.0+0x5ad75)
-> >     #1 selinux_restorecon_common
-> > ./libselinux/src/selinux_restorecon.c:1197 (libselinux.so.1+0x2341c)
-> >     #2 selinux_restorecon_parallel
-> > ./libselinux/src/selinux_restorecon.c:1306 (libselinux.so.1+0x23985)
-> >     #3 process_glob ./policycoreutils/setfiles/restore.c:94 (setfiles+0=
-x3ba4)
-> >     #4 main ./policycoreutils/setfiles/setfiles.c:463 (setfiles+0x362a)
-> >
-> > SUMMARY: ThreadSanitizer: data race ./libselinux/src/label_file.c:954
-> > in lookup_all
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> Good catch, although this one seems to be pre-existing w.r.t. thread
-> safety of selinux_restorecon(3) (which seems to be implied by the
-> existence of struct spec::regex_lock). I spotted some existing usage
-> of GCC atomic builtins, so I'll try to fix it using those.
->
-> > Also some thread joins seems to be missing:
-> >
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > WARNING: ThreadSanitizer: thread leak (pid=3D16933)
-> >   Thread T1 (tid=3D16939, finished) created by main thread at:
-> >     #0 pthread_create
-> > ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:969
-> > (libtsan.so.0+0x5ad75)
-> >     #1 selinux_restorecon_common
-> > ./libselinux/src/selinux_restorecon.c:1197 (libselinux.so.1+0x2341c)
-> >     #2 selinux_restorecon_parallel
-> > ./libselinux/src/selinux_restorecon.c:1306 (libselinux.so.1+0x23985)
-> >     #3 process_glob ./policycoreutils/setfiles/restore.c:94 (setfiles+0=
-x3ba4)
-> >     #4 main ./policycoreutils/setfiles/setfiles.c:463 (setfiles+0x362a)
-> >
-> >   And 2 more similar thread leaks.
-> >
-> > SUMMARY: ThreadSanitizer: thread leak
-> > ./libselinux/src/selinux_restorecon.c:1197 in
-> > selinux_restorecon_common
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> Hm... My intention was to avoid the need for joins by synchronizing
-> via other means and just letting the threads exit on their own, but I
-> guess that doesn't fly with the sanitizer. Guess I'll have to allocate
-> an array for the handles and join the threads at the end after all...
+Hi James,
 
-So I was able to get ThreadSanitizer to detect the race (by using only
-two threads and a very small number of files), but then the program
-just runs forever and I never get to see the thread leaks... Any hints
-on how you ran/compiled it to see the thread leaks? Or how long you
-had to wait for the program to finish? BTW, I only managed to get
-thread sanitizer to work with GCC. With CLang I always got some linker
-error...
+I am assuming this patch will need to be routed through security tree.
+Can you please consider it for inclusion.
 
+Thanks
+Vivek
 
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+On Tue, Oct 12, 2021 at 09:23:07AM -0400, Vivek Goyal wrote:
+> Right now security_dentry_init_security() only supports single security
+> label and is used by SELinux only. There are two users of of this hook,
+> namely ceph and nfs.
+> 
+> NFS does not care about xattr name. Ceph hardcodes the xattr name to
+> security.selinux (XATTR_NAME_SELINUX).
+> 
+> I am making changes to fuse/virtiofs to send security label to virtiofsd
+> and I need to send xattr name as well. I also hardcoded the name of
+> xattr to security.selinux.
+> 
+> Stephen Smalley suggested that it probably is a good idea to modify
+> security_dentry_init_security() to also return name of xattr so that
+> we can avoid this hardcoding in the callers.
+> 
+> This patch adds a new parameter "const char **xattr_name" to
+> security_dentry_init_security() and LSM puts the name of xattr
+> too if caller asked for it (xattr_name != NULL).
+> 
+> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> ---
+> 
+> Changes since v1:
+> - Updated comment to make it clear caller does not have to free the
+>   xattr_name. (Jeff Layton).
+> - Captured Jeff's Reviewed-by ack.
+> 
+> I have tested this patch with virtiofs and compile tested for ceph and nfs.
+> 
+> NFS changes are trivial. Looking for an ack from NFS maintainers.
+> 
+> ---
+>  fs/ceph/xattr.c               |    3 +--
+>  fs/nfs/nfs4proc.c             |    3 ++-
+>  include/linux/lsm_hook_defs.h |    3 ++-
+>  include/linux/lsm_hooks.h     |    3 +++
+>  include/linux/security.h      |    6 ++++--
+>  security/security.c           |    7 ++++---
+>  security/selinux/hooks.c      |    6 +++++-
+>  7 files changed, 21 insertions(+), 10 deletions(-)
+> 
+> Index: redhat-linux/security/selinux/hooks.c
+> ===================================================================
+> --- redhat-linux.orig/security/selinux/hooks.c	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/security/selinux/hooks.c	2021-10-06 15:20:57.745247170 -0400
+> @@ -2948,7 +2948,8 @@ static void selinux_inode_free_security(
+>  }
+>  
+>  static int selinux_dentry_init_security(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> +					const struct qstr *name,
+> +					const char **xattr_name, void **ctx,
+>  					u32 *ctxlen)
+>  {
+>  	u32 newsid;
+> @@ -2961,6 +2962,9 @@ static int selinux_dentry_init_security(
+>  	if (rc)
+>  		return rc;
+>  
+> +	if (xattr_name)
+> +		*xattr_name = XATTR_NAME_SELINUX;
+> +
+>  	return security_sid_to_context(&selinux_state, newsid, (char **)ctx,
+>  				       ctxlen);
+>  }
+> Index: redhat-linux/security/security.c
+> ===================================================================
+> --- redhat-linux.orig/security/security.c	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/security/security.c	2021-10-06 15:20:57.749247170 -0400
+> @@ -1052,11 +1052,12 @@ void security_inode_free(struct inode *i
+>  }
+>  
+>  int security_dentry_init_security(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> -					u32 *ctxlen)
+> +				  const struct qstr *name,
+> +				  const char **xattr_name, void **ctx,
+> +				  u32 *ctxlen)
+>  {
+>  	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mode,
+> -				name, ctx, ctxlen);
+> +				name, xattr_name, ctx, ctxlen);
+>  }
+>  EXPORT_SYMBOL(security_dentry_init_security);
+>  
+> Index: redhat-linux/include/linux/lsm_hooks.h
+> ===================================================================
+> --- redhat-linux.orig/include/linux/lsm_hooks.h	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/include/linux/lsm_hooks.h	2021-10-12 09:05:00.830399245 -0400
+> @@ -196,6 +196,9 @@
+>   *	@dentry dentry to use in calculating the context.
+>   *	@mode mode used to determine resource type.
+>   *	@name name of the last path component used to create file
+> + *	@xattr_name pointer to place the pointer to security xattr name.
+> + *		    Caller does not have to free the resulting pointer. Its
+> + *		    a pointer to static string.
+>   *	@ctx pointer to place the pointer to the resulting context in.
+>   *	@ctxlen point to place the length of the resulting context.
+>   * @dentry_create_files_as:
+> Index: redhat-linux/include/linux/security.h
+> ===================================================================
+> --- redhat-linux.orig/include/linux/security.h	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/include/linux/security.h	2021-10-06 15:20:57.751247170 -0400
+> @@ -317,8 +317,9 @@ int security_add_mnt_opt(const char *opt
+>  				int len, void **mnt_opts);
+>  int security_move_mount(const struct path *from_path, const struct path *to_path);
+>  int security_dentry_init_security(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> -					u32 *ctxlen);
+> +				  const struct qstr *name,
+> +				  const char **xattr_name, void **ctx,
+> +				  u32 *ctxlen);
+>  int security_dentry_create_files_as(struct dentry *dentry, int mode,
+>  					struct qstr *name,
+>  					const struct cred *old,
+> @@ -739,6 +740,7 @@ static inline void security_inode_free(s
+>  static inline int security_dentry_init_security(struct dentry *dentry,
+>  						 int mode,
+>  						 const struct qstr *name,
+> +						 const char **xattr_name,
+>  						 void **ctx,
+>  						 u32 *ctxlen)
+>  {
+> Index: redhat-linux/include/linux/lsm_hook_defs.h
+> ===================================================================
+> --- redhat-linux.orig/include/linux/lsm_hook_defs.h	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/include/linux/lsm_hook_defs.h	2021-10-06 15:20:57.752247170 -0400
+> @@ -83,7 +83,8 @@ LSM_HOOK(int, 0, sb_add_mnt_opt, const c
+>  LSM_HOOK(int, 0, move_mount, const struct path *from_path,
+>  	 const struct path *to_path)
+>  LSM_HOOK(int, 0, dentry_init_security, struct dentry *dentry,
+> -	 int mode, const struct qstr *name, void **ctx, u32 *ctxlen)
+> +	 int mode, const struct qstr *name, const char **xattr_name,
+> +	 void **ctx, u32 *ctxlen)
+>  LSM_HOOK(int, 0, dentry_create_files_as, struct dentry *dentry, int mode,
+>  	 struct qstr *name, const struct cred *old, struct cred *new)
+>  
+> Index: redhat-linux/fs/nfs/nfs4proc.c
+> ===================================================================
+> --- redhat-linux.orig/fs/nfs/nfs4proc.c	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/fs/nfs/nfs4proc.c	2021-10-06 15:20:57.754247170 -0400
+> @@ -127,7 +127,8 @@ nfs4_label_init_security(struct inode *d
+>  		return NULL;
+>  
+>  	err = security_dentry_init_security(dentry, sattr->ia_mode,
+> -				&dentry->d_name, (void **)&label->label, &label->len);
+> +				&dentry->d_name, NULL,
+> +				(void **)&label->label, &label->len);
+>  	if (err == 0)
+>  		return label;
+>  
+> Index: redhat-linux/fs/ceph/xattr.c
+> ===================================================================
+> --- redhat-linux.orig/fs/ceph/xattr.c	2021-10-04 15:40:28.978453324 -0400
+> +++ redhat-linux/fs/ceph/xattr.c	2021-10-06 15:20:57.756247170 -0400
+> @@ -1311,7 +1311,7 @@ int ceph_security_init_secctx(struct den
+>  	int err;
+>  
+>  	err = security_dentry_init_security(dentry, mode, &dentry->d_name,
+> -					    &as_ctx->sec_ctx,
+> +					    &name, &as_ctx->sec_ctx,
+>  					    &as_ctx->sec_ctxlen);
+>  	if (err < 0) {
+>  		WARN_ON_ONCE(err != -EOPNOTSUPP);
+> @@ -1335,7 +1335,6 @@ int ceph_security_init_secctx(struct den
+>  	 * It only supports single security module and only selinux has
+>  	 * dentry_init_security hook.
+>  	 */
+> -	name = XATTR_NAME_SELINUX;
+>  	name_len = strlen(name);
+>  	err = ceph_pagelist_reserve(pagelist,
+>  				    4 * 2 + name_len + as_ctx->sec_ctxlen);
+> 
 
