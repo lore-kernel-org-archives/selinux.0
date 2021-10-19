@@ -2,90 +2,88 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ADC3C433EF
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 22:14:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D506EC433F5
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 23:49:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 345EF60FDA
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 22:14:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD1DE6103B
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 23:49:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbhJSWRC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Oct 2021 18:17:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
+        id S229836AbhJSXvd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Oct 2021 19:51:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbhJSWRB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 18:17:01 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00800C06161C
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 15:14:48 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id w14so17504127edv.11
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 15:14:47 -0700 (PDT)
+        with ESMTP id S229554AbhJSXvc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 19:51:32 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC97C06161C
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 16:49:18 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id a25so18923206edx.8
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 16:49:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=5HENPjk2/i/iIqGIBkQzglGtaQlBRWZZ5c9dirbLsNI=;
-        b=B/lj2hBL+xbHnwwITkT/5usWpOO/SM6xXS4UHK9DgzhRb0Pam1mfZKZf+Y1DAU6Fzx
-         Nr8nmXnJOE2J+Z2dz0f5dh3icsrkhI9DfDZk7g2flmR8r2ydMNHMlUkJ/DN3XDIOsotv
-         NV/odV2ttapjH+MB+VSctnYpZwWq6NhYWtZSa9qEgMLNtzme+QnlkgfX7Y6wCi+4Kq1c
-         A0XnHbmGyPVEUqapmYCLDTuF0ZD5U+CdRE1p3F8FOECm/gg5uuE8at5x3/QQns5maX7Y
-         s3Cs+A3EAcOzxWHj1ojOKALOq8aRw69LMGT4II/rlfgkVdgsTCIb/izC7Q5xk/RqTnCg
-         On/w==
+        bh=vpDry/4vppRTdkM/5uTPl5dyLlGXb8npQEXSH8SC3n8=;
+        b=o2GB6bGy73ynHmJi3Gg4hEYN2Dm0AvQJTbKeajulhWdOW5eNjC2JDiAycN4FAXuZVu
+         QOlxhQTFFF3dwFNUX78Dq+3+GI0T8ycd7lmeW4LD/RLJdg1IG204YBu1stQ0sSE9O9aZ
+         slfxNIO+pajQUUZ9zBFJG7CWumjrgZX95S90ugGG52KhNUrFHcQQ3u04lB7OjMz77eNp
+         9x/qAM0TbHBx8bT7bMwuDm1gsvioW83tOrqFUzRWjJC3k1fEh44py+hqvv7OcrHUAbQN
+         /reiwOMaaXdhdTnSDny8pD9reCSgGZKgAes9sIfzb2yFipwOPvP1YYN29F9+X/95xkYK
+         CbLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=5HENPjk2/i/iIqGIBkQzglGtaQlBRWZZ5c9dirbLsNI=;
-        b=AHoG7PbBOXlny6dWq0isrty3tjTAQHwl1XHNRhCIuqxgCVj9Dj5+mECXevAzIzkT+p
-         n/c1O1BijcHloAVjkBOrH4gncfhfTE9v5qTI2kuGK9qslbHylY1cNjCpVeBIeR3NJ8qV
-         gt6V36uXfM36Ee2L6dzeYFndTM0l+AgU28z+Wr8YGTiDB6xJ8gg+H32pnErs11ppBLl1
-         a2Dz4H95CLogG3FmyelpGWgeEC1LIWwK+FMRH8qgoXyiRSBzMl9fZapOlE5MKrlGd42W
-         9NgVkgsGAPYmrXy3ELDB9c7yX3aqKkX6y3/h5WFTal22HHj4TSCC8aDvtFe8L5y3aAqf
-         6xlg==
-X-Gm-Message-State: AOAM53226jPKHVNclZ0CWiOsh38Tx+rtWk5rYmloKMlrTIC0rheWAT0Z
-        b7ZLdG7rR4LhGU0SHqODIjTtvcigLFC4lVQIZ2pbRhU=
-X-Google-Smtp-Source: ABdhPJyY8yicW2wbNQhmxkRSzuiWbZ8LHa303I0Ht4/2MIpJn13JYIfHW+4n5BurgK7FeUeYsnsgGsKfdQAbe2VfwkM=
-X-Received: by 2002:a17:907:784b:: with SMTP id lb11mr40496004ejc.307.1634681686430;
- Tue, 19 Oct 2021 15:14:46 -0700 (PDT)
+        bh=vpDry/4vppRTdkM/5uTPl5dyLlGXb8npQEXSH8SC3n8=;
+        b=QcgQdWxSFAK9ATLSMF/4Zvrde9J6tOY86WLoCU2doJOD81Th9qTo8kCIwLDdjbmGO+
+         a7hMV2mgf8BwdyU1Kj+XoQS8iChPBXmleNuCg6E+u5R6WgYkpkARgWck7X4S53qdtFc0
+         ioSbsfJ5P9EOApAYXHEGN6q3ZDbO9yRU6Yj+TTnZvEEszAxcOgUpQjF6BJxFK0FMyLKg
+         RoLuFS/iiKHM3GGZ6pqIY9zZM7lcg4MkfIqYFippZBTLM3M1zryA2+joS0xtlxiqieDd
+         f3UgIEH0ubWEO/UByOyCgkgyoprQ+8eZ79uLr3wyQ8Hs3ai3jg+/29qZSuJn4LDXUO1a
+         8xUQ==
+X-Gm-Message-State: AOAM533n0ZjLoI0RN9mk5kqtOc6HRmw7sm5gQLGj5nq3O3+rNBj/jLj+
+        7UXILavvrO/ffnD96LFmegU26sz3dt8mGEhjwAkGjliUlQ==
+X-Google-Smtp-Source: ABdhPJwbdYmhpXUTSsSR/XIYzH5m1pFEBMpnAv4GFXli0FULWWj6vmRgoYkSQoTjr2PW6RgpGUKOegfQ46qGkGqGzcA=
+X-Received: by 2002:a17:907:629b:: with SMTP id nd27mr40164593ejc.24.1634687357008;
+ Tue, 19 Oct 2021 16:49:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <163466736648.20044.16531188246866586566.stgit@olly> <CAFqZXNtT0utx5qpcZ9KpvtTsVx5sfiXCQxdHCo1Dy5ue1MQ6gQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNtT0utx5qpcZ9KpvtTsVx5sfiXCQxdHCo1Dy5ue1MQ6gQ@mail.gmail.com>
+References: <YWWMO/ZDrvDZ5X4c@redhat.com> <YW1qJKLHYHWia2Nd@redhat.com> <3bd86fa3-b3b0-754f-25a5-5e4f723babe4@namei.org>
+In-Reply-To: <3bd86fa3-b3b0-754f-25a5-5e4f723babe4@namei.org>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 19 Oct 2021 18:14:35 -0400
-Message-ID: <CAHC9VhSLABGRnuiDG27uMaxK3=J-RHqRd6s-qNDmhxrSzJpoQw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix a sock regression in selinux_ip_postroute_compat()
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Florian Westphal <fw@strlen.de>
+Date:   Tue, 19 Oct 2021 19:49:06 -0400
+Message-ID: <CAHC9VhRZyGYsFziXMfJQ=1OcLO52TGmAGMi5RaA3FXRgREsSeQ@mail.gmail.com>
+Subject: Re: [PATCH v2] security: Return xattr name from security_dentry_init_security()
+To:     James Morris <jmorris@namei.org>
+Cc:     Vivek Goyal <vgoyal@redhat.com>, linux-fsdevel@vger.kernel.org,
+        virtio-fs@redhat.com, Miklos Szeredi <miklos@szeredi.hu>,
+        Dan Walsh <dwalsh@redhat.com>, jlayton@kernel.org,
+        idryomov@gmail.com, ceph-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, bfields@fieldses.org,
+        chuck.lever@oracle.com, anna.schumaker@netapp.com,
+        trond.myklebust@hammerspace.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        casey@schaufler-ca.com, Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Serge Hallyn <serge@hallyn.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 4:51 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Tue, Oct 19, 2021 at 5:02 PM James Morris <jmorris@namei.org> wrote:
 >
-> On Tue, Oct 19, 2021 at 8:16 PM Paul Moore <paul@paul-moore.com> wrote:
-> > Unfortunately we can't rely on nf_hook_state->sk being the proper
-> > originating socket so revert to using skb_to_full_sk(skb).
+> On Mon, 18 Oct 2021, Vivek Goyal wrote:
+>
+> > Hi James,
 > >
-> > Fixes: 1d1e1ded1356 ("1d1e1ded13568be81a0e19d228e310a48997bec8")
+> > I am assuming this patch will need to be routed through security tree.
+> > Can you please consider it for inclusion.
 >
-> This doesn't seem right :)
+> I'm happy for this to go via Paul's tree as it impacts SELinux and is
+> fairly minor in scope.
 
-It does seem a little off, doesn't it?  Thanks for catching this, I
-fixed it up in my local tree.
-
-In case anyone is interested in my long winded excuse ... I replaced
-my old trusty mouse this morning (one of the buttons was starting to
-become decidedly un-trusty) and while switching between my Linux
-system and my Windows system (employer VPN box) I learned that my new
-mouse actually gets reprogrammed on-the-fly by the Windows
-driver/config-software such that my middle mouse button was
-non-functional when returning the Linux and hence my usual workflow of
-"highlight and middle-click" was temporarily replaced with ctrl-c and
-crtl-v which was awkward and resulted in some copy-n-paste snafus.  I
-wanted to get the patch posted to the list so I did that before
-finding a solution to my mouse problems, perhaps that wasn't the best
-order :)
+I'll take a look tomorrow, I ended up spending most of my day today
+chasing a 32-bit MIPS (!!) bug in libseccomp and now it's dinner time.
 
 -- 
 paul moore
