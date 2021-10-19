@@ -2,62 +2,58 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3863EC433F5
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:29:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C8DC433F5
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:41:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D7EE61154
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:29:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6303E61212
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:41:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235549AbhJSMb2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Oct 2021 08:31:28 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:59798 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230097AbhJSMb2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 08:31:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634646555;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+nHL836IcAIHCWCbQNh8RfCYaeiBItPgAiIWOYina5M=;
-        b=MYz/Zb08ywBkbbXL39ZZ0xB7EIPvapdv8oHbbjvNNYTRg1AmVZqtoceEmjKmGfbqdRE+JP
-        FUVKiBA756bTtdbGsQsQ8Mu7O+LrZQpFjnaCNJ2qwhUJHLzHwd6KbGN7xeBlXCehPTjuJY
-        YmKIJiL0bg22Wcq+UG2cHYd4I+Z0CIo=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-71-LWZ7gScYP7abwKQIjSJiZQ-1; Tue, 19 Oct 2021 08:29:13 -0400
-X-MC-Unique: LWZ7gScYP7abwKQIjSJiZQ-1
-Received: by mail-yb1-f197.google.com with SMTP id q193-20020a252aca000000b005ba63482993so24539426ybq.0
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:29:13 -0700 (PDT)
+        id S230267AbhJSMn1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Oct 2021 08:43:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39802 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230231AbhJSMn0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 08:43:26 -0400
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0A6C06161C
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:41:14 -0700 (PDT)
+Received: by mail-oo1-xc2b.google.com with SMTP id o26-20020a4abe9a000000b002b74bffdef0so932068oop.12
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:41:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Yd3rdgZTCv8CxAVBk9LM+6TKpW9/Macei4AzbdSnl94=;
+        b=cTyhak2Lcr6Jp/5KTH1ZmL1LDK/DKWWqAit2D27XCqxHzcRD0cX91+PgtS+sea3r5U
+         VKSJzo59maJ+GmVJtu+itAPXN3MNmbXnQ6gaPwF4RwF6+8ATMOx1SS9DqkMH1p7dU6MN
+         EJy8NK8g51d412BkbWsC7LQeHm7vcvOCiyYS6awTPnJ00mI9jVIE1WkGwTo5c5bMiChv
+         /smWLqv3VYEEMScEYeb/td427Jfa2DHNocO+5Izz3YOj5O6y2Gobwfz5oSOqAtb7LAuB
+         11U6uR/USAJ5d3nTXZvrFTQyMaM2G098NVs3MivaNF45CZqzjlruqfOTd08HYVrR+XRz
+         4B6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=+nHL836IcAIHCWCbQNh8RfCYaeiBItPgAiIWOYina5M=;
-        b=PaTZpGXhVWW2UdptrLBEVKgfnQrA3+NXAno8jwRcBP/lk1nVEQPJ3NixvtGF1GS4wO
-         AjR2C1Qnxzizm3RFqhCTOI7JVrqgQaU5KEY5C2zqNNRalCa0YQISpd154H8je0BLkHki
-         FReYYeFeV4gm5/QYRvYJ52kmkSYd87dW6ihSvTLDjCNj7BYl4GdwyHprAuEmVoyoQk+o
-         6tZl5bxQaSjxdQTHGe0seV/1EvTyV0VhnPByZdB3zoZLsFAj5GPQFdNJVyL8qdNk/58M
-         0Hu2g6PfQxbySwXQeQPA5lFEc8Yo57kGJX/vgvEGpkjXXksOKclPXzqPsz8eG4inP1cB
-         kFsA==
-X-Gm-Message-State: AOAM530Fu8QBPEnsflQRsC95/LXXOex/UgqxVvMNrmzA0uZMJBl15P2U
-        8bnaT/veWlY7DsgvSj0XD+3McsHK3H4QGrEIzgYU+OMYJDWeLlgpACe5rq5AlbJfRtjuoOJtgv5
-        DcWEFWKiSErTfiXh+M0+mLuC74U18DppLjg==
-X-Received: by 2002:a25:c0d2:: with SMTP id c201mr18185332ybf.467.1634646552546;
-        Tue, 19 Oct 2021 05:29:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyBP/8xd8sl+YRGtqtvzRq6c9xu+Gr7TDF5hWj2Da1iBrV6/+eHNblP/2Y2VCtoZAtjlo4KEbDJnZ40JJRJJYQ=
-X-Received: by 2002:a25:c0d2:: with SMTP id c201mr18185312ybf.467.1634646552292;
- Tue, 19 Oct 2021 05:29:12 -0700 (PDT)
+        bh=Yd3rdgZTCv8CxAVBk9LM+6TKpW9/Macei4AzbdSnl94=;
+        b=J1DSPgr4mzrpvWR+sR5QN1PNqSpVcQFruggRzRkJyiMqg71kGBGvvsG84JkKxz2OZG
+         B46lDva4fQ4PynG7thISKCkFHPlUnsEWWH+ON1hjETV9B0F5WRDgC+7hkSsD6F0ECt/J
+         RRE01lieBUDoIdMdMlP3rAiA4co+6bPBkuoF0ZQR8IkZNJg4bXUMw57XUel8s+EV++ig
+         UoHP4i/1AMRKOEb7ecwuN2I6VyNlTWoDcg0bN/0H2jC4ZTUdCGeBPDv5AZp/7wRCT4c6
+         lr8mn13Q+1mBEjuWDOB1DU3gULfJnfyWN9CcjNOIk7OQuFKWySYHnK/DQysdtc+TfQFM
+         d1dw==
+X-Gm-Message-State: AOAM532QA5EC9XWPrV3a2e2diCH7wR733zIK9ptNP9h+8rtoR5LoJXkm
+        bXrSGcnUcuIi6O412H9yMfZB1uXnh36/yzcUTRE=
+X-Google-Smtp-Source: ABdhPJxXlf6BYIGgq1V4HJSxtxXyC1pWp1PUUUz4bAgcauhTuNevP+mTFaKZ00YvzuNIoWAggncx9EoB34B/WJNjCWg=
+X-Received: by 2002:a4a:4548:: with SMTP id y69mr4487001ooa.52.1634647273077;
+ Tue, 19 Oct 2021 05:41:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211014145319.798740-1-omosnace@redhat.com> <CAJ2a_DdKTg8qoFV6HG71d_3Ufbpn6=xiYJ-M8UDcUrkqVEm80g@mail.gmail.com>
- <CAFqZXNtWW+U+bNhM_AJ-A6WCj_jHo+=DXH1QHT7i7G-X+vYDqg@mail.gmail.com> <CAFqZXNuL-jb=QptF2ZuQ8208j9g1-xJXTAkfPia7MwYZmfEbWA@mail.gmail.com>
-In-Reply-To: <CAFqZXNuL-jb=QptF2ZuQ8208j9g1-xJXTAkfPia7MwYZmfEbWA@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 19 Oct 2021 14:29:01 +0200
-Message-ID: <CAFqZXNt2V21x7bAYGVQ_U818ZfShAYiyzzdU8D2L9uBZrsea1g@mail.gmail.com>
-Subject: Re: [PATCH userspace v2 0/6] Parallel setfiles/restorecon
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+References: <20211015123100.15785-1-cgzones@googlemail.com> <CAJfZ7=nUJOScc+gSLd6xLouFm69iW9-a8WrvxCPZxCO34YABpQ@mail.gmail.com>
+In-Reply-To: <CAJfZ7=nUJOScc+gSLd6xLouFm69iW9-a8WrvxCPZxCO34YABpQ@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 19 Oct 2021 14:41:02 +0200
+Message-ID: <CAJ2a_DcsT_Mun-NZ2A9zZLeXZaXhc-1fdbX2scjSFuqpCkEPTA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: use dummy variable to silence glibc 2.34 warnings
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -65,224 +61,125 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 18, 2021 at 10:56 AM Ondrej Mosnacek <omosnace@redhat.com> wrot=
-e:
-> On Fri, Oct 15, 2021 at 3:25 PM Ondrej Mosnacek <omosnace@redhat.com> wro=
-te:
-> > On Fri, Oct 15, 2021 at 2:37 PM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> > > On Thu, 14 Oct 2021 at 16:53, Ondrej Mosnacek <omosnace@redhat.com> w=
-rote:
-> > > >
-> > > > This series adds basic support for parallel relabeling to the libse=
-linux
-> > > > API and the setfiles/restorecon CLI tools. It turns out that doing =
-the
-> > > > relabeling in parallel can significantly reduce the time even with =
-a
-> > > > relatively simple approach.
-> > > >
-> > > > The first patch is a small cleanup that was found along the way and=
- can
-> > > > be applied independently. Patches 2-4 are small incremental changes=
- that
-> > > > make the internal selinux_restorecon functions more thread-safe (I =
-kept
-> > > > them separate for ease of of review, but maybe they should be rathe=
-r
-> > > > folded into the netx patch...). Patch 5 then completes the parallel
-> > > > relabeling implementation at libselinux level and adds a new functi=
-on
-> > > > to the API that allows to make use of it. Finally, patch 6 adds par=
-allel
-> > > > relabeling support to he setfiles/restorecon tools.
-> > > >
-> > > > The relevant man pages are also updated to reflect the new
-> > > > functionality.
-> > > >
-> > > > The patch descriptions contain more details, namely the last patch =
-has
-> > > > also some benchmark numbers.
-> > > >
-> > > > Changes v1->v2:
-> > > > - make selinux_log() synchronized instead of introducing selinux_lo=
-g_sync()
-> > > > - fix -Wcomma warning
-> > > > - update the swig files as well
-> > > > - bump new symbol version to LIBSELINUX_3.3 (this may need further =
-update
-> > > >   depending on when this gets merged)
-> > > >
-> > > > Ondrej Mosnacek (6):
-> > > >   selinux_restorecon: simplify fl_head allocation by using calloc()
-> > > >   selinux_restorecon: protect file_spec list with a mutex
-> > > >   libselinux: make selinux_log() thread-safe
-> > > >   selinux_restorecon: add a global mutex to synchronize progress ou=
-tput
-> > > >   selinux_restorecon: introduce selinux_restorecon_parallel(3)
-> > > >   setfiles/restorecon: support parallel relabeling
-> > > >
-> > > >  libselinux/include/selinux/restorecon.h       |  14 +
-> > > >  libselinux/man/man3/selinux_restorecon.3      |  29 ++
-> > > >  .../man/man3/selinux_restorecon_parallel.3    |   1 +
-> > > >  libselinux/src/callbacks.c                    |   8 +-
-> > > >  libselinux/src/callbacks.h                    |  13 +-
-> > > >  libselinux/src/libselinux.map                 |   5 +
-> > > >  libselinux/src/selinux_internal.h             |  14 +
-> > > >  libselinux/src/selinux_restorecon.c           | 466 ++++++++++++--=
-----
-> > > >  libselinux/src/selinuxswig_python.i           |   6 +-
-> > > >  libselinux/src/selinuxswig_python_exception.i |   8 +
-> > > >  policycoreutils/setfiles/Makefile             |   2 +-
-> > > >  policycoreutils/setfiles/restore.c            |   7 +-
-> > > >  policycoreutils/setfiles/restore.h            |   2 +-
-> > > >  policycoreutils/setfiles/restorecon.8         |   9 +
-> > > >  policycoreutils/setfiles/setfiles.8           |   9 +
-> > > >  policycoreutils/setfiles/setfiles.c           |  28 +-
-> > > >  16 files changed, 444 insertions(+), 177 deletions(-)
-> > > >  create mode 100644 libselinux/man/man3/selinux_restorecon_parallel=
-.3
-> > > >
-> > > > --
-> > > > 2.31.1
-> > > >
-> > >
-> > >
-> > > Running under ThreadSanitizer shows multiple instances of the followi=
-ng issue:
-> > >
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > WARNING: ThreadSanitizer: data race (pid=3D16933)
-> > >   Read of size 4 at 0x7f8790d636f4 by thread T2:
-> > >     #0 lookup_all ./libselinux/src/label_file.c:954 (libselinux.so.1+=
-0x14d1b)
-> > >     #1 lookup_common ./libselinux/src/label_file.c:997 (libselinux.so=
-.1+0x14f62)
-> > >     #2 lookup ./libselinux/src/label_file.c:1095 (libselinux.so.1+0x1=
-4fff)
-> > >     #3 selabel_lookup_common ./libselinux/src/label.c:167
-> > > (libselinux.so.1+0x12291)
-> > >     #4 selabel_lookup_raw ./libselinux/src/label.c:256 (libselinux.so=
-.1+0x126ca)
-> > >     #5 restorecon_sb ./libselinux/src/selinux_restorecon.c:638
-> > > (libselinux.so.1+0x20c76)
-> > >     #6 selinux_restorecon_thread
-> > > ./libselinux/src/selinux_restorecon.c:947 (libselinux.so.1+0x21e99)
-> > >
-> > >   Previous write of size 4 at 0x7f8790d636f4 by thread T1:
-> > >     #0 lookup_all ./libselinux/src/label_file.c:954 (libselinux.so.1+=
-0x14d29)
-> > >     #1 lookup_common ./libselinux/src/label_file.c:997 (libselinux.so=
-.1+0x14f62)
-> > >     #2 lookup ./libselinux/src/label_file.c:1095 (libselinux.so.1+0x1=
-4fff)
-> > >     #3 selabel_lookup_common ./libselinux/src/label.c:167
-> > > (libselinux.so.1+0x12291)
-> > >     #4 selabel_lookup_raw ./libselinux/src/label.c:256 (libselinux.so=
-.1+0x126ca)
-> > >     #5 restorecon_sb ./libselinux/src/selinux_restorecon.c:638
-> > > (libselinux.so.1+0x20c76)
-> > >     #6 selinux_restorecon_thread
-> > > ./libselinux/src/selinux_restorecon.c:947 (libselinux.so.1+0x21e99)
-> > >
-> > >   Location is heap block of size 267120 at 0x7f8790d45000 allocated b=
-y
-> > > main thread:
-> > >     #0 malloc ../../../../src/libsanitizer/tsan/tsan_interceptors_pos=
-ix.cpp:655
-> > > (libtsan.so.0+0x31799)
-> > >     #1 sort_specs ./libselinux/src/label_file.h:207 (libselinux.so.1+=
-0x17bd9)
-> > >     #2 init ./libselinux/src/label_file.c:795 (libselinux.so.1+0x17bd=
-9)
-> > >     #3 selabel_file_init ./libselinux/src/label_file.c:1293
-> > > (libselinux.so.1+0x1835b)
-> > >     #4 selabel_open ./libselinux/src/label.c:228 (libselinux.so.1+0x1=
-25d8)
-> > >     #5 restore_init ./policycoreutils/setfiles/restore.c:30 (setfiles=
-+0x3886)
-> > >     #6 main ./policycoreutils/setfiles/setfiles.c:434 (setfiles+0x344=
-e)
-> > >
-> > >   Thread T2 (tid=3D16940, running) created by main thread at:
-> > >     #0 pthread_create
-> > > ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:969
-> > > (libtsan.so.0+0x5ad75)
-> > >     #1 selinux_restorecon_common
-> > > ./libselinux/src/selinux_restorecon.c:1197 (libselinux.so.1+0x2341c)
-> > >     #2 selinux_restorecon_parallel
-> > > ./libselinux/src/selinux_restorecon.c:1306 (libselinux.so.1+0x23985)
-> > >     #3 process_glob ./policycoreutils/setfiles/restore.c:94 (setfiles=
-+0x3ba4)
-> > >     #4 main ./policycoreutils/setfiles/setfiles.c:463 (setfiles+0x362=
-a)
-> > >
-> > >   Thread T1 (tid=3D16939, running) created by main thread at:
-> > >     #0 pthread_create
-> > > ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:969
-> > > (libtsan.so.0+0x5ad75)
-> > >     #1 selinux_restorecon_common
-> > > ./libselinux/src/selinux_restorecon.c:1197 (libselinux.so.1+0x2341c)
-> > >     #2 selinux_restorecon_parallel
-> > > ./libselinux/src/selinux_restorecon.c:1306 (libselinux.so.1+0x23985)
-> > >     #3 process_glob ./policycoreutils/setfiles/restore.c:94 (setfiles=
-+0x3ba4)
-> > >     #4 main ./policycoreutils/setfiles/setfiles.c:463 (setfiles+0x362=
-a)
-> > >
-> > > SUMMARY: ThreadSanitizer: data race ./libselinux/src/label_file.c:954
-> > > in lookup_all
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >
-> > Good catch, although this one seems to be pre-existing w.r.t. thread
-> > safety of selinux_restorecon(3) (which seems to be implied by the
-> > existence of struct spec::regex_lock). I spotted some existing usage
-> > of GCC atomic builtins, so I'll try to fix it using those.
-> >
-> > > Also some thread joins seems to be missing:
-> > >
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > WARNING: ThreadSanitizer: thread leak (pid=3D16933)
-> > >   Thread T1 (tid=3D16939, finished) created by main thread at:
-> > >     #0 pthread_create
-> > > ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:969
-> > > (libtsan.so.0+0x5ad75)
-> > >     #1 selinux_restorecon_common
-> > > ./libselinux/src/selinux_restorecon.c:1197 (libselinux.so.1+0x2341c)
-> > >     #2 selinux_restorecon_parallel
-> > > ./libselinux/src/selinux_restorecon.c:1306 (libselinux.so.1+0x23985)
-> > >     #3 process_glob ./policycoreutils/setfiles/restore.c:94 (setfiles=
-+0x3ba4)
-> > >     #4 main ./policycoreutils/setfiles/setfiles.c:463 (setfiles+0x362=
-a)
-> > >
-> > >   And 2 more similar thread leaks.
-> > >
-> > > SUMMARY: ThreadSanitizer: thread leak
-> > > ./libselinux/src/selinux_restorecon.c:1197 in
-> > > selinux_restorecon_common
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >
-> > Hm... My intention was to avoid the need for joins by synchronizing
-> > via other means and just letting the threads exit on their own, but I
-> > guess that doesn't fly with the sanitizer. Guess I'll have to allocate
-> > an array for the handles and join the threads at the end after all...
+On Sat, 16 Oct 2021 at 20:43, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> So I was able to get ThreadSanitizer to detect the race (by using only
-> two threads and a very small number of files), but then the program
-> just runs forever and I never get to see the thread leaks... Any hints
-> on how you ran/compiled it to see the thread leaks? Or how long you
-> had to wait for the program to finish? BTW, I only managed to get
-> thread sanitizer to work with GCC. With CLang I always got some linker
-> error...
+> On Fri, Oct 15, 2021 at 2:31 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Glibc 2.34 added an access function attribute to pthread_setspecific(3)=
+.
+> > This leads to the following GCC warnings:
+> >
+> >     In file included from matchpathcon.c:5:
+> >     matchpathcon.c: In function =E2=80=98matchpathcon_init_prefix=E2=80=
+=99:
+> >     selinux_internal.h:38:25: error: =E2=80=98pthread_setspecific=E2=80=
+=99 expecting 1 byte in a region of size 0 [-Werror=3Dstringop-overread]
+> >        38 |                         pthread_setspecific(KEY, VALUE);   =
+     \
+> >           |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> >     matchpathcon.c:359:9: note: in expansion of macro =E2=80=98__selinu=
+x_setspecific=E2=80=99
+> >       359 |         __selinux_setspecific(destructor_key, (void *)1);
+> >           |         ^~~~~~~~~~~~~~~~~~~~~
+> >     In file included from selinux_internal.h:2,
+> >                      from matchpathcon.c:5:
+> >     /usr/include/pthread.h:1167:12: note: in a call to function =E2=80=
+=98pthread_setspecific=E2=80=99 declared with attribute =E2=80=98access (no=
+ne, 2)=E2=80=99
+> >      1167 | extern int pthread_setspecific (pthread_key_t __key,
+> >           |            ^~~~~~~~~~~~~~~~~~~
+> >
+> > The actual value and the validity of the passed pointer is irrelevant,
+> > since it does not gets accessed internally by glibc and
+> > pthread_getspecific(3) is not used.
+> > Use a pointer to a (temporary) valid object to please GCC.
+> >
+> > Closes: https://github.com/SELinuxProject/selinux/issues/311
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  libselinux/src/matchpathcon.c   | 4 +++-
+> >  libselinux/src/procattr.c       | 4 +++-
+> >  libselinux/src/setrans_client.c | 4 +++-
+> >  3 files changed, 9 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathco=
+n.c
+> > index 1e7f8890..b0ec1e8b 100644
+> > --- a/libselinux/src/matchpathcon.c
+> > +++ b/libselinux/src/matchpathcon.c
+> > @@ -352,11 +352,13 @@ static void matchpathcon_init_once(void)
+> >
+> >  int matchpathcon_init_prefix(const char *path, const char *subset)
+> >  {
+> > +       int dummy;
+> > +
+> >         if (!mycanoncon)
+> >                 mycanoncon =3D default_canoncon;
+> >
+> >         __selinux_once(once, matchpathcon_init_once);
+> > -       __selinux_setspecific(destructor_key, (void *)1);
+> > +       __selinux_setspecific(destructor_key, &dummy);
+> >
+> >         options[SELABEL_OPT_SUBSET].type =3D SELABEL_OPT_SUBSET;
+> >         options[SELABEL_OPT_SUBSET].value =3D subset;
+> > diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> > index 6552ee01..24cee323 100644
+> > --- a/libselinux/src/procattr.c
+> > +++ b/libselinux/src/procattr.c
+> > @@ -68,7 +68,9 @@ void  __attribute__((destructor)) procattr_destructor=
+(void)
+> >  static inline void init_thread_destructor(void)
+> >  {
+> >         if (destructor_initialized =3D=3D 0) {
+> > -               __selinux_setspecific(destructor_key, (void *)1);
+> > +               int dummy;
+> > +
+> > +               __selinux_setspecific(destructor_key, &dummy);
+> >                 destructor_initialized =3D 1;
+> >         }
+> >  }
+> > diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_c=
+lient.c
+> > index 52a8ba78..515d2d4d 100644
+> > --- a/libselinux/src/setrans_client.c
+> > +++ b/libselinux/src/setrans_client.c
+> > @@ -272,7 +272,9 @@ static inline void init_thread_destructor(void)
+> >         if (!has_setrans)
+> >                 return;
+> >         if (destructor_initialized =3D=3D 0) {
+> > -               __selinux_setspecific(destructor_key, (void *)1);
+> > +               int dummy;
+> > +
+> > +               __selinux_setspecific(destructor_key, &dummy);
+> >                 destructor_initialized =3D 1;
+> >         }
+> >  }
+> > --
+> > 2.33.0
+> >
+>
+> Hello,
+> Thanks for working on this. While this patch fixes the precise
+> warning, I fear that future improvements on the analysis performed by
+> compilers (or by static analysis tools) will lead to future warnings,
+> as we are still abusing the pthread_setspecific interface after your
+> patch: "dummy" is not initialized (so a tool could report a "use of
+> uninitialized variable"), and is destroyed after the scope of the
+> functions (so a tool could report a "use after free" or a "use of a
+> stack pointer beyond its scope").
+>
+> These issues can be fixed by making dummy "static char dummy;" for
+> example. What do you think?
+>
 
-Seems it was getting stuck because of the lack of joins. Once I
-rewrote selinux_restorecon_common() to wait for the threads via
-pthread_join(), setfiles built with -fsanitize=3Dthread exited quickly
-and without warnings.
+I don't quite like introducing 3 static variables, although their
+footprint is probably negligible.
+What about using the address of a global variable, e.g.:
 
---=20
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+__selinux_setspecific(destructor_key, /* use some valid address to
+please GCC */ &selinux_mnt);
 
+> Thanks,
+> Nicolas
+>
