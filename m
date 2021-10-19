@@ -2,100 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04914C433F5
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 16:32:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FAFFC433EF
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 18:16:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DEB6860F9F
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 16:32:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6640F60ED3
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 18:16:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231526AbhJSQeU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Oct 2021 12:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37274 "EHLO
+        id S233760AbhJSSSW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Oct 2021 14:18:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbhJSQeT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 12:34:19 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E54DC06161C
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 09:32:06 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id ec8so15271474edb.6
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 09:32:06 -0700 (PDT)
+        with ESMTP id S232913AbhJSSSW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 14:18:22 -0400
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AD4DC06161C
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 11:16:09 -0700 (PDT)
+Received: by mail-qv1-xf2e.google.com with SMTP id o13so525563qvm.4
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 11:16:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=8xUa4jDp8wEq2+KyjYLUoyDAf9haNG/CAH7QLO3lCFg=;
-        b=Rk3hPiN1Cgn4j+zmGpM0dENIhRnzhwt3kwrJw0dXrtwRIVtz33CBjd1xw9nFoz4Y54
-         orSrK+/3veW61o8sx5I9LiM2oX+VL9+WV8tNCkfSFeACCFxjFpO8cuGdJWAtcl/R/iyd
-         JSllRqHrbTYt0SodjJZCokHVxZoY+roP3verKxSMGZha5nDo8UundCHVvMKz1yLlLX+A
-         Yv2x2RPOb7INYdlisfjqVAAnylzMCH1JejmnWqjvrI9KZfd5Z+AdFC3UQVR1xC3YrEtN
-         +oo8OMgQVykkiHbVa0UEw91IZP1jygwfZXxmIv3yzPWsmS4pbb1XvJ2GC/68Aw6XihBt
-         Rcaw==
+        h=subject:from:to:cc:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=dXghIocfAF3wOhpknZLUZlQYNFlP3or4qdCZ7nfofW8=;
+        b=C7on2hZmOo0cDAClw3++FkmzPvIPHzS9xX6fM7jboKq10e58p1eIIeIBfBkW4tHqi9
+         byGMmBOTDb4X/mplOzNYYnci3LmhkI9pZ76kFhTCS67j9/TwcoN6zC6ZmxNFxomCi64G
+         KslmEveIV9zQ17wUNW3c3zdGmDKnKutJp+6dewVdt2ZNX5Om8L7GsPBoRN2WWQPX0aZ3
+         tJtwQ3An/bEOzUPAisA4chfgXQKiMhZlCwnRKhYKRp70jWXeaa6+tTvZcTmXUMK4XPsu
+         /Ei5GWewUbOd6hyV1wk4k9Llgr4eDH0IU3w+3r96E1AoauaJXxnFFtVatybM7Puj1XeN
+         Icog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8xUa4jDp8wEq2+KyjYLUoyDAf9haNG/CAH7QLO3lCFg=;
-        b=PBsHRSrdoeoGxbsKBvpFC34ULRli5IBvnQHJyOX2bFdFsvemUNz1u+WtaAz5Bj4Nfs
-         f63SWtj9gPmXnVbLFofHkDsnccZVt3Y5HLN/Ew6JEpZdV6ObHF1acl5bVnXvhUbEZl0W
-         yWpLkuUyNh43fCscyPfpQ9GQzecqhducKWtR8WZmg3QTcoqnUsFeXUnlURg9qFCZgIg3
-         vQA7l5C68g9e7CfSv5UrYBPvQ8sof0zW66s2HjY8qfCp1IWlo3N2SQ68GrADbqUEGfqT
-         6znGvaI22QnvIeEMtfV+ddaiVryCsBr6QNm/z1wAavty5B0yi7wpWUfaZwbEwt3naXLG
-         NQZA==
-X-Gm-Message-State: AOAM5323F05CCEnubOFqDW74g0Uux1GeXxgtzcQd48vynYkAgziA9uyn
-        RAgcZThmbN46uIRFJCFpEurFAqL3lBiNWeoJ957N
-X-Google-Smtp-Source: ABdhPJx2DygXOAUIL+ZmjqAeaXSLbDoYpIDmg/VlX8my35/hQmEKkmgE44G+Jhusz2tWvG+Y9ihUjD2QYXGPH0taDhY=
-X-Received: by 2002:a05:6402:22d6:: with SMTP id dm22mr55776304edb.209.1634660962615;
- Tue, 19 Oct 2021 09:29:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+G9fYuY3BJ9osvhwg0-YG=L+etgCBfCq0koC9BEkvK8-GR3ew@mail.gmail.com>
- <20211019131049.GE28644@breakpoint.cc>
-In-Reply-To: <20211019131049.GE28644@breakpoint.cc>
+        h=x-gm-message-state:subject:from:to:cc:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=dXghIocfAF3wOhpknZLUZlQYNFlP3or4qdCZ7nfofW8=;
+        b=jYG02MgldfEqRioU8xkuIFy0TnsbMHfKDsfE0IgAX/xMXryKlwv+WCJsykmkJYF5cR
+         WoTQD33V9JuYTCz8VtT4ulyKWq+bxPNXLAXVyZVtlCqe3ukqqp3TQK58BFbW5VBuOE8Y
+         Rd+hSuLAtQG2S8uLZBCpdkWRVXKu3q4MN/9gjkShaCUSZEraHqmRwg+lLYgrptjy1Oev
+         Ry4TxnB92AR6KoV1F5PX5MlMs11fo3pe1uqGMEPSIJtA/TCxcnXuIYbm6/fQcw1xqzWk
+         ZwsQebmghLu1nM3lV+C5fdXnlbLKx/Qhx7JAX66qfu/0sq51VE/M6il+gC3f4Y1qqZtV
+         iV3A==
+X-Gm-Message-State: AOAM531GcIcyWxZSTyLxyiFdZSmTxlqMMVZQBjzulzy5bqaPZh9xFgQ7
+        BdRC8XJaUJYfTVVwNLonEC9i3gBAd/1P
+X-Google-Smtp-Source: ABdhPJzA9U4Ua0F1exBDBHHX91aVD1WsoZLi4m9ttXEwNHdWso+3pICyasX0HTdRsaaEIZywobUP2A==
+X-Received: by 2002:a05:6214:154d:: with SMTP id t13mr1594305qvw.40.1634667368045;
+        Tue, 19 Oct 2021 11:16:08 -0700 (PDT)
+Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
+        by smtp.gmail.com with ESMTPSA id bk7sm6687444qkb.72.2021.10.19.11.16.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Oct 2021 11:16:07 -0700 (PDT)
+Subject: [PATCH] selinux: fix a sock regression in
+ selinux_ip_postroute_compat()
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 19 Oct 2021 12:29:11 -0400
-Message-ID: <CAHC9VhTobH9ExRt5fLx+S9ibRipeA4pj8yFhjDKb0Buq6naD5A@mail.gmail.com>
-Subject: Re: [next] BUG: kernel NULL pointer dereference, address:: selinux_ip_postroute_compat
-To:     Florian Westphal <fw@strlen.de>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        selinux@vger.kernel.org,
-        Linux-Next Mailing List <linux-next@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>, lkft-triage@lists.linaro.org,
-        Eric Paris <eparis@parisplace.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org
+Cc:     Florian Westphal <fw@strlen.de>
+Date:   Tue, 19 Oct 2021 14:16:06 -0400
+Message-ID: <163466736648.20044.16531188246866586566.stgit@olly>
+User-Agent: StGit/1.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 9:10 AM Florian Westphal <fw@strlen.de> wrote:
->
-> Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> > Following kernel crash noticed on linux next 20211019 tag.
-> > on x86, i386 and other architectures.
->
-> Paul, this might be caused by
-> 1d1e1ded13568be81a0e19d228e310a48997bec8
-> ("selinux: make better use of the nf_hook_state passed to the NF
->  hooks"), in particular this hunk here:
->
-> -       if (sk == NULL)
-> +       if (state->sk == NULL)
->                 return NF_ACCEPT;
-> +       sk = skb_to_full_sk(skb);
->         sksec = sk->sk_security;
->
-> state->sk might not be related to skb->sk.
-> I suspect that this should instead be:
->
-> +       sk = skb_to_full_sk(skb);
->         if (sk == NULL)
->
-> See 7026b1ddb6b8d4e6ee33dc2bd06c0ca8746fa7ab for the origin of this
-> additional socket pointer.
+Unfortunately we can't rely on nf_hook_state->sk being the proper
+originating socket so revert to using skb_to_full_sk(skb).
 
-Sure, I'll patch that up now.
+Fixes: 1d1e1ded1356 ("1d1e1ded13568be81a0e19d228e310a48997bec8")
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Suggested-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
--- 
-paul moore
-www.paul-moore.com
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b4a1bde20261..6f08cd2fc6a8 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5778,9 +5778,9 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 	struct lsm_network_audit net = {0,};
+ 	u8 proto;
+ 
+-	if (state->sk == NULL)
+-		return NF_ACCEPT;
+ 	sk = skb_to_full_sk(skb);
++	if (sk == NULL)
++		return NF_ACCEPT;
+ 	sksec = sk->sk_security;
+ 
+ 	ad.type = LSM_AUDIT_DATA_NET;
+
