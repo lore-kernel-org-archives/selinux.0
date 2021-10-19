@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C8DC433F5
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:41:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C9A5C433F5
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:50:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6303E61212
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:41:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AA5F610A2
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:50:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbhJSMn1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Oct 2021 08:43:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39802 "EHLO
+        id S235716AbhJSMxA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Oct 2021 08:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230231AbhJSMn0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 08:43:26 -0400
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0A6C06161C
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:41:14 -0700 (PDT)
-Received: by mail-oo1-xc2b.google.com with SMTP id o26-20020a4abe9a000000b002b74bffdef0so932068oop.12
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:41:14 -0700 (PDT)
+        with ESMTP id S235714AbhJSMxA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 08:53:00 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FE07C06161C
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:50:47 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id l16-20020a9d6a90000000b0054e7ab56f27so3863337otq.12
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:50:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Yd3rdgZTCv8CxAVBk9LM+6TKpW9/Macei4AzbdSnl94=;
-        b=cTyhak2Lcr6Jp/5KTH1ZmL1LDK/DKWWqAit2D27XCqxHzcRD0cX91+PgtS+sea3r5U
-         VKSJzo59maJ+GmVJtu+itAPXN3MNmbXnQ6gaPwF4RwF6+8ATMOx1SS9DqkMH1p7dU6MN
-         EJy8NK8g51d412BkbWsC7LQeHm7vcvOCiyYS6awTPnJ00mI9jVIE1WkGwTo5c5bMiChv
-         /smWLqv3VYEEMScEYeb/td427Jfa2DHNocO+5Izz3YOj5O6y2Gobwfz5oSOqAtb7LAuB
-         11U6uR/USAJ5d3nTXZvrFTQyMaM2G098NVs3MivaNF45CZqzjlruqfOTd08HYVrR+XRz
-         4B6Q==
+        bh=nIAYh3QbGMqMqrdt1o+BK9SyUdzCz9SIsHJhkQuOOUk=;
+        b=DrlOXX6mOHJyvO6ERaksRGTLfPwBK3rw0WRpPGkewIB1Vw92EAXb1cQWTLvfSIRsLj
+         uFxtvg//u6A5gBi4sSJenB0++jbmz0b0HV6GCX1TwTI4Idb6RUyRCYCtt40QBm48VJD8
+         vXHvaOKm0B0DJcxl61E4Fy9NgWK5gjtACS3rgoWSO0m3Ybz0erPfYxGGWYsc0hc2mNun
+         0GtKO3N396wUDT3ZVhJxTC4DzkJu4rUY1pJRscroK9hGXPFC80qE1Amxvkw25W2eZDzj
+         7W51S766HJ6ZbOPjzEdXFuhFLwzr42mNS8XCN5CCCKYagevUAQXxFVYOEqYZTrRQ/C/G
+         Z96w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Yd3rdgZTCv8CxAVBk9LM+6TKpW9/Macei4AzbdSnl94=;
-        b=J1DSPgr4mzrpvWR+sR5QN1PNqSpVcQFruggRzRkJyiMqg71kGBGvvsG84JkKxz2OZG
-         B46lDva4fQ4PynG7thISKCkFHPlUnsEWWH+ON1hjETV9B0F5WRDgC+7hkSsD6F0ECt/J
-         RRE01lieBUDoIdMdMlP3rAiA4co+6bPBkuoF0ZQR8IkZNJg4bXUMw57XUel8s+EV++ig
-         UoHP4i/1AMRKOEb7ecwuN2I6VyNlTWoDcg0bN/0H2jC4ZTUdCGeBPDv5AZp/7wRCT4c6
-         lr8mn13Q+1mBEjuWDOB1DU3gULfJnfyWN9CcjNOIk7OQuFKWySYHnK/DQysdtc+TfQFM
-         d1dw==
-X-Gm-Message-State: AOAM532QA5EC9XWPrV3a2e2diCH7wR733zIK9ptNP9h+8rtoR5LoJXkm
-        bXrSGcnUcuIi6O412H9yMfZB1uXnh36/yzcUTRE=
-X-Google-Smtp-Source: ABdhPJxXlf6BYIGgq1V4HJSxtxXyC1pWp1PUUUz4bAgcauhTuNevP+mTFaKZ00YvzuNIoWAggncx9EoB34B/WJNjCWg=
-X-Received: by 2002:a4a:4548:: with SMTP id y69mr4487001ooa.52.1634647273077;
- Tue, 19 Oct 2021 05:41:13 -0700 (PDT)
+        bh=nIAYh3QbGMqMqrdt1o+BK9SyUdzCz9SIsHJhkQuOOUk=;
+        b=qezo2gkTKw2XIK1rhaPq7rSPJQjMsYtIsI68hPaBRAhGsSqkXtEeGaLYDd/KtQVHA7
+         ZheN4qNYb3nl3BLz/tiWWaGy8vwSB9dnyl5Nb4Gi7lolVcYJSyqr7ToXlNXT9pfOMKvU
+         iv+dgPpv3QyxUAb7wsV5FzNQ+FaY+cdcklnH2hlpOfXUDquskHgdv41XAuJ4bHlZDV1E
+         hZqDaaVbpHK3N2+LZg2zeqsF1pE0tHrk6aF30Rku/uIUYzs5/F8zIVw+Q1/5r+wI2/JJ
+         QV9+XzKfvDM4MW6ITFFKjDCWyLfrw6h06quemhzF9hzlgJ/9sM0zkd7et1WqbVkZH98y
+         c8fw==
+X-Gm-Message-State: AOAM531E5Ho+lOET/3FWDIvE7nFIZc0qBoQYHF9poIqT6KrfknK9tRcw
+        qtDnrOnUAqV10OHZuYWH1PTd57wUaLH7Go8m4W+L4VlUJ1jXDA==
+X-Google-Smtp-Source: ABdhPJz6iYNtDYHLs7mdJPaTFTNh9VOXmscUigQdaIkBItVJcLV4PZe5D6sbCA7o3alyhC9LuuxkilrVfxJtjpDT2zg=
+X-Received: by 2002:a9d:60dd:: with SMTP id b29mr4980367otk.117.1634647846682;
+ Tue, 19 Oct 2021 05:50:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211015123100.15785-1-cgzones@googlemail.com> <CAJfZ7=nUJOScc+gSLd6xLouFm69iW9-a8WrvxCPZxCO34YABpQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nUJOScc+gSLd6xLouFm69iW9-a8WrvxCPZxCO34YABpQ@mail.gmail.com>
+References: <20211013125358.15534-1-cgzones@googlemail.com> <CAJfZ7=kcmhox2sToZjCS0YKfwZ0TgNqsMpTOe5PUR80zPgB4ig@mail.gmail.com>
+In-Reply-To: <CAJfZ7=kcmhox2sToZjCS0YKfwZ0TgNqsMpTOe5PUR80zPgB4ig@mail.gmail.com>
 From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 19 Oct 2021 14:41:02 +0200
-Message-ID: <CAJ2a_DcsT_Mun-NZ2A9zZLeXZaXhc-1fdbX2scjSFuqpCkEPTA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: use dummy variable to silence glibc 2.34 warnings
+Date:   Tue, 19 Oct 2021 14:50:35 +0200
+Message-ID: <CAJ2a_De2P8ivkbagD1qYAPk80QY77VKTEOHaY2M6Wc1XYLFKUg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsepol: do not pass NULL to memcpy
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -61,125 +61,135 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, 16 Oct 2021 at 20:43, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Sat, 16 Oct 2021 at 21:30, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> On Fri, Oct 15, 2021 at 2:31 PM Christian G=C3=B6ttsche
+> On Wed, Oct 13, 2021 at 2:54 PM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > Glibc 2.34 added an access function attribute to pthread_setspecific(3)=
-.
-> > This leads to the following GCC warnings:
+> > For the first iteration `mod->perm_map[sclassi]` is NULL, thus do not
+> > use it as source of a memcpy(3), even with a size of 0.  memcpy(3) migh=
+t
+> > be annotated with the function attribute nonnull and UBSan then
+> > complains:
 > >
-> >     In file included from matchpathcon.c:5:
-> >     matchpathcon.c: In function =E2=80=98matchpathcon_init_prefix=E2=80=
-=99:
-> >     selinux_internal.h:38:25: error: =E2=80=98pthread_setspecific=E2=80=
-=99 expecting 1 byte in a region of size 0 [-Werror=3Dstringop-overread]
-> >        38 |                         pthread_setspecific(KEY, VALUE);   =
-     \
-> >           |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >     matchpathcon.c:359:9: note: in expansion of macro =E2=80=98__selinu=
-x_setspecific=E2=80=99
-> >       359 |         __selinux_setspecific(destructor_key, (void *)1);
-> >           |         ^~~~~~~~~~~~~~~~~~~~~
-> >     In file included from selinux_internal.h:2,
-> >                      from matchpathcon.c:5:
-> >     /usr/include/pthread.h:1167:12: note: in a call to function =E2=80=
-=98pthread_setspecific=E2=80=99 declared with attribute =E2=80=98access (no=
-ne, 2)=E2=80=99
-> >      1167 | extern int pthread_setspecific (pthread_key_t __key,
-> >           |            ^~~~~~~~~~~~~~~~~~~
+> >     link.c:193:3: runtime error: null pointer passed as argument 2, whi=
+ch is declared to never be null
 > >
-> > The actual value and the validity of the passed pointer is irrelevant,
-> > since it does not gets accessed internally by glibc and
-> > pthread_getspecific(3) is not used.
-> > Use a pointer to a (temporary) valid object to please GCC.
+> > Use a realloc + memset instead of a calloc and free to increase the siz=
+e
+> > of `mod->perm_map[sclassi]`.
 > >
-> > Closes: https://github.com/SELinuxProject/selinux/issues/311
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > > ---
-> >  libselinux/src/matchpathcon.c   | 4 +++-
-> >  libselinux/src/procattr.c       | 4 +++-
-> >  libselinux/src/setrans_client.c | 4 +++-
-> >  3 files changed, 9 insertions(+), 3 deletions(-)
+> >  libsepol/src/link.c | 6 ++----
+> >  1 file changed, 2 insertions(+), 4 deletions(-)
 > >
-> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathco=
-n.c
-> > index 1e7f8890..b0ec1e8b 100644
-> > --- a/libselinux/src/matchpathcon.c
-> > +++ b/libselinux/src/matchpathcon.c
-> > @@ -352,11 +352,13 @@ static void matchpathcon_init_once(void)
-> >
-> >  int matchpathcon_init_prefix(const char *path, const char *subset)
-> >  {
-> > +       int dummy;
-> > +
-> >         if (!mycanoncon)
-> >                 mycanoncon =3D default_canoncon;
-> >
-> >         __selinux_once(once, matchpathcon_init_once);
-> > -       __selinux_setspecific(destructor_key, (void *)1);
-> > +       __selinux_setspecific(destructor_key, &dummy);
-> >
-> >         options[SELABEL_OPT_SUBSET].type =3D SELABEL_OPT_SUBSET;
-> >         options[SELABEL_OPT_SUBSET].value =3D subset;
-> > diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-> > index 6552ee01..24cee323 100644
-> > --- a/libselinux/src/procattr.c
-> > +++ b/libselinux/src/procattr.c
-> > @@ -68,7 +68,9 @@ void  __attribute__((destructor)) procattr_destructor=
-(void)
-> >  static inline void init_thread_destructor(void)
-> >  {
-> >         if (destructor_initialized =3D=3D 0) {
-> > -               __selinux_setspecific(destructor_key, (void *)1);
-> > +               int dummy;
-> > +
-> > +               __selinux_setspecific(destructor_key, &dummy);
-> >                 destructor_initialized =3D 1;
-> >         }
-> >  }
-> > diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_c=
-lient.c
-> > index 52a8ba78..515d2d4d 100644
-> > --- a/libselinux/src/setrans_client.c
-> > +++ b/libselinux/src/setrans_client.c
-> > @@ -272,7 +272,9 @@ static inline void init_thread_destructor(void)
-> >         if (!has_setrans)
-> >                 return;
-> >         if (destructor_initialized =3D=3D 0) {
-> > -               __selinux_setspecific(destructor_key, (void *)1);
-> > +               int dummy;
-> > +
-> > +               __selinux_setspecific(destructor_key, &dummy);
-> >                 destructor_initialized =3D 1;
-> >         }
-> >  }
-> > --
-> > 2.33.0
-> >
+> > diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+> > index 7512a4d9..75ce2b20 100644
+> > --- a/libsepol/src/link.c
+> > +++ b/libsepol/src/link.c
+> > @@ -185,14 +185,12 @@ static int permission_copy_callback(hashtab_key_t=
+ key, hashtab_datum_t datum,
+> >          * may have originated from the class -or- it could be from
+> >          * the class's common parent.*/
+> >         if (perm->s.value > mod->perm_map_len[sclassi]) {
+> > -               uint32_t *newmap =3D calloc(perm->s.value, sizeof(*newm=
+ap));
+> > +               uint32_t *newmap =3D realloc(mod->perm_map[sclassi], pe=
+rm->s.value * sizeof(*newmap));
 >
 > Hello,
-> Thanks for working on this. While this patch fixes the precise
-> warning, I fear that future improvements on the analysis performed by
-> compilers (or by static analysis tools) will lead to future warnings,
-> as we are still abusing the pthread_setspecific interface after your
-> patch: "dummy" is not initialized (so a tool could report a "use of
-> uninitialized variable"), and is destroyed after the scope of the
-> functions (so a tool could report a "use after free" or a "use of a
-> stack pointer beyond its scope").
->
-> These issues can be fixed by making dummy "static char dummy;" for
-> example. What do you think?
+> It seems sad to transform a calloc call to an explicit multiplication
+> which can overflow. Nowadays glibc provides reallocarray, for a
+> "realloc with multiplication overflow checking". Could you use it here
+> instead?
 >
 
-I don't quite like introducing 3 static variables, although their
-footprint is probably negligible.
-What about using the address of a global variable, e.g.:
+Yes, I thought about that, but I wanted this diff to be as small as possibl=
+e.
+One option would be to wait until reallocarray is available (via
+fallback or requirement (see later)) or keep the calloc+memcpy, but
+not invoke the memset on a size of 0.
 
-__selinux_setspecific(destructor_key, /* use some valid address to
-please GCC */ &selinux_mnt);
+> I saw in another patch ([RFC PATCH 09/35] libsepol: use reallocarray
+> wrapper to avoid overflows ;
+> https://lore.kernel.org/selinux/20211011162533.53404-10-cgzones@googlemai=
+l.com/T/#u)
+> that you introduced reallocarray calls in other places, with a
+> fallback implementation for systems which lack it. When I saw it, I
+> was wondering: which C library does not provide this function?
+>
+> - glibc has it since version 2.29 (according to
+> https://man7.org/linux/man-pages/man3/realloc.3.html ; this version
+> was released on 2019-02-01)
+> - musl has it since version 1.2.2 (thanks to
+> https://git.musl-libc.org/cgit/musl/commit/?id=3D821083ac7b54eaa040d5a8dd=
+c67c6206a175e0ca
+> ; released on 2021-01-15)
+> - bionic has it since 2018
+> (https://android.googlesource.com/platform/bionic/+/b177085ce7219562eecf7=
+7f2e8de49f8f2605005%5E%21/)
+> - newlib has it since 2017
+> (https://sourceware.org/git/?p=3Dnewlib-cygwin.git;a=3Dcommitdiff;h=3Deb1=
+4d0cc649978c10928bf38c1847f295bf0de69)
+>
+> However uclic-ng 1.0.39 (released ten days ago) does not provide
+> reallocarray. It is the only maintained and open-source C library
+> compatible with Linux that I could find which would not provide
+> reallocarray. Did I miss a library which is likely to be used by
+> libsepol users?
+>
+> In my humble opinion, this means that for future releases we can
+> consider that systems are expected to provide reallocarray, and that
+> we can introduce a Makefile variable which would introduce a custom
+> internal reallocarray implementation in libsepol. This means that I
+> suggest using something like this in libsepol/src/Makefile:
+>
+> USE_INTERNAL_REALLOCARRAY ?=3D n
+> ifeq (USE_INTERNAL_REALLOCARRAY, y)
+>   CFLAGS +=3D -DUSE_INTERNAL_REALLOCARRAY
+> endif
+>
+> and I suggest putting the internal reallocarray implementation from
+> your patch in libsepol/src/private.h (like you did), around "#ifdef
+> USE_INTERNAL_REALLOCARRAY" statements. This way, libsepol would work
+> out-of-the-box on most systems, would be compatible on systems without
+> reallocarray by using "make USE_INTERNAL_REALLOCARRAY=3Dy", and would
+> not try to auto-detect it at build-time by some compiler magic in
+> Makefile (which would avoid issues similar as the one libapparmor had
+> in http://lists.busybox.net/pipermail/buildroot/2020-October/294691.html)=
+.
+> What do you think of these suggestions?
+>
+
+Looking for example at
+https://github.com/SELinuxProject/selinux/commit/4859b738136ef8889fbb71a166=
+cfec8d313ba4e0
+(supporting gcc 4.8) I am not sure what compilers and standard C
+libraries should be supported for building the SELinux userland
+libraries and tools. Until any statement of the maintainer team, I
+prefer the Makefile hack from
+https://lore.kernel.org/selinux/20211011162533.53404-10-cgzones@googlemail.=
+com/T/#u
+to support standard C libraries without reallocarray(3).
+
 
 > Thanks,
 > Nicolas
+>
+> >                 if (newmap =3D=3D NULL) {
+> >                         ERR(state->handle, "Out of memory!");
+> >                         return -1;
+> >                 }
+> > -               memcpy(newmap, mod->perm_map[sclassi],
+> > -                      mod->perm_map_len[sclassi] * sizeof(*newmap));
+> > -               free(mod->perm_map[sclassi]);
+> > +               memset(newmap + mod->perm_map_len[sclassi], '\0', perm-=
+>s.value - mod->perm_map_len[sclassi]);
+> >                 mod->perm_map[sclassi] =3D newmap;
+> >                 mod->perm_map_len[sclassi] =3D perm->s.value;
+> >         }
+> > --
+> > 2.33.0
+> >
 >
