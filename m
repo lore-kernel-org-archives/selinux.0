@@ -2,194 +2,160 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C9A5C433F5
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:50:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38BFEC433EF
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:54:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AA5F610A2
-	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:50:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2136161360
+	for <selinux@archiver.kernel.org>; Tue, 19 Oct 2021 12:54:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235716AbhJSMxA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Oct 2021 08:53:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42008 "EHLO
+        id S235684AbhJSM4g (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Oct 2021 08:56:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235714AbhJSMxA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 08:53:00 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FE07C06161C
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:50:47 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id l16-20020a9d6a90000000b0054e7ab56f27so3863337otq.12
-        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:50:47 -0700 (PDT)
+        with ESMTP id S230097AbhJSM4f (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Oct 2021 08:56:35 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD22C06161C
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:54:22 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id w19so12463739edd.2
+        for <selinux@vger.kernel.org>; Tue, 19 Oct 2021 05:54:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=nIAYh3QbGMqMqrdt1o+BK9SyUdzCz9SIsHJhkQuOOUk=;
-        b=DrlOXX6mOHJyvO6ERaksRGTLfPwBK3rw0WRpPGkewIB1Vw92EAXb1cQWTLvfSIRsLj
-         uFxtvg//u6A5gBi4sSJenB0++jbmz0b0HV6GCX1TwTI4Idb6RUyRCYCtt40QBm48VJD8
-         vXHvaOKm0B0DJcxl61E4Fy9NgWK5gjtACS3rgoWSO0m3Ybz0erPfYxGGWYsc0hc2mNun
-         0GtKO3N396wUDT3ZVhJxTC4DzkJu4rUY1pJRscroK9hGXPFC80qE1Amxvkw25W2eZDzj
-         7W51S766HJ6ZbOPjzEdXFuhFLwzr42mNS8XCN5CCCKYagevUAQXxFVYOEqYZTrRQ/C/G
-         Z96w==
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=kHRyb3T+qamddAp9cLynID5NLJ6FfaF3XyicNPvPyEI=;
+        b=kloAA//XaI2scnZmIHxbPch8wyZX1ANlByyqPT+1BHf/GhwIMJHR7/N+/uN0gQK/0g
+         KsSHlstZvEpI5TqCh3U7aRhBaEDwKIntCiiv4Oz+zXr675vfT1Ixs5Bj3eaw52BfSuX1
+         qRjcbCyAg0QwhoeTX5M1BIVuUPABDBKjLVlt3KsHhWRPbQERgaLBZv2MV68ih/7XoP2/
+         HlXlavaCKiGgEfS9cDVk+G/+eA1XE9ybUBZbJb8aK1inx6Lcq1cuCqb+CpVp0THXH1wq
+         RO530m2/x9cNy9ZTmzMyZE7X8mDDmsHfeOpMX2vmx7yrTSbDcC5qHXHY/TPrzKUBh0vP
+         1dPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nIAYh3QbGMqMqrdt1o+BK9SyUdzCz9SIsHJhkQuOOUk=;
-        b=qezo2gkTKw2XIK1rhaPq7rSPJQjMsYtIsI68hPaBRAhGsSqkXtEeGaLYDd/KtQVHA7
-         ZheN4qNYb3nl3BLz/tiWWaGy8vwSB9dnyl5Nb4Gi7lolVcYJSyqr7ToXlNXT9pfOMKvU
-         iv+dgPpv3QyxUAb7wsV5FzNQ+FaY+cdcklnH2hlpOfXUDquskHgdv41XAuJ4bHlZDV1E
-         hZqDaaVbpHK3N2+LZg2zeqsF1pE0tHrk6aF30Rku/uIUYzs5/F8zIVw+Q1/5r+wI2/JJ
-         QV9+XzKfvDM4MW6ITFFKjDCWyLfrw6h06quemhzF9hzlgJ/9sM0zkd7et1WqbVkZH98y
-         c8fw==
-X-Gm-Message-State: AOAM531E5Ho+lOET/3FWDIvE7nFIZc0qBoQYHF9poIqT6KrfknK9tRcw
-        qtDnrOnUAqV10OHZuYWH1PTd57wUaLH7Go8m4W+L4VlUJ1jXDA==
-X-Google-Smtp-Source: ABdhPJz6iYNtDYHLs7mdJPaTFTNh9VOXmscUigQdaIkBItVJcLV4PZe5D6sbCA7o3alyhC9LuuxkilrVfxJtjpDT2zg=
-X-Received: by 2002:a9d:60dd:: with SMTP id b29mr4980367otk.117.1634647846682;
- Tue, 19 Oct 2021 05:50:46 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=kHRyb3T+qamddAp9cLynID5NLJ6FfaF3XyicNPvPyEI=;
+        b=OMdqHkozExxTyGCa8x7MxhS3ZSfb1EBSrRTGZd2b2oBVZynvA5YNg0Rg1/dfo/GRRz
+         fL4CZZs6drouxFNfh3dTB3hqx6ioNURWwXGOvW5khBHdEGu6L0Sycns2/xCsPRsr0zmI
+         xAq931U0hYvwVVkDHQf9PtFjVSVB2R23EYweEC0NhyEQL+VNHZuEbynI3TxmB69CUx32
+         z55qUpMbV9ERA6wWgtZzmkkVV64lWv040vSzXRGcOnUJ8PeK3WJCTXfO/fAUgajELMjf
+         XN9VH1TQI1XeOsMlA5ZXqaSzgz9Pk3Y7oASQBGkNZNEZXVH2I5ExUnMQ829fKeWzgUgi
+         M43w==
+X-Gm-Message-State: AOAM533fjkPnu6CYv0CK0mOhR3ZsauP2Ib4mGGaBhvreHumLIEnmHuZe
+        qUZSuGIRTye4agYcVsUcr6E8bClk+dAtWq2EpMmrjw==
+X-Google-Smtp-Source: ABdhPJxEw0ShxbPahbMOQkBJ4LTtwgUGU1HhWjzbq9TYIqT2JLuOrMhnR2uoHfH+SG6RXr7JdATbZsArRrubcRI5u4Q=
+X-Received: by 2002:a50:9993:: with SMTP id m19mr52700855edb.357.1634648061101;
+ Tue, 19 Oct 2021 05:54:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211013125358.15534-1-cgzones@googlemail.com> <CAJfZ7=kcmhox2sToZjCS0YKfwZ0TgNqsMpTOe5PUR80zPgB4ig@mail.gmail.com>
-In-Reply-To: <CAJfZ7=kcmhox2sToZjCS0YKfwZ0TgNqsMpTOe5PUR80zPgB4ig@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 19 Oct 2021 14:50:35 +0200
-Message-ID: <CAJ2a_De2P8ivkbagD1qYAPk80QY77VKTEOHaY2M6Wc1XYLFKUg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol: do not pass NULL to memcpy
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 19 Oct 2021 18:24:09 +0530
+Message-ID: <CA+G9fYuY3BJ9osvhwg0-YG=L+etgCBfCq0koC9BEkvK8-GR3ew@mail.gmail.com>
+Subject: [next] BUG: kernel NULL pointer dereference, address:: selinux_ip_postroute_compat
+To:     open list <linux-kernel@vger.kernel.org>, selinux@vger.kernel.org,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>, lkft-triage@lists.linaro.org
+Cc:     Florian Westphal <fw@strlen.de>, Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, 16 Oct 2021 at 21:30, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Wed, Oct 13, 2021 at 2:54 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > For the first iteration `mod->perm_map[sclassi]` is NULL, thus do not
-> > use it as source of a memcpy(3), even with a size of 0.  memcpy(3) migh=
-t
-> > be annotated with the function attribute nonnull and UBSan then
-> > complains:
-> >
-> >     link.c:193:3: runtime error: null pointer passed as argument 2, whi=
-ch is declared to never be null
-> >
-> > Use a realloc + memset instead of a calloc and free to increase the siz=
-e
-> > of `mod->perm_map[sclassi]`.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  libsepol/src/link.c | 6 ++----
-> >  1 file changed, 2 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-> > index 7512a4d9..75ce2b20 100644
-> > --- a/libsepol/src/link.c
-> > +++ b/libsepol/src/link.c
-> > @@ -185,14 +185,12 @@ static int permission_copy_callback(hashtab_key_t=
- key, hashtab_datum_t datum,
-> >          * may have originated from the class -or- it could be from
-> >          * the class's common parent.*/
-> >         if (perm->s.value > mod->perm_map_len[sclassi]) {
-> > -               uint32_t *newmap =3D calloc(perm->s.value, sizeof(*newm=
-ap));
-> > +               uint32_t *newmap =3D realloc(mod->perm_map[sclassi], pe=
-rm->s.value * sizeof(*newmap));
->
-> Hello,
-> It seems sad to transform a calloc call to an explicit multiplication
-> which can overflow. Nowadays glibc provides reallocarray, for a
-> "realloc with multiplication overflow checking". Could you use it here
-> instead?
->
+Following kernel crash noticed on linux next 20211019 tag.
+on x86, i386 and other architectures.
 
-Yes, I thought about that, but I wanted this diff to be as small as possibl=
-e.
-One option would be to wait until reallocarray is available (via
-fallback or requirement (see later)) or keep the calloc+memcpy, but
-not invoke the memset on a size of 0.
-
-> I saw in another patch ([RFC PATCH 09/35] libsepol: use reallocarray
-> wrapper to avoid overflows ;
-> https://lore.kernel.org/selinux/20211011162533.53404-10-cgzones@googlemai=
-l.com/T/#u)
-> that you introduced reallocarray calls in other places, with a
-> fallback implementation for systems which lack it. When I saw it, I
-> was wondering: which C library does not provide this function?
->
-> - glibc has it since version 2.29 (according to
-> https://man7.org/linux/man-pages/man3/realloc.3.html ; this version
-> was released on 2019-02-01)
-> - musl has it since version 1.2.2 (thanks to
-> https://git.musl-libc.org/cgit/musl/commit/?id=3D821083ac7b54eaa040d5a8dd=
-c67c6206a175e0ca
-> ; released on 2021-01-15)
-> - bionic has it since 2018
-> (https://android.googlesource.com/platform/bionic/+/b177085ce7219562eecf7=
-7f2e8de49f8f2605005%5E%21/)
-> - newlib has it since 2017
-> (https://sourceware.org/git/?p=3Dnewlib-cygwin.git;a=3Dcommitdiff;h=3Deb1=
-4d0cc649978c10928bf38c1847f295bf0de69)
->
-> However uclic-ng 1.0.39 (released ten days ago) does not provide
-> reallocarray. It is the only maintained and open-source C library
-> compatible with Linux that I could find which would not provide
-> reallocarray. Did I miss a library which is likely to be used by
-> libsepol users?
->
-> In my humble opinion, this means that for future releases we can
-> consider that systems are expected to provide reallocarray, and that
-> we can introduce a Makefile variable which would introduce a custom
-> internal reallocarray implementation in libsepol. This means that I
-> suggest using something like this in libsepol/src/Makefile:
->
-> USE_INTERNAL_REALLOCARRAY ?=3D n
-> ifeq (USE_INTERNAL_REALLOCARRAY, y)
->   CFLAGS +=3D -DUSE_INTERNAL_REALLOCARRAY
-> endif
->
-> and I suggest putting the internal reallocarray implementation from
-> your patch in libsepol/src/private.h (like you did), around "#ifdef
-> USE_INTERNAL_REALLOCARRAY" statements. This way, libsepol would work
-> out-of-the-box on most systems, would be compatible on systems without
-> reallocarray by using "make USE_INTERNAL_REALLOCARRAY=3Dy", and would
-> not try to auto-detect it at build-time by some compiler magic in
-> Makefile (which would avoid issues similar as the one libapparmor had
-> in http://lists.busybox.net/pipermail/buildroot/2020-October/294691.html)=
-.
-> What do you think of these suggestions?
->
-
-Looking for example at
-https://github.com/SELinuxProject/selinux/commit/4859b738136ef8889fbb71a166=
-cfec8d313ba4e0
-(supporting gcc 4.8) I am not sure what compilers and standard C
-libraries should be supported for building the SELinux userland
-libraries and tools. Until any statement of the maintainer team, I
-prefer the Makefile hack from
-https://lore.kernel.org/selinux/20211011162533.53404-10-cgzones@googlemail.=
-com/T/#u
-to support standard C libraries without reallocarray(3).
+[   15.197596] BUG: kernel NULL pointer dereference, address: 0000000000000290
+[   15.204577] #PF: supervisor read access in kernel mode
+[   15.204581] #PF: error_code(0x0000) - not-present page
+[   15.204585] PGD 0 P4D 0
+[   15.204592] Oops: 0000 [#1] PREEMPT SMP PTI
+[   15.204597] CPU: 2 PID: 352 Comm: systemd-resolve Not tainted
+5.15.0-rc6-next-20211019 #1
+[   15.204604] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.2 05/23/2018
+[   15.204607] RIP: 0010:selinux_ip_postroute_compat+0x55/0x110
+[   15.242847] Code: 48 89 45 e8 31 c0 48 83 7a 18 00 f3 48 ab 0f 84
+96 00 00 00 48 8b 43 18 48 85 c0 74 0d 0f b6 48 12 80 f9 0c 0f 84 a9
+00 00 00 <4c> 8b a0 90 02 00 00 48 8b 42 10 31 c9 48 89 df 48 89 75 98
+4c 8d
+[   15.261592] RSP: 0018:ffffb8fc0077f890 EFLAGS: 00010246
+[   15.266810] RAX: 0000000000000000 RBX: ffffa31a82ee7200 RCX: 0000000000000000
+[   15.273933] RDX: ffffb8fc0077fa18 RSI: ffffb8fc0077f8b8 RDI: ffffb8fc0077f8f0
+[   15.281059] RBP: ffffb8fc0077f908 R08: ffffb8fc0077f960 R09: 0000000000000000
+[   15.288180] R10: 0000000000000000 R11: ffffb8fc0077fb70 R12: ffffa31a82ee7200
+[   15.295305] R13: ffffb8fc0077fa18 R14: ffffa31a82ee7200 R15: ffffb8fc0077fa18
+[   15.302428] FS:  00007fc366df0840(0000) GS:ffffa31befb00000(0000)
+knlGS:0000000000000000
+[   15.310507] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   15.316242] CR2: 0000000000000290 CR3: 0000000107660002 CR4: 00000000003706e0
+[   15.323367] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   15.330492] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   15.337615] Call Trace:
+[   15.340061]  <TASK>
+[   15.342157]  ? alloc_skb_with_frags+0x4e/0x1b0
+[   15.346603]  ? _copy_from_iter+0xcd/0x5f0
+[   15.350614]  selinux_ip_postroute+0x18f/0x4a0
+[   15.354964]  ? ip_generic_getfrag+0x53/0xe0
+[   15.359145]  nf_hook_slow+0x44/0xb0
+[   15.362635]  ip_mc_output+0x184/0x310
+[   15.366292]  ? ip_frag_next+0x184/0x190
+[   15.370123]  ? ip_fraglist_init+0xb0/0xb0
+[   15.374128]  ip_send_skb+0x8b/0x90
+[   15.377533]  udp_send_skb+0x166/0x390
+[   15.381192]  udp_sendmsg+0x9a6/0xb80
+[   15.384769]  ? ip_frag_init+0x60/0x60
+[   15.388427]  ? sock_def_readable+0x50/0x90
+[   15.392517]  ? unix_stream_sendmsg+0x5a3/0x640
+[   15.396956]  ? __switch_to+0x12e/0x490
+[   15.400708]  ? _copy_from_user+0x2e/0x60
+[   15.404633]  inet_sendmsg+0x65/0x70
+[   15.408116]  ? inet_sendmsg+0x65/0x70
+[   15.411776]  sock_sendmsg+0x5e/0x70
+[   15.415267]  ____sys_sendmsg+0x22d/0x280
+[   15.419192]  ___sys_sendmsg+0x81/0xc0
+[   15.422851]  ? preempt_count_sub+0xba/0x100
+[   15.427062]  ? debug_smp_processor_id+0x17/0x20
+[   15.431595]  ? get_nohz_timer_target+0x1b/0x1b0
+[   15.436128]  ? timerqueue_add+0x6e/0xc0
+[   15.439968]  ? _raw_spin_unlock_irqrestore+0x24/0x40
+[   15.444932]  ? __fdget+0x13/0x20
+[   15.448156]  ? do_epoll_wait+0x84/0x750
+[   15.451987]  __sys_sendmsg+0x62/0xb0
+[   15.455557]  ? syscall_trace_enter.constprop.0+0x14c/0x1e0
+[   15.461037]  __x64_sys_sendmsg+0x1d/0x20
+[   15.464960]  do_syscall_64+0x3b/0x90
+[   15.468531]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   15.473576] RIP: 0033:0x7fc36620b711
+[   15.477153] Code: b5 78 20 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff
+eb b6 0f 1f 80 00 00 00 00 8b 05 da bc 20 00 85 c0 75 16 b8 2e 00 00
+00 0f 05 <48> 3d 00 f0 ff ff 77 57 c3 66 0f 1f 44 00 00 41 54 41 89 d4
+55 48
+[   15.495890] RSP: 002b:00007fff5eab9cd8 EFLAGS: 00000246 ORIG_RAX:
+000000000000002e
+[   15.503476] RAX: ffffffffffffffda RBX: 000000000000000b RCX: 00007fc36620b711
+[   15.510598] RDX: 0000000000000000 RSI: 00007fff5eab9d20 RDI: 000000000000000b
+[   15.517721] RBP: 00007fff5eab9d20 R08: 00007fff5eab9e80 R09: 00000000000014eb
+[   15.524845] R10: 0000000000003d34 R11: 0000000000000246 R12: 00007fff5eab9e80
+[   15.531971] R13: 0000000000000002 R14: 0000000000000002 R15: 000000000000000b
+[   15.539096]  </TASK>
+[   15.541278] Modules linked in: x86_pkg_temp_thermal
+[   15.546148] CR2: 0000000000000290
+[   15.549460] ---[ end trace 2e081564e8f528df ]---
+[   15.554069] RIP: 0010:selinux_ip_postroute_compat+0x55/0x110
 
 
-> Thanks,
-> Nicolas
->
-> >                 if (newmap =3D=3D NULL) {
-> >                         ERR(state->handle, "Out of memory!");
-> >                         return -1;
-> >                 }
-> > -               memcpy(newmap, mod->perm_map[sclassi],
-> > -                      mod->perm_map_len[sclassi] * sizeof(*newmap));
-> > -               free(mod->perm_map[sclassi]);
-> > +               memset(newmap + mod->perm_map_len[sclassi], '\0', perm-=
->s.value - mod->perm_map_len[sclassi]);
-> >                 mod->perm_map[sclassi] =3D newmap;
-> >                 mod->perm_map_len[sclassi] =3D perm->s.value;
-> >         }
-> > --
-> > 2.33.0
-> >
->
+Full log,
+https://qa-reports.linaro.org/lkft/linux-next-master-sanity/build/next-20211019/testrun/6166857/suite/linux-log-parser/test/check-kernel-bug-3781895/log
+
+Build config:
+https://builds.tuxbuild.com/1ziJHznpBT84rIGZ2HgbY9CVlQ1/config
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+
+steps to reproduce:
+https://builds.tuxbuild.com/1ziJHznpBT84rIGZ2HgbY9CVlQ1/tuxmake_reproducer.sh
+
+--
+Linaro LKFT
+https://lkft.linaro.org
