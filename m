@@ -2,122 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB581C433F5
-	for <selinux@archiver.kernel.org>; Wed, 20 Oct 2021 12:31:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B862C43217
+	for <selinux@archiver.kernel.org>; Wed, 20 Oct 2021 14:35:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B0A2561371
-	for <selinux@archiver.kernel.org>; Wed, 20 Oct 2021 12:31:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E8956136F
+	for <selinux@archiver.kernel.org>; Wed, 20 Oct 2021 14:35:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbhJTMdx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Oct 2021 08:33:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24189 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230187AbhJTMdv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Oct 2021 08:33:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634733096;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=uBksMSRlzVzIRqYRz7FTRO//MQHxY7XrIS8vzdTdH/0=;
-        b=IkReGZAXHw9VG5Qp6Oearv7lY1SLjxqNSA0Y6ms4kbnFeL/yGVMEdFLN+YQWPuUKgfhHO+
-        rPj2wXCs6qFGWl3Ph8VeUh9rhnWVKTFce5RepMa73pyrdrN/qmj6vljmgAFaS72HENPBCe
-        CxUXAxTVfLlYZepR4EchlTZouwK5hwY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-234-H756tWO_PiG8kexqIt7lSA-1; Wed, 20 Oct 2021 08:31:35 -0400
-X-MC-Unique: H756tWO_PiG8kexqIt7lSA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9CC578042EF;
-        Wed, 20 Oct 2021 12:31:32 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.105])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8177D62A44;
-        Wed, 20 Oct 2021 12:31:28 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id ED5F02256F7; Wed, 20 Oct 2021 08:31:27 -0400 (EDT)
-Date:   Wed, 20 Oct 2021 08:31:27 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Serge Hallyn <serge@hallyn.com>, linux-fsdevel@vger.kernel.org,
-        virtio-fs@redhat.com, Miklos Szeredi <miklos@szeredi.hu>,
-        Dan Walsh <dwalsh@redhat.com>, jlayton@kernel.org,
-        idryomov@gmail.com, ceph-devel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, bfields@fieldses.org,
-        chuck.lever@oracle.com, anna.schumaker@netapp.com,
-        trond.myklebust@hammerspace.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        casey@schaufler-ca.com, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: Re: [PATCH v2] security: Return xattr name from
- security_dentry_init_security()
-Message-ID: <YXAMH1nyfM+IA4Ce@redhat.com>
-References: <YWWMO/ZDrvDZ5X4c@redhat.com>
- <CAHC9VhRv8xOoPtfpSYSvUrcHUjhqQWw5LiDSfwR2f4VJ=9Qr8Q@mail.gmail.com>
+        id S230017AbhJTOiA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Oct 2021 10:38:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229570AbhJTOiA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Oct 2021 10:38:00 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAE4C06161C
+        for <selinux@vger.kernel.org>; Wed, 20 Oct 2021 07:35:45 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id o4so9838616oia.10
+        for <selinux@vger.kernel.org>; Wed, 20 Oct 2021 07:35:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lYcpxAoKiR1nuz+GnuftyP+++uLEdI+oMlW79fwxW6s=;
+        b=gdt5jJLAeDVmSeSw6z7r2d5sDkDLysixxfM3Jq6M6LBK4JSCGKE45KO2xfFiLNIEjY
+         ERp4DitS2ViJwxVZDDR5Hwc65i50F1eJOYWRQ1x5g1q22Az85K/krgnONkngJYN/Lx/G
+         qqWRUSueOjsEe/AyQwvb2Oio9Hn2axQ5EvV4Giic93xbE5NyHU2QQFQ1rcbzjFArCKJz
+         qSXDQN3GkB2qBmrj75kWPAXYtiG8xx7ApukztYxymmoX1phAocWyMmCtfkwP2YI8l4oq
+         f/fkdlVMyQlJKaqD8mXMOiNJo6924oVVsf/bQYyn7QnagsvH14Vgv5AVB1O5o5H000tR
+         nPCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lYcpxAoKiR1nuz+GnuftyP+++uLEdI+oMlW79fwxW6s=;
+        b=dcHOsUCFW13enLKbKokdwTd2U52RMwjc41+sSekDO/nZ28ochTaFzNc/KotZWD9Llj
+         jaA9yEMgszxYxl9Mr4RhTxNc3HlQzMPlgPnKCzVmJMSkSRpKxKJCPqUgNRHQZe5PoL6b
+         ynseOG56vUxrLUtPcCgBJ090daP6MFrgcKBdmJInoYko5XUEHuk4Jp99YjRK8S9+hhj/
+         xEOqbIvTv2t71uy/yJd9HTluPySF2PVzo/Ny2SCcrNVrGoBUKRxWj5KxIhaUqXU43JSJ
+         vYgZYB6lETdGmGfnigr1NUsyoRMKuXWQRA5xO6la1+8uRg8zqHiI2ZixVIwspjRiZVkS
+         gUnw==
+X-Gm-Message-State: AOAM533+JHSC0TL3cHvtFZhkLTZpSWsMuP3TZQttAPBRPaOE+397IyUP
+        yVCypYMBpdLu+qlBe5PuEBfKBsYCvrmZlOEaJJdKyM9k
+X-Google-Smtp-Source: ABdhPJzhnT5rPtnt3bcNoWhSzyrpTZWLHdWgdf2C8pWfoh6IjTU8WpdayZG73p1zhMn98MqOo/PXE6N77xU7N5EQ0IU=
+X-Received: by 2002:aca:c288:: with SMTP id s130mr9652538oif.138.1634740543903;
+ Wed, 20 Oct 2021 07:35:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhRv8xOoPtfpSYSvUrcHUjhqQWw5LiDSfwR2f4VJ=9Qr8Q@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+References: <87a6j3khr0.fsf@redhat.com>
+In-Reply-To: <87a6j3khr0.fsf@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 20 Oct 2021 10:35:32 -0400
+Message-ID: <CAP+JOzR9gbGkyrpsE_66ymkGmAmYQ-z_=rkK1ju4OUGdqEuE2A@mail.gmail.com>
+Subject: Re: Release 3.3 or not?
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 20, 2021 at 08:24:44AM -0400, Paul Moore wrote:
-> On Tue, Oct 12, 2021 at 9:23 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> >
-> > Right now security_dentry_init_security() only supports single security
-> > label and is used by SELinux only. There are two users of of this hook,
-> > namely ceph and nfs.
-> >
-> > NFS does not care about xattr name. Ceph hardcodes the xattr name to
-> > security.selinux (XATTR_NAME_SELINUX).
-> >
-> > I am making changes to fuse/virtiofs to send security label to virtiofsd
-> > and I need to send xattr name as well. I also hardcoded the name of
-> > xattr to security.selinux.
-> >
-> > Stephen Smalley suggested that it probably is a good idea to modify
-> > security_dentry_init_security() to also return name of xattr so that
-> > we can avoid this hardcoding in the callers.
-> >
-> > This patch adds a new parameter "const char **xattr_name" to
-> > security_dentry_init_security() and LSM puts the name of xattr
-> > too if caller asked for it (xattr_name != NULL).
-> >
-> > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> > Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> > ---
-> >
-> > Changes since v1:
-> > - Updated comment to make it clear caller does not have to free the
-> >   xattr_name. (Jeff Layton).
-> > - Captured Jeff's Reviewed-by ack.
-> >
-> > I have tested this patch with virtiofs and compile tested for ceph and nfs.
-> >
-> > NFS changes are trivial. Looking for an ack from NFS maintainers.
-> >
-> > ---
-> >  fs/ceph/xattr.c               |    3 +--
-> >  fs/nfs/nfs4proc.c             |    3 ++-
-> >  include/linux/lsm_hook_defs.h |    3 ++-
-> >  include/linux/lsm_hooks.h     |    3 +++
-> >  include/linux/security.h      |    6 ++++--
-> >  security/security.c           |    7 ++++---
-> >  security/selinux/hooks.c      |    6 +++++-
-> >  7 files changed, 21 insertions(+), 10 deletions(-)
-> 
-> This looks fine to me and considering the trivial nature of the NFS
-> changes I'm okay with merging this without an explicit ACK from the
-> NFS folks.  Similarly, I generally dislike merging new functionality
-> once we hit -rc6, but this is trivial enough that I think it's okay;
-> I'm merging this into selinux/next now, thanks everyone.
+On Wed, Oct 20, 2021 at 8:23 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Hello,
+>
+> 2 weeks ago I wrote that I would like to release 3.3 if there's no big
+> change. But in the mean time some patchsets landed on mailing list, see
+> bellow. My question is: do we want to wait until they are merged or it's
+> ok to postpone them to 3.4 development? Please let me know.
+>
+> * https://patchwork.kernel.org/project/selinux/list/?series=561273&state=*
+> libsepol: add fuzzer for reading binary policies
+>
+> it was reviewed by Jim who requested some changes.
+>
 
-Thanks Paul. I agree that this a trivial fix with no functionality
-change and probability of this breaking something is very very low.
+I am ok with this being postponed to 3.4.
+Jim
 
-Vivek
-
+> * https://patchwork.kernel.org/project/selinux/list/?series=566429
+> libsepol: do not pass NULL to memcpy
+>
+> v2 with requested changes, waits for review
+>
+>
+> * https://patchwork.kernel.org/project/selinux/patch/20211015123100.15785-1-cgzones@googlemail.com/
+> libselinux: use dummy variable to silence glibc 2.34 warnings
+>
+> reviewed by Nicolas, work in progress I guess
+>
+>
+> * https://patchwork.kernel.org/project/selinux/list/?series=566423&state=*
+> Parallel setfiles/restorecon
+>
+> 3rd version of the patchset, waits for review
+>
+>
+>
+> Petr
+>
