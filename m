@@ -2,100 +2,139 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B862C43217
-	for <selinux@archiver.kernel.org>; Wed, 20 Oct 2021 14:35:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1ED9C433F5
+	for <selinux@archiver.kernel.org>; Thu, 21 Oct 2021 14:05:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E8956136F
-	for <selinux@archiver.kernel.org>; Wed, 20 Oct 2021 14:35:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7F716120F
+	for <selinux@archiver.kernel.org>; Thu, 21 Oct 2021 14:05:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbhJTOiA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Oct 2021 10:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53142 "EHLO
+        id S230484AbhJUOIO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Oct 2021 10:08:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229570AbhJTOiA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Oct 2021 10:38:00 -0400
-Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAE4C06161C
-        for <selinux@vger.kernel.org>; Wed, 20 Oct 2021 07:35:45 -0700 (PDT)
-Received: by mail-oi1-x22a.google.com with SMTP id o4so9838616oia.10
-        for <selinux@vger.kernel.org>; Wed, 20 Oct 2021 07:35:45 -0700 (PDT)
+        with ESMTP id S230372AbhJUOIM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Oct 2021 10:08:12 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6324BC0613B9
+        for <selinux@vger.kernel.org>; Thu, 21 Oct 2021 07:05:56 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id y12so1078577eda.4
+        for <selinux@vger.kernel.org>; Thu, 21 Oct 2021 07:05:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lYcpxAoKiR1nuz+GnuftyP+++uLEdI+oMlW79fwxW6s=;
-        b=gdt5jJLAeDVmSeSw6z7r2d5sDkDLysixxfM3Jq6M6LBK4JSCGKE45KO2xfFiLNIEjY
-         ERp4DitS2ViJwxVZDDR5Hwc65i50F1eJOYWRQ1x5g1q22Az85K/krgnONkngJYN/Lx/G
-         qqWRUSueOjsEe/AyQwvb2Oio9Hn2axQ5EvV4Giic93xbE5NyHU2QQFQ1rcbzjFArCKJz
-         qSXDQN3GkB2qBmrj75kWPAXYtiG8xx7ApukztYxymmoX1phAocWyMmCtfkwP2YI8l4oq
-         f/fkdlVMyQlJKaqD8mXMOiNJo6924oVVsf/bQYyn7QnagsvH14Vgv5AVB1O5o5H000tR
-         nPCA==
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=X4GxyqEe7hwaJvw4Q4V9r8F2uKb7mFHmuZE0/SvZO+I=;
+        b=MyuktRCWieUZFQZBLKwc/Qn6S75Sm4rSIVBJujD8Z7RPT3YvsgqTmcmZiSbIaZWXjS
+         wZX92C7CBvbQ+p9FZund9ZA9wGsfh2S6mvWSyogwf+oA5085gUzgsn0JMTLtjI6nfcXK
+         yuXNsqROoxfNOGFemCnbIgdR+s+xr0wG6V7NDkTUs2el4h7zjQhXffXJ2QBM4axZORxC
+         YpXFI5XIqV/GzWLLVTSBGJ1lqBcpp7HC77hI2l2DZ9QwR8YPuytwjBD7nZ9nA1JMpeq+
+         H51pVrCJjR7aw//RuWJHnYxcbcOh82eICEBg5sZ5bzqs2KFSIPckcp/Szgl9LqPrfrEE
+         yUoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lYcpxAoKiR1nuz+GnuftyP+++uLEdI+oMlW79fwxW6s=;
-        b=dcHOsUCFW13enLKbKokdwTd2U52RMwjc41+sSekDO/nZ28ochTaFzNc/KotZWD9Llj
-         jaA9yEMgszxYxl9Mr4RhTxNc3HlQzMPlgPnKCzVmJMSkSRpKxKJCPqUgNRHQZe5PoL6b
-         ynseOG56vUxrLUtPcCgBJ090daP6MFrgcKBdmJInoYko5XUEHuk4Jp99YjRK8S9+hhj/
-         xEOqbIvTv2t71uy/yJd9HTluPySF2PVzo/Ny2SCcrNVrGoBUKRxWj5KxIhaUqXU43JSJ
-         vYgZYB6lETdGmGfnigr1NUsyoRMKuXWQRA5xO6la1+8uRg8zqHiI2ZixVIwspjRiZVkS
-         gUnw==
-X-Gm-Message-State: AOAM533+JHSC0TL3cHvtFZhkLTZpSWsMuP3TZQttAPBRPaOE+397IyUP
-        yVCypYMBpdLu+qlBe5PuEBfKBsYCvrmZlOEaJJdKyM9k
-X-Google-Smtp-Source: ABdhPJzhnT5rPtnt3bcNoWhSzyrpTZWLHdWgdf2C8pWfoh6IjTU8WpdayZG73p1zhMn98MqOo/PXE6N77xU7N5EQ0IU=
-X-Received: by 2002:aca:c288:: with SMTP id s130mr9652538oif.138.1634740543903;
- Wed, 20 Oct 2021 07:35:43 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=X4GxyqEe7hwaJvw4Q4V9r8F2uKb7mFHmuZE0/SvZO+I=;
+        b=3oiJoW1j8i4vu/9RiQvo28or7lZFSyV8olmPOu3VW/pO+ctG4vaLVdwHEPqH9m99XY
+         KI6xzM0SaHB/9/uTC5rtKbQVrk1YVmUd2/R/pUncTHkMltNECJFT5obKELCaH2Vn3dlP
+         nZmBxT/gq/zHEn8Kh9LTwy3wOJeOE7fAHo0n4UurZpdWtFtUWvdpeVbSne+jTfwfMJZi
+         kusj7Ppf1zkd/cYtgALeslz07C/eHIP0g9LQEX2RoNZV7VmUAIeLSUwm5ohQu7XWYhMd
+         bTKouZTrsJewlKr/O3vwguyAnmsrcW5LPGn33dmj4wqMkTQUl7nberD+WB0kVa3lM4hP
+         Tr9w==
+X-Gm-Message-State: AOAM532iRRJjJcKtLSs+DdxQD7ENRiD9c9wkE0beDzEVMY80NLoV3za5
+        SoQG5oWYaHFuReI2E3FvXXrFpr/TH7s=
+X-Google-Smtp-Source: ABdhPJyUqkA87jW/1hekvKnZB96dzzKjzRwbNh/hjMyuaqEKBegYnSQNK+K6ZdaGx7JQc7cz2MUwjw==
+X-Received: by 2002:a17:906:4452:: with SMTP id i18mr7234157ejp.374.1634825154548;
+        Thu, 21 Oct 2021 07:05:54 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-116-131-102.95.116.pool.telefonica.de. [95.116.131.102])
+        by smtp.gmail.com with ESMTPSA id t15sm2720915ejx.75.2021.10.21.07.05.53
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Oct 2021 07:05:54 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v2] libselinux: use valid address to silence glibc 2.34 warnings
+Date:   Thu, 21 Oct 2021 16:05:19 +0200
+Message-Id: <20211021140519.6593-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211015123100.15785-1-cgzones@googlemail.com>
+References: <20211015123100.15785-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <87a6j3khr0.fsf@redhat.com>
-In-Reply-To: <87a6j3khr0.fsf@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 20 Oct 2021 10:35:32 -0400
-Message-ID: <CAP+JOzR9gbGkyrpsE_66ymkGmAmYQ-z_=rkK1ju4OUGdqEuE2A@mail.gmail.com>
-Subject: Re: Release 3.3 or not?
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 20, 2021 at 8:23 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> Hello,
->
-> 2 weeks ago I wrote that I would like to release 3.3 if there's no big
-> change. But in the mean time some patchsets landed on mailing list, see
-> bellow. My question is: do we want to wait until they are merged or it's
-> ok to postpone them to 3.4 development? Please let me know.
->
-> * https://patchwork.kernel.org/project/selinux/list/?series=561273&state=*
-> libsepol: add fuzzer for reading binary policies
->
-> it was reviewed by Jim who requested some changes.
->
+Glibc 2.34 added an access function attribute to pthread_setspecific(3).
+This leads to the following GCC warnings:
 
-I am ok with this being postponed to 3.4.
-Jim
+    In file included from matchpathcon.c:5:
+    matchpathcon.c: In function ‘matchpathcon_init_prefix’:
+    selinux_internal.h:38:25: error: ‘pthread_setspecific’ expecting 1 byte in a region of size 0 [-Werror=stringop-overread]
+       38 |                         pthread_setspecific(KEY, VALUE);        \
+          |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    matchpathcon.c:359:9: note: in expansion of macro ‘__selinux_setspecific’
+      359 |         __selinux_setspecific(destructor_key, (void *)1);
+          |         ^~~~~~~~~~~~~~~~~~~~~
+    In file included from selinux_internal.h:2,
+                     from matchpathcon.c:5:
+    /usr/include/pthread.h:1167:12: note: in a call to function ‘pthread_setspecific’ declared with attribute ‘access (none, 2)’
+     1167 | extern int pthread_setspecific (pthread_key_t __key,
+          |            ^~~~~~~~~~~~~~~~~~~
 
-> * https://patchwork.kernel.org/project/selinux/list/?series=566429
-> libsepol: do not pass NULL to memcpy
->
-> v2 with requested changes, waits for review
->
->
-> * https://patchwork.kernel.org/project/selinux/patch/20211015123100.15785-1-cgzones@googlemail.com/
-> libselinux: use dummy variable to silence glibc 2.34 warnings
->
-> reviewed by Nicolas, work in progress I guess
->
->
-> * https://patchwork.kernel.org/project/selinux/list/?series=566423&state=*
-> Parallel setfiles/restorecon
->
-> 3rd version of the patchset, waits for review
->
->
->
-> Petr
->
+The actual value and the validity of the passed pointer is irrelevant,
+since it does not gets accessed internally by glibc and
+pthread_getspecific(3) is not used.
+Use a pointer to a global object to please GCC.
+
+Closes: https://github.com/SELinuxProject/selinux/issues/311
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/matchpathcon.c   | 2 +-
+ libselinux/src/procattr.c       | 2 +-
+ libselinux/src/setrans_client.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index 1e7f8890..ea78a23e 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -356,7 +356,7 @@ int matchpathcon_init_prefix(const char *path, const char *subset)
+ 		mycanoncon = default_canoncon;
+ 
+ 	__selinux_once(once, matchpathcon_init_once);
+-	__selinux_setspecific(destructor_key, (void *)1);
++	__selinux_setspecific(destructor_key, /* some valid address to please GCC */ &selinux_page_size);
+ 
+ 	options[SELABEL_OPT_SUBSET].type = SELABEL_OPT_SUBSET;
+ 	options[SELABEL_OPT_SUBSET].value = subset;
+diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+index 6552ee01..142fbf3a 100644
+--- a/libselinux/src/procattr.c
++++ b/libselinux/src/procattr.c
+@@ -68,7 +68,7 @@ void  __attribute__((destructor)) procattr_destructor(void)
+ static inline void init_thread_destructor(void)
+ {
+ 	if (destructor_initialized == 0) {
+-		__selinux_setspecific(destructor_key, (void *)1);
++		__selinux_setspecific(destructor_key, /* some valid address to please GCC */ &selinux_page_size);
+ 		destructor_initialized = 1;
+ 	}
+ }
+diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_client.c
+index 52a8ba78..faa12681 100644
+--- a/libselinux/src/setrans_client.c
++++ b/libselinux/src/setrans_client.c
+@@ -272,7 +272,7 @@ static inline void init_thread_destructor(void)
+ 	if (!has_setrans)
+ 		return;
+ 	if (destructor_initialized == 0) {
+-		__selinux_setspecific(destructor_key, (void *)1);
++		__selinux_setspecific(destructor_key, /* some valid address to please GCC */ &selinux_page_size);
+ 		destructor_initialized = 1;
+ 	}
+ }
+-- 
+2.33.0
+
