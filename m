@@ -2,82 +2,90 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1DCCC433EF
-	for <selinux@archiver.kernel.org>; Thu, 21 Oct 2021 15:55:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E53EC4332F
+	for <selinux@archiver.kernel.org>; Fri, 22 Oct 2021 06:33:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DADCD60F50
-	for <selinux@archiver.kernel.org>; Thu, 21 Oct 2021 15:55:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E72C760FC1
+	for <selinux@archiver.kernel.org>; Fri, 22 Oct 2021 06:33:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231664AbhJUP5g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Oct 2021 11:57:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
+        id S231992AbhJVGfZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Oct 2021 02:35:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbhJUP5g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Oct 2021 11:57:36 -0400
-Received: from mail-ua1-x92b.google.com (mail-ua1-x92b.google.com [IPv6:2607:f8b0:4864:20::92b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583D2C061764;
-        Thu, 21 Oct 2021 08:55:20 -0700 (PDT)
-Received: by mail-ua1-x92b.google.com with SMTP id q13so2148443uaq.2;
-        Thu, 21 Oct 2021 08:55:20 -0700 (PDT)
+        with ESMTP id S232057AbhJVGfW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Oct 2021 02:35:22 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED58C061220;
+        Thu, 21 Oct 2021 23:33:05 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id g79-20020a1c2052000000b00323023159e1so2197250wmg.2;
+        Thu, 21 Oct 2021 23:33:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=HRHfFhz4fMPUx9YOtOao9Bpb9t5tjPxJMHEqRqglFwM=;
-        b=D/HrhN/0LrDrsGRfgdFeR48W6kC4c+X4yDSCCgDvMY9Yfj+9RBHFpF8xdRSQNWWeFd
-         ChlvcCLRdG6+AHyAxGQk/4Urb67IFT4Mqo/xOJvEW0jBCqbV8mGubGjEcpdQkw5saWMX
-         0RyxJqfrpZwZWb0NxtD/1tSR8chgREekcK+cL82ldGb/Mn0wIKA3a2fVgATgIlPSTMvl
-         Yk7N3lAB1FA0x0BMeeGeqI4X3gntqERs/5yqCE/uDddwEZ+rXA0fUZDjq+DAzSPRNX/f
-         HoTskTjC3uh6iF00W5+CFFV9COkir+vZWCptrM3qPB43dWNhSw/9GD5loHcfHhbhKGZx
-         KPfA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=K3ag/8I6dY0xnXzblFz/1w5mgGcBQvelgLc2shxtkfc=;
+        b=PTQEtRJkvbdBeeUpy0SiyY+F0rHKPnxxj2b5Rqzx40gPhHZTjIDHlWOqU1SWf9Ziso
+         7L4W22xUMO3/DeZnclGgp8yLPSDsuL5O/f4dgTTrKyomPfAsXmXCb45l4TxZmtGd6bo0
+         bJaOm7zJ/NDWtQzmEXnDIx1czxdgusih1AnMgVw7fsqim33dlN2lu+Acy811aBT2CxsY
+         sNGnhxhLNUYffLBe8b+JONuyOBmuFJIAD/d1Rd4HFlhgwq6+bhviz5XfSC23vXhDLlCf
+         ulrZsBlxyoTcZENsqmH8xAOvFKZMBOv5lSL1s5W62eat5DFy2x7SdBBos1fqHlx608kA
+         CXBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=HRHfFhz4fMPUx9YOtOao9Bpb9t5tjPxJMHEqRqglFwM=;
-        b=Ffk4YTdIrTwD1d76vlR/87Wi2w7tLJjAqRGjMtsSFeXzPgiZCOjyI+h9MDkl3ZFSWL
-         CkaaUtbmm1ndJVB/9Y6hwL3pQArNGMR8wr3GOsxBAMvwYGTftZwXtUSO/QBRAz6jWTbU
-         22xxYob6fyBLRXwjDWJsSAsrNqzCAHvJTFh0hgYK188h5KGHfxXuJiG356/cPJOoDNVI
-         gcTmlLCbyJQFk7iw+8wo+ikfbxwUR9hhbDxKrBfZeyfKNYGuD5OvC5qBGkOyqobDqy6r
-         3l7dS4sUhmeiB/jlga4vDYtAXXOQx9+Ip/QlxNNZv2A/wh4Oz/gEeSfBIMz0Vchs+NDM
-         Rmbw==
-X-Gm-Message-State: AOAM531282/kYwYqzMlePJX7nLjIWVOg6VkIkdeXXg0E2d8o/MoqEf/P
-        KQfeQ0PVX4dGwK/zNJ6OIbM=
-X-Google-Smtp-Source: ABdhPJwyivgybU33oIRvY5+h4YNrbl1bvQ3Lb+fx0N0Gk+ezb51O3awZYpxI7qSBJLWqMSS11HA4Kg==
-X-Received: by 2002:a05:6102:a4f:: with SMTP id i15mr6981375vss.49.1634831719443;
-        Thu, 21 Oct 2021 08:55:19 -0700 (PDT)
-Received: from t14s.localdomain ([2001:1284:f013:eca9:86b:fb8c:36a9:6a8f])
-        by smtp.gmail.com with ESMTPSA id m184sm3296920vsc.6.2021.10.21.08.55.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Oct 2021 08:55:18 -0700 (PDT)
-Received: by t14s.localdomain (Postfix, from userid 1000)
-        id 1AB9E91D02; Thu, 21 Oct 2021 12:55:17 -0300 (-03)
-Date:   Thu, 21 Oct 2021 12:55:17 -0300
-From:   Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        linux-sctp@vger.kernel.org, netdev@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Xin Long <lucien.xin@gmail.com>
-Subject: Re: [PATCH] sctp: initialize endpoint LSM labels also on the client
- side
-Message-ID: <YXGNZTJPxL9Q/GHt@t14s.localdomain>
-References: <20211021153846.745289-1-omosnace@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=K3ag/8I6dY0xnXzblFz/1w5mgGcBQvelgLc2shxtkfc=;
+        b=yH0DHv5u5omkrciyd2mRq35KO6cTACwtrrYYfdyiW607Gy2BRKBLIlxFiRzLU7Fm9c
+         mdFtVI3eVGyj+IL55kezSVzcqMnfabtHh5fheBguNAOZinlQ5hZD9hIJrKEfpbQSQnwb
+         krBMq1zREh84MR0y7869YEtL2ONvtTlfSbImWTsVqEbLhzM8mT/s99nEh61SaEnA6mFH
+         LT6A+S/SclYnbJf9OQR0SkwykUVSn/iFqCo3AvQh6b9YJUzEc9R1LJ6YtCMlNTSxVWUU
+         /DG2FnWFSPmRVbyhqNoyVFS8dChZW5znWSCMwxOB9VBXMzdhB30jbkGA9xewEHNQ3j3i
+         1pTg==
+X-Gm-Message-State: AOAM531/xLG0OOP9WCfazi811gA2GY3PUBfKvcNiafRhkuiIX22KdGmH
+        2kCCNLVsYDXgku7Zdbaylfsi+TSUgv1/FdIVvgZ5Zu1oUSg=
+X-Google-Smtp-Source: ABdhPJzCAtRD5QUGKUs2UsgDv4VG1mUB5AiemLTR85yYtzJwMWcMfdK+dnfSplqLyFMDGsyrX5zALXT3wdbfHzhXGus=
+X-Received: by 2002:a1c:7dcb:: with SMTP id y194mr8906027wmc.8.1634884383912;
+ Thu, 21 Oct 2021 23:33:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211021153846.745289-1-omosnace@redhat.com>
+References: <20211021153846.745289-1-omosnace@redhat.com> <YXGNZTJPxL9Q/GHt@t14s.localdomain>
+In-Reply-To: <YXGNZTJPxL9Q/GHt@t14s.localdomain>
+From:   Xin Long <lucien.xin@gmail.com>
+Date:   Fri, 22 Oct 2021 14:32:52 +0800
+Message-ID: <CADvbK_eHsAjih9bAiH3d2cwkaizuYnn6gL85V6LdpWUrenMAxg@mail.gmail.com>
+Subject: Re: [PATCH] sctp: initialize endpoint LSM labels also on the client side
+To:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>, selinux@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 21, 2021 at 05:38:46PM +0200, Ondrej Mosnacek wrote:
-> The secid* fields in struct sctp_endpoint are used to initialize the
-> labels of a peeloff socket created from the given association. Currently
-> they are initialized properly when a new association is created on the
-> server side (upon receiving an INIT packet), but not on the client side.
+On Thu, Oct 21, 2021 at 11:55 PM Marcelo Ricardo Leitner
+<marcelo.leitner@gmail.com> wrote:
+>
+> On Thu, Oct 21, 2021 at 05:38:46PM +0200, Ondrej Mosnacek wrote:
+> > The secid* fields in struct sctp_endpoint are used to initialize the
+> > labels of a peeloff socket created from the given association. Currently
+> > they are initialized properly when a new association is created on the
+> > server side (upon receiving an INIT packet), but not on the client side.
+>
+> +Cc Xin
+Thanks Marcelo,
 
-+Cc Xin
+security_sctp_assoc_request() is not supposed to call on the client side,
+as we can see on TCP. The client side's labels should be set to the
+connection by selinux_inet_conn_request(). But we can't do it based
+on the current hooks.
+
+The root problem is that the current hooks incorrectly treat sctp_endpoint
+in SCTP as request_sock in TCP, while it should've been sctp_association.
+We need a bigger change on the current security sctp code.
+
+I will post the patch series in hand, please take a look.
