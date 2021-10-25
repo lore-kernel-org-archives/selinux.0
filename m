@@ -2,177 +2,134 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16437C433EF
-	for <selinux@archiver.kernel.org>; Mon, 25 Oct 2021 14:19:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 936BBC433FE
+	for <selinux@archiver.kernel.org>; Mon, 25 Oct 2021 15:56:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED60160184
-	for <selinux@archiver.kernel.org>; Mon, 25 Oct 2021 14:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 69FE760EB1
+	for <selinux@archiver.kernel.org>; Mon, 25 Oct 2021 15:56:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231344AbhJYOVf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Oct 2021 10:21:35 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24168 "EHLO
+        id S233482AbhJYP62 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Oct 2021 11:58:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52927 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231246AbhJYOVe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Oct 2021 10:21:34 -0400
+        by vger.kernel.org with ESMTP id S233158AbhJYP62 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Oct 2021 11:58:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635171552;
+        s=mimecast20190719; t=1635177365;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Vea8bVc1scjt+1LQ4CK9bdh+xixEG9vzJDJgk3tsrJA=;
-        b=as6aYMCo7ITuczK0dm7t2YrVePQFM/129stYJ8KmlEhfBYqgTxKackuEdc2Wust6XhYHog
-        DnrQA1iUKlgVWfe70/4dpsc5TYCPXQUtvcE2mLXHfj8WIkFzuY15zkqNEpNgy2//okvR3c
-        OaBssD81juC9uaKq88VYVtp/6Sqz6vM=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-334-_Jn5nnsQO8Gh16PnEKmotA-1; Mon, 25 Oct 2021 10:19:10 -0400
-X-MC-Unique: _Jn5nnsQO8Gh16PnEKmotA-1
-Received: by mail-wm1-f70.google.com with SMTP id u14-20020a05600c19ce00b0030d8549d49aso57656wmq.0
-        for <selinux@vger.kernel.org>; Mon, 25 Oct 2021 07:19:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Vea8bVc1scjt+1LQ4CK9bdh+xixEG9vzJDJgk3tsrJA=;
-        b=XYtRLb+PG/X3opzQf+OiRkoMnBvIKXCStZXwb+5AfuR0+9rmzvAnv0Ns7lv/fKj6W5
-         5XESLum2byGCpSNK24C3UmAe55J3awI41ib+72WFnRq3k3sU4pF0eKBTmRmcgumBLMWf
-         Y/z/vMFn6XX1IoBCYD7bBd2f4Lo3WDPKPHJ7xsDWgjINd4XUFkzvRUKJhdbdJjk6JYZz
-         ZryOj8LkHAod5DrGXPXfoEwwPkiki6haU7xZpzptrFcrnG4O27mTDBLdMIO0roH7vvJa
-         /sJ4Xguy+eodezUOydHm/9npYU6L/Vy35M/92o1d3D+MoiOXeOvn5NAYBtR6X9wnpWT+
-         EGlQ==
-X-Gm-Message-State: AOAM532KbjIOisprsYXpH2KyvIRaspidDx9DAhMY3wfcUxs8pvcIdxtI
-        VNrbc7ybemWHsBWwWSUQ98SVK9owS2WlaTQ++4OmLj1J1KjJtapO6/jV/mi3LRMCsv53stjRJgO
-        HD6gBywfsueNbG98d/7tQOobTPWixTqj9LTtTgi2ex6lcZUcPxGeugAIpPFWgIUeJWDHp1g==
-X-Received: by 2002:a1c:2541:: with SMTP id l62mr49742093wml.11.1635171549121;
-        Mon, 25 Oct 2021 07:19:09 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyMP0d/PWhrtGglhw4mhZMA+igB3eqscUt8xO6ZOwxIqjT6/Jq6WOUzq+e1FC96RPUHEJKzNg==
-X-Received: by 2002:a1c:2541:: with SMTP id l62mr49742041wml.11.1635171548627;
-        Mon, 25 Oct 2021 07:19:08 -0700 (PDT)
-Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id 10sm20794675wme.27.2021.10.25.07.19.07
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Oct 2021 07:19:08 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite v2] tests: make kernel iptables support optional
-Date:   Mon, 25 Oct 2021 16:19:07 +0200
-Message-Id: <20211025141907.189316-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.31.1
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6ECqSaHQ0pbEcATw6/3SW1rQoKUfxPdGHecB780Nee0=;
+        b=ZZ70dQ5dy+1jeFLwTMw1CsMcPTyP3aZL+tsavKCGlyTQYv6MpPi4XL6xwheTdSh8R7ioYs
+        XWQ0h5yZJfzFkJtuhXSlo3ORBSxJj8LsDM1XLENiSzS+C3yPBC30zb+dDmd0sFpSLihN4P
+        CF8aposejBRaeoFDoNMLvzH+seMn3jk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-302-8tYJVqH9NhyOo-Qz_oeJfA-1; Mon, 25 Oct 2021 11:56:02 -0400
+X-MC-Unique: 8tYJVqH9NhyOo-Qz_oeJfA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 08827CC628;
+        Mon, 25 Oct 2021 15:56:01 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.33.170])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5455C5C1A1;
+        Mon, 25 Oct 2021 15:55:38 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id E04E222377B; Mon, 25 Oct 2021 11:55:37 -0400 (EDT)
+Date:   Mon, 25 Oct 2021 11:55:37 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     miklos@szeredi.hu
+Cc:     virtio-fs@redhat.com, chirantan@chromium.org,
+        stephen.smalley.work@gmail.com, dwalsh@redhat.com,
+        casey@schaufler-ca.com, omosnace@redhat.com,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] fuse: Send file/inode security context during
+ creation
+Message-ID: <YXbTeb3G810yo216@redhat.com>
+References: <20211012180624.447474-1-vgoyal@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211012180624.447474-1-vgoyal@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The legacy iptables API is being deprecated in favor of netfilter and
-some distributions are starting to disable it in their kernels (e.g.
-Fedora ELN, RHEL 10+). To allow getting a clean run of the testsuite on
-such kernels, detect the availability of the ip_tables kernel module and
-skip the iptables tests if it's not available (either as a loadable
-module or built in).
+On Tue, Oct 12, 2021 at 02:06:22PM -0400, Vivek Goyal wrote:
+> Hi,
+> 
+> This is V2 of patches. Posted V1 here.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
+Hi Miklos,
 
-v2: do the same also in tests/sctp, not just tests/inet_socket
+Wondering how do these patches look to you. Can you please consider these
+for inclusion.
 
- tests/inet_socket/test | 21 ++++++++++++++++-----
- tests/sctp/test        | 21 ++++++++++++++++-----
- 2 files changed, 32 insertions(+), 10 deletions(-)
+These patches are dependent on following patch which Paul Moore is now
+carrying in this tree.
 
-diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-index 56a947b..f09b4e3 100755
---- a/tests/inet_socket/test
-+++ b/tests/inet_socket/test
-@@ -5,7 +5,7 @@ BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
--    $test_count = 38;
-+    $test_count = 30;
- 
-     $test_ipsec = 0;
-     if ( system("ip xfrm policy help 2>&1 | grep -q ctx") eq 0 ) {
-@@ -27,6 +27,15 @@ BEGIN {
-         $test_calipso_stream = 1;
-     }
- 
-+    # Determine if kernel has legacy iptables support
-+    $test_iptables = 0;
-+
-+    $rc = system("modprobe ip_tables 2>/dev/null");
-+    if ( $rc == 0 ) {
-+        $test_count += 8;
-+        $test_iptables = 1;
-+    }
-+
-     # Determine if nftables has secmark support
-     $test_nft = 0;
- 
-@@ -415,10 +424,12 @@ sub test_tables {
-     server_end($pid);
- }
- 
--print "Testing iptables (IPv4/IPv6).\n";
--system "/bin/sh $basedir/iptables-load";
--test_tables();
--system "/bin/sh $basedir/iptables-flush";
-+if ($test_iptables) {
-+    print "Testing iptables (IPv4/IPv6).\n";
-+    system "/bin/sh $basedir/iptables-load";
-+    test_tables();
-+    system "/bin/sh $basedir/iptables-flush";
-+}
- 
- if ($test_nft) {
-     print "Testing nftables (IPv4/IPv6).\n";
-diff --git a/tests/sctp/test b/tests/sctp/test
-index 1170921..0f017e8 100755
---- a/tests/sctp/test
-+++ b/tests/sctp/test
-@@ -33,7 +33,7 @@ BEGIN {
-         plan skip_all => "SCTP not supported";
-     }
-     else {
--        $test_count = 75;
-+        $test_count = 67;
- 
-         # Set up a GRE tunnel over loopback to ensure we have enough addresses
-         # for the ASCONF tests.
-@@ -74,6 +74,15 @@ BEGIN {
-             $test_calipso = 1;
-         }
- 
-+        # Determine if kernel has legacy iptables support
-+        $test_iptables = 0;
-+
-+        $rc = system("modprobe ip_tables 2>/dev/null");
-+        if ( $rc == 0 ) {
-+            $test_count += 8;
-+            $test_iptables = 1;
-+        }
-+
-         # Determine if nftables has secmark support
-         $test_nft = 0;
- 
-@@ -903,10 +912,12 @@ sub test_tables {
-     server_end($pid);
- }
- 
--print "# Testing iptables (IPv4/IPv6).\n";
--system "/bin/sh $basedir/iptables-load";
--test_tables();
--system "/bin/sh $basedir/iptables-flush";
-+if ($test_iptables) {
-+    print "# Testing iptables (IPv4/IPv6).\n";
-+    system "/bin/sh $basedir/iptables-load";
-+    test_tables();
-+    system "/bin/sh $basedir/iptables-flush";
-+}
- 
- if ($test_nft) {
-     print "# Testing nftables (IPv4/IPv6).\n";
--- 
-2.31.1
+https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?h=next&id=15bf32398ad488c0df1cbaf16431422c87e4feea
+
+Thanks
+Vivek
+> 
+> https://lore.kernel.org/linux-fsdevel/20210924192442.916927-1-vgoyal@redhat.com/
+> 
+> Changes since v1:
+> 
+> - Added capability to send multiple security contexts in fuse protocol.
+>   Miklos suggestd this. So now protocol can easily carry multiple
+>   security labels. Just that right now we only send one. When a security
+>   hook becomes available which can handle multiple security labels,
+>   it should be easy to send those.
+> 
+> This patch series is dependent on following patch I have posted to
+> change signature of security_dentry_init_security().
+> 
+> https://lore.kernel.org/linux-fsdevel/YWWMO%2FZDrvDZ5X4c@redhat.com/
+> 
+> Description
+> -----------
+> When a file is created (create, mknod, mkdir, symlink), typically file
+> systems call  security_inode_init_security() to initialize security
+> context of an inode. But this does not very well with remote filesystems
+> as inode is not there yet. Client will send a creation request to
+> server and once server has created the file, client will instantiate
+> the inode.
+> 
+> So filesystems like nfs and ceph use security_dentry_init_security()
+> instead. This takes in a dentry and returns the security context of
+> file if any.
+> 
+> These patches call security_dentry_init_security() and send security
+> label of file along with creation request (FUSE_CREATE, FUSE_MKDIR,
+> FUSE_MKNOD, FUSE_SYMLINK). This will give server an opportunity
+> to create new file and also set security label (possibly atomically
+> where possible).
+> 
+> These patches are based on the work Chirantan Ekbote did some time
+> back but it never got upstreamed. So I have taken his patches,
+> and made modifications on top.
+> 
+> https://listman.redhat.com/archives/virtio-fs/2020-July/msg00014.html
+> https://listman.redhat.com/archives/virtio-fs/2020-July/msg00015.html
+> 
+> These patches will allow us to support SELinux on virtiofs.
+> 
+> Vivek Goyal (2):
+>   fuse: Add a flag FUSE_SECURITY_CTX
+>   fuse: Send security context of inode on file creation
+> 
+>  fs/fuse/dir.c             | 115 ++++++++++++++++++++++++++++++++++++--
+>  fs/fuse/fuse_i.h          |   3 +
+>  fs/fuse/inode.c           |   4 +-
+>  include/uapi/linux/fuse.h |  29 +++++++++-
+>  4 files changed, 144 insertions(+), 7 deletions(-)
+> 
+> -- 
+> 2.31.1
+> 
 
