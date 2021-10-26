@@ -2,63 +2,63 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 372D4C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA2DC433FE
 	for <selinux@archiver.kernel.org>; Tue, 26 Oct 2021 11:52:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2385C60F21
+	by mail.kernel.org (Postfix) with ESMTP id 8217060F21
 	for <selinux@archiver.kernel.org>; Tue, 26 Oct 2021 11:52:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235595AbhJZLzR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Oct 2021 07:55:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52585 "EHLO
+        id S235605AbhJZLzS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Oct 2021 07:55:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:51592 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235590AbhJZLzQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Oct 2021 07:55:16 -0400
+        by vger.kernel.org with ESMTP id S235594AbhJZLzR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Oct 2021 07:55:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635249172;
+        s=mimecast20190719; t=1635249173;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FLR2Leyry+xeRohsPAJ1nP6iahXc6L+3sR8YziyaFhI=;
-        b=gzjuhE3GndSjlnLLzsz0lvfvi16s/VuSkOF3HBCnObgz5202YV4sRYD3ShapDnBLgu/gQ3
-        elzGQxRb3ADKrz+14fzx41Enqer4q79WNUNEnAPCPhl9UzDX/a3u07sLbNeQJeiUdtZhCa
-        +XEbfvW1xLjXF+1IL2I6QAJ+hZNmgE0=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-50-oia9OqGTMJ-I5bCJdoIMLw-1; Tue, 26 Oct 2021 07:52:51 -0400
-X-MC-Unique: oia9OqGTMJ-I5bCJdoIMLw-1
-Received: by mail-ed1-f72.google.com with SMTP id s18-20020a056402521200b003dd5902f4f3so2364454edd.23
+        bh=EBJCrTjODRRPPsou+k/TPRZL99DVAN1mrhK42NTVPRE=;
+        b=elQg4S51oJ3rKie2m9DWpw4zf0zcA/2MfeMR3OlOcjyNK3X08VOm+htbhSuTRyLWIZm6yv
+        7wqBtXzPFGxGy4k2IDtBpzke8/5x+mchTnO4gstaV/hpTbOeHdGliRYJmz75S7H5l1NmtY
+        JRkiTz8W8p3FT1oJtXN811KRwbOgEuw=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-60-xDrsexrBMkeC1F4qjosdNg-1; Tue, 26 Oct 2021 07:52:51 -0400
+X-MC-Unique: xDrsexrBMkeC1F4qjosdNg-1
+Received: by mail-ed1-f70.google.com with SMTP id t18-20020a056402021200b003db9e6b0e57so3537645edv.10
         for <selinux@vger.kernel.org>; Tue, 26 Oct 2021 04:52:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=FLR2Leyry+xeRohsPAJ1nP6iahXc6L+3sR8YziyaFhI=;
-        b=LjuY/OGqort+ac++2zycaoJwIsOIHoCj4B9mSMV5BJtiywFdSAzv8Yrjg8woAVry9t
-         dI8yMyJMi9nA21CekL+BVmGi9eN94gJ90tJIkEtOXhdUHcvJqMdYakHCtZumgIBVxdAM
-         XJ0uIg9wu5boamWNdYUyx2NzBpNS05dgZAQz84vo6iT2TJQj/ZMt8W4nZpRUxj9HwQyt
-         TUCsT66ejtAUWvkgvMawAzkRa1HZ/1JmWIjopCmqNAfv/bubq3e9ZCJRHvQk+KDb/OB3
-         0U+SvCg6kZBrRZyGs4dAJXQ7i6zKySzNcD1is4E38iQBF3MgZjdGvaKFuPZ+xgsZUC8d
-         8+WA==
-X-Gm-Message-State: AOAM5320MJ8voF1XMYA3YmFSbp2WgwzaeN56SnB63YoPoJ1eefNHDEAw
-        XsjUpT6/n0JcmMQi3mr3WralwbSFjHDXIqDa4ASM7p1nzqO9OFLg50mAArcGHGOsyZq52yZdJLr
-        3fJtwvSkwKb8ROVZnXB2WFwQRTje/+XBVy1JU7w/q8FkhFKWcq1NmYZPnqT3Ld4JYODHBuA==
-X-Received: by 2002:a05:6402:27d2:: with SMTP id c18mr36046202ede.186.1635249170194;
-        Tue, 26 Oct 2021 04:52:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz49rsOk3cF7aGpV40Ykle8b2IFO/dQcA3+CORHiiB/0WfPMlsqPLVgZFjB9w4hRAyQauHEwA==
-X-Received: by 2002:a05:6402:27d2:: with SMTP id c18mr36046160ede.186.1635249169793;
+        bh=EBJCrTjODRRPPsou+k/TPRZL99DVAN1mrhK42NTVPRE=;
+        b=JZejUYqVB3QhafaHqZLwFyIDz2evJtnfYZ4vm/OjWBtQhGD2Za2LwwFcmo9aS1evq9
+         0JpJMvMpgblzGvCJp2cO2K9jGd71ICodGCAXkHubCYqD5dS6rd4HCmw/ineJX4ojZLUK
+         xQ9iTN6MDYIVhsJUBJQ8HdBArEFjZ4SR15yR9hJsJwlHGzipz7bwEc8jLKZQju7MxoNf
+         Xh22YXUhG+x+wfjqIXSVjmnPt1sYWP9LRr5VfL8CmL1Hm6s+C7uQdZHAbRhjwLzoks/Z
+         EUy+45MiW+X1adsuYwYyEccsJmYE7kVG8jvzdzru3OFmNgI9e2A0+srMfp9n7j3ijAWJ
+         cnNQ==
+X-Gm-Message-State: AOAM531dxr3UMzELRBrq/1Q8H8l592DHC0Y2j1n+gGpxwTz1Z/6+MnU0
+        Dh8EdVQaidzh74AB20ENHfMRWbUs89qEZX/CL6UbxGv5oOtmk4mCswdfrABFU7Wxq70bsNljc0W
+        26e9y1v7BaLCdtEazbjmK2mozXV7iagjkjI/blmT1A85KkB2vajOjkAey3oli6Re4wVnNwg==
+X-Received: by 2002:aa7:c846:: with SMTP id g6mr34940267edt.51.1635249169730;
+        Tue, 26 Oct 2021 04:52:49 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwB4H+nCWBgTLXh7SBITfR0tORv6v5+x2uJisZNLPCeA8EHlfqTNHvlejnz3JNzd1jG3nx2VA==
+X-Received: by 2002:aa7:c846:: with SMTP id g6mr34940192edt.51.1635249169010;
         Tue, 26 Oct 2021 04:52:49 -0700 (PDT)
 Received: from localhost.localdomain ([2a02:8308:b105:dd00:d067:83f0:d612:b70f])
-        by smtp.gmail.com with ESMTPSA id v15sm10658105edi.89.2021.10.26.04.52.49
+        by smtp.gmail.com with ESMTPSA id v15sm10658105edi.89.2021.10.26.04.52.48
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Oct 2021 04:52:49 -0700 (PDT)
+        Tue, 26 Oct 2021 04:52:48 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH userspace v4 8/8] setfiles/restorecon: support parallel relabeling
-Date:   Tue, 26 Oct 2021 13:52:39 +0200
-Message-Id: <20211026115239.267449-9-omosnace@redhat.com>
+Subject: [PATCH userspace v4 7/8] selinux_restorecon: introduce selinux_restorecon_parallel(3)
+Date:   Tue, 26 Oct 2021 13:52:38 +0200
+Message-Id: <20211026115239.267449-8-omosnace@redhat.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211026115239.267449-1-omosnace@redhat.com>
 References: <20211026115239.267449-1-omosnace@redhat.com>
@@ -68,251 +68,798 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use the newly introduced selinux_restorecon_parallel(3) in
-setfiles/restorecon and a -T option to both to allow enabling parallel
-relabeling. The default behavior without specifying the -T option is to
-use 1 thread; parallel relabeling must be requested explicitly by
-passing -T 0 (which will use as many threads as there are available CPU
-cores) or -T <N>, which will use <N> threads.
+Refactor selinux_restorecon(3) to allow for distributing the relabeling
+to multiple threads and add a new function
+selinux_restorecon_parallel(3), which allows specifying the number of
+threads to use. The existing selinux_restorecon(3) function maintains
+the same interface and maintains the same behavior (i.e. relabeling is
+done on a single thread).
 
-=== Benchmarks ===
-As measured on a 32-core cloud VM with Fedora 34. Not a fully
-representative environment, but still the scaling is quite good.
+The parallel implementation takes a simple approach of performing all
+the directory tree traversal in a critical section and only letting the
+relabeling of individual objects run in parallel. Thankfully, this
+approach turns out to be efficient enough in practice, as shown by
+restorecon benchmarks (detailed in a subsequent patch that switches
+setfiles & restorecon to use selinux_restorecon_parallel(3)).
 
-WITHOUT PATCHES:
-$ time restorecon -rn /usr
-
-real    0m21.689s
-user    0m21.070s
-sys     0m0.494s
-
-WITH PATCHES:
-$ time restorecon -rn /usr
-
-real    0m23.940s
-user    0m23.127s
-sys     0m0.653s
-$ time restorecon -rn -T 2 /usr
-
-real    0m13.145s
-user    0m25.306s
-sys     0m0.695s
-$ time restorecon -rn -T 4 /usr
-
-real    0m7.559s
-user    0m28.470s
-sys     0m1.099s
-$ time restorecon -rn -T 8 /usr
-
-real    0m5.186s
-user    0m37.450s
-sys     0m2.094s
-$ time restorecon -rn -T 16 /usr
-
-real    0m3.831s
-user    0m51.220s
-sys     0m4.895s
-$ time restorecon -rn -T 32 /usr
-
-real    0m2.650s
-user    1m5.136s
-sys     0m6.614s
-
-Note that the benchmarks were performed in read-only mode (-n), so the
-labels were only read and looked up in the database, not written. When
-fixing labels on a heavily mislabeled system, the scaling would likely
-be event better, since a larger % of work could be done in parallel.
+Note that to be able to use the parallelism, the calling application/
+library must be explicitly linked to the libpthread library (statically
+or dynamically). This is necessary to mantain the requirement that
+libselinux shouldn't explicitly link with libpthread. (I don't know what
+exactly was the reason behind this requirement as the commit logs are
+fuzzy, but special care has been taken in the past to maintain it, so I
+didn't want to break it...)
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- policycoreutils/setfiles/Makefile     |  2 +-
- policycoreutils/setfiles/restore.c    |  7 ++++---
- policycoreutils/setfiles/restore.h    |  2 +-
- policycoreutils/setfiles/restorecon.8 |  9 +++++++++
- policycoreutils/setfiles/setfiles.8   |  9 +++++++++
- policycoreutils/setfiles/setfiles.c   | 28 ++++++++++++++++-----------
- 6 files changed, 41 insertions(+), 16 deletions(-)
+ libselinux/include/selinux/restorecon.h       |  14 +
+ libselinux/man/man3/selinux_restorecon.3      |  29 ++
+ .../man/man3/selinux_restorecon_parallel.3    |   1 +
+ libselinux/src/libselinux.map                 |   5 +
+ libselinux/src/selinux_internal.h             |  16 +
+ libselinux/src/selinux_restorecon.c           | 436 ++++++++++++------
+ libselinux/src/selinuxswig_python.i           |   6 +-
+ libselinux/src/selinuxswig_python_exception.i |   8 +
+ 8 files changed, 368 insertions(+), 147 deletions(-)
+ create mode 100644 libselinux/man/man3/selinux_restorecon_parallel.3
 
-diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
-index 63d81850..d7670a8f 100644
---- a/policycoreutils/setfiles/Makefile
-+++ b/policycoreutils/setfiles/Makefile
-@@ -6,7 +6,7 @@ MANDIR = $(PREFIX)/share/man
- AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
+diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
+index 466de39a..1821a3dc 100644
+--- a/libselinux/include/selinux/restorecon.h
++++ b/libselinux/include/selinux/restorecon.h
+@@ -2,6 +2,7 @@
+ #define _RESTORECON_H_
  
- CFLAGS ?= -g -Werror -Wall -W
--override LDLIBS += -lselinux -lsepol
-+override LDLIBS += -lselinux -lsepol -lpthread
+ #include <sys/types.h>
++#include <stddef.h>
+ #include <stdarg.h>
  
- ifeq ($(AUDITH), y)
- 	override CFLAGS += -DUSE_AUDIT
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index 9d688c60..74d48bb3 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -72,7 +72,7 @@ void restore_finish(void)
- 	}
+ #ifdef __cplusplus
+@@ -23,6 +24,19 @@ extern "C" {
+  */
+ extern int selinux_restorecon(const char *pathname,
+ 				    unsigned int restorecon_flags);
++/**
++ * selinux_restorecon_parallel - Relabel files, optionally use more threads.
++ * @pathname: specifies file/directory to relabel.
++ * @restorecon_flags: specifies the actions to be performed when relabeling.
++ * @nthreads: specifies the number of threads to use (0 = use number of CPUs
++ *            currently online)
++ *
++ * Same as selinux_restorecon(3), but allows to use multiple threads to do
++ * the work.
++ */
++extern int selinux_restorecon_parallel(const char *pathname,
++				       unsigned int restorecon_flags,
++				       size_t nthreads);
+ /*
+  * restorecon_flags options
+  */
+diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
+index ad637406..334d2930 100644
+--- a/libselinux/man/man3/selinux_restorecon.3
++++ b/libselinux/man/man3/selinux_restorecon.3
+@@ -11,6 +11,14 @@ selinux_restorecon \- restore file(s) default SELinux security contexts
+ .br
+ .BI "unsigned int " restorecon_flags ");"
+ .in
++.sp
++.BI "int selinux_restorecon_parallel(const char *" pathname ,
++.in +\w'int selinux_restorecon_parallel('u
++.br
++.BI "unsigned int " restorecon_flags ","
++.br
++.BI "size_t " nthreads ");"
++.in
+ .
+ .SH "DESCRIPTION"
+ .BR selinux_restorecon ()
+@@ -187,6 +195,27 @@ unless the
+ .B SELINUX_RESTORECON_IGNORE_MOUNTS
+ flag has been set.
+ .RE
++.sp
++.BR selinux_restorecon_parallel()
++is similar to
++.BR selinux_restorecon (3),
++but accepts another parameter that allows to run relabeling over multiple
++threads:
++.sp
++.RS
++.IR nthreads
++specifies the number of threads to use during relabeling. When set to 1,
++the behavior is the same as calling
++.BR selinux_restorecon (3).
++When set to 0, the function will try to use as many threads as there are
++online CPU cores. When set to any other number, the function will try to use
++the given number of threads.
++.sp
++Note that to use the parallel relabeling capability, the calling process
++must be linked with the
++.B libpthread
++library (either at compile time or dynamically at run time). Otherwise the
++function will print a warning and fall back to the single threaded mode.
+ .
+ .SH "RETURN VALUE"
+ On success, zero is returned.  On error, \-1 is returned and
+diff --git a/libselinux/man/man3/selinux_restorecon_parallel.3 b/libselinux/man/man3/selinux_restorecon_parallel.3
+new file mode 100644
+index 00000000..092d8412
+--- /dev/null
++++ b/libselinux/man/man3/selinux_restorecon_parallel.3
+@@ -0,0 +1 @@
++.so man3/selinux_restorecon.3
+diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+index 2a368e93..d138e951 100644
+--- a/libselinux/src/libselinux.map
++++ b/libselinux/src/libselinux.map
+@@ -240,3 +240,8 @@ LIBSELINUX_1.0 {
+   local:
+     *;
+ };
++
++LIBSELINUX_3.3 {
++  global:
++    selinux_restorecon_parallel;
++} LIBSELINUX_1.0;
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 27e9ac53..297dcf26 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -69,6 +69,22 @@ extern int selinux_page_size ;
+ 			pthread_mutex_unlock(LOCK);		\
+ 	} while (0)
+ 
++#pragma weak pthread_create
++#pragma weak pthread_join
++#pragma weak pthread_cond_init
++#pragma weak pthread_cond_signal
++#pragma weak pthread_cond_destroy
++#pragma weak pthread_cond_wait
++
++/* check if all functions needed to do parallel operations are available */
++#define __pthread_supported (					\
++	pthread_create &&					\
++	pthread_join &&						\
++	pthread_cond_init &&					\
++	pthread_cond_destroy &&					\
++	pthread_cond_signal &&					\
++	pthread_cond_wait					\
++)
+ 
+ #define SELINUXDIR "/etc/selinux/"
+ #define SELINUXCONFIG SELINUXDIR "config"
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 252b775f..72f4fb46 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -610,7 +610,7 @@ out:
  }
  
--int process_glob(char *name, struct restore_opts *opts)
-+int process_glob(char *name, struct restore_opts *opts, size_t nthreads)
+ static int restorecon_sb(const char *pathname, const struct stat *sb,
+-			    struct rest_flags *flags)
++			    struct rest_flags *flags, bool first)
  {
- 	glob_t globbuf;
- 	size_t i = 0;
-@@ -91,8 +91,9 @@ int process_glob(char *name, struct restore_opts *opts)
- 			continue;
- 		if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
- 			continue;
--		rc = selinux_restorecon(globbuf.gl_pathv[i],
--					opts->restorecon_flags);
-+		rc = selinux_restorecon_parallel(globbuf.gl_pathv[i],
-+						 opts->restorecon_flags,
-+						 nthreads);
- 		if (rc < 0)
- 			errors = rc;
- 	}
-diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-index ac6ad680..bb35a1db 100644
---- a/policycoreutils/setfiles/restore.h
-+++ b/policycoreutils/setfiles/restore.h
-@@ -49,7 +49,7 @@ struct restore_opts {
- void restore_init(struct restore_opts *opts);
- void restore_finish(void);
- void add_exclude(const char *directory);
--int process_glob(char *name, struct restore_opts *opts);
-+int process_glob(char *name, struct restore_opts *opts, size_t nthreads);
- extern char **exclude_list;
+ 	char *newcon = NULL;
+ 	char *curcon = NULL;
+@@ -639,7 +639,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 						    sb->st_mode);
  
- #endif
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 668486f6..e07db2c8 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -33,6 +33,8 @@ restorecon \- restore file(s) default SELinux security contexts.
- .RB [ \-W ]
- .RB [ \-I | \-D ]
- .RB [ \-x ]
-+.RB [ \-T
-+.IR nthreads ]
+ 	if (rc < 0) {
+-		if (errno == ENOENT && flags->warnonnomatch)
++		if (errno == ENOENT && flags->warnonnomatch && first)
+ 			selinux_log(SELINUX_INFO,
+ 				    "Warning no default label for %s\n",
+ 				    lookup_path);
+@@ -814,66 +814,215 @@ oom:
+ 	goto free;
+ }
  
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -160,6 +162,13 @@ prevent
- .B restorecon
- from crossing file system boundaries.
- .TP
-+.BI \-T \ nthreads
-+use up to
-+.I nthreads
-+threads.  Specify 0 to create as many threads as there are available
-+CPU cores; 1 to use only a single thread (default); or any positive
-+number to use the given number of threads (if possible).
-+.TP
- .SH "ARGUMENTS"
- .IR pathname \ ...
- The pathname for the file(s) to be relabeled.
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index 4d28bc9a..15f939d1 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -19,6 +19,8 @@ setfiles \- set SELinux file security contexts.
- .RB [ \-W ]
- .RB [ \-F ]
- .RB [ \-I | \-D ]
-+.RB [ \-T
-+.IR nthreads ]
- .I spec_file
- .IR pathname \ ...
++struct rest_state {
++	struct rest_flags flags;
++	dev_t dev_num;
++	struct statfs sfsb;
++	bool ignore_digest;
++	bool setrestorecondigest;
++	bool parallel;
  
-@@ -161,6 +163,13 @@ quote marks or backslashes.  The
- option of GNU
- .B find
- produces input suitable for this mode.
-+.TP
-+.BI \-T \ nthreads
-+use up to
-+.I nthreads
-+threads.  Specify 0 to create as many threads as there are available
-+CPU cores; 1 to use only a single thread (default); or any positive
-+number to use the given number of threads (if possible).
+-/*
+- * Public API
+- */
++	FTS *fts;
++	FTSENT *ftsent_first;
++	struct dir_hash_node *head, *current;
++	bool abort;
++	int error;
++	int saved_errno;
++	pthread_mutex_t mutex;
++};
  
- .SH "ARGUMENTS"
- .TP
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index f018d161..2313a21f 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -1,4 +1,5 @@
- #include "restore.h"
-+#include <stdlib.h>
- #include <unistd.h>
- #include <fcntl.h>
- #include <stdio_ext.h>
-@@ -34,14 +35,14 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
+-/* selinux_restorecon(3) - Main function that is responsible for labeling */
+-int selinux_restorecon(const char *pathname_orig,
+-		       unsigned int restorecon_flags)
++static void *selinux_restorecon_thread(void *arg)
  {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
--			"usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
-+			"usage:  %s [-iIDFmnprRv0xT] [-e excludedir] pathname...\n"
-+			"usage:  %s [-iIDFmnprRv0xT] [-e excludedir] -f filename\n",
- 			name, name);
- 	} else {
- 		fprintf(stderr,
--			"usage:  %s [-diIDlmnpqvEFW] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file pathname...\n"
--			"usage:  %s [-diIDlmnpqvEFW] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file -f filename\n"
--			"usage:  %s -s [-diIDlmnpqvFW] spec_file\n",
-+			"usage:  %s [-diIDlmnpqvEFWT] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file pathname...\n"
-+			"usage:  %s [-diIDlmnpqvEFWT] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file -f filename\n"
-+			"usage:  %s -s [-diIDlmnpqvFWT] spec_file\n",
- 			name, name, name);
- 	}
- 	exit(-1);
-@@ -144,12 +145,12 @@ int main(int argc, char **argv)
- 	int opt, i = 0;
- 	const char *input_filename = NULL;
- 	int use_input_file = 0;
--	char *buf = NULL;
--	size_t buf_len;
-+	char *buf = NULL, *endptr;
-+	size_t buf_len, nthreads = 1;
- 	const char *base;
- 	int errors = 0;
--	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0x";
--	const char *sopts = "c:de:f:hiIDlmno:pqr:svEFR:W0";
-+	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0xT:";
-+	const char *sopts = "c:de:f:hiIDlmno:pqr:svEFR:W0T:";
- 	const char *opts;
- 	union selinux_callback cb;
+-	struct rest_flags flags;
++	struct rest_state *state = arg;
++	FTS *fts = state->fts;
++	FTSENT *ftsent;
++	int error;
++	char ent_path[PATH_MAX];
++	struct stat ent_st;
++	bool first = false;
++
++	if (state->parallel)
++		pthread_mutex_lock(&state->mutex);
++
++	if (state->ftsent_first) {
++		ftsent = state->ftsent_first;
++		state->ftsent_first = NULL;
++		first = true;
++		goto loop_body;
++	}
++
++	while (((void)(errno = 0), ftsent = fts_read(fts)) != NULL) {
++loop_body:
++		/* If the FTS_XDEV flag is set and the device is different */
++		if (state->flags.set_xdev &&
++		    ftsent->fts_statp->st_dev != state->dev_num)
++			continue;
++
++		switch (ftsent->fts_info) {
++		case FTS_DC:
++			selinux_log(SELINUX_ERROR,
++				    "Directory cycle on %s.\n",
++				    ftsent->fts_path);
++			errno = ELOOP;
++			state->error = -1;
++			state->abort = true;
++			goto finish;
++		case FTS_DP:
++			continue;
++		case FTS_DNR:
++			error = errno;
++			errno = ftsent->fts_errno;
++			selinux_log(SELINUX_ERROR,
++				    "Could not read %s: %m.\n",
++				    ftsent->fts_path);
++			errno = error;
++			fts_set(fts, ftsent, FTS_SKIP);
++			continue;
++		case FTS_NS:
++			error = errno;
++			errno = ftsent->fts_errno;
++			selinux_log(SELINUX_ERROR,
++				    "Could not stat %s: %m.\n",
++				    ftsent->fts_path);
++			errno = error;
++			fts_set(fts, ftsent, FTS_SKIP);
++			continue;
++		case FTS_ERR:
++			error = errno;
++			errno = ftsent->fts_errno;
++			selinux_log(SELINUX_ERROR,
++				    "Error on %s: %m.\n",
++				    ftsent->fts_path);
++			errno = error;
++			fts_set(fts, ftsent, FTS_SKIP);
++			continue;
++		case FTS_D:
++			if (state->sfsb.f_type == SYSFS_MAGIC &&
++			    !selabel_partial_match(fc_sehandle,
++			    ftsent->fts_path)) {
++				fts_set(fts, ftsent, FTS_SKIP);
++				continue;
++			}
++
++			if (check_excluded(ftsent->fts_path)) {
++				fts_set(fts, ftsent, FTS_SKIP);
++				continue;
++			}
  
-@@ -370,6 +371,11 @@ int main(int argc, char **argv)
- 				usage(argv[0]);
-                         }
-                         break;
-+		case 'T':
-+			nthreads = strtoull(optarg, &endptr, 10);
-+			if (*optarg == '\0' || *endptr != '\0')
-+				usage(argv[0]);
+-	flags.nochange = (restorecon_flags &
++			if (state->setrestorecondigest) {
++				struct dir_hash_node *new_node = NULL;
++
++				if (check_context_match_for_dir(ftsent->fts_path,
++								&new_node,
++								state->error) &&
++								!state->ignore_digest) {
++					selinux_log(SELINUX_INFO,
++						"Skipping restorecon on directory(%s)\n",
++						    ftsent->fts_path);
++					fts_set(fts, ftsent, FTS_SKIP);
++					continue;
++				}
++
++				if (new_node && !state->error) {
++					if (!state->current) {
++						state->current = new_node;
++						state->head = state->current;
++					} else {
++						state->current->next = new_node;
++						state->current = new_node;
++					}
++				}
++			}
++			/* fall through */
++		default:
++			strcpy(ent_path, ftsent->fts_path);
++			ent_st = *ftsent->fts_statp;
++			if (state->parallel)
++				pthread_mutex_unlock(&state->mutex);
++
++			error = restorecon_sb(ent_path, &ent_st, &state->flags,
++					      first);
++
++			if (state->parallel) {
++				pthread_mutex_lock(&state->mutex);
++				if (state->abort)
++					goto unlock;
++			}
++
++			state->error |= error;
++			first = false;
++			if (error && state->flags.abort_on_error) {
++				state->abort = true;
++				goto finish;
++			}
 +			break;
- 		case 'h':
- 		case '?':
- 			usage(argv[0]);
-@@ -448,13 +454,13 @@ int main(int argc, char **argv)
- 			buf[len - 1] = 0;
- 			if (!strcmp(buf, "/"))
- 				r_opts.mass_relabel = SELINUX_RESTORECON_MASS_RELABEL;
--			errors |= process_glob(buf, &r_opts) < 0;
-+			errors |= process_glob(buf, &r_opts, nthreads) < 0;
++		}
++	}
++
++finish:
++	if (!state->saved_errno)
++		state->saved_errno = errno;
++unlock:
++	if (state->parallel)
++		pthread_mutex_unlock(&state->mutex);
++	return NULL;
++}
++
++static int selinux_restorecon_common(const char *pathname_orig,
++				     unsigned int restorecon_flags,
++				     size_t nthreads)
++{
++	struct rest_state state;
++
++	state.flags.nochange = (restorecon_flags &
+ 		    SELINUX_RESTORECON_NOCHANGE) ? true : false;
+-	flags.verbose = (restorecon_flags &
++	state.flags.verbose = (restorecon_flags &
+ 		    SELINUX_RESTORECON_VERBOSE) ? true : false;
+-	flags.progress = (restorecon_flags &
++	state.flags.progress = (restorecon_flags &
+ 		    SELINUX_RESTORECON_PROGRESS) ? true : false;
+-	flags.mass_relabel = (restorecon_flags &
++	state.flags.mass_relabel = (restorecon_flags &
+ 		    SELINUX_RESTORECON_MASS_RELABEL) ? true : false;
+-	flags.recurse = (restorecon_flags &
++	state.flags.recurse = (restorecon_flags &
+ 		    SELINUX_RESTORECON_RECURSE) ? true : false;
+-	flags.set_specctx = (restorecon_flags &
++	state.flags.set_specctx = (restorecon_flags &
+ 		    SELINUX_RESTORECON_SET_SPECFILE_CTX) ? true : false;
+-	flags.userealpath = (restorecon_flags &
++	state.flags.userealpath = (restorecon_flags &
+ 		   SELINUX_RESTORECON_REALPATH) ? true : false;
+-	flags.set_xdev = (restorecon_flags &
++	state.flags.set_xdev = (restorecon_flags &
+ 		   SELINUX_RESTORECON_XDEV) ? true : false;
+-	flags.add_assoc = (restorecon_flags &
++	state.flags.add_assoc = (restorecon_flags &
+ 		   SELINUX_RESTORECON_ADD_ASSOC) ? true : false;
+-	flags.abort_on_error = (restorecon_flags &
++	state.flags.abort_on_error = (restorecon_flags &
+ 		   SELINUX_RESTORECON_ABORT_ON_ERROR) ? true : false;
+-	flags.syslog_changes = (restorecon_flags &
++	state.flags.syslog_changes = (restorecon_flags &
+ 		   SELINUX_RESTORECON_SYSLOG_CHANGES) ? true : false;
+-	flags.log_matches = (restorecon_flags &
++	state.flags.log_matches = (restorecon_flags &
+ 		   SELINUX_RESTORECON_LOG_MATCHES) ? true : false;
+-	flags.ignore_noent = (restorecon_flags &
++	state.flags.ignore_noent = (restorecon_flags &
+ 		   SELINUX_RESTORECON_IGNORE_NOENTRY) ? true : false;
+-	flags.warnonnomatch = true;
+-	flags.conflicterror = (restorecon_flags &
++	state.flags.warnonnomatch = true;
++	state.flags.conflicterror = (restorecon_flags &
+ 		   SELINUX_RESTORECON_CONFLICT_ERROR) ? true : false;
+ 	ignore_mounts = (restorecon_flags &
+ 		   SELINUX_RESTORECON_IGNORE_MOUNTS) ? true : false;
+-	bool ignore_digest = (restorecon_flags &
++	state.ignore_digest = (restorecon_flags &
+ 		    SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
+-	bool setrestorecondigest = true;
++	state.setrestorecondigest = true;
++
++	state.head = NULL;
++	state.current = NULL;
++	state.abort = false;
++	state.error = 0;
++	state.saved_errno = 0;
+ 
+ 	struct stat sb;
+-	struct statfs sfsb;
+-	FTS *fts;
+-	FTSENT *ftsent;
+ 	char *pathname = NULL, *pathdnamer = NULL, *pathdname, *pathbname;
+ 	char *paths[2] = { NULL, NULL };
+ 	int fts_flags, error, sverrno;
+-	dev_t dev_num = 0;
+ 	struct dir_hash_node *current = NULL;
+-	struct dir_hash_node *head = NULL;
+-	int errno_tmp;
+ 
+-	if (flags.verbose && flags.progress)
+-		flags.verbose = false;
++	if (state.flags.verbose && state.flags.progress)
++		state.flags.verbose = false;
+ 
+ 	__selinux_once(fc_once, restorecon_init);
+ 
+@@ -886,13 +1035,31 @@ int selinux_restorecon(const char *pathname_orig,
+ 	 */
+ 	if (selabel_no_digest ||
+ 	    (restorecon_flags & SELINUX_RESTORECON_SKIP_DIGEST))
+-		setrestorecondigest = false;
++		state.setrestorecondigest = false;
++
++	if (!__pthread_supported) {
++		if (nthreads != 1) {
++			nthreads = 1;
++			selinux_log(SELINUX_WARNING,
++				"Threading functionality not available, falling back to 1 thread.");
++		}
++	} else if (nthreads == 0) {
++		long nproc = sysconf(_SC_NPROCESSORS_ONLN);
++
++		if (nproc > 0) {
++			nthreads = nproc;
++		} else {
++			nthreads = 1;
++			selinux_log(SELINUX_WARNING,
++				"Unable to detect CPU count, falling back to 1 thread.");
++		}
++	}
+ 
+ 	/*
+ 	 * Convert passed-in pathname to canonical pathname by resolving
+ 	 * realpath of containing dir, then appending last component name.
+ 	 */
+-	if (flags.userealpath) {
++	if (state.flags.userealpath) {
+ 		char *basename_cpy = strdup(pathname_orig);
+ 		if (!basename_cpy)
+ 			goto realpatherr;
+@@ -937,7 +1104,7 @@ int selinux_restorecon(const char *pathname_orig,
+ 	paths[0] = pathname;
+ 
+ 	if (lstat(pathname, &sb) < 0) {
+-		if (flags.ignore_noent && errno == ENOENT) {
++		if (state.flags.ignore_noent && errno == ENOENT) {
+ 			free(pathdnamer);
+ 			free(pathname);
+ 			return 0;
+@@ -952,21 +1119,21 @@ int selinux_restorecon(const char *pathname_orig,
+ 
+ 	/* Skip digest if not a directory */
+ 	if (!S_ISDIR(sb.st_mode))
+-		setrestorecondigest = false;
++		state.setrestorecondigest = false;
+ 
+-	if (!flags.recurse) {
++	if (!state.flags.recurse) {
+ 		if (check_excluded(pathname)) {
+ 			error = 0;
+ 			goto cleanup;
  		}
- 		if (strcmp(input_filename, "-") != 0)
- 			fclose(f);
- 	} else {
- 		for (i = optind; i < argc; i++)
--			errors |= process_glob(argv[i], &r_opts) < 0;
-+			errors |= process_glob(argv[i], &r_opts, nthreads) < 0;
+ 
+-		error = restorecon_sb(pathname, &sb, &flags);
++		error = restorecon_sb(pathname, &sb, &state.flags, true);
+ 		goto cleanup;
  	}
  
- 	maybe_audit_mass_relabel(r_opts.mass_relabel, errors);
+ 	/* Obtain fs type */
+-	memset(&sfsb, 0, sizeof sfsb);
+-	if (!S_ISLNK(sb.st_mode) && statfs(pathname, &sfsb) < 0) {
++	memset(&state.sfsb, 0, sizeof(state.sfsb));
++	if (!S_ISLNK(sb.st_mode) && statfs(pathname, &state.sfsb) < 0) {
+ 		selinux_log(SELINUX_ERROR,
+ 			    "statfs(%s) failed: %m\n",
+ 			    pathname);
+@@ -975,21 +1142,21 @@ int selinux_restorecon(const char *pathname_orig,
+ 	}
+ 
+ 	/* Skip digest on in-memory filesystems and /sys */
+-	if (sfsb.f_type == RAMFS_MAGIC || sfsb.f_type == TMPFS_MAGIC ||
+-	    sfsb.f_type == SYSFS_MAGIC)
+-		setrestorecondigest = false;
++	if (state.sfsb.f_type == RAMFS_MAGIC || state.sfsb.f_type == TMPFS_MAGIC ||
++	    state.sfsb.f_type == SYSFS_MAGIC)
++		state.setrestorecondigest = false;
+ 
+-	if (flags.set_xdev)
++	if (state.flags.set_xdev)
+ 		fts_flags = FTS_PHYSICAL | FTS_NOCHDIR | FTS_XDEV;
+ 	else
+ 		fts_flags = FTS_PHYSICAL | FTS_NOCHDIR;
+ 
+-	fts = fts_open(paths, fts_flags, NULL);
+-	if (!fts)
++	state.fts = fts_open(paths, fts_flags, NULL);
++	if (!state.fts)
+ 		goto fts_err;
+ 
+-	ftsent = fts_read(fts);
+-	if (!ftsent)
++	state.ftsent_first = fts_read(state.fts);
++	if (!state.ftsent_first)
+ 		goto fts_err;
+ 
+ 	/*
+@@ -1001,106 +1168,66 @@ int selinux_restorecon(const char *pathname_orig,
+ 	 * directories with a different device number when the FTS_XDEV flag
+ 	 * is set (from http://marc.info/?l=selinux&m=124688830500777&w=2).
+ 	 */
+-	dev_num = ftsent->fts_statp->st_dev;
++	state.dev_num = state.ftsent_first->fts_statp->st_dev;
+ 
+-	error = 0;
+-	do {
+-		/* If the FTS_XDEV flag is set and the device is different */
+-		if (flags.set_xdev && ftsent->fts_statp->st_dev != dev_num)
+-			continue;
++	if (nthreads == 1) {
++		state.parallel = false;
++		selinux_restorecon_thread(&state);
++	} else {
++		size_t i;
++		pthread_t self = pthread_self();
++		pthread_t *threads = NULL;
+ 
+-		switch (ftsent->fts_info) {
+-		case FTS_DC:
+-			selinux_log(SELINUX_ERROR,
+-				    "Directory cycle on %s.\n",
+-				    ftsent->fts_path);
+-			errno = ELOOP;
+-			error = -1;
+-			goto out;
+-		case FTS_DP:
+-			continue;
+-		case FTS_DNR:
+-			errno_tmp = errno;
+-			errno = ftsent->fts_errno;
+-			selinux_log(SELINUX_ERROR,
+-				    "Could not read %s: %m.\n",
+-				    ftsent->fts_path);
+-			errno = errno_tmp;
+-			fts_set(fts, ftsent, FTS_SKIP);
+-			continue;
+-		case FTS_NS:
+-			errno_tmp = errno;
+-			errno = ftsent->fts_errno;
+-			selinux_log(SELINUX_ERROR,
+-				    "Could not stat %s: %m.\n",
+-				    ftsent->fts_path);
+-			errno = errno_tmp;
+-			fts_set(fts, ftsent, FTS_SKIP);
+-			continue;
+-		case FTS_ERR:
+-			errno_tmp = errno;
+-			errno = ftsent->fts_errno;
+-			selinux_log(SELINUX_ERROR,
+-				    "Error on %s: %m.\n",
+-				    ftsent->fts_path);
+-			errno = errno_tmp;
+-			fts_set(fts, ftsent, FTS_SKIP);
+-			continue;
+-		case FTS_D:
+-			if (sfsb.f_type == SYSFS_MAGIC &&
+-			    !selabel_partial_match(fc_sehandle,
+-			    ftsent->fts_path)) {
+-				fts_set(fts, ftsent, FTS_SKIP);
+-				continue;
+-			}
++		pthread_mutex_init(&state.mutex, NULL);
+ 
+-			if (check_excluded(ftsent->fts_path)) {
+-				fts_set(fts, ftsent, FTS_SKIP);
+-				continue;
++		threads = calloc(nthreads - 1, sizeof(*threads));
++		if (!threads)
++			goto oom;
++
++		state.parallel = true;
++		/*
++		 * Start (nthreads - 1) threads - the main thread is going to
++		 * take part, too.
++		 */
++		for (i = 0; i < nthreads - 1; i++) {
++			if (pthread_create(&threads[i], NULL,
++					   selinux_restorecon_thread, &state)) {
++				/*
++				 * If any thread fails to be created, just mark
++				 * it as such and let the successfully created
++				 * threads do the job. In the worst case the
++				 * main thread will do everything, but that's
++				 * still better than to give up.
++				 */
++				threads[i] = self;
+ 			}
++		}
+ 
+-			if (setrestorecondigest) {
+-				struct dir_hash_node *new_node = NULL;
++		/* Let's join in on the fun! */
++		selinux_restorecon_thread(&state);
+ 
+-				if (check_context_match_for_dir(ftsent->fts_path,
+-								&new_node,
+-								error) &&
+-								!ignore_digest) {
+-					selinux_log(SELINUX_INFO,
+-						    "Skipping restorecon on directory(%s)\n",
+-						    ftsent->fts_path);
+-					fts_set(fts, ftsent, FTS_SKIP);
+-					continue;
+-				}
+-
+-				if (new_node && !error) {
+-					if (!current) {
+-						current = new_node;
+-						head = current;
+-					} else {
+-						current->next = new_node;
+-						current = current->next;
+-					}
+-				}
+-			}
+-			/* fall through */
+-		default:
+-			error |= restorecon_sb(ftsent->fts_path,
+-					       ftsent->fts_statp, &flags);
+-			if (flags.warnonnomatch)
+-				flags.warnonnomatch = false;
+-			if (error && flags.abort_on_error)
+-				goto out;
+-			break;
++		/* Now wait for all threads to finish. */
++		for (i = 0; i < nthreads - 1; i++) {
++			/* Skip threads that failed to be created. */
++			if (pthread_equal(threads[i], self))
++				continue;
++			pthread_join(threads[i], NULL);
+ 		}
+-	} while ((ftsent = fts_read(fts)) != NULL);
++		free(threads);
++
++		pthread_mutex_destroy(&state.mutex);
++	}
++
++	error = state.error;
++	if (state.saved_errno)
++		goto out;
+ 
+ 	/*
+ 	 * Labeling successful. Write partial match digests for subdirectories.
+ 	 * TODO: Write digest upon FTS_DP if no error occurs in its descents.
+ 	 */
+-	if (setrestorecondigest && !flags.nochange && !error) {
+-		current = head;
++	if (state.setrestorecondigest && !state.flags.nochange && !error) {
++		current = state.head;
+ 		while (current != NULL) {
+ 			if (setxattr(current->path,
+ 			    RESTORECON_PARTIAL_MATCH_DIGEST,
+@@ -1115,22 +1242,21 @@ int selinux_restorecon(const char *pathname_orig,
+ 	}
+ 
+ out:
+-	if (flags.progress && flags.mass_relabel)
++	if (state.flags.progress && state.flags.mass_relabel)
+ 		fprintf(stdout, "\r%s 100.0%%\n", pathname);
+ 
+-	sverrno = errno;
+-	(void) fts_close(fts);
+-	errno = sverrno;
++	(void) fts_close(state.fts);
++	errno = state.saved_errno;
+ cleanup:
+-	if (flags.add_assoc) {
+-		if (flags.verbose)
++	if (state.flags.add_assoc) {
++		if (state.flags.verbose)
+ 			filespec_eval();
+ 		filespec_destroy();
+ 	}
+ 	free(pathdnamer);
+ 	free(pathname);
+ 
+-	current = head;
++	current = state.head;
+ 	while (current != NULL) {
+ 		struct dir_hash_node *next = current->next;
+ 
+@@ -1164,6 +1290,26 @@ fts_err:
+ 	goto cleanup;
+ }
+ 
++
++/*
++ * Public API
++ */
++
++/* selinux_restorecon(3) - Main function that is responsible for labeling */
++int selinux_restorecon(const char *pathname_orig,
++		       unsigned int restorecon_flags)
++{
++	return selinux_restorecon_common(pathname_orig, restorecon_flags, 1);
++}
++
++/* selinux_restorecon_parallel(3) - Parallel version of selinux_restorecon(3) */
++int selinux_restorecon_parallel(const char *pathname_orig,
++				unsigned int restorecon_flags,
++				size_t nthreads)
++{
++	return selinux_restorecon_common(pathname_orig, restorecon_flags, nthreads);
++}
++
+ /* selinux_restorecon_set_sehandle(3) is called to set the global fc handle */
+ void selinux_restorecon_set_sehandle(struct selabel_handle *hndl)
+ {
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index 4c73bf92..17e03b9e 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -20,7 +20,7 @@ DISABLED = -1
+ PERMISSIVE = 0
+ ENFORCING = 1
+ 
+-def restorecon(path, recursive=False, verbose=False, force=False):
++def restorecon(path, recursive=False, verbose=False, force=False, nthreads=1):
+     """ Restore SELinux context on a given path
+ 
+     Arguments:
+@@ -32,6 +32,8 @@ def restorecon(path, recursive=False, verbose=False, force=False):
+     force -- Force reset of context to match file_context for customizable files,
+     and the default file context, changing the user, role, range portion  as well
+     as the type (default False)
++    nthreads -- The number of threads to use during relabeling, or 0 to use as many
++    threads as there are online CPU cores (default 1)
+     """
+ 
+     restorecon_flags = SELINUX_RESTORECON_IGNORE_DIGEST | SELINUX_RESTORECON_REALPATH
+@@ -41,7 +43,7 @@ def restorecon(path, recursive=False, verbose=False, force=False):
+         restorecon_flags |= SELINUX_RESTORECON_VERBOSE
+     if force:
+         restorecon_flags |= SELINUX_RESTORECON_SET_SPECFILE_CTX
+-    selinux_restorecon(os.path.expanduser(path), restorecon_flags)
++    selinux_restorecon_parallel(os.path.expanduser(path), restorecon_flags, nthreads)
+ 
+ def chcon(path, context, recursive=False):
+     """ Set the SELinux context on a given path """
+diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
+index 237ea69a..a02f4923 100644
+--- a/libselinux/src/selinuxswig_python_exception.i
++++ b/libselinux/src/selinuxswig_python_exception.i
+@@ -1183,6 +1183,14 @@
+   }
+ }
+ 
++%exception selinux_restorecon_parallel {
++  $action
++  if (result < 0) {
++     PyErr_SetFromErrno(PyExc_OSError);
++     SWIG_fail;
++  }
++}
++
+ %exception selinux_restorecon_set_alt_rootpath {
+   $action
+   if (result < 0) {
 -- 
 2.31.1
 
