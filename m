@@ -2,117 +2,179 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 296E3C433F5
-	for <selinux@archiver.kernel.org>; Wed, 27 Oct 2021 18:12:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EBFDC433FE
+	for <selinux@archiver.kernel.org>; Wed, 27 Oct 2021 18:12:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15BE06109F
-	for <selinux@archiver.kernel.org>; Wed, 27 Oct 2021 18:12:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 125696109F
+	for <selinux@archiver.kernel.org>; Wed, 27 Oct 2021 18:12:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238910AbhJ0SPS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Oct 2021 14:15:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
+        id S238876AbhJ0SPT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Oct 2021 14:15:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231782AbhJ0SPS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Oct 2021 14:15:18 -0400
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81393C061570
-        for <selinux@vger.kernel.org>; Wed, 27 Oct 2021 11:12:52 -0700 (PDT)
-Received: by mail-qt1-x82f.google.com with SMTP id f1so3294614qto.9
-        for <selinux@vger.kernel.org>; Wed, 27 Oct 2021 11:12:52 -0700 (PDT)
+        with ESMTP id S231782AbhJ0SPT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Oct 2021 14:15:19 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4C2C061745
+        for <selinux@vger.kernel.org>; Wed, 27 Oct 2021 11:12:53 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id c3so2350654qvh.7
+        for <selinux@vger.kernel.org>; Wed, 27 Oct 2021 11:12:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=K1B9JHLq9PWLP/zHWyJ6cnJpdltyQSgV6M1zrRnwDJg=;
-        b=ax54oA0cDoFEkb/tpte93WVd9lKkDOxHpl102g+BtgVJbxsh2rknDfd065AY7rztgw
-         kH/0ZFRc8Pu8J1oVGMMBZ4UPLIEOnS0LoTgg64O9scLbjCHT+DkGqEXUe3Uo5hR0jQx3
-         xima8ieH0UlbGqDZwSLFySvLQRklDyFeBEgi4hl4bCDBsa6g3Ugnhjfelvh5V6itr3Go
-         Ue9xPB/RRby+azPlw9vuvYMTBGiZgkTzYUua+mmptbj94sLfwtv4Vb969cSKHSKMntm2
-         RXGGwUw012ds84qZZjyT4KtFXnVwame9Gr5V6TGQ0M19FsTQArGu5RvBps51iCVX99iJ
-         3q5g==
+        bh=I2eCYgNRKXswXFfWPQ92SfTVbVOmqP45FGZ7P8DE/ns=;
+        b=qN74CtCzkKNWDLIvAABRK4DyFdjdG2pmklEwsQ73n44Kx8siUlkJtn3s5S9L4hY5gh
+         6D+sxX8HSHyNIrzvR8nc8+tYaDpbVo6QwR7oyFcecuDwW5SkDb28lwEvQHbJUAklnxUG
+         qMSEzg6xo9yzaIkmrI8F2dAeoYpSE85mGZpA6A7o/GAILcpfcx2LIm7egindoPSddOyR
+         AqMeDgeUJjrKzRam2vDYoAftDsw9BFQcoz/uXiBpTv6IkwOYNKwZG9nkPodHualb/Erc
+         Ct1QM7cJkkgn7SKfm4dgZUpoGXJsx0lNXxNxMZ/8KMnmNPKv9pNqqms1czTvzTLoLwTq
+         1FNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=K1B9JHLq9PWLP/zHWyJ6cnJpdltyQSgV6M1zrRnwDJg=;
-        b=XXLUythjdrwb5INDpukmcoZP0lf7/ZvSN3/kTvE86yNxbqAacDI8IHd+JkMDLnORBx
-         0pBGpwEtz+2mnR7MxRRf9jRiysJZzzt8s56HCe7PyweHLMwV71Sae7cGPBCfpeoy+xoQ
-         bfKnIFvv5N4o54Xd/j7GB1q/c22c+aq9BUB/bZJ4wKliFn5Xkl39+2O4FB5D7mTIHFkj
-         6YFxu9ShDcxk11RFle+CyaAwdgBpv8MJczzBtvCnxAF7so/FZGNNN+y//MU4/eDNZPV3
-         cOddbP4xxbgmQ1/MHH7Fjlzlf7KcWq16bSr8z/XQb476CyNwU9a24lPF0VYYEFqbatZ3
-         cItg==
-X-Gm-Message-State: AOAM5313m0FUQ/JBmBAPzFsiJ7uJHeyNonm5543vaIw5d70TKjZV0ueX
-        H4D6I41bMTUIA7/gk/jM9YXjpYEDosY=
-X-Google-Smtp-Source: ABdhPJziyIdPVBBMSwqCbO3sKhkeWFTiaByk2l8+xM/ASQeiemzWE+MivdJox2Kvok0PCHVwndWV0w==
-X-Received: by 2002:ac8:594b:: with SMTP id 11mr34166425qtz.191.1635358371551;
-        Wed, 27 Oct 2021 11:12:51 -0700 (PDT)
+        bh=I2eCYgNRKXswXFfWPQ92SfTVbVOmqP45FGZ7P8DE/ns=;
+        b=w4UfFwnCcAsUdVv7w1boTEKBWRSaUUIBHPgoHmew7/8pH/a7UDWHmjCZIwxmnQDnZX
+         zZ3GVwxiglzIfO6n8spy7kYCtzliZfSt63GlCsgpbAYu6Q739JCf16sq6VzD/UW1ImSa
+         39hMj0Vg7w5/0mVbw37/Z3ZwROB3JPGBvQDOGUuoHmt4CGlGRp7NeVpXOvOtaqnW6NdM
+         sQ/E2pcevvw1zhHfJ6N381mn/VccES6KfUgmW6MhO3zT8DrjoBQx41Lo4lc7fsqGshwx
+         eStREvG6v6Dnscp+BVEJMjoe2R3/m4jaiog+/KXexjvwpC5TPI8xpdq8Edun24C88bC2
+         s2Bg==
+X-Gm-Message-State: AOAM532L0ByotDKoMrcjUA4eOtqEeVgCcvKrzueDmCtuwTepVjSvj9Wf
+        C8mODW23K/UM8wOPPGa3Wcj+pDDWSqQ=
+X-Google-Smtp-Source: ABdhPJwr7hb7LhdZe4NzdRcm1Wf8nCpIVW5Wdnsx+H9Tm0oN8iz7T1nSm47dk6dTiW0Grp5aFtPnvA==
+X-Received: by 2002:ad4:43e8:: with SMTP id f8mr11371365qvu.41.1635358372555;
+        Wed, 27 Oct 2021 11:12:52 -0700 (PDT)
 Received: from localhost.localdomain (c-73-200-157-122.hsd1.md.comcast.net. [73.200.157.122])
-        by smtp.gmail.com with ESMTPSA id l15sm440561qtk.41.2021.10.27.11.12.50
+        by smtp.gmail.com with ESMTPSA id l15sm440561qtk.41.2021.10.27.11.12.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 11:12:50 -0700 (PDT)
+        Wed, 27 Oct 2021 11:12:51 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/4] secilc/docs: Document the optional file type for genfscon rules
-Date:   Wed, 27 Oct 2021 14:12:09 -0400
-Message-Id: <20211027181210.1019597-4-jwcart2@gmail.com>
+Subject: [PATCH 4/4] libsepol: Write out genfscon file type when writing out CIL policy
+Date:   Wed, 27 Oct 2021 14:12:10 -0400
+Message-Id: <20211027181210.1019597-5-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211027181210.1019597-1-jwcart2@gmail.com>
 References: <20211027181210.1019597-1-jwcart2@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Update the CIL documentation to include the optional file type for
-genfscon rules.
+With an optional file type being added to CIL genfscon rules, it
+should be used when writing out a kernel policy or module to CIL
+when a genfscon rule should only apply to a single security class.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- secilc/docs/cil_file_labeling_statements.md | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ libsepol/src/kernel_to_cil.c | 35 +++++++++++++++++++++++++++++++++--
+ libsepol/src/module_to_cil.c | 27 ++++++++++++++++++++++++++-
+ 2 files changed, 59 insertions(+), 3 deletions(-)
 
-diff --git a/secilc/docs/cil_file_labeling_statements.md b/secilc/docs/cil_file_labeling_statements.md
-index ed7b7bf9..73f73885 100644
---- a/secilc/docs/cil_file_labeling_statements.md
-+++ b/secilc/docs/cil_file_labeling_statements.md
-@@ -36,11 +36,13 @@ Define entries for labeling files. The compiler will produce these entries in a
- <col width="44%" />
- <col width="55%" />
- </colgroup>
--<tbody>
-+<thead>
- <tr class="odd">
- <td align="left"><p><strong>keyword</strong></p></td>
- <td align="left"><p><strong>file_contexts entry</strong></p></td>
- </tr>
-+</thead>
-+<tbody>
- <tr class="even">
- <td align="left"><p><code>file</code></p></td>
- <td align="left"><p><code>--</code></p></td>
-@@ -185,7 +187,7 @@ Used to allocate a security context to filesystems that cannot support any of th
- **Statement definition:**
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index 305567a5..ef66b2fb 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -2640,6 +2640,8 @@ static int write_genfscon_rules_to_cil(FILE *out, struct policydb *pdb)
+ 	struct ocontext *ocon;
+ 	struct strs *strs;
+ 	char *fstype, *name, *ctx;
++	uint32_t sclass;
++	const char *file_type;
+ 	int rc;
  
- ```secil
--    (genfscon fsname path context_id)
-+    (genfscon fsname path [file_type] context_id)
- ```
+ 	rc = strs_init(&strs, 32);
+@@ -2652,14 +2654,43 @@ static int write_genfscon_rules_to_cil(FILE *out, struct policydb *pdb)
+ 			fstype = genfs->fstype;
+ 			name = ocon->u.name;
  
- **Where:**
-@@ -209,6 +211,10 @@ Used to allocate a security context to filesystems that cannot support any of th
- <td align="left"><p>If <code>fsname</code> is <code>proc</code>, then the partial path (see examples). For all other types this must be ‘<code>/</code>’.</p></td>
- </tr>
- <tr class="even">
-+<td align="left"><p><code>file_type</code></p></td>
-+<td align="left"><p>Optional keyword representing a file type. Valid values are the same as in [`filecon`](cil_file_labeling_statements.md#filecon) rules.</p></td>
-+</tr>
-+<tr class="odd">
- <td align="left"><p><code>context_id</code></p></td>
- <td align="left"><p>A previously declared <code>context</code> identifier or an anonymous security context (<code>user role type levelrange</code>), the range MUST be defined whether the policy is MLS/MCS enabled or not.</p></td>
- </tr>
++			sclass = ocon->v.sclass;
++			file_type = NULL;
++			if (sclass) {
++				const char *class_name = pdb->p_class_val_to_name[sclass-1];
++				if (strcmp(class_name, "blk_file") == 0) {
++					file_type = "block";
++				} else if (strcmp(class_name, "chr_file") == 0) {
++					file_type = "char";
++				} else if (strcmp(class_name, "dir") == 0) {
++					file_type = "dir";
++				} else if (strcmp(class_name, "fifo_file") == 0) {
++					file_type = "pipe";
++				} else if (strcmp(class_name, "lnk_file") == 0) {
++					file_type = "symlink";
++				} else if (strcmp(class_name, "sock_file") == 0) {
++					file_type = "socket";
++				} else if (strcmp(class_name, "file") == 0) {
++					file_type = "file";
++				} else {
++					rc = -1;
++					goto exit;
++				}
++			}
++
+ 			ctx = context_to_str(pdb, &ocon->context[0]);
+ 			if (!ctx) {
+ 				rc = -1;
+ 				goto exit;
+ 			}
+ 
+-			rc = strs_create_and_add(strs, "(genfscon %s \"%s\" %s)", 3,
+-						 fstype, name, ctx);
++			if (file_type) {
++				rc = strs_create_and_add(strs, "(genfscon %s \"%s\" %s %s)", 4,
++										 fstype, name, file_type, ctx);
++			} else {
++				rc = strs_create_and_add(strs, "(genfscon %s \"%s\" %s)", 3,
++										 fstype, name, ctx);
++			}
+ 			free(ctx);
+ 			if (rc != 0) {
+ 				goto exit;
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 16e4004e..33c198b9 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -2961,10 +2961,35 @@ static int genfscon_to_cil(struct policydb *pdb)
+ {
+ 	struct genfs *genfs;
+ 	struct ocontext *ocon;
++	uint32_t sclass;
+ 
+ 	for (genfs = pdb->genfs; genfs != NULL; genfs = genfs->next) {
+ 		for (ocon = genfs->head; ocon != NULL; ocon = ocon->next) {
+-			cil_printf("(genfscon %s \"%s\" ", genfs->fstype, ocon->u.name);
++			sclass = ocon->v.sclass;
++			if (sclass) {
++				const char *file_type;
++				const char *class_name = pdb->p_class_val_to_name[sclass-1];
++				if (strcmp(class_name, "blk_file") == 0) {
++					file_type = "block";
++				} else if (strcmp(class_name, "chr_file") == 0) {
++					file_type = "char";
++				} else if (strcmp(class_name, "dir") == 0) {
++					file_type = "dir";
++				} else if (strcmp(class_name, "fifo_file") == 0) {
++					file_type = "pipe";
++				} else if (strcmp(class_name, "lnk_file") == 0) {
++					file_type = "symlink";
++				} else if (strcmp(class_name, "sock_file") == 0) {
++					file_type = "socket";
++				} else if (strcmp(class_name, "file") == 0) {
++					file_type = "file";
++				} else {
++					return -1;
++				}
++				cil_printf("(genfscon %s \"%s\" %s ", genfs->fstype, ocon->u.name, file_type);
++			} else {
++				cil_printf("(genfscon %s \"%s\" ", genfs->fstype, ocon->u.name);
++			}
+ 			context_to_cil(pdb, &ocon->context[0]);
+ 			cil_printf(")\n");
+ 		}
 -- 
 2.31.1
 
