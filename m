@@ -2,84 +2,404 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C895C4332F
-	for <selinux@archiver.kernel.org>; Tue,  2 Nov 2021 12:58:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9629C433FE
+	for <selinux@archiver.kernel.org>; Tue,  2 Nov 2021 14:00:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E789460FC2
-	for <selinux@archiver.kernel.org>; Tue,  2 Nov 2021 12:58:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B0ABB60524
+	for <selinux@archiver.kernel.org>; Tue,  2 Nov 2021 14:00:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231251AbhKBNBZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Nov 2021 09:01:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49258 "EHLO
+        id S231247AbhKBODS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Nov 2021 10:03:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231234AbhKBNBY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Nov 2021 09:01:24 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A088C061764
-        for <selinux@vger.kernel.org>; Tue,  2 Nov 2021 05:58:49 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id w15so75786679edc.9
-        for <selinux@vger.kernel.org>; Tue, 02 Nov 2021 05:58:49 -0700 (PDT)
+        with ESMTP id S230419AbhKBODR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 2 Nov 2021 10:03:17 -0400
+Received: from mail-ua1-x92e.google.com (mail-ua1-x92e.google.com [IPv6:2607:f8b0:4864:20::92e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF46C061714
+        for <selinux@vger.kernel.org>; Tue,  2 Nov 2021 07:00:42 -0700 (PDT)
+Received: by mail-ua1-x92e.google.com with SMTP id q13so38206519uaq.2
+        for <selinux@vger.kernel.org>; Tue, 02 Nov 2021 07:00:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=szeredi.hu; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=oS5P08rKOHmHVOqFsv1wlAiyj1NrRmUfampI9oL2V64=;
-        b=n5PHQAW9dm9kSkiLYV9daCoVja0+TvWv0SvPUz8RC2NAWnAS31ToFveGA1/UPb7uYB
-         f2DFw4kpYFhgjAav2FZdaU4krkdZ7po9IsPMKSRj4oEE7vb5V/lMQlEBKVfIZlCwUM6y
-         W9aK0lSYkAOZmx8r4UpzYRovgJbgvMlb7iUfZ+YUBflrQE4/62VAeOfpv26y5Xn0Gm3J
-         q3zC3SpxcC96EDC1+fvOA9T2Wf5EiD6cs6axCkiyJICxLsJq6xHYZRb0RShO3obZkJMU
-         aEtStNkbcZgbr2ZF4OuZBneJBBa0HWbEyaYhLCSyNlaANsI6r0GVcXsUG8TWX1fH649s
-         W1Fw==
+        bh=XKRSF6c/DmbtPVq1mlYxGANP5GLjrBjlESQv0EVA9n4=;
+        b=IBRfrt0Sco5aw8dZ/hQ7JVTZo4ara5XAzA7LJCYTYn96HC6qgWyZAaRYNV3tEK4ITX
+         0o9zUNtgcoJuve31Dyhl0wdZpG5HdsdEXoxAX+qTWJYphOPpShI7hPd2AM4OoPlvObqK
+         W/d5z7YvemKn/JISzn/rfH+jhOp4dheNiEfOo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=oS5P08rKOHmHVOqFsv1wlAiyj1NrRmUfampI9oL2V64=;
-        b=B/hcRjxn/hvxpFuIMBdIHkqlPpiXYmZDUOIrWpOxq2A5pmnGlNAxJMkAJCotn3qXvW
-         mvffPHVFutrteEBSPUN7qf0tRCuw/vc5HGbd5RX0jNbMDbDErw6iR0coND/6AJWnERRN
-         eO172JVkhpDXBeTBDrLKttkZdyssqPiOLU3TO4XaENDay9g7N86E+vRlkf8W1GwVcvmv
-         B+H/XgtZbh0orapkN3gKZqUC+dM10Jgdb3udi5nIawofdfgb///jim3mJxSHQzxaZvAK
-         hC7SfupwZqAlpvAm1KntlKzK2JH/RXxDZahfg7OVnMwD0DIEcnK1UJ88uIPkQrkvlPRE
-         olxg==
-X-Gm-Message-State: AOAM530WvMMHer1ZKjy32GHDQ4GYKXh4AiUvfqVcjZXV418bwqKSSqNt
-        f+HeMEK3y75Nu8RhiA+uSzEjb/0uKxuk/3aVGSYm
-X-Google-Smtp-Source: ABdhPJydRuxERCqDLUerKHEo8hrEbU94yrYYszodlvCbnReZNWzPvF4WrAzB6P1x8AOkiMpqhUts8Pw23pMvedkoZ/M=
-X-Received: by 2002:a17:907:2d12:: with SMTP id gs18mr25449694ejc.126.1635857926118;
- Tue, 02 Nov 2021 05:58:46 -0700 (PDT)
+        bh=XKRSF6c/DmbtPVq1mlYxGANP5GLjrBjlESQv0EVA9n4=;
+        b=dH2vUf0q0Bd5GQRvNTP7k1pqudnRT98AK/+Q8w5A3KSqDK0iDpBtGNhGsk4BeEbn2z
+         91Bw5R/6sHbIzaDjAL/Zr8IR8nD4m88L5fDU4Se0ymucjyYOy0NR9FT+ckJv2gvBjuVL
+         tsPGfowVQYc05GJcB6F0ulYDxtpmx60Z3nsi7KVcRd84/iQzqsS9gRZrTMn+zMXRr/S8
+         S5KB69SxsKy9L07j7bAi4cj52izMceRcd/ElWgBvX/INvCz0+XKhyWrh3tDb0eVmVJjZ
+         IjZ4L3+VSRdQ2VoBednupmjyNUwdU1W7g7wAlFjlU35T3D8FyZ8nHua6vySGFMNeBhRX
+         baNw==
+X-Gm-Message-State: AOAM532Wy7vVHiCNxW5+9xWwhT/6dw4S6fTNw2EPRHWL5cGZSvomOiEo
+        wxc8UPvUnnvXLobkgWlOKcisbN93vFoWKYm8P4R/Yg==
+X-Google-Smtp-Source: ABdhPJxnoVVNrBmO3kDlu7vYjTCrQn92pEnFKIiItBBjj5kgQe+Jr6UKb5PS3F1CQBucExepu9LeAlqK099vXRvTAcM=
+X-Received: by 2002:a05:6102:c89:: with SMTP id f9mr18861777vst.19.1635861641500;
+ Tue, 02 Nov 2021 07:00:41 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhRJ=fHzMHM6tt8JqkZa4bf0h72CAytSX9YrEs14Oaj8SA@mail.gmail.com>
- <CAHk-=wj2LqbZ3xSLKfnR42y7ZEgqw8K42-mE+nsHwsoFiNNpKw@mail.gmail.com>
- <CAHC9VhS3LfGvuVyXW5ePTQNtQ0KeQ7vz3wLinoZrbGVjU6GuoQ@mail.gmail.com>
- <CAHk-=whvZRaJSXirjcWKn75H-2H1tc54cru8p-vXE_2UyuvGNQ@mail.gmail.com> <CAHk-=wj0fNVO9tfEmWTcW7i+HoN4K4PejZ44sQYCEfL1S3UPWA@mail.gmail.com>
-In-Reply-To: <CAHk-=wj0fNVO9tfEmWTcW7i+HoN4K4PejZ44sQYCEfL1S3UPWA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 2 Nov 2021 08:58:35 -0400
-Message-ID: <CAHC9VhTZW-thM3rhMArYNQYD1PjLWh3Y3XBQ_XGv86TqkN3GVg@mail.gmail.com>
-Subject: Re: [GIT PULL] SELinux patches for v5.16
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20211012180624.447474-1-vgoyal@redhat.com> <20211012180624.447474-3-vgoyal@redhat.com>
+In-Reply-To: <20211012180624.447474-3-vgoyal@redhat.com>
+From:   Miklos Szeredi <miklos@szeredi.hu>
+Date:   Tue, 2 Nov 2021 15:00:30 +0100
+Message-ID: <CAJfpegs-EHBjjnsVQdPWfH=idVENj9Aw0e-L4tjcgx3v38NJtg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] fuse: Send security context of inode on file creation
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     linux-fsdevel@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM <linux-security-module@vger.kernel.org>,
+        virtio-fs-list <virtio-fs@redhat.com>,
+        Chirantan Ekbote <chirantan@chromium.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 2, 2021 at 12:23 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+On Tue, 12 Oct 2021 at 20:06, Vivek Goyal <vgoyal@redhat.com> wrote:
 >
-> On Mon, Nov 1, 2021 at 8:55 PM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > This follow-up was sufficient. In fact, the original should have been
-> > sufficient for me.
+> When a new inode is created, send its security context to server along
+> with creation request (FUSE_CREAT, FUSE_MKNOD, FUSE_MKDIR and FUSE_SYMLINK).
+> This gives server an opportunity to create new file and set security
+> context (possibly atomically). In all the configurations it might not
+> be possible to set context atomically.
 >
-> ... and as you saw from the pr-tracker-bot, it's all merged now.
+> Like nfs and ceph, use security_dentry_init_security() to dermine security
+> context of inode and send it with create, mkdir, mknod, and symlink requests.
 >
-> Sorry for missing that part of your original pull request.
+> Following is the information sent to server.
+>
+> - struct fuse_secctxs.
+>   This contains total number of security contexts being sent.
+>
+> - struct fuse_secctx.
+>   This contains total size of security context which follows this structure.
+>   There is one fuse_secctx instance per security context.
+>
+> - xattr name string.
+>   This string represents name of xattr which should be used while setting
+>   security context. As of now it is hardcoded to "security.selinux".
+>
+> - security context.
+>   This is the actual security context whose size is specified in fuse_secctx
+>   struct.
+>
+> This patch is modified version of patch from
+> Chirantan Ekbote <chirantan@chromium.org>
+>
+> v2:
+> - Added "fuse_secctxs" structure where one can specify how many security
+>   contexts are being sent. This can be useful down the line if we
+>   have more than one security contexts being set.
+>
+> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> ---
+>  fs/fuse/dir.c             | 115 ++++++++++++++++++++++++++++++++++++--
+>  fs/fuse/fuse_i.h          |   3 +
+>  fs/fuse/inode.c           |   4 +-
+>  include/uapi/linux/fuse.h |  20 +++++++
+>  4 files changed, 136 insertions(+), 6 deletions(-)
+>
+> diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+> index d9b977c0f38d..ce62593a61f9 100644
+> --- a/fs/fuse/dir.c
+> +++ b/fs/fuse/dir.c
+> @@ -17,6 +17,9 @@
+>  #include <linux/xattr.h>
+>  #include <linux/iversion.h>
+>  #include <linux/posix_acl.h>
+> +#include <linux/security.h>
+> +#include <linux/types.h>
+> +#include <linux/kernel.h>
+>
+>  static void fuse_advise_use_readdirplus(struct inode *dir)
+>  {
+> @@ -456,6 +459,66 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
+>         return ERR_PTR(err);
+>  }
+>
+> +static int get_security_context(struct dentry *entry, umode_t mode,
+> +                               void **security_ctx, u32 *security_ctxlen)
+> +{
+> +       struct fuse_secctx *fsecctx;
+> +       struct fuse_secctxs *fsecctxs;
+> +       void *ctx, *full_ctx;
+> +       u32 ctxlen, full_ctxlen;
+> +       int err = 0;
+> +       const char *name;
+> +
+> +       err = security_dentry_init_security(entry, mode, &entry->d_name,
+> +                                           &name, &ctx, &ctxlen);
+> +       if (err) {
+> +               if (err != -EOPNOTSUPP)
+> +                       goto out_err;
+> +               /* No LSM is supporting this security hook. Ignore error */
+> +               err = 0;
+> +               ctxlen = 0;
+> +       }
+> +
+> +       if (ctxlen > 0) {
+> +               void *ptr;
+> +
+> +               full_ctxlen = sizeof(*fsecctxs) + sizeof(*fsecctx) +
+> +                             strlen(name) + ctxlen + 1;
+> +               full_ctx = kzalloc(full_ctxlen, GFP_KERNEL);
+> +               if (!full_ctx) {
+> +                       err = -ENOMEM;
+> +                       kfree(ctx);
+> +                       goto out_err;
+> +               }
+> +
+> +               ptr = full_ctx;
+> +               fsecctxs = (struct fuse_secctxs*) ptr;
+> +               fsecctxs->nr_secctx = 1;
+> +               ptr += sizeof(*fsecctxs);
+> +
+> +               fsecctx = (struct fuse_secctx*) ptr;
+> +               fsecctx->size = ctxlen;
+> +               ptr += sizeof(*fsecctx);
+> +
+> +               strcpy(ptr, name);
+> +               ptr += strlen(name) + 1;
+> +               memcpy(ptr, ctx, ctxlen);
+> +               kfree(ctx);
+> +       } else {
+> +               full_ctxlen = sizeof(*fsecctxs);
+> +               full_ctx = kzalloc(full_ctxlen, GFP_KERNEL);
+> +               if (!full_ctx) {
+> +                       err = -ENOMEM;
+> +                       goto out_err;
+> +               }
+> +       }
+> +
+> +       *security_ctxlen = full_ctxlen;
+> +       *security_ctx = full_ctx;
+> +out_err:
+> +       return err;
+> +}
+> +
+>  /*
+>   * Atomic create+open operation
+>   *
+> @@ -476,6 +539,8 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+>         struct fuse_entry_out outentry;
+>         struct fuse_inode *fi;
+>         struct fuse_file *ff;
+> +       void *security_ctx = NULL;
+> +       u32 security_ctxlen;
+>
+>         /* Userspace expects S_IFREG in create mode */
+>         BUG_ON((mode & S_IFMT) != S_IFREG);
+> @@ -517,6 +582,18 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+>         args.out_args[0].value = &outentry;
+>         args.out_args[1].size = sizeof(outopen);
+>         args.out_args[1].value = &outopen;
+> +
+> +       if (fm->fc->init_security) {
+> +               err = get_security_context(entry, mode, &security_ctx,
+> +                                          &security_ctxlen);
+> +               if (err)
+> +                       goto out_put_forget_req;
+> +
+> +               args.in_numargs = 3;
+> +               args.in_args[2].size = security_ctxlen;
+> +               args.in_args[2].value = security_ctx;
+> +       }
+> +
+>         err = fuse_simple_request(fm, &args);
+>         if (err)
+>                 goto out_free_ff;
+> @@ -554,6 +631,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+>
+>  out_free_ff:
+>         fuse_file_free(ff);
+> +       kfree(security_ctx);
+>  out_put_forget_req:
+>         kfree(forget);
+>  out_err:
+> @@ -613,13 +691,15 @@ static int fuse_atomic_open(struct inode *dir, struct dentry *entry,
+>   */
+>  static int create_new_entry(struct fuse_mount *fm, struct fuse_args *args,
+>                             struct inode *dir, struct dentry *entry,
+> -                           umode_t mode)
+> +                           umode_t mode, bool init_security)
+>  {
+>         struct fuse_entry_out outarg;
+>         struct inode *inode;
+>         struct dentry *d;
+>         int err;
+>         struct fuse_forget_link *forget;
+> +       void *security_ctx = NULL;
+> +       u32 security_ctxlen = 0;
+>
+>         if (fuse_is_bad(dir))
+>                 return -EIO;
+> @@ -633,7 +713,29 @@ static int create_new_entry(struct fuse_mount *fm, struct fuse_args *args,
+>         args->out_numargs = 1;
+>         args->out_args[0].size = sizeof(outarg);
+>         args->out_args[0].value = &outarg;
+> +
+> +       if (init_security) {
 
-The important part is that it is now in your tree, thanks.
+Instead of a new arg to create_new_entry(), this could check
+args.opcode != FUSE_LINK.
 
--- 
-paul moore
-www.paul-moore.com
+> +               unsigned short idx = args->in_numargs;
+> +
+> +               if ((size_t)idx >= ARRAY_SIZE(args->in_args)) {
+> +                       err = -ENOMEM;
+> +                       goto out_put_forget_req;
+> +               }
+> +
+> +               err = get_security_context(entry, mode, &security_ctx,
+> +                                          &security_ctxlen);
+> +               if (err)
+> +                       goto out_put_forget_req;
+> +
+> +               if (security_ctxlen > 0) {
+
+This doesn't seem right.  How would the server know if this is arg is missing?
+
+I think if FUSE_SECURITY_CTX was negotiated, then the secctx header
+will always need to be added to the MK* requests.
+
+> +                       args->in_args[idx].size = security_ctxlen;
+> +                       args->in_args[idx].value = security_ctx;
+> +                       args->in_numargs++;
+> +               }
+> +       }
+> +
+>         err = fuse_simple_request(fm, args);
+> +       kfree(security_ctx);
+>         if (err)
+>                 goto out_put_forget_req;
+>
+> @@ -691,7 +793,7 @@ static int fuse_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+>         args.in_args[0].value = &inarg;
+>         args.in_args[1].size = entry->d_name.len + 1;
+>         args.in_args[1].value = entry->d_name.name;
+> -       return create_new_entry(fm, &args, dir, entry, mode);
+> +       return create_new_entry(fm, &args, dir, entry, mode, fm->fc->init_security);
+>  }
+>
+>  static int fuse_create(struct user_namespace *mnt_userns, struct inode *dir,
+> @@ -719,7 +821,8 @@ static int fuse_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+>         args.in_args[0].value = &inarg;
+>         args.in_args[1].size = entry->d_name.len + 1;
+>         args.in_args[1].value = entry->d_name.name;
+> -       return create_new_entry(fm, &args, dir, entry, S_IFDIR);
+> +       return create_new_entry(fm, &args, dir, entry, S_IFDIR,
+> +                               fm->fc->init_security);
+>  }
+>
+>  static int fuse_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+> @@ -735,7 +838,8 @@ static int fuse_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+>         args.in_args[0].value = entry->d_name.name;
+>         args.in_args[1].size = len;
+>         args.in_args[1].value = link;
+> -       return create_new_entry(fm, &args, dir, entry, S_IFLNK);
+> +       return create_new_entry(fm, &args, dir, entry, S_IFLNK,
+> +                               fm->fc->init_security);
+>  }
+>
+>  void fuse_update_ctime(struct inode *inode)
+> @@ -915,7 +1019,8 @@ static int fuse_link(struct dentry *entry, struct inode *newdir,
+>         args.in_args[0].value = &inarg;
+>         args.in_args[1].size = newent->d_name.len + 1;
+>         args.in_args[1].value = newent->d_name.name;
+> -       err = create_new_entry(fm, &args, newdir, newent, inode->i_mode);
+> +       err = create_new_entry(fm, &args, newdir, newent, inode->i_mode,
+> +                              false);
+>         /* Contrary to "normal" filesystems it can happen that link
+>            makes two "logical" inodes point to the same "physical"
+>            inode.  We invalidate the attributes of the old one, so it
+> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> index 319596df5dc6..885f34f9967f 100644
+> --- a/fs/fuse/fuse_i.h
+> +++ b/fs/fuse/fuse_i.h
+> @@ -765,6 +765,9 @@ struct fuse_conn {
+>         /* Propagate syncfs() to server */
+>         unsigned int sync_fs:1;
+>
+> +       /* Initialize security xattrs when creating a new inode */
+> +       unsigned int init_security:1;
+> +
+>         /** The number of requests waiting for completion */
+>         atomic_t num_waiting;
+>
+> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+> index 36cd03114b6d..343bc9cfbd92 100644
+> --- a/fs/fuse/inode.c
+> +++ b/fs/fuse/inode.c
+> @@ -1152,6 +1152,8 @@ static void process_init_reply(struct fuse_mount *fm, struct fuse_args *args,
+>                         }
+>                         if (arg->flags & FUSE_SETXATTR_EXT)
+>                                 fc->setxattr_ext = 1;
+> +                       if (arg->flags & FUSE_SECURITY_CTX)
+> +                               fc->init_security = 1;
+>                 } else {
+>                         ra_pages = fc->max_read / PAGE_SIZE;
+>                         fc->no_lock = 1;
+> @@ -1195,7 +1197,7 @@ void fuse_send_init(struct fuse_mount *fm)
+>                 FUSE_PARALLEL_DIROPS | FUSE_HANDLE_KILLPRIV | FUSE_POSIX_ACL |
+>                 FUSE_ABORT_ERROR | FUSE_MAX_PAGES | FUSE_CACHE_SYMLINKS |
+>                 FUSE_NO_OPENDIR_SUPPORT | FUSE_EXPLICIT_INVAL_DATA |
+> -               FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT;
+> +               FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT | FUSE_SECURITY_CTX;
+>  #ifdef CONFIG_FUSE_DAX
+>         if (fm->fc->dax)
+>                 ia->in.flags |= FUSE_MAP_ALIGNMENT;
+> diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
+> index 2fe54c80051a..b31a0f79fde8 100644
+> --- a/include/uapi/linux/fuse.h
+> +++ b/include/uapi/linux/fuse.h
+
+I don't see why the API changes are split between the first and the
+second patch in the series.   Please either move all API changes to
+1/2 or fold 1/2 into this patch.
+
+> @@ -986,4 +986,24 @@ struct fuse_syncfs_in {
+>         uint64_t        padding;
+>  };
+>
+> +/*
+> + * For each security context, send fuse_secctx with size of security context
+> + * fuse_secctx will be followed by security context name and this in turn
+> + * will be followed by actual context label.
+> + * fuse_secctx, name, context
+> + * */
+> +struct fuse_secctx {
+> +       uint32_t        size;
+> +       uint32_t        padding;
+> +};
+> +
+> +/*
+> + * Contains the information about how many fuse_secctx structures are being
+> + * sent.
+> + */
+> +struct fuse_secctxs {
+> +       uint32_t        nr_secctx;
+> +       uint32_t        padding;
+> +};
+
+The name of this struct is very confusing due to similarity with
+fuse_secctx.  How about "fuse_secctx_header"?
+
+Also I'd add the total length of the security context (including the
+header), otherwise further args would need to parse the security
+context completely to find the position of the next arg.   The
+counterexample is null-terminated names; while parsing these is pretty
+trivial,  in hindsight it would probably have been better to add a
+header to names as well.
+
+Thanks,
+Miklos
