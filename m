@@ -2,134 +2,140 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E16DC433EF
-	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 19:49:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7467C433EF
+	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 19:59:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 743446112D
-	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 19:49:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3FB9601FA
+	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 19:59:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231593AbhKDTw2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Nov 2021 15:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60694 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230403AbhKDTw1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Nov 2021 15:52:27 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF16CC061714;
-        Thu,  4 Nov 2021 12:49:48 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id o14so10286790wra.12;
-        Thu, 04 Nov 2021 12:49:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vt4UwjSRvt86MSleOKVNLOxZeDwvrVGeX3RNYPe9uRQ=;
-        b=HCJnkOesQZ74iQbwu267DhnjLV7f8ao9MidZSUhSzf6eGjdEt8ePK4AjGfzXS1Ze7Q
-         ejOgmn64agpRR0A6YpJD++yXzhwlXlsOaGjpIMXdndTQ+fdFPzdDP8fQmqX2ZX3cR3BH
-         m8SNJIVSaO7FskizHQrVnNEpjZua8PrpeQxn+x+cmWos0lYw1Kt3IlPplzSFXoYoDk0T
-         iQJbS4cuOS6143Pn7CrPYW0iOyUp37OSKf7OtGwxNIXAoBp+OCLXrs1DnEw/+dmSeIYm
-         9CcjT+CHtXbvrQRJbnYkKl7pLkzBVEQxLMKQHFCpVSiaatw0RRz6/94hY1EdTO++llN3
-         ZC0g==
+        id S231206AbhKDUCb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Nov 2021 16:02:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44041 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230162AbhKDUCa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Nov 2021 16:02:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1636055991;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=5ysUK4zlUy4qbvF8xulmXFjW7M2EeOHCxuh+1FxUYgQ=;
+        b=HQ/NEzYkGdhWhXvT4hnNkllhxHqk6yTDcgKOWcKIIbXAVepaQCcXwQFI49LXI3XVbvQ4N/
+        jUMsF3f4BBWFbyTyg64m84F1wutAk6FrESAwZ16OgnaEMcFlka9YjcmvJsNKncqA1Y7Sfr
+        yKQIVEzTpTlFnteqindsD77vdBFoCW8=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-326-XwhPX3RYOsO00U5D0IqKAQ-1; Thu, 04 Nov 2021 15:59:50 -0400
+X-MC-Unique: XwhPX3RYOsO00U5D0IqKAQ-1
+Received: by mail-ed1-f71.google.com with SMTP id y20-20020a056402359400b003e28c9bc02cso6822568edc.9
+        for <selinux@vger.kernel.org>; Thu, 04 Nov 2021 12:59:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vt4UwjSRvt86MSleOKVNLOxZeDwvrVGeX3RNYPe9uRQ=;
-        b=HISPnJu62gWhk/MM5mm4HyjneAlKt3JY+mIfEPYycKOtw3mmHwzMgU4ifjWw1sfte3
-         Cbjw8QSpbXm3tPozx2sbtqlEkdxu3NAZm7VIXTeijSpq1qbS7Ky9zwtQtZIvjeIrgc6X
-         /gE/Qw+PQqOb2+Gl+68Oc3s3/HhQzU95+Aj3aWUTUS4xaD4TngX/au9XgvHewTgYVO84
-         RYm4LaEG0sEuQPYZWJtbnmeq2hzrhHZKG0icRMKyoEfooEJ91Dj0/KmVKACuEh8TwDpQ
-         EwpkvuzppcFV5Sg420B9mIzrd8SpRXHFXfuMOilzKpdqMEIY1T10j8qhqymaB9Aty6RL
-         /7eg==
-X-Gm-Message-State: AOAM531if+IQWxnUi53on8E86ojR518cP/pJ+d0sNdUbuGgBI1Hc86q8
-        8XEJUObOEdjasXZlkb/DAZ3bfCEyolzfCi41RsA=
-X-Google-Smtp-Source: ABdhPJwXBVzskBIwUOE9SXaAAQQFcNTxV3OjU7HIl27U2O+/9ZRgcRJkQ1h7tzKboHN6o2XXfkGJMEDfK5VJkj9LH3k=
-X-Received: by 2002:a5d:6447:: with SMTP id d7mr35080476wrw.118.1636055387448;
- Thu, 04 Nov 2021 12:49:47 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAHC9VhRQ3wGRTL1UXEnnhATGA_zKASVJJ6y4cbWYoA19CZyLbA@mail.gmail.com>
- <CADvbK_fVENGZhyUXKqpQ7mpva5PYJk2_o=jWKbY1jR_1c-4S-Q@mail.gmail.com>
- <CAHC9VhSjPVotYVb8-ABescHmnNnDL=9B3M0J=txiDOuyJNoYuw@mail.gmail.com>
- <20211104.110213.948977313836077922.davem@davemloft.net> <CAHC9VhQUdU6iXrnMTGsHd4qg7DnHDVoiWE9rfOQPjNoasLBbUA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQUdU6iXrnMTGsHd4qg7DnHDVoiWE9rfOQPjNoasLBbUA@mail.gmail.com>
-From:   Xin Long <lucien.xin@gmail.com>
-Date:   Thu, 4 Nov 2021 15:49:35 -0400
-Message-ID: <CADvbK_f7XyL8uvHdSgdvbphfw6QzTPFMvwZdW0P4R7qFJPc=yQ@mail.gmail.com>
-Subject: Re: [PATCHv2 net 4/4] security: implement sctp_assoc_established hook
- in selinux
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        network dev <netdev@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5ysUK4zlUy4qbvF8xulmXFjW7M2EeOHCxuh+1FxUYgQ=;
+        b=DtEpj6rOcMhAaBqz9K6qJhBNZWD9g4GqTC7lcSR7pLnjl+ZOQgrN9G2NARXuydxV52
+         HszcC7d7VTiHm7o27DJtDz5bxLWpeJeZSZxuOw7876RdQ73cTnqeaxaGUAyfkuKPKyED
+         1ogg8zhSuMaE7j1XoPEM7qxWvHtAHZCK9LbVXYJ3ypthLu6qRiGQFkuvkhICIZ0mYyHj
+         ssFckjUZb7WemoZv3Zu9egB9/0Xud9Z22Wg+0dJLciVkMF4YcQBKCwjW1UrbEq3Y1LE9
+         yT99CC9asxw2Cko94QDYTgx+thGF0jKBhJTXOY+HGBxf270p7c47uM2rrm9Cw/BBH81Q
+         XR9g==
+X-Gm-Message-State: AOAM532MwwbsdLqaCwMtPC+pm/xCLJwlthDR2+Lr/dOmQvh4JNbbvYfk
+        ecwxlYMi/PPJcwCcz1wJxBqrVv/YsIep5HT+Hz75q2ZduvQG2ECKP3NE+NUv87xk372b+/7bKPl
+        autP0fzluEHXPQq19Hg==
+X-Received: by 2002:a17:906:c9cb:: with SMTP id hk11mr64150293ejb.204.1636055989309;
+        Thu, 04 Nov 2021 12:59:49 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxBAGFvqsv+54+E13aafHdXqWywSbJFTfv5rjyniwJl/0Di8RDpeDpuIohiIg3dLqbwbBM56g==
+X-Received: by 2002:a17:906:c9cb:: with SMTP id hk11mr64150267ejb.204.1636055989131;
+        Thu, 04 Nov 2021 12:59:49 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b105:dd00:d067:83f0:d612:b70f])
+        by smtp.gmail.com with ESMTPSA id p3sm3096445ejy.94.2021.11.04.12.59.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Nov 2021 12:59:48 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org
+Cc:     Xin Long <lucien.xin@gmail.com>, Paul Moore <paul@paul-moore.com>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
         Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        jmorris <jmorris@namei.org>,
-        Richard Haines <richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-sctp@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH net] selinux: fix SCTP client peeloff socket labeling
+Date:   Thu,  4 Nov 2021 20:59:49 +0100
+Message-Id: <20211104195949.135374-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 4, 2021 at 3:10 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Thu, Nov 4, 2021 at 7:02 AM David Miller <davem@davemloft.net> wrote:
-> > From: Paul Moore <paul@paul-moore.com>
-> > Date: Wed, 3 Nov 2021 23:17:00 -0400
-> > >
-> > > While I understand you did not intend to mislead DaveM and the netdev
-> > > folks with the v2 patchset, your failure to properly manage the
-> > > patchset's metadata *did* mislead them and as a result a patchset with
-> > > serious concerns from the SELinux side was merged.  You need to revert
-> > > this patchset while we continue to discuss, develop, and verify a
-> > > proper fix that we can all agree on.  If you decide not to revert this
-> > > patchset I will work with DaveM to do it for you, and that is not
-> > > something any of us wants.
-> >
-> > I would prefer a follow-up rathewr than a revert at this point.
-> >
-> > Please work with Xin to come up with a fix that works for both of you.
->
-> We are working with Xin (see this thread), but you'll notice there is
-> still not a clear consensus on the best path forward.  The only thing
-> I am clear on at this point is that the current code in linux-next is
-> *not* something we want from a SELinux perspective.  I don't like
-> leaving known bad code like this in linux-next for more than a day or
-> two so please revert it, now.  If your policy is to merge substantive
-> non-network subsystem changes into the network tree without the proper
-> ACKs from the other subsystem maintainers, it would seem reasonable to
-> also be willing to revert those patches when the affected subsystems
-> request it.
->
-> I understand that if a patchset is being ignored you might feel the
-> need to act without an explicit ACK, but this particular patchset
-> wasn't even a day old before you merged into the netdev tree.  Not to
-> mention that the patchset was posted during the second day of the
-> merge window, a time when many maintainers are busy testing code,
-> sending pull requests to Linus, and generally managing merge window
-> fallout.
->
-> --
-> paul moore
-> www.paul-moore.com
-Hi Paul,
+The commit referenced in the "Fixes" tag mistakenly attempted to
+preserve the label of the peeloff socket that had been set in
+selinux_socket_post_create() in the case of a client socket. However,
+the peeloff socket should in fact just inherit the label from the parent
+socket. In practice these labels are usually the same, but they may
+differ when setsockcreatecon(3) or socket type transition rules are
+involved.
 
-It's applied on net tree, I think mostly because I posted this on net.git tree.
-Also, it's well related to the network part and affects SCTP protocol
-quite a lot.
+The fact that selinux_socket_[post_]create() are called on the peeloff
+socket is actually not what should be happening (it is a side effect of
+sctp_do_peeloff() using socket_create() to create the socket, which
+calls the aforementioned LSM hooks). A patch to fix this is being worked
+on.
 
-I wanted to post it on selinux tree: pcmoore/selinux.git, but I noticed the
-commit on top is written in 2019:
+In the meanwhile, at least fix sctp_assoc_established() to set
+asoc->secid to the socket's sid and selinux_sctp_sk_clone() to
+unconditionally get the peeloff socket's sid from asoc->secid, which
+will ensure that the peeloff socket gets the right label in case of both
+client and server SCTP socket. The label set by
+selinux_socket_post_create() will be simply overwritten in both cases,
+as was the case before the commit this patch is fixing.
 
-commit 6e6934bae891681bc23b2536fff20e0898683f2c (HEAD -> main,
-origin/main, origin/HEAD)
-Author: Paul Moore <paul@paul-moore.com>
-Date:   Tue Sep 17 15:02:56 2019 -0400
+Passed both the selinux-testsuite (with client peeloff tests added) and
+the SCTP functional test suite from lksctp-tools.
 
-    selinux: add a SELinux specific README.md
+Fixes: e7310c94024c ("security: implement sctp_assoc_established hook in selinux")
+Based-on-patch-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
 
-    DO NOT SUBMIT UPSTREAM
+As agreed with Xin Long, I'm posting this fix up instead of him. I am
+now fairly convinced that this is the right way to deal with the
+immediate problem of client peeloff socket labeling. I'll work on
+addressing the side problem regarding selinux_socket_post_create()
+being called on the peeloff sockets separately.
 
-Then I thought this tree was no longer active, sorry about that.
+Please don't merge this patch without an ack from Paul, as it seems
+we haven't reached an overall consensus yet.
+
+ security/selinux/hooks.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5e5215fe2e83..5d9da4662449 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5502,8 +5502,7 @@ static void selinux_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk
+ 	if (!selinux_policycap_extsockclass())
+ 		return selinux_sk_clone_security(sk, newsk);
+ 
+-	if (asoc->secid != SECSID_WILD)
+-		newsksec->sid = asoc->secid;
++	newsksec->sid = asoc->secid;
+ 	newsksec->peer_sid = asoc->peer_secid;
+ 	newsksec->sclass = sksec->sclass;
+ 	selinux_netlbl_sctp_sk_clone(sk, newsk);
+@@ -5566,7 +5565,7 @@ static void selinux_sctp_assoc_established(struct sctp_association *asoc,
+ 
+ 	selinux_inet_conn_established(asoc->base.sk, skb);
+ 	asoc->peer_secid = sksec->peer_sid;
+-	asoc->secid = SECSID_WILD;
++	asoc->secid = sksec->sid;
+ }
+ 
+ static int selinux_secmark_relabel_packet(u32 sid)
+-- 
+2.31.1
+
