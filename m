@@ -2,60 +2,86 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB7EEC433F5
-	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 11:02:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3912C433EF
+	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 18:13:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 90162611C9
-	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 11:02:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B853960FED
+	for <selinux@archiver.kernel.org>; Thu,  4 Nov 2021 18:13:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbhKDLFA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Nov 2021 07:05:00 -0400
-Received: from shards.monkeyblade.net ([23.128.96.9]:53806 "EHLO
-        mail.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbhKDLE7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Nov 2021 07:04:59 -0400
-Received: from localhost (cpc147930-brnt3-2-0-cust60.4-2.cable.virginm.net [86.15.196.61])
-        by mail.monkeyblade.net (Postfix) with ESMTPSA id 4C6B14D2CB6AD;
-        Thu,  4 Nov 2021 04:02:18 -0700 (PDT)
-Date:   Thu, 04 Nov 2021 11:02:13 +0000 (GMT)
-Message-Id: <20211104.110213.948977313836077922.davem@davemloft.net>
-To:     paul@paul-moore.com
-Cc:     lucien.xin@gmail.com, omosnace@redhat.com, netdev@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-sctp@vger.kernel.org, kuba@kernel.org,
-        marcelo.leitner@gmail.com, jmorris@namei.org,
-        richard_c_haines@btinternet.com
-Subject: Re: [PATCHv2 net 4/4] security: implement sctp_assoc_established
- hook in selinux
-From:   David Miller <davem@davemloft.net>
-In-Reply-To: <CAHC9VhSjPVotYVb8-ABescHmnNnDL=9B3M0J=txiDOuyJNoYuw@mail.gmail.com>
-References: <CAHC9VhRQ3wGRTL1UXEnnhATGA_zKASVJJ6y4cbWYoA19CZyLbA@mail.gmail.com>
-        <CADvbK_fVENGZhyUXKqpQ7mpva5PYJk2_o=jWKbY1jR_1c-4S-Q@mail.gmail.com>
-        <CAHC9VhSjPVotYVb8-ABescHmnNnDL=9B3M0J=txiDOuyJNoYuw@mail.gmail.com>
-X-Mailer: Mew version 6.8 on Emacs 27.2
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+        id S231971AbhKDSQR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Nov 2021 14:16:17 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:33462 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231956AbhKDSQQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Nov 2021 14:16:16 -0400
+Received: from [192.168.1.10] (pool-173-66-191-184.washdc.fios.verizon.net [173.66.191.184])
+        by linux.microsoft.com (Postfix) with ESMTPSA id E0FBD20ABA95;
+        Thu,  4 Nov 2021 11:13:37 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E0FBD20ABA95
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1636049618;
+        bh=ul3oWxrKiQgyN+YlJq/R4vMVkwSMteBJCN5cUvwwlGU=;
+        h=Date:From:Subject:To:From;
+        b=TPNDnpcG9IpW2aGkemmnFtCPajq+eS74vX7PjsQbjs0GFK+fhzt95q38D8q8rMeQ8
+         84p0WaAdvOHzqRncxYipHa99Yc3FHoMzTISm92Bl7lePHuNksjVm6HNGiGvKyTVhjN
+         oIsomaAUffLxU5TkUVsmqVcG8IMTV0Alur2J2Qhc=
+Message-ID: <7d775f7f-1377-edde-8474-ba2126256852@linux.microsoft.com>
+Date:   Thu, 4 Nov 2021 14:13:28 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Content-Language: en-US
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+Subject: [RFC] Cascade: a high level SELinux policy language
+To:     selinux@vger.kernel.org,
+        =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@linux.microsoft.com>,
+        James Morris <jmorris@namei.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Chris PeBenito <pebenito@ieee.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.2 (mail.monkeyblade.net [0.0.0.0]); Thu, 04 Nov 2021 04:02:20 -0700 (PDT)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 3 Nov 2021 23:17:00 -0400
+We have been working over the past few months on a new high level 
+language for specifying SELinux policy, in line with the original intent 
+of CIL, to enable the creation of high level languages that compile into 
+CIL.
 
-> 
-> While I understand you did not intend to mislead DaveM and the netdev
-> folks with the v2 patchset, your failure to properly manage the
-> patchset's metadata *did* mislead them and as a result a patchset with
-> serious concerns from the SELinux side was merged.  You need to revert
-> this patchset while we continue to discuss, develop, and verify a
-> proper fix that we can all agree on.  If you decide not to revert this
-> patchset I will work with DaveM to do it for you, and that is not
-> something any of us wants.
+Our objective is to create a language that enables the efficient 
+creation of useful abstractions by policy experts while enabling those 
+abstractions to be easily usable by non-experts who may contribute to 
+portions of the policy.
 
-I would prefer a follow-up rathewr than a revert at this point.
+The design is heavily influenced by Object Oriented principles, with a 
+goal of enabling the efficient creation of type hierarchies and 
+eliminating boilerplate through the use of inheritance.  The use of 
+"virtual" types, (which compile into attributes) allows both attribute 
+like behavior, and also the creation of inherited member functions, 
+allowing for interfaces as in refpolicy without the redundant 
+boilerplate.  Another key feature is "resource association" which makes 
+explicit the connections between domains and associated types such as 
+tmp files.  This feature allows for common patterns (such as setting up 
+a tmp file with a domain transition rule and manage access) to be done 
+automatically behind the scenes, minimizing the chance of mistakes and 
+allowing policy developers to focus more on security decisions.
 
-Please work with Xin to come up with a fix that works for both of you.
+The core language functionality is written as a library, which will 
+hopefully enable the easy creation of associated tooling and plugins 
+that build on top of that library.  It is our hope that this 
+architecture will assist an expansion of available tooling to aid policy 
+developers in their work.
 
-Thanks.
+This is still a very early prototype and so some functionality may be 
+missing or incomplete, but we wanted to make what we have so far 
+available for community feedback and discussion as we continue development.
+
+You can find the code and associated documentation at 
+https://github.com/dburgener/cascade
+
+I hope this is something that people will find useful and welcome 
+feedback and contributions as we aim towards the goal of enabling 
+smoother policy development.
+
+-Daniel
