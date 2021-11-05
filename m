@@ -2,60 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C0DCC433FE
-	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0325BC433F5
+	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 19F7761183
+	by mail.kernel.org (Postfix) with ESMTP id E35C961183
 	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbhKEPsz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S233401AbhKEPsz (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 5 Nov 2021 11:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44874 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233549AbhKEPst (ORCPT
+        with ESMTP id S233436AbhKEPst (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 5 Nov 2021 11:48:49 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0033C06120B
-        for <selinux@vger.kernel.org>; Fri,  5 Nov 2021 08:46:08 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id c8so17815424ede.13
-        for <selinux@vger.kernel.org>; Fri, 05 Nov 2021 08:46:08 -0700 (PDT)
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8E12C06120C
+        for <selinux@vger.kernel.org>; Fri,  5 Nov 2021 08:46:09 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id w1so34807137edd.10
+        for <selinux@vger.kernel.org>; Fri, 05 Nov 2021 08:46:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=TUlCeo2ndy15KZjUrKbJDXWsVa9xRreKhVZbeV9c6B4=;
-        b=ptisX0dE4bf4Vux3mzI8+IAf7ARgdKCOjOKr5mSrNbEPzLxJG6S8TFcrqmb2lw4EpQ
-         bOe95qEQp/qFkBwq1DLrc43i8S1trCWXxOcaBeHyZqKUE5oiCtpbFyejzfU0CcCQLblJ
-         hkYf8VZBIUxpeBSBItz8LSWMDvQjQjg/Qkvkqg/4lT9CNAK9RINqVWNyMCds4DiBqRQq
-         eAIPLDAfkiRA2irzXg+5fBwyB9CTzbE/EbLlQE+aiFCOdaMDcjxVAYMadsAKcPGMyxr2
-         8VM2JlveaukbS0PZpJlvfnkDE3ajMk0Zy0ihp6HTQcZqrF1wx5UCJDLlxTaOuABZLtRK
-         3N+Q==
+        bh=lDrA8BJbz2yokQyMSFSVlfVGj1rE2IL0NV6E3IrYlnI=;
+        b=N9n26k5v7kcdlDHMNWDicshziVVjTmXTjbsstD66b7U6kY5yLOYHUrReS4R8v37maT
+         GYh58WzMa16TS53ZyqvEVWR0MkeHZBV/eZBi0dTjvXOwTKIb1A1+eW4xOIc1EmL1UMuW
+         XzSkLS0pA8cnpT0YE97LA8jLa9oMLtOvgXuiSI3RsV/m9uBl6zDRP70iSmT6XJ7zl4RZ
+         R7xWmaHNx9ZNBGxTdkKwPbkcfZvpGCQ70AOFwsTdD+5tahcDid9S9j4+sh7lyp4KjQPy
+         WFpPpwE6YUdhZ4e4cHVjr68rv04j3s40Ao+xBLHLyNBpwSgW8AYU4rCHQ6ZqIwWrbBGt
+         KKKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=TUlCeo2ndy15KZjUrKbJDXWsVa9xRreKhVZbeV9c6B4=;
-        b=39qR5IBDN5QEHfFjgMErHPMvz00c3A0ncIy7XejpstCyUo3kF2Owz7D9o5y+XZLhqX
-         VJoFEpvinkLHpMW3Ni/v273Yg3g14JaaXvff4KramnDWG0v7TV1yY12WqjSitXbaoAOk
-         cvKdM/TGAbR8boznFXGqsAoMOayFGhwkoixGC+GE67LAmaXC8CFaVub3fK8BO0ZXk3jZ
-         FJ/9+SJtAbDZX+9pELXvcj6fmmQG0Rr5vDpZl1hV3l1Qs6PcHsMpb4bKM5/rOd1wWf7V
-         vVoN7IrxL23Iuw54ddwqKfg03U+TRZTzHHjmm79RWZIvyXSI0LqvCADRBqyGmKcndb3P
-         3NNw==
-X-Gm-Message-State: AOAM531JXz65NHk6Kqz5a2YoyQnQDF6EgTvaHfMs2RMF+uKhXFjv30r/
-        3ziSrZELvv0wGeALPCafjtVMhmGCxQQ=
-X-Google-Smtp-Source: ABdhPJwBT4VBtdADioAszkvzG8c/H0gkXso1VPkJl43RYYOdkw/fElRpJI4jdORuFlr0HsD9zZgVTQ==
-X-Received: by 2002:a17:906:1112:: with SMTP id h18mr4249915eja.50.1636127167305;
-        Fri, 05 Nov 2021 08:46:07 -0700 (PDT)
+        bh=lDrA8BJbz2yokQyMSFSVlfVGj1rE2IL0NV6E3IrYlnI=;
+        b=MJKY4B7XKcFKbGM4vh45jADgAQKfr41f7jtkOOQrqTNaHuDqFdBBnCrYlUDGrviZCK
+         haMZtvXCVB3k6YFgEYRpqa9jIP95KwUcFJ4f+rPmqohd/KFab56UT260gY4HynxDlteA
+         heZG3CbSSQchAMm5P6jr38NMPOtDLAi7MujLCw3+HmYmsU6lvFuqDyYvpNRzoP4UTnkk
+         4tM7sgh/juEr1ZzLhJUnrXILXP2/9OQXqGjr3HmOeVd5ac1i9fBBFWI9aN/rhetd07Ez
+         H6fXad9dsJkApusD/VE7BCTzsPcwB+xXTcTcEz6cECE4boeAygWiobdZ55Tlo8y207+L
+         Y88Q==
+X-Gm-Message-State: AOAM5317yB2a5r69ToMLppJOsHEZl1rkr5vTLHnHXcNQGVLR46nYyXMP
+        d/iUGDxXyWTiJOPhVJ0AIuXOPe/dehc=
+X-Google-Smtp-Source: ABdhPJynP4yshkbe3MWhGbB9pLhLruY3Tec1X8R+2fM/9ff6YE9RXoZRVYdh0ttJsZ0MMv5Q6VUIZg==
+X-Received: by 2002:a17:907:6d05:: with SMTP id sa5mr60492545ejc.246.1636127168426;
+        Fri, 05 Nov 2021 08:46:08 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-185-074.77.1.pool.telefonica.de. [77.1.185.74])
-        by smtp.gmail.com with ESMTPSA id u16sm4245474ejy.16.2021.11.05.08.46.06
+        by smtp.gmail.com with ESMTPSA id u16sm4245474ejy.16.2021.11.05.08.46.07
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Nov 2021 08:46:07 -0700 (PDT)
+        Fri, 05 Nov 2021 08:46:08 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH v2 34/36] libsepol: validate categories
-Date:   Fri,  5 Nov 2021 16:45:36 +0100
-Message-Id: <20211105154542.38434-35-cgzones@googlemail.com>
+Subject: [RFC PATCH v2 36/36] libsepol: validate class default targets
+Date:   Fri,  5 Nov 2021 16:45:38 +0100
+Message-Id: <20211105154542.38434-37-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211105154542.38434-1-cgzones@googlemail.com>
 References: <20211011162533.53404-1-cgzones@googlemail.com>
@@ -67,71 +67,70 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Check all categories have valid values, especially important for
-aliases.
-
-        ==7888==ERROR: AddressSanitizer: SEGV on unknown address 0x602000400710 (pc 0x00000055debc bp 0x7ffe0ff2a9d0 sp 0x7ffe0ff2a8e0 T0)
-        ==7888==The signal is caused by a READ memory access.
-        #0 0x55debc in write_category_rules_to_conf ./libsepol/src/kernel_to_conf.c:946:9
-        #1 0x55debc in write_mls_rules_to_conf ./libsepol/src/kernel_to_conf.c:1137:7
-        #2 0x55adb1 in sepol_kernel_policydb_to_conf ./libsepol/src/kernel_to_conf.c:3106:7
-        #3 0x55a34f in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:37:9
-        #4 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
-        #5 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
-        #6 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
-        #7 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
-        #8 0x7fe80ccaf7ec in __libc_start_main csu/../csu/libc-start.c:332:16
-        #9 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
+Check the class default targets are valid values, e.g. source or target
+for user, role and type.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+
 ---
- libsepol/src/policydb_validate.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+v2:
+   do not reject in binary reading, but check at validation step
+---
+ libsepol/src/policydb_validate.c | 41 ++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
 diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 27f25132..9b18ac68 100644
+index 1c5ca0dd..b7868fbe 100644
 --- a/libsepol/src/policydb_validate.c
 +++ b/libsepol/src/policydb_validate.c
-@@ -485,6 +485,14 @@ bad:
- 	return -1;
- }
- 
-+static int validate_datum(__attribute__ ((unused))hashtab_key_t k, hashtab_datum_t d, void *args)
-+{
-+	symtab_datum_t *s = d;
-+	uint32_t *nprim = (uint32_t *)args;
-+
-+	return !value_isvalid(s->value, *nprim);
-+}
-+
- static int validate_datum_array_entries(sepol_handle_t *handle, policydb_t *p, validate_t flavors[])
- {
- 	map_arg_t margs = { flavors, handle, p->mls };
-@@ -507,6 +515,9 @@ static int validate_datum_array_entries(sepol_handle_t *handle, policydb_t *p, v
- 	if (p->mls && hashtab_map(p->p_levels.table, validate_level_datum, flavors))
+@@ -258,6 +258,47 @@ static int validate_class_datum(sepol_handle_t *handle, class_datum_t *class, va
+ 	if (class->permissions.nprim > PERM_SYMTAB_SIZE)
  		goto bad;
  
-+	if (hashtab_map(p->p_cats.table, validate_datum, &flavors[SYM_CATS]))
++	switch (class->default_user) {
++	case 0:
++	case DEFAULT_SOURCE:
++	case DEFAULT_TARGET:
++		break;
++	default:
 +		goto bad;
++	}
++
++	switch (class->default_role) {
++	case 0:
++	case DEFAULT_SOURCE:
++	case DEFAULT_TARGET:
++		break;
++	default:
++		goto bad;
++	}
++
++	switch (class->default_type) {
++	case 0:
++	case DEFAULT_SOURCE:
++	case DEFAULT_TARGET:
++		break;
++	default:
++		goto bad;
++	}
++
++	switch (class->default_range) {
++	case 0:
++	case DEFAULT_SOURCE_LOW:
++	case DEFAULT_SOURCE_HIGH:
++	case DEFAULT_SOURCE_LOW_HIGH:
++	case DEFAULT_TARGET_LOW:
++	case DEFAULT_TARGET_HIGH:
++	case DEFAULT_TARGET_LOW_HIGH:
++	case DEFAULT_GLBLUB:
++		break;
++	default:
++		goto bad;
++	}
 +
  	return 0;
  
  bad:
-@@ -903,14 +914,6 @@ bad:
- 	return -1;
- }
- 
--static int validate_datum(__attribute__ ((unused))hashtab_key_t k, hashtab_datum_t d, void *args)
--{
--	symtab_datum_t *s = d;
--	uint32_t *nprim = (uint32_t *)args;
--
--	return !value_isvalid(s->value, *nprim);
--}
--
- static int validate_symtabs(sepol_handle_t *handle, symtab_t symtabs[], validate_t flavors[])
- {
- 	unsigned int i;
 -- 
 2.33.1
 
