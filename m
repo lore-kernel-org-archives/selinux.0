@@ -2,60 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1070C4332F
-	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35F84C433EF
+	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADA7461183
-	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1EC5061183
+	for <selinux@archiver.kernel.org>; Fri,  5 Nov 2021 15:46:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232665AbhKEPsz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Nov 2021 11:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44898 "EHLO
+        id S233436AbhKEPs4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Nov 2021 11:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233527AbhKEPss (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Nov 2021 11:48:48 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09453C061226
-        for <selinux@vger.kernel.org>; Fri,  5 Nov 2021 08:46:08 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id j21so34371964edt.11
-        for <selinux@vger.kernel.org>; Fri, 05 Nov 2021 08:46:07 -0700 (PDT)
+        with ESMTP id S233574AbhKEPst (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Nov 2021 11:48:49 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C9C4C06120A
+        for <selinux@vger.kernel.org>; Fri,  5 Nov 2021 08:46:09 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id v11so31974229edc.9
+        for <selinux@vger.kernel.org>; Fri, 05 Nov 2021 08:46:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=zSLcHCxAMmGMuhGNCJuJBcZvjfA97yIE1RNGGNKjbpM=;
-        b=e/YDhF2IJmjWafXwbrmJWXCT/CGgsACX/wJ4jBFEUXoHcZ8Q9kvK0LhQ2LBdSd+ROe
-         3hl7bKuPJMd+JVBTBfjTybwieQyQoJZmNgTT+N8Q3C3YKfJk6ibWxDt+SCCaqS7ceMVM
-         GgY0eX++JIngreoGA0+8vswqmk8X3wajeqF5ThAoxI5wDAswGAr+63pCNYF8GjaxqN0I
-         uYnNppIeJzlFL9yhzN5P7aoQ1pc/SLi3CYmhi/LaRtu0eNHgXDehBUtRpiA77KEQAuJ7
-         mNLTLhOtTO9w9Rw5HtEeq2LcCit99gkdQRaE0V1PTapvlX9LyaNtXZW9fUFXQvq43OqQ
-         izuQ==
+        bh=AFTYGqfNHrZJ1ACQz2/zGM09rICj9wugDVtYqFIeVTI=;
+        b=AYfA8F1kBcxiqBt98G0skwq9C5j24xz5OI8K8Dv7SI+AjRNWpbFThEfMBvh1hYmf55
+         Ban8GTYzXGclHUg3eT4Sboi4139w4Y0rzUu6Nz90tpzrebum/9Iwmy+nV+0uv7RcjQFo
+         UEhHd8BDeS8ISd17rYfs+zgqIGfuQ/uoqD2SewTGdFsrni52R4ct8zmQLzcEMNQg/9cZ
+         SsQcMt9ZR1zCApYEw+fCGd7Zrz1/WEZ7eiBb8X+8H40eM+dJt08h0KN7iRMwd9X40xAZ
+         0bseegvMLyNYquSGfkxMGmjgZymFxJOj6S3GHzm+jYyUBfqFqWNplO7mL9Yph0KgKTgj
+         rQmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=zSLcHCxAMmGMuhGNCJuJBcZvjfA97yIE1RNGGNKjbpM=;
-        b=38mOJcWC6zUMQIWyQZSGIUoinC+vmr4Tbp064l0S3Ltk5G104dsfZVDi5RbsFVfbis
-         AMxz2dYuC+goRAfNHmP26O8Nn10VjhGTj5bnp0sKnt1kXg4n1BCR2i2STSCpcdhMsAq+
-         HK9kHYVEqaqRMj8lfgQhaGChIikO6nfX7XExugGFexbatYfDb5iQbqdAu+ZqZ7rmsCzr
-         AjzsxyYy6JW1tvF+HYKYWNnhCaKz3t3ucrBVjX9JZlVpExMCajQuR4HpBa0Bh5syhVCh
-         IYrXOaBpsVCkMz/CbdkHID0IAiXwvFZt2k2n1W41dcHr/bZ7ydi7ujQ4n5K4atpQnluu
-         763Q==
-X-Gm-Message-State: AOAM532cNkxHSWrUNN4Z9YOrSBTvEUyFny3xv+gUH0oGhHi3ZB+hdY1T
-        ZoK8qi+GBKBmT14DX2EXJ7TLlYK297A=
-X-Google-Smtp-Source: ABdhPJwIALlo26E1pLOHLVws6Q43yGJ5i8La4xcCROBnkOiNejI7P00QdIW+FlVbMcZjkibQH3Zqfg==
-X-Received: by 2002:a17:906:128d:: with SMTP id k13mr73587285ejb.517.1636127166637;
-        Fri, 05 Nov 2021 08:46:06 -0700 (PDT)
+        bh=AFTYGqfNHrZJ1ACQz2/zGM09rICj9wugDVtYqFIeVTI=;
+        b=3tN3rU7XY3lW4LOVoJHBZfp0ZtHy8HNw1dNwVPafnmB5sNSiWBNw6s3o2EGpPqcjgF
+         kr20U9e3ZWqK6BOZYtG2NT9Lo6TrlgvQYA2IKi1jeTUyd6pU7G9SdS6z1JldtwQqsS/X
+         OvkVvehL1skQV9nRciGTsYlDQ6jk+eSjdJJsT+r0nizgXUI3lhBUqDy07NSJBe0WUtWP
+         Ctxm2PlW15rtaRYwGRM0cxZr1dxhdyjVRSVKIIZkvTNlsahpcKlpT34jhp3z2S4YgPZo
+         1TNwZ0typjbK/zaxUvkpe9QKAATKGOYezSZm4+OKdHq+jlUnfQpl20U5mUF7ScvgVLVL
+         514Q==
+X-Gm-Message-State: AOAM532lw6gL9MuRoBSNf85WFw4oHByC6AAnOKIHidDpnAeBP/plg+j3
+        WNffF7CDtdQ146KkW5YRz7gnxNcvMDg=
+X-Google-Smtp-Source: ABdhPJy7dZXoIRfNYqGzdPzFBfLi1oMmodXMgqbbRVvtNN7X/SqM1QimyNzQ/QzGILhPmI7sURblSw==
+X-Received: by 2002:a17:906:5811:: with SMTP id m17mr73808420ejq.289.1636127167894;
+        Fri, 05 Nov 2021 08:46:07 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-185-074.77.1.pool.telefonica.de. [77.1.185.74])
-        by smtp.gmail.com with ESMTPSA id u16sm4245474ejy.16.2021.11.05.08.46.06
+        by smtp.gmail.com with ESMTPSA id u16sm4245474ejy.16.2021.11.05.08.46.07
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Nov 2021 08:46:06 -0700 (PDT)
+        Fri, 05 Nov 2021 08:46:07 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH v2 33/36] libsepol: validate policy properties
-Date:   Fri,  5 Nov 2021 16:45:35 +0100
-Message-Id: <20211105154542.38434-34-cgzones@googlemail.com>
+Subject: [RFC PATCH v2 35/36] libsepol: validate fsuse types
+Date:   Fri,  5 Nov 2021 16:45:37 +0100
+Message-Id: <20211105154542.38434-36-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211105154542.38434-1-cgzones@googlemail.com>
 References: <20211011162533.53404-1-cgzones@googlemail.com>
@@ -67,80 +67,45 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Check the fsuse type is valid, e.g. of type xattr, trans or task.
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+
 ---
- libsepol/src/policydb_validate.c | 51 ++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+v2:
+   do not reject in binary reading, but check at validation step
+---
+ libsepol/src/policydb_validate.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index ffa21ee1..27f25132 100644
+index 9b18ac68..1c5ca0dd 100644
 --- a/libsepol/src/policydb_validate.c
 +++ b/libsepol/src/policydb_validate.c
-@@ -976,6 +976,54 @@ bad:
- 	return -1;
- }
+@@ -2,6 +2,7 @@
+ #include <sepol/policydb/conditional.h>
+ #include <sepol/policydb/ebitmap.h>
+ #include <sepol/policydb/policydb.h>
++#include <sepol/policydb/services.h>
  
-+static int validate_properties(sepol_handle_t *handle, policydb_t *p)
-+{
-+	switch (p->policy_type) {
-+	case POLICY_KERN:
-+		if (p->policyvers < POLICYDB_VERSION_MIN || p->policyvers > POLICYDB_VERSION_MAX)
-+			goto bad;
-+		break;
-+	case POLICY_BASE:
-+	case POLICY_MOD:
-+		if (p->policyvers < MOD_POLICYDB_VERSION_MIN || p->policyvers > MOD_POLICYDB_VERSION_MAX)
-+			goto bad;
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	switch (p->target_platform) {
-+	case SEPOL_TARGET_SELINUX:
-+	case SEPOL_TARGET_XEN:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	switch (p->mls) {
-+	case 0:
-+	case 1:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	switch (p->handle_unknown) {
-+	case SEPOL_DENY_UNKNOWN:
-+	case SEPOL_REJECT_UNKNOWN:
-+	case SEPOL_ALLOW_UNKNOWN:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	return 0;
-+
-+bad:
-+	ERR(handle, "Invalid policy property");
-+	return -1;
-+}
-+
- static void validate_array_destroy(validate_t flavors[])
- {
- 	unsigned int i;
-@@ -995,6 +1043,9 @@ int validate_policydb(sepol_handle_t *handle, policydb_t *p)
- 	if (validate_array_init(p, flavors))
- 		goto bad;
- 
-+	if (validate_properties(handle, p))
-+		goto bad;
-+
- 	if (p->policy_type == POLICY_KERN) {
- 		if (validate_avtab(handle, &p->te_avtab, flavors))
- 			goto bad;
+ #include "debug.h"
+ #include "policydb_validate.h"
+@@ -777,6 +778,15 @@ static int validate_ocontexts(sepol_handle_t *handle, policydb_t *p, validate_t
+ 				if (validate_context(&octx->context[1], flavors, p->mls))
+ 					goto bad;
+ 				break;
++			case OCON_FSUSE:
++				switch (octx->v.behavior) {
++				case SECURITY_FS_USE_XATTR:
++				case SECURITY_FS_USE_TRANS:
++				case SECURITY_FS_USE_TASK:
++					break;
++				default:
++					goto bad;
++				}
+ 			}
+ 		}
+ 	}
 -- 
 2.33.1
 
