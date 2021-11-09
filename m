@@ -2,155 +2,176 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1D0FC433EF
-	for <selinux@archiver.kernel.org>; Tue,  9 Nov 2021 18:39:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61B6DC433F5
+	for <selinux@archiver.kernel.org>; Tue,  9 Nov 2021 18:42:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A57FC61179
-	for <selinux@archiver.kernel.org>; Tue,  9 Nov 2021 18:39:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 497B461051
+	for <selinux@archiver.kernel.org>; Tue,  9 Nov 2021 18:42:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242526AbhKISmA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Nov 2021 13:42:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57724 "EHLO
+        id S242579AbhKISp0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Nov 2021 13:45:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238608AbhKISl7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Nov 2021 13:41:59 -0500
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFC0C061764
-        for <selinux@vger.kernel.org>; Tue,  9 Nov 2021 10:39:13 -0800 (PST)
-Received: by mail-oi1-x22e.google.com with SMTP id q124so373188oig.3
-        for <selinux@vger.kernel.org>; Tue, 09 Nov 2021 10:39:13 -0800 (PST)
+        with ESMTP id S238608AbhKISp0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Nov 2021 13:45:26 -0500
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47B0C061764
+        for <selinux@vger.kernel.org>; Tue,  9 Nov 2021 10:42:39 -0800 (PST)
+Received: by mail-ot1-x32f.google.com with SMTP id x19-20020a9d7053000000b0055c8b39420bso97807otj.1
+        for <selinux@vger.kernel.org>; Tue, 09 Nov 2021 10:42:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bnH0Qn0PEzWmJEuW1j4uM2rsWT8XMDwIdaLjysL5dtQ=;
-        b=Y+58C9cYpl1UfjvWp9+3xVHE10sKAMWTafQXeB4hFufwGkSNn+JLSpvbBxnC2XbV7Z
-         vPH0SR/EJX0Yup7ofz2Hll2H7qQqIWY7R8PsA7SpxdpLlQNgCWDIOheN5w5QORXuAXrA
-         6o+hmian53HBWJK30ujNVpzN+mQhOnUF+8Q7GN93KXP3Y6yj0XuJJyfDppW/JA9HJa3b
-         4Z41x+Mon6xqMW12fQc0NgcskXpeAi/87YayLjsip2/w8tZviahy9Np/Uv/sWJ+6GiFR
-         86tSzIt/MpvEnIZuy4EwXyB02LhFDsSgUMLu4WnQthHFUfMfd9x2t7auVhgf9JH9ozPl
-         L7uQ==
+         :cc:content-transfer-encoding;
+        bh=Fcx5oV+Twv5voocRC0fONjnPI2CI9pzKLvnFYJ35Pyg=;
+        b=adH7AkNFc2GKd8dDz3p2rDQNYmrXefiySPtmepo1GylD4lc1tgu3pSugQvpAjJQAb2
+         2y+6XoyLFaQcDwrj+408G5Lk52FoqnWdr1sTF+GGr+mnr98qkosZfGdQC5jvBcZCsfoW
+         7W56oy+hlo1cNtYC4VUZ5XD+D0PfGPdkcZ2GfZh534csfcbjNOIG/qmedw/nCNjFyKnE
+         ZzJa08sX8STSWEabvOqo9AdKMkqU7jloegsTyrT9Hs8ZGnh+E0svp1Uh5SJQqpXyVZix
+         tJ3tpnxTIBip74rMS6hZAs70kD39DTF7JVBND41bJZLmQpvaPKyGZW1DgI7Pl5GGKw6b
+         nGtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bnH0Qn0PEzWmJEuW1j4uM2rsWT8XMDwIdaLjysL5dtQ=;
-        b=gDp3GTqK8b7HlMPzlyTiE+D8uez7lhnEkT8hBgxJOOOCpEDhXOncx1qN3UHwpxWdz+
-         W+yfSidMlqysjqKftgtCrqJkzLaq24NdB1KOZPyrjNN0y6jLn5NxlFsDuWavF/eIehK0
-         tfZIarSogDYjHe1UwmGTdgvhNKY6eUHK4DQzCR5w/7qOEPXedGaJ1aXFG6ZdFdiEmt4L
-         7GWMAaEL/hjbmqlOtfA8wa2M2sDgYIcM2cNZqbFyv8YTZxkvkWRodN0zLX/DNpaUH2Sk
-         OUNoSVLC9YxImhdAcyvIlrLCtX11J2O0FyG0pWVkT8c30X/11Hegdb8COzRaM79uTDVX
-         +LMg==
-X-Gm-Message-State: AOAM533lM1KHBvsdCyJ9URVQzxEAbdgAn8Skq2dYGeuosZRaUehLqP3E
-        c9Hxggg2hFjsFmrk0P81w7QVQDwy0gDm4wO14h8=
-X-Google-Smtp-Source: ABdhPJxz32xMMvJWaG+N/pyDmbbrL9z7lQHgTmZdg41q+sXh3dW5kJa+XL6qJJeR3Jrrqn7tKwwDdLomHo8rWrObSZQ=
-X-Received: by 2002:aca:3152:: with SMTP id x79mr7771960oix.128.1636483152900;
- Tue, 09 Nov 2021 10:39:12 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Fcx5oV+Twv5voocRC0fONjnPI2CI9pzKLvnFYJ35Pyg=;
+        b=NzdH4DmxoogpICeJucQcy8L7k8xaFb1ezqA2eLnxjHNc9RrENxBxNv3KW3SpbDPBhX
+         lF46a/FW1UhwCf6VBw70tQLOksc0aEAVk95qxnVRLe+Sh4aiLJs4ubtyQnpLPPV55Oem
+         X90Q07Ws92uCiCydp8PurW9I+W8bQFYN3ICPKoHJik6OWMLjF1xBPxr6XufYyoyBVmtB
+         4cZ+LvbQ4PM0DkBDGDJmRE4GgaOaVht2UE4L4APQnBdTmHRXDZNRdOXEmrCxvx65U9lU
+         bGZHzEDbjrGJGSIG8VSpoGz8mKHY8VfU1WFSAcpuP0ffWaOkpgGXk7R4Hl2UrZi0ctui
+         5kUw==
+X-Gm-Message-State: AOAM5314C6u/GtjwjEdG5f10aUEgFi8+bFaI5wrGOji74ZmPahNd7cx1
+        tIEhbN9iddtuQTOfuXxEgyzJm7Osjff+rnsJyyI=
+X-Google-Smtp-Source: ABdhPJySZHjJIsts4zdKAEjl4aH36JMbFM3pqQtXI22xUCmMkL5fLXi/mXqtleXPMuV2/0dwrCkUiqEgNi11BTMUj1Y=
+X-Received: by 2002:a9d:6346:: with SMTP id y6mr8072562otk.154.1636483358517;
+ Tue, 09 Nov 2021 10:42:38 -0800 (PST)
 MIME-Version: 1.0
-References: <7d775f7f-1377-edde-8474-ba2126256852@linux.microsoft.com>
- <CAP+JOzQ8V2r8Dzh7xoWYwq3nhwW7KciMoB5EoTiuvjEwJHGQwQ@mail.gmail.com>
- <3e770d7e-945e-1a41-fe9e-c220d3550ca9@linux.microsoft.com>
- <CA+EEuAhzFYQhLMXKgAOy_bzhdJV3a0Rqp9YSSot16+e32Vhv6Q@mail.gmail.com> <33962ce0-24a6-7041-ea4c-8b63fe44a4ea@linux.microsoft.com>
-In-Reply-To: <33962ce0-24a6-7041-ea4c-8b63fe44a4ea@linux.microsoft.com>
+References: <20211011162533.53404-1-cgzones@googlemail.com> <20211105154542.38434-1-cgzones@googlemail.com>
+In-Reply-To: <20211105154542.38434-1-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 9 Nov 2021 13:39:01 -0500
-Message-ID: <CAP+JOzScXOxXnUStypqCEUxnVroW+SGVzoFb7BcAj2C_Nu87GQ@mail.gmail.com>
-Subject: Re: [RFC] Cascade: a high level SELinux policy language
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
-Cc:     Karl MacMillan <karl@bigbadwolfsecurity.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>,
-        James Morris <jmorris@namei.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Chris PeBenito <pebenito@ieee.org>
+Date:   Tue, 9 Nov 2021 13:42:27 -0500
+Message-ID: <CAP+JOzRNuqCbRuNYz-=E-aj8zgLFY_h6kXnfcd1842LOZVs6-Q@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 00/36] libsepol: add fuzzer for reading binary policies
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 9, 2021 at 1:16 PM Daniel Burgener
-<dburgener@linux.microsoft.com> wrote:
+On Fri, Nov 5, 2021 at 12:11 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> On 11/9/2021 11:03 AM, Karl MacMillan wrote:
-> > Daniel,
-
-> >
-> >
-> >     In terms of optional blocks, Chris and I have argued about optional a
-> >     few times, and part of the reason there's nothing about optional so far
-> >     is because we'd like to solicit community feedback there.  My personal
-> >     view is that explicitly marking statements as optional is tedious and
-> >     error prone.  But I don't have a really slam dunk "clearly better"
-> >     solution to propose yet at this point.  I have a few ideas, but they
-> >     all
-> >     need to be more thoroughly thought out and there are some holes and
-> >     issues to address.  I viewed this feature as non-essential for an
-> >     initial proof of concept, and am glad that we can have design
-> >     discussions about it in the open.
-> >
-> >     So in short, yes, I think the ability to differentiate that certain
-> >     rules are required for a module to work and others are optional is
-> >     definitely needed.  But I'm not yet set on what the best way to do that
-> >     is.  One key goal here is that a developer of a component should be
-> >     able
-> >     to add policy with fairly minimal knowledge of SELinux.  I'd prefer it
-> >     if most of the time they could do the right thing without knowing about
-> >     optional, but I'm not yet sure what the best/cleanest way to achieve
-> >     that will be.
-> >
-> >
-> > Optional blocks have, in practice, been a huge source of errors I
-> > believe.
->  > [snip]
+> Add a libfuzz[1] based fuzzer testing the reading and parsing of binary p=
+olicy
+> files. This fuzzer will be run within the OSS-Fuzz service.
 >
-> I agree pretty much 100% with everything you've said here about the
-> usage and historical limitations of optional.  Thanks for the added
-> historical context from before my time.
+> Handle and reject a variety of edge cases causing crashes or resource lea=
+ks.
+>
+> The fifth patch ("libsepol/fuzz: limit element sizes for fuzzing") needs =
+some
+> discussion: To avoid oom reports from the fuzzer, caused by huge memory
+> allocations, all identifiers are limited to a length of 2^16 for the fuzz=
+er
+> build only.  Probably there should be a limit for the release build too.
+> Is there a specification for the binary policy format saying something ab=
+out
+> the maximum length of identifiers?
+> After a quick look at the kernel sources (most interesting is str_read())=
+ I
+> could not find any limits either.
+>
+> [1]: https://llvm.org/docs/LibFuzzer.html
+>
+> v2:
+>   - reorder patches
+>     1. oss-fuzz related
+>     2. libsepol parsing and other crashesand UB
+>     3. enhance policy validation
+>   - misc changes based on review by James Carter
 >
 
-I am not a fan of optionals either. Disabling optionals has been a
-source of many bugs in CIL, but it would have been hard to make
-translating binary modules to CIL work without them.
+I have comments on patch 02 and 30, everything else looks good. It was
+a little hard to work through the reordering, but it does seem like
+you addressed all my previous comments.
 
-> On the topic of packaging, I'll admit that I'm sparse on details without
-> an actual implementation at this point, so the packaging aspect of
-> Cascade is currently vaporware, but my hope is that an integrated
-> packaging and build system framework, inspired by rust's cargo can solve
-> a lot of the packaging problems much more cleanly (by inserting optional
-> blocks for install order problems during compilation rather than in
-> source for example).
->
-> I like the suggestion of a question mark operator for optional policy
-> quite a bit.  Although I'm really interested in exploring whether it's
-> possible to just treat the entirety of it as a policy level dependency
-> resolution problem.  Basically annotate with modules a particular module
-> depends on vs which are optional - the distinction being that the
-> optional marking is done at the module level rather than the
-> rule/interface call level.  That might be less heavy-weight and error
-> prone to use while still providing the needed flexibility.
->
-
-99% of the time optionals are used as a way of including rules when a
-module is present without causing an error when it is not, so this
-should provide everything that is needed.
-
-Since you have a lot of freedom, I would recommend a system like that
-rather than optionals.
-
+Thanks,
 Jim
 
 
-> > Anyway - forgive me crashing in with all of my opinions. I hope my
-> > background on the problems of optionals might at least be helpful.
+> Christian G=C3=B6ttsche (36):
+>   cifuzz: enable report-unreproducible-crashes
+>   cifuzz: use the default runtime of 600 seconds
+>   libsepol/fuzz: silence secilc-fuzzer
+>   libsepol: add libfuzz based fuzzer for reading binary policies
+>   libsepol/fuzz: limit element sizes for fuzzing
+>   libsepol: use logging framework in conditional.c
+>   libsepol: use logging framework in ebitmap.c
+>   libsepol: use mallocarray wrapper to avoid overflows
+>   libsepol: use reallocarray wrapper to avoid overflows
+>   libsepol: add checks for read sizes
+>   libsepol: enforce avtab item limit
+>   libsepol: clean memory on conditional insertion failure
+>   libsepol: reject abnormal huge sid ids
+>   libsepol: reject invalid filetrans source type
+>   libsepol: zero member before potential dereference
+>   libsepol: use size_t for indexes in strs helpers
+>   libsepol: do not underflow on short format arguments
+>   libsepol: do not crash on class gaps
+>   libsepol: do not crash on user gaps
+>   libsepol: use correct size for initial string list
+>   libsepol: do not create a string list with initial size zero
+>   libsepol: split validation of datum array gaps and entries
+>   libsepol: validate MLS levels
+>   libsepol: validate expanded user range and level
+>   libsepol: validate permission count of classes
+>   libsepol: resolve log message mismatch
+>   libsepol: validate avtab and avrule types
+>   libsepol: validate constraint expression operators and attributes
+>   libsepol: validate type of avtab type rules
+>   libsepol: validate ocontexts
+>   libsepol: validate genfs contexts
+>   libsepol: validate permissive types
+>   libsepol: validate policy properties
+>   libsepol: validate categories
+>   libsepol: validate fsuse types
+>   libsepol: validate class default targets
 >
-> Opinions are what I'm seeking. :)  And yes, I think all of your thoughts
-> here are quite helpful.  I think the attributes concern is a good one
-> that we aimed to address, and can continue to refine as needed, and the
-> optional thoughts are extremely helpful, since as I mentioned in my
-> prior e-mail, the overall support for differentiating which policy is
-> required and which is optional is a must-have in my view, but how
-> exactly to specify it in a way that is clear is somewhat challenging and
-> subjective.  Added info on historical context and use cases is a
-> valuable input to that discussion.
+>  .github/workflows/cifuzz.yml     |   3 +-
+>  libsepol/fuzz/binpolicy-fuzzer.c |  63 ++++
+>  libsepol/fuzz/policy.bin         | Bin 0 -> 1552 bytes
+>  libsepol/fuzz/secilc-fuzzer.c    |   5 +
+>  libsepol/src/Makefile            |   6 +
+>  libsepol/src/avtab.c             |   6 +
+>  libsepol/src/conditional.c       |  53 ++--
+>  libsepol/src/ebitmap.c           |  27 +-
+>  libsepol/src/expand.c            |   4 +-
+>  libsepol/src/hashtab.c           |   4 +-
+>  libsepol/src/kernel_to_cil.c     |  10 +
+>  libsepol/src/kernel_to_common.c  |  23 +-
+>  libsepol/src/kernel_to_common.h  |   4 +-
+>  libsepol/src/kernel_to_conf.c    |  13 +-
+>  libsepol/src/link.c              |   3 +-
+>  libsepol/src/module.c            |   4 +-
+>  libsepol/src/module_to_cil.c     |  13 +-
+>  libsepol/src/optimize.c          |  11 +-
+>  libsepol/src/policydb.c          |  27 +-
+>  libsepol/src/policydb_validate.c | 475 +++++++++++++++++++++++++++----
+>  libsepol/src/private.h           |  27 +-
+>  libsepol/src/services.c          |  12 +-
+>  libsepol/src/sidtab.c            |   3 +-
+>  libsepol/src/user_record.c       |   8 +-
+>  libsepol/src/users.c             |  12 +-
+>  libsepol/src/util.c              |  11 +-
+>  libsepol/src/write.c             |   2 +-
+>  scripts/oss-fuzz.sh              |  17 +-
+>  28 files changed, 684 insertions(+), 162 deletions(-)
+>  create mode 100644 libsepol/fuzz/binpolicy-fuzzer.c
+>  create mode 100644 libsepol/fuzz/policy.bin
 >
-> -Daniel
+> --
+> 2.33.1
+>
