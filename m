@@ -2,154 +2,199 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9535C433F5
-	for <selinux@archiver.kernel.org>; Mon,  8 Nov 2021 21:46:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81DA9C433F5
+	for <selinux@archiver.kernel.org>; Tue,  9 Nov 2021 10:00:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FB57610E9
-	for <selinux@archiver.kernel.org>; Mon,  8 Nov 2021 21:46:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 618B6610A3
+	for <selinux@archiver.kernel.org>; Tue,  9 Nov 2021 10:00:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240596AbhKHVti (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Nov 2021 16:49:38 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:55877 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231282AbhKHVti (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Nov 2021 16:49:38 -0500
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 958F4561202
-        for <selinux@vger.kernel.org>; Mon,  8 Nov 2021 22:46:51 +0100 (CET)
-Received: by mail-pf1-f182.google.com with SMTP id x131so12155364pfc.12
-        for <selinux@vger.kernel.org>; Mon, 08 Nov 2021 13:46:51 -0800 (PST)
-X-Gm-Message-State: AOAM533z7ihFEY2CqUkItVgf5eeCPKhr0x4FCW+6D0cMz/L1Zxhp5nD+
-        pd702XwkpWUyMXOq5tc/kv8WCExuulll4p3n9G0=
-X-Google-Smtp-Source: ABdhPJyORtMuMtXIoZRzAML23Yfi2WLDQEU09dWubWyJfxYr2oZvfhnpSn1lTg0ipNujsNbkCpmmSpyRmG8U/zZEkzk=
-X-Received: by 2002:a63:3d4c:: with SMTP id k73mr2047023pga.44.1636408010307;
- Mon, 08 Nov 2021 13:46:50 -0800 (PST)
+        id S230445AbhKIKDb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Nov 2021 05:03:31 -0500
+Received: from mailomta14-re.btinternet.com ([213.120.69.107]:45495 "EHLO
+        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229845AbhKIKDa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Nov 2021 05:03:30 -0500
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-049.btinternet.com with ESMTP
+          id <20211109100043.JOEY8938.re-prd-fep-049.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Tue, 9 Nov 2021 10:00:43 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1636452043; 
+        bh=x8yC0WvtDLG8ZtSv3HH69oSuc9mofHM1Y9s0UqxaZ2A=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=gkeo98lOIrVcOxJC55bCgOYdOqmbfVXcSDLIov5BoQslhupa0eNuYEiCNr2KH4hV1Tx/EmbnN9NUcYs3wAONDkF6PXbM4SSPJiVUTi35ft0Z/FS8bR8S93/Od6zW3Q2ga/UfFnEYNR9KPKRITO3pIxhGs4Pc6zSBh49hXOfnB7ClxwRn0uiir2N9JGzdW3LbkqDMkDZ6b1Kj+gMqQAfi/oXzDeHOUyUWulik1qzfJ+OSLRz7cVESBznN0zmc9XknaWS3LTSAa6K5PvE/TvzSdkRpIMSdk9wZOcFjLNht+a9OQ6gBfulyX0pzY+dqqegYhssVrlcaJZe1wGCpJuFoqQ==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
+    bimi=skipped
+X-SNCR-Rigid: 613A901C087580FD
+X-Originating-IP: [217.42.114.162]
+X-OWM-Source-IP: 217.42.114.162 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvuddrudeggdduudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepvdeiudfhvdejteffjeelvdeuvdehgffflefghfefleegieejjeelkeeljeejhfdvnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphepvddujedrgedvrdduudegrdduiedvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplgduledvrdduieekrddurdduleekngdpihhnvghtpedvudejrdegvddruddugedrudeivddpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepohhmohhsnhgrtggvsehrvgguhhgrthdrtghomhdprhgtphhtthhopehprghulhesphgruhhlqdhmohhorhgvrdgtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from [192.168.1.198] (217.42.114.162) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 613A901C087580FD; Tue, 9 Nov 2021 10:00:43 +0000
+Message-ID: <74823199cfc693defe0cbaca3623d8245d9454d1.camel@btinternet.com>
+Subject: Re: [RFC PATCH 1/1] testsuite sctp: Add tests for sctp_socket
+ transition rules
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Date:   Tue, 09 Nov 2021 10:00:42 +0000
+In-Reply-To: <CAFqZXNvaChb_D4YFK6_WnXYVMZ3ZUpC4p9rDEbztOTa-Tb-znw@mail.gmail.com>
+References: <20211107142047.32727-1-richard_c_haines@btinternet.com>
+         <20211107142047.32727-2-richard_c_haines@btinternet.com>
+         <CAFqZXNvaChb_D4YFK6_WnXYVMZ3ZUpC4p9rDEbztOTa-Tb-znw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.1 (3.42.1-1.fc35) 
 MIME-Version: 1.0
-References: <20211027181210.1019597-1-jwcart2@gmail.com> <CAEjxPJ4kNNPkzLcU1Ovr5DWSo7obkm+QyueMt7BE3r7ALuUnqg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4kNNPkzLcU1Ovr5DWSo7obkm+QyueMt7BE3r7ALuUnqg@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 8 Nov 2021 22:46:39 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=k-1FE27swaxcnHki_0pJCZqZRgno=0fUN52VHWs7e3Bw@mail.gmail.com>
-Message-ID: <CAJfZ7=k-1FE27swaxcnHki_0pJCZqZRgno=0fUN52VHWs7e3Bw@mail.gmail.com>
-Subject: Re: [PATCH 0/4] Fix/add optional file type handling for genfscon rules
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="00000000000029b60e05d04dee54"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Nov  8 22:46:52 2021 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---00000000000029b60e05d04dee54
-Content-Type: text/plain; charset="UTF-8"
+On Mon, 2021-11-08 at 18:54 +0100, Ondrej Mosnacek wrote:
+> Hi Richard,
+> 
+> On Sun, Nov 7, 2021 at 3:21 PM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > 
+> > Add tests for sctp_socket type_transition rules and also using
+> > setsockcreatecon(3)
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> >  policy/test_sctp.te              | 57
+> > ++++++++++++++++++++++++++++++++
+> >  tests/sctp/sctp_client.c         | 19 +++++++++--
+> >  tests/sctp/sctp_common.c         | 51 ++++++++++++++++++++++++++++
+> >  tests/sctp/sctp_common.h         |  2 ++
+> >  tests/sctp/sctp_peeloff_client.c | 21 +++++++++---
+> >  tests/sctp/sctp_peeloff_server.c | 18 ++++++++--
+> >  tests/sctp/sctp_server.c         | 18 ++++++++--
+> >  tests/sctp/test                  | 57
+> > +++++++++++++++++++++++++++++++-
+> >  8 files changed, 231 insertions(+), 12 deletions(-)
+> > 
+> [...]
+> > diff --git a/tests/sctp/sctp_peeloff_client.c
+> > b/tests/sctp/sctp_peeloff_client.c
+> > index 2d42c72..5470494 100644
+> > --- a/tests/sctp/sctp_peeloff_client.c
+> > +++ b/tests/sctp/sctp_peeloff_client.c
+> > @@ -3,13 +3,14 @@
+> >  static void usage(char *progname)
+> >  {
+> >         fprintf(stderr,
+> > -               "usage:  %s [-e expected_msg] [-v] [-n] [-x] addr
+> > port\n"
+> > +               "usage:  %s [-e expected_msg] [-v] [-n] [-t type] [-
+> > x] addr port\n"
+> >                 "\nWhere:\n\t"
+> > 
+> >                 "-e      Optional expected message from server e.g.
+> > \"nopeer\".\n\t"
+> >                 "        If not present the client context will be
+> > used as a\n\t"
+> >                 "        comparison with the servers reply.\n\t"
+> >                 "-n      Do NOT call connect(3) or connectx(3).\n\t"
+> > +               "-t      New type for setsockcreatecon(3) test.\n\t"
+> >                 "-v      Print context and ip options
+> > information.\n\t"
+> >                 "-x      Use sctp_connectx(3) instead of
+> > connect(3).\n\t"
+> >                 "addr    IPv4 or IPv6 address (e.g. 127.0.0.1 or
+> > ::1).\n\t"
+> > @@ -28,10 +29,10 @@ int main(int argc, char **argv)
+> >         char byte = 0x41, label[1024], *expected = NULL;
+> >         bool verbose = false, connectx = false, no_connects = false;
+> >         bool ipv4 = false, expect_ipopt = false;
+> > -       char *context;
+> > +       char *context, *sock_type = NULL;
+> >         struct timeval tm;
+> > 
+> > -       while ((opt = getopt(argc, argv, "e:vxmni")) != -1) {
+> > +       while ((opt = getopt(argc, argv, "e:t:vxmni")) != -1) {
+> >                 switch (opt) {
+> >                 case 'e':
+> >                         expected = optarg;
+> > @@ -45,6 +46,9 @@ int main(int argc, char **argv)
+> >                 case 'n':
+> >                         no_connects = true;
+> >                         break;
+> > +               case 't':
+> > +                       sock_type = optarg;
+> > +                       break;
+> >                 case 'x':
+> >                         connectx = true;
+> >                         break;
+> > @@ -187,11 +191,20 @@ int main(int argc, char **argv)
+> >                 exit(1);
+> >         }
+> > 
+> > +       /* If -t option set new context for peeled off socket */
+> > +       if (sock_type) {
+> > +               result = set_newsock_con(sock_type, "Peeloff
+> > Client");
+> > +               if (result < 0) {
+> > +                       fprintf(stderr, "Failed
+> > setsockcreatecon(3)\n");
+> > +                       exit(20);
+> > +               }
+> > +       }
+> > +
+> >         peeloff_sk = sctp_peeloff(sock, assoc_id);
+> >         if (peeloff_sk < 0) {
+> >                 perror("Client sctp_peeloff");
+> >                 close(sock);
+> > -               exit(1);
+> > +               exit(21);
+> >         }
+> >         if (verbose) {
+> >                 printf("Client sctp_peeloff(3) on sk: %d with
+> > association ID: %d\n",
+> 
+> So are you implying that you expect the peeloff socket to get the
+> label via the usual transition-or-sockcreatecon mechanism, rather than
+> inheriting it from the parent socket?
 
-On Thu, Nov 4, 2021 at 9:09 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Oct 27, 2021 at 5:32 PM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > genfscon rules have always supported an optional file type, but when
-> > the ability for writing a policy.conf file from a kernel policy was
-> > added to libsepol it did not include that support. Support for the
-> > optional file type was also left out of CIL genfscon rules.
-> >
-> > This patch set fixes these problems.
-> >
-> > Patch 1 adds support for writing the optional file type in genfscon rules
-> > when writing a policy.conf file from a kernel policy.
-> >
-> > Patches 2-4 adds support in CIL for handling an optional file type
-> > in genfscon rules, updates the CIL documentation, and adds support
-> > when writing out CIL from a kernel policy or module as well.
-> >
-> > James Carter (4):
-> >   libsepol: Add support for file types in writing out policy.conf
-> >   libsepol/cil: Allow optional file type in genfscon rules
-> >   secilc/docs: Document the optional file type for genfscon rules
-> >   libsepol: Write out genfscon file type when writing out CIL policy
-> >
-> >  libsepol/cil/src/cil_binary.c               | 39 +++++++++++++++++++
-> >  libsepol/cil/src/cil_build_ast.c            | 43 +++++++++++++++++++--
-> >  libsepol/cil/src/cil_internal.h             |  1 +
-> >  libsepol/src/kernel_to_cil.c                | 35 ++++++++++++++++-
-> >  libsepol/src/kernel_to_conf.c               | 35 ++++++++++++++++-
-> >  libsepol/src/module_to_cil.c                | 27 ++++++++++++-
-> >  secilc/docs/cil_file_labeling_statements.md | 10 ++++-
-> >  7 files changed, 179 insertions(+), 11 deletions(-)
->
-> Something here breaks on the selinux-testsuite policy:
->
-> 3231# Run the test suite
-> 3232#
-> 3233make test
-> 3234make -C policy load
-> 3235make[1]: Entering directory '/root/selinux-testsuite/policy'
-> 3236# Test for "expand-check = 0" in /etc/selinux/semanage.conf
-> 3237# General policy build
-> 3238make[2]: Entering directory '/root/selinux-testsuite/policy/test_policy'
-> 3239Compiling targeted test_policy module
-> 3240Creating targeted test_policy.pp policy package
-> 3241rm tmp/test_policy.mod tmp/test_policy.mod.fc
-> 3242make[2]: Leaving directory '/root/selinux-testsuite/policy/test_policy'
-> 3243# General policy load
-> 3244domain_fd_use --> on
-> 3245/usr/sbin/semodule -i test_policy/test_policy.pp
-> test_mlsconstrain.cil test_overlay_defaultrange.cil
-> test_userfaultfd.cil test_add_levels.cil test_glblub.cil
-> 3246What is going on?
-> 3247Failed to generate binary
-> 3248/usr/sbin/semodule: Failed!
-> 3249make[1]: *** [Makefile:189: load] Error 1
-> 3250make[1]: Leaving directory '/root/selinux-testsuite/policy'
-> 3251make: *** [Makefile:7: test] Error 2
-> 3252Error: Process completed with exit code 2.
+No just testing the way it currently works when calling
+sctp_peeloff(3). It was only the discussions on your patch series
+threads that made me think of testing these various scenarios (also saw
+testsuite issue #12 [1]). Once your new changes are done the tests can
+be reworked.
 
-Hello,
+[1] https://github.com/SELinuxProject/selinux-testsuite/issues/12
 
-This error happens because cil_genfscon_init() does not initialize
-->file_type, and cil_genfscon_to_policydb() then reads an
-uninitialized value. The attached patch (on top of this series) fixed
-the CI for me.
+>  My current opinion is the
+> opposite, motivated by the (somewhat) analogical case of sockets
+> created via accept(2).
 
-Cheers,
-Nicolas
+I really have no issues either way, so long as the maintainers are
+happy. The only thing I would like to see is that whichever way is
+chosen, it's documented (preferably in Documentation/security/SCTP.rst,
+but to keep Paul full of happiness & light also in the patch
+description). I think the chances of anyone having code like my peeloff
+test is very remote - but you never know !!!.
 
---00000000000029b60e05d04dee54
-Content-Type: text/x-patch; charset="US-ASCII"; 
-	name="initialize_genfscon_file_type_and_improve_errors.patch"
-Content-Disposition: attachment; 
-	filename="initialize_genfscon_file_type_and_improve_errors.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_kvr712q50>
-X-Attachment-Id: f_kvr712q50
-
-ZGlmZiAtLWdpdCBhL2xpYnNlcG9sL2NpbC9zcmMvY2lsLmMgYi9saWJzZXBvbC9jaWwvc3JjL2Np
-bC5jCmluZGV4IDRjYzdmODdmYTk0Ny4uYjIxMDc3MmNmZGI3IDEwMDY0NAotLS0gYS9saWJzZXBv
-bC9jaWwvc3JjL2NpbC5jCisrKyBiL2xpYnNlcG9sL2NpbC9zcmMvY2lsLmMKQEAgLTI1NzYsNiAr
-MjU3Niw3IEBAIHZvaWQgY2lsX2dlbmZzY29uX2luaXQoc3RydWN0IGNpbF9nZW5mc2NvbiAqKmdl
-bmZzY29uKQogCSgqZ2VuZnNjb24pLT5wYXRoX3N0ciA9IE5VTEw7CiAJKCpnZW5mc2NvbiktPmNv
-bnRleHRfc3RyID0gTlVMTDsKIAkoKmdlbmZzY29uKS0+Y29udGV4dCA9IE5VTEw7CisJKCpnZW5m
-c2NvbiktPmZpbGVfdHlwZSA9IDA7IC8qIEZJWE1FOiAiMCIgc2VlbXMgdG8gbWVhbiAibm90IGlu
-aXRpYWxpemVkIiBidXQgaXMgbm90IGEgdmFsdWUgZm9yIGVudW0gY2lsX2ZpbGVjb25fdHlwZXMu
-IENJTF9GSUxFQ09OX0FOWSBjb3VsZCBiZSBiZXR0ZXI/ICovCiB9CiAKIHZvaWQgY2lsX3BpcnFj
-b25faW5pdChzdHJ1Y3QgY2lsX3BpcnFjb24gKipwaXJxY29uKQpkaWZmIC0tZ2l0IGEvbGlic2Vw
-b2wvY2lsL3NyYy9jaWxfYmluYXJ5LmMgYi9saWJzZXBvbC9jaWwvc3JjL2NpbF9iaW5hcnkuYwpp
-bmRleCA1YzRiNzBmNzAzNTMuLjI5ZmIxNjVlODM1MiAxMDA2NDQKLS0tIGEvbGlic2Vwb2wvY2ls
-L3NyYy9jaWxfYmluYXJ5LmMKKysrIGIvbGlic2Vwb2wvY2lsL3NyYy9jaWxfYmluYXJ5LmMKQEAg
-LTM0OTQsMTMgKzM0OTQsMTMgQEAgaW50IGNpbF9nZW5mc2Nvbl90b19wb2xpY3lkYihwb2xpY3lk
-Yl90ICpwZGIsIHN0cnVjdCBjaWxfc29ydCAqZ2VuZnNjb25zKQogCQkJCWNsYXNzX25hbWUgPSAi
-bG5rX2ZpbGUiOwogCQkJCWJyZWFrOwogCQkJZGVmYXVsdDoKLQkJCQlmcHJpbnRmKHN0ZGVyciwg
-IldoYXQgaXMgZ29pbmcgb24/XG4iKTsKKwkJCQljaWxfbG9nKENJTF9FUlIsICJnZW5mc2NvbiB1
-c2VkIGFuIHVua25vd24gZmlsZSB0eXBlOiAldVxuIiwgY2lsX2dlbmZzY29uLT5maWxlX3R5cGUp
-OwogCQkJCXJjID0gU0VQT0xfRVJSOwogCQkJCWdvdG8gZXhpdDsKIAkJCX0KIAkJCWNsYXNzX2Rh
-dHVtID0gaGFzaHRhYl9zZWFyY2gocGRiLT5wX2NsYXNzZXMudGFibGUsIGNsYXNzX25hbWUpOwog
-CQkJaWYgKCFjbGFzc19kYXR1bSkgewotCQkJCWZwcmludGYoc3RkZXJyLCAiV2hhdCBpcyBnb2lu
-ZyBvbj9cbiIpOworCQkJCWNpbF9sb2coQ0lMX0VSUiwgImdlbmZzY29uIHVzZWQgYSBjbGFzcyB3
-aGljaCB3YXMgbm90IGZvdW5kIGluIHRoZSBwb2xpY3k6ICVzXG4iLCBjbGFzc19uYW1lKTsKIAkJ
-CQlyYyA9IFNFUE9MX0VSUjsKIAkJCQlnb3RvIGV4aXQ7CiAJCQl9Cg==
---00000000000029b60e05d04dee54--
+>  Can you provide some arguments/use cases
+> showing why the SCTP peeloff socket should have this behavior? Or
+> would you argue that accept(2)-ed sockets should ideally also follow
+> the transition-or-sockcreatecon behavior? Should it be combined with
+> inheriting the parent socket's context by default or should each
+> socket get its label independently based only on the creating process?
+> 
+> Currently, the patches that Xin Long and I posted (or plan to post)
+> are heading in the direction of just inheriting the parent socket's
+> context. If there are good reasons to do it another way, I'm very
+> interested in hearing them.
+> 
+> --
+> Ondrej Mosnacek
+> Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+> 
 
