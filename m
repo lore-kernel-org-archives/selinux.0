@@ -2,196 +2,382 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B55F3C433EF
-	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 14:03:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA49DC433FE
+	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 14:32:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9891D610CB
-	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 14:03:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A61D16117A
+	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 14:32:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbhKKOGe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Nov 2021 09:06:34 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:57231 "EHLO
+        id S233710AbhKKOfc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Nov 2021 09:35:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:33769 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232033AbhKKOGe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Nov 2021 09:06:34 -0500
+        by vger.kernel.org with ESMTP id S233692AbhKKOfb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Nov 2021 09:35:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636639425;
+        s=mimecast20190719; t=1636641162;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Ea0nZf7d7gaRioOEzcKYgvTkBCwXGRf/M8c41jaWbJM=;
-        b=eVmGqYXUoZuD6HfUob9oiBnv508h9hTQ9jH+V40x6tdFe5pzs1fx/6jUO9i6nk5PB64Y/W
-        4EF44FhYFqNHcTuUnCOog3TwWnTRUCt1xtpdmrC0GwyScwVwX25wCS3c74wJrmkp0X+3WB
-        H3DLr9P1G5Hft2vMZfvYvUvHzDtpF2Q=
+        bh=aw7H8zO61pxcusBQKbpzVlsUX4j1BJy8dcGa6C8abRE=;
+        b=TaiGY4UfWy8BeViftT1pzaoTTPTed2vAKXq3gcHzCB2QDlzTZ1dSU2Q3k5m1a/EGD5otJ2
+        UviOAGEMtfArH35UFSWcnqZGIA4PV6hU4k/8NDKWANCqU5gkhRwk6FrES0ByHgUeBYz1zx
+        vj+DNa5OmNcXD425YzIOAAELLrtUPOk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-60-W4SoAoyTMpalrnQ1EJnaNA-1; Thu, 11 Nov 2021 09:03:41 -0500
-X-MC-Unique: W4SoAoyTMpalrnQ1EJnaNA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-331-1d76gEt7OSKqIJNT5KNTuQ-1; Thu, 11 Nov 2021 09:32:37 -0500
+X-MC-Unique: 1d76gEt7OSKqIJNT5KNTuQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 92BF487D543;
-        Thu, 11 Nov 2021 14:03:38 +0000 (UTC)
-Received: from localhost (unknown [10.40.192.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 43E7019D9D;
-        Thu, 11 Nov 2021 14:03:37 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     markus.linnala@gmail.com, selinux@vger.kernel.org
-Cc:     Markus Linnala <Markus.Linnala@knowit.fi>
-Subject: Re: [PATCH] Use IANA-managed domain example.com in examples
-In-Reply-To: <20211109153956.472188-1-markus.linnala@gmail.com>
-References: <20211109153956.472188-1-markus.linnala@gmail.com>
-Date:   Thu, 11 Nov 2021 15:03:36 +0100
-Message-ID: <87lf1ux007.fsf@redhat.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5E7B51006AA1;
+        Thu, 11 Nov 2021 14:32:34 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.33.232])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 84B761002D71;
+        Thu, 11 Nov 2021 14:32:22 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 218F7220EED; Thu, 11 Nov 2021 09:32:22 -0500 (EST)
+Date:   Thu, 11 Nov 2021 09:32:22 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     miklos@szeredi.hu
+Cc:     linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, virtio-fs@redhat.com,
+        chirantan@chromium.org, stephen.smalley.work@gmail.com,
+        dwalsh@redhat.com, casey@schaufler-ca.com, omosnace@redhat.com
+Subject: Re: [PATCH v3 1/1] fuse: Send security context of inode on file
+ creation
+Message-ID: <YY0pdhKBCalzPvs6@redhat.com>
+References: <20211110225528.48601-1-vgoyal@redhat.com>
+ <20211110225528.48601-2-vgoyal@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211110225528.48601-2-vgoyal@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-markus.linnala@gmail.com writes:
 
-> From: Markus Linnala <Markus.Linnala@knowit.fi>
->
-> See: RFC 2606
->
-> foo.com seems to be privately owned.
->
-> Signed-off-by: Markus Linnala <Markus.Linnala@knowit.fi>
+I noticed that this patch is conflicting with some fuse patches
+merged in Linus's tree. I will post updated version. 
 
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
+Vivek
 
-
+On Wed, Nov 10, 2021 at 05:55:28PM -0500, Vivek Goyal wrote:
+> When a new inode is created, send its security context to server along
+> with creation request (FUSE_CREAT, FUSE_MKNOD, FUSE_MKDIR and FUSE_SYMLINK).
+> This gives server an opportunity to create new file and set security
+> context (possibly atomically). In all the configurations it might not
+> be possible to set context atomically.
+> 
+> Like nfs and ceph, use security_dentry_init_security() to dermine security
+> context of inode and send it with create, mkdir, mknod, and symlink requests.
+> 
+> Following is the information sent to server.
+> 
+> fuse_sectx_header, fuse_secctx, xattr_name, security_context
+> 
+> - struct fuse_secctx_header
+>   This contains total number of security contexts being sent and total
+>   size of all the security contexts (including size of fuse_secctx_header).
+> 
+> - struct fuse_secctx.
+>   This contains size of security context which follows this structure.
+>   There is one fuse_secctx instance per security context.
+> 
+> - xattr name string.
+>   This string represents name of xattr which should be used while setting
+>   security context.
+> 
+> - security context.
+>   This is the actual security context whose size is specified in fuse_secctx
+>   struct.
+> 
+> Also add the FUSE_SECURITY_CTX flag for the `flags` field of the
+> fuse_init_out struct.  When this flag is set the kernel will append the
+> security context for a newly created inode to the request (create,
+> mkdir, mknod, and symlink).  The server is responsible for ensuring that
+> the inode appears atomically (preferrably) with the requested security
+> context.
+> 
+> For example, If the server is using SELinux and backed by a "real" linux
+> file system that supports extended attributes it can write the security
+> context value to /proc/thread-self/attr/fscreate before making the syscall
+> to create the inode.
+> 
+> This patch is based on patch from Chirantan Ekbote <chirantan@chromium.org>.
+> 
+> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 > ---
->  libsemanage/man/man5/semanage.conf.5    | 2 +-
->  libsemanage/man/ru/man5/semanage.conf.5 | 2 +-
->  libsemanage/src/semanage.conf           | 5 +++--
->  3 files changed, 5 insertions(+), 4 deletions(-)
->
-> diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/=
-semanage.conf.5
-> index 7d6f2fef..380b58be 100644
-> --- a/libsemanage/man/man5/semanage.conf.5
-> +++ b/libsemanage/man/man5/semanage.conf.5
-> @@ -23,7 +23,7 @@ Management library writes to the SELinux policy module =
-store directly (this is t
->  Otherwise a socket path or a server name can be used for the argument.
->  If the argument begins with "/" (as in "/foo/bar"), it represents the pa=
-th to a named socket that should be used to connect the policy management
->  server.
-> -If the argument does not begin with a "/" (as in "foo.com:4242"), it sho=
-uld be interpreted as the name of a remote policy management server
-> +If the argument does not begin with a "/" (as in "example.com:4242"), it=
- should be interpreted as the name of a remote policy management server
->  to be used through a TCP connection (default port is 4242 unless a diffe=
-rent one is specified after the server name using the colon to separate
->  the two fields).
->=20=20
-> diff --git a/libsemanage/man/ru/man5/semanage.conf.5 b/libsemanage/man/ru=
-/man5/semanage.conf.5
-> index cf65b3e6..548aa58d 100644
-> --- a/libsemanage/man/ru/man5/semanage.conf.5
-> +++ b/libsemanage/man/ru/man5/semanage.conf.5
-> @@ -19,7 +19,7 @@ semanage.conf \- =D0=B3=D0=BB=D0=BE=D0=B1=D0=B0=D0=BB=
-=D1=8C=D0=BD=D1=8B=D0=B9 =D1=84=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=84=
-=D0=B8=D0=B3=D1=83=D1=80=D0=B0=D1=86=D0=B8=D0=B8 =D0=B4=D0=BB=D1=8F=20
->  =D0=A3=D0=BA=D0=B0=D0=B7=D0=B0=D1=82=D1=8C, =D0=BA=D0=B0=D0=BA =D0=B1=D0=
-=B8=D0=B1=D0=BB=D0=B8=D0=BE=D1=82=D0=B5=D0=BA=D0=B0 =D1=83=D0=BF=D1=80=D0=
-=B0=D0=B2=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F SELinux =D0=B4=D0=BE=D0=BB=D0=B6=D0=
-=BD=D0=B0 =D0=B2=D0=B7=D0=B0=D0=B8=D0=BC=D0=BE=D0=B4=D0=B5=D0=B9=D1=81=D1=
-=82=D0=B2=D0=BE=D0=B2=D0=B0=D1=82=D1=8C =D1=81 =D1=85=D1=80=D0=B0=D0=BD=D0=
-=B8=D0=BB=D0=B8=D1=89=D0=B5=D0=BC =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=
-=BA=D0=B8 SELinux. =D0=95=D1=81=D0=BB=D0=B8 =D1=83=D1=81=D1=82=D0=B0=D0=BD=
-=D0=BE=D0=B2=D0=BB=D0=B5=D0=BD=D0=BE "direct", =D0=B1=D0=B8=D0=B1=D0=BB=D0=
-=B8=D0=BE=D1=82=D0=B5=D0=BA=D0=B0 =D1=83=D0=BF=D1=80=D0=B0=D0=B2=D0=BB=D0=
-=B5=D0=BD=D0=B8=D1=8F SELinux =D0=B2=D1=8B=D0=BF=D0=BE=D0=BB=D0=BD=D1=8F=D0=
-=B5=D1=82 =D0=B7=D0=B0=D0=BF=D0=B8=D1=81=D1=8C =D0=BD=D0=B0=D0=BF=D1=80=D1=
-=8F=D0=BC=D1=83=D1=8E =D0=B2 =D1=85=D1=80=D0=B0=D0=BD=D0=B8=D0=BB=D0=B8=D1=
-=89=D0=B5 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D0=B5=D0=B9 =D0=BF=D0=BE=D0=BB=D0=
-=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux (=D1=8D=D1=82=D0=BE =D0=B7=D0=BD=D0=B0=
-=D1=87=D0=B5=D0=BD=D0=B8=D0=B5 =D0=BF=D0=BE =D1=83=D0=BC=D0=BE=D0=BB=D1=87=
-=D0=B0=D0=BD=D0=B8=D1=8E).
->  =D0=92 =D0=B8=D0=BD=D0=BE=D0=BC =D1=81=D0=BB=D1=83=D1=87=D0=B0=D0=B5 =D0=
-=B2 =D0=BA=D0=B0=D1=87=D0=B5=D1=81=D1=82=D0=B2=D0=B5 =D0=B0=D1=80=D0=B3=D1=
-=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0 =D0=BC=D0=BE=D0=B6=D0=B5=D1=82 =D0=B8=D1=
-=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D1=8C=D1=81=D1=8F=
- =D0=BF=D1=83=D1=82=D1=8C =D0=BA =D1=81=D0=BE=D0=BA=D0=B5=D1=82=D1=83 =D0=
-=B8=D0=BB=D0=B8 =D0=B8=D0=BC=D1=8F =D1=81=D0=B5=D1=80=D0=B2=D0=B5=D1=80=D0=
-=B0.
->  =D0=95=D1=81=D0=BB=D0=B8 =D0=B0=D1=80=D0=B3=D1=83=D0=BC=D0=B5=D0=BD=D1=
-=82 =D0=BD=D0=B0=D1=87=D0=B8=D0=BD=D0=B0=D0=B5=D1=82=D1=81=D1=8F =D1=81 "/"=
- (=D0=BA=D0=B0=D0=BA =D0=B2 "/foo/bar"), =D0=BE=D0=BD =D0=BF=D1=80=D0=B5=D0=
-=B4=D1=81=D1=82=D0=B0=D0=B2=D0=BB=D1=8F=D0=B5=D1=82 =D1=81=D0=BE=D0=B1=D0=
-=BE=D0=B9 =D0=BF=D1=83=D1=82=D1=8C =D0=BA =D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=
-=B2=D0=B0=D0=BD=D0=BD=D0=BE=D0=BC=D1=83 =D1=81=D0=BE=D0=BA=D0=B5=D1=82=D1=
-=83, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=B9 =D1=81=D0=BB=D0=B5=D0=B4=D1=
-=83=D0=B5=D1=82 =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=
-=B0=D1=82=D1=8C =D0=B4=D0=BB=D1=8F =D0=BF=D0=BE=D0=B4=D0=BA=D0=BB=D1=8E=D1=
-=87=D0=B5=D0=BD=D0=B8=D1=8F =D1=81=D0=B5=D1=80=D0=B2=D0=B5=D1=80=D0=B0 =D1=
-=83=D0=BF=D1=80=D0=B0=D0=B2=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F =D0=BF=D0=BE=D0=
-=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=BE=D0=B9.
-> -=D0=95=D1=81=D0=BB=D0=B8 =D0=B0=D1=80=D0=B3=D1=83=D0=BC=D0=B5=D0=BD=D1=
-=82 =D0=BD=D0=B5 =D0=BD=D0=B0=D1=87=D0=B8=D0=BD=D0=B0=D0=B5=D1=82=D1=81=D1=
-=8F =D1=81 "/" (=D0=BA=D0=B0=D0=BA =D0=B2 "foo.com:4242"), =D0=BE=D0=BD =D0=
-=B4=D0=BE=D0=BB=D0=B6=D0=B5=D0=BD =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BF=D1=
-=80=D0=B5=D1=82=D0=B8=D1=80=D0=BE=D0=B2=D0=B0=D1=82=D1=8C=D1=81=D1=8F =D0=
-=BA=D0=B0=D0=BA =D0=B8=D0=BC=D1=8F =D1=83=D0=B4=D0=B0=D0=BB=D1=91=D0=BD=D0=
-=BD=D0=BE=D0=B3=D0=BE =D1=81=D0=B5=D1=80=D0=B2=D0=B5=D1=80=D0=B0 =D1=83=D0=
-=BF=D1=80=D0=B0=D0=B2=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F =D0=BF=D0=BE=D0=BB=D0=
-=B8=D1=82=D0=B8=D0=BA=D0=BE=D0=B9, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=
-=B9 =D1=81=D0=BB=D0=B5=D0=B4=D1=83=D0=B5=D1=82 =D0=B8=D1=81=D0=BF=D0=BE=D0=
-=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D1=8C =D1=87=D0=B5=D1=80=D0=B5=D0=
-=B7 TCP-=D0=BF=D0=BE=D0=B4=D0=BA=D0=BB=D1=8E=D1=87=D0=B5=D0=BD=D0=B8=D0=B5 =
-(=D0=BF=D0=BE=D1=80=D1=82 =D0=BF=D0=BE =D1=83=D0=BC=D0=BE=D0=BB=D1=87=D0=B0=
-=D0=BD=D0=B8=D1=8E 4242, =D0=B5=D1=81=D0=BB=D0=B8 =D1=82=D0=BE=D0=BB=D1=8C=
-=D0=BA=D0=BE =D0=BF=D0=BE=D1=81=D0=BB=D0=B5 =D0=B8=D0=BC=D0=B5=D0=BD=D0=B8 =
-=D1=81=D0=B5=D1=80=D0=B2=D0=B5=D1=80=D0=B0 =D1=87=D0=B5=D1=80=D0=B5=D0=B7 =
-=D0=B4=D0=B2=D0=BE=D0=B5=D1=82=D0=BE=D1=87=D0=B8=D0=B5, =D1=80=D0=B0=D0=B7=
-=D0=B4=D0=B5=D0=BB=D1=8F=D1=8E=D1=89=D0=B5=D0=B5 =D0=B4=D0=B2=D0=B0 =D0=BF=
-=D0=BE=D0=BB=D1=8F, =D0=BD=D0=B5 =D1=83=D0=BA=D0=B0=D0=B7=D0=B0=D0=BD =D0=
-=B4=D1=80=D1=83=D0=B3=D0=BE=D0=B9 =D0=BF=D0=BE=D1=80=D1=82).
-> +=D0=95=D1=81=D0=BB=D0=B8 =D0=B0=D1=80=D0=B3=D1=83=D0=BC=D0=B5=D0=BD=D1=
-=82 =D0=BD=D0=B5 =D0=BD=D0=B0=D1=87=D0=B8=D0=BD=D0=B0=D0=B5=D1=82=D1=81=D1=
-=8F =D1=81 "/" (=D0=BA=D0=B0=D0=BA =D0=B2 "example.com:4242"), =D0=BE=D0=BD=
- =D0=B4=D0=BE=D0=BB=D0=B6=D0=B5=D0=BD =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BF=
-=D1=80=D0=B5=D1=82=D0=B8=D1=80=D0=BE=D0=B2=D0=B0=D1=82=D1=8C=D1=81=D1=8F =
-=D0=BA=D0=B0=D0=BA =D0=B8=D0=BC=D1=8F =D1=83=D0=B4=D0=B0=D0=BB=D1=91=D0=BD=
-=D0=BD=D0=BE=D0=B3=D0=BE =D1=81=D0=B5=D1=80=D0=B2=D0=B5=D1=80=D0=B0 =D1=83=
-=D0=BF=D1=80=D0=B0=D0=B2=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F =D0=BF=D0=BE=D0=BB=
-=D0=B8=D1=82=D0=B8=D0=BA=D0=BE=D0=B9, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=
-=D0=B9 =D1=81=D0=BB=D0=B5=D0=B4=D1=83=D0=B5=D1=82 =D0=B8=D1=81=D0=BF=D0=BE=
-=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D1=8C =D1=87=D0=B5=D1=80=D0=B5=
-=D0=B7 TCP-=D0=BF=D0=BE=D0=B4=D0=BA=D0=BB=D1=8E=D1=87=D0=B5=D0=BD=D0=B8=D0=
-=B5 (=D0=BF=D0=BE=D1=80=D1=82 =D0=BF=D0=BE =D1=83=D0=BC=D0=BE=D0=BB=D1=87=
-=D0=B0=D0=BD=D0=B8=D1=8E 4242, =D0=B5=D1=81=D0=BB=D0=B8 =D1=82=D0=BE=D0=BB=
-=D1=8C=D0=BA=D0=BE =D0=BF=D0=BE=D1=81=D0=BB=D0=B5 =D0=B8=D0=BC=D0=B5=D0=BD=
-=D0=B8 =D1=81=D0=B5=D1=80=D0=B2=D0=B5=D1=80=D0=B0 =D1=87=D0=B5=D1=80=D0=B5=
-=D0=B7 =D0=B4=D0=B2=D0=BE=D0=B5=D1=82=D0=BE=D1=87=D0=B8=D0=B5, =D1=80=D0=B0=
-=D0=B7=D0=B4=D0=B5=D0=BB=D1=8F=D1=8E=D1=89=D0=B5=D0=B5 =D0=B4=D0=B2=D0=B0 =
-=D0=BF=D0=BE=D0=BB=D1=8F, =D0=BD=D0=B5 =D1=83=D0=BA=D0=B0=D0=B7=D0=B0=D0=BD=
- =D0=B4=D1=80=D1=83=D0=B3=D0=BE=D0=B9 =D0=BF=D0=BE=D1=80=D1=82).
->=20=20
->  .TP
->  .B root
-> diff --git a/libsemanage/src/semanage.conf b/libsemanage/src/semanage.conf
-> index dc8d46b8..98d769b5 100644
-> --- a/libsemanage/src/semanage.conf
-> +++ b/libsemanage/src/semanage.conf
-> @@ -24,8 +24,9 @@
->  #  /foo/bar     - Write by way of a policy management server, whose
->  #                 named socket is at /foo/bar.  The path must begin
->  #                 with a '/'.
-> -#  foo.com:4242 - Establish a TCP connection to a remote policy
-> -#                 management server at foo.com.  If there is a colon
-> +#  example.com:4242
-> +#               - Establish a TCP connection to a remote policy
-> +#                 management server at example.com.  If there is a colon
->  #                 then the remainder is interpreted as a port number;
->  #                 otherwise default to port 4242.
->  module-store =3D direct
-> --=20
-> 2.33.1
+>  fs/fuse/dir.c             | 103 ++++++++++++++++++++++++++++++++++++++
+>  fs/fuse/fuse_i.h          |   3 ++
+>  fs/fuse/inode.c           |   4 +-
+>  include/uapi/linux/fuse.h |  31 +++++++++++-
+>  4 files changed, 139 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+> index d9b977c0f38d..69398eb7b325 100644
+> --- a/fs/fuse/dir.c
+> +++ b/fs/fuse/dir.c
+> @@ -17,6 +17,9 @@
+>  #include <linux/xattr.h>
+>  #include <linux/iversion.h>
+>  #include <linux/posix_acl.h>
+> +#include <linux/security.h>
+> +#include <linux/types.h>
+> +#include <linux/kernel.h>
+>  
+>  static void fuse_advise_use_readdirplus(struct inode *dir)
+>  {
+> @@ -456,6 +459,69 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
+>  	return ERR_PTR(err);
+>  }
+>  
+> +static int get_security_context(struct dentry *entry, umode_t mode,
+> +				void **security_ctx, u32 *security_ctxlen)
+> +{
+> +	struct fuse_secctx *fsecctx;
+> +	struct fuse_secctx_header *fsecctx_header;
+> +	void *ctx, *full_ctx;
+> +	u32 ctxlen, full_ctxlen;
+> +	int err = 0;
+> +	const char *name;
+> +
+> +	err = security_dentry_init_security(entry, mode, &entry->d_name,
+> +					    &name, &ctx, &ctxlen);
+> +	if (err) {
+> +		if (err != -EOPNOTSUPP)
+> +			goto out_err;
+> +		/* No LSM is supporting this security hook. Ignore error */
+> +		err = 0;
+> +		ctxlen = 0;
+> +	}
+> +
+> +	if (ctxlen > 0) {
+> +		void *ptr;
+> +
+> +		full_ctxlen = sizeof(*fsecctx_header) + sizeof(*fsecctx) +
+> +			      strlen(name) + ctxlen + 1;
+> +		full_ctx = kzalloc(full_ctxlen, GFP_KERNEL);
+> +		if (!full_ctx) {
+> +			err = -ENOMEM;
+> +			kfree(ctx);
+> +			goto out_err;
+> +		}
+> +
+> +		ptr = full_ctx;
+> +		fsecctx_header = (struct fuse_secctx_header*) ptr;
+> +		fsecctx_header->nr_secctx = 1;
+> +		fsecctx_header->size = full_ctxlen;
+> +		ptr += sizeof(*fsecctx_header);
+> +
+> +		fsecctx = (struct fuse_secctx*) ptr;
+> +		fsecctx->size = ctxlen;
+> +		ptr += sizeof(*fsecctx);
+> +
+> +		strcpy(ptr, name);
+> +		ptr += strlen(name) + 1;
+> +		memcpy(ptr, ctx, ctxlen);
+> +		kfree(ctx);
+> +	} else {
+> +		full_ctxlen = sizeof(*fsecctx_header);
+> +		full_ctx = kzalloc(full_ctxlen, GFP_KERNEL);
+> +		if (!full_ctx) {
+> +			err = -ENOMEM;
+> +			goto out_err;
+> +		}
+> +		fsecctx_header = full_ctx;
+> +		fsecctx_header->size = full_ctxlen;
+> +	}
+> +
+> +	*security_ctxlen = full_ctxlen;
+> +	*security_ctx = full_ctx;
+> +out_err:
+> +	return err;
+> +}
+> +
+>  /*
+>   * Atomic create+open operation
+>   *
+> @@ -476,6 +542,8 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+>  	struct fuse_entry_out outentry;
+>  	struct fuse_inode *fi;
+>  	struct fuse_file *ff;
+> +	void *security_ctx = NULL;
+> +	u32 security_ctxlen;
+>  
+>  	/* Userspace expects S_IFREG in create mode */
+>  	BUG_ON((mode & S_IFMT) != S_IFREG);
+> @@ -517,6 +585,18 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+>  	args.out_args[0].value = &outentry;
+>  	args.out_args[1].size = sizeof(outopen);
+>  	args.out_args[1].value = &outopen;
+> +
+> +	if (fm->fc->init_security) {
+> +		err = get_security_context(entry, mode, &security_ctx,
+> +					   &security_ctxlen);
+> +		if (err)
+> +			goto out_put_forget_req;
+> +
+> +		args.in_numargs = 3;
+> +		args.in_args[2].size = security_ctxlen;
+> +		args.in_args[2].value = security_ctx;
+> +	}
+> +
+>  	err = fuse_simple_request(fm, &args);
+>  	if (err)
+>  		goto out_free_ff;
+> @@ -554,6 +634,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+>  
+>  out_free_ff:
+>  	fuse_file_free(ff);
+> +	kfree(security_ctx);
+>  out_put_forget_req:
+>  	kfree(forget);
+>  out_err:
+> @@ -620,6 +701,8 @@ static int create_new_entry(struct fuse_mount *fm, struct fuse_args *args,
+>  	struct dentry *d;
+>  	int err;
+>  	struct fuse_forget_link *forget;
+> +	void *security_ctx = NULL;
+> +	u32 security_ctxlen = 0;
+>  
+>  	if (fuse_is_bad(dir))
+>  		return -EIO;
+> @@ -633,7 +716,27 @@ static int create_new_entry(struct fuse_mount *fm, struct fuse_args *args,
+>  	args->out_numargs = 1;
+>  	args->out_args[0].size = sizeof(outarg);
+>  	args->out_args[0].value = &outarg;
+> +
+> +	if (fm->fc->init_security && args->opcode != FUSE_LINK) {
+> +		unsigned short idx = args->in_numargs;
+> +
+> +		if ((size_t)idx >= ARRAY_SIZE(args->in_args)) {
+> +			err = -ENOMEM;
+> +			goto out_put_forget_req;
+> +		}
+> +
+> +		err = get_security_context(entry, mode, &security_ctx,
+> +					   &security_ctxlen);
+> +		if (err)
+> +			goto out_put_forget_req;
+> +
+> +		args->in_args[idx].size = security_ctxlen;
+> +		args->in_args[idx].value = security_ctx;
+> +		args->in_numargs++;
+> +	}
+> +
+>  	err = fuse_simple_request(fm, args);
+> +	kfree(security_ctx);
+>  	if (err)
+>  		goto out_put_forget_req;
+>  
+> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> index f55f9f94b1a4..0d257c4eeb70 100644
+> --- a/fs/fuse/fuse_i.h
+> +++ b/fs/fuse/fuse_i.h
+> @@ -765,6 +765,9 @@ struct fuse_conn {
+>  	/* Propagate syncfs() to server */
+>  	unsigned int sync_fs:1;
+>  
+> +	/* Initialize security xattrs when creating a new inode */
+> +	unsigned int init_security:1;
+> +
+>  	/** The number of requests waiting for completion */
+>  	atomic_t num_waiting;
+>  
+> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+> index 12d49a1914e8..40c5533243c0 100644
+> --- a/fs/fuse/inode.c
+> +++ b/fs/fuse/inode.c
+> @@ -1143,6 +1143,8 @@ static void process_init_reply(struct fuse_mount *fm, struct fuse_args *args,
+>  			}
+>  			if (arg->flags & FUSE_SETXATTR_EXT)
+>  				fc->setxattr_ext = 1;
+> +			if (arg->flags & FUSE_SECURITY_CTX)
+> +				fc->init_security = 1;
+>  		} else {
+>  			ra_pages = fc->max_read / PAGE_SIZE;
+>  			fc->no_lock = 1;
+> @@ -1186,7 +1188,7 @@ void fuse_send_init(struct fuse_mount *fm)
+>  		FUSE_PARALLEL_DIROPS | FUSE_HANDLE_KILLPRIV | FUSE_POSIX_ACL |
+>  		FUSE_ABORT_ERROR | FUSE_MAX_PAGES | FUSE_CACHE_SYMLINKS |
+>  		FUSE_NO_OPENDIR_SUPPORT | FUSE_EXPLICIT_INVAL_DATA |
+> -		FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT;
+> +		FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT | FUSE_SECURITY_CTX;
+>  #ifdef CONFIG_FUSE_DAX
+>  	if (fm->fc->dax)
+>  		ia->in.flags |= FUSE_MAP_ALIGNMENT;
+> diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
+> index 36ed092227fa..710cdf20608d 100644
+> --- a/include/uapi/linux/fuse.h
+> +++ b/include/uapi/linux/fuse.h
+> @@ -184,6 +184,10 @@
+>   *
+>   *  7.34
+>   *  - add FUSE_SYNCFS
+> + *
+> + *  7.35
+> + *  - add FUSE_SECURITY_CTX flag for fuse_init_out
+> + *  - add security context to create, mkdir, symlink, and mknod requests
+>   */
+>  
+>  #ifndef _LINUX_FUSE_H
+> @@ -219,7 +223,7 @@
+>  #define FUSE_KERNEL_VERSION 7
+>  
+>  /** Minor version number of this interface */
+> -#define FUSE_KERNEL_MINOR_VERSION 34
+> +#define FUSE_KERNEL_MINOR_VERSION 35
+>  
+>  /** The node ID of the root inode */
+>  #define FUSE_ROOT_ID 1
+> @@ -336,6 +340,8 @@ struct fuse_file_lock {
+>   *			write/truncate sgid is killed only if file has group
+>   *			execute permission. (Same as Linux VFS behavior).
+>   * FUSE_SETXATTR_EXT:	Server supports extended struct fuse_setxattr_in
+> + * FUSE_SECURITY_CTX:	add security context to create, mkdir, symlink, and
+> + * 			mknod
+>   */
+>  #define FUSE_ASYNC_READ		(1 << 0)
+>  #define FUSE_POSIX_LOCKS	(1 << 1)
+> @@ -367,6 +373,7 @@ struct fuse_file_lock {
+>  #define FUSE_SUBMOUNTS		(1 << 27)
+>  #define FUSE_HANDLE_KILLPRIV_V2	(1 << 28)
+>  #define FUSE_SETXATTR_EXT	(1 << 29)
+> +#define FUSE_SECURITY_CTX	(1 << 30)
+>  
+>  /**
+>   * CUSE INIT request/reply flags
+> @@ -979,4 +986,26 @@ struct fuse_syncfs_in {
+>  	uint64_t	padding;
+>  };
+>  
+> +/*
+> + * For each security context, send fuse_secctx with size of security context
+> + * fuse_secctx will be followed by security context name and this in turn
+> + * will be followed by actual context label.
+> + * fuse_secctx, name, context
+> + * */
+> +struct fuse_secctx {
+> +	uint32_t	size;
+> +	uint32_t	padding;
+> +};
+> +
+> +/*
+> + * Contains the information about how many fuse_secctx structures are being
+> + * sent and what's the total size of all security contexts (including
+> + * size of fuse_secctx_header).
+> + *
+> + */
+> +struct fuse_secctx_header {
+> +	uint32_t	size;
+> +	uint32_t	nr_secctx;
+> +};
+> +
+>  #endif /* _LINUX_FUSE_H */
+> -- 
+> 2.31.1
+> 
 
