@@ -2,372 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3774AC433FE
-	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 14:33:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 652E6C433F5
+	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 15:44:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 22A006101C
-	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 14:33:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FBBD61179
+	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 15:44:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233075AbhKKOfv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Nov 2021 09:35:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36695 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233669AbhKKOfv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Nov 2021 09:35:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636641181;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=XDKEueG5NX5eOKTFR1aULx5OKCoFDGYW8PMUBL15la8=;
-        b=K9J3xAElSoz+PUOSz+p5Ricj2xSFkWsDCUJf0zDo8huoLwxIAoRj60pPjRenv3vyI1C9jC
-        8F2o/PZZIgD2EBy5uFHQjRBg33896iFVdFGSUrGcda8ZjS32h6a1Iyh4BDFrowf6xyTXP4
-        wkHLZ3SRezJcch6BaTm/IP0TaL8dURQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-590-cn_nm5YRPDie_8ZFLR1Mtw-1; Thu, 11 Nov 2021 09:32:56 -0500
-X-MC-Unique: cn_nm5YRPDie_8ZFLR1Mtw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C02F11006AA2;
-        Thu, 11 Nov 2021 14:32:54 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.232])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5EF565C1B4;
-        Thu, 11 Nov 2021 14:32:50 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 0954A220EED; Thu, 11 Nov 2021 09:32:50 -0500 (EST)
-Date:   Thu, 11 Nov 2021 09:32:49 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     miklos@szeredi.hu
-Cc:     linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, virtio-fs@redhat.com,
-        chirantan@chromium.org, stephen.smalley.work@gmail.com,
-        dwalsh@redhat.com, casey@schaufler-ca.com, omosnace@redhat.com
-Subject: Re: [PATCH v3 1/1] fuse: Send security context of inode on file
- creation
-Message-ID: <YY0pkR3tJuxuBQzD@redhat.com>
-References: <20211110225528.48601-1-vgoyal@redhat.com>
- <20211110225528.48601-2-vgoyal@redhat.com>
+        id S233898AbhKKPrQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Nov 2021 10:47:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45446 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233890AbhKKPrP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Nov 2021 10:47:15 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6167BC061766
+        for <selinux@vger.kernel.org>; Thu, 11 Nov 2021 07:44:25 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id w1so25874263edd.10
+        for <selinux@vger.kernel.org>; Thu, 11 Nov 2021 07:44:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EPQ7vOyVbbdDApHDNZY5gQprN5zr7x8ve73iIkJlJYY=;
+        b=0QU+TYq0W1sc8EeqjE/tNL4yaJ2SFpNf3JbfSJ6XIrpKAwitFcd/yhNROOgoDQwjkj
+         1NMRGqLcfCZMpvPlHqan1c+mGhTrU6zkuQyIp+ySJiC9/Q4lWo3vjntt84USDZ+k21am
+         Yln5xnwGUa2TRf7uWX/0J2QQw+MgU7rUQsfB1IVcQYKFqckaUvu0uZfFQL1/ExxFooFF
+         s/SsXAhYMI4P2W4V6ll0c5VDrqiwvHDDsiF2YCUQo593d1kCA06mEik43mYDWUL1uDms
+         bFOX+T1rjMLZtSH7cboYBKh/gb810BB/Fo1Se41dkIg5AHQm25qVdO6u70csjbkXtDSr
+         O4sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EPQ7vOyVbbdDApHDNZY5gQprN5zr7x8ve73iIkJlJYY=;
+        b=pwyZLoWbHnkMXSaNuhohM2D88rM3982RiV3n83q2gHAh3TbhDyDvv9i3syp9WgXI+j
+         VqhH/9LklWKA0ua5QF6y9wSEcHoIJChEDzIANyRLnUXJRzYpp0k3qZbtxh7vxBMHFt3Q
+         ZFuXRjUVJ37ypn8anJjJtpWupKYwgaSMHkiWGrvJEB4oI9RWbsGER37Ip9JXAgTA7k6K
+         /yYtJWWjHeZKa7VX9HhOUHytt/3VOs0MQMolLUXdDb/3lszVPp7AJ5Mho55awaSFn9zR
+         cYX+eMrkjjypmhJEKFJvSN8jOjHWhsFYiOtmOFxmcVUFn0Sh+Mk5jCwI6YMMbuOYJl3u
+         Yg9Q==
+X-Gm-Message-State: AOAM532vZ/ZtyteXe7SLhoPOJMAkZr0zQ9xI0Uk5j+drXM+HnjurhF1P
+        jXaFOXR1uH4BK/LILdvnapQyWp8mhgTVh5daswPG
+X-Google-Smtp-Source: ABdhPJw5AV/+6LHJGpXCxldUJSlAQrshxCBciUosbU8oRccWa5FSy8lbwzIVunwib2JpOIbLzgCLXChfqP/otc9BRVQ=
+X-Received: by 2002:a17:907:9484:: with SMTP id dm4mr10250499ejc.307.1636645463777;
+ Thu, 11 Nov 2021 07:44:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211110225528.48601-2-vgoyal@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20211104195949.135374-1-omosnace@redhat.com> <20211109062140.2ed84f96@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <CAHC9VhTVNOUHJp+NbqV5AgtwR6+3V6am0SKGKF0CegsPqjQ8pw@mail.gmail.com> <CAFqZXNuct_T-SkvoRg2n7+ye0--OkMJ_gS31V-t3Cm+Yy7FhxQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNuct_T-SkvoRg2n7+ye0--OkMJ_gS31V-t3Cm+Yy7FhxQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 11 Nov 2021 10:44:12 -0500
+Message-ID: <CAHC9VhTmkQy1_1xFn9StgrwT2m8nyCwvHCMA+1sRdTW6xWR96A@mail.gmail.com>
+Subject: Re: [PATCH net] selinux: fix SCTP client peeloff socket labeling
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>, Xin Long <lucien.xin@gmail.com>,
+        network dev <netdev@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When a new inode is created, send its security context to server along
-with creation request (FUSE_CREAT, FUSE_MKNOD, FUSE_MKDIR and FUSE_SYMLINK).
-This gives server an opportunity to create new file and set security
-context (possibly atomically). In all the configurations it might not
-be possible to set context atomically.
+On Thu, Nov 11, 2021 at 7:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Tue, Nov 9, 2021 at 4:00 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Tue, Nov 9, 2021 at 9:21 AM Jakub Kicinski <kuba@kernel.org> wrote:
+> > > On Thu,  4 Nov 2021 20:59:49 +0100 Ondrej Mosnacek wrote:
+> > > > As agreed with Xin Long, I'm posting this fix up instead of him. I am
+> > > > now fairly convinced that this is the right way to deal with the
+> > > > immediate problem of client peeloff socket labeling. I'll work on
+> > > > addressing the side problem regarding selinux_socket_post_create()
+> > > > being called on the peeloff sockets separately.
+> > >
+> > > IIUC Paul would like to see this part to come up in the same series.
+> >
+> > Just to reaffirm the IIUC part - yes, your understanding is correct.
+>
+> The more I'm reading these threads, the more I'm getting confused...
+> Do you insist on resending the whole original series with
+> modifications? Or actual revert patches + the new patches? Or is it
+> enough to revert/resend only the patches that need changes? Do you
+> also insist on the selinux_socket_post_create() thing to be fixed in
+> the same series? Note that the original patches are still in the
+> net.git tree and it doesn't seem like Dave will want to rebase them
+> away, so it seems explicit reverting is the only way to "respin" the
+> series...
 
-Like nfs and ceph, use security_dentry_init_security() to dermine security
-context of inode and send it with create, mkdir, mknod, and symlink requests.
+DaveM is stubbornly rejecting the revert requests so for now I would
+continue to base any patches on top of the netdev tree.  If that
+changes we can reconcile any changes as necessary, that should not be
+a major issue.
 
-Following is the information sent to server.
+As far as what I would like to see from the patches, ignoring the
+commit description vs cover letter discussion, I would like to see
+patches that fix all of the known LSM/SELinux/SCTP problems as have
+been discussed over the past couple of weeks.  Even beyond this
+particular issue I generally disapprove of partial fixes to known
+problems; I would rather see us sort out all of the issues in a single
+patchset so that we can review everything in a sane manner.  In this
+particular case things are a bit more complicated because of the
+current state of the patches in the netdev tree, but as mentioned
+above just treat the netdev tree as broken and base your patches on
+that with all of the necessary "Fixes:" metadata and the like.
 
-fuse_sectx_header, fuse_secctx, xattr_name, security_context
+> Regardless of the answers, this thing has rabbithole'd too much and
+> I'm already past my free cycles to dedicate to this, so I think it
+> will take me (and Xin) some time to prepare the corrected and
+> re-documented patches. Moreover, I think I realized how to to deal
+> with the peer_secid-vs.-multiple-assocs-on-one-socket problem that Xin
+> mentions in patch 4/4, fixing which can't really be split out into a
+> separate patch and will need some test coverage, so I don't think I
+> can rush this up at this point...
 
-- struct fuse_secctx_header
-  This contains total number of security contexts being sent and total
-  size of all the security contexts (including size of fuse_secctx_header).
+It's not clear to me from your comments above if this is something you
+are currently working on, planning to work on soon, or giving up on in
+the near term.  Are we able to rely on you for a patchset to fix this
+or are you unable to see this through at this time?
 
-- struct fuse_secctx.
-  This contains size of security context which follows this structure.
-  There is one fuse_secctx instance per security context.
+> In the short term, I'd suggest
+> either reverting patches 3/4 and 4/4 (which are the only ones that
+> would need re-doing; the first two are good changes on their own) or
+> leaving everything as is (it's not functionally worse than what we had
+> before...) and waiting for the proper fixes.
 
-- xattr name string.
-  This string represents name of xattr which should be used while setting
-  security context.
+DaveM has thus far failed to honor the revert request so it doesn't
+appear that reverting 3/4 and 4/4 is an option.  In the near term that
+leaves us with the other two options: leave it as-is or fix it
+properly.  I am firmly in the fix it properly camp, regardless of the
+revert state, so that is the direction I would like to see things go.
 
-- security context.
-  This is the actual security context whose size is specified in fuse_secctx
-  struct.
-
-Also add the FUSE_SECURITY_CTX flag for the `flags` field of the
-fuse_init_out struct.  When this flag is set the kernel will append the
-security context for a newly created inode to the request (create,
-mkdir, mknod, and symlink).  The server is responsible for ensuring that
-the inode appears atomically (preferrably) with the requested security
-context.
-
-For example, If the server is using SELinux and backed by a "real" linux
-file system that supports extended attributes it can write the security
-context value to /proc/thread-self/attr/fscreate before making the syscall
-to create the inode.
-
-This patch is based on patch from Chirantan Ekbote <chirantan@chromium.org>.
-
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- fs/fuse/dir.c             |  103 ++++++++++++++++++++++++++++++++++++++++++++++
- fs/fuse/fuse_i.h          |    3 +
- fs/fuse/inode.c           |    4 +
- include/uapi/linux/fuse.h |   31 +++++++++++++
- 4 files changed, 139 insertions(+), 2 deletions(-)
-
-Index: redhat-linux/include/uapi/linux/fuse.h
-===================================================================
---- redhat-linux.orig/include/uapi/linux/fuse.h	2021-11-11 08:53:18.570236125 -0500
-+++ redhat-linux/include/uapi/linux/fuse.h	2021-11-11 08:58:38.970236125 -0500
-@@ -187,6 +187,10 @@
-  *
-  *  7.35
-  *  - add FOPEN_NOFLUSH
-+ *
-+ *  7.36
-+ *  - add FUSE_SECURITY_CTX flag for fuse_init_out
-+ *  - add security context to create, mkdir, symlink, and mknod requests
-  */
- 
- #ifndef _LINUX_FUSE_H
-@@ -222,7 +226,7 @@
- #define FUSE_KERNEL_VERSION 7
- 
- /** Minor version number of this interface */
--#define FUSE_KERNEL_MINOR_VERSION 35
-+#define FUSE_KERNEL_MINOR_VERSION 36
- 
- /** The node ID of the root inode */
- #define FUSE_ROOT_ID 1
-@@ -341,6 +345,8 @@ struct fuse_file_lock {
-  *			write/truncate sgid is killed only if file has group
-  *			execute permission. (Same as Linux VFS behavior).
-  * FUSE_SETXATTR_EXT:	Server supports extended struct fuse_setxattr_in
-+ * FUSE_SECURITY_CTX:	add security context to create, mkdir, symlink, and
-+ * 			mknod
-  */
- #define FUSE_ASYNC_READ		(1 << 0)
- #define FUSE_POSIX_LOCKS	(1 << 1)
-@@ -372,6 +378,7 @@ struct fuse_file_lock {
- #define FUSE_SUBMOUNTS		(1 << 27)
- #define FUSE_HANDLE_KILLPRIV_V2	(1 << 28)
- #define FUSE_SETXATTR_EXT	(1 << 29)
-+#define FUSE_SECURITY_CTX	(1 << 30)
- 
- /**
-  * CUSE INIT request/reply flags
-@@ -984,4 +991,26 @@ struct fuse_syncfs_in {
- 	uint64_t	padding;
- };
- 
-+/*
-+ * For each security context, send fuse_secctx with size of security context
-+ * fuse_secctx will be followed by security context name and this in turn
-+ * will be followed by actual context label.
-+ * fuse_secctx, name, context
-+ * */
-+struct fuse_secctx {
-+	uint32_t	size;
-+	uint32_t	padding;
-+};
-+
-+/*
-+ * Contains the information about how many fuse_secctx structures are being
-+ * sent and what's the total size of all security contexts (including
-+ * size of fuse_secctx_header).
-+ *
-+ */
-+struct fuse_secctx_header {
-+	uint32_t	size;
-+	uint32_t	nr_secctx;
-+};
-+
- #endif /* _LINUX_FUSE_H */
-Index: redhat-linux/fs/fuse/dir.c
-===================================================================
---- redhat-linux.orig/fs/fuse/dir.c	2021-11-11 08:56:19.812236125 -0500
-+++ redhat-linux/fs/fuse/dir.c	2021-11-11 08:57:10.575236125 -0500
-@@ -17,6 +17,9 @@
- #include <linux/xattr.h>
- #include <linux/iversion.h>
- #include <linux/posix_acl.h>
-+#include <linux/security.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
- 
- static void fuse_advise_use_readdirplus(struct inode *dir)
- {
-@@ -456,6 +459,69 @@ static struct dentry *fuse_lookup(struct
- 	return ERR_PTR(err);
- }
- 
-+static int get_security_context(struct dentry *entry, umode_t mode,
-+				void **security_ctx, u32 *security_ctxlen)
-+{
-+	struct fuse_secctx *fsecctx;
-+	struct fuse_secctx_header *fsecctx_header;
-+	void *ctx, *full_ctx;
-+	u32 ctxlen, full_ctxlen;
-+	int err = 0;
-+	const char *name;
-+
-+	err = security_dentry_init_security(entry, mode, &entry->d_name,
-+					    &name, &ctx, &ctxlen);
-+	if (err) {
-+		if (err != -EOPNOTSUPP)
-+			goto out_err;
-+		/* No LSM is supporting this security hook. Ignore error */
-+		err = 0;
-+		ctxlen = 0;
-+	}
-+
-+	if (ctxlen > 0) {
-+		void *ptr;
-+
-+		full_ctxlen = sizeof(*fsecctx_header) + sizeof(*fsecctx) +
-+			      strlen(name) + ctxlen + 1;
-+		full_ctx = kzalloc(full_ctxlen, GFP_KERNEL);
-+		if (!full_ctx) {
-+			err = -ENOMEM;
-+			kfree(ctx);
-+			goto out_err;
-+		}
-+
-+		ptr = full_ctx;
-+		fsecctx_header = (struct fuse_secctx_header*) ptr;
-+		fsecctx_header->nr_secctx = 1;
-+		fsecctx_header->size = full_ctxlen;
-+		ptr += sizeof(*fsecctx_header);
-+
-+		fsecctx = (struct fuse_secctx*) ptr;
-+		fsecctx->size = ctxlen;
-+		ptr += sizeof(*fsecctx);
-+
-+		strcpy(ptr, name);
-+		ptr += strlen(name) + 1;
-+		memcpy(ptr, ctx, ctxlen);
-+		kfree(ctx);
-+	} else {
-+		full_ctxlen = sizeof(*fsecctx_header);
-+		full_ctx = kzalloc(full_ctxlen, GFP_KERNEL);
-+		if (!full_ctx) {
-+			err = -ENOMEM;
-+			goto out_err;
-+		}
-+		fsecctx_header = full_ctx;
-+		fsecctx_header->size = full_ctxlen;
-+	}
-+
-+	*security_ctxlen = full_ctxlen;
-+	*security_ctx = full_ctx;
-+out_err:
-+	return err;
-+}
-+
- /*
-  * Atomic create+open operation
-  *
-@@ -476,6 +542,8 @@ static int fuse_create_open(struct inode
- 	struct fuse_entry_out outentry;
- 	struct fuse_inode *fi;
- 	struct fuse_file *ff;
-+	void *security_ctx = NULL;
-+	u32 security_ctxlen;
- 
- 	/* Userspace expects S_IFREG in create mode */
- 	BUG_ON((mode & S_IFMT) != S_IFREG);
-@@ -517,6 +585,18 @@ static int fuse_create_open(struct inode
- 	args.out_args[0].value = &outentry;
- 	args.out_args[1].size = sizeof(outopen);
- 	args.out_args[1].value = &outopen;
-+
-+	if (fm->fc->init_security) {
-+		err = get_security_context(entry, mode, &security_ctx,
-+					   &security_ctxlen);
-+		if (err)
-+			goto out_put_forget_req;
-+
-+		args.in_numargs = 3;
-+		args.in_args[2].size = security_ctxlen;
-+		args.in_args[2].value = security_ctx;
-+	}
-+
- 	err = fuse_simple_request(fm, &args);
- 	if (err)
- 		goto out_free_ff;
-@@ -554,6 +634,7 @@ static int fuse_create_open(struct inode
- 
- out_free_ff:
- 	fuse_file_free(ff);
-+	kfree(security_ctx);
- out_put_forget_req:
- 	kfree(forget);
- out_err:
-@@ -620,6 +701,8 @@ static int create_new_entry(struct fuse_
- 	struct dentry *d;
- 	int err;
- 	struct fuse_forget_link *forget;
-+	void *security_ctx = NULL;
-+	u32 security_ctxlen = 0;
- 
- 	if (fuse_is_bad(dir))
- 		return -EIO;
-@@ -633,7 +716,27 @@ static int create_new_entry(struct fuse_
- 	args->out_numargs = 1;
- 	args->out_args[0].size = sizeof(outarg);
- 	args->out_args[0].value = &outarg;
-+
-+	if (fm->fc->init_security && args->opcode != FUSE_LINK) {
-+		unsigned short idx = args->in_numargs;
-+
-+		if ((size_t)idx >= ARRAY_SIZE(args->in_args)) {
-+			err = -ENOMEM;
-+			goto out_put_forget_req;
-+		}
-+
-+		err = get_security_context(entry, mode, &security_ctx,
-+					   &security_ctxlen);
-+		if (err)
-+			goto out_put_forget_req;
-+
-+		args->in_args[idx].size = security_ctxlen;
-+		args->in_args[idx].value = security_ctx;
-+		args->in_numargs++;
-+	}
-+
- 	err = fuse_simple_request(fm, args);
-+	kfree(security_ctx);
- 	if (err)
- 		goto out_put_forget_req;
- 
-Index: redhat-linux/fs/fuse/fuse_i.h
-===================================================================
---- redhat-linux.orig/fs/fuse/fuse_i.h	2021-11-11 08:56:19.814236125 -0500
-+++ redhat-linux/fs/fuse/fuse_i.h	2021-11-11 08:57:10.576236125 -0500
-@@ -765,6 +765,9 @@ struct fuse_conn {
- 	/* Propagate syncfs() to server */
- 	unsigned int sync_fs:1;
- 
-+	/* Initialize security xattrs when creating a new inode */
-+	unsigned int init_security:1;
-+
- 	/** The number of requests waiting for completion */
- 	atomic_t num_waiting;
- 
-Index: redhat-linux/fs/fuse/inode.c
-===================================================================
---- redhat-linux.orig/fs/fuse/inode.c	2021-11-11 08:56:19.815236125 -0500
-+++ redhat-linux/fs/fuse/inode.c	2021-11-11 08:57:10.576236125 -0500
-@@ -1176,6 +1176,8 @@ static void process_init_reply(struct fu
- 			}
- 			if (arg->flags & FUSE_SETXATTR_EXT)
- 				fc->setxattr_ext = 1;
-+			if (arg->flags & FUSE_SECURITY_CTX)
-+				fc->init_security = 1;
- 		} else {
- 			ra_pages = fc->max_read / PAGE_SIZE;
- 			fc->no_lock = 1;
-@@ -1219,7 +1221,7 @@ void fuse_send_init(struct fuse_mount *f
- 		FUSE_PARALLEL_DIROPS | FUSE_HANDLE_KILLPRIV | FUSE_POSIX_ACL |
- 		FUSE_ABORT_ERROR | FUSE_MAX_PAGES | FUSE_CACHE_SYMLINKS |
- 		FUSE_NO_OPENDIR_SUPPORT | FUSE_EXPLICIT_INVAL_DATA |
--		FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT;
-+		FUSE_HANDLE_KILLPRIV_V2 | FUSE_SETXATTR_EXT | FUSE_SECURITY_CTX;
- #ifdef CONFIG_FUSE_DAX
- 	if (fm->fc->dax)
- 		ia->in.flags |= FUSE_MAP_ALIGNMENT;
-
+-- 
+paul moore
+www.paul-moore.com
