@@ -2,141 +2,177 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 652E6C433F5
-	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 15:44:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B49E3C433F5
+	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 16:42:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3FBBD61179
-	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 15:44:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93FDC6124D
+	for <selinux@archiver.kernel.org>; Thu, 11 Nov 2021 16:42:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233898AbhKKPrQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Nov 2021 10:47:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45446 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233890AbhKKPrP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Nov 2021 10:47:15 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6167BC061766
-        for <selinux@vger.kernel.org>; Thu, 11 Nov 2021 07:44:25 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id w1so25874263edd.10
-        for <selinux@vger.kernel.org>; Thu, 11 Nov 2021 07:44:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=EPQ7vOyVbbdDApHDNZY5gQprN5zr7x8ve73iIkJlJYY=;
-        b=0QU+TYq0W1sc8EeqjE/tNL4yaJ2SFpNf3JbfSJ6XIrpKAwitFcd/yhNROOgoDQwjkj
-         1NMRGqLcfCZMpvPlHqan1c+mGhTrU6zkuQyIp+ySJiC9/Q4lWo3vjntt84USDZ+k21am
-         Yln5xnwGUa2TRf7uWX/0J2QQw+MgU7rUQsfB1IVcQYKFqckaUvu0uZfFQL1/ExxFooFF
-         s/SsXAhYMI4P2W4V6ll0c5VDrqiwvHDDsiF2YCUQo593d1kCA06mEik43mYDWUL1uDms
-         bFOX+T1rjMLZtSH7cboYBKh/gb810BB/Fo1Se41dkIg5AHQm25qVdO6u70csjbkXtDSr
-         O4sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=EPQ7vOyVbbdDApHDNZY5gQprN5zr7x8ve73iIkJlJYY=;
-        b=pwyZLoWbHnkMXSaNuhohM2D88rM3982RiV3n83q2gHAh3TbhDyDvv9i3syp9WgXI+j
-         VqhH/9LklWKA0ua5QF6y9wSEcHoIJChEDzIANyRLnUXJRzYpp0k3qZbtxh7vxBMHFt3Q
-         ZFuXRjUVJ37ypn8anJjJtpWupKYwgaSMHkiWGrvJEB4oI9RWbsGER37Ip9JXAgTA7k6K
-         /yYtJWWjHeZKa7VX9HhOUHytt/3VOs0MQMolLUXdDb/3lszVPp7AJ5Mho55awaSFn9zR
-         cYX+eMrkjjypmhJEKFJvSN8jOjHWhsFYiOtmOFxmcVUFn0Sh+Mk5jCwI6YMMbuOYJl3u
-         Yg9Q==
-X-Gm-Message-State: AOAM532vZ/ZtyteXe7SLhoPOJMAkZr0zQ9xI0Uk5j+drXM+HnjurhF1P
-        jXaFOXR1uH4BK/LILdvnapQyWp8mhgTVh5daswPG
-X-Google-Smtp-Source: ABdhPJw5AV/+6LHJGpXCxldUJSlAQrshxCBciUosbU8oRccWa5FSy8lbwzIVunwib2JpOIbLzgCLXChfqP/otc9BRVQ=
-X-Received: by 2002:a17:907:9484:: with SMTP id dm4mr10250499ejc.307.1636645463777;
- Thu, 11 Nov 2021 07:44:23 -0800 (PST)
+        id S234266AbhKKQpk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Nov 2021 11:45:40 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38905 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234260AbhKKQpj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Nov 2021 11:45:39 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id DD1EB5C0167
+        for <selinux@vger.kernel.org>; Thu, 11 Nov 2021 11:42:49 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Thu, 11 Nov 2021 11:42:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm1; bh=SLMcWieriq/Hr49AqiTRFsz61h
+        vcww915aiLFQhUT1k=; b=sq9DdH39y1b8jX8+r3DKEN+KWzU4IX65qlWElXOqAA
+        RodmgpNi/Boj0i0oucFl9goYrBpwLHa5Sx5rH19G9NTFCqQV+cVSWwqgqCsrZcF2
+        8mDwHcH9tAcm3g8iN+rPR6exTmBeyALvS6y5YZ18YhKprIh3y2OH2UzHQIoAFuvI
+        5EwZJ8sEQ2zpEOpsLBF8ddAup7xQDXV1KblrnPseNVBhfMmK6qMtKDAleaKTwSWY
+        XG4BiMFreOHEwxRM9p9r2TV/dIN52F9LLpHIkzQRNMA4Skn1k+xh2I8hmIvU2heL
+        s3ROCT+E9K7gmET9U1mu5yh6CJyTS6aBNxIqfJrcTFGQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=SLMcWieriq/Hr49Aq
+        iTRFsz61hvcww915aiLFQhUT1k=; b=Wxb8xzOik/tw7EQXBxeAOuA5ZRX/87eUy
+        6eCw++k4iDogJKS/NZQm16NGpN/1vYZkrKLWXZFrTae5tR7Ix9E6EJjE+2d76Ucj
+        DlmM932+Jd/UDXoJUJcA6QtEOFRPny3fdZFUR9zfx/dVD0D6KEROai9WtksfQ8ba
+        q3tyZOlBqg46lZ80SdjMntXfPafNu9mOtlnKdiVnbBDpCnp7Ut/fq1mNgQx/m62G
+        ZjHrjaMgG3sOr4A7eiIequBZIcGloGKkO0FCiQe97PS9oApJvXLl/E2+mpVft0cC
+        52jnNj/5FeMt/iYMYUQHRhUN14mK4kr3idseFoeCA6FV1DW8QcMBg==
+X-ME-Sender: <xms:CEiNYVOi2OQjjHUGZNcZkWly59PTV4fXGJxeJK7gedPPmKzejNM_9g>
+    <xme:CEiNYX_LjfgdsW-ZBPqWhDpUm-S_1atrgoUppx7veci-CQdXMKNWWkrcF3iUSz8hj
+    j4PR-qDSSymGieD2Q>
+X-ME-Received: <xmr:CEiNYUQXqOtp020kskyR_O3xhb95pQY_bYLMt2J8uKXWSLJ8ZZt9aA2uq4qt8skXGtkxcKmNj48bVqTtCZ0hbBMdLxsCF0fk1w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrvddugdeludcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertd
+    dtnecuhfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdrihhsqeen
+    ucggtffrrghtthgvrhhnpeehvdffgffhteeijefgteeftdfghfdvheeuhedvjedugfeggf
+    eljefgleefvefgfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
+    fhhrohhmpehqhihlihhsshesgidvvddtrdhqhihlihhsshdrnhgvth
+X-ME-Proxy: <xmx:CEiNYRtsDAscvHAp2y3iPdR92Hz8qPZ77hHqkVUs8sH9zpk-8819zg>
+    <xmx:CEiNYdcNkiwTC-FgLABQUf6dL3jbUXN28zGH-AVJom0dSAXTByRd4w>
+    <xmx:CEiNYd2queeNazlLK9OvsH0OoveKei2byr_sSqq02Siom_FFf9V5QQ>
+    <xmx:CUiNYTpPytUPal09JEdjR03lrZRX_b0CJc2uTDZTD2q64D6iGyuzbA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA for
+ <selinux@vger.kernel.org>; Thu, 11 Nov 2021 11:42:48 -0500 (EST)
+Received: by x220.qyliss.net (Postfix, from userid 1000)
+        id DC8CA1BC; Thu, 11 Nov 2021 16:42:46 +0000 (UTC)
+From:   Alyssa Ross <hi@alyssa.is>
+To:     selinux@vger.kernel.org
+Cc:     Alyssa Ross <hi@alyssa.is>
+Subject: [PATCH] Support static-only builds
+Date:   Thu, 11 Nov 2021 16:42:29 +0000
+Message-Id: <20211111164229.9711-1-hi@alyssa.is>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-References: <20211104195949.135374-1-omosnace@redhat.com> <20211109062140.2ed84f96@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <CAHC9VhTVNOUHJp+NbqV5AgtwR6+3V6am0SKGKF0CegsPqjQ8pw@mail.gmail.com> <CAFqZXNuct_T-SkvoRg2n7+ye0--OkMJ_gS31V-t3Cm+Yy7FhxQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNuct_T-SkvoRg2n7+ye0--OkMJ_gS31V-t3Cm+Yy7FhxQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 11 Nov 2021 10:44:12 -0500
-Message-ID: <CAHC9VhTmkQy1_1xFn9StgrwT2m8nyCwvHCMA+1sRdTW6xWR96A@mail.gmail.com>
-Subject: Re: [PATCH net] selinux: fix SCTP client peeloff socket labeling
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>, Xin Long <lucien.xin@gmail.com>,
-        network dev <netdev@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 11, 2021 at 7:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Tue, Nov 9, 2021 at 4:00 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Tue, Nov 9, 2021 at 9:21 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> > > On Thu,  4 Nov 2021 20:59:49 +0100 Ondrej Mosnacek wrote:
-> > > > As agreed with Xin Long, I'm posting this fix up instead of him. I am
-> > > > now fairly convinced that this is the right way to deal with the
-> > > > immediate problem of client peeloff socket labeling. I'll work on
-> > > > addressing the side problem regarding selinux_socket_post_create()
-> > > > being called on the peeloff sockets separately.
-> > >
-> > > IIUC Paul would like to see this part to come up in the same series.
-> >
-> > Just to reaffirm the IIUC part - yes, your understanding is correct.
->
-> The more I'm reading these threads, the more I'm getting confused...
-> Do you insist on resending the whole original series with
-> modifications? Or actual revert patches + the new patches? Or is it
-> enough to revert/resend only the patches that need changes? Do you
-> also insist on the selinux_socket_post_create() thing to be fixed in
-> the same series? Note that the original patches are still in the
-> net.git tree and it doesn't seem like Dave will want to rebase them
-> away, so it seems explicit reverting is the only way to "respin" the
-> series...
+Sometimes it's useful to have a static-only toolchain.  This can be
+due to targetting some weird embedded platform, or it can be because
+it ensures that no dynamic libraries are sneaking into a system that's
+supposed to be 100% static due to non-cooperative build systems.  Most
+build systems support static-only builds, e.g. autoconf provides a
+--disable-shared configure option.
 
-DaveM is stubbornly rejecting the revert requests so for now I would
-continue to base any patches on top of the netdev tree.  If that
-changes we can reconcile any changes as necessary, that should not be
-a major issue.
+libselinux's custom make-based build system did not support such an
+option, so here I've added one.  Apart from the obvious changes, I had
+to make the utilities that use libpcre link against it manually,
+because that can't be inferred from the static libselinux.  For
+downstream users of libselinux using pkg-config, this shouldn't be a
+problem, because libselinux.pc already includes the Requires.private
+line that specifies libpcre should be linked against as well.
 
-As far as what I would like to see from the patches, ignoring the
-commit description vs cover letter discussion, I would like to see
-patches that fix all of the known LSM/SELinux/SCTP problems as have
-been discussed over the past couple of weeks.  Even beyond this
-particular issue I generally disapprove of partial fixes to known
-problems; I would rather see us sort out all of the issues in a single
-patchset so that we can review everything in a sane manner.  In this
-particular case things are a bit more complicated because of the
-current state of the patches in the netdev tree, but as mentioned
-above just treat the netdev tree as broken and base your patches on
-that with all of the necessary "Fixes:" metadata and the like.
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+---
+ libselinux/src/Makefile   | 11 ++++++++---
+ libselinux/utils/Makefile |  6 +++++-
+ libsepol/src/Makefile     | 11 ++++++++---
+ 3 files changed, 21 insertions(+), 7 deletions(-)
 
-> Regardless of the answers, this thing has rabbithole'd too much and
-> I'm already past my free cycles to dedicate to this, so I think it
-> will take me (and Xin) some time to prepare the corrected and
-> re-documented patches. Moreover, I think I realized how to to deal
-> with the peer_secid-vs.-multiple-assocs-on-one-socket problem that Xin
-> mentions in patch 4/4, fixing which can't really be split out into a
-> separate patch and will need some test coverage, so I don't think I
-> can rush this up at this point...
-
-It's not clear to me from your comments above if this is something you
-are currently working on, planning to work on soon, or giving up on in
-the near term.  Are we able to rely on you for a patchset to fix this
-or are you unable to see this through at this time?
-
-> In the short term, I'd suggest
-> either reverting patches 3/4 and 4/4 (which are the only ones that
-> would need re-doing; the first two are good changes on their own) or
-> leaving everything as is (it's not functionally worse than what we had
-> before...) and waiting for the proper fixes.
-
-DaveM has thus far failed to honor the revert request so it doesn't
-appear that reverting 3/4 and 4/4 is an option.  In the near term that
-leaves us with the other two options: leave it as-is or fix it
-properly.  I am firmly in the fix it properly camp, regardless of the
-revert state, so that is the direction I would like to see things go.
-
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 52c40f01..814012e1 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -136,7 +136,10 @@ endif
+ 
+ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_FLAGS)
+ 
+-all: $(LIBA) $(LIBSO) $(LIBPC)
++all: $(LIBA) $(LIBPC)
++ifneq ($(DISABLE_SHARED),y)
++all: $(LIBSO)
++endif
+ 
+ pywrap: all selinuxswig_python_exception.i
+ 	CFLAGS="$(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext
+@@ -175,11 +178,13 @@ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+ install: all 
+ 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+ 	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+-	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
+-	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
++ifneq ($(DISABLE_SHARED),y)
++	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
++	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
++endif
+ 
+ install-pywrap: pywrap
+ 	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS)
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index 36816155..12d028df 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -52,7 +52,11 @@ else
+ TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ endif
+ 
+-sefcontext_compile: LDLIBS += ../src/libselinux.a $(PCRE_LDLIBS) -lsepol
++PCRE_USERS = matchpathcon sefcontext_compile selabel_digest \
++	selabel_get_digests_all_partial_matches selabel_lookup \
++	selabel_lookup_best_match selabel_partial_match
++$(PCRE_USERS): LDLIBS += $(PCRE_LDLIBS)
++sefcontext_compile: LDLIBS += ../src/libselinux.a -lsepol
+ 
+ all: $(TARGETS)
+ 
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index dc8b1773..a3623635 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -39,7 +39,10 @@ LDFLAGS += -undefined dynamic_lookup
+ LN=gln
+ endif
+ 
+-all: $(LIBA) $(LIBSO) $(LIBPC)
++all: $(LIBA) $(LIBPC)
++ifneq ($(DISABLE_SHARED),y)
++all: $(LIBSO)
++endif
+ 
+ 
+ $(LIBA):  $(OBJS)
+@@ -81,11 +84,13 @@ endif
+ install: all
+ 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+ 	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+-	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
+-	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
++ifneq ($(DISABLE_SHARED),y)
++	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
++	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	$(LN) -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
++endif
+ 
+ relabel:
+ 	/sbin/restorecon $(DESTDIR)$(SHLIBDIR)/$(LIBSO)
 -- 
-paul moore
-www.paul-moore.com
+2.33.0
+
