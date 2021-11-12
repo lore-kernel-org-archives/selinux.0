@@ -2,293 +2,168 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0522CC433FE
-	for <selinux@archiver.kernel.org>; Fri, 12 Nov 2021 23:18:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91C91C433FE
+	for <selinux@archiver.kernel.org>; Fri, 12 Nov 2021 23:19:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4A4461054
-	for <selinux@archiver.kernel.org>; Fri, 12 Nov 2021 23:18:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D24561073
+	for <selinux@archiver.kernel.org>; Fri, 12 Nov 2021 23:19:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233608AbhKLXVF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Nov 2021 18:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48768 "EHLO
+        id S234281AbhKLXWH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Nov 2021 18:22:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232265AbhKLXVE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Nov 2021 18:21:04 -0500
-Received: from mail-vk1-xa2e.google.com (mail-vk1-xa2e.google.com [IPv6:2607:f8b0:4864:20::a2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C42CC0613F5
-        for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 15:18:13 -0800 (PST)
-Received: by mail-vk1-xa2e.google.com with SMTP id b192so5949139vkf.3
-        for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 15:18:13 -0800 (PST)
+        with ESMTP id S231320AbhKLXWH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Nov 2021 18:22:07 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE2EC061766
+        for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 15:19:15 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id f4so43684263edx.12
+        for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 15:19:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=subject:from:to:cc:date:message-id:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=+YE0TrBkdCf4EZe+j3BveCgvkeZJosSzwCNS1cd/eyI=;
-        b=0W/L60VxiHRXO4r7xOkyJecumZ+/eFBtAT63q4n+1hAl/dWdVw185gD9zGu/eCqYaC
-         rjmGFWUZkr+qihpm7m8Kyaayk/gW8EfQpPu4cg6S0iRtJ/qL7xj7WYaHd9MHe5EUGvjL
-         7ZBhrjSZcDJVRr927myBsLqH2kfspvn5gNwzrDnwwgKEJBYwn47tWxQ9jFtmL88RxQBN
-         UDz2EAwbWG4CRO/lKSuJ4ztUpNflEfhq9XIc12ujLw6RkNKr+8SZ4v/banm9aIQvhObk
-         BoAdgkPleOZIqQtDWbUoK+M0CcCgFloiVJdPtUry7u8BTIPRfqULk1oFD/0idReY1u8r
-         6iGA==
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=PzfB2r9Lts83D+w1nh0/7Xk65VCP1/bBRA3N7CtjrYI=;
+        b=LCt7VcLC+QrccI1OS6B4rH/tpoNKiTgVMgh07bXtFgeDmfUYoX2cRD0CD8mF2UbC4F
+         H38YZf66EekQfZLxvqxtL1KADuSEt+7cdxnfAs4dFHETAK+a/bVy/iuEalo4wBV24CCu
+         CU2jsmN2s66d188G+1P7ZHG4fKlIkLUrJ1344TEKCqmTYD2W4ytssAyOF91SvzMbwGhY
+         D1leiipIeqZi2UH9CrqCFy56BhJZQJ++f+C4IxkugikdROddfSFR3KLudyC1cnuWpJ69
+         qHhTJOLFRk7W+XpvDAWvb8ULWskl6u24LwKIAeFa0zA9FGjHGRQ7nGMdF+iX3NM8LW0t
+         NsNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:from:to:cc:date:message-id:user-agent
-         :mime-version:content-transfer-encoding;
-        bh=+YE0TrBkdCf4EZe+j3BveCgvkeZJosSzwCNS1cd/eyI=;
-        b=6hmSQ2FInr9HCrKtxzam4Ofd3ejn7bFzwvXEhDY44g/5XhGGOTOApp6lHQno7N/D5y
-         6SJb/L2KWSLwuh2aWo10W1YlIeWpHN1Y3ispnGn/JJXL08yYUmFd2bdN1MAgQCZjw6gw
-         oCz2Rp2BN2Qd1lXRQwS7iFqw05SB0/lQ9nsanp1VJKzD28vKhhhtvB6BBGCGa0SMdPTy
-         NvickR3uNXn/29ludVNN4InfHbZM/3ttL45eewRPRMJKWrOZrS1FJQaVo7116k9nah7t
-         9irFmrmtfFbnhN2Y9Y/ZMNrfMDgHYGjLyyeOn+IhLDMdfVh2wJq+ibiJhPMItFwgHgVM
-         EcQQ==
-X-Gm-Message-State: AOAM531Js0XCibgbmUq3ADCeFTALoLiTOVhmPDVyVxGTCd8OdNseEUbX
-        dTXK0o6Eb099cutoBRI4JdTNpybsAzMh
-X-Google-Smtp-Source: ABdhPJx1VOVJA+qE9T71YUKWFlny/IO5ty631r/bvGyoBCyGO8ZVXWDyhZZP71LcpAwAGmXcfZPAIA==
-X-Received: by 2002:a05:6122:2214:: with SMTP id bb20mr28607030vkb.9.1636759092195;
-        Fri, 12 Nov 2021 15:18:12 -0800 (PST)
-Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
-        by smtp.gmail.com with ESMTPSA id k1sm5399233uaq.0.2021.11.12.15.18.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Nov 2021 15:18:11 -0800 (PST)
-Subject: [PATCH] net,lsm,selinux: revert the security_sctp_assoc_established()
- hook
-From:   Paul Moore <paul@paul-moore.com>
-To:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Cc:     netdev@vger.kernel.org
-Date:   Fri, 12 Nov 2021 18:18:10 -0500
-Message-ID: <163675909043.176428.14878151490285663317.stgit@olly>
-User-Agent: StGit/1.4
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=PzfB2r9Lts83D+w1nh0/7Xk65VCP1/bBRA3N7CtjrYI=;
+        b=0KqXjvB8IoqQL9QyCy0o7+ltNWhqgAuBLNkCJCO3Gahuwjvk90r+HizMzD2RgVcb9S
+         092qLrrjU0vCFzndeCdYMXFObz4I58o+KpQ5L3wGqJc7L/Et10WT8JKx5rFB/jmuyyoU
+         7JtwwyYr7gX7O/WIqF46LUyz/2lpqjakzf8Lxr59HQiTI7d6MSX4gxxI3X7eNF6XQXl+
+         cz8rwtF0g1EbW4/MWmH9SclZBARV8lEkRhobBN5w4vvDsbbnK7CuZYd2I9sLqEvzgqzB
+         OQ08rRNfJcPyoIpGMQ/Hq7CjjgCXKirSofwOjjgQz7wtcTVMedGXzIZks1/HD1ATVJcj
+         d8zw==
+X-Gm-Message-State: AOAM533dBBYcRfDRFuHvY7U1ZogbCkAUcCkpNxo049MqsCOP/TcNJiQv
+        ILFOsB3m5dseuEnyT0HnhVNL3WJtvalzGD+wv2r5
+X-Google-Smtp-Source: ABdhPJwlh9JjMWtJMDz75t58iKQ/UrL60fWqtv+4iD58UMzywsqCd7ezf3/QpGC1srSkk/JWEuyeAVj0gqIUgbcdbhk=
+X-Received: by 2002:a17:907:7601:: with SMTP id jx1mr23713291ejc.69.1636759154232;
+ Fri, 12 Nov 2021 15:19:14 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 12 Nov 2021 18:19:03 -0500
+Message-ID: <CAHC9VhQVodwxiEheuUM=XgwdytuCE0boQ-h4xt=SqOTHv0PffA@mail.gmail.com>
+Subject: [GIT PULL] SELinux fix / revert for v5.16 (#1)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch reverts two prior patches, e7310c94024c
-("security: implement sctp_assoc_established hook in selinux") and
-7c2ef0240e6a ("security: add sctp_assoc_established hook"), which
-create the security_sctp_assoc_established() LSM hook and provide a
-SELinux implementation.  Unfortunately these two patches were merged
-without proper review (the Reviewed-by and Tested-by tags from
-Richard Haines were for previous revisions of these patches that
-were significantly different) and there are outstanding objections
-from the SELinux maintainers regarding these patches.
+Hi Linus,
 
-Work is currently ongoing to correct the problems identified in the
-reverted patches, as well as others that have come up during review,
-but it is unclear at this point in time when that work will be ready
-for inclusion in the mainline kernel.  In the interest of not keeping
-objectionable code in the kernel for multiple weeks, and potentially
-a kernel release, we are reverting the two problematic patches.
+Unfortunately I need to request a revert for two LSM/SELinux patches
+that came in via the network tree.  The two patches in question add a
+new SCTP/LSM hook as well as an SELinux implementation of that LSM
+hook.  The short version of "why?" is in the commit description of the
+revert patch, but I'll copy-n-paste the important bits below to save
+some time for the curious:
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- Documentation/security/SCTP.rst |   22 ++++++++++++----------
- include/linux/lsm_hook_defs.h   |    2 --
- include/linux/lsm_hooks.h       |    5 -----
- include/linux/security.h        |    7 -------
- net/sctp/sm_statefuns.c         |    2 +-
- security/security.c             |    7 -------
- security/selinux/hooks.c        |   14 +-------------
- 7 files changed, 14 insertions(+), 45 deletions(-)
+   ... Unfortunately these two patches were merged
+   without proper review (the Reviewed-by and Tested-by
+   tags from Richard Haines were for previous revisions
+   of these patches that were significantly different)
+   and there are outstanding objections from the SELinux
+   maintainers regarding these patches.
 
-diff --git a/Documentation/security/SCTP.rst b/Documentation/security/SCTP.rst
-index 406cc68b8808..d5fd6ccc3dcb 100644
---- a/Documentation/security/SCTP.rst
-+++ b/Documentation/security/SCTP.rst
-@@ -15,7 +15,10 @@ For security module support, three SCTP specific hooks have been implemented::
-     security_sctp_assoc_request()
-     security_sctp_bind_connect()
-     security_sctp_sk_clone()
--    security_sctp_assoc_established()
-+
-+Also the following security hook has been utilised::
-+
-+    security_inet_conn_established()
- 
- The usage of these hooks are described below with the SELinux implementation
- described in the `SCTP SELinux Support`_ chapter.
-@@ -119,12 +122,11 @@ calls **sctp_peeloff**\(3).
-     @newsk - pointer to new sock structure.
- 
- 
--security_sctp_assoc_established()
-+security_inet_conn_established()
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--Called when a COOKIE ACK is received, and the peer secid will be
--saved into ``@asoc->peer_secid`` for client::
-+Called when a COOKIE ACK is received::
- 
--    @asoc - pointer to sctp association structure.
-+    @sk  - pointer to sock structure.
-     @skb - pointer to skbuff of the COOKIE ACK packet.
- 
- 
-@@ -132,7 +134,7 @@ Security Hooks used for Association Establishment
- -------------------------------------------------
- 
- The following diagram shows the use of ``security_sctp_bind_connect()``,
--``security_sctp_assoc_request()``, ``security_sctp_assoc_established()`` when
-+``security_sctp_assoc_request()``, ``security_inet_conn_established()`` when
- establishing an association.
- ::
- 
-@@ -170,7 +172,7 @@ establishing an association.
-           <------------------------------------------- COOKIE ACK
-           |                                               |
-     sctp_sf_do_5_1E_ca                                    |
-- Call security_sctp_assoc_established()                   |
-+ Call security_inet_conn_established()                    |
-  to set the peer label.                                   |
-           |                                               |
-           |                               If SCTP_SOCKET_TCP or peeled off
-@@ -196,7 +198,7 @@ hooks with the SELinux specifics expanded below::
-     security_sctp_assoc_request()
-     security_sctp_bind_connect()
-     security_sctp_sk_clone()
--    security_sctp_assoc_established()
-+    security_inet_conn_established()
- 
- 
- security_sctp_assoc_request()
-@@ -269,12 +271,12 @@ sockets sid and peer sid to that contained in the ``@asoc sid`` and
-     @newsk - pointer to new sock structure.
- 
- 
--security_sctp_assoc_established()
-+security_inet_conn_established()
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Called when a COOKIE ACK is received where it sets the connection's peer sid
- to that in ``@skb``::
- 
--    @asoc - pointer to sctp association structure.
-+    @sk  - pointer to sock structure.
-     @skb - pointer to skbuff of the COOKIE ACK packet.
- 
- 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 442a611fa0fb..df8de62f4710 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -335,8 +335,6 @@ LSM_HOOK(int, 0, sctp_bind_connect, struct sock *sk, int optname,
- 	 struct sockaddr *address, int addrlen)
- LSM_HOOK(void, LSM_RET_VOID, sctp_sk_clone, struct sctp_association *asoc,
- 	 struct sock *sk, struct sock *newsk)
--LSM_HOOK(void, LSM_RET_VOID, sctp_assoc_established, struct sctp_association *asoc,
--	 struct sk_buff *skb)
- #endif /* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index d6823214d5c1..d45b6f6e27fd 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1050,11 +1050,6 @@
-  *	@asoc pointer to current sctp association structure.
-  *	@sk pointer to current sock structure.
-  *	@newsk pointer to new sock structure.
-- * @sctp_assoc_established:
-- *	Passes the @asoc and @chunk->skb of the association COOKIE_ACK packet
-- *	to the security module.
-- *	@asoc pointer to sctp association structure.
-- *	@skb pointer to skbuff of association packet.
-  *
-  * Security hooks for Infiniband
-  *
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 06eac4e61a13..bbf44a466832 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1430,8 +1430,6 @@ int security_sctp_bind_connect(struct sock *sk, int optname,
- 			       struct sockaddr *address, int addrlen);
- void security_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk,
- 			    struct sock *newsk);
--void security_sctp_assoc_established(struct sctp_association *asoc,
--				     struct sk_buff *skb);
- 
- #else	/* CONFIG_SECURITY_NETWORK */
- static inline int security_unix_stream_connect(struct sock *sock,
-@@ -1651,11 +1649,6 @@ static inline void security_sctp_sk_clone(struct sctp_association *asoc,
- 					  struct sock *newsk)
- {
- }
--
--static inline void security_sctp_assoc_established(struct sctp_association *asoc,
--						   struct sk_buff *skb)
--{
--}
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 39ba82ee87ce..354c1c4de19b 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -946,7 +946,7 @@ enum sctp_disposition sctp_sf_do_5_1E_ca(struct net *net,
- 	sctp_add_cmd_sf(commands, SCTP_CMD_INIT_COUNTER_RESET, SCTP_NULL());
- 
- 	/* Set peer label for connection. */
--	security_sctp_assoc_established((struct sctp_association *)asoc, chunk->skb);
-+	security_inet_conn_established(ep->base.sk, chunk->skb);
- 
- 	/* RFC 2960 5.1 Normal Establishment of an Association
- 	 *
-diff --git a/security/security.c b/security/security.c
-index 779a9edea0a0..c88167a414b4 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2388,13 +2388,6 @@ void security_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk,
- }
- EXPORT_SYMBOL(security_sctp_sk_clone);
- 
--void security_sctp_assoc_established(struct sctp_association *asoc,
--				     struct sk_buff *skb)
--{
--	call_void_hook(sctp_assoc_established, asoc, skb);
--}
--EXPORT_SYMBOL(security_sctp_assoc_established);
--
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5e5215fe2e83..62d30c0a30c2 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5502,8 +5502,7 @@ static void selinux_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk
- 	if (!selinux_policycap_extsockclass())
- 		return selinux_sk_clone_security(sk, newsk);
- 
--	if (asoc->secid != SECSID_WILD)
--		newsksec->sid = asoc->secid;
-+	newsksec->sid = asoc->secid;
- 	newsksec->peer_sid = asoc->peer_secid;
- 	newsksec->sclass = sksec->sclass;
- 	selinux_netlbl_sctp_sk_clone(sk, newsk);
-@@ -5559,16 +5558,6 @@ static void selinux_inet_conn_established(struct sock *sk, struct sk_buff *skb)
- 	selinux_skb_peerlbl_sid(skb, family, &sksec->peer_sid);
- }
- 
--static void selinux_sctp_assoc_established(struct sctp_association *asoc,
--					   struct sk_buff *skb)
--{
--	struct sk_security_struct *sksec = asoc->base.sk->sk_security;
--
--	selinux_inet_conn_established(asoc->base.sk, skb);
--	asoc->peer_secid = sksec->peer_sid;
--	asoc->secid = SECSID_WILD;
--}
--
- static int selinux_secmark_relabel_packet(u32 sid)
- {
- 	const struct task_security_struct *__tsec;
-@@ -7239,7 +7228,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(sctp_assoc_request, selinux_sctp_assoc_request),
- 	LSM_HOOK_INIT(sctp_sk_clone, selinux_sctp_sk_clone),
- 	LSM_HOOK_INIT(sctp_bind_connect, selinux_sctp_bind_connect),
--	LSM_HOOK_INIT(sctp_assoc_established, selinux_sctp_assoc_established),
- 	LSM_HOOK_INIT(inet_conn_request, selinux_inet_conn_request),
- 	LSM_HOOK_INIT(inet_csk_clone, selinux_inet_csk_clone),
- 	LSM_HOOK_INIT(inet_conn_established, selinux_inet_conn_established),
+   Work is currently ongoing to correct the problems
+   identified in the reverted patches, as well as others
+   that have come up during review, but it is unclear at
+   this point in time when that work will be ready for
+   inclusion in the mainline kernel.  In the interest of
+   not keeping objectionable code in the kernel for
+   multiple weeks, and potentially a kernel release, we
+   are reverting the two problematic patches.
 
+As usual with these things there is plenty of context to go with this
+and I'll try to do my best to provide that now.  This effort started
+with a report of SCTP client side peel-offs not working correctly with
+SELinux, Ondrej Mosnacek put forth a patch which he believed properly
+addressed the problem but upon review by the netdev folks Xin Long
+described some additional issues and submitted an improved patchset
+for review.  The SELinux folks reviewed Xin Long's initial patchset
+and suggested some changes which resulted in a second patchset (v2)
+from Xin Long; this is the patchset that is currently in your tree.
+Unfortunately this v2 patchset from Xin Long was merged before it had
+spent even just 24 hours on the mailing lists during the early days of
+the merge window, a time when many of us were busy doing verification
+of the newly released v5.15 kernel as well final review and testing of
+our v5.16 pull requests.  Making matters worse, upon reviewing the v2
+patchset there were both changes which were found objectionable by
+SELinux standards as well as additional outstanding SCTP/SELinux
+interaction problems.  At this point we did two things: resumed
+working on a better fix for the SCTP/SELinux issue(s) - thank you
+Ondrej - and we asked the networking folks to revert the v2 patchset.
+
+The revert request was obviously rejected, but at the time I believed
+it was just going to be an issue for linux-next; I wasn't expecting
+something this significant that was merged into the networking tree
+during the merge window to make it into your tree in the same window,
+yet as of last night that is exactly what happened.  While we continue
+to try and resolve the SCTP/SELinux problem I am asking once again to
+revert the v2 patches and not ship the current
+security_sctp_assoc_established() hook in a v5.16-rcX kernel.  If I
+was confident that we could solve these issues in a week, maybe two, I
+would refrain from asking for the revert but our current estimate is
+for a minimum of two weeks for the next patch revision.  With the
+likelihood of additional delays due to normal patch review follow-up
+and/or holidays it seems to me that the safest course of action is to
+revert the patch both to try and keep some objectionable code out of a
+release kernel and limit the chances of any new breakages from such a
+change.  While the SCTP/SELinux code in v5.15 and earlier has
+problems, they are known problems, and I'd like to try and avoid
+creating new and different problems while we work to fix things
+properly.
+
+One final thing to mention: Xin Long's v2 patchset consisted of four
+patches, yet this revert is for only the last two.  We see the first
+two patches as good, reasonable, and not likely to cause an issue.  In
+an attempt to create a cleaner revert patch we suggest leaving the
+first two patches in the tree as they are currently.
+
+Thanks,
+-Paul
+
+--
+The following changes since commit 5833291ab6de9c3e2374336b51c814e515e8f3a5:
+
+ Merge tag 'pci-v5.16-fixes-1' of
+   git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci
+   (2021-11-11 15:10:18 -0800)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20211112
+
+for you to fetch changes up to 32a370abf12f82c8383e430c21365f5355d8b288:
+
+ net,lsm,selinux: revert the security_sctp_assoc_established() hook
+   (2021-11-12 12:07:02 -0500)
+
+----------------------------------------------------------------
+selinux/stable-5.16 PR 20211112
+
+----------------------------------------------------------------
+Paul Moore (1):
+     net,lsm,selinux: revert the security_sctp_assoc_established() hook
+
+Documentation/security/SCTP.rst | 22 ++++++++++++----------
+include/linux/lsm_hook_defs.h   |  2 --
+include/linux/lsm_hooks.h       |  5 -----
+include/linux/security.h        |  7 -------
+net/sctp/sm_statefuns.c         |  2 +-
+security/security.c             |  7 -------
+security/selinux/hooks.c        | 14 +-------------
+7 files changed, 14 insertions(+), 45 deletions(-)
+
+-- 
+paul moore
+www.paul-moore.com
