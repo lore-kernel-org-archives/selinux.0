@@ -2,50 +2,50 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6040DC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9578C43217
 	for <selinux@archiver.kernel.org>; Fri, 12 Nov 2021 15:42:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4818960273
+	by mail.kernel.org (Postfix) with ESMTP id B2AA560296
 	for <selinux@archiver.kernel.org>; Fri, 12 Nov 2021 15:42:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235313AbhKLPpF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S235312AbhKLPpF (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 12 Nov 2021 10:45:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58372 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235312AbhKLPpF (ORCPT
+        with ESMTP id S235274AbhKLPpF (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 12 Nov 2021 10:45:05 -0500
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 079BAC061766
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F30C061767
         for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 07:42:14 -0800 (PST)
-Received: by mail-ed1-x52c.google.com with SMTP id w1so39406459edd.10
-        for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 07:42:13 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id v11so39385175edc.9
+        for <selinux@vger.kernel.org>; Fri, 12 Nov 2021 07:42:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=2seubjY8734BEV72WueGd6LV/9Ai9sYr/7KGlo9eHE8=;
-        b=SISBNaKgH94ZtB0vKyie5E7v6t3r2hhLhlmZijSBscvE0+x1vmJEE10NDLwkRvyI+K
-         NKb/0Qiv8chMxr6LnFmBjHZem1Zee6d7gUepUNpJQSNrJR3vkEqPpJEl3MW74znjilL3
-         ddmdNRc1z/SwX61JEVI59Kg5pA+UwgsqtQD9x8UCSw24TicoVjYCRl/PSDnh2+O5tbY9
-         XOdrV9eqgy+AXDusAdVMcyJdKTaZ0EAR17/wd8KZInKItRr9rhDHab+hH24LyeeXEs1Y
-         ilBaAyl9MHr+wBXrT23+ZfpbS0Nbu0052hodNUXl7WTLl4C0FcSriH1uHoG9oi+GclwN
-         x1tQ==
+        bh=2SA3ilvrGlPBPDogl9TVQzXjHfAI8JK4B2c5Fk7b0Rs=;
+        b=KxxgAC+CswL7ijNrxhcJEdJXDiZuk0/oK4aCAtU4WbeOT00n+/DrI0KeOyOpygl+sT
+         SmPFPw7DdxIwPEhl2gUGzQtXFkJref2mbHVRxZN8mW0WAWP4ud0UEajnHkQQM8QugIoa
+         vie5P4DR+vqBvxDm5YgjjyH8oq5CMOgFNlZeQE+gUtSaBmg/sEiRTae3YjaJv3OEDKjc
+         4pz5rfGSvW6KoKqQXGdt8jFkayJmEn/jlWlm6XjRumuSo7i2G9c1VFe2QZg6ZXPEoH1B
+         Jgxe9sFF9XbkZHGNv1Rbb4DkfOj2yV1o7hMR2uWuTHB6iRVvxN10aB+Ruo7m73DrymeA
+         E3og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2seubjY8734BEV72WueGd6LV/9Ai9sYr/7KGlo9eHE8=;
-        b=ayxQ05tOE8t6uXjh32c3VPtkmj+0TejigNGWGNfHMoxYt2L4h2YpMTHeVY0l4JDD4V
-         B8iTWcgdVvNy1IaZqSJcWE3XuIlBA60rP7RsYiSmc/SVJgeBwxmIDGZFz+8XFbjhicYO
-         YCmFSxJz/3yI2OT+nNjeqy/y1JsAJUKC69lYiYMEtnbTB6cKOpnpIPlpn/ttRqQ4cGli
-         vLJ5mey2PCzlQRNANU+TW//zhEE5bdWwEiMdyTywh9WshgkAPnzLjVyyMsZg/ZJJq5xW
-         juGBozs4VMa3T8nXhbZC6WI3IESmfBhS+tse7QTmEVPQ03MCcOhg9UbmtAMrrDJLP6fg
-         WGeA==
-X-Gm-Message-State: AOAM5313D0VETia+R9QiUem05yVu3wF/DKqA6hOyyaY3MkYmZxwbW6W2
-        ccBoaGLVPhGesPwPmtkumtkPJ+hWbPM=
-X-Google-Smtp-Source: ABdhPJy3GwEkbKKejNQh28iO71HoApVozNBWsqRTa4pbuGHCCjmiwW16hIO3JFCixTv2qTtSiyXWqQ==
-X-Received: by 2002:a17:906:d196:: with SMTP id c22mr20204620ejz.231.1636731732538;
-        Fri, 12 Nov 2021 07:42:12 -0800 (PST)
+        bh=2SA3ilvrGlPBPDogl9TVQzXjHfAI8JK4B2c5Fk7b0Rs=;
+        b=E1xyRLR8unFY6Kq2MVIPSmsCCjYwPaYrmYclx4XgVu7XKJXaIHtiNFNW4QJFiWLEmE
+         ZRWcwY+GtkbdIZqRw4ClGgjxWB7s5VpQLP0H4so3GzJGrJTXIt6Ict/3uah9sH3Hf/iP
+         1VirC7vlicpvEXKQUYKC7EDzSwrEqxyLbS0GIUs8h42or8ACOONutsze6bMi5o9C9ASg
+         XxpzHcxwR8kf2TlKDmq0qv6hynxUBgBcxzc3r0liNVkZf7wWY2RLLd6MbGQEsKOJ5Ubw
+         9Trwl1ywnvpjEZJ9stZwVB/yovVTL/aunrIOwT3g3Fh5cIXPoVPIhoE/MNu67Tun62KZ
+         NgCA==
+X-Gm-Message-State: AOAM530yaOK1izgwPiLrtKOZKcWcpM2u3k8xuMKx4BuW5tgb3caJSNIw
+        xh0NHIEBPStETr0UUNXkHwgEkPwxPh8=
+X-Google-Smtp-Source: ABdhPJzXDtjQumQdmkE/w6ixL8jPXmYr6XJSl/+6hRCnA3h3csXx/+IGNHLeLuj4c2tN25eDzIAlUQ==
+X-Received: by 2002:a17:906:fcd9:: with SMTP id qx25mr21220294ejb.326.1636731733077;
+        Fri, 12 Nov 2021 07:42:13 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-077-000-195-130.77.0.pool.telefonica.de. [77.0.195.130])
         by smtp.gmail.com with ESMTPSA id m9sm2628914eje.102.2021.11.12.07.42.12
         for <selinux@vger.kernel.org>
@@ -53,9 +53,9 @@ Received: from debianHome.localdomain (dynamic-077-000-195-130.77.0.pool.telefon
         Fri, 12 Nov 2021 07:42:12 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 11/12] libsemanage: include paired header for prototypes
-Date:   Fri, 12 Nov 2021 16:42:00 +0100
-Message-Id: <20211112154201.78217-11-cgzones@googlemail.com>
+Subject: [PATCH 12/12] libsemanage: add extern prototype for legacy function
+Date:   Fri, 12 Nov 2021 16:42:01 +0100
+Message-Id: <20211112154201.78217-12-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211112154201.78217-1-cgzones@googlemail.com>
 References: <20211112154201.78217-1-cgzones@googlemail.com>
@@ -66,27 +66,26 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-    context_record.c:11:13: warning: no previous prototype for ‘semanage_context_get_user’ [-Wmissing-prototypes]
-       11 | const char *semanage_context_get_user(const semanage_context_t * con)
-          |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+    modules.c:171:13: warning: no previous prototype for ‘semanage_module_get_version’ [-Wmissing-prototypes]
+      171 | const char *semanage_module_get_version(semanage_module_info_t * modinfo
+          |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsemanage/src/context_record.c | 2 ++
- 1 file changed, 2 insertions(+)
+ libsemanage/src/modules.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/libsemanage/src/context_record.c b/libsemanage/src/context_record.c
-index 16ba518e..dafb90fc 100644
---- a/libsemanage/src/context_record.c
-+++ b/libsemanage/src/context_record.c
-@@ -7,6 +7,8 @@ typedef sepol_context_t semanage_context_t;
- 
- #define _SEMANAGE_CONTEXT_DEFINED_
- 
-+#include <semanage/context_record.h>
-+
- /* User */
- const char *semanage_context_get_user(const semanage_context_t * con)
+diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
+index b6dd456c..c98df4dd 100644
+--- a/libsemanage/src/modules.c
++++ b/libsemanage/src/modules.c
+@@ -168,6 +168,7 @@ const char *semanage_module_get_name(semanage_module_info_t * modinfo)
+ /* Legacy function that remains to preserve ABI
+  * compatibility.
+  */
++extern const char *semanage_module_get_version(semanage_module_info_t *);
+ const char *semanage_module_get_version(semanage_module_info_t * modinfo
+ 				__attribute__ ((unused)))
  {
 -- 
 2.33.1
