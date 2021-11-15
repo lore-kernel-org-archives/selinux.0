@@ -2,307 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D28BC4332F
-	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 01:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8249C433F5
+	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 01:13:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4596E61B4C
-	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 01:02:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D15C860F5A
+	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 01:13:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244226AbhKPBFg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Nov 2021 20:05:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36332 "EHLO
+        id S245090AbhKPBQ2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Nov 2021 20:16:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245532AbhKOTUm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Nov 2021 14:20:42 -0500
-X-Greylist: delayed 207 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 15 Nov 2021 10:13:29 PST
-Received: from defensec.nl (markus.defensec.nl [IPv6:2001:985:d55d::123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A00C074676
-        for <selinux@vger.kernel.org>; Mon, 15 Nov 2021 10:13:28 -0800 (PST)
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by defensec.nl (Postfix) with ESMTPSA id EAABCFC07DE;
-        Mon, 15 Nov 2021 19:09:40 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-        s=default; t=1636999781;
-        bh=iq1Ga5dgtab613BWfFtve/AJCT+KuZqxYkyJNBaKHKY=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=KvcU4B5j/zrKMKo5DbhK0cq8YPYDmYydmxTwzYUNNw5qImFwuo3S75Y2p+QE9y5q/
-         MH8JyVt03QHEEmTvRuFK5lVjqmQ9Q/3u7ZyWp5gxy1/e0EXlmdN+slc2ryKdS5d2OA
-         GIESzcuR8D/r7wuRuQpCanxh10pZlUZdXaPFdjSQ=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
-Cc:     Topi Miettinen <toiwoton@gmail.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH v2] selinux-notebook: New chapter: Hardening SELinux
-References: <20211113095547.19406-1-toiwoton@gmail.com>
-        <7ee0207f-5be9-5050-0baa-f59d27b617a9@linux.microsoft.com>
-Date:   Mon, 15 Nov 2021 19:09:40 +0100
-In-Reply-To: <7ee0207f-5be9-5050-0baa-f59d27b617a9@linux.microsoft.com>
-        (Daniel Burgener's message of "Mon, 15 Nov 2021 12:39:16 -0500")
-Message-ID: <87wnl9p9y3.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S244354AbhKOTNw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Nov 2021 14:13:52 -0500
+Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CC88C061A0E
+        for <selinux@vger.kernel.org>; Mon, 15 Nov 2021 10:04:57 -0800 (PST)
+Received: by mail-il1-x132.google.com with SMTP id i11so17578884ilv.13
+        for <selinux@vger.kernel.org>; Mon, 15 Nov 2021 10:04:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=oNWkn0euYrddlaTUxBt9RiKgvk8R4zpd09YZVYXC3PM=;
+        b=HJJsyzPFhUHPoNx6u4rIshbZ6jGAPTmRri3/8H4wPY4YDZBbXrbW+JD1PHIZBXSs8r
+         13t5MIS62BpH/ywAzixrUC0Rz5y7XZ7Gedbsa8xLAJk1u9ddZZrhYSvMK7TOA3eMC/rp
+         CL9kcM0FsXlvzb34vvbZnCGe0w+eyxKG4vXEqE1F5Wdhx88mn993b+plVNDee+RjldCr
+         ukxMJCSO5lEuVYaLSq+BY3JD240Hm3aWkUKHDVg54/AmHUyA+73JH/JmV89WX2Zgwo68
+         uMHLMwZMq66bjiHdWfxcU10tWeR+UxPL5jOJ2R4zOKp1U8m9NTHK07vx7EaeJT424wUJ
+         wh7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=oNWkn0euYrddlaTUxBt9RiKgvk8R4zpd09YZVYXC3PM=;
+        b=Wi/mgcskOSzAgSIQCqdWqdOgwLz/ACeY8KhnFmlK1i4Mjx6aQr1ATM0ZMnIOX0KMHd
+         sgzyNQSzn/ISw0yZL9mkqEjK/F7jKcJ99j7qUUdN5lXzu4mNWpihx6cxOc8sRztGfa4i
+         lRfrBFge77JJOcJ8wNz23FAbNC2LJqz5QM/xEidYNQdiQxFm3nn1vwX12yII4bX+U4Jn
+         mZ+88bMmZvlqllC639V2RNsDMPk3r4C3cbwpE7a0zy6rNjrDRzpDzjvMrC07W4lzuanC
+         +r5+V8/K4MXfundwNUAWH3DJLw0nmrCdpkpFNyt5WFcIiWKBvHRvpDxU+azHoEcKc254
+         3lAg==
+X-Gm-Message-State: AOAM532h0X+Gpt3MezZPS6uj4/tLyYaHaMgTIrp0jR8mCfXfC0eGVfOq
+        aLEjZgJIo51YAGE2RFsH7kz9+A==
+X-Google-Smtp-Source: ABdhPJyp6zFNAuBeuoyQU4kkL68fGK2NiaH9e5RPs0cd09v4NWGILyi6DmolYUr1ntMgjfQFN9p19g==
+X-Received: by 2002:a92:c569:: with SMTP id b9mr517353ilj.39.1636999496758;
+        Mon, 15 Nov 2021 10:04:56 -0800 (PST)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id b15sm10200671iln.36.2021.11.15.10.04.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Nov 2021 10:04:56 -0800 (PST)
+Subject: Re: [PATCH] block: Check ADMIN before NICE for IOPRIO_CLASS_RT
+To:     Alistair Delva <adelva@google.com>, linux-kernel@vger.kernel.org
+Cc:     Khazhismel Kumykov <khazhy@google.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, kernel-team@android.com,
+        stable@vger.kernel.org
+References: <20211115173850.3598768-1-adelva@google.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <74179f08-3529-7502-db33-2ea18cab3f58@kernel.dk>
+Date:   Mon, 15 Nov 2021 11:04:55 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20211115173850.3598768-1-adelva@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Daniel Burgener <dburgener@linux.microsoft.com> writes:
+On 11/15/21 10:38 AM, Alistair Delva wrote:
+> Booting to Android userspace on 5.14 or newer triggers the following
+> SELinux denial:
+> 
+> avc: denied { sys_nice } for comm="init" capability=23
+>      scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
+>      permissive=0
+> 
+> Init is PID 0 running as root, so it already has CAP_SYS_ADMIN. For
+> better compatibility with older SEPolicy, check ADMIN before NICE.
 
-> This looks great!  I found a few more typos on this readthrough,
-> enumerated below.
-
-A couple more suggestions below
-
->
-> On 11/13/2021 4:55 AM, Topi Miettinen wrote:
->> Describe some easy and more difficult methods to harden SELinux
->> policies.
->> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
->> ---
->> v2:
->>   - Updated with comments from Daniel Burgener
->>   - Fixed issues with PDF generation
->> ---
->>   src/hardening.md                 | 154 +++++++++++++++++++++++++++++++
->>   src/implementing_seaware_apps.md |   2 +-
->>   src/reference_policy.md          |   2 +-
->>   src/section_list.txt             |   1 +
->>   src/toc.md                       |   1 +
->>   5 files changed, 158 insertions(+), 2 deletions(-)
->>   create mode 100644 src/hardening.md
->> diff --git a/src/hardening.md b/src/hardening.md
->> new file mode 100644
->> index 0000000..031e7c1
->> --- /dev/null
->> +++ b/src/hardening.md
->> @@ -0,0 +1,154 @@
->> +# Hardening SELinux
->> +
->> +- [Tuning Booleans](#tuning-booleans)
->> +- [Disabling Modules](#disabling-modules)
->> +- [Users and Roles](#users-and-roles)
->> +- [Network Controls](#network-controls)
->> +- [Custom Policy Modules](#custom-policy-modules)
->> +- [Fine Grained Network Controls](#fine-grained-network-controls)
->> +- [Fully Custom Policy](#fully-custom-policy)
->> +
->> +The Reference Policy sets a good basis for learning how to operate a
->> +system with SELinux. The policy allows system administrators and users
->> +to continue using working methods that they learned before becoming
->> +familiar with SELinux, because of its "targeted" model and reasonable
->> +defaults.
->> +
->> +However, it's possible to tighten the policy considerably. The
->> +Reference Policy gives several options for hardening but for maximum
->> +control over the policy, it's possible to write custom modules or even
->> +replace the Reference Policy entirely.
->> +
->> +The hardening suggestions are listed in the rough order of difficulty.
->> +
->> +## Tuning Booleans
->> +
->> +The Reference Policy uses booleans to control optional aspects of the
->> +policy. Changing the booleans is very easy way to tune the SELinux
->> +policy. The booleans can be also changed temporarily, without
->> +committing them yet to the on-disk policy, so changes are
->> +automatically reverted on next boot.
->
-> "...changing the booleans is *a* very easy..."
->
->> +
->> +For example, recent Firefox browsers can work with policy boolean
->> +`mozilla_execstack` set to `off`. This can reduce the surface to
->> +vulnerabilities which could use an executable stack. The boolean can
->> +be changed using ***setsebool**(8)*:
->> +
->> +```
->> +# Check current status:
->> +getsebool mozilla_execstack
->> +mozilla_execstack --> on
->> +
->> +# Change temporarily:
->> +setsebool mozilla_execstack=off
->> +
->> +# Write to persistent policy on disk:
->> +setsebool -P mozilla_execstack=off
->> +
->> +```
->> +
->> +## Disabling Modules
->> +
->> +By default, the Reference Policy enables most policy modules to
->> +support any system. But when the system is known well by the
->> +administrator, it's possible to remove modules which aren't used.
-
-It is better to just disable module that you do not use as removing the
-modules probably causes them to be reinstalled on policy upgrades and
-thus be re-enabled. This is likely not what one would expect.
-
->> +
->> +As an example, if Firefox isn't installed, the module `mozilla` can be
->> +removed from the policy. The hardening effect comes from reducing the
->> +allow rules, some of which may apply to paths which aren't actively
->> +monitored because the corresponding application isn't installed.
->> +
->> +Care should be taken to never remove modules which actually are used,
->> +since this may weaken the policy instead, because the removed module
->> +could have contained an application more strictly than what the policy
->> +allows without the module. Removing critical modules can also result
->> +in system breakage.
->> +
->> +## Users and Roles
->> +
->> +In the "targeted" model, both unprivileged users and the system
->> +administrator (`root`) are unconfined and the TE rules are very
->> +relaxed. However, it's possible to change the SELinux user for these
->> +accounts to more confined variants.
->> +
->> +For the unprivileged users, the confined user in the Reference Policy
->> +is `user_u` with corresponding role `user_r`. There's also `staff_u`
->> +and `staff_r` to allow transitioning to system administrative roles by
->> +logging in as `staff_u:staff_r` and escalating to `staff_u:sysadm_r`
->> +or another role for administrative tasks with ***newrole**(1)*.
->> +
->> +For the system administrator there are several options: `root` SELinux
->> +user, which is mostly unconfined and `sysadm_u`, which is more
->> +confined. The role for both is `sysadm_r`.
->> +
->> +It's also possible to divide the powers of the system administrator to
->> +several roles, `sysadm_r`, `auditadm_r`, `logadm_r`, `dbadm_r` and
->> +`secadm_r`. This can be useful when an organization wants to ensure
->> +that even the system administrators can be held accountable for their
->> +actions. The roles can be also useful for management of labor, for
->> +example having dedicated persons for managing databases or SELinux
->> +policies.
->> +
->> +It should be noted that since this isn't the default way of operating
->> +SELinux, the Reference Policy may need to supplemented and the
-
-there is some thing not right here: "the Reference Policy may need to supplemented"
-
->> +administrators, even users, may need to be more aware of SELinux in
->> +order to be able to operate the system.
->> +
->> +## Network Controls
->> +
->> +With network controls of SELinux, it's possible to enhance firewall
->> +rules with knowledge of SELinux types. Traditional firewall rules only
->> +affect the whole system by allowing certain ports and protocols but
->> +blocking others. With `nftables` and `iptables` it's also possible to
->> +make this more fine grained: certain users can access network but
->> +others may not. By using also SELinux controls it's possible to fine
->> +tune this to application level: `mozilla_t` can connect to the
->> +Internet but some other applications can't. SELinux packet controls
->> +can be also used to combine Deep Packet Inspection with SELinux TE
->> +rules.
->
-> "...can access *the* network..."
->
-> "By also using SELinux..."
->
-> "...fine tune this to *the* application level..."
->
->> +
->> +## Custom Policy Modules
->> +
->> +Further hardening can be achieved by replacing policy modules from the
->> +Reference Policy with custom modules. Typically the modules in the
->> +Reference Policy are written to allow all possible modes of operation
->> +for an application or its users, since the writers of the policy don't
->> +know the specifics of each installation. Thus the SELinux rules may be
->> +more relaxed than what could be optimal for a specific case. When the
->> +exact environment and usage patterns are known, it's possible to write
->> +replacement policy modules to remove excess rules and hence reduce
->> +attack surface.
->> +
->> +As a minimum, it should be ensured that all continuously running
->> +services and main user applications have a dedicated policy module or
->> +rules, instead of running in for example `init_t`, `initrc_t` or
->> +`unconfined_t` types which may offer low level of protection.
->> +
->> +## Fine Grained Network Controls
->> +
->> +In an internal network of an organization, where all entities can
->> +agree on the same SELinux policy, using IPSec, CIPSO and CALIPSO may
->> +allow further policy controls. In addition to SELinux domain of the
->> +source application, even the SELinux domain (or at least MCS/MLS
->> +category/sensitivity) of the target server can be used in TE rules.
->> +
->> +## Fully Custom Policy
->> +
->> +It's also possible to write custom SELinux policies for an entire
->> +system with non-trivial effort.
->> +
->> +The rules can also be analyzed with various SELinux tools, such as
->> +`apol`, `sedta`, `sepolicy` and many more. With the tools it may be
-
-those arent exactly the tools that come to mind first here, especially
-not `sepolicy`. I would first and foremost mention `seinfo` and
-`sesearch`.
-
-It would be nice if this doc would have some examples. It should not be
-hard since the doc targets refpolicy.
-
->> +possible to find hardening opportunities or errors in the policy.
->> +
->> +The downside of making the SELinux rules as tight as possible is that
->> +when the applications (or hardware components or network
->> +configuration) are updated, there's a possibility that the rules may
->> +also need updating because of the changes. Less generic rules are also
->> +less generally useful for different configurations, so the rules may
->> +need tuning for each installation.
->> +
->> +<!-- %CUTHERE% -->
->> +
->> +---
->> +**[[ PREV ]](reference_policy.md)** **[[ TOP ]](#)** **[[ NEXT ]](implementing_seaware_apps.md)**
->> diff --git a/src/implementing_seaware_apps.md b/src/implementing_seaware_apps.md
->> index 74833f8..2351421 100644
->> --- a/src/implementing_seaware_apps.md
->> +++ b/src/implementing_seaware_apps.md
->> @@ -297,4 +297,4 @@ applied to their objects as defined by policy.
->>   <!-- %CUTHERE% -->
->>     ---
->> -**[[ PREV ]](reference_policy.md)** **[[ TOP ]](#)** **[[ NEXT ]](embedded_systems.md)**
->> +**[[ PREV ]](hardening.md)** **[[ TOP ]](#)** **[[ NEXT ]](embedded_systems.md)**
->> diff --git a/src/reference_policy.md b/src/reference_policy.md
->> index 45e4145..ebb516f 100644
->> --- a/src/reference_policy.md
->> +++ b/src/reference_policy.md
->> @@ -3060,4 +3060,4 @@ section.
->>   <!-- %CUTHERE% -->
->>     ---
->> -**[[ PREV ]](modular_policy_statements.md)** **[[ TOP ]](#)** **[[ NEXT ]](implementing_seaware_apps.md)**
->> +**[[ PREV ]](modular_policy_statements.md)** **[[ TOP ]](#)** **[[ NEXT ]](hardening.md)**
->> diff --git a/src/section_list.txt b/src/section_list.txt
->> index dcca883..b67f65e 100644
->> --- a/src/section_list.txt
->> +++ b/src/section_list.txt
->> @@ -52,6 +52,7 @@ infiniband_statements.md
->>   xen_statements.md
->>   modular_policy_statements.md
->>   reference_policy.md
->> +hardening.md
->>   implementing_seaware_apps.md
->>   embedded_systems.md
->>   seandroid.md
->> diff --git a/src/toc.md b/src/toc.md
->> index f5778bd..20a87f0 100644
->> --- a/src/toc.md
->> +++ b/src/toc.md
->> @@ -53,6 +53,7 @@
->>       - [XEN Statements](xen_statements.md#xen-statements)
->>       - [Modular Policy Support Statements](modular_policy_statements.md#modular-policy-support-statements)
->>   - [The Reference Policy](reference_policy.md#the-reference-policy)
->> +- [Hardening SELinux](hardening.md#hardening-selinux)
->>   - [Implementing SELinux-aware Applications](implementing_seaware_apps.md#implementing-selinux-aware-applications)
->>   - [Embedded Systems](embedded_systems.md#embedded-systems)
->>   - [SE for Android](seandroid.md#security-enhancements-for-android)
->> 
->
-> -Daniel
->
+Seems a bit wonky to me, but the end result is the same. In any case,
+this warrants a comment above it detailing why the ordering is
+seemingly important.
 
 -- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
+Jens Axboe
+
