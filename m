@@ -2,345 +2,184 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EE56C433EF
-	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 10:53:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5499C433EF
+	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 11:27:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03C1461BFB
-	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 10:53:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B304A61994
+	for <selinux@archiver.kernel.org>; Tue, 16 Nov 2021 11:27:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234390AbhKPK4i (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Nov 2021 05:56:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46724 "EHLO
+        id S234882AbhKPLab (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Nov 2021 06:30:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234377AbhKPK4i (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Nov 2021 05:56:38 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C928C061570
-        for <selinux@vger.kernel.org>; Tue, 16 Nov 2021 02:53:41 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id c32so52061798lfv.4
-        for <selinux@vger.kernel.org>; Tue, 16 Nov 2021 02:53:41 -0800 (PST)
+        with ESMTP id S234932AbhKPL3o (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Nov 2021 06:29:44 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDABAC06120C
+        for <selinux@vger.kernel.org>; Tue, 16 Nov 2021 03:26:19 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id r9-20020a7bc089000000b00332f4abf43fso1616588wmh.0
+        for <selinux@vger.kernel.org>; Tue, 16 Nov 2021 03:26:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=ZJeW0KfbTH5HcgcaQ1E6IJwfDIDtkEQuy0SE1LD1itA=;
-        b=jdWUL68P3Lz+r65SVVxZqnqA/CYhGaY5yeIOoQWvwKSvtsP27m7pwFMpYLMSuPSYoe
-         70po8QkEHUUJZ4MkXalwKZQpeJcH960HmbIziu2yEs1jIWF1Y28VOovtxBi0JGnIS0pE
-         NsDAmWf/XNpf5V4iefk0y3T9zcRZ7d77BNuRJkcIPb5EN7O/VTTGWRv+1RSTTaFH4OSv
-         Lp1qrFAyZwCa23prnqitwRZ1j9HosHS+Dqim20xLMh7tTRjy5XXEqb0geR37dvgIJSsD
-         Ylq0ctMbMAN2OOB+mzm5c8SXW7hTMtNV0uhzXqaIW/AEB/q/szPWxU8gSBw7ewHVoK96
-         PSrA==
+        bh=N27l+XMKWdszX2BfYpogoJ8jy9cvir6UuzZ5HEPoQTU=;
+        b=n1Jk6sXyjYZg3s5Vm4uEohM/H+qyzxMzykmWMtErm3eduwh5TEx/dpVTZihZ60T6fj
+         oH0lU1mE3t6o9DHLR4nuxqLUothwHaKqIQ8SQGdPKGDmSR9yY8QjYvXjSwfOM3xjZSom
+         xktbtuIypiVwdG3PvRZgV//X06txis4QljbYBpoaHsP2Y5j9vXT0xcCy8i/BD9raTB1x
+         PqTHQSfvEH9/RFLs7nq6bOfCr7tNpA225AyFph7CTpGuICcvuVYLtHVK6A0Cu3y/rDq+
+         03kMCjxnZc9Pxf7obM8Laz+++FQDtbfPqIh7xgOw0letT7oh/9zMXqVp/2xnC1tC9lf6
+         dgvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=ZJeW0KfbTH5HcgcaQ1E6IJwfDIDtkEQuy0SE1LD1itA=;
-        b=UX4A+QtzWXZRDGrQTwa/+FFZFp4t5VZVIvEM2oU7sMqGjl5+Ku7L+UImQxg4Qlbtic
-         V9t2rokODFhc321cgGCANGPf0u09lQzcgvuCF+FCDB2Hb9L2FjIocC2zgq/ld0Zz8P/a
-         Go5kx85MEaL/aEMK8ciN21ytt+gPAjRJqwfgSfxnmFtz6PFpf+8wCBLwfggIBoih/rUx
-         hrNhMX8uzou0mGJd0kH079BD2/I5g6t3eYdeRbt+opWSrrBKkxjqCoIWh0me7nYXkMWR
-         KxLOsudQMSi/bQW8tRcJ9LhhMQUTMmJNTJIJJYhHKtXw9dMNfLinXtsZeJVHbV4vMTwy
-         QU+Q==
-X-Gm-Message-State: AOAM530Ax3kS7qjWCbpR4VqRw9XLKP2ziGMkzEoMG1dbHxXHR3mOlgto
-        /Lh6MYdD+a/EMrTsrnaknzxS7H+w240=
-X-Google-Smtp-Source: ABdhPJz6WWe8QhhD4zE6hdrUOO/WUgGQNI4ZsrMWoMfa5KwR+OqUVGWP2ukzepaVjLV3Rb4+2WpsyA==
-X-Received: by 2002:a05:6512:3053:: with SMTP id b19mr5601656lfb.276.1637060018913;
-        Tue, 16 Nov 2021 02:53:38 -0800 (PST)
-Received: from localhost.localdomain (81-197-199-108.elisa-laajakaista.fi. [81.197.199.108])
-        by smtp.gmail.com with ESMTPSA id x5sm1723062ljm.101.2021.11.16.02.53.37
+        bh=N27l+XMKWdszX2BfYpogoJ8jy9cvir6UuzZ5HEPoQTU=;
+        b=4mLr2iV0h701BzQfptOpqxnNt7SoP2sxYU+icKFtV4N2aNLGZSaJnpnFkO9/0PMxIw
+         t/1B5NEfkfwsjV1o+hAcLPUKuNBoPupL1njdWri/kC9k7Q1IukrxPcH7wDNiSDKlz4bg
+         TDrF14dwhvqPxL5cbEZUoM51sjWFLaLeXDwFfS8tIclkVIw38JyZWu9xoQ9vg0URiP+m
+         z52OMPYq+4ZMMZ/5fB1y63hyg3TtUtq1Tp8syzHv0TtjSPECqn8HWNTNt1yE3qh93GwL
+         fzxd3OW9kyd8ztgX7d/TKtzb+jQIrxAuxvQDAwAVhjhUPbtn58iVg/okxlacuVVGvywS
+         la4Q==
+X-Gm-Message-State: AOAM532Drn1Ui+F8McUb4fNd0rpCuCiyIaZ4UXQRocVIQ5duxZNKj5Mg
+        YsMIZnL/btsYiC1mabbLkvEB2HsH5AE=
+X-Google-Smtp-Source: ABdhPJx7KpFBxmaWRyocQDcqYiyuFgsGFFRPqTQJ4vAP6jCE5QePx6efBei9GV9kVMego+Q+1Ym9zA==
+X-Received: by 2002:a1c:1d42:: with SMTP id d63mr67438105wmd.184.1637061978324;
+        Tue, 16 Nov 2021 03:26:18 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-006-183-176.77.6.pool.telefonica.de. [77.6.183.176])
+        by smtp.gmail.com with ESMTPSA id h7sm16635069wrt.64.2021.11.16.03.26.17
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Nov 2021 02:53:38 -0800 (PST)
-From:   Topi Miettinen <toiwoton@gmail.com>
+        Tue, 16 Nov 2021 03:26:17 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH v3] selinux-notebook: New chapter: Hardening SELinux
-Date:   Tue, 16 Nov 2021 12:53:35 +0200
-Message-Id: <20211116105335.21864-1-toiwoton@gmail.com>
-X-Mailer: git-send-email 2.33.0
+Subject: [RFC PATCH] capability: add capable_or to test for multiple caps with exactly one audit message
+Date:   Tue, 16 Nov 2021 12:24:37 +0100
+Message-Id: <20211116112437.43412-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Describe some easy and more difficult methods to harden SELinux
-policies.
+WARNING: only compile tested and just to test the water
 
-Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+Add the interface `capable_or()` as an alternative to or multiple
+`capable()` calls, like `capable_or(CAP_SYS_NICE, CAP_SYS_ADMIN)`
+instead of `capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
+`capable_or()` will in particular generate exactly one audit message,
+either for the left most capability in effect or, if the task has none,
+the first one.
+This is especially helpful with regard to SELinux, where each audit
+message about a not allowed capability will create an avc denial.
+Using this function with the least invasive capability as left most
+argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables policy writers
+to only allow the least invasive one and SELinux domains pass this check
+with only capability:sys_nice or capability:sys_admin allowed without
+any avc denial message.
 
+Fixes: 94c4b4fd25e6 ("block: Check ADMIN before NICE for IOPRIO_CLASS_RT")
 ---
-v3:
- - Updated with comments from Daniel Burgener and Dominick Grift
+ block/ioprio.c             |  2 +-
+ include/linux/capability.h |  6 +++++
+ kernel/capability.c        | 46 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 53 insertions(+), 1 deletion(-)
 
-v2: https://lore.kernel.org/selinux/20211113095547.19406-1-toiwoton@gmail.com/
- - Updated with comments from Daniel Burgener
- - Fixed issues with PDF generation
-
-v1: https://lore.kernel.org/selinux/20211112125605.28915-1-toiwoton@gmail.com/
----
- src/hardening.md                 | 205 +++++++++++++++++++++++++++++++
- src/implementing_seaware_apps.md |   2 +-
- src/reference_policy.md          |   2 +-
- src/section_list.txt             |   1 +
- src/toc.md                       |   1 +
- 5 files changed, 209 insertions(+), 2 deletions(-)
- create mode 100644 src/hardening.md
-
-diff --git a/src/hardening.md b/src/hardening.md
-new file mode 100644
-index 0000000..56023f6
---- /dev/null
-+++ b/src/hardening.md
-@@ -0,0 +1,205 @@
-+# Hardening SELinux
-+
-+- [Tuning Booleans](#tuning-booleans)
-+- [Disabling Modules](#disabling-modules)
-+- [Users and Roles](#users-and-roles)
-+- [Network Controls](#network-controls)
-+- [Custom Policy Modules](#custom-policy-modules)
-+- [Fine Grained Network Controls](#fine-grained-network-controls)
-+- [Fully Custom Policy](#fully-custom-policy)
-+
-+The Reference Policy sets a good basis for learning how to operate a
-+system with SELinux. The policy allows system administrators and users
-+to continue using working methods that they learned before becoming
-+familiar with SELinux, because of its "targeted" model and reasonable
-+defaults.
-+
-+However, it's possible to tighten the policy considerably. The
-+Reference Policy gives several options for hardening but for maximum
-+control over the policy, it's possible to write custom modules or even
-+replace the Reference Policy entirely.
-+
-+The hardening suggestions are listed in the rough order of difficulty.
-+
-+## Tuning Booleans
-+
-+The Reference Policy uses booleans to control optional aspects of the
-+policy. Changing the booleans is a very easy way to tune the SELinux
-+policy. The booleans can be also changed temporarily, without
-+committing them yet to the on-disk policy, so changes are
-+automatically reverted on next boot.
-+
-+For example, recent Firefox browsers can work with policy boolean
-+`mozilla_execstack` set to `off`. This can reduce the surface to
-+vulnerabilities which could use an executable stack. The boolean can
-+be changed using ***setsebool**(8)*:
-+
-+```
-+# Check current status:
-+getsebool mozilla_execstack
-+mozilla_execstack --> on
-+
-+# Change temporarily:
-+setsebool mozilla_execstack=off
-+
-+# Write to persistent policy on disk:
-+setsebool -P mozilla_execstack=off
-+
-+```
-+
-+## Disabling Modules
-+
-+By default, the Reference Policy enables most policy modules to
-+support any system. But when the system is known well by the
-+administrator, it's possible to disable modules which aren't used.
-+
-+As an example, if Firefox isn't installed, the module `mozilla` can be
-+disabled in the policy. The hardening effect comes from reducing the
-+allow rules, some of which may apply to paths which aren't actively
-+monitored because the corresponding application isn't installed.
-+
-+Care should be taken to never disable modules which actually are used,
-+since this may weaken the policy instead, because the disabled module
-+could have contained an application more strictly than what the policy
-+allows without the module. Disabling critical modules can also result
-+in system breakage. It's also possible to remove modules, but on
-+package upgrade they are typically reinstalled.
-+
-+Examples:
-+```
-+# Disable Firefox module
-+semodule --disable=mozilla
-+# Remove the module entirely
-+semodule --remove=mozilla
-+```
-+
-+## Users and Roles
-+
-+In the "targeted" model, both unprivileged users and the system
-+administrator (`root`) are unconfined and the TE rules are very
-+relaxed. However, it's possible to change the SELinux user for these
-+accounts to more confined variants.
-+
-+For the unprivileged users, the confined user in the Reference Policy
-+is `user_u` with corresponding role `user_r`. There's also `staff_u`
-+and `staff_r` to allow transitioning to system administrative roles by
-+logging in as `staff_u:staff_r` and escalating to `staff_u:sysadm_r`
-+or another role for administrative tasks with ***newrole**(1)*.
-+
-+For the system administrator there are several options: `root` SELinux
-+user, which is mostly unconfined and `sysadm_u`, which is more
-+confined. The role for both is `sysadm_r`.
-+
-+It's also possible to divide the powers of the system administrator to
-+several roles, `sysadm_r`, `auditadm_r`, `logadm_r`, `dbadm_r` and
-+`secadm_r`. This can be useful when an organization wants to ensure
-+that even the system administrators can be held accountable for their
-+actions. The roles can be also useful for management of labor, for
-+example having dedicated persons for managing databases or SELinux
-+policies.
-+
-+It should be noted that since this isn't the default way of operating
-+SELinux, the Reference Policy may need to be supplemented and the
-+administrators, even users, may need to be more aware of SELinux in
-+order to be able to operate the system.
-+
-+Example:
-+```
-+# User `test` has beed added earlier with `adduser` or `useradd`.
-+semanage login --add --seuser user_u --range 's0' test
-+```
-+
-+## Network Controls
-+
-+With network controls of SELinux, it's possible to enhance firewall
-+rules with knowledge of SELinux types. Traditional firewall rules only
-+affect the whole system by allowing certain ports and protocols but
-+blocking others. With `nftables` and `iptables` it's also possible to
-+make this more fine grained: certain users can access the network but
-+others may not. By also using SELinux controls it's possible to fine
-+tune this to the application level: `mozilla_t` can connect to the
-+Internet but some other applications can't. SELinux packet controls
-+can be also used to combine Deep Packet Inspection with SELinux TE
-+rules.
-+
-+Chapter [Networking Support](network_support.md#selinux-networking-support)
-+presents the controls with examples.
-+
-+## Custom Policy Modules
-+
-+Further hardening can be achieved by replacing policy modules from the
-+Reference Policy with custom modules. Typically the modules in the
-+Reference Policy are written to allow all possible modes of operation
-+for an application or its users, since the writers of the policy don't
-+know the specifics of each installation. Thus the SELinux rules may be
-+more relaxed than what could be optimal for a specific case. When the
-+exact environment and usage patterns are known, it's possible to write
-+replacement policy modules to remove excess rules and hence reduce
-+attack surface.
-+
-+As a minimum, it should be ensured that all continuously running
-+services and main user applications have a dedicated policy module or
-+rules, instead of running in for example `init_t`, `initrc_t` or
-+`unconfined_t` types which may offer low level of protection.
-+
-+## Fine Grained Network Controls
-+
-+In an internal network of an organization, where all entities can
-+agree on the same SELinux policy, using IPSec, CIPSO and CALIPSO may
-+allow further policy controls. In addition to SELinux domain of the
-+source application, even the SELinux domain (or at least MCS/MLS
-+category/sensitivity) of the target server can be used in TE rules.
-+
-+## Fully Custom Policy
-+
-+It's also possible to write custom SELinux policies for an entire
-+system with non-trivial effort.
-+
-+The rules can also be analyzed with various SELinux tools, such as
-+`apol`, `sedta`, `seinfo`, `sepolicy`, `sesearch` and many more. With
-+the tools it may be possible to find hardening opportunities or errors
-+in the policy.
-+
-+```
-+# Find out which domains can transition to custom domain
-+# `my_thunderbird_t` and what are the rules affecting the transition:
-+sedta --source my_thunderbird_t --reverse
-+Transition 1: user_t -> my_thunderbird_t
-+
-+Domain transition rule(s):
-+allow user_t my_app_ta:process { sigkill signal signull transition };
-+
-+Entrypoint my_thunderbird_exec_t:
-+        Domain entrypoint rule(s):
-+        allow my_thunderbird_t my_thunderbird_exec_t:file { entrypoint execute getattr map read };
-+
-+        File execute rule(s):
-+        allow user_t my_app_exec_ta:file { execute getattr open read };
-+
-+        Type transition rule(s):
-+        type_transition user_t my_thunderbird_exec_t:process my_thunderbird_t;
-+
-+
-+1 domain transition(s) found.
-+```
-+
-+```
-+# Check ports to which domain `mozilla_t` can connect:
-+sepolicy network -d mozilla_t
-+
-+mozilla_t: tcp name_connect
-+        443, 80 (my_http_port_t)
-+        1080 (my_socks_port_t)
-+```
-+
-+The downside of making the SELinux rules as tight as possible is that
-+when the applications (or hardware components or network
-+configuration) are updated, there's a possibility that the rules may
-+also need updating because of the changes. Less generic rules are also
-+less generally useful for different configurations, so the rules may
-+need tuning for each installation.
-+
-+<!-- %CUTHERE% -->
-+
-+---
-+**[[ PREV ]](reference_policy.md)** **[[ TOP ]](#)** **[[ NEXT ]](implementing_seaware_apps.md)**
-diff --git a/src/implementing_seaware_apps.md b/src/implementing_seaware_apps.md
-index 74833f8..2351421 100644
---- a/src/implementing_seaware_apps.md
-+++ b/src/implementing_seaware_apps.md
-@@ -297,4 +297,4 @@ applied to their objects as defined by policy.
- <!-- %CUTHERE% -->
+diff --git a/block/ioprio.c b/block/ioprio.c
+index 0e4ff245f2bf..d00466d46da3 100644
+--- a/block/ioprio.c
++++ b/block/ioprio.c
+@@ -69,7 +69,7 @@ int ioprio_check_cap(int ioprio)
  
- ---
--**[[ PREV ]](reference_policy.md)** **[[ TOP ]](#)** **[[ NEXT ]](embedded_systems.md)**
-+**[[ PREV ]](hardening.md)** **[[ TOP ]](#)** **[[ NEXT ]](embedded_systems.md)**
-diff --git a/src/reference_policy.md b/src/reference_policy.md
-index 45e4145..ebb516f 100644
---- a/src/reference_policy.md
-+++ b/src/reference_policy.md
-@@ -3060,4 +3060,4 @@ section.
- <!-- %CUTHERE% -->
+ 	switch (class) {
+ 		case IOPRIO_CLASS_RT:
+-			if (!capable(CAP_SYS_NICE) && !capable(CAP_SYS_ADMIN))
++			if (!capable_or(CAP_SYS_NICE, CAP_SYS_ADMIN))
+ 				return -EPERM;
+ 			fallthrough;
+ 			/* rt has prio field too */
+diff --git a/include/linux/capability.h b/include/linux/capability.h
+index 65efb74c3585..b9943b44cdc8 100644
+--- a/include/linux/capability.h
++++ b/include/linux/capability.h
+@@ -207,6 +207,8 @@ extern bool has_ns_capability(struct task_struct *t,
+ extern bool has_capability_noaudit(struct task_struct *t, int cap);
+ extern bool has_ns_capability_noaudit(struct task_struct *t,
+ 				      struct user_namespace *ns, int cap);
++#define capable_or(...) _capable_or((sizeof((int[]){__VA_ARGS__}) / sizeof(int)), __VA_ARGS__)
++extern bool _capable_or(int count, ...);
+ extern bool capable(int cap);
+ extern bool ns_capable(struct user_namespace *ns, int cap);
+ extern bool ns_capable_noaudit(struct user_namespace *ns, int cap);
+@@ -230,6 +232,10 @@ static inline bool has_ns_capability_noaudit(struct task_struct *t,
+ {
+ 	return true;
+ }
++static inline bool capable_or(int first_cap, ...)
++{
++	return true;
++}
+ static inline bool capable(int cap)
+ {
+ 	return true;
+diff --git a/kernel/capability.c b/kernel/capability.c
+index 46a361dde042..0ee03ae4c1b2 100644
+--- a/kernel/capability.c
++++ b/kernel/capability.c
+@@ -434,6 +434,52 @@ bool ns_capable_setid(struct user_namespace *ns, int cap)
+ }
+ EXPORT_SYMBOL(ns_capable_setid);
  
- ---
--**[[ PREV ]](modular_policy_statements.md)** **[[ TOP ]](#)** **[[ NEXT ]](implementing_seaware_apps.md)**
-+**[[ PREV ]](modular_policy_statements.md)** **[[ TOP ]](#)** **[[ NEXT ]](hardening.md)**
-diff --git a/src/section_list.txt b/src/section_list.txt
-index dcca883..b67f65e 100644
---- a/src/section_list.txt
-+++ b/src/section_list.txt
-@@ -52,6 +52,7 @@ infiniband_statements.md
- xen_statements.md
- modular_policy_statements.md
- reference_policy.md
-+hardening.md
- implementing_seaware_apps.md
- embedded_systems.md
- seandroid.md
-diff --git a/src/toc.md b/src/toc.md
-index f5778bd..20a87f0 100644
---- a/src/toc.md
-+++ b/src/toc.md
-@@ -53,6 +53,7 @@
-     - [XEN Statements](xen_statements.md#xen-statements)
-     - [Modular Policy Support Statements](modular_policy_statements.md#modular-policy-support-statements)
- - [The Reference Policy](reference_policy.md#the-reference-policy)
-+- [Hardening SELinux](hardening.md#hardening-selinux)
- - [Implementing SELinux-aware Applications](implementing_seaware_apps.md#implementing-selinux-aware-applications)
- - [Embedded Systems](embedded_systems.md#embedded-systems)
- - [SE for Android](seandroid.md#security-enhancements-for-android)
++/**
++ * _capable_or - Determine if the current task has one of multiple superior capabilities in effect
++ * @cap: The capabilities to be tested for
++ *
++ * Return true if the current task has at least one of the given superior capabilities currently
++ * available for use, false if not.
++ *
++ * In contrast to or'ing capable() this call will create exactly one audit message, either for the
++ * left most capability in effect or (if the task has none of the tested capabilities) the first
++ * capabilit in the test list.
++ *
++ * This sets PF_SUPERPRIV on the task if the capability is available on the
++ * assumption that it's about to be used.
++ */
++bool _capable_or(int count, ...)
++{
++	va_list args;
++	int cap, first_cap, i;
++
++	BUG_ON(count < 1);
++	BUG_ON(count > CAP_LAST_CAP);
++
++	va_start(args, count);
++
++	for (i = 0; i < count; i++) {
++		int ret;
++
++		cap = va_arg(args, int);
++		if (i == 0)
++			first_cap = cap;
++
++		rcu_read_lock();
++		ret = security_capable(current_cred(), &init_user_ns, cap, CAP_OPT_NOAUDIT);
++		rcu_read_unlock();
++
++		if (ret == 0)
++			goto out;
++	}
++
++	cap = first_cap;
++
++out:
++	va_end(args);
++	return ns_capable(&init_user_ns, cap);
++}
++
+ /**
+  * capable - Determine if the current task has a superior capability in effect
+  * @cap: The capability to be tested for
 -- 
-2.33.0
+2.33.1
 
