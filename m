@@ -2,706 +2,345 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C72B5C433F5
-	for <selinux@archiver.kernel.org>; Wed, 17 Nov 2021 13:15:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8878C433F5
+	for <selinux@archiver.kernel.org>; Thu, 18 Nov 2021 07:59:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 974E4613AD
-	for <selinux@archiver.kernel.org>; Wed, 17 Nov 2021 13:15:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D63D61B30
+	for <selinux@archiver.kernel.org>; Thu, 18 Nov 2021 07:59:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235287AbhKQNSV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Nov 2021 08:18:21 -0500
-Received: from mailomta2-sa.btinternet.com ([213.120.69.8]:28817 "EHLO
-        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S234111AbhKQNSO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Nov 2021 08:18:14 -0500
-Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
-          by sa-prd-fep-047.btinternet.com with ESMTP
-          id <20211117131513.FQAO16049.sa-prd-fep-047.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Wed, 17 Nov 2021 13:15:13 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1637154913; 
-        bh=RegNg9WZ3Ea/bfwTdOQL+913hKyiEmSyKva45ziN4ys=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=UXH1eN9oUMyIqW+ERTS3CiZgT5p+0soDU/Sh814ow1p2Lq7QyTJW1mH+EnVW4ry94PoUw/E1eMB+8v1s02neRdQ8ZFI0n+Tbk/97OEhkbbYlxJDjJScRqA9+apLy/LM0T8rNC8lDhWTTO83JJ/bJMnERwVFEWcNmBvi005JnfT18hlI5zIfY3PDwKW+wYzg/rmFZOaK+gUP42WSt7yx08ROjOHBZskweTuQYkD+EySlQ85M2e8yM1IyxNFSr4T6zHq7qsmuRvbw90EhC6BI2kuLJ+dHl2oNr/p+JFUqKM6gulhIiIIq/XajYfSK2d40daHNtGdKTZyYS8ow7JsP2vg==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com;
-    bimi=skipped
-X-SNCR-Rigid: 613943C60A3E826D
-X-Originating-IP: [217.42.114.191]
-X-OWM-Source-IP: 217.42.114.191 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvuddrfeeggdeghecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppedvudejrdegvddruddugedrudeludenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepvddujedrgedvrdduudegrdduledupdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (217.42.114.191) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613943C60A3E826D; Wed, 17 Nov 2021 13:15:13 +0000
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH testsuite] tests/inet_socket: Add socket transition tests
-Date:   Wed, 17 Nov 2021 13:14:50 +0000
-Message-Id: <20211117131450.41705-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.33.1
+        id S244155AbhKRICa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Nov 2021 03:02:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39782 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244162AbhKRICY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Nov 2021 03:02:24 -0500
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84ADC061767
+        for <selinux@vger.kernel.org>; Wed, 17 Nov 2021 23:59:24 -0800 (PST)
+Received: by mail-ua1-x935.google.com with SMTP id o1so11815218uap.4
+        for <selinux@vger.kernel.org>; Wed, 17 Nov 2021 23:59:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NxQbOxx3ZpwH4aRXAUnKT4xbBtBALtrVRecKHEhBeTI=;
+        b=n8NnFalaUhCosKhDfSTZ/BdBwCKkHBF8lMQcbw8Azy+UHOpwIIj3TLSANd9dVE72fq
+         4k9LQTN6prVkomvhvuMFmF0ZCtkVdbFDPzTv8kn+vvYcGDISFUAW7aa4byy9iqRfb7ep
+         qs3fNPa6x+H8ivDqYGqu3oclCNLzCFl8+2ERlEXdnbmJ4+moVeChx6xsWNEgcNitDbHE
+         aDVH7diC1Zf21DReWGsXmfkmVzWPDvUyVCQ2AZoF5X3YWLTJdu4toOZMnmxHmGYRBDnq
+         BFxILhpcIG0mGqPmrptLOEP1BHLzeAsLCRpGyyAov4IS2L0osSm72B3g+I1kCmkHJKOi
+         DFEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NxQbOxx3ZpwH4aRXAUnKT4xbBtBALtrVRecKHEhBeTI=;
+        b=2DnD42kf/kYbuAmJKurYCQCv+ut5XvEZaI6bNSw8X4gW/a074un4NiHVdrAw8tENZr
+         rYsnTeTJrg4cP/X1L/oOKSt9K6H8qa2SMJAELnUMsg4Ji/R34yUI0ywabOnatlVh0ZaK
+         bLpnE/ZaWoFZxL71UfCUFTDkgC938CN0cOByG0If2XeM7eNWEI340Cl0GqO6C4PprPIT
+         NZ4lF4aBwRnQmeDu+k1DEpxvxtCq/oBapgxzOabnoP1b6yOhQF+frbsXAfA7vTkrejy6
+         0zSdRvC5pRuJlLRras4Qp2zXgzYKhONnOiMnKUL412IJYMlaYSJpYnlFfdTtVlBbQUoE
+         CGJw==
+X-Gm-Message-State: AOAM530lM1jjy3tA9d33Lp728guxpzQv/5Kq8L7vnuOICY8K5v7NcUCu
+        FGHZokXzH50MJaY4rg8l3LDSGOMIuodr9oX4NyBq1w==
+X-Google-Smtp-Source: ABdhPJzMisD9vHQ3BkKJwNs23ZenX0uJVPOB9omsnLpqaIrRAKetxCQiViS00ulhfuM23ZIpUkBYlF7OxmH9y2WfFMI=
+X-Received: by 2002:ab0:2041:: with SMTP id g1mr33435500ual.131.1637222363686;
+ Wed, 17 Nov 2021 23:59:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211117015806.2192263-1-dvander@google.com> <a64aa4af-67b1-536c-9bd0-7b34e6cc1abe@schaufler-ca.com>
+In-Reply-To: <a64aa4af-67b1-536c-9bd0-7b34e6cc1abe@schaufler-ca.com>
+From:   David Anderson <dvander@google.com>
+Date:   Wed, 17 Nov 2021 23:59:12 -0800
+Message-ID: <CA+FmFJCS+CnDmYw3cOCCjNVhMkq6+i6JaSjWAxjgV674_KZtLA@mail.gmail.com>
+Subject: Re: [PATCH v19 0/4] overlayfs override_creds=off & nested get xattr fix
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Mark Salyzyn <salyzyn@android.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        John Stultz <john.stultz@linaro.org>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, kernel-team@android.com,
+        selinux@vger.kernel.org, paulmoore@microsoft.com,
+        luca.boccassi@microsoft.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add setsockcreatecon(3) and type_transition tests. Also test cipso
-netlabelctl(8) domain:<domain> and label translation services.
+On Tue, Nov 16, 2021 at 6:18 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+> On 11/16/2021 5:58 PM, David Anderson wrote:
+> > Mark Salyzyn (3):
+> >
+> > By default, all access to the upper, lower and work directories is the
+> > recorded mounter's MAC and DAC credentials.  The incoming accesses are
+> > checked against the caller's credentials.
+>
+> This isn't very clear. Are you saying that the security attributes
+> of the upper, lower, and work directories are determined by the
+> attributes of the process that mounted the filesystem? What is an
+> "incoming access"? I'm sure that means something if you're steeped
+> in the lore of overlayfs, but it isn't obvious to me.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- policy/test_inet_socket.te           |  61 ++++++++
- tests/inet_socket/cipso-flush-domain |   7 +
- tests/inet_socket/cipso-flush-trans  |   6 +
- tests/inet_socket/cipso-load-domain  |   9 ++
- tests/inet_socket/cipso-load-trans   |  10 ++
- tests/inet_socket/client.c           | 226 ++++++++++++++++++++++++++-
- tests/inet_socket/test               | 159 ++++++++++++++++++-
- 7 files changed, 469 insertions(+), 9 deletions(-)
- create mode 100644 tests/inet_socket/cipso-flush-domain
- create mode 100644 tests/inet_socket/cipso-flush-trans
- create mode 100644 tests/inet_socket/cipso-load-domain
- create mode 100644 tests/inet_socket/cipso-load-trans
+(Sorry, hitting "Reply All" this time...)
 
-diff --git a/policy/test_inet_socket.te b/policy/test_inet_socket.te
-index 0fff2da..17d61f9 100644
---- a/policy/test_inet_socket.te
-+++ b/policy/test_inet_socket.te
-@@ -167,6 +167,67 @@ allow unconfined_t test_server_packet_t:packet relabelto;
- allow test_inet_server_t test_server_packet_t:packet { send recv };
- allow test_inet_client_t test_server_packet_t:packet { send recv };
- 
-+#
-+# Test client setting new socket context using setsockcreatecon(3) and
-+# type_transition rules.
-+#
-+
-+# Set new client socket context using setsockcreatecon(3):
-+type inet_client_setsockcreatecon_t;
-+domain_type(inet_client_setsockcreatecon_t)
-+unconfined_runs_test(inet_client_setsockcreatecon_t)
-+typeattribute inet_client_setsockcreatecon_t testdomain;
-+typeattribute inet_client_setsockcreatecon_t inetsocketdomain;
-+allow test_inet_client_t inet_client_setsockcreatecon_t:tcp_socket create_stream_socket_perms;
-+allow test_inet_client_t inet_client_setsockcreatecon_t:udp_socket create_stream_socket_perms;
-+corenet_tcp_connect_all_unreserved_ports(inet_client_setsockcreatecon_t)
-+corenet_inout_generic_if(inet_client_setsockcreatecon_t)
-+corenet_inout_generic_node(inet_client_setsockcreatecon_t)
-+# The server can receive labeled packets from the client.
-+allow test_inet_server_t inet_client_setsockcreatecon_t:peer recv;
-+# And vice versa.
-+allow inet_client_setsockcreatecon_t test_inet_server_t:peer recv;
-+
-+# Set new client socket context using a type_transition rule:
-+type test_inet_new_type_client_t;
-+domain_type(test_inet_new_type_client_t)
-+unconfined_runs_test(test_inet_new_type_client_t)
-+typeattribute test_inet_new_type_client_t testdomain;
-+typeattribute test_inet_new_type_client_t inetsocketdomain;
-+
-+type inet_client_type_transition_t;
-+type_transition test_inet_new_type_client_t test_inet_new_type_client_t:tcp_socket inet_client_type_transition_t;
-+type_transition test_inet_new_type_client_t test_inet_new_type_client_t:udp_socket inet_client_type_transition_t;
-+unconfined_runs_test(inet_client_type_transition_t)
-+typeattribute inet_client_type_transition_t inetsocketdomain;
-+
-+allow test_inet_new_type_client_t inet_client_type_transition_t:tcp_socket create_stream_socket_perms;
-+allow test_inet_new_type_client_t inet_client_type_transition_t:udp_socket create_stream_socket_perms;
-+corenet_tcp_connect_all_unreserved_ports(inet_client_type_transition_t)
-+corenet_inout_generic_if(inet_client_type_transition_t)
-+corenet_inout_generic_node(inet_client_type_transition_t)
-+# The server can receive labeled packets from the client.
-+allow test_inet_server_t inet_client_type_transition_t:peer recv;
-+# And vice versa.
-+allow inet_client_type_transition_t test_inet_server_t:peer recv;
-+allow inet_client_type_transition_t netlabel_peer_t:peer recv;
-+
-+# Test deny socket { create } after setsockcreatecon(3):
-+type test_inet_deny_setsockcreatecon_t;
-+domain_type(test_inet_deny_setsockcreatecon_t)
-+unconfined_runs_test(test_inet_deny_setsockcreatecon_t)
-+typeattribute test_inet_deny_setsockcreatecon_t testdomain;
-+typeattribute test_inet_deny_setsockcreatecon_t inetsocketdomain;
-+
-+# Test deny socket { create } after type_transition rule:
-+type test_inet_deny_type_transition_t;
-+domain_type(test_inet_deny_type_transition_t)
-+unconfined_runs_test(test_inet_deny_type_transition_t)
-+typeattribute test_inet_deny_type_transition_t testdomain;
-+typeattribute test_inet_deny_type_transition_t inetsocketdomain;
-+type_transition test_inet_deny_type_transition_t test_inet_deny_type_transition_t:tcp_socket inet_client_type_transition_t;
-+type_transition test_inet_deny_type_transition_t test_inet_deny_type_transition_t:udp_socket inet_client_type_transition_t;
-+
- #
- # Common rules for all inet socket test domains.
- #
-diff --git a/tests/inet_socket/cipso-flush-domain b/tests/inet_socket/cipso-flush-domain
-new file mode 100644
-index 0000000..cc4ab73
---- /dev/null
-+++ b/tests/inet_socket/cipso-flush-domain
-@@ -0,0 +1,7 @@
-+#!/bin/sh
-+
-+netlabelctl map del default
-+netlabelctl cipso del doi:65535
-+netlabelctl map del domain:test_inet_client_t
-+netlabelctl map del domain:inet_client_type_transition_t
-+netlabelctl map add default protocol:unlbl
-diff --git a/tests/inet_socket/cipso-flush-trans b/tests/inet_socket/cipso-flush-trans
-new file mode 100644
-index 0000000..6b517df
---- /dev/null
-+++ b/tests/inet_socket/cipso-flush-trans
-@@ -0,0 +1,6 @@
-+#!/bin/sh
-+
-+netlabelctl map del default
-+netlabelctl cipso del doi:16
-+netlabelctl cipso del doi:4294967295
-+netlabelctl map add default protocol:unlbl
-diff --git a/tests/inet_socket/cipso-load-domain b/tests/inet_socket/cipso-load-domain
-new file mode 100644
-index 0000000..017149e
---- /dev/null
-+++ b/tests/inet_socket/cipso-load-domain
-@@ -0,0 +1,9 @@
-+#!/bin/sh
-+
-+netlabelctl cipso add pass doi:65535 tags:1
-+netlabelctl map del default
-+netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-+netlabelctl map add default address:::/0 protocol:unlbl
-+netlabelctl map add domain:test_inet_client_t address:127.0.0.1 protocol:cipso,65535
-+# Note that it is the socket context that matters here not process context:
-+netlabelctl map add domain:inet_client_type_transition_t address:10.123.123.123 protocol:cipso,65535
-diff --git a/tests/inet_socket/cipso-load-trans b/tests/inet_socket/cipso-load-trans
-new file mode 100644
-index 0000000..964c178
---- /dev/null
-+++ b/tests/inet_socket/cipso-load-trans
-@@ -0,0 +1,10 @@
-+#!/bin/sh
-+
-+netlabelctl cipso add trans doi:16 tags:1 levels:0=0 categories:0=1,2=3
-+# Use the largest DOI possible:
-+netlabelctl cipso add pass doi:4294967295 tags:1
-+netlabelctl map del default
-+netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-+netlabelctl map add default address:::/0 protocol:unlbl
-+netlabelctl map add default address:127.0.0.1 protocol:cipso,16
-+netlabelctl map add default address:10.123.123.123 protocol:cipso,4294967295
-diff --git a/tests/inet_socket/client.c b/tests/inet_socket/client.c
-index f8780d9..b10db38 100644
---- a/tests/inet_socket/client.c
-+++ b/tests/inet_socket/client.c
-@@ -15,15 +15,22 @@
- #include <poll.h>
- #include <stdbool.h>
- #include <selinux/selinux.h>
-+#include <selinux/context.h>
- 
- void usage(char *progname)
- {
- 	fprintf(stderr,
--		"usage:  %s [-e expected_msg] [stream|dgram] addr port\n"
-+		"usage:  %s [-e expected_msg] [-s] [-o ip_option] [-t type] [-c type] [stream|dgram] addr port\n"
- 		"\nWhere:\n\t"
- 		"-e      Optional expected message from server e.g. \"nopeer\".\n\t"
- 		"        If not present the client context will be used as a\n\t"
- 		"        comparison with the servers reply.\n\t"
-+		"-s      If -e is not set the client process context is used\n\t"
-+		"        for comparison, however if setsockcreatecon(3) or a\n\t"
-+		"        type_transition rule are enabled, use the socket context.\n\t"
-+		"-o      Expected IP option string.\n\t"
-+		"-t      New type for setsockcreatecon(3) test.\n\t"
-+		"-c      Compare type expected on socket.\n\t"
- 		"stream  Use TCP protocol or:\n\t"
- 		"dgram   use UDP protocol.\n\t"
- 		"addr    IPv4 or IPv6 address (e.g. 127.0.0.1 or ::1)\n\t"
-@@ -31,18 +38,199 @@ void usage(char *progname)
- 	exit(1);
- }
- 
-+char *get_ip_option(int fd, bool ipv4, socklen_t *opt_len)
-+{
-+	int result, i;
-+	unsigned char ip_options[1024];
-+	socklen_t len = sizeof(ip_options);
-+	char *ip_optbuf;
-+
-+	if (ipv4)
-+		result = getsockopt(fd, IPPROTO_IP, IP_OPTIONS,
-+				    ip_options, &len);
-+	else
-+		result = getsockopt(fd, IPPROTO_IPV6, IPV6_HOPOPTS,
-+				    ip_options, &len);
-+
-+	if (result < 0) {
-+		perror("get ip options error");
-+		return NULL;
-+	}
-+
-+	ip_optbuf = calloc(1, len * 2 + 1);
-+	if (!ip_optbuf) {
-+		perror("get ip options malloc error");
-+		return NULL;
-+	}
-+
-+	if (len > 0) {
-+		for (i = 0; i < len; i++)
-+			sprintf(&ip_optbuf[i * 2], "%02x", ip_options[i]);
-+
-+		*opt_len = len;
-+		return ip_optbuf;
-+	}
-+
-+	return NULL;
-+}
-+
-+void check_ip_option(int fd, bool ipv4, char *text, char *expected)
-+{
-+	char *ip_options;
-+	socklen_t len;
-+
-+	ip_options = get_ip_option(fd, ipv4, &len);
-+
-+	if (ip_options) {
-+		printf("%s IP Options Family: %s Length: %d\n\tEntry: %s\n",
-+		       text, ipv4 ? "IPv4" : "IPv6", len, ip_options);
-+		if (expected) {
-+			if (strcmp(expected, ip_options)) {
-+				fprintf(stderr, "Expected options: %s, got: %s\n",
-+					expected, ip_options);
-+				exit(20);
-+			}
-+		}
-+		free(ip_options);
-+	} else {
-+		printf("%s No IP Options set\n", text);
-+	}
-+}
-+
-+/* Build new context for socket and set using setsockcreatecon(3) */
-+static void set_newsock_con(char *type)
-+{
-+	int result;
-+	char *context, *newcon = NULL;
-+	context_t con_t;
-+
-+	result = getcon(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to get process context\n");
-+		exit(30);
-+	}
-+
-+	con_t = context_new(context);
-+	if (!con_t) {
-+		fprintf(stderr, "Unable to create context structure\n");
-+		result = -1;
-+		goto err2;
-+	}
-+
-+	result = context_type_set(con_t, type);
-+	if (result < 0) {
-+		fprintf(stderr, "Unable to set new socket type\n");
-+		goto err1;
-+	}
-+
-+	newcon = context_str(con_t);
-+	if (!newcon) {
-+		fprintf(stderr, "Unable to set new socket context string\n");
-+		result = -1;
-+		goto err1;
-+	}
-+
-+	result = setsockcreatecon_raw(newcon);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed setsockcreatecon(3) context: %s\n", newcon);
-+		goto err;
-+	}
-+
-+	result = getsockcreatecon_raw(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed getsockcreatecon(3)\n");
-+		goto err;
-+	}
-+	printf("New socket context: %s\n", context);
-+
-+err:
-+	free(newcon);
-+err1:
-+	free(con_t);
-+err2:
-+	free(context);
-+
-+	if (result < 0)
-+		exit(31);
-+}
-+
-+static void check_sock_type(int fd, char *expected)
-+{
-+	char *context;
-+	const char *type;
-+	context_t con_t;
-+	int result;
-+
-+	result = getcon(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to get process context\n");
-+		exit(40);
-+	}
-+	printf("Client process context: %s\n", context);
-+	free(context);
-+
-+	result = fgetfilecon(fd, &context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to get socket context\n");
-+		exit(41);
-+	}
-+	printf("Client socket context: %s\n", context);
-+
-+	if (expected) {
-+		result = -1;
-+		con_t = context_new(context);
-+		if (!con_t) {
-+			fprintf(stderr, "Unable to create context structure\n");
-+			goto err;
-+		}
-+
-+		type = context_type_get(con_t);
-+		if (!type) {
-+			fprintf(stderr, "Unable to get socket type\n");
-+			free(con_t);
-+			goto err;
-+		}
-+
-+		result = 0;
-+		if (strcmp(expected, type)) {
-+			fprintf(stderr, "Expected socket type: %s, got: %s\n",
-+				expected, type);
-+			result = -1;
-+		}
-+	}
-+err:
-+	free(context);
-+
-+	if (result < 0)
-+		exit(42);
-+}
-+
- int main(int argc, char **argv)
- {
- 	char byte, label[256], *expected = NULL;
-+	char *sock_type = NULL, *chk_type = NULL, *chk_option = NULL;
- 	int sock, result, opt;
-+	bool ipv4 = false, get_sock_ctx = false;
- 	struct addrinfo hints, *serverinfo;
- 	struct timeval tm;
- 
--	while ((opt = getopt(argc, argv, "e:")) != -1) {
-+	while ((opt = getopt(argc, argv, "e:so:t:c:")) != -1) {
- 		switch (opt) {
- 		case 'e':
- 			expected = optarg;
- 			break;
-+		case 's':
-+			get_sock_ctx = true;
-+			break;
-+		case 'o':
-+			chk_option = optarg;
-+			break;
-+		case 't':
-+			sock_type = optarg;
-+			break;
-+		case 'c':
-+			chk_type = optarg;
-+			break;
- 		default:
- 			usage(argv[0]);
- 		}
-@@ -70,6 +258,13 @@ int main(int argc, char **argv)
- 		exit(2);
- 	}
- 
-+	if (serverinfo->ai_family == AF_INET)
-+		ipv4 = true;
-+
-+	/* If -t option - setsockcreatecon(3) */
-+	if (sock_type)
-+		set_newsock_con(sock_type);
-+
- 	sock = socket(serverinfo->ai_family, serverinfo->ai_socktype,
- 		      serverinfo->ai_protocol);
- 	if (sock < 0) {
-@@ -77,6 +272,11 @@ int main(int argc, char **argv)
- 		exit(3);
- 	}
- 
-+	/* Check context if type_transition rule (-c), also if test run local,
-+	 * display both contexts
-+	 */
-+	check_sock_type(sock, chk_type);
-+
- 	tm.tv_sec = 5;
- 	tm.tv_usec = 0;
- 	result = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tm, sizeof(tm));
-@@ -124,12 +324,24 @@ int main(int argc, char **argv)
- 	}
- 	label[result] = 0;
- 
-+	if (chk_option)
-+		check_ip_option(sock, ipv4, "Client read", chk_option);
-+
- 	if (!expected) {
--		result = getcon(&expected);
--		if (result < 0) {
--			perror("getcon");
--			close(sock);
--			exit(10);
-+		if (get_sock_ctx) {
-+			result = fgetfilecon(sock, &expected);
-+			if (result < 0) {
-+				perror("fgetfilecon");
-+				close(sock);
-+				exit(10);
-+			}
-+		} else {
-+			result = getcon(&expected);
-+			if (result < 0) {
-+				perror("getcon");
-+				close(sock);
-+				exit(10);
-+			}
- 		}
- 	}
- 
-diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-index f09b4e3..b145904 100755
---- a/tests/inet_socket/test
-+++ b/tests/inet_socket/test
-@@ -5,7 +5,7 @@ BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
--    $test_count = 30;
-+    $test_count = 47;
- 
-     $test_ipsec = 0;
-     if ( system("ip xfrm policy help 2>&1 | grep -q ctx") eq 0 ) {
-@@ -23,7 +23,7 @@ BEGIN {
- 
-     $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
-     if ( $netlabelctl gt "021" and $rc > 0 ) {
--        $test_count += 3;
-+        $test_count += 5;
-         $test_calipso_stream = 1;
-     }
- 
-@@ -45,6 +45,11 @@ BEGIN {
-         $test_nft = 1;
-     }
- 
-+    # Set up a GRE tunnel over loopback for testing cipso domain:<domain>.
-+    system "ip link add mygre type gretap local 127.0.0.1 remote 127.0.0.1";
-+    system "ip addr add 10.123.123.123 dev mygre";
-+    system "ip link set mygre up";
-+
-     plan tests => $test_count;
- }
- 
-@@ -71,6 +76,65 @@ sub server_end {
-     system("rm -f $basedir/flag");
- }
- 
-+#
-+# Test setting new socket contexts using setsockcreatecon(3) and
-+# type_transition rules. Note that deny rules for these are only tested
-+# once for each socket type (as for example they would never get as far
-+# as testing cipso/calipso etc.).
-+#
-+# Test basics on stream
-+$pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
-+
-+# Set a new context on the socket using setsockcreatecon(3):
-+$result = system
-+"runcon -t test_inet_client_t -- $basedir/client -e nopeer -t inet_client_setsockcreatecon_t stream 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Deny socket { create } using setsockcreatecon(3):
-+$result = system
-+"runcon -t test_inet_deny_setsockcreatecon_t -- $basedir/client -e nopeer -t inet_client_setsockcreatecon_t stream 127.0.0.1 65535 2>&1";
-+ok( $result >> 8 eq 3 );
-+
-+# Set a new context on the socket using type_transition rule, the -c option
-+# checks and prints the new socket context:
-+$result = system
-+"runcon -t test_inet_new_type_client_t -- $basedir/client -e nopeer -c inet_client_type_transition_t stream 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Deny socket { create } using type_transition rule:
-+$result = system
-+"runcon -t test_inet_deny_type_transition_t -- $basedir/client -e nopeer stream 127.0.0.1 65535 2>&1";
-+ok( $result >> 8 eq 3 );
-+
-+# Kill the server.
-+server_end($pid);
-+
-+# Test basics on datagram
-+$pid = server_start( "-t test_inet_server_t", "-n dgram 65535" );
-+
-+# Set a new context on the socket using setsockcreatecon(3):
-+$result = system
-+"runcon -t test_inet_client_t -- $basedir/client -e nopeer -t inet_client_setsockcreatecon_t dgram 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Deny socket { create } using setsockcreatecon(3):
-+$result = system
-+"runcon -t test_inet_deny_setsockcreatecon_t -- $basedir/client -e nopeer -t inet_client_setsockcreatecon_t dgram 127.0.0.1 65535 2>&1";
-+ok( $result >> 8 eq 3 );
-+
-+# Set a new context on the socket using type_transition rule:
-+$result = system
-+"runcon -t test_inet_new_type_client_t -- $basedir/client -e nopeer -c inet_client_type_transition_t dgram 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Deny socket { create } using type_transition rule:
-+$result = system
-+"runcon -t test_inet_deny_type_transition_t -- $basedir/client -e nopeer dgram 127.0.0.1 65535 2>&1";
-+ok( $result >> 8 eq 3 );
-+
-+# Kill the server.
-+server_end($pid);
-+
- # Load NetLabel configuration for full CIPSO/IPv4 labeling over loopback.
- system "/bin/sh $basedir/cipso-fl-load";
- 
-@@ -87,6 +151,18 @@ $result = system
- "runcon -t test_inet_bad_client_t -- $basedir/client stream 127.0.0.1 65535 2>&1";
- ok( $result >> 8 eq 5 );
- 
-+# Set a new context on socket using setsockcreatecon(3). Set -s to compare
-+# client socket context, not the client process context.
-+$result =
-+  system
-+"runcon -t test_inet_client_t -- $basedir/client -t inet_client_setsockcreatecon_t -s stream 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Set a new context on socket using type_transition rule.
-+$result = system
-+"runcon -t test_inet_new_type_client_t -- $basedir/client -s stream 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
- # Kill the server.
- server_end($pid);
- 
-@@ -103,12 +179,78 @@ $result = system
- "runcon -t test_inet_bad_client_t -- $basedir/client dgram 127.0.0.1 65535 2>&1";
- ok( $result >> 8 eq 9 );
- 
-+# Set a new context on socket using setsockcreatecon(3).
-+$result =
-+  system
-+"runcon -t test_inet_client_t -- $basedir/client -t inet_client_setsockcreatecon_t -s dgram 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Set a new context on socket using type_transition rule.
-+$result = system
-+"runcon -t test_inet_new_type_client_t -- $basedir/client -s dgram 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
- # Kill the server.
- server_end($pid);
- 
- # Flush NetLabel configuration.
- system "/bin/sh $basedir/cipso-fl-flush";
- 
-+# Load NetLabel configuration for CIPSO/IPv4 testing label translation.
-+system "/bin/sh $basedir/cipso-load-trans";
-+
-+# Start the stream server with a defined level.
-+$pid = server_start( "-t test_inet_server_t -l s0:c0,c2", "stream 65535" );
-+
-+# This is a translate over-the-wire of two cats:
-+# trans doi:16 tags:1 levels:0=0 categories:0=1,2=3
-+# The getsockopt(IP_OPTIONS) should be:
-+# Type Len DOI          Tag Len Filler Sens Cats               cat:0123456..
-+# 86   0b  00 00 00 10  01  05  00     00   5000 - This equates to 0101
-+# The [-o option] compares with known string.
-+$result = system
-+"runcon -t test_inet_client_t -l s0:c0,c2 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c0,c2 -o 860b00000010010500005000 stream 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# This does not use the translate option and therefore getsockopt(IP_OPTIONS):
-+# Type Len DOI          Tag Len Filler Sens Cats               cat:0123456..
-+# 86   0b  ff ff ff ff  01  05  00     00   a000 - This equates to 1010
-+$result = system
-+"runcon -t test_inet_client_t -l s0:c0,c2 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c0,c2 -o 860bffffffff01050000a000 stream 10.123.123.123 65535";
-+ok( $result eq 0 );
-+
-+# Kill the server.
-+server_end($pid);
-+
-+# Flush NetLabel configuration.
-+system "/bin/sh $basedir/cipso-flush-trans";
-+
-+# Load NetLabel configuration for CIPSO/IPv4 testing domain:<domain> service
-+system "/bin/sh $basedir/cipso-load-domain";
-+
-+# Start the stream server with a defined level.
-+$pid = server_start( "-t test_inet_server_t -l s0:c20.c250", "stream 65535" );
-+
-+$result = system
-+"runcon -t test_inet_client_t -l s0:c21.c31 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c21.c31 stream 127.0.0.1 65535";
-+ok( $result eq 0 );
-+
-+# Set a new context on socket using type_transition rule.
-+$result = system
-+"runcon -t test_inet_new_type_client_t -l s0:c21.c31 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c21.c31 stream 10.123.123.123 65535";
-+ok( $result eq 0 );
-+
-+# This fails with ENOENT on connect as no netlabel domain entry
-+$result = system
-+"runcon -t test_inet_client_t -l s0:c21.c31 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c21.c31 stream 10.123.123.123 65535 2>&1";
-+ok( $result >> 8 eq 5 );
-+
-+# Kill the server.
-+server_end($pid);
-+
-+# Flush NetLabel configuration.
-+system "/bin/sh $basedir/cipso-flush-domain";
-+
- # Load NetLabel configuration for CIPSO/IPv4 using TAG 1 over loopback.
- system "/bin/sh $basedir/cipso-load-t1";
- 
-@@ -461,10 +603,23 @@ if ($test_calipso_stream) {
- "runcon -t test_inet_client_t -l s0:c8.c12 -- $basedir/client stream ::1 65535 2>&1";
-     ok( $result >> 8 eq 5 );
- 
-+    # Set a new context on the socket using setsockcreatecon(3):
-+    $result = system
-+"runcon -t test_inet_client_t -l s0:c0.c10 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c0.c10 -t inet_client_setsockcreatecon_t stream ::1 65535";
-+    ok( $result eq 0 );
-+
-+    # Set a new context on the socket using type_transition rule, the -c option
-+    # checks and prints the new socket context:
-+    $result = system
-+"runcon -t test_inet_new_type_client_t -l s0:c0.c10 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c0.c10 -c inet_client_type_transition_t stream ::1 65535";
-+    ok( $result eq 0 );
-+
-     # Kill the stream server.
-     server_end($pid);
- 
-     system "/bin/sh $basedir/calipso-flush";
- }
- 
-+system "ip link del mygre";
-+
- exit;
--- 
-2.33.1
+Thanks for taking a look - Yes. An "incoming access" is the user
+application security context accessing the filesystem.
 
+> > If the principles of least privilege are applied for sepolicy, the
+> > mounter's credentials might not overlap the credentials of the caller's
+> > when accessing the overlayfs filesystem.
+>
+> I'm sorry, but I've tried pretty hard, and can't puzzle that one out.
+
+If your sepolicy is designed to give processes minimal privileges (as ours is),
+then "init" might lack privileges even though other processes have them. For
+example, init can mount /x but not access /x/y/z. But, process XYZ can access
+/x/y/z. In our system processes have no privileges to anything by default,
+and permissions are granted as needed, as narrowly as possible.
+
+> DAC privileges are not hierarchical. This doesn't make any sense.
+
+Sorry, that was probably not the right word. The intent was to say that a
+process with minimal DAC privileges might be able to access a file, but
+a process with expansive DAC privileges might be denied access to the
+same file due to MAC restrictions.
+
+> I think I might have figured that one out, but in order to do so
+> I have to make way too many assumptions about the earlier paragraph.
+> Could you please try to explain what you're doing with more context?
+
+Hopefully the above helps explain: overlayfs uses the mounter's privileges,
+which does not work on a system where the mounter does not have a
+superset of child processes' privileges. That's the crux of the issue and
+I'll keep working on how it's communicated in the patch description.
+
+-David
+
+On Tue, Nov 16, 2021 at 6:18 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+> On 11/16/2021 5:58 PM, David Anderson wrote:
+> > Mark Salyzyn (3):
+> >    Add flags option to get xattr method paired to __vfs_getxattr
+> >    overlayfs: handle XATTR_NOSECURITY flag for get xattr method
+> >    overlayfs: override_creds=off option bypass creator_cred
+> >
+> > Mark Salyzyn + John Stultz (1):
+> >    overlayfs: inode_owner_or_capable called during execv
+> >
+> > The first three patches address fundamental security issues that should
+> > be solved regardless of the override_creds=off feature.
+> >
+> > The fourth adds the feature depends on these other fixes.
+> >
+> > By default, all access to the upper, lower and work directories is the
+> > recorded mounter's MAC and DAC credentials.  The incoming accesses are
+> > checked against the caller's credentials.
+>
+> This isn't very clear. Are you saying that the security attributes
+> of the upper, lower, and work directories are determined by the
+> attributes of the process that mounted the filesystem? What is an
+> "incoming access"? I'm sure that means something if you're steeped
+> in the lore of overlayfs, but it isn't obvious to me.
+>
+> > If the principles of least privilege are applied for sepolicy, the
+> > mounter's credentials might not overlap the credentials of the caller's
+> > when accessing the overlayfs filesystem.
+>
+> I'm sorry, but I've tried pretty hard, and can't puzzle that one out.
+>
+> >    For example, a file that a
+> > lower DAC privileged caller can execute, is MAC denied to the
+> > generally higher DAC privileged mounter, to prevent an attack vector.
+>
+> DAC privileges are not hierarchical. This doesn't make any sense.
+>
+> > We add the option to turn off override_creds in the mount options; all
+> > subsequent operations after mount on the filesystem will be only the
+> > caller's credentials.
+>
+> I think I might have figured that one out, but in order to do so
+> I have to make way too many assumptions about the earlier paragraph.
+> Could you please try to explain what you're doing with more context?
+>
+> >    The module boolean parameter and mount option
+> > override_creds is also added as a presence check for this "feature",
+> > existence of /sys/module/overlay/parameters/overlay_creds
+> >
+> > Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> > Signed-off-by: David Anderson <dvander@google.com>
+> > Cc: Miklos Szeredi <miklos@szeredi.hu>
+> > Cc: Jonathan Corbet <corbet@lwn.net>
+> > Cc: Vivek Goyal <vgoyal@redhat.com>
+> > Cc: Eric W. Biederman <ebiederm@xmission.com>
+> > Cc: Amir Goldstein <amir73il@gmail.com>
+> > Cc: Randy Dunlap <rdunlap@infradead.org>
+> > Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> > Cc: John Stultz <john.stultz@linaro.org>
+> > Cc: linux-doc@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: linux-fsdevel@vger.kernel.org
+> > Cc: linux-unionfs@vger.kernel.org
+> > Cc: linux-security-module@vger.kernel.org
+> > Cc: kernel-team@android.com
+> > Cc: selinux@vger.kernel.org
+> > Cc: paulmoore@microsoft.com
+> > Cc: Luca.Boccassi@microsoft.com
+> >
+> > ---
+> >
+> > v19
+> > - rebase.
+> >
+> > v18
+> > - rebase + fix minor cut and paste error for inode argument in __vfs_getxattr
+> >
+> > v17
+> > - correct some zero-day build failures.
+> > - fix up documentation
+> >
+> > v16
+> > - rebase and merge of two patches.
+> > - add adjustment to deal with execv when overrides is off.
+> >
+> > v15
+> > - Revert back to v4 with fixes from on the way from v5-v14. The single
+> >    structure argument passing to address the complaints about too many
+> >    arguments was rejected by the community.
+> > - Drop the udner discussion fix for an additional CAP_DAC_READ_SEARCH
+> >    check. Can address that independently.
+> > - ToDo: upstream test frame for thes security fixes (currently testing
+> >    is all in Android).
+> >
+> > v14:
+> > - Rejoin, rebase and a few adjustments.
+> >
+> > v13:
+> > - Pull out first patch and try to get it in alone feedback, some
+> >    Acks, and then <crickets> because people forgot why we were doing i.
+> >
+> > v12:
+> > - Restore squished out patch 2 and 3 in the series,
+> >    then change algorithm to add flags argument.
+> >    Per-thread flag is a large security surface.
+> >
+> > v11:
+> > - Squish out v10 introduced patch 2 and 3 in the series,
+> >    then and use per-thread flag instead for nesting.
+> > - Switch name to ovl_do_vds_getxattr for __vds_getxattr wrapper.
+> > - Add sb argument to ovl_revert_creds to match future work.
+> >
+> > v10:
+> > - Return NULL on CAP_DAC_READ_SEARCH
+> > - Add __get xattr method to solve sepolicy logging issue
+> > - Drop unnecessary sys_admin sepolicy checking for administrative
+> >    driver internal xattr functions.
+> >
+> > v6:
+> > - Drop CONFIG_OVERLAY_FS_OVERRIDE_CREDS.
+> > - Do better with the documentation, drop rationalizations.
+> > - pr_warn message adjusted to report consequences.
+> >
+> > v5:
+> > - beefed up the caveats in the Documentation
+> > - Is dependent on
+> >    "overlayfs: check CAP_DAC_READ_SEARCH before issuing exportfs_decode_fh"
+> >    "overlayfs: check CAP_MKNOD before issuing vfs_whiteout"
+> > - Added prwarn when override_creds=off
+> >
+> > v4:
+> > - spelling and grammar errors in text
+> >
+> > v3:
+> > - Change name from caller_credentials / creator_credentials to the
+> >    boolean override_creds.
+> > - Changed from creator to mounter credentials.
+> > - Updated and fortified the documentation.
+> > - Added CONFIG_OVERLAY_FS_OVERRIDE_CREDS
+> >
+> > v2:
+> > - Forward port changed attr to stat, resulting in a build error.
+> > - altered commit message.
+> >
+> > David Anderson (4):
+> >    Add flags option to get xattr method paired to __vfs_getxattr
+> >    overlayfs: handle XATTR_NOSECURITY flag for get xattr method
+> >    overlayfs: override_creds=off option bypass creator_cred
+> >    overlayfs: inode_owner_or_capable called during execv
+> >
+> >   Documentation/filesystems/locking.rst   |  2 +-
+> >   Documentation/filesystems/overlayfs.rst | 26 ++++++++++++++-
+> >   fs/9p/acl.c                             |  3 +-
+> >   fs/9p/xattr.c                           |  3 +-
+> >   fs/afs/xattr.c                          | 10 +++---
+> >   fs/attr.c                               |  2 +-
+> >   fs/btrfs/xattr.c                        |  3 +-
+> >   fs/ceph/xattr.c                         |  3 +-
+> >   fs/cifs/xattr.c                         |  2 +-
+> >   fs/ecryptfs/inode.c                     |  6 ++--
+> >   fs/ecryptfs/mmap.c                      |  5 +--
+> >   fs/erofs/xattr.c                        |  3 +-
+> >   fs/ext2/xattr_security.c                |  2 +-
+> >   fs/ext2/xattr_trusted.c                 |  2 +-
+> >   fs/ext2/xattr_user.c                    |  2 +-
+> >   fs/ext4/xattr_hurd.c                    |  2 +-
+> >   fs/ext4/xattr_security.c                |  2 +-
+> >   fs/ext4/xattr_trusted.c                 |  2 +-
+> >   fs/ext4/xattr_user.c                    |  2 +-
+> >   fs/f2fs/xattr.c                         |  4 +--
+> >   fs/fuse/xattr.c                         |  4 +--
+> >   fs/gfs2/xattr.c                         |  3 +-
+> >   fs/hfs/attr.c                           |  2 +-
+> >   fs/hfsplus/xattr.c                      |  3 +-
+> >   fs/hfsplus/xattr_security.c             |  3 +-
+> >   fs/hfsplus/xattr_trusted.c              |  3 +-
+> >   fs/hfsplus/xattr_user.c                 |  3 +-
+> >   fs/inode.c                              |  7 +++--
+> >   fs/internal.h                           |  3 +-
+> >   fs/jffs2/security.c                     |  3 +-
+> >   fs/jffs2/xattr_trusted.c                |  3 +-
+> >   fs/jffs2/xattr_user.c                   |  3 +-
+> >   fs/jfs/xattr.c                          |  5 +--
+> >   fs/kernfs/inode.c                       |  3 +-
+> >   fs/nfs/nfs4proc.c                       |  9 ++++--
+> >   fs/ntfs3/xattr.c                        |  2 +-
+> >   fs/ocfs2/xattr.c                        |  9 ++++--
+> >   fs/open.c                               |  2 +-
+> >   fs/orangefs/xattr.c                     |  3 +-
+> >   fs/overlayfs/copy_up.c                  |  2 +-
+> >   fs/overlayfs/dir.c                      | 17 +++++-----
+> >   fs/overlayfs/file.c                     | 25 ++++++++-------
+> >   fs/overlayfs/inode.c                    | 29 ++++++++---------
+> >   fs/overlayfs/namei.c                    |  6 ++--
+> >   fs/overlayfs/overlayfs.h                |  7 +++--
+> >   fs/overlayfs/ovl_entry.h                |  1 +
+> >   fs/overlayfs/readdir.c                  |  8 ++---
+> >   fs/overlayfs/super.c                    | 34 ++++++++++++++++----
+> >   fs/overlayfs/util.c                     | 13 ++++++--
+> >   fs/posix_acl.c                          |  2 +-
+> >   fs/reiserfs/xattr_security.c            |  3 +-
+> >   fs/reiserfs/xattr_trusted.c             |  3 +-
+> >   fs/reiserfs/xattr_user.c                |  3 +-
+> >   fs/squashfs/xattr.c                     |  2 +-
+> >   fs/ubifs/xattr.c                        |  3 +-
+> >   fs/xattr.c                              | 42 +++++++++++++------------
+> >   fs/xfs/xfs_xattr.c                      |  3 +-
+> >   include/linux/lsm_hook_defs.h           |  3 +-
+> >   include/linux/security.h                |  6 ++--
+> >   include/linux/xattr.h                   |  6 ++--
+> >   include/uapi/linux/xattr.h              |  7 +++--
+> >   mm/shmem.c                              |  3 +-
+> >   net/socket.c                            |  3 +-
+> >   security/commoncap.c                    | 11 ++++---
+> >   security/integrity/evm/evm_main.c       | 13 +++++---
+> >   security/security.c                     |  5 +--
+> >   security/selinux/hooks.c                | 19 ++++++-----
+> >   security/smack/smack_lsm.c              | 18 ++++++-----
+> >   68 files changed, 289 insertions(+), 167 deletions(-)
+> >
