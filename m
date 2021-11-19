@@ -2,117 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B76C433EF
-	for <selinux@archiver.kernel.org>; Fri, 19 Nov 2021 23:40:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D1DBC433F5
+	for <selinux@archiver.kernel.org>; Fri, 19 Nov 2021 23:59:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235625AbhKSXnP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 19 Nov 2021 18:43:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43284 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235960AbhKSXnO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 19 Nov 2021 18:43:14 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9ACC06174A
-        for <selinux@vger.kernel.org>; Fri, 19 Nov 2021 15:40:11 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id m27so50006206lfj.12
-        for <selinux@vger.kernel.org>; Fri, 19 Nov 2021 15:40:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rBqNH03SQHw54nf1sSLFeWZJtpAA4tMJRhcRf6KK130=;
-        b=ZEUS3rHgG5f2CCTc1i5ALCmvS4HcCVZiaidRuvK86lumr9erVB2h2XrBaYGm7oIjKp
-         JWQJtexwctyJWKSZdCQVixTIO2Zxj3BoXhxok/WV0QIi5SJJsgdwVKwexMLdJE97En+3
-         iE9UfXKoSopnS4zhM5A3LGjsMGvogDbNEVQ7YDxixypMv3iUuOzbmd4lWJfqJQZgKeRS
-         7b/sJfvO+At756/nSyk9U+8OOMUIv/j1CC4fTM06hC+oIGQJvZRxvVeFRXLT6H6twA8M
-         Bskhfub2s1U69JF2cRPZXO93m8/NhW/yqzRgVarKHG+TF/56zv1FoScXbVc8eg/CMpiN
-         mT7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rBqNH03SQHw54nf1sSLFeWZJtpAA4tMJRhcRf6KK130=;
-        b=CcGAVkNZa3IhX+3ftvbI7yOIe8+OI5biotqXhzD1Ca12lQIh7WZYTTIPzajCvTCj2Z
-         LznIfL472L2l5mbvrdTqjSJ5mFLSe0px/zxe5VxiG7wwf5sl7sme9YhHSIDJfs8oRTCW
-         KSTNivJB11A6nWq81SDuwcK+EeMfnZS0mUPtjtjDo5PhjxaJXQcs/trIKDZbmmIG9o4D
-         DAHRMiMorcqI8eiiQ3EqfSJmvNNNC1gI7V/9EZiNeaHimn96jTxgzzdR625M1CAgkb3G
-         q1adRQr/LhJOskrUQHuDCWrtCyhsHsN21Jw/LoCXIUM8mFOycBbUL9mFWqakKXeZUzFu
-         BXvA==
-X-Gm-Message-State: AOAM532YSQx8YYnZfTCI7s7T2uDDS0uifBpIeNNJVTqdadQa3xYq7PMv
-        CLrm/Q6GSpJNPhIzCbtpnSu1mZ2XOtzG3nhqvQmWnw==
-X-Google-Smtp-Source: ABdhPJzxz4GreJQD8XtyasARCmhfSzifXzAHxJK+0NBW3rz8ATOv0jsOv/R4JyiSyBLSmIv/Uo7ALRra8bmC0ysep0g=
-X-Received: by 2002:a05:6512:22c7:: with SMTP id g7mr37002485lfu.668.1637365209836;
- Fri, 19 Nov 2021 15:40:09 -0800 (PST)
+        id S233335AbhKTACu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 Nov 2021 19:02:50 -0500
+Received: from smtp-relay-canonical-0.canonical.com ([185.125.188.120]:43370
+        "EHLO smtp-relay-canonical-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231958AbhKTACu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 Nov 2021 19:02:50 -0500
+Received: from [192.168.192.153] (unknown [50.126.114.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 30F023FFE1;
+        Fri, 19 Nov 2021 23:59:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1637366383;
+        bh=v0xhfNNI1TXNCOgDubAg2K+hFSI60OHMAMx8z34+9Vw=;
+        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+         In-Reply-To:Content-Type;
+        b=Ne9FT2+K9NnJUyBwoGLrgUJaamwOSLnWM9m8+751tnXkg/ZBpfW3D5U49x9W3w5Jn
+         wizDRb7S4RZJ1zUxUJTvvM15XCO2lMBd7OFhSjR41mBmkaKMSEUUahi9oPG5v2BZba
+         LpDDnfWa/RMLrpZj+7BfFZIejSFXpN+kfYYcL02hcC+9E1gbXX9f5+L3/RUqt5vTDG
+         yZZ9sRtAuwMnfuG1cLv7/sHr+b1pJizgf7c2paoujA0S1R36aTGj97oLnv5T5Tqspf
+         S23A5E2NfsBIx5N+BgfrNDCk3luVoOvbQcZZx0rlRmPA62YehEOuIM9n6n7tUFv3o4
+         0lDnWf9OR7lAg==
+Subject: Re: [PATCH] lsm: security_task_getsecid_subj() ->
+ security_current_getsecid_subj()
+To:     "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org
+References: <163294304032.208242.9097581875096098591.stgit@olly>
+ <CAHC9VhQtGcLg3cv6dzB=UeZng+xBOwvC2PrvTfJG6V5ASrbxvw@mail.gmail.com>
+ <20211119232305.GA32613@mail.hallyn.com>
+From:   John Johansen <john.johansen@canonical.com>
+Organization: Canonical
+Message-ID: <aeb3a040-b1b2-f6dc-6744-4e9d1979e351@canonical.com>
+Date:   Fri, 19 Nov 2021 15:59:34 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-References: <20211112180720.2858135-1-tkjos@google.com> <CAHC9VhQaHzrjdnr_DvZdPfWGiehC17yJVAJdVJMn8tOC1_Y+gA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQaHzrjdnr_DvZdPfWGiehC17yJVAJdVJMn8tOC1_Y+gA@mail.gmail.com>
-From:   Todd Kjos <tkjos@google.com>
-Date:   Fri, 19 Nov 2021 15:39:59 -0800
-Message-ID: <CAHRSSEwUUUxXOnb2_fg1qnEXbCtD+G7KW8=xwKZFA5r-PKcPBg@mail.gmail.com>
-Subject: Re: [PATCH] binder: fix test regression due to sender_euid change
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, christian@brauner.io, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, keescook@chromium.org, jannh@google.com,
-        jeffv@google.com, zohar@linux.ibm.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        joel@joelfernandes.org, kernel-team@android.com,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211119232305.GA32613@mail.hallyn.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 19, 2021 at 3:00 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Fri, Nov 12, 2021 at 1:07 PM Todd Kjos <tkjos@google.com> wrote:
-> >
-> > This is a partial revert of commit
-> > 29bc22ac5e5b ("binder: use euid from cred instead of using task").
-> > Setting sender_euid using proc->cred caused some Android system test
-> > regressions that need further investigation. It is a partial
-> > reversion because subsequent patches rely on proc->cred.
-> >
-> > Cc: stable@vger.kernel.org # 4.4+
-> > Fixes: 29bc22ac5e5b ("binder: use euid from cred instead of using task")
-> > Signed-off-by: Todd Kjos <tkjos@google.com>
-> > Change-Id: I9b1769a3510fed250bb21859ef8beebabe034c66
+On 11/19/21 3:23 PM, Serge E. Hallyn wrote:
+> On Fri, Nov 19, 2021 at 05:52:33PM -0500, Paul Moore wrote:
+>> On Wed, Sep 29, 2021 at 3:17 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>
+>>> The security_task_getsecid_subj() LSM hook invites misuse by allowing
+>>> callers to specify a task even though the hook is only safe when the
+>>> current task is referenced.  Fix this by removing the task_struct
+>>> argument to the hook, requiring LSM implementations to use the
+>>> current task.  While we are changing the hook declaration we also
+>>> rename the function to security_current_getsecid_subj() in an effort
+>>> to reinforce that the hook captures the subjective credentials of the
+>>> current task and not an arbitrary task on the system.
+>>>
+>>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> 
+> Makes perfect sense given the motivation of 4ebd7651b  :)
+> 
+> Reviewed-by: Serge Hallyn <serge@hallyn.com>
+> 
+> Oh, actually, one question below (cc:ing John explicitly)
+> 
 
-Greg, I neglected to remove the "Change-Id" from my Android pre-submit
-testing. Can you remove that, or would you like me to resubmit without
-it?
+<< snip >>
 
-> > ---
-> > - the issue was introduced in 5.16-rc1, so please apply to 5.16
-> > - this should apply cleanly to all stable branches back to 4.4
-> >   that contain "binder: use euid from cred instead of using task"
-> >
-> >
-> >  drivers/android/binder.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> This looks okay to me.  I assume this is going in via GregKH's tree?
->
-> Acked-by: Paul Moore <paul@paul-moore.com>
->
-> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> > index 49fb74196d02..cffbe57a8e08 100644
-> > --- a/drivers/android/binder.c
-> > +++ b/drivers/android/binder.c
-> > @@ -2710,7 +2710,7 @@ static void binder_transaction(struct binder_proc *proc,
-> >                 t->from = thread;
-> >         else
-> >                 t->from = NULL;
-> > -       t->sender_euid = proc->cred->euid;
-> > +       t->sender_euid = task_euid(proc->tsk);
-> >         t->to_proc = target_proc;
-> >         t->to_thread = target_thread;
-> >         t->code = tr->code;
-> > --
-> > 2.34.0.rc1.387.gb447b232ab-goog
->
-> --
-> paul moore
-> www.paul-moore.com
+>>> -static void apparmor_task_getsecid(struct task_struct *p, u32 *secid)
+>>> +static void apparmor_current_getsecid_subj(u32 *secid)
+>>> +{
+>>> +       struct aa_label *label = aa_get_task_label(current);
+> 
+> Should you use aa_get_current_label() here instead?
+> 
+
+yes, that would be better
+
+
