@@ -2,114 +2,208 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 803BDC433F5
-	for <selinux@archiver.kernel.org>; Sat, 20 Nov 2021 17:54:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 972CAC433F5
+	for <selinux@archiver.kernel.org>; Sun, 21 Nov 2021 20:32:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237672AbhKTR5c (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 20 Nov 2021 12:57:32 -0500
-Received: from sonic302-28.consmr.mail.ne1.yahoo.com ([66.163.186.154]:38050
-        "EHLO sonic302-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229576AbhKTR5b (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 20 Nov 2021 12:57:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1637430868; bh=fsH//VC91Gv8GLwa09KYc3kqHEHP3Ok5WHdVTElDS24=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=sMETS02za3Q6CWdz8Cxb/vi9Kd9+U9nZCHD0TftsXyCSmNvWjI7TdDZwE72cNB3If7zSqNSofO7yyRFtYJoB9YiuK3iDUwyN1SBbR7QCDXI8+cdE/xW4mNMWWoB85B1klKsmVaLHg6MtOkPUi/BSXqfyg8XOSA67oJ78nCx3bATDbOCCkMsHeHk+eeznvK4RDXsjwFODTirG5F7o5IiNcdsJJ4yGjo8JE/av+jAmjO/CEUWCnvOfZXG9gd8DzVpYtl6+eam03o27997hBMgZ3QiBkm5AdVh8wasN7Sse5f8KS5aw6MOWbErXjk865YwaJ8Vka6O6NA49O9Da+yGArQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1637430868; bh=lHhEwZ5JEIqzmZbdOxto1puOa5TI9qKXn/o3PmMEY33=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=n3dmylKvwNbmezPgszqhu9lVXVcO/Tk9SdGZd/KCN+1n1OpkoQ3pYxmKaSfFBpn1/zaoZLN+sDqC6sl3V8wKZRNfclaWL55xOvzHzE7g/XeTtlM8/2VSqv/r0BUdLb1fGIXIXsCYtRkEG7cJg/Y82H/FSx50MS545UoA89MsK9hgx3X3NAGoFpB+qRWZTAnxmNif2c0wTjdo417TnoSvku2ePKlmdRefs5ocYxXdSMJ8YKRj4vAWa2K0QrWf4O7vmu+soIToX2BvLa5K7Gwlro/Q8JcW+AWsMmzLMkvMRvmON4NsGVfujieXOxQ1iJEpBz0OnPohpqopSSa263WRFw==
-X-YMail-OSG: XQI0W1IVM1lawkCwR2wGjsF0Pu_zH6XTTyZ0UTVaZOYfNkIbPIrb8bdMPgpLNz2
- zVXqgnr_IXQ4Wb5FF8NaWHOU4CkYHL_BVkDYYRLZepohISXAmgCqE7XlcTATs8kHIM.2EXJakUQ_
- Jf1kVKq5VZm_wPyMzsYiW7qa96hFnlghtzdd0XBVs2Y6JW6LmKDznnOFU9y5KYBY3Em7nqh29Vmb
- B5AR96rlxkxty6znUT7XMAXwIBXohRadI4ZjRoyL3Cqyqm32btKu63j_uRqgOFOeRAXjrlKAJz7g
- 8FSCss9XueTVOc3sLxnnqe19gZfE0V.vOfLniqzMePAo3s.rEZNlzDPpeIosXCsY7BsHNzfk66SA
- 5441ejpWbZFSby2kdKebGcFBsJ9cNdWgHEhAR.h1Ocpg8L8sUY9KZlU6d2_C8c6LYwsQu4I5W9aJ
- ds.ljvDzy0fnTRbyPVi5c0JXvwndE6fsmW_N26.ExXoLYn7Z4CxzLaIbZkQ8ZGum_4okXrUmPlIO
- 1Pa.kso19KOexSVj37S9PrT9jogdpuvILPr.IxKiH9gOHOpQ5VOZCAUxEELqD_i2r6NcoikXSyhh
- EIdif5MFXlXmtVCzNocn0tSGO20Iua2r31ZsqAk_ZZJzmunDTJNtXqrJwXyGZsX6fIORb9yY.Wyj
- JOBH7oR12z68lk4H5b45NM2MMxRaBzEl4wzoh2biq74_PWHBTLJTJUsvW0casgynG5Qnfggw3fjF
- .Obar8vPM2WiIpxUaQQRu6_Y2vqZ9k0IaOGJ577Ym8rUqP6zCcEwTG10R.BPV8n57AVKC.ysIB29
- ZLpnp5s5jh6nK.JjVf5Ls_l3rB6qd_oPMRywRzxs3dJzgBwUv6fMgSuUW7ipYVqINMagP6hTiwFS
- ipQngJdWwbKQQoGzQz36Ms4p6SWY4ggEMLSblIBXASalF5m5CEU6XluWtFtbSSzkTZSPU063ClRV
- BjKEWqApmUnf.1TcTsDSR64oVsR5Eax._pLaqPnb4vyXBFz_4ciKNEBqOWIq6n0EAkBFiTtCfqML
- NaCMon.5iihf82C9X0Kax31OrEgY7bDLAjJZaBoS6BsyNoZut5DFWicx133olg6z0xLZ38ODPYmR
- k.KuC.lba7G5HtqknqND2sE_iTh93.Yp2Zc9vMdwpUaVKV2oA95b2WxI8WiZ5Jt.FrH3dIE04cwL
- 95zU3Te8roVeKhgOyW0fkkQkZqeNVKNDp1lmXmRG5wJ6NDtYjn2xMpSN5lEIfZIylAAMlCNvsMxy
- xZ8w81tGhi3J2b3QRKKJ6sS9pImhbVsAqjrQRqzm1Hl4TX1S4iuxeR9AwSZMsnKZQK0ISDgedON5
- AlaYQH9FM7UG_DVny7i12An8bjjUB4vardAE_HIjmJ83pEIvKZtC90OcExXoQUdEc7waSJrvVD2Q
- fI6.RjEvmDKTE.clLUjGrSG1AMo3JwIDAs0.w5Yo.qWWxYBFox0riRLhrvjGf._rizsP9Bbci1Jn
- Ttp0FdSrpz6myunr9i_mwnK904i.sJWYPbZNOaXWjrQ3jwSVKbVV9ngsCJyQLMw_k7Y2k_npv3eU
- d6J6xZ4Vq1Bhc1pTV.R0UTLcE9PLiip.8Ipqf_2KmUJz34jWkcakkv8wgdttu._k4OYG1SlX8kOA
- cxVm7MihOQA9IBVIhsilS8unpHQKMj3ip06wK_FxLmlQHI4_lW1lkO2ZnXgVeIgCqjN5_JqZlsz2
- 8Ivlu6Btf1aFge56l977LbkWYvTCQY0neUvFhonPO4PYSmip_fy5JeXl25b7zZf8W6a9Mucp0WaZ
- IDMNJIoGYA968XiYQGKEjPy17IblD6CmQUmHC9I5U575.I7lOQLS0QPRxXgR5Zc8B7gVNSW8kGJw
- q7Gu4ns92UfMoE3ttYAziXVT3BGTUyJdsDFqqDwOe.D1j4kyoskjVgexSltVhoSV3omCxybuHePC
- 0oxoOffb_egIDiJOwmCHHBEQBYEkXqEaW93TuzqbBDQDqOtr01LuYVa.9uTx1VrV3bMWRaxRTsjm
- p4NVfEnFW0JKWLI.zc1gzF4TKgrjU6EsF.EGuEY8tHRHWJoNyvHTRvrH2ZXnkSrAb6SHJ28gi6hM
- MSXWmjMSvlsuFnrwO.tLfQArrTqRpziYgF9mPWatZTiZWMPXNNbhbYZF3plpcS5_YFbRO2n6AJbH
- vCeB35XWfuE_7tOsJ_LtaoguJtiaEQ_X3YH1fvuaV.ZWnqj4aGZZ0CBPqnRzsfpRvsRMEJdfeKZr
- XpgnvppijJV_bE.Yc
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Sat, 20 Nov 2021 17:54:28 +0000
-Received: by kubenode550.mail-prod1.omega.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 8a351f179c4d82eb64ac6b6d08e27bbb;
-          Sat, 20 Nov 2021 17:54:24 +0000 (UTC)
-Message-ID: <332675a2-e9f1-4dab-551e-226418439abc@schaufler-ca.com>
-Date:   Sat, 20 Nov 2021 09:54:22 -0800
+        id S230418AbhKUUfn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 21 Nov 2021 15:35:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229441AbhKUUfn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 21 Nov 2021 15:35:43 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379E0C061574
+        for <selinux@vger.kernel.org>; Sun, 21 Nov 2021 12:32:38 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id x7so12168639pjn.0
+        for <selinux@vger.kernel.org>; Sun, 21 Nov 2021 12:32:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=perfinion-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uaqJl1RkL8lgNEY2z4Xq6gMlaPsWjviHxRSk7vUcEBU=;
+        b=OXOVWx4TNbzxO8lhAJo6qeFik3RjLVuffuFMSSHTjmjlXmZnpSIDIPqyP2oB7jOiLG
+         1A8G9q0nCz0b63WA+ltBZD5NOYwrfoo8xHrF4riQ2Xar2s7+0qJy9ClFaYINxD06tlmE
+         Q9fPB8bRouIc5pKsSOoraJ2qqhLyQ+15lkxBiaj+DML+aUxHdpWmQ9TsnVqAA2biAjGf
+         qqvNCwH3op/o/aC6FjUQ2VRvxZKGdIz7S7BT2uDgYz1KaGOnRng5paV4tpM+SmzSghww
+         lpzMAwG5ZNA+XPphrp5/dBIY0gAZdwMzzoH/a6Jl4yj+f4dzqAgN4WtEws5+OhUP+oPs
+         Vmdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uaqJl1RkL8lgNEY2z4Xq6gMlaPsWjviHxRSk7vUcEBU=;
+        b=KucA1C4KCZwQoKqu1de7kHe2VmSUTsljJDofXJZDgkZifB3ZTJrH/BvIp/0snI2Z2i
+         R4ykjs2SwwEFtWljLp2ud4jKIsFgyMU/0f0XiVZqiclaCH4O6V5yMbhGhVOomhL7dTgM
+         orqntsc5gOeHp8XKpdDUw+lbyhuOi7d9UfkWLAPlH7GEP/UOYKLYHPWswGMc1MfS54sC
+         Ow/qx+Nxl7ByWAb1sOSPIVWvFxgMPsFeCaYL46Kmvt/AA3Q/IqfQLMxr2LwJ4aTR9Pkp
+         F2hXbcynHXKBrYxJ/P3vK+IaGeWwJ0y8qOkwwge8jEi0DIVspF8fGn+oc0WRKIKTdHFJ
+         rLSA==
+X-Gm-Message-State: AOAM531U2AXuJkURDUCZqARPrwN+9yUPvcYk4nSvFn0w2+ouX4XwpVf6
+        fNz3kT32RIG76qdI6RKbSO06RNw5nXBG0pIV
+X-Google-Smtp-Source: ABdhPJxbRW3AH3Fze8ORxHRVqy80uEAm4yDN1epkcYJLr/CxLGR1RR+jJgZRPfMhEITkzFILP7hFOA==
+X-Received: by 2002:a17:902:d2cd:b0:141:fbe2:b658 with SMTP id n13-20020a170902d2cd00b00141fbe2b658mr100867314plc.49.1637526756369;
+        Sun, 21 Nov 2021 12:32:36 -0800 (PST)
+Received: from localhost (136-24-42-138.cab.webpass.net. [136.24.42.138])
+        by smtp.gmail.com with ESMTPSA id g20sm6767823pfj.12.2021.11.21.12.32.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 21 Nov 2021 12:32:35 -0800 (PST)
+From:   Jason Zaman <jason@perfinion.com>
+To:     selinux@vger.kernel.org
+Cc:     Jason Zaman <jason@perfinion.com>
+Subject: [PATCH 1/2] selinux: Add map perms
+Date:   Sun, 21 Nov 2021 12:32:30 -0800
+Message-Id: <20211121203231.3625-1-jason@perfinion.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] lsm: security_task_getsecid_subj() ->
- security_current_getsecid_subj()
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <163294304032.208242.9097581875096098591.stgit@olly>
- <CAHC9VhQtGcLg3cv6dzB=UeZng+xBOwvC2PrvTfJG6V5ASrbxvw@mail.gmail.com>
- <e5f141ee-43fe-56e9-e47f-f9da518b3e73@schaufler-ca.com>
- <CAHC9VhRx4KSMunuijEF+Bf7GzmBr7zXKwwW2mhOgTg8DfOCsWw@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhRx4KSMunuijEF+Bf7GzmBr7zXKwwW2mhOgTg8DfOCsWw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.19306 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/20/2021 7:06 AM, Paul Moore wrote:
-> On Fri, Nov 19, 2021 at 7:42 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 11/19/2021 2:52 PM, Paul Moore wrote:
->>> On Wed, Sep 29, 2021 at 3:17 PM Paul Moore <paul@paul-moore.com> wrote:
->>>> The security_task_getsecid_subj() LSM hook invites misuse by allowing
->>>> callers to specify a task even though the hook is only safe when the
->>>> current task is referenced.  Fix this by removing the task_struct
->>>> argument to the hook, requiring LSM implementations to use the
->>>> current task.  While we are changing the hook declaration we also
->>>> rename the function to security_current_getsecid_subj() in an effort
->>>> to reinforce that the hook captures the subjective credentials of the
->>>> current task and not an arbitrary task on the system.
->>>>
->>>> Signed-off-by: Paul Moore <paul@paul-moore.com>
->>>> ---
->>>>    include/linux/lsm_hook_defs.h         |    3 +--
->>>>    include/linux/lsm_hooks.h             |    8 +++-----
->>>>    include/linux/security.h              |    4 ++--
->>>>    kernel/audit.c                        |    4 ++--
->>>>    kernel/auditfilter.c                  |    3 +--
->>>>    kernel/auditsc.c                      |   10 +++++++++-
->>>>    net/netlabel/netlabel_unlabeled.c     |    2 +-
->>>>    net/netlabel/netlabel_user.h          |    2 +-
->>>>    security/apparmor/lsm.c               |   13 ++++++++++---
->>>>    security/integrity/ima/ima_appraise.c |    2 +-
->>>>    security/integrity/ima/ima_main.c     |   14 +++++++-------
->>>>    security/security.c                   |    6 +++---
->>>>    security/selinux/hooks.c              |   19 +++----------------
->>>>    security/smack/smack.h                |   16 ----------------
->>>>    security/smack/smack_lsm.c            |    9 ++++-----
->>>>    15 files changed, 48 insertions(+), 67 deletions(-)
->>> I never saw any comments, positive or negative, on this patch so I'll
->>> plan on merging it early next week.  If you've got objections, now is
->>> the time to speak up.
->> It's OK by me.
->>
->> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> Thanks Casey.  Are you okay with the AppArmor tweak mentioned by Serge and John?
+Lots of libselinux functions now map /sys/fs/selinux/status so add map
+perms to other interfaces as well.
 
-Yes.
+$ passwd user1
+passwd: avc.c:73: avc_context_to_sid_raw: Assertion `avc_running'
+failed.
+Aborted
+
+avc: denied { map } for pid=325 comm="passwd"
+path="/sys/fs/selinux/status" dev="selinuxfs" ino=19 scontext=root:
+sysadm_r:passwd_t tcontext=system_u:object_r:security_t tclass=file
+permissive=1
+
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ policy/modules/kernel/selinux.if | 18 +++++++++---------
+ policy/modules/kernel/selinux.te |  8 ++++----
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/policy/modules/kernel/selinux.if b/policy/modules/kernel/selinux.if
+index 13aa1e052..cb610c449 100644
+--- a/policy/modules/kernel/selinux.if
++++ b/policy/modules/kernel/selinux.if
+@@ -295,7 +295,7 @@ interface(`selinux_get_enforce_mode',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file read_file_perms;
++	allow $1 security_t:file mmap_read_file_perms;
+ ')
+ 
+ ########################################
+@@ -363,7 +363,7 @@ interface(`selinux_read_policy',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file read_file_perms;
++	allow $1 security_t:file mmap_read_file_perms;
+ 	allow $1 security_t:security read_policy;
+ ')
+ 
+@@ -533,7 +533,7 @@ interface(`selinux_validate_context',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file rw_file_perms;
++	allow $1 security_t:file mmap_rw_file_perms;
+ 	allow $1 security_t:security check_context;
+ ')
+ 
+@@ -554,7 +554,7 @@ interface(`selinux_dontaudit_validate_context',`
+ 	')
+ 
+ 	dontaudit $1 security_t:dir list_dir_perms;
+-	dontaudit $1 security_t:file rw_file_perms;
++	dontaudit $1 security_t:file mmap_rw_file_perms;
+ 	dontaudit $1 security_t:security check_context;
+ ')
+ 
+@@ -577,7 +577,7 @@ interface(`selinux_compute_access_vector',`
+ 	dev_search_sysfs($1)
+ 	allow $1 self:netlink_selinux_socket create_socket_perms;
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file rw_file_perms;
++	allow $1 security_t:file mmap_rw_file_perms;
+ 	allow $1 security_t:security compute_av;
+ ')
+ 
+@@ -599,7 +599,7 @@ interface(`selinux_compute_create_context',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file rw_file_perms;
++	allow $1 security_t:file mmap_rw_file_perms;
+ 	allow $1 security_t:security compute_create;
+ ')
+ 
+@@ -621,7 +621,7 @@ interface(`selinux_compute_member',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file rw_file_perms;
++	allow $1 security_t:file mmap_rw_file_perms;
+ 	allow $1 security_t:security compute_member;
+ ')
+ 
+@@ -651,7 +651,7 @@ interface(`selinux_compute_relabel_context',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file rw_file_perms;
++	allow $1 security_t:file mmap_rw_file_perms;
+ 	allow $1 security_t:security compute_relabel;
+ ')
+ 
+@@ -672,7 +672,7 @@ interface(`selinux_compute_user_contexts',`
+ 
+ 	dev_search_sysfs($1)
+ 	allow $1 security_t:dir list_dir_perms;
+-	allow $1 security_t:file rw_file_perms;
++	allow $1 security_t:file mmap_rw_file_perms;
+ 	allow $1 security_t:security compute_user;
+ ')
+ 
+diff --git a/policy/modules/kernel/selinux.te b/policy/modules/kernel/selinux.te
+index 0726fc448..707517e52 100644
+--- a/policy/modules/kernel/selinux.te
++++ b/policy/modules/kernel/selinux.te
+@@ -53,7 +53,7 @@ genfscon securityfs / gen_context(system_u:object_r:security_t,s0)
+ neverallow ~{ selinux_unconfined_type can_setenforce } security_t:security setenforce;
+ 
+ allow can_setenforce security_t:dir list_dir_perms;
+-allow can_setenforce security_t:file rw_file_perms;
++allow can_setenforce security_t:file mmap_rw_file_perms;
+ 
+ dev_search_sysfs(can_setenforce)
+ 
+@@ -71,7 +71,7 @@ if(secure_mode_policyload) {
+ neverallow ~{ selinux_unconfined_type can_load_policy } security_t:security load_policy;
+ 
+ allow can_load_policy security_t:dir list_dir_perms;
+-allow can_load_policy security_t:file rw_file_perms;
++allow can_load_policy security_t:file mmap_rw_file_perms;
+ 
+ dev_search_sysfs(can_load_policy)
+ 
+@@ -89,7 +89,7 @@ if(secure_mode_policyload) {
+ neverallow ~{ selinux_unconfined_type can_setsecparam } security_t:security setsecparam;
+ 
+ allow can_setsecparam security_t:dir list_dir_perms;
+-allow can_setsecparam security_t:file rw_file_perms;
++allow can_setsecparam security_t:file mmap_rw_file_perms;
+ allow can_setsecparam security_t:security setsecparam;
+ auditallow can_setsecparam security_t:security setsecparam;
+ 
+@@ -102,7 +102,7 @@ dev_search_sysfs(can_setsecparam)
+ 
+ # use SELinuxfs
+ allow selinux_unconfined_type security_t:dir list_dir_perms;
+-allow selinux_unconfined_type security_t:file rw_file_perms;
++allow selinux_unconfined_type security_t:file mmap_rw_file_perms;
+ allow selinux_unconfined_type boolean_type:file read_file_perms;
+ 
+ # Access the security API.
+-- 
+2.32.0
 
