@@ -2,208 +2,85 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 972CAC433F5
-	for <selinux@archiver.kernel.org>; Sun, 21 Nov 2021 20:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B794C433F5
+	for <selinux@archiver.kernel.org>; Sun, 21 Nov 2021 20:33:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230418AbhKUUfn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 21 Nov 2021 15:35:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
+        id S231199AbhKUUgR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 21 Nov 2021 15:36:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbhKUUfn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 21 Nov 2021 15:35:43 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379E0C061574
-        for <selinux@vger.kernel.org>; Sun, 21 Nov 2021 12:32:38 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id x7so12168639pjn.0
-        for <selinux@vger.kernel.org>; Sun, 21 Nov 2021 12:32:38 -0800 (PST)
+        with ESMTP id S229441AbhKUUgQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 21 Nov 2021 15:36:16 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79D2C061574
+        for <selinux@vger.kernel.org>; Sun, 21 Nov 2021 12:33:11 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id np3so12115958pjb.4
+        for <selinux@vger.kernel.org>; Sun, 21 Nov 2021 12:33:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=perfinion-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uaqJl1RkL8lgNEY2z4Xq6gMlaPsWjviHxRSk7vUcEBU=;
-        b=OXOVWx4TNbzxO8lhAJo6qeFik3RjLVuffuFMSSHTjmjlXmZnpSIDIPqyP2oB7jOiLG
-         1A8G9q0nCz0b63WA+ltBZD5NOYwrfoo8xHrF4riQ2Xar2s7+0qJy9ClFaYINxD06tlmE
-         Q9fPB8bRouIc5pKsSOoraJ2qqhLyQ+15lkxBiaj+DML+aUxHdpWmQ9TsnVqAA2biAjGf
-         qqvNCwH3op/o/aC6FjUQ2VRvxZKGdIz7S7BT2uDgYz1KaGOnRng5paV4tpM+SmzSghww
-         lpzMAwG5ZNA+XPphrp5/dBIY0gAZdwMzzoH/a6Jl4yj+f4dzqAgN4WtEws5+OhUP+oPs
-         Vmdw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=008pw7L2WifbC3MTWNCzsUknYGJTEiQp8mdDUlhMinQ=;
+        b=km6BqexqqH/Vivb0pYX/N2X4mDtI7f4Q0qfOhMvvLnTNlTntbnsSKal06/nV9qZU2e
+         ZdqF9pWga8c/Lw0eQ0DMO1+ciYpSC2mzaNAy35c/07WBxFHLug0C0vgmQihv+ExGW9oq
+         Ez/VhISl4tNZ+MPB5Mlv1aDCNpCwSVxSOD1tT0RXxS6TbSnj29jWpLqPMq3eoLYO0AxD
+         x1HdyjDFTWeyWvURJrBgSI0P7W/PGLkdlg/SzJXo/I8c9TPa4y0jOA21sHjSBMi3jaae
+         f2n9qBz+w/FKmcchT027kIo2lP/bdOq76McyoDogm+bTZubSivOlzMOu2uh5+JuD6Wke
+         7DEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uaqJl1RkL8lgNEY2z4Xq6gMlaPsWjviHxRSk7vUcEBU=;
-        b=KucA1C4KCZwQoKqu1de7kHe2VmSUTsljJDofXJZDgkZifB3ZTJrH/BvIp/0snI2Z2i
-         R4ykjs2SwwEFtWljLp2ud4jKIsFgyMU/0f0XiVZqiclaCH4O6V5yMbhGhVOomhL7dTgM
-         orqntsc5gOeHp8XKpdDUw+lbyhuOi7d9UfkWLAPlH7GEP/UOYKLYHPWswGMc1MfS54sC
-         Ow/qx+Nxl7ByWAb1sOSPIVWvFxgMPsFeCaYL46Kmvt/AA3Q/IqfQLMxr2LwJ4aTR9Pkp
-         F2hXbcynHXKBrYxJ/P3vK+IaGeWwJ0y8qOkwwge8jEi0DIVspF8fGn+oc0WRKIKTdHFJ
-         rLSA==
-X-Gm-Message-State: AOAM531U2AXuJkURDUCZqARPrwN+9yUPvcYk4nSvFn0w2+ouX4XwpVf6
-        fNz3kT32RIG76qdI6RKbSO06RNw5nXBG0pIV
-X-Google-Smtp-Source: ABdhPJxbRW3AH3Fze8ORxHRVqy80uEAm4yDN1epkcYJLr/CxLGR1RR+jJgZRPfMhEITkzFILP7hFOA==
-X-Received: by 2002:a17:902:d2cd:b0:141:fbe2:b658 with SMTP id n13-20020a170902d2cd00b00141fbe2b658mr100867314plc.49.1637526756369;
-        Sun, 21 Nov 2021 12:32:36 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=008pw7L2WifbC3MTWNCzsUknYGJTEiQp8mdDUlhMinQ=;
+        b=XwxAeZ7o0qolY5HYysod0ON72R31dayDgUk5TKKdehZS9EMtyqpfb+gkr/bOGRI9gx
+         8s2NasNaf27IYVHEd8ji/b8UWEyqsIXQ1ZjumWMWctYJa5csutqvY6N7Zvq+X2rpHc18
+         MdhuhBO4Ts8Ny0Y3JSxdSjmtJWXFImApqe83QpdgbgJhWrqm2SyifVyKe/VBbNcgLGOx
+         0pkWoyhIHIwCl2YGwyPLeMX4bRAi3O5OGhRzPQ/5OFLN76M+V3/NpUXX+ZsudiGFsGCt
+         C+rU0UZx87PryWCxxUIxSAFlAMTR2D0YpTPmNA4wVXVF+fC6Lq2a0+01aR1iKXWifkzD
+         X+DA==
+X-Gm-Message-State: AOAM530njTK/cgeq7AqDgSQ8/KB9YXu9+bT6aMRiSjfh15qPT+GAHmuH
+        Gdm+/cKR0sV+Bwy0uKjnq8w64CxiieXxSvHz
+X-Google-Smtp-Source: ABdhPJybabi93EQQ3dwjV+4DkDmutKeJHlhxAZTSYtkyOogzlGMMSDxUkiy9/dFA5XGDeFReGG3joQ==
+X-Received: by 2002:a17:90b:3e8b:: with SMTP id rj11mr24487004pjb.63.1637526790975;
+        Sun, 21 Nov 2021 12:33:10 -0800 (PST)
 Received: from localhost (136-24-42-138.cab.webpass.net. [136.24.42.138])
-        by smtp.gmail.com with ESMTPSA id g20sm6767823pfj.12.2021.11.21.12.32.35
+        by smtp.gmail.com with ESMTPSA id o134sm5971396pfg.1.2021.11.21.12.33.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Nov 2021 12:32:35 -0800 (PST)
+        Sun, 21 Nov 2021 12:33:10 -0800 (PST)
 From:   Jason Zaman <jason@perfinion.com>
 To:     selinux@vger.kernel.org
 Cc:     Jason Zaman <jason@perfinion.com>
-Subject: [PATCH 1/2] selinux: Add map perms
-Date:   Sun, 21 Nov 2021 12:32:30 -0800
-Message-Id: <20211121203231.3625-1-jason@perfinion.com>
+Subject: [PATCH 2/2] dbus: Add filetrans for /tmp/dbus-* session socket
+Date:   Sun, 21 Nov 2021 12:32:31 -0800
+Message-Id: <20211121203231.3625-2-jason@perfinion.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211121203231.3625-1-jason@perfinion.com>
+References: <20211121203231.3625-1-jason@perfinion.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Lots of libselinux functions now map /sys/fs/selinux/status so add map
-perms to other interfaces as well.
-
-$ passwd user1
-passwd: avc.c:73: avc_context_to_sid_raw: Assertion `avc_running'
-failed.
-Aborted
-
-avc: denied { map } for pid=325 comm="passwd"
-path="/sys/fs/selinux/status" dev="selinuxfs" ino=19 scontext=root:
-sysadm_r:passwd_t tcontext=system_u:object_r:security_t tclass=file
-permissive=1
-
 Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- policy/modules/kernel/selinux.if | 18 +++++++++---------
- policy/modules/kernel/selinux.te |  8 ++++----
- 2 files changed, 13 insertions(+), 13 deletions(-)
+ policy/modules/services/dbus.te | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/policy/modules/kernel/selinux.if b/policy/modules/kernel/selinux.if
-index 13aa1e052..cb610c449 100644
---- a/policy/modules/kernel/selinux.if
-+++ b/policy/modules/kernel/selinux.if
-@@ -295,7 +295,7 @@ interface(`selinux_get_enforce_mode',`
+diff --git a/policy/modules/services/dbus.te b/policy/modules/services/dbus.te
+index f629d508d..576b29f03 100644
+--- a/policy/modules/services/dbus.te
++++ b/policy/modules/services/dbus.te
+@@ -247,7 +247,8 @@ userdom_user_home_dir_filetrans(session_bus_type, session_dbusd_home_t, dir, ".d
  
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file read_file_perms;
-+	allow $1 security_t:file mmap_read_file_perms;
- ')
+ manage_dirs_pattern(session_bus_type, session_dbusd_tmp_t, session_dbusd_tmp_t)
+ manage_files_pattern(session_bus_type, session_dbusd_tmp_t, session_dbusd_tmp_t)
+-files_tmp_filetrans(session_bus_type, session_dbusd_tmp_t, { dir file })
++manage_sock_files_pattern(session_bus_type, session_dbusd_tmp_t, session_dbusd_tmp_t)
++files_tmp_filetrans(session_bus_type, session_dbusd_tmp_t, { dir file sock_file })
  
- ########################################
-@@ -363,7 +363,7 @@ interface(`selinux_read_policy',`
- 
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file read_file_perms;
-+	allow $1 security_t:file mmap_read_file_perms;
- 	allow $1 security_t:security read_policy;
- ')
- 
-@@ -533,7 +533,7 @@ interface(`selinux_validate_context',`
- 
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file rw_file_perms;
-+	allow $1 security_t:file mmap_rw_file_perms;
- 	allow $1 security_t:security check_context;
- ')
- 
-@@ -554,7 +554,7 @@ interface(`selinux_dontaudit_validate_context',`
- 	')
- 
- 	dontaudit $1 security_t:dir list_dir_perms;
--	dontaudit $1 security_t:file rw_file_perms;
-+	dontaudit $1 security_t:file mmap_rw_file_perms;
- 	dontaudit $1 security_t:security check_context;
- ')
- 
-@@ -577,7 +577,7 @@ interface(`selinux_compute_access_vector',`
- 	dev_search_sysfs($1)
- 	allow $1 self:netlink_selinux_socket create_socket_perms;
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file rw_file_perms;
-+	allow $1 security_t:file mmap_rw_file_perms;
- 	allow $1 security_t:security compute_av;
- ')
- 
-@@ -599,7 +599,7 @@ interface(`selinux_compute_create_context',`
- 
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file rw_file_perms;
-+	allow $1 security_t:file mmap_rw_file_perms;
- 	allow $1 security_t:security compute_create;
- ')
- 
-@@ -621,7 +621,7 @@ interface(`selinux_compute_member',`
- 
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file rw_file_perms;
-+	allow $1 security_t:file mmap_rw_file_perms;
- 	allow $1 security_t:security compute_member;
- ')
- 
-@@ -651,7 +651,7 @@ interface(`selinux_compute_relabel_context',`
- 
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file rw_file_perms;
-+	allow $1 security_t:file mmap_rw_file_perms;
- 	allow $1 security_t:security compute_relabel;
- ')
- 
-@@ -672,7 +672,7 @@ interface(`selinux_compute_user_contexts',`
- 
- 	dev_search_sysfs($1)
- 	allow $1 security_t:dir list_dir_perms;
--	allow $1 security_t:file rw_file_perms;
-+	allow $1 security_t:file mmap_rw_file_perms;
- 	allow $1 security_t:security compute_user;
- ')
- 
-diff --git a/policy/modules/kernel/selinux.te b/policy/modules/kernel/selinux.te
-index 0726fc448..707517e52 100644
---- a/policy/modules/kernel/selinux.te
-+++ b/policy/modules/kernel/selinux.te
-@@ -53,7 +53,7 @@ genfscon securityfs / gen_context(system_u:object_r:security_t,s0)
- neverallow ~{ selinux_unconfined_type can_setenforce } security_t:security setenforce;
- 
- allow can_setenforce security_t:dir list_dir_perms;
--allow can_setenforce security_t:file rw_file_perms;
-+allow can_setenforce security_t:file mmap_rw_file_perms;
- 
- dev_search_sysfs(can_setenforce)
- 
-@@ -71,7 +71,7 @@ if(secure_mode_policyload) {
- neverallow ~{ selinux_unconfined_type can_load_policy } security_t:security load_policy;
- 
- allow can_load_policy security_t:dir list_dir_perms;
--allow can_load_policy security_t:file rw_file_perms;
-+allow can_load_policy security_t:file mmap_rw_file_perms;
- 
- dev_search_sysfs(can_load_policy)
- 
-@@ -89,7 +89,7 @@ if(secure_mode_policyload) {
- neverallow ~{ selinux_unconfined_type can_setsecparam } security_t:security setsecparam;
- 
- allow can_setsecparam security_t:dir list_dir_perms;
--allow can_setsecparam security_t:file rw_file_perms;
-+allow can_setsecparam security_t:file mmap_rw_file_perms;
- allow can_setsecparam security_t:security setsecparam;
- auditallow can_setsecparam security_t:security setsecparam;
- 
-@@ -102,7 +102,7 @@ dev_search_sysfs(can_setsecparam)
- 
- # use SELinuxfs
- allow selinux_unconfined_type security_t:dir list_dir_perms;
--allow selinux_unconfined_type security_t:file rw_file_perms;
-+allow selinux_unconfined_type security_t:file mmap_rw_file_perms;
- allow selinux_unconfined_type boolean_type:file read_file_perms;
- 
- # Access the security API.
+ manage_dirs_pattern(session_bus_type, session_dbusd_runtime_t, session_dbusd_runtime_t)
+ manage_files_pattern(session_bus_type, session_dbusd_runtime_t, session_dbusd_runtime_t)
 -- 
 2.32.0
 
