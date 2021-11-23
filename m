@@ -2,87 +2,71 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DF73C433EF
-	for <selinux@archiver.kernel.org>; Tue, 23 Nov 2021 09:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2DBDC433F5
+	for <selinux@archiver.kernel.org>; Tue, 23 Nov 2021 10:38:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232412AbhKWJrX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Nov 2021 04:47:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:48616 "EHLO
+        id S235412AbhKWKlX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Nov 2021 05:41:23 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37198 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231240AbhKWJrW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Nov 2021 04:47:22 -0500
+        by vger.kernel.org with ESMTP id S235594AbhKWKlX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Nov 2021 05:41:23 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637660654;
+        s=mimecast20190719; t=1637663893;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=9e48JXUEF5/Eho//A0L2kGfXM5dNRtIcPCiNQK+RUBA=;
-        b=glR6pUDy/gV2wTwKBRWFQvXn6964HUxIQErTq66LOegA7x+gmwUVDywDxCR/N0QcTO2ujG
-        T70nr1ehLEx98QvSLyg6648S77K9La/Zz74J9dxdf/1MvFUqwFUcBXPLu1/t+Snj/piFZv
-        wdjNecwf1q+7aqFNbmoBsbheiXAsZ/8=
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=EwZQ55Tovjy8AtkxbEH1jMnHH3VyBfszH+Z9YOa0BvQ=;
+        b=GHiyw92i1qbUQxKmNlt/63yiQiqyzFN95GR5Z7XqPnySAnm59iLTTv44Fisw5OK7YVJJv+
+        GG/8JTtM2RdtjptlLhhsUfqpSKQyEYsVblsJA4ZaCP2+xu7gGU6mW/hk5C5aeqCSm2auqW
+        pyizWAG2OoSNZ1F9VqviQ5jSY9LMOXA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-529-S0mmj0a_MSCPN4UzIPk5VA-1; Tue, 23 Nov 2021 04:44:13 -0500
-X-MC-Unique: S0mmj0a_MSCPN4UzIPk5VA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+ us-mta-454-29zqqAUINGCCvA1jKYQ3fQ-1; Tue, 23 Nov 2021 05:38:12 -0500
+X-MC-Unique: 29zqqAUINGCCvA1jKYQ3fQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 38E4B83DD16;
-        Tue, 23 Nov 2021 09:44:12 +0000 (UTC)
-Received: from localhost (unknown [10.40.193.37])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C50705F4E0;
-        Tue, 23 Nov 2021 09:44:11 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4F416107B0F1
+        for <selinux@vger.kernel.org>; Tue, 23 Nov 2021 10:38:11 +0000 (UTC)
+Received: from P1.redhat.com (unknown [10.40.193.37])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7183860D30;
+        Tue, 23 Nov 2021 10:38:10 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>,
-        James Carter <jwcart2@gmail.com>
-Subject: Re: [PATCH] semodule: Fix lang_ext column index
-In-Reply-To: <CAP+JOzSPTEwjeFbgd+pNEQS5XUbOA3uMLxs2axWL40fRV2xd2w@mail.gmail.com>
-References: <20211116151122.172831-1-plautrba@redhat.com>
- <CAP+JOzSPTEwjeFbgd+pNEQS5XUbOA3uMLxs2axWL40fRV2xd2w@mail.gmail.com>
-Date:   Tue, 23 Nov 2021 10:44:10 +0100
-Message-ID: <87fsrnkxzp.fsf@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH] libselinux: Fix selinux_restorecon_parallel symbol version
+Date:   Tue, 23 Nov 2021 11:38:05 +0100
+Message-Id: <20211123103805.415558-1-plautrba@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
+selinux_restorecon_parallel was originally proposed before 3.3, but it
+was merged after release so it will be introduced in version 3.4.
 
-> On Tue, Nov 16, 2021 at 10:12 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> lang_ext is 3. column - index number 2.
->>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libselinux/src/libselinux.map | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks.
-
-It's merged now.
-
-
->
->> ---
->>  policycoreutils/semodule/semodule.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
->> index ddbf10455abf..57f005ce2c62 100644
->> --- a/policycoreutils/semodule/semodule.c
->> +++ b/policycoreutils/semodule/semodule.c
->> @@ -684,7 +684,7 @@ cleanup_extract:
->>                                                 if (result != 0) goto cleanup_list;
->>
->>                                                 size = strlen(tmp);
->> -                                               if (size > column[3]) column[3] = size;
->> +                                               if (size > column[2]) column[2] = size;
->>                                         }
->>
->>                                         /* print out each module */
->> --
->> 2.33.1
->>
+diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+index d138e951ef0d..4acf1caacb55 100644
+--- a/libselinux/src/libselinux.map
++++ b/libselinux/src/libselinux.map
+@@ -241,7 +241,7 @@ LIBSELINUX_1.0 {
+     *;
+ };
+ 
+-LIBSELINUX_3.3 {
++LIBSELINUX_3.4 {
+   global:
+     selinux_restorecon_parallel;
+ } LIBSELINUX_1.0;
+-- 
+2.33.1
 
