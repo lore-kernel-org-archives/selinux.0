@@ -2,76 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60D00C433EF
-	for <selinux@archiver.kernel.org>; Wed, 24 Nov 2021 18:44:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16C94C433F5
+	for <selinux@archiver.kernel.org>; Wed, 24 Nov 2021 19:08:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243280AbhKXSri (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 24 Nov 2021 13:47:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51118 "EHLO
+        id S1350903AbhKXTLe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 24 Nov 2021 14:11:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242758AbhKXSri (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 24 Nov 2021 13:47:38 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30156C061574
-        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 10:44:28 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id x6so14630481edr.5
-        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 10:44:28 -0800 (PST)
+        with ESMTP id S242927AbhKXTLd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 24 Nov 2021 14:11:33 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81089C061574
+        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 11:08:23 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id e3so14986016edu.4
+        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 11:08:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=P717wxUJUtqZpc5a2tCa5X84M4R8mhovpQiw6dwFRbA=;
-        b=OUAenDmmMlenxkqw2jW7B0lPRmeREiGrDd9vsDIcaKnCEBeiHvBXO66GF5ZQTOw62f
-         AKYcwUjFTzPOTUCuIcwYH37qXjdUlTogpPiki3xCOslrCkyNUZ1oR2WXfjUuWY1E9yi0
-         j3e+qSbjJzip/2L64ncN8OClxXZewQhwe64QQdUocxmYbWrp56XRyQ0GlTSh4SrpOXNA
-         9cpZq2c7F8TZuRyoWBJmxPJ+zuDNOJEO11XxoBKBIjr07jLCgBVHdF3VpiVohSC4lruD
-         rhIDP2x3CRt2l3hoHyjk0G+p9ayKlSsAjbxARml5TBK9mTq2JUClbUNCXWHvgXcbG6QC
-         kI8w==
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=SQAykfFeb480DYd2vbO+CXZfu4SweCc2LVREB//N0RI=;
+        b=hxbOE5xQr8go8bTFvcB8vncRNT9/Prb5RRh5iyw9H141i7dylz6kqNkddIBDltQYgB
+         +MinGWi7TIm78cxelY4FCyx0jfAt7FH0HTWJ5/cu1B2wMd1BKSu75z+ioC+YoewBOH2H
+         s0EoBk71VE76N+w1DzxwEmgznIPIa0+8meHzXFH5gLypt5+Um7UA8eWQFeql3lIjk/sa
+         J0HwOX4sfQ5/jycjU/lK6zx+nvThNFqXtGkFbDuAmwKUoqAq4GNNU0h8i3CnfXQ+ReEC
+         6Uyq3empp8qXT0yb3fqlv+DIxy0MANnpAhn8HF72tR3Y7r5apz5BYfHnmc4aEa0aDKF3
+         fKIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=P717wxUJUtqZpc5a2tCa5X84M4R8mhovpQiw6dwFRbA=;
-        b=cjoxuneC7LqF6rVVuzDyINCsO90kgf9+mgmrBNWUgtYf+oHoIAetaqNVeCq3x3Paiw
-         3ATdAhckjAj016hiCrD3M2uVMiNxc8hxCRzCbXNIukiU1/Ym0vnxWZ3MHUYiH+jlUEBh
-         qm0UrbKjUEMkgW2HOKziPIDRHzyThYSv7PdIdn6ekmlLah0rmg9gy7MsuL/tOBpyj22z
-         kWvCvcvKQeNki5dY5icoDQDnwB5gc2mdlSbTSn8O5VpblEzP8nF+1g+Up2jJsteRNdpv
-         xg0jI+YPyskRSsp4okjFAgOJuy2K7CxvLh5S/uHHEFJ5iltuZCZpyA0gVmV8y8zdmz+5
-         rqtw==
-X-Gm-Message-State: AOAM531+yWDHKgv3XbqnYolG8txL+kA37hdRbNL7EKjVCZ1JRMvBXqPF
-        BSrUgQnAQSR8jX8vm8G4+BcgZYNp4YC4twId96Rc
-X-Google-Smtp-Source: ABdhPJy/G9SC3q5VqY+WxKOLgPd6Cv8UEj387j5UUpaadkQP9DWE7M81p1uzCPu+kZ5O8zapXEElcztXUUXtYBRoK3E=
-X-Received: by 2002:a17:907:2d12:: with SMTP id gs18mr22326396ejc.126.1637779466696;
- Wed, 24 Nov 2021 10:44:26 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=SQAykfFeb480DYd2vbO+CXZfu4SweCc2LVREB//N0RI=;
+        b=l6AYpg77bGyD0tAz0Y3D6lsdLD6xvvwHIoeEAl2VmLF59nQ6Ik5grCxkslPMVPCZ9z
+         hQDyx8auMlzjIaZgNBBv4sF85+RxKHRWMiwE2rwoCuxCz0PCbWv86XkZ12mx1CNHqZE/
+         cIkvwf9M2KN5Rz6xOj/jnc/0545Pk1C2mfwAnxzVLUg68x7+N4NVihvHyv3lrxpaWo6p
+         7U7TPz9Jv9zvNYbprniTpKRuKrpPVLAvl0GUyMtJZ2bR2LnUQ8awJpXiA3zVnG1+mE19
+         tZDnJubtkd2pFx36VecWOKqi7EsOMKHA7iv+6fQAaZPZTSIAicpI5JeLQST1FRRW3wU0
+         cnkQ==
+X-Gm-Message-State: AOAM530Q3+zVD1GJvwrWTvAbquBg9qf132KtPhtOQAdSjXiOsyhhb0K5
+        jPJFXEAVH+22D3xlbrdBz7GJOj1hG5gF5A==
+X-Google-Smtp-Source: ABdhPJzh/OtOVaSauYnkaKH4U7j3MwhJf8YelsiW3TC0aq9OHC43n6SB4Z35dpMSR7HQvPBY/Wdv2g==
+X-Received: by 2002:a17:906:7955:: with SMTP id l21mr24823912ejo.6.1637780901936;
+        Wed, 24 Nov 2021 11:08:21 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-008-186-056.77.8.pool.telefonica.de. [77.8.186.56])
+        by smtp.gmail.com with ESMTPSA id p3sm339256ejy.94.2021.11.24.11.08.21
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Nov 2021 11:08:21 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [RFC PATCH v2 1/4] libsepol: introduce ebitmap_subtract()
+Date:   Wed, 24 Nov 2021 20:08:12 +0100
+Message-Id: <20211124190815.12757-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.34.0
+In-Reply-To: <20211123190704.14341-1-cgzones@googlemail.com>
+References: <20211123190704.14341-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20211116163838.10888-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20211116163838.10888-1-richard_c_haines@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 24 Nov 2021 13:44:16 -0500
-Message-ID: <CAHC9VhR31kRBZFCubZJsAYMo1pyF+V-gq3YEew2AU23tzOFn4w@mail.gmail.com>
-Subject: Re: [PATCH V2] netlabel: Update man page to clarify SELinux labeling
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 16, 2021 at 11:38 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
->
-> Clarify how SELinux setsockcreatecon(3) and policy socket* class
-> type_transition rules can impact domain:<domain> entries.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2: Clarify the labels returned using getsockopt(2)
->
->  doc/man/man8/netlabelctl.8 | 29 ++++++++++++++++++++++++++++-
->  1 file changed, 28 insertions(+), 1 deletion(-)
+Add a subtract method for ebitmaps.
 
-Merged, thanks!
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+   - add shortcut for empty ebitmaps
+---
+ libsepol/include/sepol/policydb/ebitmap.h |  1 +
+ libsepol/src/ebitmap.c                    | 18 ++++++++++++++++++
+ 2 files changed, 19 insertions(+)
 
+diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
+index 81d0c7a6..daca67a2 100644
+--- a/libsepol/include/sepol/policydb/ebitmap.h
++++ b/libsepol/include/sepol/policydb/ebitmap.h
+@@ -83,6 +83,7 @@ static inline int ebitmap_node_get_bit(const ebitmap_node_t * n, unsigned int bi
+ extern int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2);
+ extern int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * e2);
+ extern int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1);
++extern int ebitmap_subtract(ebitmap_t *dst, const ebitmap_t *e1);
+ extern int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2);
+ extern int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2);
+ extern int ebitmap_not(ebitmap_t *dst, const ebitmap_t *e1, unsigned int maxbit);
+diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+index 1de3816a..80f0e201 100644
+--- a/libsepol/src/ebitmap.c
++++ b/libsepol/src/ebitmap.c
+@@ -72,6 +72,24 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1)
+ 	return 0;
+ }
+ 
++int ebitmap_subtract(ebitmap_t *dst, const ebitmap_t *e1)
++{
++	unsigned int i, length;
++
++	if (ebitmap_is_empty(dst) || ebitmap_is_empty(e1))
++		return 0;
++	
++	length = min(ebitmap_length(dst), ebitmap_length(e1));
++	for (i=0; i < length; i++) {
++		if (ebitmap_get_bit(e1, i)) {
++			int rc = ebitmap_set_bit(dst, i, 0);
++			if (rc < 0)
++				return rc;
++		}
++	}
++	return 0;
++}
++
+ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2)
+ {
+ 	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
 -- 
-paul moore
-www.paul-moore.com
+2.34.0
+
