@@ -2,53 +2,53 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66636C433EF
-	for <selinux@archiver.kernel.org>; Wed, 24 Nov 2021 18:41:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60D00C433EF
+	for <selinux@archiver.kernel.org>; Wed, 24 Nov 2021 18:44:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350814AbhKXSo6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 24 Nov 2021 13:44:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50486 "EHLO
+        id S243280AbhKXSri (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 24 Nov 2021 13:47:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350837AbhKXSou (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 24 Nov 2021 13:44:50 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D5A4C061574
-        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 10:41:40 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id o20so14462525eds.10
-        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 10:41:40 -0800 (PST)
+        with ESMTP id S242758AbhKXSri (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 24 Nov 2021 13:47:38 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30156C061574
+        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 10:44:28 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id x6so14630481edr.5
+        for <selinux@vger.kernel.org>; Wed, 24 Nov 2021 10:44:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=fyUwDbrDWXzAc77WTfWDgb6go9NZG74/mI5SjZsV+Es=;
-        b=DkrTXsnP6d0MiGqy2Z5/Uy5tXrLtW2yPMFVy0M9Ep7zvRqeUDRtl5vDFbqGlGLf9Uj
-         OBmZRKuNRMAjw3HsyUt05OjPp4gXvD3EcwayNNRBO/G3HHs5+p95dBMz8+nUWNT09tuR
-         U9kDpD5WK5TC1zAwKd9Av8PsLSD0YotKD0aZrplyfFhiVN0m1IchTyflTy6wEjXogopO
-         dtcNBYTh1vLOOXr18cNXd5lKmIgxaszLCcvyHE2M5fCNs51gSXnjTtItswzg9XIhVLVk
-         e0nH7ZVNZSjWGQAPSWjMlrJiinM5WJ7LkmTOaRpca7CjCFl8mQuszJ6rxcTWQXsqOXD+
-         aCKg==
+        bh=P717wxUJUtqZpc5a2tCa5X84M4R8mhovpQiw6dwFRbA=;
+        b=OUAenDmmMlenxkqw2jW7B0lPRmeREiGrDd9vsDIcaKnCEBeiHvBXO66GF5ZQTOw62f
+         AKYcwUjFTzPOTUCuIcwYH37qXjdUlTogpPiki3xCOslrCkyNUZ1oR2WXfjUuWY1E9yi0
+         j3e+qSbjJzip/2L64ncN8OClxXZewQhwe64QQdUocxmYbWrp56XRyQ0GlTSh4SrpOXNA
+         9cpZq2c7F8TZuRyoWBJmxPJ+zuDNOJEO11XxoBKBIjr07jLCgBVHdF3VpiVohSC4lruD
+         rhIDP2x3CRt2l3hoHyjk0G+p9ayKlSsAjbxARml5TBK9mTq2JUClbUNCXWHvgXcbG6QC
+         kI8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=fyUwDbrDWXzAc77WTfWDgb6go9NZG74/mI5SjZsV+Es=;
-        b=RKcCPcUhdu3xYSLY41n9X3diDgBetnwagY429ZNq9xH3Ygdh4HppGw6RrkqFSqXBch
-         2N1aJEYwUckFFSwaE3P5M6HmcFfFnZ4LBqdELcLirMOsgltMCEg1QUc+iiWJBt8kw6Mr
-         TJZUUDaXXY43YmEPdx6tyDoo+Jadkcjzfl2is/GwHz8eQncFNI8Wt9IMHG3pa9z6TCH3
-         gOpxuxXScwme/mZ1dH7Am/H6647pxO56X8+j9o2E3gTqv99nAhhY8mdg5kBDYq0vSSwE
-         Q1SWCIhuB33xAaO/TN2bJqfqfyN06Ty3ljemXZiIOAMlc54q3cxOEREPB/I1KFTkH33S
-         jxkw==
-X-Gm-Message-State: AOAM532nSHlc+7YWvNsDonQCffs+qh1GaoLBQXKIbdHmagOz0KFeAImN
-        6OC+9iU3hybcnKl4Yyj7yfGIocifb9eH/gT4QuVLY2+EpQ==
-X-Google-Smtp-Source: ABdhPJzrcuxMr2lJfxA9G7lRMNuKJUSjGQFHsDWZ4GK5NoXyeNMaMfjpsbN6+xnHXtZldvtwG2ywwxOh/aqMfQ/ZYRk=
-X-Received: by 2002:aa7:c30e:: with SMTP id l14mr28399006edq.370.1637779298959;
- Wed, 24 Nov 2021 10:41:38 -0800 (PST)
+        bh=P717wxUJUtqZpc5a2tCa5X84M4R8mhovpQiw6dwFRbA=;
+        b=cjoxuneC7LqF6rVVuzDyINCsO90kgf9+mgmrBNWUgtYf+oHoIAetaqNVeCq3x3Paiw
+         3ATdAhckjAj016hiCrD3M2uVMiNxc8hxCRzCbXNIukiU1/Ym0vnxWZ3MHUYiH+jlUEBh
+         qm0UrbKjUEMkgW2HOKziPIDRHzyThYSv7PdIdn6ekmlLah0rmg9gy7MsuL/tOBpyj22z
+         kWvCvcvKQeNki5dY5icoDQDnwB5gc2mdlSbTSn8O5VpblEzP8nF+1g+Up2jJsteRNdpv
+         xg0jI+YPyskRSsp4okjFAgOJuy2K7CxvLh5S/uHHEFJ5iltuZCZpyA0gVmV8y8zdmz+5
+         rqtw==
+X-Gm-Message-State: AOAM531+yWDHKgv3XbqnYolG8txL+kA37hdRbNL7EKjVCZ1JRMvBXqPF
+        BSrUgQnAQSR8jX8vm8G4+BcgZYNp4YC4twId96Rc
+X-Google-Smtp-Source: ABdhPJy/G9SC3q5VqY+WxKOLgPd6Cv8UEj387j5UUpaadkQP9DWE7M81p1uzCPu+kZ5O8zapXEElcztXUUXtYBRoK3E=
+X-Received: by 2002:a17:907:2d12:: with SMTP id gs18mr22326396ejc.126.1637779466696;
+ Wed, 24 Nov 2021 10:44:26 -0800 (PST)
 MIME-Version: 1.0
-References: <20211116163838.10888-1-richard_c_haines@btinternet.com> <39a355a3d56b14d4f6b7323ad34e93b29666ffb7.camel@btinternet.com>
-In-Reply-To: <39a355a3d56b14d4f6b7323ad34e93b29666ffb7.camel@btinternet.com>
+References: <20211116163838.10888-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20211116163838.10888-1-richard_c_haines@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 24 Nov 2021 13:41:28 -0500
-Message-ID: <CAHC9VhT2j+tFA5tc-WLc-TWPFD0E+k2r+dGj=g0Lh8t4TEzj6A@mail.gmail.com>
+Date:   Wed, 24 Nov 2021 13:44:16 -0500
+Message-ID: <CAHC9VhR31kRBZFCubZJsAYMo1pyF+V-gq3YEew2AU23tzOFn4w@mail.gmail.com>
 Subject: Re: [PATCH V2] netlabel: Update man page to clarify SELinux labeling
 To:     Richard Haines <richard_c_haines@btinternet.com>
 Cc:     selinux@vger.kernel.org
@@ -57,16 +57,20 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 18, 2021 at 3:15 AM Richard Haines
+On Tue, Nov 16, 2021 at 11:38 AM Richard Haines
 <richard_c_haines@btinternet.com> wrote:
-> Are these really bugs or just features ?? The new tests in [1] treat
-> them as features.
 >
-> [1] https://lore.kernel.org/selinux/20211117131450.41705-1-richard_c_haines@btinternet.com/
-> https://lore.kernel.org/selinux/20211117131450.41705-1-richard_c_haines@btinternet.com/
+> Clarify how SELinux setsockcreatecon(3) and policy socket* class
+> type_transition rules can impact domain:<domain> entries.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+> V2: Clarify the labels returned using getsockopt(2)
+>
+>  doc/man/man8/netlabelctl.8 | 29 ++++++++++++++++++++++++++++-
+>  1 file changed, 28 insertions(+), 1 deletion(-)
 
-Unless I'm misunderstanding what you've written, it looks like you've
-written is what I would expect to happen.
+Merged, thanks!
 
 -- 
 paul moore
