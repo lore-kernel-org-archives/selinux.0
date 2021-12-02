@@ -2,182 +2,156 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA6FC433EF
-	for <selinux@archiver.kernel.org>; Wed,  1 Dec 2021 22:37:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77327C433F5
+	for <selinux@archiver.kernel.org>; Thu,  2 Dec 2021 03:12:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343813AbhLAWk6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Dec 2021 17:40:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343789AbhLAWkx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Dec 2021 17:40:53 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE12AC061574
-        for <selinux@vger.kernel.org>; Wed,  1 Dec 2021 14:37:31 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id x6so107745200edr.5
-        for <selinux@vger.kernel.org>; Wed, 01 Dec 2021 14:37:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xvFYScnIiZpe7L5B2ESaQ5vLC1FYUUg118LAtBXizmU=;
-        b=6Qqe8qyGlRgPKSqgx8BGmDAMfTZwHhed+t7gZHUl/ylBSGl38WA/z4dbaoBNfYuU2M
-         oKWW5byF6LD3rfqwOAHOb/oLHvBttnRam8KbdpQm26Fx6uxGn9baK09U21QX49Jl99GS
-         ppfd0zS/lrnF/yvexM2cd7VLtPkWJIWRF8XHxdjBP+Y2MQQ4wHY+a0lVC71tp9+SE5dW
-         uylKsmIYrEORKJxyQg+GFXkIjb9FTZA1kJu9NwRIlfLSlDkWyH5olw8n0e/GeZW+9RXw
-         T8NQ4s2UJSspfGimNr0QAFd7D3ckUaq4ZxOhDySrG6yiEFrO38tlbORc22p4i2S2R9Gt
-         UGFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xvFYScnIiZpe7L5B2ESaQ5vLC1FYUUg118LAtBXizmU=;
-        b=AEhNIQ22pJ/rLSs0XNy7dfRQdRKSl9e6EMEj9UIpXhnieER9gA8Ys2/X4GoBVsH2WX
-         oKCK0a8TvavGp5r5/s8W1Wu9N79kn3W2SUw5+Hj+k9b6vmKb02b0Gx6cCFmRFCadmoiw
-         NApcsQUNi7uMMYDHzRVqCOUlYAKq/9vp47rAV2/Ewww2CMJx4P82uX9W1NIYKyAyU9ik
-         UuR48CUfDsBPPFGNs69CAtStZK8OmBgLlnubo7ksrDitKQIZwBFWPzldKXyACTN8Hpdp
-         H58vRrR6af7qQPoM4W8CR5M/4Zw+sG4e5zfV8OgYHq41pBukteYgApzPjEmOPEP0vdPj
-         zx/g==
-X-Gm-Message-State: AOAM533CRBAlPY9uB1rTuhvIH1MppXA60JQLibgCy/2YagGhZuDwkOPy
-        DzfaBykpUeDoFepDJ3nm6+J528X+HOeakObraeATf3RO6g==
-X-Google-Smtp-Source: ABdhPJzIEed3i6BPJbCdFenIa9ELQQl4ItSqlfZIBYnELqxRsTrf1Y5966lZaRXTXsU1x689uhSEhdnsvLjsHjthWb8=
-X-Received: by 2002:a17:907:629b:: with SMTP id nd27mr10493046ejc.24.1638398250187;
- Wed, 01 Dec 2021 14:37:30 -0800 (PST)
+        id S1344682AbhLBDPy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Dec 2021 22:15:54 -0500
+Received: from mail-sgaapc01on2114.outbound.protection.outlook.com ([40.107.215.114]:57232
+        "EHLO APC01-SG2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1355091AbhLBDPr (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 1 Dec 2021 22:15:47 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OpFkHL3qdiWQvcCQ87DGjhlrQ/S1cEFuIzVhBq9jPDSTFskJncaLh6NSs7mlOV1Lcy3MGRkhP4WRovYXgMbT5tFEarlTP6jBpORHuLDSYC9PUOdqQF9cFsgALKJMW6YGb823tky5bsxnrVO2rTzO+qDTJ1+//BxEy1XydNsVSpW/D5UGCP2dI6vmHVORoJBDq+I70LhwF2+W88XUrqhmxIs9NrixmaQpmc0zT/qETfYWrBQ28JRFbMrW0DiyjUky4p33gbDYlz5NrCjeQyQ1GaMljtNuTHJ4NAogkAavrqH7dtGoH07AiPhcnJUk9V243htqKuA34YoItKn7HLvhFQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=eDknXJxjwHsibi/box+Y84G71NXCyqfW9iJ0vrJE57k=;
+ b=cpv5ElbifGNTo+M2rgjCG3RAc+F95jDSNw1efSdatodiz8AeaXvRDSCxHR7+egm/FR4uztgBYiDsZvTWLV1n9B7Vi/x3o49tFne7O6tK/TIsHvQHrGTrKG8ztZMEIMsp2QtoKqlAvTD0fflh0wSWliToX8KPjM/4a5VAtfGiu+XuyGPHCFtfFjDeLsKSlrHAa4+S1krGmtwqRh2mbVNyhmq1WIDC/gnYo1PfF58hA2jSQPa+Xx4TbYsYLpy8hp3jVDwBoJc0vW4QoGmW3b9a34bXrVOENb+0XmW5UDWaw52zSgkkJx+pOZkBgQOK39oeAXllngKCIdK6C7DqchHgrg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
+ dkim=pass header.d=vivo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo0.onmicrosoft.com;
+ s=selector2-vivo0-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eDknXJxjwHsibi/box+Y84G71NXCyqfW9iJ0vrJE57k=;
+ b=JaQrEUNrC+254mF+M0ofsWVijgUpy3KIcz5qktEwIkY+Qc4VDvaQ/BTeu35y6xHOoxcG6r70lqq5i8Sk3ee2QeAiXxC+OXaTaqcDjF2GnEKOdBGy/oVMO/KXjHvjAmeeu/WWjHX4+zC9cqfBGt7NT1bXnbjlIF1+f7LJnEEw8yc=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vivo.com;
+Received: from PSAPR06MB4021.apcprd06.prod.outlook.com (2603:1096:301:37::11)
+ by PS1PR0601MB3690.apcprd06.prod.outlook.com (2603:1096:300:7b::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Thu, 2 Dec
+ 2021 03:12:20 +0000
+Received: from PSAPR06MB4021.apcprd06.prod.outlook.com
+ ([fe80::395a:f2d7:d67f:b385]) by PSAPR06MB4021.apcprd06.prod.outlook.com
+ ([fe80::395a:f2d7:d67f:b385%4]) with mapi id 15.20.4734.024; Thu, 2 Dec 2021
+ 03:12:20 +0000
+From:   Bernard Zhao <bernard@vivo.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Bernard Zhao <bernard@vivo.com>
+Subject: [PATCH] security/selinux: fix potential memleak in error branch
+Date:   Wed,  1 Dec 2021 19:12:09 -0800
+Message-Id: <20211202031209.253228-1-bernard@vivo.com>
+X-Mailer: git-send-email 2.33.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: HK2PR06CA0021.apcprd06.prod.outlook.com
+ (2603:1096:202:2e::33) To PSAPR06MB4021.apcprd06.prod.outlook.com
+ (2603:1096:301:37::11)
 MIME-Version: 1.0
-References: <20211110111308.3463879-1-brambonne@google.com>
- <CAEjxPJ5ZiVHuYNXBgkKLb2CLCkpUqo-20mAm-sqbk=zt9NH-MQ@mail.gmail.com> <CAEjxPJ6AFuND6uyph4m4FcZxQS38d-vf9z2ypC-h3vb6o5=gqg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6AFuND6uyph4m4FcZxQS38d-vf9z2ypC-h3vb6o5=gqg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 1 Dec 2021 17:37:19 -0500
-Message-ID: <CAHC9VhSFAj5Nr010pURESOX13kfAuj3NYGmG3Xt4bCRPYuJuiA@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: Add netlink xperm support
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Bram Bonne <brambonne@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+Received: from ubuntu.localdomain (203.90.234.87) by HK2PR06CA0021.apcprd06.prod.outlook.com (2603:1096:202:2e::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.22 via Frontend Transport; Thu, 2 Dec 2021 03:12:18 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 8654f474-4c88-4ce8-91d8-08d9b5418d33
+X-MS-TrafficTypeDiagnostic: PS1PR0601MB3690:
+X-Microsoft-Antispam-PRVS: <PS1PR0601MB3690B22983F71EEFB359A0CFDF699@PS1PR0601MB3690.apcprd06.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:155;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: fLF//QNpSXj7VsQZy3hbSrvc9oMp4Zw3oPvZNmS2OEz/YMRqB9ucJyuOw3Kcwjb9b7WzB+MufJD8gCY5HjQSOKvLEK+K2/z9dmqUDhLeUivLUJO+CCqUTO/hSSiOcMO8gOzfMsj5QpA2SPNH4DRAjj7dWKFF9E2ljNjLiqlhM1e+g6XJb+1Zb7PatYeGDWRcpRd0JFyUXIm7zDMCxDFldJSj80EarrgJ5nnz9akaeoGY6UaB9tMPyhsooOfaIgnb1uaYszqYttMhaekS2wH2t7bJ7rF8ubAbFydE2t2hoVdF3NPJxp3Yr8fOuZCfY2EhCx8rPBlKfBpCJkayQIIe714Q5KKyALuJoKUUmpJiLRGaeG2O0SalcXQjhpsFLquJ06nxuvMjtXLrDlaWBJdE7boual6EmtjxLuZVcwis5Kz5ejmhNO0qJ2LTXmZXXnFBiN7kR059+k/EnO/+IBNMgf4zDEF9xafVw+emye9WPhlYxDXUXBqHYDLyB3+ZwREtNoG+KxfD23npemxMw8f/FmMAjAhL33lj3wTTWDmpC7M+J1j2XH51oJPjwxT/21Z4xKDYXIl9Mzg6iVOvl79WYtGfftQ9V84QpcCgPtlLFCUpzRCCNK1aqUnM42Xh5PeNbCc1ZwbBvaauRNLIQiHouascGuUcmya+mvO4O9Bt/KGmhW8RV2+6asPRHlndAW30adbVtPzVwskNjn2Kg6RxiQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAPR06MB4021.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(15650500001)(107886003)(6666004)(52116002)(86362001)(83380400001)(508600001)(4326008)(186003)(66946007)(66556008)(2906002)(6486002)(26005)(66476007)(8936002)(5660300002)(8676002)(38350700002)(36756003)(956004)(2616005)(316002)(6506007)(110136005)(1076003)(6512007)(38100700002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?WGwdsaC6oAzlzSdrwmGd4FYRE/BzwBI+G7B1XgZwekUNOO7M/MI8uG8PAo4P?=
+ =?us-ascii?Q?HQO4G1NOycBXSZD2q8C1S0GmiDZSpK7ujaj4aeAhhuv+0bZWMhpgkHOv6VJL?=
+ =?us-ascii?Q?lKBaByJ/JUsBljjfa7gnMMjMxDbt70MRPIale7U+RP+dR8i15l3xBnldN2Mc?=
+ =?us-ascii?Q?ND+bY7vKeoi34mNB6qguTxYmn5BggQgR346zQQbBIdj6cFMEkXRlcDv7yO3Q?=
+ =?us-ascii?Q?ElL8dSDaCL39nJGGCigqHL1P4eGWSTkNPXduMrFBoXpVN+5xSXIzSsSJQuvn?=
+ =?us-ascii?Q?hOj9WZMb5DXuzMkG6mqJXVdT7OiZredQTQJg6RhEQMplMugQ1B7PjexCb2Va?=
+ =?us-ascii?Q?N+gd3d2Sm/CD1FSoepeJMmDXs/1PYoedbRI55m2MUbRpXKJnS5T7CvZTHdcb?=
+ =?us-ascii?Q?B+g3oaeoF0KQx0Aj/kyyniCL3z+vFpHO8/cnJG9Rn+PsX/viwGrFrENlMnBj?=
+ =?us-ascii?Q?fSzP1Cm11EMsHL5mrnyQ45yitipd0VbyswyWqZqHxHdJVorPUfLq6+62nREO?=
+ =?us-ascii?Q?KBhdx79KnuqTulSoH1i4UjrFkbaNgGs7Rh17DKel/JL99H5alK+boS++nDEO?=
+ =?us-ascii?Q?k69QGTZNRTKD4frIgXb9UWMRkb0O8awYRj4Ch3ah81jEnMTVk5mOxKl5A/97?=
+ =?us-ascii?Q?LhYbTbTY5CA+2jHCCUW2/a8hCvCoi/micb9QVgsvvz02Lfj1ICraF5PKJc1P?=
+ =?us-ascii?Q?VBdBkUr1+Sv4/luz2cH4vGyH9i7ZKUGFKTjyzJ7c+JoUNRS/Yu3sphi27q6O?=
+ =?us-ascii?Q?vdORSxTBsqIP5tBDqyBHJsoU01CvFG1uXsuuUwoI10WuwkJLyYUtKGr6MtF0?=
+ =?us-ascii?Q?wESSdfzq4orDMob5B0u9OKhr1LjT4c7A1VFMcI41+bCh1iO2NNELRuG/SPJm?=
+ =?us-ascii?Q?O+BVCG/bmlOPebfKl1chJxxfbP/nQXg0twvUW545aaA5hTv5eJ/b1Gv1XPno?=
+ =?us-ascii?Q?7tS1+/Huq8Nqpqn9nGH5koA+7udN8tLKxcpHFC79mauViq2laNzHlF81JCfn?=
+ =?us-ascii?Q?jmPD9/t2gx9zs00Vi8aEyLkdZclSz/HFfloAA9CIKI0xnvC6wILxITDj5kkL?=
+ =?us-ascii?Q?8/l0SvyGtWuy9Fs3liIVkmgCF36cCuWwOKEFF5rKXFJHTGhw0t2Z2I7DVvLH?=
+ =?us-ascii?Q?EsQluzQSJcDY+LiQ9wl2bKplCn/7vigvp6wFrCmVmpML2HmHz67rzHxh1wrG?=
+ =?us-ascii?Q?DLogaHIysCePsuZPLAHhOKVxc+0cuEclWUJxQ/JKI4hQx1++CbGnXbXJO9x9?=
+ =?us-ascii?Q?3ic/drwfdRCMzK6rfvblMPkuQLtcB6sQPNLicfo6VaOv9XsoqF8R3GQTlcja?=
+ =?us-ascii?Q?Q/mUuzAzfxcXDfXcRo1Gf6GiooeWG/cil2WptK7Gi/o63plTOCh7+dBj9892?=
+ =?us-ascii?Q?6JfgRehVxlW7gayDq6ryiWinyymh6qvRtAOf3bs2FtOruYUK9XuMuasZw9+p?=
+ =?us-ascii?Q?awkC67EA/GyGggaR5fwLlboxET58fPqN8TOL3iJvVT3D4VXR+jn0BH+Mpr7c?=
+ =?us-ascii?Q?5OCLPxujd2VLSNosmnbFSX5gAmM7hWCAqlVQ4QGWsaCzPy5YLXCTrbpGkl60?=
+ =?us-ascii?Q?bZi4aTMsN2ogvIIGCGM3gXBwFGJdZLJVHZzgmlF2iSton2W8IMGc9lBMe0dV?=
+ =?us-ascii?Q?j8aIrO63OVJrc8ktUeFjQQ0=3D?=
+X-OriginatorOrg: vivo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8654f474-4c88-4ce8-91d8-08d9b5418d33
+X-MS-Exchange-CrossTenant-AuthSource: PSAPR06MB4021.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2021 03:12:19.8653
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0tvxmXxpa86vur68skDaRpjKFTuomkWHa1E8i4byiKyd2gUY5IZWyXDjYZx4AvZcPEZ4x0CYYivRLYmnWPYiHw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PS1PR0601MB3690
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 18, 2021 at 9:46 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Nov 16, 2021 at 10:41 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Nov 10, 2021 at 6:13 AM Bram Bonne <brambonne@google.com> wrote:
-> > >
-> > > Reuse the existing extended permissions infrastructure to support
-> > > sepolicy for different netlink message types.
-> > >
-> > > When individual netlink message types are omitted only the existing
-> > > permissions are checked. As is the case for ioctl xperms, this feature
-> > > is intended to provide finer granularity for nlmsg_read and nlmsg_write
-> > > permissions, as they may be too imprecise. For example, a single
-> > > NETLINK_ROUTE socket may provide access to both an interface's IP
-> > > address and to its ARP table, which might have different privacy
-> > > implications. In addition, the set of message types has grown over time,
-> > > so even if the current list is acceptable, future additions might not be.
-> > > It was suggested before on the mailing list [1] that extended permissions
-> > > would be a good fit for this purpose.
-> > >
-> > > Existing policy using the nlmsg_read and nlmsg_write permissions will
-> > > continue to work as-is. Similar to ioctl xperms, netlink xperms allow
-> > > for a more fine-grained policy where needed.
-> > >
-> > > Example policy on Android, preventing regular apps from accessing the
-> > > device's MAC address and ARP table, but allowing this access to
-> > > privileged apps, looks as follows:
-> > >
-> > > allow netdomain self:netlink_route_socket {
-> > >         create read getattr write setattr lock append connect getopt
-> > >         setopt shutdown nlmsg_read
-> > > };
-> > > allowxperm netdomain self:netlink_route_socket nlmsg ~{
-> > >         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
-> > > };
-> > > allowxperm priv_app self:netlink_route_socket nlmsg {
-> > >         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
-> > > };
-> > >
-> > > Android currently uses code similar to [1] as a temporary workaround to
-> > > limit access to certain netlink message types; our hope is that this patch
-> > > will allow us to move back to upstream code with an approach that works for
-> > > everyone.
-> > >
-> > > [1] https://lore.kernel.org/selinux/CAHC9VhRSUhozBycHMZcMaJsibJDxNMsTsKVT2zOnW=5H4R4mdg@mail.gmail.com/
-> > >
-> > > Signed-off-by: Bram Bonne <brambonne@google.com>
-> > > ---
-> > >  security/selinux/hooks.c       | 24 +++++++++++++++++++++++-
-> > >  security/selinux/ss/avtab.h    |  1 +
-> > >  security/selinux/ss/services.c | 23 ++++++++++++++++++++++-
-> > >  3 files changed, 46 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index e7ebd45ca345..a503865fabed 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -4662,6 +4662,28 @@ static int sock_has_perm(struct sock *sk, u32 perms)
-> > >                             &ad);
-> > >  }
-> > >
-> > > +static int nlmsg_sock_has_extended_perms(struct sock *sk, u32 perms, u16 nlmsg_type)
-> > > +{
-> > > +       struct sk_security_struct *sksec = sk->sk_security;
-> > > +       struct common_audit_data ad;
-> > > +       struct lsm_network_audit net = {0,};
-> > > +       u8 xperm;
-> > > +
-> > > +       if (sksec->sid == SECINITSID_KERNEL)
-> > > +               return 0;
-> > > +
-> > > +       ad.type = LSM_AUDIT_DATA_NET;
-> > > +       ad.u.net = &net;
-> > > +       ad.u.net->sk = sk;
-> > > +
-> > > +       // nlmsg_types comfortably fit into a single driver, see RTM_MAX in uapi/linux/rtnetlink.h
-> > > +       xperm = nlmsg_type & 0xff;
-> >
-> > This seems like a dangerous assumption; obviously not all netlink
-> > users are rtnetlink. Even if all existing netlink users follow this,
-> > nothing prevents userspace from creating a netlink message that
-> > violates it AFAIK, at which point you will just silently discard the
-> > higher bits. If we think we can get away with this restriction, then
-> > we need to enforce it here (i.e. return an error if they do not fit);
-> > if not,
-> > then we likely need to support multiple drivers with a simple mapping
-> > of the upper bits to driver.
->
-> Looks like generic netlink puts the family id into the message type
-> field, with the actual command in the separate generic netlink header
-> in the payload. generic netlink family ids appear to be dynamically
-> allocated, with GENL_MAX_ID defined as 1023. genl-ctrl-list on a
-> sample Linux system reports ids from 0x10 through 0x1f so those would
-> fit but there isn't anything in the code to prevent higher ids from
-> being allocated up to the max. And if someday you want to be able to
-> filter generic netlink messages at the per-command level, you'd
-> further need to deal with the separate cmd field.
+This patch try to fix potential memleak in error branch.
 
-There is also NETLINK_AUDIT which currently has message types defined
-up to 2000.  The netlink message header format allows for 16 bit
-message types (look at the nlmsghdr struct) and I think it would be a
-mistake if the SELinux netlink/xperms code didn't support a full 16
-bits for the message type.
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+---
+ security/selinux/hooks.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-As far as NETLINK_GENERIC is concerned, yes, that's a bit of a
-nuisance both with the dynamic family IDs and buried message types.
-On the plus side, there are existing kernel functions that will
-resolve the generic netlink family IDs to a genl_family struct but
-those are currently private to the generic netlink code; I imagine if
-there was a need those functions (or something similar) could be made
-available outside of the genetlink.c.  Once you've matched on
-NETLINK_GENERIC and done the family resolution, it should just be a
-matter of doing the generic netlink command lookup in the context of
-the family, which really shouldn't be much different than looking up
-the message type of a conventional netlink message.
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 62d30c0a30c2..10700720bb74 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -983,6 +983,7 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ {
+ 	struct selinux_mnt_opts *opts = *mnt_opts;
++	bool is_alloc_opts = false;
+ 
+ 	if (token == Opt_seclabel)	/* eaten and completely ignored */
+ 		return 0;
+@@ -992,9 +993,13 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 		if (!opts)
+ 			return -ENOMEM;
+ 		*mnt_opts = opts;
++		is_alloc_opts = true;
+ 	}
+-	if (!s)
++	if (!s) {
++		if (is_alloc_opts)
++			kfree(opts);
+ 		return -ENOMEM;
++	}
+ 	switch (token) {
+ 	case Opt_context:
+ 		if (opts->context || opts->defcontext)
+@@ -1020,6 +1025,8 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 	return 0;
+ Einval:
+ 	pr_warn(SEL_MOUNT_FAIL_MSG);
++	if (is_alloc_opts)
++		kfree(opts);
+ 	return -EINVAL;
+ }
+ 
 -- 
-paul moore
-www.paul-moore.com
+2.33.1
+
