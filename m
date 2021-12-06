@@ -2,217 +2,300 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99E22C4332F
-	for <selinux@archiver.kernel.org>; Mon,  6 Dec 2021 16:02:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A215FC433EF
+	for <selinux@archiver.kernel.org>; Mon,  6 Dec 2021 18:25:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356784AbhLFQE7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Dec 2021 11:04:59 -0500
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com ([66.163.189.89]:36927
-        "EHLO sonic306-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1387245AbhLFP7D (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Dec 2021 10:59:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1638806134; bh=JaHhrCbG8hzghG3pQ5K/lq8BNnAcHlR7ZQK1fbnhLlc=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=FP3wqM1SncOznJvFvnp3LtIPvuse7cMdYtEVC0wfxL9SrgMjIxXwsIOEXfh0eZ4cU4HiGPba73cj8+pF6APDYDcaVUD4wOq1hlnU4YDnhJSbNQL3nj4qbrd0pv9CaJ80VcS6Duj0+Lp+CyGFzbw3tNlHMVFRfPcEzcWSSt1JR4utoKoo7ri3TQzaePsj9PCW2AL+UKXPmthk9d2uFog4aSb3WEwuHNHW6kJ49MZtf0B1jzI7RXdx/WjbsNiGmXupOBBHjyugkhtQu4MZ7gN8hnChxKPAhue8B5ZznE4Dny7YAS0RAeiUVbQtWm85R5l9OymN5Nhs1oOYr6C2tP1XzQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1638806134; bh=fHm1ICea/G/NzQtsjjiXcfF4L0hiKoU9ubVOCG0r28o=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=lcELw18PxyoDcnhpzO3Zty+PJ86fA1vErKJhjePUt7oF6hn+15hcKB7LI3TVOF99aANtAbzYZb0xOmENkJGecOzAvKXzdWvHKDSfwW7qbnTu2pWNX/9u7r2X7fHQrV0d2C2P8x3ZdIBiDoMeO7vg7LfBqriD2HYYihBAGUhiIdTF3oc2sEYlzYe0dzYgldYtPLk7BuNLF0jBiXLmX5Af0mNRIsNcP0bMvCKFu4Qpg05uNCuW3LkMq8EKipdeRqwxPxjZqkFMKh8bYexjpnSfwkBkjRi2njw2tfi0FwpcPlv7eK3whnNcS+71BRVyHVX4KR6Eh+QQH6XaAuawm3p04w==
-X-YMail-OSG: NIeNbeIVM1m0HrGSJa6bKk4vGa7H4fqbrdkiZcto3P4.KlFsjgURie8Jw0mQ6FC
- oMq74uEnls.jy83hclKwgUBhKvJUPzM4Azsf2d8KQo48yYWFOFYrLwbUGy7SGWS1ipju4uTcoZRA
- l2laE3GlbGqCf9gb8aPmKMpwSg36SD5IW_M8iAU.MbL50EIIu3nIj7JF2pdCbPFAt1zWYCrqqa1A
- cbQY8VOn.fN2Duk_cwfeK5IOLfAirUNrFkBFB.ikapRTaXPheIEuQLYSgi09uRMyqUeNDbyJMKic
- CO1ApM2BWidYgYC4Mp.bTBQMfSSXMYl0Gk7oJy.FKByqcWliM2k.bseYhVvbtwn1kNN0F.ALTnO7
- SdAAS1Txcs4yQ77PgCzl8f9oQ8dMBN9nZT6pW6wgF1Dw15LycHfEDG6hYX460Ia5T_pOl6G.zz5D
- E1xlw017H6kLKx0jrfjXiLtr69zt4YVKPakwMGdr1fYKqwTJlycn3m4yB9VLvqABkOvCNu7nZzBC
- z1eDoIQa1rK_YNbAhlAnYtaAtDWYQtmg7AQ2U4y1nccRe0ViYgdmt1b4D71.dHh4MQH34QKI5zXO
- RCZLn_l02JGtwSUsDNYB8h6ZfGX9ktiQ3lBp64DlWnpfgbTAfTh0KsOQ0v4lcPWZP9MO0io98Rbo
- z58Muy4tLO0CcgvJHwnRupunkTOinQz7NYLO6cdSicKZBJFiAmYRK28.k8.UAxtZkDvLJI3Bgyxj
- 8_wxGZlJOh1hBFTwKdb8LrUy7ei3x9NNbfblkyFLHa7hpC5g3dHixQV0wXv9owPcnuX8qBa7hQ7.
- UTTl88vPAma65klc7vhb42rq5OJoZ2UhyihULt5rEL2mUqxb7GPEZE8BHxk417fzg1h_KL5y7P1q
- Ffvt88BllEQaGkJ7qNQ8QAH4f8twAAQBGnqmpCulbkXmTHapoVn9LRSgs3nErhA2VHyweMEFD.ck
- f6aketWBmklJbo3t1u5uZOFIhNR0oesOF1oK.85kQcw3OCHz8RJNpM7ghxVtU6XQFdHQsrziD1Ns
- wl1qh2uGvLyNJH7T1dS9GBgOX7Jj9aU928jjLsxnJLJt_6f37kuY4YlmzS.EdsD5Q6KpzFhta0G7
- lFtUIIiPK3wYo9MjY8dKUtTGeF4jonPJsTuRuRL3K_c3PQ0fvHpuEDXyiJtR6PcYKzL1f9oKyp1u
- qEPBRhmNZdyZIct5YjcCsS36f1HdI77C3osc0UVtIDl5C2yXmQbanuQLATGIgTTJj0G8F7QqZYXR
- g4Ki1q8yWCAPnhTCBejc79HIQtdcQqm98NB1UKzZSUA1Y21fwRvbMJI6i4wAr1ZM2ca8C9_ASQuH
- sl0v7wbsoFq5SnI1JHPlVJSkoi46PRsVQMGfPfz5ViBV9N.7TFyUJPhsaafrZHX9dCy_xrKbbBCE
- gC5JjrkOyl5p50TDb_sS2Surpch3aBLfg0xDAXzedlkBWOAmmbPNCeRPv1EvPKM5OC_8nLf653lE
- mM3_4u1ZyKOJfXfrIcpm4OomHOsDg8bYaFi0Jmiw0pXaR6mkro2Xtwvg4m44PqI3UjjzRQAqp1E9
- j9D6ZsDTUKpzWp2CkfHK2NdA1Yzr4VuWOKl2JcKxbCeJo6F9u0X6qjlqo.kL2iUDLVInBvpGmVBl
- afhpEzlo45bNjSsCbETL0h0XCXjmdaJiCteC5DrmX2CTyt1cB5R4sw4nPH7QDUpf8Ao0MLQ7DmNh
- AuKRoKqaKtXk83dN9quhSKw05FJknhEdLvFDMsW72uoWJNCDXo2X1H7g1g9L8jHfK9Y4G_OLwq2n
- uZjZubc4bttHngcrfN.sAm2EyEd4s0D4WxQIj.j3TCZ4I_Ym4WZRgS.Li77FStJIljO6WXw1lz_6
- NZGtQTe1l8qkJYnLrNB7cALlO15If2lnP8U_jYmeVbjfjsZxeChaxNoxPXIkLQsM.mM7rpXXEEDP
- RyloNdNZZyMsauBQMONUOmmjhsq7z72HhmDliki8byzFZxeGkY7L_qkNAgltEpmm0J5Gp2Q98vE6
- aGNUl4NDvokxT9.G5yIIKhYecHFOp9b3qEj0hbN3qxZz0qcGdkZADlaRMLU6w8lD6r8C_v5dlNQM
- LXH9FKAOuGHefUBjqhRqPzEVnEv2hBlbnT5gew44UifUpciDGFkUT7ouIObr5TXf3u3hBi2tcfOH
- UvL5nNoHMiiSqssSs06AKYHoF10aoi5pZ4V9vhzr7O4wlWQGgcHQUsrOz0A_257ndl_5b4H_qFNr
- AeoreEQmOVLHLnp0_3bvMCQQIf7Qgtx5O0bCdMEIGyVv77YUtwyBOtjKBOoGiclfWyIkxGKAkb2K
- 0
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 6 Dec 2021 15:55:34 +0000
-Received: by kubenode514.mail-prod1.omega.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID fa0b382a1f298cf32b44157a87068673;
-          Mon, 06 Dec 2021 15:55:30 +0000 (UTC)
-Message-ID: <2abc762e-9248-0342-037e-19e360cd0b16@schaufler-ca.com>
-Date:   Mon, 6 Dec 2021 07:55:27 -0800
+        id S231218AbhLFS3M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Dec 2021 13:29:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47156 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236980AbhLFS3L (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Dec 2021 13:29:11 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D12C061746
+        for <selinux@vger.kernel.org>; Mon,  6 Dec 2021 10:25:42 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id s139so22955648oie.13
+        for <selinux@vger.kernel.org>; Mon, 06 Dec 2021 10:25:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mxmdquqWtH6XA0Fd7J8mFT50Rv1VmAkjrysGWdVXQL4=;
+        b=mYPcBw1wCTpEHa4kgRFK87Qcqu36M3iPFomNDaLMajzMkndQvxfvUXadr5fE0ASWZB
+         surnjA6TOWzUC7ZO9ZBSqyqdl8FIkMKGJ4aAqfk9RrAofK68KZZIZPwbJ0U3JvIqjiUS
+         jm1SqVRVYmdvorkmdApvOLWyJC9UZjqc3ol62B8cyEmZnKuC/6rXE6jTb9nD3pMYUKwF
+         393Hw+LOCE5QD468aU1S1kTY3qTEDT5lVtTItT3InvUPLvDtmE73y3y6uCK3ZsAfAcOH
+         gwPx4si81ZfxEuIxQvuo2sCWpayI5xrJa+ZYUZQtH8oXxNtCVbkIa8D4ktJeUn1+eAxk
+         OEbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mxmdquqWtH6XA0Fd7J8mFT50Rv1VmAkjrysGWdVXQL4=;
+        b=cC/3pyPiQkfVsIypazmG0TskFJOeiisJ/zT7iJYtnA2d/K250EVAeCZBi6nVRcG/+j
+         3AFcz+HCUTC34fCbqyM9Q6j86WUbpAA01XoAyvR8QLXRRghnLDYdntMXJ4eu/HCAYYoV
+         J3pF3VhWIKa7wtH0QN3u38QpI3fjl4W1ijUP18at0jJiAVfnKdfoI93QkJZNpmCu3pHU
+         QflgmpF9JCoWSPdyrCkmVQJOBczlSjrWqSGTiXOi8Zam/SAM+E8cmORKQVKiJWY/3zBe
+         Jr/a73CakuFcFy925K5z5W8G9CzTk1fYvk1cxaVv9czrQnvmd6FGsEj8dl5E+ME32+ei
+         1TKA==
+X-Gm-Message-State: AOAM532L+b0vv/Aa/QOnTnw83GM6aHjxdP5L6oG/tr0JeFTi5AqsF27w
+        l5LmJLfGv8VJCP8n+KePKTf7A3XsZOQhNZYiB4+DX4avcxs=
+X-Google-Smtp-Source: ABdhPJzIU67ti5NtNUfCUeVgEZfeVa7QLtVkbCns5BQ/RFPb8N1vWLHnNb6gnlavRlsdjyYCfYZx3pXsDp96Dxd3vTk=
+X-Received: by 2002:a05:6808:179d:: with SMTP id bg29mr228610oib.138.1638815141905;
+ Mon, 06 Dec 2021 10:25:41 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: [PATCH] security,selinux: remove security_add_mnt_opt()
-Content-Language: en-US
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20211206132406.235872-1-omosnace@redhat.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20211206132406.235872-1-omosnace@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.19306 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20211124190815.12757-1-cgzones@googlemail.com>
+ <20211204103516.17375-1-cgzones@googlemail.com> <20211204103516.17375-5-cgzones@googlemail.com>
+In-Reply-To: <20211204103516.17375-5-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 6 Dec 2021 13:25:30 -0500
+Message-ID: <CAP+JOzTOtHbFYp0aU=w9dKcaDHxFzQFFzHqS7HRNX4LBnKE+-A@mail.gmail.com>
+Subject: Re: [RFC PATCH v3 5/5] libsepol: pass avtab to report function
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="00000000000062d9e505d27e622c"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/6/2021 5:24 AM, Ondrej Mosnacek wrote:
-> Its last user has been removed in commit f2aedb713c28 ("NFS: Add
-> fs_context support.").
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+--00000000000062d9e505d27e622c
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+On Sat, Dec 4, 2021 at 5:35 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Populate the avtab member before passing as argument to the report
+> function. Without the avtab avtab_search_node() is unable to find
+> allowxperm rules and this results in false-positive reports, e.g. on:
+>
+>     allow TATTR1 TATTR1 : CLASS1 ioctl;
+>     allowxperm TATTR1 TATTR1 : CLASS1 ioctl 0x9501;
+>     neverallowxperm TYPE1 ~self : CLASS1 0x9501;
+>
+> Reported-by: James Carter <jwcart2@gmail.com>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+No longer getting the false positives, but now I am seeing false negatives.
+
+allow TATTR1 TATTR1 : CLASS4 ioctl;
+allowxperm TATTR1 TATTR1 : CLASS4 ioctl 0x9401;
+neverallowxperm TATTR1 self : CLASS4 ioctl 0x9421;
+
+These rules are being caught as they should:
+allowxperm TATTR1 TATTR1 : CLASS4 ioctl 0x9421;
+allowxperm TATTR1 TATTR2 : CLASS4 ioctl 0x9421;
+
+These rules are not being caught.
+allowxperm TYPE1    self : CLASS4 ioctl 0x9421;
+allowxperm TYPE1   TYPE1 : CLASS4 ioctl 0x9421;
+allowxperm TYPE1  TATTR1 : CLASS4 ioctl 0x9421;
+allowxperm TATTR1   self : CLASS4 ioctl 0x9421;
+
+I've attached the policy.conf that I am testing with.
+
+Thanks,
+Jim
+
 
 > ---
->   include/linux/lsm_hook_defs.h |  2 --
->   include/linux/lsm_hooks.h     |  2 --
->   include/linux/security.h      |  8 -------
->   security/security.c           |  8 -------
->   security/selinux/hooks.c      | 39 -----------------------------------
->   5 files changed, 59 deletions(-)
+>  libsepol/src/assertion.c | 2 ++
+>  1 file changed, 2 insertions(+)
 >
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> index df8de62f4710..7f5c35d72082 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -78,8 +78,6 @@ LSM_HOOK(int, 0, sb_set_mnt_opts, struct super_block *sb, void *mnt_opts,
->   LSM_HOOK(int, 0, sb_clone_mnt_opts, const struct super_block *oldsb,
->   	 struct super_block *newsb, unsigned long kern_flags,
->   	 unsigned long *set_kern_flags)
-> -LSM_HOOK(int, 0, sb_add_mnt_opt, const char *option, const char *val,
-> -	 int len, void **mnt_opts)
->   LSM_HOOK(int, 0, move_mount, const struct path *from_path,
->   	 const struct path *to_path)
->   LSM_HOOK(int, 0, dentry_init_security, struct dentry *dentry,
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index d45b6f6e27fd..73cb0ab2bc03 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -180,8 +180,6 @@
->    *	Copy all security options from a given superblock to another
->    *	@oldsb old superblock which contain information to clone
->    *	@newsb new superblock which needs filled in
-> - * @sb_add_mnt_opt:
-> - * 	Add one mount @option to @mnt_opts.
->    * @sb_parse_opts_str:
->    *	Parse a string of security data filling in the opts structure
->    *	@options string containing all mount options known by the LSM
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index bbf44a466832..a4f0c421dd0c 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -313,8 +313,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
->   				struct super_block *newsb,
->   				unsigned long kern_flags,
->   				unsigned long *set_kern_flags);
-> -int security_add_mnt_opt(const char *option, const char *val,
-> -				int len, void **mnt_opts);
->   int security_move_mount(const struct path *from_path, const struct path *to_path);
->   int security_dentry_init_security(struct dentry *dentry, int mode,
->   				  const struct qstr *name,
-> @@ -711,12 +709,6 @@ static inline int security_sb_clone_mnt_opts(const struct super_block *oldsb,
->   	return 0;
->   }
->   
-> -static inline int security_add_mnt_opt(const char *option, const char *val,
-> -					int len, void **mnt_opts)
-> -{
-> -	return 0;
-> -}
-> -
->   static inline int security_move_mount(const struct path *from_path,
->   				      const struct path *to_path)
->   {
-> diff --git a/security/security.c b/security/security.c
-> index c88167a414b4..0c49a1f05ac4 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -994,14 +994,6 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
->   }
->   EXPORT_SYMBOL(security_sb_clone_mnt_opts);
->   
-> -int security_add_mnt_opt(const char *option, const char *val, int len,
-> -			 void **mnt_opts)
-> -{
-> -	return call_int_hook(sb_add_mnt_opt, -EINVAL,
-> -					option, val, len, mnt_opts);
-> -}
-> -EXPORT_SYMBOL(security_add_mnt_opt);
-> -
->   int security_move_mount(const struct path *from_path, const struct path *to_path)
->   {
->   	return call_int_hook(move_mount, 0, from_path, to_path);
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 62d30c0a30c2..8ea92f08e6bd 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1023,44 +1023,6 @@ Einval:
->   	return -EINVAL;
->   }
->   
-> -static int selinux_add_mnt_opt(const char *option, const char *val, int len,
-> -			       void **mnt_opts)
-> -{
-> -	int token = Opt_error;
-> -	int rc, i;
-> -
-> -	for (i = 0; i < ARRAY_SIZE(tokens); i++) {
-> -		if (strcmp(option, tokens[i].name) == 0) {
-> -			token = tokens[i].opt;
-> -			break;
-> -		}
-> -	}
-> -
-> -	if (token == Opt_error)
-> -		return -EINVAL;
-> -
-> -	if (token != Opt_seclabel) {
-> -		val = kmemdup_nul(val, len, GFP_KERNEL);
-> -		if (!val) {
-> -			rc = -ENOMEM;
-> -			goto free_opt;
-> -		}
-> -	}
-> -	rc = selinux_add_opt(token, val, mnt_opts);
-> -	if (unlikely(rc)) {
-> -		kfree(val);
-> -		goto free_opt;
-> -	}
-> -	return rc;
-> -
-> -free_opt:
-> -	if (*mnt_opts) {
-> -		selinux_free_mnt_opts(*mnt_opts);
-> -		*mnt_opts = NULL;
-> -	}
-> -	return rc;
-> -}
-> -
->   static int show_sid(struct seq_file *m, u32 sid)
->   {
->   	char *context = NULL;
-> @@ -7298,7 +7260,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->   	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
->   	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
->   	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
-> -	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
->   #ifdef CONFIG_SECURITY_NETWORK_XFRM
->   	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
->   #endif
+> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> index 4600be41..a0eebb93 100644
+> --- a/libsepol/src/assertion.c
+> +++ b/libsepol/src/assertion.c
+> @@ -304,10 +304,12 @@ static int report_assertion_failures(sepol_handle_t=
+ *handle, policydb_t *p, avru
+>         args.avrule =3D avrule;
+>         args.errors =3D 0;
+>
+> +       args.avtab =3D &p->te_avtab;
+>         rc =3D avtab_map(&p->te_avtab, report_assertion_avtab_matches, &a=
+rgs);
+>         if (rc)
+>                 goto oom;
+>
+> +       args.avtab =3D &p->te_cond_avtab;
+>         rc =3D avtab_map(&p->te_cond_avtab, report_assertion_avtab_matche=
+s, &args);
+>         if (rc)
+>                 goto oom;
+> --
+> 2.34.1
+>
+
+--00000000000062d9e505d27e622c
+Content-Type: text/plain; charset="US-ASCII"; name="policy.conf"
+Content-Disposition: attachment; filename="policy.conf"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kwv07jz50>
+X-Attachment-Id: f_kwv07jz50
+
+Y2xhc3MgQ0xBU1MxCmNsYXNzIENMQVNTMgpjbGFzcyBDTEFTUzMKY2xhc3MgQ0xBU1M0CmNsYXNz
+IENMQVNTNQpjbGFzcyBDTEFTUzYKc2lkIGtlcm5lbApjbGFzcyBDTEFTUzEgeyBQRVJNMUEgUEVS
+TTFCIFBFUk0xQyBQRVJNMUQgfQpjbGFzcyBDTEFTUzIgeyBQRVJNMkEgUEVSTTJCIFBFUk0yQyBQ
+RVJNMkQgfQpjbGFzcyBDTEFTUzMgeyBQRVJNM0EgUEVSTTNCIFBFUk0zQyBQRVJNM0QgfQpjbGFz
+cyBDTEFTUzQgeyBpb2N0bCB9CmNsYXNzIENMQVNTNSB7IGlvY3RsIH0KY2xhc3MgQ0xBU1M2IHsg
+aW9jdGwgfQpzZW5zaXRpdml0eSBTRU5TMTsKZG9taW5hbmNlIHsgU0VOUzEgfQpjYXRlZ29yeSBD
+QVQxOwpsZXZlbCBTRU5TMTpDQVQxOwptbHNjb25zdHJhaW4gQ0xBU1MxIHsgUEVSTTFBIH0gKGgx
+IGRvbSBoMiBhbmQgbDEgZG9tYnkgaDEpOwptbHN2YWxpZGF0ZXRyYW5zIENMQVNTMSAobDEgPT0g
+bDIgb3IgbDEgaW5jb21wIGwyKTsKYXR0cmlidXRlIFRBVFRSMTsKYXR0cmlidXRlIFRBVFRSMjsK
+dHlwZSBUWVBFMTsKdHlwZSBUWVBFMjsKdHlwZSBUWVBFMzsKdHlwZWF0dHJpYnV0ZSBUWVBFMSBU
+QVRUUjEsIFRBVFRSMjsKdHlwZWF0dHJpYnV0ZSBUWVBFMiBUQVRUUjEsIFRBVFRSMjsKdHlwZWF0
+dHJpYnV0ZSBUWVBFMyBUQVRUUjE7CgoKIyBUZXN0IHNlbGYgbmV2ZXJhbGxvdwoKI2FsbG93IFRZ
+UEUxICAgIHNlbGYgOiBDTEFTUzEgUEVSTTFBOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCiNhbGxv
+dyBUWVBFMSAgIFRZUEUxIDogQ0xBU1MxIFBFUk0xQTsgIyBuZXZlcmFsbG93IHZpb2xhdGlvbgoj
+YWxsb3cgVFlQRTEgIFRBVFRSMSA6IENMQVNTMSBQRVJNMUE7ICMgbmV2ZXJhbGxvdyB2aW9sYXRp
+b24KI2FsbG93IFRBVFRSMSBUQVRUUjEgOiBDTEFTUzEgUEVSTTFBOyAjIG5ldmVyYWxsb3cgdmlv
+bGF0aW9uCiNhbGxvdyBUQVRUUjEgVEFUVFIyIDogQ0xBU1MxIFBFUk0xQTsgIyBuZXZlcmFsbG93
+IHZpb2xhdGlvbgpuZXZlcmFsbG93IFRZUEUxIHNlbGYgOiBDTEFTUzEgUEVSTTFBOwoKI2FsbG93
+IFRZUEUxICAgIHNlbGYgOiBDTEFTUzEgUEVSTTFCOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCiNh
+bGxvdyBUWVBFMSAgIFRZUEUxIDogQ0xBU1MxIFBFUk0xQjsgIyBuZXZlcmFsbG93IHZpb2xhdGlv
+bgojYWxsb3cgVFlQRTEgIFRBVFRSMSA6IENMQVNTMSBQRVJNMUI7ICMgbmV2ZXJhbGxvdyB2aW9s
+YXRpb24KI2FsbG93IFRBVFRSMSBUQVRUUjEgOiBDTEFTUzEgUEVSTTFCOyAjIG5ldmVyYWxsb3cg
+dmlvbGF0aW9uCiNhbGxvdyBUQVRUUjEgVEFUVFIyIDogQ0xBU1MxIFBFUk0xQjsgIyBuZXZlcmFs
+bG93IHZpb2xhdGlvbgphbGxvdyBUWVBFMSBUWVBFMiA6IENMQVNTMSBQRVJNMUI7ICMgTk9UIGEg
+bmV2ZXJhbGxvdyB2aW9sYXRpb24KbmV2ZXJhbGxvdyBUQVRUUjEgc2VsZiA6IENMQVNTMSBQRVJN
+MUI7CgojIFRlc3QgYWxsb3cgcnVsZSBpbiBtb2R1bGUsIG5ldmVyYWxsb3cgaW4gYmFzZQojYWxs
+b3cgVFlQRTEgc2VsZiA6IENMQVNTMSBQRVJNMUM7ICMgbmV2ZXJhbGxvdyB2aW9sYXRpb24KbmV2
+ZXJhbGxvdyBUWVBFMSBzZWxmIDogQ0xBU1MxIFBFUk0xQzsKCiMgVGVzdCBuZXZlcmFsbG93IGlu
+IG1vZHVsZSwgYWxsb3cgcnVsZSBpbiBiYXNlCiNhbGxvdyBUWVBFMSBzZWxmIDogQ0xBU1MxIFBF
+Uk0xRDsgIyBuZXZlcmFsbG93IHZpb2xhdGlvbgpuZXZlcmFsbG93IFRZUEUxIHNlbGYgOiBDTEFT
+UzEgUEVSTTFEOwoKCiMgVGVzdCB+c2VsZiBuZXZlcmFsbG93CgphbGxvdyBUWVBFMSAgc2VsZiA6
+IENMQVNTMiBQRVJNMkE7ICMgTm90IG5ldmVyYWxsb3cgdmlvbGF0aW9uCmFsbG93IFRZUEUxIFRZ
+UEUxIDogQ0xBU1MyIFBFUk0yQTsgIyBOb3QgbmV2ZXJhbGxvdyB2aW9sYXRpb24KI2FsbG93IFRZ
+UEUxICAgVFlQRTIgOiBDTEFTUzIgUEVSTTJBOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCiNhbGxv
+dyBUWVBFMSAgVEFUVFIxIDogQ0xBU1MyIFBFUk0yQTsgIyBuZXZlcmFsbG93IHZpb2xhdGlvbgoj
+YWxsb3cgVEFUVFIxIFRBVFRSMSA6IENMQVNTMiBQRVJNMkE7ICMgbmV2ZXJhbGxvdyB2aW9sYXRp
+b24KI2FsbG93IFRBVFRSMSBUQVRUUjIgOiBDTEFTUzIgUEVSTTJBOyAjIG5ldmVyYWxsb3cgdmlv
+bGF0aW9uCm5ldmVyYWxsb3cgVFlQRTEgfnNlbGYgOiBDTEFTUzIgUEVSTTJBOwoKYWxsb3cgVFlQ
+RTEgIHNlbGYgOiBDTEFTUzIgUEVSTTJCOyAjIE5vdCBuZXZlcmFsbG93IHZpb2xhdGlvbgphbGxv
+dyBUWVBFMiBUWVBFMiA6IENMQVNTMiBQRVJNMkI7ICMgTm90IG5ldmVyYWxsb3cgdmlvbGF0aW9u
+CiNhbGxvdyBUWVBFMSAgIFRZUEUyICA6IENMQVNTMiBQRVJNMkI7ICMgbmV2ZXJhbGxvdyB2aW9s
+YXRpb24KI2FsbG93IFRZUEUxICBUQVRUUjEgIDogQ0xBU1MyIFBFUk0yQjsgIyBuZXZlcmFsbG93
+IHZpb2xhdGlvbgojYWxsb3cgVEFUVFIxIFRBVFRSMSAgOiBDTEFTUzIgUEVSTTJCOyAjIG5ldmVy
+YWxsb3cgdmlvbGF0aW9uCiNhbGxvdyBUQVRUUjEgVEFUVFIyICA6IENMQVNTMiBQRVJNMkI7ICMg
+bmV2ZXJhbGxvdyB2aW9sYXRpb24KbmV2ZXJhbGxvdyBUQVRUUjEgfnNlbGYgOiBDTEFTUzIgUEVS
+TTJCOwoKIyBUZXN0IGFsbG93IHJ1bGVzIGluIG1vZHVsZSwgbmV2ZXJhbGxvdyBpbiBiYXNlCmFs
+bG93IFRZUEUxIHNlbGYgOiBDTEFTUzIgUEVSTTJDOyAgICMgTm90IG5ldmVyYWxsb3cgdmlvbGF0
+aW9uCiNhbGxvdyBUWVBFMSBUWVBFMiA6IENMQVNTMiBQRVJNMkM7ICMgbmV2ZXJhbGxvdyB2aW9s
+YXRpb24KbmV2ZXJhbGxvdyBUWVBFMSB+c2VsZiA6IENMQVNTMiBQRVJNMkM7CgojIFRlc3QgbmV2
+ZXJhbGxvdyBpbiBtb2R1bGUsIGFsbG93IHJ1bGUgaW4gYmFzZQphbGxvdyBUWVBFMSBzZWxmIDog
+Q0xBU1MyIFBFUk0yRDsgICAjIE5vdCBuZXZlcmFsbG93IHZpb2xhdGlvbgojYWxsb3cgVFlQRTEg
+VFlQRTIgOiBDTEFTUzIgUEVSTTJEOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCm5ldmVyYWxsb3cg
+VFlQRTEgfnNlbGYgOiBDTEFTUzIgUEVSTTJEOwoKCiMgVGVzdCAtc2VsZiBuZXZlcmFsbG93Cgph
+bGxvdyBUWVBFMSAgc2VsZiA6IENMQVNTMyBQRVJNM0E7ICMgTm90IG5ldmVyYWxsb3cgdmlvbGF0
+aW9uCmFsbG93IFRZUEUyIFRZUEUyIDogQ0xBU1MzIFBFUk0zQTsgIyBOb3QgbmV2ZXJhbGxvdyB2
+aW9sYXRpb24KI2FsbG93IFRZUEUxICAgVFlQRTIgOiBDTEFTUzMgUEVSTTNBOyAjIG5ldmVyYWxs
+b3cgdmlvbGF0aW9uCiNhbGxvdyBUWVBFMSAgVEFUVFIxIDogQ0xBU1MzIFBFUk0zQTsgIyBuZXZl
+cmFsbG93IHZpb2xhdGlvbgojYWxsb3cgVEFUVFIxIFRBVFRSMSA6IENMQVNTMyBQRVJNM0E7ICMg
+bmV2ZXJhbGxvdyB2aW9sYXRpb24KI2FsbG93IFRBVFRSMSBUQVRUUjIgOiBDTEFTUzMgUEVSTTNB
+OyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCm5ldmVyYWxsb3cgVEFUVFIxIHsgVEFUVFIxIC1zZWxm
+IH0gOiBDTEFTUzMgUEVSTTNBOwoKYWxsb3cgVFlQRTEgIHNlbGYgOiBDTEFTUzMgUEVSTTNCOyAj
+IE5vdCBuZXZlcmFsbG93IHZpb2xhdGlvbgphbGxvdyBUWVBFMiBUWVBFMiA6IENMQVNTMyBQRVJN
+M0I7ICMgTm90IG5ldmVyYWxsb3cgdmlvbGF0aW9uCmFsbG93IFRZUEUxIFRZUEUzIDogQ0xBU1Mz
+IFBFUk0zQjsgIyBOb3QgbmV2ZXJhbGxvdyB2aW9sYXRpb24KI2FsbG93IFRZUEUxICAgVFlQRTIg
+OiBDTEFTUzMgUEVSTTNCOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCiNhbGxvdyBUWVBFMSAgVEFU
+VFIxIDogQ0xBU1MzIFBFUk0zQjsgIyBuZXZlcmFsbG93IHZpb2xhdGlvbgojYWxsb3cgVEFUVFIx
+IFRBVFRSMSA6IENMQVNTMyBQRVJNM0I7ICMgbmV2ZXJhbGxvdyB2aW9sYXRpb24KI2FsbG93IFRB
+VFRSMSBUQVRUUjIgOiBDTEFTUzMgUEVSTTNCOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCm5ldmVy
+YWxsb3cgVEFUVFIxIHsgVEFUVFIyIC1zZWxmIH0gOiBDTEFTUzMgUEVSTTNCOwoKIyBUZXN0IGFs
+bG93IHJ1bGVzIGluIG1vZHVsZSwgbmV2ZXJhbGxvdyBpbiBiYXNlCmFsbG93IFRZUEUxIHNlbGYg
+OiBDTEFTUzMgUEVSTTNDOyAjIE5vdCBuZXZlcmFsbG93IHZpb2xhdGlvbgpuZXZlcmFsbG93IFRB
+VFRSMSB7IFRBVFRSMSAtc2VsZiB9IDogQ0xBU1MzIFBFUk0zQzsKCiMgVGVzdCBuZXZlcmFsbG93
+IGluIG1vZHVsZSwgYWxsb3cgcnVsZSBpbiBiYXNlCmFsbG93IFRZUEUxIHNlbGYgOiBDTEFTUzMg
+UEVSTTNEOyAjIE5vdCBuZXZlcmFsbG93IHZpb2xhdGlvbgojYWxsb3cgVFlQRTEgVFlQRTIgOiBD
+TEFTUzMgUEVSTTNEOyAjIG5ldmVyYWxsb3cgdmlvbGF0aW9uCm5ldmVyYWxsb3cgVEFUVFIxIHsg
+VEFUVFIxIC1zZWxmIH0gOiBDTEFTUzMgUEVSTTNEOwoKCiMgVGVzdCBzZWxmIG5ldmVyYWxsb3d4
+cGVybQoKYWxsb3cgVEFUVFIxIFRBVFRSMSA6IENMQVNTNCBpb2N0bDsKYWxsb3d4cGVybSBUQVRU
+UjEgVEFUVFIxIDogQ0xBU1M0IGlvY3RsIDB4OTQwMTsKCiNhbGxvd3hwZXJtIFRZUEUxICAgIHNl
+bGYgOiBDTEFTUzQgaW9jdGwgMHg5NDExOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2Fs
+bG93eHBlcm0gVFlQRTEgICBUWVBFMSA6IENMQVNTNCBpb2N0bCAweDk0MTE7ICMgbmV2ZXJhbGxv
+d3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSAgVEFUVFIxIDogQ0xBU1M0IGlvY3Rs
+IDB4OTQxMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCiNhbGxvd3hwZXJtIFRBVFRSMSAg
+IHNlbGYgOiBDTEFTUzQgaW9jdGwgMHg5NDExOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24K
+I2FsbG93eHBlcm0gVEFUVFIxIFRBVFRSMSA6IENMQVNTNCBpb2N0bCAweDk0MTE7ICMgbmV2ZXJh
+bGxvd3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUQVRUUjEgVEFUVFIyIDogQ0xBU1M0IGlv
+Y3RsIDB4OTQxMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCm5ldmVyYWxsb3d4cGVybSBU
+WVBFMSBzZWxmIDogQ0xBU1M0IGlvY3RsIDB4OTQxMTsKCiNhbGxvd3hwZXJtIFRZUEUxICAgIHNl
+bGYgOiBDTEFTUzQgaW9jdGwgMHg5NDIxOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2Fs
+bG93eHBlcm0gVFlQRTEgICBUWVBFMSA6IENMQVNTNCBpb2N0bCAweDk0MjE7ICMgbmV2ZXJhbGxv
+d3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSAgVEFUVFIxIDogQ0xBU1M0IGlvY3Rs
+IDB4OTQyMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCiNhbGxvd3hwZXJtIFRBVFRSMSAg
+IHNlbGYgOiBDTEFTUzQgaW9jdGwgMHg5NDIxOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24K
+I2FsbG93eHBlcm0gVEFUVFIxIFRBVFRSMSA6IENMQVNTNCBpb2N0bCAweDk0MjE7ICMgbmV2ZXJh
+bGxvd3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUQVRUUjEgVEFUVFIyIDogQ0xBU1M0IGlv
+Y3RsIDB4OTQyMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCmFsbG93eHBlcm0gVFlQRTEg
+VFlQRTIgOiBDTEFTUzQgaW9jdGwgMHg5NDIxOyAjIE5PVCBuZXZlcmFsbG93eHBlcm0gdmlvbGF0
+aW9uCm5ldmVyYWxsb3d4cGVybSBUQVRUUjEgc2VsZiA6IENMQVNTNCBpb2N0bCAweDk0MjE7Cgoj
+IFRlc3QgYWxsb3cgcnVsZXMgaW4gbW9kdWxlLCBuZXZlcmFsbG93eHBlcm0gaW4gYmFzZQojYWxs
+b3d4cGVybSBUWVBFMSAgc2VsZiA6IENMQVNTNCBpb2N0bCAweDk0MzE7ICMgbmV2ZXJhbGxvd3hw
+ZXJtIHZpb2xhdGlvbgpuZXZlcmFsbG93eHBlcm0gVFlQRTEgc2VsZiA6IENMQVNTNCBpb2N0bCAw
+eDk0MzE7CgojIFRlc3QgbmV2ZXJhbGxvdyBpbiBtb2R1bGUsIGFsbG93IHJ1bGUgaW4gYmFzZQoj
+YWxsb3d4cGVybSBUWVBFMSBzZWxmIDogQ0xBU1M0IGlvY3RsIDB4OTQ0MTsgIyBuZXZlcmFsbG93
+IHZpb2xhdGlvbgpuZXZlcmFsbG93eHBlcm0gVFlQRTEgc2VsZiA6IENMQVNTNCBpb2N0bCAweDk0
+NDE7CgojIFRlc3QgfnNlbGYgbmV2ZXJhbGxvd3hwZXJtCgphbGxvdyBUQVRUUjEgVEFUVFIxIDog
+Q0xBU1M1IGlvY3RsOwphbGxvd3hwZXJtIFRBVFRSMSBUQVRUUjEgOiBDTEFTUzUgaW9jdGwgMHg5
+NTAxOwoKYWxsb3d4cGVybSBUWVBFMSAgc2VsZiA6IENMQVNTNSBpb2N0bCAweDk1MTE7ICMgTm90
+IG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KYWxsb3d4cGVybSBUWVBFMSBUWVBFMSA6IENMQVNT
+NSBpb2N0bCAweDk1MTE7ICMgTm90IG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2FsbG93eHBl
+cm0gVFlQRTEgICBUWVBFMiA6IENMQVNTNSBpb2N0bCAweDk1MTE7ICMgbmV2ZXJhbGxvd3hwZXJt
+IHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSAgVEFUVFIxIDogQ0xBU1M1IGlvY3RsIDB4OTUx
+MTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCiNhbGxvd3hwZXJtIFRBVFRSMSBUQVRUUjEg
+OiBDTEFTUzUgaW9jdGwgMHg5NTExOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2FsbG93
+eHBlcm0gVEFUVFIxIFRBVFRSMiA6IENMQVNTNSBpb2N0bCAweDk1MTE7ICMgbmV2ZXJhbGxvd3hw
+ZXJtIHZpb2xhdGlvbgpuZXZlcmFsbG93eHBlcm0gVFlQRTEgfnNlbGYgOiBDTEFTUzUgaW9jdGwg
+MHg5NTExOwoKYWxsb3d4cGVybSBUWVBFMSAgc2VsZiA6IENMQVNTNSBpb2N0bCAweDk1MjE7ICMg
+Tm90IG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KYWxsb3d4cGVybSBUWVBFMiBUWVBFMiA6IENM
+QVNTNSBpb2N0bCAweDk1MjE7ICMgTm90IG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2FsbG93
+eHBlcm0gVFlQRTEgICBUWVBFMiA6IENMQVNTNSBpb2N0bCAweDk1MjE7ICMgbmV2ZXJhbGxvd3hw
+ZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSAgVEFUVFIxIDogQ0xBU1M1IGlvY3RsIDB4
+OTUyMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCiNhbGxvd3hwZXJtIFRBVFRSMSBUQVRU
+UjEgOiBDTEFTUzUgaW9jdGwgMHg5NTIxOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2Fs
+bG93eHBlcm0gVEFUVFIxIFRBVFRSMiA6IENMQVNTNSBpb2N0bCAweDk1MjE7ICMgbmV2ZXJhbGxv
+d3hwZXJtIHZpb2xhdGlvbgpuZXZlcmFsbG93eHBlcm0gVEFUVFIxIH5zZWxmIDogQ0xBU1M1IGlv
+Y3RsIDB4OTUyMTsKCiMgVGVzdCBhbGxvdyBydWxlcyBpbiBtb2R1bGUsIG5ldmVyYWxsb3d4cGVy
+bSBpbiBiYXNlCmFsbG93eHBlcm0gVFlQRTEgIHNlbGYgOiBDTEFTUzUgaW9jdGwgMHg5NTMxOyAj
+IE5vdCBuZXZlcmFsbG93IHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSBUWVBFMiA6IENMQVNT
+NSBpb2N0bCAweDk1MzE7ICMgbmV2ZXJhbGxvdyB2aW9sYXRpb24KbmV2ZXJhbGxvd3hwZXJtIFRZ
+UEUxIH5zZWxmIDogQ0xBU1M1IGlvY3RsIDB4OTUzMTsKCiMgVGVzdCBuZXZlcmFsbG93IGluIG1v
+ZHVsZSwgYWxsb3cgcnVsZSBpbiBiYXNlCmFsbG93eHBlcm0gVFlQRTEgc2VsZiA6IENMQVNTNSBp
+b2N0bCAweDk1NDE7ICMgTm90IG5ldmVyYWxsb3cgdmlvbGF0aW9uCiNhbGxvd3hwZXJtIFRZUEUx
+IFRZUEUyIDogQ0xBU1M1IGlvY3RsIDB4OTU0MTsgIyBuZXZlcmFsbG93IHZpb2xhdGlvbgpuZXZl
+cmFsbG93eHBlcm0gVFlQRTEgfnNlbGYgOiBDTEFTUzUgaW9jdGwgMHg5NTQxOwoKCiMgVGVzdCAt
+c2VsZiBuZXZlcmFsbG93eHBlcm0KCmFsbG93IFRBVFRSMSBUQVRUUjEgOiBDTEFTUzYgaW9jdGw7
+CmFsbG93eHBlcm0gVEFUVFIxIFRBVFRSMSA6IENMQVNTNiBpb2N0bCAweDk2MDE7CgphbGxvd3hw
+ZXJtIFRZUEUxICBzZWxmIDogQ0xBU1M2IGlvY3RsIDB4OTYxMTsgIyBOb3QgbmV2ZXJhbGxvd3hw
+ZXJtIHZpb2xhdGlvbgphbGxvd3hwZXJtIFRZUEUyIFRZUEUyIDogQ0xBU1M2IGlvY3RsIDB4OTYx
+MTsgIyBOb3QgbmV2ZXJhbGxvd3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSAgIFRZ
+UEUyIDogQ0xBU1M2IGlvY3RsIDB4OTYxMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCiNh
+bGxvd3hwZXJtIFRZUEUxICBUQVRUUjEgOiBDTEFTUzYgaW9jdGwgMHg5NjExOyAjIG5ldmVyYWxs
+b3d4cGVybSB2aW9sYXRpb24KI2FsbG93eHBlcm0gVEFUVFIxIFRBVFRSMSA6IENMQVNTNiBpb2N0
+bCAweDk2MTE7ICMgbmV2ZXJhbGxvd3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUQVRUUjEg
+VEFUVFIyIDogQ0xBU1M2IGlvY3RsIDB4OTYxMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9u
+Cm5ldmVyYWxsb3d4cGVybSBUQVRUUjEgeyBUQVRUUjEgLXNlbGYgfSA6IENMQVNTNiBpb2N0bCAw
+eDk2MTE7CgphbGxvd3hwZXJtIFRZUEUxICBzZWxmIDogQ0xBU1M2IGlvY3RsIDB4OTYyMTsgIyBO
+b3QgbmV2ZXJhbGxvd3hwZXJtIHZpb2xhdGlvbgphbGxvd3hwZXJtIFRZUEUyIFRZUEUyIDogQ0xB
+U1M2IGlvY3RsIDB4OTYyMTsgIyBOb3QgbmV2ZXJhbGxvd3hwZXJtIHZpb2xhdGlvbgphbGxvd3hw
+ZXJtIFRZUEUxIFRZUEUzIDogQ0xBU1M2IGlvY3RsIDB4OTYyMTsgIyBOb3QgbmV2ZXJhbGxvd3hw
+ZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSAgIFRZUEUyIDogQ0xBU1M2IGlvY3RsIDB4
+OTYyMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCiNhbGxvd3hwZXJtIFRZUEUxICBUQVRU
+UjEgOiBDTEFTUzYgaW9jdGwgMHg5NjIxOyAjIG5ldmVyYWxsb3d4cGVybSB2aW9sYXRpb24KI2Fs
+bG93eHBlcm0gVEFUVFIxIFRBVFRSMSA6IENMQVNTNiBpb2N0bCAweDk2MjE7ICMgbmV2ZXJhbGxv
+d3hwZXJtIHZpb2xhdGlvbgojYWxsb3d4cGVybSBUQVRUUjEgVEFUVFIyIDogQ0xBU1M2IGlvY3Rs
+IDB4OTYyMTsgIyBuZXZlcmFsbG93eHBlcm0gdmlvbGF0aW9uCm5ldmVyYWxsb3d4cGVybSBUQVRU
+UjEgeyBUQVRUUjIgLXNlbGYgfSA6IENMQVNTNiBpb2N0bCAweDk2MjE7CgojIFRlc3QgYWxsb3cg
+cnVsZXMgaW4gbW9kdWxlLCBuZXZlcmFsbG93eHBlcm0gaW4gYmFzZQphbGxvd3hwZXJtIFRZUEUx
+ICBzZWxmIDogQ0xBU1M2IGlvY3RsIDB4OTYzMTsgIyBOb3QgbmV2ZXJhbGxvdyB2aW9sYXRpb24K
+I2FsbG93eHBlcm0gVFlQRTEgVFlQRTIgOiBDTEFTUzYgaW9jdGwgMHg5NjMxOyAjIG5ldmVyYWxs
+b3cgdmlvbGF0aW9uCm5ldmVyYWxsb3d4cGVybSBUWVBFMSB+c2VsZiA6IENMQVNTNiBpb2N0bCAw
+eDk2MzE7CgojIFRlc3QgbmV2ZXJhbGxvdyBpbiBtb2R1bGUsIGFsbG93IHJ1bGUgaW4gYmFzZQph
+bGxvd3hwZXJtIFRZUEUxIHNlbGYgOiBDTEFTUzYgaW9jdGwgMHg5NjQxOyAjIE5vdCBuZXZlcmFs
+bG93IHZpb2xhdGlvbgojYWxsb3d4cGVybSBUWVBFMSBUWVBFMiA6IENMQVNTNiBpb2N0bCAweDk2
+NDE7ICMgbmV2ZXJhbGxvdyB2aW9sYXRpb24KbmV2ZXJhbGxvd3hwZXJtIFRZUEUxIH5zZWxmIDog
+Q0xBU1M2IGlvY3RsIDB4OTY0MTsKCgpyb2xlIFJPTEUxOwpyb2xlIFJPTEUxIHR5cGVzIFRZUEUx
+Owp1c2VyIFVTRVIxIHJvbGVzIFJPTEUxIGxldmVsIFNFTlMxIHJhbmdlIFNFTlMxIC0gU0VOUzE6
+Q0FUMTsKc2lkIGtlcm5lbCBVU0VSMTpST0xFMTpUWVBFMTpTRU5TMSAtIFNFTlMxCg==
+--00000000000062d9e505d27e622c--
