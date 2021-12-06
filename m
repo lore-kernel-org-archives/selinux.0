@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 088EEC433EF
-	for <selinux@archiver.kernel.org>; Mon,  6 Dec 2021 09:13:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDEB8C433EF
+	for <selinux@archiver.kernel.org>; Mon,  6 Dec 2021 09:15:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240182AbhLFJRD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Dec 2021 04:17:03 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:50562 "EHLO
+        id S240118AbhLFJTX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Dec 2021 04:19:23 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47844 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240250AbhLFJPJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Dec 2021 04:15:09 -0500
+        by vger.kernel.org with ESMTP id S239396AbhLFJTW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Dec 2021 04:19:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638781901;
+        s=mimecast20190719; t=1638782154;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=BHD3qToPk7EZG6B8F7l2aAUjQbLaPPbFqrNXh6cpkC0=;
-        b=BlWk1HX2KzXAiBddlVrw2Ghlh9T+pnJ9lxKusatWiM9l+uGtxWF5HPZUYZjO3Ster2tD3o
-        qy4nshzEG1y+x3NFRYZUBwfRcGewGegsNMCpJLF3hKO+QcWOgW6Gjibs5GFKONP8FQYTSC
-        DBTejUQtSucWTv4q8b72f6P62YS/g3Y=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=T9q7LeQhf5AWVhUvL8JVu2PpakFvFX7rnL+ohMu0p0I=;
+        b=PTJpAXMuo/6VhgA3WUJjHt8ShG2gsN0H3JwjoxVeM1PE7Cl6t4VsmqmB+gssjfqvVQY/JJ
+        xrY+xQCyLD6+yRXV7ITlsxhGoWOKRA77+g629EENIfZoKo0PaSqVXGdnwMRQ6G90y+tHZ7
+        JW8pwKD9Q8ianw66T9WTnZ/zbBbsSDM=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-519-TgTRVxtVMR-s48BFACSnkw-1; Mon, 06 Dec 2021 04:11:39 -0500
-X-MC-Unique: TgTRVxtVMR-s48BFACSnkw-1
-Received: by mail-yb1-f198.google.com with SMTP id g25-20020a25b119000000b005c5e52a0574so18762235ybj.5
-        for <selinux@vger.kernel.org>; Mon, 06 Dec 2021 01:11:39 -0800 (PST)
+ us-mta-42-xCVjrU6aPnepIW-vRcpclA-1; Mon, 06 Dec 2021 04:15:52 -0500
+X-MC-Unique: xCVjrU6aPnepIW-vRcpclA-1
+Received: by mail-yb1-f199.google.com with SMTP id y17-20020a2586d1000000b005f6596e8760so18671590ybm.17
+        for <selinux@vger.kernel.org>; Mon, 06 Dec 2021 01:15:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=BHD3qToPk7EZG6B8F7l2aAUjQbLaPPbFqrNXh6cpkC0=;
-        b=BeZEQLtFFNtB8duA/CCUIRejB7gnynrl0pnxP/tKKutGgxSGZ3Gzi+TwOk3PGdP63a
-         kWWA6gzg6ABV0M1Jq+rSbEAvqyNyamgMksFY6y5sk7a9Uz4GLAkFxVnn8vKB0bJzovdI
-         wa9nPruB96aLsJoWg/JZ98Ey+fWMMITEH8anSsZHOKCH4M5k8Heg7LP1rDccdf0/LvoP
-         zUaz15DKm8eR7jz2zFOxufdbW2Sxkl0idyNMwNUB32sZnDiF0En0QSCsDsK7vwHgstZy
-         BKxBfLsYAcBRtM7CdLyI2QCklZ882OKhnGqtAmFXUT9nvY5jqNqo2gsNp2phaRYqaW5I
-         0kXA==
-X-Gm-Message-State: AOAM531pe65mERY9LjXguQj8lC3Q9BEBbCeSmMKwbiXrc2Il1yDOV7CK
-        iHQavrFXubEuLwLv+B1EGqHWtDJd4RUih0aftA9lnlQUwGgSkrHrnp7IOEABUC5egeNLPmIMf6N
-        O27uLpRQI4vauf3mnBnMPR7JbEf+iOwb+Xg==
-X-Received: by 2002:a05:6902:1503:: with SMTP id q3mr44544188ybu.253.1638781899311;
-        Mon, 06 Dec 2021 01:11:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwSiZ805eXonWwuF8UZ9ePfxEuiPRoeq7GGZkcyhPUKl9ZsHciyOtMGZmTN8b6u+YMbYXNGisr5uZhvCN0AtDs=
-X-Received: by 2002:a05:6902:1503:: with SMTP id q3mr44544162ybu.253.1638781899073;
- Mon, 06 Dec 2021 01:11:39 -0800 (PST)
+        bh=T9q7LeQhf5AWVhUvL8JVu2PpakFvFX7rnL+ohMu0p0I=;
+        b=BD2gShoTvn2SkVHRbjRhelQPF2bKuSU1fcHzfm7hNS1CvY4pL9KHKB7JkqclJ0MPpF
+         JFMX745QwLBkDNFlF50nZdnUyljp3eVEgJMGpSRYzjXC+zKmWGQtjUJF4XCQFQtLvGPL
+         Rc494pBTcmxGvUB5Yxl1eDu1o2q+9PsU+V+dGnA1BvEQMGC/iOgdwATvhjxxtG+vIaHg
+         X1qW3/3L2S9mr+eIALZMgo+40vKpHt3kuA5wP3lsnIynZ8mQlbGLQVDNEURWtQ/Pv6qT
+         gKtdlnJ9tbW+sJ97PO42xIhmu9eNTbTFQ/eiJWe3spdjOP35IxVjnqt4mdHfK9IKgkz5
+         oIpA==
+X-Gm-Message-State: AOAM533CJXbS6ILyc0x5W08GNcosRVx0hocOT2z6uFHvqMsjuc9Ef8Oo
+        kys9i7MRmijx00KXQ2nwclls15JIczFtvZNR3cxrr+/CZ6H3EgmBHo7tqlvYzV7Bm43cYA6BWDb
+        9dD84/brC6jJ/IE5C/RwwjoN/cWXHQcf6Hw==
+X-Received: by 2002:a25:3b04:: with SMTP id i4mr39004985yba.767.1638782151904;
+        Mon, 06 Dec 2021 01:15:51 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJygOXN5DwxETcg+8zbuZINwEZOW6aA//EFeTffc5Z0ZA70SNru1sXcy/iQRJW6bMBWX+q1r447ibczC/XIWykY=
+X-Received: by 2002:a25:3b04:: with SMTP id i4mr39004938yba.767.1638782151340;
+ Mon, 06 Dec 2021 01:15:51 -0800 (PST)
 MIME-Version: 1.0
-References: <20211206071859.324729-1-bernard@vivo.com>
-In-Reply-To: <20211206071859.324729-1-bernard@vivo.com>
+References: <20211202033447.253596-1-bernard@vivo.com> <CAHC9VhR0bu-D2yjGkACMNxg34qA4Y75MjVbJpr8FQc=rfLu=pg@mail.gmail.com>
+In-Reply-To: <CAHC9VhR0bu-D2yjGkACMNxg34qA4Y75MjVbJpr8FQc=rfLu=pg@mail.gmail.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 6 Dec 2021 10:11:28 +0100
-Message-ID: <CAFqZXNs1QzHh6Kekg76PkgUHk1a8_awB0xBqD-=Y9sH=cYz5UQ@mail.gmail.com>
-Subject: Re: [PATCH v2] security/selinux: fix potential memleak in error branch
-To:     Bernard Zhao <bernard@vivo.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
+Date:   Mon, 6 Dec 2021 10:15:41 +0100
+Message-ID: <CAFqZXNvScVVconffdqAue-m5Ub119Pw+rdSZ2TXHt-BFeVa-GQ@mail.gmail.com>
+Subject: Re: [PATCH] security/selinux: fix potential memleak
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Bernard Zhao <bernard@vivo.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         SElinux list <selinux@vger.kernel.org>,
@@ -64,69 +64,106 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 6, 2021 at 8:19 AM Bernard Zhao <bernard@vivo.com> wrote:
-> This patch try to fix potential memleak in error branch.
+On Mon, Dec 6, 2021 at 4:12 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Dec 1, 2021 at 10:35 PM Bernard Zhao <bernard@vivo.com> wrote:
+> >
+> > This patch try to fix potential memleak in function
+> > selinux_fs_context_dup`s error branch.
+> >
+> > Signed-off-by: Bernard Zhao <bernard@vivo.com>
+> > ---
+> >  security/selinux/hooks.c | 22 ++++++++++++++++++----
+> >  1 file changed, 18 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 62d30c0a30c2..36d7fc373839 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -2856,24 +2856,38 @@ static int selinux_fs_context_dup(struct fs_context *fc,
+> >         if (src->fscontext) {
+> >                 opts->fscontext = kstrdup(src->fscontext, GFP_KERNEL);
+> >                 if (!opts->fscontext)
+> > -                       return -ENOMEM;
+> > +                       goto err_fscontext;
+> >         }
+> >         if (src->context) {
+> >                 opts->context = kstrdup(src->context, GFP_KERNEL);
+> >                 if (!opts->context)
+> > -                       return -ENOMEM;
+> > +                       goto err_context;
+> >         }
+> >         if (src->rootcontext) {
+> >                 opts->rootcontext = kstrdup(src->rootcontext, GFP_KERNEL);
+> >                 if (!opts->rootcontext)
+> > -                       return -ENOMEM;
+> > +                       goto err_rootcontext;
+> >         }
+> >         if (src->defcontext) {
+> >                 opts->defcontext = kstrdup(src->defcontext, GFP_KERNEL);
+> >                 if (!opts->defcontext)
+> > -                       return -ENOMEM;
+> > +                       goto err_defcontext;
+> >         }
+> >         return 0;
+> > +
+> > +err_defcontext:
+> > +       if (src->rootcontext)
+> > +               kfree(opts->rootcontext);
+> > +err_rootcontext:
+> > +       if (src->context)
+> > +               kfree(opts->context);
+> > +err_context:
+> > +       if (src->fscontext)
+> > +               kfree(opts->fscontext);
+> > +err_fscontext:
+> > +       kfree(fc->security);
+
+Also here you need to be careful to not double-free fc->security.
+(Paul's pseudocode below already correctly resets it to NULL after
+freeing.)
+
+> > +
+> > +       return -ENOMEM;
+> >  }
 >
-> Signed-off-by: Bernard Zhao <bernard@vivo.com>
-> ---
->  security/selinux/hooks.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+> Thanks for catching this a providing a patch, however I think the
+> memory cleanup can be made simpler, see the pseudo code below:
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 62d30c0a30c2..8dc140399a23 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -983,18 +983,22 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
->  static int selinux_add_opt(int token, const char *s, void **mnt_opts)
->  {
->         struct selinux_mnt_opts *opts = *mnt_opts;
-> +       bool is_alloc_opts = false;
+> static int selinux_fs_context_dup(...)
+> {
 >
->         if (token == Opt_seclabel)      /* eaten and completely ignored */
->                 return 0;
+>   fc->security = kzalloc(...);
+>   if (!fc->security)
+>     return -ENOMEM;
 >
-> +       if (!s)
-> +               return -ENOMEM;
-> +
->         if (!opts) {
->                 opts = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
->                 if (!opts)
->                         return -ENOMEM;
->                 *mnt_opts = opts;
-> +               is_alloc_opts = true;
->         }
-> -       if (!s)
-> -               return -ENOMEM;
-> +
->         switch (token) {
->         case Opt_context:
->                 if (opts->context || opts->defcontext)
-> @@ -1019,6 +1023,8 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
->         }
->         return 0;
->  Einval:
-> +       if (is_alloc_opts)
-> +               kfree(opts);
->         pr_warn(SEL_MOUNT_FAIL_MSG);
->         return -EINVAL;
->  }
+>   opts = fc->security;
+>
+>   if (src->fscontext) {
+>     opts->fscontext = kstrdup(...);
+>     if (!opts->fscontext)
+>       goto err;
+>   }
+>
+>   /* ... */
+>
+>   return 0;
+>
+>   err:
+>     kfree(opts->fscontext);
+>     kfree(opts->context);
+>     kfree(opts->rootcontext);
+>     kfree(opts->defcontext);
+>     kfree(opts);
+>     fc->security = NULL;
+>     return -ENOMEM;
+> }
+>
 > --
-> 2.33.1
+> paul moore
+> www.paul-moore.com
+>
 
-The problem is a bit more tricky... As is, this patch will lead to
-double frees in some cases. Look at security_sb_eat_lsm_opts()
-callers, for example - some of them don't do anything when error is
-returned, some call security_free_mnt_opts() on the opts regardless,
-some will let it store the opts in fc->security, where
-put_fs_context() will eventually call security_free_mnt_opts() on
-them.
-
-You need to at least *mnt_opts = NULL after kfree(opts), but it would
-be also nice to make the LSM hook callers more consistent in what they
-do in the error path and document the fact that *mnt_opts will be NULL
-on error in lsm_hooks.h (in case of the sb_eat_lsm_opts hook).
-
--- 
+--
 Ondrej Mosnacek
 Software Engineer, Linux Security - SELinux kernel
 Red Hat, Inc.
