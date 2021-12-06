@@ -2,80 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0119C433F5
-	for <selinux@archiver.kernel.org>; Mon,  6 Dec 2021 18:49:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A922C433EF
+	for <selinux@archiver.kernel.org>; Mon,  6 Dec 2021 19:17:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347530AbhLFSwe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Dec 2021 13:52:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52732 "EHLO
+        id S1347231AbhLFTUp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Dec 2021 14:20:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347520AbhLFSw3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Dec 2021 13:52:29 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2EFC061746
-        for <selinux@vger.kernel.org>; Mon,  6 Dec 2021 10:49:00 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id x15so47260942edv.1
-        for <selinux@vger.kernel.org>; Mon, 06 Dec 2021 10:49:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gFNd9y7zjP1MZt+ih91bQ58I7tOdLaR33IaqrsbckfE=;
-        b=zYi/8H3h0HaydowF6DdzwRAt0sz/3H5Pq+cHBdGWCuTMKu7JSTORqS0A6zV3mPtJ2E
-         vRqUkbTs8Cg8eI677C2XlsG0/5FiKn+7Lb2/ihT6gY9EGRDaKjTBrIIh2N2y0TbfJ7o/
-         MJNtHdUyuYjRXPqOYV4ZvcteHTujspI17XREkjh5dlY7yaMfzHptTsYmkDw5MaEFGNd3
-         9J1ho+R+etgUcwdQNnEHvfMpLB9E2o4203w2/Q2uynX4RHURBgAjPXF96VYmK0ggVz+1
-         KRPIzB8cLSeysPfNlHWrNBlUqUyOiHMklYV2OP+ise3AeE+pt//Y7WxRBz81q9Jlf8N1
-         bWEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gFNd9y7zjP1MZt+ih91bQ58I7tOdLaR33IaqrsbckfE=;
-        b=6Kyc5WzrkNPM+hxqAlJyXqnZzeMhDDQrwwI0/51RcRKiLPiypPWkJvrnz14gFrVcWv
-         jPoy7qEEdeLNCES4l+4M+XQsxnvjHGV27D54PmeONfhUqikGKDTTnJdGGKaw5Ujc5c5m
-         BBysRAEDEmdLqBAjK6FNWp7G9Go+rZxv0R5sty1C64z4L1INP608YclfX+rz21y6gJBA
-         SQ4U1iw85zszZHLAyUuoBu+IQYqSXlduxwJlOni7EyYG1A2QgjZBfb32PDxYKF7O6hrC
-         ugmeG0y2RmUQPYJ8AkcJRKaIwRLA1rx6g2J8cJ/T0H9aVg3Cfgwz5ieTZt6susIzFuye
-         tmqw==
-X-Gm-Message-State: AOAM532kBs9A+Uxx48x2/JrgL+PoSJ9xReTzOZVuLWXQ5Ii46t50N/+z
-        oUAgkAmb14v5g+nPPCvn8L8FM44rBk4s/kZDydzC
-X-Google-Smtp-Source: ABdhPJwliFX2CTvdqeiZsfHMs1CAYWPPZBKN2puXETpr9zGqcYUg+dPnOsqRPmLnQmc1k0vjyaRfj8WX054yJd0iuXg=
-X-Received: by 2002:a05:6402:12d3:: with SMTP id k19mr1275316edx.244.1638816538988;
- Mon, 06 Dec 2021 10:48:58 -0800 (PST)
+        with ESMTP id S243755AbhLFTUo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Dec 2021 14:20:44 -0500
+Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2001:985:d55d::123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9CAC061746
+        for <selinux@vger.kernel.org>; Mon,  6 Dec 2021 11:17:15 -0800 (PST)
+Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
+        by markus.defensec.nl (Postfix) with ESMTPSA id BBB9EFC0457;
+        Mon,  6 Dec 2021 20:17:09 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+        s=default; t=1638818229;
+        bh=lidK4n6pc2vp62zXAzuNtoDLzK23CY903PvRb8tofvU=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=ZP/38WyEnEh2EjJB0SF0AiQGQM+VWmHqusKg8L+/BXBAh+zNZyyjiW68VdFltwL01
+         llx1eS+f3WuarS7y67LdmD9KA2luND35wTGHR9hJF9XtE6byHmw4Eph69a6ucbjgPo
+         bQwsPLGzrn0TdHridX6OaNl5XnNEgIgbXGruuBfo=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org, paul@paul-moore.com
+Subject: Re: [PATCH 5/7] policy_config_files.md: Update openssh_contexts
+ contents
+References: <20211203140519.30930-1-richard_c_haines@btinternet.com>
+        <20211203140519.30930-6-richard_c_haines@btinternet.com>
+Date:   Mon, 06 Dec 2021 20:17:09 +0100
+In-Reply-To: <20211203140519.30930-6-richard_c_haines@btinternet.com> (Richard
+        Haines's message of "Fri, 3 Dec 2021 14:05:17 +0000")
+Message-ID: <87o85tzgp6.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20211206132406.235872-1-omosnace@redhat.com>
-In-Reply-To: <20211206132406.235872-1-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 6 Dec 2021 13:48:48 -0500
-Message-ID: <CAHC9VhQABwr1y09i6=KB8UjhvW0C8UwYMJpdatznTYDxFVhZLw@mail.gmail.com>
-Subject: Re: [PATCH] security,selinux: remove security_add_mnt_opt()
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 6, 2021 at 8:24 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Its last user has been removed in commit f2aedb713c28 ("NFS: Add
-> fs_context support.").
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  include/linux/lsm_hook_defs.h |  2 --
->  include/linux/lsm_hooks.h     |  2 --
->  include/linux/security.h      |  8 -------
->  security/security.c           |  8 -------
->  security/selinux/hooks.c      | 39 -----------------------------------
->  5 files changed, 59 deletions(-)
+Richard Haines <richard_c_haines@btinternet.com> writes:
 
-Good catch.  As this really only affects SELinux, I've merged this
-into the selinux/next tree.
+> Used by openssh for privilege separated processes in the
+> preauthentication phase.
+
+Maybe mention that this is Red Hat specific patch that is not upstreamed
+so others do not have this.
+
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  src/policy_config_files.md | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+>
+> diff --git a/src/policy_config_files.md b/src/policy_config_files.md
+> index 4b2c091..9f2996c 100644
+> --- a/src/policy_config_files.md
+> +++ b/src/policy_config_files.md
+> @@ -715,10 +715,26 @@ run_init=run_init_t
+>  
+>  ## *contexts/openssh_contexts*
+>  
+> -**To be determined**
+> +Used by *openssh* (***ssh**(1)*) for privilege separated processes in the
+> +preauthentication phase.
+>  
+>  **The file format is as follows:**
+>  
+> +```
+> +privsep_preauth=[domain]
+> +```
+> +
+> +**Where:**
+> +
+> +*privsep_preauth*
+> +
+> +- The keyword *privsep_preauth*
+> +
+> +*domain*
+> +
+> +- The domain type for the privilege separated processes in the
+> +  preauthentication phase.
+> +
+>  **Example file contents:**
+>  
+>  ```
 
 -- 
-paul moore
-www.paul-moore.com
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
