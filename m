@@ -2,102 +2,69 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB667C433F5
-	for <selinux@archiver.kernel.org>; Wed,  8 Dec 2021 18:41:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75D10C433F5
+	for <selinux@archiver.kernel.org>; Wed,  8 Dec 2021 19:55:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235777AbhLHSpR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Dec 2021 13:45:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44994 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232243AbhLHSpQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Dec 2021 13:45:16 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55017C0617A2
-        for <selinux@vger.kernel.org>; Wed,  8 Dec 2021 10:41:44 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id y13so11372573edd.13
-        for <selinux@vger.kernel.org>; Wed, 08 Dec 2021 10:41:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=skLeJaSpw0/vsaEY+mYw5f7GsY+8sigTDomXYlalyaQ=;
-        b=DSkFahY5Mhcqkm7rNA6F7ey2SgnwCSizMEsMeQOOFZyoz0th8u0eISTZuR6GwnR7iE
-         ajgFF5IMY6zf6XTGXSQJcB7WyYcBmvFwWuMPtjmWHjuGDtvkI1SX5cIOJKlHm166Ka/2
-         mNurd9yCZ4ewoRxcgjGVg4BiOyEmskpd4mnsGs21hFqF+Am2O1DBExT+WzjJdErNsmn8
-         SYoVC2VzsYfUCdujQ2FGePWL70ds7Y7VLWG99EtzyZDRfeTcCun+Cozf+RDdMoskksiH
-         jMN4ZdavDJ6j2F5rrIfasj0Q9rAf4ZQ9W2VoFWv+rKkcvAh1PrZ0DlfEob+8aTQcqp3s
-         on8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=skLeJaSpw0/vsaEY+mYw5f7GsY+8sigTDomXYlalyaQ=;
-        b=rBoFivlzrEwBiB9MEgAhJR+82Y0TvU5Z7gZmlPUXA8RE2/bPT9dmkHs3tW3in0qGfj
-         hLNCeQiBKtj28moqC11x5uCVLtZqZW+zN8Kh+IuD+VnQBK0TwoHHV7uSvT8xWhgKoHO0
-         MiRdXDrknSoSUkEKShS7qR1DazR5XFRFusnkFdq4c/GNGdGQ4aH9DaeSM/hYFI4j7Q8L
-         cH2tgNZWMx9jnmttapulPEAVY5LAJXHBZPJ1gzL9Ah10uXkXEoL6lnSSC6oS+byDZ+yU
-         NdxoK7Vy6lGvFIuFq0KRcrldJaWQTWLgdoVqRlHDgJYJcdFk9LIXqpEVNX78T3TQTJGx
-         drXg==
-X-Gm-Message-State: AOAM531P/BMdOR9hiRraAczfI5yBJ/B4VUdzg3vrmzkRITmibuuSa+4H
-        shh/uXsK4OhQEK2W0VQM19H1hOZDEW8f7/YOQm/T
-X-Google-Smtp-Source: ABdhPJwzd+X2ZmGvjAeJGgn47kj3o0CAYIlLFGj0DvXH6heL09BQOS+lXEPboLTYzGvb5vpWRpawKty9Cs5cHbwwnEU=
-X-Received: by 2002:a17:907:629b:: with SMTP id nd27mr9460277ejc.24.1638988902834;
- Wed, 08 Dec 2021 10:41:42 -0800 (PST)
-MIME-Version: 1.0
-References: <163898788970.2840238.15026995173472005588.stgit@warthog.procyon.org.uk>
-In-Reply-To: <163898788970.2840238.15026995173472005588.stgit@warthog.procyon.org.uk>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 8 Dec 2021 13:41:31 -0500
-Message-ID: <CAHC9VhTP-HbRU1z66MOkSyw9w7vhK7Vq8p0FrxVfEX-+tSD43A@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/2] security: Remove security_add_mnt_opt() as it's unused
-To:     David Howells <dhowells@redhat.com>
-Cc:     viro@zeniv.linux.org.uk, anna.schumaker@netapp.com,
-        kolga@netapp.com, casey@schaufler-ca.com, selinux@vger.kernel.org,
+        id S239907AbhLHT7Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Dec 2021 14:59:16 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26863 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239900AbhLHT7N (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Dec 2021 14:59:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638993341;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HmG9k+urqjCT5P/C79yXHidwD7VZjGOrgaeS5VLahvQ=;
+        b=QSdSt+xU5VRbx3nYqJ2nXF7hHP6h/wAuBtKOlHRPzcFGLMdwvE2AjagEY7Xjw8La+aEEav
+        XF5jXvXEJkjLs1faM263t0gN9aCEJYGj5e2XzEnj2/Sc4NuJ4FsoA75zaH/LLCjwAJ5yMh
+        Bb2we7wRBtzM5dj32yfvFXweFr7wACE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-430-XRLCGAnMPsWUXl3CXByO0g-1; Wed, 08 Dec 2021 14:55:37 -0500
+X-MC-Unique: XRLCGAnMPsWUXl3CXByO0g-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 429EE85B660;
+        Wed,  8 Dec 2021 19:55:36 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.25])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A1C475C1C5;
+        Wed,  8 Dec 2021 19:55:13 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <CAHC9VhTP-HbRU1z66MOkSyw9w7vhK7Vq8p0FrxVfEX-+tSD43A@mail.gmail.com>
+References: <CAHC9VhTP-HbRU1z66MOkSyw9w7vhK7Vq8p0FrxVfEX-+tSD43A@mail.gmail.com> <163898788970.2840238.15026995173472005588.stgit@warthog.procyon.org.uk>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     dhowells@redhat.com, viro@zeniv.linux.org.uk,
+        anna.schumaker@netapp.com, kolga@netapp.com,
+        casey@schaufler-ca.com, selinux@vger.kernel.org,
         linux-security-module@vger.kernel.org, linux-nfs@vger.kernel.org,
         linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RFC PATCH 1/2] security: Remove security_add_mnt_opt() as it's unused
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2846547.1638993312.1@warthog.procyon.org.uk>
+Date:   Wed, 08 Dec 2021 19:55:12 +0000
+Message-ID: <2846548.1638993312@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Dec 8, 2021 at 1:25 PM David Howells <dhowells@redhat.com> wrote:
->
-> Remove the add_mnt_opt LSM hook as it's not actually used.  This makes it
-> easier to make the context pointers in selinux_mnt_opts non-const.
->
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> cc: Paul Moore <paul@paul-moore.com>
-> cc: Casey Schaufler <casey@schaufler-ca.com>
-> cc: selinux@vger.kernel.org
-> cc: linux-security-module@vger.kernel.org
-> cc: linux-nfs@vger.kernel.org
-> cc: linux-cachefs@redhat.com
-> ---
->
->  include/linux/lsm_hook_defs.h |    2 --
->  include/linux/lsm_hooks.h     |    2 --
->  include/linux/security.h      |    8 --------
->  security/security.c           |    8 --------
->  security/selinux/hooks.c      |   39 ---------------------------------------
->  5 files changed, 59 deletions(-)
+Paul Moore <paul@paul-moore.com> wrote:
 
-There is already a patch in the selinux/next tree which does this.
+> There is already a patch in the selinux/next tree which does this.
 
-  commit 52f982f00b220d097a71a23c149a1d18efc08e63
-  Author: Ondrej Mosnacek <omosnace@redhat.com>
-  Date:   Mon Dec 6 14:24:06 2021 +0100
+Looks pretty much identical to mine.  Feel free to add:
 
-   security,selinux: remove security_add_mnt_opt()
+	Reviewed-by: David Howells <dhowells@redhat.com>
 
-   Its last user has been removed in commit f2aedb713c28 ("NFS: Add
-   fs_context support.").
+David
 
-   Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-   Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-   Signed-off-by: Paul Moore <paul@paul-moore.com>
-
--- 
-paul moore
-www.paul-moore.com
