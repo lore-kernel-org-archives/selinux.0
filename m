@@ -2,55 +2,54 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38420C433EF
-	for <selinux@archiver.kernel.org>; Wed,  8 Dec 2021 20:09:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1621C433EF
+	for <selinux@archiver.kernel.org>; Wed,  8 Dec 2021 20:10:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240004AbhLHUNI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Dec 2021 15:13:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37168 "EHLO
+        id S240009AbhLHUOW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Dec 2021 15:14:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236644AbhLHUNI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Dec 2021 15:13:08 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED89EC061746
-        for <selinux@vger.kernel.org>; Wed,  8 Dec 2021 12:09:35 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id e3so12325275edu.4
-        for <selinux@vger.kernel.org>; Wed, 08 Dec 2021 12:09:35 -0800 (PST)
+        with ESMTP id S236644AbhLHUOW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Dec 2021 15:14:22 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB30C061746
+        for <selinux@vger.kernel.org>; Wed,  8 Dec 2021 12:10:49 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id r25so12207462edq.7
+        for <selinux@vger.kernel.org>; Wed, 08 Dec 2021 12:10:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=oI42o3rOSJCf9TsdssY3bP9s3U4VfzP1kVqaTxre/1c=;
-        b=qwyHXUlFLGg4aKkgc7ZJ16XiGdDX4o4WdOBCcigPl6gPuObXmsvI4Bz2JuL6+ratC8
-         FRAuiubHTHvJziBYIM7ttZkBAKMh4GuSpkLewj8KZABpNWB5r8VVa6B2mJA4MpkCgcvQ
-         PpyERnAk9cs/HytiyeKU1l1MrFw+Ucf07WQf44lh8BpheNY1SailylWLp+O0QN2mhEjc
-         qVbBKFYhxKHigbSqgHzqiDgs1HKkKW+d+Z4HQr6+MtWHt8oS/kiSyW8M/eE69c3MRRjD
-         PvdLbrif6H9HS6UGvWMSQhITxwDBjPa0zj5LFFSICYaJ+vRbvUxDClJpvEVfLznnIu0N
-         HAAA==
+        bh=Ula0xQ3Xzq5axhOhDRdAiKgBJV1GPBBzL+Jb5LHdEec=;
+        b=2a4y5pv2WObdvYThKPGjAfhkjDfJdoHQkIevvnw+U0kgPZghMwFDwuATN+lO1LYVaL
+         zDpLaFD0Fe/y2fxxREmgH+NIFo/msTvw3x7iuXs14ykr4bWmMoUHM0+ByZkmu+f13Jch
+         Attyio8e7/SOnks7FxLQUyGkgI+XsZbeTdJzMTi4ZozV9bKARz2WdtHw80QzM9tBuHJa
+         M+xv54B0lJyXWPsc31ej1xAYsOtZLUTa0+Pr5EV2AzRCIYz6TefqW8P8tPUclW1/+dI5
+         k7TmlRwhNfSFm6CENnwMmUa8ueoHZNVR6mAYm9OXjrcR01rNiDt65w8a5zoTHmdmdg2A
+         ZBDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=oI42o3rOSJCf9TsdssY3bP9s3U4VfzP1kVqaTxre/1c=;
-        b=lILMp+mQlA1o3Tez2v+YfnadL6nUjt9YMAX0AZL86r1MzKeuXtpnLrHdO11hr8mbn6
-         sWnb3c7jaIAll2Egi51wC6B3g+4XnudQxnzSt5PrQ2Q7iZpsWKpSks1nNdSPd4F2kP8l
-         3mmjf+Ectk8/NhUqWipjYn1t8uLsMFFIS99826jznfPVpcEAA2z1zBxCNeu6dYLbsz8s
-         QGenYSrjBBgoTzLesT7Zt67Cf/jGCROOo0VpUksijZekYldXB3yhHYm/ncxKyPWt//Ra
-         U8EZ79XlZFhXhq9kBSFF0XHNxhxL8DOU6a6y3BcD4YDmQLfujT03vnwRVdHgeyjKdfiM
-         xxuQ==
-X-Gm-Message-State: AOAM532DZP5BK6vC6/TjGPWgMlZzNwaTD7shlx7DJzfyJSNIAyqdL+kL
-        GxgmGilnZ3yMTLucVXRMHpi/KNEo86Cl40c/Xubf
-X-Google-Smtp-Source: ABdhPJxie5/8Cw6Sro0vrZ6ZfzPWtYd3W6pTqh7FmVUSMiKowpz5AE2ZJlRTqHk/mJzIcYOS3+QiZblTROZs4C0K1Ok=
-X-Received: by 2002:a05:6402:34cd:: with SMTP id w13mr22099490edc.112.1638994174489;
- Wed, 08 Dec 2021 12:09:34 -0800 (PST)
+        bh=Ula0xQ3Xzq5axhOhDRdAiKgBJV1GPBBzL+Jb5LHdEec=;
+        b=v6aNe7MSqKihuRcNvJVEP7J+9U7qu1xdlETLQngsEQmYqn71tWMJmsRCNExhD3NAY4
+         w7ijBzHmd9BSbxzYQ9SLKVUnLe734fAwPG33oiAQ8gESkXtJpxStc1WQ7XKWFcAIfs0Y
+         KS6iUKSJFpGw7bdK/Q5EKZpEEwjU+8c1NH9vaw+4tUIne8Uvwk4yACXJedVe2heEe4vX
+         NVpbnWeqSllj3CWiZOTB5QlJe+Kxvv65/goZdrf6Jh82Xp7NETz4aHyr0R8xsoVuowG0
+         wd2FVEyktM2A0sFkrsZp3dh6GcHopWg381UiyPAmppC7dHl87Gv+pQXzfsTqqQ67mcjw
+         OYig==
+X-Gm-Message-State: AOAM53126Zma5DLkSSf8xqNy2fOkfIz2FYDDHh0Plxj+Zb2MoteFBaX4
+        RE+WrLDb31ZV5rcDdMsCJqb17ZtO4RKb/96eqf3F+guDHw==
+X-Google-Smtp-Source: ABdhPJyLZ9Of4NePcphD7LRd1QcXVa1YCeyc9w51zCfK13Q7BG8RdsDV1wp0SJW1gVbKIsEqwsP9SAhweeAeSjclovY=
+X-Received: by 2002:a05:6402:12d3:: with SMTP id k19mr22422272edx.244.1638994248497;
+ Wed, 08 Dec 2021 12:10:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20211208121654.7591-1-richard_c_haines@btinternet.com> <20211208121654.7591-3-richard_c_haines@btinternet.com>
-In-Reply-To: <20211208121654.7591-3-richard_c_haines@btinternet.com>
+References: <20211208121654.7591-1-richard_c_haines@btinternet.com> <20211208121654.7591-4-richard_c_haines@btinternet.com>
+In-Reply-To: <20211208121654.7591-4-richard_c_haines@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 8 Dec 2021 15:09:23 -0500
-Message-ID: <CAHC9VhQ7gkDSkVa9ZWkg+m5Hw=b=a+_NjLaXL6um9b+2_usXYQ@mail.gmail.com>
-Subject: Re: [PATCH V2 2/7] object_classes_permissions.md: Correct the context
- object class entry
+Date:   Wed, 8 Dec 2021 15:10:37 -0500
+Message-ID: <CAHC9VhRH5oBMcae3HbjzvVYpTDpUWjEd1mCUWdu_yJW-TLtu3Q@mail.gmail.com>
+Subject: Re: [PATCH V2 3/7] object_classes_permissions.md: Deprecate lockdown class
 To:     Richard Haines <richard_c_haines@btinternet.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,14 +60,14 @@ X-Mailing-List: selinux@vger.kernel.org
 On Wed, Dec 8, 2021 at 7:17 AM Richard Haines
 <richard_c_haines@btinternet.com> wrote:
 >
-> Clarify the intent of 'contains' and 'translate' permissions.
+> Add text regarding the removal of lockdown hooks from kernel 5.16.
 >
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  src/object_classes_permissions.md | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
+>  src/object_classes_permissions.md | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
-Merged, thanks.
+Merged, thank you.
 
 -- 
 paul moore
