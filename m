@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41AFEC433EF
-	for <selinux@archiver.kernel.org>; Thu,  9 Dec 2021 16:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45809C433EF
+	for <selinux@archiver.kernel.org>; Thu,  9 Dec 2021 16:51:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238007AbhLIQy5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Dec 2021 11:54:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
+        id S231635AbhLIQzG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Dec 2021 11:55:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231635AbhLIQy4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Dec 2021 11:54:56 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D45C061746
-        for <selinux@vger.kernel.org>; Thu,  9 Dec 2021 08:51:23 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id x15so21954225edv.1
-        for <selinux@vger.kernel.org>; Thu, 09 Dec 2021 08:51:23 -0800 (PST)
+        with ESMTP id S232457AbhLIQzF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Dec 2021 11:55:05 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02E2C061746
+        for <selinux@vger.kernel.org>; Thu,  9 Dec 2021 08:51:31 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id x15so21956173edv.1
+        for <selinux@vger.kernel.org>; Thu, 09 Dec 2021 08:51:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=mfU3j7D1K4WGnf9Gm5ayLdHZ+SYqwAp5jBV+TmdK+aw=;
-        b=TJnU/x7Eu0rdYff/CjWaYb5II8T2xoOUK3Ghk9yenfgYWVWTZlfUaswF6cpgANkFzw
-         EkW3gYGIIPvpfXN8jGvcIBfEzxL5SUWf2W3110gf8Rvck2Mmkj/q9em7hAq4k76iki3J
-         +44VOA3FQTnh/cUBdFdvoT1OSrIbWTOpZ9XMY1UvGgmz/+llIB/2V93NewbyGZuAQklF
-         dQ+U/UJ7Gn4CKEbcKpYxMLsluJWq9LKrfoOQ/AsaH7tHVHqkaa7G4CJILN4rKgG6mnGF
-         2OhVvtZfkEtuARt4nIUTY0w3xS9FW3hRKjXxm9hSv407QZ8Ud2zp+2fR/Fm1KydDgE6T
-         bD/g==
+        bh=yXtDVbCd19C8I0PGL2D3uhz4S2KAdu0Pi8emVL02UrA=;
+        b=dtFxqSZ1pOakTXOgZlbO3awrdjlsiKeClG/cAXHkIRDw0/JN/no44kL5Kbg8v99Sgg
+         diN/nyh4J4iZMK47lWLRL8eGUAQ90w+xENkTR5tLnlDA0HcLJjDn+BXk9rO/vk/qg5tg
+         9jRi9/9MpyCLdSj9mWM4IZkleXpLNppWL55K8o8O8tJAnoyf8m06kaYtHCltnl7g2qo6
+         7gRAHaxlVKC61fgQ+vbTMuTwQxHr3GmJnNlO0Ug5LXqpwp9wORajTsLuilMDmJmLNdqP
+         j128SJsygrX9C7Et+Xdyw8QhoaesI3sIlQcRrl15jLUhWxuVmQJ9vZEzUfEa6Un6VLtP
+         WRCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=mfU3j7D1K4WGnf9Gm5ayLdHZ+SYqwAp5jBV+TmdK+aw=;
-        b=IGqGSk1mLnZ9cqlwPVjfWy4UriHc4d9eq8nt/Kz8BzwLmQ06/A5jiQEof1xdDLsZd0
-         U9rCmYm+69wYhn3ecnWuE+JQvEcYd5XQqXS3f9Tarvwp9zG4OJTi6Taw+YFcs/16QSzp
-         MQnTV06MBv3KukYwD/lwQOd+57hBS3y5ZzECLq4vQ0e3N+8d2kfqtIKlFk9mONfZdFTY
-         j1jKcSIuwUKfWvBrnyC339spwZyypbygypr1Fe/R2Ze8UV62ljrknGIngg7JREERycBj
-         yN1Q7IL3rQS4VuMm0ZUXata0QHJF1LGUKxn7uqgS2zhOEyWI675Q38TJFvrEMoUBf3bo
-         gSrw==
-X-Gm-Message-State: AOAM5332DmZrpDZfpXlUxWVwERsMfI2ycRXwFfvEQqbduDCgVdOicnsN
-        l9AgJ8xaYaehKq1voXSxTJzenluSsyw=
-X-Google-Smtp-Source: ABdhPJwMVpidcma+uvJ78DBtr8ZmRkoIrlLa8nHumKd3Cc09n+tEuO4oPVNbYVZumDbB+vS8V+tJQw==
-X-Received: by 2002:a05:6402:4413:: with SMTP id y19mr30436751eda.26.1639068585342;
-        Thu, 09 Dec 2021 08:49:45 -0800 (PST)
+        bh=yXtDVbCd19C8I0PGL2D3uhz4S2KAdu0Pi8emVL02UrA=;
+        b=ZzmFGM9B6VqWYE5TFmO80fJ9HpEZ4/vpHEGYijad5AYDcrgzwKsj7jM8tK/mcrS2sc
+         a4Qdyfrgrxt3bUSRfgQK+qpljpVyKpOWKCxR+6BEYfAx0OIyrzfMg0GZk9lRpquBp41O
+         7Eja1gYt7NHnHvA22C4O2HTZZOavubk2BlciDqq4ompbyxK5XzlfPn8RnsYu8OrSwD/P
+         oOw4rT4K/OGUxO0vmtoetqX8LFtzFcgI4ZVahpSDTkqnoWKIi2HFjlVG2FsUgKiaQ6y8
+         ShEFdQ3NpquhJzboDwqd9CwgT2pgXHiVwzs+drmbneBWEkzVLwER0EZpG1uCe0iGRPlh
+         8V/A==
+X-Gm-Message-State: AOAM532p8Zzhq2ThXLrUYSXO6MAt/4/iqnnHgJohnORk6BhJmT75nFsY
+        dq8SGlaEMFYsF0EBv2+y7c38gaMcQRw=
+X-Google-Smtp-Source: ABdhPJwP1pGPiX+Di2RmT/LwC2madRtA6ng3jzqdC6BLvzDvpsh7JgpWnkTzGgBSTmHiOW86ve4PNA==
+X-Received: by 2002:a05:6402:51c7:: with SMTP id r7mr31064029edd.359.1639068594971;
+        Thu, 09 Dec 2021 08:49:54 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-095-116-140-169.95.116.pool.telefonica.de. [95.116.140.169])
-        by smtp.gmail.com with ESMTPSA id hu7sm172135ejc.62.2021.12.09.08.49.44
+        by smtp.gmail.com with ESMTPSA id hu7sm172135ejc.62.2021.12.09.08.49.54
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Dec 2021 08:49:44 -0800 (PST)
+        Thu, 09 Dec 2021 08:49:54 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v3 15/36] libsepol: zero member before potential dereference
-Date:   Thu,  9 Dec 2021 17:49:07 +0100
-Message-Id: <20211209164928.87459-16-cgzones@googlemail.com>
+Subject: [PATCH v3 29/36] libsepol: validate type of avtab type rules
+Date:   Thu,  9 Dec 2021 17:49:21 +0100
+Message-Id: <20211209164928.87459-30-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211209164928.87459-1-cgzones@googlemail.com>
 References: <20211105154542.38434-1-cgzones@googlemail.com>
@@ -64,49 +64,57 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The `next` member might be checked against NULL and dereferenced before
-it gets assigned, due to jumps from failure gotos to the cleanup
-section.
-
-    ==31017==ERROR: AddressSanitizer: SEGV on unknown address (pc 0x000000579654 bp 0x7ffd3a07d110 sp 0x7ffd3a07d000 T0)
-    ==31017==The signal is caused by a READ memory access.
-    ==31017==Hint: this fault was caused by a dereference of a high value address (see register values below).  Disassemble the provided pc to learn which register was used.
-        #0 0x579654 in filename_trans_read_one ./libsepol/src/policydb.c:2874:55
-        #1 0x579654 in filename_trans_read ./libsepol/src/policydb.c:2902:9
-        #2 0x5771b7 in policydb_read ./libsepol/src/policydb.c:4509:7
-        #3 0x55a1f5 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:24:6
-        #4 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
-        #5 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
-        #6 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
-        #7 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
-        #8 0x7f2a4e7f97ec in __libc_start_main csu/../csu/libc-start.c:332:16
-        #9 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
+    ==80903==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6020000005c0 at pc 0x0000005696c8 bp 0x7ffdb11ea560 sp 0x7ffdb11ea558
+    READ of size 8 at 0x6020000005c0 thread T0
+        #0 0x5696c7 in avtab_node_to_str ./libsepol/src/kernel_to_conf.c:1736:9
+        #1 0x569013 in map_avtab_write_helper ./libsepol/src/kernel_to_conf.c:1767:10
+        #2 0x5ab837 in avtab_map ./libsepol/src/avtab.c:347:10
+        #3 0x561f9a in write_avtab_flavor_to_conf ./libsepol/src/kernel_to_conf.c:1798:7
+        #4 0x561f9a in write_avtab_to_conf ./libsepol/src/kernel_to_conf.c:1819:8
+        #5 0x55afba in sepol_kernel_policydb_to_conf ./libsepol/src/kernel_to_conf.c:3159:7
+        #6 0x55a34f in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:38:9
+        #7 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
+        #8 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
+        #9 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
+        #10 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
+        #11 0x7f97a83fd7ec in __libc_start_main csu/../csu/libc-start.c:332:16
+        #12 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/policydb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/src/policydb_validate.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 25ffa07c..79aba3af 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -2780,6 +2780,7 @@ static int filename_trans_read_one(policydb_t *p, struct policy_file *fp)
- 		if (!datum)
- 			goto err;
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 25c6f0db..57eb2550 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -547,15 +547,22 @@ bad:
+ 	return -1;
+ }
  
-+		datum->next = NULL;
- 		*dst = datum;
+-static int validate_avtab_key_wrapper(avtab_key_t *k,  __attribute__ ((unused)) avtab_datum_t *d, void *args)
++static int validate_avtab_key_and_datum(avtab_key_t *k, avtab_datum_t *d, void *args)
+ {
+ 	validate_t *flavors = (validate_t *)args;
+-	return validate_avtab_key(k, flavors);
++
++	if (validate_avtab_key(k, flavors))
++		return -1;
++
++	if ((k->specified & AVTAB_TYPE) && validate_value(d->data, &flavors[SYM_TYPES]))
++		return -1;
++
++	return 0;
+ }
  
- 		/* ebitmap_read() will at least init the bitmap */
-@@ -2797,7 +2798,6 @@ static int filename_trans_read_one(policydb_t *p, struct policy_file *fp)
- 
- 		dst = &datum->next;
+ static int validate_avtab(sepol_handle_t *handle, avtab_t *avtab, validate_t flavors[])
+ {
+-	if (avtab_map(avtab, validate_avtab_key_wrapper, flavors)) {
++	if (avtab_map(avtab, validate_avtab_key_and_datum, flavors)) {
+ 		ERR(handle, "Invalid avtab");
+ 		return -1;
  	}
--	*dst = NULL;
- 
- 	if (ndatum > 1 && filename_trans_check_datum(first))
- 		goto err;
 -- 
 2.34.1
 
