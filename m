@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA557C433F5
-	for <selinux@archiver.kernel.org>; Thu,  9 Dec 2021 16:51:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7583AC433EF
+	for <selinux@archiver.kernel.org>; Thu,  9 Dec 2021 16:51:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234323AbhLIQyx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Dec 2021 11:54:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
+        id S237987AbhLIQyy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Dec 2021 11:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231635AbhLIQyx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Dec 2021 11:54:53 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0800C061746
-        for <selinux@vger.kernel.org>; Thu,  9 Dec 2021 08:51:19 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id x15so21953475edv.1
-        for <selinux@vger.kernel.org>; Thu, 09 Dec 2021 08:51:19 -0800 (PST)
+        with ESMTP id S231635AbhLIQyy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Dec 2021 11:54:54 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CA4C061746
+        for <selinux@vger.kernel.org>; Thu,  9 Dec 2021 08:51:20 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id x15so21953588edv.1
+        for <selinux@vger.kernel.org>; Thu, 09 Dec 2021 08:51:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=eNwA3EUJFE+m3irceKXjnopYjD8/reD5rPigCO8qSjA=;
-        b=pFxXXbBz14u5Ou0Gtq97LDORZDocIcnUhWKZFjZ/12iqDfTJMMzlfumOfiQWp3diES
-         P3jsg2Qmib+2IhrEiYmbh8hdc+pYHMICVCF8JLeU0ue1wBGLkrhefYaISyNQi92Ihxgq
-         QBazmzPozbG7kDtVvUkX4FLrLNigbn7geRSz6SmH/A/ymncbvBwtHodPskcpKChnradg
-         Q5RuTbdzTuxdELthEw+sz0N+9AvIGrG9PnNhEcHHtW47mIC9ZZ204JhQQhCXCw6z1MDa
-         j3KA80oAYmvUuS7bth7DNOKK1gSxeuyn4/D65oZdvBKt/BFvVutFgsAiWlKAhPDiJuh4
-         l3kw==
+        bh=Dt1Evq91akr68arcCNxx+ZiMHVKLkU4ZfPXM5NAeNBM=;
+        b=NEtx3PH7cV0Ft1Gru0MqNjzszFxu8JxnuQo9XhOr/QSyYXUzlbEIE75KIg7klP7vOm
+         uL1OIDc25n78xcQEsldwTpJlWcA0jp1XF8Xqb1pFvo5ZKXo+nv429E81Tiu1VHYvwUWa
+         7tgx72EEaju+oV90/SjrTsPsebnfe6zdhJeRZ5j5n9CXz8e0CKbZRr8irwky2XMt0Baj
+         nZ6LtSrT7rid8B22ldRFHFLyh/NmMW9dWQG7Kt2QQkaF8Yd5RBKZIFzGMYO2oO9RnvZZ
+         oCyTnYsf34Re/CyCaqg0a+k7mnf4HboednqYWQbKdOQO97P3clkP6qzZSCg8MLjiyYoY
+         GZwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=eNwA3EUJFE+m3irceKXjnopYjD8/reD5rPigCO8qSjA=;
-        b=AgtkyCMli7nqmluOLDadSAAtC+m4Z4ucWn4GUq3mFCJyt9jCVgOZObPBhHtwDWbydr
-         PISwcqHuMYX3bhL63bA69goSIAwMyZMCQHwzfKV1bWigf0QCE9dm65orxVxHNF95Rql6
-         5zA10sGvYoS90pSdWTl0ehcIVFtvDf5DBQT+FghoDMGep5aaFpaHwZSeuTZideC4SHn0
-         bD6JNEZEeoLysBWaQ1/2qeh9DTZuJ3nvkileuRsOL8E8zdkhBsFk0Ffir0hGOauTFeYf
-         mhw7MtXF1Hr1M0WWaY3L6xJES3OuBNUb+OfCzSplUH0Ai53n3a5M0v2nfyW+AG7HPixp
-         zJWQ==
-X-Gm-Message-State: AOAM533zbhthMcQ+UK4ai9z40iKnoB8UpUC8YbtAFIrTyrz00r+FwIkx
-        e2FqX795BOb32vzv9pX64+JySY8hxW8=
-X-Google-Smtp-Source: ABdhPJwqJJUzwiLS21bsCmdtWn0V0Q2usXxGUQLnP1FI3bPW4MaZG4lJSTPfB67BGRyPmE17AHjXMQ==
-X-Received: by 2002:a17:906:dbef:: with SMTP id yd15mr16555338ejb.354.1639068581564;
-        Thu, 09 Dec 2021 08:49:41 -0800 (PST)
+        bh=Dt1Evq91akr68arcCNxx+ZiMHVKLkU4ZfPXM5NAeNBM=;
+        b=rJItTTlDtQDVtfLorYzeouAAH0URsNtVeTk+C/yIdzHe/0WxRBH0Rn+IfSgOWVllrD
+         Rv+fh0XzbFLgG3OmxrpQXtaHR/HlWhHWwEWHhEJIbmx3nmUQNyiSauEMQiYQLWBE5/8Z
+         xBvXbmfvDk+e/13xIzr+0kbTULwhnXwMYo6XoVCldAJalitclLp6CHSw1sl2Ker9MuKH
+         QvnGG7eLNDcgwvR/mV/1GjYgCNsHYallze/1URsi9oxYv4UM80DUhiY/I15Qj88pS7x/
+         5BqI35qJGVfdaEnhJ9WlTQywIGs9rJ0GV0BTSlUlOYQviTC+d/kw8vOjwI2EV6ZeSgCA
+         Ja/g==
+X-Gm-Message-State: AOAM530ou2TmnIgXlQY7YNMxS5iHC2dMbqOcEM6A0xAKjSsD4Oy02v9h
+        A6L3qtdLEdJJy6XKu5gJBFy39R0vZJc=
+X-Google-Smtp-Source: ABdhPJwm0B1Nm2pat1VacWgc0qH7O5YCmjh3+BCkkfdL/dJ2Ss3cneLkgLhEDrO2mwkHb4iqOXg+QQ==
+X-Received: by 2002:a50:a6ca:: with SMTP id f10mr30157998edc.81.1639068582216;
+        Thu, 09 Dec 2021 08:49:42 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-095-116-140-169.95.116.pool.telefonica.de. [95.116.140.169])
-        by smtp.gmail.com with ESMTPSA id hu7sm172135ejc.62.2021.12.09.08.49.40
+        by smtp.gmail.com with ESMTPSA id hu7sm172135ejc.62.2021.12.09.08.49.41
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 09 Dec 2021 08:49:41 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v3 09/36] libsepol: use reallocarray wrapper to avoid overflows
-Date:   Thu,  9 Dec 2021 17:49:01 +0100
-Message-Id: <20211209164928.87459-10-cgzones@googlemail.com>
+Subject: [PATCH v3 10/36] libsepol: add checks for read sizes
+Date:   Thu,  9 Dec 2021 17:49:02 +0100
+Message-Id: <20211209164928.87459-11-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211209164928.87459-1-cgzones@googlemail.com>
 References: <20211105154542.38434-1-cgzones@googlemail.com>
@@ -64,244 +64,116 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use a wrapper to guard `realloc(p, a * b)` type allocations, to detect
-multiplication overflows, which result in too few memory being
-allocated.
+Add checks for invalid read sizes from a binary policy to guard
+allocations.
 
-Use a custom implementation if the used C library does not offer one.
+The common and class permission counts needs to be limited more strict
+otherwise a too high count of common or class permissions can lead to
+permission values with a too high value, which can lead to overflows
+in shift operations.
 
-Also use temporary variables for realloc(3) results in add_i_to_a() and
-fp_to_buffer().
+In the fuzzer build the value will also be bounded to avoid oom reports.
+
+    ==29857== ERROR: libFuzzer: out-of-memory (malloc(17179868160))
+       To change the out-of-memory limit use -rss_limit_mb=<N>
+
+        #0 0x52dc61 in __sanitizer_print_stack_trace (./out/binpolicy-fuzzer+0x52dc61)
+        #1 0x475618 in fuzzer::PrintStackTrace() fuzzer.o
+        #2 0x458855 in fuzzer::Fuzzer::HandleMalloc(unsigned long) fuzzer.o
+        #3 0x45876a in fuzzer::MallocHook(void const volatile*, unsigned long) fuzzer.o
+        #4 0x534557 in __sanitizer::RunMallocHooks(void const*, unsigned long) (./out/binpolicy-fuzzer+0x534557)
+        #5 0x4aa7d7 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (./out/binpolicy-fuzzer+0x4aa7d7)
+        #6 0x4aa143 in __asan::asan_malloc(unsigned long, __sanitizer::BufferedStackTrace*) (./out/binpolicy-fuzzer+0x4aa143)
+        #7 0x5259cb in malloc (./out/binpolicy-fuzzer+0x5259cb)
+        #8 0x580b5d in mallocarray ./libsepol/src/./private.h:93:9
+        #9 0x57c2ed in scope_read ./libsepol/src/policydb.c:4120:7
+        #10 0x576b0d in policydb_read ./libsepol/src/policydb.c:4462:9
+        #11 0x55a214 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:26:6
+        #12 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
+        #13 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
+        #14 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
+        #15 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
+        #16 0x7ffad6e107ec in __libc_start_main csu/../csu/libc-start.c:332:16
+        #17 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
+
+    ==19462== ERROR: libFuzzer: out-of-memory (malloc(18253611008))
+       To change the out-of-memory limit use -rss_limit_mb=<N>
+
+        #0 0x52dc61 in __sanitizer_print_stack_trace (./out/binpolicy-fuzzer+0x52dc61)
+        #1 0x475618 in fuzzer::PrintStackTrace() fuzzer.o
+        #2 0x458855 in fuzzer::Fuzzer::HandleMalloc(unsigned long) fuzzer.o
+        #3 0x45876a in fuzzer::MallocHook(void const volatile*, unsigned long) fuzzer.o
+        #4 0x534557 in __sanitizer::RunMallocHooks(void const*, unsigned long) (./out/binpolicy-fuzzer+0x534557)
+        #5 0x4aa7d7 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (./out/binpolicy-fuzzer+0x4aa7d7)
+        #6 0x4aa999 in __asan::asan_calloc(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*) (./out/binpolicy-fuzzer+0x4aa999)
+        #7 0x525b63 in __interceptor_calloc (./out/binpolicy-fuzzer+0x525b63)
+        #8 0x570938 in policydb_index_others ./libsepol/src/policydb.c:1245:6
+        #9 0x5771f3 in policydb_read ./src/policydb.c:4481:6
+        #10 0x55a214 in LLVMFuzzerTestOneInput ./libsepol/fuzz/binpolicy-fuzzer.c:26:6
+        #11 0x45aed3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) fuzzer.o
+        #12 0x446a12 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) fuzzer.o
+        #13 0x44c93b in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) fuzzer.o
+        #14 0x475dd2 in main (./out/binpolicy-fuzzer+0x475dd2)
+        #15 0x7f4d933157ec in __libc_start_main csu/../csu/libc-start.c:332:16
+        #16 0x423689 in _start (./out/binpolicy-fuzzer+0x423689)
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/Makefile           |  6 ++++++
- libsepol/src/kernel_to_common.c |  4 ++--
- libsepol/src/module_to_cil.c    |  9 +++++----
- libsepol/src/optimize.c         |  5 +++--
- libsepol/src/private.h          | 11 +++++++++++
- libsepol/src/services.c         |  6 +++---
- libsepol/src/user_record.c      |  5 +++--
- libsepol/src/users.c            | 12 ++++++------
- libsepol/src/util.c             | 11 +++++++----
- 9 files changed, 46 insertions(+), 23 deletions(-)
+v3:
+   - use PERM_SYMTAB_SIZE instead of bare 32 as limit
+---
+ libsepol/src/policydb.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index dc8b1773..13410c67 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -29,6 +29,12 @@ LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_
- override CFLAGS += -I$(CILDIR)/include
- endif
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index dcea1807..0b2edf51 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -2103,6 +2103,8 @@ static int common_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 	if (symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE))
+ 		goto bad;
+ 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
++	if (comdatum->permissions.nprim > PERM_SYMTAB_SIZE)
++		goto bad;
+ 	nel = le32_to_cpu(buf[3]);
  
-+# check for reallocarray(3) availability
-+H := \#
-+ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>\nint main(void){void*p=reallocarray(NULL, 1, sizeof(char));return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-+override CFLAGS += -DHAVE_REALLOCARRAY
-+endif
-+
- LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
+ 	key = malloc(len + 1);
+@@ -2251,6 +2253,8 @@ static int class_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 	if (symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE))
+ 		goto bad;
+ 	cladatum->permissions.nprim = le32_to_cpu(buf[3]);
++	if (cladatum->permissions.nprim > PERM_SYMTAB_SIZE)
++		goto bad;
+ 	nel = le32_to_cpu(buf[4]);
  
- LN=ln
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index a7453d3c..51df8c25 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -161,7 +161,7 @@ int strs_add(struct strs *strs, char *s)
- 		char **new;
- 		unsigned i = strs->size;
- 		strs->size *= 2;
--		new = realloc(strs->list, sizeof(char *)*strs->size);
-+		new = reallocarray(strs->list, strs->size, sizeof(char *));
- 		if (!new) {
- 			sepol_log_err("Out of memory");
+ 	ncons = le32_to_cpu(buf[5]);
+@@ -3980,6 +3984,8 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
+ 		if (rc < 0) 
  			return -1;
-@@ -220,7 +220,7 @@ int strs_add_at_index(struct strs *strs, char *s, unsigned index)
- 		while (index >= strs->size) {
- 			strs->size *= 2;
- 		}
--		new = realloc(strs->list, sizeof(char *)*strs->size);
-+		new = reallocarray(strs->list, strs->size, sizeof(char *));
- 		if (!new) {
- 			sepol_log_err("Out of memory");
- 			return -1;
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 33a11a15..5f762aba 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -453,7 +453,7 @@ static int stack_push(struct stack *stack, void *ptr)
- 	void *new_stack;
- 
- 	if (stack->pos + 1 == stack->size) {
--		new_stack = realloc(stack->stack, sizeof(*stack->stack) * (stack->size * 2));
-+		new_stack = reallocarray(stack->stack, stack->size * 2, sizeof(*stack->stack));
- 		if (new_stack == NULL) {
- 			goto exit;
- 		}
-@@ -4117,7 +4117,7 @@ exit:
- static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
- {
- 	int rc = -1;
--	char *d = NULL;
-+	char *d = NULL, *d_tmp;
- 	size_t d_len = 0;
- 	size_t read_len = 0;
- 	size_t max_len = 1 << 17; // start at 128KB, this is enough to hold about half of all the existing pp files
-@@ -4133,12 +4133,13 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
- 		d_len += read_len;
- 		if (d_len == max_len) {
- 			max_len *= 2;
--			d = realloc(d, max_len);
--			if (d == NULL) {
-+			d_tmp = realloc(d, max_len);
-+			if (d_tmp == NULL) {
- 				log_err("Out of memory");
- 				rc = -1;
- 				goto exit;
- 			}
-+			d = d_tmp;
- 		}
+ 		nprim = le32_to_cpu(buf[0]);
++		if (is_saturated(nprim))
++			return -1;
+ 		nel = le32_to_cpu(buf[1]);
+ 		for (j = 0; j < nel; j++) {
+ 			if (read_f[i] (p, decl->symtab[i].table, fp)) {
+@@ -4106,7 +4112,7 @@ static int scope_read(policydb_t * p, int symnum, struct policy_file *fp)
+ 		goto cleanup;
+ 	scope->scope = le32_to_cpu(buf[0]);
+ 	scope->decl_ids_len = le32_to_cpu(buf[1]);
+-	if (scope->decl_ids_len == 0) {
++	if (zero_or_saturated(scope->decl_ids_len)) {
+ 		ERR(fp->handle, "invalid scope with no declaration");
+ 		goto cleanup;
  	}
- 
-diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
-index f8298fb7..8a048702 100644
---- a/libsepol/src/optimize.c
-+++ b/libsepol/src/optimize.c
-@@ -59,8 +59,9 @@ static int type_vec_append(struct type_vec *v, uint32_t type)
- {
- 	if (v->capacity == v->count) {
- 		unsigned int new_capacity = v->capacity * 2;
--		uint32_t *new_types = realloc(v->types,
--					      new_capacity * sizeof(*v->types));
-+		uint32_t *new_types = reallocarray(v->types,
-+						   new_capacity,
-+						   sizeof(*v->types));
- 		if (!new_types)
- 			return -1;
- 
-diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-index d3d65a57..a8cc1472 100644
---- a/libsepol/src/private.h
-+++ b/libsepol/src/private.h
-@@ -92,3 +92,14 @@ static inline void* mallocarray(size_t nmemb, size_t size) {
- 
- 	return malloc(nmemb * size);
- }
-+
-+#ifndef HAVE_REALLOCARRAY
-+static inline void* reallocarray(void *ptr, size_t nmemb, size_t size) {
-+	if (size && nmemb > (size_t)-1 / size) {
-+		errno = ENOMEM;
-+		return NULL;
-+	}
-+
-+	return realloc(ptr, nmemb * size);
-+}
-+#endif
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index edcdde21..0f36ac53 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -94,7 +94,7 @@ static void push(char *expr_ptr)
- 		else
- 			new_stack_len = stack_len * 2;
- 
--		new_stack = realloc(stack, new_stack_len * sizeof(*stack));
-+		new_stack = reallocarray(stack, new_stack_len, sizeof(*stack));
- 		if (!new_stack) {
- 			ERR(NULL, "unable to allocate stack space");
- 			return;
-@@ -449,8 +449,8 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
- 			else
- 				new_expr_list_len = expr_list_len * 2;
- 
--			new_expr_list = realloc(expr_list,
--					new_expr_list_len * sizeof(*expr_list));
-+			new_expr_list = reallocarray(expr_list,
-+					new_expr_list_len, sizeof(*expr_list));
- 			if (!new_expr_list) {
- 				ERR(NULL, "failed to allocate expr buffer stack");
- 				rc = -ENOMEM;
-diff --git a/libsepol/src/user_record.c b/libsepol/src/user_record.c
-index c1356a6b..404fa3a8 100644
---- a/libsepol/src/user_record.c
-+++ b/libsepol/src/user_record.c
-@@ -183,8 +183,9 @@ int sepol_user_add_role(sepol_handle_t * handle,
- 	if (!role_cp)
- 		goto omem;
- 
--	roles_realloc = realloc(user->roles,
--				sizeof(char *) * (user->num_roles + 1));
-+	roles_realloc = reallocarray(user->roles,
-+				     user->num_roles + 1,
-+				     sizeof(char *));
- 	if (!roles_realloc)
- 		goto omem;
- 
-diff --git a/libsepol/src/users.c b/libsepol/src/users.c
-index b895b7f5..a7406214 100644
---- a/libsepol/src/users.c
-+++ b/libsepol/src/users.c
-@@ -226,17 +226,17 @@ int sepol_user_modify(sepol_handle_t * handle,
- 		void *tmp_ptr;
- 
- 		/* Ensure reverse lookup array has enough space */
--		tmp_ptr = realloc(policydb->user_val_to_struct,
--				  (policydb->p_users.nprim +
--				   1) * sizeof(user_datum_t *));
-+		tmp_ptr = reallocarray(policydb->user_val_to_struct,
-+				  policydb->p_users.nprim + 1,
-+				  sizeof(user_datum_t *));
- 		if (!tmp_ptr)
- 			goto omem;
- 		policydb->user_val_to_struct = tmp_ptr;
- 		policydb->user_val_to_struct[policydb->p_users.nprim] = NULL;
- 
--		tmp_ptr = realloc(policydb->sym_val_to_name[SYM_USERS],
--				  (policydb->p_users.nprim +
--				   1) * sizeof(char *));
-+		tmp_ptr = reallocarray(policydb->sym_val_to_name[SYM_USERS],
-+				  policydb->p_users.nprim + 1,
-+				  sizeof(char *));
- 		if (!tmp_ptr)
- 			goto omem;
- 		policydb->sym_val_to_name[SYM_USERS] = tmp_ptr;
-diff --git a/libsepol/src/util.c b/libsepol/src/util.c
-index 902c63c5..b7230564 100644
---- a/libsepol/src/util.c
-+++ b/libsepol/src/util.c
-@@ -40,6 +40,8 @@ struct val_to_name {
-  * 0).  Return 0 on success, -1 on out of memory. */
- int add_i_to_a(uint32_t i, uint32_t * cnt, uint32_t ** a)
- {
-+	uint32_t *new;
-+
- 	if (cnt == NULL || a == NULL)
- 		return -1;
- 
-@@ -48,17 +50,18 @@ int add_i_to_a(uint32_t i, uint32_t * cnt, uint32_t ** a)
- 	 * than be smart about it, for now we realloc() the array each
- 	 * time a new uint32_t is added! */
- 	if (*a != NULL)
--		*a = (uint32_t *) realloc(*a, (*cnt + 1) * sizeof(uint32_t));
-+		new = (uint32_t *) reallocarray(*a, *cnt + 1, sizeof(uint32_t));
- 	else {			/* empty list */
- 
- 		*cnt = 0;
--		*a = (uint32_t *) malloc(sizeof(uint32_t));
-+		new = (uint32_t *) malloc(sizeof(uint32_t));
- 	}
--	if (*a == NULL) {
-+	if (new == NULL) {
- 		return -1;
- 	}
--	(*a)[*cnt] = i;
-+	new[*cnt] = i;
- 	(*cnt)++;
-+	*a = new;
- 	return 0;
- }
- 
+@@ -4396,6 +4402,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 		if (rc < 0)
+ 			goto bad;
+ 		nprim = le32_to_cpu(buf[0]);
++		if (is_saturated(nprim))
++			goto bad;
+ 		nel = le32_to_cpu(buf[1]);
+ 		if (nel && !nprim) {
+ 			ERR(fp->handle, "unexpected items in symbol table with no symbol");
 -- 
 2.34.1
 
