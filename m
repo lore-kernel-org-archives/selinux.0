@@ -2,361 +2,166 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02FEBC433EF
-	for <selinux@archiver.kernel.org>; Fri, 10 Dec 2021 11:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D48CEC433F5
+	for <selinux@archiver.kernel.org>; Fri, 10 Dec 2021 12:04:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240768AbhLJLrb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Dec 2021 06:47:31 -0500
-Received: from mailomta26-re.btinternet.com ([213.120.69.119]:33466 "EHLO
-        re-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S240744AbhLJLra (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Dec 2021 06:47:30 -0500
-Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
-          by re-prd-fep-046.btinternet.com with ESMTP
-          id <20211210114354.KBLG24326.re-prd-fep-046.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Fri, 10 Dec 2021 11:43:54 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1639136634; 
-        bh=UBTAVqWtgVhxKtVVyZg0DKzx16fLVN67bgj+xfwcGQg=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=X3zGyR0GbbKm3LCuuw86d6VVsjhL77hlZoNNOG/3rXs1fzkAio0f9KuvAtSoGAzBhHrBeHl4PKte649PuNjwp0EKc6UWN+tFMlDtg+XRlfDx6FJy7wOcfG4h+jijS1KE5pkrKjhdO2iWmgZaVzYryBZfCXBRS7E7fC9bB8tcMVoZ3RCicluKD5AHw4Kg8vTTcquYS2DeEy2IWnSBeXQI+iuWTzdieZLDJO2njnyD50hak9UFM3oVnclI8ejeT1LacnNTXV9k5kWdAeLaF1U/CIqa1Zzuw8SaHfwohra8pFDweW5JCEwis5iVVNWmmPVxgTPdQ/qkiEAs5JZKjBNuog==
-Authentication-Results: btinternet.com; none
-X-SNCR-Rigid: 613A901C0CC4A2C9
-X-Originating-IP: [81.141.144.155]
-X-OWM-Source-IP: 81.141.144.155 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvuddrkedvgdefvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgjfhggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeduffefveduffeuhfekgfeuleffgfelheelieffgeegvedvgfeuveevveeigeetveenucffohhmrghinhepuhhpuggrthgvqdhmihhmvgdquggrthgrsggrshgvrdhlohgtrghlpdhgnhhurdhorhhgpdguvghvihgrnhhtrghrthdrtghomhenucfkphepkedurddugedurddugeegrdduheehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudeguddrudeggedrudehhedpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepphgruhhlsehprghulhdqmhhoohhrvgdrtghomhdprhgtphhtthhopehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (81.141.144.155) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613A901C0CC4A2C9; Fri, 10 Dec 2021 11:43:54 +0000
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 4/4] selinux-notebook: Add epub build
-Date:   Fri, 10 Dec 2021 11:43:40 +0000
-Message-Id: <20211210114340.13977-5-richard_c_haines@btinternet.com>
+        id S240534AbhLJMHs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Dec 2021 07:07:48 -0500
+Received: from mail-eopbgr1300103.outbound.protection.outlook.com ([40.107.130.103]:14129
+        "EHLO APC01-HK2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S236854AbhLJMHs (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 10 Dec 2021 07:07:48 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Jr221zx8xAqT4OJy+MjwHjdHQKweYtkzjHshC8MbmXCYzeVYpxWSoyZx0rP1avHE3oGFCogIIno/XsCW35855YMuSOIKPkTepVHrW1bh9rmGBTNz64DIHHwSOfr54DIFnsX6A40g3/e4H6szzsQE/bNZRMetHrIXx1uwU2bd2xoEX5majGc5G9oGgUPBB/EC5bz3VGy4VcxKft5U/WmYbhGuTPekZ38uEYrGatDdAnG4DCpgZEYyY8BPg0y84Eql80aYts61VAvdmgk4N1dpn4xtgTnnU7TU8+qm062Zpu+imXZYX22BtSYOaa0Xjph1qs7HN852YW6UxSlMZmO5tw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uD0ZrxUsbKv7zCxaOHXqBQP4gQgokO1ZLif5+ZCbQz0=;
+ b=dXfNB8DjVR2/MMIB/esdz74dbxy+DTBmzh5tYuSpM2TtpwX9tSPfFd/TN/2GTZ8bEYoIc98xtR5W3wlWNLRNzUOA9HWVzwPtGYktd5HCX0qDEZpAMLCcD75MhotjhKthSPeJiU50WDTTQ4qbzAgQmfiFXl094c5wf2VkcQs1tlKpNL5SJ0vcbxbXbzmxdK7q44NiJlng34fnBIGgdcP2TPZPEWodJvKWYaBF0RSzGUM2O9S/Np6xbGYGJSArNzQzY3T8oy/tvrSjuHamT0VtqeTXKeRk3wpux2OwEeV4Tok9s6f9T/OhbXI1R2gQ5LPb0WcpFlWh1aym6UxC9nWzQg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
+ dkim=pass header.d=vivo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo0.onmicrosoft.com;
+ s=selector2-vivo0-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uD0ZrxUsbKv7zCxaOHXqBQP4gQgokO1ZLif5+ZCbQz0=;
+ b=GDfjzTRSRTxIH6s//A47pRCd4Zb0nBACz7fnQDLBbtGU1oexfzIzChGfujYYrmg/+Z/rWhnw8eECmwmlBXfckPHpkstk8N7tfdb1gImtzzyCvBJbl/k9CJ4zbNNhGOHl1GKsZP1zPY+APW0Bt5+zDJweSYhNIznQBvDOX2DpARE=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vivo.com;
+Received: from PSAPR06MB4021.apcprd06.prod.outlook.com (2603:1096:301:37::11)
+ by PSAPR06MB4326.apcprd06.prod.outlook.com (2603:1096:301:86::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.21; Fri, 10 Dec
+ 2021 12:04:10 +0000
+Received: from PSAPR06MB4021.apcprd06.prod.outlook.com
+ ([fe80::ad23:f8da:4661:7fe7]) by PSAPR06MB4021.apcprd06.prod.outlook.com
+ ([fe80::ad23:f8da:4661:7fe7%7]) with mapi id 15.20.4755.026; Fri, 10 Dec 2021
+ 12:04:10 +0000
+From:   Bernard Zhao <bernard@vivo.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Bernard Zhao <bernard@vivo.com>
+Subject: [PATCH v3] security/selinux: fix potential memleak in error branch
+Date:   Fri, 10 Dec 2021 04:03:58 -0800
+Message-Id: <20211210120359.394986-1-bernard@vivo.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211210114340.13977-1-richard_c_haines@btinternet.com>
-References: <20211210114340.13977-1-richard_c_haines@btinternet.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: HK2P15301CA0018.APCP153.PROD.OUTLOOK.COM
+ (2603:1096:202:1::28) To PSAPR06MB4021.apcprd06.prod.outlook.com
+ (2603:1096:301:37::11)
+MIME-Version: 1.0
+Received: from ubuntu.localdomain (218.213.202.190) by HK2P15301CA0018.APCP153.PROD.OUTLOOK.COM (2603:1096:202:1::28) with Microsoft SMTP Server (version=TLS1_2, cipher=) via Frontend Transport; Fri, 10 Dec 2021 12:04:09 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 706668b9-8745-4e59-1eb8-08d9bbd52c72
+X-MS-TrafficTypeDiagnostic: PSAPR06MB4326:EE_
+X-Microsoft-Antispam-PRVS: <PSAPR06MB432646A5134C338CD5EC3049DF719@PSAPR06MB4326.apcprd06.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:473;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cpWXoA7WEHyO8xPXZ76ZaFmmRWF0Bltd7pKRwJRZSIzyh+iB6/6YpaA4v1I7yYyF0ZkT1z+5dsvYubKFkD6P+YqwUmpp8uDroyvf5Q35BPzyCCGctZvWVzlXTFT8TVPf8neteDxMLAOLGCjevq93Fdjc5reL+L/7SsaxsH6swOyLKPdecVF+RUoZQ1qclo3qfQ9wH1is4BUI3/tm1cTppolpcyFaQisFzcfliQmF0pF7MB7qHpIEzacR6G5pzLUIWS9v1NkypHKweKwhXsSfPZNs8wRzEKxFFqktA/FkAAEwiNCrwZzmsMeTYV1XSXB+DglYgbQUZ93IJmfcLWdhR+bZqFu3LKrt5yHVoTw4GNcvSyX0FxckODzahud8EdUjg3gaYDbYX8qFIFoEuswRkqEAI1c9kvIKdNDypro8Slz2Y/p3/khp3XIdEpyCy5YpIs+MvatAHyTzJSpf3lwJIGrTsdcUaAN9aqgTEclb/gwYkWrnJrXbMLWyu/WeYkrGr31Y94MVqL3nWCAzKro5ZXTbDw8YZ2ib59e9y0dQY8t48y2hnMJa7mMhZoguE0ItAORc/dowkSXhWLfoU5hfK9z0qiaH3FQlxpFlCwEg25GsOBsKrqRmfn7GucAiYgY4qy5Jq8l1qKz2GvNHI71wGP4VY4gYDiHztEVZ8XVgfZHyDwytPt+36PftmEFSEs5m1VEJ3w0xBdjzAJkuG6G93w==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAPR06MB4021.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2906002)(5660300002)(36756003)(38350700002)(508600001)(38100700002)(1076003)(316002)(110136005)(86362001)(26005)(83380400001)(4326008)(6506007)(8936002)(66946007)(956004)(8676002)(66556008)(2616005)(66476007)(15650500001)(52116002)(107886003)(6486002)(6512007)(186003)(6666004);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?EeBZLwkm9hzO49rEm1MkLuu0u6ymF0S+civGxjhzLGRdIcya9QmbZxYPBZlp?=
+ =?us-ascii?Q?tmubZEAGZaVwwksXBgQyaXFGOyYyl372M/gJe47cjo/hTq3CsC62I80Fpx9x?=
+ =?us-ascii?Q?hV+dmK4Vv8jQeO5Hg3arZcCYrnjaRlZjJnQ1yrqrlqjWUKJumWKqwKVvSk+X?=
+ =?us-ascii?Q?B8NRduZy2Qh+LjvzdNy3GSUDEAqrgffQO4JjuReqChHWJLxk78H+YJh4tvnb?=
+ =?us-ascii?Q?xkjE0exSXR0KnqNnYOhSSm6TPdA1so3mSEaWGGk3GuwfP+1caGaoJRFYnb7w?=
+ =?us-ascii?Q?V9RpJXfy8KGFixiVNi5bVeltL19s1RcDXpLQOvBuU92CZTOIvj1hhHF7tWtL?=
+ =?us-ascii?Q?r5QHlwdqAeZKp42Q7Z4QkipnfLzpZpgHImsGareJMhNJYpt+KdS+7Y8kKUQO?=
+ =?us-ascii?Q?hvegacrrKDNvtGfTl/dnM52KR9glZVCQBzYl7MZnPgm+EcpuEwnr8qEIFtrF?=
+ =?us-ascii?Q?9VE9KPBzLw388dAx07KIdafsktSpWfSGc0a/XgmcPIjF9fLEH079aQOPA4nb?=
+ =?us-ascii?Q?n6LWPIPnQCNAW5jzW92kD6MFvg6fTsXLmNtrfPbBxTRqvsBdViZzeWqcB14D?=
+ =?us-ascii?Q?XMoBRNBCKg9tPaHRBc9d0VFtpT5Chwymw3SOWQCIaAG6fa5m6wJdIIx9wBqi?=
+ =?us-ascii?Q?/qJ1D92HuzyLic2BUuKAlasBgmwdjqp389ifHejBdYcStfqOwnU81g+Du4cI?=
+ =?us-ascii?Q?93f98mBjk0miHlvgDrX7QJEXsOyvnw8bkqqRtVGMb3ihSyBfBq4cN8YhlYEe?=
+ =?us-ascii?Q?qrUZcF+8JodsFJoRnUEjc+nTGwO+0H+6OPXFKI+8HLURxQ8dBiF+BikhiBMI?=
+ =?us-ascii?Q?F1jkR6MaSp6QFK2q0Uy13Q3EGLVa0sZscqwM1GJ2FNWLm2yDE34A8u3Izzrw?=
+ =?us-ascii?Q?rjxiFJZExbC2WUh7FFoTssLYl2IJ06c/HTa+0aX7rmzeeUKYLwvjx5KXSdJc?=
+ =?us-ascii?Q?NqgVlvRwVszm6COqIkIwytaYwq9wESVu1r6fPDxCvt0zhxcnRpZqUbmK3ibC?=
+ =?us-ascii?Q?GLkdxjXLpvae632I2m7lyrUhiXJDsuml5DlSY74L7FBNW0SQIgtzDy/y2xy2?=
+ =?us-ascii?Q?U5eU2B8wYH8UJAPGiIxP8Jua9tbXCUU4zxII6tuf950KeACVZAl5QiJhFV+d?=
+ =?us-ascii?Q?xr9f1lXxTEVZ8gsRsCDaiefsXkkOFw0YkPvSc2u7Sh+Ju4C5nSdbRoeaxGmG?=
+ =?us-ascii?Q?z5X+fplJBdnEH+j6lm65m7+Q+6rsKEjzGE3VwYJfSqO1hvD/BDCCeOLwwXzb?=
+ =?us-ascii?Q?sf88WCzkwgiFyXNuZDI1IkDmeXCpkK5+dimX4s561TtYFanIaKk7JJWTd62V?=
+ =?us-ascii?Q?+Dg8aB2vXgkJfJAM9dolX3icsd+490vs9UqcOCAWI5ykVRhr90Los5bEv77c?=
+ =?us-ascii?Q?+rUQJUxtHdn4QHkmG/GfU7l9NXmLR2Vqoa/Kb0EAgl8B8aITNHdqYo5T+Cnp?=
+ =?us-ascii?Q?/Z2lFr/Ga39mfouH/KoLs73hqg3lide7fmudiiPAkkHUZ9e22lL7T8v1zTG3?=
+ =?us-ascii?Q?g+zIP5bKNBIxy/vKGOmA+wYHnJ+P6iFB6oR/Xq7ZiqcsBq8whzr+V8mXRsKB?=
+ =?us-ascii?Q?6/MvGI9nryru5RuLdtL1GCv2Uhv4p9OZcww1DPlcnlU7O7vPNlgw1S8BNnEZ?=
+ =?us-ascii?Q?dUymTeNIf4aZaqY1qfDlnsk=3D?=
+X-OriginatorOrg: vivo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 706668b9-8745-4e59-1eb8-08d9bbd52c72
+X-MS-Exchange-CrossTenant-AuthSource: PSAPR06MB4021.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Dec 2021 12:04:10.0083
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: lX4uAkWAk4QYag0vf5MgWSNjeNVCFlsKmOXwSpNQNaGkgJNUwIQpNjB3kzvN6Ysot0hHAHCWbr03ZVf3n9AfXA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PSAPR06MB4326
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Build an epub document.
+This patch try to fix potential memleak in error branch.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+
+Changes since V1:
+*make it to be simpler to do the "(!s)" check before the "(!opts)" check.
+
+Changes since v2:
+*add *mnt_opts = NULL after kfree(opt) to avoid double free risk.
 ---
- BUILD.md            | 17 +++++++++++-----
- CONTRIBUTING.md     | 10 +++++-----
- Makefile            | 48 ++++++++++++++++++++++++++++++++++++++-------
- README.md           |  9 +++++----
- src/cover.md        | 16 +++++++++++++++
- src/cover_epub.md   |  2 ++
- src/styles_epub.css | 44 +++++++++++++++++++++++++++++++++++++++++
- src/title.md        | 16 ---------------
- 8 files changed, 125 insertions(+), 37 deletions(-)
- create mode 100644 src/cover.md
- create mode 100644 src/cover_epub.md
- create mode 100644 src/styles_epub.css
+ security/selinux/hooks.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/BUILD.md b/BUILD.md
-index 34045cf..6ca9077 100644
---- a/BUILD.md
-+++ b/BUILD.md
-@@ -29,9 +29,9 @@ Extract from the README:
- > 
- >     % update-mime-database ~/.local/share/mime
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 62d30c0a30c2..0d018f054dfb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -983,18 +983,22 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ {
+ 	struct selinux_mnt_opts *opts = *mnt_opts;
++	bool is_alloc_opts = false;
  
--# Build HTML or PDF Versions
-+# Build HTML, PDF or EPUB Versions
+ 	if (token == Opt_seclabel)	/* eaten and completely ignored */
+ 		return 0;
  
--The SELinux Notebook can be rendered in both HTML and PDF using the included
-+The SELinux Notebook can be rendered in HTML, PDF and EPUB using the included
- Makefile.  In order to build these versions of the notebook, "pandoc" and
- "weasyprint" must be installed on your system; consult your distribution
- documentation for information on installing these packages.
-@@ -41,9 +41,16 @@ following command:
- 
- 	% make pdf
- 
--... and the following will generate the HTML notebook:
-+... the following will generate the HTML notebook:
- 
- 	% make html
- 
--The PDF and HTML notebooks will be generated in newly created "pdf" and "html"
--directories.
-+... and the following will generate the EPUB notebook:
++	if (!s)
++		return -ENOMEM;
 +
-+	% make epub
+ 	if (!opts) {
+ 		opts = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
+ 		if (!opts)
+ 			return -ENOMEM;
+ 		*mnt_opts = opts;
++		is_alloc_opts = true;
+ 	}
+-	if (!s)
+-		return -ENOMEM;
 +
-+The PDF, HTML and EPUB notebooks will be generated in newly created "pdf",
-+"html" and "epub" directories.
-+
-+The Notebook examples are not embedded into any of the document formats,
-+however they will have links to them via their build directory.
-diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
-index 43f1934..db137b0 100644
---- a/CONTRIBUTING.md
-+++ b/CONTRIBUTING.md
-@@ -10,11 +10,11 @@ project.
- 
- ## Make Sure Your Changes Render Correctly
- 
--The SELinux Notebook can be viewed in three different formats: Markdown, HTML,
--and PDF.  Your changes need to render correctly in all three formats.  The
--HTML and PDF formatted notebooks can be created using the included Makefile
--and Markdown can be viewed directly via the GitHub source browser or any
--number of Markdown viewers.
-+The SELinux Notebook can be viewed in four different formats: Markdown, HTML,
-+PDF and EPUB.  Your changes need to render correctly in all four formats.
-+The HTML, PDF and EPUB formatted notebooks can be created using the included
-+Makefile and Markdown can be viewed directly via the GitHub source browser
-+or any number of Markdown viewers.
- 
- ## Explain Your Work
- 
-diff --git a/Makefile b/Makefile
-index f41bb16..1903982 100644
---- a/Makefile
-+++ b/Makefile
-@@ -2,20 +2,23 @@
- # The SELinux Notebook
- #
- 
-+SED = sed
-+PANDOC = pandoc
- CWD ?= $(shell pwd)
- SCRIPTS = $(CWD)/scripts
- SRCDIR = $(CWD)/src
- HTMLDIR ?= $(CWD)/html
- PDFDIR ?= $(CWD)/pdf
-+EPUBDIR ?= $(CWD)/epub
- IMAGES = $(SRCDIR)/images
- EXAMPLES = $(SRCDIR)/notebook-examples
-+EXAMPLES_EPUB = $(shell echo $(EXAMPLES) | $(SED) 's;/;\\/;g')
- METADATA = $(SRCDIR)/metadata.yaml
- 
- HTML_OUT = SELinux_Notebook.html
- PDF_OUT = SELinux_Notebook.pdf
-+EPUB_OUT = SELinux_Notebook.epub
- 
--SED = sed
--PANDOC = pandoc
- PANDOC_OPTS  = --from markdown+pipe_tables
- PANDOC_OPTS += -V mainfont='DejaVu Serif' -V monofont='DejaVu Sans Mono'
- 
-@@ -27,8 +30,8 @@ help:
- 	@echo "targets:"
- 	@grep "^#@ " Makefile | cut -c4-
- 
--#@   all             build both the PDF and HTML versions
--all: html pdf
-+#@   all             build the PDF, HTML and EPUB versions
-+all: html pdf epub
- 
- #@   navlinks        update the navigation links in the markdown sources
- .PHONY: navlinks
-@@ -46,11 +49,13 @@ navlinks:
- 		echo "" >> $$i; \
- 	done
- 
--#@   pdf             build both the PDF version
-+#@   pdf             build PDF version
- .PHONY: pdf
- pdf: $(DEP_FILE_LIST) $(METADATA)
- 	mkdir -p $(PDFDIR)
- 	cat $(METADATA) > $(PDFDIR)/.full_document.md
-+	cat $(SRCDIR)/cover.md | $(SCRIPTS)/macros_section.sh \
-+		>> $(PDFDIR)/.full_document.md
- 	for i in $(DEP_FILE_LIST); do \
- 		cat $$i | $(SCRIPTS)/macros_section.sh \
- 			>> $(PDFDIR)/.full_document.md; \
-@@ -70,11 +75,13 @@ pdf: $(DEP_FILE_LIST) $(METADATA)
- 		--css=$(SRCDIR)/styles_pdf.css --self-contained \
- 		$(PDFDIR)/.full_document.md -o $(PDFDIR)/$(PDF_OUT))
- 
--#@   html            build both the HTML version
-+#@   html            build HTML version
- .PHONY: html
- html: $(DEP_FILE_LIST) $(METADATA)
- 	mkdir -p $(HTMLDIR)
- 	cat $(METADATA) > $(HTMLDIR)/.full_document.md
-+	cat $(SRCDIR)/cover.md | $(SCRIPTS)/macros_section.sh \
-+		>> $(HTMLDIR)/.full_document.md
- 	for i in $(DEP_FILE_LIST); do \
- 		cat $$i | $(SCRIPTS)/macros_section.sh \
- 			>> $(HTMLDIR)/.full_document.md; \
-@@ -92,7 +99,34 @@ html: $(DEP_FILE_LIST) $(METADATA)
- 		--css=$(SRCDIR)/styles_html.css --self-contained \
- 		$(HTMLDIR)/.full_document.md -o $(HTMLDIR)/$(HTML_OUT))
- 
-+#@   epub             build EPUB version
-+.PHONY: epub
-+epub: $(DEP_FILE_LIST) $(METADATA)
-+	mkdir -p $(EPUBDIR)
-+	cat $(METADATA) > $(EPUBDIR)/.full_document.md
-+	cat $(SRCDIR)/cover_epub.md | $(SCRIPTS)/macros_section.sh \
-+		>> $(EPUBDIR)/.full_document.md
-+	for i in $(DEP_FILE_LIST); do \
-+		cat $$i | $(SCRIPTS)/macros_section.sh \
-+			>> $(EPUBDIR)/.full_document.md; \
-+		echo '<!-- %PAGEBREAK% -->' \
-+			>> $(EPUBDIR)/.full_document.md; \
-+	done
-+	$(SCRIPTS)/macros_doc.sh $(EPUBDIR)/.full_document.md
-+	$(SED) -i 's/](.*\.md#/](#/' $(EPUBDIR)/.full_document.md
-+	# remove the section file name from all HTML links
-+	$(SED) -i 's/href=.*\.md#/href="#/' $(EPUBDIR)/.full_document.md
-+	# fixup path for examples, otherwise defaults to file:///EPUB/text
-+	$(SED) -i 's/](.\/notebook-examples/](file:\/\/$(EXAMPLES_EPUB)/g' \
-+		$(EPUBDIR)/.full_document.md
-+	[ -e $(EPUBDIR)/images ] || ln -s $(IMAGES) $(EPUBDIR)
-+	[ -e $(EPUBDIR)/notebook-examples ] || ln -s $(EXAMPLES) $(EPUBDIR)
-+	(cd $(EPUBDIR); $(PANDOC) $(PANDOC_OPTS) \
-+		--epub-cover-image=$(SRCDIR)/images/selinux-penguin_400.png \
-+		--css=$(SRCDIR)/styles_epub.css --self-contained \
-+		$(EPUBDIR)/.full_document.md -o $(EPUBDIR)/$(EPUB_OUT))
-+
- #@   clean           clean any build artifacts
- .PHONY: clean
- clean:
--	rm -rf $(HTMLDIR) $(PDFDIR)
-+	rm -rf $(HTMLDIR) $(PDFDIR) $(EPUBDIR)
-diff --git a/README.md b/README.md
-index 9558101..f2e1c94 100644
---- a/README.md
-+++ b/README.md
-@@ -1,6 +1,6 @@
- # The SELinux Notebook
- 
--![](./src/images/selinux-penguin.svg)
-+![](./src/images/selinux-penguin_400.png)
- 
- ## Introduction
- 
-@@ -69,7 +69,8 @@ See: **<http://www.gnu.org/licenses/fdl-1.3.html>**
- 
- Logo designed by [*Máirín Duffy*](http://pookstar.deviantart.com/)
- 
--## Building HTML/PDF Versions
-+## Building HTML/PDF/EPUB Versions
- 
--The [**BUILD.md**](BUILD.md) file has more information on building HTML and PDF
--versions of the notebook as well as alternate ways to view the source markdown.
-+The [**BUILD.md**](BUILD.md) file has more information on building HTML, PDF
-+and EPUB versions of the notebook as well as alternate ways to view the
-+source markdown.
-diff --git a/src/cover.md b/src/cover.md
-new file mode 100644
-index 0000000..d3be82c
---- /dev/null
-+++ b/src/cover.md
-@@ -0,0 +1,16 @@
-+<!-- %STYLESTART%(text-align:center;) -->
-+
-+<!-- %STYLESTART%(font-size:400%) -->
-+# The SELinux Notebook
-+<!-- %STYLEEND% -->
-+
-+<!-- %STYLESTART%(display:block;margin-left:auto;margin-right:auto;padding:2em) -->
-+![](./images/selinux-penguin_400.png)
-+<!-- %STYLEEND% -->
-+
-+**<!-- %DATE% -->**
-+<!-- %GITHEAD% -->
-+
-+<!-- %STYLEEND% -->
-+
-+<!-- %PAGEBREAK% -->
-diff --git a/src/cover_epub.md b/src/cover_epub.md
-new file mode 100644
-index 0000000..3f90deb
---- /dev/null
-+++ b/src/cover_epub.md
-@@ -0,0 +1,2 @@
-+**<!-- %DATE% -->**
-+<!-- %GITHEAD% -->
-diff --git a/src/styles_epub.css b/src/styles_epub.css
-new file mode 100644
-index 0000000..a1bb26f
---- /dev/null
-+++ b/src/styles_epub.css
-@@ -0,0 +1,44 @@
-+
-+.title {
-+	/* pandoc generates the h1 title with the "title" class */
-+	display: none;
-+}
-+
-+html {
-+	font-size: 100%;
-+}
-+
-+a {
-+	color: blue;
-+}
-+
-+table {
-+	/* limit to 95% page width */
-+	min-width: 50%;
-+	max-width: 95%;
-+	/* combine table borders when they are adjacent */
-+	border-collapse: collapse;
-+}
-+table th {
-+	padding: 0.5em;
-+	border: 1px solid black;
-+	background-color: #d3d3d3;
-+}
-+table tr, td {
-+	padding: 0.5em;
-+	border: 1px solid black;
-+}
-+
-+img {
-+	/* center and limit to 95% page width */
-+	display: block;
-+	margin-left: auto;
-+	margin-right: auto;
-+	max-width: 95%;
-+}
-+
-+pre {
-+	width: 95%;
-+	padding: 1em;
-+	background-color: #f5f5f5;
-+}
-diff --git a/src/title.md b/src/title.md
-index 03c5795..7f21617 100644
---- a/src/title.md
-+++ b/src/title.md
-@@ -1,19 +1,3 @@
--<!-- %STYLESTART%(text-align:center;) -->
--
--<!-- %STYLESTART%(font-size:400%) -->
--# The SELinux Notebook
--<!-- %STYLEEND% -->
--
--<!-- %STYLESTART%(display:block;margin-left:auto;margin-right:auto;padding:2em) -->
--![](./images/selinux-penguin.svg)
--<!-- %STYLEEND% -->
--
--**<!-- %DATE% -->**
--<!-- %GITHEAD% -->
--
--<!-- %STYLEEND% -->
--
--<!-- %PAGEBREAK% -->
- 
- ## Copyright Information
- 
+ 	switch (token) {
+ 	case Opt_context:
+ 		if (opts->context || opts->defcontext)
+@@ -1019,6 +1023,10 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 	}
+ 	return 0;
+ Einval:
++	if (is_alloc_opts) {
++		kfree(opts);
++		*mnt_opts = NULL;
++	}
+ 	pr_warn(SEL_MOUNT_FAIL_MSG);
+ 	return -EINVAL;
+ }
 -- 
 2.33.1
 
