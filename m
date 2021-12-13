@@ -2,636 +2,525 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6CA4C433FE
-	for <selinux@archiver.kernel.org>; Mon, 13 Dec 2021 10:23:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB782C433F5
+	for <selinux@archiver.kernel.org>; Mon, 13 Dec 2021 23:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236881AbhLMKX1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Dec 2021 05:23:27 -0500
-Received: from mailomta14-re.btinternet.com ([213.120.69.107]:59222 "EHLO
-        re-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S244171AbhLMKQm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Dec 2021 05:16:42 -0500
-Received: from re-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.54.5])
-          by re-prd-fep-046.btinternet.com with ESMTP
-          id <20211213101638.UFRB24326.re-prd-fep-046.btinternet.com@re-prd-rgout-002.btmx-prd.synchronoss.net>;
-          Mon, 13 Dec 2021 10:16:38 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1639390598; 
-        bh=J+htdAqH1j6s8H2JwjcdV2DMnosyDjPL0VOWa+LqcUA=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=Iw+9tahkU+rdlvHGw11lSA/rHC/1ym/9m+lLG3Ttb+5IjDokQr+5j4UljCDevKY2o29XoYq9qJS/QAIYL/VX+GhjsT7JcZ2DTVHK4kG65EX4lbuwt0wzcoIeueDn6aAdh3r95teDHzUvsTq28504YiS80OTKmB8YA/oaBiBoRWh1xXCXPGbnvAbnL5vbCuOXpmn7f95emLLEEkzN7K11MpE0bXpwD/JCV0GxDunKPTTTpBDfE8rP9f+Id7QL4i4A6JOGCj28XrXx41ZV6lQ492UiPM3LiDgVp3pTdneDdoI24y5giu6PJejnRWaTVJOhivHZE4PnMh1ckcbffBphCA==
-Authentication-Results: btinternet.com; none
-X-SNCR-Rigid: 613A8DE80D18AF92
-X-Originating-IP: [217.42.116.92]
-X-OWM-Source-IP: 217.42.116.92 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvuddrkeekgddugecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgjfhgggfestdhqredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepgfffuddvveffgfegveelledtieeludejueduhefftedtvefhtdehhfeuiefhgeetnecuffhomhgrihhnpehinhhkshgtrghpvgdrohhrghdpphhurhhlrdhorhhgpdhrvghsohhurhgtvgdrohhrghdpfiefrdhorhhgpdhsohhurhgtvghfohhrghgvrdhnvghtnecukfhppedvudejrdegvddrudduiedrledvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudejrdegvddrudduiedrledvpdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopegusghurhhgvghnvghrsehlihhnuhigrdhmihgtrhhoshhofhhtrdgtohhmpdhrtghpthhtohepphgruhhlsehprghulhdqmhhoohhrvgdrtghomhdprhgtphhtthhopehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgv
-        rhhnvghtrdgtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (217.42.116.92) by re-prd-rgout-002.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613A8DE80D18AF92; Mon, 13 Dec 2021 10:16:38 +0000
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, dburgener@linux.microsoft.com,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V2 2/4] src/images: Remove current penguin
-Date:   Mon, 13 Dec 2021 10:16:20 +0000
-Message-Id: <20211213101622.29888-3-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211213101622.29888-1-richard_c_haines@btinternet.com>
-References: <20211213101622.29888-1-richard_c_haines@btinternet.com>
+        id S243494AbhLMXkp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Dec 2021 18:40:45 -0500
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:39015
+        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243022AbhLMXkp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Dec 2021 18:40:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1639438844; bh=RaoZao7ULSYxHVEbX/2q6K2E2Q0g1bcAs9EFbDbcDs4=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=KGHH42t9v2YNOEio3ErgGhRCWUYaMRXokhpISQb/8R/oXxidf6qEILOzsJnJJX6m/7jaJCiCwjKFy+NSJhCIMi+ksHG8t816KvxelNZXkMV1BLD6GbalFZqBCPvSpPITp1MS1rHKhEh83pjLFuhYnVVu/0qze1K3t1c6YlUTQ36yvsemlC5kaA7TWvmiTCT81sWHnp5uj6eo/KYp64SJOkAVkUCkw2qALz304vqDeppaFNQHhC9ilUBgd7ZC4wCWm4dD7HyVDIodAhTOvU4ndGZqdimIjvsVBv0Oj2V54SKcfUuEBLzwiu3Tqz8AsG0LX2VSUbsCa6U2/antZVE9Gg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1639438844; bh=Hstocpk3+DBAYQJnYvXIY+8F+hS/za51JiduleWJ2MX=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=WYl38EgdzqZJjH6GC1x8VPQq5/W2ywdNll4cKzE83USN1LC+USADOs6olVCnjhKyW+kuy57dKEtimPtEL9ZlxsIWkrfUn7doYxjneG5fXR02dzw31JaIZ1LBAGXgTSXsLmekDruxMXJsT2FZQ1QAw0/aCIBnQdHjluxESpjem9Sho1EJqJrGU91FcNNzCXA9/Ih5L9K79DsOnyQGLfNVLJao6OI9IGed73x/b97QrlA2i1auLZGtT+VA4gBN8+2R4KAomMtc5YQt82ghuGSubLDQRWGf5JWcPnI1hgYFF5/U9xWXar9Ry7ghEaHGfeOGRivtK25kK8mQbgAn878V4Q==
+X-YMail-OSG: OLk85R4VM1ka7jtlCzn2EdLaZSZnfe74M0OhZGvU7_YWxsUK77arw7_8Ul5Mz5g
+ 6txsbwm9DQ3yod0unOgIP8FJ6It2MM4jpO80_M0.aWdRDGs6vdzsG3gBNT9nPkkQcvB36TU3KU75
+ CP3nOi..vK6kIFyqmAhkr5WO4w5QDwVEFRX8wZa3EbArXtGXEUYh.wUcRJLeLcqXS4TLcCXqXnj6
+ ..murxdtmjHJQ2KbOGzKzZpt1SEZBYZ_jmVDxLJVQDwo56mfzyvJgGe4TIbWXMAvsObquyD7ZrHy
+ 6gJHJYuTyZIIjTlOWtvm6kr4bLUuiFCDkGFSNkOon1Xb4WkDtKotnmgV0U3gBzJFmNwQzgs7jh0L
+ UiCe7KRsvKOO2TpUPejf4ViYIylXiPc9T10y89V8qt_ziFzsYHu5Mfxyo4BGVw0qgjxaoan7ANlC
+ bCufRpguNNfETrUVRyD.LKpHVyulqaP_8zrMmDufBjzjMhTFZ.wZt4UP14AquGR0.jysPIyiiToj
+ fsGPr90vcxwWqs41X2rmoM4TGpLUrR8FK9eK_vhjs2C9hcICJ.chTwwVPoBJ3SR_ur1Bl6b20_0R
+ z4lm1tIxfcylKBqAxUvm2cfVasIc0rSWhtSubLRJnueSDNWyE3HyDc.AHYcFYcPc8oA6xrK_Db6U
+ gRHjdLbOFMkfibhD58IBDatSO_vTmskwXAGVpahXtZtHcXTyPpxh4wp.GXnOQOpO0Q66R7A8tzs1
+ KkOl4EPONBCQAQ4F0RwSTaga1S4nr9g2dhyqjdhccmb6PjUwiZLwbXjNxNhihun49chIP3n7Jq_2
+ 5OZBFXYqYGgyqzpW9ycEYroUaUE7m9nlLR4yeXrYJ5O2mC2sRx2Z14qgJX_sj4Ql77gUbU1TvHAp
+ 4hCr7v9B18uPqNFRccLRa6rqjJty6jyN_UYZ6f.J7PLNNZTFJz7796JsJutDkIMRxHIyPJoR6x1I
+ aSPRT.YWhNzfDbZx0BgLmKQYtBTR.BcgwtXo6ur.Kj6AZqvhGFCfWyPx_iq_TuA3fw3fEl1oWohm
+ AF3k5avFXHV1gw7BOBh3BzB7LIPjuyD2DzCRhhfsH4IC7l_Bb56xgo.zEAYhkYkZhZ7TDHgLRsSv
+ FyTAp6ExwQzRSSm9qKk8axBiawSUJ.0xLBu3uAMxC3cb6s.YhClzsbf4jsd7GkiOeHIwSPspqptX
+ NYExZL850Dl18tCPo7jZclmUpa4mw2TvK03ZDKewPxKb9lPUAWBnR_fDcTPkSBVpuAxEygyeKWmP
+ 5CFvKyFIZYiPbfqtls2oLTyJO8hqeSidR.HMQKc5p_aw3nWeSmpFQyuiZFlFI6RwrTGygb.8hXm5
+ f36qdnpwX11E9VB2CMnXBFtZQACda5Yfl1NkCyFEvSu5B81Gvj.aA0W2I52R6XV0ViB9ojpz2c.0
+ F1N_izRV1zw8n0zMyEl1CQKzTfuGBgea4tPiCXjkg2pn7RLftQBTSbHVZKKqJ80xv.oMYJVKre6q
+ tZndkYiV1iM5sBaYHXjwfDVPBdfqJYANJBUQvz7i821F7Gt4EmFB96cJETWuuxk5aqKxYOemjXaS
+ gOF6eAeE..uul7HFmIMSS5abmFbRMCYm8YG3cISlrXMdGfGk2PHJMR6.lMQEibE18eczt3w6wHbP
+ TXAYku3to0w0z7nZ14F1M0whKWRkPQBO6m9zxTX4cxfgEzaSs1Q_mHyh2UR1Z7ADY0OhrspunX_m
+ xlkpU4.gA4rdeW_wb2AniIolEFxycriVP8gu80Igw8N0fTDsotsSaWzpc2sLV6hQs_tpah2m4bW3
+ ssogX2PABGk5ZCiaX2ulmF7p.6TiN2bKJw1kGDZ5JNF8EW7AurqT_OhYibXi5G2iP7U4mPRuNGnC
+ Ho1TZ.VWqt8B6qMYpsQNEep99Zg04olvF1UYFO9llbEzdGeZzyFqDxHej_dhbPuwL_Qh_5VrDFYn
+ NJAkZVehZ1kfCr4l0EVR5p47ctjI69mFh0bE7JYSGuXyJTCjGplizFn8pVRfdMEF4ytLP5eXEAty
+ twi8M45krNi012GoXTnOHqJp4f_57vKw1K9tM7NjtxzdrO0R96ULhpy929cmK1IdHB3rEdwbVlaO
+ jHFh3v2CyuyHCFSbyc9asu.3jTkulngv97DrkYYsuy7IgqDBA0ACg_xunXLODNvyKIEpbbo6NbnT
+ ejwUTIodaVxznru91JFSfQ4QqFP5IqVjyEB7n_zXPkFAalrDGwdYUNr1Ste8YUbFJz3sAHO1dj76
+ OY2m_mZgVg6VXLEWtdjF80Zi97P3.iviTJQBsmUOHh14HGn2BweviAt3GmFv5DqbqpAD4IsogHI.
+ iZxXxtVs-
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Mon, 13 Dec 2021 23:40:44 +0000
+Received: by kubenode521.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6e5d3467043c831d27e722351b523bb9;
+          Mon, 13 Dec 2021 23:40:38 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov, linux-kernel@vger.kernel.org
+Subject: [PATCH v31 00/28] LSM: Module stacking for AppArmor
+Date:   Mon, 13 Dec 2021 15:40:06 -0800
+Message-Id: <20211213234034.111891-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+References: <20211213234034.111891-1-casey.ref@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Remove penguin image before replacement
+This patchset provides the changes required for
+the AppArmor security module to stack safely with any other.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- src/images/selinux-penguin.svg | 398 ---------------------------------
- 1 file changed, 398 deletions(-)
- delete mode 100644 src/images/selinux-penguin.svg
+v31: Rebase to 5.16-rc4
+     Incorporate feedback from Paul Moore on the audit
+     component changes.
+v30: Rebase to 5.16-rc1
+     Replace the integrity sub-system reuse of the audit
+     subsystem event matching functions with IMA specific
+     functions. This is done because audit needs to maintain
+     information about multiple security modules in audit
+     rules while IMA to restricts the information to a single
+     security module.
+     The binder hooks have been changed and are no longer
+     called with sufficient information to identify the
+     interface_lsm. Pass that information in the binder
+     message, and use that in the compatibility decision.
+     Refactor the audit changes.
+v29: Rebase to 5.15-rc1
+     Rework the supplimental audit record generation. Attach
+     a list of supplimental data to the audit_buffer and
+     generate the auxiliary records as needed on event end.
+     This should be usable for other auxiliary data, such as
+     container IDs. There is other ongoing audit work that
+     will require integration with this.
+v28: Rebase to 5.14-rc2
+     Provide IMA rules bounds checking (patch 04)
+     Quote contexts in MAC_TASK_CONTEXTS and MAC_OBJ_CONTEXTS
+     audit records because of AppArmor's use of '=' in context
+     values. (patch 22,23)
+v27: Fixes for landlock (patch 02)
+     Rework the subject audit record generation. This version is
+     simpler and reflects feedback from Paul Moore. (patch 22)
+v26: Rebase to 5.13-rc1
+     Include the landlock security module.
+     Accomodate change from security_task_getsecid() to
+     security_task_getsecid_obj() and security_task_getsecid_subj().
+v25: Rebase to 5.12-rc2
+     Incorporate feedback from v24
+     - The IMA team suggested improvements to the integrity rule
+       processing.
+v24: Rebase to 5.11-rc1
+     Incorporate feedback from v23
+     - Address the IMA team's concerns about "label collisions".
+       A label collision occurs when there is ambiguity about
+       which of multiple LSMs is being targeted in the definition
+       of an integrity check rule.  A system with Smack and
+       AppArmor would be unable to distinguish which LSM is
+       important to an integrity rule referrencing the label
+       "unconfined" as that label is meaningful to both.
+       Provide a boot option to specify which LSM will be used in
+       IMA rules when multiple LSMs are present. (patch 04)
+       Pull LSM "slot" identification from later audit patches in
+       in support of this (patch 03).
+     - Pick up a few audit events that need to include supplimental
+       subject context records that had been missed in the
+       previous version.
+v23: Rebase to 5.10-rc4
+     Incorporate feedback from v22
+     - Change /proc/*/attr/display to /proc/*/attr/interface_lsm to
+       make the purpose clearer. (patch 0012)
+     - Include ABI documentation. (patch 0012, 0022)
+     - Introduce LSM documentation updates with the patches where
+       the interfaces are added rather than at the end. (patch 0012, 0022)
+     Include more maintainers and mail lists in To: and Cc: directives.
+v22: Rebase to 5.10-rc1
+v21: Rebase to 5.9-rc4
+     Incorporate feedback from v20
+     - Further revert UDS SO_PEERSEC to use scaffolding around
+       the interfaces that use lsmblobs and store only a single
+       secid. The possibility of multiple security modules
+       requiring data here is still a future problem.
+     - Incorporate Richard Guy Briggs' non-syscall auxiliary
+       records patch (patch 0019-0021) in place of my "supplimental"
+       records implementation. [I'm not sure I've given proper
+       attestation. I will correct as appropriate]
+v20: Rebase to 5.9-rc1
+     Change the BPF security module to use the lsmblob data. (patch 0002)
+     Repair length logic in subject label processing (patch 0015)
+     Handle -EINVAL from the empty BPF setprocattr hook (patch 0020)
+     Correct length processing in append_ctx() (patch 0022)
+v19: Rebase to 5.8-rc6
+     Incorporate feedback from v18
+     - Revert UDS SO_PEERSEC implementation to use lsmblobs
+       directly, rather than allocating as needed. The correct
+       treatment of out-of-memory conditions in the later case
+       is difficult to define. (patch 0005)
+     - Use a size_t in append_ctx() (patch 0021)
+     - Fix a memory leak when creating compound contexts. (patch 0021)
+     Fix build error when CONFIG_SECURITY isn't set (patch 0013)
+     Fix build error when CONFIG_SECURITY isn't set (patch 0020)
+     Fix build error when CONFIG_SECURITY isn't set (patch 0021)
+v18: Rebase to 5.8-rc3
+     Incorporate feedback from v17
+     - Null pointer checking in UDS (patch 0005)
+     Match changes in IMA code (patch 0012)
+     Fix the behavior of LSM context supplimental audit
+     records so that there's always exactly one when it's
+     appropriate for there to be one. This is a substantial
+     change that requires extention of the audit_context beyond
+     syscall events. (patch 0020)
+v17: Rebase to 5.7-rc4
+v16: Rebase to 5.6
+     Incorporate feedback from v15 - Thanks Stephen, Mimi and Paul
+     - Generally improve commit messages WRT scaffolding
+     - Comment ima_lsm_isset() (patch 0002)
+     - Some question may remain on IMA warning (patch 0002)
+     - Mark lsm_slot as __lsm_ro_after_init not __init_data (patch 0002)
+     - Change name of lsmblob variable in ima_match_rules() (patch 0003)
+     - Instead of putting a struct lsmblob into the unix_skb_parms
+       structure put a pointer to an allocated instance. There is
+       currently only space for 5 u32's in unix_skb_parms and it is
+       likely to get even tighter. Fortunately, the lifecycle
+       management of the allocated lsmblob is simple. (patch 0005)
+     - Dropped Acks due to the above change (patch 0005)
+     - Improved commentary on secmark labeling scaffolding. (patch 0006)
+     - Reduced secmark related labeling scaffolding. (patch 0006)
+     - Replace use of the zeroth entry of an lsmblob in scaffolding
+       with a function lsmblob_value() to hopefully make it less
+       obscure. (patch 0006)
+     - Convert security_secmark_relabel_packet to use lsmblob as
+       this reduces much of the most contentious scaffolding. (patch 0006)
+     - Dropped Acks due to the above change (patch 0006)
+     - Added BUILD_BUG_ON() for CIPSO tag 6. (patch 0018)
+     - Reworked audit subject information. Instead of adding fields in
+       the middle of existing records add a new record to the event. When
+       a separate record is required use subj="?". (patch 0020)
+     - Dropped Acks due to the above change (patch 0020)
+     - Reworked audit object information. Instead of adding fields in
+       the middle of existing records add a new record to the event. When
+       a separate record is required use obj="?". (patch 0021)
+     - Dropped Acks due to the above change (patch 0021)
+     - Enhanced documentation (patch 0022)
+     - Removed unnecessary error code check in security_getprocattr()
+       (patch 0021)
+v15: Rebase to 5.6-rc1
+     - Revise IMA data use (patch 0002)
+     Incorporate feedback from v14
+     - Fix lockdown module registration naming (patch 0002)
+     - Revise how /proc/self/attr/context is gathered. (patch 0022)
+     - Revise access modes on /proc/self/attr/context. (patch 0022)
+     - Revise documentation on LSM external interfaces. (patch 0022)
+v14: Rebase to 5.5-rc5
+     Incorporate feedback from v13
+     - Use an array of audit rules (patch 0002)
+     - Significant change, removed Acks (patch 0002)
+     - Remove unneeded include (patch 0013)
+     - Use context.len correctly (patch 0015)
+     - Reorder code to be more sensible (patch 0016)
+     - Drop SO_PEERCONTEXT as it's not needed yet (patch 0023)
+v13: Rebase to 5.5-rc2
+     Incorporate feedback from v12
+     - Print lsmblob size with %z (Patch 0002)
+     - Convert lockdown LSM initialization. (Patch 0002)
+     - Restore error check in nft_secmark_compute_secid (Patch 0006)
+     - Correct blob scaffolding in ima_must_appraise() (Patch 0009)
+     - Make security_setprocattr() clearer (Patch 0013)
+     - Use lsm_task_display more widely (Patch 0013)
+     - Use passed size in lsmcontext_init() (Patch 0014)
+     - Don't add a smack_release_secctx() hook (Patch 0014)
+     - Don't print warning in security_release_secctx() (Patch 0014)
+     - Don't duplicate the label in nfs4_label_init_security() (Patch 0016)
+     - Remove reviewed-by as code has significant change (Patch 0016)
+     - Send the entire lsmblob for Tag 6 (Patch 0019)
+     - Fix description of socket_getpeersec_stream parameters (Patch 0023)
+     - Retain LSMBLOB_FIRST. What was I thinking? (Patch 0023)
+     - Add compound context to LSM documentation (Patch 0023)
+v12: Rebase to 5.5-rc1
+     Fixed a couple of incorrect contractions in the text.
+v11: Rebase to 5.4-rc6
+     Incorporate feedback from v10
+     - Disambiguate reading /proc/.../attr/display by restricting
+       all use of the interface to the current process.
+     - Fix a merge error in AppArmor's display attribute check
+v10: Ask the security modules if the display can be changed.
+v9: There is no version 9
+v8: Incorporate feedback from v7
+    - Minor clean-up in display value management
+    - refactor "compound" context creation to use a common
+      append_ctx() function.
+v7: Incorporate feedback from v6
+    - Make setting the display a privileged operation. The
+      availability of compound contexts reduces the need for
+      setting the display.
+v6: Incorporate feedback from v5
+    - Add subj_<lsm>= and obj_<lsm>= fields to audit records
+    - Add /proc/.../attr/context to get the full context in
+      lsmname\0value\0... format as suggested by Simon McVittie
+    - Add SO_PEERCONTEXT for getsockopt() to get the full context
+      in the same format, also suggested by Simon McVittie.
+    - Add /sys/kernel/security/lsm_display_default to provide
+      the display default value.
+v5: Incorporate feedback from v4
+    - Initialize the lsmcontext in security_secid_to_secctx()
+    - Clear the lsmcontext in all security_release_secctx() cases
+    - Don't use the "display" on strictly internal context
+      interfaces.
+    - The SELinux binder hooks check for cases where the context
+      "display" isn't compatible with SELinux.
+v4: Incorporate feedback from v3
+    - Mark new lsm_<blob>_alloc functions static
+    - Replace the lsm and slot fields of the security_hook_list
+      with a pointer to a LSM allocated lsm_id structure. The
+      LSM identifies if it needs a slot explicitly. Use the
+      lsm_id rather than make security_add_hooks return the
+      slot value.
+    - Validate slot values used in security.c
+    - Reworked the "display" process attribute handling so that
+      it works right and doesn't use goofy list processing.
+    - fix display value check in dentry_init_security
+    - Replace audit_log of secids with '?' instead of deleting
+      the audit log
+v3: Incorporate feedback from v2
+    - Make lsmblob parameter and variable names more
+      meaningful, changing "le" and "l" to "blob".
+    - Improve consistency of constant naming.
+    - Do more sanity checking during LSM initialization.
+    - Be a bit clearer about what is temporary scaffolding.
+    - Rather than clutter security_getpeersec_dgram with
+      otherwise unnecessary checks remove the apparmor
+      stub, which does nothing useful.
 
-diff --git a/src/images/selinux-penguin.svg b/src/images/selinux-penguin.svg
-deleted file mode 100644
-index ca7f1c9..0000000
---- a/src/images/selinux-penguin.svg
-+++ /dev/null
-@@ -1,398 +0,0 @@
--<?xml version=3D"1.0" encoding=3D"UTF-8" standalone=3D"no"?>
--<!-- Created with Inkscape (http://www.inkscape.org/) -->
--<svg
--   xmlns:dc=3D"http://purl.org/dc/elements/1.1/"
--   xmlns:cc=3D"http://web.resource.org/cc/"
--   xmlns:rdf=3D"http://www.w3.org/1999/02/22-rdf-syntax-ns#"
--   xmlns:svg=3D"http://www.w3.org/2000/svg"
--   xmlns=3D"http://www.w3.org/2000/svg"
--   xmlns:xlink=3D"http://www.w3.org/1999/xlink"
--   xmlns:sodipodi=3D"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
--   xmlns:inkscape=3D"http://www.inkscape.org/namespaces/inkscape"
--   width=3D"311.78293"
--   height=3D"282.01117"
--   id=3D"svg2377"
--   sodipodi:version=3D"0.32"
--   inkscape:version=3D"0.44"
--   version=3D"1.0"
--   sodipodi:docbase=3D"/home/duffy/Desktop"
--   sodipodi:docname=3D"selinux-penguin.svg">
--  <defs
--     id=3D"defs2379">
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient3456"
--       id=3D"linearGradient16025"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(0.915315,0,0,0.915315,2239.551,1022.706=
-)"
--       x1=3D"1194.6313"
--       y1=3D"412.29538"
--       x2=3D"1171.3751"
--       y2=3D"413.34372" />
--    <linearGradient
--       inkscape:collect=3D"always"
--       id=3D"linearGradient7995">
--      <stop
--         style=3D"stop-color:#f9cd9f;stop-opacity:1;"
--         offset=3D"0"
--         id=3D"stop7997" />
--      <stop
--         style=3D"stop-color:#f9cd9f;stop-opacity:0;"
--         offset=3D"1"
--         id=3D"stop7999" />
--    </linearGradient>
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient7995"
--       id=3D"linearGradient16023"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(0.875918,0,0,0.84508,2877.878,1271.83)"
--       x1=3D"3350.2542"
--       y1=3D"464.7514"
--       x2=3D"3359.7368"
--       y2=3D"461.95596" />
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient7973"
--       id=3D"linearGradient16021"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(-1.054961,6.473881e-2,5.777657e-2,1.182=
-084,4480.016,1225.353)"
--       x1=3D"3368.6697"
--       y1=3D"504.72177"
--       x2=3D"3372.1541"
--       y2=3D"499.90219" />
--    <linearGradient
--       inkscape:collect=3D"always"
--       id=3D"linearGradient7973">
--      <stop
--         style=3D"stop-color:#f6bb7c;stop-opacity:1;"
--         offset=3D"0"
--         id=3D"stop7975" />
--      <stop
--         style=3D"stop-color:#f6bb7c;stop-opacity:0;"
--         offset=3D"1"
--         id=3D"stop7977" />
--    </linearGradient>
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient7973"
--       id=3D"linearGradient16019"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(1.055304,5.731966e-2,-5.115542e-2,1.182=
-467,2251.536,1235.549)"
--       x1=3D"3343.3408"
--       y1=3D"502.40875"
--       x2=3D"3359.9348"
--       y2=3D"501.92487" />
--    <linearGradient
--       inkscape:collect=3D"always"
--       id=3D"linearGradient3456">
--      <stop
--         style=3D"stop-color:#171815;stop-opacity:1;"
--         offset=3D"0"
--         id=3D"stop3458" />
--      <stop
--         style=3D"stop-color:#171815;stop-opacity:0;"
--         offset=3D"1"
--         id=3D"stop3460" />
--    </linearGradient>
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient3456"
--       id=3D"linearGradient16017"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(0.915315,0,0,0.915315,2239.551,1022.706=
-)"
--       x1=3D"1271.3435"
--       y1=3D"427.07864"
--       x2=3D"1285.9489"
--       y2=3D"440.09644" />
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient3204"
--       id=3D"linearGradient16015"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(3.245443,0,0,3.245443,7987.484,7490.317=
-)"
--       x1=3D"3275.3098"
--       y1=3D"619.61285"
--       x2=3D"3355.9373"
--       y2=3D"619.61285" />
--    <linearGradient
--       id=3D"linearGradient3204">
--      <stop
--         style=3D"stop-color:#5d6b4c;stop-opacity:1;"
--         offset=3D"0"
--         id=3D"stop3206" />
--      <stop
--         style=3D"stop-color:#daeac6;stop-opacity:1;"
--         offset=3D"1"
--         id=3D"stop3208" />
--    </linearGradient>
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient3204"
--       id=3D"linearGradient17605"
--       x1=3D"3288.4302"
--       y1=3D"650.5318"
--       x2=3D"3315.6235"
--       y2=3D"598.50146"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"translate(0,-14.36947)" />
--    <linearGradient
--       id=3D"linearGradient8232">
--      <stop
--         style=3D"stop-color:#373737;stop-opacity:1;"
--         offset=3D"0"
--         id=3D"stop8234" />
--      <stop
--         style=3D"stop-color:#171717;stop-opacity:1;"
--         offset=3D"1"
--         id=3D"stop8236" />
--    </linearGradient>
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient8232"
--       id=3D"linearGradient16011"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(0.915315,0,0,0.915315,4402.845,2122.899=
-)"
--       x1=3D"3273.0642"
--       y1=3D"619.61285"
--       x2=3D"3358.1826"
--       y2=3D"619.61285" />
--    <linearGradient
--       id=3D"linearGradient48782">
--      <stop
--         style=3D"stop-color:#9fae8d;stop-opacity:1;"
--         offset=3D"0"
--         id=3D"stop48784" />
--      <stop
--         style=3D"stop-color:#ffffff;stop-opacity:1;"
--         offset=3D"1"
--         id=3D"stop48786" />
--    </linearGradient>
--    <linearGradient
--       inkscape:collect=3D"always"
--       xlink:href=3D"#linearGradient48782"
--       id=3D"linearGradient16009"
--       gradientUnits=3D"userSpaceOnUse"
--       gradientTransform=3D"matrix(-0.706096,0,0,0.706096,1538.025,2255.66=
-5)"
--       x1=3D"-2564.1179"
--       y1=3D"-2276.9807"
--       x2=3D"-2479.4502"
--       y2=3D"-2369.3457" />
--  </defs>
--  <sodipodi:namedview
--     id=3D"base"
--     pagecolor=3D"#ffffff"
--     bordercolor=3D"#666666"
--     borderopacity=3D"1.0"
--     gridtolerance=3D"10000"
--     guidetolerance=3D"10"
--     objecttolerance=3D"10"
--     inkscape:pageopacity=3D"0.0"
--     inkscape:pageshadow=3D"2"
--     inkscape:zoom=3D"0.35"
--     inkscape:cx=3D"375"
--     inkscape:cy=3D"520"
--     inkscape:document-units=3D"px"
--     inkscape:current-layer=3D"layer1"
--     inkscape:window-width=3D"858"
--     inkscape:window-height=3D"587"
--     inkscape:window-x=3D"0"
--     inkscape:window-y=3D"26" />
--  <metadata
--     id=3D"metadata2382">
--    <rdf:RDF>
--      <cc:Work
--         rdf:about=3D"">
--        <dc:format>image/svg+xml</dc:format>
--        <dc:type
--           rdf:resource=3D"http://purl.org/dc/dcmitype/StillImage" />
--      </cc:Work>
--    </rdf:RDF>
--  </metadata>
--  <g
--     inkscape:label=3D"Layer 1"
--     inkscape:groupmode=3D"layer"
--     id=3D"layer1"
--     transform=3D"translate(-17.82402,-34.21371)">
--    <g
--       id=3D"g15949"
--       transform=3D"matrix(1.973102,0,0,1.973102,-2240.003,-650.9784)"
--       inkscape:export-filename=3D"/home/duffy/Desktop/selinuxnews_logo.pn=
-g"
--       inkscape:export-xdpi=3D"90"
--       inkscape:export-ydpi=3D"90">
--      <g
--         transform=3D"matrix(1.880752,0,0,1.880752,-5089.591,-469.8452)"
--         id=3D"g15951">
--        <path
--           style=3D"fill:#4a4a44;fill-opacity:1;fill-rule:evenodd;stroke:#=
-21211e;stroke-width:1.875;stroke-linecap:butt;stroke-linejoin:miter;stroke-=
-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3357.7812,439.25 C 3345.872,439.70383 3342.8091,450.3792=
-4 3345,459.6875 C 3344.8014,459.75196 3344.046,460.01103 3342.7812,460.4375=
- C 3342.7247,460.45668 3342.6808,460.48087 3342.625,460.5 C 3335.4694,462.9=
-1742 3315.6596,469.89994 3318.9062,472.21875 C 3320.881,473.6293 3326.9705,=
-474.79999 3333,475.34375 C 3334.0891,475.44197 3335.1903,475.54021 3336.25,=
-475.59375 C 3336.2554,476.34243 3336.1874,477.12746 3336.0625,477.96875 C 3=
-334.5979,487.83424 3339.9781,501.68694 3356.9375,503.1875 C 3369.9294,504.3=
-3701 3379.8469,493.84981 3380.9375,484.09375 C 3385.9834,486.19442 3391.037=
-9,487.75359 3393.2188,487.5 C 3397.4563,487.0073 3380.3223,463.56034 3372.6=
-875,458.59375 C 3374.3347,449.97263 3370.5741,439.1241 3358.375,439.25 C 33=
-58.1811,439.252 3357.9706,439.24278 3357.7812,439.25 z "
--           id=3D"path15953" />
--        <path
--           style=3D"color:black;fill:#f09c42;fill-opacity:1;fill-rule:nonz=
-ero;stroke:#21211e;stroke-width:1.4254936;stroke-linecap:round;stroke-linej=
-oin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;str=
-oke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1=
-;visibility:visible;display:inline;overflow:visible"
--           d=3D"M 3370.0356,505.27476 C 3363.4735,507.14403 3359.39,508.67=
-047 3359.8284,505.97579 C 3360.2566,503.34205 3364.8094,500.68175 3369.1849=
-,499.42966 C 3373.87,498.08898 3381.6592,503.74169 3381.7517,506.11225 C 33=
-81.8276,508.05699 3375.287,504.25072 3370.0356,505.27476 z "
--           id=3D"path15955"
--           sodipodi:nodetypes=3D"csssc" />
--        <path
--           sodipodi:nodetypes=3D"csssc"
--           id=3D"path15957"
--           d=3D"M 3351.1039,505.27476 C 3357.7812,507.14403 3361.9363,508.=
-67047 3361.4902,505.97579 C 3361.0545,503.34205 3356.4219,500.68175 3351.96=
-96,499.42966 C 3347.2024,498.08898 3339.2766,503.74169 3339.1824,506.11225 =
-C 3339.1053,508.05699 3345.7606,504.25072 3351.1039,505.27476 z "
--           style=3D"color:black;fill:#f09c42;fill-opacity:1;fill-rule:nonz=
-ero;stroke:#464640;stroke-width:1.00000036;stroke-linecap:round;stroke-line=
-join:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;st=
-roke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:=
-1;visibility:visible;display:inline;overflow:visible" />
--        <path
--           transform=3D"matrix(-0.474298,0,0,0.474298,4931.397,186.8732)"
--           sodipodi:open=3D"true"
--           sodipodi:end=3D"10.6623"
--           sodipodi:start=3D"4.3808269"
--           d=3D"M 3302.5036,581.50298 A 40.305088,40.305088 0 1 1 3302.438=
-4,581.5255"
--           sodipodi:ry=3D"40.305088"
--           sodipodi:rx=3D"40.305088"
--           sodipodi:cy=3D"619.61285"
--           sodipodi:cx=3D"3315.6238"
--           id=3D"path15959"
--           style=3D"color:black;fill:url(#linearGradient16009);fill-opacit=
-y:1;fill-rule:nonzero;stroke:none;stroke-width:3.70055676;stroke-linecap:ro=
-und;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;mar=
-ker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;=
-stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
--           sodipodi:type=3D"arc" />
--        <path
--           sodipodi:type=3D"arc"
--           style=3D"color:black;fill:none;fill-opacity:1;fill-rule:nonzero=
-;stroke:url(#linearGradient16011);stroke-width:4.49084759;stroke-linecap:ro=
-und;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;mar=
-ker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;=
-stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
--           id=3D"path15961"
--           sodipodi:cx=3D"3315.6238"
--           sodipodi:cy=3D"619.61285"
--           sodipodi:rx=3D"40.305088"
--           sodipodi:ry=3D"40.305088"
--           d=3D"M 3302.5036,581.50298 A 40.305088,40.305088 0 1 1 3302.438=
-4,581.5255"
--           sodipodi:start=3D"4.3808269"
--           sodipodi:end=3D"10.6623"
--           sodipodi:open=3D"true"
--           transform=3D"matrix(0.474298,0,0,0.474298,1786.211,186.8732)" />
--        <path
--           style=3D"color:black;fill:#171815;fill-opacity:1;fill-rule:nonz=
-ero;stroke:none;stroke-width:3.70055676;stroke-linecap:round;stroke-linejoi=
-n:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;strok=
-e-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;v=
-isibility:visible;display:inline;overflow:visible"
--           d=3D"M 3358.3936,466.87132 C 3348.7522,466.63462 3341.4323,478.=
-75067 3346.391,487.12873 C 3350.2055,494.79772 3361.8727,497.41723 3368.131=
-9,491.1222 C 3373.9472,485.84925 3374.4208,475.35973 3368.0094,470.38512 C =
-3365.3829,468.07143 3361.8997,466.7011 3358.3936,466.87132 z "
--           id=3D"path15963" />
--        <path
--           sodipodi:type=3D"arc"
--           style=3D"color:black;fill:url(#linearGradient17605);fill-opacit=
-y:1;fill-rule:nonzero;stroke:url(#linearGradient16015);stroke-width:6.28939=
-438;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:non=
-e;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none=
-;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;ove=
-rflow:visible"
--           id=3D"path15965"
--           sodipodi:cx=3D"3315.6238"
--           sodipodi:cy=3D"619.61285"
--           sodipodi:rx=3D"40.305088"
--           sodipodi:ry=3D"40.305088"
--           d=3D"M 3302.5036,581.50298 A 40.305088,40.305088 0 1 1 3302.438=
-4,581.5255"
--           sodipodi:start=3D"4.3808269"
--           sodipodi:end=3D"10.6623"
--           sodipodi:open=3D"true"
--           transform=3D"matrix(0.127397,0,0,0.127397,2936.408,402.0774)" />
--        <path
--           id=3D"path15967"
--           d=3D"M 3358.3936,466.87132 C 3348.7522,466.63462 3341.4323,478.=
-75067 3346.391,487.12873 C 3350.2055,494.79772 3361.8727,497.41723 3368.131=
-9,491.1222 C 3373.9472,485.84925 3374.4208,475.35973 3368.0094,470.38512 C =
-3365.3829,468.07143 3361.8997,466.7011 3358.3936,466.87132 z "
--           style=3D"color:black;fill:none;fill-opacity:1;fill-rule:nonzero=
-;stroke:none;stroke-width:10;stroke-linecap:square;stroke-linejoin:bevel;ma=
-rker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlim=
-it:0;stroke-dasharray:5, 5;stroke-dashoffset:100;stroke-opacity:1;visibilit=
-y:visible;display:inline;overflow:visible" />
--        <path
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3359.2737,494.80581 L 3359.1845,489.71914"
--           id=3D"path15969"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           id=3D"path15971"
--           d=3D"M 3358.7952,472.18765 L 3358.7952,466.92251"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           id=3D"path15973"
--           d=3D"M 3367.448,480.75702 L 3372.7138,480.72007"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3344.781,481.14622 L 3350.0471,481.02003"
--           id=3D"path15975"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           id=3D"path15977"
--           d=3D"M 3351.4508,468.78169 L 3352.9571,471.68284"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           sodipodi:nodetypes=3D"cc"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3365.9575,468.65196 L 3364.4511,471.55311"
--           id=3D"path15979" />
--        <path
--           sodipodi:nodetypes=3D"cc"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3352.2291,492.95932 L 3353.7355,490.05816"
--           id=3D"path15981" />
--        <path
--           id=3D"path15983"
--           d=3D"M 3365.9306,492.95932 L 3364.4243,490.05816"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           sodipodi:nodetypes=3D"cc"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3371.2319,474.15681 L 3368.2043,475.38917"
--           id=3D"path15985" />
--        <path
--           id=3D"path15987"
--           d=3D"M 3371.1149,487.33908 L 3367.6965,485.94774"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666831;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           sodipodi:nodetypes=3D"cc"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           d=3D"M 3349.3069,476.03784 L 3346.2792,474.80546"
--           id=3D"path15989" />
--        <path
--           id=3D"path15991"
--           d=3D"M 3349.5664,486.22213 L 3346.5388,487.45449"
--           style=3D"fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:w=
-hite;stroke-width:1.27666879;stroke-linecap:butt;stroke-linejoin:miter;stro=
-ke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--           sodipodi:nodetypes=3D"cc" />
--        <path
--           style=3D"color:black;fill:#f09c42;fill-opacity:1;fill-rule:nonz=
-ero;stroke:#21211e;stroke-width:0.99999988;stroke-linecap:round;stroke-line=
-join:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;st=
-roke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:=
-1;visibility:visible;display:inline;overflow:visible"
--           d=3D"M 3357.9752,455.64563 C 3353.1378,455.33562 3349.9284,456.=
-03051 3350.5062,459.29868 C 3351.0707,462.493 3354.6587,465.66315 3357.8846=
-,465.87706 C 3361.339,466.10611 3366.168,461.68483 3365.9987,458.66019 C 33=
-65.8599,456.17893 3361.7996,455.29742 3357.9752,455.64563 z "
--           id=3D"path15993"
--           sodipodi:nodetypes=3D"csssc" />
--        <path
--           sodipodi:nodetypes=3D"cscc"
--           id=3D"path15995"
--           d=3D"M 3380.2142,482.67486 C 3381.8468,479.31258 3378.9858,472.=
-1602 3379.4313,471.67876 C 3380.8677,470.12618 3388.8256,485.94455 3388.825=
-6,485.94455 C 3388.8256,485.94455 3381.7679,483.9143 3380.2142,482.67486 z "
--           style=3D"fill:url(#linearGradient16017);fill-opacity:1;fill-rul=
-e:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:=
-miter;stroke-opacity:1" />
--        <path
--           style=3D"color:black;fill:#f09c42;fill-opacity:1;fill-rule:nonz=
-ero;stroke:#21211e;stroke-width:1.4254936;stroke-linecap:round;stroke-linej=
-oin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;str=
-oke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1=
-;visibility:visible;display:inline;overflow:visible"
--           d=3D"M 3351.1039,505.27476 C 3357.7812,507.14403 3361.9363,508.=
-67047 3361.4902,505.97579 C 3361.0545,503.34205 3356.4219,500.68175 3351.96=
-96,499.42966 C 3347.2024,498.08898 3339.2766,503.74169 3339.1824,506.11225 =
-C 3339.1053,508.05699 3345.7606,504.25072 3351.1039,505.27476 z "
--           id=3D"path15997"
--           sodipodi:nodetypes=3D"csssc" />
--        <path
--           sodipodi:type=3D"inkscape:offset"
--           inkscape:radius=3D"0"
--           inkscape:original=3D"M 3351.5938 498.53125 C 3347.4332 497.3612=
-1 3340.5197 502.2749 3340.4375 504.34375 C 3340.3703 506.04098 3346.1804 50=
-2.73129 3350.8438 503.625 C 3356.6712 505.25636 3360.2956 506.57047 3359.90=
-62 504.21875 C 3359.526 501.9202 3355.4794 499.62398 3351.5938 498.53125 z "
--           style=3D"color:black;fill:url(#linearGradient16019);fill-opacit=
-y:1;fill-rule:nonzero;stroke:none;stroke-width:1.09509909;stroke-linecap:ro=
-und;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;mar=
-ker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;=
-stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
--           id=3D"path15999"
--           d=3D"M 3351.5938,498.53125 C 3347.4332,497.36121 3340.5197,502.=
-2749 3340.4375,504.34375 C 3340.3703,506.04098 3346.1804,502.73129 3350.843=
-8,503.625 C 3356.6712,505.25636 3360.2956,506.57047 3359.9062,504.21875 C 3=
-359.526,501.9202 3355.4794,499.62398 3351.5938,498.53125 z "
--           transform=3D"matrix(0.79017,-3.830319e-2,3.4184e-2,0.705194,684=
-.5232,277.5453)" />
--        <path
--           transform=3D"matrix(-0.789915,4.326094e-2,3.860855e-2,0.704965,=
-5997.342,4.964376)"
--           d=3D"M 3351.5938,498.53125 C 3347.4332,497.36121 3340.5197,502.=
-2749 3340.4375,504.34375 C 3340.3703,506.04098 3346.1804,502.73129 3350.843=
-8,503.625 C 3356.6712,505.25636 3360.2956,506.57047 3359.9062,504.21875 C 3=
-359.526,501.9202 3355.4794,499.62398 3351.5938,498.53125 z "
--           id=3D"path16001"
--           style=3D"color:black;fill:url(#linearGradient16021);fill-opacit=
-y:1;fill-rule:nonzero;stroke:none;stroke-width:1.09509909;stroke-linecap:ro=
-und;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;mar=
-ker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;=
-stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
--           inkscape:original=3D"M 3351.5938 498.53125 C 3347.4332 497.3612=
-1 3340.5197 502.2749 3340.4375 504.34375 C 3340.3703 506.04098 3346.1804 50=
-2.73129 3350.8438 503.625 C 3356.6712 505.25636 3360.2956 506.57047 3359.90=
-62 504.21875 C 3359.526 501.9202 3355.4794 499.62398 3351.5938 498.53125 z "
--           inkscape:radius=3D"0"
--           sodipodi:type=3D"inkscape:offset" />
--        <path
--           sodipodi:type=3D"inkscape:offset"
--           inkscape:radius=3D"0"
--           inkscape:original=3D"M 3353.9688 460.28125 C 3351.4236 460.4713=
-7 3349.9344 461.36083 3350.3125 463.5 C 3350.8053 466.28778 3353.9346 469.0=
-6332 3356.75 469.25 C 3359.7647 469.44989 3363.9914 465.57719 3363.8438 462=
-.9375 C 3363.7225 460.77203 3360.1814 460.0086 3356.8438 460.3125 C 3355.78=
-83 460.24486 3354.8171 460.21788 3353.9688 460.28125 z "
--           style=3D"color:black;fill:url(#linearGradient16023);fill-opacit=
-y:1;fill-rule:nonzero;stroke:none;stroke-width:1.31550419;stroke-linecap:ro=
-und;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;mar=
-ker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;=
-stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
--           id=3D"path16003"
--           d=3D"M 3353.9688,460.28125 C 3351.4236,460.47137 3349.9344,461.=
-36083 3350.3125,463.5 C 3350.8053,466.28778 3353.9346,469.06332 3356.75,469=
-.25 C 3359.7647,469.44989 3363.9914,465.57719 3363.8438,462.9375 C 3363.722=
-5,460.77203 3360.1814,460.0086 3356.8438,460.3125 C 3355.7883,460.24486 335=
-4.8171,460.21788 3353.9688,460.28125 z "
--           transform=3D"matrix(0.794354,0,0,0.823342,690.4498,77.58585)" />
--        <path
--           style=3D"fill:url(#linearGradient16025);fill-opacity:1;fill-rul=
-e:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:=
-miter;stroke-opacity:1"
--           d=3D"M 3336.7553,475.51765 C 3337.0424,472.75825 3341.5651,468.=
-82695 3341.4034,468.1913 C 3340.8821,466.14142 3327.9065,474.47564 3327.906=
-5,474.47564 C 3327.9065,474.47564 3334.7984,475.86536 3336.7553,475.51765 z=
- "
--           id=3D"path16005"
--           sodipodi:nodetypes=3D"cscc" />
--      </g>
--      <path
--         style=3D"fill:#0c0c0c;fill-opacity:1;fill-rule:evenodd;stroke:bla=
-ck;stroke-width:1.18040431;stroke-linecap:butt;stroke-linejoin:miter;stroke=
--miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
--         d=3D"M 1199.9491,373.875 C 1199.7409,374.64642 1199.0943,376.6841=
-2 1198.9179,377.875 C 1200.1886,379.43933 1203.44,380.06918 1204.9179,381.5=
- C 1204.9262,381.50588 1204.9411,381.52519 1204.9491,381.53125 C 1205.0029,=
-381.5749 1205.0656,381.63536 1205.1054,381.6875 C 1205.7489,382.58612 1204.=
-7836,384.65948 1211.3867,386.65625 C 1218.4425,388.79004 1219.7068,388.5750=
-8 1221.3241,388.09375 C 1222.9418,387.61242 1223.7617,385.21876 1223.7617,3=
-85.21875 C 1223.7616,385.21874 1224.3101,382.32651 1226.3554,382.09375 C 12=
-26.3593,382.09488 1226.3829,382.09269 1226.3867,382.09375 C 1226.3949,382.0=
-929 1226.4096,382.09451 1226.4179,382.09375 C 1226.42,382.09398 1226.4423,3=
-82.09383 1226.4491,382.09375 C 1226.4915,382.0958 1226.533,382.08952 1226.5=
-741,382.09375 C 1226.5779,382.09269 1226.6015,382.09488 1226.6054,382.09375=
- C 1228.6507,382.32651 1229.1992,385.21874 1229.1991,385.21875 C 1229.1991,=
-385.21876 1230.019,387.61242 1231.6367,388.09375 C 1233.2541,388.57508 1234=
-.5183,388.79004 1241.5741,386.65625 C 1248.7368,384.49026 1246.9743,382.252=
-08 1248.0429,381.5 C 1249.5208,380.06918 1252.7722,379.43933 1254.0429,377.=
-875 C 1253.8665,376.68412 1253.2199,374.64642 1253.0117,373.875 C 1253.0082=
-,373.87871 1252.9834,373.90328 1252.9804,373.90625 C 1252.5659,374.12303 12=
-48.2762,376.6956 1247.8554,376.875 C 1246.7157,374.49584 1245.0521,374.4044=
-2 1237.5429,375.96875 C 1230.2684,377.48419 1228.4897,379.76467 1228.3867,3=
-79.90625 C 1228.3867,379.90625 1227.7818,379.90625 1227.4804,379.90625 C 12=
-27.1582,379.90625 1227.0738,379.90625 1226.5117,379.90625 C 1225.9007,379.9=
-0625 1225.8234,379.90625 1225.4804,379.90625 C 1225.179,379.90625 1224.5741=
-,379.90625 1224.5741,379.90625 C 1224.4711,379.76467 1222.6924,377.48419 12=
-15.4179,375.96875 C 1207.9087,374.40442 1206.2451,374.49584 1205.1054,376.8=
-75 C 1204.6846,376.6956 1200.3949,374.12303 1199.9804,373.90625 C 1199.9774=
-,373.90328 1199.9526,373.87871 1199.9491,373.875 z "
--         id=3D"path16007" />
--    </g>
--  </g>
--</svg>
---=20
-2.33.1
+Patch 01 separates the audit rule processing from the
+integrity rule processing. They were never really the
+same, but void pointers could hide that. The changes
+following use the rule pointers differently in audit
+and IMA, so keeping the code common is not a good idea.
+
+Patch 02 moves management of the sock security blob
+from the individual modules to the infrastructure.
+
+Patches 03-04 introduce a structure "lsmblob" that will gradually
+replace the "secid" as a shorthand for security module information.
+At this point lsmblob contains an array of u32 secids, one "slot"
+for each of the security modules compiled into the kernel that
+used secids. A "slot" is allocated when a security module requests
+one.
+
+Patch 05 provides mechanism for the IMA subsystem to identify
+explicitly which LSM is subject to IMA policy. This includes
+a boot option for specifying the default and an additional option
+in IMA rules "lsm=".
+
+Patches 06-15 change LSM interfaces to use the lsmblob instead
+of secids. It is important that the lsmblob be a fixed size entity
+that does not have to be allocated. Several of the places
+where it is used would have performance and/or locking
+issues with dynamic allocation.
+
+Patch 15 provides a mechanism for a process to identify which
+security module's hooks should be used when displaying or
+converting a security context string.  A new interface
+/proc/self/attr/interface_lsm contains the name of the security
+module to show. Reading from this file will present the name of
+the module, while writing to it will set the value. Only names
+of active security modules are accepted. Internally, the name
+is translated to the appropriate "slot" number for the module
+which is then stored in the task security blob. Setting the
+display requires that all modules using the /proc interfaces
+allow the transition. The interface LSM of other processess
+can be neither read nor written. All suggested cases for
+reading the interface LSM of a different process have race
+conditions.
+
+Patch 16 Starts the process of changing how a security
+context is represented. Since it is possible for a
+security context to have been generated by more than one
+security module it is now necessary to note which module
+created a security context so that the correct "release"
+hook can be called. There are several places where the
+module that created a security context cannot be inferred.
+
+This is achieved by introducing a "lsmcontext" structure
+which contains the context string, its length and the
+"slot" number of the security module that created it.
+The security_release_secctx() interface is changed,
+replacing the (string,len) pointer pair with a lsmcontext
+pointer.
+
+Patches 17-18 convert the security interfaces from
+(string,len) pointer pairs to a lsmcontext pointer.
+The slot number identifying the creating module is
+added by the infrastructure. Where the security context
+is stored for extended periods the data type is changed.
+
+The Netlabel code is converted to save lsmblob structures
+instead of secids in Patch 19. This is not strictly
+necessary as there can only be one security module that
+uses Netlabel at this point. Using a lsmblob is much
+cleaner, as the interfaces that use the data have all
+been converted.
+
+Patch 20 adds checks to the binder hooks which verify
+that both ends of a transaction use the same interface LSM.
+
+Patch 21 adds a parameter to security_secid_to_secctx()
+that indicates which of the security modules should be used
+to provide the context.
+
+Patches 22-24 provide mechanism to keeping a list of auxiliary
+record data in an audit_buffer. The list is read when the
+audit record is ended, and supplimental records are created
+as needed.
+
+Patch 25 adds a supplimental audit record for subject
+LSM data when there are multiple security modules with such data.
+The AUDIT_MAC_TASK_CONTEXTS record is used in conjuction with a
+"subj=?" field to identify the subject data. The
+AUDIT_MAC_TASK_CONTEXTS record identifies the security module
+with the data: subj_selinux="xyz_t" subj_apparmor="abc".
+
+An example of the MAC_TASK_CONTEXTS (1420) record is:
+
+    type=UNKNOWN[1420]
+    msg=audit(1600880931.832:113)
+    subj_apparmor==unconfined
+    subj_smack=_
+
+Patch 26 adds a supplimental audit record for object
+LSM data when there are multiple security modules with such data.
+The AUDIT_MAC_OBJ_CONTEXTS record is used in conjuction The
+with a "obj=?" field to identify the object data.
+The AUDIT_MAC_OBJ_CONTEXTS record identifies the security module
+with the data: obj_selinux="xyz_t obj_apparmor="abc".  While
+AUDIT_MAC_TASK_CONTEXTS records will always contain an entry
+for each possible security modules, AUDIT_MAC_OBJ_CONTEXTS
+records will only contain entries for security modules for
+which the object in question has data.
+
+An example of the MAC_OBJ_CONTEXTS (1421) record is:
+
+    type=UNKNOWN[1421]
+    msg=audit(1601152467.009:1050):
+    obj_selinux=unconfined_u:object_r:user_home_t:s0
+
+Patch 27 adds a new interface for getting the compound security
+contexts, /proc/self/attr/context.  An example of the content
+of this file is:
+
+    selinux\0one_u:one_r:one_t:s0-s0:c0.c1023\0apparmor\0unconfined\0
+
+Finally, with all interference on the AppArmor hooks removed,
+Patch 28 removes the exclusive bit from AppArmor. An unnecessary
+stub hook was also removed.
+
+The Ubuntu project is using an earlier version of this patchset in
+their distribution to enable stacking for containers.
+
+Performance measurements to date have the change within the "noise".
+The sockperf and dbench results are on the order of 0.2% to 0.8%
+difference, with better performance being as common as worse. The
+benchmarks were run with AppArmor and Smack on Ubuntu.
+
+https://github.com/cschaufler/lsm-stacking.git#stack-5.16-rc4-v31
+
+Casey Schaufler (28):
+  integrity: disassociate ima_filter_rule from security_audit_rule
+  LSM: Infrastructure management of the sock security
+  LSM: Add the lsmblob data structure.
+  LSM: provide lsm name and id slot mappings
+  IMA: avoid label collisions with stacked LSMs
+  LSM: Use lsmblob in security_audit_rule_match
+  LSM: Use lsmblob in security_kernel_act_as
+  LSM: Use lsmblob in security_secctx_to_secid
+  LSM: Use lsmblob in security_secid_to_secctx
+  LSM: Use lsmblob in security_ipc_getsecid
+  LSM: Use lsmblob in security_task_getsecid
+  LSM: Use lsmblob in security_inode_getsecid
+  LSM: Use lsmblob in security_cred_getsecid
+  LSM: Specify which LSM to display
+  LSM: Ensure the correct LSM context releaser
+  LSM: Use lsmcontext in security_secid_to_secctx
+  LSM: Use lsmcontext in security_inode_getsecctx
+  LSM: security_secid_to_secctx in netlink netfilter
+  NET: Store LSM netlabel data in a lsmblob
+  binder: Pass LSM identifier for confirmation
+  LSM: Extend security_secid_to_secctx to include  module selection
+  Audit: Keep multiple LSM data in audit_names
+  Audit: Create audit_stamp structure
+  Audit: Add framework for auxiliary records
+  Audit: Add record for multiple task security contexts
+  Audit: Add record for multiple object security  contexts
+  LSM: Add /proc attr entry for full LSM context
+  AppArmor: Remove the exclusive flag
+
+ Documentation/ABI/testing/ima_policy          |   8 +-
+ .../ABI/testing/procfs-attr-lsm_display       |  22 +
+ Documentation/security/lsm.rst                |  28 +
+ drivers/android/binder.c                      |  47 +-
+ drivers/android/binder_internal.h             |   1 +
+ fs/ceph/xattr.c                               |   6 +-
+ fs/nfs/nfs4proc.c                             |   8 +-
+ fs/nfsd/nfs4xdr.c                             |  20 +-
+ fs/proc/base.c                                |   2 +
+ include/linux/audit.h                         |  15 +-
+ include/linux/cred.h                          |   3 +-
+ include/linux/lsm_hooks.h                     |  19 +-
+ include/linux/security.h                      | 244 ++++++-
+ include/net/netlabel.h                        |   8 +-
+ include/net/scm.h                             |  15 +-
+ include/uapi/linux/audit.h                    |   2 +
+ kernel/audit.c                                | 246 +++++--
+ kernel/audit.h                                |  17 +-
+ kernel/auditfilter.c                          |  29 +-
+ kernel/auditsc.c                              | 128 ++--
+ kernel/cred.c                                 |  12 +-
+ net/ipv4/cipso_ipv4.c                         |  26 +-
+ net/ipv4/ip_sockglue.c                        |  12 +-
+ net/netfilter/nf_conntrack_netlink.c          |  24 +-
+ net/netfilter/nf_conntrack_standalone.c       |  11 +-
+ net/netfilter/nfnetlink_queue.c               |  38 +-
+ net/netfilter/nft_meta.c                      |  10 +-
+ net/netfilter/xt_SECMARK.c                    |   7 +-
+ net/netlabel/netlabel_kapi.c                  |   6 +-
+ net/netlabel/netlabel_unlabeled.c             | 101 ++-
+ net/netlabel/netlabel_unlabeled.h             |   2 +-
+ net/netlabel/netlabel_user.c                  |  13 +-
+ net/netlabel/netlabel_user.h                  |   6 +-
+ security/apparmor/include/apparmor.h          |   3 +-
+ security/apparmor/include/net.h               |   6 +-
+ security/apparmor/include/procattr.h          |   2 +-
+ security/apparmor/lsm.c                       | 105 +--
+ security/apparmor/procattr.c                  |  22 +-
+ security/bpf/hooks.c                          |  12 +-
+ security/commoncap.c                          |   7 +-
+ security/integrity/ima/ima.h                  |  26 -
+ security/integrity/ima/ima_appraise.c         |  12 +-
+ security/integrity/ima/ima_main.c             |  63 +-
+ security/integrity/ima/ima_policy.c           |  58 +-
+ security/landlock/cred.c                      |   2 +-
+ security/landlock/fs.c                        |   2 +-
+ security/landlock/ptrace.c                    |   2 +-
+ security/landlock/setup.c                     |   5 +
+ security/landlock/setup.h                     |   1 +
+ security/loadpin/loadpin.c                    |   8 +-
+ security/lockdown/lockdown.c                  |   7 +-
+ security/safesetid/lsm.c                      |   8 +-
+ security/security.c                           | 615 ++++++++++++++++--
+ security/selinux/hooks.c                      |  99 +--
+ security/selinux/include/classmap.h           |   2 +-
+ security/selinux/include/objsec.h             |   5 +
+ security/selinux/include/security.h           |   1 +
+ security/selinux/netlabel.c                   |  25 +-
+ security/selinux/ss/services.c                |   4 +-
+ security/smack/smack.h                        |   6 +
+ security/smack/smack_access.c                 |   2 +-
+ security/smack/smack_lsm.c                    |  91 +--
+ security/smack/smack_netfilter.c              |   4 +-
+ security/smack/smackfs.c                      |  10 +-
+ security/tomoyo/tomoyo.c                      |   8 +-
+ security/yama/yama_lsm.c                      |   7 +-
+ 66 files changed, 1744 insertions(+), 622 deletions(-)
+ create mode 100644 Documentation/ABI/testing/procfs-attr-lsm_display
+
+-- 
+2.31.1
 
