@@ -2,79 +2,93 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1F16C433EF
-	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 14:38:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 243C1C433EF
+	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 16:14:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231496AbhLNOid (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Dec 2021 09:38:33 -0500
-Received: from xmbgsz7.mail.foxmail.com ([61.241.55.176]:54367 "EHLO
-        xmbgsz7.mail.foxmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230525AbhLNOic (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Dec 2021 09:38:32 -0500
-X-Greylist: delayed 14415 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 Dec 2021 09:38:32 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-        s=s201512; t=1639492707;
-        bh=55kVr0dlRkSZXsR+36o/Om7tpdn03/ssVT7jqMxOOgw=;
-        h=From:To:Cc:Subject:Date;
-        b=uY+cE53BOtYQnUZAFOTFZNtwGMoXk3SeCwF6Mn5W3MqNog3DYh0jpZcvKdGuvgp0J
-         vQSqYL4+YL/eYSgYguJ+RBTIU1EYkTID3bQTR5V+eOaA5pxWpsc/GhT8nVc1YGurU5
-         h9VKxusoryKVtAUNBykANL+MCfvTbI1Vk/HfLyQM=
-Received: from localhost.localdomain ([218.197.153.188])
-        by newxmesmtplogicsvrsza23.qq.com (NewEsmtp) with SMTP
-        id 8B4AEE74; Tue, 14 Dec 2021 17:34:52 +0800
-X-QQ-mid: xmsmtpt1639474492tf5grh2gf
-Message-ID: <tencent_D6BF2948237359EE0A47338567B88512D106@qq.com>
-X-QQ-XMAILINFO: OTiXS/gPSsXglOJF3mLFeOzLbS3UUL5y3JXRYQ8mK9XYqNnQMxmCJi7lYLHhgM
-         bC/HxlsRN/59QASw2gt8sV6rtJlhVw3nWwHFGGkzI7kqge5NwX2xZyljQYveCSqknjSYlcUznOG0
-         NGoEy7sSXHK8iBgDUS1ykQxzuiIZkICTMiGXrdlc+bRXjgO9OF2f1ZSbOoe/DyG85zk0lrdAuXtv
-         LeVV5N3m8uVRASTKhVEmfRlCZa+NLWyvi9/tYMZ0Ne+q38HYy4SG7BMj7CPyD3igxrby0aLr3GO/
-         sS+dt8ETSKSlYNcrKYsOnW/KcT5TcyjvfEYLDJsV78Aevbmx8/Cg3TQG8//ixe9dA9tHmwrJjaSu
-         kcLaGDsLlNVaVRK6OP5duB8D0M7ro7vx8XcXwPgT8plbpKTfqEKATFTGq2+LleokB1LC5BZpoVVu
-         PYyXMIMRl9QU73oxLcxEbSOP1mJ85Fm9PY2YPA2uRAgAUi23AMEx19PyeuHTEVgzwjBs56WLNPPo
-         YJWfXKfbmMp4Fv8SSy+/tgPLZRXXNRv6ef9BHyQuyETZhf7z5P6XMsdlEwfH9w7eUl2Nm9vrVlFA
-         vW1zJlaSfur5U96bLEQZtG67rrGlqPx0QRnQ15/t4+Z7ocNKR8H4KPIQLqT2qwdilIh7iAhUGnwk
-         mxyP/lqP+7Xkj7TRLBA0xON8sBbqEybVl8dAuWOCYTWVBtQ4d/mpEE4qep5qWmygspKzuMFW2hDX
-         deo1UHPteQEV0nUEo6AmoQ1eWRGXJ5CfKGo/s284z27QNkM1Ht+9M8KyYCI72DWSPYyn25pjBO1I
-         7tBYd+CjdQXv6fwx2+WnhNgZ4+rVsFfx7LZLdm4VcxlFJsELtkQ/hCqTIWFhgFg1/CHQ8w8ic/OO
-         Ze++wBXvwLSizpLhmb6+HlbHnwcFST1gqaTyA3NCK0i4i2a2c5ZYP2aNfeKDDC9w==
-From:   xkernel.wang@foxmail.com
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xiaoke Wang <xkernel.wang@foxmail.com>
-Subject: [PATCH] selinux: fix a wrong check condition of strcmp()
-Date:   Tue, 14 Dec 2021 17:34:43 +0800
-X-OQ-MSGID: <20211214093443.2415-1-xkernel.wang@foxmail.com>
-X-Mailer: git-send-email 2.33.0.windows.2
+        id S235549AbhLNQOL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Dec 2021 11:14:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57298 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231215AbhLNQOL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Dec 2021 11:14:11 -0500
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE65DC061574;
+        Tue, 14 Dec 2021 08:14:10 -0800 (PST)
+Received: by mail-lj1-x22b.google.com with SMTP id p8so29096204ljo.5;
+        Tue, 14 Dec 2021 08:14:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=e7PtDlj0mth27+bgBvDyP1PaVmibKSZKtcK9ZB7JRas=;
+        b=WDmoQgV5VlTLoi7Skx9OjojOP4C3E7Nve+DTDNEqtrUQkDID7QFNNf6DboZS2/8M/x
+         WgYBjlUNQ4EdUwaP6DxZ0IxesIGYGBdnHCnfIB4YPX+zjvTlI4TExZfCxS7wQUUzwg0S
+         OGIKasYrmfmsHH2L84Mjk8hCEub5UFz3XaORd4k5t78KSrhGKa0Qgpy7so0DGLq6qjFt
+         m3cpsuI098rcB4OMgbDZFlKdmSkgoW7lg27uLydJsRs7y91Gk7omDgVVeKYVjHs2j5fx
+         766ahOf1pwHIqaurmg8hfJ59mSjWs7sgN6/QQLt2CPw8x5g7Hv0D/Sfc2rNUeCZGApn0
+         mimA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=e7PtDlj0mth27+bgBvDyP1PaVmibKSZKtcK9ZB7JRas=;
+        b=rBsSjHw4KmClYs/d7ypwHPHunBYPSy3CO9HahRlSjNvs5AqGu8hjmpX5z5GfLI6kzz
+         lWpi4XLONHwDqIphrbrjpdH7Rt4sQevEStSB0NplFRxa2CNfaWFPj5mAr7iJrlU/B9aK
+         VKrW2QNO2/jWS5rIXxV6B69UFTW/x5PybsFijr21E9Ric63jlChkdwYC1OOmarDstw7y
+         fu0YHwJulsRtQfiaz9AYtvalLEzdLCoKkIhW0PWNBJXFdQ7jDoCSZNtSSJ894kfY7Y95
+         qySi2+ng0xX3YEYQs7oeLfnTjjaYtI2S9MnwG7xnmcoR3GdhxE4jIWqK9JvA185XLD8a
+         5z5A==
+X-Gm-Message-State: AOAM530jAQbcd6HBMce8vUfNDh0SiKCpvqmfGfWLe32TgXwtlAqCqKru
+        GTUSwhM5UzkBxqoNbHeCG1hR5U9BHz/BaQUWvw6a6GeG
+X-Google-Smtp-Source: ABdhPJwaFhUmPowOhknAjENiJU2wmzO54MK8rvUGgjSOcYJS7DBEjVUPnPJ+6tDHDHJxk6I4cruojLgklofzu4v7178=
+X-Received: by 2002:a2e:e1a:: with SMTP id 26mr5764067ljo.199.1639498448760;
+ Tue, 14 Dec 2021 08:14:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <tencent_D6BF2948237359EE0A47338567B88512D106@qq.com>
+In-Reply-To: <tencent_D6BF2948237359EE0A47338567B88512D106@qq.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 14 Dec 2021 11:14:10 -0500
+Message-ID: <CAEjxPJ4nT3LFqNNh7PRP5DuuJeVfOh_JQiDboskbpBATgoJkOQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix a wrong check condition of strcmp()
+To:     xkernel.wang@foxmail.com
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+On Tue, Dec 14, 2021 at 4:34 AM <xkernel.wang@foxmail.com> wrote:
+>
+> From: Xiaoke Wang <xkernel.wang@foxmail.com>
+>
+> strcmp() will return 0 when two strings(s1, s2 for example) are equal.
+> And if a negative number means s1 < s2. Here seems should use == 0 as
+> the condition. Otherwise, the value of genfs->fstype can not be
+> guaranteed.
+>
+> Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-strcmp() will return 0 when two strings(s1, s2 for example) are equal.
-And if a negative number means s1 < s2. Here seems should use == 0 as
-the condition. Otherwise, the value of genfs->fstype can not be
-guaranteed.
+NAK. Look more closely at the code that follows, and understand that
+the list is ordered to avoid needing to traverse all of it.
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
----
- security/selinux/ss/services.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 759d878..c9f6c3a 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2883,7 +2883,7 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
- 
- 	for (genfs = policydb->genfs; genfs; genfs = genfs->next) {
- 		cmp = strcmp(fstype, genfs->fstype);
--		if (cmp <= 0)
-+		if (cmp == 0)
- 			break;
- 	}
- 
--- 
+> ---
+>  security/selinux/ss/services.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 759d878..c9f6c3a 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2883,7 +2883,7 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
+>
+>         for (genfs = policydb->genfs; genfs; genfs = genfs->next) {
+>                 cmp = strcmp(fstype, genfs->fstype);
+> -               if (cmp <= 0)
+> +               if (cmp == 0)
+>                         break;
+>         }
+>
+> --
