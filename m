@@ -2,87 +2,152 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3459C433EF
-	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 06:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15D23C433EF
+	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 13:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbhLNG1W (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Dec 2021 01:27:22 -0500
-Received: from out162-62-57-252.mail.qq.com ([162.62.57.252]:38231 "EHLO
-        out162-62-57-252.mail.qq.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230314AbhLNG1W (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Dec 2021 01:27:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-        s=s201512; t=1639463239;
-        bh=KtC2JAo9Zv4oft7XPe6btVLuXHfV817m3kIZSg+ZITY=;
-        h=From:To:Cc:Subject:Date;
-        b=HD5FKsZMLBm3PT2cvHOCxOx7zur7GOeR4uJvGzPLAypaKpmyYZYvUw1qorKL9jl0Q
-         1E9C4hJUxA9kPBZrM5+NWqnt2hssck9LdGRja4r0FmiUZ2ZjFm2IHJB88cqL9D4KFh
-         DixKYK7zmME+RwxCPTdaYIJnhfpScvQo1jMmMeBM=
-Received: from localhost.localdomain ([43.227.136.188])
-        by newxmesmtplogicsvrszc9.qq.com (NewEsmtp) with SMTP
-        id 505A2217; Tue, 14 Dec 2021 14:20:05 +0800
-X-QQ-mid: xmsmtpt1639462805tkfq958wh
-Message-ID: <tencent_D0F3F07E25927F681055E6A35C038E168A07@qq.com>
-X-QQ-XMAILINFO: MntsAqBg2ZZ5Fu3j93YYKkZ8AivXMvtN+g4XHjdxcoSj6+/RxlR3irJDF7Nprs
-         cT4v6fh8S8xID1f+R/x5prxnjXNbept0v7QjULzjwaSGFDJnhmdwLWfWEA2w4H7918Hh5XA9cypW
-         XnmPusASVTG8AJKzweNLhSH1eqzjO5TP5JFBsaCoL/aHOi3m9vrklPc+2femM+lBztb4SDwuyiEO
-         dn9OFjCoQFrA61i8DQAbavNYGS4MvyvriluwK/1pcvXgzKXBkFuSLwxpQruDSJdqS+gKj6krB9x7
-         eD/dHpZxS9i9WYhqbXB7LUSP9Bv500q6tLYdLeQwmsNvG/zZin1GYFSfFGwsw/CsEq3hcekAB2sO
-         6NAwVCMQIICpgIuxofEeoCSkYBvMADUkc4PJRwuKxMsI8/kDnUeEAoeLa3ERQg362f8kg7iCEs1s
-         8RdSvxIAMnqckb8KNnOcN6eQvOjdlRQbVPGR+FgOrg4Uu0D1PW8PC6SsSs16bL3VKAZhWQ7dHBbN
-         3ZmbINmXPjjnTUhYB6uzYbBQ/cZb+ybIXQv4A1VUKtDZNbf5dXh4PnMdqzSHUaG6XG51757b8UcX
-         wMpZG7PUR+GUKuEpBa2Gkuq/5Dp3M55inVZaDy33jp9R5wmxe3fIj4whBw9n3sWhVdkek8zmTkGh
-         7161et/k2aw+qFwgKcC+CrtZuJLC7JUjN6EVQEgG8zfvHB4c8zhhpmEb2/UkUoCd89s16yCmi2B/
-         EEM/VWRQCCzyeEQGtCR6eiNFkmC9i5l/anYpjXwRYScbNUJHNgvyhL6QPE8vQ1Db0s+duhSxtcWm
-         7rSeQ5rMaYf9TVOKqn8vWZMbgr2eQ8bVPlBObQpJL21YAYjB8ZNGNKC4zrgZVG/YF3Xgdf6dVPWq
-         ygtDdosANSJtKfbPoXSEZC/vBSkfi66OLir1XITD64ZTQ/6QXZ5n7E84ZU3tieWA==
-From:   xkernel.wang@foxmail.com
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xiaoke Wang <xkernel.wang@foxmail.com>
-Subject: [PATCH] selinux: check the return value of audit_log_start()
-Date:   Tue, 14 Dec 2021 14:19:51 +0800
-X-OQ-MSGID: <20211214061951.2158-1-xkernel.wang@foxmail.com>
-X-Mailer: git-send-email 2.33.0.windows.2
+        id S234272AbhLNNNN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Dec 2021 08:13:13 -0500
+Received: from mga11.intel.com ([192.55.52.93]:21967 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234259AbhLNNNM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 14 Dec 2021 08:13:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1639487592; x=1671023592;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=wcWhPHwDj9HtBzvbM6bLmy4NfBYJMo1g1NSkD6o5BZA=;
+  b=Zx5YcAvM7ANxBHrDn95WeaUYuDIkE8qNH22NL4Oc6Wjg4Tl/Y3jrnI0S
+   8pkWnVHfARI833+Ztk8Vk4+kNibXIF3CIxm9BP/zKJsnlhWigDc6BePv+
+   63u25VEd7o8IMkpe4+Scyh9ZsOmAPAfmxayr42FT+nAVgOVu0pBAS76HI
+   BtubF4zLUYNUM/b/HsymcAQh4hoOI3RAT7s/cMv7qyAl49J1hOBdNizgm
+   RmoZv1oNlFIR4sEzhueyFq98kY/OF7RFemfMi3D0P9JDz/8jPQy8RNsX5
+   xLUPmsdce/Y9FcxFPdpH5Pe7o3jbuI9QatAYnAP7uVE2yDFDBewgEBgJ2
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10197"; a="236506286"
+X-IronPort-AV: E=Sophos;i="5.88,205,1635231600"; 
+   d="scan'208";a="236506286"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2021 05:13:12 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,205,1635231600"; 
+   d="scan'208";a="583441448"
+Received: from lkp-server02.sh.intel.com (HELO 9f38c0981d9f) ([10.239.97.151])
+  by fmsmga004.fm.intel.com with ESMTP; 14 Dec 2021 05:13:09 -0800
+Received: from kbuild by 9f38c0981d9f with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1mx7cC-0000L6-ML; Tue, 14 Dec 2021 13:13:08 +0000
+Date:   Tue, 14 Dec 2021 21:12:24 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com
+Subject: Re: [PATCH v31 26/28] Audit: Add record for multiple object security
+  contexts
+Message-ID: <202112142141.E8wcYag3-lkp@intel.com>
+References: <20211213234034.111891-27-casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211213234034.111891-27-casey@schaufler-ca.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+Hi Casey,
 
-audit_log_start() returns audit_buffer pointer on success or NULL on
-error. It is better to check the return value of it so to prevent
-potential memory access error.
+I love your patch! Yet something to improve:
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+[auto build test ERROR on nf-next/master]
+[cannot apply to pcmoore-audit/next nf/master linus/master v5.16-rc5]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/0day-ci/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20211214-084057
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pablo/nf-next.git master
+config: sparc64-randconfig-r015-20211213 (https://download.01.org/0day-ci/archive/20211214/202112142141.E8wcYag3-lkp@intel.com/config)
+compiler: sparc64-linux-gcc (GCC) 11.2.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/2a62f660ff9d766a192fda713edfa3ea129efdee
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20211214-084057
+        git checkout 2a62f660ff9d766a192fda713edfa3ea129efdee
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=sparc64 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All errors (new ones prefixed by >>):
+
+   In file included from arch/sparc/kernel/ptrace_64.c:25:
+   include/linux/audit.h:262:1: error: expected identifier or '(' before '{' token
+     262 | { }
+         | ^
+>> include/linux/audit.h:260:20: error: 'audit_log_object_context' declared 'static' but never defined [-Werror=unused-function]
+     260 | static inline void audit_log_object_context(struct audit_buffer *ab,
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~
+   cc1: all warnings being treated as errors
+
+
+vim +260 include/linux/audit.h
+
+   220	
+   221	#else /* CONFIG_AUDIT */
+   222	static inline __printf(4, 5)
+   223	void audit_log(struct audit_context *ctx, gfp_t gfp_mask, int type,
+   224		       const char *fmt, ...)
+   225	{ }
+   226	static inline struct audit_buffer *audit_log_start(struct audit_context *ctx,
+   227							   gfp_t gfp_mask, int type)
+   228	{
+   229		return NULL;
+   230	}
+   231	static inline __printf(2, 3)
+   232	void audit_log_format(struct audit_buffer *ab, const char *fmt, ...)
+   233	{ }
+   234	static inline void audit_log_end(struct audit_buffer *ab)
+   235	{ }
+   236	static inline void audit_log_n_hex(struct audit_buffer *ab,
+   237					   const unsigned char *buf, size_t len)
+   238	{ }
+   239	static inline void audit_log_n_string(struct audit_buffer *ab,
+   240					      const char *buf, size_t n)
+   241	{ }
+   242	static inline void  audit_log_n_untrustedstring(struct audit_buffer *ab,
+   243							const char *string, size_t n)
+   244	{ }
+   245	static inline void audit_log_untrustedstring(struct audit_buffer *ab,
+   246						     const char *string)
+   247	{ }
+   248	static inline void audit_log_d_path(struct audit_buffer *ab,
+   249					    const char *prefix,
+   250					    const struct path *path)
+   251	{ }
+   252	static inline void audit_log_key(struct audit_buffer *ab, char *key)
+   253	{ }
+   254	static inline void audit_log_path_denied(int type, const char *operation)
+   255	{ }
+   256	static inline int audit_log_task_context(struct audit_buffer *ab)
+   257	{
+   258		return 0;
+   259	}
+ > 260	static inline void audit_log_object_context(struct audit_buffer *ab,
+   261						    struct lsmblob *blob);
+   262	{ }
+   263	static inline void audit_log_task_info(struct audit_buffer *ab)
+   264	{ }
+   265	
+
 ---
- security/selinux/ss/services.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index e5f1b27..759d878 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3277,11 +3277,13 @@ int security_sid_mls_copy(struct selinux_state *state,
- 				ab = audit_log_start(audit_context(),
- 						     GFP_ATOMIC,
- 						     AUDIT_SELINUX_ERR);
--				audit_log_format(ab,
--						 "op=security_sid_mls_copy invalid_context=");
--				/* don't record NUL with untrusted strings */
--				audit_log_n_untrustedstring(ab, s, len - 1);
--				audit_log_end(ab);
-+				if (ab) {
-+					audit_log_format(ab,
-+							"op=security_sid_mls_copy invalid_context=");
-+					/* don't record NUL with untrusted strings */
-+					audit_log_n_untrustedstring(ab, s, len - 1);
-+					audit_log_end(ab);
-+				}
- 				kfree(s);
- 			}
- 			goto out_unlock;
--- 
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
