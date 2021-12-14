@@ -2,42 +2,42 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15D23C433EF
-	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 13:13:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 296E3C433F5
+	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 13:23:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234272AbhLNNNN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Dec 2021 08:13:13 -0500
-Received: from mga11.intel.com ([192.55.52.93]:21967 "EHLO mga11.intel.com"
+        id S234369AbhLNNXN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Dec 2021 08:23:13 -0500
+Received: from mga14.intel.com ([192.55.52.115]:23423 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234259AbhLNNNM (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 14 Dec 2021 08:13:12 -0500
+        id S234344AbhLNNXM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 14 Dec 2021 08:23:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1639487592; x=1671023592;
+  t=1639488192; x=1671024192;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=wcWhPHwDj9HtBzvbM6bLmy4NfBYJMo1g1NSkD6o5BZA=;
-  b=Zx5YcAvM7ANxBHrDn95WeaUYuDIkE8qNH22NL4Oc6Wjg4Tl/Y3jrnI0S
-   8pkWnVHfARI833+Ztk8Vk4+kNibXIF3CIxm9BP/zKJsnlhWigDc6BePv+
-   63u25VEd7o8IMkpe4+Scyh9ZsOmAPAfmxayr42FT+nAVgOVu0pBAS76HI
-   BtubF4zLUYNUM/b/HsymcAQh4hoOI3RAT7s/cMv7qyAl49J1hOBdNizgm
-   RmoZv1oNlFIR4sEzhueyFq98kY/OF7RFemfMi3D0P9JDz/8jPQy8RNsX5
-   xLUPmsdce/Y9FcxFPdpH5Pe7o3jbuI9QatAYnAP7uVE2yDFDBewgEBgJ2
+  bh=Kxd34bRECsA9ORrjxy+vh6d2+6UXo91Qb0RMqQ0FHIA=;
+  b=FML4PxsC7w/maxTeOln/IRekiio/mmBAdV5WsrMTVxiGrJUyFNPfXGCA
+   +LNDWWtlNOqHbU2iLQixTPxS67O8q7rVzuTs9Voh4k9IctlTmZF2bQAYR
+   mRXjO16zSwafWCpvIEs+zvvweE7VUdVUP0uJDetPF2UTMmN5NlWIkx0Bz
+   Xz0glHcFZX6BiFyIt2BBBr9apHXUBz6eINCWu4wTstrJROAU40436vxQZ
+   PX4VB6oYVjEAjLw4l2zXfG0DUM+it809Inu4lXaeKvu9Q36AQoYH6nsCp
+   X+0u43bh4tJDIRd4hfdlk1LQ0Gq0A+TRTF3T18ATFA2WPoHnlxYH7OXKn
    g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10197"; a="236506286"
+X-IronPort-AV: E=McAfee;i="6200,9189,10197"; a="239198182"
 X-IronPort-AV: E=Sophos;i="5.88,205,1635231600"; 
-   d="scan'208";a="236506286"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2021 05:13:12 -0800
+   d="scan'208";a="239198182"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2021 05:23:12 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,205,1635231600"; 
-   d="scan'208";a="583441448"
+   d="scan'208";a="463793405"
 Received: from lkp-server02.sh.intel.com (HELO 9f38c0981d9f) ([10.239.97.151])
-  by fmsmga004.fm.intel.com with ESMTP; 14 Dec 2021 05:13:09 -0800
+  by orsmga003.jf.intel.com with ESMTP; 14 Dec 2021 05:23:09 -0800
 Received: from kbuild by 9f38c0981d9f with local (Exim 4.92)
         (envelope-from <lkp@intel.com>)
-        id 1mx7cC-0000L6-ML; Tue, 14 Dec 2021 13:13:08 +0000
-Date:   Tue, 14 Dec 2021 21:12:24 +0800
+        id 1mx7ls-0000Lw-RA; Tue, 14 Dec 2021 13:23:08 +0000
+Date:   Tue, 14 Dec 2021 21:22:52 +0800
 From:   kernel test robot <lkp@intel.com>
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
@@ -48,7 +48,7 @@ Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
         paul@paul-moore.com
 Subject: Re: [PATCH v31 26/28] Audit: Add record for multiple object security
   contexts
-Message-ID: <202112142141.E8wcYag3-lkp@intel.com>
+Message-ID: <202112142146.BpckyASr-lkp@intel.com>
 References: <20211213234034.111891-27-casey@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -64,42 +64,75 @@ Hi Casey,
 I love your patch! Yet something to improve:
 
 [auto build test ERROR on nf-next/master]
-[cannot apply to pcmoore-audit/next nf/master linus/master v5.16-rc5]
+[cannot apply to pcmoore-audit/next nf/master linus/master jmorris-security/next-testing v5.16-rc5]
 [If your patch is applied to the wrong git tree, kindly drop us a note.
 And when submitting patch, we suggest to use '--base' as documented in
 https://git-scm.com/docs/git-format-patch]
 
 url:    https://github.com/0day-ci/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20211214-084057
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/pablo/nf-next.git master
-config: sparc64-randconfig-r015-20211213 (https://download.01.org/0day-ci/archive/20211214/202112142141.E8wcYag3-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 11.2.0
+config: i386-tinyconfig (https://download.01.org/0day-ci/archive/20211214/202112142146.BpckyASr-lkp@intel.com/config)
+compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
 reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
         # https://github.com/0day-ci/linux/commit/2a62f660ff9d766a192fda713edfa3ea129efdee
         git remote add linux-review https://github.com/0day-ci/linux
         git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20211214-084057
         git checkout 2a62f660ff9d766a192fda713edfa3ea129efdee
         # save the config file to linux build tree
         mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=sparc64 SHELL=/bin/bash
+        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash
 
 If you fix the issue, kindly add following tag as appropriate
 Reported-by: kernel test robot <lkp@intel.com>
 
 All errors (new ones prefixed by >>):
 
-   In file included from arch/sparc/kernel/ptrace_64.c:25:
-   include/linux/audit.h:262:1: error: expected identifier or '(' before '{' token
+   In file included from init/init_task.c:12:
+>> include/linux/audit.h:262:1: error: expected identifier or '(' before '{' token
      262 | { }
          | ^
->> include/linux/audit.h:260:20: error: 'audit_log_object_context' declared 'static' but never defined [-Werror=unused-function]
+   include/linux/audit.h:260:20: warning: 'audit_log_object_context' declared 'static' but never defined [-Wunused-function]
      260 | static inline void audit_log_object_context(struct audit_buffer *ab,
          |                    ^~~~~~~~~~~~~~~~~~~~~~~~
-   cc1: all warnings being treated as errors
+--
+   In file included from kernel/exit.c:49:
+>> include/linux/audit.h:262:1: error: expected identifier or '(' before '{' token
+     262 | { }
+         | ^
+   kernel/exit.c:1817:13: warning: no previous prototype for 'abort' [-Wmissing-prototypes]
+    1817 | __weak void abort(void)
+         |             ^~~~~
+   In file included from kernel/exit.c:49:
+   include/linux/audit.h:260:20: warning: 'audit_log_object_context' declared 'static' but never defined [-Wunused-function]
+     260 | static inline void audit_log_object_context(struct audit_buffer *ab,
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~
+--
+   In file included from fs/pipe.c:23:
+>> include/linux/audit.h:262:1: error: expected identifier or '(' before '{' token
+     262 | { }
+         | ^
+   fs/pipe.c:755:15: warning: no previous prototype for 'account_pipe_buffers' [-Wmissing-prototypes]
+     755 | unsigned long account_pipe_buffers(struct user_struct *user,
+         |               ^~~~~~~~~~~~~~~~~~~~
+   fs/pipe.c:761:6: warning: no previous prototype for 'too_many_pipe_buffers_soft' [-Wmissing-prototypes]
+     761 | bool too_many_pipe_buffers_soft(unsigned long user_bufs)
+         |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+   fs/pipe.c:768:6: warning: no previous prototype for 'too_many_pipe_buffers_hard' [-Wmissing-prototypes]
+     768 | bool too_many_pipe_buffers_hard(unsigned long user_bufs)
+         |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+   fs/pipe.c:775:6: warning: no previous prototype for 'pipe_is_unprivileged_user' [-Wmissing-prototypes]
+     775 | bool pipe_is_unprivileged_user(void)
+         |      ^~~~~~~~~~~~~~~~~~~~~~~~~
+   fs/pipe.c:1245:5: warning: no previous prototype for 'pipe_resize_ring' [-Wmissing-prototypes]
+    1245 | int pipe_resize_ring(struct pipe_inode_info *pipe, unsigned int nr_slots)
+         |     ^~~~~~~~~~~~~~~~
+   In file included from fs/pipe.c:23:
+   include/linux/audit.h:260:20: warning: 'audit_log_object_context' declared 'static' but never defined [-Wunused-function]
+     260 | static inline void audit_log_object_context(struct audit_buffer *ab,
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-vim +260 include/linux/audit.h
+vim +262 include/linux/audit.h
 
    220	
    221	#else /* CONFIG_AUDIT */
@@ -141,9 +174,9 @@ vim +260 include/linux/audit.h
    257	{
    258		return 0;
    259	}
- > 260	static inline void audit_log_object_context(struct audit_buffer *ab,
+   260	static inline void audit_log_object_context(struct audit_buffer *ab,
    261						    struct lsmblob *blob);
-   262	{ }
+ > 262	{ }
    263	static inline void audit_log_task_info(struct audit_buffer *ab)
    264	{ }
    265	
