@@ -2,116 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B06EFC433FE
-	for <selinux@archiver.kernel.org>; Tue, 14 Dec 2021 22:59:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E298C433F5
+	for <selinux@archiver.kernel.org>; Wed, 15 Dec 2021 09:15:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235157AbhLNW7e (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Dec 2021 17:59:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235047AbhLNW7d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Dec 2021 17:59:33 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F054C06173E
-        for <selinux@vger.kernel.org>; Tue, 14 Dec 2021 14:59:33 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id z9so13401754edb.5
-        for <selinux@vger.kernel.org>; Tue, 14 Dec 2021 14:59:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=khVptH+M0tfn36lg9TBFDzwD3VeLdbUmAWzNh6/qLO0=;
-        b=rJsbXgWLM3XVCagULFVF8jOXjqBhzFe4TGokRhLqIumiOWwYYAWMmkeXiQHhYh/Ihf
-         51DpW6Wy6mANL4BR0LqusesI0F4cnrPBmfX05RyU5zKCDTmvKz6+dXRrKgr7UXT+EAzl
-         yyuMhzhNCFa7hH5IPayUhM6IFvXZCyKqkUgv5yGFBp4S4NOOVGrj0w3JakoeSbKSqpqP
-         tVfDPb7ltetkGxdOSPgrdFnVh/aUB71mp0fhrp+OZbdMRIDlfVHecvoHt28yMo/vzH6I
-         HTHwDxd8BFGTI7OnhucdsHJ/+2D8S5rtq+McqwUgqd1aaI3peOFv0MPOIPI5qAaoLs7t
-         nyzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=khVptH+M0tfn36lg9TBFDzwD3VeLdbUmAWzNh6/qLO0=;
-        b=d0f9HZrfkcpr+JtYn8vphmlJTUzkKakhTEa9tHNAm9yAVIw6B/3sbh/jQEygwPh1od
-         C9zhQjx3boCwcMdlCznYKE3/GqQw4y1JkfdZf3ljktSB/AN88eUFYWI7IkczmGwhQ4Go
-         XQdS+ZjT1KqONEF7aFsb9ufJKWbfz4927zRf+HHJ0gz5b7RkB0KD2f1mNtMQy32q4PxG
-         Gng6Hvr1pmPfjHfR8BmgsFwBgdykQVlyMGwXrdHz6g/UBwIIGkpMdO8S4eCBZ31bZ+oT
-         Gc49mnM9tGFBf13c0p0EbouwTtDxv4hwYp78Fo5IWlodgy7yi9fUCe4TGBqAAoHbB1cj
-         jPXg==
-X-Gm-Message-State: AOAM532PYrfNqhQA4T5GOe0MItUhcnBYfuMP70izfTGLZQVsJFl7ANsx
-        RtThXDi4f23X+XPAMpOWyi5WHmTmB9h1gUP/+Pu95VB+wg==
-X-Google-Smtp-Source: ABdhPJwDaxZJiRGG8M2ITTDZmRyH/uAtqgn33PJ7PGjh9HnVGALZ16WyupWf4FRPUBGuiIBz54Ny1EOXpoRuxkdI4bk=
-X-Received: by 2002:a05:6402:520e:: with SMTP id s14mr11437825edd.213.1639522772037;
- Tue, 14 Dec 2021 14:59:32 -0800 (PST)
+        id S241071AbhLOJO7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Dec 2021 04:14:59 -0500
+Received: from mga14.intel.com ([192.55.52.115]:54350 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241064AbhLOJO6 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 15 Dec 2021 04:14:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1639559698; x=1671095698;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ZcRH6JYRSqZQ5XGTBMIbU967GQwZZfyY+KkVtbMFbxs=;
+  b=FvMzqNWAV3iuPQsTTLDzqQTuLDzMstjgUKzaXUF4K4BvlMFk7cE4dNF6
+   F+nEIIsS6v0JtLLCw1KXkfr2LCXApzGfshs5GCX8yugevrt2fRPLk1Jt7
+   1GfqOMXwmlhux2yqY44wJ1X2mIMEwsUq5fn2hKiAiSCbt2w4mUHcr4vHD
+   pFcUh3t5t7CsOiszo1QyukYfIVPe7YOIcyF/ohUIEPkbMw+fUW+Hs4dO6
+   q/u8M1YaLU6uNldRNX7UvcEyDNS+9MwClWjzeQ+OKNMLY/PQcWaU43iAn
+   5XIsizwetYUnf8SaVRYShFQ9jfABFnuu29WmdqyLLKBlcLkqphLxYzFaK
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10198"; a="239406384"
+X-IronPort-AV: E=Sophos;i="5.88,207,1635231600"; 
+   d="scan'208";a="239406384"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Dec 2021 01:14:58 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,207,1635231600"; 
+   d="scan'208";a="465482545"
+Received: from lkp-server02.sh.intel.com (HELO 9f38c0981d9f) ([10.239.97.151])
+  by orsmga006.jf.intel.com with ESMTP; 15 Dec 2021 01:14:55 -0800
+Received: from kbuild by 9f38c0981d9f with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1mxQNC-0001XG-Dt; Wed, 15 Dec 2021 09:14:54 +0000
+Date:   Wed, 15 Dec 2021 17:14:22 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com
+Subject: Re: [PATCH v31 13/28] LSM: Use lsmblob in security_cred_getsecid
+Message-ID: <202112151753.otSGYmsF-lkp@intel.com>
+References: <20211213234034.111891-14-casey@schaufler-ca.com>
 MIME-Version: 1.0
-References: <tencent_D0F3F07E25927F681055E6A35C038E168A07@qq.com>
-In-Reply-To: <tencent_D0F3F07E25927F681055E6A35C038E168A07@qq.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 14 Dec 2021 17:59:21 -0500
-Message-ID: <CAHC9VhRa3H7_CxP_pTsXPgmkTt908k6epMUaK84-FWyvikofpA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: check the return value of audit_log_start()
-To:     xkernel.wang@foxmail.com
-Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211213234034.111891-14-casey@schaufler-ca.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 14, 2021 at 1:20 AM <xkernel.wang@foxmail.com> wrote:
->
-> From: Xiaoke Wang <xkernel.wang@foxmail.com>
->
-> audit_log_start() returns audit_buffer pointer on success or NULL on
-> error. It is better to check the return value of it so to prevent
-> potential memory access error.
+Hi Casey,
 
-The audit_log_start() function can return NULL in normal use, it does
-not always indicate an error; returning NULL simply indicates that no
-auditing should be done for this particular instance, e.g. an audit
-filter is excluding the record.  Further, there is no potential memory
-access error as the audit_log_*() functions are designed to accept a
-NULL audit_buffer and return without error.
+I love your patch! Perhaps something to improve:
 
-There have been some cases where we check for a NULL audit_buffer and
-skip the following audit_log_*() calls, but that is typically in
-performance critical code where the additional function calls would
-have an impact (small as they might be).  In the case below, this is
-not a critical code path, it is an error path, and here I would rather
-have the code as it currently stands; I believe it is cleaner and
-easier to read this way.
+[auto build test WARNING on nf-next/master]
+[also build test WARNING on nf/master linus/master v5.16-rc5]
+[cannot apply to pcmoore-audit/next jmorris-security/next-testing next-20211214]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-Regardless, thank you for taking the time to submit a patch.
+url:    https://github.com/0day-ci/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20211214-084057
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pablo/nf-next.git master
+config: microblaze-randconfig-s032-20211214 (https://download.01.org/0day-ci/archive/20211215/202112151753.otSGYmsF-lkp@intel.com/config)
+compiler: microblaze-linux-gcc (GCC) 11.2.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # apt-get install sparse
+        # sparse version: v0.6.4-dirty
+        # https://github.com/0day-ci/linux/commit/e66d6e6a2f53e0b36b78003ee8399a554ae82e3c
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20211214-084057
+        git checkout e66d6e6a2f53e0b36b78003ee8399a554ae82e3c
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=microblaze SHELL=/bin/bash
 
-> Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-> ---
->  security/selinux/ss/services.c | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
->
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index e5f1b27..759d878 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -3277,11 +3277,13 @@ int security_sid_mls_copy(struct selinux_state *state,
->                                 ab = audit_log_start(audit_context(),
->                                                      GFP_ATOMIC,
->                                                      AUDIT_SELINUX_ERR);
-> -                               audit_log_format(ab,
-> -                                                "op=security_sid_mls_copy invalid_context=");
-> -                               /* don't record NUL with untrusted strings */
-> -                               audit_log_n_untrustedstring(ab, s, len - 1);
-> -                               audit_log_end(ab);
-> +                               if (ab) {
-> +                                       audit_log_format(ab,
-> +                                                       "op=security_sid_mls_copy invalid_context=");
-> +                                       /* don't record NUL with untrusted strings */
-> +                                       audit_log_n_untrustedstring(ab, s, len - 1);
-> +                                       audit_log_end(ab);
-> +                               }
->                                 kfree(s);
->                         }
->                         goto out_unlock;
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
--- 
-paul moore
-www.paul-moore.com
+
+sparse warnings: (new ones prefixed by >>)
+>> kernel/audit.c:128:25: sparse: sparse: symbol 'audit_sig_lsm' was not declared. Should it be static?
+   kernel/audit.c:2181:9: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
+   kernel/audit.c:2181:9: sparse:     expected struct spinlock [usertype] *lock
+   kernel/audit.c:2181:9: sparse:     got struct spinlock [noderef] __rcu *
+   kernel/audit.c:2184:40: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
+   kernel/audit.c:2184:40: sparse:     expected struct spinlock [usertype] *lock
+   kernel/audit.c:2184:40: sparse:     got struct spinlock [noderef] __rcu *
+
+vim +/audit_sig_lsm +128 kernel/audit.c
+
+   124	
+   125	/* The identity of the user shutting down the audit system. */
+   126	static kuid_t		audit_sig_uid = INVALID_UID;
+   127	static pid_t		audit_sig_pid = -1;
+ > 128	struct lsmblob		audit_sig_lsm;
+   129	
+
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
