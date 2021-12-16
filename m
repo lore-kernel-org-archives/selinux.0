@@ -2,234 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43EFDC433EF
-	for <selinux@archiver.kernel.org>; Wed, 15 Dec 2021 21:28:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54D85C433EF
+	for <selinux@archiver.kernel.org>; Thu, 16 Dec 2021 15:37:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229728AbhLOV2r (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Dec 2021 16:28:47 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:46786 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229494AbhLOV2r (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Dec 2021 16:28:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639603726;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=1bWCaQYJ9iYvaoNe7DeD3Tq2L6dXeOv6UoPmdS5Ve8I=;
-        b=FGfCoO2fAQmv/KmAYsgVWvKcIOkK6P8FYMDf6fOw4iPe81k//PTKlIMSU2w0dlO5RYE5zk
-        aNmctNd59AQjfFFHbsfMiJNwo6u/A1hCd6mwdn9Brb1q/LrUIJw8G8paqEPf2OZ2oYhfYS
-        YhHDLxa+mhrrtO1PGTzppuqrngAPkJE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-301-oFy4SuebMMqXDrXl5S6mpA-1; Wed, 15 Dec 2021 16:28:43 -0500
-X-MC-Unique: oFy4SuebMMqXDrXl5S6mpA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 098121006AA0;
-        Wed, 15 Dec 2021 21:28:42 +0000 (UTC)
-Received: from aion.usersys.redhat.com (unknown [10.22.33.175])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9A0F51037F55;
-        Wed, 15 Dec 2021 21:28:41 +0000 (UTC)
-Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
-        id D42451A003E; Wed, 15 Dec 2021 16:28:40 -0500 (EST)
-From:   Scott Mayhew <smayhew@redhat.com>
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     selinux@vger.kernel.org
-Subject: [PATCH v2] selinux: Fix sleeping function called from invalid context
-Date:   Wed, 15 Dec 2021 16:28:40 -0500
-Message-Id: <20211215212840.1022859-1-smayhew@redhat.com>
+        id S235074AbhLPPhD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Dec 2021 10:37:03 -0500
+Received: from mailomta27-re.btinternet.com ([213.120.69.120]:43481 "EHLO
+        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232607AbhLPPhC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Dec 2021 10:37:02 -0500
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-049.btinternet.com with ESMTP
+          id <20211216153700.NPXR8938.re-prd-fep-049.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Thu, 16 Dec 2021 15:37:00 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1639669020; 
+        bh=E+AgHOJMeGv+h73OzmyK8eZjBXPblw7PuqwK9IL/fo4=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=sx5eEdjgAG/CjPkb6ARRNKYaT9XGyuyZADllxEFwZzPReH8rgoyudD9qel78iB66g4kULu/OMyr8DN9lolgrAatGvv+IA8hMDfsZI3GBxHwR0KtGY+BB96yx2SJmKCsgdI9jKieG36UVxx8mI8OOPkQ0aSjkRrF9bMEvbMR4T/t361CeySe3N8SSOEkwsa5mNfIujFUIs1BnKK5l++x7Z8LFhDPmeP77lL7ASc52/1L2bo6YDUtWBs0vEg/4hgQqj293vegNrK1mjuvB9S/ga8eGFfLf342XWljsFpkJ8VOwewStZlzZUJTQgz/k0lYdq77M3bTHuiOoYQysD+CZig==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
+    bimi=skipped
+X-SNCR-Rigid: 613A91240D796D10
+X-Originating-IP: [217.43.180.152]
+X-OWM-Source-IP: 217.43.180.152 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvuddrleeggdektdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepveevgeeftdfhhfevtdejiedtvdduieegfeduleevleelgeeileefvdejieefiedtnecuffhomhgrihhnpegtrghlihgsrhgvqdgvsghoohhkrdgtohhmnecukfhppedvudejrdegfedrudektddrudehvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopegludelvddrudeikedruddrudelkegnpdhinhgvthepvddujedrgeefrddukedtrdduhedvpdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopegusghurhhgvghnvghrsehlihhnuhigrdhmihgtrhhoshhofhhtrdgtohhmpdhrtghpthhtohepphgruhhlsehprghulhdqmhhoohhrvgdrtghomhdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from [192.168.1.198] (217.43.180.152) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 613A91240D796D10; Thu, 16 Dec 2021 15:37:00 +0000
+Message-ID: <b9655a10f2864a583ff880c810ea73a10c478c19.camel@btinternet.com>
+Subject: Re: [PATCH V2 4/4] selinux-notebook: Add epub build
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, dburgener@linux.microsoft.com
+Date:   Thu, 16 Dec 2021 15:37:00 +0000
+In-Reply-To: <CAHC9VhT5hw1JcgqOGZdTxaVWK5mE0gKKWiPLbJ3aZts+qm387A@mail.gmail.com>
+References: <20211213101622.29888-1-richard_c_haines@btinternet.com>
+         <20211213101622.29888-5-richard_c_haines@btinternet.com>
+         <CAHC9VhT5hw1JcgqOGZdTxaVWK5mE0gKKWiPLbJ3aZts+qm387A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.2 (3.42.2-1.fc35) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-selinux_sb_mnt_opts_compat() is called via sget_fc() under the sb_lock
-spinlock, so it can't use GFP_KERNEL allocations:
+On Mon, 2021-12-13 at 20:01 -0500, Paul Moore wrote:
+> On Mon, Dec 13, 2021 at 5:16 AM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > 
+> > Build an epub document.
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> >  BUILD.md            | 23 +++++++++++++++-----
+> >  CONTRIBUTING.md     | 10 ++++-----
+> >  Makefile            | 48 +++++++++++++++++++++++++++++++++++------
+> >  README.md           |  9 ++++----
+> >  src/cover.md        | 16 ++++++++++++++
+> >  src/cover_epub.md   |  2 ++
+> >  src/metadata.yaml   | 14 ++++++++++++
+> >  src/styles_epub.css | 52
+> > +++++++++++++++++++++++++++++++++++++++++++++
+> >  src/styles_html.css |  8 +++++++
+> >  src/styles_pdf.css  |  8 +++++++
+> >  src/title.md        | 16 --------------
+> >  11 files changed, 169 insertions(+), 37 deletions(-)
+> >  create mode 100644 src/cover.md
+> >  create mode 100644 src/cover_epub.md
+> >  create mode 100644 src/styles_epub.css
+> 
+> I had to do some merge fixups due to the logo change, and I added a
+> few missing oxford commas (*cough*) but like others I had mixed
+> results rendering the EPUB on my Linux system.  Thankfully the HTML
+> and PDF formats still looked good.
+> 
+> However, one of the more unfortunate things is that when I tried to
+> read the EPUB on my Kindle it failed miserably; although oddly enough
+> the PDF worked fine, the text was just a bit too small to read
+> comfortably.  I think it would be good to be able to generate a
+> Kindle
+> compatible EPUB before we merge this.
 
-[  868.565200] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:230
-[  868.568246] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 4914, name: mount.nfs
-[  868.569626] preempt_count: 1, expected: 0
-[  868.570215] RCU nest depth: 0, expected: 0
-[  868.570809] Preemption disabled at:
-[  868.570810] [<0000000000000000>] 0x0
-[  868.571848] CPU: 1 PID: 4914 Comm: mount.nfs Kdump: loaded Tainted: G        W         5.16.0-rc5.2585cf9dfa #1
-[  868.573273] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
-[  868.574478] Call Trace:
-[  868.574844]  <TASK>
-[  868.575156]  dump_stack_lvl+0x34/0x44
-[  868.575692]  __might_resched.cold+0xd6/0x10f
-[  868.576308]  slab_pre_alloc_hook.constprop.0+0x89/0xf0
-[  868.577046]  __kmalloc_track_caller+0x72/0x420
-[  868.577684]  ? security_context_to_sid_core+0x48/0x2b0
-[  868.578569]  kmemdup_nul+0x22/0x50
-[  868.579108]  security_context_to_sid_core+0x48/0x2b0
-[  868.579854]  ? _nfs4_proc_pathconf+0xff/0x110 [nfsv4]
-[  868.580742]  ? nfs_reconfigure+0x80/0x80 [nfs]
-[  868.581355]  security_context_str_to_sid+0x36/0x40
-[  868.581960]  selinux_sb_mnt_opts_compat+0xb5/0x1e0
-[  868.582550]  ? nfs_reconfigure+0x80/0x80 [nfs]
-[  868.583098]  security_sb_mnt_opts_compat+0x2a/0x40
-[  868.583676]  nfs_compare_super+0x113/0x220 [nfs]
-[  868.584249]  ? nfs_try_mount_request+0x210/0x210 [nfs]
-[  868.584879]  sget_fc+0xb5/0x2f0
-[  868.585267]  nfs_get_tree_common+0x91/0x4a0 [nfs]
-[  868.585834]  vfs_get_tree+0x25/0xb0
-[  868.586241]  fc_mount+0xe/0x30
-[  868.586605]  do_nfs4_mount+0x130/0x380 [nfsv4]
-[  868.587160]  nfs4_try_get_tree+0x47/0xb0 [nfsv4]
-[  868.587724]  vfs_get_tree+0x25/0xb0
-[  868.588193]  do_new_mount+0x176/0x310
-[  868.588782]  __x64_sys_mount+0x103/0x140
-[  868.589388]  do_syscall_64+0x3b/0x90
-[  868.589935]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  868.590699] RIP: 0033:0x7f2b371c6c4e
-[  868.591239] Code: 48 8b 0d dd 71 0e 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d aa 71 0e 00 f7 d8 64 89 01 48
-[  868.593810] RSP: 002b:00007ffc83775d88 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-[  868.594691] RAX: ffffffffffffffda RBX: 00007ffc83775f10 RCX: 00007f2b371c6c4e
-[  868.595504] RDX: 0000555d517247a0 RSI: 0000555d51724700 RDI: 0000555d51724540
-[  868.596317] RBP: 00007ffc83775f10 R08: 0000555d51726890 R09: 0000555d51726890
-[  868.597162] R10: 0000000000000000 R11: 0000000000000246 R12: 0000555d51726890
-[  868.598005] R13: 0000000000000003 R14: 0000555d517246e0 R15: 0000555d511ac925
-[  868.598826]  </TASK>
+Thanks for merging the first three patches.
+As you have probably guessed I don't have a Kindle, although I did use
+Calibre to convert EPUB to:
 
-Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
----
- security/selinux/hooks.c | 33 +++++++++++++++++++--------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+AZW3 (KF8) - This was readable using Foliate and Calibre E-Book Viewer
+with no problems (however the links to the examples didn't work with
+the Calibre E-Book Viewer).
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 62d30c0a30c2..1afc06ffd969 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -611,10 +611,11 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
- 	return 0;
- }
- 
--static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
-+static int parse_sid(struct super_block *sb, const char *s, u32 *sid,
-+		     gfp_t gfp)
- {
- 	int rc = security_context_str_to_sid(&selinux_state, s,
--					     sid, GFP_KERNEL);
-+					     sid, gfp);
- 	if (rc)
- 		pr_warn("SELinux: security_context_str_to_sid"
- 		       "(%s) failed for (dev %s, type %s) errno=%d\n",
-@@ -685,7 +686,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 */
- 	if (opts) {
- 		if (opts->fscontext) {
--			rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
-+			rc = parse_sid(sb, opts->fscontext, &fscontext_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-@@ -694,7 +696,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= FSCONTEXT_MNT;
- 		}
- 		if (opts->context) {
--			rc = parse_sid(sb, opts->context, &context_sid);
-+			rc = parse_sid(sb, opts->context, &context_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-@@ -703,7 +706,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= CONTEXT_MNT;
- 		}
- 		if (opts->rootcontext) {
--			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
-+			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-@@ -712,7 +716,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= ROOTCONTEXT_MNT;
- 		}
- 		if (opts->defcontext) {
--			rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
-+			rc = parse_sid(sb, opts->defcontext, &defcontext_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-@@ -2702,14 +2707,14 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- 		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid);
-+		rc = parse_sid(sb, opts->fscontext, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
- 			return 1;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid);
-+		rc = parse_sid(sb, opts->context, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-@@ -2719,14 +2724,14 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- 		struct inode_security_struct *root_isec;
- 
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid);
-+		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
- 			return 1;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid);
-+		rc = parse_sid(sb, opts->defcontext, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-@@ -2749,14 +2754,14 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 		return 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid);
-+		rc = parse_sid(sb, opts->fscontext, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid);
-+		rc = parse_sid(sb, opts->context, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-@@ -2765,14 +2770,14 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 	if (opts->rootcontext) {
- 		struct inode_security_struct *root_isec;
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid);
-+		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid);
-+		rc = parse_sid(sb, opts->defcontext, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
--- 
-2.31.1
+MOBI - This was only readable using Calibre E-Book Viewer, however the
+tables lost their boarders.
+
+So this Calibre command converts to AZW3:
+
+ebook-convert SELinux_Notebook.epub SELinux_Notebook.azw3
+
+Will this work on your Kindle with no issues ?? The command format is
+described in [1] and there are many options.
+
+[1] https://manual.calibre-ebook.com/generated/en/ebook-convert.html
+
+
+> 
 
