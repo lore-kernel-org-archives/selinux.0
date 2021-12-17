@@ -2,107 +2,65 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71190C433F5
-	for <selinux@archiver.kernel.org>; Fri, 17 Dec 2021 21:08:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22104C433FE
+	for <selinux@archiver.kernel.org>; Fri, 17 Dec 2021 21:43:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236103AbhLQVIq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Dec 2021 16:08:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbhLQVIp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Dec 2021 16:08:45 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CDACC061574;
-        Fri, 17 Dec 2021 13:08:45 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id g14so12593796edb.8;
-        Fri, 17 Dec 2021 13:08:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=umich.edu; s=google-2016-06-03;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=eYNpYpBKR1zDDv4bK52aJuxv15cY9lkr4toXIMOz8FY=;
-        b=jISnVxyo1zZVEFpDhJlYcXthjoYXHbC5n+ko7/eTmjJXZImO8Wkk7Z3WRrD7jtgZLt
-         AYvvhc4FOHHjPrdETCQbQNlymFEHNgdIx8MtbSZDTF4/0ZdgWcJAmNNgX0h7p14r11jk
-         Q1i8uOLjLw2t9M2cp6a4tV8lYvQWP45zvzrl3tOc2A8EuqGnq1A8JXhYe0dvM8TS9JQn
-         SnqfAigtCjxyphRncO3yVul1KoK6rVu2jTRoaDKUIDmP5EYzz8EZAbeU6YafU1b1MO1z
-         yiB4bZJTY7ptQP9e+KxGi5QDsCqtOs8jy4OIg/td15VlK+Ry3a310pWoDGl/jP+JyGCl
-         VF0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=eYNpYpBKR1zDDv4bK52aJuxv15cY9lkr4toXIMOz8FY=;
-        b=bO7UkbF4fi8gNkO/SnO9zpE/8BDMwNYtAoI1z4pi1OkAf41pdXOopM5/7pFaqyzjdT
-         FwZO4MVoGAshqdhg7HajUG3yFuiENL7yjam++4BC9ObZo4FOofQgmo64QPsbDu3/3Th6
-         VqGUsbIopfmSwdUCkkbC/hkUH3ImkTLBNGTN6hvCYOur07eXOAw62toKkmWyxIZfxpjk
-         VTB0hyXKse5d3DFNXcyGqFgCvOCfcraW1sFRDjsP3mM8d1VNFRj3GNV9d3fC9E3+eMsw
-         Z2geJhNubmMstHNobx9RlrYM1gztAX+Q6+4HWx/5DIELTr3E2SXSe9bkp5n0nDKaeIQw
-         hFog==
-X-Gm-Message-State: AOAM533wkt8s/FdV88VndSKPgjBYvrsmnI9Iuo0uzErkVNISvv7QO0Lo
-        a70ta22yyA5VEeSslmKwUHcZ7lBM+k9E1OZXrwo=
-X-Google-Smtp-Source: ABdhPJxvptOuIWBSwczLxlVUcKo4BLqOeEWQy7lO3OL2bzt+p2LblmpD8W5s1JXOLXjEJYnduO3NC8FqkUDRm3tMh8w=
-X-Received: by 2002:a17:906:cec5:: with SMTP id si5mr4151841ejb.17.1639775323779;
- Fri, 17 Dec 2021 13:08:43 -0800 (PST)
-MIME-Version: 1.0
-References: <CAHC9VhS=WgqJgqpQq9J+0Pec9u8e1VnvGwqOimR54wm6TRptVA@mail.gmail.com>
- <CAHk-=wiiqvcA3noHDqJt2=ik5ikQbycdFQ7s=uq70FcGxWgXvg@mail.gmail.com>
-In-Reply-To: <CAHk-=wiiqvcA3noHDqJt2=ik5ikQbycdFQ7s=uq70FcGxWgXvg@mail.gmail.com>
-From:   Olga Kornievskaia <aglo@umich.edu>
-Date:   Fri, 17 Dec 2021 16:08:32 -0500
-Message-ID: <CAN-5tyEKGQu1Y=o8KfsX3q9NkP4XZRos5stwmrT=ZV1hr1fWrQ@mail.gmail.com>
+        id S229720AbhLQVnT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Dec 2021 16:43:19 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39662 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229893AbhLQVnT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Dec 2021 16:43:19 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF85E623E9;
+        Fri, 17 Dec 2021 21:43:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5E1D3C36AE2;
+        Fri, 17 Dec 2021 21:43:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639777398;
+        bh=I/BND2fPxe3b1WESDucx+tHLIhBolRhvSKQcU58rbFs=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=tXWhaTrMDf+85oNeMQRX7wKsGgDPSj9IKLoCRVxKa0UxxGWwII8lZCUw2zfMhYj31
+         RjLW0HyqS+sDdR3zGO7Jt1K4vjKMgQujmI/FTSn2y9R1OrDbIj7JEyqJD5WIgxkRNX
+         Gre6yTwKYofEG6ke+ZmQ3NQb40Z+2Q67J9Q/aR+5HvMxh6F/LhNV2SaP2R1hgaY8lZ
+         VqFfGKee7rSgw7Yn/CchvnmJaF2n23o5tb338lorDtZaj6hyczqQekJrHNRaQlosfc
+         1XuXMuzlAodwBM1Fo0koFbxlxbRwvmUqXc+75eOiEOh8Jp31Rl0MYioBqrGjABFaL/
+         ZBDCDUp4n6O+w==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 4C05360A27;
+        Fri, 17 Dec 2021 21:43:18 +0000 (UTC)
 Subject: Re: [GIT PULL] SELinux fixes for v5.16 (#3)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@netapp.com>,
-        Scott Mayhew <smayhew@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhS=WgqJgqpQq9J+0Pec9u8e1VnvGwqOimR54wm6TRptVA@mail.gmail.com>
+References: <CAHC9VhS=WgqJgqpQq9J+0Pec9u8e1VnvGwqOimR54wm6TRptVA@mail.gmail.com>
+X-PR-Tracked-List-Id: <linux-security-module.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhS=WgqJgqpQq9J+0Pec9u8e1VnvGwqOimR54wm6TRptVA@mail.gmail.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20211217
+X-PR-Tracked-Commit-Id: cc274ae7763d9700a56659f3228641d7069e7a3f
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: f1f05ef38382021c9279cca8e9589f16fdfd1f40
+Message-Id: <163977739830.30898.10474255826465226501.pr-tracker-bot@kernel.org>
+Date:   Fri, 17 Dec 2021 21:43:18 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 17, 2021 at 3:29 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Fri, Dec 17, 2021 at 12:02 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > Another small SELinux fix for v5.16 to ensure that we don't block on
-> > memory allocations while holding a spinlock.  This passes all our
-> > tests without problem, please merge this for the next v5.16-rcX
-> > release.
->
-> Ugh, pulled.
->
-> GFP_NOWAIT can very easily fail, so I'm not convinced your tests would
-> catch any of the interesting cases.
->
-> There is only one single caller of the new
-> security_sb_mnt_opts_compat() callback, and I get the feeling that
-> maybe we could parse the options first - into a temporary new
-> superblock, and then at "test" time (when we're under that sb_lock) it
-> could compare that temporary sb with pre-existing ones?
->
-> That would also avoid the need for doing that mount option parsing
-> over and over and over again for each sb on the 'fs_supers' lists.
->
-> I've pulled this, bit it does smell bad to me, and I think that
-> original commit 69c4a42d72eb ("lsm,selinux: add new hook to compare
-> new mount to an existing mount") and ec1ade6a0448 ("nfs: account for
-> selinux security context when deciding to share superblock") may not
-> have been fully thought out.
+The pull request you sent on Fri, 17 Dec 2021 15:02:34 -0500:
 
-Can you please elaborate on what is problematic with the two patches
-you've highlighted. NFS needs a way to determine if the security mount
-options have changed between the two mounts in order to determine if
-superblock can be shared.
+> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20211217
 
-> It may have *looked* like just adding that check  to
-> 'nfs_compare_super' was a simple and good idea, but it really doesn't
-> look great.
->
-> Adding a few more people to the cc.
->
->                  Linus
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/f1f05ef38382021c9279cca8e9589f16fdfd1f40
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
