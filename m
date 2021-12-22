@@ -2,90 +2,80 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CFA5C433F5
-	for <selinux@archiver.kernel.org>; Tue, 21 Dec 2021 20:00:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B2B9C433EF
+	for <selinux@archiver.kernel.org>; Wed, 22 Dec 2021 15:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbhLUUAb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Dec 2021 15:00:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39198 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231590AbhLUUAb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Dec 2021 15:00:31 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AC81C061574
-        for <selinux@vger.kernel.org>; Tue, 21 Dec 2021 12:00:30 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id y13so56367205edd.13
-        for <selinux@vger.kernel.org>; Tue, 21 Dec 2021 12:00:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=03b8JEx7x7sVo+n9oab25EgRuWaarR+EsSqM8sOFrHw=;
-        b=Sn5pOJcIZYwylNoW9QxLWWVoz1uz280iPGWpzGz9T05hU+ewx/kcEB19tv34VTkajb
-         GVVpG/v0EULqU3rvDdaNkALTjq5MmetyvPH7TR+LgE78VGK2cqKxrVyPRFD3VDolWDAO
-         jOG9En6q+L6QUe9OctpzUGij+CpPomiuH/PMiLE7q7MOq5vTcDjsTW0H33VzRLPBnTfg
-         YPELbnXG80tswnJs6HvAlEND7idJhQVMsVtChnBpCyVtuo/a9tw2Faqo5N31IMnKQlEG
-         sn0F7B1NttWzzF6KaYODHXaxq1mhw9IDglrFP/LxAxcSC0xK7pbTfjM3VgaEBMaerYke
-         feQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=03b8JEx7x7sVo+n9oab25EgRuWaarR+EsSqM8sOFrHw=;
-        b=ZxFMlOftWW1NZHKIDtrqHE8CBNolUoAJJ20RNlPFqA8thSpF+LW0qWRJ/kEI2OJXjI
-         T9mm1mdc55U6QXfuhNYlKcz7v53i1L2uVZzvHOO3mhTjwSLECVt2/gB7N3FRCJ3ABDtt
-         U5M7Hz2ip6iRouYQsDxntqNanoPcHZwaGFTWBE3LaHYu630Mn7xDwzfOkVBV8W7EtASN
-         EFL5amAvWqsN+OYyNPVrMtdtOYD7/lA/kZlui2ecWmhgz90HBdRASGP10+5aAQoyBifh
-         b6rV3BNWhgdlnE1ni94Ax41bKcMJpmnxLrYm2DjemnD8bM2YBTr7LXKqfce6TekKgMt7
-         E/kQ==
-X-Gm-Message-State: AOAM53030ySpSO8yPtuER5ijFAlP4NzAcsj5iFFP5nY67/GGl2avZh3Q
-        PTHVkuU7GWTB1wkWSoaETLn8si6bNlehN4x/D/ZUtjpknw==
-X-Google-Smtp-Source: ABdhPJxaRocodz/N9B9AknrzN7Yy7OTYHb/7Jdw1fyvi4ZS/QZRCDo/wGPm87pvloX1I/aLKRyq2ag6UlZZa/8hF7EI=
-X-Received: by 2002:aa7:ca17:: with SMTP id y23mr4738511eds.213.1640116829047;
- Tue, 21 Dec 2021 12:00:29 -0800 (PST)
+        id S235355AbhLVPko (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Dec 2021 10:40:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39126 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229608AbhLVPko (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Dec 2021 10:40:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1640187644;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Veglo43zqvGvy6aJUXRTMyUZbkyZg+ycQ7VyzgAjQ7g=;
+        b=HuDHoC3eOjCqfcVMgv1SkBFtVznp/BxEckn105FmGmJ0qSJc8H+JQva4dL9qaXm8RO7lYZ
+        Mo/b6ykT8yR4qHS0OnUcNLvXt8X0etxenUhei1uGfxBrr/4UEGJZ5D/M6KcbaG0gKw3aTH
+        3EchP/2N3jUYquUaf3yupKrC175QxU4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-274-QdYQ3ZIzMBSfFZxxEDECAQ-1; Wed, 22 Dec 2021 10:40:40 -0500
+X-MC-Unique: QdYQ3ZIzMBSfFZxxEDECAQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 91F221018722;
+        Wed, 22 Dec 2021 15:40:39 +0000 (UTC)
+Received: from localhost (unknown [10.40.192.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 23ABA1086483;
+        Wed, 22 Dec 2021 15:40:38 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Cc:     evverx@gmail.com
+Subject: Re: Granting myself access on oss-fuzz issue reports
+In-Reply-To: <CAJ2a_DcbGirAaWFZFuk6z4SsbVpZSY8WfeCDJKkVPWpzE3f1WA@mail.gmail.com>
+References: <CAJ2a_DcbGirAaWFZFuk6z4SsbVpZSY8WfeCDJKkVPWpzE3f1WA@mail.gmail.com>
+Date:   Wed, 22 Dec 2021 16:40:38 +0100
+Message-ID: <871r24ejgp.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20211210120359.394986-1-bernard@vivo.com>
-In-Reply-To: <20211210120359.394986-1-bernard@vivo.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 21 Dec 2021 15:00:18 -0500
-Message-ID: <CAHC9VhRq5P_Wd2VMW+eGx4_EYzmhW8DsnXdvhniyFGhjRA=Q-Q@mail.gmail.com>
-Subject: Re: [PATCH v3] security/selinux: fix potential memleak in error branch
-To:     Bernard Zhao <bernard@vivo.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 10, 2021 at 7:04 AM Bernard Zhao <bernard@vivo.com> wrote:
+Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
+
+> Hi,
 >
-> This patch try to fix potential memleak in error branch.
+> while working on the fuzzer for libsepol, regarding parsing binary
+> policies[1], and its oss-fuzz integration Evgeny Vereshchagin
+> suggested[2] adding my email address to the receiver list[3] of
+> oss-fuzz issue reports.
+> This would give me access to those issue reports, also to the secilc
+> fuzzer ones, and enable myself to provide potential fixes.
+> Would this be fine to you or do you prefer only maintainers having access?
 >
-> Signed-off-by: Bernard Zhao <bernard@vivo.com>
+
+
+While I'm not in the list, I think it makes sense to add your address
+there, especially if it helps you with the work you do for this project.
+
+Thanks!
+
+Petr
+
 >
-> Changes since V1:
-> *make it to be simpler to do the "(!s)" check before the "(!opts)" check.
->
-> Changes since v2:
-> *add *mnt_opts = NULL after kfree(opt) to avoid double free risk.
-> ---
->  security/selinux/hooks.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
+> [1]: https://github.com/SELinuxProject/selinux/pull/316
+> [2]: https://github.com/SELinuxProject/selinux/pull/316#issuecomment-9390=
+14453
+> [3]: https://github.com/google/oss-fuzz/blob/master/projects/selinux/proj=
+ect.yaml
 
-Hi Bernard,
-
-I apologize for the late response, this was lost in my inbox for some
-reason.  Regardless, this looks fine to me so I'm merging it into
-selinux/next; thanks for your help.
-
-However, Ondrej made a few good suggestions about further improvements
-that could be made up at the LSM layer, I think it would be nice if
-you could look into that too.
-
-Thanks again for your help.
-
--- 
-paul moore
-www.paul-moore.com
