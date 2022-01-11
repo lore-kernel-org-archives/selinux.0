@@ -2,324 +2,603 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 571C0C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB3D1C433F5
 	for <selinux@archiver.kernel.org>; Tue, 11 Jan 2022 22:08:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbiAKWIf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Jan 2022 17:08:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52276 "EHLO
+        id S1345504AbiAKWIg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Jan 2022 17:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345466AbiAKWIf (ORCPT
+        with ESMTP id S1345484AbiAKWIf (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 11 Jan 2022 17:08:35 -0500
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3DCC06173F
-        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 14:08:34 -0800 (PST)
-Received: by mail-qv1-xf2f.google.com with SMTP id fo11so851622qvb.4
-        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 14:08:34 -0800 (PST)
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3A0C06173F
+        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 14:08:35 -0800 (PST)
+Received: by mail-qk1-x732.google.com with SMTP id 82so395738qki.10
+        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 14:08:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=L9s0NWCB2Ae/oAvy9vFBhtEe4hpmoS9IxE/3ttjkPVo=;
-        b=XeYs7yoeNuJgsUR32ukl97bfUtyHI+datupiWFg6xahDrvbKBa3MLl4ndZr9T0n28m
-         DFx3axyJ8Yp4Jpoit0Qu1a2Pr7mBDLS0xEJGAVRoA/BDW/d6RLF1SG1g2Qm93693TGha
-         rbs4d/jCIcsEeZP3rKs9xUZb+J+1mx3LKuegXXW2AL9/bt3OKKFQ5ctR7KNBQv2mM3DV
-         cRxjLhIj0Js7TGB3TtlPZdaOP8zs49ogeziSPooubjtvj4B3QrwRdxBNV/bqe2GSpssV
-         q7QjXH3Q0VklSVJMAe2/+kq5vhwGfV7KuURR+Wqv6ljgfRoXAcRF61xAKioCKGqmNCtr
-         Qtmg==
+        bh=UYhyCylSYakgFJJy92qkRmLJ3aXZGxZRlM/FcqiHFm8=;
+        b=qeTEEiaoooVoMwbhvz3Rjgflp1DH5EE3Fl2ptm1imLNfiaTM2yu62Ba3BvBjLANQp8
+         yC94EVjpVNWmdLjZ+80zKNt4t9qXN2Vrzo+0cuU3hRY29JCC3r3WUiQfKPSH56RapPLc
+         cxe9LkqBaEJA9jbri3SIC5E23OaGfPz9ibN7pXu/f98t7iTYcILmXyq69jm43kx7vqB9
+         2hcSYGbSGg52c7AOpBtyIJjvzcn15O/cYj/fdVMialA53uQAJEwr2XMDsbNIo4FnTsjQ
+         DVpxnChFwdjnZgBUGkMtdD777+pwHM67B0yOHAt2G2P2PxqbEpWxS+SLEs1oCcVmRIsk
+         jEmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=L9s0NWCB2Ae/oAvy9vFBhtEe4hpmoS9IxE/3ttjkPVo=;
-        b=mxg8gEwNd6FZnG+i6slxyeHfo0BlsOcItsaJ0f2wpofdR5Te9C1znecd5Q4qzPvr3e
-         7Qa5CLupVaM1MAuzTv20cBdJhpUomKopTrmaxHCfNzPVO1Dx/snDQr08SWQHyz8vSI+w
-         ml3tfS66BjJg9IKu4rraZVTw1b8nWO6FRN3QjHrEKXljFQZFWjufOyxN7KSM8TAEEFG4
-         URXS/m2/J4VxS5I1intv+ThgoPvpOOHx9McFK/+51eJpcPd3j++swrk09zCIKk9eBsau
-         41DHqybJi4Y1Rs77jUzOiyEieA6AKJLE0019PupZtmZzUR5c9bQK+k18t0ShBKHiuhE7
-         VVMg==
-X-Gm-Message-State: AOAM530BLT5kWsPfla4wMqeYG3Uu+CPpHU2ConZ6ZkQt4Dku0om79O0s
-        cqVNGq1dmLd84SH6L8oN6z0hfE9ZypA=
-X-Google-Smtp-Source: ABdhPJzCn+dF4MeTZtonbYUFALGcIYv1NmYS3eWp/gRtDcIb47Fl14ms+ABNZBgpZywQDKiwGVlvsw==
-X-Received: by 2002:ad4:5be5:: with SMTP id k5mr5636165qvc.124.1641938913856;
-        Tue, 11 Jan 2022 14:08:33 -0800 (PST)
+        bh=UYhyCylSYakgFJJy92qkRmLJ3aXZGxZRlM/FcqiHFm8=;
+        b=WHW4bkSdrHe90f73/vRRLxQnSOTgZKzpzi3jhIzDNVThFX3pNfGnczakOuQgf9fEoa
+         BuS2l34aYTxBzjYeDICt6vgHO9wdFI3ijInRVlK6KfIg0R2xPiCWbJLlxXClewPgPDE4
+         jgQwLFrppFdgcDvrpRTktu2z/9KtId76aeF1rlk1NLqlHECF3T3F8VlESBN/MC4KLkOk
+         qc7hZwMxzUpaJpLXbN8g9ARN9GTz4IoPKvYMydEZDl1jWgUBntVOD6u5scdHRZutk/iy
+         rx1kWqyPhNjI91pk5Yhexftig27TwwTQiBSiB33zEUa7LLgo4gnTi/ij2FfNASGExFg7
+         lPmg==
+X-Gm-Message-State: AOAM531rhXE12xmFimFhYE3zLOPDyxjgisMnqv5CKeEnhUkItOv5XHpc
+        gpAJS8+spf8eAsb038ChUmK/hxmTOHY=
+X-Google-Smtp-Source: ABdhPJzKvR4AfdsH9ZjMIyK2c4XvqlM2BKtSnSkmfYGnFiwjXb2ZkwV2Cjn5WhPEhVntYp2Nskx+2A==
+X-Received: by 2002:a05:620a:136c:: with SMTP id d12mr2285036qkl.688.1641938914372;
+        Tue, 11 Jan 2022 14:08:34 -0800 (PST)
 Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
         by smtp.gmail.com with ESMTPSA id t3sm8211068qtc.7.2022.01.11.14.08.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jan 2022 14:08:33 -0800 (PST)
+        Tue, 11 Jan 2022 14:08:34 -0800 (PST)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     cgzones@googlemail.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/2 RFC] libsepol: Add not self support for neverallow rules
-Date:   Tue, 11 Jan 2022 17:08:22 -0500
-Message-Id: <20220111220823.596065-2-jwcart2@gmail.com>
+Subject: [PATCH 2/2 RFC] libsepol/cil: Add notself and minusself support to CIL
+Date:   Tue, 11 Jan 2022 17:08:23 -0500
+Message-Id: <20220111220823.596065-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220111220823.596065-1-jwcart2@gmail.com>
 References: <20220111220823.596065-1-jwcart2@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add not self support for neverallow rules.
+Like "self", both of these reserved words can be used as a target
+in an access vector rule. "notself" means all types other than
+the source type. "minuself" is meant to be used with an attribute
+and its use results in the rule being expanded with each type of
+the attribute being used as the source type with each of the other
+types being used as the target type. Using "minusself" with just
+a type will result in no rule.
 
 Example 1
-  allow TYPE1 TYPE1 : CLASS1 PERM1; # Rule 1
-  allow TYPE1 TYPE2 : CLASS1 PERM1; # Rule 2
-  neverallow TYPE1 ~self : CLASS1 PERM1;
+  (allow TYPE1 notself (CLASS (PERM)))
 
-Rule 1 is not a violation of the neverallow. Rule 2 is.
+This rule is expanded to a number of rules with TYPE1 as the source
+and every type except for TYPE1 as the target.
 
 Example 2
-  allow TYPE1 TYPE1 : CLASS2 PERM2; # Rule 1
-  allow TYPE1 TYPE2 : CLASS2 PERM2; # Rule 2
-  allow TYPE1 TYPE3 : CLASS2 PERM2; # Rule 3
-  neverallow ATTR1 { ATTR2 -self } : CLASS2 PERM2;
+  (allow ATTR1 notself (CLASS (PERM)))
 
-Assuming TYPE1 has attribute ATTR1 and TYPE1 and TYPE2 have
-attribute ATTR2, then rule 1 and 3 are not violations of the
-neverallow while rule 2 is. Rule 3 is not a violation because
-TYPE3 does not have attribute ATTR2.
+Like Example 1, this rule will be expanded to each type in ATTR1
+being the source with every type except for the type used as the
+source being the target.
 
-Based on patch by Christian Göttsche <cgzones@googlemail.com>
+Example 3
+  (allow TYPE1 minusself (CLASS (PERM)))
+
+This expands to no rule.
+
+Example 4
+  (allow ATTR1 minusself (CLASS (PERM)))
+
+Like Example 2, but the target types will be limited to the types
+in the attribute ATTR1 instead of all types. So if ATTR1 has the
+type t1, t2, and t3, then this rule expands to the following rules.
+  (allow t1 t2 (CLASS (PERM)))
+  (allow t1 t3 (CLASS (PERM)))
+  (allow t2 t1 (CLASS (PERM)))
+  (allow t2 t3 (CLASS (PERM)))
+  (allow t3 t1 (CLASS (PERM)))
+  (allow t3 t2 (CLASS (PERM)))
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/include/sepol/policydb/policydb.h |   3 +-
- libsepol/src/assertion.c                   | 144 +++++++++++++++++----
- 2 files changed, 120 insertions(+), 27 deletions(-)
+ libsepol/cil/src/cil.c             |  12 ++
+ libsepol/cil/src/cil_binary.c      |  91 ++++++++++++-
+ libsepol/cil/src/cil_build_ast.c   |  10 +-
+ libsepol/cil/src/cil_find.c        | 206 +++++++++++++++++++++++++----
+ libsepol/cil/src/cil_internal.h    |   4 +
+ libsepol/cil/src/cil_resolve_ast.c |   4 +
+ libsepol/cil/src/cil_verify.c      |   3 +-
+ 7 files changed, 300 insertions(+), 30 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 4bf9f05d..11637fe8 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -285,7 +285,8 @@ typedef struct avrule {
- #define AVRULE_XPERMS	(AVRULE_XPERMS_ALLOWED | AVRULE_XPERMS_AUDITALLOW | \
- 				AVRULE_XPERMS_DONTAUDIT | AVRULE_XPERMS_NEVERALLOW)
- 	uint32_t specified;
--#define RULE_SELF 1
-+#define RULE_SELF       (1U << 0)
-+#define RULE_NOTSELF    (1U << 1)
- 	uint32_t flags;
- 	type_set_t stypes;
- 	type_set_t ttypes;
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index 44c20362..55e188be 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -215,6 +215,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	ebitmap_node_t *snode, *tnode;
- 	unsigned int i, j;
- 	const int is_avrule_self = (avrule->flags & RULE_SELF) != 0;
-+	const int is_avrule_notself = (avrule->flags & RULE_NOTSELF) != 0;
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 38edcf8e..d807a2c4 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -84,6 +84,8 @@ char *CIL_KEY_CONS_INCOMP;
+ char *CIL_KEY_CONDTRUE;
+ char *CIL_KEY_CONDFALSE;
+ char *CIL_KEY_SELF;
++char *CIL_KEY_NOTSELF;
++char *CIL_KEY_MINUSSELF;
+ char *CIL_KEY_OBJECT_R;
+ char *CIL_KEY_STAR;
+ char *CIL_KEY_TCP;
+@@ -253,6 +255,8 @@ static void cil_init_keys(void)
+ 	CIL_KEY_CONDTRUE = cil_strpool_add("true");
+ 	CIL_KEY_CONDFALSE = cil_strpool_add("false");
+ 	CIL_KEY_SELF = cil_strpool_add("self");
++	CIL_KEY_NOTSELF = cil_strpool_add("notself");
++	CIL_KEY_MINUSSELF = cil_strpool_add("minusself");
+ 	CIL_KEY_OBJECT_R = cil_strpool_add("object_r");
+ 	CIL_KEY_STAR = cil_strpool_add("*");
+ 	CIL_KEY_UDP = cil_strpool_add("udp");
+@@ -430,6 +434,12 @@ void cil_db_init(struct cil_db **db)
+ 	cil_type_init(&(*db)->selftype);
+ 	(*db)->selftype->datum.name = CIL_KEY_SELF;
+ 	(*db)->selftype->datum.fqn = CIL_KEY_SELF;
++	cil_type_init(&(*db)->notselftype);
++	(*db)->notselftype->datum.name = CIL_KEY_NOTSELF;
++	(*db)->notselftype->datum.fqn = CIL_KEY_NOTSELF;
++	cil_type_init(&(*db)->minusselftype);
++	(*db)->minusselftype->datum.name = CIL_KEY_MINUSSELF;
++	(*db)->minusselftype->datum.fqn = CIL_KEY_MINUSSELF;
+ 	(*db)->num_types_and_attrs = 0;
+ 	(*db)->num_classes = 0;
+ 	(*db)->num_types = 0;
+@@ -483,6 +493,8 @@ void cil_db_destroy(struct cil_db **db)
+ 	cil_list_destroy(&(*db)->names, CIL_TRUE);
  
- 	if ((k->specified & AVTAB_ALLOWED) == 0)
- 		return 0;
-@@ -234,19 +235,31 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	if (ebitmap_is_empty(&src_matches))
- 		goto exit;
+ 	cil_destroy_type((*db)->selftype);
++	cil_destroy_type((*db)->notselftype);
++	cil_destroy_type((*db)->minusselftype);
  
--	rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
--	if (rc < 0)
--		goto oom;
--
--	if (is_avrule_self) {
--		rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
-+	if (is_avrule_notself) {
-+		if (ebitmap_is_empty(&avrule->ttypes.types)) {
-+			/* avrule tgt is of the form ~self */
-+			rc = ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->target_type -1]);
-+		} else {
-+			/* avrule tgt is of the form {ATTR -self} */
-+			rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
-+		}
-+		if (rc)
-+			goto oom;
-+	} else {
-+		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
- 		if (rc < 0)
- 			goto oom;
- 
--		if (!ebitmap_is_empty(&self_matches)) {
--			rc = ebitmap_union(&tgt_matches, &self_matches);
-+		if (is_avrule_self) {
-+			rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
- 			if (rc < 0)
- 				goto oom;
-+
-+			if (!ebitmap_is_empty(&self_matches)) {
-+				rc = ebitmap_union(&tgt_matches, &self_matches);
-+				if (rc < 0)
-+					goto oom;
-+			}
+ 	cil_strpool_destroy();
+ 	free((*db)->val_to_type);
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 4ac8ce8d..f26bcf66 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -1437,6 +1437,46 @@ int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_a
+ 			}
  		}
- 	}
- 
-@@ -264,6 +277,8 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 			ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
- 				if (is_avrule_self && i != j)
- 					continue;
-+				if (is_avrule_notself && i == j)
-+					continue;
- 				if (avrule->specified == AVRULE_XPERMS_NEVERALLOW) {
- 					a->errors += report_assertion_extended_permissions(handle,p, avrule,
- 											i, j, cp, perms, k, avtab);
-@@ -375,6 +390,7 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
- 	unsigned int i, j;
- 	ebitmap_node_t *snode, *tnode;
- 	const int is_avrule_self = (avrule->flags & RULE_SELF) != 0;
-+	const int is_avrule_notself = (avrule->flags & RULE_NOTSELF) != 0;
- 	int rc;
- 
- 	ebitmap_init(&src_matches);
-@@ -391,20 +407,31 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
- 		goto exit;
- 	}
- 
--	rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types,
--			 &p->attr_type_map[k->target_type -1]);
--	if (rc < 0)
--		goto oom;
--
--	if (is_avrule_self) {
--		rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
-+	if (is_avrule_notself) {
-+		if (ebitmap_is_empty(&avrule->ttypes.types)) {
-+			/* avrule tgt is of the form ~self */
-+			rc = ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->target_type -1]);
-+		} else {
-+			/* avrule tgt is of the form {ATTR -self} */
-+			rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
+ 		ebitmap_destroy(&src_bitmap);
++	} else if (tgt->fqn == CIL_KEY_NOTSELF) {
++		rc = __cil_expand_type(src, &src_bitmap);
++		if (rc != SEPOL_OK) {
++			goto exit;
 +		}
-+		if (rc < 0)
-+			goto oom;
-+	} else {
-+		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
- 		if (rc < 0)
- 			goto oom;
- 
--		if (!ebitmap_is_empty(&self_matches)) {
--			rc = ebitmap_union(&tgt_matches, &self_matches);
-+		if (is_avrule_self) {
-+			rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
- 			if (rc < 0)
- 				goto oom;
 +
-+			if (!ebitmap_is_empty(&self_matches)) {
-+				rc = ebitmap_union(&tgt_matches, &self_matches);
-+				if (rc < 0)
-+					goto oom;
++		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
++			src = DATUM(db->val_to_type[s]);
++			for (t = 0; t < (unsigned int)db->num_types; t++) {
++				if (s != t) {
++					tgt = DATUM(db->val_to_type[t]);
++					rc = __cil_avrule_expand(pdb, kind, src, tgt, classperms, cond_node, cond_flavor);
++					if (rc != SEPOL_OK) {
++						ebitmap_destroy(&src_bitmap);
++						goto exit;
++					}
++				}
 +			}
- 		}
- 	}
- 
-@@ -417,6 +444,8 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
- 		ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
- 			if (is_avrule_self && i != j)
- 				continue;
-+			if (is_avrule_notself && i == j)
-+				continue;
- 			if (check_assertion_extended_permissions_avtab(avrule, avtab, i, j, k, p)) {
- 				rc = 1;
++		}
++		ebitmap_destroy(&src_bitmap);
++	} else if (tgt->fqn == CIL_KEY_MINUSSELF) {
++		rc = __cil_expand_type(src, &src_bitmap);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
++
++		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
++			src = DATUM(db->val_to_type[s]);
++			ebitmap_for_each_positive_bit(&src_bitmap, tnode, t) {
++				if (s != t) {
++					tgt = DATUM(db->val_to_type[t]);
++					rc = __cil_avrule_expand(pdb, kind, src, tgt, classperms, cond_node, cond_flavor);
++					if (rc != SEPOL_OK) {
++						ebitmap_destroy(&src_bitmap);
++						goto exit;
++					}
++				}
++			}
++		}
++		ebitmap_destroy(&src_bitmap);
+ 	} else {
+ 		int expand_src = __cil_should_expand_attribute(db, src);
+ 		int expand_tgt = __cil_should_expand_attribute(db, tgt);
+@@ -1793,10 +1833,51 @@ int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, struct ci
+ 			src = DATUM(db->val_to_type[s]);
+ 			rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, src, cil_avrulex->perms.x.permx, args);
+ 			if (rc != SEPOL_OK) {
++				ebitmap_destroy(&src_bitmap);
  				goto exit;
-@@ -434,6 +463,61 @@ exit:
+ 			}
+ 		}
+ 		ebitmap_destroy(&src_bitmap);
++	} else if (tgt->fqn == CIL_KEY_NOTSELF) {
++		rc = __cil_expand_type(src, &src_bitmap);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
++
++		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
++			src = DATUM(db->val_to_type[s]);
++			for (t = 0; t < (unsigned int)db->num_types; t++) {
++				if (s != t) {
++					tgt = DATUM(db->val_to_type[t]);
++					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++					if (rc != SEPOL_OK) {
++						ebitmap_destroy(&src_bitmap);
++						goto exit;
++					}
++				}
++			}
++		}
++		ebitmap_destroy(&src_bitmap);
++	} else if (tgt->fqn == CIL_KEY_MINUSSELF) {
++		rc = __cil_expand_type(src, &src_bitmap);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
++
++		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
++			src = DATUM(db->val_to_type[s]);
++			ebitmap_for_each_positive_bit(&src_bitmap, tnode, t) {
++				if (s != t) {
++					tgt = DATUM(db->val_to_type[t]);
++					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++					if (rc != SEPOL_OK) {
++						ebitmap_destroy(&src_bitmap);
++						goto exit;
++					}
++				}
++			}
++		}
++		ebitmap_destroy(&src_bitmap);
+ 	} else {
+ 		int expand_src = __cil_should_expand_attribute(db, src);
+ 		int expand_tgt = __cil_should_expand_attribute(db, tgt);
+@@ -4705,8 +4786,16 @@ static int cil_check_neverallow(const struct cil_db *db, policydb_t *pdb, struct
+ 
+ 	if (tgt->fqn == CIL_KEY_SELF) {
+ 		rule->flags = RULE_SELF;
++	} else if (tgt->fqn == CIL_KEY_NOTSELF) {
++		rule->flags = RULE_NOTSELF;
++	} else if (tgt->fqn == CIL_KEY_MINUSSELF) {
++		rule->flags = RULE_NOTSELF;
++		rc = __cil_add_sepol_type(pdb, db, cil_rule->src, &rule->ttypes.types);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
+ 	} else {
+-		rc = __cil_add_sepol_type(pdb, db, cil_rule->tgt, &rule->ttypes.types);
++		rc = __cil_add_sepol_type(pdb, db, tgt, &rule->ttypes.types);
+ 		if (rc != SEPOL_OK) {
+ 			goto exit;
+ 		}
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 5f9392d1..70c91a91 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -3126,9 +3126,13 @@ int cil_gen_aliasactual(struct cil_db *db, struct cil_tree_node *parse_current,
+ 		goto exit;
+ 	}
+ 
+-	if ((flavor == CIL_TYPEALIAS && parse_current->next->data == CIL_KEY_SELF) || parse_current->next->next->data == CIL_KEY_SELF) {
+-		cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_KEY_SELF);
+-		rc = SEPOL_ERR;
++	rc = cil_verify_name(db, parse_current->next->data, flavor);
++	if (rc != SEPOL_OK) {
++		goto exit;
++	}
++
++	rc = cil_verify_name(db, parse_current->next->next->data, flavor);
++	if (rc != SEPOL_OK) {
+ 		goto exit;
+ 	}
+ 
+diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
+index 3898725f..408d47e5 100644
+--- a/libsepol/cil/src/cil_find.c
++++ b/libsepol/cil/src/cil_find.c
+@@ -115,12 +115,13 @@ static int cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, str
+ 
+ /* s1 is the src type that is matched with a self
+  * s2, and t2 are the source and type of the other rule
++ * Assumes there is a match between s1 and s2
+  */
+ static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
+ {
+ 	int rc;
+-	struct cil_tree_node *n1 = NODE(s1);
+-	if (n1->flavor != CIL_TYPEATTRIBUTE) {
++
++	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
+ 		rc = cil_type_match_any(s1, t2);
+ 	} else {
+ 		struct cil_typeattribute *a = (struct cil_typeattribute *)s1;
+@@ -129,20 +130,149 @@ static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_dat
+ 		rc = cil_type_matches(&map, s2, t2);
+ 		if (rc < 0) {
+ 			ebitmap_destroy(&map);
+-			goto exit;
++			return rc;
+ 		}
+-		if (map.node == NULL) {
+-			rc = CIL_FALSE;
+-			goto exit;
++		if (!ebitmap_startnode(&map)) {
++			ebitmap_destroy(&map);
++			return CIL_FALSE;
+ 		}
+ 		rc = ebitmap_match_any(&map, a->types);
+ 		ebitmap_destroy(&map);
+ 	}
+ 
+-exit:
  	return rc;
  }
  
-+static int check_assertion_notself_match(avtab_key_t *k, avrule_t *avrule, policydb_t *p)
++/* s1 is the src type that is matched with a notself
++ * s2 and t2 are the source and type of the other rule
++ * Assumes there is a match between s1 and s2
++ */
++static int cil_notself_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
 +{
-+	ebitmap_t src_matches, tgt_matches;
-+	unsigned int num_src_matches, num_tgt_matches;
 +	int rc;
++	ebitmap_node_t *snode, *tnode;
++	unsigned int s,t;
 +
-+	ebitmap_init(&src_matches);
-+	ebitmap_init(&tgt_matches);
-+
-+	rc = ebitmap_and(&src_matches, &avrule->stypes.types, &p->attr_type_map[k->source_type - 1]);
-+	if (rc < 0)
-+		goto oom;
-+
-+	if (ebitmap_is_empty(&avrule->ttypes.types)) {
-+		/* avrule tgt is of the form ~self */
-+		rc = ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->target_type - 1]);
++	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
++		struct cil_type *ts1 = (struct cil_type *)s1;
++		if (FLAVOR(t2) != CIL_TYPEATTRIBUTE) {
++			struct cil_type *tt2 = (struct cil_type *)t2;
++			if (ts1->value != tt2->value) {
++				return CIL_TRUE;
++			}
++		} else {
++			struct cil_typeattribute *at2 = (struct cil_typeattribute *)t2;
++			ebitmap_for_each_positive_bit(at2->types, tnode, t) {
++				if (t != (unsigned int)ts1->value) {
++					return CIL_TRUE;
++				}
++			}
++		}
 +	} else {
-+		/* avrule tgt is of the form {ATTR -self} */
-+		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
-+	}
-+	if (rc < 0)
-+		goto oom;
-+
-+	num_src_matches = ebitmap_cardinality(&src_matches);
-+	num_tgt_matches = ebitmap_cardinality(&tgt_matches);
-+	if (num_src_matches == 0 || num_tgt_matches == 0) {
-+		rc = 0;
-+		goto nomatch;
-+	}
-+	if (num_src_matches == 1 && num_tgt_matches == 1) {
-+		ebitmap_t matches;
-+		unsigned int num_matches;
-+		rc = ebitmap_and(&matches, &src_matches, &tgt_matches);
++		ebitmap_t smap;
++		ebitmap_init(&smap);
++		rc = cil_type_matches(&smap, s1, s2);
 +		if (rc < 0) {
-+			ebitmap_destroy(&matches);
-+			goto oom;
++			ebitmap_destroy(&smap);
++			return rc;
 +		}
-+		num_matches = ebitmap_cardinality(&matches);
-+		ebitmap_destroy(&matches);
-+		if (num_matches == 1) {
-+			/* The only non-match is of the form TYPE TYPE */
-+			rc = 0;
-+			goto nomatch;
++		if (!ebitmap_startnode(&smap)) {
++			ebitmap_destroy(&smap);
++			return CIL_FALSE;
 +		}
++		if (FLAVOR(t2) != CIL_TYPEATTRIBUTE) {
++			struct cil_type *tt2 = (struct cil_type *)t2;
++			ebitmap_for_each_positive_bit(&smap, snode, s) {
++				if (s != (unsigned int)tt2->value) {
++					ebitmap_destroy(&smap);
++					return CIL_TRUE;
++				}
++			}
++		} else {
++			struct cil_typeattribute *at2 = (struct cil_typeattribute *)t2;
++			ebitmap_for_each_positive_bit(&smap, snode, s) {
++				ebitmap_for_each_positive_bit(at2->types, tnode, t) {
++					if (s != t) {
++						ebitmap_destroy(&smap);
++						return CIL_TRUE;
++					}
++				}
++			}
++		}
++		ebitmap_destroy(&smap);
 +	}
 +
-+	rc = 1;
-+
-+oom:
-+nomatch:
-+	ebitmap_destroy(&src_matches);
-+	ebitmap_destroy(&tgt_matches);
-+	return rc;
++	return CIL_FALSE;
 +}
 +
- static int check_assertion_self_match(avtab_key_t *k, avrule_t *avrule, policydb_t *p)
- {
- 	ebitmap_t src_matches;
-@@ -477,16 +561,24 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
- 	if (!ebitmap_match_any(&avrule->stypes.types, &p->attr_type_map[k->source_type - 1]))
- 		goto nomatch;
- 
--	/* neverallow may have tgts even if it uses SELF */
--	if (!ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1])) {
--		if (avrule->flags == RULE_SELF) {
--			rc = check_assertion_self_match(k, avrule, p);
--			if (rc < 0)
--				goto oom;
--			if (rc == 0)
--				goto nomatch;
--		} else {
-+	if (avrule->flags & RULE_NOTSELF) {
-+		rc = check_assertion_notself_match(k, avrule, p);
-+		if (rc < 0)
-+			goto oom;
-+		if (rc == 0)
- 			goto nomatch;
++/* s1 is the src type that is matched with a minusself
++ * s2, and t2 are the source and type of the other rule
++ * Assumes there is a match between s1 and s2
++ */
++static int cil_minusself_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
++{
++	int rc;
++
++	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
++		return CIL_FALSE;
 +	} else {
-+		/* neverallow may have tgts even if it uses SELF */
-+		if (!ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1])) {
-+			if (avrule->flags == RULE_SELF) {
-+				rc = check_assertion_self_match(k, avrule, p);
-+				if (rc < 0)
-+					goto oom;
-+				if (rc == 0)
-+					goto nomatch;
-+			} else {
-+				goto nomatch;
++		ebitmap_t smap, tmap;
++		ebitmap_node_t *snode, *tnode;
++		unsigned int s,t;
++
++		ebitmap_init(&smap);
++		rc = cil_type_matches(&smap, s1, s2);
++		if (rc < 0) {
++			ebitmap_destroy(&smap);
++			return rc;
++		}
++
++		ebitmap_init(&tmap);
++		rc = cil_type_matches(&tmap, s1, t2);
++		if (rc < 0) {
++			ebitmap_destroy(&smap);
++			ebitmap_destroy(&tmap);
++			return rc;
++		}
++
++		if (!ebitmap_startnode(&smap) || !ebitmap_startnode(&tmap)) {
++			ebitmap_destroy(&smap);
++			ebitmap_destroy(&tmap);
++			return CIL_FALSE;
++		}
++
++		ebitmap_for_each_positive_bit(&smap, snode, s) {
++			ebitmap_for_each_positive_bit(&tmap, tnode, t) {
++				if (s != t) {
++					ebitmap_destroy(&smap);
++					ebitmap_destroy(&tmap);
++					return CIL_TRUE;
++				}
 +			}
++		}
++
++		ebitmap_destroy(&smap);
++		ebitmap_destroy(&tmap);
++	}
++
++	return CIL_FALSE;
++}
++
++/* s2 is the src type that is matched with a minusself
++ * Assumes there is a match between s1 and s2
++ * s1 is not needed, since it is known that there is a match
++ */
++static int cil_notself_minusself_match_any(struct cil_symtab_datum *s2)
++{
++	if (FLAVOR(s2) == CIL_TYPEATTRIBUTE) {
++		struct cil_typeattribute *as2 = (struct cil_typeattribute *)s2;
++		if (ebitmap_cardinality(as2->types) > 1) {
++			return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
++
+ static int cil_classperms_match_any(struct cil_classperms *cp1, struct cil_classperms *cp2)
+ {
+ 	struct cil_class *c1 = cp1->class;
+@@ -308,30 +438,56 @@ int cil_find_matching_avrule(struct cil_tree_node *node, struct cil_avrule *avru
+ 
+ 	if (!cil_type_match_any(s1, s2)) goto exit;
+ 
+-	if (t1->fqn != CIL_KEY_SELF && t2->fqn != CIL_KEY_SELF) {
+-		if (!cil_type_match_any(t1, t2)) goto exit;
+-	} else {
+-		if (t1->fqn == CIL_KEY_SELF && t2->fqn == CIL_KEY_SELF) {
++	if (t1->fqn == CIL_KEY_SELF) {
++		if (t2->fqn == CIL_KEY_SELF) {
+ 			/* The earlier check whether s1 and s2 matches is all that is needed */
+-		} else if (t1->fqn == CIL_KEY_SELF) {
++			rc = CIL_TRUE;
++		} else if (t2->fqn == CIL_KEY_NOTSELF || t2->fqn == CIL_KEY_MINUSSELF) {
++			rc = CIL_FALSE;
++		} else {
+ 			rc = cil_self_match_any(s1, s2, t2);
+-			if (rc < 0) {
+-				goto exit;
+-			} else if (rc == CIL_FALSE) {
+-				rc = SEPOL_OK;
+-				goto exit;
+-			}
+-		} else if (t2->fqn == CIL_KEY_SELF) {
++		}
++	} else if (t1->fqn == CIL_KEY_NOTSELF) {
++		if (t2->fqn == CIL_KEY_SELF) {
++			rc = CIL_FALSE;
++		} else if (t2->fqn == CIL_KEY_NOTSELF) {
++			/* The earlier check whether s1 and s2 matches is all that is needed */
++			rc = CIL_TRUE;
++		} else if (t2->fqn == CIL_KEY_MINUSSELF) {
++			rc = cil_notself_minusself_match_any(s2);
++		} else {
++			rc = cil_notself_match_any(s1, s2, t2);
++		}
++	} else if (t1->fqn == CIL_KEY_MINUSSELF) {
++		if (t2->fqn == CIL_KEY_SELF) {
++			rc = CIL_FALSE;
++		} else if (t2->fqn == CIL_KEY_NOTSELF) {
++			rc = cil_notself_minusself_match_any(s1);
++		} else if (t2->fqn == CIL_KEY_MINUSSELF) {
++			/* The earlier check whether s1 and s2 matches is all that is needed */
++			rc = CIL_TRUE;
++		} else {
++			rc = cil_minusself_match_any(s1, s2, t2);
++		}
++	} else {
++		if (t2->fqn == CIL_KEY_SELF) {
+ 			rc = cil_self_match_any(s2, s1, t1);
+-			if (rc < 0) {
+-				goto exit;
+-			} else if (rc == CIL_FALSE) {
+-				rc = SEPOL_OK;
+-				goto exit;
+-			}
++		} else if (t2->fqn == CIL_KEY_NOTSELF) {
++			rc = cil_notself_match_any(s2, s1, t1);
++		} else if (t2->fqn == CIL_KEY_MINUSSELF) {
++			rc = cil_minusself_match_any(s2, s1, t1);
++		} else {
++			rc = cil_type_match_any(t1, t2);
  		}
  	}
  
++	if (rc < 0) {
++		goto exit;
++	} else if (rc == CIL_FALSE) {
++		rc = SEPOL_OK;
++		goto exit;
++	}
++
+ 	if (!target->is_extended) {
+ 		if (cil_classperms_list_match_any(avrule->perms.classperms, target->perms.classperms)) {
+ 			cil_list_append(matching, CIL_NODE, node);
+diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
+index a7604762..d293b9ba 100644
+--- a/libsepol/cil/src/cil_internal.h
++++ b/libsepol/cil/src/cil_internal.h
+@@ -101,6 +101,8 @@ extern char *CIL_KEY_CONS_INCOMP;
+ extern char *CIL_KEY_CONDTRUE;
+ extern char *CIL_KEY_CONDFALSE;
+ extern char *CIL_KEY_SELF;
++extern char *CIL_KEY_NOTSELF;
++extern char *CIL_KEY_MINUSSELF;
+ extern char *CIL_KEY_OBJECT_R;
+ extern char *CIL_KEY_STAR;
+ extern char *CIL_KEY_TCP;
+@@ -289,6 +291,8 @@ struct cil_db {
+ 	struct cil_tree *parse;
+ 	struct cil_tree *ast;
+ 	struct cil_type *selftype;
++	struct cil_type *notselftype;
++	struct cil_type *minusselftype;
+ 	struct cil_list *sidorder;
+ 	struct cil_list *classorder;
+ 	struct cil_list *catorder;
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index e97a9f46..30ae6f90 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -332,6 +332,10 @@ int cil_resolve_avrule(struct cil_tree_node *current, void *extra_args)
+ 		
+ 	if (rule->tgt_str == CIL_KEY_SELF) {
+ 		rule->tgt = db->selftype;
++	} else if (rule->tgt_str == CIL_KEY_NOTSELF) {
++		rule->tgt = db->notselftype;
++	} else if (rule->tgt_str == CIL_KEY_MINUSSELF) {
++		rule->tgt = db->minusselftype;
+ 	} else {
+ 		rc = cil_resolve_name(current, rule->tgt_str, CIL_SYM_TYPES, args, &tgt_datum);
+ 		if (rc != SEPOL_OK) {
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index d994d717..102b0d73 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -68,7 +68,8 @@ static int __cil_is_reserved_name(const char *name, enum cil_flavor flavor)
+ 	case CIL_TYPE:
+ 	case CIL_TYPEATTRIBUTE:
+ 	case CIL_TYPEALIAS:
+-		if ((name == CIL_KEY_ALL) || (name == CIL_KEY_SELF))
++		if ((name == CIL_KEY_ALL) || (name == CIL_KEY_SELF) || (name == CIL_KEY_NOTSELF)
++			|| (name == CIL_KEY_MINUSSELF))
+ 			return CIL_TRUE;
+ 		break;
+ 	case CIL_CAT:
 -- 
 2.31.1
 
