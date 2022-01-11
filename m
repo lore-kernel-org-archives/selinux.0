@@ -2,47 +2,47 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40B68C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AD55C4321E
 	for <selinux@archiver.kernel.org>; Tue, 11 Jan 2022 21:55:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345361AbiAKVzR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Jan 2022 16:55:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48986 "EHLO
+        id S1345391AbiAKVzS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Jan 2022 16:55:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234033AbiAKVzE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Jan 2022 16:55:04 -0500
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 968B3C061748
-        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:04 -0800 (PST)
-Received: by mail-qt1-x82b.google.com with SMTP id v7so807858qtw.13
+        with ESMTP id S1345518AbiAKVzF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Jan 2022 16:55:05 -0500
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03E11C06175B
+        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:05 -0800 (PST)
+Received: by mail-qv1-xf2e.google.com with SMTP id r6so767125qvr.13
         for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=HqowdsrtetExLhFsrH9aI0xzH9bMziJ8hdFMjMvbq88=;
-        b=nU85OLSLlOtiRkTNKB2vjy3+k+vxxICYc0qKNMbdr266y6wIoMHaedRzoHct6LhuYl
-         pCSBr14v/OhqKgsj/75tntL9T4y2LXxaZqvVnbwITIcuUYi6RG2DgkAFn3LhAaX8QtVX
-         uNPT5t4dhzrnETzBEhSNn0QsQxVFBlYcTvu8tkMGuziblzESVMenl5u0LLzyQ/n18MAk
-         Xv3sXuiyrIGwa8/IwNpjD9aUoAM10x7OOb+PDb+sBBqAcWEPnyl++q8g2fEbq9f4nZ4i
-         4JJlNtbGa1wZURRPszbzpaU9lnYbbh3WKn3TqQqZDuxs9dNBlGc6MgtqIxy8TvMmna0a
-         t8SA==
+        bh=/oGXUnaG67opnE2dI+Wcfc77eKI5xjFbB3YQCwNs8BM=;
+        b=hIux8aXTMNCWTrRbXZ3BZOXzZC1MHD4ZSquXjrFqO6dG4r2AD2JnYQySUbwAN9Zv9V
+         wZNgFRbC7o0KZIz5AzMDWl1jxZDqiyw/lRE1jRXB2YVe9HhnWLNpCJKliPSW/tUccDtZ
+         DJrU8NFMsoV209g+B/K4Eeg/bbibCQpYlTOiBzRdKs834wOM1AGUvZgF7shWN7d8Kqz0
+         FbLcIYdirHphmZtoCWBCGI7PuzVOpBAb5bL8AqrcPSQ6bzNgXtZtrYhpe2EZP/EmOhhm
+         XS4e8AKtEY53/39xKqtGKrn3SLE2JqG1ir5e06JjuRyb3j9nYS4RX3QVgt5bFdYtEkO1
+         z9+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=HqowdsrtetExLhFsrH9aI0xzH9bMziJ8hdFMjMvbq88=;
-        b=Zy8CMuSVKNfvmeh6YfrQzJOkuWMXAse6bKVh487zi/4zZWFE5NIdrrTJNS4qNphUXW
-         NsD2JOZPl+Ee1N88Z74W8hxoafDlgJsDrgXm6KAU5N7zQ/BJcpQPuDfI+guzCWLSKDyW
-         byitd2NhHhUA1qIJNUe/MiazZjOx2L80LNjZrP1VH1cX4RpNAOshoOa2gUQSfyfSnH8M
-         TynMJZl+A5eg5dZIXVm9sIjLWiLqVUOFM20jV5L0NcOceecmG1WYlNkUjSguL4SXsPal
-         fTHGoYPnmwl3IXd2mBZ72lM0pM1vfRY5lklEx0yxP7y0bqo/lju0DgfTtHOvqosT06JA
-         TWCA==
-X-Gm-Message-State: AOAM532PYwIouXBW03bkA4q65uyvt2AKBgC4Rom2cidEAmJTx8Vm1+TJ
-        giBYIEq+U3zNO1w6zsj2gl3vaBTsPPM=
-X-Google-Smtp-Source: ABdhPJzTsOwGn+9gHkY/invrveLs/mfGIAJK5mrmzfZIMoo75ay+HWXFcX+eDf3RsLbJROzmxZ4h2Q==
-X-Received: by 2002:a05:622a:1054:: with SMTP id f20mr4921516qte.132.1641938103694;
-        Tue, 11 Jan 2022 13:55:03 -0800 (PST)
+        bh=/oGXUnaG67opnE2dI+Wcfc77eKI5xjFbB3YQCwNs8BM=;
+        b=BMUAcIiG7minp5X8cvJVYPoQUUnAUclMdIUNes1oQfY24KeL+2Uy4/09thQmkaie9K
+         7AYnA3wSiNw4UpJfCSrVIiAar7dKCZh4aQW9Mt099mPHSo98ZyATlXZFtZfjvTEjxvwQ
+         jP8/1SSyi0ja73O8AJ9gFKEgGmWzL6V8MxsSHCC7Q+xziP/GxT46UhZrGWSJq3fT1+Bl
+         DITokpv6MZ1+u2reeSiW4b/uUngTav7FkGNVfh8Z1vb1I14+pDQZoio3fuCF0URMaqUN
+         Xj5efgmdJ4fCN4Sc9PsJT1lrQdZ7yPIehymbUDaUJpHZITWGt8sD+jkzyTJsD0MwFnrV
+         MD9w==
+X-Gm-Message-State: AOAM5316XlyXHGbWePJyvQVRntTv57qBXyXab2xapylifJz/6KYXMxvG
+        e/v11IRS0ZJXcdzB7Owc9vxvlLfxHFg=
+X-Google-Smtp-Source: ABdhPJyc6tySq1hc4oUC/GX6OiHKRLbdP0ZedcRHMWVrzkbW5KzFv2buHGSIyTBfk45riiLrS/bIRA==
+X-Received: by 2002:a05:6214:c4f:: with SMTP id r15mr5719572qvj.87.1641938104142;
+        Tue, 11 Jan 2022 13:55:04 -0800 (PST)
 Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
         by smtp.gmail.com with ESMTPSA id j22sm5826949qko.46.2022.01.11.13.55.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
@@ -50,9 +50,9 @@ Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     cgzones@googlemail.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 13/16 v2] libsepol: Make return value clearer when reporting neverallowx errors
-Date:   Tue, 11 Jan 2022 16:54:43 -0500
-Message-Id: <20220111215446.595516-14-jwcart2@gmail.com>
+Subject: [PATCH 14/16 v2] libsepol: The src and tgt must be the same if neverallow uses self
+Date:   Tue, 11 Jan 2022 16:54:44 -0500
+Message-Id: <20220111215446.595516-15-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220111215446.595516-1-jwcart2@gmail.com>
 References: <20220111215446.595516-1-jwcart2@gmail.com>
@@ -62,61 +62,85 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The value returned from report_assertion_extended_permissions() is
-the nubmer of errors, so call it that instead of ret.
+When checking for violations of neverallow rules, if the neverallow
+uses self, then the src and tgt must be the same when checking
+extended permissions and when reporting violations.
+
+Example:
+  allow attr attr : CLASS PERM;
+  neverallow attr self : CLASS PERM;
+
+If the types t1 and t2 have attribute attr, then the violations
+that would be reported would be:
+  allow t1 t1 : CLASS PERM;
+  allow t1 t2 : CLASS PERM;
+  allow t2 t1 : CLASS PERM;
+  allow t2 t2 : CLASS PERM;
+instead of:
+  allow t1 t1 : CLASS PERM;
+  allow t2 t2 : CLASS PERM;
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/assertion.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ libsepol/src/assertion.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index 26fa8d96..93c57061 100644
+index 93c57061..1c69f4d9 100644
 --- a/libsepol/src/assertion.c
 +++ b/libsepol/src/assertion.c
-@@ -148,8 +148,8 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
- 	ebitmap_t *tattr = &p->type_attr_map[ttype];
+@@ -213,6 +213,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
+ 	ebitmap_t src_matches, tgt_matches, self_matches;
  	ebitmap_node_t *snode, *tnode;
  	unsigned int i, j;
--	int rc = 1;
--	int ret = 0;
-+	int rc;
-+	int errors = 0;
++	const int is_avrule_self = (avrule->flags & RULE_SELF) != 0;
  
- 	memcpy(&tmp_key, k, sizeof(avtab_key_t));
- 	tmp_key.specified = AVTAB_XPERMS_ALLOWED;
-@@ -178,15 +178,14 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
- 							p->p_class_val_to_name[curperm->tclass - 1],
- 							sepol_extended_perms_to_string(&error));
+ 	if ((k->specified & AVTAB_ALLOWED) == 0)
+ 		return 0;
+@@ -236,7 +237,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
+ 	if (rc < 0)
+ 		goto oom;
  
--					rc = 0;
--					ret++;
-+					errors++;
- 				}
- 			}
- 		}
- 	}
+-	if (avrule->flags == RULE_SELF) {
++	if (is_avrule_self) {
+ 		rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
+ 		if (rc < 0)
+ 			goto oom;
+@@ -260,6 +261,8 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
  
- 	/* failure on the regular permissions */
--	if (rc) {
-+	if (!errors) {
- 		ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of policy.conf) violated by\n"
- 				"allow %s %s:%s {%s };",
- 				avrule->source_line, avrule->source_filename, avrule->line,
-@@ -194,11 +193,11 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
- 				p->p_type_val_to_name[ttype],
- 				p->p_class_val_to_name[curperm->tclass - 1],
- 				sepol_av_to_string(p, curperm->tclass, perms));
--		ret++;
-+		errors++;
+ 		ebitmap_for_each_positive_bit(&src_matches, snode, i) {
+ 			ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
++				if (is_avrule_self && i != j)
++					continue;
+ 				if (avrule->specified == AVRULE_XPERMS_NEVERALLOW) {
+ 					a->errors += report_assertion_extended_permissions(handle,p, avrule,
+ 											i, j, cp, perms, k, avtab);
+@@ -368,6 +371,7 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
+ 	ebitmap_t src_matches, tgt_matches, self_matches;
+ 	unsigned int i, j;
+ 	ebitmap_node_t *snode, *tnode;
++	const int is_avrule_self = (avrule->flags & RULE_SELF) != 0;
+ 	int rc;
  
- 	}
+ 	ebitmap_init(&src_matches);
+@@ -389,7 +393,7 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
+ 	if (rc < 0)
+ 		goto oom;
  
--	return ret;
-+	return errors;
- }
+-	if (avrule->flags == RULE_SELF) {
++	if (is_avrule_self) {
+ 		rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
+ 		if (rc < 0)
+ 			goto oom;
+@@ -408,6 +412,8 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
  
- static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void *args)
+ 	ebitmap_for_each_positive_bit(&src_matches, snode, i) {
+ 		ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
++			if (is_avrule_self && i != j)
++				continue;
+ 			if (check_assertion_extended_permissions_avtab(avrule, avtab, i, j, k, p)) {
+ 				rc = 1;
+ 				goto exit;
 -- 
 2.31.1
 
