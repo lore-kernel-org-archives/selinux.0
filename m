@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 859D5C433FE
-	for <selinux@archiver.kernel.org>; Tue, 11 Jan 2022 21:55:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA187C43219
+	for <selinux@archiver.kernel.org>; Tue, 11 Jan 2022 21:55:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345590AbiAKVzN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Jan 2022 16:55:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48974 "EHLO
+        id S1345170AbiAKVzQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Jan 2022 16:55:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345279AbiAKVzE (ORCPT
+        with ESMTP id S1345404AbiAKVzE (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 11 Jan 2022 16:55:04 -0500
-Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CC6C0611FD
-        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:01 -0800 (PST)
-Received: by mail-qt1-x836.google.com with SMTP id y17so825313qtx.9
-        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:01 -0800 (PST)
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC96C034000
+        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:03 -0800 (PST)
+Received: by mail-qt1-x82a.google.com with SMTP id l17so839084qtk.7
+        for <selinux@vger.kernel.org>; Tue, 11 Jan 2022 13:55:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=wUkVWMGFzR0RIyDH4k4H7XT087kiExp2zHkWnR8Emyo=;
-        b=F+bkbdda4XF6otL0AXiCzXJJvMaabwNq9xRFschovhlmQbwRrkISKWyBiT6qu5navq
-         4qtkgbiftBijxaYwA4NEMhfmScO138Hfss11MKSQQ1OTaseiuXinx+t+LGkbih7FqX+n
-         rx+tryK+1Hn88N3Sdp6YPI3hgTeXOZfyJywQZsyNAxxsYbR7+KsTZFVZCBt9D6+zH0s0
-         Ag+d3iOrPnizT06NDlqzuhhOH89LDh2MTcrjHG7kNmuzl3dznRiyCN4SlFn5lHQdH+tA
-         7eavxPGjDiqFMrCVX2AEWVR/weUgZ8avhPz4a9KIHi/CpIzsiyvB2unpoWP5NA3lMDDx
-         N7ig==
+        bh=9gRanSiycO/zRRQM7PRkt+DCm4KzjHr1EXVa37LNDsg=;
+        b=UxTdXEUT3alcI3RD9PuNaH10zlXDpHJiQH7SyzGNREIfaPRSS3CTahym2Faiy4zbi9
+         +Zmp91UClYv76YpO8VyZ/HsvZWrpd7VTtmkM7S5kADQA5i9YTzBbLxmvOYkLsPN8YV4t
+         UDvvwdxikt459Ci2tAaZGxtXWXrSUORzMpM5CV7Gc5T6N2ZBYjcpSOsRvdQiXKEHiiGY
+         gXrMdNoEIYWmrrh+0TmAVIoQsXxhjvxT2pMwezLBmtHO+C/aOuIs1FO28jRFXoY1nLzZ
+         aPHzKhoLbyUIdd7MGnzYeZTVxXFLAgCCXn+7NTJBDMcolx2g3iRBZX+IubdgYat5sYjm
+         ZAwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=wUkVWMGFzR0RIyDH4k4H7XT087kiExp2zHkWnR8Emyo=;
-        b=dnUUJYLOkr2UOaRoDRdWHXbQP44M8+7BO/xjXBfQvAGcxOczphXU3O0PaeZjWkZ7K9
-         Oyd9jIuiLvTKNOnZmjLOkkLkOulbomQgAVINSlBIIQOr3+QzcjcHZgq4wpNDgGoeX4cU
-         ftaUDnG46h0hV0eB4ZRoRCZGx7ShCxuO9fpGhOxQZ1x/SkpRqYXsvWQZExOOVwn4CJbG
-         VQ3MJBSLU12mD39Ftc+30ay44RkLjsk8zrrGz2oSvhng3ZjQ/AlMA56vJNV6Shm1UIK6
-         /Zlu+vi3XDHtsx5LJqnmlLuT9p8yf6fcxg1sfz8VJsKMZGz4DzNEB1S04nLpS6I4oCli
-         Pi7A==
-X-Gm-Message-State: AOAM533euTUIqemOWwN8BzuK94ifoGvJt8qQ+DPiqBX9H2LwtenWkjDJ
-        Rj3SpnFANSZbzChTL8Y6Sz5feClQa1A=
-X-Google-Smtp-Source: ABdhPJydr56wG1OKzRYwrUJ4lzoNsdAijWvFXhAPzJZuY+bFcAGzEwSms1kNWyn/Hr7hpeL01pjkdA==
-X-Received: by 2002:a05:622a:44a:: with SMTP id o10mr5552260qtx.251.1641938100632;
-        Tue, 11 Jan 2022 13:55:00 -0800 (PST)
+        bh=9gRanSiycO/zRRQM7PRkt+DCm4KzjHr1EXVa37LNDsg=;
+        b=eWJP3p8vI9+RZULNZquRVP9JRbToG869MqhRTYEWCWI1TPFykl9sbn5ylxKFYjP+C8
+         lhvYGo//j5HykYRvxcnGkMbyFeSfY9Y62BqCclesSg7gtkBEjREgvFJGp2fbUhk/aQ2K
+         taTrOyT88DndVxo4x57qao84/kWu6xBObhiU2t54ZVrIIwp49ryt4InU+fJjxfI3nc47
+         AEnZANch37Ol09pF16j0cQzNaVWUwid9FgAUOInGPYVVxlpJeca5ANgy2j8ciU3mz2e/
+         IjZdIQgNl+uscz0eUWAxpVVIZ4or1NwbNlt7LhYSEUDzOSOFkhahGNf3IgMh96e+noIY
+         veiA==
+X-Gm-Message-State: AOAM531ld3T7Z95ot1i3YVymXhZedGgtbaLVWOEZVXrmSLb0tAnbOLEj
+        htv++pYhcok+mz+zSgJBZ/nCONGIbMc=
+X-Google-Smtp-Source: ABdhPJys4KTVBmRTmoCzaP3xLaHOCzuLiA95fDujQmeRqGO5WhJq+wMcuFlnNgbCG+SBryUZ0VjnZg==
+X-Received: by 2002:a05:622a:130b:: with SMTP id v11mr384786qtk.355.1641938102143;
+        Tue, 11 Jan 2022 13:55:02 -0800 (PST)
 Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
-        by smtp.gmail.com with ESMTPSA id j22sm5826949qko.46.2022.01.11.13.55.00
+        by smtp.gmail.com with ESMTPSA id j22sm5826949qko.46.2022.01.11.13.55.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jan 2022 13:55:00 -0800 (PST)
+        Tue, 11 Jan 2022 13:55:01 -0800 (PST)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     cgzones@googlemail.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 07/16 v2] libsepol: Create function check_assertion_self_match() and use it
-Date:   Tue, 11 Jan 2022 16:54:37 -0500
-Message-Id: <20220111215446.595516-8-jwcart2@gmail.com>
+Subject: [PATCH 10/16 v2] libsepol: Move assigning outer loop index out of inner loop
+Date:   Tue, 11 Jan 2022 16:54:40 -0500
+Message-Id: <20220111215446.595516-11-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220111215446.595516-1-jwcart2@gmail.com>
 References: <20220111215446.595516-1-jwcart2@gmail.com>
@@ -62,83 +62,38 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Create the function called check_assertion_self_match() and put the
-self checking code into it.
+Assign value based on outer loop index in the outer loop instead
+of the inner loop.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-v2: Use k->target_type instead of k->source_type in call to ebitmap_match_any()
-
- libsepol/src/assertion.c | 45 ++++++++++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ libsepol/src/assertion.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index 7a1c4a5e..6881c5f6 100644
+index 42fa87d9..9c09eef3 100644
 --- a/libsepol/src/assertion.c
 +++ b/libsepol/src/assertion.c
-@@ -440,9 +440,35 @@ exit:
- 	return ret;
- }
+@@ -158,8 +158,8 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
+ 	tmp_key.specified = AVTAB_XPERMS_ALLOWED;
  
-+static int check_assertion_self_match(avtab_key_t *k, avrule_t *avrule, policydb_t *p)
-+{
-+	ebitmap_t src_matches;
-+	int rc;
-+
-+	/* The key's target must match something in the matches of the avrule's source
-+	 * and the key's source.
-+	 */
-+
-+	rc = ebitmap_and(&src_matches, &avrule->stypes.types, &p->attr_type_map[k->source_type - 1]);
-+	if (rc < 0)
-+		goto oom;
-+
-+	if (!ebitmap_match_any(&src_matches, &p->attr_type_map[k->target_type - 1])) {
-+		rc = 0;
-+		goto nomatch;
-+	}
-+
-+	rc = 1;
-+
-+oom:
-+nomatch:
-+	ebitmap_destroy(&src_matches);
-+	return rc;
-+}
-+
- static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *args)
- {
--	int rc, rc2 = 0;
-+	int rc;
- 	struct avtab_match_args *a = (struct avtab_match_args *)args;
- 	policydb_t *p = a->p;
- 	avrule_t *avrule = a->avrule;
-@@ -460,22 +486,11 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
- 	/* neverallow may have tgts even if it uses SELF */
- 	if (!ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1])) {
- 		if (avrule->flags == RULE_SELF) {
--			/* If the neverallow uses SELF, then it is not enough that the
--			 * neverallow's source matches the src and tgt of the rule being checked.
--			 * It must match the same thing in the src and tgt, so AND the source
--			 * and target together and check for a match on the result.
--			 */
--			ebitmap_t match;
--			rc = ebitmap_and(&match, &p->attr_type_map[k->source_type - 1], &p->attr_type_map[k->target_type - 1] );
--			if (rc) {
--				ebitmap_destroy(&match);
-+			rc = check_assertion_self_match(k, avrule, p);
-+			if (rc < 0)
- 				goto oom;
--			}
--			if (!ebitmap_match_any(&avrule->stypes.types, &match)) {
--				ebitmap_destroy(&match);
-+			if (rc == 0)
- 				goto nomatch;
--			}
--			ebitmap_destroy(&match);
- 		} else {
- 			goto nomatch;
- 		}
+ 	ebitmap_for_each_positive_bit(sattr, snode, i) {
++		tmp_key.source_type = i + 1;
+ 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
+-			tmp_key.source_type = i + 1;
+ 			tmp_key.target_type = j + 1;
+ 			for (node = avtab_search_node(avtab, &tmp_key);
+ 			     node;
+@@ -334,8 +334,8 @@ static int check_assertion_extended_permissions_avtab(avrule_t *avrule, avtab_t
+ 	tmp_key.specified = AVTAB_XPERMS_ALLOWED;
+ 
+ 	ebitmap_for_each_positive_bit(sattr, snode, i) {
++		tmp_key.source_type = i + 1;
+ 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
+-			tmp_key.source_type = i + 1;
+ 			tmp_key.target_type = j + 1;
+ 			for (node = avtab_search_node(avtab, &tmp_key);
+ 			     node;
 -- 
 2.31.1
 
