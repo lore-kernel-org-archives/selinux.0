@@ -2,92 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21AC1C433EF
-	for <selinux@archiver.kernel.org>; Thu, 13 Jan 2022 16:04:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9069C433EF
+	for <selinux@archiver.kernel.org>; Thu, 13 Jan 2022 20:44:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236394AbiAMQEk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Jan 2022 11:04:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236389AbiAMQEk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Jan 2022 11:04:40 -0500
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1351AC061574
-        for <selinux@vger.kernel.org>; Thu, 13 Jan 2022 08:04:40 -0800 (PST)
-Received: by mail-qt1-x82b.google.com with SMTP id y10so7359107qtw.1
-        for <selinux@vger.kernel.org>; Thu, 13 Jan 2022 08:04:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=isgZ83pbo4BVHifZOzEVXOnCWu/8vUUkOPjN16BSv6E=;
-        b=WlBm3rR6RWhBqrOgvbN6i7AOakXnQps4DTr8orET8eEUzDJfA6aPxor9cBBmSVXNEu
-         fed35e5fpX1iB/8hczVYNU0CKHwxD/cUJztB9ua/aHmbdV3cbkuOWCCS36YMGSRCfnCO
-         W7wf7nBq0jg9CqDl4bNq05zK7OvaXRKXTYfMGI4H4txwruTVDDPY0b40nvDOSVSzATTg
-         xgAqZLMdY1c6e50e9ZnD5yq+XR+eWVWIgm8KR/vXb8WRDuxyPgGxReATjyWhU4nyBsSc
-         fh34WqI8ifK9AzmZD37gF4mBd54UU4SlbqZTjbQE2GmIo1q3FRpk+Lh3wn8AxDZtuwij
-         heyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=isgZ83pbo4BVHifZOzEVXOnCWu/8vUUkOPjN16BSv6E=;
-        b=mTcEHaM1sLg3ThdXkacuYdSbMU3DarNVc8V2Sox/FN8Tdfu/uOPwCsaVVOMtIMCQSX
-         Cn41YnKGfCew7L9RwQk2nEcNjUz3I/ZrM6oZ4FHYpE9NF74SWZOsp0PBZX4vKMlTvW2C
-         uNTBrwHUeug+74ee4+P8cJyl5j6KHdb3JFbtVVsjiBRi1dWgi+RDsFNRnJnW90plQkdP
-         /p1lzHFi6OzmfxZYvLegHd9Ns24or1oXNyPntvMxwJD08ANrv6Bu42HN0gs9Kf3hbdrS
-         qOP0euIZnyoedvb2fGiGLedfBJlq8iLveuhqEWiGItNY4Lq/LtEM07I4xzGtyHv8lx7q
-         kQlg==
-X-Gm-Message-State: AOAM5319QKiQXM2YXZoXfUVNLczzGvbO+amWD5itvP1Dsc90jOAcb1+B
-        hqn7Q2y67HzWt9vvdu2dH9OEVuXXkM0=
-X-Google-Smtp-Source: ABdhPJzZECJizpZuNtMSqJNe+NC+KZ2at1dbWUpRSrHmATz0c823yH3n1CJecOENewtNOR+eSaUUow==
-X-Received: by 2002:ac8:53c9:: with SMTP id c9mr4156924qtq.348.1642089879160;
-        Thu, 13 Jan 2022 08:04:39 -0800 (PST)
-Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
-        by smtp.gmail.com with ESMTPSA id bj26sm2142318qkb.58.2022.01.13.08.04.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Jan 2022 08:04:38 -0800 (PST)
-From:   James Carter <jwcart2@gmail.com>
+        id S234481AbiAMUoK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Jan 2022 15:44:10 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54100 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230515AbiAMUoK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Jan 2022 15:44:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1642106649;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=NZbg7Yf33QwWotW/PA2gqVzkSFJqo9IneF8O+CyB4v4=;
+        b=bnjuD0Yt/CiCMLZYEYrtU6p4b55BMqZ6LxFFN2iiKrj9brDb0Rg6nScZpfnIkqXF/TOGnw
+        K5TrOGUzcTiOL/ONay/8s2SmnkmFzwqRcVCN8moP7dHne7ik+RjAGCWqHLlquckQS17qiR
+        qRYrjJJqcaPqq6dDibkQGLuJeHMKzC0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-372-L5Wrpbk5NYSIrDuxt3mF_w-1; Thu, 13 Jan 2022 15:44:08 -0500
+X-MC-Unique: L5Wrpbk5NYSIrDuxt3mF_w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 510561934100
+        for <selinux@vger.kernel.org>; Thu, 13 Jan 2022 20:44:07 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.40.192.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AF3A0610A8
+        for <selinux@vger.kernel.org>; Thu, 13 Jan 2022 20:44:06 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol/cil: Ensure that the class in a classcommon is a kernel class
-Date:   Thu, 13 Jan 2022 11:04:22 -0500
-Message-Id: <20220113160422.675541-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.31.1
+Subject: [PATCH] libselinux: Strip spaces before values in config
+Date:   Thu, 13 Jan 2022 21:43:53 +0100
+Message-Id: <20220113204353.185947-1-vmojzis@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Map classes use the same struct as kernel classes, but only the kernel
-class uses the pointer to a common class. When resolving a classcommon,
-make sure that the class that is found is a kernel class and not a
-map class. If not, then return an error.
+Spaces before values in /etc/selinux/config should be ignored just as
+spaces after them are.
 
-Found by oss-fuzz (#43209)
+E.g. "SELINUXTYPE= targeted" should be a valid value.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
+Fixes:
+   # sed -i 's/^SELINUXTYPE=/SELINUXTYPE= /g' /etc/selinux/config
+   # dnf install <any_package>
+   ...
+   RPM: error: selabel_open: (/etc/selinux/ targeted/contexts/files/file_contexts) No such file or directory
+   RPM: error: Plugin selinux: hook tsm_pre failed
+   ...
+   Error: Could not run transaction.
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- libsepol/cil/src/cil_resolve_ast.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ libselinux/src/selinux_config.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index e97a9f46..d359eca0 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -754,6 +754,11 @@ int cil_resolve_classcommon(struct cil_tree_node *current, void *extra_args)
- 	if (rc != SEPOL_OK) {
- 		goto exit;
- 	}
-+	if (NODE(class_datum)->flavor != CIL_CLASS) {
-+		cil_log(CIL_ERR, "Class %s is not a kernel class and cannot be associated with common %s\n", clscom->class_str, clscom->common_str);
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index 97f81a8b..99cd6124 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -92,6 +92,7 @@ int selinux_getenforcemode(int *enforce)
+ 	FILE *cfg = fopen(SELINUXCONFIG, "re");
+ 	if (cfg) {
+ 		char *buf;
++		char *tag;
+ 		int len = sizeof(SELINUXTAG) - 1;
+ 		buf = malloc(selinux_page_size);
+ 		if (!buf) {
+@@ -101,21 +102,24 @@ int selinux_getenforcemode(int *enforce)
+ 		while (fgets_unlocked(buf, selinux_page_size, cfg)) {
+ 			if (strncmp(buf, SELINUXTAG, len))
+ 				continue;
++			tag = buf+len;
++			while (isspace(*tag))
++				tag++;
+ 			if (!strncasecmp
+-			    (buf + len, "enforcing", sizeof("enforcing") - 1)) {
++			    (tag, "enforcing", sizeof("enforcing") - 1)) {
+ 				*enforce = 1;
+ 				ret = 0;
+ 				break;
+ 			} else
+ 			    if (!strncasecmp
+-				(buf + len, "permissive",
++				(tag, "permissive",
+ 				 sizeof("permissive") - 1)) {
+ 				*enforce = 0;
+ 				ret = 0;
+ 				break;
+ 			} else
+ 			    if (!strncasecmp
+-				(buf + len, "disabled",
++				(tag, "disabled",
+ 				 sizeof("disabled") - 1)) {
+ 				*enforce = -1;
+ 				ret = 0;
+@@ -176,7 +180,10 @@ static void init_selinux_config(void)
  
- 	rc = cil_resolve_name(current, clscom->common_str, CIL_SYM_COMMONS, extra_args, &common_datum);
- 	if (rc != SEPOL_OK) {
+ 			if (!strncasecmp(buf_p, SELINUXTYPETAG,
+ 					 sizeof(SELINUXTYPETAG) - 1)) {
+-				type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
++				buf_p += sizeof(SELINUXTYPETAG) - 1;
++				while (isspace(*buf_p))
++					buf_p++;
++				type = strdup(buf_p);
+ 				if (!type) {
+ 					free(line_buf);
+ 					fclose(fp);
+@@ -199,6 +206,8 @@ static void init_selinux_config(void)
+ 			} else if (!strncmp(buf_p, REQUIRESEUSERS,
+ 					    sizeof(REQUIRESEUSERS) - 1)) {
+ 				value = buf_p + sizeof(REQUIRESEUSERS) - 1;
++				while (isspace(*value))
++					buf_p++;
+ 				intptr = &require_seusers;
+ 			} else {
+ 				continue;
 -- 
-2.31.1
+2.34.1
 
