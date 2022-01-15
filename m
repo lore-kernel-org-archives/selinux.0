@@ -2,131 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED90BC433EF
-	for <selinux@archiver.kernel.org>; Fri, 14 Jan 2022 19:44:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5981C433EF
+	for <selinux@archiver.kernel.org>; Sat, 15 Jan 2022 01:13:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244141AbiANTo0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Jan 2022 14:44:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38440 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244143AbiANToZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jan 2022 14:44:25 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74999C06173E
-        for <selinux@vger.kernel.org>; Fri, 14 Jan 2022 11:44:25 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id d187-20020a1c1dc4000000b003474b4b7ebcso7578344wmd.5
-        for <selinux@vger.kernel.org>; Fri, 14 Jan 2022 11:44:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:in-reply-to
-         :content-transfer-encoding;
-        bh=NC94UKEH4E6rP1nDiXrKKk/+Ee1IAybdbP5bOp0+J+o=;
-        b=QTS0F5YUXkNhnD/dhnDk4IrgPadGu2hGDaa6pcpZRHI6+67yBuaR9j3FvgCRgUPaXM
-         neMZqtPdz9yFXfq9FV82Zv3OE0/bzlyD8RlSHbLSmkOH4eNkIWogfElJurDtI6ddDxX8
-         5wATMXbZzC+yQTgNYcDGXDUU10+FSBwiSBUpsliHdw/VEGwLKbaT1A60JM+a4jEecTaZ
-         /Wyow6cZ0XF6KgF/FQQKFLN1XA7NfjMZnCaZz0iBgcUnxvQGd9nKppHftG3bJrLbMOfg
-         Qn8e0/293ZemRI/CIv2/KcLk61ooCP+Il1MKcnH9HbGJJFran3c5DPl20mBnpq4ui3OZ
-         gXPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:message-id:date:mime-version:user-agent
-         :subject:content-language:to:references:in-reply-to
-         :content-transfer-encoding;
-        bh=NC94UKEH4E6rP1nDiXrKKk/+Ee1IAybdbP5bOp0+J+o=;
-        b=aB0xpyP0gp8BHwIXH1arPm0rHuPC09+ZMLIVcV8EN3ZaGi5Lbp3uBbhYSq0KsHc1a1
-         nA2Js82yxPCKV64R6pOFH8m/N76YDeF1PhEeeOxqP++k6E7wBiCXtlyUM34enImv3iAH
-         eZkWp6fN2yWr9mhl+NT211YkZ3n6U1Xr8YYF/eZlSMYeEOyfOHWm2qyYFiWTWdkNc3Lt
-         v0P6rBNx6vwL68mqHZovf8SJnoALLRG47VjMqKWm8Pryav1hK1AvKx117PwBky8Xs+RE
-         75Ht3/ITH/JZLT/+jQbasZsElKp+YHDPrKFpnRr7Qo+iCh4Ay6EM7pFGdAUQm/O0cNtd
-         Me6w==
-X-Gm-Message-State: AOAM532bonxatGwvUogBzTcE9GtXYZcW1A41GZbXr2p76KeyB5Ict3O6
-        B5cazNbuYZARTVeckx7rTSM=
-X-Google-Smtp-Source: ABdhPJyTKpVVP3tAEoFxua4i33R2w+chaVMP1PTgLnZqnQuhe6u5VUS+7LTvAjtcEvTcNzYShAK8ag==
-X-Received: by 2002:a5d:64a9:: with SMTP id m9mr4566169wrp.712.1642189463978;
-        Fri, 14 Jan 2022 11:44:23 -0800 (PST)
-Received: from ?IPV6:2001:a61:35cd:c301:2e0:4cff:febf:22de? ([2001:a61:35cd:c301:2e0:4cff:febf:22de])
-        by smtp.gmail.com with ESMTPSA id b13sm6203488wrh.32.2022.01.14.11.44.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Jan 2022 11:44:23 -0800 (PST)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-Message-ID: <dd96ca20-2f8f-ea6c-48b8-6649915fac1c@gmail.com>
-Date:   Fri, 14 Jan 2022 20:44:17 +0100
+        id S231887AbiAOBNu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Jan 2022 20:13:50 -0500
+Received: from out162-62-57-210.mail.qq.com ([162.62.57.210]:58139 "EHLO
+        out162-62-57-210.mail.qq.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229775AbiAOBNt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jan 2022 20:13:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+        s=s201512; t=1642209226;
+        bh=KtC2JAo9Zv4oft7XPe6btVLuXHfV817m3kIZSg+ZITY=;
+        h=From:To:Cc:Subject:Date;
+        b=Oh7AsDnPr5IvUZGlxd+4VZ/tiMiGw2ffhQAgpDmUnnD3s8VUbFFs8S8exdRchof59
+         q2v22sEUkV0cDlfVUaQcCwxuFwUUpRolR6gDhhDM+Qd3FKs2Sx0ZUt7+33PzBWHgFE
+         ltc96/3y0fb55JX8aI0LhFtfUuX2cvu4GfCP1mw0=
+Received: from localhost.localdomain ([218.197.153.188])
+        by newxmesmtplogicsvrsza9.qq.com (NewEsmtp) with SMTP
+        id 2A006C80; Sat, 15 Jan 2022 09:10:32 +0800
+X-QQ-mid: xmsmtpt1642209032t17m0k78d
+Message-ID: <tencent_D67F131001E6EB5C358E0E0AB7F03725A907@qq.com>
+X-QQ-XMAILINFO: M7r/zttrUmlksvo2G1dU0x+495CKZ8lA2TaVTDWSgFeh18HvqEBmuBZFhXZFRt
+         p6UboqGlj17odmJTwuN21U3hqVvkbgrsHmLeCTdzUOLJU5nJHOaVPojHZbQ2GHvXDE073hniUIdr
+         amAX6Wmc1M6WKwnM4zeBYvizY+2ZGDxquComGTkU3PJp+xhIAEI43L1/SLKgsg2WUfJi0BpWSBeC
+         B87XSERumlTLYgXg5gqyak9Q6ZlMQPL+P+ZnGBqj37vMlzAh139zrv4C5Mr3DodkHyFqh5SBgJqG
+         PKKwH5/gae/j5n6EXCCjTpaXuk3tITYa4/I/r7gj1to2L1nZ7So1tcviQka9E8nkysMBEUlPDyb0
+         8gpYq/bSqYkBJfd9+ehg7yMltrve/ymP27jjTewlFkY3PSPYspcJSM1bS4STi+iZOltO2t5Ag631
+         ApfcAU2eJAP6PxbFuE9XWpd5rDfoC58xHY8wIczRgtsba6FNo8rFZYdTVuAexLQc8ruSsJiX8GtK
+         tbsgByYjIeBJ0ubM1ZVkJ6CUfc4SSMTHWxXHr274r9uP9dPKzaLu+E4b7mBts8atf25T3ksIs2q1
+         lY7ze3P52yXLwiveaIPhOQGYK32uxDWnPmGdLgHHuJRtqkKteezNkDZqgM4vZuc39oaVVeZ/ODmK
+         qz5b86eK8vHyQDdu7pLxJlJfbtvI0nstsfKgFtRE6PmphUyI0OBXTG5yFWp7bE8Z55U++Sib+0U8
+         Wtv2dTtp4F/gYpwl1Y4O1dtmXK+1ngBPqlBuerNLmHeChU5Da2PhcP798jeLeuvA7pAg77+1Bt6B
+         CNe+uT3A1Dswy+pPojJSf/hOR0oWHEXT7nRepulZoDSl21NV8XnNtyHZrTsssq5QchzLDdfl/1ms
+         sv5wzyp3hQ
+From:   xkernel.wang@foxmail.com
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Xiaoke Wang <xkernel.wang@foxmail.com>
+Subject: [PATCH] selinux: check the return value of audit_log_start()
+Date:   Sat, 15 Jan 2022 09:10:06 +0800
+X-OQ-MSGID: <20220115011006.1881-1-xkernel.wang@foxmail.com>
+X-Mailer: git-send-email 2.33.0.windows.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Subject: Re: [PATCH 1/2] libsepol/cil: Limit the amount of reporting for
- neverallow violations
-Content-Language: en-US
-To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-References: <20220114192002.730773-1-jwcart2@gmail.com>
-In-Reply-To: <20220114192002.730773-1-jwcart2@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-as a heavy user of neverallow / neverallowx, please don't limit this.
+audit_log_start() returns audit_buffer pointer on success or NULL on
+error. It is better to check the return value of it so to prevent
+potential memory access error.
 
-When adding a new neverallow rule there might quite a few types violating them, and having to rebuild the policy every 2 types would make fixing them incredibly annoying.
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+---
+ security/selinux/ss/services.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-If you want to limit this, then please make it opt-in or add it as a command line option.
-
-On 1/14/22 20:20, James Carter wrote:
-> When there is a neverallow violation, a search is made for all of
-> the rules that violate the neverallow. The violating rules as well
-> as their parents are written out to make it easier to find these
-> rules.
-> 
-> If there is a lot of rules that violate a neverallow, then this
-> amount of reporting is too much. Instead, only print out the first
-> two rules (with their parents) that match the violated neverallow
-> rule along with the total number of rules that violate the
-> neverallow.
-> 
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->   libsepol/cil/src/cil_binary.c | 10 ++++++++++
->   1 file changed, 10 insertions(+)
-> 
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index 4ac8ce8d..04a5d053 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -4640,6 +4640,8 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
->   	char *neverallow_str;
->   	char *allow_str;
->   	enum cil_flavor avrule_flavor;
-> +	int num_matching = 0;
-> +	int count_matching = 0;
->   
->   	target.rule_kind = CIL_AVRULE_ALLOWED;
->   	target.is_extended = cil_rule->is_extended;
-> @@ -4666,11 +4668,19 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
->   		goto exit;
->   	}
->   
-> +	cil_list_for_each(i2, matching) {
-> +		num_matching++;
-> +	}
->   	cil_list_for_each(i2, matching) {
->   		n2 = i2->data;
->   		r2 = n2->data;
->   		__cil_print_parents("    ", n2);
->   		__cil_print_rule("      ", allow_str, r2);
-> +		count_matching++;
-> +		if (count_matching >= 2) {
-> +			cil_log(CIL_ERR, "    Only first 2 of %d matching rules shown\n", num_matching);
-> +			break;
-> +		}
->   	}
->   	cil_log(CIL_ERR,"\n");
->   	cil_list_destroy(&matching, CIL_FALSE);
-
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index e5f1b27..759d878 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -3277,11 +3277,13 @@ int security_sid_mls_copy(struct selinux_state *state,
+ 				ab = audit_log_start(audit_context(),
+ 						     GFP_ATOMIC,
+ 						     AUDIT_SELINUX_ERR);
+-				audit_log_format(ab,
+-						 "op=security_sid_mls_copy invalid_context=");
+-				/* don't record NUL with untrusted strings */
+-				audit_log_n_untrustedstring(ab, s, len - 1);
+-				audit_log_end(ab);
++				if (ab) {
++					audit_log_format(ab,
++							"op=security_sid_mls_copy invalid_context=");
++					/* don't record NUL with untrusted strings */
++					audit_log_n_untrustedstring(ab, s, len - 1);
++					audit_log_end(ab);
++				}
+ 				kfree(s);
+ 			}
+ 			goto out_unlock;
 -- 
-bauen1
-https://dn42.bauen1.xyz/
