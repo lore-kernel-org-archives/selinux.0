@@ -2,88 +2,138 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52846C433FE
-	for <selinux@archiver.kernel.org>; Mon, 17 Jan 2022 15:02:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52BB5C433EF
+	for <selinux@archiver.kernel.org>; Tue, 18 Jan 2022 15:49:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240277AbiAQPCJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jan 2022 10:02:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45716 "EHLO
+        id S1345834AbiARPtE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jan 2022 10:49:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240228AbiAQPCI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jan 2022 10:02:08 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51964C061574
-        for <selinux@vger.kernel.org>; Mon, 17 Jan 2022 07:02:08 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id 30so66838841edv.3
-        for <selinux@vger.kernel.org>; Mon, 17 Jan 2022 07:02:08 -0800 (PST)
+        with ESMTP id S1346016AbiARPtC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jan 2022 10:49:02 -0500
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDBFC061574
+        for <selinux@vger.kernel.org>; Tue, 18 Jan 2022 07:49:01 -0800 (PST)
+Received: by mail-ot1-x334.google.com with SMTP id l64-20020a9d1b46000000b005983a0a8aaaso12090380otl.3
+        for <selinux@vger.kernel.org>; Tue, 18 Jan 2022 07:49:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nV9iIiBn7guGnjDrmW5qMgA+PvxiYYgRUtea/9KLKnU=;
-        b=BhGBAu14/ZvUklrea9IUa+rBy+VzJU0nmpd/7dEKaDgfGxi9W1+SGic+5GkX8wc07x
-         3sAZaRHjqmseRZluhj+w1eJFGZOBIxVOxBM+FZ53KiR2JCCvGAre/etD/tTXZz0vrpu2
-         3QlLcx978oXuOqUgKWeB/Xv9JOW7Tv57vtkndWEqFh2uxegxllJWjv8XnMZrcSGJOYiH
-         hwPw1HXgaMhil/CLjjPKKMitbY6Z+bSI+Wodi8jO7wO2EimcnshWGrm7zrhvU7q2uC6j
-         y5qJjGOYwE0mb0qROsx9o9dCWo+/5Y8tYGoeaqYDD7l+lRiAtKyFlrMujVjev0FNlnb/
-         vX+g==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=y9nuHWcDRiQ+nU0IA7CvY0Rvz0dg68YqAwsju9zhKj0=;
+        b=Stn3EOn+Dil3fc1vdt5//xnNSK/SU6+MuImU8je7TyStJo0qi78yAuZBtYajscxJjO
+         7LZAehi2tlsH3eEDA3Wq34Lx/+hoD3Q8xZXYLiIwdhT4ABPWUmgkmemp88cjIxKbrlRc
+         8GzS1O+zsryWqY9o/46nibvDQHLHY8D6GMuizRgEjbajGHUrmiSIemWJDFAp2nFIPKPG
+         jG80Y0rj5gdeh8RXoz3fd/ivZxqEQKLh6T7LDjPUEycxG3//nIBXiwH0l2C5pO0ae8QA
+         +I+vfDfvTbRvfLLhvj3C0NOhugYPcWIrTM6gWrSlLjRfzFyz0Xjtmu1p7lRbO/cLn9X5
+         +EtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nV9iIiBn7guGnjDrmW5qMgA+PvxiYYgRUtea/9KLKnU=;
-        b=7sCA8uLSVqHCKhGxp6o7vxMSaWie/yULw/7EPQXitKGrsRcxHwds2lf1XQt4y+ude9
-         siAsdsYO21tpvTm3MwM3u2OsG/C/7yzDVBA6dWUgCvf3ORMOuZmx1TmfzEYkH+yissN+
-         iAVB0VuNCMwmw3SCwpVVilCw3MwUTarPudQ9MBVxAHEoJu+QUybJOGaoW2HPm5mygAVz
-         Czbyq3iqPwpjw8YIrJuL8E/3r+4orIVms9C2u+883YIxcAnOgE2HyjAsAeVRkVN0Ncc1
-         4EjVSGjmoQzd60GzYWKgZVuL6jZSjRPPkwI6QlPU6xOiCc6aRGdbaYcAnj6B/sF9o2BM
-         GUuA==
-X-Gm-Message-State: AOAM53058bXS2zokSdcoGvVQYiAd7WdbTII1yCAx+EjHmQxaRg7aHFd+
-        Y3zBpyGA0/M720W+4ULDrNYfGUAkb9Q=
-X-Google-Smtp-Source: ABdhPJzd06QM4DipoTfoShjnVKuQFVuHcYkhYKo6yn8LOq3YyjdauZGZZoWHi5omNgxokOCWb5sjtw==
-X-Received: by 2002:a05:6402:190d:: with SMTP id e13mr19484191edz.87.1642431726926;
-        Mon, 17 Jan 2022 07:02:06 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-095-116-097-056.95.116.pool.telefonica.de. [95.116.97.56])
-        by smtp.gmail.com with ESMTPSA id v11sm3857682ejq.175.2022.01.17.07.02.06
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jan 2022 07:02:06 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: reject invalid roles before inverting
-Date:   Mon, 17 Jan 2022 16:02:00 +0100
-Message-Id: <20220117150200.24953-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.34.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=y9nuHWcDRiQ+nU0IA7CvY0Rvz0dg68YqAwsju9zhKj0=;
+        b=iOnlSKZ0MLTAwIq0JWZRnrSbzBe+T5nojJ5fmeeA+28buwPsgPu3L803c0K/wYQhMD
+         ZctuTGNzTFAzHPLNizDrrXBaAmA+7gV/rcCe/N/W4N0kvuZtstTeYHYr+Rfh2//631X8
+         l7JudZ2rQewTriIsUHtn96H4WCW4f1zGrbKe7HefmV3OFZwDTUzvfLHW9w2APL6XkUwr
+         L4yOGbB3id4mUDb8ZXNlBEt41YbfZC6l6vyXc5A0XFrXa4jhIebSyMp0kdE/yK5y9B8I
+         hsez2CMb5edpY3sAlX4MjnlDpWD12x8FQtyV7E1SEKNfLLzGG3G/SFaOS7qJCXd5TZ4N
+         MLgg==
+X-Gm-Message-State: AOAM531deLogZAlc7vzUyWlf5NIjeMas3qgqr0wx+D5oO2Atz8dusvdn
+        OKyruxWYG/yTCLQTzM1zKw25UGqIgkNsA0OED/4iAGf6
+X-Google-Smtp-Source: ABdhPJyvxJtq36AKgl3kg/qCmVg1lryLrv+N9xAf5jjqzbEcWTrDkXQifXyRrpFZtMeGT6GfuKZdUyuLLhDLtKqll0Q=
+X-Received: by 2002:a9d:4106:: with SMTP id o6mr14165330ote.139.1642520941372;
+ Tue, 18 Jan 2022 07:49:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220114192002.730773-1-jwcart2@gmail.com> <dd96ca20-2f8f-ea6c-48b8-6649915fac1c@gmail.com>
+In-Reply-To: <dd96ca20-2f8f-ea6c-48b8-6649915fac1c@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 18 Jan 2022 10:48:15 -0500
+Message-ID: <CAP+JOzSeF50B5fYCLLKJpnGCXXWwxkEDEFU=61ZUY-TyLU7E+g@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsepol/cil: Limit the amount of reporting for
+ neverallow violations
+To:     bauen1 <j2468h@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Since the role datums have not been validated yet, they might be invalid
-and set to an enormous high value. Inverting such an ebitmap will take
-excessive amount of memory and time.
+On Fri, Jan 14, 2022 at 2:44 PM bauen1 <j2468h@googlemail.com> wrote:
+>
+> Hi,
+>
+> as a heavy user of neverallow / neverallowx, please don't limit this.
+>
+> When adding a new neverallow rule there might quite a few types violating them, and having to rebuild the policy every 2 types would make fixing them incredibly annoying.
+>
+> If you want to limit this, then please make it opt-in or add it as a command line option.
+>
 
-Found by oss-fuzz (#43709)
----
- libsepol/src/expand.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I am trying to limit error messages because oss-fuzz seems to be good
+at creating policies that generate a lot of error messages and
+subsequently take a lot of time to process.
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 898e6b87..3fc54af6 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2481,6 +2481,10 @@ int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, policydb_t
- 
- 	/* if role is to be complimented, invert the entire bitmap here */
- 	if (x->flags & ROLE_COMP) {
-+		/* inverting an ebitmap with an invalid highbit will take aeons */
-+		if (ebitmap_length(r) > p->p_roles.nprim)
-+			return -1;
-+
- 		for (i = 0; i < ebitmap_length(r); i++) {
- 			if (ebitmap_get_bit(r, i)) {
- 				if (ebitmap_set_bit(r, i, 0))
--- 
-2.34.1
+But I am not going to do that at the expense of people actually using secilc.
 
+I was already thinking about making the amount of error reporting
+depending on the verbosity level. What would think of it limiting it
+to two by default, but unlimited at any higher verbosity level. I can
+even add a message to use "-v" to see all of the errors.
+
+Jim
+
+
+> On 1/14/22 20:20, James Carter wrote:
+> > When there is a neverallow violation, a search is made for all of
+> > the rules that violate the neverallow. The violating rules as well
+> > as their parents are written out to make it easier to find these
+> > rules.
+> >
+> > If there is a lot of rules that violate a neverallow, then this
+> > amount of reporting is too much. Instead, only print out the first
+> > two rules (with their parents) that match the violated neverallow
+> > rule along with the total number of rules that violate the
+> > neverallow.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >   libsepol/cil/src/cil_binary.c | 10 ++++++++++
+> >   1 file changed, 10 insertions(+)
+> >
+> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> > index 4ac8ce8d..04a5d053 100644
+> > --- a/libsepol/cil/src/cil_binary.c
+> > +++ b/libsepol/cil/src/cil_binary.c
+> > @@ -4640,6 +4640,8 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
+> >       char *neverallow_str;
+> >       char *allow_str;
+> >       enum cil_flavor avrule_flavor;
+> > +     int num_matching = 0;
+> > +     int count_matching = 0;
+> >
+> >       target.rule_kind = CIL_AVRULE_ALLOWED;
+> >       target.is_extended = cil_rule->is_extended;
+> > @@ -4666,11 +4668,19 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
+> >               goto exit;
+> >       }
+> >
+> > +     cil_list_for_each(i2, matching) {
+> > +             num_matching++;
+> > +     }
+> >       cil_list_for_each(i2, matching) {
+> >               n2 = i2->data;
+> >               r2 = n2->data;
+> >               __cil_print_parents("    ", n2);
+> >               __cil_print_rule("      ", allow_str, r2);
+> > +             count_matching++;
+> > +             if (count_matching >= 2) {
+> > +                     cil_log(CIL_ERR, "    Only first 2 of %d matching rules shown\n", num_matching);
+> > +                     break;
+> > +             }
+> >       }
+> >       cil_log(CIL_ERR,"\n");
+> >       cil_list_destroy(&matching, CIL_FALSE);
+>
+> --
+> bauen1
+> https://dn42.bauen1.xyz/
