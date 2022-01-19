@@ -2,324 +2,159 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECCFBC433FE
-	for <selinux@archiver.kernel.org>; Tue, 18 Jan 2022 16:22:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45A60C433F5
+	for <selinux@archiver.kernel.org>; Wed, 19 Jan 2022 13:04:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235038AbiARQWo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jan 2022 11:22:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:48399 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236470AbiARQWo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jan 2022 11:22:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642522963;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=+7gNgk9GMa5znTFKSHMwwg55K4iJuS/PLeobLgNU8V8=;
-        b=AVrbOBnR9kdlbbwYnA6+1vYG7kX6BgTmzGhYtN7wgvszwWbP21SHzFswVwChAsWqJtC7+h
-        hlt6IOQkUs1fajwpVkCaopAkKVNLmTjT9kh5ljIWQA2XoQxJGFXWkApDPt6ghDt2L3X1eD
-        tETWsOt70t5i6dvRcF5VGg48BP/Ib+g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-3-gn_krRs0OmSIPI7PiiBkQQ-1; Tue, 18 Jan 2022 11:22:38 -0500
-X-MC-Unique: gn_krRs0OmSIPI7PiiBkQQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0AF3910C90CA;
-        Tue, 18 Jan 2022 16:13:23 +0000 (UTC)
-Received: from aion.usersys.redhat.com (unknown [10.22.34.126])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id CD1C5B18B8;
-        Tue, 18 Jan 2022 16:13:22 +0000 (UTC)
-Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
-        id E5D7F1A001F; Tue, 18 Jan 2022 11:13:21 -0500 (EST)
-From:   Scott Mayhew <smayhew@redhat.com>
-To:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org
-Subject: [PATCH RFC] selinux: Fix selinux_sb_mnt_opts_compat()
-Date:   Tue, 18 Jan 2022 11:13:21 -0500
-Message-Id: <20220118161321.3160819-1-smayhew@redhat.com>
+        id S1354077AbiASNEY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jan 2022 08:04:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354561AbiASNEY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jan 2022 08:04:24 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9524C061574
+        for <selinux@vger.kernel.org>; Wed, 19 Jan 2022 05:04:23 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id f17so2384609edw.2
+        for <selinux@vger.kernel.org>; Wed, 19 Jan 2022 05:04:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:in-reply-to
+         :content-transfer-encoding;
+        bh=un0MftPoZKkrf7WinBejKpvMVAi8cI0700Mj5B+o9B0=;
+        b=ftnOfEcJNEg13cu3Q8tuREERm/ZlGjTMbX7/3hs7+mvTVjKOO2rvcJ80AFMbbZivzW
+         5HfD+oIkNPy1Uwcs4zAUXUpXrvj8xHtVHmWQT9EnBnjx1yw0ShefzfvFujTvrvspdDTe
+         N7QSPZUQfwJvCBtSxNIXO1n8VeC1up2YMyr3Fc4KD0QnEdM/NqFC5iyS+D1QGlI7SMdI
+         4hFxexBImWcqLewBEbfJwqQIkPhiVoM37Pk379wC9iSJzKKTvYLMPpXOySGL0oDXWxDr
+         3aDHrjPG+Fnw3uoQjStkcDurE6BAjuHJDTXPx52kJedTsNuGX1bcsvt2uUUneday3mFo
+         icbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:in-reply-to
+         :content-transfer-encoding;
+        bh=un0MftPoZKkrf7WinBejKpvMVAi8cI0700Mj5B+o9B0=;
+        b=0Mz/Dh71cyFudjVE5bpbWtxzy/3hiGmrGcBkZaf+nKV6pXWmp4TiUA729eMgI2CJ3g
+         YNucyjxikaG3x07CthvhYjOW4EkRpFVSPnZRdbDSt/g+ZeJ/vCjZxnkf4YDiHTI1Kfrm
+         aVwgxcoL7KRUS5vVw9LQ6IooiU/z/3ijH0tOGPKV4lfMoY5doP1cPrJb3a4OogHkATwl
+         jLJQNdgPrUEIW82uG381Ff1Ru0RJhEAgEILvFKpXEcFEYVx6yUIvW8kILlKj7Qrt9u3n
+         BrKhXx3xetnrg1a3KoSK1L686riMRsCEhgw1aH/+68THBBRALSebZJJzF3gQmDB4r2ku
+         58EQ==
+X-Gm-Message-State: AOAM5317BT+3/o3i63XEU9K/ZLLhOJLjVr0ooSXamj1i7i7YVtmJKoau
+        4bchWqLeaDBWI4ehBJoQTf0=
+X-Google-Smtp-Source: ABdhPJwTVerW/iqrqEiXlijEKfFzHF0YImCXr+qlUTUE74CDdqCbNJaAFr4+qF6PdWMxg1PWDtRF9w==
+X-Received: by 2002:a50:8ad0:: with SMTP id k16mr3485165edk.368.1642597462191;
+        Wed, 19 Jan 2022 05:04:22 -0800 (PST)
+Received: from [10.200.5.195] (opnsense.lrt.ed.tum.de. [129.187.5.241])
+        by smtp.gmail.com with ESMTPSA id z6sm1259078edb.58.2022.01.19.05.04.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 19 Jan 2022 05:04:21 -0800 (PST)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+Message-ID: <d6716dff-d46a-9a2f-3033-fe1bf0205681@gmail.com>
+Date:   Wed, 19 Jan 2022 14:04:19 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH 1/2] libsepol/cil: Limit the amount of reporting for
+ neverallow violations
+Content-Language: en-US
+To:     James Carter <jwcart2@gmail.com>, bauen1 <j2468h@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20220114192002.730773-1-jwcart2@gmail.com>
+ <dd96ca20-2f8f-ea6c-48b8-6649915fac1c@gmail.com>
+ <CAP+JOzSeF50B5fYCLLKJpnGCXXWwxkEDEFU=61ZUY-TyLU7E+g@mail.gmail.com>
+In-Reply-To: <CAP+JOzSeF50B5fYCLLKJpnGCXXWwxkEDEFU=61ZUY-TyLU7E+g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
-shouldn't be performing any memory allocations.  Fix this by parsing the
-sids at the same time we're chopping up the security mount options
-string and then using the pre-parsed sids when doing the comparison.
 
-Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
-Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+On 1/18/22 16:48, James Carter wrote:
+> On Fri, Jan 14, 2022 at 2:44 PM bauen1 <j2468h@googlemail.com> wrote:
+>>
+>> Hi,
+>>
+>> as a heavy user of neverallow / neverallowx, please don't limit this.
+>>
+>> When adding a new neverallow rule there might quite a few types violating them, and having to rebuild the policy every 2 types would make fixing them incredibly annoying.
+>>
+>> If you want to limit this, then please make it opt-in or add it as a command line option.
+>>
+> 
+> I am trying to limit error messages because oss-fuzz seems to be good
+> at creating policies that generate a lot of error messages and
+> subsequently take a lot of time to process.
+> 
+> But I am not going to do that at the expense of people actually using secilc.
+> 
+> I was already thinking about making the amount of error reporting
+> depending on the verbosity level. What would think of it limiting it
+> to two by default, but unlimited at any higher verbosity level. I can
+> even add a message to use "-v" to see all of the errors.
 
-While this does address the issue of the memory allocation under the
-sb_lock, as well as the repeated calling of parse_sid() while iterating
-nfs_fs_type->fs_supers, it does add a new wrinkle in that we'll be
-parsing the sids twice (first in selinux_sb_eat_lsm_opts() and again in
-selinux_set_mnt_opts()).  That could be addressed by adding a flag to
-the fs_context to indicate whether we want to pre-parse the sids... that
-way we'd only be parsing the sids twice for nfs but not the other
-filesystems.  On the other hand, is there any reason we can't just use
-the pre-parsed sids in selinux_set_mnt_opts() (and
-selinux_sb_remount())?  parse_sid() takes an sb so that it can emit a
-warning when security_context_str_to_sid() fails... but that could also
-be done when the string mount option is present in selinux_mnt_opts but
-the corresponding flag in 'preparsed' is unset.
+Thanks, something like that would be totally fine for me.
 
--Scott
----
- security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
- 1 file changed, 76 insertions(+), 36 deletions(-)
+> Jim
+> 
+> 
+>> On 1/14/22 20:20, James Carter wrote:
+>>> When there is a neverallow violation, a search is made for all of
+>>> the rules that violate the neverallow. The violating rules as well
+>>> as their parents are written out to make it easier to find these
+>>> rules.
+>>>
+>>> If there is a lot of rules that violate a neverallow, then this
+>>> amount of reporting is too much. Instead, only print out the first
+>>> two rules (with their parents) that match the violated neverallow
+>>> rule along with the total number of rules that violate the
+>>> neverallow.
+>>>
+>>> Signed-off-by: James Carter <jwcart2@gmail.com>
+>>> ---
+>>>    libsepol/cil/src/cil_binary.c | 10 ++++++++++
+>>>    1 file changed, 10 insertions(+)
+>>>
+>>> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+>>> index 4ac8ce8d..04a5d053 100644
+>>> --- a/libsepol/cil/src/cil_binary.c
+>>> +++ b/libsepol/cil/src/cil_binary.c
+>>> @@ -4640,6 +4640,8 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
+>>>        char *neverallow_str;
+>>>        char *allow_str;
+>>>        enum cil_flavor avrule_flavor;
+>>> +     int num_matching = 0;
+>>> +     int count_matching = 0;
+>>>
+>>>        target.rule_kind = CIL_AVRULE_ALLOWED;
+>>>        target.is_extended = cil_rule->is_extended;
+>>> @@ -4666,11 +4668,19 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
+>>>                goto exit;
+>>>        }
+>>>
+>>> +     cil_list_for_each(i2, matching) {
+>>> +             num_matching++;
+>>> +     }
+>>>        cil_list_for_each(i2, matching) {
+>>>                n2 = i2->data;
+>>>                r2 = n2->data;
+>>>                __cil_print_parents("    ", n2);
+>>>                __cil_print_rule("      ", allow_str, r2);
+>>> +             count_matching++;
+>>> +             if (count_matching >= 2) {
+>>> +                     cil_log(CIL_ERR, "    Only first 2 of %d matching rules shown\n", num_matching);
+>>> +                     break;
+>>> +             }
+>>>        }
+>>>        cil_log(CIL_ERR,"\n");
+>>>        cil_list_destroy(&matching, CIL_FALSE);
+>>
+>> --
+>> bauen1
+>> https://dn42.bauen1.xyz/
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5b6895e4fc29..f27ca9e870c0 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -342,6 +342,11 @@ static void inode_free_security(struct inode *inode)
- 
- struct selinux_mnt_opts {
- 	const char *fscontext, *context, *rootcontext, *defcontext;
-+	u32 fscontext_sid;
-+	u32 context_sid;
-+	u32 rootcontext_sid;
-+	u32 defcontext_sid;
-+	unsigned short preparsed;
- };
- 
- static void selinux_free_mnt_opts(void *mnt_opts)
-@@ -598,12 +603,11 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
- 	return 0;
- }
- 
--static int parse_sid(struct super_block *sb, const char *s, u32 *sid,
--		     gfp_t gfp)
-+static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
- {
- 	int rc = security_context_str_to_sid(&selinux_state, s,
--					     sid, gfp);
--	if (rc)
-+					     sid, GFP_KERNEL);
-+	if (rc && sb != NULL)
- 		pr_warn("SELinux: security_context_str_to_sid"
- 		       "(%s) failed for (dev %s, type %s) errno=%d\n",
- 		       s, sb->s_id, sb->s_type->name, rc);
-@@ -673,8 +677,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 */
- 	if (opts) {
- 		if (opts->fscontext) {
--			rc = parse_sid(sb, opts->fscontext, &fscontext_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-@@ -683,8 +686,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= FSCONTEXT_MNT;
- 		}
- 		if (opts->context) {
--			rc = parse_sid(sb, opts->context, &context_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->context, &context_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-@@ -693,8 +695,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= CONTEXT_MNT;
- 		}
- 		if (opts->rootcontext) {
--			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-@@ -703,8 +704,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= ROOTCONTEXT_MNT;
- 		}
- 		if (opts->defcontext) {
--			rc = parse_sid(sb, opts->defcontext, &defcontext_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-@@ -976,6 +976,9 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- {
- 	struct selinux_mnt_opts *opts = *mnt_opts;
- 	bool is_alloc_opts = false;
-+	bool preparse_sid = false;
-+	u32 sid;
-+	int rc;
- 
- 	if (token == Opt_seclabel)
- 		/* eaten and completely ignored */
-@@ -991,26 +994,57 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 		is_alloc_opts = true;
- 	}
- 
-+	if (selinux_initialized(&selinux_state))
-+		preparse_sid = true;
-+
- 	switch (token) {
- 	case Opt_context:
- 		if (opts->context || opts->defcontext)
- 			goto err;
- 		opts->context = s;
-+		if (preparse_sid) {
-+			rc = parse_sid(NULL, s, &sid);
-+			if (rc == 0) {
-+				opts->context_sid = sid;
-+				opts->preparsed |= CONTEXT_MNT;
-+			}
-+		}
- 		break;
- 	case Opt_fscontext:
- 		if (opts->fscontext)
- 			goto err;
- 		opts->fscontext = s;
-+		if (preparse_sid) {
-+			rc = parse_sid(NULL, s, &sid);
-+			if (rc == 0) {
-+				opts->fscontext_sid = sid;
-+				opts->preparsed |= FSCONTEXT_MNT;
-+			}
-+		}
- 		break;
- 	case Opt_rootcontext:
- 		if (opts->rootcontext)
- 			goto err;
- 		opts->rootcontext = s;
-+		if (preparse_sid) {
-+			rc = parse_sid(NULL, s, &sid);
-+			if (rc == 0) {
-+				opts->rootcontext_sid = sid;
-+				opts->preparsed |= ROOTCONTEXT_MNT;
-+			}
-+		}
- 		break;
- 	case Opt_defcontext:
- 		if (opts->context || opts->defcontext)
- 			goto err;
- 		opts->defcontext = s;
-+		if (preparse_sid) {
-+			rc = parse_sid(NULL, s, &sid);
-+			if (rc == 0) {
-+				opts->defcontext_sid = sid;
-+				opts->preparsed |= DEFCONTEXT_MNT;
-+			}
-+		}
- 		break;
- 	}
- 
-@@ -2648,8 +2682,6 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- {
- 	struct selinux_mnt_opts *opts = mnt_opts;
- 	struct superblock_security_struct *sbsec = sb->s_security;
--	u32 sid;
--	int rc;
- 
- 	/*
- 	 * Superblock not initialized (i.e. no options) - reject if any
-@@ -2666,35 +2698,43 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- 		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid, GFP_NOWAIT);
--		if (rc)
--			return 1;
--		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
-+		if (opts->preparsed & FSCONTEXT_MNT) {
-+			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-+				       opts->fscontext_sid))
-+				return 1;
-+		} else {
- 			return 1;
-+		}
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid, GFP_NOWAIT);
--		if (rc)
--			return 1;
--		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-+		if (opts->preparsed & CONTEXT_MNT) {
-+			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-+				       opts->context_sid))
-+				return 1;
-+		} else {
- 			return 1;
-+		}
- 	}
- 	if (opts->rootcontext) {
--		struct inode_security_struct *root_isec;
-+		if (opts->preparsed & ROOTCONTEXT_MNT) {
-+			struct inode_security_struct *root_isec;
- 
--		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_NOWAIT);
--		if (rc)
--			return 1;
--		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
-+			root_isec = backing_inode_security(sb->s_root);
-+			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-+				       opts->rootcontext_sid))
-+				return 1;
-+		} else {
- 			return 1;
-+		}
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid, GFP_NOWAIT);
--		if (rc)
--			return 1;
--		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-+		if (opts->preparsed & DEFCONTEXT_MNT) {
-+			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-+				       opts->defcontext_sid))
-+				return 1;
-+		} else {
- 			return 1;
-+		}
- 	}
- 	return 0;
- }
-@@ -2713,14 +2753,14 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 		return 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->fscontext, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->context, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-@@ -2729,14 +2769,14 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 	if (opts->rootcontext) {
- 		struct inode_security_struct *root_isec;
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->rootcontext, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->defcontext, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
 -- 
-2.31.1
-
+bauen1
+https://dn42.bauen1.xyz/
