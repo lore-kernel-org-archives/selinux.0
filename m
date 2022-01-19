@@ -2,159 +2,90 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45A60C433F5
-	for <selinux@archiver.kernel.org>; Wed, 19 Jan 2022 13:04:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AAE3C433EF
+	for <selinux@archiver.kernel.org>; Wed, 19 Jan 2022 14:39:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354077AbiASNEY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jan 2022 08:04:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
+        id S1355183AbiASOjd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jan 2022 09:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354561AbiASNEY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jan 2022 08:04:24 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9524C061574
-        for <selinux@vger.kernel.org>; Wed, 19 Jan 2022 05:04:23 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id f17so2384609edw.2
-        for <selinux@vger.kernel.org>; Wed, 19 Jan 2022 05:04:23 -0800 (PST)
+        with ESMTP id S1355175AbiASOjc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jan 2022 09:39:32 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 891EFC061574
+        for <selinux@vger.kernel.org>; Wed, 19 Jan 2022 06:39:32 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id 30so13150372edv.3
+        for <selinux@vger.kernel.org>; Wed, 19 Jan 2022 06:39:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:in-reply-to
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=un0MftPoZKkrf7WinBejKpvMVAi8cI0700Mj5B+o9B0=;
-        b=ftnOfEcJNEg13cu3Q8tuREERm/ZlGjTMbX7/3hs7+mvTVjKOO2rvcJ80AFMbbZivzW
-         5HfD+oIkNPy1Uwcs4zAUXUpXrvj8xHtVHmWQT9EnBnjx1yw0ShefzfvFujTvrvspdDTe
-         N7QSPZUQfwJvCBtSxNIXO1n8VeC1up2YMyr3Fc4KD0QnEdM/NqFC5iyS+D1QGlI7SMdI
-         4hFxexBImWcqLewBEbfJwqQIkPhiVoM37Pk379wC9iSJzKKTvYLMPpXOySGL0oDXWxDr
-         3aDHrjPG+Fnw3uoQjStkcDurE6BAjuHJDTXPx52kJedTsNuGX1bcsvt2uUUneday3mFo
-         icbg==
+        bh=OEGSQawDMDB+Nh4Dg27ov0HT4FGkNgVzx/P0Hri17YQ=;
+        b=ShvFq0h2ICTtW+OuvI/kq5naUtuPr63V11J0ZJBk+rdYDnqrdwG+e9MMj1fF6GxEMj
+         yMMEVxY/P4YmaG8fKaImvYyZqvWGQnghB4XCQVf7divcjJLY0pdzXiiCuc3PkSKeVcB+
+         eZeHviBS0+/pyD89jcnn6Zdg9ju/Ud7sdnyXTxg2LW92Ht1k4ojdjnyJW8SRYkaZQDsV
+         xRfqSSaKUK1+QCmiKG9TvMQ4TFZljKKODUyZWznhyW1KrJ26/zxDTSwj1OC51vjHgRZv
+         uz+qShiL5KMoOm1RZ+O5z3pCfVr1OC7OhIGTyaZs3uZyHUpuM2O0rA1ask0jAyjwM8F/
+         2NfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:message-id:date:mime-version:user-agent
-         :subject:content-language:to:cc:references:in-reply-to
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=un0MftPoZKkrf7WinBejKpvMVAi8cI0700Mj5B+o9B0=;
-        b=0Mz/Dh71cyFudjVE5bpbWtxzy/3hiGmrGcBkZaf+nKV6pXWmp4TiUA729eMgI2CJ3g
-         YNucyjxikaG3x07CthvhYjOW4EkRpFVSPnZRdbDSt/g+ZeJ/vCjZxnkf4YDiHTI1Kfrm
-         aVwgxcoL7KRUS5vVw9LQ6IooiU/z/3ijH0tOGPKV4lfMoY5doP1cPrJb3a4OogHkATwl
-         jLJQNdgPrUEIW82uG381Ff1Ru0RJhEAgEILvFKpXEcFEYVx6yUIvW8kILlKj7Qrt9u3n
-         BrKhXx3xetnrg1a3KoSK1L686riMRsCEhgw1aH/+68THBBRALSebZJJzF3gQmDB4r2ku
-         58EQ==
-X-Gm-Message-State: AOAM5317BT+3/o3i63XEU9K/ZLLhOJLjVr0ooSXamj1i7i7YVtmJKoau
-        4bchWqLeaDBWI4ehBJoQTf0=
-X-Google-Smtp-Source: ABdhPJwTVerW/iqrqEiXlijEKfFzHF0YImCXr+qlUTUE74CDdqCbNJaAFr4+qF6PdWMxg1PWDtRF9w==
-X-Received: by 2002:a50:8ad0:: with SMTP id k16mr3485165edk.368.1642597462191;
-        Wed, 19 Jan 2022 05:04:22 -0800 (PST)
-Received: from [10.200.5.195] (opnsense.lrt.ed.tum.de. [129.187.5.241])
-        by smtp.gmail.com with ESMTPSA id z6sm1259078edb.58.2022.01.19.05.04.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Jan 2022 05:04:21 -0800 (PST)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-Message-ID: <d6716dff-d46a-9a2f-3033-fe1bf0205681@gmail.com>
-Date:   Wed, 19 Jan 2022 14:04:19 +0100
+        bh=OEGSQawDMDB+Nh4Dg27ov0HT4FGkNgVzx/P0Hri17YQ=;
+        b=ECdr967GLQTsGMbogr9vx4KdnHnHYpcKJAORZSCpjdPNAQyswCpN6RWqw8rvsI6f0X
+         ntMLN7ypBdR6BmYZwwpA9lR9xkQ6KJ34BZVDVEsICXM1k1IA5W7R7VSZOUE3mweMwFBk
+         OhZT/YMBWCw3gnx9l0Ho2is7MN9bFxe3U7+m0uVlRcUDIwD2ryo9SVUZd8i3MRTF8+ur
+         N54PYk3o0PU956nAIkiJvmYsLd3/COwuoiFOMFkw5Ayy47L5EmST+iK68QFO89DKd354
+         HdE3nJbYoWDDvMamHAncXv/3JZHLiDiwVifZBkhW6KE96UQD3kVMOIS8RD5qd2OLBaIF
+         gIkA==
+X-Gm-Message-State: AOAM532f7IO2VCCJR6EKQRpqXodTCBNrP0yKmYD2l1yNMryj1ZWII8V1
+        ZfcljA1PfldnI5A+J+YhlcB0oe4s5yk=
+X-Google-Smtp-Source: ABdhPJwx85tVS1QZMX/dP4IVkyex0WMzcgRnLSndoYuDqSxlMVc/MHj6JZDudY3q+TcAqi0R+5BPPw==
+X-Received: by 2002:a05:6000:156d:: with SMTP id 13mr14943454wrz.553.1642603171134;
+        Wed, 19 Jan 2022 06:39:31 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-001-173-022.77.1.pool.telefonica.de. [77.1.173.22])
+        by smtp.gmail.com with ESMTPSA id a3sm11885wri.89.2022.01.19.06.39.30
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jan 2022 06:39:30 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol: return failure on saturated class name length
+Date:   Wed, 19 Jan 2022 15:39:26 +0100
+Message-Id: <20220119143926.5464-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Subject: Re: [PATCH 1/2] libsepol/cil: Limit the amount of reporting for
- neverallow violations
-Content-Language: en-US
-To:     James Carter <jwcart2@gmail.com>, bauen1 <j2468h@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <20220114192002.730773-1-jwcart2@gmail.com>
- <dd96ca20-2f8f-ea6c-48b8-6649915fac1c@gmail.com>
- <CAP+JOzSeF50B5fYCLLKJpnGCXXWwxkEDEFU=61ZUY-TyLU7E+g@mail.gmail.com>
-In-Reply-To: <CAP+JOzSeF50B5fYCLLKJpnGCXXWwxkEDEFU=61ZUY-TyLU7E+g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Do not return success if the class name length is saturated (or too big
+in the fuzzer build).
 
-On 1/18/22 16:48, James Carter wrote:
-> On Fri, Jan 14, 2022 at 2:44 PM bauen1 <j2468h@googlemail.com> wrote:
->>
->> Hi,
->>
->> as a heavy user of neverallow / neverallowx, please don't limit this.
->>
->> When adding a new neverallow rule there might quite a few types violating them, and having to rebuild the policy every 2 types would make fixing them incredibly annoying.
->>
->> If you want to limit this, then please make it opt-in or add it as a command line option.
->>
-> 
-> I am trying to limit error messages because oss-fuzz seems to be good
-> at creating policies that generate a lot of error messages and
-> subsequently take a lot of time to process.
-> 
-> But I am not going to do that at the expense of people actually using secilc.
-> 
-> I was already thinking about making the amount of error reporting
-> depending on the verbosity level. What would think of it limiting it
-> to two by default, but unlimited at any higher verbosity level. I can
-> even add a message to use "-v" to see all of the errors.
+Fixes: c3d52a6a ("libsepol: check for saturated class name length")
 
-Thanks, something like that would be totally fine for me.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/policydb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> Jim
-> 
-> 
->> On 1/14/22 20:20, James Carter wrote:
->>> When there is a neverallow violation, a search is made for all of
->>> the rules that violate the neverallow. The violating rules as well
->>> as their parents are written out to make it easier to find these
->>> rules.
->>>
->>> If there is a lot of rules that violate a neverallow, then this
->>> amount of reporting is too much. Instead, only print out the first
->>> two rules (with their parents) that match the violated neverallow
->>> rule along with the total number of rules that violate the
->>> neverallow.
->>>
->>> Signed-off-by: James Carter <jwcart2@gmail.com>
->>> ---
->>>    libsepol/cil/src/cil_binary.c | 10 ++++++++++
->>>    1 file changed, 10 insertions(+)
->>>
->>> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
->>> index 4ac8ce8d..04a5d053 100644
->>> --- a/libsepol/cil/src/cil_binary.c
->>> +++ b/libsepol/cil/src/cil_binary.c
->>> @@ -4640,6 +4640,8 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
->>>        char *neverallow_str;
->>>        char *allow_str;
->>>        enum cil_flavor avrule_flavor;
->>> +     int num_matching = 0;
->>> +     int count_matching = 0;
->>>
->>>        target.rule_kind = CIL_AVRULE_ALLOWED;
->>>        target.is_extended = cil_rule->is_extended;
->>> @@ -4666,11 +4668,19 @@ static int __cil_print_neverallow_failure(const struct cil_db *db, struct cil_tr
->>>                goto exit;
->>>        }
->>>
->>> +     cil_list_for_each(i2, matching) {
->>> +             num_matching++;
->>> +     }
->>>        cil_list_for_each(i2, matching) {
->>>                n2 = i2->data;
->>>                r2 = n2->data;
->>>                __cil_print_parents("    ", n2);
->>>                __cil_print_rule("      ", allow_str, r2);
->>> +             count_matching++;
->>> +             if (count_matching >= 2) {
->>> +                     cil_log(CIL_ERR, "    Only first 2 of %d matching rules shown\n", num_matching);
->>> +                     break;
->>> +             }
->>>        }
->>>        cil_log(CIL_ERR,"\n");
->>>        cil_list_destroy(&matching, CIL_FALSE);
->>
->> --
->> bauen1
->> https://dn42.bauen1.xyz/
-
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 562e044e..fc71463e 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -3937,7 +3937,9 @@ static int scope_index_read(scope_index_t * scope_index,
+ 	if (rc < 0)
+ 		return -1;
+ 	scope_index->class_perms_len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(scope_index->class_perms_len)) {
++	if (is_saturated(scope_index->class_perms_len))
++		return -1;
++	if (scope_index->class_perms_len == 0) {
+ 		scope_index->class_perms_map = NULL;
+ 		return 0;
+ 	}
 -- 
-bauen1
-https://dn42.bauen1.xyz/
+2.34.1
+
