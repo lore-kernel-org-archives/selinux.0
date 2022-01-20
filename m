@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEDD7C433EF
-	for <selinux@archiver.kernel.org>; Thu, 20 Jan 2022 21:52:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ED36C433EF
+	for <selinux@archiver.kernel.org>; Thu, 20 Jan 2022 21:58:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347507AbiATVwS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Jan 2022 16:52:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48550 "EHLO
+        id S1377995AbiATV6v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Jan 2022 16:58:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231373AbiATVwP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jan 2022 16:52:15 -0500
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F96C061574
-        for <selinux@vger.kernel.org>; Thu, 20 Jan 2022 13:52:15 -0800 (PST)
-Received: by mail-ot1-x335.google.com with SMTP id c3-20020a9d6c83000000b00590b9c8819aso9343609otr.6
-        for <selinux@vger.kernel.org>; Thu, 20 Jan 2022 13:52:15 -0800 (PST)
+        with ESMTP id S1347676AbiATV6t (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jan 2022 16:58:49 -0500
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB2DC061574
+        for <selinux@vger.kernel.org>; Thu, 20 Jan 2022 13:58:49 -0800 (PST)
+Received: by mail-ot1-x334.google.com with SMTP id q13-20020a9d4b0d000000b0059b1209d708so9354569otf.10
+        for <selinux@vger.kernel.org>; Thu, 20 Jan 2022 13:58:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=4lZt6PmWGKkHxdphKOXjGXj5wybkKA0fGTMfsc+rybI=;
-        b=YEe9Jgkfk0SoxSXzKeZLqtqbBcLCehHcMA3v06/olxVhEvZ2k/b9emdynHpmYHNHHE
-         8PgZEv4MC2ZpYUZQnTXJ2R3Ga9lHvfzaIooTW2UBpJ+5dJDDvvgGL0vxecbfGYummvB/
-         PKyuT1XbDhhjAHjD8L67ACkCm0DJCMyCCLnuBYtKXwClPEGgAgTyD4c1vVtdnGWGtL2F
-         Vsz/J+jyliWGxjB3yOaLWulocrXGCLYEuotk51OZo9P/dWOGgt7NS5fp9WxEEzA/zjFE
-         o58NY32DM52srXmthrwUDCNbuCnwhAj5rXKMnD8g/MjVan5WFf4zS+BZE9N+lLJcoGp2
-         yGIg==
+        bh=s67YybZKs0mpliMpEPyp9hfMVYYzrAJZg4WGRhpBYrM=;
+        b=gENilLaMxHqwQ3viVqcut6KvEtvWhdQbRdDx4WY1rQw9XRLy8D3TUGhOw1dDgnChmb
+         pBXrOX++Ul5trYmFluyX9g59dKcL6yuNWsoDxd+Bb/1qU5ZJB6YBHUzD20y7N95mgX3b
+         XrrMcdHOascPLUk1wlzQLF4E7LfWwXULGVh9+1Z2X/XF0azoI8Ft/QCRFrfue20crGGA
+         hxrYFzQmqt+se9ckEb/ElHZpzAZrGTyE4h2PafNvcDpNLhg6/I1iD3/ItSTHdgKAR4W3
+         UX6jL/2DspTCBv9MnA6M07uQFSuE5XtAk3qKRjvD3S2p+tM0SiwLeczRIbFT5qXh5/i9
+         eIUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=4lZt6PmWGKkHxdphKOXjGXj5wybkKA0fGTMfsc+rybI=;
-        b=He13YZKDZODFH2wEG3CqUM8C8hV+QM3NdkDdn7hCNYx0hr2Bv+spkdZ0ZR7t1XGnvm
-         Vm0BAWjJ5bxpA+OmKZigiqaPDnzJBrfP6NUazMQJ8Un4LP0xl8QNE4QsDy8XPUNe7BWF
-         OU79dr6c1KMt1g1kAi48S34L0HQbMbJZfmLKZ7zfsgkgmF7C10ELHBM9ou6MVhJBJqI6
-         cSaFtVisAKiUtnAxmWAFWCBNDkxNF1DhXam+s1bvWzSeKlNaW/+7BUXNYhxaoTIncnc/
-         4mC5lCC3qoPINjwDOkrZUjWpujYukRIyy5uYRMdrxYlJ3PPCCKcUs6lrYqxFby37MhRO
-         db8g==
-X-Gm-Message-State: AOAM531ovv4XaAIn8fXGClOMbAG3HyohO2cBiXAD+Bm4fziKDtxw8Y3H
-        VjlDByureuuEG8+b9gVgSfTabKVawj+oF8u8pP5dMhB2
-X-Google-Smtp-Source: ABdhPJy5lwqPVNDZCx6iS3cvvTPgEYGsZ06WXMyfvgLMmGA919m67U+QPtFB3kgUQMyFd0GTNE7lbsSfwDYUduiCjBc=
-X-Received: by 2002:a9d:639a:: with SMTP id w26mr601466otk.139.1642715534385;
- Thu, 20 Jan 2022 13:52:14 -0800 (PST)
+        bh=s67YybZKs0mpliMpEPyp9hfMVYYzrAJZg4WGRhpBYrM=;
+        b=c75fYkjhC+DHd40n3WSlWGLPzgKknRmxTC8g9S7AoodmYszoJA4BCDQUYmOnFMg92x
+         xuLtM/Wj7DEA3o1ZyeNDc59ju9ZNe8RQwqBArUMB4SUQhe6Y3SUT5bSFYS3b56k76Kw8
+         PJmd2/qCjtHfCJ5GKV4ff0LECWEZnohSh3VWCLkWR17RGMQ0x62Bxs7xw6UNkzgubPUk
+         5hHZ5RV0iktNuJ4WrdcxrjRtqalugx8B+qWMKxyKfs9ZZmXc7I72fRk2f6XvCqrMjaii
+         gHcfq/W2Cm6AmYQIfxOk9j+ApTmankM3/NOE/J2JeYNR5V/v3DD+cS3I/FPKVf1OGPw8
+         5iXQ==
+X-Gm-Message-State: AOAM533/yWFE3UacfpsnoS0UTbYfiorygVCE4eDj51eXFIZLmLA0DD+B
+        uFuR/QkqjLcSC5XF/cDC01r4kd5rNvoIYqxun6s=
+X-Google-Smtp-Source: ABdhPJyRtWnyP7peRR/kdG+IwQgycD57axoTFZhynu+GnDv+kUEt3iCFYYdQv7QC46Onig3JDpglzpOJlK7KcVzk+x8=
+X-Received: by 2002:a9d:639a:: with SMTP id w26mr616798otk.139.1642715928862;
+ Thu, 20 Jan 2022 13:58:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20220113143935.195125-1-omosnace@redhat.com> <20220113143935.195125-3-omosnace@redhat.com>
-In-Reply-To: <20220113143935.195125-3-omosnace@redhat.com>
+References: <20220113143935.195125-1-omosnace@redhat.com> <20220113143935.195125-4-omosnace@redhat.com>
+In-Reply-To: <20220113143935.195125-4-omosnace@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 20 Jan 2022 16:52:03 -0500
-Message-ID: <CAP+JOzSnr2xrZ=2_B2XVVtvb4fiz4dW1JBEhDfKZrjwbjzEA4w@mail.gmail.com>
-Subject: Re: [RFC PATCH userspace 2/5] semodule,libsemanage: move module
- hashing into libsemanage
+Date:   Thu, 20 Jan 2022 16:58:37 -0500
+Message-ID: <CAP+JOzTwyPnB3V_RT5mnKSht2CJqYOqmO3Kxcj8qGPjy+xc+uA@mail.gmail.com>
+Subject: Re: [RFC PATCH userspace 3/5] libsemanage: move compressed file
+ handling into a separate object
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -60,290 +60,826 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Thu, Jan 13, 2022 at 6:36 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> The main goal of this move is to have the SHA-256 implementation under
-> libsemanage, since upcoming patches will make use of SHA-256 for a
-> different (but similar) purpose in libsemanage. Having the hashing code
-> in libsemanage will reduce code duplication and allow for easier hash
-> algorithm upgrade in the future.
+> In order to reduce exisiting and future code duplication and to avoid
+> some unnecessary allocations and copying, factor the compressed file
+> utility functions out into a separate C/header file and refactor their
+> interface.
 >
-> Note that libselinux currently also contains a hash function
-> implementation (for yet another different purpose). This patch doesn't
-> make any effort to address that duplicity yet.
->
-> The changes here are only refactoring, no functional change is done
-> here. A new libsemanage API function semanage_module_compute_checksum()
-> is provided and semodule is made to use it for implementing its
-> hash_module_data() function.
->
-> Note that the API function also returns a string representation of the
-> hash algorithm used, which is currently unused by semodule. The intent
-> is to avoid ambiguity and potential collisions when the algorithm is
-> potentially changed in the future. I could add the hash algorithm to the
-> semodule output, but doing so might break tools parsing the exisiting
-> format. (RFC: Should I change it anyway?)
+> Note that this change effectively removes the __fsetlocking(3) call from
+> semanage_load_files() - I haven't been able to figure out what purpose
+> it serves, but it seems pointless...
 >
 
-So that it would be a part of the hash string returned by
-hash_module_data() in semodule.c?
-
-I would want to hear from people who use the hashes before I would
-want to change anything.
-
-Thanks,
+I don't know what purpose it had either.
 Jim
 
 
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  libsemanage/include/semanage/modules.h        | 25 +++++++++
->  libsemanage/src/libsemanage.map               |  4 ++
->  libsemanage/src/modules.c                     | 36 +++++++++++++
->  .../src/semanageswig_python_exception.i       |  8 +++
->  .../semodule => libsemanage/src}/sha256.c     |  0
->  .../semodule => libsemanage/src}/sha256.h     |  0
->  policycoreutils/semodule/Makefile             |  2 +-
->  policycoreutils/semodule/semodule.c           | 51 +++++++------------
->  8 files changed, 92 insertions(+), 34 deletions(-)
->  rename {policycoreutils/semodule => libsemanage/src}/sha256.c (100%)
->  rename {policycoreutils/semodule => libsemanage/src}/sha256.h (100%)
+>  libsemanage/src/compressed_file.c | 224 +++++++++++++++++++++++++
+>  libsemanage/src/compressed_file.h |  78 +++++++++
+>  libsemanage/src/direct_api.c      | 263 +++++-------------------------
+>  libsemanage/src/direct_api.h      |   4 -
+>  libsemanage/src/semanage_store.c  |  52 ++----
+>  5 files changed, 354 insertions(+), 267 deletions(-)
+>  create mode 100644 libsemanage/src/compressed_file.c
+>  create mode 100644 libsemanage/src/compressed_file.h
 >
-> diff --git a/libsemanage/include/semanage/modules.h b/libsemanage/include/semanage/modules.h
-> index b51f61f0..1332654d 100644
-> --- a/libsemanage/include/semanage/modules.h
-> +++ b/libsemanage/include/semanage/modules.h
-> @@ -282,4 +282,29 @@ extern int semanage_module_get_enabled(semanage_handle_t *sh,
->                                        const semanage_module_key_t *modkey,
->                                        int *enabled);
->
-> +/* Compute checksum for @modkey module contents. On success, @checksum_type
-> + * will point to a string containing the checksum type (i.e. the checksum
-> + * algorithm), @checksum will point to a buffer containig the checksum as
-
-Typo: containing, not containig
-
-> + * binary data, and @checksum_len will point to the size of the checksum.
-> + * The semantics of @cil are the same as for extract_cil in
-> + * semanage_module_extract().
+> diff --git a/libsemanage/src/compressed_file.c b/libsemanage/src/compressed_file.c
+> new file mode 100644
+> index 00000000..5546b830
+> --- /dev/null
+> +++ b/libsemanage/src/compressed_file.c
+> @@ -0,0 +1,224 @@
+> +/* Author: Jason Tang    <jtang@tresys.com>
+> + *         Christopher Ashworth <cashworth@tresys.com>
+> + *         Ondrej Mosnacek <omosnacek@gmail.com>
 > + *
-> + * The caller is responsible to free the buffer returned in @checksum (using
-> + * free(3)). The string returned via @checksum_type must NOT be freed by the
-> + * caller.
+> + * Copyright (C) 2004-2006 Tresys Technology, LLC
+> + * Copyright (C) 2005-2021 Red Hat, Inc.
 > + *
-> + * Two checksums are considered equal when both @checksum_type and the
-> + * checksum itself are equal. Most versions of libsemanage should return
-> + * the same @checksum_type, although it may change occasionally when
-> + * libsemanage switches to a different algorithm.
+> + *  This library is free software; you can redistribute it and/or
+> + *  modify it under the terms of the GNU Lesser General Public
+> + *  License as published by the Free Software Foundation; either
+> + *  version 2.1 of the License, or (at your option) any later version.
 > + *
-> + * Returns 0 on success and -1 on error.
+> + *  This library is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + *  Lesser General Public License for more details.
+> + *
+> + *  You should have received a copy of the GNU Lesser General Public
+> + *  License along with this library; if not, write to the Free Software
+> + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 > + */
-> +extern int semanage_module_compute_checksum(semanage_handle_t *sh,
-> +                                           semanage_module_key_t *modkey,
-> +                                           int cil,
-> +                                           const char **checksum_type,
-> +                                           void **checksum,
-> +                                           size_t *checksum_len);
 > +
->  #endif
-> diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-> index 3ea7b60f..00259fc8 100644
-> --- a/libsemanage/src/libsemanage.map
-> +++ b/libsemanage/src/libsemanage.map
-> @@ -345,3 +345,7 @@ LIBSEMANAGE_1.1 {
->      semanage_module_remove_key;
->      semanage_set_store_root;
->  } LIBSEMANAGE_1.0;
+> +#include <stdlib.h>
+> +#include <string.h>
+> +#include <stdint.h>
 > +
-> +LIBSEMANAGE_3.4 {
-> +    semanage_module_compute_checksum;
-> +} LIBSEMANAGE_1.1;
-> diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-> index c98df4dd..72c5ed2c 100644
-> --- a/libsemanage/src/modules.c
-> +++ b/libsemanage/src/modules.c
-> @@ -35,11 +35,13 @@
->  #include <fcntl.h>
->  #include <sys/types.h>
->  #include <sys/stat.h>
-> +#include <sys/mman.h>
->  #include <errno.h>
->  #include <ctype.h>
->
->  #include "handle.h"
->  #include "modules.h"
-> +#include "sha256.h"
->  #include "debug.h"
->
->  int semanage_module_install(semanage_handle_t * sh,
-> @@ -976,3 +978,37 @@ int semanage_module_remove_key(semanage_handle_t *sh,
->         return sh->funcs->remove_key(sh, modkey);
->  }
->
-> +int semanage_module_compute_checksum(semanage_handle_t *sh,
-> +                                    semanage_module_key_t *modkey,
-> +                                    int cil, const char **checksum_type,
-> +                                    void **checksum, size_t *checksum_len)
+> +#include <unistd.h>
+> +#include <fcntl.h>
+> +
+> +#include <bzlib.h>
+> +
+> +#include "compressed_file.h"
+> +
+> +#include "debug.h"
+> +
+> +#define BZ2_MAGICSTR "BZh"
+> +#define BZ2_MAGICLEN (sizeof(BZ2_MAGICSTR)-1)
+> +
+> +/* bzip() a data to a file, returning the total number of compressed bytes
+> + * in the file.  Returns -1 if file could not be compressed. */
+> +static int bzip(semanage_handle_t *sh, const char *filename, void *data,
+> +               size_t num_bytes)
 > +{
-> +       semanage_module_info_t *extract_info = NULL;
-> +       Sha256Context context;
-> +       SHA256_HASH sha256_hash;
-> +       void *data;
-> +       size_t data_len = 0;
-> +       int result;
+> +       BZFILE* b;
+> +       size_t  size = 1<<16;
+> +       int     bzerror;
+> +       size_t  total = 0;
+> +       size_t len = 0;
+> +       FILE *f;
 > +
-> +       result = semanage_module_extract(sh, modkey, cil, &data, &data_len, &extract_info);
-> +       if (result != 0)
+> +       if ((f = fopen(filename, "wb")) == NULL) {
 > +               return -1;
+> +       }
 > +
-> +       semanage_module_info_destroy(sh, extract_info);
-> +       free(extract_info);
+> +       if (!sh->conf->bzip_blocksize) {
+> +               if (fwrite(data, 1, num_bytes, f) < num_bytes) {
+> +                       fclose(f);
+> +                       return -1;
+> +               }
+> +               fclose(f);
+> +               return 0;
+> +       }
 > +
-> +       Sha256Initialise(&context);
-> +       Sha256Update(&context, data, data_len);
-> +       Sha256Finalise(&context, &sha256_hash);
-> +
-> +       munmap(data, data_len);
-> +
-> +       *checksum = malloc(SHA256_HASH_SIZE);
-> +       if (!*checksum)
+> +       b = BZ2_bzWriteOpen( &bzerror, f, sh->conf->bzip_blocksize, 0, 0);
+> +       if (bzerror != BZ_OK) {
+> +               BZ2_bzWriteClose ( &bzerror, b, 1, 0, 0 );
+> +               fclose(f);
 > +               return -1;
+> +       }
 > +
-> +       memcpy(*checksum, sha256_hash.bytes, SHA256_HASH_SIZE);
-> +       *checksum_len = SHA256_HASH_SIZE;
-> +       *checksum_type = "sha256";
+> +       while ( num_bytes > total ) {
+> +               if (num_bytes - total > size) {
+> +                       len = size;
+> +               } else {
+> +                       len = num_bytes - total;
+> +               }
+> +               BZ2_bzWrite ( &bzerror, b, (uint8_t *)data + total, len );
+> +               if (bzerror == BZ_IO_ERROR) {
+> +                       BZ2_bzWriteClose ( &bzerror, b, 1, 0, 0 );
+> +                       fclose(f);
+> +                       return -1;
+> +               }
+> +               total += len;
+> +       }
+> +
+> +       BZ2_bzWriteClose ( &bzerror, b, 0, 0, 0 );
+> +       fclose(f);
+> +       if (bzerror == BZ_IO_ERROR) {
+> +               return -1;
+> +       }
 > +       return 0;
 > +}
-> diff --git a/libsemanage/src/semanageswig_python_exception.i b/libsemanage/src/semanageswig_python_exception.i
-> index 372ec948..0df8bbc3 100644
-> --- a/libsemanage/src/semanageswig_python_exception.i
-> +++ b/libsemanage/src/semanageswig_python_exception.i
-> @@ -351,6 +351,14 @@
->    }
->  }
->
-> +%exception semanage_module_compute_checksum {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
+> +
+> +/* bunzip() a file to '*data', returning the total number of uncompressed bytes
+> + * in the file.  Returns -1 if file could not be decompressed. */
+> +static ssize_t bunzip(semanage_handle_t *sh, FILE *f, void **data)
+> +{
+> +       BZFILE*  b = NULL;
+> +       size_t   nBuf;
+> +       uint8_t* buf = NULL;
+> +       size_t   size = 1<<18;
+> +       size_t   bufsize = size;
+> +       int      bzerror;
+> +       size_t   total = 0;
+> +       uint8_t* uncompress = NULL;
+> +       uint8_t* tmpalloc = NULL;
+> +       int      ret = -1;
+> +
+> +       buf = malloc(bufsize);
+> +       if (buf == NULL) {
+> +               ERR(sh, "Failure allocating memory.");
+> +               goto exit;
+> +       }
+> +
+> +       /* Check if the file is bzipped */
+> +       bzerror = fread(buf, 1, BZ2_MAGICLEN, f);
+> +       rewind(f);
+> +       if ((bzerror != BZ2_MAGICLEN) || memcmp(buf, BZ2_MAGICSTR, BZ2_MAGICLEN)) {
+> +               goto exit;
+> +       }
+> +
+> +       b = BZ2_bzReadOpen ( &bzerror, f, 0, sh->conf->bzip_small, NULL, 0 );
+> +       if ( bzerror != BZ_OK ) {
+> +               ERR(sh, "Failure opening bz2 archive.");
+> +               goto exit;
+> +       }
+> +
+> +       uncompress = malloc(size);
+> +       if (uncompress == NULL) {
+> +               ERR(sh, "Failure allocating memory.");
+> +               goto exit;
+> +       }
+> +
+> +       while ( bzerror == BZ_OK) {
+> +               nBuf = BZ2_bzRead ( &bzerror, b, buf, bufsize);
+> +               if (( bzerror == BZ_OK ) || ( bzerror == BZ_STREAM_END )) {
+> +                       if (total + nBuf > size) {
+> +                               size *= 2;
+> +                               tmpalloc = realloc(uncompress, size);
+> +                               if (tmpalloc == NULL) {
+> +                                       ERR(sh, "Failure allocating memory.");
+> +                                       goto exit;
+> +                               }
+> +                               uncompress = tmpalloc;
+> +                       }
+> +                       memcpy(&uncompress[total], buf, nBuf);
+> +                       total += nBuf;
+> +               }
+> +       }
+> +       if ( bzerror != BZ_STREAM_END ) {
+> +               ERR(sh, "Failure reading bz2 archive.");
+> +               goto exit;
+> +       }
+> +
+> +       ret = total;
+> +       *data = uncompress;
+> +
+> +exit:
+> +       BZ2_bzReadClose ( &bzerror, b );
+> +       free(buf);
+> +       if ( ret < 0 ) {
+> +               free(uncompress);
+> +       }
+> +       return ret;
 > +}
 > +
->  %exception semanage_msg_get_level {
->    $action
->    if (result < 0) {
-> diff --git a/policycoreutils/semodule/sha256.c b/libsemanage/src/sha256.c
-> similarity index 100%
-> rename from policycoreutils/semodule/sha256.c
-> rename to libsemanage/src/sha256.c
-> diff --git a/policycoreutils/semodule/sha256.h b/libsemanage/src/sha256.h
-> similarity index 100%
-> rename from policycoreutils/semodule/sha256.h
-> rename to libsemanage/src/sha256.h
-> diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/Makefile
-> index 9875ac38..73801e48 100644
-> --- a/policycoreutils/semodule/Makefile
-> +++ b/policycoreutils/semodule/Makefile
-> @@ -6,7 +6,7 @@ MANDIR = $(PREFIX)/share/man
+> +int map_compressed_file(semanage_handle_t *sh, const char *path,
+> +                       struct file_contents *contents)
+> +{
+> +       ssize_t size = -1;
+> +       void *uncompress;
+> +       int ret = 0, fd = -1;
+> +       FILE *file = NULL;
+> +
+> +       fd = open(path, O_RDONLY);
+> +       if (fd == -1) {
+> +               ERR(sh, "Unable to open %s\n", path);
+> +               return -1;
+> +       }
+> +
+> +       file = fdopen(fd, "r");
+> +       if (file == NULL) {
+> +               ERR(sh, "Unable to open %s\n", path);
+> +               close(fd);
+> +               return -1;
+> +       }
+> +
+> +       if ((size = bunzip(sh, file, &uncompress)) >= 0) {
+> +               contents->data = uncompress;
+> +               contents->len = size;
+> +               contents->compressed = 1;
+> +       } else {
+> +               struct stat sb;
+> +               if (fstat(fd, &sb) == -1 ||
+> +                   (uncompress = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0)) ==
+> +                   MAP_FAILED) {
+> +                       ret = -1;
+> +               } else {
+> +                       contents->data = uncompress;
+> +                       contents->len = sb.st_size;
+> +                       contents->compressed = 0;
+> +               }
+> +       }
+> +       fclose(file);
+> +       return ret;
+> +}
+> +
+> +void unmap_compressed_file(struct file_contents *contents)
+> +{
+> +       if (!contents->data)
+> +               return;
+> +
+> +       if (contents->compressed) {
+> +               free(contents->data);
+> +       } else {
+> +               munmap(contents->data, contents->len);
+> +       }
+> +}
+> +
+> +int write_compressed_file(semanage_handle_t *sh, const char *path,
+> +                         void *data, size_t len)
+> +{
+> +       return bzip(sh, path, data, len);
+> +}
+> diff --git a/libsemanage/src/compressed_file.h b/libsemanage/src/compressed_file.h
+> new file mode 100644
+> index 00000000..96cfb4b6
+> --- /dev/null
+> +++ b/libsemanage/src/compressed_file.h
+> @@ -0,0 +1,78 @@
+> +/* Author: Jason Tang    <jtang@tresys.com>
+> + *         Christopher Ashworth <cashworth@tresys.com>
+> + *         Ondrej Mosnacek <omosnacek@gmail.com>
+> + *
+> + * Copyright (C) 2004-2006 Tresys Technology, LLC
+> + * Copyright (C) 2005-2021 Red Hat, Inc.
+> + *
+> + *  This library is free software; you can redistribute it and/or
+> + *  modify it under the terms of the GNU Lesser General Public
+> + *  License as published by the Free Software Foundation; either
+> + *  version 2.1 of the License, or (at your option) any later version.
+> + *
+> + *  This library is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + *  Lesser General Public License for more details.
+> + *
+> + *  You should have received a copy of the GNU Lesser General Public
+> + *  License along with this library; if not, write to the Free Software
+> + *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+> + */
+> +
+> +#ifndef _SEMANAGE_CIL_FILE_H_
+> +#define _SEMANAGE_CIL_FILE_H_
+> +
+> +#include <sys/mman.h>
+> +#include <sys/types.h>
+> +
+> +#include "handle.h"
+> +
+> +struct file_contents {
+> +       void *data; /** file contents (uncompressed) */
+> +       size_t len; /** length of contents */
+> +       int compressed; /** whether file was compressed */
+> +};
+> +
+> +/**
+> + * Map/read a possibly-compressed file into memory.
+> + *
+> + * If the file is bzip compressed map_file will uncompress the file into
+> + * @p contents. The caller is responsible for calling
+> + * @ref unmap_compressed_file on @p contents on success.
+> + *
+> + * @param sh        semanage handle
+> + * @param path      path to the file
+> + * @param contents  pointer to struct file_contents, which will be
+> + *   populated with data pointer, size, and an indication whether
+> + *   the file was compressed or not
+> + *
+> + * @return 0 on success, -1 otherwise.
+> + */
+> +int map_compressed_file(semanage_handle_t *sh, const char *path,
+> +                       struct file_contents *contents);
+> +
+> +/**
+> + * Destroy a previously mapped possibly-compressed file.
+> + *
+> + * If all fields of @p contents are zero/NULL, the function is
+> + * guaranteed to do nothing.
+> + *
+> + * @param contents  pointer to struct file_contents to destroy
+> + */
+> +void unmap_compressed_file(struct file_contents *contents);
+> +
+> +/**
+> + * Write bytes into a file, using compression if configured.
+> + *
+> + * @param sh    semanage handle
+> + * @param path  path to the file
+> + * @param data  pointer to the data
+> + * @param len   length of the data
+> + *
+> + * @return 0 on success, -1 otherwise.
+> + */
+> +int write_compressed_file(semanage_handle_t *sh, const char *path,
+> +                         void *data, size_t len);
+> +
+> +#endif
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index f0e2300a..7eb6938b 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -50,6 +50,7 @@
 >
->  CFLAGS ?= -Werror -Wall -W
->  override LDLIBS += -lsepol -lselinux -lsemanage
-> -SEMODULE_OBJS = semodule.o sha256.o
-> +SEMODULE_OBJS = semodule.o
->
->  all: semodule genhomedircon
->
-> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-> index 94a9d131..a5b71fc4 100644
-> --- a/policycoreutils/semodule/semodule.c
-> +++ b/policycoreutils/semodule/semodule.c
-> @@ -25,8 +25,6 @@
->  #include <sepol/cil/cil.h>
->  #include <semanage/modules.h>
->
-> -#include "sha256.h"
-> -
->  enum client_modes {
->         NO_MODE, INSTALL_M, REMOVE_M, EXTRACT_M, CIL_M, HLL_M,
->         LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M
-> @@ -348,60 +346,47 @@ static void parse_command_line(int argc, char **argv)
->
->  /* Get module checksum */
->  static char *hash_module_data(const char *module_name, const int prio) {
-> -       semanage_module_info_t *extract_info = NULL;
->         semanage_module_key_t *modkey = NULL;
-> -       Sha256Context context;
-> -       uint8_t sha256_hash[SHA256_HASH_SIZE];
-> -       char *sha256_buf = NULL;
-> -       void *data;
-> -       size_t data_len = 0, i;
-> +       const char *checksum_type;
-> +       char *hash_str = NULL;
-> +       void *hash = NULL;
-> +       size_t hash_len = 0, i;
->         int result;
->
->         result = semanage_module_key_create(sh, &modkey);
->         if (result != 0) {
-> -               goto cleanup_extract;
-> +               goto cleanup;
->         }
->
->         result = semanage_module_key_set_name(sh, modkey, module_name);
->         if (result != 0) {
-> -               goto cleanup_extract;
-> +               goto cleanup;
->         }
->
->         result = semanage_module_key_set_priority(sh, modkey, prio);
->         if (result != 0) {
-> -               goto cleanup_extract;
-> +               goto cleanup;
->         }
->
-> -       result = semanage_module_extract(sh, modkey, 1, &data, &data_len,
-> -                                                                        &extract_info);
-> +       result = semanage_module_compute_checksum(sh, modkey, 1, &checksum_type,
-> +                                                 &hash, &hash_len);
->         if (result != 0) {
-> -               goto cleanup_extract;
-> +               goto cleanup;
->         }
->
-> -       Sha256Initialise(&context);
-> -       Sha256Update(&context, data, data_len);
-> -
-> -       Sha256Finalise(&context, (SHA256_HASH *)sha256_hash);
-> -
-> -       sha256_buf = calloc(1, SHA256_HASH_SIZE * 2 + 1);
-> -
-> -       if (sha256_buf == NULL)
-> -               goto cleanup_extract;
-> +       hash_str = calloc(1, hash_len * 2 + 1);
-> +       if (!hash_str)
-> +               goto cleanup;
->
-> -       for (i = 0; i < SHA256_HASH_SIZE; i++) {
-> -               sprintf((&sha256_buf[i * 2]), "%02x", sha256_hash[i]);
-> +       for (i = 0; i < hash_len; i++) {
-> +               sprintf(&hash_str[i * 2], "%02x", ((uint8_t *)hash)[i]);
->         }
-> -       sha256_buf[i * 2] = 0;
->
-> -cleanup_extract:
-> -       if (data_len > 0) {
-> -               munmap(data, data_len);
-> -       }
-> -       semanage_module_info_destroy(sh, extract_info);
-> -       free(extract_info);
-> +cleanup:
-> +       free(hash);
->         semanage_module_key_destroy(sh, modkey);
->         free(modkey);
-> -       return sha256_buf;
-> +       return hash_str;
+>  #include "debug.h"
+>  #include "handle.h"
+> +#include "compressed_file.h"
+>  #include "modules.h"
+>  #include "direct_api.h"
+>  #include "semanage_store.h"
+> @@ -446,194 +447,6 @@ static int parse_module_headers(semanage_handle_t * sh, char *module_data,
+>         return 0;
 >  }
 >
->  int main(int argc, char *argv[])
+> -#include <stdlib.h>
+> -#include <bzlib.h>
+> -#include <string.h>
+> -#include <sys/sendfile.h>
+> -
+> -/* bzip() a data to a file, returning the total number of compressed bytes
+> - * in the file.  Returns -1 if file could not be compressed. */
+> -static ssize_t bzip(semanage_handle_t *sh, const char *filename, char *data,
+> -                       size_t num_bytes)
+> -{
+> -       BZFILE* b;
+> -       size_t  size = 1<<16;
+> -       int     bzerror;
+> -       size_t  total = 0;
+> -       size_t len = 0;
+> -       FILE *f;
+> -
+> -       if ((f = fopen(filename, "wb")) == NULL) {
+> -               return -1;
+> -       }
+> -
+> -       if (!sh->conf->bzip_blocksize) {
+> -               if (fwrite(data, 1, num_bytes, f) < num_bytes) {
+> -                       fclose(f);
+> -                       return -1;
+> -               }
+> -               fclose(f);
+> -               return num_bytes;
+> -       }
+> -
+> -       b = BZ2_bzWriteOpen( &bzerror, f, sh->conf->bzip_blocksize, 0, 0);
+> -       if (bzerror != BZ_OK) {
+> -               BZ2_bzWriteClose ( &bzerror, b, 1, 0, 0 );
+> -               return -1;
+> -       }
+> -
+> -       while ( num_bytes > total ) {
+> -               if (num_bytes - total > size) {
+> -                       len = size;
+> -               } else {
+> -                       len = num_bytes - total;
+> -               }
+> -               BZ2_bzWrite ( &bzerror, b, &data[total], len );
+> -               if (bzerror == BZ_IO_ERROR) {
+> -                       BZ2_bzWriteClose ( &bzerror, b, 1, 0, 0 );
+> -                       return -1;
+> -               }
+> -               total += len;
+> -       }
+> -
+> -       BZ2_bzWriteClose ( &bzerror, b, 0, 0, 0 );
+> -       fclose(f);
+> -       if (bzerror == BZ_IO_ERROR) {
+> -               return -1;
+> -       }
+> -       return total;
+> -}
+> -
+> -#define BZ2_MAGICSTR "BZh"
+> -#define BZ2_MAGICLEN (sizeof(BZ2_MAGICSTR)-1)
+> -
+> -/* bunzip() a file to '*data', returning the total number of uncompressed bytes
+> - * in the file.  Returns -1 if file could not be decompressed. */
+> -ssize_t bunzip(semanage_handle_t *sh, FILE *f, char **data)
+> -{
+> -       BZFILE* b = NULL;
+> -       size_t  nBuf;
+> -       char*   buf = NULL;
+> -       size_t  size = 1<<18;
+> -       size_t  bufsize = size;
+> -       int     bzerror;
+> -       size_t  total = 0;
+> -       char*   uncompress = NULL;
+> -       char*   tmpalloc = NULL;
+> -       int     ret = -1;
+> -
+> -       buf = malloc(bufsize);
+> -       if (buf == NULL) {
+> -               ERR(sh, "Failure allocating memory.");
+> -               goto exit;
+> -       }
+> -
+> -       /* Check if the file is bzipped */
+> -       bzerror = fread(buf, 1, BZ2_MAGICLEN, f);
+> -       rewind(f);
+> -       if ((bzerror != BZ2_MAGICLEN) || memcmp(buf, BZ2_MAGICSTR, BZ2_MAGICLEN)) {
+> -               goto exit;
+> -       }
+> -
+> -       b = BZ2_bzReadOpen ( &bzerror, f, 0, sh->conf->bzip_small, NULL, 0 );
+> -       if ( bzerror != BZ_OK ) {
+> -               ERR(sh, "Failure opening bz2 archive.");
+> -               goto exit;
+> -       }
+> -
+> -       uncompress = malloc(size);
+> -       if (uncompress == NULL) {
+> -               ERR(sh, "Failure allocating memory.");
+> -               goto exit;
+> -       }
+> -
+> -       while ( bzerror == BZ_OK) {
+> -               nBuf = BZ2_bzRead ( &bzerror, b, buf, bufsize);
+> -               if (( bzerror == BZ_OK ) || ( bzerror == BZ_STREAM_END )) {
+> -                       if (total + nBuf > size) {
+> -                               size *= 2;
+> -                               tmpalloc = realloc(uncompress, size);
+> -                               if (tmpalloc == NULL) {
+> -                                       ERR(sh, "Failure allocating memory.");
+> -                                       goto exit;
+> -                               }
+> -                               uncompress = tmpalloc;
+> -                       }
+> -                       memcpy(&uncompress[total], buf, nBuf);
+> -                       total += nBuf;
+> -               }
+> -       }
+> -       if ( bzerror != BZ_STREAM_END ) {
+> -               ERR(sh, "Failure reading bz2 archive.");
+> -               goto exit;
+> -       }
+> -
+> -       ret = total;
+> -       *data = uncompress;
+> -
+> -exit:
+> -       BZ2_bzReadClose ( &bzerror, b );
+> -       free(buf);
+> -       if ( ret < 0 ) {
+> -               free(uncompress);
+> -       }
+> -       return ret;
+> -}
+> -
+> -/* mmap() a file to '*data',
+> - *  If the file is bzip compressed map_file will uncompress
+> - * the file into '*data'.
+> - * Returns the total number of bytes in memory .
+> - * Returns -1 if file could not be opened or mapped. */
+> -static ssize_t map_file(semanage_handle_t *sh, const char *path, char **data,
+> -                       int *compressed)
+> -{
+> -       ssize_t size = -1;
+> -       char *uncompress;
+> -       int fd = -1;
+> -       FILE *file = NULL;
+> -
+> -       fd = open(path, O_RDONLY);
+> -       if (fd == -1) {
+> -               ERR(sh, "Unable to open %s\n", path);
+> -               return -1;
+> -       }
+> -
+> -       file = fdopen(fd, "r");
+> -       if (file == NULL) {
+> -               ERR(sh, "Unable to open %s\n", path);
+> -               close(fd);
+> -               return -1;
+> -       }
+> -
+> -       if ((size = bunzip(sh, file, &uncompress)) > 0) {
+> -               *data = mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+> -               if (*data == MAP_FAILED) {
+> -                       free(uncompress);
+> -                       fclose(file);
+> -                       return -1;
+> -               } else {
+> -                       memcpy(*data, uncompress, size);
+> -               }
+> -               free(uncompress);
+> -               *compressed = 1;
+> -       } else {
+> -               struct stat sb;
+> -               if (fstat(fd, &sb) == -1 ||
+> -                   (*data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0)) ==
+> -                   MAP_FAILED) {
+> -                       size = -1;
+> -               } else {
+> -                       size = sb.st_size;
+> -               }
+> -               *compressed = 0;
+> -       }
+> -
+> -       fclose(file);
+> -
+> -       return size;
+> -}
+> -
+>  /* Writes a block of data to a file.  Returns 0 on success, -1 on
+>   * error. */
+>  static int write_file(semanage_handle_t * sh,
+> @@ -1045,15 +858,12 @@ static int semanage_compile_module(semanage_handle_t *sh,
+>         char *compiler_path = NULL;
+>         char *cil_data = NULL;
+>         char *err_data = NULL;
+> -       char *hll_data = NULL;
+>         char *start = NULL;
+>         char *end = NULL;
+> -       ssize_t hll_data_len = 0;
+> -       ssize_t bzip_status;
+>         int status = 0;
+> -       int compressed;
+>         size_t cil_data_len = 0;
+>         size_t err_data_len = 0;
+> +       struct file_contents hll_contents = {};
+>
+>         if (!strcasecmp(modinfo->lang_ext, "cil")) {
+>                 goto cleanup;
+> @@ -1084,13 +894,15 @@ static int semanage_compile_module(semanage_handle_t *sh,
+>                 goto cleanup;
+>         }
+>
+> -       if ((hll_data_len = map_file(sh, hll_path, &hll_data, &compressed)) <= 0) {
+> +       status = map_compressed_file(sh, hll_path, &hll_contents);
+> +       if (status < 0) {
+>                 ERR(sh, "Unable to read file %s\n", hll_path);
+> -               status = -1;
+>                 goto cleanup;
+>         }
+>
+> -       status = semanage_pipe_data(sh, compiler_path, hll_data, (size_t)hll_data_len, &cil_data, &cil_data_len, &err_data, &err_data_len);
+> +       status = semanage_pipe_data(sh, compiler_path, hll_contents.data,
+> +                                   hll_contents.len, &cil_data, &cil_data_len,
+> +                                   &err_data, &err_data_len);
+>         if (err_data_len > 0) {
+>                 for (start = end = err_data; end < err_data + err_data_len; end++) {
+>                         if (*end == '\n') {
+> @@ -1110,10 +922,9 @@ static int semanage_compile_module(semanage_handle_t *sh,
+>                 goto cleanup;
+>         }
+>
+> -       bzip_status = bzip(sh, cil_path, cil_data, cil_data_len);
+> -       if (bzip_status == -1) {
+> -               ERR(sh, "Failed to bzip %s\n", cil_path);
+> -               status = -1;
+> +       status = write_compressed_file(sh, cil_path, cil_data, cil_data_len);
+> +       if (status == -1) {
+> +               ERR(sh, "Failed to write %s\n", cil_path);
+>                 goto cleanup;
+>         }
+>
+> @@ -1131,9 +942,7 @@ static int semanage_compile_module(semanage_handle_t *sh,
+>         }
+>
+>  cleanup:
+> -       if (hll_data_len > 0) {
+> -               munmap(hll_data, hll_data_len);
+> -       }
+> +       unmap_compressed_file(&hll_contents);
+>         free(cil_data);
+>         free(err_data);
+>         free(compiler_path);
+> @@ -1756,19 +1565,17 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>  {
+>
+>         int retval = -1;
+> -       char *data = NULL;
+> -       ssize_t data_len = 0;
+> -       int compressed = 0;
+>         char *path = NULL;
+>         char *filename;
+>         char *lang_ext = NULL;
+>         char *module_name = NULL;
+>         char *separator;
+>         char *version = NULL;
+> +       struct file_contents contents = {};
+>
+> -       if ((data_len = map_file(sh, install_filename, &data, &compressed)) <= 0) {
+> +       retval = map_compressed_file(sh, install_filename, &contents);
+> +       if (retval < 0) {
+>                 ERR(sh, "Unable to read file %s\n", install_filename);
+> -               retval = -1;
+>                 goto cleanup;
+>         }
+>
+> @@ -1781,7 +1588,7 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>
+>         filename = basename(path);
+>
+> -       if (compressed) {
+> +       if (contents.compressed) {
+>                 separator = strrchr(filename, '.');
+>                 if (separator == NULL) {
+>                         ERR(sh, "Compressed module does not have a valid extension.");
+> @@ -1805,7 +1612,8 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>         }
+>
+>         if (strcmp(lang_ext, "pp") == 0) {
+> -               retval = parse_module_headers(sh, data, data_len, &module_name, &version);
+> +               retval = parse_module_headers(sh, contents.data, contents.len,
+> +                                             &module_name, &version);
+>                 free(version);
+>                 if (retval != 0)
+>                         goto cleanup;
+> @@ -1822,10 +1630,11 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>                 fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", install_filename, module_name, filename);
+>         }
+>
+> -       retval = semanage_direct_install(sh, data, data_len, module_name, lang_ext);
+> +       retval = semanage_direct_install(sh, contents.data, contents.len,
+> +                                        module_name, lang_ext);
+>
+>  cleanup:
+> -       if (data_len > 0) munmap(data, data_len);
+> +       unmap_compressed_file(&contents);
+>         free(module_name);
+>         free(path);
+>
+> @@ -1844,10 +1653,8 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+>         enum semanage_module_path_type file_type;
+>         int rc = -1;
+>         semanage_module_info_t *_modinfo = NULL;
+> -       ssize_t _data_len;
+> -       char *_data;
+> -       int compressed;
+>         struct stat sb;
+> +       struct file_contents contents = {};
+>
+>         /* get path of module */
+>         rc = semanage_module_get_path(
+> @@ -1903,19 +1710,33 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+>                 }
+>         }
+>
+> -       _data_len = map_file(sh, input_file, &_data, &compressed);
+> -       if (_data_len <= 0) {
+> +       rc = map_compressed_file(sh, input_file, &contents);
+> +       if (rc < 0) {
+>                 ERR(sh, "Error mapping file: %s", input_file);
+> -               rc = -1;
+>                 goto cleanup;
+>         }
+>
+> +       /* The API promises an mmap'ed pointer */
+> +       if (contents.compressed) {
+> +               *mapped_data = mmap(NULL, contents.len, PROT_READ|PROT_WRITE,
+> +                                   MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+> +               if (*mapped_data == MAP_FAILED) {
+> +                       ERR(sh, "Unable to map memory");
+> +                       rc = -1;
+> +                       goto cleanup;
+> +               }
+> +               memcpy(*mapped_data, contents.data, contents.len);
+> +               free(contents.data);
+> +       } else {
+> +               *mapped_data = contents.data;
+> +       }
+> +
+>         *modinfo = _modinfo;
+> -       *data_len = (size_t)_data_len;
+> -       *mapped_data = _data;
+> +       *data_len = contents.len;
+>
+>  cleanup:
+>         if (rc != 0) {
+> +               unmap_compressed_file(&contents);
+>                 semanage_module_info_destroy(sh, _modinfo);
+>                 free(_modinfo);
+>         }
+> @@ -2869,8 +2690,8 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
+>                 goto cleanup;
+>         }
+>
+> -       ret = bzip(sh, path, data, data_len);
+> -       if (ret <= 0) {
+> +       ret = write_compressed_file(sh, path, data, data_len);
+> +       if (ret < 0) {
+>                 ERR(sh, "Error while writing to %s.", path);
+>                 status = -3;
+>                 goto cleanup;
+> diff --git a/libsemanage/src/direct_api.h b/libsemanage/src/direct_api.h
+> index e56107b2..ffd428eb 100644
+> --- a/libsemanage/src/direct_api.h
+> +++ b/libsemanage/src/direct_api.h
+> @@ -39,8 +39,4 @@ int semanage_direct_access_check(struct semanage_handle *sh);
+>
+>  int semanage_direct_mls_enabled(struct semanage_handle *sh);
+>
+> -#include <stdio.h>
+> -#include <unistd.h>
+> -ssize_t bunzip(struct semanage_handle *sh, FILE *f, char **data);
+> -
+>  #endif
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+> index c6a736fe..633ee731 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -59,6 +59,7 @@ typedef struct dbase_policydb dbase_t;
+>
+>  #include "debug.h"
+>  #include "utilities.h"
+> +#include "compressed_file.h"
+>
+>  #define SEMANAGE_CONF_FILE "semanage.conf"
+>  /* relative path names to enum semanage_paths to special files and
+> @@ -2054,60 +2055,27 @@ int semanage_direct_get_serial(semanage_handle_t * sh)
+>
+>  int semanage_load_files(semanage_handle_t * sh, cil_db_t *cildb, char **filenames, int numfiles)
+>  {
+> -       int retval = 0;
+> -       FILE *fp;
+> -       ssize_t size;
+> -       char *data = NULL;
+> +       int i, retval = 0;
+>         char *filename;
+> -       int i;
+> +       struct file_contents contents = {};
+>
+>         for (i = 0; i < numfiles; i++) {
+>                 filename = filenames[i];
+>
+> -               if ((fp = fopen(filename, "rb")) == NULL) {
+> -                       ERR(sh, "Could not open module file %s for reading.", filename);
+> -                       goto cleanup;
+> -               }
+> -
+> -               if ((size = bunzip(sh, fp, &data)) <= 0) {
+> -                       rewind(fp);
+> -                       __fsetlocking(fp, FSETLOCKING_BYCALLER);
+> -
+> -                       if (fseek(fp, 0, SEEK_END) != 0) {
+> -                               ERR(sh, "Failed to determine size of file %s.", filename);
+> -                               goto cleanup;
+> -                       }
+> -                       size = ftell(fp);
+> -                       rewind(fp);
+> -
+> -                       data = malloc(size);
+> -                       if (fread(data, size, 1, fp) != 1) {
+> -                               ERR(sh, "Failed to read file %s.", filename);
+> -                               goto cleanup;
+> -                       }
+> -               }
+> +               retval = map_compressed_file(sh, filename, &contents);
+> +               if (retval < 0)
+> +                       return -1;
+>
+> -               fclose(fp);
+> -               fp = NULL;
+> +               retval = cil_add_file(cildb, filename, contents.data, contents.len);
+> +               unmap_compressed_file(&contents);
+>
+> -               retval = cil_add_file(cildb, filename, data, size);
+>                 if (retval != SEPOL_OK) {
+>                         ERR(sh, "Error while reading from file %s.", filename);
+> -                       goto cleanup;
+> +                       return -1;
+>                 }
+> -
+> -               free(data);
+> -               data = NULL;
+>         }
+>
+> -       return retval;
+> -
+> -      cleanup:
+> -       if (fp != NULL) {
+> -               fclose(fp);
+> -       }
+> -       free(data);
+> -       return -1;
+> +       return 0;
+>  }
+>
+>  /*
 > --
 > 2.34.1
 >
