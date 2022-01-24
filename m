@@ -2,156 +2,160 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91551C433F5
-	for <selinux@archiver.kernel.org>; Mon, 24 Jan 2022 08:51:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5EDC433F5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 02:08:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232415AbiAXIvR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Jan 2022 03:51:17 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:40598 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236281AbiAXIvQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jan 2022 03:51:16 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id C8E8B1F38F;
-        Mon, 24 Jan 2022 08:51:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1643014275; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ndM2PCneOQnHFg2lbiPXLUu6OZEUwWl95nJ80j1d+DM=;
-        b=jA/pQUEObDI49lmnnm97HIQjxMwqvCTwkjSefnsUIxf4x76lAobhmonGNmc5fef9vNfRWa
-        WCL9OUzuWblT6koYfpKhtPUxjUOLHxm0nuwbWcZl8w8m8fWiAn5wNVmHqZQfHSqwKnxHDR
-        TgSu3VcIn6UQPEyp3+W3B0X8+gDNKck=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1643014275;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ndM2PCneOQnHFg2lbiPXLUu6OZEUwWl95nJ80j1d+DM=;
-        b=U71BmAIHY9QeLC0MeVWFrWAX22eiJMqkkpXJgEFeGLnydUfq1aQz/mfB6Vn8rJevzqYWJe
-        Nv3E0WwvrSO5MHDA==
-Received: from suse.com (unknown [10.163.42.222])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id B2562A3B8A;
-        Mon, 24 Jan 2022 08:51:15 +0000 (UTC)
-Date:   Mon, 24 Jan 2022 09:51:13 +0100
-From:   Johannes Segitz <jsegitz@suse.de>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: [PATCH] libselinux: Cached security context not accurate
-Message-ID: <20220124085113.GC5813@suse.com>
-References: <20220121084012.GS7643@suse.com>
- <CAJ2a_Ded5vUji+FmPZ0F09aZ_QGzk_aSAVKiejbAkwJNcPfEDg@mail.gmail.com>
+        id S1350273AbiAYCIo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Jan 2022 21:08:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1847633AbiAXXUO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jan 2022 18:20:14 -0500
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE792C08E90E
+        for <selinux@vger.kernel.org>; Mon, 24 Jan 2022 13:27:55 -0800 (PST)
+Received: by mail-ej1-x633.google.com with SMTP id d10so25124686eje.10
+        for <selinux@vger.kernel.org>; Mon, 24 Jan 2022 13:27:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=RYjOggTIatflhN2tcFQRaqqDoiv4Tn5RiFVJCwGLqbw=;
+        b=3gh94fdxPP1DWGi6gOuYZrgk2uf3k5hBepC1rTfdXAfdOBNwWYVRFT+7VJ//ZBKj48
+         9cUBdcc1L83luJV4tNyo6xJ2NhDMZh+fGByJMZOR/E6OGpvhKXMfLugkrlVdTOH56MDo
+         53GnLKtMZ1UmD6cNG2HLa7dp6n40gG/YORbut8GypvyjOFtcXXVbFmRUkHhk5gGPcxEp
+         Dgpu/Tpnuc1tgVySpXrEXV2khVCSkxu0v94hJwxyVmROc7D4gXyjwSOqfPqFfbNilXgd
+         1HKCc/J/SbsB8BIH3KWfAuFdAb4ahrykJGfJjcwv72KNRdT+NPieaA//XGgx9ofoPnqK
+         CFVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=RYjOggTIatflhN2tcFQRaqqDoiv4Tn5RiFVJCwGLqbw=;
+        b=JIyfb6/ZaGPdRyiPgxgnTlZ0rZgt5i8zB6cksH/hIeDC/q9LySpmgdj1OMa5ti1Hha
+         UlTiM8DF/vM+J0zW6NU1yxhifR+mN/KDYmBEzHB/S/vaZT58lDuppH2jFY1fjsSwf6Dk
+         ZkwJb0WvGXsfDgd/g4IjHcGeexaVmR6ovi6XEM2a47XbROGvKiV302TUsBlTyfMY7XJy
+         vF9cmBL01yu65ukD9ydZ7frQe4DvHU3fBgxODXaggFv5cWde5cRfvB5UfsWDEmdfWGkY
+         MmXf1C8v8Jwl4LubC8iXRfByXnVE69RtoNLGiUEFWUCX4Jk51bp1f+21RybTiSrb6upz
+         m+fQ==
+X-Gm-Message-State: AOAM533XHscshOFyg5e1CFZBxP13jgYc5YyKcfzLycuhxP8U+OYdndTG
+        rQjMm/JqICTawHJJQCnED3dlnz0nuGQpgsZNgdcqnmnWM5kX
+X-Google-Smtp-Source: ABdhPJzYbZvpioE6dEHN6JXBqwOIehEPUtOGXhvu9h/22uwOkXqdsmf4vjBbxGP53yiW7luwQlXcqdOThz5giAMUPiM=
+X-Received: by 2002:a17:907:968d:: with SMTP id hd13mr4919050ejc.12.1643059674146;
+ Mon, 24 Jan 2022 13:27:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4zI0WCX1RcnW9Hbu"
-Content-Disposition: inline
-In-Reply-To: <CAJ2a_Ded5vUji+FmPZ0F09aZ_QGzk_aSAVKiejbAkwJNcPfEDg@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20220120214948.3637895-1-smayhew@redhat.com> <20220120214948.3637895-2-smayhew@redhat.com>
+In-Reply-To: <20220120214948.3637895-2-smayhew@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 24 Jan 2022 16:27:43 -0500
+Message-ID: <CAHC9VhT2RhnXtK3aQuDCFUr5qayH25G8HHjRTJzhWM3H41YNog@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
+To:     Scott Mayhew <smayhew@redhat.com>
+Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Jan 20, 2022 at 4:50 PM Scott Mayhew <smayhew@redhat.com> wrote:
+>
+> selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
+> shouldn't be performing any memory allocations.  Fix this by parsing the
+> sids at the same time we're chopping up the security mount options
+> string and then using the pre-parsed sids when doing the comparison.
+>
+> Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
+> Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
+> Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> ---
+>  security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
+>  1 file changed, 76 insertions(+), 36 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 5b6895e4fc29..f27ca9e870c0 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -342,6 +342,11 @@ static void inode_free_security(struct inode *inode)
+>
+>  struct selinux_mnt_opts {
+>         const char *fscontext, *context, *rootcontext, *defcontext;
+> +       u32 fscontext_sid;
+> +       u32 context_sid;
+> +       u32 rootcontext_sid;
+> +       u32 defcontext_sid;
+> +       unsigned short preparsed;
+>  };
 
---4zI0WCX1RcnW9Hbu
-Content-Type: multipart/mixed; boundary="5QAgd0e35j3NYeGe"
-Content-Disposition: inline
+Is the preparsed field strictly necessary?  Can't we just write the
+code to assume that if a given SID field is not SECSID_NULL then it is
+valid/preparsed?
 
+> @@ -598,12 +603,11 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
+>         return 0;
+>  }
+>
+> -static int parse_sid(struct super_block *sb, const char *s, u32 *sid,
+> -                    gfp_t gfp)
+> +static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
+>  {
+>         int rc = security_context_str_to_sid(&selinux_state, s,
+> -                                            sid, gfp);
+> -       if (rc)
+> +                                            sid, GFP_KERNEL);
+> +       if (rc && sb != NULL)
+>                 pr_warn("SELinux: security_context_str_to_sid"
+>                        "(%s) failed for (dev %s, type %s) errno=%d\n",
+>                        s, sb->s_id, sb->s_type->name, rc);
 
---5QAgd0e35j3NYeGe
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It seems like it would still be useful to see the warning even when sb
+is NULL, wouldn't you say?  How about something like this:
 
-On Fri, Jan 21, 2022 at 01:06:16PM +0100, Christian G=F6ttsche wrote:
-> Wouldn't it make logically more sense to first check if pid is zero
-> and then check if the cache is set, cause we never want to access the
-> cache if not operating on out own process?
+  if (rc)
+    pr_warn("SELinux: blah blah blah (dev %s, type %s) blah blah\n",
+            (sb ? sb->s_id : "?"),
+            (sb ? sb->s_type->name : "?"));
 
-Yes, I changed that
+> @@ -976,6 +976,9 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+>  {
+>         struct selinux_mnt_opts *opts = *mnt_opts;
+>         bool is_alloc_opts = false;
+> +       bool preparse_sid = false;
+> +       u32 sid;
+> +       int rc;
+>
+>         if (token == Opt_seclabel)
+>                 /* eaten and completely ignored */
+> @@ -991,26 +994,57 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+>                 is_alloc_opts = true;
+>         }
+>
+> +       if (selinux_initialized(&selinux_state))
+> +               preparse_sid = true;
 
-> Also isn't setprocattrcon_raw() affected too?
+Since there is no looping in selinux_add_opt, and you can only specify
+one token/option for a given call to this function, it seems like we
+can do away with preparse_sid and just do the selinux_initialized(...)
+check directly in the code below, yes?
 
-Of course. I managed to attach the wrong file that only had the change for
-getprocattrcon_raw. Attached is the full patch
+>         switch (token) {
+>         case Opt_context:
+>                 if (opts->context || opts->defcontext)
+>                         goto err;
+>                 opts->context = s;
+> +               if (preparse_sid) {
+> +                       rc = parse_sid(NULL, s, &sid);
+> +                       if (rc == 0) {
+> +                               opts->context_sid = sid;
+> +                               opts->preparsed |= CONTEXT_MNT;
+> +                       }
+> +               }
 
-Johannes
---=20
-GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
-Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
-SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nuernberg
-Gesch=E4ftsf=FChrer: Ivo Totev (HRB 36809, AG N=FCrnberg)
+Is there a reason why we need a dedicated sid variable as opposed to
+passing opt->context_sid as the parameter?  For example:
 
---5QAgd0e35j3NYeGe
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="libselinux_procattr_cache.patch"
-Content-Transfer-Encoding: quoted-printable
+  rc = parse_sid(NULL, s, &opts->context_sid);
 
-Index: libselinux-3.3/src/procattr.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- libselinux-3.3.orig/src/procattr.c
-+++ libselinux-3.3/src/procattr.c
-@@ -148,7 +148,7 @@ static int getprocattrcon_raw(char ** co
- 			return -1;
- 	}
-=20
--	if (prev_context && prev_context !=3D UNSET) {
-+	if (pid =3D=3D 0 && prev_context && prev_context !=3D UNSET) {
- 		*context =3D strdup(prev_context);
- 		if (!(*context)) {
- 			return -1;
-@@ -242,9 +242,9 @@ static int setprocattrcon_raw(const char
- 			return -1;
- 	}
-=20
--	if (!context && !*prev_context)
-+	if (pid =3D=3D 0 && !context && !*prev_context)
- 		return 0;
--	if (context && *prev_context && *prev_context !=3D UNSET
-+	if (pid =3D=3D 0 && context && *prev_context && *prev_context !=3D UNSET
- 	    && !strcmp(context, *prev_context))
- 		return 0;
-=20
-@@ -272,9 +272,11 @@ out:
- 		free(context2);
- 		return -1;
- 	} else {
--		if (*prev_context !=3D UNSET)
--			free(*prev_context);
--		*prev_context =3D context2;
-+		if (pid =3D=3D 0) {
-+			if (*prev_context !=3D UNSET)
-+				free(*prev_context);
-+			*prev_context =3D context2;
-+		}
- 		return 0;
- 	}
- }
-
---5QAgd0e35j3NYeGe--
-
---4zI0WCX1RcnW9Hbu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmHuaIEACgkQvCfdnSzE
-/WZ4exAAxJFUg3qgTB4bVon//r312wCAnkk8UL5ZVts/PIYM3YY1uJ4ioCdxXiHw
-DhN/OyQbd37bpZ4+erTWg1Y8ZdrVZgDrbqGX6sbCBRnPoZFczbKPcGh+Yuj2X9ic
-HMksFg2i5vASSHaXnHzeEQSnXKRqQhFdWNbYo1GpiMjceZLJB5J0cHrcW1yxUtxr
-W8iJAQ2QX3GIFCh2BfVUKCAgU08MBCkOBCPt3XhGYBCBQrtvA//1xo320BRXn3Ax
-ktAb01kIHPXOLcYJ4FnyLKz11RFAOLnsSkR2nkmuzVIf6+8f/sPeC9VHoz3XBZrs
-leeTp998Xtlp9KLXCwnA1E8nM7ZyWc6zu5R3+DtNsdTMeS9y20gO5uvoc8Wrvm9b
-OQO57XHHRUrT29mbH7IlGax4dUIf6o0RvzS2Uhqcl/MY3/UfbT1mJ/ZG6ZsVEBat
-i85VsLU9EupcAcjwlsE368phRX+HbCmFz6KswTUZoFZLwxeh72MhpyD2BqYJwArl
-FdHw0aIVr4wjyKysoqzVNfEOtY0Ot0TUCy3fEEsACTKQ86YKzP2Tp7hBjQ7XPglv
-V2QxMRKJ2WCEKWCStegALcfkoMFVxKDzS9q9No+FofugUSt27nh1/5qmY1Bbx/zu
-JbQt+sRlBNvVFnZazPJucIoYvYYjk+OFeqKT0HlpgF7QIGPGn3Q=
-=QPJX
------END PGP SIGNATURE-----
-
---4zI0WCX1RcnW9Hbu--
+-- 
+paul moore
+paul-moore.com
