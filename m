@@ -2,108 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6426FC433EF
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 17:45:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4871EC433FE
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 18:52:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381488AbiAYRp6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 12:45:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55054 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356780AbiAYRpb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 12:45:31 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613CDC061747
-        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 09:45:27 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id s5so32110795ejx.2
-        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 09:45:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=v+JhCJG7g15hco1FfpnIJUO82hnrd6NkmYcF+6eeLPo=;
-        b=a4paAk6X+lXbHgR975FUNAILKJjK+GHIKFby7yE+3igVKbZl+vWP1jtoru30kQmR1l
-         AnMm15z8x2VhASr4KBv8zfBSkUW2NmMli4cYPPjEVrjFc1bRboE1LB/lznV3d9opqJsh
-         nkYefRbIVsKskyxlf4Nvdjdlbmplc6NMEUB7tkrukby40kVSu7b36d6c9tsMKAoZknOi
-         lvYR0N1XEPVDmSj9+2Jjl+sM4jJw3IckOViCWT2bDWYv0BQlS6vhGAKrgF1eGVJRb9/R
-         AwwnBJC2MYqNUg2QVYcbm5+Bhq7wV8CQjpts6Ts3pklfGQIFi9nPtrJZSgKxubd3Ijm4
-         xO7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=v+JhCJG7g15hco1FfpnIJUO82hnrd6NkmYcF+6eeLPo=;
-        b=YEreRt+ZrW4t2s8mKHlxJN9GFAE+k+Ze5yFw3AYrsPmFs1AFgqJkA67MW5S8STdFxW
-         6HYr7HIyJaTrvgYbRmXLOr29q4uySGs4MPDump2VPAdHw4YPR40O0pHL4BJ4XH8QH+OR
-         jZFh1n1UIusGHM090oxUFjzMZfjBqKgeOflKg9dGhNgX+hbF/MRWDVQt8gQNuP4aSOWn
-         J8lXOo5ln96JdAmwIWVP9JYpPRZWPOBIc6F1kmY7gsKb9Rc67qQTQ9vEvyBFofAjCGn0
-         Q0nq2XnZ6jZ6NsWpqmp6V2IoKUAJNB9D7J6lCRyCjlbeFm0RaldXetnDoZw01h15v0MN
-         7e3A==
-X-Gm-Message-State: AOAM53079Di+HpkndWgrYEFdCEzv5aJvy73GfWSQ1gJort3Y2cLCgtOv
-        vUuDq3QH45hQH/4/ounm9WbF1d1SVSL2PsxVeMvp
-X-Google-Smtp-Source: ABdhPJxtnIJYYulDdtbOM0Ld9l5htRqshcjYAkBm/PB/rZ2vmlkA6WWyHzdHGGfmlT2buUqLPljzImUTRWJicbrIwD4=
-X-Received: by 2002:a17:907:6d03:: with SMTP id sa3mr3976554ejc.517.1643132725758;
- Tue, 25 Jan 2022 09:45:25 -0800 (PST)
-MIME-Version: 1.0
-References: <20220120214948.3637895-1-smayhew@redhat.com> <20220120214948.3637895-2-smayhew@redhat.com>
- <CAHC9VhT2RhnXtK3aQuDCFUr5qayH25G8HHjRTJzhWM3H41YNog@mail.gmail.com> <YfAz0EAim7Q9ifGI@aion.usersys.redhat.com>
-In-Reply-To: <YfAz0EAim7Q9ifGI@aion.usersys.redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 25 Jan 2022 12:45:14 -0500
-Message-ID: <CAHC9VhTwXUE9dYBHrkA3Xkr=AgXvcnfSzLLBJ4QqYd4R+kFbbA@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
-To:     Scott Mayhew <smayhew@redhat.com>
+        id S232037AbiAYSwC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 13:52:02 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27416 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232374AbiAYSwA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 13:52:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643136717;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MFNBLU9fi1/P19BC1N9d+ep2tphTew1fPzk0R1jaXnE=;
+        b=cOUcHHiSPue560ACgQJnmZ6GXSGeOgklIYpO+a0oQCcjhzRKCQ+bXdLvBrosa9f6gwLHWr
+        qi7aYKqTSAtTqKZoFFrmSaY8Lh1HDmG2yd3SwsJhj6kwz6QzzcZ7cVrEJh2VEy09XYkC3Y
+        bTzMNRDvdN+fF6YK+EXepCVveMVuwEU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-146-Aku6xU8LOGO17Wb6B0WNoA-1; Tue, 25 Jan 2022 13:51:53 -0500
+X-MC-Unique: Aku6xU8LOGO17Wb6B0WNoA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 961ED8519E3;
+        Tue, 25 Jan 2022 18:51:52 +0000 (UTC)
+Received: from aion.usersys.redhat.com (unknown [10.22.17.55])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 75B7572FA5;
+        Tue, 25 Jan 2022 18:51:52 +0000 (UTC)
+Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
+        id 98B171A001F; Tue, 25 Jan 2022 13:51:51 -0500 (EST)
+Date:   Tue, 25 Jan 2022 13:51:51 -0500
+From:   Scott Mayhew <smayhew@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
+Message-ID: <YfBGx+M9jQZa80rZ@aion.usersys.redhat.com>
+References: <20220120214948.3637895-1-smayhew@redhat.com>
+ <20220120214948.3637895-2-smayhew@redhat.com>
+ <CAHC9VhT2RhnXtK3aQuDCFUr5qayH25G8HHjRTJzhWM3H41YNog@mail.gmail.com>
+ <YfAz0EAim7Q9ifGI@aion.usersys.redhat.com>
+ <CAHC9VhTwXUE9dYBHrkA3Xkr=AgXvcnfSzLLBJ4QqYd4R+kFbbA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhTwXUE9dYBHrkA3Xkr=AgXvcnfSzLLBJ4QqYd4R+kFbbA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 12:31 PM Scott Mayhew <smayhew@redhat.com> wrote:
-> On Mon, 24 Jan 2022, Paul Moore wrote:
-> > On Thu, Jan 20, 2022 at 4:50 PM Scott Mayhew <smayhew@redhat.com> wrote:
+On Tue, 25 Jan 2022, Paul Moore wrote:
+
+> On Tue, Jan 25, 2022 at 12:31 PM Scott Mayhew <smayhew@redhat.com> wrote:
+> > On Mon, 24 Jan 2022, Paul Moore wrote:
+> > > On Thu, Jan 20, 2022 at 4:50 PM Scott Mayhew <smayhew@redhat.com> wrote:
+> > > >
+> > > > selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
+> > > > shouldn't be performing any memory allocations.  Fix this by parsing the
+> > > > sids at the same time we're chopping up the security mount options
+> > > > string and then using the pre-parsed sids when doing the comparison.
+> > > >
+> > > > Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
+> > > > Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
+> > > > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> > > > ---
+> > > >  security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
+> > > >  1 file changed, 76 insertions(+), 36 deletions(-)
+> 
+> ...
+> 
+> > > >         switch (token) {
+> > > >         case Opt_context:
+> > > >                 if (opts->context || opts->defcontext)
+> > > >                         goto err;
+> > > >                 opts->context = s;
+> > > > +               if (preparse_sid) {
+> > > > +                       rc = parse_sid(NULL, s, &sid);
+> > > > +                       if (rc == 0) {
+> > > > +                               opts->context_sid = sid;
+> > > > +                               opts->preparsed |= CONTEXT_MNT;
+> > > > +                       }
+> > > > +               }
 > > >
-> > > selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
-> > > shouldn't be performing any memory allocations.  Fix this by parsing the
-> > > sids at the same time we're chopping up the security mount options
-> > > string and then using the pre-parsed sids when doing the comparison.
+> > > Is there a reason why we need a dedicated sid variable as opposed to
+> > > passing opt->context_sid as the parameter?  For example:
 > > >
-> > > Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
-> > > Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-> > > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-> > > ---
-> > >  security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
-> > >  1 file changed, 76 insertions(+), 36 deletions(-)
-
-...
-
-> > >         switch (token) {
-> > >         case Opt_context:
-> > >                 if (opts->context || opts->defcontext)
-> > >                         goto err;
-> > >                 opts->context = s;
-> > > +               if (preparse_sid) {
-> > > +                       rc = parse_sid(NULL, s, &sid);
-> > > +                       if (rc == 0) {
-> > > +                               opts->context_sid = sid;
-> > > +                               opts->preparsed |= CONTEXT_MNT;
-> > > +                       }
-> > > +               }
+> > >   rc = parse_sid(NULL, s, &opts->context_sid);
 > >
-> > Is there a reason why we need a dedicated sid variable as opposed to
-> > passing opt->context_sid as the parameter?  For example:
-> >
-> >   rc = parse_sid(NULL, s, &opts->context_sid);
->
-> We don't need a dedicated sid variable.  Should I make similar changes
-> in the second patch (get rid of the local sid variable in
-> selinux_sb_remount() and the *context_sid variables in
-> selinux_set_mnt_opts())?
+> > We don't need a dedicated sid variable.  Should I make similar changes
+> > in the second patch (get rid of the local sid variable in
+> > selinux_sb_remount() and the *context_sid variables in
+> > selinux_set_mnt_opts())?
+> 
+> Yes please, I should have explicitly mentioned that.
 
-Yes please, I should have explicitly mentioned that.
+Actually, delayed_superblock_init() calls selinux_set_mnt_opts() with
+mnt_opts == NULL, so there would have to be a lot of checks like
 
-Thanks.
+        if (opts && opts->fscontext_sid) {
 
--- 
-paul moore
-paul-moore.com
+in the later parts of that function, which is kind of clunky.  I can
+still do it if you want though.
+
+-Scott
+
+> 
+> Thanks.
+> 
+> -- 
+> paul moore
+> paul-moore.com
+> 
+
