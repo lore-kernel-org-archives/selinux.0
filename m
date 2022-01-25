@@ -2,96 +2,152 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CB03C433EF
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 21:34:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFD22C4332F
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 22:18:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233169AbiAYVeQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 16:34:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51458 "EHLO
+        id S233653AbiAYWSP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 17:18:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233148AbiAYVeQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 16:34:16 -0500
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C447BC06173B;
-        Tue, 25 Jan 2022 13:34:15 -0800 (PST)
-Received: by mail-qk1-x72c.google.com with SMTP id w8so12731808qkw.8;
-        Tue, 25 Jan 2022 13:34:15 -0800 (PST)
+        with ESMTP id S233644AbiAYWSP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 17:18:15 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A909AC061747
+        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 14:18:14 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id h7so33991733ejf.1
+        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 14:18:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :content-language:content-transfer-encoding;
-        bh=JOQ3PmaJtbdtPUYBzN8lYyLwqfEwyWGHTqG8SXs6IXQ=;
-        b=DLJtQB/iPbudM4U5QdnFTufb8Ay0mLqmLcSVPxmc8P4p1gEtaJ3bvEx3FZmixDmyHF
-         03V4e0Z1BRn8noHW/vGg3uurht3vEnpwnxqQ7PrgKZO1YWOfsFKTB66vM829GeKyWqJw
-         4ON1cEHGSIqbJ0x5IjCNI9aQr+Ickgpp64iXjee09+YjZe44jJlFRwlY1uhlLj/t2vs1
-         D7NzK4h+/rwbpDQ5rJ1Fi4JdbHBgVXTHjywfRsw2k0GgC9mbefixvwlliCNETQBRqjtI
-         K2xD6FdmnbyJDmyvPfb+O2lwAm1FoE4b0BAbv9l5IAhi8F20h5lasjHSkCNajCc2KwUm
-         CiCQ==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wFxRjQblzuQxMmeuxhqTt69j7JKM+h2YKSCx/fgMhRQ=;
+        b=yy0IFEhuQcD3FvuWwa8wDXGhtUxNSAx66MnZHZbzCNhecpc5I8xOnUPy1+QODPd3Hk
+         pcTAwgfPh2h9MgMpZPC2DpBrI7X0acnAeLs2rnetyF6+0SkWFrSNvygFTwvkpDvcNm6w
+         21Wc/8rlhh71ko/itJqW2AGvK8cYvL7s/7UifnG29xGSNFI8rxsnZErm+P4nfT0PHO3Q
+         xfIYOMB9zGBcqAWfPG2b4c1aYctpkjeSZql1+H1YKXBPDirfysT2c7s0i6cmXbdTvnxE
+         fQ5/90JxAP1yz9/PVgd7b/Scqb4i2/a2o4YiJx43MejbjngUUsh10KSvyozYmqv4tpxg
+         IBbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:content-language:content-transfer-encoding;
-        bh=JOQ3PmaJtbdtPUYBzN8lYyLwqfEwyWGHTqG8SXs6IXQ=;
-        b=HATUK3x3CjTkjMUACxuqhOQBb2Vs9N0x5Mm0u5YMjU+Qy5c3AlQWUvTpZGX2AqIXdH
-         5NViHIqycNlmSvs9hZHJBNIp3ZQcjQ0VuT1kvwBro2N9LnonP+F67wk+R4jETsFeX3+a
-         41GkBuEfzy60byN8/P3uwfk9HmS2/cqpZghzqt6LK4jKqXRwRNupydta2+CJX4p5xFQs
-         YMa4pcRQnEOkSjRwCeaMRpd8aBc2eVu15GVOQYXa2UqPlht1pTrSF8sDrJHMOFBdlF/g
-         33fXbTA5VzKG9W0Kk+60AM31dKUqUybDcnd61/jezYTtEpBh1L85Fnca6mR3X8P6700o
-         pjqA==
-X-Gm-Message-State: AOAM532QaaX8t4uogOZaoDumPwuS7ticFzn416mCwHA1dBq9G77HWSIU
-        zreT56OyGVwl6t22GeOX62k=
-X-Google-Smtp-Source: ABdhPJw/2YXrKi+2Ss6HpuhQYRNalRDThCcOA5ft3LnqcnRjQoz65yWuuVC0x1Wotv6N8VP9xTKe5w==
-X-Received: by 2002:a37:996:: with SMTP id 144mr8982462qkj.247.1643146455014;
-        Tue, 25 Jan 2022 13:34:15 -0800 (PST)
-Received: from [10.139.255.254] ([89.187.171.240])
-        by smtp.gmail.com with ESMTPSA id h21sm9484295qth.16.2022.01.25.13.34.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Jan 2022 13:34:14 -0800 (PST)
-Message-ID: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
-Date:   Tue, 25 Jan 2022 16:34:12 -0500
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wFxRjQblzuQxMmeuxhqTt69j7JKM+h2YKSCx/fgMhRQ=;
+        b=eWxZ0A90c8cNLfJR3kxZlq0HVs9I+qu9h5oj7k/F4fz2QPWWjtep85P6z9Vg2tGPAd
+         IbYNnqxi9Aswlc04iZSJzFCYx1/vegHWb6kpG1wbZl85iF+SGLFyOyoLsHs5cNjtNlLp
+         SGNZNp/JHueL3THEFtzubYNjVffU7XB4lm3uQrGwJKYV3VgqpLcmLvNFXop9DmA2xa+b
+         UtqRLQbjxOAktMkJyeMqHfOBJ1yenw0iiRf5SINB5PNqNiCBkHiQahsm7JvgCHxqjL95
+         qgxrK++T9fYXlwQIn5dhZTnh9vKbxaIx3xB8B3glvdImIc6PMsbGgkwiokGWu0OTaYnt
+         7T3g==
+X-Gm-Message-State: AOAM531yWglvDhHxdzT0I2IJ9kXIDezzuFS9p8stHSZnOSXaPHRu9QzX
+        5ZhxkgyKYGsrEY4koszVStzWhREOHxY1xQesrqrq
+X-Google-Smtp-Source: ABdhPJwrpIOZzAr+bseCxchlMSHEMYAimpBHm2qxGfEpHUACZ+FAiH4QA8BYe2CAjY20qlmr+ZzZ3BXkhD4a14WIxdo=
+X-Received: by 2002:a17:907:968d:: with SMTP id hd13mr8727837ejc.12.1643149093133;
+ Tue, 25 Jan 2022 14:18:13 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-From:   Demi Marie Obenour <demiobenour@gmail.com>
-Subject: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     Demi Marie Obenour <demiobenour@gmail.com>,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <018a9bb4-accb-c19a-5b0a-fde22f4bc822.ref@schaufler-ca.com>
+ <018a9bb4-accb-c19a-5b0a-fde22f4bc822@schaufler-ca.com> <20211012103243.xumzerhvhklqrovj@wittgenstein>
+ <d15f9647-f67e-2d61-d7bd-c364f4288287@schaufler-ca.com>
+In-Reply-To: <d15f9647-f67e-2d61-d7bd-c364f4288287@schaufler-ca.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 25 Jan 2022 17:18:02 -0500
+Message-ID: <CAHC9VhT=dZbWzhst0hMLo0n7=UzWC5OYTMY=0x=LZ97HwG0UsA@mail.gmail.com>
+Subject: Re: [PATCH] LSM: general protection fault in legacy_parse_param
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Christian Brauner <christian@brauner.io>,
+        James Morris <jmorris@namei.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        syzbot <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-always allows too.  Furthermore, a failed FIOCLEX could result in a file
-descriptor being leaked to a process that should not have access to it.
+On Tue, Oct 12, 2021 at 10:27 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 10/12/2021 3:32 AM, Christian Brauner wrote:
+> > On Mon, Oct 11, 2021 at 03:40:22PM -0700, Casey Schaufler wrote:
+> >> The usual LSM hook "bail on fail" scheme doesn't work for cases where
+> >> a security module may return an error code indicating that it does not
+> >> recognize an input.  In this particular case Smack sees a mount option
+> >> that it recognizes, and returns 0. A call to a BPF hook follows, which
+> >> returns -ENOPARAM, which confuses the caller because Smack has processed
+> >> its data.
+> >>
+> >> Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
+> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> >> ---
+> > Thanks!
+> > Note, I think that we still have the SELinux issue we discussed in the
+> > other thread:
+> >
+> >       rc = selinux_add_opt(opt, param->string, &fc->security);
+> >       if (!rc) {
+> >               param->string = NULL;
+> >               rc = 1;
+> >       }
+> >
+> > SELinux returns 1 not the expected 0. Not sure if that got fixed or is
+> > queued-up for -next. In any case, this here seems correct independent of
+> > that:
+>
+> The aforementioned SELinux change depends on this patch. As the SELinux
+> code is today it blocks the problem seen with Smack, but introduces a
+> different issue. It prevents the BPF hook from being called.
+>
+> So the question becomes whether the SELinux change should be included
+> here, or done separately. Without the security_fs_context_parse_param()
+> change the selinux_fs_context_parse_param() change results in messy
+> failures for SELinux mounts.
 
-Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
----
- security/selinux/hooks.c | 5 +++++
- 1 file changed, 5 insertions(+)
+FWIW, this patch looks good to me, so:
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5b6895e4fc29..8f3b2f15c1f3 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3728,6 +3728,11 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
- 		error = file_has_perm(cred, file, FILE__GETATTR);
- 		break;
- 
-+	/* must always succeed */
-+	case FIOCLEX:
-+	case FIONCLEX:
-+		break;
-+
- 	case FS_IOC_SETFLAGS:
- 	case FS_IOC_SETVERSION:
- 		error = file_has_perm(cred, file, FILE__SETATTR);
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+... and with respect to the SELinux hook implementation returning 1 on
+success, I don't have a good answer and looking through my inbox I see
+David Howells hasn't responded either.  I see nothing in the original
+commit explaining why, so I'm going to say let's just change it to
+zero and be done with it; the good news is that if we do it now we've
+got almost a full cycle in linux-next to see what falls apart.  As far
+as the question of one vs two patches, it might be good to put both
+changes into a single patch just so that folks who do backports don't
+accidentally skip one and create a bad kernel build.  Casey, did you
+want to respin this patch or would you prefer me to submit another
+version?
+
+> > Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+> >
+> >>  security/security.c | 14 +++++++++++++-
+> >>  1 file changed, 13 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/security/security.c b/security/security.c
+> >> index 09533cbb7221..3cf0faaf1c5b 100644
+> >> --- a/security/security.c
+> >> +++ b/security/security.c
+> >> @@ -885,7 +885,19 @@ int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc)
+> >>
+> >>  int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *param)
+> >>  {
+> >> -    return call_int_hook(fs_context_parse_param, -ENOPARAM, fc, param);
+> >> +    struct security_hook_list *hp;
+> >> +    int trc;
+> >> +    int rc = -ENOPARAM;
+> >> +
+> >> +    hlist_for_each_entry(hp, &security_hook_heads.fs_context_parse_param,
+> >> +                         list) {
+> >> +            trc = hp->hook.fs_context_parse_param(fc, param);
+> >> +            if (trc == 0)
+> >> +                    rc = 0;
+> >> +            else if (trc != -ENOPARAM)
+> >> +                    return trc;
+> >> +    }
+> >> +    return rc;
+> >>  }
+
 -- 
-Sincerely,
-Demi Marie Obenour
-
+paul-moore.com
