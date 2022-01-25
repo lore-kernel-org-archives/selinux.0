@@ -2,51 +2,51 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D015C433F5
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 14:17:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8646FC433F5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 14:19:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1578228AbiAYORY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 09:17:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34428 "EHLO
+        id S1578138AbiAYOSs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 09:18:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387141AbiAYOPF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 09:15:05 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ACC7C06176D;
-        Tue, 25 Jan 2022 06:15:04 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id c24so60972409edy.4;
-        Tue, 25 Jan 2022 06:15:03 -0800 (PST)
+        with ESMTP id S1387998AbiAYOO5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 09:14:57 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD9BC061744;
+        Tue, 25 Jan 2022 06:14:56 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id l5so46051922edv.3;
+        Tue, 25 Jan 2022 06:14:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=H9/P79kiby3ifcGF4ip7/7rtet6erkFjsvjE42zBKRU=;
-        b=g0ZB4NrYFVrd/WYH7ctuevAirrvpwDP6WewyqP8iLA5TJZ9S32T7sJEVeC1/2V/0vm
-         ZXp6ee9KLS6q5LnOkK6DBhFx+CkeABY+t3sR9oTFcpGFD2vxqMJ/rSGJk4YHIhby5yWs
-         +z93ue/wXHT11wg9ngrDU4xe5EMEynkRR3YECFkG5vQPnhdLVET9YL3Xblt8E+Y+Rsl9
-         J9k8ZyfhARU3vnoqXl4f27OOmRiQswqZOLIC0fem2Lw2lIh3kgmwgV0k/o/YfDZ8327a
-         tvoQLu7L4tMUeTlTVWGkBe4NxIj7TCWkkU2LUS0L7rMyHwCdtMjS2w9ABY4AWqf7HUOx
-         iZZg==
+        bh=k+CgfQJbyed6dtUDLhZo4uiteDWSo0FQKuqRzl0IeVw=;
+        b=bYATyVvaBSeEE52mObJNrtCyRpMGqOMNkUxMHfHFsdMbJx+GFlcDZFawVTpRb2M6jd
+         QqfkVSweYUIfdBzBjJ8nEemJGbV9to/5C0YnLh75J0TrV0ebCuo44+s9sg6gIEVmhDCA
+         LNG5kq7ZMCCjeie8XRa0m4CTegkPxlw4sj7pe/XZbnV2/Hl+qsKTSwlzlJz7UnOL4VSE
+         L/V4K5WqXQ4z/QUTmpOzSHauq6rS7JO+Btez9ZMmxTONP6XxEW864IixNECdXo9+BMwv
+         VjB8IU/iZHiQkMYruhiU73gwKcryJb7It7J5ay/KEt+MNhu44YtTmXHgJI8EuxXzWkNZ
+         H11w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=H9/P79kiby3ifcGF4ip7/7rtet6erkFjsvjE42zBKRU=;
-        b=zOAPFuMEbf265N9Y+IE1s+OL+wSu1669bQ1IfOSWErQveUA+k9rCVCL9gJzslgijGw
-         7FAytQmNkxcNNm4XAUxDsdK9z0kUvKiBkU9Ac5hHrBLftYheWS1K4E15436beII76QJx
-         12g+uSltIlzXjjX0hzUsEOjqAaFtswEz/rjd+yHadipZW0ZRLDp1d6+3Izj2uDZnW+vg
-         oxVZEBvK6Xur/2ukiWO4bzwfXKAb8q4cbHCWWSgDQuCwctOKHQi7gqd/oBekbpPnvoiq
-         3nbKE30+/jWVrZ+EOfrvxBQX6rpeIOe/EqRPcfotkoTqTlW28mcokiSi5DOu81ZrZVXN
-         RbKw==
-X-Gm-Message-State: AOAM532VVXLSiIs8S6qnRM+Ns/7Ol5vDe6gLybWnbR1rlPMejKmrkRVz
-        FhFuRFbi8bXM8QNiDIH6OJzsJiBqnm5UYg==
-X-Google-Smtp-Source: ABdhPJw63jKmaufKwl+6xsqdHxA1qMi+zig//jba8c/9KgLYXmArZdqp6VLdgUybsiJ4IxiYK6ceMg==
-X-Received: by 2002:a17:906:7953:: with SMTP id l19mr16763178ejo.36.1643120102557;
-        Tue, 25 Jan 2022 06:15:02 -0800 (PST)
+        bh=k+CgfQJbyed6dtUDLhZo4uiteDWSo0FQKuqRzl0IeVw=;
+        b=gphnAPgL5r7OvJJkyp6+TxHrLruQUAc7gUiJpmsf8v3P9LGEd9+4X3Zrcephpx8f/T
+         mSQQye4XQuItOMc7g5X2MvpZmV87fAa32J2ukqPAKQ5d5PUM6gT1PeP6n4sFYqfzkcy/
+         ZM4Zs2RHHUztbkBcJ+BhiptNkJPpxun8BCNFPbZgtYdSwUCCU8h72bl2+w7ty5W9TCI2
+         1Etj3nuAz5LC2TBcgrzG7sqtczSKJ7XQO6RfY0h7k4RWugn+zjY13y4Fw5VbRHX9ei8U
+         TF0TZuQyZ5M/lpb6FIplEi3rUNizFkxRZ6PwfzJcbsumpdmGYqlzAamZYh8AACy7Tuc7
+         JEsg==
+X-Gm-Message-State: AOAM531LXTPMQYjVpiozgpsVcgRxIKXKHxVQKnC+gF5XBPPBJuPRLJ46
+        KgD2a2pTAzrdGIgn5d+IdT5EKyT2f6PQsw==
+X-Google-Smtp-Source: ABdhPJxR4z1J9aUIgzhuPP3EwJYNQiMKrZpekbZb9uwX2w62yIB0i7WedFAVwCDGuJXWuIi7OqrJsg==
+X-Received: by 2002:a17:907:9495:: with SMTP id dm21mr16065429ejc.467.1643120094730;
+        Tue, 25 Jan 2022 06:14:54 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-077-010-144-044.77.10.pool.telefonica.de. [77.10.144.44])
-        by smtp.gmail.com with ESMTPSA id lu44sm6292929ejb.145.2022.01.25.06.15.01
+        by smtp.gmail.com with ESMTPSA id lu44sm6292929ejb.145.2022.01.25.06.14.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jan 2022 06:15:02 -0800 (PST)
+        Tue, 25 Jan 2022 06:14:54 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
@@ -54,13 +54,15 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
         Nathan Chancellor <nathan@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Xiong Zhenwu <xiong.zhenwu@zte.com.cn>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         Xiu Jianfeng <xiujianfeng@huawei.com>,
         Jeff Vander Stoep <jeffv@google.com>,
         linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH 9/9] selinux: drop unused macro
-Date:   Tue, 25 Jan 2022 15:14:19 +0100
-Message-Id: <20220125141422.32655-8-cgzones@googlemail.com>
+Subject: [PATCH 4/9] selinux: enclose macro arguments in parenthesis
+Date:   Tue, 25 Jan 2022 15:14:14 +0100
+Message-Id: <20220125141422.32655-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220125141422.32655-1-cgzones@googlemail.com>
 References: <20220125141422.32655-1-cgzones@googlemail.com>
@@ -71,30 +73,68 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The macro _DEBUG_HASHES is nowhere used. The configuration DEBUG_HASHES
-enables debugging of the SELinux hash tables, but the with an underscore
-prefixed macro definition has no direct impact or any documentation.
+Enclose the macro arguments in parenthesis to avoid potential evaluation
+order issues.
 
-Reported by clang [-Wunused-macros]
+Note the xperm and ebitmap macros are still not side-effect safe due to
+double evaluation.
+
+Reported by clang-tidy [bugprone-macro-parentheses]
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/policydb.c | 2 --
- 1 file changed, 2 deletions(-)
+ security/selinux/include/security.h | 4 ++--
+ security/selinux/ss/ebitmap.h       | 6 +++---
+ security/selinux/ss/sidtab.c        | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 67e03f6e8966..d036e1238e77 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -41,8 +41,6 @@
- #include "mls.h"
- #include "services.h"
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 6482e0efb368..d91a5672de99 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -254,8 +254,8 @@ struct av_decision {
+ #define XPERMS_AUDITALLOW 2
+ #define XPERMS_DONTAUDIT 4
  
--#define _DEBUG_HASHES
--
- #ifdef DEBUG_HASHES
- static const char *symtab_name[SYM_NUM] = {
- 	"common prefixes",
+-#define security_xperm_set(perms, x) (perms[x >> 5] |= 1 << (x & 0x1f))
+-#define security_xperm_test(perms, x) (1 & (perms[x >> 5] >> (x & 0x1f)))
++#define security_xperm_set(perms, x) ((perms)[(x) >> 5] |= 1 << ((x) & 0x1f))
++#define security_xperm_test(perms, x) (1 & ((perms)[(x) >> 5] >> ((x) & 0x1f)))
+ struct extended_perms_data {
+ 	u32 p[8];
+ };
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index 9eb2d0af2805..58eb822f11ee 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -118,9 +118,9 @@ static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
+ }
+ 
+ #define ebitmap_for_each_positive_bit(e, n, bit)	\
+-	for (bit = ebitmap_start_positive(e, &n);	\
+-	     bit < ebitmap_length(e);			\
+-	     bit = ebitmap_next_positive(e, &n, bit))	\
++	for ((bit) = ebitmap_start_positive(e, &(n));	\
++	     (bit) < ebitmap_length(e);			\
++	     (bit) = ebitmap_next_positive(e, &(n), bit))	\
+ 
+ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 293ec048af08..a54b8652bfb5 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -27,8 +27,8 @@ struct sidtab_str_cache {
+ 	char str[];
+ };
+ 
+-#define index_to_sid(index) (index + SECINITSID_NUM + 1)
+-#define sid_to_index(sid) (sid - (SECINITSID_NUM + 1))
++#define index_to_sid(index) ((index) + SECINITSID_NUM + 1)
++#define sid_to_index(sid) ((sid) - (SECINITSID_NUM + 1))
+ 
+ int sidtab_init(struct sidtab *s)
+ {
 -- 
 2.34.1
 
