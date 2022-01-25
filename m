@@ -2,160 +2,83 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5EDC433F5
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 02:08:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A09BC433F5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 07:19:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350273AbiAYCIo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Jan 2022 21:08:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1847633AbiAXXUO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jan 2022 18:20:14 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE792C08E90E
-        for <selinux@vger.kernel.org>; Mon, 24 Jan 2022 13:27:55 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id d10so25124686eje.10
-        for <selinux@vger.kernel.org>; Mon, 24 Jan 2022 13:27:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RYjOggTIatflhN2tcFQRaqqDoiv4Tn5RiFVJCwGLqbw=;
-        b=3gh94fdxPP1DWGi6gOuYZrgk2uf3k5hBepC1rTfdXAfdOBNwWYVRFT+7VJ//ZBKj48
-         9cUBdcc1L83luJV4tNyo6xJ2NhDMZh+fGByJMZOR/E6OGpvhKXMfLugkrlVdTOH56MDo
-         53GnLKtMZ1UmD6cNG2HLa7dp6n40gG/YORbut8GypvyjOFtcXXVbFmRUkHhk5gGPcxEp
-         Dgpu/Tpnuc1tgVySpXrEXV2khVCSkxu0v94hJwxyVmROc7D4gXyjwSOqfPqFfbNilXgd
-         1HKCc/J/SbsB8BIH3KWfAuFdAb4ahrykJGfJjcwv72KNRdT+NPieaA//XGgx9ofoPnqK
-         CFVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RYjOggTIatflhN2tcFQRaqqDoiv4Tn5RiFVJCwGLqbw=;
-        b=JIyfb6/ZaGPdRyiPgxgnTlZ0rZgt5i8zB6cksH/hIeDC/q9LySpmgdj1OMa5ti1Hha
-         UlTiM8DF/vM+J0zW6NU1yxhifR+mN/KDYmBEzHB/S/vaZT58lDuppH2jFY1fjsSwf6Dk
-         ZkwJb0WvGXsfDgd/g4IjHcGeexaVmR6ovi6XEM2a47XbROGvKiV302TUsBlTyfMY7XJy
-         vF9cmBL01yu65ukD9ydZ7frQe4DvHU3fBgxODXaggFv5cWde5cRfvB5UfsWDEmdfWGkY
-         MmXf1C8v8Jwl4LubC8iXRfByXnVE69RtoNLGiUEFWUCX4Jk51bp1f+21RybTiSrb6upz
-         m+fQ==
-X-Gm-Message-State: AOAM533XHscshOFyg5e1CFZBxP13jgYc5YyKcfzLycuhxP8U+OYdndTG
-        rQjMm/JqICTawHJJQCnED3dlnz0nuGQpgsZNgdcqnmnWM5kX
-X-Google-Smtp-Source: ABdhPJzYbZvpioE6dEHN6JXBqwOIehEPUtOGXhvu9h/22uwOkXqdsmf4vjBbxGP53yiW7luwQlXcqdOThz5giAMUPiM=
-X-Received: by 2002:a17:907:968d:: with SMTP id hd13mr4919050ejc.12.1643059674146;
- Mon, 24 Jan 2022 13:27:54 -0800 (PST)
+        id S1442917AbiAYHTE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 02:19:04 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:30301 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1442940AbiAYHM3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 02:12:29 -0500
+Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4JjdLs2xN3zbkF5;
+        Tue, 25 Jan 2022 15:11:33 +0800 (CST)
+Received: from dggpemm500016.china.huawei.com (7.185.36.25) by
+ dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Tue, 25 Jan 2022 15:12:22 +0800
+Received: from huawei.com (10.67.174.102) by dggpemm500016.china.huawei.com
+ (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.21; Tue, 25 Jan
+ 2022 15:12:22 +0800
+From:   "GONG, Ruiqi" <gongruiqi1@huawei.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>
+CC:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Wang Weiyang <wangweiyang2@huawei.com>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>
+Subject: [PATCH -next] selinux: access superblock_security_struct in LSM blob way
+Date:   Tue, 25 Jan 2022 15:11:33 +0800
+Message-ID: <20220125071133.188172-1-gongruiqi1@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-References: <20220120214948.3637895-1-smayhew@redhat.com> <20220120214948.3637895-2-smayhew@redhat.com>
-In-Reply-To: <20220120214948.3637895-2-smayhew@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 24 Jan 2022 16:27:43 -0500
-Message-ID: <CAHC9VhT2RhnXtK3aQuDCFUr5qayH25G8HHjRTJzhWM3H41YNog@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
-To:     Scott Mayhew <smayhew@redhat.com>
-Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.102]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm500016.china.huawei.com (7.185.36.25)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 4:50 PM Scott Mayhew <smayhew@redhat.com> wrote:
->
-> selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
-> shouldn't be performing any memory allocations.  Fix this by parsing the
-> sids at the same time we're chopping up the security mount options
-> string and then using the pre-parsed sids when doing the comparison.
->
-> Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
-> Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-> Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-> ---
->  security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
->  1 file changed, 76 insertions(+), 36 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 5b6895e4fc29..f27ca9e870c0 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -342,6 +342,11 @@ static void inode_free_security(struct inode *inode)
->
->  struct selinux_mnt_opts {
->         const char *fscontext, *context, *rootcontext, *defcontext;
-> +       u32 fscontext_sid;
-> +       u32 context_sid;
-> +       u32 rootcontext_sid;
-> +       u32 defcontext_sid;
-> +       unsigned short preparsed;
->  };
+LSM blob has been involved for superblock's security struct. So fix the
+remaining direct access to sb->s_security by using the LSM blob
+mechanism.
 
-Is the preparsed field strictly necessary?  Can't we just write the
-code to assume that if a given SID field is not SECSID_NULL then it is
-valid/preparsed?
+Fixes: 08abe46b2cfc ("selinux: fall back to SECURITY_FS_USE_GENFS if no xattr support")
+Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
+Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+---
+ security/selinux/hooks.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> @@ -598,12 +603,11 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
->         return 0;
->  }
->
-> -static int parse_sid(struct super_block *sb, const char *s, u32 *sid,
-> -                    gfp_t gfp)
-> +static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
->  {
->         int rc = security_context_str_to_sid(&selinux_state, s,
-> -                                            sid, gfp);
-> -       if (rc)
-> +                                            sid, GFP_KERNEL);
-> +       if (rc && sb != NULL)
->                 pr_warn("SELinux: security_context_str_to_sid"
->                        "(%s) failed for (dev %s, type %s) errno=%d\n",
->                        s, sb->s_id, sb->s_type->name, rc);
-
-It seems like it would still be useful to see the warning even when sb
-is NULL, wouldn't you say?  How about something like this:
-
-  if (rc)
-    pr_warn("SELinux: blah blah blah (dev %s, type %s) blah blah\n",
-            (sb ? sb->s_id : "?"),
-            (sb ? sb->s_type->name : "?"));
-
-> @@ -976,6 +976,9 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
->  {
->         struct selinux_mnt_opts *opts = *mnt_opts;
->         bool is_alloc_opts = false;
-> +       bool preparse_sid = false;
-> +       u32 sid;
-> +       int rc;
->
->         if (token == Opt_seclabel)
->                 /* eaten and completely ignored */
-> @@ -991,26 +994,57 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
->                 is_alloc_opts = true;
->         }
->
-> +       if (selinux_initialized(&selinux_state))
-> +               preparse_sid = true;
-
-Since there is no looping in selinux_add_opt, and you can only specify
-one token/option for a given call to this function, it seems like we
-can do away with preparse_sid and just do the selinux_initialized(...)
-check directly in the code below, yes?
-
->         switch (token) {
->         case Opt_context:
->                 if (opts->context || opts->defcontext)
->                         goto err;
->                 opts->context = s;
-> +               if (preparse_sid) {
-> +                       rc = parse_sid(NULL, s, &sid);
-> +                       if (rc == 0) {
-> +                               opts->context_sid = sid;
-> +                               opts->preparsed |= CONTEXT_MNT;
-> +                       }
-> +               }
-
-Is there a reason why we need a dedicated sid variable as opposed to
-passing opt->context_sid as the parameter?  For example:
-
-  rc = parse_sid(NULL, s, &opts->context_sid);
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5b6895e4fc29..a0243bae8423 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -479,7 +479,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+ 
+ static int sb_check_xattr_support(struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	struct dentry *root = sb->s_root;
+ 	struct inode *root_inode = d_backing_inode(root);
+ 	u32 sid;
+@@ -2647,7 +2647,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
+ {
+ 	struct selinux_mnt_opts *opts = mnt_opts;
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	u32 sid;
+ 	int rc;
+ 
 -- 
-paul moore
-paul-moore.com
+2.17.1
+
