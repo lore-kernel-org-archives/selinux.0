@@ -2,96 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE25C433EF
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 22:27:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B26C433FE
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 22:33:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbiAYW1P (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 17:27:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
+        id S233882AbiAYWdH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 17:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233779AbiAYW1P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 17:27:15 -0500
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB2EC061744
-        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 14:27:15 -0800 (PST)
-Received: by mail-ed1-x52c.google.com with SMTP id r10so34889447edt.1
-        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 14:27:15 -0800 (PST)
+        with ESMTP id S233876AbiAYWdH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 17:33:07 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF26C06173B
+        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 14:33:06 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id me13so34160117ejb.12
+        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 14:33:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=/1BiB0LlRhrBnkIdJld33ntWmu5J0JJj0Fcrw4TDuSI=;
-        b=codcubGyPRRa9Co1DwYI2ifTPo2sxWpxhfC162hwvfv0Dvj34aQMGqFZRV+Fb2oImP
-         YpQ02SJTC8gYN4g1JmYjUiqx+ZGdRf3JxCvvepEPZ3YpTdzCmnsRqP74xG00slnsfB+u
-         4xuSx8u/lS9VDpfe9MwjJKJneITNky/Le68TZyQyLDyUH4T+w+PWeJ8Igu2HT5b6VpEl
-         cfIkvq3BZdEDsTfy/SW7uKUQAsA5A7Q0VdZ8kkr4a+Yp8jpTMnbe+KebgjevbzkM5X3l
-         qpJbeaR8+ZXrHfrkX8i4u7kjQOIV0mBbZjfbgS5QSZSt7U+d7952i/y2bjS3bwCWniS9
-         NqCw==
+        bh=oeeJHO8TMWJMimBDwT2b+COdmax7x8vmymErPKX3jxc=;
+        b=DzijtXi0FpfwwMBwStqu3UmmHy6WLI6KJjaJCTw5TVkmEqNdXft9MrLSeXBntoO7Mw
+         fWSvmO7h/R5mQ/yU+34k8tfHIU5T7UxRE0tWGCE66lLTfaILezBkt/1UkJvP9pVH0Yzb
+         HHNrjbdaOKT86FyOQ4Jf88N4t5t/R3zJhuJwDslag8fbYnvwj1+kSYMm+Az5xDFrSoYc
+         knCjS+ili0zFQfE5Tfu8zpiesGviybOMiD+yOzaswnbUAmmPC8T35oz+wE4i8da9xo9A
+         Cxn3uNaT3ALpZ+5PyJS8v8W9GaSLLCJqkiGKhzgIDTWBp7Qme5nzQ2I/BzjbPf8Vhkt1
+         p03Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=/1BiB0LlRhrBnkIdJld33ntWmu5J0JJj0Fcrw4TDuSI=;
-        b=Hkzh9Djg8AgJEPiVLa8RhsXQRfI3i27xQnUaINQ6wuhz1YMWKQwCH+uYifAATfxtgV
-         3Tx6kN0LXy7KS7/JHI5+ZRDBvNnmvwpujRO0P5E7Zd9OiYXeDzgu9ZOf/DXOUQqzdjcA
-         Ml3SQV9GfodGEH81RM7iEbzEWBb8LQ7Rvq39uGC0+UVssNO2HMV0B4ivhDvhPjSCgvJN
-         Uja74OTOQqhW2UhJeHlezoP/qVLt7qEK/EdBevvzu4xfwoBGzjSdnEcM0pnra4gb87xA
-         yke+IS8pRWX2JZ5YqOI3XXmuOX18LaFpmMIoEUuWQULlnYUM+QgjPKD/Hmh1n3aUkhQ/
-         wKlw==
-X-Gm-Message-State: AOAM532I3jMUyWTeb2drxAlj1Y088RiC27iOoFUCrrfMbaQ03qMJVHFs
-        Oqo6zJxKowTtQVkO9/1tkAGPZu65K8vkpo1hjl43
-X-Google-Smtp-Source: ABdhPJyMnhB7AjQM90R3rAyHkw09pciULNZQsSRVFJsPjgGXkMK5fv7dlJ9igPXCWWBfuR6Qb8adl5BW2dDLMR1lkNk=
-X-Received: by 2002:a05:6402:1e93:: with SMTP id f19mr21939603edf.343.1643149633597;
- Tue, 25 Jan 2022 14:27:13 -0800 (PST)
+        bh=oeeJHO8TMWJMimBDwT2b+COdmax7x8vmymErPKX3jxc=;
+        b=Jjkj1HX/igu+O/hwa8fA6UX0NRV5b4xyWcOzTjlYjZasyGgPGsHN9sKFMV3gJHDAyB
+         Io3X0G5gZNc7ZwG7vV8wAuOcwqJbrBZxIPPmG7h//s5/fbvV3UnRmMuBo9f87YW8oxaH
+         B20XSwX0+gSW3a3XmJmkneP6kUaNzbzjxM975iC5lOAhqCG6pp56WCqD3qYkwQ5eBwgU
+         11nLbif6qHEB1GwJOvzEWrCXeZT/C/L78j88k5hoymaytKnuMhTFMcXnA+dHastwGEMU
+         Uqy8bs4cReQYo1pAqLXFqrTowAGUbutZP7wR6rQDjp8dGvR8JzlzLO1WTv4uX+56VyuT
+         JUkg==
+X-Gm-Message-State: AOAM531htgVKO+WVhBr5MbJg2bMtpw6Vk5tcoJ43qI3hEOmbA+7HdRvc
+        ctlnwECphfDB8faTJ8RJtUIwIQeki7BURnU4Om4+u06B8A==
+X-Google-Smtp-Source: ABdhPJwzCS4uLiZK6VG/8/+4YA+LVnkgPcisQkj57oqNq+GSah4sXm1jFpQGtsy59McG8IOvdIVYqDfpF+TVv9/mvao=
+X-Received: by 2002:a17:907:6d03:: with SMTP id sa3mr4722991ejc.517.1643149985174;
+ Tue, 25 Jan 2022 14:33:05 -0800 (PST)
 MIME-Version: 1.0
-References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
-In-Reply-To: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+References: <20220120214948.3637895-1-smayhew@redhat.com> <20220120214948.3637895-2-smayhew@redhat.com>
+ <CAHC9VhT2RhnXtK3aQuDCFUr5qayH25G8HHjRTJzhWM3H41YNog@mail.gmail.com>
+ <YfAz0EAim7Q9ifGI@aion.usersys.redhat.com> <CAHC9VhTwXUE9dYBHrkA3Xkr=AgXvcnfSzLLBJ4QqYd4R+kFbbA@mail.gmail.com>
+ <YfBGx+M9jQZa80rZ@aion.usersys.redhat.com>
+In-Reply-To: <YfBGx+M9jQZa80rZ@aion.usersys.redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 25 Jan 2022 17:27:02 -0500
-Message-ID: <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
-To:     Demi Marie Obenour <demiobenour@gmail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+Date:   Tue, 25 Jan 2022 17:32:54 -0500
+Message-ID: <CAHC9VhRoWbnV-cs2HzmiTEd7_kP914stdVpN9Tm2-6uua2-ELA@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
+To:     Scott Mayhew <smayhew@redhat.com>
+Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
-<demiobenour@gmail.com> wrote:
+On Tue, Jan 25, 2022 at 1:51 PM Scott Mayhew <smayhew@redhat.com> wrote:
+> On Tue, 25 Jan 2022, Paul Moore wrote:
+> > On Tue, Jan 25, 2022 at 12:31 PM Scott Mayhew <smayhew@redhat.com> wrote:
+> > > On Mon, 24 Jan 2022, Paul Moore wrote:
+> > > > On Thu, Jan 20, 2022 at 4:50 PM Scott Mayhew <smayhew@redhat.com> wrote:
+> > > > >
+> > > > > selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
+> > > > > shouldn't be performing any memory allocations.  Fix this by parsing the
+> > > > > sids at the same time we're chopping up the security mount options
+> > > > > string and then using the pre-parsed sids when doing the comparison.
+> > > > >
+> > > > > Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
+> > > > > Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
+> > > > > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> > > > > ---
+> > > > >  security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
+> > > > >  1 file changed, 76 insertions(+), 36 deletions(-)
+> >
+> > ...
+> >
+> > > > >         switch (token) {
+> > > > >         case Opt_context:
+> > > > >                 if (opts->context || opts->defcontext)
+> > > > >                         goto err;
+> > > > >                 opts->context = s;
+> > > > > +               if (preparse_sid) {
+> > > > > +                       rc = parse_sid(NULL, s, &sid);
+> > > > > +                       if (rc == 0) {
+> > > > > +                               opts->context_sid = sid;
+> > > > > +                               opts->preparsed |= CONTEXT_MNT;
+> > > > > +                       }
+> > > > > +               }
+> > > >
+> > > > Is there a reason why we need a dedicated sid variable as opposed to
+> > > > passing opt->context_sid as the parameter?  For example:
+> > > >
+> > > >   rc = parse_sid(NULL, s, &opts->context_sid);
+> > >
+> > > We don't need a dedicated sid variable.  Should I make similar changes
+> > > in the second patch (get rid of the local sid variable in
+> > > selinux_sb_remount() and the *context_sid variables in
+> > > selinux_set_mnt_opts())?
+> >
+> > Yes please, I should have explicitly mentioned that.
 >
-> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-> always allows too.  Furthermore, a failed FIOCLEX could result in a file
-> descriptor being leaked to a process that should not have access to it.
+> Actually, delayed_superblock_init() calls selinux_set_mnt_opts() with
+> mnt_opts == NULL, so there would have to be a lot of checks like
 >
-> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
-> ---
->  security/selinux/hooks.c | 5 +++++
->  1 file changed, 5 insertions(+)
-
-I'm not convinced that these two ioctls should be exempt from SELinux
-policy control, can you explain why allowing these ioctls with the
-file:ioctl permission is not sufficient for your use case?  Is it a
-matter of granularity?
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 5b6895e4fc29..8f3b2f15c1f3 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3728,6 +3728,11 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
->                 error = file_has_perm(cred, file, FILE__GETATTR);
->                 break;
+>         if (opts && opts->fscontext_sid) {
 >
-> +       /* must always succeed */
-> +       case FIOCLEX:
-> +       case FIONCLEX:
-> +               break;
-> +
->         case FS_IOC_SETFLAGS:
->         case FS_IOC_SETVERSION:
->                 error = file_has_perm(cred, file, FILE__SETATTR);
+> in the later parts of that function, which is kind of clunky.  I can
+> still do it if you want though.
 
---
+I might be misunderstanding your concern, but in
+selinux_set_mnt_opts() all of the "opts->XXX" if-conditionals are
+protected by being inside an if-statement that checks to ensure "opts"
+is not NULL.  Am I missing something?
+
+-- 
 paul-moore.com
