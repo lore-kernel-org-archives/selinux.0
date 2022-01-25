@@ -2,51 +2,51 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A580C433EF
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 14:17:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21FC5C433F5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 14:17:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386518AbiAYORF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 09:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
+        id S1444474AbiAYORM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 09:17:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387944AbiAYOOx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 09:14:53 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83F2C06173B;
-        Tue, 25 Jan 2022 06:14:52 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id z22so62892277edd.12;
-        Tue, 25 Jan 2022 06:14:52 -0800 (PST)
+        with ESMTP id S1578154AbiAYOPB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 09:15:01 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041D3C06175B;
+        Tue, 25 Jan 2022 06:15:01 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id n10so47532544edv.2;
+        Tue, 25 Jan 2022 06:15:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=NRMo8oBZ8+mVDMCIjAmqszLdgAaOe0du5QVx8CbR6LU=;
-        b=Keg/CfUa7pgzGJokONpw5J5CoQdeJfQqPtdVD6pzALAt/5u/vrr/8n8G8ue+OvxStH
-         x8obD8gvX1gNPUmXJ5C8lBmA05Px0E+0bak7zTXR1xCy30MR/t14N5WJaOSdD416v8Aq
-         Tmwt6y0Orx8j4kkOIw2agGeErFRRPB3zTXEJSpNkaeTbmy70JrdSfGQ4ErcciKmP4WNN
-         l3eS+LOGgfQtD/vA3IUTkX0BeDihIgKSxkIfZi4AcjOZtb8aQt/o48/zhlg4Y63aOYU+
-         0sbBtjJVjUBzrIt7Jf/L9pUxZbtmPrwPnM4Iag8Bw9nLcmIanFTMsIqPfpx/cjoLtPUB
-         q1/w==
+        bh=s0qfbDNJzKPba0DhXnUemGGVEXLf9/4C8NsMtd615sM=;
+        b=jK5IrrVPlyG0wXI7OOjPs/2Yvc2N9yPtJs/Q4+Tt6MtETCsPvR3W7UUpqGHjB/HqYU
+         JN+bFWu6P4SRwCcm0DoquiiZj5wgsQoZCGXo9qkTW28LEICFTZ8B3OD3hQtfz8xrn7T/
+         J/zkxOOrVn05EfA3DSScssCal4uaOXHKC559mmurk5XRikQB3u+V/TFFQb5DcvLoqgtg
+         q3Dn+TBZ+3rWaVk/CgS2moTrLj35KwTlV7H6xpxHzFHG8JgcRro1djS493tY4k9A73qO
+         /leSfbIIyk/7OwxJbIUKK2US+4LUoE379KbsrQopjJFw+G8mwqqd2LoPH3rIJKr5jQR1
+         xTcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=NRMo8oBZ8+mVDMCIjAmqszLdgAaOe0du5QVx8CbR6LU=;
-        b=LqWeb7g7eK1gS2VFleRrNHKUZ4r8LSOIAUKroCRkau663+nVdjEP8BUDJKBalWX48w
-         D4m/Mc91xJC1J43zF31cUxbqCbV/GXlm/EJ1zO+IVKhtUvF7KFjrQbkSMrKk+penYR/J
-         +tKJ0OqPbaQsd26z+GfQU8tQbjbgeY3pbW4ORyuyf21BkINdCBDncm5GsFRSZbfKmOiK
-         QOLOyQfq8TW6VQtujUy67ur7Ao8bSvZ1BwQkoaAgcYqN5L8LTB5iK2jgZFLK2fCHcMxK
-         cg3rDS9rIqmQClsweMr60CRzoqDj6WMR6P5Sryd9J3Eo3kx3IIg9buly0gtWnGIy3DIh
-         UPMA==
-X-Gm-Message-State: AOAM53320OoAY+JF87Jp5v1WXjaF/vIiSu9Kjn1EdjQ8PgDELxnDK2Py
-        efzW2WZXuFAOeu2VjFmBJ/v0WzqGLvnj2A==
-X-Google-Smtp-Source: ABdhPJxzNTfugb/8TN28oCuJEKaHituBsPLKKjb+mWflGgyqXKjhjIHzmLU75UQmOIYSLm9pI2z8Fw==
-X-Received: by 2002:a05:6402:c8c:: with SMTP id cm12mr20320905edb.78.1643120091453;
-        Tue, 25 Jan 2022 06:14:51 -0800 (PST)
+        bh=s0qfbDNJzKPba0DhXnUemGGVEXLf9/4C8NsMtd615sM=;
+        b=EvB1XzVNqIzHCGQapdxGlBDfYaBD0MTIRIlw6zqaHZqt3HJCYbmCwwZ5mI5k1lbpF3
+         nPtIejL8KczStHs80Yn8Wo//BHTOkYXx+2vV+77JPHYXoY8NzzH+J8EJvnTHSHZArUPL
+         aHdAXVhSudsfWS6CBz4w9aHA4fLGsgMI0yyywvYS/jomHn19ahAShi4XiKKIr+P+uBxJ
+         PTdm5D0faE686BgjBSE15OIbCXTIwjRtKa1VkmnM/JSGZ2SRMzVt1UgDyD+2du9wB9B5
+         a6hByWydcC/O5MjPoDq9FAaZWwJajEoJLt4GMZnwA4XppSFoQXrmP9izpdgUZXgtEX+p
+         WeJQ==
+X-Gm-Message-State: AOAM532omobyoU2gz+IULHV2QmBFTYWG1828Idoqqs1XohP5J9OaL7Jj
+        iRkMmyBLo1gCO20LUNhn0B/ZsraA113TIg==
+X-Google-Smtp-Source: ABdhPJxODM4AMfMAR8MyMqMnECc4W2O1RzYZCge/y5M0rGpgtJA0z9t5Ye6wRrmObT8KwCd4BKrbcw==
+X-Received: by 2002:a17:907:7210:: with SMTP id dr16mr5256193ejc.470.1643120099557;
+        Tue, 25 Jan 2022 06:14:59 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-077-010-144-044.77.10.pool.telefonica.de. [77.10.144.44])
-        by smtp.gmail.com with ESMTPSA id lu44sm6292929ejb.145.2022.01.25.06.14.50
+        by smtp.gmail.com with ESMTPSA id lu44sm6292929ejb.145.2022.01.25.06.14.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jan 2022 06:14:51 -0800 (PST)
+        Tue, 25 Jan 2022 06:14:59 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
@@ -54,13 +54,11 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
         Nathan Chancellor <nathan@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
         Jeff Vander Stoep <jeffv@google.com>,
         linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH 3/9] selinux: declare name parameter of hash_eval const
-Date:   Tue, 25 Jan 2022 15:14:13 +0100
-Message-Id: <20220125141422.32655-2-cgzones@googlemail.com>
+Subject: [PATCH 7/9] selinux: do not discard const qualifier in cast
+Date:   Tue, 25 Jan 2022 15:14:17 +0100
+Message-Id: <20220125141422.32655-6-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220125141422.32655-1-cgzones@googlemail.com>
 References: <20220125141422.32655-1-cgzones@googlemail.com>
@@ -71,42 +69,38 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-String literals are passed as second argument to hash_eval(). Also the
-parameter is already declared const in the DEBUG_HASHES configuration.
+Do not discard the const qualifier on the cast from const void* to
+__be32*; the addressed value is not modified.
 
-Reported by clang [-Wwrite-strings]:
-
-    security/selinux/ss/policydb.c:1881:26: error: passing 'const char [8]' to parameter of type 'char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
-            hash_eval(&p->range_tr, rangetr);
-                                    ^~~~~~~~~
-    security/selinux/ss/policydb.c:707:55: note: passing argument to parameter 'hash_name' here
-    static inline void hash_eval(struct hashtab *h, char *hash_name)
-                                                          ^
-    security/selinux/ss/policydb.c:2099:32: error: passing 'const char [11]' to parameter of type 'char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
-            hash_eval(&p->filename_trans, filenametr);
-                                          ^~~~~~~~~~~~
-    security/selinux/ss/policydb.c:707:55: note: passing argument to parameter 'hash_name' here
-    static inline void hash_eval(struct hashtab *h, char *hash_name)
-                                                          ^
+Reported by clang [-Wcast-qual]
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/policydb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/netnode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 0ae1b718194a..67e03f6e8966 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -704,7 +704,7 @@ static void symtab_hash_eval(struct symtab *s)
- }
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 4a7d2ab5b960..889552db0d31 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -107,7 +107,7 @@ static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
  
- #else
--static inline void hash_eval(struct hashtab *h, char *hash_name)
-+static inline void hash_eval(struct hashtab *h, const char *hash_name)
- {
- }
- #endif
+ 	switch (family) {
+ 	case PF_INET:
+-		idx = sel_netnode_hashfn_ipv4(*(__be32 *)addr);
++		idx = sel_netnode_hashfn_ipv4(*(const __be32 *)addr);
+ 		break;
+ 	case PF_INET6:
+ 		idx = sel_netnode_hashfn_ipv6(addr);
+@@ -121,7 +121,7 @@ static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
+ 		if (node->nsec.family == family)
+ 			switch (family) {
+ 			case PF_INET:
+-				if (node->nsec.addr.ipv4 == *(__be32 *)addr)
++				if (node->nsec.addr.ipv4 == *(const __be32 *)addr)
+ 					return node;
+ 				break;
+ 			case PF_INET6:
 -- 
 2.34.1
 
