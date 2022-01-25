@@ -2,120 +2,109 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4871EC433FE
-	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 18:52:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 198F4C433F5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jan 2022 19:47:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbiAYSwC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 13:52:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27416 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232374AbiAYSwA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 13:52:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643136717;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MFNBLU9fi1/P19BC1N9d+ep2tphTew1fPzk0R1jaXnE=;
-        b=cOUcHHiSPue560ACgQJnmZ6GXSGeOgklIYpO+a0oQCcjhzRKCQ+bXdLvBrosa9f6gwLHWr
-        qi7aYKqTSAtTqKZoFFrmSaY8Lh1HDmG2yd3SwsJhj6kwz6QzzcZ7cVrEJh2VEy09XYkC3Y
-        bTzMNRDvdN+fF6YK+EXepCVveMVuwEU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-146-Aku6xU8LOGO17Wb6B0WNoA-1; Tue, 25 Jan 2022 13:51:53 -0500
-X-MC-Unique: Aku6xU8LOGO17Wb6B0WNoA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 961ED8519E3;
-        Tue, 25 Jan 2022 18:51:52 +0000 (UTC)
-Received: from aion.usersys.redhat.com (unknown [10.22.17.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 75B7572FA5;
-        Tue, 25 Jan 2022 18:51:52 +0000 (UTC)
-Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
-        id 98B171A001F; Tue, 25 Jan 2022 13:51:51 -0500 (EST)
-Date:   Tue, 25 Jan 2022 13:51:51 -0500
-From:   Scott Mayhew <smayhew@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
-Message-ID: <YfBGx+M9jQZa80rZ@aion.usersys.redhat.com>
-References: <20220120214948.3637895-1-smayhew@redhat.com>
- <20220120214948.3637895-2-smayhew@redhat.com>
- <CAHC9VhT2RhnXtK3aQuDCFUr5qayH25G8HHjRTJzhWM3H41YNog@mail.gmail.com>
- <YfAz0EAim7Q9ifGI@aion.usersys.redhat.com>
- <CAHC9VhTwXUE9dYBHrkA3Xkr=AgXvcnfSzLLBJ4QqYd4R+kFbbA@mail.gmail.com>
+        id S230482AbiAYTqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 14:46:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231127AbiAYTqZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jan 2022 14:46:25 -0500
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0EC9C06175E
+        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 11:46:14 -0800 (PST)
+Received: by mail-lj1-x229.google.com with SMTP id q22so9655863ljh.7
+        for <selinux@vger.kernel.org>; Tue, 25 Jan 2022 11:46:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1ikFUcN/tVzW0fMx/FxScW5ahceyJ22Tp7p5x3rRO04=;
+        b=CWv1dcqS9d6z8NlzDMCXj6rpH318FLRdFz5BY/i0Nq/W+uFGbdiDpgTdTCnQt14tXc
+         reNilqW32iAwQTb8YsYUb4vNhVJH1SSSAygrjtDqnfZ9pv+fmYv/jsy9H45TAtbH1Rb8
+         u1XrRhQNg7V3PFsCNcIJPKXLqcPvCELeDeQcMP1sTlEKik2PSk9IaMt+5zBCkR/Pp/5Y
+         FDhUw9nr9lkJnqJMmpRYpSthLjAJhyTzt3VBy3PNb3AnxYLljB2JHuyZ1LIam45cKkPs
+         vxsO038RSEQ7K/hsYfx0kh0Y6yT1j8o0NFtUOBSQbg1TJBgwBWbJzbkQGZypFtR19Fhx
+         zLpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1ikFUcN/tVzW0fMx/FxScW5ahceyJ22Tp7p5x3rRO04=;
+        b=rmtZOAQqnP4jJ5LAYkPSfjxpm3GAaMgMZVgB9HbMHBmvOUQjtAoF1nqPhr5qXFQyQA
+         OiFS98YgEScdeX0zOhEuOF0+RAAhI6SNpJqrvJIZHyRDDmcRTQ1herDXLYWDbZ5XsVTN
+         A9jgsWXcS88NIz+ii6SDXVLWbHrpL08wPzwMh0LQKIgD5RgG7CNFuE05gKi0QxuP4fZA
+         8fN4RdHbo6r5mh1PwtoOaGbeN7+jIAyL0h/lKbVELfMdwHtBK58LIcZZ/Ba/4uAanhjX
+         hFIQbXnpCbyqSraCW2yZWPiJfj/IYQbpgq1WsS9XAduF3pwHIfnwxyzD40fNZ05Qhxk3
+         4ziw==
+X-Gm-Message-State: AOAM5307QNs9cStot+S0qnt1tzgoa+mIY0BBSFzSJfGMgY5hZuPuKR7j
+        5VNz9fi8BG2gz+hz52VRVIVcou8w2r6X3YgnNHL9sQ==
+X-Google-Smtp-Source: ABdhPJzPuKCgEjEjJHS0X0O6pfg/Jc6Cj92bekA8cLL6QcjUutztZ41ZgQaRpvglGyC6VvuyAkF9v2v6ZwHcD0s1n4E=
+X-Received: by 2002:a2e:9610:: with SMTP id v16mr7963140ljh.339.1643139973065;
+ Tue, 25 Jan 2022 11:46:13 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhTwXUE9dYBHrkA3Xkr=AgXvcnfSzLLBJ4QqYd4R+kFbbA@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20220125141422.32655-1-cgzones@googlemail.com> <20220125141422.32655-9-cgzones@googlemail.com>
+In-Reply-To: <20220125141422.32655-9-cgzones@googlemail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Tue, 25 Jan 2022 11:46:00 -0800
+Message-ID: <CAKwvOdmkfSQrLL2+fbjnRoY3wiRfpxLUU4YwP+XaiCwNrbi9ww@mail.gmail.com>
+Subject: Re: [PATCH 1/9] selinux: check return value of sel_make_avc_files
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 25 Jan 2022, Paul Moore wrote:
+On Tue, Jan 25, 2022 at 6:15 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> sel_make_avc_files() might fail and return a negative errno value on
+> memory allocation failures. Re-add the check of the return value,
+> dropped in 66f8e2f03c02.
+>
+> Reported by clang-analyzer:
+>
+>     security/selinux/selinuxfs.c:2129:2: warning: Value stored to 'ret' i=
+s never read [deadcode.DeadStores]
+>             ret =3D sel_make_avc_files(dentry);
+>             ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+>
+> Fixes: 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table")
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-> On Tue, Jan 25, 2022 at 12:31 PM Scott Mayhew <smayhew@redhat.com> wrote:
-> > On Mon, 24 Jan 2022, Paul Moore wrote:
-> > > On Thu, Jan 20, 2022 at 4:50 PM Scott Mayhew <smayhew@redhat.com> wrote:
-> > > >
-> > > > selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
-> > > > shouldn't be performing any memory allocations.  Fix this by parsing the
-> > > > sids at the same time we're chopping up the security mount options
-> > > > string and then using the pre-parsed sids when doing the comparison.
-> > > >
-> > > > Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
-> > > > Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-> > > > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-> > > > ---
-> > > >  security/selinux/hooks.c | 112 ++++++++++++++++++++++++++-------------
-> > > >  1 file changed, 76 insertions(+), 36 deletions(-)
-> 
-> ...
-> 
-> > > >         switch (token) {
-> > > >         case Opt_context:
-> > > >                 if (opts->context || opts->defcontext)
-> > > >                         goto err;
-> > > >                 opts->context = s;
-> > > > +               if (preparse_sid) {
-> > > > +                       rc = parse_sid(NULL, s, &sid);
-> > > > +                       if (rc == 0) {
-> > > > +                               opts->context_sid = sid;
-> > > > +                               opts->preparsed |= CONTEXT_MNT;
-> > > > +                       }
-> > > > +               }
-> > >
-> > > Is there a reason why we need a dedicated sid variable as opposed to
-> > > passing opt->context_sid as the parameter?  For example:
-> > >
-> > >   rc = parse_sid(NULL, s, &opts->context_sid);
-> >
-> > We don't need a dedicated sid variable.  Should I make similar changes
-> > in the second patch (get rid of the local sid variable in
-> > selinux_sb_remount() and the *context_sid variables in
-> > selinux_set_mnt_opts())?
-> 
-> Yes please, I should have explicitly mentioned that.
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 
-Actually, delayed_superblock_init() calls selinux_set_mnt_opts() with
-mnt_opts == NULL, so there would have to be a lot of checks like
+> ---
+>  security/selinux/selinuxfs.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index e4cd7cb856f3..f2f6203e0fff 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -2127,6 +2127,8 @@ static int sel_fill_super(struct super_block *sb, s=
+truct fs_context *fc)
+>         }
+>
+>         ret =3D sel_make_avc_files(dentry);
+> +       if (ret)
+> +               goto err;
+>
+>         dentry =3D sel_make_dir(sb->s_root, "ss", &fsi->last_ino);
+>         if (IS_ERR(dentry)) {
+> --
+> 2.34.1
+>
 
-        if (opts && opts->fscontext_sid) {
 
-in the later parts of that function, which is kind of clunky.  I can
-still do it if you want though.
-
--Scott
-
-> 
-> Thanks.
-> 
-> -- 
-> paul moore
-> paul-moore.com
-> 
-
+--=20
+Thanks,
+~Nick Desaulniers
