@@ -2,112 +2,130 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED65DC2BA4C
-	for <selinux@archiver.kernel.org>; Wed, 26 Jan 2022 07:24:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26606C28CF5
+	for <selinux@archiver.kernel.org>; Wed, 26 Jan 2022 14:56:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229621AbiAZHYu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Jan 2022 02:24:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48678 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbiAZHYu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jan 2022 02:24:50 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B050D618EC;
-        Wed, 26 Jan 2022 07:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC69C340E3;
-        Wed, 26 Jan 2022 07:24:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643181889;
-        bh=Vf6yvt5tfs9pOCWrqF30qR+zwo8sK361Ab/pKrnWcIo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nrFcV7OhfKHj/5wtwMBw+AJY/lib6EKHC7GkUOf/tcuMaXqMVpznxiA0y9vfbD131
-         Kc2vg4dXukbWlbFTWNEUra0K7m1MFo4OzCba9rVAi+O9IyT1atRYSykYjtTzMWKKou
-         x9fByzOKEJvnloBZw2S1HdcYrYvZAD3mcc1TAnd7fHx43Ab5ZwapLexFFl1kboILbY
-         CAIty4T5uKqMccrxwN6I3o5pCS6L7+s/ct4QY/PqEI5+oT9uZ6k6iiXupttUnFCVC6
-         xGtkjmtm5cHCgsava+eHnDFfeyeFbRCrPfXGOXk8GP7QwK7zdvbJGYtWdza+BLXO7t
-         wVzs4ANmPh0dQ==
-Date:   Wed, 26 Jan 2022 08:24:42 +0100
-From:   Christian Brauner <brauner@kernel.org>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Christian Brauner <christian@brauner.io>,
-        James Morris <jmorris@namei.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        syzbot <syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH] LSM: general protection fault in legacy_parse_param
-Message-ID: <20220126072442.he4fjegfqnh72kzp@wittgenstein>
-References: <018a9bb4-accb-c19a-5b0a-fde22f4bc822.ref@schaufler-ca.com>
- <018a9bb4-accb-c19a-5b0a-fde22f4bc822@schaufler-ca.com>
- <20211012103243.xumzerhvhklqrovj@wittgenstein>
- <d15f9647-f67e-2d61-d7bd-c364f4288287@schaufler-ca.com>
- <CAHC9VhT=dZbWzhst0hMLo0n7=UzWC5OYTMY=0x=LZ97HwG0UsA@mail.gmail.com>
+        id S242390AbiAZO4y (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jan 2022 09:56:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235758AbiAZO4y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jan 2022 09:56:54 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2206C06161C
+        for <selinux@vger.kernel.org>; Wed, 26 Jan 2022 06:56:53 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id m4so39705308ejb.9
+        for <selinux@vger.kernel.org>; Wed, 26 Jan 2022 06:56:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JhpOtw4vmLk5jSFN2duLbcfXTSphF1wdDNS9+EHWrR8=;
+        b=Z+BVKSyevLG9v5BVBEc6Hk8quABmVBiImB1oV7mcbu0JiYSPpm5rCoxZRv3MJL+jLw
+         Xdds7qIdCXA+MGEuK1n37lmOvOtEyIdZqjpO/53l1gPug2YGjNf7FzAWMukPjvq60cGk
+         5Pn3mVJ5fIB1mlSDHiDTvCgqeUxcyOi9TmyqXj5f88yCM/5MwmeJV7Zl1N7oo85OBPua
+         dXua55WMQ04aOPyXjucDAQ7xZEKN+5T1O9vvONy3R5uvOuqdovzLVs5npzCC/Tjmbw7t
+         SyXn6IBL+5IrLvKeMzW+9VPhl0RWARoneW58XeuHRXxUUtSqEJCM9UeDVU2eP+3PNpMn
+         ww0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JhpOtw4vmLk5jSFN2duLbcfXTSphF1wdDNS9+EHWrR8=;
+        b=cLK3/sUUmj+MPdsz2jPu27YosyYE5o1Ey50GhUijlfBVoGOdVDIpOpwRKSCN7hG/p1
+         afqNHfTGnaYBtZmficiRWve7jbJ+e6dXtpeYxN0DGmuXvzu4+a7o/RWA1CGTuUVLTgt4
+         9Ac4bOBkRvx6HSkFJ/23pWUla80TBULwk19n/dtbOc3+HO5Ztjz4sjSj3Wm6i9IzKr3x
+         NO7CioCSfD85AChbiiOkTtyKD5JRQSIqzkNxSrD1oDGZY0uglXRvWwLlJ91o57YBdtob
+         95LruKv4/HcasKt2Iz5hpeMqeeT/zkvwfk7ObdVWMAYOySXXLlVGMWliH6FUgX38jm0z
+         3ecg==
+X-Gm-Message-State: AOAM530DVoAXDoWILDt4n/CgzvR3LzqkQ34AZPWWRnAFiLP53J8f4jtI
+        k5wa2LfkXNOeyoaqwtHfag0+6zBVFoGNGg==
+X-Google-Smtp-Source: ABdhPJyPTFUwSly/0nTnKEW+D88dBofGQIU4UduFA2wXFEeOkoFYow5yamjc+1RQYFcpdN8fuu1J/g==
+X-Received: by 2002:a17:906:5042:: with SMTP id e2mr21155558ejk.647.1643209012413;
+        Wed, 26 Jan 2022 06:56:52 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-001-066-175.77.1.pool.telefonica.de. [77.1.66.175])
+        by smtp.gmail.com with ESMTPSA id m22sm5981093ejn.194.2022.01.26.06.56.51
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 06:56:51 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] policycoreutils: handle argument counter of zero
+Date:   Wed, 26 Jan 2022 15:56:45 +0100
+Message-Id: <20220126145645.5236-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhT=dZbWzhst0hMLo0n7=UzWC5OYTMY=0x=LZ97HwG0UsA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 05:18:02PM -0500, Paul Moore wrote:
-> On Tue, Oct 12, 2021 at 10:27 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > On 10/12/2021 3:32 AM, Christian Brauner wrote:
-> > > On Mon, Oct 11, 2021 at 03:40:22PM -0700, Casey Schaufler wrote:
-> > >> The usual LSM hook "bail on fail" scheme doesn't work for cases where
-> > >> a security module may return an error code indicating that it does not
-> > >> recognize an input.  In this particular case Smack sees a mount option
-> > >> that it recognizes, and returns 0. A call to a BPF hook follows, which
-> > >> returns -ENOPARAM, which confuses the caller because Smack has processed
-> > >> its data.
-> > >>
-> > >> Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
-> > >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> > >> ---
-> > > Thanks!
-> > > Note, I think that we still have the SELinux issue we discussed in the
-> > > other thread:
-> > >
-> > >       rc = selinux_add_opt(opt, param->string, &fc->security);
-> > >       if (!rc) {
-> > >               param->string = NULL;
-> > >               rc = 1;
-> > >       }
-> > >
-> > > SELinux returns 1 not the expected 0. Not sure if that got fixed or is
-> > > queued-up for -next. In any case, this here seems correct independent of
-> > > that:
-> >
-> > The aforementioned SELinux change depends on this patch. As the SELinux
-> > code is today it blocks the problem seen with Smack, but introduces a
-> > different issue. It prevents the BPF hook from being called.
-> >
-> > So the question becomes whether the SELinux change should be included
-> > here, or done separately. Without the security_fs_context_parse_param()
-> > change the selinux_fs_context_parse_param() change results in messy
-> > failures for SELinux mounts.
-> 
-> FWIW, this patch looks good to me, so:
-> 
-> Acked-by: Paul Moore <paul@paul-moore.com>
-> 
-> ... and with respect to the SELinux hook implementation returning 1 on
-> success, I don't have a good answer and looking through my inbox I see
-> David Howells hasn't responded either.  I see nothing in the original
-> commit explaining why, so I'm going to say let's just change it to
-> zero and be done with it; the good news is that if we do it now we've
+The number of arguments passed to main(), argc, can be zero if the
+pathname passed to execve(2) is NULL, e.g. via:
 
+    execve("/path/to/exe", {NULL}, {NULL});
 
-It was originally supposed to return 1 but then this got changed but - a
-classic - the documentation wasn't.
+Also avoid NULL pointer dereferences on the argument value.
 
-> got almost a full cycle in linux-next to see what falls apart.  As far
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ policycoreutils/run_init/open_init_pty.c | 2 +-
+ policycoreutils/secon/secon.c            | 3 +++
+ policycoreutils/setfiles/setfiles.c      | 6 +++++-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-Sweet!
+diff --git a/policycoreutils/run_init/open_init_pty.c b/policycoreutils/run_init/open_init_pty.c
+index 150cb45e..19101c50 100644
+--- a/policycoreutils/run_init/open_init_pty.c
++++ b/policycoreutils/run_init/open_init_pty.c
+@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
+ 	rb_init(&inbuf, inbuf_mem, sizeof(inbuf_mem));
+ 	rb_init(&outbuf, outbuf_mem, sizeof(outbuf_mem));
+ 
+-	if (argc == 1) {
++	if (argc < 2) {
+ 		printf("usage: %s PROGRAM [ARGS]...\n", argv[0]);
+ 		exit(1);
+ 	}
+diff --git a/policycoreutils/secon/secon.c b/policycoreutils/secon/secon.c
+index a0957d09..d624fa13 100644
+--- a/policycoreutils/secon/secon.c
++++ b/policycoreutils/secon/secon.c
+@@ -333,6 +333,9 @@ static void cmd_line(int argc, char *argv[])
+ 		opts->from_type = OPTS_FROM_CUR;
+ 
+ 	if (opts->from_type == OPTS_FROM_ARG) {
++		if (!argv[0])
++			errx(EXIT_FAILURE, "No argument given");
++
+ 		opts->f.arg = argv[0];
+ 
+ 		if (xstreq(argv[0], "-"))
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 44cab46d..ab7016ac 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -163,6 +163,10 @@ int main(int argc, char **argv)
+ 	policyfile = NULL;
+ 
+ 	r_opts.abort_on_error = 0;
++	if (!argv[0]) {
++		fprintf(stderr, "Called without required program name!\n");
++		exit(-1);
++	}
+ 	r_opts.progname = strdup(argv[0]);
+ 	if (!r_opts.progname) {
+ 		fprintf(stderr, "%s:  Out of memory!\n", argv[0]);
+@@ -423,7 +427,7 @@ int main(int argc, char **argv)
+ 
+ 		altpath = argv[optind];
+ 		optind++;
+-	} else if (argc == 1)
++	} else if (argc < 2)
+ 		usage(argv[0]);
+ 
+ 	/* Set selabel_open options. */
+-- 
+2.34.1
+
