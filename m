@@ -2,130 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26606C28CF5
-	for <selinux@archiver.kernel.org>; Wed, 26 Jan 2022 14:56:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 518C8C2BA4C
+	for <selinux@archiver.kernel.org>; Wed, 26 Jan 2022 19:34:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242390AbiAZO4y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Jan 2022 09:56:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
+        id S244446AbiAZTem (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jan 2022 14:34:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235758AbiAZO4y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jan 2022 09:56:54 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2206C06161C
-        for <selinux@vger.kernel.org>; Wed, 26 Jan 2022 06:56:53 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id m4so39705308ejb.9
-        for <selinux@vger.kernel.org>; Wed, 26 Jan 2022 06:56:53 -0800 (PST)
+        with ESMTP id S231562AbiAZTem (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jan 2022 14:34:42 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01653C06173B
+        for <selinux@vger.kernel.org>; Wed, 26 Jan 2022 11:34:41 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id m11so562199edi.13
+        for <selinux@vger.kernel.org>; Wed, 26 Jan 2022 11:34:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=JhpOtw4vmLk5jSFN2duLbcfXTSphF1wdDNS9+EHWrR8=;
-        b=Z+BVKSyevLG9v5BVBEc6Hk8quABmVBiImB1oV7mcbu0JiYSPpm5rCoxZRv3MJL+jLw
-         Xdds7qIdCXA+MGEuK1n37lmOvOtEyIdZqjpO/53l1gPug2YGjNf7FzAWMukPjvq60cGk
-         5Pn3mVJ5fIB1mlSDHiDTvCgqeUxcyOi9TmyqXj5f88yCM/5MwmeJV7Zl1N7oo85OBPua
-         dXua55WMQ04aOPyXjucDAQ7xZEKN+5T1O9vvONy3R5uvOuqdovzLVs5npzCC/Tjmbw7t
-         SyXn6IBL+5IrLvKeMzW+9VPhl0RWARoneW58XeuHRXxUUtSqEJCM9UeDVU2eP+3PNpMn
-         ww0Q==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=XoFExDa1ENUk04Al1efvQv2YdMKhh28iapevdw2sH5o=;
+        b=AUUQF21p8HydcBPAQC2Be6rRHyPx6Ac1LW4kCboaKffoUSBtVsK/JQZSbqb9Yj0DWR
+         nzci1Sv0xMfjuUzkf3ghEl+PMsbpj2pMLYLIy9FlqAsV59xCUwxg6VYwRjcbCStaT+v3
+         seQTWC1Ke91ax6c+LHUB9B+2lXnq4oMoeTsK39DUZAnSzA18wgSryWmUJAcRMpY2EEhB
+         ITvpsaBEQMSN7Xv4aqohnLC4wq/CfV2tuhifx3te4Jt8JA2wILYi9aVffJseRf5Up3sX
+         +eHYMDuQHBUgHL6yY+eYapLO8NabdqgOH+8fF7S74zrKfK4VKegxqkeC+khvXMfmfhkY
+         xVtg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=JhpOtw4vmLk5jSFN2duLbcfXTSphF1wdDNS9+EHWrR8=;
-        b=cLK3/sUUmj+MPdsz2jPu27YosyYE5o1Ey50GhUijlfBVoGOdVDIpOpwRKSCN7hG/p1
-         afqNHfTGnaYBtZmficiRWve7jbJ+e6dXtpeYxN0DGmuXvzu4+a7o/RWA1CGTuUVLTgt4
-         9Ac4bOBkRvx6HSkFJ/23pWUla80TBULwk19n/dtbOc3+HO5Ztjz4sjSj3Wm6i9IzKr3x
-         NO7CioCSfD85AChbiiOkTtyKD5JRQSIqzkNxSrD1oDGZY0uglXRvWwLlJ91o57YBdtob
-         95LruKv4/HcasKt2Iz5hpeMqeeT/zkvwfk7ObdVWMAYOySXXLlVGMWliH6FUgX38jm0z
-         3ecg==
-X-Gm-Message-State: AOAM530DVoAXDoWILDt4n/CgzvR3LzqkQ34AZPWWRnAFiLP53J8f4jtI
-        k5wa2LfkXNOeyoaqwtHfag0+6zBVFoGNGg==
-X-Google-Smtp-Source: ABdhPJyPTFUwSly/0nTnKEW+D88dBofGQIU4UduFA2wXFEeOkoFYow5yamjc+1RQYFcpdN8fuu1J/g==
-X-Received: by 2002:a17:906:5042:: with SMTP id e2mr21155558ejk.647.1643209012413;
-        Wed, 26 Jan 2022 06:56:52 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-001-066-175.77.1.pool.telefonica.de. [77.1.66.175])
-        by smtp.gmail.com with ESMTPSA id m22sm5981093ejn.194.2022.01.26.06.56.51
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 06:56:51 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] policycoreutils: handle argument counter of zero
-Date:   Wed, 26 Jan 2022 15:56:45 +0100
-Message-Id: <20220126145645.5236-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.34.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=XoFExDa1ENUk04Al1efvQv2YdMKhh28iapevdw2sH5o=;
+        b=oIcc45KEVkoR+9AP/dYnK+YOUB1jYi1YjM7SQzmmnXeO262sg9A/X8eQfSFs/ebTMU
+         MTtUGCudxI3UuehTxXca/TlOoUkFFLINvaUjU3HuS+egz2ck6jwZOyPOn5uxfMzVTZMk
+         t9pXI2CKBR/HFjE91gkEHfnmyEDbc6YPyyAybSPb8/81QNffH/E8hk0aCCaF6ZgOvaIy
+         d3gt+jGVGhQLXrqpRg7YYXWuF7faFx3vOGUwwwJuM/EhFyb7KXAJ4Kxnpd+/DVyB41kH
+         f9kQUDIG6TSViJJwIyN4ockgpXCj4XyhiitqZ5iCAa2B/3vMmwmBI+l4Yi11Cii49Kkg
+         u90w==
+X-Gm-Message-State: AOAM532vMVbfrAApfzDfyzBAaeUo74gtn1072/6Ftlgw0YQdIRdaHcNo
+        cE1Cs+eMw4hv8XrIjlk4382T0FGDHgtFR/uI59D0
+X-Google-Smtp-Source: ABdhPJwMNAGOoZ0ZcWzskRXSV/A8+ulNIietH06lvGLxvhYly1IJ5wOyPEQyIJT/E6WZTgtRd8P+c29lJ7sutsYzSLM=
+X-Received: by 2002:a05:6402:270f:: with SMTP id y15mr425193edd.409.1643225680204;
+ Wed, 26 Jan 2022 11:34:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220125141422.32655-1-cgzones@googlemail.com> <20220125141422.32655-2-cgzones@googlemail.com>
+In-Reply-To: <20220125141422.32655-2-cgzones@googlemail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 26 Jan 2022 14:34:28 -0500
+Message-ID: <CAHC9VhSV17NFrTAT9rUV-cYBtPJg9ZTnn2Cd2Af3Xpe7e_UtJw@mail.gmail.com>
+Subject: Re: [PATCH 3/9] selinux: declare name parameter of hash_eval const
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The number of arguments passed to main(), argc, can be zero if the
-pathname passed to execve(2) is NULL, e.g. via:
+On Tue, Jan 25, 2022 at 9:14 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> String literals are passed as second argument to hash_eval(). Also the
+> parameter is already declared const in the DEBUG_HASHES configuration.
+>
+> Reported by clang [-Wwrite-strings]:
+>
+>     security/selinux/ss/policydb.c:1881:26: error: passing 'const char [8=
+]' to parameter of type 'char *' discards qualifiers [-Werror,-Wincompatibl=
+e-pointer-types-discards-qualifiers]
+>             hash_eval(&p->range_tr, rangetr);
+>                                     ^~~~~~~~~
+>     security/selinux/ss/policydb.c:707:55: note: passing argument to para=
+meter 'hash_name' here
+>     static inline void hash_eval(struct hashtab *h, char *hash_name)
+>                                                           ^
+>     security/selinux/ss/policydb.c:2099:32: error: passing 'const char [1=
+1]' to parameter of type 'char *' discards qualifiers [-Werror,-Wincompatib=
+le-pointer-types-discards-qualifiers]
+>             hash_eval(&p->filename_trans, filenametr);
+>                                           ^~~~~~~~~~~~
+>     security/selinux/ss/policydb.c:707:55: note: passing argument to para=
+meter 'hash_name' here
+>     static inline void hash_eval(struct hashtab *h, char *hash_name)
+>                                                           ^
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  security/selinux/ss/policydb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-    execve("/path/to/exe", {NULL}, {NULL});
+Merged into selinux/next, thanks!
 
-Also avoid NULL pointer dereferences on the argument value.
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- policycoreutils/run_init/open_init_pty.c | 2 +-
- policycoreutils/secon/secon.c            | 3 +++
- policycoreutils/setfiles/setfiles.c      | 6 +++++-
- 3 files changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/policycoreutils/run_init/open_init_pty.c b/policycoreutils/run_init/open_init_pty.c
-index 150cb45e..19101c50 100644
---- a/policycoreutils/run_init/open_init_pty.c
-+++ b/policycoreutils/run_init/open_init_pty.c
-@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
- 	rb_init(&inbuf, inbuf_mem, sizeof(inbuf_mem));
- 	rb_init(&outbuf, outbuf_mem, sizeof(outbuf_mem));
- 
--	if (argc == 1) {
-+	if (argc < 2) {
- 		printf("usage: %s PROGRAM [ARGS]...\n", argv[0]);
- 		exit(1);
- 	}
-diff --git a/policycoreutils/secon/secon.c b/policycoreutils/secon/secon.c
-index a0957d09..d624fa13 100644
---- a/policycoreutils/secon/secon.c
-+++ b/policycoreutils/secon/secon.c
-@@ -333,6 +333,9 @@ static void cmd_line(int argc, char *argv[])
- 		opts->from_type = OPTS_FROM_CUR;
- 
- 	if (opts->from_type == OPTS_FROM_ARG) {
-+		if (!argv[0])
-+			errx(EXIT_FAILURE, "No argument given");
-+
- 		opts->f.arg = argv[0];
- 
- 		if (xstreq(argv[0], "-"))
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 44cab46d..ab7016ac 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -163,6 +163,10 @@ int main(int argc, char **argv)
- 	policyfile = NULL;
- 
- 	r_opts.abort_on_error = 0;
-+	if (!argv[0]) {
-+		fprintf(stderr, "Called without required program name!\n");
-+		exit(-1);
-+	}
- 	r_opts.progname = strdup(argv[0]);
- 	if (!r_opts.progname) {
- 		fprintf(stderr, "%s:  Out of memory!\n", argv[0]);
-@@ -423,7 +427,7 @@ int main(int argc, char **argv)
- 
- 		altpath = argv[optind];
- 		optind++;
--	} else if (argc == 1)
-+	} else if (argc < 2)
- 		usage(argv[0]);
- 
- 	/* Set selabel_open options. */
--- 
-2.34.1
-
+--=20
+paul-moore.com
