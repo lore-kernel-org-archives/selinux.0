@@ -2,54 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8EB0C433F5
-	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 15:30:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C393BC433F5
+	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 15:31:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234655AbiA0Paz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Jan 2022 10:30:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35914 "EHLO
+        id S235634AbiA0PbX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Jan 2022 10:31:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229985AbiA0Paz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 10:30:55 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B75C061714
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 07:30:54 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id e81so6501834oia.6
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 07:30:54 -0800 (PST)
+        with ESMTP id S235398AbiA0PbW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 10:31:22 -0500
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54903C061714
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 07:31:22 -0800 (PST)
+Received: by mail-oi1-x233.google.com with SMTP id w133so6490994oie.7
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 07:31:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=l+aRlkdBMpZOqBypFB67vbucy1jPu9YqSD06tHJiBpM=;
-        b=UAy/Casx0Px6UykVuvv2UOKvCLCQS5nqYKeo+O/3Ddyk/etOwIeAQ+F89DOlbHJP4H
-         SPTmZy1u+yTDd7DZe8RMxAWbi0+S/OTJDtQtXQPQP5EgmthgbJrwGEpOXcDgHKQZzZ7y
-         sjQstvlU68zRFlMlI/0SDmgE+ewMoMD7omtQvHhOhDqOcWQCDNUn7SdCbCKW8hRPzpXC
-         RlMmtiL/zKEYO5iifzxtpKB+ngASBZAhTRqYN3qllK7ie+1UKY5P2RuE+AAz5Ssv/e9f
-         0tWgDVDpb73D9QCfX2xPyXjRVTpFstkwlbST3qc576AWPhTJ/Ri03TPaghtAysHlBsX3
-         Ahug==
+        bh=ImvFWBnYwq+WJOxrlHxZIwM98MnXIrJfbSLAZStQm7Y=;
+        b=ouLQ7+K4NZWyxNLJVWX5hAsnv/y4ztPa2kpeXgiuh5nNd1iFqDAs5qV4G6DRzAkEQ/
+         gupJmfK4SKwQQQ69FRF0VlSdsEXHq7hRHusDd3k93OMbTm7sqKAFAzHZgBjVXywu7Ahl
+         b5paD7IYEy6tzK/3VC9+wLan9zrmEk0EZDrWUpXw6MSAmrBcf/DOMKTyrRSUezu7+l8y
+         aeR+0ysX5C9geHHN9QS5BxNUNDt4CM75MBIarmx51nwtZEmGgIoi8nuReszHWettsk33
+         R7LUsArL8LWxrYb2wyDzjo4cLR8ZM85NpP3/NkO1UEikkylDU7UQR3+EyxKzFlYzChg2
+         ZfNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=l+aRlkdBMpZOqBypFB67vbucy1jPu9YqSD06tHJiBpM=;
-        b=Zdsz4XUgIb8t/0pd/sL2pGCSUKtehxTh4RIOGxMIBwNVNpUaeZWHmUc0ZpqlNv220s
-         1A3LRZSZvWT7SFQUoZSYI5vrsiG1nAZO1Ky5h+TroQyPqdEZAPzQI9dI2Xa+nte/cv9I
-         C8ImU3LDThC46J6yHpCEYQYJMfGBTxxapHS4ViwHfo0LKb+BaFqK4jkWRIHSbUGQ+Ld2
-         H4ol70hK28VZk1BuZe4h5eSQXCnMsGebiqtHJEY+hc0M5akafHuC6OEy8vmmdxo6iJQ4
-         zkqRndXwZpOmbtiUmWA0R7/dQPtYo1zVES+HZYJ4LvqCP9zYISw8Xt0eKNjUacws4tWD
-         xhCw==
-X-Gm-Message-State: AOAM5326ierOJ7FlXDfcmlCZ3xoH0J72jbgZIkzuzHs0c1wsIwBtMUfZ
-        DLUqT0IzjRoJZaCSiJy4oDkbv3vst8E8k4Wu6wIXvkPb
-X-Google-Smtp-Source: ABdhPJx9zaon526qXNQm0g0sv2x/KSSr5VFSv+Sz0t/nRXsIeNv3nlZpOn61J6OBYrrvPRsueFS1+Jx3qUF3YHS4xhA=
-X-Received: by 2002:a05:6808:1147:: with SMTP id u7mr7072249oiu.189.1643297453543;
- Thu, 27 Jan 2022 07:30:53 -0800 (PST)
+        bh=ImvFWBnYwq+WJOxrlHxZIwM98MnXIrJfbSLAZStQm7Y=;
+        b=4W59XSc/Q0ZYIUGBuXc2ZJ7HALOL8IoAK2cBeSJ8kVN7CdP+JVmGRQvFPG0zee7Ywq
+         ltLzbU0IligPIEfnnbzJagvYmdHmxEt26Og+tCOXvBNPNtpThNIHSggBMTYvYW0G2DHq
+         wY9rQISyNo5MlU46alpfOCZjc65Uo3qWiza5eiZqVZgLlcrf/aMOc1p/rS0Nycj0U5xv
+         R7aoTASiwv1Hu4WLCiBXsc5krwbSDEi88r114RUWljL5BdAI/ElQCRIim6E3ZWqZs2HF
+         Ol9WnYt9dweYDCbsxa/MBxMC+d/fEU0HUtdM4OxGS7Bb3T+MWS3p8e2Gcd1C7fgdwVKR
+         fnqg==
+X-Gm-Message-State: AOAM532SqbfYkz1Id0DN75tS2LaAFLyGbaDY4K2xBkrUvON6NH3TilOl
+        zsRfpRcRSN4FV0KBKPoOeUfhUBCV4fyME2Vc6yfHuUYL
+X-Google-Smtp-Source: ABdhPJxd0HAPdMqvnM+/+92LxadPCEjKrcN06L6JbAVRvSHDrGmY4vd1k+dmoas21FZTr9m7Yj0vkXlF6u9MaAKQuYA=
+X-Received: by 2002:a54:408e:: with SMTP id i14mr2707650oii.200.1643297481684;
+ Thu, 27 Jan 2022 07:31:21 -0800 (PST)
 MIME-Version: 1.0
-References: <20220119160339.12072-1-cgzones@googlemail.com> <CAP+JOzQAN-MPSG0aZe=hPSeMsWz33E42Bxbq0yfkMDJ-E5_nHQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzQAN-MPSG0aZe=hPSeMsWz33E42Bxbq0yfkMDJ-E5_nHQ@mail.gmail.com>
+References: <20211223185004.77862-1-cgzones@googlemail.com>
+ <20220125133009.21405-1-cgzones@googlemail.com> <CAP+JOzStdDcHmU3EmvPtvqaRw+hCk4LV0noovUsbC8de+QjVHQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzStdDcHmU3EmvPtvqaRw+hCk4LV0noovUsbC8de+QjVHQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 27 Jan 2022 10:30:42 -0500
-Message-ID: <CAP+JOzRBkx+AvDm_xQ_oiPwPoXfUd=L3w7-2F4g9E5P4AWaa3w@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: drop trailing newlines in log messages
+Date:   Thu, 27 Jan 2022 10:31:10 -0500
+Message-ID: <CAP+JOzTY4P=xTWmJDwSTNXO6-0SDej8NLSTh0RFCG4kRonOoXg@mail.gmail.com>
+Subject: Re: [PATCH v3] libsepol: handle type gaps
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -58,19 +59,42 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 9:44 AM James Carter <jwcart2@gmail.com> wrote:
+On Tue, Jan 25, 2022 at 4:17 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Fri, Jan 21, 2022 at 2:44 PM Christian G=C3=B6ttsche
+> On Tue, Jan 25, 2022 at 2:43 PM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > The default log handler sepol_msg_default_handler() appends a newline
-> > and the majority of log messages do not contain a trailing newline in
-> > the format string.
+> > For policy versions between 20 and 23 the type_val_to_struct array migh=
+t
+> > contain gaps. Skip those gaps to avoid NULL pointer dereferences:
 > >
-> > Fixes: 5c178f9f55 ("libsepol: use logging framework in conditional.c")
-> > Fixes: 852f14d43d ("libsepol: use logging framework in ebitmap.c")
+> >     =3D=3D1250=3D=3DERROR: AddressSanitizer: SEGV on unknown address 0x=
+000000000008 (pc 0x00000058560b bp 0x7ffdca60c110 sp 0x7ffdca60bfc0 T0)
+> >     =3D=3D1250=3D=3DThe signal is caused by a READ memory access.
+> >     =3D=3D1250=3D=3DHint: address points to the zero page.
+> >         #0 0x58560b in build_type_map selinux/libsepol/src/optimize.c:1=
+07:33
+> >         #1 0x58560b in policydb_optimize selinux/libsepol/src/optimize.=
+c:441:13
+> >         #2 0x55e63e in LLVMFuzzerTestOneInput selinux/libsepol/fuzz/bin=
+policy-fuzzer.c:42:10
+> >         #3 0x455283 in fuzzer::Fuzzer::ExecuteCallback(unsigned char co=
+nst*, unsigned long) cxa_noexception.cpp:0
+> >         #4 0x440ec2 in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*,=
+ unsigned long) /src/llvm-project/compiler-rt/lib/fuzzer/FuzzerDriver.cpp:3=
+24:6
+> >         #5 0x44671c in fuzzer::FuzzerDriver(int*, char***, int (*)(unsi=
+gned char const*, unsigned long)) cxa_noexception.cpp:0
+> >         #6 0x46f522 in main /src/llvm-project/compiler-rt/lib/fuzzer/Fu=
+zzerMain.cpp:20:10
+> >         #7 0x7f9c160d00b2 in __libc_start_main /build/glibc-eX1tMB/glib=
+c-2.31/csu/libc-start.c:308:16
+> >         #8 0x41f67d in _start
+> >
+> > Found by oss-fuzz (#42697)
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
@@ -80,407 +104,204 @@ Thanks,
 Jim
 
 > > ---
-> >  libsepol/src/avtab.c          |  2 +-
-> >  libsepol/src/conditional.c    | 14 +++++++-------
-> >  libsepol/src/context_record.c |  2 +-
-> >  libsepol/src/ebitmap.c        | 20 ++++++++++----------
-> >  libsepol/src/expand.c         |  8 ++++----
-> >  libsepol/src/hierarchy.c      |  2 +-
-> >  libsepol/src/link.c           | 16 ++++++++--------
-> >  libsepol/src/services.c       |  2 +-
-> >  8 files changed, 33 insertions(+), 33 deletions(-)
+> > v3:
+> >    - drop extra error blocks in kernel_to_(cil|conf).c in favor of a
+> >      simple non-NULL check, as writing policies between version 20 and
+> >      23 is not supported and previously checked
+> >    - refuse to optimize policies between version 20 and 23 altogether
+> >      and simplify NULL checks
 > >
-> > diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-> > index 9dc5d9f1..7920b60a 100644
-> > --- a/libsepol/src/avtab.c
-> > +++ b/libsepol/src/avtab.c
-> > @@ -548,7 +548,7 @@ int avtab_read_item(struct policy_file *fp, uint32_=
-t vers, avtab_t * a,
-> >         if ((vers < POLICYDB_VERSION_XPERMS_IOCTL) &&
-> >                         (key.specified & AVTAB_XPERMS)) {
-> >                 ERR(fp->handle, "policy version %u does not support ext=
-ended "
-> > -                               "permissions rules and one was specifie=
-d\n", vers);
-> > +                               "permissions rules and one was specifie=
-d", vers);
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  libsepol/src/kernel_to_cil.c  | 10 +++++-----
+> >  libsepol/src/kernel_to_conf.c |  8 ++++----
+> >  libsepol/src/optimize.c       | 21 +++++++++++++++++++--
+> >  3 files changed, 28 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.=
+c
+> > index 18294a9a..693206d2 100644
+> > --- a/libsepol/src/kernel_to_cil.c
+> > +++ b/libsepol/src/kernel_to_cil.c
+> > @@ -1227,7 +1227,7 @@ static int write_type_attributes_to_cil(FILE *out=
+, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor =3D=3D TYPE_ATTRIB) {
+> > +               if (type && type->flavor =3D=3D TYPE_ATTRIB) {
+> >                         rc =3D strs_add(strs, pdb->p_type_val_to_name[i=
+]);
+> >                         if (rc !=3D 0) {
+> >                                 goto exit;
+> > @@ -1357,7 +1357,7 @@ static int write_type_decl_rules_to_cil(FILE *out=
+, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor =3D=3D TYPE_TYPE && type->primary) {
+> > +               if (type && type->flavor =3D=3D TYPE_TYPE && type->prim=
+ary) {
+> >                         rc =3D strs_add(strs, pdb->p_type_val_to_name[i=
+]);
+> >                         if (rc !=3D 0) {
+> >                                 goto exit;
+> > @@ -1486,7 +1486,7 @@ static int write_type_bounds_rules_to_cil(FILE *o=
+ut, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor =3D=3D TYPE_TYPE) {
+> > +               if (type && type->flavor =3D=3D TYPE_TYPE) {
+> >                         if (type->bounds > 0) {
+> >                                 rc =3D strs_add(strs, pdb->p_type_val_t=
+o_name[i]);
+> >                                 if (rc !=3D 0) {
+> > @@ -1540,7 +1540,7 @@ static int write_type_attribute_sets_to_cil(FILE =
+*out, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 attr =3D pdb->type_val_to_struct[i];
+> > -               if (attr->flavor !=3D TYPE_ATTRIB) continue;
+> > +               if (!attr || attr->flavor !=3D TYPE_ATTRIB) continue;
+> >                 name =3D pdb->p_type_val_to_name[i];
+> >                 typemap =3D &pdb->attr_type_map[i];
+> >                 if (ebitmap_is_empty(typemap)) continue;
+> > @@ -2273,7 +2273,7 @@ static int write_role_decl_rules_to_cil(FILE *out=
+, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type_datum =3D pdb->type_val_to_struct[i];
+> > -               if (type_datum->flavor =3D=3D TYPE_TYPE && type_datum->=
+primary) {
+> > +               if (type_datum && type_datum->flavor =3D=3D TYPE_TYPE &=
+& type_datum->primary) {
+> >                         rc =3D strs_add(strs, pdb->p_type_val_to_name[i=
+]);
+> >                         if (rc !=3D 0) {
+> >                                 goto exit;
+> > diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_con=
+f.c
+> > index a92ba9fd..52b6c60f 100644
+> > --- a/libsepol/src/kernel_to_conf.c
+> > +++ b/libsepol/src/kernel_to_conf.c
+> > @@ -1210,7 +1210,7 @@ static int write_type_attributes_to_conf(FILE *ou=
+t, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor =3D=3D TYPE_ATTRIB) {
+> > +               if (type && type->flavor =3D=3D TYPE_ATTRIB) {
+> >                         rc =3D strs_add(strs, pdb->p_type_val_to_name[i=
+]);
+> >                         if (rc !=3D 0) {
+> >                                 goto exit;
+> > @@ -1340,7 +1340,7 @@ static int write_type_decl_rules_to_conf(FILE *ou=
+t, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor =3D=3D TYPE_TYPE && type->primary) {
+> > +               if (type && type->flavor =3D=3D TYPE_TYPE && type->prim=
+ary) {
+> >                         rc =3D strs_add(strs, pdb->p_type_val_to_name[i=
+]);
+> >                         if (rc !=3D 0) {
+> >                                 goto exit;
+> > @@ -1460,7 +1460,7 @@ static int write_type_bounds_rules_to_conf(FILE *=
+out, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor =3D=3D TYPE_TYPE) {
+> > +               if (type && type->flavor =3D=3D TYPE_TYPE) {
+> >                         if (type->bounds > 0) {
+> >                                 rc =3D strs_add(strs, pdb->p_type_val_t=
+o_name[i]);
+> >                                 if (rc !=3D 0) {
+> > @@ -1583,7 +1583,7 @@ static int write_type_attribute_sets_to_conf(FILE=
+ *out, struct policydb *pdb)
+> >
+> >         for (i=3D0; i < pdb->p_types.nprim; i++) {
+> >                 type =3D pdb->type_val_to_struct[i];
+> > -               if (type->flavor !=3D TYPE_TYPE || !type->primary) cont=
+inue;
+> > +               if (!type || type->flavor !=3D TYPE_TYPE || !type->prim=
+ary) continue;
+> >                 if (ebitmap_cardinality(&pdb->type_attr_map[i]) =3D=3D =
+1) continue;
+> >
+> >                 rc =3D ebitmap_cpy(&attrmap, &pdb->type_attr_map[i]);
+> > diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
+> > index 8a048702..93ff2116 100644
+> > --- a/libsepol/src/optimize.c
+> > +++ b/libsepol/src/optimize.c
+> > @@ -31,6 +31,7 @@
+> >  #include <sepol/policydb/policydb.h>
+> >  #include <sepol/policydb/conditional.h>
+> >
+> > +#include "debug.h"
+> >  #include "private.h"
+> >
+> >  #define TYPE_VEC_INIT_SIZE 16
+> > @@ -104,6 +105,9 @@ static struct type_vec *build_type_map(const policy=
+db_t *p)
+> >                 if (type_vec_init(&map[i]))
+> >                         goto err;
+> >
+> > +               if (!p->type_val_to_struct[i])
+> > +                       continue;
+> > +
+> >                 if (p->type_val_to_struct[i]->flavor !=3D TYPE_ATTRIB) =
+{
+> >                         ebitmap_for_each_positive_bit(&p->type_attr_map=
+[i],
+> >                                                       n, k) {
+> > @@ -114,11 +118,13 @@ static struct type_vec *build_type_map(const poli=
+cydb_t *p)
+> >                         ebitmap_t *types_i =3D &p->attr_type_map[i];
+> >
+> >                         for (k =3D 0; k < p->p_types.nprim; k++) {
+> > -                               ebitmap_t *types_k =3D &p->attr_type_ma=
+p[k];
+> > +                               const ebitmap_t *types_k;
+> >
+> > -                               if (p->type_val_to_struct[k]->flavor !=
+=3D TYPE_ATTRIB)
+> > +                               if (!p->type_val_to_struct[k] || p->typ=
+e_val_to_struct[k]->flavor !=3D TYPE_ATTRIB)
+> >                                         continue;
+> >
+> > +                               types_k =3D &p->attr_type_map[k];
+> > +
+> >                                 if (ebitmap_contains(types_k, types_i))=
+ {
+> >                                         if (type_vec_append(&map[i], k)=
+)
+> >                                                 goto err;
+> > @@ -438,6 +444,17 @@ int policydb_optimize(policydb_t *p)
+> >         if (p->policy_type !=3D POLICY_KERN)
 > >                 return -1;
-> >         } else if (key.specified & AVTAB_XPERMS) {
-> >                 rc =3D next_entry(&buf8, fp, sizeof(uint8_t));
-> > diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
-> > index a3125fdd..f78b38a2 100644
-> > --- a/libsepol/src/conditional.c
-> > +++ b/libsepol/src/conditional.c
-> > @@ -315,7 +315,7 @@ static int evaluate_cond_node(policydb_t * p, cond_=
-node_t * node)
-> >         if (new_state !=3D node->cur_state) {
-> >                 node->cur_state =3D new_state;
-> >                 if (new_state =3D=3D -1)
-> > -                       WARN(NULL, "expression result was undefined - d=
-isabling all rules.\n");
-> > +                       WARN(NULL, "expression result was undefined - d=
-isabling all rules.");
-> >                 /* turn the rules on or off */
-> >                 for (cur =3D node->true_list; cur !=3D NULL; cur =3D cu=
-r->next) {
-> >                         if (new_state <=3D 0) {
-> > @@ -368,7 +368,7 @@ int cond_normalize_expr(policydb_t * p, cond_node_t=
- * cn)
-> >                 if (ne) {
-> >                         ne->next =3D NULL;
-> >                 } else {        /* ne should never be NULL */
-> > -                       ERR(NULL, "Found expr with no bools and only a =
-! - this should never happen.\n");
-> > +                       ERR(NULL, "Found expr with no bools and only a =
-! - this should never happen.");
-> >                         return -1;
-> >                 }
-> >                 /* swap the true and false lists */
-> > @@ -421,7 +421,7 @@ int cond_normalize_expr(policydb_t * p, cond_node_t=
- * cn)
-> >                         k =3D cond_evaluate_expr(p, cn->expr);
-> >                         if (k =3D=3D -1) {
-> >                                 ERR(NULL, "While testing expression, ex=
-pression result "
-> > -                                    "was undefined - this should never=
- happen.\n");
-> > +                                    "was undefined - this should never=
- happen.");
-> >                                 return -1;
-> >                         }
-> >                         /* set the bit if expression evaluates true */
-> > @@ -660,13 +660,13 @@ static int cond_insertf(avtab_t * a
-> >                                         }
-> >                                 }
-> >                                 if (!found) {
-> > -                                       ERR(NULL, "security: conflictin=
-g type rules.\n");
-> > +                                       ERR(NULL, "security: conflictin=
-g type rules.");
-> >                                         return -1;
-> >                                 }
-> >                         }
-> >                 } else {
-> >                         if (avtab_search(&p->te_cond_avtab, k)) {
-> > -                               ERR(NULL, "security: conflicting type r=
-ules when adding type rule for true.\n");
-> > +                               ERR(NULL, "security: conflicting type r=
-ules when adding type rule for true.");
-> >                                 return -1;
-> >                         }
-> >                 }
-> > @@ -733,12 +733,12 @@ static int cond_read_av_list(policydb_t * p, void=
- *fp,
-> >  static int expr_isvalid(policydb_t * p, cond_expr_t * expr)
-> >  {
-> >         if (expr->expr_type <=3D 0 || expr->expr_type > COND_LAST) {
-> > -               WARN(NULL, "security: conditional expressions uses unkn=
-own operator.\n");
-> > +               WARN(NULL, "security: conditional expressions uses unkn=
-own operator.");
-> >                 return 0;
-> >         }
 > >
-> >         if (expr->bool > p->p_bools.nprim) {
-> > -               WARN(NULL, "security: conditional expressions uses unkn=
-own bool.\n");
-> > +               WARN(NULL, "security: conditional expressions uses unkn=
-own bool.");
-> >                 return 0;
-> >         }
-> >         return 1;
-> > diff --git a/libsepol/src/context_record.c b/libsepol/src/context_recor=
-d.c
-> > index 435f7880..2bda121b 100644
-> > --- a/libsepol/src/context_record.c
-> > +++ b/libsepol/src/context_record.c
-> > @@ -127,7 +127,7 @@ int sepol_context_create(sepol_handle_t * handle, s=
-epol_context_t ** con_ptr)
-> >             (sepol_context_t *) malloc(sizeof(sepol_context_t));
-> >
-> >         if (!con) {
-> > -               ERR(handle, "out of memory, could not " "create context=
-\n");
-> > +               ERR(handle, "out of memory, could not create context");
-> >                 return STATUS_ERR;
-> >         }
-> >
-> > diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-> > index fa728558..bd98c0f8 100644
-> > --- a/libsepol/src/ebitmap.c
-> > +++ b/libsepol/src/ebitmap.c
-> > @@ -406,7 +406,7 @@ int ebitmap_read(ebitmap_t * e, void *fp)
-> >         count =3D le32_to_cpu(buf[2]);
-> >
-> >         if (mapsize !=3D MAPSIZE) {
-> > -               ERR(NULL, "security: ebitmap: map size %d does not matc=
-h my size %zu (high bit was %d)\n",
-> > +               ERR(NULL, "security: ebitmap: map size %d does not matc=
-h my size %zu (high bit was %d)",
-> >                      mapsize, MAPSIZE, e->highbit);
-> >                 goto bad;
-> >         }
-> > @@ -415,7 +415,7 @@ int ebitmap_read(ebitmap_t * e, void *fp)
-> >                 goto ok;
-> >         }
-> >         if (e->highbit & (MAPSIZE - 1)) {
-> > -               ERR(NULL, "security: ebitmap: high bit (%d) is not a mu=
-ltiple of the map size (%zu)\n",
-> > +               ERR(NULL, "security: ebitmap: high bit (%d) is not a mu=
-ltiple of the map size (%zu)",
-> >                      e->highbit, MAPSIZE);
-> >                 goto bad;
-> >         }
-> > @@ -427,12 +427,12 @@ int ebitmap_read(ebitmap_t * e, void *fp)
-> >         for (i =3D 0; i < count; i++) {
-> >                 rc =3D next_entry(buf, fp, sizeof(uint32_t));
-> >                 if (rc < 0) {
-> > -                       ERR(NULL, "security: ebitmap: truncated map\n")=
-;
-> > +                       ERR(NULL, "security: ebitmap: truncated map");
-> >                         goto bad;
-> >                 }
-> >                 n =3D (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t))=
-;
-> >                 if (!n) {
-> > -                       ERR(NULL, "security: ebitmap: out of memory\n")=
-;
-> > +                       ERR(NULL, "security: ebitmap: out of memory");
-> >                         rc =3D -ENOMEM;
-> >                         goto bad;
-> >                 }
-> > @@ -441,30 +441,30 @@ int ebitmap_read(ebitmap_t * e, void *fp)
-> >                 n->startbit =3D le32_to_cpu(buf[0]);
-> >
-> >                 if (n->startbit & (MAPSIZE - 1)) {
-> > -                       ERR(NULL, "security: ebitmap start bit (%d) is =
-not a multiple of the map size (%zu)\n",
-> > +                       ERR(NULL, "security: ebitmap start bit (%d) is =
-not a multiple of the map size (%zu)",
-> >                              n->startbit, MAPSIZE);
-> >                         goto bad_free;
-> >                 }
-> >                 if (n->startbit > (e->highbit - MAPSIZE)) {
-> > -                       ERR(NULL, "security: ebitmap start bit (%d) is =
-beyond the end of the bitmap (%zu)\n",
-> > +                       ERR(NULL, "security: ebitmap start bit (%d) is =
-beyond the end of the bitmap (%zu)",
-> >                              n->startbit, (e->highbit - MAPSIZE));
-> >                         goto bad_free;
-> >                 }
-> >                 rc =3D next_entry(&map, fp, sizeof(uint64_t));
-> >                 if (rc < 0) {
-> > -                       ERR(NULL, "security: ebitmap: truncated map\n")=
-;
-> > +                       ERR(NULL, "security: ebitmap: truncated map");
-> >                         goto bad_free;
-> >                 }
-> >                 n->map =3D le64_to_cpu(map);
-> >
-> >                 if (!n->map) {
-> > -                       ERR(NULL, "security: ebitmap: null map in ebitm=
-ap (startbit %d)\n",
-> > +                       ERR(NULL, "security: ebitmap: null map in ebitm=
-ap (startbit %d)",
-> >                              n->startbit);
-> >                         goto bad_free;
-> >                 }
-> >                 if (l) {
-> >                         if (n->startbit <=3D l->startbit) {
-> > -                               ERR(NULL, "security: ebitmap: start bit=
- %d comes after start bit %d\n",
-> > +                               ERR(NULL, "security: ebitmap: start bit=
- %d comes after start bit %d",
-> >                                      n->startbit, l->startbit);
-> >                                 goto bad_free;
-> >                         }
-> > @@ -475,7 +475,7 @@ int ebitmap_read(ebitmap_t * e, void *fp)
-> >                 l =3D n;
-> >         }
-> >         if (count && l->startbit + MAPSIZE !=3D e->highbit) {
-> > -               ERR(NULL, "security: ebitmap: high bit %u has not the e=
-xpected value %zu\n",
-> > +               ERR(NULL, "security: ebitmap: high bit %u has not the e=
-xpected value %zu",
-> >                      e->highbit, l->startbit + MAPSIZE);
-> >                 goto bad;
-> >         }
-> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> > index 898e6b87..6d4384ae 100644
-> > --- a/libsepol/src/expand.c
-> > +++ b/libsepol/src/expand.c
-> > @@ -166,7 +166,7 @@ static int type_copy_callback(hashtab_key_t key, ha=
-shtab_datum_t datum,
-> >
-> >         if (new_type->flags & TYPE_FLAGS_PERMISSIVE)
-> >                 if (ebitmap_set_bit(&state->out->permissive_map, new_ty=
-pe->s.value, 1)) {
-> > -                       ERR(state->handle, "Out of memory!\n");
-> > +                       ERR(state->handle, "Out of memory!");
-> >                         return -1;
-> >                 }
-> >
-> > @@ -937,7 +937,7 @@ int mls_semantic_level_expand(mls_semantic_level_t =
-* sl, mls_level_t * l,
-> >         levdatum =3D (level_datum_t *) hashtab_search(p->p_levels.table=
-,
-> >                                                     p->p_sens_val_to_na=
-me[l->sens - 1]);
-> >         if (!levdatum) {
-> > -               ERR(h, "%s: Impossible situation found, nothing in p_le=
-vels.table.\n",
-> > +               ERR(h, "%s: Impossible situation found, nothing in p_le=
-vels.table.",
-> >                     __func__);
-> >                 errno =3D ENOENT;
+> > +       if (p->policyvers >=3D POLICYDB_VERSION_AVTAB && p->policyvers =
+<=3D POLICYDB_VERSION_PERMISSIVE) {
+> > +               /*
+> > +                * For policy versions between 20 and 23, attributes ex=
+ist in the policy,
+> > +                * but only in the type_attr_map. This means that there=
+ are gaps in both
+> > +                * the type_val_to_struct and p_type_val_to_name arrays=
+ and policy rules
+> > +                * can refer to those gaps.
+> > +                */
+> > +               ERR(NULL, "Optimizing policy versions between 20 and 23=
+ is not supported");
+> > +               return -1;
+> > +       }
+> > +
+> >         type_map =3D build_type_map(p);
+> >         if (!type_map)
 > >                 return -1;
-> > @@ -1694,7 +1694,7 @@ static int expand_terule_helper(sepol_handle_t * =
-handle,
-> >         uint32_t oldtype =3D 0;
-> >
-> >         if (!(specified & (AVRULE_TRANSITION|AVRULE_MEMBER|AVRULE_CHANG=
-E))) {
-> > -               ERR(handle, "Invalid specification: %"PRIu32"\n", speci=
-fied);
-> > +               ERR(handle, "Invalid specification: %"PRIu32, specified=
-);
-> >                 return EXPAND_RULE_ERROR;
-> >         }
-> >
-> > @@ -1873,7 +1873,7 @@ static int expand_avrule_helper(sepol_handle_t * =
-handle,
-> >                                 return EXPAND_RULE_ERROR;
-> >                         break;
-> >                 default:
-> > -                       ERR(handle, "Unknown specification: %"PRIu32"\n=
-", specified);
-> > +                       ERR(handle, "Unknown specification: %"PRIu32, s=
-pecified);
-> >                         return EXPAND_RULE_ERROR;
-> >                 }
-> >
-> > diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-> > index 8919daa7..350443a8 100644
-> > --- a/libsepol/src/hierarchy.c
-> > +++ b/libsepol/src/hierarchy.c
-> > @@ -237,7 +237,7 @@ oom:
-> >         ERR(handle, "Insufficient memory");
-> >
-> >  exit:
-> > -       ERR(handle,"Failed to expand parent rules\n");
-> > +       ERR(handle,"Failed to expand parent rules");
-> >         avtab_destroy(global_avtab);
-> >         bounds_destroy_cond_info(*cond_info);
-> >         *cond_info =3D NULL;
-> > diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-> > index dfcb0673..21a5a935 100644
-> > --- a/libsepol/src/link.c
-> > +++ b/libsepol/src/link.c
-> > @@ -165,7 +165,7 @@ static int permission_copy_callback(hashtab_key_t k=
-ey, hashtab_datum_t datum,
-> >                                              (hashtab_datum_t) new_perm=
-);
-> >                         if (ret) {
-> >                                 ERR(state->handle,
-> > -                                   "could not insert permission into c=
-lass\n");
-> > +                                   "could not insert permission into c=
-lass");
-> >                                 goto err;
-> >                         }
-> >                         new_perm->s.value =3D dest_class->permissions.n=
-prim + 1;
-> > @@ -289,7 +289,7 @@ static int class_copy_callback(hashtab_key_t key, h=
-ashtab_datum_t datum,
-> >                         new_class =3D
-> >                             (class_datum_t *) calloc(1, sizeof(class_da=
-tum_t));
-> >                         if (new_class =3D=3D NULL) {
-> > -                               ERR(state->handle, "Memory error\n");
-> > +                               ERR(state->handle, "Memory error");
-> >                                 ret =3D SEPOL_ERR;
-> >                                 goto err;
-> >                         }
-> > @@ -300,7 +300,7 @@ static int class_copy_callback(hashtab_key_t key, h=
-ashtab_datum_t datum,
-> >                         }
-> >                         new_id =3D strdup(id);
-> >                         if (new_id =3D=3D NULL) {
-> > -                               ERR(state->handle, "Memory error\n");
-> > +                               ERR(state->handle, "Memory error");
-> >                                 symtab_destroy(&new_class->permissions)=
-;
-> >                                 ret =3D SEPOL_ERR;
-> >                                 goto err;
-> > @@ -696,7 +696,7 @@ static int sens_copy_callback(hashtab_key_t key, ha=
-shtab_datum_t datum,
-> >                         return SEPOL_ENOTSUP;
-> >                 } else {
-> >                         ERR(state->handle,
-> > -                           "%s: has an unknown scope: %d\n",
-> > +                           "%s: has an unknown scope: %d",
-> >                             state->cur_mod_name, scope->scope);
-> >                         return SEPOL_ENOTSUP;
-> >                 }
-> > @@ -738,7 +738,7 @@ static int cat_copy_callback(hashtab_key_t key, has=
-htab_datum_t datum,
-> >                 } else {
-> >                         /* unknown scope?  malformed policy? */
-> >                         ERR(state->handle,
-> > -                           "%s: has an unknown scope: %d\n",
-> > +                           "%s: has an unknown scope: %d",
-> >                             state->cur_mod_name, scope->scope);
-> >                         return SEPOL_ENOTSUP;
-> >                 }
-> > @@ -1781,7 +1781,7 @@ static int copy_avrule_block(link_state_t * state=
-, policy_module_t * module,
-> >                 if (module->policy->name !=3D NULL) {
-> >                         new_decl->module_name =3D strdup(module->policy=
-->name);
-> >                         if (new_decl->module_name =3D=3D NULL) {
-> > -                               ERR(state->handle, "Out of memory\n");
-> > +                               ERR(state->handle, "Out of memory");
-> >                                 avrule_decl_destroy(new_decl);
-> >                                 ret =3D -1;
-> >                                 goto cleanup;
-> > @@ -2208,7 +2208,7 @@ static int enable_avrules(link_state_t * state, p=
-olicydb_t * pol)
-> >                         if (state->verbose) {
-> >                                 const char *mod_name =3D decl->module_n=
-ame ?
-> >                                     decl->module_name : "BASE";
-> > -                               INFO(state->handle, "check module %s de=
-cl %d\n",
-> > +                               INFO(state->handle, "check module %s de=
-cl %d",
-> >                                      mod_name, decl->decl_id);
-> >                         }
-> >                         rc =3D is_decl_requires_met(state, decl, &req);
-> > @@ -2554,7 +2554,7 @@ int link_modules(sepol_handle_t * handle,
-> >
-> >                 if (mods[i]->policyvers > b->policyvers) {
-> >                         WARN(state.handle,
-> > -                            "Upgrading policy version from %u to %u\n"=
-, b->policyvers, mods[i]->policyvers);
-> > +                            "Upgrading policy version from %u to %u", =
-b->policyvers, mods[i]->policyvers);
-> >                         b->policyvers =3D mods[i]->policyvers;
-> >                 }
-> >
-> > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> > index 0f36ac53..7becfd1b 100644
-> > --- a/libsepol/src/services.c
-> > +++ b/libsepol/src/services.c
-> > @@ -1553,7 +1553,7 @@ static int validate_class(hashtab_key_t key, hash=
-tab_datum_t datum, void *p)
-> >                      cladatum2->comdatum->permissions.table)) {
-> >                         ERR(NULL,
-> >                             " in the access vector definition "
-> > -                           "for class %s\n", key);
-> > +                           "for class %s", key);
-> >                         return -1;
-> >                 }
-> >         }
 > > --
 > > 2.34.1
 > >
