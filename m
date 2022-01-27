@@ -2,200 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4BCBC433EF
-	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 13:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA397C433F5
+	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 15:30:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230152AbiA0Nma (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Jan 2022 08:42:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38412 "EHLO
+        id S230094AbiA0PaE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Jan 2022 10:30:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbiA0Nma (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 08:42:30 -0500
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D05C061714
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 05:42:29 -0800 (PST)
-Received: by mail-qt1-x82f.google.com with SMTP id k14so2436147qtq.10
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 05:42:29 -0800 (PST)
+        with ESMTP id S229985AbiA0PaC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 10:30:02 -0500
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E21AC061714
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 07:30:02 -0800 (PST)
+Received: by mail-ot1-x330.google.com with SMTP id g15-20020a9d6b0f000000b005a062b0dc12so2887821otp.4
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 07:30:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=QjHSgp9NDZjwilBZjtCVf/HVJNNWGbMrAyQkrXXKVgQ=;
-        b=EdVizB6Aw2GIp0A1mq1fuR0buPb+iZRus81DLE3TD5gDFftGAa65Ae8wJkdcuqxyV5
-         K66LTf0B+iKC0hWKqw/kqBNyF//IfpdQpc1ZXcIMgC0SCioaHVUvNNjDjG7wYRLSkv2C
-         XhjLmGbqkhsWgjyV6dzrS3bZvdGUe6eibHQ9M=
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ZUeU41wOIxeylKgKB/Rbh8+qO/s+iq5/QO8czdUfFO4=;
+        b=XN/xzg1cX2epjFRGBRdsi1EDt2t15lT1gbCY7xHcKKe2pk+HYlL1YkXh1CCNiiWzvF
+         lJ6yKydDPSrargrKsmmoQhU/q4LICZ2k8Q7ODTGkHCcU76VhOjm/x74CI+ytD9PDS8om
+         XqI6ChBnG3pD4DjMSy9ivuWkfIWjf4+8YvgPh8hZ2pwmClp+geA4lpIQalPTgCLjNpbC
+         iygjd23Od1d0FNdrIlhtqPIHW+AxOBixnnxcNL/xTukYuDOOMIenvOw2u4l3LwBIh2BD
+         s76wbRchctTf0p+1pX0pMJJ2I3GobYvJGpGPiDHr7ACUXYBRHZW+pSpGfFXFm50pKWw5
+         1ztQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=QjHSgp9NDZjwilBZjtCVf/HVJNNWGbMrAyQkrXXKVgQ=;
-        b=eaZIzGFwh+aTWITLoK3RRzO+6C+HDImN4jtxWA6m+r+M45rLed2Z5GIDmg/ukKmIt2
-         gK3NMhEYnUlWPl9kCDaiMiwwxKQp9ar93WZOhkmjY2DOpLXyx9jwGYl9Ndx7q0P+Vzs/
-         HFd36yWoVtYwp7BD/7mDauH914iMC+YiDObZk+CSmpKqwx5EPEoNH306W6DRIJ6Oxfwa
-         Cq+Jf47JbevrkWz0fJd2ZQ+Jz7K16PkqLRllpgOFXVO1Q3Ys2M08WWy1grZldAmnqSm9
-         W6hcRVzSKlO1/3vebz2EePLd8D3ljf4LTir1DbLE4CmbH49CpLbYhqasIFlMAt4ggVUj
-         6iDQ==
-X-Gm-Message-State: AOAM531go33kXE1lNP7j/liMEwwZy8RB/h1hnx7ylkJI0dOTNyu37vQD
-        1u5jM5l+Mahyx3YPCtsPM/pwaw==
-X-Google-Smtp-Source: ABdhPJwH97vwLNie0y5K3Plq/zqPbPWuo2qYpTAjbFiD71iBaJCDJNq2TFqhvHFhMuQoZ2HFvk+iTg==
-X-Received: by 2002:ac8:704f:: with SMTP id y15mr2592444qtm.550.1643290948798;
-        Thu, 27 Jan 2022 05:42:28 -0800 (PST)
-Received: from [192.168.1.126] ([72.85.44.115])
-        by smtp.gmail.com with ESMTPSA id u16sm1440115qko.130.2022.01.27.05.42.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Jan 2022 05:42:28 -0800 (PST)
-Message-ID: <8ea4d17a-f2fd-b6a5-b988-0edbc63022f6@ieee.org>
-Date:   Thu, 27 Jan 2022 08:42:26 -0500
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZUeU41wOIxeylKgKB/Rbh8+qO/s+iq5/QO8czdUfFO4=;
+        b=f4DfI+M1hGsjviakKJDkVn4lElHbTbCeZRhVXFNa/uULjf5fKunnnmQ9tI03AVb/th
+         HAHAwn81ahCJ0U78iLwyNkwxTsmPymzYXtcY74oOzKbL2lAa4wdRVO94b9rPOsD941oT
+         iaUQ1LLltwDjaS+rXcwZX/L8lfB1jXstcMcxCzFoTBW6tbKhfbikZ/XVucfzIliB5vDL
+         Tj04Fo6sjRzX1a1Twrcff8Xv2uN5S+UveA6vZ3UHpErIjZc7qB3/j+xO/ZmUwdonPCfi
+         VCgLt/JrydQJl/jE7bXC6XX8GSdW+uYCvJ1yRRgkJ4aNDboroWY5VF73QJH8IMF2iyOa
+         /e0A==
+X-Gm-Message-State: AOAM533+VQ78DPleTRoE54Q7yMlWNrFoyt5toir6ItoQUZJidZqLaAgM
+        BXQklgSM76T4hPQaSVbBHNXUROKtuzGcESiVc4w=
+X-Google-Smtp-Source: ABdhPJzxvPr3D5OPhtJhs+IojuTHDQkrakRagQX0se/NC8akvmoxawGUGjpGEoR1ERTZxGKQZmQ+9ainNoBc++H7CJk=
+X-Received: by 2002:a05:6830:1049:: with SMTP id b9mr2397833otp.139.1643297401491;
+ Thu, 27 Jan 2022 07:30:01 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [RFC PATCH] selinux: split no transition execve check
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>,
-        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        Xiong Zhenwu <xiong.zhenwu@zte.com.cn>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-References: <20220125145931.56831-1-cgzones@googlemail.com>
- <CAHC9VhTCf4L9rif-+7gTK64JoUiDv28DFwS1vUsvzv8rG+JCuQ@mail.gmail.com>
-From:   Chris PeBenito <pebenito@ieee.org>
-In-Reply-To: <CAHC9VhTCf4L9rif-+7gTK64JoUiDv28DFwS1vUsvzv8rG+JCuQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20220119143926.5464-1-cgzones@googlemail.com> <CAP+JOzRbmA=3kfHpCn-JwuuDKrBz5_Hpendk3JDFv-Y=RrBBbA@mail.gmail.com>
+In-Reply-To: <CAP+JOzRbmA=3kfHpCn-JwuuDKrBz5_Hpendk3JDFv-Y=RrBBbA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 27 Jan 2022 10:29:50 -0500
+Message-ID: <CAP+JOzRJwm2GzL4AUUSf9GUvCe0ujDO9MPPJVCTz+GTb74kZbg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: return failure on saturated class name length
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/26/22 17:51, Paul Moore wrote:
-> On Tue, Jan 25, 2022 at 9:59 AM Christian Göttsche
+On Tue, Jan 25, 2022 at 9:44 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Fri, Jan 21, 2022 at 2:18 PM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
->>
->> In case a setuid or setgid binary is mislabeled with a generic context,
->> either via a policy mistake or a move by the distribution package,
->> executing it will be checked by the file permission execute_no_trans on
->> the generic file context (e.g. bin_t).  The setuid(2)/setgid(2) syscall
->> within will then be checked against the unchanged caller process
->> context, which might have been granted the capability permission setuid/
->> setgid to initially drop privileges.  To avoid that scenario split the
->> execute_no_trans permission in case of a setuid/setgid binary into a new
->> permission execute_sxid_no_trans.
->>
->> For backward compatibility this behavior is contained in a new policy
->> capability.
->>
->> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
->> ---
->>   security/selinux/hooks.c                   | 9 ++++++++-
->>   security/selinux/include/classmap.h        | 2 +-
->>   security/selinux/include/policycap.h       | 1 +
->>   security/selinux/include/policycap_names.h | 3 ++-
->>   security/selinux/include/security.h        | 8 ++++++++
->>   5 files changed, 20 insertions(+), 3 deletions(-)
-> 
-> Adding the refpolicy list to this thread as their opinion seems
-> particularly relevant to this discussion.
-> 
-> FWIW, this looks reasonable to me but I would like to hear what others
-> have to say.
+> >
+> > Do not return success if the class name length is saturated (or too big
+> > in the fuzzer build).
+> >
+> > Fixes: c3d52a6a ("libsepol: check for saturated class name length")
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-I think this a band-aid to cover up the real problem, which is the mislabeled files.
+Merged.
+Thanks,
+Jim
 
-
-
-
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 5b6895e4fc29..b825fee39a70 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -2348,9 +2348,16 @@ static int selinux_bprm_creds_for_exec(struct linux_binprm *bprm)
->>          ad.u.file = bprm->file;
->>
->>          if (new_tsec->sid == old_tsec->sid) {
->> +               u32 perm;
->> +
->> +               if (selinux_policycap_execute_sxid_no_trans() && is_sxid(inode->i_mode))
->> +                       perm = FILE__EXECUTE_SXID_NO_TRANS;
->> +               else
->> +                       perm = FILE__EXECUTE_NO_TRANS;
->> +
->>                  rc = avc_has_perm(&selinux_state,
->>                                    old_tsec->sid, isec->sid,
->> -                                 SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, &ad);
->> +                                 SECCLASS_FILE, perm, &ad);
->>                  if (rc)
->>                          return rc;
->>          } else {
->> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
->> index 35aac62a662e..53a1eeeb86fb 100644
->> --- a/security/selinux/include/classmap.h
->> +++ b/security/selinux/include/classmap.h
->> @@ -65,7 +65,7 @@ struct security_class_mapping secclass_map[] = {
->>              "quotaget", "watch", NULL } },
->>          { "file",
->>            { COMMON_FILE_PERMS,
->> -           "execute_no_trans", "entrypoint", NULL } },
->> +           "execute_no_trans", "entrypoint", "execute_sxid_no_trans", NULL } },
->>          { "dir",
->>            { COMMON_FILE_PERMS, "add_name", "remove_name",
->>              "reparent", "search", "rmdir", NULL } },
->> diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
->> index 2ec038efbb03..23929dc3e1db 100644
->> --- a/security/selinux/include/policycap.h
->> +++ b/security/selinux/include/policycap.h
->> @@ -11,6 +11,7 @@ enum {
->>          POLICYDB_CAPABILITY_CGROUPSECLABEL,
->>          POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
->>          POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
->> +       POLICYDB_CAPABILITY_EXECUTE_SXID_NO_TRANS,
->>          __POLICYDB_CAPABILITY_MAX
->>   };
->>   #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
->> diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
->> index b89289f092c9..4c014c2cf352 100644
->> --- a/security/selinux/include/policycap_names.h
->> +++ b/security/selinux/include/policycap_names.h
->> @@ -12,7 +12,8 @@ const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
->>          "always_check_network",
->>          "cgroup_seclabel",
->>          "nnp_nosuid_transition",
->> -       "genfs_seclabel_symlinks"
->> +       "genfs_seclabel_symlinks",
->> +       "execute_sxid_no_trans",
->>   };
->>
->>   #endif /* _SELINUX_POLICYCAP_NAMES_H_ */
->> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
->> index ac0ece01305a..ab95241b6b7b 100644
->> --- a/security/selinux/include/security.h
->> +++ b/security/selinux/include/security.h
->> @@ -219,6 +219,14 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
->>          return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
->>   }
->>
->> +static inline bool selinux_policycap_execute_sxid_no_trans(void)
->> +{
->> +       struct selinux_state *state = &selinux_state;
->> +
->> +       return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_EXECUTE_SXID_NO_TRANS]);
->> +}
->> +
->> +
->>   struct selinux_policy_convert_data;
->>
->>   struct selinux_load_state {
->> --
->> 2.34.1
->>
-> 
-> 
-
-
--- 
-Chris PeBenito
+> > ---
+> >  libsepol/src/policydb.c | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> > index 562e044e..fc71463e 100644
+> > --- a/libsepol/src/policydb.c
+> > +++ b/libsepol/src/policydb.c
+> > @@ -3937,7 +3937,9 @@ static int scope_index_read(scope_index_t * scope=
+_index,
+> >         if (rc < 0)
+> >                 return -1;
+> >         scope_index->class_perms_len =3D le32_to_cpu(buf[0]);
+> > -       if (zero_or_saturated(scope_index->class_perms_len)) {
+> > +       if (is_saturated(scope_index->class_perms_len))
+> > +               return -1;
+> > +       if (scope_index->class_perms_len =3D=3D 0) {
+> >                 scope_index->class_perms_map =3D NULL;
+> >                 return 0;
+> >         }
+> > --
+> > 2.34.1
+> >
