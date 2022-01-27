@@ -2,106 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E47F6C433F5
-	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 17:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A61C9C433EF
+	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 17:49:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233255AbiA0R1w (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Jan 2022 12:27:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35292 "EHLO
+        id S230393AbiA0RtE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Jan 2022 12:49:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244685AbiA0R1t (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 12:27:49 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD598C061714
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 09:27:48 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id jx6so7562165ejb.0
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 09:27:48 -0800 (PST)
+        with ESMTP id S229956AbiA0RtD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 12:49:03 -0500
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712E4C061714
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 09:49:03 -0800 (PST)
+Received: by mail-ed1-x52d.google.com with SMTP id w14so4667710edd.10
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 09:49:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rlan4PzCiljACVL7fehL/4B02ykJFYUpcK0nKt4UZ5A=;
-        b=4DQqFg3FDfh6r7JA03LvNbXcx/W8QbObXSb84zWYTDDmpWxCE+ejuvTaUme/lGAov9
-         q2u9RXr6y7rQN8Flk/nR6ht0sRWWUS7ZOwtg+QheHUdGUqM1AMsZ4wkYLpZKRIG3cNb/
-         LAT+UB3B/S5DlClgtvrRsoZ5fKM6XTS3C4b7OCgm3+Ge4Uy26nKoBgDzb4llfgR3Af43
-         JuNFUeEGMn75zf/wOr8jmNCsRFGSvloxYqeDdsOwOWehZ/6/c5Xdo/WgdbzBKGHtDQ93
-         P+dAKFEOhNDgt4+xvfRJG5HDJNqOwtVfhhTePD51YJ51LbYJpHOEK9Rfar7NGDk8chTm
-         YqkA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=V/ELOnrC6YJQRucUSK+A6H1ABUO4PSmzCbZE8RuZrtg=;
+        b=ulnGfYlHFWy8Dr2k0Bs3OSOqKPT4JaVosf56SodQFhcgQSAxiZhYSUrvxViwdVLFpI
+         32CWWr7LWo8k3swRYw/9Q9nATCZr4yUssCUy5RUPd8ggFof/ehmIOjmbGAAROVqnkXZl
+         aPbcQP9m/uj/CvJ/5vHP9k1pFdLuwKvnFPnvyBxSQ3u65KILV5TWz8nHK7Z43Lc7Wq9o
+         MZEWCKbFthlfSQ9zoD5OK6cm+/OTnlljiOBnrSG+FQJ55DcwZgeSKOkkziigipeG/I1C
+         g5VINQ5yQoBEnpQ9pjrlVZNowuHE/5eJKdzfOT1NFwmT8b+AUiXzyIczlYQ3BhfZj/ev
+         XOOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rlan4PzCiljACVL7fehL/4B02ykJFYUpcK0nKt4UZ5A=;
-        b=8C9hyCToNwC4tu+noYHLKqheMTi+Zg+WeWdh6AiDwLA+pvS9Ky3BbUri+r7N9SvGVO
-         DBijtQayR0gDPsYEnlIiIlUVdqJQOOj35ccHWr7HomSVq7fCa9x1+Bb0U2OS+mSsiLDs
-         sT4A+XO6NHBvAtiMLiUHGqC8cV0VGppwKZaUI4ntge21EoBQbwvNLLtAntarnvj6gbww
-         bbB4VO2kVPG19ihyzQJmr6NKUJaC9EGSvgsuMgZYGMe9pVR4UInB2pRuh4G85mFyFJ5T
-         wmi1jMRxbqfTlS6cevpqgTpiBFr/C7FcaxfBcWCmlDVHY7Zxl572kvS0zWoN6Mu49tjh
-         fX4w==
-X-Gm-Message-State: AOAM533IFK4gV3YgHwGmN1Ma1yaIl5WPJZs3SyKAA/5EA0jK6aXDUeL2
-        Gf3U4SW1h/t4p14N3WfmGR83IaLIAF+2ufTWmDTZlgFdHA==
-X-Google-Smtp-Source: ABdhPJzR+Kds1+tZtWtPbNAxjAiTzmQWyzvmSuEvKnKRRvDOotsz1kA7IYbFKlCcgmU2/F3x6QXK5Ok2TcIAooJgVA0=
-X-Received: by 2002:a17:907:7f29:: with SMTP id qf41mr3769224ejc.12.1643304467211;
- Thu, 27 Jan 2022 09:27:47 -0800 (PST)
+         :message-id:subject:to;
+        bh=V/ELOnrC6YJQRucUSK+A6H1ABUO4PSmzCbZE8RuZrtg=;
+        b=6+MVDQzcE8/5bNtOgwwNtRoDJLUlpmYCCX9rswg5cZ5N3Vu6jue/RvCnOhDIran6pC
+         Am2MRyx5eiTf73AWhb0ANqDUWAqF7v4rkmg7j8lQhLi0sNxYxOcvFTjpol9B+nPg71oT
+         IkWmScPapJTIIfD/EAmlGA67/Wk79BofYceyvl7lwzhd/nm90p/TmTPrzPRJ7OR5MRU3
+         Voqcul7dQAc5ftThVmIAKsvZv2GI3TK/lGW/Hfl2w/HjF/JxiDIgtLhVm2bdFOoF979l
+         iBUy/Z5O2yjP/BqSgYFTLhwj7gqnXw0f9eY354SjZBg6WU5B59TmbEg5BtXGO/cF/JJM
+         1bYg==
+X-Gm-Message-State: AOAM531Zjt5t7jglsRg+LOLokrdcsT4/038URn7GfIvcv/4LZE/VFxhB
+        HQxvUSAR7Vz7r7HrtWZcR0k17m2QoxLBP+3vV/cGGbg6uQ==
+X-Google-Smtp-Source: ABdhPJzMuaLC63NACXyxn6mx6o16hd8GECCujb1p3+WYPUhCgT27RM0v6keDDY+2SRfSX/whtaP7fPz+TiNv+FYgAV8=
+X-Received: by 2002:a05:6402:1290:: with SMTP id w16mr4584114edv.331.1643305741542;
+ Thu, 27 Jan 2022 09:49:01 -0800 (PST)
 MIME-Version: 1.0
-References: <164329905457.31174.9220154812163631144.stgit@olly> <CAFqZXNsKDLyz7E20uc7=1NaABcf8Gu8fhHExkttMN_5e59tY7g@mail.gmail.com>
-In-Reply-To: <CAFqZXNsKDLyz7E20uc7=1NaABcf8Gu8fhHExkttMN_5e59tY7g@mail.gmail.com>
+References: <164330287653.95708.5024040003451330147.stgit@olly>
+In-Reply-To: <164330287653.95708.5024040003451330147.stgit@olly>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 27 Jan 2022 12:27:37 -0500
-Message-ID: <CAHC9VhRkeaicR-i1YvB--FMNLneO1ydf9dPmtHduOkD376GdOw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix a type cast problem in cred_init_security()
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 27 Jan 2022 12:48:51 -0500
+Message-ID: <CAHC9VhQ_5HfABO2sASOpdf=RaQtrQrWBQMGkvPgukCU8WHQjZQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: various sparse fixes
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 27, 2022 at 12:14 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Thu, Jan 27, 2022 at 4:57 PM Paul Moore <paul@paul-moore.com> wrote:
-> > In the process of removing an explicit type cast to preserve a cred
-> > const qualifier in cred_init_security() we ran into a problem where
-> > the task_struct::real_cred field is defined with the "__rcu"
-> > attribute but the selinux_cred() function parameter is not, leading
-> > to a sparse warning:
-> >
-> >   security/selinux/hooks.c:216:36: sparse: sparse:
-> >     incorrect type in argument 1 (different address spaces)
-> >     @@     expected struct cred const *cred
-> >     @@     got struct cred const [noderef] __rcu *real_cred
-> >
-> > As we don't want to add the "__rcu" attribute to the selinux_cred()
-> > parameter, we're going to add an explicit cast back to
-> > cred_init_security().
-> >
-> > Fixes: b084e189b01a ("selinux: simplify cred_init_security")
-> > Reported-by: kernel test robot <lkp@intel.com>
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  security/selinux/hooks.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index eae7dbd62df1..c057896e7dcd 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -213,7 +213,7 @@ static void cred_init_security(void)
-> >  {
-> >         struct task_security_struct *tsec;
-> >
-> > -       tsec = selinux_cred(current->real_cred);
-> > +       tsec = selinux_cred((__force const struct cred *)current->real_cred);
-> >         tsec->osid = tsec->sid = SECINITSID_KERNEL;
-> >  }
+On Thu, Jan 27, 2022 at 12:01 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> How about using unrcu_pointer() instead of the cast? It seems to do
-> effectively the same while looking less ugly :)
+> When running the SELinux code through sparse, there are a handful of
+> warnings.  This patch resolves some of these warnings by casting away
+> the "__rcu" attribute in a few core kernel function calls.
+>
+>  % make W=1 C=1 security/selinux/
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/selinux/hooks.c |    7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 
-Ah ha!  I didn't know that function/macro existed :)
+Self NACK as this is likely also a good candidate for the unrcu macro
+treatment that Ondrej suggested.
 
-I'm stuck in meetings most of the rest of today but I'll get out a v2
-as soon as I can.  Thanks.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index c057896e7dcd..da04f3435268 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2534,7 +2534,7 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+>         if (rc) {
+>                 clear_itimer();
+>
+> -               spin_lock_irq(&current->sighand->siglock);
+> +               spin_lock_irq((__force spinlock_t *)&current->sighand->siglock);
+>                 if (!fatal_signal_pending(current)) {
+>                         flush_sigqueue(&current->pending);
+>                         flush_sigqueue(&current->signal->shared_pending);
+> @@ -2542,13 +2542,14 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+>                         sigemptyset(&current->blocked);
+>                         recalc_sigpending();
+>                 }
+> -               spin_unlock_irq(&current->sighand->siglock);
+> +               spin_unlock_irq((__force spinlock_t *)&current->sighand->siglock);
+>         }
+>
+>         /* Wake up the parent if it is waiting so that it can recheck
+>          * wait permission to the new task SID. */
+>         read_lock(&tasklist_lock);
+> -       __wake_up_parent(current, current->real_parent);
+> +       __wake_up_parent(current,
+> +                        (__force struct task_struct *)current->real_parent);
+>         read_unlock(&tasklist_lock);
+>  }
 
 -- 
 paul-moore.com
