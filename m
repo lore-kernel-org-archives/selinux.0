@@ -2,56 +2,56 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 993AAC433EF
-	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 18:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D31EC433EF
+	for <selinux@archiver.kernel.org>; Thu, 27 Jan 2022 18:22:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243302AbiA0SVq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Jan 2022 13:21:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
+        id S243784AbiA0SWB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Jan 2022 13:22:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231634AbiA0SVp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 13:21:45 -0500
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335D8C061714
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 10:21:45 -0800 (PST)
-Received: by mail-qk1-x732.google.com with SMTP id 71so3422488qkf.4
-        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 10:21:45 -0800 (PST)
+        with ESMTP id S231634AbiA0SWA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jan 2022 13:22:00 -0500
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA85C061714
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 10:22:00 -0800 (PST)
+Received: by mail-qt1-x832.google.com with SMTP id h25so2309990qtm.1
+        for <selinux@vger.kernel.org>; Thu, 27 Jan 2022 10:22:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=subject:from:to:date:message-id:user-agent:mime-version
          :content-transfer-encoding;
-        bh=Jkr1WhyW22I8VmLvcWGf7sswYes5VO3RD8jpW6dm/2U=;
-        b=S6IvCv3RU9Tujz5wWmR4yJmnDnH+W8/QqddyohacnNk2WBxkZAzpTW99UJnX2Yz614
-         ltAsY94U3TB1H0IeKZNMoaSSUoMaU1qzU8s29RV+CH70+MiEnaDYhuwQaDj8ETpyCTx7
-         bmTFzihzHbCtFwkyMxhV2HPA3ljulZx1lOY/ENVeq+dHHyedr5VeIqjPOlFu7TUgP4V6
-         WmWTStlUfHjRmAp+JeA75UkOYq8dCYxwOPDp+EdJ0hW/1Dz812Yp2XZZCzz9izUwhZEh
-         gg1byZZ7rNkVe7m2p8Qu/rILDxRjZdfjZ/FJRdrHOLfK0S6HLeGhEfxXHBviVwU1DhY4
-         6J4g==
+        bh=GMYBa2wkZNw/5k0W3SdjmrDFNFgiOqDuw0OR0LSMqNs=;
+        b=6m5CDggXByagfCoD/CVqx+3OLYH6IjNB9qBTwgSwE/raR7oBen/SI+21dpmmAyY++u
+         BnFts6NF821w3styqQ++0TcKX55HOzsqnFGNXSNV6DKwCpFQW5ooaWRNeS4SPlhzR7Ik
+         mjYDey82qcIpAlsB+WUvaNya07g+yqKKuPNIg3wPozIwQOGimHjK5vDa5B0vUxy+rx4r
+         g/Ldmv72KnVrtEiOTbqDZo1AivLHzVzX15KO9f27Gwhh+JMsorNSB9rSkEy6Kw7xSvrI
+         /FG+x0lDf4JHmrGyoLlly/OyqaZyhy37rt8kobc2BouHRSw1oMsV6dSB2YlX8OgiW8Y4
+         sLBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:from:to:date:message-id:user-agent
          :mime-version:content-transfer-encoding;
-        bh=Jkr1WhyW22I8VmLvcWGf7sswYes5VO3RD8jpW6dm/2U=;
-        b=L9jZ3udPlt6x5HiugZa4e4UnJNZf8SNLztjvrT+QGiOOj+MtZLzkpL7Y/XDiiUa/Kn
-         EIkKCwCn+Pur80WxjtUvQaRFqvsz9WZi/exrd61tg6MMGUwoEoc3K0yUeTBFODkIoJh/
-         oTwwYl/lQhXC9MjztZnbkCymqFK51pnXtpOgmpcZfcqX6gWhPwYAYPikvr+ZgbwjPN6M
-         1Y6VUVjvZ/tKneXAy+MNQypGR/bKgmR/B6wqZRYAScx6agx6G+/8QlQPCsYxKIzOHuab
-         Vqtxx7nESnk6UHL9iueSTAxGbEtUh5ql5BGJJoviFDjx0nVRDJRC4i5pdodx0qS2Sa7e
-         zYmA==
-X-Gm-Message-State: AOAM530E1DY8b7mdfEPUhqBzP2ZOkBTh//ZoPtEA7kfDp5Kt1V3fNbJj
-        q5fCAn2PeH3P337HrS2E6SN3htJ+QadW
-X-Google-Smtp-Source: ABdhPJyfMSrLiflaCeuFKXyjQWosnFaSlybwYxPxst7yLKvJUf3vLBvIvG9xbpuEeWDbRMEWYYAQ/A==
-X-Received: by 2002:a05:620a:109c:: with SMTP id g28mr3672552qkk.560.1643307703962;
-        Thu, 27 Jan 2022 10:21:43 -0800 (PST)
+        bh=GMYBa2wkZNw/5k0W3SdjmrDFNFgiOqDuw0OR0LSMqNs=;
+        b=vwCj4kfB4tYeCCO3M+Zn+SoVPNWylQvWyoOgqXdVPg00XMKIW2yQxJsg89mquBUrb7
+         MKmp1eLhB8et/n38IoGUaqm4c6xeiVGtn6FVXjPCRhK4XlGuPOwPeF9lf7M7iINotK4z
+         vqetVcVvaZhcjT2wyeFJEvpuVVaTaJd4GDVwqmy4TnpaUElNfm6c7F4HXLGiKN9q9tB7
+         VxzeQZ3hz9cSoi2yRMzIZvHPQXotvRU7gSlTP4sZsfoZy4B10V1hp2UsVCt0XTLLcWs0
+         UdRhvOmAxDQWCszDnv6C8Ac0dL3nkISfKr8oZi3xEXicTcrzuN9LypwLLA6R1ZgJMbGm
+         fn0Q==
+X-Gm-Message-State: AOAM531G6jiApChuVoTACZr7uMSEON6ZKHmODXYA6Zhb+f4t6msO10ju
+        R5/sQUzrAu9vdAeKZMrUmLLMHOlS2rLF
+X-Google-Smtp-Source: ABdhPJwi9i5EkZb+FlMl0he0rPu1qctxsqa5V4YucsRr329EQwKI+GGShTpIftb1GWM83+v8rVJdKg==
+X-Received: by 2002:ac8:7619:: with SMTP id t25mr3807383qtq.456.1643307719288;
+        Thu, 27 Jan 2022 10:21:59 -0800 (PST)
 Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
-        by smtp.gmail.com with ESMTPSA id k190sm1755001qkf.59.2022.01.27.10.21.43
+        by smtp.gmail.com with ESMTPSA id o10sm1825390qtx.33.2022.01.27.10.21.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Jan 2022 10:21:43 -0800 (PST)
-Subject: [PATCH v2] selinux: fix a type cast problem in cred_init_security()
+        Thu, 27 Jan 2022 10:21:58 -0800 (PST)
+Subject: [PATCH v2] selinux: various sparse fixes
 From:   Paul Moore <paul@paul-moore.com>
 To:     selinux@vger.kernel.org
-Date:   Thu, 27 Jan 2022 13:21:42 -0500
-Message-ID: <164330770248.138929.14950299877825278226.stgit@olly>
+Date:   Thu, 27 Jan 2022 13:21:58 -0500
+Message-ID: <164330771809.139041.6643670399086580972.stgit@olly>
 User-Agent: StGit/1.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -60,39 +60,89 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In the process of removing an explicit type cast to preserve a cred
-const qualifier in cred_init_security() we ran into a problem where
-the task_struct::real_cred field is defined with the "__rcu"
-attribute but the selinux_cred() function parameter is not, leading
-to a sparse warning:
+When running the SELinux code through sparse, there are a handful of
+warnings.  This patch resolves some of these warnings caused by
+"__rcu" mismatches.
 
-  security/selinux/hooks.c:216:36: sparse: sparse:
-    incorrect type in argument 1 (different address spaces)
-    @@     expected struct cred const *cred
-    @@     got struct cred const [noderef] __rcu *real_cred
+ % make W=1 C=1 security/selinux/
 
-As we don't want to add the "__rcu" attribute to the selinux_cred()
-parameter, we're going to add an explicit cast back to
-cred_init_security().
-
-Fixes: b084e189b01a ("selinux: simplify cred_init_security")
-Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/hooks.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c   |    6 +++---
+ security/selinux/ibpkey.c  |    2 +-
+ security/selinux/netnode.c |    5 +++--
+ security/selinux/netport.c |    2 +-
+ 4 files changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index eae7dbd62df1..221e642025f5 100644
+index 221e642025f5..0e857f86f5a7 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -213,7 +213,7 @@ static void cred_init_security(void)
- {
- 	struct task_security_struct *tsec;
+@@ -2534,7 +2534,7 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+ 	if (rc) {
+ 		clear_itimer();
  
--	tsec = selinux_cred(current->real_cred);
-+	tsec = selinux_cred(unrcu_pointer(current->real_cred));
- 	tsec->osid = tsec->sid = SECINITSID_KERNEL;
+-		spin_lock_irq(&current->sighand->siglock);
++		spin_lock_irq(unrcu_pointer(&current->sighand->siglock));
+ 		if (!fatal_signal_pending(current)) {
+ 			flush_sigqueue(&current->pending);
+ 			flush_sigqueue(&current->signal->shared_pending);
+@@ -2542,13 +2542,13 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+ 			sigemptyset(&current->blocked);
+ 			recalc_sigpending();
+ 		}
+-		spin_unlock_irq(&current->sighand->siglock);
++		spin_unlock_irq(unrcu_pointer(&current->sighand->siglock));
+ 	}
+ 
+ 	/* Wake up the parent if it is waiting so that it can recheck
+ 	 * wait permission to the new task SID. */
+ 	read_lock(&tasklist_lock);
+-	__wake_up_parent(current, current->real_parent);
++	__wake_up_parent(current, unrcu_pointer(current->real_parent));
+ 	read_unlock(&tasklist_lock);
  }
  
+diff --git a/security/selinux/ibpkey.c b/security/selinux/ibpkey.c
+index 20b3b2243820..5839ca7bb9c7 100644
+--- a/security/selinux/ibpkey.c
++++ b/security/selinux/ibpkey.c
+@@ -104,7 +104,7 @@ static void sel_ib_pkey_insert(struct sel_ib_pkey *pkey)
+ 
+ 		tail = list_entry(
+ 			rcu_dereference_protected(
+-				sel_ib_pkey_hash[idx].list.prev,
++				list_tail_rcu(&sel_ib_pkey_hash[idx].list),
+ 				lockdep_is_held(&sel_ib_pkey_lock)),
+ 			struct sel_ib_pkey, list);
+ 		list_del_rcu(&tail->list);
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 889552db0d31..0ac7df9a9367 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -164,8 +164,9 @@ static void sel_netnode_insert(struct sel_netnode *node)
+ 	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
+ 		struct sel_netnode *tail;
+ 		tail = list_entry(
+-			rcu_dereference_protected(sel_netnode_hash[idx].list.prev,
+-						  lockdep_is_held(&sel_netnode_lock)),
++			rcu_dereference_protected(
++				list_tail_rcu(&sel_netnode_hash[idx].list),
++				lockdep_is_held(&sel_netnode_lock)),
+ 			struct sel_netnode, list);
+ 		list_del_rcu(&tail->list);
+ 		kfree_rcu(tail, rcu);
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index 9ba09d11c0f5..8eec6347cf01 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -113,7 +113,7 @@ static void sel_netport_insert(struct sel_netport *port)
+ 		struct sel_netport *tail;
+ 		tail = list_entry(
+ 			rcu_dereference_protected(
+-				sel_netport_hash[idx].list.prev,
++				list_tail_rcu(&sel_netport_hash[idx].list),
+ 				lockdep_is_held(&sel_netport_lock)),
+ 			struct sel_netport, list);
+ 		list_del_rcu(&tail->list);
 
