@@ -2,103 +2,107 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23C5CC433EF
-	for <selinux@archiver.kernel.org>; Mon, 31 Jan 2022 10:56:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAD9C433F5
+	for <selinux@archiver.kernel.org>; Mon, 31 Jan 2022 12:07:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239567AbiAaK4z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jan 2022 05:56:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42208 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239344AbiAaK4y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jan 2022 05:56:54 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B0EC061714
-        for <selinux@vger.kernel.org>; Mon, 31 Jan 2022 02:56:54 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id p12so25973668edq.9
-        for <selinux@vger.kernel.org>; Mon, 31 Jan 2022 02:56:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uQJNbGwsQ4KY4NX6IrYpU2I5oDgXwHU37Wewcrz4mWE=;
-        b=oucdsO2bOd8+8SHD21Em+CEtqTvuABmz0QVfbXPM6s+Jcem6xqo1MK+L4MMu5qMUsI
-         yN3onEhf72OmIO2QoTPD/DsJ4vnqp3rjaUMCGVpkGv+D8b0YdemxrEbIWWNLpv0soym/
-         e2RkNZRdkZOTcJp4rO0/Y9BTx9XhRM5ZZkaIXx0EtnUH8mxw2lvADL3Sq7US7dpwlGkU
-         m2HNM4qfozmrA2qyhyICRIJnB3LjcVdGe4aKSOefA7IFH8GCA5RU9wj+TrJbL6ATRaQc
-         Ufm+gkXIOrzc/v1JOHLVqLBCC0+lF/m26JuvnDNDvlwAfQEqj4miBhdLqQhhx80eA/IA
-         u4Rg==
+        id S1349744AbiAaMHE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jan 2022 07:07:04 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47773 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1350341AbiAaMHD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jan 2022 07:07:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643630823;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=k+DYbhvcbUytWZeA8bcgfAsvYrRe7fudO+Mz41JEQpA=;
+        b=IeGwq9hlBKwMIeFgLqLxBkcr+Z4x0NP1wTjpHiXSFasZvRZ2bAiCbi5jC1c0UmxaPZ9A8G
+        jcHXMezU6Z0Et8P+N2EchPoS79Gc1qcbMBWd8I4+I8IXSzHhr9nB3SaNktbMAAtEjp/cqz
+        GaxqeswLzo1P7pR+7fDoFx7y83E8ASI=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-192-ceBYPjEeOAy_73XeApxUvw-1; Mon, 31 Jan 2022 07:07:02 -0500
+X-MC-Unique: ceBYPjEeOAy_73XeApxUvw-1
+Received: by mail-yb1-f199.google.com with SMTP id y4-20020a5b0f44000000b00611862e546dso26339003ybr.7
+        for <selinux@vger.kernel.org>; Mon, 31 Jan 2022 04:07:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=uQJNbGwsQ4KY4NX6IrYpU2I5oDgXwHU37Wewcrz4mWE=;
-        b=2QMjsVwUYa3zCy5CkXRcDlEEftEfSnOLq+u+1S/51lN73xpRJQbR2cR9cPKDIGDQ5F
-         yE4BQ3HCM1tGA3iEcIfVqHIoFBC6scApHtxsawbJtWkDwCCSL1cGYn9xSp5vlaNMvZjh
-         x6ufr1kf49xlTsRbiknlriGg5u5cRx4p/ttB3wTqFDMQ8s/DSJL1NhtNAFMWaWAIGHLY
-         /fPch6FrQKZTqDeW0k/n1Xhy9POpwZzp1Pl/IH0yefSwl7KnzK6aczPBnHy1Bg88xPji
-         RaQpXhA+uEDevZ1Z+vVNZkdAXC3h1ig+zyrGuxivRGOXC3VcE1h/R1u2GwHNfFpG+aZ7
-         eTiA==
-X-Gm-Message-State: AOAM5316zS/3lKkGcEOAAJEhPYDb6FA6xd8S2vRd68TQDEHfIy2E4Zrg
-        bL+kXI+bVAMBPrD0POfzUJxj+s7g/PA=
-X-Google-Smtp-Source: ABdhPJwF17Jc9113VVWy0EXvEEX3TwZiVWkmWH4opXInLT5Lea7YsxmyYJmzNTKXAl4Uih8Ji3YVig==
-X-Received: by 2002:a05:6402:1356:: with SMTP id y22mr20140809edw.50.1643626613075;
-        Mon, 31 Jan 2022 02:56:53 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-003-124-082.77.3.pool.telefonica.de. [77.3.124.82])
-        by smtp.gmail.com with ESMTPSA id fv33sm4137115ejc.207.2022.01.31.02.56.52
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jan 2022 02:56:52 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: do not add gaps to string list
-Date:   Mon, 31 Jan 2022 11:56:08 +0100
-Message-Id: <20220131105608.31380-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.34.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=k+DYbhvcbUytWZeA8bcgfAsvYrRe7fudO+Mz41JEQpA=;
+        b=Jozmu7UB7XlSTVMT7WfwcbJmha3lOb4OG+WTFW7fcSPN7EuW6KNr1lG8DVdFIAiJfw
+         idNeDfcLa17iGP/cl+dxTS7ECLKH/EuipGMrSztArqqfv+wmW9FgREB0rHkQvjF1Wos+
+         Im+Ydn7eoW9OsXKhGC9wyfijjnP3b2+Xm3ZN/gvj/3yIBnFu3q65ewBdJUd77IXgHyMN
+         txpucPVD2VDagPI2AasWT+feScU4my4OposLhJjnweQY6r2UZrG21v3ngqe81fdmW5o6
+         zBPXJ6Qdp/I9AMdWkzt9BzaeAnFbvTmbkBO+T2xTEQWSA/w0XMobKluudPcbNadDqHFi
+         gWzg==
+X-Gm-Message-State: AOAM530E1bDOvUlXpvXujaWfwTknAmFDvMNABjWkwT6ZnUju6LPHKZGF
+        bWFv0dX2yhnDi6a1EKgqFRCjIzEtfXe//Sr/iNci7gSEhmBv6cjDOHdZEuwyMdQN37Wsr1smYlN
+        DhgnWKaAnYcVg6Qtd/EyId3rwVNuu5+ZbIg==
+X-Received: by 2002:a25:d90a:: with SMTP id q10mr29679733ybg.253.1643630821345;
+        Mon, 31 Jan 2022 04:07:01 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy4XU5YfszLGQp4N9C+7Wcm6G7P3VJo0M1H3K29i4UnrahCCIj1CDSm3JxETTQm5Ow1SBCcgSEmb0cR2Dt3ZPQ=
+X-Received: by 2002:a25:d90a:: with SMTP id q10mr29679717ybg.253.1643630821159;
+ Mon, 31 Jan 2022 04:07:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220128202858.96935-1-vbendel@redhat.com>
+In-Reply-To: <20220128202858.96935-1-vbendel@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 31 Jan 2022 13:06:43 +0100
+Message-ID: <CAFqZXNvG+-8FcEgcbKxmUeMznVp6NBAoPctN4EHCc3i-DZA8jQ@mail.gmail.com>
+Subject: Re: [PATCH 0/3] selinux: Fix and clean policydb->cond_list error paths
+To:     vbendel@redhat.com
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When converting an ebitmap into a string list, skip potential gaps in
-ebitmap_to_strs(). All converting functions like strs_to_str(),
-strs_write_each() and strs_write_each_indented() do already skip NULL
-elements, but sorting such a list will lead to a NULL dereference.
+On Fri, Jan 28, 2022 at 9:29 PM <vbendel@redhat.com> wrote:
+> There are two users of policydb->cond_list: cond_read_list()
+> and duplicate_policydb_cond_list(). If any of them gets an error,
+> usually an -ENOMEM, the error-path-cleanup *_destroy() functions
+> get called twice: firstly from these two and secondly from
+> the caller functions' error paths.
+>
+> In case such -ENOMEM happens while assigning cond_node data, i.e.
+> while ->cond_list_len is already non-zero, it leads to inappropriate
+> dereferencing of policydb->cond_list[] data in the second called
+> cond_list_destroy() from the caller functions' error paths, resulting
+> with:
+> - NULL pointer deref from cond_read_list();
+> - use-after-free + double-free from duplicate_policydb_cond_list().
+> (the cond_read_list() manages to set ->cond_list to NULL)
+>
+> Patch 1/3 simply makes the error behavior consistent by always setting
+> ->cond_list to NULL.
+>
+> Patch 2/3 fixes the actual bug by resetting ->cond_list_len to 0,
+> so any subsequent cond_list_destroy() calls would become noop.
+>
+> Patch 3/3 cleans up the duplicate *_destroy calls on these error paths,
+> albeit it's a bit questionable and I'm looking for feedback on it:
+> - on one hand the idea is that the caller functions call the *_destroy()
+> bits anyway, hence removing duplicate efforts (which also fixes the bug,
+> but I'd still prefer to apply patches 1 and 2 regardless);
+> - on the other hand it's appropriate and more bug-proof for a function
+> to clean everything it allocated on error.
+> Hence I'm looking forward to seeing what approach the upstream would find
+> more appropriate.
+>
+> Signed-off-by: Vratislav Bendel <vbendel@redhat.com>
 
-    #0 0x432ce5 in strcmp /src/llvm-project/compiler-rt/lib/sanitizer_common/sanitizer_common_interceptors.inc:462:25
-    #1 0x4f4893 in strs_cmp selinux/libsepol/src/kernel_to_common.c:258:9
-    #2 0x47b74b in qsort_r /src/llvm-project/compiler-rt/lib/sanitizer_common/sanitizer_common_interceptors.inc:9994:7
-    #3 0x4f481d in strs_sort selinux/libsepol/src/kernel_to_common.c:266:2
-    #4 0x4fe781 in attrmap_to_str selinux/libsepol/src/kernel_to_conf.c:1560:2
-    #5 0x4fe781 in write_type_attribute_sets_to_conf selinux/libsepol/src/kernel_to_conf.c:1599:11
-    #6 0x4f8098 in sepol_kernel_policydb_to_conf selinux/libsepol/src/kernel_to_conf.c:3182:7
-    #7 0x4e0277 in LLVMFuzzerTestOneInput selinux/libsepol/fuzz/binpolicy-fuzzer.c:50:9
-    #8 0x4d613b in main
-    #9 0x7fa2d50260b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/libc-start.c:308:16
-    #10 0x41d4ed in _start
+For the series (with or without the last patch):
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Found by oss-fuzz (#44170)
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/kernel_to_common.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 9f5400c9..dc9e689e 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -366,6 +366,9 @@ int ebitmap_to_strs(struct ebitmap *map, struct strs *strs, char **val_to_name)
- 	int rc;
- 
- 	ebitmap_for_each_positive_bit(map, node, i) {
-+		if (!val_to_name[i])
-+			continue;
-+
- 		rc = strs_add(strs, val_to_name[i]);
- 		if (rc != 0) {
- 			return -1;
--- 
-2.34.1
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
