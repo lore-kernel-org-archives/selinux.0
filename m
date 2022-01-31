@@ -2,133 +2,96 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BADCC433F5
-	for <selinux@archiver.kernel.org>; Mon, 31 Jan 2022 13:48:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70CFCC433FE
+	for <selinux@archiver.kernel.org>; Mon, 31 Jan 2022 16:16:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376324AbiAaNsO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jan 2022 08:48:14 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43779 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1358762AbiAaNsO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jan 2022 08:48:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643636893;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gPadflRndKn1I0aulaiG2If4pJroMwlVKCCuMQRLHvU=;
-        b=BIyrCTW3aHiT66QWAOA66u4JoI+aEcPQzzCK4xON145iq2ToPAu/FdcUp4EzgtfBxAhgph
-        6znj+aYox8K35f1r3ylIsFqiaFxKo7itEW4FlWZ32MNh/XNkNAymQwLqoZVnmO7thx9qTO
-        mrcfAzNvnfuuct+wRcxG6z2C9hhgrO8=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-532-cVQch2EXN5OAcU6QME114g-1; Mon, 31 Jan 2022 08:48:12 -0500
-X-MC-Unique: cVQch2EXN5OAcU6QME114g-1
-Received: by mail-yb1-f197.google.com with SMTP id 127-20020a250f85000000b00611ab6484abso26686960ybp.23
-        for <selinux@vger.kernel.org>; Mon, 31 Jan 2022 05:48:12 -0800 (PST)
+        id S1380218AbiAaQQY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jan 2022 11:16:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33274 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380155AbiAaQQO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jan 2022 11:16:14 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34534C061401
+        for <selinux@vger.kernel.org>; Mon, 31 Jan 2022 08:16:14 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id jx6so44957716ejb.0
+        for <selinux@vger.kernel.org>; Mon, 31 Jan 2022 08:16:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UmMfeMOSCoAqBhA7BUwY3tTWcLdWTL1PSKYY7qnHSNo=;
+        b=GRVTCtzu9/MyTVuHPjTnQ0zxTS6EdpUso5MVxp1FHPJAu+cQfMtGjsj1EGc053Re66
+         HJw78dmJitgpCkRH2aNJ79u+EOoEtA475Pp0mIDQRgpMvUauy7YdyKBf1LyvFL9iBpuq
+         dVkCxouvtRDEFM5eN6A38VlYveIKLSMqWpJSOacxAwyxO9jptgAi5E6yqr1yGSQXZBpx
+         TXQ6z4K8eSo7miaPpr1Mfo0C7GdRius8EJM0YqnCK1WRdRyHuX0jw76vxH18QVaPfOcs
+         8Mx91M/OXiYQnO2wAtw7rLcdRF+51Vn/SJafIABc4WKLX6zN9UJ06Ku91Gd/ZTEvj9+X
+         KJ8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=gPadflRndKn1I0aulaiG2If4pJroMwlVKCCuMQRLHvU=;
-        b=764S1Ajj48uf4KnfqGp21lLZNyWR6xGYhTPIW+5nprCiKAQN1fTDzWyGJ7UXNYsyrP
-         mohrXPCMztpEJQAXUaCb4cfcHiIxefHKjOKYpsd8v2qRRxZDqtpoCTcxnKpNc8QQkpB8
-         jnTnJ3NZIbsf/LO+zxaqE1+6tJ0DUBXZ+xzqGxiE6QX2SYiICz+j0INyNxDbYDcNNQaj
-         sEG6aHipMtpepMed+yx4XQCmE8Qd1XoSCkbRdA42d7nHyToCnBOXbMtQyN8S5SO/9uB3
-         C+d6d/JLREw/Hjg2tie6vVVMwUTgRvzAgfim9uo7/gukrcrgl8VxASvg5HOeW0rwya1V
-         MFIw==
-X-Gm-Message-State: AOAM53308zqK86Fz8ZK31N4J4qU79Pr2B+Ku0OHkdNhZufncgFDC/vUW
-        27VgM2mlgs0IVKMFKpPY9feOYN9+7hPs7BggYdZ0Nk+WruH0fEf3YhsgMNujwDC9JSJH3boA2Hc
-        g4haBRUj1LDOYdX5deNUR/GYSWUzBx6Nylw==
-X-Received: by 2002:a25:d90a:: with SMTP id q10mr30238038ybg.253.1643636891951;
-        Mon, 31 Jan 2022 05:48:11 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJywnnnroVBO0TW4dFJ/flJ9I+2bsntouiv5TEL9eqaIGOjgf+JUP8x4fWdGklL+0E0h+MLx+jw2hdl1hbYLTtM=
-X-Received: by 2002:a25:d90a:: with SMTP id q10mr30238016ybg.253.1643636891752;
- Mon, 31 Jan 2022 05:48:11 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=UmMfeMOSCoAqBhA7BUwY3tTWcLdWTL1PSKYY7qnHSNo=;
+        b=2CKILQgrlXael5XrbYpgbKbzUna8ZZf25Bx7S5WGMkt3KL0kIVSvADiQP9+jnWp285
+         GZxEFAIWldhlLuDNIaYAspz3xdxUQlsqNr7itBZvh9h46KidUw+DlqnNPEc1bU8w6ZyN
+         rMaCx5k6lmEl17HubUi6ZfiRaDX/+l/CslifRA9xy7NjfYjuGLUBJb6EIq9JJeDB83es
+         rYyrtYqttN7cQLAo3M6lYk3Ofl2Yim6vwN1rRhuZHjjDbUaZUnhBlShEQSYPALmektfZ
+         eiscXkn7oj+W0XH2vOGTUPvn7OuOBOlFu+bLJKEE43x98gyqTHIlbeGcswEqpvu9M8yW
+         vMfA==
+X-Gm-Message-State: AOAM533Sz9YWIQIXrjWgdKQG2MbR/gba0znGjNZMj6NpsXu6HtAnimVO
+        xBzsm0yHZOtI/X68FtBSMzx05PAEmRM29QuXV/B3
+X-Google-Smtp-Source: ABdhPJxq72VkfEyMRdYvqdL8DBh09y6vJc7UuNH+cjMYMvqj8xzzu7N5A30X1zKYjBRhbE33sZLKMDvkmFkjAMIsqsA=
+X-Received: by 2002:a17:906:1e06:: with SMTP id g6mr17519185ejj.517.1643645772623;
+ Mon, 31 Jan 2022 08:16:12 -0800 (PST)
 MIME-Version: 1.0
-References: <20220113020915.13560-1-gongruiqi1@huawei.com>
-In-Reply-To: <20220113020915.13560-1-gongruiqi1@huawei.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 31 Jan 2022 14:47:54 +0100
-Message-ID: <CAFqZXNsCMkxeGrvXrWRr71FByV-cKJL2zK+o1Xr=AKPY8mjS4g@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/binder: Build only for 4.11 and later kernels
-To:     "GONG, Ruiqi" <gongruiqi1@huawei.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Wang Weiyang <wangweiyang2@huawei.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Xiang Yang <xiangyang3@huawei.com>,
-        Cui Gaosheng <cuigaosheng1@huawei.com>,
-        Lu Jialin <lujialin4@huawei.com>, Yi Yang <yiyang13@huawei.com>
+References: <20220120214948.3637895-1-smayhew@redhat.com> <20220120214948.3637895-2-smayhew@redhat.com>
+ <CAFqZXNv7=ROfyzZGojy2DQvY0xp4Dd5oHW_0KG6BLiD7A8zeKQ@mail.gmail.com>
+ <CAHC9VhQKVdbLNn=eOqebWaktDVeq5bjTjXea68MmcAhKoSa09w@mail.gmail.com> <CAFqZXNvny0zJmEMzFeMFuy0DzjAAaB5uqRpQoSMbZwVcUxTDAQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNvny0zJmEMzFeMFuy0DzjAAaB5uqRpQoSMbZwVcUxTDAQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 31 Jan 2022 11:16:01 -0500
+Message-ID: <CAHC9VhQE4JPhTjkKwV3ovRSuPceiHDrP3MDW4RPDcNtLkb7tAQ@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Scott Mayhew <smayhew@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 13, 2022 at 2:48 AM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
-> Following compilation errors occur when building the tests with
-> userspace headers exported from kernel 4.4:
+On Mon, Jan 31, 2022 at 7:46 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Fri, Jan 28, 2022 at 3:28 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Thu, Jan 27, 2022 at 4:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > I wonder if we could make this all much simpler by *always* doing the
+> > > label parsing in selinux_add_opt() and just returning an error when
+> > > !selinux_initialized(&selinux_state). Before the new mount API, mount
+> > > options were always passed directly to the mount(2) syscall, so it
+> > > wasn't possible to pass any SELinux mount options before the SELinux
+> > > policy was loaded. I don't see why we need to jump through hoops here
+> > > just to support this pseudo-feature of stashing an unparsed label into
+> > > an fs_context before policy is loaded... Userspace should never need
+> > > to do that.
+> >
+> > I could agree with that, although part of my mind is a little nervous
+> > about the "userspace should *never* ..." because that always seems to
+> > bite us.  Although I'm struggling to think of a case where userspace
+> > would need to set explicit SELinux mount options without having a
+> > policy loaded.
 >
-> binder_common.c:111:14: error: =E2=80=98const struct flat_binder_object=
-=E2=80=99 has no
-> member named =E2=80=98hdr=E2=80=99
->    switch (obj->hdr.type) {
->               ^
-> client.c:58:9: error: dereferencing pointer to incomplete type
->   if (obj->hdr.type !=3D BINDER_TYPE_FD) {
->          ^
->
-> It's been checked that member `hdr` of `struct flat_binder_object` and
-> `struct binder_fd_object` were both introduced by commit feba3900cabb
-> ("binder: Split flat_binder_object") in kernel v4.11-rc1. Fix this
-> by adding kernel version check at compile time.
+> I get that, but IMO this is enough of an odd "use case" that I
+> wouldn't worry too much ...
 
-Sorry for the late reaction... In a corner case, one might be on a
-system where the kernel UAPI headers don't match the running kernel
-version 100%, so I'd prefer to grep the header for 'struct
-binder_fd_object' over a kernel version check here. In this case the
-actual ABI is the same before and after the kernel commit, so it makes
-sense to only check if we have a <linux/android/binder.h> that we can
-compile against.
+I understand, but seeing as I'm the only one that defends these things
+with Linus and others lets do this:
 
-Something like:
+1. Fix what we have now using Scott's patches once he incorporates the feedback.
+2. Merge another patch (separate patch(set) please!) which does the
+parsing in selinux_add_opt().
 
-ifeq ($(shell grep -q 'struct binder_fd_object'
-$(INCLUDEDIR)/linux/android/binder.h && echo true),true)
-...
-endif
+... this was if we have to revert #2 we still have the fixes in #1.
 
-> Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
->
-> ---
->  tests/Makefile | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/tests/Makefile b/tests/Makefile
-> index 3f7cae3..22458a7 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -54,8 +54,10 @@ SUBDIRS +=3D prlimit
->  endif
->
->  ifeq ($(shell grep -q binder $(POLDEV)/include/support/all_perms.spt && =
-test -e $(INCLUDEDIR)/linux/android/binder.h && echo true),true)
-> +ifneq ($(shell ./kvercmp $$(uname -r) 4.11),-1)
->  SUBDIRS +=3D binder
->  endif
-> +endif
->
->  ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && ech=
-o true),true)
->  ifneq ($(shell ./kvercmp $$(uname -r) 4.15),-1)
-> --
-> 2.17.1
->
-
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+-- 
+paul-moore.com
