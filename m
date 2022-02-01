@@ -2,99 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83E11C433EF
-	for <selinux@archiver.kernel.org>; Tue,  1 Feb 2022 16:19:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42EC2C433EF
+	for <selinux@archiver.kernel.org>; Tue,  1 Feb 2022 17:26:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240953AbiBAQTv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Feb 2022 11:19:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50964 "EHLO
+        id S238180AbiBAR0S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Feb 2022 12:26:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240927AbiBAQTu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Feb 2022 11:19:50 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3CBC06173D
-        for <selinux@vger.kernel.org>; Tue,  1 Feb 2022 08:19:50 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id d10so55822428eje.10
-        for <selinux@vger.kernel.org>; Tue, 01 Feb 2022 08:19:50 -0800 (PST)
+        with ESMTP id S235071AbiBAR0S (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Feb 2022 12:26:18 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EECBDC061714
+        for <selinux@vger.kernel.org>; Tue,  1 Feb 2022 09:26:17 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id ah7so56160528ejc.4
+        for <selinux@vger.kernel.org>; Tue, 01 Feb 2022 09:26:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=H/EA0AhkWiFaOwwty7mH2hCCiTOvQntxOFT+Uv9r6mI=;
-        b=lmzPqOHdxn0hc7dFBLY3SQkUuN8/E5zgkhWuFYNNCZY80fRqKvZZiHLjCZFSELf5wt
-         fBfAaoq3b5L6sfZamRJ4r9as5w9m2yn2x5kjVQH91u5qzkU4B0X3l8pb4YSIgvY2YQoU
-         hLYOHsig6gFhE8uLZXKQjCQGUZdYl3Z4dWDXS94KelY+TVFaf6ZQT+FTU8h0b8OgyVSF
-         +vMc/E1jLaqNPkoLezOjgnDMC9VeuCZPuSrCLTTlT2tOaNLt4ZbNIDH7tRFJJF+KWag/
-         wG5J3E4/omZOqv7+krqB1k+rt7bzjHGeCvrcOEBpozUkZsDcRNHQwrGH26s3VqMOjExc
-         cGoQ==
+        bh=+FUAlOlMa07eJpdtWBtFxltqcXW5pKh9hMDtYHtwGqE=;
+        b=SQ4fed4ky5Yr+isS1uetmg/gwgm8f0vVjIfE7jcqJuXtyxLJi8F17af80tpltf0pzw
+         0XK1qOovI5k+anlfTXeEbgW43YyCHRclMUqwQwItNE5mAvmUDTmXOnxO9vDZKrgKXeok
+         T3YxoBoWwklT3IkIo4bIqtjzOr0tLUpSY2jY3AN+Gm7oTNIhKh1ijX0dlK0HVxU3OWD7
+         ZfDTX/CazHRKW8p/ZUAipqSm8UbRtVJbY2DgAj7HzQ+CBg0HMZnwmXD84sBNBI9bGZmp
+         Fy2jmq/uEGMEL7eRCCJq1yWHmkwWtLitt4fDRGkr5PjWn7bLIGTAqJztrpiM/m5vug5m
+         5dog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=H/EA0AhkWiFaOwwty7mH2hCCiTOvQntxOFT+Uv9r6mI=;
-        b=KpZoGICe6t7ceeLNtJMuSNjJVnhEGyJR4blZTl0WcyLxO2qfA0IfRz1g0avD0V6d6b
-         RiCa4RpgPvMAuxRx7x9jEmXGFbYuR8rWEt0JHJG2z/6nRq9iQz4C6/pw61MTmCXqCXhi
-         BVQbIy5FNtP8iUK8v35Pf7smohelrB5PpHYE4WHV9pDxAd6I2hgHwKbsITl7MRbcN80J
-         OgPCSX00Zc6SIjIobj9F+EmyEkBILD7NqdQDkHl6UijIPqBnbEaD9ULMIx8qtzZhWX2O
-         XXO7ZbLE20IfsLvFWqBYFUi8vfVvCWvXCtdSW9xltMP8wJIxB32O/nD9ervv6aBSCkL7
-         SRUg==
-X-Gm-Message-State: AOAM532Re4zv6NG796CeYbRac+IrzFOycW0fzlNWUSZVH1o5vmmyRKiZ
-        iKQVjdNUQu4AmgxD0MFOGLeVTRpQ3DfVsGH/9318
-X-Google-Smtp-Source: ABdhPJyY2QWbw9iTiEYwXUoRKlv8CqDxjUmVAK+5MN19fpdlGU198KTmUcBPwAV5FDqPW4wyhtc7GkW+of0Vio0Kkrg=
-X-Received: by 2002:a17:906:2ed0:: with SMTP id s16mr21589608eji.327.1643732388897;
- Tue, 01 Feb 2022 08:19:48 -0800 (PST)
+        bh=+FUAlOlMa07eJpdtWBtFxltqcXW5pKh9hMDtYHtwGqE=;
+        b=X3LrsyuivKnU9YP7POq03jZHc/udp2OZQO6LbaPLTVzM5TwO5n93xlT90APLR6mOrC
+         A6RXj3jEFumka/ItneuqqcTDUj2TySZ/AQC+fedfg03XlFmeVj+43uGUAOraONaf3cec
+         aFthrIXhdSsqcCvT/outJYOoEUeoIA3/fZLQZhlNka0TChSEZlaF2o2m5faHFoCcwHXb
+         YvUybfudbVlnu4CfVHKEq2zcBepTHSjHEUXF24seJ30WU/Oa7G2MZ+Tpn8qMv4HlL8QI
+         8kgohtvKfb9eJwF7vXSjaONDRncVft9IXH0BXYUa7p4lB0QNkB3zG54xoDjrdaNDDkgZ
+         UQbA==
+X-Gm-Message-State: AOAM532IjhHyIKDoC8MDJol992y4AqlB+4fExu061pJReOjbjv0WBs0f
+        NrnH6zhg+eqojzFbdOJGQsxKsShK0Gr5HNAmt9he
+X-Google-Smtp-Source: ABdhPJwOJ7OYrim5y2fo7QvQeZhn3mGe6aj933uSWnep/EaBqhiOPldWRZuF7RwgzDN4UKwqG/U+NY1OQyzhKX5yKcU=
+X-Received: by 2002:a17:907:3e8a:: with SMTP id hs10mr21951252ejc.112.1643736376357;
+ Tue, 01 Feb 2022 09:26:16 -0800 (PST)
 MIME-Version: 1.0
-References: <20220120214948.3637895-1-smayhew@redhat.com> <20220120214948.3637895-2-smayhew@redhat.com>
- <CAFqZXNv7=ROfyzZGojy2DQvY0xp4Dd5oHW_0KG6BLiD7A8zeKQ@mail.gmail.com>
- <CAHC9VhQKVdbLNn=eOqebWaktDVeq5bjTjXea68MmcAhKoSa09w@mail.gmail.com>
- <CAFqZXNvny0zJmEMzFeMFuy0DzjAAaB5uqRpQoSMbZwVcUxTDAQ@mail.gmail.com>
- <CAHC9VhQE4JPhTjkKwV3ovRSuPceiHDrP3MDW4RPDcNtLkb7tAQ@mail.gmail.com> <CAFqZXNs7P+p0B-uZ2owMH1qa04unbq870tMqQ4Kwup7dXJ9z=g@mail.gmail.com>
-In-Reply-To: <CAFqZXNs7P+p0B-uZ2owMH1qa04unbq870tMqQ4Kwup7dXJ9z=g@mail.gmail.com>
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+ <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+ <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+ <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com>
+In-Reply-To: <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 1 Feb 2022 11:19:37 -0500
-Message-ID: <CAHC9VhRAPb8PV08fYd-GOY+ZeKX6r+rmGw_Okrwwj6ESTVDYmA@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 1/2] selinux: Fix selinux_sb_mnt_opts_compat()
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Scott Mayhew <smayhew@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        linux-nfs <linux-nfs@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Date:   Tue, 1 Feb 2022 12:26:05 -0500
+Message-ID: <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+To:     Demi Marie Obenour <demiobenour@gmail.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 1, 2022 at 9:38 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Mon, Jan 31, 2022 at 5:16 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Jan 31, 2022 at 7:46 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > On Fri, Jan 28, 2022 at 3:28 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > On Thu, Jan 27, 2022 at 4:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > > I wonder if we could make this all much simpler by *always* doing the
-> > > > > label parsing in selinux_add_opt() and just returning an error when
-> > > > > !selinux_initialized(&selinux_state). Before the new mount API, mount
-> > > > > options were always passed directly to the mount(2) syscall, so it
-> > > > > wasn't possible to pass any SELinux mount options before the SELinux
-> > > > > policy was loaded. I don't see why we need to jump through hoops here
-> > > > > just to support this pseudo-feature of stashing an unparsed label into
-> > > > > an fs_context before policy is loaded... Userspace should never need
-> > > > > to do that.
-> > > >
-> > > > I could agree with that, although part of my mind is a little nervous
-> > > > about the "userspace should *never* ..." because that always seems to
-> > > > bite us.  Although I'm struggling to think of a case where userspace
-> > > > would need to set explicit SELinux mount options without having a
-> > > > policy loaded.
-> > >
-> > > I get that, but IMO this is enough of an odd "use case" that I
-> > > wouldn't worry too much ...
+On Sat, Jan 29, 2022 at 10:40 PM Demi Marie Obenour
+<demiobenour@gmail.com> wrote:
+> On 1/26/22 17:41, Paul Moore wrote:
+> > On Tue, Jan 25, 2022 at 5:50 PM Demi Marie Obenour
+> > <demiobenour@gmail.com> wrote:
+> >> On 1/25/22 17:27, Paul Moore wrote:
+> >>> On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
+> >>> <demiobenour@gmail.com> wrote:
+> >>>>
+> >>>> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
+> >>>> always allows too.  Furthermore, a failed FIOCLEX could result in a file
+> >>>> descriptor being leaked to a process that should not have access to it.
+> >>>>
+> >>>> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
+> >>>> ---
+> >>>>  security/selinux/hooks.c | 5 +++++
+> >>>>  1 file changed, 5 insertions(+)
+> >>>
+> >>> I'm not convinced that these two ioctls should be exempt from SELinux
+> >>> policy control, can you explain why allowing these ioctls with the
+> >>> file:ioctl permission is not sufficient for your use case?  Is it a
+> >>> matter of granularity?
+> >>
+> >> FIOCLEX and FIONCLEX are applicable to *all* file descriptors, not just
+> >> files.  If I want to allow them with SELinux policy, I have to grant
+> >> *:ioctl to all processes and use xperm rules to determine what ioctls
+> >> are actually allowed.  That is incompatible with existing policies and
+> >> needs frequent maintenance when new ioctls are added.
+> >>
+> >> Furthermore, these ioctls do not allow one to do anything that cannot
+> >> already be done by fcntl(F_SETFD), and (unless I have missed something)
+> >> SELinux unconditionally allows that.  Therefore, blocking these ioctls
+> >> does not improve security, but does risk breaking userspace programs.
+> >> The risk is especially great because in the absence of SELinux, I
+> >> believe FIOCLEX and FIONCLEX *will* always succeed, and userspace
+> >> programs may rely on this.  Worse, if a failure of FIOCLEX is ignored,
+> >> a file descriptor can be leaked to a child process that should not have
+> >> access to it, but which SELinux allows access to.  Userspace
+> >> SELinux-naive sandboxes are one way this could happen.  Therefore,
+> >> blocking FIOCLEX may *create* a security issue, and it cannot solve one.
 > >
-> > I understand, but seeing as I'm the only one that defends these things
-> > with Linus and others lets do this:
+> > I can see you are frustrated with my initial take on this, but please
+> > understand that excluding an operation from the security policy is not
+> > something to take lightly and needs discussion.  I've added the
+> > SELinux refpolicy list to this thread as I believe their input would
+> > be helpful here.
 >
-> It's not all black and white:
-> https://lore.kernel.org/lkml/Pine.LNX.4.64.0512291322560.3298@g5.osdl.org/
+> Absolutely it is not something that should be taken lightly, though I
+> strongly believe it is correct in this case.  Is one of my assumptions
+> mistaken?
 
-I made my statement above not to ask your opinion, but rather to make a point.
+My concern is that there is a distro/admin somewhere which is relying
+on their SELinux policy enforcing access controls on these ioctls and
+removing these controls would cause them a regression.
 
 -- 
 paul-moore.com
