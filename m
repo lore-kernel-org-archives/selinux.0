@@ -2,213 +2,52 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08EF8C4332F
-	for <selinux@archiver.kernel.org>; Mon, 31 Jan 2022 18:57:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCDF6C433F5
+	for <selinux@archiver.kernel.org>; Tue,  1 Feb 2022 09:38:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358715AbiAaS5o (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jan 2022 13:57:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24760 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1358697AbiAaS5n (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jan 2022 13:57:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643655462;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ed3hVQ48RMb2MFp4ZsSa5NSDyBIXulmD20K/MbtpUpk=;
-        b=Hjp8pr/M4hObhqvH4IMDc1tbYx25Uo/q5bzYJC8jSsBXJgxYMj2UJKarrYwQK/eXEOtiIF
-        o6z6ZDKXQw5VS6pwJE9iQv+05k2cQRHMdtKySQJkREbDbCjpVfcov8nfLWI/TNNiqRHdy4
-        SHKMxeiGTK2BKEssuV1nr07ocjM0Zs4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-384-1llfo-CJMBG_0whZZL0v8w-1; Mon, 31 Jan 2022 13:57:39 -0500
-X-MC-Unique: 1llfo-CJMBG_0whZZL0v8w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3BEA81091DA9;
-        Mon, 31 Jan 2022 18:57:38 +0000 (UTC)
-Received: from aion.usersys.redhat.com (unknown [10.22.17.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 04CF038E05;
-        Mon, 31 Jan 2022 18:57:38 +0000 (UTC)
-Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
-        id 460891A0021; Mon, 31 Jan 2022 13:57:37 -0500 (EST)
-From:   Scott Mayhew <smayhew@redhat.com>
-To:     paul@paul-moore.com
-Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/2] selinux: try to use preparsed sid before calling parse_sid()
-Date:   Mon, 31 Jan 2022 13:57:37 -0500
-Message-Id: <20220131185737.1640824-3-smayhew@redhat.com>
-In-Reply-To: <20220131185737.1640824-1-smayhew@redhat.com>
-References: <20220131185737.1640824-1-smayhew@redhat.com>
+        id S236072AbiBAJiV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Feb 2022 04:38:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43204 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234230AbiBAJiU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Feb 2022 04:38:20 -0500
+X-Greylist: delayed 489 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Feb 2022 01:38:20 PST
+Received: from smtp.sws.net.au (smtp.sws.net.au [IPv6:2a01:4f8:201:1e6::dada:cafe])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBE6C061714
+        for <selinux@vger.kernel.org>; Tue,  1 Feb 2022 01:38:19 -0800 (PST)
+Received: from xev.coker.com.au (localhost [127.0.0.1])
+        by smtp.sws.net.au (Postfix) with ESMTP id F2F45111B4
+        for <selinux@vger.kernel.org>; Tue,  1 Feb 2022 20:30:02 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=coker.com.au;
+        s=2008; t=1643707803;
+        bh=PWXwrag1b9WjmnstzKAgO9zDSZnsBtNY1t0rAsZJM6E=; l=427;
+        h=From:To:Reply-To:Subject:Date:From;
+        b=jDUflohHt9DBfgHiNoVd++V9szXXKMy2vy9a+OYJIe00xcCRijJIfG9PwhCOVt892
+         b3w/kzrc1E4dkVijPc+BkORCHSKd5G+I0wCu3JWoMsBRrhYjGkowYLwA54YcQ2TuK+
+         SfqSqiJPbPYwOb8IwGVISpkJCqGqBFZEbKtK60I4=
+Received: by xev.coker.com.au (Postfix, from userid 1001)
+        id 35254170B6AA; Tue,  1 Feb 2022 20:29:58 +1100 (AEDT)
+From:   Russell Coker <russell@coker.com.au>
+To:     selinux@vger.kernel.org
+Reply-To: russell@coker.com.au
+Subject: kmod and unsigned modules
+Date:   Tue, 01 Feb 2022 20:29:58 +1100
+Message-ID: <8839796.NKUDOvIH9j@xev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Avoid unnecessary parsing of sids that have already been parsed via
-selinux_sb_eat_lsm_opts().
+[    9.002945] audit: type=1400 audit(1643707510.152:4): avc:  denied  { 
+integrity } for  pid=371 comm="modprobe" lockdown_reason="unsigned module 
+loading" scontext=system_u:system_r:kmod_t:s0 
+tcontext=system_u:system_r:kmod_t:s0 tclass=lockdown permissive=0
 
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
----
- security/selinux/hooks.c | 88 +++++++++++++++++++++++++++-------------
- 1 file changed, 59 insertions(+), 29 deletions(-)
+We need to have a boolean for this.  Just sending email so I don't forget it.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9645ff982ca5..05d24b7a68cf 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -676,36 +676,48 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 */
- 	if (opts) {
- 		if (opts->fscontext) {
--			rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
--			if (rc)
--				goto out;
-+			if (opts->fscontext_sid == SECSID_NULL) {
-+				rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
-+				if (rc)
-+					goto out;
-+			} else
-+				fscontext_sid = opts->fscontext_sid;
- 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
- 					fscontext_sid))
- 				goto out_double_mount;
- 			sbsec->flags |= FSCONTEXT_MNT;
- 		}
- 		if (opts->context) {
--			rc = parse_sid(sb, opts->context, &context_sid);
--			if (rc)
--				goto out;
-+			if (opts->context_sid == SECSID_NULL) {
-+				rc = parse_sid(sb, opts->context, &context_sid);
-+				if (rc)
-+					goto out;
-+			} else
-+				context_sid = opts->context_sid;
- 			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
- 					context_sid))
- 				goto out_double_mount;
- 			sbsec->flags |= CONTEXT_MNT;
- 		}
- 		if (opts->rootcontext) {
--			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
--			if (rc)
--				goto out;
-+			if (opts->rootcontext_sid == SECSID_NULL) {
-+				rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
-+				if (rc)
-+					goto out;
-+			} else
-+				rootcontext_sid = opts->rootcontext_sid;
- 			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
- 					rootcontext_sid))
- 				goto out_double_mount;
- 			sbsec->flags |= ROOTCONTEXT_MNT;
- 		}
- 		if (opts->defcontext) {
--			rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
--			if (rc)
--				goto out;
-+			if (opts->defcontext_sid == SECSID_NULL) {
-+				rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
-+				if (rc)
-+					goto out;
-+			} else
-+				defcontext_sid = opts->defcontext_sid;
- 			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
- 					defcontext_sid))
- 				goto out_double_mount;
-@@ -2710,7 +2722,6 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- {
- 	struct selinux_mnt_opts *opts = mnt_opts;
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
--	u32 sid;
- 	int rc;
- 
- 	if (!(sbsec->flags & SE_SBINITIALIZED))
-@@ -2720,33 +2731,48 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 		return 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid);
--		if (rc)
--			return rc;
--		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
-+		if (opts->fscontext_sid == SECSID_NULL) {
-+			rc = parse_sid(sb, opts->fscontext,
-+				       &opts->fscontext_sid);
-+			if (rc)
-+				return rc;
-+		}
-+		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-+			       opts->fscontext_sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid);
--		if (rc)
--			return rc;
--		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-+		if (opts->context_sid == SECSID_NULL) {
-+			rc = parse_sid(sb, opts->context, &opts->context_sid);
-+			if (rc)
-+				return rc;
-+		}
-+		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-+			       opts->context_sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->rootcontext) {
- 		struct inode_security_struct *root_isec;
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid);
--		if (rc)
--			return rc;
--		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
-+		if (opts->rootcontext_sid == SECSID_NULL) {
-+			rc = parse_sid(sb, opts->rootcontext,
-+				       &opts->rootcontext_sid);
-+			if (rc)
-+				return rc;
-+		}
-+		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-+			       opts->rootcontext_sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid);
--		if (rc)
--			return rc;
--		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-+		if (opts->defcontext_sid == SECSID_NULL) {
-+			rc = parse_sid(sb, opts->defcontext,
-+				       &opts->defcontext_sid);
-+			if (rc)
-+				return rc;
-+		}
-+		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-+			       opts->defcontext_sid))
- 			goto out_bad_option;
- 	}
- 	return 0;
-@@ -2844,6 +2870,10 @@ static int selinux_fs_context_dup(struct fs_context *fc,
- 		if (!opts->defcontext)
- 			return -ENOMEM;
- 	}
-+	opts->fscontext_sid = src->fscontext_sid;
-+	opts->context_sid = src->context_sid;
-+	opts->rootcontext_sid = src->rootcontext_sid;
-+	opts->defcontext_sid = src->defcontext_sid;
- 	return 0;
- }
- 
 -- 
-2.31.1
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
