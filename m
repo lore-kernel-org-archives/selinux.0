@@ -2,97 +2,146 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04A83C433FE
-	for <selinux@archiver.kernel.org>; Thu,  3 Feb 2022 22:30:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18D2DC433F5
+	for <selinux@archiver.kernel.org>; Thu,  3 Feb 2022 23:44:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355823AbiBCWa4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Feb 2022 17:30:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57790 "EHLO
+        id S1347899AbiBCXoc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Feb 2022 18:44:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229910AbiBCWa4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Feb 2022 17:30:56 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03632C06173B
-        for <selinux@vger.kernel.org>; Thu,  3 Feb 2022 14:30:56 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id m11so9141658edi.13
-        for <selinux@vger.kernel.org>; Thu, 03 Feb 2022 14:30:55 -0800 (PST)
+        with ESMTP id S240707AbiBCXob (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Feb 2022 18:44:31 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5424C06173D
+        for <selinux@vger.kernel.org>; Thu,  3 Feb 2022 15:44:30 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id b13so9584143edn.0
+        for <selinux@vger.kernel.org>; Thu, 03 Feb 2022 15:44:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=U3YvCn/HrD/HLrQa4da2DKOuBsVCbCmCsg7ulvfRUQs=;
-        b=H+zIBOm0GBrFikps9VmjNbRgeZfS2yMDVxS8UeY8ew2OXA2DyyvV9emXLMoP3p8lJb
-         BWvqF/rEQCfVsmE1qKnIts7E6/ERYKcnYnqrHzdewOf36mcLwT/l1ttXBnBBlIzjMVnh
-         32un7hmF2TpE6jmuJnnjgzs0B9eUsNjxYCeyUEVg2MSWOXZ7xSsQk7UyFRIKSkKevdPP
-         HVrY6HKjIW9N0RzQlG90HJK0d1gDIMImksoSQUuM8bRkLEQ534NQaM1W6+Hw/GQmJzZr
-         1LPjWEf2ua+LdFT/CgLkqIUd9Wiin6mudKprQOtBXatlPm5tXRetlV4E0be0fSsHnNWK
-         /5eQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AmSNhDG6FW6yzlPpCdGKepqD+t+GFrCkOSovI2o4uvI=;
+        b=A/uDj8h0TiRQQH5mrt6TQPc7Y0azsfr7kb4qI+LVJLLCIDOWDLgOVwRohllzo5rrBM
+         CG8Kamrm7loe3c0ameljz4bFqOr7sxayOW1rPAn1UKBNZvmmWfVQewc8ecFDhYWp7IGY
+         MkMjo/8uJtaGlIPCHPDzS5S0rZLqI/3/YCIIQrmV9rQeJrKMBxRuddxkEiEBqkhJIK53
+         EoD2PuMhMpJgRI4sMzORjEZ9mK9WNlSsc+nN3lxtJn/92xGkVVA+BdNMfMwYBembFmn6
+         Q1rSzs8uiS8ZXk4qLq1MQP+m6YxXHxzHFwZyq/+3G/bTvcQI1tMLeDTAt96B87dK+3cz
+         kk4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=U3YvCn/HrD/HLrQa4da2DKOuBsVCbCmCsg7ulvfRUQs=;
-        b=FNRj3a07tvAj/7fSTbvB6R+jLnKzzdsJykwGBptkrYXWvObt8Da+YDeVF6O9mR7IOp
-         rni9LwaZvUEWTTaEuGByyets1aRcQARqQMamGR/VluWujpiILERlkAKOC6biYz0X3E7S
-         v4kKipb41c311rdPocEDdfwh68lNXP9oUd/MflPlEwh+7BS4yO0CXPLXpXa+PLr53+5L
-         4W5NfQwqPiu8c4ui6hvxtslpu+NGv610miNpkF+G3mfU1KhyjbKt1jTyRwgS0wINZjog
-         5zk4Q65cL6iwJHA7cRFT62i+dgejY0eQ0SN3RWE8/P8a4GtDZzEPnuXBWkIUdjsIxrJa
-         pjRg==
-X-Gm-Message-State: AOAM531pDB1LhposnOmXiTk+rHCrF/vcS7qgGGSokc7sqlWDekPezZYP
-        13PMK0gEnoBLivJoqoXPLZJG7K2UJs6FIw/n1bsa
-X-Google-Smtp-Source: ABdhPJx+OpOd8KdK7VhlWOaLYW3heLDcuXuVW0BTpITGujHHsQT/fbLIs07GJryAxfkW3PcNVDgV5myxMMt+/2hdOhk=
-X-Received: by 2002:a50:ec0d:: with SMTP id g13mr300369edr.427.1643927454425;
- Thu, 03 Feb 2022 14:30:54 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AmSNhDG6FW6yzlPpCdGKepqD+t+GFrCkOSovI2o4uvI=;
+        b=Z3bsD0j2Tz/uVnsqNAmuICjwx+cU6iWLxsxtNZXm9Nn0ji0akVW5zCXdCpQa1Hl6T6
+         DQZydMiJ+qN10vwDyPUwpBnXyKLAOm82Ix8IhKAqL84Ur7kCzrv5KPCL+edjim6yIjD6
+         GNRpo/Akzm9J7Dx8PMEHy7xvC5Ums2Oja7WzEwDlV3a220dUSOz8jrzA+cf/CvvCjYlA
+         jI5Cu6eTfi9qp4sWwnFnyZHUWoojudVhbN/v+mO7X1+1ZnwBj7YycQ/QPK53D6Wv9E88
+         puOKd3XvPgssr8SRqoXL1j+6Nu0/bSDULOAW3d7lGlUJvlEI+fY3XivUVXHLuM6JLWnA
+         54kQ==
+X-Gm-Message-State: AOAM533pk2kTj83S+qT+BtaUsNiD5osq2O0BjlaoIizKe2NPfz0V0p2t
+        /ezLDiyhXTDNOiGu1kRBQyeg7WF/YhTy0phs6Hyp
+X-Google-Smtp-Source: ABdhPJxGEVmy+RObrcV0WQWV29B0TcmCAkYfMWGOM+Q9bEEISBaNbVM2Z5RBpMjztX8L3SEpdMZRdHZ0sHH6jJrCBQ8=
+X-Received: by 2002:aa7:dcc9:: with SMTP id w9mr550521edu.434.1643931869390;
+ Thu, 03 Feb 2022 15:44:29 -0800 (PST)
 MIME-Version: 1.0
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+ <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+ <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+ <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+ <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
+In-Reply-To: <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 3 Feb 2022 17:30:43 -0500
-Message-ID: <CAHC9VhQcLpAAXgs1oqB2WvturqvkMguYM40d=AK+LDSTnzAARg@mail.gmail.com>
-Subject: [GIT PULL] SELinux fixes for v5.17 (#1)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+Date:   Thu, 3 Feb 2022 18:44:18 -0500
+Message-ID: <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+To:     Demi Marie Obenour <demiobenour@gmail.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Linus,
+On Wed, Feb 2, 2022 at 5:13 AM Demi Marie Obenour <demiobenour@gmail.com> wrote:
+> On 2/1/22 12:26, Paul Moore wrote:
+> > On Sat, Jan 29, 2022 at 10:40 PM Demi Marie Obenour
+> > <demiobenour@gmail.com> wrote:
+> >> On 1/26/22 17:41, Paul Moore wrote:
+> >>> On Tue, Jan 25, 2022 at 5:50 PM Demi Marie Obenour
+> >>> <demiobenour@gmail.com> wrote:
+> >>>> On 1/25/22 17:27, Paul Moore wrote:
+> >>>>> On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
+> >>>>> <demiobenour@gmail.com> wrote:
+> >>>>>>
+> >>>>>> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
+> >>>>>> always allows too.  Furthermore, a failed FIOCLEX could result in a file
+> >>>>>> descriptor being leaked to a process that should not have access to it.
+> >>>>>>
+> >>>>>> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
+> >>>>>> ---
+> >>>>>>  security/selinux/hooks.c | 5 +++++
+> >>>>>>  1 file changed, 5 insertions(+)
+> >>>>>
+> >>>>> I'm not convinced that these two ioctls should be exempt from SELinux
+> >>>>> policy control, can you explain why allowing these ioctls with the
+> >>>>> file:ioctl permission is not sufficient for your use case?  Is it a
+> >>>>> matter of granularity?
+> >>>>
+> >>>> FIOCLEX and FIONCLEX are applicable to *all* file descriptors, not just
+> >>>> files.  If I want to allow them with SELinux policy, I have to grant
+> >>>> *:ioctl to all processes and use xperm rules to determine what ioctls
+> >>>> are actually allowed.  That is incompatible with existing policies and
+> >>>> needs frequent maintenance when new ioctls are added.
+> >>>>
+> >>>> Furthermore, these ioctls do not allow one to do anything that cannot
+> >>>> already be done by fcntl(F_SETFD), and (unless I have missed something)
+> >>>> SELinux unconditionally allows that.  Therefore, blocking these ioctls
+> >>>> does not improve security, but does risk breaking userspace programs.
+> >>>> The risk is especially great because in the absence of SELinux, I
+> >>>> believe FIOCLEX and FIONCLEX *will* always succeed, and userspace
+> >>>> programs may rely on this.  Worse, if a failure of FIOCLEX is ignored,
+> >>>> a file descriptor can be leaked to a child process that should not have
+> >>>> access to it, but which SELinux allows access to.  Userspace
+> >>>> SELinux-naive sandboxes are one way this could happen.  Therefore,
+> >>>> blocking FIOCLEX may *create* a security issue, and it cannot solve one.
+> >>>
+> >>> I can see you are frustrated with my initial take on this, but please
+> >>> understand that excluding an operation from the security policy is not
+> >>> something to take lightly and needs discussion.  I've added the
+> >>> SELinux refpolicy list to this thread as I believe their input would
+> >>> be helpful here.
+> >>
+> >> Absolutely it is not something that should be taken lightly, though I
+> >> strongly believe it is correct in this case.  Is one of my assumptions
+> >> mistaken?
+> >
+> > My concern is that there is a distro/admin somewhere which is relying
+> > on their SELinux policy enforcing access controls on these ioctls and
+> > removing these controls would cause them a regression.
+>
+> I obviously do not have visibility into all systems, but I suspect that
+> nobody is actually relying on this.  Setting and clearing CLOEXEC via
+> fcntl is not subject to SELinux restrictions, so blocking FIOCLEX
+> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD) is
+> blocked by seccomp or another LSM.  Clearing close-on-exec can also be
+> implemented with dup2(), and setting it can be implemented with dup3()
+> and F_DUPFD_CLOEXEC (which SELinux also allows).  In short, I believe
+> that unconditionally allowing FIOCLEX and FIONCLEX may fix real-world
+> problems, and that it is highly unlikely that anyone is relying on the
+> current behavior.
 
-One small SELinux patch to ensure that a policy structure field is
-properly reset after freeing so that we don't inadvertently do a
-double-free on certain error conditions.  Please merge for the next
--rcX release.
+I understand your point, but I remain concerned about making a kernel
+change for something that can be addressed via policy.  I'm also
+concerned that in the nine days this thread has been on both the mail
+SELinux developers and refpolicy lists no one other than you and I
+have commented on this patch.  In order to consider this patch
+further, I'm going to need to see comments from others, preferably
+those with a background in supporting SELinux policy.
 
-As a quick FYI, I didn't catch the missing 'Cc: stable...' marking on
-this patch until I was putting together this pull request, so if you
-see a force-pull on this branch/tag that's why.  The tag used in this
-pull request is signed and the patch itself is pretty trivial but I
-just wanted to mention it.
-
--Paul
-
---
-The following changes since commit e783362eb54cd99b2cac8b3a9aeac942e6f6ac07:
-
- Linux 5.17-rc1 (2022-01-23 10:12:53 +0200)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20220203
-
-for you to fetch changes up to 186edf7e368c40d06cf727a1ad14698ea67b74ad:
-
- selinux: fix double free of cond_list on error paths
-   (2022-02-02 11:02:10 -0500)
-
-----------------------------------------------------------------
-selinux/stable-5.17 PR 20220203
-
-----------------------------------------------------------------
-Vratislav Bendel (1):
-     selinux: fix double free of cond_list on error paths
-
-security/selinux/ss/conditional.c | 3 ++-
-1 file changed, 2 insertions(+), 1 deletion(-)
+Also, while I'm sure you are already well aware of this, I think it is
+worth mentioning that SELinux does apply access controls when file
+descriptors are inherited across an exec() boundary.
 
 -- 
 paul-moore.com
