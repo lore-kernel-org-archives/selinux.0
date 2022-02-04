@@ -2,143 +2,478 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 337D1C433FE
-	for <selinux@archiver.kernel.org>; Fri,  4 Feb 2022 13:48:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5943C433EF
+	for <selinux@archiver.kernel.org>; Fri,  4 Feb 2022 14:09:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358977AbiBDNs3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Feb 2022 08:48:29 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:35442 "EHLO
+        id S1359235AbiBDOJi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 4 Feb 2022 09:09:38 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:38228 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358974AbiBDNs3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Feb 2022 08:48:29 -0500
+        with ESMTP id S1359201AbiBDOJh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 4 Feb 2022 09:09:37 -0500
 Received: from [192.168.254.13] (unknown [72.85.44.115])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 61BF620B6C61;
-        Fri,  4 Feb 2022 05:48:28 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 61BF620B6C61
+        by linux.microsoft.com (Postfix) with ESMTPSA id 7FDB720B6C61;
+        Fri,  4 Feb 2022 06:09:37 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7FDB720B6C61
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1643982509;
-        bh=ktb8h9R2FuGUyuu9vO9Aa8piTeN/08pchayZa5eu6lk=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=p3Fr5MwT84Q/eBBwJnd/CQVTLGRVSKlAHI0GEQ+5PJBai5jjczGYSBhPEDE0hMMT+
-         iGik3TOfzFt6UYY7Po5phyFVVMRww2etepcYC0/L87Au2iSUW+ZiZX1I+O26yfJCU/
-         UpG5IDqdt89rfFtbXHxI/wkwjmpvDmDYmdjgnVvU=
-Message-ID: <478e1651-a383-05ff-d011-6dda771b8ce8@linux.microsoft.com>
-Date:   Fri, 4 Feb 2022 08:48:27 -0500
+        s=default; t=1643983777;
+        bh=K0hAAWoBlMWWGT6icnpTxM4YdNhYnz/CNwfRCPwcxbA=;
+        h=Date:Subject:To:References:From:In-Reply-To:From;
+        b=eyPDa/Do7Xdwui9XLyCvnpf60mhwR95piTYGMPx7bPlrtrRVawFP8bVKDAMgIe0D7
+         EWTI4GT9Dmzwta27/XpmgsDz75MCINCy+yYpaOIw5iTTOF7pxHALAU823QmLCjs+GM
+         pDrTVqf7i2AAHqfZsX9eQSIhWmPCVL8m4PPNvsLc=
+Message-ID: <9d1e997c-a39b-0e19-585a-18dc5bd1454e@linux.microsoft.com>
+Date:   Fri, 4 Feb 2022 09:09:36 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.1
-Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+Subject: Re: [PATCH 2/2] libsepol: add policy utilities
 Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>,
-        Demi Marie Obenour <demiobenour@gmail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
- <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
- <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com>
- <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
- <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com>
- <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
- <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
- <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+References: <20220204133507.26977-1-cgzones@googlemail.com>
+ <20220204133507.26977-2-cgzones@googlemail.com>
 From:   Chris PeBenito <chpebeni@linux.microsoft.com>
-In-Reply-To: <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+In-Reply-To: <20220204133507.26977-2-cgzones@googlemail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/3/2022 18:44, Paul Moore wrote:
-> On Wed, Feb 2, 2022 at 5:13 AM Demi Marie Obenour <demiobenour@gmail.com> wrote:
->> On 2/1/22 12:26, Paul Moore wrote:
->>> On Sat, Jan 29, 2022 at 10:40 PM Demi Marie Obenour
->>> <demiobenour@gmail.com> wrote:
->>>> On 1/26/22 17:41, Paul Moore wrote:
->>>>> On Tue, Jan 25, 2022 at 5:50 PM Demi Marie Obenour
->>>>> <demiobenour@gmail.com> wrote:
->>>>>> On 1/25/22 17:27, Paul Moore wrote:
->>>>>>> On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
->>>>>>> <demiobenour@gmail.com> wrote:
->>>>>>>>
->>>>>>>> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
->>>>>>>> always allows too.  Furthermore, a failed FIOCLEX could result in a file
->>>>>>>> descriptor being leaked to a process that should not have access to it.
->>>>>>>>
->>>>>>>> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
->>>>>>>> ---
->>>>>>>>   security/selinux/hooks.c | 5 +++++
->>>>>>>>   1 file changed, 5 insertions(+)
->>>>>>>
->>>>>>> I'm not convinced that these two ioctls should be exempt from SELinux
->>>>>>> policy control, can you explain why allowing these ioctls with the
->>>>>>> file:ioctl permission is not sufficient for your use case?  Is it a
->>>>>>> matter of granularity?
->>>>>>
->>>>>> FIOCLEX and FIONCLEX are applicable to *all* file descriptors, not just
->>>>>> files.  If I want to allow them with SELinux policy, I have to grant
->>>>>> *:ioctl to all processes and use xperm rules to determine what ioctls
->>>>>> are actually allowed.  That is incompatible with existing policies and
->>>>>> needs frequent maintenance when new ioctls are added.
->>>>>>
->>>>>> Furthermore, these ioctls do not allow one to do anything that cannot
->>>>>> already be done by fcntl(F_SETFD), and (unless I have missed something)
->>>>>> SELinux unconditionally allows that.  Therefore, blocking these ioctls
->>>>>> does not improve security, but does risk breaking userspace programs.
->>>>>> The risk is especially great because in the absence of SELinux, I
->>>>>> believe FIOCLEX and FIONCLEX *will* always succeed, and userspace
->>>>>> programs may rely on this.  Worse, if a failure of FIOCLEX is ignored,
->>>>>> a file descriptor can be leaked to a child process that should not have
->>>>>> access to it, but which SELinux allows access to.  Userspace
->>>>>> SELinux-naive sandboxes are one way this could happen.  Therefore,
->>>>>> blocking FIOCLEX may *create* a security issue, and it cannot solve one.
->>>>>
->>>>> I can see you are frustrated with my initial take on this, but please
->>>>> understand that excluding an operation from the security policy is not
->>>>> something to take lightly and needs discussion.  I've added the
->>>>> SELinux refpolicy list to this thread as I believe their input would
->>>>> be helpful here.
->>>>
->>>> Absolutely it is not something that should be taken lightly, though I
->>>> strongly believe it is correct in this case.  Is one of my assumptions
->>>> mistaken?
->>>
->>> My concern is that there is a distro/admin somewhere which is relying
->>> on their SELinux policy enforcing access controls on these ioctls and
->>> removing these controls would cause them a regression.
->>
->> I obviously do not have visibility into all systems, but I suspect that
->> nobody is actually relying on this.  Setting and clearing CLOEXEC via
->> fcntl is not subject to SELinux restrictions, so blocking FIOCLEX
->> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD) is
->> blocked by seccomp or another LSM.  Clearing close-on-exec can also be
->> implemented with dup2(), and setting it can be implemented with dup3()
->> and F_DUPFD_CLOEXEC (which SELinux also allows).  In short, I believe
->> that unconditionally allowing FIOCLEX and FIONCLEX may fix real-world
->> problems, and that it is highly unlikely that anyone is relying on the
->> current behavior.
+On 2/4/2022 08:35, Christian Göttsche wrote:
+> These are similar to the libselinux utilities but operate on a binary
+> policy instead of the running kernel.  This allows to run them on
+> SELinux disabled or even non Linux systems, e.g. for development or
+> continuous integration.
 > 
-> I understand your point, but I remain concerned about making a kernel
-> change for something that can be addressed via policy.  I'm also
-> concerned that in the nine days this thread has been on both the mail
-> SELinux developers and refpolicy lists no one other than you and I
-> have commented on this patch.  In order to consider this patch
-> further, I'm going to need to see comments from others, preferably
-> those with a background in supporting SELinux policy.
+> Link the utilities statically with libsepol due to usages of non public
+> exported interfaces.
+
+It would be nice to export these interfaces.  I'd add them to setools.
+
+
+> sepol_check_access:
+>    (similar to selinux_check_access)
+>    Check access:
 > 
-> Also, while I'm sure you are already well aware of this, I think it is
-> worth mentioning that SELinux does apply access controls when file
-> descriptors are inherited across an exec() boundary.
+>      $ sepol_check_access policy.bin staff_u:staff_r:gpg_t:s0 sysadm_u:sysadm_r:gpg_t:s0 process fork
+>      requested permission fork denied by constraint; reason:
+>      constrain process { fork setexec setfscreate setcurrent execmem execstack execheap setkeycreate setsockcreate } ((r1 == r2 -Fail-) ); Constraint DENIED
+>      constrain process { signull getsched getsession getpgid getcap getattr getrlimit } ((r1 == r2 -Fail-)  or (r1 != { staff_r user_r logadm_r apache2adm_r } -Fail-)  and (t1 == rbacproc_read -Fail-)  or (t1 == rbacproc_full -Fail-)  or (t1 == systemd_user_instance_domain -Fail-)  and (u2 == system_u -Fail-)  and (r2 == system_r -Fail-)  and (t2 == systemd_t -Fail-) ); Constraint DENIED
+>      constrain process { sigchld sigkill sigstop signal ptrace setsched setpgid setcap share setrlimit } ((r1 == r2 -Fail-)  or (r1 != { staff_r user_r logadm_r apache2adm_r } -Fail-)  and (t1 == rbacproc_full -Fail-)  or (t1 == systemd_user_instance_domain -Fail-)  and (u2 == system_u -Fail-)  and (r2 == system_r -Fail-)  and (t2 == systemd_t -Fail-) ); Constraint DENIED
+> 
+> sepol_compute_av:
+>    (similar to compute_av)
+>    Compute access vectors:
+> 
+>      $ sepol_compute_av policy.bin staff_u:staff_r:gpg_t:s0 staff_u:staff_r:gpg_t:s0 process
+>      allowed:     fork sigchld signull signal getsched setsched setpgid getcap setcap setrlimit
+>      decided:     fork transition sigchld sigkill sigstop signull signal ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit
+>      auditallow:
+>      auditdeny:   fork transition sigchld sigkill sigstop signull signal ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit
+> 
+> sepol_compute_member:
+>    (similar to compute_member)
+>    Compute a SID to use when selecting a member of a polyinstantiated object:
+> 
+>      $ sepol_compute_member policy.bin staff_u:staff_r:staff_t:s0 system_u:object_r:tmp_t:s0 dir
+>      system_u:object_r:user_tmp_t:s0
+> 
+> sepol_compute_relabel:
+>    (similar to compute_relabel)
+>    Compute a SID to use for relabeling an object:
+> 
+>      $ sepol_compute_relabel policy.bin staff_u:staff_r:staff_t:s0 system_u:object_r:tty_device_t:s0 chr_file
+>      staff_u:object_r:user_tty_device_t:s0
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>   libsepol/.gitignore                    |   4 +
+>   libsepol/utils/Makefile                |   2 +-
+>   libsepol/utils/sepol_check_access.c    | 130 +++++++++++++++++++++++++
+>   libsepol/utils/sepol_compute_av.c      |  66 +++++++++++++
+>   libsepol/utils/sepol_compute_member.c  |  64 ++++++++++++
+>   libsepol/utils/sepol_compute_relabel.c |  64 ++++++++++++
+>   6 files changed, 329 insertions(+), 1 deletion(-)
+>   create mode 100644 libsepol/utils/sepol_check_access.c
+>   create mode 100644 libsepol/utils/sepol_compute_av.c
+>   create mode 100644 libsepol/utils/sepol_compute_member.c
+>   create mode 100644 libsepol/utils/sepol_compute_relabel.c
+> 
+> diff --git a/libsepol/.gitignore b/libsepol/.gitignore
+> index 77bb5911..68cbe9b0 100644
+> --- a/libsepol/.gitignore
+> +++ b/libsepol/.gitignore
+> @@ -1,2 +1,6 @@
+>   utils/chkcon
+> +utils/sepol_check_access
+> +utils/sepol_compute_av
+> +utils/sepol_compute_member
+> +utils/sepol_compute_relabel
+>   libsepol.map
+> diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
+> index 31932c11..8e89bc96 100644
+> --- a/libsepol/utils/Makefile
+> +++ b/libsepol/utils/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>   CFLAGS ?= -Wall -Werror
+>   override CFLAGS += -I../include
+>   override LDFLAGS += -L../src
+> -override LDLIBS += -lsepol
+> +override LDLIBS += ../src/libsepol.a
+>   
+>   TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+>   
+> diff --git a/libsepol/utils/sepol_check_access.c b/libsepol/utils/sepol_check_access.c
+> new file mode 100644
+> index 00000000..d0470156
+> --- /dev/null
+> +++ b/libsepol/utils/sepol_check_access.c
+> @@ -0,0 +1,130 @@
+> +#include <errno.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +
+> +#include <sepol/policydb/services.h>
+> +#include <sepol/sepol.h>
+> +
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	FILE *fp;
+> +	sepol_security_id_t ssid, tsid;
+> +	sepol_security_class_t tclass;
+> +	const char *permlist;
+> +	sepol_access_vector_t av;
+> +	struct sepol_av_decision avd;
+> +	unsigned int reason;
+> +	char *reason_buf;
+> +	int i;
+> +
+> +	if (argc != 6) {
+> +		printf("usage:  %s policy source_context target_context class permission[,permission2[,...]]\n", argv[0]);
+> +		return 1;
+> +	}
+> +
+> +	fp = fopen(argv[1], "r");
+> +	if (!fp) {
+> +		fprintf(stderr, "Can't open policy %s:  %s\n", argv[1], strerror(errno));
+> +		return 1;
+> +	}
+> +	if (sepol_set_policydb_from_file(fp) < 0) {
+> +		fprintf(stderr, "Error while processing policy %s:  %s\n", argv[1], strerror(errno));
+> +		fclose(fp);
+> +		return 1;
+> +	}
+> +	fclose(fp);
+> +
+> +	if (sepol_context_to_sid(argv[2], strlen(argv[2]), &ssid) < 0) {
+> +		fprintf(stderr, "Invalid source context %s\n", argv[2]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_context_to_sid(argv[3], strlen(argv[3]), &tsid) < 0) {
+> +		fprintf(stderr, "Invalid target context %s\n", argv[3]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_string_to_security_class(argv[4], &tclass) < 0) {
+> +		fprintf(stderr, "Invalid security class %s\n", argv[4]);
+> +		return 1;
+> +	}
+> +
+> +	permlist = argv[5];
+> +	do {
+> +		char *tmp = NULL;
+> +		const char *perm;
+> +		const char *delim = strchr(permlist, ',');
+> +
+> +		if (delim) {
+> +			tmp = strndup(permlist, delim - permlist);
+> +			if (!tmp) {
+> +				fprintf(stderr, "Failed to allocate memory:  %s\n", strerror(errno));
+> +				return 1;
+> +			}
+> +		}
+> +
+> +		perm = tmp ? tmp : permlist;
+> +
+> +		if (sepol_string_to_av_perm(tclass, perm, &av) < 0) {
+> +			fprintf(stderr, "Invalid permission %s for security class %s:  %s\n", perm, argv[4], strerror(errno));
+> +			free(tmp);
+> +			return 1;
+> +		}
+> +
+> +		free(tmp);
+> +
+> +		permlist = strchr(permlist, ',');
+> +	} while (permlist++);
+> +
+> +	if (av == 0) {
+> +		fprintf(stderr, "Empty permission set computed from %s\n", argv[5]);
+> +		return 1;
+> +	}
+> +	
+> +	if (sepol_compute_av_reason_buffer(ssid, tsid, tclass, av, &avd, &reason, &reason_buf, 0) < 0) {
+> +		fprintf(stderr, "Failed to compute av decision:  %s\n", strerror(errno));
+> +		return 1;
+> +	}
+> +
+> +	if ((avd.allowed & av) == av) {
+> +		printf("requested permission %s allowed\n", argv[5]);
+> +		free(reason_buf);
+> +		return 0;
+> +	}
+> +
+> +	printf("requested permission %s denied by ", argv[5]);
+> +	i = 0;
+> +	if (reason & SEPOL_COMPUTEAV_TE) {
+> +		printf("te-rule");
+> +		i++;
+> +	}
+> +	if (reason & SEPOL_COMPUTEAV_CONS) {
+> +		if (i > 0)
+> +			printf(", ");
+> +		printf("constraint");
+> +		i++;
+> +	}
+> +	if (reason & SEPOL_COMPUTEAV_RBAC) {
+> +		if (i > 0)
+> +			printf(", ");
+> +		printf("transition-constraint");
+> +		i++;
+> +	}
+> +	if (reason & SEPOL_COMPUTEAV_BOUNDS) {
+> +		if (i > 0)
+> +			printf(", ");
+> +		printf("type-bound");
+> +		//i++;
+> +	}
+> +
+> +	if ((reason & SEPOL_COMPUTEAV_CONS) && reason_buf)
+> +		printf("; reason:\n%s", reason_buf);
+> +
+> +	free(reason_buf);
+> +
+> +	printf("\n");
+> +
+> +	return 7;		
+> +}
+> diff --git a/libsepol/utils/sepol_compute_av.c b/libsepol/utils/sepol_compute_av.c
+> new file mode 100644
+> index 00000000..d64dc31d
+> --- /dev/null
+> +++ b/libsepol/utils/sepol_compute_av.c
+> @@ -0,0 +1,66 @@
+> +#include <errno.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +
+> +#include <sepol/policydb/services.h>
+> +#include <sepol/sepol.h>
+> +
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	FILE *fp;
+> +	sepol_security_id_t ssid, tsid;
+> +	sepol_security_class_t tclass;
+> +	struct sepol_av_decision avd;
+> +	int rc;
+> +
+> +	if (argc != 5) {
+> +		printf("usage:  %s policy scontext tcontext tclass\n", argv[0]);
+> +		return 1;
+> +	}
+> +
+> +	fp = fopen(argv[1], "r");
+> +	if (!fp) {
+> +		fprintf(stderr, "Can't open policy %s:  %s\n", argv[1], strerror(errno));
+> +		return 1;
+> +	}
+> +	if (sepol_set_policydb_from_file(fp) < 0) {
+> +		fprintf(stderr, "Error while processing policy %s:  %s\n", argv[1], strerror(errno));
+> +		fclose(fp);
+> +		return 1;
+> +	}
+> +	fclose(fp);
+> +
+> +	if (sepol_context_to_sid(argv[2], strlen(argv[2]), &ssid) < 0) {
+> +		fprintf(stderr, "Invalid source context %s\n", argv[2]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_context_to_sid(argv[3], strlen(argv[3]), &tsid) < 0) {
+> +		fprintf(stderr, "Invalid target context %s\n", argv[3]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_string_to_security_class(argv[4], &tclass) < 0) {
+> +		fprintf(stderr, "Invalid security class %s\n", argv[4]);
+> +		return 1;
+> +	}
+> +
+> +	rc = sepol_compute_av(ssid, tsid, tclass, 0, &avd);
+> +	switch (rc) {
+> +	case 0:
+> +		printf("allowed:    %s\n", sepol_av_perm_to_string(tclass, avd.allowed));
+> +		printf("decided:    %s\n", sepol_av_perm_to_string(tclass, avd.decided));
+> +		printf("auditallow: %s\n", sepol_av_perm_to_string(tclass, avd.auditallow));
+> +		printf("auditdeny:  %s\n", sepol_av_perm_to_string(tclass, avd.auditdeny));
+> +		break;
+> +	case -EINVAL:
+> +		printf("Invalid request\n");
+> +		break;
+> +	default:
+> +		printf("Failed to compute av decision: %d\n", rc);
+> +	}
+> +
+> +	return rc != 0;
+> +}
+> diff --git a/libsepol/utils/sepol_compute_member.c b/libsepol/utils/sepol_compute_member.c
+> new file mode 100644
+> index 00000000..3d67335d
+> --- /dev/null
+> +++ b/libsepol/utils/sepol_compute_member.c
+> @@ -0,0 +1,64 @@
+> +#include <errno.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +
+> +#include <sepol/policydb/services.h>
+> +#include <sepol/sepol.h>
+> +
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	FILE *fp;
+> +	sepol_security_id_t ssid, tsid, out_sid;
+> +	sepol_security_class_t tclass;
+> +	char *context;
+> +	size_t context_len;
+> +	
+> +	if (argc != 5) {
+> +		printf("usage:  %s policy scontext tcontext tclass\n", argv[0]);
+> +		return 1;
+> +	}
+> +
+> +	fp = fopen(argv[1], "r");
+> +	if (!fp) {
+> +		fprintf(stderr, "Can't open policy %s:  %s\n", argv[1], strerror(errno));
+> +		return 1;
+> +	}
+> +	if (sepol_set_policydb_from_file(fp) < 0) {
+> +		fprintf(stderr, "Error while processing policy %s:  %s\n", argv[1], strerror(errno));
+> +		fclose(fp);
+> +		return 1;
+> +	}
+> +	fclose(fp);
+> +
+> +	if (sepol_context_to_sid(argv[2], strlen(argv[2]), &ssid) < 0) {
+> +		fprintf(stderr, "Invalid source context %s\n", argv[2]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_context_to_sid(argv[3], strlen(argv[3]), &tsid) < 0) {
+> +		fprintf(stderr, "Invalid target context %s\n", argv[3]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_string_to_security_class(argv[4], &tclass) < 0) {
+> +		fprintf(stderr, "Invalid security class %s\n", argv[4]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_member_sid(ssid, tsid, tclass, &out_sid) < 0) {
+> +		fprintf(stderr, "Failed to compute member sid:  %s\n", strerror(errno));
+> +		return 1;
+> +	}
+> +	
+> +	if (sepol_sid_to_context(out_sid, &context, &context_len) < 0) {
+> +		fprintf(stderr, "Failed to convert sid %u:  %s\n", out_sid, strerror(errno));
+> +		return 1;
+> +	}
+> +
+> +	printf("%s\n", context);
+> +	free(context);
+> +
+> +	return 0;
+> +}
+> diff --git a/libsepol/utils/sepol_compute_relabel.c b/libsepol/utils/sepol_compute_relabel.c
+> new file mode 100644
+> index 00000000..db664ce8
+> --- /dev/null
+> +++ b/libsepol/utils/sepol_compute_relabel.c
+> @@ -0,0 +1,64 @@
+> +#include <errno.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +
+> +#include <sepol/policydb/services.h>
+> +#include <sepol/sepol.h>
+> +
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	FILE *fp;
+> +	sepol_security_id_t ssid, tsid, out_sid;
+> +	sepol_security_class_t tclass;
+> +	char *context;
+> +	size_t context_len;
+> +	
+> +	if (argc != 5) {
+> +		printf("usage:  %s policy scontext tcontext tclass\n", argv[0]);
+> +		return 1;
+> +	}
+> +
+> +	fp = fopen(argv[1], "r");
+> +	if (!fp) {
+> +		fprintf(stderr, "Can't open policy %s:  %s\n", argv[1], strerror(errno));
+> +		return 1;
+> +	}
+> +	if (sepol_set_policydb_from_file(fp) < 0) {
+> +		fprintf(stderr, "Error while processing policy %s:  %s\n", argv[1], strerror(errno));
+> +		fclose(fp);
+> +		return 1;
+> +	}
+> +	fclose(fp);
+> +
+> +	if (sepol_context_to_sid(argv[2], strlen(argv[2]), &ssid) < 0) {
+> +		fprintf(stderr, "Invalid source context %s\n", argv[2]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_context_to_sid(argv[3], strlen(argv[3]), &tsid) < 0) {
+> +		fprintf(stderr, "Invalid target context %s\n", argv[3]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_string_to_security_class(argv[4], &tclass) < 0) {
+> +		fprintf(stderr, "Invalid security class %s\n", argv[4]);
+> +		return 1;
+> +	}
+> +
+> +	if (sepol_change_sid(ssid, tsid, tclass, &out_sid) < 0) {
+> +		fprintf(stderr, "Failed to compute changed sid:  %s\n", strerror(errno));
+> +		return 1;
+> +	}
+> +	
+> +	if (sepol_sid_to_context(out_sid, &context, &context_len) < 0) {
+> +		fprintf(stderr, "Failed to convert sid %u:  %s\n", out_sid, strerror(errno));
+> +		return 1;
+> +	}
+> +
+> +	printf("%s\n", context);
+> +	free(context);
+> +
+> +	return 0;
+> +}
 
 
-I don't have a strong opinion either way.  If one were to allow this 
-using a policy rule, it would result in a major policy breakage.  The 
-rule would turn on extended perm checks across the entire system, which 
-the SELinux Reference Policy isn't written for.  I can't speak to the 
-Android policy, but I would imagine it would be the similar problem 
-there too.
-
-
---
+-- 
 Chris PeBenito
