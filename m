@@ -2,146 +2,65 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18D2DC433F5
-	for <selinux@archiver.kernel.org>; Thu,  3 Feb 2022 23:44:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 394F3C433F5
+	for <selinux@archiver.kernel.org>; Fri,  4 Feb 2022 01:16:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347899AbiBCXoc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Feb 2022 18:44:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240707AbiBCXob (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Feb 2022 18:44:31 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5424C06173D
-        for <selinux@vger.kernel.org>; Thu,  3 Feb 2022 15:44:30 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id b13so9584143edn.0
-        for <selinux@vger.kernel.org>; Thu, 03 Feb 2022 15:44:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AmSNhDG6FW6yzlPpCdGKepqD+t+GFrCkOSovI2o4uvI=;
-        b=A/uDj8h0TiRQQH5mrt6TQPc7Y0azsfr7kb4qI+LVJLLCIDOWDLgOVwRohllzo5rrBM
-         CG8Kamrm7loe3c0ameljz4bFqOr7sxayOW1rPAn1UKBNZvmmWfVQewc8ecFDhYWp7IGY
-         MkMjo/8uJtaGlIPCHPDzS5S0rZLqI/3/YCIIQrmV9rQeJrKMBxRuddxkEiEBqkhJIK53
-         EoD2PuMhMpJgRI4sMzORjEZ9mK9WNlSsc+nN3lxtJn/92xGkVVA+BdNMfMwYBembFmn6
-         Q1rSzs8uiS8ZXk4qLq1MQP+m6YxXHxzHFwZyq/+3G/bTvcQI1tMLeDTAt96B87dK+3cz
-         kk4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AmSNhDG6FW6yzlPpCdGKepqD+t+GFrCkOSovI2o4uvI=;
-        b=Z3bsD0j2Tz/uVnsqNAmuICjwx+cU6iWLxsxtNZXm9Nn0ji0akVW5zCXdCpQa1Hl6T6
-         DQZydMiJ+qN10vwDyPUwpBnXyKLAOm82Ix8IhKAqL84Ur7kCzrv5KPCL+edjim6yIjD6
-         GNRpo/Akzm9J7Dx8PMEHy7xvC5Ums2Oja7WzEwDlV3a220dUSOz8jrzA+cf/CvvCjYlA
-         jI5Cu6eTfi9qp4sWwnFnyZHUWoojudVhbN/v+mO7X1+1ZnwBj7YycQ/QPK53D6Wv9E88
-         puOKd3XvPgssr8SRqoXL1j+6Nu0/bSDULOAW3d7lGlUJvlEI+fY3XivUVXHLuM6JLWnA
-         54kQ==
-X-Gm-Message-State: AOAM533pk2kTj83S+qT+BtaUsNiD5osq2O0BjlaoIizKe2NPfz0V0p2t
-        /ezLDiyhXTDNOiGu1kRBQyeg7WF/YhTy0phs6Hyp
-X-Google-Smtp-Source: ABdhPJxGEVmy+RObrcV0WQWV29B0TcmCAkYfMWGOM+Q9bEEISBaNbVM2Z5RBpMjztX8L3SEpdMZRdHZ0sHH6jJrCBQ8=
-X-Received: by 2002:aa7:dcc9:: with SMTP id w9mr550521edu.434.1643931869390;
- Thu, 03 Feb 2022 15:44:29 -0800 (PST)
-MIME-Version: 1.0
-References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
- <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
- <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
- <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
- <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
-In-Reply-To: <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 3 Feb 2022 18:44:18 -0500
-Message-ID: <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
-To:     Demi Marie Obenour <demiobenour@gmail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1356476AbiBDBQg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Feb 2022 20:16:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55948 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236075AbiBDBQe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Feb 2022 20:16:34 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 550C8B83569;
+        Fri,  4 Feb 2022 01:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 27835C340EF;
+        Fri,  4 Feb 2022 01:16:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643937392;
+        bh=1XuypAmeblLioyIiAUzheUUKqXHjvQ4MlJ00JIZ2RZE=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=ayOKPLJMHfbtHrK6XFHFhDuYjk6InXupcq2HHfzpKFdhObvc1vRjOFgThJT7WoB7H
+         8VLyQR4huuprrPtR7XMc7Sp6PVWH3Y88/Nk+cSah1WANinENZc4OSUGwQNMiYr/c2J
+         WSiTMMh22Tqgzxj4B73hRLBbfWstneMNWJIf3Rd2Qiy/m0umxU6eRrvwsRwBRvj+7C
+         3O45npCAq29mhHawU4Sxp1/2mNCwSmk0/42sbJ/phJi5NqHVasTwhsrWLaBRSEidB5
+         0U/oW1bbMeWwl5nX6FoDLvKuwEsaXS9AE7JxG3WsM79HmcQXuetYC5AKSyFzdK3eL/
+         b8wOrCDj5wL3w==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1338AE6BB30;
+        Fri,  4 Feb 2022 01:16:32 +0000 (UTC)
+Subject: Re: [GIT PULL] SELinux fixes for v5.17 (#1)
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhQcLpAAXgs1oqB2WvturqvkMguYM40d=AK+LDSTnzAARg@mail.gmail.com>
+References: <CAHC9VhQcLpAAXgs1oqB2WvturqvkMguYM40d=AK+LDSTnzAARg@mail.gmail.com>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhQcLpAAXgs1oqB2WvturqvkMguYM40d=AK+LDSTnzAARg@mail.gmail.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20220203
+X-PR-Tracked-Commit-Id: 186edf7e368c40d06cf727a1ad14698ea67b74ad
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 551007a8f10afdc45959ad637d6bee816716769f
+Message-Id: <164393739207.12311.8616946332803165738.pr-tracker-bot@kernel.org>
+Date:   Fri, 04 Feb 2022 01:16:32 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 2, 2022 at 5:13 AM Demi Marie Obenour <demiobenour@gmail.com> wrote:
-> On 2/1/22 12:26, Paul Moore wrote:
-> > On Sat, Jan 29, 2022 at 10:40 PM Demi Marie Obenour
-> > <demiobenour@gmail.com> wrote:
-> >> On 1/26/22 17:41, Paul Moore wrote:
-> >>> On Tue, Jan 25, 2022 at 5:50 PM Demi Marie Obenour
-> >>> <demiobenour@gmail.com> wrote:
-> >>>> On 1/25/22 17:27, Paul Moore wrote:
-> >>>>> On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
-> >>>>> <demiobenour@gmail.com> wrote:
-> >>>>>>
-> >>>>>> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-> >>>>>> always allows too.  Furthermore, a failed FIOCLEX could result in a file
-> >>>>>> descriptor being leaked to a process that should not have access to it.
-> >>>>>>
-> >>>>>> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
-> >>>>>> ---
-> >>>>>>  security/selinux/hooks.c | 5 +++++
-> >>>>>>  1 file changed, 5 insertions(+)
-> >>>>>
-> >>>>> I'm not convinced that these two ioctls should be exempt from SELinux
-> >>>>> policy control, can you explain why allowing these ioctls with the
-> >>>>> file:ioctl permission is not sufficient for your use case?  Is it a
-> >>>>> matter of granularity?
-> >>>>
-> >>>> FIOCLEX and FIONCLEX are applicable to *all* file descriptors, not just
-> >>>> files.  If I want to allow them with SELinux policy, I have to grant
-> >>>> *:ioctl to all processes and use xperm rules to determine what ioctls
-> >>>> are actually allowed.  That is incompatible with existing policies and
-> >>>> needs frequent maintenance when new ioctls are added.
-> >>>>
-> >>>> Furthermore, these ioctls do not allow one to do anything that cannot
-> >>>> already be done by fcntl(F_SETFD), and (unless I have missed something)
-> >>>> SELinux unconditionally allows that.  Therefore, blocking these ioctls
-> >>>> does not improve security, but does risk breaking userspace programs.
-> >>>> The risk is especially great because in the absence of SELinux, I
-> >>>> believe FIOCLEX and FIONCLEX *will* always succeed, and userspace
-> >>>> programs may rely on this.  Worse, if a failure of FIOCLEX is ignored,
-> >>>> a file descriptor can be leaked to a child process that should not have
-> >>>> access to it, but which SELinux allows access to.  Userspace
-> >>>> SELinux-naive sandboxes are one way this could happen.  Therefore,
-> >>>> blocking FIOCLEX may *create* a security issue, and it cannot solve one.
-> >>>
-> >>> I can see you are frustrated with my initial take on this, but please
-> >>> understand that excluding an operation from the security policy is not
-> >>> something to take lightly and needs discussion.  I've added the
-> >>> SELinux refpolicy list to this thread as I believe their input would
-> >>> be helpful here.
-> >>
-> >> Absolutely it is not something that should be taken lightly, though I
-> >> strongly believe it is correct in this case.  Is one of my assumptions
-> >> mistaken?
-> >
-> > My concern is that there is a distro/admin somewhere which is relying
-> > on their SELinux policy enforcing access controls on these ioctls and
-> > removing these controls would cause them a regression.
->
-> I obviously do not have visibility into all systems, but I suspect that
-> nobody is actually relying on this.  Setting and clearing CLOEXEC via
-> fcntl is not subject to SELinux restrictions, so blocking FIOCLEX
-> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD) is
-> blocked by seccomp or another LSM.  Clearing close-on-exec can also be
-> implemented with dup2(), and setting it can be implemented with dup3()
-> and F_DUPFD_CLOEXEC (which SELinux also allows).  In short, I believe
-> that unconditionally allowing FIOCLEX and FIONCLEX may fix real-world
-> problems, and that it is highly unlikely that anyone is relying on the
-> current behavior.
+The pull request you sent on Thu, 3 Feb 2022 17:30:43 -0500:
 
-I understand your point, but I remain concerned about making a kernel
-change for something that can be addressed via policy.  I'm also
-concerned that in the nine days this thread has been on both the mail
-SELinux developers and refpolicy lists no one other than you and I
-have commented on this patch.  In order to consider this patch
-further, I'm going to need to see comments from others, preferably
-those with a background in supporting SELinux policy.
+> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20220203
 
-Also, while I'm sure you are already well aware of this, I think it is
-worth mentioning that SELinux does apply access controls when file
-descriptors are inherited across an exec() boundary.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/551007a8f10afdc45959ad637d6bee816716769f
+
+Thank you!
 
 -- 
-paul-moore.com
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
