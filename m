@@ -2,93 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED5B0C433EF
-	for <selinux@archiver.kernel.org>; Mon,  7 Feb 2022 18:58:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE8FC433F5
+	for <selinux@archiver.kernel.org>; Mon,  7 Feb 2022 18:59:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233772AbiBGS5m (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Feb 2022 13:57:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35736 "EHLO
+        id S234917AbiBGS7I (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Feb 2022 13:59:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239092AbiBGSzh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Feb 2022 13:55:37 -0500
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE28AC0401DC
-        for <selinux@vger.kernel.org>; Mon,  7 Feb 2022 10:55:36 -0800 (PST)
-Received: by mail-ot1-x334.google.com with SMTP id j38-20020a9d1926000000b0059fa6de6c71so11592189ota.10
-        for <selinux@vger.kernel.org>; Mon, 07 Feb 2022 10:55:36 -0800 (PST)
+        with ESMTP id S236550AbiBGS4e (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Feb 2022 13:56:34 -0500
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D735C0401DA
+        for <selinux@vger.kernel.org>; Mon,  7 Feb 2022 10:56:33 -0800 (PST)
+Received: by mail-oi1-x22e.google.com with SMTP id ay7so4096725oib.8
+        for <selinux@vger.kernel.org>; Mon, 07 Feb 2022 10:56:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=HLHcQpnmmLr5fD0Y0BeC0ScUaYVGh6aOjiWvI6sOWeY=;
-        b=mwU6vQHKnlL4ePKAs018Uwz6QL1t6LfJxBn1a3O0ITWLlll8euugpv2ACX1cGoox0l
-         zXKRMMOyfNRGbiVg4meDMbhoyLIgZ4H1Vswx9TPjs3rTSbKFHsbfLZ1HnbllEQI+2UI1
-         xlgzWgb6vfqxAOEuKBkk2+i52bJD2UjhjFz4Y1gSDXT3pmDAze9qTCq45TYaKr28QJTO
-         jF0+2oUsgZzTHXrU+/AwVCOTZhscZ5xSvouEcWYTq2Aj466RYM3Rh+k9suJNBkJH5Zau
-         j0f9QLXwBYGQfbwOT5cDxTFKrg0O5HThJQ3EDl+Sn8IDd9OkkC5EsCF1YdWramGkrxKl
-         Mpkw==
+        bh=cUzAw8DAWRmA7WxGUsdznJk+Do8v8LTPWp3lMGqvM6o=;
+        b=YzueVyJbBNA4x1GBbyRqN/KUZ9egg9buI+uCDPZTNCifsc6/aTDeWzYY0b+fLsPciB
+         dyAScnzhpeFfartCks2dMa+sLis6JQW0DBW0qFYl9bVK2t0ugd/4ZQqCIXHzTZiyX+p3
+         3bcLIPAjFHJBwNs7ft1aukfUBrUB6cUzjxztfXYBcwNyOXQApwYA1sAHzdYPmi4KZ/45
+         BQzR5SiF9ce+ulQAMwbnU1hlw5Ml/ux+StuS7TFd1PLgbETGD4tCPjmHQmrT/60TxMOo
+         dOfymXdvgj+D7N+/e8sTv640gtdfPYqUDMl2uGhlL7uA1qoIKH1es8cBqlCeaBs6Dlpk
+         431g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to;
-        bh=HLHcQpnmmLr5fD0Y0BeC0ScUaYVGh6aOjiWvI6sOWeY=;
-        b=hqHOnn2KUxlQwy/71Z50FsOKMTm7s+CWDpHju4g7GKbUGwZEj2yulozdu9JbM/o9ep
-         KUFjIriBzSvc+yaWWEdumBEr9e1ew2+OAusJhGu0ChZmYq3+tvcdjArHHwIUvrOaz9JO
-         l0jLLocQJ+OAt6LwzHfs6WJ0VN1QbU/0zf2lk+LN3i0uEgUjvDYUhZhAvg8gdPyCvZZj
-         ObRSQOaUON+YMiXZwZLgY+kJtjSQGj2YT7XFCuSUWaFVaKIIKryzodlZLsddC7YdsV9v
-         byQnswzmVVCVNurlkjlQGFfkmCgYu8u5GovmTFXQ1zP95NcMNxJC46RVG9MAOjtt5BQw
-         VBhg==
-X-Gm-Message-State: AOAM533aoufuoqGDJHNf12cbNRa5wN1kvsWHP5BHDRyt9m0+l89FNQoX
-        MfXyq9/kZoYDsZP/m5RaeswysCN7k0u1jamQlZQYW9Zn
-X-Google-Smtp-Source: ABdhPJzPMd1d+MhydQlJNqa0Q3hh5ju/oEtZcD6Gj9QQzKzZC1TrBYVpyZXBCpYMZ0CQIXB6fhJYTq3ki60tzStKdDw=
-X-Received: by 2002:a9d:70cf:: with SMTP id w15mr513594otj.154.1644260135948;
- Mon, 07 Feb 2022 10:55:35 -0800 (PST)
+        bh=cUzAw8DAWRmA7WxGUsdznJk+Do8v8LTPWp3lMGqvM6o=;
+        b=aK1xaxDBWs4oY+Bf7EMomDrW+YtrBKhih6CBVyJ++193+doYvuNzHeeTNKeaf7MCJq
+         Yrmif/ionlBemK994TH0nDizsCJgj1fHP/XUVANxPKZYU4idLxVv2aqfOGldhB7zriWB
+         YjcwEiFrBU/bplm8Y14WvGcuKz6ChpZy30z0/3s+aqgAc8Jc86k3YwuQr5Xy7b4jdho1
+         509h6REmw2Cij92mz5MfXDxfj6PUT3gDJXdDsNvEwcTh/d5018PFfnSDNuKyaIINPlHt
+         NvP/CkH0UiB7f9WOjA+nzKHfJqIC3YUr3Izn4goteHC4NRq5GQeGqO9d0+rYj4psL8AA
+         9Z7A==
+X-Gm-Message-State: AOAM530Lpcc9kUoizj0qp9/ygH6d3JPhIAasa60WReBWdPmc4pD4tC9I
+        uK5PqOYyd1XIPyNuqz1dyRhFkeUQ4Li7dwCfAN7/ohf7
+X-Google-Smtp-Source: ABdhPJyWQCPgDF5jkttmJTUDJoRE6yNZgDjsF976jhv0zf4rjr6AgJ3rqivDKpbeseu6z5erSsxuUHx9HXjZ7GO6VeU=
+X-Received: by 2002:a54:408e:: with SMTP id i14mr169314oii.200.1644260192910;
+ Mon, 07 Feb 2022 10:56:32 -0800 (PST)
 MIME-Version: 1.0
-References: <20220105211602.359300-1-jwcart2@gmail.com>
-In-Reply-To: <20220105211602.359300-1-jwcart2@gmail.com>
+References: <20220113160422.675541-1-jwcart2@gmail.com>
+In-Reply-To: <20220113160422.675541-1-jwcart2@gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 7 Feb 2022 13:55:25 -0500
-Message-ID: <CAP+JOzThuDcN_RpT8oZw-NBos0LbxEt=BkK5jgKGRV_skPadtw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol/cil: Do not copy blockabstracts when
- inheriting a block
+Date:   Mon, 7 Feb 2022 13:56:22 -0500
+Message-ID: <CAP+JOzRcW_izEVpxwG8m099O6tK-UWEUfBebVyzfsaJLikzFUQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Ensure that the class in a classcommon is a
+ kernel class
 To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-FYI, I plan on merging this series at the end of the week. If anyone
-has any objections, please let me know.
+I also plan on merging this patch at the end of the week.
 Jim
 
-On Wed, Jan 5, 2022 at 4:16 PM James Carter <jwcart2@gmail.com> wrote:
+
+On Thu, Jan 13, 2022 at 11:04 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> Do not copy any blockabstract statements when copying a block to
-> resolve a blockinherit statement. Inheriting a block from what was
-> just inherited does not work, so there is no reason to create an
-> abstract block.
+> Map classes use the same struct as kernel classes, but only the kernel
+> class uses the pointer to a common class. When resolving a classcommon,
+> make sure that the class that is found is a kernel class and not a
+> map class. If not, then return an error.
+>
+> Found by oss-fuzz (#43209)
 >
 > Signed-off-by: James Carter <jwcart2@gmail.com>
 > ---
->  libsepol/cil/src/cil_copy_ast.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+>  libsepol/cil/src/cil_resolve_ast.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
-> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> index 2fad972c..a4ead9db 100644
-> --- a/libsepol/cil/src/cil_copy_ast.c
-> +++ b/libsepol/cil/src/cil_copy_ast.c
-> @@ -1725,6 +1725,12 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void
->                 copy_func = &cil_copy_block;
->                 break;
->         case CIL_BLOCKABSTRACT:
-> +               if (args->orig_dest->flavor == CIL_BLOCKINHERIT) {
-> +                       /* When inheriting a block, don't copy any blockabstract
-> +                        * statements. Inheriting a block from a block that was
-> +                        * just inherited never worked. */
-> +                       return SEPOL_OK;
-> +               }
->                 copy_func = &cil_copy_blockabstract;
->                 break;
->         case CIL_BLOCKINHERIT:
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> index e97a9f46..d359eca0 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -754,6 +754,11 @@ int cil_resolve_classcommon(struct cil_tree_node *current, void *extra_args)
+>         if (rc != SEPOL_OK) {
+>                 goto exit;
+>         }
+> +       if (NODE(class_datum)->flavor != CIL_CLASS) {
+> +               cil_log(CIL_ERR, "Class %s is not a kernel class and cannot be associated with common %s\n", clscom->class_str, clscom->common_str);
+> +               rc = SEPOL_ERR;
+> +               goto exit;
+> +       }
+>
+>         rc = cil_resolve_name(current, clscom->common_str, CIL_SYM_COMMONS, extra_args, &common_datum);
+>         if (rc != SEPOL_OK) {
 > --
 > 2.31.1
 >
