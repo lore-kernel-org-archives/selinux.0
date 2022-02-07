@@ -2,144 +2,204 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2AB8C433FE
-	for <selinux@archiver.kernel.org>; Mon,  7 Feb 2022 17:43:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC31FC433F5
+	for <selinux@archiver.kernel.org>; Mon,  7 Feb 2022 18:38:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbiBGRnW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Feb 2022 12:43:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49264 "EHLO
+        id S235893AbiBGSiA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Feb 2022 13:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383073AbiBGRaK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Feb 2022 12:30:10 -0500
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90629C0401DB
-        for <selinux@vger.kernel.org>; Mon,  7 Feb 2022 09:30:09 -0800 (PST)
-Received: by mail-oo1-xc2b.google.com with SMTP id 189-20020a4a03c6000000b003179d7b30d8so3981728ooi.2
-        for <selinux@vger.kernel.org>; Mon, 07 Feb 2022 09:30:09 -0800 (PST)
+        with ESMTP id S243277AbiBGSfw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Feb 2022 13:35:52 -0500
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447C3C0401D9;
+        Mon,  7 Feb 2022 10:35:51 -0800 (PST)
+Received: by mail-yb1-xb32.google.com with SMTP id v47so17763415ybi.4;
+        Mon, 07 Feb 2022 10:35:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=M0LPW3W7JkIhPu35W5eC6z2CywTukhj2k2XItybg7Ao=;
-        b=NCOjq5yTauNaNPu7oeT2tdbTH/wNI/G6lG8E8CBVkuFI/mYyNW1vRwSsSVCYpclOGy
-         38Z5vXr+1Dl1x9L61MbXsPG/SLWjsyrhVjZ9C0cVyVz0tmD71SVuqN0iWcmOuFFo+Jnp
-         FfiShiNlAwhD2iLUqbeGWTHuNxCYhupL6hp+0SKhkKRw+ovAbU2+4xFegW5+3fk267SM
-         LsF/SkLVLJ7M95yipJEYQ/PiA//FvGACdXlwKXRpVO80DMlu9Hr6CM1qYxqaFUn7CiEq
-         /oEU/XFu7NXIbW0DvlvzLqlMjpKAOyxmwdwnr4YuFe5A3TEsusDmcxAaM/aW5tAw9RZO
-         u3Eg==
+         :cc;
+        bh=JkyKJ32mlnL8omIbMB7R7ZtW638Pf5NzrNqsinP/wu8=;
+        b=BnP9Q1t0nvetFBvIzDuAWk+RdtrgM5K0xF14+VtKb0XHbFcvkHhuPWqJ+NoIN69O0r
+         WVD/+J2s+ph6QeTBdocjTHRokUI80FJxb0CRH3IJOSFOo5mf5CNGiOmYXswJ39GQWAwG
+         afOFDVsJToAANM9EXP8CB6e396a3GA+N+5i/BEkpsy6b0dhili1NPK0bRoSE0jbm07gF
+         1eVQYJkM4JtNUq9D0Pl9dw1DvnA2fdOwv6784rkbKVtS1yGBXHUlSzaka2dHoaGRpIwM
+         LAenm+jaYzdn73dwdF+Syyu24iKsdWdP+3xWceQ+NwkBtr1HKQ1+JAXh7ZUFP7qqRyVK
+         iQcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=M0LPW3W7JkIhPu35W5eC6z2CywTukhj2k2XItybg7Ao=;
-        b=xrpU1u69g4xodbms/Ul0zVcsEfEO7OO5Fgv2gbe9/kvW8z8cAQCl8cUqTVoC0hjpFY
-         uIPTT+iAHmP1nho9KsL7lcivpGo0iPaZgFWvPcjQv0/Nszv6USHffaJKdFZ5HK11SjOe
-         OkX/PxNWvJBqXcyY/Dqo60HItsUgz2Ay5dycBPLsqzOvgOpOsx05hlg/IejPMWgBPMgq
-         JrhRHZnvIMpI2Jiv3SF79goH219g/EcJaWRvo5oDDO5PPhVRZvAstR1+PK0ETKrwbN4r
-         tlw4Wx3TkLmKcmPeuMnoYU0DMHl0LUFWM1PnyIEikl3KK1rYr3dPBbC20jYy1xecJah0
-         iP9Q==
-X-Gm-Message-State: AOAM532yFms5JbF6Oyk4kfkAMdnNAs5v6QyB/Hk9JC7Ugeau0NUxoYbW
-        DkikU2A/6lN6hYLRicSh/AQO+JGG4tNdtGEpJ2K23Yjf
-X-Google-Smtp-Source: ABdhPJx/Hr2fUEB4NjunAJda23gPa77OguQ9Y5EvBJzF+OZXrUoqNZXDqAfojZ6juOOt020/Zri87+NJ/htKxQwpX/k=
-X-Received: by 2002:a05:6871:506:: with SMTP id s6mr5008oal.62.1644255008816;
- Mon, 07 Feb 2022 09:30:08 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=JkyKJ32mlnL8omIbMB7R7ZtW638Pf5NzrNqsinP/wu8=;
+        b=y0IemRdKi7iLb6is14TnT3VfA20uE/wfdeS6yWkIfwJfs706pGhbguJ2iotaDg6oUg
+         5YsqSfOw/L9qzvnYiqGFgS/ti67OMwPnKKwyNnImvg7WaMMMXFiMyuNB99TgnFdR25K2
+         Ny481dACHt8vi7omKU8gZmedXlBVYYml5Hd+Utb8o6kjFqYLhIrC/QuWpFLrL2LT81Y+
+         BUCg9V/y40wmaQRy7SXIZwxO7iCQKg7G9VpnLvqdMpTUqpqI276f06uQQwUvSp4Rm7uA
+         jbi0ZCegPJW5jPPMtO4e72hPL3qmwvhMIhRwjUy1PaEMq43UUqclMQOwMhWlXyRYABIP
+         fZqQ==
+X-Gm-Message-State: AOAM533Bpn445u9ZSp+tx/9qKg0b+bz1df6wu9uOMahd94jQZSFm/2lF
+        vIE29wYv5DY/z4BPm1O0NK0cCYuo0thwq5kOJdQ=
+X-Google-Smtp-Source: ABdhPJzy6BCcR7qX2LzH5P4sIvrplNhKxCob+NiTLlZ7qPqQLq9wRXWoZggR/8JFwOT14c0TkoPCPmvIjwfg/4A2O3E=
+X-Received: by 2002:a81:8a84:: with SMTP id a126mr1149372ywg.317.1644258950373;
+ Mon, 07 Feb 2022 10:35:50 -0800 (PST)
 MIME-Version: 1.0
-References: <20220126145645.5236-1-cgzones@googlemail.com> <CAP+JOzTyxJzQz5yhnxWYXXeH-rQHz0ZupLcMjjAiG1W2879_uQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzTyxJzQz5yhnxWYXXeH-rQHz0ZupLcMjjAiG1W2879_uQ@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 7 Feb 2022 12:29:57 -0500
-Message-ID: <CAP+JOzQsk9PG=sCwqMb9dN95kuFXBEjPgzuYEgs7Xfsf8bhPoA@mail.gmail.com>
-Subject: Re: [PATCH] policycoreutils: handle argument counter of zero
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+ <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+ <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+ <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+ <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com> <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+ <CAFftDdpxmf4R9zPVGUUCFinST_2t8iW2SAJYG4e=3JeWtDowJw@mail.gmail.com> <7798e61c-eb22-7b19-0849-35e5bfccad8b@gmail.com>
+In-Reply-To: <7798e61c-eb22-7b19-0849-35e5bfccad8b@gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Mon, 7 Feb 2022 12:35:39 -0600
+Message-ID: <CAFftDdpXm3VubMW_d51uEM+F_6eSGZerJbVQ=c8w7B-L1zT+3Q@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+To:     Demi Marie Obenour <demiobenour@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 5:12 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, Feb 7, 2022 at 11:09 AM Demi Marie Obenour
+<demiobenour@gmail.com> wrote:
 >
-> On Wed, Jan 26, 2022 at 4:39 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
+> On 2/7/22 12:00, William Roberts wrote:
+> > On Mon, Feb 7, 2022 at 9:08 AM Paul Moore <paul@paul-moore.com> wrote:
+> >>
+> >> On Wed, Feb 2, 2022 at 5:13 AM Demi Marie Obenour <demiobenour@gmail.com> wrote:
+> >>> On 2/1/22 12:26, Paul Moore wrote:
+> >>>> On Sat, Jan 29, 2022 at 10:40 PM Demi Marie Obenour
+> >>>> <demiobenour@gmail.com> wrote:
+> >>>>> On 1/26/22 17:41, Paul Moore wrote:
+> >>>>>> On Tue, Jan 25, 2022 at 5:50 PM Demi Marie Obenour
+> >>>>>> <demiobenour@gmail.com> wrote:
+> >>>>>>> On 1/25/22 17:27, Paul Moore wrote:
+> >>>>>>>> On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
+> >>>>>>>> <demiobenour@gmail.com> wrote:
+> >>>>>>>>>
+> >>>>>>>>> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
+> >>>>>>>>> always allows too.  Furthermore, a failed FIOCLEX could result in a file
+> >>>>>>>>> descriptor being leaked to a process that should not have access to it.
+> >>>>>>>>>
+> >>>>>>>>> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
+> >>>>>>>>> ---
+> >>>>>>>>>  security/selinux/hooks.c | 5 +++++
+> >>>>>>>>>  1 file changed, 5 insertions(+)
+> >>>>>>>>
+> >>>>>>>> I'm not convinced that these two ioctls should be exempt from SELinux
+> >>>>>>>> policy control, can you explain why allowing these ioctls with the
+> >>>>>>>> file:ioctl permission is not sufficient for your use case?  Is it a
+> >>>>>>>> matter of granularity?
+> >>>>>>>
+> >>>>>>> FIOCLEX and FIONCLEX are applicable to *all* file descriptors, not just
+> >>>>>>> files.  If I want to allow them with SELinux policy, I have to grant
+> >>>>>>> *:ioctl to all processes and use xperm rules to determine what ioctls
+> >>>>>>> are actually allowed.  That is incompatible with existing policies and
+> >>>>>>> needs frequent maintenance when new ioctls are added.
+> >>>>>>>
+> >>>>>>> Furthermore, these ioctls do not allow one to do anything that cannot
+> >>>>>>> already be done by fcntl(F_SETFD), and (unless I have missed something)
+> >>>>>>> SELinux unconditionally allows that.  Therefore, blocking these ioctls
+> >>>>>>> does not improve security, but does risk breaking userspace programs.
+> >>>>>>> The risk is especially great because in the absence of SELinux, I
+> >>>>>>> believe FIOCLEX and FIONCLEX *will* always succeed, and userspace
+> >>>>>>> programs may rely on this.  Worse, if a failure of FIOCLEX is ignored,
+> >>>>>>> a file descriptor can be leaked to a child process that should not have
+> >>>>>>> access to it, but which SELinux allows access to.  Userspace
+> >>>>>>> SELinux-naive sandboxes are one way this could happen.  Therefore,
+> >>>>>>> blocking FIOCLEX may *create* a security issue, and it cannot solve one.
+> >>>>>>
+> >>>>>> I can see you are frustrated with my initial take on this, but please
+> >>>>>> understand that excluding an operation from the security policy is not
+> >>>>>> something to take lightly and needs discussion.  I've added the
+> >>>>>> SELinux refpolicy list to this thread as I believe their input would
+> >>>>>> be helpful here.
+> >>>>>
+> >>>>> Absolutely it is not something that should be taken lightly, though I
+> >>>>> strongly believe it is correct in this case.  Is one of my assumptions
+> >>>>> mistaken?
+> >>>>
+> >>>> My concern is that there is a distro/admin somewhere which is relying
+> >>>> on their SELinux policy enforcing access controls on these ioctls and
+> >>>> removing these controls would cause them a regression.
+> >>>
+> >>> I obviously do not have visibility into all systems, but I suspect that
+> >>> nobody is actually relying on this.  Setting and clearing CLOEXEC via
+> >>> fcntl is not subject to SELinux restrictions, so blocking FIOCLEX
+> >>> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD) is
+> >>> blocked by seccomp or another LSM.  Clearing close-on-exec can also be
+> >>> implemented with dup2(), and setting it can be implemented with dup3()
+> >>> and F_DUPFD_CLOEXEC (which SELinux also allows).  In short, I believe
+> >>> that unconditionally allowing FIOCLEX and FIONCLEX may fix real-world
+> >>> problems, and that it is highly unlikely that anyone is relying on the
+> >>> current behavior.
+> >>
+> >> I understand your point, but I remain concerned about making a kernel
+> >> change for something that can be addressed via policy.  I'm also
+> >> concerned that in the nine days this thread has been on both the mail
+> >> SELinux developers and refpolicy lists no one other than you and I
+> >> have commented on this patch.  In order to consider this patch
+> >> further, I'm going to need to see comments from others, preferably
+> >> those with a background in supporting SELinux policy.
+> >>
 > >
-> > The number of arguments passed to main(), argc, can be zero if the
-> > pathname passed to execve(2) is NULL, e.g. via:
+> > AFAIK/AFAICT Android makes no reference to F_SETFD, and tracing the code
+> > does seem to be ignored, and the code for FIOCLEX FIONCLEX calls into
+> > the same kernel routine set_close_on_exec().
+> > Considering that Android's bionic contains support for "e" flag to
+> > fopen, and it's
+> > used in a lot of places, makes me more sure the check is skipped for F_SETFD
 > >
-> >     execve("/path/to/exe", {NULL}, {NULL});
+> > However, Android does make reference to FIOCLEX FIONCLEX and every
+> > domain has it enabled:
+> > domain.te:allowxperm domain { file_type fs_type domain dev_type }:{
+> > dir notdevfile_class_set blk_file } ioctl { FIOCLEX FIONCLEX };
+> > domain.te:allowxperm domain tun_device:chr_file ioctl { FIOCLEX FIONCLEX };
 > >
-> > Also avoid NULL pointer dereferences on the argument value.
+> > Refpolicy doesn't use xperm AFAICT.
 > >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > I stayed quiet, I wouldn't ack on this myself, but the premise seems
+> > correct and we
+> > can safely drop this. Note that I didn't review the code. But we need
+> > to ensure we handle
+> > policy correctly and not break anything. I'm not sure what the
+> > compilers are doing
+> > for validation of policy macro values, but we would probably want to
+> > mark it deprecated,
+> > but still allow loading of old compiled policies.
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Loading of policies is not impacted.  My patch simply skips the
+> checks for FIOCLEX and FIONCLEX, instead unconditionally allowing the
+> operation.  This is actually *more* selective than anything that can
+> be done via policy, as my patch checks the entire ioctl number whereas
+> policy can only check the low 16 bits.  As such, it is safer than using
+> policy to allow FIOCLEX and FIONCLEX system-wide: if my patch causes an
+> ioctl to be allowed, it is guaranteed that that ioctl will change the
+> close-on-exec flag and have no other effect.
 >
 
-Merged.
-Thanks,
-Jim
+What I meant by my comment is that patching the kernel is only 1/2 the
+problem. We
+still need to coordinate with existing policies to deprecate that out,
+but since it's just
+Android (AFIAK), that's pretty simple to do. I just want to make sure
+we don't leave
+confusing cruft floating around. I looked more at how they do xperms
+in Android, and it's just
+an m4 macro to a number. So we would want to coordinate a patch into the kernel
+with a patch that drops that from Android policy.
 
-> > ---
-> >  policycoreutils/run_init/open_init_pty.c | 2 +-
-> >  policycoreutils/secon/secon.c            | 3 +++
-> >  policycoreutils/setfiles/setfiles.c      | 6 +++++-
-> >  3 files changed, 9 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/policycoreutils/run_init/open_init_pty.c b/policycoreutils=
-/run_init/open_init_pty.c
-> > index 150cb45e..19101c50 100644
-> > --- a/policycoreutils/run_init/open_init_pty.c
-> > +++ b/policycoreutils/run_init/open_init_pty.c
-> > @@ -244,7 +244,7 @@ int main(int argc, char *argv[])
-> >         rb_init(&inbuf, inbuf_mem, sizeof(inbuf_mem));
-> >         rb_init(&outbuf, outbuf_mem, sizeof(outbuf_mem));
-> >
-> > -       if (argc =3D=3D 1) {
-> > +       if (argc < 2) {
-> >                 printf("usage: %s PROGRAM [ARGS]...\n", argv[0]);
-> >                 exit(1);
-> >         }
-> > diff --git a/policycoreutils/secon/secon.c b/policycoreutils/secon/seco=
-n.c
-> > index a0957d09..d624fa13 100644
-> > --- a/policycoreutils/secon/secon.c
-> > +++ b/policycoreutils/secon/secon.c
-> > @@ -333,6 +333,9 @@ static void cmd_line(int argc, char *argv[])
-> >                 opts->from_type =3D OPTS_FROM_CUR;
-> >
-> >         if (opts->from_type =3D=3D OPTS_FROM_ARG) {
-> > +               if (!argv[0])
-> > +                       errx(EXIT_FAILURE, "No argument given");
-> > +
-> >                 opts->f.arg =3D argv[0];
-> >
-> >                 if (xstreq(argv[0], "-"))
-> > diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setf=
-iles/setfiles.c
-> > index 44cab46d..ab7016ac 100644
-> > --- a/policycoreutils/setfiles/setfiles.c
-> > +++ b/policycoreutils/setfiles/setfiles.c
-> > @@ -163,6 +163,10 @@ int main(int argc, char **argv)
-> >         policyfile =3D NULL;
-> >
-> >         r_opts.abort_on_error =3D 0;
-> > +       if (!argv[0]) {
-> > +               fprintf(stderr, "Called without required program name!\=
-n");
-> > +               exit(-1);
-> > +       }
-> >         r_opts.progname =3D strdup(argv[0]);
-> >         if (!r_opts.progname) {
-> >                 fprintf(stderr, "%s:  Out of memory!\n", argv[0]);
-> > @@ -423,7 +427,7 @@ int main(int argc, char **argv)
-> >
-> >                 altpath =3D argv[optind];
-> >                 optind++;
-> > -       } else if (argc =3D=3D 1)
-> > +       } else if (argc < 2)
-> >                 usage(argv[0]);
-> >
-> >         /* Set selabel_open options. */
-> > --
-> > 2.34.1
-> >
+It's part of their "public api" for device makers, but we can bump the
+API version
+and drop that IIUC their changes from "project treble".
+
+> --
+> Sincerely,
+> Demi Marie Obenour (she/her/hers)
