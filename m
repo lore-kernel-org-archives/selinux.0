@@ -2,204 +2,93 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC31FC433F5
-	for <selinux@archiver.kernel.org>; Mon,  7 Feb 2022 18:38:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED5B0C433EF
+	for <selinux@archiver.kernel.org>; Mon,  7 Feb 2022 18:58:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235893AbiBGSiA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Feb 2022 13:38:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
+        id S233772AbiBGS5m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Feb 2022 13:57:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243277AbiBGSfw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Feb 2022 13:35:52 -0500
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447C3C0401D9;
-        Mon,  7 Feb 2022 10:35:51 -0800 (PST)
-Received: by mail-yb1-xb32.google.com with SMTP id v47so17763415ybi.4;
-        Mon, 07 Feb 2022 10:35:51 -0800 (PST)
+        with ESMTP id S239092AbiBGSzh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Feb 2022 13:55:37 -0500
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE28AC0401DC
+        for <selinux@vger.kernel.org>; Mon,  7 Feb 2022 10:55:36 -0800 (PST)
+Received: by mail-ot1-x334.google.com with SMTP id j38-20020a9d1926000000b0059fa6de6c71so11592189ota.10
+        for <selinux@vger.kernel.org>; Mon, 07 Feb 2022 10:55:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JkyKJ32mlnL8omIbMB7R7ZtW638Pf5NzrNqsinP/wu8=;
-        b=BnP9Q1t0nvetFBvIzDuAWk+RdtrgM5K0xF14+VtKb0XHbFcvkHhuPWqJ+NoIN69O0r
-         WVD/+J2s+ph6QeTBdocjTHRokUI80FJxb0CRH3IJOSFOo5mf5CNGiOmYXswJ39GQWAwG
-         afOFDVsJToAANM9EXP8CB6e396a3GA+N+5i/BEkpsy6b0dhili1NPK0bRoSE0jbm07gF
-         1eVQYJkM4JtNUq9D0Pl9dw1DvnA2fdOwv6784rkbKVtS1yGBXHUlSzaka2dHoaGRpIwM
-         LAenm+jaYzdn73dwdF+Syyu24iKsdWdP+3xWceQ+NwkBtr1HKQ1+JAXh7ZUFP7qqRyVK
-         iQcA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=HLHcQpnmmLr5fD0Y0BeC0ScUaYVGh6aOjiWvI6sOWeY=;
+        b=mwU6vQHKnlL4ePKAs018Uwz6QL1t6LfJxBn1a3O0ITWLlll8euugpv2ACX1cGoox0l
+         zXKRMMOyfNRGbiVg4meDMbhoyLIgZ4H1Vswx9TPjs3rTSbKFHsbfLZ1HnbllEQI+2UI1
+         xlgzWgb6vfqxAOEuKBkk2+i52bJD2UjhjFz4Y1gSDXT3pmDAze9qTCq45TYaKr28QJTO
+         jF0+2oUsgZzTHXrU+/AwVCOTZhscZ5xSvouEcWYTq2Aj466RYM3Rh+k9suJNBkJH5Zau
+         j0f9QLXwBYGQfbwOT5cDxTFKrg0O5HThJQ3EDl+Sn8IDd9OkkC5EsCF1YdWramGkrxKl
+         Mpkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JkyKJ32mlnL8omIbMB7R7ZtW638Pf5NzrNqsinP/wu8=;
-        b=y0IemRdKi7iLb6is14TnT3VfA20uE/wfdeS6yWkIfwJfs706pGhbguJ2iotaDg6oUg
-         5YsqSfOw/L9qzvnYiqGFgS/ti67OMwPnKKwyNnImvg7WaMMMXFiMyuNB99TgnFdR25K2
-         Ny481dACHt8vi7omKU8gZmedXlBVYYml5Hd+Utb8o6kjFqYLhIrC/QuWpFLrL2LT81Y+
-         BUCg9V/y40wmaQRy7SXIZwxO7iCQKg7G9VpnLvqdMpTUqpqI276f06uQQwUvSp4Rm7uA
-         jbi0ZCegPJW5jPPMtO4e72hPL3qmwvhMIhRwjUy1PaEMq43UUqclMQOwMhWlXyRYABIP
-         fZqQ==
-X-Gm-Message-State: AOAM533Bpn445u9ZSp+tx/9qKg0b+bz1df6wu9uOMahd94jQZSFm/2lF
-        vIE29wYv5DY/z4BPm1O0NK0cCYuo0thwq5kOJdQ=
-X-Google-Smtp-Source: ABdhPJzy6BCcR7qX2LzH5P4sIvrplNhKxCob+NiTLlZ7qPqQLq9wRXWoZggR/8JFwOT14c0TkoPCPmvIjwfg/4A2O3E=
-X-Received: by 2002:a81:8a84:: with SMTP id a126mr1149372ywg.317.1644258950373;
- Mon, 07 Feb 2022 10:35:50 -0800 (PST)
+         :message-id:subject:to;
+        bh=HLHcQpnmmLr5fD0Y0BeC0ScUaYVGh6aOjiWvI6sOWeY=;
+        b=hqHOnn2KUxlQwy/71Z50FsOKMTm7s+CWDpHju4g7GKbUGwZEj2yulozdu9JbM/o9ep
+         KUFjIriBzSvc+yaWWEdumBEr9e1ew2+OAusJhGu0ChZmYq3+tvcdjArHHwIUvrOaz9JO
+         l0jLLocQJ+OAt6LwzHfs6WJ0VN1QbU/0zf2lk+LN3i0uEgUjvDYUhZhAvg8gdPyCvZZj
+         ObRSQOaUON+YMiXZwZLgY+kJtjSQGj2YT7XFCuSUWaFVaKIIKryzodlZLsddC7YdsV9v
+         byQnswzmVVCVNurlkjlQGFfkmCgYu8u5GovmTFXQ1zP95NcMNxJC46RVG9MAOjtt5BQw
+         VBhg==
+X-Gm-Message-State: AOAM533aoufuoqGDJHNf12cbNRa5wN1kvsWHP5BHDRyt9m0+l89FNQoX
+        MfXyq9/kZoYDsZP/m5RaeswysCN7k0u1jamQlZQYW9Zn
+X-Google-Smtp-Source: ABdhPJzPMd1d+MhydQlJNqa0Q3hh5ju/oEtZcD6Gj9QQzKzZC1TrBYVpyZXBCpYMZ0CQIXB6fhJYTq3ki60tzStKdDw=
+X-Received: by 2002:a9d:70cf:: with SMTP id w15mr513594otj.154.1644260135948;
+ Mon, 07 Feb 2022 10:55:35 -0800 (PST)
 MIME-Version: 1.0
-References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
- <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
- <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
- <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
- <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com> <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
- <CAFftDdpxmf4R9zPVGUUCFinST_2t8iW2SAJYG4e=3JeWtDowJw@mail.gmail.com> <7798e61c-eb22-7b19-0849-35e5bfccad8b@gmail.com>
-In-Reply-To: <7798e61c-eb22-7b19-0849-35e5bfccad8b@gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Mon, 7 Feb 2022 12:35:39 -0600
-Message-ID: <CAFftDdpXm3VubMW_d51uEM+F_6eSGZerJbVQ=c8w7B-L1zT+3Q@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
-To:     Demi Marie Obenour <demiobenour@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        selinux-refpolicy@vger.kernel.org
+References: <20220105211602.359300-1-jwcart2@gmail.com>
+In-Reply-To: <20220105211602.359300-1-jwcart2@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 7 Feb 2022 13:55:25 -0500
+Message-ID: <CAP+JOzThuDcN_RpT8oZw-NBos0LbxEt=BkK5jgKGRV_skPadtw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsepol/cil: Do not copy blockabstracts when
+ inheriting a block
+To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 7, 2022 at 11:09 AM Demi Marie Obenour
-<demiobenour@gmail.com> wrote:
->
-> On 2/7/22 12:00, William Roberts wrote:
-> > On Mon, Feb 7, 2022 at 9:08 AM Paul Moore <paul@paul-moore.com> wrote:
-> >>
-> >> On Wed, Feb 2, 2022 at 5:13 AM Demi Marie Obenour <demiobenour@gmail.com> wrote:
-> >>> On 2/1/22 12:26, Paul Moore wrote:
-> >>>> On Sat, Jan 29, 2022 at 10:40 PM Demi Marie Obenour
-> >>>> <demiobenour@gmail.com> wrote:
-> >>>>> On 1/26/22 17:41, Paul Moore wrote:
-> >>>>>> On Tue, Jan 25, 2022 at 5:50 PM Demi Marie Obenour
-> >>>>>> <demiobenour@gmail.com> wrote:
-> >>>>>>> On 1/25/22 17:27, Paul Moore wrote:
-> >>>>>>>> On Tue, Jan 25, 2022 at 4:34 PM Demi Marie Obenour
-> >>>>>>>> <demiobenour@gmail.com> wrote:
-> >>>>>>>>>
-> >>>>>>>>> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-> >>>>>>>>> always allows too.  Furthermore, a failed FIOCLEX could result in a file
-> >>>>>>>>> descriptor being leaked to a process that should not have access to it.
-> >>>>>>>>>
-> >>>>>>>>> Signed-off-by: Demi Marie Obenour <demiobenour@gmail.com>
-> >>>>>>>>> ---
-> >>>>>>>>>  security/selinux/hooks.c | 5 +++++
-> >>>>>>>>>  1 file changed, 5 insertions(+)
-> >>>>>>>>
-> >>>>>>>> I'm not convinced that these two ioctls should be exempt from SELinux
-> >>>>>>>> policy control, can you explain why allowing these ioctls with the
-> >>>>>>>> file:ioctl permission is not sufficient for your use case?  Is it a
-> >>>>>>>> matter of granularity?
-> >>>>>>>
-> >>>>>>> FIOCLEX and FIONCLEX are applicable to *all* file descriptors, not just
-> >>>>>>> files.  If I want to allow them with SELinux policy, I have to grant
-> >>>>>>> *:ioctl to all processes and use xperm rules to determine what ioctls
-> >>>>>>> are actually allowed.  That is incompatible with existing policies and
-> >>>>>>> needs frequent maintenance when new ioctls are added.
-> >>>>>>>
-> >>>>>>> Furthermore, these ioctls do not allow one to do anything that cannot
-> >>>>>>> already be done by fcntl(F_SETFD), and (unless I have missed something)
-> >>>>>>> SELinux unconditionally allows that.  Therefore, blocking these ioctls
-> >>>>>>> does not improve security, but does risk breaking userspace programs.
-> >>>>>>> The risk is especially great because in the absence of SELinux, I
-> >>>>>>> believe FIOCLEX and FIONCLEX *will* always succeed, and userspace
-> >>>>>>> programs may rely on this.  Worse, if a failure of FIOCLEX is ignored,
-> >>>>>>> a file descriptor can be leaked to a child process that should not have
-> >>>>>>> access to it, but which SELinux allows access to.  Userspace
-> >>>>>>> SELinux-naive sandboxes are one way this could happen.  Therefore,
-> >>>>>>> blocking FIOCLEX may *create* a security issue, and it cannot solve one.
-> >>>>>>
-> >>>>>> I can see you are frustrated with my initial take on this, but please
-> >>>>>> understand that excluding an operation from the security policy is not
-> >>>>>> something to take lightly and needs discussion.  I've added the
-> >>>>>> SELinux refpolicy list to this thread as I believe their input would
-> >>>>>> be helpful here.
-> >>>>>
-> >>>>> Absolutely it is not something that should be taken lightly, though I
-> >>>>> strongly believe it is correct in this case.  Is one of my assumptions
-> >>>>> mistaken?
-> >>>>
-> >>>> My concern is that there is a distro/admin somewhere which is relying
-> >>>> on their SELinux policy enforcing access controls on these ioctls and
-> >>>> removing these controls would cause them a regression.
-> >>>
-> >>> I obviously do not have visibility into all systems, but I suspect that
-> >>> nobody is actually relying on this.  Setting and clearing CLOEXEC via
-> >>> fcntl is not subject to SELinux restrictions, so blocking FIOCLEX
-> >>> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD) is
-> >>> blocked by seccomp or another LSM.  Clearing close-on-exec can also be
-> >>> implemented with dup2(), and setting it can be implemented with dup3()
-> >>> and F_DUPFD_CLOEXEC (which SELinux also allows).  In short, I believe
-> >>> that unconditionally allowing FIOCLEX and FIONCLEX may fix real-world
-> >>> problems, and that it is highly unlikely that anyone is relying on the
-> >>> current behavior.
-> >>
-> >> I understand your point, but I remain concerned about making a kernel
-> >> change for something that can be addressed via policy.  I'm also
-> >> concerned that in the nine days this thread has been on both the mail
-> >> SELinux developers and refpolicy lists no one other than you and I
-> >> have commented on this patch.  In order to consider this patch
-> >> further, I'm going to need to see comments from others, preferably
-> >> those with a background in supporting SELinux policy.
-> >>
-> >
-> > AFAIK/AFAICT Android makes no reference to F_SETFD, and tracing the code
-> > does seem to be ignored, and the code for FIOCLEX FIONCLEX calls into
-> > the same kernel routine set_close_on_exec().
-> > Considering that Android's bionic contains support for "e" flag to
-> > fopen, and it's
-> > used in a lot of places, makes me more sure the check is skipped for F_SETFD
-> >
-> > However, Android does make reference to FIOCLEX FIONCLEX and every
-> > domain has it enabled:
-> > domain.te:allowxperm domain { file_type fs_type domain dev_type }:{
-> > dir notdevfile_class_set blk_file } ioctl { FIOCLEX FIONCLEX };
-> > domain.te:allowxperm domain tun_device:chr_file ioctl { FIOCLEX FIONCLEX };
-> >
-> > Refpolicy doesn't use xperm AFAICT.
-> >
-> > I stayed quiet, I wouldn't ack on this myself, but the premise seems
-> > correct and we
-> > can safely drop this. Note that I didn't review the code. But we need
-> > to ensure we handle
-> > policy correctly and not break anything. I'm not sure what the
-> > compilers are doing
-> > for validation of policy macro values, but we would probably want to
-> > mark it deprecated,
-> > but still allow loading of old compiled policies.
->
-> Loading of policies is not impacted.  My patch simply skips the
-> checks for FIOCLEX and FIONCLEX, instead unconditionally allowing the
-> operation.  This is actually *more* selective than anything that can
-> be done via policy, as my patch checks the entire ioctl number whereas
-> policy can only check the low 16 bits.  As such, it is safer than using
-> policy to allow FIOCLEX and FIONCLEX system-wide: if my patch causes an
-> ioctl to be allowed, it is guaranteed that that ioctl will change the
-> close-on-exec flag and have no other effect.
->
+FYI, I plan on merging this series at the end of the week. If anyone
+has any objections, please let me know.
+Jim
 
-What I meant by my comment is that patching the kernel is only 1/2 the
-problem. We
-still need to coordinate with existing policies to deprecate that out,
-but since it's just
-Android (AFIAK), that's pretty simple to do. I just want to make sure
-we don't leave
-confusing cruft floating around. I looked more at how they do xperms
-in Android, and it's just
-an m4 macro to a number. So we would want to coordinate a patch into the kernel
-with a patch that drops that from Android policy.
-
-It's part of their "public api" for device makers, but we can bump the
-API version
-and drop that IIUC their changes from "project treble".
-
+On Wed, Jan 5, 2022 at 4:16 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> Do not copy any blockabstract statements when copying a block to
+> resolve a blockinherit statement. Inheriting a block from what was
+> just inherited does not work, so there is no reason to create an
+> abstract block.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/cil/src/cil_copy_ast.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+> index 2fad972c..a4ead9db 100644
+> --- a/libsepol/cil/src/cil_copy_ast.c
+> +++ b/libsepol/cil/src/cil_copy_ast.c
+> @@ -1725,6 +1725,12 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void
+>                 copy_func = &cil_copy_block;
+>                 break;
+>         case CIL_BLOCKABSTRACT:
+> +               if (args->orig_dest->flavor == CIL_BLOCKINHERIT) {
+> +                       /* When inheriting a block, don't copy any blockabstract
+> +                        * statements. Inheriting a block from a block that was
+> +                        * just inherited never worked. */
+> +                       return SEPOL_OK;
+> +               }
+>                 copy_func = &cil_copy_blockabstract;
+>                 break;
+>         case CIL_BLOCKINHERIT:
 > --
-> Sincerely,
-> Demi Marie Obenour (she/her/hers)
+> 2.31.1
+>
