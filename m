@@ -2,98 +2,144 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05512C433FE
-	for <selinux@archiver.kernel.org>; Tue,  8 Feb 2022 16:26:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FEC0C433EF
+	for <selinux@archiver.kernel.org>; Tue,  8 Feb 2022 16:54:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383305AbiBHQ0k (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Feb 2022 11:26:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53752 "EHLO
+        id S1383589AbiBHQyt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Feb 2022 11:54:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378190AbiBHQ0j (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Feb 2022 11:26:39 -0500
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411DCC0611DA
-        for <selinux@vger.kernel.org>; Tue,  8 Feb 2022 08:26:38 -0800 (PST)
-Received: by mail-ej1-x631.google.com with SMTP id d10so53882340eje.10
-        for <selinux@vger.kernel.org>; Tue, 08 Feb 2022 08:26:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ImkfyIyZ8i1PfiNj2l6cA/EKazGt96Tzn+D2+4cuRHI=;
-        b=qKTUQ3TbpAxAgSJdmblcHcVywXNlWJR2haIkknzdbcYf1grhB5IKnWqf0T/YcfuFGr
-         pgzJEMDsJjE4b1LwuIIzEUCQX+dzbV9LEVMvaoWAc421xUpD7g4Xx3rotzFCh5eOMYhs
-         ApguJo6vY8r+4mctC7Lio9pXb2m8+dgacp4T9+AG91FfcEf6ZiDLqSbQR6LNsoVNimkF
-         AOHPBHwWJ5iutvPTtSXw5JQPIYUOjCprviRZ2vkqb4P8DRrosmuYcTW0FYweTBxvPKlB
-         YeLTcBuBJWPK7gzTGZJEhfGtngzOWOusc9Om2mKU2LdIIPvCxf49HZg09OeiLa7U5wzl
-         yo7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ImkfyIyZ8i1PfiNj2l6cA/EKazGt96Tzn+D2+4cuRHI=;
-        b=5Wcp8//5iVrgFMLA1pR8lo9L2+4ge2JGbdRSGd8TTgK7Utqx6K0ddbmkLxc2ymnQ0b
-         mPw1y47yygpsmxShq+1bmiO0mYo9OEHcq0Mw0U2tGiGuf205yUsCQYEHH/O+jqR7mRW4
-         lIZB+VE9wkYUTgPtYHQB9njw+6SIHk9QlKHgHC8kaSBGCn2wOTDQdw2oVNnb5sdQUvQP
-         YDVkaSQ0fdPVKS3D9dgkjwRDg9+GiEvUk/9DbQGV/DbqjOxz6LK0KBLdq5s0xF1ZE5oJ
-         Z07gPLCjOwdr/jt9Pp/loZgxY3QGZS452Y9SrnyTArQplcLe2HioJzmBBlsEb0eNRA6t
-         YiHg==
-X-Gm-Message-State: AOAM533wz9gIcqVkTAoKK4gRZ56kVDhDiSP0pRNSV+MbS3clQKd5UPHJ
-        uuREugsHue4BZLdvJHiTX9DDsME+uHPUt8Vfeuuq
-X-Google-Smtp-Source: ABdhPJxoLHwQMTqmBv5zt3aqK9FGXZMmwBIzM8dswdyfvAurdgiUzkKUwLWfmFzPq/QBVXC+EH1VkzUN7uLCu7yOF1s=
-X-Received: by 2002:a17:907:9808:: with SMTP id ji8mr4458717ejc.12.1644337596750;
- Tue, 08 Feb 2022 08:26:36 -0800 (PST)
-MIME-Version: 1.0
-References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
- <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
- <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
- <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
- <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com> <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
- <CAFftDdpxmf4R9zPVGUUCFinST_2t8iW2SAJYG4e=3JeWtDowJw@mail.gmail.com>
- <7798e61c-eb22-7b19-0849-35e5bfccad8b@gmail.com> <CAFftDdpXm3VubMW_d51uEM+F_6eSGZerJbVQ=c8w7B-L1zT+3Q@mail.gmail.com>
- <99d51c4f-d067-2687-e7ae-d42a6d1326b2@gmail.com> <CAFftDdq6VfNfTpAHAYqLitvJcZ+4XuSVb0pMAXkwAPMd5tj-XQ@mail.gmail.com>
- <CAFftDdrhvNTSM0AV4F29xmFktJ0hZjsTTbGQ89dT2r78XaDm2Q@mail.gmail.com>
- <CAHC9VhRZY2n6ubzih6Qkh6SBcEWu_pT0A0_+w_HgzwehPZiD_g@mail.gmail.com> <CAFftDdoBjBeQqc2tvqnh-tO44JfR_adyKtnZuPC=okdwjOD20g@mail.gmail.com>
-In-Reply-To: <CAFftDdoBjBeQqc2tvqnh-tO44JfR_adyKtnZuPC=okdwjOD20g@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 8 Feb 2022 11:26:25 -0500
-Message-ID: <CAHC9VhQEPxYP_KU56gAGNHKQaxucY8gSsHiUB42PVgADBAccRQ@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     Demi Marie Obenour <demiobenour@gmail.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
+        with ESMTP id S1383579AbiBHQyt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Feb 2022 11:54:49 -0500
+X-Greylist: delayed 451 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 08:54:45 PST
+Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2a10:3781:2099::123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5DE2C061576;
+        Tue,  8 Feb 2022 08:54:45 -0800 (PST)
+Received: from brutus (brutus.lan [IPv6:2a10:3781:2099::438])
+        by markus.defensec.nl (Postfix) with ESMTPSA id F3200FC07E3;
+        Tue,  8 Feb 2022 17:47:06 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+        s=default; t=1644338827;
+        bh=eRv74+XI594hq5dL4OGUblyk1lqPGFnb0U0Ww0ZWEfg=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=hzs3WgiC2LieAJ+kSe703/DKF1H9tljccbLnmkZ6Uh37e9nMp/3uEvz1r3sFtORQQ
+         6+M/k4iKUqWP+z5HHEWOcHpTzKfg9L/QwylHxC3Uz5fetMqiOLBE8hWuQM+zOENabp
+         Dx73EyMBADClv8GDiZs25lvdx7Qu1FtiRIG/GqhA=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc:     William Roberts <bill.c.roberts@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Demi Marie Obenour <demiobenour@gmail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         SElinux list <selinux@vger.kernel.org>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         selinux-refpolicy@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+        <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+        <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com>
+        <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+        <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com>
+        <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+        <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
+        <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+        <478e1651-a383-05ff-d011-6dda771b8ce8@linux.microsoft.com>
+        <875ypt5zmz.fsf@defensec.nl>
+        <CAFftDdo9JmbyPzPWRjOYgZBOS9b5d+OGKKf8egS8_ysbbWW87Q@mail.gmail.com>
+        <4be3fef6-63ca-af97-7fc6-d93d85a9b706@linux.microsoft.com>
+Date:   Tue, 08 Feb 2022 17:47:05 +0100
+In-Reply-To: <4be3fef6-63ca-af97-7fc6-d93d85a9b706@linux.microsoft.com> (Chris
+        PeBenito's message of "Tue, 8 Feb 2022 10:47:44 -0500")
+Message-ID: <87ee4dnw52.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 8, 2022 at 9:05 AM William Roberts <bill.c.roberts@gmail.com> wrote:
-> On Mon, Feb 7, 2022 at 6:02 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Feb 7, 2022 at 4:51 PM William Roberts <bill.c.roberts@gmail.com> wrote:
-> > > On Mon, Feb 7, 2022 at 3:42 PM William Roberts <bill.c.roberts@gmail.com> wrote:
-> > > >
-> > > > + NNK and Dan
-> > > - nnk and Dan.
-> > > + Jeff
-> > > Let me try again, looks like Nick left, not sure about Dan.
-> > > Jeff, can you look this over?
-> >
-> > FWIW, I'm still not convinced merging this kernel patch is something
-> > we want to do, so please don't assume that it's a done deal on the
-> > kernel side.
->
-> I agree and I don't think we can hit the merge button until it gets buy-in from
-> in-use policy holders.
+Chris PeBenito <chpebeni@linux.microsoft.com> writes:
 
-One thing I should have mentioned yesterday, my current thinking is
-that if we do make the kernel change it needs to be wrapped with a
-policy capability just as we do with other kernel changes which have a
-potential impact on policy.
+> On 2/8/2022 09:17, William Roberts wrote:
+>> <snip>
+>> This is getting too long for me.
+>> 
+>>>>
+>>>> I don't have a strong opinion either way.  If one were to allow this
+>>>> using a policy rule, it would result in a major policy breakage.  The
+>>>> rule would turn on extended perm checks across the entire system,
+>>>> which the SELinux Reference Policy isn't written for.  I can't speak
+>>>> to the Android policy, but I would imagine it would be the similar
+>>>> problem there too.
+>>>
+>>> Excuse me if I am wrong but AFAIK adding a xperm rule does not turn on
+>>> xperm checks across the entire system.
+>> It doesn't as you state below its target + class.
+>> 
+>>>
+>>> If i am not mistaken it will turn on xperm checks only for the
+>>> operations that have the same source and target/target class.
+>> That's correct.
+>
+> Just to clarify (Demi Marie also mentioned this earlier in the
+> thread), what I originally meant was how to emulate this patch by
+> using policy rules means you need a rule that allows the two ioctls on
+> all domains for all objects.  That results in xperms checks enabled
+> everywhere.
+
+Thanks. That is clear now. I also learned that is pretty much what
+Android's sepolicy is doing. That is probably not something I would do
+(enable xperms globally). I would probably leverage it only for "devnode"
+chr and maybe blk files and only where they actually are accessed.
+
+I would not mind removing these two checks, but i am not a big user of
+xperms (i only filter TIOSCTI on terminal chr files and only for the
+entities that write or append them).
+
+>
+>
+>>> This is also why i don't (with the exception TIOSCTI for termdev
+>>> chr_file) use xperms by default.
+>>>
+>>> 1. it is really easy to selectively filter ioctls by adding xperm rules
+>>> for end users (and since ioctls are often device/driver specific they
+>>> know best what is needed and what not)
+>> 
+>>>>>> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD)
+>>>
+>>> 2. if you filter ioctls in upstream policy for example like i do with
+>>> TIOSCTI using for example (allowx foo bar (ioctl chr_file (not
+>>> (0xXXXX)))) then you cannot easily exclude additional ioctls later where source is
+>>> foo and target/tclass is bar/chr_file because there is already a rule in
+>>> place allowing the ioctl (and you cannot add rules)
+>> Currently, fcntl flag F_SETFD is never checked, it's silently
+>> allowed, but
+>> the equivalent FIONCLEX and FIOCLEX are checked. So if you wrote policy
+>> to block the FIO*CLEX flags, it would be bypassable through F_SETFD and
+>> FD_CLOEXEC. So the patch proposed makes the FIO flags behave like
+>> F_SETFD. Which means upstream policy users could drop this allow, which
+>> could then remove the target/class rule and allow all icotls. Which is easy
+>> to prevent and fix you could be a rule in to allowx 0 as documented in the
+>> wiki: https://selinuxproject.org/page/XpermRules
+>> The questions I think we have here are:
+>> 1. Do we agree that the behavior between SETFD and the FIO flags are equivalent?
+>>    I think they are.
+>> 2. Do we want the interfaces to behave the same?
+>>    I think they should.
+>
+> If you can bypass FIONCLEX and FIOCLEX checks by F_SETFD and
+> FD_CLOEXEC, then I agree that the two FIO checks don't have value and
+> can be skipped as F_SETFD is.
+>
+>> 3. Do upstream users of the policy construct care?
+>>    The patch is backwards compat, but I don't want their to be cruft
+>> floating around with extra allowxperm rules.
+>
+> Reference policy does not have any xperm rules at this time.  I looked
+> at the Fedora policy, and that doesn't have any.
 
 -- 
-paul-moore.com
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
