@@ -2,135 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C232C433FE
-	for <selinux@archiver.kernel.org>; Wed,  9 Feb 2022 19:29:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 689F6C433F5
+	for <selinux@archiver.kernel.org>; Wed,  9 Feb 2022 20:35:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234898AbiBIT31 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Feb 2022 14:29:27 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:55012 "EHLO
+        id S231775AbiBIUfv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Feb 2022 15:35:51 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:42198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234955AbiBIT3I (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Feb 2022 14:29:08 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3FC4DC1DC5CC
-        for <selinux@vger.kernel.org>; Wed,  9 Feb 2022 11:29:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644434949;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PSmVE2OrnGrtuhAc64Sl6Sm6sVS5qZ3NhKM85vz5wJk=;
-        b=iaQEsj0EN75vNynmhVwJ4Iiv4KinyE8n25VGEUFu/QN1qtnCCNFSOfX7dIFR3M7lKgvAf6
-        hZrEYCNWopohCeaUejeNsieR2e4lhudLu/fiD/wQb83dakcEy+voLsgm1R1Vh4ivPT5Lwz
-        Vq7HH8/3SQ20C7UGIqpQ+RDun/uv5vI=
-Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
- [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-96-xMLhIzJ5MlqkTGhzYFn7aQ-1; Wed, 09 Feb 2022 14:29:08 -0500
-X-MC-Unique: xMLhIzJ5MlqkTGhzYFn7aQ-1
-Received: by mail-yb1-f200.google.com with SMTP id 127-20020a250f85000000b00611ab6484abso6723267ybp.23
-        for <selinux@vger.kernel.org>; Wed, 09 Feb 2022 11:29:08 -0800 (PST)
+        with ESMTP id S231758AbiBIUfq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Feb 2022 15:35:46 -0500
+Received: from mail-oo1-xc2a.google.com (mail-oo1-xc2a.google.com [IPv6:2607:f8b0:4864:20::c2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47AFAC1DF64A
+        for <selinux@vger.kernel.org>; Wed,  9 Feb 2022 12:35:49 -0800 (PST)
+Received: by mail-oo1-xc2a.google.com with SMTP id p190-20020a4a2fc7000000b0031820de484aso3840357oop.9
+        for <selinux@vger.kernel.org>; Wed, 09 Feb 2022 12:35:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=HNDb6WV+l9uHYSeiL8Y3ZiA10pJn1e9QRiv2CSaELSE=;
+        b=m/6XP5s8/8w3e4TYuz3skBoHv97tWB8g+MT7UACe7dW5mDKEScV3zk06kblMd1H5tS
+         scRf/1IqVgC5MQLtmEVCdRcBZCKjwTkHGPIfk6ZBuQwlBFwoARcN0MLKOq3DxJ8EC2zG
+         URPvvHPvRszphXZLpparJqqHxTJ704yPeR8l4lZSTu+uSXEYUUO2sp/tJiBIOcezGdxv
+         9NqLQo7dffBm67LoIfN6c6xETIFU7Yd0uyz5gPmcMcc1jMsdiq4usTpEx1ymNjmIFYzS
+         DTXZ5lJ9tpcQSyN9yOZT0Qqqz/Z2GFyut9CLX1NdMKWhCrYwCV174WpWBXr5YLXYRNHa
+         tRaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=PSmVE2OrnGrtuhAc64Sl6Sm6sVS5qZ3NhKM85vz5wJk=;
-        b=XyMZobrH8t7GuIOto+Rk3mdPlEDURG5xpeYafpk6l4D+4y06bXo9jtjUN7gBMPsC+g
-         mfFhTsHxJfTO/twaMmjxtwcO5VCCzkrb1AusDcJoy4cn7+etm8bJdNacK+ApgrrUEocz
-         Awp8xdCbuCxB63JKTulbA4hMjKjL15x068XCsYtugZ6oCzyXZPE6ZXeHmmtv9Y1nvHfe
-         I+c0JZxSSJcs5+mtDaX68PbIoAq7CtsEzUFVLc42Chg9iqDUR7fdYf0VPKk7aWaN/iWi
-         UlAdXMSW9ExvVapWJuUm+JMfwmawcuvKfL09lT/eWsPNpYwP7fID7FRpsp1P9LK2XBIP
-         5v0Q==
-X-Gm-Message-State: AOAM530DDKMk2hd6kZvN79cgFdk9D/sw4nYzyU3FLQX7lFubL7hLUrGW
-        I3mozO0i7/rMIIkC01KMxaqNqA7b3YDNkJIdRz2uD1HptFi9kY5lBDVqk3eJLl1Zhm6sfFUFWyH
-        vJmphCuwfyXGVPyEEMAtRiE8mpg7eVU6ubA==
-X-Received: by 2002:a25:e64e:: with SMTP id d75mr3781636ybh.253.1644434947800;
-        Wed, 09 Feb 2022 11:29:07 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy2zgG7RlUOSRzy+Ex+FK5e2l1/D7VBBs4SIVhYNURjgxBRP8LNUs/uz1MTTEc/TfwCj4Spc5cf5CrwWkGIuIo=
-X-Received: by 2002:a25:e64e:: with SMTP id d75mr3781618ybh.253.1644434947600;
- Wed, 09 Feb 2022 11:29:07 -0800 (PST)
+        bh=HNDb6WV+l9uHYSeiL8Y3ZiA10pJn1e9QRiv2CSaELSE=;
+        b=waTUia833SbTZIPiaxx29moK/8PcmbXyadoNOa84v7Qmfrdsfh6XgY7gp3UrskdWCY
+         flh5J4AeUsz/RNQfkAIEfSdXZl6bez5UtnzD7z37GspwPNqK+hGVdCwN7k8MKFcE4T79
+         vm6/fTpOMe0+Ft3JmvqQZJPyn5JAMO3dN2PmtbrBJZuMHgWEnRIrR6HEo/4DFZpemRJu
+         JEuYVKrBhu8ASb1mJja/I/Ug0TbBo/L2Pdq9AVW6vgIskXeOnxsoB1/Of0omE13xQCm8
+         fptfSRyWQHmXt1smMX9lgEjUJ7xiKUishvjXIpTFvnaQy1/0VMYQkdWU/IuuCxWrY+Js
+         vryw==
+X-Gm-Message-State: AOAM533RqXGTo/RynUm/BCYENY9QCJPmcKtPdKMSrd7NlvTrsbQ3lqLd
+        uF2eQGXEKfaeRfB48qjzd16Ch0vg2Mnu96nvmHY=
+X-Google-Smtp-Source: ABdhPJyoHhJnHgT7zvkc4fEOAw7BqpxgFEJZnhM7+zXo48hHqnC6bYanjgd1hKHzeYx9E3QKWdB2V22XxUbQLaeUuu8=
+X-Received: by 2002:a05:6871:506:: with SMTP id s6mr1389635oal.62.1644438948626;
+ Wed, 09 Feb 2022 12:35:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20220209114242.2229-1-gongruiqi1@huawei.com>
-In-Reply-To: <20220209114242.2229-1-gongruiqi1@huawei.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 9 Feb 2022 20:28:50 +0100
-Message-ID: <CAFqZXNtMw83Hw1ygoYQo35A9wunMaCx_5XGnWO258pmpzgHTew@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/binder: Adjust kernel uapi headers check
- for building
-To:     "GONG, Ruiqi" <gongruiqi1@huawei.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Wang Weiyang <wangweiyang2@huawei.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Xiang Yang <xiangyang3@huawei.com>,
-        Cui Gaosheng <cuigaosheng1@huawei.com>,
-        Lu Jialin <lujialin4@huawei.com>,
-        Yi Yang <yiyang13@huawei.com>, Guo Zihua <guozihua@huawei.com>
+References: <20220204133717.27793-1-cgzones@googlemail.com>
+In-Reply-To: <20220204133717.27793-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 9 Feb 2022 15:35:37 -0500
+Message-ID: <CAP+JOzQAJm1BCcMzKELxfwd8+06ckLCG1Ft-twMiZ5N-ED3sVg@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: allow wildcard permissions in constraints
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 9, 2022 at 12:22 PM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
-> Following compilation errors occur when building the tests with
-> userspace headers exported from kernel 4.4:
+On Fri, Feb 4, 2022 at 3:04 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> binder_common.c:111:14: error: =E2=80=98const struct flat_binder_object=
-=E2=80=99 has no
-> member named =E2=80=98hdr=E2=80=99
->    switch (obj->hdr.type) {
->               ^
-> client.c:58:9: error: dereferencing pointer to incomplete type
->   if (obj->hdr.type !=3D BINDER_TYPE_FD) {
->          ^
+> Allow all and complement permission sets in constraints, e.g.:
 >
-> It's been checked that member `hdr` of `struct flat_binder_object` and
-> `struct binder_fd_object` were both introduced into kernel 4.11 by the
-> same commit feba3900cabb ("binder: Split flat_binder_object"). Change
-> the check to <linux/android/binder.h> before building binder tests to
-> see if it contains the definition of `struct binder_fd_object`.
+>     constrain service ~ { status } (...);
+>     constrain service * (...);
 >
-> Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
->  tests/Makefile | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  checkpolicy/policy_define.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 >
-> diff --git a/tests/Makefile b/tests/Makefile
-> index 3f7cae3..273eed8 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -53,9 +53,11 @@ ifeq ($(shell grep -q getrlimit $(POLDEV)/include/supp=
-ort/all_perms.spt && echo
->  SUBDIRS +=3D prlimit
->  endif
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index b2ae3263..ded19570 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -3590,6 +3590,16 @@ int define_constraint(constraint_expr_t * expr)
+>                         cladatum =3D policydbp->class_val_to_struct[i];
+>                         node =3D cladatum->constraints;
 >
-> -ifeq ($(shell grep -q binder $(POLDEV)/include/support/all_perms.spt && =
-test -e $(INCLUDEDIR)/linux/android/binder.h && echo true),true)
-> +ifeq ($(shell grep -q binder $(POLDEV)/include/support/all_perms.spt && =
-echo true),true)
-> +ifeq ($(shell grep -q 'struct binder_fd_object' $(INCLUDEDIR)/linux/andr=
-oid/binder.h && echo true),true)
->  SUBDIRS +=3D binder
->  endif
-> +endif
->
->  ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && ech=
-o true),true)
->  ifneq ($(shell ./kvercmp $$(uname -r) 4.15),-1)
+> +                       if (strcmp(id, "*") =3D=3D 0) {
+> +                               node->permissions =3D ~UINT32_C(0);
+> +                               continue;
+> +                       }
+> +
+
+If the class has less than 32 permissions, then bits will be set for
+non-existent permissions.
+
+> +                       if (strcmp(id, "~") =3D=3D 0) {
+> +                               node->permissions =3D ~node->permissions;
+> +                               continue;
+> +                       }
+> +
+
+If "~" is used on a list of all of the classes permissions, then there
+will be no permissions. If the policy is then turned back into a
+policy.conf, there will be no permissions and the constraint will have
+an invalid permission. (Obviously, a problem with the kernel_to_conf
+routines that needs to be fixed). The right thing is to drop the
+constraint in this case since it isn't valid for any permissions. (I
+see now that the CIL compiler doesn't handle this correctly either.)
+
+I am fine with the overall idea here.
+
+Thanks,
+Jim
+
+
+>                         perdatum =3D
+>                             (perm_datum_t *) hashtab_search(cladatum->
+>                                                             permissions.
 > --
-> 2.18.0.huawei.25
+> 2.34.1
 >
-
-Thanks, the patch is now applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/04382a411d113353=
-c3bd7b6a1d7cbb0ac050d62c
-
-I just added -s to the grep invocation so that it doesn't print an
-error when the file doesn't exist, as done by other similar checks.
-
---=20
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
