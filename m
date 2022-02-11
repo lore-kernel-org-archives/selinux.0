@@ -2,230 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ECCBC433FE
-	for <selinux@archiver.kernel.org>; Thu, 10 Feb 2022 18:52:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58A36C433EF
+	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 18:40:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343544AbiBJSwm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Feb 2022 13:52:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38916 "EHLO
+        id S236801AbiBKSkr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Feb 2022 13:40:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243255AbiBJSwl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Feb 2022 13:52:41 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CE38F54
-        for <selinux@vger.kernel.org>; Thu, 10 Feb 2022 10:52:42 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id b13so12680822edn.0
-        for <selinux@vger.kernel.org>; Thu, 10 Feb 2022 10:52:42 -0800 (PST)
+        with ESMTP id S231833AbiBKSkr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 13:40:47 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D30C227
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 10:40:45 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id a8so24723867ejc.8
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 10:40:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=Nog+bdpN4G0Lx3adnFJRBEOyha29dgljkyg7NlpIc2w=;
-        b=Q8WdjfyJRC/vkeI8qW9kFhFS8vDwfeTHxs92ZIQWn9llF8dVGEeKU3C/7AWmjxTNdS
-         qZ/X0T8b+04mP4Buq6fqv5D5ekjSF9iqc9te86nRrXC5Q4b9yWRuUWFEPgj+Zu6t1hGL
-         EOgcaWpAnVgya0ftaFYS5fv4GihovYXZ1EA6Lq/b+4OsKE0ngiDiUFgCOxKUFE22dcVu
-         Sig+usF06KyQ0jix0c9rz/cIsVcjBNYmLT+RQuZ6oPDhA+E+NfSpwZSSf4fQvqss4B6X
-         b8E7VimuQ82MytpHpaRheltlJCtvSUWaf/e6+SuLtnh/EXgUEB0MsjBUSqqpodtegpxd
-         djSg==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=uGHpvVTXq48IAiFd+yjSQ21crV5EYOoLjwC8JEfYx5o=;
+        b=khyOYaTIm5GE1ZYXYP0qWhCG35F0THBd59gACbVAo6jvXYM5gS6kgrfXGj9+EiSSbS
+         8l3R5OoT4c5JS+efuaYaFMFFo3YQJrjtCP9cs3+Xkgta8UBc8tbQ0ClcLYTcIYUL9mWt
+         fgqQfOpeVxx7w5JXqgo8GoMe6qqmC1GLn+IMkT2cTR3x/kzdupMQvtXpor6/1XxV+9uK
+         K4K2l7SFHNd2OS4XkQ5ha/WufY3ue48xfAnKBFKV7hTAQrBsR8RIZVJbymGI7pI5yWIM
+         Z+klUecdhGqUs0W7J1Jt8p7ZZ9yST7RQ5FH6MLM0rkB3QnFRCaZzkh2aJ4tj3tSIb6ru
+         0V8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Nog+bdpN4G0Lx3adnFJRBEOyha29dgljkyg7NlpIc2w=;
-        b=Fwj7f7pgv0cvNyG8A0AHHdCENNr8BHeZ08rj/TtAp471tCY+pedPaDIos4HVnD7NXd
-         LC/NeFMCfIYRhzfiJy0zhJBN+ud3pP1J0dgIvnH9479PNGL0Z121ZT+UaZEJ6zWijBYB
-         STw0aZlUA2MzyHwR+bnze9EcSeUmhSHIWm1zbPmFlMf9Lpp/8TV3uO4DhuTrkIIb/wx3
-         m+1jXfErcRwbhWRIgf5cwmzcOllCj9UCVCGv7e9jeXauF2e2Zp+WC18MIuW6m46MTdp/
-         8NNiYBZbzHvxotEPQDhhQhzqTaCkwfHZpDGFUZPRzQopyeYDFkW8kl9vQWc9Q8epoRe4
-         8TYA==
-X-Gm-Message-State: AOAM530w+abCmHxgP1tsVAsItPJ6McCjcOfVAVVJaRS06kdk7PM8UUhE
-        pYYMNIHNRrPh97tobjW2Q4tDXEbY348=
-X-Google-Smtp-Source: ABdhPJy6ADuFY5+9gEdijEFN/DjhIb0yx8I10k2dJ0/fvqzUqACHO3QKcRaJ/WmQBQO/BAJuesZn0g==
-X-Received: by 2002:aa7:d541:: with SMTP id u1mr9656759edr.388.1644519160649;
-        Thu, 10 Feb 2022 10:52:40 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-000-131-054.77.0.pool.telefonica.de. [77.0.131.54])
-        by smtp.gmail.com with ESMTPSA id gi15sm4666070ejc.139.2022.02.10.10.52.39
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Feb 2022 10:52:40 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 3/3] libsepol: validate several flags
-Date:   Thu, 10 Feb 2022 19:52:34 +0100
-Message-Id: <20220210185234.41362-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220210185234.41362-1-cgzones@googlemail.com>
-References: <20220210185234.41362-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=uGHpvVTXq48IAiFd+yjSQ21crV5EYOoLjwC8JEfYx5o=;
+        b=VVUIDampYnvWZUkpgD4fQu3tIMzwS/m7NSNSdbnJAMVlXU4Vg9M02GB4A04YqEkp4Z
+         uUwhsK30jAK8FO1qcbtanjF4AhEiVAkuEjil55EnT3pSOr0FNHZAzcx6YZPqTf9qmSaF
+         MvUaMRl/Lky8YXUkBydMjHX+zQxMWgZ/bOIQD2SoS822STy+bgNuNdv8eNDe2NdPLEui
+         TW+qxQ3vYztWPPHD0yNUovuqLdETdKhIaai2qFpo3v1jyqNcRuD0nT7lUUGhqGfjulqK
+         CUG3fS+JNC3WYsS86RI0qkWNiZI1qRI5TYwuDNonW3E3fseidDUumbDVbZaHH100DO10
+         TNNA==
+X-Gm-Message-State: AOAM531qMSkcryBTICxazMS39Xq5B2AL3jKMfaEourLjwijpYOmMkx1j
+        nBCFJli3JirLFeu75RXyRL7+Jb1JFw653X/4FlG5Mr5JS2U=
+X-Google-Smtp-Source: ABdhPJwwvOwNkUaFSfxrrwKnipizbfamGrN0LOWQOdyTEwrrkdTZB0b3PEGt6t8hmP/5BHzCc4lrNcbAabepK0Uu8Ks=
+X-Received: by 2002:a17:906:c10c:: with SMTP id do12mr2508067ejc.470.1644604843550;
+ Fri, 11 Feb 2022 10:40:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220204133717.27793-1-cgzones@googlemail.com> <20220210183823.39187-1-cgzones@googlemail.com>
+In-Reply-To: <20220210183823.39187-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 11 Feb 2022 13:40:32 -0500
+Message-ID: <CAP+JOzR9C+2Weho74wNtJyt4_6SONPFyT=wfxb-jeu-6gcQ+eQ@mail.gmail.com>
+Subject: Re: [PATCH v2] checkpolicy: allow wildcard permissions in constraints
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Check the type for type and role sets is valid.
+On Fri, Feb 11, 2022 at 11:19 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Allow all and complement permission sets in constraints, e.g.:
+>
+>     constrain service ~ { status } (...);
+>     constrain service * (...);
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Check the scope of a scope datum is valid.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Check the flavor and flags of a type datum are valid.
-
-Check xperms are set if and only if it is an extended permission avrule.
-
-Check xperms has a valid specified field.
-
-Check the flag of avrule blocks is valid.
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/policydb_validate.c | 86 +++++++++++++++++++++++++++++++-
- 1 file changed, 84 insertions(+), 2 deletions(-)
-
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 41822e61..735c7a33 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -124,6 +124,15 @@ static int validate_type_set(type_set_t *type_set, validate_t *type)
- 	if (validate_ebitmap(&type_set->negset, type))
- 		goto bad;
- 
-+	switch (type_set->flags) {
-+	case 0:
-+	case TYPE_STAR:
-+	case TYPE_COMP:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
- 	return 0;
- 
- bad:
-@@ -148,9 +157,21 @@ bad:
- static int validate_role_set(role_set_t *role_set, validate_t *role)
- {
- 	if (validate_ebitmap(&role_set->roles, role))
--		return -1;
-+		goto bad;
-+
-+	switch (role_set->flags) {
-+	case 0:
-+	case ROLE_STAR:
-+	case ROLE_COMP:
-+		break;
-+	default:
-+		goto bad;
-+	}
- 
- 	return 0;
-+
-+bad:
-+	return -1;
- }
- 
- static int validate_scope(__attribute__ ((unused)) hashtab_key_t k, hashtab_datum_t d, void *args)
-@@ -159,12 +180,23 @@ static int validate_scope(__attribute__ ((unused)) hashtab_key_t k, hashtab_datu
- 	uint32_t *nprim = (uint32_t *)args;
- 	unsigned int i;
- 
-+	switch (scope_datum->scope) {
-+	case SCOPE_REQ:
-+	case SCOPE_DECL:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
- 	for (i = 0; i < scope_datum->decl_ids_len; i++) {
- 		if (!value_isvalid(scope_datum->decl_ids[i], *nprim))
--			return -1;
-+			goto bad;
- 	}
- 
- 	return 0;
-+
-+bad:
-+	return -1;
- }
- 
- static int validate_scopes(sepol_handle_t *handle, symtab_t scopes[], avrule_block_t *block)
-@@ -403,6 +435,26 @@ static int validate_type_datum(sepol_handle_t *handle, type_datum_t *type, valid
- 	if (type->bounds && validate_value(type->bounds, &flavors[SYM_TYPES]))
- 		goto bad;
- 
-+	switch (type->flavor) {
-+	case TYPE_TYPE:
-+	case TYPE_ATTRIB:
-+	case TYPE_ALIAS:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	switch (type->flags) {
-+	case 0:
-+	case TYPE_FLAGS_PERMISSIVE:
-+	case TYPE_FLAGS_EXPAND_ATTR_TRUE:
-+	case TYPE_FLAGS_EXPAND_ATTR_FALSE:
-+	case TYPE_FLAGS_EXPAND_ATTR:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
- 	return 0;
- 
- bad:
-@@ -688,6 +740,7 @@ static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, validate_t
- 			if (validate_value(class->tclass, &flavors[SYM_CLASSES]))
- 				goto bad;
- 		}
-+
- 		switch(avrule->specified) {
- 		case AVRULE_ALLOWED:
- 		case AVRULE_AUDITALLOW:
-@@ -705,6 +758,27 @@ static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, validate_t
- 		default:
- 			goto bad;
- 		}
-+
-+		if (avrule->specified & AVRULE_XPERMS) {
-+			if (!avrule->xperms)
-+				goto bad;
-+			switch (avrule->xperms->specified) {
-+			case AVRULE_XPERMS_IOCTLFUNCTION:
-+			case AVRULE_XPERMS_IOCTLDRIVER:
-+				break;
-+			default:
-+				goto bad;
-+			}
-+		} else if (avrule->xperms)
-+			goto bad;
-+
-+		switch(avrule->flags) {
-+		case 0:
-+		case RULE_SELF:
-+			break;
-+		default:
-+			goto bad;
-+		}
- 	}
- 
- 	return 0;
-@@ -1041,6 +1115,14 @@ static int validate_avrule_blocks(sepol_handle_t *handle, avrule_block_t *avrule
- 			if (validate_symtabs(handle, decl->symtab, flavors))
- 				goto bad;
- 		}
-+
-+		switch (avrule_block->flags) {
-+		case 0:
-+		case AVRULE_OPTIONAL:
-+			break;
-+		default:
-+			goto bad;
-+		}
- 	}
- 
- 	return 0;
--- 
-2.34.1
-
+>
+> ---
+>
+> v2:
+>    - do not set invalid permission bits
+>    - omit constrain rules with an empty permission bitset
+> ---
+>  checkpolicy/policy_define.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index b2ae3263..16b78346 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -3477,6 +3477,8 @@ static constraint_expr_t *constraint_expr_clone(con=
+st constraint_expr_t * expr)
+>         return NULL;
+>  }
+>
+> +#define PERMISSION_MASK(nprim) ((nprim) =3D=3D PERM_SYMTAB_SIZE ? (~UINT=
+32_C(0)) : ((UINT32_C(1) << (nprim)) - 1))
+> +
+>  int define_constraint(constraint_expr_t * expr)
+>  {
+>         struct constraint_node *node;
+> @@ -3590,6 +3592,22 @@ int define_constraint(constraint_expr_t * expr)
+>                         cladatum =3D policydbp->class_val_to_struct[i];
+>                         node =3D cladatum->constraints;
+>
+> +                       if (strcmp(id, "*") =3D=3D 0) {
+> +                               node->permissions =3D PERMISSION_MASK(cla=
+datum->permissions.nprim);
+> +                               continue;
+> +                       }
+> +
+> +                       if (strcmp(id, "~") =3D=3D 0) {
+> +                               node->permissions =3D ~node->permissions =
+& PERMISSION_MASK(cladatum->permissions.nprim);
+> +                               if (node->permissions =3D=3D 0) {
+> +                                       yywarn("omitting constraint with =
+no permission set");
+> +                                       cladatum->constraints =3D node->n=
+ext;
+> +                                       constraint_expr_destroy(node->exp=
+r);
+> +                                       free(node);
+> +                               }
+> +                               continue;
+> +                       }
+> +
+>                         perdatum =3D
+>                             (perm_datum_t *) hashtab_search(cladatum->
+>                                                             permissions.
+> --
+> 2.34.1
+>
