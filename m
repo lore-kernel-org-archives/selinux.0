@@ -2,98 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EB25C433FE
-	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 19:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 065C5C433EF
+	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 19:49:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352993AbiBKTsW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Feb 2022 14:48:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59146 "EHLO
+        id S236801AbiBKTtM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Feb 2022 14:49:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352987AbiBKTsV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 14:48:21 -0500
-Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A5C82A6
-        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 11:48:17 -0800 (PST)
-Received: by mail-oo1-xc2c.google.com with SMTP id p190-20020a4a2fc7000000b0031820de484aso11516705oop.9
-        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 11:48:17 -0800 (PST)
+        with ESMTP id S233121AbiBKTtL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 14:49:11 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360F52A1
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 11:49:10 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id x193so10834461oix.0
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 11:49:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=wXfqcuIO3dfU/7WgHLoi0qNm8eeEGxxr+e5mJyHLvGU=;
-        b=QgNvx0NlKPk2rya2kq3pZ8RLGUwuZ6Bzc0h2Cqb4SRukJqw/gK+lZBAGX5O9ipMqFx
-         A2iiOYL2R66XXiShfb2/rhY0LNcpcku4m6UNZmGswCKJRkb/Fc9NNVND5/XPqNsfJM0l
-         QCRTybWFrZYwmErg2VS4blGTxn1XHUI7HLoJF6Z7f0UulIUdMRYeXcGPTMaxBeeZCMqi
-         orGftqfnWF6vU8Wvfj6oyL6NTBfs0FxOvURroZq2NKFSWk9gy2zu7LHxGyk6WoULBexZ
-         q2hG1dmt3xLFnBMJPOgf0PGWC7g7ONXXgTEQqtwRfsgyz5+RNR/VzEQfE+vD7ky5sKBp
-         /qVA==
+        bh=9Nx2PEqGaTocStmu9Y4XxjO8Rm5Rws6VyatpaAubrEk=;
+        b=LR4vgyrWlZE7QZ1AHYle7VP453G2OUcxU8tOIfbP8Chn9QYtSY0/yQ4Coz0IGsWW8f
+         aGgLA4hR0NOQb94aztP1NZz1RgYfDvBCXkyWAUWFPipW5+BRTgqoBQoPiqDeZZOowWl4
+         I/lca21OR2JJqmQy02ReboyNa6o3rltsK9Olhkrb0oZ21Felj0SRWABIl1Qz8zz0GLup
+         cq6lErPqLYXB8ERGwlW5hCtAMbOsvNq2dWktREzdyPsODMttumzKAPfkTPieC4WwKnhQ
+         YpQWofOZVwS2jOqXifD6gucNQjZVjTum9lKa360ZUVbBGVSTnDtlQvHJsaeyDgYzx5OI
+         CFkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to;
-        bh=wXfqcuIO3dfU/7WgHLoi0qNm8eeEGxxr+e5mJyHLvGU=;
-        b=X51sH7X4+GSFlrCyFUFjokTRvESUUV0op+JtV5nJYOunidVgq9dBdZmvTwMov8IjMH
-         J1P5WnMZNLYTMwsv/i9qz8sU1FTcjiMK9KPh97H1oA5jYh6DGAcsXNM1y2EIco8R/1Ny
-         DSr9xYDzZLW6RACXrI4CLknPaUWaZFhbk98/PdlKF1Ri8cPg9MlyuJjApIwOBQR4V2Ek
-         TF7cw8Oiac5pIi4JjqezGRgeCVCPxZmJujH+K/p4o83Wrca+ZhYsaewZdlMI2+FX8lUe
-         mv4MlEoLIuc8fpIxTHrpgPSswZ26Khs292E/tp8UGeQyk8lfh7BurFkBqpRG3RNA76Im
-         wLoA==
-X-Gm-Message-State: AOAM5311JI+akWDFguLuSHDqHnShqnRqqLMcF1jVaq3Xp0qnl27fDt9T
-        nc2jfAF+mvIp2q0mLdtkR8UqzLgsB2G+SpSHF7Yr7Vlc
-X-Google-Smtp-Source: ABdhPJx/zRZf6pz3WXH5WT6yYoYPYQPfcxve4T6kqHxbFrnI9QmA4GE0uhnyxerJSt/5+dDToh68eueHkUUJe97oIAU=
-X-Received: by 2002:a05:6870:d891:: with SMTP id dv17mr622732oab.223.1644608896873;
- Fri, 11 Feb 2022 11:48:16 -0800 (PST)
+        bh=9Nx2PEqGaTocStmu9Y4XxjO8Rm5Rws6VyatpaAubrEk=;
+        b=XKBWw28JJ1K+bk3Dn6t0K5IT0OSe7Cl7BsZmN54L978nOLXWkxLuz06jKohL7gwNkb
+         hB6pdPrKUUngTwVQsOUO7Zd0llGONCErhNY4b01hiuHj8zQf+XutvaRyB+jVJp9NDnUJ
+         5+Rim4U9JNW9ZtXlGcDIK7/PBGsJaC2etLELOlLHLkkksfOuJrMU6YdhrzAsNZKbp5xX
+         iUDfcBfvDL+FdJK672UkCBcj/jT+I8aJlQyl4Y3RVQJ38ouNwmb4jMDYZGM04RKcdcjx
+         PnMR3aax/XeRyqWMg3xiPGT3biTAHPBLLFzMfDjeYCLevsFvg/c2jq+2qu7kL+ZAbuk3
+         WSMg==
+X-Gm-Message-State: AOAM5302ovg5z9Xiv1Dg/zIo4BSXoUq1D/luyexabwcsvnP9rEiVR4fv
+        7JKtkfeuTOVy/U8cXHYJGteTpqMHoYPa4j5tLbgGxnhC
+X-Google-Smtp-Source: ABdhPJxXM8XcjUBz1EvJ6Kmp2SBpTuan7Y3wOd5ft3WZRtoFvxSkMAglYmNcHn3zKMRoGqk2/GVWZSMcF+Xgf6Sjl5U=
+X-Received: by 2002:a54:408e:: with SMTP id i14mr990652oii.200.1644608949442;
+ Fri, 11 Feb 2022 11:49:09 -0800 (PST)
 MIME-Version: 1.0
-References: <20220105211602.359300-1-jwcart2@gmail.com> <CAP+JOzThuDcN_RpT8oZw-NBos0LbxEt=BkK5jgKGRV_skPadtw@mail.gmail.com>
-In-Reply-To: <CAP+JOzThuDcN_RpT8oZw-NBos0LbxEt=BkK5jgKGRV_skPadtw@mail.gmail.com>
+References: <20220113160422.675541-1-jwcart2@gmail.com> <CAP+JOzRcW_izEVpxwG8m099O6tK-UWEUfBebVyzfsaJLikzFUQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzRcW_izEVpxwG8m099O6tK-UWEUfBebVyzfsaJLikzFUQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 11 Feb 2022 14:48:06 -0500
-Message-ID: <CAP+JOzRhGC_MKsGcSFOhdOnpmp27AXWGRGU8NBt4NNt33nwdHw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol/cil: Do not copy blockabstracts when
- inheriting a block
+Date:   Fri, 11 Feb 2022 14:48:58 -0500
+Message-ID: <CAP+JOzSGTNuG2GWBBt=9W0P1CoHxdPE6QQenb9BOn3hcJRqKFw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Ensure that the class in a classcommon is a
+ kernel class
 To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 7, 2022 at 1:55 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, Feb 7, 2022 at 1:56 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> FYI, I plan on merging this series at the end of the week. If anyone
-> has any objections, please let me know.
+> I also plan on merging this patch at the end of the week.
 > Jim
 >
-This series has now been merged.
+This patch has now been merged.
 Jim
 
-> On Wed, Jan 5, 2022 at 4:16 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Thu, Jan 13, 2022 at 11:04 AM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > Do not copy any blockabstract statements when copying a block to
-> > resolve a blockinherit statement. Inheriting a block from what was
-> > just inherited does not work, so there is no reason to create an
-> > abstract block.
+> > Map classes use the same struct as kernel classes, but only the kernel
+> > class uses the pointer to a common class. When resolving a classcommon,
+> > make sure that the class that is found is a kernel class and not a
+> > map class. If not, then return an error.
+> >
+> > Found by oss-fuzz (#43209)
 > >
 > > Signed-off-by: James Carter <jwcart2@gmail.com>
 > > ---
-> >  libsepol/cil/src/cil_copy_ast.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
+> >  libsepol/cil/src/cil_resolve_ast.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
 > >
-> > diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> > index 2fad972c..a4ead9db 100644
-> > --- a/libsepol/cil/src/cil_copy_ast.c
-> > +++ b/libsepol/cil/src/cil_copy_ast.c
-> > @@ -1725,6 +1725,12 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished, void
-> >                 copy_func = &cil_copy_block;
-> >                 break;
-> >         case CIL_BLOCKABSTRACT:
-> > +               if (args->orig_dest->flavor == CIL_BLOCKINHERIT) {
-> > +                       /* When inheriting a block, don't copy any blockabstract
-> > +                        * statements. Inheriting a block from a block that was
-> > +                        * just inherited never worked. */
-> > +                       return SEPOL_OK;
-> > +               }
-> >                 copy_func = &cil_copy_blockabstract;
-> >                 break;
-> >         case CIL_BLOCKINHERIT:
+> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> > index e97a9f46..d359eca0 100644
+> > --- a/libsepol/cil/src/cil_resolve_ast.c
+> > +++ b/libsepol/cil/src/cil_resolve_ast.c
+> > @@ -754,6 +754,11 @@ int cil_resolve_classcommon(struct cil_tree_node *current, void *extra_args)
+> >         if (rc != SEPOL_OK) {
+> >                 goto exit;
+> >         }
+> > +       if (NODE(class_datum)->flavor != CIL_CLASS) {
+> > +               cil_log(CIL_ERR, "Class %s is not a kernel class and cannot be associated with common %s\n", clscom->class_str, clscom->common_str);
+> > +               rc = SEPOL_ERR;
+> > +               goto exit;
+> > +       }
+> >
+> >         rc = cil_resolve_name(current, clscom->common_str, CIL_SYM_COMMONS, extra_args, &common_datum);
+> >         if (rc != SEPOL_OK) {
 > > --
 > > 2.31.1
 > >
