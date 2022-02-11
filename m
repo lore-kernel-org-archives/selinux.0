@@ -2,99 +2,96 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 065C5C433EF
-	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 19:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 820ECC433EF
+	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 21:52:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236801AbiBKTtM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Feb 2022 14:49:12 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59588 "EHLO
+        id S1353816AbiBKVwF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Feb 2022 16:52:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233121AbiBKTtL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 14:49:11 -0500
+        with ESMTP id S229663AbiBKVwE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 16:52:04 -0500
 Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360F52A1
-        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 11:49:10 -0800 (PST)
-Received: by mail-oi1-x235.google.com with SMTP id x193so10834461oix.0
-        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 11:49:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFACBC66
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 13:52:02 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id u3so11036306oiv.12
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 13:52:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=9Nx2PEqGaTocStmu9Y4XxjO8Rm5Rws6VyatpaAubrEk=;
-        b=LR4vgyrWlZE7QZ1AHYle7VP453G2OUcxU8tOIfbP8Chn9QYtSY0/yQ4Coz0IGsWW8f
-         aGgLA4hR0NOQb94aztP1NZz1RgYfDvBCXkyWAUWFPipW5+BRTgqoBQoPiqDeZZOowWl4
-         I/lca21OR2JJqmQy02ReboyNa6o3rltsK9Olhkrb0oZ21Felj0SRWABIl1Qz8zz0GLup
-         cq6lErPqLYXB8ERGwlW5hCtAMbOsvNq2dWktREzdyPsODMttumzKAPfkTPieC4WwKnhQ
-         YpQWofOZVwS2jOqXifD6gucNQjZVjTum9lKa360ZUVbBGVSTnDtlQvHJsaeyDgYzx5OI
-         CFkQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/zMHgb4OkHICAftWY8AkhC5byLykgutCMKxv0XmdckI=;
+        b=DgQTha+IKEfKa5O0p4APjtub9QhebLov9U25I9JXEOHGJg5C57pfdV+pRZKI8X77Dj
+         Hpu+JG/S/q7UhWM45bHKa8q0A+j1AQD2UbVTUmkV/gWrmrl7GaslNUSVDGvXynz8b8oe
+         0e0kAFZkkJPchQ6qY4E6KuTRZzpswjRaIWG7IlwZbPzuTHIvBW2umnnevictUf9lnKPN
+         FfP269vUcl4suQQK0sYV65wQ5b17G8wd4Bss0+ZThpKnFtv3/ShSclwPC+kAoq1rwLMx
+         92xAn2reXRYarLm2sHqMYlIqpk7dowduoO++w/VyaKZ0agrBzq2fZfxaOoR32PPSJq5d
+         BlIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=9Nx2PEqGaTocStmu9Y4XxjO8Rm5Rws6VyatpaAubrEk=;
-        b=XKBWw28JJ1K+bk3Dn6t0K5IT0OSe7Cl7BsZmN54L978nOLXWkxLuz06jKohL7gwNkb
-         hB6pdPrKUUngTwVQsOUO7Zd0llGONCErhNY4b01hiuHj8zQf+XutvaRyB+jVJp9NDnUJ
-         5+Rim4U9JNW9ZtXlGcDIK7/PBGsJaC2etLELOlLHLkkksfOuJrMU6YdhrzAsNZKbp5xX
-         iUDfcBfvDL+FdJK672UkCBcj/jT+I8aJlQyl4Y3RVQJ38ouNwmb4jMDYZGM04RKcdcjx
-         PnMR3aax/XeRyqWMg3xiPGT3biTAHPBLLFzMfDjeYCLevsFvg/c2jq+2qu7kL+ZAbuk3
-         WSMg==
-X-Gm-Message-State: AOAM5302ovg5z9Xiv1Dg/zIo4BSXoUq1D/luyexabwcsvnP9rEiVR4fv
-        7JKtkfeuTOVy/U8cXHYJGteTpqMHoYPa4j5tLbgGxnhC
-X-Google-Smtp-Source: ABdhPJxXM8XcjUBz1EvJ6Kmp2SBpTuan7Y3wOd5ft3WZRtoFvxSkMAglYmNcHn3zKMRoGqk2/GVWZSMcF+Xgf6Sjl5U=
-X-Received: by 2002:a54:408e:: with SMTP id i14mr990652oii.200.1644608949442;
- Fri, 11 Feb 2022 11:49:09 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=/zMHgb4OkHICAftWY8AkhC5byLykgutCMKxv0XmdckI=;
+        b=RNQFf7m64jepgHRsltLDLI5LzkMaqxwXon8UvaJhnkInjFyndpoTVpFoYLZReyoZvt
+         TGcpl7Y9Doco7hE6ASc5x1zn/egGiZUfOc3TK4uAZPvZkLLoRaN6Z/4LzgBQahJaPkSL
+         ZmkaJZI5miPjtesRWiNh+Lt1qUivYmEsJCcoeLWHPQUI+6nc96KnrHFBHKc8jt4GSJ+a
+         jEOEoTniombDO2aIjsmNM66az3iLTq0p0RBixqzMm0SyEP58pIz0jg5RJ6WJxenRYKHP
+         yYRONYDIebxmCijsczmpEQgUD3u0tnwkwfSFXOJePfez319BwkjIxgVYYpxu67nH61Cs
+         NI1g==
+X-Gm-Message-State: AOAM530Wntqj5G7G2NaNHp9voU9CWbswHqKmU5I6wbhAbf3FmIru9GZ9
+        z2DKcyFJrnMKALPNKRMY3FLI56eAFu0TiQ08FwL3oseCP1g=
+X-Google-Smtp-Source: ABdhPJxKOotcBDHd03S8jRd+nQ/bn7nM2zCqr7k2bWAcIaZpv1/GuYPWM0RRXfz8kl3fGBBl/35DO2F8E0e96oW62IE=
+X-Received: by 2002:a05:6808:1147:: with SMTP id u7mr1158235oiu.189.1644616322289;
+ Fri, 11 Feb 2022 13:52:02 -0800 (PST)
 MIME-Version: 1.0
-References: <20220113160422.675541-1-jwcart2@gmail.com> <CAP+JOzRcW_izEVpxwG8m099O6tK-UWEUfBebVyzfsaJLikzFUQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzRcW_izEVpxwG8m099O6tK-UWEUfBebVyzfsaJLikzFUQ@mail.gmail.com>
+References: <20220203165327.213601-1-omosnace@redhat.com> <20220203165327.213601-2-omosnace@redhat.com>
+In-Reply-To: <20220203165327.213601-2-omosnace@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 11 Feb 2022 14:48:58 -0500
-Message-ID: <CAP+JOzSGTNuG2GWBBt=9W0P1CoHxdPE6QQenb9BOn3hcJRqKFw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Ensure that the class in a classcommon is a
- kernel class
-To:     SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 11 Feb 2022 16:51:51 -0500
+Message-ID: <CAP+JOzSQA4+jjBboSmVOFKnc+r5m6TC3_rOrn=m1Tk_r0Bo7cA@mail.gmail.com>
+Subject: Re: [PATCH userspace v2 1/6] libsemanage: add missing include to boolean_record.c
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 7, 2022 at 1:56 PM James Carter <jwcart2@gmail.com> wrote:
+On Fri, Feb 4, 2022 at 3:46 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> I also plan on merging this patch at the end of the week.
-> Jim
+> It uses asprintf(3), but doesn't directly include <stdio.h> - fix it.
 >
-This patch has now been merged.
-Jim
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
+For this series:
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libsemanage/src/boolean_record.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 >
-> On Thu, Jan 13, 2022 at 11:04 AM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > Map classes use the same struct as kernel classes, but only the kernel
-> > class uses the pointer to a common class. When resolving a classcommon,
-> > make sure that the class that is found is a kernel class and not a
-> > map class. If not, then return an error.
-> >
-> > Found by oss-fuzz (#43209)
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  libsepol/cil/src/cil_resolve_ast.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> >
-> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> > index e97a9f46..d359eca0 100644
-> > --- a/libsepol/cil/src/cil_resolve_ast.c
-> > +++ b/libsepol/cil/src/cil_resolve_ast.c
-> > @@ -754,6 +754,11 @@ int cil_resolve_classcommon(struct cil_tree_node *current, void *extra_args)
-> >         if (rc != SEPOL_OK) {
-> >                 goto exit;
-> >         }
-> > +       if (NODE(class_datum)->flavor != CIL_CLASS) {
-> > +               cil_log(CIL_ERR, "Class %s is not a kernel class and cannot be associated with common %s\n", clscom->class_str, clscom->common_str);
-> > +               rc = SEPOL_ERR;
-> > +               goto exit;
-> > +       }
-> >
-> >         rc = cil_resolve_name(current, clscom->common_str, CIL_SYM_COMMONS, extra_args, &common_datum);
-> >         if (rc != SEPOL_OK) {
-> > --
-> > 2.31.1
-> >
+> diff --git a/libsemanage/src/boolean_record.c b/libsemanage/src/boolean_record.c
+> index 95f3a862..40dc6545 100644
+> --- a/libsemanage/src/boolean_record.c
+> +++ b/libsemanage/src/boolean_record.c
+> @@ -7,6 +7,9 @@
+>   */
+>
+>  #include <string.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +
+>  #include <sepol/boolean_record.h>
+>
+>  typedef sepol_bool_t semanage_bool_t;
+> @@ -20,7 +23,6 @@ typedef semanage_bool_key_t record_key_t;
+>  #include "boolean_internal.h"
+>  #include "handle.h"
+>  #include "database.h"
+> -#include <stdlib.h>
+>  #include <selinux/selinux.h>
+>
+>  /* Key */
+> --
+> 2.34.1
+>
