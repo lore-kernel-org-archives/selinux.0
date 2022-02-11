@@ -2,127 +2,90 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58A36C433EF
-	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 18:40:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E903BC433F5
+	for <selinux@archiver.kernel.org>; Fri, 11 Feb 2022 18:47:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236801AbiBKSkr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Feb 2022 13:40:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44440 "EHLO
+        id S231239AbiBKSrE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Feb 2022 13:47:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231833AbiBKSkr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 13:40:47 -0500
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D30C227
-        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 10:40:45 -0800 (PST)
-Received: by mail-ej1-x62f.google.com with SMTP id a8so24723867ejc.8
-        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 10:40:45 -0800 (PST)
+        with ESMTP id S232268AbiBKSrE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Feb 2022 13:47:04 -0500
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7CF337
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 10:47:02 -0800 (PST)
+Received: by mail-qk1-x735.google.com with SMTP id o10so9093896qkg.0
+        for <selinux@vger.kernel.org>; Fri, 11 Feb 2022 10:47:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=uGHpvVTXq48IAiFd+yjSQ21crV5EYOoLjwC8JEfYx5o=;
-        b=khyOYaTIm5GE1ZYXYP0qWhCG35F0THBd59gACbVAo6jvXYM5gS6kgrfXGj9+EiSSbS
-         8l3R5OoT4c5JS+efuaYaFMFFo3YQJrjtCP9cs3+Xkgta8UBc8tbQ0ClcLYTcIYUL9mWt
-         fgqQfOpeVxx7w5JXqgo8GoMe6qqmC1GLn+IMkT2cTR3x/kzdupMQvtXpor6/1XxV+9uK
-         K4K2l7SFHNd2OS4XkQ5ha/WufY3ue48xfAnKBFKV7hTAQrBsR8RIZVJbymGI7pI5yWIM
-         Z+klUecdhGqUs0W7J1Jt8p7ZZ9yST7RQ5FH6MLM0rkB3QnFRCaZzkh2aJ4tj3tSIb6ru
-         0V8w==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NQ9dLE4qRCZ8PE+mGm5akTvNPqhS4+bDbb1b5kZNXMQ=;
+        b=oCQfmzNaSko79hHOsIlsRz38dWe9Q8UFHZoAacwx7w9FwRMq0/N7XGY2HLq/Jekmbc
+         OkubU7HfDtrZMYDmvgonHD1utiAcR4LvqSsWDAsIS0Z6XdjlDulkJJKs9arySVnMWP6L
+         f3UHPI5VPzOOy8MctcKikNdGti8agirpq+/9tKWxZPiG3XnEysBgQIm83yx8JJBXB8eG
+         J5Fe1R9AxZkQavN8vLW9EZmrb1jvuWkD1pkgF2ngQjki+TFUWzN1MMaNr8USGE8+TxTc
+         qEwSbnWcPGrFaMROOZSbjyA1Lo6PDD8hRZPVVithSffKZpeiPfOVwUV9LRcB7sspsjbj
+         A/tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=uGHpvVTXq48IAiFd+yjSQ21crV5EYOoLjwC8JEfYx5o=;
-        b=VVUIDampYnvWZUkpgD4fQu3tIMzwS/m7NSNSdbnJAMVlXU4Vg9M02GB4A04YqEkp4Z
-         uUwhsK30jAK8FO1qcbtanjF4AhEiVAkuEjil55EnT3pSOr0FNHZAzcx6YZPqTf9qmSaF
-         MvUaMRl/Lky8YXUkBydMjHX+zQxMWgZ/bOIQD2SoS822STy+bgNuNdv8eNDe2NdPLEui
-         TW+qxQ3vYztWPPHD0yNUovuqLdETdKhIaai2qFpo3v1jyqNcRuD0nT7lUUGhqGfjulqK
-         CUG3fS+JNC3WYsS86RI0qkWNiZI1qRI5TYwuDNonW3E3fseidDUumbDVbZaHH100DO10
-         TNNA==
-X-Gm-Message-State: AOAM531qMSkcryBTICxazMS39Xq5B2AL3jKMfaEourLjwijpYOmMkx1j
-        nBCFJli3JirLFeu75RXyRL7+Jb1JFw653X/4FlG5Mr5JS2U=
-X-Google-Smtp-Source: ABdhPJwwvOwNkUaFSfxrrwKnipizbfamGrN0LOWQOdyTEwrrkdTZB0b3PEGt6t8hmP/5BHzCc4lrNcbAabepK0Uu8Ks=
-X-Received: by 2002:a17:906:c10c:: with SMTP id do12mr2508067ejc.470.1644604843550;
- Fri, 11 Feb 2022 10:40:43 -0800 (PST)
-MIME-Version: 1.0
-References: <20220204133717.27793-1-cgzones@googlemail.com> <20220210183823.39187-1-cgzones@googlemail.com>
-In-Reply-To: <20220210183823.39187-1-cgzones@googlemail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NQ9dLE4qRCZ8PE+mGm5akTvNPqhS4+bDbb1b5kZNXMQ=;
+        b=ECDWLBi/h9fB59m8qgGQyy25Wc+wcvR2mXSEWuXmNSzcdrYYDADr+BNUDVj1ZlmpHE
+         /GEsaE/h301dh/O3+ZE+7koqvHe7HWcJaLoGS/QUrm9BEg0ChnDBjxoy0upQgIjdarFq
+         YeD4joVM/vpOFfu7yZpOgVN1oAUDiMJPRQwLBD8wHsk78N9w+14XAHN16AmAkUWxYv1a
+         li7qyzjb+hvNpBw7dLRbm+Ajwlzc/X50LdHigJi2xGUqSVcUYmTOOEvoZ6XS8IPwTgDM
+         J8sdtfds35evKj/2mji7FdWPPidwXPg9Agr3e82j+Lf91nvD3r8G+COJDrGllE16tLa1
+         DfZQ==
+X-Gm-Message-State: AOAM533ZjN9pIYnOZH2Y+7sApj11YX9BVrjQf2zx3UGIPJy+ODrCGZKN
+        ZropeWAj9M8ZUca9cVxn6Mn0evhKd4M=
+X-Google-Smtp-Source: ABdhPJy1yjCsScotrOSNvwh6wSyWp4F0ZLz8Im9TS1U21JSqIn1A9LUv5QBqU5kUB86qjHVHYKzihA==
+X-Received: by 2002:a37:bfc3:: with SMTP id p186mr650299qkf.440.1644605221693;
+        Fri, 11 Feb 2022 10:47:01 -0800 (PST)
+Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
+        by smtp.gmail.com with ESMTPSA id t1sm13668767qtc.48.2022.02.11.10.47.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Feb 2022 10:47:01 -0800 (PST)
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 11 Feb 2022 13:40:32 -0500
-Message-ID: <CAP+JOzR9C+2Weho74wNtJyt4_6SONPFyT=wfxb-jeu-6gcQ+eQ@mail.gmail.com>
-Subject: Re: [PATCH v2] checkpolicy: allow wildcard permissions in constraints
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/2] libsepol/cil: Don't add constraint if there are no permissions
+Date:   Fri, 11 Feb 2022 13:46:49 -0500
+Message-Id: <20220211184650.535016-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 11, 2022 at 11:19 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Allow all and complement permission sets in constraints, e.g.:
->
->     constrain service ~ { status } (...);
->     constrain service * (...);
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Since CIL allows permission expressions, it is possible for the
+expression to evaluate to no permissions. If this is the case,
+then don't add the constraint.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_binary.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
->
-> ---
->
-> v2:
->    - do not set invalid permission bits
->    - omit constrain rules with an empty permission bitset
-> ---
->  checkpolicy/policy_define.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index b2ae3263..16b78346 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -3477,6 +3477,8 @@ static constraint_expr_t *constraint_expr_clone(con=
-st constraint_expr_t * expr)
->         return NULL;
->  }
->
-> +#define PERMISSION_MASK(nprim) ((nprim) =3D=3D PERM_SYMTAB_SIZE ? (~UINT=
-32_C(0)) : ((UINT32_C(1) << (nprim)) - 1))
-> +
->  int define_constraint(constraint_expr_t * expr)
->  {
->         struct constraint_node *node;
-> @@ -3590,6 +3592,22 @@ int define_constraint(constraint_expr_t * expr)
->                         cladatum =3D policydbp->class_val_to_struct[i];
->                         node =3D cladatum->constraints;
->
-> +                       if (strcmp(id, "*") =3D=3D 0) {
-> +                               node->permissions =3D PERMISSION_MASK(cla=
-datum->permissions.nprim);
-> +                               continue;
-> +                       }
-> +
-> +                       if (strcmp(id, "~") =3D=3D 0) {
-> +                               node->permissions =3D ~node->permissions =
-& PERMISSION_MASK(cladatum->permissions.nprim);
-> +                               if (node->permissions =3D=3D 0) {
-> +                                       yywarn("omitting constraint with =
-no permission set");
-> +                                       cladatum->constraints =3D node->n=
-ext;
-> +                                       constraint_expr_destroy(node->exp=
-r);
-> +                                       free(node);
-> +                               }
-> +                               continue;
-> +                       }
-> +
->                         perdatum =3D
->                             (perm_datum_t *) hashtab_search(cladatum->
->                                                             permissions.
-> --
-> 2.34.1
->
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 4ac8ce8d..468fb595 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -2823,6 +2823,12 @@ int cil_constrain_to_policydb_helper(policydb_t *pdb, const struct cil_db *db, s
+ 		goto exit;
+ 	}
+ 
++	if (sepol_constrain->permissions == 0) {
++		/* No permissions, so don't insert rule. */
++		free(sepol_constrain);
++		return SEPOL_OK;
++	}
++
+ 	rc = __cil_constrain_expr_to_sepol_expr(pdb, db, expr, &sepol_expr);
+ 	if (rc != SEPOL_OK) {
+ 		goto exit;
+-- 
+2.34.1
+
