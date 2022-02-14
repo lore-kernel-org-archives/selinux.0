@@ -2,108 +2,85 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA5FC433F5
-	for <selinux@archiver.kernel.org>; Mon, 14 Feb 2022 14:48:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2D26C4332F
+	for <selinux@archiver.kernel.org>; Mon, 14 Feb 2022 16:58:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353793AbiBNOs4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Feb 2022 09:48:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51996 "EHLO
+        id S1356764AbiBNQ6f (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Feb 2022 11:58:35 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241020AbiBNOs4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Feb 2022 09:48:56 -0500
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4ADB4BFDF
-        for <selinux@vger.kernel.org>; Mon, 14 Feb 2022 06:48:48 -0800 (PST)
-Received: by mail-ot1-x334.google.com with SMTP id j38-20020a9d1926000000b0059fa6de6c71so11718889ota.10
-        for <selinux@vger.kernel.org>; Mon, 14 Feb 2022 06:48:48 -0800 (PST)
+        with ESMTP id S1356766AbiBNQ6f (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Feb 2022 11:58:35 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF4965155
+        for <selinux@vger.kernel.org>; Mon, 14 Feb 2022 08:58:27 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id a8so38766860ejc.8
+        for <selinux@vger.kernel.org>; Mon, 14 Feb 2022 08:58:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=yY6SBvo2qbcnCwjtRSeNMGOZDq7K8OjWeyGgXn+J8/I=;
-        b=c762y/8kzhwXIpftYbmq3sQ3xvvMb7tBcccCFhDQW8wygXWZVOKzWz3Ip729SQ5vSi
-         2Gjias6juXxULmxmwu4+IMOpB62B0UpyBtE1Sn82dM5AW5OVbVEYPTUVs+j6aM7nUOed
-         2niVUSZMpUvY92xzhFZit44DzC0bJ8OzOOmaJLtUNqhyMJ2giSjt/GktItM18uv+ii4x
-         BklMhdYtYk1MY8X8EwoLJ1fV+HkooN4hg0kMRpvMeaGBCfWbclYeT2p2S0tUNRMvrX/c
-         jPxGpXpV/d5ym1Re7pRYyygAw85ORBjDGtrVRjCa7ysnfsU8GswDjNAmSIqjDd4VO/rO
-         lzgw==
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=UxsAx2JsWtVA0zeo+d78eRtsJec2K6h4T7ZIMtJz98o=;
+        b=q4HATIn2KXUWN3X75bA2Ppzs7TVdIx0bXafPWBSmpvJRuhInoVC3arO4Vvn1PMHPQh
+         +2pCT3EQa+7LfMpUpYFvV/07WQ/D16ao92h8XoFu3nR3/E+KqIpgPkbamvGZiBoW61Pg
+         dcX6lYJQhu6D0DURSIXT7i9p73QNDFleugHi7FgKpAXiFWPWom4KZj2IaC7JPx/tvDaw
+         RMnBqjBi9NZj+oJcf2GmcPzDSer0Eh/g7sym2EQ8g+7nhjj6h2OM5cJ3ADvGZp1aylOB
+         ejrE+2xkBKfcGdzEIt+d3ImocUG5F1QJk1vL6zgiUsam4HYLurLPchKl+joLN9OuKB2q
+         iXiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=yY6SBvo2qbcnCwjtRSeNMGOZDq7K8OjWeyGgXn+J8/I=;
-        b=3cE8LcmvUmUCL8bxFQFyiz0pYGWHIR5GBJVgRUjbryVRmkRwLXANpQ21GPvgiFZN2z
-         ZmhhmOYzXhR526HtPKyyvu6yPzI4zQxQwWQQAXArK4cxrDeYMQAuzbv5AXYEmaodtXdV
-         QpX/4WG11Z3Sp/ETeUIAkJvab26Q3chBwxo+OLlswbcNbTZO4ts6faqrFBELLYHqokIa
-         +d+xlYcj24yYp8RztFeliCX184J6PTVIAxU5iK/0yFqcNn+fGb5FExIYcZfv2qtHia1s
-         mDQFHtBaZO6GysIv4k0stNLWYnoMn13L7KnQGVR7ZKKT3kUFBl6VA2tceV+Px7KXt4jy
-         H/3Q==
-X-Gm-Message-State: AOAM530eDCqSV0R80TInGUn0TefZXj0vyIxtBaEKnNimWUUdmhItSnis
-        JS62Bh/US1h6UyXAyliijteooxAAOjaOtxkcvNfwormk
-X-Google-Smtp-Source: ABdhPJxHXOHDIkqeevvDGy2ntcaFowK6tZCJbQ1jeU3l2yKWU6GT1JdH4czOSStKRngC272vsCwdxigydlkaFm6GfUM=
-X-Received: by 2002:a9d:1297:: with SMTP id g23mr38076otg.154.1644850128055;
- Mon, 14 Feb 2022 06:48:48 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=UxsAx2JsWtVA0zeo+d78eRtsJec2K6h4T7ZIMtJz98o=;
+        b=MFyUaiYGBf8DhgioyvnYFutOTGckCE118BoevjL7lv8uf/55ECt8hJB+EYEJfbvaxd
+         CsJiNHQfJx4x+dpYq0tIjJPW5Gf8IX+G+f6ZZfhHR6umf/+Jv/bJHjMIPCkXNUvhN41O
+         hreFJzxveXerDUO1XAzTRxvkw0N9L+frzasEW4Aw5Fp+qtXFUiwgAocZB68s51eL90j1
+         e65Pig05DqHWU1UCwfn6cfJIG/8aFFbIJdDfmXZ8saeZDK+1RltSMyiwk57+Y1xfd/Xr
+         8uHDszL8pS+SSRiTF/S0vyaK9imSptuorx2x5ENYAOQJ6+jCNTx2bWcAGawRw/XkidGT
+         HzTg==
+X-Gm-Message-State: AOAM530/sKcvLMOwuVQlUN7S34+hP8z2z2yFd7x3xgVmS32H5aTYilu7
+        EXrVupDAnr++BStRarzP5QbDXvb/FKM=
+X-Google-Smtp-Source: ABdhPJx89nfZLNjssbB/kEoH6VSKFxwiI77RWPCn71tnFWxieiQY+jvFwdRXkXkldYVlydM9GwvSmw==
+X-Received: by 2002:a17:906:549:: with SMTP id k9mr372075eja.649.1644857905705;
+        Mon, 14 Feb 2022 08:58:25 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-003-192-083.77.3.pool.telefonica.de. [77.3.192.83])
+        by smtp.gmail.com with ESMTPSA id v5sm15652251edb.15.2022.02.14.08.58.25
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Feb 2022 08:58:25 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] python/sepolgen: accept square brackets in FILENAME token
+Date:   Mon, 14 Feb 2022 17:58:12 +0100
+Message-Id: <20220214165812.9359-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220114192002.730773-1-jwcart2@gmail.com> <dd96ca20-2f8f-ea6c-48b8-6649915fac1c@gmail.com>
- <CAP+JOzSeF50B5fYCLLKJpnGCXXWwxkEDEFU=61ZUY-TyLU7E+g@mail.gmail.com>
- <d6716dff-d46a-9a2f-3033-fe1bf0205681@gmail.com> <969a8728-ed17-821a-cbeb-38c0ed56e889@gmail.com>
-In-Reply-To: <969a8728-ed17-821a-cbeb-38c0ed56e889@gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 14 Feb 2022 09:48:37 -0500
-Message-ID: <CAP+JOzTPoM0dnJThEmJO8JyAJt=E8Ccp=He33xr9TOhvs9mfEA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol/cil: Limit the amount of reporting for
- neverallow violations
-To:     bauen1 <j2468h@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 11, 2022 at 8:03 PM bauen1 <j2468h@googlemail.com> wrote:
->
-> Hi,
->
-> On 1/19/22 14:04, bauen1 wrote:
-> >
-> > On 1/18/22 16:48, James Carter wrote:
-> >> On Fri, Jan 14, 2022 at 2:44 PM bauen1 <j2468h@googlemail.com> wrote:
-> >>>
-> >>> Hi,
-> >>>
-> >>> as a heavy user of neverallow / neverallowx, please don't limit this.
-> >>>
-> >>> When adding a new neverallow rule there might quite a few types violating them, and having to rebuild the policy every 2 types would make fixing them incredibly annoying.
-> >>>
-> >>> If you want to limit this, then please make it opt-in or add it as a command line option.
-> >>>
-> >>
-> >> I am trying to limit error messages because oss-fuzz seems to be good
-> >> at creating policies that generate a lot of error messages and
-> >> subsequently take a lot of time to process.
-> >>
-> >> But I am not going to do that at the expense of people actually using secilc.
-> >>
-> >> I was already thinking about making the amount of error reporting
-> >> depending on the verbosity level. What would think of it limiting it
-> >> to two by default, but unlimited at any higher verbosity level. I can
-> >> even add a message to use "-v" to see all of the errors.
-> >
-> > Thanks, something like that would be totally fine for me.
-> >
->
-> I've also just noticed that typebounds will only print the first 2 violations.
-> So if you make this depend on the verbosity level you might want to change that too, just to be consistent.
->
+When parsing Reference Policy style files accept square brackets in file
+names.  The FILENAME token is used in the TYPE_TRANSITION grammar rule
+for the optional name based argument.  This name can contain square
+brackets, e.g. for anonymous inodes like "[io_uring]".
+---
+ python/sepolgen/src/sepolgen/refparser.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yes, I did send out a v2 that changes the typebounds error reporting
-to depend on the verbosity level as well. That patch set was sent out
-on January 19th.
+diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
+index e611637f..1bb90564 100644
+--- a/python/sepolgen/src/sepolgen/refparser.py
++++ b/python/sepolgen/src/sepolgen/refparser.py
+@@ -261,7 +261,7 @@ def t_IDENTIFIER(t):
+     return t
+ 
+ def t_FILENAME(t):
+-    r'\"[a-zA-Z0-9_\-\+\.\$\*~ :]+\"'
++    r'\"[a-zA-Z0-9_\-\+\.\$\*~ :\[\]]+\"'
+     # Handle any keywords
+     t.type = reserved.get(t.value,'FILENAME')
+     return t
+-- 
+2.34.1
 
-Thanks,
-Jim
-
-
-> --
-> bauen1
-> https://dn42.bauen1.xyz/
