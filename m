@@ -2,137 +2,139 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41D7AC433EF
-	for <selinux@archiver.kernel.org>; Sat, 12 Feb 2022 21:58:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 521ADC433FE
+	for <selinux@archiver.kernel.org>; Mon, 14 Feb 2022 07:11:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229787AbiBLV6y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 12 Feb 2022 16:58:54 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60780 "EHLO
+        id S241261AbiBNHLu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Feb 2022 02:11:50 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbiBLV6y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 12 Feb 2022 16:58:54 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 943A0606FA
-        for <selinux@vger.kernel.org>; Sat, 12 Feb 2022 13:58:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644703128;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=A2Cw52X1+qOYmJurqYnkoU4CLJrh/MQPlo1UwPWCQTo=;
-        b=UkpRhrv5aUvTClY6XygWLskVDhwdlbfDrBPZzaW7w5nQs8qW6ywn4hKpMLlkEFGA/8A57+
-        2D578NY8dfo/VlD2QOy+j0fhOZ/w2S/cAU5Tt9IypiCRkaEpCL/a8kir3sN5VT/ZQjV5oy
-        /wrEyYega5+gT+7tgCp1HH+nLMlUX1c=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-216-g1jMLbrjMSaKBDha0cV31g-1; Sat, 12 Feb 2022 16:58:46 -0500
-X-MC-Unique: g1jMLbrjMSaKBDha0cV31g-1
-Received: by mail-yb1-f198.google.com with SMTP id c10-20020a251c0a000000b0062272fc32bfso1472751ybc.17
-        for <selinux@vger.kernel.org>; Sat, 12 Feb 2022 13:58:46 -0800 (PST)
+        with ESMTP id S233544AbiBNHLt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Feb 2022 02:11:49 -0500
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318D558E4D
+        for <selinux@vger.kernel.org>; Sun, 13 Feb 2022 23:11:41 -0800 (PST)
+Received: by mail-lj1-x22a.google.com with SMTP id e17so20941821ljk.5
+        for <selinux@vger.kernel.org>; Sun, 13 Feb 2022 23:11:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=g6DcfZ92QqbVDkAs+5onWxHYvjv4eWwkjyJIREZ2EHI=;
+        b=FuHHJ7d7pv5aBhqmGSDZ49xksdbfDW1/UWVdzf9yzdMEbAxQdda/x670Ojs+8e87vM
+         E5fimacLU+KLUtiJ2cK3H3h9q2Od2Wa3HStmrEe4GLWhoJMXtCuXFhb4dqCaGfaGoLfa
+         6AVvAon6gw93LvgE/YeBH7tl4vvAbD9rLhRg9ahUi2xDM8DdLqaQhOqJQSk3K11pmDc6
+         akX1kWkWmI4lNlIQ2Lsvh0WC+oHthoN4+WS1+MOBsIb8rqYJdkBO4YKpYfOrxvWUrXQv
+         aDjJUdJB3QU7x8T+dNg3bPDQFZCSpBPoh+uLjsq8dYnftpAmFy1MGpgcKgD2oMiqkKRR
+         VnEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=A2Cw52X1+qOYmJurqYnkoU4CLJrh/MQPlo1UwPWCQTo=;
-        b=KcXjsFLvidClJSslHBVIy5Lbuds+ySD8FFBc5Nqxj7j7XnRh+3zyGFsUVr6Ou1WCc3
-         Rk4bKHe92yVdvMicdv9PcXc/kKiy5fPD13hP+vGobCsQC9lyonaVHtrYfbvsrQzcTiA0
-         VwOuwviqTsejQb24ip1EkQGjoOVukZNTKtjbsUTd4D1hrtoqiOuPvFK/iGrY1G1icCLx
-         C/mkOtE5FBj2S2BVFUBT+X/tqN5gAjxnGeLjzSBoky4IaVC22WB23L802meuUj2FfuZj
-         NM0Bw2s/KunT6p9eYqGwrr22AL2xl4MhK7S86t+99gLWxhcC4qixITZz6teb1MSesSKU
-         N4bw==
-X-Gm-Message-State: AOAM531wUHvJXR2PYiT4VrHkkD+g6uJhRfBWDvGqixVNNLbaNdMe8h4b
-        fEgJ6xCqLYgAQJqEXUgipAOMnfiPAH0+YFprlUzSGrNOaf+QZhnMXJ5AwqN5ua2XZvTC4qUU1+I
-        RoqNxbBhI76xextAI5nUfDmOX+9mqCQ5xmw==
-X-Received: by 2002:a81:998c:: with SMTP id q134mr7867243ywg.29.1644703126224;
-        Sat, 12 Feb 2022 13:58:46 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz6xKJ8Vy5jYdaFIUhwSOxKWkmQhlN9SOfJe/I8QaKuzargWJNwN+xx//QgsOW0nGlZiW3kBq7cjVdtfMAHuco=
-X-Received: by 2002:a81:998c:: with SMTP id q134mr7867239ywg.29.1644703126022;
- Sat, 12 Feb 2022 13:58:46 -0800 (PST)
+        bh=g6DcfZ92QqbVDkAs+5onWxHYvjv4eWwkjyJIREZ2EHI=;
+        b=fiArL4iw1Kh1MKIO2fl1GnSYg89AyaDlXe4xuIvXnkt06iwk29TGQDv5VeBETmzotf
+         UGFiSALorDLbBux7NqmPh5SJRtlBpzsKjb/pfi8G64gHeOvivfrCMRCFYXvjBVzW1M/D
+         gFDMxH0PoacDLYbL7LSiyvIfWj4jMSrHcGI7VkgpJbY4U6KtOD1ZLsuyPowfVqvfZwM5
+         DiosQ+wdqQ/vvU/+DEacakNMJZ1Rey5KWIW1NqIYNl4yDPCIH+KIjYr0j23S7jeYaOBL
+         cGDTi+t1XIEXtJ0X8bOqS74292XRgWMvtenf1JJzr618yTFg9QICsCya2AzSnGpqru0i
+         Gn5w==
+X-Gm-Message-State: AOAM533u+lqtqnnwSxVnes+aWuiOVfk3lKBnA7bnq8LIThz9VULzMZUd
+        E5paLm2ec9adTAcV8OrlzZTC4GLUsXcwh4NA5l5OpS8VqUc3zg==
+X-Google-Smtp-Source: ABdhPJx7slpeRGSxnbPf6rrPFN41+RI0bP5E3hXma5RYfHdtnUcAjBwaynRftHeGXOGFN5zH+jAF0u9+ePiPHEGbbZI=
+X-Received: by 2002:a2e:a4ce:: with SMTP id p14mr1611442ljm.124.1644822699006;
+ Sun, 13 Feb 2022 23:11:39 -0800 (PST)
 MIME-Version: 1.0
-References: <20220212175922.665442-1-omosnace@redhat.com>
-In-Reply-To: <20220212175922.665442-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Sat, 12 Feb 2022 22:58:34 +0100
-Message-ID: <CAFqZXNtuZ8C5sSJDktTSWiPJbPxTK7ES21NJYVvFC9N4toehew@mail.gmail.com>
-Subject: Re: [PATCH net v3 0/2] security: fixups for the security hooks in sctp
-To:     network dev <netdev@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+ <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+ <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+ <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+ <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com> <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+ <478e1651-a383-05ff-d011-6dda771b8ce8@linux.microsoft.com>
+ <875ypt5zmz.fsf@defensec.nl> <CAFftDdo9JmbyPzPWRjOYgZBOS9b5d+OGKKf8egS8_ysbbWW87Q@mail.gmail.com>
+In-Reply-To: <CAFftDdo9JmbyPzPWRjOYgZBOS9b5d+OGKKf8egS8_ysbbWW87Q@mail.gmail.com>
+From:   Jeffrey Vander Stoep <jeffv@google.com>
+Date:   Mon, 14 Feb 2022 08:11:28 +0100
+Message-ID: <CABXk95Az0V0qWyB0Cp9D+MaCKNBfcdk4=bvXRdm5EXzHdjXJJg@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Dominick Grift <dominick.grift@defensec.nl>,
+        Chris PeBenito <chpebeni@linux.microsoft.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Demi Marie Obenour <demiobenour@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
         SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     Xin Long <lucien.xin@gmail.com>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Feb 12, 2022 at 6:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> This is a third round of patches to fix the SCTP-SELinux interaction
-> w.r.t. client-side peeloff. The patches are a modified version of Xin
-> Long's patches posted previously, of which only a part was merged (the
-> rest was merged for a while, but was later reverted):
-> https://lore.kernel.org/selinux/cover.1635854268.git.lucien.xin@gmail.com/T/
+On Tue, Feb 8, 2022 at 3:18 PM William Roberts <bill.c.roberts@gmail.com> wrote:
 >
-> In gist, these patches replace the call to
-> security_inet_conn_established() in SCTP with a new hook
-> security_sctp_assoc_established() and implement the new hook in SELinux
-> so that the client-side association labels are set correctly (which
-> matters in case the association eventually gets peeled off into a
-> separate socket).
+> <snip>
 >
-> Note that other LSMs than SELinux don't implement the SCTP hooks nor
-> inet_conn_established, so they shouldn't be affected by any of these
-> changes.
+> This is getting too long for me.
 >
-> These patches were tested by selinux-testsuite [1] with an additional
-> patch [2] and by lksctp-tools func_tests [3].
+> > >
+> > > I don't have a strong opinion either way.  If one were to allow this
+> > > using a policy rule, it would result in a major policy breakage.  The
+> > > rule would turn on extended perm checks across the entire system,
+> > > which the SELinux Reference Policy isn't written for.  I can't speak
+> > > to the Android policy, but I would imagine it would be the similar
+> > > problem there too.
+> >
+> > Excuse me if I am wrong but AFAIK adding a xperm rule does not turn on
+> > xperm checks across the entire system.
 >
-> Changes since v2:
-> - patches 1 and 2 dropped as they are already in mainline (not reverted)
-> - in patch 3, the return value of security_sctp_assoc_established() is
->   changed to int, the call is moved earlier in the function, and if the
->   hook returns an error value, the packet will now be discarded,
->   aborting the association
-> - patch 4 has been changed a lot - please see the patch description for
->   details on how the hook is now implemented and why
+> It doesn't as you state below its target + class.
 >
-> [1] https://github.com/SELinuxProject/selinux-testsuite/
-> [2] https://patchwork.kernel.org/project/selinux/patch/20211021144543.740762-1-omosnace@redhat.com/
+> >
+> > If i am not mistaken it will turn on xperm checks only for the
+> > operations that have the same source and target/target class.
+>
+> That's correct.
+>
+> >
+> > This is also why i don't (with the exception TIOSCTI for termdev
+> > chr_file) use xperms by default.
+> >
+> > 1. it is really easy to selectively filter ioctls by adding xperm rules
+> > for end users (and since ioctls are often device/driver specific they
+> > know best what is needed and what not)
+>
+> > >>> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD)
+> >
+> > 2. if you filter ioctls in upstream policy for example like i do with
+> > TIOSCTI using for example (allowx foo bar (ioctl chr_file (not
+> > (0xXXXX)))) then you cannot easily exclude additional ioctls later where source is
+> > foo and target/tclass is bar/chr_file because there is already a rule in
+> > place allowing the ioctl (and you cannot add rules)
+>
+> Currently, fcntl flag F_SETFD is never checked, it's silently allowed, but
+> the equivalent FIONCLEX and FIOCLEX are checked. So if you wrote policy
+> to block the FIO*CLEX flags, it would be bypassable through F_SETFD and
+> FD_CLOEXEC. So the patch proposed makes the FIO flags behave like
+> F_SETFD. Which means upstream policy users could drop this allow, which
+> could then remove the target/class rule and allow all icotls. Which is easy
+> to prevent and fix you could be a rule in to allowx 0 as documented in the
+> wiki: https://selinuxproject.org/page/XpermRules
+>
+> The questions I think we have here are:
+> 1. Do we agree that the behavior between SETFD and the FIO flags are equivalent?
+>   I think they are.
+> 2. Do we want the interfaces to behave the same?
+>   I think they should.
+> 3. Do upstream users of the policy construct care?
+>   The patch is backwards compat, but I don't want their to be cruft
+> floating around with extra allowxperm rules.
 
-Actually, that patch no longer applies to the current master. Please
-refer to this rebased version instead:
-https://patchwork.kernel.org/project/selinux/patch/20220212213454.689886-1-omosnace@redhat.com/
 
-> [3] https://github.com/sctp/lksctp-tools/tree/master/src/func_tests
->
-> Ondrej Mosnacek (2):
->   security: add sctp_assoc_established hook
->   security: implement sctp_assoc_established hook in selinux
->
->  Documentation/security/SCTP.rst | 22 ++++----
->  include/linux/lsm_hook_defs.h   |  2 +
->  include/linux/lsm_hooks.h       |  5 ++
->  include/linux/security.h        |  8 +++
->  net/sctp/sm_statefuns.c         |  8 +--
->  security/security.c             |  7 +++
->  security/selinux/hooks.c        | 90 ++++++++++++++++++++++++---------
->  7 files changed, 103 insertions(+), 39 deletions(-)
->
-> --
-> 2.34.1
->
+I think this proposed change is fine from Android's perspective. It
+implements in the kernel what we've already already put in place in
+our policy - that all domains are allowed to use these IOCLTs.
+https://cs.android.com/android/platform/superproject/+/master:system/sepolicy/public/domain.te;l=312
 
--- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+It'll be a few years before we can clean up our policy since we need
+to support older kernels, but that's fine.
