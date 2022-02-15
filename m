@@ -2,100 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A633FC433F5
-	for <selinux@archiver.kernel.org>; Tue, 15 Feb 2022 20:03:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E76AC4332F
+	for <selinux@archiver.kernel.org>; Tue, 15 Feb 2022 20:08:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243954AbiBOUD3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Feb 2022 15:03:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45800 "EHLO
+        id S243990AbiBOUJG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Feb 2022 15:09:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243958AbiBOUD1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Feb 2022 15:03:27 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6378D74DF5
-        for <selinux@vger.kernel.org>; Tue, 15 Feb 2022 12:03:04 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id x5so105788edd.11
-        for <selinux@vger.kernel.org>; Tue, 15 Feb 2022 12:03:04 -0800 (PST)
+        with ESMTP id S242392AbiBOUJG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Feb 2022 15:09:06 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B5AB0C42
+        for <selinux@vger.kernel.org>; Tue, 15 Feb 2022 12:08:54 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id qk11so26288004ejb.2
+        for <selinux@vger.kernel.org>; Tue, 15 Feb 2022 12:08:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=56tbQJVv90RABsQ0i0ptzrDmdvS83ZrjWE0KJ5/Juw8=;
-        b=sFifZ3ibKjhu/WnpE7XgZp/C2bXZ7ift+MmeAVSa1hznUw6Wm07gSdft5d2fUe2Vn2
-         RjiRCYgEeTYyWMTxD06Z5LMTyKQZ5RluV4mRPZ8hVkTVElWuISequYHNfnVgs1JVpq+h
-         xxaHe/Iv+2TTmvgqWPO0LZnQEBReR69V0AMuYUHxpEJAkG1St+MhQIgNHgZL37cOQaFq
-         LwC5kUW7OHpEbm/5XIti6ajkRvwQWpQC5DoqvzT+ZOX325bSVD1WtjOMcq8+I+dZAQAv
-         QXaY6x7vFTvffge/EC02QtULgmF6djGu6x5pF2BUtiqlB5PHHwiNmQmkGDrJbIl2VAHu
-         4iAw==
+        bh=BhJlt5ZCYoidBqqNJ5EsFOz8HUlOmyfI7AV8Vc3JkYk=;
+        b=ADoOeEn89ke3US6l0YM5nqedXSf+e9ChVnMnFsvfT7bO8qng9v6Ta1Rj8Ds/J4fnho
+         JC3kI6BGKVlJgdUYnf82vkkoyXm/N71P0w6DJKZrzd5Cu2zgnNl0NhFzos5niPdtMbSU
+         /MILDymIqGvkOWWPqa6cWe4U7kVCqXpjwmKgrV1zBUhAGK3e/8SCtoYhjzWpNOQT9g6n
+         hCMwtfdf6Zb5rSnDACVc3b0BhSXs8+Jbakg1KlxkGOFZ/8pexlNdDMUNwSWZeFvOqi/o
+         1rnk/qIn72rf6ybZ3U8mlqscNN1JRZYSq23BpzPUuDC9AQzkkxmqYrHEGoA5LH1Pr/2N
+         c60A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=56tbQJVv90RABsQ0i0ptzrDmdvS83ZrjWE0KJ5/Juw8=;
-        b=BEoaY9OhwRWKYA64kbveD/q5X6SIQEhF/NwJ120UcJatSZ0WXh2S71GDSABfn1/o+q
-         3tW5QNj6T6Ub6tNPAIZ4oRx4PXTJZuZgIm7A1IeTKh0h5ACgucsTqK5BqC6vD0IJ7vE6
-         XDknxaktCfP9k8wvttPqGjkgYKbsz/BFFeRhBCDmFUM6DmxoQEPJjckdbwpmZIxGyetg
-         2PWA6WpG6Qk0Hpz0+f0VtWXXLjkCFMrl2V06N3s44Uq+lobSgu9AmDg1xfkXESZo4SG4
-         krqJqP9alQPsLSYQ+U5iKm6ui9Ir+LeXm4X72PIZlpF65pZOKzxsUOQGTIkn9xYgcDqV
-         Tr1w==
-X-Gm-Message-State: AOAM531HdX6CfdNsXVHzMl5Ul1wkrQfB49tFJ/QixjrYft+feQ8uY8CG
-        ocIPBRyckq9Jx7f/i7MBWhEjIEiNAkNBDEPV08Op
-X-Google-Smtp-Source: ABdhPJwSh+Lbt7VtTxO+bjCuU4YBvFJI07pOtqxY+X5Ac/RcvpsJaiEfY8EBo10iskp6ziZLHDs9nkyLfRPbTaESgFg=
-X-Received: by 2002:a05:6402:35ca:: with SMTP id z10mr606628edc.43.1644955382916;
- Tue, 15 Feb 2022 12:03:02 -0800 (PST)
+        bh=BhJlt5ZCYoidBqqNJ5EsFOz8HUlOmyfI7AV8Vc3JkYk=;
+        b=UqBrnDFSEMY6nsTirwgIO7K1bVnxsCdtUKZjrRYUuGAZGzk1cDQO3rSeo8TZ4zZb2S
+         UcjkwsQEUcteTEIfrIe0U7gJltz7WiPqBD8+FRPPgNCexR+EkWb1LL1RkQtJP4zNyUjd
+         3+/fcIBh4n1klNoWdDQtJY/xj9nus7ZdlNc0AM+JfX4lnSGu+dSYwX70EASuREWslu0e
+         1ibg7iE2VECv6itmabMeE+NqoUVwLNjZ/hTlv/kl2ZYTbr/Q3h90XCppoLaXwEyD3Ffi
+         dc5LXNdDLQoiHuUlca5YBSwpdVpHxQ0phYinLyaMs9L2hDK4zMGbojDzxs3OIdUguU5x
+         sJCA==
+X-Gm-Message-State: AOAM5333j3Wrvv+nBiCPJeThnLftC1POJv12bWo1kS9NLwVvZMgSgoyx
+        CyYrmrSqw7N33gfpuOIoQBnkd9Yb6ksJ8QEa1uXf
+X-Google-Smtp-Source: ABdhPJwZfMoC74QO9F+UqNNbECHuXUN/j7hFbn1Broo/RJdOcztLDt/AZzopuLRcYVoSxv2IibHJvuduoX2biLV87Os=
+X-Received: by 2002:a17:906:6498:: with SMTP id e24mr639141ejm.12.1644955733109;
+ Tue, 15 Feb 2022 12:08:53 -0800 (PST)
 MIME-Version: 1.0
-References: <20220212175922.665442-1-omosnace@redhat.com> <20220212175922.665442-3-omosnace@redhat.com>
- <CAHC9VhT90617FoqQJBCrDQ8gceVVA6a1h74h6T4ZOwNk6RVB3g@mail.gmail.com>
- <20220214165436.1f6a9987@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <CAFSqH7zC-4Ti_mzK4ZrpCVtNVCxD8h729MezG2avJLGJ2JrMTg@mail.gmail.com> <CADvbK_e+TUuWhBQz1NPPS2aE59tzPKXPfUogrZ526hvm6OvY9Q@mail.gmail.com>
-In-Reply-To: <CADvbK_e+TUuWhBQz1NPPS2aE59tzPKXPfUogrZ526hvm6OvY9Q@mail.gmail.com>
+References: <20220212175922.665442-1-omosnace@redhat.com>
+In-Reply-To: <20220212175922.665442-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 15 Feb 2022 15:02:51 -0500
-Message-ID: <CAHC9VhSHxk0MUR1krpmbot6iG-vqH48sRgKOnJQ0LsFTs6Jvqg@mail.gmail.com>
-Subject: Re: [PATCH net v3 2/2] security: implement sctp_assoc_established
- hook in selinux
-To:     Xin Long <lucien.xin@gmail.com>
-Cc:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        netdev <netdev@vger.kernel.org>,
-        David Miller <davem@davemloft.net>,
-        SElinux list <selinux@vger.kernel.org>,
+Date:   Tue, 15 Feb 2022 15:08:42 -0500
+Message-ID: <CAHC9VhR3qjmq461HyO7OwgicmEmzDjgshdocSqvYEZMk_BfceQ@mail.gmail.com>
+Subject: Re: [PATCH net v3 0/2] security: fixups for the security hooks in sctp
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        selinux@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
         Richard Haines <richard_c_haines@btinternet.com>,
         Vlad Yasevich <vyasevich@gmail.com>,
         Neil Horman <nhorman@tuxdriver.com>,
-        "open list:SCTP PROTOCOL" <linux-sctp@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Prashanth Prahlad <pprahlad@redhat.com>
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        linux-sctp@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 11:13 PM Xin Long <lucien.xin@gmail.com> wrote:
-> Looks okay to me.
+On Sat, Feb 12, 2022 at 12:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> The difference from the old one is that: with
-> selinux_sctp_process_new_assoc() called in
-> selinux_sctp_assoc_established(), the client sksec->peer_sid is using
-> the first asoc's peer_secid, instead of the latest asoc's peer_secid.
-> And not sure if it will cause any problems when doing the extra check
-> sksec->peer_sid != asoc->peer_secid for the latest asoc and *returns
-> err*. But I don't know about selinux, I guess there must be a reason
-> from selinux side.
+> This is a third round of patches to fix the SCTP-SELinux interaction
+> w.r.t. client-side peeloff. The patches are a modified version of Xin
+> Long's patches posted previously, of which only a part was merged (the
+> rest was merged for a while, but was later reverted):
+> https://lore.kernel.org/selinux/cover.1635854268.git.lucien.xin@gmail.com/T/
+>
+> In gist, these patches replace the call to
+> security_inet_conn_established() in SCTP with a new hook
+> security_sctp_assoc_established() and implement the new hook in SELinux
+> so that the client-side association labels are set correctly (which
+> matters in case the association eventually gets peeled off into a
+> separate socket).
+>
+> Note that other LSMs than SELinux don't implement the SCTP hooks nor
+> inet_conn_established, so they shouldn't be affected by any of these
+> changes.
+>
+> These patches were tested by selinux-testsuite [1] with an additional
+> patch [2] and by lksctp-tools func_tests [3].
+>
+> Changes since v2:
+> - patches 1 and 2 dropped as they are already in mainline (not reverted)
+> - in patch 3, the return value of security_sctp_assoc_established() is
+>   changed to int, the call is moved earlier in the function, and if the
+>   hook returns an error value, the packet will now be discarded,
+>   aborting the association
+> - patch 4 has been changed a lot - please see the patch description for
+>   details on how the hook is now implemented and why
+>
+> [1] https://github.com/SELinuxProject/selinux-testsuite/
+> [2] https://patchwork.kernel.org/project/selinux/patch/20211021144543.740762-1-omosnace@redhat.com/
+> [3] https://github.com/sctp/lksctp-tools/tree/master/src/func_tests
+>
+> Ondrej Mosnacek (2):
+>   security: add sctp_assoc_established hook
+>   security: implement sctp_assoc_established hook in selinux
+>
+>  Documentation/security/SCTP.rst | 22 ++++----
+>  include/linux/lsm_hook_defs.h   |  2 +
+>  include/linux/lsm_hooks.h       |  5 ++
+>  include/linux/security.h        |  8 +++
+>  net/sctp/sm_statefuns.c         |  8 +--
+>  security/security.c             |  7 +++
+>  security/selinux/hooks.c        | 90 ++++++++++++++++++++++++---------
+>  7 files changed, 103 insertions(+), 39 deletions(-)
 
-Generally speaking we don't want to change any SELinux socket labels
-once it has been created.  While the peer_sid is a bit different,
-changing it after userspace has access to the socket could be
-problematic.  In the case where the peer_sid differs between the two
-we have a permission check which allows policy to control this
-behavior which seems like the best option at this point.
-
-> I will ACK on patch 0/2.
-
-Thanks, I'm going to go ahead and merge these two patches into
-selinux/next right now.
+This patchset has been merged into selinux/next, thanks everyone!
 
 -- 
 paul-moore.com
