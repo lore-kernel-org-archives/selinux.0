@@ -2,184 +2,273 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4E40C433EF
-	for <selinux@archiver.kernel.org>; Wed, 16 Feb 2022 00:54:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D1CEC433F5
+	for <selinux@archiver.kernel.org>; Wed, 16 Feb 2022 12:53:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245188AbiBPAyO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Feb 2022 19:54:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36210 "EHLO
+        id S233600AbiBPMxg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 16 Feb 2022 07:53:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245181AbiBPAyN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Feb 2022 19:54:13 -0500
-Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB52DB4BA
-        for <selinux@vger.kernel.org>; Tue, 15 Feb 2022 16:54:02 -0800 (PST)
-Received: by mail-pf1-x44a.google.com with SMTP id f24-20020aa782d8000000b004bc00caa4c0so484765pfn.3
-        for <selinux@vger.kernel.org>; Tue, 15 Feb 2022 16:54:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc
-         :content-transfer-encoding;
-        bh=mZG2zfA6mccfujY5Y41tgjG+ducgUvlhNThpZe8uEGk=;
-        b=gZvvdfmkpRDHUT02h0bUWALV4lUF6y4RIJgo8FiKMqUTKv2A+59t4iu34IQzEOGfEz
-         tMiVckbUSiHRVcOJjqc9M4+PoytGGRDRJP4ccJT3jkRAa5RLH48bmoyXH9tsX/U6bb6g
-         bLQpziNdTKYZ3PHK9Sd9Zf3oZJJqSgVQ25Xd55Gf2ledS0djSdxXtizeXYNpIjl+HJxr
-         odBxN/iCxGgRtotutab4nezfvn2m4qEycadf+QydHDyTyQG+GLfE5SBDe7ybKsMqFaeS
-         cdf7uVybWRxTPGcUQTdko7+YzJmvO0Zt1tLVI6yDJnyVmSKBlqkve+l5+gqQ0t/4ifa4
-         13IA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc
-         :content-transfer-encoding;
-        bh=mZG2zfA6mccfujY5Y41tgjG+ducgUvlhNThpZe8uEGk=;
-        b=k7Xlbda598/XgsJhmGeHGLnZ60z/JtUGR+sQBxJWDomG6GvUhJK/PmEaqZ8THjSgl+
-         nXIG5SdzTYEbq9+2pke7ILH+JomIUC36yBVBl/8ebb4Wrf3UtCBXdiYDDw2T57J+FmHf
-         +LSkRoXLjfxVaacyRB+ovNKcH0nhFya2F434XxOHY/ulBo16l5HGz9JXVJx8F0hPIB21
-         dxTS4OuLixckCjlJeiZM89IkDYKzqECvXtvMhutMdYbl5nCnu2TLWG17OGNh2FiKAgAn
-         OFnb6Fx0jMM7banXohnXCZJKLdvlpc5cjSPPOlv1qqbv6KrLzRaLNQop8HE1DmdzLrFV
-         Bhuw==
-X-Gm-Message-State: AOAM532Z/g8dbbrT6hsP0hS9AOzqzhOWcTfC7lfsId6Ty5C8SfWxbZ1T
-        lMH9quauxVqPJQAkExkcjlcM9ovG4DtjDNzQ67fYpLkIvYJUxrP1zXAHb64ckzJCMFRpWEzTMyv
-        /kqmBrQNKCkufd0HLlUfW+HIO6ankHYen1mOND3hl92PWrf1mzCIShZgwCY2M
-X-Google-Smtp-Source: ABdhPJzRlEjCngLPD1hCdCzaUMwiHxAckWE/RKnzOi3eat0VaGr1Hvgv84FvocgYKAkTHRuRQc6/2xflew==
-X-Received: from tweek.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:280])
- (user=tweek job=sendgmr) by 2002:a62:7554:0:b0:4e1:5898:4fbb with SMTP id
- q81-20020a627554000000b004e158984fbbmr528735pfc.2.1644972842092; Tue, 15 Feb
- 2022 16:54:02 -0800 (PST)
-Date:   Wed, 16 Feb 2022 11:53:26 +1100
-Message-Id: <20220216005326.1899481-1-tweek@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.35.1.265.g69c8d7142f-goog
-Subject: [PATCH v2] libsepol: Populate and use policy name
-From:   "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To:     selinux@vger.kernel.org,
-        "=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>
-Cc:     jeffv@google.com, alanstokes@google.com,
-        "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S233153AbiBPMx2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Feb 2022 07:53:28 -0500
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4282D222DD6;
+        Wed, 16 Feb 2022 04:52:31 -0800 (PST)
+Received: from fraeml710-chm.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4JzHmx5zjPz6GCv6;
+        Wed, 16 Feb 2022 20:48:01 +0800 (CST)
+Received: from lhreml725-chm.china.huawei.com (10.201.108.76) by
+ fraeml710-chm.china.huawei.com (10.206.15.59) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 16 Feb 2022 13:52:29 +0100
+Received: from centos7.huawei.com (10.122.133.3) by
+ lhreml725-chm.china.huawei.com (10.201.108.76) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 16 Feb 2022 12:52:28 +0000
+From:   Igor Baranov <igor.baranov@huawei.com>
+To:     <paul@paul-moore.com>
+CC:     <hw.likun@huawei.com>, <jamorris@linux.microsoft.com>,
+        <linux-security-module@vger.kernel.org>, <selinux@vger.kernel.org>,
+        <stephen.smalley.work@gmail.com>, <xiujianfeng@huawei.com>,
+        <alexander.kozhevnikov@huawei.com>, <yusongping@huawei.com>,
+        <artem.kuzin@huawei.com>, Igor Baranov <igor.baranov@huawei.com>
+Subject: [RFC PATCH 1/1] selinuxns: Replace state pointer with namespace id
+Date:   Wed, 16 Feb 2022 15:52:06 +0300
+Message-ID: <20220216125206.20975-2-igor.baranov@huawei.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220216125206.20975-1-igor.baranov@huawei.com>
+References: <CAHC9VhR3ZbcNM8awhJs9_NXmdUXHO4XoH8s2d3MjhMXwkgbh=Q@mail.gmail.com>
+ <20220216125206.20975-1-igor.baranov@huawei.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.122.133.3]
+X-ClientProxiedBy: mscpeml100001.china.huawei.com (7.188.26.227) To
+ lhreml725-chm.china.huawei.com (10.201.108.76)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When an assertion fails, the error message refers to a generic
-"policy.conf" file. When parsing a policy in checkpolicy, populate its
-name using the original filename (source_filename is still build using
-the #line directives within the policy).
+All the objects which in the original patchset kept a pointer to their
+namespace now store its identifier. It's needed only to determine whether
+an object belongs to our (in the current context) namespace or not.
+The aim of this change is to reduce the height of the Babel tower of pointers.
 
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+Signed-off-by: Igor Baranov <igor.baranov@huawei.com>
 ---
-v1 -> v2: Fix leak reported by Christian G=C3=B6ttsche
+ security/selinux/hooks.c            | 29 ++++++++++++++++++++++++-----
+ security/selinux/include/objsec.h   |  4 +++-
+ security/selinux/include/security.h |  2 ++
+ 3 files changed, 29 insertions(+), 6 deletions(-)
 
- checkpolicy/module_compiler.c |  1 +
- checkpolicy/parse_util.c      |  1 +
- libsepol/src/assertion.c      | 20 ++++++++++++++------
- libsepol/src/expand.c         |  3 +++
- 4 files changed, 19 insertions(+), 6 deletions(-)
-
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 5f5b0b19..129650fa 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -99,6 +99,7 @@ int define_policy(int pass, int module_header_given)
- 				yyerror("no module name");
- 				return -1;
- 			}
-+			free(policydbp->name);
- 			policydbp->name =3D id;
- 			if ((policydbp->version =3D
- 			     queue_remove(id_queue)) =3D=3D NULL) {
-diff --git a/checkpolicy/parse_util.c b/checkpolicy/parse_util.c
-index 8c1f393c..f2d1e04d 100644
---- a/checkpolicy/parse_util.c
-+++ b/checkpolicy/parse_util.c
-@@ -47,6 +47,7 @@ int read_source_policy(policydb_t * p, const char *file, =
-const char *progname)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a1716ce534dd..69bc8a5fc5b4 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -106,6 +106,9 @@
+ /* SECMARK reference count */
+ static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
+ 
++/* Sequential namespace id */
++static atomic64_t selinux_namespace_id = ATOMIC_INIT(0);
++
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+ static int selinux_enforcing_boot __initdata;
+ 
+@@ -812,6 +815,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 			goto out;
+ 
+ 		root_isec->sid = rootcontext_sid;
++		root_isec->namespace_id = current_selinux_state->id;
+ 		root_isec->initialized = LABEL_INITIALIZED;
  	}
-=20
- 	policydbp =3D p;
-+	policydbp->name =3D strdup(file);
- 	mlspol =3D p->mls;
-=20
- 	init_parser(1);
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index dd2749a0..74f6d9c0 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -36,13 +36,21 @@ struct avtab_match_args {
- 	unsigned long errors;
- };
-=20
-+static const char* policy_name(policydb_t *p) {
-+	const char *policy_file =3D "policy.conf";
-+	if (p->name) {
-+		policy_file =3D p->name;
-+	}
-+	return policy_file;
+ 
+@@ -1556,6 +1560,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 
+ 		isec->initialized = LABEL_INITIALIZED;
+ 		isec->sid = sid;
++		isec->namespace_id = current_selinux_state->id;
+ 	}
+ 
+ out_unlock:
+@@ -2588,7 +2593,7 @@ sbsec_alloc(struct superblock_security_head *sbsech)
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
+ 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+-	sbsec->state = get_selinux_state(current_selinux_state);
++	sbsec->namespace_id = current_selinux_state->id;
+ 
+ 	return sbsec;
+ }
+@@ -2599,12 +2604,12 @@ find_sbsec(struct superblock_security_head *sbsech)
+ 	struct superblock_security_struct *cur, *new;
+ 
+ 	cur = container_of(sbsech->head.next, struct superblock_security_struct, sbsec_list);
+-	if (cur->state == current_selinux_state)
++	if (cur->namespace_id == current_selinux_state->id)
+ 		return cur;
+ 
+ 	spin_lock(&sbsech->lock);
+ 	list_for_each_entry(cur, &sbsech->head, sbsec_list) {
+-		if (cur->state == current_selinux_state)
++		if (cur->namespace_id == current_selinux_state->id)
+ 			goto unlock;
+ 	}
+ 	spin_unlock(&sbsech->lock);
+@@ -2617,7 +2622,7 @@ find_sbsec(struct superblock_security_head *sbsech)
+ 
+ 	spin_lock(&sbsech->lock);
+ 	list_for_each_entry(cur, &sbsech->head, sbsec_list) {
+-		if (cur->state == current_selinux_state)
++		if (cur->namespace_id == current_selinux_state->id)
+ 			goto unlock;
+ 	}
+ 	list_add(&new->sbsec_list, &sbsech->head);
+@@ -2649,7 +2654,6 @@ static void selinux_sb_free_security(struct super_block *sb)
+ 	struct superblock_security_head *sbsech = selinux_head_of_superblock(sb);
+ 
+ 	list_for_each_entry_safe(entry, tmp, &sbsech->head, sbsec_list) {
+-		put_selinux_state(entry->state);
+ 		kfree(entry);
+ 	}
+ }
+@@ -2911,6 +2915,7 @@ static int selinux_inode_alloc_security(struct inode *inode)
+ 	isec->sclass = SECCLASS_FILE;
+ 	isec->task_sid = sid;
+ 	isec->initialized = LABEL_INVALID;
++	isec->namespace_id = current_selinux_state->id;
+ 
+ 	return 0;
+ }
+@@ -2985,6 +2990,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 		struct inode_security_struct *isec = selinux_inode(inode);
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 		isec->sid = newsid;
++		isec->namespace_id = current_selinux_state->id;
+ 		isec->initialized = LABEL_INITIALIZED;
+ 	}
+ 
+@@ -3320,6 +3326,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
++	isec->namespace_id = current_selinux_state->id;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 	spin_unlock(&isec->lock);
+ 
+@@ -3479,6 +3486,7 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
++	isec->namespace_id = current_selinux_state->id;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 	spin_unlock(&isec->lock);
+ 	return 0;
+@@ -3636,6 +3644,7 @@ static int selinux_file_alloc_security(struct file *file)
+ 
+ 	fsec->sid = sid;
+ 	fsec->fown_sid = sid;
++	fsec->namespace_id = current_selinux_state->id;
+ 
+ 	return 0;
+ }
+@@ -3950,6 +3959,7 @@ static int selinux_file_open(struct file *file)
+ 	 */
+ 	fsec->isid = isec->sid;
+ 	fsec->pseqno = avc_policy_seqno(current_selinux_state);
++	fsec->namespace_id = current_selinux_state->id;
+ 	/*
+ 	 * Since the inode label or policy seqno may have changed
+ 	 * between the selinux_inode_permission check and the saving
+@@ -4268,6 +4278,7 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = sid;
++	isec->namespace_id = current_selinux_state->id;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 	spin_unlock(&isec->lock);
+ }
+@@ -4634,6 +4645,7 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 
+ 	isec->sclass = sclass;
+ 	isec->sid = sid;
++	isec->namespace_id = current_selinux_state->id;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	if (sock->sk) {
+@@ -4930,6 +4942,7 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
+ 	newisec = inode_security_novalidate(SOCK_INODE(newsock));
+ 	newisec->sclass = sclass;
+ 	newisec->sid = sid;
++	newisec->namespace_id = current_selinux_state->id;
+ 	newisec->initialized = LABEL_INITIALIZED;
+ 
+ 	return 0;
+@@ -7332,6 +7345,11 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 
+ static void selinux_state_free(struct work_struct *work);
+ 
++u64 selinux_new_state_id(void)
++{
++	return atomic64_fetch_add(1, &selinux_namespace_id);
 +}
 +
- static void report_failure(sepol_handle_t *handle, policydb_t *p, const av=
-rule_t *avrule,
- 			   unsigned int stype, unsigned int ttype,
- 			   const class_perm_node_t *curperm, uint32_t perms)
+ int selinux_state_create(struct selinux_state *parent, struct selinux_state **state)
  {
- 	if (avrule->source_filename) {
--		ERR(handle, "neverallow on line %lu of %s (or line %lu of policy.conf) v=
-iolated by allow %s %s:%s {%s };",
--		    avrule->source_line, avrule->source_filename, avrule->line,
-+		ERR(handle, "neverallow on line %lu of %s (or line %lu of %s) violated b=
-y allow %s %s:%s {%s };",
-+		    avrule->source_line, avrule->source_filename, avrule->line, policy_n=
-ame(p),
- 		    p->p_type_val_to_name[stype],
- 		    p->p_type_val_to_name[ttype],
- 		    p->p_class_val_to_name[curperm->tclass - 1],
-@@ -173,9 +181,9 @@ static int report_assertion_extended_permissions(sepol_=
-handle_t *handle,
- 				/* failure on the extended permission check_extended_permissions */
- 				if (rc) {
- 					extended_permissions_violated(&error, avrule->xperms, xperms);
--					ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of policy=
-.conf) violated by\n"
-+					ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of %s) vi=
-olated by\n"
- 							"allowxperm %s %s:%s %s;",
--							avrule->source_line, avrule->source_filename, avrule->line,
-+							avrule->source_line, avrule->source_filename, avrule->line, policy_=
-name(p),
- 							p->p_type_val_to_name[i],
- 							p->p_type_val_to_name[j],
- 							p->p_class_val_to_name[curperm->tclass - 1],
-@@ -190,9 +198,9 @@ static int report_assertion_extended_permissions(sepol_=
-handle_t *handle,
-=20
- 	/* failure on the regular permissions */
- 	if (rc) {
--		ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of policy.co=
-nf) violated by\n"
-+		ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of %s) viola=
-ted by\n"
- 				"allow %s %s:%s {%s };",
--				avrule->source_line, avrule->source_filename, avrule->line,
-+				avrule->source_line, avrule->source_filename, avrule->line, policy_nam=
-e(p),
- 				p->p_type_val_to_name[stype],
- 				p->p_type_val_to_name[ttype],
- 				p->p_class_val_to_name[curperm->tclass - 1],
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 8667f2ed..7da51a40 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2970,6 +2970,9 @@ int expand_module(sepol_handle_t * handle,
-=20
- 	state.out->policy_type =3D POLICY_KERN;
- 	state.out->policyvers =3D POLICYDB_VERSION_MAX;
-+	if (state.base->name) {
-+		state.out->name =3D strdup(state.base->name);
-+	}
-=20
- 	/* Copy mls state from base to out */
- 	out->mls =3D base->mls;
---=20
-2.35.1.265.g69c8d7142f-goog
+ 	struct selinux_state *newstate;
+@@ -7341,6 +7359,7 @@ int selinux_state_create(struct selinux_state *parent, struct selinux_state **st
+ 	if (!newstate)
+ 		return -ENOMEM;
+ 
++	newstate->id = selinux_new_state_id();
+ 	refcount_set(&newstate->count, 1);
+ 	INIT_WORK(&newstate->work, selinux_state_free);
+ 
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 6ad1db45b0d9..24ef0bc68eda 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -42,6 +42,7 @@ struct inode_security_struct {
+ 	u16 sclass;		/* security class of this object */
+ 	unsigned char initialized;	/* initialization flag */
+ 	spinlock_t lock;
++	u64 namespace_id;	/* pointer to selinux_state */
+ };
+ 
+ struct file_security_struct {
+@@ -49,6 +50,7 @@ struct file_security_struct {
+ 	u32 fown_sid;		/* SID of file owner (for SIGIO) */
+ 	u32 isid;		/* SID of inode at the time of file open */
+ 	u32 pseqno;		/* Policy seqno at the time of file open */
++	u64 namespace_id;
+ };
+ 
+ struct superblock_security_head {
+@@ -66,7 +68,7 @@ struct superblock_security_struct {
+ 	struct mutex lock;
+ 	struct list_head isec_head;
+ 	spinlock_t isec_lock;
+-	struct selinux_state *state;	/* pointer to selinux_state */
++	u64 namespace_id;           /* id of selinux_state */
+ 	struct list_head sbsec_list;
+ };
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index a5b698aae38c..b80622770543 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -111,8 +111,10 @@ struct selinux_state {
+ 	struct selinux_policy __rcu *policy;
+ 	struct mutex policy_mutex;
+ 	struct selinux_state *parent;
++	u64 id;
+ } __randomize_layout;
+ 
++u64 selinux_new_state_id(void);
+ int selinux_state_create(struct selinux_state *parent, struct selinux_state **state);
+ void __put_selinux_state(struct selinux_state *state);
+ 
+-- 
+2.34.1
 
