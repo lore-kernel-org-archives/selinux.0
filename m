@@ -2,108 +2,158 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 262E6C433EF
-	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 14:01:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA590C433F5
+	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 14:16:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241672AbiBQOBb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Feb 2022 09:01:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38724 "EHLO
+        id S241781AbiBQORG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Feb 2022 09:17:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241669AbiBQOBY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 09:01:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2C04D2B0B05
-        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 06:01:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645106468;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=oS5lTlySzHKOm7gXSjwQBX8iWtIs04U4QG1DJTChIAE=;
-        b=Q0wO/PgZ3i8SIDSe5j7QM5XHxMyetHOQe06fgvHcf0vv3gJOr8LBGa5y9veXPi9NArkM5/
-        HoWzdSqs2YSmxVut+OXPNlsNzz5YDa7zU107HYZekfhzx6ZOE4Xk6tVxgLV2z6BupKGBel
-        tCpT8gsf35FTl4BlB7YLcBpcqIGg1LQ=
-Received: from mail-ua1-f71.google.com (mail-ua1-f71.google.com
- [209.85.222.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-290-liDeAP3LOx64csg7hL1kNw-1; Thu, 17 Feb 2022 09:01:06 -0500
-X-MC-Unique: liDeAP3LOx64csg7hL1kNw-1
-Received: by mail-ua1-f71.google.com with SMTP id n1-20020ab07481000000b0033bd83da484so2119508uap.20
-        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 06:01:06 -0800 (PST)
+        with ESMTP id S241073AbiBQORF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 09:17:05 -0500
+Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92AD3C0867
+        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 06:16:50 -0800 (PST)
+Received: by mail-oo1-xc31.google.com with SMTP id 189-20020a4a03c6000000b003179d7b30d8so6731171ooi.2
+        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 06:16:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rJYrPn3rjTT9kKnTJEycbfosMRkI2EAD4D1emgWP4NY=;
+        b=oaY+Mt+r+7ylerTciL0PCOYxQVYnQMB2R2LSIrYB7KOGH9kxn3VZdSsBLRo2t7SWpu
+         Vnmiuz9wfJneFC//Smn+lQyddUpQOToQMrOI3//UyiRcYzM8faJMTTh5YpPNy5lRZLPC
+         C0OemeAfGpr7nEdBxb1hP5C7Lrb9thP8c5wS5KO1xQ1GKG8vhbl0XrPfvBH54fRfztdX
+         14Ns2+7Pvbtp9LjKN8GJuM3OYqrFRrAbQWHquKQ3CA/e/07uOgE7wy1EWM+yzSdIxsGT
+         blXTSIo86A7pS69vxWeo7Rfk12blIq0Qmg1zGnYv8pCyHEB/4EMqL0LMGSM3+WSpJxjo
+         EW3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=oS5lTlySzHKOm7gXSjwQBX8iWtIs04U4QG1DJTChIAE=;
-        b=GWzrrsAw3S6Vbb0HqoPyCVLHX50Xj486cCmBKzGH8sqmXxtS8TWTBj5W5XV1XWsUnA
-         /DUkxVtApwhGYdty1LgJ9B+fKZbn0ImrhWpYxcPmUIwivF8IAxJT9jpLGLDP6C0f2bks
-         riH7+Srq9nvK86B112Qi5dav9j/3PFWReA+XbjUWEKph0I5lfbMPT876zs8ix5FaSUa7
-         sdR2LFbkCrAoH+Q/wQJNE/e6PkeU6e5xC/LvSoerpyA7mMwVR2zXDG8RzUFSHBXq5hCS
-         4El+Iq28P4v0USk/snN9SS7DVi7/jkETHk+nPsvo701DZwmfVer30+uh7q5/L4MJPcYj
-         xkDw==
-X-Gm-Message-State: AOAM530zpPeeVT8aJALNeM+eMVHCgLlEOeQPH982Nc4tLg/n4ZLQf4XY
-        RgKqgfo3UTpm8iF2lTTRJAVTLE/FMzC3hEpFMfo94RKcP4X3+u5hxWBlhJ/gAfxdnkJ/CrJ6idY
-        gCCI1RSNlGIiKU0BNklS6v/hdYCb44jQsHg==
-X-Received: by 2002:ab0:35da:0:b0:33c:8950:436 with SMTP id x26-20020ab035da000000b0033c89500436mr976819uat.131.1645106465559;
-        Thu, 17 Feb 2022 06:01:05 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxtLb90+3B1dIYmDBOQzwq48PApWkcXrScDaondjorqJKm53GODaJnDdxA3A4vxPc5/gGJjQKGXIO6HivmSvC0=
-X-Received: by 2002:a0d:f105:0:b0:2d1:1f59:80fc with SMTP id
- a5-20020a0df105000000b002d11f5980fcmr2600164ywf.77.1645106416296; Thu, 17 Feb
- 2022 06:00:16 -0800 (PST)
+        bh=rJYrPn3rjTT9kKnTJEycbfosMRkI2EAD4D1emgWP4NY=;
+        b=vDf//8JaLNxdS0BXr//IbQ6Xeg739r/rlrnwkigLFU6zHa3C7gjggqy+4WmQbV4F4c
+         HHOc3LsSerFGZ6GaPHmR1bk3/tMMYfYw6TJiicPpJ8jW9eD5lMFei4MnRWMrMGvz2pl9
+         MEw/+39PZK4v5cJM8ztFwCMuvuROEnVGq5dysxmkm7lnnpU0r/XfBVH3xywv8uZ6oADW
+         i5RkWHCfe+lHK+p+sa/QX4a1sUL5k+r7zu0rVxj+J6lSbtjiL4eCYUCKjuqWorSgucsv
+         4S8wXnNrfkXW7x/ruLgCfyv4s6h7cMg6G3i64YOR+TuojbJizR4Ftyzm8W5dSYq9PcY9
+         TqTw==
+X-Gm-Message-State: AOAM532Ri06GjlTW+8knADmTkMxUK/woLWV+hpI3HMRJ4yYvFIVbIsEP
+        0MDY1xrYbV1MvSn4vwIB3kNwGlRdAgu7ZI4fkcI=
+X-Google-Smtp-Source: ABdhPJxPAv5tj/GbN3G5hXN9SBoEmcidlmnqIV7eJBM9gEioXY0ZirZ9/hDvTIf3MFJZEJ20anpBg8H0fbQaZfGyOyE=
+X-Received: by 2002:a05:6870:772e:b0:d2:8c2a:7c75 with SMTP id
+ dw46-20020a056870772e00b000d28c2a7c75mr2230600oab.202.1645107409592; Thu, 17
+ Feb 2022 06:16:49 -0800 (PST)
 MIME-Version: 1.0
-References: <20220216174909.333355-1-plautrba@redhat.com>
-In-Reply-To: <20220216174909.333355-1-plautrba@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 17 Feb 2022 15:00:05 +0100
-Message-ID: <CAFqZXNtBmoVppmhgrxfzuZrQ+oksWeSHH_x7ZgG4Wa6VO05Dsw@mail.gmail.com>
-Subject: Re: [PATCH] policycoreutils/fixfiles: Use parallel relabeling
-To:     Petr Lautrbach <plautrba@redhat.com>
+References: <d7cf167d-1c12-5486-336e-1689c5223631@redhat.com> <20220217131415.1195383-1-vmojzis@redhat.com>
+In-Reply-To: <20220217131415.1195383-1-vmojzis@redhat.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 17 Feb 2022 15:16:38 +0100
+Message-ID: <CAJ2a_Df=pjCN_Cs1EN_bk1wF_XFuqUVhB_5vjH0oiqCG=xWbKw@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: Strip spaces before values in config
+To:     Vit Mojzis <vmojzis@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 6:49 PM Petr Lautrbach <plautrba@redhat.com> wrote:
-> Commit 93902fc8340f ("setfiles/restorecon: support parallel relabeling")
-> implemented support for parallel relabeling in setfiles. This is
-> available for fixfiles now.
+On Thu, 17 Feb 2022 at 14:14, Vit Mojzis <vmojzis@redhat.com> wrote:
 >
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> Spaces before values in /etc/selinux/config should be ignored just as
+> spaces after them are.
+>
+> E.g. "SELINUXTYPE= targeted" should be a valid value.
+>
+> Fixes:
+>    # sed -i 's/^SELINUXTYPE=/SELINUXTYPE= /g' /etc/selinux/config
+>    # dnf install <any_package>
+>    ...
+>    RPM: error: selabel_open: (/etc/selinux/ targeted/contexts/files/file_contexts) No such file or directory
+>    RPM: error: Plugin selinux: hook tsm_pre failed
+>    ...
+>    Error: Could not run transaction.
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 > ---
->  policycoreutils/scripts/fixfiles   | 33 +++++++++++++++++-------------
->  policycoreutils/scripts/fixfiles.8 | 17 +++++++++------
->  2 files changed, 30 insertions(+), 20 deletions(-)
 >
-> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-> index 6fb12e0451a9..33db1d3bfb61 100755
-> --- a/policycoreutils/scripts/fixfiles
-> +++ b/policycoreutils/scripts/fixfiles
-[...]
-> @@ -330,7 +331,8 @@ case "$1" in
->         > /.autorelabel || exit $?
->         [ -z "$FORCEFLAG" ] || echo -n "$FORCEFLAG " >> /.autorelabel
->         [ -z "$BOOTTIME" ] || echo -N $BOOTTIME >> /.autorelabel
-> -       [ -z "$BIND_MOUNT_FILESYSTEMS" ] || echo "-M" >> /.autorelabel
-> +       [ -z "$BIND_MOUNT_FILESYSTEMS" ] || echo "-M " >> /.autorelabel
+> Sorry for the delay. I sent the fixed patch to a wrong mailing list.
+>
+>  libselinux/src/selinux_config.c | 17 +++++++++++++----
+>  1 file changed, 13 insertions(+), 4 deletions(-)
+>
+> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+> index 97f81a8b..d2e49ee1 100644
+> --- a/libselinux/src/selinux_config.c
+> +++ b/libselinux/src/selinux_config.c
+> @@ -92,6 +92,7 @@ int selinux_getenforcemode(int *enforce)
+>         FILE *cfg = fopen(SELINUXCONFIG, "re");
+>         if (cfg) {
+>                 char *buf;
+> +               char *tag;
+>                 int len = sizeof(SELINUXTAG) - 1;
+>                 buf = malloc(selinux_page_size);
+>                 if (!buf) {
+> @@ -101,21 +102,24 @@ int selinux_getenforcemode(int *enforce)
+>                 while (fgets_unlocked(buf, selinux_page_size, cfg)) {
+>                         if (strncmp(buf, SELINUXTAG, len))
+>                                 continue;
+> +                       tag = buf+len;
+> +                       while (isspace(*tag))
+> +                               tag++;
+>                         if (!strncasecmp
+> -                           (buf + len, "enforcing", sizeof("enforcing") - 1)) {
+> +                           (tag, "enforcing", sizeof("enforcing") - 1)) {
+>                                 *enforce = 1;
+>                                 ret = 0;
+>                                 break;
+>                         } else
+>                             if (!strncasecmp
+> -                               (buf + len, "permissive",
+> +                               (tag, "permissive",
+>                                  sizeof("permissive") - 1)) {
+>                                 *enforce = 0;
+>                                 ret = 0;
+>                                 break;
+>                         } else
+>                             if (!strncasecmp
+> -                               (buf + len, "disabled",
+> +                               (tag, "disabled",
+>                                  sizeof("disabled") - 1)) {
+>                                 *enforce = -1;
+>                                 ret = 0;
+> @@ -176,7 +180,10 @@ static void init_selinux_config(void)
+>
+>                         if (!strncasecmp(buf_p, SELINUXTYPETAG,
+>                                          sizeof(SELINUXTYPETAG) - 1)) {
+> -                               type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
+> +                               buf_p += sizeof(SELINUXTYPETAG) - 1;
+> +                               while (isspace(*buf_p))
 
-I believe you need -n here? Although the line above also doesn't have
-it... I guess the contents get the whitespace squashed in the end
-anyway? Still, would be nice to clean up all these lines to use a
-consistent pattern. I'd prefer:
+Strictly speaking one should cast to unsigned char to avoid UB, see
+[1], but that
+seems to be not done in SElinux userspace as
 
-echo -n "$SOMETHING "
-(or in case of the variable containing an argument:)
-echo -n "-X $XXX "
+    grep -REw "(isalnum|isalpha|isascii|isblank|iscntrl|isdigit|isgraph|islower|isprint|ispunct|isspace|isupper|isxdigit|toascii|toupper|tolower)"
 
-> +       [ -z "$THREADS" ] || echo -n "$THREADS " >> /.autorelabel
->         # Force full relabel if SELinux is not enabled
->         selinuxenabled || echo -F > /.autorelabel
->         echo "System will relabel on next boot"
-[...]
+shows 87 usages.
 
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+[1]: https://wiki.sei.cmu.edu/confluence/display/c/STR37-C.+Arguments+to+character-handling+functions+must+be+representable+as+an+unsigned+char
 
+> +                                       buf_p++;
+> +                               type = strdup(buf_p);
+>                                 if (!type) {
+>                                         free(line_buf);
+>                                         fclose(fp);
+> @@ -199,6 +206,8 @@ static void init_selinux_config(void)
+>                         } else if (!strncmp(buf_p, REQUIRESEUSERS,
+>                                             sizeof(REQUIRESEUSERS) - 1)) {
+>                                 value = buf_p + sizeof(REQUIRESEUSERS) - 1;
+> +                               while (isspace(*value))
+> +                                       value++;
+>                                 intptr = &require_seusers;
+>                         } else {
+>                                 continue;
+> --
+> 2.30.2
+>
