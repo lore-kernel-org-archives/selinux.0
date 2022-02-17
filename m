@@ -2,132 +2,171 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA7E7C433EF
-	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 14:24:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1C15C433F5
+	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 14:35:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236772AbiBQOZK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Feb 2022 09:25:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45708 "EHLO
+        id S235817AbiBQOfY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Feb 2022 09:35:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231938AbiBQOZJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 09:25:09 -0500
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75C82B1669;
-        Thu, 17 Feb 2022 06:24:54 -0800 (PST)
-Received: by mail-oi1-x22d.google.com with SMTP id s8so3533581oij.13;
-        Thu, 17 Feb 2022 06:24:54 -0800 (PST)
+        with ESMTP id S231740AbiBQOfX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 09:35:23 -0500
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7262FCC52F;
+        Thu, 17 Feb 2022 06:35:08 -0800 (PST)
+Received: by mail-ej1-x62d.google.com with SMTP id p15so7737569ejc.7;
+        Thu, 17 Feb 2022 06:35:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1hgyMGgqm2l0K029MbAV7HB50NHopCA50vfzIyF3//M=;
-        b=gQIB0sLtPnj5zwwT6gSkOleVRcwWPRVCa1YooIVwsnJQdqp3MZFTwxOgBj4PIVqMR9
-         HqLVXmmGuTj92Uye5WSlg/rwABYU9/nGb62XzyB+OdvtXNA1wlnjp1bq8XeCgYrNCmxN
-         pqERattXxPcSY+V14OZunWDZjVg/p6wlKR1VgBQudZ0phigkvc1yr2w4jWVqLIxKA2rx
-         ivP0IcPyTN9baWaayTX9flCTDJiiOVTqMq5bZ+KLs3hAwk+tkTUo47Ru6Jo/xLKQEwhT
-         zYXO+ZDWre/jy5RV35OWpw+XXCKO7dY/KkzsnkV3FY1lhSQoPZnE8YKGPPoRs7P7ZOO1
-         H4Bw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DHA2XuS0dgOq5n/U8wIiuJf10qw0oyQxE7M7cjtKX8s=;
+        b=BJzwn2QblOP2oo5yOQxiMMGcbxrnaeXECDpWnwfqAeX9Yze90RojvT+50kJJ3vPRsL
+         4vp7EnwIQx0+Gv66KVLp4aykvbiGk9/M08E4XgOVWj/E/gl7hF5/VDLvg3XHAZvp/Xxq
+         M2CKDXsXYGBhzEUoN+eEOAFu7UAz7em/4Ql0QvQ6VH55LOm0xEWY51F1wQiOYZtReV2j
+         7kea3qBf+PkhoVH/TAuzpnZL4PWCIWpeWaL18DLW0RkJ7dls6wwZUy1aW19Ul0fRloKE
+         2FZZ20ZYfsLPxWyYPMWxuCT7KUjUL11FUz48hCokHkE384/hpVwa+k/fnoeVg0r4owSh
+         3EGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1hgyMGgqm2l0K029MbAV7HB50NHopCA50vfzIyF3//M=;
-        b=4452g39XNQgyHWxzVfIuTUzhdESICkbYZqsD70p4CzDXaE4fAsrn6/2Yoh5u6DMrY1
-         7WzFbXx7dGHpdqbYNaUapX03XMVJ5BHqBS3ngIbsfGcJW1+DVeFdPhf28wStRXJuql0z
-         0JARR2ZNInf15wyPnh+TksHDTDDw6aqYrPSATevgQzhwoQF9VvAWIwHwxic7afiztKth
-         GvowFRsOE4qPRTIwmzk2IE+QI+H5/8sxgHk6lP5R0exrp7P1Fzugtx0eqEAyAgo9kjwb
-         Zxw5/z0au11Wg5kY94VSB9E4/bv6seRRUaJU1Oi+lvotF7Lc+7X7O5FuQ97Mp8N3LEA6
-         4Jcg==
-X-Gm-Message-State: AOAM533qi1F+FDT/cVVO56LVeOOStjAHq/qRQc7GOBLD17cuZsKVaWSd
-        qoOp1RFIKBAeHixP4Z4EG+2P2d/6aBPuGM0Ko5M=
-X-Google-Smtp-Source: ABdhPJwvvtQk6R3zwXKzTDX5Ys3fUplA2RG10agfaeCFg5xA9zIXmJGVa0X27BvMbrhRnqbgtwKDQQsOy9PJ6NgZqgs=
-X-Received: by 2002:a05:6808:f8e:b0:2d4:1d66:3a22 with SMTP id
- o14-20020a0568080f8e00b002d41d663a22mr2774822oiw.120.1645107893906; Thu, 17
- Feb 2022 06:24:53 -0800 (PST)
-MIME-Version: 1.0
-References: <20220125143304.34628-1-cgzones@googlemail.com> <CAHC9VhSdGeZ9x-0Hvk9mE=YMXbpk-tC5Ek+uGFGq5U+51qjChw@mail.gmail.com>
-In-Reply-To: <CAHC9VhSdGeZ9x-0Hvk9mE=YMXbpk-tC5Ek+uGFGq5U+51qjChw@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Thu, 17 Feb 2022 15:24:42 +0100
-Message-ID: <CAJ2a_DeAUcGTGm_fk8viVbeFXr6FLrJ-oLw-abwFND6Kv0u0gQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] mm: create security context for memfd_secret inodes
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DHA2XuS0dgOq5n/U8wIiuJf10qw0oyQxE7M7cjtKX8s=;
+        b=V2CwXpIeVsPXbl748c9GhL7wk3vnt2tMB10tz/cCuTxfWwuwfW1ZCtPnL1Nm9lMFCd
+         Gf0Hp7jwos0qtzmz8UN2qoCf5wIWlRvjF9IEhcr7/6qTWIAM9ErcOdrUXCVcELlmp6Ip
+         9yNEWjGYrusfXZEUGzGASsjWmoGPSSkplWCRZPuUfIsgNW0qUrWGWOZHWUWUTlCFN0Ee
+         qzci+X5OLBCfcIgyk7hwX5vxfG9O2bB60s5Ez1qyxO9eEAKfuZ8XnMwrAk/uWNRqwrp5
+         qKS5WmGnKXPzeFCiZyl1p+r3jZnOgLuZnUk5zfY/rydqzlumTdgTQTxaKVKPxK+I20tN
+         KhLg==
+X-Gm-Message-State: AOAM531sXYsMA3WVVZI6JTpfNVU3gMsQJhClGwDIx4TO+IbLGrWdGGOO
+        WIg9+lRBMnyoUY7OC/S3MrRE6kdpLZrt8w==
+X-Google-Smtp-Source: ABdhPJykPmzzIXwvoaaXr4wvTel9Iifi6+mdij3zzeWVxFBGU0mTRrXxWWGZx7feRQbnPWhiFvbOgQ==
+X-Received: by 2002:a17:906:414e:b0:6b9:7068:1983 with SMTP id l14-20020a170906414e00b006b970681983mr2609254ejk.752.1645108506934;
+        Thu, 17 Feb 2022 06:35:06 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-001-066-240.77.1.pool.telefonica.de. [77.1.66.240])
+        by smtp.gmail.com with ESMTPSA id e17sm1260065ejl.68.2022.02.17.06.35.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Feb 2022 06:35:06 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Richard Guy Briggs <rgb@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: [PATCH] selinux: log anon inode class name
+Date:   Thu, 17 Feb 2022 15:34:55 +0100
+Message-Id: <20220217143457.75229-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.35.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 27 Jan 2022 at 00:01, Paul Moore <paul@paul-moore.com> wrote:
->
-> On Tue, Jan 25, 2022 at 9:33 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Create a security context for the inodes created by memfd_secret(2) via
-> > the LSM hook inode_init_security_anon to allow a fine grained control.
-> > As secret memory areas can affect hibernation and have a global shared
-> > limit access control might be desirable.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > An alternative way of checking memfd_secret(2) is to create a new LSM
-> > hook and e.g. for SELinux check via a new process class permission.
-> > ---
-> >  mm/secretmem.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
->
-> This seems reasonable to me, and I like the idea of labeling the anon
-> inode as opposed to creating a new set of LSM hooks.  If we want to
-> apply access control policy to the memfd_secret() fds we are going to
-> need to attach some sort of LSM state to the inode, we might as well
-> use the mechanism we already have instead of inventing another one.
+Log the anonymous inode class name in the security hook
+inode_init_security_anon.  This name is the key for name based type
+transitions on the anon_inode security class on creation.  Example:
 
-Any further comments (on design or implementation)?
+    type=AVC msg=audit(02/16/22 22:02:50.585:216) : avc:  granted  { create } for  pid=2136 comm=mariadbd anonclass="[io_uring]" dev="anon_inodefs" ino=6871 scontext=system_u:system_r:mysqld_t:s0 tcontext=system_u:system_r:mysqld_iouring_t:s0 tclass=anon_inode
 
-Should I resend a non-rfc?
+Add a new LSM audit data type holding the inode and the class name.
 
-One naming question:
-Should the anonymous inode class be named "[secretmem]", like
-"[userfaultfd]", or "[secret_mem]" similar to "[io_uring]"?
+Also warn if the security hook gets called with no name set; currently
+the only caller fs/anon_inodes.c:anon_inode_make_secure_inode() passes
+one.
 
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ include/linux/lsm_audit.h |  5 +++++
+ security/lsm_audit.c      | 21 +++++++++++++++++++++
+ security/selinux/hooks.c  |  7 +++++--
+ 3 files changed, 31 insertions(+), 2 deletions(-)
 
-> > diff --git a/mm/secretmem.c b/mm/secretmem.c
-> > index 22b310adb53d..b61cd2f661bc 100644
-> > --- a/mm/secretmem.c
-> > +++ b/mm/secretmem.c
-> > @@ -164,11 +164,20 @@ static struct file *secretmem_file_create(unsigne=
-d long flags)
-> >  {
-> >         struct file *file =3D ERR_PTR(-ENOMEM);
-> >         struct inode *inode;
-> > +       const char *anon_name =3D "[secretmem]";
-> > +       const struct qstr qname =3D QSTR_INIT(anon_name, strlen(anon_na=
-me));
-> > +       int err;
-> >
-> >         inode =3D alloc_anon_inode(secretmem_mnt->mnt_sb);
-> >         if (IS_ERR(inode))
-> >                 return ERR_CAST(inode);
-> >
-> > +       err =3D security_inode_init_security_anon(inode, &qname, NULL);
-> > +       if (err) {
-> > +               file =3D ERR_PTR(err);
-> > +               goto err_free_inode;
-> > +       }
-> > +
-> >         file =3D alloc_file_pseudo(inode, secretmem_mnt, "secretmem",
-> >                                  O_RDWR, &secretmem_fops);
-> >         if (IS_ERR(file))
-> > --
-> > 2.34.1
->
-> --
-> paul-moore.com
+diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+index 17d02eda9538..8135a88d6d82 100644
+--- a/include/linux/lsm_audit.h
++++ b/include/linux/lsm_audit.h
+@@ -76,6 +76,7 @@ struct common_audit_data {
+ #define LSM_AUDIT_DATA_IBENDPORT 14
+ #define LSM_AUDIT_DATA_LOCKDOWN 15
+ #define LSM_AUDIT_DATA_NOTIFICATION 16
++#define LSM_AUDIT_DATA_ANONINODE	17
+ 	union 	{
+ 		struct path path;
+ 		struct dentry *dentry;
+@@ -96,6 +97,10 @@ struct common_audit_data {
+ 		struct lsm_ibpkey_audit *ibpkey;
+ 		struct lsm_ibendport_audit *ibendport;
+ 		int reason;
++		struct {
++			struct inode *inode;
++			const char *anonclass;
++		} anoninode_struct;
+ 	} u;
+ 	/* this union contains LSM specific data */
+ 	union {
+diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+index 1897cbf6fc69..5545fed35539 100644
+--- a/security/lsm_audit.c
++++ b/security/lsm_audit.c
+@@ -433,6 +433,27 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+ 		audit_log_format(ab, " lockdown_reason=\"%s\"",
+ 				 lockdown_reasons[a->u.reason]);
+ 		break;
++	case LSM_AUDIT_DATA_ANONINODE: {
++		struct dentry *dentry;
++		struct inode *inode;
++
++		rcu_read_lock();
++		inode = a->u.anoninode_struct.inode;
++		dentry = d_find_alias_rcu(inode);
++		if (dentry) {
++			audit_log_format(ab, " name=");
++			spin_lock(&dentry->d_lock);
++			audit_log_untrustedstring(ab, dentry->d_name.name);
++			spin_unlock(&dentry->d_lock);
++		}
++		audit_log_format(ab, " anonclass=");
++		audit_log_untrustedstring(ab, a->u.anoninode_struct.anonclass);
++		audit_log_format(ab, " dev=");
++		audit_log_untrustedstring(ab, inode->i_sb->s_id);
++		audit_log_format(ab, " ino=%lu", inode->i_ino);
++		rcu_read_unlock();
++		break;
++	}
+ 	} /* switch (a->type) */
+ }
+ 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index dafabb4dcc64..19c831d94d9b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2932,6 +2932,8 @@ static int selinux_inode_init_security_anon(struct inode *inode,
+ 	if (unlikely(!selinux_initialized(&selinux_state)))
+ 		return 0;
+ 
++	WARN_ON(!name);
++
+ 	isec = selinux_inode(inode);
+ 
+ 	/*
+@@ -2965,8 +2967,9 @@ static int selinux_inode_init_security_anon(struct inode *inode,
+ 	 * allowed to actually create this type of anonymous inode.
+ 	 */
+ 
+-	ad.type = LSM_AUDIT_DATA_INODE;
+-	ad.u.inode = inode;
++	ad.type = LSM_AUDIT_DATA_ANONINODE;
++	ad.u.anoninode_struct.inode = inode;
++	ad.u.anoninode_struct.anonclass = name ? (const char *)name->name : "unknown(null)";
+ 
+ 	return avc_has_perm(&selinux_state,
+ 			    tsec->sid,
+-- 
+2.35.1
+
