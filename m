@@ -2,171 +2,170 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF306C433F5
-	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 14:50:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B10BDC4332F
+	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 15:05:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242206AbiBQOvG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Feb 2022 09:51:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44840 "EHLO
+        id S242314AbiBQPF3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Feb 2022 10:05:29 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242167AbiBQOuv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 09:50:51 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19BF22B2C6F;
-        Thu, 17 Feb 2022 06:50:35 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id qx21so7800480ejb.13;
-        Thu, 17 Feb 2022 06:50:35 -0800 (PST)
+        with ESMTP id S242310AbiBQPF2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 10:05:28 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE676196A3C;
+        Thu, 17 Feb 2022 07:05:10 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id r27so6145019oiw.4;
+        Thu, 17 Feb 2022 07:05:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=bX4TrrpbZWiTDtSIiT+79S67gmaAnm5bGwmVO1NuSaM=;
-        b=INiSgLKiZpd7dkFaBTgJO5utgSFoQdXv4fgSV9t8ZaT0Aa4oE8no3YEP0fG0z87iP6
-         0neFvpN6KRJaAgF7vHhHZgilrvEAg1ujDmhaU0aBe/zbnRaiCDGgsWqERRjGbz6lzmA/
-         M5/z+urnhGk/sNEsVFVP8L5xp1uM2O9v/XlZIFF/MYUubGAl3paCezVSNmdIheyiR5dz
-         4BQW3IfODw9WJSASxFdJ+ZRvvYYcHKZAmfgbsO94ReZgKARUBeW6tPT9fQ4H2Iu6B715
-         V95114focf3bSh6vfrpYGa5hdJDKkqe56stHtsTZu3oIcuvpmX3na3MGV9sZtli5icWv
-         t+7A==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=f2MPqTgNhkg8dMnyXCAFH3rR3QSJvQ1vPpxCo+MKOj8=;
+        b=Cx9RS+kG97Yi9fZNROZ4ELjN6xaw3IgW5PlUcROxWJAyZXPTpUrH7LSQiY+r8oBHrU
+         Zg1uc69eNVPqLjDBZgBYFiO7oxO9wIm8hjoBa3uUwHZe0op2/9wJ1d069pF0+9GmEaCM
+         jxDT7pCm5XfHskXuGHOcpP/O1IeXReO1gjpqJq+OkywIFtmzxbdNyHUqBYZvkffIHbDg
+         1THozygIzmLyf58iiULG7km+V0Jo7x58ckme8BnCTx5FqLV0qZp2DKHk6CIc5//O2sCs
+         8aTjRIpNqE930fa4bk14F3ve3JwFhgIWGJ9aq5ng0Yy4iTmCijoNPHCQHXqew8Y8/kTG
+         gGeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bX4TrrpbZWiTDtSIiT+79S67gmaAnm5bGwmVO1NuSaM=;
-        b=yDhqVP0X8++vzP3prPMKkjN+8eYiTafWngNQnxag1FI/faG3DtPRjbMsP+no7EWMFC
-         WQaCL714C0W/ntlPReELamQJJAYM2LykE4EYbJeRJwhsQhA190WUzqPRGYwgrgJknV8y
-         O3Mm01IiHhp2Z/66eyWcDww3hw1CmLxqMN3BNpU4pfoywZ/RF9ncL8/HzZHKnYJCWd77
-         KHUk4flxd/S1Xpf2AgS3WyoSOBZpH45kKPGHZFZKrKexIo6ULOo9XNloW4U9CutC2rAE
-         5leukRfl19HKaBfmuanhhs5OdVLBi6GfIyMUCp8t/0SwesERepKAC2HDGPIAiMC2QD7s
-         joSw==
-X-Gm-Message-State: AOAM533dcP+HTWzDTvbDBjM0UR8ozeGpjOcurpgrMLDxQ5HvRvsS9CGL
-        yWyPtZAS3FUeD5iPDMnZHLH0vd0dTyMrQQ==
-X-Google-Smtp-Source: ABdhPJwpRuHRfCrHVQHWKpujlie3WcZ/GvHjEtRFarRLhOXe19/veEIQOXoHV7bx7XTQb50KV2pzBA==
-X-Received: by 2002:a17:906:c405:b0:6ce:7100:8cf1 with SMTP id u5-20020a170906c40500b006ce71008cf1mr2795143ejz.722.1645109433610;
-        Thu, 17 Feb 2022 06:50:33 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-001-066-240.77.1.pool.telefonica.de. [77.1.66.240])
-        by smtp.gmail.com with ESMTPSA id c11sm3580270edx.42.2022.02.17.06.50.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Feb 2022 06:50:33 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     Serge Hallyn <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 1/2] capability: add capable_or to test for multiple caps with exactly one audit message
-Date:   Thu, 17 Feb 2022 15:49:55 +0100
-Message-Id: <20220217145003.78982-2-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220217145003.78982-1-cgzones@googlemail.com>
-References: <20220217145003.78982-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=f2MPqTgNhkg8dMnyXCAFH3rR3QSJvQ1vPpxCo+MKOj8=;
+        b=S0AIhFFbMJdV9HK+oiygFaPtL8hQSweIdFcs0rVPVw7uwuTta70quiml1h+8gQ3G7Z
+         f6h8r4/3IWW6N7KgE1tRXcxeEAe1mhhZA+FFcgU02/cZL4wi5eRdN87se2SFUtIFa7Tc
+         hZFKYXDHstY8lNUg/Zpfhd7gp1G2HKLxRxp2I9QW6GqW0npURUbLyz9F/6OmaGQSyLZ4
+         HokxlGISBhuMybeRfymzE9apogmEv0v8XO2lXnqoArd/88t1oOkxY6KDbZIpX4b4wwJa
+         GZdQsOJ8oqSa9HbMfkDLadm5t/nzAf6zhGt+vjgBko9jgLzlgudWqo+GItcTB2CvrF8b
+         CQqQ==
+X-Gm-Message-State: AOAM531EQyF2lLGY8R4nDEabCyFY03EtQchyiRNk+2s2eacw86NSDUuk
+        YktKAdHT0gh4mjtExmPkahmHkYcdIvZA8re01vs=
+X-Google-Smtp-Source: ABdhPJzHv7jbTD21TTWxDCpiC4x/P9oo3FqS6Kvl2GIeQ/+Bb7O5aFLF5cj7AiplebmaHPOwWdAjJIcJ5tQSeJdvaXo=
+X-Received: by 2002:aca:5b45:0:b0:2bc:8362:b053 with SMTP id
+ p66-20020aca5b45000000b002bc8362b053mr2789910oib.36.1645110309954; Thu, 17
+ Feb 2022 07:05:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+ <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+ <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+ <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+ <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com> <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+ <478e1651-a383-05ff-d011-6dda771b8ce8@linux.microsoft.com>
+ <875ypt5zmz.fsf@defensec.nl> <CAFftDdo9JmbyPzPWRjOYgZBOS9b5d+OGKKf8egS8_ysbbWW87Q@mail.gmail.com>
+ <CABXk95Az0V0qWyB0Cp9D+MaCKNBfcdk4=bvXRdm5EXzHdjXJJg@mail.gmail.com> <CAHC9VhQKuQuR1pJfa0h2Y5dCjmrpiYaGpymwxxE1sa6jR3h-bA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQKuQuR1pJfa0h2Y5dCjmrpiYaGpymwxxE1sa6jR3h-bA@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 17 Feb 2022 16:04:58 +0100
+Message-ID: <CAJ2a_Ddh8p0fzJHf7R=BwAULfS8jYq08x=H45mF9jaR1QbWTww@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Demi Marie Obenour <demiobenour@gmail.com>,
+        William Roberts <bill.c.roberts@gmail.com>,
+        Dominick Grift <dominick.grift@defensec.nl>,
+        Chris PeBenito <chpebeni@linux.microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org,
+        Jeffrey Vander Stoep <jeffv@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add the interface `capable_or()` as an alternative to or multiple
-`capable()` calls, like `capable_or(CAP_SYS_NICE, CAP_SYS_ADMIN)`
-instead of `capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
-`capable_or()` will in particular generate exactly one audit message,
-either for the left most capability in effect or, if the task has none,
-the first one.
-This is especially helpful with regard to SELinux, where each audit
-message about a not allowed capability will create an avc denial.
-Using this function with the least invasive capability as left most
-argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables policy writers
-to only allow the least invasive one and SELinux domains pass this check
-with only capability:sys_nice or capability:sys_admin allowed without
-any avc denial message.
+On Tue, 15 Feb 2022 at 21:35, Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Mon, Feb 14, 2022 at 2:11 AM Jeffrey Vander Stoep <jeffv@google.com> wrote:
+> > On Tue, Feb 8, 2022 at 3:18 PM William Roberts <bill.c.roberts@gmail.com> wrote:
+> > >
+> > > <snip>
+> > >
+> > > This is getting too long for me.
+> > >
+> > > > >
+> > > > > I don't have a strong opinion either way.  If one were to allow this
+> > > > > using a policy rule, it would result in a major policy breakage.  The
+> > > > > rule would turn on extended perm checks across the entire system,
+> > > > > which the SELinux Reference Policy isn't written for.  I can't speak
+> > > > > to the Android policy, but I would imagine it would be the similar
+> > > > > problem there too.
+> > > >
+> > > > Excuse me if I am wrong but AFAIK adding a xperm rule does not turn on
+> > > > xperm checks across the entire system.
+> > >
+> > > It doesn't as you state below its target + class.
+> > >
+> > > >
+> > > > If i am not mistaken it will turn on xperm checks only for the
+> > > > operations that have the same source and target/target class.
+> > >
+> > > That's correct.
+> > >
+> > > >
+> > > > This is also why i don't (with the exception TIOSCTI for termdev
+> > > > chr_file) use xperms by default.
+> > > >
+> > > > 1. it is really easy to selectively filter ioctls by adding xperm rules
+> > > > for end users (and since ioctls are often device/driver specific they
+> > > > know best what is needed and what not)
+> > >
+> > > > >>> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD)
+> > > >
+> > > > 2. if you filter ioctls in upstream policy for example like i do with
+> > > > TIOSCTI using for example (allowx foo bar (ioctl chr_file (not
+> > > > (0xXXXX)))) then you cannot easily exclude additional ioctls later where source is
+> > > > foo and target/tclass is bar/chr_file because there is already a rule in
+> > > > place allowing the ioctl (and you cannot add rules)
+> > >
+> > > Currently, fcntl flag F_SETFD is never checked, it's silently allowed, but
+> > > the equivalent FIONCLEX and FIOCLEX are checked. So if you wrote policy
+> > > to block the FIO*CLEX flags, it would be bypassable through F_SETFD and
+> > > FD_CLOEXEC. So the patch proposed makes the FIO flags behave like
+> > > F_SETFD. Which means upstream policy users could drop this allow, which
+> > > could then remove the target/class rule and allow all icotls. Which is easy
+> > > to prevent and fix you could be a rule in to allowx 0 as documented in the
+> > > wiki: https://selinuxproject.org/page/XpermRules
+> > >
+> > > The questions I think we have here are:
+> > > 1. Do we agree that the behavior between SETFD and the FIO flags are equivalent?
+> > >   I think they are.
+> > > 2. Do we want the interfaces to behave the same?
+> > >   I think they should.
+> > > 3. Do upstream users of the policy construct care?
+> > >   The patch is backwards compat, but I don't want their to be cruft
+> > > floating around with extra allowxperm rules.
+> >
+> > I think this proposed change is fine from Android's perspective. It
+> > implements in the kernel what we've already already put in place in
+> > our policy - that all domains are allowed to use these IOCLTs.
+> > https://cs.android.com/android/platform/superproject/+/master:system/sepolicy/public/domain.te;l=312
+> >
+> > It'll be a few years before we can clean up our policy since we need
+> > to support older kernels, but that's fine.
+>
+> Thanks for the discussion everyone, it sounds like everybody is okay
+> with the change - that's good.  However, as I said earlier in this
+> thread I think we need to put this behind a policy capability, how
+> does POLICYDB_CAPABILITY_IOCTL_CLOEXEC/"ioctl_skip_cloexec" sound to
+> everyone?
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- include/linux/capability.h |  6 +++++
- kernel/capability.c        | 48 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 54 insertions(+)
+May I ask why?
+To my understanding policy capabilities exist to retain backwards
+compatibility for older
+policies, e.g. if a new check is introduced or a new essential class
+or permission, which
+would break systems running an updated kernel with a non updated policy.
+In this case no check or class/permission is added, the xperm checks
+against FIO(N)CLEX
+are just dropped.  Old policies still defining related allow rules
+continue to work.  Existing
+polices explicitly not allowing them and relying on SELinux to block changes on
+the close-on-exec flag are already broken due to the bypasses via
+fnctl(2) and dup(2).
 
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index 65efb74c3585..5c55687a9a05 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -207,6 +207,8 @@ extern bool has_ns_capability(struct task_struct *t,
- extern bool has_capability_noaudit(struct task_struct *t, int cap);
- extern bool has_ns_capability_noaudit(struct task_struct *t,
- 				      struct user_namespace *ns, int cap);
-+#define capable_or(...) _capable_or_impl((sizeof((int[]){__VA_ARGS__}) / sizeof(int)), __VA_ARGS__)
-+extern bool _capable_or_impl(int count, ...);
- extern bool capable(int cap);
- extern bool ns_capable(struct user_namespace *ns, int cap);
- extern bool ns_capable_noaudit(struct user_namespace *ns, int cap);
-@@ -230,6 +232,10 @@ static inline bool has_ns_capability_noaudit(struct task_struct *t,
- {
- 	return true;
- }
-+static inline bool capable_or(int first_cap, ...)
-+{
-+	return true;
-+}
- static inline bool capable(int cap)
- {
- 	return true;
-diff --git a/kernel/capability.c b/kernel/capability.c
-index 46a361dde042..5b73a58b914e 100644
---- a/kernel/capability.c
-+++ b/kernel/capability.c
-@@ -434,6 +434,54 @@ bool ns_capable_setid(struct user_namespace *ns, int cap)
- }
- EXPORT_SYMBOL(ns_capable_setid);
- 
-+/**
-+ * _capable_or - Determine if the current task has one of multiple superior capabilities in effect
-+ * @cap: The capabilities to be tested for
-+ *
-+ * Return true if the current task has at least one of the given superior capabilities currently
-+ * available for use, false if not.
-+ *
-+ * In contrast to or'ing capable() this call will create exactly one audit message, either for the
-+ * left most capability in effect or (if the task has none of the tested capabilities) the first
-+ * capabilit in the test list.
-+ *
-+ * The capabilities should be ordered from least to most invasive, i.e. CAP_SYS_ADMIN last.
-+ *
-+ * This sets PF_SUPERPRIV on the task if the capability is available on the
-+ * assumption that it's about to be used.
-+ */
-+bool _capable_or_impl(int count, ...)
-+{
-+	va_list args;
-+	const struct cred *cred = current_cred();
-+	int cap, first_cap, i;
-+
-+	BUG_ON(count < 1);
-+	BUG_ON(count > CAP_LAST_CAP);
-+
-+	va_start(args, count);
-+
-+	for (i = 0; i < count; i++) {
-+		int ret;
-+
-+		cap = va_arg(args, int);
-+		if (i == 0)
-+			first_cap = cap;
-+
-+		ret = security_capable(cred, &init_user_ns, cap, CAP_OPT_NOAUDIT);
-+		if (ret == 0)
-+			goto out;
-+	}
-+
-+	/* if none of the capabilities was allowed, create an audit event for the first one */
-+	cap = first_cap;
-+
-+out:
-+	va_end(args);
-+	return ns_capable(&init_user_ns, cap);
-+}
-+EXPORT_SYMBOL(_capable_or_impl);
-+
- /**
-  * capable - Determine if the current task has a superior capability in effect
-  * @cap: The capability to be tested for
--- 
-2.35.1
-
+>
+> Demi, are you able to respin this patch with policy capability changes?
+>
+> --
+> paul-moore.com
