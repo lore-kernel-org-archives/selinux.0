@@ -2,203 +2,106 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BE13C433EF
-	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 22:26:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D5AAC433EF
+	for <selinux@archiver.kernel.org>; Thu, 17 Feb 2022 22:27:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241861AbiBQW0Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Feb 2022 17:26:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49258 "EHLO
+        id S1343859AbiBQW1l (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Feb 2022 17:27:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233234AbiBQW0Y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 17:26:24 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0B21662D1
-        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 14:26:08 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id d10so10511593eje.10
-        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 14:26:08 -0800 (PST)
+        with ESMTP id S1343857AbiBQW1l (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Feb 2022 17:27:41 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6190355BFF
+        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 14:27:25 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id lw4so10511587ejb.12
+        for <selinux@vger.kernel.org>; Thu, 17 Feb 2022 14:27:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Hw18NUxIkws+pKv9BXQqVUxZL0gpw+nsSHJBAiFK+Tw=;
-        b=TuxlNCMAZu67yIZesw5qD2l9WluJYajpYSvf7ilkvdFkcII5B7zOSrrA1JUzqomlZ8
-         10Pki1W92fbUSBIJ10nS3MOH/QBtxY239+/IjpOoIKS/kh1J+Sn1bBO93h4HgD7QB4Yi
-         k0PvxI8CuyRgNDmVscNQkrZcnvJZ0adyLP8lcudBKiUK2i9Z2LO18ySqzS/TX5RUgJmd
-         69ljAM3WDQb9KkbfS5Q1hJmapvZHsXtShA553HRBqz3h4t0dHfYtNLSfWKH5IGn9lQ0p
-         AnJOcyId/KBm0DtJmumd+61FcdRtSK5dRbdlgCVFZOQy0Xa6G0i+gEdNLxvVhYaJCK0M
-         3s5Q==
+        bh=dOUplOtF52+4ptESkYuYLuLN7/aJDzskLaG/dPuOL2E=;
+        b=tyz6Qp+Fmi/7yVep0CvJKOEK/6J0acEN9GmzNqyRKbK2knKpyhT6G8l7dWebO8IaQa
+         wWiUBQHDDMnNcsTE7k9Kmqgd0ZRqDJABDaRdOMtNv2hFZN3pWjR4cy+nb7VVDnXMvo/s
+         sGkXQPMvKPeLKWiiMp4kTMxJna2RVn0i+n6aO+Y4WSlVusRULfUu5hoDMLCPNdwZJn/I
+         xyxrkN3LMx1/nFu9AlLAStJTfB4+DkmhnJ8mRpcM3+dYj51+DBYdayzCGH/Wed4E+DPF
+         PSAFM708zXP+Z8+3Tiz27TYsLXl2QzpFPJQLsXbp28sL0+A48U+dye2W0LGFtX7pcDsW
+         eE3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Hw18NUxIkws+pKv9BXQqVUxZL0gpw+nsSHJBAiFK+Tw=;
-        b=V+8XuMq5EUsJ7cv4yqMiVWjx5oglvGi2Yq/oygwcOJuupF+Ytf3ThDclZLwt4jVuc8
-         KT5LYEFxYNn31ykAHmrdv/KCX2KMjsQ74kmOZ3ppbiL4m5onSR5RPMFlVVPE/WnoEI4L
-         wGvvuIVmtrigN6WjYYasC3tXIqnJH3sFz1/yOslYFCGoJ4QgU0Lgoc/vmXBAY7VVHWXi
-         ek+oGQBMBCuFPKF66Du5QUvMYnk6EK01fVn06N1+5ukC/FHi2RjrutGnEWKC71IvAFkP
-         iKdgV4XCvMtj2eQFsS0dma1QxA1UWqm3SSSbzDq/TsXdUAHoHaTFoqpUNKKgO32aapnE
-         d0fw==
-X-Gm-Message-State: AOAM531JEDEqAqo/0oe66t6BqQUs2s/ChOuCFwJgPrYg8SLTxNncW3Tb
-        sltp2eUnYVDWC4MemLieFLDa5vmnrDigYIumeKZQ
-X-Google-Smtp-Source: ABdhPJy1UezhTFruqiqe8V4twoHJGohohUqRTgPpDF29eHvN/oARbMjAkwSO8pP+EspKeeaGIvA+GMoozt/tM6avkDw=
-X-Received: by 2002:a17:906:4443:b0:6cf:6a7d:5f9b with SMTP id
- i3-20020a170906444300b006cf6a7d5f9bmr4072554ejp.12.1645136767084; Thu, 17 Feb
- 2022 14:26:07 -0800 (PST)
+        bh=dOUplOtF52+4ptESkYuYLuLN7/aJDzskLaG/dPuOL2E=;
+        b=RN5b8H1N4UQSPSvIL4T3onPpaKjs0K8d+0WaO5DxDsmLfpkSaQG8GBZpF46w6H8sU8
+         b3EXWnGizDz1NMybiMyzY2vUZsQSldnoypwbVY2H9nZP5CWdZThf43sdL3VEeftE9khh
+         oHCCcwy8F8WFA/hojiG7rE1yzj6mziayloRd8EY5TvrBlu22uMk4pg+jyDbNq/1Sfqel
+         KirVWolcN1wTO64sWD6OM4ibmlZBM4YhqnHU5Quv5oOsvyqrGsyUyUg0Pj6djB9Lfjf1
+         wMrVUDpBztZaE4buMIbfWMQ47Kt9j736dgxPYffo1adVmTC5fpPY2UywkIi8kb6zHO/1
+         tDVQ==
+X-Gm-Message-State: AOAM533U9LyudiQa3dPIDCLLs+ED7w7BfoHTiQQUTi5G/ycVcQL4NuNt
+        D7xjMvh0h11SUGAUGdewatPi/tDWS9KpBvKyBjL424dkEU37
+X-Google-Smtp-Source: ABdhPJw7EpGj8PRHM7AeikiX1WV4vhxdoltD+BcJxw6RJiTtevXzBj3yHDvAaHmjFd00igt1PmgSjgfwYHjlgW5puGE=
+X-Received: by 2002:a17:907:216f:b0:6ce:d85f:35cf with SMTP id
+ rl15-20020a170907216f00b006ced85f35cfmr3988130ejb.517.1645136843907; Thu, 17
+ Feb 2022 14:27:23 -0800 (PST)
 MIME-Version: 1.0
-References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
- <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
- <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com> <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
- <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com> <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
- <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com> <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
- <478e1651-a383-05ff-d011-6dda771b8ce8@linux.microsoft.com>
- <875ypt5zmz.fsf@defensec.nl> <CAFftDdo9JmbyPzPWRjOYgZBOS9b5d+OGKKf8egS8_ysbbWW87Q@mail.gmail.com>
- <CABXk95Az0V0qWyB0Cp9D+MaCKNBfcdk4=bvXRdm5EXzHdjXJJg@mail.gmail.com>
- <CAHC9VhQKuQuR1pJfa0h2Y5dCjmrpiYaGpymwxxE1sa6jR3h-bA@mail.gmail.com> <CAJ2a_Ddh8p0fzJHf7R=BwAULfS8jYq08x=H45mF9jaR1QbWTww@mail.gmail.com>
-In-Reply-To: <CAJ2a_Ddh8p0fzJHf7R=BwAULfS8jYq08x=H45mF9jaR1QbWTww@mail.gmail.com>
+References: <20220217141858.71281-1-cgzones@googlemail.com>
+In-Reply-To: <20220217141858.71281-1-cgzones@googlemail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 17 Feb 2022 17:25:53 -0500
-Message-ID: <CAHC9VhRK+VBN_VhpgNkRN=rwP+EUYMAbUT++tJ+oBzd81H9mxw@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+Date:   Thu, 17 Feb 2022 17:27:12 -0500
+Message-ID: <CAHC9VhRGtkiOMHvjPaM170FJu3kiVZq30n389_2Gg=QgOV=fUA@mail.gmail.com>
+Subject: Re: [PATCH] security: declare member holding string literal const
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     Demi Marie Obenour <demiobenour@gmail.com>,
-        William Roberts <bill.c.roberts@gmail.com>,
-        Dominick Grift <dominick.grift@defensec.nl>,
-        Chris PeBenito <chpebeni@linux.microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        selinux-refpolicy@vger.kernel.org,
-        Jeffrey Vander Stoep <jeffv@google.com>
+Cc:     selinux@vger.kernel.org, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>,
+        Todd Kjos <tkjos@google.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, llvm@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 17, 2022 at 10:05 AM Christian G=C3=B6ttsche
+On Thu, Feb 17, 2022 at 9:19 AM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
-> On Tue, 15 Feb 2022 at 21:35, Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Feb 14, 2022 at 2:11 AM Jeffrey Vander Stoep <jeffv@google.com>=
- wrote:
-> > > On Tue, Feb 8, 2022 at 3:18 PM William Roberts <bill.c.roberts@gmail.=
-com> wrote:
-> > > >
-> > > > <snip>
-> > > >
-> > > > This is getting too long for me.
-> > > >
-> > > > > >
-> > > > > > I don't have a strong opinion either way.  If one were to allow=
- this
-> > > > > > using a policy rule, it would result in a major policy breakage=
-.  The
-> > > > > > rule would turn on extended perm checks across the entire syste=
-m,
-> > > > > > which the SELinux Reference Policy isn't written for.  I can't =
-speak
-> > > > > > to the Android policy, but I would imagine it would be the simi=
-lar
-> > > > > > problem there too.
-> > > > >
-> > > > > Excuse me if I am wrong but AFAIK adding a xperm rule does not tu=
-rn on
-> > > > > xperm checks across the entire system.
-> > > >
-> > > > It doesn't as you state below its target + class.
-> > > >
-> > > > >
-> > > > > If i am not mistaken it will turn on xperm checks only for the
-> > > > > operations that have the same source and target/target class.
-> > > >
-> > > > That's correct.
-> > > >
-> > > > >
-> > > > > This is also why i don't (with the exception TIOSCTI for termdev
-> > > > > chr_file) use xperms by default.
-> > > > >
-> > > > > 1. it is really easy to selectively filter ioctls by adding xperm=
- rules
-> > > > > for end users (and since ioctls are often device/driver specific =
-they
-> > > > > know best what is needed and what not)
-> > > >
-> > > > > >>> and FIONCLEX can be trivially bypassed unless fcntl(F_SETFD)
-> > > > >
-> > > > > 2. if you filter ioctls in upstream policy for example like i do =
-with
-> > > > > TIOSCTI using for example (allowx foo bar (ioctl chr_file (not
-> > > > > (0xXXXX)))) then you cannot easily exclude additional ioctls late=
-r where source is
-> > > > > foo and target/tclass is bar/chr_file because there is already a =
-rule in
-> > > > > place allowing the ioctl (and you cannot add rules)
-> > > >
-> > > > Currently, fcntl flag F_SETFD is never checked, it's silently allow=
-ed, but
-> > > > the equivalent FIONCLEX and FIOCLEX are checked. So if you wrote po=
-licy
-> > > > to block the FIO*CLEX flags, it would be bypassable through F_SETFD=
- and
-> > > > FD_CLOEXEC. So the patch proposed makes the FIO flags behave like
-> > > > F_SETFD. Which means upstream policy users could drop this allow, w=
-hich
-> > > > could then remove the target/class rule and allow all icotls. Which=
- is easy
-> > > > to prevent and fix you could be a rule in to allowx 0 as documented=
- in the
-> > > > wiki: https://selinuxproject.org/page/XpermRules
-> > > >
-> > > > The questions I think we have here are:
-> > > > 1. Do we agree that the behavior between SETFD and the FIO flags ar=
-e equivalent?
-> > > >   I think they are.
-> > > > 2. Do we want the interfaces to behave the same?
-> > > >   I think they should.
-> > > > 3. Do upstream users of the policy construct care?
-> > > >   The patch is backwards compat, but I don't want their to be cruft
-> > > > floating around with extra allowxperm rules.
-> > >
-> > > I think this proposed change is fine from Android's perspective. It
-> > > implements in the kernel what we've already already put in place in
-> > > our policy - that all domains are allowed to use these IOCLTs.
-> > > https://cs.android.com/android/platform/superproject/+/master:system/=
-sepolicy/public/domain.te;l=3D312
-> > >
-> > > It'll be a few years before we can clean up our policy since we need
-> > > to support older kernels, but that's fine.
-> >
-> > Thanks for the discussion everyone, it sounds like everybody is okay
-> > with the change - that's good.  However, as I said earlier in this
-> > thread I think we need to put this behind a policy capability, how
-> > does POLICYDB_CAPABILITY_IOCTL_CLOEXEC/"ioctl_skip_cloexec" sound to
-> > everyone?
 >
-> May I ask why?
-> To my understanding policy capabilities exist to retain backwards
-> compatibility for older
-> policies, e.g. if a new check is introduced or a new essential class
-> or permission, which
-> would break systems running an updated kernel with a non updated policy.
-> In this case no check or class/permission is added, the xperm checks
-> against FIO(N)CLEX
-> are just dropped.  Old policies still defining related allow rules
-> continue to work.  Existing
-> polices explicitly not allowing them and relying on SELinux to block chan=
-ges on
-> the close-on-exec flag are already broken due to the bypasses via
-> fnctl(2) and dup(2).
+> The struct security_hook_list member lsm is assigned in
+> security_add_hooks() with string literals passed from the individual
+> security modules.  Declare the function parameter and the struct member
+> const to signal their immutability.
+>
+> Reported by Clang [-Wwrite-strings]:
+>
+>     security/selinux/hooks.c:7388:63: error: passing 'const char [8]' to =
+parameter of type 'char *' discards qualifiers [-Werror,-Wincompatible-poin=
+ter-types-discards-qualifiers]
+>             security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks), =
+selinux);
+>                                                                          =
+^~~~~~~~~
+>     ./include/linux/lsm_hooks.h:1629:11: note: passing argument to parame=
+ter 'lsm' here
+>                                     char *lsm);
+>                                           ^
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  include/linux/lsm_hooks.h | 4 ++--
+>  security/security.c       | 2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 
-Policy capabilities are a general tool that we can use when we make a
-change in the kernel that could potentially have an effect on the
-policy; it allows the policy to (typically) "opt-in" to the change.
+Thanks Christian.
 
-In this particular case we are talking about removing access controls,
-which is a Very Serious Thing, and protecting this behavior with an
-opt-in policy capability seems like a good way to not surprise anyone
-with the change.  You are correct in that old policy would continue to
-load and work regardless, but I believe it is safer to create a new
-policy capability for this.
+Reviewed-by: Paul Moore <paul@paul-moore.com>
 
 --=20
 paul-moore.com
