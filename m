@@ -2,136 +2,202 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2E47C433F5
-	for <selinux@archiver.kernel.org>; Fri, 18 Feb 2022 21:08:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E1B8C433EF
+	for <selinux@archiver.kernel.org>; Fri, 18 Feb 2022 21:16:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234157AbiBRVIq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Feb 2022 16:08:46 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46414 "EHLO
+        id S239737AbiBRVQd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Feb 2022 16:16:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbiBRVIq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Feb 2022 16:08:46 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AAE2E10FD3
-        for <selinux@vger.kernel.org>; Fri, 18 Feb 2022 13:08:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645218507;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Utw6U2flpKnc1nHeHNPh/CMSFr4TBNleapAJUkHSSYw=;
-        b=B8ngmzAuxQM3Q7c+wBuNVYwX9QDNDQ102gPksS1Yi5DPL+bzMA6vDoC28JS7w6zb22gJMv
-        8xZdwm4cXtU09FrK/SLCet0ZcSMX1lJnUmYj+WRe1usVeVeBtSGyTsWUWz4KmB07yf5AIO
-        aJLFNzo3K9XdxZuZE0q3ZyuQTfLFcCc=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-192-vwzkzz4NOUm_rFKDYonGYg-1; Fri, 18 Feb 2022 16:08:19 -0500
-X-MC-Unique: vwzkzz4NOUm_rFKDYonGYg-1
-Received: by mail-ej1-f72.google.com with SMTP id gn20-20020a1709070d1400b006cf1fcb4c8dso3601946ejc.12
-        for <selinux@vger.kernel.org>; Fri, 18 Feb 2022 13:08:19 -0800 (PST)
+        with ESMTP id S239728AbiBRVQX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Feb 2022 16:16:23 -0500
+Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AD828B639
+        for <selinux@vger.kernel.org>; Fri, 18 Feb 2022 13:16:01 -0800 (PST)
+Received: by mail-oi1-x22d.google.com with SMTP id s5so4446637oic.10
+        for <selinux@vger.kernel.org>; Fri, 18 Feb 2022 13:16:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=l2IMpqNE1QUKWW25tQvn4MoStzE0ELe6ocRGL/Xq/ns=;
+        b=F9u2VfOkbkhtLafNPsIba9/GoWdnmzKtMz5ebWezYAqdxnK6sRx+6kQintXyWVbgTP
+         F4ocl2VklrCjmQYNcc5jUpKGPr5nMcto8WPID6WkwhofCh/+IiAh7QNGb+JafUyVa1wt
+         b0WvKu5rexI3ZNZRH5LICv5+NMlLATRVMwffthXFDTkchHnPK3lRXwu42FFakdkJ4snY
+         x5K63MeU9How76otQZl3ppsnPvsVMui0LEEQ7L2m5LP8Juh0EdKb7gAuv6b2FVes64o/
+         Or6bxdbp8UwzsutF5+g+DN5McvbD3dBCuKV5eADqTxPdF1UTVeMuCEpO3Rn9CXmMshx+
+         0NFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Utw6U2flpKnc1nHeHNPh/CMSFr4TBNleapAJUkHSSYw=;
-        b=IQNhBTZLPRbZcBMWJcHPi/Dvy912q+h0nkwu4jZEoV7EC+WWCVsrb39h1bks8qznvC
-         MaC+zSVCWhMAmlvy/DwjRcaZAPDjdi7DjPEULo2o9Y6gYiUODRIhPx+tvUEwBLvqd9Ud
-         oDl0f9be3ykoY1yYKqV4YiZlihcpu/1mOVHJV/mDV0Oe1vOXSl6+4HD+gLjZ11/Cu4a7
-         jX1w/K3xMNz6g8tv89NS21Iet+n7twK25TVHjGtIqZJGX+v0LrOnVXuoX4bp2U84FNUj
-         gJA7QbVTyKuZPoBNl7zUy1XixJZl059jMVPunhxZqkaybI6oDQKA8m+jmmUPV91nP29t
-         T7NQ==
-X-Gm-Message-State: AOAM532J0QCHP1Eef3XNRQnoH9CQ43al5U2Ll+875A9K1WPjOItjLOeQ
-        ayu0RPLXZdbQfgMfJcAg9bSXMtiIFt4J5erzKX8XnM06sMsN3fNyE0Abqay3ImEmukOxnRqYwFu
-        B7jJdaa2ot+SF5T/fud/Z/KQ7GMfSnxyrPaXtM0r4PXHPRZKUx3ONd9Y3ezWDEt5sSpHI1g==
-X-Received: by 2002:a17:906:301a:b0:6cc:955d:4dec with SMTP id 26-20020a170906301a00b006cc955d4decmr7942045ejz.143.1645218498093;
-        Fri, 18 Feb 2022 13:08:18 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx6MSsPHwsLg/EONeF6wwyZJ7/XKapf5A0/1oplJOtyG9/zeOw/6GSGTeFiejsM1DTu4Eltmg==
-X-Received: by 2002:a17:906:301a:b0:6cc:955d:4dec with SMTP id 26-20020a170906301a00b006cc955d4decmr7942026ejz.143.1645218497701;
-        Fri, 18 Feb 2022 13:08:17 -0800 (PST)
-Received: from localhost.localdomain (adsl-dyn144.78-99-32.t-com.sk. [78.99.32.144])
-        by smtp.gmail.com with ESMTPSA id v1sm2615562ejk.11.2022.02.18.13.08.15
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Feb 2022 13:08:16 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] tests/bpf: use new API if version >= 0.6
-Date:   Fri, 18 Feb 2022 22:08:15 +0100
-Message-Id: <20220218210815.107961-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.35.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=l2IMpqNE1QUKWW25tQvn4MoStzE0ELe6ocRGL/Xq/ns=;
+        b=CmLRZ9XozwkU83I3YrShAOzKQWwQ/eW59lJRGSPyZS3zSAVErE7g6JJHAn0MuAzG40
+         2PoC/a0foQWYMhC/fZdrK84fe8RyMyBozKkCvmzYCAAXZojDe+EDjcQLpr7CreT/74QJ
+         s8ssjLtvVFmpWEHSqsusgKHPUivjNGFu7lKk8+lrj/T+iG9wtW9GSUBAZJvf/8vFpIJI
+         zolmAxh6aLzcp7FHAmPK9Wt4NLYEXvUsaClhkoX5U86IvBCzwqF9mYC+Cw/stiV2QxNc
+         kcdB1cUfumU+4adp4M8/YRK5ckqJJHloiyJlOcr5BmEp2+AZyPA0rqfPDlFmupgnvCH3
+         WlxA==
+X-Gm-Message-State: AOAM530xmJyek8un/geVk2QVNOuvhvW2pgnxxOxfCpASEIYA5oydAk6g
+        /lnVCOZyVKRX1CYYJ56vANu4PVb4bVO8+oXGYlE=
+X-Google-Smtp-Source: ABdhPJybFbiV7RpStqZCPaDR0ux0D0iPHuZVCc0Y1DcRifiotk8qWFX/mMcFt+t0PV0pXF9ELH5Q2mWhuXG4g9BvDxI=
+X-Received: by 2002:a05:6808:1147:b0:2ce:6ee7:2c8f with SMTP id
+ u7-20020a056808114700b002ce6ee72c8fmr6002708oiu.189.1645218961300; Fri, 18
+ Feb 2022 13:16:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220216005326.1899481-1-tweek@google.com>
+In-Reply-To: <20220216005326.1899481-1-tweek@google.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 18 Feb 2022 16:15:50 -0500
+Message-ID: <CAP+JOzRuDOUP7jBzuzFe7S4SvBRA6sG69Q7tzd+LgpsRxNWNiw@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: Populate and use policy name
+To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        alanstokes@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In version 0.7 the old API is deprecated and without this patch the
-testsuite fails to build with -Werror with this version.
+On Wed, Feb 16, 2022 at 2:27 AM Thi=C3=A9baud Weksteen <tweek@google.com> w=
+rote:
+>
+> When an assertion fails, the error message refers to a generic
+> "policy.conf" file. When parsing a policy in checkpolicy, populate its
+> name using the original filename (source_filename is still build using
+> the #line directives within the policy).
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- tests/bpf/bpf_common.c | 27 +++++++++++++++++++++++----
- 1 file changed, 23 insertions(+), 4 deletions(-)
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
-index f499034..88aae2f 100644
---- a/tests/bpf/bpf_common.c
-+++ b/tests/bpf/bpf_common.c
-@@ -1,12 +1,28 @@
- #include "bpf_common.h"
- 
-+/*
-+ * v0.7 deprecates some functions in favor of a new API (introduced in v0.6).
-+ * Make this work with both to satisfy -Werror (and older distros).
-+ */
-+#if defined(LIBBPF_MAJOR_VERSION)
-+#if LIBBPF_MAJOR_VERSION > 0 || (LIBBPF_MAJOR_VERSION == 0 && \
-+	LIBBPF_MINOR_VERSION > 6)
-+#define USE_NEW_API
-+#endif
-+#endif
-+
- int create_bpf_map(void)
- {
- 	int map_fd, key;
- 	long long value = 0;
- 
-+#ifdef USE_NEW_API
-+	map_fd = bpf_map_create(BPF_MAP_TYPE_ARRAY, NULL, sizeof(key),
-+				sizeof(value), 256, NULL);
-+#else
- 	map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(key),
- 				sizeof(value), 256, 0);
-+#endif
- 	if (map_fd < 0) {
- 		fprintf(stderr, "Failed to create BPF map: %s\n",
- 			strerror(errno));
-@@ -18,17 +34,20 @@ int create_bpf_map(void)
- 
- int create_bpf_prog(void)
- {
--	int prog_fd;
--	size_t insns_cnt;
--
- 	struct bpf_insn prog[] = {
- 		BPF_MOV64_IMM(BPF_REG_0, 1),
- 		BPF_EXIT_INSN(),
- 	};
--	insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
-+	size_t insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
-+	int prog_fd;
- 
-+#ifdef USE_NEW_API
-+	prog_fd = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, NULL, "GPF",
-+				prog, insns_cnt, NULL);
-+#else
- 	prog_fd = bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER, prog,
- 				   insns_cnt, "GPL", 0, NULL, 0);
-+#endif
- 
- 	if (prog_fd < 0) {
- 		fprintf(stderr, "Failed to load BPF prog: %s\n",
--- 
-2.35.1
-
+> ---
+> v1 -> v2: Fix leak reported by Christian G=C3=B6ttsche
+>
+>  checkpolicy/module_compiler.c |  1 +
+>  checkpolicy/parse_util.c      |  1 +
+>  libsepol/src/assertion.c      | 20 ++++++++++++++------
+>  libsepol/src/expand.c         |  3 +++
+>  4 files changed, 19 insertions(+), 6 deletions(-)
+>
+> diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.=
+c
+> index 5f5b0b19..129650fa 100644
+> --- a/checkpolicy/module_compiler.c
+> +++ b/checkpolicy/module_compiler.c
+> @@ -99,6 +99,7 @@ int define_policy(int pass, int module_header_given)
+>                                 yyerror("no module name");
+>                                 return -1;
+>                         }
+> +                       free(policydbp->name);
+>                         policydbp->name =3D id;
+>                         if ((policydbp->version =3D
+>                              queue_remove(id_queue)) =3D=3D NULL) {
+> diff --git a/checkpolicy/parse_util.c b/checkpolicy/parse_util.c
+> index 8c1f393c..f2d1e04d 100644
+> --- a/checkpolicy/parse_util.c
+> +++ b/checkpolicy/parse_util.c
+> @@ -47,6 +47,7 @@ int read_source_policy(policydb_t * p, const char *file=
+, const char *progname)
+>         }
+>
+>         policydbp =3D p;
+> +       policydbp->name =3D strdup(file);
+>         mlspol =3D p->mls;
+>
+>         init_parser(1);
+> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> index dd2749a0..74f6d9c0 100644
+> --- a/libsepol/src/assertion.c
+> +++ b/libsepol/src/assertion.c
+> @@ -36,13 +36,21 @@ struct avtab_match_args {
+>         unsigned long errors;
+>  };
+>
+> +static const char* policy_name(policydb_t *p) {
+> +       const char *policy_file =3D "policy.conf";
+> +       if (p->name) {
+> +               policy_file =3D p->name;
+> +       }
+> +       return policy_file;
+> +}
+> +
+>  static void report_failure(sepol_handle_t *handle, policydb_t *p, const =
+avrule_t *avrule,
+>                            unsigned int stype, unsigned int ttype,
+>                            const class_perm_node_t *curperm, uint32_t per=
+ms)
+>  {
+>         if (avrule->source_filename) {
+> -               ERR(handle, "neverallow on line %lu of %s (or line %lu of=
+ policy.conf) violated by allow %s %s:%s {%s };",
+> -                   avrule->source_line, avrule->source_filename, avrule-=
+>line,
+> +               ERR(handle, "neverallow on line %lu of %s (or line %lu of=
+ %s) violated by allow %s %s:%s {%s };",
+> +                   avrule->source_line, avrule->source_filename, avrule-=
+>line, policy_name(p),
+>                     p->p_type_val_to_name[stype],
+>                     p->p_type_val_to_name[ttype],
+>                     p->p_class_val_to_name[curperm->tclass - 1],
+> @@ -173,9 +181,9 @@ static int report_assertion_extended_permissions(sepo=
+l_handle_t *handle,
+>                                 /* failure on the extended permission che=
+ck_extended_permissions */
+>                                 if (rc) {
+>                                         extended_permissions_violated(&er=
+ror, avrule->xperms, xperms);
+> -                                       ERR(handle, "neverallowxperm on l=
+ine %lu of %s (or line %lu of policy.conf) violated by\n"
+> +                                       ERR(handle, "neverallowxperm on l=
+ine %lu of %s (or line %lu of %s) violated by\n"
+>                                                         "allowxperm %s %s=
+:%s %s;",
+> -                                                       avrule->source_li=
+ne, avrule->source_filename, avrule->line,
+> +                                                       avrule->source_li=
+ne, avrule->source_filename, avrule->line, policy_name(p),
+>                                                         p->p_type_val_to_=
+name[i],
+>                                                         p->p_type_val_to_=
+name[j],
+>                                                         p->p_class_val_to=
+_name[curperm->tclass - 1],
+> @@ -190,9 +198,9 @@ static int report_assertion_extended_permissions(sepo=
+l_handle_t *handle,
+>
+>         /* failure on the regular permissions */
+>         if (rc) {
+> -               ERR(handle, "neverallowxperm on line %lu of %s (or line %=
+lu of policy.conf) violated by\n"
+> +               ERR(handle, "neverallowxperm on line %lu of %s (or line %=
+lu of %s) violated by\n"
+>                                 "allow %s %s:%s {%s };",
+> -                               avrule->source_line, avrule->source_filen=
+ame, avrule->line,
+> +                               avrule->source_line, avrule->source_filen=
+ame, avrule->line, policy_name(p),
+>                                 p->p_type_val_to_name[stype],
+>                                 p->p_type_val_to_name[ttype],
+>                                 p->p_class_val_to_name[curperm->tclass - =
+1],
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 8667f2ed..7da51a40 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -2970,6 +2970,9 @@ int expand_module(sepol_handle_t * handle,
+>
+>         state.out->policy_type =3D POLICY_KERN;
+>         state.out->policyvers =3D POLICYDB_VERSION_MAX;
+> +       if (state.base->name) {
+> +               state.out->name =3D strdup(state.base->name);
+> +       }
+>
+>         /* Copy mls state from base to out */
+>         out->mls =3D base->mls;
+> --
+> 2.35.1.265.g69c8d7142f-goog
+>
