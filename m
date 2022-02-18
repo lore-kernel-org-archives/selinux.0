@@ -2,231 +2,279 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9061C433EF
-	for <selinux@archiver.kernel.org>; Fri, 18 Feb 2022 09:21:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB4DEC4332F
+	for <selinux@archiver.kernel.org>; Fri, 18 Feb 2022 15:07:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbiBRJV1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Feb 2022 04:21:27 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51996 "EHLO
+        id S236814AbiBRPHx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Feb 2022 10:07:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233400AbiBRJVV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Feb 2022 04:21:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3F301245A8
-        for <selinux@vger.kernel.org>; Fri, 18 Feb 2022 01:21:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645176064;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=V3bnSOUV12E4ZTN4fADnBwfPRpcig5zcFt4C4YrTbMk=;
-        b=Jyx4QvL6oIcv4I2rVNKoLH9NDnMuRfPp12HA/sb3852UuyBDoa7SiHk67ji/Pt17tuOXcW
-        FVOB8mBonpX9pstJ0d4FktPncQaZaTomLxib5Ii9ymNHmWjHYhKOchSHNO1xWzMYI5qEg8
-        DCmv59GTI6WdO3snWgZ6ZHoDZKEmx2w=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-264-hOX2474zOeqFDMskZELlLw-1; Fri, 18 Feb 2022 04:21:02 -0500
-X-MC-Unique: hOX2474zOeqFDMskZELlLw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E8E6F1091DA3
-        for <selinux@vger.kernel.org>; Fri, 18 Feb 2022 09:21:01 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0ED2C6C1BE;
-        Fri, 18 Feb 2022 09:21:00 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH v2] policycoreutils/fixfiles: Use parallel relabeling
-Date:   Fri, 18 Feb 2022 10:20:57 +0100
-Message-Id: <20220218092057.394337-1-plautrba@redhat.com>
-In-Reply-To: <CAFqZXNtBmoVppmhgrxfzuZrQ+oksWeSHH_x7ZgG4Wa6VO05Dsw@mail.gmail.com>
-References: <CAFqZXNtBmoVppmhgrxfzuZrQ+oksWeSHH_x7ZgG4Wa6VO05Dsw@mail.gmail.com>
+        with ESMTP id S236795AbiBRPHx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Feb 2022 10:07:53 -0500
+X-Greylist: delayed 67 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 18 Feb 2022 07:07:35 PST
+Received: from re-prd-fep-049.btinternet.com (mailomta29-re.btinternet.com [213.120.69.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA4A2AB51E;
+        Fri, 18 Feb 2022 07:07:34 -0800 (PST)
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20220218150626.FLN28912.re-prd-fep-044.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Fri, 18 Feb 2022 15:06:26 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645196786; 
+        bh=+Ak4ML+qQ76pLQtqvO6PXTN+WfGHPGynmgWZY/K4xxI=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=DgOVoE7nzhDfkMbn8jjsd0Jvo7ZDpgWOaglJ+5F7dVYknVfsSWG487dy8/gUd/Ihe8rXmBsJDQSsFJ8nyNBjgKlcKWwFPRd4SsnehtPHJmHW6wYmkG5NJ9rA/8Fp3jagWlSol/FvtI9xA3qJrugFa5cjDklg+Ny/WODn0qOw5dW7benHCEVY+etQY/VZL/KFxoNWg/oXy4hFr2zF3A+0NcCKNgTkget95C/mIn/dPM+ZpA2LeMas/9XaQ5Q10zdiLKh/bdtqAK/czdbmx3R3DxxtSKyzN5lJtKOsSW+jjI5DdHYILvFLtA8E1Uhbcdji6v+T5lxeMdyXH2x4SwhAyw==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
+    bimi=skipped
+X-SNCR-Rigid: 613A901C151EEBFE
+X-Originating-IP: [86.183.97.183]
+X-OWM-Source-IP: 86.183.97.183 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrkedtgdejudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnheptdefkeefudffheegueffuddtveehheduheekudekvdegjeduhfeghfdvhffhuedtnecuffhomhgrihhnpehsvghlihhnuhigphhrohhjvggtthdrohhrghdprghnughrohhiugdrtghomhenucfkphepkeeirddukeefrdeljedrudekfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopegludelvddrudeikedruddrudelkegnpdhinhgvthepkeeirddukeefrdeljedrudekfedpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopeduuddprhgtphhtthhopegsihhllhdrtgdrrhhosggvrhhtshesghhmrghilhdrtghomhdprhgtphhtthhopegthhhpvggsvghniheslhhinhhugidrmhhitghrohhsohhfthdrtghomhdprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgt
+        ohhmpdhrtghpthhtohepughomhhinhhitghkrdhgrhhifhhtseguvghfvghnshgvtgdrnhhlpdhrtghpthhtohepvghprghrihhssehprghrihhsphhlrggtvgdrohhrghdprhgtphhtthhopehjvghffhhvsehgohhoghhlvgdrtghomhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehprghulhesphgruhhlqdhmohhorhgvrdgtohhmpdhrtghpthhtohepshgvlhhinhhugidqrhgvfhhpohhlihgthiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhm
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from [192.168.1.198] (86.183.97.183) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 613A901C151EEBFE; Fri, 18 Feb 2022 15:06:25 +0000
+Message-ID: <847acf98ac223ccb3bc34b3d38c1389c12ca27d8.camel@btinternet.com>
+Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Demi Marie Obenour <demiobenour@gmail.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     William Roberts <bill.c.roberts@gmail.com>,
+        Dominick Grift <dominick.grift@defensec.nl>,
+        Chris PeBenito <chpebeni@linux.microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org,
+        Jeffrey Vander Stoep <jeffv@google.com>
+Date:   Fri, 18 Feb 2022 15:06:20 +0000
+In-Reply-To: <aca4f2d6-5e1a-8c20-bfde-17e436b7e9d8@gmail.com>
+References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
+         <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
+         <c8a616e4-26a6-af51-212c-31dca0e265cd@gmail.com>
+         <CAHC9VhQTZdeNOx3AXdoc9LXUzDk5n7wyGBX-tV-ZaovhPAdWwQ@mail.gmail.com>
+         <e85dd38b-ef7b-ed7e-882e-124cdf942c44@gmail.com>
+         <CAHC9VhROuJtvNHuVaR6pEekNFacH3Tywx58_hn1f5Mwk+kjC8g@mail.gmail.com>
+         <b7e55304-d114-bcbe-08d2-b54828121a01@gmail.com>
+         <CAHC9VhSdgD4Nfaxbnnn4r-OK8koSZ7+zQoPShDbGi9PvkJFpng@mail.gmail.com>
+         <478e1651-a383-05ff-d011-6dda771b8ce8@linux.microsoft.com>
+         <875ypt5zmz.fsf@defensec.nl>
+         <CAFftDdo9JmbyPzPWRjOYgZBOS9b5d+OGKKf8egS8_ysbbWW87Q@mail.gmail.com>
+         <CABXk95Az0V0qWyB0Cp9D+MaCKNBfcdk4=bvXRdm5EXzHdjXJJg@mail.gmail.com>
+         <CAHC9VhQKuQuR1pJfa0h2Y5dCjmrpiYaGpymwxxE1sa6jR3h-bA@mail.gmail.com>
+         <aca4f2d6-5e1a-8c20-bfde-17e436b7e9d8@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Commit 93902fc8340f ("setfiles/restorecon: support parallel relabeling")
-implemented support for parallel relabeling in setfiles. This is
-available for fixfiles now.
+On Thu, 2022-02-17 at 18:55 -0500, Demi Marie Obenour wrote:
+> On 2/15/22 15:34, Paul Moore wrote:
+> > On Mon, Feb 14, 2022 at 2:11 AM Jeffrey Vander Stoep
+> > <jeffv@google.com> wrote:
+> > > On Tue, Feb 8, 2022 at 3:18 PM William Roberts
+> > > <bill.c.roberts@gmail.com> wrote:
+> > > > 
+> > > > <snip>
+> > > > 
+> > > > This is getting too long for me.
+> > > > 
+> > > > > > 
+> > > > > > I don't have a strong opinion either way.  If one were to
+> > > > > > allow this
+> > > > > > using a policy rule, it would result in a major policy
+> > > > > > breakage.  The
+> > > > > > rule would turn on extended perm checks across the entire
+> > > > > > system,
+> > > > > > which the SELinux Reference Policy isn't written for.  I
+> > > > > > can't speak
+> > > > > > to the Android policy, but I would imagine it would be the
+> > > > > > similar
+> > > > > > problem there too.
+> > > > > 
+> > > > > Excuse me if I am wrong but AFAIK adding a xperm rule does
+> > > > > not turn on
+> > > > > xperm checks across the entire system.
+> > > > 
+> > > > It doesn't as you state below its target + class.
+> > > > 
+> > > > > 
+> > > > > If i am not mistaken it will turn on xperm checks only for
+> > > > > the
+> > > > > operations that have the same source and target/target class.
+> > > > 
+> > > > That's correct.
+> > > > 
+> > > > > 
+> > > > > This is also why i don't (with the exception TIOSCTI for
+> > > > > termdev
+> > > > > chr_file) use xperms by default.
+> > > > > 
+> > > > > 1. it is really easy to selectively filter ioctls by adding
+> > > > > xperm rules
+> > > > > for end users (and since ioctls are often device/driver
+> > > > > specific they
+> > > > > know best what is needed and what not)
+> > > > 
+> > > > > > > > and FIONCLEX can be trivially bypassed unless
+> > > > > > > > fcntl(F_SETFD)
+> > > > > 
+> > > > > 2. if you filter ioctls in upstream policy for example like i
+> > > > > do with
+> > > > > TIOSCTI using for example (allowx foo bar (ioctl chr_file
+> > > > > (not
+> > > > > (0xXXXX)))) then you cannot easily exclude additional ioctls
+> > > > > later where source is
+> > > > > foo and target/tclass is bar/chr_file because there is
+> > > > > already a rule in
+> > > > > place allowing the ioctl (and you cannot add rules)
+> > > > 
+> > > > Currently, fcntl flag F_SETFD is never checked, it's silently
+> > > > allowed, but
+> > > > the equivalent FIONCLEX and FIOCLEX are checked. So if you
+> > > > wrote policy
+> > > > to block the FIO*CLEX flags, it would be bypassable through
+> > > > F_SETFD and
+> > > > FD_CLOEXEC. So the patch proposed makes the FIO flags behave
+> > > > like
+> > > > F_SETFD. Which means upstream policy users could drop this
+> > > > allow, which
+> > > > could then remove the target/class rule and allow all icotls.
+> > > > Which is easy
+> > > > to prevent and fix you could be a rule in to allowx 0 as
+> > > > documented in the
+> > > > wiki: https://selinuxproject.org/page/XpermRules
+> > > > 
+> > > > The questions I think we have here are:
+> > > > 1. Do we agree that the behavior between SETFD and the FIO
+> > > > flags are equivalent?
+> > > >   I think they are.
+> > > > 2. Do we want the interfaces to behave the same?
+> > > >   I think they should.
+> > > > 3. Do upstream users of the policy construct care?
+> > > >   The patch is backwards compat, but I don't want their to be
+> > > > cruft
+> > > > floating around with extra allowxperm rules.
+> > > 
+> > > I think this proposed change is fine from Android's perspective.
+> > > It
+> > > implements in the kernel what we've already already put in place
+> > > in
+> > > our policy - that all domains are allowed to use these IOCLTs.
+> > > https://cs.android.com/android/platform/superproject/+/master:system/sepolicy/public/domain.te;l=312
+> > > 
+> > > It'll be a few years before we can clean up our policy since we
+> > > need
+> > > to support older kernels, but that's fine.
+> > 
+> > Thanks for the discussion everyone, it sounds like everybody is
+> > okay
+> > with the change - that's good.  However, as I said earlier in this
+> > thread I think we need to put this behind a policy capability, how
+> > does POLICYDB_CAPABILITY_IOCTL_CLOEXEC/"ioctl_skip_cloexec" sound
+> > to
+> > everyone?
+> > 
+> > Demi, are you able to respin this patch with policy capability
+> > changes?
+> 
+> I can try, but this is something I am doing in my spare time and I
+> have no idea what adding a policy capability would involve.  While I
+> have written several policies myself, I believe this is the first
+> time
+> I have dealt with policy capabilities outside of kernel log output.
+> So it will be a while before I can make a patch.  You would probably
+> be
+> able to write a patch far more quickly and easily.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
+This should help:
 
-- fixed echo commands for onboot
+# Adding A New Policy Capability
 
-policycoreutils/scripts/fixfiles   | 35 +++++++++++++++++-------------
- policycoreutils/scripts/fixfiles.8 | 17 ++++++++++-----
- 2 files changed, 31 insertions(+), 21 deletions(-)
+- [Kernel Updates](#kernel-updates)
+- [Reference Policy Updates](#reference-policy-updates)
 
-diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-index 6fb12e0451a9..1ff4d9bdf04e 100755
---- a/policycoreutils/scripts/fixfiles
-+++ b/policycoreutils/scripts/fixfiles
-@@ -109,6 +109,7 @@ fullFlag=0
- BOOTTIME=""
- VERBOSE="-p"
- FORCEFLAG=""
-+THREADS=""
- RPMFILES=""
- PREFC=""
- RESTORE_MODE=""
-@@ -152,7 +153,7 @@ newer() {
-     shift
-     LogReadOnly
-     for m in `echo $FILESYSTEMSRW`; do
--	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} $* -i -0 -f -
-+	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} ${THREADS} $* -i -0 -f -
-     done;
- }
- 
-@@ -196,7 +197,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
- 		  esac; \
- 	       fi; \
- 	    done | \
--	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -i -R -f -; \
-+	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -i -R -f -; \
- 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
- fi
- }
-@@ -234,11 +235,11 @@ LogExcluded
- case "$RESTORE_MODE" in
-     RPMFILES)
- 	for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
--	    rpmlist $i | ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -i -R -f -
-+	    rpmlist $i | ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -i -R -f -
- 	done
-     ;;
-     FILEPATH)
--	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -R -- "$FILEPATH"
-+	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -R -- "$FILEPATH"
-     ;;
-     *)
- 	if [ -n "${FILESYSTEMSRW}" ]; then
-@@ -246,7 +247,7 @@ case "$RESTORE_MODE" in
- 	    echo "${OPTION}ing `echo ${FILESYSTEMSRW}`"
- 
- 	    if [ -z "$BIND_MOUNT_FILESYSTEMS" ]; then
--	        ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -q ${FC} ${FILESYSTEMSRW}
-+	        ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -q ${THREADS} ${FC} ${FILESYSTEMSRW}
- 	    else
- 	        # we bind mount so we can fix the labels of files that have already been
- 	        # mounted over
-@@ -256,7 +257,7 @@ case "$RESTORE_MODE" in
- 
- 	            mkdir -p "${TMP_MOUNT}${m}" || exit 1
- 	            mount --bind "${m}" "${TMP_MOUNT}${m}" || exit 1
--	            ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} $* -q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
-+	            ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
- 	            umount "${TMP_MOUNT}${m}" || exit 1
- 	            rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
- 	        done;
-@@ -329,8 +330,9 @@ case "$1" in
- 	fi
- 	> /.autorelabel || exit $?
- 	[ -z "$FORCEFLAG" ] || echo -n "$FORCEFLAG " >> /.autorelabel
--	[ -z "$BOOTTIME" ] || echo -N $BOOTTIME >> /.autorelabel
--	[ -z "$BIND_MOUNT_FILESYSTEMS" ] || echo "-M" >> /.autorelabel
-+	[ -z "$BOOTTIME" ] || echo -n "-N $BOOTTIME " >> /.autorelabel
-+	[ -z "$BIND_MOUNT_FILESYSTEMS" ] || echo -n "-M " >> /.autorelabel
-+	[ -z "$THREADS" ] || echo -n "$THREADS " >> /.autorelabel
- 	# Force full relabel if SELinux is not enabled
- 	selinuxenabled || echo -F > /.autorelabel
- 	echo "System will relabel on next boot"
-@@ -342,17 +344,17 @@ esac
- }
- usage() {
- 	echo $"""
--Usage: $0 [-v] [-F] [-M] [-f] relabel
-+Usage: $0 [-v] [-F] [-M] [-f] [-T nthreads] relabel
- or
--Usage: $0 [-v] [-F] [-B | -N time ] { check | restore | verify }
-+Usage: $0 [-v] [-F] [-B | -N time ]  [-T nthreads] { check | restore | verify }
- or
--Usage: $0 [-v] [-F] { check | restore | verify } dir/file ...
-+Usage: $0 [-v] [-F] [-T nthreads] { check | restore | verify } dir/file ...
- or
--Usage: $0 [-v] [-F] -R rpmpackage[,rpmpackage...] { check | restore | verify }
-+Usage: $0 [-v] [-F] [-T nthreads] -R rpmpackage[,rpmpackage...] { check | restore | verify }
- or
--Usage: $0 [-v] [-F] -C PREVIOUS_FILECONTEXT { check | restore | verify }
-+Usage: $0 [-v] [-F] [-T nthreads] -C PREVIOUS_FILECONTEXT { check | restore | verify }
- or
--Usage: $0 [-F] [-M] [-B] onboot
-+Usage: $0 [-F] [-M] [-B] [-T nthreads] onboot
- """
- }
- 
-@@ -371,7 +373,7 @@ set_restore_mode() {
- }
- 
- # See how we were called.
--while getopts "N:BC:FfR:l:vM" i; do
-+while getopts "N:BC:FfR:l:vMT:" i; do
-     case "$i" in
- 	B)
- 		BOOTTIME=`/bin/who -b | awk '{print $3}'`
-@@ -406,6 +408,9 @@ while getopts "N:BC:FfR:l:vM" i; do
- 	f)
- 		fullFlag=1
- 		;;
-+	T)
-+		THREADS="-T $OPTARG"
-+		;;
- 	*)
- 	    usage
- 	    exit 1
-diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
-index c4e894e56e8f..9a317d9181e2 100644
---- a/policycoreutils/scripts/fixfiles.8
-+++ b/policycoreutils/scripts/fixfiles.8
-@@ -6,22 +6,22 @@ fixfiles \- fix file SELinux security contexts.
- .na
- 
- .B fixfiles
--.I [\-v] [\-F] [-M] [\-f] relabel
-+.I [\-v] [\-F] [-M] [\-f] [\-T nthreads] relabel
- 
- .B fixfiles
--.I [\-v] [\-F] { check | restore | verify } dir/file ...
-+.I [\-v] [\-F] [\-T nthreads] { check | restore | verify } dir/file ...
- 
- .B fixfiles
--.I [\-v] [\-F] [\-B | \-N time ] { check | restore | verify }
-+.I [\-v] [\-F] [\-B | \-N time ] [\-T nthreads] { check | restore | verify }
- 
- .B fixfiles 
--.I [\-v] [\-F] \-R rpmpackagename[,rpmpackagename...] { check | restore | verify }
-+.I [\-v] [\-F] [\-T nthreads] \-R rpmpackagename[,rpmpackagename...] { check | restore | verify }
- 
- .B fixfiles
--.I [\-v] [\-F] \-C PREVIOUS_FILECONTEXT  { check | restore | verify }
-+.I [\-v] [\-F] [\-T nthreads] \-C PREVIOUS_FILECONTEXT  { check | restore | verify }
- 
- .B fixfiles
--.I [-F] [-M] [-B] onboot
-+.I [-F] [-M] [-B] [\-T nthreads] onboot
- 
- .ad
- 
-@@ -76,6 +76,11 @@ Bind mount filesystems before relabeling them, this allows fixing the context of
- .B -v
- Modify verbosity from progress to verbose. (Run restorecon with \-v instead of \-p)
- 
-+.TP
-+.B \-T nthreads
-+Use parallel relabeling, see
-+.B setfiles(8)
-+
- .SH "ARGUMENTS"
- One of:
- .TP 
--- 
-2.34.1
+## Kernel Updates
+
+In kernel source update the following three files with the new
+capability:
+
+***security/selinux/include/policycap_names.h***
+
+Add new entry at end of this list:
+
+```
+/* Policy capability names */
+const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+	...
+	"genfs_seclabel_symlinks",
+	"new_polcap_name"
+};
+```
+
+***security/selinux/include/policycap.h***
+
+Add new entry at end of this list:
+
+```
+/* Policy capabilities */
+enum {
+	...
+	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
+	POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
+	__POLICYDB_CAPABILITY_MAX
+};
+```
+
+***security/selinux/include/security.h***
+
+Add a new entry that will initialise the new capability:
+
+```
+static inline bool selinux_policycap_new_name(void)
+{
+	struct selinux_state *state = &selinux_state;
+
+	return READ_ONCE(state-
+>policycap[POLICYDB_CAPABILITY_NEW_POLCAP_NAME]);
+}
+```
+
+Finally in the updated code that utilises the new policy capabilty do
+something like this:
+
+```
+if (selinux_policycap_new_name())
+	do this;
+else
+	do that;
+```
+
+## Reference Policy Updates
+
+The new policy capability entry is then added to the Reference Policy
+file:
+
+***policy/policy_capabilities***
+
+An example entry that enables the capability in policy is:
+
+```
+# A description of the capability
+policycap new_polcap_name;
+```
+To disable the capability in policy comment out the entry:
+
+```
+# A description of the capability
+#policycap new_polcap_name;
+```
 
