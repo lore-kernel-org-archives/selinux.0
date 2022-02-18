@@ -2,43 +2,42 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB4DEC4332F
-	for <selinux@archiver.kernel.org>; Fri, 18 Feb 2022 15:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B425C433F5
+	for <selinux@archiver.kernel.org>; Fri, 18 Feb 2022 15:39:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236814AbiBRPHx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Feb 2022 10:07:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38640 "EHLO
+        id S237113AbiBRPjg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Feb 2022 10:39:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236795AbiBRPHx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Feb 2022 10:07:53 -0500
-X-Greylist: delayed 67 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 18 Feb 2022 07:07:35 PST
-Received: from re-prd-fep-049.btinternet.com (mailomta29-re.btinternet.com [213.120.69.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA4A2AB51E;
-        Fri, 18 Feb 2022 07:07:34 -0800 (PST)
-Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
-          by re-prd-fep-044.btinternet.com with ESMTP
-          id <20220218150626.FLN28912.re-prd-fep-044.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Fri, 18 Feb 2022 15:06:26 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645196786; 
-        bh=+Ak4ML+qQ76pLQtqvO6PXTN+WfGHPGynmgWZY/K4xxI=;
+        with ESMTP id S237104AbiBRPjf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Feb 2022 10:39:35 -0500
+Received: from sa-prd-fep-043.btinternet.com (mailomta31-sa.btinternet.com [213.120.69.37])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F5B3DA52;
+        Fri, 18 Feb 2022 07:39:16 -0800 (PST)
+Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
+          by sa-prd-fep-043.btinternet.com with ESMTP
+          id <20220218153915.FDKV18908.sa-prd-fep-043.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Fri, 18 Feb 2022 15:39:15 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645198755; 
+        bh=+UHLQG+M4ZifbAygCfGQKWqjXrpBKvOYPwDad48Ye9E=;
         h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=DgOVoE7nzhDfkMbn8jjsd0Jvo7ZDpgWOaglJ+5F7dVYknVfsSWG487dy8/gUd/Ihe8rXmBsJDQSsFJ8nyNBjgKlcKWwFPRd4SsnehtPHJmHW6wYmkG5NJ9rA/8Fp3jagWlSol/FvtI9xA3qJrugFa5cjDklg+Ny/WODn0qOw5dW7benHCEVY+etQY/VZL/KFxoNWg/oXy4hFr2zF3A+0NcCKNgTkget95C/mIn/dPM+ZpA2LeMas/9XaQ5Q10zdiLKh/bdtqAK/czdbmx3R3DxxtSKyzN5lJtKOsSW+jjI5DdHYILvFLtA8E1Uhbcdji6v+T5lxeMdyXH2x4SwhAyw==
+        b=r7QVE9XU8T7BdxLPY+hgO6sw5NVmnMpGziVQBP+VeHw70cYF0/1bXtERlwqGhLKD2VK4+czItKDmYsy27Bl2+5JolwSggxOTzX0mLxpPsrHq8hiDNBWC2fy4EYJC2Ow4oSIsh/BNMZKzWbmsnLUrhExH+Q+qdKlEAuMZ9ZxeqNfKWB67sAO0pCV4DJOsJzosXLzVL7muwN/V9ulPiOVXS4/MRd/T4S3vWH/P/r7b51jgs3uLZKn+83xGysN/1HBdst3U9zHYY1eX/8DznPOwuFIEGwdQ+8JU/Ba6Rh8KomKDWSkbN6M4ZNKTcP+B85Pljny1mBivPuATe3hAmCU/UQ==
 Authentication-Results: btinternet.com;
     auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
     bimi=skipped
-X-SNCR-Rigid: 613A901C151EEBFE
+X-SNCR-Rigid: 613943C616036884
 X-Originating-IP: [86.183.97.183]
 X-OWM-Source-IP: 86.183.97.183 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrkedtgdejudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnheptdefkeefudffheegueffuddtveehheduheekudekvdegjeduhfeghfdvhffhuedtnecuffhomhgrihhnpehsvghlihhnuhigphhrohhjvggtthdrohhrghdprghnughrohhiugdrtghomhenucfkphepkeeirddukeefrdeljedrudekfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopegludelvddrudeikedruddrudelkegnpdhinhgvthepkeeirddukeefrdeljedrudekfedpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopeduuddprhgtphhtthhopegsihhllhdrtgdrrhhosggvrhhtshesghhmrghilhdrtghomhdprhgtphhtthhopegthhhpvggsvghniheslhhinhhugidrmhhitghrohhsohhfthdrtghomhdprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgt
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrkedtgdejjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnheptdefkeefudffheegueffuddtveehheduheekudekvdegjeduhfeghfdvhffhuedtnecuffhomhgrihhnpehsvghlihhnuhigphhrohhjvggtthdrohhrghdprghnughrohhiugdrtghomhenucfkphepkeeirddukeefrdeljedrudekfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopegludelvddrudeikedruddrudelkegnpdhinhgvthepkeeirddukeefrdeljedrudekfedpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopeduuddprhgtphhtthhopegsihhllhdrtgdrrhhosggvrhhtshesghhmrghilhdrtghomhdprhgtphhtthhopegthhhpvggsvghniheslhhinhhugidrmhhitghrohhsohhfthdrtghomhdprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgt
         ohhmpdhrtghpthhtohepughomhhinhhitghkrdhgrhhifhhtseguvghfvghnshgvtgdrnhhlpdhrtghpthhtohepvghprghrihhssehprghrihhsphhlrggtvgdrohhrghdprhgtphhtthhopehjvghffhhvsehgohhoghhlvgdrtghomhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehprghulhesphgruhhlqdhmohhorhgvrdgtohhmpdhrtghpthhtohepshgvlhhinhhugidqrhgvfhhpohhlihgthiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhm
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
-Received: from [192.168.1.198] (86.183.97.183) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613A901C151EEBFE; Fri, 18 Feb 2022 15:06:25 +0000
-Message-ID: <847acf98ac223ccb3bc34b3d38c1389c12ca27d8.camel@btinternet.com>
+Received: from [192.168.1.198] (86.183.97.183) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 613943C616036884; Fri, 18 Feb 2022 15:39:14 +0000
+Message-ID: <141da74b176cd3bae74a8a81226c661c032631dc.camel@btinternet.com>
 Subject: Re: [PATCH] SELinux: Always allow FIOCLEX and FIONCLEX
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     Demi Marie Obenour <demiobenour@gmail.com>,
@@ -52,7 +51,7 @@ Cc:     William Roberts <bill.c.roberts@gmail.com>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         selinux-refpolicy@vger.kernel.org,
         Jeffrey Vander Stoep <jeffv@google.com>
-Date:   Fri, 18 Feb 2022 15:06:20 +0000
+Date:   Fri, 18 Feb 2022 15:39:10 +0000
 In-Reply-To: <aca4f2d6-5e1a-8c20-bfde-17e436b7e9d8@gmail.com>
 References: <4df50e95-6173-4ed1-9d08-3c1c4abab23f@gmail.com>
          <CAHC9VhSjTqT-4TMxBnQOQHkj+djONihfeoPVyy1egrZY2t10XA@mail.gmail.com>
@@ -195,11 +194,14 @@ On Thu, 2022-02-17 at 18:55 -0500, Demi Marie Obenour wrote:
 > be
 > able to write a patch far more quickly and easily.
 
-This should help:
+RESEND: Forgot to add the updates for libsepol (I think it's complete
+now)
+
 
 # Adding A New Policy Capability
 
 - [Kernel Updates](#kernel-updates)
+- [*libsepol* Library Updates](#libsepol-library-updates)
 - [Reference Policy Updates](#reference-policy-updates)
 
 ## Kernel Updates
@@ -258,6 +260,40 @@ else
 	do that;
 ```
 
+## *libsepol* Library Updates
+
+In selinux userspace source update the following two files with the new
+capability:
+
+***selinux/libsepol/src/polcaps.c***
+
+Add new entry at end of this list:
+
+```
+static const char * const polcap_names[] = {
+	...
+	"genfs_seclabel_symlinks",	/*
+POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
+	"new_polcap_name",		/*
+POLICYDB_CAPABILITY_NEW_POLCAP_NAME */
+	NULL
+};
+```
+
+***selinux/libsepol/include/sepol/policydb/polcaps.h***
+
+Add new entry at end of this list:
+
+```
+/* Policy capabilities */
+enum {
+	...
+	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
+	POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
+	__POLICYDB_CAPABILITY_MAX
+};
+```
+
 ## Reference Policy Updates
 
 The new policy capability entry is then added to the Reference Policy
@@ -277,4 +313,6 @@ To disable the capability in policy comment out the entry:
 # A description of the capability
 #policycap new_polcap_name;
 ```
+
+
 
