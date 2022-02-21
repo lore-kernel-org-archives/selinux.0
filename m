@@ -2,188 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34845C433EF
-	for <selinux@archiver.kernel.org>; Mon, 21 Feb 2022 11:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5B79C433F5
+	for <selinux@archiver.kernel.org>; Mon, 21 Feb 2022 13:15:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229937AbiBULHK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Feb 2022 06:07:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60524 "EHLO
+        id S1358737AbiBUNQS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Feb 2022 08:16:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355718AbiBULDd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Feb 2022 06:03:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 48920A0
-        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 02:31:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645439488;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QJA/rEPwPv+jLDldYCdrtH430PERFDterJe+0uoaYNo=;
-        b=AWBiK0nstWCuNPhcuq9zoBPRyffKwlS9k3xVoEEBlnN/pvGI6p8mCvpbMTeDxiRPgCm8/D
-        18DT9iLsPnpp8Q0V+UoJZDbNCAQV8FaPmnJquf6M2VgAVzIZlhNrDZ6ErT3+f4vbFEnXl+
-        jf0NkIt1uTiXFHFHcI9Y0uDdPgycqZs=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-658-uXvewRtKPGWly9IngYPl_g-1; Mon, 21 Feb 2022 05:31:26 -0500
-X-MC-Unique: uXvewRtKPGWly9IngYPl_g-1
-Received: by mail-wr1-f70.google.com with SMTP id q21-20020adfab15000000b001e57c9a342aso7211504wrc.6
-        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 02:31:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QJA/rEPwPv+jLDldYCdrtH430PERFDterJe+0uoaYNo=;
-        b=Y6u9XDe1VA4yDXSlGngxRJwShUd7jPy3Hl0An53JFVXrXWFUtmy9vrheXlsvx3rOpm
-         uRjnzHXYauQj5upqdGX51OMn09vG9kQKoReBjoR00S3G2lJox5QxFSNZyhimRZdi0ePL
-         x1kzyW+6jcymWCiKf7pKc2LT40SgFBByEShFXdRB7EuMFZUm7bHtLlNkQqFykFXMS/oE
-         nkyoe/7v35bBHOjWavWloG8tabEBxlimJ5vnwkQtCtbxQyBwvoIMKQsJjZyNbjgOV/Ec
-         Y7jFWKD/folPM4SHG5izZprkjobcsgs1mX75qV43Y68OmaCjKFq+pUWkVsQ/4j4ua3ey
-         PJHQ==
-X-Gm-Message-State: AOAM532NbH/m6D0p59Fgpepkycjh1nUu8/vl8BTocX77Rc9GsRJxHNMU
-        Fy0I8fnoU2rEKhoEKl85RjHmiVG511j+l7g50f6l+QGsOdsxPuLxRNUWwO3hEHMKhSUjIPOVWXU
-        7SIAt9GbuHdQ6oeHXZEHIMH3jxPCMyWNfboubNNN0JCZ387z+HLwvpV+Zs+aCr17nAiSS
-X-Received: by 2002:a05:6000:1787:b0:1e7:aeac:eb00 with SMTP id e7-20020a056000178700b001e7aeaceb00mr15506631wrg.141.1645439485478;
-        Mon, 21 Feb 2022 02:31:25 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy6hMiZ1nBk1KQkmp63ChBLqhrTPmsK8bYvrHdY43zA9wpC4lp4agVdirQVmKMpYWp21fhuiA==
-X-Received: by 2002:a05:6000:1787:b0:1e7:aeac:eb00 with SMTP id e7-20020a056000178700b001e7aeaceb00mr15506595wrg.141.1645439485150;
-        Mon, 21 Feb 2022 02:31:25 -0800 (PST)
-Received: from [192.168.0.116] ([86.49.156.126])
-        by smtp.gmail.com with ESMTPSA id h2sm7049927wmm.27.2022.02.21.02.31.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Feb 2022 02:31:24 -0800 (PST)
-Subject: Re: [PATCH v2] libselinux: Strip spaces before values in config
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <d7cf167d-1c12-5486-336e-1689c5223631@redhat.com>
- <20220217131415.1195383-1-vmojzis@redhat.com>
- <CAJ2a_Df=pjCN_Cs1EN_bk1wF_XFuqUVhB_5vjH0oiqCG=xWbKw@mail.gmail.com>
-From:   Vit Mojzis <vmojzis@redhat.com>
-Message-ID: <d46fe913-04c3-7df1-c29a-1d186d2c3b32@redhat.com>
-Date:   Mon, 21 Feb 2022 11:31:23 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        with ESMTP id S231450AbiBUNQR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Feb 2022 08:16:17 -0500
+Received: from sa-prd-fep-047.btinternet.com (mailomta7-sa.btinternet.com [213.120.69.13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90E61EEDA;
+        Mon, 21 Feb 2022 05:15:50 -0800 (PST)
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-047.btinternet.com with ESMTP
+          id <20220221131548.JVDQ16049.sa-prd-fep-047.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Mon, 21 Feb 2022 13:15:48 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645449348; 
+        bh=LsQkjPur9s6lfrXPc17vF8122/BSlTkt2PIKZJf+o9A=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=E/JiDTHJaU2tWpXNIE/w6ZYw+VbzX56ruXbhRtOawrnuUhF1pflk9lBlTNrd8ZCu7FTtFIg0WudeHkwjW0+HNnEXAgfm8iTv5WE8w9xM/P65HAysS5YZ0lCdAyD29aANmtAbMR5ax7E8zzKPM5nYI81DsY6f/cdyOFXJ7A7ykKl4x8wkfJyTL1B9VqxuDp4kMy7+GBC3WmtHS1hgsf566gEy2xW1zDOR+SpL5aRdAhq8uSb4XTOMjYsV9A9EGoCkQqDRQqJ4NEs9sLsMRexek8lY/NiTljeB4MpPFc7lzdWlOtxHdhWpX6LkVlKHsylicq0YV8ZonE+j33mGfdFang==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com;
+    bimi=skipped
+X-SNCR-Rigid: 6139429016674C65
+X-Originating-IP: [86.184.61.59]
+X-OWM-Source-IP: 86.184.61.59 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrkeeigdeglecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepheffledtuefffeffvddtgeevffetffekveeggeduhfeghedtvddvhedtkefggeeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpfhhigidrshgvtghurhhithihnecukfhppeekiedrudekgedriedurdehleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddukeegrdeiuddrheelpdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdpnhgspghrtghpthhtohepledprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepvghprghrihhssehprghrihhsphhlrggtvgdrohhrghdprhgtphhtthhopehjvghffhhvsehgohhoghhlvgdrtghomhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgt
+        phhtthhopehprghulhesphgruhhlqdhmohhorhgvrdgtohhmpdhrtghpthhtoheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopehsvghlihhnuhigqdhrvghfphholhhitgihsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomh
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.184.61.59) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 6139429016674C65; Mon, 21 Feb 2022 13:15:48 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, demiobenour@gmail.com
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        selinux-refpolicy@vger.kernel.org, jeffv@google.com,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH V2] security/selinux: Always allow FIOCLEX and FIONCLEX
+Date:   Mon, 21 Feb 2022 13:15:33 +0000
+Message-Id: <20220221131533.74238-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-In-Reply-To: <CAJ2a_Df=pjCN_Cs1EN_bk1wF_XFuqUVhB_5vjH0oiqCG=xWbKw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 17. 02. 22 15:16, Christian Göttsche wrote:
-> On Thu, 17 Feb 2022 at 14:14, Vit Mojzis <vmojzis@redhat.com> wrote:
->>
->> Spaces before values in /etc/selinux/config should be ignored just as
->> spaces after them are.
->>
->> E.g. "SELINUXTYPE= targeted" should be a valid value.
->>
->> Fixes:
->>     # sed -i 's/^SELINUXTYPE=/SELINUXTYPE= /g' /etc/selinux/config
->>     # dnf install <any_package>
->>     ...
->>     RPM: error: selabel_open: (/etc/selinux/ targeted/contexts/files/file_contexts) No such file or directory
->>     RPM: error: Plugin selinux: hook tsm_pre failed
->>     ...
->>     Error: Could not run transaction.
->>
->> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->> ---
->>
->> Sorry for the delay. I sent the fixed patch to a wrong mailing list.
->>
->>   libselinux/src/selinux_config.c | 17 +++++++++++++----
->>   1 file changed, 13 insertions(+), 4 deletions(-)
->>
->> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
->> index 97f81a8b..d2e49ee1 100644
->> --- a/libselinux/src/selinux_config.c
->> +++ b/libselinux/src/selinux_config.c
->> @@ -92,6 +92,7 @@ int selinux_getenforcemode(int *enforce)
->>          FILE *cfg = fopen(SELINUXCONFIG, "re");
->>          if (cfg) {
->>                  char *buf;
->> +               char *tag;
->>                  int len = sizeof(SELINUXTAG) - 1;
->>                  buf = malloc(selinux_page_size);
->>                  if (!buf) {
->> @@ -101,21 +102,24 @@ int selinux_getenforcemode(int *enforce)
->>                  while (fgets_unlocked(buf, selinux_page_size, cfg)) {
->>                          if (strncmp(buf, SELINUXTAG, len))
->>                                  continue;
->> +                       tag = buf+len;
->> +                       while (isspace(*tag))
->> +                               tag++;
->>                          if (!strncasecmp
->> -                           (buf + len, "enforcing", sizeof("enforcing") - 1)) {
->> +                           (tag, "enforcing", sizeof("enforcing") - 1)) {
->>                                  *enforce = 1;
->>                                  ret = 0;
->>                                  break;
->>                          } else
->>                              if (!strncasecmp
->> -                               (buf + len, "permissive",
->> +                               (tag, "permissive",
->>                                   sizeof("permissive") - 1)) {
->>                                  *enforce = 0;
->>                                  ret = 0;
->>                                  break;
->>                          } else
->>                              if (!strncasecmp
->> -                               (buf + len, "disabled",
->> +                               (tag, "disabled",
->>                                   sizeof("disabled") - 1)) {
->>                                  *enforce = -1;
->>                                  ret = 0;
->> @@ -176,7 +180,10 @@ static void init_selinux_config(void)
->>
->>                          if (!strncasecmp(buf_p, SELINUXTYPETAG,
->>                                           sizeof(SELINUXTYPETAG) - 1)) {
->> -                               type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
->> +                               buf_p += sizeof(SELINUXTYPETAG) - 1;
->> +                               while (isspace(*buf_p))
-> 
-> Strictly speaking one should cast to unsigned char to avoid UB, see
-> [1], but that
-> seems to be not done in SElinux userspace as
-> 
->      grep -REw "(isalnum|isalpha|isascii|isblank|iscntrl|isdigit|isgraph|islower|isprint|ispunct|isspace|isupper|isxdigit|toascii|toupper|tolower)"
-> 
-> shows 87 usages.
-> 
-> [1]: https://wiki.sei.cmu.edu/confluence/display/c/STR37-C.+Arguments+to+character-handling+functions+must+be+representable+as+an+unsigned+char
-> 
+These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
+always allows too.  Furthermore, a failed FIOCLEX could result in a file
+descriptor being leaked to a process that should not have access to it.
 
+As this patch removes access controls, a policy capability needs to be
+enabled in policy to always allow these ioctls.
 
-Right, thank you. So, should I fix the patch (which would make the use 
-of the cast inconsistent in selinux_config.c), or leave it as is?
-If this is something worth fixing I can make a new patch adding the cast 
-to all the calls (except for cases where EOF can be expected? -- not 
-sure if we need to watch for that).
+Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+V2 Change: Control via a policy capability. See this thread for discussion:
+https://lore.kernel.org/selinux/CAHC9VhQEPxYP_KU56gAGNHKQaxucY8gSsHiUB42PVgADBAccRQ@mail.gmail.com/T/#t
 
-Vit
+With this patch and the polcap enabled, the selinux-testsuite will fail:
+ioctl/test at line 47 - Will need a fix.
 
+ security/selinux/hooks.c                   | 7 +++++++
+ security/selinux/include/policycap.h       | 1 +
+ security/selinux/include/policycap_names.h | 3 ++-
+ security/selinux/include/security.h        | 7 +++++++
+ 4 files changed, 17 insertions(+), 1 deletion(-)
 
->> +                                       buf_p++;
->> +                               type = strdup(buf_p);
->>                                  if (!type) {
->>                                          free(line_buf);
->>                                          fclose(fp);
->> @@ -199,6 +206,8 @@ static void init_selinux_config(void)
->>                          } else if (!strncmp(buf_p, REQUIRESEUSERS,
->>                                              sizeof(REQUIRESEUSERS) - 1)) {
->>                                  value = buf_p + sizeof(REQUIRESEUSERS) - 1;
->> +                               while (isspace(*value))
->> +                                       value++;
->>                                  intptr = &require_seusers;
->>                          } else {
->>                                  continue;
->> --
->> 2.30.2
->>
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5b6895e4f..030c41652 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3745,6 +3745,13 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+ 					    CAP_OPT_NONE, true);
+ 		break;
+ 
++	case FIOCLEX:
++	case FIONCLEX:
++		/* Must always succeed if polcap set, else default: */
++		if (selinux_policycap_ioctl_skip_cloexec())
++			break;
++		fallthrough;
++
+ 	/* default case assumes that the command will go
+ 	 * to the file's ioctl() function.
+ 	 */
+diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+index 2ec038efb..44d73dc32 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -11,6 +11,7 @@ enum {
+ 	POLICYDB_CAPABILITY_CGROUPSECLABEL,
+ 	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+ 	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
++	POLICYDB_CAPABILITY_IOCTL_CLOEXEC,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index b89289f09..ebd64afe1 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -12,7 +12,8 @@ const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+ 	"always_check_network",
+ 	"cgroup_seclabel",
+ 	"nnp_nosuid_transition",
+-	"genfs_seclabel_symlinks"
++	"genfs_seclabel_symlinks",
++	"ioctl_skip_cloexec"
+ };
+ 
+ #endif /* _SELINUX_POLICYCAP_NAMES_H_ */
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ac0ece013..8a789c22b 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -219,6 +219,13 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
+ 	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
+ }
+ 
++static inline bool selinux_policycap_ioctl_skip_cloexec(void)
++{
++	struct selinux_state *state = &selinux_state;
++
++	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_IOCTL_CLOEXEC]);
++}
++
+ struct selinux_policy_convert_data;
+ 
+ struct selinux_load_state {
+-- 
+2.35.1
 
