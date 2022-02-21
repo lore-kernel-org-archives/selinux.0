@@ -2,104 +2,146 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF157C433EF
-	for <selinux@archiver.kernel.org>; Mon, 21 Feb 2022 14:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FA66C433F5
+	for <selinux@archiver.kernel.org>; Mon, 21 Feb 2022 18:12:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356007AbiBUOHR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Feb 2022 09:07:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39518 "EHLO
+        id S232142AbiBUSMr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Feb 2022 13:12:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234683AbiBUOHQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Feb 2022 09:07:16 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ADAE31D301
-        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 06:06:53 -0800 (PST)
+        with ESMTP id S232227AbiBUSLZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Feb 2022 13:11:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C418713CF7
+        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 10:01:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645452412;
+        s=mimecast20190719; t=1645466504;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=x5xLc6dmz29paDaQ4yPSiej4Lf69VT3T52msvdTnrho=;
-        b=iRSW9gNcPE1anegMslLN5CqgmWBtAjDKrE8Mbe/A4FLhOH5nWOKxLwzIhZMCA0b/UYNYZ6
-        cbMvz0jHh0Vb5uAGqq8lt7fT/vPFu4WUr9jMIR8CjiP7NwiQbT6i0DZgMJ279ol/YXF7Sv
-        tJyyS+8YYlf5EtcotuPKzzaNwFq/Z+o=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=41XatzLhvaE9rHmob+cZ8fY8LpjwIPidXSLaJlvbF2I=;
+        b=UW2gollL6ZgxATrBH5ty9a0NW64Eak+bfFHUjHXHfqpLvvO663tMp9AOiyD2ewf6gyKVn3
+        OhT6pCoaUODLF7dq2xAdMm/qjcqHLjDD+1YlNUclAk/nPbHo1qL/Dc7+ihJBTQTIVpHzrH
+        CbSHfgfW2k8GVu0Jo9ExCzdqL8/hvbI=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-558-bjgkzvL6OJW2QLHCWEafuQ-1; Mon, 21 Feb 2022 09:06:51 -0500
-X-MC-Unique: bjgkzvL6OJW2QLHCWEafuQ-1
-Received: by mail-ed1-f69.google.com with SMTP id r9-20020a05640251c900b00412d54ea618so4485746edd.3
-        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 06:06:51 -0800 (PST)
+ us-mta-35-ApsCBt-wNdqUZDKTLMTX6g-1; Mon, 21 Feb 2022 13:01:42 -0500
+X-MC-Unique: ApsCBt-wNdqUZDKTLMTX6g-1
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-2d07ae11464so117811117b3.14
+        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 10:01:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=x5xLc6dmz29paDaQ4yPSiej4Lf69VT3T52msvdTnrho=;
-        b=gayXBdUs/1I23Iz7LSvxzfD1imNH/wmwrErByt3ZKsm2KWO/Y7f9DAVN1Ho1aou8qX
-         ZBko+A6zXr4SxDy5fp0KPCEkYRG7t2WpTcHtYbSCA10DlY4fytoTVq2ZGakMjRAjKVPd
-         BjhsQtcUGw0Qu/JofCFgo+e38XUXj683j5RwArFNcAjxGIunGLAZAehW0lNuaZxb+oYC
-         DhMQAgBwQ5BGOqRZlOxEGItKXolC+Oju2K0fhWj/2ETHFmYmC6hxuWrSgDFaeeu5O3g+
-         758GB1FycHf22Z3f724etyP1PjPy6uoS+vv3aMfwpKq4N+PeVUmv7F/ff6Omp2pFYTa4
-         sN2Q==
-X-Gm-Message-State: AOAM5307UrNQFa/DscLBL6t0PyyLnC4/yA0pE/8h9QigBirm8ZkEKWyQ
-        gKXrY9JjSjuhrR4U8wrRlzfimmmeJTcLJV1ikkHWVTw25ltggXkLvlcLPq7YeR++PvNscd3qdue
-        2QN1SojfScGAfkuijnQ==
-X-Received: by 2002:aa7:df1a:0:b0:409:5174:68a9 with SMTP id c26-20020aa7df1a000000b00409517468a9mr21951074edy.145.1645452410245;
-        Mon, 21 Feb 2022 06:06:50 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyADFxqO+yimd0EAr8r9bKcl7Fi+Hy8PBtWFjfI5yPxFOTgIVbC+BLHdVLWE59v09Z7BM7hBA==
-X-Received: by 2002:aa7:df1a:0:b0:409:5174:68a9 with SMTP id c26-20020aa7df1a000000b00409517468a9mr21951056edy.145.1645452410027;
-        Mon, 21 Feb 2022 06:06:50 -0800 (PST)
-Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
-        by smtp.gmail.com with ESMTPSA id f27sm5198478ejf.135.2022.02.21.06.06.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Feb 2022 06:06:49 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-Subject: [PATCH] selinux: fix misuse of mutex_is_locked()
-Date:   Mon, 21 Feb 2022 15:06:49 +0100
-Message-Id: <20220221140649.360897-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.35.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=41XatzLhvaE9rHmob+cZ8fY8LpjwIPidXSLaJlvbF2I=;
+        b=fkYV1jDisiyWwh4z/W1d6H8JAaRd3soaEupDVLBZlwGbqrhLB3jSRnvA8Tt1qW6ks8
+         rBusG4Z2oAVJQaV4WzOE1gJjNHFLay66EyxGT/KGfwkhKEhzr66JSQlfx9Mxq1ol0qbw
+         3kdnq76Hik4zXshPRe2Nnb8qRKcm2aDpcB12c1JIk9ihto1C1QYUpl7Vp9Sgork7DmuV
+         WXvuwGnAdBRFgajktjWwXUleyGnO4BAmaFSHoRjIkPxmoUqqnyIsTLHWomerzqKms4Fe
+         /tSqzH7F25V2RPQIGOThtnogxuXj7uL9zGfEeKy2c/TQYNJIznJwpeYEGRz5OMzFb8ma
+         s6fA==
+X-Gm-Message-State: AOAM533asSl7lkd+CKYjLtvQ/+qWPFetiFYk1nsQrDQumTexjS8E9VYa
+        zhIQhejXtisq9Ee+TwEw1WZCPfDMYjFZSNmVALJdCaZWqA18HHSifKbH8tpLnM+gEmCCnWdYUvC
+        hkJN/ObopyPFCPaLSwxg2TpJDGTgpl/oWkg==
+X-Received: by 2002:a25:748e:0:b0:624:3bae:fa32 with SMTP id p136-20020a25748e000000b006243baefa32mr18261205ybc.255.1645466501945;
+        Mon, 21 Feb 2022 10:01:41 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx9B5jpcKW70Th9lNFZknI5FCU8tcP2qTRsfSssNi/bQ/Lih7JPn8AvuFfH/PTTPOKT51f46k0CLTtK2aFv/fI=
+X-Received: by 2002:a25:748e:0:b0:624:3bae:fa32 with SMTP id
+ p136-20020a25748e000000b006243baefa32mr18261186ybc.255.1645466501745; Mon, 21
+ Feb 2022 10:01:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220218210815.107961-1-omosnace@redhat.com>
+In-Reply-To: <20220218210815.107961-1-omosnace@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 21 Feb 2022 19:01:31 +0100
+Message-ID: <CAFqZXNtXx5QsUQcwqDTSWubcro6kXrzzRXhdmFuAv3boR3WPKg@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/bpf: use new API if version >= 0.6
+To:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-mutex_is_locked() tests whether the mutex is locked *by any task*, while
-here we want to test if it is held *by the current task*. To avoid
-false/missed WARNINGs, use lockdep_assert_is_held() and
-lockdep_assert_is_not_held() instead, which do the right thing (though
-they are a no-op if CONFIG_LOCKDEP=n).
+On Fri, Feb 18, 2022 at 10:08 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> In version 0.7 the old API is deprecated and without this patch the
+> testsuite fails to build with -Werror with this version.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  tests/bpf/bpf_common.c | 27 +++++++++++++++++++++++----
+>  1 file changed, 23 insertions(+), 4 deletions(-)
+>
+> diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
+> index f499034..88aae2f 100644
+> --- a/tests/bpf/bpf_common.c
+> +++ b/tests/bpf/bpf_common.c
+> @@ -1,12 +1,28 @@
+>  #include "bpf_common.h"
+>
+> +/*
+> + * v0.7 deprecates some functions in favor of a new API (introduced in v0.6).
+> + * Make this work with both to satisfy -Werror (and older distros).
+> + */
+> +#if defined(LIBBPF_MAJOR_VERSION)
+> +#if LIBBPF_MAJOR_VERSION > 0 || (LIBBPF_MAJOR_VERSION == 0 && \
+> +       LIBBPF_MINOR_VERSION > 6)
+> +#define USE_NEW_API
+> +#endif
+> +#endif
+> +
+>  int create_bpf_map(void)
+>  {
+>         int map_fd, key;
+>         long long value = 0;
+>
+> +#ifdef USE_NEW_API
+> +       map_fd = bpf_map_create(BPF_MAP_TYPE_ARRAY, NULL, sizeof(key),
+> +                               sizeof(value), 256, NULL);
+> +#else
+>         map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(key),
+>                                 sizeof(value), 256, 0);
+> +#endif
+>         if (map_fd < 0) {
+>                 fprintf(stderr, "Failed to create BPF map: %s\n",
+>                         strerror(errno));
+> @@ -18,17 +34,20 @@ int create_bpf_map(void)
+>
+>  int create_bpf_prog(void)
+>  {
+> -       int prog_fd;
+> -       size_t insns_cnt;
+> -
+>         struct bpf_insn prog[] = {
+>                 BPF_MOV64_IMM(BPF_REG_0, 1),
+>                 BPF_EXIT_INSN(),
+>         };
+> -       insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
+> +       size_t insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
+> +       int prog_fd;
+>
+> +#ifdef USE_NEW_API
+> +       prog_fd = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, NULL, "GPF",
 
-Fixes: 2554a48f4437 ("selinux: measure state and policy capabilities")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/ima.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Now merged, with the "General Protection Fault license" typo fixed :)
 
-diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-index 727c4e43219d..ff7aea6b3774 100644
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -77,7 +77,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
- 	size_t policy_len;
- 	int rc = 0;
- 
--	WARN_ON(!mutex_is_locked(&state->policy_mutex));
-+	lockdep_assert_held(&state->policy_mutex);
- 
- 	state_str = selinux_ima_collect_state(state);
- 	if (!state_str) {
-@@ -117,7 +117,7 @@ void selinux_ima_measure_state_locked(struct selinux_state *state)
-  */
- void selinux_ima_measure_state(struct selinux_state *state)
- {
--	WARN_ON(mutex_is_locked(&state->policy_mutex));
-+	lockdep_assert_not_held(&state->policy_mutex);
- 
- 	mutex_lock(&state->policy_mutex);
- 	selinux_ima_measure_state_locked(state);
+https://github.com/SELinuxProject/selinux-testsuite/commit/92c29366dffad9e8b1ef621d4fc07816ed121efe
+
+> +                               prog, insns_cnt, NULL);
+> +#else
+>         prog_fd = bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER, prog,
+>                                    insns_cnt, "GPL", 0, NULL, 0);
+> +#endif
+>
+>         if (prog_fd < 0) {
+>                 fprintf(stderr, "Failed to load BPF prog: %s\n",
+> --
+> 2.35.1
+>
+
+
 -- 
-2.35.1
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
