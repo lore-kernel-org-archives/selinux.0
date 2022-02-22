@@ -2,146 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FA66C433F5
-	for <selinux@archiver.kernel.org>; Mon, 21 Feb 2022 18:12:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF773C433EF
+	for <selinux@archiver.kernel.org>; Tue, 22 Feb 2022 13:50:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232142AbiBUSMr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Feb 2022 13:12:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40612 "EHLO
+        id S232382AbiBVNu2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 22 Feb 2022 08:50:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232227AbiBUSLZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Feb 2022 13:11:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C418713CF7
-        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 10:01:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645466504;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=41XatzLhvaE9rHmob+cZ8fY8LpjwIPidXSLaJlvbF2I=;
-        b=UW2gollL6ZgxATrBH5ty9a0NW64Eak+bfFHUjHXHfqpLvvO663tMp9AOiyD2ewf6gyKVn3
-        OhT6pCoaUODLF7dq2xAdMm/qjcqHLjDD+1YlNUclAk/nPbHo1qL/Dc7+ihJBTQTIVpHzrH
-        CbSHfgfW2k8GVu0Jo9ExCzdqL8/hvbI=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-35-ApsCBt-wNdqUZDKTLMTX6g-1; Mon, 21 Feb 2022 13:01:42 -0500
-X-MC-Unique: ApsCBt-wNdqUZDKTLMTX6g-1
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-2d07ae11464so117811117b3.14
-        for <selinux@vger.kernel.org>; Mon, 21 Feb 2022 10:01:42 -0800 (PST)
+        with ESMTP id S232554AbiBVNu2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 22 Feb 2022 08:50:28 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ABEC10BBCF
+        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 05:50:02 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id qx21so43023072ejb.13
+        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 05:50:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Cc/xqdU8Gx5CUJgr2s09qMSwxV6lW6cQISZQI6l6+g0=;
+        b=m9l72qs7c0wGWkWSIcx6UoML7ef+NZC8mwGFIfVO+phHXHi/yTYoDUmyE/rtubwpjp
+         tWE+ilw9J2co/efgKr6VgTctkG/DHLcGcukFyEP1SUE54bJj4iv9kWnzylJR1ubS7xwX
+         pu3vLI5ySliOtu6gMOnP8XtEFeMGFFw8gEBjuAextdEirxlX/H9Vbu7JGUljUwfnz/CT
+         w0i03DJ2kEZl3NzRfDuPB3EDnUvaol1erF3HPAIFyvhxaO5dNcakUqYbwGRs08N1PV89
+         K9hufCm9Mf6aTXWetBmmsaLpoPw+WJtjmXofHhr4FovHUa3Hm0B1BFnjBYvnEXX+iLq5
+         VhcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=41XatzLhvaE9rHmob+cZ8fY8LpjwIPidXSLaJlvbF2I=;
-        b=fkYV1jDisiyWwh4z/W1d6H8JAaRd3soaEupDVLBZlwGbqrhLB3jSRnvA8Tt1qW6ks8
-         rBusG4Z2oAVJQaV4WzOE1gJjNHFLay66EyxGT/KGfwkhKEhzr66JSQlfx9Mxq1ol0qbw
-         3kdnq76Hik4zXshPRe2Nnb8qRKcm2aDpcB12c1JIk9ihto1C1QYUpl7Vp9Sgork7DmuV
-         WXvuwGnAdBRFgajktjWwXUleyGnO4BAmaFSHoRjIkPxmoUqqnyIsTLHWomerzqKms4Fe
-         /tSqzH7F25V2RPQIGOThtnogxuXj7uL9zGfEeKy2c/TQYNJIznJwpeYEGRz5OMzFb8ma
-         s6fA==
-X-Gm-Message-State: AOAM533asSl7lkd+CKYjLtvQ/+qWPFetiFYk1nsQrDQumTexjS8E9VYa
-        zhIQhejXtisq9Ee+TwEw1WZCPfDMYjFZSNmVALJdCaZWqA18HHSifKbH8tpLnM+gEmCCnWdYUvC
-        hkJN/ObopyPFCPaLSwxg2TpJDGTgpl/oWkg==
-X-Received: by 2002:a25:748e:0:b0:624:3bae:fa32 with SMTP id p136-20020a25748e000000b006243baefa32mr18261205ybc.255.1645466501945;
-        Mon, 21 Feb 2022 10:01:41 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx9B5jpcKW70Th9lNFZknI5FCU8tcP2qTRsfSssNi/bQ/Lih7JPn8AvuFfH/PTTPOKT51f46k0CLTtK2aFv/fI=
-X-Received: by 2002:a25:748e:0:b0:624:3bae:fa32 with SMTP id
- p136-20020a25748e000000b006243baefa32mr18261186ybc.255.1645466501745; Mon, 21
- Feb 2022 10:01:41 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Cc/xqdU8Gx5CUJgr2s09qMSwxV6lW6cQISZQI6l6+g0=;
+        b=UetyVjymE/ou1jk9xUGVTZxSTCx+LpGHRzJPCDmDitB0gC7AwUmegX6CsE8mNVUNJM
+         1CZA1hh8e6g1dln4VRSPNi7WZ3758m+Lj+j6jTldyhZeJiV3t3TWeCWRUpSBIOqyhHaZ
+         j1RAtENE63ILrKDjrEIwbXsQVY52LLVn1AAabi6M9W2yLbqarTxES+L5xbzflwIoq7OH
+         u3/ewrJWUDGUHL7/VxHbOJA+QRDSPLI1Fz3QBO8QMPxfpY4z7gNd+Wt/NnFz8cfTs5mE
+         rz9fvcsQXGJTlNKHHBx/2tKZku6uOiQ4p3yaGEF6D9ID7HCkHiIp7pjEgIoTRlqhpGy2
+         t58Q==
+X-Gm-Message-State: AOAM532gj4qY7zJihPGT2OCIxKiQz1cijMLARnIy9sz5eR3doNW2oo6i
+        t2PgOiT9D8r9lEgRs5ZV3KT9BBfEGTE=
+X-Google-Smtp-Source: ABdhPJzzwD6tU683nH3SIqh6Aei+IxDy71PbDCFISAiFxKK4JuKxVrwMQf3+nOdhZIREvhkRvuGjpg==
+X-Received: by 2002:a17:906:5f96:b0:6bb:3024:9444 with SMTP id a22-20020a1709065f9600b006bb30249444mr20604360eju.298.1645537800951;
+        Tue, 22 Feb 2022 05:50:00 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-003-065-014.77.3.pool.telefonica.de. [77.3.65.14])
+        by smtp.gmail.com with ESMTPSA id fw30sm318268ejc.118.2022.02.22.05.49.59
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Feb 2022 05:50:00 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol: NULL pointer offset fix
+Date:   Tue, 22 Feb 2022 14:49:56 +0100
+Message-Id: <20220222134956.30277-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220218210815.107961-1-omosnace@redhat.com>
-In-Reply-To: <20220218210815.107961-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 21 Feb 2022 19:01:31 +0100
-Message-ID: <CAFqZXNtXx5QsUQcwqDTSWubcro6kXrzzRXhdmFuAv3boR3WPKg@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/bpf: use new API if version >= 0.6
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 10:08 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> In version 0.7 the old API is deprecated and without this patch the
-> testsuite fails to build with -Werror with this version.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  tests/bpf/bpf_common.c | 27 +++++++++++++++++++++++----
->  1 file changed, 23 insertions(+), 4 deletions(-)
->
-> diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
-> index f499034..88aae2f 100644
-> --- a/tests/bpf/bpf_common.c
-> +++ b/tests/bpf/bpf_common.c
-> @@ -1,12 +1,28 @@
->  #include "bpf_common.h"
->
-> +/*
-> + * v0.7 deprecates some functions in favor of a new API (introduced in v0.6).
-> + * Make this work with both to satisfy -Werror (and older distros).
-> + */
-> +#if defined(LIBBPF_MAJOR_VERSION)
-> +#if LIBBPF_MAJOR_VERSION > 0 || (LIBBPF_MAJOR_VERSION == 0 && \
-> +       LIBBPF_MINOR_VERSION > 6)
-> +#define USE_NEW_API
-> +#endif
-> +#endif
-> +
->  int create_bpf_map(void)
->  {
->         int map_fd, key;
->         long long value = 0;
->
-> +#ifdef USE_NEW_API
-> +       map_fd = bpf_map_create(BPF_MAP_TYPE_ARRAY, NULL, sizeof(key),
-> +                               sizeof(value), 256, NULL);
-> +#else
->         map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(key),
->                                 sizeof(value), 256, 0);
-> +#endif
->         if (map_fd < 0) {
->                 fprintf(stderr, "Failed to create BPF map: %s\n",
->                         strerror(errno));
-> @@ -18,17 +34,20 @@ int create_bpf_map(void)
->
->  int create_bpf_prog(void)
->  {
-> -       int prog_fd;
-> -       size_t insns_cnt;
-> -
->         struct bpf_insn prog[] = {
->                 BPF_MOV64_IMM(BPF_REG_0, 1),
->                 BPF_EXIT_INSN(),
->         };
-> -       insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
-> +       size_t insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
-> +       int prog_fd;
->
-> +#ifdef USE_NEW_API
-> +       prog_fd = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, NULL, "GPF",
+On the first loop iteration the variables `r_buf` and `reason_buf_used`
+are NULL respective 0.  Please UBSAN by not adding them but instead
+directly assign NULL.
 
-Now merged, with the "General Protection Fault license" typo fixed :)
+    services.c:800:16: runtime error: applying zero offset to null pointer
+        #0 0x4d4fce in constraint_expr_eval_reason ./libsepol/src/services.c:800:16
+        #1 0x4cf31a in sepol_validate_transition_reason_buffer ./libsepol/src/services.c:1079:8
 
-https://github.com/SELinuxProject/selinux-testsuite/commit/92c29366dffad9e8b1ef621d4fc07816ed121efe
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/services.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> +                               prog, insns_cnt, NULL);
-> +#else
->         prog_fd = bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER, prog,
->                                    insns_cnt, "GPL", 0, NULL, 0);
-> +#endif
->
->         if (prog_fd < 0) {
->                 fprintf(stderr, "Failed to load BPF prog: %s\n",
-> --
-> 2.35.1
->
-
-
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index 7becfd1b..29723729 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -797,7 +797,7 @@ mls_ops:
+ 
+ 		for (x = 0; buffers[x] != NULL; x++) {
+ 			while (1) {
+-				p = *r_buf + reason_buf_used;
++				p = *r_buf ? (*r_buf + reason_buf_used) : NULL;
+ 				len = snprintf(p, reason_buf_len - reason_buf_used,
+ 						"%s", buffers[x]);
+ 				if (len < 0 || len >= reason_buf_len - reason_buf_used) {
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+2.35.1
 
