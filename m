@@ -2,116 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71BF6C433FE
-	for <selinux@archiver.kernel.org>; Tue, 22 Feb 2022 23:16:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E82EDC433EF
+	for <selinux@archiver.kernel.org>; Tue, 22 Feb 2022 23:28:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236173AbiBVXRO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 22 Feb 2022 18:17:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40368 "EHLO
+        id S236273AbiBVX3K (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 22 Feb 2022 18:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236168AbiBVXRN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 22 Feb 2022 18:17:13 -0500
+        with ESMTP id S235305AbiBVX3K (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 22 Feb 2022 18:29:10 -0500
 Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A8B8CDAF
-        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 15:16:46 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id hw13so47299387ejc.9
-        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 15:16:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AA3A27B1
+        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 15:28:43 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id a8so47744669ejc.8
+        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 15:28:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=KzvH9ZQaXdUgSyIdwCtFzNEtbBoZxdQVld6HVvqC3h0=;
-        b=S/IydQVZc46d4zetWnmQ5U0e/PzMQNOi9DIjYeoinrNryqb/zeu17/TuDGbIX/KWpC
-         72p/RUQcIO43sVlxpFBZmQdfy6WJtCivMolKcubjDm1vgXMy8k/BPNGr/UPBh9C4W41h
-         4OMcW3ugJLilxrgRaLIAK4YLgo1M1xTJxv0gptrzQotyWQ8BVbQgyOuu/RAZGlM5Bw8P
-         JmKxduxWoEh8ZNP3EI0O00LrNVhJlX3v4Rw2jBvCxgmBre2DuzWvIcOX5LuS+YxoHWGU
-         YdMkjRgsLGwFaosBa6vzrp7EVsu7uc8gPip0/Bri8/5SM/66BSW/Pl4hxH3OB0jOdfoL
-         rEiQ==
+         :cc;
+        bh=0sDj0qMJJiN5G76triZ2YOQFF95CL0AvqXtgUFOJ/qk=;
+        b=hPpp7SkwemAPoCxUmzJK8Z9jEuz2Ipp1/bHRj8z9satZdk6aNRAmEZ1xsvLdbSt7Fj
+         CGTAEBI2ZwJ7tklGkS0Y4emJNlChkcpsrDDtHIIsI253bWpbBE3OtDR7USWHSUIlGxan
+         IiyjiQCNYab6YGCbWjIPcp8tUsuN2Qc20uPWtpzA+syN1WUN6D1ogO/8Ca14REDOzxem
+         cvHIcjGhdEQZvofhwdxgsOLguJF87p/WhFstfmPeTd5neXlk9uIKr6fiQQfaibKXN9X9
+         nCc/y+Wuw6LOgyKv5lTFUaivLmqGa9C3z/T05HMWVWQbxdo7dUXWrw2l/ePGBVMj1sp6
+         oUQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=KzvH9ZQaXdUgSyIdwCtFzNEtbBoZxdQVld6HVvqC3h0=;
-        b=ELvjStMTLfJFjGaJadHlwHg4WG+X7sogXEj1w5dOzQzGF+KNqb6VDL3dvZM7YngLAD
-         EIz26GXMpto2qG46zQ9Xm2QJHIgKWrqEbIQOq2wQncqq17oJmL+0tC7USb3cnEXOD/Ud
-         lMmtQoFZ9TpomNPMrSxncT57WoHBc52jKAaBYBTPoLtrBTT1aSlUeGEJYNUXjZAblSKb
-         MVwP5g/TMQqoO4RL+/SYHqWUaMBGur8Y2Df/kZ1uLuwgY1QvnSEejPL97xJOvN5hTe4W
-         4KOhLSYArNRQA2MnfgnAGHb7ysPN+vSnzW0/nYJZX35pdpplKASZT8krEUW4gEoXU1ez
-         +Ovg==
-X-Gm-Message-State: AOAM532DABMxQMfsl5YoX3h6dvxQ88+xTUM7l2H+UDT6HRca054NkHzx
-        6+zIoR3XIR+vMG79e7re8o9LVdPwfOFudmTLHK5H
-X-Google-Smtp-Source: ABdhPJyC5JfFslCe0iSc7dk6uE4kYr0sXtIjOP3+4cJ8OXdGFLZZdB3wUVrWstGC2q8isedVNDR8Em5of/ldksyZE6c=
-X-Received: by 2002:a17:907:2a54:b0:6d5:879d:aca4 with SMTP id
- fe20-20020a1709072a5400b006d5879daca4mr419389ejc.29.1645571804662; Tue, 22
- Feb 2022 15:16:44 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=0sDj0qMJJiN5G76triZ2YOQFF95CL0AvqXtgUFOJ/qk=;
+        b=aL1cfW/fI/TPxBvJ/lriyHvPYEioe9Kfp4JmXnutAZlEYwFe0CMc5NqvIWB8ZsCGIE
+         GQzLPYhTG0bhomQZ+5hVCtreZF7GM6u4JhRnbAZcQw7EbQ/aH66yiGGGLFVpPdMPpErf
+         legez8/8cBVo08qKHQEvyGVrYH857f+Q81BOTKhx66qy1nN9//T7bIJcayKBlRFj44Zl
+         9R5v022lM/Jc3aDDEpKUTqvw9LzbcCVlHiqJMPNt1bVzDm5k3NqHsafjtyIDIOqes5I5
+         EZ3H0Ag/d/n+jYxSzpEAih6q6KFQuzvKwLh7gqoUm49gv/FYaU6dE6FgzoLVvBb4daJZ
+         KZ6A==
+X-Gm-Message-State: AOAM532amDo9AyfYNleQ+X4JIfEcoHyx4x91WlmLAEzRJqy202JBuYLv
+        18hBLUCeAVxO4tP8QVqbBVmd5yL6kw9G56rsA9zm
+X-Google-Smtp-Source: ABdhPJy51IWDBSElZ4OCACw6vfJARdAcG+E2xuozKMf80uepmG8u0le8bdcjGxHhoQ2VySs/aduZM0VYpM77G+KdSJU=
+X-Received: by 2002:a17:906:c318:b0:6cf:d118:59d8 with SMTP id
+ s24-20020a170906c31800b006cfd11859d8mr20829134ejz.112.1645572522506; Tue, 22
+ Feb 2022 15:28:42 -0800 (PST)
 MIME-Version: 1.0
-References: <20220217142133.72205-1-cgzones@googlemail.com>
- <20220217142133.72205-3-cgzones@googlemail.com> <CAHC9VhT77Ft4+5LmNP0dwtaeNzF+r0b=9M5vh7qA1poY9jesJA@mail.gmail.com>
- <CAKwvOdkioR+7aebgzPu2Exe0oD9rwAeHK=CgM6vAkpBWdHnF2Q@mail.gmail.com>
-In-Reply-To: <CAKwvOdkioR+7aebgzPu2Exe0oD9rwAeHK=CgM6vAkpBWdHnF2Q@mail.gmail.com>
+References: <20220221131533.74238-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20220221131533.74238-1-richard_c_haines@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 22 Feb 2022 18:16:33 -0500
-Message-ID: <CAHC9VhSKZes9g_GHMKJdhd_BEt7GT4FKOLeMJ=o=FU8TtOZ-gg@mail.gmail.com>
-Subject: Re: [PATCH 4/5] selinux: declare data arrays const
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Austin Kim <austin.kim@lge.com>, linux-kernel@vger.kernel.org,
-        llvm@lists.linux.dev
+Date:   Tue, 22 Feb 2022 18:28:31 -0500
+Message-ID: <CAHC9VhQnRQFrM-mTzUQ3UsyVp2JYw1wUh=7yrdjH7-QmHKidAg@mail.gmail.com>
+Subject: Re: [PATCH V2] security/selinux: Always allow FIOCLEX and FIONCLEX
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        demiobenour@gmail.com, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org,
+        jeffv@google.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 12:24 PM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
-> On Fri, Feb 18, 2022 at 8:13 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Thu, Feb 17, 2022 at 9:21 AM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> > >
-> > > diff --git a/security/selinux/include/initial_sid_to_string.h b/secur=
-ity/selinux/include/initial_sid_to_string.h
-> > > index 5d332aeb8b6c..915283cd89bd 100644
-> > > --- a/security/selinux/include/initial_sid_to_string.h
-> > > +++ b/security/selinux/include/initial_sid_to_string.h
-> > > @@ -1,5 +1,12 @@
-> > >  /* SPDX-License-Identifier: GPL-2.0 */
-> > > -static const char *initial_sid_to_string[] =3D
-> > > +
-> > > +#ifdef __SELINUX_GENHEADERS__
-> > > +# define const_qual
-> > > +#else
-> > > +# define const_qual const
-> > > +#endif
-> > > +
-> > > +static const char *const_qual initial_sid_to_string[] =3D
-> > >  {
-> > >         NULL,
-> > >         "kernel",
-> >
-> > Thanks for this Christian.  I generally like when we can const'ify
-> > things like this, but I'm not excited about the const_qual hack on
-> > core SELinux kernel code to satisfy genheaders.c.  I understand why it
-> > is needed, but I would rather clutter the genheaders.c code than the
-> > core SELinux kernel code.  If we can't cast away the const'ification
-> > in genheaders.c could we simply allocate duplicate arrays in
-> > genheaders.c and store the transformed strings into the new arrays?
+On Mon, Feb 21, 2022 at 8:15 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
 >
-> Note: casting off const is UB. I've had to fix multiple bugs where
-> clang will drop writes to variables declared const but had const'ness
-> casted away.
+> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
+> always allows too.  Furthermore, a failed FIOCLEX could result in a file
+> descriptor being leaked to a process that should not have access to it.
+>
+> As this patch removes access controls, a policy capability needs to be
+> enabled in policy to always allow these ioctls.
+>
+> Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+> V2 Change: Control via a policy capability. See this thread for discussion:
+> https://lore.kernel.org/selinux/CAHC9VhQEPxYP_KU56gAGNHKQaxucY8gSsHiUB42PVgADBAccRQ@mail.gmail.com/T/#t
+>
+> With this patch and the polcap enabled, the selinux-testsuite will fail:
+> ioctl/test at line 47 - Will need a fix.
+>
+>  security/selinux/hooks.c                   | 7 +++++++
+>  security/selinux/include/policycap.h       | 1 +
+>  security/selinux/include/policycap_names.h | 3 ++-
+>  security/selinux/include/security.h        | 7 +++++++
+>  4 files changed, 17 insertions(+), 1 deletion(-)
 
-Then let's just memcpy the array in genheaders.c.  I'm okay with
-genheaders being a little ugly if it helps keep the core code cleaner.
+Thanks Richard for putting together the v2 of this patch.
 
---=20
+As far as the test is concerned, it seems like the quick-n-dirty fix
+is to simply remove the ioctl(FIOCLEX) test in test_noioctl.c; is
+everyone okay with that?  At least that is what I'm going to do with
+my local copy that I use to validate the kernel-secnext builds unless
+someone has a better patch :)
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 5b6895e4f..030c41652 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3745,6 +3745,13 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+>                                             CAP_OPT_NONE, true);
+>                 break;
+>
+> +       case FIOCLEX:
+> +       case FIONCLEX:
+> +               /* Must always succeed if polcap set, else default: */
+> +               if (selinux_policycap_ioctl_skip_cloexec())
+> +                       break;
+> +               fallthrough;
+> +
+
+The break/fallthrough looks like it might be a little more fragile
+than necessary, how about something like this:
+
+  case FIOCLEX:
+  case FIONCLEX:
+    if (!selinux_policycap_ioctl_skip_cloexec())
+      error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
+      break;
+
+Yes, it does duplicate the default ioctl_has_perm() call, but since we
+are effectively deprecating this and locking the FIOCLEX/FIONCLEX
+behavior with this policy capability it seems okay to me (and
+preferable to relying on the fallthrough).
+
+Thoughts?
+
+-- 
 paul-moore.com
