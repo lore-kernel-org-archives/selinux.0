@@ -2,129 +2,155 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E82EDC433EF
-	for <selinux@archiver.kernel.org>; Tue, 22 Feb 2022 23:28:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5263C433FE
+	for <selinux@archiver.kernel.org>; Wed, 23 Feb 2022 11:58:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236273AbiBVX3K (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 22 Feb 2022 18:29:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56400 "EHLO
+        id S229437AbiBWL6w (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Feb 2022 06:58:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235305AbiBVX3K (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 22 Feb 2022 18:29:10 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AA3A27B1
-        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 15:28:43 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id a8so47744669ejc.8
-        for <selinux@vger.kernel.org>; Tue, 22 Feb 2022 15:28:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0sDj0qMJJiN5G76triZ2YOQFF95CL0AvqXtgUFOJ/qk=;
-        b=hPpp7SkwemAPoCxUmzJK8Z9jEuz2Ipp1/bHRj8z9satZdk6aNRAmEZ1xsvLdbSt7Fj
-         CGTAEBI2ZwJ7tklGkS0Y4emJNlChkcpsrDDtHIIsI253bWpbBE3OtDR7USWHSUIlGxan
-         IiyjiQCNYab6YGCbWjIPcp8tUsuN2Qc20uPWtpzA+syN1WUN6D1ogO/8Ca14REDOzxem
-         cvHIcjGhdEQZvofhwdxgsOLguJF87p/WhFstfmPeTd5neXlk9uIKr6fiQQfaibKXN9X9
-         nCc/y+Wuw6LOgyKv5lTFUaivLmqGa9C3z/T05HMWVWQbxdo7dUXWrw2l/ePGBVMj1sp6
-         oUQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0sDj0qMJJiN5G76triZ2YOQFF95CL0AvqXtgUFOJ/qk=;
-        b=aL1cfW/fI/TPxBvJ/lriyHvPYEioe9Kfp4JmXnutAZlEYwFe0CMc5NqvIWB8ZsCGIE
-         GQzLPYhTG0bhomQZ+5hVCtreZF7GM6u4JhRnbAZcQw7EbQ/aH66yiGGGLFVpPdMPpErf
-         legez8/8cBVo08qKHQEvyGVrYH857f+Q81BOTKhx66qy1nN9//T7bIJcayKBlRFj44Zl
-         9R5v022lM/Jc3aDDEpKUTqvw9LzbcCVlHiqJMPNt1bVzDm5k3NqHsafjtyIDIOqes5I5
-         EZ3H0Ag/d/n+jYxSzpEAih6q6KFQuzvKwLh7gqoUm49gv/FYaU6dE6FgzoLVvBb4daJZ
-         KZ6A==
-X-Gm-Message-State: AOAM532amDo9AyfYNleQ+X4JIfEcoHyx4x91WlmLAEzRJqy202JBuYLv
-        18hBLUCeAVxO4tP8QVqbBVmd5yL6kw9G56rsA9zm
-X-Google-Smtp-Source: ABdhPJy51IWDBSElZ4OCACw6vfJARdAcG+E2xuozKMf80uepmG8u0le8bdcjGxHhoQ2VySs/aduZM0VYpM77G+KdSJU=
-X-Received: by 2002:a17:906:c318:b0:6cf:d118:59d8 with SMTP id
- s24-20020a170906c31800b006cfd11859d8mr20829134ejz.112.1645572522506; Tue, 22
- Feb 2022 15:28:42 -0800 (PST)
-MIME-Version: 1.0
-References: <20220221131533.74238-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220221131533.74238-1-richard_c_haines@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 22 Feb 2022 18:28:31 -0500
-Message-ID: <CAHC9VhQnRQFrM-mTzUQ3UsyVp2JYw1wUh=7yrdjH7-QmHKidAg@mail.gmail.com>
+        with ESMTP id S235992AbiBWL6v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Feb 2022 06:58:51 -0500
+Received: from re-prd-fep-044.btinternet.com (mailomta28-re.btinternet.com [213.120.69.121])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D872449682;
+        Wed, 23 Feb 2022 03:58:21 -0800 (PST)
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20220223115819.YGRE28912.re-prd-fep-044.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Wed, 23 Feb 2022 11:58:19 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645617499; 
+        bh=xH2HDukqbX5dvbmogMeWYVzR/wGRlgNjqzbmhBv/HvQ=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=g2uncVR7olpMgOcyVdKW+/fiTVuoRP/9wbW9bcCzILHBGB7XmsBZg+Som/v8JeulKZIVZ93XdeC4fLZBZ09KT9ycMLFhLIul4h0z+GAqzNap62eqP2XZj0JXN6Lq9hKCOc53oqpzL0vXaTdfLk+5mWPwM+AqYkm/BPoaO1dfulICc6BTdSxixKZw8bbAcJXp0f+5t6dxjhaTt9KqWgJhr77iwR3hfa4reADj7eMAjRr3qgpUi7JOCnj+skWWzK8GMJ0QJCJbpaK4OX+yOdCOnCa9wj/SYdvaJyHPaLqcHY0bFSlLl2CgoyDOgs/hfeazC4sqEQKZVih2faafNIsLtw==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
+    bimi=skipped
+X-SNCR-Rigid: 613A912415D7956E
+X-Originating-IP: [109.150.61.96]
+X-OWM-Source-IP: 109.150.61.96 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrledtgdeffecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepjeevteffjeduleetfeeitdfhheekudeutddthfevtefgveelhfegheffheffieeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpfhhigidrshgvtghurhhithihnecukfhppedutdelrdduhedtrdeiuddrleeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplgduledvrdduieekrddurdduleekngdpihhnvghtpedutdelrdduhedtrdeiuddrleeipdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdpnhgspghrtghpthhtohepkedprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepvghprghrihhssehprghrihhsphhlrggtvgdrohhrghdprhgtphhtthhopehjvghffhhvsehgohhoghhlvgdrtghomhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhes
+        vhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehprghulhesphgruhhlqdhmohhorhgvrdgtohhmpdhrtghpthhtohepshgvlhhinhhugidqrhgvfhhpohhlihgthiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhm
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from [192.168.1.198] (109.150.61.96) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 613A912415D7956E; Wed, 23 Feb 2022 11:58:19 +0000
+Message-ID: <20396305e71619dbee4fa3c612925b57f4bb0a4b.camel@btinternet.com>
 Subject: Re: [PATCH V2] security/selinux: Always allow FIOCLEX and FIONCLEX
-To:     Richard Haines <richard_c_haines@btinternet.com>
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
         demiobenour@gmail.com, selinux@vger.kernel.org,
         linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org,
         jeffv@google.com
+Date:   Wed, 23 Feb 2022 11:58:19 +0000
+In-Reply-To: <CAHC9VhQnRQFrM-mTzUQ3UsyVp2JYw1wUh=7yrdjH7-QmHKidAg@mail.gmail.com>
+References: <20220221131533.74238-1-richard_c_haines@btinternet.com>
+         <CAHC9VhQnRQFrM-mTzUQ3UsyVp2JYw1wUh=7yrdjH7-QmHKidAg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 21, 2022 at 8:15 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
->
-> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-> always allows too.  Furthermore, a failed FIOCLEX could result in a file
-> descriptor being leaked to a process that should not have access to it.
->
-> As this patch removes access controls, a policy capability needs to be
-> enabled in policy to always allow these ioctls.
->
-> Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2 Change: Control via a policy capability. See this thread for discussion:
-> https://lore.kernel.org/selinux/CAHC9VhQEPxYP_KU56gAGNHKQaxucY8gSsHiUB42PVgADBAccRQ@mail.gmail.com/T/#t
->
-> With this patch and the polcap enabled, the selinux-testsuite will fail:
-> ioctl/test at line 47 - Will need a fix.
->
->  security/selinux/hooks.c                   | 7 +++++++
->  security/selinux/include/policycap.h       | 1 +
->  security/selinux/include/policycap_names.h | 3 ++-
->  security/selinux/include/security.h        | 7 +++++++
->  4 files changed, 17 insertions(+), 1 deletion(-)
+On Tue, 2022-02-22 at 18:28 -0500, Paul Moore wrote:
+> On Mon, Feb 21, 2022 at 8:15 AM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > 
+> > These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which
+> > SELinux
+> > always allows too.  Furthermore, a failed FIOCLEX could result in a
+> > file
+> > descriptor being leaked to a process that should not have access to
+> > it.
+> > 
+> > As this patch removes access controls, a policy capability needs to
+> > be
+> > enabled in policy to always allow these ioctls.
+> > 
+> > Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> > V2 Change: Control via a policy capability. See this thread for
+> > discussion:
+> > https://lore.kernel.org/selinux/CAHC9VhQEPxYP_KU56gAGNHKQaxucY8gSsHiUB42PVgADBAccRQ@mail.gmail.com/T/#t
+> > 
+> > With this patch and the polcap enabled, the selinux-testsuite will
+> > fail:
+> > ioctl/test at line 47 - Will need a fix.
+> > 
+> >  security/selinux/hooks.c                   | 7 +++++++
+> >  security/selinux/include/policycap.h       | 1 +
+> >  security/selinux/include/policycap_names.h | 3 ++-
+> >  security/selinux/include/security.h        | 7 +++++++
+> >  4 files changed, 17 insertions(+), 1 deletion(-)
+> 
+> Thanks Richard for putting together the v2 of this patch.
+> 
+> As far as the test is concerned, it seems like the quick-n-dirty fix
+> is to simply remove the ioctl(FIOCLEX) test in test_noioctl.c; is
+> everyone okay with that?  At least that is what I'm going to do with
+> my local copy that I use to validate the kernel-secnext builds unless
+> someone has a better patch :)
 
-Thanks Richard for putting together the v2 of this patch.
+To fix this I was planning to submit a patch that would change the
+ioctl(FIOCLEX) tests to ioctl(FS_IOC_GETFSLABEL) as that would continue
+to test the xperms.
 
-As far as the test is concerned, it seems like the quick-n-dirty fix
-is to simply remove the ioctl(FIOCLEX) test in test_noioctl.c; is
-everyone okay with that?  At least that is what I'm going to do with
-my local copy that I use to validate the kernel-secnext builds unless
-someone has a better patch :)
+> 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 5b6895e4f..030c41652 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3745,6 +3745,13 @@ static int selinux_file_ioctl(struct file
+> > *file, unsigned int cmd,
+> >                                             CAP_OPT_NONE, true);
+> >                 break;
+> > 
+> > +       case FIOCLEX:
+> > +       case FIONCLEX:
+> > +               /* Must always succeed if polcap set, else default:
+> > */
+> > +               if (selinux_policycap_ioctl_skip_cloexec())
+> > +                       break;
+> > +               fallthrough;
+> > +
+> 
+> The break/fallthrough looks like it might be a little more fragile
+> than necessary, how about something like this:
+> 
+>   case FIOCLEX:
+>   case FIONCLEX:
+>     if (!selinux_policycap_ioctl_skip_cloexec())
+>       error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
+>       break;
+> 
+> Yes, it does duplicate the default ioctl_has_perm() call, but since
+> we
+> are effectively deprecating this and locking the FIOCLEX/FIONCLEX
+> behavior with this policy capability it seems okay to me (and
+> preferable to relying on the fallthrough).
+> 
+> Thoughts?
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 5b6895e4f..030c41652 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3745,6 +3745,13 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
->                                             CAP_OPT_NONE, true);
->                 break;
->
-> +       case FIOCLEX:
-> +       case FIONCLEX:
-> +               /* Must always succeed if polcap set, else default: */
-> +               if (selinux_policycap_ioctl_skip_cloexec())
-> +                       break;
-> +               fallthrough;
-> +
+Yes I did ponder this and in my first attempt I had this before the
+switch():
 
-The break/fallthrough looks like it might be a little more fragile
-than necessary, how about something like this:
+	/* Must always succeed if polcap set */
+	if (selinux_policycap_ioctl_skip_cloexec() &&
+	    (cmd == FIOCLEX || cmd == FIONCLEX))
+		return 0;
 
-  case FIOCLEX:
-  case FIONCLEX:
-    if (!selinux_policycap_ioctl_skip_cloexec())
-      error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
-      break;
+ 	switch (cmd) {
+ 	case FIONREAD:
+ 	case FIBMAP:
 
-Yes, it does duplicate the default ioctl_has_perm() call, but since we
-are effectively deprecating this and locking the FIOCLEX/FIONCLEX
-behavior with this policy capability it seems okay to me (and
-preferable to relying on the fallthrough).
+but changed to within the switch(), anyway I'm happy to resubmit a
+patch either way.
 
-Thoughts?
+> 
 
--- 
-paul-moore.com
