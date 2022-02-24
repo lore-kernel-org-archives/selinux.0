@@ -2,47 +2,47 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19B9CC433F5
-	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 12:42:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8862FC433EF
+	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 13:07:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234509AbiBXMnM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Feb 2022 07:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
+        id S234820AbiBXNIG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Feb 2022 08:08:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234508AbiBXMnL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 07:43:11 -0500
-Received: from re-prd-fep-046.btinternet.com (mailomta2-re.btinternet.com [213.120.69.95])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624A9124C23
-        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 04:42:41 -0800 (PST)
-Received: from re-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.54.5])
-          by re-prd-fep-046.btinternet.com with ESMTP
-          id <20220224124239.ZOHT23644.re-prd-fep-046.btinternet.com@re-prd-rgout-002.btmx-prd.synchronoss.net>;
-          Thu, 24 Feb 2022 12:42:39 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645706559; 
-        bh=2wv6UjkwoylhlMg78WJJJ0sejuLEZyGp9V4aPAgQpLg=;
+        with ESMTP id S234813AbiBXNIE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 08:08:04 -0500
+Received: from sa-prd-fep-045.btinternet.com (mailomta26-sa.btinternet.com [213.120.69.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49060230E48
+        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 05:07:33 -0800 (PST)
+Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
+          by sa-prd-fep-045.btinternet.com with ESMTP
+          id <20220224130731.UPYR20692.sa-prd-fep-045.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
+          Thu, 24 Feb 2022 13:07:31 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645708051; 
+        bh=l8gtnLH+Z3LB9ZdFTA67SIPyViWzwsskq12qniCti9U=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=HQ69ReymcT2uY9q8d0g9wvTpjZJy96vxL1XIU5JEkwp2aubYOgj3SE39/1ua96GVjVF0AJ84Jvv+qd7+dJ+YadJDA90WQBe+zVaRIWLG9Fa85ygf/AoSdJxelw1C6wJfzykSAfxc8GO2VHViadCxDDxp1RmVnWwMyD4xZZXcB95xMMcPHBvjQ3sZxwwn7y1kZYiJzOtF7xbNHtYwLCpQ2N11oRmMyfWl1SP25qghY3wSygKotsQDoARSDJrwECI4ak98hTmSpKN7LQ5OF+b87f4Ot8fyAGLAlhM6H/f3rNUWH9fFh/o8TChYccId9KTbsGx8ugFRDjja61q65JF0HA==
+        b=XAWfgA31JtlMpTWQdjaD1iVjnawPiVAgCrHi0JTM4t5uW3k3MpxX7oNnXfI8YA6Z4B4TkKQmQHFyabEFXDK0H1An0toxzgD33oKPWiXGRnb7pv/1xXXqGcD9wGq6VRc+tvcLvb/rE0e+BrSUsQgZwWSpegDHx9VC8SW03czzdH/GgPz27mZ8snXz1Iqsf0vJlh8iQLk4MFKEiw4E/Vy7V/TCf/xfai4FwzWQIUh9KD6du2TZwgK4F1jxsFOESa8vOAZQagq+Q0UqBpmELYHXO8kvjv3WJdVR1Loa2uF2NmVFCOLCxJuDBeiw2H/oh7H3hWDCxA6zuhRdf40Hr6WQgg==
 Authentication-Results: btinternet.com;
     auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com;
     bimi=skipped
-X-SNCR-Rigid: 613A8DE8160413B0
+X-SNCR-Rigid: 613006A917E98E70
 X-Originating-IP: [109.158.127.121]
 X-OWM-Source-IP: 109.158.127.121 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrledvgdegudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppedutdelrdduheekrdduvdejrdduvddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheekrdduvdejrdduvddupdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdpnhgspghrtghpthhtohepgedprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepphgruhhlsehprghulhdqmhhoohhrvgdrtghomhdprhgtphhtthhopehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrledvgdegiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppedutdelrdduheekrdduvdejrdduvddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheekrdduvdejrdduvddupdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdpnhgspghrtghpthhtohepfedprhgtphhtthhopehprghulhesphgruhhlqdhmohhorhgvrdgtohhmpdhrtghpthhtoheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (109.158.127.121) by re-prd-rgout-002.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613A8DE8160413B0; Thu, 24 Feb 2022 12:42:39 +0000
+Received: from localhost.localdomain (109.158.127.121) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 613006A917E98E70; Thu, 24 Feb 2022 13:07:31 +0000
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, demiobenour@gmail.com,
+Cc:     paul@paul-moore.com,
         Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH testsuite] tests/ioctl: Update ioctl tests
-Date:   Thu, 24 Feb 2022 12:42:27 +0000
-Message-Id: <20220224124227.44146-1-richard_c_haines@btinternet.com>
+Subject: [PATCH Notebook] policy_config_statements.md: How to add a new capability
+Date:   Thu, 24 Feb 2022 13:07:19 +0000
+Message-Id: <20220224130719.44424-1-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -50,77 +50,160 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This change replaces the ioctl check FIOCLEX with FIOQSIZE as the
-kernel will always allow FIOCLEX if policy capability 'ioctl_skip_cloexec'
-is set true.
-
-Also updated policy to test xperm ioctl FIOQSIZE.
+Describes the steps required to add a new policy capability to the:
+kernel, libsepol, and policy.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- policy/test_ioctl_xperms.te | 7 ++++---
- tests/ioctl/test_ioctl.c    | 4 ++--
- tests/ioctl/test_noioctl.c  | 4 ++--
- 3 files changed, 8 insertions(+), 7 deletions(-)
+Paul: Please note the use of the 'Oxford comma' above. Did you know there
+is the "Oxford Comma" song by Vampire Weekend (if you are of a sensitive
+disposition, don't listen).
 
-diff --git a/policy/test_ioctl_xperms.te b/policy/test_ioctl_xperms.te
-index f9bc8d5..5f570c3 100644
---- a/policy/test_ioctl_xperms.te
-+++ b/policy/test_ioctl_xperms.te
-@@ -1,4 +1,4 @@
--define(`FIOCLEX', `{ 0x00006601 0x00005451 }')
-+define(`FIOQSIZE', `{ 0x00005460 }')
+ src/policy_config_statements.md | 125 ++++++++++++++++++++++++++++++++
+ 1 file changed, 125 insertions(+)
+
+diff --git a/src/policy_config_statements.md b/src/policy_config_statements.md
+index d4eee48..1ae7f64 100644
+--- a/src/policy_config_statements.md
++++ b/src/policy_config_statements.md
+@@ -1,5 +1,12 @@
+ # Policy Configuration Statements
  
- # Domain for process that is allowed the required ioctl xperms.
- type test_ioctl_xperm_t;
-@@ -7,7 +7,7 @@ unconfined_runs_test(test_ioctl_xperm_t)
- typeattribute test_ioctl_xperm_t ioctldomain;
- typeattribute test_ioctl_xperm_t testdomain;
- allow test_ioctl_xperm_t test_ioctl_file_t:file { open read write ioctl getattr setattr };
--allowxperm test_ioctl_xperm_t test_ioctl_file_t:file ioctl FIOCLEX;
-+allowxperm test_ioctl_xperm_t test_ioctl_file_t:file ioctl FIOQSIZE;
++- [*policycap*](#policycap)
++  - [Adding A New Policy Capability](#adding-a-new-policy-capability)
++    - [Kernel Updates](#kernel-updates)
++    - [*libsepol* Library Updates](#libsepol-library-updates)
++    - [Reference Policy Updates](#reference-policy-updates)
++    - [CIL Policy Updates](#cil-policy-updates)
++
+ ## *policycap*
  
- # Domain for process that is not allowed the required ioctl xperms.
- type test_ioctl_noxperm_t;
-@@ -15,4 +15,5 @@ domain_type(test_ioctl_noxperm_t)
- unconfined_runs_test(test_ioctl_noxperm_t)
- typeattribute test_ioctl_noxperm_t ioctldomain;
- typeattribute test_ioctl_noxperm_t testdomain;
--allowxperm test_ioctl_noxperm_t test_ioctl_file_t:file ioctl ~FIOCLEX;
-+allow test_ioctl_noxperm_t test_ioctl_file_t:file { open read getattr setattr ioctl };
-+allowxperm test_ioctl_noxperm_t test_ioctl_file_t:file ioctl ~FIOQSIZE;
-diff --git a/tests/ioctl/test_ioctl.c b/tests/ioctl/test_ioctl.c
-index 366d09c..6fff2d0 100644
---- a/tests/ioctl/test_ioctl.c
-+++ b/tests/ioctl/test_ioctl.c
-@@ -35,9 +35,9 @@ int main(int argc, char **argv)
- 	}
+ Policy version 22 introduced the *policycap* statement to allow new
+@@ -47,6 +54,124 @@ Conditional Policy Statements
+ policycap network_peer_controls;
+ ```
  
- 	/* This one should hit the FILE__IOCTL test */
--	rc = ioctl(fd, FIOCLEX);
-+	rc = ioctl(fd, FIOQSIZE, &val);
- 	if( rc < 0 ) {
--		perror("test_ioctl:FIOCLEX");
-+		perror("test_ioctl:FIOQSIZE");
- 		exit(1);
- 	}
++## Adding A New Policy Capability
++
++### Kernel Updates
++
++In kernel source update the following three files with the new capability:
++
++***security/selinux/include/policycap_names.h***
++
++Add new entry at end of this list:
++
++```
++/* Policy capability names */
++const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
++	...
++	"genfs_seclabel_symlinks",
++	"new_polcap_name"
++};
++```
++
++***security/selinux/include/policycap.h***
++
++Add new entry at end of this list:
++
++```
++/* Policy capabilities */
++enum {
++	...
++	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
++	POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
++	__POLICYDB_CAPABILITY_MAX
++};
++```
++
++***security/selinux/include/security.h***
++
++Add a new call to retrieve the loaded policy capability state:
++
++```
++static inline bool selinux_policycap_new_name(void)
++{
++	struct selinux_state *state = &selinux_state;
++
++	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NEW_POLCAP_NAME]);
++}
++```
++
++Finally in the updated code that utilises the new policy capability do
++something like this:
++
++```
++if (selinux_policycap_new_name())
++	do this;
++else
++	do that;
++```
++
++### *libsepol* Library Updates
++
++In selinux userspace source update the following two files with the new
++capability:
++
++***selinux/libsepol/src/polcaps.c***
++
++Add new entry at end of this list:
++
++```
++static const char * const polcap_names[] = {
++	...
++	"genfs_seclabel_symlinks",	/* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
++	"new_polcap_name",		/* POLICYDB_CAPABILITY_NEW_POLCAP_NAME */
++	NULL
++};
++```
++
++***selinux/libsepol/include/sepol/policydb/polcaps.h***
++
++Add new entry at end of this list:
++
++```
++/* Policy capabilities */
++enum {
++	...
++	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
++	POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
++	__POLICYDB_CAPABILITY_MAX
++};
++```
++
++### Reference Policy Updates
++
++The new policy capability is then added to the Reference Policy file:
++
++***policy/policy_capabilities***
++
++To enable the capability in policy:
++
++```
++# A description of the capability
++policycap new_polcap_name;
++```
++
++To disable the capability comment out the entry:
++
++```
++# A description of the capability
++#policycap new_polcap_name;
++```
++
++### CIL Policy Updates
++
++To enable the capability in policy, add the following entry to a CIL
++source file:
++
++```
++; A description of the capability
++(policycap new_polcap_name)
++```
++
+ <!-- %CUTHERE% -->
  
-diff --git a/tests/ioctl/test_noioctl.c b/tests/ioctl/test_noioctl.c
-index ddce457..4b67e9a 100644
---- a/tests/ioctl/test_noioctl.c
-+++ b/tests/ioctl/test_noioctl.c
-@@ -51,9 +51,9 @@ int main(int argc, char **argv)
- 	}
- 
- 	/* This one should hit the FILE__IOCTL test and fail. */
--	rc = ioctl(fd, FIOCLEX);
-+	rc = ioctl(fd, FIOQSIZE, &val);
- 	if( rc == 0 ) {
--		printf("test_noioctl:FIOCLEX");
-+		printf("test_noioctl:FIOQSIZE");
- 		exit(1);
- 	}
- 
+ ---
 -- 
 2.35.1
 
