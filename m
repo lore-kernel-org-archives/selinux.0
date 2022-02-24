@@ -2,240 +2,213 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0FEC433F5
-	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 22:07:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F29A4C433F5
+	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 23:33:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235225AbiBXWIT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Feb 2022 17:08:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
+        id S234209AbiBXXeR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Feb 2022 18:34:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235220AbiBXWIT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 17:08:19 -0500
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C1B1B5136
-        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 14:07:48 -0800 (PST)
-Received: by mail-il1-x131.google.com with SMTP id z7so2888536ilb.6
-        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 14:07:48 -0800 (PST)
+        with ESMTP id S234071AbiBXXeQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 18:34:16 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E9D27908D
+        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 15:33:44 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id i11so5039751eda.9
+        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 15:33:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Y9LemQ7UibOKv7TygsAJ1fNv/umOOO5ENly/vIRlt/k=;
-        b=qI7/MYEtXIjkXk/BlL6OEtG1iBeaBndACQNElTTZ4D5/YVxj7hBSQepyKPaVO++1j1
-         tAiRpdpSnZV5chVbxRSwWT9d7iyt75Ckq2r3bFuWxa58q6rQCu0jBgRQjaAyI3FRErwO
-         4g2mo9CBiAScNu8MOryoQkyac3JJ8fs58MzPgAO25LCrstR6w4tK3duf/wXUQb2HOQMK
-         Bn0m8l8hskFMNnqxWzQ848XQ1Zy3ZXEFmXVhjtnvxxyelXxsYZPDzBC5sTxvB/HWKsmf
-         CX6wzvaxBz0pa5ORMJaR3HtfqE4ZICEP53zsEK4EFPh4mGXDsQzQfaNC71Lkf/QltSOA
-         BhZQ==
+        bh=6zlVVn1FvzI9fVMJ/ULKjM5eo1r9K3khrlchsQzBiq4=;
+        b=2t+4EaxmTXfzoipF3A4U+dDBpoI2cFF+xE0/XxRA8F862ofUE1+hkB2T4sjVbScq1z
+         J2zvrAduLb8EHD6eMepD0opZ0h3DLqLfCvzZelg3KoH/UiTQc8EoMNcmoPsOSijQl0Cn
+         +/69/naaj/FK08PArkzIz6aUl6Pb+8U6y8sg7OwWd2jXncVOO8PFZ8GBUpFe5NmbFTbQ
+         4ZKXGnyEuSyqZZfRdu0wiuVlsU2C1TTWwxDBzSfWEWryva3jmVFa1K/BJvwGXgjzKNf1
+         irAO5+x5oCr6dq6IOaWUn32YYxJnMSVvekC1/ro09o8nnu1bBpnTAcSfCMv/KCAfnM9T
+         8X0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Y9LemQ7UibOKv7TygsAJ1fNv/umOOO5ENly/vIRlt/k=;
-        b=NqvEK2sp4r2SoWDwflZItnJa/+qFEhsghlILXF3iGExcNNnfJwGAoQgBhGoHfgVyzl
-         ZVcTRu5VjsArzx/thAIY6EXoi9dw105vp6DYVbvKWVO8e9RZXSonIe2UfhalHiZtmXV6
-         ftOXqK6CO4e/jV7zyexm5+jBCddYmbe5F4Saok5vf4WTQQaVYWZyy6/dXKe5yNU7xH/s
-         nZ7HrTjRa/kSOZiw8wwQJPH0/qPeFbe5BTMSfQmVb/JXz3H85A9g+2k3Gy58cMxC3tG6
-         +2foR9zxAofxpOOIwKARXZTTkt6y11ct0ouuU8LpmxWMOIWDwjvjWD1C2wvVYhl9dwrM
-         cr0g==
-X-Gm-Message-State: AOAM530tXFHcWwgcIX0h/w4bBkuojALknR1x3zYsx6DSA+E/jTcVWxdY
-        nZPZPQkcnFNddmmwvD/Al9+9ym69Lk6q4gWP2yyUFA==
-X-Google-Smtp-Source: ABdhPJw/OUuE/4M4UCVUuipkXoZFfcmS2v6/NEodYV8mnLmpm4XNWqpIbhHzUrSrS2ufX/mhmMw/EP2b+/MRm9SNGlo=
-X-Received: by 2002:a05:6e02:1584:b0:2b9:7a3d:8937 with SMTP id
- m4-20020a056e02158400b002b97a3d8937mr3987461ilu.192.1645740467186; Thu, 24
- Feb 2022 14:07:47 -0800 (PST)
+        bh=6zlVVn1FvzI9fVMJ/ULKjM5eo1r9K3khrlchsQzBiq4=;
+        b=chtETPFT7uFcgiE4LAzoKjxeY6zpN4CnDdV9ML6msJ3koB3tv5gONw96KTv0/2xWdn
+         0tINdJaLM2wijjC59f70JTQPTYJsTnZBy1KZ7stqsrH5IirgV+w8S2c9FTNw4hfsIyVJ
+         QYBcBVChLrSSp7ALxzKJ9l1gjAJVpAjKwrg2NV8Nb3tA8N+/+/9ax405IGBxILJkMVpC
+         dgVLJeuz3/kD79JdTn2czD5RX/wqxEtnCvYGohy8TLrWQhdOlwOJBwyvgJ3jIU3jBYCW
+         9b+Sf9JoPVbL4Ygs55Ub+ztPXdzX7aEbeIi34i0r8YJHzpKBeL7Ya0SYGfzSQBwE8J3e
+         PCqg==
+X-Gm-Message-State: AOAM530tA/sfjKHjp2bucCAlErjDj8uO+ecWK6YNZHzvNb++k9VM4HoZ
+        vtt9YaHtq2fp6fvf7nYZNvRO4Gp0k+Z5Cc1qOhVVwjFdzQ==
+X-Google-Smtp-Source: ABdhPJwAr0DiU3nXupWOAbgpQyLWsVczrAy8qg6L6H73dZV1dJM0ObBHQivDXIX1Ve+rZnfkUKBF50ixT7d0bTYBXYc=
+X-Received: by 2002:a05:6402:354c:b0:412:b2f2:f8e4 with SMTP id
+ f12-20020a056402354c00b00412b2f2f8e4mr4565055edd.269.1645745622484; Thu, 24
+ Feb 2022 15:33:42 -0800 (PST)
 MIME-Version: 1.0
-References: <20220224181953.1030665-1-axelrasmussen@google.com> <fd265bb6-d9be-c8a3-50a9-4e3bf048c0ef@schaufler-ca.com>
-In-Reply-To: <fd265bb6-d9be-c8a3-50a9-4e3bf048c0ef@schaufler-ca.com>
-From:   Axel Rasmussen <axelrasmussen@google.com>
-Date:   Thu, 24 Feb 2022 14:07:11 -0800
-Message-ID: <CAJHvVcgbCL7+4bBZ_5biLKfjmz_DKNBV8H6NxcLcFrw9Fbu7mw@mail.gmail.com>
-Subject: Re: [PATCH] userfaultfd, capability: introduce CAP_USERFAULTFD
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Peter Xu <peterx@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        linux-fsdevel@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Suren Baghdasaryan <surenb@google.com>,
-        Lokesh Gidra <lokeshgidra@google.com>
+References: <20220224130719.44424-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20220224130719.44424-1-richard_c_haines@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 24 Feb 2022 18:33:31 -0500
+Message-ID: <CAHC9VhRmqeMM3ruPM1-SwTzxB_i4Nez7HNmxNG4hZ8L3Cwq=bg@mail.gmail.com>
+Subject: Re: [PATCH Notebook] policy_config_statements.md: How to add a new capability
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 24, 2022 at 11:13 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Thu, Feb 24, 2022 at 8:07 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
 >
-> On 2/24/2022 10:19 AM, Axel Rasmussen wrote:
-> > Historically, it has been shown that intercepting kernel faults with
-> > userfaultfd (thereby forcing the kernel to wait for an arbitrary amount
-> > of time) can be exploited, or at least can make some kinds of exploits
-> > easier. So, in 37cd0575b8 "userfaultfd: add UFFD_USER_MODE_ONLY" we
-> > changed things so, in order for kernel faults to be handled by
-> > userfaultfd, either the process needs CAP_SYS_PTRACE, or this sysctl
-> > must be configured so that any unprivileged user can do it.
-> >
-> > In a typical implementation of a hypervisor with live migration (take
-> > QEMU/KVM as one such example), we do indeed need to be able to handle
-> > kernel faults. But, both options above are less than ideal:
-> >
-> > - Toggling the sysctl increases attack surface by allowing any
-> >    unprivileged user to do it.
-> >
-> > - Granting the live migration process CAP_SYS_PTRACE gives it this
-> >    ability, but *also* the ability to "observe and control the
-> >    execution of another process [...], and examine and change [its]
-> >    memory and registers" (from ptrace(2)). This isn't something we need
-> >    or want to be able to do, so granting this permission violates the
-> >    "principle of least privilege".
-> >
-> > This is all a long winded way to say: we want a more fine-grained way to
-> > grant access to userfaultfd, without granting other additional
-> > permissions at the same time.
-> >
-> > So, add CAP_USERFAULTFD, for this specific case.
+> Describes the steps required to add a new policy capability to the:
+> kernel, libsepol, and policy.
 >
-> TL;DR - No. We don't add new capabilities for a single use.
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+
+Thanks Richard.  I saw the Markdown in your reply to Demi and was
+going to ask you about adding it to The Notebook; happily you beat me
+to it.
+
+> Paul: Please note the use of the 'Oxford comma' above.
+
+Appreciated, thank you :)
+
+> ... Did you know there
+> is the "Oxford Comma" song by Vampire Weekend (if you are of a sensitive
+> disposition, don't listen).
+
+Oh, no, I did not know that!  I'm currently "in a meeting" so I can't
+listen to it, but I've got the song/video queued up for later :)
+
+> diff --git a/src/policy_config_statements.md b/src/policy_config_statements.md
+> index d4eee48..1ae7f64 100644
+> --- a/src/policy_config_statements.md
+> +++ b/src/policy_config_statements.md
+> @@ -1,5 +1,12 @@
+>  # Policy Configuration Statements
 >
-> You have a program that is already using a reasonably restrictive
-> capability (compared to CAP_SYS_ADMIN, for example) and which I
-> assume you have implemented appropriately for the level of privilege
-> used. If you can demonstrate that this CAP_USERFAULTD has applicability
-> beyond your specific implementation (and the name would imply otherwise)
-> it could be worth considering, but as it is, no.
-
-Thanks for taking the time to look at this Casey!
-
-I'm not exactly clear, would you want more evidence of userspace use
-cases besides just mine? Besides Google's VM implementation: Peter and
-Andrea expressed interest in this to me a while back for use with
-QEMU/KVM-based VMs [*], and I suspect Android folks would also use
-this if it were merged (+Suren and Lokesh to CC).
-
-Or, do you just mean that userfaultfd is too narrow a feature to
-warrant a capability? When writing this I was encouraged by CAP_BPF
-and CAP_CHECKPOINT_RESTORE, they seemed to me to be somewhat similar
-in terms of scope (specific to a single kernel feature).
-
-
-
-[*] Although, we talked about fine grained permissions in general, not
-necessarily a capability based approach. An alternative we talked
-about was to add a userfaultfd device node like /dev/userfaultfd. The
-idea being, access to it could be controlled using normal filesystem
-permissions (chmod/chown), and userfaultfds created that way (as
-opposed to the userfaultfd() syscall) would be able to intercept
-kernel faults, regardless of CAP_SYS_PTRACE. My gut feeling was that
-this was significantly more complicated than the patch I'm proposing
-here.
-
+> +- [*policycap*](#policycap)
+> +  - [Adding A New Policy Capability](#adding-a-new-policy-capability)
+> +    - [Kernel Updates](#kernel-updates)
+> +    - [*libsepol* Library Updates](#libsepol-library-updates)
+> +    - [Reference Policy Updates](#reference-policy-updates)
+> +    - [CIL Policy Updates](#cil-policy-updates)
+> +
+>  ## *policycap*
 >
-> >
-> > Setup a helper which accepts either CAP_USERFAULTFD, or for backward
-> > compatibility reasons (existing userspaces may depend on the old way of
-> > doing things), CAP_SYS_PTRACE.
-> >
-> > One special case is UFFD_FEATURE_EVENT_FORK: this is left requiring only
-> > CAP_SYS_PTRACE, since it is specifically about manipulating the memory
-> > of another (child) process, it sems like a better fit the way it is. To
-> > my knowledge, this isn't a feature required by typical live migration
-> > implementations, so this doesn't obviate the above.
-> >
-> > Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
-> > ---
-> >   fs/userfaultfd.c                    | 6 +++---
-> >   include/linux/capability.h          | 5 +++++
-> >   include/uapi/linux/capability.h     | 7 ++++++-
-> >   security/selinux/include/classmap.h | 4 ++--
-> >   4 files changed, 16 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> > index e26b10132d47..1ec0d9b49a70 100644
-> > --- a/fs/userfaultfd.c
-> > +++ b/fs/userfaultfd.c
-> > @@ -411,7 +411,7 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
-> >           ctx->flags & UFFD_USER_MODE_ONLY) {
-> >               printk_once(KERN_WARNING "uffd: Set unprivileged_userfaultfd "
-> >                       "sysctl knob to 1 if kernel faults must be handled "
-> > -                     "without obtaining CAP_SYS_PTRACE capability\n");
-> > +                     "without obtaining CAP_USERFAULTFD capability\n");
-> >               goto out;
-> >       }
-> >
-> > @@ -2068,10 +2068,10 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
-> >
-> >       if (!sysctl_unprivileged_userfaultfd &&
-> >           (flags & UFFD_USER_MODE_ONLY) == 0 &&
-> > -         !capable(CAP_SYS_PTRACE)) {
-> > +         !userfaultfd_capable()) {
-> >               printk_once(KERN_WARNING "uffd: Set unprivileged_userfaultfd "
-> >                       "sysctl knob to 1 if kernel faults must be handled "
-> > -                     "without obtaining CAP_SYS_PTRACE capability\n");
-> > +                     "without obtaining CAP_USERFAULTFD capability\n");
-> >               return -EPERM;
-> >       }
-> >
-> > diff --git a/include/linux/capability.h b/include/linux/capability.h
-> > index 65efb74c3585..f1e7b3506432 100644
-> > --- a/include/linux/capability.h
-> > +++ b/include/linux/capability.h
-> > @@ -270,6 +270,11 @@ static inline bool checkpoint_restore_ns_capable(struct user_namespace *ns)
-> >               ns_capable(ns, CAP_SYS_ADMIN);
-> >   }
-> >
-> > +static inline bool userfaultfd_capable(void)
-> > +{
-> > +     return capable(CAP_USERFAULTFD) || capable(CAP_SYS_PTRACE);
-> > +}
-> > +
-> >   /* audit system wants to get cap info from files as well */
-> >   int get_vfs_caps_from_disk(struct user_namespace *mnt_userns,
-> >                          const struct dentry *dentry,
-> > diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
-> > index 463d1ba2232a..83a5d8601508 100644
-> > --- a/include/uapi/linux/capability.h
-> > +++ b/include/uapi/linux/capability.h
-> > @@ -231,6 +231,7 @@ struct vfs_ns_cap_data {
-> >   #define CAP_SYS_CHROOT       18
-> >
-> >   /* Allow ptrace() of any process */
-> > +/* Allow everything under CAP_USERFAULTFD for backward compatibility */
-> >
-> >   #define CAP_SYS_PTRACE       19
-> >
-> > @@ -417,7 +418,11 @@ struct vfs_ns_cap_data {
-> >
-> >   #define CAP_CHECKPOINT_RESTORE      40
-> >
-> > -#define CAP_LAST_CAP         CAP_CHECKPOINT_RESTORE
-> > +/* Allow intercepting kernel faults with userfaultfd */
-> > +
-> > +#define CAP_USERFAULTFD              41
-> > +
-> > +#define CAP_LAST_CAP         CAP_USERFAULTFD
-> >
-> >   #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
-> >
-> > diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> > index 35aac62a662e..98e37b220159 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -28,9 +28,9 @@
-> >
-> >   #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
-> >               "wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf", \
-> > -             "checkpoint_restore"
-> > +             "checkpoint_restore", "userfaultfd"
-> >
-> > -#if CAP_LAST_CAP > CAP_CHECKPOINT_RESTORE
-> > +#if CAP_LAST_CAP > CAP_USERFAULTFD
-> >   #error New capability defined, please update COMMON_CAP2_PERMS.
-> >   #endif
-> >
+>  Policy version 22 introduced the *policycap* statement to allow new
+> @@ -47,6 +54,124 @@ Conditional Policy Statements
+>  policycap network_peer_controls;
+>  ```
+>
+> +## Adding A New Policy Capability
+> +
+> +### Kernel Updates
+> +
+> +In kernel source update the following three files with the new capability:
+> +
+> +***security/selinux/include/policycap_names.h***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +/* Policy capability names */
+> +const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+> +       ...
+> +       "genfs_seclabel_symlinks",
+> +       "new_polcap_name"
+> +};
+> +```
+> +
+> +***security/selinux/include/policycap.h***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +/* Policy capabilities */
+> +enum {
+> +       ...
+> +       POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
+> +       POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
+> +       __POLICYDB_CAPABILITY_MAX
+> +};
+> +```
+
+I worry that "adding a new entry to the end of the list" could be
+interpreted as this:
+
+ enum {
+   ...
+   __POLICYDB_CAPABILITY_MAX,
+   POLICYDB_CAPABILITY_MY_NEW_POLCAP
+ };
+
+It might be good to specify that new entries should be added
+immediately before the CAPABILITY_MAX sentinel.
+
+> +***security/selinux/include/security.h***
+> +
+> +Add a new call to retrieve the loaded policy capability state:
+> +
+> +```
+> +static inline bool selinux_policycap_new_name(void)
+> +{
+> +       struct selinux_state *state = &selinux_state;
+> +
+> +       return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NEW_POLCAP_NAME]);
+> +}
+> +```
+
+Instead of providing a code snippet, which will surely become outdated
+at some point, perhaps it would be better to simply reference the
+existing getter functions in the header file as a copy-n-paste target?
+
+> +Finally in the updated code that utilises the new policy capability do
+> +something like this:
+> +
+> +```
+> +if (selinux_policycap_new_name())
+> +       do this;
+> +else
+> +       do that;
+> +```
+> +
+> +### *libsepol* Library Updates
+> +
+> +In selinux userspace source update the following two files with the new
+> +capability:
+> +
+> +***selinux/libsepol/src/polcaps.c***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +static const char * const polcap_names[] = {
+> +       ...
+> +       "genfs_seclabel_symlinks",      /* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
+> +       "new_polcap_name",              /* POLICYDB_CAPABILITY_NEW_POLCAP_NAME */
+> +       NULL
+> +};
+> +```
+
+See above worry, but substitute the NULL sentinel value.
+
+> +***selinux/libsepol/include/sepol/policydb/polcaps.h***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +/* Policy capabilities */
+> +enum {
+> +       ...
+> +       POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
+> +       POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
+> +       __POLICYDB_CAPABILITY_MAX
+> +};
+> +```
+
+Same.
+
+-- 
+paul-moore.com
