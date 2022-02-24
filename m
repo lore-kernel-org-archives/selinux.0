@@ -2,50 +2,47 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22DCEC433FE
-	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 10:24:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1397BC433EF
+	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 12:41:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232152AbiBXKZC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Feb 2022 05:25:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33482 "EHLO
+        id S233644AbiBXMmT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Feb 2022 07:42:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbiBXKZB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 05:25:01 -0500
-Received: from re-prd-fep-044.btinternet.com (mailomta28-re.btinternet.com [213.120.69.121])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA0028B61E;
-        Thu, 24 Feb 2022 02:24:31 -0800 (PST)
-Received: from re-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.54.4])
-          by re-prd-fep-044.btinternet.com with ESMTP
-          id <20220224102429.DPND28912.re-prd-fep-044.btinternet.com@re-prd-rgout-001.btmx-prd.synchronoss.net>;
-          Thu, 24 Feb 2022 10:24:29 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645698269; 
-        bh=/sWckLMjg0ydzalpLHN/ixGkCu+XOlE1ayvL2CxaNS4=;
+        with ESMTP id S232489AbiBXMmS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 07:42:18 -0500
+Received: from sa-prd-fep-042.btinternet.com (mailomta2-sa.btinternet.com [213.120.69.8])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978A05DA54
+        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 04:41:47 -0800 (PST)
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-042.btinternet.com with ESMTP
+          id <20220224124144.ZDPF30440.sa-prd-fep-042.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Thu, 24 Feb 2022 12:41:44 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1645706504; 
+        bh=QozOIA+VY1g0UjgjMe5srnWUpzSH/Hlo3jrE74tCIqs=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=sEAfxWBRnPoOgiKvmtWugrHpS2MTT2t1wPWyWOtENolESSPFznKsIj15iwrmQcI4Kt9Iw74UvQHQAEDNnzsCcHuw9XSvHxGsc/8qgevY/u5UcCze6N2f8HYWgbbpgY76aP+G4wZvQT40hGAgFFzq55Ef67Et4/tTFu8c0xGcZ0+fIU3i13CKUhEI5LHHCZ+ZmHLBy0iFqQOyd4Tjry5NhnWiIUlhQRTuCXKNzs4T++Y5FgN7Oewh9Dg0ZHPlde8/JnzbHwW+nxxfwZ0gkw/wdpUh2oMTTxnzRngKSvk11enzGfbfhfz4MG61i0G8iIdod7dr8+4msHkAJfxc/h2nfg==
+        b=KpLUYDBYqPYh+gnDKWbkmZoHjpJIG/TNPZ2Wi794s5pyxg80RVjW4zOUY2qQcV6KB768i5CmJi14hhIgeY58eqqmC8yBaFBH9Rvh5x9tERGT+WwYg/oBa95i3KiJK4mIQRM41FZBbwqoTYOB/OW5DoazxAGjrOoc3nulpx2eqKf57ij+Azd/rww7OovojQsA1TkJRdxRujiwEVlRI8QQwNgYcgp+wjuCGnykZxnLabLM2/pPce6DY0wpYCwZFwjbFBV+LHXGzggoUJoChCPsn2mTlan8i2DaSsZUCkMJb9bW3POAl9QB9M3RcCbbLw9WQ9AUp1C6QG3Eq5kHkVZJ1w==
 Authentication-Results: btinternet.com;
     auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com;
     bimi=skipped
-X-SNCR-Rigid: 613A8CC3160038FB
+X-SNCR-Rigid: 6139429016D8724E
 X-Originating-IP: [109.158.127.121]
 X-OWM-Source-IP: 109.158.127.121 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrledvgddugecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnheptdefleejjeejtdeiieevhfelkeelgefgleefveevteegffffudelhfevudeltdfgnecuffhomhgrihhnpegthhgvtghkrdhsvggtuhhrihhthienucfkphepuddtledrudehkedruddvjedruddvudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehkedruddvjedruddvuddpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopeelpdhrtghpthhtohepuggvmhhiohgsvghnohhurhesghhmrghilhdrtghomhdprhgtphhtthhopegvphgrrhhishesphgrrhhishhplhgrtggvrdhorhhgpdhrtghpthhtohepjhgvfhhfvhesghhoohhglhgvrdgtohhmpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthht
-        ohepphgruhhlsehprghulhdqmhhoohhrvgdrtghomhdprhgtphhtthhopehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepshgvlhhinhhugidqrhgvfhhpohhlihgthiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhm
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrledvgdegvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppedutdelrdduheekrdduvdejrdduvddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheekrdduvdejrdduvddupdhmrghilhhfrhhomheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdpnhgspghrtghpthhtohepgedprhgtphhtthhopeguvghmihhosggvnhhouhhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepphgruhhlsehprghulhdqmhhoohhrvgdrtghomhdprhgtphhtthhopehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (109.158.127.121) by re-prd-rgout-001.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613A8CC3160038FB; Thu, 24 Feb 2022 10:24:29 +0000
+Received: from localhost.localdomain (109.158.127.121) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 6139429016D8724E; Thu, 24 Feb 2022 12:41:44 +0000
 From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, demiobenour@gmail.com
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        selinux-refpolicy@vger.kernel.org, jeffv@google.com,
+To:     selinux@vger.kernel.org
+Cc:     paul@paul-moore.com, demiobenour@gmail.com,
         Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V3] security/selinux: Always allow FIOCLEX and FIONCLEX
-Date:   Thu, 24 Feb 2022 10:24:17 +0000
-Message-Id: <20220224102417.42268-1-richard_c_haines@btinternet.com>
+Subject: [PATCH] libsepol: Add 'ioctl_skip_cloexec' policy capability
+Date:   Thu, 24 Feb 2022 12:41:31 +0000
+Message-Id: <20220224124131.44094-1-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -53,47 +50,20 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-always allows too.  Furthermore, a failed FIOCLEX could result in a file
-descriptor being leaked to a process that should not have access to it.
+If 'ioctl_skip_cloexec' set, kernel will always allow FIOCLEX and FIONCLEX
+ioctls.
 
-As this patch removes access controls, a policy capability needs to be
-enabled in policy to always allow these ioctls.
-
-Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
-V2 Change: Control via a policy capability.
-V3 Change: Update switch check.
+ libsepol/include/sepol/policydb/polcaps.h | 1 +
+ libsepol/src/polcaps.c                    | 1 +
+ 2 files changed, 2 insertions(+)
 
- security/selinux/hooks.c                   | 6 ++++++
- security/selinux/include/policycap.h       | 1 +
- security/selinux/include/policycap_names.h | 3 ++-
- security/selinux/include/security.h        | 7 +++++++
- 4 files changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5b6895e4f..d369c2d82 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3745,6 +3745,12 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
- 					    CAP_OPT_NONE, true);
- 		break;
- 
-+	case FIOCLEX:
-+	case FIONCLEX:
-+		if (!selinux_policycap_ioctl_skip_cloexec())
-+			error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
-+		break;
-+
- 	/* default case assumes that the command will go
- 	 * to the file's ioctl() function.
- 	 */
-diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
-index 2ec038efb..44d73dc32 100644
---- a/security/selinux/include/policycap.h
-+++ b/security/selinux/include/policycap.h
-@@ -11,6 +11,7 @@ enum {
+diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
+index 40669fb5..05326f5a 100644
+--- a/libsepol/include/sepol/policydb/polcaps.h
++++ b/libsepol/include/sepol/policydb/polcaps.h
+@@ -14,6 +14,7 @@ enum {
  	POLICYDB_CAPABILITY_CGROUPSECLABEL,
  	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
  	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
@@ -101,38 +71,18 @@ index 2ec038efb..44d73dc32 100644
  	__POLICYDB_CAPABILITY_MAX
  };
  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
-index b89289f09..ebd64afe1 100644
---- a/security/selinux/include/policycap_names.h
-+++ b/security/selinux/include/policycap_names.h
-@@ -12,7 +12,8 @@ const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
- 	"always_check_network",
- 	"cgroup_seclabel",
- 	"nnp_nosuid_transition",
--	"genfs_seclabel_symlinks"
-+	"genfs_seclabel_symlinks",
-+	"ioctl_skip_cloexec"
+diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
+index 6a74ec7d..218df65e 100644
+--- a/libsepol/src/polcaps.c
++++ b/libsepol/src/polcaps.c
+@@ -13,6 +13,7 @@ static const char * const polcap_names[] = {
+ 	"cgroup_seclabel",		/* POLICYDB_CAPABILITY_SECLABEL */
+ 	"nnp_nosuid_transition",	/* POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION */
+ 	"genfs_seclabel_symlinks",	/* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
++	"ioctl_skip_cloexec",		/* POLICYDB_CAPABILITY_IOCTL_CLOEXEC */
+ 	NULL
  };
  
- #endif /* _SELINUX_POLICYCAP_NAMES_H_ */
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ac0ece013..8a789c22b 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -219,6 +219,13 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
- 	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
- }
- 
-+static inline bool selinux_policycap_ioctl_skip_cloexec(void)
-+{
-+	struct selinux_state *state = &selinux_state;
-+
-+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_IOCTL_CLOEXEC]);
-+}
-+
- struct selinux_policy_convert_data;
- 
- struct selinux_load_state {
 -- 
 2.35.1
 
