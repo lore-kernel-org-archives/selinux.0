@@ -2,213 +2,194 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F29A4C433F5
-	for <selinux@archiver.kernel.org>; Thu, 24 Feb 2022 23:33:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8303C433F5
+	for <selinux@archiver.kernel.org>; Fri, 25 Feb 2022 00:25:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234209AbiBXXeR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Feb 2022 18:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32958 "EHLO
+        id S236028AbiBYA0N (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Feb 2022 19:26:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234071AbiBXXeQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 18:34:16 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E9D27908D
-        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 15:33:44 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id i11so5039751eda.9
-        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 15:33:43 -0800 (PST)
+        with ESMTP id S234006AbiBYA0N (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Feb 2022 19:26:13 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4915B275786
+        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 16:25:42 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id s14so5262429edw.0
+        for <selinux@vger.kernel.org>; Thu, 24 Feb 2022 16:25:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6zlVVn1FvzI9fVMJ/ULKjM5eo1r9K3khrlchsQzBiq4=;
-        b=2t+4EaxmTXfzoipF3A4U+dDBpoI2cFF+xE0/XxRA8F862ofUE1+hkB2T4sjVbScq1z
-         J2zvrAduLb8EHD6eMepD0opZ0h3DLqLfCvzZelg3KoH/UiTQc8EoMNcmoPsOSijQl0Cn
-         +/69/naaj/FK08PArkzIz6aUl6Pb+8U6y8sg7OwWd2jXncVOO8PFZ8GBUpFe5NmbFTbQ
-         4ZKXGnyEuSyqZZfRdu0wiuVlsU2C1TTWwxDBzSfWEWryva3jmVFa1K/BJvwGXgjzKNf1
-         irAO5+x5oCr6dq6IOaWUn32YYxJnMSVvekC1/ro09o8nnu1bBpnTAcSfCMv/KCAfnM9T
-         8X0w==
+         :cc:content-transfer-encoding;
+        bh=tEVqjxBsx+zdcxyuCP32PdgEl44+G4Pk6hPEa4sGMWI=;
+        b=L3xvgoPUdl+Mu+1xybfGSxGm/vUrl5/eYg+wVwayPTKOhBwqLL4nCkqokl+jP/mse+
+         iZsiJlVQ4tbNm+GKMVZHU7UzlQ/5Xk/ZuNm0hTnrXjLoRvoOqo/O5J+vj3oEL3pbelvw
+         F/alXMOoKIEni6Bv/uo2f7nIL6zF3tG5Y1Scobm0jrlhbNMujXKYDGpd0bC+IMrN/sOF
+         WwDtPJkzWYqs1/1ZGc/d6w695MUt+7VHCEzbrbA+fY8DLVUuI+vvRv/acm7p87GA8sIx
+         wjEBug9s/0P2LOnNnSD7n9P2eNLLpqJyLAEW4WegBneNCQxkiW2j8I5nsOw4SmYK/4/U
+         JYcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6zlVVn1FvzI9fVMJ/ULKjM5eo1r9K3khrlchsQzBiq4=;
-        b=chtETPFT7uFcgiE4LAzoKjxeY6zpN4CnDdV9ML6msJ3koB3tv5gONw96KTv0/2xWdn
-         0tINdJaLM2wijjC59f70JTQPTYJsTnZBy1KZ7stqsrH5IirgV+w8S2c9FTNw4hfsIyVJ
-         QYBcBVChLrSSp7ALxzKJ9l1gjAJVpAjKwrg2NV8Nb3tA8N+/+/9ax405IGBxILJkMVpC
-         dgVLJeuz3/kD79JdTn2czD5RX/wqxEtnCvYGohy8TLrWQhdOlwOJBwyvgJ3jIU3jBYCW
-         9b+Sf9JoPVbL4Ygs55Ub+ztPXdzX7aEbeIi34i0r8YJHzpKBeL7Ya0SYGfzSQBwE8J3e
-         PCqg==
-X-Gm-Message-State: AOAM530tA/sfjKHjp2bucCAlErjDj8uO+ecWK6YNZHzvNb++k9VM4HoZ
-        vtt9YaHtq2fp6fvf7nYZNvRO4Gp0k+Z5Cc1qOhVVwjFdzQ==
-X-Google-Smtp-Source: ABdhPJwAr0DiU3nXupWOAbgpQyLWsVczrAy8qg6L6H73dZV1dJM0ObBHQivDXIX1Ve+rZnfkUKBF50ixT7d0bTYBXYc=
-X-Received: by 2002:a05:6402:354c:b0:412:b2f2:f8e4 with SMTP id
- f12-20020a056402354c00b00412b2f2f8e4mr4565055edd.269.1645745622484; Thu, 24
- Feb 2022 15:33:42 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tEVqjxBsx+zdcxyuCP32PdgEl44+G4Pk6hPEa4sGMWI=;
+        b=uTV9XDhP7OXLwVsD+Y9lPrCgOAlNZyC2jyPGQMdFGdCrP8WynWGcOLurPyJpE6bDnf
+         wSuwHejlOBQZyrrgjXrdFM/lGnk8L3ekWH+r9ViG7wrxF6KTEIZj208xqVXrTRhKVd8b
+         bIOu5pCTfh0VnqkB0qrgV8ovJ1woW6Ov30JqBEAjroVMSvjbPAejET04DnlEMMfYJTJB
+         R+sAdD8yZZWKWP7crm3BM1b1yUeugJvl87KXkjj/mmco717TcBYOmeDSugyUiUkVVPqR
+         9aREOQyLKeJK01ZP1QlUuKy2aHY7IYCwGtvOEMl76t9T7JSPPKyjZFh1HdRp34hiGLX5
+         6YfA==
+X-Gm-Message-State: AOAM532baGd7Rb2vjjUv6QUIDmeWtT+dWgqCvpxZnXsPaY8IcbYiIcqm
+        Zw+EX4lH3as1l9o2QmuLUk/yItkfh1H6ZMy4S3Rf
+X-Google-Smtp-Source: ABdhPJxBJvCVWWSs7qkL+zhxKoux3jmICxuRptbAUzqKSMRF5gkiUfDgk/ukE5plqx25CTr7EHsJ8XaHiTx7vFYs1lE=
+X-Received: by 2002:a05:6402:2922:b0:40f:7241:74d4 with SMTP id
+ ee34-20020a056402292200b0040f724174d4mr4791988edb.43.1645748740824; Thu, 24
+ Feb 2022 16:25:40 -0800 (PST)
 MIME-Version: 1.0
-References: <20220224130719.44424-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220224130719.44424-1-richard_c_haines@btinternet.com>
+References: <20220217143457.75229-1-cgzones@googlemail.com>
+In-Reply-To: <20220217143457.75229-1-cgzones@googlemail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 24 Feb 2022 18:33:31 -0500
-Message-ID: <CAHC9VhRmqeMM3ruPM1-SwTzxB_i4Nez7HNmxNG4hZ8L3Cwq=bg@mail.gmail.com>
-Subject: Re: [PATCH Notebook] policy_config_statements.md: How to add a new capability
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
+Date:   Thu, 24 Feb 2022 19:25:29 -0500
+Message-ID: <CAHC9VhRPwFGohkPT_PcFT=GXX66w2PYpRyXxY2p_hkcPx3j_jw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: log anon inode class name
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 24, 2022 at 8:07 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
+On Thu, Feb 17, 2022 at 9:35 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Describes the steps required to add a new policy capability to the:
-> kernel, libsepol, and policy.
+> Log the anonymous inode class name in the security hook
+> inode_init_security_anon.  This name is the key for name based type
+> transitions on the anon_inode security class on creation.  Example:
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-
-Thanks Richard.  I saw the Markdown in your reply to Demi and was
-going to ask you about adding it to The Notebook; happily you beat me
-to it.
-
-> Paul: Please note the use of the 'Oxford comma' above.
-
-Appreciated, thank you :)
-
-> ... Did you know there
-> is the "Oxford Comma" song by Vampire Weekend (if you are of a sensitive
-> disposition, don't listen).
-
-Oh, no, I did not know that!  I'm currently "in a meeting" so I can't
-listen to it, but I've got the song/video queued up for later :)
-
-> diff --git a/src/policy_config_statements.md b/src/policy_config_statements.md
-> index d4eee48..1ae7f64 100644
-> --- a/src/policy_config_statements.md
-> +++ b/src/policy_config_statements.md
-> @@ -1,5 +1,12 @@
->  # Policy Configuration Statements
+>     type=3DAVC msg=3Daudit(02/16/22 22:02:50.585:216) : avc:  granted  { =
+create } for  pid=3D2136 comm=3Dmariadbd anonclass=3D"[io_uring]" dev=3D"an=
+on_inodefs" ino=3D6871 scontext=3Dsystem_u:system_r:mysqld_t:s0 tcontext=3D=
+system_u:system_r:mysqld_iouring_t:s0 tclass=3Danon_inode
 >
-> +- [*policycap*](#policycap)
-> +  - [Adding A New Policy Capability](#adding-a-new-policy-capability)
-> +    - [Kernel Updates](#kernel-updates)
-> +    - [*libsepol* Library Updates](#libsepol-library-updates)
-> +    - [Reference Policy Updates](#reference-policy-updates)
-> +    - [CIL Policy Updates](#cil-policy-updates)
-> +
->  ## *policycap*
+> Add a new LSM audit data type holding the inode and the class name.
 >
->  Policy version 22 introduced the *policycap* statement to allow new
-> @@ -47,6 +54,124 @@ Conditional Policy Statements
->  policycap network_peer_controls;
->  ```
+> Also warn if the security hook gets called with no name set; currently
+> the only caller fs/anon_inodes.c:anon_inode_make_secure_inode() passes
+> one.
 >
-> +## Adding A New Policy Capability
-> +
-> +### Kernel Updates
-> +
-> +In kernel source update the following three files with the new capability:
-> +
-> +***security/selinux/include/policycap_names.h***
-> +
-> +Add new entry at end of this list:
-> +
-> +```
-> +/* Policy capability names */
-> +const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
-> +       ...
-> +       "genfs_seclabel_symlinks",
-> +       "new_polcap_name"
-> +};
-> +```
-> +
-> +***security/selinux/include/policycap.h***
-> +
-> +Add new entry at end of this list:
-> +
-> +```
-> +/* Policy capabilities */
-> +enum {
-> +       ...
-> +       POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
-> +       POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
-> +       __POLICYDB_CAPABILITY_MAX
-> +};
-> +```
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  include/linux/lsm_audit.h |  5 +++++
+>  security/lsm_audit.c      | 21 +++++++++++++++++++++
+>  security/selinux/hooks.c  |  7 +++++--
+>  3 files changed, 31 insertions(+), 2 deletions(-)
 
-I worry that "adding a new entry to the end of the list" could be
-interpreted as this:
+...
 
- enum {
-   ...
-   __POLICYDB_CAPABILITY_MAX,
-   POLICYDB_CAPABILITY_MY_NEW_POLCAP
- };
+> diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+> index 17d02eda9538..8135a88d6d82 100644
+> --- a/include/linux/lsm_audit.h
+> +++ b/include/linux/lsm_audit.h
+> @@ -76,6 +76,7 @@ struct common_audit_data {
+>  #define LSM_AUDIT_DATA_IBENDPORT 14
+>  #define LSM_AUDIT_DATA_LOCKDOWN 15
+>  #define LSM_AUDIT_DATA_NOTIFICATION 16
+> +#define LSM_AUDIT_DATA_ANONINODE       17
+>         union   {
+>                 struct path path;
+>                 struct dentry *dentry;
+> @@ -96,6 +97,10 @@ struct common_audit_data {
+>                 struct lsm_ibpkey_audit *ibpkey;
+>                 struct lsm_ibendport_audit *ibendport;
+>                 int reason;
+> +               struct {
+> +                       struct inode *inode;
+> +                       const char *anonclass;
+> +               } anoninode_struct;
+>         } u;
+>         /* this union contains LSM specific data */
+>         union {
+> diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> index 1897cbf6fc69..5545fed35539 100644
+> --- a/security/lsm_audit.c
+> +++ b/security/lsm_audit.c
+> @@ -433,6 +433,27 @@ static void dump_common_audit_data(struct audit_buff=
+er *ab,
+>                 audit_log_format(ab, " lockdown_reason=3D\"%s\"",
+>                                  lockdown_reasons[a->u.reason]);
+>                 break;
+> +       case LSM_AUDIT_DATA_ANONINODE: {
+> +               struct dentry *dentry;
+> +               struct inode *inode;
+> +
+> +               rcu_read_lock();
+> +               inode =3D a->u.anoninode_struct.inode;
+> +               dentry =3D d_find_alias_rcu(inode);
+> +               if (dentry) {
+> +                       audit_log_format(ab, " name=3D");
+> +                       spin_lock(&dentry->d_lock);
+> +                       audit_log_untrustedstring(ab, dentry->d_name.name=
+);
+> +                       spin_unlock(&dentry->d_lock);
+> +               }
 
-It might be good to specify that new entries should be added
-immediately before the CAPABILITY_MAX sentinel.
+I'm not sure we are ever going to get a useful dentry name for
+anonymous inodes, I think we can probably drop this.  The "anonclass=3D"
+field will likely be much more interesting and helpful.
 
-> +***security/selinux/include/security.h***
-> +
-> +Add a new call to retrieve the loaded policy capability state:
-> +
-> +```
-> +static inline bool selinux_policycap_new_name(void)
-> +{
-> +       struct selinux_state *state = &selinux_state;
-> +
-> +       return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NEW_POLCAP_NAME]);
-> +}
-> +```
+> +               audit_log_format(ab, " anonclass=3D");
+> +               audit_log_untrustedstring(ab, a->u.anoninode_struct.anonc=
+lass);
+> +               audit_log_format(ab, " dev=3D");
+> +               audit_log_untrustedstring(ab, inode->i_sb->s_id);
 
-Instead of providing a code snippet, which will surely become outdated
-at some point, perhaps it would be better to simply reference the
-existing getter functions in the header file as a copy-n-paste target?
+I'm pretty sure this is always going to end up being "anon_inodefs"
+and thus not very useful.
 
-> +Finally in the updated code that utilises the new policy capability do
-> +something like this:
-> +
-> +```
-> +if (selinux_policycap_new_name())
-> +       do this;
-> +else
-> +       do that;
-> +```
-> +
-> +### *libsepol* Library Updates
-> +
-> +In selinux userspace source update the following two files with the new
-> +capability:
-> +
-> +***selinux/libsepol/src/polcaps.c***
-> +
-> +Add new entry at end of this list:
-> +
-> +```
-> +static const char * const polcap_names[] = {
-> +       ...
-> +       "genfs_seclabel_symlinks",      /* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
-> +       "new_polcap_name",              /* POLICYDB_CAPABILITY_NEW_POLCAP_NAME */
-> +       NULL
-> +};
-> +```
+> +               audit_log_format(ab, " ino=3D%lu", inode->i_ino);
 
-See above worry, but substitute the NULL sentinel value.
+Similarly, I'm not sure how useful the inode number is in practice.
+I've never tried, but can a user lookup an anonymous inode via the
+inode number?
 
-> +***selinux/libsepol/include/sepol/policydb/polcaps.h***
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index dafabb4dcc64..19c831d94d9b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2932,6 +2932,8 @@ static int selinux_inode_init_security_anon(struct =
+inode *inode,
+>         if (unlikely(!selinux_initialized(&selinux_state)))
+>                 return 0;
+>
+> +       WARN_ON(!name);
 > +
-> +Add new entry at end of this list:
-> +
-> +```
-> +/* Policy capabilities */
-> +enum {
-> +       ...
-> +       POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
-> +       POLICYDB_CAPABILITY_NEW_POLCAP_NAME,
-> +       __POLICYDB_CAPABILITY_MAX
-> +};
-> +```
+>         isec =3D selinux_inode(inode);
+>
+>         /*
+> @@ -2965,8 +2967,9 @@ static int selinux_inode_init_security_anon(struct =
+inode *inode,
+>          * allowed to actually create this type of anonymous inode.
+>          */
+>
+> -       ad.type =3D LSM_AUDIT_DATA_INODE;
+> -       ad.u.inode =3D inode;
+> +       ad.type =3D LSM_AUDIT_DATA_ANONINODE;
+> +       ad.u.anoninode_struct.inode =3D inode;
+> +       ad.u.anoninode_struct.anonclass =3D name ? (const char *)name->na=
+me : "unknown(null)";
 
-Same.
+This doesn't seem to match well with the newly added WARN_ON()
+assertion above.  I would suggest dropping the WARN_ON() assertion as
+security_transition_sid() can already handle that safely, and leaving
+the tertiary statement above; however I think we should probably
+change the anonclass string to "?" as that is the common unset field
+value used by audit.
 
--- 
+--=20
 paul-moore.com
