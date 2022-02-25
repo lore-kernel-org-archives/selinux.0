@@ -2,89 +2,83 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98A3CC433F5
-	for <selinux@archiver.kernel.org>; Fri, 25 Feb 2022 20:46:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D2EBC433FE
+	for <selinux@archiver.kernel.org>; Fri, 25 Feb 2022 20:55:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237479AbiBYUrW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Feb 2022 15:47:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34408 "EHLO
+        id S235848AbiBYUzg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Feb 2022 15:55:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237463AbiBYUrU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Feb 2022 15:47:20 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEDB3223212
-        for <selinux@vger.kernel.org>; Fri, 25 Feb 2022 12:46:47 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id lw4so13040799ejb.12
-        for <selinux@vger.kernel.org>; Fri, 25 Feb 2022 12:46:47 -0800 (PST)
+        with ESMTP id S232195AbiBYUzf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Feb 2022 15:55:35 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F5C01D793B
+        for <selinux@vger.kernel.org>; Fri, 25 Feb 2022 12:54:59 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id qx21so13069641ejb.13
+        for <selinux@vger.kernel.org>; Fri, 25 Feb 2022 12:54:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=utTqWRs+GkKXV11qsxEXPqGJGJ6F+nTPt5fnCdMDPXQ=;
-        b=tI2+rQMEja4fDKELjX1NDYKaqajvfvYXnbQcVdVdRMNyTpm00H//XDHoDKOQR2OdF2
-         t1IlODbLjAyssNiiDSDVJD/Z8Qw8f26+rEMozOg8sAEII+YOy7AbnZ1pw6KJ5NRVNP6F
-         xKMUIxfLROx2D+GgPWpwQzaFR18NM2oj2YyGew07ecI1uvNfgVu5WdqnEu4tHcKJ2bqg
-         6tt+cKJEVfXyk5vO3rA8Ydj3Quh4Rd70osoYUzuQvJ5v0VzF4uGWj2ikB7JhqfnItciq
-         aO6+SZX8QUFJXYVkThIbV9PAxFSIry+FNFeJZJ2OsF+DEbvSIooA1UvstRvIQN5YpuTs
-         XNTg==
+        bh=5uRsrBukF/OaHklKeUPxgxH16ty4e2SknPEAhNIbuzI=;
+        b=Oj2UeHh27U1O4N7l5DBWuAtV67Ay3IpEleEp+o54d3CxEXDSMdqy6DaeA+FVZB28VP
+         wIIn8hgELwuOTwz6hOaeVZtlebfiuq3gyTf4EaQ6Ptcgp36l3GNy4BKzj98oUPVXqbOH
+         gElIpqL5novCm4oHdfP/9MAthJ3028EkXQoYQhUxfrXY0LYmRD4bIlikE4dSBajq45EX
+         dVAVsJS2CRwsKGD6LJW4W2dl/l5Jh4mRy2v+obEo3Dwi1agtVRiunAVTbAg1P6EPHGZZ
+         O+Bq6Nnjd3C4m0q/YAKHsgvk6yajs4u7OTkygvn5yYQB0CV3QVVbUQ5prDm2Lyoc50HM
+         HAoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=utTqWRs+GkKXV11qsxEXPqGJGJ6F+nTPt5fnCdMDPXQ=;
-        b=y/WvVlH/G4LDsYw2EDvMS9MkMFpR5gdeaDafj4IUXlqcjnkxHhSmWi6RSaxSOmoNNn
-         VF2brCUDdnQkM+hXcJYrQ0Ttcm36Pv54IOFdWSGBlIwyLfLigspHJB9qcH3EqAhbOyf6
-         e8SpTTY/GLEHrQPg8JJpOjpXq2voVPn1HvVRueKiWWOdlc1WVfl8CtjJnOmIVnqBTOTR
-         ASTKcTlfD4C4IQZ7ANPIWrKaFjU88xKZjDe1hQpjVztHNAyXGD3UI3pklJQ43nWMEznp
-         nNb5mcFTBk2C+gQUH9dQ6MPFfjlNt7nX2CyGt/IPcv00nmdOt3R0HRaZCKdauLf4oljg
-         eRMQ==
-X-Gm-Message-State: AOAM531FzS3+dwP91DSlP3egLPpxv7zTpuHYuRlqHbkFi93nAsd5xj+q
-        fngJGGzzzQklZr+je+j2c7IIaURmNHEFuNtsQZh7
-X-Google-Smtp-Source: ABdhPJyu1JgVYgogCMyHJX1QHgwhhhOjQgju44rr2XZHMgeY1ki8EZuvUbJbBf0ft7DGNpKJQMxcr33/sUW3Q4Mj7wM=
-X-Received: by 2002:a17:907:6e10:b0:6d1:4447:95bc with SMTP id
- sd16-20020a1709076e1000b006d1444795bcmr7152310ejc.610.1645822006270; Fri, 25
- Feb 2022 12:46:46 -0800 (PST)
+        bh=5uRsrBukF/OaHklKeUPxgxH16ty4e2SknPEAhNIbuzI=;
+        b=R0dkq1qTWXdsdTzqgse8iB5Vd68StRBSTpI8GvnEDFuxkLX25gvu9H5qr2P/d5EJmG
+         LB4/RGoqTlN1Gxvwk667mb5YQNlcks1CTNwyS7IHP5G/HrQq81jNDnReuTiShQ9HLYJS
+         Uurc2O+xQM+P7Pw/yZkLGmR3NH0+9yrMAJ7JVbjHyKMg8XxsfbAVW1cy1sjAhLgOquFc
+         Och5zZoQcMaox492SLiGu7na3YaJz0mq3UELdSGqpSLKm/dXasnyPcGc3y1eq3X+q+7c
+         qfDUUCbYhchT4xbsW43jUTyxfWaI1B71rarCmivKQDaQuj4EwxFZd8b0VZR1yQcUFdWE
+         nTXA==
+X-Gm-Message-State: AOAM530ThG9OD1MkfHchQqtTZJstG7PhMs1srrN6Q7TyI9tHxSRIB8B5
+        cXPACi4n/bUkKElqmEb87jBVv5LSnIFOWZJr6XT4
+X-Google-Smtp-Source: ABdhPJy6ikiiG5Pgs8lsfgZefLhFTNca6qzZhUMHty1h0zpae8r/I4ovX2ynJs0741nV5ruzT5/eOwQ1CLGrCli+a3s=
+X-Received: by 2002:a17:907:2a54:b0:6d5:879d:aca4 with SMTP id
+ fe20-20020a1709072a5400b006d5879daca4mr7473197ejc.29.1645822497528; Fri, 25
+ Feb 2022 12:54:57 -0800 (PST)
 MIME-Version: 1.0
-References: <20220225175438.302365-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220225175438.302365-1-richard_c_haines@btinternet.com>
+References: <20220224102417.42268-1-richard_c_haines@btinternet.com>
+ <CAHC9VhT4V=d8LtNT2mbiB6m1eUypi5WxPdRux_YNJ9iCV=WjWg@mail.gmail.com> <CAFqZXNtLw_c1V7MvQ=uVO9da1LH0dP64Vy3eEvL8Por_o6NQ5A@mail.gmail.com>
+In-Reply-To: <CAFqZXNtLw_c1V7MvQ=uVO9da1LH0dP64Vy3eEvL8Por_o6NQ5A@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 25 Feb 2022 15:46:35 -0500
-Message-ID: <CAHC9VhRY8+R3Tnz9TTKiP12u7Cv1QiYnKoMjrS=VkAG-DF=eWg@mail.gmail.com>
-Subject: Re: [PATCH V4] security/selinux: Always allow FIOCLEX and FIONCLEX
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        demiobenour@gmail.com, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux-refpolicy@vger.kernel.org,
-        jeffv@google.com
+Date:   Fri, 25 Feb 2022 15:54:46 -0500
+Message-ID: <CAHC9VhTW+zZQb6a2QE2iRYfyyUxjMphRYfSWt6bgp2JvodrTgQ@mail.gmail.com>
+Subject: Re: [PATCH V3] security/selinux: Always allow FIOCLEX and FIONCLEX
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Richard Haines <richard_c_haines@btinternet.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, demiobenour@gmail.com,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        selinux-refpolicy@vger.kernel.org,
+        Jeff Vander Stoep <jeffv@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 25, 2022 at 12:54 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
->
-> These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
-> always allows too.  Furthermore, a failed FIOCLEX could result in a file
-> descriptor being leaked to a process that should not have access to it.
->
-> As this patch removes access controls, a policy capability needs to be
-> enabled in policy to always allow these ioctls.
->
-> Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2 Change: Control via a policy capability.
-> V3 Change: Update switch check.
-> V4 Change: Use POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC
->
->  security/selinux/hooks.c                   | 6 ++++++
->  security/selinux/include/policycap.h       | 1 +
->  security/selinux/include/policycap_names.h | 3 ++-
->  security/selinux/include/security.h        | 7 +++++++
->  4 files changed, 16 insertions(+), 1 deletion(-)
+On Fri, Feb 25, 2022 at 5:02 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> (IMHO the POLICYDB_CAPABILITY_ prefix is ridiculously long for no
+> reason and we should simply shorten it (just POLCAP_ would be
+> perfectly fine, IMHO) instead of trying to abbreviate the rest. Of
+> course, this doesn't have to be done now - I'm taking a note to myself
+> to splice in such rename next time I add a new capability, if not
+> earlier.)
 
-Merged into selinux/next, thanks everyone!
+Yeah, that prefix is probably longer than it needs to be.  Since we're
+at -rc5 right now, with -rc6 just a few days away, I'll go ahead and
+toss out a patch to shorten the names next week.  While I have very
+mixed feelings on style/formatting-only patches, things like this
+should go into selinux/next at the end of the -rcX cycle so as not to
+cause unnecessary conflicts for people making "real" changes :)
 
 -- 
 paul-moore.com
