@@ -2,95 +2,150 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C493C433F5
-	for <selinux@archiver.kernel.org>; Mon, 28 Feb 2022 20:09:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA53AC433F5
+	for <selinux@archiver.kernel.org>; Mon, 28 Feb 2022 20:23:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbiB1UJ5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Feb 2022 15:09:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46000 "EHLO
+        id S229499AbiB1UXv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Feb 2022 15:23:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230082AbiB1UJ4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Feb 2022 15:09:56 -0500
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543CC35851
-        for <selinux@vger.kernel.org>; Mon, 28 Feb 2022 12:09:17 -0800 (PST)
-Received: by mail-oi1-x231.google.com with SMTP id a6so14259046oid.9
-        for <selinux@vger.kernel.org>; Mon, 28 Feb 2022 12:09:17 -0800 (PST)
+        with ESMTP id S229486AbiB1UXu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Feb 2022 15:23:50 -0500
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21F855BE8
+        for <selinux@vger.kernel.org>; Mon, 28 Feb 2022 12:23:10 -0800 (PST)
+Received: by mail-oi1-x232.google.com with SMTP id k2so14334980oia.2
+        for <selinux@vger.kernel.org>; Mon, 28 Feb 2022 12:23:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zZzIUyww4TaFdAgWrS9NkLKZC1sjVsoNfm1GxNzE+2s=;
-        b=olUbqxZM4xH1m3hNQbRKCquGIukargKlNbvAOAtQ8gsp46j70slPhYzk0RaijeU8ee
-         tCrHIzM/fHkkUx0wVFcSnQtSst63NgFUOE01QTjmNelZNmrwZuwSUEc0M5oOef01pQAM
-         288jk94nDHjQmF+p4bmBlfEfiBj9gtXl5pElcrtpnyLtd4BE/e403ka3MyhPEGz2GcfI
-         QIid20Ti/9VSLEnYJz6jsqFAz0T9aJeYRDAdgli8Gb4wyBEL9nxmJbnm6CpjukihHEZq
-         N7GDs3LtVa1SIVKGNBOhrJzicFNOWVA0opHtYRQgLCtsv3jZHECAyMn7IardJI0Yq5OT
-         nGXQ==
+         :cc;
+        bh=5bsOf8VtTkyahwEj0mXr8eO9j4D2bGDWUSjxgSLi9OM=;
+        b=HqVXuLy+zIcTZJ4x66kkOCG1YbqwJspdBuKwaxmU1HJYi7Xx7M7sREsNMkowg6RwvG
+         G6gRLBexIIHg3KuTVEmHt84J6gM2MlMUXZ+jIpcUglFIcY1PW+OW3uQbmM7o+uFmCyws
+         D7VxBsbO4LcmrEldHSuK1fguWmSGn26QE+kwjCuUH3yYXcQhMH2d++ksqB7rXBu/rZ2N
+         NUmu2Cbj6aNEuughPcvYrf4iHE6/3ZCZH4S5DBBDr3ebr1iH4EajfCUC5j6rHm6pI12O
+         Mh2ok98QAxv8ytNhS8QhcraGPc70VuP1x/4vRMwMPz1v/zDSG6XScgqolClkXuHVEf7E
+         qH+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zZzIUyww4TaFdAgWrS9NkLKZC1sjVsoNfm1GxNzE+2s=;
-        b=T/AXt+ncoqjUIwVGxk1szTlSnxCRFsuSvgqdceee6pCJZ23UPmfE8gJNIiL17Vt+lL
-         L7Pkp1kbmk3LxdZCZoi6tmWVowQsMRpXQ58dCnYIq6wKJdYZAIFGmD26jVJe6+Exny0o
-         qifiAf12Pkr/df8sdVB6gqX6tfVO6T+raltytDoV9DvadNBjyYNcnsnkDi9lL2kXRAah
-         OcS14ofY2qWBUF5sXNa8zeYOXaelLmz2plPb6M/rEkOUj5HTYWKX3hU+45tjtWpLJf91
-         TJ7GftbP7yusuWLlQiIrtWD27Qzn9VLDHSWA9cev8cLGASxrjrIGEuX3Tg+DRbvZyd+a
-         lOiA==
-X-Gm-Message-State: AOAM531JLwTOwHhzAQ0xVE8HKwTs1ALWCjBc24ZEBgD39MaCM8g6AIGV
-        WNKud9sdIluoRLvCONdAtBBWaHrB8WLXn+9Im9w0bFBK298=
-X-Google-Smtp-Source: ABdhPJx3KzzxX8onolMqKxXwXMbAVRv5gBpQjeP7EP/Wh6d9q1M5dfLgmewiFTqv0yInb5xy752CxLrjRuuFfFfNFQA=
+         :message-id:subject:to:cc;
+        bh=5bsOf8VtTkyahwEj0mXr8eO9j4D2bGDWUSjxgSLi9OM=;
+        b=qotR+rTj0DwysXBNxsJqsPcJVqMhPBKJ1W+F32UbiWQagYaFvBaN+KtFZzVL0RQTBS
+         5j5yeWNgJSXfI2723WDixr/T0Kdl0lXYuNb7YXtvk5Bz+i1D+NWcJP+27FDEdom7yzS3
+         dbnX17Yd179qgvqdgqb/vCI9hYKpFDmx6KKcbVZV5/AdXyS5QAasOW4MJ91LysQI14nD
+         Fmma23NY62bhMyb0HX5bxGwC4Cai8Huk0yxq+PhB0kSrpd69DtxDf+fUlw0P0g2MNelA
+         HVoU0qok437grGsklwmNdXkoyhbjnd99mkOT2rJ1Yi0VWoRZnlQXQI4mRvBKixJzZTNH
+         gV8A==
+X-Gm-Message-State: AOAM5333LLgdJB1v8V7RYbI8SWyRjCGm+AaYQoC/WN9zQRY8D6EBB/wb
+        63xoSF7mqHQQkHn9QgHxtP0FD4R/uuE2Yr30RCpdNrHo8AY=
+X-Google-Smtp-Source: ABdhPJzMzf0zQK8npDVpZmxp8JOrdNHqTTypBIP98RpIn1kjxBH04e9ZDQ5Qss92+R/usyNTJp6CYlD+F1e9kVfkXyo=
 X-Received: by 2002:a05:6808:150e:b0:2d4:d2a5:85ff with SMTP id
- u14-20020a056808150e00b002d4d2a585ffmr10145548oiw.16.1646078956719; Mon, 28
- Feb 2022 12:09:16 -0800 (PST)
+ u14-20020a056808150e00b002d4d2a585ffmr10190402oiw.16.1646079790195; Mon, 28
+ Feb 2022 12:23:10 -0800 (PST)
 MIME-Version: 1.0
-References: <20220214165812.9359-1-cgzones@googlemail.com> <20220214170855.10603-1-cgzones@googlemail.com>
-In-Reply-To: <20220214170855.10603-1-cgzones@googlemail.com>
+References: <d7cf167d-1c12-5486-336e-1689c5223631@redhat.com> <20220217131415.1195383-1-vmojzis@redhat.com>
+In-Reply-To: <20220217131415.1195383-1-vmojzis@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 28 Feb 2022 15:09:05 -0500
-Message-ID: <CAP+JOzQ=WsaQJnQv4AKNCEzPBevvhRKXDHrgUO14XVxm4nCjCQ@mail.gmail.com>
-Subject: Re: [PATCH] python/sepolgen: accept square brackets in FILENAME token
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Mon, 28 Feb 2022 15:22:59 -0500
+Message-ID: <CAP+JOzSX3iLRQgOEwzt1uXEV=--r77n4bUFLT6uPHeFTp=vGjQ@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: Strip spaces before values in config
+To:     Vit Mojzis <vmojzis@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 4:19 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Thu, Feb 17, 2022 at 1:24 PM Vit Mojzis <vmojzis@redhat.com> wrote:
 >
-> When parsing Reference Policy style files accept square brackets in file
-> names.  The FILENAME token is used in the TYPE_TRANSITION grammar rule
-> for the optional name based argument.  This name can contain square
-> brackets, e.g. for anonymous inodes like "[io_uring]".
+> Spaces before values in /etc/selinux/config should be ignored just as
+> spaces after them are.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> E.g. "SELINUXTYPE= targeted" should be a valid value.
+>
+> Fixes:
+>    # sed -i 's/^SELINUXTYPE=/SELINUXTYPE= /g' /etc/selinux/config
+>    # dnf install <any_package>
+>    ...
+>    RPM: error: selabel_open: (/etc/selinux/ targeted/contexts/files/file_contexts) No such file or directory
+>    RPM: error: Plugin selinux: hook tsm_pre failed
+>    ...
+>    Error: Could not run transaction.
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
-> added missing signed-off
-> ---
->  python/sepolgen/src/sepolgen/refparser.py | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/=
-src/sepolgen/refparser.py
-> index e611637f..1bb90564 100644
-> --- a/python/sepolgen/src/sepolgen/refparser.py
-> +++ b/python/sepolgen/src/sepolgen/refparser.py
-> @@ -261,7 +261,7 @@ def t_IDENTIFIER(t):
->      return t
+> Sorry for the delay. I sent the fixed patch to a wrong mailing list.
 >
->  def t_FILENAME(t):
-> -    r'\"[a-zA-Z0-9_\-\+\.\$\*~ :]+\"'
-> +    r'\"[a-zA-Z0-9_\-\+\.\$\*~ :\[\]]+\"'
->      # Handle any keywords
->      t.type =3D reserved.get(t.value,'FILENAME')
->      return t
+>  libselinux/src/selinux_config.c | 17 +++++++++++++----
+>  1 file changed, 13 insertions(+), 4 deletions(-)
+>
+> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+> index 97f81a8b..d2e49ee1 100644
+> --- a/libselinux/src/selinux_config.c
+> +++ b/libselinux/src/selinux_config.c
+> @@ -92,6 +92,7 @@ int selinux_getenforcemode(int *enforce)
+>         FILE *cfg = fopen(SELINUXCONFIG, "re");
+>         if (cfg) {
+>                 char *buf;
+> +               char *tag;
+>                 int len = sizeof(SELINUXTAG) - 1;
+>                 buf = malloc(selinux_page_size);
+>                 if (!buf) {
+> @@ -101,21 +102,24 @@ int selinux_getenforcemode(int *enforce)
+>                 while (fgets_unlocked(buf, selinux_page_size, cfg)) {
+>                         if (strncmp(buf, SELINUXTAG, len))
+>                                 continue;
+> +                       tag = buf+len;
+> +                       while (isspace(*tag))
+> +                               tag++;
+>                         if (!strncasecmp
+> -                           (buf + len, "enforcing", sizeof("enforcing") - 1)) {
+> +                           (tag, "enforcing", sizeof("enforcing") - 1)) {
+>                                 *enforce = 1;
+>                                 ret = 0;
+>                                 break;
+>                         } else
+>                             if (!strncasecmp
+> -                               (buf + len, "permissive",
+> +                               (tag, "permissive",
+>                                  sizeof("permissive") - 1)) {
+>                                 *enforce = 0;
+>                                 ret = 0;
+>                                 break;
+>                         } else
+>                             if (!strncasecmp
+> -                               (buf + len, "disabled",
+> +                               (tag, "disabled",
+>                                  sizeof("disabled") - 1)) {
+>                                 *enforce = -1;
+>                                 ret = 0;
+> @@ -176,7 +180,10 @@ static void init_selinux_config(void)
+>
+>                         if (!strncasecmp(buf_p, SELINUXTYPETAG,
+>                                          sizeof(SELINUXTYPETAG) - 1)) {
+> -                               type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
+> +                               buf_p += sizeof(SELINUXTYPETAG) - 1;
+> +                               while (isspace(*buf_p))
+> +                                       buf_p++;
+> +                               type = strdup(buf_p);
+>                                 if (!type) {
+>                                         free(line_buf);
+>                                         fclose(fp);
+> @@ -199,6 +206,8 @@ static void init_selinux_config(void)
+>                         } else if (!strncmp(buf_p, REQUIRESEUSERS,
+>                                             sizeof(REQUIRESEUSERS) - 1)) {
+>                                 value = buf_p + sizeof(REQUIRESEUSERS) - 1;
+> +                               while (isspace(*value))
+> +                                       value++;
+>                                 intptr = &require_seusers;
+>                         } else {
+>                                 continue;
 > --
-> 2.34.1
+> 2.30.2
 >
