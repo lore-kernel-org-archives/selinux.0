@@ -2,123 +2,241 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6DFEC433EF
-	for <selinux@archiver.kernel.org>; Tue,  1 Mar 2022 17:34:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C75CC433F5
+	for <selinux@archiver.kernel.org>; Tue,  1 Mar 2022 17:54:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbiCARf0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Mar 2022 12:35:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
+        id S231542AbiCARzV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Mar 2022 12:55:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236503AbiCARf0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Mar 2022 12:35:26 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AA9C2BB1F
-        for <selinux@vger.kernel.org>; Tue,  1 Mar 2022 09:34:44 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id hw13so32890911ejc.9
-        for <selinux@vger.kernel.org>; Tue, 01 Mar 2022 09:34:44 -0800 (PST)
+        with ESMTP id S233838AbiCARzU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Mar 2022 12:55:20 -0500
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6AF38D8F
+        for <selinux@vger.kernel.org>; Tue,  1 Mar 2022 09:54:38 -0800 (PST)
+Received: by mail-qk1-x732.google.com with SMTP id d84so13525986qke.8
+        for <selinux@vger.kernel.org>; Tue, 01 Mar 2022 09:54:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fA+wU5kLcLMBqXhRMKV9dKF5kxH3TH0A/1zIZlyz7uk=;
-        b=EXUBHrbJqw7GJBIBA3QnFbgZDrqXDZ8XgvgEzKY5f2OtEEmWBf6/iPV90dhIvtceRz
-         qihXKA/o/oVDP6B4U6c1eA9iZwtBk6hceIoJO+rP4X29nuXsXv0I/+tg6+3b0Ra/s7Cj
-         BjN/+HP/M8ncA4QhefB1zQ8TJQrJXBZ11tSEPAEiCQ/7bUQKnPSOB+8/tQoebmyles7j
-         8jP2KY2AlysEF+NFobsd1Ur6aF42jOQ5NEHVraGq0C0N/X/Lu+vjCpcdqlPlGoT67850
-         7/uWDXU9HCqIJbb0nEIUNlSXgzg+Vobgoi+1byJgDdOfNLsp4ejHwdelLveHLrduBM2M
-         1jpQ==
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=bG8PGCTb9G1VKb39yybGw3y6xGk7AdaQ3Mf3kTMrsY4=;
+        b=IwJQw7oyvjGGO1o4q9fpvRcMrj7ud8fmDYOor5YozwpI9Qr18Gi448ippMECDUICg+
+         u/b9g3oKPmJzIk2+E7lBivMRnxKykWZT68dPdbmA/52D3fKk2zUyKUFsJr4tIvc3aXbb
+         UP3MIu5GG+IhbivpudtXC6JPD3/aazFWzpecnjF79Na+0+ahKvjxp8vE+y1CX0AO9uM3
+         V9gpoN1ow30mex69oCdNRC8dmAPCjYpjY3evGfg+z5K8s8v02/0lAc0r7UYYMTBOQoAN
+         V55P2SnZL/E1VwLxkWP8dO2yJk8qH5f3Uo9DsDLduImwRlf0w2fyymKCHUYr1TyjDG69
+         Mshw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fA+wU5kLcLMBqXhRMKV9dKF5kxH3TH0A/1zIZlyz7uk=;
-        b=M79gkPqPGqhMjyiCejFcNSD2OnuyjBxHg0umz0/HapR2fy8mqkrE6JxiggWiCFzIbn
-         2yH5HNF53O4oBQjF8GkqXkhlSoy9InQ1WSarfduXmhWKS0UD393NlmU4UW1FQ+TmF/+B
-         V/z1AkrQxrXT+bcWlTOpEabPoEmZpR8I9j6isVMnTB10LRzPphxZYsK8VaPHiZ213NyH
-         Mrok5zItmDdU2UwzjydenQLY4huxL5mmhqQsGxwXZgU3o96MgxvdXAnU0B5NV2mcitq6
-         5VapdkRXIfm9z6aAvs/VrtM0NAUkuRaTQYk4BWndhnKeQs6yM1oZfbuKG5RxjY4/6vOq
-         A7YA==
-X-Gm-Message-State: AOAM533qEgbaKAF6LSRG8KPkxcTgVLv5hgMauCtKhh2K1dl2l2VGTQC1
-        0VD08QW6r5j+Av+amTvz3YX3lcW9XVJBOd5QbXuFoXN01Q==
-X-Google-Smtp-Source: ABdhPJwutbuZwi+5PT0zxNKnuVU5n0uuvL6xb27c/saMNUuMiCO4AOODGSaeqiQQTwVvkYLfmE8FeDmAEg08n2fY/xc=
-X-Received: by 2002:a17:906:6b8f:b0:6cd:7984:26fc with SMTP id
- l15-20020a1709066b8f00b006cd798426fcmr19568418ejr.701.1646156082677; Tue, 01
- Mar 2022 09:34:42 -0800 (PST)
-MIME-Version: 1.0
-References: <20220301041454.18960-1-rdunlap@infradead.org>
-In-Reply-To: <20220301041454.18960-1-rdunlap@infradead.org>
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=bG8PGCTb9G1VKb39yybGw3y6xGk7AdaQ3Mf3kTMrsY4=;
+        b=A7ZIRzYvOyH2xYC2tF3QrR0/lPoptjGHOJOL3yIZRXXk3W4D4SYUiwAAc4YP8oHh1+
+         wvQ+2PxkzNg7Bh3N+YVC6Nm1QubpeYyPr0uzCfwVbDbMpjUCa8soWEvxxFUuMQcit8kr
+         ReJoUvoJmlgiq3W+Vb6lnsMXyEJmLNBsNOO07ZtaXJtbmUV6NmfU5Yo9/ZTTPpGtnx3n
+         9xU8rb3HiOLwRC3a3P8d7XUNlAJkG3qODMrQzQXhm/w1O3SFZYYa8NP4BgjI7iQByRp0
+         C5DmOwZWMjsEhyMi/U2CeS0lc6Uo6cpgFyoF2c+237c3At4kE81iHXURl55x5FQBRolS
+         aUPw==
+X-Gm-Message-State: AOAM530rZQ//dfeCY/lpkMhJebC8m2ZVP4FPAhowFrtNguwzQJdpZD2T
+        Aw9bTONooiWHmfROdbP3Mkw4B1tO9o0c
+X-Google-Smtp-Source: ABdhPJyDn5kj7IMyIfZhLHiVJ+R+PLl2sIi2k/BEuUYfjY88k+pOpq7CNAGw8CIHejpzxTg58QdU+w==
+X-Received: by 2002:a05:620a:7e7:b0:646:92cd:5bf5 with SMTP id k7-20020a05620a07e700b0064692cd5bf5mr14531488qkk.383.1646157277350;
+        Tue, 01 Mar 2022 09:54:37 -0800 (PST)
+Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
+        by smtp.gmail.com with ESMTPSA id t28-20020a05620a005c00b00662fb1899d2sm3441948qkt.0.2022.03.01.09.54.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Mar 2022 09:54:36 -0800 (PST)
+Subject: [PATCH] selinux: shorten the policy capability enum names
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 1 Mar 2022 12:34:31 -0500
-Message-ID: <CAHC9VhSuzpuEm437SCYC8pf0mU6qdWXRU38sb2+JjVtj-8T4Kw@mail.gmail.com>
-Subject: Re: [PATCH] docs: selinux: add '=' signs to kernel boot options
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     linux-doc@vger.kernel.org, patches@lists.linux.dev,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org
+Date:   Tue, 01 Mar 2022 12:54:36 -0500
+Message-ID: <164615727605.32677.11271643808590060552.stgit@olly>
+User-Agent: StGit/1.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 28, 2022 at 11:14 PM Randy Dunlap <rdunlap@infradead.org> wrote:
->
-> Provide the full kernel boot option string (with ending '=' sign).
-> They won't work without that and that is how other boot options are
-> listed.
->
-> If used without an '=' sign (as listed here), they cause an "Unknown
-> parameters" message and are added to init's argument strings,
-> polluting them.
->
->   Unknown kernel command line parameters "enforcing checkreqprot
->     BOOT_IMAGE=/boot/bzImage-517rc6", will be passed to user space.
->
->  Run /sbin/init as init process
->    with arguments:
->      /sbin/init
->      enforcing
->      checkreqprot
->    with environment:
->      HOME=/
->      TERM=linux
->      BOOT_IMAGE=/boot/bzImage-517rc6
->
-> Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: selinux@vger.kernel.org
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> ---
->  Documentation/admin-guide/kernel-parameters.txt |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+The SELinux policy capability enum names are rather long and follow
+the "POLICYDB_CAPABILITY_XXX format".  While the "POLICYDB_" prefix
+is helpful in tying the enums to other SELinux policy constants,
+macros, etc. there is no reason why we need to spell out
+"CAPABILITY" completely.  Shorten "CAPABILITY" to "CAP" in order to
+make things a bit shorter and cleaner.
 
-Thanks Randy.
+Moving forward, the SELinux policy capability enum names should
+follow the "POLICYDB_CAP_XXX" format.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/ima.c                     |    4 ++--
+ security/selinux/include/policycap.h       |   22 +++++++++++-----------
+ security/selinux/include/policycap_names.h |    2 +-
+ security/selinux/include/security.h        |   18 +++++++++---------
+ security/selinux/selinuxfs.c               |    2 +-
+ 5 files changed, 24 insertions(+), 24 deletions(-)
 
-> --- linux-next-20220228.orig/Documentation/admin-guide/kernel-parameters.txt
-> +++ linux-next-20220228/Documentation/admin-guide/kernel-parameters.txt
-> @@ -550,7 +550,7 @@
->                         nosocket -- Disable socket memory accounting.
->                         nokmem -- Disable kernel memory accounting.
->
-> -       checkreqprot    [SELINUX] Set initial checkreqprot flag value.
-> +       checkreqprot=   [SELINUX] Set initial checkreqprot flag value.
->                         Format: { "0" | "1" }
->                         See security/selinux/Kconfig help text.
->                         0 -- check protection applied by kernel (includes
-> @@ -1409,7 +1409,7 @@
->                         (in particular on some ATI chipsets).
->                         The kernel tries to set a reasonable default.
->
-> -       enforcing       [SELINUX] Set initial enforcing status.
-> +       enforcing=      [SELINUX] Set initial enforcing status.
->                         Format: {"0" | "1"}
->                         See security/selinux/Kconfig help text.
->                         0 -- permissive (log only, no denials).
+diff --git a/security/selinux/ima.c b/security/selinux/ima.c
+index 727c4e43219d..fded01981a39 100644
+--- a/security/selinux/ima.c
++++ b/security/selinux/ima.c
+@@ -29,7 +29,7 @@ static char *selinux_ima_collect_state(struct selinux_state *state)
+ 	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
+ 
+ 	len = strlen(on);
+-	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++)
++	for (i = 0; i < __POLICYDB_CAP_MAX; i++)
+ 		buf_len += strlen(selinux_policycap_names[i]) + len;
+ 
+ 	buf = kzalloc(buf_len, GFP_KERNEL);
+@@ -54,7 +54,7 @@ static char *selinux_ima_collect_state(struct selinux_state *state)
+ 	rc = strlcat(buf, checkreqprot_get(state) ? on : off, buf_len);
+ 	WARN_ON(rc >= buf_len);
+ 
+-	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
++	for (i = 0; i < __POLICYDB_CAP_MAX; i++) {
+ 		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
+ 		WARN_ON(rc >= buf_len);
+ 
+diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+index a9e572ca4fd9..2680aa21205c 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -4,18 +4,18 @@
+ 
+ /* Policy capabilities */
+ enum {
+-	POLICYDB_CAPABILITY_NETPEER,
+-	POLICYDB_CAPABILITY_OPENPERM,
+-	POLICYDB_CAPABILITY_EXTSOCKCLASS,
+-	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+-	POLICYDB_CAPABILITY_CGROUPSECLABEL,
+-	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+-	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
+-	POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC,
+-	__POLICYDB_CAPABILITY_MAX
++	POLICYDB_CAP_NETPEER,
++	POLICYDB_CAP_OPENPERM,
++	POLICYDB_CAP_EXTSOCKCLASS,
++	POLICYDB_CAP_ALWAYSNETWORK,
++	POLICYDB_CAP_CGROUPSECLABEL,
++	POLICYDB_CAP_NNP_NOSUID_TRANSITION,
++	POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS,
++	POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
++	__POLICYDB_CAP_MAX
+ };
+-#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
++#define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+ 
+-extern const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
++extern const char *selinux_policycap_names[__POLICYDB_CAP_MAX];
+ 
+ #endif /* _SELINUX_POLICYCAP_H_ */
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index ebd64afe1def..100da7d043db 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -5,7 +5,7 @@
+ #include "policycap.h"
+ 
+ /* Policy capability names */
+-const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
++const char *selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+ 	"network_peer_controls",
+ 	"open_perms",
+ 	"extended_socket_class",
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 84f42fa8012f..ace4bd13e808 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -96,7 +96,7 @@ struct selinux_state {
+ #endif
+ 	bool checkreqprot;
+ 	bool initialized;
+-	bool policycap[__POLICYDB_CAPABILITY_MAX];
++	bool policycap[__POLICYDB_CAP_MAX];
+ 
+ 	struct page *status_page;
+ 	struct mutex status_lock;
+@@ -174,56 +174,56 @@ static inline bool selinux_policycap_netpeer(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NETPEER]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_NETPEER]);
+ }
+ 
+ static inline bool selinux_policycap_openperm(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_OPENPERM]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_OPENPERM]);
+ }
+ 
+ static inline bool selinux_policycap_extsockclass(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_EXTSOCKCLASS]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_EXTSOCKCLASS]);
+ }
+ 
+ static inline bool selinux_policycap_alwaysnetwork(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_ALWAYSNETWORK]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_ALWAYSNETWORK]);
+ }
+ 
+ static inline bool selinux_policycap_cgroupseclabel(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_CGROUPSECLABEL]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_CGROUPSECLABEL]);
+ }
+ 
+ static inline bool selinux_policycap_nnp_nosuid_transition(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_NNP_NOSUID_TRANSITION]);
+ }
+ 
+ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS]);
+ }
+ 
+ static inline bool selinux_policycap_ioctl_skip_cloexec(void)
+ {
+ 	struct selinux_state *state = &selinux_state;
+ 
+-	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC]);
++	return READ_ONCE(state->policycap[POLICYDB_CAP_IOCTL_SKIP_CLOEXEC]);
+ }
+ 
+ struct selinux_policy_convert_data;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index f2f6203e0fff..097c6d866ec4 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1983,7 +1983,7 @@ static int sel_make_policycap(struct selinux_fs_info *fsi)
+ 	struct dentry *dentry = NULL;
+ 	struct inode *inode = NULL;
+ 
+-	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
++	for (iter = 0; iter <= POLICYDB_CAP_MAX; iter++) {
+ 		if (iter < ARRAY_SIZE(selinux_policycap_names))
+ 			dentry = d_alloc_name(fsi->policycap_dir,
+ 					      selinux_policycap_names[iter]);
 
--- 
-paul-moore.com
