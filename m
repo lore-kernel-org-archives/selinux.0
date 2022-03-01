@@ -2,147 +2,123 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2780FC433EF
-	for <selinux@archiver.kernel.org>; Tue,  1 Mar 2022 15:48:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6DFEC433EF
+	for <selinux@archiver.kernel.org>; Tue,  1 Mar 2022 17:34:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234157AbiCAPtF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Mar 2022 10:49:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58582 "EHLO
+        id S231289AbiCARf0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Mar 2022 12:35:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234217AbiCAPtE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Mar 2022 10:49:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A3C946B2C;
-        Tue,  1 Mar 2022 07:48:22 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C297EB81A34;
-        Tue,  1 Mar 2022 15:48:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 464C2C340EE;
-        Tue,  1 Mar 2022 15:48:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646149699;
-        bh=BvH/kma4X2Q1HcMu+DaJwSYluHohQpfYsoAqECnlSZY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ceHrGQ4nD1JtF+7SgfJgvbV+B1YUhEDCnyTsf902392MBtntKC20s8ORwqaOSa/4S
-         S/W+MFaJ/ar5ikwVLaVfbm4mxfQPOPWMCzhvSY25UDeFkUZKh9S7IFvqvZVVpsbV+U
-         oZ/UtOXXuImSaY9dT6PwpSoyBRG85uGvgIYe6OmBSYH/D3lGMNr8LfJaC1DEpgox7x
-         WT/JlgZQF2woiNaDU0+WMmAsvb61GT0she1K3wniFhnnbLi1cLBfD/9/dJqJ0lnivO
-         NCMGFQLjpwftpBrnGCoZLYd6OxLkYK9c6QBoeN9xOBfeQISkq7W3SfhOERZJMZNnJj
-         qJ35gjyfXy79Q==
-Date:   Tue, 1 Mar 2022 07:48:18 -0800
-From:   "Darrick J. Wong" <djwong@kernel.org>
-To:     "Serge E. Hallyn" <serge@hallyn.com>
-Cc:     xfs <linux-xfs@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        john.haxby@oracle.com
-Subject: Re: [PATCH RESEND] xfs: don't generate selinux audit messages for
- capability testing
-Message-ID: <20220301154818.GI117732@magnolia>
-References: <20220301025052.GF117732@magnolia>
- <20220301151014.GA17144@mail.hallyn.com>
+        with ESMTP id S236503AbiCARf0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Mar 2022 12:35:26 -0500
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AA9C2BB1F
+        for <selinux@vger.kernel.org>; Tue,  1 Mar 2022 09:34:44 -0800 (PST)
+Received: by mail-ej1-x62c.google.com with SMTP id hw13so32890911ejc.9
+        for <selinux@vger.kernel.org>; Tue, 01 Mar 2022 09:34:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fA+wU5kLcLMBqXhRMKV9dKF5kxH3TH0A/1zIZlyz7uk=;
+        b=EXUBHrbJqw7GJBIBA3QnFbgZDrqXDZ8XgvgEzKY5f2OtEEmWBf6/iPV90dhIvtceRz
+         qihXKA/o/oVDP6B4U6c1eA9iZwtBk6hceIoJO+rP4X29nuXsXv0I/+tg6+3b0Ra/s7Cj
+         BjN/+HP/M8ncA4QhefB1zQ8TJQrJXBZ11tSEPAEiCQ/7bUQKnPSOB+8/tQoebmyles7j
+         8jP2KY2AlysEF+NFobsd1Ur6aF42jOQ5NEHVraGq0C0N/X/Lu+vjCpcdqlPlGoT67850
+         7/uWDXU9HCqIJbb0nEIUNlSXgzg+Vobgoi+1byJgDdOfNLsp4ejHwdelLveHLrduBM2M
+         1jpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fA+wU5kLcLMBqXhRMKV9dKF5kxH3TH0A/1zIZlyz7uk=;
+        b=M79gkPqPGqhMjyiCejFcNSD2OnuyjBxHg0umz0/HapR2fy8mqkrE6JxiggWiCFzIbn
+         2yH5HNF53O4oBQjF8GkqXkhlSoy9InQ1WSarfduXmhWKS0UD393NlmU4UW1FQ+TmF/+B
+         V/z1AkrQxrXT+bcWlTOpEabPoEmZpR8I9j6isVMnTB10LRzPphxZYsK8VaPHiZ213NyH
+         Mrok5zItmDdU2UwzjydenQLY4huxL5mmhqQsGxwXZgU3o96MgxvdXAnU0B5NV2mcitq6
+         5VapdkRXIfm9z6aAvs/VrtM0NAUkuRaTQYk4BWndhnKeQs6yM1oZfbuKG5RxjY4/6vOq
+         A7YA==
+X-Gm-Message-State: AOAM533qEgbaKAF6LSRG8KPkxcTgVLv5hgMauCtKhh2K1dl2l2VGTQC1
+        0VD08QW6r5j+Av+amTvz3YX3lcW9XVJBOd5QbXuFoXN01Q==
+X-Google-Smtp-Source: ABdhPJwutbuZwi+5PT0zxNKnuVU5n0uuvL6xb27c/saMNUuMiCO4AOODGSaeqiQQTwVvkYLfmE8FeDmAEg08n2fY/xc=
+X-Received: by 2002:a17:906:6b8f:b0:6cd:7984:26fc with SMTP id
+ l15-20020a1709066b8f00b006cd798426fcmr19568418ejr.701.1646156082677; Tue, 01
+ Mar 2022 09:34:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220301151014.GA17144@mail.hallyn.com>
+References: <20220301041454.18960-1-rdunlap@infradead.org>
+In-Reply-To: <20220301041454.18960-1-rdunlap@infradead.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 1 Mar 2022 12:34:31 -0500
+Message-ID: <CAHC9VhSuzpuEm437SCYC8pf0mU6qdWXRU38sb2+JjVtj-8T4Kw@mail.gmail.com>
+Subject: Re: [PATCH] docs: selinux: add '=' signs to kernel boot options
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-doc@vger.kernel.org, patches@lists.linux.dev,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jonathan Corbet <corbet@lwn.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 01, 2022 at 09:10:14AM -0600, Serge E. Hallyn wrote:
-> On Mon, Feb 28, 2022 at 06:50:52PM -0800, Darrick J. Wong wrote:
-> > From: Darrick J. Wong <djwong@kernel.org>
-> > 
-> > There are a few places where we test the current process' capability set
-> > to decide if we're going to be more or less generous with resource
-> > acquisition for a system call.  If the process doesn't have the
-> > capability, we can continue the call, albeit in a degraded mode.
-> > 
-> > These are /not/ the actual security decisions, so it's not proper to use
-> > capable(), which (in certain selinux setups) causes audit messages to
-> > get logged.  Switch them to has_capability_noaudit.
-> > 
-> > Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-> > Cc: Ondrej Mosnacek <omosnace@redhat.com>
-> > Cc: Dave Chinner <david@fromorbit.com>
-> > ---
-> >  fs/xfs/xfs_fsmap.c  |    4 ++--
-> >  fs/xfs/xfs_ioctl.c  |    2 +-
-> >  fs/xfs/xfs_iops.c   |    2 +-
-> >  kernel/capability.c |    1 +
-> >  4 files changed, 5 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/xfs/xfs_fsmap.c b/fs/xfs/xfs_fsmap.c
-> > index 48287caad28b..10e1cb71439e 100644
-> > --- a/fs/xfs/xfs_fsmap.c
-> > +++ b/fs/xfs/xfs_fsmap.c
-> > @@ -864,8 +864,8 @@ xfs_getfsmap(
-> >  	    !xfs_getfsmap_is_valid_device(mp, &head->fmh_keys[1]))
-> >  		return -EINVAL;
-> >  
-> > -	use_rmap = capable(CAP_SYS_ADMIN) &&
-> > -		   xfs_has_rmapbt(mp);
-> > +	use_rmap = xfs_has_rmapbt(mp) &&
-> 
-> Hm, I'm failing to find where xfs_has_rmapbt() is defined.  I just
-> wanted to make sure it doesn't have any side effects that you'd want
-> to avoid in the no-capability case.  (Seems very unlikely that it
-> would, given the name)
+On Mon, Feb 28, 2022 at 11:14 PM Randy Dunlap <rdunlap@infradead.org> wrote:
+>
+> Provide the full kernel boot option string (with ending '=' sign).
+> They won't work without that and that is how other boot options are
+> listed.
+>
+> If used without an '=' sign (as listed here), they cause an "Unknown
+> parameters" message and are added to init's argument strings,
+> polluting them.
+>
+>   Unknown kernel command line parameters "enforcing checkreqprot
+>     BOOT_IMAGE=/boot/bzImage-517rc6", will be passed to user space.
+>
+>  Run /sbin/init as init process
+>    with arguments:
+>      /sbin/init
+>      enforcing
+>      checkreqprot
+>    with environment:
+>      HOME=/
+>      TERM=linux
+>      BOOT_IMAGE=/boot/bzImage-517rc6
+>
+> Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: selinux@vger.kernel.org
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> ---
+>  Documentation/admin-guide/kernel-parameters.txt |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-fs/xfs/xfs_mount.h:495:__XFS_HAS_FEAT(rmapbt, RMAPBT)
+Thanks Randy.
 
-To expand on that a little -- it's a convenience predicate that tells us
-whether or not the mounted xfs filesystem supports the reverse mapping
-btree feature.  The predicate itself has no side effects, of course, so
-the rearranging of the two sides of the && operator so that we do the
-cheaper check first (like this code probably should have done from the
-start).
+Acked-by: Paul Moore <paul@paul-moore.com>
 
---D
+> --- linux-next-20220228.orig/Documentation/admin-guide/kernel-parameters.txt
+> +++ linux-next-20220228/Documentation/admin-guide/kernel-parameters.txt
+> @@ -550,7 +550,7 @@
+>                         nosocket -- Disable socket memory accounting.
+>                         nokmem -- Disable kernel memory accounting.
+>
+> -       checkreqprot    [SELINUX] Set initial checkreqprot flag value.
+> +       checkreqprot=   [SELINUX] Set initial checkreqprot flag value.
+>                         Format: { "0" | "1" }
+>                         See security/selinux/Kconfig help text.
+>                         0 -- check protection applied by kernel (includes
+> @@ -1409,7 +1409,7 @@
+>                         (in particular on some ATI chipsets).
+>                         The kernel tries to set a reasonable default.
+>
+> -       enforcing       [SELINUX] Set initial enforcing status.
+> +       enforcing=      [SELINUX] Set initial enforcing status.
+>                         Format: {"0" | "1"}
+>                         See security/selinux/Kconfig help text.
+>                         0 -- permissive (log only, no denials).
 
-> 
-> > +		   has_capability_noaudit(current, CAP_SYS_ADMIN);
-> >  	head->fmh_entries = 0;
-> >  
-> >  	/* Set up our device handlers. */
-> > diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-> > index 2515fe8299e1..83481005317a 100644
-> > --- a/fs/xfs/xfs_ioctl.c
-> > +++ b/fs/xfs/xfs_ioctl.c
-> > @@ -1189,7 +1189,7 @@ xfs_ioctl_setattr_get_trans(
-> >  		goto out_error;
-> >  
-> >  	error = xfs_trans_alloc_ichange(ip, NULL, NULL, pdqp,
-> > -			capable(CAP_FOWNER), &tp);
-> > +			has_capability_noaudit(current, CAP_FOWNER), &tp);
-> >  	if (error)
-> >  		goto out_error;
-> >  
-> > diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-> > index b79b3846e71b..a65217f787cf 100644
-> > --- a/fs/xfs/xfs_iops.c
-> > +++ b/fs/xfs/xfs_iops.c
-> > @@ -723,7 +723,7 @@ xfs_setattr_nonsize(
-> >  	}
-> >  
-> >  	error = xfs_trans_alloc_ichange(ip, udqp, gdqp, NULL,
-> > -			capable(CAP_FOWNER), &tp);
-> > +			has_capability_noaudit(current, CAP_FOWNER), &tp);
-> >  	if (error)
-> >  		goto out_dqrele;
-> >  
-> > diff --git a/kernel/capability.c b/kernel/capability.c
-> > index 46a361dde042..765194f5d678 100644
-> > --- a/kernel/capability.c
-> > +++ b/kernel/capability.c
-> > @@ -360,6 +360,7 @@ bool has_capability_noaudit(struct task_struct *t, int cap)
-> >  {
-> >  	return has_ns_capability_noaudit(t, &init_user_ns, cap);
-> >  }
-> > +EXPORT_SYMBOL(has_capability_noaudit);
-> >  
-> >  static bool ns_capable_common(struct user_namespace *ns,
-> >  			      int cap,
+-- 
+paul-moore.com
