@@ -2,132 +2,123 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DB6CC433EF
-	for <selinux@archiver.kernel.org>; Tue,  1 Mar 2022 01:09:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB05C433F5
+	for <selinux@archiver.kernel.org>; Tue,  1 Mar 2022 02:50:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiCABKN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Feb 2022 20:10:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47112 "EHLO
+        id S229726AbiCACve (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Feb 2022 21:51:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbiCABKG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Feb 2022 20:10:06 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 195FB5F54
-        for <selinux@vger.kernel.org>; Mon, 28 Feb 2022 17:09:22 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id g20so19988786edw.6
-        for <selinux@vger.kernel.org>; Mon, 28 Feb 2022 17:09:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XQU+v0ncJKQsq8KVJD+e40cIco7m2GBd4rHARca/WR4=;
-        b=0jmzKwCWF4tyUOMYPO79E8fZ5IPNMaa8ViRAkdhJVQ+rpvYnB807H9RFMUbcIp7BZU
-         gZHQ1rDBx3PK62BLmbBlNNAT3jyzYaL4Q2y1jktn63TwPT5ab7vdpiN4MQeP1MOCyfW/
-         1hrpDZVGloDoRW/S3YgB7ZGNi+EX7JpeqF+27/Xd6NI08vCg4fnWr5/UMmQ3YP+rWN2q
-         yIGHsrbeKMCBBBgIhh1S5ZwIKqOb+wr4/4iLEbQ7SulNvHeNpE2lVCx7J+vfXvAVBYuU
-         4/QobemQ3yboRwLVKSLl98uQ/+1XfxEHp6My70akJWohmiB80lkECn8ozqFNVuNZKksq
-         Vmzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XQU+v0ncJKQsq8KVJD+e40cIco7m2GBd4rHARca/WR4=;
-        b=2fKoGNgUI4EtREL4wHSQDhEXolBMrrky1mPhEXNaRQPeFHtQ6QQDlmZp7HfJfJe47I
-         x21yXXU7+3oetN3h1Du/Gj3pTw5WI/s8+74/RwWx/N33ckvYvn7GB/npE/sY0yMf7sIQ
-         JzAhfZo6GZ6Uk21onH+Ha92PySfcYfzwZuuBe3O41B/hiwUkuUFbxQHFsELvGjY+W7Rw
-         PYTFnkScKMcJ/q+q2EuxvVgtvs2vESiGR1WqHhZjNWYX0jhDYsF+mr4hNJ4iuVnaTVmC
-         vVPYROUGpo5kzJaDJFZ1KDe8tM3WGso6ype0C6qgDgDy7tqT5tisOnsXESydkRt70Icn
-         91ow==
-X-Gm-Message-State: AOAM531pmse93cGowvHaXuu6tjz00tsSj3eMkKgS/AdLHKzXA4FX2WU9
-        90RZoH9+HuTFIjk/wdUUvIA1jotxPrrKXR1vw44m
-X-Google-Smtp-Source: ABdhPJyMYQib71KmGDawe2Sa6f6s4SJDfyMQRJedtkVd+Ib0jlueXrtB/26onK1/CMnUCdwxIX5WHVCU4U1exe/oGNQ=
-X-Received: by 2002:a05:6402:1e8e:b0:412:cfd8:4d12 with SMTP id
- f14-20020a0564021e8e00b00412cfd84d12mr21942842edf.343.1646096960582; Mon, 28
- Feb 2022 17:09:20 -0800 (PST)
+        with ESMTP id S229636AbiCACvd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Feb 2022 21:51:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D12D4615E;
+        Mon, 28 Feb 2022 18:50:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB406615F8;
+        Tue,  1 Mar 2022 02:50:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E6F4C340EE;
+        Tue,  1 Mar 2022 02:50:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646103053;
+        bh=VJgp/RpFAfCy8CewTIayux1DpCIxd7bwCrwcTZoeAKg=;
+        h=Date:From:To:Cc:Subject:From;
+        b=SxzBxZj47frhxtvGrAUsqj2fjz+evV7Ld1Ge1e2hmgRQ6PjTNsZ+IHhvBFnKiHuTe
+         XAFoX50hBk+Yh1Lah72hYQPDJTcIGLo8G9IA1NabmK1QpggHFEjmBlOIS2aiW3Lxvu
+         a2Xb31WE/EUh4VjiwJNEXC5F1bCslvVQwjmX83RRVmi+e3/V3l0bE8BOxHzflPl/fa
+         ZAuQ88DBfqumedetzjWbGHFbILo8/Ak6zz4An8EC2TNu+F1Q8MVCGPVeuiyVVsPlkF
+         U188hV6NEOvrZyMB1YDClewx4dDB3efvfa4x0BWtPxndgQmDWx87zvpfXZxEdWMcnk
+         155Wx4GfS+Z+A==
+Date:   Mon, 28 Feb 2022 18:50:52 -0800
+From:   "Darrick J. Wong" <djwong@kernel.org>
+To:     xfs <linux-xfs@vger.kernel.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        john.haxby@oracle.com
+Subject: [PATCH RESEND] xfs: don't generate selinux audit messages for
+ capability testing
+Message-ID: <20220301025052.GF117732@magnolia>
 MIME-Version: 1.0
-References: <20211117015806.2192263-1-dvander@google.com> <CAOQ4uxjjapFeOAFGLmsXObdgFVYLfNer-rnnee1RR+joxK3xYg@mail.gmail.com>
- <Yao51m9EXszPsxNN@redhat.com> <CAOQ4uxjk4piLyx67Ena-FfypDVWzRqVN0xmFUXXPYa+SC4Q-vQ@mail.gmail.com>
- <YapjNRrjpDu2a5qQ@redhat.com>
-In-Reply-To: <YapjNRrjpDu2a5qQ@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 28 Feb 2022 20:09:09 -0500
-Message-ID: <CAHC9VhQTUgBRBEz_wFX8daSA70nGJCJLXj8Yvcqr5+DHcfDmwA@mail.gmail.com>
-Subject: Re: [PATCH v19 0/4] overlayfs override_creds=off & nested get xattr fix
-To:     Vivek Goyal <vgoyal@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        David Anderson <dvander@google.com>
-Cc:     Mark Salyzyn <salyzyn@android.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        John Stultz <john.stultz@linaro.org>,
-        linux-doc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>, selinux@vger.kernel.org,
-        paulmoore@microsoft.com, Luca.Boccassi@microsoft.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I wanted to try and bring this thread back from the dead (?) as I
-believe the use-case is still valid and worth supporting.  Some more
-brief comments below ...
+From: Darrick J. Wong <djwong@kernel.org>
 
-On Fri, Dec 3, 2021 at 1:34 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> I am not sure. In the early version of patches I think argument was
-> that do not switch to mounter's creds and use caller's creds on
-> underlying filesystem as well. And each caller will be privileged
-> enough to be able to perform the operation.
+There are a few places where we test the current process' capability set
+to decide if we're going to be more or less generous with resource
+acquisition for a system call.  If the process doesn't have the
+capability, we can continue the call, albeit in a degraded mode.
 
-The basic idea is that we can now build Linux systems with enough
-access control granularity such that a given process can have the
-necessary privileges to mount a filesystem, but not necessarily access
-all of the data on the filesystem, while other processes, with
-different access rights, are allowed to read and write data on the
-mounted filesystem.  Granted, this is a bit different from how things
-are usually done, but in my opinion it's a valid and interesting use
-case in that it allows us to remove unneeded access rights from
-historically very privileged system startup services/scripts: the
-service that runs to mount my homedir shouldn't be allowed to access
-my files just to mount the directory.
+These are /not/ the actual security decisions, so it's not proper to use
+capable(), which (in certain selinux setups) causes audit messages to
+get logged.  Switch them to has_capability_noaudit.
 
-Unfortunately, this idea falls apart when we attempt to use overlayfs
-due to the clever/usual way it caches the mounting processes
-credentials and uses that in place of the current process' credentials
-when accessing certain parts of the underlying filesystems.  The
-current overlayfs implementation assumes that the mounter will always
-be more privileged than the processes accessing the filesystem, it
-would be nice if we could build a mechanism that didn't have this
-assumption baked into the implementation.
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Dave Chinner <david@fromorbit.com>
+---
+ fs/xfs/xfs_fsmap.c  |    4 ++--
+ fs/xfs/xfs_ioctl.c  |    2 +-
+ fs/xfs/xfs_iops.c   |    2 +-
+ kernel/capability.c |    1 +
+ 4 files changed, 5 insertions(+), 4 deletions(-)
 
-This patchset may not have been The Answer, but surely there is
-something we can do to support this use-case.
-
-> Our take was that how is this model better because in current model
-> only mounter needs to be privileged while in this new model each
-> caller will have to be privileged. But Android guys seemed to be ok
-> with that. So has this assumption changed since early days. If callers
-> are privileged, then vfs_getxattr() on underlying filesystem for
-> overaly internal xattrs should succeed and there is no need for this
-> change.
->
-> I suspect patches have evolved since then and callers are not as
-> privileged as we expect them to and that's why we are bypassing this
-> check on all overlayfs internal trusted xattrs? This definitely requires
-> much close scrutiny. My initial reaction is that this sounds very scary.
->
-> In general I would think overlayfs should not bypass the check on
-> underlying fs. Either checks should be done in mounter's context or
-> caller's context (depending on override_creds=on/off).
->
-> Thanks
-> Vivek
-
--- 
-paul-moore.com
+diff --git a/fs/xfs/xfs_fsmap.c b/fs/xfs/xfs_fsmap.c
+index 48287caad28b..10e1cb71439e 100644
+--- a/fs/xfs/xfs_fsmap.c
++++ b/fs/xfs/xfs_fsmap.c
+@@ -864,8 +864,8 @@ xfs_getfsmap(
+ 	    !xfs_getfsmap_is_valid_device(mp, &head->fmh_keys[1]))
+ 		return -EINVAL;
+ 
+-	use_rmap = capable(CAP_SYS_ADMIN) &&
+-		   xfs_has_rmapbt(mp);
++	use_rmap = xfs_has_rmapbt(mp) &&
++		   has_capability_noaudit(current, CAP_SYS_ADMIN);
+ 	head->fmh_entries = 0;
+ 
+ 	/* Set up our device handlers. */
+diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
+index 2515fe8299e1..83481005317a 100644
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -1189,7 +1189,7 @@ xfs_ioctl_setattr_get_trans(
+ 		goto out_error;
+ 
+ 	error = xfs_trans_alloc_ichange(ip, NULL, NULL, pdqp,
+-			capable(CAP_FOWNER), &tp);
++			has_capability_noaudit(current, CAP_FOWNER), &tp);
+ 	if (error)
+ 		goto out_error;
+ 
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index b79b3846e71b..a65217f787cf 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -723,7 +723,7 @@ xfs_setattr_nonsize(
+ 	}
+ 
+ 	error = xfs_trans_alloc_ichange(ip, udqp, gdqp, NULL,
+-			capable(CAP_FOWNER), &tp);
++			has_capability_noaudit(current, CAP_FOWNER), &tp);
+ 	if (error)
+ 		goto out_dqrele;
+ 
+diff --git a/kernel/capability.c b/kernel/capability.c
+index 46a361dde042..765194f5d678 100644
+--- a/kernel/capability.c
++++ b/kernel/capability.c
+@@ -360,6 +360,7 @@ bool has_capability_noaudit(struct task_struct *t, int cap)
+ {
+ 	return has_ns_capability_noaudit(t, &init_user_ns, cap);
+ }
++EXPORT_SYMBOL(has_capability_noaudit);
+ 
+ static bool ns_capable_common(struct user_namespace *ns,
+ 			      int cap,
