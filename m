@@ -2,121 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95181C4332F
-	for <selinux@archiver.kernel.org>; Wed,  2 Mar 2022 16:20:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B8FAC433EF
+	for <selinux@archiver.kernel.org>; Wed,  2 Mar 2022 16:40:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241879AbiCBQVE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Mar 2022 11:21:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43920 "EHLO
+        id S243538AbiCBQlI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Mar 2022 11:41:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241888AbiCBQVD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Mar 2022 11:21:03 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 238369E9E6
-        for <selinux@vger.kernel.org>; Wed,  2 Mar 2022 08:20:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646238019;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mi9d0z3hlNmZs4DgmsD1Q0TBGhS/Q0z0n6CA72h9+tw=;
-        b=ELocfUTBVet7wrl/juRs+6h54L5l7WXqw6nP9wDPcYOpsv9LBtCAcbRKiHKJFYtmWQgLVd
-        NFE1xHF1mXS6/yhY60C1+O44JpxwLB9/+V7oG1ZM08X0Dwjp6DPNxhJzOzWqAOKqOkx0sG
-        UW+KWy+ZNBaRwa/Oa5rWMXU/rP6d3q4=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-507-e1GODSiVPs-MmuqYba77FA-1; Wed, 02 Mar 2022 11:20:18 -0500
-X-MC-Unique: e1GODSiVPs-MmuqYba77FA-1
-Received: by mail-yb1-f198.google.com with SMTP id g2-20020a5b0242000000b0062892750241so1111530ybp.23
-        for <selinux@vger.kernel.org>; Wed, 02 Mar 2022 08:20:18 -0800 (PST)
+        with ESMTP id S243455AbiCBQkx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Mar 2022 11:40:53 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB24BCF385
+        for <selinux@vger.kernel.org>; Wed,  2 Mar 2022 08:40:08 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id p4so3083219edi.1
+        for <selinux@vger.kernel.org>; Wed, 02 Mar 2022 08:40:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=dNbJGASQ5Pj2olNDJ4E1SAdB9M2qC/RceXbqjCgevtY=;
+        b=53WQyjvtsJ967nxw064K6rlqD8DBASReSiaFU3UtkrQoEA9KmD2N+rZyt4nAh+OGR7
+         OvpHFgrvRoedLzNzHmnSy6Xq4zhaqdnpjeVsnPwobfIdkD8WwSKyTyHQ5m6w6IDXLHQ6
+         UpBoYjXOdVEKRstIfV+jekLCjABp4OOIK3dt74b7lMbWLkXT9jjXEp/utyqyDx1C7I0S
+         2gFuIhj/r5nnbgK0oAWINj5lTWDWtekBFVNk66Y6cIKPxL7t1CrQLr7T4Lm96zygWoSP
+         T/XfNj7Y9k2m0iU0tJjekoWVrowrILvJa4UzsU8SYy+eGgX9072x3xCEk697DJ29eveq
+         dLdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mi9d0z3hlNmZs4DgmsD1Q0TBGhS/Q0z0n6CA72h9+tw=;
-        b=Qo1hmu0ruFdvzro4wnG+8Kp8myHWCK1ngtZv0woqUOYvoJw6lL0Lo1qpeoQurRfSJk
-         jfINxLJk0gpCdcOGqbd4pe+ZUT/BVJ3AKX/KcgeoDSlFXEmKB25QHoPBCU5xF65DawcI
-         huZtuTKiFxRqgjXraTG+XwnsCcBOvZ6ZjdRe7XQEYFUvHu/tfjXsiA4rCGybNIZvaYMp
-         r5xBzwTkdj0Y+GYkT3xBbA7IktXwtl5djl/L9liJU3IBX+hjNLtLGlqgkyPMYFaV61Tx
-         GVxts+yZp7vwfNYIR3hpj1FropAwRd5RGwfKvim43N7L9yeFPmQNN6afKclStI6jp37N
-         +LAg==
-X-Gm-Message-State: AOAM533pneODcrfqIshPUCVBpqHO+LaA36SbbxSlTKVoIvtdnCK1BDHV
-        TpqLFZVnMJP23txM+dLHmJrzc1JuJtQwwzRLsACJSbgERq2p3IEfGHijA/wn0K6Mqa8PwFMM2d2
-        +BGI2eUTZfJmT77o/uVbq8nOjNUs/iyTDSg==
-X-Received: by 2002:a81:b549:0:b0:2db:c2a8:3689 with SMTP id c9-20020a81b549000000b002dbc2a83689mr11528608ywk.247.1646238017293;
-        Wed, 02 Mar 2022 08:20:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxETP3iiAa71nOOhMVsmAuWiBSkipltxJjgjnpbe/r2yxWZm4ZVLweG554AaMM3rdsF19s/qvXdx7oZTXXyGTk=
-X-Received: by 2002:a81:b549:0:b0:2db:c2a8:3689 with SMTP id
- c9-20020a81b549000000b002dbc2a83689mr11528576ywk.247.1646238016922; Wed, 02
- Mar 2022 08:20:16 -0800 (PST)
+         :message-id:subject:to;
+        bh=dNbJGASQ5Pj2olNDJ4E1SAdB9M2qC/RceXbqjCgevtY=;
+        b=7q9H2gIDFtYKY+mY4KgjHTLKFOTtrPusoVcQeJlRvSjDAX5lRtSPHIVWP5RmQusyWz
+         MVhd2prMBabeJn7OfY3SJ5nwWFrq54jK4vOq9f9JhMsu/Gv5cctDs+fUPuxft1hxEFJK
+         IxIdkFXgbfpVHFF+u/FCBER08knrYjg6H66j8UbytR/h1DNdnBz51aNX5S2CaiFenGUv
+         uxHRjuAHeATnkgWVTsSfn04rXVnU5a7/ODQRsuJJQWk8FIRtzDlyKKMjxp9QwiAa4eUJ
+         JFhTqohF3jB2sK0hP8maDs5r+cPEPcvKIVpT6R2Ytqbw5PkdfcGBSH5+GxGzoRrTJXGS
+         QKpQ==
+X-Gm-Message-State: AOAM531AV+wCtD9imcoE6HeSK6ihkTImBg0ckJaIxxA+y2LZ7EBKw9Fe
+        QL+0ibr/wH+e4UoEYjgtL2pk/mw0g2Q1XbLcZgljmVjxYQ==
+X-Google-Smtp-Source: ABdhPJwB8arf/8kgwdaPXwraj+ftl1MBRqX6y5fTQKgk/6mXG2LDpd3fUDY3Bapu3m0NR1PsXFr931gYtS0EX4r+Uho=
+X-Received: by 2002:aa7:c896:0:b0:413:c96d:6bfd with SMTP id
+ p22-20020aa7c896000000b00413c96d6bfdmr13254017eds.331.1646239206839; Wed, 02
+ Mar 2022 08:40:06 -0800 (PST)
 MIME-Version: 1.0
-References: <CAFqZXNtBmoVppmhgrxfzuZrQ+oksWeSHH_x7ZgG4Wa6VO05Dsw@mail.gmail.com>
- <20220218092057.394337-1-plautrba@redhat.com>
-In-Reply-To: <20220218092057.394337-1-plautrba@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 2 Mar 2022 17:20:05 +0100
-Message-ID: <CAFqZXNvk3QZZChy7Uasp2E4FjQj4yUBmSCq_bVvFacZtPv=xJg@mail.gmail.com>
-Subject: Re: [PATCH v2] policycoreutils/fixfiles: Use parallel relabeling
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <164615727605.32677.11271643808590060552.stgit@olly>
+In-Reply-To: <164615727605.32677.11271643808590060552.stgit@olly>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 2 Mar 2022 11:39:55 -0500
+Message-ID: <CAHC9VhTuyv73X4icRv+VUt470yUHbxu55Z0eb3GjAViZGYjiPg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: shorten the policy capability enum names
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 10:21 AM Petr Lautrbach <plautrba@redhat.com> wrote:
-> Commit 93902fc8340f ("setfiles/restorecon: support parallel relabeling")
-> implemented support for parallel relabeling in setfiles. This is
-> available for fixfiles now.
+On Tue, Mar 1, 2022 at 12:54 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> The SELinux policy capability enum names are rather long and follow
+> the "POLICYDB_CAPABILITY_XXX format".  While the "POLICYDB_" prefix
+> is helpful in tying the enums to other SELinux policy constants,
+> macros, etc. there is no reason why we need to spell out
+> "CAPABILITY" completely.  Shorten "CAPABILITY" to "CAP" in order to
+> make things a bit shorter and cleaner.
+>
+> Moving forward, the SELinux policy capability enum names should
+> follow the "POLICYDB_CAP_XXX" format.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->
-> - fixed echo commands for onboot
->
-> policycoreutils/scripts/fixfiles   | 35 +++++++++++++++++-------------
->  policycoreutils/scripts/fixfiles.8 | 17 ++++++++++-----
->  2 files changed, 31 insertions(+), 21 deletions(-)
->
-> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-> index 6fb12e0451a9..1ff4d9bdf04e 100755
-> --- a/policycoreutils/scripts/fixfiles
-> +++ b/policycoreutils/scripts/fixfiles
-[...]
-> @@ -342,17 +344,17 @@ esac
->  }
->  usage() {
->         echo $"""
-> -Usage: $0 [-v] [-F] [-M] [-f] relabel
-> +Usage: $0 [-v] [-F] [-M] [-f] [-T nthreads] relabel
->  or
-> -Usage: $0 [-v] [-F] [-B | -N time ] { check | restore | verify }
-> +Usage: $0 [-v] [-F] [-B | -N time ]  [-T nthreads] { check | restore | verify }
+>  security/selinux/ima.c                     |    4 ++--
+>  security/selinux/include/policycap.h       |   22 +++++++++++-----------
+>  security/selinux/include/policycap_names.h |    2 +-
+>  security/selinux/include/security.h        |   18 +++++++++---------
+>  security/selinux/selinuxfs.c               |    2 +-
+>  5 files changed, 24 insertions(+), 24 deletions(-)
 
-There is an extra space added here, but that can be fixed up when applying.
+Merged into selinux/next.
 
->  or
-> -Usage: $0 [-v] [-F] { check | restore | verify } dir/file ...
-> +Usage: $0 [-v] [-F] [-T nthreads] { check | restore | verify } dir/file ...
->  or
-> -Usage: $0 [-v] [-F] -R rpmpackage[,rpmpackage...] { check | restore | verify }
-> +Usage: $0 [-v] [-F] [-T nthreads] -R rpmpackage[,rpmpackage...] { check | restore | verify }
->  or
-> -Usage: $0 [-v] [-F] -C PREVIOUS_FILECONTEXT { check | restore | verify }
-> +Usage: $0 [-v] [-F] [-T nthreads] -C PREVIOUS_FILECONTEXT { check | restore | verify }
->  or
-> -Usage: $0 [-F] [-M] [-B] onboot
-> +Usage: $0 [-F] [-M] [-B] [-T nthreads] onboot
->  """
->  }
->
-[...]
-
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
-
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+-- 
+paul-moore.com
