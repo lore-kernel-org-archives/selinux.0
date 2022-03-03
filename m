@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94F88C433EF
-	for <selinux@archiver.kernel.org>; Thu,  3 Mar 2022 18:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D21CC433F5
+	for <selinux@archiver.kernel.org>; Thu,  3 Mar 2022 18:22:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230173AbiCCSWa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Mar 2022 13:22:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
+        id S230207AbiCCSXa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Mar 2022 13:23:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbiCCSWa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 13:22:30 -0500
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 930DF1A39D9
-        for <selinux@vger.kernel.org>; Thu,  3 Mar 2022 10:21:44 -0800 (PST)
-Received: by mail-ot1-x335.google.com with SMTP id u17-20020a056830231100b005ad13358af9so5298417ote.11
-        for <selinux@vger.kernel.org>; Thu, 03 Mar 2022 10:21:44 -0800 (PST)
+        with ESMTP id S230365AbiCCSXa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 13:23:30 -0500
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AC1F7463
+        for <selinux@vger.kernel.org>; Thu,  3 Mar 2022 10:22:42 -0800 (PST)
+Received: by mail-ot1-x336.google.com with SMTP id l25-20020a9d7a99000000b005af173a2875so5325294otn.2
+        for <selinux@vger.kernel.org>; Thu, 03 Mar 2022 10:22:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=rBWunf/kyrsx1t9n8wZuDDCwYixrCvGwHFOVCQBdSC0=;
-        b=RvVJfAr7NnsF/szol48OBMmyzJVtWovxS4P8GIyJ7ywJ73oslbVZxDkb5MA+4tadfm
-         Fi0IxC9PaM1cO+DUBRDrlXizW+f/borpYNwk3ki0iXTdOgxBrI81qhlNLL3pfmS/gYwf
-         FvBw7RPwFZ5J2y/IeOPYP+P7gcDkIegEajl+2wOdmlx8DxC6T6GkkO8kb1yu7e49c7XN
-         qqg3REc/iCygFQETsiP7CUra03f8dH/BXr4Nrbh7xqTEbLaEeGwABNV45yqtV14R5UBF
-         6zYq0u3MzqbbDhSMg7ZM0xebYqgmDEODR1v1pfTIiH7mRqN7BXOvZg18SIkvayofruK5
-         Sirw==
+        bh=1z7iqTc1CZKpqWNx/KI3jYPT1wsEQv5Cf91OnzCOtBw=;
+        b=ECg2KRcOl2wtYJifktd4DUoX+BRiOEA7ggQonPUG6h/MH7kHYOaG9N7dnkv2kmwgsH
+         r1zMdmhzYKNnG0JjHxQ02LEXgamkOO5ftUDWWvD1FWD8TXRktx9KXt6iPdlKtfT2CePa
+         P9pJ7el9b50wibOgZmGpf2XTF5Pm0GWI5j7Y7crQmSikGiil2a5N+edBQWEujsqCciCE
+         X2v45496U+EMF2+bb0eN1Tw3onFSKalO6pYCOyh6O8+ed+CqQJwd8SC5Xb0lGBJsISnO
+         GrdpUjryG1jlZ+iDvunWpn+lxyaknhxMUYrvE5BMtKrguzrtJdSQbRm1rutUCHeXeQgO
+         6T+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=rBWunf/kyrsx1t9n8wZuDDCwYixrCvGwHFOVCQBdSC0=;
-        b=za8zKMgaflKzlIyjvaxw+/sNQH/hw5CN6wxz0je5MfKkMl+ozJyHcealFp704a1xYO
-         etNbPHPpuGeuvTpHN7D44o5Tc0qcHnk0fbFbUFl0HRV1PzWfS6v2vPfaL09lEO0CQ4Fx
-         JIgfYYBBoDAOwGroR1xrcASXFhZz/uJX2AKayMtsTPMya3iA1VKZ6Dydnry+3h03s6IP
-         +auTqxK9rQZk/N7ZY3mSSFvgBrABfvePocxlzFj1jRY9QyGwxTENijwcM9slWSSNA4TN
-         7dIGkPEic5jt3o+/7LGivPeo+Oq2ie0b7PoQurww8cqtHX0IH8lNYetiacQZuxF5pnjJ
-         aCrg==
-X-Gm-Message-State: AOAM530b+dUkSKplchF2dEqoBbqeUh/oq19Al50kwzpjDJ9OQ7XkCWgo
-        H6Pw6FSVOh6PqhQArdV4KP5GF+M+mKq79W05dq8=
-X-Google-Smtp-Source: ABdhPJyWN+eKxonFCJQhAFU5JsHPdCKOGTIjNZQ6nBOHH2Ny+1wC3+P/pqLpjYc7/57ArHchUn1GRFJHSz1npOgGbOU=
+        bh=1z7iqTc1CZKpqWNx/KI3jYPT1wsEQv5Cf91OnzCOtBw=;
+        b=ZMzaJ3fd4E8tgZXNynXp8Q/Mil4buhx6xvwricGYyWME7Cz2dJNISFQQVGmZFkGwfI
+         7rC6/Xvy6jxvNTlw+E6G7+tqSuxadrTZYeoaR+D2jTa19ZTFzIRWtVgK8sSm04Hdqm0G
+         atX2whKDq26mZgvPZWgjNU0j9YvIOeICfr85d82aBYTipxy7eE8NFzOVfpTA2WHXG3IA
+         zAUkFOaJUXILT8Ws7wSoeVtFs3yMbhFgUnzyIuvRh583vrYGcePkH9l7z7dXzKQgT+/K
+         CGteHsADu5FpPYulPan4UtcOQk8NYqf73ZJEL8vFHyYKz+BCaEbDcemkthNG+uUzNfOe
+         dCNw==
+X-Gm-Message-State: AOAM531F+I0SFlIFs1yNU066MATc/S//7Jr89XcImnqiANr7r5bgBR/e
+        HtbMBUIwvr81snI2fTaOE0BFTqJlWgkiPmanqXCnayyg
+X-Google-Smtp-Source: ABdhPJzSHqWt3qqHtce3LCmsiPCarHXXIXM8CIDU99mdIgue3TLJTysZ4y8pa+bKrfZFjI9qcQD6/9yHqPNJcCGNivI=
 X-Received: by 2002:a05:6830:2390:b0:5ac:19a3:4888 with SMTP id
- l16-20020a056830239000b005ac19a34888mr19941389ots.53.1646331702669; Thu, 03
- Mar 2022 10:21:42 -0800 (PST)
+ l16-20020a056830239000b005ac19a34888mr19944499ots.53.1646331762312; Thu, 03
+ Mar 2022 10:22:42 -0800 (PST)
 MIME-Version: 1.0
-References: <20220222134956.30277-1-cgzones@googlemail.com> <CAP+JOzQ2EJoYb_tZ2LLr8OLuq7owTmQwP8-zzv7uXzy3bqWXAw@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ2EJoYb_tZ2LLr8OLuq7owTmQwP8-zzv7uXzy3bqWXAw@mail.gmail.com>
+References: <20220222135143.30602-1-cgzones@googlemail.com> <CAP+JOzT5O2XYeZ0499__f9S9mhdDRv+hB_z6syiydNgCj=+sRA@mail.gmail.com>
+In-Reply-To: <CAP+JOzT5O2XYeZ0499__f9S9mhdDRv+hB_z6syiydNgCj=+sRA@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 3 Mar 2022 13:21:31 -0500
-Message-ID: <CAP+JOzTSSx=XD9hCgE8akUERGbBC4ryyYqNREycSNV9oUjsTkQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: NULL pointer offset fix
+Date:   Thu, 3 Mar 2022 13:22:31 -0500
+Message-ID: <CAP+JOzSLFk1gncEGYkzFT1gqOXKCSHgXW+i9syLQDncOxJCuuQ@mail.gmail.com>
+Subject: Re: [PATCH 1/4] newrole: add Makefile target to test build options
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -59,51 +59,59 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 28, 2022 at 4:54 PM James Carter <jwcart2@gmail.com> wrote:
+On Wed, Mar 2, 2022 at 11:03 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Tue, Feb 22, 2022 at 10:36 AM Christian G=C3=B6ttsche
+> On Wed, Feb 23, 2022 at 2:27 AM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > On the first loop iteration the variables `r_buf` and `reason_buf_used`
-> > are NULL respective 0.  Please UBSAN by not adding them but instead
-> > directly assign NULL.
-> >
-> >     services.c:800:16: runtime error: applying zero offset to null poin=
-ter
-> >         #0 0x4d4fce in constraint_expr_eval_reason ./libsepol/src/servi=
-ces.c:800:16
-> >         #1 0x4cf31a in sepol_validate_transition_reason_buffer ./libsep=
-ol/src/services.c:1079:8
+> > Add a Makefile target which build newrole with all combinations of
+> > supported build options.
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged.
+This series has been merged.
 Thanks,
 Jim
 
 > > ---
-> >  libsepol/src/services.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >  policycoreutils/newrole/Makefile | 13 +++++++++++++
+> >  1 file changed, 13 insertions(+)
 > >
-> > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> > index 7becfd1b..29723729 100644
-> > --- a/libsepol/src/services.c
-> > +++ b/libsepol/src/services.c
-> > @@ -797,7 +797,7 @@ mls_ops:
+> > diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole=
+/Makefile
+> > index 4dedb7dd..b3ccf671 100644
+> > --- a/policycoreutils/newrole/Makefile
+> > +++ b/policycoreutils/newrole/Makefile
+> > @@ -91,3 +91,16 @@ indent:
 > >
-> >                 for (x =3D 0; buffers[x] !=3D NULL; x++) {
-> >                         while (1) {
-> > -                               p =3D *r_buf + reason_buf_used;
-> > +                               p =3D *r_buf ? (*r_buf + reason_buf_use=
-d) : NULL;
-> >                                 len =3D snprintf(p, reason_buf_len - re=
-ason_buf_used,
-> >                                                 "%s", buffers[x]);
-> >                                 if (len < 0 || len >=3D reason_buf_len =
-- reason_buf_used) {
+> >  relabel: install
+> >         /sbin/restorecon $(DESTDIR)$(BINDIR)/newrole
+> > +
+> > +test-build-options:
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dy AUDIT_LOG_PRIV=3Dy NAMESPACE_PRIV=
+=3Dy clean newrole
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dy AUDIT_LOG_PRIV=3Dy NAMESPACE_PRIV=
+=3Dn clean newrole
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dy AUDIT_LOG_PRIV=3Dn NAMESPACE_PRIV=
+=3Dy clean newrole
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dy AUDIT_LOG_PRIV=3Dn NAMESPACE_PRIV=
+=3Dn clean newrole
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dy AUDIT_LOG_PRIV=3Dy NAMESPACE_PRIV=
+=3Dy clean newrole
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dn AUDIT_LOG_PRIV=3Dn NAMESPACE_PRIV=
+=3Dy clean newrole
+> > +       $(MAKE) PAMH=3Dy AUDITH=3Dn AUDIT_LOG_PRIV=3Dn NAMESPACE_PRIV=
+=3Dn clean newrole
+> > +       $(MAKE) PAMH=3Dn AUDITH=3Dy AUDIT_LOG_PRIV=3Dy NAMESPACE_PRIV=
+=3Dn clean newrole
+> > +       $(MAKE) PAMH=3Dn AUDITH=3Dy AUDIT_LOG_PRIV=3Dn NAMESPACE_PRIV=
+=3Dn clean newrole
+> > +       $(MAKE) PAMH=3Dn AUDITH=3Dn AUDIT_LOG_PRIV=3Dn NAMESPACE_PRIV=
+=3Dn clean newrole
+> > +       $(MAKE) clean
 > > --
 > > 2.35.1
 > >
