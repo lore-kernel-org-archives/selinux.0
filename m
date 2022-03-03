@@ -2,103 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF431C433EF
-	for <selinux@archiver.kernel.org>; Thu,  3 Mar 2022 05:23:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FB58C433EF
+	for <selinux@archiver.kernel.org>; Thu,  3 Mar 2022 17:27:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229676AbiCCFYL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Mar 2022 00:24:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42044 "EHLO
+        id S235309AbiCCR2O (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Mar 2022 12:28:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbiCCFYK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 00:24:10 -0500
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B5290FF5
-        for <selinux@vger.kernel.org>; Wed,  2 Mar 2022 21:23:24 -0800 (PST)
-Received: by mail-pg1-x549.google.com with SMTP id j29-20020a634a5d000000b00376a7b5602dso2233172pgl.4
-        for <selinux@vger.kernel.org>; Wed, 02 Mar 2022 21:23:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc
-         :content-transfer-encoding;
-        bh=/YN2YXmJhNDqL2lKEiwSV0FA3jgsteuXO5FPdAULWZM=;
-        b=VyAnVObO4fv/3ZdOeEFIemtw7BzNNztvGt00UwFqZjn5jqjgj32v354TN3OqGM/eDI
-         gfpczPaE1nq0W5k/YyBrbNWsP6/xXIekKjMNK7DgX2XVMw72G8orbwsZXIVMFeQDwe/w
-         PCt0x+9wwa5P/nTqs77CqiFnZu2xE8DiPlAnEyrJ2DQPjEtIj+OTIwOss7eYeFdspcQ8
-         JEKvejXHkxK5WQv7psEBmH1auZEHN7wvt7ulr3pFiOAyDY4x4BngchBMSbXCCRHxCK0n
-         0MV6nYTKz4Yv3JUTR2qurTDXjnQgL4ifdzYf5JfUj2nmVBlDRsd2Yxs2PsnMLqLuP/ur
-         OoZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc
-         :content-transfer-encoding;
-        bh=/YN2YXmJhNDqL2lKEiwSV0FA3jgsteuXO5FPdAULWZM=;
-        b=U0k0beB4Rp6nAZvPJq3h8CQktMR6zkVPKj8bP52e7Ptv092WqlYEW1joPwB0ex706Z
-         3e4ZOvgEGfX0PhWo+43AQO0aFuxeYvjNxY8uQ/Ezwzp+qALF80Wh7smeiYOrkDqbB4SR
-         vCA8I1Hbf7F1MxL5O+FUHy0a6Xm6F+17kqRttJQh+nC8weexsOJWuEKOR/3V+2yFi+ZH
-         cKRKg/56FNuMZjkT7X1ONGrjIrNV+N6uKhdPijDMHmhvvk2A2gyhQs5JLECjqn52Bm6M
-         JLvMTOr/hTo3W6cR9AeNvR/HFjyID0qbW4PTClHuZlGjNLBMgpYtCU6vA6PFydPbRb4q
-         E4nA==
-X-Gm-Message-State: AOAM532FznFLqNiyVLsRHSJZ6o21RJI8LXC0xQgNRbQS2L2ZC+fhCFw7
-        Ik5BIhEJuzzcMWgjiFHribOiGnJ88mearron5/xhVze3wQR78f1JvHrxShtAoTUzM914TpsM1w6
-        CfYjNSqaoHED08SH+1QLBnoeFLlrXpbi9Mx4sM9NA+VIcCBB8CHCN2FHtCV+Z
-X-Google-Smtp-Source: ABdhPJztCiY/w2p6JgczxYXgskdkrxbV77r8Cwz5X8eNcvPW+wfBRURxLHKh3SawepCjqCTy1VUF570F3Q==
-X-Received: from tweek.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:280])
- (user=tweek job=sendgmr) by 2002:a17:902:ef51:b0:150:143e:4ae9 with SMTP id
- e17-20020a170902ef5100b00150143e4ae9mr34225267plx.86.1646285003985; Wed, 02
- Mar 2022 21:23:23 -0800 (PST)
-Date:   Thu,  3 Mar 2022 16:23:06 +1100
-Message-Id: <20220303052306.357002-1-tweek@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
-Subject: [PATCH] libsepol: fix reallocarray imports
-From:   "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To:     selinux@vger.kernel.org,
-        "=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>
-Cc:     jeffv@google.com, alanstokes@google.com,
-        "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S235335AbiCCR2O (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 12:28:14 -0500
+X-Greylist: delayed 384 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 03 Mar 2022 09:27:26 PST
+Received: from sandeen.net (sandeen.net [63.231.237.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BA39C28F;
+        Thu,  3 Mar 2022 09:27:26 -0800 (PST)
+Received: from [10.0.0.147] (liberator.sandeen.net [10.0.0.147])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by sandeen.net (Postfix) with ESMTPSA id 8E1E7323C1F;
+        Thu,  3 Mar 2022 11:19:58 -0600 (CST)
+Message-ID: <e97b6ef6-dc48-c49b-a98e-6d404dc79a59@sandeen.net>
+Date:   Thu, 3 Mar 2022 11:21:00 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.6.1
+Content-Language: en-US
+To:     "Darrick J. Wong" <djwong@kernel.org>,
+        xfs <linux-xfs@vger.kernel.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        john.haxby@oracle.com
+References: <20220301025052.GF117732@magnolia>
+From:   Eric Sandeen <sandeen@sandeen.net>
+Subject: Re: [PATCH RESEND] xfs: don't generate selinux audit messages for
+ capability testing
+In-Reply-To: <20220301025052.GF117732@magnolia>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In f0a5f6e, calls to reallocarray were introduced. Ensure that the
-correct header (private.h) is included when necessary.
+On 2/28/22 8:50 PM, Darrick J. Wong wrote:
+> From: Darrick J. Wong <djwong@kernel.org>
+> 
+> There are a few places where we test the current process' capability set
+> to decide if we're going to be more or less generous with resource
+> acquisition for a system call.  If the process doesn't have the
+> capability, we can continue the call, albeit in a degraded mode.
+> 
+> These are /not/ the actual security decisions, so it's not proper to use
+> capable(), which (in certain selinux setups) causes audit messages to
+> get logged.  Switch them to has_capability_noaudit.
+> 
+> Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+> Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: Dave Chinner <david@fromorbit.com>
 
-Fixes: f0a5f6e ("libsepol: use reallocarray wrapper to avoid overflows")
-Test: Built using Android CI (glibc 2.17)
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
----
- libsepol/src/kernel_to_common.c | 1 +
- libsepol/src/util.c             | 2 ++
- 2 files changed, 3 insertions(+)
+Thanks Darrick. This looks technically correct to me as well.
 
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_commo=
-n.c
-index dc9e689e..972499ab 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -18,6 +18,7 @@
- #include <sepol/policydb/hashtab.h>
- #include <sepol/policydb/symtab.h>
-=20
-+#include "private.h"
- #include "kernel_to_common.h"
-=20
-=20
-diff --git a/libsepol/src/util.c b/libsepol/src/util.c
-index b7230564..1cd1308d 100644
---- a/libsepol/src/util.c
-+++ b/libsepol/src/util.c
-@@ -28,6 +28,8 @@
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/util.h>
-=20
-+#include "private.h"
-+
- struct val_to_name {
- 	unsigned int val;
- 	char *name;
---=20
-2.35.1.574.g5d30c73bfb-goog
+You might want to add a:
 
+Fixes: 7317a03df703f ("xfs: refactor inode ownership change transaction/inode/quota allocation idiom")
+
+because I /think/ that's the commit that moved the capable() checks out
+from under quota tests, and made the problem more visible.
+
+And maybe:
+
+Fixes: ea9a46e1c4925 ("xfs: only return detailed fsmap info if the caller has CAP_SYS_ADMIN")
+
+as well?
+
+It's not strictly fixing the former; AFAICT the problem existed when quota was
+enabled already, so I'll leave all that to your discretion.
+
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+
+Thanks,
+-Eric
