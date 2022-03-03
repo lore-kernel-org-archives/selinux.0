@@ -2,105 +2,200 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ECE2C433F5
-	for <selinux@archiver.kernel.org>; Thu,  3 Mar 2022 18:23:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CA1CC433F5
+	for <selinux@archiver.kernel.org>; Thu,  3 Mar 2022 21:48:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbiCCSYl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Mar 2022 13:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55188 "EHLO
+        id S234600AbiCCVsu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Mar 2022 16:48:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231335AbiCCSYk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 13:24:40 -0500
-Received: from mail-oo1-xc35.google.com (mail-oo1-xc35.google.com [IPv6:2607:f8b0:4864:20::c35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE3941A39E0
-        for <selinux@vger.kernel.org>; Thu,  3 Mar 2022 10:23:54 -0800 (PST)
-Received: by mail-oo1-xc35.google.com with SMTP id d134-20020a4a528c000000b00319244f4b04so6721367oob.8
-        for <selinux@vger.kernel.org>; Thu, 03 Mar 2022 10:23:54 -0800 (PST)
+        with ESMTP id S233132AbiCCVst (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 16:48:49 -0500
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2FC9EDF0C
+        for <selinux@vger.kernel.org>; Thu,  3 Mar 2022 13:48:02 -0800 (PST)
+Received: by mail-qv1-xf34.google.com with SMTP id d3so5218770qvb.5
+        for <selinux@vger.kernel.org>; Thu, 03 Mar 2022 13:48:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=t9Mnt6fTvuKhH0Nh/b8xZtzJQFZEpCfNQV6SLI5pfo8=;
-        b=D4gK7iTKLtrabiQMQrnVbn72kOGoUtuGkdqEShXV5DIzpu7hehmuFYghnm+gjoOJgz
-         qbvoUwEPvWwT/Z1cRuAhhRzqKlZAOSa9Rdk0Wu65OmMu69CSeK6bnwElajErIXcaPc9c
-         8ROpTWWOh8RoRlPA/07SCnGdsHheREJS1mCG8o5PldGfBuy+xS8xxse0nx1TdQ98SCa8
-         2MONlTRdQkkoHzzZbYZeEOLOAW2sYs3EkO5/gsdd9sOBHHUnV2+HhS/5K4H45ozT0lIG
-         CJzDXXNkHpzAkMjj4QGjd5AEY0A+NkaX/HYwWflBFFG4fuG5iZpGEOhTgzB10uDjdNTo
-         xuCA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FrArwC+L7riqOwYSJEN1JhuzBm8LWEjx6z0TSxG5JRk=;
+        b=MZ33JB8Db2S2A6ip+hL0zwtVCG3viWmK0VbC+B5DERxW3vB4ItxRoTNi1HkuD38uLT
+         Y9XBpz63osx5BnI3E766xvao57rHKwOinkWBkO77faSmHde39kOjqO9sD3DbGWlghIcx
+         gKgsF2iKVr/+EzycZly6/D+N3nmsHPhpjU6hX8SpvyjLjTVmJ5tG1QFjixLBEIxC1g/0
+         1624W9aIVraCYua8O0yzLC+jQNbn4K+td0VN6Lz5vKWMlhOkOdE/UsCVaWKBs62EEwBr
+         rqg6sdnV0xdhGlUSZ08ACvS1xBjjyqSJ3Zbn6QCc1T6vNnVtdXZw/VxqhVYhFmtl+q7F
+         337Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=t9Mnt6fTvuKhH0Nh/b8xZtzJQFZEpCfNQV6SLI5pfo8=;
-        b=yrZ91YvmcD05IzCJV1ozSiSG0mxdLS8klIy88mG+UYWh1HMbR2sGycEVvOheuSErPs
-         JVZZlPwgSGiu4zpokcK006o9/ZF1lTr9aCurMZuhrlCL6ZgTR3hTvMqWvLWHiy9nDgAD
-         ufg0Y7QQ7+J1w0IBat8L6jpN8yjhn0LE3S2ymXjcUQJN3yEla7UborwY1RQ8XdiqOLUu
-         G6BzhF2rmxaRCQlyQlM/N6KdZO3b6NQprRH41EpN7GYhjOQujVNv8q54gFRi/qVNSBrz
-         1f6ZSR5yrEahUK42UY/0rrpqYrO13g0pbJ2IxyrXDnP81vBmlTxMUWkUYC7F9zedt7dm
-         I7cw==
-X-Gm-Message-State: AOAM531YyJB1twC6Kj8vxRRk3tJx+6HAGjGcQ0Z8JyEwKeO+lJxKDtox
-        LO7WnX/nxNGf5d6X61+pW8iagnT9toneySSC8MI=
-X-Google-Smtp-Source: ABdhPJy5M1+ivLpYWEksx3Og3BnwPjhjzEVD3RzMZWGmYLtNQacdtDDLjwlEIqiBP+0r0VNuCVyh0rNGALSEWLLddyo=
-X-Received: by 2002:a05:6870:7a3:b0:d7:5fbf:37b7 with SMTP id
- en35-20020a05687007a300b000d75fbf37b7mr4988848oab.16.1646331834230; Thu, 03
- Mar 2022 10:23:54 -0800 (PST)
-MIME-Version: 1.0
-References: <20220302101415.431161-1-plautrba@redhat.com> <CAP+JOzRs3m1HcKGLCcQuxaTyqLNSikneHpqGnAzmegQuy7q-yw@mail.gmail.com>
-In-Reply-To: <CAP+JOzRs3m1HcKGLCcQuxaTyqLNSikneHpqGnAzmegQuy7q-yw@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FrArwC+L7riqOwYSJEN1JhuzBm8LWEjx6z0TSxG5JRk=;
+        b=cFBV8/FCHNPsfEsd153qGLSgSHdblNLoz4Abk9v86XK1osUGxo4FuaLzOseL/ToFnh
+         Zc3al+mJnHVDLKzq8BUz0tBcxvo/Lpj0M8HM7mhdpUxlCUQjt4guFm/WJebu9BjxFgFd
+         0eWBSrQPngnGL1UAKUIKdopS2Hm2t9WwBErSYY38dg8cqVB+wDXy0pR6gZm/7j+ISJVR
+         ZbqIHlC3aUAmZXWzzUyWOMz8VxFCIlkbETYglZ9jdq1vzahKmXqD2A5HKRPcqeRJuNO0
+         G/qXtfP9m9WTWbaR0YIwyfQ08C9yVzxvMuKh+Xn7SCnqHkEsuspFBa/491PRs9q2yoOc
+         tjYA==
+X-Gm-Message-State: AOAM532UV9B/XtOkygK4waeMg+ZOEutLtSPNSgbjv/oIx94Z2uQmIurG
+        HZKsh+1cfmKirs6OLjJwWaJmNeSqqdo=
+X-Google-Smtp-Source: ABdhPJzHC2Zg8pFV4aA3RPs6X5juVot2lmxA9OzH65hD4JbkK/aoeUo31igICcCjDMFcrqBfO5R5EA==
+X-Received: by 2002:ad4:5caf:0:b0:435:37ed:aa18 with SMTP id q15-20020ad45caf000000b0043537edaa18mr3126930qvh.50.1646344081903;
+        Thu, 03 Mar 2022 13:48:01 -0800 (PST)
+Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
+        by smtp.gmail.com with ESMTPSA id m10-20020a05622a054a00b002e049ff99f2sm1024838qtx.7.2022.03.03.13.48.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Mar 2022 13:48:01 -0800 (PST)
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 3 Mar 2022 13:23:43 -0500
-Message-ID: <CAP+JOzTqv6gLUo7bp=Css2cUKytcjR1zUPWBQf-dh_YDuzYaQA@mail.gmail.com>
-Subject: Re: [PATCH] semanage-fcontext.8: Drop extra )s after FILE_SPEC
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To:     selinux@vger.kernel.org
+Cc:     cgzones@googlemail.com, James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol: Do a more thorough validation of constraints
+Date:   Thu,  3 Mar 2022 16:47:50 -0500
+Message-Id: <20220303214750.566685-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 2, 2022 at 1:50 PM James Carter <jwcart2@gmail.com> wrote:
->
-> On Wed, Mar 2, 2022 at 7:35 AM Petr Lautrbach <plautrba@redhat.com> wrote=
-:
-> >
-> > Fixes: https://github.com/SELinuxProject/selinux/issues/340
-> >
-> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+When validating a policydb, do a more thorough validation of the
+constraints.
+ - No permissions if it is a (mls)validatetrans.
+ - Only mlsvalidatetrans can use u3, r3, and t3.
+ - Expressions not involving types should have an empty type set.
+ - Only "==" and "!=" are allowed when there are names.
+ - If names are not used in an expression then both the names bitmap
+   and the type set should be empty.
+ - Only roles and mls expressions can used "dom", "domby", and "incomp".
+ - An mls expression cannot use names.
+ - If the expression is "not", "and", or "or", then the names bitmap
+   and the type set should be empty.
 
-Merged.
-Thanks,
-Jim
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/src/policydb_validate.c | 69 ++++++++++++++++++++++----------
+ 1 file changed, 47 insertions(+), 22 deletions(-)
 
-> > ---
-> >  python/semanage/semanage-fcontext.8 | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/sema=
-nage-fcontext.8
-> > index 49635ba788f7..1ebf085faed8 100644
-> > --- a/python/semanage/semanage-fcontext.8
-> > +++ b/python/semanage/semanage-fcontext.8
-> > @@ -3,7 +3,7 @@
-> >  semanage\-fcontext \- SELinux Policy Management file context tool
-> >
-> >  .SH "SYNOPSIS"
-> > -.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYP=
-E \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ) | \-\-delete ( \=
--t TYPE \-f FTYPE | \-e EQUAL ) FILE_SPEC ) | \-\-deleteall  | \-\-extract =
- | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | =
-\-e EQUAL ) FILE_SPEC ) ]
-> > +.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYP=
-E \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC | \-\-delete ( \-t=
- TYPE \-f FTYPE | \-e EQUAL ) FILE_SPEC | \-\-deleteall  | \-\-extract  | \=
--\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e =
-EQUAL ) FILE_SPEC ]
-> >
-> >  .SH "DESCRIPTION"
-> >  semanage is used to configure certain elements of
-> > --
-> > 2.35.1
-> >
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 735c7a33..2c69f201 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -228,41 +228,69 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+ 	constraint_expr_t *cexp;
+ 
+ 	for (; cons; cons = cons->next) {
++		if (nperms == 0 && cons->permissions != 0)
++			goto bad;
+ 		if (nperms > 0 && cons->permissions == 0)
+ 			goto bad;
+ 		if (nperms > 0 && nperms != PERM_SYMTAB_SIZE && cons->permissions >= (UINT32_C(1) << nperms))
+ 			goto bad;
+ 
+ 		for (cexp = cons->expr; cexp; cexp = cexp->next) {
+-			if (cexp->attr & CEXPR_USER) {
+-				if (validate_ebitmap(&cexp->names, &flavors[SYM_USERS]))
+-					goto bad;
+-				if (validate_empty_type_set(cexp->type_names))
+-					goto bad;
+-			} else if (cexp->attr & CEXPR_ROLE) {
+-				if (validate_ebitmap(&cexp->names, &flavors[SYM_ROLES]))
++			if (cexp->expr_type == CEXPR_NAMES) {
++				if (cexp->attr & CEXPR_XTARGET && nperms != 0)
+ 					goto bad;
+-				if (validate_empty_type_set(cexp->type_names))
+-					goto bad;
+-			} else if (cexp->attr & CEXPR_TYPE) {
+-				if (validate_ebitmap(&cexp->names, &flavors[SYM_TYPES]))
++				if (!(cexp->attr & CEXPR_TYPE)) {
++					if (validate_empty_type_set(cexp->type_names))
++						goto bad;
++				}
++
++				switch (cexp->op) {
++				case CEXPR_EQ:
++				case CEXPR_NEQ:
++					break;
++				default:
+ 					goto bad;
+-				if (validate_type_set(cexp->type_names, &flavors[SYM_TYPES]))
++				}
++
++				switch (cexp->attr) {
++				case CEXPR_USER:
++				case CEXPR_USER | CEXPR_TARGET:
++				case CEXPR_USER | CEXPR_XTARGET:
++					if (validate_ebitmap(&cexp->names, &flavors[SYM_USERS]))
++						goto bad;
++					break;
++				case CEXPR_ROLE:
++				case CEXPR_ROLE | CEXPR_TARGET:
++				case CEXPR_ROLE | CEXPR_XTARGET:
++					if (validate_ebitmap(&cexp->names, &flavors[SYM_ROLES]))
++						goto bad;
++					break;
++				case CEXPR_TYPE:
++				case CEXPR_TYPE | CEXPR_TARGET:
++				case CEXPR_TYPE | CEXPR_XTARGET:
++					if (validate_ebitmap(&cexp->names, &flavors[SYM_TYPES]))
++						goto bad;
++					if (validate_type_set(cexp->type_names, &flavors[SYM_TYPES]))
++						goto bad;
++					break;
++				default:
+ 					goto bad;
+-			} else {
++				}
++			} else if (cexp->expr_type == CEXPR_ATTR) {
+ 				if (!ebitmap_is_empty(&cexp->names))
+ 					goto bad;
+ 				if (validate_empty_type_set(cexp->type_names))
+ 					goto bad;
+-			}
+ 
+-			if (cexp->expr_type == CEXPR_ATTR || cexp->expr_type == CEXPR_NAMES) {
+ 				switch (cexp->op) {
+ 				case CEXPR_EQ:
+ 				case CEXPR_NEQ:
++					break;
+ 				case CEXPR_DOM:
+ 				case CEXPR_DOMBY:
+ 				case CEXPR_INCOMP:
++					if ((cexp->attr & CEXPR_USER) || (cexp->attr & CEXPR_TYPE))
++						goto bad;
+ 					break;
+ 				default:
+ 					goto bad;
+@@ -270,14 +298,8 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+ 
+ 				switch (cexp->attr) {
+ 				case CEXPR_USER:
+-				case CEXPR_USER | CEXPR_TARGET:
+-				case CEXPR_USER | CEXPR_XTARGET:
+ 				case CEXPR_ROLE:
+-				case CEXPR_ROLE | CEXPR_TARGET:
+-				case CEXPR_ROLE | CEXPR_XTARGET:
+ 				case CEXPR_TYPE:
+-				case CEXPR_TYPE | CEXPR_TARGET:
+-				case CEXPR_TYPE | CEXPR_XTARGET:
+ 				case CEXPR_L1L2:
+ 				case CEXPR_L1H2:
+ 				case CEXPR_H1L2:
+@@ -300,9 +322,12 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+ 
+ 				if (cexp->op != 0)
+ 					goto bad;
+-
+ 				if (cexp->attr != 0)
+ 					goto bad;
++				if (!ebitmap_is_empty(&cexp->names))
++					goto bad;
++				if (validate_empty_type_set(cexp->type_names))
++					goto bad;
+ 			}
+ 		}
+ 	}
+-- 
+2.34.1
+
