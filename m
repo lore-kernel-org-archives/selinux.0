@@ -2,63 +2,62 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 611ADC433F5
-	for <selinux@archiver.kernel.org>; Fri,  4 Mar 2022 01:27:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7A71C433EF
+	for <selinux@archiver.kernel.org>; Fri,  4 Mar 2022 02:13:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232093AbiCDB1p (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Mar 2022 20:27:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56216 "EHLO
+        id S234317AbiCDCOi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Mar 2022 21:14:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237559AbiCDB1p (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 20:27:45 -0500
-Received: from sonic301-36.consmr.mail.ne1.yahoo.com (sonic301-36.consmr.mail.ne1.yahoo.com [66.163.184.205])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F021517B8AF
-        for <selinux@vger.kernel.org>; Thu,  3 Mar 2022 17:26:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1646357217; bh=6uWnuI7AdpEwS0XCUGVPovGTc/yyeEj7T7l1RyagDZE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=nMWEZnWLBrWzJ7hAX7oO8fCCTG5uRX3ynDKZfHIwGYkwPdlwk556E2JLqBgPyK13yB12nOP5Jl2yfSFJB3/nxYCuZWnD2npNXY7bwxGrtb5TcFR245lGZFErXF+uine65z/qX3mGpyuNlewB79kLCIMwXztK7ag3/z1hSBVGXN+iwAJVgSbQaNRKZ9p5KRdc+1bBBLOx8AfKvEyBu4EJ8EYNIMGc/l6n+Vf43Cf5249jN4ezvHyOpFCVChi1Ia8PGkwdcRS1RNIDfO7kaCHV4D2/7pW+WR9T8DvrcKSUD+j37Bqdflv8ccqS+zKNXhq84Hn+5+sMMREj5YJMeF1niA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1646357217; bh=3szUmKguUmL85OUn4VzosRmckMaoAngiMgsLlFp725g=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=FPY9FPXHgTpC7227wNkyqByRuMlajNLLjjiQ3GuY/tkBpy5hLNXI3PNd04AvKvJjF2LmtoaUyQdeRx8pGNWLnn5M1eOQh2e5Tv8882SYsHo2bs2ACUBKjYHyIaAW+qJ7iTEwwPk7JhFg/vFOwDqJcf0+TJPNqpnw8ctNRW8sVXYwManszcdw8hsfrcOOOQeViGRmzZVvMQbH+SYkp+QqzkUhUD9/tgLwKtOKLjtzP8SeZssOjLYWNixSIyOuxEpD1ri0XdiLT/R+isqRI2RxFeXKeESsr0DRdkH3oe28a18z83EeId0j3a78WrOoIRns4VqfEeklq/7HE/memOo9iQ==
-X-YMail-OSG: uAVAj6MVM1lAGPtJIYEsbxv5DqIna1GK_3Mx3klJ9vHZEibEhjgGJxt9jymqone
- dJr2R4kHOc7DADAR.lDSSkyAoOdG1_QJvhkAUP4ybpk8YFhAgmoeYRP0r9mq4EbP59ouKJiJ5wGv
- MmDTu_Mc3lOqJDOLUNCUdU7lUuf611QYUG_UKgP42L.sF5OWyCZJNL4t2YAJl3M0r0doVydTVUq3
- 9mK5ZrS82YeE06sQB.3sWz2.6PUfrE_Q_WYwcDL9alxYmvZbVekXRVZHOW7mRvbj9aaV3x3TC9Yv
- f.gprv0jKL4hqbPK0CwvEtFeF_stZ681gGuUtUPmQJh6509IdU2n7Fj6hwUFYl_FN5qpvNSkY57h
- MlqahoqgEgq.KUNRj9j_veN9dlF8ZqPlwZjDvp7RpDq22.LfzJ7e0H3PnSyxWwPId_fQYLaq4Isi
- 0trCOyn_IWeOI0Q3FqvenEBy6wu8oLChk.UZGMVv18erq_H3te4FaoCVyA1Vo1TxN1VcPC3vqRrQ
- 2xCnnnR5s8npUl01YfjaIZNVIb64HcM_pmHTEGSC_OrFmQHRcugrKe.fHgRcV__dTLUfcw26ZnVQ
- sjXNxBJJhc48fw6WrrZQAnNyDZm2AhQgCh4_3t1wSkMzDfr8jP.mCnRTL3YvjSJgY3xZNuYfZvu0
- lwgmVjTu1KpffnuJ93MP22NDmWmK9wce2C4sYgBdDd9JumKK1LnevjRi1GlD2leeXSpNd4g7nKdO
- e4fS5vFMbP7mkarsFTFps40YeGbcCjVOFyAvSL.8GO6bbBnYd1U36pj0KSWNSliC2eIHjDceS4kV
- 1pGl8MKStrCuSg8yeSpcNe3URwOH5NmLyNWN1ZafMWoVAviFHBWo9nza0ZSBVIeGKydX95NoyIPQ
- rEIdhKH4SNHBv8x26Rf9dAZZkjQ1Y8Y0tMZFxo9OSvaYKn9nOYjr6Pw1Is6eLLd_Cq4NK.5NYUia
- P_odNufY1oJVx967lriYgJ2jQrTdVDpUFBHSCOaURLMNRYc2tjnaW25.RSM3lAI12jpm0Q_q7oTz
- QBS_RR9oLgJdMWg9pBARfBMXMBIMYtpFg3CejMQZqLUptrcWr4lAws_driTGX1dBXL7VYqEl5dwr
- bufjI1WIxg9d25Ed2AWEFMpSUGxdJVZwPtCFJRIrx9pCAv.dOk0hwSlXz6T75.OPLIgGQuymhg11
- cbnGC2Rh5if4tGBUuK7SncVsQ6zrPXcPBAbgyHe5HpWP4mDuKw_20zjjahU2AT4aSf7Xi3l_u5Ns
- .huoWE4PtFiy2mi41mt8lJ.HcVD5vhQTH56FLgyW8eFHvzr8fCduZhGa.OywAPLud9XjBr2PuUb7
- lnRWiVYhMkrnTQ.Zgg9_wdi.K6oSQ5OOEJ_Mk7mL3OMy9aBjEiPBzjPTZtzUkvn6SpPXEPXGF.wf
- uVFZZBYwa_z6zPSCvWUQmG4xQT2sg0ilxFNDdq_fVrZjKmtGGlVA4xJwjHr7h7DASH9McXEbQ3nP
- QoIO3xoEVeGnPsu9ZGavTKjLJS1gAsc7Tj5tjMtbbT9_IHsa0iznUCoF7cH309ukH2Y50DHSY9x9
- pP8WJb2bF6fFFLMOnCYIvjxxLY11rpdwSVEBZpamloph6rLpuUYS7eksJxVgwYnh9D6ujHuIcjsJ
- qJAQct9q2uFu6DzxrQZzdu2i5uOGeeI.kYea_zoUdg1ScFblxQ3s3tT2T_eafe6foDm.F2Y0CNqj
- BXz47tXpkiCD0vRkfgGbnP7MLtEaUFY1oAUpF_EXR33hZgCAzJnNETfRwUrUgLwaqp04ePtQzMPB
- zPz5CAHAqFI1wjmzwK0qeceVmnTz.kxhzhFakgE94p9chklfur7Ni0ugH3uMuiePR2YeX0.2Z289
- 9jR6y8TuHUm3oyniLfIb1ao02lZJm7eq4QDMmlXQQrM4dR.68eht0cwUstY_BDSFJOL2MqYVmkbE
- sZ53JpWg.r7zoRT0tMApe7apGwwY961Pan_3ZeHHU1yk7RjWGo.raeQ0_BR2LgBWo8ezrnDiKZ2M
- jibCb1R5Fw2q5XzQXmxfh03oqC2SjwKfwzufXpAt4OpW20EItI0KcCKG4UpQzts3hWTPIyRZMBAI
- qnhymgdIu1dVl4KR68n5wwfkkg0RApt2IQnhnAh3ATWboK3Au.PMNR555gq9xY46L.q74DYdhazl
- m_vPbRWmtjARmXfLryUgoqO12e9MGoNd70OMPF_dGwyDNuCAbKkAi8rzBi38wPLDagbV5ZGeG1bM
- KG1zzFEUjiBMBjCTcHZRpBnWJhAMJoyZ2K7D7TxSXFilPES26AzTk5qpiLxmqYGfLAND2iTOIeg-
+        with ESMTP id S234215AbiCDCOh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Mar 2022 21:14:37 -0500
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com (sonic306-28.consmr.mail.ne1.yahoo.com [66.163.189.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 581126662F
+        for <selinux@vger.kernel.org>; Thu,  3 Mar 2022 18:13:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1646360029; bh=P7XN6GDqkiD99TeeHb0dTFy/6zGwu8WGWw0aiwiteak=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=WFgho6WeJJZF+CaVPYUTDLfC9bUJisiXDa737q5dChuNgK7ZA4fJC5OfIut3D4V1iM16zrIAbaAz0Y3/akAHzGwp4zb6RdoWs/Ef4HjWhR+ZUlBEbky7bMW3V+ZrgW42zyxgGTMsc9NwBsOtUDX5y9rfdeSjomCeepIxessUyepjC+jjlpp7XI99TJiPL57G0hjAH5Hvp1r2dAUUwSil3ynBWX0ZCjKf5gJ5MEqg10x7XbnLHlvZfzRbbtmwtTH4np1K/i2gQ+RDVSJR+Yzab9o97PAGCFGOIQG05HGq3vGKa23okDucK1DuiQu0moMQEVD4EC3fxSR9PoXrX0nN/Q==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1646360029; bh=FG9wnl+b/RW1G5IRiLsYXp30wSLSduCVW7lN0QegVYg=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=ERmOezgyCykAIfstDc+rDpOm4PZG/O5MGCmvrFaUnu+Y9hbZtnVYfVspaFBY+/RXQJEY1e7LLFxjHIeZZ1AFs4laLW4KFdgfvGlnSVr+f2hxkrmKHCgQzTFyD0XgzJtqckCrL/zVflp+YTc3anZLRJFrdAS9KGdQzciQw7FllW/hNAiXIZzuihLrlRwAuhMKzVB3gzmRpxe/hDjqxErTheDh6uR/Z6VutuZg4QWoHP0wAqL34NYQIOiQtBEG9diYGUwEBpMgAOZkOcnhx3S7oCvQ9lC7OQe4M0BEocuDFkgtiW2iY9ZdYpNKZ0EY9L0G1lhkvbmrw/uvNA3Bl92TzA==
+X-YMail-OSG: jTfT5m8VM1nHHHpg0G_QiMTYI41gJAwr_gzib_mGTIbS9GJPsm0wCTZ5W6usp1k
+ T7CO5Dt5xerOzF9HLdpJLQ1hqWI2z093M5WUimpsMIquSBm6IlXfYoFkFiogGxd7J5gQcj2TSq9I
+ 77WLBmz6P1Goyv_TWCvdbrl6yJsk.wJRuOsqvasilMEJ3A78Nz0Q7HbqU27EGW3KFgwCZYwup7Vt
+ s_jSyYnCsJYh2v0rjMf_rLFW8KmLqBmLBFgc4hE6jX8ltIohyND3eu2MuU6ZxLnjvWfhC_T_PwhB
+ wGQizc6hsZrKxG7O.0uHYndUmuDl4bx0umpaGMmvYnMwtfpXVhyw._eBGzUHKy7s_57tNIpkxN3G
+ utnUR_5siifdzKweJX346cxnr1X.JwjAn4fNJcTNmSVvV_ggenuT96xkjqyTw7GUV7DG7tNy5RWT
+ lZ3G3ZoMhp.HOa8Ql6uUiHwgVo9rIiu53gJY9eMACvH0lhA78nsemQSobWreZb2jxfSMqvx13GDd
+ TXMYljOIeCMqgMUFGsshHOdQ21XWr6soDNpxIr6ZLBrKjPj_0sYqZrhVyx0had4APO.P82YeHaNa
+ Fk7tZqyK.XhXqWRj3F3CbXaXF_GybbAamCR.4MeuYp04N28PDnOsclu4ivzyV7aky88Drq3iSkGG
+ UndfzVH0boy2IuTEkaK5xljkJHeaseqUR8o42sK9dvUan4XX.cMR7.QdqwDWgElS3DcSOE6rF7yj
+ x6Uo_JNCqCyrXhu8PGdlPCTElhnpRpBOyPsvPBiElT5ihuDmJUHSRROrsSBvwDQNz5Lya9bofwIZ
+ w8ER_aQhksWlSA60FAKvSlnS79DvbtY4TaGeN__WUkc72RrgYT.2.eQ_xjVSiwVaqFc.IOwxG1lj
+ xjX4idQmuDyxRrsMrq2dZZhDETqUlBv2GyRg4gj5cljZPi9THvfeMY6sBUUvSQJD9qRaZyXozdJi
+ 1y1IVdW9gJFHF9uNHlNegtnGT3KPIkJ8w9Cbri_8JAznmwmUrbAGw4vCP1I2OrC7N75OQKCHe.gh
+ jQ7e4oafWLAHCSyL0QQ9zIEK.T2NDJ0n8lO.5_ZMecqvu_CGtv.MbBFV07fqtdklzemm.WhkhK1n
+ 3WIX9HPwZNQv_jnupZMU96EK9KQG0u7iEIAo2hJVZsb71aHwJOSrIZ83pLpRiL4kF2fBEb1.xfhJ
+ fHy3EdH7_R82eNn4Fsf_3u_kxwWbzON6pZgbbexLsPwi60A8_8CZQkS7YCslAXuwDkhTutihn.YX
+ p0RYoHRn0..08m1YDabtFSG4lqPoRHATh_aTVhTIKiegp5F9qYXcpa2CzRsLLjiBIg48UDMgTlzC
+ gby4RdokKZOORII4BiIr5.gHPyFlKJFboOlZOwmbqik35.ckbE3cfSh3FzdYAt6hOfeVDo1zJf7L
+ mDMEB2EIkMDDFO_g4EDO.5R_47Qy3kwrX2AiTN6r7NT_O88VLf6QoDeIFRu3KoFmhr6TARRW8G5R
+ D3.3S0cbsliXn2CxM8tbnE1KY58.RxwrnLWkW_6AddK6vNjLN2qZ4vp__wWbpLG4twr2Q3nyqgrJ
+ gtBbbZntuUgGhaCNjo.QHrPbwxQ7tmuBY.Z_ENtOdO1TrL2ehY7UZHuMWWbuYBe3aflWI_VRy8Pq
+ 44.VLfb5n0UxB8wJMyU3mSwIPGs9Ecjbp3s71v8N237oW4jXpRDhIsfygLSWxYbrFG6KCcNlV7vV
+ DnUvG75UmomV78RrObdIwBWzwDvF8Alxs3.m3PSf9ZIM0r7Ya9Ef_YOcQH96F5.yeDfWptGnSKPx
+ AVPpnbBj9qNhgZcFU62L.vdxHh6FaOvBnTvONh.00B6zzlRz4BqRVLv3hSKGiYK2JcW0jms9c.Kk
+ z7ijsguvEBFABY2E4kQQ70Z0Piams66UrbXOYXuHBjDQPh0ui6C6ya7w7tkleGphIINew4D3rezb
+ ABUDTwBWldwZ9L2tCbxp5aw.2wh23DFKJMIYWwB3rK9_p2M4.JS95NsMsrl52Lpwi1RTgl0VO5vH
+ U1mqoLi4mZ.PdXhj_Kw_M5WVTyjq8I0tfa4DoXcs1K6rlWIqzH2RSgpbih8UnWwPCrqq8LIHe.a1
+ kj8Y7uB68ktTikTMw3BibVgELUOwsdTAy.f3HFB4HwrJCnRJPZ_bRWrOpsrT.usoG94V7OfBCS1E
+ sWJRrkhk7oJF2xdfBGnYIiITxYJCztzQSpWoycl83ej04.n9qw.C5_tUUoopr.6ogYNYDiGrTzG7
+ a4pnbo7JgCpvISRDP0T4Evz0UjuvEruSAUio.1V92pjpwchxJfqgyVIjc3f61B0YwXa4SYxLBgTk
  -
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Fri, 4 Mar 2022 01:26:57 +0000
-Received: by kubenode536.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID a537123eb6bfd1b2089ac85d04211ff7;
-          Fri, 04 Mar 2022 01:26:55 +0000 (UTC)
-Message-ID: <0dad94cc-2f4a-536a-94a9-c74e99c2f4ef@schaufler-ca.com>
-Date:   Thu, 3 Mar 2022 17:26:54 -0800
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Fri, 4 Mar 2022 02:13:49 +0000
+Received: by kubenode548.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 4db6f65d6c0f135cd9c3d7ccb463ee64;
+          Fri, 04 Mar 2022 02:13:47 +0000 (UTC)
+Message-ID: <0bbd2d61-415f-08f2-251e-2dd6b8991d6a@schaufler-ca.com>
+Date:   Thu, 3 Mar 2022 18:13:47 -0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.6.1
-Subject: Re: [PATCH v32 26/28] Audit: Add record for multiple object security
- contexts
+Subject: Re: [PATCH v32 24/28] Audit: Add framework for auxiliary records
 Content-Language: en-US
 To:     Paul Moore <paul@paul-moore.com>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
@@ -68,10 +67,10 @@ Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         sds@tycho.nsa.gov, linux-kernel@vger.kernel.org,
         Casey Schaufler <casey@schaufler-ca.com>
 References: <20220202235323.23929-1-casey@schaufler-ca.com>
- <20220202235323.23929-27-casey@schaufler-ca.com>
- <CAHC9VhR3d23Zd8=cP1=Sh5DjTEgEAyTc71M-zca4Beuiw7bywQ@mail.gmail.com>
+ <20220202235323.23929-25-casey@schaufler-ca.com>
+ <CAHC9VhS6An9L7LavYTP57QXdOugQf62NCjDmS4kQq3wk+yemcg@mail.gmail.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhR3d23Zd8=cP1=Sh5DjTEgEAyTc71M-zca4Beuiw7bywQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhS6An9L7LavYTP57QXdOugQf62NCjDmS4kQq3wk+yemcg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Mailer: WebService/1.1.19797 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
@@ -80,90 +79,193 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 3/3/2022 3:36 PM, Paul Moore wrote:
-> On Wed, Feb 2, 2022 at 7:23 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> Create a new audit record AUDIT_MAC_OBJ_CONTEXTS.
->> An example of the MAC_OBJ_CONTEXTS (1421) record is:
->>
->>      type=MAC_OBJ_CONTEXTS[1421]
->>      msg=audit(1601152467.009:1050):
->>      obj_selinux=unconfined_u:object_r:user_home_t:s0
->>
->> When an audit event includes a AUDIT_MAC_OBJ_CONTEXTS record
->> the "obj=" field in other records in the event will be "obj=?".
->> An AUDIT_MAC_OBJ_CONTEXTS record is supplied when the system has
->> multiple security modules that may make access decisions based
->> on an object security context.
+> On Wed, Feb 2, 2022 at 7:20 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> Add a list for auxiliary record data to the audit_buffer structure.
+>> Add the audit_stamp information to the audit_buffer as there's no
+>> guarantee that there will be an audit_context containing the stamp
+>> associated with the event. At audit_log_end() time create auxiliary
+>> records (none are currently defined) as have been added to the list.
 >>
 >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 >> ---
->>   include/linux/audit.h      |  5 ++++
->>   include/uapi/linux/audit.h |  1 +
->>   kernel/audit.c             | 59 ++++++++++++++++++++++++++++++++++++++
->>   kernel/auditsc.c           | 37 ++++--------------------
->>   4 files changed, 70 insertions(+), 32 deletions(-)
-> ...
->
+>>   kernel/audit.c | 84 ++++++++++++++++++++++++++++++++++++++++++++------
+>>   1 file changed, 74 insertions(+), 10 deletions(-)
+>>
 >> diff --git a/kernel/audit.c b/kernel/audit.c
->> index e8744e80ef21..3b9ce617b150 100644
+>> index f012c3786264..559fb14e0380 100644
 >> --- a/kernel/audit.c
 >> +++ b/kernel/audit.c
->> @@ -2199,6 +2200,43 @@ int audit_log_task_context(struct audit_buffer *ab)
->>   }
->>   EXPORT_SYMBOL(audit_log_task_context);
+>> @@ -191,15 +191,25 @@ static struct audit_ctl_mutex {
+>>    * should be at least that large. */
+>>   #define AUDIT_BUFSIZ 1024
 >>
->> +void audit_log_object_context(struct audit_buffer *ab, struct lsmblob *blob)
->> +{
->> +       struct audit_context_entry *ace;
->> +       struct lsmcontext context;
->> +       int error;
->> +
->> +       if (!lsm_multiple_contexts()) {
->> +               error = security_secid_to_secctx(blob, &context, LSMBLOB_FIRST);
->> +               if (error) {
->> +                       if (error != -EINVAL)
->> +                               goto error_path;
->> +                       return;
->> +               }
->> +               audit_log_format(ab, " obj=%s", context.context);
->> +               security_release_secctx(&context);
->> +       } else {
->> +               /*
->> +                * If there is more than one security module that has a
->> +                * object "context" it's necessary to put the object data
->> +                * into a separate record to maintain compatibility.
->> +                */
-> I know this is nitpicky, but I'm going to say it anyway ... the
-> separate record isn't purely for compatibility reasons, it's for size
-> reasons.  There is a fear that multiple LSM labels could blow past the
-> record size limit when combined with other fields, so putting them in
-> their own dedicated record gives us more room.  If that wasn't the
-> case we could just tack them on the end of existing records.
+>> +/* The audit_context_entry contains data required to create an
+>> + * auxiliary record.
+>> + */
+>> +struct audit_context_entry {
+>> +       struct list_head        list;
+>> +       int                     type;   /* Audit record type */
+>> +};
+> Looking at how this ends up being used later in the patchset I think
+> we would be better off if we stored a fully formed audit_buffer in the
+> struct above instead of data fields which we would use to generate an
+> audit_buffer in audit_log_end().  This helps tie the buffer generation
+> logic in with the existing code with which it is most closely related,
+> it allows us to report errors back to the caller as audit_log_end()
+> doesn't historically return an error code, and it helps us get ahead
+> of any future data lifetime issues we might run into by storing the
+> data in this audit struct.
 
-Fair enough. I have no objection to adding commentary that will
-help the next developer who comes into this code.
+OK, I'll buy that.
 
+> This would also simplify things with respect to the audit_buffer
+> struct.  Instead of having a dedicated struct for the aux data, you
+> could simply leverage the existing sk_buff list mechanisms:
+
+I can't say that "simply" is the adverb I'd choose, but sure,
+I can do this.
+
+>    struct audit_buffer {
+>      struct sk_buff *skb;  /* part of @skb_list, kept for audit_log funcs */
+>      struct sk_buff_head skb_list;
+>      struct audit_context *ctx;
+>      struct audit_stamp stamp;
+>      gfp_t gfp_mask;
+>    }
 >
-> However, converting the existing "obj=" field into "obj=?" when
-> multiple LSM labels are present *is* a compatibility nod as it allows
-> existing userspace tooling that expects a single "obj=" field to
-> continue to work.
+> The only sneaky bit in the struct above is that we likely want to
+> preserve audit_buffer::skb as a dedicated skb pointer so we don't have
+> to modify all of the audit_log_*() functions; you could of course, but
+> I'm guessing there is little appetite for that in the context of this
+> patchset.
 
-Likewise here.
+I will give it a go without making the massive interface change.
 
+> Adding a new aux record would involve calling some private audit
+> function (no one outside of the audit subsystem should need access)
+> that would allocate a new skb similar to what we do in
+> audit_buffer_alloc() and add it to the end of the sk_buff_head list
+> via skb_queue_tail() and resetting audit_buffer::skb to point to the
+> newly allocated skb.
+
+Good naming may be tricky as we need to indicate that a new buffer is
+being allocated for an attached aux record and that the buffer to which
+it's being attached is going to temporarily be in a curious state.
+audit_buffer_add_aux() seems wordy, but it's what I'll start with lacking
+a better suggestion.
+
+>    This would allow all of the existing
+> audit_log*() functions to work correctly, and when you are done you
+> can restore the "main" skb with skb_peek().
+
+audit_buffer_close_aux()
+
+>    If for some reason you
+> need to fail the new aux record mid-creation you just dequeue the list
+> tail, free the skb, and skb_peek() the "main" skb back into place.
+
+Why do I always get nervous when I hear "just" and "skb" in the
+same sentence?
+
+>>   /* The audit_buffer is used when formatting an audit record.  The caller
+>>    * locks briefly to get the record off the freelist or to allocate the
+>>    * buffer, and locks briefly to send the buffer to the netlink layer or
+>>    * to place it on a transmit queue.  Multiple audit_buffers can be in
+>>    * use simultaneously. */
+>>   struct audit_buffer {
+>> -       struct sk_buff       *skb;      /* formatted skb ready to send */
+>> -       struct audit_context *ctx;      /* NULL or associated context */
+>> -       gfp_t                gfp_mask;
+>> +       struct sk_buff          *skb;   /* formatted skb ready to send */
+>> +       struct audit_context    *ctx;   /* NULL or associated context */
+>> +       struct list_head        aux_records;    /* aux record data */
+>> +       struct audit_stamp      stamp;  /* event stamp */
+>> +       gfp_t                   gfp_mask;
+>>   };
+> ...
 >
->> +               audit_log_format(ab, " obj=?");
->> +               ace = kzalloc(sizeof(*ace), ab->gfp_mask);
->> +               if (!ace)
->> +                       goto error_path;
->> +               INIT_LIST_HEAD(&ace->list);
->> +               ace->type = AUDIT_MAC_OBJ_CONTEXTS;
->> +               ace->lsm_objs = *blob;
->> +               list_add(&ace->list, &ab->aux_records);
->> +       }
->> +       return;
->> +
->> +error_path:
->> +       audit_panic("error in audit_log_object_context");
+>> @@ -2408,6 +2418,60 @@ void audit_log_end(struct audit_buffer *ab)
+>>                  wake_up_interruptible(&kauditd_wait);
+>>          } else
+>>                  audit_log_lost("rate limit exceeded");
 >> +}
->> +EXPORT_SYMBOL(audit_log_object_context);
 >> +
+>> +/**
+>> + * audit_log_end - end one audit record
+>> + * @ab: the audit_buffer
+>> + *
+>> + * Let __audit_log_end() handle the message while the buffer housekeeping
+>> + * is done here.
+>> + * If there are other records that have been deferred for the event
+>> + * create them here.
+>> + */
+>> +void audit_log_end(struct audit_buffer *ab)
+>> +{
+>> +       struct audit_context_entry *entry;
+>> +       struct audit_context mcontext;
+>> +       struct audit_context *mctx;
+>> +       struct audit_buffer *mab;
+>> +       struct list_head *l;
+>> +       struct list_head *n;
+>> +
+>> +       if (!ab)
+>> +               return;
+>> +
+>> +       __audit_log_end(ab);
+>> +
+>> +       if (list_empty(&ab->aux_records)) {
+>> +               audit_buffer_free(ab);
+>> +               return;
+>> +       }
+>> +
+>> +       if (ab->ctx == NULL) {
+>> +               mcontext.stamp = ab->stamp;
+>> +               mctx = &mcontext;
+>> +       } else
+>> +               mctx = ab->ctx;
+>> +
+>> +       list_for_each_safe(l, n, &ab->aux_records) {
+>> +               entry = list_entry(l, struct audit_context_entry, list);
+>> +               mab = audit_log_start(mctx, ab->gfp_mask, entry->type);
+>> +               if (!mab) {
+>> +                       audit_panic("alloc error in audit_log_end");
+>> +                       continue;
+>> +               }
+>> +               switch (entry->type) {
+>> +               /* Don't know of any quite yet. */
+>> +               default:
+>> +                       audit_panic("Unknown type in audit_log_end");
+>> +                       break;
+>> +               }
+>> +               __audit_log_end(mab);
+>> +               audit_buffer_free(mab);
+>> +               list_del(&entry->list);
+>> +               kfree(entry);
+>> +       }
+>>
+>>          audit_buffer_free(ab);
+>>   }
+> This would also allow you to simplify audit_log_end() greatly, I'm
+> sure I'm missing a detail or two, but I suspect it would end up
+> looking something like this:
+
+Agreed. That is a much better fit for the existing code flow.
+
+>
+>    void __audit_log_end(skb)
+>    {
+>      /* ... current audit_log_end() but with only the sk_buff ... */
+>    }
+>
+>    void audit_log_end(ab)
+>    {
+>      if (!ab)
+>        return;
+>      while ((skb = skb_dequeue(ab->skb_list)))
+>        __audit_log_end(skb);
+>      audit_buffer_free(ab);
+>    }
+>
+>
+> --
+> paul-moore.com
