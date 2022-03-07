@@ -2,141 +2,93 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B72AC433EF
-	for <selinux@archiver.kernel.org>; Mon,  7 Mar 2022 11:24:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C487C433EF
+	for <selinux@archiver.kernel.org>; Mon,  7 Mar 2022 23:09:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241931AbiCGLY7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Mar 2022 06:24:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S234039AbiCGXJz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Mar 2022 18:09:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242035AbiCGLYs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Mar 2022 06:24:48 -0500
-Received: from re-prd-fep-047.btinternet.com (mailomta10-re.btinternet.com [213.120.69.103])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57E666F490
-        for <selinux@vger.kernel.org>; Mon,  7 Mar 2022 02:54:33 -0800 (PST)
-Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
-          by re-prd-fep-047.btinternet.com with ESMTP
-          id <20220307105431.NUQF23513.re-prd-fep-047.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Mon, 7 Mar 2022 10:54:31 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1646650471; 
-        bh=jqdp3sHOrVQ8lHbwCVeKIDG5g17KE9JbIg5brht4lpQ=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=X+IUU/1Rhy8hKS2JKcAUx4vltql/ZlUJB6QtEw1Nl5NEE6pE+fNjSLq0OKFu359YFrRIHOQRhgqxBQBn97uXdsp2AdIKFdU5HfbXsoH6Ztbthssm/+By3NDumw2FB3ii9omweZ5xKqLZkkdlAAbSBecATxq6ieZLGyeTt6MYpp+OTKieR6Q8EMAgsjPuRsaBOmY08ADXe30uKNxqB+hmc+WdZ/G+ok2QoyLwzToL5lvv9nh29l+X7I/IcKHByS5CcBTmkCyhPnRkK5W/0tjhU6lz5zL17U804YgVGkL7Q/65gygf4cjVPggrHS/1X1XLcqu3u6Eem56MRFDYlE7ksw==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com;
-    bimi=skipped
-X-SNCR-Rigid: 613A901C17B585F4
-X-Originating-IP: [86.183.71.89]
-X-OWM-Source-IP: 86.183.71.89 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddruddugedgvddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeelteffgeevveejheevhfetgfeuveduteetuddtffdvjeekieetgeehveefjedtfeenucfkphepkeeirddukeefrdejuddrkeelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudekfedrjedurdekledpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopedvpdhrtghpthhtoheprhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.183.71.89) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 613A901C17B585F4; Mon, 7 Mar 2022 10:54:31 +0000
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH] libsepol: Shorten the policy capability enum names
-Date:   Mon,  7 Mar 2022 10:54:17 +0000
-Message-Id: <20220307105417.11913-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S240749AbiCGXJy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Mar 2022 18:09:54 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBCA625C
+        for <selinux@vger.kernel.org>; Mon,  7 Mar 2022 15:08:56 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id hw13so35187766ejc.9
+        for <selinux@vger.kernel.org>; Mon, 07 Mar 2022 15:08:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:message-id:date:mime-version:user-agent:content-language:to
+         :subject:content-transfer-encoding;
+        bh=1OwzLnFzqre5/hh4FNt1sWqd2426i8MND1RpfxIF9pM=;
+        b=oJVMlGwgDMTRKN8hKCHohRpRMd0fUQ+z+8ImsGJGWH73PWZ2+xCp1mNMSItMKl6oH9
+         cGUp9kbGTeY6a2wwSZ+IB9wmdkIHhI7tQJ+ZM4gjxZNtt0Rb/RGbtT/BTNntLeHvPALm
+         6Q7cECCDW2E2vnqkELMrLQibuyXlY45YUC8eNphtwvrxQS7qnO6ToH04Mg+fcb+1botN
+         uzfXsaSIqX1u+MLyBMOKeukhf/BxtAvDiKZT4/YzVXoIedQnx1cMifzCRAtYh6uj7Dd7
+         ub5ekrSNSoj7KIvWpREZifEI/1U05swpUpe+/3L8pOIiBx4fYaaMr/pBv2QpU9tXHCZd
+         nOEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:message-id:date:mime-version:user-agent
+         :content-language:to:subject:content-transfer-encoding;
+        bh=1OwzLnFzqre5/hh4FNt1sWqd2426i8MND1RpfxIF9pM=;
+        b=dvFzfrzHNIOtAEYqZ6TfPfmq2ArEPh/aKdkmcmicqVqr6OMpIpkprKUCNOAyZezTr8
+         i33jcrsrGlrVOb7CRgeaReN1NG47Ep99iyHGMLCVX7XyI2IKlZYWAv78rTNhCYfFklg2
+         dPF7PnVM+Yc2X/i7ZGjV4EGzD/XHqmR9goFuGRz48TFqEubUzjmQmPu9h/FoiVqdMLQg
+         pf0VW5VbJB3kRpUJwgZoCGYBhkljShDWq+XcCpbk5JY6cchqy8+ppg3T1Hnfj7kVrXgS
+         Fmn8ErjJXEjMUuJujroTgIQJ6QqENiUHO1JStFcy0mbBf4H97jvkEIKOKRS6peYf08nO
+         5g/A==
+X-Gm-Message-State: AOAM531SD3QClBlYsi39IJY4Rrbq74DkC6UM+FH4Wku1nbGL5GHcKAGq
+        1ogYQUJt2/yxRufO53WscPFKXtMmyWDHnXwB
+X-Google-Smtp-Source: ABdhPJw14LVZ1BNio0tNoIYxksn6QrVoIihs+2HS6e2fty8RYwIp5F/teNMvUREOMAPuVGXh/0bW2g==
+X-Received: by 2002:a17:907:1b27:b0:6d9:ceb6:7967 with SMTP id mp39-20020a1709071b2700b006d9ceb67967mr11151382ejc.186.1646694534605;
+        Mon, 07 Mar 2022 15:08:54 -0800 (PST)
+Received: from ?IPV6:2001:a61:34b2:1901:6a0b:aae1:c0f1:d98b? ([2001:a61:34b2:1901:6a0b:aae1:c0f1:d98b])
+        by smtp.gmail.com with ESMTPSA id q18-20020a170906771200b006d2a835ac30sm5199769ejm.151.2022.03.07.15.08.53
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Mar 2022 15:08:54 -0800 (PST)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+Message-ID: <077581c9-4169-5c12-e551-0db4bfa78655@gmail.com>
+Date:   Tue, 8 Mar 2022 00:08:53 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Content-Language: en-US
+To:     selinux <selinux@vger.kernel.org>
+Subject: Recently fixed neverallowx checks report (range 0x)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Shorten "CAPABILITY" to "CAP" following the kernel naming convention.
+Hello,
 
-The SELinux policy capability enum names should now follow the
-"POLICYDB_CAP_XXX" format.
+The recently merged commit https://github.com/SELinuxProject/selinux/commit/71291385cf149a0316d5fa995d70641d3b1a0ab3 seems to have caused some neverallowx failures for my pipeline, they're correct.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- libsepol/include/sepol/policydb/polcaps.h | 20 ++++++++++----------
- libsepol/src/polcaps.c                    | 20 ++++++++++----------
- 2 files changed, 20 insertions(+), 20 deletions(-)
+However during reporting a `(range 0x)` is printed, which does not seem right, please see the log of my CI that failed https://gitlab.com/bauen1/bauen1-policy/-/jobs/2174049183#L1653 the associated commit is 73b511c3050952527fff3050bb75774214691d24 of my policy.
 
-diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-index 39c99839..f5e32e60 100644
---- a/libsepol/include/sepol/policydb/polcaps.h
-+++ b/libsepol/include/sepol/policydb/polcaps.h
-@@ -7,17 +7,17 @@ extern "C" {
- 
- /* Policy capabilities */
- enum {
--	POLICYDB_CAPABILITY_NETPEER,
--	POLICYDB_CAPABILITY_OPENPERM,
--	POLICYDB_CAPABILITY_EXTSOCKCLASS,
--	POLICYDB_CAPABILITY_ALWAYSNETWORK,
--	POLICYDB_CAPABILITY_CGROUPSECLABEL,
--	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
--	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
--	POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC,
--	__POLICYDB_CAPABILITY_MAX
-+	POLICYDB_CAP_NETPEER,
-+	POLICYDB_CAP_OPENPERM,
-+	POLICYDB_CAP_EXTSOCKCLASS,
-+	POLICYDB_CAP_ALWAYSNETWORK,
-+	POLICYDB_CAP_CGROUPSECLABEL,
-+	POLICYDB_CAP_NNP_NOSUID_TRANSITION,
-+	POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS,
-+	POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
-+	__POLICYDB_CAP_MAX
- };
--#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-+#define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
- 
- /* Convert a capability name to number. */
- extern int sepol_polcap_getnum(const char *name);
-diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-index a5e515f2..687e971c 100644
---- a/libsepol/src/polcaps.c
-+++ b/libsepol/src/polcaps.c
-@@ -6,14 +6,14 @@
- #include <sepol/policydb/polcaps.h>
- 
- static const char * const polcap_names[] = {
--	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
--	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
--	"extended_socket_class",	/* POLICYDB_CAPABILITY_EXTSOCKCLASS */
--	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
--	"cgroup_seclabel",		/* POLICYDB_CAPABILITY_SECLABEL */
--	"nnp_nosuid_transition",	/* POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION */
--	"genfs_seclabel_symlinks",	/* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
--	"ioctl_skip_cloexec",		/* POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC */
-+	"network_peer_controls",	/* POLICYDB_CAP_NETPEER */
-+	"open_perms",			/* POLICYDB_CAP_OPENPERM */
-+	"extended_socket_class",	/* POLICYDB_CAP_EXTSOCKCLASS */
-+	"always_check_network",		/* POLICYDB_CAP_ALWAYSNETWORK */
-+	"cgroup_seclabel",		/* POLICYDB_CAP_SECLABEL */
-+	"nnp_nosuid_transition",	/* POLICYDB_CAP_NNP_NOSUID_TRANSITION */
-+	"genfs_seclabel_symlinks",	/* POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS */
-+	"ioctl_skip_cloexec",		/* POLICYDB_CAP_IOCTL_SKIP_CLOEXEC */
- 	NULL
- };
- 
-@@ -21,7 +21,7 @@ int sepol_polcap_getnum(const char *name)
- {
- 	int capnum;
- 
--	for (capnum = 0; capnum <= POLICYDB_CAPABILITY_MAX; capnum++) {
-+	for (capnum = 0; capnum <= POLICYDB_CAP_MAX; capnum++) {
- 		if (polcap_names[capnum] == NULL)
- 			continue;
- 		if (strcasecmp(polcap_names[capnum], name) == 0)
-@@ -32,7 +32,7 @@ int sepol_polcap_getnum(const char *name)
- 
- const char *sepol_polcap_getname(unsigned int capnum)
- {
--	if (capnum > POLICYDB_CAPABILITY_MAX)
-+	if (capnum > POLICYDB_CAP_MAX)
- 		return NULL;
- 
- 	return polcap_names[capnum];
+My policy can be build by invoking make, however this involves many modules.
+A smaller policy that still reproduces the bug can be build by creating a `policy/base/test.cil` file with:
+```
+(type t2)
+(allow t2 .dev.dri.type (chr_file (ioctl)))
+(allowx t2 .dev.dri.type (ioctl chr_file (0x640D)))
+```
+and `make validate-core` will build a policy with less modules that will still fail the neverallowx checks and print this message:
+
+neverallowx check failed at policy/base/permission_sets.cil:1002
+   (neverallowx all_types all_types (ioctl chr_file (not ((range 0x5401 0x540B) (range 0x540D 0x5410) 0x5413 0x5414 0x5420 (range 0x5429 0x5431) 0x5437 0x5441 0x5456 0x5457 (range 0x5601 0x5603) (range 0x5605 0x5608) 0x4B33 0x4B3A 0x4B3B 0x4B44 0x4B45 0x4B4B 0x4B4E 0x4B64 0x4B67 0x4B68 0x4B6A 0x4B72 0xFD00 (range 0xFD02 0xFD04) (range 0xFD06 0xFD0D) (range 0x9371 0x9374) 0x9376 0x937A (range 0x4501 0x4503) (range 0x4506 0x450A) 0x4518 0x4519 0x451B (range 0x4520 0x457F) 0x4593 0x45A0 (range 0x45C0 0x45FF) 0x690B 0x690D 0x6910 0x6911 (range 0x))
+     <root>
+     allowx at policy/base/test.cil:3
+       (allowx t2 dev.dri.type (ioctl chr_file (0x640D)))
+
+As far as I know the `(range 0x)` appears to be a bug.
+
+Sadly I don't have the time right now to condense my policy down to a smaller reproducible example.
+
 -- 
-2.35.1
-
+bauen1
+https://dn42.bauen1.xyz/
