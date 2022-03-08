@@ -2,67 +2,67 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A91EDC4332F
-	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 15:58:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 923A6C433EF
+	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 16:10:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348061AbiCHP7S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Mar 2022 10:59:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35428 "EHLO
+        id S1348153AbiCHQLG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Mar 2022 11:11:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348959AbiCHP7B (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 10:59:01 -0500
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F99F36E1D;
-        Tue,  8 Mar 2022 07:58:04 -0800 (PST)
-Received: by mail-ot1-x32a.google.com with SMTP id e25-20020a0568301e5900b005b236d5d74fso4432442otj.0;
-        Tue, 08 Mar 2022 07:58:04 -0800 (PST)
+        with ESMTP id S234940AbiCHQLG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 11:11:06 -0500
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD245046F;
+        Tue,  8 Mar 2022 08:10:09 -0800 (PST)
+Received: by mail-oi1-x231.google.com with SMTP id ay7so19308302oib.8;
+        Tue, 08 Mar 2022 08:10:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=vvKgn0sHuAllkwYzvRFG2BC617hGBzzXAeGk4mrg70E=;
-        b=G61uZlPuyejOW7T+11EayRugjx1w1CLbBDWhQ229Ng+7kH6xC73iT1VpxXwsPswKrm
-         BUJZr1YHDkI/sQz4/JyawVxm42ygHfH7e1BhNAbIPrjHBmvMvX/yB3WuDIWSb8vMgJtp
-         Jq1XF2Rt48ftXftNceQV0+QuOTgGCf+UsebsIEX93H3r34PaztKFoR0g2H0sxBXTFrqF
-         O2p/xx+TVOGZ5oGUlD6F2wsi6hXCYvSAF7Jl2jgPHcko16zU2C1XKjOlPf3gp/3PxnA5
-         QFcz5e27bcIHeURZILrgFRIfL/MmH5unYekp6LY/zT8jTfjqDcdx1xgyrHsGPe84MUOI
-         SSUg==
+        bh=5O1imAWZVdMyV+q57qh16bTvNuecO9mwzzUYs+YBqWU=;
+        b=KO+bSPR1W20jFFXnZzcF2bPOkRsBW4DSjh8CdK39vyINQGS+JiT95bNA1wQfSZ31ZC
+         zu7HOoLYhOV9IM5sDyK8Gmlmlzja5bJorLjgPIXSyKSve3tIHt05JZ4ktW/6O68s8l1R
+         vFgYtFhSE55YvaHgm9NcSX9IvIFQRk0IDpjvMUPvulpb88mf3984D1nHV74ulK/MJlb9
+         O49V7ytXgR5QqgquHg0WiEf0J/oznALGr4iGMtmqEU8hqWzZh9+Cd8UVi3BzQrTtBrAR
+         5u90pWgLi/G31/6Y47UcOIbW/qIwRxrry2fNiLAxrAkB6pLqUDmGjKII2MpcDHyybndb
+         hM3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=vvKgn0sHuAllkwYzvRFG2BC617hGBzzXAeGk4mrg70E=;
-        b=AA3/K7eCyrOYv90XaRMP96cceisCFMOwKt7I1PBLBS+zzYlg5D2gUt+aGqR5n3XeJX
-         CyRW3RVeL/Dwi6ZszxvUIKSGvQznoVH3I+q5JEtvpD+fOpJ2PdrwDncQz5nZj0akVwGb
-         8oiHJy8tt8FHRl0kMzJadBxn1X2E/+5fOsF7U9wAKOShLTOk9lZQuw8DF3AQXsn8lnzw
-         0fksnBYw7AmuyqnkxB2qsUACIR5qmlsTHOf/V+/VnujOkSWDUTOVPvEKbTme3DbP04Pd
-         Uw7qP4VRUTTn39da76G4E0vVS861SpviaCO3YWY4Flsmbqcx0SAeyb8OxkHo/LPkiJka
-         IeCw==
-X-Gm-Message-State: AOAM530Ar13JdUJnuz5uYkrMDkeD+RZUKWqAbqjTj0FXm5z5F0DLf24i
-        DjidO8KoGl8zCCFjQazYfikWYhT1ATVoshYMMZw=
-X-Google-Smtp-Source: ABdhPJyUocVQDe1TT+zkXqIvkSF3HasQjSkWt8UXbdo8kc+P8zJiKM7WAw/kWuca/PmBKC4HHA/oLkhRCyAr/37/i1s=
-X-Received: by 2002:a9d:4b95:0:b0:5b2:46d4:94aa with SMTP id
- k21-20020a9d4b95000000b005b246d494aamr3241251otf.117.1646755083739; Tue, 08
- Mar 2022 07:58:03 -0800 (PST)
+        bh=5O1imAWZVdMyV+q57qh16bTvNuecO9mwzzUYs+YBqWU=;
+        b=7CssoATwmKMZvQgd8ExFIK5rlD6J0SGIAD1gvSQdf3hG7A0THgfZv/f0ampbGIcNWh
+         08Uz3hoJZEu0dXaqLt7qgCiDfcM7x15EabPw3FM5PxI+QDzpGoKBF0c7wboBHGGZ1iA9
+         s7drBWV3fsfP1vK8rAA7jVAlfVs4jLNM+gGqrQ1k47MQh9ZBcHxiJ/6QxIepdIM+hvM2
+         i1cXSIdT6f5SF1VNBFJuzJIQ4Dz1NUkwaJ8tRK3kZAZ3ouIlM3GOX6oUDqGstwtba73+
+         kkEYGzlJLIsQhGtq8/CCrifNKSoLvdu9THF1/CIiCn479BJdE/BqeIZIiBCFQVflFqnU
+         7Zfg==
+X-Gm-Message-State: AOAM530uB8wzwgrkLHi9aTdakY8aHTR0JNRZwRxPYG654jJHb01kQ3/i
+        Mc2ZYnNQoopH3C1Z/LPoFsNadHwxIUc1QManVl4=
+X-Google-Smtp-Source: ABdhPJw3M9r/GuIu6pvif5A7WP40yGexb4Vwc2H2Qq4vIMCja1rYYA0sn1nHOxSb/sA1AhQERfyHmNbY50vYG3jomSA=
+X-Received: by 2002:a05:6808:11cc:b0:2d9:a01a:4ba6 with SMTP id
+ p12-20020a05680811cc00b002d9a01a4ba6mr3107703oiv.205.1646755808836; Tue, 08
+ Mar 2022 08:10:08 -0800 (PST)
 MIME-Version: 1.0
 References: <20220217142133.72205-1-cgzones@googlemail.com>
- <20220217142133.72205-2-cgzones@googlemail.com> <CAHC9VhQPZ3_dXvM9eqwsxZ2c+2mcdvNNJbtUNs_-9Md5F3P8vA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQPZ3_dXvM9eqwsxZ2c+2mcdvNNJbtUNs_-9Md5F3P8vA@mail.gmail.com>
+ <20220217142133.72205-4-cgzones@googlemail.com> <CAKwvOdkNZ3W9amcQKHOEfQLbdWC=4VDtrBdbOVHtWruipQnyKg@mail.gmail.com>
+In-Reply-To: <CAKwvOdkNZ3W9amcQKHOEfQLbdWC=4VDtrBdbOVHtWruipQnyKg@mail.gmail.com>
 From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 8 Mar 2022 16:57:52 +0100
-Message-ID: <CAJ2a_DfpYp_n8F7rg5yRAK9S8r0GcTQFHfB=d6cwRSHwMUjCyA@mail.gmail.com>
-Subject: Re: [PATCH 3/5] selinux: use consistent pointer types for boolean arrays
-To:     Paul Moore <paul@paul-moore.com>
+Date:   Tue, 8 Mar 2022 17:09:58 +0100
+Message-ID: <CAJ2a_DcY3=jz_zBQ7QZ_gycsvL1mn=TxKaWqWr3gGLhEAXTcQA@mail.gmail.com>
+Subject: Re: [PATCH 5/5] selinux: drop unnecessary NULL check
+To:     Nick Desaulniers <ndesaulniers@google.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
+        Serge Hallyn <serge@hallyn.com>,
         Austin Kim <austin.kim@lge.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
         Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Yang Li <yang.lee@linux.alibaba.com>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         llvm@lists.linux.dev
@@ -72,61 +72,143 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 18 Feb 2022 at 17:01, Paul Moore <paul@paul-moore.com> wrote:
+On Fri, 18 Feb 2022 at 18:31, Nick Desaulniers <ndesaulniers@google.com> wr=
+ote:
 >
-> On Thu, Feb 17, 2022 at 9:21 AM Christian G=C3=B6ttsche
+> On Thu, Feb 17, 2022 at 6:22 AM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > Use a consistent type of unsigned int* for boolean arrays, instead of
-> > using implicit casts to and from int*.
+> > Commit e3489f8974e1 ("selinux: kill selinux_sb_get_mnt_opts()")
+> > introduced a NULL check on the context after a successful call to
+> > security_sid_to_context().  This is on the one hand redundant after
+> > checking for success and on the other hand insufficient on an actual
+> > NULL pointer, since the context is passed to seq_escape() leading to a
+> > call of strlen() on it.
 > >
-> > Reported by sparse:
+> > Reported by Clang analyzer:
 > >
-> >     security/selinux/selinuxfs.c:1481:30: warning: incorrect type in as=
-signment (different signedness)
-> >     security/selinux/selinuxfs.c:1481:30:    expected unsigned int *
-> >     security/selinux/selinuxfs.c:1481:30:    got int *[addressable] val=
-ues
-> >     security/selinux/selinuxfs.c:1398:48: warning: incorrect type in ar=
-gument 3 (different signedness)
-> >     security/selinux/selinuxfs.c:1398:48:    expected int *values
-> >     security/selinux/selinuxfs.c:1398:48:    got unsigned int *bool_pen=
-ding_values
+> >     In file included from security/selinux/hooks.c:28:
+> >     In file included from ./include/linux/tracehook.h:50:
+> >     In file included from ./include/linux/memcontrol.h:13:
+> >     In file included from ./include/linux/cgroup.h:18:
+> >     ./include/linux/seq_file.h:136:25: warning: Null pointer passed as =
+1st argument to string length function [unix.cstring.NullArg]
+> >             seq_escape_mem(m, src, strlen(src), flags, esc);
+> >                                    ^~~~~~~~~~~
+>
+> I'm guessing there was more to this trace for this instance of this warni=
+ng?
+
+Yes, complete output appended at the end.
+
+>
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
 > > ---
-> > A more invasive change would be to change all boolean arrays to bool*.
+> >  security/selinux/hooks.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 1e69f88eb326..ac802b99d36c 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -1020,7 +1020,7 @@ static int show_sid(struct seq_file *m, u32 sid)
+> >         rc =3D security_sid_to_context(&selinux_state, sid,
+> >                                              &context, &len);
+> >         if (!rc) {
 >
-> I think that might be a worthwhile change, although that can happen at
-> a later date.
+> ^ perhaps changing this condition to:
 >
-> A quick general comment: please try to stick to 80-char long lines.  I
-> realize Linus/checkpatch.pl has started to allow longer lines but I
-> would still like SELinux to try and keep to 80-chars or under.
+> if (!rc && context) {
 >
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/servi=
-ces.c
-> > index 6901dc07680d..7865926962ab 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -3175,7 +3175,8 @@ int security_get_bool_value(struct selinux_state =
-*state,
-> >  static int security_preserve_bools(struct selinux_policy *oldpolicy,
-> >                                 struct selinux_policy *newpolicy)
-> >  {
-> > -       int rc, *bvalues =3D NULL;
-> > +       int rc;
-> > +       unsigned int *bvalues =3D NULL;
->
-> Doesn't this cause a type mismatch (unsigned int vs int) when an entry
-> from bvalues[] is assigned to cond_bool_datum::state later in the
-> security_preserve_bools() function?
+> It might be nice to retain the null ptr check should the semantics of
+> security_sid_to_context ever change.
 
-Yes, but those variables *should* only hold the values 0 or 1.
-But probably it's better to re-spin for 5.19 with all arrays and
-cond_bool_datum::state converted to literal bool type.
+If I read the implementation of security_sid_to_context() and its callees
+correctly it should never return 0 (success) and not have populated its 3
+argument, unless the passed pointer was zero, which by passing the address
+of a stack variable - &context - is not the case).
 
+>
+> > -               bool has_comma =3D context && strchr(context, ',');
+> > +               bool has_comma =3D strchr(context, ',');
+> >
+> >                 seq_putc(m, '=3D');
+> >                 if (has_comma)
+> > --
+> > 2.35.1
+> >
+>
 >
 > --
-> paul-moore.com
+> Thanks,
+> ~Nick Desaulniers
+
+
+clang-tidy report:
+
+./include/linux/seq_file.h:136:25: warning: Null pointer passed as 1st
+argument to string length function
+[clang-analyzer-unix.cstring.NullArg]
+        seq_escape_mem(m, src, strlen(src), flags, esc);
+                               ^
+./security/selinux/hooks.c:1041:6: note: Assuming the condition is false
+        if (!(sbsec->flags & SE_SBINITIALIZED))
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./security/selinux/hooks.c:1041:2: note: Taking false branch
+        if (!(sbsec->flags & SE_SBINITIALIZED))
+        ^
+./security/selinux/hooks.c:1044:6: note: Assuming the condition is false
+        if (!selinux_initialized(&selinux_state))
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./security/selinux/hooks.c:1044:2: note: Taking false branch
+        if (!selinux_initialized(&selinux_state))
+        ^
+./security/selinux/hooks.c:1047:6: note: Assuming the condition is true
+        if (sbsec->flags & FSCONTEXT_MNT) {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./security/selinux/hooks.c:1047:2: note: Taking true branch
+        if (sbsec->flags & FSCONTEXT_MNT) {
+        ^
+./security/selinux/hooks.c:1050:8: note: Calling 'show_sid'
+                rc =3D show_sid(m, sbsec->sid);
+                     ^~~~~~~~~~~~~~~~~~~~~~~
+./security/selinux/hooks.c:1020:7: note: Value assigned to 'context'
+        rc =3D security_sid_to_context(&selinux_state, sid,
+             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./security/selinux/hooks.c:1022:6: note: Assuming 'rc' is 0
+        if (!rc) {
+            ^~~
+./security/selinux/hooks.c:1022:2: note: Taking true branch
+        if (!rc) {
+        ^
+./security/selinux/hooks.c:1023:20: note: Assuming 'context' is null
+                bool has_comma =3D context && strchr(context, ',');
+                                 ^~~~~~~
+./security/selinux/hooks.c:1023:28: note: Left side of '&&' is false
+                bool has_comma =3D context && strchr(context, ',');
+                                         ^
+./security/selinux/hooks.c:1026:7: note: 'has_comma' is false
+                if (has_comma)
+                    ^~~~~~~~~
+./security/selinux/hooks.c:1026:3: note: Taking false branch
+                if (has_comma)
+                ^
+./security/selinux/hooks.c:1028:17: note: Passing null pointer value
+via 2nd parameter 's'
+                seq_escape(m, context, "\"\n\\");
+                              ^~~~~~~
+./security/selinux/hooks.c:1028:3: note: Calling 'seq_escape'
+                seq_escape(m, context, "\"\n\\");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+././include/linux/seq_file.h:152:20: note: Passing null pointer value
+via 2nd parameter 'src'
+        seq_escape_str(m, s, ESCAPE_OCTAL, esc);
+                          ^
+././include/linux/seq_file.h:152:2: note: Calling 'seq_escape_str'
+        seq_escape_str(m, s, ESCAPE_OCTAL, esc);
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+././include/linux/seq_file.h:136:25: note: Null pointer passed as 1st
+argument to string length function
+        seq_escape_mem(m, src, strlen(src), flags, esc);
+                               ^      ~~~
