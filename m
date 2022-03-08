@@ -2,213 +2,351 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 923A6C433EF
-	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 16:10:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70AF1C433F5
+	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 16:55:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348153AbiCHQLG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Mar 2022 11:11:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
+        id S1346938AbiCHQ4j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Mar 2022 11:56:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234940AbiCHQLG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 11:11:06 -0500
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD245046F;
-        Tue,  8 Mar 2022 08:10:09 -0800 (PST)
-Received: by mail-oi1-x231.google.com with SMTP id ay7so19308302oib.8;
-        Tue, 08 Mar 2022 08:10:09 -0800 (PST)
+        with ESMTP id S1348593AbiCHQ4d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 11:56:33 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F07527C3;
+        Tue,  8 Mar 2022 08:55:36 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id qx21so40589429ejb.13;
+        Tue, 08 Mar 2022 08:55:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5O1imAWZVdMyV+q57qh16bTvNuecO9mwzzUYs+YBqWU=;
-        b=KO+bSPR1W20jFFXnZzcF2bPOkRsBW4DSjh8CdK39vyINQGS+JiT95bNA1wQfSZ31ZC
-         zu7HOoLYhOV9IM5sDyK8Gmlmlzja5bJorLjgPIXSyKSve3tIHt05JZ4ktW/6O68s8l1R
-         vFgYtFhSE55YvaHgm9NcSX9IvIFQRk0IDpjvMUPvulpb88mf3984D1nHV74ulK/MJlb9
-         O49V7ytXgR5QqgquHg0WiEf0J/oznALGr4iGMtmqEU8hqWzZh9+Cd8UVi3BzQrTtBrAR
-         5u90pWgLi/G31/6Y47UcOIbW/qIwRxrry2fNiLAxrAkB6pLqUDmGjKII2MpcDHyybndb
-         hM3w==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=CjXtWGkEwW/SA+fpD3I4QTjghA+IdwhNUEQXDi/C+5Y=;
+        b=cLdjqFH3iDBtEJmD21w52mEQKCAtdfR81ATAihLi9o+pqr6bFSaVW3Dlj7DMlguqb+
+         3I7lgjCAzmL0hKRMxEQo2LXkbeA8ONGNdiqQA7S6pFybEx6htXUiMJnckLNsqPHduuFw
+         xnGNw4hZNdm8QBmQE3eUnAlAJsem4HfV4zbnKIT2Ns56xLLFJuFNwTcBtsqIS3L5I5TG
+         aXdyiDGD1ZUGnUtClwJdNBGj/c9arnsZSU6+VyiDIcDxPDeNxjbcyEc9Tot4pBRGbpp8
+         JWHwBeEkOeQqNjVFNnx7vDxvY1OXMDheib4gn3jGEDY8CPpkYPnalStmWtfAMpsRbg9O
+         IyOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5O1imAWZVdMyV+q57qh16bTvNuecO9mwzzUYs+YBqWU=;
-        b=7CssoATwmKMZvQgd8ExFIK5rlD6J0SGIAD1gvSQdf3hG7A0THgfZv/f0ampbGIcNWh
-         08Uz3hoJZEu0dXaqLt7qgCiDfcM7x15EabPw3FM5PxI+QDzpGoKBF0c7wboBHGGZ1iA9
-         s7drBWV3fsfP1vK8rAA7jVAlfVs4jLNM+gGqrQ1k47MQh9ZBcHxiJ/6QxIepdIM+hvM2
-         i1cXSIdT6f5SF1VNBFJuzJIQ4Dz1NUkwaJ8tRK3kZAZ3ouIlM3GOX6oUDqGstwtba73+
-         kkEYGzlJLIsQhGtq8/CCrifNKSoLvdu9THF1/CIiCn479BJdE/BqeIZIiBCFQVflFqnU
-         7Zfg==
-X-Gm-Message-State: AOAM530uB8wzwgrkLHi9aTdakY8aHTR0JNRZwRxPYG654jJHb01kQ3/i
-        Mc2ZYnNQoopH3C1Z/LPoFsNadHwxIUc1QManVl4=
-X-Google-Smtp-Source: ABdhPJw3M9r/GuIu6pvif5A7WP40yGexb4Vwc2H2Qq4vIMCja1rYYA0sn1nHOxSb/sA1AhQERfyHmNbY50vYG3jomSA=
-X-Received: by 2002:a05:6808:11cc:b0:2d9:a01a:4ba6 with SMTP id
- p12-20020a05680811cc00b002d9a01a4ba6mr3107703oiv.205.1646755808836; Tue, 08
- Mar 2022 08:10:08 -0800 (PST)
-MIME-Version: 1.0
-References: <20220217142133.72205-1-cgzones@googlemail.com>
- <20220217142133.72205-4-cgzones@googlemail.com> <CAKwvOdkNZ3W9amcQKHOEfQLbdWC=4VDtrBdbOVHtWruipQnyKg@mail.gmail.com>
-In-Reply-To: <CAKwvOdkNZ3W9amcQKHOEfQLbdWC=4VDtrBdbOVHtWruipQnyKg@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 8 Mar 2022 17:09:58 +0100
-Message-ID: <CAJ2a_DcY3=jz_zBQ7QZ_gycsvL1mn=TxKaWqWr3gGLhEAXTcQA@mail.gmail.com>
-Subject: Re: [PATCH 5/5] selinux: drop unnecessary NULL check
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=CjXtWGkEwW/SA+fpD3I4QTjghA+IdwhNUEQXDi/C+5Y=;
+        b=TZPaREJi5LRqt3HlEl2mysTifbDWZz/HD9R0TsZDyeuVV2XNeTfsCouApMcMCaOqtg
+         K4EoRxte7kNIZbl9+0yIzOS9LcGly3ppUVHTVTX9+tHTcbj5vXDUmvPWT9poHvmF5iE7
+         FTpe2zu8mD2zvVOXPpWLh7+q8SyaL76/8CkXEbzyHptKVeAjY+nooGFlEzx7M4B/Y0Sx
+         KESk5eEM1X2bWm38rhrpPiunde5BIRVTYqjSjGblgrTqFvbDAbLu6k8psNB5st+1yQju
+         taAIpMP2s3nIBn+iIPk6a9Kv8n3zcerBmSaFs8DC0CKnWfFirdkS27CIRRhVZM4aiL9+
+         JELg==
+X-Gm-Message-State: AOAM531Wh6JQyea0i08VF5E0Anot17H2HcGfUlPGtyO2ayjV4kNBAYC4
+        P1CI01rHPIhrNGqvlobHiv8q0sgUTnqEtQ==
+X-Google-Smtp-Source: ABdhPJw4MkzF+Jz/qxflgC4MAYWs6mVguTD++C1zX6ix9IwfFpWiHIFCpcQ8ovXH+1eDPp4Z5GpGuw==
+X-Received: by 2002:a17:907:6d97:b0:6d7:49e:275e with SMTP id sb23-20020a1709076d9700b006d7049e275emr13811450ejc.410.1646758534620;
+        Tue, 08 Mar 2022 08:55:34 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-006-252-105.77.6.pool.telefonica.de. [77.6.252.105])
+        by smtp.gmail.com with ESMTPSA id g22-20020a170906395600b006cec40b9cf0sm6104795eje.92.2022.03.08.08.55.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Mar 2022 08:55:33 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Nathan Chancellor <nathan@kernel.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
-        Serge Hallyn <serge@hallyn.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
         Austin Kim <austin.kim@lge.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
         Yang Li <yang.lee@linux.alibaba.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        llvm@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 4/5] selinux: declare data arrays const
+Date:   Tue,  8 Mar 2022 17:55:20 +0100
+Message-Id: <20220308165527.45456-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220217142133.72205-3-cgzones@googlemail.com>
+References: <20220217142133.72205-3-cgzones@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 18 Feb 2022 at 18:31, Nick Desaulniers <ndesaulniers@google.com> wr=
-ote:
->
-> On Thu, Feb 17, 2022 at 6:22 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Commit e3489f8974e1 ("selinux: kill selinux_sb_get_mnt_opts()")
-> > introduced a NULL check on the context after a successful call to
-> > security_sid_to_context().  This is on the one hand redundant after
-> > checking for success and on the other hand insufficient on an actual
-> > NULL pointer, since the context is passed to seq_escape() leading to a
-> > call of strlen() on it.
-> >
-> > Reported by Clang analyzer:
-> >
-> >     In file included from security/selinux/hooks.c:28:
-> >     In file included from ./include/linux/tracehook.h:50:
-> >     In file included from ./include/linux/memcontrol.h:13:
-> >     In file included from ./include/linux/cgroup.h:18:
-> >     ./include/linux/seq_file.h:136:25: warning: Null pointer passed as =
-1st argument to string length function [unix.cstring.NullArg]
-> >             seq_escape_mem(m, src, strlen(src), flags, esc);
-> >                                    ^~~~~~~~~~~
->
-> I'm guessing there was more to this trace for this instance of this warni=
-ng?
+The arrays for the policy capability names, the initial sid identifiers
+and the class and permission names are not changed at runtime.  Declare
+them const to avoid accidental modification.
 
-Yes, complete output appended at the end.
+Do not override the classmap and the initial sid list in the build time
+script genheaders, by using a static buffer in the conversion function
+stoupperx().  In cases we need to compare or print more than one
+identifier allocate a temporary copy.
 
->
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  security/selinux/hooks.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 1e69f88eb326..ac802b99d36c 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -1020,7 +1020,7 @@ static int show_sid(struct seq_file *m, u32 sid)
-> >         rc =3D security_sid_to_context(&selinux_state, sid,
-> >                                              &context, &len);
-> >         if (!rc) {
->
-> ^ perhaps changing this condition to:
->
-> if (!rc && context) {
->
-> It might be nice to retain the null ptr check should the semantics of
-> security_sid_to_context ever change.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+   Drop const exemption for genheaders script by rewriting stoupperx().
+---
+ scripts/selinux/genheaders/genheaders.c       | 76 ++++++++++---------
+ scripts/selinux/mdp/mdp.c                     |  4 +-
+ security/selinux/avc.c                        |  2 +-
+ security/selinux/include/avc_ss.h             |  2 +-
+ security/selinux/include/classmap.h           |  2 +-
+ .../selinux/include/initial_sid_to_string.h   |  3 +-
+ security/selinux/include/policycap.h          |  2 +-
+ security/selinux/include/policycap_names.h    |  2 +-
+ security/selinux/ss/services.c                |  4 +-
+ 9 files changed, 51 insertions(+), 46 deletions(-)
 
-If I read the implementation of security_sid_to_context() and its callees
-correctly it should never return 0 (success) and not have populated its 3
-argument, unless the passed pointer was zero, which by passing the address
-of a stack variable - &context - is not the case).
+diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
+index f355b3e0e968..a2caff3c997f 100644
+--- a/scripts/selinux/genheaders/genheaders.c
++++ b/scripts/selinux/genheaders/genheaders.c
+@@ -26,19 +26,23 @@ static void usage(void)
+ 	exit(1);
+ }
+ 
+-static char *stoupperx(const char *s)
++static const char *stoupperx(const char *s)
+ {
+-	char *s2 = strdup(s);
+-	char *p;
++	static char buffer[256];
++	unsigned int i;
++	char *p = buffer;
+ 
+-	if (!s2) {
+-		fprintf(stderr, "%s:  out of memory\n", progname);
++	for (i = 0; i < (sizeof(buffer) - 1) && *s; i++)
++		*p++ = toupper(*s++);
++
++	if (*s) {
++		fprintf(stderr, "%s:  buffer too small\n", progname);
+ 		exit(3);
+ 	}
+ 
+-	for (p = s2; *p; p++)
+-		*p = toupper(*p);
+-	return s2;
++	*p = '\0';
++
++	return buffer;
+ }
+ 
+ int main(int argc, char *argv[])
+@@ -59,35 +63,19 @@ int main(int argc, char *argv[])
+ 		exit(2);
+ 	}
+ 
+-	for (i = 0; secclass_map[i].name; i++) {
+-		struct security_class_mapping *map = &secclass_map[i];
+-		map->name = stoupperx(map->name);
+-		for (j = 0; map->perms[j]; j++)
+-			map->perms[j] = stoupperx(map->perms[j]);
+-	}
+-
+-	isids_len = sizeof(initial_sid_to_string) / sizeof (char *);
+-	for (i = 1; i < isids_len; i++) {
+-		const char *s = initial_sid_to_string[i];
+-
+-		if (s)
+-			initial_sid_to_string[i] = stoupperx(s);
+-	}
+-
+ 	fprintf(fout, "/* This file is automatically generated.  Do not edit. */\n");
+ 	fprintf(fout, "#ifndef _SELINUX_FLASK_H_\n#define _SELINUX_FLASK_H_\n\n");
+ 
+-	for (i = 0; secclass_map[i].name; i++) {
+-		struct security_class_mapping *map = &secclass_map[i];
+-		fprintf(fout, "#define SECCLASS_%-39s %2d\n", map->name, i+1);
+-	}
++	for (i = 0; secclass_map[i].name; i++)
++		fprintf(fout, "#define SECCLASS_%-39s %2d\n", stoupperx(secclass_map[i].name), i+1);
+ 
+ 	fprintf(fout, "\n");
+ 
++	isids_len = sizeof(initial_sid_to_string) / sizeof(char *);
+ 	for (i = 1; i < isids_len; i++) {
+ 		const char *s = initial_sid_to_string[i];
+ 		if (s)
+-			fprintf(fout, "#define SECINITSID_%-39s %2d\n", s, i);
++			fprintf(fout, "#define SECINITSID_%-39s %2d\n", stoupperx(s), i);
+ 	}
+ 	fprintf(fout, "\n#define SECINITSID_NUM %d\n", i-1);
+ 	fprintf(fout, "\nstatic inline bool security_is_socket_class(u16 kern_tclass)\n");
+@@ -96,10 +84,18 @@ int main(int argc, char *argv[])
+ 	fprintf(fout, "\tswitch (kern_tclass) {\n");
+ 	for (i = 0; secclass_map[i].name; i++) {
+ 		static char s[] = "SOCKET";
+-		struct security_class_mapping *map = &secclass_map[i];
+-		int len = strlen(map->name), l = sizeof(s) - 1;
+-		if (len >= l && memcmp(map->name + len - l, s, l) == 0)
+-			fprintf(fout, "\tcase SECCLASS_%s:\n", map->name);
++		int len, l;
++		char *name = strdup(stoupperx(secclass_map[i].name));
++
++		if (!name) {
++			fprintf(stderr, "%s:  out of memory\n", progname);
++			exit(3);
++		}
++		len = strlen(name);
++		l = sizeof(s) - 1;
++		if (len >= l && memcmp(name + len - l, s, l) == 0)
++			fprintf(fout, "\tcase SECCLASS_%s:\n", name);
++		free(name);
+ 	}
+ 	fprintf(fout, "\t\tsock = true;\n");
+ 	fprintf(fout, "\t\tbreak;\n");
+@@ -123,17 +119,25 @@ int main(int argc, char *argv[])
+ 	fprintf(fout, "#ifndef _SELINUX_AV_PERMISSIONS_H_\n#define _SELINUX_AV_PERMISSIONS_H_\n\n");
+ 
+ 	for (i = 0; secclass_map[i].name; i++) {
+-		struct security_class_mapping *map = &secclass_map[i];
+-		int len = strlen(map->name);
++		const struct security_class_mapping *map = &secclass_map[i];
++		int len;
++		char *name = strdup(stoupperx(map->name));
++
++		if (!name) {
++			fprintf(stderr, "%s:  out of memory\n", progname);
++			exit(3);
++		}
++		len = strlen(name);
+ 		for (j = 0; map->perms[j]; j++) {
+ 			if (j >= 32) {
+ 				fprintf(stderr, "Too many permissions to fit into an access vector at (%s, %s).\n",
+ 					map->name, map->perms[j]);
+ 				exit(5);
+ 			}
+-			fprintf(fout, "#define %s__%-*s 0x%08xU\n", map->name,
+-				39-len, map->perms[j], 1U<<j);
++			fprintf(fout, "#define %s__%-*s 0x%08xU\n", name,
++				39-len, stoupperx(map->perms[j]), 1U<<j);
+ 		}
++		free(name);
+ 	}
+ 
+ 	fprintf(fout, "\n#endif\n");
+diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
+index 105c1c31a316..1415604c3d24 100644
+--- a/scripts/selinux/mdp/mdp.c
++++ b/scripts/selinux/mdp/mdp.c
+@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
+ 
+ 	/* print out the class permissions */
+ 	for (i = 0; secclass_map[i].name; i++) {
+-		struct security_class_mapping *map = &secclass_map[i];
++		const struct security_class_mapping *map = &secclass_map[i];
+ 		fprintf(fout, "class %s\n", map->name);
+ 		fprintf(fout, "{\n");
+ 		for (j = 0; map->perms[j]; j++)
+@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
+ #define SYSTEMLOW "s0"
+ #define SYSTEMHIGH "s1:c0.c1"
+ 		for (i = 0; secclass_map[i].name; i++) {
+-			struct security_class_mapping *map = &secclass_map[i];
++			const struct security_class_mapping *map = &secclass_map[i];
+ 
+ 			fprintf(fout, "mlsconstrain %s {\n", map->name);
+ 			for (j = 0; map->perms[j]; j++)
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index abcd9740d10f..020985a53d8f 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -668,7 +668,7 @@ static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
+ 	struct common_audit_data *ad = a;
+ 	struct selinux_audit_data *sad = ad->selinux_audit_data;
+ 	u32 av = sad->audited;
+-	const char **perms;
++	const char *const *perms;
+ 	int i, perm;
+ 
+ 	audit_log_format(ab, "avc:  %s ", sad->denied ? "denied" : "granted");
+diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
+index 88c384c5c09e..b38974e22d81 100644
+--- a/security/selinux/include/avc_ss.h
++++ b/security/selinux/include/avc_ss.h
+@@ -18,7 +18,7 @@ struct security_class_mapping {
+ 	const char *perms[sizeof(u32) * 8 + 1];
+ };
+ 
+-extern struct security_class_mapping secclass_map[];
++extern const struct security_class_mapping secclass_map[];
+ 
+ #endif /* _SELINUX_AVC_SS_H_ */
+ 
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 35aac62a662e..ff757ae5f253 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -38,7 +38,7 @@
+  * Note: The name for any socket class should be suffixed by "socket",
+  *	 and doesn't contain more than one substr of "socket".
+  */
+-struct security_class_mapping secclass_map[] = {
++const struct security_class_mapping secclass_map[] = {
+ 	{ "security",
+ 	  { "compute_av", "compute_create", "compute_member",
+ 	    "check_context", "load_policy", "compute_relabel",
+diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
+index 5d332aeb8b6c..05cc51085437 100644
+--- a/security/selinux/include/initial_sid_to_string.h
++++ b/security/selinux/include/initial_sid_to_string.h
+@@ -1,5 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-static const char *initial_sid_to_string[] =
++
++static const char *const initial_sid_to_string[] =
+ {
+ 	NULL,
+ 	"kernel",
+diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+index 2680aa21205c..f35d3458e71d 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -16,6 +16,6 @@ enum {
+ };
+ #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+ 
+-extern const char *selinux_policycap_names[__POLICYDB_CAP_MAX];
++extern const char *const selinux_policycap_names[__POLICYDB_CAP_MAX];
+ 
+ #endif /* _SELINUX_POLICYCAP_H_ */
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index 100da7d043db..2a87fc3702b8 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -5,7 +5,7 @@
+ #include "policycap.h"
+ 
+ /* Policy capability names */
+-const char *selinux_policycap_names[__POLICYDB_CAP_MAX] = {
++const char *const selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+ 	"network_peer_controls",
+ 	"open_perms",
+ 	"extended_socket_class",
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 7865926962ab..25c287324059 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -99,7 +99,7 @@ static void context_struct_compute_av(struct policydb *policydb,
+ 				      struct extended_perms *xperms);
+ 
+ static int selinux_set_mapping(struct policydb *pol,
+-			       struct security_class_mapping *map,
++			       const struct security_class_mapping *map,
+ 			       struct selinux_map *out_map)
+ {
+ 	u16 i, j;
+@@ -121,7 +121,7 @@ static int selinux_set_mapping(struct policydb *pol,
+ 	/* Store the raw class and permission values */
+ 	j = 0;
+ 	while (map[j].name) {
+-		struct security_class_mapping *p_in = map + (j++);
++		const struct security_class_mapping *p_in = map + (j++);
+ 		struct selinux_mapping *p_out = out_map->mapping + j;
+ 
+ 		/* An empty class string skips ahead */
+-- 
+2.35.1
 
->
-> > -               bool has_comma =3D context && strchr(context, ',');
-> > +               bool has_comma =3D strchr(context, ',');
-> >
-> >                 seq_putc(m, '=3D');
-> >                 if (has_comma)
-> > --
-> > 2.35.1
-> >
->
->
-> --
-> Thanks,
-> ~Nick Desaulniers
-
-
-clang-tidy report:
-
-./include/linux/seq_file.h:136:25: warning: Null pointer passed as 1st
-argument to string length function
-[clang-analyzer-unix.cstring.NullArg]
-        seq_escape_mem(m, src, strlen(src), flags, esc);
-                               ^
-./security/selinux/hooks.c:1041:6: note: Assuming the condition is false
-        if (!(sbsec->flags & SE_SBINITIALIZED))
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./security/selinux/hooks.c:1041:2: note: Taking false branch
-        if (!(sbsec->flags & SE_SBINITIALIZED))
-        ^
-./security/selinux/hooks.c:1044:6: note: Assuming the condition is false
-        if (!selinux_initialized(&selinux_state))
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./security/selinux/hooks.c:1044:2: note: Taking false branch
-        if (!selinux_initialized(&selinux_state))
-        ^
-./security/selinux/hooks.c:1047:6: note: Assuming the condition is true
-        if (sbsec->flags & FSCONTEXT_MNT) {
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./security/selinux/hooks.c:1047:2: note: Taking true branch
-        if (sbsec->flags & FSCONTEXT_MNT) {
-        ^
-./security/selinux/hooks.c:1050:8: note: Calling 'show_sid'
-                rc =3D show_sid(m, sbsec->sid);
-                     ^~~~~~~~~~~~~~~~~~~~~~~
-./security/selinux/hooks.c:1020:7: note: Value assigned to 'context'
-        rc =3D security_sid_to_context(&selinux_state, sid,
-             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./security/selinux/hooks.c:1022:6: note: Assuming 'rc' is 0
-        if (!rc) {
-            ^~~
-./security/selinux/hooks.c:1022:2: note: Taking true branch
-        if (!rc) {
-        ^
-./security/selinux/hooks.c:1023:20: note: Assuming 'context' is null
-                bool has_comma =3D context && strchr(context, ',');
-                                 ^~~~~~~
-./security/selinux/hooks.c:1023:28: note: Left side of '&&' is false
-                bool has_comma =3D context && strchr(context, ',');
-                                         ^
-./security/selinux/hooks.c:1026:7: note: 'has_comma' is false
-                if (has_comma)
-                    ^~~~~~~~~
-./security/selinux/hooks.c:1026:3: note: Taking false branch
-                if (has_comma)
-                ^
-./security/selinux/hooks.c:1028:17: note: Passing null pointer value
-via 2nd parameter 's'
-                seq_escape(m, context, "\"\n\\");
-                              ^~~~~~~
-./security/selinux/hooks.c:1028:3: note: Calling 'seq_escape'
-                seq_escape(m, context, "\"\n\\");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-././include/linux/seq_file.h:152:20: note: Passing null pointer value
-via 2nd parameter 'src'
-        seq_escape_str(m, s, ESCAPE_OCTAL, esc);
-                          ^
-././include/linux/seq_file.h:152:2: note: Calling 'seq_escape_str'
-        seq_escape_str(m, s, ESCAPE_OCTAL, esc);
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-././include/linux/seq_file.h:136:25: note: Null pointer passed as 1st
-argument to string length function
-        seq_escape_mem(m, src, strlen(src), flags, esc);
-                               ^      ~~~
