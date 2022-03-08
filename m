@@ -2,389 +2,144 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5A5CC433F5
-	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 19:06:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2ED5C433F5
+	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 22:12:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344833AbiCHTHf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Mar 2022 14:07:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45864 "EHLO
+        id S1350669AbiCHWNH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Mar 2022 17:13:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243715AbiCHTHe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 14:07:34 -0500
-Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FFF53E34
-        for <selinux@vger.kernel.org>; Tue,  8 Mar 2022 11:06:37 -0800 (PST)
-Received: by mail-oi1-x22a.google.com with SMTP id 12so211110oix.12
-        for <selinux@vger.kernel.org>; Tue, 08 Mar 2022 11:06:37 -0800 (PST)
+        with ESMTP id S1350630AbiCHWM5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 17:12:57 -0500
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8548047AEA
+        for <selinux@vger.kernel.org>; Tue,  8 Mar 2022 14:12:00 -0800 (PST)
+Received: by mail-qv1-xf31.google.com with SMTP id gm1so580824qvb.7
+        for <selinux@vger.kernel.org>; Tue, 08 Mar 2022 14:12:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=f/odVeabSQaQSWGvQyB/pu3P0oMzR7jj0nslElis6j8=;
-        b=omB5W1ddgvfTVEIyzCTj5bbiJ6MVo9NzN0ubstCPTHDjG6DfPb18TaiLgR9Aaknt6y
-         IaNuep02dgdqomNr2XV+MJ6bqmd2to60cuEMh3eBiQhtHVt4pzy9BZtmDngnf6UekYS4
-         N7UHBlM2R4jNP2iq9dZKsbVp08kLnJ0XK5nOdRsIBViv2zBY61TWYlHOR2pWJcEctYTf
-         k838Sf9ObgbUIs7wfMoV445yz00hzRhrEn0NpVjdHlqIYlfn/C+cwQP0SusWYx4n4920
-         a7IiTfz2bmiFj+d4fYszTFzue9hpl1LLfulYMBullnzEgrzLwFjNEcvhLgisgrgO3lyE
-         YZAw==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=72xk7Jlho0pYjqgQheRrTK8I77jAVz6E4v8YsyW0uCE=;
+        b=abkyG5Yk1sctXcPXKaVKoa1ZFZJP73ncjChNiz/eMsSNY9t6yzTUDSETCjKt/hYZ73
+         /V6MwYq9uPDpu9IMoE9D8BOaIpYiObyyOlKYYZOC1PY9YkI9lQ5lSJTIgXo5LTl2EkG2
+         I1TL07sSoQ4A5a4Q/85PXcsUx+w4QHr/ZZUEV5+OSCsYQAn0xmnaUbyEilWvKBlcVOwb
+         APwITWJ+qgtD070mCiwzD7C1rtEH80lCbqWoofp11WugYzkFIKr0wVtBP6dsapTMfEe+
+         2f01xIGIyhKAzgrXOOoKrKA3N28Kx7QxjgXH5QzocfI5wzIPbOvl9r+nMEW0iyVPkGMw
+         L7OQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=f/odVeabSQaQSWGvQyB/pu3P0oMzR7jj0nslElis6j8=;
-        b=xELDvDB8/DHM5IVr1aEiBNRUYsfcBkD67hcXgHD57MC9BmeLLmdr9fw/yZ5zM8uuYV
-         iZOUAX4Kx6hfvcsv86G3WysKdH1adLKHwtKb8GKravnOksfaRyzFmsnR0AhW2MWgqICy
-         dBMYz9BtIIiorvmLnqRJFQQAKXkW8XBlUfIOoA5BIQiRkCGs6bqfysYG/t8Wqb10kviS
-         W80igWEUFbULe4NWfanRGshE1NnwFdBFdxudGSF+PjmaphB5zPJZUdSstu/f/uJs6vo/
-         773ASCPLAeCISzNxCPyefJJfqYR2Dx+BcXU3j1C+gPgR5FtyuzYWIFAUCrDmYXHQwty1
-         tOnA==
-X-Gm-Message-State: AOAM532Gy2AtaoNslPAYCM8vSgECqW1qUeT+pVwc1gBnYIFB8vMyQYOY
-        jW+MAUIv8qlHNSpgZdmuKBNh58oAbB+obr8lZtQ=
-X-Google-Smtp-Source: ABdhPJy+BFplhpIh5vxVcvmAEdzXcfWT38zeURPe1mbizsr4H8rESMHnHBewJBpYLLPFK2K8uMVwlZr8MUiPUhN14x0=
-X-Received: by 2002:a05:6808:168a:b0:2d9:77df:1a95 with SMTP id
- bb10-20020a056808168a00b002d977df1a95mr3707258oib.71.1646766395385; Tue, 08
- Mar 2022 11:06:35 -0800 (PST)
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=72xk7Jlho0pYjqgQheRrTK8I77jAVz6E4v8YsyW0uCE=;
+        b=2dkP2kxXK0GrvpDVl73y3suIIMFDJEFdgDjSIJ3Trrqa++hcHldOANtvFAp9oX9rgl
+         1le6UJFozaabY0xFXj5+IlKTrtdbxOMmjPro5J3xLLizzTHx7rQ54XuZxLC+HpGBEHE6
+         4lClKJ7T4D45oltd+vJmn5wOFewsxafRZGzzDUlQdeeiX6zZ0KyRx++DpSDaVP1KSmwN
+         /p7GhF92/7G1wVnDhyI9kzBvLSMM3z1iIMuX4hKbe7l47eq2BiYyXaTuAPbnEhm3XwQx
+         43yalMe1ZUEuVHOF4EltS2ezsTnrhV1L0kzeewm2809FeWNjMye4hV8aNzXVKF4W57tU
+         I14g==
+X-Gm-Message-State: AOAM533ErDoBH0+CNONuAXcj7z/XnetAt7iGZa+49nf2fScEyvrkC1pA
+        gAjIj5Cii1F9ClEbUmAUut1XHh9tOA98
+X-Google-Smtp-Source: ABdhPJwSZM55qlAU7Kfcy2aiAYFu1RZOEIZ/Qi67iPOqS8xhh4DT6gFnZput1M4cNQWwNY3NpWz+FQ==
+X-Received: by 2002:ad4:5ca2:0:b0:435:bd63:1e2d with SMTP id q2-20020ad45ca2000000b00435bd631e2dmr447661qvh.37.1646777519165;
+        Tue, 08 Mar 2022 14:11:59 -0800 (PST)
+Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
+        by smtp.gmail.com with ESMTPSA id o18-20020a05622a139200b002de25b59013sm115516qtk.84.2022.03.08.14.11.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Mar 2022 14:11:58 -0800 (PST)
+Subject: [RFC PATCH] selinux: checkreqprot is deprecated,
+ add some ssleep() discomfort
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Date:   Tue, 08 Mar 2022 17:11:57 -0500
+Message-ID: <164677751730.170741.6493351205403681020.stgit@olly>
+User-Agent: StGit/1.5
 MIME-Version: 1.0
-References: <20220222135037.30497-1-cgzones@googlemail.com>
- <20220222181148.54329-1-cgzones@googlemail.com> <CAP+JOzQ+bEsoJyRhsGbJVALEzL6_VTtOvjh9f4nMzhv=nQvvig@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ+bEsoJyRhsGbJVALEzL6_VTtOvjh9f4nMzhv=nQvvig@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 8 Mar 2022 20:06:24 +0100
-Message-ID: <CAJ2a_Ddv9gfJKkSQDGHOGyBMG=o5P73sTb5JcObXLsCvPFw6YA@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol: validate expressions by evaluating
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 3 Mar 2022 at 22:53, James Carter <jwcart2@gmail.com> wrote:
->
-> On Tue, Feb 22, 2022 at 9:51 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Evaluate expressions similar to the actual kernel security server such
-> > that invalid expressions, e.g. `t2 =3D=3D t3` for validatetrans, are
-> > rejected.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > v2:
-> >     reject third task context in normal constraints
-> > ---
-> >  libsepol/src/policydb_validate.c | 226 ++++++++++++++++++++++---------
-> >  1 file changed, 159 insertions(+), 67 deletions(-)
-> >
-> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
-alidate.c
-> > index 735c7a33..3b0ea0e1 100644
-> > --- a/libsepol/src/policydb_validate.c
-> > +++ b/libsepol/src/policydb_validate.c
-> > @@ -223,90 +223,182 @@ bad:
-> >         return -1;
-> >  }
-> >
-> > -static int validate_constraint_nodes(sepol_handle_t *handle, unsigned =
-int nperms, constraint_node_t *cons, validate_t flavors[])
-> > +/*
-> > + * Follow evaluation of expressions to find invalid ones.
-> > + * Keep in sync with kernel source security/selinux/ss/services.c::con=
-straint_expr_eval()
-> > + */
-> > +static int validate_expression(sepol_handle_t *handle, constraint_expr=
-_t *e, int validatetrans, validate_t flavors[])
-> >  {
-> > -       constraint_expr_t *cexp;
-> > -
-> > -       for (; cons; cons =3D cons->next) {
-> > -               if (nperms > 0 && cons->permissions =3D=3D 0)
-> > -                       goto bad;
-> > -               if (nperms > 0 && nperms !=3D PERM_SYMTAB_SIZE && cons-=
->permissions >=3D (UINT32_C(1) << nperms))
-> > -                       goto bad;
-> > +       int sp =3D -1;
->
-> The function read_cons_helper() is used when reading in the policy and
-> it keeps track of the stack and will return an error if there is a
-> problem, so I don't think that this is going to be useful when
-> validating the policy.
->
-> Most of what you have here is concerned with keeping track of the
-> stack. There is more validation that can be done, however. See if the
-> patch that I sent to the list will meet your needs.
+The checkreqprot functionality was disabled by default back in
+Linux v4.4 (2015) with commit 2a35d196c160e3 ("selinux: change
+CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE default") and it was
+officially marked as deprecated in Linux v5.7.  It was always a
+bit of a hack to workaround very old userspace and to the best of
+our knowledge, the checkreqprot functionality has been disabled by
+Linux distributions for quite some time.
 
-Indeed it does (and thus renders this patch superseded).
-Thanks.
+This patch moves the deprecation messages from KERN_WARNING to
+KERN_ERR and adds a five second sleep to anyone using it to help
+draw their attention to the deprecation and provide a URL which
+helps explain things in more detail.
 
->
-> Thanks,
-> Jim
->
->
-> >
-> > -               for (cexp =3D cons->expr; cexp; cexp =3D cexp->next) {
-> > -                       if (cexp->attr & CEXPR_USER) {
-> > -                               if (validate_ebitmap(&cexp->names, &fla=
-vors[SYM_USERS]))
-> > -                                       goto bad;
-> > -                               if (validate_empty_type_set(cexp->type_=
-names))
-> > -                                       goto bad;
-> > -                       } else if (cexp->attr & CEXPR_ROLE) {
-> > -                               if (validate_ebitmap(&cexp->names, &fla=
-vors[SYM_ROLES]))
-> > -                                       goto bad;
-> > -                               if (validate_empty_type_set(cexp->type_=
-names))
-> > -                                       goto bad;
-> > -                       } else if (cexp->attr & CEXPR_TYPE) {
-> > -                               if (validate_ebitmap(&cexp->names, &fla=
-vors[SYM_TYPES]))
-> > -                                       goto bad;
-> > -                               if (validate_type_set(cexp->type_names,=
- &flavors[SYM_TYPES]))
-> > -                                       goto bad;
-> > -                       } else {
-> > -                               if (!ebitmap_is_empty(&cexp->names))
-> > -                                       goto bad;
-> > -                               if (validate_empty_type_set(cexp->type_=
-names))
-> > -                                       goto bad;
-> > -                       }
-> > +       for (; e; e =3D e->next) {
-> > +               /* validate symbols (implied in kernel source) */
-> > +               if (e->attr & CEXPR_USER) {
-> > +                       if (validate_ebitmap(&e->names, &flavors[SYM_US=
-ERS]))
-> > +                               goto bad;
-> > +                       if (validate_empty_type_set(e->type_names))
-> > +                               goto bad;
-> > +               } else if (e->attr & CEXPR_ROLE) {
-> > +                       if (validate_ebitmap(&e->names, &flavors[SYM_RO=
-LES]))
-> > +                               goto bad;
-> > +                       if (validate_empty_type_set(e->type_names))
-> > +                               goto bad;
-> > +               } else if (e->attr & CEXPR_TYPE) {
-> > +                       if (validate_ebitmap(&e->names, &flavors[SYM_TY=
-PES]))
-> > +                               goto bad;
-> > +                       if (validate_type_set(e->type_names, &flavors[S=
-YM_TYPES]))
-> > +                               goto bad;
-> > +               } else {
-> > +                       if (!ebitmap_is_empty(&e->names))
-> > +                               goto bad;
-> > +                       if (validate_empty_type_set(e->type_names))
-> > +                               goto bad;
-> > +               }
-> >
-> > -                       if (cexp->expr_type =3D=3D CEXPR_ATTR || cexp->=
-expr_type =3D=3D CEXPR_NAMES) {
-> > -                               switch (cexp->op) {
-> > -                               case CEXPR_EQ:
-> > -                               case CEXPR_NEQ:
-> > +               switch (e->expr_type) {
-> > +               case CEXPR_NOT:
-> > +                       if(sp < 0)
-> > +                               goto bad;
-> > +                       break;
-> > +               case CEXPR_AND:
-> > +                       if(sp < 0)
-> > +                               goto bad;
-> > +                       sp--;
-> > +                       break;
-> > +               case CEXPR_OR:
-> > +                       if(sp < 0)
-> > +                               goto bad;
-> > +                       sp--;
-> > +                       break;
-> > +               case CEXPR_ATTR:
-> > +                       if (sp =3D=3D (CEXPR_MAXDEPTH - 1))
-> > +                               return 0;
-> > +                       switch (e->attr) {
-> > +                       case CEXPR_USER:
-> > +                               break;
-> > +                       case CEXPR_TYPE:
-> > +                               break;
-> > +                       case CEXPR_ROLE:
-> > +                               switch (e->op) {
-> >                                 case CEXPR_DOM:
-> > +                                       ++sp;
-> > +                                       continue;
-> >                                 case CEXPR_DOMBY:
-> > +                                       ++sp;
-> > +                                       continue;
-> >                                 case CEXPR_INCOMP:
-> > -                                       break;
-> > +                                       ++sp;
-> > +                                       continue;
-> >                                 default:
-> > -                                       goto bad;
-> > -                               }
-> > -
-> > -                               switch (cexp->attr) {
-> > -                               case CEXPR_USER:
-> > -                               case CEXPR_USER | CEXPR_TARGET:
-> > -                               case CEXPR_USER | CEXPR_XTARGET:
-> > -                               case CEXPR_ROLE:
-> > -                               case CEXPR_ROLE | CEXPR_TARGET:
-> > -                               case CEXPR_ROLE | CEXPR_XTARGET:
-> > -                               case CEXPR_TYPE:
-> > -                               case CEXPR_TYPE | CEXPR_TARGET:
-> > -                               case CEXPR_TYPE | CEXPR_XTARGET:
-> > -                               case CEXPR_L1L2:
-> > -                               case CEXPR_L1H2:
-> > -                               case CEXPR_H1L2:
-> > -                               case CEXPR_H1H2:
-> > -                               case CEXPR_L1H1:
-> > -                               case CEXPR_L2H2:
-> >                                         break;
-> > -                               default:
-> > -                                       goto bad;
-> >                                 }
-> > -                       } else {
-> > -                               switch (cexp->expr_type) {
-> > -                               case CEXPR_NOT:
-> > -                               case CEXPR_AND:
-> > -                               case CEXPR_OR:
-> > -                                       break;
-> > +                               break;
-> > +                       case CEXPR_L1L2:
-> > +                               goto mls_ops;
-> > +                       case CEXPR_L1H2:
-> > +                               goto mls_ops;
-> > +                       case CEXPR_H1L2:
-> > +                               goto mls_ops;
-> > +                       case CEXPR_H1H2:
-> > +                               goto mls_ops;
-> > +                       case CEXPR_L1H1:
-> > +                               goto mls_ops;
-> > +                       case CEXPR_L2H2:
-> > +                               goto mls_ops;
-> > +mls_ops:
-> > +                               switch (e->op) {
-> > +                               case CEXPR_EQ:
-> > +                                       ++sp;
-> > +                                       continue;
-> > +                               case CEXPR_NEQ:
-> > +                                       ++sp;
-> > +                                       continue;
-> > +                               case CEXPR_DOM:
-> > +                                       ++sp;
-> > +                                       continue;
-> > +                               case CEXPR_DOMBY:
-> > +                                       ++sp;
-> > +                                       continue;
-> > +                               case CEXPR_INCOMP:
-> > +                                       ++sp;
-> > +                                       continue;
-> >                                 default:
-> >                                         goto bad;
-> >                                 }
-> > +                               break;
-> > +                       default:
-> > +                               goto bad;
-> > +                       }
-> >
-> > -                               if (cexp->op !=3D 0)
-> > +                       switch (e->op) {
-> > +                       case CEXPR_EQ:
-> > +                               ++sp;
-> > +                               break;
-> > +                       case CEXPR_NEQ:
-> > +                               ++sp;
-> > +                               break;
-> > +                       default:
-> > +                               goto bad;
-> > +                       }
-> > +                       break;
-> > +               case CEXPR_NAMES:
-> > +                       if (sp =3D=3D (CEXPR_MAXDEPTH-1))
-> > +                               return 0;
-> > +                       if (e->attr & CEXPR_TARGET)
-> > +                               ;
-> > +                       else if (e->attr & CEXPR_XTARGET) {
-> > +                               if (!validatetrans)
-> >                                         goto bad;
-> > +                       }
-> > +                       if (e->attr & CEXPR_USER)
-> > +                               ;
-> > +                       else if (e->attr & CEXPR_ROLE)
-> > +                               ;
-> > +                       else if (e->attr & CEXPR_TYPE)
-> > +                               ;
-> > +                       else
-> > +                               goto bad;
-> >
-> > -                               if (cexp->attr !=3D 0)
-> > -                                       goto bad;
-> > +                       switch (e->op) {
-> > +                       case CEXPR_EQ:
-> > +                               ++sp;
-> > +                               break;
-> > +                       case CEXPR_NEQ:
-> > +                               ++sp;
-> > +                               break;
-> > +                       default:
-> > +                               goto bad;
-> >                         }
-> > +                       break;
-> > +               default:
-> > +                       goto bad;
-> >                 }
-> >         }
-> >
-> > +       if (sp !=3D 0)
-> > +               goto bad;
-> > +
-> > +       return 0;
-> > +
-> > +bad:
-> > +       ERR(handle, "Invalid expression");
-> > +       return -1;
-> > +}
-> > +
-> > +static int validate_constraint_nodes(sepol_handle_t *handle, unsigned =
-int nperms, constraint_node_t *cons, int validatetrans, validate_t flavors[=
-])
-> > +{
-> > +       for (; cons; cons =3D cons->next) {
-> > +               if (validatetrans && cons->permissions !=3D 0)
-> > +                       goto bad;
-> > +               if (!validatetrans && cons->permissions =3D=3D 0)
-> > +                       goto bad;
-> > +               if (!validatetrans && nperms !=3D PERM_SYMTAB_SIZE && c=
-ons->permissions >=3D (UINT32_C(1) << nperms))
-> > +                       goto bad;
-> > +
-> > +               if (validate_expression(handle, cons->expr, validatetra=
-ns, flavors))
-> > +                       goto bad;
-> > +       }
-> > +
-> >         return 0;
-> >
-> >  bad:
-> > @@ -320,9 +412,9 @@ static int validate_class_datum(sepol_handle_t *han=
-dle, class_datum_t *class, va
-> >                 goto bad;
-> >         if (class->permissions.nprim > PERM_SYMTAB_SIZE)
-> >                 goto bad;
-> > -       if (validate_constraint_nodes(handle, class->permissions.nprim,=
- class->constraints, flavors))
-> > +       if (validate_constraint_nodes(handle, class->permissions.nprim,=
- class->constraints, 0, flavors))
-> >                 goto bad;
-> > -       if (validate_constraint_nodes(handle, 0, class->validatetrans, =
-flavors))
-> > +       if (validate_constraint_nodes(handle, class->permissions.nprim,=
- class->validatetrans, 1, flavors))
-> >                 goto bad;
-> >
-> >         switch (class->default_user) {
-> > --
-> > 2.35.1
-> >
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c            |    4 +++-
+ security/selinux/include/security.h |    6 ++++++
+ security/selinux/selinuxfs.c        |    4 ++--
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b12e14b2797b..cff129f96e97 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -146,7 +146,7 @@ static int __init checkreqprot_setup(char *str)
+ 	if (!kstrtoul(str, 0, &checkreqprot)) {
+ 		selinux_checkreqprot_boot = checkreqprot ? 1 : 0;
+ 		if (checkreqprot)
+-			pr_warn("SELinux: checkreqprot set to 1 via kernel parameter.  This is deprecated and will be rejected in a future kernel release.\n");
++			pr_err("SELinux: checkreqprot set to 1 via kernel parameter.  This is deprecated and will be rejected in a future kernel release.\n");
+ 	}
+ 	return 1;
+ }
+@@ -7295,6 +7295,8 @@ static __init int selinux_init(void)
+ 
+ 	memset(&selinux_state, 0, sizeof(selinux_state));
+ 	enforcing_set(&selinux_state, selinux_enforcing_boot);
++	if (CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE)
++		pr_err("SELinux: CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE is non-zero.  This is deprecated and will be rejected in a future kernel release.\n");
+ 	checkreqprot_set(&selinux_state, selinux_checkreqprot_boot);
+ 	selinux_avc_init(&selinux_state.avc);
+ 	mutex_init(&selinux_state.status_lock);
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ace4bd13e808..f7e6be63adfb 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -16,6 +16,8 @@
+ #include <linux/rcupdate.h>
+ #include <linux/refcount.h>
+ #include <linux/workqueue.h>
++#include <linux/delay.h>
++#include <linux/printk.h>
+ #include "flask.h"
+ #include "policycap.h"
+ 
+@@ -150,6 +152,10 @@ static inline bool checkreqprot_get(const struct selinux_state *state)
+ 
+ static inline void checkreqprot_set(struct selinux_state *state, bool value)
+ {
++	if (value) {
++		pr_err("SELinux: https://github.com/SELinuxProject/selinux-kernel/wiki/DEPRECATE-checkreqprot\n");
++		ssleep(5);
++	}
+ 	WRITE_ONCE(state->checkreqprot, value);
+ }
+ 
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 6568bc48cd3e..6c8b6a0ddecf 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -757,8 +757,8 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
+ 		char comm[sizeof(current->comm)];
+ 
+ 		memcpy(comm, current->comm, sizeof(comm));
+-		pr_warn_once("SELinux: %s (%d) set checkreqprot to 1. This is deprecated and will be rejected in a future kernel release.\n",
+-			     comm, current->pid);
++		pr_err("SELinux: %s (%d) set checkreqprot to 1. This is deprecated and will be rejected in a future kernel release.\n",
++		       comm, current->pid);
+ 	}
+ 
+ 	checkreqprot_set(fsi->state, (new_value ? 1 : 0));
+
