@@ -2,142 +2,389 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB973C433EF
-	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 18:58:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5A5CC433F5
+	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 19:06:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237719AbiCHS7R (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Mar 2022 13:59:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37038 "EHLO
+        id S1344833AbiCHTHf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Mar 2022 14:07:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348996AbiCHS7Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 13:59:16 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B333A192B2
-        for <selinux@vger.kernel.org>; Tue,  8 Mar 2022 10:58:19 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id qx21so41315184ejb.13
-        for <selinux@vger.kernel.org>; Tue, 08 Mar 2022 10:58:19 -0800 (PST)
+        with ESMTP id S243715AbiCHTHe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 14:07:34 -0500
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FFF53E34
+        for <selinux@vger.kernel.org>; Tue,  8 Mar 2022 11:06:37 -0800 (PST)
+Received: by mail-oi1-x22a.google.com with SMTP id 12so211110oix.12
+        for <selinux@vger.kernel.org>; Tue, 08 Mar 2022 11:06:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=UsPowHRXWPrbqiMfxZGq34vKdDRvvQve4Vrpaw10rlM=;
-        b=Q3pwNTIdkMBRgCZUWuL8uHSMHU5pQiyk5bmUEy/zD6DMEoEjGF33JqT7eubmm2z0YT
-         SW4ROyCZMSqoi3sNS40MlXc4oaVZibVkerQOjRoWBDgZMlAtLMJsC+wPdsEEOPqriIzS
-         4z+HVVUj+57f09/pgCMB8BBSD/uEbhIeLuIPVNoZ3Pug4hVLPpMzxansCOGeTO0kGfWN
-         qYev77WdcDrEcTPdJW7uw+W74fcLqy6rSca9E2Nx1uQ27Wjsvnl/2KvA7HPaaCKoHW3n
-         0ajziEX8zdxNRIfpSw5r2ZouHSuWibV9q2bwrkBAXeh6AymhBpM4BVGNQDH4oOq7Amz4
-         MLBw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=f/odVeabSQaQSWGvQyB/pu3P0oMzR7jj0nslElis6j8=;
+        b=omB5W1ddgvfTVEIyzCTj5bbiJ6MVo9NzN0ubstCPTHDjG6DfPb18TaiLgR9Aaknt6y
+         IaNuep02dgdqomNr2XV+MJ6bqmd2to60cuEMh3eBiQhtHVt4pzy9BZtmDngnf6UekYS4
+         N7UHBlM2R4jNP2iq9dZKsbVp08kLnJ0XK5nOdRsIBViv2zBY61TWYlHOR2pWJcEctYTf
+         k838Sf9ObgbUIs7wfMoV445yz00hzRhrEn0NpVjdHlqIYlfn/C+cwQP0SusWYx4n4920
+         a7IiTfz2bmiFj+d4fYszTFzue9hpl1LLfulYMBullnzEgrzLwFjNEcvhLgisgrgO3lyE
+         YZAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UsPowHRXWPrbqiMfxZGq34vKdDRvvQve4Vrpaw10rlM=;
-        b=mZoBFm2DhodUiHyk7IMRPZhKUz7lWFQ7pczF2/NxURxwv64nIZo1U5p2lMt2FiQH4q
-         NZfyFdHI82Kuv604AsI/CXovFTqBfIDooQdPn9XHjXVgWo/XorfXGvbBojIQvFPqQ3P8
-         EX+/qpxjLhDNweil7stGtjypbpxivSZ63yKSWe+hywein8kVzERb01YFJjUuREwaZcqd
-         8OWDwH0a8FuoRD+78XJuc1EK8bW6Di7kR9o/z+cCoaymRtHBlVhIGYVfWh1zlWkNqQjh
-         QEsLzWwsmJSkNfr/ZNLOMumFCfGwcjSvBtaqNCZjE08Fgw9DGCg0ymxBz240HCyZjHG6
-         LTpg==
-X-Gm-Message-State: AOAM532eEw8RgfOlBvo9H2oTSYL/xY+LQt7dhC2KnqWQdA2M2XMVx0zJ
-        PkKnrTqhCsn6Xyt2Vxo8BDyFF5vsb1g31g==
-X-Google-Smtp-Source: ABdhPJyB7Pi5eGyznrcIcvg03thTTwXmB7Th7G9EzvB6TGBuACshjIqnKN71MkKOZXndmZLqIiI35g==
-X-Received: by 2002:a17:907:72c5:b0:6da:e99e:226c with SMTP id du5-20020a17090772c500b006dae99e226cmr14915580ejc.515.1646765898184;
-        Tue, 08 Mar 2022 10:58:18 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-006-252-105.77.6.pool.telefonica.de. [77.6.252.105])
-        by smtp.gmail.com with ESMTPSA id s21-20020a170906961500b006daac87ddb0sm5408063ejx.140.2022.03.08.10.58.17
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Mar 2022 10:58:17 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 2/2] libsepol: validate boolean datum arrays
-Date:   Tue,  8 Mar 2022 19:58:10 +0100
-Message-Id: <20220308185811.72407-2-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220308185811.72407-1-cgzones@googlemail.com>
-References: <20220308185811.72407-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=f/odVeabSQaQSWGvQyB/pu3P0oMzR7jj0nslElis6j8=;
+        b=xELDvDB8/DHM5IVr1aEiBNRUYsfcBkD67hcXgHD57MC9BmeLLmdr9fw/yZ5zM8uuYV
+         iZOUAX4Kx6hfvcsv86G3WysKdH1adLKHwtKb8GKravnOksfaRyzFmsnR0AhW2MWgqICy
+         dBMYz9BtIIiorvmLnqRJFQQAKXkW8XBlUfIOoA5BIQiRkCGs6bqfysYG/t8Wqb10kviS
+         W80igWEUFbULe4NWfanRGshE1NnwFdBFdxudGSF+PjmaphB5zPJZUdSstu/f/uJs6vo/
+         773ASCPLAeCISzNxCPyefJJfqYR2Dx+BcXU3j1C+gPgR5FtyuzYWIFAUCrDmYXHQwty1
+         tOnA==
+X-Gm-Message-State: AOAM532Gy2AtaoNslPAYCM8vSgECqW1qUeT+pVwc1gBnYIFB8vMyQYOY
+        jW+MAUIv8qlHNSpgZdmuKBNh58oAbB+obr8lZtQ=
+X-Google-Smtp-Source: ABdhPJy+BFplhpIh5vxVcvmAEdzXcfWT38zeURPe1mbizsr4H8rESMHnHBewJBpYLLPFK2K8uMVwlZr8MUiPUhN14x0=
+X-Received: by 2002:a05:6808:168a:b0:2d9:77df:1a95 with SMTP id
+ bb10-20020a056808168a00b002d977df1a95mr3707258oib.71.1646766395385; Tue, 08
+ Mar 2022 11:06:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220222135037.30497-1-cgzones@googlemail.com>
+ <20220222181148.54329-1-cgzones@googlemail.com> <CAP+JOzQ+bEsoJyRhsGbJVALEzL6_VTtOvjh9f4nMzhv=nQvvig@mail.gmail.com>
+In-Reply-To: <CAP+JOzQ+bEsoJyRhsGbJVALEzL6_VTtOvjh9f4nMzhv=nQvvig@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 8 Mar 2022 20:06:24 +0100
+Message-ID: <CAJ2a_Ddv9gfJKkSQDGHOGyBMG=o5P73sTb5JcObXLsCvPFw6YA@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: validate expressions by evaluating
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Validate the boolean entries in the policy.
+On Thu, 3 Mar 2022 at 22:53, James Carter <jwcart2@gmail.com> wrote:
+>
+> On Tue, Feb 22, 2022 at 9:51 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Evaluate expressions similar to the actual kernel security server such
+> > that invalid expressions, e.g. `t2 =3D=3D t3` for validatetrans, are
+> > rejected.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> > v2:
+> >     reject third task context in normal constraints
+> > ---
+> >  libsepol/src/policydb_validate.c | 226 ++++++++++++++++++++++---------
+> >  1 file changed, 159 insertions(+), 67 deletions(-)
+> >
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index 735c7a33..3b0ea0e1 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -223,90 +223,182 @@ bad:
+> >         return -1;
+> >  }
+> >
+> > -static int validate_constraint_nodes(sepol_handle_t *handle, unsigned =
+int nperms, constraint_node_t *cons, validate_t flavors[])
+> > +/*
+> > + * Follow evaluation of expressions to find invalid ones.
+> > + * Keep in sync with kernel source security/selinux/ss/services.c::con=
+straint_expr_eval()
+> > + */
+> > +static int validate_expression(sepol_handle_t *handle, constraint_expr=
+_t *e, int validatetrans, validate_t flavors[])
+> >  {
+> > -       constraint_expr_t *cexp;
+> > -
+> > -       for (; cons; cons =3D cons->next) {
+> > -               if (nperms > 0 && cons->permissions =3D=3D 0)
+> > -                       goto bad;
+> > -               if (nperms > 0 && nperms !=3D PERM_SYMTAB_SIZE && cons-=
+>permissions >=3D (UINT32_C(1) << nperms))
+> > -                       goto bad;
+> > +       int sp =3D -1;
+>
+> The function read_cons_helper() is used when reading in the policy and
+> it keeps track of the stack and will return an error if there is a
+> problem, so I don't think that this is going to be useful when
+> validating the policy.
+>
+> Most of what you have here is concerned with keeping track of the
+> stack. There is more validation that can be done, however. See if the
+> patch that I sent to the list will meet your needs.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/policydb_validate.c | 43 ++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+Indeed it does (and thus renders this patch superseded).
+Thanks.
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 72063351..b51dd366 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -577,6 +577,41 @@ static int validate_user_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
- 	return validate_user_datum(margs->handle, d, margs->flavors, margs->mls);
- }
- 
-+static int validate_bool_datum(sepol_handle_t *handle, cond_bool_datum_t *boolean, validate_t flavors[])
-+{
-+	if (validate_value(boolean->s.value, &flavors[SYM_BOOLS]))
-+		goto bad;
-+
-+	switch (boolean->state) {
-+	case 0:
-+	case 1:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	switch (boolean->flags) {
-+	case 0:
-+	case COND_BOOL_FLAGS_TUNABLE:
-+		break;
-+	default:
-+		goto bad;
-+	}
-+
-+	return 0;
-+
-+bad:
-+	ERR(handle, "Invalid bool datum");
-+	return -1;
-+}
-+
-+static int validate_bool_datum_wrapper(__attribute__((unused)) hashtab_key_t k, hashtab_datum_t d, void *args)
-+{
-+	map_arg_t *margs = args;
-+
-+	return validate_bool_datum(margs->handle, d, margs->flavors);
-+}
-+
- static int validate_datum_array_gaps(sepol_handle_t *handle, policydb_t *p, validate_t flavors[])
- {
- 	unsigned int i;
-@@ -607,6 +642,11 @@ static int validate_datum_array_gaps(sepol_handle_t *handle, policydb_t *p, vali
- 			goto bad;
- 	}
- 
-+	for (i = 0; i < p->p_bools.nprim; i++) {
-+		if (bool_xnor(p->bool_val_to_struct[i], ebitmap_get_bit(&flavors[SYM_BOOLS].gaps, i)))
-+			goto bad;
-+	}
-+
- 	return 0;
- 
- bad:
-@@ -647,6 +687,9 @@ static int validate_datum_array_entries(sepol_handle_t *handle, policydb_t *p, v
- 	if (hashtab_map(p->p_cats.table, validate_datum, &flavors[SYM_CATS]))
- 		goto bad;
- 
-+	if (hashtab_map(p->p_bools.table, validate_bool_datum_wrapper, &margs))
-+		goto bad;
-+
- 	return 0;
- 
- bad:
--- 
-2.35.1
-
+>
+> Thanks,
+> Jim
+>
+>
+> >
+> > -               for (cexp =3D cons->expr; cexp; cexp =3D cexp->next) {
+> > -                       if (cexp->attr & CEXPR_USER) {
+> > -                               if (validate_ebitmap(&cexp->names, &fla=
+vors[SYM_USERS]))
+> > -                                       goto bad;
+> > -                               if (validate_empty_type_set(cexp->type_=
+names))
+> > -                                       goto bad;
+> > -                       } else if (cexp->attr & CEXPR_ROLE) {
+> > -                               if (validate_ebitmap(&cexp->names, &fla=
+vors[SYM_ROLES]))
+> > -                                       goto bad;
+> > -                               if (validate_empty_type_set(cexp->type_=
+names))
+> > -                                       goto bad;
+> > -                       } else if (cexp->attr & CEXPR_TYPE) {
+> > -                               if (validate_ebitmap(&cexp->names, &fla=
+vors[SYM_TYPES]))
+> > -                                       goto bad;
+> > -                               if (validate_type_set(cexp->type_names,=
+ &flavors[SYM_TYPES]))
+> > -                                       goto bad;
+> > -                       } else {
+> > -                               if (!ebitmap_is_empty(&cexp->names))
+> > -                                       goto bad;
+> > -                               if (validate_empty_type_set(cexp->type_=
+names))
+> > -                                       goto bad;
+> > -                       }
+> > +       for (; e; e =3D e->next) {
+> > +               /* validate symbols (implied in kernel source) */
+> > +               if (e->attr & CEXPR_USER) {
+> > +                       if (validate_ebitmap(&e->names, &flavors[SYM_US=
+ERS]))
+> > +                               goto bad;
+> > +                       if (validate_empty_type_set(e->type_names))
+> > +                               goto bad;
+> > +               } else if (e->attr & CEXPR_ROLE) {
+> > +                       if (validate_ebitmap(&e->names, &flavors[SYM_RO=
+LES]))
+> > +                               goto bad;
+> > +                       if (validate_empty_type_set(e->type_names))
+> > +                               goto bad;
+> > +               } else if (e->attr & CEXPR_TYPE) {
+> > +                       if (validate_ebitmap(&e->names, &flavors[SYM_TY=
+PES]))
+> > +                               goto bad;
+> > +                       if (validate_type_set(e->type_names, &flavors[S=
+YM_TYPES]))
+> > +                               goto bad;
+> > +               } else {
+> > +                       if (!ebitmap_is_empty(&e->names))
+> > +                               goto bad;
+> > +                       if (validate_empty_type_set(e->type_names))
+> > +                               goto bad;
+> > +               }
+> >
+> > -                       if (cexp->expr_type =3D=3D CEXPR_ATTR || cexp->=
+expr_type =3D=3D CEXPR_NAMES) {
+> > -                               switch (cexp->op) {
+> > -                               case CEXPR_EQ:
+> > -                               case CEXPR_NEQ:
+> > +               switch (e->expr_type) {
+> > +               case CEXPR_NOT:
+> > +                       if(sp < 0)
+> > +                               goto bad;
+> > +                       break;
+> > +               case CEXPR_AND:
+> > +                       if(sp < 0)
+> > +                               goto bad;
+> > +                       sp--;
+> > +                       break;
+> > +               case CEXPR_OR:
+> > +                       if(sp < 0)
+> > +                               goto bad;
+> > +                       sp--;
+> > +                       break;
+> > +               case CEXPR_ATTR:
+> > +                       if (sp =3D=3D (CEXPR_MAXDEPTH - 1))
+> > +                               return 0;
+> > +                       switch (e->attr) {
+> > +                       case CEXPR_USER:
+> > +                               break;
+> > +                       case CEXPR_TYPE:
+> > +                               break;
+> > +                       case CEXPR_ROLE:
+> > +                               switch (e->op) {
+> >                                 case CEXPR_DOM:
+> > +                                       ++sp;
+> > +                                       continue;
+> >                                 case CEXPR_DOMBY:
+> > +                                       ++sp;
+> > +                                       continue;
+> >                                 case CEXPR_INCOMP:
+> > -                                       break;
+> > +                                       ++sp;
+> > +                                       continue;
+> >                                 default:
+> > -                                       goto bad;
+> > -                               }
+> > -
+> > -                               switch (cexp->attr) {
+> > -                               case CEXPR_USER:
+> > -                               case CEXPR_USER | CEXPR_TARGET:
+> > -                               case CEXPR_USER | CEXPR_XTARGET:
+> > -                               case CEXPR_ROLE:
+> > -                               case CEXPR_ROLE | CEXPR_TARGET:
+> > -                               case CEXPR_ROLE | CEXPR_XTARGET:
+> > -                               case CEXPR_TYPE:
+> > -                               case CEXPR_TYPE | CEXPR_TARGET:
+> > -                               case CEXPR_TYPE | CEXPR_XTARGET:
+> > -                               case CEXPR_L1L2:
+> > -                               case CEXPR_L1H2:
+> > -                               case CEXPR_H1L2:
+> > -                               case CEXPR_H1H2:
+> > -                               case CEXPR_L1H1:
+> > -                               case CEXPR_L2H2:
+> >                                         break;
+> > -                               default:
+> > -                                       goto bad;
+> >                                 }
+> > -                       } else {
+> > -                               switch (cexp->expr_type) {
+> > -                               case CEXPR_NOT:
+> > -                               case CEXPR_AND:
+> > -                               case CEXPR_OR:
+> > -                                       break;
+> > +                               break;
+> > +                       case CEXPR_L1L2:
+> > +                               goto mls_ops;
+> > +                       case CEXPR_L1H2:
+> > +                               goto mls_ops;
+> > +                       case CEXPR_H1L2:
+> > +                               goto mls_ops;
+> > +                       case CEXPR_H1H2:
+> > +                               goto mls_ops;
+> > +                       case CEXPR_L1H1:
+> > +                               goto mls_ops;
+> > +                       case CEXPR_L2H2:
+> > +                               goto mls_ops;
+> > +mls_ops:
+> > +                               switch (e->op) {
+> > +                               case CEXPR_EQ:
+> > +                                       ++sp;
+> > +                                       continue;
+> > +                               case CEXPR_NEQ:
+> > +                                       ++sp;
+> > +                                       continue;
+> > +                               case CEXPR_DOM:
+> > +                                       ++sp;
+> > +                                       continue;
+> > +                               case CEXPR_DOMBY:
+> > +                                       ++sp;
+> > +                                       continue;
+> > +                               case CEXPR_INCOMP:
+> > +                                       ++sp;
+> > +                                       continue;
+> >                                 default:
+> >                                         goto bad;
+> >                                 }
+> > +                               break;
+> > +                       default:
+> > +                               goto bad;
+> > +                       }
+> >
+> > -                               if (cexp->op !=3D 0)
+> > +                       switch (e->op) {
+> > +                       case CEXPR_EQ:
+> > +                               ++sp;
+> > +                               break;
+> > +                       case CEXPR_NEQ:
+> > +                               ++sp;
+> > +                               break;
+> > +                       default:
+> > +                               goto bad;
+> > +                       }
+> > +                       break;
+> > +               case CEXPR_NAMES:
+> > +                       if (sp =3D=3D (CEXPR_MAXDEPTH-1))
+> > +                               return 0;
+> > +                       if (e->attr & CEXPR_TARGET)
+> > +                               ;
+> > +                       else if (e->attr & CEXPR_XTARGET) {
+> > +                               if (!validatetrans)
+> >                                         goto bad;
+> > +                       }
+> > +                       if (e->attr & CEXPR_USER)
+> > +                               ;
+> > +                       else if (e->attr & CEXPR_ROLE)
+> > +                               ;
+> > +                       else if (e->attr & CEXPR_TYPE)
+> > +                               ;
+> > +                       else
+> > +                               goto bad;
+> >
+> > -                               if (cexp->attr !=3D 0)
+> > -                                       goto bad;
+> > +                       switch (e->op) {
+> > +                       case CEXPR_EQ:
+> > +                               ++sp;
+> > +                               break;
+> > +                       case CEXPR_NEQ:
+> > +                               ++sp;
+> > +                               break;
+> > +                       default:
+> > +                               goto bad;
+> >                         }
+> > +                       break;
+> > +               default:
+> > +                       goto bad;
+> >                 }
+> >         }
+> >
+> > +       if (sp !=3D 0)
+> > +               goto bad;
+> > +
+> > +       return 0;
+> > +
+> > +bad:
+> > +       ERR(handle, "Invalid expression");
+> > +       return -1;
+> > +}
+> > +
+> > +static int validate_constraint_nodes(sepol_handle_t *handle, unsigned =
+int nperms, constraint_node_t *cons, int validatetrans, validate_t flavors[=
+])
+> > +{
+> > +       for (; cons; cons =3D cons->next) {
+> > +               if (validatetrans && cons->permissions !=3D 0)
+> > +                       goto bad;
+> > +               if (!validatetrans && cons->permissions =3D=3D 0)
+> > +                       goto bad;
+> > +               if (!validatetrans && nperms !=3D PERM_SYMTAB_SIZE && c=
+ons->permissions >=3D (UINT32_C(1) << nperms))
+> > +                       goto bad;
+> > +
+> > +               if (validate_expression(handle, cons->expr, validatetra=
+ns, flavors))
+> > +                       goto bad;
+> > +       }
+> > +
+> >         return 0;
+> >
+> >  bad:
+> > @@ -320,9 +412,9 @@ static int validate_class_datum(sepol_handle_t *han=
+dle, class_datum_t *class, va
+> >                 goto bad;
+> >         if (class->permissions.nprim > PERM_SYMTAB_SIZE)
+> >                 goto bad;
+> > -       if (validate_constraint_nodes(handle, class->permissions.nprim,=
+ class->constraints, flavors))
+> > +       if (validate_constraint_nodes(handle, class->permissions.nprim,=
+ class->constraints, 0, flavors))
+> >                 goto bad;
+> > -       if (validate_constraint_nodes(handle, 0, class->validatetrans, =
+flavors))
+> > +       if (validate_constraint_nodes(handle, class->permissions.nprim,=
+ class->validatetrans, 1, flavors))
+> >                 goto bad;
+> >
+> >         switch (class->default_user) {
+> > --
+> > 2.35.1
+> >
