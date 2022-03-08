@@ -2,204 +2,178 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B40CC433F5
-	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 17:12:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27BF1C433F5
+	for <selinux@archiver.kernel.org>; Tue,  8 Mar 2022 18:58:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348386AbiCHRNf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Mar 2022 12:13:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40654 "EHLO
+        id S1349119AbiCHS7Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Mar 2022 13:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348628AbiCHRNd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 12:13:33 -0500
-Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E87DB25E0;
-        Tue,  8 Mar 2022 09:12:35 -0800 (PST)
-Received: by mail-oo1-xc29.google.com with SMTP id x26-20020a4a621a000000b00320d7d4af22so9651054ooc.4;
-        Tue, 08 Mar 2022 09:12:35 -0800 (PST)
+        with ESMTP id S237719AbiCHS7Q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Mar 2022 13:59:16 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14C53E0C4
+        for <selinux@vger.kernel.org>; Tue,  8 Mar 2022 10:58:19 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id p15so41363145ejc.7
+        for <selinux@vger.kernel.org>; Tue, 08 Mar 2022 10:58:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FRTETGecuG6wFvpJiWj2QB7gtWBg3s5Eo853/+tZlW8=;
-        b=WxX6Vsrn74ymtFqVMdNmUFhV7bRO8ZdIijHBTmDXbqPTWEWKhLXzmaIaq4HV3IpIJ7
-         Vwe5GzLp4wmt4oPD8QFb0EwAeUYMRn3VCRYU3xkbQNqM9QF8gjD8tyTvXyG7o0wT7u+h
-         SxK7TUnBAjCr/QxmM71n/cA0s6LSIj/dMvOqRc/pW/qxwqi1h76lG6M3m4kc0BFCv8wK
-         SJYkX65fNOMiaHQf8LPyJDE9GC0Q8dIf00wBQxl/P3jk8EriEoUUehiINN9HHM1O6Ppf
-         7jAi8VAni4yKdxVTkfz5dzMvhq4t7JxCTLqydNFI+zQqxKDaJzS/G9gBf+f955n7sy1g
-         q4lg==
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GO179EgjLM05oz7aaodTSZQayy2QhT8H7jL0opjf51w=;
+        b=X23jrLpsvEimr4DdbHJbE08LDdZWDkpWjr5JmaU2eFtx+QODLJ3+7cBCXVL30mqWmE
+         v2Ha5oazv9HNFRx2inTvp/qp4fy9UcF693W1Cb5dHx3kEiXxgTy6D4e8Dtr73OQeoDXy
+         q1FW7O3F5wtmnWZBufrQ/w4/dXmv+/zbXv94ohx2S5n0xcowBTNc0qSz42HgOyCQwN67
+         YQiMVWS54oauCwqa+MwZYhrRMuYuTKUVl5uQaveef4A2RCRX7GUCBrexIaBmnIXaerwS
+         99fZFXRDPLuBjtXVPNwynA4CGqgVnjOpr6OCyF9ELJLAeUmI4gKaRJaaaqjLSJaAoQVh
+         F1uQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FRTETGecuG6wFvpJiWj2QB7gtWBg3s5Eo853/+tZlW8=;
-        b=HqbTIk4gn8jhzGZtq1+KVBmBYyuOm25e1rn40idoZ4QlbPA91Me37MidTS3O8rWRnD
-         ++nv9YAx0doQ9h0QQXH9YfYxinMRoytEpY1utgLlwI67OUyoEWzenr+ncvf4R+adwTNd
-         0yQgm/vhqBA29d9ipMxRxt+neSHE6S1VXXd+XowIBf33+U1UKdGNDRg02/scoMwdXCqr
-         Sn0VbK+bUgQFJkHFGkI02dIb0Bw0i2CvCXkEXKXvNX/ri5OOEVJzN75gFDT7qR7Mwsvl
-         eYQojMMEJ0EYN44lk2oR9044IIKX3MEyz3fNTsGvWSqYAZ0lPOb0tVtL3gCzbYRMWlcL
-         +mdQ==
-X-Gm-Message-State: AOAM531pXIxhRgOU7RVS+F4N7IYaSo4yPWIqP10QcC6ytlxVMCQ0NKMV
-        WYfNI015Pyx09KTFHkVjal+5WDmcXj+QMbIw3/g=
-X-Google-Smtp-Source: ABdhPJzzp25E3kaf8Q2FMGPMK5d8e3fJIfD55qj+2erCT2la6Z/G+vDddwWrdV3y06rmy/NJuifHPivO3F9rtKrQVqc=
-X-Received: by 2002:a05:6870:1688:b0:da:b3f:321d with SMTP id
- j8-20020a056870168800b000da0b3f321dmr3068797oae.205.1646759555172; Tue, 08
- Mar 2022 09:12:35 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GO179EgjLM05oz7aaodTSZQayy2QhT8H7jL0opjf51w=;
+        b=OJQjMwVt0KqecrFjQy8CsP3h94XbFNTtTMDM6VNxhHa6Rqx9BxaWDoq1WBOdDr4VsJ
+         5oi+amyiJo5N7NYRbdUwO+pdamsnRAtb5xk3LkaVsEVO9MdiNQqLonF4gfoZExEKxoYm
+         GSkyHoHgQSh9e8o4i0RhobcJ3/q5xI/3OGBQ6yxQo3lloXfkoaxI3xQ4X1Vb2vQoC7SD
+         Id8kIeNEhJxuGgTC5eHyO7jx29BTwLqP+NMpI96AJ/CnjKmZa/j5YNGQqpp7o483gQg1
+         M1isq7pQP7IB43TJHQj8rfhyPo8WqZXybNOrzlumJQENECR8gN6jfKl8lQLlG+FgJmZp
+         7Syg==
+X-Gm-Message-State: AOAM533n3ucVFsRjJ83/j9WUT6Kuuk8UK+IuuxzTfqiHwPUxcx3wcmVs
+        BLdotLLZEd4wp+SHjSGkrVlfIwoEASPYkA==
+X-Google-Smtp-Source: ABdhPJzkPF9sWfLw9v/jwm2kqa2bdaVKRnPcX5GJsBSiYjUqSwii6BqYk75okOTFte7zpu1/CNdDVQ==
+X-Received: by 2002:a17:906:bc9b:b0:6da:9f90:a56a with SMTP id lv27-20020a170906bc9b00b006da9f90a56amr14814081ejb.575.1646765897473;
+        Tue, 08 Mar 2022 10:58:17 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-006-252-105.77.6.pool.telefonica.de. [77.6.252.105])
+        by smtp.gmail.com with ESMTPSA id s21-20020a170906961500b006daac87ddb0sm5408063ejx.140.2022.03.08.10.58.16
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Mar 2022 10:58:17 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH 1/2] libsepol: reject xperm av rules in conditional statements
+Date:   Tue,  8 Mar 2022 19:58:09 +0100
+Message-Id: <20220308185811.72407-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220217143457.75229-1-cgzones@googlemail.com> <CAHC9VhRPwFGohkPT_PcFT=GXX66w2PYpRyXxY2p_hkcPx3j_jw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRPwFGohkPT_PcFT=GXX66w2PYpRyXxY2p_hkcPx3j_jw@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 8 Mar 2022 18:12:24 +0100
-Message-ID: <CAJ2a_Dfa+KhwQUHQo0uBdYZkoTsKvzZYVVM03JdzRoxwR3tZaw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: log anon inode class name
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 25 Feb 2022 at 01:25, Paul Moore <paul@paul-moore.com> wrote:
->
-> On Thu, Feb 17, 2022 at 9:35 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Log the anonymous inode class name in the security hook
-> > inode_init_security_anon.  This name is the key for name based type
-> > transitions on the anon_inode security class on creation.  Example:
-> >
-> >     type=3DAVC msg=3Daudit(02/16/22 22:02:50.585:216) : avc:  granted  =
-{ create } for  pid=3D2136 comm=3Dmariadbd anonclass=3D"[io_uring]" dev=3D"=
-anon_inodefs" ino=3D6871 scontext=3Dsystem_u:system_r:mysqld_t:s0 tcontext=
-=3Dsystem_u:system_r:mysqld_iouring_t:s0 tclass=3Danon_inode
-> >
-> > Add a new LSM audit data type holding the inode and the class name.
-> >
-> > Also warn if the security hook gets called with no name set; currently
-> > the only caller fs/anon_inodes.c:anon_inode_make_secure_inode() passes
-> > one.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  include/linux/lsm_audit.h |  5 +++++
-> >  security/lsm_audit.c      | 21 +++++++++++++++++++++
-> >  security/selinux/hooks.c  |  7 +++++--
-> >  3 files changed, 31 insertions(+), 2 deletions(-)
->
-> ...
->
-> > diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-> > index 17d02eda9538..8135a88d6d82 100644
-> > --- a/include/linux/lsm_audit.h
-> > +++ b/include/linux/lsm_audit.h
-> > @@ -76,6 +76,7 @@ struct common_audit_data {
-> >  #define LSM_AUDIT_DATA_IBENDPORT 14
-> >  #define LSM_AUDIT_DATA_LOCKDOWN 15
-> >  #define LSM_AUDIT_DATA_NOTIFICATION 16
-> > +#define LSM_AUDIT_DATA_ANONINODE       17
-> >         union   {
-> >                 struct path path;
-> >                 struct dentry *dentry;
-> > @@ -96,6 +97,10 @@ struct common_audit_data {
-> >                 struct lsm_ibpkey_audit *ibpkey;
-> >                 struct lsm_ibendport_audit *ibendport;
-> >                 int reason;
-> > +               struct {
-> > +                       struct inode *inode;
-> > +                       const char *anonclass;
-> > +               } anoninode_struct;
-> >         } u;
-> >         /* this union contains LSM specific data */
-> >         union {
-> > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-> > index 1897cbf6fc69..5545fed35539 100644
-> > --- a/security/lsm_audit.c
-> > +++ b/security/lsm_audit.c
-> > @@ -433,6 +433,27 @@ static void dump_common_audit_data(struct audit_bu=
-ffer *ab,
-> >                 audit_log_format(ab, " lockdown_reason=3D\"%s\"",
-> >                                  lockdown_reasons[a->u.reason]);
-> >                 break;
-> > +       case LSM_AUDIT_DATA_ANONINODE: {
-> > +               struct dentry *dentry;
-> > +               struct inode *inode;
-> > +
-> > +               rcu_read_lock();
-> > +               inode =3D a->u.anoninode_struct.inode;
-> > +               dentry =3D d_find_alias_rcu(inode);
-> > +               if (dentry) {
-> > +                       audit_log_format(ab, " name=3D");
-> > +                       spin_lock(&dentry->d_lock);
-> > +                       audit_log_untrustedstring(ab, dentry->d_name.na=
-me);
-> > +                       spin_unlock(&dentry->d_lock);
-> > +               }
->
-> I'm not sure we are ever going to get a useful dentry name for
-> anonymous inodes, I think we can probably drop this.  The "anonclass=3D"
-> field will likely be much more interesting and helpful.
->
-> > +               audit_log_format(ab, " anonclass=3D");
-> > +               audit_log_untrustedstring(ab, a->u.anoninode_struct.ano=
-nclass);
-> > +               audit_log_format(ab, " dev=3D");
-> > +               audit_log_untrustedstring(ab, inode->i_sb->s_id);
->
-> I'm pretty sure this is always going to end up being "anon_inodefs"
-> and thus not very useful.
->
-> > +               audit_log_format(ab, " ino=3D%lu", inode->i_ino);
->
-> Similarly, I'm not sure how useful the inode number is in practice.
-> I've never tried, but can a user lookup an anonymous inode via the
-> inode number?
->
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index dafabb4dcc64..19c831d94d9b 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -2932,6 +2932,8 @@ static int selinux_inode_init_security_anon(struc=
-t inode *inode,
-> >         if (unlikely(!selinux_initialized(&selinux_state)))
-> >                 return 0;
-> >
-> > +       WARN_ON(!name);
-> > +
-> >         isec =3D selinux_inode(inode);
-> >
-> >         /*
-> > @@ -2965,8 +2967,9 @@ static int selinux_inode_init_security_anon(struc=
-t inode *inode,
-> >          * allowed to actually create this type of anonymous inode.
-> >          */
-> >
-> > -       ad.type =3D LSM_AUDIT_DATA_INODE;
-> > -       ad.u.inode =3D inode;
-> > +       ad.type =3D LSM_AUDIT_DATA_ANONINODE;
-> > +       ad.u.anoninode_struct.inode =3D inode;
-> > +       ad.u.anoninode_struct.anonclass =3D name ? (const char *)name->=
-name : "unknown(null)";
->
-> This doesn't seem to match well with the newly added WARN_ON()
-> assertion above.  I would suggest dropping the WARN_ON() assertion as
-> security_transition_sid() can already handle that safely, and leaving
-> the tertiary statement above; however I think we should probably
-> change the anonclass string to "?" as that is the common unset field
-> value used by audit.
+Extended permission and neverallow rules are not permitted in
+conditional statements.
 
-Is the hook inode_init_security_anon expected to be called with an
-empty name though?
-The condition was just a fallback to not crash the kernel.
-(Dropped in v2.)
+This causes issues on policy optimization where avtab_search() might
+return a non extended permission rule when searching for one.
 
->
-> --
-> paul-moore.com
+Found by oss-fuzz (#45327)
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/policydb_validate.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
+
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 735c7a33..72063351 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -658,7 +658,7 @@ bad:
+  * Functions to validate a kernel policydb
+  */
+ 
+-static int validate_avtab_key(avtab_key_t *key, validate_t flavors[])
++static int validate_avtab_key(avtab_key_t *key, int conditional, validate_t flavors[])
+ {
+ 	if (validate_value(key->source_type, &flavors[SYM_TYPES]))
+ 		goto bad;
+@@ -670,13 +670,16 @@ static int validate_avtab_key(avtab_key_t *key, validate_t flavors[])
+ 	case AVTAB_ALLOWED:
+ 	case AVTAB_AUDITALLOW:
+ 	case AVTAB_AUDITDENY:
+-	case AVTAB_XPERMS_ALLOWED:
+-	case AVTAB_XPERMS_AUDITALLOW:
+-	case AVTAB_XPERMS_DONTAUDIT:
+ 	case AVTAB_TRANSITION:
+ 	case AVTAB_MEMBER:
+ 	case AVTAB_CHANGE:
+ 		break;
++	case AVTAB_XPERMS_ALLOWED:
++	case AVTAB_XPERMS_AUDITALLOW:
++	case AVTAB_XPERMS_DONTAUDIT:
++		if (conditional)
++			goto bad;
++		break;
+ 	default:
+ 		goto bad;
+ 	}
+@@ -691,7 +694,7 @@ static int validate_avtab_key_and_datum(avtab_key_t *k, avtab_datum_t *d, void *
+ {
+ 	validate_t *flavors = (validate_t *)args;
+ 
+-	if (validate_avtab_key(k, flavors))
++	if (validate_avtab_key(k, 0, flavors))
+ 		return -1;
+ 
+ 	if ((k->specified & AVTAB_TYPE) && validate_value(d->data, &flavors[SYM_TYPES]))
+@@ -716,7 +719,7 @@ static int validate_cond_av_list(sepol_handle_t *handle, cond_av_list_t *cond_av
+ 
+ 	for (; cond_av; cond_av = cond_av->next) {
+ 		for (avtab_ptr = cond_av->node; avtab_ptr; avtab_ptr = avtab_ptr->next) {
+-			if (validate_avtab_key(&avtab_ptr->key, flavors)) {
++			if (validate_avtab_key(&avtab_ptr->key, 1, flavors)) {
+ 				ERR(handle, "Invalid cond av list");
+ 				return -1;
+ 			}
+@@ -726,7 +729,7 @@ static int validate_cond_av_list(sepol_handle_t *handle, cond_av_list_t *cond_av
+ 	return 0;
+ }
+ 
+-static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, validate_t flavors[])
++static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, int conditional, validate_t flavors[])
+ {
+ 	class_perm_node_t *class;
+ 
+@@ -746,14 +749,17 @@ static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, validate_t
+ 		case AVRULE_AUDITALLOW:
+ 		case AVRULE_AUDITDENY:
+ 		case AVRULE_DONTAUDIT:
+-		case AVRULE_NEVERALLOW:
+ 		case AVRULE_TRANSITION:
+ 		case AVRULE_MEMBER:
+ 		case AVRULE_CHANGE:
++			break;
++		case AVRULE_NEVERALLOW:
+ 		case AVRULE_XPERMS_ALLOWED:
+ 		case AVRULE_XPERMS_AUDITALLOW:
+ 		case AVRULE_XPERMS_DONTAUDIT:
+ 		case AVRULE_XPERMS_NEVERALLOW:
++			if (conditional)
++				goto bad;
+ 			break;
+ 		default:
+ 			goto bad;
+@@ -814,9 +820,9 @@ static int validate_cond_list(sepol_handle_t *handle, cond_list_t *cond, validat
+ 			goto bad;
+ 		if (validate_cond_av_list(handle, cond->false_list, flavors))
+ 			goto bad;
+-		if (validate_avrules(handle, cond->avtrue_list, flavors))
++		if (validate_avrules(handle, cond->avtrue_list, 1, flavors))
+ 			goto bad;
+-		if (validate_avrules(handle, cond->avfalse_list, flavors))
++		if (validate_avrules(handle, cond->avfalse_list, 1, flavors))
+ 			goto bad;
+ 		if (validate_bool_id_array(handle, cond->bool_ids, cond->nbools, &flavors[SYM_BOOLS]))
+ 			goto bad;
+@@ -1098,7 +1104,7 @@ static int validate_avrule_blocks(sepol_handle_t *handle, avrule_block_t *avrule
+ 		for (decl = avrule_block->branch_list; decl != NULL; decl = decl->next) {
+ 			if (validate_cond_list(handle, decl->cond_list, flavors))
+ 				goto bad;
+-			if (validate_avrules(handle, decl->avrules, flavors))
++			if (validate_avrules(handle, decl->avrules, 0, flavors))
+ 				goto bad;
+ 			if (validate_role_trans_rules(handle, decl->role_tr_rules, flavors))
+ 				goto bad;
+-- 
+2.35.1
+
