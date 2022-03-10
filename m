@@ -2,156 +2,113 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66D15C433EF
-	for <selinux@archiver.kernel.org>; Thu, 10 Mar 2022 18:33:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41008C43219
+	for <selinux@archiver.kernel.org>; Thu, 10 Mar 2022 22:11:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236223AbiCJSed (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Mar 2022 13:34:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
+        id S1344300AbiCJWMY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Mar 2022 17:12:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230273AbiCJSec (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Mar 2022 13:34:32 -0500
-Received: from mail-oo1-xc35.google.com (mail-oo1-xc35.google.com [IPv6:2607:f8b0:4864:20::c35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C035197B59
-        for <selinux@vger.kernel.org>; Thu, 10 Mar 2022 10:33:31 -0800 (PST)
-Received: by mail-oo1-xc35.google.com with SMTP id h16-20020a4a6f10000000b00320507b9ccfso7792458ooc.7
-        for <selinux@vger.kernel.org>; Thu, 10 Mar 2022 10:33:31 -0800 (PST)
+        with ESMTP id S1344078AbiCJWMW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Mar 2022 17:12:22 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7BB1959F5
+        for <selinux@vger.kernel.org>; Thu, 10 Mar 2022 14:11:18 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id a8so15167760ejc.8
+        for <selinux@vger.kernel.org>; Thu, 10 Mar 2022 14:11:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dBGzNBAEZ/o4Hxo+uV30uwr7f7xAZh3RxENsMZgnKwE=;
-        b=YWq2YmGPEjPzN/0Anh2o8quUQmd2p8YILYIC3WdSr+dycheGdQ3JgdItX7azDeBm0o
-         XHfNWAC7ThFHHfxulTZH9UaEAGsuMt8HN5zDMX3MC1+XELFeTsZqy7ErCTldU0US3Vyf
-         Ku8Fm2ekr2bV2Ibx4b2Pr70FDAvLUKNdH3pe3MGZ7a7nbFMQ+CryHNEjaeqzB34s3ekV
-         blezwL/Voeo8XdWEMPWrDh/KQzs9t5e2iKnODnVGFjgL0y7YEPsO/Elpg7ihJMp2Ec/H
-         QYGpzRm7h11WqEUmRcpHdmq7fK9/zKM6AX7j+lg9yQUR44l+ZUBXZK2QnWRbDaCmIDbh
-         gt/Q==
+         :cc:content-transfer-encoding;
+        bh=9km0i8SFuccdCOVZYquGLNsFmsoS5afCtujPM89debo=;
+        b=DkO/8stlw+jpHvI8npwNphLXTcJGdwo5HGKNzsLEQgRJKoqLNqUtQ14rO8YztWtv6H
+         bAxp1qhPNeH3fynL0mw7GJsoth6uZUwOJRQT3vdvrEI2RpF54ufTb0yXO3++rTXBespQ
+         x5lpjmtoM0L6NN0u9NAmn1YkWynYbmAVkFmqK9RxmA3NcICSIgE9yAEScpXJQ4VdYV+H
+         qGhCj6APjWltlRC5qBmw4vuoMHC3nKYsIbGWFHWJaXvc4I/QXkVgLDu0Y46f5aCQWnEh
+         nBP1d+G1PMaC87QCOjKfloK3Lw9CLGuuIdMcOaJnRc9h+7uDqcwjICH2qyHuewLribm8
+         lAZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dBGzNBAEZ/o4Hxo+uV30uwr7f7xAZh3RxENsMZgnKwE=;
-        b=xJWKAsiw8aqBsv20dz/FF4w+J882d2gkQEX/VUEb/ekYac84VJuDRb1Ijh88AFvnFi
-         7ynhoOdAFTXqrrHqzk8T3T1rF01hpGvCpItU7C7cCXcbEaHfe4purAV4nNdYI3xzccg8
-         V7tmR6efTwyVahkLxp0EwNZO393Q0Ef4nhoRgS1gyqxEkJ3XufyBbVmyDLAeAGNCdeVj
-         QrELWXF6NdzXW/QBHLwwPACqYFTR+2BBU//xMEHTiluFNthWNsKW3KWxuNpMKab/eeLb
-         IW3inkLd74SgwFcQd+Sx/451p93vKB0kSETvtWEoY2eB1Hwfdkr++fmQ6Sb02PaLv8DB
-         2Mqw==
-X-Gm-Message-State: AOAM530N4gU+UOcfEo6LriC7Ww5CtUnnrAOsJQDlsFG6El+ZGaIR7vXI
-        zItvv5PF+twKw0qgKrf9t/8aXYdNTfuB3Y2byLQ7qghdEZE=
-X-Google-Smtp-Source: ABdhPJyBIz+l3Tx4UK4jqJtBpzk2aAwVStLqKygE7o7aGv6Ty5Ro0Di3sBs0kEQz9ZUDmJZPQLQOaGwJPJixiJrOtr8=
-X-Received: by 2002:a05:6870:5a4:b0:da:b3f:3206 with SMTP id
- m36-20020a05687005a400b000da0b3f3206mr3570177oap.182.1646937210685; Thu, 10
- Mar 2022 10:33:30 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=9km0i8SFuccdCOVZYquGLNsFmsoS5afCtujPM89debo=;
+        b=7ZnydyKA0pq4oNKBsZ2hx+xvGBa6No5Y7lUoBDA9oM3iVe5r6gA88P+Uv1l5rgUdvU
+         J37dssf9wdLE8UQkT/v/c8xwkeKIU6cqtBuRtVCK/aNs32O0ZoZRQHUO0/8vBB3kbsC0
+         FDZAGArtrnm0FSHdA6eBypwQZ05iSRQxOPrK8gelaR1uqQeIeEEcGYZ4LfCWyAv5jH6v
+         molYU8RnOLwlwfqKIWqq5vR+BnnsARDcQMTgOqDmNjPkwMwEMBDKfsGHKaO5dnKrShkE
+         Eda30gUF7cC2ZQWbRdTchhATRY5YV1bbZpwZJJyl/ru6Tu2OTJ33S+9e/3mAVt5UE8VO
+         rdVA==
+X-Gm-Message-State: AOAM5302W/ynBOSz/05QKLgDhXiBRjyI8fxZLsEVlRMPuc8fW13/U4jp
+        hSv68A4tSUEhg93ayxQlCeEfLW/Upxq4iQRa6BxG
+X-Google-Smtp-Source: ABdhPJzuqe7pKCSsXOm2hSO3J0hQynYE7R+uH9xz7Xj/FjdVN2m1z54F4ZugUJ/pEbmhBHGUILXKrslgjHDns1/T+QA=
+X-Received: by 2002:a17:907:216f:b0:6ce:d85f:35cf with SMTP id
+ rl15-20020a170907216f00b006ced85f35cfmr6109610ejb.517.1646950277373; Thu, 10
+ Mar 2022 14:11:17 -0800 (PST)
 MIME-Version: 1.0
-References: <20220307105417.11913-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220307105417.11913-1-richard_c_haines@btinternet.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 10 Mar 2022 13:33:19 -0500
-Message-ID: <CAP+JOzTa7t-LjQfTSqs5QFRvYaOpR95+jk_Xd5MoLu7otjqrmQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Shorten the policy capability enum names
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20211117015806.2192263-1-dvander@google.com> <CAOQ4uxjjapFeOAFGLmsXObdgFVYLfNer-rnnee1RR+joxK3xYg@mail.gmail.com>
+ <Yao51m9EXszPsxNN@redhat.com> <CAOQ4uxjk4piLyx67Ena-FfypDVWzRqVN0xmFUXXPYa+SC4Q-vQ@mail.gmail.com>
+ <YapjNRrjpDu2a5qQ@redhat.com> <CAHC9VhQTUgBRBEz_wFX8daSA70nGJCJLXj8Yvcqr5+DHcfDmwA@mail.gmail.com>
+ <CA+FmFJA-r+JgMqObNCvE_X+L6jxWtDrczM9Jh0L38Fq-6mnbbA@mail.gmail.com> <CAHC9VhRer7UWdZyizWO4VuxrgQDnLCOyj8LO7P6T5BGjd=s9zQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhRer7UWdZyizWO4VuxrgQDnLCOyj8LO7P6T5BGjd=s9zQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 10 Mar 2022 17:11:05 -0500
+Message-ID: <CAHC9VhQkLSBGQ-F5Oi9p3G6L7Bf_jQMWAxug_G4bSOJ0_cYXxQ@mail.gmail.com>
+Subject: Re: [PATCH v19 0/4] overlayfs override_creds=off & nested get xattr fix
+To:     Vivek Goyal <vgoyal@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        David Anderson <dvander@google.com>
+Cc:     Mark Salyzyn <salyzyn@android.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        John Stultz <john.stultz@linaro.org>,
+        linux-doc@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>, selinux@vger.kernel.org,
+        paulmoore@microsoft.com, luca.boccassi@microsoft.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 8, 2022 at 10:02 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
->
-> Shorten "CAPABILITY" to "CAP" following the kernel naming convention.
->
-> The SELinux policy capability enum names should now follow the
-> "POLICYDB_CAP_XXX" format.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+On Wed, Mar 9, 2022 at 4:13 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Tue, Mar 1, 2022 at 12:05 AM David Anderson <dvander@google.com> wrote=
+:
+> > On Mon, Feb 28, 2022 at 5:09 PM Paul Moore <paul@paul-moore.com> wrote:
 
-Acked-by: James Carter <jwcart2@gmail.com>
+...
 
-> ---
->  libsepol/include/sepol/policydb/polcaps.h | 20 ++++++++++----------
->  libsepol/src/polcaps.c                    | 20 ++++++++++----------
->  2 files changed, 20 insertions(+), 20 deletions(-)
+> >> This patchset may not have been The Answer, but surely there is
+> >> something we can do to support this use-case.
+> >
+> > Yup exactly, and we still need patches 3 & 4 to deal with this. My curr=
+ent plan is to try and rework our sepolicy (we have some ideas on how it co=
+uld be made compatible with how overlayfs works). If that doesn't pan out w=
+e'll revisit these patches and think harder about how to deal with the cohe=
+rency issues.
 >
-> diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-> index 39c99839..f5e32e60 100644
-> --- a/libsepol/include/sepol/policydb/polcaps.h
-> +++ b/libsepol/include/sepol/policydb/polcaps.h
-> @@ -7,17 +7,17 @@ extern "C" {
+> Can you elaborate a bit more on the coherency issues?  Is this the dir
+> cache issue that is alluded to in the patchset?  Anything else that
+> has come up on review?
 >
->  /* Policy capabilities */
->  enum {
-> -       POLICYDB_CAPABILITY_NETPEER,
-> -       POLICYDB_CAPABILITY_OPENPERM,
-> -       POLICYDB_CAPABILITY_EXTSOCKCLASS,
-> -       POLICYDB_CAPABILITY_ALWAYSNETWORK,
-> -       POLICYDB_CAPABILITY_CGROUPSECLABEL,
-> -       POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
-> -       POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
-> -       POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC,
-> -       __POLICYDB_CAPABILITY_MAX
-> +       POLICYDB_CAP_NETPEER,
-> +       POLICYDB_CAP_OPENPERM,
-> +       POLICYDB_CAP_EXTSOCKCLASS,
-> +       POLICYDB_CAP_ALWAYSNETWORK,
-> +       POLICYDB_CAP_CGROUPSECLABEL,
-> +       POLICYDB_CAP_NNP_NOSUID_TRANSITION,
-> +       POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS,
-> +       POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
-> +       __POLICYDB_CAP_MAX
->  };
-> -#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-> +#define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
->
->  /* Convert a capability name to number. */
->  extern int sepol_polcap_getnum(const char *name);
-> diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-> index a5e515f2..687e971c 100644
-> --- a/libsepol/src/polcaps.c
-> +++ b/libsepol/src/polcaps.c
-> @@ -6,14 +6,14 @@
->  #include <sepol/policydb/polcaps.h>
->
->  static const char * const polcap_names[] = {
-> -       "network_peer_controls",        /* POLICYDB_CAPABILITY_NETPEER */
-> -       "open_perms",                   /* POLICYDB_CAPABILITY_OPENPERM */
-> -       "extended_socket_class",        /* POLICYDB_CAPABILITY_EXTSOCKCLASS */
-> -       "always_check_network",         /* POLICYDB_CAPABILITY_ALWAYSNETWORK */
-> -       "cgroup_seclabel",              /* POLICYDB_CAPABILITY_SECLABEL */
-> -       "nnp_nosuid_transition",        /* POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION */
-> -       "genfs_seclabel_symlinks",      /* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
-> -       "ioctl_skip_cloexec",           /* POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC */
-> +       "network_peer_controls",        /* POLICYDB_CAP_NETPEER */
-> +       "open_perms",                   /* POLICYDB_CAP_OPENPERM */
-> +       "extended_socket_class",        /* POLICYDB_CAP_EXTSOCKCLASS */
-> +       "always_check_network",         /* POLICYDB_CAP_ALWAYSNETWORK */
-> +       "cgroup_seclabel",              /* POLICYDB_CAP_SECLABEL */
-> +       "nnp_nosuid_transition",        /* POLICYDB_CAP_NNP_NOSUID_TRANSITION */
-> +       "genfs_seclabel_symlinks",      /* POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS */
-> +       "ioctl_skip_cloexec",           /* POLICYDB_CAP_IOCTL_SKIP_CLOEXEC */
->         NULL
->  };
->
-> @@ -21,7 +21,7 @@ int sepol_polcap_getnum(const char *name)
->  {
->         int capnum;
->
-> -       for (capnum = 0; capnum <= POLICYDB_CAPABILITY_MAX; capnum++) {
-> +       for (capnum = 0; capnum <= POLICYDB_CAP_MAX; capnum++) {
->                 if (polcap_names[capnum] == NULL)
->                         continue;
->                 if (strcasecmp(polcap_names[capnum], name) == 0)
-> @@ -32,7 +32,7 @@ int sepol_polcap_getnum(const char *name)
->
->  const char *sepol_polcap_getname(unsigned int capnum)
->  {
-> -       if (capnum > POLICYDB_CAPABILITY_MAX)
-> +       if (capnum > POLICYDB_CAP_MAX)
->                 return NULL;
->
->         return polcap_names[capnum];
-> --
-> 2.35.1
->
+> Before I start looking at the dir cache in any detail, did you have
+> any thoughts on how to resolve the problems that have arisen?
+
+David, Vivek, Amir, Miklos, or anyone for that matter, can you please
+go into more detail on the cache issues?  I *think* I may have found a
+potential solution for an issue that could arise when the credential
+override is not in place, but I'm not certain it's the only issue :)
+
+There is motivation on our part to try and get the
+"override_creds=3Doff" portion of the patchset working and suitable for
+upstreaming, but I need some help in making sure I understand all the
+objections/problems.
+
+--=20
+paul-moore.com
