@@ -2,92 +2,143 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 068F9C433F5
-	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 16:06:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E66FC433EF
+	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 18:44:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346691AbiCKQHM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 11:07:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
+        id S1344292AbiCKSpm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Mar 2022 13:45:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245714AbiCKQHL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 11:07:11 -0500
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9D31D0869
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:06:08 -0800 (PST)
-Received: by mail-ot1-x32f.google.com with SMTP id a7-20020a9d5c87000000b005ad1467cb59so6565529oti.5
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:06:08 -0800 (PST)
+        with ESMTP id S231269AbiCKSpm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 13:45:42 -0500
+Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3701C111185
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 10:44:37 -0800 (PST)
+Received: by mail-oo1-xc2f.google.com with SMTP id r41-20020a4a966c000000b0031bf85a4124so11589491ooi.0
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 10:44:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=ZqYVlwWPAh/Nc3Y4BpzH/KfF3wjQcznkpnMS/566JD4=;
-        b=C+5Im0PKSVTAcDHCUy5NaEPmUK3gFPO86WSHR8m9jOgEFgBdVrIRQtcQac/jpe/EZ3
-         E5pOEkBzoP3osiC6SXiShnV4wPYtASAmmO8JqG4qkRS+ajBaPWyz6uVG2R9mjLssjYcP
-         uj+aW/jtc1ZyVJvOmig1gj0u2vehcM25/2QgMgVZ3ZtZceudVUN1vy3qoAqZuVV/tTLw
-         IAfCnyZx5xO1nTejY2RPwyNLjvLcB7KRwGJA7BnRYAIPxO8zt+F2MDUx2+89Rd5pVcLc
-         mDO9gcjNg75gmVX3zd3d4lARtPSpioy6qIkAjvZjZ4Qju3J9rdAlVzwPeoZyrnqT8loX
-         01mA==
+        d=googlemail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=5JkLLhMMHUXGuvgLN3MUf3fFq+RiY/tsN+L6ZxEO114=;
+        b=mu3UcIO7HvCM/ehC4UlzjS4RVdrgZI9//Pb4v8cONZIMSHIeLlOVdIvD820Vua36/k
+         UO6tAMBvsHURI9NS/oMwX1Xh07Wf3xZNGO5IkxMe4+OgeTVOma3xQv0GnbPYXMM/g661
+         j47udagx2sBGqqQBnIaKFXXeRS9BmN/NxMltzKi9yX0BDpQ/M7gUPJvngdVF4OOBI7wV
+         2eBShKJ5WJq2Gvt+jbYb5fEO+fr+L5b8HyI146PGhk8pVgG0mFEPDQTmaykcFhcmN6W+
+         tWOybQGV2+muxAhYDhSQeTEzv9xoQ5dgdqI573ZnDlSl/T9F8CCEumT+yYv/OPD4yp1m
+         aBnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=ZqYVlwWPAh/Nc3Y4BpzH/KfF3wjQcznkpnMS/566JD4=;
-        b=QZAB4WaM1XYkHUaPswH3jRpjtByddWOn6cn8IFYNDrcoK2GPMX6hr5MKvivfPatOv+
-         1q4BbwW1ajgWwH4EIVXp4/GLOREaOQUpQM7rdXjepSIjEARYmvIEh3eqtZZNJ+mQG+wG
-         RlQkfFCYgJk2xMmuf3CWQWsYNN6G5u4zl/5NyWHeRzECV9PWmPatnAi5+rHMnZ8IgP6p
-         2z1WHEEU5jgUmTWChmf1ad7ILVMJD5J9fkr4fIwJhlpNlDw7lsOyIkt4oZw468WdAPiD
-         smTAo3kjHNriuwK1Sy5okUqYW42jYW/QAlO2Xqz9vgectytpRN73Z6y5BNP/SldjZoSB
-         ia9A==
-X-Gm-Message-State: AOAM532EenUGOujdXlfKEB/T5qPjdOpPSx+aMeoLLYf7r7Gk605XXFvx
-        Id075rrFbUYp/dYicLMIeXgYi2+v/Dop68J9ry7pmvGK
-X-Google-Smtp-Source: ABdhPJxPdyyX4pgAbaKz4jvNTNAERS+gdyNeR0+f1Tzu7B9cwM2P7h/tJVUXBVTiF38oEhEKOw6EtYVSjjhFruF81M8=
-X-Received: by 2002:a9d:4d94:0:b0:5b2:34b3:1057 with SMTP id
- u20-20020a9d4d94000000b005b234b31057mr5263248otk.154.1647014767859; Fri, 11
- Mar 2022 08:06:07 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=5JkLLhMMHUXGuvgLN3MUf3fFq+RiY/tsN+L6ZxEO114=;
+        b=qu5apnovpq2c8PVwOSxitK542AowEUm12IGBKFogCx8ARFfxc7LVEcHGktrk9B4Pvy
+         WJI5z0Mjb2BVwKCvXUkgaC3nhAdOyqQAKztk8eBhhQMerMXh3Kp0VBtTc7uhUCdsdQMR
+         1SJoV+CFcr4GeSd9hGqDQ6hFVvI1oWPSXw+2RH8ObdqKNZJI1YHFtF5fGuPgD21BWVVP
+         1qJWYf5uehJn0FXzKbFAUcw0HeHM2X1MH5a7LOamnZDDAcVVygrghVRe41If31IHOQxd
+         BsZnYso0h9ZYepqYbAV1uQp9Rwl1oGgA44PvBsINfkcyoL6QdjWLS2a0wx+kOiTsMfO8
+         5WfQ==
+X-Gm-Message-State: AOAM533ufNEMvwnoF3SkkUJbmrswLXDrltrRKmpcaF+hjdT+jXyqecM/
+        1jttSn5Jjij79PnVyzgjA45ACEqhSIGNCHsXkTg=
+X-Google-Smtp-Source: ABdhPJye47sR/95NG0bdmeGsIFp4meEoMc/2RjJJbK5dTOKT/YLGxK+ZSU8VOUaFDX5a++g+3z/BBvNq8bit13k9FNM=
+X-Received: by 2002:a05:6870:1688:b0:da:b3f:321d with SMTP id
+ j8-20020a056870168800b000da0b3f321dmr6162895oae.205.1647024276431; Fri, 11
+ Mar 2022 10:44:36 -0800 (PST)
 MIME-Version: 1.0
-References: <20220211184650.535016-1-jwcart2@gmail.com>
-In-Reply-To: <20220211184650.535016-1-jwcart2@gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 11 Mar 2022 11:05:57 -0500
-Message-ID: <CAP+JOzRxithCxrWGZ-BfUsLaTV17LF4mmU=yEHNkWK9S+KidQA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol/cil: Don't add constraint if there are no permissions
-To:     SElinux list <selinux@vger.kernel.org>
+References: <20220111220823.596065-1-jwcart2@gmail.com>
+In-Reply-To: <20220111220823.596065-1-jwcart2@gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Fri, 11 Mar 2022 19:44:25 +0100
+Message-ID: <CAJ2a_DdJHS2vRj9c94rFTDHiRt9_yRqEwxfX7KR451Za2iJAsw@mail.gmail.com>
+Subject: Re: [PATCH 0/2 RFC] libsepol: Adding support for not-self rules
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 11, 2022 at 1:47 PM James Carter <jwcart2@gmail.com> wrote:
+On Tue, 11 Jan 2022 at 23:08, James Carter <jwcart2@gmail.com> wrote:
 >
-> Since CIL allows permission expressions, it is possible for the
-> expression to evaluate to no permissions. If this is the case,
-> then don't add the constraint.
+> These patches depend on the 16 patch set that refactors and fixes asserti=
+on checking.
 >
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> The first patch is based on patches by Christian G=C3=B6ttsche <cgzones@g=
+ooglemail.com>
+> sent to the list on November 23rd. His patch adding support to checkpolic=
+y is meant
+> to be used with these patches.
+>
+> The second patch adds support for not-self rules to CIL. Currently, it wo=
+rks for all
+> access vector rules, but I am not sure if that is needed or wise.
 
-These two patches have been merged.
-Jim
+Probably not caused by this patch set I noticed one inconvenience
+duplicate reporting with the following example:
 
-> ---
->  libsepol/cil/src/cil_binary.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+    attribute test_a;
+    type test1_t, test_a;
+    type test2_t, test_a;
+    allow test_a test_a:xdp_socket ioctl;
+    allowxperm test_a test6_a:xdp_socket ioctl 0x0002;
+    neverallowxperm test1_t { test_a }:xdp_socket ioctl 0x0002;
+
+The output looks like:
+
+    libsepol.report_assertion_extended_permissions: neverallowxperm on
+line 534 of policy/modules/kernel/kernel.te (or line 49039 of
+policy.conf) violated by
+    allowxperm test_a test_a:xdp_socket ioctl { 0x2 };
+    libsepol.report_assertion_extended_permissions: neverallowxperm on
+line 534 of policy/modules/kernel/kernel.te (or line 49039 of
+policy.conf) violated by
+    allowxperm test_a test_a:xdp_socket ioctl { 0x2 };
+
+due to the two access permissions, one for test1_t on test1_t and one
+for test1_t on test2_t.
+
+
+Rebasing on to master should update validation due to ff25475c
+("libsepol: validate several flags "):
+
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -851,6 +851,7 @@ static int validate_avrules(sepol_handle_t
+*handle, avrule_t *avrule, int condit
+               switch(avrule->flags) {
+               case 0:
+               case RULE_SELF:
++               case RULE_NOTSELF:
+                       break;
+               default:
+                       goto bad;
+
+Otherwise together with ("checkpolicy: add not-self neverallow support") [1=
+]
+
+Tested-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+
+[1]: https://patchwork.kernel.org/project/selinux/patch/20211204103516.1737=
+5-3-cgzones@googlemail.com/
+
 >
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index 4ac8ce8d..468fb595 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -2823,6 +2823,12 @@ int cil_constrain_to_policydb_helper(policydb_t *pdb, const struct cil_db *db, s
->                 goto exit;
->         }
+> James Carter (2):
+>   libsepol: Add not self support for neverallow rules
+>   libsepol/cil: Add notself and minusself support to CIL
 >
-> +       if (sepol_constrain->permissions == 0) {
-> +               /* No permissions, so don't insert rule. */
-> +               free(sepol_constrain);
-> +               return SEPOL_OK;
-> +       }
-> +
->         rc = __cil_constrain_expr_to_sepol_expr(pdb, db, expr, &sepol_expr);
->         if (rc != SEPOL_OK) {
->                 goto exit;
+>  libsepol/cil/src/cil.c                     |  12 ++
+>  libsepol/cil/src/cil_binary.c              |  91 ++++++++-
+>  libsepol/cil/src/cil_build_ast.c           |  10 +-
+>  libsepol/cil/src/cil_find.c                | 206 ++++++++++++++++++---
+>  libsepol/cil/src/cil_internal.h            |   4 +
+>  libsepol/cil/src/cil_resolve_ast.c         |   4 +
+>  libsepol/cil/src/cil_verify.c              |   3 +-
+>  libsepol/include/sepol/policydb/policydb.h |   3 +-
+>  libsepol/src/assertion.c                   | 144 +++++++++++---
+>  9 files changed, 467 insertions(+), 64 deletions(-)
+>
 > --
-> 2.34.1
+> 2.31.1
 >
