@@ -2,208 +2,123 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F34D3C433F5
-	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 14:57:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11CF7C433F5
+	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 16:03:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244671AbiCKO6Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 09:58:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55922 "EHLO
+        id S1350137AbiCKQEB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Mar 2022 11:04:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbiCKO6Z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 09:58:25 -0500
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4BD1B3A62
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 06:57:22 -0800 (PST)
-Received: by mail-oi1-x230.google.com with SMTP id b188so9527922oia.13
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 06:57:22 -0800 (PST)
+        with ESMTP id S1350117AbiCKQDz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 11:03:55 -0500
+Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81D819BE55
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:02:50 -0800 (PST)
+Received: by mail-oo1-xc29.google.com with SMTP id x26-20020a4a621a000000b00320d7d4af22so10979339ooc.4
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:02:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=wo6294Wov9hPCGXj5o5Rb9r4rsx7B/R66Pmjhvy1K0w=;
-        b=pkJL76gvsbOhZ2oYhEk4ISJCYKQQj+DxrkW3T+aeMK8+EjeHCWF3DPMk7PuuXmhqoC
-         m+rTGlfsgP0Cd9YhVGY3CIfA0sqzFqDXoEfDX7Pq3St3mqJNPop6/nQvMlOMHRHMp4W7
-         05DZxrzJtFdusBYAMaEhodifuhfj6goh7Up6j9KGzbcjdPg/p8Jb0d6irYyD7WMW1IVy
-         f+yf38Wkq7RLqbq8ifwP+sAUAYPl9kuS8R1UduenSI98XJEByaDv/2nkPnZ3gGVnwL3q
-         o7uPn6GvqYwqHhWc8gRe/VqF4IyIpakEQP9ni7BEC5Ds6oZG9fz73xUB7Ii3IXGAcGFU
-         txUw==
+         :cc;
+        bh=9jENhBgCmfYJIF2SmfrvpVdUsxVwE94mbYbU5NL9fFs=;
+        b=CnOiKq/ulREksEn2cIljYDZABhfypm9vxyHzmP8pr36V0r8SFSaHYAjlojd6NFVKQm
+         iLK05+YTSzysQt4KQyuDNUioEY5wP6jq7Zix2JyYBkJElp9PtfpRp/e58aZ3LlrGXaBO
+         pSreqLLZVLLjidmWgtEnMTPoSMCHXK3Nhs0R4nQypfwovlu/jBNOHj18hKVBylobrQ1p
+         JQjnbX2XLTMuRpdF0TEqfHP/4C3iTVrCkViASnJJ/RtfVkBfaDH4ullopjhqdU2zS0P1
+         AtoJSe8mdBupJUrZypuyoOpDSBWgNrbfn4Y7+GBu9AH5k2fIVrJzkONLmlPrkwEKH3u0
+         oyaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=wo6294Wov9hPCGXj5o5Rb9r4rsx7B/R66Pmjhvy1K0w=;
-        b=ZhEWHbIqhLWgOP3oEZQ3A7syzjwlwvnNrBdwHrejjblbbq/oweDZxh3l0jfS58fMcf
-         TUU+NzBzb5ra+UOFF7KBC282vUaT5EQuPxvTLlZd4o2RsSOOMw8Qh1vl/A8HdCCPioXb
-         h2lRc7uYPpz0/4dwdnNgRu+onWG0Rta+QB8NYKQB+SB5DY3kvtCCkrj2UHvX64368eKy
-         ublya+wjylU8e4PsFEpGJt0ec+XPpJa4syQdnfWbToYX81T6qMl5kkwtowjmfk9zvjXe
-         5U4u8J5mcgnBx8LNIUc9sc2NBdocfyM3SDXeEzbLvw4/7IRUhjxw4hc7MtF8Mvwh8/CK
-         14nQ==
-X-Gm-Message-State: AOAM531fM0SuhAboCqMI8weacCHFgYOdRlD5SOygPuSvZtHApZhXAmpI
-        X8nq4/NJe+W0zeHkt24HU1ZL+41utSoHsZU7+G5MXC/Koi8=
-X-Google-Smtp-Source: ABdhPJz9remF+17orcTcn3ab0JpP3ublTtHDT3xuGtDwSAKw3cupnYEyBO5ohULXtG8luNMprZUsE3pa6A27tfW2u/g=
-X-Received: by 2002:a54:4611:0:b0:2d7:988a:5784 with SMTP id
- p17-20020a544611000000b002d7988a5784mr12454998oip.156.1647010641636; Fri, 11
- Mar 2022 06:57:21 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=9jENhBgCmfYJIF2SmfrvpVdUsxVwE94mbYbU5NL9fFs=;
+        b=OCg/yLEnIPh8RCgji+0WcPe47xCDIeGbvPMTtRZFilWCdo1hSciK9nCjA3EvsceKi4
+         g/ZoKA/jdaoZhyyfcVfW2LJPex+GgGFAU6XjzeVW4l7e0GHx6oTxwUbX4Qu9IEJjG1I6
+         XJVzzr501ybthumdd0cQ+N2x5Ek27vqGwp0s8vPFx2lkxzoVhVoO4grbEAY5cZXE18X+
+         WzIGDJ3qWe5Tkv/Pk2Scg+Bi8PV2/QG9lu71GZPQ0aF+2baCUF6I/UrRwyunDmSDhFHP
+         HppHT47YpgHSs70cKHLjDEmWulRkdfuen+U6BZdnsEtkKAVIabVA8aNJxqs1Nw/LWIwP
+         1gtQ==
+X-Gm-Message-State: AOAM532AmKKE10cykGsV61e0zpSpkeX99oPLlFUH9In+JPEUV9gHLk4R
+        SZCJZyhekLwbz/T44Edul6vtejno/3YcG5Q81l74Eg5L
+X-Google-Smtp-Source: ABdhPJzC8QWWzGrfNqxC3vJeRv9LHMkQV3zpgzN1C2Vv/d1r2ebGEjyVALHkpgHOML82YV/yyUL3XNv5/kR1mfmvpsg=
+X-Received: by 2002:a4a:b5c5:0:b0:321:248:bd50 with SMTP id
+ u5-20020a4ab5c5000000b003210248bd50mr4899158ooo.50.1647014570178; Fri, 11 Mar
+ 2022 08:02:50 -0800 (PST)
 MIME-Version: 1.0
-References: <20220308185811.72407-1-cgzones@googlemail.com>
-In-Reply-To: <20220308185811.72407-1-cgzones@googlemail.com>
+References: <CAFqZXNtBmoVppmhgrxfzuZrQ+oksWeSHH_x7ZgG4Wa6VO05Dsw@mail.gmail.com>
+ <20220218092057.394337-1-plautrba@redhat.com> <CAFqZXNvk3QZZChy7Uasp2E4FjQj4yUBmSCq_bVvFacZtPv=xJg@mail.gmail.com>
+In-Reply-To: <CAFqZXNvk3QZZChy7Uasp2E4FjQj4yUBmSCq_bVvFacZtPv=xJg@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 11 Mar 2022 09:57:10 -0500
-Message-ID: <CAP+JOzQzJHNgxdOFj1LA6BKNpcxmVmA=vnF=EzsQoAeip+KqEw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol: reject xperm av rules in conditional statements
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 11 Mar 2022 11:02:39 -0500
+Message-ID: <CAP+JOzRVf9r980YjJd4Z1z7QH0oU5srtnE2oy3bEtppcDDtV7w@mail.gmail.com>
+Subject: Re: [PATCH v2] policycoreutils/fixfiles: Use parallel relabeling
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 8, 2022 at 2:35 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, Mar 2, 2022 at 7:21 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Extended permission and neverallow rules are not permitted in
-> conditional statements.
+> On Fri, Feb 18, 2022 at 10:21 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > Commit 93902fc8340f ("setfiles/restorecon: support parallel relabeling")
+> > implemented support for parallel relabeling in setfiles. This is
+> > available for fixfiles now.
+> >
+> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> > ---
+> >
+> > - fixed echo commands for onboot
+> >
+> > policycoreutils/scripts/fixfiles   | 35 +++++++++++++++++-------------
+> >  policycoreutils/scripts/fixfiles.8 | 17 ++++++++++-----
+> >  2 files changed, 31 insertions(+), 21 deletions(-)
+> >
+> > diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+> > index 6fb12e0451a9..1ff4d9bdf04e 100755
+> > --- a/policycoreutils/scripts/fixfiles
+> > +++ b/policycoreutils/scripts/fixfiles
+> [...]
+> > @@ -342,17 +344,17 @@ esac
+> >  }
+> >  usage() {
+> >         echo $"""
+> > -Usage: $0 [-v] [-F] [-M] [-f] relabel
+> > +Usage: $0 [-v] [-F] [-M] [-f] [-T nthreads] relabel
+> >  or
+> > -Usage: $0 [-v] [-F] [-B | -N time ] { check | restore | verify }
+> > +Usage: $0 [-v] [-F] [-B | -N time ]  [-T nthreads] { check | restore | verify }
 >
-> This causes issues on policy optimization where avtab_search() might
-> return a non extended permission rule when searching for one.
+> There is an extra space added here, but that can be fixed up when applying.
 >
-> Found by oss-fuzz (#45327)
+> >  or
+> > -Usage: $0 [-v] [-F] { check | restore | verify } dir/file ...
+> > +Usage: $0 [-v] [-F] [-T nthreads] { check | restore | verify } dir/file ...
+> >  or
+> > -Usage: $0 [-v] [-F] -R rpmpackage[,rpmpackage...] { check | restore | verify }
+> > +Usage: $0 [-v] [-F] [-T nthreads] -R rpmpackage[,rpmpackage...] { check | restore | verify }
+> >  or
+> > -Usage: $0 [-v] [-F] -C PREVIOUS_FILECONTEXT { check | restore | verify }
+> > +Usage: $0 [-v] [-F] [-T nthreads] -C PREVIOUS_FILECONTEXT { check | restore | verify }
+> >  or
+> > -Usage: $0 [-F] [-M] [-B] onboot
+> > +Usage: $0 [-F] [-M] [-B] [-T nthreads] onboot
+> >  """
+> >  }
+> >
+> [...]
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
 
-For both patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Applied (without the extra space)
+Thanks,
+Jim
 
-> ---
->  libsepol/src/policydb_validate.c | 28 +++++++++++++++++-----------
->  1 file changed, 17 insertions(+), 11 deletions(-)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index 735c7a33..72063351 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -658,7 +658,7 @@ bad:
->   * Functions to validate a kernel policydb
->   */
->
-> -static int validate_avtab_key(avtab_key_t *key, validate_t flavors[])
-> +static int validate_avtab_key(avtab_key_t *key, int conditional, validat=
-e_t flavors[])
->  {
->         if (validate_value(key->source_type, &flavors[SYM_TYPES]))
->                 goto bad;
-> @@ -670,13 +670,16 @@ static int validate_avtab_key(avtab_key_t *key, val=
-idate_t flavors[])
->         case AVTAB_ALLOWED:
->         case AVTAB_AUDITALLOW:
->         case AVTAB_AUDITDENY:
-> -       case AVTAB_XPERMS_ALLOWED:
-> -       case AVTAB_XPERMS_AUDITALLOW:
-> -       case AVTAB_XPERMS_DONTAUDIT:
->         case AVTAB_TRANSITION:
->         case AVTAB_MEMBER:
->         case AVTAB_CHANGE:
->                 break;
-> +       case AVTAB_XPERMS_ALLOWED:
-> +       case AVTAB_XPERMS_AUDITALLOW:
-> +       case AVTAB_XPERMS_DONTAUDIT:
-> +               if (conditional)
-> +                       goto bad;
-> +               break;
->         default:
->                 goto bad;
->         }
-> @@ -691,7 +694,7 @@ static int validate_avtab_key_and_datum(avtab_key_t *=
-k, avtab_datum_t *d, void *
->  {
->         validate_t *flavors =3D (validate_t *)args;
->
-> -       if (validate_avtab_key(k, flavors))
-> +       if (validate_avtab_key(k, 0, flavors))
->                 return -1;
->
->         if ((k->specified & AVTAB_TYPE) && validate_value(d->data, &flavo=
-rs[SYM_TYPES]))
-> @@ -716,7 +719,7 @@ static int validate_cond_av_list(sepol_handle_t *hand=
-le, cond_av_list_t *cond_av
->
->         for (; cond_av; cond_av =3D cond_av->next) {
->                 for (avtab_ptr =3D cond_av->node; avtab_ptr; avtab_ptr =
-=3D avtab_ptr->next) {
-> -                       if (validate_avtab_key(&avtab_ptr->key, flavors))=
- {
-> +                       if (validate_avtab_key(&avtab_ptr->key, 1, flavor=
-s)) {
->                                 ERR(handle, "Invalid cond av list");
->                                 return -1;
->                         }
-> @@ -726,7 +729,7 @@ static int validate_cond_av_list(sepol_handle_t *hand=
-le, cond_av_list_t *cond_av
->         return 0;
->  }
->
-> -static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, va=
-lidate_t flavors[])
-> +static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, in=
-t conditional, validate_t flavors[])
->  {
->         class_perm_node_t *class;
->
-> @@ -746,14 +749,17 @@ static int validate_avrules(sepol_handle_t *handle,=
- avrule_t *avrule, validate_t
->                 case AVRULE_AUDITALLOW:
->                 case AVRULE_AUDITDENY:
->                 case AVRULE_DONTAUDIT:
-> -               case AVRULE_NEVERALLOW:
->                 case AVRULE_TRANSITION:
->                 case AVRULE_MEMBER:
->                 case AVRULE_CHANGE:
-> +                       break;
-> +               case AVRULE_NEVERALLOW:
->                 case AVRULE_XPERMS_ALLOWED:
->                 case AVRULE_XPERMS_AUDITALLOW:
->                 case AVRULE_XPERMS_DONTAUDIT:
->                 case AVRULE_XPERMS_NEVERALLOW:
-> +                       if (conditional)
-> +                               goto bad;
->                         break;
->                 default:
->                         goto bad;
-> @@ -814,9 +820,9 @@ static int validate_cond_list(sepol_handle_t *handle,=
- cond_list_t *cond, validat
->                         goto bad;
->                 if (validate_cond_av_list(handle, cond->false_list, flavo=
-rs))
->                         goto bad;
-> -               if (validate_avrules(handle, cond->avtrue_list, flavors))
-> +               if (validate_avrules(handle, cond->avtrue_list, 1, flavor=
-s))
->                         goto bad;
-> -               if (validate_avrules(handle, cond->avfalse_list, flavors)=
-)
-> +               if (validate_avrules(handle, cond->avfalse_list, 1, flavo=
-rs))
->                         goto bad;
->                 if (validate_bool_id_array(handle, cond->bool_ids, cond->=
-nbools, &flavors[SYM_BOOLS]))
->                         goto bad;
-> @@ -1098,7 +1104,7 @@ static int validate_avrule_blocks(sepol_handle_t *h=
-andle, avrule_block_t *avrule
->                 for (decl =3D avrule_block->branch_list; decl !=3D NULL; =
-decl =3D decl->next) {
->                         if (validate_cond_list(handle, decl->cond_list, f=
-lavors))
->                                 goto bad;
-> -                       if (validate_avrules(handle, decl->avrules, flavo=
-rs))
-> +                       if (validate_avrules(handle, decl->avrules, 0, fl=
-avors))
->                                 goto bad;
->                         if (validate_role_trans_rules(handle, decl->role_=
-tr_rules, flavors))
->                                 goto bad;
 > --
-> 2.35.1
+> Ondrej Mosnacek
+> Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
 >
