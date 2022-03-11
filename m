@@ -2,199 +2,151 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1F75C433F5
-	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 20:57:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27101C433F5
+	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 22:46:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229748AbiCKU7A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 15:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49540 "EHLO
+        id S229598AbiCKWri (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Mar 2022 17:47:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229655AbiCKU67 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 15:58:59 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC7E1768DA;
-        Fri, 11 Mar 2022 12:57:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=eMQHTaULL4DYk//ji2yCOo0Dmn4myt1H30g/N/roRy4=; b=U25RVHWnNCFaEL1Ln9Wozt7+d/
-        RPI294B2un79E/20bRCIiRF3U/75J7nPDqT4DChC9XZjkFNCVd6SGczeyUeujIRTcu8dQZ037uPWv
-        tk+IZh+PuVUXBSRUnSJuVjPBz0XIq36vSvBWc76uudEQFl4scHaSLSpQWcj9yz/e0PviNG6foGn51
-        E3O2r2awjzz8oZuXsWh57vC2YEc1HyhBWwsS9AjHZusQRRRtmg+hvJOwhdI7yC7j4ZUlgUEXaRICV
-        1npV3y2xRwmUIEuwql7kxZZx32u5bi5e+uYVk0xLhlhcfp60dZlXww9OdIT4se4D55aq1WGOeJkPd
-        q9k75Fyg==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nSmKV-000GNc-65; Fri, 11 Mar 2022 20:57:43 +0000
-Date:   Fri, 11 Mar 2022 12:57:43 -0800
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
-        Kanchan Joshi <joshi.k@samsung.com>, jmorris@namei.org,
-        serge@hallyn.com, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, hch@lst.de,
-        kbusch@kernel.org, asml.silence@gmail.com,
-        io-uring@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-block@vger.kernel.org, sbates@raithlin.com,
-        logang@deltatee.com, pankydev8@gmail.com, javier@javigon.com,
-        a.manzanares@samsung.com, joshiiitr@gmail.com,
-        anuj20.g@samsung.com, selinux@vger.kernel.org
-Subject: Re: [PATCH 03/17] io_uring: add infra and support for
- IORING_OP_URING_CMD
-Message-ID: <Yiu3x/Fxt/b5rNWB@bombadil.infradead.org>
-References: <20220308152105.309618-1-joshi.k@samsung.com>
- <CGME20220308152658epcas5p3929bd1fcf75edc505fec71901158d1b5@epcas5p3.samsung.com>
- <20220308152105.309618-4-joshi.k@samsung.com>
- <YiqrE4K5TWeB7aLd@bombadil.infradead.org>
- <e3bfd028-ece7-d969-f47c-1181b17ac919@kernel.dk>
- <YiuC1fhEiRdo5bPd@bombadil.infradead.org>
- <CAHC9VhSNMH8XAKa43kCR8fZj-B1ucCd3R6WXOo3B4z80Bw2Kkw@mail.gmail.com>
+        with ESMTP id S229593AbiCKWra (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 17:47:30 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A918E10709A
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 14:22:25 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id g20so12566426edw.6
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 14:22:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=BQM5s6KARQo6xsMTrgtyjfqQgxp9yGfc0ghCKKcQtf8=;
+        b=rW/V0Cqhy9qbkUdJ08Dw1HwcmmSatPyby1AlVx9WHUmj9YQZXnZI6RRhui0BKniegl
+         Bp4L5KkXUZfWD6SlN1Mvrh1Lvk3p0ITMLPhbZQCXgqS7Yq+2PZ6lA8nNYPL0qHRDFzT6
+         5FrpxfTqET6rhn/cJiLvzXJ0XafMN+n1STTLYYqei2QcB891AuBOiL0LtdufoxoieDmv
+         VhrwqolLTex1i3JOkNgCh/2wmS9XMMwGcMlZYG7X2l49KbEfZ6DjIIfZw62E5a+gVdTv
+         OwHdtrKmna54ohmVYQnBKcHjgaGCKQFMWyxt7uCVl4q0dm/OyD+28lS8CyPG2PRdOSWf
+         /nrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=BQM5s6KARQo6xsMTrgtyjfqQgxp9yGfc0ghCKKcQtf8=;
+        b=vZLzS0DN/z9hBd0hEku0pOlAUgo+lN7DM0LnPSHanLlGhF8h+0cWNFLd96EUW8r5ds
+         7QS4mdBCNiObb5yD7ET1ZrYu3g1Re+uGpDCE1LZTrt1RRK0z0zEXflaSukwU6kGaLE1X
+         Hz08ymnIb2caUvhN7aP/vHi4DYxi/mbqE3WAAGmAKO30bR+rvUdNtbzxVsTAgT6Zy1RQ
+         OMxwHryYAYIsEYIk/TU85G+xvEF8jK6A3H1ICdcwEXgx+mwL4mE8kONJAWZXFfSlv+qP
+         blCY94yb3pAHdUe+yJH2XSRZPDAaQSsI9qVn5jL7Geh6aI4pmkKw1NJDHkYtvp82UbVx
+         VLYQ==
+X-Gm-Message-State: AOAM531+5wo56F3/7KL2Rcuvps8kGoShkzYU15be1h/Ezi3+/8z9ahJB
+        oth6gGryNlNbiI6pY16QgNBHmprgawShKRlnm0J9wysHzg==
+X-Google-Smtp-Source: ABdhPJyYYX7Wm53Pi2h5di1/gf7hL0sQSYVXL0VPvZQ90klkGVBoawKXG5YHabI6/+DnOGW87KYt9/tNYbHqYtRdtZw=
+X-Received: by 2002:a05:6402:d2:b0:413:2e50:d6fd with SMTP id
+ i18-20020a05640200d200b004132e50d6fdmr10938615edu.171.1647036912117; Fri, 11
+ Mar 2022 14:15:12 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhSNMH8XAKa43kCR8fZj-B1ucCd3R6WXOo3B4z80Bw2Kkw@mail.gmail.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+References: <20220228215935.748017-1-mic@digikod.net> <20220301092232.wh7m3fxbe7hyxmcu@wittgenstein>
+ <f6b63133-d555-a77c-0847-de15a9302283@digikod.net> <CAHC9VhQd3rL-13k0u39Krkdjp2_dtPfgEPxr=kawWUM9FjjOsw@mail.gmail.com>
+ <8d520529-4d3e-4874-f359-0ead9207cead@canonical.com>
+In-Reply-To: <8d520529-4d3e-4874-f359-0ead9207cead@canonical.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 11 Mar 2022 17:15:01 -0500
+Message-ID: <CAHC9VhRrjqe1AdZYtjpzLJyBF6FTeQ4EcEwsOd2YMimA5_tzEA@mail.gmail.com>
+Subject: Re: [PATCH v1] fs: Fix inconsistent f_mode
+To:     John Johansen <john.johansen@canonical.com>,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>,
+        Kentaro Takeda <takedakn@nttdata.co.jp>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Steve French <sfrench@samba.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>,
+        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 11, 2022 at 01:47:51PM -0500, Paul Moore wrote:
-> On Fri, Mar 11, 2022 at 12:11 PM Luis Chamberlain <mcgrof@kernel.org> wrote:
-> > On Thu, Mar 10, 2022 at 07:43:04PM -0700, Jens Axboe wrote:
-> > > On 3/10/22 6:51 PM, Luis Chamberlain wrote:
-> > > > On Tue, Mar 08, 2022 at 08:50:51PM +0530, Kanchan Joshi wrote:
-> > > >> From: Jens Axboe <axboe@kernel.dk>
-> > > >>
-> > > >> This is a file private kind of request. io_uring doesn't know what's
-> > > >> in this command type, it's for the file_operations->async_cmd()
-> > > >> handler to deal with.
-> > > >>
-> > > >> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> > > >> Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
-> > > >> ---
-> > > >
-> > > > <-- snip -->
-> > > >
-> > > >> +static int io_uring_cmd(struct io_kiocb *req, unsigned int issue_flags)
-> > > >> +{
-> > > >> +  struct file *file = req->file;
-> > > >> +  int ret;
-> > > >> +  struct io_uring_cmd *ioucmd = &req->uring_cmd;
-> > > >> +
-> > > >> +  ioucmd->flags |= issue_flags;
-> > > >> +  ret = file->f_op->async_cmd(ioucmd);
-> > > >
-> > > > I think we're going to have to add a security_file_async_cmd() check
-> > > > before this call here. Because otherwise we're enabling to, for
-> > > > example, bypass security_file_ioctl() for example using the new
-> > > > iouring-cmd interface.
-> > > >
-> > > > Or is this already thought out with the existing security_uring_*() stuff?
-> > >
-> > > Unless the request sets .audit_skip, it'll be included already in terms
-> > > of logging.
+On Wed, Mar 9, 2022 at 7:36 PM John Johansen
+<john.johansen@canonical.com> wrote:
+> On 3/9/22 13:31, Paul Moore wrote:
+> > On Tue, Mar 1, 2022 at 5:15 AM Micka=C3=ABl Sala=C3=BCn <mic@digikod.ne=
+t> wrote:
+> >> On 01/03/2022 10:22, Christian Brauner wrote:
+> >>> On Mon, Feb 28, 2022 at 10:59:35PM +0100, Micka=C3=ABl Sala=C3=BCn wr=
+ote:
+> >>>> From: Micka=C3=ABl Sala=C3=BCn <mic@linux.microsoft.com>
+> >>>>
+> >>>> While transitionning to ACC_MODE() with commit 5300990c0370 ("Saniti=
+ze
+> >>>> f_flags helpers") and then fixing it with commit 6d125529c6cb ("Fix
+> >>>> ACC_MODE() for real"), we lost an open flags consistency check.  Ope=
+ning
+> >>>> a file with O_WRONLY | O_RDWR leads to an f_flags containing MAY_REA=
+D |
+> >>>> MAY_WRITE (thanks to the ACC_MODE() helper) and an empty f_mode.
+> >>>> Indeed, the OPEN_FMODE() helper transforms 3 (an incorrect value) to=
+ 0.
+> >>>>
+> >>>> Fortunately, vfs_read() and vfs_write() both check for FMODE_READ, o=
+r
+> >>>> respectively FMODE_WRITE, and return an EBADF error if it is absent.
+> >>>> Before commit 5300990c0370 ("Sanitize f_flags helpers"), opening a f=
+ile
+> >>>> with O_WRONLY | O_RDWR returned an EINVAL error.  Let's restore this=
+ safe
+> >>>> behavior.
+> >>>
+> >>> That specific part seems a bit risky at first glance. Given that the
+> >>> patch referenced is from 2009 this means we've been allowing O_WRONLY=
+ |
+> >>> O_RDWR to succeed for almost 13 years now.
+> >>
+> >> Yeah, it's an old bug, but we should keep in mind that a file descript=
+or
+> >> created with such flags cannot be used to read nor write. However,
+> >> unfortunately, it can be used for things like ioctl, fstat, chdir=E2=
+=80=A6 I
+> >> don't know if there is any user of this trick.
+> >>
+> >> Either way, there is an inconsistency between those using ACC_MODE() a=
+nd
+> >> those using OPEN_FMODE(). If we decide to take a side for the behavior
+> >> of one or the other, without denying to create such FD, it could also
+> >> break security policies. We have to choose what to potentially break=
+=E2=80=A6
 > >
-> > Neat.
-> 
-> [NOTE: added the audit and SELinux lists to the To/CC line]
-> 
-> Neat, but I think we will need to augment things to support this new
-> passthrough mechanism.
-
-That's what my spidey instincts told me.
-
-> The issue is that folks who look at audit logs need to be able to
-> piece together what happened on the system using just what they have
-> in the logs themselves.  As things currently stand with this patchset,
-> the only bit of information they would have to go on would be
-> "uring_op=<IORING_OP_URING_CMD>" which isn't very informative :)
-> 
-> You'll see a similar issue in the newly proposed LSM hook below, we
-> need to be able to record information about not only the passthrough
-> command, e.g. io_uring_cmd::cmd_op, but also the underlying
-> device/handler so that we can put the passthrough command in the right
-> context (as far as I can tell io_uring_cmd::cmd_op is specific to the
-> device).  We might be able to leverage file_operations::owner::name
-> for this, e.g. "uring_passthru_dev=nvme
-> uring_passthru_op=<NVME_IOCTL_IO64_CMD>".
-
-OK...
-
-> > > But I'd prefer not to lodge this in with ioctls, unless
-> > > we're going to be doing actual ioctls.
+> > I'm not really liking the idea that the empty/0 f_mode field leads to
+> > SELinux doing an ioctl access check as opposed to the expected
+> > read|write check.  Yes, other parts of the code catch the problem, but
+> > this is bad from a SELinux perspective.  Looking quickly at the other
+> > LSMs, it would appear that other LSMs are affected as well.
 > >
-> > Oh sure, I have been an advocate to ensure folks don't conflate async_cmd
-> > with ioctl. However it *can* enable subsystems to enable ioctl
-> > passthrough, but each of those subsystems need to vet for this on their
-> > own terms. I'd hate to see / hear some LSM surprises later.
-> 
-> Same :)  Thanks for bringing this up with us while the patches are
-> still in-progress/under-review, I think it makes for a much more
-> pleasant experience for everyone.
-
-Sure thing.
-
-> > > But definitely something to keep in mind and make sure that we're under
-> > > the right umbrella in terms of auditing and security.
+> > If we're not going to fix file::f_mode, the LSMs probably need to
+> > consider using file::f_flags directly in conjunction with a correct
+> > OPEN_FMODE() macro (or better yet a small inline function that isn't
+> > as ugly).
 > >
-> > Paul, how about something like this for starters (and probably should
-> > be squashed into this series so its not a separate commit) ?
-> >
-> > From f3ddbe822374cc1c7002bd795c1ae486d370cbd1 Mon Sep 17 00:00:00 2001
-> > From: Luis Chamberlain <mcgrof@kernel.org>
-> > Date: Fri, 11 Mar 2022 08:55:50 -0800
-> > Subject: [PATCH] lsm,io_uring: add LSM hooks to for the new async_cmd file op
-> >
-> > io-uring is extending the struct file_operations to allow a new
-> > command which each subsystem can use to enable command passthrough.
-> > Add an LSM specific for the command passthrough which enables LSMs
-> > to inspect the command details.
-> >
-> > Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-> > ---
-> >  fs/io_uring.c                 | 5 +++++
-> >  include/linux/lsm_hook_defs.h | 1 +
-> >  include/linux/lsm_hooks.h     | 3 +++
-> >  include/linux/security.h      | 5 +++++
-> >  security/security.c           | 4 ++++
-> >  5 files changed, 18 insertions(+)
-> >
-> > diff --git a/fs/io_uring.c b/fs/io_uring.c
-> > index 3f6eacc98e31..1c4e6b2cb61a 100644
-> > --- a/fs/io_uring.c
-> > +++ b/fs/io_uring.c
-> > @@ -4190,6 +4190,11 @@ static int io_uring_cmd_prep(struct io_kiocb *req,
-> >         struct io_ring_ctx *ctx = req->ctx;
-> >         struct io_uring_cmd *ioucmd = &req->uring_cmd;
-> >         u32 ucmd_flags = READ_ONCE(sqe->uring_cmd_flags);
-> > +       int ret;
-> > +
-> > +       ret = security_uring_async_cmd(ioucmd);
-> > +       if (ret)
-> > +               return ret;
-> 
-> As a quick aside, for the LSM/audit folks the lore link for the full
-> patchset is here:
-> https://lore.kernel.org/io-uring/CA+1E3rJ17F0Rz5UKUnW-LPkWDfPHXG5aeq-ocgNxHfGrxYtAuw@mail.gmail.com/T/#m605e2fb7caf33e8880683fe6b57ade4093ed0643
-> 
-> Similar to what was discussed above with respect to auditing, I think
-> we need to do some extra work here to make it easier for a LSM to put
-> the IO request in the proper context.  We have io_uring_cmd::cmd_op
-> via the @ioucmd parameter, which is good, but we need to be able to
-> associate that with a driver to make sense of it.
+> yeah, I have to agree
 
-It may not always be a driver, it can be built-in stuff.
+The silence on this has been deafening :/  No thoughts on fixing, or
+not fixing OPEN_FMODE(), Al?
 
-> In the case of
-> audit we could simply use the module name string, which is probably
-> ideal as we would want a string anyway, but LSMs will likely want
-> something more machine friendly.  That isn't to say we couldn't do a
-> strcmp() on the module name string, but for something that aims to
-> push performance as much as possible, doing a strcmp() on each
-> operation seems a little less than optimal ;)
+At this point I have to assume OPEN_FMODE() isn't changing so I'm
+going to go ahead with moving SELinux over to file::f_flags.  Once
+I've got something working I'll CC the LSM list on the patches in case
+the other LSMs want to do something similar.  Full disclosure, that
+might not happen until early-to-mid next week due to the weekend, new
+kernel expected on Sunday, etc.
 
-Yes this is a super hot path...
-
-  Luis
+--=20
+paul-moore.com
