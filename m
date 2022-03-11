@@ -2,117 +2,204 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33B31C433EF
-	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 16:03:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 380DBC433F5
+	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 16:03:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239977AbiCKQEV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 11:04:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39810 "EHLO
+        id S235369AbiCKQEy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Mar 2022 11:04:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346375AbiCKQEU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 11:04:20 -0500
-Received: from mail-oo1-xc36.google.com (mail-oo1-xc36.google.com [IPv6:2607:f8b0:4864:20::c36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE6751CE9A8
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:03:16 -0800 (PST)
-Received: by mail-oo1-xc36.google.com with SMTP id 6-20020a4a0906000000b0031d7eb98d31so10954018ooa.10
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:03:16 -0800 (PST)
+        with ESMTP id S1350116AbiCKQEx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 11:04:53 -0500
+Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061101D0341
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:03:49 -0800 (PST)
+Received: by mail-oo1-xc2c.google.com with SMTP id x26-20020a4a9b9a000000b003211029e80fso10977784ooj.5
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 08:03:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=v25kbEGXW8UuA7NXNZLHPqd6YD6gS7xYhePJwYy3uvw=;
-        b=OHCyWLWR1hy7vYmSQY7I/pzDD8dKHXpfyF0SYj1h9sPf5KVz7Kvpk6mL0O5iQBUyq4
-         bYv3lTH5K9czDPDcLtghW7EP9LkRMjQXAvhzQf64v1PTvhqtTVAEiuVEUlTXdMjP/R/E
-         a4v98gZapo2nxZSM53gp3hThr1Qbt9a5msb6elHEp0Tw0o+Foas3oHDYQzdP5553k2Ha
-         +2dhq4aUUechK/2AEHNaLoHpibb8cxQ6I2W2CP0v4T+mrpSK0tkROZwhOEgKgZJcQ1B8
-         APLQucdNEC+Lii56YEYFzOPTcRlSM0dlf9FmtB7/LLRCEonbMmu4sJrvNcwlcEeLSXc2
-         ghww==
+         :cc;
+        bh=/0/jINk0TT7uvhce6r3jpzHNxL7c4MJ/sQZKxtilpRo=;
+        b=cjgCunaiuN3ORyM55kP1IoegWux53p6NBlV3QX26FjOqCZnHWwy1pyVNyUGguPvUcp
+         olSFqXZa5jYxIMuJg8DDp7FSbdXsfvw3EHq2j+siiwTf8rOxf4MD9BhBRqJmqbi2glDy
+         /xRFxz6YUKX55mOxpa5ie+WGZH0D8kKSTUCZPypm81nA6hZ0VfFy/n6kOYnFCTjGnhYU
+         iizDdbVsaDCneuYRTP0kxMWWwJfFnxp1U8Eg/iaeCya5hgYsk8Kwp/8dEBEuT0YYoyHB
+         YuWPeo62txYxfABi/IqE1EgJr6L4Bz3mF58TkiyZv0JtZVshZlONB4HqS1dQm0dKuqBb
+         xZHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=v25kbEGXW8UuA7NXNZLHPqd6YD6gS7xYhePJwYy3uvw=;
-        b=6ig76x1Mh5ZB7hLdgykJ+NmKNNa5vb4+fyT1fw6jTf2F0IjCvvd0fGfUF2+0vimXkh
-         K3X06Z9a7edBZLpyGCwcjroHZ7a+yTK1XKqd4B07aMFbG3/b+lA/NOY4QUhtpikmcuuy
-         WlvMv1AYyo7S4Nux+U1xm56IXuKQMdhU1+8Shg3vi8MXFWBDsi9BWHCOlsVIMQg2wGXH
-         mZSipNtdn1nZLjswxuYJuR0TERAlcfksUEG3WS92Nzp1L3zzMJxueX7SreRVOiLdbmtI
-         w7hBmN8VM7BEibjjS7hh9zkzZowxIuw29V3TXb2TK/dRrWtKZKIAgzbNF28LEy6v/nTb
-         3nUw==
-X-Gm-Message-State: AOAM5334mr+zzrkO6+YeL8jMs66vcOJu/2yf9XlMGlZJlGl2SiuKLfJf
-        YMrdLMsNu5mGie0Svp6fRP+zIKbclLHrUC8JVZvOn7L7
-X-Google-Smtp-Source: ABdhPJxirYBG+lwtqHD46vC4dEcD8MMOdK4hAH0oVcuQ85TXQ0Ag8cVQSYM92LRV/n41+jK5270YOBz0+A1Y9M+nXU8=
+         :message-id:subject:to:cc;
+        bh=/0/jINk0TT7uvhce6r3jpzHNxL7c4MJ/sQZKxtilpRo=;
+        b=5nw3lWFu6HVbHRpU8dwuE7gbngevmAjk1xCKZC3yEY7hHI8m2Es9WMT7bXNhyN+/Yu
+         l81hXk7Gk9/E9CiqlUYvy9TcFGhxdCBuXNg+ra8IX4hAXdlG0vNHAhmjul66PQhsFdMK
+         uuWJEsIQP87uBpVdbqAS4m6X1nqYKFSr+wc+0SdfJuL0AYs/fyQ7nmmH9aPu/EvBH7WF
+         klRyrtWGPdH3pFP2CiOIzlGQyQQdiFAi82IAtA0sDw3U8pRp9XvvwElYbVQfpTcwKDnb
+         cEYAeseVfDXGR9FBBoZL9C7xIUsxziGx/j2rqSKrbFAU+hr8pFErBZxGu8qBNBYDFMY0
+         0zHQ==
+X-Gm-Message-State: AOAM531UFjGP/EVMfRHabRPfZKBtS1LgruDpwpnkrbmRXgwl8NCwP2wQ
+        NmcXBiU3XWXauP4PHOsGaptwBm3JitCqzOAZauWJnMgo
+X-Google-Smtp-Source: ABdhPJwiylW6GTPaej+sT45XslC9fTQg9iFYGvINZPTCfCYX2KckgefC9ujK7WwfdNyggMuXN5t0eCDuSlwMe00iOkU=
 X-Received: by 2002:a05:6870:5a4:b0:da:b3f:3206 with SMTP id
- m36-20020a05687005a400b000da0b3f3206mr5729573oap.182.1647014596319; Fri, 11
- Mar 2022 08:03:16 -0800 (PST)
+ m36-20020a05687005a400b000da0b3f3206mr5730790oap.182.1647014628126; Fri, 11
+ Mar 2022 08:03:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20220303052306.357002-1-tweek@google.com> <CAP+JOzQr0vA4AuEYcvOXHwxcG+bFEjmq=07Z8gLgb0sk=XXXQw@mail.gmail.com>
-In-Reply-To: <CAP+JOzQr0vA4AuEYcvOXHwxcG+bFEjmq=07Z8gLgb0sk=XXXQw@mail.gmail.com>
+References: <20220303214750.566685-1-jwcart2@gmail.com>
+In-Reply-To: <20220303214750.566685-1-jwcart2@gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 11 Mar 2022 11:03:05 -0500
-Message-ID: <CAP+JOzTqOaHbsM4aZuMgr_1BiVnpfYMYs6ODujNmRP5tUP1KBA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: fix reallocarray imports
-To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Alan Stokes <alanstokes@google.com>
+Date:   Fri, 11 Mar 2022 11:03:37 -0500
+Message-ID: <CAP+JOzQucojbrW6wv_5D7n_p_TJHteyf10Cqsi6FKMW3cVttdg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Do a more thorough validation of constraints
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 4, 2022 at 2:53 PM James Carter <jwcart2@gmail.com> wrote:
+On Thu, Mar 3, 2022 at 4:48 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Thu, Mar 3, 2022 at 2:20 AM Thi=C3=A9baud Weksteen <tweek@google.com> =
-wrote:
-> >
-> > In f0a5f6e, calls to reallocarray were introduced. Ensure that the
-> > correct header (private.h) is included when necessary.
-> >
-> > Fixes: f0a5f6e ("libsepol: use reallocarray wrapper to avoid overflows"=
-)
-> > Test: Built using Android CI (glibc 2.17)
-> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> When validating a policydb, do a more thorough validation of the
+> constraints.
+>  - No permissions if it is a (mls)validatetrans.
+>  - Only mlsvalidatetrans can use u3, r3, and t3.
+>  - Expressions not involving types should have an empty type set.
+>  - Only "==" and "!=" are allowed when there are names.
+>  - If names are not used in an expression then both the names bitmap
+>    and the type set should be empty.
+>  - Only roles and mls expressions can used "dom", "domby", and "incomp".
+>  - An mls expression cannot use names.
+>  - If the expression is "not", "and", or "or", then the names bitmap
+>    and the type set should be empty.
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Merged.
-Thanks,
+This has been merged.
 Jim
 
-> > ---
-> >  libsepol/src/kernel_to_common.c | 1 +
-> >  libsepol/src/util.c             | 2 ++
-> >  2 files changed, 3 insertions(+)
-> >
-> > diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_c=
-ommon.c
-> > index dc9e689e..972499ab 100644
-> > --- a/libsepol/src/kernel_to_common.c
-> > +++ b/libsepol/src/kernel_to_common.c
-> > @@ -18,6 +18,7 @@
-> >  #include <sepol/policydb/hashtab.h>
-> >  #include <sepol/policydb/symtab.h>
-> >
-> > +#include "private.h"
-> >  #include "kernel_to_common.h"
-> >
-> >
-> > diff --git a/libsepol/src/util.c b/libsepol/src/util.c
-> > index b7230564..1cd1308d 100644
-> > --- a/libsepol/src/util.c
-> > +++ b/libsepol/src/util.c
-> > @@ -28,6 +28,8 @@
-> >  #include <sepol/policydb/policydb.h>
-> >  #include <sepol/policydb/util.h>
-> >
-> > +#include "private.h"
-> > +
-> >  struct val_to_name {
-> >         unsigned int val;
-> >         char *name;
-> > --
-> > 2.35.1.574.g5d30c73bfb-goog
-> >
+> ---
+>  libsepol/src/policydb_validate.c | 69 ++++++++++++++++++++++----------
+>  1 file changed, 47 insertions(+), 22 deletions(-)
+>
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+> index 735c7a33..2c69f201 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -228,41 +228,69 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+>         constraint_expr_t *cexp;
+>
+>         for (; cons; cons = cons->next) {
+> +               if (nperms == 0 && cons->permissions != 0)
+> +                       goto bad;
+>                 if (nperms > 0 && cons->permissions == 0)
+>                         goto bad;
+>                 if (nperms > 0 && nperms != PERM_SYMTAB_SIZE && cons->permissions >= (UINT32_C(1) << nperms))
+>                         goto bad;
+>
+>                 for (cexp = cons->expr; cexp; cexp = cexp->next) {
+> -                       if (cexp->attr & CEXPR_USER) {
+> -                               if (validate_ebitmap(&cexp->names, &flavors[SYM_USERS]))
+> -                                       goto bad;
+> -                               if (validate_empty_type_set(cexp->type_names))
+> -                                       goto bad;
+> -                       } else if (cexp->attr & CEXPR_ROLE) {
+> -                               if (validate_ebitmap(&cexp->names, &flavors[SYM_ROLES]))
+> +                       if (cexp->expr_type == CEXPR_NAMES) {
+> +                               if (cexp->attr & CEXPR_XTARGET && nperms != 0)
+>                                         goto bad;
+> -                               if (validate_empty_type_set(cexp->type_names))
+> -                                       goto bad;
+> -                       } else if (cexp->attr & CEXPR_TYPE) {
+> -                               if (validate_ebitmap(&cexp->names, &flavors[SYM_TYPES]))
+> +                               if (!(cexp->attr & CEXPR_TYPE)) {
+> +                                       if (validate_empty_type_set(cexp->type_names))
+> +                                               goto bad;
+> +                               }
+> +
+> +                               switch (cexp->op) {
+> +                               case CEXPR_EQ:
+> +                               case CEXPR_NEQ:
+> +                                       break;
+> +                               default:
+>                                         goto bad;
+> -                               if (validate_type_set(cexp->type_names, &flavors[SYM_TYPES]))
+> +                               }
+> +
+> +                               switch (cexp->attr) {
+> +                               case CEXPR_USER:
+> +                               case CEXPR_USER | CEXPR_TARGET:
+> +                               case CEXPR_USER | CEXPR_XTARGET:
+> +                                       if (validate_ebitmap(&cexp->names, &flavors[SYM_USERS]))
+> +                                               goto bad;
+> +                                       break;
+> +                               case CEXPR_ROLE:
+> +                               case CEXPR_ROLE | CEXPR_TARGET:
+> +                               case CEXPR_ROLE | CEXPR_XTARGET:
+> +                                       if (validate_ebitmap(&cexp->names, &flavors[SYM_ROLES]))
+> +                                               goto bad;
+> +                                       break;
+> +                               case CEXPR_TYPE:
+> +                               case CEXPR_TYPE | CEXPR_TARGET:
+> +                               case CEXPR_TYPE | CEXPR_XTARGET:
+> +                                       if (validate_ebitmap(&cexp->names, &flavors[SYM_TYPES]))
+> +                                               goto bad;
+> +                                       if (validate_type_set(cexp->type_names, &flavors[SYM_TYPES]))
+> +                                               goto bad;
+> +                                       break;
+> +                               default:
+>                                         goto bad;
+> -                       } else {
+> +                               }
+> +                       } else if (cexp->expr_type == CEXPR_ATTR) {
+>                                 if (!ebitmap_is_empty(&cexp->names))
+>                                         goto bad;
+>                                 if (validate_empty_type_set(cexp->type_names))
+>                                         goto bad;
+> -                       }
+>
+> -                       if (cexp->expr_type == CEXPR_ATTR || cexp->expr_type == CEXPR_NAMES) {
+>                                 switch (cexp->op) {
+>                                 case CEXPR_EQ:
+>                                 case CEXPR_NEQ:
+> +                                       break;
+>                                 case CEXPR_DOM:
+>                                 case CEXPR_DOMBY:
+>                                 case CEXPR_INCOMP:
+> +                                       if ((cexp->attr & CEXPR_USER) || (cexp->attr & CEXPR_TYPE))
+> +                                               goto bad;
+>                                         break;
+>                                 default:
+>                                         goto bad;
+> @@ -270,14 +298,8 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+>
+>                                 switch (cexp->attr) {
+>                                 case CEXPR_USER:
+> -                               case CEXPR_USER | CEXPR_TARGET:
+> -                               case CEXPR_USER | CEXPR_XTARGET:
+>                                 case CEXPR_ROLE:
+> -                               case CEXPR_ROLE | CEXPR_TARGET:
+> -                               case CEXPR_ROLE | CEXPR_XTARGET:
+>                                 case CEXPR_TYPE:
+> -                               case CEXPR_TYPE | CEXPR_TARGET:
+> -                               case CEXPR_TYPE | CEXPR_XTARGET:
+>                                 case CEXPR_L1L2:
+>                                 case CEXPR_L1H2:
+>                                 case CEXPR_H1L2:
+> @@ -300,9 +322,12 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+>
+>                                 if (cexp->op != 0)
+>                                         goto bad;
+> -
+>                                 if (cexp->attr != 0)
+>                                         goto bad;
+> +                               if (!ebitmap_is_empty(&cexp->names))
+> +                                       goto bad;
+> +                               if (validate_empty_type_set(cexp->type_names))
+> +                                       goto bad;
+>                         }
+>                 }
+>         }
+> --
+> 2.34.1
+>
