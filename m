@@ -2,143 +2,197 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E66FC433EF
-	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 18:44:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A762C4332F
+	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 18:48:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344292AbiCKSpm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 13:45:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
+        id S1350977AbiCKStJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Mar 2022 13:49:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231269AbiCKSpm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 13:45:42 -0500
-Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3701C111185
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 10:44:37 -0800 (PST)
-Received: by mail-oo1-xc2f.google.com with SMTP id r41-20020a4a966c000000b0031bf85a4124so11589491ooi.0
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 10:44:37 -0800 (PST)
+        with ESMTP id S1350937AbiCKStI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 13:49:08 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CDD811A6
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 10:48:04 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id kt27so21119618ejb.0
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 10:48:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5JkLLhMMHUXGuvgLN3MUf3fFq+RiY/tsN+L6ZxEO114=;
-        b=mu3UcIO7HvCM/ehC4UlzjS4RVdrgZI9//Pb4v8cONZIMSHIeLlOVdIvD820Vua36/k
-         UO6tAMBvsHURI9NS/oMwX1Xh07Wf3xZNGO5IkxMe4+OgeTVOma3xQv0GnbPYXMM/g661
-         j47udagx2sBGqqQBnIaKFXXeRS9BmN/NxMltzKi9yX0BDpQ/M7gUPJvngdVF4OOBI7wV
-         2eBShKJ5WJq2Gvt+jbYb5fEO+fr+L5b8HyI146PGhk8pVgG0mFEPDQTmaykcFhcmN6W+
-         tWOybQGV2+muxAhYDhSQeTEzv9xoQ5dgdqI573ZnDlSl/T9F8CCEumT+yYv/OPD4yp1m
-         aBnA==
+         :cc;
+        bh=kf7TOgS7D3Yd0UtSvuZyI1f288zh+DR/XNn+gdcU/e0=;
+        b=XSlS5JP4NOqYU9yEkHISgTvjtxTXflOBHHRlhW6BrF3xKXdrwC1bqvq4RtQkamVzah
+         MlGxtryBa0BwRj3i4tFyPsei6FHGOlx78c823zEb/N6JN1I9Xzc6H50lijaG76ou72LA
+         0m8P7kS6pXUBMAh7tCfYKA39ubF51TnC2Ytr9UfCys5U6IvuuUv+kIH7txETMjSENATr
+         u5AAKXS2mVtA5MnSaN8fwc+YQfNm/wMBjW4HEUr+IIkOCmh9Zcp9OdYNPUO7nF/zRxjA
+         RRQ6U+uhqtgdLkDmuZdeV7MhSicc5az09LIRGObm3zTZWulkunqQUbtv/5QGbQ+dU8oM
+         8ANg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5JkLLhMMHUXGuvgLN3MUf3fFq+RiY/tsN+L6ZxEO114=;
-        b=qu5apnovpq2c8PVwOSxitK542AowEUm12IGBKFogCx8ARFfxc7LVEcHGktrk9B4Pvy
-         WJI5z0Mjb2BVwKCvXUkgaC3nhAdOyqQAKztk8eBhhQMerMXh3Kp0VBtTc7uhUCdsdQMR
-         1SJoV+CFcr4GeSd9hGqDQ6hFVvI1oWPSXw+2RH8ObdqKNZJI1YHFtF5fGuPgD21BWVVP
-         1qJWYf5uehJn0FXzKbFAUcw0HeHM2X1MH5a7LOamnZDDAcVVygrghVRe41If31IHOQxd
-         BsZnYso0h9ZYepqYbAV1uQp9Rwl1oGgA44PvBsINfkcyoL6QdjWLS2a0wx+kOiTsMfO8
-         5WfQ==
-X-Gm-Message-State: AOAM533ufNEMvwnoF3SkkUJbmrswLXDrltrRKmpcaF+hjdT+jXyqecM/
-        1jttSn5Jjij79PnVyzgjA45ACEqhSIGNCHsXkTg=
-X-Google-Smtp-Source: ABdhPJye47sR/95NG0bdmeGsIFp4meEoMc/2RjJJbK5dTOKT/YLGxK+ZSU8VOUaFDX5a++g+3z/BBvNq8bit13k9FNM=
-X-Received: by 2002:a05:6870:1688:b0:da:b3f:321d with SMTP id
- j8-20020a056870168800b000da0b3f321dmr6162895oae.205.1647024276431; Fri, 11
- Mar 2022 10:44:36 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=kf7TOgS7D3Yd0UtSvuZyI1f288zh+DR/XNn+gdcU/e0=;
+        b=VutaOuViiYYh0BA+BPwykjeUev/m/bZv6z+sI0Lkdm/Rep0dWOPRrAgMOlUesqw66G
+         d8jfix1W3VU3bbLlCgWxzav1/TzqBh/WQLOlnreV2P0WIui8vMwxyGyr2+CO8YlP1Khh
+         c81+jKOpn7PmM6uOCycEnDkQpdWdDBxIBV5nTaC0pP75zA9TqjskACtVqmfmXth08sn7
+         0YeJMk2Jp166JOyfiWvIeiffYrlWLlJDoOhelkMpoaU6IA1HQ0KIsjWQGCloon2+qCgT
+         Xt8n2V5B5AOAjMV4oIE842JJOGNnokOg2fzxXXbRDPm7b1EFiCpWmGy8u7BOVlkJRsJl
+         zwcA==
+X-Gm-Message-State: AOAM531EEs7PGUulPgpsBCLy8gGUlx+f4n6y38RiZ4jcCm0ZVmEVfN4Z
+        f8hNTqy7HIY9/P32vZ6Uz91imXp6Q6BbnvRe1F/DTikc0qRg
+X-Google-Smtp-Source: ABdhPJz4r5C9q5aApxVwetcw+DRO04FhjfuFweRhE4YCYNDr38bRHM9Y7Kd06Xnvg+SydBi9uXF6UMJThJnev06sF7k=
+X-Received: by 2002:a17:907:3f86:b0:6db:b745:f761 with SMTP id
+ hr6-20020a1709073f8600b006dbb745f761mr548786ejc.610.1647024482439; Fri, 11
+ Mar 2022 10:48:02 -0800 (PST)
 MIME-Version: 1.0
-References: <20220111220823.596065-1-jwcart2@gmail.com>
-In-Reply-To: <20220111220823.596065-1-jwcart2@gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Fri, 11 Mar 2022 19:44:25 +0100
-Message-ID: <CAJ2a_DdJHS2vRj9c94rFTDHiRt9_yRqEwxfX7KR451Za2iJAsw@mail.gmail.com>
-Subject: Re: [PATCH 0/2 RFC] libsepol: Adding support for not-self rules
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20220308152105.309618-1-joshi.k@samsung.com> <CGME20220308152658epcas5p3929bd1fcf75edc505fec71901158d1b5@epcas5p3.samsung.com>
+ <20220308152105.309618-4-joshi.k@samsung.com> <YiqrE4K5TWeB7aLd@bombadil.infradead.org>
+ <e3bfd028-ece7-d969-f47c-1181b17ac919@kernel.dk> <YiuC1fhEiRdo5bPd@bombadil.infradead.org>
+In-Reply-To: <YiuC1fhEiRdo5bPd@bombadil.infradead.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 11 Mar 2022 13:47:51 -0500
+Message-ID: <CAHC9VhSNMH8XAKa43kCR8fZj-B1ucCd3R6WXOo3B4z80Bw2Kkw@mail.gmail.com>
+Subject: Re: [PATCH 03/17] io_uring: add infra and support for IORING_OP_URING_CMD
+To:     Luis Chamberlain <mcgrof@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        linux-security-module@vger.kernel.org, linux-audit@redhat.com
+Cc:     Kanchan Joshi <joshi.k@samsung.com>, jmorris@namei.org,
+        serge@hallyn.com, ast@kernel.org, daniel@iogearbox.net,
+        andrii@kernel.org, kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org, hch@lst.de,
+        kbusch@kernel.org, asml.silence@gmail.com,
+        io-uring@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-block@vger.kernel.org, sbates@raithlin.com,
+        logang@deltatee.com, pankydev8@gmail.com, javier@javigon.com,
+        a.manzanares@samsung.com, joshiiitr@gmail.com,
+        anuj20.g@samsung.com, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 11 Jan 2022 at 23:08, James Carter <jwcart2@gmail.com> wrote:
+On Fri, Mar 11, 2022 at 12:11 PM Luis Chamberlain <mcgrof@kernel.org> wrote:
+> On Thu, Mar 10, 2022 at 07:43:04PM -0700, Jens Axboe wrote:
+> > On 3/10/22 6:51 PM, Luis Chamberlain wrote:
+> > > On Tue, Mar 08, 2022 at 08:50:51PM +0530, Kanchan Joshi wrote:
+> > >> From: Jens Axboe <axboe@kernel.dk>
+> > >>
+> > >> This is a file private kind of request. io_uring doesn't know what's
+> > >> in this command type, it's for the file_operations->async_cmd()
+> > >> handler to deal with.
+> > >>
+> > >> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > >> Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
+> > >> ---
+> > >
+> > > <-- snip -->
+> > >
+> > >> +static int io_uring_cmd(struct io_kiocb *req, unsigned int issue_flags)
+> > >> +{
+> > >> +  struct file *file = req->file;
+> > >> +  int ret;
+> > >> +  struct io_uring_cmd *ioucmd = &req->uring_cmd;
+> > >> +
+> > >> +  ioucmd->flags |= issue_flags;
+> > >> +  ret = file->f_op->async_cmd(ioucmd);
+> > >
+> > > I think we're going to have to add a security_file_async_cmd() check
+> > > before this call here. Because otherwise we're enabling to, for
+> > > example, bypass security_file_ioctl() for example using the new
+> > > iouring-cmd interface.
+> > >
+> > > Or is this already thought out with the existing security_uring_*() stuff?
+> >
+> > Unless the request sets .audit_skip, it'll be included already in terms
+> > of logging.
 >
-> These patches depend on the 16 patch set that refactors and fixes asserti=
-on checking.
+> Neat.
+
+[NOTE: added the audit and SELinux lists to the To/CC line]
+
+Neat, but I think we will need to augment things to support this new
+passthrough mechanism.
+
+The issue is that folks who look at audit logs need to be able to
+piece together what happened on the system using just what they have
+in the logs themselves.  As things currently stand with this patchset,
+the only bit of information they would have to go on would be
+"uring_op=<IORING_OP_URING_CMD>" which isn't very informative :)
+
+You'll see a similar issue in the newly proposed LSM hook below, we
+need to be able to record information about not only the passthrough
+command, e.g. io_uring_cmd::cmd_op, but also the underlying
+device/handler so that we can put the passthrough command in the right
+context (as far as I can tell io_uring_cmd::cmd_op is specific to the
+device).  We might be able to leverage file_operations::owner::name
+for this, e.g. "uring_passthru_dev=nvme
+uring_passthru_op=<NVME_IOCTL_IO64_CMD>".
+
+> > But I'd prefer not to lodge this in with ioctls, unless
+> > we're going to be doing actual ioctls.
 >
-> The first patch is based on patches by Christian G=C3=B6ttsche <cgzones@g=
-ooglemail.com>
-> sent to the list on November 23rd. His patch adding support to checkpolic=
-y is meant
-> to be used with these patches.
+> Oh sure, I have been an advocate to ensure folks don't conflate async_cmd
+> with ioctl. However it *can* enable subsystems to enable ioctl
+> passthrough, but each of those subsystems need to vet for this on their
+> own terms. I'd hate to see / hear some LSM surprises later.
+
+Same :)  Thanks for bringing this up with us while the patches are
+still in-progress/under-review, I think it makes for a much more
+pleasant experience for everyone.
+
+> > But definitely something to keep in mind and make sure that we're under
+> > the right umbrella in terms of auditing and security.
 >
-> The second patch adds support for not-self rules to CIL. Currently, it wo=
-rks for all
-> access vector rules, but I am not sure if that is needed or wise.
-
-Probably not caused by this patch set I noticed one inconvenience
-duplicate reporting with the following example:
-
-    attribute test_a;
-    type test1_t, test_a;
-    type test2_t, test_a;
-    allow test_a test_a:xdp_socket ioctl;
-    allowxperm test_a test6_a:xdp_socket ioctl 0x0002;
-    neverallowxperm test1_t { test_a }:xdp_socket ioctl 0x0002;
-
-The output looks like:
-
-    libsepol.report_assertion_extended_permissions: neverallowxperm on
-line 534 of policy/modules/kernel/kernel.te (or line 49039 of
-policy.conf) violated by
-    allowxperm test_a test_a:xdp_socket ioctl { 0x2 };
-    libsepol.report_assertion_extended_permissions: neverallowxperm on
-line 534 of policy/modules/kernel/kernel.te (or line 49039 of
-policy.conf) violated by
-    allowxperm test_a test_a:xdp_socket ioctl { 0x2 };
-
-due to the two access permissions, one for test1_t on test1_t and one
-for test1_t on test2_t.
-
-
-Rebasing on to master should update validation due to ff25475c
-("libsepol: validate several flags "):
-
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -851,6 +851,7 @@ static int validate_avrules(sepol_handle_t
-*handle, avrule_t *avrule, int condit
-               switch(avrule->flags) {
-               case 0:
-               case RULE_SELF:
-+               case RULE_NOTSELF:
-                       break;
-               default:
-                       goto bad;
-
-Otherwise together with ("checkpolicy: add not-self neverallow support") [1=
-]
-
-Tested-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-
-[1]: https://patchwork.kernel.org/project/selinux/patch/20211204103516.1737=
-5-3-cgzones@googlemail.com/
-
+> Paul, how about something like this for starters (and probably should
+> be squashed into this series so its not a separate commit) ?
 >
-> James Carter (2):
->   libsepol: Add not self support for neverallow rules
->   libsepol/cil: Add notself and minusself support to CIL
+> From f3ddbe822374cc1c7002bd795c1ae486d370cbd1 Mon Sep 17 00:00:00 2001
+> From: Luis Chamberlain <mcgrof@kernel.org>
+> Date: Fri, 11 Mar 2022 08:55:50 -0800
+> Subject: [PATCH] lsm,io_uring: add LSM hooks to for the new async_cmd file op
 >
->  libsepol/cil/src/cil.c                     |  12 ++
->  libsepol/cil/src/cil_binary.c              |  91 ++++++++-
->  libsepol/cil/src/cil_build_ast.c           |  10 +-
->  libsepol/cil/src/cil_find.c                | 206 ++++++++++++++++++---
->  libsepol/cil/src/cil_internal.h            |   4 +
->  libsepol/cil/src/cil_resolve_ast.c         |   4 +
->  libsepol/cil/src/cil_verify.c              |   3 +-
->  libsepol/include/sepol/policydb/policydb.h |   3 +-
->  libsepol/src/assertion.c                   | 144 +++++++++++---
->  9 files changed, 467 insertions(+), 64 deletions(-)
+> io-uring is extending the struct file_operations to allow a new
+> command which each subsystem can use to enable command passthrough.
+> Add an LSM specific for the command passthrough which enables LSMs
+> to inspect the command details.
 >
-> --
-> 2.31.1
+> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+> ---
+>  fs/io_uring.c                 | 5 +++++
+>  include/linux/lsm_hook_defs.h | 1 +
+>  include/linux/lsm_hooks.h     | 3 +++
+>  include/linux/security.h      | 5 +++++
+>  security/security.c           | 4 ++++
+>  5 files changed, 18 insertions(+)
 >
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 3f6eacc98e31..1c4e6b2cb61a 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -4190,6 +4190,11 @@ static int io_uring_cmd_prep(struct io_kiocb *req,
+>         struct io_ring_ctx *ctx = req->ctx;
+>         struct io_uring_cmd *ioucmd = &req->uring_cmd;
+>         u32 ucmd_flags = READ_ONCE(sqe->uring_cmd_flags);
+> +       int ret;
+> +
+> +       ret = security_uring_async_cmd(ioucmd);
+> +       if (ret)
+> +               return ret;
+
+As a quick aside, for the LSM/audit folks the lore link for the full
+patchset is here:
+https://lore.kernel.org/io-uring/CA+1E3rJ17F0Rz5UKUnW-LPkWDfPHXG5aeq-ocgNxHfGrxYtAuw@mail.gmail.com/T/#m605e2fb7caf33e8880683fe6b57ade4093ed0643
+
+Similar to what was discussed above with respect to auditing, I think
+we need to do some extra work here to make it easier for a LSM to put
+the IO request in the proper context.  We have io_uring_cmd::cmd_op
+via the @ioucmd parameter, which is good, but we need to be able to
+associate that with a driver to make sense of it.  In the case of
+audit we could simply use the module name string, which is probably
+ideal as we would want a string anyway, but LSMs will likely want
+something more machine friendly.  That isn't to say we couldn't do a
+strcmp() on the module name string, but for something that aims to
+push performance as much as possible, doing a strcmp() on each
+operation seems a little less than optimal ;)
+
+-- 
+paul-moore.com
